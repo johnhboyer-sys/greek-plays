@@ -1,0 +1,43 @@
+---
+// Every work's reader routes at /<author>/<work>/book/<n>. Bookless works
+// (Categories, Poetics, …) are a single treatise and only ever generate book
+// 1; multi-book works generate one page per book. The bare /<author>/<work>
+// slug is the landing page (src/pages/[author]/[work]/index.astro), not the
+// reader.
+import ReaderShell from '../../../../components/ReaderShell.astro';
+import { getWorkBySlug, workSlug } from '@shared/lib/works';
+import { getAuthor } from '@shared/lib/authors';
+import { builtWorks } from '../../../../lib/built-works';
+import '@shared/styles/global.css';
+
+// One {author, work, n} triple per *built* work × its book range. `work` in
+// the URL is the work's SLUG (see [author]/[work]/index.astro's matching
+// comment), not necessarily its id. The registry may list works whose data
+// isn't built in this checkout; only works with public/data/<id>/manifest.json
+// emit reader pages (see built-works.ts). A work with no resolvable author is
+// a build-time bug, not a page silently missing its author segment.
+export function getStaticPaths() {
+  return builtWorks().flatMap((w) => {
+    const author = getAuthor(w.author);
+    if (!author) {
+      throw new Error(`[author]/[work]/book/[n]: work '${w.id}' has unresolvable author '${w.author}'`);
+    }
+    return Array.from({ length: w.books }, (_, i) => ({
+      params: { author: author.id, work: workSlug(w), n: String(i + 1) },
+    }));
+  });
+}
+
+const authorParam = Astro.params.author!;
+const slugParam = Astro.params.work!;
+const n = Number(Astro.params.n);
+// Resolve the URL's (author, slug) pair back to the work — also the guard
+// against a stale/mismatched pair: a slug that exists but isn't owned by
+// this author resolves to nothing.
+const work = getWorkBySlug(authorParam, slugParam);
+if (!work) {
+  throw new Error(`[author]/[work]/book/[n]: no work at author '${authorParam}' slug '${slugParam}'`);
+}
+const workId = work.id;
+---
+<ReaderShell workId={workId} n={n} />

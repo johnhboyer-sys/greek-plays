@@ -1,0 +1,37 @@
+---
+import { getWorkBySlug } from '@shared/lib/works';
+import { citationRoutes } from '../../../lib/citation-routes';
+
+export function getStaticPaths() {
+  return citationRoutes.map((route) => ({
+    params: { author: route.author, work: route.work, cite: route.cite },
+    props: { bookN: route.bookN },
+  }));
+}
+
+const author = Astro.params.author!;
+const slug = Astro.params.work!;
+const cite = Astro.params.cite!;
+const { bookN } = Astro.props;
+const work = getWorkBySlug(author, slug);
+if (!work) {
+  throw new Error(`[author]/[work]/[cite]: no work at author '${author}' slug '${slug}'`);
+}
+const target = `/${author}/${slug}/book/${bookN}?loc=${encodeURIComponent(cite)}`;
+const title = `${work.title} ${cite}`;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <link rel="canonical" href={target} />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <script is:inline define:vars={{ target }}>location.replace(target);</script>
+  </head>
+  <body>
+    <!-- DRAFT copy pending John's approval. -->
+    <p>{work.title} {cite}. <a href={target}>Continue to the passage</a>.</p>
+  </body>
+</html>

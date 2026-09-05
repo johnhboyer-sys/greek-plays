@@ -1,0 +1,35 @@
+# Self-contained schema-only fixture (used by test_preflight.py's schema
+# tests, which validate manifest SHAPE only — no matching data/ tree here).
+# A flat, bookless `section`-scheme work, used to test the `no_english`
+# relaxation extended to `scheme.flat_numeric` (previously only book-section/
+# verse-line could omit `english`). Originally a Cicero (Latin) fixture; the
+# no_english relaxation itself is language-independent, so this stayed
+# 'grc' when Latin/PHI support was removed in the drama fork (docs/plan.md
+# §1) rather than being deleted along with it.
+work:
+  id: FlatLatin
+  title: "Flat Fixture"
+  author: "fixture-author"
+  language: "grc"
+  lexicon: true
+  no_english: true
+  tlg_author: "0000"
+  tlg_work: "999"
+  greek_edition: "Fixture Edition"
+
+citation:
+  scheme: section
+  hideLineNumbers: true
+  div_types:
+    page: "section"
+
+section_spine: { count: 10, sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+
+books:
+  - { n: 1, start: "1", end: "10" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"

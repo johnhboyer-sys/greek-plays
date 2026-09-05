@@ -1,0 +1,120 @@
+{
+  "schema_version": "snapshot.v1",
+  "wings": [
+    {
+      "id": "greek-philosophy",
+      "name": "Greek Philosophy",
+      "description": "Read Greek philosophy from the early thinkers through the major Hellenistic schools and their later interpreters.",
+      "corpora": [
+        "classical"
+      ],
+      "memberships": [
+        {
+          "work": "meditations",
+          "wing_note": "Stoic reflection in the Roman imperial period."
+        },
+        {
+          "work": "lives",
+          "wing_note": "Ancient biographies and reports of Greek philosophers."
+        },
+        {
+          "work": "discourses",
+          "wing_note": "Epictetus on judgment, freedom, and practice."
+        },
+        {
+          "work": "enchiridion",
+          "wing_note": "A concise guide to Epictetan ethics."
+        },
+        {
+          "work": "epicurus-letter-to-menoeceus",
+          "wing_note": "Epicurus on happiness, desire, and death."
+        },
+        {
+          "work": "epicurus-letter-to-herodotus",
+          "wing_note": "Epicurus' summary of physics and knowledge."
+        }
+      ],
+      "featured": [
+        {
+          "work": "meditations",
+          "blurb": "Marcus Aurelius tests Stoic principles against the demands of daily life."
+        },
+        {
+          "work": "lives",
+          "blurb": "Diogenes Laertius preserves a broad ancient record of philosophical lives and teachings."
+        }
+      ],
+      "paths": [
+        {
+          "id": "living-a-philosophy",
+          "title": "Living a Philosophy",
+          "description": "Three approaches to turning philosophical claims into habits of thought and action.",
+          "stops": [
+            {
+              "work": "epicurus-letter-to-menoeceus",
+              "note": "Begin with Epicurus' compact account of a good life."
+            },
+            {
+              "work": "enchiridion",
+              "locus": "1",
+              "note": "Compare Epictetus' opening distinction between what depends on us and what does not."
+            },
+            {
+              "work": "meditations",
+              "locus": "2.1",
+              "note": "End with Marcus Aurelius preparing himself for the day."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "roman",
+      "name": "Roman Thought",
+      "description": "Latin philosophy, ethics, and political thought from the Roman world.",
+      "corpora": [
+        "classical"
+      ],
+      "memberships": [],
+      "featured": []
+    },
+    {
+      "id": "american",
+      "name": "American Thought",
+      "description": "Philosophical works written in the United States and its earlier intellectual traditions.",
+      "corpora": [],
+      "memberships": [],
+      "featured": []
+    }
+  ],
+  "taxonomy": {
+    "author_period_order": [
+      "presocratic",
+      "sophists",
+      "classical",
+      "hellenistic",
+      "roman",
+      "imperial",
+      "late-antique"
+    ],
+    "period_label": {
+      "presocratic": "Presocratics",
+      "sophists": "Sophists",
+      "classical": "Classical",
+      "hellenistic": "Hellenistic",
+      "roman": "Roman",
+      "imperial": "Imperial",
+      "late-antique": "Late Antiquity"
+    },
+    "school_label": {
+      "milesian": "Milesians",
+      "pythagorean": "Pythagoreans",
+      "eleatic": "Eleatics",
+      "pluralist": "Pluralists",
+      "atomist": "Atomists",
+      "peripatetic": "Peripatetic",
+      "neoplatonist": "Neoplatonist"
+    }
+  },
+  "start_here": []
+}

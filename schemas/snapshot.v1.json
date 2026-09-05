@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lyceum-reader.org/schemas/snapshot.v1.json",
+  "title": "Lyceum library snapshot v1",
+  "description": "A versioned view of the library's sections, their works, featured readings, and curated paths.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "wings"],
+  "properties": {
+    "schema_version": { "const": "snapshot.v1" },
+    "wings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/wing" }
+    },
+    "generated": { "type": "string", "format": "date-time" },
+    "taxonomy": { "$ref": "#/$defs/taxonomy" },
+    "start_here": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "taxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["author_period_order", "period_label", "school_label"],
+      "properties": {
+        "author_period_order": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "period_label": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "school_label": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "workRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work"],
+      "properties": {
+        "work": { "type": "string", "minLength": 1 },
+        "wing_note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "featuredRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work"],
+      "properties": {
+        "work": { "type": "string", "minLength": 1 },
+        "blurb": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work"],
+      "properties": {
+        "work": { "type": "string", "minLength": 1 },
+        "locus": { "type": "string", "minLength": 1 },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "path": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "description", "stops"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "stops": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/stop" }
+        }
+      }
+    },
+    "wing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "description", "corpora", "memberships", "featured"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "corpora": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "memberships": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/workRef" }
+        },
+        "featured": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/featuredRef" }
+        },
+        "paths": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/path" }
+        }
+      }
+    }
+  }
+}

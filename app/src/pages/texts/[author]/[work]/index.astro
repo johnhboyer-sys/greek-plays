@@ -1,0 +1,45 @@
+---
+// Partner-catalog alias, one per built work: /texts/<author>/<work>/ redirects
+// to the work's real landing page at /<author>/<work> (see
+// ../../../[author]/[work]/index.astro). A static citation-shim page, same
+// technique as ../../../[author]/[work]/[cite].astro — meta refresh + JS
+// replace + a visible fallback link — so it always returns 200 even if a
+// partner links straight to it without following the redirect.
+import { getWorkBySlug, workSlug } from '@shared/lib/works';
+import { getAuthor } from '@shared/lib/authors';
+import { builtWorks } from '../../../../lib/built-works';
+
+export function getStaticPaths() {
+  return builtWorks().map((w) => {
+    const author = getAuthor(w.author);
+    if (!author) {
+      throw new Error(`texts/[author]/[work]: work '${w.id}' has unresolvable author '${w.author}'`);
+    }
+    return { params: { author: author.id, work: workSlug(w) } };
+  });
+}
+
+const author = Astro.params.author!;
+const slug = Astro.params.work!;
+const work = getWorkBySlug(author, slug);
+if (!work) {
+  throw new Error(`texts/[author]/[work]: no work at author '${author}' slug '${slug}'`);
+}
+const target = `/${author}/${slug}`;
+const title = work.title;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <link rel="canonical" href={target} />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <script is:inline define:vars={{ target }}>location.replace(target);</script>
+  </head>
+  <body>
+    <!-- DRAFT copy pending John's approval. -->
+    <p>{title}. <a href={target}>Continue to {title}</a>.</p>
+  </body>
+</html>
