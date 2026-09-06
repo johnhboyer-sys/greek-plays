@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sys
 import unicodedata
@@ -40,7 +41,11 @@ Problem = tuple[str, str, str]
 # "non-empty string" gate silently and either get treated as a plain
 # direct-map translation (skipping every concordance hash/anchor check) or
 # fail deep inside a later stage instead of at preflight.
-_LEGAL_ENGLISH_MODELS = {"archive", "chapter_concordance", "perseus_stephanus", "freeman"}
+_LEGAL_ENGLISH_MODELS = {
+    "archive", "chapter_concordance", "perseus_stephanus", "freeman",
+    "perseus-play",
+}
+PUBLIC_DOMAIN_ALLOWLIST_PATH = Path(__file__).with_name("public_domain_translations.yaml")
 
 
 def _stephanus_like_dispatch(scheme) -> bool:
@@ -116,6 +121,7 @@ def validate(data_dir: Path, manifests_dir: Path) -> list[Problem]:
     manifests = _load_manifests(manifests_dir, problems)
     for manifest in manifests:
         _validate_manifest_schema(manifest, problems)
+        _validate_public_domain_allowlist(manifest, problems)
         _validate_work_data(data_dir, manifest, problems)
     return problems
 
@@ -508,7 +514,8 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
         if not isinstance(primary, dict):
             problems.append((manifest.work_id, file_name, "english.primary must be an object"))
         else:
-            for key in ["id", "name", "model", "file"]:
+            source_key = "source" if primary.get("model") == "perseus-play" else "file"
+            for key in ["id", "name", "model", source_key]:
                 if not isinstance(primary.get(key), str) or not primary.get(key):
                     problems.append((manifest.work_id, file_name, f"english.primary.{key} must be a non-empty string"))
             # MAJOR 2 fix (Sol adversarial review): a non-empty string was
@@ -530,6 +537,10 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
                     problems.append((manifest.work_id, file_name,
                                      f"english.primary.model {model!r} is not a recognized model "
                                      f"-- expected one of {sorted(_LEGAL_ENGLISH_MODELS)}"))
+                elif scheme.play_line_scheme and model != "perseus-play":
+                    problems.append((manifest.work_id, file_name,
+                                     "a play-line work with English must use "
+                                     "english.primary.model 'perseus-play'"))
                 elif model == "chapter_concordance" and not (scheme.flat_numeric or scheme.numeric_section):
                     problems.append((manifest.work_id, file_name,
                                      "english.primary.model 'chapter_concordance' is only "
@@ -555,6 +566,10 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
                                      "supported for a Stephanus-paginated (has_sections, "
                                      "non numeric_section/flat_numeric/verse_line/fragment) "
                                      "scheme"))
+                elif model == "perseus-play" and not scheme.play_line_scheme:
+                    problems.append((manifest.work_id, file_name,
+                                     "english.primary.model 'perseus-play' is only "
+                                     "supported for the play-line scheme"))
                 elif model == "archive" and stephanus_like:
                     # The has_sections branch's runtime dispatch only ever
                     # recognizes `perseus_stephanus` -- any other model
@@ -568,6 +583,15 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
                                      "this scheme -- __main__.py's has_sections dispatch only "
                                      "recognizes 'perseus_stephanus' and would otherwise "
                                      "silently ship this work with no English at all"))
+            if primary.get("model") == "perseus-play":
+                if primary.get("anchor_model") != "sp-line":
+                    problems.append((manifest.work_id, file_name,
+                                     "english.primary.anchor_model must be 'sp-line' "
+                                     "for the perseus-play model"))
+                if not isinstance(primary.get("footnotes"), bool):
+                    problems.append((manifest.work_id, file_name,
+                                     "english.primary.footnotes must be a boolean "
+                                     "for the perseus-play model"))
             # `chapter_concordance` (De Fato — Yonge's chapter-keyed
             # translation over a flat spine, stage1_chapter_concordance_
             # english.py) needs a second source file the other flat-scheme
@@ -2350,6 +2374,93 @@ def _validate_public_gating(
                     overlays = segment.get("overlays")
                     if isinstance(overlays, dict) and overlay_id in overlays:
                         problems.append((manifest.work_id, file_name, f"private overlay {overlay_id!r} appears in public data"))
+
+
+def load_public_domain_allowlist(path: Path | None = None) -> dict[str, dict[str, Any]]:
+    """Load the positive translation allowlist, or fail closed."""
+    if path is None:
+        override = os.environ.get("DRAMA_PUBLIC_DOMAIN_ALLOWLIST")
+        path = Path(override) if override else PUBLIC_DOMAIN_ALLOWLIST_PATH
+    if not path.is_file():
+        raise ValueError(f"public-domain allowlist missing: {path}")
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError("public-domain allowlist root must be an object")
+    entries = raw.get("translations")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("public-domain allowlist translations must be a non-empty list")
+
+    allowed: dict[str, dict[str, Any]] = {}
+    for index, item in enumerate(entries):
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"public-domain allowlist translations[{index}] must be an object"
+            )
+        translation_id = item.get("id")
+        if not isinstance(translation_id, str) or not translation_id:
+            raise ValueError(
+                f"public-domain allowlist translations[{index}].id must be a non-empty string"
+            )
+        if translation_id in allowed:
+            raise ValueError(
+                f"public-domain allowlist has duplicate id {translation_id!r}"
+            )
+        translator = item.get("translator")
+        year = item.get("year")
+        note = item.get("note")
+        if not isinstance(translator, str) or not translator:
+            raise ValueError(
+                f"public-domain allowlist {translation_id!r}: translator must be a non-empty string"
+            )
+        if not isinstance(year, int):
+            raise ValueError(
+                f"public-domain allowlist {translation_id!r}: year must be an integer"
+            )
+        if not isinstance(note, str) or not note:
+            raise ValueError(
+                f"public-domain allowlist {translation_id!r}: note must be a non-empty string"
+            )
+        allowed[translation_id] = item
+    return allowed
+
+
+def manifest_translation_ids(data: dict[str, Any]) -> list[tuple[str, str]]:
+    """Return every declared ``english`` slot and its translation id."""
+    english = data.get("english") if isinstance(data.get("english"), dict) else {}
+    found: list[tuple[str, str]] = []
+    for slot in ("primary", "secondary", "third"):
+        entry = english.get(slot)
+        if isinstance(entry, dict) and isinstance(entry.get("id"), str) and entry["id"]:
+            found.append((slot, entry["id"]))
+    for entry in english.get("overlays") or []:
+        if isinstance(entry, dict) and isinstance(entry.get("id"), str) and entry["id"]:
+            found.append((f"overlay:{entry['id']}", entry["id"]))
+    return found
+
+
+def _validate_public_domain_allowlist(
+    manifest: WorkManifest,
+    problems: list[Problem],
+    *,
+    allowlist_path: Path | None = None,
+) -> None:
+    """Require a positive allowlist entry for every English translation."""
+    label = (allowlist_path or PUBLIC_DOMAIN_ALLOWLIST_PATH).name
+    try:
+        allowed = load_public_domain_allowlist(allowlist_path)
+    except Exception as exc:
+        problems.append((manifest.work_id, label, str(exc)))
+        return
+    for slot, translation_id in manifest_translation_ids(manifest.data):
+        if translation_id not in allowed:
+            problems.append(
+                (
+                    manifest.work_id,
+                    manifest.path.name,
+                    f"translation id {translation_id!r} ({slot}) is not on the "
+                    "public-domain allowlist",
+                )
+            )
 
 
 def _omitted_translation_slots(private: dict[str, Any], public: dict[str, Any]) -> set[str]:

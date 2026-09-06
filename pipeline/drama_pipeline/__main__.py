@@ -31,7 +31,8 @@ def _stage1(manifest):
     # is rewritten below only when this work declares english.secondary.
     for scratch in ("ross_chunks.json", "third_chunks.json", "third_footnotes.json",
                     "overlays.json", "paratext.json", "context_english.json",
-                    "citation_expansion.json"):
+                    "citation_expansion.json", "english_report.json",
+                    "english_footnotes.json"):
         (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
 
     # Section-scheme works can opt into a parallel Perseus Stephanus TEI pass.
@@ -51,15 +52,33 @@ def _stage1(manifest):
             f"scheme {sch.name!r} has no English builder in drama_pipeline"
         )
     if sch.play_line_scheme:
-        # play-line (P1 — Greek-only): no English builder yet (P2). Mirrors
-        # the has_sections branch's own Greek-only posture below (stale
-        # English scratch removed so a previous different-scheme work's
-        # leftovers never leak into this build).
-        for scratch in ("english_chunks.json", "alignment.json"):
-            (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
+        primary = ((manifest.data.get("english") or {}).get("primary") or {})
+        if primary:
+            if primary.get("model") != "perseus-play":
+                raise NotImplementedError(
+                    f"play-line English model {primary.get('model')!r} is not supported"
+                )
+            from . import stage1_perseus_play_english
+
+            eng_path, align_path, report_path = stage1_perseus_play_english.run(
+                manifest, spine
+            )
+            english = json.loads(eng_path.read_text(encoding="utf-8"))
+            alignment = json.loads(align_path.read_text(encoding="utf-8"))
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            unmatched = [p for p in alignment["pairs"] if p["english"] is None]
+            print(
+                f"  english chunks={len(english['chunks'])} "
+                f"({english['translation']}) unmatched={len(unmatched)} "
+                f"anchors={report['anchor_count']} snaps={report['snap_count']}"
+            )
+        else:
+            for scratch in ("english_chunks.json", "alignment.json"):
+                (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
         n_lines = sum(len(s["lines"]) for s in spine["segments"])
         n_speakers = sum(len(s.get("speakers", [])) for s in spine["segments"])
-        print(f"stage1 (greek-only, play-line): segments={len(spine['segments'])} "
+        print(f"stage1 ({'greek+english' if primary else 'greek-only'}, play-line): "
+              f"segments={len(spine['segments'])} "
               f"lines={n_lines} speakers={n_speakers} "
               f"unassigned={len(spine['unassigned_lines'])}")
         return

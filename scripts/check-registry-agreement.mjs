@@ -172,8 +172,17 @@ export async function checkRegistryAgreement() {
 
 async function runSelfTest() {
   const manifests = await loadManifestDocuments();
-  const source = manifests.find(({ doc }) => Array.isArray(doc?.registry?.translations) && doc.registry.translations.length >= 2);
-  if (!source) throw new Error('self-test needs a loaded manifest with at least two registry translations');
+  const loaded = manifests.find(({ doc }) => Array.isArray(doc?.registry?.translations) && doc.registry.translations.length >= 1);
+  if (!loaded) throw new Error('self-test needs a loaded manifest with a registry translation');
+  const source = { ...loaded, doc: structuredClone(loaded.doc) };
+  if (source.doc.registry.translations.length < 2) {
+    source.doc.english.secondary = {
+      id: 'registry-self-test-secondary', name: 'Self-test', model: 'archive', file: 'test.json',
+    };
+    source.doc.registry.translations.push({
+      id: 'registry-self-test-secondary', name: 'Self-test', short: 'Test', slot: 'secondary',
+    });
+  }
 
   const cases = [
     {

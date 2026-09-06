@@ -272,3 +272,31 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 
 - `shared/components/Search.svelte` — a chapterless (work-wide) result group opens by default like a single-instance group, instead of collapsing multi-hit play-line results behind a click.
 - `shared/lib/search.ts` — added `invalidateSearchIndex(work)`, mirroring `data.ts`'s `invalidateBookCache`, so a test (or a future re-fetch need) can force a work's cached meta/lemma/form/english index files to reload.
+## P2a — Agamemnon English pilot (2026-09-06)
+
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` (new) — cuts
+  Smyth's `<sp>/<l n>` prose onto Greek play-line segments, snaps missing
+  anchors, keeps raw speaker turns, and extracts unique Loeb footnotes.
+- `pipeline/drama_pipeline/__main__.py` — dispatches `play-line` manifests
+  with `english.primary.model: perseus-play` to the new builder while keeping
+  declared Greek-only plays sparse and safe from stale scratch files.
+- `pipeline/drama_pipeline/preflight.py` — accepts the `perseus-play` source
+  shape and checks every English id against a fail-closed public-domain list.
+- `pipeline/drama_pipeline/stage2_validate.py` — treats anchorless play-line
+  segments as the `perseus-play` model's stated sparse coverage, while keeping
+  English-only ids fatal.
+- `pipeline/drama_pipeline/public_domain_translations.yaml` (new) — positive
+  US public-domain list for the planned tragedy and comedy translations, with
+  O'Neill's 1938 Aristophanes translations denied in a source comment.
+- `pipeline/drama_pipeline/stage7_emit.py` — emits the primary play
+  translation's footnote map and reports raw English/Greek roster differences.
+- `pipeline/tests/test_stage1_perseus_play_english.py` (new) — covers segment
+  cuts, real ticks, snapping, deleted text, note labels, turns, and coverage.
+- `pipeline/tests/test_public_domain_allowlist.py` (new) — covers allowlist
+  success plus missing-file, unknown-id, and empty-list failures.
+- `pipeline/tests/test_preflight.py` — points end-to-end legacy fixtures at
+  their own small public-domain test list.
+- `pipeline/tests/fixtures/preflight/public_domain_translations.yaml` (new) —
+  keeps old corpus fixtures explicit under the new rights gate.
+- `scripts/check-registry-agreement.mjs` — lets its corruption self-test use
+  the one-translation pilot by adding a matched in-memory second slot.

@@ -333,6 +333,14 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
     # page milestone, or assigns a book-straddling column to a single book) are
     # declared in the manifest so they're surfaced but don't fail the build.
     allowed = set(manifest.data.get("alignment_allow_unmatched", []))
+    primary_model = (
+        ((manifest.data.get("english") or {}).get("primary") or {}).get("model")
+    )
+    if sch.play_line_scheme and primary_model == "perseus-play":
+        # This source model has real anchors but no invented fill. A Greek
+        # segment that receives no anchor is an expected sparse row, not an
+        # edition-gap declaration the manifest must copy by hand.
+        allowed.update(unmatched)
     # A column the manifest's own citation.kind_overrides declares `omit`
     # is ALSO a legitimate unmatched column (see _omit_declared_segment_ids)
     # -- derived from the SAME declaration stage1 already enforces, not a

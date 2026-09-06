@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -36,6 +37,10 @@ def _schema_problems(data: dict, name: str = "Euthyphro.yaml") -> list[str]:
 
 def _run_preflight(name: str) -> subprocess.CompletedProcess[str]:
     fixture = FIXTURES / name
+    env = os.environ.copy()
+    env["DRAMA_PUBLIC_DOMAIN_ALLOWLIST"] = str(
+        FIXTURES / "public_domain_translations.yaml"
+    )
     return subprocess.run(
         [
             sys.executable,
@@ -48,6 +53,7 @@ def _run_preflight(name: str) -> subprocess.CompletedProcess[str]:
         text=True,
         capture_output=True,
         check=False,
+        env=env,
     )
 
 
