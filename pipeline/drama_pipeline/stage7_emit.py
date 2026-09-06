@@ -1134,6 +1134,23 @@ def run(manifest: Manifest) -> Path:
     sch = scheme_mod.for_manifest(manifest)
     if sch.play_line_scheme:
         speaker_rosters = _canonicalize_play_line_speakers(spine, manifest)
+        english_displays = {
+            turn.get("display")
+            for chunk in english.get("chunks", [])
+            for turn in chunk.get("turns", [])
+            if turn.get("display")
+        }
+        greek_displays = {
+            display
+            for roster in speaker_rosters.values()
+            for display in roster
+        }
+        if english_displays != greek_displays:
+            print(
+                "  stage7 WARNING: English turn displays differ from the Greek "
+                f"speaker roster; English-only={sorted(english_displays - greek_displays)} "
+                f"Greek-only={sorted(greek_displays - english_displays)}"
+            )
     if sch.has_sections:
         from . import turns as turns_mod
 
@@ -1208,7 +1225,15 @@ def run(manifest: Manifest) -> Path:
         shutil.copy(footnotes_path, out_dir / "footnotes.json")
     else:
         prim = (manifest.data.get("english") or {}).get("primary") or {}
-        if prim.get("dir"):
+        play_footnotes = BUILD_DIR / "stage1" / "english_footnotes.json"
+        if prim.get("footnotes"):
+            if not play_footnotes.exists():
+                raise RuntimeError(
+                    f"{manifest.work_id}: english.primary.footnotes is true but "
+                    "stage1/english_footnotes.json is missing"
+                )
+            shutil.copy(play_footnotes, out_dir / "footnotes.json")
+        elif prim.get("dir"):
             src = SOURCES_DIR / prim["dir"] / "footnotes.json"
             if src.exists():
                 shutil.copy(src, out_dir / "footnotes.json")

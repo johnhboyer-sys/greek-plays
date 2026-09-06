@@ -1,0 +1,23 @@
+# Positive allowlist for public English translations under US copyright law.
+# Every english.*.id in a manifest must appear here. Missing, unreadable, or
+# empty data fails preflight.
+translations:
+  - { id: smyth, translator: "H. W. Smyth", year: 1922, note: "Loeb Aeschylus (1922–26); published before 1931." }
+  - { id: jebb, translator: "R. C. Jebb", year: 1883, note: "Sophocles editions (1883–1900); published before 1931." }
+  - { id: coleridge, translator: "E. P. Coleridge", year: 1891, note: "Euripides translation (1891); published before 1931." }
+  - { id: athenian-society, translator: "The Athenian Society", year: 1912, note: "The Eleven Comedies (1912); published before 1931." }
+  - { id: lindsay, translator: "Jack Lindsay", year: 1925, note: "Published in 1925, before 1931." }
+  - { id: browning, translator: "Robert Browning", year: 1877, note: "Published in 1877, before 1931." }
+  - { id: murray-verse, translator: "Gilbert Murray", year: 1902, note: "Verse translations (1902–15); published before 1931." }
+  - { id: storr, translator: "F. Storr", year: 1912, note: "Published in 1912, before 1931." }
+  - { id: way, translator: "Arthur S. Way", year: 1912, note: "Published in 1912, before 1931." }
+  - { id: morshead, translator: "E. D. A. Morshead", year: 1881, note: "Translations published from 1881 to 1908, before 1931." }
+  - { id: plumptre, translator: "E. H. Plumptre", year: 1865, note: "Translations published from 1865 to 1868, before 1931." }
+  - { id: swanwick, translator: "Anna Swanwick", year: 1873, note: "Published in 1873, before 1931." }
+  - { id: campbell, translator: "Lewis Campbell", year: 1883, note: "Published in 1883, before 1931." }
+  - { id: potter, translator: "Robert Potter", year: 1781, note: "Published in 1781, long in the public domain." }
+  - { id: rogers, translator: "B. B. Rogers", year: 1902, note: "Translations published from 1902 to 1916, before 1931." }
+  - { id: hickie, translator: "William James Hickie", year: 1853, note: "Published in 1853, long in the public domain." }
+  - { id: frere, translator: "John Hookham Frere", year: 1839, note: "Published in 1839, long in the public domain." }
+
+# DENIED: o-neill — Eugene O'Neill Jr., The Complete Greek Drama (1938): not public domain; Perseus's default Aristophanes English

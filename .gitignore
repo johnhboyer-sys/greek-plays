@@ -25,3 +25,7 @@ __pycache__/
 # Lyceum P2 (docs/p2-plan.md §2): codegen'd from manifests/*.yaml +
 # fixtures/ — run `node scripts/build-registry.mjs` to regenerate.
 shared/lib/registry.generated.ts
+
+# worktree symlinks to the main checkout (dir-only patterns miss symlinks — plato gotcha)
+node_modules
+.venv

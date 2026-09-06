@@ -14,7 +14,7 @@ Proven on Agamemnon (`manifests/agamemnon.yaml`, TLG 0085.005). Design facts: `d
 
 ## Manifest keys (copy `manifests/agamemnon.yaml`)
 
-`work.{id, title, author, language: grc, tlg_author, tlg_work, greek_edition, lexicon: true, no_english: true (until P2), expected_sourcedesc}` — the sourceDesc string is a FATAL gate; take it verbatim from `docs/p2-works.md`.
+`work.{id, title, author, language: grc, tlg_author, tlg_work, greek_edition, lexicon: true, expected_sourcedesc}` — the sourceDesc string is a FATAL gate; take it verbatim from `docs/p2-works.md`. A Greek-only play must instead declare `work.no_english: true` and omit `english`.
 `citation.{scheme: play-line, title_labels: [{sha256_16, note}], lacunae: {"1": [...]}, transpositions: {"1": [...]}, fingerprint: {count, sha256}}` — all four bidirectionally gated: run stage1 once, copy the values it reports, run again to confirm. Transpositions validate the export only: stage7 keeps document order and emits no play-line seam notes.
 `speakers.sigla` is required and maps every observed Greek siglum to one canonical English display. Declare `"—": null`; any other unmapped siglum stops stage7 before it replaces prior dist output. Run `pipeline/.venv/bin/python pipeline/gen_speaker_rosters.py` to inspect observed sigla and proposed names, then add `--write` to replace only the manifest's `speakers:` block.
 `books: [{n: 1, start, end}]`; `sources.{tlg_dir_env, …}`; `registry:` block (`workType: verse`, `books: 1`, `bookLabels: ['1']`, `citation: {scheme: play-line, copyAbbr}`, `translations: []`, `blurb: "DRAFT — …"`), checked against the pipeline fields by `scripts/check-registry-agreement.mjs`.
@@ -22,6 +22,33 @@ Proven on Agamemnon (`manifests/agamemnon.yaml`, TLG 0085.005). Design facts: `d
 ## Export path
 
 `build/export/tlg<author>/Diogenes-Resources/xml/tlg/tlg<author><work>.xml`. stage1 never invokes Diogenes when the file exists; if missing it prints the recipe (`docs/tlg-phi-export.md`) and fails. All four authors are exported already (never committed).
+
+## English
+
+`english.primary.model: perseus-play` reads the vendored Perseus translation
+TEI. Under `anchor_model: sp-line`, each positive `<l n="N">` inside an `<sp>`
+is a real Greek-line anchor. An anchor absent as an exact spine ref snaps to
+the nearest printed ref, including a lyric range that contains it; ties snap forward. Every snap appears in
+`build/stage1/english_report.json`.
+
+The Greek spine owns the speech/40-line segment cuts. The builder assigns each
+English line block to the segment that holds its resolved anchor and emits at
+most one English chunk for that segment. A segment with no English anchor has
+no chunk; stage7's id join leaves its `english` field null. The report records
+`segments_with_chunk / segments_total` as the coverage ratio.
+
+Each source `<sp><speaker>` adds a raw, unremapped English turn at the offset
+where that speech starts. The report compares those display names with the
+Greek `speakers.sigla` roster and lists both sides of any mismatch.
+
+Smyth's Loeb `<note resp="Smyth">` nodes become inline `[^label]` markers and
+an emitted `footnotes.json` map. Labels use `{seqInPlay}.{raw}` so repeated
+printed note numbers stay unique. `<del>` text and display-only `<l n="0">`
+lines are dropped.
+
+Preflight reads `pipeline/drama_pipeline/public_domain_translations.yaml` and
+requires every declared `english.*.id` to occur in its positive allowlist. A
+missing or empty allowlist, or any unknown id, stops the build.
 
 ## Printed-order ruling
 

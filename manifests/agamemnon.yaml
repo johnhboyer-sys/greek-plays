@@ -1,7 +1,6 @@
 # Agamemnon — pipeline manifest (P1: the `play-line` citation scheme's first
 # and, for this phase, only work — docs/p1-probe.md is the measured design
-# authority this manifest implements). Greek-only (English is P2:
-# work.no_english is declared true and no `english:` block exists here).
+# authority this manifest implements). P2 adds Smyth's line-anchored English.
 #
 # The export (build/export/tlg0085/Diogenes-Resources/xml/tlg/tlg0085005.xml,
 # already run — drama_pipeline never invokes Diogenes itself, see
@@ -40,10 +39,19 @@ work:
   tlg_work: "005"
   greek_edition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate (De Officiis/DRN precedent) — verified verbatim
   # against the real export's <sourceDesc>.
   expected_sourcedesc: 'Aeschylus Trag. (c. 6-5 B.C.), Agamemnon (0085: 005) "Aeschyli tragoediae, 2nd edn.", Ed. Murray, G. Oxford: Clarendon Press, 1955, Repr. 1960.'
+
+english:
+  primary:
+    id: smyth
+    name: "H. W. Smyth (Loeb, 1926)"
+    short: Smyth
+    model: perseus-play
+    source: "perseus/tlg0085.tlg005.perseus-eng3.xml"
+    anchor_model: sp-line
+    footnotes: true
 
 citation:
   scheme: play-line
@@ -117,7 +125,8 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
-  translations: []
+  translations:
+    - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, footnotes: true }
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Ag."
