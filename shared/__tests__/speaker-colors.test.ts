@@ -85,4 +85,24 @@ describe('assignSpeakerSlots', () => {
     expect(m.size).toBe(SPK_PALETTE_N + 4);
     for (const slot of m.values()) expect(slot).toBeLessThan(SPK_PALETTE_N);
   });
+
+  // The real Agamemnon whole-work roster (manifests/agamemnon.yaml
+  // speakers.sigla's 19 distinct non-null canonical displays: Watchman,
+  // Chorus, Clytaemestra, Herald, Agamemnon, Cassandra, Aegisthus, and
+  // Elder 1-12) — exceeds the 12-slot palette, so some pair of speakers
+  // must share a hue, but every speaker still gets an in-range slot.
+  it('assigns the 19-name Agamemnon roster in-range slots, no crash beyond palette size', () => {
+    const roster = [
+      'Watchman', 'Chorus', 'Clytaemestra', 'Herald', 'Agamemnon', 'Cassandra', 'Aegisthus',
+      'Elder 1', 'Elder 2', 'Elder 3', 'Elder 4', 'Elder 5', 'Elder 6',
+      'Elder 7', 'Elder 8', 'Elder 9', 'Elder 10', 'Elder 11', 'Elder 12',
+    ];
+    expect(roster).toHaveLength(19);
+    const m = assignSpeakerSlots(roster);
+    expect(m.size).toBe(19);
+    for (const slot of m.values()) {
+      expect(slot).toBeGreaterThanOrEqual(0);
+      expect(slot).toBeLessThan(SPK_PALETTE_N);
+    }
+  });
 });

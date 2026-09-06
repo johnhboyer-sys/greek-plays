@@ -21,6 +21,7 @@ export interface SpeakerEvent {
   line: number;    // the Greek line `n` the turn begins on
   offset: number;  // char offset in that line's text where the speech begins
   label: string;   // the interlocutor siglum ("ΕΥΘ.") or the dialectic dash "—"
+  display?: string | null; // canonical English name; null for the dash
 }
 
 // One render part for a Greek line: a verbatim text gap (sigla / punctuation),
@@ -28,7 +29,7 @@ export interface SpeakerEvent {
 export type LineRenderPart =
   | { kind: 'text'; text: string }
   | { kind: 'token'; text: string; tok: Token }
-  | { kind: 'speaker'; label: string; dash: boolean };
+  | { kind: 'speaker'; label: string; display?: string | null; dash: boolean };
 
 // The dialectic dash ("—", used e.g. in Parmenides for unattributed turns)
 // renders as a plain em-dash lead-in, not a small-caps siglum.
@@ -121,7 +122,7 @@ export function lineRenderParts(
   const out: LineRenderPart[] = [];
   let ei = 0;
   const pushSpeaker = (e: SpeakerEvent) =>
-    out.push({ kind: 'speaker', label: e.label, dash: e.label === DASH });
+    out.push({ kind: 'speaker', label: e.label, display: e.display, dash: e.label === DASH });
 
   for (const a of atoms) {
     // Any events landing at or before this atom's start lead it in.

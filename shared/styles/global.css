@@ -2067,18 +2067,18 @@ body {
   --spk-4: #d2a24c; --spk-5: #5fb6c1; --spk-6: #e28a9a; --spk-7: #a99ae8;
   --spk-8: #5ccaa5; --spk-9: #67bde8; --spk-10: #c394e8; --spk-11: #c6bf55;
 }
-.turn-flow.spk-color .speaker[data-spk="0"] { color: var(--spk-0); }
-.turn-flow.spk-color .speaker[data-spk="1"] { color: var(--spk-1); }
-.turn-flow.spk-color .speaker[data-spk="2"] { color: var(--spk-2); }
-.turn-flow.spk-color .speaker[data-spk="3"] { color: var(--spk-3); }
-.turn-flow.spk-color .speaker[data-spk="4"] { color: var(--spk-4); }
-.turn-flow.spk-color .speaker[data-spk="5"] { color: var(--spk-5); }
-.turn-flow.spk-color .speaker[data-spk="6"] { color: var(--spk-6); }
-.turn-flow.spk-color .speaker[data-spk="7"] { color: var(--spk-7); }
-.turn-flow.spk-color .speaker[data-spk="8"] { color: var(--spk-8); }
-.turn-flow.spk-color .speaker[data-spk="9"] { color: var(--spk-9); }
-.turn-flow.spk-color .speaker[data-spk="10"] { color: var(--spk-10); }
-.turn-flow.spk-color .speaker[data-spk="11"] { color: var(--spk-11); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="0"] { color: var(--spk-0); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="1"] { color: var(--spk-1); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="2"] { color: var(--spk-2); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="3"] { color: var(--spk-3); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="4"] { color: var(--spk-4); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="5"] { color: var(--spk-5); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="6"] { color: var(--spk-6); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="7"] { color: var(--spk-7); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="8"] { color: var(--spk-8); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="9"] { color: var(--spk-9); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="10"] { color: var(--spk-10); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="11"] { color: var(--spk-11); }
 /* The Greek siglum (ΣΩ.) is coloured by its turn row's column slot so it
    matches the English name for the same speaker. */
 .turn-flow.spk-color .greek-col[data-spk="0"] .speaker { color: var(--spk-0); }

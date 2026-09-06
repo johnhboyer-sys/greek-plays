@@ -68,6 +68,16 @@ function loadIndex<T>(work: string, file: string): Promise<T> {
   return p as Promise<T>;
 }
 
+// Drop a work's cached index files (meta/lemma/form/english.json) so the next
+// search re-fetches them. Mirrors data.ts's invalidateBookCache — same
+// module-level-cache shape, same need to force a re-fetch outside normal
+// browsing (tests that mock fetch differently per work run).
+export function invalidateSearchIndex(work: string): void {
+  for (const key of [..._fileCache.keys()]) {
+    if (key.startsWith(`${work}/`)) _fileCache.delete(key);
+  }
+}
+
 // Run `fn` over `items` with at most `limit` in flight at once (bounds the
 // concurrent-fetch burst). Rejections propagate; callers that want per-item
 // tolerance pass an `fn` that catches.

@@ -276,6 +276,19 @@ def test_parse_rejects_repeated_play_line_ref():
         )
 
 
+def test_parse_rejects_stale_declared_title_hash():
+    tree = etree.parse(str(FIX / "synthetic6.xml"))
+    manifest = _fixture_manifest()
+    stale_hash = "0123456789abcdef"
+    manifest.data["citation"]["title_labels"].append(
+        {"sha256_16": stale_hash, "note": "stale title"}
+    )
+    with pytest.raises(ValueError, match=stale_hash):
+        stage1_greek._parse_play(
+            tree, scheme_mod.for_manifest(manifest), manifest, "stale-title.xml"
+        )
+
+
 def test_dist_preflight_rejects_repeated_play_line_ref():
     data = {
         "citation": {"fingerprint": {"count": 2, "sha256": "unused"}},

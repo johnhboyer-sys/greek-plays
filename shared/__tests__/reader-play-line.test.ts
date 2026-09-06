@@ -38,6 +38,7 @@ async function flush() {
 function book(): BookData {
   return {
     book: 1,
+    speakerRoster: ['Watchman', 'Chorus'],
     segments: [
       {
         id: '1:1',
@@ -45,7 +46,7 @@ function book(): BookData {
         greek: [
           { n: 1, text: 'πρῶτος λόγος', tokens: [{ t: 'πρῶτος', o: 0, k: 'prwtos' }], ref: '1' },
         ],
-        speakers: [{ line: 1, offset: 0, label: 'ΑΛΦΑ' }],
+        speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
         english: null,
       },
       {
@@ -60,7 +61,11 @@ function book(): BookData {
           { n: 7, text: 'μέλος', tokens: [], ref: '106-107' },
           { n: 8, text: '', tokens: [], ref: 'post 107', role: 'lacuna' },
         ],
-        speakers: [{ line: 2, offset: 0, label: 'Χο.' }],
+        speakers: [
+          { line: 2, offset: 0, label: 'Φυ.', display: 'Watchman' },
+          { line: 3, offset: 0, label: 'Χο.', display: 'Chorus' },
+          { line: 4, offset: 0, label: '—', display: null },
+        ],
         english: null,
       },
     ],
@@ -85,7 +90,20 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     await flush();
     const line1 = container.querySelector('.greek-line[id="L1-1"]');
     expect(line1).toBeTruthy();
-    expect(line1!.querySelector('.speaker')?.textContent).toBe('ΑΛΦΑ');
+    expect(line1!.querySelector('.speaker')?.textContent).toBe('ΦΥΛΑΞ');
+  });
+
+  it('keys colours by canonical display while printing each source label', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
+    await flush();
+    const speakers = Array.from(container.querySelectorAll('.speaker'));
+    const watchman = speakers.filter((el) => ['ΦΥΛΑΞ', 'Φυ.'].includes(el.textContent ?? ''));
+    const chorus = speakers.find((el) => el.textContent === 'Χο.');
+    const dash = speakers.find((el) => el.textContent === '—');
+    expect(watchman).toHaveLength(2);
+    expect(watchman[0].getAttribute('data-spk')).toBe(watchman[1].getAttribute('data-spk'));
+    expect(chorus?.getAttribute('data-spk')).not.toBe(watchman[0].getAttribute('data-spk'));
+    expect(dash?.hasAttribute('data-spk')).toBe(false);
   });
 
   it('builds the DOM id from the line\'s own ref, not the internal segment column', async () => {

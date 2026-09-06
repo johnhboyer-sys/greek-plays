@@ -1309,6 +1309,7 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
     the anonymous character's name inside the empty brackets) is kept, so
     the reader can still show who the lost line belonged to."""
     declared_titles = _load_flat_title_declarations(manifest)
+    observed_titles: set[str] = set()
     title_seen = False
     flat: list[dict] = []
     seen_refs: set[str] = set()
@@ -1323,6 +1324,7 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
             title_seen = True
             title_text = _line_text(l_el)
             h = _flat_title_content_hash(title_text)
+            observed_titles.add(h)
             if h not in declared_titles:
                 raise ValueError(
                     f"{xml_path or '<xml>'}: undeclared play title line "
@@ -1355,6 +1357,13 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
         flat.append(entry)
     if not title_seen:
         raise ValueError(f"{xml_path or '<xml>'}: play-line export has no <l n=\"t\"> title line")
+    stale_titles = set(declared_titles) - observed_titles
+    if stale_titles:
+        stale = ", ".join(sorted(stale_titles))
+        raise ValueError(
+            f"{xml_path or '<xml>'}: citation.title_labels declares unobserved "
+            f"sha256_16 hash(es): {stale}"
+        )
     return flat
 
 

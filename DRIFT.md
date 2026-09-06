@@ -267,3 +267,8 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/lib/speaker-colors.ts` — the collision-free speaker palette now has twelve slots.
 - `shared/lib/works.ts` — one-book play-line readers use the bare work path as their sole URL.
 - `shared/styles/global.css` — four contrast-checked speaker colors extend both themes and all speaker selectors.
+
+## P1.2 fix round (Sol re-review, 2026-09-06)
+
+- `shared/components/Search.svelte` — a chapterless (work-wide) result group opens by default like a single-instance group, instead of collapsing multi-hit play-line results behind a click.
+- `shared/lib/search.ts` — added `invalidateSearchIndex(work)`, mirroring `data.ts`'s `invalidateBookCache`, so a test (or a future re-fetch need) can force a work's cached meta/lemma/form/english index files to reload.

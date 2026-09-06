@@ -133,7 +133,14 @@ describe('lineRenderParts — speaker lead-ins', () => {
     const events: SpeakerEvent[] = [{ line: 1, offset: 0, label: 'ΣΩ.' }];
     const parts = lineRenderParts(text, tokens, events);
     expect(kinds(parts)).toEqual(['speaker', 'token', 'text', 'token', 'text']);
-    expect(parts[0]).toEqual({ kind: 'speaker', label: 'ΣΩ.', dash: false });
+    expect(parts[0]).toEqual({ kind: 'speaker', label: 'ΣΩ.', display: undefined, dash: false });
+  });
+
+  it('passes the canonical display through to the speaker render part', () => {
+    const parts = lineRenderParts(text, tokens, [
+      { line: 1, offset: 0, label: 'ΣΩ.', display: 'Socrates' },
+    ]);
+    expect(parts[0]).toEqual({ kind: 'speaker', label: 'ΣΩ.', display: 'Socrates', dash: false });
   });
 
   it('a mid-line offset at a token boundary sits immediately before that token', () => {
@@ -166,7 +173,7 @@ describe('lineRenderParts — speaker lead-ins', () => {
 
   it('flags the dialectic dash so it renders as an em-dash, not a small-caps siglum', () => {
     const parts = lineRenderParts(text, tokens, [{ line: 1, offset: 0, label: '—' }]);
-    expect(parts[0]).toEqual({ kind: 'speaker', label: '—', dash: true });
+    expect(parts[0]).toEqual({ kind: 'speaker', label: '—', display: undefined, dash: true });
   });
 
   it('sorts unordered events and appends a turn at/after the line end', () => {

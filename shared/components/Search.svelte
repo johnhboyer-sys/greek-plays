@@ -27,6 +27,7 @@
     ref: string;       // e.g. "1097a15"
     html: string;      // KWIC snippet
     jumpUrl: string;
+    documentOrder: number;
     // Present only for an English hit whose passage carries its own
     // per-passage translation credit (EnglishChunk.credit — a column_sources
     // override, e.g. Gorgias B11/B11a's CC BY-NC-ND Parnassos translations).
@@ -43,6 +44,7 @@
     chapter: string;
     bekker: string;
     order: number;     // chapter position within the book, for sorting
+    workWide: boolean;
     instances: Instance[];
   }
 
@@ -298,18 +300,18 @@
     const chs = chapters
       .map((c, i) => ({ ...c, ci: colIdx.get(c.column) ?? 0, ln: parseInt(c.line), order: i }))
       .sort((a, b) => a.ci - b.ci || a.ln - b.ln);
-    return (column: string, line: number): { chapter: string; bekker: string; order: number } => {
+    return (column: string, line: number): { chapter: string; bekker: string; order: number; workWide: boolean } => {
       // Defensive: never return undefined (callers deref .chapter). If the
       // chapter list is empty, group the hit under a placeholder rather than
       // throwing and collapsing the whole page.
-      if (!chs.length) return { chapter: '—', bekker: column, order: 0 };
+      if (!chs.length) return { chapter: '', bekker: '', order: 0, workWide: true };
       const ci = colIdx.get(column) ?? 0;
       let found = chs[0];
       for (const c of chs) {
         if (c.ci < ci || (c.ci === ci && c.ln <= line)) found = c;
         else break;
       }
-      return found;
+      return { ...found, workWide: false };
     };
   }
 
@@ -448,12 +450,13 @@
     });
 
     const gmap = new Map<string, ChapterGroup>();
-    const add = (work: string, book: number, ch: { chapter: string; bekker: string; order: number }, inst: Instance) => {
-      const key = `${work}:${book}:${ch.chapter}`;
+    const add = (work: string, book: number, ch: { chapter: string; bekker: string; order: number; workWide: boolean }, inst: Omit<Instance, 'documentOrder'>) => {
+      const key = ch.workWide ? `${work}:whole-work` : `${work}:${book}:${ch.chapter}`;
       let g = gmap.get(key);
-      if (!g) { g = { key, work, book, chapter: ch.chapter, bekker: ch.bekker, order: ch.order, instances: [] }; gmap.set(key, g); }
-      g.instances.push(inst);
+      if (!g) { g = { key, work, book, chapter: ch.chapter, bekker: ch.bekker, order: ch.order, workWide: ch.workWide, instances: [] }; gmap.set(key, g); }
+      g.instances.push({ ...inst, documentOrder: documentOrder++ });
     };
+    let documentOrder = 0;
 
     // Carry the SUBMITTED queries so the reader can highlight them; loc scrolls
     // to the line. Use the snapshot (ctx), not live input state.
@@ -511,7 +514,11 @@
       }
     }
 
-    for (const g of gmap.values()) g.instances.sort(bekkerCmp);
+    for (const g of gmap.values()) {
+      g.instances.sort(schemeFor(g.work).id === 'play-line'
+        ? (a, b) => a.documentOrder - b.documentOrder
+        : bekkerCmp);
+    }
     const out = [...gmap.values()].sort((a, b) =>
       ((WORK_ORDER.get(a.work) ?? 0) - (WORK_ORDER.get(b.work) ?? 0)) || a.book - b.book || a.order - b.order);
     return { groups: out, failed: [...new Set(failed)] };
@@ -550,7 +557,10 @@
       const { groups: g, failed } = await buildGroups(pages[i] ?? [], searchCtx);
       groups = g;
       // Single-hit chapters open by default; merged (multi-hit) start collapsed.
-      expanded = new Set(groups.filter(x => x.instances.length === 1).map(x => x.key));
+      // Work-wide groups (chapterless plays — no chapter level to browse by)
+      // always open: the group IS the whole result set for that work, so
+      // collapsing it behind a click hides everything with no benefit.
+      expanded = new Set(groups.filter(x => x.instances.length === 1 || x.workWide).map(x => x.key));
       if (failed.length) {
         pageError = `${failed.length} passage source${failed.length === 1 ? '' : 's'} on this page didn’t load — some hits may be missing.`;
       }
@@ -1028,7 +1038,7 @@
       <section class="book-section">
         <h2 class="book-header">
           <span class="work-name">{workHeading(wg.work)}</span>
-          <span class="book-name">{bookGroupLabel(wg.work)} {getWork(wg.work)?.bookLabels[book - 1] ?? book}</span>
+          {#if schemeFor(wg.work).id !== 'play-line'}<span class="book-name">{bookGroupLabel(wg.work)} {getWork(wg.work)?.bookLabels[book - 1] ?? book}</span>{/if}
         </h2>
 
         {#each bookGroups as g (g.key)}
@@ -1036,8 +1046,8 @@
           <div class="chapter-group">
             <button class="group-head" on:click={() => toggle(g.key)} aria-expanded={expanded.has(g.key)}>
               <span class="caret">{expanded.has(g.key) ? '▾' : '▸'}</span>
-              <span class="group-label">{unit ? `${unit} ${g.chapter}` : g.chapter}</span>
-              <span class="group-bekker">{g.bekker}</span>
+              {#if !g.workWide}<span class="group-label">{unit ? `${unit} ${g.chapter}` : g.chapter}</span>{/if}
+              {#if !g.workWide}<span class="group-bekker">{g.bekker}</span>{/if}
               <span class="group-count">{g.instances.length} {g.instances.length === 1 ? 'instance' : 'instances'}</span>
             </button>
 

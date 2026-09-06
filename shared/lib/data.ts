@@ -360,6 +360,7 @@ export interface SpeakerTurn {
   line: number;
   offset: number;
   label: string;
+  display?: string | null;
 }
 
 // Source-passage English (docs/source-passage-english-scoping.md): the
@@ -542,6 +543,8 @@ export interface ChapterRef {
 export interface BookData {
   book: number;
   segments: Segment[];
+  // Canonical speaker displays in first-appearance order for a play-line book.
+  speakerRoster?: string[];
   // Global turn flow for a dialogue book (see TurnFlow). Absent for narrated
   // books and non-stephanus works, which render the segment array as before.
   turnFlow?: TurnFlow;

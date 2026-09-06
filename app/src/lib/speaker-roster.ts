@@ -15,15 +15,25 @@ export function speakerRoster(workId: string, books: number): string[] {
   const hit = cache.get(workId);
   if (hit) return hit;
   const flows: unknown[] = [];
+  const emitted: string[] = [];
+  const seen = new Set<string>();
   for (let b = 1; b <= books; b++) {
     try {
       const bd = JSON.parse(
         readFileSync(`public/data/${workId}/book-${String(b).padStart(2, '0')}.json`, 'utf-8'),
       );
+      for (const display of bd.speakerRoster ?? []) {
+        if (typeof display === 'string' && display && !seen.has(display)) {
+          seen.add(display);
+          emitted.push(display);
+        }
+      }
       flows.push(bd.turnFlow);
     } catch { /* a book file may be absent on a partial build */ }
   }
-  const roster = collectDisplayOrder(flows as Parameters<typeof collectDisplayOrder>[0]);
+  const roster = emitted.length
+    ? emitted
+    : collectDisplayOrder(flows as Parameters<typeof collectDisplayOrder>[0]);
   cache.set(workId, roster);
   return roster;
 }

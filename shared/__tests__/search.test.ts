@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import Search from '../components/Search.svelte';
-import { englishOccurrences, greekFold, latinFold, search } from '../lib/search';
+import { invalidateBookCache } from '../lib/data';
+import { englishOccurrences, greekFold, latinFold, search, invalidateSearchIndex } from '../lib/search';
 
 // Latin-language test work ids (unregistered in the real WORKS registry, so
 // getWork() would otherwise resolve them to 'grc' and mask the Blocker 2
@@ -267,6 +268,15 @@ describe('search English occurrences (index integration)', () => {
 });
 
 describe('Search.svelte play-line result routing', () => {
+  // Both tests fetch work "agamemnon" book 1 with different fixture
+  // payloads. data.ts and search.ts cache fetchBook/loadIndex in
+  // module-level Maps keyed by work, for the life of the module — without
+  // this, the second test would silently render the first test's cached
+  // meta/lemma/segments instead of its own mocked fetch.
+  beforeEach(() => {
+    invalidateBookCache('agamemnon');
+    invalidateSearchIndex('agamemnon');
+  });
   afterEach(() => vi.restoreAllMocks());
 
   it('loads an empty chapter outline and cites the matching printed line ref', async () => {
@@ -296,6 +306,38 @@ describe('Search.svelte play-line result routing', () => {
     expect(link.textContent).toBe('147-150');
     expect(link.getAttribute('href')).toBe('/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=147-150');
     expect(container.querySelector('.search-note.warn')).toBeNull();
+  });
+
+  it('keeps printed order and omits made-up book and line group labels', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      const path = String(url);
+      if (path.endsWith('/agamemnon/search/meta.json')) return json([
+        { id: '1:1290', book: 1, column: '1290', head: 'λόγος', tokens: 'logos', english_head: '' },
+        { id: '1:1284', book: 1, column: '1284', head: 'λόγος', tokens: 'logos', english_head: '' },
+      ]);
+      if (path.endsWith('/agamemnon/search/lemma.json')) return json({ logos: [[0, 0], [1, 0]] });
+      if (path.endsWith('/agamemnon/chapters.json')) return json({});
+      if (path.endsWith('/agamemnon/book-01.json')) return json({
+        book: 1,
+        segments: [
+          { id: '1:1290', column: '1290', english: null, greek: [{ n: 1, ref: '1290', text: 'λόγος', tokens: [{ t: 'λόγος', o: 0, k: 'logos' }] }] },
+          { id: '1:1284', column: '1284', english: null, greek: [{ n: 2, ref: '1284', text: 'λόγος', tokens: [{ t: 'λόγος', o: 0, k: 'logos' }] }] },
+        ],
+      });
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+
+    const { getByLabelText, getByRole, container } = render(Search);
+    await fireEvent.input(getByLabelText('Greek'), { target: { value: 'λόγος' } });
+    await fireEvent.click(getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(container.querySelectorAll('.inst-ref')).toHaveLength(2));
+
+    expect(Array.from(container.querySelectorAll('.inst-ref')).map((el) => el.textContent)).toEqual(['1290', '1284']);
+    expect(container.querySelector('.book-name')).toBeNull();
+    expect(container.querySelector('.group-label')).toBeNull();
+    expect(container.querySelector('.group-bekker')).toBeNull();
+    expect(container.textContent).not.toContain('Book 1');
+    expect(container.textContent).not.toContain('Line —');
   });
 });
 

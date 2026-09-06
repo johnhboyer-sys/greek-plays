@@ -316,6 +316,9 @@
   // Global turn flow of a dialogue book (stephanus): drives the turn-row
   // rendering; null keeps the section-segment rendering.
   let turnFlow = bookData?.turnFlow ?? null;
+  // play-line books carry their canonical whole-play display roster in the
+  // book payload; keep it when the component must fetch instead of hydrate.
+  let bookSpeakerRoster: string[] = bookData?.speakerRoster ?? [];
   // Freeman Ancilla wave (design note §3.7): the manifest's declared
   // display permutation of `segments`' column tokens (present only when
   // Freeman's own sequence diverges from spine/document order). null for
@@ -500,7 +503,7 @@
   // (onMount reads SPK_KEY, which only exists once they've toggled it).
   let spkColor = true;
   function saveSpkColor() { try { localStorage.setItem(SPK_KEY, String(spkColor)); } catch {} }
-  // display → palette slot for every NAMED speaker in this book's turn flow
+  // display → palette slot for every NAMED speaker in this book
   // (turns, embedded `et` speeches, folded `sub` speeches). Slot assignment is
   // shared with the landing-page cast list (shared/lib/speaker-colors) so a
   // speaker gets the same hue in both. Unattributed em-dash turns have no
@@ -510,7 +513,11 @@
   // back to the current book alone when no roster is supplied (e.g. the desktop
   // shell, which mounts a single book).
   $: spkSlots = assignSpeakerSlots(
-    speakerRoster && speakerRoster.length ? speakerRoster : collectDisplayOrder([turnFlow]),
+    playLine && bookSpeakerRoster.length
+      ? bookSpeakerRoster
+      : speakerRoster && speakerRoster.length
+        ? speakerRoster
+        : collectDisplayOrder([turnFlow]),
   );
   // The last single-translation choice, remembered so leaving compare mode
   // returns to it (and so the picker has something to display in compare).
@@ -2373,6 +2380,7 @@
         const data = await fetchBook(work, bookNum);
         segments = data.segments;
         turnFlow = data.turnFlow ?? null;
+        bookSpeakerRoster = data.speakerRoster ?? [];
         displayOrder = data.displayOrder ?? null;
       }
     } catch (e) {
@@ -2999,7 +3007,7 @@
         aria-haspopup="dialog"
         on:click={(e) => handleTokenClick(e, part.tok)}
         on:keydown={(e) => onTokenKey(e, part.tok)}
-      >{part.text}</span>{:else if part.kind === 'speaker'}<span class="speaker" class:speaker-dash={part.dash} lang={sourceLang}>{part.label}</span>{:else}{part.text}{/if}{/each}{/snippet}
+      >{part.text}</span>{:else if part.kind === 'speaker'}<span class="speaker" class:speaker-dash={part.dash} data-spk={part.display ? spkSlots.get(part.display) : undefined} lang={sourceLang}>{part.label}</span>{:else}{part.text}{/if}{/each}{/snippet}
   {#snippet chapterHead(block: Block)}
     <div class="chapter-head" id="ch-{bookNum}-{block.chapter}">
       <span class="chapter-label">{#if bookLabel}<span class="chapter-book">{bookLabel},&nbsp;</span>{/if}{chapterUnitNoun} {block.chapter}{#if chapterTitles[block.chapter ?? '']}: {chapterTitles[block.chapter ?? '']}{/if}</span>
@@ -3354,6 +3362,7 @@
     class:dk-verse={dkVerse}
     class:verse-line={verseLine}
     class:play-line={playLine}
+    class:spk-color={playLine && spkColor}
     class:section-flow={sectionFlow}
     class:word-open={!!popup}
     style="--fs-greek:{fsGreek}rem;--fs-english:{fsEng}rem;--lh-greek:{lhGreek};--lh-english:{lhEng};--colw-scale:{colScale};--fs-scale:{fsScale}"

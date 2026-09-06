@@ -10,7 +10,7 @@ Proven on Agamemnon (`manifests/agamemnon.yaml`, TLG 0085.005). Design facts: `d
 - Speakers: `<label type="speaker">` → per-segment `speakers[{line, offset, label, display}]` (antilabe = offset > 0). `label` keeps the edition's Greek siglum; `display` is the canonical English name from the required manifest `speakers.sigla` map, or null for the unattributed dash. Each book also carries `speakerRoster`, the non-null canonical displays in first-appearance order. Strophe markers (`στρ. α.`, `ἀντ. β.`, `ἐπῳδ.`, `μεσῳδ.`, `ἐφυμν.`, `Str. 1.`, `Ant.`, `Ep.`) are NOT speakers: `GreekLine.label`, rendered by `Reader.svelte` as `.strophe-marker`.
 - Segments: one per speech (each speaker label opens a segment), capped at 40 lines (`stage1_greek._segment_play_lines`). Agamemnon: 233 segments, 1,637 lines, 220 speaker events, 58 strophe markers, 0 lacunae.
 - Reader: `.reader-body.play-line` (hanging indent, gutter ref every 5 lines and on every suffixed/range line); the speaker-turn gates are `speakerWork = stephanus || playLine`.
-- Routes: the reader lives at `/<author>/<slug>` (bookless works render directly; `/book/1` is kept as an alias); `[cite].astro` emits stride shims every 50 lines (`app/src/lib/citation-routes.ts`), e.g. `/aeschylus/agamemnon/1250` → `?loc=1250`; `/…/1234` is 404 by design.
+- Routes: the reader lives at `/<author>/<slug>` only (bookless works render directly there; no `/book/1` route or alias is emitted); `[cite].astro` emits stride shims every 50 lines (`app/src/lib/citation-routes.ts`), e.g. `/aeschylus/agamemnon/1250` → `?loc=1250`; `/…/1234` is 404 by design.
 
 ## Manifest keys (copy `manifests/agamemnon.yaml`)
 
