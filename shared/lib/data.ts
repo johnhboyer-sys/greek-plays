@@ -48,6 +48,24 @@ export interface Witness {
 export interface GreekLine {
   n: number;
   text: string;
+  // play-line only (the Greek drama corpus, P1 — docs/p1-probe.md): the
+  // play's own printed lineref -- a plain number ("1234"), a single-letter
+  // editorial-insertion suffix ("47a"), a lyric range the edition prints as
+  // one line for two numbers ("106-107"), or Diggle's lacuna placeholder
+  // ("post 1226"). REQUIRED for a play-line work (759 non-integer tokens
+  // corpus-wide, so `n` alone cannot serve as the citation) and absent for
+  // every other scheme's line (`n`, the dense ordinal, is that scheme's own
+  // citation target). See shared/lib/citation.ts's play-line scheme and
+  // pipeline/drama_pipeline/stage1_greek.py's `_parse_play`.
+  ref?: string;
+  // play-line only: a strophe/antistrophe/epode marker printed beside this
+  // line (Murray's "στρ. α.", Dain/Coulon's "Str. 1.", a bare "στρ.", …),
+  // normalized by stage1_greek._normalize_strophe_label (stripped of its
+  // leading "["; nothing else altered). Rendered as its own centered
+  // italic marker, never part of the line's clickable text and never a
+  // speaker. Absent on every line that carries none, and on every other
+  // scheme's line.
+  label?: string;
   // Lined-source only. With `wrap`/`wrapO`, marks an in-column wrap that the
   // reader repaints. Alone, allowed only on a segment's final line, marks a
   // cross-column rejoin that the reader does not repaint.
@@ -108,11 +126,16 @@ export interface GreekLine {
   // dk (Diels-Kranz) role tag: 'text' is the words Diels attributed to the
   // philosopher (letter-spaced in DK); 'context' is the quoting source's own
   // narrative and any surviving editorial commentary (small/italic in DK,
-  // after German-commentary stripping). 'lacuna' (verse-line only —
-  // Lucretius' DRN, Wave 2 Batch 2, design memo §3.2) marks an
-  // editor-marked textual gap ("* * *" in the print edition): `text` is
-  // always empty and `tokens` always [] for a lacuna line — see
-  // pipeline/drama_pipeline/stage1_latin.py's `_parse_verse`. 'salutation'
+  // after German-commentary stripping). 'lacuna' (verse-line — Lucretius'
+  // DRN, Wave 2 Batch 2, design memo §3.2 — and play-line, the Greek drama
+  // corpus's P1 "post N" lines, Diggle's empty-bracket placeholder for a
+  // lost verse: docs/p1-probe.md) marks an editor-marked textual gap: `text`
+  // is always empty and `tokens` always [] for a lacuna line, and it is not
+  // citable — see pipeline/drama_pipeline/stage1_latin.py's `_parse_verse`
+  // and stage1_greek.py's `_parse_play`. A play-line lacuna line MAY still
+  // carry a `speakers` entry (Diggle's convention names the anonymous
+  // character inside the empty brackets), unlike verse-line's, which never
+  // does. 'salutation'
   // (the `letter` scheme only — Seneca's Epistulae Morales, Wave 2 Seneca,
   // design note docs/wave2-seneca-design.md §B) is a real letter's opening
   // address ("Seneca to his Lucilius, greetings"), folded as the leading line of
@@ -540,12 +563,6 @@ export interface Analysis {
   foldedAccent?: boolean; // all-caps Greek fallback: accentuation is ambiguous
 }
 
-export interface LsjEntry {
-  key: string;
-  head: string;    // Unicode Greek (LSJ) or plain Latin (Lewis & Short)
-  html: string;
-}
-
 // Honour Astro's base path so data fetches work under a project Pages site as
 // well as at the root. BASE_URL may or may not carry a trailing slash, so strip
 // it and join explicitly. Each work's data lives under /data/<work>/.
@@ -571,7 +588,6 @@ const workBase = (work: string) => `${ROOT()}/${work}`;
 // All caches are keyed by work so two works loaded in one session (e.g. unified
 // search) never collide.
 const _analysesCache = new Map<string, Promise<Record<string, Analysis[]>>>();
-const _lsjCache = new Map<string, Record<string, LsjEntry>>();
 const _bookCache = new Map<string, Promise<BookData>>();
 const _chaptersCache = new Map<string, Promise<Record<string, ChapterRef[]>>>();
 const _columnsCache = new Map<string, Promise<Record<string, ColumnRef[]>>>();
@@ -872,51 +888,27 @@ export function fetchCitationIndex(): Promise<CitationIndex> {
   return p;
 }
 
-export function lsjShard(key: string): string {
-  for (const ch of key) {
-    if (ch === '*') continue;
-    if (/[a-z]/.test(ch)) return ch;
-  }
-  return '_';
-}
-
-// Each work's dictionary is shared across the whole corpus — one copy at
-// /data/<dir>/<letter>.json (the union of every work's lemmas of that
-// dictionary), not a per-work subset — so entries aren't duplicated ~30×
-// across works. `dir` is 'lsj' for Greek (LSJ, the default) or 'ls' for
-// Latin (Lewis & Short, Wave 2 Batch 1b — see pipeline's stage5_lsj
-// .SHARD_DIR, the source of this convention: the two dictionaries are kept
-// in SEPARATE directories because their key spaces can collide (LSJ's Beta
-// Code vs L&S's plain-Latin-plus-macron-marks)). Keys are global headwords,
-// identical across works of the same language, so the same lookup resolves
-// against the shared shard. Cached by `dir:letter` (work-independent).
-export async function fetchLsjShard(letter: string, dir: string = 'lsj'): Promise<Record<string, LsjEntry>> {
-  const cacheKey = `${dir}:${letter}`;
-  if (_lsjCache.has(cacheKey)) return _lsjCache.get(cacheKey)!;
-  const r = await fetch(`${ROOT()}/${dir}/${letter}.json`);
-  if (!r.ok) return {};
-  const shard = await r.json();
-  _lsjCache.set(cacheKey, shard);
-  return shard;
+// LSJ key -> the two fields a popup card needs before it opens Grammata's
+// keyed entry: the Unicode headword and LSJ's own homograph letter. Built by
+// app/scripts/build-lsj-heads.mjs and fetched once through the active data root.
+export interface LsjHead { head: string; hom?: string; }
+let _lsjHeadsCache: Promise<Record<string, LsjHead>> | null = null;
+export function fetchLsjHeads(): Promise<Record<string, LsjHead>> {
+  if (_lsjHeadsCache) return _lsjHeadsCache;
+  const p = fetch(`${ROOT()}/lsj-heads.json`).then((r) => {
+    if (!r.ok) throw new Error(`lsj-heads.json: ${r.status}`);
+    return r.json();
+  });
+  // A missing manifest costs headwords, not the popup. Do not cache a failure.
+  p.catch(() => { if (_lsjHeadsCache === p) _lsjHeadsCache = null; });
+  _lsjHeadsCache = p;
+  return p;
 }
 
 export async function lookupWord(
   work: string,
   key: string
-): Promise<{ analyses: Analysis[]; lsj: LsjEntry[] }> {
+): Promise<{ analyses: Analysis[] }> {
   const allAnalyses = await fetchAnalyses(work);
-  const entries = allAnalyses[key] ?? [];
-  const dir = getWork(work)?.language === 'lat' ? 'ls' : 'lsj';
-  const lsjEntries: LsjEntry[] = [];
-  const seen = new Set<string>();
-  for (const a of entries) {
-    for (const lsjKey of a.lsj) {
-      if (seen.has(lsjKey)) continue;
-      seen.add(lsjKey);
-      const letter = lsjShard(lsjKey);
-      const shard = await fetchLsjShard(letter, dir);
-      if (shard[lsjKey]) lsjEntries.push(shard[lsjKey]);
-    }
-  }
-  return { analyses: entries, lsj: lsjEntries };
+  return { analyses: allAnalyses[key] ?? [] };
 }

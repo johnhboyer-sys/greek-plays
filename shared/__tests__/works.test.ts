@@ -303,7 +303,8 @@ describe('corpus-scoping (PUBLIC_WING)', () => {
     vi.stubEnv('PUBLIC_WING', '');
     vi.resetModules();
     const fresh = await import('../lib/works');
-    expect(fresh.WORKS.length).toBe(0);
+    // P1: the first real work (agamemnon, corpus 'classical') has landed.
+    expect(fresh.WORKS.length).toBe(1);
   });
 
   it('scopes WORKS to zero works when set to aristotle (zero-works registry, drama fork P0)', async () => {
@@ -313,11 +314,12 @@ describe('corpus-scoping (PUBLIC_WING)', () => {
     expect(fresh.WORKS.length).toBe(0);
   });
 
-  it('scopes WORKS to zero works when set to classical (zero-works registry, drama fork P0)', async () => {
+  it('scopes WORKS to the classical corpus works when set to classical (P1: agamemnon)', async () => {
     vi.stubEnv('PUBLIC_WING', 'classical');
     vi.resetModules();
     const fresh = await import('../lib/works');
-    expect(fresh.WORKS.length).toBe(0);
+    expect(fresh.WORKS.length).toBe(1);
+    expect(fresh.getWork('agamemnon')).toBeDefined();
   });
 
   it('SHELVES/WORK_ORDER partition only the scoped works when set to aristotle', async () => {

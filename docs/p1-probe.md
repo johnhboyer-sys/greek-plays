@@ -39,3 +39,45 @@ Every manifest pins its play's exact `sourceDesc` string as `expected_sourcedesc
 - Citable: plain and suffixed lines, and any number inside a range (resolves to the range line). `post N` lines carry `role: 'lacuna'` and are not citable; they render as the edition's empty brackets with the speaker label.
 - Validator (stage2, `observed`): every token matches the grammar; duplicates fail; non-monotonic places must be declared in `citation.transpositions`; `post N` lines must be declared in `citation.lacunae`; `citation.fingerprint` = sha256 over the ordered token list; `title_labels` hash-declared.
 - Copy citation: `Aesch. Ag. 1234`; URL `/aeschylus/agamemnon?loc=1234` (+ stride shims).
+
+## Gate A (2026-09-05, prototype run) — English anchors vs the TLG line set
+
+Greek side: Perseus grc2 vs TLG line sets differ only inside choral odes (lyric colometry), 1–79 numbers per play, plus outliers Hercules (Perseus +214), Ion (TLG +158), IT (TLG +149) to inspect in P2. English side (what alignment actually uses):
+
+| play | translator | `<l n>`/milestone anchors | anchors absent from TLG (need snapping) | max gap between anchors |
+|---|---|---|---|---|
+| 0085001 Supplices | Smyth | 502 (l n) | 3 [297, 312, 4097] | 3690 |
+| 0085002 Persae | Smyth | 469 (l n) | 8 [93, 93, 262, 262, 879] | 10 |
+| 0085003 Prometheus vinct | Smyth | 450 (l n) | 4 [526, 526, 552, 552] | 5 |
+| 0085004 Septem contra Th | Smyth | 441 (l n) | 4 [181, 181, 811, 1080] | 10 |
+| 0085005 Agamemnon | Smyth | 673 (l n) | 13 [167, 167, 437, 437, 488] | 1557 |
+| 0085006 Choephoroe | Smyth | 476 (l n) | 4 [323, 323, 652, 652] | 7 |
+| 0085007 Eumenides | Smyth | 429 (l n) | 6 [178, 178, 793, 793, 823] | 6 |
+| 0011001 Trachiniae | Jebb | 529 (l n) | 0 [] | 7 |
+| 0011002 Antigone | Jebb | 598 (l n) | 2 [977, 977] | 6 |
+| 0011003 Ajax | Jebb | 583 (l n) | 6 [255, 354, 609, 609, 719] | 10 |
+| 0011004 Oedipus tyrannus | Jebb | 741 (l n) | 9 [179, 179, 190, 190, 650] | 10 |
+| 0011005 Electra | Jebb | 693 (l n) | 15 [504, 504, 505, 823, 823] | 10 |
+| 0011006 Philoctetes | Jebb | 645 (l n) | 11 [212, 391, 391, 691, 691] | 10 |
+| 0011007 Oedipus Coloneus | Jebb | 797 (l n) | 2 [1477, 1477] | 6 |
+| 0006034 Cyclops | Coleridge | 361 (l n) | 2 [369, 369] | 6 |
+| 0006035 Alcestis | Coleridge | 559 (l n) | 1 [985] | 5 |
+| 0006036 Medea | Coleridge | 556 (l n) | 6 [204, 204, 214, 214, 431] | 5 |
+| 0006037 Heraclidae | Coleridge | 422 (l n) | 0 [] | 5 |
+| 0006038 Hippolytus | Coleridge | 625 (l n) | 3 [571, 571, 825] | 19 |
+| 0006039 Andromacha | Coleridge | 494 (l n) | 6 [465, 529, 778, 790, 1010] | 6 |
+| 0006040 Hecuba | Coleridge | 535 (l n) | 3 [648, 648, 1024] | 5 |
+| 0006041 Supplices | Coleridge | 526 (l n) | 6 [48, 48, 55, 837, 837] | 5 |
+| 0006042 Electra | Coleridge | 554 (l n) | 39 [860, 1214, 1360, 1365, 1370] | 5 |
+| 0006043 Hercules | Coleridge | 800 (l n) | 93 [744, 769, 803, 907, 907] | 6 |
+| 0006044 Troiades | Coleridge | 499 (l n) | 0 [] | 5 |
+| 0006045 Iphigenia Tauric | Coleridge | 626 (l n) | 8 [233, 408, 644, 648, 654] | 5 |
+| 0006046 Ion | Coleridge | 690 (l n) | 5 [123, 123, 509, 687, 687] | 1001 |
+| 0006047 Helena | Coleridge | 799 (l n) | 1 [5563] | 5001 |
+| 0006048 Phoenisae | Coleridge | 755 (l n) | 0 [] | 5 |
+| 0006049 Orestes | Coleridge | 830 (l n) | 1 [1437] | 5 |
+| 0006050 Bacchae | Buckley | 573 (l n) | 0 [] | 5 |
+| 0006051 Iphigenia Aulide | Coleridge | 722 (l n) | 0 [] | 70 |
+| 0006052 Rhesus | Coleridge | 431 (l n) | 2 [254, 254] | 5 |
+
+**Reading (orchestrator):** the primaries are line-keyed every ~5 lines with `<l n>` (no milestones) and their numbers match the TLG set almost everywhere — the "translation vs OCT drift" risk is small for Smyth/Jebb/Coleridge; P2's builder snaps an absent anchor to the nearest TLG line and reports it. Handle in P2: Hercules (93 unmatched anchors — Coleridge's lineation diverges from Diggle's in the second half), Euripides' Electra (39), typo anchors (`4097` in Supplices, `5563` in Helena, `1080` in Septem), duplicate anchors (`167, 167` = a split `<l part>` pair, count once). **Bacchae's Perseus eng2 is T. A. Buckley (1850), not Coleridge** — PD, fine; the manifest names the real translator. Cyclops/Alcestis/Heraclidae etc. carry an `n="0"` first-speaker display line: skip it.

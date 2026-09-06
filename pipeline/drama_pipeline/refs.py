@@ -72,6 +72,10 @@ def column_key(column: str, scheme=None) -> tuple:
     The flat grammar trims OUTER whitespace only (mirroring citation.ts's
     flat factory: " 5 " is accepted, "5 0" is rejected — internal whitespace
     is never collapsed into a different number)."""
+    if scheme is not None and scheme.play_line_scheme:
+        from . import scheme as scheme_mod
+
+        return scheme_mod.play_line_order_key(column.strip())
     pattern = scheme.column_re if scheme is not None else _COLUMN_RE
     if scheme is not None and scheme.flat_numeric:
         column = column.strip()
@@ -103,6 +107,10 @@ def ref_key(ref: str, scheme=None) -> tuple:
     suffix) — so its key is column_key's 3-tuple; a VERSE dk work's ref
     grammar has a 4th group (the line), so its key is the 4-tuple (series,
     number, suffix, line)."""
+    if scheme is not None and scheme.play_line_scheme:
+        from . import scheme as scheme_mod
+
+        return scheme_mod.play_line_order_key(ref.strip())
     pattern = scheme.ref_re if scheme is not None else _REF_RE
     if scheme is not None and scheme.flat_numeric:
         ref = ref.strip()
@@ -154,7 +162,10 @@ def column_prefix_key(token: str, scheme=None) -> tuple[int, str] | tuple[int, i
     bookless-per-LINE rather than per-work — its dotted 'book.lineref' token
     has no separate line component either (§3.1/§3.4), so, like
     numeric_section, the prefix key is just the column key."""
-    if scheme is not None and (scheme.numeric_section or scheme.flat_numeric or scheme.verse_line_scheme):
+    if scheme is not None and (
+        scheme.numeric_section or scheme.flat_numeric or scheme.verse_line_scheme
+        or scheme.play_line_scheme
+    ):
         return column_key(token, scheme)
     if scheme is not None and scheme.fragment_scheme:
         base = token.split(".", 1)[0] if scheme.lines_user_facing else token

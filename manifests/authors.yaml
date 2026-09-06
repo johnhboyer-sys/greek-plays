@@ -1,3 +1,14 @@
-authors: []
+authors:
+  - id: aeschylus
+    name: Aeschylus
+    nativeName: Αἰσχύλος
+    languages: [grc]
+    period: classical
+    schools: []
+    genre: tragedy
+    floruit: "c. 525–456 BC"
+    blurb: "DRAFT — the earliest of the three great Athenian tragedians, seven of whose plays survive complete."
+    works: [agamemnon]
+    holdings: partial
 school_groups: {}
-work_order: []
+work_order: [agamemnon]

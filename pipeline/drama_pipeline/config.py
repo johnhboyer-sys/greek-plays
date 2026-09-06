@@ -103,7 +103,10 @@ class Manifest:
         '3.47a') is the same shape as a dk column for this purpose (its
         lineref is the whole column, not an editorial line to strip)."""
         sch = scheme_mod.for_manifest(self)
-        if sch.numeric_section or sch.flat_numeric or sch.fragment_scheme or sch.verse_line_scheme:
+        if (
+            sch.numeric_section or sch.flat_numeric or sch.fragment_scheme
+            or sch.verse_line_scheme or sch.play_line_scheme
+        ):
             return token
         return token.rstrip("0123456789")
 

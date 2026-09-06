@@ -44,6 +44,9 @@ export type SchemeId =
   // Letter.section dotted grammar (Seneca's Epistulae Morales) — see
   // makeDottedScheme's `letter` entry in SCHEMES below.
   | 'letter'
+  // The Greek drama corpus's own scheme (P1, docs/p1-probe.md): bookless,
+  // a synthetic single column "1" — see makePlayLineScheme below.
+  | 'play-line'
   // Registered but not yet implemented (see makeStubScheme below): using
   // this is a loud runtime error, never silent bekker behavior.
   | 'ennead';
@@ -179,6 +182,112 @@ const DK_VERSE_REF_RE = /^([AB])([0-9]+)([a-z]?)\.([0-9]+)$/;
 // capture-shape note test.
 const DK_NO_SERIES_COLUMN_RE = /^([0-9]+)([a-z]?)$/;
 const DK_NO_SERIES_INPUT_COLUMN_RE = /^([0-9]+)([A-Za-z]?)$/;
+
+// play-line's ref grammar (the Greek drama corpus, P1 — docs/p1-probe.md,
+// measured against the real Diogenes `-y` export of all 44 plays): a plain
+// line number, a line with a single lowercase editorial-insertion suffix
+// ("30a"), a lyric range the edition prints as one line for two numbers
+// ("106-107" — also the normalized form of Ecclesiazusae's slash notation,
+// "289/290"), or Diggle's lacuna placeholder ("post 1226", normalized from
+// the export's unspaced "post1226"). `PLAY_LINE_REF_SOURCE` is BYTE-
+// IDENTICAL to scheme.py's `PLAY_LINE_REF_SOURCE` string (see that
+// module's own comment and the TS<->Python parity test) — this scheme has
+// no separate column/line axis at all (unlike bekker's page+line): the
+// printed lineref IS the whole citable address, so this one grammar serves
+// as both the column regex and the (only ever null) ref-with-line form.
+export const PLAY_LINE_REF_SOURCE = '^[0-9]+$|^[0-9]+[a-z]$|^[0-9]+-[0-9]+$|^post [0-9]+$';
+const PLAY_LINE_REF_RE = new RegExp(PLAY_LINE_REF_SOURCE);
+const PLAY_LINE_RANGE_RE = /^([0-9]+)-([0-9]+)$/;
+const PLAY_LINE_POST_RE = /^post ([0-9]+)$/;
+const PLAY_LINE_PLAIN_RE = /^([0-9]+)([a-z]?)$/;
+
+// Classifies a normalized play-line ref as a declared-lacuna range — mirrors
+// scheme.py's `play_line_kind(ref) == "range"`. Exported for Reader.svelte's
+// jump resolution (a bare typed number that falls INSIDE a printed range
+// resolves to that range's own line, docs/p1-probe.md) and for the TS<->
+// Python parity test.
+export function isPlayLineRange(ref: string): boolean {
+  return PLAY_LINE_RANGE_RE.test(ref);
+}
+
+// The sort/citation-order key for a normalized play-line ref: (leading
+// integer, kind-rank, suffix) — mirrors scheme.py's `play_line_order_key`
+// exactly (see that function's own doc comment for the ordering rule).
+// Throws for a malformed ref.
+export function playLineOrderKey(ref: string): readonly [number, number, string] {
+  const post = PLAY_LINE_POST_RE.exec(ref);
+  if (post) return [Number(post[1]), 1, ''] as const;
+  const range = PLAY_LINE_RANGE_RE.exec(ref);
+  if (range) return [Number(range[1]), 0, ''] as const;
+  const plain = PLAY_LINE_PLAIN_RE.exec(ref);
+  if (plain) return [Number(plain[1]), 0, plain[2] ?? ''] as const;
+  throw new Error(`not a play-line ref: ${ref}`);
+}
+
+// play-line (the Greek drama corpus, P1 — docs/p1-probe.md). Its own
+// factory rather than reusing makeFlatScheme: the grammar is richer than a
+// bare integer (a suffix letter, a range, "post N"), and — unlike every
+// other scheme, including makeFlatScheme's bare-chapter-integer grammar —
+// there is no separate column/line split to draw at all: the printed
+// lineref a reader cites ("Ag. 1234") IS the whole address, so `column`
+// carries the ref string itself and `line` is always null (the "the line
+// IS the column" convention makeVerseLineScheme already established,
+// carried one step further here since play-line has no book-dot prefix
+// either — see the module doc comment's two grammars). `hasUserFacingLines`
+// is therefore false here (mirrors every "line IS the column" scheme in
+// this module), even though the PIPELINE side's `lines_user_facing: True`
+// (scheme.py) is true — that Python flag governs a DIFFERENT question
+// (whether the printed lineref is a real per-work citation target at all,
+// which it is), not this module's narrower "is there a second, separate
+// line axis to parse a `:N` suffix onto" question, which for play-line is
+// no.
+function makePlayLineScheme(): CitationScheme {
+  function parseColumnToken(raw: string): string | null {
+    const t = raw.trim();
+    return PLAY_LINE_REF_RE.test(t) ? t : null;
+  }
+
+  function parseLocation(raw: string): ParsedLocation | null {
+    const t = parseColumnToken(raw);
+    return t === null ? null : { column: t, line: null, isRange: isPlayLineRange(t) };
+  }
+
+  function formatCitation(column: string): string {
+    // The printed lineref itself is the whole citation ("Ag. 1234") — no
+    // column+line concatenation, no colon: `line` is always ignored, same
+    // as every other "line IS the column" scheme's formatCitation.
+    return column;
+  }
+
+  // Bookless (`books: 1`) — ALWAYS 1, not merely "not derivable without a
+  // lookup" (contrast makeFlatScheme's bookFromColumn, which returns null
+  // for a scheme whose book-count the caller might not know is 1). This
+  // matters concretely: CommandPalette's citation-jump flow only falls
+  // back to a columns.json/resolveBekker lookup when bookFromColumn
+  // returns null, and a play-line work's internal columns.json keys are
+  // pipeline plumbing (each emitted segment's own first-line ref — see
+  // stage1_greek.py's `_segment_play_lines`), NOT the citable lineref
+  // space a reader jumps within — a typed lineref will almost never equal
+  // one of those keys, so falling back to that lookup would wrongly reject
+  // an ordinary in-range jump. Since every play-line work is bookless by
+  // construction, returning 1 unconditionally is not a guess.
+  function bookFromColumn(): number | null {
+    return 1;
+  }
+
+  return {
+    id: 'play-line',
+    columnRegex: PLAY_LINE_REF_RE,
+    hasUserFacingLines: false,
+    hasSections: false,
+    jumpPlaceholder: 'e.g. 1234',
+    label: 'line',
+    parseColumnToken,
+    parseLocation,
+    formatCitation,
+    bookFromColumn,
+  };
+}
 
 // `section`'s flat grammar (mirrors scheme.py's `_FLAT_COLUMN_RE`): a bare
 // chapter integer, e.g. Epictetus' Enchiridion "5". No letter axis and no
@@ -656,6 +765,7 @@ const SCHEMES: Record<SchemeId, CitationScheme> = {
   // difference is labels/hasSections, mirroring book-section's own override
   // above.
   letter: { ...makeDottedScheme('letter', false, 'e.g. 47.3', 'letter'), hasSections: true },
+  'play-line': makePlayLineScheme(),
 };
 
 // The scheme for a scheme id; omitted/empty (null/undefined/'') defaults to
@@ -719,6 +829,7 @@ const UNIT_NOUN_SINGULAR: Record<Exclude<SchemeId, 'dk'>, string> = {
   section: 'chapter',
   'verse-line': 'line',
   letter: 'letter',
+  'play-line': 'line',
   // An Ennead is divided into tractates; citation is by ennead.tractate.chapter
   // (Plotinus, planned — REVIEW-CHECKLIST item 34's ruling covers planned
   // schemes too, same posture as bekker/busse before their works landed).

@@ -78,4 +78,57 @@ function buildCitationRoutes(): CitationRoute[] {
   return routes;
 }
 
-export const citationRoutes: CitationRoute[] = buildCitationRoutes();
+// play-line (P1, docs/p1-probe.md): a static page per PRINTED line would be
+// ~1600+ pages for Agamemnon alone (~70k across the eventual 44-play
+// corpus) — instead, one static shim page every 50 printed lines (a round
+// multiple of 50, e.g. "/aeschylus/agamemnon/1250"), each redirecting to
+// the reader's own `?loc=` jump (the reader resolves any OTHER number
+// client-side; see shared/components/Reader.svelte's play-line jump
+// resolution). Independent of `enabledCorpora()`/`corpora/*/mount.yaml`
+// above (a Lyceum-hub-mount concept for the bekker/busse cross-corpus
+// index) — the drama site is standalone through P5, so this reads the
+// already-built book data directly rather than the hub's citation-index.json
+// (which only ever indexes bekker/busse, see scripts/build-citation-
+// index.mjs's own `INDEXED_SCHEMES`).
+const PLAY_LINE_STRIDE = 50;
+
+interface PlayLineBookLine {
+  ref?: string;
+  role?: string;
+}
+interface PlayLineBookData {
+  segments: { greek: PlayLineBookLine[] }[];
+}
+
+function buildPlayLineStrideRoutes(): CitationRoute[] {
+  const routes: CitationRoute[] = [];
+  for (const work of builtWorks()) {
+    if (work.citation?.scheme !== 'play-line') continue;
+    const bookPath = `public/data/${work.id}/book-01.json`;
+    if (!existsSync(bookPath)) continue;
+    const author = getAuthor(work.author);
+    if (!author) {
+      throw new Error(
+        `[citation-routes] work '${work.id}' has unresolvable author '${work.author}'`,
+      );
+    }
+    const book = JSON.parse(readFileSync(bookPath, 'utf8')) as PlayLineBookData;
+    for (const seg of book.segments) {
+      for (const line of seg.greek) {
+        // A "post N" lacuna line and a lyric range ("106-107") are never
+        // stride targets: only a plain printed integer can be an exact
+        // multiple of 50 in the first place.
+        if (line.role === 'lacuna' || !line.ref || !/^[0-9]+$/.test(line.ref)) continue;
+        if (Number(line.ref) % PLAY_LINE_STRIDE === 0) {
+          routes.push({ author: author.id, work: workSlug(work), cite: line.ref, bookN: 1 });
+        }
+      }
+    }
+  }
+  return routes;
+}
+
+export const citationRoutes: CitationRoute[] = [
+  ...buildCitationRoutes(),
+  ...buildPlayLineStrideRoutes(),
+];

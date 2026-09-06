@@ -40,7 +40,7 @@ describe('route registry collision gates', () => {
     expect(problems[0]).toContain("'en', 'EN'");
   });
 
-  it('accepts the zero-works registry (drama fork P0)', () => {
+  it('accepts the P1 registry (agamemnon, no collisions)', () => {
     const result = checkRouteRegistry({
       works: CORPUS_WORKS,
       authors: CORPUS_AUTHORS,
@@ -48,7 +48,7 @@ describe('route registry collision gates', () => {
       reservedSegments: scanReservedSegments(),
     });
 
-    expect(result.routes).toHaveLength(0);
+    expect(result.routes).toHaveLength(1);
     expect(result.problems).toEqual([]);
   });
 });

@@ -13,7 +13,6 @@ from functools import partial
 import hashlib
 import json
 import re
-import subprocess
 import unicodedata
 from pathlib import Path
 
@@ -37,9 +36,16 @@ EXPORT_DIR = BUILD_DIR / "export"
 
 
 def exported_xml_path(manifest: Manifest) -> Path:
+    """The drama corpus's one-invocation-per-author export convention
+    (docs/plan.md's P1 phase; CLAUDE.md's "one invocation per author"
+    rule): `build/export/tlg<author>/Diogenes-Resources/xml/tlg/
+    tlg<author><work>.xml` — the per-author subdirectory (`tlg0085`, ...)
+    is what lets one Diogenes export cover every work of that author
+    without collision, unlike a single shared `build/export/` root."""
     w = manifest.data["work"]
     return (
         EXPORT_DIR
+        / f"tlg{w['tlg_author']}"
         / "Diogenes-Resources"
         / "xml"
         / "tlg"
@@ -48,30 +54,26 @@ def exported_xml_path(manifest: Manifest) -> Path:
 
 
 def run_export(manifest: Manifest) -> Path:
-    """Run Diogenes xml-export.pl in verse mode (-y) unless already done."""
+    """The pre-existing Diogenes export for this work — NEVER invoked here
+    (P1 ruling, docs/plan.md: the drama corpus's TLG export is a manual,
+    one-invocation-per-author step run ahead of time per docs/tlg-phi-
+    export.md, not something a pipeline run triggers). If the expected
+    export file already exists (the common case — every author's export was
+    run once, up front), this just returns its path; if it is missing, this
+    fails loudly with a pointer to the recipe rather than guessing at a
+    `perl`/Diogenes invocation that may target the wrong scratch prefs dir
+    or a corpus location this process has no business assuming."""
     out = exported_xml_path(manifest)
     if out.exists():
         return out
     w = manifest.data["work"]
-    EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            "perl",
-            "xml-export.pl",
-            "-c", "tlg",
-            "-n", w["tlg_author"],
-            "-y",
-            "-o", str(EXPORT_DIR),
-        ],
-        cwd=manifest.diogenes_server(),
-        env={"TLG_DIR": str(manifest.tlg_dir()), "PATH": "/usr/bin:/bin"},
-        check=True,
-        capture_output=True,
-        text=True,
+    raise FileNotFoundError(
+        f"{manifest.work_id}: expected TLG export at {out} but it does not "
+        f"exist. Run the Diogenes export recipe in docs/tlg-phi-export.md "
+        f"for author {w.get('tlg_author')!r} (one invocation per author) "
+        f"before building this work — drama_pipeline never runs Diogenes "
+        f"itself."
     )
-    if not out.exists():
-        raise FileNotFoundError(f"export ran but {out} is missing")
-    return out
 
 
 def _line_text(el: etree._Element, strip_bars: bool = False, extra_strip_chars: str = "") -> str:
@@ -1086,6 +1088,383 @@ def _parse_flat_chapter(tree, sch, manifest=None, xml_path=None) -> tuple[list[d
 
 
 
+# --------------------------------------------------------------------------
+# Play-line (P1 — docs/p1-probe.md): the Greek drama corpus's own scheme.
+# The export carries NO wrapping div at all — <body> holds a flat sequence
+# of <l n="…"> lines directly (model: `_parse_flat_stephanus` above, minus
+# its page/section div walk; `_line_with_speakers` above is NOT reused
+# as-is because a play line's <label type="speaker"> carries BOTH true
+# speakers AND strophe/antistrophe markers that must be classified apart —
+# see `_line_with_play_labels` below).
+#
+# Segment cut (documented here, the play-line walker's one home): a segment
+# breaks whenever a NEW line opens with a fresh speaker cue (its first
+# speaker marker sits at char offset 0 — an antilabe's SECOND, mid-line
+# speaker never splits a segment, since a segment can never split a single
+# physical line), or after 40 lines without one — whichever comes first, cut
+# only ever at a line boundary. The cap keeps a long uninterrupted rhesis or
+# choral ode from becoming one giant segment the reader's virtual scroll
+# would have to render whole.
+
+_PLAY_LINE_STROPHE_RE = re.compile(
+    r"^\[?(στρ|ἀντ|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)\b", re.I
+)
+# The one malformed shape observed corpus-wide (docs/p1-probe.md): a strophe
+# mark glued to a speaker siglum inside ONE <label> element ("[ἀντ. α. Αν."
+# — a strophe/antistrophe mark, its own single-character stanza-number token
+# (a lowercase Greek letter or digit — "α.", "1." — never itself a speaker),
+# immediately followed by a speaker's own abbreviation). Split into its two
+# halves rather than either misclassifying the whole label as a speaker
+# (losing the strophe marker) or as a strophe marker (losing the speaker
+# cue). Deliberately narrow — NOT case-insensitive, and the trailing
+# "speaker" group must start with an UPPERCASE letter (Greek or Latin): an
+# ordinary "[στρ. α." is two whitespace-separated tokens too (the marker,
+# then its own lowercase stanza letter "α."), and a looser match here would
+# misparse every ordinary strophe label's own numbering letter as a phantom
+# speaker (verified against the real Agamemnon export, which carries no
+# genuine occurrence of this malformed shape at all — every "[στρ. α."-style
+# label in it is the ordinary two-token form).
+_GREEK_UPPER = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
+_PLAY_LINE_MALFORMED_RE = re.compile(
+    r"^(?P<strophe>\[?(?:στρ|ἀντ|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)[^\sΑ-Ω]*\.?"
+    r"(?:\s+[a-zα-ω0-9]+ʹ?\.)?)"
+    rf"\s+(?P<speaker>[{_GREEK_UPPER}A-Z][^\s]*\.)\s*$"
+)
+
+
+def _normalize_strophe_label(text: str) -> str:
+    """A classified strophe/antistrophe/epode label, stripped of its
+    leading "[" only (Murray prints "[στρ. α.", Dain/Coulon prints bare
+    "Str. 1." with no bracket at all — stripping is a no-op for those).
+    Nothing else about the printed text is altered."""
+    return text[1:] if text.startswith("[") else text
+
+
+def _line_with_play_labels(el: etree._Element) -> tuple[str, list[dict], str | None]:
+    """Flatten a play <l>: classify each `<label type="speaker">` as a real
+    speaker cue or a strophe/antistrophe/epode marker (see the module-doc
+    block above), returning (text, speaker_markers, strophe_label).
+
+    A speaker cue is excluded from the text stream and recorded as an
+    `{offset, label}` marker, exactly like `_line_with_speakers` above — the
+    offset is the char position in the FINAL text (after every label is
+    removed and whitespace is collapsed), so it stays correct for a strophe
+    marker printed BEFORE a speaker cue on the same physical line (not
+    observed in the corpus, but the algorithm does not assume position). A
+    strophe label is dropped from the stream entirely and returned as
+    `strophe_label` (see `_normalize_strophe_label`) — never a speaker
+    marker, never citable text.
+
+    Unlike `_line_with_speakers`, a label's text is taken via `itertext()`
+    (not `.text`), because a full-caps first-appearance speaker name is
+    wrapped in its own `<hi rend="small">` child ("<label type=\"speaker\">
+    <hi rend=\"small\">ΦΥΛΑΞ</hi></label>") — `.text` alone would see only
+    the label's own (empty) direct text and silently lose the name."""
+    parts: list[str] = [el.text or ""]
+    speaker_texts: list[str] = []
+    strophe_label: str | None = None
+    for child in el:
+        tag = etree.QName(child).localname if isinstance(child.tag, str) else ""
+        if tag == "label" and child.get("type") == "speaker":
+            text = re.sub(r"\s+", " ", "".join(child.itertext())).strip()
+            m = _PLAY_LINE_MALFORMED_RE.match(text)
+            if m:
+                if strophe_label is not None:
+                    raise ValueError(f"more than one strophe label on one play line: {text!r}")
+                strophe_label = _normalize_strophe_label(m.group("strophe"))
+                speaker_texts.append(m.group("speaker"))
+                parts.append(_SPEAKER_SENTINEL)
+            elif _PLAY_LINE_STROPHE_RE.match(text):
+                if strophe_label is not None:
+                    raise ValueError(f"more than one strophe label on one play line: {text!r}")
+                strophe_label = _normalize_strophe_label(text)
+                # Dropped outright: no sentinel, no token-stream content, no
+                # speaker marker.
+            else:
+                speaker_texts.append(text)
+                parts.append(_SPEAKER_SENTINEL)
+        else:
+            parts.append("".join(child.itertext()))
+        parts.append(child.tail or "")
+    collapsed = re.sub(r"\s+", " ", "".join(parts)).strip()
+    out: list[str] = []
+    markers: list[dict] = []
+    li = 0
+    i = 0
+    while i < len(collapsed):
+        ch = collapsed[i]
+        if ch == _SPEAKER_SENTINEL:
+            i += 1
+            if i < len(collapsed) and collapsed[i] == " ":
+                i += 1  # absorb the single space after the label
+            if out and out[-1] != " ":
+                out.append(" ")
+            markers.append({"offset": len("".join(out)), "label": speaker_texts[li]})
+            li += 1
+        else:
+            out.append(ch)
+            i += 1
+    return "".join(out), markers, strophe_label
+
+
+def _normalize_play_lineref(n: str | None, xml_path=None) -> str:
+    """Normalize a play `<l n>` token to the play-line grammar (scheme.py's
+    `PLAY_LINE_REF_SOURCE`) — the ONLY two normalizations the P1 probe
+    found necessary, both applied here so every later consumer (the
+    grammar check, the order key, the manifest's declared lacunae/
+    transpositions) sees the canonical form:
+
+      * Diggle's unspaced lacuna placeholder ("post1226") -> "post 1226".
+      * Ecclesiazusae's slash-joined double number ("289/290") -> the
+        ordinary range form "289-290" (the SAME editorial phenomenon as an
+        int-int range token, just spelled with a different separator)."""
+    if not isinstance(n, str) or not n:
+        raise ValueError(f"{xml_path or '<xml>'}: play <l> has no @n")
+    m = re.match(r"^post\s*([0-9]+)$", n)
+    if m:
+        return f"post {m.group(1)}"
+    m = re.match(r"^([0-9]+)/([0-9]+)$", n)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}"
+    return n
+
+
+def _play_line_start_key(ref: str) -> tuple[int, int, str]:
+    """Sort key for a document-order transposition scan: an ordinary ref
+    via `scheme_mod.play_line_order_key`; a range token has no single
+    citable position, so it sorts at its START (mirrors stage1_latin.py's
+    identically-reasoned `_verse_lineref_order_key` in CPR)."""
+    if scheme_mod.play_line_kind(ref) == "range":
+        ref = ref.split("-", 1)[0]
+    return scheme_mod.play_line_order_key(ref)
+
+
+def _derive_play_line_transposed_blocks(doc_refs: list[str]) -> list[dict]:
+    """Mechanically derive the transposed blocks from a play's DOCUMENT-order
+    lineref sequence — byte-for-byte the same algorithm as CPR's
+    `_derive_transposed_blocks` (stage1_latin.py, Lucretius' DRN), reused
+    here under the play-line grammar's own order key. A maximal run of
+    consecutive document-order refs whose order key is LESS than the
+    running maximum already seen is a block transmitted out of numeric
+    sequence — printed here, in the edition's own transmitted position,
+    immediately after the higher-numbered ref that is its "before" anchor.
+    See docs/p1-probe.md's Agamemnon example (1290 printed one position
+    early): the block this derives for it is `{start: "1284", end: "1289",
+    before: "1290"}` — 1284-1289 are the ascending run sitting below the
+    running max 1290 set one ref earlier, not "1290" itself (which, at the
+    moment it is read, is simply a new maximum) — the same convention this
+    algorithm already uses for DRN's own worked examples."""
+    blocks: list[dict] = []
+    running_max_key: tuple | None = None
+    running_max_ref: str | None = None
+    i, n = 0, len(doc_refs)
+    while i < n:
+        ref = doc_refs[i]
+        key = _play_line_start_key(ref)
+        if running_max_key is not None and key < running_max_key:
+            start = ref
+            before = running_max_ref
+            j = i
+            cur_key = key
+            while j + 1 < n:
+                nxt = doc_refs[j + 1]
+                nkey = _play_line_start_key(nxt)
+                if nkey < running_max_key and nkey > cur_key:
+                    j += 1
+                    cur_key = nkey
+                    continue
+                break
+            blocks.append({"start": start, "end": doc_refs[j], "before": before})
+            i = j + 1
+            continue
+        running_max_key = key
+        running_max_ref = ref
+        i += 1
+    return blocks
+
+
+def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
+    """Flat (ref, text, speakers, role?, label?) list for play-line's flat
+    export, in DOCUMENT (printed) order — never re-sorted (docs/p1-probe.md:
+    "display document order, never re-sort"; a jump to a transposed number
+    lands on its printed position, no seam note needed).
+
+    The first `<l n="t">` is the play's title-drop (Murray's all-caps title
+    inside a `<label type="head">`), gated on the manifest's declared
+    `citation.title_labels` exactly like `_load_flat_title_declarations`'s
+    other callers (an undeclared title is a loud ValueError, never a silent
+    drop).
+
+    Every other `<l>`'s `@n` is normalized (`_normalize_play_lineref`) and
+    checked against the play-line grammar (`scheme_mod.play_line_kind`,
+    which raises loudly on a malformed token); a "post N" line's role is
+    `"lacuna"` and its text is forced empty (mirrors verse-line's own
+    lacuna convention) while its speaker marker (Diggle's convention prints
+    the anonymous character's name inside the empty brackets) is kept, so
+    the reader can still show who the lost line belonged to."""
+    declared_titles = _load_flat_title_declarations(manifest)
+    title_seen = False
+    flat: list[dict] = []
+    body = tree.find(".//{*}body")
+    if body is None:
+        raise ValueError(f"{xml_path or '<xml>'}: no <body> element in play-line export")
+    for l_el in body.iterfind("{*}l"):
+        n = l_el.get("n")
+        if n == "t":
+            if title_seen:
+                raise ValueError(f"{xml_path or '<xml>'}: more than one <l n=\"t\"> title line")
+            title_seen = True
+            title_text = _line_text(l_el)
+            h = _flat_title_content_hash(title_text)
+            if h not in declared_titles:
+                raise ValueError(
+                    f"{xml_path or '<xml>'}: undeclared play title line "
+                    f"(sha256_16={h!r}, text={title_text!r}) — declare it in "
+                    f"citation.title_labels before this can build"
+                )
+            continue
+        ref = _normalize_play_lineref(n, xml_path)
+        kind = scheme_mod.play_line_kind(ref)  # raises loudly on a bad token
+        text, markers, label = _line_with_play_labels(l_el)
+        entry: dict = {"ref": ref, "text": text}
+        if markers:
+            entry["speakers"] = markers
+        if label:
+            entry["label"] = label
+        if kind == "post":
+            entry["role"] = "lacuna"
+            entry["text"] = ""
+            # Diggle's placeholder names the lost line's speaker inside the
+            # empty brackets; the marker's offset is meaningless once the
+            # text is forced empty, so it is pinned to 0 rather than left
+            # pointing past the end of an empty string.
+            if "speakers" in entry:
+                entry["speakers"] = [{**m, "offset": 0} for m in entry["speakers"]]
+        flat.append(entry)
+    if not title_seen:
+        raise ValueError(f"{xml_path or '<xml>'}: play-line export has no <l n=\"t\"> title line")
+    return flat
+
+
+def _rejoin_play_line_hyphens(flat: list[dict]) -> None:
+    """Rejoin a word hyphenated across two ADJACENT play `<l>` divs (the
+    edition's own metrical line-break, not a print-column wrap) — measured
+    against the real Agamemnon export: choral odes hyphenate mid-word
+    across `<l n>` boundaries often (`τρια-` / `κτῆρος`), sometimes
+    chained across three lines in a row. Mutates `flat` in place; byte-for-
+    byte the same algorithm as `parse_spine`'s own generic rejoin loop
+    (this scheme bypasses that loop entirely — see `_parse_spine_play` —
+    because it needs its own segment-grouping, so the rejoin is duplicated
+    here rather than threading a "used by 1288-line parse_spine's tail
+    literally" special case through it)."""
+    for i, line in enumerate(flat):
+        if not line["text"].endswith("-"):
+            continue
+        if i + 1 >= len(flat) or not flat[i + 1]["text"]:
+            raise ValueError(f"hyphenated play line with no continuation: {line['ref']}")
+        nxt = flat[i + 1]
+        head, _, rest = nxt["text"].partition(" ")
+        fragment = line["text"][:-1]
+        if fragment and head and _is_greek_letter(head[0]):
+            fragment = _fold_hyphen_final_sigma(fragment)
+        line["text"] = fragment + head
+        line["joined"] = True
+        removed = len(nxt["text"]) - len(rest)
+        nxt["text"] = rest
+        for m in nxt.get("speakers", []):
+            m["offset"] = max(0, m["offset"] - removed)
+
+
+def _segment_play_lines(flat: list[dict]) -> list[dict]:
+    """Group play-line's dense-numbered flat list into per-speech segments
+    (see the module-doc block above this section for the cut rule). Each
+    segment's `column` is its OWN first line's printed ref — unique per
+    segment by construction (two segments can never open on the same
+    printed line) — so the generic dist-level validators (preflight's
+    per-(book,column) segment/columns.json bookkeeping) see an ordinary
+    one-segment-per-column shape, even though play-line's citation grammar
+    itself has no page/column axis at all (a reader jump resolves by
+    printed lineref, client-side — shared/lib/citation.ts's play-line
+    scheme and Reader.svelte, never by this internal column string)."""
+    _SEGMENT_LINE_CAP = 40
+    segments: list[dict] = []
+    cur: dict | None = None
+    for i, entry in enumerate(flat, start=1):
+        starts_new_speaker = bool(entry.get("speakers")) and entry["speakers"][0]["offset"] == 0
+        if cur is not None and (starts_new_speaker or len(cur["lines"]) >= _SEGMENT_LINE_CAP):
+            segments.append(cur)
+            cur = None
+        if cur is None:
+            cur = {"id": f"1:{entry['ref']}", "book": 1, "column": entry["ref"], "lines": []}
+        line_entry: dict = {"n": i, "text": entry["text"], "ref": entry["ref"]}
+        if entry.get("joined"):
+            line_entry["joined"] = True
+        if entry.get("role"):
+            line_entry["role"] = entry["role"]
+        if entry.get("label"):
+            line_entry["label"] = entry["label"]
+        cur["lines"].append(line_entry)
+        for m in entry.get("speakers", []):
+            cur.setdefault("speakers", []).append({"line": i, "offset": m["offset"], "label": m["label"]})
+    if cur is not None:
+        segments.append(cur)
+    return segments
+
+
+def _parse_spine_play(xml_path: Path, manifest: Manifest, sch) -> dict:
+    """`parse_spine`'s play-line counterpart (mirrors CPR's
+    `_parse_spine_verse`): parses the flat export, rejoins hyphenated
+    words, checks the manifest's declared `citation.lacunae`/
+    `citation.transpositions` against what was actually observed
+    (bidirectional — an undeclared OR a stale declaration both fail
+    loudly), and groups the result into per-speech segments."""
+    tree = etree.parse(str(xml_path))
+    _check_sourcedesc(tree, manifest, xml_path)
+    flat = _parse_play(tree, sch, manifest, xml_path)
+    _rejoin_play_line_hyphens(flat)
+
+    doc_refs = [e["ref"] for e in flat]
+    found_lacunae = {e["ref"] for e in flat if e.get("role") == "lacuna"}
+    citation = manifest.data.get("citation") or {}
+    declared_lacunae = set((citation.get("lacunae") or {}).get("1") or [])
+    undeclared = found_lacunae - declared_lacunae
+    stale = declared_lacunae - found_lacunae
+    if undeclared or stale:
+        raise ValueError(
+            f"{manifest.work_id}: lacuna declaration mismatch against "
+            f"citation.lacunae['1'] — undeclared (observed but not "
+            f"declared): {sorted(undeclared) or 'none'}; stale (declared "
+            f"but not observed): {sorted(stale) or 'none'}"
+        )
+
+    declared_transpositions = citation.get("transpositions")
+    if not isinstance(declared_transpositions, dict) or "1" not in declared_transpositions:
+        raise ValueError(
+            f"{manifest.work_id}: citation.transpositions['1'] is required "
+            f"for a play-line work — declare the derived block list (an "
+            f"explicit empty list is fine once verified to have none); "
+            f"omission is a fail-open hazard, not a supported bootstrapping "
+            f"state"
+        )
+    observed_blocks = _derive_play_line_transposed_blocks(doc_refs)
+    declared_blocks = declared_transpositions["1"]
+    if declared_blocks != observed_blocks:
+        raise ValueError(
+            f"{manifest.work_id}: transposition mismatch against "
+            f"citation.transpositions['1'] — observed {observed_blocks!r} "
+            f"but manifest declares {declared_blocks!r}"
+        )
+
+    segments = _segment_play_lines(flat)
+    return {
+        "work": manifest.work_id,
+        "edition": manifest.data["work"]["greek_edition"],
+        "segments": segments,
+        "headings": [],
+        "unassigned_lines": [],
+    }
+
+
 def _check_sourcedesc(tree, manifest: Manifest, xml_path) -> None:
     """FATAL gate (Wave 1c Sol nit): the export XML's own <teiHeader>
     <sourceDesc> text must CONTAIN this work's manifest-declared
@@ -1124,6 +1503,14 @@ def _check_sourcedesc(tree, manifest: Manifest, xml_path) -> None:
 
 
 def parse_spine(xml_path: Path, manifest: Manifest) -> dict:
+    sch = scheme_mod.for_manifest(manifest)
+    if sch.play_line_scheme:
+        # play-line (P1 — docs/p1-probe.md): a wholly separate flow, like
+        # CPR's verse-line/_parse_spine_verse — its flat, wrapping-div-less
+        # export and per-speech (not per-column) segment grouping share
+        # nothing with the generic page/section walk + book/column grouping
+        # below, so it never enters that shared tail at all.
+        return _parse_spine_play(xml_path, manifest, sch)
     tree = etree.parse(str(xml_path))
     _check_sourcedesc(tree, manifest, xml_path)
     # The citation scheme selects the export shape and column-token grammar:
@@ -1143,7 +1530,6 @@ def parse_spine(xml_path: Path, manifest: Manifest) -> dict:
     #                    flattens into the chapter the same way (see
     #                    _parse_flat_chapter). Bookless — every column is
     #                    assigned to the work's single declared book below.
-    sch = scheme_mod.for_manifest(manifest)
     # philosopher_headers is only ever populated by the book-section branch
     # (Diogenes Laertius' "t18-47" philosopher-heading stubs — see
     # _parse_flat_book_section); every other scheme leaves it empty, and the

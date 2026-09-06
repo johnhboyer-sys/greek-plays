@@ -534,6 +534,20 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                     {
                         "n": line["n"],
                         "text": line["text"],
+                        # play-line only (P1 — docs/p1-probe.md): the play's
+                        # own printed lineref ("1234", "47a", a lyric range
+                        # "106-107", Diggle's "post 1226") -- REQUIRED for
+                        # this scheme (non-integer tokens are common: 759
+                        # corpus-wide), absent for every other scheme's line
+                        # (byte-identical by construction). See
+                        # shared/lib/data.ts's GreekLine.ref.
+                        **({"ref": ref} if (ref := line.get("ref")) is not None else {}),
+                        # play-line only: a strophe/antistrophe/epode marker
+                        # (shared/lib/data.ts's GreekLine.label), normalized
+                        # by stage1_greek._normalize_strophe_label. Present
+                        # only on the one line it was printed beside; every
+                        # other line (every scheme) carries no "label" key.
+                        **({"label": lbl} if (lbl := line.get("label")) else {}),
                         **({"joined": True} if line.get("joined") else {}),
                         # Lined-source print-line fields (Discourses only —
                         # docs/lined-source-plan.md §3): "sec" unconditional

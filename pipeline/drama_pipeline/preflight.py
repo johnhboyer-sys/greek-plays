@@ -68,6 +68,7 @@ def _stephanus_like_dispatch(scheme) -> bool:
         and not scheme.verse_line_scheme
         and not scheme.numeric_section
         and not scheme.flat_numeric
+        and not scheme.play_line_scheme
     )
 
 
@@ -93,7 +94,10 @@ def _no_english_allowed(work: dict, scheme) -> bool:
     carried real English). See _validate_manifest_schema's `no_english`
     block for the full rationale."""
     return scheme.fragment_scheme or (
-        (scheme.numeric_section or scheme.verse_line_scheme or scheme.flat_numeric)
+        (
+            scheme.numeric_section or scheme.verse_line_scheme or scheme.flat_numeric
+            or scheme.play_line_scheme
+        )
         and work.get("no_english") is True
     )
 
@@ -586,7 +590,7 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
     # by `_validate_verse_line_work`'s dist-level gate — requiring an
     # UNCONSUMED `section_spine` here too would be a declaration nothing
     # ever checks.
-    if not scheme.verse_line_scheme:
+    if not scheme.verse_line_scheme and not scheme.play_line_scheme:
         spine = data.get("section_spine")
         if not isinstance(spine, dict):
             problems.append((manifest.work_id, file_name, "section_spine must be an object"))
@@ -698,6 +702,26 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
             token_ok=lambda v: _is_column(v, scheme),
             sort_key=lambda t: column_prefix_key(t, scheme),
             token_label="a dk (Diels-Kranz) column token",
+        )
+    elif scheme.play_line_scheme:
+        # play-line (the Greek drama corpus, P1) is bookless like `section`/
+        # dk -- a single declared book covers the whole play's printed
+        # lineref spine (a play running 1000+ lines gets no multi-book
+        # split; "books: 1" is the manifest's own declared shape).
+        books_list = data.get("books") if isinstance(data.get("books"), list) else []
+        if len(books_list) != 1:
+            problems.append((manifest.work_id, file_name,
+                             "a play-line-scheme work is bookless and must declare "
+                             f"exactly one book entry, got {len(books_list)}"))
+        elif isinstance(books_list[0], dict) and books_list[0].get("n") != 1:
+            problems.append((manifest.work_id, file_name,
+                             "a play-line-scheme work's single book entry must be "
+                             f"n: 1, got n: {books_list[0].get('n')!r}"))
+        _validate_books_schema(
+            manifest, problems,
+            token_ok=lambda v: _is_column(v, scheme),
+            sort_key=lambda t: column_prefix_key(t, scheme),
+            token_label="a play-line lineref token",
         )
     else:
         _validate_books_schema(
@@ -839,6 +863,8 @@ def _validate_work_data(data_dir: Path, manifest: WorkManifest, problems: list[P
         ))
     if scheme.verse_line_scheme:
         _validate_verse_line_work(manifest, loaded, problems, scheme)
+    if scheme.play_line_scheme:
+        _validate_play_line_work(manifest, loaded, problems, scheme)
 
 
 def _validate_verse_line_work(
@@ -937,6 +963,85 @@ def _validate_verse_line_work(
         if fp.get("count") != got_count or fp.get("sha256") != got_sha256:
             problems.append((
                 manifest.work_id, "<verse-line fingerprint>",
+                f"citation.fingerprint mismatch — declared count="
+                f"{fp.get('count')!r} sha256={fp.get('sha256')!r}, got "
+                f"count={got_count!r} sha256={got_sha256!r}",
+            ))
+
+
+def _validate_play_line_work(
+    manifest: WorkManifest,
+    loaded: dict[str, Any],
+    problems: list[Problem],
+    scheme,
+) -> None:
+    """play-line (the Greek drama corpus, P1 — docs/p1-probe.md)-specific
+    dist-level gates, mirroring `_validate_verse_line_work`'s posture
+    (re-derived from the DIST output independently of stage1_greek's own
+    parse-time gates) but at LINE granularity rather than per-segment-
+    column: unlike verse-line, a play-line segment holds many printed
+    lines (one per speech, capped at 40 — see stage1_greek._segment_play_
+    lines), so `citation.fingerprint` is a hash over every emitted line's
+    own `ref`, in document (never re-sorted) order, not over segment
+    column tokens:
+
+      * every emitted line's `ref` matches the play-line grammar.
+      * a lacuna ('post N') line carries zero tokens (mirrors verse-line's
+        own "zero tokens" lacuna gate).
+      * observed-spine ref-list fingerprint: count + sha256 over every
+        emitted book-1.json line's `ref`, in emission order (document
+        order -- play-line is never re-sorted, docs/p1-probe.md), compared
+        against the manifest's declared `citation.fingerprint`.
+
+    No post-sort monotonicity gate (contrast verse-line's own): play-line
+    never resorts into citation order at emit time (the manuscript's real
+    transpositions are declared and displayed exactly as printed), so there
+    is no "after the sort" invariant to assert here."""
+    all_refs: list[str] = []
+    for book in manifest.data.get("books", []):
+        if not isinstance(book, dict) or not isinstance(book.get("n"), int):
+            continue
+        name = f"book-{book['n']:02d}.json"
+        doc = loaded.get(name)
+        if not isinstance(doc, dict) or not isinstance(doc.get("segments"), list):
+            continue
+        for segment in doc["segments"]:
+            if not isinstance(segment, dict):
+                continue
+            greek = segment.get("greek")
+            if not isinstance(greek, list):
+                continue
+            for line in greek:
+                if not isinstance(line, dict):
+                    continue
+                ref = line.get("ref")
+                if not isinstance(ref, str) or not scheme.column_re.match(ref):
+                    problems.append((
+                        manifest.work_id, name,
+                        f"{segment.get('id')}: line n={line.get('n')} has "
+                        f"missing/malformed ref {ref!r}",
+                    ))
+                    continue
+                all_refs.append(ref)
+                if line.get("role") == "lacuna":
+                    tokens = line.get("tokens")
+                    if tokens:
+                        problems.append((
+                            manifest.work_id, name,
+                            f"{segment.get('id')}: ref {ref} is a lacuna line "
+                            f"but carries {len(tokens)} token(s) — a lacuna "
+                            f"must have zero tokens",
+                        ))
+
+    fp = (manifest.data.get("citation") or {}).get("fingerprint")
+    if not isinstance(fp, dict):
+        problems.append((manifest.work_id, "<play-line fingerprint>", "citation.fingerprint must be an object"))
+    else:
+        got_count = len(all_refs)
+        got_sha256 = hashlib.sha256(",".join(all_refs).encode("utf-8")).hexdigest()
+        if fp.get("count") != got_count or fp.get("sha256") != got_sha256:
+            problems.append((
+                manifest.work_id, "<play-line fingerprint>",
                 f"citation.fingerprint mismatch — declared count="
                 f"{fp.get('count')!r} sha256={fp.get('sha256')!r}, got "
                 f"count={got_count!r} sha256={got_sha256!r}",

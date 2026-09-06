@@ -2,7 +2,15 @@
 // Every work's landing page, served at /<author>/<work> (e.g. /marcus-aurelius/Meditations).
 // The reader for a work lives at /<author>/<work>/book/<n> (bookless works only
 // ever have book 1). See src/components/Landing.astro.
+//
+// EXCEPTION (P1, docs/p1-probe.md): a bookless play-line work (the Greek
+// drama corpus) renders the reader directly at this bare path instead —
+// "bookless: NO /book/1 redirect" (the plan's own P1 acceptance wording).
+// A play has no separate landing-plate content yet (the per-play opening
+// plate is a P4 design item); `/book/1` still exists and renders the same
+// reader (getStaticPaths below still emits it), so neither URL 404s.
 import Landing from '../../../components/Landing.astro';
+import ReaderShell from '../../../components/ReaderShell.astro';
 import { getWorkBySlug, workSlug } from '@shared/lib/works';
 import { getAuthor } from '@shared/lib/authors';
 import { builtWorks } from '../../../lib/built-works';
@@ -36,5 +44,8 @@ if (!work) {
   throw new Error(`[author]/[work]/index: no work at author '${authorParam}' slug '${slugParam}'`);
 }
 const workId = work.id;
+const isBooklessPlayLine = work.citation?.scheme === 'play-line' && work.books === 1;
 ---
-<Landing workId={workId} />
+{isBooklessPlayLine
+  ? <ReaderShell workId={workId} n={1} />
+  : <Landing workId={workId} />}

@@ -1653,8 +1653,13 @@ describe('Reader.svelte book-section chapter-flow (item 23 unification)', () => 
       // delta from the prior pin is one fewer Svelte anchor comment per
       // line (the removed block-above `.greek-para-n` {#if}); the visible
       // DOM — every element, attribute, and text node — is unchanged.
+      // Re-pinned again (P1, play-line strophe marker): one more Svelte
+      // anchor comment per line, glued directly before each `.greek-line`
+      // div — the compiled anchor for the new `{#if playLine &&
+      // item.line.label}` this scheme never satisfies (has_sections
+      // schemes are never play-line). No visible DOM changed.
       expect(container.querySelector('.greek-col')!.innerHTML).toBe(
-        '<!----> <!----><!----><!----> <div class="greek-line salutation" id="L1.1-1"><span class="line-num"></span> <span class="line-text" lang="la"><!----><!----><span role="button" tabindex="0" aria-haspopup="dialog" class="tok" aria-label="Analyse Seneca">Seneca</span><!----> Lucilio suo salutem<!----></span><!----></div><!----><!----><!----> <div class="greek-line" id="L1.1-2"><span class="line-num"></span> <span class="line-text" lang="la"><!----><!----><span role="button" tabindex="-1" aria-haspopup="dialog" class="tok" aria-label="Analyse Ita">Ita</span><!----> fac, mi Lucili<!----></span><!----></div><!---->',
+        '<!----> <!----><!----><!----> <!----><div class="greek-line salutation" id="L1.1-1"><span class="line-num"></span> <span class="line-text" lang="la"><!----><!----><span role="button" tabindex="0" aria-haspopup="dialog" class="tok" aria-label="Analyse Seneca">Seneca</span><!----> Lucilio suo salutem<!----></span><!----></div><!----><!----><!----> <!----><div class="greek-line" id="L1.1-2"><span class="line-num"></span> <span class="line-text" lang="la"><!----><!----><span role="button" tabindex="-1" aria-haspopup="dialog" class="tok" aria-label="Analyse Ita">Ita</span><!----> fac, mi Lucili<!----></span><!----></div><!---->',
       );
     });
 
@@ -1680,8 +1685,10 @@ describe('Reader.svelte book-section chapter-flow (item 23 unification)', () => 
       // pieces' own `.line-num` gutter cells, and pieces carry `sec-piece`
       // (neutralizes the .cont continuation indent). This branch is
       // deliberately NOT byte-identical to the pre-ruling pin.
+      // Re-pinned again (P1, play-line strophe marker) — same one-anchor-
+      // comment-per-line addition as the letter-scheme fixture above.
       expect(container.querySelector('.greek-col')!.innerHTML).toBe(
-        '<!----> <!----><!----><!----> <div class="greek-line sec-piece" id="L1-1"><span class="line-num">1</span> <span class="line-text" lang="grc"><!----><!----><span role="button" tabindex="0" aria-haspopup="dialog" class="tok" aria-label="Analyse τῶν">τῶν</span><!----> ὄντων τὰ μέν ἐστιν<!----></span><!----></div><!----><!----><!----> <div class="greek-line cont sec-piece" id="L1-1-c2"><span class="line-num">2</span> <span class="line-text" lang="grc"><!----><!----> ἐφ᾽ ἡμῖν<!----></span><!----></div><!---->',
+        '<!----> <!----><!----><!----> <!----><div class="greek-line sec-piece" id="L1-1"><span class="line-num">1</span> <span class="line-text" lang="grc"><!----><!----><span role="button" tabindex="0" aria-haspopup="dialog" class="tok" aria-label="Analyse τῶν">τῶν</span><!----> ὄντων τὰ μέν ἐστιν<!----></span><!----></div><!----><!----><!----> <!----><div class="greek-line cont sec-piece" id="L1-1-c2"><span class="line-num">2</span> <span class="line-text" lang="grc"><!----><!----> ἐφ᾽ ἡμῖν<!----></span><!----></div><!---->',
       );
     });
   });

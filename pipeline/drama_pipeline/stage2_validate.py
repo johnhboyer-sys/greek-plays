@@ -123,7 +123,7 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         "missing": missing,
         "extra": extra,
         "monotonic": monotonic,
-        "ok": not missing and not extra and (monotonic or sch.verse_line_scheme),
+        "ok": not missing and not extra and (monotonic or sch.verse_line_scheme or sch.play_line_scheme),
     }
 
     # --- 1b. section-token order (observed schemes only) ----------------
@@ -154,7 +154,7 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         for g in manifest.data.get("expected_section_gaps", [])
         if isinstance(g, dict) and {"after", "next"} <= g.keys()
     }
-    if observed and not sch.fragment_scheme and not sch.verse_line_scheme:
+    if observed and not sch.fragment_scheme and not sch.verse_line_scheme and not sch.play_line_scheme:
         letter_ix = {ch: i for i, ch in enumerate(sch.section_letters)}
         strictly_increasing = all(a < b for a, b in zip(keys, keys[1:]))
         section_gaps: list[dict] = []

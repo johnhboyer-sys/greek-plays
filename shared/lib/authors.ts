@@ -27,6 +27,12 @@ export interface Author {
   // "Complete fragments & testimonia", or "Complete surviving works"
   // (see holdingsLabel). 'partial': the card lists the work titles held.
   holdings: 'complete' | 'partial';
+  // Additive (P1, the Greek drama corpus, docs/plan.md §5): a dramatist's
+  // genre — drives the home page's Tragedy/Comedy shelves in place of
+  // `period` grouping for this corpus. Deliberately NOT folded into
+  // `schools` (which would leak a dramatic-genre taxonomy into the
+  // Lyceum's philosophical one); absent for every non-drama author.
+  genre?: 'tragedy' | 'comedy';
 }
 
 // Fixture author+work enter the registries only when this env flag is

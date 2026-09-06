@@ -6,7 +6,7 @@
 // alongside this). This locks in the shape entriesFor/lemmaRef/displayLemma
 // (WordPopup.svelte) render, independent of the a11y test (which only
 // checks for axe violations, not content).
-import { cleanup, render, screen } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import WordPopup from '../components/WordPopup.svelte';
@@ -22,6 +22,28 @@ vi.mock('../lib/data', async (importOriginal) => {
   };
 });
 
+// 'de-officiis' stands in for a Latin work (the drama-corpus registry carries
+// none), matching the fan-out test below, which mirrors the real Latin
+// stage5_lsj "edo1"/"edo2" homonym case (HANDOFF-LSJ §1, aristotle-reader).
+vi.mock('../lib/works', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../lib/works')>();
+  return {
+    ...actual,
+    getWork: (id: string) =>
+      id === 'de-officiis'
+        ? ({ language: 'lat' } as ReturnType<typeof actual.getWork>)
+        : actual.getWork(id),
+  };
+});
+
+// Grammata's T8 widget is the ONE renderer of a dictionary entry (CLAUDE.md,
+// "Dictionary"); no test may reach the real network module for it — the load
+// is mocked here and `mockLookup` stands in for the widget's own `lookup`.
+const { mockLookup } = vi.hoisted(() => ({ mockLookup: vi.fn(async () => undefined) }));
+vi.mock('../lib/grammata', () => ({
+  loadGrammataLookup: vi.fn(async () => mockLookup),
+}));
+
 import { lookupWord } from '../lib/data';
 
 afterEach(() => {
@@ -33,7 +55,6 @@ describe('WordPopup — single dictionary entry (the common case)', () => {
   it('renders the Greek lemma, gloss, parse, dictionary entry, and the lemma-page link — no ambiguity note', async () => {
     vi.mocked(lookupWord).mockResolvedValue({
       analyses: [{ lemma: 'lo/gos', gloss: 'word, account', parse: 'noun nominative singular', lsj: ['logos'] }],
-      lsj: [{ key: 'logos', head: 'λόγος', html: '<span class="lsj-head">λόγος</span>, <i>word, speech, account</i>' }],
     });
 
     const { container } = render(WordPopup, {
@@ -43,9 +64,10 @@ describe('WordPopup — single dictionary entry (the common case)', () => {
     expect(await screen.findByText('word, account')).toBeTruthy();
     expect(screen.getByText('noun nominative singular')).toBeTruthy();
     expect(container.querySelector('.lemma')?.textContent).toBe('λόγος');
-    expect(container.querySelector('.lsj-label')?.textContent).toBe('LSJ');
-    // Exactly one dictionary entry rendered; no ambiguity label.
-    expect(container.querySelectorAll('.lsj-entry')).toHaveLength(1);
+    // The dictionary entry itself is Grammata's T8 widget (mounted, not open
+    // by default) — the site renders no local LSJ entry HTML.
+    expect(container.querySelector('.grammata-mount')).toBeTruthy();
+    expect(container.querySelector('.lsj-entry')).toBeNull();
     expect(container.querySelector('.lsj-ambiguous-note')).toBeNull();
     // Unambiguous (1 key) — the "Appears Nx" concordance link IS shown.
     const link = container.querySelector('.lemma-link');
@@ -61,24 +83,25 @@ describe('WordPopup — homonym fan-out (multi-entry) ambiguity', () => {
     // POS-filtering drops edo3).
     vi.mocked(lookupWord).mockResolvedValue({
       analyses: [{ lemma: 'edo#1', gloss: '', parse: 'pres ind act 3rd sg', lsj: ['e^do1', 'e_do2'] }],
-      lsj: [
-        { key: 'e^do1', head: 'edo', html: '<i>to eat</i>' },
-        { key: 'e_do2', head: 'edo', html: '<i>to give out, publish</i>' },
-      ],
     });
 
     const { container } = render(WordPopup, {
       props: { work: 'de-officiis', token: { t: 'est', k: 'est' }, anchor: { x: 0, y: 0 }, onClose: vi.fn() },
     });
 
-    await screen.findByText('2 dictionary entries match this headword');
-    expect(container.querySelectorAll('.lsj-entry')).toHaveLength(2);
+    await screen.findAllByText('pres ind act 3rd sg');
+    // One card per dictionary entry, each with its own Grammata mount; no
+    // local LSJ entry HTML.
+    expect(container.querySelectorAll('.analysis-card')).toHaveLength(2);
+    expect(container.querySelectorAll('.grammata-mount')).toHaveLength(2);
+    expect(container.querySelector('.lsj-entry')).toBeNull();
     // Never a silent, possibly-wrong pick of one: no lemma-page link when ambiguous.
     expect(container.querySelector('.lemma-link')).toBeNull();
     // Both candidates share the headword spelling "edo" (homographs by
     // definition), so the card shows that common head -- never the raw
     // Diogenes-internal "edo#1" marker.
-    expect(container.querySelector('.lemma')?.textContent).toBe('edo');
+    const heads = [...container.querySelectorAll('.lemma')].map((el) => el.textContent);
+    expect(heads).toEqual(['edo', 'edo']);
   });
 });
 
@@ -230,11 +253,10 @@ describe('WordPopup — word-to-word jump (backdrop removal + reactive lookup)',
   });
 });
 
-describe('WordPopup — Grammata T8 lookup widget gating (grammataLookup prop)', () => {
-  it('renders no .grammata-mount when the prop is false (default)', async () => {
+describe('WordPopup — Grammata T8 mount', () => {
+  it('mounts a container per card, closed by default, with no local dictionary HTML', async () => {
     vi.mocked(lookupWord).mockResolvedValue({
       analyses: [{ lemma: 'lo/gos', gloss: 'word, account', parse: 'noun nominative singular', lsj: ['logos'] }],
-      lsj: [{ key: 'logos', head: 'λόγος', html: '<span class="lsj-head">λόγος</span>' }],
     });
 
     const { container } = render(WordPopup, {
@@ -242,32 +264,28 @@ describe('WordPopup — Grammata T8 lookup widget gating (grammataLookup prop)',
     });
 
     await screen.findByText('word, account');
-    expect(container.querySelector('.grammata-mount')).toBeNull();
-    // Our own LSJ rendering is untouched.
-    expect(container.querySelector('.lsj-label')).toBeTruthy();
+    expect(container.querySelector('.grammata-mount')).toBeTruthy();
+    expect(container.querySelector('.card-entry')?.hasAttribute('hidden')).toBe(true);
+    expect(container.querySelector('.lsj-entry')).toBeNull();
+    // The lookup only runs once a card is opened.
+    expect(mockLookup).not.toHaveBeenCalled();
   });
 
-  it('renders .grammata-mount and hides our own LSJ entry once loading settles, when the prop is true', async () => {
+  it('opens the card and calls Grammata with the entry key, never a surface form', async () => {
     vi.mocked(lookupWord).mockResolvedValue({
       analyses: [{ lemma: 'lo/gos', gloss: 'word, account', parse: 'noun nominative singular', lsj: ['logos'] }],
-      lsj: [{ key: 'logos', head: 'λόγος', html: '<span class="lsj-head">λόγος</span>' }],
     });
 
     const { container } = render(WordPopup, {
-      props: {
-        work: 'EN',
-        token: { t: 'λόγος', k: 'logos' },
-        anchor: { x: 0, y: 0 },
-        onClose: vi.fn(),
-        grammataLookup: true,
-      },
+      props: { work: 'EN', token: { t: 'λόγος', k: 'logos' }, anchor: { x: 0, y: 0 }, onClose: vi.fn() },
     });
 
     await screen.findByText('word, account');
-    expect(container.querySelector('.grammata-mount')).toBeTruthy();
-    // Our own LSJ entry rendering is suppressed in this mode (the widget
-    // owns the entry; morphology above stays).
-    expect(container.querySelector('.lsj-label')).toBeNull();
+    await fireEvent.click(container.querySelector('.card-face') as HTMLElement);
+
+    expect(container.querySelector('.card-entry')?.hasAttribute('hidden')).toBe(false);
+    expect(mockLookup).toHaveBeenCalledTimes(1);
+    expect(mockLookup).toHaveBeenCalledWith('', expect.any(HTMLElement), { lang: 'grc', key: 'logos' });
   });
 });
 

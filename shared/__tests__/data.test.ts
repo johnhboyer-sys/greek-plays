@@ -1,15 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-// The zero-works registry (drama fork P0, docs/plan.md §1) carries neither a
-// real dk-scheme work nor a real Latin work, so fixtures stand in for
-// getWork's per-scheme/per-language dispatch below — same rationale as
-// citation.test.ts's mocked ../lib/works.
+// The zero-works registry (drama fork P0, docs/plan.md §1) carries no real
+// dk-scheme work, so fixtures stand in for getWork's per-scheme dispatch
+// below — same rationale as citation.test.ts's mocked ../lib/works.
 vi.mock('../lib/works', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/works')>();
   const metas: Record<string, unknown> = {
     'dk-verse-work': { id: 'dk-verse-work', citation: { scheme: 'dk', series: 'B', lines: true } },
     'dk-lineless-work': { id: 'dk-lineless-work', citation: { scheme: 'dk', series: 'B' } },
-    'latin-work': { id: 'latin-work', language: 'lat' },
   };
   return {
     ...actual,
@@ -17,7 +15,7 @@ vi.mock('../lib/works', async (importOriginal) => {
   };
 });
 
-const { fetchBook, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, parseBekker, parseLocation, resolveBekker } = await import('../lib/data');
+const { fetchBook, fetchFootnotes, fetchLsjHeads, invalidateBookCache, lookupWord, parseBekker, parseLocation, resolveBekker } = await import('../lib/data');
 
 function mockFetch(map: Record<string, unknown>) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
@@ -155,7 +153,7 @@ describe('fetch and lookup helpers', () => {
     });
   });
 
-  it('selects LSJ shards and de-duplicates lookupWord dictionary entries', async () => {
+  it('lookupWord returns the raw analyses for a key — no local dictionary fetch', async () => {
     mockFetch({
       'LookupWork/analyses.json': {
         logos: [
@@ -163,38 +161,30 @@ describe('fetch and lookup helpers', () => {
           { lemma: 'lo/gos', gloss: 'speech', parse: 'noun', lsj: ['lo/gos'] },
         ],
       },
-      '/lsj/l.json': { 'lo/gos': { key: 'lo/gos', head: 'λόγος', html: '<p>word</p>' } },
-      '/lsj/a.json': { '*a)rxh/': { key: '*a)rxh/', head: 'ἀρχή', html: '<p>beginning</p>' } },
     });
 
-    expect(lsjShard('*a)rxh/')).toBe('a');
-    expect(lsjShard('123')).toBe('_');
     const result = await lookupWord('LookupWork', 'logos');
     expect(result.analyses).toHaveLength(2);
-    expect(result.lsj.map((e) => e.key)).toEqual(['lo/gos', '*a)rxh/']);
-    await expect(fetchLsjShard('missing')).resolves.toEqual({});
+    expect(result).toEqual({ analyses: result.analyses });
   });
 
-  // Wave 2 Batch 1b: a Latin work's lookupWord must fetch the Lewis & Short
-  // shards under /ls/, never /lsj/ (LSJ) — the two dictionaries are separate
-  // key spaces (stage5_lsj.SHARD_DIR). Dormant in the drama fork (P0):
-  // Latin/PHI support was removed from the pipeline, but shared/lib/data.ts's
-  // dispatch is woven into the grc lookupWord path and stays (docs/plan.md
-  // §1) — 'latin-work' is a fixture (no Latin work is in the zero-works
-  // registry), see the mocked ../lib/works above.
-  it('dispatches lookupWord to the Latin (ls) dictionary dir for a lat work', async () => {
-    mockFetch({
-      'latin-work/analyses.json': {
-        honestum: [
-          { lemma: 'honestus', gloss: '', parse: 'neut nom sg', lsj: ['ho^nestus'] },
-        ],
-      },
-      '/ls/h.json': { 'ho^nestus': { key: 'ho^nestus', head: 'honestus', html: '<p>honorable</p>' } },
-      '/lsj/h.json': { 'ho^nestus': { key: 'ho^nestus', head: 'WRONG-DICTIONARY', html: '' } },
-    });
+  // The word popup's dictionary card is keyed by LSJ entry, but the entry
+  // itself is Grammata's T8 widget (CLAUDE.md, "Dictionary") — the site
+  // fetches only this small headword manifest, never an LSJ shard. Built by
+  // app/scripts/build-lsj-heads.mjs.
+  it('fetchLsjHeads reads the manifest through the active data root', async () => {
+    (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ = 'https://cdn.example/data';
+    try {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({ 'lo/gos': { head: 'λόγος', hom: 'A' } }),
+      } as Response);
 
-    const result = await lookupWord('latin-work', 'honestum');
-    expect(result.lsj).toEqual([{ key: 'ho^nestus', head: 'honestus', html: '<p>honorable</p>' }]);
+      await expect(fetchLsjHeads()).resolves.toEqual({ 'lo/gos': { head: 'λόγος', hom: 'A' } });
+      expect(fetchSpy).toHaveBeenCalledWith('https://cdn.example/data/lsj-heads.json');
+    } finally {
+      delete (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__;
+    }
   });
 });
 

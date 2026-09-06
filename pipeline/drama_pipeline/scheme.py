@@ -61,6 +61,26 @@ recognized (not silently treated as bekker), but every entry point that
 would act on its columns (`compose_column`, and preflight manifest
 validation) rejects it loudly instead of guessing at an unbuilt grammar.
 
+  * play-line    — a Greek drama's printed lineref (Aeschylus/Sophocles/
+                   Euripides/Aristophanes, P1 — docs/p1-probe.md): the export
+                   carries NO wrapping div at all (unlike every scheme
+                   above) -- <body> holds a flat sequence of <l n="…">
+                   lines directly, and the work is BOOKLESS (`books: 1`,
+                   like `section`/`dk`). Its citable unit is the printed
+                   lineref itself ("1234", "47a", a lyric range "106-107",
+                   or Diggle's lacuna placeholder "post 1226") -- there is
+                   no separate page/column axis for compose_column to
+                   build, so `compose_column` is never called for this
+                   scheme (its `page_div_type`/`section_div_type` are
+                   unused placeholders, mirroring dk's "not composed via
+                   compose_column" posture). `lines_user_facing=True`
+                   because the printed lineref IS what a reader cites
+                   ("Ag. 1234"), unlike verse-line's book.lineref dotted
+                   column (whose line component is NOT a separate citable
+                   axis). See `play_line_kind`/`play_line_order_key` below
+                   for the ref grammar and sort key, and stage1_greek.py's
+                   `_parse_play` for the walker.
+
   * dk           — Diels-Kranz fragment/testimonium numbering (the
                    Presocratics, Wave 1b): a citable "column" is a series
                    letter (A testimonia / B fragments) + number + optional
@@ -201,6 +221,19 @@ class Scheme:
         return self.name == "verse-line"
 
     @property
+    def play_line_scheme(self) -> bool:
+        """True only for `play-line` (the Greek drama corpus, P1 —
+        docs/p1-probe.md): bookless, its column is a synthetic constant
+        "1" and the printed lineref is the real citable unit (unlike
+        verse-line's dotted book.lineref column). This is the
+        discriminator refs.py's column_key/ref_key/column_prefix_key,
+        config.py's `_boundary_column`, stage1_greek's `_parse_play`
+        walker, stage2_validate, stage7_emit, and preflight's book-schema/
+        dist-level gates all dispatch on, the same way `verse_line_scheme`
+        lets those same call sites recognize Lucretius' DRN."""
+        return self.name == "play-line"
+
+    @property
     def letter_scheme(self) -> bool:
         """True only for `letter` (Seneca's Epistulae Morales, Wave 2 Batch
         3 — docs/wave2-seneca-design.md §A): its column grammar, dotted
@@ -308,6 +341,68 @@ def verse_line_order_key(lineref: str) -> tuple[int, str]:
     if not m:
         raise ValueError(f"not a verse-line token: {lineref!r}")
     return (int(m.group(1)), m.group(2) or "")
+
+
+# play-line's ref grammar (the Greek drama corpus, P1 — docs/p1-probe.md,
+# measured against the real Diogenes `-y` export of all 44 plays): a plain
+# line number, a line with a single lowercase editorial-insertion suffix
+# ("30a"), a lyric range the edition prints as one line for two numbers
+# ("106-107" — also the normalized form of Ecclesiazusae's slash notation,
+# "289/290"), or Diggle's lacuna placeholder ("post 1226", normalized from
+# the export's unspaced "post1226"). Byte-identical regex SOURCE to
+# citation.ts's `PLAY_LINE_REF_RE` (see that module's own comment and the
+# TS<->Python parity test) — `[0-9]` not `\d` for the same ASCII-only
+# reason as `_FLAT_COLUMN_RE` above. Normalization (post1226 -> "post
+# 1226", 289/290 -> "289-290") happens once, at stage1 parse time, before
+# this grammar is ever applied — see stage1_greek.py's
+# `_normalize_play_lineref`.
+PLAY_LINE_REF_SOURCE = r"^[0-9]+$|^[0-9]+[a-z]$|^[0-9]+-[0-9]+$|^post [0-9]+$"
+_PLAY_LINE_REF_RE = re.compile(PLAY_LINE_REF_SOURCE)
+# The three non-range/non-post forms share one shape once ranges and "post
+# N" are peeled off elsewhere (`play_line_kind` below): a bare number with
+# an optional single lowercase suffix letter — same shape as dk's/verse-
+# line's own `[0-9]+[a-z]?` grammar.
+_PLAY_LINE_PLAIN_RE = re.compile(r"^([0-9]+)([a-z]?)$")
+_PLAY_LINE_RANGE_RE = re.compile(r"^([0-9]+)-([0-9]+)$")
+_PLAY_LINE_POST_RE = re.compile(r"^post ([0-9]+)$")
+
+
+def play_line_kind(ref: str) -> str:
+    """Classify a normalized play-line ref as "line", "range", or "post" —
+    the discriminator stage1_greek's `_parse_play` uses to decide a line's
+    `role` (only "post" is `role: 'lacuna'`) and the transposition-scan
+    helper uses to find a range's start. Raises ValueError if `ref` matches
+    none of the grammar's forms (mirrors `verse_line_kind`)."""
+    if _PLAY_LINE_POST_RE.match(ref):
+        return "post"
+    if _PLAY_LINE_RANGE_RE.match(ref):
+        return "range"
+    if _PLAY_LINE_PLAIN_RE.match(ref):
+        return "line"
+    raise ValueError(f"not a play-line ref: {ref!r}")
+
+
+def play_line_order_key(ref: str) -> tuple[int, int, str]:
+    """Sort/citation-order key for a normalized play-line ref: (leading
+    integer, kind-rank, suffix) so that for a shared leading number N, a
+    plain line ('N') sorts before a suffixed one ('Na', by the suffix
+    string's own '' < 'a' < 'b' ordering — dk's proven convention), which
+    sorts before "post N" (kind-rank 1, always last for that N — "sorts as
+    (N, 1) after N", per the P1 probe's frozen order-key rule). A range
+    ('N-M') sorts at its START, i.e. the same key as a plain line 'N' — the
+    range is always encountered, in printed order, exactly where its first
+    number would sit, and no other token shares that position (mirrors
+    verse-line's identically-reasoned range-sorts-at-its-start-line
+    convention). Raises ValueError for a malformed ref (see `play_line_kind`)."""
+    kind = play_line_kind(ref)
+    if kind == "post":
+        m = _PLAY_LINE_POST_RE.match(ref)
+        return (int(m.group(1)), 1, "")
+    if kind == "range":
+        m = _PLAY_LINE_RANGE_RE.match(ref)
+        return (int(m.group(1)), 0, "")
+    m = _PLAY_LINE_PLAIN_RE.match(ref)
+    return (int(m.group(1)), 0, m.group(2) or "")
 
 
 # `section`'s flat grammar: a bare chapter integer (Epictetus' Enchiridion
@@ -535,6 +630,28 @@ SCHEMES: dict[str, Scheme] = {
         # outline, a per-line sections.json outline nav would be unusable.
         # Same override shape as `section`'s (has_sections=True override)
         # and dk's, just the other direction.
+        has_sections=False,
+    ),
+    "play-line": Scheme(
+        name="play-line",
+        # Unused placeholders: play-line's export carries no wrapping div at
+        # all (a flat <l n> sequence directly under <body> — see the module
+        # docstring's own entry above), so compose_column is never called
+        # for this scheme and these two fields have nothing to name.
+        page_div_type="",
+        section_div_type=None,
+        section_letters=(),
+        lines_user_facing=True,
+        validation_mode="observed",  # non-monotonic order (real transpositions)
+        range_sides=None,
+        display_label="line",
+        column_re=_PLAY_LINE_REF_RE,
+        ref_re=_PLAY_LINE_REF_RE,  # the ref grammar IS the column grammar
+        # Overrides the has_sections default (section_div_type is None here,
+        # which already derives False) -- stated explicitly, same posture as
+        # `section`'s/dk's overrides, for a play running to 1000+ lines: a
+        # per-line sections.json outline nav would be unusable, mirroring
+        # verse-line's identical reasoning.
         has_sections=False,
     ),
     "ennead": _stub_scheme("ennead", "Ennead citation"),

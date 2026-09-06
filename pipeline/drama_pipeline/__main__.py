@@ -50,6 +50,19 @@ def _stage1(manifest):
         raise NotImplementedError(
             f"scheme {sch.name!r} has no English builder in drama_pipeline"
         )
+    if sch.play_line_scheme:
+        # play-line (P1 — Greek-only): no English builder yet (P2). Mirrors
+        # the has_sections branch's own Greek-only posture below (stale
+        # English scratch removed so a previous different-scheme work's
+        # leftovers never leak into this build).
+        for scratch in ("english_chunks.json", "alignment.json"):
+            (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
+        n_lines = sum(len(s["lines"]) for s in spine["segments"])
+        n_speakers = sum(len(s.get("speakers", [])) for s in spine["segments"])
+        print(f"stage1 (greek-only, play-line): segments={len(spine['segments'])} "
+              f"lines={n_lines} speakers={n_speakers} "
+              f"unassigned={len(spine['unassigned_lines'])}")
+        return
     if sch.has_sections:
         primary = ((manifest.data.get("english") or {}).get("primary") or {})
         if primary.get("model") == "perseus_stephanus":

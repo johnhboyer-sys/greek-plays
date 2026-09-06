@@ -99,11 +99,6 @@
   // speaker-name colours are stable across books and match the landing cast
   // list. Null on hosts that mount a single book without it (desktop).
   export let speakerRoster: string[] | null = null;
-  // PUBLIC_LYCEUM_CHROME=1 only (John, 2026-09-01): passed straight through
-  // to WordPopup, which mounts the Grammata T8 lookup widget when true.
-  // Default false so every other host's popup is unchanged.
-  export let grammataLookup: boolean = false;
-
   const workMeta = getWork(work);
   // `workMeta.author` is an author-registry slug, not a display name — see
   // shared/lib/works.ts's doc comment on the field.
@@ -196,6 +191,19 @@
   // column is only rendered for a segment that actually carries English
   // (Munro's declared multi-line spreads), never as an empty cell.
   const verseLine = cscheme.id === 'verse-line';
+  // play-line (the Greek drama corpus, P1 — docs/p1-probe.md): the play's
+  // own printed lineref is the citable unit, shown in the gutter (every 5th
+  // line, and any suffixed/range/post line — playLineGutter below), NOT
+  // seg.column (which is internal segmentation plumbing — see stage1_greek
+  // .py's `_segment_play_lines` doc comment — a play has many segments,
+  // one per speech, unlike every other has_sections:false scheme's one-
+  // segment-per-column shape). `speakerWork` generalizes the two former
+  // `stephanus &&` gates below: a play's speaker lead-ins render the same
+  // way Stephanus dialogue turns do (speakers.ts's existing path), even
+  // though play-line carries no turnFlow yet (P1 is Greek-only; P2 wires
+  // English turns the same way stephanus's perseus_stephanus pass does).
+  const playLine = cscheme.id === 'play-line';
+  const speakerWork = stephanus || playLine;
   // DK prose-flow (docs/prose-flow-design.md §3): declared incipit-stub columns
   // — text-runs render as apparatus, not fragment-prominent.
   const incipitColumnSet = new Set(
@@ -1020,6 +1028,50 @@
     }
   }
 
+  // play-line only (P1, docs/p1-probe.md): resolve a typed/URL ref against
+  // the already-fetched segments — an EXACT printed-lineref match first,
+  // else (for a bare integer) the range line that CONTAINS it ("106" ->
+  // the "106-107" line). Client-side because there is no citation.ts-level
+  // column/line lookup for this scheme (the whole address lives in
+  // GreekLine.ref, not in any per-work static table) — mirrors how
+  // BekkerJump's own column-membership check needs columns.json, just
+  // scoped to data this component already has in hand once `segments` is
+  // populated. Returns null for an unknown/out-of-range ref (a 9999 jump
+  // silently does nothing, never a guess).
+  function resolvePlayLineRef(ref: string): RLine | null {
+    for (const seg of segments) {
+      for (const line of seg.greek as RLine[]) {
+        if (line.ref === ref) return line;
+      }
+    }
+    if (/^[0-9]+$/.test(ref)) {
+      const n = Number(ref);
+      for (const seg of segments) {
+        for (const line of seg.greek as RLine[]) {
+          const m = /^([0-9]+)-([0-9]+)$/.exec(line.ref ?? '');
+          if (m && n >= Number(m[1]) && n <= Number(m[2])) return line;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Open at a play-line citation from the URL hash — the exact Greek line
+  // via resolvePlayLineRef, mirroring scrollToCitation's instant/suppressed
+  // posture. A ref that resolves to nothing (out of range, or before
+  // segments have loaded) is a silent no-op, same as scrollToCitation's own
+  // "line not present" fallthrough.
+  function scrollToPlayLineRef(ref: string) {
+    const line = resolvePlayLineRef(ref);
+    if (!line) return;
+    suppressArmUntil = Date.now() + 800;
+    const id = playLineDomId(line.ref ?? ref, line.n);
+    const el = document.getElementById(id);
+    if (el && (el as HTMLElement).offsetParent !== null) {
+      el.scrollIntoView({ behavior: 'auto', block: 'center' });
+    }
+  }
+
   let _onToggleSettings: () => void;
   let _onCloseSettings: () => void;
 
@@ -1379,7 +1431,7 @@
   // a fetch-mounted reader receives segments + turnFlow after onMount.
   let flowRows: FlowRow[] | null = null;
   $: flowRows =
-    stephanus && turnFlow?.turns?.length
+    speakerWork && turnFlow?.turns?.length
       ? buildFlowRows(segments, turnFlow)
       : null;
   // A narrated work's paragraph-anchored flow (Republic, Apology, Charmides,
@@ -1435,7 +1487,7 @@
     });
   }
   const isUnpairedDialogue = (seg: Segment): boolean =>
-    stephanus && !!seg.english?.turns?.length;
+    speakerWork && !!seg.english?.turns?.length;
   // Section-flow keeps the ordinary `.seg-ref` when the header carries
   // editorial meaning (a kind chip, or an English title).
   const keepSectionFlowHeader = (seg: Segment): boolean =>
@@ -2276,7 +2328,11 @@
       if (parsed) {
         locCol = parsed.column;
         locLine = parsed.line;
-        targetId = locLine != null ? `L${locCol}-${locLine}` : `col-${locCol}`;
+        // play-line: `column` IS the printed ref (the scheme has no
+        // separate line axis — citation.ts's makePlayLineScheme), and
+        // there is no data yet to resolve it against (segments haven't
+        // been fetched) — resolved below, once they have.
+        targetId = playLine ? '' : (locLine != null ? `L${locCol}-${locLine}` : `col-${locCol}`);
       }
     }
     // Restore saved view, but a jump-in (loc/highlight) forces bilingual so the
@@ -2327,6 +2383,14 @@
       // citation in the hash, or a plain element-id hash.
       const hash = window.location.hash.slice(1);
       setTimeout(() => {
+        // play-line: resolve the typed ref against the now-fetched segments
+        // (see resolvePlayLineRef's own doc comment) — a number inside a
+        // printed range lands on that range's own line; an unresolvable ref
+        // (e.g. 9999) leaves targetId empty, so nothing scrolls.
+        if (playLine && locCol && !targetId) {
+          const line = resolvePlayLineRef(locCol);
+          if (line) targetId = playLineDomId(line.ref ?? locCol, line.n);
+        }
         if (targetId) {
           let el = document.getElementById(targetId);
           // Snap to the nearest existing line in the column if the exact
@@ -2354,6 +2418,14 @@
           // (bekker-grammar-only) would silently fail every other scheme's
           // line-bearing hash and fall through to the bare-id branch below.
           const parsedHash = parseLocation(work, hash);
+          if (playLine && parsedHash) {
+            scrollToPlayLineRef(parsedHash.column);
+            const line = resolvePlayLineRef(parsedHash.column);
+            if (line) {
+              lastCite = formatCite(work, line.ref ?? parsedHash.column, null);
+              targetId = playLineDomId(line.ref ?? parsedHash.column, line.n);
+            }
+          } else {
           const ref = parsedHash && parsedHash.line != null ? (parsedHash as { column: string; line: number }) : null;
           if (ref) {
             scrollToCitation(ref.column, ref.line);
@@ -2381,6 +2453,7 @@
               suppressArmUntil = Date.now() + 1500;
               el.scrollIntoView({ behavior: 'auto', block: 'start' });
             }
+          }
           }
         }
         // Begin live URL tracking once the reader actually scrolls (programmatic
@@ -2605,6 +2678,35 @@
 
   function verseGutterNum(si: number): string {
     return verseGutterNums[si] ?? '';
+  }
+
+  // play-line only (P1, docs/p1-probe.md): the DOM id built from the LINE's
+  // own printed lineref, not seg.column — a play-line segment holds many
+  // printed lines (one per speech, capped at 40 — stage1_greek.py's
+  // `_segment_play_lines`), unlike every other has_sections:false scheme's
+  // one-segment-per-column shape, so seg.column carries no citation meaning
+  // here at all (it is that function's own internal, first-line-ref
+  // segmentation key). A bare space (Diggle's "post 1226") is invalid in an
+  // HTML id and is substituted with "_" — that one shape is never a
+  // citation target anyway (GreekLine.role 'lacuna'), so the substitution
+  // need not round-trip. `greekLineIdToCite`'s generic `L(.+?)-(\d+)` parse
+  // recovers this id's ref (including a hyphenated range like "106-107")
+  // via ordinary regex backtracking, so citation.ts's play-line
+  // `formatCitation` — which returns the ref UNCHANGED — renders the right
+  // citation with no further scheme-specific code needed there.
+  function playLineDomId(ref: string, n: number): string {
+    return `L${ref.replace(/ /g, '_')}-${n}`;
+  }
+
+  // play-line gutter (docs/p1-probe.md: "gutter shows ref every 5 lines and
+  // on every suffixed/range line"): the printed lineref on line 1, every
+  // 5th line, and any line whose own ref isn't a bare integer (a suffix
+  // letter, a lyric range, or — rare — a lacuna's "post N") since the
+  // reader could not otherwise infer it from position alone.
+  function playLineGutter(line: RLine): string {
+    const ref = line.ref ?? '';
+    if (line.n === 1 || line.n % 5 === 0 || !/^[0-9]+$/.test(ref)) return ref;
+    return '';
   }
 
   // ── Copy-with-citation helpers ────────────────────────────────────────────
@@ -3250,6 +3352,7 @@
     class:stephanus={stephanus}
     class:dk-verse={dkVerse}
     class:verse-line={verseLine}
+    class:play-line={playLine}
     class:section-flow={sectionFlow}
     class:word-open={!!popup}
     style="--fs-greek:{fsGreek}rem;--fs-english:{fsEng}rem;--lh-greek:{lhGreek};--lh-english:{lhEng};--colw-scale:{colScale};--fs-scale:{fsScale}"
@@ -3359,7 +3462,7 @@
              reference (the column ref is a marker within the chapter, not a
              heading over it). Mid-column chapter starts render inline below. -->
         {#if leadChapter}{@render chapterHead(leadChapter)}{/if}
-        {#if !busse && !verseLine}
+        {#if !busse && !verseLine && !playLine}
           <!-- John's ask (translator-picker alignment): the per-passage
                toggle (segTransToggle, formerly floating above the English
                column -- see its two removed call sites below) now renders
@@ -3569,7 +3672,7 @@
                      `.line-text`), so the inset shifts the whole painted
                      line -- fragment included -- exactly as Schenkl prints
                      it. -->
-                <div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
+                {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
                   <!-- Lined-source only (Discourses, docs/lined-source-plan.md
                        Q3): a `sec`-carrying line shows its section number
                        here iff `secStart` (computed once in greekItems, in
@@ -3577,7 +3680,7 @@
                        text begins, even a mid-word continuation (Q3.2). Every
                        other work's lines carry no `sec`, so this branch never
                        fires for them. -->
-                  <span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>
+                  <span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>
                   {#if item.line.role === 'lacuna'}
                     <!-- Editorial gap (design memo §3.2): rendered as a
                          styled placeholder, never the literal "* * *" the
@@ -3868,7 +3971,7 @@
                        paratext, never a citation target, so it gets no id
                        either (and would otherwise collide with its letter's
                        role='salutation' line, which shares the same n). -->
-                  <div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
+                  {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
                     <!-- Lined-source only (Discourses, docs/lined-source-plan.md
                          Q3): a `sec`-carrying line shows its section number
                          here iff `secStart` (computed once in greekItems, in
@@ -3876,7 +3979,7 @@
                          text begins, even a mid-word continuation (Q3.2).
                          Every other work's lines carry no `sec`, so this
                          branch never fires for them. -->
-                    <span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>
+                    <span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>
                     {#if item.line.role === 'lacuna'}
                       <!-- Editorial gap (design memo §3.2): rendered as a
                            styled placeholder, never the literal "* * *" the
@@ -4402,7 +4505,6 @@
     token={popup.token}
     anchor={popup.anchor}
     asSheet={trans === 'compare'}
-    {grammataLookup}
     onClose={closePopup}
   />
 {/if}

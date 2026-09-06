@@ -197,3 +197,53 @@ overwrite. Format follows `~/Developer/homer-reader/DRIFT.md`.
   fixes only (`reader_pipeline`/`READER_PY` → `drama_pipeline`/`DRAMA_PY`);
   no structural changes were needed (ci.yml already carried no references
   to any of the deleted hub-only scripts or CPR corpora).
+
+## Dictionary — Grammata T8 for all LSJ (John's ruling 2026-09-05, ported
+from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
+
+### shared/
+
+- `shared/components/WordPopup.svelte` — cards are now keyed by dictionary
+  entry (an analysis can name several LSJ keys; each gets its own card) and
+  the entry itself is Grammata's T8 widget: opening a card mounts a
+  `.grammata-mount` div and calls `loadGrammataLookup()`
+  (`shared/lib/grammata.ts`) with `{ lang, key }`. Renders no local LSJ
+  entry HTML; on a lookup failure the mount gets one line of status text,
+  no local fallback render.
+- `shared/lib/data.ts` — dropped the local-shard dictionary path
+  (`LsjEntry`, `fetchLsjShard`, `lsjShard`) and the `lsj` field
+  `lookupWord` used to return; added `fetchLsjHeads()` (fetches
+  `lsj-heads.json` once through the active data root — headword +
+  homograph letter only, for the popup/lemma-page card, never an entry).
+- `shared/lib/html.ts` — dropped the local LSJ-entry renderer
+  (`renderLsjEntry`, `outlineLsjSenses`, `stampSenseDepth`,
+  `prefixLsjCitationHrefs` and their private helpers) — Grammata renders
+  every entry now; `sanitizeHtml` (general corpus-HTML sanitizer, not
+  LSJ-specific) is the only export left.
+- `shared/lib/grammata.ts` (new) — `loadGrammataLookup()`, the ONE place
+  that dynamically imports Grammata's `t8/lookup.js`
+  (`/* @vite-ignore */`, memoized). Do not vendor, pin, proxy or
+  cache-bust that URL elsewhere.
+- `shared/styles/global.css` — dropped the local LSJ-entry rendering rules
+  (`.lsj-entry`, `.lsj-sense`, `.lsj-section`, `.lsj-head`/`.lsj-gen`/
+  `.lsj-etym` and friends) — dead now that Grammata owns the entry's own
+  markup and styles; kept `.lsj-ambiguous-note` (the homonym fan-out
+  label, still live in WordPopup.svelte).
+
+### app/
+
+- `app/src/components/LemmaEntry.svelte` — the `/lemma/<lang>/entry/` page
+  mounts the same Grammata widget (`.grammata-mount[data-key]`) instead of
+  `{@html renderLsjEntry(...)}`; dropped the `dictHtml` field from its
+  fetched `LemmaData` shape.
+- `app/src/lib/html.ts` — re-exports only `sanitizeHtml` now (was also
+  `renderLsjEntry`/`outlineLsjSenses`/`stampSenseDepth`/
+  `prefixLsjCitationHrefs`).
+- `app/scripts/build-lsj-heads.mjs` (new) — builds `lsj-heads.json` (LSJ
+  key → `{ head, hom }`) from the pipeline's LSJ shards; the site ships no
+  shard HTML, only this small manifest.
+
+### scripts/
+
+- `scripts/build-public.mjs` — wired `app/scripts/build-lsj-heads.mjs`
+  into `npm run build`, right after `verify_shared_lsj`.

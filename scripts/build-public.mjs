@@ -191,6 +191,12 @@ run(PY, ['-m', 'drama_pipeline.verify_shared_lsj'], {
   cwd: join(ROOT, 'pipeline'),
 });
 
+// The word popup's headword manifest (LSJ key -> { head, hom }). Grammata's T8
+// lookup serves every dictionary ENTRY at runtime (CLAUDE.md, "Dictionary"); this
+// is the only LSJ-derived file the website reads. Writes `{}` at zero works.
+console.log('\nBuilding the LSJ headword manifest (lsj-heads.json)');
+run('node', ['scripts/build-lsj-heads.mjs'], { cwd: join(ROOT, 'app') });
+
 // (app dependencies are ensured present earlier, ahead of the translation-seam gate)
 
 // Private (copyright-encumbered) translations are hidden by default; a

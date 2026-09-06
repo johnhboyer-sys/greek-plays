@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { dataRoot } from '@shared/lib/data';
+  import { loadGrammataLookup } from '@shared/lib/grammata';
   import { getWork, workLanding, bookLabel, isBookless } from '@shared/lib/works';
   import { groupUnitNoun } from '@shared/lib/citation';
   import { tocGroupNoun } from '../lib/citation-copy';
-  import { renderLsjEntry } from '../lib/html';
   import { instHref, instLabel, type Instance } from '../lib/lemma-instance';
 
   export let lang: 'grc' | 'lat' = 'grc';
@@ -13,7 +13,7 @@
   interface BookInstances { book: number; chapters: ChapterInstances[]; }
   interface WorkInstances { work: string; title: string; count: number; shown: number; books: BookInstances[]; }
   interface LemmaData {
-    slug: string; key: string; head: string; lemmaBeta: string; dictHtml: string;
+    slug: string; key: string; head: string; lemmaBeta: string;
     count: number; glosses: string[]; byWork: { work: string; title: string; count: number }[];
     instancesByWork: WorkInstances[]; truncated: boolean;
   }
@@ -21,6 +21,7 @@
   let data: LemmaData | null = null;
   let loading = true;
   let problem = '';
+  let grammataEl: HTMLDivElement | undefined;
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   $: langPath = lang;
   $: langLabel = lang === 'lat' ? 'Latin' : 'Greek';
@@ -28,6 +29,16 @@
   $: htmlLang = lang === 'lat' ? 'la' : 'grc';
   $: headFont = lang === 'lat' ? 'var(--font-latin)' : 'var(--font-greek)';
   $: maxWork = data?.byWork[0]?.count ?? 1;
+
+  async function renderDictionary(el: HTMLElement, key: string) {
+    try {
+      const lookup = await loadGrammataLookup();
+      await lookup('', el, { lang: langPath, key });
+    } catch (cause) {
+      el.textContent = 'The dictionary entry is not available here.';
+      console.error('[grammata] lookup failed', cause);
+    }
+  }
 
   onMount(async () => {
     const slug = new URLSearchParams(window.location.search).get('w')?.trim();
@@ -48,6 +59,8 @@
       problem = 'This lexicon entry could not be loaded.';
     }
     loading = false;
+    await tick();
+    if (data?.key && grammataEl) await renderDictionary(grammataEl, data.key);
   });
 
   const workView = (w: WorkInstances) => {
@@ -124,10 +137,11 @@
       {/each}
     </ul>
 
-    {#if data.dictHtml}
+    {#if data.key}
       <h2 class="lx-h">Dictionary ({dictLabel})</h2>
-      <!-- eslint-disable-next-line svelte/no-at-html-tags — sanitized by the shared renderer -->
-      {@html renderLsjEntry(data.dictHtml, { base, scale: 'page', outline: true })}
+      <div class="grammata-mount" data-key={data.key} lang={htmlLang} bind:this={grammataEl}>
+        Loading the dictionary entry…
+      </div>
     {/if}
   {/if}
   <a class="lx-back" href={`${base}/lemma/${langPath}/`}>‹ All lexicon entries</a>
@@ -141,5 +155,5 @@
   h2.lx-h { font-family: var(--font-ui); font-size: .95rem; font-weight: 700; letter-spacing: .03em; color: var(--accent); margin: 2.4rem 0 .8rem; padding-bottom: .3rem; border-bottom: 1px solid var(--border); }
   .lx-freqbars,.fb-citelist { list-style: none; padding: 0; margin: 0; }.fb-item>summary { display:grid; grid-template-columns:minmax(6rem,12rem) 1fr 3.2rem 1rem; align-items:center; gap:.7rem; cursor:pointer; list-style:none; padding:.28rem .4rem; border-radius:5px; }.fb-item>summary::-webkit-details-marker,.fb-book-d>summary::-webkit-details-marker { display:none; }.fb-item>summary:hover { background:var(--surface-2,rgba(128,128,128,.08)); }.fb-name { font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }.fb-track { height:.7rem; background:var(--border); border-radius:4px; overflow:hidden; }.fb-fill { display:block; height:100%; background:var(--accent); border-radius:4px; }.fb-n,.fb-book-n { font-family:var(--font-ui); font-variant-numeric:tabular-nums; font-size:.82rem; color:var(--text-mid); text-align:right; }.fb-caret { font-size:.7rem; color:var(--text-mid); justify-self:center; }.fb-item[open]>summary .fb-caret,.fb-book-d[open]>summary .fb-book-caret { transform:rotate(90deg); }
   .fb-cites { padding:.5rem .4rem 1rem; }.fb-open,.lx-back { display:inline-block; font-family:var(--font-ui); color:var(--accent); text-decoration:none; }.fb-open { font-size:.8rem; font-weight:600; margin:0 0 .6rem; }.fb-citelist { display:flex; flex-wrap:wrap; gap:.35rem; }.fb-citelist a { display:inline-block; font-family:var(--font-ui); font-variant-numeric:tabular-nums; font-size:.78rem; color:var(--text); text-decoration:none; border:1px solid var(--border); border-radius:4px; padding:.15rem .45rem; }.fb-citelist a:hover,.fb-open:hover,.lx-back:hover { color:var(--accent); text-decoration:underline; }.fb-book-group { margin:0 0 .9rem; }.fb-book-d { border-top:1px solid var(--border); }.fb-book-d>summary { display:flex; align-items:center; gap:.5rem; cursor:pointer; list-style:none; padding:.4rem .2rem; }.fb-book { font-family:var(--font-ui); font-size:.88rem; font-weight:700; }.fb-book-n { margin-left:auto; }.fb-book-body { padding:.2rem 0 .6rem .5rem; }.fb-chapter { margin:0 0 .7rem .2rem; }.fb-ch-head { display:flex; align-items:baseline; gap:.5rem; margin:0 0 .35rem; }.fb-ch-label { font-family:var(--font-ui); font-size:.82rem; font-weight:600; color:var(--text-mid); }.fb-ch-bekker { font-family:var(--font-ui); font-size:.72rem; color:var(--text-mid); font-variant-numeric:tabular-nums; opacity:.8; }
-  .lsj { font-size:.95rem; line-height:1.6; }.lsj :global(.lsj-head) { font-family:var(--font-greek); }.lx-note { font-size:.82rem; color:var(--text-mid); margin:.4rem 0 0; }.lx-note a { color:var(--accent); }.lx-back { margin:2.5rem 0 0; font-size:.9rem; }
+  .lx-note { font-size:.82rem; color:var(--text-mid); margin:.4rem 0 0; }.lx-note a { color:var(--accent); }.lx-back { margin:2.5rem 0 0; font-size:.9rem; }
 </style>

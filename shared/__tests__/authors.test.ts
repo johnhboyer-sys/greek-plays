@@ -305,7 +305,8 @@ describe('corpus-scoping (PUBLIC_WING)', () => {
     vi.stubEnv('PUBLIC_WING', '');
     vi.resetModules();
     const fresh = await import('../lib/authors');
-    expect(fresh.AUTHORS.length).toBe(0);
+    // P1: the first real author (aeschylus, corpus 'classical') has landed.
+    expect(fresh.AUTHORS.length).toBe(1);
   });
 
   it('scopes AUTHORS to zero authors when set to aristotle (zero-works registry, drama fork P0)', async () => {
@@ -315,11 +316,12 @@ describe('corpus-scoping (PUBLIC_WING)', () => {
     expect(fresh.AUTHORS.length).toBe(0);
   });
 
-  it('scopes AUTHORS to zero authors when set to classical (zero-works registry, drama fork P0)', async () => {
+  it('scopes AUTHORS to the classical corpus authors when set to classical (P1: aeschylus)', async () => {
     vi.stubEnv('PUBLIC_WING', 'classical');
     vi.resetModules();
     const fresh = await import('../lib/authors');
-    expect(fresh.AUTHORS.length).toBe(0);
+    expect(fresh.AUTHORS.length).toBe(1);
+    expect(fresh.getAuthor('aeschylus')).toBeDefined();
   });
 
   it('rides the fixture author along unfiltered when both PUBLIC_WING and PUBLIC_READER_FIXTURES are set', async () => {

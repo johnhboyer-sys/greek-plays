@@ -1,0 +1,94 @@
+# Agamemnon — pipeline manifest (P1: the `play-line` citation scheme's first
+# and, for this phase, only work — docs/p1-probe.md is the measured design
+# authority this manifest implements). Greek-only (English is P2:
+# work.no_english is declared true and no `english:` block exists here).
+#
+# The export (build/export/tlg0085/Diogenes-Resources/xml/tlg/tlg0085005.xml,
+# already run — drama_pipeline never invokes Diogenes itself, see
+# stage1_greek.run_export) carries NO wrapping div at all: <body> holds a
+# flat sequence of <l n="…"> lines directly (docs/p1-probe.md's "Document
+# shape"). The work is bookless (`books: 1`) — the citable unit is the
+# printed lineref itself, not a page/column composition.
+#
+# Three play-line hazards, all declared below exactly as CPR's verse-line
+# manifests declare their own:
+#   * a title-drop (`<l n="t">`, Murray's all-caps "ΑΓΑΜΕΜΝΩΝ") —
+#     `citation.title_labels` hash-declares it, gated bidirectionally by
+#     stage1_greek._parse_play.
+#   * ONE real transposition (line 1290 is printed one position early, before
+#     1284 — verified against the export): `citation.transpositions`
+#     declares the EXACT block stage1_greek._derive_play_line_transposed_
+#     blocks computes from the real document order, `{start: "1284", end:
+#     "1289", before: "1290"}` — the ascending run 1284-1289 sits below the
+#     running maximum 1290 set one ref earlier (the same convention CPR's
+#     own worked DRN examples use, not "1290" itself, which at the moment
+#     it's read is simply a new maximum).
+#   * NO lacunae ("post N" placeholder lines) in this play — `citation.
+#     lacunae` is an explicit empty list, verified against the export (zero
+#     "post N" tokens), not an omission.
+#   * `citation.fingerprint` pins the observed spine's printed-lineref LIST
+#     (count + sha256 over every emitted line's own `ref`, document order,
+#     never re-sorted) — preflight's dist-level re-export-drift tripwire,
+#     the same role DRN's fingerprint plays for verse-line.
+
+work:
+  id: agamemnon
+  title: Agamemnon
+  author: aeschylus
+  language: grc
+  tlg_author: "0085"
+  tlg_work: "005"
+  greek_edition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate (De Officiis/DRN precedent) — verified verbatim
+  # against the real export's <sourceDesc>.
+  expected_sourcedesc: 'Aeschylus Trag. (c. 6-5 B.C.), Agamemnon (0085: 005) "Aeschyli tragoediae, 2nd edn.", Ed. Murray, G. Oxford: Clarendon Press, 1955, Repr. 1960.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "ce0e87575e299178", note: "play title line (l n=\"t\"), Murray's all-caps ΑΓΑΜΕΜΝΩΝ" }
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1":
+      - { start: "1284", end: "1289", before: "1290" }
+
+  # Observed-spine printed-lineref LIST fingerprint: every emitted line's
+  # own `ref`, in document (never re-sorted) order — 1637 lines (1612 plain
+  # + 25 lyric-range tokens), matching the verified recon count exactly.
+  fingerprint: { count: 1637, sha256: "69cbf5bd2cc7784b2e9a019867ed18617dff70c68b3a986c6bfa697a33df6f5e" }
+
+books:
+  - { n: 1, start: "1", end: "1673" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: agamemnon
+  slug: agamemnon
+  title: Agamemnon
+  greekTitle: Ἀγαμέμνων
+  abbr: Ag.
+  author: aeschylus
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekSource:
+    short: Murray (1955)
+    full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Aesch. Ag."
+  blurb: "DRAFT — Agamemnon returns from Troy in triumph, and his wife Clytaemestra is waiting."

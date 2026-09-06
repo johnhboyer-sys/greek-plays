@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Test Play</title></titleStmt>
+      <sourceDesc><p>Test Play. Test edition, Ed. Nobody. (0000: 000)</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+<l n="t"><label type="head"><hi rend="large">ΤΕΣΤ</hi></label></l>
+<l n="1"><label type="speaker"><hi rend="small">ΑΛΦΑ</hi></label> <space quantity="6.75"/>πρῶτος λόγος ἐστίν. </l>
+<l n="2"><label type="speaker">Α.</label> <space quantity="6.75"/>ἰδού.<label type="speaker">Β.</label> παπαιάξ. </l>
+<l n="3-4" rend="indent(6.75)">τρίτος καὶ τέταρτος λόγος. </l>
+<l n="5"><label type="speaker">Χο.</label> <space quantity="6.75"/>πέμπτος λόγος <label type="speaker" rend="indent(62.5)">[στρ. α.</label> </l>
+<l n="post 6"><label type="speaker">Γ.</label> </l>
+    </body>
+  </text>
+</TEI>
