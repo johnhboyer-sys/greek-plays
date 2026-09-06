@@ -22,7 +22,9 @@
 import { formatCite, formatLocValue } from '@shared/lib/citation';
 import { workPath } from '@shared/lib/works';
 
-export type Instance = [col: string, line: number, surface: string];
+// `ref` is the work's citation field: a Bekker/section column for prose, or
+// GreekLine.ref for a play-line work.
+export type Instance = [ref: string, line: number, surface: string];
 
 // stage1's non-citable sentinel for a dk verse fragment's role='context'
 // line is a negative synthetic `n`; everywhere else `line` is a real
@@ -37,8 +39,8 @@ function citableLine(line: number): number | null {
 // (book-section — no user-facing line axis, so the line is dropped),
 // "B8.34" (dk verse), "B30" (dk, lineless), "B1" (dk verse context block —
 // sentinel line dropped, not "B1-1").
-export function instLabel(work: string, [col, line]: Instance): string {
-  return formatCite(work, col, citableLine(line));
+export function instLabel(work: string, [ref, line]: Instance): string {
+  return formatCite(work, ref, citableLine(line));
 }
 
 // Deep-link an instance back into the reader: scroll to the cited line (when
@@ -47,8 +49,8 @@ export function instHref(
   base: string,
   work: string,
   book: number,
-  [col, line, surface]: Instance,
+  [ref, line, surface]: Instance,
 ): string {
-  const loc = formatLocValue(work, col, citableLine(line));
+  const loc = formatLocValue(work, ref, citableLine(line));
   return `${base}${workPath(work, book)}?hlg=${encodeURIComponent(surface)}&loc=${loc}`;
 }

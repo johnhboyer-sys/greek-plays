@@ -122,7 +122,7 @@ export interface Work {
     // ennead is the only remaining registered-but-unimplemented stub; dk
     // (Diels-Kranz), verse-line (Lucretius' DRN), and letter (Seneca's
     // Epistulae Morales, Wave 2 Batch 3) are all implemented.
-    scheme: 'bekker' | 'busse' | 'stephanus' | 'book-section' | 'section' | 'dk' | 'verse-line' | 'ennead' | 'letter';
+    scheme: 'bekker' | 'busse' | 'stephanus' | 'book-section' | 'section' | 'dk' | 'verse-line' | 'play-line' | 'ennead' | 'letter';
     hideLineNumbers?: boolean;
     // PILOT (2026-08-28, John's "why not default the greek to verse mode
     // here like with aristotle" — Discourses): a `book-section` work's
@@ -404,15 +404,15 @@ function resolveAuthorSlug(workId: string): string {
   return author.id;
 }
 
-// The base-relative path to a work's READER (caller prepends BASE_URL). Every
-// work — bookless or not — reads at /<author>/<work>/book/<n>; bookless works
-// only ever have book 1. The bare /<author>/<work> slug is the work's landing
-// page (workLanding). The single source of truth for reader URLs — used by
+// The base-relative path to a work's READER (caller prepends BASE_URL).
+// One-book play-line works read at their bare landing path; all other works
+// read at /<author>/<work>/book/<n>. The single source of truth for reader URLs — used by
 // the home index, work switcher, Bekker/Stephanus jump, search jumps, and
 // cross-book outline links.
 export function workPath(workId: string, book = 1): string {
   const w = BY_ID.get(workId);
   if (!w) throw new Error(`workPath: unknown work '${workId}'`);
+  if (w.books === 1 && w.citation?.scheme === 'play-line') return workLanding(workId);
   // Clamp to the work's real book range so a stale/overflow value (e.g. a
   // remembered book number for a work that is now bookless) can't 404. Also
   // guards non-integer/non-finite input (NaN, 1.5, Infinity) — anything that

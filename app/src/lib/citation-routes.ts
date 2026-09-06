@@ -102,6 +102,7 @@ interface PlayLineBookData {
 
 function buildPlayLineStrideRoutes(): CitationRoute[] {
   const routes: CitationRoute[] = [];
+  const seen = new Set<string>();
   for (const work of builtWorks()) {
     if (work.citation?.scheme !== 'play-line') continue;
     const bookPath = `public/data/${work.id}/book-01.json`;
@@ -115,12 +116,18 @@ function buildPlayLineStrideRoutes(): CitationRoute[] {
     const book = JSON.parse(readFileSync(bookPath, 'utf8')) as PlayLineBookData;
     for (const seg of book.segments) {
       for (const line of seg.greek) {
-        // A "post N" lacuna line and a lyric range ("106-107") are never
-        // stride targets: only a plain printed integer can be an exact
-        // multiple of 50 in the first place.
-        if (line.role === 'lacuna' || !line.ref || !/^[0-9]+$/.test(line.ref)) continue;
-        if (Number(line.ref) % PLAY_LINE_STRIDE === 0) {
-          routes.push({ author: author.id, work: workSlug(work), cite: line.ref, bookN: 1 });
+        if (line.role === 'lacuna' || !line.ref) continue;
+        const match = /^([0-9]+)(?:-([0-9]+))?$/.exec(line.ref);
+        if (!match) continue;
+        const start = Number(match[1]);
+        const end = Number(match[2] ?? match[1]);
+        const first = Math.ceil(start / PLAY_LINE_STRIDE) * PLAY_LINE_STRIDE;
+        for (let citeN = first; citeN <= end; citeN += PLAY_LINE_STRIDE) {
+          const cite = String(citeN);
+          const key = `${work.id}:${cite}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          routes.push({ author: author.id, work: workSlug(work), cite, bookN: 1 });
         }
       }
     }

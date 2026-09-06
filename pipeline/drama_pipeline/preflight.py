@@ -708,6 +708,43 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
         # dk -- a single declared book covers the whole play's printed
         # lineref spine (a play running 1000+ lines gets no multi-book
         # split; "books: 1" is the manifest's own declared shape).
+        speakers = data.get("speakers")
+        if not isinstance(speakers, dict):
+            problems.append((
+                manifest.work_id, file_name,
+                "speakers must be an object for a play-line work",
+            ))
+        else:
+            sigla = speakers.get("sigla")
+            if not isinstance(sigla, dict):
+                problems.append((
+                    manifest.work_id, file_name,
+                    "speakers.sigla must be an object for a play-line work",
+                ))
+            else:
+                for label, display in sigla.items():
+                    if not isinstance(label, str) or not label:
+                        problems.append((
+                            manifest.work_id, file_name,
+                            "speakers.sigla keys must be non-empty strings",
+                        ))
+                    elif label == "—":
+                        if display is not None:
+                            problems.append((
+                                manifest.work_id, file_name,
+                                "speakers.sigla['—'] must be null",
+                            ))
+                    elif not isinstance(display, str) or not display:
+                        problems.append((
+                            manifest.work_id, file_name,
+                            f"speakers.sigla[{label!r}] must be a non-empty "
+                            "canonical display string",
+                        ))
+                if "—" not in sigla:
+                    problems.append((
+                        manifest.work_id, file_name,
+                        "speakers.sigla must declare the unattributed dash '—': null",
+                    ))
         books_list = data.get("books") if isinstance(data.get("books"), list) else []
         if len(books_list) != 1:
             problems.append((manifest.work_id, file_name,
@@ -998,6 +1035,7 @@ def _validate_play_line_work(
     transpositions are declared and displayed exactly as printed), so there
     is no "after the sort" invariant to assert here."""
     all_refs: list[str] = []
+    seen_refs: set[str] = set()
     for book in manifest.data.get("books", []):
         if not isinstance(book, dict) or not isinstance(book.get("n"), int):
             continue
@@ -1022,6 +1060,12 @@ def _validate_play_line_work(
                         f"missing/malformed ref {ref!r}",
                     ))
                     continue
+                if ref in seen_refs:
+                    problems.append((
+                        manifest.work_id, name,
+                        f"{segment.get('id')}: repeated play-line ref {ref!r}",
+                    ))
+                seen_refs.add(ref)
                 all_refs.append(ref)
                 if line.get("role") == "lacuna":
                     tokens = line.get("tokens")

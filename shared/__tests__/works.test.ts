@@ -226,6 +226,11 @@ describe('author-scoped URL resolution (PUBLIC_READER_FIXTURES)', () => {
     expect(fresh.authorPath('sample-author')).toBe('/sample-author');
   });
 
+  it('uses the bare work path for a one-book play-line work', async () => {
+    const fresh = await import('../lib/works');
+    expect(fresh.workPath('agamemnon', 1)).toBe('/aeschylus/agamemnon');
+  });
+
   it('workPath falls back to book 1 for non-finite/non-integer book numbers before clamping', async () => {
     vi.stubEnv('PUBLIC_READER_FIXTURES', '1');
     vi.resetModules();

@@ -5,16 +5,18 @@ export fixture (real-export coverage is Agamemnon, verified separately by
 the `all --work agamemnon --public` pipeline run)."""
 
 import hashlib
+import json
 import sys
 from pathlib import Path
 
 import pytest
+from lxml import etree
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
 from drama_pipeline import scheme as scheme_mod
-from drama_pipeline import stage1_greek
+from drama_pipeline import preflight, stage1_greek, stage7_emit
 from drama_pipeline.config import Manifest
 
 FIX = Path(__file__).resolve().parent / "fixtures" / "play_line"
@@ -54,6 +56,16 @@ def test_play_line_kind():
     assert scheme_mod.play_line_kind("post 1226") == "post"
     with pytest.raises(ValueError):
         scheme_mod.play_line_kind("not-a-ref")
+
+
+@pytest.mark.parametrize("bad", ["107-106", "106-106", "1000-999"])
+def test_play_line_kind_rejects_reversed_or_empty_range(bad):
+    # Sol review 2026-09-05, item 8: the grammar admits any two integers, but
+    # a range whose end is not after its start can never resolve an interior
+    # number, and the order key would sort on the wrong endpoint. Loud.
+    assert scheme_mod.get("play-line").column_re.match(bad)  # grammar alone admits it
+    with pytest.raises(ValueError):
+        scheme_mod.play_line_kind(bad)
 
 
 # ── Order key (docs/p1-probe.md's frozen rule) ───────────────────────────
@@ -138,7 +150,14 @@ def test_strophe_regex_matches(label):
     assert stage1_greek._PLAY_LINE_STROPHE_RE.match(label)
 
 
-@pytest.mark.parametrize("label", ["Χο.", "ΚΛΥΤΑΙΜΗΣΤΡΑ", "—", "Αγ.", "1."])
+@pytest.mark.parametrize(
+    "label",
+    ["Χο.", "ΚΛΥΤΑΙΜΗΣΤΡΑ", "—", "Αγ.", "1.",
+     # Sol review 2026-09-05, item 9: a capitalised siglum sharing the
+     # marker's letters is a SPEAKER (Strophius), never a strophe mark — the
+     # regex is case-sensitive, so neither the Greek nor the Latin fold fires.
+     "Στρ.", "ΣΤΡ.", "STR.", "ANT.", "Ἀντ."],
+)
 def test_strophe_regex_rejects_speakers(label):
     assert not stage1_greek._PLAY_LINE_STROPHE_RE.match(label)
 
@@ -182,6 +201,10 @@ def _fixture_manifest():
             "transpositions": {"1": []},
             "title_labels": [{"sha256_16": title_hash, "note": "test title"}],
         },
+        "speakers": {"sigla": {
+            "ΑΛΦΑ": "Alpha", "Α.": "Alpha", "Β.": "Beta",
+            "Χο.": "Chorus", "Γ.": "Gamma", "—": None,
+        }},
     }
     return Manifest(data, Path("testplay.yaml"))
 
@@ -240,6 +263,138 @@ def test_fixture_lacuna_line_is_empty_and_keeps_its_speaker():
     assert line["role"] == "lacuna"
     assert line["text"] == ""
     assert seg["speakers"] == [{"line": 5, "offset": 0, "label": "Γ."}]
+
+
+def test_parse_rejects_repeated_play_line_ref():
+    tree = etree.parse(str(FIX / "synthetic6.xml"))
+    duplicate = tree.xpath(".//*[local-name()='l'][@n='3-4']")[0]
+    duplicate.set("n", "2")
+    manifest = _fixture_manifest()
+    with pytest.raises(ValueError, match=r"repeated play-line ref '2'"):
+        stage1_greek._parse_play(
+            tree, scheme_mod.for_manifest(manifest), manifest, "duplicate.xml"
+        )
+
+
+def test_dist_preflight_rejects_repeated_play_line_ref():
+    data = {
+        "citation": {"fingerprint": {"count": 2, "sha256": "unused"}},
+        "books": [{"n": 1}],
+    }
+    manifest = preflight.WorkManifest("testplay", Path("testplay.yaml"), data)
+    loaded = {"book-01.json": {"segments": [
+        {"id": "1:1", "greek": [{"n": 1, "ref": "1", "tokens": []}]},
+        {"id": "1:1-again", "greek": [{"n": 2, "ref": "1", "tokens": []}]},
+    ]}}
+    problems = []
+    preflight._validate_play_line_work(
+        manifest, loaded, problems, scheme_mod.get("play-line")
+    )
+    assert any("repeated play-line ref '1'" in problem for _, _, problem in problems)
+
+
+def _transposition_manifest(*, declared: bool = True) -> Manifest:
+    title_hash = hashlib.sha256("ΤΕΣΤ".encode("utf-8")).hexdigest()[:16]
+    citation = {
+        "scheme": "play-line",
+        "lacunae": {"1": []},
+        "title_labels": [{"sha256_16": title_hash, "note": "test title"}],
+    }
+    if declared:
+        citation["transpositions"] = {
+            "1": [{"start": "1284", "end": "1285", "before": "1290"}]
+        }
+    return Manifest({
+        "work": {
+            "id": "transposed-play", "title": "Test Play", "author": "nobody",
+            "language": "grc", "tlg_author": "0000", "tlg_work": "000",
+            "greek_edition": "Nobody",
+        },
+        "citation": citation,
+        "speakers": {"sigla": {"—": None}},
+    }, Path("transposed-play.yaml"))
+
+
+def test_transposed_fixture_emits_printed_order_and_no_seam_note(tmp_path):
+    manifest = _transposition_manifest()
+    sch = scheme_mod.for_manifest(manifest)
+    spine = stage1_greek._parse_spine_play(
+        FIX / "synthetic_transposition.xml", manifest, sch
+    )
+    spine["segments"][0]["lines"][0]["seam_note"] = "must not ship"
+    tokens = {"segments": [
+        {"id": seg["id"], "lines": [{"tokens": []} for _ in seg["lines"]]}
+        for seg in spine["segments"]
+    ]}
+    stage7_emit.emit_books(
+        spine, tokens, {"chunks": []}, {}, tmp_path, scheme=sch
+    )
+    book = json.loads((tmp_path / "book-01.json").read_text(encoding="utf-8"))
+    lines = [line for seg in book["segments"] for line in seg["greek"]]
+    assert [line["ref"] for line in lines] == ["1283", "1290", "1284", "1285", "1291"]
+    assert all("seamNote" not in line for line in lines)
+
+
+def test_transposition_declaration_remains_required():
+    manifest = _transposition_manifest(declared=False)
+    with pytest.raises(ValueError, match=r"citation\.transpositions\['1'\] is required"):
+        stage1_greek._parse_spine_play(
+            FIX / "synthetic_transposition.xml",
+            manifest,
+            scheme_mod.for_manifest(manifest),
+        )
+
+
+def test_play_line_speaker_events_are_canonical_and_roster_is_first_appearance(tmp_path):
+    manifest = _fixture_manifest()
+    spine = _fixture_spine()
+    rosters = stage7_emit._canonicalize_play_line_speakers(spine, manifest)
+    assert rosters == {1: ["Alpha", "Beta", "Chorus", "Gamma"]}
+
+    tokens = {"segments": [
+        {"id": seg["id"], "lines": [{"tokens": []} for _ in seg["lines"]]}
+        for seg in spine["segments"]
+    ]}
+    stage7_emit.emit_books(
+        spine, tokens, {"chunks": []}, {}, tmp_path,
+        scheme=scheme_mod.for_manifest(manifest), speaker_rosters=rosters,
+    )
+    book = json.loads((tmp_path / "book-01.json").read_text(encoding="utf-8"))
+    assert book["speakerRoster"] == ["Alpha", "Beta", "Chorus", "Gamma"]
+    events = [event for seg in book["segments"] for event in seg.get("speakers", [])]
+    assert [(event["label"], event["display"]) for event in events] == [
+        ("ΑΛΦΑ", "Alpha"), ("Α.", "Alpha"), ("Β.", "Beta"),
+        ("Χο.", "Chorus"), ("Γ.", "Gamma"),
+    ]
+
+
+def test_play_line_speaker_map_is_required_and_unmapped_siglum_fails():
+    missing = _fixture_manifest()
+    del missing.data["speakers"]
+    with pytest.raises(RuntimeError, match=r"speakers\.sigla is required"):
+        stage7_emit._canonicalize_play_line_speakers(_fixture_spine(), missing)
+
+    unmapped = _fixture_manifest()
+    del unmapped.data["speakers"]["sigla"]["Β."]
+    with pytest.raises(RuntimeError, match=r"testplay.*1:2.*Β\."):
+        stage7_emit._canonicalize_play_line_speakers(_fixture_spine(), unmapped)
+
+
+def test_play_line_manifest_preflight_requires_speaker_map():
+    data = {
+        "work": {"id": "testplay", "no_english": True},
+        "citation": {"scheme": "play-line"},
+        "books": [{"n": 1, "start": "1", "end": "6"}],
+    }
+    manifest = preflight.WorkManifest("testplay", Path("testplay.yaml"), data)
+    problems = []
+    preflight._validate_section_manifest_schema(
+        manifest, problems, scheme_mod.get("play-line")
+    )
+    assert any(
+        problem == "speakers must be an object for a play-line work"
+        for _, _, problem in problems
+    )
 
 
 # ── TS<->Python regex-SOURCE parity ───────────────────────────────────────

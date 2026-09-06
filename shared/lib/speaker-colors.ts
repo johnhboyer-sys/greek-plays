@@ -2,14 +2,14 @@
 // tints each speaker's lead-in) and the landing-page dramatis-personae list
 // (Landing.astro) so a given speaker gets the SAME hue in both places.
 //
-// The palette itself is eight CSS custom properties (--spk-0…7 in
+// The palette itself is twelve CSS custom properties (--spk-0…11 in
 // shared/styles/global.css); this module only decides which slot each speaker
 // occupies. The slot is a hash of the speaker's key (its printed display, e.g.
 // "Soc."), so the colour is stable for that name across books and reloads, with
 // linear probing so two speakers never share a slot unless the cast is larger
 // than the palette.
 
-export const SPK_PALETTE_N = 8;
+export const SPK_PALETTE_N = 12;
 
 // Minimal shape of a book's turn flow needed to harvest speaker displays.
 interface TurnFlowLike {

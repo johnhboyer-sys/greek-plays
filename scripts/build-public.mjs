@@ -224,12 +224,17 @@ run('npm', ['run', 'build'], {
 console.log('\nChecking link integrity of the built site');
 run('node', [join(ROOT, 'scripts', 'check-links.mjs'), join(ROOT, 'app', 'dist')]);
 
+// Grammata serves dictionary entries at runtime. Local LSJ/L&S shards are
+// build inputs only and must never remain in either web artifact shape.
+console.log('\nRemoving local dictionary shards from the web artifact');
+rmSync(join(ROOT, 'app', 'dist', 'data', 'lsj'), { recursive: true, force: true });
+rmSync(join(ROOT, 'app', 'dist', 'data', 'ls'), { recursive: true, force: true });
+
 // Pages-artifact hygiene (Lyceum P6 plan, Settled decision 3 / docs/p6-plan.md
 // Stage 1): once check-links has validated the full-data dist above, prune
-// dist/data when this build shipped an off-origin PUBLIC_DATA_ROOT (R2 serves
-// it instead) and assert the pruned artifact is what Cloudflare Pages should
-// receive. A same-origin build (PUBLIC_DATA_ROOT unset) does neither step --
-// dist/data ships as it always has.
+// the rest of dist/data when this build shipped an off-origin PUBLIC_DATA_ROOT
+// (R2 serves it instead) and assert the pruned artifact is what Cloudflare
+// Pages should receive. A same-origin build keeps all non-dictionary data.
 if (process.env.PUBLIC_DATA_ROOT) {
   console.log('\nPruning dist/data for off-origin build (PUBLIC_DATA_ROOT set)');
   run('node', [join(ROOT, 'app', 'scripts', 'postbuild-prune-data.mjs')], {

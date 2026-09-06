@@ -54,6 +54,11 @@ function book(): BookData {
         greek: [
           { n: 2, text: 'δεύτερος λόγος', tokens: [{ t: 'δεύτερος', o: 0, k: 'deuteros' }], ref: '5a' },
           { n: 3, text: 'πέμπτος λόγος', tokens: [{ t: 'πέμπτος', o: 0, k: 'pemptos' }], ref: '5b', label: 'στρ. α.' },
+          { n: 4, text: 'ἕκτος λόγος', tokens: [], ref: '6' },
+          { n: 5, text: 'ἕβδομος λόγος', tokens: [], ref: '7' },
+          { n: 6, text: 'δέκατος λόγος', tokens: [], ref: '10' },
+          { n: 7, text: 'μέλος', tokens: [], ref: '106-107' },
+          { n: 8, text: '', tokens: [], ref: 'post 107', role: 'lacuna' },
         ],
         speakers: [{ line: 2, offset: 0, label: 'Χο.' }],
         english: null,
@@ -99,7 +104,7 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     expect(container.querySelector('#L5b-3')).toBeTruthy();
   });
 
-  it('gutter shows the ref on line 1 and on a suffixed line, blank otherwise', async () => {
+  it('keys gutter labels to printed refs and always shows suffixes and ranges', async () => {
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
     await flush();
     const nums = Array.from(container.querySelectorAll('.line-num')).map((el) => el.textContent);
@@ -107,5 +112,19 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     // not the first line): shown anyway because it isn't a plain integer.
     expect(nums).toContain('1');
     expect(nums).toContain('5a');
+    expect(nums).toContain('5b');
+    expect(nums).toContain('10');
+    expect(nums).toContain('106-107');
+    expect(nums).not.toContain('7');
+  });
+
+  it('keeps a lacuna out of the citation and scroll-spy target set', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
+    await flush();
+    const lacuna = container.querySelector('.greek-line.lacuna');
+    expect(lacuna).toBeTruthy();
+    expect(lacuna!.hasAttribute('id')).toBe(false);
+    expect(lacuna!.classList.contains('target')).toBe(false);
+    expect(container.querySelector('#Lpost_107-8')).toBeNull();
   });
 });

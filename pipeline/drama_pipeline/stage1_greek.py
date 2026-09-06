@@ -1106,8 +1106,14 @@ def _parse_flat_chapter(tree, sch, manifest=None, xml_path=None) -> tuple[list[d
 # choral ode from becoming one giant segment the reader's virtual scroll
 # would have to render whole.
 
+# Case-SENSITIVE on purpose (Sol review 2026-09-05, item 9): the Greek
+# marker forms are printed lowercase by every edition in the corpus
+# ("[στρ. α.", "ἀντ.", "ἐπῳδ."), and a case-fold would swallow a genuine
+# speaker siglum that happens to share the letters — "Στρ." (Strophius, or
+# any editor's capitalised abbreviation) must stay a speaker. The Latin forms
+# are the exact capitalised abbreviations Dain–Mazon and Coulon print.
 _PLAY_LINE_STROPHE_RE = re.compile(
-    r"^\[?(στρ|ἀντ|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)\b", re.I
+    r"^\[?(στρ|ἀντ|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)\b"
 )
 # The one malformed shape observed corpus-wide (docs/p1-probe.md): a strophe
 # mark glued to a speaker siglum inside ONE <label> element ("[ἀντ. α. Αν."
@@ -1305,6 +1311,7 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
     declared_titles = _load_flat_title_declarations(manifest)
     title_seen = False
     flat: list[dict] = []
+    seen_refs: set[str] = set()
     body = tree.find(".//{*}body")
     if body is None:
         raise ValueError(f"{xml_path or '<xml>'}: no <body> element in play-line export")
@@ -1325,6 +1332,11 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
             continue
         ref = _normalize_play_lineref(n, xml_path)
         kind = scheme_mod.play_line_kind(ref)  # raises loudly on a bad token
+        if ref in seen_refs:
+            raise ValueError(
+                f"{xml_path or '<xml>'}: repeated play-line ref {ref!r}"
+            )
+        seen_refs.add(ref)
         text, markers, label = _line_with_play_labels(l_el)
         entry: dict = {"ref": ref, "text": text}
         if markers:

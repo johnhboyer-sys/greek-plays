@@ -1,9 +1,6 @@
 ---
-// Every work's reader routes at /<author>/<work>/book/<n>. Bookless works
-// (Categories, Poetics, …) are a single treatise and only ever generate book
-// 1; multi-book works generate one page per book. The bare /<author>/<work>
-// slug is the landing page (src/pages/[author]/[work]/index.astro), not the
-// reader.
+// Most readers route at /<author>/<work>/book/<n>. A one-book play-line work
+// reads at the bare work path, so this route must not emit its /book/1 alias.
 import ReaderShell from '../../../../components/ReaderShell.astro';
 import { getWorkBySlug, workSlug } from '@shared/lib/works';
 import { getAuthor } from '@shared/lib/authors';
@@ -18,6 +15,7 @@ import '@shared/styles/global.css';
 // a build-time bug, not a page silently missing its author segment.
 export function getStaticPaths() {
   return builtWorks().flatMap((w) => {
+    if (w.books === 1 && w.citation?.scheme === 'play-line') return [];
     const author = getAuthor(w.author);
     if (!author) {
       throw new Error(`[author]/[work]/book/[n]: work '${w.id}' has unresolvable author '${w.author}'`);

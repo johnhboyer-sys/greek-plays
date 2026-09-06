@@ -63,6 +63,36 @@ citation:
   # + 25 lyric-range tokens), matching the verified recon count exactly.
   fingerprint: { count: 1637, sha256: "69cbf5bd2cc7784b2e9a019867ed18617dff70c68b3a986c6bfa697a33df6f5e" }
 
+speakers:
+  # Murray's Greek sigla -> one canonical English display per character.
+  sigla:
+    "ΦΥΛΑΞ": "Watchman"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΚΛΥΤΑΙΜΗΣΤΡΑ": "Clytaemestra"
+    "Κλ.": "Clytaemestra"
+    "ΚΗΡΥΞ": "Herald"
+    "Κη.": "Herald"
+    "ΑΓΑΜΕΜΝΩΝ": "Agamemnon"
+    "Αγ.": "Agamemnon"
+    "ΚΑΣΣΑΝΔΡΑ": "Cassandra"
+    "Κα.": "Cassandra"
+    "ΑΙΓΙΣΘΟΣ": "Aegisthus"
+    "Αι.": "Aegisthus"
+    "1.": "Elder 1"
+    "2.": "Elder 2"
+    "3.": "Elder 3"
+    "4.": "Elder 4"
+    "5.": "Elder 5"
+    "6.": "Elder 6"
+    "7.": "Elder 7"
+    "8.": "Elder 8"
+    "9.": "Elder 9"
+    "10.": "Elder 10"
+    "11.": "Elder 11"
+    "12.": "Elder 12"
+    "—": null
+
 books:
   - { n: 1, start: "1", end: "1673" }
 

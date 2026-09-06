@@ -37,6 +37,88 @@ def _load(rel: str):
     return json.loads((BUILD_DIR / rel).read_text(encoding="utf-8"))
 
 
+def _raise_unmapped_speaker_sigla(
+    work_id: str,
+    spine: dict,
+    unmapped: dict[str, int],
+) -> None:
+    """Apply the shared stage7 roster gate before any dist file is touched."""
+    if not unmapped:
+        return
+    from . import turns as turns_mod
+
+    segment_sigla = {
+        seg["id"]: sorted({
+            turns_mod.base_siglum(ev["label"])
+            for ev in seg.get("speakers", [])
+            if turns_mod.base_siglum(ev["label"]) in unmapped
+        })
+        for seg in spine["segments"]
+    }
+    segment_sigla = {sid: sigla for sid, sigla in segment_sigla.items() if sigla}
+    details = ", ".join(
+        f"{sid}=[{', '.join(sigla)}]" for sid, sigla in segment_sigla.items()
+    )
+    raise RuntimeError(
+        f"{work_id}: unmapped non-dash speaker sigla in segments: {details}"
+    )
+
+
+def _canonicalize_play_line_speakers(
+    spine: dict,
+    manifest: Manifest,
+) -> dict[int, list[str]]:
+    """Add canonical displays to play-line events and build ordered rosters.
+
+    Greek labels remain in ``label`` because the edition printed them. The
+    manifest map supplies ``display`` for reader labels and colour keys. A
+    bare dash is an attributed-to-no-one event and therefore gets null.
+    """
+    from . import turns as turns_mod
+
+    speakers = manifest.data.get("speakers")
+    sigla = speakers.get("sigla") if isinstance(speakers, dict) else None
+    if not isinstance(sigla, dict):
+        raise RuntimeError(
+            f"{manifest.work_id}: speakers.sigla is required for a play-line work"
+        )
+    if "—" not in sigla or sigla["—"] is not None:
+        raise RuntimeError(
+            f"{manifest.work_id}: speakers.sigla must declare '—': null"
+        )
+    invalid = {
+        label: display
+        for label, display in sigla.items()
+        if not isinstance(label, str)
+        or not label
+        or (label != "—" and (not isinstance(display, str) or not display))
+    }
+    if invalid:
+        raise RuntimeError(
+            f"{manifest.work_id}: invalid speakers.sigla entries: {invalid!r}"
+        )
+
+    rosters: dict[int, list[str]] = defaultdict(list)
+    roster_seen: dict[int, set[str]] = defaultdict(set)
+    unmapped: dict[str, int] = {}
+    for seg in spine["segments"]:
+        book = seg["book"]
+        rosters.setdefault(book, [])
+        roster_seen.setdefault(book, set())
+        for event in seg.get("speakers", []):
+            display, mapped = turns_mod.greek_speaker(event["label"], sigla)
+            event["display"] = display
+            if not mapped:
+                base = turns_mod.base_siglum(event["label"])
+                unmapped[base] = unmapped.get(base, 0) + 1
+            elif display is not None and display not in roster_seen[book]:
+                roster_seen[book].add(display)
+                rosters[book].append(display)
+
+    _raise_unmapped_speaker_sigla(manifest.work_id, spine, unmapped)
+    return dict(rosters)
+
+
 def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
     """Build the versioned contract fields added to the legacy manifest."""
     work = manifest.data["work"]
@@ -417,7 +499,7 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                is_freeman: bool = False, display_order: list[str] | None = None,
                context_english=None, citation_expansion=None,
                whole_column_verbatim=None, section_paragraph_columns=None,
-               fragment_kinds=None) -> list[dict]:
+               fragment_kinds=None, speaker_rosters=None) -> list[dict]:
     turn_flows = turn_flows or {}
     tokens_by_id = {s["id"]: s for s in tokens_doc["segments"]}
     english_by_id = {c["id"]: c for c in english["chunks"]}
@@ -429,6 +511,7 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
     whole_column_verbatim = whole_column_verbatim or {}
     section_paragraph_columns = section_paragraph_columns or set()
     fragment_kinds = fragment_kinds or {}
+    speaker_rosters = {} if speaker_rosters is None else speaker_rosters
     chapters_by_col: dict[tuple, list[dict]] = defaultdict(list)
     seg_keys = {(seg["book"], seg["column"]) for seg in spine["segments"]}
     for ch in english.get("chapters", []):
@@ -597,7 +680,13 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                         # emitted JSON carries no "seamNote" key at all
                         # (byte-identical by construction — see
                         # stage1_latin._transposition_seam_note).
-                        **({"seamNote": note} if (note := line.get("seam_note")) else {}),
+                        **(
+                            {"seamNote": note}
+                            if scheme is not None
+                            and scheme.verse_line_scheme
+                            and (note := line.get("seam_note"))
+                            else {}
+                        ),
                     }
                     for idx, line in enumerate(seg["lines"])
                 ],
@@ -726,6 +815,11 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
             json.dumps(
                 {"book": book, "segments": segments,
                  **({"turnFlow": flow} if flow else {}),
+                 # Greek-only play-line roster: canonical display names in
+                 # first-appearance order. Segment speaker events keep the
+                 # edition's Greek label and add the same canonical display.
+                 **({"speakerRoster": speaker_rosters[book]}
+                    if book in speaker_rosters else {}),
                  # Freeman Ancilla (design note §3.7): the manifest's
                  # declared display permutation, when Freeman's own
                  # sequence diverges from the spine's document order --
@@ -1036,7 +1130,10 @@ def run(manifest: Manifest) -> Path:
     turn_report = None
     prose_report = None
     turn_flows: dict[int, dict] = {}
+    speaker_rosters: dict[int, list[str]] = {}
     sch = scheme_mod.for_manifest(manifest)
+    if sch.play_line_scheme:
+        speaker_rosters = _canonicalize_play_line_speakers(spine, manifest)
     if sch.has_sections:
         from . import turns as turns_mod
 
@@ -1087,24 +1184,7 @@ def run(manifest: Manifest) -> Path:
         print(f"  turn_reconciliation (global): paired/greek_turns={rate} "
               f"e_turns={tot['e_turns']} residual g={tot['g_residual']} "
               f"e={tot['e_residual']}")
-        if unmapped_all:
-            # Roster gate (P8): any unmapped non-dash siglum aborts the emit
-            # before the destination directory is touched.
-            segment_sigla = {
-                seg["id"]: sorted({
-                    turns_mod.base_siglum(ev["label"])
-                    for ev in seg.get("speakers", [])
-                    if turns_mod.base_siglum(ev["label"]) in unmapped_all
-                })
-                for seg in spine["segments"]
-            }
-            segment_sigla = {sid: sg for sid, sg in segment_sigla.items() if sg}
-            details = ", ".join(
-                f"{sid}=[{', '.join(sg)}]" for sid, sg in segment_sigla.items()
-            )
-            raise RuntimeError(
-                f"{manifest.work_id}: unmapped non-dash speaker sigla in segments: {details}"
-            )
+        _raise_unmapped_speaker_sigla(manifest.work_id, spine, unmapped_all)
 
     # Do not touch the destination until turn reconciliation has passed: an
     # incomplete speaker roster must leave any previous emitted work intact.
@@ -1182,7 +1262,8 @@ def run(manifest: Manifest) -> Path:
     book_stats = emit_books(spine, tokens_doc, english, range_map, out_dir, ross,
                             third, overlays, turn_flows, sch, is_freeman, display_order,
                             context_english, citation_expansion, whole_column_verbatim,
-                            section_paragraph_columns, fragment_kinds)
+                            section_paragraph_columns, fragment_kinds,
+                            speaker_rosters)
     analyses_stats = emit_analyses(out_dir)
 
     # Per-book ordered chapter list for navigation (Work → Book → Chapter).

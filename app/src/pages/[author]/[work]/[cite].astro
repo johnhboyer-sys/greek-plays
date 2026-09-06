@@ -1,5 +1,5 @@
 ---
-import { getWorkBySlug } from '@shared/lib/works';
+import { getWorkBySlug, workPath } from '@shared/lib/works';
 import { citationRoutes } from '../../../lib/citation-routes';
 
 export function getStaticPaths() {
@@ -17,13 +17,7 @@ const work = getWorkBySlug(author, slug);
 if (!work) {
   throw new Error(`[author]/[work]/[cite]: no work at author '${author}' slug '${slug}'`);
 }
-// A bookless play-line work's reader lives at the bare work path (P1,
-// docs/p1-probe.md — "bookless: NO /book/1 redirect"; see
-// [author]/[work]/index.astro), not /book/<n>.
-const isBooklessPlayLine = work.citation?.scheme === 'play-line' && work.books === 1;
-const target = isBooklessPlayLine
-  ? `/${author}/${slug}?loc=${encodeURIComponent(cite)}`
-  : `/${author}/${slug}/book/${bookN}?loc=${encodeURIComponent(cite)}`;
+const target = `${workPath(work.id, bookN)}?loc=${encodeURIComponent(cite)}`;
 const title = `${work.title} ${cite}`;
 ---
 <!doctype html>

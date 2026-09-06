@@ -2705,7 +2705,8 @@
   // reader could not otherwise infer it from position alone.
   function playLineGutter(line: RLine): string {
     const ref = line.ref ?? '';
-    if (line.n === 1 || line.n % 5 === 0 || !/^[0-9]+$/.test(ref)) return ref;
+    const plain = /^([0-9]+)$/.exec(ref);
+    if (line.n === 1 || !plain || Number(plain[1]) % 5 === 0) return ref;
     return '';
   }
 
@@ -3672,7 +3673,7 @@
                      `.line-text`), so the inset shifts the whole painted
                      line -- fragment included -- exactly as Schenkl prints
                      it. -->
-                {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
+                {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading' || item.line.role === 'lacuna') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && item.line.role !== 'lacuna' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
                   <!-- Lined-source only (Discourses, docs/lined-source-plan.md
                        Q3): a `sec`-carrying line shows its section number
                        here iff `secStart` (computed once in greekItems, in
@@ -3971,7 +3972,7 @@
                        paratext, never a citation target, so it gets no id
                        either (and would otherwise collide with its letter's
                        role='salutation' line, which shares the same n). -->
-                  {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
+                  {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading' || item.line.role === 'lacuna') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && item.line.role !== 'lacuna' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
                     <!-- Lined-source only (Discourses, docs/lined-source-plan.md
                          Q3): a `sec`-carrying line shows its section number
                          here iff `secStart` (computed once in greekItems, in

@@ -375,7 +375,15 @@ def play_line_kind(ref: str) -> str:
     none of the grammar's forms (mirrors `verse_line_kind`)."""
     if _PLAY_LINE_POST_RE.match(ref):
         return "post"
-    if _PLAY_LINE_RANGE_RE.match(ref):
+    m = _PLAY_LINE_RANGE_RE.match(ref)
+    if m:
+        # A range's end must lie strictly after its start: "107-106" (or
+        # "106-106") matches the grammar but can never contain an interior
+        # number the reader could resolve, and its order key would silently
+        # sort on the wrong endpoint (Sol review 2026-09-05, item 8). Loud,
+        # like every other malformed token.
+        if int(m.group(2)) <= int(m.group(1)):
+            raise ValueError(f"reversed or empty play-line range: {ref!r}")
         return "range"
     if _PLAY_LINE_PLAIN_RE.match(ref):
         return "line"

@@ -3,7 +3,7 @@
 // Walks every built work under public/data/<work>/ (analyses.json + book-NN.json),
 // resolves each Greek token to its primary lemma, and accumulates a corpus-wide
 // concordance: per lemma, a total frequency, a per-work breakdown, and a capped
-// sample of occurrences (work, book, Bekker citation, and the line for KWIC).
+// sample of occurrences (work, book, citation ref, and the line for KWIC).
 //
 // Emits, under public/data/lemmata/:
 //   <slug>.json   — one file per top-N lemma (the page's data)
@@ -21,7 +21,6 @@ import { dirname, join, resolve } from 'node:path';
 // Imported straight from the .ts so there's ONE source of truth; the npm build
 // script runs this file under `node --experimental-strip-types`.
 import { betaToGreek } from '../../shared/lib/betacode.ts';
-import { sanitizeHtml } from '../../shared/lib/html.ts';
 
 const DATA = 'public/data';
 const OUT = join(DATA, 'lemmata');
@@ -184,16 +183,6 @@ function lsjHead(key, dir = 'lsj') {
   }
   return _shard.get(cacheKey)[key]?.head ?? null;
 }
-function lsjHtml(key, dir = 'lsj') {
-  const letter = lsjShardLetter(key);
-  const cacheKey = `${dir}/${letter}`;
-  if (!_shard.has(cacheKey)) {
-    const p = join(DATA, dir, `${letter}.json`);
-    _shard.set(cacheKey, existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : {});
-  }
-  return sanitizeHtml(_shard.get(cacheKey)[key]?.html ?? '');
-}
-
 // ── Accumulate the concordance ──────────────────────────────────────────────
 // key = primary analysis's lsj[0] (else its lemma beta). One bucket per lemma.
 const lemmata = new Map();
@@ -226,9 +215,9 @@ for (const w of worksGrc) {
           const g = a0.gloss && cleanGloss(a0.gloss);
           if (g) b.glosses.set(g, (b.glosses.get(g) ?? 0) + 1);
           // Complete (capped) instance list for the per-work "every citation"
-          // disclosure: compact [book, column, line, surface] tuples.
+          // disclosure: compact [book, citation ref, line, surface] tuples.
           if (b.instN < INSTANCE_CAP) {
-            (b.inst[w] ??= []).push([book, seg.column, gl.n, tok.t]);
+            (b.inst[w] ??= []).push([book, gl.ref ?? seg.column, gl.n, tok.t]);
             b.instN++;
           }
         }
@@ -290,7 +279,7 @@ for (const b of top) {
   });
 
   writeFileSync(join(OUT, `${slug}.json`), JSON.stringify({
-    slug, key: b.key, head, lemmaBeta: b.lemmaBeta, dictHtml: lsjHtml(b.key),
+    slug, key: b.key, head, lemmaBeta: b.lemmaBeta,
     count: b.count, byWork, glosses,
     instancesByWork,
     truncated: b.instN >= INSTANCE_CAP,
@@ -369,7 +358,7 @@ for (const w of worksLat) {
           const g = a0.gloss && cleanGloss(a0.gloss);
           if (g) b.glosses.set(g, (b.glosses.get(g) ?? 0) + 1);
           if (b.instN < INSTANCE_CAP) {
-            (b.inst[w] ??= []).push([book, seg.column, gl.n, tok.t]);
+            (b.inst[w] ??= []).push([book, gl.ref ?? seg.column, gl.n, tok.t]);
             b.instN++;
           }
         }
@@ -437,7 +426,7 @@ for (const b of topLat) {
   });
 
   writeFileSync(join(OUT_LAT, `${slug}.json`), JSON.stringify({
-    slug, key: b.key, head, lemmaBeta: b.lemma, dictHtml: lsjHtml(b.key, 'ls'),
+    slug, key: b.key, head, lemmaBeta: b.lemma,
     count: b.count, byWork, glosses,
     instancesByWork,
     truncated: b.instN >= INSTANCE_CAP,

@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, waitFor } from '@testing-library/svelte';
+import Search from '../components/Search.svelte';
 import { englishOccurrences, greekFold, latinFold, search } from '../lib/search';
 
 // Latin-language test work ids (unregistered in the real WORKS registry, so
@@ -261,6 +263,39 @@ describe('search English occurrences (index integration)', () => {
     expect(hits).toHaveLength(1);
     // "word" appears 60 times in the filler.
     expect(hits[0].engPositions).toHaveLength(60);
+  });
+});
+
+describe('Search.svelte play-line result routing', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('loads an empty chapter outline and cites the matching printed line ref', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      const path = String(url);
+      if (path.endsWith('/agamemnon/search/meta.json')) return json([
+        { id: '1:125', book: 1, column: '1', head: 'λόγος', tokens: 'logos', english_head: '' },
+      ]);
+      if (path.endsWith('/agamemnon/search/lemma.json')) return json({ logos: [[0, 0]] });
+      if (path.endsWith('/agamemnon/chapters.json')) return json({});
+      if (path.endsWith('/agamemnon/book-01.json')) return json({
+        book: 1,
+        segments: [{
+          id: '1:125', column: '1', english: null,
+          greek: [{ n: 125, ref: '147-150', text: 'λόγος', tokens: [{ t: 'λόγος', o: 0, k: 'logos' }] }],
+        }],
+      });
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+
+    const { getByLabelText, getByRole, container } = render(Search);
+    await fireEvent.input(getByLabelText('Greek'), { target: { value: 'λόγος' } });
+    await fireEvent.click(getByRole('button', { name: 'Search' }));
+
+    await waitFor(() => expect(container.querySelector('.inst-ref')).toBeTruthy());
+    const link = container.querySelector('.inst-ref') as HTMLAnchorElement;
+    expect(link.textContent).toBe('147-150');
+    expect(link.getAttribute('href')).toBe('/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=147-150');
+    expect(container.querySelector('.search-note.warn')).toBeNull();
   });
 });
 

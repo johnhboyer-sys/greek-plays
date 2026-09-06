@@ -7,8 +7,7 @@
 // drama corpus) renders the reader directly at this bare path instead —
 // "bookless: NO /book/1 redirect" (the plan's own P1 acceptance wording).
 // A play has no separate landing-plate content yet (the per-play opening
-// plate is a P4 design item); `/book/1` still exists and renders the same
-// reader (getStaticPaths below still emits it), so neither URL 404s.
+// plate is a P4 design item); no `/book/1` alias is emitted.
 import Landing from '../../../components/Landing.astro';
 import ReaderShell from '../../../components/ReaderShell.astro';
 import { getWorkBySlug, workSlug } from '@shared/lib/works';

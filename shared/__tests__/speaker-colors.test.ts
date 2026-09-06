@@ -74,6 +74,7 @@ describe('assignSpeakerSlots', () => {
     expect(m.size).toBe(2);
   });
   it('never assigns the same slot twice while the cast fits the palette', () => {
+    expect(SPK_PALETTE_N).toBe(12);
     const keys = Array.from({ length: SPK_PALETTE_N }, (_, i) => `S${i}`);
     const m = assignSpeakerSlots(keys);
     expect(new Set(m.values()).size).toBe(SPK_PALETTE_N);

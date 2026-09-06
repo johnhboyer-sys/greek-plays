@@ -22,6 +22,7 @@ reader site that uses it.
 
 - `shared/lib/grammata.ts` is the ONE place that imports this URL
   (`loadGrammataLookup()`, `/* @vite-ignore */`, memoized after first load).
+  A failed import clears that memo so the next dictionary request retries.
 - `shared/components/WordPopup.svelte` mounts a `.grammata-mount` div per
   dictionary-entry card and calls the widget with `{ key }` once the card
   opens — never with the raw surface form, which would re-analyse from
@@ -51,3 +52,6 @@ vi.mock('../lib/grammata', () => ({
 Assert `mockLookup` is called with `('', el, { lang, key })` once a card
 opens, and that no `.lsj-entry` (or other local dictionary markup) ever
 renders.
+
+The loader test uses `makeGrammataLoader()` with a mocked importer that fails
+once and then succeeds; it does not import the live URL.

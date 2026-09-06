@@ -247,3 +247,23 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 
 - `scripts/build-public.mjs` — wired `app/scripts/build-lsj-heads.mjs`
   into `npm run build`, right after `verify_shared_lsj`.
+
+## P1.1 — printed play order, duplicate refs, and canonical speaker rosters
+
+- `pipeline/drama_pipeline/stage1_greek.py` — play-line parsing now rejects a repeated printed ref before segmentation.
+- `pipeline/drama_pipeline/preflight.py` — the dist check rejects repeated play-line refs, and play-line manifests must declare a valid `speakers.sigla` map with `"—": null`.
+- `pipeline/drama_pipeline/stage7_emit.py` — play-line segments stay in document order, speaker events gain canonical displays, and each book gains a first-appearance `speakerRoster`; the existing unmapped-siglum gate now serves both play-line and Stephanus works.
+- `pipeline/gen_speaker_rosters.py` — ported the Plato roster helper for play-line build output and safe manifest-block rewrites.
+- `pipeline/tests/test_scheme_play_line.py`, `pipeline/tests/fixtures/play_line/synthetic_transposition.xml` — cover printed transposition order, the required declaration, duplicate refs, canonical event displays, the unmapped gate, and roster order.
+- `pipeline/drama_pipeline/scheme.py` — `play_line_kind` rejects a range whose end is not after its start (Sol review 2026-09-05 item 8; orchestrator edit).
+- `pipeline/drama_pipeline/stage1_greek.py` — `_PLAY_LINE_STROPHE_RE` is case-sensitive: a capitalised siglum (`Στρ.`) stays a speaker (Sol review item 9; orchestrator edit).
+
+## P1.1 web review fixes (2026-09-06)
+
+- `shared/components/Reader.svelte` — play gutters use printed refs, and lacunae have no citation or scroll-spy target.
+- `shared/components/Search.svelte` — empty play outlines form one group, and play hits cite and jump by `GreekLine.ref`.
+- `shared/lib/citation.ts` — `post N` is not a location, and flat or reversed play-line ranges fail validation.
+- `shared/lib/grammata.ts` — a failed remote-module import clears the cached loader so a later request retries.
+- `shared/lib/speaker-colors.ts` — the collision-free speaker palette now has twelve slots.
+- `shared/lib/works.ts` — one-book play-line readers use the bare work path as their sole URL.
+- `shared/styles/global.css` — four contrast-checked speaker colors extend both themes and all speaker selectors.

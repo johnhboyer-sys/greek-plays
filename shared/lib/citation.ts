@@ -207,7 +207,8 @@ const PLAY_LINE_PLAIN_RE = /^([0-9]+)([a-z]?)$/;
 // resolves to that range's own line, docs/p1-probe.md) and for the TS<->
 // Python parity test.
 export function isPlayLineRange(ref: string): boolean {
-  return PLAY_LINE_RANGE_RE.test(ref);
+  const range = PLAY_LINE_RANGE_RE.exec(ref);
+  return range !== null && Number(range[2]) > Number(range[1]);
 }
 
 // The sort/citation-order key for a normalized play-line ref: (leading
@@ -218,7 +219,7 @@ export function playLineOrderKey(ref: string): readonly [number, number, string]
   const post = PLAY_LINE_POST_RE.exec(ref);
   if (post) return [Number(post[1]), 1, ''] as const;
   const range = PLAY_LINE_RANGE_RE.exec(ref);
-  if (range) return [Number(range[1]), 0, ''] as const;
+  if (range && Number(range[2]) > Number(range[1])) return [Number(range[1]), 0, ''] as const;
   const plain = PLAY_LINE_PLAIN_RE.exec(ref);
   if (plain) return [Number(plain[1]), 0, plain[2] ?? ''] as const;
   throw new Error(`not a play-line ref: ${ref}`);
@@ -244,12 +245,16 @@ export function playLineOrderKey(ref: string): readonly [number, number, string]
 function makePlayLineScheme(): CitationScheme {
   function parseColumnToken(raw: string): string | null {
     const t = raw.trim();
-    return PLAY_LINE_REF_RE.test(t) ? t : null;
+    if (!PLAY_LINE_REF_RE.test(t)) return null;
+    const range = PLAY_LINE_RANGE_RE.exec(t);
+    return range && Number(range[2]) <= Number(range[1]) ? null : t;
   }
 
   function parseLocation(raw: string): ParsedLocation | null {
     const t = parseColumnToken(raw);
-    return t === null ? null : { column: t, line: null, isRange: isPlayLineRange(t) };
+    return t === null || PLAY_LINE_POST_RE.test(t)
+      ? null
+      : { column: t, line: null, isRange: isPlayLineRange(t) };
   }
 
   function formatCitation(column: string): string {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
   import { search, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
-  import { fetchBook, fetchChapters, fetchSections, type Segment, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
+  import { fetchBook, fetchChapters, fetchSections, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
   import { highlightPrefixMatches } from '../lib/text';
   import { WORKS, getWork, workPath, WORK_ORDER, WORK_GROUPS } from '../lib/works';
   import { getAuthor } from '../lib/authors';
@@ -381,25 +381,25 @@
     return schemeFor(work).id === 'letter' ? 'Letter' : 'Book';
   }
 
-  // Bekker line number of the token at index `pos` within a segment.
-  function lineOfPosition(seg: Segment, pos: number): number {
+  // Source line containing the token at index `pos` within a segment.
+  function lineOfPosition(seg: Segment, pos: number): GreekLine | null {
     let count = 0;
     for (const line of seg.greek) {
-      if (pos < count + line.tokens.length) return line.n;
+      if (pos < count + line.tokens.length) return line;
       count += line.tokens.length;
     }
-    return seg.greek[seg.greek.length - 1]?.n ?? 1;
+    return seg.greek[seg.greek.length - 1] ?? null;
   }
 
   // Approximate Bekker line of an English match at char offset `pos` (for
   // chapter grouping and the jump target), by proportion through the segment.
-  function englishLineAt(seg: Segment, pos: number): number {
+  function englishLineAt(seg: Segment, pos: number): GreekLine | null {
     const text = seg.english?.text ?? '';
     const lines = seg.greek;
-    if (!lines.length) return 1;
-    if (pos < 0 || !text.length) return lines[0]?.n ?? 1;
+    if (!lines.length) return null;
+    if (pos < 0 || !text.length) return lines[0] ?? null;
     const idx = Math.min(lines.length - 1, Math.floor(pos / Math.max(1, text.length) * lines.length));
-    return lines[idx].n;
+    return lines[idx] ?? null;
   }
 
   // Instances a result contributes (mirrors how `buildGroups` adds them): one
@@ -433,7 +433,12 @@
       // If the work's chapters never loaded we can't group its hits — mark the
       // pair failed and skip (don't feed an empty list into chapterLookup),
       // so the page shows the partial-results notice instead of crashing.
-      const chapters = chaptersByWork.get(w)?.[String(b)];
+      const outline = chaptersByWork.get(w);
+      let chapters = outline?.[String(b)];
+      // Plays have no chapter level. Their valid empty chapters.json still
+      // represents one book-wide result group.
+      if (!chapters && b === 1 && outline && Object.keys(outline).length === 0
+        && schemeFor(w).id === 'play-line') chapters = [];
       if (!chapters) { failed.push(pair); return; }
       try {
         const data = await fetchBook(w, b);
@@ -477,21 +482,29 @@
         for (const pos of r.grkPositions) {
           if (ctx.grkAccentTerms.length
             && !accentTokenMatch(toks[pos] ?? '', ctx.grkAccentTerms)) continue;
-          const line = lineOfPosition(seg, pos);
-          const ch = lookup(seg.column, line);
-          add(r.work, r.meta.book, ch, { lang: 'grk', column: seg.column, line, ref: formatCite(r.work, seg.column, line), html: greekKwic(seg, [pos]), jumpUrl: jumpFor(r.work, r.meta.book, seg.column, line) });
+          const sourceLine = lineOfPosition(seg, pos);
+          if (!sourceLine) continue;
+          const column = schemeFor(r.work).id === 'play-line'
+            ? sourceLine.ref ?? seg.column
+            : seg.column;
+          const ch = lookup(seg.column, sourceLine.n);
+          add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: greekKwic(seg, [pos]), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n) });
         }
       }
       if (r.engMatch) {
         // One instance per occurrence (offsets into the segment's full English,
         // which equals meta.english_head — see search.ts englishOccurrences).
         for (const off of r.engPositions) {
-          const line = englishLineAt(seg, off);
-          const ch = lookup(seg.column, line);
+          const sourceLine = englishLineAt(seg, off);
+          if (!sourceLine) continue;
+          const playLine = schemeFor(r.work).id === 'play-line';
+          const column = playLine ? sourceLine.ref ?? seg.column : seg.column;
+          const ch = lookup(seg.column, sourceLine.n);
           add(r.work, r.meta.book, ch, {
-            lang: 'eng', column: seg.column, line, ref: seg.column,
+            lang: 'eng', column, line: sourceLine.n,
+            ref: playLine ? formatCite(r.work, column, sourceLine.n) : seg.column,
             html: englishKwicAt(seg, off, ctx.engTerms),
-            jumpUrl: jumpFor(r.work, r.meta.book, seg.column, line),
+            jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n),
             credit: seg.english?.credit ? formatSearchCredit(seg.english.credit) : undefined,
           });
         }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Test Play</title></titleStmt>
+      <sourceDesc><p>Test Play. Test edition, Ed. Nobody. (0000: 000)</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+<l n="t"><label type="head"><hi rend="large">ΤΕΣΤ</hi></label></l>
+<l n="1283">πρῶτος.</l>
+<l n="1290">δεύτερος.</l>
+<l n="1284">τρίτος.</l>
+<l n="1285">τέταρτος.</l>
+<l n="1291">πέμπτος.</l>
+    </body>
+  </text>
+</TEI>

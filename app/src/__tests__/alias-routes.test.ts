@@ -86,6 +86,26 @@ describe('texts/[author]/[work] route set', () => {
   });
 });
 
+describe('[author]/[work]/[cite] play-line stride route set', () => {
+  it('emits and deduplicates a multiple of 50 contained in a printed range', async () => {
+    seed({ agamemnon: {} });
+    const workDir = path.join(process.cwd(), 'public', 'data', 'agamemnon');
+    writeFileSync(path.join(workDir, 'book-01.json'), JSON.stringify({
+      segments: [
+        { greek: [{ ref: '147-150' }, { ref: '150' }] },
+      ],
+    }));
+    vi.resetModules();
+    const { citationRoutes } = await import('../lib/citation-routes');
+    const matches = citationRoutes.filter(
+      (route) => route.author === 'aeschylus' && route.work === 'agamemnon' && route.cite === '150',
+    );
+    expect(matches).toEqual([
+      { author: 'aeschylus', work: 'agamemnon', cite: '150', bookN: 1 },
+    ]);
+  });
+});
+
 describe('read/[author]/[work]/section-[n] route set', () => {
   it('yields one section-N page for every section of a section-scheme work, gapped numbering included', async () => {
     // Regression guard for the Vatican Sayings-style gap (a real CPR-corpus

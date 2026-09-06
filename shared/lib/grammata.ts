@@ -9,16 +9,29 @@ export type GrammataLookup = (
   opts?: { lang?: 'grc' | 'lat'; key?: string },
 ) => Promise<void>;
 
-let loader: Promise<GrammataLookup> | null = null;
+type GrammataModule = { lookup: GrammataLookup };
+
+export function makeGrammataLoader(
+  importModule: () => Promise<GrammataModule>,
+): () => Promise<GrammataLookup> {
+  let loader: Promise<GrammataLookup> | null = null;
+  return () => {
+    if (!loader) {
+      const pending = importModule().then((mod) => mod.lookup);
+      loader = pending;
+      pending.catch(() => {
+        if (loader === pending) loader = null;
+      });
+    }
+    return loader;
+  };
+}
 
 // Loaded on the first dictionary request, then reused. Keeping the import in a
 // small module also gives tests a local seam to mock; no test imports the remote
 // module or fetches the network.
-export function loadGrammataLookup(): Promise<GrammataLookup> {
+export const loadGrammataLookup = makeGrammataLoader(() => {
   // @vite-ignore keeps the remote specifier out of the bundle graph. Vite
   // cannot resolve an https: import at build time.
-  if (!loader) {
-    loader = import(/* @vite-ignore */ GRAMMATA_LOOKUP).then((mod) => mod.lookup);
-  }
-  return loader;
-}
+  return import(/* @vite-ignore */ GRAMMATA_LOOKUP) as Promise<GrammataModule>;
+});
