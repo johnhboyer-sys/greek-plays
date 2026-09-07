@@ -1,0 +1,91 @@
+# Hippolytus (Euripides, TLG 0006: 038) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006038.xml),
+# verified by two `all --work hippolytus --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: hippolytus
+  title: Hippolytus
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "038"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Hippolytus (0006: 038) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "694b89b7e53461e6", note: "play title line (l n=\"t\"), 'ΙΠΠΟΛΥΤΟΣ'" }
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": 
+      - { start: "104", end: "105", before: "107" }
+      - { start: "1266", end: "1266", before: "1267" }
+
+  fingerprint: { count: 1435, sha256: "6620f97712db6916652d6e0fd4f9a4142d8b288dddd29b2574d186f2eb341217" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΑΦΡΟΔΙΤΗ": "Aphrodite"
+    "ΙΠΠΟΛΥΤΟΣ": "Hippolytus"
+    "ΙΠ. ΚΑΙ ΘΕΡΑΠΟΝΤΕΣ": "Hippolytus and Attendants"
+    "Ιπ.": "Hippolytus"
+    "ΘΕΡΑΠΩΝ": "Attendant"
+    "Θε.": "Attendant"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΤΡΟΦΟΣ": "Nurse"
+    "Τρ.": "Nurse"
+    "ΦΑΙΔΡΑ": "Phaedra"
+    "Φα.": "Phaedra"
+    "ΘΗΣΕΥΣ": "Theseus"
+    "Θη.": "Theseus"
+    "ΘΕΡΑΠΟΝΤΕΣ": "Attendants"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "Αγ.": "Messenger"
+    "Αλ.": "Attendant"
+    "ΑΡΤΕΜΙΣ": "Artemis"
+    "Αρ.": "Artemis"
+
+books:
+  - { n: 1, start: "1", end: "1466" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: hippolytus
+  slug: hippolytus
+  title: Hippolytus
+  greekTitle: Ἱππόλυτος
+  abbr: Hipp.
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekSource:
+    short: Diggle (1984)
+    full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Hipp."
+  blurb: "DRAFT — Spurned by her stepson's chastity, Phaedra's hidden love destroys them both."

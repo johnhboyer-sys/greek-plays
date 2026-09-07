@@ -1,0 +1,92 @@
+# Iphigenia Taurica (Euripides, TLG 0006: 045) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006045.xml),
+# verified by two `all --work iphigenia-in-tauris --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: iphigenia-in-tauris
+  title: Iphigenia Taurica
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "045"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Iphigenia Taurica (0006: 045) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "e344b402c377e1f4", note: "play title line (l n=\"t\"), 'ΙΦΙΓΕΝΕΙΑ Η ΕΝ ΤΑΥΡΟΙΣ'" }
+
+  lacunae:
+    "1": 
+      - "post 191"
+      - "post 1014"
+
+  transpositions:
+    "1": 
+      - { start: "208", end: "208", before: "220" }
+      - { start: "511", end: "514", before: "516" }
+      - { start: "866", end: "866", before: "867" }
+      - { start: "932", end: "933", before: "935" }
+      - { start: "1050", end: "1050", before: "1051" }
+
+  fingerprint: { count: 1458, sha256: "2dc8dd868a66e1182b6ccd230661e696832fabf8db91bd37f9924ddc980c0b26" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΙΦΙΓΕΝΕΙΑ": "Iphigenia"
+    "Ιφ.": "Iphigenia"
+    "ΟΡΕΣΤΗΣ": "Orestes"
+    "Ορ.": "Orestes"
+    "ΠΥΛΑΔΗΣ": "Pylades"
+    "Πυ.": "Pylades"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΒΟΥΚΟΛΟΣ": "Herdsman"
+    "Βο.": "Herdsman"
+    "ΘΟΑΣ": "Thoas"
+    "Θο.": "Thoas"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "Αγ.": "Messenger"
+    "ΑΘΗΝΑ": "Athena"
+    "Αθ.": "Athena"
+
+books:
+  - { n: 1, start: "1", end: "1499" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: iphigenia-in-tauris
+  slug: iphigenia-in-tauris
+  title: Iphigenia Taurica
+  greekTitle: Ἰφιγένεια ἡ ἐν Ταύροις
+  abbr: IT
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekSource:
+    short: Diggle (1981)
+    full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. IT"
+  blurb: "DRAFT — Saved from sacrifice at Aulis, Iphigenia serves a foreign goddess until her brother arrives."

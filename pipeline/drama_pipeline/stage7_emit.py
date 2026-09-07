@@ -64,6 +64,63 @@ def _raise_unmapped_speaker_sigla(
     )
 
 
+
+_SIGLUM_NOISE = re.compile(r"[<>\[\]()]")
+
+
+def _norm_siglum(label: str) -> str:
+    """Lookup key for a printed speaker label: editorial brackets around a
+    siglum (`<Ηρ.>`, `[Αμ.`, `(Ηλ.)`), stray spaces and a trailing full stop
+    are typography, not identity (`Ιων` / `Ιων.` are one character)."""
+    # Greek numeral primes come in three codepoints across editions and
+    # keyboards (U+0374 GREEK NUMERAL SIGN, U+02B9 MODIFIER LETTER PRIME,
+    # U+2032 PRIME): one identity.
+    label = label.replace("\u0374", "\u02b9").replace("\u2032", "\u02b9")
+    return " ".join(_SIGLUM_NOISE.sub("", label).split()).rstrip(".").strip()
+
+
+def _load_speaker_overrides(manifest: Manifest) -> list[tuple[str, tuple, str]]:
+    """`speakers.overrides: [{siglum, from, display}]` — an abbreviation the
+    edition reuses for a second character from a given printed ref onward
+    (Ajax's ΑΓ. = Messenger until Agamemnon enters at 1226). Sorted by `from`;
+    the LAST override whose `from` <= the event's ref wins."""
+    from . import scheme as scheme_mod
+
+    speakers = manifest.data.get("speakers") or {}
+    out = []
+    for o in speakers.get("overrides", []) or []:
+        if not (isinstance(o, dict) and isinstance(o.get("siglum"), str)
+                and isinstance(o.get("from"), str) and isinstance(o.get("display"), str)):
+            raise RuntimeError(f"{manifest.work_id}: malformed speakers.overrides entry {o!r}")
+        out.append((_norm_siglum(o["siglum"]), scheme_mod.play_line_order_key(o["from"]), o["display"]))
+    return sorted(out, key=lambda t: t[1])
+
+
+def _play_line_display(label: str, sigla_norm: dict, overrides, ref) -> tuple[str | None, bool]:
+    """(display, mapped) for one Greek speaker event; the dash is attributed
+    to no one (None, mapped)."""
+    from . import scheme as scheme_mod
+    from . import turns as turns_mod
+
+    base = turns_mod.base_siglum(label)
+    if base == "":
+        return None, True
+    key = _norm_siglum(base)
+    if key == "":
+        return None, True
+    if ref is not None and overrides:
+        rk = scheme_mod.play_line_order_key(ref)
+        chosen = None
+        for sig, frm, display in overrides:
+            if sig == key and frm <= rk:
+                chosen = display
+        if chosen is not None:
+            return chosen, True
+    if key in sigla_norm:
+        return sigla_norm[key], True
+    return base, False
+
+
 def _canonicalize_play_line_speakers(
     spine: dict,
     manifest: Manifest,
@@ -98,6 +155,8 @@ def _canonicalize_play_line_speakers(
             f"{manifest.work_id}: invalid speakers.sigla entries: {invalid!r}"
         )
 
+    sigla_norm = {_norm_siglum(k): v for k, v in sigla.items()}
+    overrides = _load_speaker_overrides(manifest)
     rosters: dict[int, list[str]] = defaultdict(list)
     roster_seen: dict[int, set[str]] = defaultdict(set)
     unmapped: dict[str, int] = {}
@@ -105,8 +164,11 @@ def _canonicalize_play_line_speakers(
         book = seg["book"]
         rosters.setdefault(book, [])
         roster_seen.setdefault(book, set())
+        line_refs = {ln.get("n"): ln.get("ref") for ln in seg.get("greek", []) if isinstance(ln, dict)}
         for event in seg.get("speakers", []):
-            display, mapped = turns_mod.greek_speaker(event["label"], sigla)
+            display, mapped = _play_line_display(
+                event["label"], sigla_norm, overrides, line_refs.get(event.get("line")),
+            )
             event["display"] = display
             if not mapped:
                 base = turns_mod.base_siglum(event["label"])

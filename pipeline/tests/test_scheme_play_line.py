@@ -433,3 +433,76 @@ def test_ts_python_regex_source_parity():
     py_value = scheme_mod.PLAY_LINE_REF_SOURCE
     assert ts_value == py_value
     assert py_value == r"^[0-9]+$|^[0-9]+[a-z]$|^[0-9]+-[0-9]+$|^post [0-9]+$"
+
+
+# ── Repeated printed refs (John's ruling 2026-09-06, REVIEW-CHECKLIST 3) ──
+
+def _play_xml(refs_and_text):
+    body = "".join(f'<l n="{n}">{t}</l>' for n, t in refs_and_text)
+    return etree.fromstring(
+        f'<TEI><text><body><l n="t"><label type="head">ΤΙΤΛΟΣ</label></l>{body}</body></text></TEI>'
+    )
+
+
+class _M:
+    def __init__(self, citation):
+        self.data = {"citation": citation}
+        self.work_id = "t"
+
+
+def _title_decl():
+    h = stage1_greek._flat_title_content_hash("ΤΙΤΛΟΣ")
+    return [{"sha256_16": h, "note": "t"}]
+
+
+def test_repeated_ref_fails_undeclared():
+    tree = _play_xml([("1", "α"), ("2", "β"), ("2", "γ")])
+    m = _M({"title_labels": _title_decl(), "transpositions": {"1": []}})
+    with pytest.raises(ValueError, match="repeated play-line ref '2'"):
+        stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
+
+
+def test_repeated_ref_declared_passes_and_keeps_both_lines():
+    tree = _play_xml([("1", "α"), ("2", "β"), ("2", "γ"), ("3", "δ")])
+    m = _M({"title_labels": _title_decl(), "transpositions": {"1": []},
+            "repeated_refs": {"1": [{"ref": "2", "count": 2, "note": "doublet"}]}})
+    flat = stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
+    assert [e["ref"] for e in flat] == ["1", "2", "2", "3"]
+
+
+def test_repeated_ref_declared_count_mismatch_fails():
+    tree = _play_xml([("1", "α"), ("2", "β"), ("3", "δ")])
+    m = _M({"title_labels": _title_decl(), "transpositions": {"1": []},
+            "repeated_refs": {"1": [{"ref": "2", "count": 2}]}})
+    with pytest.raises(ValueError, match="declares '2' x2 but the export prints it x1"):
+        stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
+
+
+# ── Speaker sigla: normalization + range overrides (stage7) ──────────────
+
+def test_norm_siglum_strips_editorial_noise():
+    assert stage7_emit._norm_siglum("<Ηρ.>") == "Ηρ"
+    assert stage7_emit._norm_siglum("[Αμ.") == "Αμ"
+    assert stage7_emit._norm_siglum("(Ηλ.)") == "Ηλ"
+    assert stage7_emit._norm_siglum("Ιων") == stage7_emit._norm_siglum("Ιων.")
+    assert stage7_emit._norm_siglum("Χο.α") == "Χο.α"
+
+
+def test_play_line_display_override_by_ref():
+    sigla = {stage7_emit._norm_siglum(k): v for k, v in {"ΑΓ.": "Messenger", "—": None}.items()}
+    ov = [("ΑΓ", scheme_mod.play_line_order_key("1226"), "Agamemnon")]
+    assert stage7_emit._play_line_display("ΑΓ.", sigla, ov, "718") == ("Messenger", True)
+    assert stage7_emit._play_line_display("ΑΓ.", sigla, ov, "1226") == ("Agamemnon", True)
+    assert stage7_emit._play_line_display("ΑΓ.", sigla, ov, "1300") == ("Agamemnon", True)
+    assert stage7_emit._play_line_display("<ΑΓ.>", sigla, ov, "10") == ("Messenger", True)
+    assert stage7_emit._play_line_display("—", sigla, ov, "10") == (None, True)
+    assert stage7_emit._play_line_display("ΞΕ.", sigla, ov, "10") == ("ΞΕ.", False)
+
+
+def test_strophe_regex_epod_form():
+    assert stage1_greek._PLAY_LINE_STROPHE_RE.match("Epod.")
+
+
+def test_norm_siglum_folds_prime_variants():
+    assert stage7_emit._norm_siglum("ΗΜΙΧΟΡΙΟΝ Α\u0374") == stage7_emit._norm_siglum("ΗΜΙΧΟΡΙΟΝ Α\u02b9")
+    assert stage7_emit._norm_siglum("Α\u2032") == stage7_emit._norm_siglum("Α\u02b9")

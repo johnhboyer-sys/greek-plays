@@ -1,0 +1,89 @@
+# Antigone (Sophocles, TLG 0011: 002) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0085/Diogenes-Resources/xml/tlg/tlg0085004.xml),
+# verified by two `all --work antigone --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: seven-against-thebes
+  title: Seven Against Thebes
+  author: aeschylus
+  language: grc
+  tlg_author: "0085"
+  tlg_work: "004"
+  greek_edition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Aeschylus Trag. (c. 6-5 B.C.), Septem contra Thebas (0085: 004) "Aeschyli tragoediae, 2nd edn.", Ed. Murray, G. Oxford: Clarendon Press, 1955, Repr. 1960.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "4d1bfad06e2b9c4e", note: "play title line (l n=\"t\"), ΕΠΤΑ ΕΠΙ ΘΗΒΑΣ" }
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1":
+      - { start: "12", end: "12", before: "13" }
+      - { start: "518", end: "518", before: "519" }
+      - { start: "538", end: "546", before: "549" }
+      - { start: "803", end: "803", before: "806" }
+      - { start: "810", end: "810", before: "812" }
+      - { start: "984", end: "992", before: "993" }
+      - { start: "983", end: "983", before: "993" }
+
+  repeated_refs:
+    "1":
+      - { ref: "803", count: 2, note: "Murray prints the doublet twice" }
+      - { ref: "810", count: 2, note: "printed twice with different text" }
+  fingerprint: { count: 1052, sha256: "12177e370cf4daf92d28533096b5f8e6ab52a9047337bb4ea51bce43f0c78a4c" }
+
+speakers:
+  sigla:
+    "—": null
+    "ΕΤΕΟΚΛΗΣ": "Eteocles"
+    "Ετ.": "Eteocles"
+    "ΑΓΓΕΛΟΣ ΚΑΤΑΣΚΟΠΟΣ": "Scout"
+    "Αγ.": "Scout"
+    "ΧΟΡΟΣ —": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "Αν.": "Antigone"
+    "Ισ.": "Ismene"
+    "ΚΗΡΥΞ": "Herald"
+    "Κη.": "Herald"
+    "Ημ.": "Semichorus"
+
+books:
+  - { n: 1, start: "1", end: "1078" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: seven-against-thebes
+  slug: seven-against-thebes
+  title: Seven Against Thebes
+  greekTitle: ΕΠΤΑ ΕΠΙ ΘΗΒΑΣ
+  abbr: Sept.
+  author: aeschylus
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekSource:
+    short: Murray (OCT, 1955)
+    full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Aesch. Sept."
+  blurb: "DRAFT — Seven Against Thebes."

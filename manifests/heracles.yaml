@@ -1,0 +1,98 @@
+# Hercules (Euripides, TLG 0006: 043) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006043.xml),
+# verified by two `all --work heracles --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: heracles
+  title: Hercules
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "043"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Hercules (0006: 043) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "90155c1239d84bbf", note: "play title line (l n=\"t\"), 'ΗΡΑΚΛΗΣ'" }
+
+  lacunae:
+    "1": 
+      - "post 1241"
+      - "post 1312"
+
+  transpositions:
+    "1": 
+      - { start: "87", end: "87", before: "89" }
+      - { start: "127", end: "127", before: "128" }
+      - { start: "191", end: "192", before: "194" }
+      - { start: "860", end: "860", before: "870" }
+      - { start: "1009", end: "1009", before: "1010" }
+      - { start: "1186", end: "1186", before: "1188" }
+      - { start: "1185", end: "1185", before: "1188" }
+
+  fingerprint: { count: 1407, sha256: "8f61343959697c85f64cb92914455f20a72f81b66c0c1be02785b42a61a823e6" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΑΜΦΙΤΡΥΩΝ": "Amphitryon"
+    "Αμ.": "Amphitryon"
+    "ΜΕΓΑΡΑ": "Megara"
+    "Με.": "Megara"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΛΥΚΟΣ": "Lycus"
+    "Λυ.": "Lycus"
+    "ΗΡΑΚΛΗΣ": "Heracles"
+    "Ηρ.": "Heracles"
+    "ΙΡΙΣ": "Iris"
+    "Ιρ.": "Iris"
+    "ΛΥΣΣΑ": "Madness"
+    "ΕΞΑΓΓΕΛΟΣ": "Messenger"
+    "Εξ.": "Messenger"
+    "ΘΗΣΕΥΣ": "Theseus"
+    "Θη.": "Theseus"
+  # One abbreviation, two characters: from this printed ref onward it means the second.
+  overrides:
+    - { siglum: "Λυ.", from: "843", display: "Madness" }
+
+books:
+  - { n: 1, start: "1", end: "1428" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: heracles
+  slug: heracles
+  title: Hercules
+  greekTitle: Ἡρακλῆς
+  abbr: HF
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekSource:
+    short: Diggle (1981)
+    full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. HF"
+  blurb: "DRAFT — Heracles returns from his labors to save his family, and Hera drives him mad."

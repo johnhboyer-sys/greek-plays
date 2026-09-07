@@ -1,0 +1,94 @@
+# Alcestis (Euripides, TLG 0006: 035) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006035.xml),
+# verified by two `all --work alcestis --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: alcestis
+  title: Alcestis
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "035"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Alcestis (0006: 035) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "1d588fe53c59f641", note: "play title line (l n=\"t\"), 'ΑΛΚΗΣΤΙΣ'" }
+
+  lacunae:
+    "1": 
+      - "post 410"
+      - "post 468"
+
+  transpositions:
+    "1": 
+      - { start: "144", end: "145", before: "149" }
+
+  fingerprint: { count: 1153, sha256: "88dc7668aefa6d08c631f45693af1e28ee5974da39a9dbec54ca236ab7d82b05" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΑΠΟΛΛΩΝ": "Apollo"
+    "Απ.": "Apollo"
+    "ΘΑΝΑΤΟΣ": "Death"
+    "Θα.": "Death"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΘΕΡΑΠΑΙΝΑ": "Maid"
+    "Θε.": "Maid"
+    "ΑΛΚΗΣΤΙΣ": "Alcestis"
+    "Αλ.": "Alcestis"
+    "ΑΔΜΗΤΟΣ": "Admetus"
+    "Αδ.": "Admetus"
+    "ΠΑΙΣ": "Eumelus"
+    "Πα.": "Eumelus"
+    "ΗΡΑΚΛΗΣ": "Heracles"
+    "Ηρ.": "Heracles"
+    "ΦΕΡΗΣ": "Pheres"
+    "Φε.": "Pheres"
+    "ΘΕΡΑΠΩΝ": "Attendant"
+  # One abbreviation, two characters: from this printed ref onward it means the second.
+  overrides:
+    - { siglum: "Θε.", from: "747", display: "Attendant" }
+
+books:
+  - { n: 1, start: "1", end: "1163" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: alcestis
+  slug: alcestis
+  title: Alcestis
+  greekTitle: Ἄλκηστις
+  abbr: Alc.
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekSource:
+    short: Diggle (1984)
+    full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Alc."
+  blurb: "DRAFT — Alcestis agrees to die in her husband Admetus' place, until Heracles wrestles Death for her."

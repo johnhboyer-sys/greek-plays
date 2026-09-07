@@ -1,0 +1,83 @@
+# Persae (Aeschylus, TLG 0085: 002) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0085/Diogenes-Resources/xml/tlg/tlg0085002.xml),
+# verified by two `all --work persians --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: persians
+  title: Persae
+  author: aeschylus
+  language: grc
+  tlg_author: "0085"
+  tlg_work: "002"
+  greek_edition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Aeschylus Trag. (c. 6-5 B.C.), Persae (0085: 002) "Aeschyli tragoediae, 2nd edn.", Ed. Murray, G. Oxford: Clarendon Press, 1955, Repr. 1960.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "f77419a72561c83c", note: "play title line (l n=\"t\"), 'ΠΕΡΣΑΙ'" }
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": 
+      - { start: "367", end: "367", before: "368" }
+
+  fingerprint: { count: 1044, sha256: "6c4618f8b98ca94935dcf467000f17078aae0074c8b5ed140b6e013b55a89a3d" }
+
+speakers:
+  # Murray's Greek sigla -> canonical English display, hand-resolved from the
+  # export's own full-caps first appearances (gen_speaker_rosters.py report
+  # mode; --perseus/--spine name proposals are NOT trusted, see
+  # docs/p2-greek-report.md).
+  sigla:
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "Χο. —": "Chorus"
+    "ΒΑΣΙΛΕΙΑ": "Atossa"
+    "Βα.": "Atossa"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "Αγ.": "Messenger"
+    "ΕΙΔΩΛΟΝ ΔΑΡΕΙΟΥ": "Ghost of Darius"
+    "Δα.": "Ghost of Darius"
+    "ΞΕΡΞΗΣ": "Xerxes"
+    "Ξε.": "Xerxes"
+    "Ξε.>": "Xerxes"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1077" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: persians
+  slug: persians
+  title: Persae
+  greekTitle: Πέρσαι
+  abbr: Pers.
+  author: aeschylus
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekSource:
+    short: Murray (1955)
+    full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Aesch. Pers."
+  blurb: "DRAFT — News of the rout at Salamis reaches the Persian court, and Xerxes' mother waits."

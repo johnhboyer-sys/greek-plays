@@ -1,0 +1,99 @@
+# Electra (Euripides, TLG 0006: 042) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006042.xml),
+# verified by two `all --work electra-eur --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: electra-eur
+  title: Electra
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "042"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Electra (0006: 042) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "b48117d6bf9a0f1a", note: "play title line (l n=\"t\"), 'ΗΛΕΚΤΡΑ'" }
+
+  lacunae:
+    "1": 
+      - "post 308"
+      - "post 538"
+      - "post 582"
+      - "post 651"
+      - "post 965"
+      - "post 1045"
+      - "post 1154"
+      - "post 1173"
+      - "post 1181"
+
+  transpositions:
+    "1": 
+      - { start: "57", end: "58", before: "59" }
+      - { start: "682", end: "682", before: "683" }
+      - { start: "685", end: "692", before: "693" }
+      - { start: "1107", end: "1108", before: "1131" }
+      - { start: "1295", end: "1297", before: "1302" }
+
+  fingerprint: { count: 1355, sha256: "c700ecd7e873d9a66550eb5ca54590ae7cd2de5f81cd87fb0668058cce3e8e2d" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΑΥΤΟΥΡΓΟΣ": "Peasant"
+    "Αυ.": "Peasant"
+    "ΗΛΕΚΤΡΑ": "Electra"
+    "Ηλ.": "Electra"
+    "ΟΡΕΣΤΗΣ": "Orestes"
+    "Ορ.": "Orestes"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΠΡΕΣΒΥΣ": "Old Man"
+    "Πρ.": "Old Man"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "Αγ.": "Messenger"
+    "ΚΛΥΤΑΙΜΗΣΤΡΑ": "Clytemnestra"
+    "Κλ.": "Clytemnestra"
+    "ΚΑΣΤΩΡ": "Castor"
+    "Κα.": "Castor"
+
+books:
+  - { n: 1, start: "1", end: "1359" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: electra-eur
+  slug: electra-eur
+  title: Electra
+  greekTitle: Ἠλέκτρα
+  abbr: "Eur. El."
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekSource:
+    short: Diggle (1981)
+    full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. El."
+  blurb: "DRAFT — Married off to a poor farmer, Electra plots with Orestes to kill their mother."

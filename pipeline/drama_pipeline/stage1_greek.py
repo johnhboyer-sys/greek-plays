@@ -1118,7 +1118,7 @@ def _parse_flat_chapter(tree, sch, manifest=None, xml_path=None) -> tuple[list[d
 # "ός" continues the word, so the literal inflected form is listed first
 # (P2-Greek, docs/p2-greek-report.md).
 _PLAY_LINE_STROPHE_RE = re.compile(
-    r"^\[?(στρ|ἀντ|ἐπῳδός|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)\b"
+    r"^\[?(στρ|ἀντ|ἐπῳδός|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Epod|Ep|Epode)\b"
 )
 # The one malformed shape observed corpus-wide (docs/p1-probe.md): a strophe
 # mark glued to a speaker siglum inside ONE <label> element ("[ἀντ. α. Αν."
@@ -1294,6 +1294,35 @@ def _derive_play_line_transposed_blocks(doc_refs: list[str]) -> list[dict]:
     return blocks
 
 
+
+def _load_repeated_refs(manifest) -> dict[str, int]:
+    """`citation.repeated_refs` -> {ref: expected count} (book "1" only:
+    play-line is bookless). Shape: {"1": [{ref: "803", count: 2, note: ...}]}."""
+    if manifest is None:
+        return {}
+    decl = (manifest.data.get("citation") or {}).get("repeated_refs") or {}
+    out: dict[str, int] = {}
+    for entry in decl.get("1", []) if isinstance(decl, dict) else []:
+        ref = entry.get("ref") if isinstance(entry, dict) else None
+        count = entry.get("count") if isinstance(entry, dict) else None
+        if not isinstance(ref, str) or not isinstance(count, int) or count < 2:
+            raise ValueError(f"citation.repeated_refs entry malformed: {entry!r}")
+        out[ref] = count
+    return out
+
+
+def _check_repeated_refs(allowed: dict[str, int], counts: dict[str, int], xml_path=None) -> None:
+    """Bidirectional gate: every declared repeat must be observed with exactly
+    its declared count (an undeclared repeat already failed in the walk)."""
+    for ref, expected in allowed.items():
+        seen = counts.get(ref, 0)
+        if seen != expected:
+            raise ValueError(
+                f"{xml_path or '<xml>'}: citation.repeated_refs declares {ref!r} x{expected} "
+                f"but the export prints it x{seen}"
+            )
+
+
 def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
     """Flat (ref, text, speakers, role?, label?) list for play-line's flat
     export, in DOCUMENT (printed) order — never re-sorted (docs/p1-probe.md:
@@ -1318,6 +1347,13 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
     title_seen = False
     flat: list[dict] = []
     seen_refs: set[str] = set()
+    # John's ruling (2026-09-06, REVIEW-CHECKLIST 3): a ref the edition prints
+    # twice (Septem's 803/810 doublet, Helen's two lacunae at 1226, Troades'
+    # split 170) stays as printed. `citation.repeated_refs` is a bidirectional
+    # allowlist: {ref: expected count}; any other repeat, or a declared repeat
+    # not observed with exactly that count, fails loudly.
+    allowed_repeats = _load_repeated_refs(manifest)
+    ref_counts: dict[str, int] = {}
     body = tree.find(".//{*}body")
     if body is None:
         raise ValueError(f"{xml_path or '<xml>'}: no <body> element in play-line export")
@@ -1339,9 +1375,11 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
             continue
         ref = _normalize_play_lineref(n, xml_path)
         kind = scheme_mod.play_line_kind(ref)  # raises loudly on a bad token
-        if ref in seen_refs:
+        ref_counts[ref] = ref_counts.get(ref, 0) + 1
+        if ref in seen_refs and ref not in allowed_repeats:
             raise ValueError(
-                f"{xml_path or '<xml>'}: repeated play-line ref {ref!r}"
+                f"{xml_path or '<xml>'}: repeated play-line ref {ref!r} "
+                f"(declare it in citation.repeated_refs if the edition prints it twice)"
             )
         seen_refs.add(ref)
         text, markers, label = _line_with_play_labels(l_el)
@@ -1362,6 +1400,7 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
         flat.append(entry)
     if not title_seen:
         raise ValueError(f"{xml_path or '<xml>'}: play-line export has no <l n=\"t\"> title line")
+    _check_repeated_refs(allowed_repeats, ref_counts, xml_path)
     stale_titles = set(declared_titles) - observed_titles
     if stale_titles:
         stale = ", ".join(sorted(stale_titles))
@@ -1412,6 +1451,7 @@ def _segment_play_lines(flat: list[dict]) -> list[dict]:
     itself has no page/column axis at all (a reader jump resolves by
     printed lineref, client-side — shared/lib/citation.ts's play-line
     scheme and Reader.svelte, never by this internal column string)."""
+    seg_ids_seen: dict[str, int] = {}
     _SEGMENT_LINE_CAP = 40
     segments: list[dict] = []
     cur: dict | None = None
@@ -1421,7 +1461,13 @@ def _segment_play_lines(flat: list[dict]) -> list[dict]:
             segments.append(cur)
             cur = None
         if cur is None:
-            cur = {"id": f"1:{entry['ref']}", "book": 1, "column": entry["ref"], "lines": []}
+            # A repeated printed ref (citation.repeated_refs) may open two
+            # segments; ids must stay unique, so the second gets ".2" etc.
+            seg_id = f"1:{entry['ref']}"
+            seg_ids_seen[seg_id] = seg_ids_seen.get(seg_id, 0) + 1
+            if seg_ids_seen[seg_id] > 1:
+                seg_id = f"{seg_id}.{seg_ids_seen[seg_id]}"
+            cur = {"id": seg_id, "book": 1, "column": entry["ref"], "lines": []}
         line_entry: dict = {"n": i, "text": entry["text"], "ref": entry["ref"]}
         if entry.get("joined"):
             line_entry["joined"] = True

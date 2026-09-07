@@ -1,0 +1,91 @@
+# Medea (Euripides, TLG 0006: 036) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006036.xml),
+# verified by two `all --work medea --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: medea
+  title: Medea
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "036"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Medea (0006: 036) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "a941b8918e0b953a", note: "play title line (l n=\"t\"), 'ΜΗΔΕΙΑ'" }
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": 
+      - { start: "357", end: "357", before: "358" }
+      - { start: "727", end: "728", before: "729" }
+      - { start: "1271", end: "1272", before: "1274" }
+
+  fingerprint: { count: 1389, sha256: "6f14fc4dc630d8329aadc6a0a13c647fa621ffcbd12e2df185556ba24cf0e34f" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΤΡΟΦΟΣ": "Nurse"
+    "Τρ.": "Nurse"
+    "ΠΑΙΔΑΓΩΓΟΣ": "Attendant"
+    "Πα.": "Attendant"
+    "ΜΗΔΕΙΑ (ἔσωθεν)": "Medea"
+    "Μη.": "Medea"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΚΡΕΩΝ": "Creon"
+    "Κρ.": "Creon"
+    "ΙΑΣΩΝ": "Jason"
+    "Ια.": "Jason"
+    "ΑΙΓΕΥΣ": "Aegeus"
+    "Αι.": "Aegeus"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "Αγ.": "Messenger"
+    "ΠΑΙΣ (ἔσωθεν)": "Son"
+    "Πα.α": "First Son"
+    "Πα.β": "Second Son"
+
+books:
+  - { n: 1, start: "1", end: "1419" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: medea
+  slug: medea
+  title: Medea
+  greekTitle: Μήδεια
+  abbr: Med.
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekSource:
+    short: Diggle (1984)
+    full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Med."
+  blurb: "DRAFT — Abandoned by Jason for a royal marriage, Medea takes a terrible revenge on her own children."

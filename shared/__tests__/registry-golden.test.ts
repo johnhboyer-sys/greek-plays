@@ -9,13 +9,12 @@ describe('generated registry golden value', () => {
       .update(JSON.stringify(WORKS) + JSON.stringify(AUTHORS))
       .digest('hex');
 
-    // P1 (docs/plan.md, docs/p1-probe.md): the first real work has landed
-    // (Agamemnon, play-line scheme) — the zero-works registry (drama fork
-    // P0) baseline no longer applies.
-    expect(WORKS).toHaveLength(1);
-    expect(AUTHORS).toHaveLength(1);
+    // P2 (docs/p2-greek-report.md): the 33 tragedies of Aeschylus, Sophocles
+    // and Euripides on the play-line scheme.
+    expect(WORKS).toHaveLength(33);
+    expect(AUTHORS).toHaveLength(3);
     // After a deliberate registry change, regenerate with this exact command from shared/:
     // node --experimental-strip-types --input-type=module -e "import{createHash}from'node:crypto';import{CORPUS_WORKS as WORKS,CORPUS_AUTHORS as AUTHORS}from'./lib/registry.generated.ts';console.log(createHash('sha256').update(JSON.stringify(WORKS)+JSON.stringify(AUTHORS)).digest('hex'))"
-    expect(hash).toBe('478c010a99d3810b8603a5f02f5e6563a930b55fc10d52d6f49d8a016afb58ae');
+    expect(hash).toBe('203d0895e51f4fceafb775e8faa1d6a44456cb57a1937ab2a021c02b28cebebe');
   });
 });

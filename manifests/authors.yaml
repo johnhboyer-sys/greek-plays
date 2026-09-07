@@ -1,14 +1,105 @@
 authors:
-  - id: aeschylus
-    name: Aeschylus
-    nativeName: Αἰσχύλος
-    languages: [grc]
-    period: classical
-    schools: []
-    genre: tragedy
-    floruit: "c. 525–456 BC"
-    blurb: "DRAFT — the earliest of the three great Athenian tragedians, seven of whose plays survive complete."
-    works: [agamemnon]
-    holdings: partial
+- id: aeschylus
+  name: Aeschylus
+  nativeName: Αἰσχύλος
+  languages:
+  - grc
+  period: classical
+  schools: []
+  genre: tragedy
+  floruit: c. 525–456 BC
+  blurb: DRAFT — the earliest of the three great Athenian tragedians, seven of whose plays survive complete.
+  works:
+  - persians
+  - seven-against-thebes
+  - suppliants-aesch
+  - prometheus-bound
+  - agamemnon
+  - libation-bearers
+  - eumenides
+  holdings: complete
+- id: sophocles
+  name: Sophocles
+  nativeName: Σοφοκλῆς
+  languages:
+  - grc
+  period: classical
+  schools: []
+  genre: tragedy
+  floruit: c. 497–406 BC
+  blurb: DRAFT — Athenian tragedian; seven plays survive of well over a hundred.
+  works:
+  - ajax
+  - antigone
+  - trachiniae
+  - oedipus-tyrannus
+  - electra-soph
+  - philoctetes
+  - oedipus-coloneus
+  holdings: complete
+- id: euripides
+  name: Euripides
+  nativeName: Εὐριπίδης
+  languages:
+  - grc
+  period: classical
+  schools: []
+  genre: tragedy
+  floruit: c. 480–406 BC
+  blurb: DRAFT — Athenian tragedian; nineteen plays survive, the largest body of Greek drama.
+  works:
+  - alcestis
+  - medea
+  - heraclidae
+  - hippolytus
+  - andromache
+  - hecuba
+  - suppliants-eur
+  - electra-eur
+  - heracles
+  - trojan-women
+  - iphigenia-in-tauris
+  - ion
+  - helen
+  - phoenician-women
+  - orestes
+  - bacchae
+  - iphigenia-at-aulis
+  - rhesus
+  - cyclops
+  holdings: complete
 school_groups: {}
-work_order: [agamemnon]
+work_order:
+- persians
+- seven-against-thebes
+- suppliants-aesch
+- prometheus-bound
+- agamemnon
+- libation-bearers
+- eumenides
+- ajax
+- antigone
+- trachiniae
+- oedipus-tyrannus
+- electra-soph
+- philoctetes
+- oedipus-coloneus
+- alcestis
+- medea
+- heraclidae
+- hippolytus
+- andromache
+- hecuba
+- suppliants-eur
+- electra-eur
+- heracles
+- trojan-women
+- iphigenia-in-tauris
+- ion
+- helen
+- phoenician-women
+- orestes
+- bacchae
+- iphigenia-at-aulis
+- rhesus
+- cyclops

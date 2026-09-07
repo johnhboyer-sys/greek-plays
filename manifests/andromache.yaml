@@ -1,0 +1,94 @@
+# Andromacha (Euripides, TLG 0006: 039) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006039.xml),
+# verified by two `all --work andromache --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: andromache
+  title: Andromacha
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "039"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Andromacha (0006: 039) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "b933387e5402ca09", note: "play title line (l n=\"t\"), 'ΑΝΔΡΟΜΑΧΗ'" }
+
+  lacunae:
+    "1": 
+      - "post 333"
+      - "post 364"
+
+  transpositions:
+    "1": 
+      - { start: "70", end: "72", before: "73" }
+      - { start: "1236", end: "1253", before: "1254" }
+
+  fingerprint: { count: 1258, sha256: "7f3c796b6564d41cec89486b80eae7fedbfeeca67a1bd514c9ed1e00a3cc7c84" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΑΝΔΡΟΜΑΧΗ": "Andromache"
+    "Αν.": "Andromache"
+    "ΘΕΡΑΠΑΙΝΑ": "Maid"
+    "Θε.": "Maid"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΕΡΜΙΟΝΗ": "Hermione"
+    "Ερ.": "Hermione"
+    "ΜΕΝΕΛΑΟΣ": "Menelaus"
+    "Με.": "Menelaus"
+    "ΠΑΙΣ": "Molossus"
+    "Πα.": "Molossus"
+    "ΠΗΛΕΥΣ": "Peleus"
+    "Πη.": "Peleus"
+    "ΤΡΟΦΟΣ": "Nurse"
+    "Τρ.": "Nurse"
+    "ΟΡΕΣΤΗΣ": "Orestes"
+    "Ορ.": "Orestes"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "Αγ.": "Messenger"
+    "ΘΕΤΙΣ": "Thetis"
+
+books:
+  - { n: 1, start: "1", end: "1288" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: andromache
+  slug: andromache
+  title: Andromacha
+  greekTitle: Ἀνδρομάχη
+  abbr: Andr.
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekSource:
+    short: Diggle (1984)
+    full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Andr."
+  blurb: "DRAFT — Hector's widow Andromache, now a captive concubine, is hunted by her master's jealous wife."

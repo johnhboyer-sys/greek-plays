@@ -1,0 +1,82 @@
+# Philoctetes (Sophocles, TLG 0011: 006) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0011/Diogenes-Resources/xml/tlg/tlg0011006.xml),
+# verified by two `all --work philoctetes --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: philoctetes
+  title: Philoctetes
+  author: sophocles
+  language: grc
+  tlg_author: "0011"
+  tlg_work: "006"
+  greek_edition: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Sophocles Trag. (c. 5 B.C.), Philoctetes (0011: 006) "Sophocle, vol. 3", Ed. Dain, A., Mazon, P. Paris: Les Belles Lettres, 1960, Repr. 1967 (1st edn. rev.).'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "0858bd16c83240f2", note: "play title line (l n=\"t\"), 'ΦΙΛΟΚΤΗΤΗΣ'" }
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": 
+      - { start: "273", end: "273", before: "274" }
+
+  fingerprint: { count: 1451, sha256: "e1413b2aef42fd1cbbfcb4f95317b3896f9fc1c2b4b1ecdb59452deafdcfdf67" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΟΔΥΣΣΕΥΣ": "Odysseus"
+    "ΟΔ.": "Odysseus"
+    "ΝΕΟΠΤΟΛΕΜΟΣ": "Neoptolemus"
+    "ΝΕ.": "Neoptolemus"
+    "ΧΟΡΟΣ": "Chorus"
+    "ΧΟ.": "Chorus"
+    "ΦΙΛΟΚΤΗΤΗΣ": "Philoctetes"
+    "ΦΙ.": "Philoctetes"
+    "ΕΜΠΟΡΟΣ": "Merchant"
+    "ΕΜ.": "Merchant"
+    "ΗΡΑΚΛΗΣ": "Heracles"
+    "ΗΡ.": "Heracles"
+
+books:
+  - { n: 1, start: "1", end: "1471" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: philoctetes
+  slug: philoctetes
+  title: Philoctetes
+  greekTitle: Φιλοκτήτης
+  abbr: Phil.
+  author: sophocles
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)"
+  greekSource:
+    short: Dain & Mazon (1960)
+    full: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Soph. Phil."
+  blurb: "DRAFT — Abandoned on Lemnos with a festering wound, Philoctetes is courted for his fatal bow."

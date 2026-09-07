@@ -1,0 +1,85 @@
+# Cyclops (Euripides, TLG 0006: 034) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006034.xml),
+# verified by two `all --work cyclops --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: cyclops
+  title: Cyclops
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "034"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Cyclops (0006: 034) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "a0be7f1711d64d9b", note: "play title line (l n=\"t\"), 'ΚΥΚΛΩΨ'" }
+
+  lacunae:
+    "1": 
+      - "post 146"
+      - "post 374"
+      - "post 399"
+
+  transpositions:
+    "1": 
+      - { start: "66", end: "66", before: "67" }
+      - { start: "372", end: "372", before: "373" }
+      - { start: "386", end: "391", before: "392" }
+
+  fingerprint: { count: 706, sha256: "32d1848182dad1443ddc292fea891cc0b7850708ff830ff65f654f9d0e684338" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΣΙΛΗΝΟΣ": "Silenus"
+    "Σι.": "Silenus"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΟΔΥΣΣΕΥΣ": "Odysseus"
+    "Οδ.": "Odysseus"
+    "ΚΥΚΛΩΨ": "Cyclops"
+    "Κυ.": "Cyclops"
+    "Χο.α": "First Semichorus"
+    "Χο.β": "Second Semichorus"
+
+books:
+  - { n: 1, start: "1", end: "709" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: cyclops
+  slug: cyclops
+  title: Cyclops
+  greekTitle: Κύκλωψ
+  abbr: Cycl.
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekSource:
+    short: Diggle (1984)
+    full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Cycl."
+  blurb: "DRAFT — Odysseus and his men land on Polyphemus' island in this satyr-play retelling of the Odyssey."

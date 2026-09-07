@@ -1,0 +1,99 @@
+# Heraclidae (Euripides, TLG 0006: 037) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006037.xml),
+# verified by two `all --work heraclidae --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: heraclidae
+  title: Heraclidae
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "037"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Heraclidae (0006: 037) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "4438d8b9b6b876ff", note: "play title line (l n=\"t\"), 'ΗΡΑΚΛΕΙΔΑΙ'" }
+
+  lacunae:
+    "1": 
+      - "post 76"
+      - "post 110"
+      - "post 149"
+      - "post 217"
+      - "post 311"
+      - "post 805"
+      - "post 1052"
+
+  transpositions:
+    "1": 
+      - { start: "402", end: "402", before: "409" }
+      - { start: "560", end: "561", before: "563" }
+      - { start: "687", end: "687", before: "690" }
+      - { start: "684", end: "686", before: "690" }
+      - { start: "948", end: "949", before: "952" }
+
+  fingerprint: { count: 1057, sha256: "92c36484e49166a6555152e4644eab009ce1ae45f27548f038171dbb8b43d07c" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΙΟΛΑΟΣ": "Iolaus"
+    "Ιο.": "Iolaus"
+    "ΚΗΡΥΞ": "Copreus"
+    "Κη.": "Copreus"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΔΗΜΟΦΩΝ": "Demophon"
+    "Δη.": "Demophon"
+    "ΠΑΡΘΕΝΟΣ": "Macaria"
+    "Πα.": "Macaria"
+    "ΘΕΡΑΠΩΝ": "Servant"
+    "Θε.": "Servant"
+    "ΑΛΚΜΗΝΗ": "Alcmene"
+    "Αλ.": "Alcmene"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "Αγ.": "Messenger"
+    "ΕΥΡΥΣΘΕΥΣ": "Eurystheus"
+    "Ευ.": "Eurystheus"
+
+books:
+  - { n: 1, start: "1", end: "1055" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: heraclidae
+  slug: heraclidae
+  title: Heraclidae
+  greekTitle: Ἡρακλεῖδαι
+  abbr: Heracl.
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekSource:
+    short: Diggle (1984)
+    full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Heracl."
+  blurb: "DRAFT — Heracles' children seek refuge at Athens from Eurystheus, who hunts them into exile."

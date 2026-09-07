@@ -1,0 +1,87 @@
+# Oedipus tyrannus (Sophocles, TLG 0011: 004) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0011/Diogenes-Resources/xml/tlg/tlg0011004.xml),
+# verified by two `all --work oedipus-tyrannus --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: oedipus-tyrannus
+  title: Oedipus tyrannus
+  author: sophocles
+  language: grc
+  tlg_author: "0011"
+  tlg_work: "004"
+  greek_edition: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Sophocles Trag. (c. 5 B.C.), Oedipus tyrannus (0011: 004) "Sophocle, vol. 2", Ed. Dain, A., Mazon, P. Paris: Les Belles Lettres, 1958, Repr. 1968 (1st edn. rev.).'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "0cac74a2b13a2703", note: "play title line (l n=\"t\"), 'ΟΙΔΙΠΟΥΣ ΤΥΡΑΝΝΟΣ'" }
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": []
+
+  fingerprint: { count: 1495, sha256: "5e311f3999f7018cad1d47f1be86365d95fdf64d206b8442e49a354f23aa33d8" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΟΙΔΙΠΟΥΣ": "Oedipus"
+    "ΟΙ.": "Oedipus"
+    "ΙΕΡΕΥΣ": "Priest"
+    "ΙΕ.": "Priest"
+    "ΚΡΕΩΝ": "Creon"
+    "ΚΡ.": "Creon"
+    "ΧΟΡΟΣ": "Chorus"
+    "ΧΟ.": "Chorus"
+    "ΤΕΙΡΕΣΙΑΣ": "Teiresias"
+    "ΤΕ.": "Teiresias"
+    "ΙΟΚΑΣΤΗ": "Jocasta"
+    "ΙΟ.": "Jocasta"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "ΑΓ.": "Messenger"
+    "ΘΕΡΑΠΩΝ": "Servant"
+    "ΘΕ.": "Servant"
+    "ΕΞΑΓΓΕΛΟΣ": "Second Messenger"
+    "ΕΞ.": "Second Messenger"
+
+books:
+  - { n: 1, start: "1", end: "1530" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: oedipus-tyrannus
+  slug: oedipus-tyrannus
+  title: Oedipus tyrannus
+  greekTitle: Οἰδίπους Τύραννος
+  abbr: OT
+  author: sophocles
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
+  greekSource:
+    short: Dain & Mazon (1958)
+    full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Soph. OT"
+  blurb: "DRAFT — Oedipus hunts Laius' killer through Thebes and finds the trail leads back to himself."

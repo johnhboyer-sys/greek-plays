@@ -1,0 +1,92 @@
+# Hecuba (Euripides, TLG 0006: 040) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006040.xml),
+# verified by two `all --work hecuba --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: hecuba
+  title: Hecuba
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "040"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Hecuba (0006: 040) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "c9d84846cea22e6e", note: "play title line (l n=\"t\"), 'ΕΚΑΒΗ'" }
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": 
+      - { start: "247", end: "248", before: "250" }
+      - { start: "415", end: "416", before: "420" }
+      - { start: "758", end: "758", before: "759" }
+
+  fingerprint: { count: 1259, sha256: "b1f70b33cb81883a805d91588275d3bc5f548e7b1f9fba37442f7fab00f9562d" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΠΟΛΥΔΩΡΟΥ ΕΙΔΩΛΟΝ": "Ghost of Polydorus"
+    "ΕΚΑΒΗ": "Hecuba"
+    "Εκ.": "Hecuba"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΠΟΛΥΞΕΝΗ": "Polyxena"
+    "Πο.": "Polyxena"
+    "ΟΔΥΣΣΕΥΣ": "Odysseus"
+    "Οδ.": "Odysseus"
+    "ΤΑΛΘΥΒΙΟΣ": "Talthybius"
+    "Τα.": "Talthybius"
+    "ΘΕΡΑΠΑΙΝΑ": "Maid"
+    "Θε.": "Maid"
+    "ΑΓΑΜΕΜΝΩΝ": "Agamemnon"
+    "Αγ.": "Agamemnon"
+    "ΠΟΛΥΜΗΣΤΩΡ": "Polymestor"
+    "Πο. (ἔνδοθεν)": "Polymestor"
+  # One abbreviation, two characters: from this printed ref onward it means the second.
+  overrides:
+    - { siglum: "Πο.", from: "953", display: "Polymestor" }
+
+books:
+  - { n: 1, start: "1", end: "1295" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: hecuba
+  slug: hecuba
+  title: Hecuba
+  greekTitle: Ἑκάβη
+  abbr: Hec.
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekSource:
+    short: Diggle (1984)
+    full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Hec."
+  blurb: "DRAFT — The fallen queen of Troy loses a daughter to sacrifice and a son to murder, and takes revenge."

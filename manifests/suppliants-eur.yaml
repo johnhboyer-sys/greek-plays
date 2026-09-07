@@ -1,0 +1,92 @@
+# Supplices (Euripides, TLG 0006: 041) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006041.xml),
+# verified by two `all --work suppliants-eur --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: suppliants-eur
+  title: Supplices
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "041"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Supplices (0006: 041) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "e52216f4b64eaa9c", note: "play title line (l n=\"t\"), 'ΙΚΕΤΙΔΕΣ'" }
+
+  lacunae:
+    "1": 
+      - "post 179"
+      - "post 262"
+      - "post 763"
+
+  transpositions:
+    "1": 
+      - { start: "589", end: "589", before: "590" }
+
+  fingerprint: { count: 1226, sha256: "12e7e7325589e3b3e0dea9abf4e86751432a63f82cb387c8920b075daa0be7d5" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΑΙΘΡΑ": "Aethra"
+    "Αι.": "Aethra"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΘΗΣΕΥΣ": "Theseus"
+    "Θη.": "Theseus"
+    "ΑΔΡΑΣΤΟΣ": "Adrastus"
+    "Αδ.": "Adrastus"
+    "ΚΗΡΥΞ": "Herald"
+    "Κη.": "Herald"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "Αγ.": "Messenger"
+    "ΕΥΑΔΝΗ": "Evadne"
+    "Ευ.": "Evadne"
+    "ΙΦΙΣ": "Iphis"
+    "Ιφ.": "Iphis"
+    "ΠΑΙΔΕΣ": "Children"
+    "Πα.": "Children"
+    "ΑΘΗΝΑ": "Athena"
+
+books:
+  - { n: 1, start: "1", end: "1234" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: suppliants-eur
+  slug: suppliants-eur
+  title: Supplices
+  greekTitle: Ἱκέτιδες
+  abbr: "Eur. Supp."
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekSource:
+    short: Diggle (1981)
+    full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Supp."
+  blurb: "DRAFT — The mothers of the fallen Argive champions beg Theseus to force Thebes to yield their dead."

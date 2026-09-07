@@ -1,0 +1,91 @@
+# Antigone (Sophocles, TLG 0011: 002) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006044.xml),
+# verified by two `all --work antigone --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: trojan-women
+  title: Trojan Women
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "044"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Troiades (0006: 044) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "e4ac4120ae02591b", note: "play title line (l n=\"t\"), ΤΡΩΙΑΔΕΣ" }
+
+  lacunae:
+    "1": ["post 961"]
+
+  transpositions:
+    "1":
+      - { start: "170", end: "170", before: "171" }
+
+  repeated_refs:
+    "1":
+      - { ref: "170", count: 2, note: "one verse split around the interpolated 171" }
+  fingerprint: { count: 1307, sha256: "90b1edfefe45883900740da5fe5306056acff77bdb9bf7b35a20d5b43a12c841" }
+
+speakers:
+  sigla:
+    "—": null
+    "ΠΟΣΕΙΔΩΝ": "Poseidon"
+    "Πο.": "Poseidon"
+    "ΑΘΗΝΑ": "Athena"
+    "Αθ.": "Athena"
+    "ΕΚΑΒΗ": "Hecuba"
+    "Εκ.": "Hecuba"
+    "ΗΜΙΧΟΡΙΟΝ Αʹ": "First Semichorus"
+    "ΗΜΙΧΟΡΙΟΝ Βʹ": "Second Semichorus"
+    "Ημ.": "Semichorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΤΑΛΘΥΒΙΟΣ": "Talthybius"
+    "Τα.": "Talthybius"
+    "ΚΑΣΣΑΝΔΡΑ": "Cassandra"
+    "Κα.": "Cassandra"
+    "ΑΝΔΡΟΜΑΧΗ": "Andromache"
+    "Αν.": "Andromache"
+    "ΜΕΝΕΛΑΟΣ": "Menelaus"
+    "Με.": "Menelaus"
+    "ΕΛΕΝΗ": "Helen"
+    "Ελ.": "Helen"
+
+books:
+  - { n: 1, start: "1", end: "1332" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: trojan-women
+  slug: trojan-women
+  title: Trojan Women
+  greekTitle: ΤΡΩΙΑΔΕΣ
+  abbr: Tro.
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekSource:
+    short: Diggle (OCT, 1981)
+    full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Tro."
+  blurb: "DRAFT — Trojan Women."

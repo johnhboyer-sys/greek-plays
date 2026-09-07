@@ -1,0 +1,94 @@
+# Ion (Euripides, TLG 0006: 046) -- P2-Greek,
+# play-line scheme (docs/play-line.md), Greek-only (work.no_english: true).
+# citation.{title_labels,lacunae,transpositions,fingerprint} pinned from the
+# real export (build/export/tlg0006/Diogenes-Resources/xml/tlg/tlg0006046.xml),
+# verified by two `all --work ion --public` runs (docs/p2-greek-report.md).
+
+work:
+  id: ion
+  title: Ion
+  author: euripides
+  language: grc
+  tlg_author: "0006"
+  tlg_work: "046"
+  greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  lexicon: true
+  no_english: true
+  # FATAL sourceDesc gate -- verified verbatim against the real export.
+  expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Ion (0006: 046) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+citation:
+  scheme: play-line
+
+  title_labels:
+    - { sha256_16: "da224ab7d52a3d77", note: "play title line (l n=\"t\"), 'ΙΩΝ'" }
+
+  lacunae:
+    "1": 
+      - "post 236"
+      - "post 722"
+      - "post 1107"
+      - "post 1214"
+      - "post 1579"
+
+  transpositions:
+    "1": 
+      - { start: "324", end: "325", before: "329" }
+      - { start: "355", end: "356", before: "358" }
+      - { start: "992", end: "993", before: "997" }
+      - { start: "1296", end: "1299", before: "1303" }
+
+  fingerprint: { count: 1610, sha256: "e1f916dd17a233a7fd66140ca723276267b39f2b030b0385b2c80351a81664af" }
+
+speakers:
+  # Greek printed sigla -> canonical display (colour key; the printed label
+  # is shown as printed). Keys match after bracket/space/trailing-dot
+  # normalization (stage7 _norm_siglum). '—' is attributed to no one.
+  sigla:
+    "—": null
+    "ΕΡΜΗΣ": "Hermes"
+    "ΙΩΝ": "Ion"
+    "Ιων": "Ion"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χο.": "Chorus"
+    "ΚΡΕΟΥΣΑ": "Creusa"
+    "Κρ.": "Creusa"
+    "ΞΟΥΘΟΣ": "Xuthus"
+    "Ξο.": "Xuthus"
+    "ΠΡΕΣΒΥΤΗΣ": "Old Servant"
+    "Πρ.": "Old Servant"
+    "ΘΕΡΑΠΩΝ": "Servant"
+    "Θε.": "Servant"
+    "ΠΡΟΦΗΤΙΣ": "Pythian Priestess"
+    "ΑΘΗΝΑ": "Athena"
+    "Αθ.": "Athena"
+
+books:
+  - { n: 1, start: "1", end: "1622" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: ion
+  slug: ion
+  title: Ion
+  greekTitle: Ἴων
+  abbr: Ion
+  author: euripides
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekSource:
+    short: Diggle (1981)
+    full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  translations: []
+  citation:
+    scheme: play-line
+    copyAbbr: "Eur. Ion"
+  blurb: "DRAFT — A temple boy at Delphi learns his true parentage in a plot that nearly costs his mother's life."

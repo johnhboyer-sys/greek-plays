@@ -1060,6 +1060,13 @@ def _validate_play_line_work(
     is no "after the sort" invariant to assert here."""
     all_refs: list[str] = []
     seen_refs: set[str] = set()
+    # Mirror of stage1's `citation.repeated_refs` allowlist (REVIEW-CHECKLIST 3).
+    _rep = (manifest.data.get("citation") or {}).get("repeated_refs") or {}
+    allowed_repeats = {
+        e["ref"]: e["count"] for e in (_rep.get("1", []) if isinstance(_rep, dict) else [])
+        if isinstance(e, dict) and isinstance(e.get("ref"), str) and isinstance(e.get("count"), int)
+    }
+    ref_counts: dict[str, int] = {}
     for book in manifest.data.get("books", []):
         if not isinstance(book, dict) or not isinstance(book.get("n"), int):
             continue
@@ -1084,7 +1091,8 @@ def _validate_play_line_work(
                         f"missing/malformed ref {ref!r}",
                     ))
                     continue
-                if ref in seen_refs:
+                ref_counts[ref] = ref_counts.get(ref, 0) + 1
+                if ref in seen_refs and ref not in allowed_repeats:
                     problems.append((
                         manifest.work_id, name,
                         f"{segment.get('id')}: repeated play-line ref {ref!r}",
@@ -1101,6 +1109,9 @@ def _validate_play_line_work(
                             f"must have zero tokens",
                         ))
 
+    for _ref, _exp in allowed_repeats.items():
+        if ref_counts.get(_ref, 0) != _exp:
+            problems.append((manifest.work_id, 'book-01.json', f"citation.repeated_refs declares {_ref!r} x{_exp} but dist has x{ref_counts.get(_ref, 0)}"))
     fp = (manifest.data.get("citation") or {}).get("fingerprint")
     if not isinstance(fp, dict):
         problems.append((manifest.work_id, "<play-line fingerprint>", "citation.fingerprint must be an object"))
