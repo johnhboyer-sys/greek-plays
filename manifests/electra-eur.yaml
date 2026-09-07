@@ -13,9 +13,24 @@ work:
   tlg_work: "042"
   greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Electra (0006: 042) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+english:
+  primary:
+    id: coleridge
+    name: "E. P. Coleridge (London, 1891)"
+    short: Coleridge
+    model: perseus-play
+    source: "perseus/tlg0006.tlg012.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:650"
+    - "1:652"
+    - "1:966"
+    - "1:1100"
 
 citation:
   scheme: play-line
@@ -46,6 +61,17 @@ citation:
   fingerprint: { count: 1355, sha256: "c700ecd7e873d9a66550eb5ca54590ae7cd2de5f81cd87fb0668058cce3e8e2d" }
 
 speakers:
+  english:
+    "Peasant": "Peasant"
+    "Electra": "Electra"
+    "Orestes": "Orestes"
+    "Chorus": "Chorus"
+    "Chorus Leader": "Chorus"
+    "Old man": "Old Man"
+    "Leader": "Chorus"
+    "Messenger": "Messenger"
+    "Clytemnestra": "Clytemnestra"
+    "Dioskouroi": "Castor"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -92,7 +118,11 @@ registry:
   greekSource:
     short: Diggle (1981)
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
-  translations: []
+  translations:
+    - id: coleridge
+      name: "E. P. Coleridge (London, 1891)"
+      short: Coleridge
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Eur. El."

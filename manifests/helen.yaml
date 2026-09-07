@@ -13,9 +13,26 @@ work:
   tlg_work: "047"
   greek_edition: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Helena (0006: 047) "Euripidis fabulae, vol. 3", Ed. Diggle, J. Oxford: Clarendon Press, 1994.'
+
+english:
+  primary:
+    id: coleridge
+    name: "E. P. Coleridge (London, 1891)"
+    short: Coleridge
+    model: perseus-play
+    source: "perseus/tlg0006.tlg014.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:638"
+    - "1:644"
+    - "1:654"
+    - "1:1229"
+    - "1:1627"
+    - "1:1629"
 
 citation:
   scheme: play-line
@@ -38,6 +55,22 @@ citation:
   fingerprint: { count: 1707, sha256: "9686c59855ee5540c1bf7f305f4cbb1233e53bd9965566503047a163724d8a0d" }
 
 speakers:
+  english:
+    "Helen": "Helen"
+    "Teucer": "Teucer"
+    "Chorus": "Chorus"
+    "Chorus Leader": "Chorus"
+    "Old woman": "Old Woman"
+    "Messenger": "Messenger"
+    "Theonoe": "Theonoe"
+    "Servant": "Servant"
+    "Menelaos": "Menelaus"
+    "Theoklymenos": "Theoclymenus"
+    "Theokylmenos": "Theoclymenus"
+    "Theokylemnos": "Theoclymenus"
+    "Thoeklymenos": "Theoclymenus"
+    "Second Messenger": "Second Servant"
+    "Dioskouroi": "Castor"
   sigla:
     "—": null
     "ΕΛΕΝΗ": "Helen"
@@ -87,7 +120,11 @@ registry:
   greekSource:
     short: Diggle (OCT, 1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
-  translations: []
+  translations:
+    - id: coleridge
+      name: "E. P. Coleridge (London, 1891)"
+      short: Coleridge
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Eur. Hel."

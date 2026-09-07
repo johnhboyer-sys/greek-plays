@@ -13,9 +13,19 @@ work:
   tlg_work: "037"
   greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Heraclidae (0006: 037) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+english:
+  primary:
+    id: coleridge
+    name: "E. P. Coleridge (London, 1891)"
+    short: Coleridge
+    model: perseus-play
+    source: "perseus/tlg0006.tlg004.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps: []
 
 citation:
   scheme: play-line
@@ -44,6 +54,16 @@ citation:
   fingerprint: { count: 1057, sha256: "92c36484e49166a6555152e4644eab009ce1ae45f27548f038171dbb8b43d07c" }
 
 speakers:
+  english:
+    "Iolaus": "Iolaus"
+    "Copreus": "Copreus"
+    "Chorus": "Chorus"
+    "Demophon": "Demophon"
+    "Macaria": "Macaria"
+    "Messenger": "Messenger"
+    "Eurystheus": "Eurystheus"
+    "Servant (of Hyllus)": "Servant"
+    "Alcmena": "Alcmene"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -92,7 +112,11 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
-  translations: []
+  translations:
+    - id: coleridge
+      name: "E. P. Coleridge (London, 1891)"
+      short: Coleridge
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Eur. Heracl."

@@ -506,3 +506,13 @@ def test_strophe_regex_epod_form():
 def test_norm_siglum_folds_prime_variants():
     assert stage7_emit._norm_siglum("ΗΜΙΧΟΡΙΟΝ Α\u0374") == stage7_emit._norm_siglum("ΗΜΙΧΟΡΙΟΝ Α\u02b9")
     assert stage7_emit._norm_siglum("Α\u2032") == stage7_emit._norm_siglum("Α\u02b9")
+
+
+def test_lacuna_only_segments_need_no_declared_gap():
+    from drama_pipeline import stage2_validate
+    segs = [
+        {"id": "1:post 146", "lines": [{"ref": "post 146", "text": "", "role": "lacuna"}]},
+        {"id": "1:147", "lines": [{"ref": "147", "text": "x"}, {"ref": "post 148", "text": "", "role": "lacuna"}]},
+        {"id": "1:empty", "lines": []},
+    ]
+    assert stage2_validate._play_line_lacuna_segment_ids(segs) == {"1:post 146"}

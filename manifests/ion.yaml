@@ -13,9 +13,27 @@ work:
   tlg_work: "046"
   greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Ion (0006: 046) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+english:
+  primary:
+    id: coleridge
+    name: "E. P. Coleridge (London, 1891)"
+    short: Coleridge
+    model: perseus-play
+    source: "perseus/tlg0006.tlg010.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:81"
+    - "1:223"
+    - "1:224"
+    - "1:232"
+    - "1:721"
+    - "1:766"
+    - "1:783"
 
 citation:
   scheme: play-line
@@ -41,6 +59,31 @@ citation:
   fingerprint: { count: 1610, sha256: "e1f916dd17a233a7fd66140ca723276267b39f2b030b0385b2c80351a81664af" }
 
 speakers:
+  english:
+    "Hermes": "Hermes"
+    "Ion": "Ion"
+    "Creusa": "Creusa"
+    "Chorus": "Chorus"
+    "Xuthus": "Xuthus"
+    "Old Servant": "Old Servant"
+    "Servant": "Servant"
+    "Pythian Priestess": "Pythian Priestess"
+    "Athena": "Athena"
+    "(First) Chorus": "Chorus"
+    "(Second) Chorus": "Chorus"
+    "(Third) Chorus": "Chorus"
+    "(Fourth) Chorus": "Chorus"
+    "(Fifth) Chorus": "Chorus"
+    "(Sixth) Chorus": "Chorus"
+    "(Seventh) Chorus": "Chorus"
+    "(Eighth) Chorus": "Chorus"
+    "(Ninth) Chorus": "Chorus"
+    "(Tenth) Chorus": "Chorus"
+    "(Eleventh) Chorus": "Chorus"
+    "(Twelfth) Chorus": "Chorus"
+    "(Thirteenth) Chorus": "Chorus"
+    "(Fourteenth) Chorus": "Chorus"
+    "(Fifteenth) Chorus": "Chorus"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -87,7 +130,11 @@ registry:
   greekSource:
     short: Diggle (1981)
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
-  translations: []
+  translations:
+    - id: coleridge
+      name: "E. P. Coleridge (London, 1891)"
+      short: Coleridge
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Eur. Ion"

@@ -13,9 +13,26 @@ work:
   tlg_work: "001"
   greek_edition: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Sophocles Trag. (c. 5 B.C.), Trachiniae (0011: 001) "Sophocle, vol. 1", Ed. Dain, A., Mazon, P. Paris: Les Belles Lettres, 1955, Repr. 1967 (1st edn. rev.).'
+
+english:
+  primary:
+    id: jebb
+    name: "R. C. Jebb (Cambridge, 1883–1900)"
+    short: Jebb
+    model: perseus-play
+    source: "perseus/tlg0011.tlg001.perseus-eng3.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:876"
+    - "1:877"
+    - "1:879"
+    - "1:888"
+    - "1:892"
+    - "1:981"
 
 citation:
   scheme: play-line
@@ -32,6 +49,17 @@ citation:
   fingerprint: { count: 1258, sha256: "03f0027eb143b15f8aacbb226d1e2f89fec0fe31182c3285bb8ca27ad8b8d0e4" }
 
 speakers:
+  english:
+    "Deianeira": "Deianeira"
+    "Nurse": "Nurse"
+    "Hyllus": "Hyllus"
+    "Chorus": "Chorus"
+    "Messenger": "Messenger"
+    "Lichas": "Lichas"
+    "First Semi-Chorus": "First Semichorus"
+    "Second Semi-Chorus": "Second Semichorus"
+    "Old Man": "Old Man"
+    "Heracles": "Heracles"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -80,7 +108,11 @@ registry:
   greekSource:
     short: Dain & Mazon (1955)
     full: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)"
-  translations: []
+  translations:
+    - id: jebb
+      name: "R. C. Jebb (Cambridge, 1883–1900)"
+      short: Jebb
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Soph. Trach."

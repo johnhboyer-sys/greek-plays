@@ -13,9 +13,23 @@ work:
   tlg_work: "038"
   greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Hippolytus (0006: 038) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+english:
+  primary:
+    id: coleridge
+    name: "E. P. Coleridge (London, 1891)"
+    short: Coleridge
+    model: perseus-play
+    source: "perseus/tlg0006.tlg005.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:572"
+    - "1:1253"
+    - "1:1387"
 
 citation:
   scheme: play-line
@@ -34,6 +48,21 @@ citation:
   fingerprint: { count: 1435, sha256: "6620f97712db6916652d6e0fd4f9a4142d8b288dddd29b2574d186f2eb341217" }
 
 speakers:
+  english:
+    "Aphrodite": "Aphrodite"
+    "Hippolytus": "Hippolytus"
+    "Attendants": "Attendants"
+    "Chorus": "Chorus"
+    "Nurse": "Nurse"
+    "Phaedra": "Phaedra"
+    "Messenger": "Messenger"
+    "Theseus": "Theseus"
+    "Artemis": "Artemis"
+    "Attendants of Hippolytus": "Attendants"
+    "Att": "Attendant"
+    "1st Half Chorus": "Chorus"
+    "2nd Half Chorus": "Chorus"
+    "Art": "Artemis"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -84,7 +113,11 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
-  translations: []
+  translations:
+    - id: coleridge
+      name: "E. P. Coleridge (London, 1891)"
+      short: Coleridge
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Eur. Hipp."

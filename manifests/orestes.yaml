@@ -13,9 +13,19 @@ work:
   tlg_work: "049"
   greek_edition: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Orestes (0006: 049) "Euripidis fabulae, vol. 3", Ed. Diggle, J. Oxford: Clarendon Press, 1994.'
+
+english:
+  primary:
+    id: coleridge
+    name: "E. P. Coleridge (London, 1891)"
+    short: Coleridge
+    model: perseus-play
+    source: "perseus/tlg0006.tlg016.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps: []
 
 citation:
   scheme: play-line
@@ -38,6 +48,22 @@ citation:
   fingerprint: { count: 1702, sha256: "388573237109ea551f3a1a24c244f01651bacd215188c0b3c16f15efbfa67f8b" }
 
 speakers:
+  english:
+    "Electra": "Electra"
+    "Helen": "Helen"
+    "Chorus": "Chorus"
+    "Chorus Leader": "Chorus"
+    "Orestes": "Orestes"
+    "Menelaus": "Menelaus"
+    "Tyndareus": "Tyndareus"
+    "Pylades": "Pylades"
+    "Messenger": "Messenger"
+    "Hermione": "Hermione"
+    "Phrygian": "Phrygian"
+    "Apollo": "Apollo"
+    "Oretes": "Orestes"
+    "First Semi-Chorus": "Chorus"
+    "Second Semi-Chorus": "Chorus"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -90,7 +116,11 @@ registry:
   greekSource:
     short: Diggle (1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
-  translations: []
+  translations:
+    - id: coleridge
+      name: "E. P. Coleridge (London, 1891)"
+      short: Coleridge
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Eur. Or."

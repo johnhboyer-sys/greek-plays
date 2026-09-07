@@ -13,9 +13,24 @@ work:
   tlg_work: "007"
   greek_edition: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Sophocles Trag. (c. 5 B.C.), Oedipus Coloneus (0011: 007) "Sophocle, vol. 3", Ed. Dain, A., Mazon, P. Paris: Les Belles Lettres, 1960, Repr. 1967 (1st edn. rev.).'
+
+english:
+  primary:
+    id: jebb
+    name: "R. C. Jebb (Cambridge, 1883–1900)"
+    short: Jebb
+    model: perseus-play
+    source: "perseus/tlg0011.tlg007.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:179"
+    - "1:182"
+    - "1:183"
+    - "1:1666"
 
 citation:
   scheme: play-line
@@ -33,6 +48,17 @@ citation:
   fingerprint: { count: 1763, sha256: "dbcf98f5c385c325c8c2fef5bd7a67c03b669eb8739aa85a483e2028226329a1" }
 
 speakers:
+  english:
+    "Oedipus": "Oedipus"
+    "Antigone": "Antigone"
+    "Stranger": "Stranger"
+    "Chorus": "Chorus"
+    "Ismene": "Ismene"
+    "Theseus": "Theseus"
+    "Creon": "Creon"
+    "Polyneices": "Polyneices"
+    "Messenger": "Messenger"
+    "Ismene.": "Ismene"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -81,7 +107,11 @@ registry:
   greekSource:
     short: Dain & Mazon (1960)
     full: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)"
-  translations: []
+  translations:
+    - id: jebb
+      name: "R. C. Jebb (Cambridge, 1883–1900)"
+      short: Jebb
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Soph. OC"

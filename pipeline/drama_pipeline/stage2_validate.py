@@ -85,6 +85,19 @@ def _summary_suppressed_segment_ids(manifest: Manifest, segments: list[dict]) ->
     return {seg["id"] for seg in segments if seg["column"] in columns}
 
 
+def _play_line_lacuna_segment_ids(segments: list[dict]) -> set[str]:
+    """Segments made only of lacuna placeholder lines (Diggle's empty-bracket
+    ``post N`` lines): no translation can cover them, so they never need a
+    declared gap (sweep 2026-09-07: Cyclops post 146, Heraclidae post 110,
+    Helen's two at post 1226, and a dozen more)."""
+    out: set[str] = set()
+    for seg in segments:
+        lines = seg.get("lines") or []
+        if lines and all(line.get("role") == "lacuna" for line in lines):
+            out.add(seg["id"])
+    return out
+
+
 def _play_line_english_gap_ids(manifest: Manifest, segments: list[dict]) -> set[str]:
     """Segment ids declared in ``english.gaps`` (ids or printed linerefs)."""
     declared = (manifest.data.get("english") or {}).get("gaps")
@@ -389,6 +402,7 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # perseus-play is sparse by design, but a hole is only legal when the
         # manifest names it in english.gaps (segment ids or printed refs).
         allowed.update(_play_line_english_gap_ids(manifest, segments))
+        allowed.update(_play_line_lacuna_segment_ids(segments))
     # A column the manifest's own citation.kind_overrides declares `omit`
     # is ALSO a legitimate unmatched column (see _omit_declared_segment_ids)
     # -- derived from the SAME declaration stage1 already enforces, not a

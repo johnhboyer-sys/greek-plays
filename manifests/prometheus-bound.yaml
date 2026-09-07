@@ -13,9 +13,22 @@ work:
   tlg_work: "003"
   greek_edition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Aeschylus Trag. (c. 6-5 B.C.), Prometheus vinctus (0085: 003) "Aeschyli tragoediae, 2nd edn.", Ed. Murray, G. Oxford: Clarendon Press, 1955, Repr. 1960.'
+
+english:
+  primary:
+    id: smyth
+    name: "H. W. Smyth (Loeb, 1922–26)"
+    short: Smyth
+    model: perseus-play
+    source: "perseus/tlg0085.tlg003.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: true
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:246"
+    - "1:247"
 
 citation:
   scheme: play-line
@@ -32,6 +45,14 @@ citation:
   fingerprint: { count: 1087, sha256: "8c359d08e04dfb00316c403f2957b42eec28adc9a93ba1d88d5d400a0b7efc75" }
 
 speakers:
+  english:
+    "Power": "Power"
+    "Hephaestus": "Hephaestus"
+    "Prometheus": "Prometheus"
+    "Chorus": "Chorus"
+    "Oceanus": "Oceanus"
+    "Io": "Io"
+    "Hermes": "Hermes"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances (see docs/p2-greek-report.md).
   sigla:
@@ -75,7 +96,12 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
-  translations: []
+  translations:
+    - id: smyth
+      name: "H. W. Smyth (Loeb, 1922–26)"
+      short: Smyth
+      slot: english
+      footnotes: true
   citation:
     scheme: play-line
     copyAbbr: "Aesch. PV"

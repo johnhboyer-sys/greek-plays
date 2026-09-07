@@ -13,9 +13,22 @@ work:
   tlg_work: "044"
   greek_edition: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Troiades (0006: 044) "Euripidis fabulae, vol. 2", Ed. Diggle, J. Oxford: Clarendon Press, 1981.'
+
+english:
+  primary:
+    id: coleridge
+    name: "E. P. Coleridge (London, 1891)"
+    short: Coleridge
+    model: perseus-play
+    source: "perseus/tlg0006.tlg011.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:591"
+    - "1:594"
 
 citation:
   scheme: play-line
@@ -36,6 +49,19 @@ citation:
   fingerprint: { count: 1307, sha256: "90b1edfefe45883900740da5fe5306056acff77bdb9bf7b35a20d5b43a12c841" }
 
 speakers:
+  english:
+    "Poseidon": "Poseidon"
+    "Athena": "Athena"
+    "Hecuba": "Hecuba"
+    "First Semi-Chorus": "First Semichorus"
+    "Second Semi-Chorus": "Second Semichorus"
+    "Chorus": "Chorus"
+    "Chorus Leader": "Chorus"
+    "Talthybius": "Talthybius"
+    "Cassandra": "Cassandra"
+    "Andromache": "Andromache"
+    "Menelaus": "Menelaus"
+    "Helen": "Helen"
   sigla:
     "—": null
     "ΠΟΣΕΙΔΩΝ": "Poseidon"
@@ -84,7 +110,11 @@ registry:
   greekSource:
     short: Diggle (OCT, 1981)
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
-  translations: []
+  translations:
+    - id: coleridge
+      name: "E. P. Coleridge (London, 1891)"
+      short: Coleridge
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Eur. Tro."

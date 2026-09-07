@@ -13,9 +13,26 @@ work:
   tlg_work: "001"
   greek_edition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Aeschylus Trag. (c. 6-5 B.C.), Supplices (0085: 001) "Aeschyli tragoediae, 2nd edn.", Ed. Murray, G. Oxford: Clarendon Press, 1955, Repr. 1960.'
+
+english:
+  primary:
+    id: smyth
+    name: "H. W. Smyth (Loeb, 1922–26)"
+    short: Smyth
+    model: perseus-play
+    source: "perseus/tlg0085.tlg001.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: true
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:298"
+    - "1:313"
+    - "1:316"
+    - "1:895"
+    - "1:1041"
+    - "1:1047"
 
 citation:
   scheme: play-line
@@ -34,6 +51,16 @@ citation:
   fingerprint: { count: 1062, sha256: "729dbedf438bb2c37de5f80b84c9aeecd635b148145cee2b58d89f6d0b17b674" }
 
 speakers:
+  english:
+    "Chorus": "Chorus"
+    "Danaus": "Danaus"
+    "Herald": "Herald"
+    "King": "Pelasgus"
+    "Chorus of the Danaids": "Chorus"
+    "Chorus of Handmaidens": "Handmaidens"
+    "A Danaid": "Danaids"
+    "A Handmaiden": "Handmaidens"
+    "Chorus of Danaids and Handmaidens": "Chorus"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances. TODO(P2): the exodos (~1034ff)
   # has genuinely confused manuscript attribution among the Danaids' own
@@ -90,7 +117,12 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
-  translations: []
+  translations:
+    - id: smyth
+      name: "H. W. Smyth (Loeb, 1922–26)"
+      short: Smyth
+      slot: english
+      footnotes: true
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Supp."

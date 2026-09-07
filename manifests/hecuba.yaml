@@ -13,9 +13,19 @@ work:
   tlg_work: "040"
   greek_edition: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Euripides Trag. (c. 5 B.C.), Hecuba (0006: 040) "Euripidis fabulae, vol. 1", Ed. Diggle, J. Oxford: Clarendon Press, 1984.'
+
+english:
+  primary:
+    id: coleridge
+    name: "E. P. Coleridge (London, 1891)"
+    short: Coleridge
+    model: perseus-play
+    source: "perseus/tlg0006.tlg007.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps: []
 
 citation:
   scheme: play-line
@@ -35,6 +45,17 @@ citation:
   fingerprint: { count: 1259, sha256: "b1f70b33cb81883a805d91588275d3bc5f548e7b1f9fba37442f7fab00f9562d" }
 
 speakers:
+  english:
+    "Hecuba": "Hecuba"
+    "Chorus": "Chorus"
+    "Polyxena": "Polyxena"
+    "Chorus Leader": "Chorus"
+    "Odysseus": "Odysseus"
+    "Talthybius": "Talthybius"
+    "Agamemnon": "Agamemnon"
+    "Polymestor": "Polymestor"
+    "Ghost": "Ghost of Polydorus"
+    "Maid-servant": "Maid"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -85,7 +106,11 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
-  translations: []
+  translations:
+    - id: coleridge
+      name: "E. P. Coleridge (London, 1891)"
+      short: Coleridge
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Eur. Hec."

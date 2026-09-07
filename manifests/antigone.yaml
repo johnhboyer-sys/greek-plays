@@ -13,9 +13,21 @@ work:
   tlg_work: "002"
   greek_edition: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Sophocles Trag. (c. 5 B.C.), Antigone (0011: 002) "Sophocle, vol. 1", Ed. Dain, A., Mazon, P. Paris: Les Belles Lettres, 1955, Repr. 1967 (1st edn. rev.).'
+
+english:
+  primary:
+    id: jebb
+    name: "R. C. Jebb (Cambridge, 1883–1900)"
+    short: Jebb
+    model: perseus-play
+    source: "perseus/tlg0011.tlg002.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:723"
 
 citation:
   scheme: play-line
@@ -32,6 +44,16 @@ citation:
   fingerprint: { count: 1320, sha256: "6d9320ca626b8af84d72bcffd4e64577323585bac2d4aa434140f99da56f7cf4" }
 
 speakers:
+  english:
+    "Antigone": "Antigone"
+    "Ismene": "Ismene"
+    "Chorus": "Chorus"
+    "Creon": "Creon"
+    "Guard": "Guard"
+    "Haemon": "Haemon"
+    "Teiresias": "Teiresias"
+    "Messenger": "Messenger"
+    "Eurydice": "Eurydice"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -81,7 +103,11 @@ registry:
   greekSource:
     short: Dain & Mazon (1955)
     full: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)"
-  translations: []
+  translations:
+    - id: jebb
+      name: "R. C. Jebb (Cambridge, 1883–1900)"
+      short: Jebb
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Soph. Ant."

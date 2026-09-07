@@ -13,9 +13,25 @@ work:
   tlg_work: "007"
   greek_edition: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Aeschylus Trag. (c. 6-5 B.C.), Eumenides (0085: 007) "Aeschyli tragoediae, 2nd edn.", Ed. Murray, G. Oxford: Clarendon Press, 1955, Repr. 1960.'
+
+english:
+  primary:
+    id: smyth
+    name: "H. W. Smyth (Loeb, 1922–26)"
+    short: Smyth
+    model: perseus-play
+    source: "perseus/tlg0085.tlg007.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: true
+  gaps:
+    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
+    - "1:147"
+    - "1:148"
+    - "1:153"
+    - "1:154"
+    - "1:367"
 
 citation:
   scheme: play-line
@@ -33,6 +49,14 @@ citation:
   fingerprint: { count: 1024, sha256: "caa3e56c76bd75d582e33b8d2aafdbef605b919828d03813e4fbf6cfa0e6a1f1" }
 
 speakers:
+  english:
+    "Apollo": "Apollo"
+    "Orestes": "Orestes"
+    "Ghost of Clytaemestra": "Ghost of Clytaemestra"
+    "Chorus": "Chorus"
+    "Athena": "Athena"
+    "The Priestess of Pythian Apollo": "Priestess"
+    "Chorus of the Processional Escort": "Escort"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances (see docs/p2-greek-report.md).
   sigla:
@@ -75,7 +99,12 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
-  translations: []
+  translations:
+    - id: smyth
+      name: "H. W. Smyth (Loeb, 1922–26)"
+      short: Smyth
+      slot: english
+      footnotes: true
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Eum."

@@ -13,9 +13,19 @@ work:
   tlg_work: "003"
   greek_edition: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
   lexicon: true
-  no_english: true
   # FATAL sourceDesc gate -- verified verbatim against the real export.
   expected_sourcedesc: 'Sophocles Trag. (c. 5 B.C.), Ajax (0011: 003) "Sophocle, vol. 2", Ed. Dain, A., Mazon, P. Paris: Les Belles Lettres, 1958, Repr. 1968 (1st edn. rev.).'
+
+english:
+  primary:
+    id: jebb
+    name: "R. C. Jebb (Cambridge, 1883–1900)"
+    short: Jebb
+    model: perseus-play
+    source: "perseus/tlg0011.tlg003.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
+  gaps: []
 
 citation:
   scheme: play-line
@@ -32,6 +42,20 @@ citation:
   fingerprint: { count: 1368, sha256: "05a4c13e26dc570b2145b86d07c40233ca9962f85b9f001cac09da26bc7fab1c" }
 
 speakers:
+  english:
+    "Athena": "Athena"
+    "Odysseus": "Odysseus"
+    "Ajax": "Ajax"
+    "Chorus": "Chorus"
+    "Tecmessa": "Tecmessa"
+    "Messenger": "Messenger"
+    "First Semichorus": "First Semichorus"
+    "Second Semichorus": "Second Semichorus"
+    "Semichorus 1": "First Semichorus"
+    "Semichorus 2": "Second Semichorus"
+    "Teucer": "Teucer"
+    "Menelaus": "Menelaus"
+    "Agamemnon": "Agamemnon"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -86,7 +110,11 @@ registry:
   greekSource:
     short: Dain & Mazon (1958)
     full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
-  translations: []
+  translations:
+    - id: jebb
+      name: "R. C. Jebb (Cambridge, 1883–1900)"
+      short: Jebb
+      slot: english
   citation:
     scheme: play-line
     copyAbbr: "Soph. Aj."
