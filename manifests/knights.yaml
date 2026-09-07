@@ -1,0 +1,109 @@
+# Knights — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: knights
+  title: Knights
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "002"
+  greek_edition: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Equites (0019: 002) \"Aristophane, vol. 1\", Ed. Coulon, V., van Daele, M. Paris: Les Belles Lettres, 1923, Repr. 1967 (1st edn. corr.)."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8688.txt"
+    play: "THE KNIGHTS"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1":
+      - { start: "16", end: "16", before: "18" }
+      - { start: "261", end: "263", before: "265" }
+      - { start: "271", end: "272", before: "274" }
+      - { start: "464", end: "464", before: "467" }
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  # TODO(P3.1) sigla collision — ΠΛ. (one turn) — unidentified; mapped to Paphlagonian pending check
+  english:
+    "SAUSAGE-SELLER": "Sausage-seller"
+    "SAUSAGE--SELLER": "Sausage-seller"
+    "AGORACRITUS": "Sausage-seller"
+    "CLEON": "Paphlagonian"
+    "DEMOS": "Demos"
+    "DEMOSTHENES": "First Slave"
+    "NICIAS": "Second Slave"
+    "DEMOSTHENES AND NICIAS": "Both Slaves"
+    "CHORUS": "Chorus"
+    "CHORUS OF KNIGHTS": "Chorus"
+  sigla:
+    "ΑΛ.": "Sausage-seller"
+    "ΑΛΛΑΝΤΟΠΩΛΗΣ": "Sausage-seller"
+    "ΠΑ.": "Paphlagonian"
+    "ΠΑΦΛΑΓΩΝ": "Paphlagonian"
+    "ΟΙ. Αʹ": "First Slave"
+    "ΟΙΚΕΤΗΣ Αʹ": "First Slave"
+    "ΟΙ. Βʹ": "Second Slave"
+    "ΟΙΚΕΤΗΣ Βʹ": "Second Slave"
+    "ΟΙ. Αʹ Βʹ": "Both Slaves"
+    "ΔΗ.": "Demos"
+    "ΔΗΜΟΣ": "Demos"
+    "ΧΟ.": "Chorus"
+    "ΧΟΡΟΣ ΙΠΠΕΩΝ": "Chorus"
+    "ΑΛ. ΠΑ.": "Sausage-seller and Paphlagonian"
+    "ΠΛ.": "Paphlagonian"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1408" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: knights
+  slug: knights
+  title: Knights
+  greekTitle: ""
+  abbr: "Eq."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
+  greekSource:
+    short: "Coulon (1923)"
+    full: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Eq."
+  blurb: "DRAFT — Knights."

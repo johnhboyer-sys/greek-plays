@@ -68,6 +68,29 @@ authors:
   - rhesus
   - cyclops
   holdings: complete
+- id: aristophanes
+  name: Aristophanes
+  nativeName: Ἀριστοφάνης
+  languages:
+  - grc
+  period: classical
+  schools: []
+  genre: comedy
+  floruit: c. 446–386 BC
+  blurb: DRAFT — the master of Old Comedy, eleven of whose plays survive complete.
+  works:
+  - acharnians
+  - knights
+  - clouds
+  - wasps
+  - peace
+  - birds
+  - lysistrata
+  - thesmophoriazusae
+  - frogs
+  - ecclesiazusae
+  - wealth
+  holdings: complete
 school_groups: {}
 work_order:
 - persians
@@ -103,3 +126,14 @@ work_order:
 - iphigenia-at-aulis
 - rhesus
 - cyclops
+- acharnians
+- knights
+- clouds
+- wasps
+- peace
+- birds
+- lysistrata
+- thesmophoriazusae
+- frogs
+- ecclesiazusae
+- wealth

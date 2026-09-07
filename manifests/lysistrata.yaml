@@ -1,0 +1,157 @@
+# Lysistrata — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: lysistrata
+  title: Lysistrata
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "007"
+  greek_edition: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Lysistrata (0019: 007) \"Aristophane, vol. 3\", Ed. Coulon, V., van Daele, M. Paris: Les Belles Lettres, 1928, Repr. 1967 (1st edn. corr.)."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8688.txt"
+    play: "LYSISTRATA"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": []
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  # TODO(P3.1) sigla collision — ΛΑ. = Lampito (81–244) and the Spartan envoy (1076–1188)
+  overrides:
+    - { siglum: "ΛΑ.", from: "1076", display: "Spartan" }
+  english:
+    "CALONICÉ": "Calonice"
+    "MYRRHINÉ": "Myrrhine"
+    "ATHENIAN": "Athenian Envoy"
+    "AN ATHENIAN": "Athenian Envoy"
+    "ATHENIANS": "Athenian Envoy"
+    "LYSISTRATA": "Lysistrata"
+    "CINESIAS": "Cinesias"
+    "MAGISTRATE": "Magistrate"
+    "A MAGISTRATE": "Magistrate"
+    "CHORUS OF OLD MEN": "Chorus of Old Men"
+    "CHORUS OF WOMEN": "Chorus of Women"
+    "STRATYLLIS": "Chorus of Women"
+    "CHORUS": "Chorus"
+    "LAMPITO": "Lampito"
+    "AN ATHENIAN CITIZEN": "Athenian"
+    "POLYCHARIDES": "Athenian"
+    "MARKET-LOUNGER": "Athenian"
+    "MARKET LOUNGERS": "Athenian"
+    "A MARKET-LOUNGER": "Athenian"
+    "LACONIAN": "Spartan"
+    "A LACONIAN": "Spartan"
+    "CHORUS OF LACONIANS": "Spartan"
+    "ENVOYS OF THE LACEDAEMONIANS": "Spartan"
+    "HERALD": "Spartan Herald"
+    "A HERALD": "Spartan Herald"
+    "HERALD OF THE LACEDAEMONIANS": "Spartan Herald"
+    "FIRST WOMAN": "First Woman"
+    "SECOND WOMAN": "Second Woman"
+    "THIRD WOMAN": "Third Woman"
+    "FOURTH WOMAN": "Fourth Woman"
+    "A WOMAN": "Woman"
+    "WOMAN": "Woman"
+    "OLD WOMAN": "Woman"
+    "OLD MAN": "Old Man"
+    "AN OLD MAN": "Old Man"
+    "SLAVE": "Athenian"
+    "A SLAVE": "Athenian"
+    "A SERVANT": "Athenian"
+    "CHILD": "Child"
+    "A CHILD": "Child"
+  sigla:
+    "ΛΥ.": "Lysistrata"
+    "ΛΥΣΙΣΤΡΑΤΗ": "Lysistrata"
+    "ΚΛ.": "Calonice"
+    "ΚΛΕΟΝΙΚΗ": "Calonice"
+    "ΚΙ.": "Cinesias"
+    "ΚΙΝΗΣΙΑΣ": "Cinesias"
+    "ΜΥ.": "Myrrhine"
+    "ΜΥΡΡΙΝΗ": "Myrrhine"
+    "ΠΡ.": "Magistrate"
+    "ΠΡΟΒΟΥΛΟΣ": "Magistrate"
+    "Χ. ΓΕ.": "Chorus of Old Men"
+    "ΧΟΡΟΣ ΓΕΡΟΝΤΩΝ": "Chorus of Old Men"
+    "Χ. ΓΥ.": "Chorus of Women"
+    "ΧΟΡΟΣ ΓΥΝΑΙΚΩΝ": "Chorus of Women"
+    "ΛΑ.": "Lampito"
+    "ΛΑΜΠΙΤΩ": "Lampito"
+    "ΛΑΚΩΝ": "Spartan"
+    "ΠΡΥ.": "Athenian Envoy"
+    "ΠΡΥΤΑΝΙΣ": "Athenian Envoy"
+    "ΓΥ.": "Woman"
+    "ΓΥ. Αʹ": "First Woman"
+    "ΓΥΝΗ Αʹ": "First Woman"
+    "ΓΥ. Βʹ": "Second Woman"
+    "ΓΥΝΗ Βʹ": "Second Woman"
+    "ΓΥ. Γʹ": "Third Woman"
+    "ΓΥΝΗ Γʹ": "Third Woman"
+    "ΓΥ. Δʹ": "Fourth Woman"
+    "ΧΟ.": "Chorus"
+    "ΓΕ.": "Old Man"
+    "ΑΘ.": "Athenian"
+    "ΑΘΗΝΑΙΟΣ": "Athenian"
+    "ΠΑΣΑΙ": "All the Women"
+    "ΠΑΙΔΙΟΝ": "Child"
+    "ΚΗ.": "Spartan Herald"
+    "ΚΗΡΥΞ ΛΑΚΕΔΑΙΜΟΝΙΩΝ": "Spartan Herald"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1320-1321" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: lysistrata
+  slug: lysistrata
+  title: Lysistrata
+  greekTitle: ""
+  abbr: "Lys."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
+  greekSource:
+    short: "Coulon (1928)"
+    full: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Lys."
+  blurb: "DRAFT — Lysistrata."

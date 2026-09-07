@@ -1,0 +1,134 @@
+# Frogs — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: frogs
+  title: Frogs
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "009"
+  greek_edition: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Ranae (0019: 009) \"Aristophane, vol. 4\", Ed. Coulon, V., van Daele, M. Paris: Les Belles Lettres, 1928, Repr. 1967 (1st edn. corr.)."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8689.txt"
+    play: "THE FROGS"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1":
+      - { start: "151", end: "151", before: "153" }
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  # TODO(P3.1) sigla collision — ΑΙ. = Aeacus (464–478, 605–673, 738–813) and Aeschylus (830–1481)
+  overrides:
+    - { siglum: "ΑΙ.", from: "830", display: "Aeschylus" }
+  english:
+    "DIONYSUS": "Dionysus"
+    "XANTHIAS": "Xanthias"
+    "EURIPIDES": "Euripides"
+    "AESCHYLUS": "Aeschylus"
+    "AEACUS": "Aeacus"
+    "HERACLES": "Heracles"
+    "CHORUS": "Chorus"
+    "CHORUS OF INITIATES": "Chorus"
+    "CHARON": "Charon"
+    "FROGS": "Frogs"
+    "CHORUS OF FROGS": "Frogs"
+    "PLUTO": "Pluto"
+    "FIRST WIFE": "First Innkeeper"
+    "FIRST INKEEPER'S WIFE": "First Innkeeper"
+    "INKEEPERS' WIVES": "First Innkeeper"
+    "SECOND WIFE": "Second Innkeeper"
+    "SECOND INKEEPER'S WIFE": "Second Innkeeper"
+    "DEAD MAN": "Corpse"
+    "A DEAD MAN": "Corpse"
+    "ATTENDANT": "Maid"
+    "AESCHYLUS AND EURIPIDES": "Aeschylus and Euripides"
+  sigla:
+    "ΔΙ.": "Dionysus"
+    "ΔΙΟΝΥΣΟΣ": "Dionysus"
+    "ΞΑ.": "Xanthias"
+    "ΞΑΝΘΙΑΣ": "Xanthias"
+    "ΑΙ.": "Aeacus"
+    "ΑΙΣΧΥΛΟΣ": "Aeschylus"
+    "ΑΙΑΚΟΣ": "Aeacus"
+    "ΕΥ.": "Euripides"
+    "ΕΥΡΙΠΙΔΗΣ": "Euripides"
+    "ΗΡ.": "Heracles"
+    "ΗΡΑΚΛΗΣ": "Heracles"
+    "ΟΙ.": "Slave"
+    "ΟΙΚΕΤΗΣ": "Slave"
+    "ΧΟ.": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "ΧΑ.": "Charon"
+    "ΧΑΡΩΝ": "Charon"
+    "ΒΑ.": "Frogs"
+    "ΒΑΤΡΑΧΟΙ": "Frogs"
+    "ΠΑ. Αʹ": "First Innkeeper"
+    "ΠΑΝΔΟΚΕΥΤΡΙΑ Αʹ": "First Innkeeper"
+    "ΠΑ. Βʹ": "Second Innkeeper"
+    "ΠΑΝΔΟΚΕΥΤΡΙΑ Βʹ": "Second Innkeeper"
+    "ΠΛ.": "Pluto"
+    "ΠΛΟΥΤΩΝ": "Pluto"
+    "ΑΙ. κ. ΕΥ.": "Aeschylus and Euripides"
+    "ΝΕ.": "Corpse"
+    "ΝΕΚΡΟΣ": "Corpse"
+    "ΘΕ.": "Maid"
+    "ΘΕΡΑΠΑΙΝΑ": "Maid"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1533" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: frogs
+  slug: frogs
+  title: Frogs
+  greekTitle: ""
+  abbr: "Ran."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
+  greekSource:
+    short: "Coulon (1928)"
+    full: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Ran."
+  blurb: "DRAFT — Frogs."

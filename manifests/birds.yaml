@@ -1,0 +1,162 @@
+# Birds — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: birds
+  title: Birds
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "006"
+  greek_edition: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Aves (0019: 006) \"Aristophane, vol. 3\", Ed. Coulon, V., van Daele, M. Paris: Les Belles Lettres, 1928, Repr. 1967 (1st edn. corr.)."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8689.txt"
+    play: "THE BIRDS"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": []
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  # TODO(P3.1) sigla collision — ΠΟ. = Poet (904–957) and Poseidon (1565–1693); ΕΠ. = Hoopoe and, if Coulon uses it, the Inspector (1021–1055)
+  overrides:
+    - { siglum: "ΠΟ.", from: "1565", display: "Poseidon" }
+  english:
+    "PISTHETAERUS": "Peisthetaerus"
+    "EUELPIDES": "Euelpides"
+    "EPOPS": "Hoopoe"
+    "CHORUS": "Chorus"
+    "CHORUS OF BIRDS": "Chorus"
+    "HERACLES": "Heracles"
+    "PROMETHEUS": "Prometheus"
+    "IRIS": "Iris"
+    "INFORMER": "Informer"
+    "AN INFORMER": "Informer"
+    "POSIDON": "Poseidon"
+    "TROCHILUS": "Servant of the Hoopoe"
+    "A SERVANT": "Servant of the Hoopoe"
+    "PROPHET": "Oracle-monger"
+    "A PROPHET": "Oracle-monger"
+    "METON": "Meton"
+    "CINESIAS": "Cinesias"
+    "MESSENGER": "Messenger"
+    "A MESSENGER": "Messenger"
+    "MESSENGERS": "Messenger"
+    "SECOND MESSENGER": "Second Messenger"
+    "POET": "Poet"
+    "A POET": "Poet"
+    "INSPECTOR": "Inspector"
+    "AN INSPECTOR": "Inspector"
+    "A COMMISSIONER": "Inspector"
+    "PRIEST": "Priest"
+    "A PRIEST": "Priest"
+    "TRIBALLUS": "Triballian"
+    "PARRICIDE": "Father-beater"
+    "A PARRICIDE": "Father-beater"
+    "HERALD": "Herald"
+    "HERALDS": "Herald"
+    "DEALER IN DECREES": "Decree-seller"
+    "A DEALER IN DECREES": "Decree-seller"
+    "PHOENICOPTERUS": "Bird"
+  sigla:
+    "ΠΙ.": "Peisthetaerus"
+    "ΠΙΣΘΕΤΑΙΡΟΣ": "Peisthetaerus"
+    "ΕΥ.": "Euelpides"
+    "ΕΥΕΛΠΙΔΗΣ": "Euelpides"
+    "ΕΠ.": "Hoopoe"
+    "ΕΠΟΨ": "Hoopoe"
+    "ΕΠΙΣΚΟΠΟΣ": "Inspector"
+    "ΧΟ.": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "ΠΟ.": "Poet"
+    "ΠΟΙΗΤΗΣ": "Poet"
+    "ΠΟΣΕΙΔΩΝ": "Poseidon"
+    "ΗΡ.": "Heracles"
+    "ΗΡΑΚΛΗΣ": "Heracles"
+    "ΣΥ.": "Informer"
+    "ΣΥΚΟΦΑΝΤΗΣ": "Informer"
+    "ΠΡ.": "Prometheus"
+    "ΠΡΟΜΗΘΕΥΣ": "Prometheus"
+    "ΙΡ.": "Iris"
+    "ΙΡΙΣ": "Iris"
+    "ΧΡ.": "Oracle-monger"
+    "ΧΡΗΣΜΟΛΟΓΟΣ": "Oracle-monger"
+    "ΘΕ.": "Servant of the Hoopoe"
+    "ΘΕΡΑΠΩΝ ΕΠΟΠΟΣ": "Servant of the Hoopoe"
+    "ΜΕ.": "Meton"
+    "ΜΕΤΩΝ": "Meton"
+    "ΚΙ.": "Cinesias"
+    "ΚΙΝΗΣΙΑΣ": "Cinesias"
+    "ΑΓ. Αʹ": "First Messenger"
+    "ΑΓΓΕΛΟΣ Αʹ": "First Messenger"
+    "ΑΓ. Βʹ": "Second Messenger"
+    "ΑΓΓΕΛΟΣ Βʹ": "Second Messenger"
+    "ΑΓΓΕΛΟΣ": "Messenger"
+    "ΨΗ.": "Decree-seller"
+    "ΨΗΦΙΣΜΑΤΟΠΩΛΗΣ": "Decree-seller"
+    "ΠΑ.": "Father-beater"
+    "ΠΑΤΡΑΛΟΙΑΣ": "Father-beater"
+    "ΙΕ.": "Priest"
+    "ΙΕΡΕΥΣ": "Priest"
+    "ΚΗ.": "Herald"
+    "ΚΗΡΥΞ": "Herald"
+    "ΤΡ.": "Triballian"
+    "ΤΡΙΒΑΛΛΟΣ": "Triballian"
+    "ΟΡΝΙΣ": "Bird"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1765" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: birds
+  slug: birds
+  title: Birds
+  greekTitle: ""
+  abbr: "Av."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
+  greekSource:
+    short: "Coulon (1928)"
+    full: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Av."
+  blurb: "DRAFT — Birds."

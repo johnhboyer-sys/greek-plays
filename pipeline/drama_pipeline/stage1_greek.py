@@ -1398,7 +1398,10 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
             if "speakers" in entry:
                 entry["speakers"] = [{**m, "offset": 0} for m in entry["speakers"]]
         flat.append(entry)
-    if not title_seen:
+    if not title_seen and declared_titles:
+        # The tragedians' exports open with a title line; Dover/Coulon/
+        # MacDowell/Ussher print none (all eleven comedies, P3 2026-09-07).
+        # A title line is required only when the manifest declares one.
         raise ValueError(f"{xml_path or '<xml>'}: play-line export has no <l n=\"t\"> title line")
     _check_repeated_refs(allowed_repeats, ref_counts, xml_path)
     stale_titles = set(declared_titles) - observed_titles

@@ -1,0 +1,161 @@
+# Acharnians — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: acharnians
+  title: Acharnians
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "001"
+  greek_edition: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Acharnenses (0019: 001) \"Aristophane, vol. 1\", Ed. Coulon, V., van Daele, M. Paris: Les Belles Lettres, 1923, Repr. 1967 (1st edn. corr.)."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8688.txt"
+    play: "THE ACHARNIANS"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": []
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  # TODO(P3.1) sigla collision — ΘΕ. = Theorus (134–173) and Euripides' Servant (395–409)
+  overrides:
+    - { siglum: "ΘΕ.", from: "395", display: "Servant" }
+  english:
+    "DICAEOPOLIS": "Dicaeopolis"
+    "LAMACHUS": "Lamachus"
+    "CHORUS": "Chorus"
+    "CHORUS OF ACHARNIAN ELDERS": "Chorus"
+    "MEGARIAN": "Megarian"
+    "A MEGARIAN": "Megarian"
+    "EURIPIDES": "Euripides"
+    "HERALD": "Herald"
+    "AMPHITHEUS": "Amphitheus"
+    "BOEOTIAN": "Boeotian"
+    "A BOEOTIAN": "Boeotian"
+    "AMBASSADOR": "Ambassador"
+    "AN AMBASSADOR": "Ambassador"
+    "AMBASSADORS": "Ambassador"
+    "HUSBANDMAN": "Farmer"
+    "A HUSBANDMAN": "Farmer"
+    "THEORUS": "Theorus"
+    "NICARCHUS": "Nicarchus"
+    "SLAVE": "Servant"
+    "SERVANT": "Servant"
+    "A SERVANT OF LAMACHUS": "Servant"
+    "SLAVE OF LAMACHUS": "Servant"
+    "ATTENDANT OF LAMACHUS": "Servant"
+    "WIFE OF DICAEOPOLIS": "Daughter"
+    "DAUGHTER": "Daughter"
+    "DAUGHTER OF DICAEOPOLIS": "Daughter"
+    "DAUGHTERS": "Girls"
+    "GIRL": "Girl"
+    "FIRST SEMI-CHORUS": "Semichorus A"
+    "SECOND SEMI-CHORUS": "Semichorus B"
+    "INFORMER": "Informer"
+    "AN INFORMER": "Informer"
+    "BRIDESMAID": "Bridesmaid"
+    "A BRIDESMAID": "Bridesmaid"
+    "PSEUDARTABAS": "Pseudartabas"
+    "MESSENGERS": "Messenger"
+    "A PRYTANIS": "Herald"
+    "PRYTANIS": "Herald"
+  sigla:
+    "ΔΙ.": "Dicaeopolis"
+    "ΔΙΚΑΙΟΠΟΛΙΣ": "Dicaeopolis"
+    "ΛΑ.": "Lamachus"
+    "ΛΑΜΑΧΟΣ": "Lamachus"
+    "ΧΟ.": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "ΜΕ.": "Megarian"
+    "ΜΕΓΑΡΕΥΣ": "Megarian"
+    "ΕΥ.": "Euripides"
+    "ΕΥΡΙΠΙΔΗΣ": "Euripides"
+    "ΘΗ.": "Boeotian"
+    "ΘΗΒΑΙΟΣ": "Boeotian"
+    "ΚΗ.": "Herald"
+    "ΚΗΡΥΞ": "Herald"
+    "ΑΜ.": "Amphitheus"
+    "ΑΜΦΙΘΕΟΣ": "Amphitheus"
+    "ΠΡ.": "Ambassador"
+    "ΠΡΕΣΒΥΣ": "Ambassador"
+    "ΘΕ.": "Theorus"
+    "ΘΕΩΡΟΣ": "Theorus"
+    "ΘΕΡΑΠΩΝ": "Servant"
+    "ΓΕ.": "Farmer"
+    "ΓΕΩΡΓΟΣ": "Farmer"
+    "ΝΙ.": "Nicarchus"
+    "ΝΙΚΑΡΧΟΣ": "Nicarchus"
+    "ΑΓ.": "Messenger"
+    "ΑΓΓΕΛΟΣ ΛΑΜΑΧΟΥ": "Messenger"
+    "ΚΟΡΑ": "Girls"
+    "ΚΟΡΗ": "Girl"
+    "ΚΟ.": "Girl"
+    "ΣΥ.": "Informer"
+    "ΣΥΚΟΦΑΝΤΗΣ": "Informer"
+    "ΠΑ.": "Bridesmaid"
+    "ΠΑΡΑΝΥΜΦΟΣ": "Bridesmaid"
+    "Αʹ": "Semichorus A"
+    "Βʹ": "Semichorus B"
+    "ΗΜΙΧΟΡΙΟΝ Αʹ": "Semichorus A"
+    "ΗΜΙΧΟΡΙΟΝ Βʹ": "Semichorus B"
+    "ΨΕΥΔΑΡΤΑΒΑΣ": "Pseudartabas"
+    "ΨΕ.": "Pseudartabas"
+    "ΘΥΓΑΤΗΡ": "Daughter"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1234" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: acharnians
+  slug: acharnians
+  title: Acharnians
+  greekTitle: ""
+  abbr: "Ach."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
+  greekSource:
+    short: "Coulon (1923)"
+    full: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Ach."
+  blurb: "DRAFT — Acharnians."

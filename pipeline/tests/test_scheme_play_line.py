@@ -516,3 +516,14 @@ def test_lacuna_only_segments_need_no_declared_gap():
         {"id": "1:empty", "lines": []},
     ]
     assert stage2_validate._play_line_lacuna_segment_ids(segs) == {"1:post 146"}
+
+
+def test_missing_title_line_is_fine_when_none_declared(tmp_path):
+    """The comedies' exports carry no <l n="t"> line (Coulon, Dover, MacDowell,
+    Ussher); a manifest that declares no title_labels must parse them."""
+    xml = tmp_path / "play.xml"
+    xml.write_text('<TEI><text><body><l n="1"><label type="speaker">ΔΙ.</label> ὅσα δὴ δέδηγμαι</l><l n="2">τὴν ἐμαυτοῦ καρδίαν</l></body></text></TEI>')
+    m = Manifest({"work": {"id": "x"}, "citation": {"scheme": "play-line", "title_labels": [], "transpositions": {"1": []}, "lacunae": {"1": []}}, "speakers": {"sigla": {"ΔΙ.": "Dicaeopolis"}}}, tmp_path / "x.yaml")
+    tree = etree.parse(str(xml))
+    flat = stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m, str(xml))
+    assert [e["ref"] for e in flat] == ["1", "2"]

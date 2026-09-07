@@ -1,0 +1,110 @@
+# Wasps — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: wasps
+  title: Wasps
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "004"
+  greek_edition: "MacDowell, Aristophanes: Wasps (Oxford, 1971)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Vespae (0019: 004) \"Aristophanes. Wasps\", Ed. MacDowell, D.M. Oxford: Clarendon Press, 1971."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8689.txt"
+    play: "THE WASPS"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": []
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  english:
+    "PHILOCLEON": "Philocleon"
+    "BDELYCLEON": "Bdelycleon"
+    "XANTHIAS": "Xanthias"
+    "CHORUS": "Chorus"
+    "SOSIAS": "Sosias"
+    "BOY": "Boy"
+    "BOYS": "Boy"
+    "ACCUSER": "Accuser"
+    "BAKER'S WIFE": "Bread-seller"
+    "A BAKER'S WIFE": "Bread-seller"
+    "A DOG": "Dog"
+    "DOG": "Dog"
+  sigla:
+    "Φι.": "Philocleon"
+    "ΦΙΛΟΚΛΕΩΝ": "Philocleon"
+    "Βδ.": "Bdelycleon"
+    "ΒΔΕΛΥΚΛΕΩΝ": "Bdelycleon"
+    "Ξα.": "Xanthias"
+    "ΞΑΝΘΙΑΣ": "Xanthias"
+    "Χο.": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "Σω.": "Sosias"
+    "ΣΩΣΙΑΣ": "Sosias"
+    "Πα.": "Boy"
+    "ΠΑΙΣ": "Boy"
+    "Κυ.": "Dog"
+    "ΚΥΩΝ": "Dog"
+    "Αρ.": "Bread-seller"
+    "ΑΡΤΟΠΩΛΙΣ": "Bread-seller"
+    "Κα.": "Accuser"
+    "ΚΑΤΗΓΟΡΟΣ": "Accuser"
+    "ΑΝΗΡ": "Man"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1537" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: wasps
+  slug: wasps
+  title: Wasps
+  greekTitle: ""
+  abbr: "Vesp."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "MacDowell, Aristophanes: Wasps (Oxford, 1971)"
+  greekSource:
+    short: "MacDowell (1971)"
+    full: "MacDowell, Aristophanes: Wasps (Oxford, 1971)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Vesp."
+  blurb: "DRAFT — Wasps."

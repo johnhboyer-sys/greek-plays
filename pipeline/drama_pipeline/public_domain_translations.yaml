@@ -5,8 +5,8 @@ translations:
   - { id: smyth, translator: "H. W. Smyth", year: 1922, note: "Loeb Aeschylus (1922–26); published before 1931." }
   - { id: jebb, translator: "R. C. Jebb", year: 1883, note: "Sophocles editions (1883–1900); published before 1931." }
   - { id: coleridge, translator: "E. P. Coleridge", year: 1891, note: "Euripides translation (1891); published before 1931." }
-  - { id: athenian-society, translator: "The Athenian Society", year: 1912, note: "The Eleven Comedies (1912); published before 1931." }
-  - { id: lindsay, translator: "Jack Lindsay", year: 1925, note: "Published in 1925, before 1931." }
+  - { id: athenian-society, translator: "The Athenian Society", year: 1912, note: "The Eleven Comedies, The Athenian Society, London 1912; anonymous; unexpurgated" }
+  - { id: lindsay, translator: "Jack Lindsay", year: 1925, note: "Lysistrata" }
   - { id: browning, translator: "Robert Browning", year: 1877, note: "Published in 1877, before 1931." }
   - { id: murray-verse, translator: "Gilbert Murray", year: 1902, note: "Verse translations (1902–15); published before 1931." }
   - { id: storr, translator: "F. Storr", year: 1912, note: "Published in 1912, before 1931." }

@@ -1,0 +1,47 @@
+{
+  "work": "test-play",
+  "segments": [
+    {
+      "id": "1:1",
+      "book": 1,
+      "column": "1",
+      "lines": [{"n": 1, "ref": "1", "text": "g"}],
+      "speakers": [{"line": 1, "offset": 0, "label": "Δι."}]
+    },
+    {
+      "id": "1:10",
+      "book": 1,
+      "column": "1",
+      "lines": [{"n": 10, "ref": "10", "text": "g"}],
+      "speakers": [{"line": 1, "offset": 0, "label": "Δη.Νι."}]
+    },
+    {
+      "id": "1:20",
+      "book": 1,
+      "column": "1",
+      "lines": [{"n": 20, "ref": "20", "text": "g"}],
+      "speakers": [{"line": 1, "offset": 0, "label": "Κη."}]
+    },
+    {
+      "id": "1:30",
+      "book": 1,
+      "column": "1",
+      "lines": [{"n": 30, "ref": "30", "text": "g"}],
+      "speakers": [{"line": 1, "offset": 0, "label": "Χο."}]
+    },
+    {
+      "id": "1:40",
+      "book": 1,
+      "column": "1",
+      "lines": [{"n": 40, "ref": "40", "text": "g"}],
+      "speakers": [{"line": 1, "offset": 0, "label": "Αγγ."}]
+    },
+    {
+      "id": "1:50",
+      "book": 1,
+      "column": "1",
+      "lines": [{"n": 50, "ref": "50", "text": "g"}],
+      "speakers": [{"line": 1, "offset": 0, "label": "Λα."}]
+    }
+  ]
+}

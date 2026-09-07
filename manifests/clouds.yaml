@@ -1,0 +1,119 @@
+# Clouds — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: clouds
+  title: Clouds
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "003"
+  greek_edition: "Dover, Aristophanes: Clouds (Oxford, 1968)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Nubes (0019: 003) \"Aristophanes. Clouds\", Ed. Dover, K.J. Oxford: Clarendon Press, 1968, Repr. 1970."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8688.txt"
+    play: "THE CLOUDS"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": []
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  english:
+    "STREPSIADES": "Strepsiades"
+    "SOCRATES": "Socrates"
+    "PHIDIPPIDES": "Pheidippides"
+    "JUST DISCOURSE": "Better Argument"
+    "UNJUST DISCOURSE": "Worse Argument"
+    "DISCIPLE": "Student"
+    "A DISCIPLE": "Student"
+    "SECOND DISCIPLE": "Second Student"
+    "DISCIPLES OF SOCRATES": "Student"
+    "CHAEREPHON": "Student"
+    "CHORUS": "Chorus"
+    "CHORUS OF CLOUDS": "Chorus"
+    "PASIAS": "Creditor"
+    "AMYNIAS": "Creditor"
+    "PASIAS' WITNESS": "Creditor"
+    "WITNESS": "Creditor"
+    "SERVANT OF STREPSIADES": "Slave"
+    "A SLAVE": "Slave"
+    "SLAVE": "Slave"
+  sigla:
+    "Στ.": "Strepsiades"
+    "ΣΤΡΕΨΙΑΔΗΣ": "Strepsiades"
+    "Σω.": "Socrates"
+    "ΣΩΚΡΑΤΗΣ": "Socrates"
+    "Φε.": "Pheidippides"
+    "ΦΕΙΔΙΠΠΙΔΗΣ": "Pheidippides"
+    "Ητ.": "Worse Argument"
+    "Ο ΗΤΤΩΝ ΛΟΓΟΣ": "Worse Argument"
+    "Κρ.": "Better Argument"
+    "Ο ΚΡΕΙΤΤΩΝ ΛΟΓΟΣ": "Better Argument"
+    "Μα.": "Student"
+    "ΜΑΘΗΤΗΣ": "Student"
+    "ΜΑΘΗΤΗΣ Αʹ": "First Student"
+    "ΜΑΘΗΤΗΣ Βʹ": "Second Student"
+    "Χο.": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "Χρ.": "Creditor"
+    "ΧΡΗΣΤΗΣ Αʹ": "First Creditor"
+    "ΧΡΗΣΤΗΣ Βʹ": "Second Creditor"
+    "ΟΙΚΕΤΗΣ": "Slave"
+    "Οἰ.": "Slave"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1510-1511" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: clouds
+  slug: clouds
+  title: Clouds
+  greekTitle: ""
+  abbr: "Nub."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Dover, Aristophanes: Clouds (Oxford, 1968)"
+  greekSource:
+    short: "Dover (1968)"
+    full: "Dover, Aristophanes: Clouds (Oxford, 1968)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Nub."
+  blurb: "DRAFT — Clouds."

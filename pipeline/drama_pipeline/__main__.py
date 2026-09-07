@@ -54,24 +54,42 @@ def _stage1(manifest):
     if sch.play_line_scheme:
         primary = ((manifest.data.get("english") or {}).get("primary") or {})
         if primary:
-            if primary.get("model") != "perseus-play":
-                raise NotImplementedError(
-                    f"play-line English model {primary.get('model')!r} is not supported"
-                )
-            from . import stage1_perseus_play_english
+            model = primary.get("model")
+            if model == "perseus-play":
+                from . import stage1_perseus_play_english
 
-            eng_path, align_path, report_path = stage1_perseus_play_english.run(
-                manifest, spine
-            )
-            english = json.loads(eng_path.read_text(encoding="utf-8"))
-            alignment = json.loads(align_path.read_text(encoding="utf-8"))
-            report = json.loads(report_path.read_text(encoding="utf-8"))
-            unmatched = [p for p in alignment["pairs"] if p["english"] is None]
-            print(
-                f"  english chunks={len(english['chunks'])} "
-                f"({english['translation']}) unmatched={len(unmatched)} "
-                f"anchors={report['anchor_count']} snaps={report['snap_count']}"
-            )
+                eng_path, align_path, report_path = stage1_perseus_play_english.run(
+                    manifest, spine
+                )
+                english = json.loads(eng_path.read_text(encoding="utf-8"))
+                alignment = json.loads(align_path.read_text(encoding="utf-8"))
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+                unmatched = [p for p in alignment["pairs"] if p["english"] is None]
+                print(
+                    f"  english chunks={len(english['chunks'])} "
+                    f"({english['translation']}) unmatched={len(unmatched)} "
+                    f"anchors={report['anchor_count']} snaps={report['snap_count']}"
+                )
+            elif model == "turn-text":
+                from . import stage1_turn_english
+
+                eng_path, align_path, report_path = stage1_turn_english.run(
+                    manifest, spine
+                )
+                english = json.loads(eng_path.read_text(encoding="utf-8"))
+                alignment = json.loads(align_path.read_text(encoding="utf-8"))
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+                unmatched = [p for p in alignment["pairs"] if p["english"] is None]
+                print(
+                    f"  english chunks={len(english['chunks'])} "
+                    f"({english['translation']}) unmatched={len(unmatched)} "
+                    f"paired={report['paired']} residual={report['residual_grouped']} "
+                    f"rate={report['pairing_rate']:.3f}"
+                )
+            else:
+                raise NotImplementedError(
+                    f"play-line English model {model!r} is not supported"
+                )
         else:
             for scratch in ("english_chunks.json", "alignment.json"):
                 (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)

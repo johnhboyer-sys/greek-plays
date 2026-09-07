@@ -1,0 +1,143 @@
+# Assemblywomen — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: ecclesiazusae
+  title: Assemblywomen
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "010"
+  greek_edition: "Ussher, Aristophanes: Ecclesiazusae (Oxford, 1973)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Ecclesiazusae (0019: 010) \"Aristophanes. Ecclesiazusae\", Ed. Ussher, R.G. Oxford: Clarendon Press, 1973."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8689.txt"
+    play: "THE ECCLESIAZUSAE"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1":
+      - { start: "22", end: "22", before: "23" }
+      - { start: "452", end: "453", before: "454" }
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  english:
+    "PRAXAGORA": "Praxagora"
+    "BLEPYRUS": "Blepyrus"
+    "HER MASTER": "Blepyrus"
+    "YOUNG MAN": "Young Man"
+    "A YOUNG MAN": "Young Man"
+    "FIRST CITIZEN": "Chremes"
+    "SECOND CITIZEN": "Neighbour"
+    "TWO CITIZENS": "Chremes"
+    "CHREMES": "Chremes"
+    "MAN": "Neighbour"
+    "A MAN": "Neighbour"
+    "AN OLD MAN": "Neighbour"
+    "FIRST OLD WOMAN": "First Old Woman"
+    "SECOND OLD WOMAN": "Second Old Woman"
+    "THIRD OLD WOMAN": "Third Old Woman"
+    "THREE OLD WOMEN": "First Old Woman"
+    "FIRST WOMAN": "First Woman"
+    "SECOND WOMAN": "Second Woman"
+    "THIRD WOMAN": "Second Woman"
+    "FOURTH WOMAN": "Second Woman"
+    "FIFTH WOMAN": "Second Woman"
+    "SIXTH WOMAN": "Second Woman"
+    "SEVENTH WOMAN": "Second Woman"
+    "EIGHTH WOMAN": "Second Woman"
+    "YOUNG GIRL": "Girl"
+    "A YOUNG GIRL": "Girl"
+    "A GIRL": "Girl"
+    "CHORUS": "Chorus"
+    "CHORUS OF WOMEN": "Chorus"
+    "SEMI-CHORUS": "Chorus"
+    "WOMEN": "Chorus"
+    "MAID-SERVANT": "Maid"
+    "A SERVANT MAID": "Maid"
+    "A SERVANT-MAID TO PRAXAGORA": "Maid"
+    "HERALD": "Herald"
+  sigla:
+    "Πρ.": "Praxagora"
+    "ΠΡΑΞΑΓΟΡΑ": "Praxagora"
+    "Βλ.": "Blepyrus"
+    "ΒΛΕΠΥΡΟΣ": "Blepyrus"
+    "Χρ.": "Chremes"
+    "ΧΡΕΜΗΣ": "Chremes"
+    "Αν.": "Neighbour"
+    "ΑΝΗΡ": "Neighbour"
+    "Νεας.": "Young Man"
+    "ΝΕΑΝΙΑΣ": "Young Man"
+    "Νεις.": "Girl"
+    "ΝΕΑΝΙΣ": "Girl"
+    "Γρ. α": "First Old Woman"
+    "ΓΡΑΥΣ Α": "First Old Woman"
+    "Γρ. β": "Second Old Woman"
+    "ΓΡΑΥΣ Β": "Second Old Woman"
+    "Γρ. γ": "Third Old Woman"
+    "ΓΡΑΥΣ Γ": "Third Old Woman"
+    "Γυ. α": "First Woman"
+    "ΓΥΝΗ Α": "First Woman"
+    "Γυ. β": "Second Woman"
+    "ΓΥΝΗ Β": "Second Woman"
+    "Χο.": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "Θε.": "Maid"
+    "ΘΕΡΑΠΑΙΝΑ": "Maid"
+    "ΚΗΡΥΞ": "Herald"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1183" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: ecclesiazusae
+  slug: ecclesiazusae
+  title: Assemblywomen
+  greekTitle: ""
+  abbr: "Eccl."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Ussher, Aristophanes: Ecclesiazusae (Oxford, 1973)"
+  greekSource:
+    short: "Ussher (1973)"
+    full: "Ussher, Aristophanes: Ecclesiazusae (Oxford, 1973)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Eccl."
+  blurb: "DRAFT — Assemblywomen."

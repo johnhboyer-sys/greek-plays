@@ -9,12 +9,12 @@ describe('generated registry golden value', () => {
       .update(JSON.stringify(WORKS) + JSON.stringify(AUTHORS))
       .digest('hex');
 
-    // P2 (docs/p2-greek-report.md): the 33 tragedies of Aeschylus, Sophocles
-    // and Euripides on the play-line scheme.
-    expect(WORKS).toHaveLength(33);
-    expect(AUTHORS).toHaveLength(3);
+    // P2+P3: the 44 plays of Aeschylus, Sophocles, Euripides and Aristophanes
+    // on the play-line scheme.
+    expect(WORKS).toHaveLength(44);
+    expect(AUTHORS).toHaveLength(4);
     // After a deliberate registry change, regenerate with this exact command from shared/:
     // node --experimental-strip-types --input-type=module -e "import{createHash}from'node:crypto';import{CORPUS_WORKS as WORKS,CORPUS_AUTHORS as AUTHORS}from'./lib/registry.generated.ts';console.log(createHash('sha256').update(JSON.stringify(WORKS)+JSON.stringify(AUTHORS)).digest('hex'))"
-    expect(hash).toBe('5d805148b8c10f0c5f1ccc4b93445ff7d9eadcab02ca1be4703d203cacac760d');
+    expect(hash).toBe('865ab2802700d9c85bb62b244c8cc36ba8649cab7affffeed8d0f688901b387c');
   });
 });

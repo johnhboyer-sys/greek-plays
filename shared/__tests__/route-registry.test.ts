@@ -40,7 +40,7 @@ describe('route registry collision gates', () => {
     expect(problems[0]).toContain("'en', 'EN'");
   });
 
-  it('accepts the P2 registry (33 tragedies, no collisions)', () => {
+  it('accepts the P2 registry (44 plays, no collisions)', () => {
     const result = checkRouteRegistry({
       works: CORPUS_WORKS,
       authors: CORPUS_AUTHORS,
@@ -48,7 +48,7 @@ describe('route registry collision gates', () => {
       reservedSegments: scanReservedSegments(),
     });
 
-    expect(result.routes).toHaveLength(33); // P2: 33 tragedies, author-scoped routes
+    expect(result.routes).toHaveLength(44); // P2: 44 plays, author-scoped routes
     expect(result.problems).toEqual([]);
   });
 });

@@ -1,0 +1,130 @@
+# Women at the Thesmophoria — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: thesmophoriazusae
+  title: "Women at the Thesmophoria"
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "008"
+  greek_edition: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Thesmophoriazusae (0019: 008) \"Aristophane, vol. 4\", Ed. Coulon, V., van Daele, M. Paris: Les Belles Lettres, 1928, Repr. 1967 (1st edn. corr.)."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8689.txt"
+    play: "THE THESMOPHORIAZUSAE"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1":
+      - { start: "122", end: "122", before: "123" }
+
+  repeated_refs:
+    "1":
+      - { ref: "122", count: 2, note: "printed twice in the edition" }
+      - { ref: "123", count: 2, note: "printed twice in the edition" }
+
+
+speakers:
+  english:
+    "MNESILOCHUS": "Mnesilochus"
+    "EURIPIDES": "Euripides"
+    "SCYTHIAN": "Scythian"
+    "SCYTHIAN ARCHER": "Scythian"
+    "CHORUS": "Chorus"
+    "WOMEN": "Chorus"
+    "AGATHON": "Agathon"
+    "CLISTHENES": "Cleisthenes"
+    "SERVANT": "Servant"
+    "SERVANT OF AGATHON": "Servant"
+    "FIRST WOMAN": "First Woman"
+    "SECOND WOMAN": "Second Woman"
+    "THIRD WOMAN": "Woman"
+    "FOURTH WOMAN": "Woman"
+    "FIFTH WOMAN": "Woman"
+    "SIXTH WOMAN": "Woman"
+    "SEVENTH WOMAN": "Woman"
+    "HERALD": "Woman"
+    "PRYTANIS": "Prytanis"
+    "THE PRYTANIS": "Prytanis"
+  sigla:
+    "ΚΗ.": "Mnesilochus"
+    "ΚΗΔΕΣΤΗΣ": "Mnesilochus"
+    "ΚΗ. (ὡς Ἑλένη.)": "Mnesilochus"
+    "(ὡς Ἀνδρομέδα.)": "Mnesilochus"
+    "ΕΥ.": "Euripides"
+    "ΕΥΡΙΠΙΔΗΣ": "Euripides"
+    "ΕΥ. (ὡς Μενέλαος.)": "Euripides"
+    "ΕΥ. (ὡς Ἠχώ.)": "Euripides"
+    "ΕΥ. (ὡς Περσεύς.)": "Euripides"
+    "ΕΥ. (ὡς γραῦς.)": "Euripides"
+    "ΤΟ.": "Scythian"
+    "ΤΟΞΟΤΗΣ": "Scythian"
+    "ΓΥ. Αʹ": "First Woman"
+    "ΓΥΝΗ Αʹ": "First Woman"
+    "ΓΥ. Βʹ": "Second Woman"
+    "ΓΥΝΗ Βʹ": "Second Woman"
+    "ΓΥ.": "Woman"
+    "ΓΥΝΗ": "Woman"
+    "ΧΟ.": "Chorus"
+    "(ὡς Χορός.)": "Agathon's Chorus"
+    "ΚΛ.": "Cleisthenes"
+    "ΚΛΕΙΣΘΕΝΗΣ": "Cleisthenes"
+    "ΑΓ.": "Agathon"
+    "ΑΓΑΘΩΝ": "Agathon"
+    "ΘΕ.": "Servant"
+    "ΘΕΡΑΠΩΝ": "Servant"
+    "ΠΡ.": "Prytanis"
+    "ΠΡΥΤΑΝΙΣ": "Prytanis"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1231" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: thesmophoriazusae
+  slug: thesmophoriazusae
+  title: "Women at the Thesmophoria"
+  greekTitle: ""
+  abbr: "Thesm."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
+  greekSource:
+    short: "Coulon (1928)"
+    full: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Thesm."
+  blurb: "DRAFT — Women at the Thesmophoria."

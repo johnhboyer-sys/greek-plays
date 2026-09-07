@@ -1,0 +1,134 @@
+# Peace — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: peace
+  title: Peace
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "005"
+  greek_edition: "Coulon & van Daele, Aristophane, vol. 2 (Budé, 1924)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Pax (0019: 005) \"Aristophane, vol. 2\", Ed. Coulon, V., van Daele, M. Paris: Les Belles Lettres, 1924, Repr. 1969 (1st edn. corr.)."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8688.txt"
+    play: "PEACE"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": []
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  english:
+    "TRYGAEUS": "Trygaeus"
+    "HERMES": "Hermes"
+    "CHORUS": "Chorus"
+    "CHORUS OF HUSBANDMEN": "Chorus"
+    "FIRST SEMI-CHORUS": "Chorus"
+    "SECOND SEMI-CHORUS": "Chorus"
+    "SERVANT": "Slave"
+    "FIRST SERVANT": "First Slave"
+    "FIRST SLAVE": "First Slave"
+    "SECOND SERVANT": "Second Slave"
+    "HIEROCLES": "Hierocles"
+    "WAR": "War"
+    "TUMULT": "Tumult"
+    "SON OF LAMACHUS": "First Boy"
+    "THE SON OF LAMACHUS": "First Boy"
+    "SON OF CLEONYMUS": "Second Boy"
+    "LITTLE DAUGHTER": "Daughter"
+    "BREASTPLATE-MAKER": "Arms-dealer"
+    "A BREASTPLATE-MAKER": "Arms-dealer"
+    "SPEAR-MAKER": "Arms-dealer"
+    "A SPEAR-MAKER": "Arms-dealer"
+    "CREST-MAKER": "Arms-dealer"
+    "A CREST-MAKER": "Arms-dealer"
+    "TRUMPET-MAKER": "Arms-dealer"
+    "A TRUMPET-MAKER": "Arms-dealer"
+    "A HELMET-MAKER": "Arms-dealer"
+    "SICKLE-MAKER": "Sickle-maker"
+    "A SICKLE-MAKER": "Sickle-maker"
+  sigla:
+    "ΤΡ.": "Trygaeus"
+    "ΤΡΥΓΑΙΟΣ": "Trygaeus"
+    "ΕΡ.": "Hermes"
+    "ΕΡΜΗΣ": "Hermes"
+    "ΧΟ.": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "ΟΙ.": "Slave"
+    "ΟΙ. Αʹ": "First Slave"
+    "ΟΙΚΕΤΗΣ Αʹ": "First Slave"
+    "ΟΙ. Βʹ": "Second Slave"
+    "ΟΙΚΕΤΗΣ Βʹ": "Second Slave"
+    "ΙΕ.": "Hierocles"
+    "ΙΕΡΟΚΛΗΣ": "Hierocles"
+    "Ο. Κ.": "Arms-dealer"
+    "ΟΠΛΩΝ ΚΑΠΗΛΟΣ": "Arms-dealer"
+    "ΠΟ.": "War"
+    "ΠΟΛΕΜΟΣ": "War"
+    "ΚΥ.": "Tumult"
+    "ΚΥΔΟΙΜΟΣ": "Tumult"
+    "Π. Αʹ": "First Boy"
+    "ΠΑΙΔΙΟΝ Αʹ": "First Boy"
+    "Π. Βʹ": "Second Boy"
+    "ΠΑΙΔΙΟΝ Βʹ": "Second Boy"
+    "ΠΑ.": "Daughter"
+    "ΠΑΙΔΙΟΝ": "Daughter"
+    "ΔΡ.": "Sickle-maker"
+    "ΔΡΕΠΑΝΟΥΡΓΟΣ": "Sickle-maker"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1359" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: peace
+  slug: peace
+  title: Peace
+  greekTitle: ""
+  abbr: "Pax"
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Coulon & van Daele, Aristophane, vol. 2 (Budé, 1924)"
+  greekSource:
+    short: "Coulon (1924)"
+    full: "Coulon & van Daele, Aristophane, vol. 2 (Budé, 1924)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Pax"
+  blurb: "DRAFT — Peace."

@@ -403,6 +403,26 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # manifest names it in english.gaps (segment ids or printed refs).
         allowed.update(_play_line_english_gap_ids(manifest, segments))
         allowed.update(_play_line_lacuna_segment_ids(segments))
+    if sch.play_line_scheme and primary_model == "turn-text":
+        # turn-text (P3, the 1912 comedies): the English has no line numbers,
+        # so speeches pair by speaker turn and residue is grouped onto the
+        # previous paired speech — never dropped. The honest contract is a
+        # pairing-rate floor the manifest declares (default 0.85, plan P3
+        # acceptance), read from the builder's own report; below it the
+        # build fails, above it every unpaired Greek speech is an expected,
+        # labelled ("alignment approximate") hole.
+        floor = float(((manifest.data.get("english") or {}).get("min_pairing_rate")) or 0.85)
+        report_path = BUILD_DIR / "stage1" / "english_report.json"
+        rate = None
+        if report_path.exists():
+            try:
+                rate = float(json.loads(report_path.read_text()).get("pairing_rate"))
+            except (ValueError, TypeError):
+                rate = None
+        if rate is not None and rate >= floor:
+            allowed.update(unmatched)
+        allowed.update(_play_line_english_gap_ids(manifest, segments))
+        allowed.update(_play_line_lacuna_segment_ids(segments))
     # A column the manifest's own citation.kind_overrides declares `omit`
     # is ALSO a legitimate unmatched column (see _omit_declared_segment_ids)
     # -- derived from the SAME declaration stage1 already enforces, not a

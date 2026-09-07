@@ -1,0 +1,130 @@
+# Wealth — play-line manifest (P3-Greek, generated 2026-09-07 by build/p3/gen-comedies.py;
+# declarations computed from the export, sigla curated in build/p3/comedy-sigla.py).
+
+work:
+  id: wealth
+  title: Wealth
+  author: aristophanes
+  language: grc
+  tlg_author: "0019"
+  tlg_work: "011"
+  greek_edition: "Coulon & van Daele, Aristophane, vol. 5 (Budé, 1930)"
+  lexicon: true
+  expected_sourcedesc: "Aristophanes Comic. (c. 5-4 B.C.), Plutus (0019: 011) \"Aristophane, vol. 5\", Ed. Coulon, V., van Daele, M. Paris: Les Belles Lettres, 1930, Repr. 1963 (1st edn. corr.)."
+
+english:
+  primary:
+    id: athenian-society
+    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    short: Athenian Society
+    model: turn-text
+    source: "gutenberg/pg8689.txt"
+    play: "PLUTUS"
+    footnotes: true
+  gaps: []
+
+citation:
+  scheme: play-line
+
+  title_labels:
+
+  lacunae:
+    "1": []
+
+  transpositions:
+    "1": []
+
+  repeated_refs:
+    "1": []
+
+
+speakers:
+  english:
+    "CHREMYLUS": "Chremylus"
+    "CARIO": "Cario"
+    "CAIRO": "Cario"
+    "BLEPSIDEMUS": "Blepsidemus"
+    "PLUTUS": "Wealth"
+    "OLD WOMAN": "Old Woman"
+    "AN OLD WOMAN": "Old Woman"
+    "POVERTY": "Poverty"
+    "INFORMER": "Informer"
+    "AN INFORMER": "Informer"
+    "HERMES": "Hermes"
+    "CHORUS": "Chorus"
+    "CHORUS OF RUSTICS": "Chorus"
+    "WIFE": "Wife"
+    "WIFE OF CHREMYLUS": "Wife"
+    "CHREMYLUS' WIFE": "Wife"
+    "YOUTH": "Young Man"
+    "A YOUTH": "Young Man"
+    "JUST MAN": "Just Man"
+    "A JUST MAN": "Just Man"
+    "PRIEST": "Priest"
+    "A PRIEST OF ZEUS": "Priest"
+  sigla:
+    "ΧΡ.": "Chremylus"
+    "ΧΡΕΜΥΛΟΣ": "Chremylus"
+    "ΧΟΡΟΥ ΧΡ.": "Chremylus"
+    "ΚΑ.": "Cario"
+    "ΚΑΡΙΩΝ": "Cario"
+    "ΧΟΡΟΥ ΚΑ.": "Cario"
+    "ΒΛ.": "Blepsidemus"
+    "ΒΛΕΨΙΔΗΜΟΣ": "Blepsidemus"
+    "ΠΛ.": "Wealth"
+    "ΠΛΟΥΤΟΣ": "Wealth"
+    "ΧΟΡΟΥ ΠΛ.": "Wealth"
+    "ΓΡ.": "Old Woman"
+    "ΧΟΡΟΥ ΓΡΑΥΣ": "Old Woman"
+    "ΠΕ.": "Poverty"
+    "ΠΕΝΙΑ": "Poverty"
+    "ΔΙ.": "Just Man"
+    "ΔΙΚΑΙΟΣ": "Just Man"
+    "ΣΥ.": "Informer"
+    "ΣΥΚΟΦΑΝΤΗΣ": "Informer"
+    "ΓΥ.": "Wife"
+    "ΓΥΝΗ": "Wife"
+    "ΕΡ.": "Hermes"
+    "ΕΡΜΗΣ": "Hermes"
+    "ΝΕ.": "Young Man"
+    "ΝΕΑΝΙΑΣ": "Young Man"
+    "ΧΟ.": "Chorus"
+    "ΧΟΡΟΣ": "Chorus"
+    "ΙΕ.": "Priest"
+    "ΙΕΡΕΥΣ": "Priest"
+    "—": null
+
+books:
+  - { n: 1, start: "1", end: "1209" }
+
+sources:
+  tlg_dir_env: "TLG_DIR"
+  tlg_dir_default: "../TLG Files/TLG"
+  diogenes_server: "/Applications/Diogenes.app/Contents/server"
+  diogenes_data: "/Applications/Diogenes.app/Contents/dependencies/data"
+
+registry:
+  id: wealth
+  slug: wealth
+  title: Wealth
+  greekTitle: ""
+  abbr: "Plut."
+  author: aristophanes
+  language: grc
+  workType: verse
+  books: 1
+  bookLabels: ["1"]
+  greekEdition: "Coulon & van Daele, Aristophane, vol. 5 (Budé, 1930)"
+  greekSource:
+    short: "Coulon (1930)"
+    full: "Coulon & van Daele, Aristophane, vol. 5 (Budé, 1930)"
+  translations:
+    - id: athenian-society
+      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      short: Athenian Society
+      slot: english
+      footnotes: true
+  citation:
+    scheme: play-line
+    copyAbbr: "Ar. Plut."
+  blurb: "DRAFT — Wealth."
