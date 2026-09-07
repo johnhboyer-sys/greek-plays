@@ -28,9 +28,11 @@ _SPEAKERS_BLOCK = re.compile(r"(?ms)^speakers:\s*\n.*?(?=^\S|\Z)")
 _BOOKS_HEADING = re.compile(r"(?m)^books:\s*$")
 _TOP_LEVEL_SPEAKERS = re.compile(r"(?m)^speakers\s*:")
 _SUPPORTED_SPEAKERS_HEADING = re.compile(r"^speakers:\s*$")
-# Same prefixes stage1 uses to keep strophe markers out of the speaker stream.
+# Same prefixes stage1 uses to keep strophe markers out of the speaker stream
+# (stage1_greek._PLAY_LINE_STROPHE_RE) -- "ἐπῳδός" listed before "ἐπῳδ" for
+# Persians' spelled-out epode marker (see that module for why).
 _STROPHE_RE = re.compile(
-    r"^\[?(στρ|ἀντ|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)\b"
+    r"^\[?(στρ|ἀντ|ἐπῳδός|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)\b"
 )
 
 

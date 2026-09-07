@@ -20,4 +20,8 @@ translations:
   - { id: hickie, translator: "William James Hickie", year: 1853, note: "Published in 1853, long in the public domain." }
   - { id: frere, translator: "John Hookham Frere", year: 1839, note: "Published in 1839, long in the public domain." }
 
-# DENIED: o-neill — Eugene O'Neill Jr., The Complete Greek Drama (1938): not public domain; Perseus's default Aristophanes English
+# DENIED: Eugene O'Neill Jr., The Complete Greek Drama (1938): not public
+# domain; Perseus's default Aristophanes English. The pattern matches even
+# when a translation id is on the positive list above.
+denied:
+  - { pattern: "o'?neill", note: "Eugene O'Neill Jr. 1938, not PD" }

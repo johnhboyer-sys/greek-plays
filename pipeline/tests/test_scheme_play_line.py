@@ -144,7 +144,13 @@ def test_derive_transposed_blocks_range_sorts_at_start():
 
 @pytest.mark.parametrize(
     "label", ["[στρ. α.", "[ἀντ. β.", "[ἐπῳδ.", "[μεσῳδ.", "[ἐφυμν. γ", "[ἐφ. γ.",
-              "Str. 1.", "Ant. 2.", "στρ.", "ἀντ."],
+              "Str. 1.", "Ant. 2.", "στρ.", "ἀντ.",
+              # Persians 673/899/1066: Murray spells the epode marker out in
+              # full ("[ἐπῳδός.") rather than abbreviating it -- the bare
+              # "ἐπῳδ" alternative's \b fails right after "δ" since "ός"
+              # continues the word, so the inflected form is its own
+              # alternative (P2-Greek, docs/p2-greek-report.md).
+              "[ἐπῳδός."],
 )
 def test_strophe_regex_matches(label):
     assert stage1_greek._PLAY_LINE_STROPHE_RE.match(label)

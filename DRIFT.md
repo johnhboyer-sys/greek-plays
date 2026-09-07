@@ -300,3 +300,37 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   keeps old corpus fixtures explicit under the new rights gate.
 - `scripts/check-registry-agreement.mjs` — lets its corruption self-test use
   the one-translation pilot by adding a matched in-memory second slot.
+
+## P2b — English-builder adversarial fixes (2026-09-06)
+
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — speech-scoped
+  attachment, packed-elder para/em-dash slices, same-speech snaps only,
+  `speakers.english` aliasing on turns, `<stage>`/`<gap>` skip, hyphen-free
+  footnote labels.
+- `pipeline/drama_pipeline/stage2_validate.py` — perseus-play unmatched
+  segments pass only when named in `english.gaps`.
+- `pipeline/drama_pipeline/stage7_emit.py` — unmapped English speakers hard-
+  fail; `footnotes: true` is copied onto the v1 translations entry.
+- `pipeline/drama_pipeline/preflight.py` — allowlist walk covers every id
+  stage7 can emit; denied patterns reject O'Neill on name/source even when
+  the id is allowlisted.
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — `denied:` list
+  with the O'Neill pattern.
+- `pipeline/tests/test_stage1_perseus_play_english.py` — speech-scoped
+  attachment, packed elders, cross-speech snap refusal, english.gaps,
+  alias-table hard failure, `<stage>` skip, hyphen-free markers, footnotes
+  flag.
+- `pipeline/tests/test_public_domain_allowlist.py` — column_sources /
+  summary_overlay walk plus O'Neill name/source denial on an allowlisted id.
+
+## P2c — play-line English colours and footnotes (2026-09-06)
+
+- `shared/lib/speakers.ts` — EnglishTurnBlock copies each turn's canonical
+  `speaker` (the colour key).
+- `shared/components/Reader.svelte` — play-line English lead-ins share
+  data-spk with the Greek roster entry; play-line English `[^label]`
+  markers (underscore labels included) open FootnotePopup.
+- `shared/__tests__/speakers.test.ts` — buildEnglishTurnBlocks carries
+  `speaker` onto blocks.
+- `shared/__tests__/reader-play-line.test.ts` — play-line English/Greek
+  data-spk parity, display fallback, underscore footnote control.

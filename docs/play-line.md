@@ -26,29 +26,47 @@ Proven on Agamemnon (`manifests/agamemnon.yaml`, TLG 0085.005). Design facts: `d
 ## English
 
 `english.primary.model: perseus-play` reads the vendored Perseus translation
-TEI. Under `anchor_model: sp-line`, each positive `<l n="N">` inside an `<sp>`
-is a real Greek-line anchor. An anchor absent as an exact spine ref snaps to
-the nearest printed ref, including a lyric range that contains it; ties snap forward. Every snap appears in
-`build/stage1/english_report.json`.
+TEI. Under `anchor_model: sp-line` the builder parses each `<sp>` into
+speeches, then into slices. A speakerless `<sp>`, or one that contains
+`<milestone unit="para"/>`, is split at every para milestone and at a
+leading em-dash (the packed elders at Ag. 1348–1371 become twelve slices).
+Each slice attaches to the Greek segment whose speech span contains the
+slice's anchor line (plain `1234`, suffix `47a`, range `106-107`, `post 146`).
+An anchor absent from the spine snaps only onto another line of the same
+English speech, never into a neighbouring speech. A `<l n>` that names a
+line inside a different speaker's Greek speech reattaches to the nearest
+Greek speech whose speaker matches `speakers.english`, within ±3 lines;
+otherwise it is reported. Every snap and speech-mismatch is written to
+`build/stage1/english_report.json` (play, English line, Greek ref, both
+speakers).
 
-The Greek spine owns the speech/40-line segment cuts. The builder assigns each
-English line block to the segment that holds its resolved anchor and emits at
-most one English chunk for that segment. A segment with no English anchor has
-no chunk; stage7's id join leaves its `english` field null. The report records
+The Greek spine owns the speech/40-line segment cuts. The builder emits at
+most one English chunk per segment. A segment with no English is a hole:
+stage2 accepts it only when its id or printed ref is declared in
+`english.gaps`; any other unmatched id fails. stage7's id join leaves an
+undeclared hole's `english` field null. The report records
 `segments_with_chunk / segments_total` as the coverage ratio.
 
-Each source `<sp><speaker>` adds a raw, unremapped English turn at the offset
-where that speech starts. The report compares those display names with the
-Greek `speakers.sigla` roster and lists both sides of any mismatch.
+`speakers.english` maps each Perseus `<speaker>` string as printed onto the
+canonical roster display (`"(A Second Elder)"` → `Elder 2`). Emitted English
+turns carry `speaker` = canonical display (the colour key) and `display` =
+the printed English label. An unmapped English speaker is a hard error in
+stage7's roster gate.
 
 Smyth's Loeb `<note resp="Smyth">` nodes become inline `[^label]` markers and
-an emitted `footnotes.json` map. Labels use `{seqInPlay}.{raw}` so repeated
-printed note numbers stay unique. `<del>` text and display-only `<l n="0">`
-lines are dropped.
+an emitted `footnotes.json` map. Labels use `{seqInPlay}.{sanitised raw}` so
+repeated printed note numbers stay unique and hyphens become underscores
+(`69-71` → `1.69_71`). `english.primary.footnotes: true` is copied onto the
+emitted v1 `manifest.translations[]` entry. `<del>`, `<stage>`, and `<gap>`
+text is dropped; tails are kept. Display-only `<l n="0">` lines are dropped.
 
 Preflight reads `pipeline/drama_pipeline/public_domain_translations.yaml` and
-requires every declared `english.*.id` to occur in its positive allowlist. A
-missing or empty allowlist, or any unknown id, stops the build.
+requires every translation id stage7 can emit (primary / secondary / third /
+overlays / `column_sources` / `summary_overlay`) to occur in its positive
+allowlist. A `denied:` pattern list then rejects any of those translations
+whose id, name, translator, or source matches (O'Neill is denied even on an
+allowlisted id). A missing or empty allowlist, or any unknown id, stops the
+build.
 
 ## Printed-order ruling
 

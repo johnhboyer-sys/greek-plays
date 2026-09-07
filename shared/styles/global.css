@@ -3980,10 +3980,11 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   }
   .speaker-dash { color: #5a5248; font-variant-caps: normal; }
   /* Printed output stays neutral: the per-speaker screen colours (specificity
-     0,3,1 — they'd otherwise beat the plain .speaker rule even here) are reset
-     to the print ink colour. */
-  .turn-flow.spk-color .speaker[data-spk],
-  .turn-flow.spk-color .greek-col[data-spk] .speaker { color: #883529; }
+     0,4,1 — they'd otherwise beat the plain .speaker rule even here) are reset
+     to the print ink colour. Selector shape must match the screen rule
+     (:is(.turn-flow, .reader-body.play-line)) or play-line outranks this reset. */
+  :is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk],
+  :is(.turn-flow, .reader-body.play-line).spk-color .greek-col[data-spk] .speaker { color: #883529; }
 
   /* Masthead at the top of the first page: DM Mono author eyebrow, Bodoni Moda
      indigo title with the polytonic Greek title alongside, the source citation,

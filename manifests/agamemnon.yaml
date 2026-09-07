@@ -52,6 +52,9 @@ english:
     source: "perseus/tlg0085.tlg005.perseus-eng3.xml"
     anchor_model: sp-line
     footnotes: true
+  # Genuinely untranslated Greek speeches (filled after the P2b attachment
+  # pass). Segment ids or printed refs; any other unmatched id fails stage2.
+  gaps: []
 
 citation:
   scheme: play-line
@@ -100,6 +103,25 @@ speakers:
     "11.": "Elder 11"
     "12.": "Elder 12"
     "—": null
+
+  # Perseus <speaker> text as printed -> canonical roster display. The web
+  # lane keys colours on `speaker` and prints `display`.
+  english:
+    Watchman: Watchman
+    Chorus: Chorus
+    Clytaemestra: Clytaemestra
+    Clytaemnestra: Clytaemestra
+    Herald: Herald
+    Agamemnon: Agamemnon
+    Cassandra: Cassandra
+    Aegisthus: Aegisthus
+    "(One Elder)": "Elder 1"
+    "(A Second Elder)": "Elder 2"
+    "(A Third Elder)": "Elder 3"
+    "(A Fourth Elder)": "Elder 4"
+    "(Leader Of The Chorus)": Chorus
+    "Leader Of The Chorus": Chorus
+    "(ANOTHER ELDER)": "Elder 5"
 
 books:
   - { n: 1, start: "1", end: "1673" }

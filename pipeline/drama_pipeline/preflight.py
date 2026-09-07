@@ -2424,17 +2424,76 @@ def load_public_domain_allowlist(path: Path | None = None) -> dict[str, dict[str
     return allowed
 
 
+def load_public_domain_denylist(
+    path: Path | None = None,
+) -> list[tuple[re.Pattern[str], str]]:
+    """Load fail-closed denial patterns (O'Neill, etc.) from the allowlist file."""
+    if path is None:
+        override = os.environ.get("DRAMA_PUBLIC_DOMAIN_ALLOWLIST")
+        path = Path(override) if override else PUBLIC_DOMAIN_ALLOWLIST_PATH
+    if not path.is_file():
+        raise ValueError(f"public-domain allowlist missing: {path}")
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError("public-domain allowlist root must be an object")
+    denied = raw.get("denied")
+    if denied is None:
+        return []
+    if not isinstance(denied, list):
+        raise ValueError("public-domain allowlist denied must be a list")
+    compiled: list[tuple[re.Pattern[str], str]] = []
+    for index, item in enumerate(denied):
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"public-domain allowlist denied[{index}] must be an object"
+            )
+        pattern = item.get("pattern")
+        note = item.get("note")
+        if not isinstance(pattern, str) or not pattern:
+            raise ValueError(
+                f"public-domain allowlist denied[{index}].pattern must be a "
+                "non-empty string"
+            )
+        if not isinstance(note, str) or not note:
+            raise ValueError(
+                f"public-domain allowlist denied[{index}].note must be a "
+                "non-empty string"
+            )
+        compiled.append((re.compile(pattern, re.IGNORECASE), note))
+    return compiled
+
+
 def manifest_translation_ids(data: dict[str, Any]) -> list[tuple[str, str]]:
     """Return every declared ``english`` slot and its translation id."""
+    return [(slot, entry["id"]) for slot, entry in manifest_emitted_translations(data)]
+
+
+def manifest_emitted_translations(data: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    """Every translation stage7 can emit, with the fields the denylist scans."""
     english = data.get("english") if isinstance(data.get("english"), dict) else {}
-    found: list[tuple[str, str]] = []
+    found: list[tuple[str, dict[str, Any]]] = []
     for slot in ("primary", "secondary", "third"):
         entry = english.get(slot)
         if isinstance(entry, dict) and isinstance(entry.get("id"), str) and entry["id"]:
-            found.append((slot, entry["id"]))
+            found.append((slot, entry))
     for entry in english.get("overlays") or []:
         if isinstance(entry, dict) and isinstance(entry.get("id"), str) and entry["id"]:
-            found.append((f"overlay:{entry['id']}", entry["id"]))
+            found.append((f"overlay:{entry['id']}", entry))
+    summary = english.get("summary_overlay")
+    if isinstance(summary, dict) and isinstance(summary.get("id"), str) and summary["id"]:
+        found.append(("summary_overlay", summary))
+    for entry in english.get("column_sources") or []:
+        if not isinstance(entry, dict) or not entry.get("file"):
+            continue
+        source_id = Path(str(entry["file"])).name.split(".")[0]
+        credit = entry.get("credit") if isinstance(entry.get("credit"), dict) else {}
+        synthesized = {
+            "id": source_id,
+            "name": credit.get("translator") or source_id,
+            "translator": credit.get("translator"),
+            "source": credit.get("source") or entry.get("file"),
+        }
+        found.append((f"column:{entry.get('column') or source_id}", synthesized))
     return found
 
 
@@ -2448,10 +2507,12 @@ def _validate_public_domain_allowlist(
     label = (allowlist_path or PUBLIC_DOMAIN_ALLOWLIST_PATH).name
     try:
         allowed = load_public_domain_allowlist(allowlist_path)
+        denied = load_public_domain_denylist(allowlist_path)
     except Exception as exc:
         problems.append((manifest.work_id, label, str(exc)))
         return
-    for slot, translation_id in manifest_translation_ids(manifest.data):
+    for slot, entry in manifest_emitted_translations(manifest.data):
+        translation_id = entry.get("id")
         if translation_id not in allowed:
             problems.append(
                 (
@@ -2461,6 +2522,33 @@ def _validate_public_domain_allowlist(
                     "public-domain allowlist",
                 )
             )
+        fields = [
+            entry.get("id"),
+            entry.get("name"),
+            entry.get("translator"),
+            entry.get("source"),
+        ]
+        allowed_entry = allowed.get(translation_id) if isinstance(translation_id, str) else None
+        if isinstance(allowed_entry, dict):
+            fields.extend(
+                [
+                    allowed_entry.get("id"),
+                    allowed_entry.get("translator"),
+                ]
+            )
+        scanned = [value for value in fields if isinstance(value, str) and value]
+        for pattern, note in denied:
+            hit = next((value for value in scanned if pattern.search(value)), None)
+            if hit is not None:
+                problems.append(
+                    (
+                        manifest.work_id,
+                        manifest.path.name,
+                        f"translation {translation_id!r} ({slot}) is denied "
+                        f"({note}); matched {hit!r}",
+                    )
+                )
+                break
 
 
 def _omitted_translation_slots(private: dict[str, Any], public: dict[str, Any]) -> set[str]:

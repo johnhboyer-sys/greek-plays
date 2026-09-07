@@ -1141,7 +1141,7 @@
     // the marker the wrapper just holds the marker alone (no worse than
     // before).
     return highlightEng(text).replace(
-      /([^\s<>&]*)\[\^([\w.*†]+)\]/g,
+      /([^\s<>&]*)\[\^([\w._*†]+)\]/g,
       (_m, lead: string, label: string) => {
         const display = fnDisplay(label);
         return `<span class="fn-anchor">${lead}<button type="button" class="fn-marker" data-fn="${label}" data-fn-trans="${transId}" aria-label="Footnote ${display}">${display}</button></span>`;
@@ -3198,6 +3198,27 @@
     {/if}
   {/snippet}
 
+  <!-- Play-line unpaired-dialogue English: printed lead-in, colour keyed
+       on canonical `speaker` (fallback: `display`); footnotes via renderThird. -->
+  {#snippet playEngTurns(seg: Segment, transId: string)}
+    <div
+      class="overlay-prose turn-eng turn-stack"
+      on:mouseover={onFootnoteOver}
+      on:mouseout={onFootnoteOut}
+      on:focus={onFootnoteFocus}
+      on:blur={onFootnoteBlur}
+      on:focusin={onFootnoteFocus}
+      on:focusout={onFootnoteBlur}
+      on:click={onFootnoteClick}
+      on:keydown={onFootnoteClick}
+      role="presentation"
+    >
+      {#each englishTurnBlocks(seg) as b}
+        <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)}>{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
+      {/each}
+    </div>
+  {/snippet}
+
   <!-- The turn flow of a dialogue book: one row per speaker turn, the whole
        book long — each speaker's Greek statement level with its English
        translation (Tier-0 alignment). Stephanus sections are gutter TICKS, not
@@ -4102,11 +4123,7 @@
                      the leading pre-turn continuation an unlabeled block. Block
                      boundaries, not inline splices, so a label can never butt
                      against the previous sentence. -->
-                <div class="overlay-prose turn-eng turn-stack">
-                  {#each englishTurnBlocks(seg) as b}
-                    <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker">{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html highlightEng(b.text)}</p>
-                  {/each}
-                </div>
+                {@render playEngTurns(seg, trans === 'compare' ? compareLeft : segTransId)}
               {:else}
               {@render transFlow(block, trans === 'compare' ? compareLeft : segTransId, seg.kind, sectionFlow ? seg.column : undefined)}
               {/if}
@@ -4321,7 +4338,11 @@
                 {#if seg.english?.title && compareRight === engSlot?.id && (busse || verseLine)}
                   <div class="overlay-chapter-title eng-chapter-title">{seg.english.title}</div>
                 {/if}
+                {#if isUnpairedDialogue(seg)}
+                  {@render playEngTurns(seg, compareRight)}
+                {:else}
                 {@render transFlow(block, compareRight, seg.kind)}
+                {/if}
                 <!-- The primary chunk's own per-passage credit travels with
                      its text into the right compare column too: a licensed
                      translation may never render uncredited, whichever

@@ -583,8 +583,8 @@ describe('buildEnglishTurnBlocks — fallback English turn stack', () => {
     const turns = [turn(0, 'Euthyphro', 'Euthyphro.'), turn(33, 'Socrates', 'Socrates.')];
     const blocks = buildEnglishTurnBlocks(text, turns);
     expect(blocks).toEqual([
-      { lead: false, display: 'Euthyphro.', text: 'What is new? Nothing, as I have.' },
-      { lead: false, display: 'Socrates.', text: 'Our Athenians differ.' },
+      { lead: false, display: 'Euthyphro.', speaker: 'Euthyphro', text: 'What is new? Nothing, as I have.' },
+      { lead: false, display: 'Socrates.', speaker: 'Socrates', text: 'Our Athenians differ.' },
     ]);
   });
 
@@ -593,14 +593,14 @@ describe('buildEnglishTurnBlocks — fallback English turn stack', () => {
     const turns = [turn(27, 'Socrates', 'Soc.')];
     const blocks = buildEnglishTurnBlocks(text, turns);
     expect(blocks).toEqual([
-      { lead: true, display: null, text: 'tail of an earlier speech.' },
-      { lead: false, display: 'Soc.', text: 'A new turn.' },
+      { lead: true, display: null, speaker: null, text: 'tail of an earlier speech.' },
+      { lead: false, display: 'Soc.', speaker: 'Socrates', text: 'A new turn.' },
     ]);
   });
 
   it('omits an empty leading block when the first turn opens the chunk', () => {
     const blocks = buildEnglishTurnBlocks('Speech.', [turn(0, 'Socrates', 'Soc.')]);
-    expect(blocks).toEqual([{ lead: false, display: 'Soc.', text: 'Speech.' }]);
+    expect(blocks).toEqual([{ lead: false, display: 'Soc.', speaker: 'Socrates', text: 'Speech.' }]);
   });
 
   it('an unattributed turn keeps a null display (renders as an em-dash block)', () => {
@@ -619,13 +619,31 @@ describe('buildEnglishTurnBlocks — fallback English turn stack', () => {
       turn(0, null, null),
       turn(0, 'Socrates', 'Soc.'),
     ]);
-    expect(blocks).toEqual([{ lead: false, display: 'Soc.', text: 'Speech.' }]);
+    expect(blocks).toEqual([{ lead: false, display: 'Soc.', speaker: 'Socrates', text: 'Speech.' }]);
   });
 
   it('a chunk with no turns is a single unlabeled block (plain prose)', () => {
     expect(buildEnglishTurnBlocks('Just prose.', [])).toEqual([
-      { lead: true, display: null, text: 'Just prose.' },
+      { lead: true, display: null, speaker: null, text: 'Just prose.' },
     ]);
+  });
+
+  it('carries the canonical speaker onto each block (the colour key)', () => {
+    const blocks = buildEnglishTurnBlocks('I see. We see.', [
+      turn(0, 'Watchman', 'WATCHMAN'),
+      turn(7, 'Chorus', 'CHORUS'),
+    ]);
+    expect(blocks.map((b) => b.speaker)).toEqual(['Watchman', 'Chorus']);
+    expect(blocks.map((b) => b.display)).toEqual(['WATCHMAN', 'CHORUS']);
+  });
+
+  it('older data lacking speaker yields null on the block', () => {
+    const blocks = buildEnglishTurnBlocks('I see.', [
+      { offset: 0, display: 'WATCHMAN' } as EnglishTurn,
+    ]);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].speaker).toBeNull();
+    expect(blocks[0].display).toBe('WATCHMAN');
   });
 });
 

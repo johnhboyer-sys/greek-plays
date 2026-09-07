@@ -1,7 +1,7 @@
 import { render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
-import type { BookData } from '../lib/data';
+import type { BookData, EnglishTurn } from '../lib/data';
 import type { Work } from '../lib/works';
 
 // Reader-layer acceptance for P1 (docs/p1-probe.md): a play-line segment's
@@ -18,7 +18,7 @@ vi.mock('../lib/works', async (importOriginal) => {
       id: 'PLAYLINE', title: 'Fixture Play', abbr: 'Fix.', author: 'Test',
       language: 'grc', workType: 'verse', books: 1, bookLabels: ['1'],
       greekEdition: 'Test edition', greekSource: { short: 'Test', full: 'Test edition, full.' },
-      translations: [],
+      translations: [{ id: 'smyth', name: 'Test Translator (Test, 1926)', short: 'Smyth', slot: 'english', footnotes: true }],
       citation: { scheme: 'play-line', copyAbbr: 'Fix.' },
       blurb: 'Fixture for play-line Reader tests.',
     },
@@ -144,5 +144,79 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     expect(lacuna!.hasAttribute('id')).toBe(false);
     expect(lacuna!.classList.contains('target')).toBe(false);
     expect(container.querySelector('#Lpost_107-8')).toBeNull();
+  });
+
+  it('keys Greek and English lead-ins by the same canonical speaker', async () => {
+    const data = book();
+    data.segments = [{
+      id: '1:1',
+      column: '1',
+      greek: [
+        { n: 1, text: 'πρῶτος λόγος', tokens: [{ t: 'πρῶτος', o: 0, k: 'prwtos' }], ref: '1' },
+      ],
+      speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+      english: {
+        text: 'I pray the gods deliver me.',
+        notes: [],
+        markers: [],
+        turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+      },
+    }];
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const greek = container.querySelector('.greek-line .speaker');
+    const english = container.querySelector('.english-col .speaker');
+    expect(greek?.textContent).toBe('ΦΥΛΑΞ');
+    expect(english?.textContent).toBe('WATCHMAN');
+    expect(greek?.getAttribute('data-spk')).toBeTruthy();
+    expect(english?.getAttribute('data-spk')).toBe(greek?.getAttribute('data-spk'));
+  });
+
+  it('falls back to the printed display when an English turn lacks speaker', async () => {
+    const data = book();
+    data.segments = [{
+      id: '1:1',
+      column: '1',
+      greek: [
+        { n: 1, text: 'πρῶτος λόγος', tokens: [{ t: 'πρῶτος', o: 0, k: 'prwtos' }], ref: '1' },
+      ],
+      speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+      english: {
+        text: 'I pray the gods deliver me.',
+        notes: [],
+        markers: [],
+        turns: [{ offset: 0, display: 'Watchman' } as EnglishTurn],
+      },
+    }];
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const greek = container.querySelector('.greek-line .speaker');
+    const english = container.querySelector('.english-col .speaker');
+    expect(english?.textContent).toBe('Watchman');
+    expect(english?.getAttribute('data-spk')).toBe(greek?.getAttribute('data-spk'));
+  });
+
+  it('renders a play-line English [^3.69_71] marker as a footnote control', async () => {
+    const data = book();
+    data.segments = [{
+      id: '1:1',
+      column: '1',
+      greek: [
+        { n: 1, text: 'πρῶτος λόγος', tokens: [{ t: 'πρῶτος', o: 0, k: 'prwtos' }], ref: '1' },
+      ],
+      speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+      english: {
+        text: 'I pray the gods [^3.69_71] deliver me.',
+        notes: [],
+        markers: [],
+        turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+      },
+    }];
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const marker = container.querySelector('.fn-marker');
+    expect(marker).toBeTruthy();
+    expect(marker!.tagName).toBe('BUTTON');
+    expect(marker!.getAttribute('data-fn')).toBe('3.69_71');
   });
 });

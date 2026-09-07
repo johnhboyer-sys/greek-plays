@@ -496,10 +496,16 @@ export function labelSuppression(rows: readonly FlowRow[]): RowLabelMeta[] {
 // One block of a fallback English stack. `lead` marks the unlabeled leading
 // block (text before the first turn — the tail of a speech begun in an earlier
 // section); `display` is the printed lead-in, null for an unattributed turn
-// (rendered as an em-dash, mirroring the Greek dash).
+// (rendered as an em-dash, mirroring the Greek dash); `speaker` is the
+// canonical roster display (the colour key — same string as the Greek
+// roster entry for that character), null when the turn carries none (older
+// data, or an unattributed turn) — callers fall back to `display` for the
+// `spkSlots` lookup so play-line English gets the same data-spk as the
+// Greek lead-in of that character.
 export interface EnglishTurnBlock {
   lead: boolean;
   display: string | null;
+  speaker: string | null;
   text: string;
 }
 
@@ -507,10 +513,10 @@ export function buildEnglishTurnBlocks(
   text: string,
   turns: readonly EnglishTurn[],
 ): EnglishTurnBlock[] {
-  if (!turns.length) return [{ lead: true, display: null, text }];
+  if (!turns.length) return [{ lead: true, display: null, speaker: null, text }];
   const blocks: EnglishTurnBlock[] = [];
   const lead = text.slice(0, turns[0].offset).trim();
-  if (lead) blocks.push({ lead: true, display: null, text: lead });
+  if (lead) blocks.push({ lead: true, display: null, speaker: null, text: lead });
   for (let i = 0; i < turns.length; i += 1) {
     const end = i + 1 < turns.length ? turns[i + 1].offset : text.length;
     const t = text.slice(turns[i].offset, end).trim();
@@ -519,7 +525,7 @@ export function buildEnglishTurnBlocks(
     // as a bare em-dash paragraph — drop it. A labeled turn keeps its block
     // even when empty, so the attribution itself is never lost.
     if (!t && turns[i].display == null) continue;
-    blocks.push({ lead: false, display: turns[i].display, text: t });
+    blocks.push({ lead: false, display: turns[i].display, speaker: turns[i].speaker ?? null, text: t });
   }
   return blocks;
 }

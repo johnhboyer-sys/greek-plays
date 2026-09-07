@@ -85,6 +85,55 @@ def _summary_suppressed_segment_ids(manifest: Manifest, segments: list[dict]) ->
     return {seg["id"] for seg in segments if seg["column"] in columns}
 
 
+def _play_line_english_gap_ids(manifest: Manifest, segments: list[dict]) -> set[str]:
+    """Segment ids declared in ``english.gaps`` (ids or printed linerefs)."""
+    declared = (manifest.data.get("english") or {}).get("gaps")
+    if not isinstance(declared, list) or not declared:
+        return set()
+    by_id = {seg["id"] for seg in segments}
+    by_ref: dict[str, str] = {}
+    for seg in segments:
+        for line in seg.get("lines") or []:
+            ref = line.get("ref")
+            if isinstance(ref, str) and ref:
+                by_ref.setdefault(ref, seg["id"])
+    allowed: set[str] = set()
+    for item in declared:
+        if item is None:
+            continue
+        token = str(item).strip()
+        if not token:
+            continue
+        if token in by_id:
+            allowed.add(token)
+            continue
+        if token in by_ref:
+            allowed.add(by_ref[token])
+            continue
+        # A bare printed number that a range/suffix line covers.
+        if token.isdigit():
+            n = int(token)
+            for seg in segments:
+                for line in seg.get("lines") or []:
+                    ref = line.get("ref")
+                    if not isinstance(ref, str):
+                        continue
+                    if ref == token or ref.startswith("post ") and ref[5:] == token:
+                        allowed.add(seg["id"])
+                        break
+                    if "-" in ref:
+                        start, end = ref.split("-", 1)
+                        if start.isdigit() and end.isdigit() and int(start) <= n <= int(end):
+                            allowed.add(seg["id"])
+                            break
+                    if len(ref) > 1 and ref[:-1] == token and ref[-1:].isalpha():
+                        allowed.add(seg["id"])
+                        break
+            continue
+        allowed.add(token)
+    return allowed
+
+
 def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) -> dict:
     report: dict = {"checks": {}}
     segments = spine["segments"]
@@ -337,10 +386,9 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         ((manifest.data.get("english") or {}).get("primary") or {}).get("model")
     )
     if sch.play_line_scheme and primary_model == "perseus-play":
-        # This source model has real anchors but no invented fill. A Greek
-        # segment that receives no anchor is an expected sparse row, not an
-        # edition-gap declaration the manifest must copy by hand.
-        allowed.update(unmatched)
+        # perseus-play is sparse by design, but a hole is only legal when the
+        # manifest names it in english.gaps (segment ids or printed refs).
+        allowed.update(_play_line_english_gap_ids(manifest, segments))
     # A column the manifest's own citation.kind_overrides declares `omit`
     # is ALSO a legitimate unmatched column (see _omit_declared_segment_ids)
     # -- derived from the SAME declaration stage1 already enforces, not a

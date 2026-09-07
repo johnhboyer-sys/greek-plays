@@ -119,6 +119,37 @@ def _canonicalize_play_line_speakers(
     return dict(rosters)
 
 
+def _play_line_english_roster_gate(
+    work_id: str,
+    english: dict,
+    aliases: dict[str, str],
+    greek_displays: set[str],
+) -> None:
+    """Fail the build on an unmapped Perseus speaker or a name off the roster."""
+    printed_unmapped = sorted({
+        turn.get("display")
+        for chunk in english.get("chunks", [])
+        for turn in chunk.get("turns", [])
+        if turn.get("display") and turn.get("display") not in aliases
+    })
+    if printed_unmapped:
+        raise RuntimeError(
+            f"{work_id}: unmapped English speaker(s) {printed_unmapped}; "
+            "add each Perseus <speaker> string to speakers.english"
+        )
+    extra = sorted({
+        turn.get("speaker")
+        for chunk in english.get("chunks", [])
+        for turn in chunk.get("turns", [])
+        if turn.get("speaker") and turn.get("speaker") not in greek_displays
+    })
+    if extra:
+        raise RuntimeError(
+            f"{work_id}: English speaker(s) {extra} are not on the Greek "
+            "speaker roster"
+        )
+
+
 def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
     """Build the versioned contract fields added to the legacy manifest."""
     work = manifest.data["work"]
@@ -139,6 +170,7 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
             "default": slot == "primary",
             **({"alignment": entry["model"]} if entry.get("model") else {}),
             "license": entry.get("license") or {"status": "unverified"},
+            **({"footnotes": True} if entry.get("footnotes") else {}),
         })
     for entry in english.get("overlays") or []:
         translations.append({
@@ -148,6 +180,7 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
             "default": False,
             **({"alignment": entry["model"]} if entry.get("model") else {}),
             "license": entry.get("license") or {"status": "unverified"},
+            **({"footnotes": True} if entry.get("footnotes") else {}),
         })
     # Freeman-style summary overlay (Sol review finding 4, folded into P2
     # stage 5): a manifest's `english.summary_overlay` ({id, columns}) is a
@@ -1134,22 +1167,23 @@ def run(manifest: Manifest) -> Path:
     sch = scheme_mod.for_manifest(manifest)
     if sch.play_line_scheme:
         speaker_rosters = _canonicalize_play_line_speakers(spine, manifest)
-        english_displays = {
-            turn.get("display")
-            for chunk in english.get("chunks", [])
-            for turn in chunk.get("turns", [])
-            if turn.get("display")
-        }
         greek_displays = {
             display
             for roster in speaker_rosters.values()
             for display in roster
         }
-        if english_displays != greek_displays:
-            print(
-                "  stage7 WARNING: English turn displays differ from the Greek "
-                f"speaker roster; English-only={sorted(english_displays - greek_displays)} "
-                f"Greek-only={sorted(greek_displays - english_displays)}"
+        if english.get("chunks"):
+            speakers_block = manifest.data.get("speakers")
+            aliases = (
+                speakers_block.get("english") if isinstance(speakers_block, dict) else None
+            )
+            if not isinstance(aliases, dict):
+                raise RuntimeError(
+                    f"{manifest.work_id}: speakers.english is required for a "
+                    "play-line work with English"
+                )
+            _play_line_english_roster_gate(
+                manifest.work_id, english, aliases, greek_displays
             )
     if sch.has_sections:
         from . import turns as turns_mod

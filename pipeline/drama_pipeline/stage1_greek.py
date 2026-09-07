@@ -1112,8 +1112,13 @@ def _parse_flat_chapter(tree, sch, manifest=None, xml_path=None) -> tuple[list[d
 # speaker siglum that happens to share the letters — "Στρ." (Strophius, or
 # any editor's capitalised abbreviation) must stay a speaker. The Latin forms
 # are the exact capitalised abbreviations Dain–Mazon and Coulon print.
+# "ἐπῳδός" (Persians 673, 899, 1066) is Murray's bracketed epode marker
+# spelled out as the full inflected nominative rather than abbreviated
+# "ἐπῳδ." — the bare "ἐπῳδ" alternative's \b fails right after "δ" because
+# "ός" continues the word, so the literal inflected form is listed first
+# (P2-Greek, docs/p2-greek-report.md).
 _PLAY_LINE_STROPHE_RE = re.compile(
-    r"^\[?(στρ|ἀντ|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)\b"
+    r"^\[?(στρ|ἀντ|ἐπῳδός|ἐπῳδ|μεσῳδ|ἐφυμν|ἐφ|Str|Ant|Ep|Epode)\b"
 )
 # The one malformed shape observed corpus-wide (docs/p1-probe.md): a strophe
 # mark glued to a speaker siglum inside ONE <label> element ("[ἀντ. α. Αν."
