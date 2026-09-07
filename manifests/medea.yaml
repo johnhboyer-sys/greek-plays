@@ -25,9 +25,7 @@ english:
     source: "perseus/tlg0006.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
-  gaps:
-    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
-    - "1:1270a"
+  gaps: []
 
 citation:
   scheme: play-line

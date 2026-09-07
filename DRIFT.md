@@ -334,3 +334,34 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   `speaker` onto blocks.
 - `shared/__tests__/reader-play-line.test.ts` — play-line English/Greek
   data-spk parity, display fallback, underscore footnote control.
+
+## P3 bench — Storr Antigone secondary (2026-09-07)
+
+- `pipeline/drama_pipeline/bench_clean.py` (new) — Loeb facing-page OCR
+  cleaner: locate play by title/next heading, drop Greek pages (ratio > 0.3),
+  strip running heads/page numbers/line numbers, rejoin hyphens, fold own-line
+  caps names into `NAME. text`.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — `format: loeb-ocr` and
+  `run(..., slot="secondary")` writing `ross_chunks.json` as overlay pieces.
+- `pipeline/drama_pipeline/__main__.py` — play-line `english.secondary` with
+  `model: turn-text` dispatches the same builder.
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — `storr` note
+  names the 1912 Sophocles Loeb.
+- `pipeline/tests/test_bench_clean.py` (new), `test_stage1_turn_english.py`
+  — loeb-ocr parse, overlay prefix, secondary `ross_chunks.json`.
+- `docs/bench.md` (new) — cleaner recipe and per-play checklist.
+
+## P2c — English line-owner attachment (2026-09-07)
+
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — attach each
+  `<l n>` to the Greek segment that owns that printed number, even on
+  speaker mismatch; split a multi-n English `<sp>` across those segments
+  (span-fill intervening speeches); keep speech-scoped snaps for anchors
+  absent from the spine.
+- `pipeline/drama_pipeline/stage2_validate.py` — lacuna auto-allow requires
+  empty text; `_play_line_twin_segment_ids` allows repeated-ref seconds
+  and lettered twins without a declared gap.
+- `pipeline/tests/test_stage1_perseus_play_english.py` — line-owner split,
+  span-fill, Cassandra 1077 on the line owner, twin validate().
+- `pipeline/tests/test_scheme_play_line.py` — lacuna empty-text through
+  `validate()`, mixed segment fails, twin id helper.

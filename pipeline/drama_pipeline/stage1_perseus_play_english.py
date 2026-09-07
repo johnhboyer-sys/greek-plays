@@ -3,11 +3,18 @@
 The TEI is parsed into speeches (``<sp>``), then into slices.  A speakerless
 speech, or one that contains ``<milestone unit="para"/>``, is split at each
 para milestone and at a leading em-dash so packed elders (Ag. 1348–1371)
-become one slice per utterance.  Each slice attaches to the Greek segment
-whose speech span contains the slice's anchor line.  An anchor absent from
-the spine snaps only onto another line of the same English speech; a line
-that sits inside a different speaker's Greek speech reattaches to the
-nearest matching-speaker speech within ±3 lines, or is reported.
+become one slice per utterance.
+
+P2c line-owner rule: a slice whose ``<l n>`` sits on the spine attaches to
+the Greek segment that owns that printed number, even when the English
+speaker differs from the Greek speaker — but only when the same English
+``<sp>`` has anchors in more than one Greek segment (the translator ran
+several Greek speeches together).  Each of those segments gets its own
+chunk carrying the English speech's turn ``{offset:0, speaker, display}``.
+An anchor absent from the spine still snaps only onto another line of the
+same English speech.  A single-speech ``<sp>`` whose only ``<l n>`` sits
+inside a different speaker's Greek speech still reattaches to the nearest
+matching-speaker speech within ±3 lines (Cassandra/Chorus Ag. 1077).
 """
 
 from __future__ import annotations
@@ -397,37 +404,19 @@ def _resolve_slice_anchor(
     if hit is not None:
         segment, ref = hit
         greek_speaker = index.speaker_of.get(segment["id"])
+        mismatch = None
         if speaker and greek_speaker and speaker != greek_speaker:
             mismatch = _speakers_row(work_id, n, ref, printed, speaker, greek_speaker)
-            alt = index.nearest_matching_speech(
-                n, speaker, window=3, claimed=claimed
-            ) or index.nearest_matching_speech(
-                n, speaker, window=12, claimed=claimed
-            )
-            if alt is None:
-                mismatch["attached_to"] = None
-                return {"attached": False, "mismatch": mismatch}
-            alt_seg, alt_ref = alt
-            mismatch["attached_to"] = alt_seg["id"]
-            mismatch["attached_ref"] = alt_ref
-            mismatch["attached_speaker"] = index.speaker_of.get(alt_seg["id"])
-            numbers = index.span.get(alt_seg["id"]) or {n}
-            tick = n if n in numbers else min(numbers, key=lambda line: (abs(line - n), line))
-            return {
-                "attached": True,
-                "tick": tick,
-                "ref": alt_ref,
-                "segment": alt_seg,
-                "snap": None,
-                "mismatch": mismatch,
-            }
+            mismatch["attached_to"] = segment["id"]
+            mismatch["attached_ref"] = ref
+            mismatch["attached_speaker"] = greek_speaker
         return {
             "attached": True,
             "tick": n,
             "ref": ref,
             "segment": segment,
             "snap": None,
-            "mismatch": None,
+            "mismatch": mismatch,
         }
 
     own_hits = [line for line in speech_ns if line != n and index.on_spine(line)]
@@ -545,7 +534,7 @@ def parse_translation(
             mismatches.append(mismatch)
         if snap:
             snaps.append(snap)
-        turn_key = (job["sp_index"], job["printed"])
+        turn_key = (job["sp_index"], job["printed"], segment["id"])
         already = turn_key in turns_emitted
         append_text(
             segment,
@@ -584,6 +573,12 @@ def parse_translation(
         speech_ns = [
             n for sl in slices for n, _part in sl.pieces if n is not None
         ]
+        owner_ids = set()
+        for line_n in speech_ns:
+            owned = index.segment_for_line(line_n)
+            if owned is not None:
+                owner_ids.add(owned[0]["id"])
+        multi_span = len(owner_ids) > 1
         for sl in slices:
             n = sl.first_n()
             if n is None:
@@ -599,6 +594,7 @@ def parse_translation(
                         "speech_ns": speech_ns,
                         "sp_index": sp_index,
                         "speakerless": not printed,
+                        "multi_span": multi_span,
                     }
                 )
                 continue
@@ -615,6 +611,7 @@ def parse_translation(
                         "speech_ns": speech_ns,
                         "sp_index": sp_index,
                         "speakerless": not printed,
+                        "multi_span": multi_span,
                     }
                 )
 
@@ -634,12 +631,18 @@ def parse_translation(
         hit = index.segment_for_line(n)
         if hit is None:
             continue
-        segment, _ref = hit
+        segment, ref = hit
         greek_speaker = index.speaker_of.get(segment["id"])
         speaker = job["canonical"]
+        mismatch = None
         if speaker and greek_speaker and speaker != greek_speaker:
-            continue
-        commit_job(job, segment, n)
+            mismatch = _speakers_row(
+                work_id, n, ref, job["printed"], speaker, greek_speaker
+            )
+            mismatch["attached_to"] = segment["id"]
+            mismatch["attached_ref"] = ref
+            mismatch["attached_speaker"] = greek_speaker
+        commit_job(job, segment, n, mismatch=mismatch)
 
     prev_assigned: dict[int, str] = {}
     for job in jobs:
@@ -732,6 +735,66 @@ def parse_translation(
             mismatch=result.get("mismatch"),
         )
         prev_assigned[job["sp_index"]] = job["assigned"]
+
+    # P2c span-fill: one English <sp> whose <l n> anchors fall in more than
+    # one Greek segment covers [min_n, max_n]. An empty Greek segment whose
+    # lines sit in that range gets the nearest preceding numbered piece
+    # (Smyth numbers every fifth lyric line; the intervening Greek speeches
+    # still own those printed numbers).
+    jobs_by_sp: dict[int, list[dict]] = {}
+    for job in jobs:
+        jobs_by_sp.setdefault(job["sp_index"], []).append(job)
+    for speech_jobs in jobs_by_sp.values():
+        if not speech_jobs[0].get("multi_span"):
+            continue
+        numbered = [
+            j for j in speech_jobs if j.get("n") is not None and j.get("text")
+        ]
+        if len(numbered) < 2:
+            continue
+        numbered.sort(key=lambda j: j["n"])
+        min_n = numbered[0]["n"]
+        max_n = numbered[-1]["n"]
+        next_n = None
+        for other in jobs:
+            n = other.get("n")
+            if n is not None and n > max_n and (next_n is None or n < next_n):
+                next_n = n
+        # Smyth numbers lyric every fifth line; cover the short remainder
+        # before the next English <l n> so 105..108 is not a hole when
+        # the next speech starts at 109.
+        cover_max = max_n
+        if next_n is not None and next_n - max_n <= 6:
+            cover_max = next_n - 1
+        printed = speech_jobs[0]["printed"]
+        canonical = speech_jobs[0]["canonical"]
+        for segment in index.segments:
+            if segment["id"] in chunks_by_id:
+                continue
+            nums = index.span.get(segment["id"]) or set()
+            overlap = [k for k in nums if min_n <= k <= cover_max]
+            if not overlap:
+                continue
+            target = min(overlap)
+            chosen = numbered[0]
+            for j in numbered:
+                if j["n"] <= target:
+                    chosen = j
+                else:
+                    break
+            tick = target if target in nums else min(nums)
+            ref = index.closest_ref(segment, tick)
+            greek_speaker = index.speaker_of.get(segment["id"])
+            mismatch = None
+            if canonical and greek_speaker and canonical != greek_speaker:
+                mismatch = _speakers_row(
+                    work_id, chosen["n"], ref, printed, canonical, greek_speaker
+                )
+                mismatch["attached_to"] = segment["id"]
+                mismatch["attached_ref"] = ref
+                mismatch["attached_speaker"] = greek_speaker
+                mismatch["kind"] = "span_fill"
+            commit_job(chosen, segment, tick, mismatch=mismatch)
 
     chunks = [
         chunks_by_id[segment["id"]]

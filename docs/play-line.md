@@ -30,21 +30,32 @@ TEI. Under `anchor_model: sp-line` the builder parses each `<sp>` into
 speeches, then into slices. A speakerless `<sp>`, or one that contains
 `<milestone unit="para"/>`, is split at every para milestone and at a
 leading em-dash (the packed elders at Ag. 1348–1371 become twelve slices).
-Each slice attaches to the Greek segment whose speech span contains the
-slice's anchor line (plain `1234`, suffix `47a`, range `106-107`, `post 146`).
-An anchor absent from the spine snaps only onto another line of the same
-English speech, never into a neighbouring speech. A `<l n>` that names a
-line inside a different speaker's Greek speech reattaches to the nearest
-Greek speech whose speaker matches `speakers.english`, within ±3 lines;
-otherwise it is reported. Every snap and speech-mismatch is written to
-`build/stage1/english_report.json` (play, English line, Greek ref, both
-speakers).
+Each slice attaches to the Greek segment that owns the printed `<l n>`
+(line-owner attachment: plain `1234`, suffix `47a`, range `106-107`,
+`post 146`), even when the English speaker differs from the Greek speaker.
+When one English `<sp>` has `<l n>` anchors in more than one Greek segment,
+the builder splits it at those line numbers and emits one chunk per Greek
+segment, each carrying the turn `{offset:0, speaker, display}` of the
+English speech it came from. A Greek segment whose lines sit between two
+of those anchors, with no `<l n>` of its own, receives the nearest
+preceding numbered piece (Smyth numbers lyric every fifth line). An
+anchor absent from the spine snaps only onto another line of the same
+English speech, never into a neighbouring speech. A `<l n>` that sits
+inside a different speaker's Greek speech still attaches to that line's
+owner (Cassandra/Chorus Ag. 1077); the mismatch is reported, not
+redirected. Every snap and
+speech-mismatch is written to `build/stage1/english_report.json` (play,
+English line, Greek ref, both speakers).
 
 The Greek spine owns the speech/40-line segment cuts. The builder emits at
 most one English chunk per segment. A segment with no English is a hole:
 stage2 accepts it only when its id or printed ref is declared in
-`english.gaps`; any other unmatched id fails. stage7's id join leaves an
-undeclared hole's `english` field null. The report records
+`english.gaps`, or when it is a lacuna-only empty-text segment
+(`_play_line_lacuna_segment_ids`) or a repeated-ref second copy / lettered
+twin (`_play_line_twin_segment_ids`). `english.gaps` is only for Greek
+speeches whose line numbers have no covering `<l n>` in the TEI at all.
+Any other unmatched id fails. stage7's id join leaves an undeclared hole's
+`english` field null. The report records
 `segments_with_chunk / segments_total` as the coverage ratio.
 
 `speakers.english` maps each Perseus `<speaker>` string as printed onto the

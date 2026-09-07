@@ -93,6 +93,26 @@ def _stage1(manifest):
         else:
             for scratch in ("english_chunks.json", "alignment.json"):
                 (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
+        secondary = ((manifest.data.get("english") or {}).get("secondary") or {})
+        if secondary:
+            sec_model = secondary.get("model")
+            if sec_model == "turn-text":
+                from . import stage1_turn_english
+
+                _sec_eng, _sec_align, sec_report_path = stage1_turn_english.run(
+                    manifest, spine, slot="secondary"
+                )
+                sec_report = json.loads(sec_report_path.read_text(encoding="utf-8"))
+                print(
+                    f"  secondary chunks={sec_report['segments_with_chunk']} "
+                    f"({sec_report['translation']}) unpaired={sec_report['greek_unpaired']} "
+                    f"paired={sec_report['paired']} residual={sec_report['residual_grouped']} "
+                    f"rate={sec_report['pairing_rate']:.3f}"
+                )
+            else:
+                raise NotImplementedError(
+                    f"play-line english.secondary model {sec_model!r} is not supported"
+                )
         n_lines = sum(len(s["lines"]) for s in spine["segments"])
         n_speakers = sum(len(s.get("speakers", [])) for s in spine["segments"])
         print(f"stage1 ({'greek+english' if primary else 'greek-only'}, play-line): "

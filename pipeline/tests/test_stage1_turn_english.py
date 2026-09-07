@@ -134,3 +134,125 @@ def test_speaker_line_accepts_accented_capitals():
     from drama_pipeline.stage1_turn_english import _SPEAKER_LINE
     assert _SPEAKER_LINE.match("CALONICÉ. Why, what is the matter?").group("name") == "CALONICÉ"
     assert _SPEAKER_LINE.match("MYRRHINÉ (_aside_). Not now.").group("name") == "MYRRHINÉ"
+
+
+LOEB_OCR = """ANTIGONE
+
+ANTIGONE. Ismene, sister of my blood and heart,
+See'st thou how Zeus would in our lives fulfil
+the weird of Oedipus.
+
+ISMENE. To me, Antigone, no word of friends
+has come.
+
+CHORUS. Sunbeam, of all that ever dawned upon
+our seven-gated Thebes.
+
+CREON. Sirrah, begone.
+END OF VOL. I.
+"""
+
+
+def test_loeb_ocr_format_parses_name_dot_text(tmp_path):
+    path = tmp_path / "antigone.txt"
+    path.write_text(LOEB_OCR, encoding="utf-8")
+    spine = json.loads((FIXTURES / "spine.json").read_text(encoding="utf-8"))
+    english, footnotes, report = parse_translation(
+        path,
+        spine,
+        work_id="antigone",
+        translation_id="storr",
+        play="ANTIGONE",
+        sigla={"ΑΝ.": "Antigone", "ΙΣ.": "Ismene", "Χο.": "Chorus", "ΚΡ.": "Creon"},
+        english_aliases={
+            "ANTIGONE": "Antigone",
+            "ISMENE": "Ismene",
+            "CHORUS": "Chorus",
+            "CREON": "Creon",
+        },
+        footnotes_enabled=False,
+        format="loeb-ocr",
+    )
+    printed = [t["display"] for c in english["chunks"] for t in c.get("turns") or []]
+    assert printed[:4] == ["ANTIGONE", "ISMENE", "CHORUS", "CREON"]
+    assert footnotes == {}
+    assert "END OF VOL" not in english["chunks"][-1]["text"]
+    assert report["speeches_parsed"] == 4
+
+
+def test_chunks_as_overlay_prefixes_speakers():
+    from drama_pipeline.stage1_turn_english import chunks_as_overlay
+
+    first, second = "Ismene, sister.", "To me, Antigone."
+    joined = first + "\n\n" + second
+    overlay = chunks_as_overlay(
+        {
+            "chunks": [
+                {
+                    "id": "1:1",
+                    "column": "1",
+                    "text": joined,
+                    "turns": [
+                        {"offset": 0, "speaker": "Antigone", "display": "ANTIGONE"},
+                        {"offset": len(first) + 2, "speaker": "Ismene", "display": "ISMENE"},
+                    ],
+                }
+            ]
+        }
+    )
+    piece = overlay["1:1"][0]
+    assert piece["cont"] is False
+    assert piece["chapter"] == "1"
+    assert piece["text"].startswith("ANTIGONE. Ismene, sister.")
+    assert "ISMENE. To me, Antigone." in piece["text"]
+
+
+def test_run_secondary_writes_ross_chunks(tmp_path, monkeypatch):
+    from drama_pipeline.config import Manifest
+    from drama_pipeline import stage1_turn_english as m
+
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "play.txt").write_text(LOEB_OCR, encoding="utf-8")
+    monkeypatch.setattr(m, "BUILD_DIR", tmp_path)
+    monkeypatch.setattr(m, "SOURCES_DIR", src_dir)
+    spine = json.loads((FIXTURES / "spine.json").read_text(encoding="utf-8"))
+    man = Manifest(
+        {
+            "work": {"id": "antigone"},
+            "english": {
+                "secondary": {
+                    "id": "storr",
+                    "source": "play.txt",
+                    "play": "ANTIGONE",
+                    "format": "loeb-ocr",
+                    "footnotes": False,
+                }
+            },
+            "speakers": {
+                "sigla": {
+                    "Δι.": "Dicaeopolis",
+                    "Δη.Νι.": "Demosthenes and Nicias",
+                    "Κη.": "Herald",
+                    "Χο.": "Chorus",
+                    "Αγγ.": "Messenger",
+                    "Λα.": "Lamachus",
+                    "—": None,
+                },
+                "english_secondary": {
+                    "ANTIGONE": "Antigone",
+                    "ISMENE": "Ismene",
+                    "CHORUS": "Chorus",
+                    "CREON": "Creon",
+                },
+            },
+        },
+        tmp_path / "antigone.yaml",
+    )
+    eng_path, _align, report_path = m.run(man, spine, slot="secondary")
+    assert eng_path.name == "ross_chunks.json"
+    ross = json.loads(eng_path.read_text(encoding="utf-8"))
+    assert all(isinstance(v, list) and v[0]["text"] for v in ross.values())
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["translation"] == "storr"
+    assert report["speeches_parsed"] == 4

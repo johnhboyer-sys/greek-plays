@@ -25,7 +25,9 @@ english:
     source: "perseus/tlg0006.tlg007.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
-  gaps: []
+  gaps:
+    - "1:708"  # no covering <l n> in the Perseus TEI
+    - "1:1042"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

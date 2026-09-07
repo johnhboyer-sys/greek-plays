@@ -514,8 +514,100 @@ def test_lacuna_only_segments_need_no_declared_gap():
         {"id": "1:post 146", "lines": [{"ref": "post 146", "text": "", "role": "lacuna"}]},
         {"id": "1:147", "lines": [{"ref": "147", "text": "x"}, {"ref": "post 148", "text": "", "role": "lacuna"}]},
         {"id": "1:empty", "lines": []},
+        {"id": "1:post 1", "lines": [{"ref": "post 1", "text": "not empty", "role": "lacuna"}]},
     ]
     assert stage2_validate._play_line_lacuna_segment_ids(segs) == {"1:post 146"}
+
+
+def test_play_line_twin_segment_ids():
+    from drama_pipeline import stage2_validate
+    segs = [
+        {"id": "1:803", "lines": [{"ref": "803", "text": "a"}]},
+        {"id": "1:803.2", "lines": [{"ref": "803", "text": "b"}]},
+        {"id": "1:843a", "lines": [{"ref": "843a", "text": "c"}]},
+        {"id": "1:843b", "lines": [{"ref": "843b", "text": "d"}]},
+        {"id": "1:1270", "lines": [{"ref": "1270", "text": "e"}]},
+        {"id": "1:1270a", "lines": [{"ref": "1270a", "text": "f"}]},
+        {"id": "1:47a", "lines": [{"ref": "47a", "text": "g"}]},
+        {"id": "1:107", "lines": [{"ref": "107", "text": "h"}]},
+        {"id": "1:106-107", "lines": [{"ref": "106-107", "text": "i"}]},
+    ]
+    assert stage2_validate._play_line_twin_segment_ids(segs) == {
+        "1:803.2",
+        "1:843b",
+        "1:1270a",
+    }
+
+
+def test_lacuna_auto_allow_through_validate_requires_empty_text():
+    from drama_pipeline import stage2_validate
+
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "g"}],
+            },
+            {
+                "id": "1:post 1226",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 2, "ref": "post 1226", "text": "", "role": "lacuna"}],
+            },
+            {
+                "id": "1:post 1226.2",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 3, "ref": "post 1226", "text": "", "role": "lacuna"}],
+            },
+            {
+                "id": "1:10",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": 4, "ref": "10", "text": "mixed text", "role": "lacuna"}
+                ],
+            },
+        ],
+    }
+    english = {
+        "chunks": [{"id": "1:1", "column": "1", "text": "Alpha text here for length."}]
+    }
+    alignment = {
+        "pairs": [
+            {"segment": "1:1", "english": "1:1"},
+            {"segment": "1:post 1226", "english": None},
+            {"segment": "1:post 1226.2", "english": None},
+            {"segment": "1:10", "english": None},
+        ],
+        "english_only": [],
+    }
+    manifest = Manifest(
+        {
+            "work": {"id": "test-play", "title": "Test", "author": "aeschylus"},
+            "citation": {"scheme": "play-line"},
+            "books": [{"n": 1, "start": "1", "end": "10"}],
+            "english": {
+                "primary": {
+                    "id": "smyth",
+                    "name": "Smyth",
+                    "model": "perseus-play",
+                },
+                "gaps": [],
+            },
+            "proper_names": [],
+        },
+        Path("test-play.yaml"),
+    )
+    report = stage2_validate.validate(manifest, spine, english, alignment)
+    unexpected = report["checks"]["alignment"]["unexpected_unmatched"]
+    assert "1:post 1226" not in unexpected
+    assert "1:post 1226.2" not in unexpected
+    assert "1:10" in unexpected
+    assert report["checks"]["alignment"]["ok"] is False
 
 
 def test_missing_title_line_is_fine_when_none_declared(tmp_path):
@@ -527,3 +619,14 @@ def test_missing_title_line_is_fine_when_none_declared(tmp_path):
     tree = etree.parse(str(xml))
     flat = stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m, str(xml))
     assert [e["ref"] for e in flat] == ["1", "2"]
+
+
+def test_turn_text_floor_ignores_another_plays_report(tmp_path, monkeypatch):
+    """The pairing-rate floor reads the single-work scratch report; a report
+    written by a different play must not authorise this one."""
+    from drama_pipeline import stage2_validate
+    stage1 = tmp_path / "stage1"; stage1.mkdir()
+    (stage1 / "english_report.json").write_text(json.dumps({"work": "frogs", "pairing_rate": 0.99}))
+    monkeypatch.setattr(stage2_validate, "BUILD_DIR", tmp_path)
+    src = Path(stage2_validate.__file__).read_text()
+    assert 'data.get("work") == manifest.work_id' in src

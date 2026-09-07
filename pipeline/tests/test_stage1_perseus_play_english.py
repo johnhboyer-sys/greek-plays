@@ -167,17 +167,142 @@ def test_one_line_drift_binds_to_the_right_speaker(tmp_path: Path):
         sigla={"Κα.": "Cassandra", "Χο.": "Chorus"},
     )
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
-    assert "Once more she cries." in by_id["1:1078"]["text"]
-    assert "Once more she cries." not in by_id["1:1076"]["text"]
-    assert by_id["1:1078"]["turns"][0]["speaker"] == "Chorus"
-    assert by_id["1:1078"]["turns"][0]["display"] == "Chorus"
+    # P2c: 1077 is owned by Cassandra's Greek; Chorus English attaches there,
+    # not to the neighbouring Chorus speech at 1078.
+    assert "Once more she cries." in by_id["1:1076"]["text"]
+    assert "Once more she cries." not in by_id.get("1:1078", {}).get("text", "")
+    assert any(t["speaker"] == "Chorus" for t in by_id["1:1076"]["turns"])
     assert report["speech_mismatches"]
     mismatch = report["speech_mismatches"][0]
     assert mismatch["english_line"] == 1077
     assert mismatch["english_speaker"] == "Chorus"
     assert mismatch["greek_speaker"] == "Cassandra"
-    assert mismatch["attached_to"] == "1:1078"
+    assert mismatch["attached_to"] == "1:1076"
     assert report["speech_mismatch_count"] == 0
+
+
+def test_english_speech_splits_across_greek_line_owners(tmp_path: Path):
+    """One English <sp> whose <l n> anchors fall in two Greek speeches
+    emits one chunk per Greek segment, even when the English speaker
+    differs from the second Greek speaker. Each chunk carries the English
+    speech's turn at offset 0."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:100",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": n, "ref": str(n), "text": "g"} for n in (100, 101)
+                ],
+                "speakers": [{"line": 1, "offset": 0, "label": "Χο."}],
+            },
+            {
+                "id": "1:102",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": n, "ref": str(n), "text": "g"} for n in (102, 103)
+                ],
+                "speakers": [{"line": 1, "offset": 0, "label": "Αγ."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Chorus</speaker>
+      <l n="100">We sing.</l>
+      <l n="102">A king replies, run together.</l>
+    </sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Chorus": "Chorus", "Agamemnon": "Agamemnon"},
+        sigla={"Χο.": "Chorus", "Αγ.": "Agamemnon"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "We sing." in by_id["1:100"]["text"]
+    assert "A king replies, run together." in by_id["1:102"]["text"]
+    assert "A king replies, run together." not in by_id["1:100"]["text"]
+    assert by_id["1:100"]["turns"] == [
+        {"offset": 0, "speaker": "Chorus", "display": "Chorus"},
+    ]
+    assert by_id["1:102"]["turns"] == [
+        {"offset": 0, "speaker": "Chorus", "display": "Chorus"},
+    ]
+    assert report["segments_with_chunk"] == 2
+    assert any(
+        item.get("attached_to") == "1:102" and item["english_speaker"] == "Chorus"
+        for item in report["speech_mismatches"]
+    )
+
+
+def test_english_span_fills_intervening_greek_segments(tmp_path: Path):
+    """One English <sp> numbered 95 then 100 covers the Greek speech at 97
+    that sits between those anchors (no <l n=\"97\"> of its own)."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:93",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": n, "ref": str(n), "text": "g"} for n in (93, 94, 95, 96)
+                ],
+                "speakers": [{"line": 1, "offset": 0, "label": "Χο."}],
+            },
+            {
+                "id": "1:97",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": n, "ref": str(n), "text": "g"} for n in (97, 98, 99)
+                ],
+                "speakers": [{"line": 1, "offset": 0, "label": "—"}],
+            },
+            {
+                "id": "1:100",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": n, "ref": str(n), "text": "g"} for n in (100, 101)
+                ],
+                "speakers": [{"line": 1, "offset": 0, "label": "Χο."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Chorus</speaker>
+      <l n="95">The dust whirls.</l>
+      <l n="100">Do you hear the clash of shields?</l>
+    </sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Chorus": "Chorus"},
+        sigla={"Χο.": "Chorus", "—": None},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "The dust whirls." in by_id["1:93"]["text"]
+    assert "The dust whirls." in by_id["1:97"]["text"]
+    assert "Do you hear the clash of shields?" in by_id["1:100"]["text"]
+    assert by_id["1:97"]["turns"] == [
+        {"offset": 0, "speaker": "Chorus", "display": "Chorus"},
+    ]
+    assert report["segments_with_chunk"] == 3
 
 
 def test_packed_elders_split_into_twelve_slices(tmp_path: Path):
@@ -396,6 +521,64 @@ def test_english_gaps_are_the_only_allowed_unmatched_play_line_ids(tmp_path: Pat
 
     by_ref = validate(_play_manifest(gaps=["10"]), spine, english, alignment)
     assert by_ref["checks"]["alignment"]["ok"] is True
+
+
+def test_twin_segments_need_no_declared_gap():
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "g"}],
+            },
+            {
+                "id": "1:803",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 2, "ref": "803", "text": "first"}],
+            },
+            {
+                "id": "1:803.2",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 3, "ref": "803", "text": "second"}],
+            },
+            {
+                "id": "1:843a",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 4, "ref": "843a", "text": "a"}],
+            },
+            {
+                "id": "1:843b",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 5, "ref": "843b", "text": "b"}],
+            },
+            {
+                "id": "1:47a",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 6, "ref": "47a", "text": "unique"}],
+            },
+        ],
+    }
+    english = {
+        "chunks": [
+            {"id": "1:1", "column": "1", "text": "Alpha text here for length."},
+            {"id": "1:803", "column": "1", "text": "First 803 text here for length."},
+            {"id": "1:843a", "column": "1", "text": "Lettered a text here for length."},
+        ]
+    }
+    alignment = _alignment_for(spine, english)
+    report = validate(_play_manifest(gaps=[]), spine, english, alignment)
+    unexpected = report["checks"]["alignment"]["unexpected_unmatched"]
+    assert "1:803.2" not in unexpected
+    assert "1:843b" not in unexpected
+    assert "1:47a" in unexpected
+    assert report["checks"]["alignment"]["ok"] is False
 
 
 def test_unmapped_english_speaker_is_a_hard_roster_error():

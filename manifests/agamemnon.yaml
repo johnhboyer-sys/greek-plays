@@ -54,7 +54,9 @@ english:
     footnotes: true
   # Genuinely untranslated Greek speeches (filled after the P2b attachment
   # pass). Segment ids or printed refs; any other unmatched id fails stage2.
-  gaps: []
+  gaps:
+    - "1:1078"  # no covering <l n> in the Perseus TEI
+    - "1:1672"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

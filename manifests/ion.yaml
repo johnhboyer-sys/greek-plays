@@ -26,14 +26,12 @@ english:
     anchor_model: sp-line
     footnotes: false
   gaps:
-    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
-    - "1:81"
-    - "1:223"
-    - "1:224"
-    - "1:232"
-    - "1:721"
-    - "1:766"
-    - "1:783"
+    - "1:223"  # no covering <l n> in the Perseus TEI
+    - "1:224"  # no covering <l n> in the Perseus TEI
+    - "1:232"  # no covering <l n> in the Perseus TEI
+    - "1:721"  # no covering <l n> in the Perseus TEI
+    - "1:766"  # no covering <l n> in the Perseus TEI
+    - "1:783"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

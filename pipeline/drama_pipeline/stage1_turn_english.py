@@ -128,7 +128,9 @@ def _is_play_end(line: str) -> bool:
     s = line.strip()
     if not s:
         return False
-    if _PG_END.match(s) or s.startswith("FINIS") or s in ("Footnotes:", "FOOTNOTES:"):
+    if _PG_END.match(s) or s.startswith("FINIS") or s.startswith("END OF VOL"):
+        return True
+    if s in ("Footnotes:", "FOOTNOTES:"):
         return True
     return False
 
@@ -336,10 +338,21 @@ def _parse_lindsay_speeches(lines: list[str], start: int) -> tuple[list[dict], i
     return speeches, end_i
 
 
-def parse_play_speeches(text: str, title: str) -> tuple[list[dict], dict[str, str]]:
-    """Split one Gutenberg play into ``{speaker_printed, text}`` speeches + notes."""
+def parse_play_speeches(
+    text: str, title: str, *, format: str = "gutenberg"
+) -> tuple[list[dict], dict[str, str]]:
+    """Split one play into ``{speaker_printed, text}`` speeches + notes.
+
+    ``format="loeb-ocr"`` is the bench cleaner output: ``NAME. text`` lines,
+    no Gutenberg footnotes block. Own-line caps names are already folded by
+    ``bench_clean``.
+    """
     lines = text.splitlines()
     title_i = _locate_title(lines, title)
+    if format == "loeb-ocr":
+        start = _body_start(lines, title_i, lindsay=False)
+        speeches, _end_i = _parse_as_speeches(lines, start)
+        return speeches, {}
     dp = _dramatis_index_after(lines, title_i)
     dp_line = lines[dp].strip() if dp is not None else ""
     lindsay = dp_line.startswith("The Persons of the drama")
@@ -455,13 +468,14 @@ def parse_translation(
     sigla: dict | None = None,
     english_aliases: dict[str, str] | None = None,
     footnotes_enabled: bool = True,
+    format: str = "gutenberg",
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
     if not isinstance(sigla, _SiglaResolver):
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
-    speeches, notes_by_n = parse_play_speeches(text, play)
+    speeches, notes_by_n = parse_play_speeches(text, play, format=format)
 
     footnotes: dict[str, str] = {}
     seq = 0
@@ -564,28 +578,69 @@ def parse_translation(
     return english, footnotes, report
 
 
-def run(manifest: Manifest, spine: dict) -> tuple[Path, Path, Path]:
-    primary = ((manifest.data.get("english") or {}).get("primary") or {})
-    source_path = SOURCES_DIR / primary["source"]
+def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
+    """Turn-text chunks → the overlay dict stage7 reads from ``ross_chunks.json``.
+
+    OverlayPiece has no ``turns``; speaker names are prefixed into ``text``
+    so compare mode still shows who is speaking.
+    """
+    out: dict[str, list[dict]] = {}
+    for chunk in english.get("chunks") or []:
+        text = chunk.get("text") or ""
+        turns = chunk.get("turns") or []
+        for turn in reversed(turns):
+            name = turn.get("display") or turn.get("speaker") or ""
+            if not name:
+                continue
+            off = int(turn.get("offset") or 0)
+            off = max(0, min(off, len(text)))
+            text = text[:off] + f"{name}. " + text[off:]
+        out[chunk["id"]] = [
+            {
+                "chapter": str(chunk.get("column") or "1"),
+                "text": text,
+                "cont": False,
+            }
+        ]
+    return out
+
+
+def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, Path, Path]:
+    cfg = ((manifest.data.get("english") or {}).get(slot) or {})
+    if not cfg:
+        raise ValueError(f"{manifest.work_id}: english.{slot} is required for turn-text")
+    source_path = SOURCES_DIR / cfg["source"]
     speakers = manifest.data.get("speakers") or {}
     sigla = _SiglaResolver(manifest)
-    aliases = speakers.get("english") or {}
-    play = primary.get("play")
+    if slot == "secondary":
+        aliases = speakers.get("english_secondary") or speakers.get("english") or {}
+    else:
+        aliases = speakers.get("english") or {}
+    play = cfg.get("play")
     if not play:
-        raise ValueError(f"{manifest.work_id}: english.primary.play is required for turn-text")
+        raise ValueError(f"{manifest.work_id}: english.{slot}.play is required for turn-text")
     english, footnotes, report = parse_translation(
         source_path,
         spine,
         work_id=manifest.work_id,
-        translation_id=primary["id"],
+        translation_id=cfg["id"],
         play=play,
         sigla=sigla,
         english_aliases=aliases,
-        footnotes_enabled=bool(primary.get("footnotes", True)),
+        footnotes_enabled=bool(cfg.get("footnotes", slot == "primary")),
+        format=cfg.get("format") or "gutenberg",
     )
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)
+    if slot == "secondary":
+        english_path = out_dir / "ross_chunks.json"
+        alignment_path = out_dir / "secondary_alignment.json"
+        report_path = out_dir / "secondary_report.json"
+        write_json(english_path, chunks_as_overlay(english))
+        write_json(alignment_path, build_alignment(spine, english))
+        write_json(report_path, report)
+        return english_path, alignment_path, report_path
     english_path = out_dir / "english_chunks.json"
     alignment_path = out_dir / "alignment.json"
     report_path = out_dir / "english_report.json"

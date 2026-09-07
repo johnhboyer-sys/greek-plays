@@ -86,16 +86,71 @@ def _summary_suppressed_segment_ids(manifest: Manifest, segments: list[dict]) ->
 
 
 def _play_line_lacuna_segment_ids(segments: list[dict]) -> set[str]:
-    """Segments made only of lacuna placeholder lines (Diggle's empty-bracket
-    ``post N`` lines): no translation can cover them, so they never need a
-    declared gap (sweep 2026-09-07: Cyclops post 146, Heraclidae post 110,
-    Helen's two at post 1226, and a dozen more)."""
+    """Segments made only of empty lacuna placeholder lines (Diggle's
+    empty-bracket ``post N`` lines): no translation can cover them, so they
+    never need a declared gap (sweep 2026-09-07: Cyclops post 146,
+    Heraclidae post 110, Helen's two at post 1226, and a dozen more).
+    A line that carries ``role: lacuna`` but also has text is not a hole.
+    """
     out: set[str] = set()
     for seg in segments:
         lines = seg.get("lines") or []
-        if lines and all(line.get("role") == "lacuna" for line in lines):
+        if lines and all(
+            line.get("role") == "lacuna" and not str(line.get("text") or "").strip()
+            for line in lines
+        ):
             out.add(seg["id"])
     return out
+
+
+def _play_line_twin_segment_ids(segments: list[dict]) -> set[str]:
+    """Repeated-ref second copies (``1:803.2``) and lettered twins
+    (Bacchae 843a/843b, Medea 1270a) that share an integer line number with
+    another segment. A Perseus ``<l n>`` can attach to only one owner per
+    integer, so these never need a declared gap."""
+    from .stage1_perseus_play_english import _ref_line_numbers
+
+    ids = {seg["id"] for seg in segments}
+
+    def is_copy(seg_id: str) -> bool:
+        if "." not in seg_id:
+            return False
+        base, suffix = seg_id.rsplit(".", 1)
+        return suffix.isdigit() and int(suffix) >= 2 and base in ids
+
+    def is_lettered(ref: str) -> bool:
+        return len(ref) > 1 and ref[:-1].isdigit() and ref[-1:].isalpha()
+
+    covering: dict[int, list[tuple[dict, str, int]]] = {}
+    for order, seg in enumerate(segments):
+        seen_n: set[int] = set()
+        for line in seg.get("lines") or []:
+            ref = line.get("ref")
+            if not isinstance(ref, str):
+                continue
+            for n in _ref_line_numbers(ref):
+                if n in seen_n:
+                    continue
+                seen_n.add(n)
+                covering.setdefault(n, []).append((seg, ref, order))
+
+    twins: set[str] = set()
+    for seg in segments:
+        if is_copy(seg["id"]):
+            twins.add(seg["id"])
+    for n, hits in covering.items():
+        unique = {seg["id"] for seg, _ref, _order in hits}
+        if len(unique) < 2:
+            continue
+        preferred, _ref, _order = min(
+            hits, key=lambda item: (item[1] != str(n), item[2])
+        )
+        for seg, ref, _order in hits:
+            if seg["id"] == preferred["id"]:
+                continue
+            if is_copy(seg["id"]) or is_lettered(ref):
+                twins.add(seg["id"])
+    return twins
 
 
 def _play_line_english_gap_ids(manifest: Manifest, segments: list[dict]) -> set[str]:
@@ -403,6 +458,7 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # manifest names it in english.gaps (segment ids or printed refs).
         allowed.update(_play_line_english_gap_ids(manifest, segments))
         allowed.update(_play_line_lacuna_segment_ids(segments))
+        allowed.update(_play_line_twin_segment_ids(segments))
     if sch.play_line_scheme and primary_model == "turn-text":
         # turn-text (P3, the 1912 comedies): the English has no line numbers,
         # so speeches pair by speaker turn and residue is grouped onto the
@@ -416,7 +472,12 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         rate = None
         if report_path.exists():
             try:
-                rate = float(json.loads(report_path.read_text()).get("pairing_rate"))
+                data = json.loads(report_path.read_text())
+                # build/stage1 is single-work scratch: a report left by the
+                # previous play must never authorise this one (Opus review
+                # 2026-09-07, item 6).
+                if data.get("work") == manifest.work_id:
+                    rate = float(data.get("pairing_rate"))
             except (ValueError, TypeError):
                 rate = None
         if rate is not None and rate >= floor:

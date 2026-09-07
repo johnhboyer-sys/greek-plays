@@ -25,9 +25,18 @@ english:
     source: "perseus/tlg0011.tlg002.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: storr
+    name: "F. Storr (Loeb, 1912) — alignment approximate"
+    short: Storr
+    model: turn-text
+    format: loeb-ocr
+    source: bench/storr/antigone.txt
+    play: ANTIGONE
+    footnotes: false
   gaps:
-    # English for these lines is carried by the adjacent speech's chunk (the translator runs the exchange together); P2c splits them. Sweep 2026-09-07.
-    - "1:723"
+    - "1:723"  # no covering <l n> in the Perseus TEI
+    - "1:1326"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line
@@ -54,6 +63,19 @@ speakers:
     "Teiresias": "Teiresias"
     "Messenger": "Messenger"
     "Eurydice": "Eurydice"
+  # Storr's Loeb OCR prints all-caps names; the Greek roster is title-case.
+  english_secondary:
+    "ANTIGONE": "Antigone"
+    "ISMENE": "Ismene"
+    "CHORUS": "Chorus"
+    "CREON": "Creon"
+    "GUARD": "Guard"
+    "WATCHMAN": "Guard"
+    "HAEMON": "Haemon"
+    "TEIRESIAS": "Teiresias"
+    "MESSENGER": "Messenger"
+    "EURYDICE": "Eurydice"
+    "SECOND MESSENGER": "Second Messenger"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -108,6 +130,10 @@ registry:
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+    - id: storr
+      name: "F. Storr (Loeb, 1912) — alignment approximate"
+      short: Storr
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Soph. Ant."
