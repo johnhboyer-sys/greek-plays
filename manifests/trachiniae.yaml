@@ -6,7 +6,7 @@
 
 work:
   id: trachiniae
-  title: Trachiniae
+  title: "Women of Trachis"
   author: sophocles
   language: grc
   tlg_author: "0011"
@@ -96,7 +96,7 @@ sources:
 registry:
   id: trachiniae
   slug: trachiniae
-  title: Trachiniae
+  title: "Women of Trachis"
   greekTitle: Τραχίνιαι
   abbr: Trach.
   author: sophocles

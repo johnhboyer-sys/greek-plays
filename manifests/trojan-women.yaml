@@ -6,7 +6,7 @@
 
 work:
   id: trojan-women
-  title: Trojan Women
+  title: "Trojan Women"
   author: euripides
   language: grc
   tlg_author: "0006"
@@ -98,7 +98,7 @@ sources:
 registry:
   id: trojan-women
   slug: trojan-women
-  title: Trojan Women
+  title: "Trojan Women"
   greekTitle: ΤΡΩΙΑΔΕΣ
   abbr: Tro.
   author: euripides

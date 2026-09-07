@@ -6,7 +6,7 @@
 
 work:
   id: persians
-  title: Persae
+  title: Persians
   author: aeschylus
   language: grc
   tlg_author: "0085"
@@ -84,7 +84,7 @@ sources:
 registry:
   id: persians
   slug: persians
-  title: Persae
+  title: Persians
   greekTitle: Πέρσαι
   abbr: Pers.
   author: aeschylus

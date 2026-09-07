@@ -6,7 +6,7 @@
 
 work:
   id: prometheus-bound
-  title: Prometheus vinctus
+  title: "Prometheus Bound"
   author: aeschylus
   language: grc
   tlg_author: "0085"
@@ -84,7 +84,7 @@ sources:
 registry:
   id: prometheus-bound
   slug: prometheus-bound
-  title: Prometheus vinctus
+  title: "Prometheus Bound"
   greekTitle: Προμηθεὺς δεσμώτης
   abbr: PV
   author: aeschylus

@@ -6,7 +6,7 @@
 
 work:
   id: suppliants-aesch
-  title: Supplices
+  title: "Suppliant Women"
   author: aeschylus
   language: grc
   tlg_author: "0085"
@@ -105,7 +105,7 @@ sources:
 registry:
   id: suppliants-aesch
   slug: suppliants-aesch
-  title: Supplices
+  title: "Suppliant Women"
   greekTitle: Ἱκέτιδες
   abbr: "Aesch. Supp."
   author: aeschylus

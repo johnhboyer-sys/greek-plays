@@ -6,7 +6,7 @@
 
 work:
   id: oedipus-coloneus
-  title: Oedipus Coloneus
+  title: "Oedipus at Colonus"
   author: sophocles
   language: grc
   tlg_author: "0011"
@@ -95,7 +95,7 @@ sources:
 registry:
   id: oedipus-coloneus
   slug: oedipus-coloneus
-  title: Oedipus Coloneus
+  title: "Oedipus at Colonus"
   greekTitle: Οἰδίπους ἐπὶ Κολωνῷ
   abbr: OC
   author: sophocles

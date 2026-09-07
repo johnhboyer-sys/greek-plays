@@ -6,7 +6,7 @@
 
 work:
   id: oedipus-tyrannus
-  title: Oedipus tyrannus
+  title: "Oedipus Tyrannus"
   author: sophocles
   language: grc
   tlg_author: "0011"
@@ -93,7 +93,7 @@ sources:
 registry:
   id: oedipus-tyrannus
   slug: oedipus-tyrannus
-  title: Oedipus tyrannus
+  title: "Oedipus Tyrannus"
   greekTitle: Οἰδίπους Τύραννος
   abbr: OT
   author: sophocles

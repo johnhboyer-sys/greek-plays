@@ -6,7 +6,7 @@
 
 work:
   id: seven-against-thebes
-  title: Seven Against Thebes
+  title: "Seven Against Thebes"
   author: aeschylus
   language: grc
   tlg_author: "0085"
@@ -103,7 +103,7 @@ sources:
 registry:
   id: seven-against-thebes
   slug: seven-against-thebes
-  title: Seven Against Thebes
+  title: "Seven Against Thebes"
   greekTitle: ΕΠΤΑ ΕΠΙ ΘΗΒΑΣ
   abbr: Sept.
   author: aeschylus

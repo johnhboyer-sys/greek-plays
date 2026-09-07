@@ -6,7 +6,7 @@
 
 work:
   id: heraclidae
-  title: Heraclidae
+  title: "Children of Heracles"
   author: euripides
   language: grc
   tlg_author: "0006"
@@ -100,7 +100,7 @@ sources:
 registry:
   id: heraclidae
   slug: heraclidae
-  title: Heraclidae
+  title: "Children of Heracles"
   greekTitle: Ἡρακλεῖδαι
   abbr: Heracl.
   author: euripides

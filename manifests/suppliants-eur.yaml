@@ -6,7 +6,7 @@
 
 work:
   id: suppliants-eur
-  title: Supplices
+  title: "Suppliant Women"
   author: euripides
   language: grc
   tlg_author: "0006"
@@ -100,7 +100,7 @@ sources:
 registry:
   id: suppliants-eur
   slug: suppliants-eur
-  title: Supplices
+  title: "Suppliant Women"
   greekTitle: Ἱκέτιδες
   abbr: "Eur. Supp."
   author: euripides

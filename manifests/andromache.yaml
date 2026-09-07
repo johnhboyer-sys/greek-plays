@@ -6,7 +6,7 @@
 
 work:
   id: andromache
-  title: Andromacha
+  title: Andromache
   author: euripides
   language: grc
   tlg_author: "0006"
@@ -100,7 +100,7 @@ sources:
 registry:
   id: andromache
   slug: andromache
-  title: Andromacha
+  title: Andromache
   greekTitle: Ἀνδρομάχη
   abbr: Andr.
   author: euripides

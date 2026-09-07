@@ -6,7 +6,7 @@
 
 work:
   id: heracles
-  title: Hercules
+  title: Heracles
   author: euripides
   language: grc
   tlg_author: "0006"
@@ -102,7 +102,7 @@ sources:
 registry:
   id: heracles
   slug: heracles
-  title: Hercules
+  title: Heracles
   greekTitle: Ἡρακλῆς
   abbr: HF
   author: euripides

@@ -6,7 +6,7 @@
 
 work:
   id: iphigenia-in-tauris
-  title: Iphigenia Taurica
+  title: "Iphigenia in Tauris"
   author: euripides
   language: grc
   tlg_author: "0006"
@@ -96,7 +96,7 @@ sources:
 registry:
   id: iphigenia-in-tauris
   slug: iphigenia-in-tauris
-  title: Iphigenia Taurica
+  title: "Iphigenia in Tauris"
   greekTitle: Ἰφιγένεια ἡ ἐν Ταύροις
   abbr: IT
   author: euripides

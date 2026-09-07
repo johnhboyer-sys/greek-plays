@@ -6,7 +6,7 @@
 
 work:
   id: iphigenia-at-aulis
-  title: Iphigenia Aulidensis
+  title: "Iphigenia at Aulis"
   author: euripides
   language: grc
   tlg_author: "0006"
@@ -95,7 +95,7 @@ sources:
 registry:
   id: iphigenia-at-aulis
   slug: iphigenia-at-aulis
-  title: Iphigenia Aulidensis
+  title: "Iphigenia at Aulis"
   greekTitle: Ἰφιγένεια ἡ ἐν Αὐλίδι
   abbr: IA
   author: euripides

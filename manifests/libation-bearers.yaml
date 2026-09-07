@@ -6,7 +6,7 @@
 
 work:
   id: libation-bearers
-  title: Choephoroe
+  title: "Libation Bearers"
   author: aeschylus
   language: grc
   tlg_author: "0085"
@@ -89,7 +89,7 @@ sources:
 registry:
   id: libation-bearers
   slug: libation-bearers
-  title: Choephoroe
+  title: "Libation Bearers"
   greekTitle: Χοηφόροι
   abbr: Cho.
   author: aeschylus
