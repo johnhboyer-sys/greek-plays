@@ -110,7 +110,12 @@ stichomythia against the packed Seven `1:1004` attaches there, each turn
 flagged with the speaker of ITS printed line (Ismene at 1004, the Herald
 from 1006). Showing the translation beside the Greek it translates, marked
 as disputed, beats withholding it (John's orchestrator, 2026-09-08); the
-builder holes nothing whose printed line is on the spine.
+builder holes nothing whose printed line is on the spine. One `<sp>` whose
+anchors reach several Greek speeches is flagged by the same rule: the piece
+left in another character's speech (Seven's Herald 1030 inside Antigone's
+`1:1026`) attaches there and says so. Only the repair search is withheld from
+a spanning speech — a piece of it belongs beside the Greek its own anchor
+names, not beside a neighbour.
 
 Every attribution difference is listed in
 `build/stage1/english_report.json` as `attribution_differences:
@@ -198,7 +203,16 @@ its canonical name is the segment's own speaker, one of the other shares its
 lines carry, or absent (an unattributed continuation, or a bench scan's
 unreadable OCR label). A residual naming somebody else is left unassigned and
 counted as `residual_unassigned` — Frogs used to park a Xanthias speech on a
-segment Xanthias does not speak.
+segment Xanthias does not speak. A segment with no speaker at all (an
+unattributed lyric) is not a wildcard either: only the nameless residuals may
+park there. `residual_unassigned` is English that reaches no chunk, so it is
+printed on the stage-1 summary line and gated in
+`checks.turn_text_residual_unassigned` against
+`english.max_residual_unassigned` (default `0`, and failing closed on a
+missing or foreign stage-1 report like the other turn-text checks). The 1912
+comedies each carry dozens of them today (24 in the Acharnians to 107 in the
+Birds), so every comedy needs its allowance declared — or the residue
+recovered — before that gate can hold at 0.
 
 Preflight reads `pipeline/drama_pipeline/public_domain_translations.yaml` and
 requires every translation id stage7 can emit (primary / secondary / third /

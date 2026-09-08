@@ -591,3 +591,14 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   a segment whose speaker it is not (`residual_unassigned`).
 - `pipeline/drama_pipeline/stage2_validate.py` — P2i: `attribution_hole` kept in
   `_ATTACHMENT_LOSS_KINDS` as a guard; the builder emits no holes.
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — P2j: a multi-span
+  speech flags the piece it leaves in another character's speech, like a
+  singleton attribution difference.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — P2j: a segment with no
+  primary speaker takes only nameless residuals; `residual_unassigned` named in
+  the module contract.
+- `pipeline/drama_pipeline/stage2_validate.py` — P2j: turn-text
+  `checks.turn_text_residual_unassigned` gates `residual_unassigned` against
+  `english.max_residual_unassigned` (default 0), failing closed.
+- `pipeline/drama_pipeline/__main__.py` — P2j: `residual_unassigned=` on every
+  turn-text stage-1 summary line.

@@ -476,6 +476,40 @@ def test_residual_is_not_parked_on_a_segment_that_speaker_never_speaks():
     assert parked_unassigned == 0
 
 
+def test_named_residual_does_not_park_on_a_speakerless_lyric():
+    """P2j finding 4, Frogs-shaped: the ode at 1:383 carries no speaker at
+    all, so the segment's primary is None.  That is not a wildcard — Dionysus'
+    unpaired next speech used to park on the ode and print in its column.
+    Only the nameless residuals (a continuation, or a bench scan's unreadable
+    label) may still park there."""
+    from drama_pipeline.stage1_turn_english import _OCR_JUNK
+
+    greek = ["Dionysus", None]  # segment 1 is the unattributed ode
+    pairs = [(0, 0), (1, 1)]
+    assigned, residual, head, unassigned = _assign_speeches(
+        2,
+        pairs,
+        3,
+        greek_names=greek,
+        english_names=["Dionysus", "Chorus", "Dionysus"],
+    )
+    assert assigned[1] == [1]
+    assert residual == 0
+    assert head == 0
+    assert unassigned == 1
+
+    parked, parked_residual, _head, parked_unassigned = _assign_speeches(
+        2,
+        pairs,
+        4,
+        greek_names=greek,
+        english_names=["Dionysus", "Chorus", None, _OCR_JUNK],
+    )
+    assert parked[1] == [1, 2, 3]
+    assert parked_residual == 2
+    assert parked_unassigned == 0
+
+
 def test_head_residue_unassigned_is_reported(tmp_path):
     path = tmp_path / "play.txt"
     path.write_text(
@@ -622,6 +656,52 @@ def test_stage2_gates_length_ratio_and_turn_shift_separately(tmp_path, monkeypat
     )
 
 
+def test_stage2_gates_residual_english_that_reached_no_chunk(tmp_path, monkeypatch):
+    """P2j finding 3: a residual the builder refused to park is English the
+    reader never sees — the turn-text twin of `attachment_loss`.  Default 0;
+    a play declares `english.max_residual_unassigned` to allow its own."""
+    base = {
+        "work": "test-play",
+        "pairing_rate": 0.99,
+        "paired": 100,
+        "length_ratio_outlier_count": 10,
+        "turn_shift_count": 2,
+        "turn_shift_rate": 0.02,
+    }
+    clean = _stage2_with_report(
+        monkeypatch, tmp_path, {**base, "residual_unassigned": 0}, _turn_text_manifest()
+    )
+    assert clean["checks"]["turn_text_residual_unassigned"]["ok"] is True
+
+    lost = _stage2_with_report(
+        monkeypatch, tmp_path, {**base, "residual_unassigned": 7}, _turn_text_manifest()
+    )
+    check = lost["checks"]["turn_text_residual_unassigned"]
+    assert check["ok"] is False
+    assert check["count"] == 7
+    assert "7 residual English speech(es) parked on no Greek speech" in check["error"]
+    assert lost["ok"] is False
+
+    allowed = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "residual_unassigned": 7},
+        _turn_text_manifest(max_residual_unassigned=7),
+    )
+    assert allowed["checks"]["turn_text_residual_unassigned"]["ok"] is True
+
+    # Fails closed on a report that belongs to another play.
+    foreign = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {"work": "frogs", "pairing_rate": 0.99, "paired": 10},
+        _turn_text_manifest(),
+    )
+    stale = foreign["checks"]["turn_text_residual_unassigned"]
+    assert stale["ok"] is False
+    assert "not 'test-play'" in stale["error"]
+
+
 def test_stage2_turn_text_checks_fail_closed_without_this_works_report(
     tmp_path, monkeypatch
 ):
@@ -633,7 +713,11 @@ def test_stage2_turn_text_checks_fail_closed_without_this_works_report(
         {"work": "frogs", "pairing_rate": 0.99, "paired": 10},
         _turn_text_manifest(),
     )
-    for key in ("turn_text_length_ratio", "turn_text_turn_shift"):
+    for key in (
+        "turn_text_length_ratio",
+        "turn_text_turn_shift",
+        "turn_text_residual_unassigned",
+    ):
         assert foreign["checks"][key]["ok"] is False
         assert "not 'test-play'" in foreign["checks"][key]["error"]
     assert foreign["ok"] is False
@@ -641,7 +725,11 @@ def test_stage2_turn_text_checks_fail_closed_without_this_works_report(
     missing = _stage2_with_report(
         monkeypatch, tmp_path / "empty", None, _turn_text_manifest()
     )
-    for key in ("turn_text_length_ratio", "turn_text_turn_shift"):
+    for key in (
+        "turn_text_length_ratio",
+        "turn_text_turn_shift",
+        "turn_text_residual_unassigned",
+    ):
         assert missing["checks"][key]["ok"] is False
         assert "no stage1 English report" in missing["checks"][key]["error"]
 

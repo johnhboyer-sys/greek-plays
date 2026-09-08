@@ -6,6 +6,7 @@ from lxml import etree
 
 from drama_pipeline.config import Manifest
 from drama_pipeline.stage1_perseus_play_english import parse_translation
+from drama_pipeline.stage1_turn_english import _SiglaResolver
 from drama_pipeline.stage2_validate import validate
 from drama_pipeline.stage7_emit import (
     _manifest_v1_fields,
@@ -346,14 +347,29 @@ def test_english_speech_splits_across_greek_line_owners(tmp_path: Path):
     assert by_id["1:100"]["turns"] == [
         {"offset": 0, "speaker": "Chorus", "display": "Chorus"},
     ]
+    # P2j finding 1: the Agamemnon half of the Chorus's speech is attached and
+    # FLAGGED — a multi-span piece disagrees exactly as a singleton does.
     assert by_id["1:102"]["turns"] == [
-        {"offset": 0, "speaker": "Chorus", "display": "Chorus"},
+        {
+            "offset": 0,
+            "speaker": "Chorus",
+            "display": "Chorus",
+            "speakerMismatch": {"english": "Chorus", "greek": "Agamemnon"},
+        },
     ]
     assert report["segments_with_chunk"] == 2
     assert any(
         item.get("attached_to") == "1:102" and item["english_speaker"] == "Chorus"
         for item in report["speech_mismatches"]
     )
+    assert report["attribution_differences"] == [
+        {
+            "greek_id": "1:102",
+            "line": 102,
+            "english_speaker": "Chorus",
+            "greek_speaker": "Agamemnon",
+        }
+    ]
 
 
 @pytest.mark.parametrize(
@@ -533,8 +549,22 @@ def test_seven_multi_anchor_speech_does_not_fill_intervening_turns(tmp_path: Pat
     assert combined.count("With my own hands") == 1
     assert all(f"1:{n}" not in by_id for n in (1042, 1043, 1044, 1046, 1047))
     assert report["segments_with_chunk"] == 2
-    assert all("speakerMismatch" not in chunk for chunk in english["chunks"])
-    assert report["attribution_difference_count"] == 0
+    # P2j finding 1: the second anchor lands in Antigone's speech, so that
+    # turn — and its single-turn chunk — carry the disagreement.  1:1040's
+    # siglum is outside this test's sigla map, so that half stays unflagged.
+    assert "speakerMismatch" not in by_id["1:1040"]
+    assert by_id["1:1045"]["speakerMismatch"] == {
+        "english": "Chorus",
+        "greek": "Antigone",
+    }
+    assert report["attribution_differences"] == [
+        {
+            "greek_id": "1:1045",
+            "line": 1045,
+            "english_speaker": "Chorus",
+            "greek_speaker": "Antigone",
+        }
+    ]
 
 
 def test_suppliants_anchor_stops_at_next_english_speech(tmp_path: Path):
@@ -1614,6 +1644,58 @@ def test_packed_antilabe_span_attaches_by_line_speaker(tmp_path: Path):
     assert rows[1002]["attached_to"] == "1:1003"
 
 
+def test_multi_span_speech_flags_the_piece_it_leaves_in_another_speech(
+    tmp_path: Path,
+):
+    """P2j finding 1: Seven's Herald speech spans 1011-1030, and its last
+    anchor falls inside Antigone's 1:1026.  That piece attaches there — it is
+    the Greek it translates — and the TURN says the editions disagree.  Before
+    the fix a multi-span speech skipped the flag entirely and the reader saw
+    an unmarked Herald turn on Antigone's lines."""
+    spine = _seven_spine()
+    tail = spine["segments"][-1]
+    assert tail["id"] == "1:1026"
+    # Antigone speaks 1026-1030 in the Greek; Smyth's Herald runs to 1030.
+    tail["lines"] = [
+        {"n": n, "ref": str(n), "text": "g"} for n in range(1026, 1031)
+    ]
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Herald</speaker>
+      <l n="1011">It is my duty to announce the decrees.</l>
+      <l n="1030">And this is the will of the Cadmeans.</l>
+    </sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path, tei, spine, aliases=SEVEN_ALIASES, sigla=SEVEN_SIGLA
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    # The Herald's own half is clean; the piece on Antigone's speech is not.
+    assert "It is my duty" in by_id["1:1004"]["text"]
+    assert all("speakerMismatch" not in turn for turn in by_id["1:1004"]["turns"])
+    assert "will of the Cadmeans" in by_id["1:1026"]["text"]
+    assert by_id["1:1026"]["turns"][0]["speakerMismatch"] == {
+        "english": "Herald",
+        "greek": "Antigone",
+    }
+    assert report["attribution_differences"] == [
+        {
+            "greek_id": "1:1026",
+            "line": 1030,
+            "english_speaker": "Herald",
+            "greek_speaker": "Antigone",
+        }
+    ]
+    row = next(r for r in report["speech_mismatches"] if r["english_line"] == 1030)
+    assert row["kind"] == "attribution_difference"
+    assert row["attached_to"] == "1:1026"
+    assert row["attached_speaker"] == "Antigone"
+    assert report["anomalies"] == []
+
+
 def test_repair_prefers_the_speakers_own_one_liner_over_a_packed_span(
     tmp_path: Path,
 ):
@@ -1782,12 +1864,14 @@ def test_stage7_reads_spine_line_refs_for_speaker_overrides():
 # ── P2i: shares of a line, continuation coverage, the nless-snap label ──────
 
 
-HELEN_SIGLA = {"Θε.": "Theoclymenus", "Θε.β": "Second Servant", "Χο.": "Chorus"}
-HELEN_ALIASES = {
-    "Theoklymenos": "Theoclymenus",
-    "Servant": "Second Servant",
-    "Chorus": "Chorus",
-}
+# P2j finding 6: the lettered-share test runs on the REAL Helen tables --
+# the manifest's own sigla (`Θε.` -> Servant, re-assigned to Theoclymenus from
+# 1165 by `speakers.overrides`; `Θε.β` -> Second Servant) and its English
+# aliases.  The P2i fixture invented an alias map, so it never showed what the
+# build actually does with Coleridge's `Servant` at 1627-1640.
+HELEN_MANIFEST = Manifest.for_work("helen")
+HELEN_SIGLA = _SiglaResolver(HELEN_MANIFEST)
+HELEN_ALIASES = (HELEN_MANIFEST.data.get("speakers") or {}).get("english") or {}
 HELEN_TEI = """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
   <div type="translation">
@@ -1821,9 +1905,18 @@ def _helen_antilabe_spine() -> dict:
 
 
 def test_lettered_anchor_matches_the_mid_line_share(tmp_path: Path):
-    """P2i finding 3: ``1630b`` is the SECOND share of 1630, so Coleridge's
-    servant reads against ``Θε.β`` and attaches clean; a lettered anchor whose
-    share belongs to somebody else attaches flagged with that share's name."""
+    """P2i finding 3 on the real Helen tables: ``1630b`` is the SECOND share
+    of 1630, so it reads against ``Θε.β`` (the Second Servant) and not against
+    the line-start ``Θε.``, which the manifest's override makes Theoclymenus
+    from 1165 on.
+
+    P2j finding 6/2: with the manifest's own aliases Coleridge's printed
+    ``Servant`` canonicalises to ``Servant``, so the share is attached and
+    FLAGGED as a name difference (Servant vs Second Servant) -- 13 turns at
+    1627-1640 in the real build.  It is not a misattachment: the English is
+    beside the Greek it translates.  Whether Helen's servant/messenger names
+    should be reconciled at all is John's call (35 of the play's 39 flags are
+    this same crossing), so the test states what the build does today."""
     english, _footnotes, report = _parse(
         tmp_path,
         HELEN_TEI,
@@ -1832,23 +1925,31 @@ def test_lettered_anchor_matches_the_mid_line_share(tmp_path: Path):
         sigla=HELEN_SIGLA,
     )
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
-    # Both shares of 1630 land on 1:1630, neither flagged.
+    # Both shares of 1630 land on 1:1630 -- the letter picked the right share.
     assert "Will you rule" in by_id["1:1630"]["text"]
     assert "in my right mind" in by_id["1:1630"]["text"]
-    assert all(
-        "speakerMismatch" not in turn for turn in by_id["1:1630"]["turns"]
-    )
-    assert not any(row["english_line"] == 1630 for row in report["speech_mismatches"])
+    turns = {turn["display"]: turn for turn in by_id["1:1630"]["turns"]}
+    assert "speakerMismatch" not in turns["Theoklymenos"]
+    assert turns["Servant"]["speakerMismatch"] == {
+        "english": "Servant",
+        "greek": "Second Servant",
+    }
     # The Chorus owns no share of 1631: attached to the printing speech and
     # flagged with the speaker of the share the letter names.
     assert "A stranger's word." in by_id["1:1631"]["text"]
     assert report["attribution_differences"] == [
         {
+            "greek_id": "1:1630",
+            "line": 1630,
+            "english_speaker": "Servant",
+            "greek_speaker": "Second Servant",
+        },
+        {
             "greek_id": "1:1631",
             "line": 1631,
             "english_speaker": "Chorus",
             "greek_speaker": "Second Servant",
-        }
+        },
     ]
     assert report["anomalies"] == []
 

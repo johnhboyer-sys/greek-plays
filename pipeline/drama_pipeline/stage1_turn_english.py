@@ -3,7 +3,10 @@
 Gutenberg-style text (Athenian Society 1912; Lindsay 1925) is parsed into
 speeches, then paired to the Greek spine's speaker sequence by LCS over
 canonical names (``turns._lcs_pairs`` + equal-length gap zip). Residual
-English is grouped onto the preceding paired segment so no speech is dropped.
+English is grouped onto the preceding paired segment when it can be that
+segment's speech; a residual naming somebody the segment does not speak is
+left unassigned, reaches no chunk, and is counted as ``residual_unassigned``
+(stage2 gates it, allowance ``english.max_residual_unassigned``).
 A Greek segment with no English gets no chunk — stage2 sees it unmatched.
 
 The report carries two independent quality numbers: ``length_ratio_outliers``
@@ -671,6 +674,9 @@ def _assign_speeches(
     bench scan gives an unreadable label).  A residual that names somebody
     else is left unassigned and counted (``residual_unassigned``): Frogs
     parked a Xanthias speech on a segment Xanthias does not speak.
+
+    P2j finding 4: a segment whose own primary is None (a speakerless lyric)
+    takes only the nameless residuals -- it used to take every named one.
     """
     assigned: dict[int, list[int]] = {gi: [] for gi in range(n_greek)}
     paired_e = {ej: gi for gi, ej in pairs}
@@ -691,7 +697,11 @@ def _assign_speeches(
             if greek_names is not None and gi < len(greek_names)
             else None
         )
-        if primary is None or name == primary:
+        # P2j finding 4: a segment with NO primary speaker (a speakerless
+        # lyric) is not a wildcard.  Only the unnamed and OCR-junk residuals
+        # handled above may park there; a named residual -- Frogs' Dionysus
+        # after a 30-line unattributed ode -- stays unassigned and counted.
+        if name == primary:
             return True
         return name in (alt[gi] if gi < len(alt) else set())
 

@@ -675,6 +675,13 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # spoken by someone else. 0.05 is tight because a shift means the
         # reader sees another character's words (P2g finding 9).
         max_shift_rate = float(english_cfg.get("max_turn_shift_rate", 0.05))
+        # P2j finding 3: a residual English speech the builder could not park
+        # (its speaker is nobody the preceding segment speaks) reaches NO
+        # chunk -- turn-text's own attachment loss, invisible until now.
+        # Default 0, like the perseus-play allowance; a play whose Gutenberg
+        # text really does carry an orphan declares
+        # `english.max_residual_unassigned`.
+        max_residual = int(english_cfg.get("max_residual_unassigned", 0))
         data, read_error = _stage1_english_report(manifest.work_id)
         rate = None
         # P2g finding 11: no report, or another play's report, fails CLOSED.
@@ -691,6 +698,12 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
             "paired": None,
             "rate": None,
             "max_rate": max_shift_rate,
+            "error": read_error,
+            "ok": read_error is None,
+        }
+        residual_check = {
+            "count": None,
+            "max_count": max_residual,
             "error": read_error,
             "ok": read_error is None,
         }
@@ -739,8 +752,23 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
                 "error": shift_error,
                 "ok": shift_error is None,
             }
+            residual_unassigned = int(data.get("residual_unassigned") or 0)
+            residual_error = None
+            if residual_unassigned > max_residual:
+                residual_error = (
+                    f"{residual_unassigned} residual English speech(es) parked "
+                    f"on no Greek speech (maximum {max_residual}): that text "
+                    "is dropped from the reader"
+                )
+            residual_check = {
+                "count": residual_unassigned,
+                "max_count": max_residual,
+                "error": residual_error,
+                "ok": residual_error is None,
+            }
         report["checks"]["turn_text_length_ratio"] = ratio_check
         report["checks"]["turn_text_turn_shift"] = shift_check
+        report["checks"]["turn_text_residual_unassigned"] = residual_check
         if rate is not None and rate >= floor:
             allowed.update(unmatched)
         allowed.update(_play_line_english_gap_ids(manifest, segments))
@@ -987,6 +1015,16 @@ def _to_markdown(report: dict) -> str:
         ]
         if tm["error"]:
             lines.append(f"- **FAIL:** {tm['error']}")
+    if "turn_text_residual_unassigned" in c:
+        ru = c["turn_text_residual_unassigned"]
+        lines += [
+            "",
+            "## Turn-text residual English left unassigned",
+            f"- count {ru['count'] if ru['count'] is not None else 'unavailable'}; "
+            f"maximum {ru['max_count']}",
+        ]
+        if ru["error"]:
+            lines.append(f"- **FAIL:** {ru['error']}")
     lines += [
         "",
         "## Length ratios (english chars / greek chars)",

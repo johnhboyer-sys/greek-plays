@@ -762,9 +762,28 @@ def _resolve_slice_anchor(
                         "greek": greek_speaker,
                     },
                 }
+            # P2j finding 1: a multi-span speech (one <sp> whose anchors reach
+            # several Greek speeches) disagrees with the printed line's
+            # speaker exactly as a singleton does -- Seven's Herald 1030
+            # owner-attaches onto Antigone's 1:1026 -- so its turn carries the
+            # same flag.  Only the repair search stays withheld: a piece of a
+            # spanning speech belongs beside the Greek its own anchor names.
             mismatch["attached_to"] = segment["id"]
             mismatch["attached_ref"] = ref
             mismatch["attached_speaker"] = greek_speaker
+            mismatch["kind"] = "attribution_difference"
+            return {
+                "attached": True,
+                "tick": n,
+                "ref": ref,
+                "segment": segment,
+                "snap": None,
+                "mismatch": mismatch,
+                "speaker_mismatch": {
+                    "english": speaker,
+                    "greek": greek_speaker,
+                },
+            }
         else:
             mismatch = None
         return {
