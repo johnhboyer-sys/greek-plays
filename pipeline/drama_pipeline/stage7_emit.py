@@ -642,6 +642,7 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                 f"spine line for the positional pairing below to be safe"
             )
         eng = english_by_id.get(seg["id"])
+        covered_by = (english.get("english_covered_by") or {}).get(seg["id"])
         line_ns = [line["n"] for line in seg["lines"]]
         chapter_starts = _chapter_starts(
             seg["column"], line_ns, eng,
@@ -839,6 +840,17 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                     }
                     if eng
                     else None
+                ),
+                # play-line continuation coverage (P2e): this speech has no
+                # English piece of its own; the translator's block that
+                # contains its lines is attached at this segment id. Present
+                # only when english is null and stage1 marked the span;
+                # every other segment (every other scheme) carries no
+                # "englishCoveredBy" key at all.
+                **(
+                    {"englishCoveredBy": covered_by}
+                    if covered_by and not eng
+                    else {}
                 ),
                 # Speaker turn events (stephanus dialogues): [{line, offset,
                 # label}] carried straight from the spine so the reader can render

@@ -424,6 +424,23 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `docs/play-line.md` — English attachment contract (no six-line
   extension; lettered twins gated on the TEI).
 
+## P2e — continuation coverage (2026-09-08)
+
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — Greek
+  segments inside an English speech's attached line span (or between a
+  single attached anchor and the next English owner) get
+  `english_covered_by` pointing at the segment that holds the piece;
+  `covered_by_count` in `english_report.json`; alignment.json carries
+  the parallel map. Lacunae and declared gaps stay unmarked.
+- `pipeline/drama_pipeline/stage2_validate.py` — a segment with
+  `englishCoveredBy` counts as covered, not unmatched.
+- `pipeline/drama_pipeline/stage7_emit.py` — emit `englishCoveredBy` on
+  the book segment (string segment id) when english is null.
+- `pipeline/tests/test_stage1_perseus_play_english.py` — stichomythia
+  fixture (1320 chunk, 1321–1324 covered by 1:1320, 1325 chunk),
+  outside-span and lacuna unmarked, stage2 covered, stage7 field.
+- `docs/play-line.md` — field and "translated above" reader behaviour.
+
 ## P3 bench — Storr's other six Sophocles plays (2026-09-08)
 
 - `pipeline/drama_pipeline/bench_clean.py` — locate OCR-damaged or missing

@@ -15,6 +15,12 @@ An anchor absent from the spine still snaps only onto another line of the
 same English speech.  A single-speech ``<sp>`` whose only ``<l n>`` sits
 inside a different speaker's Greek speech still reattaches to the nearest
 matching-speaker speech within ±3 lines (Cassandra/Chorus Ag. 1077).
+
+P2e continuation coverage: a Greek segment that sits inside an English
+speech's attached line span (or between a single attached anchor and the
+next English owner) and has no piece of its own is marked
+``english_covered_by`` pointing at the segment that holds the translator's
+block.  The marker does not copy text and does not claim speaker identity.
 """
 
 from __future__ import annotations
@@ -229,6 +235,107 @@ class _SpeechIndex:
         if best is None:
             return None
         return best[2], best[3]
+
+
+def _is_lacuna_segment(segment: dict) -> bool:
+    """Empty ``role: lacuna`` placeholder — never continuation-covered."""
+    lines = segment.get("lines") or []
+    return bool(lines) and all(
+        line.get("role") == "lacuna" and not str(line.get("text") or "").strip()
+        for line in lines
+    )
+
+
+def _continuation_covered_by(
+    index: _SpeechIndex,
+    chunks_by_id: dict[str, dict],
+    jobs: list[dict],
+    skip_ids: set[str] | None = None,
+) -> dict[str, str]:
+    """Map unmatched Greek segments to the segment that holds their English.
+
+    An English ``<sp>`` whose attached anchors span ``[min_n, max_n]`` covers
+    every Greek segment whose printed integers all lie in that span and that
+    has no chunk of its own.  A single-anchor speech covers the same way out
+    to the next attached English anchor when its Greek owner ends before that
+    next owner's speech begins.  Lacunae, declared gaps (``skip_ids``), and
+    segments that carry their own English ``<l n>`` stay unmarked.  The
+    marker means "the translator's block that contains this line is attached
+    at ``<id>``"; it does not claim speaker identity.
+    """
+    skip_ids = skip_ids or set()
+    chunked = set(chunks_by_id)
+    lacuna_ids = {seg["id"] for seg in index.segments if _is_lacuna_segment(seg)}
+    anchor_ns = {job["n"] for job in jobs if job.get("n") is not None}
+    attached_by_speech: dict[int, list[tuple[int, str]]] = {}
+    for job in jobs:
+        assigned = job.get("assigned")
+        n = job.get("n")
+        if assigned is None or n is None:
+            continue
+        attached_by_speech.setdefault(job["sp_index"], []).append((n, assigned))
+
+    covered: dict[str, str] = {}
+
+    def mark_span(n_i: int, n_j: int, seg_i: str, seg_j: str) -> None:
+        if seg_i not in index.order or seg_j not in index.order:
+            return
+        lo, hi = (n_i, n_j) if n_i <= n_j else (n_j, n_i)
+        start, end = index.order[seg_i], index.order[seg_j]
+        if start > end:
+            start, end = end, start
+        for segment in index.segments[start + 1 : end]:
+            sid = segment["id"]
+            if (
+                sid in chunked
+                or sid in skip_ids
+                or sid in lacuna_ids
+                or sid in covered
+            ):
+                continue
+            numbers = index.span.get(sid) or set()
+            if not numbers:
+                continue
+            if not all(lo <= n <= hi for n in numbers):
+                continue
+            if numbers & anchor_ns:
+                continue
+            covered[sid] = seg_i
+
+    for items in attached_by_speech.values():
+        for (n_i, seg_i), (n_j, seg_j) in zip(items, items[1:]):
+            mark_span(n_i, n_j, seg_i, seg_j)
+
+    flat: list[tuple[int, int, str]] = []
+    for sp_index in sorted(attached_by_speech):
+        for n, seg_id in attached_by_speech[sp_index]:
+            flat.append((sp_index, n, seg_id))
+    speech_counts = {sp: len(items) for sp, items in attached_by_speech.items()}
+    for i, (sp_i, n_i, seg_i) in enumerate(flat):
+        if speech_counts[sp_i] != 1 or i + 1 >= len(flat):
+            continue
+        _sp_j, n_j, seg_j = flat[i + 1]
+        owner_nums = index.span.get(seg_i) or set()
+        next_nums = index.span.get(seg_j) or set()
+        if not owner_nums or not next_nums:
+            continue
+        if max(owner_nums) >= min(next_nums):
+            continue
+        mark_span(n_i, n_j, seg_i, seg_j)
+
+    return covered
+
+
+def _alignment_with_coverage(spine: dict, english: dict) -> dict:
+    """``build_alignment`` plus the parallel ``english_covered_by`` map."""
+    alignment = build_alignment(spine, english)
+    covered = english.get("english_covered_by") or {}
+    alignment["english_covered_by"] = covered
+    for pair in alignment["pairs"]:
+        cover = covered.get(pair["segment"])
+        if cover and pair["english"] is None:
+            pair["englishCoveredBy"] = cover
+    return alignment
 
 
 def _canonical_english(printed: str, aliases: dict[str, str]) -> str | None:
@@ -755,12 +862,14 @@ def parse_translation(
         for segment in spine["segments"]
         if segment["id"] in chunks_by_id
     ]
+    covered = _continuation_covered_by(index, chunks_by_id, jobs)
     english = {
         "work": work_id,
         "source": xml_path.name,
         "translation": translation_id,
         "chunks": chunks,
         "chapters": [],
+        "english_covered_by": covered,
     }
     total_segments = len(spine["segments"])
     report = {
@@ -777,6 +886,7 @@ def parse_translation(
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,
+        "covered_by_count": len(covered),
         "footnotes": len(footnotes),
         "anomalies": anomalies,
         "speakers": _speaker_report(
@@ -828,22 +938,34 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         sigla=sigla,
         english_aliases=aliases,
     )
+    from .stage2_validate import _play_line_english_gap_ids
+
+    gap_ids = _play_line_english_gap_ids(manifest, spine["segments"])
+    if gap_ids:
+        covered = {
+            sid: cover
+            for sid, cover in (english.get("english_covered_by") or {}).items()
+            if sid not in gap_ids
+        }
+        english["english_covered_by"] = covered
+        report["covered_by_count"] = len(covered)
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)
+    alignment = _alignment_with_coverage(spine, english)
     if slot == "secondary":
         english_path = out_dir / "ross_chunks.json"
         alignment_path = out_dir / "secondary_alignment.json"
         report_path = out_dir / "secondary_report.json"
         write_json(english_path, _chunks_as_overlay(english))
-        write_json(alignment_path, build_alignment(spine, english))
+        write_json(alignment_path, alignment)
         write_json(report_path, report)
         return english_path, alignment_path, report_path
     english_path = out_dir / "english_chunks.json"
     alignment_path = out_dir / "alignment.json"
     report_path = out_dir / "english_report.json"
     write_json(english_path, english)
-    write_json(alignment_path, build_alignment(spine, english))
+    write_json(alignment_path, alignment)
     write_json(report_path, report)
     write_json(out_dir / "english_footnotes.json", footnotes)
     return english_path, alignment_path, report_path

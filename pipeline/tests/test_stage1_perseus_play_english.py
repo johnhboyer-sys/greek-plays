@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,8 @@ from drama_pipeline.stage2_validate import validate
 from drama_pipeline.stage7_emit import (
     _manifest_v1_fields,
     _play_line_english_roster_gate,
+    chapter_ranges,
+    emit_books,
 )
 
 
@@ -716,16 +719,169 @@ def _play_manifest(gaps=None, *, source=None) -> Manifest:
 
 def _alignment_for(spine: dict, english: dict) -> dict:
     eng_ids = {chunk["id"] for chunk in english["chunks"]}
+    covered = english.get("english_covered_by") or {}
+    pairs = []
+    for seg in spine["segments"]:
+        pair = {
+            "segment": seg["id"],
+            "english": seg["id"] if seg["id"] in eng_ids else None,
+        }
+        if pair["english"] is None and seg["id"] in covered:
+            pair["englishCoveredBy"] = covered[seg["id"]]
+        pairs.append(pair)
     return {
-        "pairs": [
+        "pairs": pairs,
+        "english_only": [],
+        "english_covered_by": covered,
+    }
+
+
+def _stichomythia_spine() -> dict:
+    """Greek one-liners 1320..1325, a lacuna inside the span, a line outside it."""
+    segments = []
+    for n in range(1320, 1326):
+        segments.append(
             {
-                "segment": seg["id"],
-                "english": seg["id"] if seg["id"] in eng_ids else None,
+                "id": f"1:{n}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": n, "ref": str(n), "text": f"g{n}"}],
+                "speakers": [
+                    {
+                        "line": 1,
+                        "offset": 0,
+                        "label": "A" if n % 2 == 0 else "B",
+                    }
+                ],
+            }
+        )
+        if n == 1322:
+            segments.append(
+                {
+                    "id": "1:post 1322",
+                    "book": 1,
+                    "column": "1",
+                    "lines": [
+                        {
+                            "n": 1322,
+                            "ref": "post 1322",
+                            "text": "",
+                            "role": "lacuna",
+                        }
+                    ],
+                    "speakers": [],
+                }
+            )
+    segments.append(
+        {
+            "id": "1:1400",
+            "book": 1,
+            "column": "1",
+            "lines": [{"n": 1400, "ref": "1400", "text": "outside"}],
+            "speakers": [{"line": 1, "offset": 0, "label": "A"}],
+        }
+    )
+    return {"work": "test-play", "segments": segments}
+
+
+STICHOMYTHIA_TEI = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker>
+      <l n="1320">First block.</l>
+      <l n="1325">Later block.</l>
+    </sp>
+  </div>
+</body></text></TEI>
+"""
+
+
+def test_stichomythia_continuation_coverage(tmp_path: Path):
+    spine = _stichomythia_spine()
+    english, _footnotes, report = _parse(tmp_path, STICHOMYTHIA_TEI, spine)
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert set(by_id) == {"1:1320", "1:1325"}
+    assert "First block." in by_id["1:1320"]["text"]
+    assert "Later block." in by_id["1:1325"]["text"]
+    covered = english["english_covered_by"]
+    assert covered["1:1321"] == "1:1320"
+    assert covered["1:1322"] == "1:1320"
+    assert covered["1:1323"] == "1:1320"
+    assert covered["1:1324"] == "1:1320"
+    assert "1:1320" not in covered
+    assert "1:1325" not in covered
+    assert "1:1400" not in covered
+    assert "1:post 1322" not in covered
+    assert report["covered_by_count"] == 4
+
+    alignment = _alignment_for(spine, english)
+    result = validate(_play_manifest(gaps=[]), spine, english, alignment)
+    unexpected = result["checks"]["alignment"]["unexpected_unmatched"]
+    assert "1:1321" not in unexpected
+    assert "1:1322" not in unexpected
+    assert "1:1323" not in unexpected
+    assert "1:1324" not in unexpected
+    assert "1:post 1322" not in unexpected
+    assert "1:1400" in unexpected
+
+    tokens = {
+        "segments": [
+            {
+                "id": seg["id"],
+                "lines": [{"n": line["n"], "tokens": []} for line in seg["lines"]],
             }
             for seg in spine["segments"]
-        ],
-        "english_only": [],
+        ]
     }
+    out_dir = tmp_path / "dist"
+    out_dir.mkdir()
+    emit_books(spine, tokens, english, chapter_ranges(spine, []), out_dir)
+    book = json.loads((out_dir / "book-01.json").read_text(encoding="utf-8"))
+    emitted = {seg["id"]: seg for seg in book["segments"]}
+    assert emitted["1:1320"]["english"]["text"] == "First block."
+    assert "englishCoveredBy" not in emitted["1:1320"]
+    assert emitted["1:1321"]["english"] is None
+    assert emitted["1:1321"]["englishCoveredBy"] == "1:1320"
+    assert emitted["1:1324"]["englishCoveredBy"] == "1:1320"
+    assert emitted["1:1325"]["english"]["text"] == "Later block."
+    assert "englishCoveredBy" not in emitted["1:1325"]
+    assert "englishCoveredBy" not in emitted["1:1400"]
+    assert emitted["1:1400"]["english"] is None
+    assert "englishCoveredBy" not in emitted["1:post 1322"]
+
+
+def test_single_anchor_covers_until_next_english_owner(tmp_path: Path):
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": f"1:{n}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": n, "ref": str(n), "text": f"g{n}"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "A"}],
+            }
+            for n in range(10, 16)
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="10">Opens the block.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="15">Closes the block.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(tmp_path, tei, spine)
+    assert {chunk["id"] for chunk in english["chunks"]} == {"1:10", "1:15"}
+    covered = english["english_covered_by"]
+    assert covered == {
+        "1:11": "1:10",
+        "1:12": "1:10",
+        "1:13": "1:10",
+        "1:14": "1:10",
+    }
+    assert report["covered_by_count"] == 4
 
 
 def test_english_gaps_are_the_only_allowed_unmatched_play_line_ids(tmp_path: Path):

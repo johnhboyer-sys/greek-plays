@@ -532,7 +532,17 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
     }
 
     # --- 3. alignment coverage -------------------------------------------
-    unmatched = [p["segment"] for p in alignment["pairs"] if p["english"] is None]
+    # P2e: a segment whose English sits on an earlier speech (continuation
+    # coverage) is not a hole. englishCoveredBy on the pair, or the parallel
+    # english_covered_by map, both count as covered.
+    covered_by = alignment.get("english_covered_by") or {}
+    unmatched = [
+        p["segment"]
+        for p in alignment["pairs"]
+        if p["english"] is None
+        and not p.get("englishCoveredBy")
+        and p["segment"] not in covered_by
+    ]
     # Columns the English TEI demonstrably cannot cover (Perseus omitted a Bekker
     # page milestone, or assigns a book-straddling column to a single book) are
     # declared in the manifest so they're surfaced but don't fail the build.

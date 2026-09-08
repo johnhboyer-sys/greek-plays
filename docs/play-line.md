@@ -37,9 +37,19 @@ When one English `<sp>` has `<l n>` anchors in more than one Greek segment,
 the builder splits it at those line numbers and emits one chunk per Greek
 segment, each carrying the turn `{offset:0, speaker, display}` of the
 English speech it came from. Each numbered piece attaches once. A Greek
-speech between two anchors gets no copied text; stage 2 treats it as a hole
-unless `english.gaps` or another narrow allowance covers it. The builder
-does not extend a piece toward the next English `<sp>`.
+speech between two anchors gets no copied text. When an English speech's
+attached anchors span `[min_n, max_n]`, or a single attached anchor whose
+Greek owner ends before the next English owner begins, every intervening
+Greek segment whose printed integers all lie in that span and that has no
+anchor of its own is marked `englishCoveredBy` with the segment id holding
+the translator's block (for example `"1:1320"`) and keeps `english: null`.
+The marker does not claim speaker identity. The reader shows "translated
+above" and jumps to that speech instead of "no aligned passage". Stage 2
+counts a marked segment as covered. Lacunae and declared `english.gaps` ids
+are not marked. `english.gaps` remains the residue that sits outside every
+English span. The builder does not copy a piece onto intervening speeches
+or extend a piece toward the next English `<sp>`. The stage-1 report
+records `covered_by_count` beside `segments_with_chunk / segments_total`.
 
 Lettered anchors matching `^\d+[a-z]+$` keep their text. They attach to an
 exact printed ref such as `1270a` when the spine has one, then fall back to
@@ -57,16 +67,18 @@ speakers). `speech_mismatch_count` counts all such rows, while
 
 The Greek spine owns the speech/40-line segment cuts. The builder emits at
 most one English chunk per segment. A segment with no English is a hole:
-stage2 accepts it only when its id or printed ref is declared in
-`english.gaps`, or when it is a lacuna-only empty-text segment
-(`_play_line_lacuna_segment_ids`) or a repeated-ref second copy / lettered
- twin (`_play_line_twin_segment_ids`). Stage 2 auto-allows a lettered twin
-only after reading the source TEI and finding no nonempty exact `<l n>` for
-that ref. `english.gaps` is only for Greek
+stage2 accepts it only when it carries `englishCoveredBy`, when its id or
+printed ref is declared in `english.gaps`, or when it is a lacuna-only
+empty-text segment (`_play_line_lacuna_segment_ids`) or a repeated-ref
+second copy / lettered twin (`_play_line_twin_segment_ids`). Stage 2
+auto-allows a lettered twin only after reading the source TEI and finding
+no nonempty exact `<l n>` for that ref. `english.gaps` is only for Greek
 speeches whose line numbers have no covering `<l n>` in the TEI at all.
 Any other unmatched id fails. stage7's id join leaves an undeclared hole's
-`english` field null. The report records
-`segments_with_chunk / segments_total` as the coverage ratio.
+`english` field null and, when stage1 marked the span, writes
+`englishCoveredBy` (a string segment id) onto the emitted book segment.
+The report records `segments_with_chunk / segments_total` as the coverage
+ratio and `covered_by_count` as the continuation-coverage total.
 
 `speakers.english` maps each Perseus `<speaker>` string as printed onto the
 canonical roster display (`"(A Second Elder)"` → `Elder 2`). Emitted English
