@@ -298,6 +298,7 @@ describe('Reader.svelte play-line rendering (P1)', () => {
 });
 
 describe('Reader.svelte play-line continuation coverage (P2e)', () => {
+  beforeEach(() => localStorage.clear());
   it('shows "translated with the speech above" instead of a missing passage when englishCoveredBy is set', async () => {
     const data = book();
     data.segments[0].english = {
@@ -315,3 +316,24 @@ describe('Reader.svelte play-line continuation coverage (P2e)', () => {
     expect(container.querySelectorAll('.eng-covered')).toHaveLength(1);
   });
 });
+
+
+describe('Reader.svelte play-line attribution differences (P2f)', () => {
+  beforeEach(() => localStorage.clear());
+  it('marks the English lead-in with the edition disagreement when speakerMismatch is set', async () => {
+    const data = book();
+    data.segments[0].english = {
+      text: 'Words the translator gives to the Chorus.',
+      notes: [],
+      markers: [],
+      turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }],
+      speakerMismatch: { english: 'Chorus', greek: 'Watchman' },
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const lead = container.querySelector('.english-col .speaker[data-mismatch]');
+    expect(lead?.textContent).toBe('CHORUS');
+    expect(lead?.getAttribute('title')).toContain('Watchman');
+  });
+});
+

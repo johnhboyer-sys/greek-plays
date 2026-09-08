@@ -472,3 +472,6 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `pipeline/tests/test_stage1_perseus_play_english.py` — Messenger 1320 /
   Agamemnon flag, drift without the flag, packed elders and Seven 1040–1047.
 - `docs/play-line.md` — P2f English attachment contract.
+- `shared/lib/data.ts` — `EnglishChunk.speakerMismatch?: {english, greek}` (P2f: edition attribution difference recorded on the attached chunk).
+- `shared/components/Reader.svelte` — play-line English lead-in carries `data-mismatch` + a title naming both attributions when the displayed chunk is the primary with `speakerMismatch`.
+- `shared/styles/global.css` — `.turn-stack .speaker[data-mismatch]` dotted underline, help cursor.

@@ -198,6 +198,10 @@ export interface EnglishChunk {
   // name (null = the unattributed dash turn); `display` is the printed lead-in
   // (null when the said carried none). Absent for non-dialogue chunks.
   turns?: EnglishTurn[];
+  // play-line only (P2f, 2026-09-08): the translator's base text gives this
+  // line to a different character than the TLG edition does; the chunk is
+  // attached to the Greek line owner and the disagreement is recorded here.
+  speakerMismatch?: { english: string; greek: string };
   // Standoff verse ranges over this chunk's `text` (book-section works whose
   // translation quotes verse inline, e.g. Diogenes Laertius' embedded
   // epigrams — see stage1_book_section_english.py's verse-sidecar support).

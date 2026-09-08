@@ -3230,6 +3230,7 @@
   {#snippet playEngTurns(seg: Segment, transId: string)}
     {@const source = playEnglishSource(seg, transId)}
     {#if source}
+    {@const mm = seg.english && source.text === seg.english.text ? seg.english.speakerMismatch : undefined}
     <div
       class="overlay-prose turn-eng turn-stack"
       on:mouseover={onFootnoteOver}
@@ -3243,7 +3244,7 @@
       role="presentation"
     >
       {#each buildEnglishTurnBlocks(source.text, source.turns) as b}
-        <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)}>{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
+        <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>
     {:else if seg.englishCoveredBy && (transById(transId)?.slot === 'english' || !transById(transId) || !piecesFor(seg, transById(transId)!).length)}
