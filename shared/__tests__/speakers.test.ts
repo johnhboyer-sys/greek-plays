@@ -583,8 +583,8 @@ describe('buildEnglishTurnBlocks — fallback English turn stack', () => {
     const turns = [turn(0, 'Euthyphro', 'Euthyphro.'), turn(33, 'Socrates', 'Socrates.')];
     const blocks = buildEnglishTurnBlocks(text, turns);
     expect(blocks).toEqual([
-      { lead: false, display: 'Euthyphro.', speaker: 'Euthyphro', text: 'What is new? Nothing, as I have.' },
-      { lead: false, display: 'Socrates.', speaker: 'Socrates', text: 'Our Athenians differ.' },
+      { lead: false, display: 'Euthyphro.', speaker: 'Euthyphro', text: 'What is new? Nothing, as I have.', turnIndex: 0 },
+      { lead: false, display: 'Socrates.', speaker: 'Socrates', text: 'Our Athenians differ.', turnIndex: 1 },
     ]);
   });
 
@@ -593,14 +593,14 @@ describe('buildEnglishTurnBlocks — fallback English turn stack', () => {
     const turns = [turn(27, 'Socrates', 'Soc.')];
     const blocks = buildEnglishTurnBlocks(text, turns);
     expect(blocks).toEqual([
-      { lead: true, display: null, speaker: null, text: 'tail of an earlier speech.' },
-      { lead: false, display: 'Soc.', speaker: 'Socrates', text: 'A new turn.' },
+      { lead: true, display: null, speaker: null, text: 'tail of an earlier speech.', turnIndex: -1 },
+      { lead: false, display: 'Soc.', speaker: 'Socrates', text: 'A new turn.', turnIndex: 0 },
     ]);
   });
 
   it('omits an empty leading block when the first turn opens the chunk', () => {
     const blocks = buildEnglishTurnBlocks('Speech.', [turn(0, 'Socrates', 'Soc.')]);
-    expect(blocks).toEqual([{ lead: false, display: 'Soc.', speaker: 'Socrates', text: 'Speech.' }]);
+    expect(blocks).toEqual([{ lead: false, display: 'Soc.', speaker: 'Socrates', text: 'Speech.', turnIndex: 0 }]);
   });
 
   it('carries a turn-level speakerMismatch onto its own block only (P2h)', () => {
@@ -629,12 +629,12 @@ describe('buildEnglishTurnBlocks — fallback English turn stack', () => {
       turn(0, null, null),
       turn(0, 'Socrates', 'Soc.'),
     ]);
-    expect(blocks).toEqual([{ lead: false, display: 'Soc.', speaker: 'Socrates', text: 'Speech.' }]);
+    expect(blocks).toEqual([{ lead: false, display: 'Soc.', speaker: 'Socrates', text: 'Speech.', turnIndex: 1 }]);
   });
 
   it('a chunk with no turns is a single unlabeled block (plain prose)', () => {
     expect(buildEnglishTurnBlocks('Just prose.', [])).toEqual([
-      { lead: true, display: null, speaker: null, text: 'Just prose.' },
+      { lead: true, display: null, speaker: null, text: 'Just prose.', turnIndex: -1 },
     ]);
   });
 

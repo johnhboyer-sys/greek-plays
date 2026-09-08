@@ -1493,6 +1493,75 @@
     const roster = bookSpeakerRoster.length ? bookSpeakerRoster : (speakerRoster ?? []);
     return extractPrefixedEnglishTurns(piece.text, roster, fallbackTurns);
   }
+
+  // ── P4 play-line layout (docs/p4-plan.md, docs/mockups/2026-09-08-blend.html) ──
+  // The row model: every English turn sits on the row of the Greek line it
+  // starts on. The k-th English turn of a segment's chunk pairs with the k-th
+  // Greek speaker EVENT of that segment in document order (line, then offset) —
+  // the same event order the pipeline pairs on (docs/play-line.md, P3.4) — and
+  // the turn renders in the row of that event's printed line. Turns that begin
+  // mid-line (an antilabe share, offset > 0) therefore stack in that line's own
+  // row, and a surplus turn (more English turns than Greek events) stacks in the
+  // row of the LAST mapped line rather than inventing one. When every block
+  // lands on the first line — a single-speech chunk, the tragedy norm, and every
+  // antilabe packed into one printed line — this returns null and the segment
+  // renders as the one Greek-beside-English row it always did.
+  type PlayRow = { items: GreekItem[]; blocks: EnglishTurnBlock[] };
+  function playRows(items: GreekItem[], seg: Segment, blocks: EnglishTurnBlock[]): PlayRow[] | null {
+    if (!blocks.length || items.length < 2) return null;
+    const evs = [...(seg.speakers ?? [])].sort((a, b) => a.line - b.line || a.offset - b.offset);
+    if (evs.length < 2) return null;
+    // First item owning each printed line n (a line is never split across items).
+    const rowOfLine = new Map<number, number>();
+    items.forEach((it, i) => { if (it.kind === 'line' && !rowOfLine.has(it.line.n)) rowOfLine.set(it.line.n, i); });
+    const perRow: EnglishTurnBlock[][] = items.map(() => []);
+    let cur = 0;
+    let split = false;
+    for (const b of blocks) {
+      if (b.turnIndex >= 0) {
+        const ev = evs[b.turnIndex];
+        const r = ev ? rowOfLine.get(ev.line) : undefined;
+        if (r != null) cur = r;
+      }
+      if (cur > 0) split = true;
+      perRow[cur].push(b);
+    }
+    if (!split) return null;
+    return items.map((it, i) => ({ items: [it], blocks: perRow[i] }));
+  }
+
+  // An ode gets the narrower measure (John, 2026-09-08: "a narrower measure,
+  // nothing else"): a chorus-spoken speech of more than six Greek lines. Choral
+  // stichomythia and the chorus-leader's dialogue trimeters stay at the dialogue
+  // measure — they are short speeches. "Chorus" matches every roster form the
+  // corpus prints (Chorus, Chorus of Women, Semichorus A, Agathon's Chorus).
+  function playOde(seg: Segment): boolean {
+    const evs = seg.speakers ?? [];
+    if (!evs.length || seg.greek.length <= 6) return false;
+    return evs.every((e) => (e.display ?? '').includes('Chorus'));
+  }
+
+  // Compare-mode column header: "<short> · <year> · by line|by speech". The
+  // alignment model comes from the registry name's own suffix — a turn-text
+  // slot is named "… — by speech" (DRIFT.md, P4), everything else is anchored
+  // by printed line.
+  function playColLabel(t: { short: string; name: string } | null | undefined): string {
+    if (!t) return '';
+    const model = /by speech\s*$/i.test(t.name) ? 'by speech' : 'by line';
+    return [t.short, yearOf(t.name), model].filter(Boolean).join(' · ');
+  }
+
+  // The heading that sits inside the Greek column level with those two headers:
+  // this speech's speaker and its printed line range (the scheme's own refs,
+  // never the dense ordinal).
+  function playSegHead(seg: Segment): string {
+    const refs = seg.greek.filter((l) => l.role !== 'lacuna' && l.ref).map((l) => l.ref as string);
+    const range = !refs.length
+      ? seg.column
+      : refs[0] === refs[refs.length - 1] ? refs[0] : `${refs[0]}–${refs[refs.length - 1]}`;
+    const who = (seg.speakers ?? []).find((e) => e.display)?.display ?? '';
+    return [who, range].filter(Boolean).join(' · ');
+  }
   // Embedded-dialogue blocks for a paragraph-flow row carrying `et` (english.turns
   // nested inside a narrated paragraph). buildEnglishTurnBlocks gives the speaker
   // structure; we re-anchor each trimmed block inside the row's English (indexOf
@@ -3225,18 +3294,10 @@
     {/if}
   {/snippet}
 
-  <!-- Play-line unpaired-dialogue English: printed lead-in, colour keyed
-       on canonical `speaker` (fallback: `display`); footnotes via renderThird. -->
-  {#snippet playEngTurns(seg: Segment, transId: string)}
-    {@const source = playEnglishSource(seg, transId)}
-    {#if source}
-    <!-- The edition disagreement belongs to the TURN it was recorded on (P2h):
-         a packed Greek speech holds several English turns and only some of
-         them quarrel with it. `chunkMm` is the pre-P2h chunk-level field,
-         used only when no turn in this chunk carries one of its own (data
-         built before the per-turn flag existed). -->
-    {@const blocks = buildEnglishTurnBlocks(source.text, source.turns)}
-    {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
+  <!-- The turn stack itself, factored out of playEngTurns so the P4 per-line
+       row model can render ONE row's slice of the same blocks (each English
+       turn beside the Greek line it starts on) with identical markup. -->
+  {#snippet playTurnStack(blocks: EnglishTurnBlock[], chunkMm: { english: string; greek: string } | undefined, transId: string)}
     <div
       class="overlay-prose turn-eng turn-stack"
       on:mouseover={onFootnoteOver}
@@ -3254,6 +3315,21 @@
         <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>
+  {/snippet}
+
+  <!-- Play-line unpaired-dialogue English: printed lead-in, colour keyed
+       on canonical `speaker` (fallback: `display`); footnotes via renderThird. -->
+  {#snippet playEngTurns(seg: Segment, transId: string)}
+    {@const source = playEnglishSource(seg, transId)}
+    {#if source}
+    <!-- The edition disagreement belongs to the TURN it was recorded on (P2h):
+         a packed Greek speech holds several English turns and only some of
+         them quarrel with it. `chunkMm` is the pre-P2h chunk-level field,
+         used only when no turn in this chunk carries one of its own (data
+         built before the per-turn flag existed). -->
+    {@const blocks = buildEnglishTurnBlocks(source.text, source.turns)}
+    {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
+    {@render playTurnStack(blocks, chunkMm, transId)}
     {:else if seg.englishCoveredBy && (transById(transId)?.slot === 'english' || !transById(transId) || !piecesFor(seg, transById(transId)!).length)}
       <!-- P2e: the translator rendered this line inside a block anchored at
            an earlier speech; say so and offer the jump, rather than "no
@@ -3532,7 +3608,9 @@
            transposition seam note is a real discontinuity that must stay
            visually set off. data-discontinuity backs global.css's targeted
            margin exception; every ordinary verse-line segment is untouched. -->
-      <div class="segment" id="col-{seg.column}" data-kind={seg.kind} data-discontinuity={verseDiscontinuity}>
+      <!-- P4: an ode (a chorus speech longer than six lines) reads at a
+           narrower measure — the lyric set apart, and nothing else. -->
+      <div class="segment" id="col-{seg.column}" data-kind={seg.kind} data-discontinuity={verseDiscontinuity} class:play-ode={playLine && playOde(seg)}>
         {#if sectionFlow}<span class="sect-tick" aria-hidden="true" data-n={seg.column}></span>{/if}
         <!-- A chapter that opens this column heads the segment, ABOVE the column
              reference (the column ref is a marker within the chapter, not a
@@ -3781,7 +3859,44 @@
               {/if}
             {/each}
           {/snippet}
-          {#if sectionRowSplit(seg) && trans !== 'compare'}
+          <!-- P4 per-line turn rows (docs/p4-plan.md): a play-line segment whose
+               English turns reach more than one Greek line — an antilabe that
+               hands the line over, the packed comedy speeches — renders one grid
+               ROW per Greek line, each row's English turns beside the line they
+               start on. `playRows` returns null for every other segment (the
+               tragedy norm: one chunk, one row), which keeps the ordinary
+               single-.seg-row path below byte-identical. Compare mode stays on
+               the generic segment compare. -->
+          {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
+          {@const plItems = plSource ? greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses) : []}
+          {@const plTurnBlocks = plSource ? buildEnglishTurnBlocks(plSource.text, plSource.turns) : []}
+          {@const plRows = plSource ? playRows(plItems, seg, plTurnBlocks) : null}
+          {#if plRows}
+            {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
+            <div class="seg-row play-row-split" data-chapter={block.currentChapter}>
+              {#each plRows as row}
+                <div class="play-row">
+                  <!-- No explicit grid placement: the two cells of every row
+                       are consecutive children of the one grid (`.play-row` is
+                       display:contents), so ordinary auto-placement pairs them
+                       — and a single-language view, which collapses the grid to
+                       ONE column and hides the other cell outright, then keeps
+                       the visible cells in that single track instead of being
+                       pinned to a track that no longer exists. -->
+                  <div class="greek-col" data-column={seg.column} lang={sourceLang}>
+                    {@render greekColumnItems(row.items, seg, si)}
+                  </div>
+                  <div
+                    class="english-col"
+                    data-trans={segTransId}
+                    data-eng-credit={engCreditFor(segTransId, seg)}
+                  >
+                    {#if row.blocks.length}{@render playTurnStack(row.blocks, plMm, segTransId)}{/if}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {:else if sectionRowSplit(seg) && trans !== 'compare'}
             <!-- Item 85 (John's live-review layout ruling): each DK numbered
                  section renders as its own row (Greek cell + English cell)
                  instead of the two columns flowing independently -- ordinary
@@ -3903,7 +4018,14 @@
                  FIRST flow anchors L{column}), so greekCiteForRange resolves
                  a selection there via the owning column instead. -->
             <div class="greek-col" data-column={seg.column} lang={sourceLang}>
-              {#if spacerTitle}<div class="overlay-chapter-title overlay-chapter-title-spacer" aria-hidden="true">{spacerTitle}</div>{/if}
+<!-- P4 play-line compare: the heading the two translation headers sit level
+                   with — this speech's speaker and printed line range, inside the
+                   Greek column, on the first segment only. Hung off the spacer's
+                   own `{#if}` as an `{:else if}` (a play-line segment carries no
+                   imported chapter title, so the two are mutually exclusive) so
+                   no other scheme's `.greek-col` gains even an anchor node —
+                   reader-prose-flow.test.ts pins that markup byte for byte. -->
+              {#if spacerTitle}<div class="overlay-chapter-title overlay-chapter-title-spacer" aria-hidden="true">{spacerTitle}</div>{:else if playLine && trans === 'compare' && si === 0}<div class="col-label play-col-head play-greek-head">{playSegHead(seg)}</div>{/if}
               {#each greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses) as item}
                 {#if item.kind === 'table'}
                   <!-- Greek inline table (the TLG ⎪ column square, e.g. De Int 22a). -->
@@ -4118,7 +4240,12 @@
                   : compareLeft === engSlot?.id && seg.english?.summary
                     ? summaryTranslationLabel(transById(compareLeft)?.short ?? 'English')
                     : (transById(compareLeft)?.short ?? 'English')}
-                <div class="col-label">{leftLabel}</div>
+                <!-- P4 play-line compare: the header names the translation AND
+                     its alignment model ("Smyth · 1926 · by line"). Shown as a
+                     column head on the FIRST segment only (play-col-head), level
+                     with the Greek column's own heading; the per-segment label
+                     stays for the phone stack, where the columns are stacked. -->
+                <div class="col-label" class:play-col-head={playLine && si === 0}>{playLine ? playColLabel(transById(compareLeft)) : leftLabel}</div>
               {/if}
               <!-- John's review, 2026-07-28: the same teal accent-line +
                    tinted-background card he liked on the source-passage
@@ -4379,7 +4506,7 @@
                    compareRight === engSlot?.id, the same condition the
                    visible credit below already uses. -->
               <div class="overlay-col" data-trans={compareRight} data-eng-credit={engCreditFor(compareRight, seg)}>
-                <div class="col-label">{rightLabel}</div>
+                <div class="col-label" class:play-col-head={playLine && si === 0}>{playLine ? playColLabel(transById(compareRight)) : rightLabel}</div>
                 {#if seg.english?.title && compareRight === engSlot?.id && (busse || verseLine)}
                   <div class="overlay-chapter-title eng-chapter-title">{seg.english.title}</div>
                 {/if}

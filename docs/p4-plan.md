@@ -23,7 +23,10 @@ That file is the visual spec. Rulings behind it, all John's, 2026-09-08:
   "Translations", never "bench"; "by speech", never "alignment approximate".
 - Dialogue: both columns share ONE left structure: line-number gutter,
   speaker gutter, text. The Greek siglum and the English name hang in the
-  speaker gutter at the same indent; the text of both columns starts level.
+  speaker gutter at the same indent. The Greek speaker gutter is sized for
+  sigla (~3.4rem), the English one for names (~7.5rem), so the Greek verse
+  starts closer to its gutter than the English prose does (John, 14:47:
+  "too much space between gutter and the greek").
   Every English turn sits on the row of the Greek line it starts on; turns
   that begin mid-line (antilabe) stack in that line's row; a mid-line speaker
   change stays inline in the Greek. Columns align on the first baseline.

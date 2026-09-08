@@ -652,3 +652,24 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   module docstring says chunks emit in share order only where that agrees
   with the English.
 - `manifests/*.yaml` (118 translation names) — P4 (John, mockup comment 2026-09-08): the turn-text suffix "— alignment approximate" is now "— by speech": these slots align exactly by speaker turn and do not track lines inside a speech; the old hedge said nothing.
+- `shared/lib/speakers.ts` — P4 Lane A: `EnglishTurnBlock` carries `turnIndex`
+  (the `turns[]` entry it came from, `-1` for the leading pre-turn
+  continuation), so the reader's per-line row model can map the k-th English
+  turn onto the k-th Greek speaker event even where `buildEnglishTurnBlocks`
+  drops an empty unlabeled turn.
+- `shared/components/Reader.svelte` — P4 Lane A: play-line renders per-line
+  turn rows (`playRows` + the `.play-row-split` grid, `playTurnStack` factored
+  out of `playEngTurns`), marks an ode (`playOde`, a chorus speech over six
+  lines) on its `.segment`, and heads compare mode with `playColLabel`
+  ("<short> · <year> · by line|by speech", from the registry name's own
+  suffix) beside a Greek-column heading (`playSegHead`). Every other scheme's
+  markup is untouched — the compare heading hangs off the chapter-title
+  spacer's existing `{#if}` as an `{:else if}` so no other work's `.greek-col`
+  gains even an anchor node.
+- `shared/styles/global.css` — P4 Lane A: a `.reader-body.play-line` layout
+  section (the shared [number][speaker][text] gutter with the Greek siglum and
+  the English lead-in hanging at the same rem indent, baseline-aligned rows,
+  the `.play-row-split` contents grid, the 34em ode measure, the centred
+  1.12× Greek-only column, and unboxed 1.5:1:1 compare with block speaker
+  labels), no rules or ornament between speeches, plus the phone-width
+  restatements of those gutters.

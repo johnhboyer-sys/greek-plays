@@ -1949,6 +1949,129 @@ body {
    silently absorbed into the surrounding lines. */
 .reader-body.verse-line .segment[data-discontinuity] { margin-top: 0.6em; margin-bottom: 0.6em; }
 
+/* ── play-line (the Greek drama corpus) — P4, "the skin" ──────────────
+   Design of record: docs/p4-plan.md, drawn from the visual spec
+   docs/mockups/2026-09-08-blend.html. Every rule here is scoped to
+   .reader-body.play-line; no other scheme is touched. */
+.reader-body.play-line {
+  /* ONE left structure for both columns: [line-number gutter][speaker
+     gutter][text]. The speaker label of each column hangs at --pl-num-w,
+     so the Greek siglum and the English lead-in sit at the SAME indent.
+     rem units (never em), so the two columns resolve the gutters
+     identically despite their different font sizes. The Greek gutter is
+     sized for sigla (Χο., Κλ.), the English one for names
+     (CLYTAEMESTRA) -- the mockup's --spkw-g / --spkw. Two widths is
+     John's ruling (2026-09-08 14:47, "too much space between gutter and
+     the greek"): the labels start level, the Greek verse starts 4.1rem
+     left of the English prose. */
+  --pl-num-w: 2.6rem;
+  --pl-spk-w-greek: 3.4rem;
+  --pl-spk-w: 7.5rem;
+}
+/* No rules between speeches, no ornament anywhere (John, 2026-09-08) --
+   the same posture verse-line takes, with a little air kept between one
+   speech and the next. */
+.reader-body.play-line .segment { border-top: none; padding-top: 0; margin-bottom: 1.1rem; }
+/* Greek and English meet on their FIRST baseline, row by row. */
+.reader-body.play-line .seg-row { align-items: baseline; }
+/* P4 per-line turn rows (Reader.svelte's playRows): ONE grid holding every
+   Greek line's row-pair in document order. `.play-row` is display:contents,
+   a DOM grouping hook only -- its two children are the real grid items, so
+   ordinary auto-placement pairs each Greek line with the English turns that
+   start on it. Same device as .frag-row-split above. */
+.reader-body.play-line .play-row-split .play-row { display: contents; }
+
+/* Greek: the printed ref in the number gutter, the text indented past the
+   speaker gutter, a line-opening siglum hanging in it. */
+.reader-body.play-line .greek-line { gap: 0; }
+.reader-body.play-line .line-num { min-width: var(--pl-num-w); padding-right: 0.6rem; }
+.reader-body.play-line:not(.view-greek) .greek-line .line-text {
+  position: relative;
+  padding-left: var(--pl-spk-w-greek);
+}
+/* ONLY a line-opening siglum hangs. A mid-line speaker change (an antilabe
+   share, offset > 0) is never lineRenderParts' first part, so it stays
+   inline in the Greek exactly where the edition prints it. */
+.reader-body.play-line:not(.view-greek) .greek-line .line-text > .speaker:first-child {
+  position: absolute;
+  /* `left: 0` is the .line-text PADDING box, i.e. the right edge of the
+     number gutter — the same x the English lead-in hangs at. */
+  left: 0;
+  top: 0;
+  width: calc(var(--pl-spk-w-greek) - 0.4em);
+  overflow-wrap: break-word;
+}
+/* An ode -- a chorus speech of more than six lines (Reader.svelte's playOde)
+   -- reads at a narrower measure. The lyric set apart; nothing else. */
+.reader-body.play-line .segment.play-ode .greek-line .line-text { max-width: 34em; }
+
+/* Greek-only: one centred reading column, larger Greek. No second column to
+   align against, so the siglum runs inline and the speaker gutter goes. */
+.reader-body.play-line.view-greek .greek-col {
+  max-width: calc(34em + var(--pl-num-w));
+  font-size: calc(var(--fs-greek) * 1.12);
+}
+/* ONE column, not one per row: `margin: 0 auto` (from the view-greek /
+   view-english rules above) makes a grid item shrink-to-fit, so every row of
+   a per-line split would otherwise centre on its own content width and the
+   reading column would zigzag down the page. Same fix .turn-flow takes. */
+.reader-body.play-line.view-greek .greek-col,
+.reader-body.play-line.view-english .english-col { width: 100%; }
+.reader-body.play-line.view-greek .greek-line .line-text > .speaker { padding-right: 0.4em; }
+
+/* English: the same left structure, so each lead-in hangs level with the
+   Greek siglum of the line it translates and the prose starts past it. */
+.reader-body.play-line .turn-stack { padding-left: 0; }
+.reader-body.play-line .turn-stack .turn-para {
+  position: relative;
+  padding-left: calc(var(--pl-num-w) + var(--pl-spk-w));
+}
+.reader-body.play-line .turn-stack .turn-para > .speaker:first-child {
+  position: absolute;
+  left: var(--pl-num-w);
+  top: 0;
+  width: calc(var(--pl-spk-w) - 0.6em);
+  padding-right: 0;
+  overflow-wrap: break-word;
+}
+/* The "translated with the speech above" jump and the missing-passage dash
+   are not turns, but they belong on the same text edge. */
+.reader-body.play-line .turn-eng:not(.turn-stack) {
+  padding-left: calc(var(--pl-num-w) + var(--pl-spk-w));
+}
+
+/* Compare: three plain columns, Greek widest (1.5 : 1 : 1). No boxes, no
+   panels, no borders. Each column's speaker label is a block ABOVE its
+   text, with no indent below it. */
+.reader-body.play-line.trans-compare.view-both .seg-row { grid-template-columns: 1.5fr 1fr 1fr; }
+.reader-body.play-line.trans-compare.view-english .seg-row { grid-template-columns: 1fr 1fr; }
+.reader-body.play-line.trans-compare .english-col,
+.reader-body.play-line.trans-compare .overlay-col {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.reader-body.play-line.trans-compare .turn-stack .turn-para { padding-left: 0; }
+.reader-body.play-line.trans-compare .turn-stack .turn-para > .speaker:first-child {
+  position: static;
+  display: block;
+  width: auto;
+  margin-bottom: 0.35em;
+}
+.reader-body.play-line.trans-compare .greek-line .line-text { padding-left: 0; }
+.reader-body.play-line.trans-compare .greek-line .line-text > .speaker:first-child {
+  position: static;
+  display: block;
+  width: auto;
+  margin-bottom: 0.35em;
+}
+/* The three column heads, level with each other: the Greek column's own
+   heading ("Chorus · 40–59") beside "Smyth · 1926 · by line" and
+   "Morshead · 1881 · by speech". Rendered on the first segment only --
+   a header over every speech would be noise. */
+.reader-body.play-line.trans-compare .col-label.play-col-head { display: block; }
+.reader-body.play-line.trans-compare .play-greek-head { text-transform: none; letter-spacing: 0; }
+
 /* ── section-flow (docs/section-flow-plan.md) ────────────────────────
    Book-section works that opt in: keep per-section .segment rows (pairing)
    but drop the header, rule, and inter-section gap. The section number is
@@ -3169,12 +3292,33 @@ body {
   }
   .reader-body.trans-compare .greek-line { gap: 0.35rem; }
   .reader-body.trans-compare .line-num { min-width: 1.8rem; font-size: var(--fs-linenum); }
+  /* play-line keeps its shared gutter structure on a phone, at the mockup's
+     narrower phone widths. The .view-both and .trans-compare rules above (and
+     the base .line-num) are written for the schemes whose Greek gutter is a
+     plain line number with no speaker hanging beside it; play-line's gutter
+     also has to line the English lead-in up with the Greek siglum, so it
+     restates its own widths against each of them. */
+  .reader-body.play-line { --pl-num-w: 2.2rem; --pl-spk-w-greek: 3rem; --pl-spk-w: 6rem; }
+  .reader-body.play-line .greek-line,
+  .reader-body.play-line.view-both .greek-line,
+  .reader-body.play-line.trans-compare .greek-line { gap: 0; }
+  .reader-body.play-line .line-num,
+  .reader-body.play-line.view-both .line-num,
+  .reader-body.play-line.trans-compare .line-num { min-width: var(--pl-num-w); }
   .reader-body.trans-compare .english-col,
   .reader-body.trans-compare .overlay-col {
     font-size: var(--fs-english);
     border-top: 1px solid var(--border);
     padding-top: 0.6rem;
     margin-top: 0.6rem;
+  }
+  /* No boxes, panels or borders in play-line compare (John, 2026-09-08) --
+     the stacked phone columns are separated by their own labels and space. */
+  .reader-body.play-line.trans-compare .english-col,
+  .reader-body.play-line.trans-compare .overlay-col {
+    border-top: 0;
+    padding-top: 0;
+    margin-top: 0.9rem;
   }
 
   .popup {

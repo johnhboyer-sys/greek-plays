@@ -511,16 +511,21 @@ export interface EnglishTurnBlock {
   // disagrees with the Greek speech that prints the line. Only the lead-in of
   // this block is marked, never its neighbours in the same chunk.
   speakerMismatch?: { english: string; greek: string };
+  // Index of the `turns[]` entry this block came from; -1 for the leading
+  // pre-turn continuation. P4's per-line row model maps the k-th English turn
+  // onto the k-th Greek speaker event, and an empty unlabeled turn is dropped
+  // below — so a block's position in this array is NOT its turn index.
+  turnIndex: number;
 }
 
 export function buildEnglishTurnBlocks(
   text: string,
   turns: readonly EnglishTurn[],
 ): EnglishTurnBlock[] {
-  if (!turns.length) return [{ lead: true, display: null, speaker: null, text }];
+  if (!turns.length) return [{ lead: true, display: null, speaker: null, text, turnIndex: -1 }];
   const blocks: EnglishTurnBlock[] = [];
   const lead = text.slice(0, turns[0].offset).trim();
-  if (lead) blocks.push({ lead: true, display: null, speaker: null, text: lead });
+  if (lead) blocks.push({ lead: true, display: null, speaker: null, text: lead, turnIndex: -1 });
   for (let i = 0; i < turns.length; i += 1) {
     const end = i + 1 < turns.length ? turns[i + 1].offset : text.length;
     const t = text.slice(turns[i].offset, end).trim();
@@ -535,6 +540,7 @@ export function buildEnglishTurnBlocks(
       display: turns[i].display,
       speaker: turns[i].speaker ?? null,
       text: t,
+      turnIndex: i,
       ...(mismatch ? { speakerMismatch: mismatch } : {}),
     });
   }
