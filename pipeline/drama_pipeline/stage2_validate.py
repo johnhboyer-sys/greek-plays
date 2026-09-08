@@ -25,7 +25,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from . import scheme as scheme_mod
-from .config import BUILD_DIR, Manifest
+from .config import BUILD_DIR, Manifest, SOURCES_DIR
 from .refs import column_key, column_range, ref_key
 from .stage3_tokenize import _SPINE_FILENAMES
 
@@ -151,6 +151,93 @@ def _play_line_twin_segment_ids(segments: list[dict]) -> set[str]:
             if is_copy(seg["id"]) or is_lettered(ref):
                 twins.add(seg["id"])
     return twins
+
+
+def _play_line_english_source(manifest: Manifest) -> Path | None:
+    raw = ((manifest.data.get("english") or {}).get("primary") or {}).get("source")
+    if not raw:
+        return None
+    path = Path(raw)
+    if path.is_file():
+        return path
+    vendored = SOURCES_DIR / str(raw)
+    return vendored if vendored.is_file() else None
+
+
+def _play_line_nonempty_translation_ns(source: Path | None) -> set[str] | None:
+    """Printed ``<l n>`` values in the translation TEI that carry text.
+
+    ``None`` means the source could not be read (fail closed for lettered
+    twins). An empty set means the TEI was read and had no nonempty lines.
+    """
+    if source is None or not source.is_file():
+        return None
+    try:
+        from lxml import etree
+
+        tree = etree.parse(str(source))
+    except (OSError, etree.LxmlError):
+        return None
+    translation = tree.find('.//{*}div[@type="translation"]')
+    root = translation if translation is not None else tree.getroot()
+    found: set[str] = set()
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        if el.tag.rsplit("}", 1)[-1] != "l":
+            continue
+        n = el.get("n")
+        if not n:
+            continue
+        if "".join(el.itertext()).strip():
+            found.add(n)
+    return found
+
+
+def _play_line_allowed_twin_ids(manifest: Manifest, segments: list[dict]) -> set[str]:
+    """Twins that may stay unmatched without a declared gap.
+
+    Numeric ``.2`` copies always pass. A lettered twin passes only when the
+    source TEI has been read and has no nonempty exact ``<l n>`` for that ref.
+    """
+    twins = _play_line_twin_segment_ids(segments)
+    ids = {seg["id"] for seg in segments}
+    by_id = {seg["id"]: seg for seg in segments}
+
+    def is_copy(seg_id: str) -> bool:
+        if "." not in seg_id:
+            return False
+        base, suffix = seg_id.rsplit(".", 1)
+        return suffix.isdigit() and int(suffix) >= 2 and base in ids
+
+    def is_lettered(ref: str) -> bool:
+        return len(ref) > 1 and ref[:-1].isdigit() and ref[-1:].isalpha()
+
+    translated_ns = _play_line_nonempty_translation_ns(
+        _play_line_english_source(manifest)
+    )
+    allowed: set[str] = set()
+    for sid in twins:
+        if is_copy(sid):
+            allowed.add(sid)
+            continue
+        seg = by_id.get(sid)
+        if seg is None:
+            continue
+        lettered_refs = [
+            line.get("ref")
+            for line in seg.get("lines") or []
+            if isinstance(line.get("ref"), str) and is_lettered(line["ref"])
+        ]
+        if not lettered_refs:
+            allowed.add(sid)
+            continue
+        if translated_ns is None:
+            continue
+        if any(ref in translated_ns for ref in lettered_refs):
+            continue
+        allowed.add(sid)
+    return allowed
 
 
 def _play_line_english_gap_ids(manifest: Manifest, segments: list[dict]) -> set[str]:
@@ -458,7 +545,7 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # manifest names it in english.gaps (segment ids or printed refs).
         allowed.update(_play_line_english_gap_ids(manifest, segments))
         allowed.update(_play_line_lacuna_segment_ids(segments))
-        allowed.update(_play_line_twin_segment_ids(segments))
+        allowed.update(_play_line_allowed_twin_ids(manifest, segments))
     if sch.play_line_scheme and primary_model == "turn-text":
         # turn-text (P3, the 1912 comedies): the English has no line numbers,
         # so speeches pair by speaker turn and residue is grouped onto the
@@ -467,9 +554,19 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # acceptance), read from the builder's own report; below it the
         # build fails, above it every unpaired Greek speech is an expected,
         # labelled ("alignment approximate") hole.
-        floor = float(((manifest.data.get("english") or {}).get("min_pairing_rate")) or 0.85)
+        english_cfg = manifest.data.get("english") or {}
+        floor = float(english_cfg.get("min_pairing_rate") or 0.85)
+        max_mismatch_rate = float(english_cfg.get("max_mismatch_rate", 0.15))
         report_path = BUILD_DIR / "stage1" / "english_report.json"
         rate = None
+        mismatch_check = {
+            "count": None,
+            "paired": None,
+            "rate": None,
+            "max_rate": max_mismatch_rate,
+            "error": None,
+            "ok": True,
+        }
         if report_path.exists():
             try:
                 data = json.loads(report_path.read_text())
@@ -478,8 +575,31 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
                 # 2026-09-07, item 6).
                 if data.get("work") == manifest.work_id:
                     rate = float(data.get("pairing_rate"))
+                    paired = int(data.get("paired") or 0)
+                    mismatch_count = int(data.get("speech_mismatch_count") or 0)
+                    mismatch_rate = (
+                        mismatch_count / paired
+                        if paired
+                        else (1.0 if mismatch_count else 0.0)
+                    )
+                    error = None
+                    if mismatch_rate > max_mismatch_rate:
+                        error = (
+                            f"turn-text speech mismatch rate {mismatch_rate:.3f} "
+                            f"exceeds maximum {max_mismatch_rate:.3f} "
+                            f"({mismatch_count}/{paired} paired speeches)"
+                        )
+                    mismatch_check = {
+                        "count": mismatch_count,
+                        "paired": paired,
+                        "rate": mismatch_rate,
+                        "max_rate": max_mismatch_rate,
+                        "error": error,
+                        "ok": error is None,
+                    }
             except (ValueError, TypeError):
                 rate = None
+        report["checks"]["turn_text_mismatches"] = mismatch_check
         if rate is not None and rate >= floor:
             allowed.update(unmatched)
         allowed.update(_play_line_english_gap_ids(manifest, segments))
@@ -697,6 +817,18 @@ def _to_markdown(report: dict) -> str:
         "## Alignment",
         f"- {a['pairs']} pairs; unmatched segments: {a['unmatched_segments'] or 'none'}; "
         f"english-only: {a['english_only'] or 'none'}",
+    ]
+    if "turn_text_mismatches" in c:
+        tm = c["turn_text_mismatches"]
+        lines += [
+            "",
+            "## Turn-text speech mismatches",
+            f"- rate {tm['rate'] if tm['rate'] is not None else 'unavailable'}; "
+            f"maximum {tm['max_rate']}; count {tm['count'] if tm['count'] is not None else 'unavailable'}",
+        ]
+        if tm["error"]:
+            lines.append(f"- **FAIL:** {tm['error']}")
+    lines += [
         "",
         "## Length ratios (english chars / greek chars)",
         f"- median {c['length_ratio']['median']}, robust sd(log) "

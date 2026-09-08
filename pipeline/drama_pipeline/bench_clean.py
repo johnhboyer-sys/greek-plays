@@ -22,9 +22,14 @@ PAGE_NUM_RE = re.compile(r"^\d{1,4}$")
 TRAILING_LINENUM_RE = re.compile(r"\s+\d{1,4}$")
 VOL_SIG_RE = re.compile(r"^VOL\b", re.I)
 SIGNATURE_RE = re.compile(r"^[A-Z](?:[\s.]+[A-Z]){1,4}$")
-SHORT_GARBAGE = {"STS", "OER", "VOR", "GO", "G0", "BB", "DD", "AA", "EE"}
+SHORT_GARBAGE = {
+    "STS", "OER", "VOR", "GO", "G0", "BB", "DD", "AA", "EE", "LOL",
+    "IOI", "LTS", "OI",
+}
+ODD_GARBAGE = {"“I", "} I", "a,", "\\!"}
 STAGE_DIR_RE = re.compile(
-    r"^(enter|exit|exeunt|\[(?:exit|enter)|before the palace)",
+    r"^[|.'\"\s]*\[?\s*(?:enter|erter|enfer|re-enter|exit|exeunt|lxeunt|eveunt|"
+    r"fail|hatt|χε|before the palace)",
     re.I,
 )
 PAREN_ONLY_RE = re.compile(r"^\([^)]*\)\.?$")
@@ -33,14 +38,15 @@ CHORUS_MARK_RE = re.compile(
     re.I,
 )
 SPEAKER_NAME_RE = re.compile(
-    r"^[A-Z][A-Z0-9'’\-]*(?:\s+(?:AND\s+)?[A-Z][A-Z0-9'’\-]*)*$"
+    r"^[A-Z][A-Z0-9'’\-]*(?:\s+(?:AND\s+)?(?:[A-Z][A-Z0-9'’\-]*|[12]))*$"
 )
-LEADING_JUNK_RE = re.compile(r"^[\|\\./:\-–—ὴἢ'\s]+")
-TRAILING_JUNK_RE = re.compile(r"[\|\\>\-–—'\s]+$")
+LEADING_JUNK_RE = re.compile(r"^[\|\\./:{}\[\]\-–—ὴἢ᾿°'@®*_\s]+")
+TRAILING_JUNK_RE = re.compile(r"[\|\\>\-–—'’\s]+$")
 END_VOL_RE = re.compile(r"^END OF VOL", re.I)
 
 # Headings that start a play when followed by ARGUMENT / DRAMATIS PERSONAE.
 DEFAULT_PLAY_TITLES = (
+    "THE KING",
     "OEDIPUS THE KING",
     "OEDIPUS AT COLONUS",
     "ANTIGONE",
@@ -50,6 +56,7 @@ DEFAULT_PLAY_TITLES = (
     "THE TRACHINIAN WOMEN",
     "PHILOCTETES",
 )
+PLAY_HEADING_SET = {title.upper() for title in DEFAULT_PLAY_TITLES}
 
 # OCR of Greek running heads / sigla — never English speakers.
 GREEK_HEAD_OCR = {
@@ -69,6 +76,67 @@ GREEK_HEAD_OCR = {
     "OIAINOTS",
     "OIAINOYS",
     "OIAITIOYS",
+    "O1AINOTS",
+    "OIAIMIOYS",
+    "OIAITIOTS",
+    "OIAINOYTS",
+    "AIAS",
+    "ATAS",
+    "AIA",
+    "ALAS",
+    "TEKMHS3A",
+    "HAEKTPA",
+    "OPESTHS",
+    "XOPOS",
+    "AITIZOO3",
+    "TPAXINIAI",
+    "TPAXINIAT",
+    "AHIANEIPA",
+    "TPOSOS",
+    "HPAKAHS",
+    "SIAOKTHTHS",
+    "NEONTOAEMOS",
+    "NEONTOAEMOZ",
+    "IAOKTHTHS",
+    "TATA",
+    "AIXAS",
+    "TPAXINIAL",
+    "IEPETS",
+    "OIAINMOYS",
+    "OIATMOY>",
+    "IAOKTHTHS",
+}
+
+RUNNING_HEAD_OCR = {
+    "OEDIPUS AT CQLONUS",
+    "OEDIPUS AT COLONUS",
+    "OEDIPUS AT GOLONUS",
+    "OEDIPUS ΑἹ COQLONUS",
+    "TRACHINIAR",
+}
+
+OCR_SPEAKER_FIXES = {
+    "ORDIPUS": "OEDIPUS",
+    "TECMESS A": "TECMESSA",
+    "CLY TEMNESTRA": "CLYTEMNESTRA",
+    "CH RYSOTHEMIS": "CHRYSOTHEMIS",
+    "CHRYSOTHUEMIS": "CHRYSOTHEMIS",
+    "KLECTRA": "ELECTRA",
+    "DETANIRA": "DEIANIRA",
+    "LICH AS": "LICHAS",
+    "E DEIANIRA": "DEIANIRA",
+    "HY LLUS": "HYLLUS",
+    "HER ACLES": "HERACLES",
+    "AGED SFRVANT": "AGED SERVANT",
+    "DRFIANIRA": "DEIANIRA",
+    "SMENE": "ISMENE",
+    "UEDIPUS": "OEDIPUS",
+    "TECMESS.AA": "TECMESSA",
+    "H¥YLLUS": "HYLLUS",
+    "OEDIPUS _": "OEDIPUS",
+    "OEDIPUS ,": "OEDIPUS",
+    "CHORUS ,": "CHORUS",
+    "ISMENE ;": "ISMENE",
 }
 
 NOT_SPEAKERS = {
@@ -80,6 +148,9 @@ NOT_SPEAKERS = {
     "SCENE",
     "THE LOEB CLASSICAL LIBRARY",
     "VOR",
+    "MSS",
+    "M SS",
+    "MAS",
 } | GREEK_HEAD_OCR
 
 GREEK_HEAD_RE = re.compile(
@@ -101,7 +172,8 @@ def greek_ratio(text: str) -> float:
 def _norm_heading(line: str) -> str:
     s = line.strip()
     s = re.sub(r"^[\-–—_|.:\s]+", "", s)
-    s = re.sub(r"[\s:]+$", "", s)
+    s = re.sub(r"[\-–—_|.:\s]+$", "", s)
+    s = re.sub(r"[\-–—_|.~]+", " ", s)
     return re.sub(r"\s+", " ", s).upper()
 
 
@@ -114,9 +186,31 @@ def _followed_by_front_matter(lines: list[str], i: int, window: int = 40) -> boo
         s = lines[j].strip().upper()
         if s in {"ARGUMENT", "DRAMATIS PERSONAE"}:
             return True
+        # A running head at the end of one play can sit within the look-ahead
+        # window of the next play's ARGUMENT. Do not mistake it for a title.
+        if _norm_heading(lines[j]) in PLAY_HEADING_SET:
+            return False
         if s.startswith("END OF VOL"):
             return False
     return False
+
+
+def _preceded_by_front_matter(lines: list[str], i: int, window: int = 120) -> bool:
+    """Recognize a first running head when OCR omitted the title page."""
+    for j in range(i - 1, max(-1, i - 1 - window), -1):
+        if lines[j].strip().upper() == "DRAMATIS PERSONAE":
+            return True
+    return False
+
+
+def _front_matter_start_before(lines: list[str], i: int, window: int = 220) -> int:
+    """Return the first ARGUMENT page tied to a later cast/body heading."""
+    arguments = [
+        j
+        for j in range(max(0, i - window), i)
+        if lines[j].strip().upper() == "ARGUMENT"
+    ]
+    return arguments[0] if arguments else i
 
 
 def locate_play(
@@ -132,6 +226,14 @@ def locate_play(
         for i, line in enumerate(lines)
         if _is_play_heading(line, want) and _followed_by_front_matter(lines, i)
     ]
+    if not hits:
+        # Volume I has no OCR text for the Oedipus at Colonus title page.
+        # Its first English running head follows the cast and is a safe start.
+        hits = [
+            i
+            for i, line in enumerate(lines)
+            if _is_play_heading(line, want) and _preceded_by_front_matter(lines, i)
+        ]
     if not hits:
         raise ValueError(f"play title {title!r} not found (no ARGUMENT/DRAMATIS after heading)")
     start = hits[-1]
@@ -155,8 +257,13 @@ def locate_play(
                     break
     else:
         for i, line in enumerate(lines[start + 1 :], start + 1):
-            if _is_play_heading(line, nxt) and _followed_by_front_matter(lines, i):
+            if not _is_play_heading(line, nxt):
+                continue
+            if _followed_by_front_matter(lines, i):
                 end = i
+                break
+            if _preceded_by_front_matter(lines, i):
+                end = _front_matter_start_before(lines, i)
                 break
     return start, end
 
@@ -217,6 +324,10 @@ def _is_running_head(line: str, title: str) -> bool:
         return False
     if s == title.upper() or s == "SOPHOCLES":
         return True
+    if title.upper() == "THE KING" and s == "OEDIPUS THE KING":
+        return True
+    if s in RUNNING_HEAD_OCR:
+        return True
     if VOL_SIG_RE.match(s) or s.startswith("VOL"):
         return True
     return s in GREEK_HEAD_OCR or bool(GREEK_HEAD_RE.match(s))
@@ -230,6 +341,8 @@ def _is_marginal_linenum(line: str) -> bool:
 def _strip_trailing_linenum(line: str) -> str:
     # Keep real verse; only strip a trailing 1-4 digit token on a short tail.
     s = line.rstrip()
+    if re.match(r"^SEMI-CHORUS\s+[12]$", s, re.I):
+        return s
     m = TRAILING_LINENUM_RE.search(s)
     if not m:
         return s
@@ -243,7 +356,7 @@ def _is_slash_garbage(line: str) -> bool:
     s = line.strip()
     if not s:
         return False
-    if s.upper() in SHORT_GARBAGE or SIGNATURE_RE.match(s):
+    if s in ODD_GARBAGE or s.upper() in SHORT_GARBAGE or SIGNATURE_RE.match(s):
         return True
     letters = LATIN_RE.findall(s) + GREEK_RE.findall(s)
     slashes = s.count("/") + s.count("\\")
@@ -268,6 +381,13 @@ def clean_page_lines(page: list[str], title: str) -> list[str]:
             seen_head = True
             continue
         seen_head = True
+        # These headings cannot also be speaker names in their plays, so an
+        # OCR-shifted copy is safe to drop even when page splitting missed it.
+        if _norm_heading(s) in RUNNING_HEAD_OCR:
+            continue
+        if title.upper() in {"THE KING", "OEDIPUS AT COLONUS", "TRACHINIAE"}:
+            if _is_running_head(s, title):
+                continue
         if _is_page_number(s) or _is_marginal_linenum(s):
             continue
         if VOL_SIG_RE.match(s) or END_VOL_RE.match(s):
@@ -278,12 +398,19 @@ def clean_page_lines(page: list[str], title: str) -> list[str]:
             continue
         if STAGE_DIR_RE.match(s):
             continue
-        stem = re.split(r"[.\s]", s, 1)[0].upper()
+        stem_line = LEADING_JUNK_RE.sub("", s)
+        stem = re.split(r"[.\s]", stem_line, 1)[0].upper()
         if stem in SHORT_GARBAGE or stem in GREEK_HEAD_OCR:
             continue
         if greek_ratio(s) > 0.3:
             continue
         s = _strip_trailing_linenum(s)
+        s = re.sub(
+            r"\s*\[\s*(?:Exit|Hail)\s+[A-Z][A-Z ]*\.\s*$",
+            "",
+            s,
+            flags=re.I,
+        )
         s = CHORUS_MARK_RE.sub(" ", s)
         s = re.sub(r"\s+", " ", s).strip()
         if s:
@@ -318,14 +445,27 @@ def _speaker_candidate(line: str) -> tuple[str | None, str]:
     if not s:
         return None, s
     s = LEADING_JUNK_RE.sub("", s)
+    s = re.sub(
+        r"^[0-9*\"“‘,;=ΑΝ]+\s*(?=[A-Z][A-Z0-9'’\-]{2})",
+        "",
+        s,
+    )
+    s = re.sub(r"^(?:Ὡς|Ὁ|Η|ὦ|ὲ|ὰ)\s+", "", s)
+    semi = re.fullmatch(r"SEMI-(?:CHORUS|cHoRUS|cHORUS)\s+([12|\]])\s*", s)
+    if semi:
+        number = "1" if semi.group(1) in {"|", "]"} else semi.group(1)
+        s = f"SEMI-CHORUS {number}"
     s = s.strip("|").strip()
     s = TRAILING_JUNK_RE.sub("", s).strip()
+    s = re.sub(r"\s+\.$", ".", s)
+    s = OCR_SPEAKER_FIXES.get(s, s)
     if not s:
         return None, line.strip()
     m = re.match(
-        r"^(?P<name>[A-Z][A-Z0-9'’\-]*(?:\s+(?:AND\s+)?[A-Z][A-Z0-9'’\-]*)*)"
+        r"^(?P<name>[A-Z][A-Z0-9'’\-]*(?:\s+(?:AND\s+)?(?:[A-Z][A-Z0-9'’\-]*|[12]))*)"
         r"(?![a-z])"
         r"(?:\s*\([^)]*\))?"
+        r"\s*"
         r"(?P<dot>\.)?"
         r"\s*"
         r"(?P<rest>.*)$",
@@ -397,6 +537,12 @@ def _skip_front_matter(lines: list[str]) -> list[str]:
             start = i + 1
             break
     body = lines[start:]
+    # Cast lists end with a Scene line in these Loeb volumes. Start the
+    # speaker search after it so cast names cannot open a false speech.
+    for i, line in enumerate(body[:100]):
+        if re.match(r"^scene\s*:", line.strip(), re.I):
+            body = body[i + 1 :]
+            break
     # Advance to the first speaker-like line followed by verse.
     for i, line in enumerate(body):
         name, rest = _speaker_candidate(line)
@@ -406,7 +552,7 @@ def _skip_front_matter(lines: list[str]) -> list[str]:
         if rest and any(ch.islower() for ch in rest) and len(rest.split()) >= 4:
             nxt = rest
         else:
-            for later in body[i + 1 : i + 8]:
+            for later in body[i + 1 :]:
                 if later.strip():
                     nxt = later.strip()
                     break

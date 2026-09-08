@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0011.tlg004.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: storr
+    name: "F. Storr (Loeb, 1912) — alignment approximate"
+    short: Storr
+    model: turn-text
+    format: loeb-ocr
+    source: bench/storr/oedipus-tyrannus.txt
+    play: THE KING
+    footnotes: false
   gaps:
     - "1:624"  # no covering <l n> in the Perseus TEI
     - "1:679"  # no covering <l n> in the Perseus TEI
@@ -57,6 +66,16 @@ speakers:
     "Priest of Zeus": "Priest"
     "Iocasta": "Jocasta"
     "Icasta": "Jocasta"
+  english_secondary:
+    "OEDIPUS": "Oedipus"
+    "PRIEST": "Priest"
+    "CREON": "Creon"
+    "CHORUS": "Chorus"
+    "TEIRESIAS": "Teiresias"
+    "JOCASTA": "Jocasta"
+    "MESSENGER": "Messenger"
+    "HERDSMAN": "Servant"
+    "SECOND MESSENGER": "Second Messenger"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -110,6 +129,10 @@ registry:
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+    - id: storr
+      name: "F. Storr (Loeb, 1912) — alignment approximate"
+      short: Storr
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Soph. OT"

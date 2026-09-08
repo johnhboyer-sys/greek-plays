@@ -1,9 +1,12 @@
 from drama_pipeline.bench_clean import (
+    _is_greek_running_head,
+    _speaker_candidate,
     clean_play,
     greek_ratio,
     locate_play,
     normalize_speakers,
     rejoin_hyphens,
+    _strip_trailing_linenum,
     write_clean,
 )
 
@@ -89,6 +92,10 @@ def test_greek_ratio_flags_greek_page():
     assert greek_ratio("Ὦ κοινὸν αὐτάδελφον Ἰσμήνης κάρα") > 0.3
 
 
+def test_ajax_greek_running_head_ocr_splits_facing_pages():
+    assert _is_greek_running_head("ALAS")
+
+
 def test_locate_play_skips_toc_and_stops_at_end_of_vol():
     lines = LOEB.splitlines()
     start, end = locate_play(lines, "ANTIGONE")
@@ -98,11 +105,100 @@ def test_locate_play_skips_toc_and_stops_at_end_of_vol():
     assert "END OF VOL" in body
 
 
+def test_locate_play_does_not_take_running_head_before_next_argument():
+    lines = """
+AJAX
+ARGUMENT
+Ajax begins here.
+AJAX
+The last English page.
+ELECTRA
+ARGUMENT
+Electra begins here.
+""".splitlines()
+    start, end = locate_play(lines, "AJAX")
+    assert lines[start] == "AJAX"
+    assert "Ajax begins here." in lines[start:end]
+    assert "Electra begins here." not in lines[start:end]
+
+
+def test_locate_play_accepts_first_running_head_after_cast_when_title_page_is_missing():
+    lines = """
+ARGUMENT
+The argument.
+DRAMATIS PERSONAE
+Oedipus, an exile.
+OEDIPUS AT COLONUS
+OEDIPUS
+Child of an old blind sire.
+ANTIGONE
+ARGUMENT
+The next play.
+""".splitlines()
+    start, end = locate_play(lines, "OEDIPUS AT COLONUS")
+    assert lines[start] == "OEDIPUS AT COLONUS"
+    assert "Child of an old blind sire." in lines[start:end]
+    assert "The next play." not in lines[start:end]
+
+
 def test_hyphen_rejoin():
     assert rejoin_hyphens(["ful-", "fil the weird", "next"]) == [
         "fulfil the weird",
         "next",
     ]
+
+
+def test_ocr_split_speaker_names_are_repaired():
+    assert _speaker_candidate("TECMESS A") == ("TECMESSA", "")
+    assert _speaker_candidate("CLY TEMNESTRA") == ("CLYTEMNESTRA", "")
+    assert _speaker_candidate("HER ACLES") == ("HERACLES", "")
+    assert _speaker_candidate("AGED SFRVANT") == ("AGED SERVANT", "")
+    assert _speaker_candidate("DRFIANIRA") == ("DEIANIRA", "")
+    assert _speaker_candidate("[SMENE |") == ("ISMENE", "")
+    assert _speaker_candidate("UEDIPUS") == ("OEDIPUS", "")
+    assert _speaker_candidate("TECMESS.AA") == ("TECMESSA", "")
+    assert _speaker_candidate("H¥YLLUS") == ("HYLLUS", "")
+    assert _speaker_candidate("OEDIPUS ,") == ("OEDIPUS", "")
+
+
+def test_ocr_semi_chorus_numbers_are_repaired():
+    assert _strip_trailing_linenum("SEMI-CHORUS 2") == "SEMI-CHORUS 2"
+    assert _speaker_candidate("SEMI-cHoRUS |") == ("SEMI-CHORUS 1", "")
+    assert _speaker_candidate("SEMI-cHORUS 2") == ("SEMI-CHORUS 2", "")
+
+
+def test_leading_ocr_junk_is_removed_from_speaker_names():
+    assert _speaker_candidate("᾿ CHRYSOTHEMIS") == ("CHRYSOTHEMIS", "")
+    assert _speaker_candidate("ANTIGONE .") == ("ANTIGONE", "")
+    assert _speaker_candidate("7 MESSENGER") == ("MESSENGER", "")
+    assert _speaker_candidate("Α TECMESSA") == ("TECMESSA", "")
+    assert _speaker_candidate("“OEDIPUS") == ("OEDIPUS", "")
+    assert _speaker_candidate("MAS. omit a word") == (None, "MAS. omit a word")
+
+
+def test_ocr_exit_stubs_and_end_glyphs_are_dropped():
+    text, report = clean_play(
+        """
+AJAX
+ARGUMENT
+DRAMATIS PERSONAE
+Scene: before the tent.
+AJAX
+AJAX
+Speak, and be heard by all assembled here.
+| [Hatt AJAX.
+The speech continues after the stage direction. [ Hail AJAX.
+a,
+\\!
+END OF VOL. II.
+""",
+        "AJAX",
+    )
+    assert "Hatt" not in text
+    assert "Hail AJAX" not in text
+    assert "\na,\n" not in text
+    assert "\\!" not in text
+    assert report["speakers_found"] == ["AJAX"]
 
 
 def test_own_line_speakers_become_name_dot_text():

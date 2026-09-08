@@ -36,23 +36,33 @@ Each slice attaches to the Greek segment that owns the printed `<l n>`
 When one English `<sp>` has `<l n>` anchors in more than one Greek segment,
 the builder splits it at those line numbers and emits one chunk per Greek
 segment, each carrying the turn `{offset:0, speaker, display}` of the
-English speech it came from. A Greek segment whose lines sit between two
-of those anchors, with no `<l n>` of its own, receives the nearest
-preceding numbered piece (Smyth numbers lyric every fifth line). An
-anchor absent from the spine snaps only onto another line of the same
-English speech, never into a neighbouring speech. A `<l n>` that sits
-inside a different speaker's Greek speech still attaches to that line's
-owner (Cassandra/Chorus Ag. 1077); the mismatch is reported, not
-redirected. Every snap and
-speech-mismatch is written to `build/stage1/english_report.json` (play,
-English line, Greek ref, both speakers).
+English speech it came from. Each numbered piece attaches once. A Greek
+speech between two anchors gets no copied text; stage 2 treats it as a hole
+unless `english.gaps` or another narrow allowance covers it. The builder
+does not extend a piece toward the next English `<sp>`.
+
+Lettered anchors matching `^\d+[a-z]+$` keep their text. They attach to an
+exact printed ref such as `1270a` when the spine has one, then fall back to
+the integer base within that same English speech. Any other anchor absent
+from the spine may snap only onto another line of its own English speech,
+never into a neighbouring speech. Line-owner attachment across different
+Greek speakers applies only when one English `<sp>` has anchors in more
+than one Greek segment. For a singleton mismatch, the builder uses the
+nearest same-speaker Greek speech within three lines, preferring the
+earlier speech on a tie; if none exists, it attaches nothing and reports
+the mismatch. Every snap and speech mismatch is written to
+`build/stage1/english_report.json` (play, English line, Greek ref, both
+speakers). `speech_mismatch_count` counts all such rows, while
+`unresolved_mismatch_count` counts rows with no `attached_to` target.
 
 The Greek spine owns the speech/40-line segment cuts. The builder emits at
 most one English chunk per segment. A segment with no English is a hole:
 stage2 accepts it only when its id or printed ref is declared in
 `english.gaps`, or when it is a lacuna-only empty-text segment
 (`_play_line_lacuna_segment_ids`) or a repeated-ref second copy / lettered
-twin (`_play_line_twin_segment_ids`). `english.gaps` is only for Greek
+ twin (`_play_line_twin_segment_ids`). Stage 2 auto-allows a lettered twin
+only after reading the source TEI and finding no nonempty exact `<l n>` for
+that ref. `english.gaps` is only for Greek
 speeches whose line numbers have no covering `<l n>` in the TEI at all.
 Any other unmatched id fails. stage7's id join leaves an undeclared hole's
 `english` field null. The report records
@@ -73,11 +83,16 @@ text is dropped; tails are kept. Display-only `<l n="0">` lines are dropped.
 
 For comedy `turn-text` sources, a printed `NAME.` label may stand alone, while
 `NAME text` without the period starts a speech only when `NAME` occurs in the
-work's `speakers.english` aliases. Blank source lines inside a speech remain
+work's `speakers.english` aliases and is the whole capitalized name before the
+first word with lowercase letters. Blank source lines inside a speech remain
 paragraph breaks. `english.primary.line_fixes` applies declared 1-based source
-line replacements before parsing. Stage 1 stops on an English name outside the
-Greek roster and reports paired speech-length ratio outliers; English before
-the first pair attaches to Greek segment 0.
+line replacements before parsing. Notes end only at `INDEX`, `INTRODUCTION`,
+the next known comedy title, or the Gutenberg end marker. Stage 1 stops on an
+English name outside the Greek roster and reports paired speech-length ratio
+outliers. English before the first pair attaches to Greek segment 0 only when
+its canonical speaker matches that segment; the report counts other head text
+as `head_unassigned`. Stage 2 fails when `speech_mismatch_count / paired`
+exceeds `english.max_mismatch_rate` (default `0.15`).
 
 Preflight reads `pipeline/drama_pipeline/public_domain_translations.yaml` and
 requires every translation id stage7 can emit (primary / secondary / third /

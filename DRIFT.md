@@ -374,3 +374,63 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   paired length-ratio outliers, and attaches head residue to segment 0.
 - `pipeline/tests/test_stage1_turn_english.py` — covers each parser fix against
   focused fixtures and the real Athenian Society comedy sources.
+
+## P3.2 — play-line translation comparison (2026-09-07)
+
+- `shared/components/Reader.svelte` — resolve each play-line picker id through
+  its registry slot, render that slot's turn stack in single and compare mode,
+  and show the aligned-passage gap when the chosen slot has no segment text.
+- `shared/lib/data.ts`, `shared/lib/speakers.ts` — type structured overlay turns
+  and recover turn data from legacy speaker-prefixed overlay text.
+
+## Comedy comparison slots (2026-09-07)
+
+- `manifests/clouds.yaml` — Hickie Bohn 1853 as `english.secondary` (`perseus-play`, bowdlerized comparison slot).
+- `manifests/lysistrata.yaml` — Lindsay 1925 as `english.secondary` (`turn-text`, alignment approximate).
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — `hickie` note names Bohn 1853 and the bowdlerized comparison slot; `lindsay` already listed.
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — `run(..., slot="secondary")` writes `ross_chunks.json` from a Perseus play TEI.
+- `pipeline/drama_pipeline/__main__.py` — play-line `english.secondary` with `model: perseus-play` dispatches that builder.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — Lindsay own-line speakers may carry a trailing `(_stage_)`; ellipsis (`O....`) is not a speaker.
+- `pipeline/tests/test_stage1_turn_english.py` — real `pg7700.txt` speech count and first/last speaker.
+- `docs/bench.md` — comedy comparison-slot section.
+- `shared/__tests__/reader-play-line.test.ts` — cover secondary selection,
+  distinct compare columns, stable speaker colours, and sparse coverage.
+
+## P3.2 — comedy turn-text follow-up (2026-09-08)
+
+- `pipeline/drama_pipeline/stage1_turn_english.py` — restrict period-less
+  speaker labels to a full alias, keep date lines in notes, and leave
+  wrong-speaker head residue unassigned.
+- `pipeline/drama_pipeline/__main__.py`,
+  `pipeline/drama_pipeline/stage2_validate.py` — show speech mismatches and
+  fail turn-text validation above the configured mismatch rate.
+- `pipeline/tests/test_stage1_turn_english.py` — pin all eleven real source
+  openings, note tails, cast-list residue, and the mismatch gate.
+- `docs/play-line.md` — document the tighter parser and validation rules.
+
+## P2d — tragedy attachment review fixes (2026-09-08)
+
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — each numbered
+  piece attaches once; owner-over-speaker only for a multi-segment English
+  `<sp>`; a singleton mismatch repairs to the nearest same-speaker Greek
+  speech within ±3 (earlier on a tie) or stays unmatched; lettered `<l n>`
+  kept; `speech_mismatch_count` is all mismatch rows,
+  `unresolved_mismatch_count` is rows with no `attached_to`. Secondary-slot
+  `run(..., slot="secondary")` → `ross_chunks.json` kept.
+- `pipeline/drama_pipeline/stage2_validate.py` — a lettered twin is
+  auto-allowed only when the source TEI has no nonempty matching `<l n>`.
+- `pipeline/tests/test_stage1_perseus_play_english.py` — P2d cases (1077
+  repair, unresolved mismatch, Ag. 1203–1213 swap, translated 1270a).
+- `docs/play-line.md` — English attachment contract (no six-line
+  extension; lettered twins gated on the TEI).
+
+## P3 bench — Storr's other six Sophocles plays (2026-09-08)
+
+- `pipeline/drama_pipeline/bench_clean.py` — locate OCR-damaged or missing
+  title pages, split mixed facing pages at Greek-head OCR variants, repair
+  speaker-label OCR, keep numbered semi-choruses, and drop leaked heads,
+  stage stubs, numbers, and scan glyphs.
+- `pipeline/tests/test_bench_clean.py` — synthetic coverage for each new
+  title, page-split, speaker-label, semi-chorus, stage, and glyph special case.
+- `docs/bench.md` — per-play headings, report counts, roster aliases, and
+  residual OCR notes for the six Storr sources.

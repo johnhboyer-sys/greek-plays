@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0011.tlg005.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: storr
+    name: "F. Storr (Loeb, 1913) — alignment approximate"
+    short: Storr
+    model: turn-text
+    format: loeb-ocr
+    source: bench/storr/electra-soph.txt
+    play: ELECTRA
+    footnotes: false
   gaps:
     - "1:856"  # no covering <l n> in the Perseus TEI
     - "1:987"  # no covering <l n> in the Perseus TEI
@@ -53,6 +62,14 @@ speakers:
     "Chrysothemis": "Chrysothemis"
     "Clytaemnestra": "Clytemnestra"
     "Aegisthus": "Aegisthus"
+  english_secondary:
+    "AGED SERVANT": "Paedagogus"
+    "ORESTES": "Orestes"
+    "ELECTRA": "Electra"
+    "CHORUS": "Chorus"
+    "CHRYSOTHEMIS": "Chrysothemis"
+    "CLYTEMNESTRA": "Clytemnestra"
+    "AEGISTHUS": "Aegisthus"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -102,6 +119,10 @@ registry:
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+    - id: storr
+      name: "F. Storr (Loeb, 1913) — alignment approximate"
+      short: Storr
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Soph. El."

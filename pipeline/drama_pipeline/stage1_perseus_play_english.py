@@ -32,7 +32,13 @@ from .stage1_english import build_alignment
 
 
 _EM_DASH_SPLIT = re.compile(r"(?:(?<=\s)|^)(?=—)")
+_LETTERED_ANCHOR = re.compile(r"^(\d+)[a-z]+$")
 _SKIP_TAGS = frozenset({"del", "stage", "gap", "speaker"})
+
+
+def _anchor_base(ref: str) -> int:
+    lettered = _LETTERED_ANCHOR.fullmatch(ref)
+    return int(lettered.group(1) if lettered else ref)
 
 
 def _nearest_line(valid_sorted: list[int], n: int) -> int:
@@ -105,8 +111,9 @@ def _ref_line_numbers(ref: str) -> set[int]:
         return {int(ref)}
     if ref.startswith("post ") and ref[5:].isdigit():
         return {int(ref[5:])}
-    if len(ref) > 1 and ref[:-1].isdigit() and ref[-1:].isalpha():
-        return {int(ref[:-1])}
+    lettered = _LETTERED_ANCHOR.fullmatch(ref)
+    if lettered:
+        return {int(lettered.group(1))}
     if "-" in ref:
         start, end = ref.split("-", 1)
         if start.isdigit() and end.isdigit():
@@ -125,6 +132,7 @@ class _SpeechIndex:
         self.order = {seg["id"]: i for i, seg in enumerate(self.segments)}
         self.span: dict[str, set[int]] = {}
         self.covering: dict[int, list[tuple[dict, str, int]]] = {}
+        self.by_ref: dict[str, list[tuple[dict, int]]] = {}
         self.speaker_of: dict[str, str | None] = {}
         self.valid_numbers: set[int] = set()
 
@@ -142,6 +150,7 @@ class _SpeechIndex:
                     continue
                 covered = _ref_line_numbers(ref)
                 numbers.update(covered)
+                self.by_ref.setdefault(ref, []).append((segment, order))
                 for n in covered:
                     self.covering.setdefault(n, []).append((segment, ref, order))
             self.span[segment["id"]] = numbers
@@ -163,6 +172,18 @@ class _SpeechIndex:
             key=lambda item: (item[1] != str(n), item[2]),
         )
         return segment, ref
+
+    def segment_for_anchor(self, ref: str) -> tuple[dict, str] | None:
+        exact = self.by_ref.get(ref)
+        if exact:
+            segment, _order = min(exact, key=lambda item: item[1])
+            return segment, ref
+        match = _LETTERED_ANCHOR.fullmatch(ref)
+        if match:
+            return self.segment_for_line(int(match.group(1)))
+        if ref.isdigit():
+            return self.segment_for_line(int(ref))
+        return None
 
     def closest_ref(self, segment: dict, n: int) -> str:
         best: tuple[int, int, str] | None = None
@@ -188,7 +209,7 @@ class _SpeechIndex:
     ) -> tuple[dict, str] | None:
         """Nearest same-speaker segment whose span is within ±window of n."""
         claimed = claimed or set()
-        best: tuple[int, int, int, dict, str] | None = None
+        best: tuple[int, int, dict, str] | None = None
         for segment in self.segments:
             if segment["id"] in claimed:
                 continue
@@ -200,14 +221,14 @@ class _SpeechIndex:
             distance = min(abs(n - line) for line in numbers)
             if distance > window:
                 continue
-            forward = 0 if min(numbers) >= n else 1
             ref = self.closest_ref(segment, n)
-            candidate = (distance, forward, self.order[segment["id"]], segment, ref)
+            # Equal distance: the earlier speech (Ag. 1204 Chorus → 1203, not 1205).
+            candidate = (distance, self.order[segment["id"]], segment, ref)
             if best is None or candidate < best:
                 best = candidate
         if best is None:
             return None
-        return best[3], best[4]
+        return best[2], best[3]
 
 
 def _canonical_english(printed: str, aliases: dict[str, str]) -> str | None:
@@ -257,9 +278,9 @@ class _Slice:
     __slots__ = ("pieces",)
 
     def __init__(self) -> None:
-        self.pieces: list[tuple[int | None, str]] = []
+        self.pieces: list[tuple[str | None, str]] = []
 
-    def add(self, n: int | None, text: str) -> None:
+    def add(self, n: str | None, text: str) -> None:
         if not text:
             return
         if self.pieces and self.pieces[-1][0] == n:
@@ -272,10 +293,10 @@ class _Slice:
     def has_content(self) -> bool:
         return any(part.strip() for _n, part in self.pieces)
 
-    def first_n(self) -> int | None:
-        for n, _part in self.pieces:
-            if n is not None:
-                return n
+    def first_anchor(self) -> str | None:
+        for anchor, _part in self.pieces:
+            if anchor is not None:
+                return anchor
         return None
 
     def text(self) -> str:
@@ -302,10 +323,10 @@ def _iter_speech_slices(
         if split:
             line_n_live = False
 
-    def slice_n(n: int | None) -> int | None:
+    def slice_n(n: str | None) -> str | None:
         return n if (n is not None and line_n_live) else None
 
-    def handle_text(raw: str | None, n: int | None) -> None:
+    def handle_text(raw: str | None, n: str | None) -> None:
         if not raw:
             return
         if not split:
@@ -319,7 +340,7 @@ def _iter_speech_slices(
                 flush()
             current.add(slice_n(n), part)
 
-    def walk(node, current_n: int | None = None) -> None:
+    def walk(node, current_n: str | None = None) -> None:
         nonlocal line_n_live
         tag = local_name(node)
         if tag is None:
@@ -346,23 +367,24 @@ def _iter_speech_slices(
                 if node.tail:
                     handle_text(node.tail, current_n)
                 return
-            if not raw_n or not raw_n.isdigit():
+            lettered = _LETTERED_ANCHOR.fullmatch(raw_n or "")
+            if not raw_n or (not raw_n.isdigit() and lettered is None):
                 anomalies.append(
                     {"kind": "non_numeric_anchor", "sp": sp_index, "n_raw": raw_n}
                 )
                 if node.tail:
                     handle_text(node.tail, current_n)
                 return
-            n = int(raw_n)
+            n = _anchor_base(raw_n)
             if n <= 0:
                 if node.tail:
                     handle_text(node.tail, current_n)
                 return
             line_n_live = True
             if node.text:
-                handle_text(node.text, n)
+                handle_text(node.text, raw_n)
             for child in node:
-                walk(child, n)
+                walk(child, raw_n)
             if node.tail:
                 handle_text(node.tail, current_n)
             return
@@ -391,8 +413,10 @@ def _speakers_row(work_id: str, n: int | None, ref: str, printed: str, speaker: 
 def _resolve_slice_anchor(
     n: int,
     *,
+    anchor: str,
     speaker: str | None,
-    speech_ns: list[int],
+    speech_anchors: list[str],
+    multi_span: bool,
     index: _SpeechIndex,
     work_id: str,
     printed: str,
@@ -400,16 +424,34 @@ def _resolve_slice_anchor(
 ) -> dict | None:
     """Attach one English line number to a Greek segment, or return None."""
     claimed = claimed or set()
-    hit = index.segment_for_line(n)
+    hit = index.segment_for_anchor(anchor)
     if hit is not None:
         segment, ref = hit
         greek_speaker = index.speaker_of.get(segment["id"])
-        mismatch = None
         if speaker and greek_speaker and speaker != greek_speaker:
             mismatch = _speakers_row(work_id, n, ref, printed, speaker, greek_speaker)
+            if not multi_span:
+                repaired = index.nearest_matching_speech(n, speaker, claimed=claimed)
+                if repaired is None:
+                    return {"attached": False, "mismatch": mismatch}
+                target, target_ref = repaired
+                mismatch["attached_to"] = target["id"]
+                mismatch["attached_ref"] = target_ref
+                mismatch["attached_speaker"] = index.speaker_of.get(target["id"])
+                mismatch["kind"] = "speaker_repair"
+                return {
+                    "attached": True,
+                    "tick": n,
+                    "ref": target_ref,
+                    "segment": target,
+                    "snap": None,
+                    "mismatch": mismatch,
+                }
             mismatch["attached_to"] = segment["id"]
             mismatch["attached_ref"] = ref
             mismatch["attached_speaker"] = greek_speaker
+        else:
+            mismatch = None
         return {
             "attached": True,
             "tick": n,
@@ -419,12 +461,16 @@ def _resolve_slice_anchor(
             "mismatch": mismatch,
         }
 
-    own_hits = [line for line in speech_ns if line != n and index.on_spine(line)]
+    own_hits = [
+        other
+        for other in speech_anchors
+        if other != anchor and index.segment_for_anchor(other) is not None
+    ]
     if not own_hits:
         return None
     span_numbers: set[int] = set()
-    for line in own_hits:
-        hit = index.segment_for_line(line)
+    for other in own_hits:
+        hit = index.segment_for_anchor(other)
         if hit is None:
             continue
         own_seg, _ref = hit
@@ -570,28 +616,32 @@ def parse_translation(
             anomalies=anomalies,
             sp_index=sp_index,
         )
-        speech_ns = [
-            n for sl in slices for n, _part in sl.pieces if n is not None
+        speech_anchors = [
+            anchor
+            for sl in slices
+            for anchor, _part in sl.pieces
+            if anchor is not None
         ]
         owner_ids = set()
-        for line_n in speech_ns:
-            owned = index.segment_for_line(line_n)
+        for anchor in speech_anchors:
+            owned = index.segment_for_anchor(anchor)
             if owned is not None:
                 owner_ids.add(owned[0]["id"])
         multi_span = len(owner_ids) > 1
         for sl in slices:
-            n = sl.first_n()
-            if n is None:
+            anchor = sl.first_anchor()
+            if anchor is None:
                 text = sl.text()
                 if not text:
                     continue
                 jobs.append(
                     {
                         "n": None,
+                        "anchor": None,
                         "text": text,
                         "printed": printed,
                         "canonical": canonical,
-                        "speech_ns": speech_ns,
+                        "speech_anchors": speech_anchors,
                         "sp_index": sp_index,
                         "speakerless": not printed,
                         "multi_span": multi_span,
@@ -604,54 +654,23 @@ def parse_translation(
                     continue
                 jobs.append(
                     {
-                        "n": piece_n if piece_n is not None else n,
+                        "n": _anchor_base(piece_n or anchor),
+                        "anchor": piece_n if piece_n is not None else anchor,
                         "text": piece,
                         "printed": printed,
                         "canonical": canonical,
-                        "speech_ns": speech_ns,
+                        "speech_anchors": speech_anchors,
                         "sp_index": sp_index,
                         "speakerless": not printed,
                         "multi_span": multi_span,
                     }
                 )
 
-    for job in jobs:
-        n = job["n"]
-        text = job["text"]
-        if n is not None:
-            anchor_count += 1
-        if not text:
-            if n is not None:
-                anomalies.append(
-                    {"kind": "empty_anchor", "sp": job["sp_index"], "n_raw": n}
-                )
-            continue
-        if n is None:
-            continue
-        hit = index.segment_for_line(n)
-        if hit is None:
-            continue
-        segment, ref = hit
-        greek_speaker = index.speaker_of.get(segment["id"])
-        speaker = job["canonical"]
-        mismatch = None
-        if speaker and greek_speaker and speaker != greek_speaker:
-            mismatch = _speakers_row(
-                work_id, n, ref, job["printed"], speaker, greek_speaker
-            )
-            mismatch["attached_to"] = segment["id"]
-            mismatch["attached_ref"] = ref
-            mismatch["attached_speaker"] = greek_speaker
-        commit_job(job, segment, n, mismatch=mismatch)
-
     prev_assigned: dict[int, str] = {}
     for job in jobs:
-        if job.get("assigned"):
-            prev_assigned[job["sp_index"]] = job["assigned"]
-            continue
-        if not job["text"]:
-            continue
         n = job["n"]
+        if n is not None:
+            anchor_count += 1
         if n is None:
             prev_id = prev_assigned.get(job["sp_index"])
             if prev_id is None:
@@ -693,8 +712,10 @@ def parse_translation(
             continue
         result = _resolve_slice_anchor(
             n,
+            anchor=job["anchor"],
             speaker=job["canonical"],
-            speech_ns=job["speech_ns"],
+            speech_anchors=job["speech_anchors"],
+            multi_span=job["multi_span"],
             index=index,
             work_id=work_id,
             printed=job["printed"],
@@ -702,28 +723,21 @@ def parse_translation(
         )
         if result is None:
             anomalies.append(
-                {"kind": "unmatched_anchor", "sp": job["sp_index"], "n_raw": n}
+                {
+                    "kind": "unmatched_anchor",
+                    "sp": job["sp_index"],
+                    "n_raw": job["anchor"],
+                }
             )
             continue
         if not result.get("attached"):
-            hit = index.segment_for_line(n)
             mismatch = result.get("mismatch") or {}
-            if hit is not None:
-                segment, ref = hit
-                mismatch["attached_to"] = segment["id"]
-                mismatch["attached_ref"] = ref
-                mismatch["attached_speaker"] = index.speaker_of.get(segment["id"])
-                commit_job(
-                    job, segment, n, mismatch=mismatch, add_turn=False
-                )
-                prev_assigned[job["sp_index"]] = segment["id"]
-                continue
             mismatches.append(mismatch)
             anomalies.append(
                 {
                     "kind": "speech_mismatch_unattached",
                     "sp": job["sp_index"],
-                    "n_raw": n,
+                    "n_raw": job["anchor"],
                 }
             )
             continue
@@ -735,66 +749,6 @@ def parse_translation(
             mismatch=result.get("mismatch"),
         )
         prev_assigned[job["sp_index"]] = job["assigned"]
-
-    # P2c span-fill: one English <sp> whose <l n> anchors fall in more than
-    # one Greek segment covers [min_n, max_n]. An empty Greek segment whose
-    # lines sit in that range gets the nearest preceding numbered piece
-    # (Smyth numbers every fifth lyric line; the intervening Greek speeches
-    # still own those printed numbers).
-    jobs_by_sp: dict[int, list[dict]] = {}
-    for job in jobs:
-        jobs_by_sp.setdefault(job["sp_index"], []).append(job)
-    for speech_jobs in jobs_by_sp.values():
-        if not speech_jobs[0].get("multi_span"):
-            continue
-        numbered = [
-            j for j in speech_jobs if j.get("n") is not None and j.get("text")
-        ]
-        if len(numbered) < 2:
-            continue
-        numbered.sort(key=lambda j: j["n"])
-        min_n = numbered[0]["n"]
-        max_n = numbered[-1]["n"]
-        next_n = None
-        for other in jobs:
-            n = other.get("n")
-            if n is not None and n > max_n and (next_n is None or n < next_n):
-                next_n = n
-        # Smyth numbers lyric every fifth line; cover the short remainder
-        # before the next English <l n> so 105..108 is not a hole when
-        # the next speech starts at 109.
-        cover_max = max_n
-        if next_n is not None and next_n - max_n <= 6:
-            cover_max = next_n - 1
-        printed = speech_jobs[0]["printed"]
-        canonical = speech_jobs[0]["canonical"]
-        for segment in index.segments:
-            if segment["id"] in chunks_by_id:
-                continue
-            nums = index.span.get(segment["id"]) or set()
-            overlap = [k for k in nums if min_n <= k <= cover_max]
-            if not overlap:
-                continue
-            target = min(overlap)
-            chosen = numbered[0]
-            for j in numbered:
-                if j["n"] <= target:
-                    chosen = j
-                else:
-                    break
-            tick = target if target in nums else min(nums)
-            ref = index.closest_ref(segment, tick)
-            greek_speaker = index.speaker_of.get(segment["id"])
-            mismatch = None
-            if canonical and greek_speaker and canonical != greek_speaker:
-                mismatch = _speakers_row(
-                    work_id, chosen["n"], ref, printed, canonical, greek_speaker
-                )
-                mismatch["attached_to"] = segment["id"]
-                mismatch["attached_ref"] = ref
-                mismatch["attached_speaker"] = greek_speaker
-                mismatch["kind"] = "span_fill"
-            commit_job(chosen, segment, tick, mismatch=mismatch)
 
     chunks = [
         chunks_by_id[segment["id"]]
@@ -816,7 +770,8 @@ def parse_translation(
         "snaps": snaps,
         "snap_count": len(snaps),
         "speech_mismatches": mismatches,
-        "speech_mismatch_count": sum(
+        "speech_mismatch_count": len(mismatches),
+        "unresolved_mismatch_count": sum(
             1 for item in mismatches if not item.get("attached_to")
         ),
         "segments_with_chunk": len(chunks),
@@ -831,23 +786,59 @@ def parse_translation(
     return english, footnotes, report
 
 
-def run(manifest: Manifest, spine: dict) -> tuple[Path, Path, Path]:
-    primary = ((manifest.data.get("english") or {}).get("primary") or {})
-    xml_path = SOURCES_DIR / primary["source"]
+def _chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
+    """Perseus-play chunks → the overlay dict stage7 reads from ``ross_chunks.json``."""
+    out: dict[str, list[dict]] = {}
+    for chunk in english.get("chunks") or []:
+        text = chunk.get("text") or ""
+        turns = chunk.get("turns") or []
+        for turn in reversed(turns):
+            name = (turn.get("display") or turn.get("speaker") or "").rstrip(".")
+            if not name:
+                continue
+            off = int(turn.get("offset") or 0)
+            off = max(0, min(off, len(text)))
+            text = text[:off] + f"{name}. " + text[off:]
+        out[chunk["id"]] = [
+            {
+                "chapter": str(chunk.get("column") or "1"),
+                "text": text,
+                "cont": False,
+            }
+        ]
+    return out
+
+
+def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, Path, Path]:
+    cfg = ((manifest.data.get("english") or {}).get(slot) or {})
+    if not cfg:
+        raise ValueError(f"{manifest.work_id}: english.{slot} is required for perseus-play")
+    xml_path = SOURCES_DIR / cfg["source"]
     speakers = manifest.data.get("speakers") or {}
     sigla = speakers.get("sigla") or {}
-    aliases = speakers.get("english") or {}
+    if slot == "secondary":
+        aliases = speakers.get("english_secondary") or speakers.get("english") or {}
+    else:
+        aliases = speakers.get("english") or {}
     english, footnotes, report = parse_translation(
         xml_path,
         spine,
         work_id=manifest.work_id,
-        translation_id=primary["id"],
+        translation_id=cfg["id"],
         sigla=sigla,
         english_aliases=aliases,
     )
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)
+    if slot == "secondary":
+        english_path = out_dir / "ross_chunks.json"
+        alignment_path = out_dir / "secondary_alignment.json"
+        report_path = out_dir / "secondary_report.json"
+        write_json(english_path, _chunks_as_overlay(english))
+        write_json(alignment_path, build_alignment(spine, english))
+        write_json(report_path, report)
+        return english_path, alignment_path, report_path
     english_path = out_dir / "english_chunks.json"
     alignment_path = out_dir / "alignment.json"
     report_path = out_dir / "english_report.json"

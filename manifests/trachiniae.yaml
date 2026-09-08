@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0011.tlg001.perseus-eng3.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: storr
+    name: "F. Storr (Loeb, 1913) — alignment approximate"
+    short: Storr
+    model: turn-text
+    format: loeb-ocr
+    source: bench/storr/trachiniae.txt
+    play: TRACHINIAE
+    footnotes: false
   gaps:
     - "1:876"  # no covering <l n> in the Perseus TEI
     - "1:877"  # no covering <l n> in the Perseus TEI
@@ -61,6 +70,16 @@ speakers:
     "Second Semi-Chorus": "Second Semichorus"
     "Old Man": "Old Man"
     "Heracles": "Heracles"
+  english_secondary:
+    "DEIANIRA": "Deianeira"
+    "NURSE": "Nurse"
+    "HYLLUS": "Hyllus"
+    "CHORUS": "Chorus"
+    "MESSENGER": "Messenger"
+    "LICHAS": "Lichas"
+    "SEMI-CHORUS 2": "Second Semichorus"
+    "OLD MAN": "Old Man"
+    "HERACLES": "Heracles"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -114,6 +133,10 @@ registry:
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+    - id: storr
+      name: "F. Storr (Loeb, 1913) — alignment approximate"
+      short: Storr
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Soph. Trach."

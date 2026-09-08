@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0011.tlg007.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: storr
+    name: "F. Storr (Loeb, 1912) — alignment approximate"
+    short: Storr
+    model: turn-text
+    format: loeb-ocr
+    source: bench/storr/oedipus-coloneus.txt
+    play: OEDIPUS AT COLONUS
+    footnotes: false
   gaps:
     - "1:179"  # no covering <l n> in the Perseus TEI
     - "1:182"  # no covering <l n> in the Perseus TEI
@@ -60,6 +69,16 @@ speakers:
     "Polyneices": "Polyneices"
     "Messenger": "Messenger"
     "Ismene.": "Ismene"
+  english_secondary:
+    "OEDIPUS": "Oedipus"
+    "ANTIGONE": "Antigone"
+    "STRANGER": "Stranger"
+    "CHORUS": "Chorus"
+    "ISMENE": "Ismene"
+    "THESEUS": "Theseus"
+    "CREON": "Creon"
+    "POLYNEICES": "Polyneices"
+    "MESSENGER": "Messenger"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -113,6 +132,10 @@ registry:
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+    - id: storr
+      name: "F. Storr (Loeb, 1912) — alignment approximate"
+      short: Storr
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Soph. OC"

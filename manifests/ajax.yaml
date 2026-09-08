@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0011.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: storr
+    name: "F. Storr (Loeb, 1913) — alignment approximate"
+    short: Storr
+    model: turn-text
+    format: loeb-ocr
+    source: bench/storr/ajax.txt
+    play: AJAX
+    footnotes: false
   gaps: []
 
 citation:
@@ -56,6 +65,18 @@ speakers:
     "Teucer": "Teucer"
     "Menelaus": "Menelaus"
     "Agamemnon": "Agamemnon"
+  english_secondary:
+    "AJAX": "Ajax"
+    "ATHENA": "Athena"
+    "ODYSSEUS": "Odysseus"
+    "CHORUS": "Chorus"
+    "TECMESSA": "Tecmessa"
+    "MESSENGER": "Messenger"
+    "SEMI-CHORUS 1": "First Semichorus"
+    "SEMI-CHORUS 2": "Second Semichorus"
+    "TEUCER": "Teucer"
+    "MENELAUS": "Menelaus"
+    "AGAMEMNON": "Agamemnon"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -115,6 +136,10 @@ registry:
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+    - id: storr
+      name: "F. Storr (Loeb, 1913) — alignment approximate"
+      short: Storr
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Soph. Aj."

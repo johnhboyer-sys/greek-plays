@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0011.tlg006.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: storr
+    name: "F. Storr (Loeb, 1913) — alignment approximate"
+    short: Storr
+    model: turn-text
+    format: loeb-ocr
+    source: bench/storr/philoctetes.txt
+    play: PHILOCTETES
+    footnotes: false
   gaps:
     - "1:442"  # no covering <l n> in the Perseus TEI
     - "1:1044"  # no covering <l n> in the Perseus TEI
@@ -52,6 +61,13 @@ speakers:
     "Philoctetes": "Philoctetes"
     "Merchant": "Merchant"
     "Heracles": "Heracles"
+  english_secondary:
+    "ODYSSEUS": "Odysseus"
+    "NEOPTOLEMUS": "Neoptolemus"
+    "CHORUS": "Chorus"
+    "PHILOCTETES": "Philoctetes"
+    "SAILOR": "Merchant"
+    "HERACLES": "Heracles"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -99,6 +115,10 @@ registry:
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+    - id: storr
+      name: "F. Storr (Loeb, 1913) — alignment approximate"
+      short: Storr
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Soph. Phil."

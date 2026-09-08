@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from lxml import etree
 
 from drama_pipeline.config import Manifest
 from drama_pipeline.stage1_perseus_play_english import parse_translation
@@ -167,18 +168,45 @@ def test_one_line_drift_binds_to_the_right_speaker(tmp_path: Path):
         sigla={"Κα.": "Cassandra", "Χο.": "Chorus"},
     )
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
-    # P2c: 1077 is owned by Cassandra's Greek; Chorus English attaches there,
-    # not to the neighbouring Chorus speech at 1078.
-    assert "Once more she cries." in by_id["1:1076"]["text"]
-    assert "Once more she cries." not in by_id.get("1:1078", {}).get("text", "")
-    assert any(t["speaker"] == "Chorus" for t in by_id["1:1076"]["turns"])
+    assert "Once more she cries." not in by_id["1:1076"]["text"]
+    assert "Once more she cries." in by_id["1:1078"]["text"]
+    assert any(t["speaker"] == "Chorus" for t in by_id["1:1078"]["turns"])
     assert report["speech_mismatches"]
     mismatch = report["speech_mismatches"][0]
     assert mismatch["english_line"] == 1077
     assert mismatch["english_speaker"] == "Chorus"
     assert mismatch["greek_speaker"] == "Cassandra"
-    assert mismatch["attached_to"] == "1:1076"
-    assert report["speech_mismatch_count"] == 0
+    assert mismatch["attached_to"] == "1:1078"
+    assert mismatch["kind"] == "speaker_repair"
+    assert report["speech_mismatch_count"] == 1
+    assert report["unresolved_mismatch_count"] == 0
+
+
+def test_unresolved_speaker_mismatch_is_counted_and_not_attached(tmp_path: Path):
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:10",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 10, "ref": "10", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "B"}],
+            }
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="10">Wrong owner.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(tmp_path, tei, spine)
+    assert english["chunks"] == []
+    assert report["speech_mismatch_count"] == 1
+    assert report["unresolved_mismatch_count"] == 1
+    assert "attached_to" not in report["speech_mismatches"][0]
 
 
 def test_english_speech_splits_across_greek_line_owners(tmp_path: Path):
@@ -243,47 +271,163 @@ def test_english_speech_splits_across_greek_line_owners(tmp_path: Path):
     )
 
 
-def test_english_span_fills_intervening_greek_segments(tmp_path: Path):
-    """One English <sp> numbered 95 then 100 covers the Greek speech at 97
-    that sits between those anchors (no <l n=\"97\"> of its own)."""
+@pytest.mark.parametrize(
+    ("ref", "text"),
+    [("513b", "Abandoned wretch!"), ("1270a", "Ah!")],
+)
+def test_lettered_anchor_attaches_to_exact_spine_ref(tmp_path: Path, ref: str, text: str):
+    base = int(ref.rstrip("abcdefghijklmnopqrstuvwxyz"))
     spine = {
         "work": "test-play",
         "segments": [
             {
-                "id": "1:93",
+                "id": f"1:{base}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": str(base), "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "A"}],
+            },
+            {
+                "id": f"1:{ref}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 2, "ref": ref, "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "A"}],
+            },
+        ],
+    }
+    tei = f"""\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation"><sp><speaker>Alpha</speaker>
+    <l n="{ref}">{text}</l>
+  </sp></div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(tmp_path, tei, spine)
+    assert [chunk["id"] for chunk in english["chunks"]] == [f"1:{ref}"]
+    assert text in english["chunks"][0]["text"]
+    assert not any(a["kind"] == "non_numeric_anchor" for a in report["anomalies"])
+
+
+def test_lettered_anchor_falls_back_to_integer_base(tmp_path: Path):
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1270",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": "1270", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "A"}],
+            }
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation"><sp><speaker>Alpha</speaker>
+    <l n="1270a">Ah!</l>
+  </sp></div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(tmp_path, tei, spine)
+    assert english["chunks"][0]["id"] == "1:1270"
+    assert english["chunks"][0]["text"] == "Ah!"
+
+
+@pytest.mark.parametrize(
+    ("filename", "ref", "expected"),
+    [
+        ("tlg0006.tlg008.perseus-eng2.xml", "513b", "Abandoned wretch!"),
+        ("tlg0006.tlg003.perseus-eng2.xml", "1270a", "Ah!"),
+    ],
+)
+def test_real_perseus_lettered_lines_attach(tmp_path, filename, ref, expected):
+    source = Path(__file__).resolve().parents[2] / "sources" / "perseus" / filename
+    tree = etree.parse(str(source))
+    lines = tree.xpath(f'.//*[local-name()="l" and @n="{ref}"]')
+    assert len(lines) == 1
+    speech = lines[0].xpath('ancestor::*[local-name()="sp"][1]')[0]
+    tei = (
+        '<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>'
+        '<div type="translation">'
+        + etree.tostring(speech, encoding="unicode")
+        + "</div></body></text></TEI>"
+    )
+    base = int(ref.rstrip("abcdefghijklmnopqrstuvwxyz"))
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": f"1:{ref}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": base, "ref": ref, "text": "g"}],
+                "speakers": [],
+            }
+        ],
+    }
+    english, _footnotes, _report = _parse(
+        tmp_path, tei, spine, aliases={}, sigla={}
+    )
+    assert english["chunks"][0]["id"] == f"1:{ref}"
+    assert expected in english["chunks"][0]["text"]
+
+
+def test_seven_multi_anchor_speech_does_not_fill_intervening_turns(tmp_path: Path):
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1040",
                 "book": 1,
                 "column": "1",
                 "lines": [
-                    {"n": n, "ref": str(n), "text": "g"} for n in (93, 94, 95, 96)
+                    {"n": n, "ref": str(n), "text": "g"} for n in (1040, 1041)
                 ],
                 "speakers": [{"line": 1, "offset": 0, "label": "Χο."}],
             },
             {
-                "id": "1:97",
+                "id": "1:1042",
                 "book": 1,
                 "column": "1",
                 "lines": [
-                    {"n": n, "ref": str(n), "text": "g"} for n in (97, 98, 99)
+                    {"n": 1042, "ref": "1042", "text": "g"}
                 ],
-                "speakers": [{"line": 1, "offset": 0, "label": "—"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Κη."}],
             },
             {
-                "id": "1:100",
+                "id": "1:1043",
                 "book": 1,
                 "column": "1",
                 "lines": [
-                    {"n": n, "ref": str(n), "text": "g"} for n in (100, 101)
+                    {"n": 1043, "ref": "1043", "text": "g"}
                 ],
-                "speakers": [{"line": 1, "offset": 0, "label": "Χο."}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Αν."}],
             },
+            *[
+                {
+                    "id": f"1:{n}",
+                    "book": 1,
+                    "column": "1",
+                    "lines": [{"n": n, "ref": str(n), "text": "g"}],
+                    "speakers": [
+                        {
+                            "line": 1,
+                            "offset": 0,
+                            "label": "Κη." if n % 2 == 0 else "Αν.",
+                        }
+                    ],
+                }
+                for n in range(1044, 1048)
+            ],
         ],
     }
     tei = """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
   <div type="translation">
     <sp><speaker>Chorus</speaker>
-      <l n="95">The dust whirls.</l>
-      <l n="100">Do you hear the clash of shields?</l>
+      <l n="1040">I will find the means to bury him.</l>
+      <l n="1045">With my own hands I will cover him.</l>
     </sp>
   </div>
 </body></text></TEI>
@@ -292,17 +436,97 @@ def test_english_span_fills_intervening_greek_segments(tmp_path: Path):
         tmp_path,
         tei,
         spine,
-        aliases={"Chorus": "Chorus"},
-        sigla={"Χο.": "Chorus", "—": None},
+        aliases={"Antigone": "Antigone"},
+        sigla={"Αν.": "Antigone", "Κη.": "Herald"},
     )
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
-    assert "The dust whirls." in by_id["1:93"]["text"]
-    assert "The dust whirls." in by_id["1:97"]["text"]
-    assert "Do you hear the clash of shields?" in by_id["1:100"]["text"]
-    assert by_id["1:97"]["turns"] == [
-        {"offset": 0, "speaker": "Chorus", "display": "Chorus"},
-    ]
-    assert report["segments_with_chunk"] == 3
+    assert set(by_id) == {"1:1040", "1:1045"}
+    assert "I will find" in by_id["1:1040"]["text"]
+    assert "With my own hands" in by_id["1:1045"]["text"]
+    combined = " ".join(chunk["text"] for chunk in english["chunks"])
+    assert combined.count("I will find") == 1
+    assert combined.count("With my own hands") == 1
+    assert all(f"1:{n}" not in by_id for n in (1042, 1043, 1044, 1046, 1047))
+    assert report["segments_with_chunk"] == 2
+
+
+def test_suppliants_anchor_stops_at_next_english_speech(tmp_path: Path):
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": f"1:{n}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": n, "ref": str(n), "text": "g"}],
+                "speakers": [
+                    {"line": 1, "offset": 0, "label": "H" if n < 513 else "C"}
+                ],
+            }
+            for n in range(510, 514)
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Herald</speaker><l n="510">Hear my command.</l></sp>
+    <sp><speaker>Chorus</speaker><l n="513">Do not leave me.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Herald": "Herald", "Chorus": "Chorus"},
+        sigla={"H": "Herald", "C": "Chorus"},
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert by_id == {"1:510": "Hear my command.", "1:513": "Do not leave me."}
+
+
+def test_agamemnon_1203_to_1213_singletons_follow_speaker(tmp_path: Path):
+    speakers = {
+        n: ("Chorus" if n % 2 else "Cassandra") for n in range(1202, 1214)
+    }
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": f"1:{n}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": n, "ref": str(n), "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": speakers[n]}],
+            }
+            for n in range(1202, 1214)
+        ],
+    }
+    turns = [(1202, "Cassandra"), (1204, "Chorus"), (1203, "Cassandra")]
+    turns.extend((n, speakers[n]) for n in range(1205, 1214))
+    body = "".join(
+        f'<sp><speaker>{speaker}</speaker><l n="{n}">{speaker} {n}.</l></sp>'
+        for n, speaker in turns
+    )
+    tei = (
+        '<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>'
+        f'<div type="translation">{body}</div></body></text></TEI>'
+    )
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Chorus": "Chorus", "Cassandra": "Cassandra"},
+        sigla={"Chorus": "Chorus", "Cassandra": "Cassandra"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert len(by_id) == 12
+    for n in range(1203, 1214):
+        assert by_id[f"1:{n}"]["turns"][0]["speaker"] == speakers[n]
+    assert "Chorus 1204." in by_id["1:1203"]["text"]
+    assert "Cassandra 1203." in by_id["1:1204"]["text"]
+    assert report["speech_mismatch_count"] == 2
+    assert report["unresolved_mismatch_count"] == 0
 
 
 def test_packed_elders_split_into_twelve_slices(tmp_path: Path):
@@ -403,7 +627,7 @@ def test_cross_speech_snap_is_refused(tmp_path: Path):
     assert "New strophe." not in by_id.get("1:430", "")
     assert "New strophe." not in by_id.get("1:438", "")
     assert any(
-        item["kind"] == "unmatched_anchor" and item["n_raw"] == 437
+        item["kind"] == "unmatched_anchor" and item["n_raw"] == "437"
         for item in report["anomalies"]
     )
 
@@ -465,7 +689,7 @@ def test_hyphenated_note_labels_are_sanitised(tmp_path: Path):
     assert "-" not in next(iter(footnotes))
 
 
-def _play_manifest(gaps=None) -> Manifest:
+def _play_manifest(gaps=None, *, source=None) -> Manifest:
     english = {
         "primary": {
             "id": "smyth",
@@ -476,6 +700,8 @@ def _play_manifest(gaps=None) -> Manifest:
     }
     if gaps is not None:
         english["gaps"] = gaps
+    if source is not None:
+        english["primary"]["source"] = str(source)
     return Manifest(
         {
             "work": {"id": "test-play", "title": "Test", "author": "aeschylus"},
@@ -523,7 +749,7 @@ def test_english_gaps_are_the_only_allowed_unmatched_play_line_ids(tmp_path: Pat
     assert by_ref["checks"]["alignment"]["ok"] is True
 
 
-def test_twin_segments_need_no_declared_gap():
+def test_twin_segments_need_no_declared_gap_when_lettered_source_is_empty(tmp_path):
     spine = {
         "work": "test-play",
         "segments": [
@@ -573,12 +799,64 @@ def test_twin_segments_need_no_declared_gap():
         ]
     }
     alignment = _alignment_for(spine, english)
-    report = validate(_play_manifest(gaps=[]), spine, english, alignment)
+    source = tmp_path / "twins.xml"
+    source.write_text(
+        """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation"><sp><l n="843a">Translated a.</l></sp></div>
+</body></text></TEI>
+""",
+        encoding="utf-8",
+    )
+    report = validate(
+        _play_manifest(gaps=[], source=source), spine, english, alignment
+    )
     unexpected = report["checks"]["alignment"]["unexpected_unmatched"]
     assert "1:803.2" not in unexpected
     assert "1:843b" not in unexpected
     assert "1:47a" in unexpected
     assert report["checks"]["alignment"]["ok"] is False
+
+
+def test_translated_lettered_twin_is_not_auto_allowed(tmp_path):
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1270",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": "1270", "text": "base"}],
+            },
+            {
+                "id": "1:1270a",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 2, "ref": "1270a", "text": "lettered"}],
+            },
+        ],
+    }
+    english = {
+        "chunks": [
+            {"id": "1:1270", "column": "1", "text": "Base translation."}
+        ]
+    }
+    source = tmp_path / "medea.xml"
+    source.write_text(
+        """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation"><sp><l n="1270a">Ah!</l></sp></div>
+</body></text></TEI>
+""",
+        encoding="utf-8",
+    )
+    report = validate(
+        _play_manifest(gaps=[], source=source),
+        spine,
+        english,
+        _alignment_for(spine, english),
+    )
+    assert report["checks"]["alignment"]["unexpected_unmatched"] == ["1:1270a"]
 
 
 def test_unmapped_english_speaker_is_a_hard_roster_error():
