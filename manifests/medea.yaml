@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0006.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: way
+    name: "A. S. Way (Loeb, 1912) — alignment approximate"
+    short: Way
+    model: turn-text
+    format: loeb-ocr
+    source: bench/way/medea.txt
+    play: MEDEA
+    footnotes: false
   gaps: []
 
 citation:
@@ -57,6 +66,17 @@ speakers:
     "Sons": "Son"
     "1st Son": "First Son"
     "2nd Son": "Second Son"
+  english_secondary:
+    "MEDEA": "Medea"
+    "JASON": "Jason"
+    "CHILDREN OF MEDEA": "Son"
+    "NURSE": "Nurse"
+    "CHILDREN'S GUARDIAN": "Attendant"
+    "CHORUS": "Chorus"
+    "CREON": "Creon"
+    "AEGEUS": "Aegeus"
+    "MESSENGER": "Messenger"
+    "CHILD": "Son"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -111,6 +131,10 @@ registry:
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
+    - id: way
+      name: "A. S. Way (Loeb, 1912) — alignment approximate"
+      short: Way
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Eur. Med."

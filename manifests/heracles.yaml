@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0006.tlg009.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: way
+    name: "A. S. Way (Loeb, 1912) — alignment approximate"
+    short: Way
+    model: turn-text
+    format: loeb-ocr
+    source: bench/way/heracles.txt
+    play: MADNESS OF HERCULES
+    footnotes: false
   gaps:
     - "1:899"  # no covering <l n> in the Perseus TEI
     - "1:1058"  # no covering <l n> in the Perseus TEI
@@ -66,6 +75,16 @@ speakers:
     "Madness": "Madness"
     "Messenger": "Messenger"
     "Theseus": "Theseus"
+  english_secondary:
+    "AMPHITRYON": "Amphitryon"
+    "MEGARA": "Megara"
+    "CHORUS": "Chorus"
+    "LYCUS": "Lycus"
+    "HERCULES": "Heracles"
+    "MADNESS": "Madness"
+    "IRIS": "Iris"
+    "SERVANT": "Messenger"
+    "THESEUS": "Theseus"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -121,6 +140,10 @@ registry:
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
+    - id: way
+      name: "A. S. Way (Loeb, 1912) — alignment approximate"
+      short: Way
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Eur. HF"

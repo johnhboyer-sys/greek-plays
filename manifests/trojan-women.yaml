@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0006.tlg011.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: way
+    name: "A. S. Way (Loeb, 1912) — alignment approximate"
+    short: Way
+    model: turn-text
+    format: loeb-ocr
+    source: bench/way/trojan-women.txt
+    play: DAUGHTERS OF TROY
+    footnotes: false
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -68,6 +77,18 @@ speakers:
     "Andromache": "Andromache"
     "Menelaus": "Menelaus"
     "Helen": "Helen"
+  english_secondary:
+    "POSEIDON": "Poseidon"
+    "ATHENA": "Athena"
+    "HECUBA": "Hecuba"
+    "HALF-CHORUS 1": "First Semichorus"
+    "HALF-CHORUS": "Chorus"
+    "CHORUS": "Chorus"
+    "TALTHYBIUS": "Talthybius"
+    "CASSANDRA": "Cassandra"
+    "ANDROMACHE": "Andromache"
+    "MENELAUS": "Menelaus"
+    "HELEN": "Helen"
   sigla:
     "—": null
     "ΠΟΣΕΙΔΩΝ": "Poseidon"
@@ -121,6 +142,10 @@ registry:
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
+    - id: way
+      name: "A. S. Way (Loeb, 1912) — alignment approximate"
+      short: Way
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Eur. Tro."

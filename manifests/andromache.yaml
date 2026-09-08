@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0006.tlg006.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: way
+    name: "A. S. Way (Loeb, 1912) — alignment approximate"
+    short: Way
+    model: turn-text
+    format: loeb-ocr
+    source: bench/way/andromache.txt
+    play: ANDROMACHE
+    footnotes: false
   gaps:
     - "1:528"  # no covering <l n> in the Perseus TEI
     - "1:1271"  # no covering <l n> in the Perseus TEI
@@ -60,6 +69,19 @@ speakers:
     "Orestes": "Orestes"
     "Messenger": "Messenger"
     "Thetis": "Thetis"
+  english_secondary:
+    "ANDROMACHE": "Andromache"
+    "HANDMAID": "Maid"
+    "CHORUS": "Chorus"
+    "HERMIONE": "Hermione"
+    "MENELAUS": "Menelaus"
+    "CHILD": "Molossus"
+    "MOLOSSUS": "Molossus"
+    "PELEUS": "Peleus"
+    "NURSE": "Nurse"
+    "ORESTES": "Orestes"
+    "MESSENGER": "Messenger"
+    "THETIS": "Thetis"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -116,6 +138,10 @@ registry:
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
+    - id: way
+      name: "A. S. Way (Loeb, 1912) — alignment approximate"
+      short: Way
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Eur. Andr."

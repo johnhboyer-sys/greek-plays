@@ -41,8 +41,11 @@ SPEAKER_NAME_RE = re.compile(
     r"^[A-Z][A-Z0-9'’\-]*(?:\s+(?:AND\s+)?(?:[A-Z][A-Z0-9'’\-]*|[12]))*$"
 )
 LEADING_JUNK_RE = re.compile(r"^[\|\\./:{}\[\]\-–—ὴἢ᾿°'@®*_\s]+")
-TRAILING_JUNK_RE = re.compile(r"[\|\\>\-–—'’\s]+$")
-END_VOL_RE = re.compile(r"^END OF VOL", re.I)
+TRAILING_JUNK_RE = re.compile(r"[\|\\>\-–—'’\":\s]+$")
+END_VOL_RE = re.compile(
+    r"^(END OF VOL|THE LOEB CLASSICAL(?: LIBRARY)?|VOLUMES ALREADY PUBLISHED)\b",
+    re.I,
+)
 
 # Headings that start a play when followed by ARGUMENT / DRAMATIS PERSONAE.
 DEFAULT_PLAY_TITLES = (
@@ -55,6 +58,30 @@ DEFAULT_PLAY_TITLES = (
     "TRACHINIAE",
     "THE TRACHINIAN WOMEN",
     "PHILOCTETES",
+    # Way, Euripides Loeb 1912 (spellings as printed).
+    "IPHIGENEIA AT AULIS",
+    "RHESUS",
+    "HECUBA",
+    "DAUGHTERS OF TROY",
+    "THE DAUGHTERS OF TROY",
+    "HELEN",
+    "ORESTES",
+    "IPHIGENEIA IN TAURICA",
+    "ANDROMACHE",
+    "CYCLOPS",
+    "THE BACCHANALS",
+    "BACCHANALS",
+    "MADNESS OF HERCULES",
+    "THE MADNESS OF HERCULES",
+    "CHILDREN OF HERCULES",
+    "THE CHILDREN OF HERCULES",
+    "PHOENICIAN MAIDENS",
+    "THE PHOENICIAN MAIDENS",
+    "SUPPLIANTS",
+    "ION",
+    "HIPPOLYTUS",
+    "MEDEA",
+    "ALCESTIS",
 )
 PLAY_HEADING_SET = {title.upper() for title in DEFAULT_PLAY_TITLES}
 
@@ -105,6 +132,48 @@ GREEK_HEAD_OCR = {
     "OIAINMOYS",
     "OIATMOY>",
     "IAOKTHTHS",
+    # Way Euripides Greek running heads (OCR).
+    "EKABH",
+    "TPQOIAAES",
+    "TPQIAΔΕΣ",
+    "TPWIADES",
+    "EAENH",
+    "PHΣΟΣ",
+    "ΡΗΣΟΣ",
+    "ΚΥΚΛΩΨ",
+    "KUKLOPS",
+    "BAKKAI",
+    "BAKXAI",
+    "MHΔΕΙΑ",
+    "MHAEIA",
+    "ΑΛΚΗΣΤΙΣ",
+    "AAKHSTIS",
+    "TPOIAAES",
+    "TPQIAAEX",
+    "TPOQIAAES",
+    "TPQIAAES",
+    "ANAPOMAXH",
+    "MENEAAOS",
+    "AAKMHNH",
+    "KPEOTSA",
+    "KPEOTZA",
+    "MHABIA",
+    "MHAREIA",
+    "AAMHTOS",
+    "AAMHTOZ",
+    "HMIXOPION",
+    "AOAQN",
+    "KYKAQY",
+    "KYKAQOY",
+    "XOPOZ",
+    "IOKA2TH",
+    "SAIAPA",
+    "PAIAPA",
+    "ANATOS",
+    "ANATOZ",
+    "IIPEXBYZ",
+    "ETAANH",
+    "IKETIAES",
 }
 
 RUNNING_HEAD_OCR = {
@@ -113,6 +182,17 @@ RUNNING_HEAD_OCR = {
     "OEDIPUS AT GOLONUS",
     "OEDIPUS ΑἹ COQLONUS",
     "TRACHINIAR",
+    "IPHIGENEIA AT AULIS",
+    "IPHIGENEIA IN TAURICA",
+    "DAUGHTERS OF TROY",
+    "THE DAUGHTERS OF TROY",
+    "THE BACCHANALS",
+    "MADNESS OF HERCULES",
+    "THE MADNESS OF HERCULES",
+    "CHILDREN OF HERCULES",
+    "THE CHILDREN OF HERCULES",
+    "PHOENICIAN MAIDENS",
+    "THE PHOENICIAN MAIDENS",
 }
 
 OCR_SPEAKER_FIXES = {
@@ -137,12 +217,92 @@ OCR_SPEAKER_FIXES = {
     "OEDIPUS ,": "OEDIPUS",
     "CHORUS ,": "CHORUS",
     "ISMENE ;": "ISMENE",
+    "SILENTUS": "SILENUS",
+    "SILENus": "SILENUS",
+    "CYCLOPs": "CYCLOPS",
+    "CYCLOPS'": "CYCLOPS",
+    "cycLops": "CYCLOPS",
+    "CLYTEMNES TRA": "CLYTEMNESTRA",
+    "AGAMEEMNON": "AGAMEMNON",
+    "IP HIGENEIA": "IPHIGENEIA",
+    "IPHIGENE IA": "IPHIGENEIA",
+    "ATAMEMNON": "AGAMEMNON",
+    "MENELAUB": "MENELAUS",
+    "CHONUS": "CHORUS",
+    "CHONVS": "CHORUS",
+    "CUORUS": "CHORUS",
+    "CUORVS": "CHORUS",
+    "CHORVUS": "CHORUS",
+    "CHORUSS": "CHORUS",
+    "CHORVS": "CHORUS",
+    "SEMICHORUSS": "SEMICHORUS",
+    "SEMICHORUUS": "SEMICHORUS",
+    "HALF-CHORVS": "HALF-CHORUS",
+    "HALF-CHORRUS": "HALF-CHORUS",
+    "HALF-CHOORUSS": "HALF-CHORUS",
+    "ODYSSEU8": "ODYSSEUS",
+    "ODY88EUS": "ODYSSEUS",
+    "CAPMUS": "CADMUS",
+    "TEIRESTAS": "TEIRESIAS",
+    "TRIRESIAS": "TEIRESIAS",
+    "DIONYSU8": "DIONYSUS",
+    "DIONYEUS": "DIONYSUS",
+    "BIONYSUS": "DIONYSUS",
+    "DIONY8U8": "DIONYSUS",
+    "DIONY8US": "DIONYSUS",
+    "DIONVAUS": "DIONYSUS",
+    "DIONYS8US": "DIONYSUS",
+    "DIONYSUUS": "DIONYSUS",
+    "DIONYSUB": "DIONYSUS",
+    "DIONYAUS": "DIONYSUS",
+    "TOLAUS": "IOLAUS",
+    "JOLAUS": "IOLAUS",
+    "AOLAUS": "IOLAUS",
+    "TOBAUB": "IOLAUS",
+    "COPREUB": "COPREUS",
+    "CVCLOPS": "CYCLOPS",
+    "HUPPOLYTUS": "HIPPOLYTUS",
+    "H1IPPOLYTUS": "HIPPOLYTUS",
+    "HIPPOLY TUS": "HIPPOLYTUS",
+    "IPPOLY TUS": "HIPPOLYTUS",
+    "HIPPOLY’EUS": "HIPPOLYTUS",
+    "MEDFA": "MEDEA",
+    "JASUN": "JASON",
+    "TRESEUS": "THESEUS",
+    "THESRUS": "THESEUS",
+    "AMPHITRYUN": "AMPHITRYON",
+    "ALCMENA": "ALCMENA",
+    "HERDMAN": "HERDSMAN",
+    "THEOCLY MENUS": "THEOCLYMENUS",
+    "ATHENE": "ATHENA",
+    "LON": "ION",
+    "ISITENEIA": "IPHIGENEIA",
+    "ACIITLLES": "ACHILLES",
+    "FIRST MOFHER": "FIRST MOTHER",
+    "BHEPHE3D": "SHEPHERD",
+    "HALF-CHORUS I": "HALF-CHORUS 1",
+    "CUORVUS OF CORINTHIAN LADIES": "CHORUS",
+    "CHORUS OF HUNTSMEN": "CHORUS OF HUNTSMEN",
+    "CHILDRENS GUARDIAN": "CHILDREN'S GUARDIAN",
+    "CHILDREN S GUARDIAN": "CHILDREN'S GUARDIAN",
+    "CHILDREN’S GUARDIAN": "CHILDREN'S GUARDIAN",
+    "ETROCLES": "ETEOCLES",
+    "ETZOCLES": "ETEOCLES",
+    "JOCABTA": "JOCASTA",
+    "OEPIPUS": "OEDIPUS",
+    "OEPRPUS": "OEDIPUS",
+    "TEMESIAS": "TEIRESIAS",
+    "TEIRESLAS": "TEIRESIAS",
+    "REON": "CREON",
+    "IPHIB": "IPHIS",
+    "A IPHIGENEIA": "IPHIGENEIA",
 }
 
 NOT_SPEAKERS = {
     "ARGUMENT",
     "DRAMATIS PERSONAE",
     "SOPHOCLES",
+    "EURIPIDES",
     "INTRODUCTION",
     "CONTENTS",
     "SCENE",
@@ -151,6 +311,50 @@ NOT_SPEAKERS = {
     "MSS",
     "M SS",
     "MAS",
+    "DRAMATIS PERSONAK",
+    "APPENDIX",
+    "LIBRARY",
+    "DATE",
+    "ETC",
+    "VII",
+    "VIII",
+    "XII",
+    "III",
+    "BBB",
+    "BAS",
+    "AAD",
+    "BED",
+    "ASS",
+    "AST",
+    "SBS",
+    "AVT",
+    "AVVT",
+    "DUE",
+    "OMM",
+    "UMS",
+    "INN",
+    "TON",
+    "IQN",
+    "III",
+    "ORUSAR",
+    "PTE VAY",
+    "ATATH",
+    "APTEMI",
+    "CHOATS",
+    "HPAKAEIAAI",
+    "HPAKAEIAAL",
+    "POINIZZAI",
+    "IPITENEIA H EN AYAIAI",
+    "IPHIGENEIA AT AULJIS",
+    "IPHIGENEIJA AT AULIS",
+    "JPHIGENEIA IN TAURICA",
+    "THE PHOENKCIAN MAIDENS",
+    "THE-MABNESS OF HERCULES",
+    "CATCHES SIGHT OF POUYNEICES",
+    "CLINGS FO PHARPRA’S HANDS",
+    "ENLER ORESTES AND PYLADES",
+    "EAIT AAEGEUS",
+    "BHEPHE3D",
 } | GREEK_HEAD_OCR
 
 GREEK_HEAD_RE = re.compile(
@@ -171,6 +375,7 @@ def greek_ratio(text: str) -> float:
 
 def _norm_heading(line: str) -> str:
     s = line.strip()
+    s = re.sub(r"[©®*]+", "", s)
     s = re.sub(r"^[\-–—_|.:\s]+", "", s)
     s = re.sub(r"[\-–—_|.:\s]+$", "", s)
     s = re.sub(r"[\-–—_|.~]+", " ", s)
@@ -184,13 +389,13 @@ def _is_play_heading(line: str, title: str) -> bool:
 def _followed_by_front_matter(lines: list[str], i: int, window: int = 40) -> bool:
     for j in range(i + 1, min(len(lines), i + 1 + window)):
         s = lines[j].strip().upper()
-        if s in {"ARGUMENT", "DRAMATIS PERSONAE"}:
+        if s in {"ARGUMENT", "DRAMATIS PERSONAE", "INTRODUCTION"}:
             return True
         # A running head at the end of one play can sit within the look-ahead
         # window of the next play's ARGUMENT. Do not mistake it for a title.
         if _norm_heading(lines[j]) in PLAY_HEADING_SET:
             return False
-        if s.startswith("END OF VOL"):
+        if s.startswith("END OF VOL") or s.startswith("THE LOEB CLASSICAL"):
             return False
     return False
 
@@ -198,7 +403,7 @@ def _followed_by_front_matter(lines: list[str], i: int, window: int = 40) -> boo
 def _preceded_by_front_matter(lines: list[str], i: int, window: int = 120) -> bool:
     """Recognize a first running head when OCR omitted the title page."""
     for j in range(i - 1, max(-1, i - 1 - window), -1):
-        if lines[j].strip().upper() == "DRAMATIS PERSONAE":
+        if lines[j].strip().upper().startswith("DRAMATIS PERSON"):
             return True
     return False
 
@@ -243,9 +448,10 @@ def locate_play(
         rest = [t for t in catalog if t.upper() != want]
         # Next catalog title after this start, if it too is a play heading.
         later: list[tuple[int, str]] = []
+        rest_set = {t.upper() for t in rest}
         for i, line in enumerate(lines[start + 1 :], start + 1):
             head = _norm_heading(line)
-            if head in {t.upper() for t in rest} and _followed_by_front_matter(lines, i):
+            if head in rest_set and _followed_by_front_matter(lines, i):
                 later.append((i, head))
                 break
         if later:
@@ -253,7 +459,8 @@ def locate_play(
         else:
             for i, line in enumerate(lines[start + 1 :], start + 1):
                 if END_VOL_RE.match(line.strip()):
-                    end = i + 1  # keep the end marker as a stop
+                    # Keep END OF VOL as a stop; drop Loeb publisher catalog.
+                    end = i + 1 if line.strip().upper().startswith("END OF VOL") else i
                     break
     else:
         for i, line in enumerate(lines[start + 1 :], start + 1):
@@ -322,9 +529,14 @@ def _is_running_head(line: str, title: str) -> bool:
     s = _norm_heading(line)
     if not s:
         return False
-    if s == title.upper() or s == "SOPHOCLES":
+    want = title.upper()
+    if s == want or s in {"SOPHOCLES", "EURIPIDES"}:
         return True
-    if title.upper() == "THE KING" and s == "OEDIPUS THE KING":
+    if want.startswith("THE ") and s == want[4:]:
+        return True
+    if not want.startswith("THE ") and s == "THE " + want:
+        return True
+    if want == "THE KING" and s == "OEDIPUS THE KING":
         return True
     if s in RUNNING_HEAD_OCR:
         return True
@@ -458,7 +670,30 @@ def _speaker_candidate(line: str) -> tuple[str | None, str]:
     s = s.strip("|").strip()
     s = TRAILING_JUNK_RE.sub("", s).strip()
     s = re.sub(r"\s+\.$", ".", s)
-    s = OCR_SPEAKER_FIXES.get(s, s)
+    # Truncated OCR parenthetical: DEMOPHON (raising his sta,
+    trunc = re.fullmatch(
+        r"([A-Z][A-Z0-9'’\-]*(?:\s+[A-Z][A-Z0-9'’\-]*)*)\s*\([^)]*$",
+        s,
+    )
+    if trunc:
+        s = trunc.group(1)
+    folded = s.translate(str.maketrans("801", "SOI"))
+    s = OCR_SPEAKER_FIXES.get(s, OCR_SPEAKER_FIXES.get(folded, s))
+    # Verse Loeb: fold a mixed-case OCR name (cycLops) or a known
+    # title-case speaker (Lycus) on its own line. Do not fold
+    # title-case lyric fragments (Judgment, From The City…).
+    TITLECASE_SPEAKERS = {"LYCUS", "LYKUS"}
+    own = re.fullmatch(
+        r"([A-Za-z][A-Za-z'’\-]*)"
+        r"(\s*\([^)]*\))?\s*\.?",
+        s,
+    )
+    if own and not own.group(1).isupper():
+        head = own.group(1)
+        if re.search(r"[a-z][A-Z]", head) or head.upper() in TITLECASE_SPEAKERS:
+            s = head.upper() + s[len(head) :]
+            folded = s.translate(str.maketrans("801", "SOI"))
+            s = OCR_SPEAKER_FIXES.get(s, OCR_SPEAKER_FIXES.get(folded, s))
     if not s:
         return None, line.strip()
     m = re.match(
@@ -475,14 +710,32 @@ def _speaker_candidate(line: str) -> tuple[str | None, str]:
         return None, s
     name = m.group("name").strip()
     rest = m.group("rest").strip().strip("|").strip()
+    name_folded = name.translate(str.maketrans("801", "SOI"))
+    name = OCR_SPEAKER_FIXES.get(name, OCR_SPEAKER_FIXES.get(name_folded, name))
     if name in NOT_SPEAKERS or name in {"AND", "THE", "A", "AN", "OF"}:
         return None, s
     if not SPEAKER_NAME_RE.match(name) or len(name) < 3:
+        return None, s
+    # Multi-word play titles used as running heads are not speakers.
+    if name in PLAY_HEADING_SET and " " in name:
+        return None, s
+    if len(name) <= 3 and name not in {"ION", "IRIS"}:
+        return None, s
+    if re.match(r"^(CATCHES|CLINGS|ENLER|EAIT|ENTER|EXEUNT)\b", name):
         return None, s
     if not rest:
         return name, ""
     if m.group("dot") and any(ch.islower() for ch in rest):
         return name, rest
+    # Verse OCR: NAME <junk> verse on one line, no period.
+    rest_stripped = LEADING_JUNK_RE.sub("", rest).strip()
+    if (
+        rest_stripped
+        and any(ch.islower() for ch in rest_stripped)
+        and (m.group("dot") or re.match(r"^[\s'’`᾿|:]+", rest))
+        and len(name) >= 5
+    ):
+        return name, rest_stripped
     return None, s
 
 
@@ -533,7 +786,7 @@ def _skip_front_matter(lines: list[str]) -> list[str]:
     """Drop ARGUMENT / DRAMATIS PERSONAE so only the play body remains."""
     start = 0
     for i, line in enumerate(lines):
-        if line.strip().upper() == "DRAMATIS PERSONAE":
+        if line.strip().upper().startswith("DRAMATIS PERSON"):
             start = i + 1
             break
     body = lines[start:]

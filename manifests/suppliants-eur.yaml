@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0006.tlg008.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: way
+    name: "A. S. Way (Loeb, 1912) — alignment approximate"
+    short: Way
+    model: turn-text
+    format: loeb-ocr
+    source: bench/way/suppliants-eur.txt
+    play: SUPPLIANTS
+    footnotes: false
   gaps:
     - "1:41"  # no covering <l n> in the Perseus TEI
     - "1:632"  # no covering <l n> in the Perseus TEI
@@ -63,6 +72,32 @@ speakers:
     "Athena": "Athena"
     "1st Half-Chorus": "Chorus"
     "2nd Half-Chorus": "Chorus"
+  english_secondary:
+    "AETHRA": "Aethra"
+    "CHORUS": "Chorus"
+    "THESEUS": "Theseus"
+    "ADRASTUS": "Adrastus"
+    "SUPPLIANTS": "Chorus"
+    "HERALD": "Herald"
+    "HALF-CHORUS": "Chorus"
+    "MESSENGER": "Messenger"
+    "EVADNE": "Evadne"
+    "IPHIS": "Iphis"
+    "CHORUS OF CHILDREN": "Children"
+    "CHORUS OF MOTHERS": "Chorus"
+    "FIRST MOTHER": "Chorus"
+    "THIRD MOTHER": "Chorus"
+    "FOURTH MOTHER": "Chorus"
+    "FIFTH MOTHER": "Chorus"
+    "SIXTH MOTHER": "Chorus"
+    "SEVENTH MOTHER": "Chorus"
+    "SECOND CHILD": "Children"
+    "THIRD CHILD": "Children"
+    "FOURTH CHILD": "Children"
+    "FIFTH CHILD": "Children"
+    "SIXTH CHILD": "Children"
+    "SEVENTH CHILD": "Children"
+    "ATHENA": "Athena"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -117,6 +152,10 @@ registry:
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
+    - id: way
+      name: "A. S. Way (Loeb, 1912) — alignment approximate"
+      short: Way
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Eur. Supp."

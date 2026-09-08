@@ -266,3 +266,188 @@ def test_write_clean_real_antigone(tmp_path):
     assert text.count("ANTIGONE.") >= 10
     assert "May I not speak" in text
     assert "VOR." not in text
+
+
+WAY = """
+EURIPIDES
+IPHIGENEIA AT AULIS
+
+ARGUMENT
+
+The hosts of Hellas were mustered at Aulis.
+
+DRAMATIS PERSONAE
+
+AGAMEMNON, captain of the host.
+
+Scene: In the Greek camp at Aulis.
+
+IPHIGENEIA AT AULIS
+
+AGAMEMNON
+Ancient, before this tent come stand.
+OLD SERVANT
+I come. What purpose hast thou in hand,
+Agamemnon, my king?
+END OF VOL. I.
+
+DAUGHTERS OF TROY
+
+ARGUMENT
+
+When Troy was taken by the Greeks.
+
+DRAMATIS PERSONAE
+
+POSEIDON, the God of the Sea.
+
+Scene: The Greek camp.
+
+DAUGHTERS OF TROY
+
+POSEIDON
+I come from the Aegean sea's salt depths,
+Where Nereids wheel their dances.
+HECUBA
+O Earth, O city of my fathers,
+Now I behold thee in the dust.
+"""
+
+
+def test_locate_way_iphigeneia_and_daughters():
+    lines = WAY.splitlines()
+    start, end = locate_play(lines, "IPHIGENEIA AT AULIS")
+    body = "\n".join(lines[start:end])
+    assert "Ancient, before this tent" in body
+    assert "When Troy was taken" not in body
+    start, end = locate_play(lines, "DAUGHTERS OF TROY")
+    body = "\n".join(lines[start:end])
+    assert "I come from the Aegean" in body
+    assert "Ancient, before this tent" not in body
+
+
+def test_cyclops_introduction_counts_as_front_matter():
+    lines = """
+CYCLOPS
+INTRODUCTION
+The Satyric Drama, of which the Cyclops is the solitary
+example extant.
+DRAMATIS PERSONAE
+SILENUS, an old attendant of Bacchus.
+Scene: At the cave.
+CYCLOPS
+SILENUS
+O Bacchus! oh the back-aches that I got
+In your cause, when my youthful blood was hot.
+""".splitlines()
+    start, end = locate_play(lines, "CYCLOPS")
+    assert lines[start] == "CYCLOPS"
+    body = "\n".join(lines[start:end])
+    assert "O Bacchus" in body
+
+
+def test_ion_missing_title_page_starts_after_cast():
+    lines = """
+ARGUMENT
+The lost was found.
+DRAMATIS PERSONAE
+HERMES, the messenger.
+Scene: At Delphi.
+ION
+HERMES
+Atlas, whose brazen shoulders wear the base
+Of heaven, the ancient home of Gods.
+HIPPOLYTUS
+ARGUMENT
+Aphrodite speaks.
+""".splitlines()
+    start, end = locate_play(lines, "ION")
+    body = "\n".join(lines[start:end])
+    assert "Atlas, whose brazen shoulders" in body
+    assert "Aphrodite speaks" not in body
+
+
+def test_mixed_case_ocr_speaker_is_folded():
+    assert _speaker_candidate("cycLops (looks at bowls)")[0] == "CYCLOPS"
+    assert _speaker_candidate("CYCLOPs") == ("CYCLOPS", "")
+    assert _speaker_candidate("SILENTUS") == ("SILENUS", "")
+    assert _speaker_candidate("Lycus") == ("LYCUS", "")
+    assert _speaker_candidate("Lycus (within)") == ("LYCUS", "")
+    assert _speaker_candidate("LYcus") == ("LYCUS", "")
+    # Wrapped verse starting with a capital is not a speaker.
+    assert _speaker_candidate("Ancient, before this tent come stand.")[0] is None
+    assert _speaker_candidate("From The City That Stands")[0] is None
+    assert _speaker_candidate("I haste")[0] is None
+    assert _speaker_candidate("Judgment")[0] is None
+    assert _speaker_candidate("DEMOPHON (raising his sta,") == ("DEMOPHON", "")
+    assert _speaker_candidate("MACARIA ᾿ Thou dost bid—wisely.")[0] == "MACARIA"
+
+
+def test_way_verse_keeps_speaker_on_its_own_line():
+    text, report = clean_play(WAY, "IPHIGENEIA AT AULIS")
+    assert "AGAMEMNON. Ancient, before this tent" in text
+    assert "OLD SERVANT. I come. What purpose" in text
+    assert "EURIPIDES." not in text
+    assert report["speakers_found"] == ["AGAMEMNON", "OLD SERVANT"]
+    # A wrapped verse line starting with a capital is not a speaker.
+    assert "Agamemnon, my king" in text
+    assert "AGAMEMNON, MY KING" not in text
+
+
+def test_copyright_heading_and_missing_argument_cut_next_play():
+    lines = """
+PHOENICIAN MAIDENS
+ARGUMENT
+Oedipus cursed his sons.
+DRAMATIS PERSONAE
+JOCASTA, wife of Oedipus.
+Scene: Thebes.
+PHOENICIAN MAIDENS
+JOCASTA
+To the sun I lift this prayer.
+ANTIGONE
+O mother, I see a host.
+SUPPLIANTS ©
+DRAMATIS PERSONAE
+AETHRA, mother of Theseus.
+Scene: Eleusis.
+SUPPLIANTS
+AETHRA
+Demeter, warder of Eleusisland.
+""".splitlines()
+    start, end = locate_play(lines, "PHOENICIAN MAIDENS")
+    body = "\n".join(lines[start:end])
+    assert "To the sun I lift this prayer." in body
+    assert "Demeter, warder of Eleusisland." not in body
+    start, end = locate_play(lines, "SUPPLIANTS")
+    body = "\n".join(lines[start:end])
+    assert "Demeter, warder of Eleusisland." in body
+
+
+def test_catalog_is_not_speakers():
+    text, report = clean_play(
+        """
+CYCLOPS
+INTRODUCTION
+A satyr play.
+DRAMATIS PERSONAE
+SILENUS, an old attendant.
+Scene: a cave.
+CYCLOPS
+SILENUS
+O Bacchus, the back-aches that I got
+In your cause, when my youthful blood was hot.
+ODYSSEUS
+Odysseus—Isle-king—Ithaca’s my home.
+THE LOEB CLASSICAL LIBRARY
+VOLUMES ALREADY PUBLISHED
+AULUS GELLIUS
+AUSONIUS
+""",
+        "CYCLOPS",
+    )
+    assert "SILENUS. O Bacchus" in text
+    assert "AULUS GELLIUS" not in report["speakers_found"]
+    assert "AUSONIUS" not in text
+
+

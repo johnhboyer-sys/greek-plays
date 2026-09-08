@@ -82,6 +82,53 @@ check against the page images.
 For `oedipus-tyrannus`, pass `--next-title 'OEDIPUS AT COLONUS'`; this cuts
 before the next play's argument because that title page has no OCR text.
 
+## Euripides / Way Loeb OCR (1912)
+
+A. S. Way, Loeb Classical Library, four volumes, verse. The vendored
+`sources/archive-org/euripidesway01euriuoft.txt` … `euripidesway04euriuoft.txt`
+are Greek-script Tesseract (`latin_letters=0`) and cannot feed the cleaner.
+The committed `sources/bench/way/*.txt` were built from bilingual tesseract-5
+OCR of the same 1912 Loeb: vol. 1 `euripides0000euri_y2n1`, vol. 2
+`euripides0002arth`, vol. 3 `euripideswithan01waygoog`, vol. 4
+`euripideswithan00waygoog`. English is on the recto. Counts are the cleaner
+report's page chunks. Pass `--next-title` for the following play (Ion needs
+`HIPPOLYTUS` because the title page has no OCR). Cyclops stops at the Loeb
+publisher catalog. Way's printed headings differ from our ids.
+
+Pairing is the stage-1 secondary `pairing_rate` (named Greek turns that got a
+same-speaker English turn). Coverage is `segments_with_chunk / segments_total`.
+The stage-2 floor is 0.85.
+
+| id | heading | pages kept/dropped | pairing | coverage | residual OCR |
+|---|---|---|---|---|---|
+| `iphigenia-at-aulis` | `IPHIGENEIA AT AULIS` | 215 / 181 | 0.978 | 0.944 | `nith attendants`; `A 20mm Ces Om` |
+| `rhesus` | `RHESUS` | 147 / 156 | 0.989 | 0.887 | `Where he 1s stationed` |
+| `hecuba` | `HECUBA` | 218 / 178 | 0.968 | 0.934 | `nith Children`; isolated scan glyphs |
+| `trojan-women` | `DAUGHTERS OF TROY` | 218 / 151 | 0.929 | 0.879 | `mith ASTYANAX`; `76C` for a line number |
+| `helen` | `HELEN` | 256 / 267 | 0.968 | 0.948 | `mith the offerings` |
+| `electra-eur` | `ELECTRA` | 221 / 88 | 0.949 | 0.925 | `How ?—1me thou mad'st` |
+| `orestes` | `ORESTES` | 291 / 135 | 0.985 | 0.970 | `1f of his wedded wife`; `65C` |
+| `iphigenia-in-tauris` | `IPHIGENEIA IN TAURICA` | 212 / 91 | 0.984 | 0.961 | `Orestes "—5so`; `uncle—4Ae` |
+| `andromache` | `ANDROMACHE` | 212 / 82 | 1.000 | 0.965 | scattered `nife`/`mith` |
+| `cyclops` | `CYCLOPS` | 134 / 116 | 0.973 | 0.969 | `I ?—4devil take you!` |
+| `bacchae` | `THE BACCHANALS` | 185 / 91 | 0.890 | 0.852 | `PENTHEUS. 1go....`; isolated Greek glyphs |
+| `heracles` | `MADNESS OF HERCULES` | 193 / 130 | 0.908 | 0.848 | `forms of 1n1s and Mapness`; `3h my son` |
+| `heraclidae` | `CHILDREN OF HERCULES` | 111 / 90 | 0.782 | 0.767 | `Hurls 1otavs`; `shame t6o` |
+| `phoenician-women` | `PHOENICIAN MAIDENS` | 196 / 146 | 0.900 | 0.869 | `Wuen Oedipus`; `Sulfilled the oracle` |
+| `suppliants-eur` | `SUPPLIANTS` | 132 / 90 | 0.920 | 0.843 | `nith`/`Wuen` in the argument |
+| `ion` | `ION` | 298 / 250 | 0.874 | 0.834 | `cHorus 10`; `10N (starteng back` |
+| `hippolytus` | `HIPPOLYTUS` | 220 / 129 | 0.964 | 0.934 | `nith her handmaids`; `M30` |
+| `medea` | `MEDEA` | 248 / 189 | 0.948 | 0.913 | `nife`/`mith` in the argument |
+| `alcestis` | `ALCESTIS` | 189 / 145 | 0.955 | 0.936 | `nife`/`mith` in the argument |
+
+`heraclidae` stays under 0.85: 167 English speaker-turns against 206 Greek
+segments (stichomythia). Every recovered English turn already pairs; aliases
+cannot invent labels the scan never printed. That is a `stage1_turn_english`
+one-turn-to-one-segment ceiling, not a floor to lower.
+
+For Ion, pass `--next-title HIPPOLYTUS`. For Cyclops, the cleaner stops at
+`THE LOEB CLASSICAL` so the publisher list is not speakers.
+
 ## Comedy comparison slots
 
 Comedies keep the 1912 Athenian Society text as `english.primary` (unexpurgated).

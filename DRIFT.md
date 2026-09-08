@@ -542,3 +542,13 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   fallback for pre-P2h data).
 - `docs/play-line.md` — §English: the per-line rule, holes, per-turn flag,
   `covered_ids` is continuation coverage only.
+
+## P3 bench — Way Euripides secondary (2026-09-08)
+
+- `pipeline/drama_pipeline/bench_clean.py` — Euripides Loeb titles (including
+  INTRODUCTION / missing title page / `SUPPLIANTS ©` / catalog stop), mixed-case
+  OCR speakers (`cycLops`, `Lycus`), truncated parentheticals, mid-line `NAME ᾿ verse`.
+- `pipeline/tests/test_bench_clean.py` — synthetic coverage for those Way cases.
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — `way` is A. S. Way,
+  Loeb 1912.
+- `docs/bench.md` — Euripides/Way table (heading, pages, pairing, coverage, residual OCR).

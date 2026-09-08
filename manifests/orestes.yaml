@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0006.tlg016.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  secondary:
+    id: way
+    name: "A. S. Way (Loeb, 1912) — alignment approximate"
+    short: Way
+    model: turn-text
+    format: loeb-ocr
+    source: bench/way/orestes.txt
+    play: ORESTES
+    footnotes: false
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -74,6 +83,19 @@ speakers:
     "Oretes": "Orestes"
     "First Semi-Chorus": "Chorus"
     "Second Semi-Chorus": "Chorus"
+  english_secondary:
+    "ELECTRA": "Electra"
+    "HELEN": "Helen"
+    "CHORUS": "Chorus"
+    "ORESTES": "Orestes"
+    "MENELAUS": "Menelaus"
+    "TYNDAREUS": "Tyndareus"
+    "PYLADES": "Pylades"
+    "MESSENGER": "Messenger"
+    "SEMICHORUS": "Chorus"
+    "HERMIONE": "Hermione"
+    "PHRYGIAN": "Phrygian"
+    "APOLLO": "Apollo"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -131,6 +153,10 @@ registry:
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
+    - id: way
+      name: "A. S. Way (Loeb, 1912) — alignment approximate"
+      short: Way
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Eur. Or."
