@@ -848,7 +848,7 @@ def test_stage2_pairing_floor_is_its_own_check_and_keeps_the_hole_allowance(
     assert low["checks"]["alignment"]["ok"] is True
     assert low["checks"]["alignment"]["allowed_unmatched"] == ["1:2"]
 
-    # Thesmophoriazusae's shape: the manifest declares the measured floor.
+    # A manifest may declare its own floor (a structural reason, commented).
     declared = _stage2_with_report(
         monkeypatch,
         tmp_path,
@@ -858,6 +858,26 @@ def test_stage2_pairing_floor_is_its_own_check_and_keeps_the_hole_allowance(
     )
     assert declared["checks"]["turn_text_pairing_floor"]["ok"] is True
     assert declared["checks"]["alignment"]["ok"] is True
+
+    # P3.6 finding 4: exactly the floor passes (`rate < floor` fails)...
+    exact = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "pairing_rate": 0.85},
+        _turn_text_manifest(),
+        unmatched_ids=("1:2",),
+    )
+    assert exact["checks"]["turn_text_pairing_floor"]["ok"] is True
+    # ...and a report with no rate at all fails closed.
+    no_rate = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {k: v for k, v in base.items() if k != "pairing_rate"},
+        _turn_text_manifest(),
+        unmatched_ids=("1:2",),
+    )
+    assert no_rate["checks"]["turn_text_pairing_floor"]["ok"] is False
+    assert "carries no pairing_rate" in no_rate["checks"]["turn_text_pairing_floor"]["error"]
 
     # Fails closed with no report of this play's own.
     foreign = _stage2_with_report(
@@ -870,10 +890,11 @@ def test_stage2_pairing_floor_is_its_own_check_and_keeps_the_hole_allowance(
     assert "not 'test-play'" in foreign["checks"]["turn_text_pairing_floor"]["error"]
 
 
-def test_thesmophoriazusae_declares_its_measured_pairing_floor():
-    """The floor is a declaration, not a default: 0.855 measured (432/505)."""
+def test_thesmophoriazusae_declares_its_pairing_floor_at_the_default():
+    """P3.6 finding 2: 0.855 measured (432/505), declared AT 0.85 so three
+    more lost pairs fail loudly — not 0.80, which was 25 pairs of slack."""
     manifest = Manifest.for_work("thesmophoriazusae")
-    assert manifest.data["english"]["min_pairing_rate"] == 0.80
+    assert manifest.data["english"]["min_pairing_rate"] == 0.85
 
 
 def test_stage2_gates_residual_english_that_reached_no_chunk(tmp_path, monkeypatch):
@@ -937,6 +958,7 @@ def test_stage2_turn_text_checks_fail_closed_without_this_works_report(
         "turn_text_length_ratio",
         "turn_text_turn_shift",
         "turn_text_residual_unassigned",
+        "turn_text_pairing_floor",
     ):
         assert foreign["checks"][key]["ok"] is False
         assert "not 'test-play'" in foreign["checks"][key]["error"]
@@ -949,6 +971,7 @@ def test_stage2_turn_text_checks_fail_closed_without_this_works_report(
         "turn_text_length_ratio",
         "turn_text_turn_shift",
         "turn_text_residual_unassigned",
+        "turn_text_pairing_floor",
     ):
         assert missing["checks"][key]["ok"] is False
         assert "no stage1 English report" in missing["checks"][key]["error"]
@@ -1777,6 +1800,44 @@ def test_flagged_extra_names_the_share_it_is_printed_in(tmp_path):
         "greek": "Euelpides",
     }
     assert "speakerMismatch" not in turns[2]
+
+
+def test_residual_reaches_a_later_share_of_the_line_the_next_pair_sits_on():
+    """P3.6 finding 1, the Birds 666 shape.
+
+    The forward bound of the park window was the SLOT of the next pair.  When
+    that pair kept the earlier share of a packed line (Hoopoe, slot 1), the
+    later share of the same line (Peisthetaerus, slot 2) lay outside the
+    window, and the segment-set fallback parked Peisthetaerus' speech on the
+    Hoopoe slot — clean, but on the wrong share.  The bound now widens to the
+    last share of that segment, so the speech reaches its own slot.
+    """
+    assigned, residual, _head, unassigned, flags = _assign_speeches(
+        3,
+        [(0, 0), (1, 2)],
+        3,
+        greek_names=["Alpha", "Hoopoe", "Peisthetaerus"],
+        english_names=["Alpha", "Peisthetaerus", "Hoopoe"],
+        greek_alt=[{"Alpha"}, {"Hoopoe", "Peisthetaerus"}, {"Hoopoe", "Peisthetaerus"}],
+        greek_segments=[0, 1, 1],
+    )
+    assert assigned == {0: [0], 1: [2], 2: [1]}
+    assert (residual, unassigned, flags) == (1, 0, {})
+
+    # The bound never crosses into the NEXT segment: a same-name share there
+    # is out of reach, and the segment fallback still parks on the cursor's
+    # window as before.
+    assigned, _r, _h, _u, flags = _assign_speeches(
+        3,
+        [(0, 0), (1, 2)],
+        3,
+        greek_names=["Alpha", "Hoopoe", "Peisthetaerus"],
+        english_names=["Alpha", "Peisthetaerus", "Hoopoe"],
+        greek_alt=[{"Alpha"}, {"Hoopoe"}, {"Peisthetaerus"}],
+        greek_segments=[0, 1, 2],
+    )
+    assert assigned == {0: [0, 1], 1: [2], 2: []}
+    assert flags == {1: "Alpha"}
 
 
 def test_residual_prefers_the_slot_that_is_the_speaker_over_the_segment_set():

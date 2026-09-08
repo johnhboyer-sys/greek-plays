@@ -642,6 +642,12 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `pipeline/drama_pipeline/__main__.py` — P3.5: `shift_cum=`, `new_drifts=` and
   the gated `shift_rate=` on every turn-text stage-1 summary line (the old
   `turn_shifts=` label printed the cumulative count as if it were the gate).
-- `manifests/thesmophoriazusae.yaml` — P3.5: `english.min_pairing_rate: 0.80`,
-  the measured 0.855 (432/505 events) declared instead of riding three pairs
-  above the default.
+- `manifests/thesmophoriazusae.yaml` — P3.5/P3.6: `english.min_pairing_rate:
+  0.85`, declared at the default with the measured 0.855 (432/505 events) on
+  record, so three more lost pairs fail loudly.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — P3.6 (Grok read of P3.5,
+  `docs/reviews/2026-09-08-grok-p35.md`): the residual park window widens to
+  the last share of the segment the next pair sits on, so a speech named for
+  a later share of that packed line parks on its own slot (Birds 666); the
+  module docstring says chunks emit in share order only where that agrees
+  with the English.

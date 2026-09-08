@@ -5,7 +5,8 @@ speeches, then paired to the Greek spine's speaker EVENTS — one slot per
 antilabe share, not one per segment (P3.4, ``_greek_event_slots``) — by LCS
 over canonical names (``turns._lcs_pairs`` + equal-length gap zip). A packed
 segment therefore takes one clean pair per share, and its chunk is assembled
-from the pieces its shares won, in share order. Residual English is never
+from the pieces its shares won — in share order where that agrees with the
+English, in English order where the two cross. Residual English is never
 dropped: it parks on the nearest segment between the surrounding pairs whose
 event set contains its speaker (``residual_grouped``), and otherwise on the
 cursor with a per-turn ``speakerMismatch`` (``residual_flagged``) — shown,
@@ -751,10 +752,11 @@ def _assign_speeches(
     name-agreeing turns), an unpaired speech is placed in three steps:
 
     1. it parks on the nearest Greek slot, at or after the slot the last
-       English went to and no later than the next paired slot, that speaks its
-       canonical name.  The window is the previous paired neighbour, the
-       unpaired Greek slots between the surrounding pairs, and the next paired
-       neighbour; the search runs forward from the cursor, so document order
+       English went to and no later than the last share of the segment the
+       next paired slot sits on (P3.6), that speaks its canonical name.  The
+       window is the previous paired neighbour, the unpaired Greek slots
+       between the surrounding pairs, and the next paired neighbour's whole
+       line; the search runs forward from the cursor, so document order
        stays monotone.  This is the clean park (``residual_grouped``) — P2i
        finding 5's rule, widened past the single ``last_gi`` it used to test.
 
@@ -798,9 +800,10 @@ def _assign_speeches(
     residual_unassigned = 0
     flagged: dict[int, str | None] = {}
 
-    # `next_pair_gi[ej]` = the Greek segment of the next PAIRED English after
-    # `ej`, the forward bound of the park window (the end of the play when no
-    # pair follows).
+    # `next_pair_gi[ej]` = the Greek SLOT of the next PAIRED English after
+    # `ej`; the forward bound of the park window is widened from it to the
+    # last slot of that segment below (the end of the play when no pair
+    # follows).
     next_pair_gi: list[int | None] = [None] * n_english
     ahead: int | None = None
     for ej in range(n_english - 1, -1, -1):
@@ -814,8 +817,16 @@ def _assign_speeches(
     # The first slot of each segment: the backward reach of the exact-name
     # pass (a packed neighbour, never another segment).
     seg_first: dict[int, int] = {}
+    # The last slot of each segment: the forward bound is widened to it when
+    # the next pair sits on an EARLIER share of a packed line, so a residual
+    # named for a later share of that same line can reach its own slot
+    # (P3.6 finding 1: Birds 666, Hoopoe paired, Peisthetaerus' share behind
+    # the bound, parked clean on the Hoopoe slot by the segment fallback).
+    seg_last: dict[int, int] = {}
     for gi in range(n_greek):
-        seg_first.setdefault(seg_of[gi] if gi < len(seg_of) else gi, gi)
+        seg_key = seg_of[gi] if gi < len(seg_of) else gi
+        seg_first.setdefault(seg_key, gi)
+        seg_last[seg_key] = gi
 
     def speaks(gi: int, name: str) -> bool:
         """The segment's own lines carry this speaker (primary or a share)."""
@@ -863,6 +874,7 @@ def _assign_speeches(
             continue
         upper = next_pair_gi[ej]
         upper = n_greek - 1 if upper is None else min(upper, n_greek - 1)
+        upper = seg_last.get(seg_of[upper] if upper < len(seg_of) else upper, upper)
         # Pass 1: the slot that IS this speaker, from the head of the cursor's
         # own segment (its packed neighbours) to the forward bound.
         start = seg_first.get(seg_of[cursor] if cursor < len(seg_of) else cursor, cursor)

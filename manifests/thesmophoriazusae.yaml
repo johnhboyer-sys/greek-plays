@@ -44,9 +44,11 @@ english:
   # default. 129 of its segments pack two or more speakers into one line, and
   # the 1912 translation runs the shorter halves of that antilabe together, so
   # the missing pairs are real edition disagreement, not builder loss — every
-  # one of those speeches is still shown, parked or flagged. Declared so a
-  # drift of a few pairs fails loudly instead of tipping over the default.
-  min_pairing_rate: 0.80
+  # one of those speeches is still shown, parked or flagged. Declared AT the
+  # default on purpose (P3.6): the closeness is on record here, and a
+  # re-export or cleaner change that loses three more pairs fails the build
+  # instead of being waved through by a lower floor.
+  min_pairing_rate: 0.85
   gaps: []
 
 citation:
