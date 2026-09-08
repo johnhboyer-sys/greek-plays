@@ -101,22 +101,23 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-a{
   --bg:#ebe7de; --panel:#f5f2eb; --ink:#211b17; --ink2:#5b5148; --ink3:#8b8074; --rule:#d5cdbf;
   --accent-t:#a13d21; --accent-c:#b07e1c; --accent:var(--accent-t);
+  --band-t:#a13d21; --band-c:#b07e1c; --band:var(--band-t);
   --f-gr:"Alegreya",Georgia,serif; --f-en:"Alegreya",Georgia,serif; --f-ui:"Alegreya Sans SC","Alegreya Sans",sans-serif; --f-num:"Alegreya Sans",sans-serif;
   --s0:#2f4a9c; --s1:#4d6b2a; --s2:#8a3675; --s3:#1a6a76; --s4:#7c5610; --s5:#96313f; --s6:#5a4bb0; --s7:#00674f;
   --fs:16.5px;
 }
 .dir-a.dark{
   --bg:#1a1512; --panel:#241d19; --ink:#ece3d5; --ink2:#c2b5a5; --ink3:#8d8175; --rule:#3a3129;
-  --accent-t:#d8704f; --accent-c:#d9a84a;
+  --accent-t:#d8704f; --accent-c:#d9a84a; --band-t:#7a2d17; --band-c:#7a5812;
   --s0:#9aabe8; --s1:#a6c26c; --s2:#dc93c8; --s3:#66bcc6; --s4:#d6a850; --s5:#e58f9d; --s6:#aca0ec; --s7:#62cfa9;
 }
-.dir-a .comedy{ --accent:var(--accent-c); }
+.dir-a .comedy{ --accent:var(--accent-c); --band:var(--band-c); }
 .dir-a .spk{ text-transform:none; letter-spacing:.04em; font-size:.92em; font-weight:700; }
 .dir-a .head{ border-bottom:2px solid var(--accent); }
 .dir-a .ode .g{ background:color-mix(in srgb, var(--accent) 6%, transparent); border-left:1px solid var(--accent); padding-top:6px; padding-bottom:6px; }
 .dir-a .ode .g .ln{ left:6px; }
 /* plate: the programme */
-.dir-a .plate .band{ background:var(--accent); color:#f7efe4; padding:44px 40px 36px; }
+.dir-a .plate .band{ background:var(--band); color:#f7efe4; padding:44px 40px 36px; }
 .dir-a .plate .band .gt{ font-family:var(--f-gr); font-size:66px; line-height:1; font-weight:500; margin:0; letter-spacing:-.01em; }
 .dir-a .plate .band .en{ font-family:var(--f-ui); font-size:20px; letter-spacing:.16em; margin:14px 0 0; }
 .dir-a .plate .band .au{ font-family:var(--f-en); font-style:italic; font-size:18px; margin:6px 0 0; opacity:.9; }
@@ -133,7 +134,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-a .plate .go{ display:inline-block; margin-top:26px; font-family:var(--f-ui); font-weight:700; letter-spacing:.12em; color:var(--accent); text-decoration:none; border-bottom:2px solid var(--accent); }
 .dir-a .plate .draft{ font-family:var(--f-num); font-size:11px; color:var(--ink3); margin-left:8px; }
 /* frogs strip */
-.dir-a .strip{ display:flex; align-items:baseline; gap:18px; padding:18px 28px; background:var(--accent); color:#f7efe4; }
+.dir-a .strip{ display:flex; align-items:baseline; gap:18px; padding:18px 28px; background:var(--band); color:#f7efe4; }
 .dir-a .strip .gt{ font-family:var(--f-gr); font-size:34px; margin:0; }
 .dir-a .strip .en{ font-family:var(--f-ui); letter-spacing:.14em; font-size:14px; }
 .dir-a .strip .pr{ margin-left:auto; font-style:italic; font-size:14px; opacity:.9; }
@@ -191,16 +192,17 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-c{
   --bg:#f4f4f1; --panel:#fbfbf9; --ink:#14171b; --ink2:#4b525a; --ink3:#7d858e; --rule:#d5d8db;
   --accent-t:#6d1f3c; --accent-c:#1f4a3a; --accent:var(--accent-t);
+  --band-t:#6d1f3c; --band-c:#1f4a3a; --band:var(--band-t);
   --f-gr:"STIX Two Text",Georgia,serif; --f-en:"IBM Plex Serif",Georgia,serif; --f-ui:"IBM Plex Mono",monospace; --f-num:"IBM Plex Mono",monospace;
   --s0:#3b5a8c; --s1:#5b7a4a; --s2:#7c4a6a; --s3:#8a6a2a; --s4:#2f6f7a; --s5:#8a4a4a; --s6:#5a5f8a; --s7:#4f6f5f;
   --fs:16px;
 }
 .dir-c.dark{
   --bg:#101317; --panel:#171b20; --ink:#e6e8ea; --ink2:#aab1b8; --ink3:#737b84; --rule:#2a3038;
-  --accent-t:#c76a8b; --accent-c:#63b08e;
+  --accent-t:#c76a8b; --accent-c:#63b08e; --band-t:#4a1530; --band-c:#143327;
   --s0:#9db6e6; --s1:#a9c48e; --s2:#d3a3c4; --s3:#d4b46a; --s4:#7fc0cc; --s5:#dc9a9a; --s6:#a9aee0; --s7:#9fc4ae;
 }
-.dir-c .comedy{ --accent:var(--accent-c); }
+.dir-c .comedy{ --accent:var(--accent-c); --band:var(--band-c); }
 .dir-c .rd{ line-height:1.5; }
 .dir-c .head{ padding:10px 28px; font-size:11.5px; letter-spacing:.02em; }
 .dir-c .head .crumbs a{ border-bottom:0; text-transform:uppercase; letter-spacing:.1em; }
@@ -220,7 +222,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-c .cmp .e .who{ font-size:10.5px; }
 .dir-c .rd.greekonly .seg{ border-top:0; }
 /* plate: the title card */
-.dir-c .plate .card{ background:var(--accent); color:#f5f2f4; padding:48px 44px 40px; display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:28px 56px; }
+.dir-c .plate .card{ background:var(--band); color:#f5f2f4; padding:48px 44px 40px; display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:28px 56px; }
 .dir-c .plate .gt{ font-family:var(--f-gr); font-size:64px; line-height:1; margin:0; font-weight:400; }
 .dir-c .plate .en{ font-family:var(--f-ui); font-size:13px; letter-spacing:.2em; text-transform:uppercase; margin:16px 0 0; opacity:.85; }
 .dir-c .plate .au{ font-family:var(--f-ui); font-size:13px; letter-spacing:.2em; text-transform:uppercase; margin:4px 0 0; opacity:.85; }
@@ -236,7 +238,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-c .plate .how{ margin:0; font-size:15px; color:var(--ink2); max-width:56ch; }
 .dir-c .plate .go{ margin-left:auto; white-space:nowrap; font-family:var(--f-ui); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); text-decoration:none; border:1px solid var(--accent); padding:8px 14px; }
 .dir-c .plate .draft{ font-family:var(--f-ui); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin-left:8px; }
-.dir-c .strip{ background:var(--accent); color:#f2f5f3; padding:18px 28px; display:flex; gap:22px; align-items:baseline; }
+.dir-c .strip{ background:var(--band); color:#f2f5f3; padding:18px 28px; display:flex; gap:22px; align-items:baseline; }
 .dir-c .strip .gt{ font-family:var(--f-gr); font-size:30px; margin:0; }
 .dir-c .strip .en{ font-family:var(--f-ui); font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; opacity:.85; }
 .dir-c .strip .pr{ margin-left:auto; font-family:var(--f-ui); font-size:11.5px; letter-spacing:.06em; opacity:.85; }
