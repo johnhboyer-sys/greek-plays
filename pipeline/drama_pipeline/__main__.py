@@ -84,6 +84,7 @@ def _stage1(manifest):
                     f"  english chunks={len(english['chunks'])} "
                     f"({english['translation']}) unmatched={len(unmatched)} "
                     f"paired={report['paired']} residual={report['residual_grouped']} "
+                    f"mismatches={report['speech_mismatch_count']} "
                     f"rate={report['pairing_rate']:.3f}"
                 )
             else:
@@ -107,7 +108,21 @@ def _stage1(manifest):
                     f"  secondary chunks={sec_report['segments_with_chunk']} "
                     f"({sec_report['translation']}) unpaired={sec_report['greek_unpaired']} "
                     f"paired={sec_report['paired']} residual={sec_report['residual_grouped']} "
+                    f"mismatches={sec_report['speech_mismatch_count']} "
                     f"rate={sec_report['pairing_rate']:.3f}"
+                )
+            elif sec_model == "perseus-play":
+                from . import stage1_perseus_play_english
+
+                _sec_eng, _sec_align, sec_report_path = stage1_perseus_play_english.run(
+                    manifest, spine, slot="secondary"
+                )
+                sec_report = json.loads(sec_report_path.read_text(encoding="utf-8"))
+                print(
+                    f"  secondary chunks={sec_report['segments_with_chunk']} "
+                    f"({sec_report['translation']}) "
+                    f"coverage={sec_report['coverage_ratio']:.3f} "
+                    f"anchors={sec_report['anchor_count']} snaps={sec_report['snap_count']}"
                 )
             else:
                 raise NotImplementedError(

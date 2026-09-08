@@ -44,6 +44,21 @@ COMEDIES = [
     "wealth",
 ]
 
+# Printed opening speaker of each Athenian Society play, in COMEDIES order.
+FIRST_SPEAKERS = [
+    "DICAEOPOLIS",
+    "DEMOSTHENES",
+    "STREPSIADES",
+    "SOSIAS",
+    "FIRST SERVANT",
+    "EUELPIDES",
+    "LYSISTRATA",
+    "MNESILOCHUS",
+    "XANTHIAS",
+    "PRAXAGORA",
+    "CARIO",
+]
+
 
 def _manifest_speeches(work: str) -> tuple[list[dict], dict[str, str]]:
     manifest = Manifest.for_work(work)
@@ -56,26 +71,6 @@ def _manifest_speeches(work: str) -> tuple[list[dict], dict[str, str]]:
         known_names=set(aliases),
         line_fixes=cfg.get("line_fixes") or {},
     )
-
-
-def _roster_spine(manifest: Manifest) -> dict:
-    segments = []
-    seen = set()
-    for label, display in manifest.data["speakers"]["sigla"].items():
-        if display is None or display in seen:
-            continue
-        seen.add(display)
-        n = len(segments) + 1
-        segments.append(
-            {
-                "id": f"1:{n}",
-                "book": 1,
-                "column": "1",
-                "lines": [{"n": n, "ref": str(n), "text": "Greek sample text"}],
-                "speakers": [{"line": n, "offset": 0, "label": label}],
-            }
-        )
-    return {"work": manifest.work_id, "segments": segments}
 
 
 def _antigone_spine() -> dict:
@@ -176,6 +171,7 @@ def test_report_numbers():
     assert report["speeches_parsed"] == 6
     assert report["paired"] == 5
     assert report["residual_grouped"] == 1
+    assert report["head_unassigned"] == 0
     assert report["greek_unpaired"] == 1
     assert report["greek_unpaired_ids"] == ["1:40"]
     assert report["pairing_rate"] == 5 / 6
@@ -263,6 +259,16 @@ def test_real_notes_stop_at_index_and_next_play_title():
     _knights, knights_notes = _manifest_speeches("knights")
     assert not next(reversed(knights_notes.values())).endswith("THE ACHARNIANS")
 
+    _frogs, frogs_notes = _manifest_speeches("frogs")
+    frogs_ns = {int(n) for n in frogs_notes}
+    assert {n for n in range(446, 544)} <= frogs_ns
+    assert sum(1 for n in frogs_ns if 446 <= n <= 543) == 98
+
+    _eccl, eccl_notes = _manifest_speeches("ecclesiazusae")
+    eccl_ns = {int(n) for n in eccl_notes}
+    assert {n for n in range(665, 736)} <= eccl_ns
+    assert sum(1 for n in eccl_ns if 665 <= n <= 735) == 71
+
 
 def test_unaliased_english_speakers_fail_with_play_and_name(tmp_path):
     path = tmp_path / "play.txt"
@@ -289,23 +295,67 @@ def test_unaliased_english_speakers_fail_with_play_and_name(tmp_path):
 
 
 def test_all_comedy_alias_tables_cover_real_english_speakers():
-    for work in COMEDIES:
+    for work, first in zip(COMEDIES, FIRST_SPEAKERS, strict=True):
         manifest = Manifest.for_work(work)
         cfg = manifest.data["english"]["primary"]
         speakers = manifest.data["speakers"]
-        _english, _footnotes, report = parse_translation(
-            SOURCES_DIR / cfg["source"],
-            _roster_spine(manifest),
-            work_id=work,
-            translation_id=cfg["id"],
-            play=cfg["play"],
-            sigla=speakers["sigla"],
-            english_aliases=speakers["english"],
-            footnotes_enabled=cfg.get("footnotes", True),
-            format=cfg.get("format") or "gutenberg",
+        aliases = speakers["english"]
+        roster = {display for display in speakers["sigla"].values() if display}
+        speeches, _notes = parse_play_speeches(
+            (SOURCES_DIR / cfg["source"]).read_text(encoding="utf-8"),
+            cfg["play"],
+            known_names=set(aliases),
             line_fixes=cfg.get("line_fixes") or {},
         )
-        assert report["speakers"]["only_in_english"] == [], work
+        assert speeches[0]["speaker_printed"] == first, work
+        for speech in speeches:
+            printed = speech["speaker_printed"]
+            assert printed in aliases, (work, printed)
+            assert aliases[printed] in roster, (work, printed, aliases[printed])
+            text = speech["text"]
+            assert "DRAMATIS" not in text, work
+            assert "costumed as Wasps" not in text, work
+            assert "attending AGATHON" not in text, work
+
+
+def test_wasps_and_thesmo_cast_list_lines_are_not_speeches():
+    pg8689 = (SOURCES_DIR / "gutenberg/pg8689.txt").read_text(encoding="utf-8").splitlines()
+    assert pg8689[178] == "CHORUS OF ELDERS, costumed as Wasps."
+    assert pg8689[8687] == "CHORUS attending AGATHON."
+    assert pg8689[8693].startswith("CHORUS OF THESMOPHORIAZUSAE")
+
+    wasps, _notes = _manifest_speeches("wasps")
+    assert wasps[0]["speaker_printed"] == "SOSIAS"
+    assert all("costumed as Wasps" not in speech["text"] for speech in wasps)
+    assert all(speech["speaker_printed"] != "CHORUS OF ELDERS" for speech in wasps)
+
+    thesmo, _notes = _manifest_speeches("thesmophoriazusae")
+    assert thesmo[0]["speaker_printed"] == "MNESILOCHUS"
+    assert all("attending AGATHON" not in speech["text"] for speech in thesmo)
+    assert all(
+        not speech["text"].startswith("attending AGATHON")
+        and "women keeping the Feast of Demeter" not in speech["text"]
+        for speech in thesmo
+    )
+
+
+def test_lysistrata_chorus_of_athenians_stays_in_preceding_speech():
+    pg8688 = (SOURCES_DIR / "gutenberg/pg8688.txt").read_text(encoding="utf-8").splitlines()
+    assert pg8688[9150].startswith("CHORUS OF ATHENIANS Appear")
+
+    speeches, _notes = _manifest_speeches("lysistrata")
+    preceding = [
+        speech
+        for speech in speeches
+        if speech["speaker_printed"] == "LYSISTRATA"
+        and "All is for the best" in speech["text"]
+    ]
+    assert len(preceding) == 1
+    assert "Appear, appear, dancers" in preceding[0]["text"]
+    assert all(speech["speaker_printed"] != "CHORUS OF ATHENIANS" for speech in speeches)
+    assert all(
+        not speech["text"].startswith("OF ATHENIANS Appear") for speech in speeches
+    )
 
 
 def test_speech_length_ratio_outlier_is_reported(tmp_path):
@@ -343,11 +393,84 @@ def test_speech_length_ratio_outlier_is_reported(tmp_path):
     assert report["speech_mismatch_count"] == 1
 
 
-def test_head_residue_attaches_to_first_greek_segment():
-    assigned, residual = _assign_speeches(4, [(3, 2)], 3)
-    assert assigned[0] == [0, 1]
+def test_head_residue_attaches_only_when_speaker_matches():
+    assigned, residual, head_unassigned = _assign_speeches(4, [(3, 2)], 3)
+    assert assigned[0] == []
     assert assigned[3] == [2]
-    assert residual == 2
+    assert residual == 0
+    assert head_unassigned == 2
+
+    matched, matched_residual, matched_head = _assign_speeches(
+        4,
+        [(3, 2)],
+        3,
+        greek_names=["Sosias", "X", "Y", "Z"],
+        english_names=["Sosias", "Sosias", "Z"],
+    )
+    assert matched[0] == [0, 1]
+    assert matched[3] == [2]
+    assert matched_residual == 2
+    assert matched_head == 0
+
+    skipped, skipped_residual, skipped_head = _assign_speeches(
+        4,
+        [(3, 2)],
+        3,
+        greek_names=["Sosias", "X", "Y", "Z"],
+        english_names=["Chorus", "Chorus", "Z"],
+    )
+    assert skipped[0] == []
+    assert skipped[3] == [2]
+    assert skipped_residual == 0
+    assert skipped_head == 2
+
+
+def test_head_residue_unassigned_is_reported(tmp_path):
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "TEST PLAY\nCHORUS. Cast-list junk.\nALPHA. Real opening.\nFINIS\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "Greek alpha"}],
+                "speakers": [
+                    {"line": 1, "offset": 0, "label": "Α."},
+                    {"line": 1, "offset": 1, "label": "Χο."},
+                ],
+            },
+        ],
+    }
+    english, _footnotes, report = parse_translation(
+        path,
+        spine,
+        work_id="test",
+        translation_id="test",
+        play="TEST PLAY",
+        sigla={"Α.": "Alpha", "Χο.": "Chorus"},
+        english_aliases={"CHORUS": "Chorus", "ALPHA": "Alpha"},
+        footnotes_enabled=False,
+    )
+    assert report["head_unassigned"] == 1
+    assert report["paired"] == 1
+    assert [chunk["id"] for chunk in english["chunks"]] == ["1:1"]
+    assert "Cast-list junk" not in english["chunks"][0]["text"]
+    assert english["chunks"][0]["turns"][0]["speaker"] == "Alpha"
+
+
+def test_mismatch_rate_is_surfaced_in_summary_and_stage2():
+    from drama_pipeline import __main__ as cli
+    from drama_pipeline import stage2_validate as s2
+
+    main_src = Path(cli.__file__).read_text(encoding="utf-8")
+    assert "mismatches={report['speech_mismatch_count']}" in main_src
+    stage2_src = Path(s2.__file__).read_text(encoding="utf-8")
+    assert 'english_cfg.get("max_mismatch_rate", 0.15)' in stage2_src
+    assert "speech mismatch rate" in stage2_src
+    assert "turn_text_mismatches" in stage2_src
 
 
 def test_manifest_line_fix_repairs_peace_speaker():

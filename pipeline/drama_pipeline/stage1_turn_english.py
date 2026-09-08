@@ -36,6 +36,19 @@ _LINDSAY_SPEAKER = re.compile(
 _NOTE_START = re.compile(r"^\[(\d+)\]\s*(.*)$")
 _FN_MARK = re.compile(r"\[(\d+)\]")
 _PG_END = re.compile(r"^\*\*\*\s*END OF|End of the Project Gutenberg")
+_COMEDY_TITLES = {
+    "THE ACHARNIANS",
+    "THE KNIGHTS",
+    "THE CLOUDS",
+    "THE WASPS",
+    "PEACE",
+    "THE BIRDS",
+    "LYSISTRATA",
+    "THE THESMOPHORIAZUSAE",
+    "THE FROGS",
+    "THE ECCLESIAZUSAE",
+    "PLUTUS",
+}
 
 
 def _sanitize_note_raw(raw: str) -> str:
@@ -54,15 +67,17 @@ def _canonical_english(printed: str, aliases: dict[str, str]) -> str | None:
 def _periodless_speaker(
     line: str, known_names: set[str]
 ) -> tuple[str, str] | None:
-    """Match ``NAME text`` only when NAME is a declared English alias."""
-    for name in sorted(known_names, key=len, reverse=True):
-        if not line.startswith(name) or len(line) == len(name):
-            continue
-        if not line[len(name)].isspace():
-            continue
-        rest = line[len(name):].strip()
-        if rest:
-            return name, rest
+    """Match ``NAME text`` only when the full caps run is a declared alias."""
+    words = line.split()
+    first_body = next(
+        (i for i, word in enumerate(words) if any(ch.islower() for ch in word)),
+        None,
+    )
+    if first_body is None or first_body == 0:
+        return None
+    name = " ".join(words[:first_body])
+    if name in known_names:
+        return name, " ".join(words[first_body:])
     return None
 
 
@@ -234,8 +249,7 @@ def _body_start(
                     return i
         else:
             match = _SPEAKER_LINE.match(raw)
-            periodless = None if match else _periodless_speaker(raw, known_names)
-            if periodless or (match and match.group("rest")):
+            if match and match.group("rest"):
                 return i
         if _is_play_end(raw) or _is_gutenberg_end_line(raw):
             break
@@ -259,15 +273,6 @@ def _join_parts(parts: list[str]) -> str:
     if buf:
         paragraphs.append(collapse_ws(" ".join(buf)).strip())
     return "\n\n".join(paragraph for paragraph in paragraphs if paragraph)
-
-
-def _short_caps_heading(s: str) -> bool:
-    return (
-        bool(s)
-        and len(s.split()) <= 4
-        and s.isupper()
-        and _FN_MARK.search(s) is None
-    )
 
 
 def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
@@ -294,12 +299,9 @@ def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
     while i < len(lines):
         s = lines[i].strip()
         if (
-            s in ("INTRODUCTION", "DRAMATIS PERSONAE")
-            or s.startswith("The Persons of the drama")
-            or s.startswith("FINIS")
+            s == "INTRODUCTION"
             or s.startswith("INDEX")
-            or _short_caps_heading(s)
-            or s == title
+            or (s in _COMEDY_TITLES and s != title)
             or _is_gutenberg_end_line(lines[i])
         ):
             break
@@ -521,26 +523,44 @@ def _greek_segment_name(segment: dict, sigla: dict) -> str | None:
 
 
 def _assign_speeches(
-    n_greek: int, pairs: list[tuple[int, int]], n_english: int
-) -> tuple[dict[int, list[int]], int]:
-    """Map each English speech onto a Greek segment. Residuals → preceding pair."""
+    n_greek: int,
+    pairs: list[tuple[int, int]],
+    n_english: int,
+    *,
+    greek_names: list[str | None] | None = None,
+    english_names: list[str | None] | None = None,
+) -> tuple[dict[int, list[int]], int, int]:
+    """Map residuals to a prior pair; gate head residue by segment-0 speaker."""
     assigned: dict[int, list[int]] = {gi: [] for gi in range(n_greek)}
     paired_e = {ej: gi for gi, ej in pairs}
     last_gi: int | None = None
-    first_gi = 0 if n_greek else None
     residual = 0
+    head_unassigned = 0
     for ej in range(n_english):
         if ej in paired_e:
             gi = paired_e[ej]
             assigned[gi].append(ej)
             last_gi = gi
             continue
-        gi = last_gi if last_gi is not None else first_gi
-        if gi is None:
+        if last_gi is None:
+            head_matches = (
+                n_greek > 0
+                and greek_names is not None
+                and english_names is not None
+                and len(greek_names) > 0
+                and len(english_names) > ej
+                and english_names[ej] is not None
+                and english_names[ej] == greek_names[0]
+            )
+            if head_matches:
+                assigned[0].append(ej)
+                residual += 1
+            else:
+                head_unassigned += 1
             continue
-        assigned[gi].append(ej)
+        assigned[last_gi].append(ej)
         residual += 1
-    return assigned, residual
+    return assigned, residual, head_unassigned
 
 
 def parse_translation(
@@ -600,7 +620,13 @@ def parse_translation(
     segments: list[dict] = list(spine["segments"])
     g_names = [_greek_segment_name(seg, sigla) for seg in segments]
     pairs = _pair_turns(g_names, e_names)
-    assigned, residual_grouped = _assign_speeches(len(segments), pairs, len(speeches))
+    assigned, residual_grouped, head_unassigned = _assign_speeches(
+        len(segments),
+        pairs,
+        len(speeches),
+        greek_names=g_names,
+        english_names=e_names,
+    )
 
     pair_ratios: list[tuple[int, int, float]] = []
     for gi, ej in pairs:
@@ -687,6 +713,7 @@ def parse_translation(
         "speeches_parsed": len(speeches),
         "paired": len(pairs),
         "residual_grouped": residual_grouped,
+        "head_unassigned": head_unassigned,
         "greek_unpaired": len(greek_unpaired),
         "greek_unpaired_ids": greek_unpaired,
         "pairing_rate": (paired_named / greek_named) if greek_named else 0.0,
