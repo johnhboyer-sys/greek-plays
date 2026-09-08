@@ -417,6 +417,9 @@ This is the first speech in the play.
 CALONICE.
 This is the second speech in the play.
 
+MYRRHINE (_above_)
+This is the third speech in the play.
+
 FINIS
 """
     speeches, notes = parse_play_speeches(text, "LYSISTRATA")
@@ -429,8 +432,38 @@ FINIS
             "speaker_printed": "CALONICE",
             "text": "This is the second speech in the play.",
         },
+        {
+            "speaker_printed": "MYRRHINE",
+            "text": "(_above_) This is the third speech in the play.",
+        },
     ]
     assert notes == {}
+
+
+def test_real_lindsay_lysistrata_speech_count_and_edge_speakers():
+    text = (SOURCES_DIR / "gutenberg/pg7700.txt").read_text(encoding="utf-8")
+    speeches, notes = parse_play_speeches(text, "LYSISTRATA")
+    assert notes == {}
+    assert len(speeches) == 537
+    assert speeches[0]["speaker_printed"] == "LYSISTRATA"
+    assert speeches[-1]["speaker_printed"] == "SPARTANS"
+    printed = {speech["speaker_printed"] for speech in speeches}
+    assert "MYRRHINE" in printed
+    assert "STRATYLLIS" in printed
+    assert "O" not in printed
+    groaning = [
+        speech
+        for speech in speeches
+        if speech["speaker_printed"] == "CINESIAS" and "O...." in speech["text"]
+    ]
+    assert len(groaning) == 1
+    staged = [
+        speech
+        for speech in speeches
+        if speech["speaker_printed"] == "MYRRHINE"
+        and speech["text"].startswith("(_above_)")
+    ]
+    assert len(staged) == 1
 
 
 LOEB_OCR = """ANTIGONE

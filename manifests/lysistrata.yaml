@@ -21,6 +21,14 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "LYSISTRATA"
     footnotes: true
+  secondary:
+    id: lindsay
+    name: "Jack Lindsay (1925) — alignment approximate"
+    short: Lindsay
+    model: turn-text
+    source: "gutenberg/pg7700.txt"
+    play: LYSISTRATA
+    footnotes: false
   gaps: []
 
 citation:
@@ -83,6 +91,35 @@ speakers:
     "A SERVANT": "Athenian"
     "CHILD": "Child"
     "A CHILD": "Child"
+  # Lindsay's printed own-line names (pg7700.txt). CAILONICE is a source typo.
+  english_secondary:
+    "LYSISTRATA": "Lysistrata"
+    "CALONICE": "Calonice"
+    "CAILONICE": "Calonice"
+    "MYRRHINE": "Myrrhine"
+    "LAMPITO": "Lampito"
+    "MAGISTRATE": "Magistrate"
+    "CINESIAS": "Cinesias"
+    "HERALD": "Spartan Herald"
+    "CHORUS": "Chorus"
+    "MEN": "Chorus of Old Men"
+    "OLD MEN": "Chorus of Old Men"
+    "WOMEN": "Chorus of Women"
+    "STRATYLLIS": "Chorus of Women"
+    "WOMAN": "Woman"
+    "1ST WOMAN": "First Woman"
+    "2ND WOMAN": "Second Woman"
+    "3RD WOMAN": "Third Woman"
+    "MAN": "Old Man"
+    "ATHENIANS": "Athenian Envoy"
+    "1ST ATHENIAN": "Athenian"
+    "2ND ATHENIAN": "Athenian"
+    "SPARTANS": "Spartan"
+    "PORTER": "Athenian"
+    "MARKET-LOUNGER": "Athenian"
+    "1ST MARKET-LOUNGER": "Athenian"
+    "2ND MARKET-LOUNGER": "Athenian"
+    "CHILD": "Child"
   sigla:
     "ΛΥ.": "Lysistrata"
     "ΛΥΣΙΣΤΡΑΤΗ": "Lysistrata"
@@ -151,6 +188,10 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: lindsay
+      name: "Jack Lindsay (1925) — alignment approximate"
+      short: Lindsay
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Ar. Lys."

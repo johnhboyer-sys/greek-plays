@@ -17,7 +17,7 @@ translations:
   - { id: campbell, translator: "Lewis Campbell", year: 1883, note: "Published in 1883, before 1931." }
   - { id: potter, translator: "Robert Potter", year: 1781, note: "Published in 1781, long in the public domain." }
   - { id: rogers, translator: "B. B. Rogers", year: 1902, note: "Translations published from 1902 to 1916, before 1931." }
-  - { id: hickie, translator: "William James Hickie", year: 1853, note: "Published in 1853, long in the public domain." }
+  - { id: hickie, translator: "W. J. Hickie", year: 1853, note: "The Comedies of Aristophanes (Bohn, 1853); published before 1931; bowdlerized — comparison slot only" }
   - { id: frere, translator: "John Hookham Frere", year: 1839, note: "Published in 1839, long in the public domain." }
 
 # DENIED: Eugene O'Neill Jr., The Complete Greek Drama (1938): not public

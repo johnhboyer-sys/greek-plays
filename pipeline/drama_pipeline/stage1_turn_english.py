@@ -30,8 +30,8 @@ _SPEAKER_LINE = re.compile(
     r"(?P<rest>\S.*)?$"
 )
 _LINDSAY_SPEAKER = re.compile(
-    r"^(?:[A-Z][A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH))"
-    r"(?:\s+(?:[A-Z][A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH)))*$"
+    r"^(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH))"
+    r"(?:\s+(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH)))*$"
 )
 _NOTE_START = re.compile(r"^\[(\d+)\]\s*(.*)$")
 _FN_MARK = re.compile(r"\[(\d+)\]")
@@ -178,15 +178,34 @@ def _locate_title(lines: list[str], title: str) -> int:
     return with_dp[-1] if with_dp else hits[-1]
 
 
-def _lindsay_speaker(line: str) -> str | None:
-    s = line.strip().rstrip(".")
+_LINDSAY_STAGE = re.compile(r"\s+(\([^)]*\))$")
+
+
+def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
+    """Own-line Lindsay speaker: NAME, optional ``(_stage_)``, optional period.
+
+    Only one trailing period is a speaker mark. Ellipsis (``O....``) is verse.
+    """
+    s = line.strip()
     if not s or s in _DRAMATIS_HEADS or s.startswith("The Persons of the drama"):
         return None
     if s in {"INTRODUCTION", "INDEX", "CONTENTS"} or s.startswith("THE "):
         return None
-    if not _LINDSAY_SPEAKER.fullmatch(s):
+    if s.endswith("."):
+        s = s[:-1]
+    stage = ""
+    staged = _LINDSAY_STAGE.search(s)
+    if staged:
+        stage = staged.group(1)
+        s = s[: staged.start()].rstrip()
+    if not s or not _LINDSAY_SPEAKER.fullmatch(s):
         return None
-    return s
+    return s, stage
+
+
+def _lindsay_speaker(line: str) -> str | None:
+    split = _split_lindsay_speaker_line(line)
+    return None if split is None else split[0]
 
 
 def _looks_like_speech_body(s: str) -> bool:
@@ -372,16 +391,15 @@ def _parse_lindsay_speeches(lines: list[str], start: int) -> tuple[list[dict], i
         if _is_play_end(s) or _is_gutenberg_end_line(raw):
             end_i = i
             break
-        name = _lindsay_speaker(raw)
-        if name and (raw.strip() == name or raw.strip() == name + "."):
-            # Own-line speaker: the line is only the name (optional period).
-            only_name = raw.strip() in {name, name + "."}
-            if only_name:
-                flush()
-                speaker = name
-                parts = []
-                i += 1
-                continue
+        split = _split_lindsay_speaker_line(raw)
+        if split:
+            # Own-line speaker: NAME, optional (_stage_), optional period.
+            name, stage = split
+            flush()
+            speaker = name
+            parts = [stage] if stage else []
+            i += 1
+            continue
         if speaker:
             if s:
                 parts.append(s)

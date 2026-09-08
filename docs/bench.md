@@ -36,3 +36,21 @@ line into `NAME. text`.
 5. `registry.translations[]` entry, `slot: secondary`, name carries
    “— alignment approximate”.
 6. `drama_pipeline all --work <id> --public`; secondary pairing rate ≥ 0.85.
+
+## Comedy comparison slots
+
+Comedies keep the 1912 Athenian Society text as `english.primary` (unexpurgated).
+A comparison translation rides only in `english.secondary`. Do not add a
+character the Greek roster does not already name.
+
+- **Clouds / Hickie** (W. J. Hickie, Bohn 1853, prose, bowdlerized): Perseus TEI
+  `sources/perseus/tlg0019.tlg003.perseus-eng2.xml`, `model: perseus-play`,
+  `anchor_model: sp-line`, `footnotes: false`. Line-owner attachment, so the
+  registry name has no “alignment approximate”. `speakers.english_secondary`
+  maps each `<speaker>` string (trailing period as printed) onto
+  `speakers.sigla` values.
+- **Lysistrata / Lindsay** (Jack Lindsay, 1925, verse, unexpurgated): Gutenberg
+  `sources/gutenberg/pg7700.txt`, `model: turn-text`, `play: LYSISTRATA` (the
+  body title above `The Persons of the drama.`, not the PG header). Registry
+  name carries “— alignment approximate”. Pairing floor 0.85; if it misses,
+  fix aliases (or the Lindsay own-line parser), never the floor.

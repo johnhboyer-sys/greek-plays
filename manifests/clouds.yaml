@@ -21,6 +21,14 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "THE CLOUDS"
     footnotes: true
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: perseus-play
+    source: "perseus/tlg0019.tlg003.perseus-eng2.xml"
+    anchor_model: sp-line
+    footnotes: false
   gaps: []
 
 citation:
@@ -59,6 +67,24 @@ speakers:
     "SERVANT OF STREPSIADES": "Slave"
     "A SLAVE": "Slave"
     "SLAVE": "Slave"
+  # Hickie's Perseus TEI <speaker> strings (trailing period as printed).
+  # Hermes is a Perseus <add> on lines the note assigns to Strepsiades.
+  english_secondary:
+    "Strepsiades.": "Strepsiades"
+    "Socrates.": "Socrates"
+    "Phidippides.": "Pheidippides"
+    "Chorus.": "Chorus"
+    "Just Cause.": "Better Argument"
+    "Unjust Cause.": "Worse Argument"
+    "Disciple.": "Student"
+    "1st Disciple.": "Student"
+    "2nd Disciple.": "Student"
+    "Pasias.": "Creditor"
+    "Amynias.": "Creditor"
+    "Witness.": "Creditor"
+    "Servant.": "Slave"
+    "Chaerephon.": "Student"
+    "Hermes": "Strepsiades"
   sigla:
     "Στ.": "Strepsiades"
     "ΣΤΡΕΨΙΑΔΗΣ": "Strepsiades"
@@ -113,6 +139,10 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: hickie
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Ar. Nub."
