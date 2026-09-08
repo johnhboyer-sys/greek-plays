@@ -1120,7 +1120,9 @@
   // finding 1). Under prefers-reduced-motion the opening scroll is instant
   // and cannot be cancelled by layout, so one check is the whole settle.
   const SETTLE_MS = [900, 2500];
-  const SETTLE_ABORT = ['wheel', 'touchmove', 'keydown'] as const;
+  // pointerdown covers a scrollbar-thumb drag, which fires no wheel event
+  // (Grok's read of Lane F).
+  const SETTLE_ABORT = ['wheel', 'touchmove', 'keydown', 'pointerdown'] as const;
   let settleAbort: (() => void) | null = null;
   function reducedMotion(): boolean {
     return window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;

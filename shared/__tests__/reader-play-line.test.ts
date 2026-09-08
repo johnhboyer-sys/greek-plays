@@ -1059,6 +1059,16 @@ describe('Reader.svelte deep-link settle (P4 Lane E, build/p4/lane-d-brief.md)',
     expect(behaviours(target)).toEqual(['smooth']);
   });
 
+  it('treats a scrollbar-thumb drag (pointerdown, no wheel) as the reader scrolling', async () => {
+    render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
+    await flush();
+    const target = document.getElementById('L6-4')!;
+    expect(behaviours(target)).toEqual(['smooth']);
+    window.dispatchEvent(new Event('pointerdown'));
+    await wait(2800);
+    expect(behaviours(target)).toEqual(['smooth']);
+  });
+
   it('leaves a deep link that landed alone', async () => {
     render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
     await flush();
