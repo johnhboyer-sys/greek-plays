@@ -673,3 +673,18 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   1.12× Greek-only column, and unboxed 1.5:1:1 compare with block speaker
   labels), no rules or ornament between speeches, plus the phone-width
   restatements of those gutters.
+- `shared/styles/global.css` — P4 Lane B: the blend skin. One value-swap token
+  layer after the base `:root`/dark blocks (vellum ground, iron-gall ink, Cardo
+  for read text and Alegreya Sans SC for operated chrome, the genre accents and
+  the plate band, selected by `data-genre` on `<html>`), the twelve `--spk-*`
+  slots re-cut as the scriptorium pigments (all ≥ 4.5:1 on their own ground),
+  the four hardcoded chevron strokes retinted off the dead teal accent, and two
+  new sections: `.rh` (the running head's own skin, unprefixed so the Lyceum
+  chrome's more specific rules still win) and `.plate` (the opening plate).
+- `shared/components/Plate.svelte` — P4 Lane B, NEW: the play's opening plate
+  (band, argument with its DRAFT tag, persons in order of appearance in their
+  reader slot colours, the scholia margin, "Start reading →"). Static, no
+  hydration; every string comes from the registry or the book's own roster.
+- `shared/components/RunningHead.svelte` — P4 Lane B: an optional `siteName`
+  prop renders the site name ahead of AUTHOR · PLAY (the blend's `.head .site`);
+  nothing else in the component changed.

@@ -96,12 +96,108 @@
   color-scheme:   dark;
 }
 
+/* ── P4 · the blend skin ──────────────────────────────────────────────
+   The Greek Drama Reader's own palette and type, from the visual spec
+   docs/mockups/2026-09-08-blend.html (its `.dir-b` token block) by way of
+   docs/p4-plan.md. ONE value-swap layer: it re-declares the tokens
+   above and adds the few the plate needs, so deleting this block reverts
+   the site to the pre-P4 skin (the Homer precedent). Every component
+   follows because every component already reads these tokens — nothing
+   is restyled one by one.
+
+   The accent is by GENRE, never by author (John, 2026-09-08): rubric red
+   for tragedy, malachite for comedy, chosen by `data-genre` on <html>
+   (ReaderShell.astro, from the author's `genre` in authors.yaml). Only
+   the four genre colours are re-declared for dark mode; `--accent` and
+   `--band` select through them, so genre × theme needs no cross-product
+   of rules. `--band` (the plate's title band) stays DEEP in dark mode —
+   never the lightened accent. */
+:root {
+  /* Cardo for everything a reader reads — Greek, English, titles, speaker
+     lead-ins; Alegreya Sans SC for everything a reader operates. No third
+     face is loaded. (--font-latin still follows --font-english, as it always
+     has; this corpus carries no Latin text.) */
+  --font-english: "Cardo", Georgia, "Times New Roman", serif;
+  --font-ui:      "Alegreya Sans SC", "Alegreya Sans", system-ui, -apple-system, sans-serif;
+  /* Both faces are Cardo now, so the English drops the nudge that EB
+     Garamond's smaller x-height asked for: one size for both columns. */
+  --fs-english:   1.05rem;
+
+  --col-bg:       #f4f2ec;   /* the raised panel */
+  --page-bg:      #edeae2;   /* the vellum ground */
+  --text:         #2a2420;   /* iron-gall ink */
+  --text-mid:     #5b534b;
+  --text-light:   #8b8377;
+  --border:       #d6d0c4;
+  --popup-bg:     #fbfaf6;
+  --input-bg:     #fbfaf6;
+  --apparatus-text: #6f665c;
+
+  --accent-tragedy:       #b1321c;   /* rubric red */
+  --accent-comedy:        #2f6b45;   /* malachite */
+  --accent-tragedy-light: #c9543a;
+  --accent-comedy-light:  #43855b;
+  --band-tragedy:         #b1321c;
+  --band-comedy:          #2f6b45;
+  --accent:       var(--accent-tragedy);
+  --accent-light: var(--accent-tragedy-light);
+  --band:         var(--band-tragedy);
+  --on-band:      #f4efe6;   /* text on a --band fill, both themes */
+  --on-accent:    #f4efe6;
+
+  --greek-hover:        rgba(42, 36, 32, 0.06);
+  --greek-hover-border: rgba(42, 36, 32, 0.16);
+  --greek-active:       #e3dccb;
+  --hit-bg:       #ecd9a6;
+  --target-bg:    #f0e6cf;
+  --mark-bg:      #ecd9a6;
+  --error:        #9c2a1a;
+}
+:root[data-genre="tragedy"] {
+  --accent:       var(--accent-tragedy);
+  --accent-light: var(--accent-tragedy-light);
+  --band:         var(--band-tragedy);
+}
+:root[data-genre="comedy"] {
+  --accent:       var(--accent-comedy);
+  --accent-light: var(--accent-comedy-light);
+  --band:         var(--band-comedy);
+}
+:root[data-theme="dark"] {
+  --col-bg:       #24211d;
+  --page-bg:      #1c1a17;
+  --text:         #e8e1d3;
+  --text-mid:     #b9b0a1;
+  --text-light:   #867d71;
+  --border:       #3b362f;
+  --popup-bg:     #24211d;
+  --input-bg:     #24211d;
+  --apparatus-text: #9a9083;
+
+  /* Text accents lift; the bands stay deep. */
+  --accent-tragedy:       #e0634c;
+  --accent-comedy:        #78b892;
+  --accent-tragedy-light: #ea8571;
+  --accent-comedy-light:  #9ad0b0;
+  --band-tragedy:         #7a2414;
+  --band-comedy:          #1f4a33;
+  --on-accent:    #1c1a17;   /* dark text reads on the lifted accent */
+
+  --greek-hover:        rgba(232, 225, 211, 0.10);
+  --greek-hover-border: rgba(232, 225, 211, 0.18);
+  --greek-active:       #3a332a;
+  --hit-bg:       rgba(232, 196, 122, 0.28);
+  --target-bg:    rgba(232, 196, 122, 0.14);
+  --mark-bg:      rgba(232, 196, 122, 0.30);
+  --error:        #f0917f;
+}
+
 /* Dark-mode select chevron (lighter stroke to match the dark accent). */
 :root[data-theme="dark"] .trans-picker select {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%234fb8c4' stroke-width='1.5'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23b9b0a1' stroke-width='1.5'/></svg>");
 }
 :root[data-theme="dark"] .work-switcher {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.75l5 5 5-5' fill='none' stroke='%234fb8c4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.75l5 5 5-5' fill='none' stroke='%23b9b0a1' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 
 html {
@@ -229,7 +325,7 @@ body {
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.75l5 5 5-5' fill='none' stroke='%231f6f7a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.75l5 5 5-5' fill='none' stroke='%235b534b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   background-repeat: no-repeat;
   background-position: right 0.6rem center;
 }
@@ -854,7 +950,7 @@ body {
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%231f6f7a' stroke-width='1.5'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%235b534b' stroke-width='1.5'/></svg>");
   background-repeat: no-repeat;
   background-position: right 0.55rem center;
 }
@@ -2072,6 +2168,199 @@ body {
 .reader-body.play-line.trans-compare .col-label.play-col-head { display: block; }
 .reader-body.play-line.trans-compare .play-greek-head { text-transform: none; letter-spacing: 0; }
 
+/* ── The running head (shared/components/RunningHead.svelte) ──────────
+   P4's chrome (the blend's `.head`): the site name small, uppercase and
+   letterspaced in the sans; AUTHOR · PLAY in Cardo, plain links back out
+   to the author and the play (never a switcher, never a library sheet —
+   John's ruling); the controls right in the sans; a 2px genre-accent rule
+   beneath, malachite for comedy. Unprefixed, so the component carries its
+   own skin; the Lyceum chrome's own `body.lyceum-chrome .rh` rules below
+   are more specific and still win inside that shell. */
+.rh {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem 1.1rem;
+  padding: .55rem 1.5rem .5rem;
+  background: var(--col-bg);
+  border-bottom: 2px solid var(--accent);
+  font-family: var(--font-ui);
+  font-size: .78rem;
+  letter-spacing: .06em;
+  color: var(--text-mid);
+}
+.rh .rhl { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: .9rem; }
+.rh .rhr { display: flex; align-items: baseline; gap: 1rem; white-space: nowrap; }
+.rh .rhsite {
+  font-size: .69rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+.rh .rha { min-width: 0; }
+.rh .rhb { white-space: nowrap; }
+/* Author and play read as text, not as chrome: Cardo, at reading size. */
+.rh .rha .rhp {
+  font-family: var(--font-english);
+  font-size: .94rem;
+  letter-spacing: 0;
+  color: var(--text);
+}
+.rh .rhp {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--text-mid);
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+.rh .rhp:hover,
+.rh .rhp:focus-visible { border-bottom-color: var(--accent); }
+.rh .rhr .v.on { color: var(--accent); border-bottom-color: var(--accent); }
+.rh .sep { color: var(--text-light); margin: 0 .45em; letter-spacing: 0; }
+.rh .secnum { font-variant-numeric: tabular-nums; }
+.rh .sechd { color: var(--text-light); }
+
+/* ── The play's opening plate (shared/components/Plate.svelte) ────────
+   The visual spec's `.dir-b .plate2`: A's coloured band over B's
+   manuscript body with a scholia margin. It sits above line 1 of the
+   play-line reader and shares the reader's own measure, so the band's
+   edges line up with the text below it. Genre dresses it: --band and
+   --accent come from data-genre on <html>, so comedy is malachite with
+   no rule of its own. */
+.plate {
+  /* The reader's stock measure. Not the `--colw-scale` one: that slider is
+     set on `.reader-body` itself, below the plate, and moves the text
+     column only. */
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.plate-band {
+  background: var(--band);
+  color: var(--on-band);
+  padding: 2.6rem 2.5rem 2.1rem;
+}
+.plate-gt {
+  font-family: var(--font-greek);
+  font-size: 4rem;
+  line-height: 1;
+  font-weight: 400;
+  margin: 0;
+}
+.plate-en {
+  font-family: var(--font-english);
+  font-size: 1.5rem;
+  font-weight: 400;
+  font-variant-caps: small-caps;
+  letter-spacing: .14em;
+  margin: .75rem 0 0;
+}
+.plate-au {
+  font-style: italic;
+  font-size: 1.2rem;
+  margin: .25rem 0 0;
+  opacity: .92;
+}
+.plate-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 13.1rem;
+  gap: 0 2.25rem;
+  padding: 2.1rem 2.5rem 2.5rem;
+}
+.plate-arg {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin: 0 0 1.6rem;
+  max-width: 52ch;
+}
+/* The rubricated initial — the one piece of ornament the manuscript
+   direction keeps. */
+.plate-arg::first-letter {
+  float: left;
+  font-size: 3.1em;
+  line-height: .85;
+  padding: .06em .1em 0 0;
+  color: var(--accent);
+}
+.plate-draft {
+  font-size: .75rem;
+  font-style: italic;
+  color: var(--text-light);
+  margin-left: .4rem;
+}
+.plate-h {
+  font-variant-caps: small-caps;
+  letter-spacing: .1em;
+  font-weight: 400;
+  font-size: .95rem;
+  color: var(--accent);
+  margin: 0 0 .4rem;
+}
+.plate-cast {
+  list-style: none;
+  margin: 0 0 1.4rem;
+  padding: 0;
+  column-count: 2;
+  column-gap: 1.75rem;
+  font-size: 1.06rem;
+  line-height: 1.65;
+}
+.plate-cast li { break-inside: avoid; }
+/* Each person's initial in that speaker's own slot colour (--spk, set on
+   the <li> by Plate.svelte from assignSpeakerSlots) — the same colour the
+   reader gives that speaker's lead-in. */
+.plate-cast li::first-letter {
+  color: var(--spk);
+  font-weight: 700;
+  font-size: 1.25em;
+}
+.plate-go {
+  display: inline-block;
+  font-variant-caps: small-caps;
+  letter-spacing: .1em;
+  font-size: 1.06rem;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.plate-go:hover,
+.plate-go:focus-visible { border-bottom-color: var(--accent); }
+.plate-margin {
+  font-size: .85rem;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--text-mid);
+  padding: .25rem 0 0 1rem;
+  border-left: 1px solid var(--border);
+}
+.plate-margin p { margin: 0 0 .75rem; }
+.plate-margin b {
+  display: block;
+  font-style: normal;
+  font-variant-caps: small-caps;
+  font-weight: 400;
+  letter-spacing: .06em;
+  color: var(--accent);
+}
+@media (max-width: 680px) {
+  .plate { padding: 0; }
+  .plate-band { padding: 1.75rem 1.4rem 1.5rem; }
+  .plate-gt { font-size: 2.6rem; }
+  .plate-en { font-size: 1.25rem; }
+  .plate-body { grid-template-columns: 1fr; padding: 1.5rem 1.4rem; }
+  .plate-cast { column-count: 1; }
+  .plate-margin {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding: 1rem 0 0;
+    margin-top: .5rem;
+  }
+}
+
 /* ── section-flow (docs/section-flow-plan.md) ────────────────────────
    Book-section works that opt in: keep per-section .segment rows (pairing)
    but drop the header, rule, and inter-section gap. The section number is
@@ -2175,20 +2464,25 @@ body {
   -webkit-user-select: none;
   user-select: none;
 }
-/* Speaker-name colour palette (Settings ▸ Speakers ▸ Color speaker names).
-   Twelve complementary hues, each tuned to read against BOTH the light and the
-   warm-dark page background; applied only to the .speaker lead-in name, never
-   the speech text. Off unless the reader turns it on (per the .spk-color
-   container class), so the default remains the single accent colour above. */
+/* Speaker-name colour palette (Settings ▸ Speakers ▸ Color speaker names),
+   also the plate's cast initials. P4: the scriptorium pigment set —
+   ultramarine, verdigris, Tyrian, ochre, carbon, madder, indigo, moss,
+   Egyptian blue, sepia, malachite, slate. Applied only to the .speaker
+   lead-in name (and the plate initial), never the speech text; off in the
+   reader unless the reader turns it on (the .spk-color container class).
+   Every slot clears 4.5:1 against its own ground — light on the vellum
+   #edeae2 (the darker of the two light grounds), dark on the panel
+   #24211d (the lighter of the two dark grounds); the ochre is a shade
+   deeper than the mockup's #9a6d14, which measured 3.82:1. */
 :root {
-  --spk-0: #a24a30; --spk-1: #3f56a8; --spk-2: #4e6f2c; --spk-3: #8f3d78;
-  --spk-4: #8a5f14; --spk-5: #1c6d78; --spk-6: #9c3a4e; --spk-7: #5a4bb0;
-  --spk-8: #006a50; --spk-9: #00638e; --spk-10: #713c91; --spk-11: #676300;
+  --spk-0: #2b4a9c; --spk-1: #2f6f6a; --spk-2: #6e3a7c; --spk-3: #825c10;
+  --spk-4: #3a3632; --spk-5: #8c2f3a; --spk-6: #4d5a8a; --spk-7: #5a6b2a;
+  --spk-8: #1f5f78; --spk-9: #6b4423; --spk-10: #2f6b45; --spk-11: #56606b;
 }
 :root[data-theme="dark"] {
-  --spk-0: #e2906e; --spk-1: #97a8e6; --spk-2: #9fbb66; --spk-3: #d68cc2;
-  --spk-4: #d2a24c; --spk-5: #5fb6c1; --spk-6: #e28a9a; --spk-7: #a99ae8;
-  --spk-8: #5ccaa5; --spk-9: #67bde8; --spk-10: #c394e8; --spk-11: #c6bf55;
+  --spk-0: #9fb0ea; --spk-1: #7fc3bd; --spk-2: #cf9fdc; --spk-3: #d9b04e;
+  --spk-4: #c9c2b8; --spk-5: #e2919c; --spk-6: #a9b3e6; --spk-7: #b6c775;
+  --spk-8: #7cc3d8; --spk-9: #cfa07e; --spk-10: #86c9a0; --spk-11: #aeb8c2;
 }
 :is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="0"] { color: var(--spk-0); }
 :is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="1"] { color: var(--spk-1); }

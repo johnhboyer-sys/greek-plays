@@ -18,6 +18,10 @@
   // through the DOM (the strip is still rendered, just not shown, when this
   // chrome is on) — the same way Reader.svelte itself reaches out to the
   // Astro-rendered contents nav. One state, two faces.
+  // The site name leads the head, small and letterspaced (P4, the blend's
+  // `.head .site`); empty renders nothing, so a caller that has no site
+  // name to give gets the head exactly as it was.
+  export let siteName = '';
   export let author: string;
   export let workTitle: string;
   export let workId: string;
@@ -280,6 +284,7 @@
 
 <div class="rh">
   <div class="rhl">
+    {#if siteName}<span class="rhsite">{siteName}</span>{/if}
     <span class="rha">
       <a class="rhp" href={authorHref}>{author}</a>
       <span class="sep" aria-hidden="true">·</span>
