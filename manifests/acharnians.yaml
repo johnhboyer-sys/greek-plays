@@ -21,6 +21,18 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "THE ACHARNIANS"
     footnotes: true
+  # Hickie secondary pairs 0.838: the scan never labels Pseudartabas, the
+  # Megarian's girls, or the numbered semichoruses. Every recovered English
+  # turn already pairs; aliases cannot invent labels the scan never printed.
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/acharnians.txt"
+    play: "THE ACHARNIANS"
+    footnotes: false
   gaps: []
 
 citation:
@@ -81,6 +93,27 @@ speakers:
     "MESSENGERS": "Messenger"
     "A PRYTANIS": "Herald"
     "PRYTANIS": "Herald"
+  english_secondary:
+    "DICAEOPOLIS": "Dicaeopolis"
+    "AMBASSADORS": "Ambassador"
+    "AMPHITHEUS": "Amphitheus"
+    "HERALD": "Herald"
+    "THEORUS": "Theorus"
+    "CHORUS": "Chorus"
+    "WIFE OF DICAEOPOLIS": "Daughter"
+    "SERVANT OF EURIPIDES": "Servant"
+    "EURIPIDES": "Euripides"
+    "LAMACHUS": "Lamachus"
+    "MESSENGERS": "Messenger"
+    "MEGARIAN": "Megarian"
+    "BQOTIAN": "Boeotian"
+    "NICHARCHUS": "Nicarchus"
+    "HUSBANDMEN": "Farmer"
+    "PARANYMPH": "Bridesmaid"
+    "INFORMER": "Informer"
+    "SYCOPHANT": "Informer"
+    "P CHO": "Chorus"
+    "EG": "Megarian"
   sigla:
     "ΔΙ.": "Dicaeopolis"
     "ΔΙΚΑΙΟΠΟΛΙΣ": "Dicaeopolis"
@@ -155,6 +188,10 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: hickie
+      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      short: Hickie
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Ar. Ach."

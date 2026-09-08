@@ -21,6 +21,15 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE WASPS"
     footnotes: true
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/wasps.txt"
+    play: "THE WASPS"
+    footnotes: false
   gaps: []
 
 citation:
@@ -52,6 +61,16 @@ speakers:
     "A BAKER'S WIFE": "Bread-seller"
     "A DOG": "Dog"
     "DOG": "Dog"
+  english_secondary:
+    "SOSEAS": "Sosias"
+    "XANTHIAS": "Xanthias"
+    "BDELYCLEON": "Bdelycleon"
+    "PHILOCLEON": "Philocleon"
+    "CHORUS": "Chorus"
+    "BOYS": "Boy"
+    "PLAINTIFF": "Accuser"
+    "BAKING WOMAN": "Bread-seller"
+    "ATTENDING THE CHORUS": "Xanthias"
   sigla:
     "Φι.": "Philocleon"
     "ΦΙΛΟΚΛΕΩΝ": "Philocleon"
@@ -104,6 +123,10 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: hickie
+      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      short: Hickie
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Ar. Vesp."

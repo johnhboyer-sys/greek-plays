@@ -174,8 +174,9 @@ pipeline/.venv/bin/python -m drama_pipeline.bench_clean \
 ## Comedy comparison slots
 
 Comedies keep the 1912 Athenian Society text as `english.primary` (unexpurgated).
-A comparison translation rides only in `english.secondary`. Do not add a
-character the Greek roster does not already name.
+Hickie and Rogers ride only as comparison slots (`english.secondary`,
+`english.third`, or overlay). Do not add a character the Greek roster does
+not already name.
 
 - **Clouds / Hickie** (W. J. Hickie, Bohn 1853, prose, bowdlerized): Perseus TEI
   `sources/perseus/tlg0019.tlg003.perseus-eng2.xml`, `model: perseus-play`,
@@ -188,3 +189,71 @@ character the Greek roster does not already name.
   body title above `The Persons of the drama.`, not the PG header). Registry
   name carries “— alignment approximate”. Pairing floor 0.85; if it misses,
   fix aliases (or the Lindsay own-line parser), never the floor.
+
+### Aristophanes / Hickie prose (Bohn 1853)
+
+W. J. Hickie, English-only prose. The vendored DLI scans
+(`in.ernet.dli.2015.515629.txt`, `in.ernet.dli.2015.515630.txt`) are
+tesseract `-l san` (0 Latin letters) and cannot feed the cleaner. The
+committed `sources/bench/hickie/*.txt` were cleaned from the Google-digitized
+1853 Bohn of the same edition (`comediesaristop01hickgoog` vol. 1,
+`comediesaristop00hickgoog` vol. 2) with `--layout prose-inline`: inline
+`Dic.` / `Dicæopolis (solus).` labels expanded from each play's dramatis
+personae into `NAME. text` for `format: loeb-ocr`.
+
+Clouds stays on the Perseus TEI (line-keyed). Pairing is stage-1
+`pairing_rate`; coverage is `segments_with_chunk / segments_total`.
+
+| id | translator | slot | pairing | coverage | residual OCR |
+|---|---|---|---|---|---|
+| `clouds` | Hickie | secondary (Perseus TEI) | line-keyed | — | Perseus `<speaker>` strings |
+| `acharnians` | Hickie | secondary | 0.838 | 0.828 | `asq@int`; `Beeotian sté` |
+| `knights` | Hickie | secondary | 0.764 | 0.757 | `Aras! alas`; `S. S.` sausage-seller |
+| `wasps` | Hickie | secondary | 0.614 | 0.609 | `SOSEAS` for Sosias |
+| `peace` | Hickie | secondary | 0.772 | 0.769 | `TRYGAOUS`; `THEORIA` |
+| `birds` | Hickie | secondary | 0.821 | 0.816 | `PISTHETAIRUS`; `Pistu`/`Pista` |
+| `lysistrata` | Hickie | third | 0.766 | 0.764 | `Caton.`; `Cuo. or Men.` |
+| `thesmophoriazusae` | Hickie | secondary | 0.798 | 0.789 | `CLISTHENES`; `Myes.` for Mnesilochus |
+| `frogs` | Hickie | secondary | 0.783 | 0.780 | `BACCHUS` for Dionysus; `ZBACUS` |
+| `ecclesiazusae` | Hickie | secondary | 0.394 | 0.394 | `Buep`/`Bier`/`Burp` for Blepyrus |
+| `wealth` | Hickie | secondary | 0.587 | 0.586 | `Pov`/`Pru` for Plutus |
+
+`acharnians` stays under 0.85: Hickie never labels Pseudartabas, the
+Megarian's girls, or the numbered semichoruses. Every recovered English
+turn already pairs; aliases cannot invent labels the scan never printed.
+
+`ecclesiazusae` and `wealth` stay well under 0.85 because the Google OCR
+of speaker abbreviations is too damaged (Blepyrus, Plutus) to recover the
+turns the page images print. That is an OCR ceiling, not a floor to lower
+on the primary.
+
+```
+pipeline/.venv/bin/python -m drama_pipeline.bench_clean \
+  --layout prose-inline \
+  --volume /tmp/hickie1.txt \
+  --translator hickie --play acharnians --title 'THE ACHARNIANS' \
+  --next-title 'THE KNIGHTS'
+```
+
+### Aristophanes / Rogers verse (Loeb 1924)
+
+B. B. Rogers, Loeb vol. 3 (`aristophanes0003benj_r6k0.txt`), facing-page
+verse, bowdlerized — comparison only. `bench_clean` (loeb layout) plus a
+per-play 2–3 letter expansion table (`CA.` → `CALONICE`). Slot: `third` on
+thesmophoriazusae / ecclesiazusae / wealth (Hickie already occupies
+secondary); overlay on lysistrata (Lindsay secondary, Hickie third).
+`stage1_turn_english.run(..., slot="third"|"overlay")` writes
+`third_chunks.json` or merges `overlays.json`.
+
+| id | translator | slot | pairing | coverage | residual OCR |
+|---|---|---|---|---|---|
+| `lysistrata` | Rogers | overlay | 0.258 | 0.257 | `CA.`; `ty.` for LY.; Greek pages mixed in |
+| `thesmophoriazusae` | Rogers | third | 0.475 | 0.470 | `MN.`; `E EU` |
+| `ecclesiazusae` | Rogers | third | 0.407 | 0.407 | `Z BL`; `E CHR` |
+| `wealth` | Rogers | third | 0.392 | 0.392 | `E CA`; `SCHR` |
+
+Rogers stays under 0.85 on all four: the Loeb facing-page scan drops about
+half the pages as Greek, and the remaining English speaker-turns are far
+fewer than the Greek segments (bowdlerized cuts plus lost labels). Every
+recovered English turn already pairs; aliases cannot invent labels the
+scan never printed.

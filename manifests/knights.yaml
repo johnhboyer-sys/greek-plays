@@ -21,6 +21,18 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "THE KNIGHTS"
     footnotes: true
+  # Hickie secondary pairs 0.764: after Demus enters, `Dem.` is Demus not
+  # Demosthenes; `S. S.` is the sausage-seller. Remaining hole is OCR of
+  # Cleon/Demos labels, not a primary floor.
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/knights.txt"
+    play: "THE KNIGHTS"
+    footnotes: false
   gaps: []
 
 citation:
@@ -55,6 +67,15 @@ speakers:
     "DEMOSTHENES AND NICIAS": "Both Slaves"
     "CHORUS": "Chorus"
     "CHORUS OF KNIGHTS": "Chorus"
+  english_secondary:
+    "NICIAS": "Second Slave"
+    "DEMOSTHENES": "First Slave"
+    "SAUSAGE SELLER": "Sausage-seller"
+    "CLEON": "Paphlagonian"
+    "PAPHLAGONIAN": "Paphlagonian"
+    "CHORUS": "Chorus"
+    "AGORACRITUS": "Sausage-seller"
+    "DEMUS": "Demos"
   sigla:
     "ΑΛ.": "Sausage-seller"
     "ΑΛΛΑΝΤΟΠΩΛΗΣ": "Sausage-seller"
@@ -103,6 +124,10 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: hickie
+      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      short: Hickie
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Ar. Eq."

@@ -221,6 +221,18 @@ def test_own_line_speakers_become_name_dot_text():
     assert any(l.startswith("SECOND MESSENGER. Sorrows") for l in lines)
 
 
+def test_rogers_short_labels_expand():
+    from drama_pipeline import bench_clean as bc
+
+    bc._ACTIVE_SHORT = dict(bc.ROGERS_ABBR["lysistrata"])
+    name, rest = bc._speaker_candidate("CA. And so, by Zeus, we are.")
+    assert name == "CALONICE"
+    assert rest.startswith("And so")
+    name, rest = bc._speaker_candidate("LY. Yet though I told them")
+    assert name == "LYSISTRATA"
+    bc._ACTIVE_SHORT = {}
+
+
 def test_clean_play_drops_greek_and_keeps_english_cast():
     text, report = clean_play(LOEB, "ANTIGONE")
     assert "Ὦ κοινὸν" not in text

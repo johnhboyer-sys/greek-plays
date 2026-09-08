@@ -136,6 +136,51 @@ def _stage1(manifest):
                 raise NotImplementedError(
                     f"play-line english.secondary model {sec_model!r} is not supported"
                 )
+        third = ((manifest.data.get("english") or {}).get("third") or {})
+        if third:
+            third_model = third.get("model")
+            if third_model == "turn-text":
+                from . import stage1_turn_english
+
+                _third_eng, _third_align, third_report_path = stage1_turn_english.run(
+                    manifest, spine, slot="third"
+                )
+                third_report = json.loads(third_report_path.read_text(encoding="utf-8"))
+                print(
+                    f"  third chunks={third_report['segments_with_chunk']} "
+                    f"({third_report['translation']}) unpaired={third_report['greek_unpaired']} "
+                    f"paired={third_report['paired']} residual={third_report['residual_grouped']} "
+                    f"head_unassigned={third_report['head_unassigned']} "
+                    f"ratio_outliers={third_report['length_ratio_outlier_count']} "
+                    f"turn_shifts={third_report['turn_shift_count']} "
+                    f"rate={third_report['pairing_rate']:.3f}"
+                )
+            else:
+                raise NotImplementedError(
+                    f"play-line english.third model {third_model!r} is not supported"
+                )
+        for overlay_entry in ((manifest.data.get("english") or {}).get("overlays") or []):
+            ov_model = overlay_entry.get("model")
+            if ov_model != "turn-text":
+                raise NotImplementedError(
+                    f"play-line english.overlays model {ov_model!r} is not supported"
+                )
+            from . import stage1_turn_english
+
+            _ov_eng, _ov_align, ov_report_path = stage1_turn_english.run(
+                manifest, spine, slot="overlay", overlay_entry=overlay_entry
+            )
+            ov_report = json.loads(ov_report_path.read_text(encoding="utf-8"))
+            print(
+                f"  overlay {overlay_entry.get('id')} "
+                f"chunks={ov_report['segments_with_chunk']} "
+                f"({ov_report['translation']}) unpaired={ov_report['greek_unpaired']} "
+                f"paired={ov_report['paired']} residual={ov_report['residual_grouped']} "
+                f"head_unassigned={ov_report['head_unassigned']} "
+                f"ratio_outliers={ov_report['length_ratio_outlier_count']} "
+                f"turn_shifts={ov_report['turn_shift_count']} "
+                f"rate={ov_report['pairing_rate']:.3f}"
+            )
         n_lines = sum(len(s["lines"]) for s in spine["segments"])
         n_speakers = sum(len(s.get("speakers", [])) for s in spine["segments"])
         print(f"stage1 ({'greek+english' if primary else 'greek-only'}, play-line): "

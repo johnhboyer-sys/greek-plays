@@ -82,8 +82,111 @@ DEFAULT_PLAY_TITLES = (
     "HIPPOLYTUS",
     "MEDEA",
     "ALCESTIS",
+    # Rogers, Aristophanes Loeb 1924 vol. 3.
+    "THE LYSISTRATA",
+    "LYSISTRATA",
+    "THE THESMOPHORIAZUSAE",
+    "THESMOPHORIAZUSAE",
+    "THE ECCLESIAZUSAE",
+    "ECCLESIAZUSAE",
+    "THE PLUTUS",
+    "PLUTUS",
 )
 PLAY_HEADING_SET = {title.upper() for title in DEFAULT_PLAY_TITLES}
+
+# Rogers Loeb prints 2–3 letter speaker labels (CA., LY., CHR.). Expand by play.
+ROGERS_ABBR = {
+    "lysistrata": {
+        "LY": "LYSISTRATA",
+        "CA": "CALONICE",
+        "CAL": "CALONICE",
+        "MY": "MYRRHINE",
+        "LA": "LAMPITO",
+        "LAM": "LAMPITO",
+        "MAG": "MAGISTRATE",
+        "CI": "CINESIAS",
+        "CIN": "CINESIAS",
+        "KI": "CINESIAS",
+        "MEN": "MEN",
+        "WOMEN": "WOMEN",
+        "ATH": "ATHENIANS",
+        "HER": "HERALD",
+        "SP": "SPARTANS",
+        "STR": "STRATYLLIS",
+        "CHORUS": "CHORUS",
+        "CHILD": "CHILD",
+        "PORTER": "PORTER",
+        "IDLER": "IDLER",
+        "ATHENIAN": "ATHENIAN",
+        "ATHENIANS": "ATHENIANS",
+        "LACONIAN": "LACONIAN",
+        "MYRRHINE": "MYRRHINE",
+        "MYRRHINA": "MYRRHINE",
+        "LYSISTRATA": "LYSISTRATA",
+        "CALONICE": "CALONICE",
+        "LAMPITO": "LAMPITO",
+        "MAGISTRATE": "MAGISTRATE",
+        "CINESIAS": "CINESIAS",
+        "HERALD": "HERALD",
+    },
+    "thesmophoriazusae": {
+        "MN": "MNESILOCHUS",
+        "EU": "EURIPIDES",
+        "EURIPIDES": "EURIPIDES",
+        "AG": "AGATHON",
+        "AGATHON": "AGATHON",
+        "MNESILOCHUS": "MNESILOCHUS",
+        "CL": "CLEISTHENES",
+        "CH": "CHORUS",
+        "CHR": "CHORUS",
+        "SC": "SCYTHIAN",
+        "PR": "PRYTANIS",
+        "WOMAN": "WOMAN",
+        "WOMEN": "WOMEN",
+    },
+    "ecclesiazusae": {
+        "PR": "PRAXAGORA",
+        "BL": "BLEPYRUS",
+        "CH": "CHREMES",
+        "CHR": "CHREMES",
+        "CIT": "CITIZEN",
+        "YOUTH": "YOUTH",
+        "HAG": "HAG",
+        "GIRL": "GIRL",
+        "NE": "NEIGHBOUR",
+        "MAID": "MAID",
+        "CHORUS": "CHORUS",
+        "PRAXAGORA": "PRAXAGORA",
+        "BLEPYRUS": "BLEPYRUS",
+        "CHREMES": "CHREMES",
+        "FIRST WOMAN": "FIRST WOMAN",
+        "SECOND WOMAN": "SECOND WOMAN",
+        "CRIER": "CRIER",
+    },
+    "wealth": {
+        "CHR": "CHREMYLUS",
+        "CA": "CARIO",
+        "CH": "CHREMYLUS",
+        "BL": "BLEPSIDEMUS",
+        "POV": "POVERTY",
+        "WIFE": "WIFE",
+        "YOUTH": "YOUTH",
+        "HER": "HERMES",
+        "IN": "INFORMER",
+        "PL": "PLUTUS",
+        "CAR": "CARIO",
+        "CHORUS": "CHORUS",
+        "CARIO": "CARIO",
+        "CHREMYLUS": "CHREMYLUS",
+        "WEALTH": "WEALTH",
+        "PLUTUS": "PLUTUS",
+        "BLEPSIDEMUS": "BLEPSIDEMUS",
+        "POVERTY": "POVERTY",
+        "HERMES": "HERMES",
+        "INFORMER": "INFORMER",
+    },
+}
+_ACTIVE_SHORT: dict[str, str] = {}
 
 # OCR of Greek running heads / sigla — never English speakers.
 GREEK_HEAD_OCR = {
@@ -303,6 +406,7 @@ NOT_SPEAKERS = {
     "DRAMATIS PERSONAE",
     "SOPHOCLES",
     "EURIPIDES",
+    "ARISTOPHANES",
     "INTRODUCTION",
     "CONTENTS",
     "SCENE",
@@ -376,10 +480,13 @@ def greek_ratio(text: str) -> float:
 def _norm_heading(line: str) -> str:
     s = line.strip()
     s = re.sub(r"[©®*]+", "", s)
-    s = re.sub(r"^[\-–—_|.:\s]+", "", s)
-    s = re.sub(r"[\-–—_|.:\s]+$", "", s)
+    s = re.sub(r"^[\-–—_|.:\s\"“”]+", "", s)
+    s = re.sub(r"[\-–—_|.:\s*]+$", "", s)
     s = re.sub(r"[\-–—_|.~]+", " ", s)
-    return re.sub(r"\s+", " ", s).upper()
+    s = re.sub(r"\s+", " ", s).upper()
+    s = s.replace("OTBHE ", "THE ")
+    s = s.replace("ECCLESIAZUSABE", "ECCLESIAZUSAE")
+    return s
 
 
 def _is_play_heading(line: str, title: str) -> bool:
@@ -400,10 +507,11 @@ def _followed_by_front_matter(lines: list[str], i: int, window: int = 40) -> boo
     return False
 
 
-def _preceded_by_front_matter(lines: list[str], i: int, window: int = 120) -> bool:
+def _preceded_by_front_matter(lines: list[str], i: int, window: int = 280) -> bool:
     """Recognize a first running head when OCR omitted the title page."""
     for j in range(i - 1, max(-1, i - 1 - window), -1):
-        if lines[j].strip().upper().startswith("DRAMATIS PERSON"):
+        u = lines[j].strip().upper()
+        if u.startswith("DRAMATIS PERSON") or u in {"INTRODUCTION", "ARGUMENT"}:
             return True
     return False
 
@@ -712,14 +820,23 @@ def _speaker_candidate(line: str) -> tuple[str | None, str]:
     rest = m.group("rest").strip().strip("|").strip()
     name_folded = name.translate(str.maketrans("801", "SOI"))
     name = OCR_SPEAKER_FIXES.get(name, OCR_SPEAKER_FIXES.get(name_folded, name))
+    if name in _ACTIVE_SHORT:
+        name = _ACTIVE_SHORT[name]
+    elif name_folded in _ACTIVE_SHORT:
+        name = _ACTIVE_SHORT[name_folded]
     if name in NOT_SPEAKERS or name in {"AND", "THE", "A", "AN", "OF"}:
-        return None, s
-    if not SPEAKER_NAME_RE.match(name) or len(name) < 3:
+        if name not in _ACTIVE_SHORT.values():
+            return None, s
+    if name not in _ACTIVE_SHORT.values() and (
+        not SPEAKER_NAME_RE.match(name) or len(name) < 3
+    ):
         return None, s
     # Multi-word play titles used as running heads are not speakers.
     if name in PLAY_HEADING_SET and " " in name:
         return None, s
-    if len(name) <= 3 and name not in {"ION", "IRIS"}:
+    if len(name) <= 3 and name not in {"ION", "IRIS"} and name not in _ACTIVE_SHORT.values():
+        return None, s
+    if _ACTIVE_SHORT and name not in _ACTIVE_SHORT and name not in _ACTIVE_SHORT.values():
         return None, s
     if re.match(r"^(CATCHES|CLINGS|ENLER|EAIT|ENTER|EXEUNT)\b", name):
         return None, s
@@ -820,7 +937,10 @@ def clean_play(
     *,
     next_title: str | None = None,
     greek_threshold: float = 0.3,
+    play: str | None = None,
 ) -> tuple[str, dict]:
+    global _ACTIVE_SHORT
+    _ACTIVE_SHORT = dict(ROGERS_ABBR.get(play or "", {}))
     lines = text.splitlines()
     start, end = locate_play(lines, title, next_title=next_title)
     slice_lines = lines[start:end]
@@ -879,7 +999,7 @@ def write_clean(
     out_dir: Path | None = None,
 ) -> tuple[Path, dict]:
     text = volume.read_text(encoding="utf-8", errors="replace")
-    cleaned, report = clean_play(text, title, next_title=next_title)
+    cleaned, report = clean_play(text, title, next_title=next_title, play=play)
     dest_dir = out_dir or (SOURCES_DIR / "bench" / translator)
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest = dest_dir / f"{play}.txt"
@@ -909,11 +1029,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--layout",
         default="loeb",
-        choices=("loeb", "verse-own-line"),
-        help="loeb = facing-page OCR; verse-own-line = English-only verse (Morshead).",
+        choices=("loeb", "verse-own-line", "prose-inline"),
+        help="loeb = facing-page OCR; verse-own-line = English-only verse "
+        "(Morshead); prose-inline = English-only prose with Dic. labels (Hickie).",
     )
     args = p.parse_args(argv)
-    if args.layout == "verse-own-line":
+    if args.layout in {"verse-own-line", "prose-inline"}:
         from .bench_clean_verse import write_clean as verse_write
 
         dest, report = verse_write(
@@ -922,6 +1043,7 @@ def main(argv: list[str] | None = None) -> int:
             args.play,
             args.title,
             next_title=args.next_title,
+            layout=args.layout,
         )
         print(f"wrote {dest}")
         print(

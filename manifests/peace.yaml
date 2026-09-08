@@ -23,6 +23,15 @@ english:
     footnotes: true
     line_fixes:
       6832: 'SON OF CLEONYMUS. "But I saved my life."'
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/peace.txt"
+    play: "PEACE"
+    footnotes: false
   gaps: []
 
 citation:
@@ -70,6 +79,22 @@ speakers:
     "A HELMET-MAKER": "Arms-dealer"
     "SICKLE-MAKER": "Sickle-maker"
     "A SICKLE-MAKER": "Sickle-maker"
+  english_secondary:
+    "TRYGAOUS": "Trygaeus"
+    "TRYGAEUS": "Trygaeus"
+    "MERCURY": "Hermes"
+    "WAR": "War"
+    "TUMULT": "Tumult"
+    "CHORUS": "Chorus"
+    "HIEROCLES": "Hierocles"
+    "SICKLE MAKER": "Sickle-maker"
+    "TRUMPET MAKER": "Arms-dealer"
+    "CREST MAKER": "Arms-dealer"
+    "BREASTPLATE MAKER": "Arms-dealer"
+    "SPEAR MAKER": "Arms-dealer"
+    "HELMET MAKER": "Arms-dealer"
+    "THEORIA": "Daughter"
+    "PEACE": "Chorus"
   sigla:
     "ΤΡ.": "Trygaeus"
     "ΤΡΥΓΑΙΟΣ": "Trygaeus"
@@ -130,6 +155,10 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: hickie
+      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      short: Hickie
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Ar. Pax"

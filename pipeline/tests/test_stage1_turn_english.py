@@ -127,17 +127,17 @@ def test_alias_and_sigla_canonicalisation():
     assert speakers["only_in_english"] == []
 
 
-def test_lcs_groups_extra_english_and_leaves_greek_unmatched():
+def test_lcs_leaves_a_foreign_residual_unassigned():
+    """P2i finding 5: the extra Dicaeopolis speech is not the Herald's, so it
+    is left out and counted rather than parked in his column."""
     english, _footnotes, report = _parse()
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
     assert "1:40" not in by_id
     herald = by_id["1:20"]
     assert "The assembly is open." in herald["text"]
-    assert "An extra speech the Greek does not split." in herald["text"]
-    assert "\n\n" in herald["text"]
-    assert herald["turns"][0]["speaker"] == "Herald"
-    assert herald["turns"][1]["speaker"] == "Dicaeopolis"
-    assert herald["turns"][1]["offset"] > 0
+    assert "An extra speech the Greek does not split." not in herald["text"]
+    assert [turn["speaker"] for turn in herald["turns"]] == ["Herald"]
+    assert report["residual_unassigned"] == 1
     assert [chunk["id"] for chunk in english["chunks"]] == [
         "1:1",
         "1:10",
@@ -170,7 +170,8 @@ def test_report_numbers():
     _english, _footnotes, report = _parse()
     assert report["speeches_parsed"] == 6
     assert report["paired"] == 5
-    assert report["residual_grouped"] == 1
+    assert report["residual_grouped"] == 0
+    assert report["residual_unassigned"] == 1
     assert report["head_unassigned"] == 0
     assert report["greek_unpaired"] == 1
     assert report["greek_unpaired_ids"] == ["1:40"]
@@ -409,13 +410,14 @@ def test_speech_length_ratio_outlier_is_reported(tmp_path):
 
 
 def test_head_residue_attaches_only_when_speaker_matches():
-    assigned, residual, head_unassigned = _assign_speeches(4, [(3, 2)], 3)
+    assigned, residual, head_unassigned, unassigned = _assign_speeches(4, [(3, 2)], 3)
     assert assigned[0] == []
     assert assigned[3] == [2]
     assert residual == 0
     assert head_unassigned == 2
+    assert unassigned == 0
 
-    matched, matched_residual, matched_head = _assign_speeches(
+    matched, matched_residual, matched_head, _un = _assign_speeches(
         4,
         [(3, 2)],
         3,
@@ -427,7 +429,7 @@ def test_head_residue_attaches_only_when_speaker_matches():
     assert matched_residual == 2
     assert matched_head == 0
 
-    skipped, skipped_residual, skipped_head = _assign_speeches(
+    skipped, skipped_residual, skipped_head, _un2 = _assign_speeches(
         4,
         [(3, 2)],
         3,
@@ -438,6 +440,40 @@ def test_head_residue_attaches_only_when_speaker_matches():
     assert skipped[3] == [2]
     assert skipped_residual == 0
     assert skipped_head == 2
+
+
+def test_residual_is_not_parked_on_a_segment_that_speaker_never_speaks():
+    """P2i finding 5, Frogs-shaped: Dionysus and Xanthias alternate, the
+    English runs two Xanthias speeches together, and the second one may not be
+    parked on the Dionysus segment the pairing landed on."""
+    greek = ["Dionysus", "Xanthias", "Dionysus", "Xanthias"]
+    english = ["Dionysus", "Xanthias", "Dionysus", "Xanthias", "Dionysus"]
+    # English 4 (Dionysus) has no pair; last_gi is the Xanthias segment 3.
+    assigned, residual, head, unassigned = _assign_speeches(
+        4,
+        [(0, 0), (1, 1), (2, 2), (3, 3)],
+        5,
+        greek_names=greek,
+        english_names=english,
+    )
+    assert assigned[3] == [3]
+    assert residual == 0
+    assert head == 0
+    assert unassigned == 1
+
+    # A name the segment's own lines carry (an antilabe share) still parks,
+    # and so does an unnamed continuation.
+    parked, parked_residual, _head, parked_unassigned = _assign_speeches(
+        4,
+        [(0, 0), (1, 1), (2, 2), (3, 3)],
+        6,
+        greek_names=greek,
+        english_names=english + [None],
+        greek_alt=[set(), set(), set(), {"Dionysus"}],
+    )
+    assert parked[3] == [3, 4, 5]
+    assert parked_residual == 2
+    assert parked_unassigned == 0
 
 
 def test_head_residue_unassigned_is_reported(tmp_path):
@@ -859,6 +895,55 @@ def test_run_secondary_writes_ross_chunks(tmp_path, monkeypatch):
     assert all(isinstance(v, list) and v[0]["text"] for v in ross.values())
     report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["translation"] == "storr"
+    assert report["speeches_parsed"] == 4
+
+
+def test_run_third_writes_third_chunks(tmp_path, monkeypatch):
+    from drama_pipeline.config import Manifest
+    from drama_pipeline import stage1_turn_english as m
+
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "play.txt").write_text(LOEB_OCR, encoding="utf-8")
+    monkeypatch.setattr(m, "BUILD_DIR", tmp_path)
+    monkeypatch.setattr(m, "SOURCES_DIR", src_dir)
+    spine = _antigone_spine()
+    man = Manifest(
+        {
+            "work": {"id": "antigone"},
+            "english": {
+                "third": {
+                    "id": "hickie",
+                    "source": "play.txt",
+                    "play": "ANTIGONE",
+                    "format": "loeb-ocr",
+                    "footnotes": False,
+                }
+            },
+            "speakers": {
+                "sigla": {
+                    "ΑΝ.": "Antigone",
+                    "ΙΣ.": "Ismene",
+                    "Χο.": "Chorus",
+                    "ΚΡ.": "Creon",
+                    "—": None,
+                },
+                "english_third": {
+                    "ANTIGONE": "Antigone",
+                    "ISMENE": "Ismene",
+                    "CHORUS": "Chorus",
+                    "CREON": "Creon",
+                },
+            },
+        },
+        tmp_path / "antigone.yaml",
+    )
+    eng_path, _align, report_path = m.run(man, spine, slot="third")
+    assert eng_path.name == "third_chunks.json"
+    third = json.loads(eng_path.read_text(encoding="utf-8"))
+    assert all(isinstance(v, list) and v[0]["text"] for v in third.values())
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["translation"] == "hickie"
     assert report["speeches_parsed"] == 4
 
 

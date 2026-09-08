@@ -14,6 +14,7 @@ off-by-one signal). stage2 gates both.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from statistics import median
@@ -186,10 +187,14 @@ def speaker_at(
     before offset 0) and one or more mid-line speakers.  A piece anchored at
     such a line belongs to the speaker whose share of the line the English
     ``<sp>`` names (``prefer``), falling back to the line-start speaker.
+
+    P2i finding 7: on an A–B–A line the English ``<sp>`` that follows the B
+    share is the LAST A share, so ``prefer`` matches the last event of that
+    name on the line, not the first.
     """
     events = _segment_speaker_events(segment, sigla)
     if prefer is not None:
-        for ln, _offset, name, mapped in events:
+        for ln, _offset, name, mapped in reversed(events):
             if ln == line and name == prefer and (mapped or not mapped_only):
                 return prefer
     start: str | None = None
@@ -655,13 +660,41 @@ def _assign_speeches(
     *,
     greek_names: list[str | None] | None = None,
     english_names: list[str | None] | None = None,
-) -> tuple[dict[int, list[int]], int, int]:
-    """Map residuals to a prior pair; gate head residue by segment-0 speaker."""
+    greek_alt: list[set[str]] | None = None,
+) -> tuple[dict[int, list[int]], int, int, int]:
+    """Map residuals to a prior pair; gate head residue by segment-0 speaker.
+
+    P2i finding 5: a residual is parked on ``last_gi`` only when it can be
+    that segment's speech — its canonical name is the segment's primary
+    speaker or one of the other shares its lines carry (``greek_alt``), or it
+    has no name at all (an unattributed continuation, and the OCR sentinel a
+    bench scan gives an unreadable label).  A residual that names somebody
+    else is left unassigned and counted (``residual_unassigned``): Frogs
+    parked a Xanthias speech on a segment Xanthias does not speak.
+    """
     assigned: dict[int, list[int]] = {gi: [] for gi in range(n_greek)}
     paired_e = {ej: gi for gi, ej in pairs}
+    alt = greek_alt or []
     last_gi: int | None = None
     residual = 0
     head_unassigned = 0
+    residual_unassigned = 0
+
+    def may_park(gi: int, ej: int) -> bool:
+        if english_names is None or ej >= len(english_names):
+            return True
+        name = english_names[ej]
+        if name is None or name == _OCR_JUNK:
+            return True
+        primary = (
+            greek_names[gi]
+            if greek_names is not None and gi < len(greek_names)
+            else None
+        )
+        if primary is None or name == primary:
+            return True
+        return name in (alt[gi] if gi < len(alt) else set())
+
     for ej in range(n_english):
         if ej in paired_e:
             gi = paired_e[ej]
@@ -684,9 +717,12 @@ def _assign_speeches(
             else:
                 head_unassigned += 1
             continue
+        if not may_park(last_gi, ej):
+            residual_unassigned += 1
+            continue
         assigned[last_gi].append(ej)
         residual += 1
-    return assigned, residual, head_unassigned
+    return assigned, residual, head_unassigned, residual_unassigned
 
 
 def parse_translation(
@@ -769,12 +805,13 @@ def parse_translation(
     g_names = [_greek_segment_name(seg, sigla) for seg in segments]
     g_alt = [_greek_segment_alt_names(seg, sigla) for seg in segments]
     pairs = _pair_turns(g_names, e_names, g_alt)
-    assigned, residual_grouped, head_unassigned = _assign_speeches(
+    assigned, residual_grouped, head_unassigned, residual_unassigned = _assign_speeches(
         len(segments),
         pairs,
         len(speeches),
         greek_names=g_names,
         english_names=e_names,
+        greek_alt=g_alt,
     )
 
     pair_ratios: list[tuple[int, int, float]] = []
@@ -884,6 +921,7 @@ def parse_translation(
         "speeches_parsed": len(speeches),
         "paired": len(pairs),
         "residual_grouped": residual_grouped,
+        "residual_unassigned": residual_unassigned,
         "head_unassigned": head_unassigned,
         "greek_unpaired": len(greek_unpaired),
         "greek_unpaired_ids": greek_unpaired,
@@ -933,17 +971,35 @@ def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
     return out
 
 
-def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, Path, Path]:
-    cfg = ((manifest.data.get("english") or {}).get(slot) or {})
+def _aliases_for_slot(speakers: dict, slot: str, translation_id: str | None = None) -> dict:
+    if slot == "secondary":
+        return speakers.get("english_secondary") or speakers.get("english") or {}
+    if slot == "third":
+        return (
+            speakers.get("english_third")
+            or speakers.get("english_secondary")
+            or speakers.get("english")
+            or {}
+        )
+    if slot == "overlay" and translation_id:
+        return speakers.get(f"english_{translation_id}") or speakers.get("english") or {}
+    return speakers.get("english") or {}
+
+
+def run(
+    manifest: Manifest,
+    spine: dict,
+    slot: str = "primary",
+    overlay_entry: dict | None = None,
+) -> tuple[Path, Path, Path]:
+    english_block = manifest.data.get("english") or {}
+    cfg = overlay_entry if overlay_entry is not None else (english_block.get(slot) or {})
     if not cfg:
         raise ValueError(f"{manifest.work_id}: english.{slot} is required for turn-text")
     source_path = SOURCES_DIR / cfg["source"]
     speakers = manifest.data.get("speakers") or {}
     sigla = _SiglaResolver(manifest)
-    if slot == "secondary":
-        aliases = speakers.get("english_secondary") or speakers.get("english") or {}
-    else:
-        aliases = speakers.get("english") or {}
+    aliases = _aliases_for_slot(speakers, slot, cfg.get("id"))
     play = cfg.get("play")
     if not play:
         raise ValueError(f"{manifest.work_id}: english.{slot}.play is required for turn-text")
@@ -970,6 +1026,29 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         write_json(alignment_path, build_alignment(spine, english))
         write_json(report_path, report)
         return english_path, alignment_path, report_path
+    if slot == "third":
+        english_path = out_dir / "third_chunks.json"
+        alignment_path = out_dir / "third_alignment.json"
+        report_path = out_dir / "third_report.json"
+        write_json(english_path, chunks_as_overlay(english))
+        write_json(alignment_path, build_alignment(spine, english))
+        write_json(report_path, report)
+        return english_path, alignment_path, report_path
+    if slot == "overlay":
+        overlays_path = out_dir / "overlays.json"
+        overlays = (
+            json.loads(overlays_path.read_text(encoding="utf-8"))
+            if overlays_path.exists()
+            else {}
+        )
+        tid = cfg["id"]
+        overlays[tid] = chunks_as_overlay(english)
+        write_json(overlays_path, overlays)
+        alignment_path = out_dir / f"overlay_{tid}_alignment.json"
+        report_path = out_dir / f"overlay_{tid}_report.json"
+        write_json(alignment_path, build_alignment(spine, english))
+        write_json(report_path, report)
+        return overlays_path, alignment_path, report_path
     english_path = out_dir / "english_chunks.json"
     alignment_path = out_dir / "alignment.json"
     report_path = out_dir / "english_report.json"

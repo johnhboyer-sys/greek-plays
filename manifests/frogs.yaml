@@ -21,6 +21,15 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE FROGS"
     footnotes: true
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/frogs.txt"
+    play: "THE FROGS"
+    footnotes: false
   gaps: []
 
 citation:
@@ -66,6 +75,20 @@ speakers:
     "ATTENDANT": "Maid"
     "FEMALE ATTENDANT OF PERSEPHONÉ": "Maid"
     "AESCHYLUS AND EURIPIDES": "Aeschylus and Euripides"
+  english_secondary:
+    "XANTHIAS": "Xanthias"
+    "BACCHUS": "Dionysus"
+    "CHORUS": "Chorus"
+    "HERCULES": "Heracles"
+    "EURIPIDES": "Euripides"
+    "CHARON": "Charon"
+    "FROGS": "Frogs"
+    "PLUTO": "Pluto"
+    "SERVANT OF BACCHUS": "Slave"
+    "ZBACUS": "Aeacus"
+    "ASCH YLUS": "Aeschylus"
+    "AESCHYLUS": "Aeschylus"
+    "AEACUS": "Aeacus"
   sigla:
     "ΔΙ.": "Dionysus"
     "ΔΙΟΝΥΣΟΣ": "Dionysus"
@@ -129,6 +152,10 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: hickie
+      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      short: Hickie
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Ar. Ran."

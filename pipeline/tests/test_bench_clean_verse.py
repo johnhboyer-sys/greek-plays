@@ -1,7 +1,10 @@
 from drama_pipeline.bench_clean_verse import (
     clean_play,
+    clean_play_prose,
     collapse_spaces,
+    expand_prose_speaker,
     locate_play,
+    parse_dramatis,
     speaker_from_line,
     write_clean,
 )
@@ -403,3 +406,245 @@ def test_write_clean_real_agamemnon(tmp_path):
     speeches, _notes = parse_play_speeches(text, "AGAMEMNON", format="verse-own-line")
     assert speeches[0]["speaker_printed"] == "WATCHMAN"
     assert len(speeches) > 40
+
+
+HICKIE = """
+THE ACHARNIANS.
+
+DRAMATIS PERSONÆ.
+
+DICÆOPOLIS.
+HERALD.
+AMPHITHEUS.
+CHORUS OF ACHARNIANS.
+EURIPIDES.
+
+Scene.—The Pnyx.
+
+THE ARGUMENT.
+
+This Comedy takes its name from the natives of Acharnae, who
+constitute the Chorus. It was brought out in January.
+
+THE ACHARNIANS.
+
+Dicæopolis (solus).
+
+How many things truly have I been vexed at in my heart;
+and with how few have I been pleased.
+
+4 THE ACHARNIANS. 27—55.
+
+Her. Advance to the front; advance, that ye may be
+within the consecrated line.
+
+Amp. Has any one spoken yet?
+
+' See Kruger's Greek Gram. § 69.
+
+Dic. Mr. Prytanes, you wrong the assembly in order-
+ing the peace to be discussed.
+
+Cuo. We will never hearken to you.
+
+END OF THE ACHARNIANS.
+
+THE KNIGHTS.
+
+DRAMATIS PERSONÆ.
+
+DEMOS.
+SAUSAGE-SELLER.
+"""
+
+
+def test_prose_inline_expands_dramatis_abbreviations():
+    names = parse_dramatis(HICKIE.splitlines(), "THE ACHARNIANS")
+    assert "DICAEOPOLIS" in names
+    assert "HERALD" in names
+    from drama_pipeline.bench_clean_verse import _abbr_table
+
+    table = _abbr_table(names)
+    assert expand_prose_speaker("Dic", names, table) == "DICAEOPOLIS"
+    assert expand_prose_speaker("Her", names, table) == "HERALD"
+    assert expand_prose_speaker("Amp", names, table) == "AMPHITHEUS"
+    assert expand_prose_speaker("Cuo", names, table) == "CHORUS OF ACHARNIANS"
+
+
+def test_prose_inline_chorus_or_men_women():
+    names = [
+        "LYSISTRATA",
+        "CALONICE",
+        "CHORUS OF OLD MEN",
+        "CHORUS OF OLD WOMEN",
+    ]
+    from drama_pipeline.bench_clean_verse import _abbr_table
+
+    table = _abbr_table(names)
+    assert expand_prose_speaker("Cuo", names, table, which="Men") == "CHORUS OF OLD MEN"
+    assert expand_prose_speaker("CHo", names, table, which="Wom") == "CHORUS OF OLD WOMEN"
+    assert expand_prose_speaker("Caton", names, table) == "CALONICE"
+
+
+def test_prose_inline_emits_gutenberg_name_dot_text():
+    cleaned, report = clean_play_prose(HICKIE, "THE ACHARNIANS", next_title="THE KNIGHTS")
+    assert cleaned.splitlines()[0] == "THE ACHARNIANS"
+    assert "This Comedy takes its name" not in cleaned
+    assert "See Kruger" not in cleaned
+    assert "27—55" not in cleaned
+    assert "SAUSAGE-SELLER" not in cleaned
+    speeches, notes = parse_play_speeches(cleaned, "THE ACHARNIANS")
+    assert notes == {}
+    printed = [s["speaker_printed"] for s in speeches]
+    assert printed[0] == "DICAEOPOLIS"
+    assert "HERALD" in printed
+    assert "AMPHITHEUS" in printed
+    assert "CHORUS" in printed
+    assert "ordering the peace" in " ".join(s["text"] for s in speeches)
+    assert report["speaker_events"] >= 4
+
+
+def test_prose_inline_dramatis_strips_descriptions():
+    text = """
+THE KNIGHTS.
+
+DRAMATIS PERSON.
+
+DEMUS, an old citizen of Athens.
+DEMOSTHENES, i
+NICIAS, Slaves of Demus.
+SAUSAGE-SELLER (afterwards Agoracritus).
+CHORUS OF KNIGHTS.
+
+THE ARGUMENT.
+
+A plot summary that must not become a speaker name.
+
+THE KNIGHTS.
+
+Dem. Alas! alas! for our misfortunes, alas!
+Nic. Miserable, like you.
+Sau. I will sell sausages in the agora.
+Cuo. Strike the villain, and troubler of the Knights.
+END OF THE KNIGHTS.
+
+THE CLOUDS.
+
+DRAMATIS PERSON.
+
+STREPSIADES.
+"""
+    names = parse_dramatis(text.splitlines(), "THE KNIGHTS")
+    assert "DEMUS" in names
+    assert "DEMOSTHENES" in names
+    assert "NICIAS" in names
+    assert "SAUSAGE SELLER" in names
+    assert "AGORACRITUS" in names
+    assert all("OLD CITIZEN" not in n for n in names)
+    cleaned, report = clean_play_prose(text, "THE KNIGHTS", next_title="THE CLOUDS")
+    speeches, _notes = parse_play_speeches(cleaned, "THE KNIGHTS")
+    printed = [s["speaker_printed"] for s in speeches]
+    assert printed[0] == "DEMOSTHENES"
+    assert "NICIAS" in printed
+    assert "SAUSAGE SELLER" in printed
+    assert "CHORUS" in printed
+    assert "STREPSIADES" not in printed
+
+
+def test_prose_inline_sausage_seller_ss_and_demus():
+    text = """
+THE KNIGHTS.
+
+DRAMATIS PERSON.
+
+DEMUS.
+DEMOSTHENES.
+SAUSAGE-SELLER.
+CHORUS OF KNIGHTS.
+
+THE ARGUMENT.
+
+Plot.
+
+THE KNIGHTS.
+
+Dem. Alas for our misfortunes.
+S. S. O father, by Jupiter, pray come forth.
+Deuvs.
+Dem. Who are those that are bawling?
+END OF THE KNIGHTS.
+
+THE CLOUDS.
+
+DRAMATIS PERSON.
+
+STREPSIADES.
+"""
+    cleaned, report = clean_play_prose(text, "THE KNIGHTS", next_title="THE CLOUDS")
+    speeches, _notes = parse_play_speeches(cleaned, "THE KNIGHTS")
+    printed = [s["speaker_printed"] for s in speeches]
+    assert "SAUSAGE SELLER" in printed
+    assert "DEMUS" in printed
+    assert printed[-1] == "DEMUS"
+
+
+def test_prose_inline_play_title_character_stays_in_dramatis():
+    text = """
+LYSISTRATA.
+
+DRAMATIS PERSONE.
+
+LYSISTRATA.
+CALONICE.
+CHORUS OF OLD MEN.
+CHORUS OF OLD WOMEN.
+
+THE ARGUMENT.
+
+A plot.
+
+LYSISTRATA.
+
+Lys. Well! if one had summoned them to the temple of
+Bacchus, it would not even have been possible to pass.
+Caton. And you too, Lysistrata! Why are you troubled?
+Cuo. or Men. This affair has come unexpected for us.
+CHo. or Wom. Why do you insult us?
+END OF THE LYSISTRATA.
+
+THE THESMOPHORIAZUSAE.
+
+DRAMATIS PERSON Z.
+
+MNESILOCHUS.
+"""
+    names = parse_dramatis(text.splitlines(), "LYSISTRATA")
+    assert "LYSISTRATA" in names
+    assert "CALONICE" in names
+    cleaned, report = clean_play_prose(
+        text, "LYSISTRATA", next_title="THE THESMOPHORIAZUSAE"
+    )
+    speeches, _notes = parse_play_speeches(cleaned, "LYSISTRATA")
+    printed = [s["speaker_printed"] for s in speeches]
+    assert printed[0] == "LYSISTRATA"
+    assert "CALONICE" in printed
+    assert "CHORUS OF OLD MEN" in printed
+    assert "CHORUS OF OLD WOMEN" in printed
+
+
+def test_prose_inline_write_clean(tmp_path):
+    src = tmp_path / "vol.txt"
+    src.write_text(HICKIE, encoding="utf-8")
+    dest, report = write_clean(
+        src,
+        "hickie",
+        "acharnians",
+        "THE ACHARNIANS",
+        next_title="THE KNIGHTS",
+        out_dir=tmp_path,
+        layout="prose-inline",
+    )
+    text = dest.read_text(encoding="utf-8")
+    assert text.startswith("THE ACHARNIANS")
+    assert "DICAEOPOLIS." in text
+    assert report["speakers_found"][0] == "DICAEOPOLIS"

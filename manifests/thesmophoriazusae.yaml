@@ -21,6 +21,24 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE THESMOPHORIAZUSAE"
     footnotes: true
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/thesmophoriazusae.txt"
+    play: "THE THESMOPHORIAZUSAE"
+    footnotes: false
+  third:
+    id: rogers
+    name: "B. B. Rogers (Loeb, 1924) — alignment approximate"
+    short: Rogers
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/rogers/thesmophoriazusae.txt"
+    play: "THE THESMOPHORIAZUSAE"
+    footnotes: false
   gaps: []
 
 citation:
@@ -63,6 +81,30 @@ speakers:
     "HERALD": "Woman"
     "PRYTANIS": "Prytanis"
     "THE PRYTANIS": "Prytanis"
+  english_secondary:
+    "MNESILOCHUS": "Mnesilochus"
+    "EURIPIDES": "Euripides"
+    "SERVANT OF AGATHON": "Servant"
+    "CHORUS": "Chorus"
+    "AGATHON": "Agathon"
+    "POLICEMAN": "Scythian"
+    "FEMALE HERALD": "Woman"
+    "CLISTHENES": "Cleisthenes"
+    "PRYTANIS": "Prytanis"
+    "BOY MUTES": "Mnesilochus"
+  english_third:
+    "MNESILOCHUS": "Mnesilochus"
+    "EURIPIDES": "Euripides"
+    "SERVANT": "Servant"
+    "AGATHON": "Agathon"
+    "CHORUS": "Chorus"
+    "SECOND WOMAN": "Second Woman"
+    "CLEISTHENES": "Cleisthenes"
+    "CRITYLLA": "Woman"
+    "POLICEMAN": "Scythian"
+    "SCYTHIAN": "Scythian"
+    "WOMAN": "Woman"
+    "PRYTANIS": "Prytanis"
   sigla:
     "ΚΗ.": "Mnesilochus"
     "ΚΗΔΕΣΤΗΣ": "Mnesilochus"
@@ -124,6 +166,16 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: hickie
+      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      short: Hickie
+      slot: secondary
+    - id: rogers
+      # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
+      private: true
+      name: "B. B. Rogers (Loeb, 1924) — alignment approximate"
+      short: Rogers
+      slot: third
   citation:
     scheme: play-line
     copyAbbr: "Ar. Thesm."

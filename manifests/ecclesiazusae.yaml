@@ -21,6 +21,27 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE ECCLESIAZUSAE"
     footnotes: true
+  # Hickie secondary pairs 0.394: Google OCR of Blepyrus/old-women
+  # abbreviations (Buep, Bier, Burp) is too damaged to recover the labels
+  # the page images print. OCR ceiling, not a primary floor.
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/ecclesiazusae.txt"
+    play: "THE ECCLESIAZUSAE"
+    footnotes: false
+  third:
+    id: rogers
+    name: "B. B. Rogers (Loeb, 1924) — alignment approximate"
+    short: Rogers
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/rogers/ecclesiazusae.txt"
+    play: "THE ECCLESIAZUSAE"
+    footnotes: false
   gaps: []
 
 citation:
@@ -77,6 +98,29 @@ speakers:
     "A SERVANT MAID": "Maid"
     "A SERVANT-MAID TO PRAXAGORA": "Maid"
     "HERALD": "Herald"
+  english_secondary:
+    "PRAXAGORA": "Praxagora"
+    "BLEPYRUS": "Blepyrus"
+    "NEIGHBOUR": "Neighbour"
+    "CHREMES": "Chremes"
+    "CHORUS": "Chorus"
+    "MASTER": "Blepyrus"
+  english_third:
+    "PRAXAGORA": "Praxagora"
+    "FIRST WOMAN": "First Woman"
+    "SECOND WOMAN": "Second Woman"
+    "BLEPYRUS": "Blepyrus"
+    "CITIZEN": "Chremes"
+    "CHREMES": "Chremes"
+    "CRIER": "Herald"
+    "HAG": "First Old Woman"
+    "SECOND H": "Second Old Woman"
+    "THIRD H": "Third Old Woman"
+    "GIRL": "Girl"
+    "YOUTH": "Young Man"
+    "MAID": "Maid"
+    "NEIGHBOUR": "Neighbour"
+    "CHORUS": "Chorus"
   sigla:
     "Πρ.": "Praxagora"
     "ΠΡΑΞΑΓΟΡΑ": "Praxagora"
@@ -137,6 +181,18 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+    - id: hickie
+      # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
+      private: true
+      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      short: Hickie
+      slot: secondary
+    - id: rogers
+      # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
+      private: true
+      name: "B. B. Rogers (Loeb, 1924) — alignment approximate"
+      short: Rogers
+      slot: third
   citation:
     scheme: play-line
     copyAbbr: "Ar. Eccl."

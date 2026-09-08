@@ -408,6 +408,19 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   openings, note tails, cast-list residue, and the mismatch gate.
 - `docs/play-line.md` — document the tighter parser and validation rules.
 
+## Comedy comparison slots — Hickie / Rogers (2026-09-08)
+
+- `pipeline/drama_pipeline/bench_clean_verse.py` — `--layout prose-inline` for Hickie Bohn 1853 (inline `Dic.` labels, dramatis abbreviation table, `Cuo. or Men.` choruses, `S. S.` sausage-seller, Demus-after-entrance).
+- `pipeline/drama_pipeline/bench_clean.py` — Rogers Loeb titles, short-label expansion (`CA.` → `CALONICE`), `ARISTOPHANES` not a speaker.
+- `pipeline/drama_pipeline/stage1_turn_english.py`, `__main__.py` — turn-text `english.third` writes `third_chunks.json`; `english.overlays[]` merges `overlays.json`.
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — `rogers` note names Loeb 1924 and bowdlerized comparison-only.
+- `manifests/{acharnians,knights,wasps,peace,birds,thesmophoriazusae,frogs,ecclesiazusae,wealth}.yaml` — Hickie as `english.secondary`.
+- `manifests/lysistrata.yaml` — Hickie as `english.third`, Rogers as overlay.
+- `manifests/{thesmophoriazusae,ecclesiazusae,wealth}.yaml` — Rogers as `english.third`.
+- `sources/bench/hickie/*.txt`, `sources/bench/rogers/*.txt` — cleaned comparison texts.
+- `docs/bench.md` — Aristophanes Hickie/Rogers table.
+- `pipeline/tests/test_bench_clean_verse.py`, `test_bench_clean.py`, `test_stage1_turn_english.py` — prose-inline special cases, Rogers short labels, third-slot `third_chunks.json`.
+
 ## P2d — tragedy attachment review fixes (2026-09-08)
 
 - `pipeline/drama_pipeline/stage1_perseus_play_english.py` — each numbered
