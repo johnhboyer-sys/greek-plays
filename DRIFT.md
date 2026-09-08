@@ -365,3 +365,12 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   span-fill, Cassandra 1077 on the line owner, twin validate().
 - `pipeline/tests/test_scheme_play_line.py` — lacuna empty-text through
   `validate()`, mixed segment fails, twin id helper.
+
+## P3.1 — comedy turn-text review fixes (2026-09-07)
+
+- `pipeline/drama_pipeline/stage1_turn_english.py` — accepts alias-gated
+  period-less and own-line speakers, preserves speech paragraphs, applies
+  per-work line fixes, stops notes at headings, rejects roster gaps, reports
+  paired length-ratio outliers, and attaches head residue to segment 0.
+- `pipeline/tests/test_stage1_turn_english.py` — covers each parser fix against
+  focused fixtures and the real Athenian Society comedy sources.

@@ -71,6 +71,14 @@ repeated printed note numbers stay unique and hyphens become underscores
 emitted v1 `manifest.translations[]` entry. `<del>`, `<stage>`, and `<gap>`
 text is dropped; tails are kept. Display-only `<l n="0">` lines are dropped.
 
+For comedy `turn-text` sources, a printed `NAME.` label may stand alone, while
+`NAME text` without the period starts a speech only when `NAME` occurs in the
+work's `speakers.english` aliases. Blank source lines inside a speech remain
+paragraph breaks. `english.primary.line_fixes` applies declared 1-based source
+line replacements before parsing. Stage 1 stops on an English name outside the
+Greek roster and reports paired speech-length ratio outliers; English before
+the first pair attaches to Greek segment 0.
+
 Preflight reads `pipeline/drama_pipeline/public_domain_translations.yaml` and
 requires every translation id stage7 can emit (primary / secondary / third /
 overlays / `column_sources` / `summary_overlay`) to occur in its positive

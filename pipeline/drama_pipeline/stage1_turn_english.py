@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from statistics import median
 
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
 from .stage1_common import collapse_ws, write_json
@@ -26,7 +27,7 @@ _SPEAKER_LINE = re.compile(
     r"(?:\[(?P<fn2>\d+)\])?"
     r"\.\s*"
     r"(?:\[(?P<fn3>\d+)\])?\s*"
-    r"(?P<rest>\S.*)$"
+    r"(?P<rest>\S.*)?$"
 )
 _LINDSAY_SPEAKER = re.compile(
     r"^(?:[A-Z][A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH))"
@@ -48,6 +49,21 @@ def _canonical_english(printed: str, aliases: dict[str, str]) -> str | None:
     if printed in aliases:
         return aliases[printed]
     return printed
+
+
+def _periodless_speaker(
+    line: str, known_names: set[str]
+) -> tuple[str, str] | None:
+    """Match ``NAME text`` only when NAME is a declared English alias."""
+    for name in sorted(known_names, key=len, reverse=True):
+        if not line.startswith(name) or len(line) == len(name):
+            continue
+        if not line[len(name)].isspace():
+            continue
+        rest = line[len(name):].strip()
+        if rest:
+            return name, rest
+    return None
 
 
 class _SiglaResolver:
@@ -181,7 +197,9 @@ def _looks_like_speech_body(s: str) -> bool:
     return (len(words) >= 5 or len(s) >= 40) and any(ch.islower() for ch in s)
 
 
-def _body_start(lines: list[str], title_i: int, lindsay: bool) -> int:
+def _body_start(
+    lines: list[str], title_i: int, lindsay: bool, known_names: set[str]
+) -> int:
     dp = _dramatis_index_after(lines, title_i)
     i = (dp + 1) if dp is not None else title_i + 1
     while i < len(lines):
@@ -195,8 +213,11 @@ def _body_start(lines: list[str], title_i: int, lindsay: bool) -> int:
                 )
                 if nxt and _lindsay_speaker(nxt) is None and _looks_like_speech_body(nxt):
                     return i
-        elif _SPEAKER_LINE.match(raw):
-            return i
+        else:
+            match = _SPEAKER_LINE.match(raw)
+            periodless = None if match else _periodless_speaker(raw, known_names)
+            if periodless or (match and match.group("rest")):
+                return i
         if _is_play_end(raw) or _is_gutenberg_end_line(raw):
             break
         i += 1
@@ -208,7 +229,26 @@ def _is_gutenberg_end_line(line: str) -> bool:
 
 
 def _join_parts(parts: list[str]) -> str:
-    return collapse_ws(" ".join(p for p in parts if p)).strip()
+    paragraphs: list[str] = []
+    buf: list[str] = []
+    for part in parts:
+        if part:
+            buf.append(part)
+        elif buf:
+            paragraphs.append(collapse_ws(" ".join(buf)).strip())
+            buf = []
+    if buf:
+        paragraphs.append(collapse_ws(" ".join(buf)).strip())
+    return "\n\n".join(paragraph for paragraph in paragraphs if paragraph)
+
+
+def _short_caps_heading(s: str) -> bool:
+    return (
+        bool(s)
+        and len(s.split()) <= 4
+        and s.isupper()
+        and _FN_MARK.search(s) is None
+    )
 
 
 def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
@@ -238,6 +278,8 @@ def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
             s in ("INTRODUCTION", "DRAMATIS PERSONAE")
             or s.startswith("The Persons of the drama")
             or s.startswith("FINIS")
+            or s.startswith("INDEX")
+            or _short_caps_heading(s)
             or s == title
             or _is_gutenberg_end_line(lines[i])
         ):
@@ -254,7 +296,9 @@ def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
     return notes
 
 
-def _parse_as_speeches(lines: list[str], start: int) -> tuple[list[dict], int]:
+def _parse_as_speeches(
+    lines: list[str], start: int, known_names: set[str]
+) -> tuple[list[dict], int]:
     speeches: list[dict] = []
     parts: list[str] = []
     speaker = ""
@@ -279,19 +323,26 @@ def _parse_as_speeches(lines: list[str], start: int) -> tuple[list[dict], int]:
             end_i = i
             break
         m = _SPEAKER_LINE.match(raw)
-        if m:
+        periodless = None if m else _periodless_speaker(raw, known_names)
+        if m or periodless:
             flush()
-            speaker = m.group("name").strip()
+            speaker = m.group("name").strip() if m else periodless[0]
             parts = []
-            for mark in (m.group("fn1"), m.group("fn2"), m.group("fn3")):
-                if mark:
-                    parts.append(f"[{mark}]")
-            if m.group("stage"):
-                parts.append(m.group("stage"))
-            parts.append(m.group("rest"))
+            if m:
+                for mark in (m.group("fn1"), m.group("fn2"), m.group("fn3")):
+                    if mark:
+                        parts.append(f"[{mark}]")
+                if m.group("stage"):
+                    parts.append(m.group("stage"))
+                if m.group("rest"):
+                    parts.append(m.group("rest"))
+            else:
+                parts.append(periodless[1])
         elif speaker:
             if s:
                 parts.append(s)
+            elif parts and parts[-1] != "":
+                parts.append("")
         i += 1
     flush()
     return speeches, end_i
@@ -322,7 +373,7 @@ def _parse_lindsay_speeches(lines: list[str], start: int) -> tuple[list[dict], i
             end_i = i
             break
         name = _lindsay_speaker(raw)
-        if name and (s.endswith(".") or raw.strip() == name or raw.strip() == name + "."):
+        if name and (raw.strip() == name or raw.strip() == name + "."):
             # Own-line speaker: the line is only the name (optional period).
             only_name = raw.strip() in {name, name + "."}
             if only_name:
@@ -331,15 +382,23 @@ def _parse_lindsay_speeches(lines: list[str], start: int) -> tuple[list[dict], i
                 parts = []
                 i += 1
                 continue
-        if speaker and s:
-            parts.append(s)
+        if speaker:
+            if s:
+                parts.append(s)
+            elif parts and parts[-1] != "":
+                parts.append("")
         i += 1
     flush()
     return speeches, end_i
 
 
 def parse_play_speeches(
-    text: str, title: str, *, format: str = "gutenberg"
+    text: str,
+    title: str,
+    *,
+    format: str = "gutenberg",
+    known_names: set[str] | None = None,
+    line_fixes: dict[int | str, str] | None = None,
 ) -> tuple[list[dict], dict[str, str]]:
     """Split one play into ``{speaker_printed, text}`` speeches + notes.
 
@@ -348,19 +407,27 @@ def parse_play_speeches(
     ``bench_clean``.
     """
     lines = text.splitlines()
+    for raw_line_no, replacement in (line_fixes or {}).items():
+        line_no = int(raw_line_no)
+        if line_no < 1 or line_no > len(lines):
+            raise ValueError(
+                f"line fix {line_no} is outside the {len(lines)}-line source"
+            )
+        lines[line_no - 1] = replacement
+    known_names = known_names or set()
     title_i = _locate_title(lines, title)
     if format == "loeb-ocr":
-        start = _body_start(lines, title_i, lindsay=False)
-        speeches, _end_i = _parse_as_speeches(lines, start)
+        start = _body_start(lines, title_i, lindsay=False, known_names=known_names)
+        speeches, _end_i = _parse_as_speeches(lines, start, known_names)
         return speeches, {}
     dp = _dramatis_index_after(lines, title_i)
     dp_line = lines[dp].strip() if dp is not None else ""
     lindsay = dp_line.startswith("The Persons of the drama")
-    start = _body_start(lines, title_i, lindsay)
+    start = _body_start(lines, title_i, lindsay, known_names)
     if lindsay:
         speeches, end_i = _parse_lindsay_speeches(lines, start)
     else:
-        speeches, end_i = _parse_as_speeches(lines, start)
+        speeches, end_i = _parse_as_speeches(lines, start, known_names)
     notes = _parse_notes(lines, end_i, title)
     return speeches, notes
 
@@ -442,7 +509,7 @@ def _assign_speeches(
     assigned: dict[int, list[int]] = {gi: [] for gi in range(n_greek)}
     paired_e = {ej: gi for gi, ej in pairs}
     last_gi: int | None = None
-    first_gi = pairs[0][0] if pairs else (0 if n_greek else None)
+    first_gi = 0 if n_greek else None
     residual = 0
     for ej in range(n_english):
         if ej in paired_e:
@@ -469,13 +536,20 @@ def parse_translation(
     english_aliases: dict[str, str] | None = None,
     footnotes_enabled: bool = True,
     format: str = "gutenberg",
+    line_fixes: dict[int | str, str] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
     if not isinstance(sigla, _SiglaResolver):
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
-    speeches, notes_by_n = parse_play_speeches(text, play, format=format)
+    speeches, notes_by_n = parse_play_speeches(
+        text,
+        play,
+        format=format,
+        known_names=set(aliases),
+        line_fixes=line_fixes,
+    )
 
     footnotes: dict[str, str] = {}
     seq = 0
@@ -498,10 +572,45 @@ def parse_translation(
             if canonical:
                 english_canonical.append(canonical)
 
+    speakers_report = _speaker_report(
+        spine, sigla, english_canonical, english_printed
+    )
+    if speakers_report["only_in_english"]:
+        names = ", ".join(speakers_report["only_in_english"])
+        raise ValueError(f"{work_id}: unaliased English speakers in {play}: {names}")
+
     segments: list[dict] = list(spine["segments"])
     g_names = [_greek_segment_name(seg, sigla) for seg in segments]
     pairs = _pair_turns(g_names, e_names)
     assigned, residual_grouped = _assign_speeches(len(segments), pairs, len(speeches))
+
+    pair_ratios: list[tuple[int, int, float]] = []
+    for gi, ej in pairs:
+        greek_text = "".join(
+            str(line.get("text") or "")
+            for line in (segments[gi].get("lines") or segments[gi].get("greek") or [])
+            if isinstance(line, dict)
+        )
+        if greek_text:
+            pair_ratios.append((gi, ej, len(speeches[ej]["text"]) / len(greek_text)))
+    median_ratio = (
+        median(ratio for _gi, _ej, ratio in pair_ratios)
+        if pair_ratios
+        else None
+    )
+    speech_mismatches = []
+    if median_ratio is not None:
+        lower = median_ratio * 0.25
+        upper = median_ratio * 4
+        speech_mismatches = [
+            {
+                "greek_id": segments[gi]["id"],
+                "english_index": ej,
+                "ratio": ratio,
+            }
+            for gi, ej, ratio in pair_ratios
+            if ratio < lower or ratio > upper
+        ]
 
     chunks: list[dict] = []
     for gi, segment in enumerate(segments):
@@ -566,14 +675,14 @@ def parse_translation(
         "anchor_count": 0,
         "snaps": [],
         "snap_count": 0,
-        "speech_mismatches": [],
-        "speech_mismatch_count": 0,
+        "speech_mismatches": speech_mismatches,
+        "speech_mismatch_count": len(speech_mismatches),
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,
         "footnotes": len(footnotes),
         "anomalies": [],
-        "speakers": _speaker_report(spine, sigla, english_canonical, english_printed),
+        "speakers": speakers_report,
     }
     return english, footnotes, report
 
@@ -629,6 +738,7 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         english_aliases=aliases,
         footnotes_enabled=bool(cfg.get("footnotes", slot == "primary")),
         format=cfg.get("format") or "gutenberg",
+        line_fixes=cfg.get("line_fixes") or {},
     )
 
     out_dir = BUILD_DIR / "stage1"

@@ -21,6 +21,8 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "PEACE"
     footnotes: true
+    line_fixes:
+      6832: 'SON OF CLEONYMUS. "But I saved my life."'
   gaps: []
 
 citation:
