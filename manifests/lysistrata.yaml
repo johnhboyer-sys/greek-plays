@@ -233,7 +233,7 @@ registry:
   id: lysistrata
   slug: lysistrata
   title: Lysistrata
-  greekTitle: ""
+  greekTitle: "Λυσιστράτη"
   abbr: "Lys."
   author: aristophanes
   language: grc
@@ -268,3 +268,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Lys."
   blurb: "DRAFT — Lysistrata."
+  production: "411 BC, probably at the Lenaia · result unknown"
+  argument: "DRAFT — The women of Greece refuse sex until the men make peace."

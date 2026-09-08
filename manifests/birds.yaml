@@ -172,7 +172,7 @@ registry:
   id: birds
   slug: birds
   title: Birds
-  greekTitle: ""
+  greekTitle: "Ὄρνιθες"
   abbr: "Av."
   author: aristophanes
   language: grc
@@ -197,3 +197,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Av."
   blurb: "DRAFT — Birds."
+  production: "City Dionysia, 414 BC · second prize"
+  argument: "DRAFT — Two Athenians persuade the birds to build a city in the sky and cut the gods off from their sacrifices."

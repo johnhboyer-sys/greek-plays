@@ -135,7 +135,7 @@ registry:
   id: frogs
   slug: frogs
   title: Frogs
-  greekTitle: ""
+  greekTitle: "Βάτραχοι"
   abbr: "Ran."
   author: aristophanes
   language: grc
@@ -160,3 +160,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Ran."
   blurb: "DRAFT — Frogs."
+  production: "Lenaia, 405 BC · first prize · restaged by decree"
+  argument: "DRAFT — Dionysus goes down to Hades for Euripides and comes back with Aeschylus."

@@ -171,7 +171,7 @@ registry:
   id: acharnians
   slug: acharnians
   title: Acharnians
-  greekTitle: ""
+  greekTitle: "Ἀχαρνῆς"
   abbr: "Ach."
   author: aristophanes
   language: grc
@@ -196,3 +196,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Ach."
   blurb: "DRAFT — Acharnians."
+  production: "Lenaia, 425 BC · first prize"
+  argument: "DRAFT — Dicaeopolis, sick of the war, makes a private peace with Sparta for himself and his family."

@@ -164,7 +164,7 @@ registry:
   id: ecclesiazusae
   slug: ecclesiazusae
   title: Assemblywomen
-  greekTitle: ""
+  greekTitle: "Ἐκκλησιάζουσαι"
   abbr: "Eccl."
   author: aristophanes
   language: grc
@@ -197,3 +197,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Eccl."
   blurb: "DRAFT — Assemblywomen."
+  production: "c. 392 BC · festival and result unknown"
+  argument: "DRAFT — The women of Athens, disguised as men, take over the assembly and vote in common ownership of property and sex."

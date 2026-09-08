@@ -159,7 +159,7 @@ registry:
   id: thesmophoriazusae
   slug: thesmophoriazusae
   title: "Women at the Thesmophoria"
-  greekTitle: ""
+  greekTitle: "Θεσμοφοριάζουσαι"
   abbr: "Thesm."
   author: aristophanes
   language: grc
@@ -190,3 +190,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Thesm."
   blurb: "DRAFT — Women at the Thesmophoria."
+  production: "411 BC, probably at the City Dionysia · result unknown"
+  argument: "DRAFT — The women at their festival plan to punish Euripides. His kinsman goes in disguise to defend him."

@@ -122,7 +122,7 @@ registry:
   id: clouds
   slug: clouds
   title: Clouds
-  greekTitle: ""
+  greekTitle: "Νεφέλαι"
   abbr: "Nub."
   author: aristophanes
   language: grc
@@ -147,3 +147,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Nub."
   blurb: "DRAFT — Clouds."
+  production: "City Dionysia, 423 BC · third prize · the surviving text is a later revision, never staged"
+  argument: "DRAFT — Strepsiades enrols at Socrates’ Thinkery to learn how to argue his way out of his debts."

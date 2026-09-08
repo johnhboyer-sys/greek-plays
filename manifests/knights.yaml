@@ -107,7 +107,7 @@ registry:
   id: knights
   slug: knights
   title: Knights
-  greekTitle: ""
+  greekTitle: "Ἱππῆς"
   abbr: "Eq."
   author: aristophanes
   language: grc
@@ -132,3 +132,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Eq."
   blurb: "DRAFT — Knights."
+  production: "Lenaia, 424 BC · first prize"
+  argument: "DRAFT — Two slaves of Demos find a sausage-seller vulgar enough to out-demagogue the Paphlagonian."

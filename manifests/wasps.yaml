@@ -106,7 +106,7 @@ registry:
   id: wasps
   slug: wasps
   title: Wasps
-  greekTitle: ""
+  greekTitle: "Σφῆκες"
   abbr: "Vesp."
   author: aristophanes
   language: grc
@@ -131,3 +131,5 @@ registry:
     scheme: play-line
     copyAbbr: "Ar. Vesp."
   blurb: "DRAFT — Wasps."
+  production: "Lenaia, 422 BC · second prize"
+  argument: "DRAFT — Philocleon is addicted to jury service. His son locks him in the house."
