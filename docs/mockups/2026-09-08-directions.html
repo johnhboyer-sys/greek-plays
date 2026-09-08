@@ -65,35 +65,42 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .rd .body{ padding:22px 28px 30px; }
 .rd .seg{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:36px; align-items:baseline; }
 .rd .seg + .seg{ margin-top:var(--seg-gap,10px); }
-.rd .g{ font-family:var(--f-gr); font-size:calc(var(--fs,16px) * 1.05); position:relative; padding-left:var(--gutter,42px); }
+.rd{ --spkw:7.5rem; }
+/* Both columns share one left structure: [line-number gutter][speaker gutter][text].
+   The speaker name hangs in its gutter, so the Greek siglum and the English
+   name sit at the same indent and the text of both columns starts level. */
+.rd .g{ font-family:var(--f-gr); font-size:calc(var(--fs,16px) * 1.05); position:relative; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
 .rd .e{ color:var(--ink); }
-.rd .ln{ position:absolute; left:0; width:calc(var(--gutter,42px) - 10px); text-align:right; font-family:var(--f-num); font-size:11px; color:var(--ink3); top:.45em; font-variant-numeric:tabular-nums; }
-.rd .line{ display:block; }
-.rd .spk{ font-family:var(--f-ui); font-weight:700; font-size:.78em; letter-spacing:.06em; text-transform:uppercase; color:var(--spk); margin-right:.5em; }
-.rd .spk.inl{ font-size:.66em; margin-left:.35em; }
-.rd .g .spk{ font-family:var(--f-gr); text-transform:none; letter-spacing:0; font-size:.85em; }
-.rd .e .spk{ display:inline; }
-.rd .tr{ display:block; }
+.rd .line{ display:block; position:relative; }
+.rd .ln{ position:absolute; left:calc(-1 * (var(--gutter,42px) + var(--spkw))); width:calc(var(--gutter,42px) - 10px); text-align:right; font-family:var(--f-num); font-size:11px; color:var(--ink3); top:.45em; font-variant-numeric:tabular-nums; }
+.rd .spk{ font-family:var(--f-ui); font-weight:700; font-size:.78em; letter-spacing:.06em; text-transform:uppercase; color:var(--spk); }
+.rd .g .spk{ font-family:var(--f-gr); text-transform:none; letter-spacing:0; font-size:.85em; position:absolute; left:calc(-1 * var(--spkw)); top:0; width:calc(var(--spkw) - .6em); }
+.rd .g .spk.inl{ position:static; width:auto; margin-left:.35em; font-size:.66em; }
+.rd .g > .spk{ left:var(--gutter,42px); top:.2em; }
+.rd .tr{ display:block; position:relative; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
+.rd .e .spk{ position:absolute; left:var(--gutter,42px); top:.12em; width:calc(var(--spkw) - .6em); }
 .rd .tr + .tr{ margin-top:6px; }
 .rd .flag{ font-family:var(--f-ui); font-size:10.5px; color:var(--ink3); border:1px dashed var(--rule); padding:0 5px; margin-left:6px; vertical-align:middle; }
 .rd .ode .g{ --gutter:56px; }
-.rd .odehead{ font-family:var(--f-ui); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin:0 0 10px var(--gutter,42px); }
+.rd .odehead{ font-family:var(--f-ui); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin:0 0 10px calc(var(--gutter,42px) + var(--spkw)); }
 .rd .cmp{ grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr); }
 .rd .cmp .e{ background:var(--panel); padding:12px 14px; font-size:.95em; }
+.rd .cmp .tr{ padding-left:var(--spkw); }
+.rd .cmp .e .spk{ left:0; }
 .rd .cmp .e .who{ font-family:var(--f-ui); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:8px; }
+.rd.greekonly{ --spkw:0rem; }
 .rd.greekonly .body{ max-width:calc(34em + 56px); margin:0 auto; }
 .rd.greekonly .seg{ grid-template-columns:minmax(0,1fr); }
 .rd.greekonly .g{ font-size:calc(var(--fs,16px) * 1.12); line-height:1.6; }
-.rd .note{ font-family:var(--f-ui); font-size:12px; color:var(--ink3); margin-top:14px; padding-left:var(--gutter,42px); }
+.rd .note{ font-family:var(--f-ui); font-size:12px; color:var(--ink3); margin-top:14px; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
 @container (max-width: 640px){
   .rd .head{ padding:10px 16px; flex-wrap:wrap; gap:8px 14px; }
   .rd .head .ctl{ margin-left:0; width:100%; gap:12px; font-size:12px; }
   .rd .body{ padding:16px 14px 24px; }
   .rd .seg, .rd .cmp{ grid-template-columns:minmax(0,1fr); row-gap:6px; }
-  .rd .e{ padding-left:var(--gutter,42px); }
-  .rd .cmp .e{ margin-left:var(--gutter,42px); padding:10px 12px; }
+  .frame .rd.rd{ --spkw:6rem; --gutter:36px; }
+  .rd .cmp .e{ padding:10px 12px; }
   .rd .seg + .seg{ margin-top:16px; }
-  .rd .g{ --gutter:36px; }
   .rd .plate .cols{ grid-template-columns:1fr !important; }
 }
 
@@ -115,7 +122,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-a .spk{ text-transform:none; letter-spacing:.04em; font-size:.92em; font-weight:700; }
 .dir-a .head{ border-bottom:2px solid var(--accent); }
 .dir-a .ode .g{ background:color-mix(in srgb, var(--accent) 6%, transparent); border-left:1px solid var(--accent); padding-top:6px; padding-bottom:6px; }
-.dir-a .ode .g .ln{ left:6px; }
+.dir-a .ode .g .ln{ left:calc(-1 * (var(--gutter,42px) + var(--spkw)) + 6px); }
 /* plate: the programme */
 .dir-a .plate .band{ background:var(--band); color:#f7efe4; padding:44px 40px 36px; }
 .dir-a .plate .band .gt{ font-family:var(--f-gr); font-size:66px; line-height:1; font-weight:500; margin:0; letter-spacing:-.01em; }
@@ -156,6 +163,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-b .rd{ line-height:1.6; }
 .dir-b .head{ border-bottom:1px solid var(--rule); font-variant-caps:small-caps; letter-spacing:.04em; font-size:14px; text-transform:none; }
 .dir-b .head .site{ text-transform:none; font-variant-caps:small-caps; letter-spacing:.08em; font-size:13px; }
+.dir-b .rd{ --spkw:7rem; }
 .dir-b .spk{ text-transform:none; font-variant-caps:small-caps; letter-spacing:.05em; font-size:.95em; font-weight:700; }
 .dir-b .ln{ font-style:italic; font-size:12px; }
 .dir-b .body{ padding:26px 36px 34px 30px; }
@@ -209,14 +217,14 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-c .head .crumbs a + .sep + a{ color:var(--accent); }
 .dir-c .spk{ font-size:.68em; letter-spacing:.12em; font-weight:500; }
 .dir-c .g .spk{ font-family:var(--f-ui); text-transform:uppercase; letter-spacing:.12em; font-size:.62em; position:relative; top:-.1em; }
-.dir-c .g{ --gutter:76px; }
-.dir-c .ln{ font-size:10.5px; }
-.dir-c .g .m{ position:absolute; left:calc(var(--gutter) - 30px); top:.55em; font-family:var(--f-ui); font-size:9.5px; color:var(--accent); letter-spacing:.04em; }
+.dir-c .rd{ --spkw:6.5rem; --gutter:84px; }
+.dir-c .ln{ font-size:10.5px; width:calc(var(--gutter,42px) - 44px); }
+.dir-c .g .m{ position:absolute; left:calc(-1 * var(--spkw) - 34px); top:.55em; font-family:var(--f-ui); font-size:9.5px; color:var(--accent); letter-spacing:.04em; }
 .dir-c .seg{ border-top:1px solid var(--rule); padding-top:8px; }
 .dir-c .seg:first-child{ border-top:0; padding-top:0; }
 .dir-c .seg + .seg{ margin-top:8px; }
 .dir-c .e .spk::before{ content:""; display:inline-block; width:2px; height:.9em; background:var(--spk); margin-right:7px; vertical-align:-.08em; }
-.dir-c .ode .g{ --gutter:76px; }
+.dir-c .ode .g{ --gutter:84px; }
 .dir-c .odehead{ color:var(--accent); font-size:10.5px; }
 .dir-c .cmp .e{ background:var(--panel); border:1px solid var(--rule); }
 .dir-c .cmp .e .who{ font-size:10.5px; }
@@ -432,7 +440,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
   function dialogue(dir){
     var rows = STICH.map(function(r){
       var n=r[0], who=r[1];
-      return '<div class="seg"><div class="g">'+ln(n)+metre(dir,'3ia')+'<span class="line">'+spk(who,false,dir,true)+esc(r[2])+'</span></div>'+
+      return '<div class="seg"><div class="g"><span class="line">'+ln(n)+metre(dir,'3ia')+spk(who,false,dir,true)+esc(r[2])+'</span></div>'+
              '<div class="e"><span class="tr">'+spk(who,false,dir,false)+esc(r[3])+'</span></div></div>';
     }).join('');
     return '<div class="rd">'+head(AG,'','both','Smyth',dir)+'<div class="body">'+rows+'</div></div>';
@@ -449,8 +457,8 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
     var lines = ODE.map(function(l){ return '<span class="line" style="position:relative">'+ln(l[0]).replace('class="ln"','class="ln" style="position:absolute"')+(l[0]===40?metre(dir,'an'):'')+esc(l[1])+'</span>'; }).join('');
     return '<div class="rd">'+head(AG,'','cmp','Smyth + Morshead',dir)+'<div class="body ode"><p class="odehead">Parodos · Chorus · 40–59</p><div class="seg cmp">'+
       '<div class="g" style="position:relative">'+spk('Chorus',false,dir,true)+lines+'</div>'+
-      '<div class="e"><span class="who">Smyth · 1926</span>'+spk('Chorus',false,dir,false)+esc(SMYTH)+'</div>'+
-      '<div class="e"><span class="who">Morshead · 1881 · alignment approximate</span>'+spk('Chorus',false,dir,false)+esc(MORS).replace(/ \/ /g,'<br>')+'</div></div></div></div>';
+      '<div class="e"><span class="who">Smyth · 1926</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(SMYTH)+'</span></div>'+
+      '<div class="e"><span class="who">Morshead · 1881 · alignment approximate</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(MORS).replace(/ \/ /g,'<br>')+'</span></div></div></div></div>';
   }
 
   function frogs(dir){
