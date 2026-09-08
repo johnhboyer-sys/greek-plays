@@ -201,6 +201,8 @@ export interface EnglishChunk {
   // play-line only (P2f, 2026-09-08): the translator's base text gives this
   // line to a different character than the TLG edition does; the chunk is
   // attached to the Greek line owner and the disagreement is recorded here.
+  // Since P2h the flag lives on the TURN (see EnglishTurn) and this
+  // chunk-level copy is written only when EVERY turn in the chunk carries it.
   speakerMismatch?: { english: string; greek: string };
   // Standoff verse ranges over this chunk's `text` (book-section works whose
   // translation quotes verse inline, e.g. Diogenes Laertius' embedded
@@ -271,6 +273,11 @@ export interface EnglishTurn {
   offset: number;
   speaker: string | null;
   display: string | null;
+  // play-line only (P2h, 2026-09-08): THIS turn's translator gives the line to
+  // a different character than the TLG edition does. Per-turn, because one
+  // chunk can hold several turns and only some of them disagree (Seven 1:1004
+  // packs Ismene's shares of the antilabe with the Herald's speech).
+  speakerMismatch?: { english: string; greek: string };
 }
 
 // One entry of a dialogue book's global turn flow (see TurnFlow): `g` is the

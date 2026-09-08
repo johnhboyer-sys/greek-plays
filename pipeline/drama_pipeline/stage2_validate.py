@@ -313,6 +313,14 @@ def _stage1_english_report(work_id: str) -> tuple[dict | None, str | None]:
     return data, None
 
 
+# Stage-1 anomaly kinds that each mean one English piece reached no chunk.
+_ATTACHMENT_LOSS_KINDS = (
+    "unmatched_anchor",
+    "nless_slice_unattached",
+    "attribution_hole",
+)
+
+
 def _attachment_loss_check(manifest: Manifest) -> dict:
     """Gate the perseus-play attachment loss (P2g finding 3).
 
@@ -320,6 +328,13 @@ def _attachment_loss_check(manifest: Manifest) -> dict:
     translated text the reader never sees; before P2f a play could delete 113
     speeches and still print PASS. ``english.max_unresolved_mismatches``
     (default 0) is the allowance.
+
+    P2h finding 5: P2f zeroed ``unresolved_mismatch_count`` (everything
+    on-spine attaches), and the dropped text moved into ``anomalies``. The
+    gate counts those kinds too — ``unmatched_anchor`` (an anchor on no
+    Greek speech), ``nless_slice_unattached`` (a para slice with nowhere to
+    go) and ``attribution_hole`` (the line owner is another character's
+    packed span) are each one English piece the reader never sees.
     """
     english_cfg = manifest.data.get("english") or {}
     max_unresolved = int(english_cfg.get("max_unresolved_mismatches", 0))
@@ -334,7 +349,13 @@ def _attachment_loss_check(manifest: Manifest) -> dict:
     }
     if data is None:
         return check
-    unresolved = int(data.get("unresolved_mismatch_count") or 0)
+    anomalies = [a for a in (data.get("anomalies") or []) if isinstance(a, dict)]
+    by_kind = {
+        kind: sum(1 for a in anomalies if a.get("kind") == kind)
+        for kind in _ATTACHMENT_LOSS_KINDS
+    }
+    unresolved = int(data.get("unresolved_mismatch_count") or 0) + sum(by_kind.values())
+    check["dropped"] = by_kind
     if unresolved > max_unresolved:
         error = (
             f"{unresolved} English piece(s) attached to no Greek speech "

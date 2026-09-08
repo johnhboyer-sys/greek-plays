@@ -145,6 +145,62 @@ def _event_ref(segment: dict, event: dict) -> str | None:
     return None
 
 
+def _segment_speaker_events(
+    segment: dict, sigla
+) -> list[tuple[int, int, str | None, bool]]:
+    """``(line, offset, resolved name, mapped)`` for a segment's speaker events.
+
+    A play-line segment is cut only at a LINE-START speaker event, so a
+    speaker change part-way through a line (an antilabe, or Seven 1005 where
+    the Herald's label sits after an editorial bracket at offset 1) packs two
+    or more speakers into one segment.  Every speaker decision therefore has
+    to be made per printed line, not per segment (P2h).
+    """
+    if not isinstance(sigla, _SiglaResolver):
+        sigla = _SiglaResolver.from_map(sigla or {})
+    events: list[tuple[int, int, str | None, bool]] = []
+    for event in segment.get("speakers") or []:
+        line = event.get("line")
+        if line is None:
+            continue
+        name, mapped = sigla.resolve(
+            event.get("label") or "", _event_ref(segment, event)
+        )
+        events.append((int(line), int(event.get("offset") or 0), name, bool(mapped)))
+    events.sort(key=lambda item: (item[0], item[1]))
+    return events
+
+
+def speaker_at(
+    segment: dict,
+    line: int,
+    sigla,
+    *,
+    prefer: str | None = None,
+    mapped_only: bool = True,
+) -> str | None:
+    """The speaker of ONE line of a segment: the resolved speaker of the last
+    event at or before that line's start.
+
+    Offset-aware: an antilabe line has a start speaker (the last event at or
+    before offset 0) and one or more mid-line speakers.  A piece anchored at
+    such a line belongs to the speaker whose share of the line the English
+    ``<sp>`` names (``prefer``), falling back to the line-start speaker.
+    """
+    events = _segment_speaker_events(segment, sigla)
+    if prefer is not None:
+        for ln, _offset, name, mapped in events:
+            if ln == line and name == prefer and (mapped or not mapped_only):
+                return prefer
+    start: str | None = None
+    for ln, offset, name, mapped in events:
+        if ln > line:
+            break
+        if ln < line or offset == 0:
+            start = name if (mapped or not mapped_only) else None
+    return start
+
+
 def _speaker_report(
     spine: dict, sigla: dict, english_canonical: list[str], english_printed: list[str]
 ) -> dict:
@@ -502,9 +558,22 @@ def _rewrite_footnotes(
 
 
 def _pair_turns(
-    greek_names: list[str | None], english_names: list[str | None]
+    greek_names: list[str | None],
+    english_names: list[str | None],
+    greek_alt: list[set[str]] | None = None,
 ) -> list[tuple[int, int]]:
-    """Anchors via LCS of named turns, then zip equal-length name-agreeing gaps."""
+    """Anchors via LCS of named turns, then zip equal-length name-agreeing gaps.
+
+    ``greek_alt[i]`` holds the other speakers segment ``i`` packs (an antilabe
+    hands the line over mid-way), so a gap turn may agree with any share of
+    the line rather than only its start speaker (P2h finding 9)."""
+    alt = greek_alt or [set()] * len(greek_names)
+
+    def agrees(i: int, j: int) -> bool:
+        if turns_mod._names_match(greek_names[i], english_names[j]):
+            return True
+        return english_names[j] is not None and english_names[j] in alt[i]
+
     g_named = [i for i, name in enumerate(greek_names) if name is not None]
     e_named = [j for j, name in enumerate(english_names) if name is not None]
     anchors = [
@@ -523,10 +592,7 @@ def _pair_turns(
             sub_g
             and sub_e
             and len(sub_g) == len(sub_e)
-            and all(
-                turns_mod._names_match(greek_names[i], english_names[j])
-                for i, j in zip(sub_g, sub_e)
-            )
+            and all(agrees(i, j) for i, j in zip(sub_g, sub_e))
         ):
             pairs.extend(zip(sub_g, sub_e))
     pairs.sort()
@@ -540,11 +606,32 @@ def _pair_turns(
 
 
 def _greek_segment_name(segment: dict, sigla: dict) -> str | None:
+    """The segment's speaker for pairing: the speaker of its FIRST line at
+    offset 0 (the line-level rule), not merely its first speaker event — a
+    packed comedy segment used to pair as whichever speaker the antilabe put
+    first (P2h finding 9)."""
     events = segment.get("speakers") or []
     if not events:
         return None
-    name, _mapped = sigla.resolve(events[0].get("label") or "", _event_ref(segment, events[0]))
-    return name
+    lines = segment.get("lines") or segment.get("greek") or []
+    first = next(
+        (line.get("n") for line in lines if isinstance(line, dict) and line.get("n") is not None),
+        None,
+    )
+    if first is None:
+        return None
+    return speaker_at(segment, int(first), sigla, mapped_only=False)
+
+
+def _greek_segment_alt_names(segment: dict, sigla: dict) -> set[str]:
+    """Every other speaker the segment's lines carry (the antilabe names)."""
+    primary = _greek_segment_name(segment, sigla)
+    names = {
+        name
+        for _ln, _off, name, _mapped in _segment_speaker_events(segment, sigla)
+        if name is not None and name != primary
+    }
+    return names
 
 
 def _assign_speeches(
@@ -666,7 +753,8 @@ def parse_translation(
 
     segments: list[dict] = list(spine["segments"])
     g_names = [_greek_segment_name(seg, sigla) for seg in segments]
-    pairs = _pair_turns(g_names, e_names)
+    g_alt = [_greek_segment_alt_names(seg, sigla) for seg in segments]
+    pairs = _pair_turns(g_names, e_names, g_alt)
     assigned, residual_grouped, head_unassigned = _assign_speeches(
         len(segments),
         pairs,

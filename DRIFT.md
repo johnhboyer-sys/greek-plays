@@ -507,3 +507,38 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `manifests/{hippolytus,suppliants-aesch,lysistrata,oedipus-tyrannus,electra-soph}.yaml`
   — alias rows and the two Storr `line_fixes`.
 - `docs/play-line.md` — §English and the turn-text contract.
+
+## P2h — per-line speaker attribution, per-turn mismatch (2026-09-08)
+
+- `pipeline/drama_pipeline/stage1_turn_english.py` — shared line-level speaker
+  rule: `_segment_speaker_events` / `speaker_at(segment, line, sigla,
+  prefer=…)` (offset-aware: line-start speaker plus antilabe shares);
+  `_greek_segment_name` now pairs on the first line's offset-0 speaker and
+  `_greek_segment_alt_names` lets a gap turn pair with a packed segment's
+  second speaker (`_pair_turns` takes `greek_alt`).
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — `_SpeechIndex`
+  gains `speaker_at` / `speaker_lines` / `packs_other_speaker`; owner check,
+  repair search (candidate must speak a LINE; tick that line, earlier on a
+  tie), off-spine snap and continuation coverage (the English speech's own
+  speaker) all go per printed line; claims are `(segment, speaker)` pairs and
+  never block the segment that prints the line; the P2f line-owner fallback
+  refuses a packed other-speaker span and records an `attribution_hole`
+  (`attribution_holes` + count + anomaly); `speakerMismatch` rides on the
+  English TURN, the chunk-level copy only when every turn disagrees.
+- `pipeline/drama_pipeline/stage2_validate.py` — `checks.attachment_loss`
+  adds the dropped-text anomaly kinds (`unmatched_anchor`,
+  `nless_slice_unattached`, `attribution_hole`, reported under `dropped`) to
+  `unresolved_mismatch_count`; allowance still `english.max_unresolved_mismatches`.
+- `pipeline/drama_pipeline/stage7_emit.py` — speaker-event refs read
+  `seg["greek"] or seg["lines"]`, so `speakers.overrides` fire in the emit.
+- `pipeline/tests/{test_stage1_perseus_play_english,test_stage1_turn_english}.py`
+  — Seven's packed antilabe span, attribution-hole gating, coverage by English
+  speaker, the Helen override in the emit, the line-level pairing rule.
+- `shared/lib/data.ts` — `EnglishTurn.speakerMismatch?: {english, greek}`.
+- `shared/lib/speakers.ts` — `EnglishTurnBlock.speakerMismatch` carried from
+  the turn.
+- `shared/components/Reader.svelte` — `playEngTurns` marks `data-mismatch` on
+  the lead-in of the disagreeing turn alone (chunk-level flag only as a
+  fallback for pre-P2h data).
+- `docs/play-line.md` — §English: the per-line rule, holes, per-turn flag,
+  `covered_ids` is continuation coverage only.

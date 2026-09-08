@@ -241,8 +241,15 @@ def test_attribution_difference_attaches_to_line_owner_with_flag(tmp_path: Path)
         "english": "Agamemnon",
         "greek": "Messenger",
     }
+    # P2h finding 3: the disagreement rides on the English TURN; the
+    # chunk-level field survives only because every turn here carries it.
     assert by_id["1:1320"]["turns"] == [
-        {"offset": 0, "speaker": "Agamemnon", "display": "Agamemnon"},
+        {
+            "offset": 0,
+            "speaker": "Agamemnon",
+            "display": "Agamemnon",
+            "speakerMismatch": {"english": "Agamemnon", "greek": "Messenger"},
+        },
     ]
     assert report["attribution_differences"] == [
         {
@@ -1420,3 +1427,270 @@ def _resolver_for(manifest: Manifest):
     from drama_pipeline.stage1_turn_english import _SiglaResolver
 
     return _SiglaResolver(manifest)
+
+
+# ── P2h: every speaker decision is per printed LINE ─────────────────────────
+
+
+def _seven_spine() -> dict:
+    """Seven 1000–1026 as the TLG prints it.
+
+    The Herald's label at 1005 sits after an editorial bracket, so its offset
+    is 1, not 0: the spine cannot cut there and 1:1004 packs Ismene (1004) and
+    the Herald (1005–1025) in one segment.
+    """
+    def stich(n: int, label: str) -> dict:
+        return {
+            "id": f"1:{n}",
+            "book": 1,
+            "column": str(n),
+            "lines": [{"n": n, "ref": str(n), "text": "g"}],
+            "speakers": [{"line": n, "offset": 0, "label": label}],
+        }
+
+    packed = {
+        "id": "1:1004",
+        "book": 1,
+        "column": "1004",
+        "lines": [{"n": n, "ref": str(n), "text": "g"} for n in range(1004, 1026)],
+        "speakers": [
+            {"line": 1004, "offset": 0, "label": "Ισ."},
+            {"line": 1005, "offset": 1, "label": "ΚΗΡΥΞ"},
+        ],
+    }
+    return {
+        "work": "test-play",
+        "segments": [
+            stich(1000, "Ισ."),
+            stich(1001, "Αν."),
+            stich(1002, "Ισ."),
+            stich(1003, "Αν."),
+            packed,
+            stich(1026, "Αν."),
+        ],
+    }
+
+
+SEVEN_SIGLA = {"Ισ.": "Ismene", "Αν.": "Antigone", "ΚΗΡΥΞ": "Herald", "—": None}
+SEVEN_ALIASES = {
+    "Ismene": "Ismene",
+    "Antigone": "Antigone",
+    "Herald": "Herald",
+}
+SEVEN_TEI = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Antigone</speaker><l n="1000">Oh, the grief—</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1001">Oh, the evils—</l></sp>
+    <sp><speaker>Antigone</speaker><l n="1002">For home and land.</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1003">Above all for me,</l></sp>
+    <sp><speaker>Antigone</speaker><l n="1004">And more also for me.</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1005">Ah I pity your suffering, my king.</l></sp>
+    <sp><speaker>Antigone</speaker><l n="1006">Pity for you both.</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1007">You were possessed by delusion.</l></sp>
+    <sp><speaker>Antigone</speaker><l n="1008">Where shall we lay them?</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1009">Where their honor is greatest.</l></sp>
+    <sp><speaker>Antigone</speaker><l n="1010">To lie beside their father.</l></sp>
+    <sp><speaker>Herald</speaker>
+      <l n="1011">It is my duty to announce the decrees.</l>
+      <l n="1012">Eteocles they will bury.</l>
+      <l n="1025">So the council of the Cadmeans decreed.</l>
+    </sp>
+    <sp><speaker>Antigone</speaker><l n="1026">But I say to the rulers.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+
+
+def test_packed_antilabe_span_attaches_by_line_speaker(tmp_path: Path):
+    """Seven 1004–1025: the Herald's English attaches once, Ismene's shares of
+    the packed span attach to it, and Antigone — who speaks no line of it —
+    never lands there (P2h findings 2, 4, 6, 8)."""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        SEVEN_TEI,
+        _seven_spine(),
+        aliases=SEVEN_ALIASES,
+        sigla=SEVEN_SIGLA,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    packed = by_id["1:1004"]
+
+    # The Herald's 15 lines are one turn, attached once.
+    assert [turn["speaker"] for turn in packed["turns"]] == [
+        "Ismene",
+        "Ismene",
+        "Ismene",
+        "Herald",
+    ]
+    assert packed["text"].count("It is my duty") == 1
+    assert "So the council of the Cadmeans decreed." in packed["text"]
+    # Ismene 1005/1007/1009 belong there; Antigone's stichomythia does not.
+    for words in ("Ah I pity", "You were possessed", "Where their honor"):
+        assert words in packed["text"]
+    for words in ("And more also", "Pity for you both", "Where shall we lay", "To lie beside"):
+        assert words not in packed["text"]
+
+    # Antigone's unrepairable lines are declared holes, not wrong attributions.
+    holes = {(h["greek_id"], h["line"], h["english_speaker"]) for h in report["attribution_holes"]}
+    assert holes == {
+        ("1:1004", 1004, "Antigone"),
+        ("1:1004", 1006, "Antigone"),
+        ("1:1004", 1008, "Antigone"),
+        ("1:1004", 1010, "Antigone"),
+    }
+    assert report["attribution_hole_count"] == 4
+    assert [a["kind"] for a in report["anomalies"]] == ["attribution_hole"] * 4
+    assert report["attribution_differences"] == []
+
+    # No chunk and no turn carries a speakerMismatch, and no mismatch row
+    # names two Greek speakers at once.
+    assert all("speakerMismatch" not in chunk for chunk in english["chunks"])
+    assert all(
+        "speakerMismatch" not in turn
+        for chunk in english["chunks"]
+        for turn in chunk["turns"]
+    )
+    assert all(
+        "/" not in (row.get("greek_speaker") or "")
+        for row in report["speech_mismatches"]
+    )
+
+    rows = {row["english_line"]: row for row in report["speech_mismatches"]}
+    # The Herald's own lines are a clean match: no mismatch row at all.
+    assert not any(row["english_speaker"] == "Herald" for row in rows.values())
+    assert 1005 not in rows  # Ismene still owns the start of the antilabe line
+    for line in (1007, 1009):
+        assert rows[line]["kind"] == "speaker_repair"
+        assert rows[line]["attached_to"] == "1:1004"
+        # Ticked on a line Ismene actually speaks, earlier on a tie.
+        assert rows[line]["attached_ref"] == "1005"
+        assert rows[line]["attached_speaker"] == "Ismene"
+    # Finding 6: Ismene 1003 repairs to her own 1002 speech, never onto the
+    # Herald's 22-line block.
+    assert rows[1003]["attached_to"] == "1:1002"
+    # Finding 4: a claim is per (segment, speaker), so Antigone 1002 may take
+    # 1:1003 even though 1:1003 already carries her neighbour's repair.
+    assert rows[1002]["attached_to"] == "1:1003"
+
+
+def test_attribution_hole_is_counted_as_attachment_loss(tmp_path: Path, monkeypatch):
+    """A hole is dropped translation: stage2 must fail on it (P2h finding 5)."""
+    spine = _spine()
+    english = {"chunks": [{"id": "1:1", "column": "1", "text": "Alpha text."}]}
+    alignment = _alignment_for(spine, english)
+    report = {
+        "work": "test-play",
+        "unresolved_mismatch_count": 0,
+        "anomalies": [
+            {"kind": "attribution_hole", "greek_id": "1:5", "line": 6, "english_speaker": "Beta"},
+            {"kind": "unmatched_anchor", "sp": 3, "n_raw": "9"},
+            {"kind": "nless_slice_unattached", "sp": 4},
+            {"kind": "note_skipped_non_smyth", "resp": "Ed."},
+        ],
+    }
+    _write_english_report(monkeypatch, tmp_path, report)
+    result = validate(_play_manifest(gaps=["1:5", "1:10"]), spine, english, alignment)
+    check = result["checks"]["attachment_loss"]
+    assert check["ok"] is False
+    assert check["unresolved"] == 3
+    assert check["dropped"] == {
+        "unmatched_anchor": 1,
+        "nless_slice_unattached": 1,
+        "attribution_hole": 1,
+    }
+    assert "3 English piece(s) attached to no Greek speech" in check["error"]
+
+    manifest = _play_manifest(gaps=["1:5", "1:10"])
+    manifest.data["english"]["max_unresolved_mismatches"] = 3
+    allowed = validate(manifest, spine, english, alignment)
+    assert allowed["checks"]["attachment_loss"]["ok"] is True
+
+
+def test_continuation_coverage_uses_the_english_speakers_name(tmp_path: Path):
+    """Coverage is the English speech's own speaker, not the covering
+    segment's whole set (P2h finding 7): a packed covering segment must not
+    lend its second speaker's name to the segments in between."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:100",
+                "book": 1,
+                "column": "100",
+                "lines": [{"n": n, "ref": str(n), "text": "g"} for n in (100, 101)],
+                "speakers": [
+                    {"line": 100, "offset": 0, "label": "Χο."},
+                    {"line": 101, "offset": 4, "label": "Κη."},
+                ],
+            },
+            {
+                "id": "1:102",
+                "book": 1,
+                "column": "102",
+                "lines": [{"n": 102, "ref": "102", "text": "g"}],
+                "speakers": [{"line": 102, "offset": 0, "label": "Κη."}],
+            },
+            {
+                "id": "1:103",
+                "book": 1,
+                "column": "103",
+                "lines": [{"n": 103, "ref": "103", "text": "g"}],
+                "speakers": [{"line": 103, "offset": 0, "label": "Χο."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Chorus</speaker><l n="100">Chorus first.</l><l n="103">Chorus again.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Chorus": "Chorus", "Herald": "Herald"},
+        sigla={"Χο.": "Chorus", "Κη.": "Herald", "—": None},
+    )
+    # The Herald's 1:102 is not the Chorus's continuation, though the covering
+    # segment packs a Herald event of its own.
+    assert english["english_covered_by"] == {}
+
+
+def test_stage7_reads_spine_line_refs_for_speaker_overrides():
+    """stage7 built its ref map from `greek`, a key the spine only grows later
+    in the emit, so `speakers.overrides` never fired there: Helen's Θε. read
+    as the Servant in the Greek column while the English said Theoclymenus
+    (P2h finding 1)."""
+    from drama_pipeline import stage7_emit
+
+    manifest = Manifest.for_work("helen")
+    spine = {
+        "work": "helen",
+        "segments": [
+            {
+                "id": "1:998",
+                "book": 1,
+                "column": "998",
+                "lines": [{"n": 1, "ref": "998", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Θε."}],
+            },
+            {
+                "id": "1:1195",
+                "book": 1,
+                "column": "1195",
+                "lines": [{"n": 2, "ref": "1195", "text": "g"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θε."}],
+            },
+        ],
+    }
+    rosters = stage7_emit._canonicalize_play_line_speakers(spine, manifest)
+    displays = [
+        event["display"]
+        for segment in spine["segments"]
+        for event in segment["speakers"]
+    ]
+    assert displays == ["Theonoe", "Theoclymenus"]
+    assert "Theoclymenus" in rosters[1]

@@ -164,7 +164,15 @@ def _canonicalize_play_line_speakers(
         book = seg["book"]
         rosters.setdefault(book, [])
         roster_seen.setdefault(book, set())
-        line_refs = {ln.get("n"): ln.get("ref") for ln in seg.get("greek", []) if isinstance(ln, dict)}
+        # The spine's lines are `lines` here and only become `greek` further
+        # down the emit; reading `greek` alone left every ref None, so
+        # `speakers.overrides` never fired in stage 7 (Helen 1:1195 coloured
+        # as the Servant while the English said Theoclymenus — P2h finding 1).
+        line_refs = {
+            ln.get("n"): ln.get("ref")
+            for ln in (seg.get("greek") or seg.get("lines") or [])
+            if isinstance(ln, dict)
+        }
         for event in seg.get("speakers", []):
             display, mapped = _play_line_display(
                 event["label"], sigla_norm, overrides, line_refs.get(event.get("line")),

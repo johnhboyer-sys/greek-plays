@@ -603,6 +603,16 @@ describe('buildEnglishTurnBlocks — fallback English turn stack', () => {
     expect(blocks).toEqual([{ lead: false, display: 'Soc.', speaker: 'Socrates', text: 'Speech.' }]);
   });
 
+  it('carries a turn-level speakerMismatch onto its own block only (P2h)', () => {
+    const turns: EnglishTurn[] = [
+      { offset: 0, speaker: 'Antigone', display: 'ANTIGONE', speakerMismatch: { english: 'Antigone', greek: 'Ismene' } },
+      { offset: 10, speaker: 'Herald', display: 'HERALD' },
+    ];
+    const blocks = buildEnglishTurnBlocks('Her line. His decree.', turns);
+    expect(blocks[0].speakerMismatch).toEqual({ english: 'Antigone', greek: 'Ismene' });
+    expect(blocks[1].speakerMismatch).toBeUndefined();
+  });
+
   it('an unattributed turn keeps a null display (renders as an em-dash block)', () => {
     const blocks = buildEnglishTurnBlocks('Yes. No.', [turn(0, null, null), turn(5, null, null)]);
     expect(blocks.map((b) => [b.lead, b.display, b.text])).toEqual([

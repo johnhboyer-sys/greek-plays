@@ -1004,3 +1004,45 @@ def test_ocr_junk_speech_is_unattributed_and_never_pairs(tmp_path):
     # The words themselves are still shown, unattributed.
     assert any("4, F" in chunk["text"] for chunk in english["chunks"])
     assert report["turn_shift_count"] == 0
+
+
+def test_greek_segment_name_is_the_first_lines_start_speaker(tmp_path):
+    """A packed segment (an antilabe hands the line over mid-way) used to pair
+    as whichever speaker its first EVENT named. Pairing now uses the line-level
+    rule — the speaker of the first line at offset 0 — and the packed second
+    speaker rides as an alternative name (P2h finding 9)."""
+    from drama_pipeline import stage1_turn_english as m
+
+    resolver = m._SiglaResolver(
+        Manifest(
+            {
+                "work": {"id": "k"},
+                "speakers": {"sigla": {"Ισ.": "Ismene", "ΚΗΡΥΞ": "Herald", "—": None}},
+            },
+            tmp_path / "k.yaml",
+        )
+    )
+    packed = {
+        "id": "1:1004",
+        "lines": [{"n": n, "ref": str(n), "text": "g"} for n in (1004, 1005, 1006)],
+        "speakers": [
+            {"line": 1004, "offset": 0, "label": "Ισ."},
+            {"line": 1005, "offset": 1, "label": "ΚΗΡΥΞ"},
+        ],
+    }
+    assert m._greek_segment_name(packed, resolver) == "Ismene"
+    assert m._greek_segment_alt_names(packed, resolver) == {"Herald"}
+    # The line-level rule, offset and all.
+    assert m.speaker_at(packed, 1004, resolver) == "Ismene"
+    assert m.speaker_at(packed, 1005, resolver) == "Ismene"
+    assert m.speaker_at(packed, 1005, resolver, prefer="Herald") == "Herald"
+    assert m.speaker_at(packed, 1006, resolver) == "Herald"
+    # A gap turn may pair with either share of the packed line, and with
+    # neither when the English names a third character.
+    assert m._pair_turns(["Ismene"], ["Herald"], [{"Herald"}]) == [(0, 0)]
+    assert m._pair_turns(["Ismene"], ["Antigone"], [{"Herald"}]) == []
+    assert m._pair_turns(
+        ["Chorus", "Ismene", "Chorus"],
+        ["Chorus", "Herald", "Chorus"],
+        [set(), {"Herald"}, set()],
+    ) == [(0, 0), (1, 1), (2, 2)]

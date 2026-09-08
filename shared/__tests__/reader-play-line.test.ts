@@ -326,7 +326,7 @@ describe('Reader.svelte play-line attribution differences (P2f)', () => {
       text: 'Words the translator gives to the Chorus.',
       notes: [],
       markers: [],
-      turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }],
+      turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS', speakerMismatch: { english: 'Chorus', greek: 'Watchman' } }],
       speakerMismatch: { english: 'Chorus', greek: 'Watchman' },
     };
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
@@ -334,6 +334,29 @@ describe('Reader.svelte play-line attribution differences (P2f)', () => {
     const lead = container.querySelector('.english-col .speaker[data-mismatch]');
     expect(lead?.textContent).toBe('CHORUS');
     expect(lead?.getAttribute('title')).toContain('Watchman');
+  });
+
+  // P2h finding 3: a packed Greek speech (Seven 1:1004 = Ismene's shares of
+  // the antilabe plus the Herald's speech) holds several English turns, and
+  // only the disagreeing one may be marked.
+  it('marks only the turn that carries the disagreement, not its neighbours', async () => {
+    const data = book();
+    data.segments[0].english = {
+      text: 'Words the translator gives to the Chorus. The herald announces the decree.',
+      notes: [],
+      markers: [],
+      turns: [
+        { offset: 0, speaker: 'Chorus', display: 'CHORUS', speakerMismatch: { english: 'Chorus', greek: 'Watchman' } },
+        { offset: 41, speaker: 'Watchman', display: 'WATCHMAN' },
+      ],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const marked = container.querySelectorAll('.english-col .speaker[data-mismatch]');
+    expect(marked).toHaveLength(1);
+    expect(marked[0].textContent).toBe('CHORUS');
+    const leads = [...container.querySelectorAll('.english-col .turn-para .speaker')].map(el => el.textContent);
+    expect(leads).toEqual(['CHORUS', 'WATCHMAN']);
   });
 });
 

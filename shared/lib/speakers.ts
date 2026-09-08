@@ -507,6 +507,10 @@ export interface EnglishTurnBlock {
   display: string | null;
   speaker: string | null;
   text: string;
+  // Carried from the turn (play-line, P2h): this turn's English speaker
+  // disagrees with the Greek speech that prints the line. Only the lead-in of
+  // this block is marked, never its neighbours in the same chunk.
+  speakerMismatch?: { english: string; greek: string };
 }
 
 export function buildEnglishTurnBlocks(
@@ -525,7 +529,14 @@ export function buildEnglishTurnBlocks(
     // as a bare em-dash paragraph — drop it. A labeled turn keeps its block
     // even when empty, so the attribution itself is never lost.
     if (!t && turns[i].display == null) continue;
-    blocks.push({ lead: false, display: turns[i].display, speaker: turns[i].speaker ?? null, text: t });
+    const mismatch = turns[i].speakerMismatch;
+    blocks.push({
+      lead: false,
+      display: turns[i].display,
+      speaker: turns[i].speaker ?? null,
+      text: t,
+      ...(mismatch ? { speakerMismatch: mismatch } : {}),
+    });
   }
   return blocks;
 }

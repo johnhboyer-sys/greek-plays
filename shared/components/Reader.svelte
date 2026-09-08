@@ -3230,7 +3230,13 @@
   {#snippet playEngTurns(seg: Segment, transId: string)}
     {@const source = playEnglishSource(seg, transId)}
     {#if source}
-    {@const mm = seg.english && source.text === seg.english.text ? seg.english.speakerMismatch : undefined}
+    <!-- The edition disagreement belongs to the TURN it was recorded on (P2h):
+         a packed Greek speech holds several English turns and only some of
+         them quarrel with it. `chunkMm` is the pre-P2h chunk-level field,
+         used only when no turn in this chunk carries one of its own (data
+         built before the per-turn flag existed). -->
+    {@const blocks = buildEnglishTurnBlocks(source.text, source.turns)}
+    {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
     <div
       class="overlay-prose turn-eng turn-stack"
       on:mouseover={onFootnoteOver}
@@ -3243,7 +3249,8 @@
       on:keydown={onFootnoteClick}
       role="presentation"
     >
-      {#each buildEnglishTurnBlocks(source.text, source.turns) as b}
+      {#each blocks as b}
+        {@const mm = b.speakerMismatch ?? chunkMm}
         <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>

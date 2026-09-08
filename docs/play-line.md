@@ -41,8 +41,8 @@ speech between two anchors gets no copied text. When an English speech's
 attached anchors span `[min_n, max_n]`, or a single attached anchor whose
 Greek owner ends before the next English owner begins, every intervening
 Greek segment whose printed integers all lie in that span and that has no
-anchor of its own **and whose resolved speakers intersect the covering
-segment's** is marked `englishCoveredBy` with the segment id holding
+anchor of its own **and which the covering ENGLISH speech's own canonical
+speaker also speaks** is marked `englishCoveredBy` with the segment id holding
 the translator's block (for example `"1:1320"`) and keeps `english: null`.
 Coverage never crosses speakers: another character's one-liner inside an
 English block is a real hole, not a covered column, and must be declared in
@@ -50,7 +50,8 @@ English block is a real hole, not a covered column, and must be declared in
 above" and jumps to that speech instead of "no aligned passage". Stage 2
 treats coverage as an allowance: a covered id stays in
 `checks.alignment.unmatched_segments`, is listed in `covered_ids`, and is
-allowed by reason. Lacunae and declared `english.gaps` ids
+allowed by reason. `covered_ids` is continuation coverage ONLY: an
+attribution difference is an attached chunk, never a covered id. Lacunae and declared `english.gaps` ids
 are not marked. `english.gaps` remains the residue that sits outside every
 English span. The builder does not copy a piece onto intervening speeches
 or extend a piece toward the next English `<sp>`. The stage-1 report
@@ -59,9 +60,16 @@ records `covered_by_count` beside `segments_with_chunk / segments_total`.
 A Greek segment's speaker is resolved exactly as stage7 resolves it —
 `_norm_siglum` plus `speakers.overrides` keyed by the event's printed ref
 (Helen's `Θε.` is the Servant, Theonoe from 865, Theoclymenus from 1165) —
-and a segment owns the SET of its mapped speakers, so a segment that packs
-two turns (Seven `1:1004` = Ismene 1004 + Herald 1005) accepts either
-speaker's English without a mismatch.
+— but the unit of that decision is one PRINTED LINE, never the segment. A
+segment is cut only at a line-start speaker event, so an antilabe (Seven
+1005, where the Herald's label sits after an editorial bracket) packs two
+speakers into one segment: `1:1004` is Ismene at 1004 and the Herald from
+1005 to 1025. A line's speaker is the last event at or before its offset 0;
+a mid-line event adds a second speaker to that same line, and a piece
+anchored there belongs to whichever share the English `<sp>` names (Ismene
+still owns the start of 1005). The segment's speaker SET says only that the
+segment contains a speaker — it qualifies a repair candidate, and only for a
+line that speaker actually speaks.
 
 Lettered anchors matching `^\d+[a-z]+$` keep their text. They attach to an
 exact printed ref such as `1270a` when the spine has one, then fall back to
@@ -70,28 +78,48 @@ from the spine may snap only onto another line of its own English speech,
 never into a neighbouring speech. Line-owner attachment across different
 Greek speakers applies only when one English `<sp>` has anchors in more
 than one Greek segment. For a singleton mismatch, the builder uses the
-nearest same-speaker Greek speech within three lines, preferring the
-earlier speech on a tie (translator drift: Ag. 1077 Chorus lands on
-Chorus 1078, no `speakerMismatch` flag); the emitted tick is a line that
-target segment itself prints, never the English `n` of the neighbour the
-piece came from. If none exists, the piece is an
-attribution difference between the translator's base text and the TLG
-edition: it attaches to the Greek speech that prints the line and the
-chunk is marked `speakerMismatch: {english, greek}` (canonical English
-speaker, Greek segment speaker display). Stage 7 emits that object on
-the segment's `english` chunk. Every (b) attachment is listed in
+nearest Greek speech within three lines in which that speaker actually
+speaks a line, preferring the earlier speech on a tie (translator drift:
+Ag. 1077 Chorus lands on Chorus 1078, no `speakerMismatch` flag); the
+emitted tick is the nearest line of the target the speaker himself
+speaks — earlier on a tie — never the English `n` of the neighbour the
+piece came from. A claim is a `(segment, speaker)` pair, so one
+character's repair no longer locks the speech against another's, and a
+segment that itself prints the line is never claimed away from it.
+
+If no such speech exists, the piece is an attribution difference between
+the translator's base text and the TLG edition: it attaches to the Greek
+speech that prints the line and the English TURN is marked
+`speakerMismatch: {english, greek}` (canonical English speaker, the Greek
+speaker of that printed line). Stage 7 carries it through on the turn; the
+chunk-level copy is written only when EVERY turn of the chunk disagrees,
+and the reader marks the lead-in of the disagreeing turn alone. The one
+exception is a line owner that packs other characters and gives this
+speaker no line of its own (Antigone's stichomythia against Seven
+`1:1004`): filing her words in the Herald's column would be worse than
+leaving them out, so the piece becomes an `attribution_hole` instead.
+
+Every attribution difference is listed in
 `build/stage1/english_report.json` as `attribution_differences:
 [{greek_id, line, english_speaker, greek_speaker}]` with
-`attribution_difference_count`. Stage 2 counts those segments as
-covered. Every snap and speech mismatch is written to the same report
-(play, English line, Greek ref, both speakers). `speech_mismatch_count`
-counts all such rows, while `unresolved_mismatch_count` counts rows with
-no `attached_to` target. Stage 2 gates that loss: `checks.attachment_loss`
-fails when `unresolved_mismatch_count` exceeds
-`english.max_unresolved_mismatches` (default `0`), and fails closed when
-`build/stage1/english_report.json` is missing or belongs to another work —
-unattached English is translation the reader never sees. The stage-1
-summary line prints `unresolved=N covered=N`.
+`attribution_difference_count`; those segments carry an ordinary chunk and
+pair like any other. Holes are listed as `attribution_holes:
+[{greek_id, line, english_speaker, greek_speaker}]` with
+`attribution_hole_count`, and each one also writes an
+`attribution_hole` anomaly. Every snap and speech mismatch is written to
+the same report (play, English line, Greek ref, both speakers).
+`speech_mismatch_count` counts all such rows, while
+`unresolved_mismatch_count` counts rows with no `attached_to` target.
+Stage 2 gates the loss in `checks.attachment_loss`: it adds
+`unresolved_mismatch_count` to the anomaly kinds that each mean one piece
+of English reached no chunk — `unmatched_anchor`,
+`nless_slice_unattached`, `attribution_hole` (reported per kind under
+`dropped`) — and fails when the total exceeds
+`english.max_unresolved_mismatches`, a per-work manifest allowance whose
+default is `0`. It fails closed when `build/stage1/english_report.json` is
+missing or belongs to another work — unattached English is translation the
+reader never sees. The stage-1 summary line prints `unresolved=N
+covered=N`.
 
 The Greek spine owns the speech/40-line segment cuts. The builder emits at
 most one English chunk per segment. A segment with no English is a hole:
