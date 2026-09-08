@@ -457,8 +457,8 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
     var lines = ODE.map(function(l){ return '<span class="line" style="position:relative">'+ln(l[0]).replace('class="ln"','class="ln" style="position:absolute"')+(l[0]===40?metre(dir,'an'):'')+esc(l[1])+'</span>'; }).join('');
     return '<div class="rd">'+head(AG,'','cmp','Smyth + Morshead',dir)+'<div class="body ode"><p class="odehead">Parodos · Chorus · 40–59</p><div class="seg cmp">'+
       '<div class="g" style="position:relative">'+spk('Chorus',false,dir,true)+lines+'</div>'+
-      '<div class="e"><span class="who">Smyth · 1926</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(SMYTH)+'</span></div>'+
-      '<div class="e"><span class="who">Morshead · 1881 · alignment approximate</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(MORS).replace(/ \/ /g,'<br>')+'</span></div></div></div></div>';
+      '<div class="e"><span class="who">Smyth · 1926 · by line</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(SMYTH)+'</span></div>'+
+      '<div class="e"><span class="who">Morshead · 1881 · by speech</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(MORS).replace(/ \/ /g,'<br>')+'</span></div></div></div></div>';
   }
 
   function frogs(dir){
