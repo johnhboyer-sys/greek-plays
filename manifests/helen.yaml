@@ -41,7 +41,7 @@ english:
   # Measured attachment loss (sweep 2026-09-08): 12 English piece(s) with no
   # honest owner — attribution_hole 11, nless_slice_unattached 0, unmatched_anchor 1. Mostly stichomythia the translator's base
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
-  max_unresolved_mismatches: 12
+  max_unresolved_mismatches: 1
   gaps:
     - "1:563"
     - "1:641"

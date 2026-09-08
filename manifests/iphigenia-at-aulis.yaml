@@ -34,10 +34,6 @@ english:
     source: bench/way/iphigenia-at-aulis.txt
     play: IPHIGENEIA AT AULIS
     footnotes: false
-  # Measured attachment loss (sweep 2026-09-08): 1 English piece(s) with no
-  # honest owner — attribution_hole 1, nless_slice_unattached 0, unmatched_anchor 0. Mostly stichomythia the translator's base
-  # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
-  max_unresolved_mismatches: 1
   gaps:
     - "1:1251"  # no covering <l n> in the Perseus TEI
 
