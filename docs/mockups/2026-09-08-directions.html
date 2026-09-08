@@ -411,19 +411,19 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
         'Smyth',dir)+'<div class="band"><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en.toUpperCase()+'</p><p class="au">'+w.au+'</p></div>'+
         '<div class="cols"><div><h4>Persons of the play, in order of appearance</h4><ul class="cast">'+castA+'</ul></div>'+
         '<div><p class="arg">'+w.arg+draft+'</p><dl><dt>Production</dt><dd>'+w.prod+'</dd><dt>Greek text</dt><dd>'+w.text+'</dd><dt>On the bench</dt><dd>'+w.bench+'</dd></dl>'+
-        '<a class="go" href="#">Begin at line 1</a></div></div></div>';
+        '<a class="go" href="#">Start reading →</a></div></div></div>';
     }
     if(dir==='b'){
       var castB = w.cast.map(function(c){ return '<li style="--spk:var(--s'+c[1]+')">'+esc(c[0])+(c[2]?' <small>'+esc(c[2])+'</small>':'')+'</li>'; }).join('');
       return '<div class="rd">'+head(w,'','','Smyth',dir)+'<div class="plate"><div><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en+'</p><p class="au">'+w.au+'</p>'+
-        '<p class="arg">'+w.arg+draft+'</p><h4>Persons</h4><ul class="cast">'+castB+'</ul><a class="go" href="#">Begin at line 1 →</a></div>'+
+        '<p class="arg">'+w.arg+draft+'</p><h4>Persons</h4><ul class="cast">'+castB+'</ul><a class="go" href="#">Start reading →</a></div>'+
         '<aside class="margin"><p><b>Production</b>'+w.prod+'</p><p><b>Greek text</b>'+w.text+'</p><p><b>On the bench</b>'+w.bench+'</p><p><b>Cite as</b>Aesch. Ag. 1–1673</p></aside></div></div>';
     }
     var castC = w.cast.map(function(c){ return '<li style="--spk:var(--s'+c[1]+')"><span></span><span>'+esc(c[0]).toUpperCase()+(c[2]?'<small>'+esc(c[2])+'</small>':'')+'</span></li>'; }).join('');
     return '<div class="rd plate">'+head(w,'','','Smyth',dir)+'<div class="card"><div><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en+'</p><p class="au">'+w.au+'</p><p class="arg">'+w.arg+'</p></div>'+
       '<div class="cast"><h4>Persons · order of appearance</h4><ul class="cast">'+castC+'</ul></div></div>'+
       '<div class="specs"><div><b>Production</b>'+w.prod+'</div><div><b>Greek text</b>'+w.text+'</div><div><b>On the bench</b>'+w.bench+'</div></div>'+
-      '<div class="below"><a class="go" href="#">Begin at line 1</a></div></div>';
+      '<div class="below"><a class="go" href="#">Start reading →</a></div></div>';
   }
 
   function dialogue(dir){
