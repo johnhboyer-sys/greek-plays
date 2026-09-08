@@ -129,7 +129,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-a .plate dt{ font-family:var(--f-ui); font-size:12px; letter-spacing:.12em; color:var(--ink3); padding-top:3px; }
 .dir-a .plate dd{ margin:0; }
 .dir-a .plate .how{ margin:22px 0 0; padding-top:14px; border-top:1px solid var(--rule); font-size:15px; color:var(--ink2); max-width:60ch; }
-.dir-a .plate .go{ display:inline-block; margin-top:22px; font-family:var(--f-ui); font-weight:700; letter-spacing:.12em; color:var(--accent); text-decoration:none; border-bottom:2px solid var(--accent); }
+.dir-a .plate .go{ display:inline-block; margin-top:26px; font-family:var(--f-ui); font-weight:700; letter-spacing:.12em; color:var(--accent); text-decoration:none; border-bottom:2px solid var(--accent); }
 .dir-a .plate .draft{ font-family:var(--f-num); font-size:11px; color:var(--ink3); margin-left:8px; }
 /* frogs strip */
 .dir-a .strip{ display:flex; align-items:baseline; gap:18px; padding:18px 28px; background:var(--accent); color:#f7efe4; }
@@ -263,7 +263,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
     <div>
       <h1>The Greek Drama Reader: three directions</h1>
       <p>Same reader, same passages, three skins. Every frame is real text from the build: Agamemnon's plate, the Cassandra stichomythia at 1203–1213 with speaker colour on, the parodos alone and beside two translations, and the first lines of Frogs in comedy dress. Pick one, or name the parts of each you want kept.</p>
-      <p class="rulings">rulings applied · accent by genre (tragedy / comedy) · reading note kept plain · no play-switcher · all copy DRAFT</p>
+      <p class="rulings">rulings applied · accent by genre (tragedy / comedy) · no reading note on the plate · no play-switcher · all copy DRAFT</p>
     </div>
     <div></div>
   </header>
@@ -333,7 +333,6 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
     <ol>
       <li>A, B, or C, or a blend: say which parts (plate, dialogue, ode, bench, colours, type).</li>
       <li>Any image material? None is shown. Vase paintings are public domain but crowd the page; a single line drawing per genre is the most I would add.</li>
-      <li>The reading note on the plate is four sentences. Cut, keep, or rewrite; it ships only with your wording.</li>
     </ol>
     <p style="color:var(--pg-ink3);font-family:'IBM Plex Mono',monospace;font-size:12px">The winner becomes a token layer in shared/styles/global.css plus the plate component. Nothing in the reader's interaction model changes. Morshead's stichomythia lines are shown with the scan's stray spaces removed by hand; the built text still carries them (REVIEW-CHECKLIST item 4).</p>
   </section>
@@ -342,7 +341,6 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 <script>
 (function(){
   // ---------- content (from build/dist, trimmed) ----------
-  var HOW = 'Greek on the left, English on the right, line by line. Click a Greek word for its dictionary entry. Choose another translation from the bench, or set two side by side. Each speaker keeps one colour.';
   var AG = {
     gt:'Ἀγαμέμνων', en:'Agamemnon', au:'Aeschylus', prod:'Oresteia, first play · City Dionysia, 458 BC · first prize',
     text:'Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)', bench:'H. W. Smyth (Loeb, 1926) · E. D. A. Morshead (1881)',
@@ -413,19 +411,19 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
         'Smyth',dir)+'<div class="band"><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en.toUpperCase()+'</p><p class="au">'+w.au+'</p></div>'+
         '<div class="cols"><div><h4>Persons of the play, in order of appearance</h4><ul class="cast">'+castA+'</ul></div>'+
         '<div><p class="arg">'+w.arg+draft+'</p><dl><dt>Production</dt><dd>'+w.prod+'</dd><dt>Greek text</dt><dd>'+w.text+'</dd><dt>On the bench</dt><dd>'+w.bench+'</dd></dl>'+
-        '<p class="how">'+HOW+draft+'</p><a class="go" href="#">Begin at line 1</a></div></div></div>';
+        '<a class="go" href="#">Begin at line 1</a></div></div></div>';
     }
     if(dir==='b'){
       var castB = w.cast.map(function(c){ return '<li style="--spk:var(--s'+c[1]+')">'+esc(c[0])+(c[2]?' <small>'+esc(c[2])+'</small>':'')+'</li>'; }).join('');
       return '<div class="rd">'+head(w,'','','Smyth',dir)+'<div class="plate"><div><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en+'</p><p class="au">'+w.au+'</p>'+
-        '<p class="arg">'+w.arg+draft+'</p><h4>Persons</h4><ul class="cast">'+castB+'</ul><p class="how">'+HOW+draft+'</p><a class="go" href="#">Begin at line 1 →</a></div>'+
+        '<p class="arg">'+w.arg+draft+'</p><h4>Persons</h4><ul class="cast">'+castB+'</ul><a class="go" href="#">Begin at line 1 →</a></div>'+
         '<aside class="margin"><p><b>Production</b>'+w.prod+'</p><p><b>Greek text</b>'+w.text+'</p><p><b>On the bench</b>'+w.bench+'</p><p><b>Cite as</b>Aesch. Ag. 1–1673</p></aside></div></div>';
     }
     var castC = w.cast.map(function(c){ return '<li style="--spk:var(--s'+c[1]+')"><span></span><span>'+esc(c[0]).toUpperCase()+(c[2]?'<small>'+esc(c[2])+'</small>':'')+'</span></li>'; }).join('');
     return '<div class="rd plate">'+head(w,'','','Smyth',dir)+'<div class="card"><div><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en+'</p><p class="au">'+w.au+'</p><p class="arg">'+w.arg+'</p></div>'+
       '<div class="cast"><h4>Persons · order of appearance</h4><ul class="cast">'+castC+'</ul></div></div>'+
       '<div class="specs"><div><b>Production</b>'+w.prod+'</div><div><b>Greek text</b>'+w.text+'</div><div><b>On the bench</b>'+w.bench+'</div></div>'+
-      '<div class="below"><p class="how">'+HOW+draft+'</p><a class="go" href="#">Begin at line 1</a></div></div>';
+      '<div class="below"><a class="go" href="#">Begin at line 1</a></div></div>';
   }
 
   function dialogue(dir){
