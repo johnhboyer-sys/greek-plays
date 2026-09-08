@@ -63,7 +63,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .rd .head .ctl .on{ color:var(--ink); border-color:var(--accent); }
 .rd .head .ctl .bench{ color:var(--accent); }
 .rd .body{ padding:22px 28px 30px; }
-.rd .seg{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:36px; align-items:start; }
+.rd .seg{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:36px; align-items:baseline; }
 .rd .seg + .seg{ margin-top:var(--seg-gap,10px); }
 .rd .g{ font-family:var(--f-gr); font-size:calc(var(--fs,16px) * 1.05); position:relative; padding-left:var(--gutter,42px); }
 .rd .e{ color:var(--ink); }
@@ -455,18 +455,23 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 
   function frogs(dir){
     var strip = '<div class="strip"><h2 class="gt">'+FR.gt+'</h2><span class="en">'+(dir==='b'?FR.en:FR.en.toUpperCase())+'</span><span class="pr">'+FR.prod+'</span></div>';
+    // Each English turn sits on the row of the Greek line it starts on, so
+    // the first line of every turn is level across the columns; turns that
+    // begin mid-line (antilabe) stack in that line's row.
     var rows = FROGS.map(function(r){
-      var ref=r[0];
-      var g = r[1].map(function(part,i){
-        var n = ref+i;
+      var ref=r[0], ti=0, out='';
+      r[1].forEach(function(part,i){
+        var n = ref+i, starts=0;
         var s = '<span class="line" style="position:relative">'+(n%5===0?'<span class="ln" style="position:absolute">'+n+'</span>':'')+(i===0?metre(dir,'3ia'):'');
-        if(part[0]) s += spk(part[0],false,dir,true);
+        if(part[0]){ s += spk(part[0],false,dir,true); starts++; }
         s += esc(part[1]);
-        if(part[2]) s += ' '+spk(part[2][0],true,dir,true)+esc(part[2][1]);
-        return s+'</span>';
-      }).join('');
-      var e = r[2].map(function(t){ return '<span class="tr">'+spk(t[0],false,dir,false)+esc(t[1])+'</span>'; }).join('');
-      return '<div class="seg"><div class="g" style="position:relative">'+g+'</div><div class="e">'+e+'</div></div>';
+        if(part[2]){ s += ' '+spk(part[2][0],true,dir,true)+esc(part[2][1]); starts++; }
+        s += '</span>';
+        var e='';
+        for(var k=0;k<starts;k++){ var tr=r[2][ti++]; if(tr) e += '<span class="tr">'+spk(tr[0],false,dir,false)+esc(tr[1])+'</span>'; }
+        out += '<div class="g" style="position:relative">'+s+'</div><div class="e">'+e+'</div>';
+      });
+      return '<div class="seg">'+out+'</div>';
     }).join('');
     return '<div class="rd comedy">'+head(FR,'','both','Athenian Society',dir)+strip+'<div class="body">'+rows+'</div></div>';
   }
@@ -476,7 +481,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
     ['Dialogue · Ag. 1203–1213 · both columns · speaker colour on', dialogue],
     ['Choral ode · parodos 40–59 · Greek only', odeGreek],
     ['Compare · the same ode beside Smyth and Morshead', odeCompare],
-    ['Comedy dress · Frogs 1–15 · Athenian Society 1912 · antilabe at 5–7', frogs]
+    ['Comedy dress · Frogs 1–15 · Athenian Society 1912 · antilabe at 5–7 · each English turn on the row of its Greek line', frogs]
   ];
   document.querySelectorAll('.frames').forEach(function(host){
     var dir = host.getAttribute('data-dir');
