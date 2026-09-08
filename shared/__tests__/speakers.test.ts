@@ -1041,6 +1041,25 @@ describe('playSigla — the Greek gutter siglum of each speaker', () => {
     expect(sigla.get('Second Innkeeper')).toBe('Πα. Βʹ');
   });
 
+  it('peels an enumerator the edition glued to the name (P4CE finding 3)', () => {
+    // Phoenissae: Murray prints ΑΓΓΕΛΟΣΒ for the second messenger, with no
+    // space, and both messengers abbreviate to Αγ. — one siglum for two men.
+    const sigla = playSigla([
+      ev('ΑΓΓΕΛΟΣ', 'Messenger'), ev('Αγ.', 'Messenger'),
+      ev('ΑΓΓΕΛΟΣΒ', 'Second Messenger'), ev('Αγ.', 'Second Messenger'),
+    ]);
+    expect(sigla.get('Second Messenger')).toBe('Αγγ. Β');
+    expect(sigla.get('Messenger')).toBe('Αγγ.');
+  });
+
+  it('leaves a name that merely ends in alpha alone', () => {
+    // ΚΑΣΣΑΝΔΡΑ's final Α is the feminine ending, not an enumerator: 37 such
+    // labels in the corpus against two real glued ones, both Β.
+    const sigla = playSigla([ev('ΚΑΣΣΑΝΔΡΑ', 'Cassandra'), ev('ΚΛΥΤΑΙΜΗΣΤΡΑ', 'Clytaemestra')]);
+    expect(sigla.get('Cassandra')).toBe('Κα.');
+    expect(sigla.get('Clytaemestra')).toBe('Κλ.');
+  });
+
   it('gives the unattributed dash no siglum of its own', () => {
     const sigla = playSigla([ev('—', null), ev('ΦΥΛΑΞ', 'Watchman')]);
     expect([...sigla.keys()]).toEqual(['Watchman']);

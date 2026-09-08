@@ -767,3 +767,30 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   the siglum-driven ode test, the deep-link settle (corrects once when the
   target reports off screen, never when it landed), and the printed-extent
   citation. The two ode fixtures now carry a siglum that matches their speaker.
+- `shared/components/Reader.svelte` — P4 Lane F (Grok P4CE findings 1, 2, 4):
+  `settleDeepLink` is abandoned outright by the first `wheel`/`touchmove`/
+  `keydown` after the opening scroll (a check that only fires when the target
+  is OFF screen would otherwise snap back a reader who scrolled away), holds
+  `suppressArmUntil` through the LAST check + 1500ms rather than 1500ms from
+  the correction, and runs a single check under `prefers-reduced-motion`;
+  `onDestroy` cancels it. `isChorusEvent` takes ΒΑΤΡΑΧ- (and Βα. where the
+  translator's name is "Frogs") for a chorus, so Aristophanes' frog-song takes
+  the ode measure while Persians' Atossa and Suppliants' Pelasgus — both also
+  printed Βα. — keep the dialogue measure. `claim`'s positional fallback takes
+  event k only when it is unused: a name match having consumed it, the turn
+  stacks in the last mapped row instead of doubling up on a spoken line.
+- `shared/lib/speakers.ts` — P4 Lane F (Grok P4CE finding 3): `abbreviateLabel`
+  peels an enumerator the edition GLUED to the name (Phoenissae's ΑΓΓΕΛΟΣΒ,
+  Helen's ΘΕΡΑΠΩΝΒ) and keeps it as the siglum's tail, so the two messengers
+  no longer share Αγ. A bare final letter is peeled only for Β/Γ, which end no
+  Greek word; a bare final Α (ΚΑΣΣΑΝΔΡΑ, ΗΛΕΚΤΡΑ — 37 corpus labels) needs its
+  numeral mark.
+- `shared/lib/citation.ts` — P4 Lane F (Grok P4CE finding 5): `lastPrintedRef`
+  skips `lacuna` and `heading` lines and walks back to the previous segment
+  when one holds nothing else; the chunk's own `column` is the fallback only
+  for a segment with no Greek lines at all.
+- `shared/__tests__/reader-play-line.test.ts`, `shared/__tests__/speakers.test.ts`,
+  `shared/__tests__/plate.test.ts` — P4 Lane F: the wheel that abandons the
+  settle, the frogs' ode against Atossa's speech, the used-event positional
+  fallback, the glued enumerator against a feminine ending, and the trailing
+  lacuna-only segment's citation.

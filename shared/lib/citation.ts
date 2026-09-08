@@ -217,17 +217,25 @@ export function isPlayLineRange(ref: string): boolean {
 // edition prints to 1673). Take the last `greek[].ref` of the last segment
 // that has one, in PRINTED order — never re-sorted, so a transposed or
 // repeated closing ref cites exactly as the edition prints it (John,
-// 2026-09-05). Falls back to the last segment's own column, then null.
+// 2026-09-05).
+//
+// A lacuna prints no line of its own (its ref is Diggle's "post 1226"
+// placeholder) and a heading is an editorial rubric, so neither can end a
+// citation: both are skipped, and a segment that holds nothing else is
+// walked past to the segment before it. The chunk's own column is the
+// fallback only for a segment with NO Greek lines at all — never a printed
+// line's stand-in (Grok P4CE finding 5). An empty book has no extent.
 export function lastPrintedRef(
-  segments: readonly { column?: string; greek?: readonly { ref?: string }[] }[],
+  segments: readonly { column?: string; greek?: readonly { ref?: string; role?: string }[] }[],
 ): string | null {
   for (let i = segments.length - 1; i >= 0; i--) {
     const lines = segments[i].greek ?? [];
     for (let j = lines.length - 1; j >= 0; j--) {
-      const ref = lines[j]?.ref;
-      if (ref) return ref;
+      const line = lines[j];
+      if (line?.role === 'lacuna' || line?.role === 'heading') continue;
+      if (line?.ref) return line.ref;
     }
-    if (segments[i].column) return segments[i].column!;
+    if (!lines.length && segments[i].column) return segments[i].column!;
   }
   return null;
 }

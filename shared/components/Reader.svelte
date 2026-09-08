@@ -1112,26 +1112,57 @@
   // be cancelled). Once, then stop; a link that landed is never re-scrolled,
   // and the suppression window keeps the scroll-spy from rewriting the URL
   // while this settles.
+  //
+  // The reader's own scrolling always wins: the first wheel, touchmove or
+  // keydown after the opening scroll cancels the whole pass, because a check
+  // that only fires when the target is OFF screen would otherwise yank a
+  // reader who had deliberately scrolled away back to the line (Grok P4CE
+  // finding 1). Under prefers-reduced-motion the opening scroll is instant
+  // and cannot be cancelled by layout, so one check is the whole settle.
   const SETTLE_MS = [900, 2500];
+  const SETTLE_ABORT = ['wheel', 'touchmove', 'keydown'] as const;
+  let settleAbort: (() => void) | null = null;
   function reducedMotion(): boolean {
     return window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
   }
   function settleDeepLink(el: HTMLElement, block: ScrollLogicalPosition = 'center'): void {
-    let corrected = false;
+    const at = reducedMotion() ? SETTLE_MS.slice(0, 1) : SETTLE_MS;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    let done = false;
+    const stop = () => {
+      done = true;
+      for (const t of timers) clearTimeout(t);
+      timers.length = 0;
+      for (const ev of SETTLE_ABORT) window.removeEventListener(ev, stop);
+      settleAbort = null;
+    };
+    settleAbort?.();
+    settleAbort = stop;
+    for (const ev of SETTLE_ABORT) window.addEventListener(ev, stop, { passive: true });
+    // The scroll-spy stays suppressed through the LAST check, not just the
+    // 1500ms after the opening scroll: a correction fired at 2500ms would
+    // otherwise rewrite the URL from a line it was still passing.
+    suppressArmUntil = Math.max(suppressArmUntil, Date.now() + at[at.length - 1] + 1500);
+    let left = at.length;
     const check = () => {
-      if (corrected || !el.isConnected) return;
+      left -= 1;
+      if (done) return;
+      if (!el.isConnected) return stop();
       const r = el.getBoundingClientRect();
       // `scroll-margin-top` already clears the sticky header and controls, so
       // plain viewport containment is the whole test.
-      if (r.bottom > 0 && r.top < window.innerHeight) return;
-      corrected = true;
-      suppressArmUntil = Date.now() + 1500;
+      if (r.bottom > 0 && r.top < window.innerHeight) {
+        if (left <= 0) stop();
+        return;
+      }
+      stop();
       el.scrollIntoView({ behavior: 'auto', block });
     };
     const fonts = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
-    if (fonts) fonts.then(() => setTimeout(check, SETTLE_MS[0]), () => setTimeout(check, SETTLE_MS[0]));
-    else setTimeout(check, SETTLE_MS[0]);
-    setTimeout(check, SETTLE_MS[1]);
+    const first = () => { if (!done) timers.push(setTimeout(check, at[0])); };
+    if (fonts) fonts.then(first, first);
+    else first();
+    if (at.length > 1) timers.push(setTimeout(check, at[1]));
   }
 
   let _onToggleSettings: () => void;
@@ -1139,6 +1170,7 @@
 
   onDestroy(() => {
     spyObserver?.disconnect();
+    settleAbort?.();
     if (typeof window !== 'undefined') {
       window.removeEventListener('scroll', onScrollArm);
       window.removeEventListener('scroll', onCtxScroll);
@@ -1590,7 +1622,11 @@
       let i = b.speaker && !b.speakerMismatch
         ? evs.findIndex((e, j) => !used[j] && e.display === b.speaker)
         : -1;
-      if (i < 0) i = k < evs.length ? k : -1;
+      // The positional slot is taken only if it is still free: a name match
+      // may already have consumed event k, and handing it out twice put two
+      // turns on one line while the next line went bare (Grok P4CE finding
+      // 4). With no slot the block stacks in the last mapped row.
+      if (i < 0) i = k < evs.length && !used[k] ? k : -1;
       if (i < 0) return undefined;
       used[i] = true;
       return evs[i];
@@ -1647,9 +1683,19 @@
   function siglumStem(label: string): string {
     return label.toUpperCase().normalize('NFD').replace(/\p{M}/gu, '');
   }
+  // Aristophanes' animal choruses print their OWN name, not ΧΟ.: Coulon gives
+  // the frogs ΒΑΤΡΑΧΟΙ, then ΒΑ., and the translators call them "Frogs" — so
+  // neither test above saw a chorus and the frog-song never took the ode
+  // measure (Grok P4CE finding 2). ΒΑ./ΒΑΤΡΑΧ- is the chorus of Frogs.
   function isChorusEvent(e: SpeakerEvent): boolean {
     const stem = siglumStem(e.label ?? '');
     if (stem.startsWith('ΧΟ') || stem.startsWith('ΗΜΙΧ')) return true;
+    if (stem.startsWith('ΒΑΤΡΑΧ')) return true;
+    // The bare abbreviation is NOT enough on its own: Persians' Atossa
+    // (ΒΑΣΙΛΕΙΑ) and Suppliants' Pelasgus (ΒΑΣΙΛΕΥΣ) both print Βα. too, and
+    // their long rheseis are speeches, not odes — so ΒΑ. counts only where
+    // the translator's own name says frogs.
+    if (stem.startsWith('ΒΑ') && /^frogs$/i.test((e.display ?? '').trim())) return true;
     return /chorus/i.test(e.display ?? '');
   }
   function playOde(seg: Segment, evs: readonly SpeakerEvent[]): boolean {

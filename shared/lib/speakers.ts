@@ -707,6 +707,7 @@ function cleanSpeakerLabel(label: string): string {
 // ΑΓΓΕΛΟΣ Β. It is the WHOLE distinction between two such speakers, so an
 // abbreviation keeps it.
 const ENUMERATOR = /^\p{L}[ʹʹ′']?$/u;
+const GLUED_ENUMERATOR = new RegExp(`(?:[ΑΒΓ][ʹʹ′']|[ΒΓ])$`, 'u');
 
 // The first `n` letters of a label's first word, Greek title case, plus the
 // abbreviation point, plus any trailing enumerator: ΦΥΛΑΞ → Φυ., ΑΙΣΧΥΛΟΣ
@@ -714,10 +715,28 @@ const ENUMERATOR = /^\p{L}[ʹʹ′']?$/u;
 // yields all it has; one with none is returned unchanged.
 function abbreviateLabel(label: string, n: number): string {
   const words = label.split(' ');
-  const letters = Array.from(words[0] ?? '').filter((c) => /\p{L}/u.test(c)).slice(0, n).join('');
+  let stem = words[0] ?? '';
+  let glued = '';
+  // The same enumerator GLUED to the name, with no space: the export prints
+  // Phoenissae's second messenger ΑΓΓΕΛΟΣΒ and Helen's second servant
+  // ΘΕΡΑΠΩΝΒ, so the two messengers shared one siglum (Grok P4CE finding 3).
+  // Peeled only when there is no spaced enumerator and at least two letters
+  // of the name survive. A BARE letter is peeled only when it is Β or Γ,
+  // which no Greek word ends in; a bare final Α is the ordinary feminine
+  // ending (ΚΑΣΣΑΝΔΡΑ, ΗΛΕΚΤΡΑ — 37 such labels in the corpus against two
+  // real glued enumerators, both Β), so Α counts only with its numeral mark.
+  if (words.length === 1) {
+    const m = GLUED_ENUMERATOR.exec(stem);
+    const kept = m ? stem.slice(0, m.index) : '';
+    if (m && Array.from(kept).filter((c) => /\p{L}/u.test(c)).length >= 2) {
+      glued = ` ${m[0]}`;
+      stem = kept;
+    }
+  }
+  const letters = Array.from(stem).filter((c) => /\p{L}/u.test(c)).slice(0, n).join('');
   if (!letters) return label;
   const last = words[words.length - 1];
-  const tail = words.length > 1 && ENUMERATOR.test(last) ? ` ${last}` : '';
+  const tail = words.length > 1 && ENUMERATOR.test(last) ? ` ${last}` : glued;
   // Medial sigma, never final: the prefix is a word CUT SHORT, and Unicode's
   // default lowercasing would end it with ς (ΑΙΣΧΥΛΟΣ → Αις.), which reads as
   // a whole word. Abbreviations print σ.

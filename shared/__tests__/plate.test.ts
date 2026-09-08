@@ -123,6 +123,17 @@ describe('Plate.svelte', () => {
     // empty book has no extent at all (the margin line then drops).
     expect(lastPrintedRef([{ column: '9', greek: [] }])).toBe('9');
     expect(lastPrintedRef([])).toBeNull();
+    // P4CE finding 5: a lacuna prints no line of its own, so a trailing
+    // lacuna-only segment cites the segment BEFORE it — never the lacuna's
+    // "post N" placeholder, and never its own chunk column.
+    expect(lastPrintedRef([
+      { column: '1220', greek: [{ ref: '1225' }, { ref: '1226' }] },
+      { column: '1226', greek: [{ ref: 'post 1226', role: 'lacuna' }] },
+    ])).toBe('1226');
+    expect(lastPrintedRef([
+      { column: '1220', greek: [{ ref: '1226' }] },
+      { column: '1227', greek: [{ ref: '1227', role: 'heading' }] },
+    ])).toBe('1226');
     const { container } = render(Plate, { props: { ...props, lastLine: lastPrintedRef(agTail) } });
     const cite = Array.from(container.querySelectorAll('.plate-margin p'))
       .find((p) => p.querySelector('b')!.textContent === 'Cite as')!;

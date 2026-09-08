@@ -843,6 +843,55 @@ describe('Reader.svelte play-line turn pairing edges (P4 Lane E, finding 4)', ()
     };
   }
 
+  it('never hands a positional turn an event another turn already claimed', async () => {
+    // P4CE finding 4. Four printed lines, four events; the first two English
+    // turns name their speakers and claim events 2 and 3, so when the third
+    // (a mismatch, which may not pair by name) reaches for its positional
+    // slot k=2 that event is already spoken. It must stack in the last mapped
+    // row, not walk back up to Dionysus' line and sit under his own speech.
+    const { container } = render(Reader, {
+      props: {
+        work: 'PLAYLINE', bookNum: 1,
+        bookData: {
+          book: 1,
+          speakerRoster: ['Watchman', 'Dionysus', 'Aeacus'],
+          segments: [{
+            id: '1:1054',
+            column: '1054',
+            greek: [1054, 1055, 1056, 1057].map((n) => ({
+              n, text: `στίχος ${n}`, tokens: [], ref: String(n),
+            })),
+            speakers: [
+              { line: 1054, offset: 0, label: 'Φυ.', display: 'Watchman' },
+              { line: 1055, offset: 0, label: 'Φυ.', display: 'Watchman' },
+              { line: 1056, offset: 0, label: 'ΔΙ.', display: 'Dionysus' },
+              { line: 1057, offset: 0, label: 'ΑΙ.', display: 'Aeacus' },
+            ],
+            english: {
+              text: 'First. Second. Third.',
+              notes: [], markers: [],
+              turns: [
+                { offset: 0, speaker: 'Dionysus', display: 'DIONYSUS' },
+                { offset: 7, speaker: 'Aeacus', display: 'AEACUS' },
+                {
+                  offset: 15, speaker: 'Dionysus', display: 'DIONYSUS',
+                  speakerMismatch: { english: 'Dionysus', greek: 'Watchman' },
+                },
+              ],
+            },
+          }],
+        },
+      },
+    });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows).toHaveLength(4);
+    expect(rows[2].querySelector('.english-col')?.textContent).toContain('First.');
+    expect(rows[2].querySelector('.english-col')?.textContent).not.toContain('Third.');
+    expect(rows[3].querySelector('.english-col')?.textContent).toContain('Second.');
+    expect(rows[3].querySelector('.english-col')?.textContent).toContain('Third.');
+  });
+
   it('gives two events that share one display a turn each, in printed order', async () => {
     const { container } = render(Reader, {
       props: {
@@ -938,6 +987,27 @@ describe('Reader.svelte play-line ode by the printed siglum (P4 Lane E, finding 
     expect(container.querySelector('.segment.play-ode')).toBeTruthy();
   });
 
+  it('takes the frogs for a chorus, siglum and all (P4CE finding 2)', async () => {
+    // Coulon prints ΒΑΤΡΑΧΟΙ, then ΒΑ.; the translators call them "Frogs".
+    for (const label of ['ΒΑΤΡΑΧΟΙ', 'ΒΑ.']) {
+      const { container } = render(Reader, {
+        props: { work: 'PLAYLINE', bookNum: 1, bookData: odeBook(label, 'Frogs') },
+      });
+      await flush();
+      expect(container.querySelector('.segment.play-ode')).toBeTruthy();
+    }
+  });
+
+  it('keeps the OTHER Βα. — Atossa, Pelasgus — at the dialogue measure', async () => {
+    // Persians and Suppliants abbreviate ΒΑΣΙΛΕΙΑ/ΒΑΣΙΛΕΥΣ the same way; their
+    // long rheseis are speeches, so the siglum alone cannot decide.
+    const { container } = render(Reader, {
+      props: { work: 'PLAYLINE', bookNum: 1, bookData: odeBook('Βα.', 'Atossa') },
+    });
+    await flush();
+    expect(container.querySelector('.segment.play-ode')).toBeNull();
+  });
+
   it('leaves a speaking character at the dialogue measure', async () => {
     const { container } = render(Reader, {
       props: { work: 'PLAYLINE', bookNum: 1, bookData: odeBook('Φυ.', 'Watchman') },
@@ -974,6 +1044,19 @@ describe('Reader.svelte deep-link settle (P4 Lane E, build/p4/lane-d-brief.md)',
     // Once, then stop — the later check never fires a second correction.
     await wait(1600);
     expect(behaviours(target)).toEqual(['smooth', 'auto']);
+  });
+
+  it('abandons the settle as soon as the reader scrolls for themselves', async () => {
+    // P4CE finding 1: the 2500ms check fires only when the target is OFF
+    // screen — which is exactly where a reader who scrolled away has put it.
+    // Their wheel wins: no snap back, ever.
+    render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
+    await flush();
+    const target = document.getElementById('L6-4')!;
+    expect(behaviours(target)).toEqual(['smooth']);
+    window.dispatchEvent(new Event('wheel'));
+    await wait(2800);
+    expect(behaviours(target)).toEqual(['smooth']);
   });
 
   it('leaves a deep link that landed alone', async () => {
