@@ -1,5 +1,5 @@
-import { render } from '@testing-library/svelte';
-import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
 import type { BookData, EnglishTurn } from '../lib/data';
 import type { Work } from '../lib/works';
@@ -18,7 +18,10 @@ vi.mock('../lib/works', async (importOriginal) => {
       id: 'PLAYLINE', title: 'Fixture Play', abbr: 'Fix.', author: 'Test',
       language: 'grc', workType: 'verse', books: 1, bookLabels: ['1'],
       greekEdition: 'Test edition', greekSource: { short: 'Test', full: 'Test edition, full.' },
-      translations: [{ id: 'smyth', name: 'Test Translator (Test, 1926)', short: 'Smyth', slot: 'english', footnotes: true }],
+      translations: [
+        { id: 'smyth', name: 'Test Translator (Test, 1926)', short: 'Smyth', slot: 'english', footnotes: true },
+        { id: 'storr', name: 'Second Translator (Test, 1912)', short: 'Storr', slot: 'secondary', footnotes: true },
+      ],
       citation: { scheme: 'play-line', copyAbbr: 'Fix.' },
       blurb: 'Fixture for play-line Reader tests.',
     },
@@ -73,6 +76,8 @@ function book(): BookData {
 }
 
 describe('Reader.svelte play-line rendering (P1)', () => {
+  beforeEach(() => localStorage.clear());
+
   it('renders a strophe marker as its own element, separate from the line text', async () => {
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
     await flush();
@@ -218,5 +223,76 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     expect(marker).toBeTruthy();
     expect(marker!.tagName).toBe('BUTTON');
     expect(marker!.getAttribute('data-fn')).toBe('3.69_71');
+  });
+
+  function comparisonBook(withSecondary = true): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [{
+        id: '1:1',
+        column: '1',
+        greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+        speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+        english: {
+          text: 'Primary words.', notes: [], markers: [],
+          turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+        },
+        ...(withSecondary ? {
+          secondary: [{
+            chapter: '1', text: 'WATCHMAN. Secondary words.', cont: false,
+          }],
+        } : {}),
+      }],
+    };
+  }
+
+  async function pickSecondary(container: HTMLElement) {
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+  }
+
+  it('renders the secondary turn stack when the secondary translation is selected', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: comparisonBook() } });
+    await flush();
+    await pickSecondary(container);
+
+    const english = container.querySelector('.english-col');
+    expect(english?.textContent).toContain('Secondary words.');
+    expect(english?.textContent).not.toContain('Primary words.');
+  });
+
+  it('renders distinct primary-left and secondary-right texts in compare mode', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: comparisonBook() } });
+    await flush();
+    const compare = container.querySelectorAll('input[name="trans-mode"]')[1] as HTMLInputElement;
+    await fireEvent.change(compare);
+    await flush();
+
+    expect(container.querySelector('.english-col')?.textContent).toContain('Primary words.');
+    expect(container.querySelector('.english-col')?.textContent).not.toContain('Secondary words.');
+    expect(container.querySelector('.overlay-col')?.textContent).toContain('Secondary words.');
+    expect(container.querySelector('.overlay-col')?.textContent).not.toContain('Primary words.');
+  });
+
+  it('keys a secondary lead-in to the same speaker colour as the Greek lead-in', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: comparisonBook() } });
+    await flush();
+    await pickSecondary(container);
+
+    const greek = container.querySelector('.greek-line .speaker');
+    const english = container.querySelector('.english-col .speaker');
+    expect(english?.textContent).toBe('WATCHMAN');
+    expect(english?.getAttribute('data-spk')).toBe(greek?.getAttribute('data-spk'));
+  });
+
+  it('shows the missing-passage affordance when the selected secondary is absent', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: comparisonBook(false) } });
+    await flush();
+    await pickSecondary(container);
+
+    expect(container.querySelector('.english-col .eng-missing')?.getAttribute('title'))
+      .toBe('No aligned passage in this translation');
   });
 });

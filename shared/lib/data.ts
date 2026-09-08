@@ -342,6 +342,10 @@ export interface OverlayPiece {
   chapter: string;
   text: string;
   cont: boolean;
+  // Play-line turn-text overlays may keep the same standoff speaker data as
+  // the primary English chunk. Older overlays instead prefix the printed
+  // lead-ins into `text`; Reader.svelte supports both shapes.
+  turns?: EnglishTurn[];
   // Interpolated Bekker-line ticks down this slice (all estimates — an overlay
   // has no milestones of its own). Same shape as EnglishChunk.bekker.
   bekker?: { n: number; offset: number; real: boolean }[];

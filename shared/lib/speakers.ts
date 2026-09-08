@@ -530,6 +530,59 @@ export function buildEnglishTurnBlocks(
   return blocks;
 }
 
+export interface EnglishTurnSource {
+  text: string;
+  turns: EnglishTurn[];
+}
+
+// The first play-line comparison data stored speaker lead-ins in overlay text
+// (`CHORUS. ...`) rather than in `turns`. Recover that standoff shape so old
+// data uses the same turn-stack and colour path as newer structured overlays.
+export function extractPrefixedEnglishTurns(
+  text: string,
+  roster: readonly string[],
+  fallbackTurns: readonly EnglishTurn[] = [],
+): EnglishTurnSource {
+  const known = [...roster];
+  for (const turn of fallbackTurns) {
+    if (turn.speaker) known.push(turn.speaker);
+    if (turn.display) known.push(turn.display);
+  }
+  const norm = (value: string): string => value
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+  const knownByNorm = new Map<string, string>();
+  for (const name of known) {
+    const key = norm(name);
+    if (!knownByNorm.has(key)) knownByNorm.set(key, name);
+  }
+  const candidates = [...text.matchAll(/(^|\n{2,})([^.\n]{1,80})\.\s+/g)].filter((match) => {
+    const label = match[2].trim();
+    return knownByNorm.has(norm(label))
+      || (/\p{L}/u.test(label) && label === label.toLocaleUpperCase());
+  });
+  if (!candidates.length) return { text, turns: [] };
+
+  let clean = '';
+  let cursor = 0;
+  const turns: EnglishTurn[] = [];
+  candidates.forEach((match, index) => {
+    const start = match.index ?? 0;
+    clean += text.slice(cursor, start) + match[1];
+    const label = match[2].trim();
+    const fallback = fallbackTurns[index];
+    turns.push({
+      offset: clean.length,
+      speaker: knownByNorm.get(norm(label)) ?? fallback?.speaker ?? fallback?.display ?? label,
+      display: label,
+    });
+    cursor = start + match[0].length;
+  });
+  clean += text.slice(cursor);
+  return { text: clean, turns };
+}
+
 // ── Section-paragraph split (Discourses' `sections` channel) ────────────────
 // Splits a Greek line carrying a `sections` standoff channel (Discourses/
 // Enchiridion only — see GreekLine.sections and stage1_greek._chapter_sections)

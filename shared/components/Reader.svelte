@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
+  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -1459,12 +1459,31 @@
   // Dialogue flows only — narrated `et` blocks carry no canonical speaker.
   $: rowMeta = paraFlow || !flowRows ? [] : labelSuppression(flowRows);
 
-  // English turn blocks for a narrated work's said-bearing chunk (no turnFlow):
-  // each turn is its own paragraph block with its lead-in — how print editions
-  // set unaligned speeches — never an inline splice, so a label can't glue to
-  // the previous sentence (speakers.ts buildEnglishTurnBlocks, pure + tested).
-  function englishTurnBlocks(seg: Segment): EnglishTurnBlock[] {
-    return buildEnglishTurnBlocks(seg.english?.text ?? '', seg.english?.turns ?? []);
+  // Pick the play-line translation named by the registry id. The primary uses
+  // seg.english; all other ids use the same slot lookup as prose comparison.
+  // Legacy play overlays carry their speaker labels in the text, so recover
+  // standoff turns before sending every slot through buildEnglishTurnBlocks.
+  function playEnglishSource(seg: Segment, transId: string): EnglishTurnSource | null {
+    const t = transById(transId);
+    if (!t) return null;
+    if (t.slot === 'english') {
+      return seg.english?.text?.trim()
+        ? { text: seg.english.text, turns: seg.english.turns ?? [] }
+        : null;
+    }
+    const pieces = piecesFor(seg, t);
+    const piece = pieces.find((p) => p.cont) ?? pieces[0];
+    if (!piece?.text?.trim()) return null;
+    if (piece.turns?.length) return { text: piece.text, turns: piece.turns };
+    const fallbackTurns = seg.english?.turns?.length
+      ? seg.english.turns
+      : (seg.speakers ?? []).map((event) => ({
+          offset: 0,
+          speaker: event.display ?? null,
+          display: event.display ?? null,
+        }));
+    const roster = bookSpeakerRoster.length ? bookSpeakerRoster : (speakerRoster ?? []);
+    return extractPrefixedEnglishTurns(piece.text, roster, fallbackTurns);
   }
   // Embedded-dialogue blocks for a paragraph-flow row carrying `et` (english.turns
   // nested inside a narrated paragraph). buildEnglishTurnBlocks gives the speaker
@@ -3201,6 +3220,8 @@
   <!-- Play-line unpaired-dialogue English: printed lead-in, colour keyed
        on canonical `speaker` (fallback: `display`); footnotes via renderThird. -->
   {#snippet playEngTurns(seg: Segment, transId: string)}
+    {@const source = playEnglishSource(seg, transId)}
+    {#if source}
     <div
       class="overlay-prose turn-eng turn-stack"
       on:mouseover={onFootnoteOver}
@@ -3213,10 +3234,13 @@
       on:keydown={onFootnoteClick}
       role="presentation"
     >
-      {#each englishTurnBlocks(seg) as b}
+      {#each buildEnglishTurnBlocks(source.text, source.turns) as b}
         <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)}>{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>
+    {:else}
+      <div class="overlay-prose turn-eng"><span class="eng-missing" title="No aligned passage in this translation"><span class="sr-only">No aligned passage in this translation.</span><span aria-hidden="true">—</span></span></div>
+    {/if}
   {/snippet}
 
   <!-- The turn flow of a dialogue book: one row per speaker turn, the whole
@@ -4115,7 +4139,7 @@
               {#if seg.english?.title && (trans === 'compare' ? compareLeft : segTransId) === engSlot?.id && (busse || verseLine)}
                 <div class="overlay-chapter-title eng-chapter-title">{seg.english.title}</div>
               {/if}
-              {#if isUnpairedDialogue(seg)}
+              {#if playLine || isUnpairedDialogue(seg)}
                 <!-- A dialogue segment whose turns did not reconcile (and a
                      narrated work's said-bearing chunk): the English renders as
                      a STACK of turn paragraphs — each speech its own block with
@@ -4338,7 +4362,7 @@
                 {#if seg.english?.title && compareRight === engSlot?.id && (busse || verseLine)}
                   <div class="overlay-chapter-title eng-chapter-title">{seg.english.title}</div>
                 {/if}
-                {#if isUnpairedDialogue(seg)}
+                {#if playLine || isUnpairedDialogue(seg)}
                   {@render playEngTurns(seg, compareRight)}
                 {:else}
                 {@render transFlow(block, compareRight, seg.kind)}
