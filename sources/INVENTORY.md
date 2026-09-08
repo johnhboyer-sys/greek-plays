@@ -129,3 +129,12 @@ SHA-256 in `sources/gutenberg/SHA256SUMS`. No Greek line numbers in any of these
 
 SHA-256 in `sources/archive-org/SHA256SUMS`. Loeb scans interleave the Greek
 facing pages with the English; the P3 builder keeps only the English pages.
+
+## archive-org/ additions (vendored 2026-09-08; OCR `_djvu.txt`; PD-US)
+
+| file | contents | translator / edition |
+|---|---|---|
+| in.ernet.dli.2015.515629.txt | The Comedies of Aristophanes vol. 1 (Bohn) | W. J. Hickie, 1853 — prose, bowdlerized (comparison only) |
+| in.ernet.dli.2015.515630.txt | The Comedies of Aristophanes vol. 2 (Bohn) | W. J. Hickie, 1853 |
+| aristophanes0003benj_r6k0.txt | Aristophanes, Loeb vol. 3 (Lysistrata, Thesmophoriazusae, Ecclesiazusae, Plutus) | B. B. Rogers, 1924 — verse, bowdlerized (comparison only) |
+| aristophaniscomo04aris.txt | The Comedies of Aristophanes (1910 collected volume incl. Lysistrata) | B. B. Rogers |
