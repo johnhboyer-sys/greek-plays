@@ -567,3 +567,14 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `pipeline/tests/test_bench_clean_verse.py` (new), `test_stage1_turn_english.py`
   — verse-own-line parse, Io/Aegisthus OCR, wrapped stage dirs, page-number crumbs.
 - `docs/bench.md` — Aeschylus/Morshead table (heading, lines kept, pairing, coverage, residual OCR).
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — P2i: repair distance
+  on the speaker's own printed lines (a one-liner beats a packed span; a speech
+  the speaker owns less than half of is no target), every on-spine anchor
+  attaches with a per-turn `speakerMismatch` instead of an `attribution_hole`,
+  lettered anchors match the share of an antilabe line, continuation coverage
+  per printed line, nless snaps name the tick line's speaker.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — P2i: `speaker_at` prefers the
+  LAST same-name share of a line; `_assign_speeches` refuses to park a residual on
+  a segment whose speaker it is not (`residual_unassigned`).
+- `pipeline/drama_pipeline/stage2_validate.py` — P2i: `attribution_hole` kept in
+  `_ATTACHMENT_LOSS_KINDS` as a guard; the builder emits no holes.

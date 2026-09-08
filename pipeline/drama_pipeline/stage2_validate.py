@@ -333,8 +333,11 @@ def _attachment_loss_check(manifest: Manifest) -> dict:
     on-spine attaches), and the dropped text moved into ``anomalies``. The
     gate counts those kinds too — ``unmatched_anchor`` (an anchor on no
     Greek speech), ``nless_slice_unattached`` (a para slice with nowhere to
-    go) and ``attribution_hole`` (the line owner is another character's
-    packed span) are each one English piece the reader never sees.
+    go) and ``attribution_hole`` are each one English piece the reader never
+    sees.  P2i retired the builder's only hole (an attribution difference is
+    now an attached, flagged turn) and with it the dead
+    ``speech_mismatch_unattached`` anomaly; ``attribution_hole`` stays in the
+    tuple so a future hole is gated the moment it appears.
     """
     english_cfg = manifest.data.get("english") or {}
     max_unresolved = int(english_cfg.get("max_unresolved_mismatches", 0))

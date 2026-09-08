@@ -39,10 +39,19 @@ packs two or more speakers into one segment; every speaker decision is
 therefore made per printed line (``_SpeechIndex.speaker_at``), never per
 segment set.  The owner check, the repair search (which may target only a
 line the speaker actually speaks), the tick and continuation coverage all
-use it; claims are ``(segment, speaker)`` pairs.  When the line owner's
-speech is packed with other characters and the English speaker owns no
-line in it, the piece is left as an ``attribution_hole`` rather than filed
-in another character's column.
+use it; claims are ``(segment, speaker)`` pairs.
+
+P2i: the drift repair measures its distance against the speaker's OWN
+printed lines and will not move a piece into a speech the speaker owns
+less than half of, so a packed span no longer swallows a neighbour's
+one-liner.  Every anchor whose printed line is on the spine attaches: when
+the printed line's speaker differs from the English speaker and the repair
+finds nothing, the piece stays on the speech that prints it and the TURN
+carries ``speakerMismatch {english, greek}`` — showing the translation
+beside the Greek it translates, marked as disputed, beats withholding it
+(orchestrator ruling, 2026-09-08).  A lettered anchor (``1630b``) names its
+share of an antilabe line, so Coleridge's Helen 1630–1640 reads against
+Diggle's ``Θε.β`` instead of the line-start king.
 """
 
 from __future__ import annotations
@@ -60,6 +69,7 @@ from .stage1_english import build_alignment
 from .stage1_turn_english import (
     _SiglaResolver,
     _event_ref,
+    _segment_speaker_events,
     _speaker_report,
     speaker_at as _line_speaker,
 )
@@ -185,7 +195,6 @@ class _SpeechIndex:
         self.covering: dict[int, list[tuple[dict, str, int]]] = {}
         self.by_ref: dict[str, list[tuple[dict, int]]] = {}
         self.speakers_of: dict[str, set[str]] = {}
-        self.speaker_names: dict[str, list[str]] = {}
         self.valid_numbers: set[int] = set()
 
         for order, segment in enumerate(self.segments):
@@ -197,7 +206,6 @@ class _SpeechIndex:
                 )
                 if mapped and name is not None and name not in names:
                     names.append(name)
-            self.speaker_names[segment["id"]] = names
             self.speakers_of[segment["id"]] = set(names)
             line_n: dict[int, int] = {}
             for line in segment.get("lines") or []:
@@ -251,17 +259,58 @@ class _SpeechIndex:
             if self.speaker_at(segment, n, prefer=speaker) == speaker
         ]
 
-    def packs_other_speaker(self, segment: dict, speaker: str | None) -> bool:
-        """True when the segment packs speakers and ``speaker`` is not one of
-        them — attaching there would file the English inside another
-        character's span (P2h finding 4)."""
-        names = self.speakers_of.get(segment["id"]) or set()
-        return len(names) > 1 and speaker not in names
+    def line_shares(self, segment: dict, n: int) -> list[str | None]:
+        """The shares of PRINTED line ``n``, in offset order.
 
-    def speaker_label(self, seg_id: str) -> str | None:
-        """The segment's mapped speakers as one printable string (report only)."""
-        names = self.speaker_names.get(seg_id) or []
-        return " / ".join(names) if names else None
+        The first entry is the line's start speaker (the last event at or
+        before offset 0, inherited from an earlier line when the line opens
+        no speech); each further entry is one mid-line event.  A lettered
+        English anchor names a share by position — Coleridge's Helen
+        ``1630b`` is the second share of 1630, Diggle's ``Θε.β`` (P2i
+        finding 3).  ``n`` the segment does not print has no shares.
+        """
+        mapping = self.line_n.get(segment["id"]) or {}
+        line = mapping.get(n)
+        if line is None:
+            return []
+        start: str | None = None
+        mid: list[str | None] = []
+        for ln, offset, name, mapped in _segment_speaker_events(segment, self.sigla):
+            if ln > line:
+                break
+            resolved = name if mapped else None
+            if ln < line or offset == 0:
+                start = resolved
+            else:
+                mid.append(resolved)
+        return [start] + mid
+
+    def share_speaker(
+        self, segment: dict, n: int, anchor: str, prefer: str | None = None
+    ) -> str | None:
+        """The Greek speaker a piece anchored at ``anchor`` belongs to.
+
+        A share the English speaker actually speaks always wins: the Greek
+        line may open with the tail of the previous speech (Alcestis 1119
+        starts in Admetus's hands), so the letters need not line up with the
+        shares one for one.  Only when the English speaker owns no share of
+        the line does the letter decide which share the piece disagrees
+        with — Coleridge's Helen ``1630b`` is the second share, Diggle's
+        ``Θε.β`` (Second Servant), not the line-start king.  Only a letter
+        past ``a`` names a share: a plain ``1270a`` is the spine's own
+        printed ref, not a second half.
+        """
+        resolved = self.speaker_at(segment, n, prefer=prefer)
+        if prefer is not None and resolved == prefer:
+            return resolved
+        lettered = _LETTERED_ANCHOR.fullmatch(anchor or "")
+        if lettered is not None:
+            suffix = (anchor or "")[len(lettered.group(1)) :]
+            index = ord(suffix[0]) - ord("a")
+            shares = self.line_shares(segment, n) if index > 0 else []
+            if 0 <= index < len(shares) and shares[index] is not None:
+                return shares[index]
+        return resolved
 
     def segment_for_line(self, n: int) -> tuple[dict, str] | None:
         hits = self.covering.get(n)
@@ -317,36 +366,47 @@ class _SpeechIndex:
         Herald's 22-line block).  The tick is the nearest such line, EARLIER
         on a tie, matching the earlier-speech preference (finding 8).
 
+        P2i finding 1: the distance is measured against the speaker's OWN
+        printed lines, not the candidate's whole span — a 22-line block whose
+        rim the speaker happens to speak is no nearer than it really is — and
+        candidates are ranked ``(distance, foreign lines, document order)``,
+        so a same-speaker one-liner beats a packed span at equal distance.  A
+        candidate the speaker owns less than half of is not a repair target at
+        all: drift repair moves a piece to another speech of that character's,
+        never into the middle of somebody else's (Seven ``1:1004``, where
+        Ismene owns 1004 and the Herald 1005–1025).  That piece stays on the
+        speech that prints its line, flagged (finding 2).
+
         ``claimed`` holds ``(segment id, speaker)`` pairs, so one speaker's
         drift repair no longer locks a whole segment against another's
-        (finding 4).  It blocks only a repair that MOVES the piece: a segment
-        that itself prints line ``n`` is never claimed away from it.
+        (P2h finding 4).  It blocks only a repair that MOVES the piece: a
+        segment that itself prints line ``n`` is never claimed away from it.
         """
         claimed = claimed or set()
-        best: tuple[int, int, dict, int] | None = None
+        best: tuple[int, int, int, dict, int] | None = None
         for segment in self.segments:
             sid = segment["id"]
             if speaker not in (self.speakers_of.get(sid) or set()):
                 continue
-            numbers = self.span.get(sid) or set()
-            if not numbers:
+            own = self.speaker_lines(segment, speaker)
+            if not own:
                 continue
-            distance = min(abs(n - line) for line in numbers)
+            foreign = len(self.printed.get(sid) or []) - len(own)
+            if foreign > len(own):
+                continue
+            distance = min(abs(n - line) for line in own)
             if distance > window:
                 continue
             if distance and (sid, speaker) in claimed:
                 continue
-            own = self.speaker_lines(segment, speaker)
-            if not own:
-                continue
             tick = min(own, key=lambda line: (abs(n - line), line))
             # Equal distance: the earlier speech (Ag. 1204 Chorus → 1203, not 1205).
-            candidate = (distance, self.order[sid], segment, tick)
+            candidate = (distance, foreign, self.order[sid], segment, tick)
             if best is None or candidate < best:
                 best = candidate
         if best is None:
             return None
-        return best[2], best[3]
+        return best[3], best[4]
 
 
 def _is_lacuna_segment(segment: dict) -> bool:
@@ -384,7 +444,8 @@ def _continuation_covered_by(
     P2h finding 7: the test is the ENGLISH speech's canonical speaker, not the
     covering segment's whole speaker set — a packed covering segment would
     otherwise lend its second speaker's name to segments the translator's
-    block never covers.
+    block never covers.  P2i finding 4: on the covered side the test is every
+    printed LINE of the candidate, not its speaker set.
     """
     skip_ids = skip_ids or set()
     chunked = set(chunks_by_id)
@@ -422,7 +483,17 @@ def _continuation_covered_by(
                 or sid in covered
             ):
                 continue
-            if cover_speaker not in (index.speakers_of.get(sid) or set()):
+            # P2i finding 4: the COVERED side is per line too.  Every printed
+            # line of the candidate must be the covering English speaker's;
+            # a segment that hands a line to somebody else part-way through
+            # is a real hole, not a continuation of this block.
+            printed = index.printed.get(sid) or []
+            if not printed:
+                continue
+            if any(
+                index.speaker_at(segment, line, prefer=cover_speaker) != cover_speaker
+                for line in printed
+            ):
                 continue
             numbers = index.span.get(sid) or set()
             if not numbers:
@@ -641,7 +712,8 @@ def _resolve_slice_anchor(
         # P2h finding 2: the owner is the speaker of the PRINTED LINE, not the
         # segment's speaker set — a packed antilabe segment would otherwise
         # accept any of its speakers' English anywhere in the span.
-        greek_speaker = index.speaker_at(segment, n, prefer=speaker)
+        # P2i finding 3: a lettered anchor names its SHARE of that line.
+        greek_speaker = index.share_speaker(segment, n, anchor, prefer=speaker)
         if speaker and greek_speaker is not None and speaker != greek_speaker:
             mismatch = _speakers_row(work_id, n, ref, printed, speaker, greek_speaker)
             if not multi_span:
@@ -666,28 +738,14 @@ def _resolve_slice_anchor(
                         "snap": None,
                         "mismatch": mismatch,
                     }
-                # P2h finding 4: the line owner may be a packed span that
-                # belongs to other characters (Seven 1:1004 = Ismene 1004 +
-                # the Herald 1005–1025).  Landing Antigone's stichomythia
-                # there would put her words in their column under a mismatch
-                # naming two Greek speakers.  Leave the hole instead: it is
-                # reported as `attribution_hole` and gated by
-                # `english.max_unresolved_mismatches`.
-                if index.packs_other_speaker(segment, speaker):
-                    mismatch["kind"] = "attribution_hole"
-                    return {
-                        "attached": False,
-                        "hole": {
-                            "greek_id": segment["id"],
-                            "line": n,
-                            "english_speaker": speaker,
-                            "greek_speaker": greek_speaker,
-                        },
-                        "mismatch": mismatch,
-                    }
-                # P2f: no same-speaker Greek speech within ±3 — this is an
-                # attribution difference (the two editions give the line to
-                # different characters). Attach to the line owner and flag it.
+                # P2f/P2i finding 2: no same-speaker Greek speech within ±3 —
+                # this is an attribution difference (the two editions give the
+                # line to different characters).  Attach to the speech that
+                # PRINTS the line and flag the turn with the speaker of that
+                # printed line, whether or not the English speaker appears
+                # elsewhere in the segment: showing the translation beside the
+                # Greek it translates, marked as disputed, beats withholding
+                # it (orchestrator ruling, 2026-09-08).
                 mismatch["attached_to"] = segment["id"]
                 mismatch["attached_ref"] = ref
                 mismatch["attached_speaker"] = greek_speaker
@@ -841,7 +899,6 @@ def parse_translation(
     claimed: set[tuple[str, str]] = set()
     turns_emitted: dict[tuple[int, str, str], dict | None] = {}
     attribution_differences: list[dict] = []
-    attribution_holes: list[dict] = []
 
     def commit_job(
         job,
@@ -996,7 +1053,9 @@ def parse_translation(
                     ref,
                     job["printed"],
                     job["canonical"],
-                    index.speaker_label(segment["id"]),
+                    # P2i finding 6: the speaker of the TICK LINE, never the
+                    # segment's joined speaker set ("Ismene / Herald").
+                    index.speaker_at(segment, tick_n, prefer=job["canonical"]),
                 ),
                 "snapped_to": ref,
                 "segment": segment["id"],
@@ -1025,35 +1084,9 @@ def parse_translation(
                 }
             )
             continue
-        if not result.get("attached"):
-            hole = result.get("hole")
-            if hole is not None:
-                # P2h finding 4: the English speaker owns no line in the Greek
-                # speech that prints this number, and the speech is packed
-                # with other characters — attaching would file her words in
-                # theirs.  The text is a declared, counted hole, not a silent
-                # drop and not a wrong attribution.
-                attribution_holes.append(hole)
-                anomalies.append(
-                    {
-                        "kind": "attribution_hole",
-                        "sp": job["sp_index"],
-                        "greek_id": hole["greek_id"],
-                        "line": hole["line"],
-                        "english_speaker": hole["english_speaker"],
-                    }
-                )
-                continue
-            mismatch = result.get("mismatch") or {}
-            mismatches.append(mismatch)
-            anomalies.append(
-                {
-                    "kind": "speech_mismatch_unattached",
-                    "sp": job["sp_index"],
-                    "n_raw": job["anchor"],
-                }
-            )
-            continue
+        # P2i finding 2/8: every anchor whose printed line is on the spine
+        # now attaches (flagged when the editions disagree), so a resolved
+        # anchor is never handed back unattached.
         commit_job(
             job,
             result["segment"],
@@ -1098,8 +1131,6 @@ def parse_translation(
         ),
         "attribution_differences": attribution_differences,
         "attribution_difference_count": len(attribution_differences),
-        "attribution_holes": attribution_holes,
-        "attribution_hole_count": len(attribution_holes),
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,

@@ -1461,6 +1461,16 @@ def _seven_spine() -> dict:
     return {
         "work": "test-play",
         "segments": [
+            {
+                "id": "1:998",
+                "book": 1,
+                "column": "998",
+                "lines": [
+                    {"n": 998, "ref": "998", "text": "g"},
+                    {"n": 999, "ref": "999", "text": "g"},
+                ],
+                "speakers": [{"line": 998, "offset": 0, "label": "Αν."}],
+            },
             stich(1000, "Ισ."),
             stich(1001, "Αν."),
             stich(1002, "Ισ."),
@@ -1480,6 +1490,8 @@ SEVEN_ALIASES = {
 SEVEN_TEI = """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
   <div type="translation">
+    <sp><speaker>Antigone</speaker><l n="998">A tale of destruction!</l></sp>
+    <sp><speaker>Ismene</speaker><l n="999">Destruction to look upon!</l></sp>
     <sp><speaker>Antigone</speaker><l n="1000">Oh, the grief—</l></sp>
     <sp><speaker>Ismene</speaker><l n="1001">Oh, the evils—</l></sp>
     <sp><speaker>Antigone</speaker><l n="1002">For home and land.</l></sp>
@@ -1503,9 +1515,15 @@ SEVEN_TEI = """\
 
 
 def test_packed_antilabe_span_attaches_by_line_speaker(tmp_path: Path):
-    """Seven 1004–1025: the Herald's English attaches once, Ismene's shares of
-    the packed span attach to it, and Antigone — who speaks no line of it —
-    never lands there (P2h findings 2, 4, 6, 8)."""
+    """Seven 998–1026 (P2h findings 2, 6, 8 + the P2i ruling).
+
+    Smyth's speakers run one line ahead of the TLG's, so every piece of this
+    stichomythia is a drift repair until the claims run out.  The packed
+    ``1:1004`` (Ismene 1004, the Herald 1005–1025) is never a repair TARGET:
+    Ismene 1003 stays on the speech that prints 1003, flagged.  What the Greek
+    prints on the Herald's lines attaches there, each turn flagged with the
+    speaker of ITS printed line — attached and marked, never withheld.
+    """
     english, _footnotes, report = _parse(
         tmp_path,
         SEVEN_TEI,
@@ -1516,41 +1534,63 @@ def test_packed_antilabe_span_attaches_by_line_speaker(tmp_path: Path):
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
     packed = by_id["1:1004"]
 
-    # The Herald's 15 lines are one turn, attached once.
+    # Everything Smyth numbers 1004–1025 is in the packed chunk, once.
     assert [turn["speaker"] for turn in packed["turns"]] == [
+        "Antigone",
         "Ismene",
+        "Antigone",
         "Ismene",
+        "Antigone",
         "Ismene",
+        "Antigone",
         "Herald",
     ]
     assert packed["text"].count("It is my duty") == 1
     assert "So the council of the Cadmeans decreed." in packed["text"]
-    # Ismene 1005/1007/1009 belong there; Antigone's stichomythia does not.
-    for words in ("Ah I pity", "You were possessed", "Where their honor"):
+    for words in ("And more also", "Ah I pity", "Pity for you both", "To lie beside"):
         assert words in packed["text"]
-    for words in ("And more also", "Pity for you both", "Where shall we lay", "To lie beside"):
-        assert words not in packed["text"]
+    # No English piece is attached twice.
+    for words in ("Above all for me", "And more also", "You were possessed"):
+        assert sum(chunk["text"].count(words) for chunk in english["chunks"]) == 1
 
-    # Antigone's unrepairable lines are declared holes, not wrong attributions.
-    holes = {(h["greek_id"], h["line"], h["english_speaker"]) for h in report["attribution_holes"]}
-    assert holes == {
-        ("1:1004", 1004, "Antigone"),
-        ("1:1004", 1006, "Antigone"),
-        ("1:1004", 1008, "Antigone"),
-        ("1:1004", 1010, "Antigone"),
+    # P2i finding 1: Ismene 1003 stays on 1:1003 — the speech that prints her
+    # line — instead of being dragged onto the Herald's 22-line block.
+    assert "Above all for me" in by_id["1:1003"]["text"]
+    assert "Above all for me" not in packed["text"]
+
+    # P2i finding 2: no holes.  Every disagreement is an attached, flagged turn
+    # naming the speaker of that printed line.
+    assert not any(a["kind"] == "attribution_hole" for a in report["anomalies"])
+    assert report["anomalies"] == []
+    flagged = {
+        (item["greek_id"], item["line"]): item["greek_speaker"]
+        for item in report["attribution_differences"]
     }
-    assert report["attribution_hole_count"] == 4
-    assert [a["kind"] for a in report["anomalies"]] == ["attribution_hole"] * 4
-    assert report["attribution_differences"] == []
-
-    # No chunk and no turn carries a speakerMismatch, and no mismatch row
-    # names two Greek speakers at once.
-    assert all("speakerMismatch" not in chunk for chunk in english["chunks"])
+    assert flagged == {
+        ("1:1003", 1003): "Antigone",
+        ("1:1004", 1004): "Ismene",
+        ("1:1004", 1006): "Herald",
+        ("1:1004", 1007): "Herald",
+        ("1:1004", 1008): "Herald",
+        ("1:1004", 1009): "Herald",
+        ("1:1004", 1010): "Herald",
+    }
+    assert report["attribution_difference_count"] == 7
     assert all(
-        "speakerMismatch" not in turn
+        item["english_speaker"] in {"Antigone", "Ismene"}
+        for item in report["attribution_differences"]
+    )
+
+    # The flag rides the TURN, and only the turns that disagree.
+    marked = {
+        turn["speaker"]: turn["speakerMismatch"]
         for chunk in english["chunks"]
         for turn in chunk["turns"]
-    )
+        if "speakerMismatch" in turn
+    }
+    assert marked["Antigone"] == {"english": "Antigone", "greek": "Herald"}
+    assert [turn.get("speakerMismatch") for turn in packed["turns"]][-1] is None
+    assert "speakerMismatch" not in packed  # not every turn of the chunk
     assert all(
         "/" not in (row.get("greek_speaker") or "")
         for row in report["speech_mismatches"]
@@ -1560,18 +1600,61 @@ def test_packed_antilabe_span_attaches_by_line_speaker(tmp_path: Path):
     # The Herald's own lines are a clean match: no mismatch row at all.
     assert not any(row["english_speaker"] == "Herald" for row in rows.values())
     assert 1005 not in rows  # Ismene still owns the start of the antilabe line
+    assert rows[1003]["kind"] == "attribution_difference"
+    assert rows[1003]["attached_to"] == "1:1003"
     for line in (1007, 1009):
-        assert rows[line]["kind"] == "speaker_repair"
+        assert rows[line]["kind"] == "attribution_difference"
         assert rows[line]["attached_to"] == "1:1004"
-        # Ticked on a line Ismene actually speaks, earlier on a tie.
-        assert rows[line]["attached_ref"] == "1005"
-        assert rows[line]["attached_speaker"] == "Ismene"
-    # Finding 6: Ismene 1003 repairs to her own 1002 speech, never onto the
-    # Herald's 22-line block.
-    assert rows[1003]["attached_to"] == "1:1002"
-    # Finding 4: a claim is per (segment, speaker), so Antigone 1002 may take
-    # 1:1003 even though 1:1003 already carries her neighbour's repair.
+        assert rows[line]["attached_speaker"] == "Herald"
+    # Drift repair still works where the speaker has a speech of her own:
+    # Ismene 999 moves to 1:1000, Antigone 1002 to 1:1003.
+    assert rows[999]["kind"] == "speaker_repair"
+    assert rows[999]["attached_to"] == "1:1000"
+    assert rows[1002]["kind"] == "speaker_repair"
     assert rows[1002]["attached_to"] == "1:1003"
+
+
+def test_repair_prefers_the_speakers_own_one_liner_over_a_packed_span(
+    tmp_path: Path,
+):
+    """P2i finding 1: distance is measured against the speaker's OWN printed
+    lines, and a one-liner beats a packed span at equal distance."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:10",
+                "book": 1,
+                "column": "10",
+                "lines": [{"n": 10, "ref": "10", "text": "g"}],
+                "speakers": [{"line": 10, "offset": 0, "label": "Αν."}],
+            },
+            {
+                "id": "1:11",
+                "book": 1,
+                "column": "11",
+                "lines": [{"n": 11, "ref": "11", "text": "g"}],
+                "speakers": [{"line": 11, "offset": 0, "label": "Ισ."}],
+            },
+            {
+                "id": "1:12",
+                "book": 1,
+                "column": "12",
+                "lines": [{"n": n, "ref": str(n), "text": "g"} for n in range(12, 20)],
+                "speakers": [
+                    {"line": 12, "offset": 0, "label": "Ισ."},
+                    {"line": 13, "offset": 1, "label": "ΚΗΡΥΞ"},
+                ],
+            },
+        ],
+    }
+    from drama_pipeline.stage1_perseus_play_english import _SpeechIndex
+
+    index = _SpeechIndex(spine, SEVEN_SIGLA)
+    # 1:11 and 1:12 are both one line from 10; the one-liner wins.
+    assert index.nearest_matching_speech(10, "Ismene") == (spine["segments"][1], 11)
+    # With the one-liner claimed, the packed span is still not a target.
+    assert index.nearest_matching_speech(10, "Ismene", claimed={("1:11", "Ismene")}) is None
 
 
 def test_attribution_hole_is_counted_as_attachment_loss(tmp_path: Path, monkeypatch):
@@ -1694,3 +1777,208 @@ def test_stage7_reads_spine_line_refs_for_speaker_overrides():
     ]
     assert displays == ["Theonoe", "Theoclymenus"]
     assert "Theoclymenus" in rosters[1]
+
+
+# ── P2i: shares of a line, continuation coverage, the nless-snap label ──────
+
+
+HELEN_SIGLA = {"Θε.": "Theoclymenus", "Θε.β": "Second Servant", "Χο.": "Chorus"}
+HELEN_ALIASES = {
+    "Theoklymenos": "Theoclymenus",
+    "Servant": "Second Servant",
+    "Chorus": "Chorus",
+}
+HELEN_TEI = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Theoklymenos</speaker>
+      <l n="1630" part="I">Will you rule over your master?</l></sp>
+    <sp><speaker>Servant</speaker>
+      <l n="1630b" part="F">Yes, for I am in my right mind.</l></sp>
+    <sp><speaker>Chorus</speaker>
+      <l n="1631b" part="F">A stranger's word.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+
+
+def _helen_antilabe_spine() -> dict:
+    """Two Helen antilabe lines: Theoclymenus at offset 0, the Second Servant
+    from mid-line (Diggle's ``Θε.β``)."""
+    def antilabe(n: int) -> dict:
+        return {
+            "id": f"1:{n}",
+            "book": 1,
+            "column": str(n),
+            "lines": [{"n": n, "ref": str(n), "text": "g"}],
+            "speakers": [
+                {"line": n, "offset": 0, "label": "Θε."},
+                {"line": n, "offset": 20, "label": "Θε.β"},
+            ],
+        }
+
+    return {"work": "test-play", "segments": [antilabe(1630), antilabe(1631)]}
+
+
+def test_lettered_anchor_matches_the_mid_line_share(tmp_path: Path):
+    """P2i finding 3: ``1630b`` is the SECOND share of 1630, so Coleridge's
+    servant reads against ``Θε.β`` and attaches clean; a lettered anchor whose
+    share belongs to somebody else attaches flagged with that share's name."""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        HELEN_TEI,
+        _helen_antilabe_spine(),
+        aliases=HELEN_ALIASES,
+        sigla=HELEN_SIGLA,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    # Both shares of 1630 land on 1:1630, neither flagged.
+    assert "Will you rule" in by_id["1:1630"]["text"]
+    assert "in my right mind" in by_id["1:1630"]["text"]
+    assert all(
+        "speakerMismatch" not in turn for turn in by_id["1:1630"]["turns"]
+    )
+    assert not any(row["english_line"] == 1630 for row in report["speech_mismatches"])
+    # The Chorus owns no share of 1631: attached to the printing speech and
+    # flagged with the speaker of the share the letter names.
+    assert "A stranger's word." in by_id["1:1631"]["text"]
+    assert report["attribution_differences"] == [
+        {
+            "greek_id": "1:1631",
+            "line": 1631,
+            "english_speaker": "Chorus",
+            "greek_speaker": "Second Servant",
+        }
+    ]
+    assert report["anomalies"] == []
+
+
+def test_line_shares_reads_an_a_b_a_line(tmp_path: Path):
+    """P2i finding 7: a three-event line has three shares, and a lettered
+    anchor names the LAST same-name share, not the first."""
+    from drama_pipeline.stage1_perseus_play_english import _SpeechIndex
+    from drama_pipeline.stage1_turn_english import speaker_at
+
+    segment = {
+        "id": "1:500",
+        "book": 1,
+        "column": "500",
+        "lines": [{"n": 500, "ref": "500", "text": "g"}],
+        "speakers": [
+            {"line": 500, "offset": 0, "label": "Αν."},
+            {"line": 500, "offset": 20, "label": "Ισ."},
+            {"line": 500, "offset": 40, "label": "Αν."},
+        ],
+    }
+    index = _SpeechIndex({"work": "t", "segments": [segment]}, SEVEN_SIGLA)
+    assert index.line_shares(segment, 500) == ["Antigone", "Ismene", "Antigone"]
+    # `500c` is the third share — Antigone again, after Ismene's interruption:
+    # a speaker who owns any share of the line reads clean either way.
+    assert index.share_speaker(segment, 500, "500c", prefer="Antigone") == "Antigone"
+    assert index.share_speaker(segment, 500, "500b", prefer="Antigone") == "Antigone"
+    # A speaker with no share of the line disagrees with the share the letter
+    # names, not with the line-start speaker.
+    assert index.share_speaker(segment, 500, "500b", prefer="Herald") == "Ismene"
+    assert index.share_speaker(segment, 500, "500c", prefer="Herald") == "Antigone"
+    assert index.share_speaker(segment, 500, "500", prefer="Herald") == "Antigone"
+    # The plain line rule still answers with the speaker's own share.
+    assert speaker_at(segment, 500, SEVEN_SIGLA, prefer="Antigone") == "Antigone"
+    assert speaker_at(segment, 500, SEVEN_SIGLA) == "Antigone"
+
+
+def test_continuation_coverage_needs_every_printed_line(tmp_path: Path):
+    """P2i finding 4: the covered side is per printed LINE.  A candidate whose
+    later lines belong to the character the antilabe handed over to is a real
+    hole, not a continuation of the English block."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:100",
+                "book": 1,
+                "column": "100",
+                "lines": [{"n": n, "ref": str(n), "text": "g"} for n in (100, 101)],
+                "speakers": [{"line": 100, "offset": 0, "label": "Αν."}],
+            },
+            {
+                "id": "1:102",
+                "book": 1,
+                "column": "102",
+                "lines": [
+                    {"n": n, "ref": str(n), "text": "g"} for n in (102, 103, 104)
+                ],
+                "speakers": [
+                    {"line": 102, "offset": 0, "label": "Αν."},
+                    {"line": 103, "offset": 4, "label": "ΚΗΡΥΞ"},
+                ],
+            },
+            {
+                "id": "1:105",
+                "book": 1,
+                "column": "105",
+                "lines": [{"n": 105, "ref": "105", "text": "g"}],
+                "speakers": [{"line": 105, "offset": 0, "label": "Αν."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Antigone</speaker>
+      <l n="100">A long block of Antigone.</l>
+      <l n="105">Still Antigone, five lines later.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path, tei, spine, aliases=SEVEN_ALIASES, sigla=SEVEN_SIGLA
+    )
+    assert english["english_covered_by"] == {}
+
+    # Without the handover the same shape is covered as before.
+    spine["segments"][1]["speakers"] = [{"line": 102, "offset": 0, "label": "Αν."}]
+    english, _footnotes, _report = _parse(
+        tmp_path, tei, spine, aliases=SEVEN_ALIASES, sigla=SEVEN_SIGLA
+    )
+    assert english["english_covered_by"] == {"1:102": "1:100"}
+
+
+def test_nless_snap_reports_the_speaker_of_the_tick_line(tmp_path: Path):
+    """P2i finding 6: the snap row names the speaker of the line it ticked,
+    never the segment's joined speaker set."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Αν."}],
+            },
+            {
+                "id": "1:2",
+                "book": 1,
+                "column": "2",
+                "lines": [{"n": n, "ref": str(n), "text": "g"} for n in (2, 3)],
+                "speakers": [
+                    {"line": 2, "offset": 0, "label": "Ισ."},
+                    {"line": 3, "offset": 3, "label": "ΚΗΡΥΞ"},
+                ],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><l n="1">The first line.<milestone unit="para"/>A second paragraph.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    _english, _footnotes, report = _parse(
+        tmp_path, tei, spine, aliases=SEVEN_ALIASES, sigla=SEVEN_SIGLA
+    )
+    snap = next(row for row in report["snaps"] if row.get("kind") == "nless_para")
+    assert snap["segment"] == "1:2"
+    assert snap["greek_speaker"] == "Ismene"
+    assert "/" not in snap["greek_speaker"]

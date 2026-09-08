@@ -44,7 +44,9 @@ Greek segment whose printed integers all lie in that span and that has no
 anchor of its own **and which the covering ENGLISH speech's own canonical
 speaker also speaks** is marked `englishCoveredBy` with the segment id holding
 the translator's block (for example `"1:1320"`) and keeps `english: null`.
-Coverage never crosses speakers: another character's one-liner inside an
+"Also speaks" is per printed LINE: every line the covered segment prints
+must be that speaker's, so a segment an antilabe hands over part-way
+through is never marked. Coverage never crosses speakers: another character's one-liner inside an
 English block is a real hole, not a covered column, and must be declared in
 `english.gaps` like any other. The reader shows "translated
 above" and jumps to that speech instead of "no aligned passage". Stage 2
@@ -73,14 +75,23 @@ line that speaker actually speaks.
 
 Lettered anchors matching `^\d+[a-z]+$` keep their text. They attach to an
 exact printed ref such as `1270a` when the spine has one, then fall back to
-the integer base within that same English speech. Any other anchor absent
+the integer base within that same English speech. The letter also names the
+SHARE of that printed line: `1630b` is the second share, so Coleridge's
+Helen servant reads against Diggle's mid-line `Θε.β` (Second Servant)
+instead of the line-start king — clean where the shares agree, flagged with
+that share's speaker where they do not. Any other anchor absent
 from the spine may snap only onto another line of its own English speech,
 never into a neighbouring speech. Line-owner attachment across different
 Greek speakers applies only when one English `<sp>` has anchors in more
 than one Greek segment. For a singleton mismatch, the builder uses the
 nearest Greek speech within three lines in which that speaker actually
 speaks a line, preferring the earlier speech on a tie (translator drift:
-Ag. 1077 Chorus lands on Chorus 1078, no `speakerMismatch` flag); the
+Ag. 1077 Chorus lands on Chorus 1078, no `speakerMismatch` flag). That
+distance is measured against the speaker's OWN printed lines in the
+candidate, not its whole span, and a same-speaker one-liner beats a packed
+span at equal distance; a speech the speaker owns less than half of is not
+a repair target at all, so Ismene's Seven 1003 stays on the speech that
+prints 1003 rather than moving into the Herald's 22-line block. The
 emitted tick is the nearest line of the target the speaker himself
 speaks — earlier on a tie — never the English `n` of the neighbour the
 piece came from. A claim is a `(segment, speaker)` pair, so one
@@ -93,20 +104,19 @@ speech that prints the line and the English TURN is marked
 `speakerMismatch: {english, greek}` (canonical English speaker, the Greek
 speaker of that printed line). Stage 7 carries it through on the turn; the
 chunk-level copy is written only when EVERY turn of the chunk disagrees,
-and the reader marks the lead-in of the disagreeing turn alone. The one
-exception is a line owner that packs other characters and gives this
-speaker no line of its own (Antigone's stichomythia against Seven
-`1:1004`): filing her words in the Herald's column would be worse than
-leaving them out, so the piece becomes an `attribution_hole` instead.
+and the reader marks the lead-in of the disagreeing turn alone. This holds
+whether or not the English speaker is elsewhere in that segment: Antigone's
+stichomythia against the packed Seven `1:1004` attaches there, each turn
+flagged with the speaker of ITS printed line (Ismene at 1004, the Herald
+from 1006). Showing the translation beside the Greek it translates, marked
+as disputed, beats withholding it (John's orchestrator, 2026-09-08); the
+builder holes nothing whose printed line is on the spine.
 
 Every attribution difference is listed in
 `build/stage1/english_report.json` as `attribution_differences:
 [{greek_id, line, english_speaker, greek_speaker}]` with
 `attribution_difference_count`; those segments carry an ordinary chunk and
-pair like any other. Holes are listed as `attribution_holes:
-[{greek_id, line, english_speaker, greek_speaker}]` with
-`attribution_hole_count`, and each one also writes an
-`attribution_hole` anomaly. Every snap and speech mismatch is written to
+pair like any other. Every snap and speech mismatch is written to
 the same report (play, English line, Greek ref, both speakers).
 `speech_mismatch_count` counts all such rows, while
 `unresolved_mismatch_count` counts rows with no `attached_to` target.
@@ -114,7 +124,8 @@ Stage 2 gates the loss in `checks.attachment_loss`: it adds
 `unresolved_mismatch_count` to the anomaly kinds that each mean one piece
 of English reached no chunk — `unmatched_anchor`,
 `nless_slice_unattached`, `attribution_hole` (reported per kind under
-`dropped`) — and fails when the total exceeds
+`dropped`; the builder emits no holes today, the kind stays gated so a
+future one cannot slip through) — and fails when the total exceeds
 `english.max_unresolved_mismatches`, a per-work manifest allowance whose
 default is `0`. It fails closed when `build/stage1/english_report.json` is
 missing or belongs to another work — unattached English is translation the
@@ -181,7 +192,13 @@ canonical speaker is not the Greek speaker; stage 2 fails
 when the stage-1 report is missing or belongs to another work. English before
 the first pair attaches to Greek segment 0 only when its canonical speaker
 matches that segment; the report counts other head text as `head_unassigned`,
-printed on the stage-1 summary line.
+printed on the stage-1 summary line. An unpaired speech after the first pair
+is parked on the last paired Greek segment only when it can be that segment's:
+its canonical name is the segment's own speaker, one of the other shares its
+lines carry, or absent (an unattributed continuation, or a bench scan's
+unreadable OCR label). A residual naming somebody else is left unassigned and
+counted as `residual_unassigned` — Frogs used to park a Xanthias speech on a
+segment Xanthias does not speak.
 
 Preflight reads `pipeline/drama_pipeline/public_domain_translations.yaml` and
 requires every translation id stage7 can emit (primary / secondary / third /
