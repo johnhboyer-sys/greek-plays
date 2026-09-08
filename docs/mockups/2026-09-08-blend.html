@@ -1,0 +1,527 @@
+<meta charset="utf-8">
+<title>Greek Drama Reader Blend</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&family=Alegreya+Sans+SC:wght@500;700&family=Cardo:ital,wght@0,400;0,700;1,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ---------- page chrome (follows the viewer's theme; deliberately quiet) ---------- */
+:root{
+  --pg-bg:#f3f2ee; --pg-panel:#ffffff; --pg-ink:#1d1f22; --pg-ink2:#585d63; --pg-ink3:#8a9098; --pg-rule:#d9dbd6; --pg-mark:#2c5e6a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --pg-bg:#141618; --pg-panel:#1c1f22; --pg-ink:#e6e6e2; --pg-ink2:#aeb2b6; --pg-ink3:#767c83; --pg-rule:#2e3236; --pg-mark:#7cc3cf; }
+}
+:root[data-theme="dark"]{ --pg-bg:#141618; --pg-panel:#1c1f22; --pg-ink:#e6e6e2; --pg-ink2:#aeb2b6; --pg-ink3:#767c83; --pg-rule:#2e3236; --pg-mark:#7cc3cf; }
+
+body{ background:var(--pg-bg); color:var(--pg-ink); font-family:"IBM Plex Serif",Georgia,serif; font-size:15px; line-height:1.5; }
+*{ box-sizing:border-box; }
+a{ color:inherit; }
+.wrap{ max-width:1180px; margin:0 auto; padding:0 24px 96px; }
+.pg-head{ padding:40px 0 20px; border-bottom:1px solid var(--pg-rule); display:grid; grid-template-columns:1fr auto; gap:24px; align-items:end; }
+.pg-head h1{ font:500 30px/1.15 "Alegreya",Georgia,serif; margin:0 0 8px; text-wrap:balance; }
+.pg-head p{ margin:0; max-width:64ch; color:var(--pg-ink2); }
+.pg-head .rulings{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--pg-ink3); margin-top:10px; }
+.toolbar{ position:sticky; top:0; z-index:5; background:var(--pg-bg); border-bottom:1px solid var(--pg-rule); padding:10px 0; display:flex; gap:28px; align-items:center; font-family:"IBM Plex Mono",monospace; font-size:12px; }
+.toolbar .grp{ display:flex; gap:0; align-items:center; }
+.toolbar .lbl{ color:var(--pg-ink3); margin-right:8px; letter-spacing:.06em; text-transform:uppercase; font-size:11px; }
+.toolbar button{ font:inherit; background:none; color:var(--pg-ink2); border:1px solid var(--pg-rule); padding:4px 10px; cursor:pointer; }
+.toolbar button + button{ border-left:0; }
+.toolbar button[aria-pressed="true"]{ background:var(--pg-ink); color:var(--pg-bg); border-color:var(--pg-ink); }
+.toolbar button:focus-visible{ outline:2px solid var(--pg-mark); outline-offset:2px; }
+.toolbar nav{ margin-left:auto; display:flex; gap:14px; }
+.toolbar nav a{ text-decoration:none; color:var(--pg-ink2); }
+.toolbar nav a:hover{ color:var(--pg-ink); }
+
+.direction{ padding:56px 0 8px; }
+.direction > header{ display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:32px; align-items:start; padding-bottom:20px; }
+.direction .letter{ font:400 12px/1 "IBM Plex Mono",monospace; letter-spacing:.14em; color:var(--pg-ink3); text-transform:uppercase; }
+.direction h2{ font:500 26px/1.15 "Alegreya",Georgia,serif; margin:6px 0 10px; }
+.direction .thesis{ margin:0; max-width:66ch; color:var(--pg-ink2); }
+.spec{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--pg-ink2); display:grid; grid-template-columns:auto 1fr; gap:6px 12px; align-content:start; }
+.spec dt{ color:var(--pg-ink3); }
+.spec dd{ margin:0; }
+.sw{ display:inline-flex; gap:4px; vertical-align:middle; }
+.sw i{ display:inline-block; width:14px; height:14px; border:1px solid rgba(0,0,0,.15); }
+.frames{ display:grid; gap:36px; }
+.frames.phone .frame{ max-width:400px; }
+figure.fig{ margin:0; }
+figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--pg-ink3); margin:8px 0 0; }
+.frame{ container-type:inline-size; overflow-x:auto; border:1px solid var(--pg-rule); box-shadow:0 1px 0 rgba(0,0,0,.04); }
+
+.decide{ margin-top:72px; padding:28px 0 0; border-top:1px solid var(--pg-rule); max-width:70ch; }
+.decide h2{ font:500 22px/1.2 "Alegreya",Georgia,serif; margin:0 0 10px; }
+.decide ol{ padding-left:20px; color:var(--pg-ink2); }
+.decide li{ margin:6px 0; }
+
+/* ---------- reader frame: shared structure, styled through direction tokens ---------- */
+.rd{ background:var(--bg); color:var(--ink); font-family:var(--f-en); font-size:var(--fs,16px); line-height:1.55; min-width:0; }
+.rd .head{ display:flex; align-items:baseline; gap:18px; padding:12px 28px; border-bottom:1px solid var(--rule); font-family:var(--f-ui); font-size:12.5px; color:var(--ink2); }
+.rd .head .site{ letter-spacing:.12em; text-transform:uppercase; font-size:11px; color:var(--ink3); }
+.rd .head .crumbs a{ text-decoration:none; color:var(--ink); border-bottom:1px solid var(--rule); }
+.rd .head .crumbs a:hover{ border-color:var(--accent); }
+.rd .head .crumbs .sep{ margin:0 8px; color:var(--ink3); }
+.rd .head .ctl{ margin-left:auto; display:flex; gap:14px; white-space:nowrap; }
+.rd .head .ctl span{ padding:2px 0; border-bottom:1px solid transparent; }
+.rd .head .ctl .on{ color:var(--ink); border-color:var(--accent); }
+.rd .head .ctl .bench{ color:var(--accent); }
+.rd .body{ padding:22px 28px 30px; }
+.rd .seg{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:36px; align-items:baseline; }
+.rd .seg + .seg{ margin-top:var(--seg-gap,10px); }
+.rd{ --spkw:7.5rem; }
+/* Both columns share one left structure: [line-number gutter][speaker gutter][text].
+   The speaker name hangs in its gutter, so the Greek siglum and the English
+   name sit at the same indent and the text of both columns starts level. */
+.rd .g{ font-family:var(--f-gr); font-size:calc(var(--fs,16px) * 1.05); position:relative; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
+.rd .e{ color:var(--ink); }
+.rd .line{ display:block; position:relative; }
+.rd .ln{ position:absolute; left:calc(-1 * (var(--gutter,42px) + var(--spkw))); width:calc(var(--gutter,42px) - 10px); text-align:right; font-family:var(--f-num); font-size:11px; color:var(--ink3); top:.45em; font-variant-numeric:tabular-nums; }
+.rd .spk{ font-family:var(--f-ui); font-weight:700; font-size:.78em; letter-spacing:.06em; text-transform:uppercase; color:var(--spk); }
+.rd .g .spk{ font-family:var(--f-gr); text-transform:none; letter-spacing:0; font-size:.85em; position:absolute; left:calc(-1 * var(--spkw)); top:0; width:calc(var(--spkw) - .6em); }
+.rd .g .spk.inl{ position:static; width:auto; margin-left:.35em; font-size:.66em; }
+.rd .g > .spk{ left:var(--gutter,42px); top:.2em; }
+.rd .tr{ display:block; position:relative; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
+.rd .e .spk{ position:absolute; left:var(--gutter,42px); top:.12em; width:calc(var(--spkw) - .6em); }
+.rd .tr + .tr{ margin-top:6px; }
+.rd .flag{ font-family:var(--f-ui); font-size:10.5px; color:var(--ink3); border:1px dashed var(--rule); padding:0 5px; margin-left:6px; vertical-align:middle; }
+.rd .ode .g{ --gutter:56px; }
+.rd .odehead{ font-family:var(--f-ui); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin:0 0 10px calc(var(--gutter,42px) + var(--spkw)); }
+.rd .cmp{ grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr); }
+.rd .cmp .g{ --spkw:0rem; }
+.rd .cmp .g > .spk{ position:static; display:block; margin:0 0 8px; width:auto; }
+.rd .cmp .e{ background:var(--panel); padding:12px 14px; font-size:.95em; }
+.rd .cmp .tr{ padding-left:var(--spkw); }
+.rd .cmp .e .spk{ left:0; }
+.rd .cmp .e .who{ font-family:var(--f-ui); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:8px; }
+.rd.greekonly{ --spkw:0rem; }
+.rd.greekonly .body{ max-width:calc(34em + 56px); margin:0 auto; }
+.rd.greekonly .seg{ grid-template-columns:minmax(0,1fr); }
+.rd.greekonly .g{ font-size:calc(var(--fs,16px) * 1.12); line-height:1.6; }
+.rd .note{ font-family:var(--f-ui); font-size:12px; color:var(--ink3); margin-top:14px; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
+@container (max-width: 640px){
+  .rd .head{ padding:10px 16px; flex-wrap:wrap; gap:8px 14px; }
+  .rd .head .ctl{ margin-left:0; width:100%; gap:12px; font-size:12px; }
+  .rd .body{ padding:16px 14px 24px; }
+  .rd .seg, .rd .cmp{ grid-template-columns:minmax(0,1fr); row-gap:6px; }
+  .frame .rd.rd{ --spkw:6rem; --gutter:36px; }
+  .rd .cmp .e{ padding:10px 12px; }
+  .rd .seg + .seg{ margin-top:16px; }
+  .rd .plate .cols{ grid-template-columns:1fr !important; }
+}
+
+/* ---------- Direction A · The Orchestra ---------- */
+.dir-a{
+  --bg:#ebe7de; --panel:#f5f2eb; --ink:#211b17; --ink2:#5b5148; --ink3:#8b8074; --rule:#d5cdbf;
+  --accent-t:#a13d21; --accent-c:#b07e1c; --accent:var(--accent-t);
+  --band-t:#a13d21; --band-c:#b07e1c; --band:var(--band-t);
+  --f-gr:"Alegreya",Georgia,serif; --f-en:"Alegreya",Georgia,serif; --f-ui:"Alegreya Sans SC","Alegreya Sans",sans-serif; --f-num:"Alegreya Sans",sans-serif;
+  --s0:#2f4a9c; --s1:#4d6b2a; --s2:#8a3675; --s3:#1a6a76; --s4:#7c5610; --s5:#96313f; --s6:#5a4bb0; --s7:#00674f;
+  --fs:16.5px;
+}
+.dir-a.dark{
+  --bg:#1a1512; --panel:#241d19; --ink:#ece3d5; --ink2:#c2b5a5; --ink3:#8d8175; --rule:#3a3129;
+  --accent-t:#d8704f; --accent-c:#d9a84a; --band-t:#7a2d17; --band-c:#7a5812;
+  --s0:#9aabe8; --s1:#a6c26c; --s2:#dc93c8; --s3:#66bcc6; --s4:#d6a850; --s5:#e58f9d; --s6:#aca0ec; --s7:#62cfa9;
+}
+.dir-a .comedy{ --accent:var(--accent-c); --band:var(--band-c); }
+.dir-a .spk{ text-transform:none; letter-spacing:.04em; font-size:.92em; font-weight:700; }
+.dir-a .head{ border-bottom:2px solid var(--accent); }
+.dir-a .ode .g{ background:color-mix(in srgb, var(--accent) 6%, transparent); border-left:1px solid var(--accent); padding-top:6px; padding-bottom:6px; }
+.dir-a .ode .g .ln{ left:calc(-1 * (var(--gutter,42px) + var(--spkw)) + 6px); }
+/* plate: the programme */
+.dir-a .plate .band{ background:var(--band); color:#f7efe4; padding:44px 40px 36px; }
+.dir-a .plate .band .gt{ font-family:var(--f-gr); font-size:66px; line-height:1; font-weight:500; margin:0; letter-spacing:-.01em; }
+.dir-a .plate .band .en{ font-family:var(--f-ui); font-size:20px; letter-spacing:.16em; margin:14px 0 0; }
+.dir-a .plate .band .au{ font-family:var(--f-en); font-style:italic; font-size:18px; margin:6px 0 0; opacity:.9; }
+.dir-a .plate .cols{ display:grid; grid-template-columns:1fr 1.3fr; gap:32px 48px; padding:30px 40px 36px; }
+.dir-a .plate h4{ font-family:var(--f-ui); font-weight:700; font-size:12px; letter-spacing:.14em; margin:0 0 10px; color:var(--ink3); }
+.dir-a .plate .cast{ list-style:none; margin:0; padding:0; font-family:var(--f-ui); font-size:17px; line-height:1.7; }
+.dir-a .plate .cast li{ display:flex; gap:12px; align-items:baseline; color:var(--spk); font-weight:700; }
+.dir-a .plate .cast small{ font-family:var(--f-en); font-weight:400; color:var(--ink2); font-size:14.5px; text-transform:none; letter-spacing:0; }
+.dir-a .plate .arg{ font-size:21px; line-height:1.4; margin:0 0 20px; font-style:italic; }
+.dir-a .plate dl{ margin:0; display:grid; grid-template-columns:auto 1fr; gap:6px 16px; font-size:15px; }
+.dir-a .plate dt{ font-family:var(--f-ui); font-size:12px; letter-spacing:.12em; color:var(--ink3); padding-top:3px; }
+.dir-a .plate dd{ margin:0; }
+.dir-a .plate .how{ margin:22px 0 0; padding-top:14px; border-top:1px solid var(--rule); font-size:15px; color:var(--ink2); max-width:60ch; }
+.dir-a .plate .go{ display:inline-block; margin-top:26px; font-family:var(--f-ui); font-weight:700; letter-spacing:.12em; color:var(--accent); text-decoration:none; border-bottom:2px solid var(--accent); }
+.dir-a .plate .draft{ font-family:var(--f-num); font-size:11px; color:var(--ink3); margin-left:8px; }
+/* frogs strip */
+.dir-a .strip{ display:flex; align-items:baseline; gap:18px; padding:18px 28px; background:var(--band); color:#f7efe4; }
+.dir-a .strip .gt{ font-family:var(--f-gr); font-size:34px; margin:0; }
+.dir-a .strip .en{ font-family:var(--f-ui); letter-spacing:.14em; font-size:14px; }
+.dir-a .strip .pr{ margin-left:auto; font-style:italic; font-size:14px; opacity:.9; }
+
+/* ---------- Direction B · The Manuscript ---------- */
+.dir-b{
+  --bg:#edeae2; --panel:#f4f2ec; --ink:#2a2420; --ink2:#5b534b; --ink3:#8b8377; --rule:#d6d0c4;
+  --accent-t:#b1321c; --accent-c:#2f6b45; --accent:var(--accent-t);
+  --band-t:#b1321c; --band-c:#2f6b45; --band:var(--band-t);
+  --f-gr:"Cardo",Georgia,serif; --f-en:"Cardo",Georgia,serif; --f-ui:"Cardo",Georgia,serif; --f-num:"Cardo",Georgia,serif;
+  --s0:#2b4a9c; --s1:#2f6f6a; --s2:#6e3a7c; --s3:#9a6d14; --s4:#3a3632; --s5:#8c2f3a; --s6:#4d5a8a; --s7:#5a6b2a;
+  --fs:17.5px;
+}
+.dir-b.dark{
+  --bg:#1c1a17; --panel:#24211d; --ink:#e8e1d3; --ink2:#b9b0a1; --ink3:#867d71; --rule:#3b362f;
+  --accent-t:#e0634c; --accent-c:#78b892; --band-t:#7a2414; --band-c:#1f4a33;
+  --s0:#9fb0ea; --s1:#7fc3bd; --s2:#cf9fdc; --s3:#d9b04e; --s4:#c9c2b8; --s5:#e2919c; --s6:#a9b3e6; --s7:#b6c775;
+}
+.dir-b .comedy{ --accent:var(--accent-c); --band:var(--band-c); }
+.dir-b .rd{ line-height:1.6; }
+.dir-b .head{ border-bottom:1px solid var(--rule); font-variant-caps:small-caps; letter-spacing:.04em; font-size:14px; text-transform:none; }
+.dir-b .head .site{ text-transform:none; font-variant-caps:small-caps; letter-spacing:.08em; font-size:13px; }
+.dir-b .rd{ --spkw:7rem; }
+.dir-b .spk{ text-transform:none; font-variant-caps:small-caps; letter-spacing:.05em; font-size:.95em; font-weight:700; }
+.dir-b .ln{ font-style:italic; font-size:12px; }
+.dir-b .body{ padding:26px 36px 34px 30px; }
+.dir-b .ode .g{ --gutter:56px; }
+.dir-b .odehead{ font-variant-caps:small-caps; text-transform:none; letter-spacing:.08em; font-size:14px; color:var(--accent); font-style:normal; }
+.dir-b .cmp .e .who{ font-variant-caps:small-caps; text-transform:none; letter-spacing:.06em; font-size:14px; font-style:normal; }
+.dir-b .flag{ font-style:italic; border:0; padding:0; }
+/* plate: rubricated title page with a scholia margin */
+.dir-b .plate{ display:grid; grid-template-columns:minmax(0,1fr) 210px; gap:0 36px; padding:52px 40px 44px; }
+.dir-b .plate .gt{ font-family:var(--f-gr); font-size:58px; line-height:1.05; margin:0; color:var(--accent); font-weight:400; }
+.dir-b .plate .en{ font-size:24px; margin:10px 0 0; font-variant-caps:small-caps; letter-spacing:.1em; }
+.dir-b .plate .au{ font-style:italic; font-size:19px; margin:4px 0 26px; color:var(--ink2); }
+.dir-b .plate .arg{ font-size:20px; line-height:1.5; margin:0 0 26px; max-width:52ch; }
+.dir-b .plate .arg::first-letter{ float:left; font-size:3.1em; line-height:.85; padding:.06em .1em 0 0; color:var(--accent); }
+.dir-b .plate h4{ font-variant-caps:small-caps; letter-spacing:.1em; font-weight:400; font-size:15px; margin:0 0 6px; color:var(--accent); }
+.dir-b .plate .cast{ list-style:none; margin:0 0 22px; padding:0; column-count:2; column-gap:28px; font-size:17px; line-height:1.65; }
+.dir-b .plate .cast li{ break-inside:avoid; }
+.dir-b .plate .cast li::first-letter{ color:var(--spk); font-weight:700; font-size:1.25em; }
+.dir-b .plate .cast small{ color:var(--ink3); font-style:italic; }
+.dir-b .plate .how{ font-size:16px; color:var(--ink2); margin:0; max-width:52ch; }
+.dir-b .plate .go{ display:inline-block; margin-top:20px; font-variant-caps:small-caps; letter-spacing:.1em; color:var(--accent); text-decoration:none; font-size:17px; }
+.dir-b .plate .margin{ font-size:13.5px; line-height:1.5; color:var(--ink2); font-style:italic; padding-top:14px; border-left:1px solid var(--rule); padding-left:16px; }
+.dir-b .plate .margin p{ margin:0 0 12px; }
+.dir-b .plate .margin b{ font-style:normal; font-variant-caps:small-caps; font-weight:400; color:var(--accent); letter-spacing:.06em; display:block; }
+.dir-b .plate .draft{ font-size:12px; color:var(--ink3); font-style:italic; margin-left:6px; }
+.dir-b .strip{ padding:20px 30px 16px; display:flex; gap:18px; align-items:baseline; background:var(--band); color:#f4efe6; }
+.dir-b .strip .gt{ font-size:34px; margin:0; }
+.dir-b .strip .en{ font-variant-caps:small-caps; letter-spacing:.12em; font-size:18px; }
+.dir-b .strip .pr{ margin-left:auto; font-style:italic; font-size:14.5px; opacity:.9; }
+
+/* ---------- Direction C · The Score ---------- */
+.dir-c{
+  --bg:#f4f4f1; --panel:#fbfbf9; --ink:#14171b; --ink2:#4b525a; --ink3:#7d858e; --rule:#d5d8db;
+  --accent-t:#6d1f3c; --accent-c:#1f4a3a; --accent:var(--accent-t);
+  --band-t:#6d1f3c; --band-c:#1f4a3a; --band:var(--band-t);
+  --f-gr:"STIX Two Text",Georgia,serif; --f-en:"IBM Plex Serif",Georgia,serif; --f-ui:"IBM Plex Mono",monospace; --f-num:"IBM Plex Mono",monospace;
+  --s0:#3b5a8c; --s1:#5b7a4a; --s2:#7c4a6a; --s3:#8a6a2a; --s4:#2f6f7a; --s5:#8a4a4a; --s6:#5a5f8a; --s7:#4f6f5f;
+  --fs:16px;
+}
+.dir-c.dark{
+  --bg:#101317; --panel:#171b20; --ink:#e6e8ea; --ink2:#aab1b8; --ink3:#737b84; --rule:#2a3038;
+  --accent-t:#c76a8b; --accent-c:#63b08e; --band-t:#4a1530; --band-c:#143327;
+  --s0:#9db6e6; --s1:#a9c48e; --s2:#d3a3c4; --s3:#d4b46a; --s4:#7fc0cc; --s5:#dc9a9a; --s6:#a9aee0; --s7:#9fc4ae;
+}
+.dir-c .comedy{ --accent:var(--accent-c); --band:var(--band-c); }
+.dir-c .rd{ line-height:1.5; }
+.dir-c .head{ padding:10px 28px; font-size:11.5px; letter-spacing:.02em; }
+.dir-c .head .crumbs a{ border-bottom:0; text-transform:uppercase; letter-spacing:.1em; }
+.dir-c .head .crumbs a + .sep + a{ color:var(--accent); }
+.dir-c .spk{ font-size:.68em; letter-spacing:.12em; font-weight:500; }
+.dir-c .g .spk{ font-family:var(--f-ui); text-transform:uppercase; letter-spacing:.12em; font-size:.62em; position:relative; top:-.1em; }
+.dir-c .rd{ --spkw:6.5rem; --gutter:84px; }
+.dir-c .ln{ font-size:10.5px; width:calc(var(--gutter,42px) - 44px); }
+.dir-c .g .m{ position:absolute; left:calc(-1 * var(--spkw) - 34px); top:.55em; font-family:var(--f-ui); font-size:9.5px; color:var(--accent); letter-spacing:.04em; }
+.dir-c .seg{ border-top:1px solid var(--rule); padding-top:8px; }
+.dir-c .seg:first-child{ border-top:0; padding-top:0; }
+.dir-c .seg + .seg{ margin-top:8px; }
+.dir-c .e .spk::before{ content:""; display:inline-block; width:2px; height:.9em; background:var(--spk); margin-right:7px; vertical-align:-.08em; }
+.dir-c .ode .g{ --gutter:84px; }
+.dir-c .odehead{ color:var(--accent); font-size:10.5px; }
+.dir-c .cmp .e{ background:var(--panel); border:1px solid var(--rule); }
+.dir-c .cmp .e .who{ font-size:10.5px; }
+.dir-c .rd.greekonly .seg{ border-top:0; }
+/* plate: the title card */
+.dir-c .plate .card{ background:var(--band); color:#f5f2f4; padding:48px 44px 40px; display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:28px 56px; }
+.dir-c .plate .gt{ font-family:var(--f-gr); font-size:64px; line-height:1; margin:0; font-weight:400; }
+.dir-c .plate .en{ font-family:var(--f-ui); font-size:13px; letter-spacing:.2em; text-transform:uppercase; margin:16px 0 0; opacity:.85; }
+.dir-c .plate .au{ font-family:var(--f-ui); font-size:13px; letter-spacing:.2em; text-transform:uppercase; margin:4px 0 0; opacity:.85; }
+.dir-c .plate .arg{ font-family:var(--f-en); font-size:22px; line-height:1.35; margin:28px 0 0; max-width:30ch; }
+.dir-c .plate .cast{ list-style:none; margin:0; padding:0; font-family:var(--f-ui); font-size:13px; line-height:1.9; letter-spacing:.06em; }
+.dir-c .plate .cast li{ display:grid; grid-template-columns:14px 1fr; gap:10px; align-items:center; }
+.dir-c .plate .cast li::before{ content:""; height:2px; background:var(--spk); filter:brightness(1.55) saturate(.7); }
+.dir-c .plate .cast small{ display:block; font-family:var(--f-en); opacity:.75; font-size:12.5px; letter-spacing:0; line-height:1.3; margin:-3px 0 6px; }
+.dir-c .plate .cast h4{ margin:0 0 8px; font-weight:400; font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; opacity:.7; }
+.dir-c .plate .specs{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; padding:22px 44px; border-bottom:1px solid var(--rule); font-family:var(--f-ui); font-size:12px; line-height:1.55; }
+.dir-c .plate .specs b{ display:block; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); font-size:10px; margin-bottom:4px; }
+.dir-c .plate .below{ padding:22px 44px 30px; display:flex; gap:40px; align-items:flex-start; }
+.dir-c .plate .how{ margin:0; font-size:15px; color:var(--ink2); max-width:56ch; }
+.dir-c .plate .go{ margin-left:auto; white-space:nowrap; font-family:var(--f-ui); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); text-decoration:none; border:1px solid var(--accent); padding:8px 14px; }
+.dir-c .plate .draft{ font-family:var(--f-ui); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin-left:8px; }
+.dir-c .strip{ background:var(--band); color:#f2f5f3; padding:18px 28px; display:flex; gap:22px; align-items:baseline; }
+.dir-c .strip .gt{ font-family:var(--f-gr); font-size:30px; margin:0; }
+.dir-c .strip .en{ font-family:var(--f-ui); font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; opacity:.85; }
+.dir-c .strip .pr{ margin-left:auto; font-family:var(--f-ui); font-size:11.5px; letter-spacing:.06em; opacity:.85; }
+@container (max-width: 640px){
+  .dir-c .plate .card{ grid-template-columns:1fr; padding:32px 24px; }
+  .dir-c .plate .specs{ grid-template-columns:1fr; padding:18px 24px; }
+  .dir-c .plate .below{ flex-direction:column; padding:18px 24px 24px; }
+  .dir-c .plate .below .go{ margin-left:0; }
+  .dir-b .plate{ grid-template-columns:1fr; padding:32px 22px; }
+  .dir-b .plate .margin{ border-left:0; padding-left:0; border-top:1px solid var(--rule); }
+  .dir-b .plate .cast{ column-count:1; }
+  .dir-a .plate .band{ padding:30px 22px 26px; }
+  .dir-a .plate .band .gt{ font-size:44px; }
+  .dir-a .plate .cols{ padding:22px; }
+  .dir-c .plate .gt{ font-size:44px; }
+  .dir-b .plate .gt{ font-size:42px; }
+}
+@media (prefers-reduced-motion: no-preference){
+  .toolbar button{ transition:background .12s, color .12s; }
+}
+
+/* ---------- the blend: B with A's chrome, unboxed compare, banner plates ---------- */
+.dir-b{ --f-ui:"Alegreya Sans SC","Alegreya Sans",sans-serif; }
+.dir-b .head{ font-variant-caps:normal; letter-spacing:.06em; font-size:12.5px; text-transform:none; border-bottom:2px solid var(--accent); }
+.dir-b .head .site{ letter-spacing:.14em; font-variant-caps:normal; text-transform:uppercase; font-size:11px; }
+.dir-b .head .crumbs a{ font-family:var(--f-en); font-size:15px; letter-spacing:0; }
+.dir-b .spk{ font-family:var(--f-en); }
+.dir-b .odehead{ font-family:var(--f-ui); font-variant-caps:normal; text-transform:uppercase; letter-spacing:.12em; font-size:11.5px; color:var(--ink3); }
+.dir-b .cmp .e{ background:none; padding:0; border:0; }
+.dir-b .cmp .e .who{ font-family:var(--f-ui); font-variant-caps:normal; text-transform:uppercase; letter-spacing:.12em; font-size:11px; }
+/* plate variant 1: A's band over B's body */
+.dir-b .plate2{ display:block; padding:0; }
+.dir-b .plate2 .band{ background:var(--band); color:#f4efe6; padding:42px 40px 34px; }
+.dir-b .plate2 .band .gt{ font-family:var(--f-gr); font-size:64px; line-height:1; margin:0; }
+.dir-b .plate2 .band .en{ font-variant-caps:small-caps; letter-spacing:.14em; font-size:24px; margin:12px 0 0; }
+.dir-b .plate2 .band .au{ font-style:italic; font-size:19px; margin:4px 0 0; opacity:.92; }
+.dir-b .plate2 .band .arg{ font-size:21px; line-height:1.4; margin:24px 0 0; max-width:34ch; }
+.dir-b .plate2 .bodyp{ display:grid; grid-template-columns:minmax(0,1fr) 210px; gap:0 36px; padding:34px 40px 40px; }
+.dir-b .plate2 .bodyp .arg{ font-size:20px; line-height:1.5; margin:0 0 26px; max-width:52ch; }
+.dir-b .plate2 .bodyp .arg::first-letter{ float:left; font-size:3.1em; line-height:.85; padding:.06em .1em 0 0; color:var(--accent); }
+.dir-b .plate2 h4{ font-variant-caps:small-caps; letter-spacing:.1em; font-weight:400; font-size:15px; margin:0 0 6px; color:var(--accent); }
+.dir-b .plate2 .cast{ list-style:none; margin:0 0 22px; padding:0; column-count:2; column-gap:28px; font-size:17px; line-height:1.65; }
+.dir-b .plate2 .cast li{ break-inside:avoid; }
+.dir-b .plate2 .cast li::first-letter{ color:var(--spk); font-weight:700; font-size:1.25em; }
+.dir-b .plate2 .cast small{ color:var(--ink3); font-style:italic; }
+.dir-b .plate2 .go{ display:inline-block; margin-top:8px; font-variant-caps:small-caps; letter-spacing:.1em; color:var(--accent); text-decoration:none; font-size:17px; }
+.dir-b .plate2 .margin{ font-size:13.5px; line-height:1.5; color:var(--ink2); font-style:italic; padding-top:4px; border-left:1px solid var(--rule); padding-left:16px; }
+.dir-b .plate2 .margin p{ margin:0 0 12px; }
+.dir-b .plate2 .margin b{ font-style:normal; font-variant-caps:small-caps; font-weight:400; color:var(--accent); letter-spacing:.06em; display:block; }
+.dir-b .plate2 .draft{ font-size:12px; color:var(--ink3); font-style:italic; margin-left:6px; }
+@container (max-width: 640px){
+  .dir-b .plate2 .band{ padding:28px 22px 24px; }
+  .dir-b .plate2 .band .gt{ font-size:42px; }
+  .dir-b .plate2 .bodyp{ grid-template-columns:1fr; padding:24px 22px; }
+  .dir-b .plate2 .margin{ border-left:0; padding-left:0; border-top:1px solid var(--rule); }
+  .dir-b .plate2 .cast{ column-count:1; }
+}
+</style>
+
+<div class="wrap">
+  <header class="pg-head">
+    <div>
+      <h1>The Greek Drama Reader: the blend</h1>
+      <p>Round 2. One direction built from your picks: B's palette and Cardo for the text, A's running head and controls, B's plate carrying the information under a coloured title banner, B's dialogue and odes without ornament or rules, compare mode as plain columns, and the colour banner for comedy. One choice is left: which banner the plate wears.</p>
+      <p class="rulings">rulings applied · B palette · Cardo text, sans menus · no ornament · no rules between turns · no boxes in compare · accent by genre · all copy DRAFT</p>
+    </div>
+    <div></div>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="Preview controls">
+    <div class="grp"><span class="lbl">Theme</span><button type="button" data-theme="light" aria-pressed="true">Light</button><button type="button" data-theme="dark" aria-pressed="false">Dark</button></div>
+    <div class="grp"><span class="lbl">Width</span><button type="button" data-width="desk" aria-pressed="true">Desktop</button><button type="button" data-width="phone" aria-pressed="false">Phone</button></div>
+    <nav><a href="#dir-b">The blend</a><a href="#decide">Decide</a></nav>
+  </div>
+
+  <section class="direction" id="dir-b">
+    <header>
+      <div>
+        <div class="letter">The blend</div>
+        <h2>The Manuscript, with the Orchestra's chrome</h2>
+        <p class="thesis">Cardo on a cool vellum ground for everything a reader reads; Alegreya Sans small caps for everything a reader operates. Speaker colours from scriptorium pigments. Rubric red is tragedy's accent, malachite is comedy's, and each also fills the plate's title banner and the comedy strip. Odes keep their narrower measure and nothing else. Compare mode is three plain columns with the Greek widest.</p>
+      </div>
+      <dl class="spec">
+        <dt>Palette</dt><dd><span class="sw"><i style="background:#edeae2"></i><i style="background:#2a2420"></i><i style="background:#b1321c"></i><i style="background:#2f6b45"></i><i style="background:#1c1a17"></i></span></dd>
+        <dt>Greek</dt><dd>Cardo</dd>
+        <dt>English</dt><dd>Cardo</dd>
+        <dt>Speakers</dt><dd>Cardo small caps</dd>
+        <dt>Menus</dt><dd>Alegreya Sans SC</dd>
+      </dl>
+    </header>
+    <div class="frames" data-dir="b"></div>
+  </section>
+
+  <section class="decide" id="decide">
+    <h2>What to decide</h2>
+    <ol>
+      <li>Plate banner: variant 1 (A's band: title, English title, author on the colour) or variant 2 (C's field: title, author and the argument on the colour, the rest below). I lean variant 1; the argument reads better in ink than reversed.</li>
+      <li>Menus in Alegreya Sans small caps, as shown, or another sans.</li>
+    </ol>
+    <p style="color:var(--pg-ink3);font-family:'IBM Plex Mono',monospace;font-size:12px">After this pick the blend becomes the token layer and plate component in the real reader, with the two layout requirements from round 1: every English turn on the row of its Greek line, and speaker names hanging in a shared gutter in both columns.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  // ---------- content (from build/dist, trimmed) ----------
+  var AG = {
+    gt:'Ἀγαμέμνων', en:'Agamemnon', au:'Aeschylus', prod:'Oresteia, first play · City Dionysia, 458 BC · first prize',
+    text:'Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)', bench:'H. W. Smyth (Loeb, 1926) · E. D. A. Morshead (1881)',
+    arg:'Agamemnon comes home from Troy. Clytaemestra has been waiting ten years.',
+    cast:[['Watchman',0,'on the palace roof'],['Chorus',1,'the elders of Argos'],['Clytaemestra',2,''],['Herald',3,''],['Agamemnon',4,''],['Cassandra',5,'a captive of Troy'],['Aegisthus',6,'']]
+  };
+  var FR = {
+    gt:'Βάτραχοι', en:'Frogs', au:'Aristophanes', prod:'Lenaia, 405 BC · first prize',
+    text:'Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)', bench:'The Athenian Society (1912) · W. J. Hickie (1853)',
+    arg:'Dionysus goes down to Hades for Euripides and comes back with Aeschylus.'
+  };
+  var SPK = { Chorus:1, Cassandra:5, Watchman:0, Xanthias:0, Dionysus:1 };
+  var GSIG = { Chorus:'Χο.', Cassandra:'Κα.', Xanthias:'Ξα.', Dionysus:'Δι.' };
+  var STICH = [
+    [1203,'Chorus','μῶν καὶ θεός περ ἱμέρῳ πεπληγμένος;','Can it be that he, a god, was smitten with desire?','God though he were, yearning for mortal maid?'],
+    [1204,'Cassandra','προτοῦ μὲν αἰδὼς ἦν ἐμοὶ λέγειν τάδε.','Before now I was ashamed to speak of this.','Ay! what seemed shame of old is shame no more.'],
+    [1205,'Chorus','ἁβρύνεται γὰρ πᾶς τις εὖ πράσσων πλέον.','In prosperity all take on airs.','Such finer sense suits not with slavery.'],
+    [1206,'Cassandra','ἀλλ᾽ ἦν παλαιστὴς κάρτ᾽ ἐμοὶ πνέων χάριν.','Oh, but he struggled to win me, breathing ardent love for me.','He strove to win me, panting for my love.'],
+    [1207,'Chorus','ἦ καὶ τέκνων εἰς ἔργον ἤλθετον νόμῳ;','Did you in due course come to the rite of marriage?','Came ye by compact unto bridal joys?'],
+    [1208,'Cassandra','ξυναινέσασα Λοξίαν ἐψευσάμην.','I consented to Loxias but broke my word.','Nay — for I plighted troth, then foiled the god.'],
+    [1209,'Chorus','ἤδη τέχναισιν ἐνθέοις ᾑρημένη;','Were you already possessed by the art inspired of the god?','Wert thou already dowered with prescience?'],
+    [1210,'Cassandra','ἤδη πολίταις πάντ᾽ ἐθέσπιζον πάθη.','Already I prophesied to my countrymen all their disasters.','Yea — prophetess to Troy of all her doom.'],
+    [1211,'Chorus','πῶς δῆτ᾽ ἄνατος ἦσθα Λοξίου κότῳ;','How came it then that you were unharmed by Loxias’ wrath?','How left thee then Apollo’s wrath unscathed?'],
+    [1212,'Cassandra','ἔπειθον οὐδέν᾽ οὐδέν, ὡς τάδ᾽ ἤμπλακον.','Ever since that fault I could persuade no one of anything.','I, false to him, seemed prophet false to all.'],
+    [1213,'Chorus','ἡμῖν γε μὲν δὴ πιστὰ θεσπίζειν δοκεῖς.','And yet to us at least the prophecies you utter seem true enough.','Not so — to us at least thy words seem sooth.']
+  ];
+  var ODE = [
+    [40,'δέκατον μὲν ἔτος τόδ᾽ ἐπεὶ Πριάμῳ'],[41,'μέγας ἀντίδικος,'],[42,'Μενέλαος ἄναξ ἠδ᾽ Ἀγαμέμνων,'],[43,'διθρόνου Διόθεν καὶ δισκήπτρου'],[44,'τιμῆς ὀχυρὸν ζεῦγος Ἀτρειδᾶν,'],
+    [45,'στόλον Ἀργείων χιλιοναύταν'],[46,'τῆσδ᾽ ἀπὸ χώρας'],[47,'ἦραν, στρατιῶτιν ἀρωγάν,'],[48,'μέγαν ἐκ θυμοῦ κλάζοντες Ἄρη'],[49,'τρόπον αἰγυπιῶν,'],
+    [50,'οἵτ᾽ ἐκπατίοις ἄλγεσι παίδων'],[51,'ὕπατοι λεχέων στροφοδινοῦνται'],[52,'πτερύγων ἐρετμοῖσιν ἐρεσσόμενοι,'],[53,'δεμνιοτήρη'],[54,'πόνον ὀρταλίχων ὀλέσαντες·'],
+    [55,'ὕπατος δ᾽ ἀίων ἤ τις Ἀπόλλων'],[56,'ἢ Πὰν ἢ Ζεὺς οἰωνόθροον'],[57,'γόον ὀξυβόαν τῶνδε μετοίκων'],[58,'ὑστερόποινον'],[59,'πέμπει παραβᾶσιν Ἐρινύν.']
+  ];
+  var SMYTH = 'This is now the tenth year since Priam’s mighty adversary, king Menelaus, and with him king Agamemnon, the mighty pair of Atreus’ sons, joined in honor of throne and sceptre by Zeus, set forth from this land with an army of a thousand ships manned by Argives, a warrior force to champion their cause. Loud rang the battle-cry they uttered in their rage, just as eagles scream which, in lonely grief for their brood, rowing with the oars of their wings, wheel high over their bed, because they have lost the toil of guarding their nurslings’ nest. But some one of the powers supreme—Apollo perhaps or Pan, or Zeus—hears the shrill wailing scream of the clamorous birds, these sojourners in his realm, and against the transgressors sends vengeance at last though late.';
+  var MORS = 'Ten livelong years have rolled away, / Since the twin lords of sceptred sway, / By Zeus endowed with pride of place, / The doughty chiefs of Atreus’ race, / Went forth of yore, / To plead with Priam, face to face, / Before the judgment-seat of War! / A thousand ships from Argive land / Put forth to bear the martial band, / That with a spirit stern and strong / Went out to right the kingdom’s wrong — / Pealed, as they went, the battle-song, / Wild as the vultures’ cry; / When o’er the eyrie, soaring high, / In wild bereaved agony, / Around, around, in airy rings, / They wheel with oarage of their wings, / But not the eyas-brood behold, / That called them to the nest of old; / But let Apollo from the sky, / Or Pan, or Zeus, but hear the cry, / The exile cry, the wail forlorn, / Of birds from whom their home is torn — / On those who wrought the rapine fell, / Heaven sends the vengeful fiends of hell.';
+  // Frogs 1–15: [ref, [ [speaker, greek-part], ... ], [ [speaker, english], ... ]]
+  var FROGS = [
+    [1, [['Xanthias','Εἴπω τι τῶν εἰωθότων, ὦ δέσποτα,'],[null,'ἐφ᾽ οἷς ἀεὶ γελῶσιν οἱ θεώμενοι;']], [['Xanthias','Now am I to make one of those jokes that have the knack of always making the spectators laugh?']]],
+    [3, [['Dionysus','Νὴ τὸν Δί᾽ ὅ τι βούλει γε, πλὴν «Πιέζομαι.»'],[null,'Τοῦτο δὲ φύλαξαι· πάνυ γάρ ἐστ᾽ ἤδη χολή.']], [['Dionysus','Aye, certainly, any one you like, excepting “I am worn out.” Take care you don’t say that, for it gets on my nerves.']]],
+    [5, [['Xanthias','Μηδ᾽ ἕτερον ἀστεῖόν τι;',[ 'Dionysus','Πλήν γ᾽ «Ὡς θλίβομαι.»']]], [['Xanthias','Do you want some other drollery?'],['Dionysus','Yes, only not, “I am quite broken up.”']]],
+    [6, [['Xanthias','Τί δαί; Τὸ πάνυ γέλοιον εἴπω;',['Dionysus','Νὴ Δία']],[null,'θαρρῶν γε· μόνον ἐκεῖν᾽ ὅπως μὴ ᾽ρεῖς—',['Xanthias','Τὸ τί;']]], [['Xanthias','Then what witty thing shall I say?'],['Dionysus','Come, take courage; only …'],['Xanthias','Only what?']]],
+    [8, [['Dionysus','μεταβαλλόμενος τἀνάφορον ὅτι χεζητιᾷς.']], [['Dionysus','… don’t start saying as you shift your package from shoulder to shoulder, “Ah! that’s a relief!”']]],
+    [9, [['Xanthias','Μηδ᾽ ὅτι τοσοῦτον ἄχθος ἐπ᾽ ἐμαυτῷ φέρων,'],[null,'εἰ μὴ καθαιρήσει τις, ἀποπαρδήσομαι;']], [['Xanthias','May I not at least say, that unless I am relieved of this cursed load I shall let wind?']]],
+    [11, [['Dionysus','Μὴ δῆθ᾽, ἱκετεύω, πλήν γ᾽ ὅταν μέλλω ᾽ξεμεῖν.']], [['Dionysus','Oh! for pity’s sake, no! you don’t want to make me spew.']]],
+    [12, [['Xanthias','Τί δῆτ᾽ ἔδει με ταῦτα τὰ σκεύη φέρειν,'],[null,'εἴπερ ποήσω μηδὲν ὧνπερ Φρυνίχοις'],[null,'εἴωθε ποιεῖν καὶ Λύκισι κἀμειψίαις'],[null,'σκεύη φέρουσ᾽ ἑκάστοτ᾽ ἐν κωμῳδίᾳ;']], [['Xanthias','What need then had I to take this luggage, if I must not copy the porters that Phrynichus, Lycis and Amipsias never fail to put on the stage?']]]
+  ];
+
+  // ---------- helpers ----------
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function spk(name, inl, dir, greek){
+    var n = SPK[name]; var label = greek ? (GSIG[name]||name) : (dir==='c' ? name : name);
+    return '<span class="spk'+(inl?' inl':'')+'" style="--spk:var(--s'+n+')">'+esc(label)+'</span>';
+  }
+  function head(work, cls, mode, bench, dir){
+    var ctl = dir==='c'
+      ? '<span'+(mode==='greek'?' class="on"':'')+'>GRC</span><span'+(mode==='both'?' class="on"':'')+'>BOTH</span><span>ENG</span><span class="bench">'+esc(bench)+' ▾</span><span'+(mode==='cmp'?' class="on"':'')+'>COMPARE</span><span>Aa</span><span>⌘K</span>'
+      : '<span'+(mode==='greek'?' class="on"':'')+'>Greek</span><span'+(mode==='both'?' class="on"':'')+'>Both</span><span>English</span><span class="bench">'+esc(bench)+' ▾</span><span'+(mode==='cmp'?' class="on"':'')+'>Compare</span><span>Aa</span><span>⌘K</span>';
+    return '<div class="head"><span class="site">Greek Drama Reader</span><span class="crumbs"><a href="#">'+esc(work.au)+'</a><span class="sep">·</span><a href="#">'+esc(work.en)+'</a></span><span class="ctl">'+ctl+'</span></div>';
+  }
+  function ln(n){ return (n%5===0) ? '<span class="ln">'+n+'</span>' : ''; }
+  function metre(dir, tag){ return dir==='c' ? '<span class="m">'+tag+'</span>' : ''; }
+
+  // ---------- frames ----------
+  function plate(dir){
+    var w = AG, draft = '<span class="draft">draft</span>';
+    var castA = w.cast.map(function(c){ return '<li style="--spk:var(--s'+c[1]+')">'+esc(c[0])+(c[2]?'<small>'+esc(c[2])+'</small>':'')+'</li>'; }).join('');
+    if(dir==='a'){
+      return '<div class="rd plate">'+head(w,'','',
+        'Smyth',dir)+'<div class="band"><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en.toUpperCase()+'</p><p class="au">'+w.au+'</p></div>'+
+        '<div class="cols"><div><h4>Persons of the play, in order of appearance</h4><ul class="cast">'+castA+'</ul></div>'+
+        '<div><p class="arg">'+w.arg+draft+'</p><dl><dt>Production</dt><dd>'+w.prod+'</dd><dt>Greek text</dt><dd>'+w.text+'</dd><dt>Translations</dt><dd>'+w.bench+'</dd></dl>'+
+        '<a class="go" href="#">Start reading →</a></div></div></div>';
+    }
+    if(dir==='b'){
+      var castB = w.cast.map(function(c){ return '<li style="--spk:var(--s'+c[1]+')">'+esc(c[0])+(c[2]?' <small>'+esc(c[2])+'</small>':'')+'</li>'; }).join('');
+      return '<div class="rd">'+head(w,'','','Smyth',dir)+'<div class="plate"><div><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en+'</p><p class="au">'+w.au+'</p>'+
+        '<p class="arg">'+w.arg+draft+'</p><h4>Persons</h4><ul class="cast">'+castB+'</ul><a class="go" href="#">Start reading →</a></div>'+
+        '<aside class="margin"><p><b>Production</b>'+w.prod+'</p><p><b>Greek text</b>'+w.text+'</p><p><b>Translations</b>'+w.bench+'</p><p><b>Cite as</b>Aesch. Ag. 1–1673</p></aside></div></div>';
+    }
+    var castC = w.cast.map(function(c){ return '<li style="--spk:var(--s'+c[1]+')"><span>'+esc(c[0]).toUpperCase()+(c[2]?'<small>'+esc(c[2])+'</small>':'')+'</span></li>'; }).join('');
+    return '<div class="rd plate">'+head(w,'','','Smyth',dir)+'<div class="card"><div><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en+'</p><p class="au">'+w.au+'</p><p class="arg">'+w.arg+'</p></div>'+
+      '<div class="cast"><h4>Persons · order of appearance</h4><ul class="cast">'+castC+'</ul></div></div>'+
+      '<div class="specs"><div><b>Production</b>'+w.prod+'</div><div><b>Greek text</b>'+w.text+'</div><div><b>Translations</b>'+w.bench+'</div></div>'+
+      '<div class="below"><a class="go" href="#">Start reading →</a></div></div>';
+  }
+
+  function dialogue(dir){
+    var rows = STICH.map(function(r){
+      var n=r[0], who=r[1];
+      return '<div class="seg"><div class="g"><span class="line">'+ln(n)+metre(dir,'3ia')+spk(who,false,dir,true)+esc(r[2])+'</span></div>'+
+             '<div class="e"><span class="tr">'+spk(who,false,dir,false)+esc(r[3])+'</span></div></div>';
+    }).join('');
+    return '<div class="rd">'+head(AG,'','both','Smyth',dir)+'<div class="body">'+rows+'</div></div>';
+  }
+
+  function odeGreek(dir){
+    var lines = ODE.map(function(l){ return '<span class="line">'+ln(l[0])+(l[0]===40?metre(dir,'an'):'')+esc(l[1])+'</span>'; }).join('');
+    return '<div class="rd greekonly">'+head(AG,'','greek','Smyth',dir)+'<div class="body ode"><p class="odehead">Parodos · Chorus</p><div class="seg"><div class="g" style="position:relative">'+
+      '<div style="position:relative">'+lines.replace(/<span class="ln">/g,'<span class="ln" style="position:absolute">')+'</div></div></div>'+
+      '<p class="note">Line numbers every fifth line; the strophe and antistrophe marks of the lyric proper (from 104) sit here in the same gutter.</p></div></div>';
+  }
+
+  function odeCompare(dir){
+    var lines = ODE.map(function(l){ return '<span class="line" style="position:relative">'+ln(l[0]).replace('class="ln"','class="ln" style="position:absolute"')+(l[0]===40?metre(dir,'an'):'')+esc(l[1])+'</span>'; }).join('');
+    return '<div class="rd">'+head(AG,'','cmp','Smyth + Morshead',dir)+'<div class="body ode"><p class="odehead">Parodos · Chorus · 40–59</p><div class="seg cmp">'+
+      '<div class="g" style="position:relative">'+spk('Chorus',false,dir,true)+lines+'</div>'+
+      '<div class="e"><span class="who">Smyth · 1926 · by line</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(SMYTH)+'</span></div>'+
+      '<div class="e"><span class="who">Morshead · 1881 · by speech</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(MORS).replace(/ \/ /g,'<br>')+'</span></div></div></div></div>';
+  }
+
+  function frogs(dir){
+    var strip = '<div class="strip"><h2 class="gt">'+FR.gt+'</h2><span class="en">'+(dir==='b'?FR.en:FR.en.toUpperCase())+'</span><span class="pr">'+FR.prod+'</span></div>';
+    // Each English turn sits on the row of the Greek line it starts on, so
+    // the first line of every turn is level across the columns; turns that
+    // begin mid-line (antilabe) stack in that line's row.
+    var rows = FROGS.map(function(r){
+      var ref=r[0], ti=0, out='';
+      r[1].forEach(function(part,i){
+        var n = ref+i, starts=0;
+        var s = '<span class="line" style="position:relative">'+(n%5===0?'<span class="ln" style="position:absolute">'+n+'</span>':'')+(i===0?metre(dir,'3ia'):'');
+        if(part[0]){ s += spk(part[0],false,dir,true); starts++; }
+        s += esc(part[1]);
+        if(part[2]){ s += ' '+spk(part[2][0],true,dir,true)+esc(part[2][1]); starts++; }
+        s += '</span>';
+        var e='';
+        for(var k=0;k<starts;k++){ var tr=r[2][ti++]; if(tr) e += '<span class="tr">'+spk(tr[0],false,dir,false)+esc(tr[1])+'</span>'; }
+        out += '<div class="g" style="position:relative">'+s+'</div><div class="e">'+e+'</div>';
+      });
+      return '<div class="seg">'+out+'</div>';
+    }).join('');
+    return '<div class="rd comedy">'+head(FR,'','both','Athenian Society',dir)+strip+'<div class="body">'+rows+'</div></div>';
+  }
+
+  function plateBlend(variant){
+    var w = AG, draft = '<span class="draft">draft</span>', dir='b';
+    var cast = w.cast.map(function(c){ return '<li style="--spk:var(--s'+c[1]+')">'+esc(c[0])+(c[2]?' <small>'+esc(c[2])+'</small>':'')+'</li>'; }).join('');
+    var margin = '<aside class="margin"><p><b>Production</b>'+w.prod+'</p><p><b>Greek text</b>'+w.text+'</p><p><b>Translations</b>'+w.bench+'</p><p><b>Cite as</b>Aesch. Ag. 1–1673</p></aside>';
+    var band = variant===1
+      ? '<div class="band"><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en+'</p><p class="au">'+w.au+'</p></div>'
+      : '<div class="band"><h2 class="gt">'+w.gt+'</h2><p class="en">'+w.en+'</p><p class="au">'+w.au+'</p><p class="arg">'+w.arg+'</p></div>';
+    var body = variant===1
+      ? '<div class="bodyp"><div><p class="arg">'+w.arg+draft+'</p><h4>Persons</h4><ul class="cast">'+cast+'</ul><a class="go" href="#">Start reading →</a></div>'+margin+'</div>'
+      : '<div class="bodyp"><div><h4>Persons</h4><ul class="cast">'+cast+'</ul><a class="go" href="#">Start reading →</a></div>'+margin+'</div>';
+    return '<div class="rd">'+head(w,'','','Smyth',dir)+'<div class="plate2">'+band+body+'</div></div>';
+  }
+
+  var FRAMES = [
+    ['Opening plate · variant 1 · A’s band over B’s plate', function(){ return plateBlend(1); }],
+    ['Opening plate · variant 2 · C’s colour field (title, author, argument) over B’s plate', function(){ return plateBlend(2); }],
+    ['Dialogue · Ag. 1203–1213 · both columns · speaker colour on', dialogue],
+    ['Choral ode · parodos 40–59 · Greek only', odeGreek],
+    ['Compare · the same ode beside Smyth and Morshead · plain columns', odeCompare],
+    ['Comedy dress · Frogs 1–15 · Athenian Society 1912 · antilabe at 5–7 · each English turn on the row of its Greek line', frogs]
+  ];
+  document.querySelectorAll('.frames').forEach(function(host){
+    var dir = host.getAttribute('data-dir');
+    host.innerHTML = FRAMES.map(function(f){
+      return '<figure class="fig"><div class="frame dir-'+dir+'">'+f[1](dir)+'</div><figcaption>'+f[0]+'</figcaption></figure>';
+    }).join('');
+  });
+
+  // ---------- controls ----------
+  var tb = document.querySelector('.toolbar');
+  tb.addEventListener('click', function(ev){
+    var b = ev.target.closest('button'); if(!b) return;
+    var grp = b.parentNode;
+    grp.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b ? 'true':'false'); });
+    if(b.dataset.theme){ document.querySelectorAll('.frame').forEach(function(f){ f.classList.toggle('dark', b.dataset.theme==='dark'); }); }
+    if(b.dataset.width){ document.querySelectorAll('.frames').forEach(function(f){ f.classList.toggle('phone', b.dataset.width==='phone'); }); }
+  });
+})();
+</script>
