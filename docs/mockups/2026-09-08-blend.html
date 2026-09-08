@@ -85,6 +85,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .rd .odehead{ font-family:var(--f-ui); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin:0 0 10px calc(var(--gutter,42px) + var(--spkw)); }
 .rd .cmp{ grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr); }
 .rd .cmp .g{ --spkw:0rem; }
+.rd .cmp .g .odehead{ margin:0 0 8px; font-size:11px; }
 .rd .cmp .g > .spk{ position:static; display:block; margin:0 0 8px; width:auto; }
 .rd .cmp .e{ background:var(--panel); padding:12px 14px; font-size:.95em; }
 .rd .cmp .tr{ padding-left:var(--spkw); }
@@ -457,8 +458,8 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 
   function odeCompare(dir){
     var lines = ODE.map(function(l){ return '<span class="line" style="position:relative">'+ln(l[0]).replace('class="ln"','class="ln" style="position:absolute"')+(l[0]===40?metre(dir,'an'):'')+esc(l[1])+'</span>'; }).join('');
-    return '<div class="rd">'+head(AG,'','cmp','Smyth + Morshead',dir)+'<div class="body ode"><p class="odehead">Parodos · Chorus · 40–59</p><div class="seg cmp">'+
-      '<div class="g" style="position:relative">'+spk('Chorus',false,dir,true)+lines+'</div>'+
+    return '<div class="rd">'+head(AG,'','cmp','Smyth + Morshead',dir)+'<div class="body ode"><div class="seg cmp">'+
+      '<div class="g" style="position:relative"><p class="odehead">Parodos · Chorus · 40–59</p>'+spk('Chorus',false,dir,true)+lines+'</div>'+
       '<div class="e"><span class="who">Smyth · 1926 · by line</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(SMYTH)+'</span></div>'+
       '<div class="e"><span class="who">Morshead · 1881 · by speech</span><span class="tr">'+spk('Chorus',false,dir,false)+esc(MORS).replace(/ \/ /g,'<br>')+'</span></div></div></div></div>';
   }
