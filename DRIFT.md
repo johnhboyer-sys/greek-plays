@@ -475,3 +475,35 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/lib/data.ts` — `EnglishChunk.speakerMismatch?: {english, greek}` (P2f: edition attribution difference recorded on the attached chunk).
 - `shared/components/Reader.svelte` — play-line English lead-in carries `data-mismatch` + a title naming both attributions when the displayed chunk is the primary with `speakerMismatch`.
 - `shared/styles/global.css` — `.turn-stack .speaker[data-mismatch]` dotted underline, help cursor.
+
+## P2g — speaker resolution, loss gates, comedy speaker lines (2026-09-08)
+
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — `_SpeechIndex`
+  resolves Greek speakers through `stage1_turn_english._SiglaResolver`
+  (stage7's `_norm_siglum` + `speakers.overrides` by printed ref) and owns
+  `speakers_of` (the SET of a segment's mapped speakers); mismatch, repair
+  and snap use set membership; continuation coverage requires a speaker
+  intersection with the covering segment; a repaired attachment ticks a line
+  the target itself prints; the duplicated `_speaker_report` is gone (it now
+  reuses stage1_turn_english's, which already resolves with overrides).
+- `pipeline/drama_pipeline/stage1_turn_english.py` — the periodless caps run
+  ends before a single-letter capital; `_SPEAKER_LINE` requires space, `[`
+  or end of line after the name's full stop; OCR-junk speeches take a
+  never-matching `_OCR_JUNK` sentinel and a blank printed label; the length
+  heuristic is reported as `length_ratio_outliers` and a real
+  `turn_shifts` / `turn_shift_rate` is added.
+- `pipeline/drama_pipeline/stage2_validate.py` — `_stage1_english_report`
+  (fails closed on a missing / foreign report), `checks.attachment_loss`
+  (`english.max_unresolved_mismatches`, default 0), `checks.alignment`
+  reports `covered_ids` and allows them by reason,
+  `checks.turn_text_mismatches` split into `turn_text_length_ratio` and
+  `turn_text_turn_shift` (`english.max_turn_shift_rate`, default 0.05).
+- `pipeline/drama_pipeline/__main__.py` — stage1 summary prints
+  `unresolved=` / `covered=` (perseus-play) and `head_unassigned=`,
+  `ratio_outliers=`, `turn_shifts=` (turn-text).
+- `pipeline/tests/{test_stage1_perseus_play_english,test_stage1_turn_english,test_scheme_play_line}.py`
+  and `pipeline/tests/fixtures/deterministic_stage2_stage3_golden.json`
+  (`covered_ids` key).
+- `manifests/{hippolytus,suppliants-aesch,lysistrata,oedipus-tyrannus,electra-soph}.yaml`
+  — alias rows and the two Storr `line_fixes`.
+- `docs/play-line.md` — §English and the turn-text contract.

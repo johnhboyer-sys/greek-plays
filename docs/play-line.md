@@ -41,15 +41,27 @@ speech between two anchors gets no copied text. When an English speech's
 attached anchors span `[min_n, max_n]`, or a single attached anchor whose
 Greek owner ends before the next English owner begins, every intervening
 Greek segment whose printed integers all lie in that span and that has no
-anchor of its own is marked `englishCoveredBy` with the segment id holding
+anchor of its own **and whose resolved speakers intersect the covering
+segment's** is marked `englishCoveredBy` with the segment id holding
 the translator's block (for example `"1:1320"`) and keeps `english: null`.
-The marker does not claim speaker identity. The reader shows "translated
+Coverage never crosses speakers: another character's one-liner inside an
+English block is a real hole, not a covered column, and must be declared in
+`english.gaps` like any other. The reader shows "translated
 above" and jumps to that speech instead of "no aligned passage". Stage 2
-counts a marked segment as covered. Lacunae and declared `english.gaps` ids
+treats coverage as an allowance: a covered id stays in
+`checks.alignment.unmatched_segments`, is listed in `covered_ids`, and is
+allowed by reason. Lacunae and declared `english.gaps` ids
 are not marked. `english.gaps` remains the residue that sits outside every
 English span. The builder does not copy a piece onto intervening speeches
 or extend a piece toward the next English `<sp>`. The stage-1 report
 records `covered_by_count` beside `segments_with_chunk / segments_total`.
+
+A Greek segment's speaker is resolved exactly as stage7 resolves it —
+`_norm_siglum` plus `speakers.overrides` keyed by the event's printed ref
+(Helen's `Θε.` is the Servant, Theonoe from 865, Theoclymenus from 1165) —
+and a segment owns the SET of its mapped speakers, so a segment that packs
+two turns (Seven `1:1004` = Ismene 1004 + Herald 1005) accepts either
+speaker's English without a mismatch.
 
 Lettered anchors matching `^\d+[a-z]+$` keep their text. They attach to an
 exact printed ref such as `1270a` when the spine has one, then fall back to
@@ -60,7 +72,9 @@ Greek speakers applies only when one English `<sp>` has anchors in more
 than one Greek segment. For a singleton mismatch, the builder uses the
 nearest same-speaker Greek speech within three lines, preferring the
 earlier speech on a tie (translator drift: Ag. 1077 Chorus lands on
-Chorus 1078, no `speakerMismatch` flag). If none exists, the piece is an
+Chorus 1078, no `speakerMismatch` flag); the emitted tick is a line that
+target segment itself prints, never the English `n` of the neighbour the
+piece came from. If none exists, the piece is an
 attribution difference between the translator's base text and the TLG
 edition: it attaches to the Greek speech that prints the line and the
 chunk is marked `speakerMismatch: {english, greek}` (canonical English
@@ -72,7 +86,12 @@ the segment's `english` chunk. Every (b) attachment is listed in
 covered. Every snap and speech mismatch is written to the same report
 (play, English line, Greek ref, both speakers). `speech_mismatch_count`
 counts all such rows, while `unresolved_mismatch_count` counts rows with
-no `attached_to` target.
+no `attached_to` target. Stage 2 gates that loss: `checks.attachment_loss`
+fails when `unresolved_mismatch_count` exceeds
+`english.max_unresolved_mismatches` (default `0`), and fails closed when
+`build/stage1/english_report.json` is missing or belongs to another work —
+unattached English is translation the reader never sees. The stage-1
+summary line prints `unresolved=N covered=N`.
 
 The Greek spine owns the speech/40-line segment cuts. The builder emits at
 most one English chunk per segment. A segment with no English is a hole:
@@ -102,18 +121,39 @@ repeated printed note numbers stay unique and hyphens become underscores
 emitted v1 `manifest.translations[]` entry. `<del>`, `<stage>`, and `<gap>`
 text is dropped; tails are kept. Display-only `<l n="0">` lines are dropped.
 
-For comedy `turn-text` sources, a printed `NAME.` label may stand alone, while
-`NAME text` without the period starts a speech only when `NAME` occurs in the
-work's `speakers.english` aliases and is the whole capitalized name before the
-first word with lowercase letters. Blank source lines inside a speech remain
-paragraph breaks. `english.primary.line_fixes` applies declared 1-based source
-line replacements before parsing. Notes end only at `INDEX`, `INTRODUCTION`,
-the next known comedy title, or the Gutenberg end marker. Stage 1 stops on an
-English name outside the Greek roster and reports paired speech-length ratio
-outliers. English before the first pair attaches to Greek segment 0 only when
-its canonical speaker matches that segment; the report counts other head text
-as `head_unassigned`. Stage 2 fails when `speech_mismatch_count / paired`
-exceeds `english.max_mismatch_rate` (default `0.15`).
+For comedy `turn-text` sources, a printed `NAME.` label may stand alone — its
+full stop must be followed by a space, a footnote marker (`NAME.[412]`) or the
+end of the line, so a mid-prose abbreviation (`O.God!`) is not a speaker —
+while `NAME text` without the period starts a speech only when `NAME` occurs in
+the work's `speakers.english` aliases and is the whole capitalized name before
+the first word with lowercase letters or before a single-letter capital
+(`MYRRHINÉ I could not…` is Myrrhine, not "MYRRHINÉ I"; a name that begins
+with one, `A HERALD`, keeps it). Blank source lines inside a speech remain
+paragraph breaks. `english.<slot>.line_fixes` applies declared 1-based source
+line replacements before parsing (the Storr scans' page signatures
+`WOU. 4, F`, `VQL. I. R` are blanked there). Notes end only at `INDEX`,
+`INTRODUCTION`, the next known comedy title, or the Gutenberg end marker.
+Stage 1 stops on an English name outside the Greek roster, except for a
+`format: loeb-ocr` bench slot, where an unaliased label is scanner junk: the
+speech keeps its text but is given a never-matching canonical sentinel and a
+blank printed label, so it never pairs and the reader shows it unattributed
+(`speakers.unaliased_ocr_speakers` reports it).
+
+The turn-text report carries two independent numbers.
+`length_ratio_outliers` / `length_ratio_outlier_count` is the English/Greek
+character-length dispersion (`speech_mismatches` is perseus-play's speaker
+mismatch key and is not reused); stage 2 fails
+`checks.turn_text_length_ratio` when `length_ratio_outlier_count / paired`
+exceeds `english.max_mismatch_rate` (default `0.25`). `turn_shifts` /
+`turn_shift_count` / `turn_shift_rate` counts pairs whose paired English
+canonical speaker is not the Greek speaker; stage 2 fails
+`checks.turn_text_turn_shift` above `english.max_turn_shift_rate` (default
+`0.05`). Pairing only ever joins name-agreeing turns, so the shift rate reads
+`0.000` today: it is the tripwire on that contract. Both checks fail closed
+when the stage-1 report is missing or belongs to another work. English before
+the first pair attaches to Greek segment 0 only when its canonical speaker
+matches that segment; the report counts other head text as `head_unassigned`,
+printed on the stage-1 summary line.
 
 Preflight reads `pipeline/drama_pipeline/public_domain_translations.yaml` and
 requires every translation id stage7 can emit (primary / secondary / third /

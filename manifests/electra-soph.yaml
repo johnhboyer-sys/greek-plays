@@ -34,6 +34,10 @@ english:
     source: bench/storr/electra-soph.txt
     play: ELECTRA
     footnotes: false
+    line_fixes:
+      # Scanner junk between speeches (page signature "VQL. I. R"), which the
+      # NAME. text rule read as a speaker (P2g finding 7).
+      1706: ""
   gaps:
     - "1:856"  # no covering <l n> in the Perseus TEI
     - "1:987"  # no covering <l n> in the Perseus TEI

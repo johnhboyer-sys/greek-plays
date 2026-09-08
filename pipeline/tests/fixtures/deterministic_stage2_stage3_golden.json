@@ -104,6 +104,7 @@
     "alignment": {
       "pairs": 2,
       "unmatched_segments": [],
+      "covered_ids": [],
       "allowed_unmatched": [],
       "unexpected_unmatched": [],
       "english_only": [],

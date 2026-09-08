@@ -623,10 +623,19 @@ def test_missing_title_line_is_fine_when_none_declared(tmp_path):
 
 def test_turn_text_floor_ignores_another_plays_report(tmp_path, monkeypatch):
     """The pairing-rate floor reads the single-work scratch report; a report
-    written by a different play must not authorise this one."""
+    written by a different play must not authorise this one, and its absence
+    must not open the gate either (P2g finding 11)."""
     from drama_pipeline import stage2_validate
     stage1 = tmp_path / "stage1"; stage1.mkdir()
     (stage1 / "english_report.json").write_text(json.dumps({"work": "frogs", "pairing_rate": 0.99}))
     monkeypatch.setattr(stage2_validate, "BUILD_DIR", tmp_path)
-    src = Path(stage2_validate.__file__).read_text()
-    assert 'data.get("work") == manifest.work_id' in src
+    data, error = stage2_validate._stage1_english_report("lysistrata")
+    assert data is None
+    assert "not 'lysistrata'" in error
+    assert stage2_validate._stage1_english_report("frogs")[0]["pairing_rate"] == 0.99
+
+    monkeypatch.setattr(stage2_validate, "BUILD_DIR", tmp_path / "elsewhere")
+    assert stage2_validate._stage1_english_report("frogs") == (
+        None,
+        f"no stage1 English report at {tmp_path / 'elsewhere' / 'stage1' / 'english_report.json'}",
+    )

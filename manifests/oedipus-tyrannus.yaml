@@ -34,6 +34,10 @@ english:
     source: bench/storr/oedipus-tyrannus.txt
     play: THE KING
     footnotes: false
+    line_fixes:
+      # Scanner junk between speeches (page signature "WOU. 4, F"), which the
+      # NAME. text rule read as a speaker (P2g finding 7).
+      904: ""
   gaps:
     - "1:624"  # no covering <l n> in the Perseus TEI
     - "1:679"  # no covering <l n> in the Perseus TEI

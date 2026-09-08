@@ -289,6 +289,71 @@ def _play_line_english_gap_ids(manifest: Manifest, segments: list[dict]) -> set[
     return allowed
 
 
+def _stage1_english_report(work_id: str) -> tuple[dict | None, str | None]:
+    """The stage1 English report for THIS work, or an explicit error string.
+
+    ``build/stage1`` is single-work scratch: a report left by the previous play
+    must never authorise this one (Opus review 2026-09-07 item 6), and a
+    missing or unreadable report must not silently open a gate (P2g finding
+    11) -- both return an error the caller turns into ``ok: False``.
+    """
+    path = BUILD_DIR / "stage1" / "english_report.json"
+    if not path.exists():
+        return None, f"no stage1 English report at {path}"
+    try:
+        data = json.loads(path.read_text())
+    except (ValueError, OSError) as exc:
+        return None, f"unreadable stage1 English report {path}: {exc}"
+    if not isinstance(data, dict) or data.get("work") != work_id:
+        got = data.get("work") if isinstance(data, dict) else None
+        return None, (
+            f"stage1 English report is for {got!r}, not {work_id!r} "
+            "(build/stage1 is single-work scratch)"
+        )
+    return data, None
+
+
+def _attachment_loss_check(manifest: Manifest) -> dict:
+    """Gate the perseus-play attachment loss (P2g finding 3).
+
+    An English piece the builder could not attach to any Greek speech is
+    translated text the reader never sees; before P2f a play could delete 113
+    speeches and still print PASS. ``english.max_unresolved_mismatches``
+    (default 0) is the allowance.
+    """
+    english_cfg = manifest.data.get("english") or {}
+    max_unresolved = int(english_cfg.get("max_unresolved_mismatches", 0))
+    data, error = _stage1_english_report(manifest.work_id)
+    check = {
+        "unresolved": None,
+        "max_unresolved": max_unresolved,
+        "mismatches": None,
+        "attribution_differences": None,
+        "error": error,
+        "ok": error is None,
+    }
+    if data is None:
+        return check
+    unresolved = int(data.get("unresolved_mismatch_count") or 0)
+    if unresolved > max_unresolved:
+        error = (
+            f"{unresolved} English piece(s) attached to no Greek speech "
+            f"(maximum {max_unresolved}): that text is dropped from the reader"
+        )
+    check.update(
+        {
+            "unresolved": unresolved,
+            "mismatches": int(data.get("speech_mismatch_count") or 0),
+            "attribution_differences": int(
+                data.get("attribution_difference_count") or 0
+            ),
+            "error": error,
+            "ok": error is None,
+        }
+    )
+    return check
+
+
 def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) -> dict:
     report: dict = {"checks": {}}
     segments = spine["segments"]
@@ -538,13 +603,17 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
     # P2f: an attribution-difference attachment is a real chunk (the English
     # speaker disagrees with the Greek line owner, flagged speakerMismatch
     # on the chunk). It pairs here like any other chunk and is not unmatched.
+    # P2g finding 4: coverage is an ALLOWANCE, not a silent deletion. A covered
+    # segment stays in `unmatched_segments` (and in `covered_ids`) and is
+    # allowed by reason; a hole that is neither attached nor covered still has
+    # to be named in `english.gaps`.
     covered_by = alignment.get("english_covered_by") or {}
+    covered_ids = sorted(
+        set(covered_by)
+        | {p["segment"] for p in alignment["pairs"] if p.get("englishCoveredBy")}
+    )
     unmatched = [
-        p["segment"]
-        for p in alignment["pairs"]
-        if p["english"] is None
-        and not p.get("englishCoveredBy")
-        and p["segment"] not in covered_by
+        p["segment"] for p in alignment["pairs"] if p["english"] is None
     ]
     # Columns the English TEI demonstrably cannot cover (Perseus omitted a Bekker
     # page milestone, or assigns a book-straddling column to a single book) are
@@ -555,10 +624,14 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
     )
     if sch.play_line_scheme and primary_model == "perseus-play":
         # perseus-play is sparse by design, but a hole is only legal when the
-        # manifest names it in english.gaps (segment ids or printed refs).
+        # manifest names it in english.gaps (segment ids or printed refs) --
+        # or when the translator's own block, attached to another segment,
+        # demonstrably contains it (continuation coverage).
         allowed.update(_play_line_english_gap_ids(manifest, segments))
         allowed.update(_play_line_lacuna_segment_ids(segments))
         allowed.update(_play_line_allowed_twin_ids(manifest, segments))
+        allowed.update(covered_ids)
+        report["checks"]["attachment_loss"] = _attachment_loss_check(manifest)
     if sch.play_line_scheme and primary_model == "turn-text":
         # turn-text (P3, the 1912 comedies): the English has no line numbers,
         # so speeches pair by speaker turn and residue is grouped onto the
@@ -573,50 +646,77 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # comedies (residue grouping inflates English pieces), so 0.15 tripped
         # four plays that read no worse than the six that passed (2026-09-08;
         # REVIEW-CHECKLIST item 5 asks John to spot-check flagged pairs).
-        max_mismatch_rate = float(english_cfg.get("max_mismatch_rate", 0.25))
-        report_path = BUILD_DIR / "stage1" / "english_report.json"
+        max_ratio_rate = float(english_cfg.get("max_mismatch_rate", 0.25))
+        # A turn shift is the real off-by-one: the paired English speech is
+        # spoken by someone else. 0.05 is tight because a shift means the
+        # reader sees another character's words (P2g finding 9).
+        max_shift_rate = float(english_cfg.get("max_turn_shift_rate", 0.05))
+        data, read_error = _stage1_english_report(manifest.work_id)
         rate = None
-        mismatch_check = {
+        # P2g finding 11: no report, or another play's report, fails CLOSED.
+        ratio_check = {
             "count": None,
             "paired": None,
             "rate": None,
-            "max_rate": max_mismatch_rate,
-            "error": None,
-            "ok": True,
+            "max_rate": max_ratio_rate,
+            "error": read_error,
+            "ok": read_error is None,
         }
-        if report_path.exists():
+        shift_check = {
+            "count": None,
+            "paired": None,
+            "rate": None,
+            "max_rate": max_shift_rate,
+            "error": read_error,
+            "ok": read_error is None,
+        }
+        if data is not None:
             try:
-                data = json.loads(report_path.read_text())
-                # build/stage1 is single-work scratch: a report left by the
-                # previous play must never authorise this one (Opus review
-                # 2026-09-07, item 6).
-                if data.get("work") == manifest.work_id:
-                    rate = float(data.get("pairing_rate"))
-                    paired = int(data.get("paired") or 0)
-                    mismatch_count = int(data.get("speech_mismatch_count") or 0)
-                    mismatch_rate = (
-                        mismatch_count / paired
-                        if paired
-                        else (1.0 if mismatch_count else 0.0)
-                    )
-                    error = None
-                    if mismatch_rate > max_mismatch_rate:
-                        error = (
-                            f"turn-text speech mismatch rate {mismatch_rate:.3f} "
-                            f"exceeds maximum {max_mismatch_rate:.3f} "
-                            f"({mismatch_count}/{paired} paired speeches)"
-                        )
-                    mismatch_check = {
-                        "count": mismatch_count,
-                        "paired": paired,
-                        "rate": mismatch_rate,
-                        "max_rate": max_mismatch_rate,
-                        "error": error,
-                        "ok": error is None,
-                    }
+                rate = float(data.get("pairing_rate"))
             except (ValueError, TypeError):
                 rate = None
-        report["checks"]["turn_text_mismatches"] = mismatch_check
+            paired = int(data.get("paired") or 0)
+            ratio_count = int(data.get("length_ratio_outlier_count") or 0)
+            ratio_rate = (
+                ratio_count / paired if paired else (1.0 if ratio_count else 0.0)
+            )
+            ratio_error = None
+            if ratio_rate > max_ratio_rate:
+                ratio_error = (
+                    f"turn-text length-ratio outlier rate {ratio_rate:.3f} "
+                    f"exceeds maximum {max_ratio_rate:.3f} "
+                    f"({ratio_count}/{paired} paired speeches)"
+                )
+            ratio_check = {
+                "count": ratio_count,
+                "paired": paired,
+                "rate": ratio_rate,
+                "max_rate": max_ratio_rate,
+                "error": ratio_error,
+                "ok": ratio_error is None,
+            }
+            shift_count = int(data.get("turn_shift_count") or 0)
+            shift_rate = float(
+                data.get("turn_shift_rate")
+                or (shift_count / paired if paired else (1.0 if shift_count else 0.0))
+            )
+            shift_error = None
+            if shift_rate > max_shift_rate:
+                shift_error = (
+                    f"turn-text turn-shift rate {shift_rate:.3f} exceeds maximum "
+                    f"{max_shift_rate:.3f} ({shift_count}/{paired} paired speeches "
+                    "give the English to a different speaker)"
+                )
+            shift_check = {
+                "count": shift_count,
+                "paired": paired,
+                "rate": shift_rate,
+                "max_rate": max_shift_rate,
+                "error": shift_error,
+                "ok": shift_error is None,
+            }
+        report["checks"]["turn_text_length_ratio"] = ratio_check
+        report["checks"]["turn_text_turn_shift"] = shift_check
         if rate is not None and rate >= floor:
             allowed.update(unmatched)
         allowed.update(_play_line_english_gap_ids(manifest, segments))
@@ -635,6 +735,7 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
     report["checks"]["alignment"] = {
         "pairs": len(alignment["pairs"]),
         "unmatched_segments": unmatched,
+        "covered_ids": covered_ids,
         "allowed_unmatched": sorted(allowed & (set(unmatched) | set(alignment["english_only"]))),
         "unexpected_unmatched": unexpected_unmatched,
         "english_only": alignment["english_only"],
@@ -834,12 +935,29 @@ def _to_markdown(report: dict) -> str:
         "## Alignment",
         f"- {a['pairs']} pairs; unmatched segments: {a['unmatched_segments'] or 'none'}; "
         f"english-only: {a['english_only'] or 'none'}",
+        f"- continuation-covered: {a.get('covered_ids') or 'none'}",
     ]
-    if "turn_text_mismatches" in c:
-        tm = c["turn_text_mismatches"]
+    if "attachment_loss" in c:
+        al = c["attachment_loss"]
         lines += [
             "",
-            "## Turn-text speech mismatches",
+            "## English attachment loss",
+            f"- unresolved {al['unresolved'] if al['unresolved'] is not None else 'unavailable'}; "
+            f"maximum {al['max_unresolved']}; attribution differences "
+            f"{al['attribution_differences'] if al['attribution_differences'] is not None else 'unavailable'}",
+        ]
+        if al["error"]:
+            lines.append(f"- **FAIL:** {al['error']}")
+    for key, heading in (
+        ("turn_text_length_ratio", "## Turn-text length-ratio outliers"),
+        ("turn_text_turn_shift", "## Turn-text speaker shifts"),
+    ):
+        if key not in c:
+            continue
+        tm = c[key]
+        lines += [
+            "",
+            heading,
             f"- rate {tm['rate'] if tm['rate'] is not None else 'unavailable'}; "
             f"maximum {tm['max_rate']}; count {tm['count'] if tm['count'] is not None else 'unavailable'}",
         ]

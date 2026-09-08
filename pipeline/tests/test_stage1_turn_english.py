@@ -339,7 +339,10 @@ def test_wasps_and_thesmo_cast_list_lines_are_not_speeches():
     )
 
 
-def test_lysistrata_chorus_of_athenians_stays_in_preceding_speech():
+def test_lysistrata_chorus_of_athenians_is_its_own_speech():
+    """The closing ode is the Athenian chorus's, not Lysistrata's: with
+    `CHORUS OF ATHENIANS` declared in speakers.english the periodless rule
+    starts a new speech there (P2g finding 12)."""
     pg8688 = (SOURCES_DIR / "gutenberg/pg8688.txt").read_text(encoding="utf-8").splitlines()
     assert pg8688[9150].startswith("CHORUS OF ATHENIANS Appear")
 
@@ -351,8 +354,14 @@ def test_lysistrata_chorus_of_athenians_stays_in_preceding_speech():
         and "All is for the best" in speech["text"]
     ]
     assert len(preceding) == 1
-    assert "Appear, appear, dancers" in preceding[0]["text"]
-    assert all(speech["speaker_printed"] != "CHORUS OF ATHENIANS" for speech in speeches)
+    assert "Appear, appear, dancers" not in preceding[0]["text"]
+    ode = [
+        speech
+        for speech in speeches
+        if speech["speaker_printed"] == "CHORUS OF ATHENIANS"
+    ]
+    assert len(ode) == 1
+    assert ode[0]["text"].startswith("Appear, appear, dancers")
     assert all(
         not speech["text"].startswith("OF ATHENIANS Appear") for speech in speeches
     )
@@ -387,10 +396,16 @@ def test_speech_length_ratio_outlier_is_reported(tmp_path):
         english_aliases={"ALPHA": "Alpha", "BETA": "Beta", "GAMMA": "Gamma"},
         footnotes_enabled=False,
     )
-    assert report["speech_mismatches"] == [
+    # The heuristic measures LENGTH, so it keeps a length name; the key
+    # `speech_mismatches` belongs to perseus-play's real speaker mismatches.
+    assert report["length_ratio_outliers"] == [
         {"greek_id": "1:3", "english_index": 2, "ratio": 10.0}
     ]
-    assert report["speech_mismatch_count"] == 1
+    assert report["length_ratio_outlier_count"] == 1
+    assert "speech_mismatches" not in report
+    assert report["turn_shifts"] == []
+    assert report["turn_shift_count"] == 0
+    assert report["turn_shift_rate"] == 0.0
 
 
 def test_head_residue_attaches_only_when_speaker_matches():
@@ -461,16 +476,138 @@ def test_head_residue_unassigned_is_reported(tmp_path):
     assert english["chunks"][0]["turns"][0]["speaker"] == "Alpha"
 
 
-def test_mismatch_rate_is_surfaced_in_summary_and_stage2():
+def test_quality_numbers_are_surfaced_in_the_stage1_summary():
     from drama_pipeline import __main__ as cli
-    from drama_pipeline import stage2_validate as s2
 
     main_src = Path(cli.__file__).read_text(encoding="utf-8")
-    assert "mismatches={report['speech_mismatch_count']}" in main_src
-    stage2_src = Path(s2.__file__).read_text(encoding="utf-8")
-    assert 'english_cfg.get("max_mismatch_rate", 0.25)' in stage2_src
-    assert "speech mismatch rate" in stage2_src
-    assert "turn_text_mismatches" in stage2_src
+    assert "ratio_outliers={report['length_ratio_outlier_count']}" in main_src
+    assert "turn_shifts={report['turn_shift_count']}" in main_src
+    assert "head_unassigned={report['head_unassigned']}" in main_src
+    assert "unresolved={report['unresolved_mismatch_count']}" in main_src
+    assert "covered={report['covered_by_count']}" in main_src
+
+
+def _turn_text_manifest(**english) -> Manifest:
+    data = {
+        "work": {"id": "test-play", "title": "Test", "author": "aristophanes"},
+        "citation": {"scheme": "play-line"},
+        "books": [{"n": 1, "start": "1", "end": "3"}],
+        "english": {
+            "primary": {"id": "as", "name": "AS", "model": "turn-text"},
+            "gaps": [],
+            **english,
+        },
+        "proper_names": [],
+    }
+    return Manifest(data, Path("test-play.yaml"))
+
+
+def _stage2_with_report(monkeypatch, tmp_path, report: dict, manifest: Manifest):
+    from drama_pipeline import stage2_validate as s2
+
+    stage1 = tmp_path / "stage1"
+    stage1.mkdir(exist_ok=True, parents=True)
+    if report is not None:
+        (stage1 / "english_report.json").write_text(
+            json.dumps(report), encoding="utf-8"
+        )
+    monkeypatch.setattr(s2, "BUILD_DIR", tmp_path)
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": f"1:{n}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": n, "ref": str(n), "text": "Greek sample text"}],
+                "speakers": [{"line": n, "offset": 0, "label": "Χο."}],
+            }
+            for n in (1, 2, 3)
+        ],
+    }
+    english = {
+        "chunks": [
+            {"id": f"1:{n}", "column": "1", "text": "English sample text here."}
+            for n in (1, 2, 3)
+        ]
+    }
+    alignment = {
+        "pairs": [{"segment": f"1:{n}", "english": f"1:{n}"} for n in (1, 2, 3)],
+        "english_only": [],
+    }
+    return s2.validate(manifest, spine, english, alignment)
+
+
+def test_stage2_gates_length_ratio_and_turn_shift_separately(tmp_path, monkeypatch):
+    base = {
+        "work": "test-play",
+        "pairing_rate": 0.99,
+        "paired": 100,
+        "length_ratio_outlier_count": 10,
+        "turn_shift_count": 2,
+        "turn_shift_rate": 0.02,
+    }
+    ok = _stage2_with_report(monkeypatch, tmp_path, base, _turn_text_manifest())
+    assert ok["checks"]["turn_text_length_ratio"]["ok"] is True
+    assert ok["checks"]["turn_text_turn_shift"]["ok"] is True
+    assert "turn_text_mismatches" not in ok["checks"]
+
+    shifted = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "turn_shift_count": 9, "turn_shift_rate": 0.09},
+        _turn_text_manifest(),
+    )
+    shift = shifted["checks"]["turn_text_turn_shift"]
+    assert shift["ok"] is False
+    assert "turn-shift rate 0.090 exceeds maximum 0.050" in shift["error"]
+    # The length gate is untouched at 0.25 and still passes.
+    assert shifted["checks"]["turn_text_length_ratio"]["ok"] is True
+    assert shifted["ok"] is False
+
+    allowed = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "turn_shift_count": 9, "turn_shift_rate": 0.09},
+        _turn_text_manifest(max_turn_shift_rate=0.1),
+    )
+    assert allowed["checks"]["turn_text_turn_shift"]["ok"] is True
+
+    long_ratio = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "length_ratio_outlier_count": 30},
+        _turn_text_manifest(),
+    )
+    assert long_ratio["checks"]["turn_text_length_ratio"]["ok"] is False
+    assert (
+        "length-ratio outlier rate 0.300"
+        in long_ratio["checks"]["turn_text_length_ratio"]["error"]
+    )
+
+
+def test_stage2_turn_text_checks_fail_closed_without_this_works_report(
+    tmp_path, monkeypatch
+):
+    """A missing report, or one left by the previous play, must not open the
+    gate (P2g finding 11)."""
+    foreign = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {"work": "frogs", "pairing_rate": 0.99, "paired": 10},
+        _turn_text_manifest(),
+    )
+    for key in ("turn_text_length_ratio", "turn_text_turn_shift"):
+        assert foreign["checks"][key]["ok"] is False
+        assert "not 'test-play'" in foreign["checks"][key]["error"]
+    assert foreign["ok"] is False
+
+    missing = _stage2_with_report(
+        monkeypatch, tmp_path / "empty", None, _turn_text_manifest()
+    )
+    for key in ("turn_text_length_ratio", "turn_text_turn_shift"):
+        assert missing["checks"][key]["ok"] is False
+        assert "no stage1 English report" in missing["checks"][key]["error"]
 
 
 def test_manifest_line_fix_repairs_peace_speaker():
@@ -727,3 +864,143 @@ def test_loeb_ocr_unaliased_speakers_are_unattributed_not_fatal(tmp_path):
     )
     assert report["speakers"]["unaliased_ocr_speakers"] == ["WOU"]
     assert report["speakers"]["only_in_english"] == []
+
+
+# ── P2g: speaker-line shape, OCR junk, single-letter caps ──────────────────
+
+
+def test_caps_run_ends_before_a_single_letter_capital():
+    """`MYRRHINÉ I could not…` built the name "MYRRHINÉ I", failed the alias
+    test and folded into the previous speech (P2g finding 6). A name that
+    BEGINS with a single capital keeps it."""
+    from drama_pipeline.stage1_turn_english import _periodless_speaker
+
+    known = {"MYRRHINÉ", "CHREMYLUS", "A HERALD", "CHORUS OF ATHENIANS"}
+    assert _periodless_speaker("MYRRHINÉ I could not find my girdle", known) == (
+        "MYRRHINÉ",
+        "I could not find my girdle",
+    )
+    assert _periodless_speaker("CHREMYLUS I shall be soon, if the god", known) == (
+        "CHREMYLUS",
+        "I shall be soon, if the god",
+    )
+    assert _periodless_speaker("A HERALD comes forward", known) == (
+        "A HERALD",
+        "comes forward",
+    )
+    assert _periodless_speaker("CHORUS OF ATHENIANS Appear, dancers", known) == (
+        "CHORUS OF ATHENIANS",
+        "Appear, dancers",
+    )
+
+
+def test_real_single_letter_opening_speeches_are_their_own():
+    pg8688 = (SOURCES_DIR / "gutenberg/pg8688.txt").read_text(encoding="utf-8").splitlines()
+    pg8689 = (SOURCES_DIR / "gutenberg/pg8689.txt").read_text(encoding="utf-8").splitlines()
+    assert pg8688[7538].startswith("MYRRHINÉ I could not find my girdle")
+    assert pg8689[13351].startswith("CHREMYLUS I shall be soon")
+
+    lysistrata, _notes = _manifest_speeches("lysistrata")
+    girdle = [
+        speech for speech in lysistrata
+        if speech["text"].startswith("I could not find my girdle")
+    ]
+    assert [speech["speaker_printed"] for speech in girdle] == ["MYRRHINÉ"]
+
+    wealth, _notes = _manifest_speeches("wealth")
+    soon = [
+        speech for speech in wealth
+        if speech["text"].startswith("I shall be soon, if the god")
+    ]
+    assert [speech["speaker_printed"] for speech in soon] == ["CHREMYLUS"]
+
+
+def test_speaker_full_stop_needs_a_space_or_end_of_line():
+    """`O.God!` (Storr philoctetes.txt:830) is prose, not a speaker named "O";
+    `\\.\\s*` matched with zero space (P2g finding 7)."""
+    from drama_pipeline.stage1_turn_english import _SPEAKER_LINE
+
+    assert _SPEAKER_LINE.match("O.God!") is None
+    assert _SPEAKER_LINE.match("PHILOCTETES.No space here") is None
+    assert _SPEAKER_LINE.match("CHORUS. The curses work").group("name") == "CHORUS"
+    assert _SPEAKER_LINE.match("CHORUS.").group("name") == "CHORUS"
+    # The Gutenberg footnote form `NAME.[412] text` stays a speaker line.
+    marked = _SPEAKER_LINE.match("CHORUS OF OLD MEN.[412] Come along")
+    assert marked.group("name") == "CHORUS OF OLD MEN"
+    assert marked.group("fn3") == "412"
+
+
+@pytest.mark.parametrize(
+    "work, line_no, junk",
+    [("oedipus-tyrannus", 904, "WOU. 4, F"), ("electra-soph", 1706, "VQL. I. R")],
+)
+def test_bench_scanner_junk_lines_are_declared_line_fixes(work, line_no, junk):
+    """The two spaced OCR artefacts are real `NAME. text` shapes, so the
+    regex cannot see them: the manifest blanks the line (P2g finding 7)."""
+    manifest = Manifest.for_work(work)
+    cfg = manifest.data["english"]["secondary"]
+    fixes = cfg.get("line_fixes") or {}
+    assert int(line_no) in {int(k) for k in fixes}
+    assert fixes[line_no] == ""
+    source = SOURCES_DIR / cfg["source"]
+    if not source.exists():  # bench scans are not part of a minimal checkout
+        return
+    lines = source.read_text(encoding="utf-8").splitlines()
+    assert lines[line_no - 1] == junk
+    speeches, _notes = parse_play_speeches(
+        "\n".join(lines),
+        cfg["play"],
+        format=cfg.get("format") or "gutenberg",
+        known_names=set(manifest.data["speakers"].get("english") or {}),
+        line_fixes=fixes,
+    )
+    name = junk.split(".")[0]
+    assert all(speech["speaker_printed"] != name for speech in speeches)
+
+
+def test_ocr_junk_speech_is_unattributed_and_never_pairs(tmp_path):
+    """A junk label must not become a pairing wildcard (None agrees with every
+    Greek speaker) nor be printed as a speaker (P2g finding 8)."""
+    from drama_pipeline.stage1_turn_english import _OCR_JUNK
+
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "TEST PLAY\n"
+        "ALPHA. First words of the play here.\n"
+        "WOU. 4, F\n"
+        "BETA. Second words of the play here.\n"
+        "FINIS\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": f"1:{n}",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": n, "ref": str(n), "text": "Greek sample text"}],
+                "speakers": [{"line": n, "offset": 0, "label": label}],
+            }
+            for n, label in enumerate(("Α.", "Β."), 1)
+        ],
+    }
+    english, _footnotes, report = parse_translation(
+        path,
+        spine,
+        work_id="test",
+        translation_id="storr",
+        play="TEST PLAY",
+        sigla={"Α.": "Alpha", "Β.": "Beta"},
+        english_aliases={"ALPHA": "Alpha", "BETA": "Beta"},
+        footnotes_enabled=False,
+        format="loeb-ocr",
+    )
+    assert report["speakers"]["unaliased_ocr_speakers"] == ["WOU"]
+    assert report["speakers"]["only_in_english"] == []
+    turns = [turn for chunk in english["chunks"] for turn in chunk["turns"]]
+    assert [turn["display"] for turn in turns] == ["ALPHA", "BETA"]
+    assert all(turn["speaker"] != _OCR_JUNK for turn in turns)
+    # The words themselves are still shown, unattributed.
+    assert any("4, F" in chunk["text"] for chunk in english["chunks"])
+    assert report["turn_shift_count"] == 0

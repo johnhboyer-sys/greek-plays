@@ -68,7 +68,9 @@ def _stage1(manifest):
                 print(
                     f"  english chunks={len(english['chunks'])} "
                     f"({english['translation']}) unmatched={len(unmatched)} "
-                    f"anchors={report['anchor_count']} snaps={report['snap_count']}"
+                    f"anchors={report['anchor_count']} snaps={report['snap_count']} "
+                    f"unresolved={report['unresolved_mismatch_count']} "
+                    f"covered={report['covered_by_count']}"
                 )
             elif model == "turn-text":
                 from . import stage1_turn_english
@@ -84,7 +86,9 @@ def _stage1(manifest):
                     f"  english chunks={len(english['chunks'])} "
                     f"({english['translation']}) unmatched={len(unmatched)} "
                     f"paired={report['paired']} residual={report['residual_grouped']} "
-                    f"mismatches={report['speech_mismatch_count']} "
+                    f"head_unassigned={report['head_unassigned']} "
+                    f"ratio_outliers={report['length_ratio_outlier_count']} "
+                    f"turn_shifts={report['turn_shift_count']} "
                     f"rate={report['pairing_rate']:.3f}"
                 )
             else:
@@ -108,7 +112,9 @@ def _stage1(manifest):
                     f"  secondary chunks={sec_report['segments_with_chunk']} "
                     f"({sec_report['translation']}) unpaired={sec_report['greek_unpaired']} "
                     f"paired={sec_report['paired']} residual={sec_report['residual_grouped']} "
-                    f"mismatches={sec_report['speech_mismatch_count']} "
+                    f"head_unassigned={sec_report['head_unassigned']} "
+                    f"ratio_outliers={sec_report['length_ratio_outlier_count']} "
+                    f"turn_shifts={sec_report['turn_shift_count']} "
                     f"rate={sec_report['pairing_rate']:.3f}"
                 )
             elif sec_model == "perseus-play":
@@ -122,7 +128,9 @@ def _stage1(manifest):
                     f"  secondary chunks={sec_report['segments_with_chunk']} "
                     f"({sec_report['translation']}) "
                     f"coverage={sec_report['coverage_ratio']:.3f} "
-                    f"anchors={sec_report['anchor_count']} snaps={sec_report['snap_count']}"
+                    f"anchors={sec_report['anchor_count']} snaps={sec_report['snap_count']} "
+                    f"unresolved={sec_report['unresolved_mismatch_count']} "
+                    f"covered={sec_report['covered_by_count']}"
                 )
             else:
                 raise NotImplementedError(

@@ -881,26 +881,31 @@ def test_stichomythia_continuation_coverage(tmp_path: Path):
     assert set(by_id) == {"1:1320", "1:1325"}
     assert "First block." in by_id["1:1320"]["text"]
     assert "Later block." in by_id["1:1325"]["text"]
+    # P2g finding 4: coverage never crosses speakers. 1321/1323 are the OTHER
+    # speaker's one-liners inside Alpha's block: they are real holes, not
+    # covered columns, and must be declared like any other gap.
     covered = english["english_covered_by"]
-    assert covered["1:1321"] == "1:1320"
-    assert covered["1:1322"] == "1:1320"
-    assert covered["1:1323"] == "1:1320"
-    assert covered["1:1324"] == "1:1320"
-    assert "1:1320" not in covered
-    assert "1:1325" not in covered
-    assert "1:1400" not in covered
-    assert "1:post 1322" not in covered
-    assert report["covered_by_count"] == 4
+    assert covered == {"1:1322": "1:1320", "1:1324": "1:1320"}
+    assert report["covered_by_count"] == 2
 
     alignment = _alignment_for(spine, english)
-    result = validate(_play_manifest(gaps=[]), spine, english, alignment)
-    unexpected = result["checks"]["alignment"]["unexpected_unmatched"]
-    assert "1:1321" not in unexpected
+    result = validate(
+        _play_manifest(gaps=["1:1321", "1:1323"]), spine, english, alignment
+    )
+    align = result["checks"]["alignment"]
+    unexpected = align["unexpected_unmatched"]
     assert "1:1322" not in unexpected
-    assert "1:1323" not in unexpected
     assert "1:1324" not in unexpected
     assert "1:post 1322" not in unexpected
     assert "1:1400" in unexpected
+    # Coverage is an ALLOWANCE, reported, not a silent removal.
+    assert align["covered_ids"] == ["1:1322", "1:1324"]
+    assert "1:1322" in align["unmatched_segments"]
+    assert "1:1322" in align["allowed_unmatched"]
+
+    undeclared = validate(_play_manifest(gaps=[]), spine, english, alignment)
+    assert "1:1321" in undeclared["checks"]["alignment"]["unexpected_unmatched"]
+    assert "1:1323" in undeclared["checks"]["alignment"]["unexpected_unmatched"]
 
     tokens = {
         "segments": [
@@ -919,7 +924,8 @@ def test_stichomythia_continuation_coverage(tmp_path: Path):
     assert emitted["1:1320"]["english"]["text"] == "First block."
     assert "englishCoveredBy" not in emitted["1:1320"]
     assert emitted["1:1321"]["english"] is None
-    assert emitted["1:1321"]["englishCoveredBy"] == "1:1320"
+    assert "englishCoveredBy" not in emitted["1:1321"]
+    assert emitted["1:1322"]["englishCoveredBy"] == "1:1320"
     assert emitted["1:1324"]["englishCoveredBy"] == "1:1320"
     assert emitted["1:1325"]["english"]["text"] == "Later block."
     assert "englishCoveredBy" not in emitted["1:1325"]
@@ -1144,3 +1150,273 @@ def test_footnotes_flag_is_copied_onto_v1_translation_entry(tmp_path, monkeypatc
     fields = _manifest_v1_fields(manifest, out_dir)
     assert fields["translations"][0]["footnotes"] is True
     assert fields["translations"][0]["id"] == "smyth"
+
+
+# ── P2g: speaker resolution, speaker sets, repair ticks, loss gate ──────────
+
+
+def _resolver(sigla: dict, overrides: list[dict] | None = None):
+    from drama_pipeline.stage1_turn_english import _SiglaResolver
+
+    return _SiglaResolver(
+        Manifest(
+            {
+                "work": {"id": "test-play"},
+                "citation": {"scheme": "play-line"},
+                "speakers": {"sigla": sigla, "overrides": overrides or []},
+            },
+            Path("test-play.yaml"),
+        )
+    )
+
+
+def test_speaker_override_resolves_like_stage7(tmp_path: Path):
+    """Helen's Θε. is a servant until 1165 and Theoclymenus from 1165 on
+    (speakers.overrides). Resolving with the bare sigla map read every later
+    line as the servant, scored a false mismatch and deleted the English."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1100",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": "1100", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Θε."}],
+            },
+            {
+                "id": "1:1180",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 2, "ref": "1180", "text": "g"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θε."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Servant</speaker><l n="1100">The servant speaks.</l></sp>
+    <sp><speaker>Theoclymenus</speaker><l n="1180">The king speaks.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    resolver = _resolver(
+        {"Θε.": "Servant", "—": None},
+        [{"siglum": "Θε.", "from": "1165", "display": "Theoclymenus"}],
+    )
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Servant": "Servant", "Theoclymenus": "Theoclymenus"},
+        sigla=resolver,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:1180"]["text"] == "The king speaks."
+    assert "speakerMismatch" not in by_id["1:1180"]
+    assert report["speech_mismatch_count"] == 0
+    assert "Theoclymenus" in report["speakers"]["greek_roster"]
+    assert report["speakers"]["only_in_english"] == []
+
+
+def test_packed_second_speaker_accepts_its_own_english(tmp_path: Path):
+    """Seven 1:1004 packs Ismene (1004) and the Herald (1005): the Herald's
+    English must attach there without a mismatch. The first-speaker rule made
+    it a mismatch the repair search could never target."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1004",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": 1004, "ref": "1004", "text": "g"},
+                    {"n": 1005, "ref": "1005", "text": "g"},
+                ],
+                "speakers": [
+                    {"line": 1004, "offset": 0, "label": "Ισ."},
+                    {"line": 1005, "offset": 0, "label": "Κη."},
+                ],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Herald</speaker><l n="1005">The city has decreed.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Herald": "Herald", "Ismene": "Ismene"},
+        sigla={"Ισ.": "Ismene", "Κη.": "Herald", "—": None},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:1004"]["text"] == "The city has decreed."
+    assert "speakerMismatch" not in by_id["1:1004"]
+    assert report["speech_mismatch_count"] == 0
+    assert report["attribution_difference_count"] == 0
+
+
+def test_repair_tick_names_a_line_the_target_segment_prints(tmp_path: Path):
+    """A repaired attachment must tick one of the TARGET's own lines, not the
+    English n of the neighbour that printed it (P2g finding 10)."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1000",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": 1000, "ref": "1000", "text": "g"},
+                    {"n": 1001, "ref": "1001", "text": "g"},
+                ],
+                "speakers": [{"line": 1000, "offset": 0, "label": "A"}],
+            },
+            {
+                "id": "1:1002",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1002, "ref": "1002", "text": "g"}],
+                "speakers": [{"line": 1002, "offset": 0, "label": "B"}],
+            },
+            {
+                "id": "1:1003",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1003, "ref": "1003", "text": "g"}],
+                "speakers": [{"line": 1003, "offset": 0, "label": "G"}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1003">Alpha's own line.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(tmp_path, tei, spine)
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert set(by_id) == {"1:1000"}
+    ticks = [mark["n"] for mark in by_id["1:1000"]["bekker"]]
+    assert ticks == [1001]
+    mismatch = report["speech_mismatches"][0]
+    assert mismatch["kind"] == "speaker_repair"
+    assert mismatch["attached_to"] == "1:1000"
+    assert mismatch["attached_ref"] == "1001"
+
+
+def _write_english_report(monkeypatch, tmp_path: Path, data: dict) -> None:
+    from drama_pipeline import stage2_validate as s2
+
+    stage1 = tmp_path / "stage1"
+    stage1.mkdir(exist_ok=True)
+    (stage1 / "english_report.json").write_text(json.dumps(data), encoding="utf-8")
+    monkeypatch.setattr(s2, "BUILD_DIR", tmp_path)
+
+
+def test_attachment_loss_is_gated(tmp_path: Path, monkeypatch):
+    """Unattached English is deleted translation: it must fail the build
+    unless the manifest declares an allowance (P2g finding 3)."""
+    spine = _spine()
+    english = {
+        "chunks": [
+            {"id": "1:1", "column": "1", "text": "Alpha text here for length."},
+            {"id": "1:5", "column": "1", "text": "Beta text here for length."},
+            {"id": "1:10", "column": "1", "text": "Gamma text here for length."},
+        ]
+    }
+    alignment = _alignment_for(spine, english)
+
+    _write_english_report(
+        monkeypatch,
+        tmp_path,
+        {"work": "test-play", "unresolved_mismatch_count": 0},
+    )
+    clean = validate(_play_manifest(gaps=[]), spine, english, alignment)
+    assert clean["checks"]["attachment_loss"]["ok"] is True
+    assert clean["checks"]["attachment_loss"]["unresolved"] == 0
+
+    _write_english_report(
+        monkeypatch,
+        tmp_path,
+        {
+            "work": "test-play",
+            "unresolved_mismatch_count": 3,
+            "speech_mismatch_count": 9,
+            "attribution_difference_count": 2,
+        },
+    )
+    lossy = validate(_play_manifest(gaps=[]), spine, english, alignment)
+    check = lossy["checks"]["attachment_loss"]
+    assert check["ok"] is False
+    assert "3 English piece(s) attached to no Greek speech" in check["error"]
+    assert lossy["ok"] is False
+
+    manifest = _play_manifest(gaps=[])
+    manifest.data["english"]["max_unresolved_mismatches"] = 3
+    allowed = validate(manifest, spine, english, alignment)
+    assert allowed["checks"]["attachment_loss"]["ok"] is True
+
+
+def test_attachment_loss_fails_closed_without_this_works_report(
+    tmp_path: Path, monkeypatch
+):
+    spine = _spine()
+    english = {"chunks": [{"id": "1:1", "column": "1", "text": "Alpha text."}]}
+    alignment = _alignment_for(spine, english)
+    from drama_pipeline import stage2_validate as s2
+
+    monkeypatch.setattr(s2, "BUILD_DIR", tmp_path)
+    missing = validate(_play_manifest(gaps=["1:5", "1:10"]), spine, english, alignment)
+    assert missing["checks"]["attachment_loss"]["ok"] is False
+    assert "no stage1 English report" in missing["checks"]["attachment_loss"]["error"]
+
+    _write_english_report(
+        monkeypatch, tmp_path, {"work": "frogs", "unresolved_mismatch_count": 0}
+    )
+    foreign = validate(_play_manifest(gaps=["1:5", "1:10"]), spine, english, alignment)
+    assert foreign["checks"]["attachment_loss"]["ok"] is False
+    assert "not 'test-play'" in foreign["checks"]["attachment_loss"]["error"]
+
+
+def test_helen_override_is_live_in_the_english_builder():
+    """The real manifest, resolved the way _SpeechIndex now resolves it."""
+    from drama_pipeline.stage1_perseus_play_english import _SpeechIndex
+
+    manifest = Manifest.for_work("helen")
+    spine = {
+        "work": "helen",
+        "segments": [
+            {
+                "id": "1:700",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": "700", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Θε."}],
+            },
+            {
+                "id": "1:1200",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 2, "ref": "1200", "text": "g"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θε."}],
+            },
+        ],
+    }
+    index = _SpeechIndex(spine, _resolver_for(manifest))
+    assert index.speakers_of["1:700"] == {"Servant"}
+    assert index.speakers_of["1:1200"] == {"Theoclymenus"}
+
+
+def _resolver_for(manifest: Manifest):
+    from drama_pipeline.stage1_turn_english import _SiglaResolver
+
+    return _SiglaResolver(manifest)

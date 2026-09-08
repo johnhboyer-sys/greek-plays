@@ -28,6 +28,11 @@ nothing, the piece attaches to the Greek speech that prints the line
 ``{english, greek}`` so the text is shown and the edition disagreement
 is visible.  Translator drift (a same-speaker Greek speech within ±3)
 still reattaches there without the flag.
+
+P2g: Greek speakers resolve through ``_SiglaResolver`` (stage7's
+``_norm_siglum`` + ``speakers.overrides``), a segment owns the SET of
+its mapped speakers, continuation coverage never crosses speakers, and
+the repaired attachment ticks a line the target segment itself prints.
 """
 
 from __future__ import annotations
@@ -42,6 +47,11 @@ from lxml import etree
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
 from .stage1_common import collapse_ws, local_name, write_json
 from .stage1_english import build_alignment
+from .stage1_turn_english import (
+    _SiglaResolver,
+    _event_ref,
+    _speaker_report,
+)
 
 
 _EM_DASH_SPLIT = re.compile(r"(?:(?<=\s)|^)(?=—)")
@@ -135,10 +145,20 @@ def _ref_line_numbers(ref: str) -> set[int]:
 
 
 class _SpeechIndex:
-    """Greek segments as speeches, with the line numbers each one covers."""
+    """Greek segments as speeches, with the line numbers each one covers.
 
-    def __init__(self, spine: dict, sigla: dict):
-        from . import turns as turns_mod
+    Speakers resolve EXACTLY as stage7 resolves them (``_SiglaResolver`` =
+    ``_norm_siglum`` + ``speakers.overrides`` by printed ref): an abbreviation
+    the edition re-assigns part-way through (Helen's ``Θε.`` → Theoclymenus
+    from 1165) must read as the character stage7 colours, or every line after
+    the override scores a false speaker mismatch (P2g finding 2).  A segment
+    may map SEVERAL speakers (Seven 1:1004 packs Ismene 1004 and the Herald
+    1005), so the unit of comparison is the SET, never the first name.
+    """
+
+    def __init__(self, spine: dict, sigla):
+        if not isinstance(sigla, _SiglaResolver):
+            sigla = _SiglaResolver.from_map(sigla or {})
 
         self.segments: list[dict] = list(spine["segments"])
         self.by_id = {seg["id"]: seg for seg in self.segments}
@@ -146,17 +166,21 @@ class _SpeechIndex:
         self.span: dict[str, set[int]] = {}
         self.covering: dict[int, list[tuple[dict, str, int]]] = {}
         self.by_ref: dict[str, list[tuple[dict, int]]] = {}
-        self.speaker_of: dict[str, str | None] = {}
+        self.speakers_of: dict[str, set[str]] = {}
+        self.speaker_names: dict[str, list[str]] = {}
         self.valid_numbers: set[int] = set()
 
         for order, segment in enumerate(self.segments):
             numbers: set[int] = set()
-            display = None
+            names: list[str] = []
             for event in segment.get("speakers") or []:
-                name, mapped = turns_mod.greek_speaker(event.get("label") or "", sigla)
-                if mapped and name is not None and display is None:
-                    display = name
-            self.speaker_of[segment["id"]] = display
+                name, mapped = sigla.resolve(
+                    event.get("label") or "", _event_ref(segment, event)
+                )
+                if mapped and name is not None and name not in names:
+                    names.append(name)
+            self.speaker_names[segment["id"]] = names
+            self.speakers_of[segment["id"]] = set(names)
             for line in segment.get("lines") or []:
                 ref = line.get("ref")
                 if not isinstance(ref, str):
@@ -174,6 +198,11 @@ class _SpeechIndex:
 
     def on_spine(self, n: int) -> bool:
         return n in self.covering
+
+    def speaker_label(self, seg_id: str) -> str | None:
+        """The segment's mapped speakers as one printable string (report only)."""
+        names = self.speaker_names.get(seg_id) or []
+        return " / ".join(names) if names else None
 
     def segment_for_line(self, n: int) -> tuple[dict, str] | None:
         hits = self.covering.get(n)
@@ -226,7 +255,7 @@ class _SpeechIndex:
         for segment in self.segments:
             if segment["id"] in claimed:
                 continue
-            if self.speaker_of.get(segment["id"]) != speaker:
+            if speaker not in (self.speakers_of.get(segment["id"]) or set()):
                 continue
             numbers = self.span.get(segment["id"]) or set()
             if not numbers:
@@ -268,7 +297,13 @@ def _continuation_covered_by(
     next owner's speech begins.  Lacunae, declared gaps (``skip_ids``), and
     segments that carry their own English ``<l n>`` stay unmarked.  The
     marker means "the translator's block that contains this line is attached
-    at ``<id>``"; it does not claim speaker identity.
+    at ``<id>``".
+
+    P2g finding 4: coverage never crosses speakers.  A segment is marked only
+    when its resolved speaker set intersects the covering segment's, so the
+    Herald's Seven 1042/1044 can no longer be declared covered by Antigone's
+    1026 block.  A cross-speaker hole is a real hole: it must be attached, or
+    declared in ``english.gaps`` like any other.
     """
     skip_ids = skip_ids or set()
     chunked = set(chunks_by_id)
@@ -291,6 +326,7 @@ def _continuation_covered_by(
         start, end = index.order[seg_i], index.order[seg_j]
         if start > end:
             start, end = end, start
+        cover_speakers = index.speakers_of.get(seg_i) or set()
         for segment in index.segments[start + 1 : end]:
             sid = segment["id"]
             if (
@@ -299,6 +335,8 @@ def _continuation_covered_by(
                 or sid in lacuna_ids
                 or sid in covered
             ):
+                continue
+            if not (index.speakers_of.get(sid) or set()) & cover_speakers:
                 continue
             numbers = index.span.get(sid) or set()
             if not numbers:
@@ -351,33 +389,6 @@ def _canonical_english(printed: str, aliases: dict[str, str]) -> str | None:
     if printed in aliases:
         return aliases[printed]
     return printed
-
-
-def _speaker_report(
-    spine: dict, sigla: dict, english_canonical: list[str], english_printed: list[str]
-) -> dict:
-    """Compare mapped English names with the mapped Greek roster."""
-    from . import turns as turns_mod
-
-    greek_roster: list[str] = []
-    seen: set[str] = set()
-    for segment in spine["segments"]:
-        for event in segment.get("speakers", []):
-            display, mapped = turns_mod.greek_speaker(event["label"], sigla)
-            if mapped and display is not None and display not in seen:
-                seen.add(display)
-                greek_roster.append(display)
-
-    eng_set = set(english_canonical)
-    greek_set = set(greek_roster)
-    return {
-        "english_displays": english_printed,
-        "english_canonical": english_canonical,
-        "greek_roster": greek_roster,
-        "only_in_english": sorted(eng_set - greek_set),
-        "only_in_greek": sorted(greek_set - eng_set),
-        "matches": eng_set <= greek_set,
-    }
 
 
 def _has_para_milestone(speech) -> bool:
@@ -541,20 +552,26 @@ def _resolve_slice_anchor(
     hit = index.segment_for_anchor(anchor)
     if hit is not None:
         segment, ref = hit
-        greek_speaker = index.speaker_of.get(segment["id"])
-        if speaker and greek_speaker and speaker != greek_speaker:
+        greek_speakers = index.speakers_of.get(segment["id"]) or set()
+        greek_speaker = index.speaker_label(segment["id"])
+        if speaker and greek_speakers and speaker not in greek_speakers:
             mismatch = _speakers_row(work_id, n, ref, printed, speaker, greek_speaker)
             if not multi_span:
                 repaired = index.nearest_matching_speech(n, speaker, claimed=claimed)
                 if repaired is not None:
                     target, target_ref = repaired
+                    # P2g finding 10: the marker must name a line the TARGET
+                    # segment prints, not the English n of the neighbour the
+                    # piece was taken from.
+                    tick = _nearest_line(sorted(index.span[target["id"]]), n)
+                    target_ref = index.closest_ref(target, tick)
                     mismatch["attached_to"] = target["id"]
                     mismatch["attached_ref"] = target_ref
-                    mismatch["attached_speaker"] = index.speaker_of.get(target["id"])
+                    mismatch["attached_speaker"] = index.speaker_label(target["id"])
                     mismatch["kind"] = "speaker_repair"
                     return {
                         "attached": True,
-                        "tick": n,
+                        "tick": tick,
                         "ref": target_ref,
                         "segment": target,
                         "snap": None,
@@ -607,8 +624,8 @@ def _resolve_slice_anchor(
             continue
         own_seg, _ref = hit
         if speaker:
-            greek = index.speaker_of.get(own_seg["id"])
-            if greek and greek != speaker:
+            greek = index.speakers_of.get(own_seg["id"]) or set()
+            if greek and speaker not in greek:
                 continue
         span_numbers.update(index.span.get(own_seg["id"]) or set())
     if not span_numbers:
@@ -618,10 +635,12 @@ def _resolve_slice_anchor(
     if snapped_hit is None:
         return None
     segment, ref = snapped_hit
-    greek_speaker = index.speaker_of.get(segment["id"])
-    if speaker and greek_speaker and speaker != greek_speaker:
+    greek_speakers = index.speakers_of.get(segment["id"]) or set()
+    if speaker and greek_speakers and speaker not in greek_speakers:
         return None
-    snap = _speakers_row(work_id, n, ref, printed, speaker, greek_speaker)
+    snap = _speakers_row(
+        work_id, n, ref, printed, speaker, index.speaker_label(segment["id"])
+    )
     snap["snapped_to"] = ref
     snap["segment"] = segment["id"]
     return {
@@ -649,7 +668,8 @@ def parse_translation(
     if translation is None:
         raise ValueError(f"no div type='translation' in {xml_path}")
 
-    sigla = sigla or {}
+    if not isinstance(sigla, _SiglaResolver):
+        sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
     chunks_by_id: dict[str, dict] = {}
@@ -853,7 +873,7 @@ def parse_translation(
                     ref,
                     job["printed"],
                     job["canonical"],
-                    index.speaker_of.get(segment["id"]),
+                    index.speaker_label(segment["id"]),
                 ),
                 "snapped_to": ref,
                 "segment": segment["id"],
@@ -973,7 +993,8 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         raise ValueError(f"{manifest.work_id}: english.{slot} is required for perseus-play")
     xml_path = SOURCES_DIR / cfg["source"]
     speakers = manifest.data.get("speakers") or {}
-    sigla = speakers.get("sigla") or {}
+    # Resolve Greek speakers through stage7's own rules (overrides included).
+    sigla = _SiglaResolver(manifest)
     if slot == "secondary":
         aliases = speakers.get("english_secondary") or speakers.get("english") or {}
     else:

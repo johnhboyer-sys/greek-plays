@@ -5,6 +5,11 @@ speeches, then paired to the Greek spine's speaker sequence by LCS over
 canonical names (``turns._lcs_pairs`` + equal-length gap zip). Residual
 English is grouped onto the preceding paired segment so no speech is dropped.
 A Greek segment with no English gets no chunk — stage2 sees it unmatched.
+
+The report carries two independent quality numbers: ``length_ratio_outliers``
+(English/Greek character dispersion, a damage signal) and ``turn_shifts``
+(pairs whose English canonical speaker is not the Greek speaker, the real
+off-by-one signal). stage2 gates both.
 """
 
 from __future__ import annotations
@@ -25,7 +30,10 @@ _SPEAKER_LINE = re.compile(
     r"(?:\[(?P<fn1>\d+)\])?"
     r"(?:\s+(?P<stage>\([^)]*\)))?"
     r"(?:\[(?P<fn2>\d+)\])?"
-    r"\.\s*"
+    # A speaker's full stop is followed by space or the end of the line.
+    # `\.\s*` matched with zero space, so any mid-prose abbreviation became a
+    # speaker: Storr philoctetes.txt:830 `O.God!` -> speaker "O" (P2g finding 7).
+    r"\.(?=\s|\[|$)\s*"
     r"(?:\[(?P<fn3>\d+)\])?\s*"
     r"(?P<rest>\S.*)?$"
 )
@@ -33,6 +41,10 @@ _LINDSAY_SPEAKER = re.compile(
     r"^(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH))"
     r"(?:\s+(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH)))*$"
 )
+_SINGLE_CAP = re.compile(r"[A-ZÀ-Þ]")
+# Canonical name for a speech whose printed label is OCR junk: it must never
+# equal a Greek roster name, and must not be None (a pairing wildcard).
+_OCR_JUNK = "\x00ocr-junk"
 _NOTE_START = re.compile(r"^\[(\d+)\]\s*(.*)$")
 _FN_MARK = re.compile(r"\[(\d+)\]")
 _PG_END = re.compile(r"^\*\*\*\s*END OF|End of the Project Gutenberg")
@@ -67,7 +79,15 @@ def _canonical_english(printed: str, aliases: dict[str, str]) -> str | None:
 def _periodless_speaker(
     line: str, known_names: set[str]
 ) -> tuple[str, str] | None:
-    """Match ``NAME text`` only when the full caps run is a declared alias."""
+    """Match ``NAME text`` only when the full caps run is a declared alias.
+
+    The caps run ends before a single-letter capital ("I", "A", "O"): those
+    open the speech, they are not part of the name.  Without this,
+    ``MYRRHINÉ I could not…`` (pg8688:7539) and ``CHREMYLUS I shall be…``
+    (pg8689:13352) build the names "MYRRHINÉ I" / "CHREMYLUS I", fail the
+    alias test, and fold into the previous speech (P2g finding 6).  A name
+    that BEGINS with a single capital ("A HERALD") keeps it.
+    """
     words = line.split()
     first_body = next(
         (i for i, word in enumerate(words) if any(ch.islower() for ch in word)),
@@ -75,9 +95,14 @@ def _periodless_speaker(
     )
     if first_body is None or first_body == 0:
         return None
-    name = " ".join(words[:first_body])
+    end = first_body
+    for i in range(1, first_body):
+        if _SINGLE_CAP.fullmatch(words[i]):
+            end = i
+            break
+    name = " ".join(words[:end])
     if name in known_names:
-        return name, " ".join(words[first_body:])
+        return name, " ".join(words[end:])
     return None
 
 
@@ -623,7 +648,14 @@ def parse_translation(
             junk = set(speakers_report["only_in_english"])
             for speech in speeches:
                 if speech["canonical"] in junk:
-                    speech["canonical"] = None
+                    # A sentinel, NOT None: `turns._names_match` treats None as
+                    # a wildcard that agrees with every Greek speaker, so the
+                    # junk speech became a free pairing anchor. Blanking the
+                    # printed label drops the turn, so the reader shows the
+                    # speech unattributed instead of crediting "WOU" or "VQL"
+                    # (P2g finding 8).
+                    speech["canonical"] = _OCR_JUNK
+                    speech["speaker_printed"] = ""
             e_names = [speech["canonical"] for speech in speeches]
             english_canonical[:] = [n for n in english_canonical if n not in junk]
             speakers_report["unaliased_ocr_speakers"] = sorted(junk)
@@ -657,11 +689,15 @@ def parse_translation(
         if pair_ratios
         else None
     )
-    speech_mismatches = []
+    # P2g finding 9: this heuristic measures LENGTH DISPERSION, not speaker
+    # agreement — it cannot see a same-name off-by-one. It keeps its own key
+    # (`speech_mismatches` belongs to perseus-play's real speaker mismatches);
+    # `turn_shifts` below is the speaker check.
+    length_ratio_outliers = []
     if median_ratio is not None:
         lower = median_ratio * 0.25
         upper = median_ratio * 4
-        speech_mismatches = [
+        length_ratio_outliers = [
             {
                 "greek_id": segments[gi]["id"],
                 "english_index": ej,
@@ -670,6 +706,24 @@ def parse_translation(
             for gi, ej, ratio in pair_ratios
             if ratio < lower or ratio > upper
         ]
+
+    # `_pair_turns` only pairs name-agreeing turns, so today this reads 0.000
+    # on all 11 comedies and all 7 bench slots: it is the tripwire on that
+    # contract. Any loosening of the pairing (fuzzy names, forced anchors)
+    # shows up here as English given to the wrong Greek speaker.
+    turn_shifts = [
+        {
+            "greek_id": segments[gi]["id"],
+            "english_index": ej,
+            "greek_speaker": g_names[gi],
+            "english_speaker": e_names[ej],
+        }
+        for gi, ej in pairs
+        if g_names[gi] is not None
+        and e_names[ej] is not None
+        and e_names[ej] != g_names[gi]
+    ]
+    turn_shift_rate = (len(turn_shifts) / len(pairs)) if pairs else 0.0
 
     chunks: list[dict] = []
     for gi, segment in enumerate(segments):
@@ -735,8 +789,11 @@ def parse_translation(
         "anchor_count": 0,
         "snaps": [],
         "snap_count": 0,
-        "speech_mismatches": speech_mismatches,
-        "speech_mismatch_count": len(speech_mismatches),
+        "length_ratio_outliers": length_ratio_outliers,
+        "length_ratio_outlier_count": len(length_ratio_outliers),
+        "turn_shifts": turn_shifts,
+        "turn_shift_count": len(turn_shifts),
+        "turn_shift_rate": turn_shift_rate,
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,
