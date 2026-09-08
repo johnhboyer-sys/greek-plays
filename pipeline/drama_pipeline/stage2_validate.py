@@ -661,9 +661,10 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # so speeches pair by speaker turn and residue is grouped onto the
         # previous paired speech — never dropped. The honest contract is a
         # pairing-rate floor the manifest declares (default 0.85, plan P3
-        # acceptance), read from the builder's own report; below it the
-        # build fails, above it every unpaired Greek speech is an expected,
-        # labelled ("alignment approximate") hole. Since P3.4 the report's
+        # acceptance), read from the builder's own report and gated on its own
+        # by `checks.turn_text_pairing_floor` (P3.5 finding 3); every unpaired
+        # Greek speech is an expected, labelled ("alignment approximate")
+        # hole whether the floor holds or not. Since P3.4 the report's
         # `pairing_rate` is per Greek speaker EVENT (one slot per antilabe
         # share), which is what this floor now reads; the old per-segment
         # figure rides beside it as `segment_pairing_rate` and is not gated.
@@ -678,10 +679,12 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # check vacuous (a pair joins one Greek share to an English speech of
         # the same name), so since P3.4 the builder measures POSITION: the
         # English speech's place in its own same-name run against the Greek
-        # share's place in its. 0.05 is unchanged and tight because a shift
-        # means the reader sees another character's words (P2g finding 9).
-        # Default 0.10 for the NEW-drift rate (P3.4 ruling 2026-09-08): the
-        # eleven comedies read 0.025–0.078 on it; the cumulative rate (report
+        # share's place in its. The gated number is an ONSET rate — pairs
+        # where a same-name drift BEGINS, over pairs — because an offset once
+        # opened is inherited by every later pair of that name and would
+        # otherwise be counted hundreds of times. One default, 0.10 (P3.4
+        # ruling 2026-09-08, the only one in code or docs): the eleven
+        # comedies read 0.026–0.078 on it, while the cumulative rate (report
         # only) reads 0.35–0.74 and describes share-count structure.
         max_shift_rate = float(english_cfg.get("max_turn_shift_rate", 0.10))
         # P2j finding 3: a residual English speech the builder could not park
@@ -742,19 +745,33 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
                 "ok": ratio_error is None,
             }
             shift_count = int(data.get("turn_shift_count") or 0)
-            shift_rate = float(
-                data.get("turn_shift_rate")
-                or (shift_count / paired if paired else (1.0 if shift_count else 0.0))
-            )
+            # P3.5 finding 1: `is None`, not `or` — a clean play reports
+            # `turn_shift_rate: 0.0`, which `or` read as missing and replaced
+            # with the CUMULATIVE rate (0.35–0.74), failing the gate on the
+            # best-aligned play in the corpus.
+            raw_rate = data.get("turn_shift_rate")
+            new_drifts = data.get("turn_shift_new_drifts")
+            if raw_rate is None:
+                # A pre-P3.4 report has no onset rate. Fall back to the
+                # cumulative one, which is never smaller: fails closed.
+                new_drifts = shift_count
+                shift_rate = (
+                    shift_count / paired if paired else (1.0 if shift_count else 0.0)
+                )
+            else:
+                shift_rate = float(raw_rate)
+                new_drifts = shift_count if new_drifts is None else int(new_drifts)
             shift_error = None
             if shift_rate > max_shift_rate:
                 shift_error = (
                     f"turn-text turn-shift rate {shift_rate:.3f} exceeds maximum "
-                    f"{max_shift_rate:.3f} ({shift_count}/{paired} paired speeches "
-                    "give the English to a different speaker)"
+                    f"{max_shift_rate:.3f} ({new_drifts}/{paired} pairs OPEN a new "
+                    "same-name position drift; cumulative shifts "
+                    f"{shift_count})"
                 )
             shift_check = {
                 "count": shift_count,
+                "new_drifts": new_drifts,
                 "paired": paired,
                 "rate": shift_rate,
                 "max_rate": max_shift_rate,
@@ -778,8 +795,34 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         report["checks"]["turn_text_length_ratio"] = ratio_check
         report["checks"]["turn_text_turn_shift"] = shift_check
         report["checks"]["turn_text_residual_unassigned"] = residual_check
-        if rate is not None and rate >= floor:
-            allowed.update(unmatched)
+        # P3.5 finding 3: the floor is its own check, and it no longer doubles
+        # as the switch on the unmatched allowance. Below the floor the build
+        # used to fail with every hole reported as an alignment error, which
+        # buried the one number that had actually moved (Thesmophoriazusae
+        # sits three lost pairs from the default at 0.855). The floor now
+        # fails on its own terms and says the rate and the floor; the holes
+        # stay the expected, labelled "alignment approximate" holes they are.
+        floor_error = read_error
+        if data is not None:
+            if rate is None:
+                floor_error = (
+                    "turn-text stage-1 report carries no pairing_rate: "
+                    f"the {floor:.3f} floor cannot be checked"
+                )
+            elif rate < floor:
+                floor_error = (
+                    f"turn-text pairing rate {rate:.3f} is below the floor "
+                    f"{floor:.3f} (english.min_pairing_rate): too much of the "
+                    "Greek carries no English of its own"
+                )
+        floor_check = {
+            "rate": rate,
+            "floor": floor,
+            "error": floor_error,
+            "ok": floor_error is None,
+        }
+        report["checks"]["turn_text_pairing_floor"] = floor_check
+        allowed.update(unmatched)
         allowed.update(_play_line_english_gap_ids(manifest, segments))
         allowed.update(_play_line_lacuna_segment_ids(segments))
     # A column the manifest's own citation.kind_overrides declares `omit`

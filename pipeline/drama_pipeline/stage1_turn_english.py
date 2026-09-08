@@ -599,7 +599,12 @@ def _pair_turns(
     gone with the packing it worked around."""
 
     def agrees(i: int, j: int) -> bool:
-        return turns_mod._names_match(greek_names[i], english_names[j])
+        # P3.5 finding 2: `turns._names_match` treats None as a WILDCARD, so an
+        # unnamed slot (a speakerless lyric continuation) matched any named
+        # English speech in an equal-length gap zip — a pair the LCS and the
+        # residual walk both refuse. A pair needs two real, equal names.
+        g, e = greek_names[i], english_names[j]
+        return g is not None and e is not None and g == e
 
     g_named = [i for i, name in enumerate(greek_names) if name is not None]
     e_named = [j for j, name in enumerate(english_names) if name is not None]
@@ -728,6 +733,7 @@ def _assign_speeches(
     greek_names: list[str | None] | None = None,
     english_names: list[str | None] | None = None,
     greek_alt: list[set[str]] | None = None,
+    greek_segments: list[int] | None = None,
 ) -> tuple[dict[int, list[int]], int, int, int, dict[int, str | None]]:
     """Map residuals onto Greek speaker slots; gate head residue by slot-0 speaker.
 
@@ -737,22 +743,33 @@ def _assign_speeches(
 
     Returns ``(assigned, residual_grouped, head_unassigned,
     residual_unassigned, flagged)``, where ``flagged`` maps an English index
-    to the Greek primary speaker its park target names — the per-turn
+    to the speaker of the Greek EVENT it parked on — the per-turn
     ``speakerMismatch`` counterpart.
 
     P3.3 ruling: a translated speech is SHOWN, flagged when the editions
     disagree, never dropped.  So, after the LCS pairing (which only ever joins
     name-agreeing turns), an unpaired speech is placed in three steps:
 
-    1. it parks on the nearest Greek segment, at or after the segment the last
-       English went to and no later than the next paired segment, whose
-       line-level speaker set (primary + the antilabe shares in ``greek_alt``)
-       contains its canonical name.  The window is the previous paired
-       neighbour, the unpaired Greek segments between the surrounding pairs,
-       and the next paired neighbour; the search runs forward from the cursor,
-       so document order stays monotone.  This is the clean park
-       (``residual_grouped``) — P2i finding 5's rule, widened past the single
-       ``last_gi`` it used to test.
+    1. it parks on the nearest Greek slot, at or after the slot the last
+       English went to and no later than the next paired slot, that speaks its
+       canonical name.  The window is the previous paired neighbour, the
+       unpaired Greek slots between the surrounding pairs, and the next paired
+       neighbour; the search runs forward from the cursor, so document order
+       stays monotone.  This is the clean park (``residual_grouped``) — P2i
+       finding 5's rule, widened past the single ``last_gi`` it used to test.
+
+       P3.5 findings 4 and 8 make that walk two passes.  The first prefers a
+       slot whose OWN event name is the residual's (``name == slot.name``), so
+       a later dedicated same-name segment in the window is tried before the
+       cursor's own packed segment swallows the speech; that pass also reaches
+       BACKWARDS to the first slot of the cursor's own segment, so the second
+       share of an antilabe the two editions cross (Frogs 405–406: the Greek
+       gives 405 to Xanthias and 406 to Dionysus, the English speaks Dionysus
+       first) parks on the share that is really its own.  Reaching a packed
+       neighbour never moves document order — the two slots feed the SAME
+       chunk — and the cursor never moves back.  The second pass is the P3.3
+       rule unchanged: the first slot from the cursor on whose SEGMENT speaks
+       the name (primary + the antilabe shares in ``greek_alt``).
     2. otherwise it parks on the cursor segment WITH a per-turn
        ``speakerMismatch {english, greek}`` (``residual_flagged``), exactly
        what the tragedies emit when Perseus' ``<sp>`` and the Greek edition
@@ -791,6 +808,15 @@ def _assign_speeches(
         if ej in paired_e:
             ahead = paired_e[ej]
 
+    # Slot -> segment. Default: every slot its own segment, which is what a
+    # caller pairing over segments (and the unit tests) means.
+    seg_of = greek_segments or list(range(n_greek))
+    # The first slot of each segment: the backward reach of the exact-name
+    # pass (a packed neighbour, never another segment).
+    seg_first: dict[int, int] = {}
+    for gi in range(n_greek):
+        seg_first.setdefault(seg_of[gi] if gi < len(seg_of) else gi, gi)
+
     def speaks(gi: int, name: str) -> bool:
         """The segment's own lines carry this speaker (primary or a share)."""
         primary = names[gi] if gi < len(names) else None
@@ -799,6 +825,10 @@ def _assign_speeches(
         if name == primary:
             return True
         return name in (alt[gi] if gi < len(alt) else set())
+
+    def is_slot(gi: int, name: str) -> bool:
+        """This slot's OWN speaker event is that name (P3.5 findings 4, 8)."""
+        return gi < len(names) and names[gi] == name
 
     for ej in range(n_english):
         if ej in paired_e:
@@ -833,15 +863,29 @@ def _assign_speeches(
             continue
         upper = next_pair_gi[ej]
         upper = n_greek - 1 if upper is None else min(upper, n_greek - 1)
+        # Pass 1: the slot that IS this speaker, from the head of the cursor's
+        # own segment (its packed neighbours) to the forward bound.
+        start = seg_first.get(seg_of[cursor] if cursor < len(seg_of) else cursor, cursor)
         target = next(
-            (gi for gi in range(cursor, upper + 1) if speaks(gi, name)), None
+            (gi for gi in range(min(start, cursor), upper + 1) if is_slot(gi, name)),
+            None,
         )
+        if target is None:
+            # Pass 2: the P3.3 segment-scoped fallback, forward only.
+            target = next(
+                (gi for gi in range(cursor, upper + 1) if speaks(gi, name)), None
+            )
         if target is not None:
             assigned[target].append(ej)
             cursor = max(cursor, target)
             residual += 1
             continue
         assigned[cursor].append(ej)
+        # P3.5 finding 7: the flag names the speaker of the EVENT this speech
+        # parks on — the share at that (line, offset), not the segment's
+        # primary — because that is the Greek the reader is standing in when
+        # the turn is emitted at the park.  None when the park is a segment
+        # the edition attributes to nobody.
         flagged[ej] = names[cursor] if cursor < len(names) else None
     return assigned, residual, head_unassigned, residual_unassigned, flagged
 
@@ -948,15 +992,27 @@ def parse_translation(
         greek_names=slot_names,
         english_names=e_names,
         greek_alt=[seg_speaks[slot["segment"]] for slot in slots],
+        greek_segments=[slot["segment"] for slot in slots],
     )
 
-    # Slot -> segment, then the English each SEGMENT shows, in slot (line,
-    # offset) order: a packed segment's chunk is its shares' pieces
-    # concatenated, each keeping its own turn lead-in and offset.
+    # Slot -> segment, then the English each SEGMENT shows: a packed segment's
+    # chunk is its shares' pieces concatenated, each keeping its own turn
+    # lead-in and offset.  ORDER (P3.5 finding 4): slot (line, offset) order
+    # when it agrees with English order — which is every ordinary segment,
+    # since pairing is monotone in both — and ENGLISH order when the two
+    # cross.  A crossing is real: at Frogs 405–406 the Greek gives the first
+    # line to Xanthias and the second to Dionysus while the translation speaks
+    # Dionysus first, and each share still parks on its own slot (the walk's
+    # exact-name pass).  Emitting slot order there would print the translation
+    # backwards, so the English prose keeps its own sequence and the shares
+    # inside the chunk are what disagree.
     seg_ejs: list[list[int]] = [[] for _ in segments]
     for k, slot in enumerate(slots):
         for ej in assigned.get(k) or []:
             seg_ejs[slot["segment"]].append(ej)
+    for gi, ejs in enumerate(seg_ejs):
+        if ejs != sorted(ejs):
+            seg_ejs[gi] = sorted(ejs)
 
     pair_ratios: list[tuple[int, int, float]] = []
     for k, ej in pairs:
@@ -1023,11 +1079,15 @@ def parse_translation(
     # every later pair of that name inherits the delta, so this reads 0.35–0.74
     # on the eleven comedies and describes structure, not misplacement.
     turn_shift_rate_cumulative = (len(turn_shifts) / len(pairs)) if pairs else 0.0
-    # Gated rate (orchestrator ruling 2026-09-08): a NEW drift — a pair whose
-    # same-name ordinal delta differs from the previous pair of that name (the
-    # first pair of a name counts when its delta is non-zero). Inherited
-    # offsets do not count. This is the number that moves when a prologue is
-    # paired one turn late.
+    # Gated rate (orchestrator ruling 2026-09-08): an ONSET rate, not a count
+    # rate. A pair counts only where a drift BEGINS — its same-name ordinal
+    # delta differs from the previous pair of that name (the first pair of a
+    # name counts when its delta is non-zero); every later pair inherits the
+    # offset and counts for nothing. So it measures how often the two editions
+    # start disagreeing about position, which is the number that moves when a
+    # prologue is paired one turn late, and it stays small (0.026–0.078 on the
+    # eleven comedies) however long the play carries an offset afterwards.
+    # `new_drifts` is that onset count; the gate is `new_drifts / paired`.
     last_delta: dict[str, int] = {}
     new_drifts = 0
     for k, ej in pairs:

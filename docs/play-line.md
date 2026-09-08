@@ -191,12 +191,26 @@ it agrees. `_greek_event_slots` emits one slot per share in document order —
 each remembering its segment, printed line and offset — and a segment with no
 speaker event of its own keeps one unnamed slot so residual English can still
 reach it. The chunk is still per segment: the pieces its shares won are joined
-in share order, each keeping its own turn lead-in and offset into the emitted
-text. `pairing_rate` (the `english.min_pairing_rate` floor, default `0.85`) is
-therefore per EVENT; the old per-segment figure rides beside it as
-`segment_pairing_rate` and is not gated. Because a slot is one speaker, the
+share by share, each keeping its own turn lead-in and offset into the emitted
+text. Their ORDER is share (line, offset) order where that agrees with the
+order the English prints them — every ordinary segment, since the pairing is
+monotone on both sides — and ENGLISH order where the two cross. They cross
+when an antilabe hands a line over and the translation speaks the second
+share first (Frogs 405–406: Xanthias has 405, Dionysus takes 406, and the
+1912 English answers Dionysus first). Each share still keeps its own English,
+but the prose is printed in the order the translator wrote it; the shares
+inside the chunk are what disagree, and the reader has the Greek beside it.
+`pairing_rate` (the `english.min_pairing_rate` floor, default `0.85`) is per
+EVENT; the old per-segment figure rides beside it as `segment_pairing_rate`
+and is not gated. Stage 2 fails `checks.turn_text_pairing_floor` below the
+floor — its own check since P3.5, so a play under the floor fails on that one
+number instead of also failing `alignment` on every Greek hole in the play.
+(Thesmophoriazusae declares `0.80`: it measures 0.855, three lost pairs from
+the default, because 129 of its segments pack two or more speakers into a
+line the 1912 translation runs together.) Because a slot is one speaker, the
 pairing no longer needs the alternative-name escape a packed segment used to
-get in the gap zip.
+get in the gap zip — and a pair now needs a real name on BOTH sides: an
+unnamed slot is not a wildcard the gap zip may hand a named speech to.
 
 The turn-text report carries two independent numbers.
 `length_ratio_outliers` / `length_ratio_outlier_count` is the English/Greek
@@ -210,27 +224,44 @@ speech's place among the speeches of ITS own name against the Greek share's
 place among the shares of that name. A prologue the two editions distribute
 differently (Birds redistributes Euelpides and Peisthetaerus) pairs
 name-for-name at every step while one side runs a turn or two ahead — the
-shift the P3.3 name check could not see. Stage 2 fails
-`checks.turn_text_turn_shift` above `english.max_turn_shift_rate` (default
-`0.05`). Both checks fail closed when the stage-1 report is missing or belongs
-to another work. English before the first pair attaches to Greek slot 0 only
+shift the P3.3 name check could not see. The gated number is an ONSET rate,
+not a count rate: `turn_shift_rate` is `turn_shift_new_drifts / paired`, the
+pairs where a same-name position drift BEGINS (its ordinal delta differs from
+the previous pair of that name). An offset once opened is inherited by every
+later pair of that name, so counting all of them would measure how long the
+play runs after a drift rather than how often the editions start disagreeing:
+that cumulative figure stays in the report as `turn_shift_count` /
+`turn_shift_rate_cumulative` (0.35–0.74 in the comedies) and is not gated.
+Stage 2 fails `checks.turn_text_turn_shift` above
+`english.max_turn_shift_rate` — one default, `0.10`, here and in the code,
+against a measured 0.026–0.078 on the eleven comedies. All three checks fail
+closed when the stage-1 report is missing or belongs to another work, and a
+reported rate of `0.0` is a value, not a missing number. English before the first pair attaches to Greek slot 0 only
 when its canonical speaker matches that slot; the report counts other head
 text as `head_unassigned`, printed on the stage-1 summary line.
 
 An unpaired speech AFTER the first pair is never dropped: a translated line is
 shown, and flagged when the editions disagree. It is placed in two steps.
-First it walks forward from the cursor — the last Greek share English went
-to — as far as the next paired share, and parks on the first one on the way
-whose SEGMENT carries its canonical speaker (that segment's own speaker, or
-one of the antilabe shares its lines carry: the park window stays
-segment-scoped). That window is the previous paired
-neighbour, the unpaired Greek segments between the surrounding pairs, and the
-next paired neighbour; the walk only goes forward, so document order stays
-monotone. Those are the clean parks, `residual_grouped`. Failing that, it
-parks on the cursor segment carrying a per-turn `speakerMismatch
-{english, greek}` — `residual_flagged`, exactly the flag the tragedies emit
-when Perseus' `<sp>` and the Greek edition name different speakers, and the
-same underline and tooltip in the reader. An unnamed residual (an
+First it walks from the cursor — the last Greek share English went to — as far
+as the next paired share, in two passes. The first takes a share that IS its
+canonical speaker (`name == slot.name`), so a later segment dedicated to that
+speaker is tried before the cursor's own segment swallows the speech; that
+pass also reaches back to the first share of the cursor's OWN segment, since
+a packed neighbour feeds the same chunk and reaching it moves nothing in
+document order (that is how the crossed antilabe above parks each share on
+itself). The second pass is the older, segment-scoped rule: the first share
+from the cursor on whose SEGMENT carries the speaker (its own speaker, or one
+of the antilabe shares its lines carry) — which still catches a share sitting
+past the window bound. That window is the previous paired neighbour, the
+unpaired Greek segments between the surrounding pairs, and the next paired
+neighbour; the cursor only moves forward, so document order stays monotone.
+Those are the clean parks, `residual_grouped`. Failing both, it parks on the
+cursor's share carrying a per-turn `speakerMismatch {english, greek}` —
+`residual_flagged`, exactly the flag the tragedies emit when Perseus' `<sp>`
+and the Greek edition name different speakers, and the same underline and
+tooltip in the reader. `greek` names the speaker of the EVENT it parked on —
+the share at that line and offset, the Greek the reader is standing in where
+the turn is printed, not the segment's first speaker. An unnamed residual (an
 unattributed continuation, or a bench scan's unreadable OCR label)
 contradicts nobody and parks on the cursor unflagged. A segment with no
 speaker at all is still not a wildcard — a named residual never counts as

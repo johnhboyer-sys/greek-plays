@@ -630,7 +630,11 @@ def test_quality_numbers_are_surfaced_in_the_stage1_summary():
 
     main_src = Path(cli.__file__).read_text(encoding="utf-8")
     assert "ratio_outliers={report['length_ratio_outlier_count']}" in main_src
-    assert "turn_shifts={report['turn_shift_count']}" in main_src
+    # P3.5 finding 6: the summary prints the GATED number (the onset rate and
+    # its count) beside the cumulative shift count, each clearly labelled.
+    assert "shift_cum={report['turn_shift_count']}" in main_src
+    assert "new_drifts={report['turn_shift_new_drifts']}" in main_src
+    assert "shift_rate={report['turn_shift_rate']:.3f}" in main_src
     assert "flagged={report['residual_flagged']}" in main_src
     assert "seg_rate={report['segment_pairing_rate']:.3f}" in main_src
     assert "head_unassigned={report['head_unassigned']}" in main_src
@@ -653,7 +657,13 @@ def _turn_text_manifest(**english) -> Manifest:
     return Manifest(data, Path("test-play.yaml"))
 
 
-def _stage2_with_report(monkeypatch, tmp_path, report: dict, manifest: Manifest):
+def _stage2_with_report(
+    monkeypatch,
+    tmp_path,
+    report: dict,
+    manifest: Manifest,
+    unmatched_ids: tuple[str, ...] = (),
+):
     from drama_pipeline import stage2_validate as s2
 
     stage1 = tmp_path / "stage1"
@@ -680,10 +690,17 @@ def _stage2_with_report(monkeypatch, tmp_path, report: dict, manifest: Manifest)
         "chunks": [
             {"id": f"1:{n}", "column": "1", "text": "English sample text here."}
             for n in (1, 2, 3)
+            if f"1:{n}" not in unmatched_ids
         ]
     }
     alignment = {
-        "pairs": [{"segment": f"1:{n}", "english": f"1:{n}"} for n in (1, 2, 3)],
+        "pairs": [
+            {
+                "segment": f"1:{n}",
+                "english": None if f"1:{n}" in unmatched_ids else f"1:{n}",
+            }
+            for n in (1, 2, 3)
+        ],
         "english_only": [],
     }
     return s2.validate(manifest, spine, english, alignment)
@@ -736,6 +753,127 @@ def test_stage2_gates_length_ratio_and_turn_shift_separately(tmp_path, monkeypat
         "length-ratio outlier rate 0.300"
         in long_ratio["checks"]["turn_text_length_ratio"]["error"]
     )
+
+
+def test_stage2_reads_a_zero_shift_rate_as_a_value_and_quotes_the_gated_count(
+    tmp_path, monkeypatch
+):
+    """P3.5 finding 1: `float(x or fallback)` read a reported 0.0 as missing.
+
+    The gated number is the ONSET rate (`turn_shift_rate`, pairs where a
+    same-name drift begins).  A perfectly aligned play reports 0.0 for it
+    beside a large cumulative `turn_shift_count`, and the old `or` swapped the
+    honest 0.0 for the cumulative rate — 0.35–0.74 in the comedies — failing
+    the cleanest play in the corpus.  The error text quotes the gated count
+    too, not the cumulative one.
+    """
+    base = {
+        "work": "test-play",
+        "pairing_rate": 0.99,
+        "paired": 100,
+        "length_ratio_outlier_count": 10,
+    }
+    clean = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "turn_shift_count": 62, "turn_shift_rate": 0.0, "turn_shift_new_drifts": 0},
+        _turn_text_manifest(),
+    )
+    shift = clean["checks"]["turn_text_turn_shift"]
+    assert shift["ok"] is True
+    assert shift["rate"] == 0.0
+    assert (shift["new_drifts"], shift["count"]) == (0, 62)
+
+    over = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {
+            **base,
+            "turn_shift_count": 62,
+            "turn_shift_rate": 0.12,
+            "turn_shift_new_drifts": 12,
+        },
+        _turn_text_manifest(),
+    )
+    error = over["checks"]["turn_text_turn_shift"]["error"]
+    assert "turn-shift rate 0.120 exceeds maximum 0.100" in error
+    # The gated count, with the cumulative one named as what it is.
+    assert "12/100 pairs OPEN a new same-name position drift" in error
+    assert "cumulative shifts 62" in error
+
+    # A pre-P3.4 report has no onset rate at all: fall back to the cumulative
+    # rate, which is never smaller — fails closed.
+    old = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "turn_shift_count": 62},
+        _turn_text_manifest(),
+    )
+    assert old["checks"]["turn_text_turn_shift"]["ok"] is False
+    assert old["checks"]["turn_text_turn_shift"]["new_drifts"] == 62
+
+
+def test_stage2_pairing_floor_is_its_own_check_and_keeps_the_hole_allowance(
+    tmp_path, monkeypatch
+):
+    """P3.5 finding 3.
+
+    The floor used to be a silent switch: below it the unmatched allowance was
+    skipped, so every Greek hole in the play failed `alignment` and the one
+    number that had really moved was buried.  It is now its own check, naming
+    the rate and the floor, and the holes stay expected either way (turn-text
+    English carries no line numbers — the holes are the model, not damage).
+    """
+    base = {
+        "work": "test-play",
+        "paired": 100,
+        "length_ratio_outlier_count": 10,
+        "turn_shift_count": 2,
+        "turn_shift_rate": 0.02,
+        "turn_shift_new_drifts": 2,
+    }
+    low = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "pairing_rate": 0.80},
+        _turn_text_manifest(),
+        unmatched_ids=("1:2",),
+    )
+    floor = low["checks"]["turn_text_pairing_floor"]
+    assert floor["ok"] is False
+    assert floor["rate"] == 0.80 and floor["floor"] == 0.85
+    assert "pairing rate 0.800 is below the floor 0.850" in floor["error"]
+    assert low["ok"] is False
+    # The hole is still an expected hole: alignment does not double-fail.
+    assert low["checks"]["alignment"]["ok"] is True
+    assert low["checks"]["alignment"]["allowed_unmatched"] == ["1:2"]
+
+    # Thesmophoriazusae's shape: the manifest declares the measured floor.
+    declared = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "pairing_rate": 0.855},
+        _turn_text_manifest(min_pairing_rate=0.80),
+        unmatched_ids=("1:2",),
+    )
+    assert declared["checks"]["turn_text_pairing_floor"]["ok"] is True
+    assert declared["checks"]["alignment"]["ok"] is True
+
+    # Fails closed with no report of this play's own.
+    foreign = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {"work": "frogs", "pairing_rate": 0.99, "paired": 10},
+        _turn_text_manifest(),
+    )
+    assert foreign["checks"]["turn_text_pairing_floor"]["ok"] is False
+    assert "not 'test-play'" in foreign["checks"]["turn_text_pairing_floor"]["error"]
+
+
+def test_thesmophoriazusae_declares_its_measured_pairing_floor():
+    """The floor is a declaration, not a default: 0.855 measured (432/505)."""
+    manifest = Manifest.for_work("thesmophoriazusae")
+    assert manifest.data["english"]["min_pairing_rate"] == 0.80
 
 
 def test_stage2_gates_residual_english_that_reached_no_chunk(tmp_path, monkeypatch):
@@ -1481,3 +1619,199 @@ def test_a_segment_with_no_speaker_event_keeps_one_slot(tmp_path):
         (0, 1, "Alpha"),
         (1, 2, None),
     ]
+
+
+def test_an_unnamed_slot_never_pairs_in_a_gap_zip():
+    """P3.5 finding 2: the gap zip used `turns._names_match`, where None is a
+    WILDCARD.  So a speakerless lyric slot — the one every eventless segment
+    gets — could take any named English speech that happened to fall in an
+    equal-length gap, a pair the LCS and the residual walk both refuse.  A
+    pair now needs two real, equal names on both sides."""
+    from drama_pipeline import stage1_turn_english as m
+
+    # The anchors are Alpha and Gamma; the gap is one slot against one speech.
+    assert m._pair_turns(["Alpha", None, "Gamma"], ["Alpha", "Beta", "Gamma"]) == [
+        (0, 0),
+        (2, 2),
+    ]
+    # And symmetrically: an unattributed English continuation is residue, not
+    # a pairing wildcard for a named Greek share.
+    assert m._pair_turns(["Alpha", "Beta", "Gamma"], ["Alpha", None, "Gamma"]) == [
+        (0, 0),
+        (2, 2),
+    ]
+    assert m._pair_turns(["Alpha", None, "Gamma"], ["Alpha", None, "Gamma"]) == [
+        (0, 0),
+        (2, 2),
+    ]
+    # A named gap of equal length still zips — that is the whole point of it.
+    assert m._pair_turns(["Alpha", "Beta"], ["Alpha", "Beta"]) == [(0, 0), (1, 1)]
+
+
+def test_crossed_antilabe_parks_on_its_own_share_and_reads_in_english_order(tmp_path):
+    """P3.5 finding 4, the Frogs 405–406 shape.
+
+    The Greek gives 405 to Xanthias and hands 406 to Dionysus part-way
+    through, so both are shares of ONE segment; the translation speaks
+    Dionysus first.  Dionysus pairs with his own share (the LCS keeps one of
+    the two crossing pairs), and Xanthias' speech used to fall back to the
+    cursor's share because the SEGMENT speaks him — the chunk then read
+    Dionysus, Xanthias with both turns credited off Dionysus' slot.  Now the
+    walk reaches the packed neighbour and Xanthias parks on the Xanthias
+    share.  The emitted order stays the ENGLISH order, because slot order and
+    English order cross here and printing the translation backwards would be
+    worse than printing the shares out of order.
+    """
+    from drama_pipeline import stage1_turn_english as m
+
+    # The park: Xanthias' speech (English 1) reaches slot 0, his own share,
+    # instead of parking on the cursor's slot 1, and it stays CLEAN.
+    assigned, residual, _head, unassigned, flags = _assign_speeches(
+        2,
+        [(1, 0)],
+        2,
+        greek_names=["Xanthias", "Dionysus"],
+        english_names=["Dionysus", "Xanthias"],
+        greek_alt=[{"Xanthias", "Dionysus"}, {"Xanthias", "Dionysus"}],
+        greek_segments=[0, 0],
+    )
+    assert assigned == {0: [1], 1: [0]}
+    assert (residual, unassigned, flags) == (1, 0, {})
+
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:405", "book": 1, "column": "405",
+                "lines": [
+                    {"n": 405, "ref": "405", "text": "ξανθιας λεγει."},
+                    {"n": 406, "ref": "406", "text": "λεγει τι· διονυσος λεγει."},
+                ],
+                "speakers": [
+                    {"line": 405, "offset": 0, "label": "Ξα."},
+                    {"line": 406, "offset": 10, "label": "Δι."},
+                ],
+            },
+        ],
+    }
+    english, _footnotes, report = _one_liner(
+        tmp_path,
+        "DIONYSUS. Dionysus first.\nXANTHIAS. Xanthias second.",
+        spine,
+        {"Ξα.": "Xanthias", "Δι.": "Dionysus"},
+        {"XANTHIAS": "Xanthias", "DIONYSUS": "Dionysus"},
+    )
+    assert (report["paired"], report["greek_events"]) == (1, 2)
+    assert report["residual_grouped"] == 1
+    assert report["residual_flagged"] == 0
+    chunk = english["chunks"][0]
+    assert chunk["text"] == "Dionysus first.\n\nXanthias second."
+    assert [(turn["offset"], turn["speaker"]) for turn in chunk["turns"]] == [
+        (0, "Dionysus"),
+        (len("Dionysus first.\n\n"), "Xanthias"),
+    ]
+    assert all("speakerMismatch" not in turn for turn in chunk["turns"])
+
+
+def test_flagged_extra_names_the_share_it_is_printed_in(tmp_path):
+    """P3.5 finding 7, the Birds 1:280 shape.
+
+    Euelpides speaks 277 and the Hoopoe takes 278 part-way through — one
+    packed segment, two shares.  The 1912 translation puts a Peisthetaerus
+    speech between them that the Greek edition does not, so it parks flagged;
+    the flag must name the share the reader is standing in at that offset
+    (Euelpides, whose share the speech is printed inside), not merely
+    whichever slot the pairing last touched.  Slot order and English order
+    agree here, so the chunk reads in share order.
+    """
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:280", "book": 1, "column": "280",
+                "lines": [
+                    {"n": 277, "ref": "280", "text": "τι το τερας τουτι ποτ' εστιν;"},
+                    {"n": 278, "ref": "281", "text": "αλλα χουτος ετερος; ουτοσι."},
+                ],
+                "speakers": [
+                    {"line": 277, "offset": 0, "label": "ΕΥ."},
+                    {"line": 278, "offset": 20, "label": "ΕΠ."},
+                ],
+            },
+            # Peisthetaerus is on the play's roster and speaks next, but his
+            # Greek segment is past the window bound (the Hoopoe's share takes
+            # the next pair), so the walk cannot reach it: the interposed
+            # speech is flagged where it stands, not carried forward.
+            {
+                "id": "1:282", "book": 1, "column": "282",
+                "lines": [{"n": 279, "ref": "282", "text": "τουτο μεν ουν."}],
+                "speakers": [{"line": 279, "offset": 0, "label": "ΠΙ."}],
+            },
+        ],
+    }
+    english, _footnotes, report = _one_liner(
+        tmp_path,
+        "EUELPIDES. Here's another bird with a crest.\n"
+        "PISTHETAERUS. Ah! that's curious.\n"
+        "EPOPS. This bird is the son of Philocles.\n"
+        "PISTHETAERUS. So that I am his grandfather.",
+        spine,
+        {"ΕΥ.": "Euelpides", "ΕΠ.": "Hoopoe", "ΠΙ.": "Peisthetaerus"},
+        {
+            "EUELPIDES": "Euelpides",
+            "PISTHETAERUS": "Peisthetaerus",
+            "EPOPS": "Hoopoe",
+        },
+    )
+    assert report["paired"] == 3
+    assert report["residual_flagged"] == 1
+    turns = english["chunks"][0]["turns"]
+    assert [turn["speaker"] for turn in turns] == [
+        "Euelpides",
+        "Peisthetaerus",
+        "Hoopoe",
+    ]
+    assert "speakerMismatch" not in turns[0]
+    assert turns[1]["speakerMismatch"] == {
+        "english": "Peisthetaerus",
+        "greek": "Euelpides",
+    }
+    assert "speakerMismatch" not in turns[2]
+
+
+def test_residual_prefers_the_slot_that_is_the_speaker_over_the_segment_set():
+    """P3.5 finding 8.
+
+    `speaks()` is true for EVERY slot of a segment whose lines carry the name,
+    so the cursor's own segment always answered first and a later segment
+    dedicated to that speaker was never tried.  The walk now looks for a slot
+    whose own event IS the speaker before falling back to the segment set.
+    """
+    # Slot 0 (Alpha) and slot 2 (Gamma) are in the cursor's window; the
+    # cursor's segment carries Gamma somewhere in its lines (a share past the
+    # window bound), so the old fallback parked Gamma's speech on Alpha.
+    assigned, residual, _head, unassigned, flags = _assign_speeches(
+        3,
+        [(0, 0)],
+        2,
+        greek_names=["Alpha", "Beta", "Gamma"],
+        english_names=["Alpha", "Gamma"],
+        greek_alt=[{"Alpha", "Gamma"}, {"Beta"}, {"Gamma"}],
+        greek_segments=[0, 1, 2],
+    )
+    assert assigned == {0: [0], 1: [], 2: [1]}
+    assert (residual, unassigned, flags) == (1, 0, {})
+
+    # The segment-set fallback still catches what no slot in the window names:
+    # Delta is nobody's own event, so the P3.3 clean park stands.
+    fallback, fb_residual, _h, fb_unassigned, fb_flags = _assign_speeches(
+        3,
+        [(0, 0)],
+        2,
+        greek_names=["Alpha", "Beta", "Gamma"],
+        english_names=["Alpha", "Delta"],
+        greek_alt=[{"Alpha"}, {"Beta", "Delta"}, {"Gamma"}],
+        greek_segments=[0, 1, 2],
+    )
+    assert fallback == {0: [0], 1: [1], 2: []}
+    assert (fb_residual, fb_unassigned, fb_flags) == (1, 0, {})

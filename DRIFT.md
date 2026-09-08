@@ -618,7 +618,30 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   event, with the old figure kept as `segment_pairing_rate`; `turn_shifts`
   compares same-name ordinals (the drift detector) instead of names.
 - `pipeline/drama_pipeline/stage2_validate.py` — P3.4: the turn-text pairing
-  floor reads the event-level `pairing_rate`; `max_turn_shift_rate` unchanged
-  (0.05) against the new ordinal-based rate.
+  floor reads the event-level `pairing_rate`; `max_turn_shift_rate` is **0.10**
+  against the new ordinal-based rate (the 0.05 this line first recorded was
+  never what shipped — corrected in P3.5, which made 0.10 the one default in
+  code, `docs/play-line.md` and here).
 - `pipeline/drama_pipeline/__main__.py` — P3.4: `flagged=` and `seg_rate=` on
   every turn-text stage-1 summary line.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — P3.5: `_pair_turns` needs a
+  real name on both sides (an unnamed slot is no longer a gap-zip wildcard);
+  `_assign_speeches` takes `greek_segments` and walks in two passes — a share
+  that IS the speaker first (reaching back to the head of the cursor's own
+  segment, so a crossed antilabe parks each share on itself), then the P3.3
+  segment-scoped fallback; a segment's turns are emitted in share order where
+  it agrees with English order and in English order where they cross; the
+  flagged park's `speakerMismatch.greek` is the event at the park offset. The
+  gated `turn_shift_rate` is documented as an ONSET rate (`new_drifts /
+  paired`), the cumulative figure staying in the report.
+- `pipeline/drama_pipeline/stage2_validate.py` — P3.5: `turn_shift_rate` is read
+  with `is None` semantics (a reported `0.0` is a value, not a missing number)
+  and the error quotes the gated onset count; the pairing floor becomes its own
+  check, `checks.turn_text_pairing_floor`, and no longer switches off the
+  unmatched-hole allowance.
+- `pipeline/drama_pipeline/__main__.py` — P3.5: `shift_cum=`, `new_drifts=` and
+  the gated `shift_rate=` on every turn-text stage-1 summary line (the old
+  `turn_shifts=` label printed the cumulative count as if it were the gate).
+- `manifests/thesmophoriazusae.yaml` — P3.5: `english.min_pairing_rate: 0.80`,
+  the measured 0.855 (432/505 events) declared instead of riding three pairs
+  above the default.
