@@ -663,7 +663,7 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # pairing-rate floor the manifest declares (default 0.85, plan P3
         # acceptance), read from the builder's own report and gated on its own
         # by `checks.turn_text_pairing_floor` (P3.5 finding 3); every unpaired
-        # Greek speech is an expected, labelled ("alignment approximate")
+        # Greek speech is an expected, labelled ("by speech")
         # hole whether the floor holds or not. Since P3.4 the report's
         # `pairing_rate` is per Greek speaker EVENT (one slot per antilabe
         # share), which is what this floor now reads; the old per-segment
@@ -801,7 +801,7 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # buried the one number that had actually moved (Thesmophoriazusae
         # sits three lost pairs from the default at 0.855). The floor now
         # fails on its own terms and says the rate and the floor; the holes
-        # stay the expected, labelled "alignment approximate" holes they are.
+        # stay the expected, labelled "by speech" holes they are.
         floor_error = read_error
         if data is not None:
             if rate is None:

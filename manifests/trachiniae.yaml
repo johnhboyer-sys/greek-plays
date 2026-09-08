@@ -27,7 +27,7 @@ english:
     footnotes: false
   secondary:
     id: storr
-    name: "F. Storr (Loeb, 1913) — alignment approximate"
+    name: "F. Storr (Loeb, 1913) — by speech"
     short: Storr
     model: turn-text
     format: loeb-ocr
@@ -147,7 +147,7 @@ registry:
       short: Jebb
       slot: english
     - id: storr
-      name: "F. Storr (Loeb, 1913) — alignment approximate"
+      name: "F. Storr (Loeb, 1913) — by speech"
       short: Storr
       slot: secondary
   citation:

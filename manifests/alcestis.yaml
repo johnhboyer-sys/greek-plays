@@ -27,7 +27,7 @@ english:
     footnotes: false
   secondary:
     id: way
-    name: "A. S. Way (Loeb, 1912) — alignment approximate"
+    name: "A. S. Way (Loeb, 1912) — by speech"
     short: Way
     model: turn-text
     format: loeb-ocr
@@ -139,7 +139,7 @@ registry:
       short: Coleridge
       slot: english
     - id: way
-      name: "A. S. Way (Loeb, 1912) — alignment approximate"
+      name: "A. S. Way (Loeb, 1912) — by speech"
       short: Way
       slot: secondary
   citation:

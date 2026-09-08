@@ -15,7 +15,7 @@ work:
 english:
   primary:
     id: athenian-society
-    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
     short: Athenian Society
     model: turn-text
     source: "gutenberg/pg8688.txt"
@@ -135,7 +135,7 @@ registry:
     full: "Dover, Aristophanes: Clouds (Oxford, 1968)"
   translations:
     - id: athenian-society
-      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
       short: Athenian Society
       slot: english
       footnotes: true

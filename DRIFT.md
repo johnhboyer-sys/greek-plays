@@ -651,3 +651,4 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   a later share of that packed line parks on its own slot (Birds 666); the
   module docstring says chunks emit in share order only where that agrees
   with the English.
+- `manifests/*.yaml` (118 translation names) — P4 (John, mockup comment 2026-09-08): the turn-text suffix "— alignment approximate" is now "— by speech": these slots align exactly by speaker turn and do not track lines inside a speech; the old hedge said nothing.

@@ -15,7 +15,7 @@ work:
 english:
   primary:
     id: athenian-society
-    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
     short: Athenian Society
     model: turn-text
     source: "gutenberg/pg8688.txt"
@@ -26,7 +26,7 @@ english:
   # Cleon/Demos labels, not a primary floor.
   secondary:
     id: hickie
-    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    name: "W. J. Hickie (Bohn, 1853) — by speech"
     short: Hickie
     model: turn-text
     format: loeb-ocr
@@ -120,12 +120,12 @@ registry:
     full: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
   translations:
     - id: athenian-society
-      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
       short: Athenian Society
       slot: english
       footnotes: true
     - id: hickie
-      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      name: "W. J. Hickie (Bohn, 1853) — by speech"
       short: Hickie
       slot: secondary
   citation:

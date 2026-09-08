@@ -38,7 +38,7 @@ Greek pages, speaker names stay on their own line for `format: verse-own-line`.
    `speakers.english_secondary` maps the printed caps names onto the roster
    (reuse `speakers.english` only when the printed names already coincide).
 5. `registry.translations[]` entry, `slot: secondary`, name carries
-   “— alignment approximate”.
+   “— by speech”.
 6. `drama_pipeline all --work <id> --public`; secondary pairing rate ≥ 0.85.
 
 ## Sophocles / Storr Loeb OCR (1912–13)
@@ -181,13 +181,13 @@ not already name.
 - **Clouds / Hickie** (W. J. Hickie, Bohn 1853, prose, bowdlerized): Perseus TEI
   `sources/perseus/tlg0019.tlg003.perseus-eng2.xml`, `model: perseus-play`,
   `anchor_model: sp-line`, `footnotes: false`. Line-owner attachment, so the
-  registry name has no “alignment approximate”. `speakers.english_secondary`
+  registry name has no “by speech” suffix. `speakers.english_secondary`
   maps each `<speaker>` string (trailing period as printed) onto
   `speakers.sigla` values.
 - **Lysistrata / Lindsay** (Jack Lindsay, 1925, verse, unexpurgated): Gutenberg
   `sources/gutenberg/pg7700.txt`, `model: turn-text`, `play: LYSISTRATA` (the
   body title above `The Persons of the drama.`, not the PG header). Registry
-  name carries “— alignment approximate”. Pairing floor 0.85; if it misses,
+  name carries “— by speech”. Pairing floor 0.85; if it misses,
   fix aliases (or the Lindsay own-line parser), never the floor.
 
 ### Aristophanes / Hickie prose (Bohn 1853)

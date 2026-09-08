@@ -27,7 +27,7 @@ english:
     footnotes: true
   secondary:
     id: morshead
-    name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+    name: "E. D. A. Morshead (1881–1908) — by speech"
     short: Morshead
     model: turn-text
     format: verse-own-line
@@ -130,7 +130,7 @@ registry:
       slot: english
       footnotes: true
     - id: morshead
-      name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+      name: "E. D. A. Morshead (1881–1908) — by speech"
       short: Morshead
       slot: secondary
   citation:

@@ -15,7 +15,7 @@ work:
 english:
   primary:
     id: athenian-society
-    name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+    name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
     short: Athenian Society
     model: turn-text
     source: "gutenberg/pg8689.txt"
@@ -23,7 +23,7 @@ english:
     footnotes: true
   secondary:
     id: hickie
-    name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+    name: "W. J. Hickie (Bohn, 1853) — by speech"
     short: Hickie
     model: turn-text
     format: loeb-ocr
@@ -32,7 +32,7 @@ english:
     footnotes: false
   third:
     id: rogers
-    name: "B. B. Rogers (Loeb, 1924) — alignment approximate"
+    name: "B. B. Rogers (Loeb, 1924) — by speech"
     short: Rogers
     model: turn-text
     format: loeb-ocr
@@ -172,18 +172,18 @@ registry:
     full: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
   translations:
     - id: athenian-society
-      name: "The Eleven Comedies (The Athenian Society, 1912) — alignment approximate"
+      name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
       short: Athenian Society
       slot: english
       footnotes: true
     - id: hickie
-      name: "W. J. Hickie (Bohn, 1853) — alignment approximate"
+      name: "W. J. Hickie (Bohn, 1853) — by speech"
       short: Hickie
       slot: secondary
     - id: rogers
       # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
       private: true
-      name: "B. B. Rogers (Loeb, 1924) — alignment approximate"
+      name: "B. B. Rogers (Loeb, 1924) — by speech"
       short: Rogers
       slot: third
   citation:

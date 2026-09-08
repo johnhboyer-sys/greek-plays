@@ -54,7 +54,7 @@ english:
     footnotes: true
   secondary:
     id: morshead
-    name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+    name: "E. D. A. Morshead (1881–1908) — by speech"
     short: Morshead
     model: turn-text
     format: verse-own-line
@@ -180,7 +180,7 @@ registry:
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
   translations:
     - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, footnotes: true }
-    - { id: morshead, name: "E. D. A. Morshead (1881–1908) — alignment approximate", short: Morshead, slot: secondary }
+    - { id: morshead, name: "E. D. A. Morshead (1881–1908) — by speech", short: Morshead, slot: secondary }
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Ag."
