@@ -38,6 +38,10 @@ english:
       # Scanner junk between speeches (page signature "VQL. I. R"), which the
       # NAME. text rule read as a speaker (P2g finding 7).
       1706: ""
+  # Measured attachment loss (sweep 2026-09-08): 7 English piece(s) with no
+  # honest owner — attribution_hole 0, nless_slice_unattached 0, unmatched_anchor 7. Mostly stichomythia the translator's base
+  # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
+  max_unresolved_mismatches: 7
   gaps:
     - "1:856"  # no covering <l n> in the Perseus TEI
     - "1:987"  # no covering <l n> in the Perseus TEI

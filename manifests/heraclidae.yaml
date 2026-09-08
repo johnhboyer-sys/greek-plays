@@ -38,6 +38,10 @@ english:
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
+  # Way's secondary pairs 0.782 (sweep 2026-09-08): 167 English speaker-turns
+  # against 206 Greek segments — the turn-text builder's one-turn-per-segment
+  # ceiling on stichomythia, not OCR loss; every recovered turn already pairs.
+  min_pairing_rate: 0.75
   gaps:
     - "1:271"
 citation:

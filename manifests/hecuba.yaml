@@ -34,6 +34,10 @@ english:
     source: bench/way/hecuba.txt
     play: HECUBA
     footnotes: false
+  # Measured attachment loss (sweep 2026-09-08): 1 English piece(s) with no
+  # honest owner — attribution_hole 0, nless_slice_unattached 0, unmatched_anchor 1. Mostly stichomythia the translator's base
+  # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
+  max_unresolved_mismatches: 1
   gaps:
     - "1:708"  # no covering <l n> in the Perseus TEI
     - "1:1042"  # no covering <l n> in the Perseus TEI

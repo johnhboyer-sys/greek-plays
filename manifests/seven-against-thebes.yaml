@@ -29,7 +29,30 @@ english:
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
+  # gaps: Greek speeches with no English anchor of their own, no same-speaker
+  # repair within 3 lines and no same-speaker covering block (residual after
+  # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
+  # anchoring, not a builder failure.
+  # Measured attachment loss (sweep 2026-09-08): 5 English piece(s) with no
+  # honest owner — attribution_hole 4, nless_slice_unattached 0, unmatched_anchor 1. Mostly stichomythia the translator's base
+  # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
+  max_unresolved_mismatches: 5
   gaps:
+    - "1:101"
+    - "1:103"
+    - "1:1042"
+    - "1:1044"
+    - "1:1046"
+    - "1:1047"
+    - "1:106"
+    - "1:367"
+    - "1:97"
+    - "1:978"
+    - "1:979"
+    - "1:981"
+    - "1:991"
+    - "1:992"
+    - "1:993"
     - "1:101"
     - "1:103"
     - "1:1042"
