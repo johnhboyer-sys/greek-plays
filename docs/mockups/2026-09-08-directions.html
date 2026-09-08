@@ -65,16 +65,17 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .rd .body{ padding:22px 28px 30px; }
 .rd .seg{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:36px; align-items:baseline; }
 .rd .seg + .seg{ margin-top:var(--seg-gap,10px); }
-.rd{ --spkw:7.5rem; }
+.rd{ --spkw:7.5rem; --spkw-g:3.4rem; }
+/* The Greek speaker gutter is sized for sigla (Χο., Κλ.), the English one for names (Clytaemestra); both labels start at the same indent. */
 /* Both columns share one left structure: [line-number gutter][speaker gutter][text].
    The speaker name hangs in its gutter, so the Greek siglum and the English
    name sit at the same indent and the text of both columns starts level. */
-.rd .g{ font-family:var(--f-gr); font-size:calc(var(--fs,16px) * 1.05); position:relative; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
+.rd .g{ font-family:var(--f-gr); font-size:calc(var(--fs,16px) * 1.05); position:relative; padding-left:calc(var(--gutter,42px) + var(--spkw-g)); }
 .rd .e{ color:var(--ink); }
 .rd .line{ display:block; position:relative; }
-.rd .ln{ position:absolute; left:calc(-1 * (var(--gutter,42px) + var(--spkw))); width:calc(var(--gutter,42px) - 10px); text-align:right; font-family:var(--f-num); font-size:11px; color:var(--ink3); top:.45em; font-variant-numeric:tabular-nums; }
+.rd .ln{ position:absolute; left:calc(-1 * (var(--gutter,42px) + var(--spkw-g))); width:calc(var(--gutter,42px) - 10px); text-align:right; font-family:var(--f-num); font-size:11px; color:var(--ink3); top:.45em; font-variant-numeric:tabular-nums; }
 .rd .spk{ font-family:var(--f-ui); font-weight:700; font-size:.78em; letter-spacing:.06em; text-transform:uppercase; color:var(--spk); }
-.rd .g .spk{ font-family:var(--f-gr); text-transform:none; letter-spacing:0; font-size:.85em; position:absolute; left:calc(-1 * var(--spkw)); top:0; width:calc(var(--spkw) - .6em); }
+.rd .g .spk{ font-family:var(--f-gr); text-transform:none; letter-spacing:0; font-size:.85em; position:absolute; left:calc(-1 * var(--spkw-g)); top:0; width:calc(var(--spkw-g) - .4em); }
 .rd .g .spk.inl{ position:static; width:auto; margin-left:.35em; font-size:.66em; }
 .rd .g > .spk{ left:var(--gutter,42px); top:.2em; }
 .rd .tr{ display:block; position:relative; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
@@ -82,26 +83,26 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .rd .tr + .tr{ margin-top:6px; }
 .rd .flag{ font-family:var(--f-ui); font-size:10.5px; color:var(--ink3); border:1px dashed var(--rule); padding:0 5px; margin-left:6px; vertical-align:middle; }
 .rd .ode .g{ --gutter:56px; }
-.rd .odehead{ font-family:var(--f-ui); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin:0 0 10px calc(var(--gutter,42px) + var(--spkw)); }
+.rd .odehead{ font-family:var(--f-ui); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin:0 0 10px calc(var(--gutter,42px) + var(--spkw-g)); }
 .rd .cmp{ grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr); }
-.rd .cmp .g{ --spkw:0rem; }
+.rd .cmp .g{ --spkw-g:0rem; --gutter:44px; }
 .rd .cmp .g .odehead{ margin:0 0 8px; font-size:11px; }
 .rd .cmp .g > .spk{ position:static; display:block; margin:0 0 8px; width:auto; }
 .rd .cmp .e{ background:var(--panel); padding:12px 14px; font-size:.95em; }
 .rd .cmp .tr{ padding-left:0; }
 .rd .cmp .e .spk{ position:static; display:block; margin:0 0 8px; width:auto; }
 .rd .cmp .e .who{ font-family:var(--f-ui); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:8px; }
-.rd.greekonly{ --spkw:0rem; }
+.rd.greekonly{ --spkw-g:0rem; }
 .rd.greekonly .body{ max-width:calc(34em + 56px); margin:0 auto; }
 .rd.greekonly .seg{ grid-template-columns:minmax(0,1fr); }
 .rd.greekonly .g{ font-size:calc(var(--fs,16px) * 1.12); line-height:1.6; }
-.rd .note{ font-family:var(--f-ui); font-size:12px; color:var(--ink3); margin-top:14px; padding-left:calc(var(--gutter,42px) + var(--spkw)); }
+.rd .note{ font-family:var(--f-ui); font-size:12px; color:var(--ink3); margin-top:14px; padding-left:calc(var(--gutter,42px) + var(--spkw-g)); }
 @container (max-width: 640px){
   .rd .head{ padding:10px 16px; flex-wrap:wrap; gap:8px 14px; }
   .rd .head .ctl{ margin-left:0; width:100%; gap:12px; font-size:12px; }
   .rd .body{ padding:16px 14px 24px; }
   .rd .seg, .rd .cmp{ grid-template-columns:minmax(0,1fr); row-gap:6px; }
-  .frame .rd.rd{ --spkw:6rem; --gutter:36px; }
+  .frame .rd.rd{ --spkw:6rem; --spkw-g:3rem; --gutter:36px; }
   .rd .cmp .e{ padding:10px 12px; }
   .rd .seg + .seg{ margin-top:16px; }
   .rd .plate .cols{ grid-template-columns:1fr !important; }
@@ -125,7 +126,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-a .spk{ text-transform:none; letter-spacing:.04em; font-size:.92em; font-weight:700; }
 .dir-a .head{ border-bottom:2px solid var(--accent); }
 .dir-a .ode .g{ background:color-mix(in srgb, var(--accent) 6%, transparent); border-left:1px solid var(--accent); padding-top:6px; padding-bottom:6px; }
-.dir-a .ode .g .ln{ left:calc(-1 * (var(--gutter,42px) + var(--spkw)) + 6px); }
+.dir-a .ode .g .ln{ left:calc(-1 * (var(--gutter,42px) + var(--spkw-g)) + 6px); }
 /* plate: the programme */
 .dir-a .plate .band{ background:var(--band); color:#f7efe4; padding:44px 40px 36px; }
 .dir-a .plate .band .gt{ font-family:var(--f-gr); font-size:66px; line-height:1; font-weight:500; margin:0; letter-spacing:-.01em; }
