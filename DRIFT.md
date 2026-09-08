@@ -602,3 +602,9 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   `english.max_residual_unassigned` (default 0), failing closed.
 - `pipeline/drama_pipeline/__main__.py` — P2j: `residual_unassigned=` on every
   turn-text stage-1 summary line.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — P3.3: a residual English
+  speech is never dropped. It walks forward to the nearest segment between the
+  surrounding pairs whose lines carry its speaker (`residual_grouped`), else
+  parks on the cursor with a per-turn `speakerMismatch` (`residual_flagged`);
+  `residual_unassigned` is left for a speech with no segment at all and reads 0
+  on all eleven comedies and every comedy bench slot.

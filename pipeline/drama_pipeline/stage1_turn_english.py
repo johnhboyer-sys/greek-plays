@@ -2,11 +2,13 @@
 
 Gutenberg-style text (Athenian Society 1912; Lindsay 1925) is parsed into
 speeches, then paired to the Greek spine's speaker sequence by LCS over
-canonical names (``turns._lcs_pairs`` + equal-length gap zip). Residual
-English is grouped onto the preceding paired segment when it can be that
-segment's speech; a residual naming somebody the segment does not speak is
-left unassigned, reaches no chunk, and is counted as ``residual_unassigned``
-(stage2 gates it, allowance ``english.max_residual_unassigned``).
+canonical names (``turns._lcs_pairs`` + equal-length gap zip). Residual English is never
+dropped: it parks on the nearest segment between the surrounding pairs whose
+lines carry its speaker (``residual_grouped``), and otherwise on the cursor
+segment with a per-turn ``speakerMismatch`` (``residual_flagged``) — shown,
+flagged when the editions disagree. ``residual_unassigned`` is left for a
+speech with no segment to reach at all (stage2 gates it at 0, allowance
+``english.max_residual_unassigned``).
 A Greek segment with no English gets no chunk — stage2 sees it unmatched.
 
 The report carries two independent quality numbers: ``length_ratio_outliers``
@@ -664,43 +666,70 @@ def _assign_speeches(
     greek_names: list[str | None] | None = None,
     english_names: list[str | None] | None = None,
     greek_alt: list[set[str]] | None = None,
-) -> tuple[dict[int, list[int]], int, int, int]:
-    """Map residuals to a prior pair; gate head residue by segment-0 speaker.
+) -> tuple[dict[int, list[int]], int, int, int, dict[int, str | None]]:
+    """Map residuals onto Greek segments; gate head residue by segment-0 speaker.
 
-    P2i finding 5: a residual is parked on ``last_gi`` only when it can be
-    that segment's speech — its canonical name is the segment's primary
-    speaker or one of the other shares its lines carry (``greek_alt``), or it
-    has no name at all (an unattributed continuation, and the OCR sentinel a
-    bench scan gives an unreadable label).  A residual that names somebody
-    else is left unassigned and counted (``residual_unassigned``): Frogs
-    parked a Xanthias speech on a segment Xanthias does not speak.
+    Returns ``(assigned, residual_grouped, head_unassigned,
+    residual_unassigned, flagged)``, where ``flagged`` maps an English index
+    to the Greek primary speaker its park target names — the per-turn
+    ``speakerMismatch`` counterpart.
 
-    P2j finding 4: a segment whose own primary is None (a speakerless lyric)
-    takes only the nameless residuals -- it used to take every named one.
+    P3.3 ruling: a translated speech is SHOWN, flagged when the editions
+    disagree, never dropped.  So, after the LCS pairing (which only ever joins
+    name-agreeing turns), an unpaired speech is placed in three steps:
+
+    1. it parks on the nearest Greek segment, at or after the segment the last
+       English went to and no later than the next paired segment, whose
+       line-level speaker set (primary + the antilabe shares in ``greek_alt``)
+       contains its canonical name.  The window is the previous paired
+       neighbour, the unpaired Greek segments between the surrounding pairs,
+       and the next paired neighbour; the search runs forward from the cursor,
+       so document order stays monotone.  This is the clean park
+       (``residual_grouped``) — P2i finding 5's rule, widened past the single
+       ``last_gi`` it used to test.
+    2. otherwise it parks on the cursor segment WITH a per-turn
+       ``speakerMismatch {english, greek}`` (``residual_flagged``), exactly
+       what the tragedies emit when Perseus' ``<sp>`` and the Greek edition
+       name different speakers.  Half of a stichomythia the LCS could not
+       reach is a real translated speech and must be readable; the flag says
+       whose the Greek edition thinks the lines are.
+    3. an unnamed residual (an unattributed continuation, and the OCR sentinel
+       a bench scan gives an unreadable label) parks on the cursor unflagged,
+       as before: it contradicts nobody.
+
+    ``residual_unassigned`` is therefore reserved for a speech that has no
+    Greek segment to reach at all (a spine with no segments); stage2 still
+    gates it at 0.
+
+    Head residue — English before the FIRST pair — keeps its own gate: that
+    zone is dramatis-personae and front-matter leakage, not dialogue, and it
+    attaches to segment 0 only when it names segment 0's speaker.
     """
     assigned: dict[int, list[int]] = {gi: [] for gi in range(n_greek)}
     paired_e = {ej: gi for gi, ej in pairs}
     alt = greek_alt or []
-    last_gi: int | None = None
+    names = greek_names or []
+    cursor: int | None = None
     residual = 0
     head_unassigned = 0
     residual_unassigned = 0
+    flagged: dict[int, str | None] = {}
 
-    def may_park(gi: int, ej: int) -> bool:
-        if english_names is None or ej >= len(english_names):
-            return True
-        name = english_names[ej]
-        if name is None or name == _OCR_JUNK:
-            return True
-        primary = (
-            greek_names[gi]
-            if greek_names is not None and gi < len(greek_names)
-            else None
-        )
-        # P2j finding 4: a segment with NO primary speaker (a speakerless
-        # lyric) is not a wildcard.  Only the unnamed and OCR-junk residuals
-        # handled above may park there; a named residual -- Frogs' Dionysus
-        # after a 30-line unattributed ode -- stays unassigned and counted.
+    # `next_pair_gi[ej]` = the Greek segment of the next PAIRED English after
+    # `ej`, the forward bound of the park window (the end of the play when no
+    # pair follows).
+    next_pair_gi: list[int | None] = [None] * n_english
+    ahead: int | None = None
+    for ej in range(n_english - 1, -1, -1):
+        next_pair_gi[ej] = ahead
+        if ej in paired_e:
+            ahead = paired_e[ej]
+
+    def speaks(gi: int, name: str) -> bool:
+        """The segment's own lines carry this speaker (primary or a share)."""
+        primary = names[gi] if gi < len(names) else None
+        # P2j finding 4: a segment with NO primary is not a wildcard — it
+        # speaks nobody, so a named residual never counts as clean here.
         if name == primary:
             return True
         return name in (alt[gi] if gi < len(alt) else set())
@@ -709,9 +738,9 @@ def _assign_speeches(
         if ej in paired_e:
             gi = paired_e[ej]
             assigned[gi].append(ej)
-            last_gi = gi
+            cursor = gi if cursor is None else max(cursor, gi)
             continue
-        if last_gi is None:
+        if cursor is None:
             head_matches = (
                 n_greek > 0
                 and greek_names is not None
@@ -727,12 +756,28 @@ def _assign_speeches(
             else:
                 head_unassigned += 1
             continue
-        if not may_park(last_gi, ej):
-            residual_unassigned += 1
+        name = (
+            english_names[ej]
+            if english_names is not None and ej < len(english_names)
+            else None
+        )
+        if name is None or name == _OCR_JUNK:
+            assigned[cursor].append(ej)
+            residual += 1
             continue
-        assigned[last_gi].append(ej)
-        residual += 1
-    return assigned, residual, head_unassigned, residual_unassigned
+        upper = next_pair_gi[ej]
+        upper = n_greek - 1 if upper is None else min(upper, n_greek - 1)
+        target = next(
+            (gi for gi in range(cursor, upper + 1) if speaks(gi, name)), None
+        )
+        if target is not None:
+            assigned[target].append(ej)
+            cursor = max(cursor, target)
+            residual += 1
+            continue
+        assigned[cursor].append(ej)
+        flagged[ej] = names[cursor] if cursor < len(names) else None
+    return assigned, residual, head_unassigned, residual_unassigned, flagged
 
 
 def parse_translation(
@@ -815,7 +860,13 @@ def parse_translation(
     g_names = [_greek_segment_name(seg, sigla) for seg in segments]
     g_alt = [_greek_segment_alt_names(seg, sigla) for seg in segments]
     pairs = _pair_turns(g_names, e_names, g_alt)
-    assigned, residual_grouped, head_unassigned, residual_unassigned = _assign_speeches(
+    (
+        assigned,
+        residual_grouped,
+        head_unassigned,
+        residual_unassigned,
+        residual_flags,
+    ) = _assign_speeches(
         len(segments),
         pairs,
         len(speeches),
@@ -889,13 +940,22 @@ def parse_translation(
             offset = len("\n\n".join(texts) + ("\n\n" if texts else ""))
             printed = speech["speaker_printed"]
             if printed:
-                turns.append(
-                    {
-                        "offset": offset,
-                        "speaker": speech["canonical"] or printed,
-                        "display": printed,
+                turn = {
+                    "offset": offset,
+                    "speaker": speech["canonical"] or printed,
+                    "display": printed,
+                }
+                if ej in residual_flags:
+                    # P3.3: this speech is shown here because it had to be
+                    # shown somewhere; the Greek edition gives these lines to
+                    # somebody else, and the reader says so.  The flag is on
+                    # the TURN, not the chunk — the chunk's other turns are
+                    # correctly attributed (P2h finding 3).
+                    turn["speakerMismatch"] = {
+                        "english": speech["canonical"] or printed,
+                        "greek": residual_flags[ej],
                     }
-                )
+                turns.append(turn)
             texts.append(piece)
         if not texts:
             continue
@@ -913,6 +973,10 @@ def parse_translation(
             }
         )
 
+    # No chunk-level `speakerMismatch` here (perseus-play keeps one for
+    # pre-P2h compatibility): a flagged residual parks on the CURSOR segment,
+    # which has already taken an unflagged turn, so a turn-text chunk whose
+    # every turn disagrees cannot arise. The reader reads the per-turn flag.
     chunk_ids = {chunk["id"] for chunk in chunks}
     greek_unpaired = [seg["id"] for seg in segments if seg["id"] not in chunk_ids]
     greek_named = sum(1 for name in g_names if name is not None)
@@ -931,6 +995,7 @@ def parse_translation(
         "speeches_parsed": len(speeches),
         "paired": len(pairs),
         "residual_grouped": residual_grouped,
+        "residual_flagged": len(residual_flags),
         "residual_unassigned": residual_unassigned,
         "head_unassigned": head_unassigned,
         "greek_unpaired": len(greek_unpaired),

@@ -127,17 +127,28 @@ def test_alias_and_sigla_canonicalisation():
     assert speakers["only_in_english"] == []
 
 
-def test_lcs_leaves_a_foreign_residual_unassigned():
-    """P2i finding 5: the extra Dicaeopolis speech is not the Herald's, so it
-    is left out and counted rather than parked in his column."""
+def test_a_foreign_residual_is_shown_flagged_not_dropped():
+    """P3.3: the extra Dicaeopolis speech is not the Herald's and no segment
+    between the surrounding pairs is his either — so it is SHOWN in the
+    Herald's column carrying the disagreement, never dropped (it used to be
+    counted as `residual_unassigned` and reach no chunk at all)."""
     english, _footnotes, report = _parse()
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
     assert "1:40" not in by_id
     herald = by_id["1:20"]
     assert "The assembly is open." in herald["text"]
-    assert "An extra speech the Greek does not split." not in herald["text"]
-    assert [turn["speaker"] for turn in herald["turns"]] == ["Herald"]
-    assert report["residual_unassigned"] == 1
+    assert "An extra speech the Greek does not split." in herald["text"]
+    assert [turn["speaker"] for turn in herald["turns"]] == ["Herald", "Dicaeopolis"]
+    assert "speakerMismatch" not in herald["turns"][0]
+    assert herald["turns"][1]["speakerMismatch"] == {
+        "english": "Dicaeopolis",
+        "greek": "Herald",
+    }
+    # Not every turn of the chunk disagrees, so the pre-P2h chunk-level
+    # compatibility flag stays off.
+    assert "speakerMismatch" not in herald
+    assert report["residual_flagged"] == 1
+    assert report["residual_unassigned"] == 0
     assert [chunk["id"] for chunk in english["chunks"]] == [
         "1:1",
         "1:10",
@@ -171,7 +182,8 @@ def test_report_numbers():
     assert report["speeches_parsed"] == 6
     assert report["paired"] == 5
     assert report["residual_grouped"] == 0
-    assert report["residual_unassigned"] == 1
+    assert report["residual_flagged"] == 1
+    assert report["residual_unassigned"] == 0
     assert report["head_unassigned"] == 0
     assert report["greek_unpaired"] == 1
     assert report["greek_unpaired_ids"] == ["1:40"]
@@ -410,14 +422,20 @@ def test_speech_length_ratio_outlier_is_reported(tmp_path):
 
 
 def test_head_residue_attaches_only_when_speaker_matches():
-    assigned, residual, head_unassigned, unassigned = _assign_speeches(4, [(3, 2)], 3)
+    """English BEFORE the first pair keeps its own gate: that zone is the
+    dramatis personae and the front matter, not dialogue, so it is not swept
+    onto segment 0 by the never-drop rule."""
+    assigned, residual, head_unassigned, unassigned, flags = _assign_speeches(
+        4, [(3, 2)], 3
+    )
     assert assigned[0] == []
     assert assigned[3] == [2]
     assert residual == 0
     assert head_unassigned == 2
     assert unassigned == 0
+    assert flags == {}
 
-    matched, matched_residual, matched_head, _un = _assign_speeches(
+    matched, matched_residual, matched_head, _un, _f = _assign_speeches(
         4,
         [(3, 2)],
         3,
@@ -429,7 +447,7 @@ def test_head_residue_attaches_only_when_speaker_matches():
     assert matched_residual == 2
     assert matched_head == 0
 
-    skipped, skipped_residual, skipped_head, _un2 = _assign_speeches(
+    skipped, skipped_residual, skipped_head, _un2, _f2 = _assign_speeches(
         4,
         [(3, 2)],
         3,
@@ -442,28 +460,31 @@ def test_head_residue_attaches_only_when_speaker_matches():
     assert skipped_head == 2
 
 
-def test_residual_is_not_parked_on_a_segment_that_speaker_never_speaks():
-    """P2i finding 5, Frogs-shaped: Dionysus and Xanthias alternate, the
-    English runs two Xanthias speeches together, and the second one may not be
-    parked on the Dionysus segment the pairing landed on."""
+def test_residual_on_a_segment_that_speaker_never_speaks_is_flagged():
+    """P3.3, Frogs-shaped: Dionysus and Xanthias alternate, the English runs
+    two Dionysus speeches together, and the trailing one reaches no segment of
+    his.  It is shown on the segment the pairing landed on, flagged with the
+    disagreement — it used to be dropped (P2i finding 5)."""
     greek = ["Dionysus", "Xanthias", "Dionysus", "Xanthias"]
     english = ["Dionysus", "Xanthias", "Dionysus", "Xanthias", "Dionysus"]
-    # English 4 (Dionysus) has no pair; last_gi is the Xanthias segment 3.
-    assigned, residual, head, unassigned = _assign_speeches(
+    # English 4 (Dionysus) has no pair; the cursor is the Xanthias segment 3
+    # and no segment after it is Dionysus', so it parks there flagged.
+    assigned, residual, head, unassigned, flags = _assign_speeches(
         4,
         [(0, 0), (1, 1), (2, 2), (3, 3)],
         5,
         greek_names=greek,
         english_names=english,
     )
-    assert assigned[3] == [3]
+    assert assigned[3] == [3, 4]
     assert residual == 0
     assert head == 0
-    assert unassigned == 1
+    assert unassigned == 0
+    assert flags == {4: "Xanthias"}
 
-    # A name the segment's own lines carry (an antilabe share) still parks,
+    # A name the segment's own lines carry (an antilabe share) parks CLEAN,
     # and so does an unnamed continuation.
-    parked, parked_residual, _head, parked_unassigned = _assign_speeches(
+    parked, parked_residual, _head, parked_unassigned, parked_flags = _assign_speeches(
         4,
         [(0, 0), (1, 1), (2, 2), (3, 3)],
         6,
@@ -474,31 +495,72 @@ def test_residual_is_not_parked_on_a_segment_that_speaker_never_speaks():
     assert parked[3] == [3, 4, 5]
     assert parked_residual == 2
     assert parked_unassigned == 0
+    assert parked_flags == {}
 
 
-def test_named_residual_does_not_park_on_a_speakerless_lyric():
-    """P2j finding 4, Frogs-shaped: the ode at 1:383 carries no speaker at
-    all, so the segment's primary is None.  That is not a wildcard — Dionysus'
-    unpaired next speech used to park on the ode and print in its column.
-    Only the nameless residuals (a continuation, or a bench scan's unreadable
-    label) may still park there."""
+def test_residual_walks_forward_to_the_segment_that_speaks_it():
+    """P3.3 step 1, the stichomythia case the LCS drops: the Greek packs
+    A-B-A-B into segments the pairing skipped, so the unpaired English walks
+    FORWARD — over the unpaired segments between the surrounding pairs, up to
+    and including the next paired one — to the nearest segment whose lines
+    carry its speaker, and never backwards (document order stays monotone)."""
+    greek = ["Alpha", "Beta", "Alpha", "Beta", "Alpha"]
+    # Only the first and last agree, so segments 1-3 sit between the pairs.
+    assigned, residual, _head, unassigned, flags = _assign_speeches(
+        5,
+        [(0, 0), (4, 3)],
+        4,
+        greek_names=greek,
+        english_names=["Alpha", "Beta", "Alpha", "Alpha"],
+    )
+    assert assigned[1] == [1]  # Beta walks to the Beta segment
+    assert assigned[2] == [2]  # the next Alpha to the Alpha segment after it
+    assert assigned[4] == [3]
+    assert residual == 2
+    assert unassigned == 0
+    assert flags == {}
+
+    # Monotone: a residual never walks BACK to a namesake segment behind the
+    # cursor — Alpha's segment 0 is already past, so the unpaired Alpha is
+    # flagged on the Beta segment instead of jumping backwards in the text.
+    back, back_residual, _h, back_unassigned, back_flags = _assign_speeches(
+        2,
+        [(1, 0)],
+        2,
+        greek_names=["Alpha", "Beta"],
+        english_names=["Beta", "Alpha"],
+    )
+    assert back[0] == []
+    assert back[1] == [0, 1]
+    assert back_residual == 0
+    assert back_unassigned == 0
+    assert back_flags == {1: "Beta"}
+
+
+def test_named_residual_on_a_speakerless_lyric_is_flagged_not_dropped():
+    """P2j finding 4 under the P3.3 ruling: the ode carries no speaker at all,
+    so it is still not a wildcard — a named residual does not count as CLEAN
+    there.  But it is no longer dropped: with nowhere better in the window it
+    parks on the ode flagged, and the flag names the ode's speaker (None: the
+    edition attributes those lines to nobody)."""
     from drama_pipeline.stage1_turn_english import _OCR_JUNK
 
     greek = ["Dionysus", None]  # segment 1 is the unattributed ode
     pairs = [(0, 0), (1, 1)]
-    assigned, residual, head, unassigned = _assign_speeches(
+    assigned, residual, head, unassigned, flags = _assign_speeches(
         2,
         pairs,
         3,
         greek_names=greek,
         english_names=["Dionysus", "Chorus", "Dionysus"],
     )
-    assert assigned[1] == [1]
+    assert assigned[1] == [1, 2]
     assert residual == 0
     assert head == 0
-    assert unassigned == 1
+    assert unassigned == 0
+    assert flags == {2: None}
 
-    parked, parked_residual, _head, parked_unassigned = _assign_speeches(
+    parked, parked_residual, _head, parked_unassigned, parked_flags = _assign_speeches(
         2,
         pairs,
         4,
@@ -508,6 +570,7 @@ def test_named_residual_does_not_park_on_a_speakerless_lyric():
     assert parked[1] == [1, 2, 3]
     assert parked_residual == 2
     assert parked_unassigned == 0
+    assert parked_flags == {}
 
 
 def test_head_residue_unassigned_is_reported(tmp_path):

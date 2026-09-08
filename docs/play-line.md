@@ -197,22 +197,40 @@ canonical speaker is not the Greek speaker; stage 2 fails
 when the stage-1 report is missing or belongs to another work. English before
 the first pair attaches to Greek segment 0 only when its canonical speaker
 matches that segment; the report counts other head text as `head_unassigned`,
-printed on the stage-1 summary line. An unpaired speech after the first pair
-is parked on the last paired Greek segment only when it can be that segment's:
-its canonical name is the segment's own speaker, one of the other shares its
-lines carry, or absent (an unattributed continuation, or a bench scan's
-unreadable OCR label). A residual naming somebody else is left unassigned and
-counted as `residual_unassigned` — Frogs used to park a Xanthias speech on a
-segment Xanthias does not speak. A segment with no speaker at all (an
-unattributed lyric) is not a wildcard either: only the nameless residuals may
-park there. `residual_unassigned` is English that reaches no chunk, so it is
-printed on the stage-1 summary line and gated in
-`checks.turn_text_residual_unassigned` against
+printed on the stage-1 summary line.
+
+An unpaired speech AFTER the first pair is never dropped: a translated line is
+shown, and flagged when the editions disagree. It is placed in two steps.
+First it walks forward from the cursor — the last Greek segment English went
+to — as far as the next paired segment, and parks on the first segment on the
+way whose lines carry its canonical speaker (its own speaker, or one of the
+antilabe shares its lines carry). That window is the previous paired
+neighbour, the unpaired Greek segments between the surrounding pairs, and the
+next paired neighbour; the walk only goes forward, so document order stays
+monotone. Those are the clean parks, `residual_grouped`. Failing that, it
+parks on the cursor segment carrying a per-turn `speakerMismatch
+{english, greek}` — `residual_flagged`, exactly the flag the tragedies emit
+when Perseus' `<sp>` and the Greek edition name different speakers, and the
+same underline and tooltip in the reader. An unnamed residual (an
+unattributed continuation, or a bench scan's unreadable OCR label)
+contradicts nobody and parks on the cursor unflagged. A segment with no
+speaker at all is still not a wildcard — a named residual never counts as
+CLEAN there — but it can take a flagged one, whose `greek` is then null
+(the edition gives those lines to nobody). Turn-text writes no chunk-level
+`speakerMismatch`: the cursor has always taken an unflagged turn first, so a
+chunk whose every turn disagrees cannot arise.
+
+`residual_unassigned` is therefore reserved for a speech with no Greek
+segment to reach at all. It is printed on the stage-1 summary line and gated
+in `checks.turn_text_residual_unassigned` against
 `english.max_residual_unassigned` (default `0`, and failing closed on a
-missing or foreign stage-1 report like the other turn-text checks). The 1912
-comedies each carry dozens of them today (24 in the Acharnians to 107 in the
-Birds), so every comedy needs its allowance declared — or the residue
-recovered — before that gate can hold at 0.
+missing or foreign stage-1 report like the other turn-text checks). It reads
+0 on all eleven comedies and every comedy bench slot, so no play declares an
+allowance. The 647 speeches the eleven used to drop (24 in the Acharnians to
+107 in the Birds) are now 30 clean forward parks and 617 flagged ones —
+`residual_flagged` is the count for John's review, and `chunks_as_overlay`
+drops turns, so a secondary/third/overlay slot shows its text without the
+flag.
 
 Preflight reads `pipeline/drama_pipeline/public_domain_translations.yaml` and
 requires every translation id stage7 can emit (primary / secondary / third /
