@@ -279,7 +279,10 @@ body {
   top: 0;
   z-index: 10;
   background: var(--col-bg);
-  border-bottom: 1px solid var(--border);
+  /* P4 skin: the running head sits on a 2px rule in the genre accent — rubric
+     red for tragedy, malachite for comedy, switched by data-genre on <html>
+     (docs/mockups/2026-09-08-blend.html; docs/p4-plan.md). */
+  border-bottom: 2px solid var(--accent);
   padding: 0.6rem 1.5rem;
   display: flex;
   align-items: baseline;
@@ -301,14 +304,19 @@ body {
   gap: 0.4rem;
   font-family: var(--font-ui);
 }
+/* The first crumb is the site name — small, uppercase, letterspaced, in the
+   UI face, so it reads as a wordmark and not as another crumb
+   (docs/mockups/2026-09-08-blend.html, `.dir-b .head .site`). */
 .header-title .home-link {
-  font-size: 1rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--accent);
-  letter-spacing: .02em;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text-light);
   text-decoration: none;
+  white-space: nowrap;
 }
-.header-title .home-link:hover { color: var(--accent-light); }
+.header-title .home-link:hover { color: var(--accent); }
 .header-title .title-sep { color: var(--text-light); font-size: 0.85rem; }
 .header-title .header-static { font-weight: 600; color: var(--text); font-size: 0.95rem; }
 /* The work switcher reads as a real control: a quiet pill with a persistent
@@ -423,6 +431,17 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+/* P4 skin: everything a reader OPERATES is set in the UI face's small caps,
+   lightly letterspaced (`.dir-b .head .ctl` in the blend mockup). Alegreya
+   Sans SC already draws small caps; font-variant-caps keeps the fallback
+   stack honest. */
+.header-bar .toc-toggle,
+.header-bar .header-search,
+.header-bar .header-support,
+.header-bar .settings-toggle {
+  font-variant-caps: small-caps;
+  letter-spacing: 0.04em;
 }
 .theme-toggle {
   display: inline-flex;
@@ -3155,13 +3174,16 @@ body {
   font-family: var(--font-ui);
 }
 .simple-header .header-actions { flex: 0 0 auto; }
+/* Same wordmark on the standalone pages (see .header-title .home-link). */
 .simple-header .header-title .home-link {
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--accent);
-  letter-spacing: .02em;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text-light);
   text-decoration: none;
 }
-.simple-header .header-title .home-link:hover { color: var(--accent-light); }
+.simple-header .header-title .home-link:hover { color: var(--accent); }
 .simple-header .header-title .title-sep { color: var(--text-light); }
 .simple-header .header-title .header-static {
   font-weight: 600;

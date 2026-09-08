@@ -701,3 +701,18 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   it starts on the verse, and `.strophe-marker` is floated (out of flow, a
   full-width band above the line it labels) so the row's baseline is the first
   verse line's, never the marker's.
+- `shared/styles/global.css` — P4 Lane B2: the running head a play page really
+  wears. `.page-header` sits on a 2px `--accent` rule (genre-switched); the
+  breadcrumb's first crumb (`.header-title .home-link`, and its `.simple-header`
+  restatement) is restyled as the site wordmark — small, uppercase, .12em
+  letterspacing, quiet ink until hover; the header-bar tools (Contents,
+  Support, Search/Lexicon, Settings) take `font-variant-caps: small-caps` and
+  .04em tracking so the fallback stack matches Alegreya Sans SC.
+- `app/src/components/Breadcrumb.svelte` — P4 Lane B2: the Home crumb IS the
+  site name (`SITE_NAME`, no aria-label — the visible text names the
+  destination); AUTHOR · PLAY set in `--font-english` (Cardo) at 400 on a quiet
+  rule that takes the accent on hover; separators `›` → `·`. Still plain links,
+  still no `<select>`.
+- `app/src/pages/[author]/index.astro` — P4 Lane B2: `data-genre` on `<html>`
+  from the author's registry `genre`, so an author landing page carries its
+  own accent (malachite on Aristophanes) exactly as ReaderShell.astro does.

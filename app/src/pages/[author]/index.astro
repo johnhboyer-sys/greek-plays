@@ -39,6 +39,12 @@ const authorId = Astro.params.author!;
 const author = getAuthor(authorId)!;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
+// data-genre on <html> picks the accent sitewide — rubric red for tragedy,
+// malachite for comedy — BY GENRE, never by author (John; docs/p4-plan.md).
+// Same attribute ReaderShell.astro sets; an author with no genre falls back
+// to :root's tragedy default.
+const genre = author.genre;
+
 const siteName = SITE_NAME;
 
 // Built works only, in the author's own curated order (author.works), not
@@ -240,7 +246,7 @@ const breadcrumbLd = Astro.site
     }
   : null;
 ---
-<html lang="en">
+<html lang="en" data-genre={genre}>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
