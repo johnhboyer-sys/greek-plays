@@ -457,3 +457,18 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/components/Reader.svelte` — `playEngTurns` renders "Translated with the speech above ↑" (a `.eng-covered` button that scrolls to `col-<column>`) when `englishCoveredBy` is set and the shown translation has no piece, instead of the missing-passage dash; `scrollToSegment` helper.
 - `shared/styles/global.css` — `.eng-covered` (italic, muted, underline on hover/focus).
 - `shared/__tests__/reader-play-line.test.ts` — continuation-affordance test.
+
+## P2f — attribution-difference line-owner attach (2026-09-08)
+
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — a singleton
+  speaker mismatch with no same-speaker Greek speech within ±3 attaches
+  to the line owner and marks the chunk `speakerMismatch: {english, greek}`;
+  drift still repairs to the nearest same-speaker speech without the flag.
+  `attribution_differences` (+ count) in `english_report.json`.
+- `pipeline/drama_pipeline/stage2_validate.py` — those attachments are
+  real chunks, so they count as covered.
+- `pipeline/drama_pipeline/stage7_emit.py` — emit `speakerMismatch` on
+  the segment's english object.
+- `pipeline/tests/test_stage1_perseus_play_english.py` — Messenger 1320 /
+  Agamemnon flag, drift without the flag, packed elders and Seven 1040–1047.
+- `docs/play-line.md` — P2f English attachment contract.

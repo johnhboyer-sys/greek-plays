@@ -837,6 +837,16 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                         # other chunk carries no "credit" key at all
                         # (byte-identical by construction).
                         **({"credit": eng["credit"]} if eng.get("credit") else {}),
+                        # P2f: the English <sp> and the Greek speech that
+                        # prints this line name different speakers. Present
+                        # only on that attachment; every other chunk (and
+                        # every other scheme) carries no "speakerMismatch"
+                        # key at all.
+                        **(
+                            {"speakerMismatch": eng["speakerMismatch"]}
+                            if eng.get("speakerMismatch")
+                            else {}
+                        ),
                     }
                     if eng
                     else None

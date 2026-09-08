@@ -181,35 +181,110 @@ def test_one_line_drift_binds_to_the_right_speaker(tmp_path: Path):
     assert mismatch["greek_speaker"] == "Cassandra"
     assert mismatch["attached_to"] == "1:1078"
     assert mismatch["kind"] == "speaker_repair"
+    assert "speakerMismatch" not in by_id["1:1078"]
+    assert "speakerMismatch" not in by_id["1:1076"]
     assert report["speech_mismatch_count"] == 1
     assert report["unresolved_mismatch_count"] == 0
+    assert report["attribution_differences"] == []
+    assert report["attribution_difference_count"] == 0
 
 
-def test_unresolved_speaker_mismatch_is_counted_and_not_attached(tmp_path: Path):
+def test_attribution_difference_attaches_to_line_owner_with_flag(tmp_path: Path):
+    """Greek gives 1320 to the Messenger; English is Agamemnon with no
+    Agamemnon speech within ±3 → attach to 1:1320 with speakerMismatch."""
     spine = {
         "work": "test-play",
         "segments": [
             {
-                "id": "1:10",
+                "id": "1:1310",
                 "book": 1,
                 "column": "1",
-                "lines": [{"n": 10, "ref": "10", "text": "g"}],
-                "speakers": [{"line": 1, "offset": 0, "label": "B"}],
-            }
+                "lines": [{"n": 1310, "ref": "1310", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Αγ."}],
+            },
+            {
+                "id": "1:1320",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1320, "ref": "1320", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Αγγ."}],
+            },
+            {
+                "id": "1:1324",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1324, "ref": "1324", "text": "g"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Οδ."}],
+            },
         ],
     }
     tei = """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
   <div type="translation">
-    <sp><speaker>Alpha</speaker><l n="10">Wrong owner.</l></sp>
+    <sp><speaker>Agamemnon</speaker><l n="1320">I will not hear him.</l></sp>
   </div>
 </body></text></TEI>
 """
-    english, _footnotes, report = _parse(tmp_path, tei, spine)
-    assert english["chunks"] == []
+    aliases = {
+        "Agamemnon": "Agamemnon",
+        "Messenger": "Messenger",
+        "Odysseus": "Odysseus",
+    }
+    sigla = {"Αγ.": "Agamemnon", "Αγγ.": "Messenger", "Οδ.": "Odysseus"}
+    english, _footnotes, report = _parse(
+        tmp_path, tei, spine, aliases=aliases, sigla=sigla
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert set(by_id) == {"1:1320"}
+    assert "I will not hear him." in by_id["1:1320"]["text"]
+    assert by_id["1:1320"]["speakerMismatch"] == {
+        "english": "Agamemnon",
+        "greek": "Messenger",
+    }
+    assert by_id["1:1320"]["turns"] == [
+        {"offset": 0, "speaker": "Agamemnon", "display": "Agamemnon"},
+    ]
+    assert report["attribution_differences"] == [
+        {
+            "greek_id": "1:1320",
+            "line": 1320,
+            "english_speaker": "Agamemnon",
+            "greek_speaker": "Messenger",
+        }
+    ]
+    assert report["attribution_difference_count"] == 1
     assert report["speech_mismatch_count"] == 1
-    assert report["unresolved_mismatch_count"] == 1
-    assert "attached_to" not in report["speech_mismatches"][0]
+    assert report["unresolved_mismatch_count"] == 0
+    mismatch = report["speech_mismatches"][0]
+    assert mismatch["attached_to"] == "1:1320"
+    assert mismatch["kind"] == "attribution_difference"
+
+    alignment = _alignment_for(spine, english)
+    result = validate(_play_manifest(gaps=[]), spine, english, alignment)
+    unexpected = result["checks"]["alignment"]["unexpected_unmatched"]
+    assert "1:1320" not in unexpected
+
+    tokens = {
+        "segments": [
+            {
+                "id": seg["id"],
+                "lines": [{"n": line["n"], "tokens": []} for line in seg["lines"]],
+            }
+            for seg in spine["segments"]
+        ]
+    }
+    out_dir = tmp_path / "dist"
+    out_dir.mkdir()
+    emit_books(spine, tokens, english, chapter_ranges(spine, []), out_dir)
+    book = json.loads((out_dir / "book-01.json").read_text(encoding="utf-8"))
+    emitted = {seg["id"]: seg for seg in book["segments"]}
+    assert emitted["1:1320"]["english"]["text"] == "I will not hear him."
+    assert emitted["1:1320"]["english"]["speakerMismatch"] == {
+        "english": "Agamemnon",
+        "greek": "Messenger",
+    }
+    assert "speakerMismatch" not in (emitted["1:1310"].get("english") or {})
+    assert emitted["1:1310"]["english"] is None
 
 
 def test_english_speech_splits_across_greek_line_owners(tmp_path: Path):
@@ -451,6 +526,8 @@ def test_seven_multi_anchor_speech_does_not_fill_intervening_turns(tmp_path: Pat
     assert combined.count("With my own hands") == 1
     assert all(f"1:{n}" not in by_id for n in (1042, 1043, 1044, 1046, 1047))
     assert report["segments_with_chunk"] == 2
+    assert all("speakerMismatch" not in chunk for chunk in english["chunks"])
+    assert report["attribution_difference_count"] == 0
 
 
 def test_suppliants_anchor_stops_at_next_english_speech(tmp_path: Path):
@@ -584,6 +661,7 @@ def test_packed_elders_split_into_twelve_slices(tmp_path: Path):
     assert "Advice 6" in texts["1:1358"]
     assert "Advice 12" in texts["1:1370"]
     assert report["segments_with_chunk"] == 12
+    assert all("speakerMismatch" not in chunk for chunk in english["chunks"])
 
 
 def test_cross_speech_snap_is_refused(tmp_path: Path):

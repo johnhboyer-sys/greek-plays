@@ -59,11 +59,20 @@ never into a neighbouring speech. Line-owner attachment across different
 Greek speakers applies only when one English `<sp>` has anchors in more
 than one Greek segment. For a singleton mismatch, the builder uses the
 nearest same-speaker Greek speech within three lines, preferring the
-earlier speech on a tie; if none exists, it attaches nothing and reports
-the mismatch. Every snap and speech mismatch is written to
-`build/stage1/english_report.json` (play, English line, Greek ref, both
-speakers). `speech_mismatch_count` counts all such rows, while
-`unresolved_mismatch_count` counts rows with no `attached_to` target.
+earlier speech on a tie (translator drift: Ag. 1077 Chorus lands on
+Chorus 1078, no `speakerMismatch` flag). If none exists, the piece is an
+attribution difference between the translator's base text and the TLG
+edition: it attaches to the Greek speech that prints the line and the
+chunk is marked `speakerMismatch: {english, greek}` (canonical English
+speaker, Greek segment speaker display). Stage 7 emits that object on
+the segment's `english` chunk. Every (b) attachment is listed in
+`build/stage1/english_report.json` as `attribution_differences:
+[{greek_id, line, english_speaker, greek_speaker}]` with
+`attribution_difference_count`. Stage 2 counts those segments as
+covered. Every snap and speech mismatch is written to the same report
+(play, English line, Greek ref, both speakers). `speech_mismatch_count`
+counts all such rows, while `unresolved_mismatch_count` counts rows with
+no `attached_to` target.
 
 The Greek spine owns the speech/40-line segment cuts. The builder emits at
 most one English chunk per segment. A segment with no English is a hole:

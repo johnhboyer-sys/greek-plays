@@ -535,6 +535,9 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
     # P2e: a segment whose English sits on an earlier speech (continuation
     # coverage) is not a hole. englishCoveredBy on the pair, or the parallel
     # english_covered_by map, both count as covered.
+    # P2f: an attribution-difference attachment is a real chunk (the English
+    # speaker disagrees with the Greek line owner, flagged speakerMismatch
+    # on the chunk). It pairs here like any other chunk and is not unmatched.
     covered_by = alignment.get("english_covered_by") or {}
     unmatched = [
         p["segment"]

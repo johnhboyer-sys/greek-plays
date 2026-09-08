@@ -21,6 +21,13 @@ speech's attached line span (or between a single attached anchor and the
 next English owner) and has no piece of its own is marked
 ``english_covered_by`` pointing at the segment that holds the translator's
 block.  The marker does not copy text and does not claim speaker identity.
+
+P2f attribution difference: when that ±3 same-speaker search finds
+nothing, the piece attaches to the Greek speech that prints the line
+(the line owner) and the chunk is marked ``speakerMismatch``
+``{english, greek}`` so the text is shown and the edition disagreement
+is visible.  Translator drift (a same-speaker Greek speech within ±3)
+still reattaches there without the flag.
 """
 
 from __future__ import annotations
@@ -539,20 +546,38 @@ def _resolve_slice_anchor(
             mismatch = _speakers_row(work_id, n, ref, printed, speaker, greek_speaker)
             if not multi_span:
                 repaired = index.nearest_matching_speech(n, speaker, claimed=claimed)
-                if repaired is None:
-                    return {"attached": False, "mismatch": mismatch}
-                target, target_ref = repaired
-                mismatch["attached_to"] = target["id"]
-                mismatch["attached_ref"] = target_ref
-                mismatch["attached_speaker"] = index.speaker_of.get(target["id"])
-                mismatch["kind"] = "speaker_repair"
+                if repaired is not None:
+                    target, target_ref = repaired
+                    mismatch["attached_to"] = target["id"]
+                    mismatch["attached_ref"] = target_ref
+                    mismatch["attached_speaker"] = index.speaker_of.get(target["id"])
+                    mismatch["kind"] = "speaker_repair"
+                    return {
+                        "attached": True,
+                        "tick": n,
+                        "ref": target_ref,
+                        "segment": target,
+                        "snap": None,
+                        "mismatch": mismatch,
+                    }
+                # P2f: no same-speaker Greek speech within ±3 — this is an
+                # attribution difference (the two editions give the line to
+                # different characters). Attach to the line owner and flag it.
+                mismatch["attached_to"] = segment["id"]
+                mismatch["attached_ref"] = ref
+                mismatch["attached_speaker"] = greek_speaker
+                mismatch["kind"] = "attribution_difference"
                 return {
                     "attached": True,
                     "tick": n,
-                    "ref": target_ref,
-                    "segment": target,
+                    "ref": ref,
+                    "segment": segment,
                     "snap": None,
                     "mismatch": mismatch,
+                    "speaker_mismatch": {
+                        "english": speaker,
+                        "greek": greek_speaker,
+                    },
                 }
             mismatch["attached_to"] = segment["id"]
             mismatch["attached_ref"] = ref
@@ -681,8 +706,18 @@ def parse_translation(
     jobs: list[dict] = []
     claimed: set[str] = set()
     turns_emitted: set[tuple[int, str]] = set()
+    attribution_differences: list[dict] = []
 
-    def commit_job(job, segment, tick, *, snap=None, mismatch=None, add_turn=True) -> None:
+    def commit_job(
+        job,
+        segment,
+        tick,
+        *,
+        snap=None,
+        mismatch=None,
+        add_turn=True,
+        speaker_mismatch=None,
+    ) -> None:
         if mismatch:
             mismatches.append(mismatch)
         if snap:
@@ -699,6 +734,16 @@ def parse_translation(
         )
         if job["printed"]:
             turns_emitted.add(turn_key)
+        if speaker_mismatch:
+            chunks_by_id[segment["id"]]["speakerMismatch"] = speaker_mismatch
+            attribution_differences.append(
+                {
+                    "greek_id": segment["id"],
+                    "line": job["n"],
+                    "english_speaker": speaker_mismatch["english"],
+                    "greek_speaker": speaker_mismatch["greek"],
+                }
+            )
         claimed.add(segment["id"])
         job["assigned"] = segment["id"]
 
@@ -854,6 +899,7 @@ def parse_translation(
             result["tick"],
             snap=result.get("snap"),
             mismatch=result.get("mismatch"),
+            speaker_mismatch=result.get("speaker_mismatch"),
         )
         prev_assigned[job["sp_index"]] = job["assigned"]
 
@@ -883,6 +929,8 @@ def parse_translation(
         "unresolved_mismatch_count": sum(
             1 for item in mismatches if not item.get("attached_to")
         ),
+        "attribution_differences": attribution_differences,
+        "attribution_difference_count": len(attribution_differences),
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,
