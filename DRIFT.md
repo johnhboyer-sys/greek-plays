@@ -608,3 +608,17 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   parks on the cursor with a per-turn `speakerMismatch` (`residual_flagged`);
   `residual_unassigned` is left for a speech with no segment at all and reads 0
   on all eleven comedies and every comedy bench slot.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — P3.4: pairing runs over
+  Greek speaker EVENTS (`_greek_event_slots`, one slot per antilabe share)
+  instead of segments, so a packed segment takes one clean pair per share and
+  its chunk is assembled from the pieces its shares won, in share order.
+  `_pair_turns` loses its alternative-name argument (a slot is one speaker) and
+  `_greek_segment_alt_names` gives way to `_segment_speaks`, which scopes the
+  residual park window to the segment as before. `pairing_rate` is now per
+  event, with the old figure kept as `segment_pairing_rate`; `turn_shifts`
+  compares same-name ordinals (the drift detector) instead of names.
+- `pipeline/drama_pipeline/stage2_validate.py` — P3.4: the turn-text pairing
+  floor reads the event-level `pairing_rate`; `max_turn_shift_rate` unchanged
+  (0.05) against the new ordinal-based rate.
+- `pipeline/drama_pipeline/__main__.py` — P3.4: `flagged=` and `seg_rate=` on
+  every turn-text stage-1 summary line.

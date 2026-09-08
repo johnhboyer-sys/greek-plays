@@ -1,11 +1,14 @@
 """Build turn-aligned English for speaker-labelled prose without line numbers.
 
 Gutenberg-style text (Athenian Society 1912; Lindsay 1925) is parsed into
-speeches, then paired to the Greek spine's speaker sequence by LCS over
-canonical names (``turns._lcs_pairs`` + equal-length gap zip). Residual English is never
+speeches, then paired to the Greek spine's speaker EVENTS — one slot per
+antilabe share, not one per segment (P3.4, ``_greek_event_slots``) — by LCS
+over canonical names (``turns._lcs_pairs`` + equal-length gap zip). A packed
+segment therefore takes one clean pair per share, and its chunk is assembled
+from the pieces its shares won, in share order. Residual English is never
 dropped: it parks on the nearest segment between the surrounding pairs whose
-lines carry its speaker (``residual_grouped``), and otherwise on the cursor
-segment with a per-turn ``speakerMismatch`` (``residual_flagged``) — shown,
+event set contains its speaker (``residual_grouped``), and otherwise on the
+cursor with a per-turn ``speakerMismatch`` (``residual_flagged``) — shown,
 flagged when the editions disagree. ``residual_unassigned`` is left for a
 speech with no segment to reach at all (stage2 gates it at 0, allowance
 ``english.max_residual_unassigned``).
@@ -13,8 +16,10 @@ A Greek segment with no English gets no chunk — stage2 sees it unmatched.
 
 The report carries two independent quality numbers: ``length_ratio_outliers``
 (English/Greek character dispersion, a damage signal) and ``turn_shifts``
-(pairs whose English canonical speaker is not the Greek speaker, the real
-off-by-one signal). stage2 gates both.
+(pairs whose English speech is not at the same position in its own same-name
+run as the Greek share it paired with — the drift signal, since names now
+agree by construction). stage2 gates both. ``pairing_rate`` is per EVENT;
+``segment_pairing_rate`` keeps the P3.3 per-segment figure beside it.
 """
 
 from __future__ import annotations
@@ -584,19 +589,17 @@ def _rewrite_footnotes(
 def _pair_turns(
     greek_names: list[str | None],
     english_names: list[str | None],
-    greek_alt: list[set[str]] | None = None,
 ) -> list[tuple[int, int]]:
     """Anchors via LCS of named turns, then zip equal-length name-agreeing gaps.
 
-    ``greek_alt[i]`` holds the other speakers segment ``i`` packs (an antilabe
-    hands the line over mid-way), so a gap turn may agree with any share of
-    the line rather than only its start speaker (P2h finding 9)."""
-    alt = greek_alt or [set()] * len(greek_names)
+    ``greek_names`` is one entry per Greek speaker SHARE (P3.4,
+    ``_greek_event_slots``), so a name here is a single speaker and a pair is
+    exact-name. The alternative-name escape the segment-level pairing needed
+    (P2h finding 9: a gap turn agreeing with any share of a packed line) is
+    gone with the packing it worked around."""
 
     def agrees(i: int, j: int) -> bool:
-        if turns_mod._names_match(greek_names[i], english_names[j]):
-            return True
-        return english_names[j] is not None and english_names[j] in alt[i]
+        return turns_mod._names_match(greek_names[i], english_names[j])
 
     g_named = [i for i, name in enumerate(greek_names) if name is not None]
     e_named = [j for j, name in enumerate(english_names) if name is not None]
@@ -647,15 +650,74 @@ def _greek_segment_name(segment: dict, sigla: dict) -> str | None:
     return speaker_at(segment, int(first), sigla, mapped_only=False)
 
 
-def _greek_segment_alt_names(segment: dict, sigla: dict) -> set[str]:
-    """Every other speaker the segment's lines carry (the antilabe names)."""
-    primary = _greek_segment_name(segment, sigla)
-    names = {
+def _greek_event_slots(segments: list[dict], sigla) -> list[dict]:
+    """One pairing slot per Greek speaker SHARE, in document order.
+
+    P3.4: a play-line segment is cut only at a LINE-START speaker event, so an
+    antilabe packs two or more speakers into ONE segment.  Pairing over
+    segments therefore offers a packed segment a single slot, and the English
+    speech of its second share can never pair however well it agrees — the
+    P3.3 diagnosis found that shape under 45% of the unpaired English (961
+    speeches with a free Greek event of their own name inside an
+    already-paired segment).  One slot per share lets a packed segment take
+    one clean pair per share; the slot remembers ``segment`` (and its ``line``
+    / ``offset``), so the emitted chunk is still assembled per segment.
+
+    A segment with no speaker event of its own (a lyric continuation, a
+    column break) keeps ONE unnamed slot: pairing treats it as it always did
+    (a name wildcard the LCS never anchors) and residual English can still
+    park on it, so no segment becomes unreachable.
+    """
+    slots: list[dict] = []
+    for gi, segment in enumerate(segments):
+        events = _segment_speaker_events(segment, sigla)
+        if not events:
+            lines = segment.get("lines") or segment.get("greek") or []
+            first = next(
+                (
+                    line.get("n")
+                    for line in lines
+                    if isinstance(line, dict) and line.get("n") is not None
+                ),
+                None,
+            )
+            slots.append(
+                {"segment": gi, "line": first, "offset": 0, "name": None}
+            )
+            continue
+        for line, offset, name, _mapped in events:
+            slots.append(
+                {"segment": gi, "line": line, "offset": offset, "name": name}
+            )
+    return slots
+
+
+def _segment_speaks(segment: dict, sigla) -> set[str]:
+    """Every canonical name the segment's own lines carry (primary + shares).
+
+    The residual park window is still segment-scoped (P3.3's rule); an event
+    slot inherits its segment's set, so a speech parks CLEAN on a segment
+    whose event set contains its name even when the event it would agree with
+    is not the slot the cursor stands on.
+    """
+    return {
         name
         for _ln, _off, name, _mapped in _segment_speaker_events(segment, sigla)
-        if name is not None and name != primary
+        if name is not None
     }
-    return names
+
+
+def _same_name_ordinals(names: list[str | None]) -> list[int | None]:
+    """Each entry's 0-based position among the entries of the SAME name."""
+    seen: dict[str, int] = {}
+    out: list[int | None] = []
+    for name in names:
+        if name is None:
+            out.append(None)
+            continue
+        out.append(seen.get(name, 0))
+        seen[name] = seen.get(name, 0) + 1
+    return out
 
 
 def _assign_speeches(
@@ -667,7 +729,11 @@ def _assign_speeches(
     english_names: list[str | None] | None = None,
     greek_alt: list[set[str]] | None = None,
 ) -> tuple[dict[int, list[int]], int, int, int, dict[int, str | None]]:
-    """Map residuals onto Greek segments; gate head residue by segment-0 speaker.
+    """Map residuals onto Greek speaker slots; gate head residue by slot-0 speaker.
+
+    P3.4: ``n_greek`` and the pair indices are EVENT slots (one per antilabe
+    share); ``greek_alt[k]`` is the whole name set of slot k's segment, so the
+    clean-park test below is still segment-scoped exactly as P3.3 wrote it.
 
     Returns ``(assigned, residual_grouped, head_unassigned,
     residual_unassigned, flagged)``, where ``flagged`` maps an English index
@@ -857,9 +923,18 @@ def parse_translation(
             raise ValueError(f"{work_id}: unaliased English speakers in {play}: {names}")
 
     segments: list[dict] = list(spine["segments"])
-    g_names = [_greek_segment_name(seg, sigla) for seg in segments]
-    g_alt = [_greek_segment_alt_names(seg, sigla) for seg in segments]
-    pairs = _pair_turns(g_names, e_names, g_alt)
+    # P3.4: the pairing runs over speaker EVENTS (one slot per antilabe share),
+    # not segments. `slots[k]["segment"]` maps a slot back to the segment whose
+    # chunk it feeds; `seg_names` (the old per-segment primary) survives only
+    # to report `segment_pairing_rate` beside the event rate.
+    slots = _greek_event_slots(segments, sigla)
+    slot_names = [slot["name"] for slot in slots]
+    seg_names = [_greek_segment_name(seg, sigla) for seg in segments]
+    seg_speaks = [_segment_speaks(seg, sigla) for seg in segments]
+    # No alt names in the pairing itself: a slot IS one share, so a pair is
+    # exact-name by construction. The segment's whole name set rides into
+    # `_assign_speeches` instead, where it is the clean-park test (P3.3).
+    pairs = _pair_turns(slot_names, e_names)
     (
         assigned,
         residual_grouped,
@@ -867,23 +942,34 @@ def parse_translation(
         residual_unassigned,
         residual_flags,
     ) = _assign_speeches(
-        len(segments),
+        len(slots),
         pairs,
         len(speeches),
-        greek_names=g_names,
+        greek_names=slot_names,
         english_names=e_names,
-        greek_alt=g_alt,
+        greek_alt=[seg_speaks[slot["segment"]] for slot in slots],
     )
 
+    # Slot -> segment, then the English each SEGMENT shows, in slot (line,
+    # offset) order: a packed segment's chunk is its shares' pieces
+    # concatenated, each keeping its own turn lead-in and offset.
+    seg_ejs: list[list[int]] = [[] for _ in segments]
+    for k, slot in enumerate(slots):
+        for ej in assigned.get(k) or []:
+            seg_ejs[slot["segment"]].append(ej)
+
     pair_ratios: list[tuple[int, int, float]] = []
-    for gi, ej in pairs:
+    for k, ej in pairs:
+        segment = segments[slots[k]["segment"]]
         greek_text = "".join(
             str(line.get("text") or "")
-            for line in (segments[gi].get("lines") or segments[gi].get("greek") or [])
+            for line in (segment.get("lines") or segment.get("greek") or [])
             if isinstance(line, dict)
         )
         if greek_text:
-            pair_ratios.append((gi, ej, len(speeches[ej]["text"]) / len(greek_text)))
+            pair_ratios.append(
+                (slots[k]["segment"], ej, len(speeches[ej]["text"]) / len(greek_text))
+            )
     median_ratio = (
         median(ratio for _gi, _ej, ratio in pair_ratios)
         if pair_ratios
@@ -892,7 +978,7 @@ def parse_translation(
     # P2g finding 9: this heuristic measures LENGTH DISPERSION, not speaker
     # agreement — it cannot see a same-name off-by-one. It keeps its own key
     # (`speech_mismatches` belongs to perseus-play's real speaker mismatches);
-    # `turn_shifts` below is the speaker check.
+    # `turn_shifts` below is the drift check (P3.4: the same-name ordinal).
     length_ratio_outliers = []
     if median_ratio is not None:
         lower = median_ratio * 0.25
@@ -907,27 +993,58 @@ def parse_translation(
             if ratio < lower or ratio > upper
         ]
 
-    # `_pair_turns` only pairs name-agreeing turns, so today this reads 0.000
-    # on all 11 comedies and all 7 bench slots: it is the tripwire on that
-    # contract. Any loosening of the pairing (fuzzy names, forced anchors)
-    # shows up here as English given to the wrong Greek speaker.
+    # Event pairing makes the old name check vacuous — a pair joins one Greek
+    # share to an English speech of the SAME canonical name by construction —
+    # so P3.4 gives `turn_shift` the drift job it could not do before: besides
+    # the name, compare each side's position among ITS OWN same-name run. A
+    # prologue the two editions distribute differently (Birds redistributes
+    # Euelpides/Peisthetaerus) pairs name-for-name at every step while the
+    # English sits one Euelpides speech ahead of the Greek — nothing in P3.3
+    # could see that. A non-zero ordinal delta is that drift, and it persists
+    # for the rest of the play, which is exactly the damage it describes.
+    g_ord = _same_name_ordinals(slot_names)
+    e_ord = _same_name_ordinals(e_names)
     turn_shifts = [
         {
-            "greek_id": segments[gi]["id"],
+            "greek_id": segments[slots[k]["segment"]]["id"],
             "english_index": ej,
-            "greek_speaker": g_names[gi],
+            "greek_speaker": slot_names[k],
             "english_speaker": e_names[ej],
+            "greek_ordinal": g_ord[k],
+            "english_ordinal": e_ord[ej],
         }
-        for gi, ej in pairs
-        if g_names[gi] is not None
+        for k, ej in pairs
+        if slot_names[k] is not None
         and e_names[ej] is not None
-        and e_names[ej] != g_names[gi]
+        and (e_names[ej] != slot_names[k] or e_ord[ej] != g_ord[k])
     ]
-    turn_shift_rate = (len(turn_shifts) / len(pairs)) if pairs else 0.0
+    # Cumulative rate: once the two sides' same-name counts diverge (the Greek
+    # splits a line between two speakers where the English has one speech),
+    # every later pair of that name inherits the delta, so this reads 0.35–0.74
+    # on the eleven comedies and describes structure, not misplacement.
+    turn_shift_rate_cumulative = (len(turn_shifts) / len(pairs)) if pairs else 0.0
+    # Gated rate (orchestrator ruling 2026-09-08): a NEW drift — a pair whose
+    # same-name ordinal delta differs from the previous pair of that name (the
+    # first pair of a name counts when its delta is non-zero). Inherited
+    # offsets do not count. This is the number that moves when a prologue is
+    # paired one turn late.
+    last_delta: dict[str, int] = {}
+    new_drifts = 0
+    for k, ej in pairs:
+        name = slot_names[k]
+        if name is None or e_names[ej] is None or e_ord[ej] is None or g_ord[k] is None:
+            continue
+        delta = e_ord[ej] - g_ord[k]
+        prev = last_delta.get(name)
+        if (prev is None and delta != 0) or (prev is not None and delta != prev):
+            new_drifts += 1
+        last_delta[name] = delta
+    turn_shift_rate = (new_drifts / len(pairs)) if pairs else 0.0
+    turn_shift_new_drifts = new_drifts
 
     chunks: list[dict] = []
     for gi, segment in enumerate(segments):
-        ejs = assigned.get(gi) or []
+        ejs = seg_ejs[gi]
         if not ejs:
             continue
         texts: list[str] = []
@@ -979,8 +1096,14 @@ def parse_translation(
     # every turn disagrees cannot arise. The reader reads the per-turn flag.
     chunk_ids = {chunk["id"] for chunk in chunks}
     greek_unpaired = [seg["id"] for seg in segments if seg["id"] not in chunk_ids]
-    greek_named = sum(1 for name in g_names if name is not None)
-    paired_named = sum(1 for gi, _ej in pairs if g_names[gi] is not None)
+    # The headline rate is now per EVENT: named Greek shares that took a pair
+    # over named Greek shares. `segment_pairing_rate` keeps the P3.3 figure
+    # (named segments carrying at least one pair) for comparison.
+    greek_named = sum(1 for name in slot_names if name is not None)
+    paired_named = sum(1 for k, _ej in pairs if slot_names[k] is not None)
+    paired_segments = {slots[k]["segment"] for k, _ej in pairs}
+    seg_named = sum(1 for name in seg_names if name is not None)
+    seg_paired_named = sum(1 for gi in paired_segments if seg_names[gi] is not None)
     total_segments = len(segments)
     english = {
         "work": work_id,
@@ -1001,6 +1124,11 @@ def parse_translation(
         "greek_unpaired": len(greek_unpaired),
         "greek_unpaired_ids": greek_unpaired,
         "pairing_rate": (paired_named / greek_named) if greek_named else 0.0,
+        "greek_events": len(slots),
+        "greek_events_named": greek_named,
+        "segment_pairing_rate": (
+            (seg_paired_named / seg_named) if seg_named else 0.0
+        ),
         "anchor_count": 0,
         "snaps": [],
         "snap_count": 0,
@@ -1009,6 +1137,8 @@ def parse_translation(
         "turn_shifts": turn_shifts,
         "turn_shift_count": len(turn_shifts),
         "turn_shift_rate": turn_shift_rate,
+        "turn_shift_new_drifts": turn_shift_new_drifts,
+        "turn_shift_rate_cumulative": turn_shift_rate_cumulative,
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,

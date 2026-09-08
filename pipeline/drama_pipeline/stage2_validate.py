@@ -663,7 +663,10 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # pairing-rate floor the manifest declares (default 0.85, plan P3
         # acceptance), read from the builder's own report; below it the
         # build fails, above it every unpaired Greek speech is an expected,
-        # labelled ("alignment approximate") hole.
+        # labelled ("alignment approximate") hole. Since P3.4 the report's
+        # `pairing_rate` is per Greek speaker EVENT (one slot per antilabe
+        # share), which is what this floor now reads; the old per-segment
+        # figure rides beside it as `segment_pairing_rate` and is not gated.
         english_cfg = manifest.data.get("english") or {}
         floor = float(english_cfg.get("min_pairing_rate") or 0.85)
         # Default 0.25: the length-ratio heuristic flags 9–21% of pairs in the
@@ -671,10 +674,16 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # four plays that read no worse than the six that passed (2026-09-08;
         # REVIEW-CHECKLIST item 5 asks John to spot-check flagged pairs).
         max_ratio_rate = float(english_cfg.get("max_mismatch_rate", 0.25))
-        # A turn shift is the real off-by-one: the paired English speech is
-        # spoken by someone else. 0.05 is tight because a shift means the
-        # reader sees another character's words (P2g finding 9).
-        max_shift_rate = float(english_cfg.get("max_turn_shift_rate", 0.05))
+        # A turn shift is the real off-by-one. Event pairing makes the name
+        # check vacuous (a pair joins one Greek share to an English speech of
+        # the same name), so since P3.4 the builder measures POSITION: the
+        # English speech's place in its own same-name run against the Greek
+        # share's place in its. 0.05 is unchanged and tight because a shift
+        # means the reader sees another character's words (P2g finding 9).
+        # Default 0.10 for the NEW-drift rate (P3.4 ruling 2026-09-08): the
+        # eleven comedies read 0.025–0.078 on it; the cumulative rate (report
+        # only) reads 0.35–0.74 and describes share-count structure.
+        max_shift_rate = float(english_cfg.get("max_turn_shift_rate", 0.10))
         # P2j finding 3: a residual English speech the builder could not park
         # (its speaker is nobody the preceding segment speaks) reaches NO
         # chunk -- turn-text's own attachment loss, invisible until now.

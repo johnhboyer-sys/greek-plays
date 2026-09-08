@@ -90,7 +90,9 @@ def _stage1(manifest):
                     f"residual_unassigned={report['residual_unassigned']} "
                     f"ratio_outliers={report['length_ratio_outlier_count']} "
                     f"turn_shifts={report['turn_shift_count']} "
-                    f"rate={report['pairing_rate']:.3f}"
+                    f"flagged={report['residual_flagged']} "
+                    f"rate={report['pairing_rate']:.3f} "
+                    f"seg_rate={report['segment_pairing_rate']:.3f}"
                 )
             else:
                 raise NotImplementedError(
@@ -117,7 +119,9 @@ def _stage1(manifest):
                     f"residual_unassigned={sec_report['residual_unassigned']} "
                     f"ratio_outliers={sec_report['length_ratio_outlier_count']} "
                     f"turn_shifts={sec_report['turn_shift_count']} "
-                    f"rate={sec_report['pairing_rate']:.3f}"
+                    f"flagged={sec_report['residual_flagged']} "
+                    f"rate={sec_report['pairing_rate']:.3f} "
+                    f"seg_rate={sec_report['segment_pairing_rate']:.3f}"
                 )
             elif sec_model == "perseus-play":
                 from . import stage1_perseus_play_english
@@ -156,7 +160,9 @@ def _stage1(manifest):
                     f"residual_unassigned={third_report['residual_unassigned']} "
                     f"ratio_outliers={third_report['length_ratio_outlier_count']} "
                     f"turn_shifts={third_report['turn_shift_count']} "
-                    f"rate={third_report['pairing_rate']:.3f}"
+                    f"flagged={third_report['residual_flagged']} "
+                    f"rate={third_report['pairing_rate']:.3f} "
+                    f"seg_rate={third_report['segment_pairing_rate']:.3f}"
                 )
             else:
                 raise NotImplementedError(
@@ -183,7 +189,9 @@ def _stage1(manifest):
                 f"residual_unassigned={ov_report['residual_unassigned']} "
                 f"ratio_outliers={ov_report['length_ratio_outlier_count']} "
                 f"turn_shifts={ov_report['turn_shift_count']} "
-                f"rate={ov_report['pairing_rate']:.3f}"
+                f"flagged={ov_report['residual_flagged']} "
+                f"rate={ov_report['pairing_rate']:.3f} "
+                f"seg_rate={ov_report['segment_pairing_rate']:.3f}"
             )
         n_lines = sum(len(s["lines"]) for s in spine["segments"])
         n_speakers = sum(len(s.get("speakers", [])) for s in spine["segments"])

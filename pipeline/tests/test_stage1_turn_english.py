@@ -574,9 +574,22 @@ def test_named_residual_on_a_speakerless_lyric_is_flagged_not_dropped():
 
 
 def test_head_residue_unassigned_is_reported(tmp_path):
+    """P3.4 note: the play now closes with a REAL Chorus speech.
+
+    The fixture used to be ``CHORUS junk / ALPHA opening`` against a single
+    packed segment, where the segment offered exactly one pairing slot
+    (Alpha).  Pairing over shares offers two — Alpha at offset 0 and the
+    Chorus share at offset 1 — and ``[Chorus, Alpha]`` against
+    ``[Alpha, Chorus]`` has two longest common subsequences of length one, so
+    the junk could pair on a tie.  The trailing real Chorus speech makes the
+    intended reading the unique longest one and leaves the rule this test is
+    about — head English attaches to the first slot only when it names that
+    slot's speaker — the only thing being measured.
+    """
     path = tmp_path / "play.txt"
     path.write_text(
-        "TEST PLAY\nCHORUS. Cast-list junk.\nALPHA. Real opening.\nFINIS\n",
+        "TEST PLAY\nCHORUS. Cast-list junk.\nALPHA. Real opening.\n"
+        "CHORUS. Real chorus.\nFINIS\n",
         encoding="utf-8",
     )
     spine = {
@@ -603,10 +616,13 @@ def test_head_residue_unassigned_is_reported(tmp_path):
         footnotes_enabled=False,
     )
     assert report["head_unassigned"] == 1
-    assert report["paired"] == 1
+    assert report["paired"] == 2
     assert [chunk["id"] for chunk in english["chunks"]] == ["1:1"]
     assert "Cast-list junk" not in english["chunks"][0]["text"]
     assert english["chunks"][0]["turns"][0]["speaker"] == "Alpha"
+    # Both shares of the packed line pair, and the segment's chunk carries
+    # them in share order.
+    assert english["chunks"][0]["turns"][1]["speaker"] == "Chorus"
 
 
 def test_quality_numbers_are_surfaced_in_the_stage1_summary():
@@ -615,6 +631,8 @@ def test_quality_numbers_are_surfaced_in_the_stage1_summary():
     main_src = Path(cli.__file__).read_text(encoding="utf-8")
     assert "ratio_outliers={report['length_ratio_outlier_count']}" in main_src
     assert "turn_shifts={report['turn_shift_count']}" in main_src
+    assert "flagged={report['residual_flagged']}" in main_src
+    assert "seg_rate={report['segment_pairing_rate']:.3f}" in main_src
     assert "head_unassigned={report['head_unassigned']}" in main_src
     assert "unresolved={report['unresolved_mismatch_count']}" in main_src
     assert "covered={report['covered_by_count']}" in main_src
@@ -688,12 +706,13 @@ def test_stage2_gates_length_ratio_and_turn_shift_separately(tmp_path, monkeypat
     shifted = _stage2_with_report(
         monkeypatch,
         tmp_path,
-        {**base, "turn_shift_count": 9, "turn_shift_rate": 0.09},
+        {**base, "turn_shift_count": 12, "turn_shift_rate": 0.12},
         _turn_text_manifest(),
     )
     shift = shifted["checks"]["turn_text_turn_shift"]
     assert shift["ok"] is False
-    assert "turn-shift rate 0.090 exceeds maximum 0.050" in shift["error"]
+    # Default gate is 0.10 on the NEW-drift rate (P3.4 ruling).
+    assert "turn-shift rate 0.120 exceeds maximum 0.100" in shift["error"]
     # The length gate is untouched at 0.25 and still passes.
     assert shifted["checks"]["turn_text_length_ratio"]["ok"] is True
     assert shifted["ok"] is False
@@ -1259,10 +1278,17 @@ def test_ocr_junk_speech_is_unattributed_and_never_pairs(tmp_path):
 
 
 def test_greek_segment_name_is_the_first_lines_start_speaker(tmp_path):
-    """A packed segment (an antilabe hands the line over mid-way) used to pair
-    as whichever speaker its first EVENT named. Pairing now uses the line-level
-    rule — the speaker of the first line at offset 0 — and the packed second
-    speaker rides as an alternative name (P2h finding 9)."""
+    """P3.4 replaces the alternative-name escape this test used to assert.
+
+    A packed segment (an antilabe hands the line over mid-way) offered ONE
+    pairing slot, so P2h finding 9 let a gap turn agree with any share of its
+    lines (`_pair_turns(..., greek_alt)`).  Pairing now runs over the shares
+    themselves — one slot each — so that escape is gone with the packing it
+    worked around, and the segment-level speaker rule (the speaker of the
+    first line at offset 0) survives only to report
+    `segment_pairing_rate`.  The line-level rules it feeds (`speaker_at`,
+    used by the perseus-play builder) are unchanged.
+    """
     from drama_pipeline import stage1_turn_english as m
 
     resolver = m._SiglaResolver(
@@ -1283,18 +1309,175 @@ def test_greek_segment_name_is_the_first_lines_start_speaker(tmp_path):
         ],
     }
     assert m._greek_segment_name(packed, resolver) == "Ismene"
-    assert m._greek_segment_alt_names(packed, resolver) == {"Herald"}
+    assert m._segment_speaks(packed, resolver) == {"Ismene", "Herald"}
     # The line-level rule, offset and all.
     assert m.speaker_at(packed, 1004, resolver) == "Ismene"
     assert m.speaker_at(packed, 1005, resolver) == "Ismene"
     assert m.speaker_at(packed, 1005, resolver, prefer="Herald") == "Herald"
     assert m.speaker_at(packed, 1006, resolver) == "Herald"
-    # A gap turn may pair with either share of the packed line, and with
-    # neither when the English names a third character.
-    assert m._pair_turns(["Ismene"], ["Herald"], [{"Herald"}]) == [(0, 0)]
-    assert m._pair_turns(["Ismene"], ["Antigone"], [{"Herald"}]) == []
-    assert m._pair_turns(
-        ["Chorus", "Ismene", "Chorus"],
-        ["Chorus", "Herald", "Chorus"],
-        [set(), {"Herald"}, set()],
-    ) == [(0, 0), (1, 1), (2, 2)]
+    # The packed segment is TWO pairing slots, so the Herald's English pairs
+    # with the Herald's own share instead of borrowing Ismene's slot, and an
+    # English speech naming a third character still pairs with neither.
+    slots = m._greek_event_slots([packed], resolver)
+    assert [(s["segment"], s["line"], s["offset"], s["name"]) for s in slots] == [
+        (0, 1004, 0, "Ismene"),
+        (0, 1005, 1, "Herald"),
+    ]
+    assert m._pair_turns([s["name"] for s in slots], ["Ismene", "Herald"]) == [
+        (0, 0),
+        (1, 1),
+    ]
+    assert m._pair_turns(["Ismene", "Herald"], ["Antigone"]) == []
+
+
+def _one_liner(tmp_path, source: str, spine: dict, sigla: dict, aliases: dict):
+    path = tmp_path / "play.txt"
+    path.write_text(f"TEST PLAY\n{source}\nFINIS\n", encoding="utf-8")
+    return parse_translation(
+        path,
+        spine,
+        work_id="test",
+        translation_id="test",
+        play="TEST PLAY",
+        sigla=sigla,
+        english_aliases=aliases,
+        footnotes_enabled=False,
+    )
+
+
+def test_antilabe_shares_each_take_their_own_english(tmp_path):
+    """P3.4: a line the antilabe splits packs two speakers into ONE segment.
+
+    Pairing over segments offered that segment a single slot, so Beta's
+    speech could never pair however exactly it agreed — it parked flagged on
+    Alpha's segment.  One slot per share pairs both, and the segment's chunk
+    carries the two pieces in share order, each with its own turn offset.
+    """
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "ἄλφα λέγει· βῆτα λέγει."}],
+                "speakers": [
+                    {"line": 1, "offset": 0, "label": "Α."},
+                    {"line": 1, "offset": 12, "label": "Β."},
+                ],
+            },
+        ],
+    }
+    english, _footnotes, report = _one_liner(
+        tmp_path,
+        "ALPHA. Alpha speaks.\nBETA. Beta answers.",
+        spine,
+        {"Α.": "Alpha", "Β.": "Beta"},
+        {"ALPHA": "Alpha", "BETA": "Beta"},
+    )
+    assert report["greek_events"] == 2
+    assert report["paired"] == 2
+    assert report["pairing_rate"] == 1.0
+    assert report["segment_pairing_rate"] == 1.0
+    assert report["residual_flagged"] == 0
+    assert report["residual_grouped"] == 0
+    assert report["turn_shift_count"] == 0
+    chunk = english["chunks"][0]
+    assert chunk["id"] == "1:1"
+    assert chunk["text"] == "Alpha speaks.\n\nBeta answers."
+    assert [(turn["offset"], turn["speaker"]) for turn in chunk["turns"]] == [
+        (0, "Alpha"),
+        (len("Alpha speaks.\n\n"), "Beta"),
+    ]
+    assert all("speakerMismatch" not in turn for turn in chunk["turns"])
+
+
+def test_three_shares_on_one_line_all_pair(tmp_path):
+    """The A–B–A line (P2i finding 7): three shares, three slots, three pairs,
+    and the returning speaker gets the LAST share, not the first."""
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "ἄλφα· βῆτα· ἄλφα πάλιν."}],
+                "speakers": [
+                    {"line": 1, "offset": 0, "label": "Α."},
+                    {"line": 1, "offset": 6, "label": "Β."},
+                    {"line": 1, "offset": 12, "label": "Α."},
+                ],
+            },
+        ],
+    }
+    english, _footnotes, report = _one_liner(
+        tmp_path,
+        "ALPHA. First.\nBETA. Second.\nALPHA. Third.",
+        spine,
+        {"Α.": "Alpha", "Β.": "Beta"},
+        {"ALPHA": "Alpha", "BETA": "Beta"},
+    )
+    assert report["greek_events"] == 3
+    assert report["paired"] == 3
+    assert report["pairing_rate"] == 1.0
+    assert report["residual_flagged"] == 0
+    chunk = english["chunks"][0]
+    assert [turn["speaker"] for turn in chunk["turns"]] == ["Alpha", "Beta", "Alpha"]
+    assert chunk["text"] == "First.\n\nSecond.\n\nThird."
+
+
+def test_turn_shift_detects_a_one_turn_drift(tmp_path):
+    """P3.4's drift detector.
+
+    Names agree at every pair by construction now, so `turn_shift` compares
+    POSITION instead: the English speech's place among its own same-name run
+    against the Greek share's place among its.  Here the translation gives
+    Beta's first speech to Alpha, so every later Beta pairs one turn behind
+    the Greek — the shape of the Birds prologue, and invisible to the P3.3
+    name check.
+    """
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": f"1:{n}", "book": 1, "column": "1",
+                "lines": [{"n": n, "ref": str(n), "text": "γραμμη τις εστιν."}],
+                "speakers": [{"line": n, "offset": 0, "label": label}],
+            }
+            for n, label in enumerate(["Α.", "Β.", "Α.", "Β."], 1)
+        ],
+    }
+    _english, _footnotes, report = _one_liner(
+        tmp_path,
+        "ALPHA. First.\nALPHA. Second.\nBETA. Third.",
+        spine,
+        {"Α.": "Alpha", "Β.": "Beta"},
+        {"ALPHA": "Alpha", "BETA": "Beta"},
+    )
+    assert report["paired"] == 3
+    assert report["turn_shift_count"] == 1
+    assert report["turn_shift_rate"] == 1 / 3
+    shift = report["turn_shifts"][0]
+    assert shift["greek_id"] == "1:4"
+    assert shift["greek_speaker"] == "Beta"
+    assert shift["english_speaker"] == "Beta"
+    # The Greek's second Beta paired with the English's first.
+    assert (shift["greek_ordinal"], shift["english_ordinal"]) == (1, 0)
+
+
+def test_a_segment_with_no_speaker_event_keeps_one_slot(tmp_path):
+    """A lyric continuation carries no speaker event of its own.  It still
+    gets exactly one (unnamed) slot, so residual English can park on it and
+    no segment becomes unreachable."""
+    from drama_pipeline import stage1_turn_english as m
+
+    segments = [
+        {
+            "id": "1:1",
+            "lines": [{"n": 1, "ref": "1", "text": "g"}],
+            "speakers": [{"line": 1, "offset": 0, "label": "Α."}],
+        },
+        {"id": "1:2", "lines": [{"n": 2, "ref": "2", "text": "g"}], "speakers": []},
+    ]
+    slots = m._greek_event_slots(segments, {"Α.": "Alpha"})
+    assert [(s["segment"], s["line"], s["name"]) for s in slots] == [
+        (0, 1, "Alpha"),
+        (1, 2, None),
+    ]
