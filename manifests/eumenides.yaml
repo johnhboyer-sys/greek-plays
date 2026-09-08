@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0085.tlg007.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+  secondary:
+    id: morshead
+    name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+    short: Morshead
+    model: turn-text
+    format: verse-own-line
+    source: bench/morshead/eumenides.txt
+    play: THE FURIES
+    footnotes: false
   gaps:
     - "1:147"  # no covering <l n> in the Perseus TEI
     - "1:148"  # no covering <l n> in the Perseus TEI
@@ -56,6 +65,16 @@ speakers:
     "Athena": "Athena"
     "The Priestess of Pythian Apollo": "Priestess"
     "Chorus of the Processional Escort": "Escort"
+  english_secondary:
+    "PYTHIAN PRIESTESS": "Priestess"
+    "APOLLO": "Apollo"
+    "ORESTES": "Orestes"
+    "GHOST OF CLYTEMNESTRA": "Ghost of Clytaemestra"
+    "GHOST": "Ghost of Clytaemestra"
+    "CHORUS OF FURIES": "Chorus"
+    "CHORUS": "Chorus"
+    "ATHENA": "Athena"
+    "CHANT": "Escort"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances (see docs/p2-greek-report.md).
   sigla:
@@ -104,6 +123,10 @@ registry:
       short: Smyth
       slot: english
       footnotes: true
+    - id: morshead
+      name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+      short: Morshead
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Eum."

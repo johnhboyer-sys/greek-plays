@@ -25,6 +25,21 @@ english:
     source: "perseus/tlg0085.tlg004.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+  secondary:
+    id: morshead
+    name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+    short: Morshead
+    model: turn-text
+    format: verse-own-line
+    source: bench/morshead/seven-against-thebes.txt
+    play: THE SEVEN AGAINST THEBES
+    footnotes: false
+  # Morshead secondary pairs 0.627 (sweep 2026-09-08): 104 English speaker-turns
+  # against 161 named Greek segments. Murray cuts the parodos and kommos into
+  # many lyric segments; Morshead prints long Chorus odes and one combined
+  # Antigone/Ismene/Chorus heading, and never labels Ismene. Every recovered
+  # English turn already pairs; aliases cannot invent labels the scan never printed.
+  min_pairing_rate: 0.60
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -110,6 +125,14 @@ speakers:
     "Messenger": "Scout"
     "First Half-Chorus": "Semichorus"
     "Second Half-Chorus": "Semichorus"
+  english_secondary:
+    "ETEOCLES": "Eteocles"
+    "SPY": "Scout"
+    "CHORUS": "Chorus"
+    "SEMI-CHORUS": "Semichorus"
+    "ANTIGONE ISMENE AND CHORUS": "Chorus"
+    "HERALD": "Herald"
+    "ANTIGONE": "Antigone"
   sigla:
     "—": null
     "ΕΤΕΟΚΛΗΣ": "Eteocles"
@@ -155,6 +178,10 @@ registry:
       short: Smyth
       slot: english
       footnotes: true
+    - id: morshead
+      name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+      short: Morshead
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Sept."

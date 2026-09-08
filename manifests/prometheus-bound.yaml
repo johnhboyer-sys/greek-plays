@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0085.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+  secondary:
+    id: morshead
+    name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+    short: Morshead
+    model: turn-text
+    format: verse-own-line
+    source: bench/morshead/prometheus-bound.txt
+    play: PROMETHEUS BOUND
+    footnotes: false
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -63,6 +72,14 @@ speakers:
     "Oceanus": "Oceanus"
     "Io": "Io"
     "Hermes": "Hermes"
+  english_secondary:
+    "STRENGTH": "Power"
+    "HEPHAESTUS": "Hephaestus"
+    "PROMETHEUS": "Prometheus"
+    "CHORUS": "Chorus"
+    "OCEANUS": "Oceanus"
+    "IO": "Io"
+    "HERMES": "Hermes"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances (see docs/p2-greek-report.md).
   sigla:
@@ -112,6 +129,10 @@ registry:
       short: Smyth
       slot: english
       footnotes: true
+    - id: morshead
+      name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+      short: Morshead
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Aesch. PV"

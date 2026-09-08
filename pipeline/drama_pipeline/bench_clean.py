@@ -906,7 +906,30 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--play", required=True)
     p.add_argument("--title", required=True)
     p.add_argument("--next-title", default=None)
+    p.add_argument(
+        "--layout",
+        default="loeb",
+        choices=("loeb", "verse-own-line"),
+        help="loeb = facing-page OCR; verse-own-line = English-only verse (Morshead).",
+    )
     args = p.parse_args(argv)
+    if args.layout == "verse-own-line":
+        from .bench_clean_verse import write_clean as verse_write
+
+        dest, report = verse_write(
+            args.volume,
+            args.translator,
+            args.play,
+            args.title,
+            next_title=args.next_title,
+        )
+        print(f"wrote {dest}")
+        print(
+            f"  lines_kept={report['lines_kept']} "
+            f"speakers={report['speakers_found']} events={report['speaker_events']} "
+            f"suspicious={report['suspicious_count']}"
+        )
+        return 0
     dest, report = write_clean(
         args.volume, args.translator, args.play, args.title, next_title=args.next_title
     )

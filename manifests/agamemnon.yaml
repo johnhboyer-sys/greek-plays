@@ -52,7 +52,16 @@ english:
     source: "perseus/tlg0085.tlg005.perseus-eng3.xml"
     anchor_model: sp-line
     footnotes: true
-  # Genuinely untranslated Greek speeches (filled after the P2b attachment
+  secondary:
+    id: morshead
+    name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+    short: Morshead
+    model: turn-text
+    format: verse-own-line
+    source: bench/morshead/agamemnon.txt
+    play: AGAMEMNON
+    footnotes: false
+  # Genuinely untranslated Greek speeches (filled after the P2b attachment)
   # pass). Segment ids or printed refs; any other unmatched id fails stage2.
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
@@ -131,6 +140,19 @@ speakers:
     "(Leader Of The Chorus)": Chorus
     "Leader Of The Chorus": Chorus
     "(ANOTHER ELDER)": "Elder 5"
+  # Morshead verse (small-caps OCR). Voice-from-within and chorus-leaders
+  # map onto the roster; elders are not numbered in this text.
+  english_secondary:
+    "WATCHMAN": "Watchman"
+    "CHORUS": "Chorus"
+    "CLYTEMNESTRA": "Clytaemestra"
+    "HERALD": "Herald"
+    "AGAMEMNON": "Agamemnon"
+    "CASSANDRA": "Cassandra"
+    "AEGISTHUS": "Aegisthus"
+    "VOICE OF AGAMEMNON": "Agamemnon"
+    "ONE OF THE CHORUS": "Chorus"
+    "LEADER OF THE CHORUS": "Chorus"
 
 books:
   - { n: 1, start: "1", end: "1673" }
@@ -158,6 +180,7 @@ registry:
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
   translations:
     - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, footnotes: true }
+    - { id: morshead, name: "E. D. A. Morshead (1881–1908) — alignment approximate", short: Morshead, slot: secondary }
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Ag."

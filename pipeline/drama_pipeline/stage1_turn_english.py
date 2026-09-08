@@ -506,6 +506,10 @@ def parse_play_speeches(
     ``format="loeb-ocr"`` is the bench cleaner output: ``NAME. text`` lines,
     no Gutenberg footnotes block. Own-line caps names are already folded by
     ``bench_clean``.
+
+    ``format="verse-own-line"`` is English-only verse (Morshead): speaker
+    name on its own line, verse below. Same parser as Lindsay, but the
+    source has no ``The Persons of the drama.`` line to auto-detect.
     """
     lines = text.splitlines()
     for raw_line_no, replacement in (line_fixes or {}).items():
@@ -520,6 +524,16 @@ def parse_play_speeches(
     if format == "loeb-ocr":
         start = _body_start(lines, title_i, lindsay=False, known_names=known_names)
         speeches, _end_i = _parse_as_speeches(lines, start, known_names)
+        return speeches, {}
+    if format == "verse-own-line":
+        # First exact title line: a later speaker can share the title
+        # (Agamemnon). `_locate_title` would take the last hit.
+        hits = [i for i, line in enumerate(lines) if line.strip() == title]
+        if not hits:
+            raise ValueError(f"play title {title!r} not found")
+        title_i = hits[0]
+        start = _body_start(lines, title_i, lindsay=True, known_names=known_names)
+        speeches, _end_i = _parse_lindsay_speeches(lines, start)
         return speeches, {}
     dp = _dramatis_index_after(lines, title_i)
     dp_line = lines[dp].strip() if dp is not None else ""

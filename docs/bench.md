@@ -23,13 +23,17 @@ ratio is > 0.3, (c) drops running heads, bare page numbers, marginal line
 numbers, (d) rejoins hyphenated breaks, (e) folds a caps name on its own
 line into `NAME. text`.
 
+`--layout verse-own-line` is the English-only verse path (Morshead): no
+Greek pages, speaker names stay on their own line for `format: verse-own-line`.
+
 ## Per-play checklist
 
 1. Confirm the translator is on `public_domain_translations.yaml` (fail-closed).
 2. Run the cleaner; check `speakers_found` against the Greek roster.
 3. Special-case OCR damage in `bench_clean` (volume signatures, `VOR.` junk)
    rather than hand-editing the txt.
-4. Manifest: `english.secondary` with `model: turn-text`, `format: loeb-ocr`,
+4. Manifest: `english.secondary` with `model: turn-text`, `format: loeb-ocr`
+   (facing-page) or `format: verse-own-line` (Morshead),
    `source: bench/<translator>/<play>.txt`, `play:` = the title heading;
    `speakers.english_secondary` maps the printed caps names onto the roster
    (reuse `speakers.english` only when the printed names already coincide).
@@ -128,6 +132,44 @@ one-turn-to-one-segment ceiling, not a floor to lower.
 
 For Ion, pass `--next-title HIPPOLYTUS`. For Cyclops, the cleaner stops at
 `THE LOEB CLASSICAL` so the publisher list is not speakers.
+
+## Aeschylus / Morshead verse (1881–1908)
+
+E. D. A. Morshead, English-only verse, not a Loeb facing-page scan. Two
+Archive.org volumes: `houseofatreusbei00aesc.txt` (1904: Agamemnon, The
+Libation-Bearers, The Furies) and `suppliantmaidens00aesc.txt` (1908: The
+Suppliant Maidens, The Persians, The Seven against Thebes, Prometheus Bound).
+Speaker names sit on their own line in small caps (OCR as title-case, sometimes
+all-caps or italic junk). Pass `--layout verse-own-line`; the cleaner emits
+Lindsay-style own-line caps names for `format: verse-own-line`. Counts are
+verse lines kept, not pages.
+
+Pairing is the stage-1 secondary `pairing_rate`. Coverage is
+`segments_with_chunk / segments_total`. The stage-2 floor is 0.85.
+
+| id | heading | lines kept | pairing | coverage | residual OCR |
+|---|---|---|---|---|---|
+| `suppliants-aesch` | `THE SUPPLIANT MAIDENS` | 1395 | 0.881 | 0.803 | `Pours Nikis to the wave` |
+| `persians` | `THE PERSIANS` | 1431 | 1.000 | 0.917 | `luill ta7'ry`; `e7iiuraps` |
+| `seven-against-thebes` | `THE SEVEN AGAINST THEBES` | 1320 | 0.627 | 0.558 | `tha7ik Heaveti`; `Do7un with Eteocles` |
+| `prometheus-bound` | `PROMETHEUS BOUND` | 1423 | 0.990 | 0.971 | `Hmitary land`; `When 1 behold` |
+| `agamemnon` | `AGAMEMNON` | 2298 | 0.928 | 0.824 | `a7id Priam's town`; `Troja7i pride` |
+| `libation-bearers` | `THE LIBATION-BEARERS` | 1471 | 0.985 | 0.932 | `shorn, 1 bring`; `mocking1 thine` |
+| `eumenides` | `THE FURIES` | 1367 | 0.942 | 0.781 | `0 king Apollo`; `bear witness, Hell 1` |
+
+`seven-against-thebes` stays under 0.85: 104 English speaker-turns against 161
+named Greek segments. Murray cuts the parodos and kommos into many lyric
+pieces; Morshead prints long Chorus odes and one combined Antigone/Ismene/Chorus
+heading, and never labels Ismene. Every recovered English turn already pairs;
+aliases cannot invent labels the scan never printed.
+
+```
+pipeline/.venv/bin/python -m drama_pipeline.bench_clean \
+  --layout verse-own-line \
+  --volume sources/archive-org/suppliantmaidens00aesc.txt \
+  --translator morshead --play persians --title 'THE PERSIANS' \
+  --next-title 'THE SEVEN AGAINST THEBES'
+```
 
 ## Comedy comparison slots
 

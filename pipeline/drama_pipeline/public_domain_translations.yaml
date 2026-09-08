@@ -11,7 +11,7 @@ translations:
   - { id: murray-verse, translator: "Gilbert Murray", year: 1902, note: "Verse translations (1902–15); published before 1931." }
   - { id: storr, translator: "F. Storr", year: 1912, note: "Sophocles Loeb (1912); published before 1931." }
   - { id: way, translator: "A. S. Way", year: 1912, note: "Euripides, Loeb Classical Library (1912); published before 1931" }
-  - { id: morshead, translator: "E. D. A. Morshead", year: 1881, note: "Translations published from 1881 to 1908, before 1931." }
+  - { id: morshead, translator: "E. D. A. Morshead", year: 1881, note: "Aeschylus in English verse: The House of Atreus (1881; 1904 ed.), The Suppliant Maidens etc. (1908); published before 1931" }
   - { id: plumptre, translator: "E. H. Plumptre", year: 1865, note: "Translations published from 1865 to 1868, before 1931." }
   - { id: swanwick, translator: "Anna Swanwick", year: 1873, note: "Published in 1873, before 1931." }
   - { id: campbell, translator: "Lewis Campbell", year: 1883, note: "Published in 1883, before 1931." }

@@ -1,0 +1,405 @@
+from drama_pipeline.bench_clean_verse import (
+    clean_play,
+    collapse_spaces,
+    locate_play,
+    speaker_from_line,
+    write_clean,
+)
+from drama_pipeline.stage1_turn_english import parse_play_speeches
+
+
+MORSHEAD = """
+PREFACE
+Some front matter about the trilogy.
+
+THE AGAMEMNON OF AESCHYLUS
+
+DRAMATIS PERSONAE
+
+A Watchman.
+Chorus.
+Clytemnestra.
+
+The Scene is the Palace of Atreus at Mycenae.
+
+AGAMEMNON
+
+A Watchman
+
+I  PRAY  the  gods  to  quit  me  of  my  toils,
+To  close  the  watch  I  keep,  this  livelong  year ;
+
+4
+
+AGAMEMNON
+
+And if at whiles, for the lost balm of sleep,
+I medicine my soul with melody
+Of trill or song — anon to tears I turn,
+
+[A beacon-light is seen reddening
+the distant sky.
+
+Fire of the night, that brings my spirit day,
+
+[Exit. The chorus of old men enter.
+
+AGAMEMNON
+
+5
+
+Chorus
+
+Ten livelong years have rolled away,
+Since the twin lords of sceptred sway,
+
+Clytemnestra
+
+As saith the adage, From the womb of Night
+Spring forth, with promise fair, the young child Light.
+
+Enter Herald
+
+O land of Argos, fatherland of mine !
+To thee at last, beneath the tenth year's sun,
+
+Agamemnon
+
+Then, if thou wilt, let some one stoop to loose
+Swiftly these sandals, slaves beneath my foot :
+
+Cassandra
+
+Apollo, Apollo !
+
+Voice of Agamemnon
+
+O I am sped — a deep, a mortal blow.
+
+One of the Chorus
+
+'Tis best, I judge, aloud for aid to call,
+
+Leader of the Chorus
+
+I read one will from many a diverse word,
+
+TEgisthus
+
+This word from thee, this word from one who rows
+
+HiGISTHUS
+
+Lo ! I too am standing ready, hand on hilt for death
+
+THE LIBATION-BEARERS
+
+DRAMATIS PERSONAE
+
+Orestes.
+Chorus of Captive Women.
+
+THE LIBATION-BEARERS
+
+Orestes
+
+Lord of the shades and patron of the realm
+That erst my father swayed, list now my prayer,
+"""
+
+
+def test_collapse_djvu_spaces():
+    assert collapse_spaces("I  PRAY  the  gods") == "I PRAY the gods"
+
+
+def test_locate_cuts_at_next_play_and_skips_toc():
+    lines = MORSHEAD.splitlines()
+    start, end = locate_play(lines, "AGAMEMNON")
+    body = "\n".join(lines[start:end])
+    assert "I  PRAY  the  gods" in body
+    assert "Lord of the shades" not in body
+    assert "PREFACE" not in body or start > 0
+
+
+def test_watchman_article_stripped_and_emitted_caps():
+    assert speaker_from_line("A Watchman") == "WATCHMAN"
+    assert speaker_from_line("The King of Argos") == "KING OF ARGOS"
+    assert speaker_from_line("The Herald") == "HERALD"
+    assert speaker_from_line("Enter Herald") == "HERALD"
+
+
+def test_aegisthus_ocr_variants():
+    assert speaker_from_line("TEgisthus") == "AEGISTHUS"
+    assert speaker_from_line("HiGISTHUS") == "AEGISTHUS"
+    assert speaker_from_line("iEGISTHUS") == "AEGISTHUS"
+    assert speaker_from_line("^Egisthus") == "AEGISTHUS"
+    assert speaker_from_line("jEGISTHUS") == "AEGISTHUS"
+    assert speaker_from_line("/Egisthus") == "AEGISTHUS"
+    assert speaker_from_line("Voice of ^Egisthus") == "VOICE OF AEGISTHUS"
+
+
+def test_io_ocr_ell_for_i():
+    assert speaker_from_line("lo") == "IO"
+    assert speaker_from_line("Id") == "IO"
+    assert speaker_from_line("Io") == "IO"
+    assert speaker_from_line("IO") is None  # page 10, not the character
+
+
+def test_ocr_page_numbers_and_signatures_are_dropped():
+    from drama_pipeline.bench_clean_verse import _is_page_number, _is_signature
+
+    assert _is_page_number("IIS")
+    assert _is_page_number("IOO")
+    assert _is_page_number("IOI")
+    assert _is_signature("US")
+    text, _report = clean_play(
+        """
+THE SEVEN AGAINST THEBES
+DRAMATIS PERSONAE
+Eteocles.
+The Scene is Thebes.
+THE SEVEN AGAINST THEBES
+Eteocles
+Clansmen of Cadmus, at the signal given
+By time and season must the ruler speak.
+IIS
+Chorus
+O woe, O woe, for the city's doom.
+""",
+        "THE SEVEN AGAINST THEBES",
+    )
+    assert "\nIIS\n" not in text
+    speeches, _notes = parse_play_speeches(
+        text, "THE SEVEN AGAINST THEBES", format="verse-own-line"
+    )
+    assert "IIS" not in [s["speaker_printed"] for s in speeches]
+
+
+def test_lowercase_verse_wrap_is_not_a_speaker():
+    assert speaker_from_line("strength,") is None
+    assert speaker_from_line("slave ! —") is None
+    assert speaker_from_line("Pylades,") == "PYLADES"
+
+
+def test_stage_directions_are_not_speakers():
+    assert speaker_from_line("[A beacon-light is seen reddening") is None
+    assert speaker_from_line("[Exit. The chorus of old men enter.") is None
+    assert speaker_from_line("{Enter Atossa.") is None
+    assert speaker_from_line("( To Prometheus)") is None
+    assert speaker_from_line("{To lo)") is None
+    assert speaker_from_line("[Exeunt omnes.") is None
+
+
+def test_strength_parenthetical_stripped():
+    assert speaker_from_line("Strength {To Prometheus)") == "STRENGTH"
+    assert speaker_from_line("Slave ( from within)") == "SLAVE"
+
+
+def test_oceanus_and_prometheus_ocr():
+    assert speaker_from_line("Ocean US") == "OCEANUS"
+    assert speaker_from_line("Oceaxus") == "OCEANUS"
+    assert speaker_from_line("PROiNIETHEUS") == "PROMETHEUS"
+    assert speaker_from_line("Prometheu.s") == "PROMETHEUS"
+    assert speaker_from_line("Promf:theus") == "PROMETHEUS"
+
+
+def test_combined_seven_heading():
+    assert speaker_from_line("Antigone, Ismkne, and Chorus") == (
+        "ANTIGONE ISMENE AND CHORUS"
+    )
+
+
+def test_clean_play_drops_heads_pages_stage_keeps_verse():
+    text, report = clean_play(MORSHEAD, "AGAMEMNON")
+    assert text.splitlines()[0] == "AGAMEMNON"
+    assert report["speakers_found"][0] == "WATCHMAN"
+    assert report["speakers_found"][1] == "CHORUS"
+    assert "WATCHMAN" in report["speakers_found"]
+    assert "CHORUS" in report["speakers_found"]
+    assert "CLYTEMNESTRA" in report["speakers_found"]
+    assert "HERALD" in report["speakers_found"]
+    assert "AGAMEMNON" in report["speakers_found"]
+    assert "CASSANDRA" in report["speakers_found"]
+    assert "VOICE OF AGAMEMNON" in report["speakers_found"]
+    assert "ONE OF THE CHORUS" in report["speakers_found"]
+    assert "LEADER OF THE CHORUS" in report["speakers_found"]
+    assert "AEGISTHUS" in report["speakers_found"]
+    assert "I PRAY the gods to quit me of my toils," in text
+    assert "Ten livelong years have rolled away," in text
+    assert "O land of Argos, fatherland of mine !" in text
+    assert "PREFACE" not in text
+    assert "DRAMATIS" not in text
+    assert "beacon-light" not in text
+    assert "\n4\n" not in text
+    # Running-head AGAMEMNON (all caps, between verse) is dropped;
+    # the character remains as a speaker event.
+    assert "Lord of the shades" not in text
+    speeches, notes = parse_play_speeches(text, "AGAMEMNON", format="verse-own-line")
+    assert notes == {}
+    printed = [s["speaker_printed"] for s in speeches]
+    assert printed[0] == "WATCHMAN"
+    assert "HERALD" in printed
+    assert "AEGISTHUS" in printed
+    assert not any(name.startswith("THE ") for name in printed)
+
+
+def test_hyphen_rejoin_across_page_break():
+    text, _report = clean_play(
+        """
+AGAMEMNON
+DRAMATIS PERSONAE
+A Watchman.
+AGAMEMNON
+A Watchman
+I medicine my soul with mel-
+ody of trill or song.
+Chorus
+Ten livelong years have rolled away,
+""",
+        "AGAMEMNON",
+    )
+    assert "melody of trill or song." in text
+    assert "mel-\nody" not in text
+
+
+def test_appendix_stops_play():
+    text, _report = clean_play(
+        """
+THE LIBATION-BEARERS
+DRAMATIS PERSONAE
+Orestes.
+THE LIBATION-BEARERS
+Orestes
+Lord of the shades and patron of the realm
+That erst my father swayed.
+Chorus
+Most loyal of all sons unto thy sire,
+APPENDIX
+A note about corruptions in the Greek text of this play.
+THE FURIES
+DRAMATIS PERSONAE
+The Pythian Priestess.
+""",
+        "THE LIBATION-BEARERS",
+    )
+    assert "Lord of the shades" in text
+    assert "corruptions in the Greek" not in text
+    assert "Pythian" not in text
+
+
+def test_skips_dramatis_and_scene_before_body():
+    text, report = clean_play(
+        """
+THE PERSIANS
+ARGUMENT
+Xerxes went forth against Hellas.
+DRAMATIS PERSONAE
+Chorus of Persian Elders.
+Atossa, Widow of Darius and Mother of Xerxes.
+A Messenger.
+The Scene is laid at the Palace of Susa.
+THE PERSIANS
+Chorus
+Away unto the Grecian land
+Hath passed the Persian armament :
+Atossa
+Therefore come I forth to you, from chambers decked
+""",
+        "THE PERSIANS",
+    )
+    assert report["speakers_found"][0] == "CHORUS"
+    assert "CHORUS OF PERSIAN ELDERS" not in report["speakers_found"]
+    assert "Widow of Darius" not in text
+    assert "Away unto the Grecian land" in text
+
+
+def test_wrapped_stage_direction_is_dropped():
+    text, report = clean_play(
+        """
+THE LIBATION-BEARERS
+DRAMATIS PERSONAE
+Orestes.
+The Scene is the Tomb of Agamemnon.
+THE LIBATION-BEARERS
+Orestes
+Lord of the shades and patron of the realm
+That erst my father swayed, list now my prayer.
+[Exeunt Pylades and Orestes ; enter the Chorus
+bearing vessels for libation ; they pace slowly
+towards the tomb of
+Agamemnon.
+
+Chorus
+Forth from the royal halls by high command
+I bear libations for the dead.
+""",
+        "THE LIBATION-BEARERS",
+    )
+    assert "AGAMEMNON" not in report["speakers_found"]
+    assert "tomb of" not in text
+    assert "Forth from the royal halls" in text
+
+
+def test_footnote_lines_dropped():
+    text, _report = clean_play(
+        """
+AGAMEMNON
+DRAMATIS PERSONAE
+Chorus.
+AGAMEMNON
+Chorus
+Unsoothed by tears or spilth of wine
+Poured forth too late, the wrath divine.
+1 The flameless shrine appears to be a metaphor for
+an altar without fire.
+Clytemnestra
+Hear then again, and plainly — Troy is ours !
+""",
+        "AGAMEMNON",
+    )
+    assert "flameless shrine appears" not in text
+    assert "Troy is ours" in text
+
+
+def test_verse_own_line_format_without_persons_heading():
+    text = """AGAMEMNON
+
+WATCHMAN
+I pray the gods to quit me of my toils,
+To close the watch I keep, this livelong year.
+
+CHORUS
+Ten livelong years have rolled away,
+Since the twin lords of sceptred sway.
+"""
+    speeches, notes = parse_play_speeches(text, "AGAMEMNON", format="verse-own-line")
+    assert notes == {}
+    assert [s["speaker_printed"] for s in speeches] == ["WATCHMAN", "CHORUS"]
+    assert speeches[0]["text"].startswith("I pray the gods")
+    assert "Ten livelong years" in speeches[1]["text"]
+
+
+def test_write_clean_real_agamemnon(tmp_path):
+    from drama_pipeline.config import REPO_ROOT
+
+    volume = REPO_ROOT / "sources/archive-org/houseofatreusbei00aesc.txt"
+    dest, report = write_clean(
+        volume, "morshead", "agamemnon", "AGAMEMNON", out_dir=tmp_path
+    )
+    text = dest.read_text(encoding="utf-8")
+    assert text.splitlines()[0] == "AGAMEMNON"
+    for name in (
+        "WATCHMAN",
+        "CHORUS",
+        "CLYTEMNESTRA",
+        "HERALD",
+        "AGAMEMNON",
+        "CASSANDRA",
+        "AEGISTHUS",
+    ):
+        assert name in report["speakers_found"], report["speakers_found"]
+    assert report["lines_kept"] > 200
+    assert "I PRAY the gods" in text or "I pray the gods" in text.lower()
+    speeches, _notes = parse_play_speeches(text, "AGAMEMNON", format="verse-own-line")
+    assert speeches[0]["speaker_printed"] == "WATCHMAN"
+    assert len(speeches) > 40

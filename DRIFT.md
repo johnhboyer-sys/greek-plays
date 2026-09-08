@@ -552,3 +552,18 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `pipeline/drama_pipeline/public_domain_translations.yaml` — `way` is A. S. Way,
   Loeb 1912.
 - `docs/bench.md` — Euripides/Way table (heading, pages, pairing, coverage, residual OCR).
+
+## P3 bench — Morshead Aeschylus secondary (2026-09-08)
+
+- `pipeline/drama_pipeline/bench_clean.py` — `--layout verse-own-line` dispatches
+  to the English-only verse cleaner.
+- `pipeline/drama_pipeline/bench_clean_verse.py` (new) — Morshead DJVU: cut by
+  title, drop running heads/page numbers/stage dirs, emit Lindsay-style own-line
+  speakers.
+- `pipeline/drama_pipeline/stage1_turn_english.py` — `format: verse-own-line`
+  uses `_parse_lindsay_speeches` without `The Persons of the drama.`
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — `morshead` note
+  names the 1881/1904 House of Atreus and 1908 Suppliant Maidens volumes.
+- `pipeline/tests/test_bench_clean_verse.py` (new), `test_stage1_turn_english.py`
+  — verse-own-line parse, Io/Aegisthus OCR, wrapped stage dirs, page-number crumbs.
+- `docs/bench.md` — Aeschylus/Morshead table (heading, lines kept, pairing, coverage, residual OCR).

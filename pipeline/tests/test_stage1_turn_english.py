@@ -665,6 +665,22 @@ def test_real_knights_speech_count_and_edge_speakers():
     assert speeches[-1]["speaker_printed"] == "DEMOS"
 
 
+def test_verse_own_line_format_parses_without_persons_heading():
+    text = """AGAMEMNON
+
+WATCHMAN
+I pray the gods to quit me of my toils,
+To close the watch I keep, this livelong year.
+
+CHORUS
+Ten livelong years have rolled away.
+"""
+    speeches, notes = parse_play_speeches(text, "AGAMEMNON", format="verse-own-line")
+    assert notes == {}
+    assert [s["speaker_printed"] for s in speeches] == ["WATCHMAN", "CHORUS"]
+    assert speeches[0]["text"].startswith("I pray the gods")
+
+
 def test_lindsay_own_line_speakers_keep_optional_period_path():
     text = """LYSISTRATA
 The Persons of the drama.

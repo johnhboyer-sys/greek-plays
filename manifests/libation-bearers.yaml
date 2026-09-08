@@ -25,6 +25,15 @@ english:
     source: "perseus/tlg0085.tlg006.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+  secondary:
+    id: morshead
+    name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+    short: Morshead
+    model: turn-text
+    format: verse-own-line
+    source: bench/morshead/libation-bearers.txt
+    play: THE LIBATION-BEARERS
+    footnotes: false
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -63,6 +72,16 @@ speakers:
     "Nurse": "Nurse"
     "Aegisthus": "Aegisthus"
     "Pylades": "Pylades"
+  english_secondary:
+    "ORESTES": "Orestes"
+    "PYLADES": "Pylades"
+    "CHORUS": "Chorus"
+    "ELECTRA": "Electra"
+    "SLAVE": "Servant"
+    "CLYTEMNESTRA": "Clytaemestra"
+    "KILISSA": "Nurse"
+    "AEGISTHUS": "Aegisthus"
+    "VOICE OF AEGISTHUS": "Aegisthus"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances (see docs/p2-greek-report.md).
   sigla:
@@ -114,6 +133,10 @@ registry:
       short: Smyth
       slot: english
       footnotes: true
+    - id: morshead
+      name: "E. D. A. Morshead (1881–1908) — alignment approximate"
+      short: Morshead
+      slot: secondary
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Cho."
