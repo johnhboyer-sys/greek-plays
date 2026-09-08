@@ -81,8 +81,9 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .rd .cmp{ grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr); }
 .rd .cmp .e{ background:var(--panel); padding:12px 14px; font-size:.95em; }
 .rd .cmp .e .who{ font-family:var(--f-ui); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:8px; }
-.rd .greekonly .seg{ grid-template-columns:minmax(0,1fr); max-width:36em; }
-.rd .greekonly .g{ font-size:calc(var(--fs,16px) * 1.12); line-height:1.6; }
+.rd.greekonly .body{ max-width:calc(34em + 56px); margin:0 auto; }
+.rd.greekonly .seg{ grid-template-columns:minmax(0,1fr); }
+.rd.greekonly .g{ font-size:calc(var(--fs,16px) * 1.12); line-height:1.6; }
 .rd .note{ font-family:var(--f-ui); font-size:12px; color:var(--ink3); margin-top:14px; padding-left:var(--gutter,42px); }
 @container (max-width: 640px){
   .rd .head{ padding:10px 16px; flex-wrap:wrap; gap:8px 14px; }
@@ -217,7 +218,7 @@ figcaption{ font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--p
 .dir-c .odehead{ color:var(--accent); font-size:10.5px; }
 .dir-c .cmp .e{ background:var(--panel); border:1px solid var(--rule); }
 .dir-c .cmp .e .who{ font-size:10.5px; }
-.dir-c .greekonly .seg{ border-top:0; }
+.dir-c .rd.greekonly .seg{ border-top:0; }
 /* plate: the title card */
 .dir-c .plate .card{ background:var(--accent); color:#f5f2f4; padding:48px 44px 40px; display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:28px 56px; }
 .dir-c .plate .gt{ font-family:var(--f-gr); font-size:64px; line-height:1; margin:0; font-weight:400; }
