@@ -15,6 +15,6 @@ describe('generated registry golden value', () => {
     expect(AUTHORS).toHaveLength(4);
     // After a deliberate registry change, regenerate with this exact command from shared/:
     // node --experimental-strip-types --input-type=module -e "import{createHash}from'node:crypto';import{CORPUS_WORKS as WORKS,CORPUS_AUTHORS as AUTHORS}from'./lib/registry.generated.ts';console.log(createHash('sha256').update(JSON.stringify(WORKS)+JSON.stringify(AUTHORS)).digest('hex'))"
-    expect(hash).toBe('865ab2802700d9c85bb62b244c8cc36ba8649cab7affffeed8d0f688901b387c');
+    expect(hash).toBe('037797f7b60a1c0ae7db3261795beb5bcfca387ea9586f61270549c40b3b8553');
   });
 });

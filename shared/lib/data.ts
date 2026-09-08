@@ -461,6 +461,11 @@ export interface Segment {
   // singlePureContextRun).
   witnesses?: Witness[];
   english: EnglishChunk | null;
+  // play-line only (P2e, 2026-09-08): this speech has no English piece of its
+  // own because the translator anchored the block it belongs to once, at the
+  // segment named here (a segment id such as "1:1320"); the reader points at
+  // that segment instead of showing "no aligned passage".
+  englishCoveredBy?: string;
   chapterStarts?: ChapterStart[];
   // Source-passage English spans for this column's context run(s) — present
   // only for a segment named in the work's sources/<work>/context-

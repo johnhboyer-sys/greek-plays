@@ -434,3 +434,9 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   title, page-split, speaker-label, semi-chorus, stage, and glyph special case.
 - `docs/bench.md` — per-play headings, report counts, roster aliases, and
   residual OCR notes for the six Storr sources.
+
+## P2e — continuation coverage (2026-09-08, orchestrator)
+- `shared/lib/data.ts` — `Segment.englishCoveredBy?: string` (play-line: this speech's English lives in the block anchored at that segment).
+- `shared/components/Reader.svelte` — `playEngTurns` renders "Translated with the speech above ↑" (a `.eng-covered` button that scrolls to `col-<column>`) when `englishCoveredBy` is set and the shown translation has no piece, instead of the missing-passage dash; `scrollToSegment` helper.
+- `shared/styles/global.css` — `.eng-covered` (italic, muted, underline on hover/focus).
+- `shared/__tests__/reader-play-line.test.ts` — continuation-affordance test.

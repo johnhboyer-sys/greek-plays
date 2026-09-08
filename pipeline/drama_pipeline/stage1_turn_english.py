@@ -615,7 +615,22 @@ def parse_translation(
     )
     if speakers_report["only_in_english"]:
         names = ", ".join(speakers_report["only_in_english"])
-        raise ValueError(f"{work_id}: unaliased English speakers in {play}: {names}")
+        if format == "loeb-ocr":
+            # A scanned Loeb comparison slot prints OCR junk as speaker labels
+            # ("WOU", "VQL"); those speeches stay in the text UNATTRIBUTED
+            # (no colour key) and are reported, rather than failing the play —
+            # the bench is a comparison column, not the primary (2026-09-08).
+            junk = set(speakers_report["only_in_english"])
+            for speech in speeches:
+                if speech["canonical"] in junk:
+                    speech["canonical"] = None
+            e_names = [speech["canonical"] for speech in speeches]
+            english_canonical[:] = [n for n in english_canonical if n not in junk]
+            speakers_report["unaliased_ocr_speakers"] = sorted(junk)
+            speakers_report["only_in_english"] = []
+            speakers_report["matches"] = True
+        else:
+            raise ValueError(f"{work_id}: unaliased English speakers in {play}: {names}")
 
     segments: list[dict] = list(spine["segments"])
     g_names = [_greek_segment_name(seg, sigla) for seg in segments]

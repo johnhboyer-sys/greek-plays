@@ -1463,6 +1463,14 @@
   // seg.english; all other ids use the same slot lookup as prose comparison.
   // Legacy play overlays carry their speaker labels in the text, so recover
   // standoff turns before sending every slot through buildEnglishTurnBlocks.
+  // P2e: jump to the segment whose English block covers this speech. Play-line
+  // segment ids are "1:<start ref>" and segment elements carry id="col-<column>".
+  function scrollToSegment(segId: string): void {
+    const col = segId.includes(':') ? segId.slice(segId.indexOf(':') + 1) : segId;
+    const el = document.getElementById(`col-${col}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
   function playEnglishSource(seg: Segment, transId: string): EnglishTurnSource | null {
     const t = transById(transId);
     if (!t) return null;
@@ -3238,6 +3246,11 @@
         <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)}>{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>
+    {:else if seg.englishCoveredBy && (transById(transId)?.slot === 'english' || !transById(transId) || !piecesFor(seg, transById(transId)!).length)}
+      <!-- P2e: the translator rendered this line inside a block anchored at
+           an earlier speech; say so and offer the jump, rather than "no
+           aligned passage" (which would be false). -->
+      <div class="overlay-prose turn-eng"><button type="button" class="eng-covered" on:click={() => scrollToSegment(seg.englishCoveredBy!)}>Translated with the speech above ↑</button></div>
     {:else}
       <div class="overlay-prose turn-eng"><span class="eng-missing" title="No aligned passage in this translation"><span class="sr-only">No aligned passage in this translation.</span><span aria-hidden="true">—</span></span></div>
     {/if}

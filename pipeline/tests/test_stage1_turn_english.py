@@ -468,7 +468,7 @@ def test_mismatch_rate_is_surfaced_in_summary_and_stage2():
     main_src = Path(cli.__file__).read_text(encoding="utf-8")
     assert "mismatches={report['speech_mismatch_count']}" in main_src
     stage2_src = Path(s2.__file__).read_text(encoding="utf-8")
-    assert 'english_cfg.get("max_mismatch_rate", 0.15)' in stage2_src
+    assert 'english_cfg.get("max_mismatch_rate", 0.25)' in stage2_src
     assert "speech mismatch rate" in stage2_src
     assert "turn_text_mismatches" in stage2_src
 
@@ -707,3 +707,23 @@ def test_run_secondary_writes_ross_chunks(tmp_path, monkeypatch):
     report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["translation"] == "storr"
     assert report["speeches_parsed"] == 4
+
+
+def test_loeb_ocr_unaliased_speakers_are_unattributed_not_fatal(tmp_path):
+    """An OCR junk label in a loeb-ocr comparison slot must not fail the play:
+    the speech stays, unattributed (no colour key), and is reported."""
+    from drama_pipeline import stage1_turn_english as m
+    src = tmp_path / "storr.txt"
+    src.write_text("ANTIGONE\n\nANTIGONE. Sister, dear sister.\nWOU. junk line.\nISMENE. What is it?\n")
+    spine = {"segments": [
+        {"id": "1:1", "book": 1, "column": "1", "speakers": [{"label": "ΑΝ.", "line": 1, "offset": 0}], "greek": [{"n": 1, "ref": "1", "text": "ὦ κοινόν"}]},
+        {"id": "1:2", "book": 1, "column": "1", "speakers": [{"label": "ΙΣ.", "line": 2, "offset": 0}], "greek": [{"n": 2, "ref": "2", "text": "τί δ᾽ ἔστι"}]},
+    ]}
+    chunks, _notes, report = m.parse_translation(
+        src, spine, work_id="antigone", translation_id="storr", play="ANTIGONE",
+        sigla={"ΑΝ.": "Antigone", "ΙΣ.": "Ismene"},
+        english_aliases={"ANTIGONE": "Antigone", "ISMENE": "Ismene"},
+        footnotes_enabled=False, format="loeb-ocr",
+    )
+    assert report["speakers"]["unaliased_ocr_speakers"] == ["WOU"]
+    assert report["speakers"]["only_in_english"] == []

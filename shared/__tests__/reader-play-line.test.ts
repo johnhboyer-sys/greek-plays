@@ -296,3 +296,22 @@ describe('Reader.svelte play-line rendering (P1)', () => {
       .toBe('No aligned passage in this translation');
   });
 });
+
+describe('Reader.svelte play-line continuation coverage (P2e)', () => {
+  it('shows "translated with the speech above" instead of a missing passage when englishCoveredBy is set', async () => {
+    const data = book();
+    data.segments[0].english = {
+      text: 'A block the translator anchored once.',
+      notes: [],
+      markers: [],
+      turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+    };
+    data.segments[1].englishCoveredBy = '1:1';
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const covered = container.querySelector('.eng-covered');
+    expect(covered?.textContent).toContain('Translated with the speech above');
+    // The affordance replaces the missing-passage dash for that segment only.
+    expect(container.querySelectorAll('.eng-covered')).toHaveLength(1);
+  });
+});
