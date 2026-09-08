@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -980,5 +980,69 @@ describe('splitWrapLine — lined-source hyphen-split repaint (Discourses)', () 
     const parts = lineRenderParts('αὑτῆς', [last]);
     const { head } = splitWrapLine(parts, 0, 2);
     expect((head[0] as { text: string }).text).toBe('αὑ-');
+  });
+});
+
+// ── playSigla (P4 Lane C) ────────────────────────────────────────────────
+// One gutter siglum per canonical speaker, derived from the labels the play's
+// own edition prints. The full printed label is what the reader puts in the
+// label's title; these are the four derivation rules and the collision case.
+describe('playSigla — the Greek gutter siglum of each speaker', () => {
+  const ev = (label: string, display: string | null) => ({ label, display });
+
+  it('keeps a printed label of four characters or fewer exactly as printed', () => {
+    const sigla = playSigla([ev('ΧΟΡΟΣ', 'Chorus'), ev('Χο.', 'Chorus'), ev('ΞΑΝΘΙΑΣ', 'Xanthias'), ev('ΞΑ.', 'Xanthias')]);
+    expect(sigla.get('Chorus')).toBe('Χο.');
+    expect(sigla.get('Xanthias')).toBe('ΞΑ.');
+  });
+
+  it('abbreviates a speaker the edition only ever names in full', () => {
+    // Murray prints ΦΥΛΑΞ once and nothing shorter; ΚΛΥΤΑΙΜΗΣΤΡΑ has Κλ.
+    const sigla = playSigla([ev('ΦΥΛΑΞ', 'Watchman'), ev('ΚΛΥΤΑΙΜΗΣΤΡΑ', 'Clytaemestra')]);
+    expect(sigla.get('Watchman')).toBe('Φυ.');
+    expect(sigla.get('Clytaemestra')).toBe('Κλ.');
+  });
+
+  it('strips editorial brackets and a parenthesised stage note first', () => {
+    const sigla = playSigla([
+      ev('<ΠΑΙΣ> (ἔσωθεν)', 'Boy'),
+      ev('ΕΥ. (ὡς Μενέλαος.)', 'Euripides'),
+      ev('(ὡς Χορός.)', 'Euripides'),
+      ev('ΧΟΡΟΣ ΔΑΝΑΙΔΩΝ', 'Chorus'),
+    ]);
+    expect(sigla.get('Boy')).toBe('ΠΑΙΣ');       // four characters: as printed
+    expect(sigla.get('Euripides')).toBe('ΕΥ.');  // the note is not part of the label
+    expect(sigla.get('Chorus')).toBe('Χο.');     // first word of the full label
+  });
+
+  it('lengthens two colliding sigla until they are distinct', () => {
+    // Frogs: Coulon prints ΑΙ. for both Aeacus and Aeschylus.
+    const sigla = playSigla([
+      ev('ΑΙΑΚΟΣ', 'Aeacus'), ev('ΑΙ.', 'Aeacus'),
+      ev('ΑΙΣΧΥΛΟΣ', 'Aeschylus'), ev('ΑΙ.', 'Aeschylus'),
+    ]);
+    expect(sigla.get('Aeacus')).toBe('Αια.');
+    expect(sigla.get('Aeschylus')).toBe('Αισ.');
+  });
+
+  it('keeps the enumerator that is the whole distinction between two roles', () => {
+    const sigla = playSigla([ev('ΗΜΙΧΟΡΙΟΝ Αʹ', 'First Semichorus'), ev('ΗΜΙΧΟΡΙΟΝ Βʹ', 'Second Semichorus')]);
+    expect(sigla.get('First Semichorus')).toBe('Ημ. Αʹ');
+    expect(sigla.get('Second Semichorus')).toBe('Ημ. Βʹ');
+  });
+
+  it('falls back to the edition\'s own printed sigla when four letters still collide', () => {
+    // Frogs' two innkeepers share ΠΑΝΔΟΚΕΥΤΡΙΑ; only the numeral separates them.
+    const sigla = playSigla([
+      ev('ΠΑΝΔΟΚΕΥΤΡΙΑ Αʹ', 'First Innkeeper'), ev('ΠΑ. Αʹ', 'First Innkeeper'),
+      ev('ΠΑΝΔΟΚΕΥΤΡΙΑ Βʹ', 'Second Innkeeper'), ev('ΠΑ. Βʹ', 'Second Innkeeper'),
+    ]);
+    expect(sigla.get('First Innkeeper')).toBe('Πα. Αʹ');
+    expect(sigla.get('Second Innkeeper')).toBe('Πα. Βʹ');
+  });
+
+  it('gives the unattributed dash no siglum of its own', () => {
+    const sigla = playSigla([ev('—', null), ev('ΦΥΛΑΞ', 'Watchman')]);
+    expect([...sigla.keys()]).toEqual(['Watchman']);
   });
 });

@@ -53,6 +53,35 @@ describe('Plate.svelte', () => {
     }
   });
 
+  // P4 Lane C: Agamemnon's roster carries Elder 1 … Elder 12 (the chorus
+  // members who speak singly at 1348–71). Twelve "Elder" lines would swamp
+  // the plate; they are one entry, at the first member's place.
+  it('collapses a numbered roster family into one entry, uncoloured', () => {
+    const roster = [...ROSTER, 'Elder 1', 'Elder 2', 'Elder 3', 'Aegisthus'];
+    const s = assignSpeakerSlots(roster);
+    const { container } = render(Plate, {
+      props: { ...props, persons: roster.map((name) => ({ name, slot: s.get(name)! })) },
+    });
+    const items = Array.from(container.querySelectorAll('.plate-cast li'));
+    expect(items.map((li) => li.textContent)).toEqual([...ROSTER, 'Elders 1–3', 'Aegisthus']);
+    // No coloured initial: the members hold different slots, so the collapsed
+    // entry takes the plain ink.
+    const elders = items.find((li) => li.textContent === 'Elders 1–3')!;
+    expect(elders.getAttribute('style')!.replace(/;$/, '')).toBe('--spk: var(--text-mid)');
+    expect(items.find((li) => li.textContent === 'Aegisthus')!.getAttribute('style')!.replace(/;$/, ''))
+      .toBe(`--spk: var(--spk-${s.get('Aegisthus')})`);
+  });
+
+  it('leaves ordinal-word names and lone numbered entries alone', () => {
+    const roster = ['First Innkeeper', 'Second Innkeeper', 'Elder 1'];
+    const s = assignSpeakerSlots(roster);
+    const { container } = render(Plate, {
+      props: { ...props, persons: roster.map((name) => ({ name, slot: s.get(name)! })) },
+    });
+    expect(Array.from(container.querySelectorAll('.plate-cast li')).map((li) => li.textContent))
+      .toEqual(roster);
+  });
+
   it('strips the DRAFT prefix from the argument and tags it instead', () => {
     const { container } = render(Plate, { props });
     const arg = container.querySelector('.plate-arg')!;

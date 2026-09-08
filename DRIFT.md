@@ -716,3 +716,21 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `app/src/pages/[author]/index.astro` — P4 Lane B2: `data-genre` on `<html>`
   from the author's registry `genre`, so an author landing page carries its
   own accent (malachite on Aristophanes) exactly as ReaderShell.astro does.
+- `shared/lib/speakers.ts` — P4 Lane C: `playSigla` derives ONE Greek gutter
+  siglum per canonical speaker from the labels a play's own edition prints —
+  a printed label of ≤4 characters as printed (Χο., ΞΑ.), otherwise the first
+  two letters of the fullest label in Greek title case with a medial sigma
+  (ΦΥΛΑΞ → Φυ., ΑΙΣΧΥΛΟΣ → Αισ.) and any trailing enumerator kept (ΗΜΙΧΟΡΙΟΝ
+  Αʹ → Ημ. Αʹ); colliding speakers lengthen to three then four letters, and a
+  pair still colliding falls back to what the edition itself prints.
+- `shared/components/Reader.svelte` — P4 Lane C: the Greek speaker lead-in
+  shows the play's siglum (book-wide `sigla` map) and carries the full printed
+  label in `title`/`aria-label`, so a full-word label no longer wraps in the
+  3.4rem gutter. Greek column only; the English column is untouched.
+- `shared/components/Plate.svelte` — P4 Lane C: numbered roster families
+  (Agamemnon's Elder 1 … Elder 12) collapse into one uncoloured cast entry,
+  "Elders 1–12", at the first member's place.
+- `shared/__tests__/speakers.test.ts`, `shared/__tests__/reader-play-line.test.ts`,
+  `shared/__tests__/plate.test.ts` — P4 Lane C: the four siglum rules, the
+  collision case, the gutter siglum + title in the Reader, and the collapsed
+  Persons entry.

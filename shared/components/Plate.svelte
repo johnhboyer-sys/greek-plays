@@ -30,6 +30,43 @@
   // past the plate to the text.
   export let startHref: string;
 
+  // A roster entry the pipeline numbered: Agamemnon's Elder 1 … Elder 12,
+  // the chorus members who speak singly at 1348–71. Twelve "Elder" lines
+  // would be twelve persons on the plate; they are one.
+  const NUMBERED = /^(.+) (\d+)$/;
+
+  // The cast as the plate prints it: each numbered family collapsed into a
+  // single entry at its FIRST member's place, "Elders 1–12". A collapsed
+  // entry has no slot of its own (its members hold different palette slots),
+  // so its initial takes the plain --text-mid ink instead of a speaker
+  // colour. Ordinal-word names ("First Innkeeper") are not numbered and are
+  // never collapsed.
+  $: cast = (() => {
+    const size = new Map<string, number>();
+    for (const p of persons) {
+      const base = NUMBERED.exec(p.name)?.[1];
+      if (base) size.set(base, (size.get(base) ?? 0) + 1);
+    }
+    const out: { key: string; label: string; slot: number | null }[] = [];
+    const done = new Set<string>();
+    for (const p of persons) {
+      const m = NUMBERED.exec(p.name);
+      const base = m?.[1];
+      if (!base || (size.get(base) ?? 0) < 2) {
+        out.push({ key: p.name, label: p.name, slot: p.slot });
+        continue;
+      }
+      if (done.has(base)) continue;
+      done.add(base);
+      const ns = persons
+        .map((q) => NUMBERED.exec(q.name))
+        .filter((x): x is RegExpExecArray => !!x && x[1] === base)
+        .map((x) => Number(x[2]));
+      out.push({ key: base, label: `${base}s ${Math.min(...ns)}–${Math.max(...ns)}`, slot: null });
+    }
+    return out;
+  })();
+
   // Registry copy is DRAFT until John approves it (p4-plan): the prefix is
   // stripped from the sentence and shown as a tag after it, so the plate
   // never presents unapproved copy as final.
@@ -56,8 +93,8 @@
       {#if persons.length}
         <h3 class="plate-h">Persons</h3>
         <ul class="plate-cast">
-          {#each persons as p (p.name)}
-            <li style={slotVar(p.slot)}>{p.name}</li>
+          {#each cast as p (p.key)}
+            <li style={p.slot == null ? '--spk: var(--text-mid)' : slotVar(p.slot)}>{p.label}</li>
           {/each}
         </ul>
       {/if}

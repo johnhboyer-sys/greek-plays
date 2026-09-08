@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -774,6 +774,19 @@
   // whole book in render order because a 40-line split tail inherits the
   // speakers of the segment before it (playOdeIds).
   $: odeSegmentIds = playLine ? playOdeIds(orderedSegments) : new Set<string>();
+
+  // The play's speaker sigla, one per canonical speaker, derived from the
+  // labels this edition prints (shared/lib/speakers.ts playSigla). The Greek
+  // speaker gutter is sized for sigla, so a printed full name (ΦΥΛΑΞ,
+  // ΚΛΥΤΑΙΜΗΣΤΡΑ — every speaker's FIRST appearance) would break across
+  // lines in it; the siglum stands in the gutter and the full printed label
+  // rides in the label's title/aria-label. Whole book, computed once: a
+  // speaker's siglum must not change from one speech to the next. Plays
+  // only — Stephanus dialogues already print sigla, and the English column
+  // is untouched either way.
+  $: sigla = playLine
+    ? playSigla(orderedSegments.flatMap((seg) => seg.speakers ?? []))
+    : new Map<string, string>();
 
   // Ordered list of distinct chapter identifiers present in the loaded book.
   // Empty-string entries (no chapter assignment yet) are filtered out.
@@ -3139,7 +3152,7 @@
         aria-haspopup="dialog"
         on:click={(e) => handleTokenClick(e, part.tok)}
         on:keydown={(e) => onTokenKey(e, part.tok)}
-      >{part.text}</span>{:else if part.kind === 'speaker'}<span class="speaker" class:speaker-dash={part.dash} data-spk={part.display ? spkSlots.get(part.display) : undefined} lang={sourceLang}>{part.label}</span>{:else}{part.text}{/if}{/each}{/snippet}
+      >{part.text}</span>{:else if part.kind === 'speaker'}{@const siglum = (part.display && sigla.get(part.display)) || part.label}<span class="speaker" class:speaker-dash={part.dash} data-spk={part.display ? spkSlots.get(part.display) : undefined} lang={sourceLang} title={siglum === part.label ? undefined : part.label} aria-label={siglum === part.label ? undefined : part.label}>{siglum}</span>{:else}{part.text}{/if}{/each}{/snippet}
   {#snippet chapterHead(block: Block)}
     <div class="chapter-head" id="ch-{bookNum}-{block.chapter}">
       <span class="chapter-label">{#if bookLabel}<span class="chapter-book">{bookLabel},&nbsp;</span>{/if}{chapterUnitNoun} {block.chapter}{#if chapterTitles[block.chapter ?? '']}: {chapterTitles[block.chapter ?? '']}{/if}</span>

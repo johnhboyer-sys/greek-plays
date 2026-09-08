@@ -678,3 +678,122 @@ export function splitGreekSections(lines: readonly GreekLine[]): SectionedGreekL
   }
   return out;
 }
+
+// ── Greek speaker sigla (P4 Lane C) ──────────────────────────────────────
+// The editions print a speaker's FULL name at the first appearance (Murray:
+// ΦΥΛΑΞ, ΚΛΥΤΑΙΜΗΣΤΡΑ; Coulon: ΞΑΝΘΙΑΣ, ΔΙΟΝΥΣΟΣ) and a short siglum after
+// it (Χο., ΞΑ.), sometimes with an editorial supplement or a stage note
+// attached ("<ΠΑΙΣ> (ἔσωθεν)", "ΕΥ. (ὡς Μενέλαος.)"). The Greek speaker
+// gutter is sized for sigla (John's ruling, --pl-spk-w-greek), so a printed
+// full name breaks across lines in it. `playSigla` derives ONE siglum per
+// canonical speaker for the whole play, from the labels that play actually
+// prints; the full printed label survives in the label's `title`/aria-label,
+// and the English column is untouched.
+
+// The width the gutter can hold, in characters — a label this short is used
+// exactly as the edition prints it.
+const SIGLUM_MAX = 4;
+
+// A printed label reduced to its name: editorial angle brackets dropped
+// (they mark a supplied label, not part of it) and any parenthesised stage
+// note removed. "<ΠΑΙΣ> (ἔσωθεν)" → "ΠΑΙΣ"; "(ὡς Χορός.)" → "" (a bare note
+// names nobody, so callers skip it).
+function cleanSpeakerLabel(label: string): string {
+  return label.replace(/\([^)]*\)/g, '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+// A trailing enumerator: the Greek numeral (Αʹ, Βʹ) or bare letter (α, β, Β)
+// an edition hangs on a role it uses twice — ΗΜΙΧΟΡΙΟΝ Αʹ, ΠΑΝΔΟΚΕΥΤΡΙΑ Βʹ,
+// ΑΓΓΕΛΟΣ Β. It is the WHOLE distinction between two such speakers, so an
+// abbreviation keeps it.
+const ENUMERATOR = /^\p{L}[ʹʹ′']?$/u;
+
+// The first `n` letters of a label's first word, Greek title case, plus the
+// abbreviation point, plus any trailing enumerator: ΦΥΛΑΞ → Φυ., ΑΙΣΧΥΛΟΣ
+// (n=3) → Αισ., ΗΜΙΧΟΡΙΟΝ Αʹ → Ημ. Αʹ. A label with fewer letters than `n`
+// yields all it has; one with none is returned unchanged.
+function abbreviateLabel(label: string, n: number): string {
+  const words = label.split(' ');
+  const letters = Array.from(words[0] ?? '').filter((c) => /\p{L}/u.test(c)).slice(0, n).join('');
+  if (!letters) return label;
+  const last = words[words.length - 1];
+  const tail = words.length > 1 && ENUMERATOR.test(last) ? ` ${last}` : '';
+  // Medial sigma, never final: the prefix is a word CUT SHORT, and Unicode's
+  // default lowercasing would end it with ς (ΑΙΣΧΥΛΟΣ → Αις.), which reads as
+  // a whole word. Abbreviations print σ.
+  const rest = letters.slice(1).toLowerCase().replace(/ς/g, 'σ');
+  return `${letters[0].toUpperCase()}${rest}.${tail}`;
+}
+
+// Displays whose sigla collide, grouped. Case-insensitive: "ΑΙ." and "Αι."
+// would read as the same abbreviation on the page.
+function siglaCollisions(sigla: Map<string, string>): string[][] {
+  const byKey = new Map<string, string[]>();
+  for (const [display, siglum] of sigla) {
+    const key = siglum.toUpperCase();
+    byKey.set(key, [...(byKey.get(key) ?? []), display]);
+  }
+  return [...byKey.values()].filter((g) => g.length > 1);
+}
+
+// One siglum per canonical speaker `display`, for a whole play. Rules (P4
+// Lane C brief): (a) collect that speaker's printed labels, cleaned; (b) if
+// the shortest is ≤ 4 characters, it IS the siglum, as printed (Χο., ΞΑ.);
+// (c) otherwise abbreviate the fullest label to two letters (Φυ., Κλ.); (d)
+// if two speakers collide, re-abbreviate both to three letters, then four,
+// until distinct (Frogs: ΑΙΑΚΟΣ and ΑΙΣΧΥΛΟΣ both print "ΑΙ." → Αια., Αισ.).
+// A pair still colliding at four letters falls back to each speaker's own
+// shortest printed label, which the edition itself keeps distinct (Frogs'
+// two innkeepers, "ΠΑ. Αʹ" / "ΠΑ. Βʹ") — two identical sigla in one play
+// would be worse than one that overflows the gutter.
+// Unattributed turns (the dialectic dash, `display` null) get no entry.
+export function playSigla(
+  events: readonly Pick<SpeakerEvent, 'label' | 'display'>[],
+): Map<string, string> {
+  const printed = new Map<string, string[]>();
+  for (const e of events) {
+    if (!e.display) continue;
+    const label = cleanSpeakerLabel(e.label);
+    if (!label) continue;
+    const seen = printed.get(e.display) ?? [];
+    if (!seen.includes(label)) seen.push(label);
+    printed.set(e.display, seen);
+  }
+  const shortest = (labels: string[]) => labels.reduce((a, b) => (b.length < a.length ? b : a));
+  const fullest = (labels: string[]) => labels.reduce((a, b) => (b.length > a.length ? b : a));
+
+  const sigla = new Map<string, string>();
+  for (const [display, labels] of printed) {
+    const short = shortest(labels);
+    sigla.set(display, short.length <= SIGLUM_MAX ? short : abbreviateLabel(fullest(labels), 2));
+  }
+  for (let n = 3; n <= SIGLUM_MAX; n += 1) {
+    const groups = siglaCollisions(sigla);
+    if (!groups.length) break;
+    for (const group of groups) {
+      for (const display of group) {
+        sigla.set(display, abbreviateLabel(fullest(printed.get(display)!), n));
+      }
+    }
+  }
+  // Four letters is the ceiling (the gutter is sized for sigla). A pair still
+  // colliding there falls back to what the EDITION itself prints: each
+  // speaker's shortest printed label when that is shorter than the
+  // abbreviation (Hecuba's Polyxena and Polymestor, who never share a scene,
+  // are BOTH "Πο." in Murray — printing them so is faithful, and the full name
+  // rides in the label's title), and then, where those printed labels are
+  // pairwise distinct, they win outright even if longer (Frogs' two
+  // innkeepers, "ΠΑ. Αʹ" / "ΠΑ. Βʹ" — the numeral is the whole distinction).
+  for (const group of siglaCollisions(sigla)) {
+    for (const display of group) {
+      const short = shortest(printed.get(display)!);
+      if (short.length < sigla.get(display)!.length) sigla.set(display, short);
+    }
+  }
+  for (const group of siglaCollisions(sigla)) {
+    const alt = new Map(group.map((d) => [d, shortest(printed.get(d)!)] as const));
+    const distinct = new Set([...alt.values()].map((s) => s.toUpperCase())).size === group.length;
+    if (distinct) for (const display of group) sigla.set(display, alt.get(display)!);
+  }
+  return sigla;
+}

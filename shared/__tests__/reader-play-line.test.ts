@@ -98,7 +98,26 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     await flush();
     const line1 = container.querySelector('.greek-line[id="L1-1"]');
     expect(line1).toBeTruthy();
-    expect(line1!.querySelector('.speaker')?.textContent).toBe('ΦΥΛΑΞ');
+    expect(line1!.querySelector('.speaker')).toBeTruthy();
+  });
+
+  // P4 Lane C: the Greek speaker gutter is sized for sigla, so the full name
+  // an edition prints at a speaker's first appearance (ΦΥΛΑΞ at Ag. 1) is
+  // shown as that play's siglum for the speaker and keeps the printed label
+  // in its title. The siglum is the play's, not the line's: the same speaker
+  // wears it on every line.
+  it('shows the play\'s siglum in the gutter and the printed label in the title', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
+    await flush();
+    const first = container.querySelector('.greek-line[id="L1-1"] .speaker')!;
+    expect(first.textContent).toBe('Φυ.');
+    expect(first.getAttribute('title')).toBe('ΦΥΛΑΞ');
+    expect(first.getAttribute('aria-label')).toBe('ΦΥΛΑΞ');
+    // The line that already prints the siglum shows it unchanged, with no
+    // title to add (label and siglum are the same string).
+    const second = container.querySelector('.greek-line[id="L5a-2"] .speaker')!;
+    expect(second.textContent).toBe('Φυ.');
+    expect(second.hasAttribute('title')).toBe(false);
   });
 
   it('keys colours by canonical display while printing each source label', async () => {
@@ -174,7 +193,9 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     await flush();
     const greek = container.querySelector('.greek-line .speaker');
     const english = container.querySelector('.english-col .speaker');
-    expect(greek?.textContent).toBe('ΦΥΛΑΞ');
+    // The Greek wears the play's siglum (P4 Lane C); the English column is
+    // untouched, and both are keyed by the same canonical speaker.
+    expect(greek?.textContent).toBe('Φυ.');
     expect(english?.textContent).toBe('WATCHMAN');
     expect(greek?.getAttribute('data-spk')).toBeTruthy();
     expect(english?.getAttribute('data-spk')).toBe(greek?.getAttribute('data-spk'));
