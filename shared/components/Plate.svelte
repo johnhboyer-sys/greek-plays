@@ -19,7 +19,9 @@
   export let greekSource: string | null = null;
   export let translations: string[] = [];
   // "Cite as": the work's copy abbreviation and the printed extent of the
-  // play, e.g. "Aesch. Ag. 1–1672". Both parts or nothing.
+  // play, e.g. "Aesch. Ag. 1–1673" — the last PRINTED line (see
+  // lastPrintedRef in shared/lib/citation.ts), not the last chunk start.
+  // Both parts or nothing.
   export let copyAbbr: string | null = null;
   export let lastLine: string | null = null;
   // The cast, in order of appearance (the book's own speakerRoster), each

@@ -1097,6 +1097,43 @@
     }
   }
 
+  // ── The deep-link settle pass (P4 Lane D, build/p4/lane-d-brief.md) ──────
+  // A shared `?loc=`/`#` link must LAND, and it did not: on the built site
+  // /aeschylus/agamemnon?loc=1203 came to rest on line 1203 on some loads and
+  // stayed at scrollY 0 on others, target element present and tinted both
+  // times, no console error. The opening scroll is fired while the page is
+  // still settling — fonts swap, the plate above the text lays out, a couple
+  // of hundred segments hydrate, the first-visit tips toast appears — and a
+  // SMOOTH scroll is cancelled outright by any of that. Nothing re-checked.
+  //
+  // So: after the scroll, look twice at where the target actually ended up —
+  // once fonts are ready and the layout has had a moment, once more later —
+  // and if it is off screen, jump to it instantly (an instant scroll cannot
+  // be cancelled). Once, then stop; a link that landed is never re-scrolled,
+  // and the suppression window keeps the scroll-spy from rewriting the URL
+  // while this settles.
+  const SETTLE_MS = [900, 2500];
+  function reducedMotion(): boolean {
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
+  }
+  function settleDeepLink(el: HTMLElement, block: ScrollLogicalPosition = 'center'): void {
+    let corrected = false;
+    const check = () => {
+      if (corrected || !el.isConnected) return;
+      const r = el.getBoundingClientRect();
+      // `scroll-margin-top` already clears the sticky header and controls, so
+      // plain viewport containment is the whole test.
+      if (r.bottom > 0 && r.top < window.innerHeight) return;
+      corrected = true;
+      suppressArmUntil = Date.now() + 1500;
+      el.scrollIntoView({ behavior: 'auto', block });
+    };
+    const fonts = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
+    if (fonts) fonts.then(() => setTimeout(check, SETTLE_MS[0]), () => setTimeout(check, SETTLE_MS[0]));
+    else setTimeout(check, SETTLE_MS[0]);
+    setTimeout(check, SETTLE_MS[1]);
+  }
+
   let _onToggleSettings: () => void;
   let _onCloseSettings: () => void;
 
@@ -1516,8 +1553,8 @@
   // The row model: every English turn sits on the row of the Greek line it
   // starts on. Each turn is matched to a Greek speaker EVENT of that segment
   // BY SPEAKER, walking both in order: the next unused event whose canonical
-  // display equals the turn's canonical `speaker`, falling back to the next
-  // unused event when nothing matches. Positional (k-th ↔ k-th) pairing is
+  // display equals the turn's canonical `speaker`, falling back to POSITIONAL
+  // (k-th) pairing when the name can't decide. Positional pairing alone is
   // wrong here — the pipeline emits the English of a crossed pair in ENGLISH
   // order (docs/play-line.md; Frogs 405/406, 25 such chunks in Frogs, 24 in
   // Birds), so the k-th turn is not always the k-th event and its text would
@@ -1539,20 +1576,32 @@
     items.forEach((it, i) => { if (it.kind === 'line' && !rowOfLine.has(it.line.n)) rowOfLine.set(it.line.n, i); });
     const perRow: EnglishTurnBlock[][] = items.map(() => []);
     const used = evs.map(() => false);
-    // The next unused event this turn's speaker holds, else the next unused
-    // event at all (an unattributed turn, or a name the Greek doesn't carry).
-    const claim = (who: string | null): SpeakerEvent | undefined => {
-      let i = who ? evs.findIndex((e, k) => !used[k] && e.display === who) : -1;
-      if (i < 0) i = used.indexOf(false);
+    // The k-th English turn claims the next UNUSED event its canonical speaker
+    // holds; failing that, the k-th event — never "the next unused event of any
+    // name", which walked a turn onto a line another character speaks (Grok
+    // P4b finding 4). Two events sharing one display (Septem's half-choruses,
+    // both "Semichorus"; Alcestis' two "Chorus") are indistinguishable by name,
+    // so first-unused IS positional for them and each turn keeps its own line.
+    // A `speakerMismatch` block is one the English edition gives to a DIFFERENT
+    // character than the Greek does: its name must not steer the pairing at all
+    // — it would be dragged to that character's line elsewhere in the chunk —
+    // so it takes the positional slot and stays on the line it belongs to.
+    const claim = (b: EnglishTurnBlock, k: number): SpeakerEvent | undefined => {
+      let i = b.speaker && !b.speakerMismatch
+        ? evs.findIndex((e, j) => !used[j] && e.display === b.speaker)
+        : -1;
+      if (i < 0) i = k < evs.length ? k : -1;
       if (i < 0) return undefined;
       used[i] = true;
       return evs[i];
     };
     let cur = 0;
     let split = false;
+    let k = 0;
     for (const b of blocks) {
       if (b.turnIndex >= 0) {
-        const ev = claim(b.speaker);
+        const ev = claim(b, k);
+        k += 1;
         const r = ev ? rowOfLine.get(ev.line) : undefined;
         if (r != null) cur = r;
       }
@@ -1566,8 +1615,16 @@
   // An ode gets the narrower measure (John, 2026-09-08: "a narrower measure,
   // nothing else"): a chorus-spoken speech of more than six Greek lines. Choral
   // stichomythia and the chorus-leader's dialogue trimeters stay at the dialogue
-  // measure — they are short speeches. "Chorus" matches every roster form the
-  // corpus prints (Chorus, Chorus of Women, Semichorus A, Agathon's Chorus).
+  // measure — they are short speeches.
+  //
+  // Who counts as the chorus is read off the GREEK the edition prints, not off
+  // the translator's English name: the Greek siglum is ΧΟ./ΧΟΡ. for a chorus
+  // and ΗΜΙΧ. for a half-chorus, whatever the translator calls them — and the
+  // translators call them plenty ("Danaids", "Handmaidens", "Frogs" for the
+  // chorus of Frogs, all of which the old display.includes('Chorus') test
+  // missed, Grok P4b finding 5). The English name still counts when it says
+  // so (Chorus, Chorus of Women, Semichorus A, Agathon's Chorus), which
+  // covers a segment whose label the edition abbreviates some other way.
   //
   // Stage 1 splits a speech at 40 lines, so the TAIL of a long ode carries no
   // speaker event of its own (Ag. 1:80, 1:125, 1:175, 1:215 — seven such tails
@@ -1585,9 +1642,19 @@
     }
     return ids;
   }
+  // The printed Greek siglum, uppercased and stripped of accents/breathings,
+  // so "Χο.", "χορ.", "Ἡμιχ." and "ΗΜΙΧΟΡΙΟΝ" all reduce to a ΧΟ/ΗΜΙΧ stem.
+  function siglumStem(label: string): string {
+    return label.toUpperCase().normalize('NFD').replace(/\p{M}/gu, '');
+  }
+  function isChorusEvent(e: SpeakerEvent): boolean {
+    const stem = siglumStem(e.label ?? '');
+    if (stem.startsWith('ΧΟ') || stem.startsWith('ΗΜΙΧ')) return true;
+    return /chorus/i.test(e.display ?? '');
+  }
   function playOde(seg: Segment, evs: readonly SpeakerEvent[]): boolean {
     if (!evs.length || seg.greek.length <= 6) return false;
-    return evs.every((e) => (e.display ?? '').includes('Chorus'));
+    return evs.every(isChorusEvent);
   }
 
   // Compare-mode column header: "<short> · <year> · by line|by speech". The
@@ -2536,6 +2603,10 @@
       // citation in the hash, or a plain element-id hash.
       const hash = window.location.hash.slice(1);
       setTimeout(() => {
+        // The element this deep link came to rest on, whichever branch below
+        // handled it — re-checked once the page has settled (settleDeepLink).
+        let landed: HTMLElement | null = null;
+        let landedBlock: ScrollLogicalPosition = 'center';
         // play-line: resolve the typed ref against the now-fetched segments
         // (see resolvePlayLineRef's own doc comment) — a number inside a
         // printed range lands on that range's own line; an unresolvable ref
@@ -2562,7 +2633,13 @@
             });
             if (best) { el = best as HTMLElement; targetId = (best as HTMLElement).id; }
           }
-          if (el) { suppressArmUntil = Date.now() + 1500; el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+          if (el) {
+            suppressArmUntil = Date.now() + 1500;
+            // Reduced motion gets the instant scroll from the start; it is
+            // also the one an interrupted smooth scroll settles to below.
+            el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'center' });
+            landed = el as HTMLElement;
+          }
         } else if (hash) {
           // Scheme-aware, not Bekker-only: a line-bearing hash only ever
           // resolves for the WORK's own citation scheme (parseLocation),
@@ -2605,10 +2682,18 @@
             if (el) {
               suppressArmUntil = Date.now() + 1500;
               el.scrollIntoView({ behavior: 'auto', block: 'start' });
+              landed = el as HTMLElement;
+              landedBlock = 'start';
             }
           }
           }
         }
+        // One settle pass on the element this branch actually scrolled to.
+        // The two helper-based hash branches (scrollToPlayLineRef,
+        // scrollToCitation) are deliberately NOT settled: they pick their own
+        // target — and may decline to scroll a hidden one — so re-checking an
+        // element from out here could move the page somewhere they did not.
+        if (landed) settleDeepLink(landed, landedBlock);
         // Begin live URL tracking once the reader actually scrolls (programmatic
         // jumps above are suppressed), so an opened #citation isn't overwritten.
         window.addEventListener('scroll', onScrollArm, { passive: true });

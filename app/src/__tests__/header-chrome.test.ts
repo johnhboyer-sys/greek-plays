@@ -58,12 +58,16 @@ describe('reader header: the running head', () => {
 });
 
 describe('data-genre on <html>', () => {
-  it('is set from the author on the reader and the author landing page', () => {
+  it('is set from the author on the reader, the author page and a work landing', () => {
     const shell = readFileSync(join(process.cwd(), 'src', 'components', 'ReaderShell.astro'), 'utf8');
     const authorPage = readFileSync(join(process.cwd(), 'src', 'pages', '[author]', 'index.astro'), 'utf8');
+    // P4 Lane E, Grok finding 3: a work landing carried no genre at all.
+    const landing = readFileSync(join(process.cwd(), 'src', 'components', 'Landing.astro'), 'utf8');
 
     expect(shell).toContain('<html lang="en" data-genre={genre}>');
     expect(authorPage).toContain('<html lang="en" data-genre={genre}>');
     expect(authorPage).toContain('const genre = author.genre;');
+    expect(landing).toContain('<html lang="en" data-genre={genre}>');
+    expect(landing).toContain("const genre = getAuthor(work.author)?.genre;");
   });
 });

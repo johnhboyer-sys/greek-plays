@@ -211,6 +211,27 @@ export function isPlayLineRange(ref: string): boolean {
   return range !== null && Number(range[2]) > Number(range[1]);
 }
 
+// The last PRINTED ref of a book — what the plate's "Cite as" range ends on.
+// A segment is a chunk of lines, so its `column` is the chunk's FIRST ref;
+// citing that dropped every line after it (Agamemnon read "1–1672" while the
+// edition prints to 1673). Take the last `greek[].ref` of the last segment
+// that has one, in PRINTED order — never re-sorted, so a transposed or
+// repeated closing ref cites exactly as the edition prints it (John,
+// 2026-09-05). Falls back to the last segment's own column, then null.
+export function lastPrintedRef(
+  segments: readonly { column?: string; greek?: readonly { ref?: string }[] }[],
+): string | null {
+  for (let i = segments.length - 1; i >= 0; i--) {
+    const lines = segments[i].greek ?? [];
+    for (let j = lines.length - 1; j >= 0; j--) {
+      const ref = lines[j]?.ref;
+      if (ref) return ref;
+    }
+    if (segments[i].column) return segments[i].column!;
+  }
+  return null;
+}
+
 // The sort/citation-order key for a normalized play-line ref: (leading
 // integer, kind-rank, suffix) — mirrors scheme.py's `play_line_order_key`
 // exactly (see that function's own doc comment for the ordering rule).

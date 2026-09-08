@@ -19,7 +19,7 @@ import Plate from '@shared/components/Plate.svelte';
 import { assignSpeakerSlots } from '@shared/lib/speaker-colors';
 import { getWork, bookLabel, isBookless, workPath, workLanding, languageLabel, visibleTranslations, type Work } from '@shared/lib/works';
 import { getAuthor } from '@shared/lib/authors';
-import { schemeFor, navChipsNeedFullSectionList, dottedSectionChapter, unitNounFor, pageEntriesFor, nounForCount } from '@shared/lib/citation';
+import { schemeFor, navChipsNeedFullSectionList, dottedSectionChapter, unitNounFor, pageEntriesFor, nounForCount, lastPrintedRef } from '@shared/lib/citation';
 import { citeDescriptorFor, tocGroupNoun, tocGroupShowsCount, verseLineBookLineCount } from '../lib/citation-copy';
 import { speakerRoster } from '../lib/speaker-roster';
 import { SUPPORT_URL } from '../lib/support';
@@ -220,14 +220,15 @@ const plateSlots = isPlayLine ? assignSpeakerSlots(roster) : new Map<string, num
 const platePersons = isPlayLine
   ? roster.map((name) => ({ name, slot: plateSlots.get(name) ?? 0 }))
   : [];
-const plateSegments: { column?: string }[] = isPlayLine ? bookData.segments ?? [] : [];
+const plateSegments: { column?: string; greek?: { ref?: string }[] }[] =
+  isPlayLine ? bookData.segments ?? [] : [];
 // "Start reading →" lands on line 1's own anchor (`col-{column}`, the id
 // Reader.svelte gives every segment), so a deep link (`?loc=`/`#`) and this
 // link both land on the line, never on the plate.
 const plateStartHref = plateSegments.length ? `#col-${plateSegments[0].column}` : '#col-1';
-const plateLastLine = plateSegments.length
-  ? plateSegments[plateSegments.length - 1].column ?? null
-  : null;
+// "Cite as" ends on the last PRINTED line, not the last segment's column
+// (a chunk's column is its FIRST ref, so Ag. read "1–1672" of 1673).
+const plateLastLine = lastPrintedRef(plateSegments);
 
 // Optional one-line chapter titles/descriptions for the outline sidebar, keyed
 // {book: {chapter: "…"}}. The file is written by hand/curation per work and may

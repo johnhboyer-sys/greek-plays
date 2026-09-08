@@ -734,3 +734,36 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   `shared/__tests__/plate.test.ts` — P4 Lane C: the four siglum rules, the
   collision case, the gutter siglum + title in the Reader, and the collapsed
   Persons entry.
+- `shared/styles/global.css` — P4 Lane E: `--on-accent` on every filled control
+  that sits on `var(--accent)` (`.toc-toggle` open, `.copy-cite-btn`) in place
+  of `#fff`, which read 3.47:1 (tragedy) / 2.32:1 (comedy) on the lifted dark
+  accents; the wordmark (`.rh .rhsite`, `.header-title .home-link`,
+  `.simple-header` copy) moves from `--text-light` to `--text-mid` (3.11:1 →
+  6.28:1 light, 8.09:1 dark); `.simple-header` takes `.page-header`'s 2px
+  `var(--accent)` rule; the print sheet drops the never-loaded hardcoded
+  "EB Garamond" for `var(--font-english)` and the plate prints as the play's
+  title page — `.plate-go` hidden, band and rubrication dropped to the sheet's
+  own ink, a page break before the text.
+- `shared/lib/citation.ts` — P4 Lane E: `lastPrintedRef(segments)`, the last
+  printed `greek[].ref` of a book (in printed order, never re-sorted) — what
+  the plate's "Cite as" extent ends on. A segment's `column` is the chunk's
+  FIRST ref, so citing that ran every play short (Ag. 1–1672 of 1673).
+- `shared/components/Reader.svelte` — P4 Lane E: `playRows`' `claim` pairs an
+  English turn with the next UNUSED event of its canonical speaker, else the
+  POSITIONAL (k-th) event — never "the next unused event of any name"; a
+  `speakerMismatch` turn skips the name pass entirely and keeps its positional
+  line. `playOde` reads the chorus off the printed Greek siglum (ΧΟ/ΗΜΙΧ,
+  uppercased and accent-stripped) or an English name matching /chorus/i, so
+  "Danaids", "Handmaidens" and the Frogs' own chorus get the ode measure.
+  `settleDeepLink` re-checks a `?loc=`/`#` target ~900ms (after
+  `document.fonts.ready`) and ~2500ms after the opening scroll and, if it is
+  off screen, jumps to it instantly once — a smooth scroll fired during
+  hydration was being cancelled and stranding the reader at scrollY 0.
+  `prefers-reduced-motion` gets the instant scroll from the start.
+- `app/src/components/Landing.astro` — P4 Lane E: `data-genre` on `<html>` from
+  the author's registry `genre`, as ReaderShell.astro and the author page do.
+- `shared/__tests__/reader-play-line.test.ts`, `shared/__tests__/plate.test.ts`
+  — P4 Lane E: same-display event pairing, the mismatch turn's positional line,
+  the siglum-driven ode test, the deep-link settle (corrects once when the
+  target reports off screen, never when it landed), and the printed-extent
+  citation. The two ode fixtures now carry a siglum that matches their speaker.

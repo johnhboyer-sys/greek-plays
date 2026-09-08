@@ -2,7 +2,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
 import type { BookData, EnglishTurn } from '../lib/data';
 import type { Work } from '../lib/works';
@@ -39,6 +39,12 @@ vi.mock('../lib/works', async (importOriginal) => {
 
 async function flush() {
   await new Promise((r) => setTimeout(r, 0));
+}
+
+// A real wait, for the deep-link settle timers (flush() above is a microtask
+// drain only, so it cannot advance them).
+async function wait(ms: number) {
+  await new Promise((r) => setTimeout(r, ms));
 }
 
 function book(): BookData {
@@ -569,14 +575,17 @@ describe('Reader.svelte play-line compare columns (P4)', () => {
 describe('Reader.svelte play-line ode measure (P4)', () => {
   beforeEach(() => localStorage.clear());
 
-  function chorusSegment(lines: number, display: string) {
+  // The Greek siglum is part of the fixture: P4 Lane E reads the chorus off
+  // the printed label first (finding 5), so a non-chorus speaker must carry a
+  // non-chorus siglum here, exactly as the edition prints one.
+  function chorusSegment(lines: number, display: string, label = 'Χο.') {
     return {
       id: '1:40',
       column: '40',
       greek: Array.from({ length: lines }, (_, i) => ({
         n: i + 1, text: `λόγος ${i + 1}`, tokens: [], ref: String(40 + i),
       })),
-      speakers: [{ line: 1, offset: 0, label: 'Χο.', display }],
+      speakers: [{ line: 1, offset: 0, label, display }],
       english: null,
     };
   }
@@ -594,7 +603,7 @@ describe('Reader.svelte play-line ode measure (P4)', () => {
     await flush();
     expect(a.querySelector('.segment.play-ode')).toBeNull();
 
-    const spoken: BookData = { book: 1, speakerRoster: ['Watchman'], segments: [chorusSegment(9, 'Watchman')] };
+    const spoken: BookData = { book: 1, speakerRoster: ['Watchman'], segments: [chorusSegment(9, 'Watchman', 'Φυ.')] };
     const { container: b } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: spoken } });
     await flush();
     expect(b.querySelector('.segment.play-ode')).toBeNull();
@@ -745,14 +754,14 @@ describe('Reader.svelte play-line ode across a 40-line split (P4 fix, finding 1)
   // Stage 1 splits a speech at 40 lines: Ag. 1:40 (Chorus, 40 lines) is
   // followed by 1:80, forty more lines of the same ode with no speaker event
   // of its own.
-  function splitPair(display: string): BookData {
+  function splitPair(display: string, label = 'Χο.'): BookData {
     const lines = (from: number, n: number) =>
       Array.from({ length: n }, (_, i) => ({ n: from + i, text: `λόγος ${from + i}`, tokens: [], ref: String(from + i) }));
     return {
       book: 1,
       speakerRoster: [display],
       segments: [
-        { id: '1:40', column: '40', greek: lines(40, 40), speakers: [{ line: 40, offset: 0, label: 'Χο.', display }], english: null },
+        { id: '1:40', column: '40', greek: lines(40, 40), speakers: [{ line: 40, offset: 0, label, display }], english: null },
         { id: '1:80', column: '80', greek: lines(80, 40), english: null },
       ],
     };
@@ -766,7 +775,7 @@ describe('Reader.svelte play-line ode across a 40-line split (P4 fix, finding 1)
   });
 
   it('leaves a spoken 40-line tail at the dialogue measure', async () => {
-    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: splitPair('Clytaemestra') } });
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: splitPair('Clytaemestra', 'Κλ.') } });
     await flush();
     expect(container.querySelector('.segment.play-ode')).toBeNull();
   });
@@ -803,5 +812,178 @@ describe('play-line stylesheet (P4 fix, findings 3 and 4)', () => {
     // the shape the float rule above is written against.
     expect(marker.parentElement?.classList.contains('greek-col')).toBe(true);
     expect(marker.nextElementSibling?.classList.contains('greek-line')).toBe(true);
+  });
+});
+
+// ── P4 Lane E (docs/reviews/2026-09-08-grok-p4b.md findings 4–5; the
+// deep-link settle of build/p4/lane-d-brief.md) ──────────────────────────
+describe('Reader.svelte play-line turn pairing edges (P4 Lane E, finding 4)', () => {
+  beforeEach(() => localStorage.clear());
+
+  // Septem's half-choruses: two speaker events on two lines that print the
+  // SAME canonical display, so no name can tell them apart.
+  function twoLineBook(
+    speakers: BookData['segments'][number]['speakers'],
+    turns: EnglishTurn[],
+    text: string,
+  ): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Semichorus', 'Xanthias', 'Dionysus'],
+      segments: [{
+        id: '1:1054',
+        column: '1054',
+        greek: [
+          { n: 1054, text: 'πρῶτος στίχος', tokens: [], ref: '1054' },
+          { n: 1055, text: 'δεύτερος στίχος', tokens: [], ref: '1055' },
+        ],
+        speakers,
+        english: { text, notes: [], markers: [], turns },
+      }],
+    };
+  }
+
+  it('gives two events that share one display a turn each, in printed order', async () => {
+    const { container } = render(Reader, {
+      props: {
+        work: 'PLAYLINE', bookNum: 1,
+        bookData: twoLineBook(
+          [
+            { line: 1054, offset: 0, label: 'ΗΜΙΧ. Α.', display: 'Semichorus' },
+            { line: 1055, offset: 0, label: 'ΗΜΙΧ. Β.', display: 'Semichorus' },
+          ],
+          [
+            { offset: 0, speaker: 'Semichorus', display: 'SEMICHORUS' },
+            { offset: 18, speaker: 'Semichorus', display: 'SEMICHORUS' },
+          ],
+          'We will bury him. The city forbids it.',
+        ),
+      },
+    });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows).toHaveLength(2);
+    expect(rows[0].querySelector('.greek-line')?.id).toBe('L1054-1054');
+    expect(rows[1].querySelector('.greek-line')?.id).toBe('L1055-1055');
+    // One turn per line: neither half-chorus swallows the other's speech.
+    expect(rows[0].querySelector('.english-col')?.textContent).toContain('We will bury him.');
+    expect(rows[1].querySelector('.english-col')?.textContent).toContain('The city forbids it.');
+  });
+
+  it('keeps a speakerMismatch turn on its positional line, not on its namesake’s', async () => {
+    // The Greek gives 1054 to Xanthias and 1055 to Dionysus; the English
+    // edition gives the FIRST speech to Dionysus. Pairing by that name would
+    // drag it down to 1055 and push Xanthias' own words up to 1054 — the two
+    // speeches crossed. The mismatch turn takes its positional slot instead.
+    const { container } = render(Reader, {
+      props: {
+        work: 'PLAYLINE', bookNum: 1,
+        bookData: twoLineBook(
+          [
+            { line: 1054, offset: 0, label: 'ΞΑ.', display: 'Xanthias' },
+            { line: 1055, offset: 0, label: 'ΔΙ.', display: 'Dionysus' },
+          ],
+          [
+            {
+              offset: 0, speaker: 'Dionysus', display: 'DIONYSUS',
+              speakerMismatch: { english: 'Dionysus', greek: 'Xanthias' },
+            },
+            { offset: 18, speaker: 'Dionysus', display: 'DIONYSUS' },
+          ],
+          'The first speech. The second speech.',
+        ),
+      },
+    });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows).toHaveLength(2);
+    expect(rows[0].querySelector('.english-col')?.textContent).toContain('The first speech.');
+    expect(rows[1].querySelector('.english-col')?.textContent).toContain('The second speech.');
+  });
+});
+
+describe('Reader.svelte play-line ode by the printed siglum (P4 Lane E, finding 5)', () => {
+  beforeEach(() => localStorage.clear());
+
+  function odeBook(label: string, display: string): BookData {
+    return {
+      book: 1,
+      speakerRoster: [display],
+      segments: [{
+        id: '1:40',
+        column: '40',
+        greek: Array.from({ length: 7 }, (_, i) => ({
+          n: i + 1, text: `λόγος ${i + 1}`, tokens: [], ref: String(40 + i),
+        })),
+        speakers: [{ line: 1, offset: 0, label, display }],
+        english: null,
+      }],
+    };
+  }
+
+  it('reads the chorus off the Greek siglum when the English name hides it', async () => {
+    // Smyth calls the chorus of the Suppliants "Danaids"; the Greek prints Χο.
+    const { container } = render(Reader, {
+      props: { work: 'PLAYLINE', bookNum: 1, bookData: odeBook('Χο.', 'Danaids') },
+    });
+    await flush();
+    expect(container.querySelector('.segment.play-ode')).toBeTruthy();
+  });
+
+  it('still reads it off the English name when the siglum does not say chorus', async () => {
+    const { container } = render(Reader, {
+      props: { work: 'PLAYLINE', bookNum: 1, bookData: odeBook('Α.', 'Semichorus A') },
+    });
+    await flush();
+    expect(container.querySelector('.segment.play-ode')).toBeTruthy();
+  });
+
+  it('leaves a speaking character at the dialogue measure', async () => {
+    const { container } = render(Reader, {
+      props: { work: 'PLAYLINE', bookNum: 1, bookData: odeBook('Φυ.', 'Watchman') },
+    });
+    await flush();
+    expect(container.querySelector('.segment.play-ode')).toBeNull();
+  });
+});
+
+describe('Reader.svelte deep-link settle (P4 Lane E, build/p4/lane-d-brief.md)', () => {
+  const spy = () => Element.prototype.scrollIntoView as unknown as ReturnType<typeof vi.fn>;
+  const behaviours = (target: Element) =>
+    spy().mock.calls
+      .filter((_c, i) => spy().mock.instances[i] === target)
+      .map((c) => (c[0] as ScrollIntoViewOptions | undefined)?.behavior);
+
+  beforeEach(() => {
+    localStorage.clear();
+    spy().mockClear();
+    window.history.replaceState(null, '', '/PLAYLINE/book/1?loc=6');
+  });
+  afterEach(() => window.history.replaceState(null, '', '/'));
+
+  it('jumps the target into view when it is still off screen after the page settles', async () => {
+    render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
+    await flush();
+    const target = document.getElementById('L6-4')!;
+    expect(target).toBeTruthy();
+    expect(behaviours(target)).toEqual(['smooth']);
+    // happy-dom has no layout, so getBoundingClientRect is all zeros — which
+    // reads as off screen: exactly the stranded state Lane D observed.
+    await wait(1200);
+    expect(behaviours(target)).toEqual(['smooth', 'auto']);
+    // Once, then stop — the later check never fires a second correction.
+    await wait(1600);
+    expect(behaviours(target)).toEqual(['smooth', 'auto']);
+  });
+
+  it('leaves a deep link that landed alone', async () => {
+    render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book() } });
+    await flush();
+    const target = document.getElementById('L6-4')!;
+    target.getBoundingClientRect = () =>
+      ({ top: 200, bottom: 240, left: 0, right: 0, width: 0, height: 40, x: 0, y: 200,
+         toJSON: () => ({}) }) as DOMRect;
+    await wait(2800);
+    expect(behaviours(target)).toEqual(['smooth']);
   });
 });

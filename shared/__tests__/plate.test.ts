@@ -7,6 +7,7 @@ import Plate from '../components/Plate.svelte';
 import RunningHead from '../components/RunningHead.svelte';
 import { assignSpeakerSlots } from '../lib/speaker-colors';
 import { buildContents } from '../lib/contents';
+import { lastPrintedRef } from '../lib/citation';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GLOBAL_CSS = readFileSync(join(HERE, '../styles/global.css'), 'utf8');
@@ -26,7 +27,7 @@ const props = {
   greekSource: 'Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)',
   translations: ['H. W. Smyth (Loeb, 1926)', 'E. D. A. Morshead (1881)'],
   copyAbbr: 'Aesch. Ag.',
-  lastLine: '1672',
+  lastLine: '1673',
   persons: ROSTER.map((name) => ({ name, slot: slots.get(name)! })),
   startHref: '#col-1',
 };
@@ -101,7 +102,31 @@ describe('Plate.svelte', () => {
     const { container } = render(Plate, { props });
     const cite = Array.from(container.querySelectorAll('.plate-margin p'))
       .find((p) => p.querySelector('b')!.textContent === 'Cite as')!;
-    expect(cite.textContent).toBe('Cite asAesch. Ag. 1–1672');
+    expect(cite.textContent).toBe('Cite asAesch. Ag. 1–1673');
+  });
+
+  // P4 Lane E, Grok finding 2: the extent came off the last SEGMENT's column
+  // — a chunk's FIRST ref — so every play was cited short (Ag. 1–1672 of
+  // 1673, Frogs 1–1528 of 1533). ReaderShell now feeds `lastLine` from
+  // lastPrintedRef, which reads the last segment's last printed greek ref.
+  it('ends the citation on the last PRINTED line, not the last chunk start', () => {
+    // Agamemnon's real tail: the closing chunk starts at 1672 and prints 1673.
+    const agTail = [
+      { column: '1666', greek: [{ ref: '1666' }, { ref: '1667' }] },
+      { column: '1672', greek: [{ ref: '1672' }, { ref: '1673' }] },
+    ];
+    expect(lastPrintedRef(agTail)).toBe('1673');
+    // Frogs: 1528 opens the chunk the edition prints through 1533.
+    expect(lastPrintedRef([{ column: '1528', greek: [{ ref: '1528' }, { ref: '1533' }] }]))
+      .toBe('1533');
+    // A segment with no Greek lines falls back to its own column, and an
+    // empty book has no extent at all (the margin line then drops).
+    expect(lastPrintedRef([{ column: '9', greek: [] }])).toBe('9');
+    expect(lastPrintedRef([])).toBeNull();
+    const { container } = render(Plate, { props: { ...props, lastLine: lastPrintedRef(agTail) } });
+    const cite = Array.from(container.querySelectorAll('.plate-margin p'))
+      .find((p) => p.querySelector('b')!.textContent === 'Cite as')!;
+    expect(cite.textContent).toBe('Cite asAesch. Ag. 1–1673');
   });
 
   it('drops a margin line the registry has no value for', () => {
