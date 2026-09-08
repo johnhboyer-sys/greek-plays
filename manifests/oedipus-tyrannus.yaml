@@ -38,7 +38,16 @@ english:
       # Scanner junk between speeches (page signature "WOU. 4, F"), which the
       # NAME. text rule read as a speaker (P2g finding 7).
       904: ""
+  # gaps: Greek speeches with no English anchor of their own, no same-speaker
+  # repair within 3 lines and no same-speaker covering block (residual after
+  # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
+  # anchoring, not a builder failure.
   gaps:
+    - "1:1149"
+    - "1:624"
+    - "1:625"
+    - "1:651"
+    - "1:679"
     - "1:624"  # no covering <l n> in the Perseus TEI
     - "1:679"  # no covering <l n> in the Perseus TEI
     - "1:1149"  # no covering <l n> in the Perseus TEI

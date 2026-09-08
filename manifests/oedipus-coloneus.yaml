@@ -34,7 +34,19 @@ english:
     source: bench/storr/oedipus-coloneus.txt
     play: OEDIPUS AT COLONUS
     footnotes: false
+  # gaps: Greek speeches with no English anchor of their own, no same-speaker
+  # repair within 3 lines and no same-speaker covering block (residual after
+  # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
+  # anchoring, not a builder failure.
   gaps:
+    - "1:1666"
+    - "1:179"
+    - "1:182"
+    - "1:183"
+    - "1:194"
+    - "1:197"
+    - "1:532"
+    - "1:533"
     - "1:179"  # no covering <l n> in the Perseus TEI
     - "1:182"  # no covering <l n> in the Perseus TEI
     - "1:183"  # TEI n=183 is <gap reason="lost"/> only

@@ -25,7 +25,15 @@ english:
     source: "perseus/tlg0006.tlg016.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  # gaps: Greek speeches with no English anchor of their own, no same-speaker
+  # repair within 3 lines and no same-speaker covering block (residual after
+  # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
+  # anchoring, not a builder failure.
   gaps:
+    - "1:1292"
+    - "1:144"
+    - "1:157"
+    - "1:412"
     - "1:144"  # no covering <l n> in the Perseus TEI
     - "1:157"  # no covering <l n> in the Perseus TEI
 
