@@ -770,6 +770,11 @@
     });
   })();
 
+  // The ode segments of a play-line book, by segment id — computed over the
+  // whole book in render order because a 40-line split tail inherits the
+  // speakers of the segment before it (playOdeIds).
+  $: odeSegmentIds = playLine ? playOdeIds(orderedSegments) : new Set<string>();
+
   // Ordered list of distinct chapter identifiers present in the loaded book.
   // Empty-string entries (no chapter assignment yet) are filtered out.
   $: chaptersInBook = [...new Set(
@@ -1496,14 +1501,19 @@
 
   // ── P4 play-line layout (docs/p4-plan.md, docs/mockups/2026-09-08-blend.html) ──
   // The row model: every English turn sits on the row of the Greek line it
-  // starts on. The k-th English turn of a segment's chunk pairs with the k-th
-  // Greek speaker EVENT of that segment in document order (line, then offset) —
-  // the same event order the pipeline pairs on (docs/play-line.md, P3.4) — and
-  // the turn renders in the row of that event's printed line. Turns that begin
-  // mid-line (an antilabe share, offset > 0) therefore stack in that line's own
-  // row, and a surplus turn (more English turns than Greek events) stacks in the
-  // row of the LAST mapped line rather than inventing one. When every block
-  // lands on the first line — a single-speech chunk, the tragedy norm, and every
+  // starts on. Each turn is matched to a Greek speaker EVENT of that segment
+  // BY SPEAKER, walking both in order: the next unused event whose canonical
+  // display equals the turn's canonical `speaker`, falling back to the next
+  // unused event when nothing matches. Positional (k-th ↔ k-th) pairing is
+  // wrong here — the pipeline emits the English of a crossed pair in ENGLISH
+  // order (docs/play-line.md; Frogs 405/406, 25 such chunks in Frogs, 24 in
+  // Birds), so the k-th turn is not always the k-th event and its text would
+  // land on the other speaker's line (Grok P4a finding 2). The turn renders in
+  // the row of its matched event's printed line. Turns that begin mid-line (an
+  // antilabe share, offset > 0) therefore stack in that line's own row, and a
+  // surplus turn (more English turns than Greek events) stacks in the row of
+  // the LAST mapped line rather than inventing one. When every block lands on
+  // the first line — a single-speech chunk, the tragedy norm, and every
   // antilabe packed into one printed line — this returns null and the segment
   // renders as the one Greek-beside-English row it always did.
   type PlayRow = { items: GreekItem[]; blocks: EnglishTurnBlock[] };
@@ -1515,11 +1525,21 @@
     const rowOfLine = new Map<number, number>();
     items.forEach((it, i) => { if (it.kind === 'line' && !rowOfLine.has(it.line.n)) rowOfLine.set(it.line.n, i); });
     const perRow: EnglishTurnBlock[][] = items.map(() => []);
+    const used = evs.map(() => false);
+    // The next unused event this turn's speaker holds, else the next unused
+    // event at all (an unattributed turn, or a name the Greek doesn't carry).
+    const claim = (who: string | null): SpeakerEvent | undefined => {
+      let i = who ? evs.findIndex((e, k) => !used[k] && e.display === who) : -1;
+      if (i < 0) i = used.indexOf(false);
+      if (i < 0) return undefined;
+      used[i] = true;
+      return evs[i];
+    };
     let cur = 0;
     let split = false;
     for (const b of blocks) {
       if (b.turnIndex >= 0) {
-        const ev = evs[b.turnIndex];
+        const ev = claim(b.speaker);
         const r = ev ? rowOfLine.get(ev.line) : undefined;
         if (r != null) cur = r;
       }
@@ -1535,8 +1555,24 @@
   // stichomythia and the chorus-leader's dialogue trimeters stay at the dialogue
   // measure — they are short speeches. "Chorus" matches every roster form the
   // corpus prints (Chorus, Chorus of Women, Semichorus A, Agathon's Chorus).
-  function playOde(seg: Segment): boolean {
-    const evs = seg.speakers ?? [];
+  //
+  // Stage 1 splits a speech at 40 lines, so the TAIL of a long ode carries no
+  // speaker event of its own (Ag. 1:80, 1:125, 1:175, 1:215 — seven such tails
+  // in Agamemnon, two in Frogs). A speakerless segment therefore inherits the
+  // speaker set of the last preceding segment that HAS events, and is judged on
+  // that; "no events ⇒ ode" would be wrong (Clytaemestra's spoken tail at
+  // 1:895). Grok P4a finding 1.
+  function playOdeIds(segs: readonly Segment[]): Set<string> {
+    const ids = new Set<string>();
+    let held: readonly SpeakerEvent[] = [];
+    for (const seg of segs) {
+      const own = seg.speakers ?? [];
+      if (own.length) held = own;
+      if (playOde(seg, own.length ? own : held)) ids.add(seg.id);
+    }
+    return ids;
+  }
+  function playOde(seg: Segment, evs: readonly SpeakerEvent[]): boolean {
     if (!evs.length || seg.greek.length <= 6) return false;
     return evs.every((e) => (e.display ?? '').includes('Chorus'));
   }
@@ -3610,7 +3646,7 @@
            margin exception; every ordinary verse-line segment is untouched. -->
       <!-- P4: an ode (a chorus speech longer than six lines) reads at a
            narrower measure — the lyric set apart, and nothing else. -->
-      <div class="segment" id="col-{seg.column}" data-kind={seg.kind} data-discontinuity={verseDiscontinuity} class:play-ode={playLine && playOde(seg)}>
+      <div class="segment" id="col-{seg.column}" data-kind={seg.kind} data-discontinuity={verseDiscontinuity} class:play-ode={playLine && odeSegmentIds.has(seg.id)}>
         {#if sectionFlow}<span class="sect-tick" aria-hidden="true" data-n={seg.column}></span>{/if}
         <!-- A chapter that opens this column heads the segment, ABOVE the column
              reference (the column ref is a marker within the chapter, not a

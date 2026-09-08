@@ -1,4 +1,7 @@
 import { fireEvent, render } from '@testing-library/svelte';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
 import type { BookData, EnglishTurn } from '../lib/data';
@@ -574,5 +577,210 @@ describe('Reader.svelte play-line ode measure (P4)', () => {
     const { container: b } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: spoken } });
     await flush();
     expect(b.querySelector('.segment.play-ode')).toBeNull();
+  });
+});
+
+// ── P4 fix round (docs/reviews/2026-09-08-grok-p4a.md) ───────────────────
+// Findings 1–4: the ode measure inherits across a 40-line split; English turns
+// pair with Greek events BY SPEAKER (the pipeline emits a crossed pair in
+// English order); the compare Greek heading starts on the verse; the strophe
+// marker never becomes the row's first baseline.
+describe('Reader.svelte play-line turn pairing by speaker (P4 fix, finding 2)', () => {
+  beforeEach(() => localStorage.clear());
+
+  // Frogs 1:414 as built: Greek 414/415 (internal n 405/406), events
+  // Xanthias@405 and Dionysus@406 — and the English of the pair in ENGLISH
+  // order, Dionysus first. k-th ↔ k-th would put Dionysus' words on Xanthias'
+  // line.
+  function crossedBook(turns: EnglishTurn[], text: string): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Xanthias', 'Dionysus'],
+      segments: [{
+        id: '1:414',
+        column: '414',
+        greek: [
+          { n: 405, text: 'ἐγὼ δ᾽ ἀεί πως φιλακόλουθός εἰμι καὶ', tokens: [], ref: '414' },
+          { n: 406, text: 'μετ᾽ αὐτῆς παίζων χορεύειν βούλομαι. Κἄγωγε.', tokens: [], ref: '415' },
+        ],
+        speakers: [
+          { line: 405, offset: 0, label: 'ΞΑ.', display: 'Xanthias' },
+          { line: 406, offset: 26, label: 'ΔΙ.', display: 'Dionysus' },
+        ],
+        english: { text, notes: [], markers: [], turns },
+      }],
+    };
+  }
+
+  const crossedText = 'Aye, I like to mingle with these choruses. And I too.';
+  const crossedTurns: EnglishTurn[] = [
+    { offset: 0, speaker: 'Dionysus', display: 'DIONYSUS' },
+    { offset: 43, speaker: 'Xanthias', display: 'XANTHIAS' },
+  ];
+
+  it('puts each turn on its own speaker\'s line when the pair is emitted in English order', async () => {
+    const { container } = render(Reader, {
+      props: { work: 'PLAYLINE', bookNum: 1, bookData: crossedBook(crossedTurns, crossedText) },
+    });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows).toHaveLength(2);
+    expect(rows[0].querySelector('.greek-line')?.id).toBe('L414-405');
+    expect(rows[1].querySelector('.greek-line')?.id).toBe('L415-406');
+    // Xanthias speaks line 414, Dionysus line 415 — each English turn follows
+    // its own speaker, not its position in the English.
+    expect(rows[0].querySelector('.english-col .turn-para .speaker')?.textContent).toBe('XANTHIAS');
+    expect(rows[0].querySelector('.english-col')?.textContent).toContain('And I too.');
+    expect(rows[1].querySelector('.english-col .turn-para .speaker')?.textContent).toBe('DIONYSUS');
+    expect(rows[1].querySelector('.english-col')?.textContent).toContain('Aye, I like to mingle');
+  });
+});
+
+describe('Reader.svelte play-line row edges (P4 fix, review item 5c–5e)', () => {
+  beforeEach(() => localStorage.clear());
+
+  // Frogs 6–7 again: two Greek lines, three events (two shares of line 6).
+  function packed(turns: EnglishTurn[], text: string): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Xanthias', 'Dionysus'],
+      segments: [{
+        id: '1:6',
+        column: '6',
+        greek: [
+          { n: 6, text: 'Τί δαί; Τὸ πάνυ γέλοιον εἴπω; Νὴ Δία', tokens: [], ref: '6' },
+          { n: 7, text: 'θαρρῶν γε· μόνον ἐκεῖν᾽ ὅπως μὴ ᾽ρεῖς— Τὸ τί;', tokens: [], ref: '7' },
+        ],
+        speakers: [
+          { line: 6, offset: 0, label: 'ΞΑ.', display: 'Xanthias' },
+          { line: 6, offset: 30, label: 'ΔΙ.', display: 'Dionysus' },
+          { line: 7, offset: 39, label: 'ΞΑ.', display: 'Xanthias' },
+        ],
+        english: { text, notes: [], markers: [], turns },
+      }],
+    };
+  }
+  const text = 'Then what witty thing shall I say? Come, take courage; only … Only what?';
+  function leads(container: HTMLElement): string[][] {
+    return [...container.querySelectorAll('.play-row')].map((row) =>
+      [...row.querySelectorAll('.english-col .turn-para .speaker')].map((el) => el.textContent ?? ''),
+    );
+  }
+
+  // (c) buildEnglishTurnBlocks drops an EMPTY UNLABELED turn, so a block's
+  // position in the array is not its turn index — and the pairing must not
+  // slide by one because of it.
+  it('keeps the pairing when an empty unlabeled turn is dropped from the blocks', async () => {
+    const turns: EnglishTurn[] = [
+      { offset: 0, speaker: 'Xanthias', display: 'XANTHIAS' },
+      { offset: 35, speaker: null, display: null },
+      { offset: 35, speaker: 'Dionysus', display: 'DIONYSUS' },
+      { offset: 62, speaker: 'Xanthias', display: 'XANTHIAS' },
+    ];
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: packed(turns, text) } });
+    await flush();
+    expect(leads(container)).toEqual([['XANTHIAS', 'DIONYSUS'], ['XANTHIAS']]);
+  });
+
+  // (d) The tail of a speech begun in an earlier chunk carries turnIndex -1:
+  // it claims no event and stays on the split's first row.
+  it('keeps a pre-turn continuation lead on the first row of a split', async () => {
+    const lead = 'A tail of the speech begun above. ';
+    const turns: EnglishTurn[] = [
+      { offset: lead.length, speaker: 'Xanthias', display: 'XANTHIAS' },
+      { offset: lead.length + 35, speaker: 'Dionysus', display: 'DIONYSUS' },
+      { offset: lead.length + 62, speaker: 'Xanthias', display: 'XANTHIAS' },
+    ];
+    const { container } = render(Reader, {
+      props: { work: 'PLAYLINE', bookNum: 1, bookData: packed(turns, lead + text) },
+    });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows[0].querySelector('.english-col')?.textContent).toContain('A tail of the speech begun above.');
+    expect(rows[1].querySelector('.english-col')?.textContent).not.toContain('A tail of the speech');
+    expect(leads(container)).toEqual([['XANTHIAS', 'DIONYSUS'], ['XANTHIAS']]);
+  });
+
+  // (e) More Greek events than English turns: the unmatched event's line keeps
+  // an empty English cell — no turn is duplicated into it and none is dropped.
+  it('leaves the unmatched event\'s row empty when there are more events than turns', async () => {
+    const turns: EnglishTurn[] = [
+      { offset: 0, speaker: 'Xanthias', display: 'XANTHIAS' },
+      { offset: 62, speaker: 'Xanthias', display: 'XANTHIAS' },
+    ];
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: packed(turns, text) } });
+    await flush();
+    // Both turns are Xanthias', so they take his two events (lines 6 and 7);
+    // Dionysus' share of line 6 simply has no English of its own.
+    expect(leads(container)).toEqual([['XANTHIAS'], ['XANTHIAS']]);
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows[1].querySelector('.english-col')?.textContent).toContain('Only what?');
+  });
+});
+
+describe('Reader.svelte play-line ode across a 40-line split (P4 fix, finding 1)', () => {
+  beforeEach(() => localStorage.clear());
+
+  // Stage 1 splits a speech at 40 lines: Ag. 1:40 (Chorus, 40 lines) is
+  // followed by 1:80, forty more lines of the same ode with no speaker event
+  // of its own.
+  function splitPair(display: string): BookData {
+    const lines = (from: number, n: number) =>
+      Array.from({ length: n }, (_, i) => ({ n: from + i, text: `λόγος ${from + i}`, tokens: [], ref: String(from + i) }));
+    return {
+      book: 1,
+      speakerRoster: [display],
+      segments: [
+        { id: '1:40', column: '40', greek: lines(40, 40), speakers: [{ line: 40, offset: 0, label: 'Χο.', display }], english: null },
+        { id: '1:80', column: '80', greek: lines(80, 40), english: null },
+      ],
+    };
+  }
+
+  it('gives a speakerless tail the ode measure it inherits from the chorus speech before it', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: splitPair('Chorus') } });
+    await flush();
+    expect(container.querySelectorAll('.segment.play-ode')).toHaveLength(2);
+    expect(container.querySelector('#col-80')?.classList.contains('play-ode')).toBe(true);
+  });
+
+  it('leaves a spoken 40-line tail at the dialogue measure', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: splitPair('Clytaemestra') } });
+    await flush();
+    expect(container.querySelector('.segment.play-ode')).toBeNull();
+  });
+});
+
+const PLAY_CSS = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../styles/global.css'), 'utf8')
+  .replace(/\/\*[\s\S]*?\*\//g, '');
+
+describe('play-line stylesheet (P4 fix, findings 3 and 4)', () => {
+  it('starts the compare Greek heading on the verse, not at the column edge', () => {
+    expect(PLAY_CSS).toMatch(
+      /\.reader-body\.play-line\.trans-compare \.play-greek-head \{[^}]*padding-left:\s*var\(--pl-num-w\)/,
+    );
+  });
+
+  it('takes the strophe marker out of flow, so a row aligns on the first verse line', () => {
+    // `.seg-row { align-items: baseline }` uses a grid item's FIRST baseline:
+    // an in-flow marker before the verse would be it (Ag. 1:681).
+    expect(PLAY_CSS).toMatch(/\.reader-body\.play-line \.strophe-marker \{[^}]*float:\s*left/);
+    expect(PLAY_CSS).toMatch(/\.reader-body\.play-line \.strophe-marker \{[^}]*width:\s*100%/);
+    // …and the line it labels clears the band, so the float never sits on top
+    // of the verse (measured in a browser: a flex `.greek-line` does not shift
+    // for the float on its own).
+    expect(PLAY_CSS).toContain('.reader-body.play-line .strophe-marker + .greek-line { clear: left; }');
+  });
+
+  it('renders the marker before the verse line inside the Greek cell', async () => {
+    const data = book();
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const marker = container.querySelector('.strophe-marker')!;
+    expect(marker).toBeTruthy();
+    // A child of the Greek cell itself, immediately before the line it labels —
+    // the shape the float rule above is written against.
+    expect(marker.parentElement?.classList.contains('greek-col')).toBe(true);
+    expect(marker.nextElementSibling?.classList.contains('greek-line')).toBe(true);
   });
 });

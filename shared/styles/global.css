@@ -2101,6 +2101,33 @@ body {
    -- reads at a narrower measure. The lyric set apart; nothing else. */
 .reader-body.play-line .segment.play-ode .greek-line .line-text { max-width: 34em; }
 
+/* The strophe marker (στρ. α., ἀντ. α.) labels the lyric run it opens, and it
+   must NOT be what the row aligns on: `.seg-row { align-items: baseline }`
+   takes a grid item's FIRST baseline, and an in-flow marker before the verse
+   would hand the Greek cell the marker's baseline — the English lead-in then
+   sits level with "στρ. α." instead of with the first Greek line (Ag. 1:681,
+   Grok P4a finding 4). Floating it takes it out of flow, so the cell's first
+   baseline is the first `.greek-line`'s; `width: 100%` keeps it on a band of
+   its own (`.greek-line` is a flex container, which clears the float rather
+   than wrapping beside it — measured, not assumed: a flex container next to a
+   full-width float still starts level with it, so the line it labels CLEARS
+   the band explicitly), and the marker still reserves its own vertical space
+   because a grid item contains its floats. It hangs at the sigla indent, which
+   is the same x in every view. */
+.reader-body.play-line .strophe-marker {
+  float: left;
+  width: 100%;
+  padding-left: var(--pl-num-w);
+  margin: 0.45em 0 0.1em;
+  font-family: var(--font-ui);
+  font-size: var(--fs-linenum);
+  letter-spacing: 0.03em;
+  color: var(--text-light);
+}
+.reader-body.play-line .strophe-marker + .greek-line { clear: left; }
+/* The marker of the line a segment OPENS with needs no space above it. */
+.reader-body.play-line .greek-col > .strophe-marker:first-child { margin-top: 0; }
+
 /* Greek-only: one centred reading column, larger Greek. No second column to
    align against, so the siglum runs inline and the speaker gutter goes. */
 .reader-body.play-line.view-greek .greek-col {
@@ -2166,7 +2193,15 @@ body {
    "Morshead · 1881 · by speech". Rendered on the first segment only --
    a header over every speech would be noise. */
 .reader-body.play-line.trans-compare .col-label.play-col-head { display: block; }
-.reader-body.play-line.trans-compare .play-greek-head { text-transform: none; letter-spacing: 0; }
+/* The Greek heading starts ON THE VERSE, not at the column edge: compare keeps
+   only the line-number gutter before the text (--pl-num-w, border-box, gap 0),
+   so the heading takes the same indent (addendum: "left-aligned on the Greek
+   text's start"; Grok P4a finding 3). */
+.reader-body.play-line.trans-compare .play-greek-head {
+  text-transform: none;
+  letter-spacing: 0;
+  padding-left: var(--pl-num-w);
+}
 
 /* ── The running head (shared/components/RunningHead.svelte) ──────────
    P4's chrome (the blend's `.head`): the site name small, uppercase and

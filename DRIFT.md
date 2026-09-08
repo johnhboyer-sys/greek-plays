@@ -688,3 +688,16 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/components/RunningHead.svelte` — P4 Lane B: an optional `siteName`
   prop renders the site name ahead of AUTHOR · PLAY (the blend's `.head .site`);
   nothing else in the component changed.
+- `shared/components/Reader.svelte` — P4 Lane A2 (fix round, Grok P4a findings
+  1–2): `playRows` now pairs each English turn with the next UNUSED Greek
+  speaker event whose canonical display matches the turn's `speaker` (falling
+  back to the next unused event), because the pipeline emits a crossed pair's
+  English in ENGLISH order and k-th ↔ k-th put a turn on the other speaker's
+  line; and the ode measure is decided book-wide by `playOdeIds`, where a
+  segment with no speaker events (a 40-line split tail) inherits the speaker
+  set of the last segment that has them.
+- `shared/styles/global.css` — P4 Lane A2 (fix round, Grok P4a findings 3–4):
+  the compare Greek heading takes the line-number gutter as `padding-left` so
+  it starts on the verse, and `.strophe-marker` is floated (out of flow, a
+  full-width band above the line it labels) so the row's baseline is the first
+  verse line's, never the marker's.
