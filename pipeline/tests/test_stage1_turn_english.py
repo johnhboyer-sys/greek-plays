@@ -1884,3 +1884,72 @@ def test_join_parts_drops_gutenberg_italic_underscores():
     assert _join_parts(["(_to Dionysus_) Your advice is in vain,", "I shall not vacate the chair."]) == "(to Dionysus) Your advice is in vain, I shall not vacate the chair."
     assert _join_parts(["a _b_ c", "", "d"]) == "a b c\n\nd"
     assert _join_parts(["snake_case stays"]) == "snake_case stays"
+
+
+def test_equal_length_gap_with_disagreeing_names_pairs_and_is_flagged():
+    """Item 6 (2026-09-09): both editions print ONE speech between the same two
+    anchors; the translator gave it to another character (Birds 223-224).  It
+    pairs by position and the crossing is recorded for the speakerMismatch
+    flag.  A gap with an unnamed slot still never zips (P3.5 finding 2)."""
+    from drama_pipeline import stage1_turn_english as m
+
+    crossed: dict = {}
+    assert m._pair_turns(["Alpha", "Euelpides", "Gamma"], ["Alpha", "Pisthetaerus", "Gamma"], crossed=crossed) == [
+        (0, 0), (1, 1), (2, 2),
+    ]
+    assert crossed == {1: "Euelpides"}
+    crossed = {}
+    assert m._pair_turns(["Alpha", None, "Gamma"], ["Alpha", "Beta", "Gamma"], crossed=crossed) == [(0, 0), (2, 2)]
+    assert crossed == {}
+    # Two-for-two with one agreeing and one crossed: both pair, one flagged.
+    crossed = {}
+    assert m._pair_turns(["A", "X", "Y", "Z"], ["A", "X", "Q", "Z"], crossed=crossed) == [(0, 0), (1, 1), (2, 2), (3, 3)]
+    assert crossed == {2: "Y"}
+
+
+def test_pins_force_a_pair_and_reanchor_the_lcs_around_it():
+    """Item 6 pins (2026-09-09).  Birds 223-226 in miniature: the translator
+    swapped Euelpides and Pisthetaerus for the exchange, so name-matching
+    pairs every speech one late; a pin on the first speech with a run holds
+    the whole exchange by position, each crossed pair flagged."""
+    from drama_pipeline import stage1_turn_english as m
+
+    g = ["Hoopoe", "Euelpides", "Pisthetaerus", "Euelpides", "Pisthetaerus", "Chorus"]
+    e = ["Hoopoe", "Pisthetaerus", "Euelpides", "Pisthetaerus", "Euelpides", "Chorus"]
+    assert m._pair_turns(g, e) == [(0, 0), (2, 1), (3, 2), (4, 3), (5, 5)]
+    crossed: dict = {}
+    forced = [(1, 1), (2, 2), (3, 3), (4, 4)]
+    assert m._pair_turns(g, e, crossed=crossed, forced=forced) == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5)]
+    assert crossed == {1: "Euelpides", 2: "Pisthetaerus", 3: "Euelpides", 4: "Pisthetaerus"}
+    with pytest.raises(ValueError):
+        m._pair_turns(g, e, forced=[(3, 1), (1, 3)])
+
+
+def test_resolve_pins_finds_the_speech_by_its_opening_words_and_fails_loud():
+    from drama_pipeline import stage1_turn_english as m
+
+    segments = [
+        {"greek": [{"n": 1, "ref": "222"}]},
+        {"greek": [{"n": 2, "ref": "223"}, {"n": 3, "ref": "224"}]},
+        {"greek": [{"n": 4, "ref": "225"}]},
+    ]
+    slots = [
+        {"segment": 0, "line": 1, "offset": 0, "name": "Hoopoe"},
+        {"segment": 1, "line": 2, "offset": 0, "name": "Euelpides"},
+        {"segment": 2, "line": 4, "offset": 0, "name": "Pisthetaerus"},
+        {"segment": 2, "line": 4, "offset": 7, "name": "Euelpides"},
+    ]
+    speeches = [
+        {"text": "Chase off drowsy sleep", "canonical": "Hoopoe"},
+        {"text": "Oh! by Zeus!  what a throat", "canonical": "Pisthetaerus"},
+        {"text": "Hush!", "canonical": "Euelpides"},
+        {"text": "What's the matter?", "canonical": "Pisthetaerus"},
+    ]
+    refs = m._slot_refs(segments, slots)
+    assert refs == ["222", "223", "225", "225"]
+    assert m._resolve_pins([{"greek": "223", "english": "Oh! by Zeus! what a", "run": 2}], slots, refs, speeches, "t") == [(1, 1), (2, 2)]
+    assert m._resolve_pins([{"greek": "225", "english": "Hush!"}], slots, refs, speeches, "t") == [(3, 2)]
+    with pytest.raises(ValueError):
+        m._resolve_pins([{"greek": "999", "english": "Hush!"}], slots, refs, speeches, "t")
+    with pytest.raises(ValueError):
+        m._resolve_pins([{"greek": "223", "english": "no such speech"}], slots, refs, speeches, "t")

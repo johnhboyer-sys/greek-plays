@@ -21,6 +21,11 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE BIRDS"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs). The 1912
+    # text swaps Euelpides and Pisthetaerus for 223-226, so name-matching set
+    # every speech of the exchange one late; the pin holds it by position.
+    pins:
+      - { greek: "223", english: "Oh! by Zeus! what a throat", run: 6 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

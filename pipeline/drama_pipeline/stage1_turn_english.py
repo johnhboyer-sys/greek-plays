@@ -596,6 +596,8 @@ def _rewrite_footnotes(
 def _pair_turns(
     greek_names: list[str | None],
     english_names: list[str | None],
+    crossed: dict[int, str | None] | None = None,
+    forced: list[tuple[int, int]] | None = None,
 ) -> list[tuple[int, int]]:
     """Anchors via LCS of named turns, then zip equal-length name-agreeing gaps.
 
@@ -603,7 +605,25 @@ def _pair_turns(
     ``_greek_event_slots``), so a name here is a single speaker and a pair is
     exact-name. The alternative-name escape the segment-level pairing needed
     (P2h finding 9: a gap turn agreeing with any share of a packed line) is
-    gone with the packing it worked around."""
+    gone with the packing it worked around.
+
+    Item 6 (John, 2026-09-09: a real slip is never a one-off): an equal-length
+    gap whose sides are all NAMED but do not all agree is zipped too — both
+    editions print the same number of speeches between the same two anchors,
+    so they correspond by position, and the translator merely gave one to a
+    different character (Birds 223–224: Coulon's Euelpides, the 1912 text's
+    Pisthetaerus; the old rule left the Greek bare and parked the English on
+    Pisthetaerus' next line).  Each disagreeing pair is recorded in
+    ``crossed`` (English index -> the Greek slot's speaker) so the emitted
+    turn carries the same ``speakerMismatch`` a parked residual would.  A
+    gap with an unnamed slot on either side is still never zipped.
+
+    ``forced`` are manifest pins (``english.<slot>.pins``, resolved by
+    ``_resolve_pins``): (slot, speech) pairs that hold whatever the names say.
+    The LCS then runs separately inside each region between them, so a pin
+    re-anchors everything around it — the cure for an exchange where the
+    translator swapped two characters' names and name-matching set every
+    speech one late (Birds 223–226)."""
 
     def agrees(i: int, j: int) -> bool:
         # P3.5 finding 2: `turns._names_match` treats None as a WILDCARD, so an
@@ -613,27 +633,43 @@ def _pair_turns(
         g, e = greek_names[i], english_names[j]
         return g is not None and e is not None and g == e
 
-    g_named = [i for i, name in enumerate(greek_names) if name is not None]
-    e_named = [j for j, name in enumerate(english_names) if name is not None]
-    anchors = [
-        (g_named[x], e_named[y])
-        for x, y in turns_mod._lcs_pairs(
-            [greek_names[i] for i in g_named],
-            [english_names[j] for j in e_named],
+    pinned = sorted(forced or [])
+    for (agi, aej), (bgi, bej) in zip(pinned, pinned[1:]):
+        if bgi <= agi or bej <= aej:
+            raise ValueError(f"pins must run forward in both texts: {(agi, aej)} then {(bgi, bej)}")
+    anchors: list[tuple[int, int]] = list(pinned)
+    if crossed is not None:
+        for gi, ej in pinned:
+            if not agrees(gi, ej):
+                crossed[ej] = greek_names[gi]
+    regions = [(-1, -1)] + pinned + [(len(greek_names), len(english_names))]
+    for (agi, aej), (bgi, bej) in zip(regions, regions[1:]):
+        g_named = [i for i in range(agi + 1, bgi) if greek_names[i] is not None]
+        e_named = [j for j in range(aej + 1, bej) if english_names[j] is not None]
+        anchors.extend(
+            (g_named[x], e_named[y])
+            for x, y in turns_mod._lcs_pairs(
+                [greek_names[i] for i in g_named],
+                [english_names[j] for j in e_named],
+            )
         )
-    ]
+    anchors.sort()
     pairs = list(anchors)
     bounds = [(-1, -1)] + anchors + [(len(greek_names), len(english_names))]
     for (agi, aej), (bgi, bej) in zip(bounds, bounds[1:]):
         sub_g = list(range(agi + 1, bgi))
         sub_e = list(range(aej + 1, bej))
-        if (
-            sub_g
-            and sub_e
-            and len(sub_g) == len(sub_e)
-            and all(agrees(i, j) for i, j in zip(sub_g, sub_e))
-        ):
+        if not (sub_g and sub_e and len(sub_g) == len(sub_e)):
+            continue
+        if all(agrees(i, j) for i, j in zip(sub_g, sub_e)):
             pairs.extend(zip(sub_g, sub_e))
+        elif all(greek_names[i] is not None for i in sub_g) and all(
+            english_names[j] is not None and english_names[j] != _OCR_JUNK for j in sub_e
+        ):
+            for i, j in zip(sub_g, sub_e):
+                pairs.append((i, j))
+                if crossed is not None and not agrees(i, j):
+                    crossed[j] = greek_names[i]
     pairs.sort()
     out: list[tuple[int, int]] = []
     last_e = -1
@@ -908,6 +944,62 @@ def _assign_speeches(
     return assigned, residual, head_unassigned, residual_unassigned, flagged
 
 
+def _slot_refs(segments: list[dict], slots: list[dict]) -> list[str | None]:
+    """The printed line ref of each pairing slot (None for an eventless slot)."""
+    out: list[str | None] = []
+    for slot in slots:
+        seg = segments[slot["segment"]]
+        lines = seg.get("lines") or seg.get("greek") or []
+        ref = next(
+            (line.get("ref") for line in lines if isinstance(line, dict) and line.get("n") == slot["line"]),
+            None,
+        )
+        out.append(str(ref) if ref is not None else None)
+    return out
+
+
+def _resolve_pins(
+    pins: list[dict],
+    slots: list[dict],
+    slot_refs: list[str | None],
+    speeches: list[dict],
+    work_id: str,
+) -> list[tuple[int, int]]:
+    """Manifest pins -> forced (slot, speech) pairs.
+
+    A pin is ``{greek: "<line ref>", english: "<opening words as printed>",
+    run: N}``: the English speech that opens with those words pairs with the
+    Greek slot on that line (the share whose speaker is the speech's, else the
+    line's first share), and the next N-1 speeches pair with the next N-1
+    slots by position.  Fail loud on anything unresolvable — a stale pin
+    after a source edit must not silently vanish."""
+    forced: list[tuple[int, int]] = []
+
+    def norm(t: str) -> str:
+        return re.sub(r"\s+", " ", t).strip().lower()
+
+    for pin in pins:
+        ref = str(pin.get("greek", "")).strip()
+        words = norm(str(pin.get("english", "")))
+        run = int(pin.get("run", 1) or 1)
+        if not ref or not words:
+            raise ValueError(f"{work_id}: a pin needs both greek and english: {pin!r}")
+        ejs = [j for j, sp in enumerate(speeches) if norm(sp["text"]).startswith(words)]
+        if len(ejs) != 1:
+            raise ValueError(f"{work_id}: pin {words!r} matches {len(ejs)} speeches (need exactly 1)")
+        ej = ejs[0]
+        gis = [k for k, r in enumerate(slot_refs) if r == ref]
+        if not gis:
+            raise ValueError(f"{work_id}: pin {words!r}: no Greek speaker slot on line {ref}")
+        want = speeches[ej].get("canonical")
+        gi = next((k for k in gis if slots[k]["name"] == want), gis[0])
+        for k in range(run):
+            if gi + k >= len(slots) or ej + k >= len(speeches):
+                raise ValueError(f"{work_id}: pin {words!r} run {run} overruns the play")
+            forced.append((gi + k, ej + k))
+    return forced
+
+
 def parse_translation(
     path: Path,
     spine: dict,
@@ -920,6 +1012,7 @@ def parse_translation(
     footnotes_enabled: bool = True,
     format: str = "gutenberg",
     line_fixes: dict[int | str, str] | None = None,
+    pins: list[dict] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
@@ -996,7 +1089,9 @@ def parse_translation(
     # No alt names in the pairing itself: a slot IS one share, so a pair is
     # exact-name by construction. The segment's whole name set rides into
     # `_assign_speeches` instead, where it is the clean-park test (P3.3).
-    pairs = _pair_turns(slot_names, e_names)
+    crossed: dict[int, str | None] = {}
+    forced = _resolve_pins(pins or [], slots, _slot_refs(segments, slots), speeches, work_id)
+    pairs = _pair_turns(slot_names, e_names, crossed=crossed, forced=forced)
     (
         assigned,
         residual_grouped,
@@ -1140,7 +1235,7 @@ def parse_translation(
                     "speaker": speech["canonical"] or printed,
                     "display": printed,
                 }
-                if ej in residual_flags:
+                if ej in residual_flags or ej in crossed:
                     # P3.3: this speech is shown here because it had to be
                     # shown somewhere; the Greek edition gives these lines to
                     # somebody else, and the reader says so.  The flag is on
@@ -1148,7 +1243,7 @@ def parse_translation(
                     # correctly attributed (P2h finding 3).
                     turn["speakerMismatch"] = {
                         "english": speech["canonical"] or printed,
-                        "greek": residual_flags[ej],
+                        "greek": residual_flags.get(ej, crossed.get(ej)),
                     }
                 turns.append(turn)
             texts.append(piece)
@@ -1197,6 +1292,8 @@ def parse_translation(
         "paired": len(pairs),
         "residual_grouped": residual_grouped,
         "residual_flagged": len(residual_flags),
+        "crossed_pairs": len(crossed),
+        "pinned_pairs": len(forced),
         "residual_unassigned": residual_unassigned,
         "head_unassigned": head_unassigned,
         "greek_unpaired": len(greek_unpaired),
@@ -1297,6 +1394,7 @@ def run(
         footnotes_enabled=bool(cfg.get("footnotes", slot == "primary")),
         format=cfg.get("format") or "gutenberg",
         line_fixes=cfg.get("line_fixes") or {},
+        pins=cfg.get("pins") or [],
     )
 
     out_dir = BUILD_DIR / "stage1"
