@@ -183,6 +183,16 @@ run(PY, [
 console.log('\nEmitting partner-catalog (Lyceum) manifests');
 run('node', [join(ROOT, 'scripts', 'emit-lyceum-manifest.mjs')]);
 
+// P6: the Drama wing's snapshot.v1 entry (build/dist/wing.drama.json), then
+// the same validator the Lyceum runs over it. Same failure contract.
+console.log('\nEmitting the Drama wing snapshot entry');
+run('node', [join(ROOT, 'scripts', 'emit-wing.mjs')]);
+run(PY, [
+  '-m', 'drama_pipeline.validate_contracts',
+  '--schemas', join(ROOT, 'schemas'),
+  '--snapshot', join(ROOT, 'build', 'dist', 'wing.drama.json'),
+], { cwd: join(ROOT, 'pipeline') });
+
 // Safety gate for the shared (de-duplicated) LSJ dictionary: fail the build if
 // any LSJ key referenced by any work's analyses.json is missing from the shared
 // build/dist/lsj shards (which would make a word popup silently show no entry).
