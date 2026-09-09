@@ -1156,7 +1156,11 @@ def test_unmapped_english_speaker_is_a_hard_roster_error():
         )
 
 
-def test_footnotes_flag_is_copied_onto_v1_translation_entry(tmp_path, monkeypatch):
+def test_footnotes_flag_stays_off_the_v1_translation_entry(tmp_path, monkeypatch):
+    """manifest.v1's translation entry forbids extra keys; the flag used to be
+    copied here (P2b) and failed the contract validator on 18 works at the
+    first full build:public (2026-09-08). The fact rides in
+    `apparatus.footnotes`, keyed on the emitted footnotes.json."""
     out_dir = tmp_path / "dist" / "test-play"
     out_dir.mkdir(parents=True)
     monkeypatch.delenv("CORPUS_VERSION", raising=False)
@@ -1185,8 +1189,11 @@ def test_footnotes_flag_is_copied_onto_v1_translation_entry(tmp_path, monkeypatc
         Path("test-play.yaml"),
     )
     fields = _manifest_v1_fields(manifest, out_dir)
-    assert fields["translations"][0]["footnotes"] is True
+    assert "footnotes" not in fields["translations"][0]
     assert fields["translations"][0]["id"] == "smyth"
+    assert fields["apparatus"]["footnotes"] is False
+    (out_dir / "footnotes.json").write_text("{}")
+    assert _manifest_v1_fields(manifest, out_dir)["apparatus"]["footnotes"] is True
 
 
 # ── P2g: speaker resolution, speaker sets, repair ticks, loss gate ──────────
