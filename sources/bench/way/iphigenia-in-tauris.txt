@@ -1,7 +1,7 @@
 IPHIGENEIA IN TAURICA
 
-IPHIGENEIA. ΡΕΙΟΡς, the son of Tantalus, with fleet steeds
-To Pisa came, and won Oenomau:' child :
+IPHIGENEIA. PELOPS, the son of Tantalus, with fleet steeds
+To Pisa came, and won Oenomaus’ child :
 Atreus she bare ; of him Menelaus sprang
 And Agamemnon, born of whom was I,
 Iphigeneia, Tyndareus' daughter's babe.
@@ -44,7 +44,7 @@ I consecrate the victim ; in the shrine
 The unspeakable slaughter is for others' hands.
 Now the strange visions that the night hath
 brought
-Το heaven I tell—if aught of help be there.
+To heaven I tell—if aught of help be there.
 In sleep methought I had escaped this land,
 And dwelt in Argos. In my maiden-bower
 I slept: then with an earthquake shook the ground.
@@ -69,7 +69,7 @@ I with mine handmaids, given me of the king,
 Greek damsels. But for some cause are they here
 Not yet: within the portals will I pass
 Of this, the Goddess' shrine, wherein I dwell.
-| e-enters temple.
+[Re-enters temple.
 
 ORESTES. Look thou—take heed that none be in the path.
 
@@ -151,7 +151,7 @@ Who serve the hallowed Bearer of the Key,
 Banished from Hellas’ towers,
 Trees, gardens, meadow-flowers
 That fringe Eurotas by mine home o’ersea.
-Icome. Thy tidings ? —what
+I come. Thy tidings ? —what
 Thy care? Why hast thou brought
 Me to the shrines, O child of him who led
 That fleet, the thousand-keeled,
@@ -167,7 +167,7 @@ Breathes o'er the sad refrain
 Of my bereavement's pain,
 Nepenthe-bringing.
 The curse upon mine head
-Is come—a brother dead |
+Is come—a brother dead !
 Ah vision-dream that fled
 To Night's hand clinging '
 Undone am I—undone !
@@ -198,7 +198,7 @@ Men saw me die on.
 CHORUS. Lo, I will peal on high
 To echo thine, O queen,
 My dirge, the Asian hymn, and that weird cry,
-'The wild barbarie keen,
+'The wild barbaric keen,
 The litany of death,
 Song-tribute that we bring
 To perished ones, where moaneth Hades' breath,
@@ -240,12 +240,12 @@ Unto the Nereid’s son on Aulis’ sands—
 Ah me, a bride forlorn !
 Lone by a stern sea's desert shores I live
 Loveless, no children clinging
-Tome; the homeless, friendless, cannot give
+To me; the homeless, friendless, cannot give
 To Hera praise of singing
 In Argos; nor to music of my loom
 Shall Pallas’ image grow
 Splendid in strife Titanic :—in my doom
-1 See note to Electra, 1. 699.
+1 See note to Electra, l. 699.
 Blood-streams mid groanings flow,
 The ghastly music made of strangers laid
 Yet from these horrors now my thoughts have strayed,
@@ -307,7 +307,7 @@ Gods!” One of us, a god-revering man,
 Lifted his hands, and looked on them, and prayed :
 * Guardian of ships, Sea-queen Leucothea's son
 O Lord Palaemon, gracious be to us;
-Or ye, Twin B kethre en, if ye yonder sit ;
+Or ye, Twin Brethren, if ye yonder sit ;
 Or Nereus' darlings, Pao to him of whom
 That company of fifty Nereids sprang."
 But one, a scorner, bold in lawlessness,
@@ -393,7 +393,7 @@ But now, from dreams whereby mine heart is
 steeled,—
 Who deem Orestes seéth light no more,—
 Stern shall ye find me, who ye be soe'er.
-h, friends, true saw was this, I prove it now :—
+Ah, friends, true saw was this, I prove it now :—
 The hapless, which have known fair fortune once,
 Are bitter-thoughted unto happier folk.
 Ah, never yet a breeze from Zeus hath come,
@@ -413,7 +413,7 @@ I am joined of thee! My mother, in this hour
 When thou art slaying me, with Argive dames
 Chanteth my marriage-hymn: through all the
 house
-Flutes ring !—and I am dying by thine hand |
+Flutes ring !—and I am dying by thine hand !
 Hades the Achilles was, no Peleus' son,
 Thou profferedst me for spouse ; thou broughtest me
 By guile with chariot-pomp to bloody spousals.”
@@ -429,11 +429,11 @@ Out on this Goddess’s false subtleties,
 Who, if one stain his hands with blood of men,
 Or touch a wife new-travailed, or a corpse,
 Bars him her altars, holding him defiled,
-Yet joys herself in human sacrifice |
+Yet joys herself in human sacrifice !
 It cannot be that Zeus’ bride Leto bare
 Such folly. Nay, I hold unworthy credence
 The banquet given of Tantalus to the Gods,—
-As though the Gods could savour a child's flesh |
+As though the Gods could savour a child's flesh !
 Even so, this folk, themselves man-murderers,
 Charge on their Goddess their own sin, I ween ;
 For I believe that none of Gods is vile.
@@ -499,7 +499,7 @@ Lo, hither with pinioned arms come twain,
 Victims fresh for the Goddess's fane :--Friends, hold ye your peace.
 No lying message the herdman spoke :
 To the temple be coming the pride of the folk
-Of the land of Greece |
+Of the land of Greece !
 Dread Goddess, if well-pleasing unto thee
 Are this land's deeds, accept the sacrifice
 Her laws give openly, although it be
@@ -567,7 +567,7 @@ IPHIGENEIA. Yet, as a grace to me, why grant not this ?
 
 ORESTES. Argos the glorious boast I for my land.
 
-IPHIGENEIA. "Fore Heaven, stranger, art indeed her son t
+IPHIGENEIA. "Fore Heaven, stranger, art indeed her son ?
 
 ORESTES. Yea—of Mycenae, prosperous in time past.
 
@@ -636,7 +636,7 @@ IPHIGENEIA. Thence am I, in my childhood lost to her,
 ORESTES. Well mayst thou, lady, long for word of her.
 
 IPHIGENEIA. What of her war-chief, named the prosperous ?
-i ORESTES
+ORESTES.
 Who? Of the prosperous is not he I know.
 
 IPHIGENEIA. One King Agamemnon, Atreus' scion named,
@@ -680,7 +680,7 @@ ORESTES. Nought— save, being dead, she seeth not the light.
 
 IPHIGENEIA. Ah, hapless she, and hapless sire that slew '
 
-ORESTES. Slain for an evil woman—graceless grace |
+ORESTES. Slain for an evil woman—graceless grace !
 
 IPHIGENEIA. And lives the dead king’s son in Argos yet?
 
@@ -726,20 +726,20 @@ He sails with me for mine affliction’s sake.
 Unjust it were that I, in pleasuring thee,
 Should seal his doom, and ' scape myself from ills.
 Nay, be it thus, — the letter give to him
-To bear to Argos ; so art thou content: |
+To bear to Argos ; so art thou content:
 But me let who will slay. Most base it is
 That one should in misfortune whelm his friends,
 Himself escaping. This man is my friend,
 Whose life I tender even as my own.
 
 IPHIGENEIA. O noble spirit! from what princely stock
-Hast thou sprung, thou so loyal to thy friends |
+Hast thou sprung, thou so loyal to thy friends !
 Even such be he that of my father's house
 Is left alive! For, stranger, brotherless
 I too am not, save "that I see him not.
 i thou: πι have it so, him will I send
 the letter: thou wilt die. Ah, deep
-strange yearning unto death m»st be !
+strange yearning unto death must be !
 
 ORESTES. l be that dread deed, my sacrifice ?
 
@@ -778,16 +778,16 @@ Ward them, ye guards, but with no manacles.
 Perchance to a friend in Argos shall I send
 Tidings unhoped—the friend whom most I love :—
 The letter, telling that she lives whom dead
-He deems, shall seal the happy tidings’ faith. [Eat
+He deems, shall seal the happy tidings’ faith. [Exit
 
 CHORUS. To ORESTES.
 I wail for thee, for whom there wait
-The drops barbarie, on thy brow
+The drops barbaric, on thy brow
 To fall, to doom thee to be slain.
 
 ORESTES. This asks not pity. Stranger maids, farewell.
 
-CHORUS. Το PyLADEs.
+CHORUS. To PYLADES.
 Thee count I blesséd for thy fate,
 Thine happy fate, fair youth, that thou
 Shalt tread thy native shore again.
@@ -803,14 +803,14 @@ Thee shall I chiefly wail, or thee? How shall I say?
 
 ORESTES. 'Fore Heaven, Pylades, is thy thought mine ?—
 
-PYLADES. I know not: this thy question baflles της,
+PYLADES. I know not: this thy question baffles me,
 
 ORESTES. Who is the maiden? With how Greek a heart
 She asked us of the toils in Ilium,
 The host's home-coming, Calchas the wise seer
 Of birds, Achilles’ name! How pitied she
 Agamemnon's wretched fate, and questioned me
-Touching his wife, his childen! Sure her birth
+Touching his wife, his children! Sure her birth
 Is thence, of Argos; else she ne'er would send
 A letter thither, nor would question thus,
 As one whose welfare hung on Argos’ weal,
@@ -837,7 +837,7 @@ It cannot be but I must die with thee,
 With thee be slaughtered and with thee be burned,
 Seeing I am thy friend, and dread reproach.
 
-ORESTES. Ah, speak not so! ΜΥ burden must I bear ;
+ORESTES. Ah, speak not so! My burden must I bear ;
 Nor, when but one grief needs, will I bear twain.
 For that reproach and grief which thou dost name
 Is mine, if thee, the sharer of my toil,
@@ -864,16 +864,16 @@ Farewell. Of friends I have found thee kindliest,
 O fellow-hunter, foster-brother mine,
 Bearer of many a burden of mine ills !
 Me Phoebus, prophet though he be, deceived,
-nd by a cunning shift from Argos drave
+And by a cunning shift from Argos drave
 Afar, for shame of those his prophecies.
 I gave up all to him, obeyed his words,
 My mother slew—and perish now myself !
 
 PYLADES. Thine shall a tomb be: ne’er will I betray
 Thy sister’s bed, O hapless: I shall still
-Hold thee a derer friend in death than life.
+Hold thee a dearer friend in death than life.
 Yet thee hath the God's oracle not yet
-Destroyed, albeit. thou standest hard by death.
+Destroyed, albeit thou standest hard by death.
 Nay, misery's blackest night may chance, may chance,
 By fortune's turn, to unfold a sudden dawn.
 
@@ -881,7 +881,7 @@ ORESTES. Peace! Phoebus’ words avail me nothing now ;
 For yonder forth the temple comes the maid.
 
 IPHIGENEIA. Depart ye, and within make ready all
-For them whose office is the sacrifice. | Exeunt auanps.
+For them whose office is the sacrifice. [Exeunt attendants.
 Strangers, my letter's many-leavéd folds
 Are here: but that which therebeside I wish
 Hear :—in affliction is no man the same
@@ -961,8 +961,8 @@ Wherein mine office is to slay the stranger ; "—
 
 ORESTES. What shall I say ?—Now dream we, Pylades ?
 
-IPHIGENEIA. * Else to thine house mill I become a curse,
-Orestes "—5so, twice heard, hold fast the name.
+IPHIGENEIA. * Else to thine house will I become a curse,
+Orestes "—so, twice heard, hold fast the name.
 
 ORESTES. Gods!
 
@@ -990,7 +990,7 @@ With scarce-believing arm I fold thee round,
 And taste delight, who hear things marvellous!
 
 CHORUS. Stranger, thou sinn'st, polluting Artemis’ priestess,
-Casting about her sacred robes thine arm |
+Casting about her sacred robes thine arm !
 
 ORESTES. O sister mine, of Agamemnon sprung,
 One sire with me, turn not away from me,
@@ -1072,7 +1072,7 @@ My brother, a light of defence in our halls to stand.
 ORESTES. Touching our birth blest are we, but our life,
 My sister, in its fortunes was unblest.
 
-IPHIGENEIA. ] know it, alas! who remember the blade
+IPHIGENEIA. I know it, alas! who remember the blade
 To my throat by my wretched father laid —
 
 ORESTES. Woe's me ! though far, I seem to see thee there!
@@ -1107,7 +1107,7 @@ What, without ship, far over land wouldst fly
 With feet swift-winged with terror and despair,
 Through wild tribes, pathless ways, aye drawing nigh
 Death ambushed there ?
-Yet, through the Dark-blue Rocks, the strait scaportal,
+Yet, through the Dark-blue Rocks, the strait sea-portal,
 A long course must the bark that bears thee run.
 O hapless, hapless I! What God or mortal,
 O hapless one,
@@ -1135,7 +1135,7 @@ IPHIGENEIA. Thou shalt not stay me, neither turn aside
 From asking of Electra first —her lot
 In life : all touching her is dear to me.
 
-ORESTES. Wedded to this man (pointing to pyLapes) happy life
+ORESTES. Wedded to this man (pointing to Pylades) happy life
 she hath.
 
 IPHIGENEIA. And he—what land is his ?—his father, who?
@@ -1144,7 +1144,7 @@ ORESTES. Strophius the Phocian is his father's name.
 
 IPHIGENEIA. Ha! Atreus' daughter's son, of kin to me?
 
-ORESTES. ΤΗΥ cousin is he, and my one true friend.
+ORESTES. Thy cousin is he, and my one true friend.
 
 IPHIGENEIA. He was unborn when my sire sought my death.
 
@@ -1166,7 +1166,7 @@ IPHIGENEIA. I am silent. Looketh Argos now to thee?
 
 ORESTES. Menelaus rules: I am exiled from the land.
 
-IPHIGENEIA. Our uncle—4Ae insult our stricken house |
+IPHIGENEIA. Our uncle—4Ae insult our stricken house !
 
 ORESTES. Nay, but the Erinyes' terror drives me forth.
 
@@ -1274,7 +1274,7 @@ Our home-return is :—this must we debate.
 
 ORESTES. Haply might we prevail to slay the king ?
 
-IPHIGENEIA. Fou! deed were this, that strangers slay their host.
+IPHIGENEIA. Foul deed were this, that strangers slay their host.
 
 ORESTES. Yet must we venture—for thy life and mine,
 
@@ -1326,7 +1326,7 @@ ORESTES. Will thine hands, or another's, bear the image?
 IPHIGENEIA. Mine. Sinlessly none toucheth it save me.
 
 ORESTES. And in this blood-guilt what is Pylades' part ?
-IPHIGENEIA "p
+IPHIGENEIA.
 Stained even as thine his hands are, will I say.
 
 ORESTES. Hid from the king shall be thy deed, or known?
@@ -1344,7 +1344,7 @@ Then may all else perchance have happy end.
 
 IPHIGENEIA. Damsels beloved, I raise mine eyes to you.
 Mine all is in your hands—for happiness,
-Or ruin, and for loss of fatberland,
+Or ruin, and for loss of fatherland,
 Of a dear brother, and a sister loved.
 Of mine appeal be this the starting-point—
 Women are we, each other's staunchest friends,
@@ -1359,20 +1359,20 @@ Thee I implore—and thee !—by thy sweet face
 Thee,—by thy knees—by all thou lov'st at home!
 What say ye? Who consents? Who sayeth nay—
 Oh speak !—to this? for if ye hearken not,
-1 and mine hapless brother are undone.
+I and mine hapless brother are undone.
 
 CHORUS. Fear not, dear lady : do but save thyself.
 I will keep silence touching all the things
 Whereof thou chargest me: great Zeus be witness.
 
 IPHIGENEIA. Heaven bless you for the word! Happy be ye!
-(To on. and Pvr.) "Tis thy part now, and thine, to pass
+(To Or. and Pyl.) "Tis thy part now, and thine, to pass
 within ;
 For this land's king shall in short space be here
 To ask if yet this sacrifice be done.
 O Goddess-queen, who erst by Aulis’ clefts
 Didst save me from my sire's dread murderous hand,
-s Save me now too with these ; else Loxias’ words
+Save me now too with these ; else Loxias’ words
 Through thee shall be no more believed of men.
 But graciously come forth this barbarous land
 To Athens. It beseems thee not to dwell
@@ -1401,7 +1401,7 @@ O tears on my cheeks that as fountains plashing
 Were rained that day, [crashing,
 When I sailed, from our towers that in ruin were
 In the galleys, the prey [me
-Of the oars of the foe, of the spears that Bad caught
+Of the oars of the foe, of the spears that had caught
 And for gold in the balances weighed men bought me,
 And unto a barbarous home they brought me,
 To the handmaid-array
@@ -1422,7 +1422,7 @@ To enkindle them that tug the strenuous oar;
 And the Seer shall wing their fleetness, even Phoebus,
 by the sweetness
 Of the seven-stringed lyre in his hand ;
-And his chanting voice shall lead you as in triumphmarch, and speed you
+And his chanting voice shall lead you as in triumph-march, and speed you
 Unto Athens, to the sunny-gleaming land.
 And I shall be left here lone, but thou
 Shalt be racing with plash of the pine,
@@ -1457,7 +1457,7 @@ Hath she begun yon strangers’ sacrifice ?
 Are they ablaze with fire in the holy shrine?
 
 CHORUS. Here is she, king, to tell thee clearly all.
-Enler ΙΡΗΙάΕΝΕΙΑ bearing the image of Artemis in her
+Enter IPHIGENEIA bearing the image of Artemis in her
 arms.
 
 THOAS. Why bear’st thou in thine arms, Agamemnon’s child,
@@ -1482,12 +1482,12 @@ THOAS. Self-moved ?—or did an earthquake wrench it round ?
 
 IPHIGENEIA. Self-moved. Yea, also did it close its eyes.
 
-THOAS. "Ihe cause ?—pollution by the strangers brought ?
+THOAS. "The cause ?—pollution by the strangers brought ?
 
 IPHIGENEIA. This, and nought else; for foul deeds have they done.
 
 THOAS. Ha! slaughter of my people on the shore?
-IPHIGENEIA Ἢ
+IPHIGENEIA.
 Nay, stained with guilt of murdered kin they came.
 
 THOAS. What kin? I am filled with longing this to learn.
@@ -1512,7 +1512,7 @@ IPHIGENEIA. Even now they cast a bait to entice mine heart.
 
 THOAS. Tidings from Argos—made they this their lure?
 
-IPHIGENEIA. Yea, of mine only brother Orestes’ weai.
+IPHIGENEIA. Yea, of mine only brother Orestes’ weal.
 
 THOAS. That thou might’st spare them for their welcome news?
 
@@ -1552,14 +1552,14 @@ IPHIGENEIA. Else from its pedestal had I moved it not.
 
 THOAS. Righteous thy piety and forethought are.
 
-IPHIGENEIA. Know'st thou now what still 1 lack ?
+IPHIGENEIA. Know'st thou now what still I lack ?
 
-THOAS. "[is thine to tell what yet must be.
+THOAS. ’Tis thine to tell what yet must be.
 
 IPHIGENEIA. Bind with chains the strangers.
 
 THOAS. Whither from thy warding could they flee ?
-IPHIGENEIA Ἢ
+IPHIGENEIA.
 Faithless utterly is Hellas.
 
 THOAS. Henchmen mine, to bind them go.
@@ -1635,7 +1635,7 @@ with what beside, [purified.
 As I bade, the strangers and the Goddess shall be
 Now I warn the city-folk to shrink from this pollution
 far :— [warders are,
-Ye that, with pure hands for heaven's service, templeWhoso purposeth espousals, whoso laboureth with
+Ye that, with pure hands for heaven's service, temple Whoso purposeth espousals, whoso laboureth with
 child, [be defiled.
 Flee ye; hence away, that none with this pollution
 Queen, O child of Zeus and Leto, so the guilt from
@@ -1678,12 +1678,12 @@ Thy session, dispensing to us, to the race
 Of men, revelation of heaven’s design,
 From thy throne of truth, from the secret shrine,
 By the streams through Castaly’s cleft up-sweeping,
-Where the Heart of the World is thy dwellingplace.
+Where the Heart of the World is thy dwelling-place.
 But the Child of Earth did his coming make
 Of her birthright dispossessed,
 For the oracle-sceptre of Themis he brake :
 Wherefore the Earth from her breast,
-To make of his pride a derision, sent forth dreamvision on vision,
+To make of his pride a derision, sent forth dream-vision on vision,
 Whereby to the sons of men the things that had been
 ere then,
 And the things for the Gods' decision
@@ -1771,11 +1771,11 @@ By what pursuit to hunt the strangers down.
 
 THOAS. Say on: thou speakest well. By no near course
 They needs must flee, that they should 'scape my spear
-j MESSENGER
+MESSENGER.
 Soon as unto the sea-beach we had come,
 Where hidden was Orestes' galley moored,
 Us, whom with those bound strangers thou didst send,
-. Agamemnon's child waved back, to stand aloof,
+Agamemnon's child waved back, to stand aloof,
 As one at point to light the inviolate fire,
 And do the cleansing for the which she came.
 Herself took in her hands the strangers’ bonds,
@@ -1796,7 +1796,7 @@ And fifty seamen at the tholes thereof
 Grasping their oars ; and, from their bonds set free,
 Beside the galley's stern the young men stood.
 The prow with poles some steadied, some hung up
-The anchcr at the catheads, some in haste
+The anchor at the catheads, some in haste
 Ran through their hands the hawsers, and therewith
 Dropped ladders for the strangers to the sea.
 But we spared not, as soon as we beheld
@@ -1880,7 +1880,7 @@ And when thou com'st to Athens' god-built towers,
 A place there is upon the utmost bounds
 Of Attica, hard by Karystus' ridge,
 A holy place, named Halae of my folk.
-. Build there a shrine, and set that image up,
+Build there a shrine, and set that image up,
 Named from the Taurian land and from thy toils,
 The travail of thy wandering through Greece
 Erinyes-goaded. Men through days to come
@@ -1895,7 +1895,7 @@ There shalt thou die, and be entombed, and webs,
 Of all fair vesture shall they offer thee
 Which wives who perish in their travail-tide
 Leave in their homes.
-1 charge thee, King, to send
+I charge thee, King, to send
 Homeward these maids of Hellas from thy land
 For their true hearts’ sake. I delivered thee
 Erstwhile, Orestes, balancing the votes
@@ -1931,10 +1931,3 @@ Is the glad, glad sound to our ears that is given.
 Hail, reveréd Victory :
 Rest upon my life; and me
 Crown, and crown eternally.
-a aaa God T
-ο Fior 1€
-! gisthvre: Aa of iftw
-indus wots 3o Lin fatu s ft
-LY #3 Oe αμ vaa iesu μα
-NUIT Y og. ure "M inis WO.
-j

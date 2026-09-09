@@ -12,7 +12,7 @@ Died by his own wife Clytemnestra's guile,
 And by Aegisthus' hand, Thyestes' son.
 So, leaving Tantalus' ancient sceptre, he
 Is gone, and o'er the realm Aegisthus reigns,
-Having to wife that kings wife, Tyndareus’
+Having to wife that king's wife, Tyndareus’
 child.
 Of those whom Troyward-bound he left at home,
 The boy Orestes, and the maid Electra,
@@ -81,7 +81,7 @@ To ease thy toil, that lighter be thy load,
 And share thy burdens. Work enow afield
 Hast thou: beseems that I should keep the house
 In order. When the toiler cometh home,
-"lis sweet to find the household fair-arrayed.
+'Tis sweet to find the household fair-arrayed.
 
 PEASANT. If such thy mind, pass on: in sooth not far
 The springs are from yon cot. I at the dawn
@@ -103,7 +103,7 @@ And a slain sheep's blood poured upon the grave,
 Unmarked of despot-rulers of this land.
 And now I set not foot within their walls,
 But blending two assays in one I come
-Το this land's border,—that to another soil
+To this land's border,—that to another soil
 Forth I may flee, if any watch and know me;
 To seek withal my sister, —for she dwells
 In wedlock yoked, men say, nor bides a maid, —
@@ -119,7 +119,7 @@ Who on shorn head her burden from the spring
 Bears : crouch we low, then of this bondmaid ask,
 If tidings haply we may win of that
 For which we came to this land, Pylades,
-[oRESTES and PYLADEs retire lo rear.
+[ORESTES and PYLADES retire to rear.
 
 ELECTRA. Bestir thou, for time presses, thy foot’s speed;
 Haste onward weeping bitterly.
@@ -135,7 +135,7 @@ In Hades, thou whose wife devised thy dying-—
 Her heart, Aegisthus' hand.
 On, wake once more the selfsame note of grieving :
 Upraise the dirge of tears that bring relieving.
-Bestir thou, for time presses, thy foot'sspeed;
+Bestir thou, for time presses, thy foot's speed;
 Haste onward weeping bitterly.
 Ah me, what city sees thee in thy need,
 Brother ?—alas for thee !
@@ -232,7 +232,7 @@ Of many an ill to Hellas and thine house
 Was Helen, sister of thy mother, cause.
 ORESTES and PYLADES approach.
 
-ELECTRA. Woe's me, friends !—needs must I break off my moan |
+ELECTRA. Woe's me, friends !—needs must I break off my moan !
 Lo, yonder, strangers ambushed nigh the house
 Out of their hiding-place are rising up !
 With flying feet—thou down the path, and I
@@ -281,7 +281,7 @@ ELECTRA. Seest thou not how wasted is my form ?—
 ORESTES. So sorrow-broken that myself could sigh.
 
 ELECTRA. Mine head withal—my tresses closely shorn.
-ORESTES ,
+ORESTES.
 Heart-wrung by a brother's fate, a father's death?
 
 ELECTRA. Ah me, what is to me than these more dear?
@@ -321,8 +321,8 @@ ELECTRA. He deems that who betrothed me had not right.
 ORESTES. I understand :—and feared Orestes’ vengeance?
 
 ELECTRA. Yea, this: yet virtuous is he therewithal.
-) ORESTES
-A noble soul this, worthy of reward |
+ORESTES.
+A noble soul this, worthy of reward !
 
 ELECTRA. Yea, if the absent to his home return.
 
@@ -360,7 +360,7 @@ ELECTRA. Daring what foes against his father dared.
 ORESTES. And with him wouldst thou, couldst thou, slay thy
 mother ?
 
-ELECTRA. Ay !—with that axe whereby my father died |
+ELECTRA. Ay !—with that axe whereby my father died !
 
 ORESTES. This shall I tell him for thy firm resolve ?
 
@@ -425,7 +425,7 @@ Yea, with wine drunken, he, my mother's spouse—
 Named of men “ glorious” !—leaps upon the grave,
 And pelts with stones my father's monument ;
 And against us he dares to speak this taunt :
-* Where is thy son Orestes ?—bravely nigh
+“ Where is thy son Orestes ?—bravely nigh
 To shield thy tomb!" So is the absent mocked.
 But, stranger, I beseech thee, tell him this :
 Many are summoning him,—their mouthpiece I,—
@@ -494,7 +494,7 @@ To prowess shall I turn me ?—who, that looks
 On spears, can swear which spearman's heart is
 brave ?
 Leave Fortune's gifts to fall out as they will !
-Lo, this man is notamong Argives great,
+Lo, this man is not among Argives great,
 Nor by a noble house's name exalted,
 But one of the many-- proved a king of men!
 Learn wisdom, ye which wander aimless, swoln
@@ -528,7 +528,7 @@ Will they content them not with little or much ?
 ELECTRA. Since then thou so hast erred, and thou so poor,
 Who on the banks of Tanaiis, which parts
 The Argive marches from the Spartan land,
-Απ outcast from our city, tends his flocks.
+An outcast from our city, tends his flocks.
 Bid him to wend home straightway, and to come
 And furnish somewhat for the strangers' meat.
 He shall rejoice, yea, render thanks to heaven,
@@ -554,7 +554,7 @@ CHORUS. O galleys renowned, by your myriad-sweeping
 Oars hurled high on the Trojan strand,
 Whom the Sea-maids followed, with dances
 surrounding [ing
-Your dusky prows, when the dolphin was boundAround them, bewitched by your music, and leaping
+Your dusky prows, when the dolphin was bound around them, bewitched by your music, and leaping
 In sinuous rapture on every hand,
 Escorting Achilles, the fleetfoot son
 Of Thetis, with King Agamemnon on
@@ -601,7 +601,7 @@ That captained such heroes, so godlike and proud !
 Thine adultery slew him, O thou false-hearted !
 Therefore the Dwellers in Heaven shall repay
 Death unto thee in the on-coming day.
-I shall seeit—shall see when thelife-blood hath started
+I shall see it—shall see when the life-blood hath started
 From thy neck at the kiss of the steel that shall slay '
 
 OLD MAN. Where shall the princess, my young mistress, be,
@@ -632,7 +632,7 @@ OLD MAN. In vain! Yet this despair could I not brook.
 I turned, in coming, to his tomb aside,
 There kneeling, for its desolation wept,
 Poured a drink-offering from the skin I bare
-Thy guests, and crowned the tomb with myrtlesprays.
+Thy guests, and crowned the tomb with myrtle-sprays.
 But—on the grave a black-fleeced ewe I saw
 New-slain, and blood but short time since outpoured,
 And severed locks thereby of golden hair !
@@ -646,7 +646,7 @@ For they which share one father's blood shall oft
 By many a bodily likeness kinship show.
 
 ELECTRA. Not worthy a wise man, ancient, be thy words—
-Το think mine aweless brother would have come,
+To think mine aweless brother would have come,
 Fearing Aegisthus, hither secretly.
 Then, how should tress be matched with tress of
 hair—
@@ -681,7 +681,7 @@ ELECTRA. Lo, here with light foot step they forth the house,
 
 OLD MAN. High-born of mien :—yet false the coin may be ;
 For many nobly born be knaves in grain.
-Yet—(aloud) to the strangers greeting fair 1 give.
+Yet—(aloud) to the strangers greeting fair I give.
 
 ORESTES. Greeting, grey sire! Electra, of thy friends
 Who hath this time-worn wreck of man to thrall ?
@@ -802,11 +802,11 @@ ORESTES. Now welcome be the word! Thou saw'st him—where ?
 
 OLD MAN. Nigh to these fields, by pastures of his steeds.
 
-ORESTES. What doth he? Fren despair I look on hope!
+ORESTES. What doth he? From despair I look on hope!
 
 OLD MAN. A feast would he prepare the Nymphs, meseemed.
 
-ORESTES. For nursing-dues of babes, or birth at hand ?.
+ORESTES. For nursing-dues of babes, or birth at hand ?
 
 OLD MAN. Nought know I, save his purposed sacrifice.
 
@@ -833,7 +833,7 @@ OLD MAN. Thence shall he see, and bid thee to the feast.
 ORESTES. A bitter fellow-feaster, heaven to help !
 
 OLD MAN. Thereafter thou take thought, as fortune falls,
-ORESTES ;
+ORESTES.
 Well hast thou said. My mother—where is she?
 
 OLD MAN. In Argos, yet shall soon attend the feast.
@@ -939,7 +939,7 @@ Of this strife's issue. I will keep good watch,
 Holding the sword aye ready in my grasp :
 For never, overmastered, to my foes
 Will I for vengeance-outrage yield me up.
-[Retires within cottage. — Exeunt oR., PYL.. and ο. Μ.
+[Retires within cottage. — Exeunt OR., PYL., and O. M.
 
 CHORUS. In ancient song is the tale yet told!
 How Pan, the Master of forest and mead,
@@ -971,7 +971,7 @@ Euripides omits the details of this vengeance, and passes on
 directly to its consequences in the judgment of Heaven.
 Enz
 But with triumph-swell did a strange chant rise—
-* Lo, the Golden Lamb is Thyestes’ prize ! "
+“ Lo, the Golden Lamb is Thyestes’ prize ! "
 For the nets of a love with dark guile fraught
 O'er the soul of Atreus' bride did he fling ;
 And the marvel so to his halls hath he brought,
@@ -995,16 +995,16 @@ Touching secrets of Gods, of my spirit hath won-—
 That the Sun from that vision turned backward the
 glor
 Of the gold of the face of his flaming throne, [ing
-With the scourge of his wrath in affliction repayMortals for deeds in their mad feuds done.
+With the scourge of his wrath in affliction repay mortals for deeds in their mad feuds done.
 Yet it may be the tale liveth, soul-affraying,
-Το bow us to Godward in lowly obeying.
+To bow us to Godward in lowly obeying.
 O mother of princes, it rose not before thee — [slaying:
 Mid thy lord’s moan, staying thine hand from the
 Ha, friends!
 Heard ye a great voice—or am I beguiled
 Of fancy ?—like earth-muffled thunder of Zeus?
 Lo there, the gale is swelling all too plain !
-Princess, come forth thine house !—Electra, corne |
+Princess, come forth thine house !—Electra, come !
 
 ELECTRA. Friends, what befalls? How doth our conflict speed ?
 
@@ -1012,9 +1012,9 @@ CHORUS. I know but this, I hear a cry of death.
 
 ELECTRA. I also hear—far off—yet oh, I hear!
 
-CHORUS. Faint frem the distance stole the cry, yet clear,
+CHORUS. Faint from the distance stole the cry, yet clear,
 
-ELECTRA. Α shriek of Argives ?—or of them I love?
+ELECTRA. A shriek of Argives ?—or of them I love?
 
 CHORUS. I know not: all confused rang out the strain,
 
@@ -1030,10 +1030,10 @@ MESSENGER. Victory! victory, Mycenaean maids!
 To all friends, tidings of Orestes’ triumph!
 Low lieth Agamemnon's murderer
 Aegisthus : render thanks unto the Gods.
-* Let one with speed bring water for the guests,
+“ Let one with speed bring water for the guests,
 That they may compass with cleansed hands the
 altar."
-But spake Orestes, * In pure river-streams
+But spake Orestes, “ In pure river-streams
 It was but now we purified ourselves.
 If strangers may with citizens sacrifice,
 Ready we are, nor say thee nay, O King."
@@ -1046,7 +1046,7 @@ The fire some kindled, and the caldrons set
 Over the hearths: with tumult rang the roofs,
 Then took thy mother's paramour the meal,
 And thus spake, on the altars casting it:
-* Nymphs of the Rocks, vouchsafe me oft, with her,
+“ Nymphs of the Rocks, vouchsafe me oft, with her,
 Mine home-mate Tyndareus’ child, to sacrifice,
 As now, blest, and my foes in like ill case.”
 Thee and Orestes meant he; but my lord
@@ -1073,8 +1073,8 @@ And gazed thereon, No lobe the liver had:
 The gate-vein, the gall-bladder nigh thereto,
 Portended perilous scathe to him that looked.
 Scowling he stared ; but straight my master asks :
-* Why cast down, O mine host?” “A stranger’s
-uile
+“ Why cast down, O mine host?” “A stranger’s
+guile
 I dread. Of all men hatefullest to me,
 And foe to mine, is Agamemnon’s son.”
 But he, “ Go to: thou fear an exile’s guile—
@@ -1091,7 +1091,7 @@ Straightway the thralls beholding sprang to arms,—
 A host to fight with two,—but unafraid
 Pylades and Orestes, brandishing
 Their weapons, faced them: “ Not a foe,” he cried,
-«Το Argos, nor my servants, am I come!
+“To Argos, nor my servants, am I come!
 I have avenged me on my father’s slayer,—
 Orestes I, the hapless! Slay me not,
 My father’s ancient thralls !” They, when they heard
@@ -1125,13 +1125,13 @@ To crown my conquering brother's head withal.
 
 CHORUS. Crown him, the conqueror !—garlands upraise,
 Thy thanksgiving-oblation !
-Το the dance that the Muses love forth will we pace.
+To the dance that the Muses love forth will we pace.
 Now shall rule o’er our nation
 Her kings well-beloved whom of old she hath
 known;
 For the right is triumphant, the tyrant o'erthrown.
 Ring, joy's exultation !
-Aegisthus body.
+Aegisthus' body.
 
 ELECTRA. Hail, glorious conqueror, Orestes sprung
 Of father triumph-crowned in Ilium's war !
@@ -1158,11 +1158,11 @@ Is he, who heretofore was called thy lord.
 
 ELECTRA. I take shame—none the less I fain would speak—
 
-ORESTES. Whatisit? Speak: thou hast left fear's prison-house.
+ORESTES. What is it? Speak: thou hast left fear's prison-house.
 
 ELECTRA. 'To mock the dead, lest ill-will light on me.
 
-ORESTES. 'There is no man ean blame thee for such cause,
+ORESTES. 'There is no man can blame thee for such cause,
 
 ELECTRA. Our folk be ill to please, and censure-prone.
 
@@ -1211,7 +1211,7 @@ This, ever-staying, lifteth up the head ;
 But wealth by vanity gotten, held of fools,
 Takes to it wings ; as a flower it fadeth soon.
 For those thy sins of the flesh—for maid unmeet
-To name—I speak them ποῖ: suffice the hint |
+To name—I speak them not: suffice the hint !
 Thou waxedst wanton, with thy royal halls,
 Thy pride of goodlihead! Be mine a spouse
 Not girl-faced, but a man in mien and port.
@@ -1222,7 +1222,7 @@ Felon convict, thou’rt punished, caitiff thou !
 Let none dream, though at starting he run well,
 That he outrunneth Justice, ere he touch
 The very goal and reach the bourn of life.
-CHORUS,
+CHORUS.
 Dread were his deeds ; dread payment hath he made
 To thee and this man. Great is Justice’ might.
 
@@ -1242,7 +1242,7 @@ ELECTRA. O flaunting pomp of chariots and attire !
 
 ORESTES. What shall we do? Our mother—murder her?
 
-ELECTRA. How? Hath ruth seized thee,seeing thy mother'sform?
+ELECTRA. How? Hath ruth seized thee, seeing thy mother's form?
 
 ORESTES. Woe!
 How can I slay her ?—her that nursed, that bare me?
@@ -1267,9 +1267,9 @@ ELECTRA. And Him /—if thou forbear to avenge a father.
 
 ORESTES. Ha !—spake a fiend in likeness of the God ?
 
-ELECTRA. Throned on the holy tripod !—1 trow not,
+ELECTRA. Throned on the holy tripod !—I trow not,
 
-ORESTES. I dare not trust this oracle's utter faith |
+ORESTES. I dare not trust this oracle's utter faith !
 
 ELECTRA. Wilt thou turn craven—be no more a man?
 
@@ -1277,7 +1277,7 @@ ORESTES. How? must I lay the selfsame snare for her?
 
 ELECTRA. Ay! that which trapped and slew the adulterer !
 
-ORESTES. I will go in. A horror I essay |--Yea, will achieve! If 'tis Heaven's will, so be it,
+ORESTES. I will go in. A horror I essay !--Yea, will achieve! If 'tis Heaven's will, so be it,
 Oh bitter strife, which I must needs hold sweet !
 maids of Troy.
 
@@ -1288,7 +1288,7 @@ In the glittering heavens mid stars who stand,
 And their proud right this, to deliver from bane
 Men tossed on the storm-vext water.
 Hail! As to the Blest, do I yield thee thine own,
-1 je, Her avenging Furies will exact satisfaction from me.
+1 i.e., Her avenging Furies will exact satisfaction from me.
 Mine homage, for awe of thy wealth and thy bliss.
 With watchful service to compass thy throne
 This, Queen, is the hour, even this!
@@ -1306,12 +1306,12 @@ Mother, may I not take that heaven-blest hand :
 
 CLYTEMNESTRA. Here be these bondmaids : trouble not thyself.
 
-ELECTRA. How ?—1me thou mad'st thy spear-thrall, haled from
+ELECTRA. How ?—me thou mad'st thy spear-thrall, haled from
 home:
 Captive mine house was led, and captive I,
 Even as these, unfathered and forlorn.
 
-CLYTEMNESTRA. Such fruit thy father's plottings had, contrivea
+CLYTEMNESTRA. Such fruit thy father's plottings had, contrived
 Against his dearest, all unmerited.
 Yea, I will speak; albeit, when ill fame
 Compasseth woman, every tongue drops gall—
@@ -1320,12 +1320,12 @@ The truth, and if the hate be proved my due,
 Tis just they loathe me; if not, wherefore loathe ?
 Of Tyndareus was I given to thy sire—
 Not to be slain, nor I, nor those I bare.
-1 [phigeneia, sacrificed for the Greeks’ sake, who have
+1 Iphigeneia, sacrificed for the Greeks’ sake, who have
 therefore given these as some compensation.
 He took my child—drawn by this lie from me,
 That she should wed Achilles,—far from home
 To that fleet's prison, laid her on the pyre,
-And shore through Iphigeneia's snowy throat |
+And shore through Iphigeneia's snowy throat !
 Had he, to avert Mycenae's overthrow,—
 To exalt his house,—to save the children left,—
 Slain one for many, 'twere not past forgiving.
@@ -1371,7 +1371,7 @@ ELECTRA. Yea, mother, but wilt hear—and punish then?
 CLYTEMNESTRA. Nay: I grant grace of license to thy mood.
 
 ELECTRA. Then will I speak. My prelude this shall be :——
-O mother, that thou hadst a better heart |
+O mother, that thou hadst a better heart !
 This beauty wins you worthy meed of praise,
 Helen’s and thine: true sisters twain were ye !—
 Ay, wantons both, unworthy Castor’s name !—
@@ -1415,7 +1415,7 @@ A wanton, is a fool: the lowly chaste
 Are better in men’s homes than high-born wives.
 
 CHORUS. Chance ordereth women’s bridals. Some I mark
-Fair, and some foul of issue among men. |
+Fair, and some foul of issue among men.
 
 CLYTEMNESTRA. Child, still thy nature bids thee love thy sire.
 "Tis ever thus : some cleave unto their father,
@@ -1427,7 +1427,7 @@ ELECTRA. Am I, my child, for deeds that I have done.
 But thou, why thus unwashed and meanly clad,
 Seeing thy travail-sickness now is past?
 Woe and alas for my devisings !—more
-1 spurred my spouse to anger than was need.
+I spurred my spouse to anger than was need.
 
 ELECTRA. Too late thou sighest, since thou canst not heal
 My sire is dead: but him, the banished one,
@@ -1488,7 +1488,7 @@ lashing
 'The house, have veered! There was an hour saw fall
 My chief, with blood the laver's silver dashing,
 When shrieked the roof, —yea, topstones of the wall
-Shrieked back his ery, * Fiend-wife, and art thou
+Shrieked back his cry, “ Fiend-wife, and art thou
 tearing
 My life from me, who in the tenth year's earing
 Come to my dear land, mine ancestral hall?"
@@ -1525,7 +1525,7 @@ Is over men, behold this deed
 Of blood, of horror—these that lie
 Twinned corpses on the earth, that bleed
 For my wrongs, and by mine hand die.
-[Woe and alas! I weep to know |
+[Woe and alas! I weep to know !
 My mother by mine hand laid low !]!
 
 ELECTRA. Well may we weep !—it was my sin, brother !
@@ -1546,7 +1546,7 @@ What righteous man shall bear to see
 The slayer of his mother—me ?
 
 ELECTRA. Woe’s me! What refuge shall what land give me?
-O feet from the dance aye banned! O spousalhopeless hand !
+O feet from the dance aye banned! O spousal-hopeless hand !
 What lord to a bridal-bower shall receive me?
 1 Conjecturally supplied to fill lacuna,
 
@@ -1586,7 +1586,7 @@ a
 ORESTES. Take, take, with her vesture the limbs shroud
 round
 Of my mother: O close her wide death-wound.
-Thou barest them, thou, these hands deathdealing !
+Thou barest them, thou, these hands death-dealing !
 
 ELECTRA. Lo, thou that wast dear and yet not dear,
 With the mantle I veil thee over: here
@@ -1607,7 +1607,7 @@ Assuaged, and come to Argos, having seen
 The slaying of our sister, of thy mother.
 She hath but justice; yet thou, thou hast sinned ;
 And Phoebus—Phoebus—since he is my king,
-Iam dumb. He is wise :—not wise his hest for thee!
+I am dumb. He is wise :—not wise his hest for thee!
 We must needs say “’Tis well." Henceforth must thou
 Perform what Fate and Zeus ordain for thee.
 To Pylades Electra give to wife :
@@ -1642,14 +1642,13 @@ Arcadian, near Lycaean Zeus's shrine ;
 And by thy name the city shall be called.
 This to thee : touching yon Aegisthus’ corse,
 The Argive folk shall hide it in the tomb.
-ΤΗΥ mother—Menelaus, now first come
+Thy mother—Menelaus, now first come
 To Nauplia, since he won the land of Troy,
 Shall bury her, he and Helen : for she comes,
 Who ne'er saw Troy, from Proteus' halls in Egypt.
 But Zeus, to stir up strife and slaughter of men,
-Α phantom Helen unto Ilium sent.
+A phantom Helen unto Ilium sent.
 And Pylades shall take his virgin wife,
-III
 And from the land Achaean lead her home ;
 And him, thy kinsman by repute,! shall bring
 To Phocis, and shall give him store of wealth.
@@ -1670,7 +1669,7 @@ Of the blood thou hast spilt.
 
 CHORUS. How fell it, that ye Gods, brethren twain
 Of her that is slain,
-Kept not from her halls those Powers of Bane ὃ
+Kept not from her halls those Powers of Bane ?
 
 CASTOR. By resistless fate was her doom on-driven,
 And by Phoebus' response, in unwisdom given.

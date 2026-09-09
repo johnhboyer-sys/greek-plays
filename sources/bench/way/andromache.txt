@@ -1,6 +1,6 @@
 ANDROMACHE
 
-ANDROMACHE. Brauty of Asian land, O town of Thebes,
+ANDROMACHE. Beauty of Asian land, O town of Thebes,
 Whence, decked with gold of costly bride-array,
 To Priam’s royal hearth long since I came
 Espoused to Hector for his true-wed wife,—
@@ -83,8 +83,8 @@ ANDROMACHE. Undone !—undone !—O child, these vultures twain
 Will clutch thee and will slay! He that is named
 Thy father, yet in Delphi lingereth.
 
-HANDMAID. |. I ween thou shouldst not fare so evilly
-| If he were here: but friendless art thou now.
+HANDMAID. I ween thou shouldst not fare so evilly
+If he were here: but friendless art thou now.
 
 ANDROMACHE. Of Peleus’ coming is there not a word ?
 
@@ -94,13 +94,13 @@ ANDROMACHE. Yet did I send for him not once nor twice.
 
 HANDMAID. Dost think the palace-messengers heed thee ?
 
-ANDROMACHE. How should they ?—Wilt thou be my messenger }
+ANDROMACHE. How should they ?—Wilt thou be my messenger ?
 
 HANDMAID. But how excuse long absence from the halls ?
 
 ANDROMACHE. Thou shalt find many pleas—a woman thou.
 
-HANDMAID. "DI'were peril : keen watch keeps Hermione.
+HANDMAID. ‘Twere peril : keen watch keeps Hermione.
 
 ANDROMACHE. Lo there !—thy friends in woe dost thou renounce.
 
@@ -109,7 +109,7 @@ Lo, I will go. What matter is the life
 Of a bondwoman, though I light on death ?
 
 ANDROMACHE. My lamentations and my moans and tears,
-Wherein I am ever whelmed. [Exit ΠΑΝΌΜΑΙΡ,
+Wherein I am ever whelmed. [Exit HANDMAID,
 "Tis in the heart
 Of woman with a mournful pleasure aye
 To bear on lip and tongue her present ills.
@@ -218,7 +218,7 @@ But to one lawful love men turn their eyes,
 Content—all such as look for peace in the home.
 
 CHORUS. In woman's heart is jealousy inborn,
-"Tis bitterest unto wedlock-rivals aye.
+‘Tis bitterest unto wedlock-rivals aye.
 
 ANDROMACHE. Out upon thee!
 A curse is youth to mortals, when with youth
@@ -241,14 +241,14 @@ Slave-sons, a wretched drag upon my life!
 Nay, though thou bear no children, who will
 brook
 That sons of mine be lords of Phthia-land ?
-O yea, the Greeks love me—for Hector's sake |---
+O yea, the Greeks love me—for Hector's sake—
 Myself obscure, nor ever a Phrygian queen!
 Not of my philtres thy lord hateth thee,
 But that thy nature is no mate for his.
 This is the love charm—woman, 'tis not beauty
 That witcheth bridegrooms, nay, but nobleness.
 Let aught vex thee—O then a mighty thing
-Is thy Laconian city, Seyros naught |
+Is thy Laconian city, Scyros naught
 Thy wealth thou flauntest, settest above Achilles
 Menelaus: therefore thy lord hateth thee.
 A wife, though low-born be her lord, must yet
@@ -256,7 +256,7 @@ Content her, without wrangling arrogance.
 But if in Thrace with snow-floods overstreamed
 Thou hadst for lord a prince, where one man shares
 The wedlock-right in turn with many wives,
-Wouldst thou have slain these? Αγ, and so be found
+Wouldst thou have slain these? Ay, and so be found
 Branding all women with the slur of lust,
 Which were our shame! True, more than men's,
 our hearts
@@ -311,7 +311,7 @@ ANDROMACHE. Lo, I am silent and I curb my mouth.
 
 HERMIONE. Confess thy sorceries! This I came to hear.
 
-ANDROMACHE. l say thou hast less wit than thou dost need.
+ANDROMACHE. I say thou hast less wit than thou dost need.
 
 HERMIONE. Wilt leave this hallowed close of the Sea-goddess?
 
@@ -329,14 +329,14 @@ HERMIONE. And to thy flesh bring anguish of dread wounds.
 
 ANDROMACHE. Hack, crimson her altar: she shall visit for it.
 
-HERMIONE. Barbarian chattel! Stubborn impudence |
+HERMIONE. Barbarian chattel! Stubborn impudence!
 Dost thou brave death! Soon will I make thee rise
 From this thy session, yea, of thine own will!
 Such lure have I for thee :—yet will I hide
 The word: the deed itself shall soon declare.
 Ay, sit thou fast !—though clamps of molten lead
-Encompassed thee, yet will 1 make thee rise,
-Ere come Achilles’ son, in whom thou trustest. | Exit.
+Encompassed thee, yet will I make thee rise,
+Ere come Achilles’ son, in whom thou trustest. [Exit.
 
 ANDROMACHE. I do trust . . . . Strange that God hath given to men
 Salves for the venom of all creeping pests,
@@ -476,7 +476,7 @@ And to the after-issue hurriest.
 Woe for these ills! O hapless fatherland,
 What wrongs I bear! Why must I be a mother,
 And add a double burden to my load?
-| Why wail the past, and o’er the present woes
+[Why wail the past, and o’er the present woes
 Shed not a tear, nor take account thereof ?]
 Hector by those wheels trailed to death I saw,
 Saw Ilium piteously enwrapped in flame.
@@ -493,7 +493,7 @@ And mine were shame to die not for my child.
 Lo, I forsake the altar—yours I am
 To hack, bind, murder, strangle with the cord! [ Rises.
 O child, thy mether, that thou mayst not die,
-Passeth to Hades. If thou 'seape the doom,
+Passeth to Hades. If thou 'scape the doom,
 Think on thy mother—how I suffered—died !
 And to thy sire with kisses and with tears
 Streaming, and little arms about his neck,
@@ -539,7 +539,7 @@ ANDROMACHE. O ye in all folk's eyes most loathed of men,
 Dwellers in Sparta, senates of treachery,
 Princes of lies, weavers of webs of guile,
 Thoughts crooked, wholesome never, devious all,—
-A crime is your supremacy in Greece ! {murders ?
+A crime is your supremacy in Greece ! [murders ?
 What vileness lives not with you ?—swarming
 Covetousness? Convicted liars, saying [that,
 This with the tongue, while still your hearts mean
@@ -554,12 +554,12 @@ In flattery never on thy child or thee.
 What if thou be in Sparta some great one?
 Even so in Troy was I. Am I brought low?
 Boast not herein :—thine hour shall haply come.
-[ East, led by MENELAUS.
+[Exit, led by MENELAUS.
 
 CHORUS. Never rival brides blessed marriage-estate,
 Neither sons not born of one mother:
 They were strife to the home, they were anguish of
-hate. i
+hate.
 For the couch of the husband suffice one mate :
 Be it shared of none other.
 1 Drove thee to seek refuge in the ships. See Iliad, bk. xv.
@@ -596,13 +596,13 @@ From cruel bonds hard-straining,
 Lo, feet the grave's brink gaining!
 
 MOLOSSUS. O mother, 'neath thy wing
-1 crouch where death-shades gather.
+I crouch where death-shades gather.
 
 ANDROMACHE. Death !—Phthians, name it rather
 Butchery !
 
 MOLOSSUS. O my father,
-Help to thy loved ones bring |
+Help to thy loved ones bring!
 
 ANDROMACHE. There, darling, shalt thou rest
 Pillowed upon my breast,
@@ -631,7 +631,7 @@ Find I for doom’s undoing ?
 
 ANDROMACHE. Pray, at thy lord's knees suing,
 Child !
-movossus (kneeling to MENELAUS).
+MOLOSSUS (kneeling to MENELAUS).
 Friend, in mercy ruing
 My death, of pardon tell!
 
@@ -646,7 +646,7 @@ Our darkness to dispel!
 MENELAUS. What dost thou to fall at my feet, making moan
 To a rock of the sea, to a wave doom-crested ?
 True helper am I, good sooth, to mine own:
-Νο love-spell from thee on my spirit hath rested.
+No love-spell from thee on my spirit hath rested.
 Too deeply it drained my life-blood away
 To win yon Troy and thy dam for a prey.
 Herein be thy joy and be this thy crown
@@ -658,8 +658,8 @@ In haste his agéd foot strides hitherward.
 PELEUS. Ho ye! ho thou, the overseer of slaughter !
 What meaneth this ?—how is the house, and why,
 In evil case? What lawless plots weave ye?
-Menelavs, hold! Press not where justice bars.
-[To attendant] Lead the way faster! "Tis a strait,
+Menelaus, hold! Press not where justice bars.
+[To attendant] Lead the way faster! ‘Tis a strait,
 methinks,
 Brooks no delay ; but now, if ever, fain
 Would I renew the vigour of my youth.
@@ -698,7 +698,7 @@ And have more right of lordship over her.
 PELEUS. How ?—hither wilt thou come to rule mine house ?
 Sufficeth not thy sway of Sparta's folk ?
 
-MENELAUS. "Twas I that took her captive out of Troy.
+MENELAUS. ‘Twas I that took her captive out of Troy.
 
 PELEUS. Ay, but my son's son gained her, prize of war.
 
@@ -712,7 +712,7 @@ PELEUS. This staff shall make thine head to stream with blood.
 
 MENELAUS. Touch me, and thou shalt see !—ay, draw but near!
 
-PELEUS. Thou, thou a man ?—Coward, of cowards bred |
+PELEUS. Thou, thou a man ?—Coward, of cowards bred!
 What part or lot hast thou amongst true men?
 Thou, by a Phrygian from thy wife divorced,
 Who leftest hearth and home unbarred, unwarded,
@@ -752,7 +752,7 @@ Nay more—how didst thou outrage thine own brother,
 Bidding him sacrifice his child—poor fool !
 Such was thy dread to lose thy worthless wife.
 And, when Troy fell,—ay, thither too I trace thee,—
-Thy.wife thou slew'st not when thou hadst her
+Thy wife thou slew'st not when thou hadst her
 trapped.
 Thou saw'st her bosom, didst let fall the sword,
 Didst kiss her, that bold traitress, fondling her,
@@ -801,7 +801,7 @@ Consider this, too —hadst thou given thy daughter,
 To a citizen, and she were thus misused,
 Hadst thou sat still? I trow not. Yet thou railest
 Thus for an alien's sake on friends, on kin !
-“Yet husband's cause "—say'st thou—* and wife's
+“Yet husband's cause "—say'st thou—" and wife's
 alike
 Are strong, if she be wronged of him, or he
 Find her committing folly in his halls."
@@ -849,7 +849,7 @@ Thou and thy childless daughter, whom my son
 By the hair shall grasp and hale her through these
 halls,—
 'The barren heifer, who will not endure
-The fruitful, seeing herself hath children none |
+The fruitful, seeing herself hath children none!
 What, if her womb from bearing is shut up,
 Childless of issue must mine house abide ?
 Hence from her, thralls! E'en let me see the man
@@ -861,7 +861,7 @@ Didst think to enmesh a bull or lion here?
 Didst fear lest she should snatch a sword, and chase
 Thee hence? Steal hither ‘neath mine arms, my
 bairn :
-Help loose thy mother's bonds. PI rear thee yet
+Help loose thy mother's bonds. I'll rear thee yet
 In Phthia, their grim foe. If spear-renown
 And battle-fame be ta’en from Sparta’s sons,
 In all else are ye meanest of mankind.
@@ -885,11 +885,10 @@ Temperate, he shall find me temperate too,
 But, if he rage, shall meet his match in rage,
 Yea, shall find deeds of mine to match his own.
 But, for thy words, nothing I reck of them ;
-[hou art like a creeping shadow, voice thine all,
+Thou art like a creeping shadow, voice thine all,
 Impotent to do anything save talk.
 
-PELEUS. Pass ọn, my child, sheltered beneath mine arms,
-E
+PELEUS. Pass on, my child, sheltered beneath mine arms,
 And, hapless, thou. Caught in a raging storm,
 Thou hast come into a windless haven's calm.
 
@@ -957,7 +956,7 @@ Her watching servants stayed her, from her hand
 Catching the sword and wresting it away ;
 With such fierce anguish seeth she her sins
 Already wrought. O friends, my strength is spent
-Dragging my mistress from the noose of death |
+Dragging my mistress from the noose of death!
 Oh, enter ye yon halls, deliver her
 From death : for oft new-comers more prevail
 In such an hour than one's familiar friends.
@@ -1048,8 +1047,6 @@ CHORUS. Thou sayest: but who art thou that askest this?
 
 ORESTES. Agamemnon's son and Clytemnestra’s I,
 My name Orestes : to Zeus' oracle
-a
-TA
 
 ANDROMACHE. Bound, at Dodona. Seeing I am come
 To Phthia, good it seems that I inquire
@@ -1069,7 +1066,7 @@ Menelaus’ daughter here, this household's queen ?
 HERMIONE. Yea, the one daughter Helen Tyndarus' child
 Bare in his halls unto my sire: doubt not.
 
-ORESTES. O Healer Phoebus, grant from woes release |
+ORESTES. O Healer Phoebus, grant from woes release!
 What ails thee? Art thou wronged of Gods or men?
 
 HERMIONE. Of myself partly, partly of my lord,
@@ -1116,19 +1113,19 @@ The land of Phthia hates me. If my lord
 Come home from Phoebus' oracle ere my flight,
 On shamefullest charge I die, or shall be thrall
 Unto his paramour, till now my slave.
-* How then," shall one ask, “ cam'st thou so to err?"
+" How then," shall one ask, “ cam'st thou so to err?"
 ’ Twas pestilent women sought to me, and ruined,
 Which spake and puffed me up with words like
 these:
-* Thou, wilt thou suffer yon base captive thrall
+" Thou, wilt thou suffer yon base captive thrall
 Within thine halls to share thy bridal couch ?
 By Heaven's Queen, were it in mine halls, she should
 not
 See light and reap the harvest of my bed!”
-And 1 gave ear unto these sirens' words,
+And I gave ear unto these sirens' words,
 These crafty, knavish, subtle gossip-mongers,
 And swelled with wind of folly. Why behoved
-To spy upon my lord? J had all my need,—
+To spy upon my lord? I had all my need,—
 Great riches; in his palace was I queen ;
 The children I might bear should be true-born ;
 But hers, the bastards, half-thrall unto mine.
@@ -1162,14 +1159,14 @@ Speech of thee, as thou dost. Mine wast thou once,
 But liv’st with this man through thy father's
 baseness,
 Who, ere he marched unto the coasts of Troy,
-Betrothed thee mine, thereafter promised thee ͵
+Betrothed thee mine, thereafter promised thee
 To him that hath thee now, if he smote Troy.
 Soon as to Greece returned Achilles' son,
 Thy father I forgave : thy lord I prayed
-To set thee free. 1 pleaded mine hard lot,
+To set thee free. I pleaded mine hard lot,
 The fate so haunting me, that I might wed
 From friends indeed, but scarce of stranger folk,
-Banished as J am banished from mine home.
+Banished as I am banished from mine home.
 Then he with insolent scorn cast in my teeth
 My mother's blood, the gory-visaged fiends.
 And I—my pride fell with mine house's fortunes—
@@ -1188,7 +1185,7 @@ Lest my lord coming home prevent me yet,
 Or Peleus learn my flight from his son's halls,
 And follow in our track with chasing steeds.
 
-ORESTES. Fear not the greybeard’s hand: yea, nowise fea
+ORESTES. Fear not the greybeard’s hand: yea, nowise fear
 Achilles' son : his insolence-cup is full ;
 Such toils of doom by this hand woven for him
 With murder-meshes round him steadfast-staked
@@ -1204,7 +1201,7 @@ By that God's wrath, and slanders sown of me,
 Die shall he foully, and shall know mine hate :
 For the God turns the fortune of his foes
 To overthrow, nor suffereth their high thoughts.
-[Exeuni ongsTES and HERMIONE,
+[Exeunt ORESTES and HERMIONE,
 
 CHORUS. O Phoebus, who gavest to Ilium a glory
 Of diadem-towers on her heights,—and O Master
@@ -1224,7 +1221,7 @@ Where upstreameth no more with the altar-flames
 blended
 The odour of incense to dream through the sky
 Round the feet of Immortals—from her that was Troy !
-And Atreides hath passed; for onhimlightedslaughter
+And Atreides hath passed; for on him lighted slaughter
 At the hands of a wife : and with murder she bought
 her
 Death, at the hands of her child to receive it :
@@ -1282,7 +1279,7 @@ PELEUS. Ah me! grim peril this! Away with speed
 Let one depart unto the Pythian hearth,
 And to our friends there tell the deeds here done,
 Or ever Achilles' son be slain of foes.
-Enler MESSENGER.
+Enter MESSENGER.
 
 MESSENGER. Woe's me, woe's me!
 Bearing what tidings of mischance to thee,
@@ -1327,10 +1324,10 @@ But we, yet knowing nought of this, took sheep,
 The nurslings of the glades Parnassian,
 And went and stood beside the holy hearths
 With public-hosts and Pythian oracle-seers.
-And one spake thus : * Prince, what request for thee
+And one spake thus : " Prince, what request for thee
 Shall we make to the God? For what com'st
 thou?"
-* To Phoebus," said he, “ would I make amends
+" To Phoebus," said he, “ would I make amends
 For my past sin: for I required of him
 Once satisfaction for my father's blood."
 Then was Orestes’ slander proved of might
@@ -1349,7 +1346,7 @@ He drew his sword, and, snatching helm and shield .
 Upon a column's nails uphung, he stood
 On the altar-steps, a warrior grim to see ;
 And cried to Delphi's sons, and this he asked :
-* Why would ye slay me, who on holy mission
+" Why would ye slay me, who on holy mission
 Have come ?—on what charge am I doomed to die?”
 But of the multitude that surged around
 None answered word, but ever their hands hurled
@@ -1394,10 +1391,10 @@ Yea, hath remembered, like some evil man,
 An old, old feud! How then shall he be wise?
 
 CHORUS. Lo, lo, where the prince, high borne on the bier,
-From the Delphian land to his home draweth near |
+From the Delphian land to his home draweth near!
 stricken with eld!
 Not as thou wouldest, Achilles’ scion
-To his home dost thou welcome, the whelpof the lion.
+To his home dost thou welcome, the whelp of the lion.
 In oneness of weird, in affliction drear,
 Art thou linked with the dead lying here.
 
@@ -1417,7 +1414,7 @@ CHORUS. Yea, he had fallen with honour, had he died
 Thus, ancient, and thy lot were happier so.
 
 PELEUS. Woe’s me for the deadly alliance
-That hath blasted my city, mine home |
+That hath blasted my city, mine home!
 Ah my son, that the curse-haunted line
 Of thy bride,—unto me, unto mine
 Evil-boding,—had trapped not my scion’s
@@ -1470,7 +1467,7 @@ fall.
 
 CHORUS. What ho! what ho!
 What stir in the air, what fragrance divine?
-Look yonder !—O mark it, companions mine |
+Look yonder !—O mark it, companions mine!
 Some God through the stainless sky doth speed ;
 And the car swings low
 To the plains of Phthia the nurse of the steed.
@@ -1499,7 +1496,7 @@ And mine is destined to be brought to naught :
 No, neither Troy; the Gods yet hold her dear,
 Albeit by Pallas' eager hate she fell.
 Thee too—so learn what grace comes of my couch ;
-Α Goddess I, whose father was a God—
+A Goddess I, whose father was a God—
 Will I deliver from all mortal ills,
 And set thee above decay and death, a God.
 Henceforth in Nereus' palace thou with me,

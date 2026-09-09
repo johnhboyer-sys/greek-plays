@@ -20,8 +20,8 @@ She travailed in his halls, and brought the babe
 Unto the selfsame cave wherein the God
 Had humbled her, and left it there to die
 In the fair-rounded hollow of an ark,
-Still keeping the tradition of her race 20 ᾿
-And earth-born Erichthonius, by whom _
+Still keeping the tradition of her race
+And earth-born Erichthonius, by whom
 Zeus Daughter set for warders of his life
 Two serpents, ere to the Agraulid maids
 1 Pleione, daughter of Ocean.
@@ -35,7 +35,7 @@ The glorious,—for thou know’st Athena’s burg,—
 And from the rock-cleft take a babe new-born,
 With cradle and with swaddling-bands withal,
 And bear to Delphi, to mine oracle,
-And set him at my temple's entering-in. |
+And set him at my temple's entering-in.
 All else be mine: for this—that thou mayst
 know,—
 Is my son.” For a grace to Loxias
@@ -73,15 +73,15 @@ Where the swirls of Alpheius coil and slide,
 Or mid Isthmian glens and groves,
 That the offerings undefiled may abide,
 And the temples that Phoebus loves.
-| Loth were I to slaughter such as ye,
+Loth were I to slaughter such as ye,
 Which bear unto mortals the augury
 Of the Gods: but a burden is laid upon me :.
 I am Pheebus’ thrall, and I will not refrain
 My service to them that my life sustain.
 right and left, admiring the sculptures on the walls
 of the temple. Members of Chorus chant in
-turn >—
-cauorus
+turn ?—
+CHORUS.
 Not in Athens alone then, the city divine,
 Stand courts of the Gods, with line on line
 Of stately columns ; nor service is thine
@@ -95,19 +95,19 @@ How with golden scimitar Zeus’ Son here
 Slayeth the hydra of Lerna’s mere:
 Dear, one glance hitherward fling!
 
-CHORUS. I see it :—and lo, where another anigh — = (Ani.)
+CHORUS. I see it :—and lo, where another anigh — (Ant.)
 Is uplifting a flame-wrapped torch on high!
 Who is it—who? On my broidery
 Is the hero’s story told ?
 Is it not Iolaiis, the warrior there,
 Who had part in the dread emprise, and a share
 In the burdens that Zeus’s scion bare?
-cHorus ὃ
+CHORUS.
 Lo, lo, this other behold
 Who rideth a winged horse, dealing death
 To a dragon that vomiteth fiery breath,
 A monster of shape threefold.
-cHorus 1 |
+CHORUS.
 O yea, mine eyes turn swiftly on all . . . .
 But O, see there on the marble wall
 The battle-rout of the giant horde!
@@ -115,7 +115,7 @@ The battle-rout of the giant horde!
 CHORUS. Yea, friends, we be gazing thitherward.
 
 CHORUS. Dost mark who there on the stricken field
-O’er Enceladus waveth her Gorgon-shield ὃ
+O’er Enceladus waveth her Gorgon-shield ?
 ‘cHorus
 Pallas, my Goddess !—I see her stand!
 
@@ -129,7 +129,7 @@ With its blasting wildfire dashing.
 CHORUS. And the earth-born there—no battle-wand
 Is the ivy-encircled thyrsus-rod
 That slays him, of Bromius, Reveller-god.
-cHorus 10 (addressing 10N)
+CHORUS. (addressing ION)
 Sir,—thou by the fane,—I would speak unto thee:
 Prithee say, if with bare feet lawful it is
 That the threshold we pass of the sanctuary.
@@ -139,7 +139,7 @@ ION. Nay, strangers, forfended is this.
 CHORUS. Yet haply athing I would learn wouldst thou show?
 
 ION. What is this that thou cravest to know?
-cHorus 1]
+CHORUS.
 Is it so, that the walls of Phoebus rise
 Even there, where Earth’s mid-navel lies?
 
@@ -170,13 +170,13 @@ CHORUS. In Pallas’s dwelling-place
 Is the mansion of princes that nurtured me ;—
 But of whom thou inquirest, lo, here is she.
 
-ION. High birth is thine, and carriage consonant ᾿
+ION. High birth is thine, and carriage consonant
 Thereto, O lady, whosoe’er thou be.
 Yea, in a man ofttimes may one discern,
 Marking his bearing, strain of gentle blood.
 Ha, thou dost move me strangely !—down-dropt
 eyes,
-And ΚΑΤΑ cheeks all wet with rain of tears,
+And noble cheeks all wet with rain of tears,
 At sight of Loxias’ pure oracle ! —
 How cam’st thou, lady, neath such load of care?
 Where all beside, beholding the God’s shrines,
@@ -196,7 +196,7 @@ ION. Lady, for what veiled grief art thou cast down?
 CREUSA. Naught: I have sped my shaft : as touching this,
 Nothing I say, nor thou conjecture aught.
 
-ION. Who ari thou? What thy country? Of what sire
+ION. Who art thou? What thy country? Of what sire
 Wert born? What name is meet we name thee by?
 
 CREUSA. Creusa I, of King Erechtheus born:
@@ -208,7 +208,7 @@ Of noble sires !—blest I account thee, lady.
 CREUSA. Thus far, nor farther, stranger, goes my weal.
 
 ION. Ah, is it true, the legend told to men—
-CREUSA _
+CREUSA.
 What wouldst thou, stranger, ask? I fain would learn.
 
 ION. That from the earth thy father’s grandsire sprang?
@@ -229,18 +229,18 @@ CREUSA. Then hurled themselves down blood-sprent cliffs to
 death.
 
 ION. Ah, so!
-And this—true is it, or an idle tale >—
+And this—true is it, or an idle tale ?—
 
 CREUSA. What wouldst thou ask? My leisure serveth me.
 
-ION. Thy sisters did thy sire Erechtheus slay ἢ
+ION. Thy sisters did thy sire Erechtheus slay ?
 
 CREUSA. He endured to sacrifice them for his land.
 
 ION. How wast thou only of thy sisters saved ?
 
 CREUSA. A babe new-born in mother’s arms was I.
-And did earth yawning verily hide thy sire ὃ
+And did earth yawning verily hide thy sire ?
 
 CREUSA. The Sea-god’s trident smote him and destroyed.
 
@@ -251,14 +251,14 @@ Phoebus with Pythian lightnings honours them.
 
 CREUSA. Honours them, quotha! O to have seen them never !
 
-ION. What ?—hatest thou the God’s haunt well-beloved Ὁ
+ION. What ?—hatest thou the God’s haunt well-beloved ?
 “a
 
 CREUSA. Naught.—I and that cave know a deed of shame.
 
 ION. And what Athenian, lady, is thy. lord ?
 
-CREUSA. No citizen. An outland alien. |
+CREUSA. No citizen. An outland alien.
 Who ?—sooth, of princely birth must he have been.
 
 CREUSA. Xuthus, the seed of Aeolus and Zeus.
@@ -271,7 +271,7 @@ ION. Sundered by watery marches, as they tell.
 
 CREUSA. This smote he, spear-ally of Cecrops’ sons.
 
-ION. Their war-aid ?—and thereafter won thine hand ὃ
+ION. Their war-aid ?—and thereafter won thine hand ?
 
 CREUSA. His dower of battle, guerdon of his spear.
 
@@ -284,11 +284,10 @@ ION. To gaze thereon, or for an oracle?
 CREUSA. One thing of him and Phoebus would he learn.
 
 ION. For increase of the land, or sons, come ye?
-IQN
 
 CREUSA. Childless we are, who have been wedded long.
-ἷ ION
-Never hast thou borue issue, barren all Ὁ
+ION.
+Never hast thou borne issue, barren all ?
 
 CREUSA. Phoebus doth know what childlessness is mine.
 Blest in all else, sad heart, unblest in this!
@@ -299,13 +298,13 @@ ION. Lady, the God’s thrall I am called, and am.
 
 CREUSA. Some city’s offering ?—or in slave-mart sold ?
 
-ION. I know but this—I am ealled Loxias’ thrall.
+ION. I know but this—I am called Loxias’ thrall.
 
 CREUSA. I then in turn, O stranger, pity thee.
 
 ION. As one that never sire nor mother knew.
 
-CREUSA. Dwellest thou in this temple, or a house ἢ
+CREUSA. Dwellest thou in this temple, or a house ?
 
 ION. The God’s wide halls be mine when I would sleep.
 
@@ -326,7 +325,7 @@ ION. The altars fed me: each chance stranger gave.
 
 CREUSA. Woe is thy mother! Ah, and who was she?
 
-ION. _ Tam record haply of a woman’s wrong.
+ION. I am record haply of a woman’s wrong.
 
 CREUSA. And hast thou wealth?-—for rich is thine attire.
 
@@ -348,7 +347,7 @@ ION. And what thy quest? Lady, mine help is thine.
 CREUSA. Craving a secret oracle of Phoebus.
 
 ION. Speak it : myself will undertake for thee.
-CREUSA_
+CREUSA.
 Hear then the story :—but ashamed am I.
 Shame shall not help thy strait,—a deedless Goddess!
 
@@ -360,7 +359,7 @@ CREUSA. She bare the God’s child, and her sire knew naught.
 ION. Never !—a man's crime this, and hers the shame.
 
 CREUSA. No !—-herself saith, She hath suffered griefs beside.
-Suffered ?—for what sin wr ought — this bride of
+Suffered ?—for what sin wrought — this bride of
 heaven ?
 
 CREUSA. The son she bare she cast forth from her halls.
@@ -373,11 +372,11 @@ ION. But, if he be no more, how perished he?
 
 CREUSA. Wild beasts, she troweth, slew the hapless babe.
 
-ION. And by what token knew she this had heen?
+ION. And by what token knew she this had been?
 
 CREUSA. She came where she had left him, and found not.
 
-ION. And blood-gouts—were there any on the track ὃ
+ION. And blood-gouts—were there any on the track ?
 
 CREUSA. Nay, saith she : yet she traversed oft the ground.
 
@@ -409,12 +408,12 @@ ION. How should the God reveal that he would hide ?
 
 CREUSA. How not ?—his is the nation’s oracle.
 
-ION. _ His shame the deed is. Question not of him.
+ION. His shame the deed is. Question not of him.
 
 CREUSA. O yea, the sufferer in her lot may pine!
 
-ION. . There’s none will ask the God of this for thee.
-For, in his own halls were he villain proved, |
+ION. There’s none will ask the God of this for thee.
+For, in his own halls were he villain proved,
 Vengeance on him who brought thee that response
 Would Phoebus justly wreak. Ah lady, go:
 We must not seek his shrine to flout the God.
@@ -423,14 +422,14 @@ If in the Gods’ despite we wrest their will,
 By sacrifice of sheep on altars, or
 By flight of birds, to tell what they would veil.
 Could we of force wring aught from Gods full loth,
-Profitless blessings, lady, should we grasp ; |
+Profitless blessings, lady, should we grasp ;
 But what they give free-willed are boons indeed.
 
 CHORUS. Strange chances many on many mortals fall,
 And manifold their forms. Ye scarce shall find .
 One happy lot in all the life of men.
 
-CREUSA. Ο Phoebus, there and here unjust art thou
+CREUSA. O Phoebus, there and here unjust art thou
 Unto the absent one whose plea is here.
 Thou shouldst have saved thine own, yet didst not
 save ;
@@ -455,7 +454,7 @@ Prosperous: all our dealings heretofore
 Touching thy son, to happier issue fall!
 
 XUTHUS. This shall be, Who is His interpreter?
-Without, I; others fer the things within,
+Without, I; others for the things within,
 Stranger, which nigh unto the tripod sit,
 The Delphian lords, in order of their lot.
 
@@ -466,14 +465,14 @@ A general victim. I would fain this day—
 This day fair-omened—gain the God’s response.
 Thou to the bay-crowned altars bear the boughs,
 My wife, and pray the Gods that I may win
-_ Promise of fair sons from Apollo’s fane.
+Promise of fair sons from Apollo’s fane.
 
-CREUSA. Yea, this shall be. [Fait xutHus to inner Temple.
+CREUSA. Yea, this shall be. [Exit XUTHUS to inner Temple.
 If Loxias consent
 Now at the last to atone for olden wrongs,
 Not wholly will he show himself my friend,
 Yet, since he is God, whate’er he grants I take.
-{ Evid.
+[Exit.
 
 ION. Why doth this stranger rail upon the God
 In riddles of dark sayings evermore ?
@@ -524,7 +523,7 @@ In moonlight, while upward floats
 A weird strain rising and falling,
 Wild witchery-wafting notes,
 O Pan, from thy pipes that are calling
-Out of thy suniess grots !!
+Out of thy sunless grots !!
 Ah, a maid-mother there most woe-forlorn
 Cast Phoebus’s child for a banquet gory—
 Bitter outrage’s fruit !—by the birds to be torn
@@ -532,18 +531,18 @@ And the beasts. Nor in woven web nor in story
 Ever heard I of happiness blent with the glory
 Of Gods’ seed woman-born.
 
-ION. Bower-maidens, ye. which keeping watch the altarsteps beside [forth abide,
-Of the incense-clouded fane, your master’s comingSay, hath Xuthus left by this the holy tripod and
+ION. Bower-maidens, ye which keeping watch the altar-steps beside [forth abide,
+Of the incense-clouded fane, your master’s coming— Say, hath Xuthus left by this the holy tripod and
 the shrine, [childless line ?
 Or within yet lingering asks he touching that long-
-CHORUS ᾿
+CHORUS.
 In the temple is he, stranger, treads not yet the
 threshold-stone.
 List, a sound at yonder portal—-through the porchway passeth one : — [for eyes to see.
 Lo, where now he cometh forth—our master, plain
 
 XUTHUS. Joy to thee, son!—fitting prelude this is of my
-speech to thee. ᾿
+speech to thee.
 
 ION. Joy is mine : but thou, control thee; then were twain
 in happy case.
@@ -564,7 +563,7 @@ not thou !
 
 XUTHUS. Clasp thee will I!—no man-stealer; but I find my
 darling now.
-10N (starteng back, and fitting an arrow to his bow).
+ION (starting back, and fitting an arrow to his bow).
 Wilt not hence, or ever thou receive my shaft thy ribs
 within ?
 
@@ -573,7 +572,7 @@ thy nearest kin?
 Naught I love to admonish aliens mannerless and
 sense-bereft.
 
-XUTHUS. ᾿ Slay—then burn me ;! for a father’s heart thine arrow
+XUTHUS. Slay—then burn me ;! for a father’s heart thine arrow
 shall have cleft.
 Thou my father! Is not this a laughter-scoff for me
 to hear?
@@ -653,7 +652,7 @@ ION. Haply then didst thou beget me?
 
 XUTHUS. Time is consonant thereto.
 
-ION. Were it so, how came 1 hither?
+ION. Were it so, how came I hither?
 
 XUTHUS. Nay, 1 cannot fathom it.
 
@@ -684,7 +683,7 @@ ION. Yet, how came I to the fane?
 
 XUTHUS. The maiden cast thee forth, I doubt.
 
-ION. So, I ’seape the taint of serfdom.!
+ION. So, I ’scape the taint of serfdom.!
 
 XUTHUS. Son, thy father now receive.
 
@@ -701,7 +700,7 @@ ION. Than the fatherhood of Zeus?
 XUTHUS. O yea, by birth is this thy due.*
 Shall I clasp him, my begetter ?
 1 Only free-born Delphian women could take part in the
-‘* Orgies.”
+“Orgies.”
 2 Xuthus being descended from Zeus.
 
 XUTHUS. If with Phoebus thou comply.
@@ -742,7 +741,7 @@ And thou art deep in thought, and from thy joy
 Art changed, and strikest dread into thy sire ?
 The face of things appeareth not the same
 Far off, and when we scan them nigh at hand.
-So do 1 greet with gladness this my lot
+So do I greet with gladness this my lot
 Who find a sire: howbeit hear what burden
 Weighs on my soul. The glorious earth-born state,
 Athens, men say, hath naught of alien strain.
@@ -775,7 +774,7 @@ Or honour me, and wreck thine household’s peace ?
 How oft the dagger and the deadly bowl
 Have women found to slay their lords withal !
 Nay, father, more—I pity this thy wife
-Who grows grey childless. *Tis not worthy her,
+Who grows grey childless. ’Tis not worthy her,
 Sprung from proud sires—this curse of childlessness.
 And sovranty, so oft, so falsely praised,
 Winsome its face is, but behind the veil
@@ -813,9 +812,9 @@ I'll make thee cheer: then to the Athenians’ land
 Bring thee as one that travelleth, not as mine.
 For, sooth, I have no heart to vex my wife
 With mine own bliss, while she is childless still.
-And 1 shall find a time to bring ny queen
+And I shall find a time to bring my queen
 To suffer thee to take my sceptred sway.
-Ion! 1 name thee, of that happy chance
+Ion! I name thee, of that happy chance
 In that, as forth Apollo’s shrine I came,
 First lighted I on thee. Now all thy friends
 To this glad feast of sacrifice gather thou,
@@ -825,14 +824,14 @@ Death—if ye say to my wife anything!
 
 ION. I go: yet to my fortune one things lacks :
 For, save I find her who gave life to me,
-My life ismaught. If one prayer be vouchsafed,
+My life is naught. If one prayer be vouchsafed,
 1 Ἴων, “coming,” because met at his coming forth.
 Of Athens’ daughters may my mother be,
 That by my mother may free speech be mine.
 The alien who entereth a burg
 Of pure blood, burgher though he be in name,
 Hath not free speech ; he bears a bondman’s tongue.
-[Eweunt xuruus and τον.
+[Exeunt XUTHUS and ION.
 
 CHORUS. O vision of tears, and of fierce heart-burning —(Sér.)
 Breaking forth into shrieks and the onrush of
@@ -843,7 +842,7 @@ Of childlessness waiteth her, hunger undying !
 Seer-son of Latona, what strain hast thou chanted ?
 Whence came he, the waif in thy temple-porch
 lying?
-Thy fosterling—yea, but a mother yet wanted! _
+Thy fosterling—yea, but a mother yet wanted!
 And the oracle stirreth mine heart to defying
 Of its tones with the whisper of treachery haunted.
 I fear whereunto it will grow,
@@ -852,7 +851,7 @@ Too strange for my credence it is.
 Child fathered of fortune and treason !
 Child alien of blood !—it were reason
 That all should cry yea unto this.
-_ Friends, shall I bear to my lady the story? (Avi)
+Friends, shall I bear to my lady the story? (Ant.)
 Shall I speak in her ear, her lord’s baseness
 revealing ?
 Whom she counted her all and in all—heretofore he
@@ -860,8 +859,8 @@ Had share in her dreams of a yet-coming glory.
 Now in woe is she whelmed, but his heart hath
 found healing, [strewing!
 That he flouts the dear tresses and eld’s silver-
-Ο caitiff and outlander, he that came stealing
-On the wealth of a house he saved not from undoing !!}— [dealing—
+O caitiff and outlander, he that came stealing
+On the wealth of a house he saved not from undoing !!— [dealing—
 Who would cozen my lady with treacherous
 False one, away to thy ruin, thy ruin!
 O’er the consecrate cake he shall lay
@@ -870,7 +869,7 @@ Unavailingly! Ah but my queen
 Shall know that I hold her the dearer !
 Lo this strange feast draweth nearer
 When the sire’s strange son shall be seen.
-Heights of Parnassus, rock-ridges upbearing |
+Heights of Parnassus, rock-ridges upbearing
 The watchtower crags and the cloudland dome,
 Where Bacchus, uptossing the pines flame-glaring,
 Leaps mid his Bacchants through darkness that
@@ -913,10 +912,10 @@ CREUSA. Sooth said: yet yield not thou to weariness.
 
 OLD SERVANT. I would not, but my lost strength I command not.
 
-CREUSA. ~Women, which do leal service at my loom
+CREUSA. Women, which do leal service at my loom
 And shuttle, show what fortune hath my lord
 Found touching issue, for which cause we came.
-For, if ye speak good tidings unto me, |
+For, if ye speak good tidings unto me,
 Your queen shall not forget the debt of joy.
 
 CHORUS. Ah fate !
@@ -927,11 +926,11 @@ CHORUS. Ah hapless !
 
 OLD SERVANT. Ha, sinks mine heart for my lords’ oracle!
 
-CHORUS. What shal] we do when death is in the path?
+CHORUS. What shall we do when death is in the path?
 
 CREUSA. What means this strain, and wherefore is your fear?
 
-CHORUS. Speech ?—silence ?—what is it that we should do ἢ
+CHORUS. Speech ?—silence ?—what is it that we should do ?
 
 CREUSA. Speak : something ye keep back that toucheth me.
 
@@ -945,7 +944,7 @@ OLD SERVANT. Daughter—
 
 CREUSA. Ah wretch !—ah me for my misery !
 I have gotten sore hurt, my friends: what is life
-unto: me ἢ
+unto me ?
 
 OLD SERVANT. Undone—-thou and I!
 O child!
@@ -958,7 +957,7 @@ OLD SERVANT. Nay, moan not yet—
 
 CREUSA. But wailings the soul of me fill! .
 
-OLD SERVANT. Ere we shall learn=—
+OLD SERVANT. Ere we shall learn—
 
 CREUSA. What tidings remain for me still?
 
@@ -972,12 +971,12 @@ CREUSA. Ah sorrow on sorrow, for crown of sorrow, and woes
 for my sighing !
 
 OLD SERVANT. But of some woman must he yet be born,
-This child ?—or did the God proclaim him born ἢ
+This child ?—or did the God proclaim him born ?
 
 CHORUS. Already born—nay more, a stripling grown
 Doth Loxias give. him. I was there, and heard.
 
-CREUSA. How sayest thou ?>—nameless, unspeakable things in
+CREUSA. How sayest thou ?—nameless, unspeakable things in
 mine ears art thou crying—
 
 OLD SERVANT. And mine. But how works out the oracle?
@@ -986,10 +985,9 @@ More clearly tell me : who the lad is, tell.
 CHORUS. Whomso thy lord should first meet as he passed
 From the God’s fane, the God gave him for son.
 So
-TON
 
 CREUSA. Al me ! ah me ‘—-and my weird
-Of barrenness, barrenness grippeth my_ life !—
+Of barrenness, barrenness grippeth my life !—
 desolation-oppressed
 Shall I live on, living in childless halls !
 OLD SERVANT ,
@@ -1012,13 +1010,13 @@ CHORUS. Ion, since he was first to meet his sire.
 OLD SERVANT. His mother, who ?
 
 CHORUS. Thereof can [ say naught,
-My lady’s spouse hath sto]l’n—that all my tale
+My lady’s spouse hath stol’n—that all my tale
 Be known of thee—into the festal tent,
 ‘To sacrifice for welcoming and birth,
 And spread a public feast for this new son.
 
 OLD SERVANT. Betrayed, Queen, are we—for thy pain is mine—
-Of this thy lord ;. by: treason-stratagems
+Of this thy lord; by treason-stratagems
 Insulted ; from Erechtheus’ palace-halls
 
 CHORUS. Ah me! how evermore I loathe the knave
@@ -1029,20 +1027,20 @@ Yet honest, rather than the craftier villain.
 OLD SERVANT. And a worse ill than all this must thou know,
 To take into thine house for lord thereof
 A slave's brat, motherless, of none account !
-*Twere but one ill, if from a free-born womb,
+’Twere but one ill, if from a free-born womb,
 With thy consent, pleading thy barrenness,
 
 CHORUS. I too, dear mistress, I consent to share
 Thy fate,—or death, or honourable life.
 
 CREUSA. O, how keep silence, my soul?
-Yet how shall 1 dare to unroll
+Yet how shall I dare to unroll
 Deeds hidden of darkness, and cast the shame behind
-me ὃ | [bind me?
+me ? [bind me?
 Yet what thing remaineth to fetter me, what thing to
 With whom can I stand in virtue’s glorious strife?
 Hath not mine husband a traitor been shown to his
-wife ? |
+wife ?
 I am wholly of home bereft, am of children bereft :
 Of the hopes unavailing I cherished not one is left, Who dreamed I should order all things well,
 Yet naught of that bridal of horror tell,
@@ -1071,7 +1069,7 @@ Plucking the crocuses, heaping my veil with their
 gold-litten flame,
 Cam’st on me, caughtest the poor pallid wrists of mine
 hands and didst hale
-Unto thy couch in the cave,—* Mother! mother !” I
+Unto thy couch in the cave,—“Mother! mother !” I
 shrieked out my wail,—
 Wroughtest the pleasure of Cypris: no shame made
 the god-lover quail.
@@ -1101,10 +1099,10 @@ OLD SERVANT. To weep with friends that weep, full well I know.
 
 CREUSA. Hear then :—the Rocks of Cecrops knowest thou,
 The Long Cliff named ?—the northward-facing cave?
-OLD SERVANT ᾿
+OLD SERVANT.
 I know: Pan’s shrine and altars stand thereby.
 
-CREUSA. Even there 1 agonized in that dread strife—
+CREUSA. Even there I agonized in that dread strife—
 
 OLD SERVANT. What ?—lo, how start my tears to meet thy words!
 
@@ -1114,7 +1112,7 @@ OLD SERVANT. Ah daughter, was it this myself had marked ?
 
 CREUSA. Had marked ?—If sooth thou sayest, I will tell.
 
-OLD SERVANT. Thy secret sighing as with hidden pain ἢ
+OLD SERVANT. Thy secret sighing as with hidden pain ?
 
 CREUSA. Yea; then befell the ills I now lay bare.
 
@@ -1125,7 +1123,7 @@ gt
 
 ION. nf ? , 3 KH ῇ ~ f
 
-CREUSA. . Even 1. My vesture darkling swaddled him.
+CREUSA. Even I. My vesture darkling swaddled him.
 
 OLD SERVANT. Who tended thee? . . . . alone in trial’s hour !
 
@@ -1136,7 +1134,7 @@ OLD SERVANT. And the boy, where '—that thou no more be childless.
 CREUSA. Dead is he, ancient,—unto beasts cast out.
 
 OLD SERVANT. Dead ?—and Apollo, traitor! helped thee naught ?
-CREUSA ©
+CREUSA.
 Helped not. The child is nursed in Hades’ halls.
 
 OLD SERVANT. Who cast him forth? Not thou—O never thou '
@@ -1158,7 +1156,7 @@ OLD SERVANT. Seeking the breast, the cradle of thine arms?
 
 CREUSA. Where he lay not, and so had wrong of me.
 
-OLD SERVANT. And in what hope didst thou cast forth the babe Ὁ
+OLD SERVANT. And in what hope didst thou cast forth the babe ?
 
 CREUSA. That the God yet would save him—his own child.
 
@@ -1180,7 +1178,7 @@ CREUSA. How ?—I, a mortal, triumph o’er the strong ?
 
 OLD SERVANT. Set thou the torch to Loxias’ holy shrine.
 
-CREUSA. I fear :—even now 1 have enough of woes.
+CREUSA. I fear :—even now I have enough of woes.
 
 OLD SERVANT. Then dare the thing thou canst: thine husband slay.
 
@@ -1188,7 +1186,7 @@ CREUSA. I cannot—for old love and loyalty’s sake.
 
 OLD SERVANT. The boy, at least, thus foisted upon thee.
 
-CREUSA. How ὃ — would ‘twere possible !—how fain would I!
+CREUSA. How ? — would ‘twere possible !—how fain would I!
 
 OLD SERVANT. With daggers arm the servants of thy train.
 
@@ -1228,7 +1226,7 @@ OLD SERVANT. What was the fashion of its grisly form ?
 
 CREUSA. A breastplate fenced with ring on ring of snakes.
 
-OLD SERVANT. But, daughter, how shail this thing harm thy foes ?
+OLD SERVANT. But, daughter, how shall this thing harm thy foes ?
 
 CREUSA. Knowest thou Erichthonius ?—thou must.
 
@@ -1294,7 +1292,7 @@ CREUSA. Know’st then thy part? Receive thou from mine hand
 Athena’s golden vial, wrought of old.
 And, in the banquet’s pause, when men will pour
 Wine to the Gods, this have thou ‘neath thy cloak,
-And swiftly drop into the stripling’s cup,— _
+And swiftly drop into the stripling’s cup,—
 That for his drinking, not the general bow],—
 Even his who seeks to lord it o’er mine house.
 If once it pass his lips, ne’er shall he come
@@ -1306,7 +1304,7 @@ Come, agéd foot, for deeds must thou grow young,
 Though this be not by time vouchsafed to thee.
 On, with thy mistress on, against the foe!
 Help her to slay and cast him forth her home.
-Fair faith >—O yea, fair faith for fortune fair :
+Fair faith ?—O yea, fair faith for fortune fair :
 But, when ye would wreak vengeance on your foes,
 There is no law that lieth in the path.
 
@@ -1315,7 +1313,6 @@ Queen of the nightmare darkness-ranger,
 ? Hekate, goddess of sorcery and secret poisoning. She
 haunted places where roads crossed each other, and at night
 sent up demons and phantoms from Hades.
-ON
 
 ION. Guide thou the hand that for noontide slaughter
 Shall fill up the chalice, my lady’s avenger,
@@ -1330,15 +1327,16 @@ But—the death unaccomplished ?—the deed unabetted
 Of the hour, and my mistress’s purposes ended,
 And the hopes that upbore her?-—remains the
 sword whetted ; [pended ;
-Remaineth the neck in the death-noose susAnd, by agony ending the agony-strife,
+Remaineth the neck in the death-noose sus-
+And, by agony ending the agony-strife,
 Shall she pass to the life beyond this life.
 For never this queen from kings descended
 Shall endure that the splendour-light of her
 eyne, . [the ancient hall
 No, not while she liveth, should fall on the shame of
 Ruled by the upstart of alien line.
-Shame for the God oft-chanted! ῷ(ϑέν. 2)
-In hymns, if he;? |
+Shame for the God oft-chanted! (Ant. 2)
+In hymns, if he;?
 Beside the fountains haunted
 Of dances, see
 1 Dionysus, worshipped in the Eleusinian Mysteries with
@@ -1358,9 +1356,9 @@ And ‘neath the sea
 The Nereids'’ dance enrings
 The eternal river-springs,
 And their full chorus singe Persephone
-Gold-crowned, and our Earth-mother Awful ts she !==
+Gold-crowned, and our Earth-mother Awful is she !
 Shall he press in, that other,
-Τὸ sovranty ?
+To sovranty ?
 Shall not his hopes be foiled ?—
 Where kings and heroes toiled, [fee ?
 Shall that proud realm be spoiled, a vagrant’s
@@ -1402,7 +1400,7 @@ Plotting the secret murder of yon lad ?
 
 SERVANT. Yea, thou wilt share the doom—nor thou the last.
 
-CHORUS. How were the hidden stratagems laid bare ὃ
+CHORUS. How were the hidden stratagems laid bare ?
 
 SERVANT. The essay of right to vanquish wrong the God
 Discovered, lest his temple be defiled.
@@ -1430,7 +1428,7 @@ Or the slant javelin-gleams of dying day.
 A hundred feet he meted out foursquare,—
 Having for compass of its space within
 Ten thousand, as the cunning craftsmen say,—
-As bidding to the feast al] Delphi's folk.
+As bidding to the feast all Delphi's folk.
 With sacred tapestries from the treasuries
 He screened it, marvellous for men to see.
 First with a canopy of shawls he ceiled it,
@@ -1473,7 +1471,7 @@ Were mixed, the greybeard spake, “Take hence
 forthright
 These tiny wine-cups—ample beakers bring,
 That my lords’ hearts the sooner may be merry.
-en toiled we bearing goblets silver-chased
+Then toiled we bearing goblets silver-chased
 And golden; and he took a chosen one,
 5 rendering worship to his new-made lord,
 And gave the chalice brimmed, first casting in
@@ -1550,7 +1548,7 @@ men slipt I stealthily.
 CHORUS. What thy refuge save the altar?
 
 CREUSA. How shall this avail my need ?
-CHORUS Ψ
+CHORUS.
 Impious ’tis to slay the suppliant.
 
 CREUSA. Yet the law my death decreed.
@@ -1562,7 +1560,7 @@ Of the ministers of death !
 
 CHORUS. Upon the altar take thy seat ;
 For, if here they slay thee, shall thy blood to heaven
-for vengeance call |
+for vengeance call
 - On the murderers.
 [creusa seats herself on the altar, grasping
 at rth her hands.
@@ -1589,7 +1587,7 @@ In body, ever her name is in mine heart.
 See her, vile monster! Webs on webs of guile.
 She weaves! At Phoebus’ altar hath she crouched,
 As though she should not suffer for her deeds!
-Beckons to the guards, who advance trresolutely.
+Beckons to the guards, who advance irresolutely.
 1 Praxithea, Creusa’s mother, was grand-daughter of this
 River-god.
 
@@ -1604,7 +1602,7 @@ ION. Thou sacred ?—who didst poison the God's child '
 
 CREUSA. Thou Loxias’ child !—his never, but thy sire’s.
 
-ION. His 1 became while father I had none.
+ION. His I became while father I had none.
 
 CREUSA. Ay, then :—-now, I am his, thou his no more.
 
@@ -1620,7 +1618,7 @@ ION. Yea? With what brands or with what flame of fire?
 
 CREUSA. In mine house wouldst thou dwell, take mine by force.
 
-ION. Take ?—my sire gtves the land that he hath won.
+ION. Take ?—my sire gives the land that he hath won.
 
 CREUSA. What part have Aeolus’ sons in Pallas’ land ?
 He was her saviour—and with arms, not words.
@@ -1632,7 +1630,7 @@ ION. Fearing what might await thee, thou wouldst slay me?
 CREUSA. Ay, lest thou haply wait not, but slay me!
 Childless, dost grudge my father finding me ?
 
-CREUSA. What, shalt thou seize all childless parents’ homes ὃ
+CREUSA. What, shalt thou seize all childless parents’ homes ?
 
 ION. Had I no part at least in my sire’s wealth ?
 
@@ -1655,7 +1653,7 @@ Shame, that a God ordained unrighteous laws
 For mortals, statutes not in wisdom framed !
 / , A 7 ,
 ~»
-ION ᾿
+ION.
 Never should crime have altar-sanctuary,
 But hounding thence. Unmeet it is that hands
 Sin-stained should touch the Gods: but righteous men,
@@ -1663,7 +1661,7 @@ Whoso is wronged, should claim their sanctuary,
 And not the good and evil come alike
 Hither to win the same boon of the Gods.
 which are concealed by a wrapping which partially
-envelopes it. |
+envelopes it.
 
 PYTHIA. Forbear, my son. The seat of prophecy
 I leave, and step across. this temple-fence,
@@ -1677,17 +1675,17 @@ ION. Hast heard of yonder woman’s plot to slay me?
 
 PYTHIA. I heard: yet is thy ruthlessness all wrong.
 
-ION. Shall 1 not pay death-wage to murderers ?
+ION. Shall I not pay death-wage to murderers ?
 
 PYTHIA. To stepsons from of old have wives been foes.
 Yea, I withal of stepdames have foul wrong.
 
-PYTHIA. Ah hush! Thou Jeav’st the fane, thou farest home—
+PYTHIA. Ah hush! Thou leav’st the fane, thou farest home—
 
 ION. What must I do then at thy counselling ?
 
 PYTHIA. With clean hands and fair omens go to Athens.
-| : _ 10N
+ION.
 Clean are the hands of whoso slays his foes.
 
 PYTHIA. Nay, nay !—but hear the tale I bring to thee.
@@ -1724,21 +1722,21 @@ ION. What profit or what hurt hath this for me?
 PYTHIA. This hides the swaddling-bands that wrapped thee
 then.
 
-ION. My mother !—-clues be these for finding her ὃ
+ION. My mother !—-clues be these for finding her ?
 
 PYTHIA. Yea, 'tis the God's will now—not heretofore.
 
 ION. O day of blessed revelations this !
 
 PYTHIA. Take them—rest not until thou find thy mother.
-| | ION | .
+ION.
 How ?—search ‘all Asia through, search Europe’s
-bounds? ς
+bounds?
 
 PYTHIA. Thou shalt not err, thou. For the God’s own sake
 I nursed thee, boy : these give I back to thee,
 Which his unspoken will then made me take
-And guard. Why thus he willed I cannot tell: ἈΑἜ1860
+And guard. Why thus he willed I cannot tell:
 But none of mortal men was ware that I
 Had these, nor hidden in what place they lay.
 Farewell . . . . for as a mother kiss I thee.
@@ -1760,7 +1758,7 @@ Soft in a mother’s arms, and known life’s joy,
 Of a sweet mother’s care was I bereft.
 O hapless she who bare me, who hath suffered
 Like me, hath lost the joys of motherhood !
-But this ark wil] I bear unto the God,
+But this ark will I bear unto the God,
 An offering—lest I find aught I would not.
 For, if perchance a slave-girl gave me birth,
 "Twere worse to find a mother than let be.
@@ -1801,20 +1799,20 @@ ION. 1 thy beloved—whom thou wouldst slay by stealth !
 
 CREUSA. Yes-—yes! my son! Is aught to parents dearer?
 
-ION. Cease !---ἰ shall take thee mid thy webs of guile.
+ION. Cease !---I shall take thee mid thy webs of guile.
 
 CREUSA. Take me?—ah take! I strain thereto, my child.
 
 ION. Void is this ark, or somewhat doth it hide?
 
-CREUSA. Yea, that which wrapped thee when 1 cast thee forth.
+CREUSA. Yea, that which wrapped thee when I cast thee forth.
 Speak out and name them ere thine eyes behold,
 
 CREUSA. Yea, if I tell not, I submit to. die.
 
 CREUSA. See there the web I wove in girlhood’s days.
 
-ION. Its fashion ?>—-girls be ever weaving webs.
+ION. Its fashion ?—-girls be ever weaving webs.
 
 CREUSA. No perfect work ; ’twas but a prentice hand.
 
@@ -1826,7 +1824,7 @@ ION. O Zeus, what weird is this that dogs our steps?
 
 CREUSA. Tis fringed with serpents—with the Aegis-fringe.
 
-ION. Lo, here the web! (dfts and spreads tt forth.) .
+ION. Lo, here the web! (lifts and spreads it forth.) .
 How strangely find we here the oracle!
 
 CREUSA. O work of girlhood’s loom, so long unseen !
@@ -1860,7 +1858,7 @@ Revealed is he that liveth and was dead.
 
 CREUSA. Ho ye, ye unfoldings of ether, ye sunlit expanses,
 In what cry shall I peal out my rapture ? O whence
-unto me {strange chances
+unto me strange chances
 Came it, this sweetness undreamed of? By what
 Such bliss do I see?
 
@@ -1875,7 +1873,7 @@ CREUSA. I had seen hope flee
 So long agone!
 O prophetess, whence and O whence to thine arms
 came he,
-_ My little one?
+My little one?
 Upborne by what hand unto Loxias’ halls was he sped ?
 A miracle : but through our lot to be
 May we be happy as our past was sad.
@@ -1889,22 +1887,22 @@ The uttermost bliss of the Blesséd, lo, now have I
 Thou speakest for mine heart and thine, as one.
 
 CREUSA. No more are we childless, no more unto barrenness
-banned : {kings hath the land.
+banned : kings hath the land.
 The home hath the hearth-glow again, and her
 The strength of his youth doth Erechtheus renew :
 The house of the Earth-born Race no longer to nightward shall gaze,
 But the sun’s beam cleaveth its darkness through.
-ION ᾿
+ION.
 Mother, my sire is here: let him too share
 This happiness which I have given to you.
 
 CREUSA. O child, child, what sayest thou ?—-must the shame
-- be laid bare of thy mother ἢ
+- be laid bare of thy mother ?
 
 CREUSA. Of another thou camest—oh, of another !
 
-ION. Woe’s me! a bastard ?—child of maiden’s shame ἢ
-CREUSA ἢ
+ION. Woe’s me! a bastard ?—child of maiden’s shame ?
+CREUSA.
 No torches were gleaming, no raiment outstreaming
 In the dance, my child, for the bridal bed
 Which brought to the birth thy dear-loved head !
@@ -1957,7 +1955,7 @@ And of this withal! We are tossed to drift
 On the surge of calamity hither and thither :
 Yet anon do the winds of heaven shift,
 And behold, we are gliding through summer
-weather ! _ (suffice.
+weather ! (suffice.
 Oh may it last !—for the ills overpast should surely
 Fair winds, my son, now are wafting us on, after
 stormy skies.
@@ -1980,7 +1978,7 @@ And fold about with darkness that thy past.
 See to it, mother, lest thy steps have slipped,
 As maids infatuate yield to love—to shame,
 And upon Phoebus now thou chargest this,
-And, striving to escape the shame of me, _
+And, striving to escape the shame of me,
 Dost name the God my sire, who sire was none.
 
 CREUSA. No !—by Athena, Lady of Victory, who
@@ -2007,7 +2005,7 @@ Thee for thy good to another sire he gives.
 
 ION. Nay, not thus lightly on the quest I press.
 I will ask Phoebus, entering his fane,
-« Am 1] of Loxias, or.a mortal sire?”
+“Am I of Loxias, or a mortal sire?”
 ATHENA appears above the temple in her chariot.
 Ha! high above the incense-breathing house ,
 What God reveals a face that fronts the Sun ?.
@@ -2028,7 +2026,7 @@ Fearing lest thou shouldst of her plot be slain,
 And she of thee, saved thee by that device.
 Now the God would have kept the secret hid
 Until in Athens he revealed her thine,
-And thee the son of her and Phoebus born. |
+And thee the son of her and Phoebus born.
 But—to make end and tell his oracles,
 For which I yoked my chariot, hearken ye.
 Take this thy son and go to Cecrops’ land,
@@ -2038,12 +2036,12 @@ Worthy he is to rule o’er mine own land.
 Famed shall he be through Hellas; for the sons
 Born to him, even four from this one root,
 Shall give their names unto the several tribes.
-Of the land’s folk which dwell upon mine hiil.
+Of the land’s folk which dwell upon mine hill.
 Geleon the first shall be ; the second tribe
 Hopletes ; Argades the third: the fourth,
 One tribe, of my shield named Aegicores.
 And their sons in the fulness of the time
-Shail found them cities in the Cyclad Isles,
+Shall found them cities in the Cyclad Isles,
 And seaboard realms, for strength unto my land.
 Yea, they shall people either mainland’s plains
 On either side the strait, of Asia-land
@@ -2051,14 +2049,14 @@ And Europe: and because of thy son’s name
 Ianians shall be named, and win renown.
 From Xuthus too and thee a seed shall spring,
 Dorus, of whom shall Doris song-renowned
-_ Arise: the second goeth to Pelops’ land,
+Arise: the second goeth to Pelops’ land,
 Achaeus ; o’er the seaboard shall he reign
 Nigh Rhion, and the people of his name
 Among the nations shall be sealed therewith.
 Well hath Apollo all things done ; for, first,
 He gave thee health in travail ; so none knew:
 And, when thou hadst borne this child, and cast
-him out τς
+him out
 In swaddling-bands, bade Hermes in his arms
 Snatch him away, and hither waft thy babe ; :
 And nurtured him, nor suffered him to die.
@@ -2072,15 +2070,15 @@ ION. Pallas, Daughter of the Highest, child of Zeus, we
 will receive [believe
 These thy words with no unfaith, but Loxias do I
 Sire to me, and her my mother :—never was this
-past belief. |
+past belief.
 
 CREUSA. Hear me: Phoebus praise 1, whom I praised not in
 mine hour of grief, now restores.
 For that whom he set at naught, his child, to me he
-Lovely is his oracle, and fair to me these templedoors, (portal-ring,
+Lovely is his oracle, and fair to me these temple-doors, (portal-ring,
 Hateful though they were aforetime. Now unto the
 As I bid his gates my blithe farewell, with loving
-hands 1 cling.
+hands I cling.
 
 ATHENA. Well dost thou to turn to praises of the God; so is it
 still—

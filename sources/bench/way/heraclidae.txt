@@ -42,12 +42,12 @@ Old captains we that lead this exile-march,—
 I, for these lads heart-full of troubled thought ;
 And she, Alemena, in yon temple folds
 Her arms about the daughters of her son,
-And guards: for we think shame to let young. girls
+And guards: for we think shame to let young girls
 Stand, a crowd's gazing-stock, on altar-steps.
-Now Hyllus and fis brethren clder-born
+Now Hyllus and his brethren elder-born
 Seek some land for our refuge and our home,
 If from this soil we be with violence thrust.
-Ὁ children, children, hither !—seize my robes !
+O children, children, hither !—seize my robes !
 Yonder I see Eurystheus’ herald come
 Against us, him of whom we are pursued,
 The homeless wanderers barred from every land.
@@ -76,7 +76,7 @@ This shall not be! no, never while I live!
 
 COPREUS. Hands off! these ‘will I-hale, though thou say nay,
 Accounting them Eurystheus’ : his they are.
-[Hurls 1otavs to the ground.
+[Hurls IOLAUS to the ground.
 
 IOLAUS. O ye, in Athens dwellers from of old,
 Help! Suppliants we of Zeus of the Market-stead
@@ -97,7 +97,7 @@ And drags me from the altar-floor of Zeus.
 CHORUS. But from what land, O ancient, hast thou come
 To the folk of the Four Burgs’ federal home ?
 Were ye sped overseas by the brine-dipt oar
-To our land from Euboea’s craggy shore ὃ
+To our land from Euboea’s craggy shore ?
 
 IOLAUS. Strangers, no island-dweller's life is mine ;
 From proud Mycenae come we to thy land.
@@ -106,12 +106,12 @@ CHORUS. And by what name, ancient of days, did they call
 Thee, they which be fenced with Mycenae’s wall?
 
 IOLAUS. Hercules’ helper haply do ye know,
-lolaus, for not fameless was my name.
+Iolaus, for not fameless was my name.
 
 CHORUS. I know ; long since I heard : but whose are they,
 The fosterling lads that thine hand leadeth hitherward ?—say.
 Strangers, the sons they are of Hercules,
-Which have to thee and Athens suppliant cume.
+Which have to thee and Athens suppliant come.
 
 CHORUS. Say, what is your need that here ye are?
 Would ye plead your cause at the nation’s bar?
@@ -135,11 +135,11 @@ To cast off suppliant hands to the knees of our city
 that cling!
 
 COPREUS. ‘Tis well to keep thy foot from trouble’s snare,
-And in good counsel find the better part. lle
+And in good counsel find the better part.
 
 CHORUS. Thou shouldst have shown respect to this free land,
 And told her King, ere thy presumption tore
-Therefrom the strangers in her Gods* despite.
+Therefrom the strangers in her Gods' despite.
 
 COPREUS. And who is of this land and city king?
 
@@ -179,7 +179,7 @@ Myself an Argive would lead Argives hence,
 Who find them runaways from mine own land,
 By statutes of that land condemned to die;
 For, dwellers in a state subject to none,
-The right is ours to ratify her decrees, ᾿
+The right is ours to ratify her decrees,
 And, though they have come to hearths of many folk,
 Still on the same plea did we take our stand,
 And ruin on his own head none dared bring.
@@ -202,7 +202,7 @@ What canst thou plead? Of what lands art thou
 robbed,
 That with Tirynthian Argives thou wouldst war?
 What allies art defending? In whose cause
-Shall those thou buriest fall? ΠῚ fame were thine
+Shall those thou buriest fall? Ill fame were thine
 With thine Athenians, if for yon old man,
 That sepulchre,—mere naught, as men might say,—
 And these boys, in deep waters thou wilt sink.
@@ -211,14 +211,14 @@ Scant satisfaction for the present this !
 For against Argos these, armed, grown to man,
 Should make but feeble stand,—if haply this
 Uplift thine heart :—and long years lie between,
-Wherein ye may'be ruined. Nay heed me :
+Wherein ye may be ruined. Nay heed me :
 Give naught, but. suffer me to take mine own :
 So gain Mycenae’s friendship. Do not err,
 As oft ye do, taking the weaker side
 When ye might choose for friend the stronger cause.
 
 CHORUS. Who can give judgment, who grasp arguments,
-Ere from both’sides he clearly learn their pleas?
+Ere from both sides he clearly learn their pleas?
 
 IOLAUS. King, this advantage have I in your land,
 I am free to speak and in my turn to hear;
@@ -266,7 +266,7 @@ From thy Gods’ fanes, and banished from thy land :
 This were thine own shame, Athens’ bane withal,
 That homeless suppliants, kinsmen,—ah, their woes !
 Look on them, look !—be dragged away by force.
-I pray thee—these clasped hands are suppliantboughs,—
+I pray thee—these clasped hands are suppliant boughs,—
 By thy beard I implore, set not at naught
 Hercules’ sons, who hast them in thine hands.
 Prove thee to these true kinsman, prove thee
@@ -307,11 +307,11 @@ DEMOPHON. Just ?—to hale hence by force the suppliant ?
 
 COPREUS. Then mine the shame: no harm befalleth thee.
 
-DEMOPHON. My shame t6o, if I let thee drag these hence.
-copreus
-Banish them thou : then‘ will lead them thence.
+DEMOPHON. My shame too, if I let thee drag these hence.
+COPREUS.
+Banish them thou : then I will lead them thence.
 
-DEMOPHON. Ὁ born a fool, who wouldst outwit the God !
+DEMOPHON. O born a fool, who wouldst outwit the God !
 
 COPREUS. So hither felons must for refuge flee !
 
@@ -319,7 +319,7 @@ DEMOPHON. The God’s house gives to all men sanctuary.
 
 COPREUS. Haply not so shall think Mycenae’s folk.
 
-DEMOPHON. Am Γ᾿ ποῖ master then in mine own land ?
+DEMOPHON. Am I not master then in mine own land ?
 
 COPREUS. Not unto Argos’ hurt,—so thou be wise.
 
@@ -333,11 +333,11 @@ COPREUS. Yet will I take mine own and hale them hence.
 
 DEMOPHON. Not lightly shalt thou win to Argos back.
 
-COPREUS. That will I now try, and be certified. ᾿
+COPREUS. That will I now try, and be certified.
 [Attempts to seize them.
 
 DEMOPHON. Touch these, and thou shalt rue, and that right soon.
-cuorus
+CHORUS.
 Dare not to strike a herald, for heaven’s sake !
 
 DEMOPHON. That will I, if the herald learn not wisdom.
@@ -354,31 +354,31 @@ Waits on the marches of Alcathous.!
 He shall flash forth, being told thine insolence,
 On thee, thy folk, this land, and all her fruits.
 For all this warrior youth were ours for naught
-_ In Argos, if we avenge us not on thee.
+In Argos, if we avenge us not on thee.
 
-DEMOPHON. Begone! I fear not that’ thine Argos, I !
+DEMOPHON. Begone! I fear not that thine Argos, I !
 ’Twas not for thee to shame me and to.drag
 These hence by force. This city which I hold
 Is not to Argives subject : she is free.
-[Ἐπὶ coprevs.
-* cHoRUS It is time to prepare, ere the Argive array
+[Exit COPREUS.
+CHORUS. It is time to prepare, ere the Argive array
 Over our. marches on-sweepeth ;
 For Mycenae’s war-spirit is keen for the fray,
 And more hot for these tidings upleapeth.
 Yea, and after his kind will yon herald be swelling
 His wrongs—such aye double a tale in the telling :—
-In the ears of his lords, think ye, how will he ery
+In the ears of his lords, think ye, how will he cry
 On the foulness of outrage “ that brought him this day
 Unto death well nigh! iad
-ὁ ig, im Megara, of which Aleathous had shortly ‘before
+1 i.e. in Megara, of which Alcathous had shortly before
 king.
 Cah)
 
 IOLAUS. No fairer honour-guerdon may sons win
 Than this, to spring from noble sires and good,
 {And so wed noble wives. Who, passion’s thrall,
-inks him with base folk, ne’er shall have my
-raise,
+links him with base folk, ne’er shall have my
+praise,
 Who, for his lust’s sake, stamps his seed with shame. ]
 For noble birth stands in the evil day
 Better than base blood. We, to deepest depths
@@ -389,7 +389,7 @@ Give, children, unto these the right hand give,
 And to the children ye ; draw near to them.
 Boys, we have put our friends unto the test :-—
 if tome-return shall ever dawn for you,
-And your sires’ halls aud honours ye inherit,
+And your sires’ halls and honours ye inherit,
 Saviours and friends account them evermore,
 And never against their land lift hostile spear,
 Remembering this, but hold them of all states
@@ -418,7 +418,7 @@ DEMOPHON. Well said of thee ; and sure am I that these
 Shall so prove ; unforgot shall be our boon.
 Now will I muster for the war my folk,
 ‘And marshal, that a goodly band may greet
-Mycenae’s host. Scouts first will 1 send forth
+Mycenae’s host. Scouts first will I send forth
 To meet it, lest unwares it fall on me ;
 For swift the Argives throng to the gathering-cry.
 Seers will I bring, and sacrifice. Thou, leave
@@ -435,7 +435,7 @@ Though Hera, bride of Zeus, before them go,
 Ours is Athena; and this tells, say I,
 For triumph, to have gotten mightier Gods ;
 For Pallas never shall brook overthrow.
-[cit pemopron,
+[Exit DEMOPHON,
 
 CHORUS. Ay, vaunt as thou wilt, yet uncaring
 Will we swerve none the more from the right,
@@ -453,7 +453,7 @@ Chastiseth overweening arrogance.
 DEMOPHON. They are come, the Argive host and king Eurystheus.
 Myself beheld them; for behoves the man,
 Whoso makes claim to know good generalship,
-To see—nor that with eyes of seouts-his foes.
+To see—nor that with eyes of scouts—his foes.
 But to the plains not yet hath he marched down
 His bands, but, couched upon the rocky brow,
 Watcheth—I but make guess of that I tell thee—
@@ -493,7 +493,7 @@ The stranger, though she yearn with eager will ?
 IOLAUS. O children, we are like to shipmen, who,
 Escaped the madding fury of the storm,
 And now in act to grasp the land, have’ yet
-By blasts been driven ffom shore to sea again.
+By blasts been driven from shore to sea again.
 Even so are we from this land thrust away,
 When, as men saved, even now we touched the
 strand.
@@ -511,7 +511,7 @@ I reck not of myself, if I must die, —
 Except.that-o’er my death yon foes shall gloat ;
 But for you, babes, I weep in utter ruth,
 And for your sire’s grey mother, even Alcmena.
-Ὁ lady, hapless in thy Jength of days !
+O lady, hapless in thy length of days !
 And hapless I, who have greatly toiled in vain !
 Doomed were we, doomed into a foeman’s hands
 To fall, and die in shame and agony!
@@ -543,7 +543,7 @@ In season, set it forth: I am desperate,
 Hearing these oracles, and full of fear.
 
 MACARIA. Strangers, impute not for my coming forth
-Boldness to me : this is my first request }
+Boldness to me : this is my first request
 Since for a woman silence and discretion
 Be fairest, and still tarrying in the home.
 But, Iolaus, I heard thy moans, and came,—
@@ -588,14 +588,14 @@ And suffered—I, from hero-father sprung—
 Horrors, and looked on Hades none the less !
 Or, banished, shall I wander from this land,
 And not be utterly shamed, if one should say,
-“« Wherefore come hither with.your suppliant boughs,
-Ὁ ye that so love life ?—hence from our land !
+“ Wherefore come hither with your suppliant boughs,
+O ye that so love life ?—hence from our land !
 For we to cravens will not render help?”
 Nay, and not even if all these were slain
 And I saved, have I hope of happy days ;—
 Many, so tempted, have betrayed their friends ;—
 For who would stoop to take a friendless girl
-To wife, or care to raise up seed of me ὃ
+To wife, or care to raise up seed of me ?
 Better to die than light on such a doom
 Unworthy! Haply this might well beseem
 Another maid who hath not my renown.
@@ -603,14 +603,14 @@ Lead on to where this body needs must die :
 Wreathe me, begin the rite, if this seem good.
 Vanquish your foes ; for ready is this life,
 Willing, ungrudging. Yea, I pledge me now
-*For these my brothers’ sake, and mine, to die.
+For these my brothers’ sake, and mine, to die.
 For treasure-trove most fair, by loving not
 Life, have I found,—with glory to quit life.
 
 CHORUS. What shall I say, who hear this maid’s high words
 Consenting for her brethren’s sake to die?
 What man could utter nobler words than these,
-Or who do nobler deed henceforth for ever ὃ
+Or who do nobler deed henceforth for ever ?
 
 IOLAUS. O child, thine heart is of none other sire—
 Thou art his own seed, of that godlike soul,
@@ -669,15 +669,15 @@ And these our hosts. If there be found of heaven
 For you release from toils, and home-return,
 Remember then your saviour's burial due,—
 Fair burial, as is just. I have failed you naught,
-Have stood your champion, for mine house have ditd.
+Have stood your champion, for mine house have died.
 My treasure this shall be, for babes unborn,
 Spousals forgone ;—if in the grave aught be :
-But ah that naught might be !—for if there tuo
+But ah that naught might be !—for if there too
 We mortals who must die shall yet have cares,
 I know not whither one shall turn ; since death
 For sorrows is accounted chiefest balm.
-TOLAUs
-Ὁ thou who for high courage hast no peer,
+IOLAUS.
+O thou who for high courage hast no peer,
 Above all women, know, in life, in death,
 Most chiefest honour shalt thou have of us.
 Farewell; for awe I dare not curse the Goddess,
@@ -690,13 +690,13 @@ Nor might we live, the oracle unfulfilled.
 This is calamity, that were deeper ruin.
 
 CHORUS. Never man hath been blessed save by God's dispensation, nor bowed under sorrow :—
-Lo, this do I ery — + [ways
+Lo, this do I cry — + [ways
 Nor the same house treads evermore in prosperity’s
 But the fate of to-day is dogged by the feet of the
 fate of to-morrow
 Ever treading anigh ;
 And him that was highly exalted it comes to abase,
-And him that was nothing accounted ἐξ setteth on
+And him that was nothing accounted it setteth on
 high.
 Ye may flee not your doom, nor repel, though the
 buckler of wisdom ye borrow,
@@ -707,17 +707,18 @@ nor thy spirit surrender
 Unto anguished despair.
 She hath won her a portion in death that the world
 shall praise, [Athens defender ;
-Who hath out of her agony risen, her bretbren’s, our
+Who hath out of her agony risen, her brethren’s, our
 And a crown shall she wear
 Of renown that the worship of men on her brows
 shall place ; [ing fare.
-For through tangle of trouble doth virtue unfalterOf her sire is it worthily done, of her line’s heroic
+For through tangle of trouble doth virtue unfalter-
+Of her sire is it worthily done, of her line’s heroic
 splendour. [share.
 In thine homage to noble death mine heart hath
 
 HENCHMAN. Hail, children! Where stay ancient Iolaus
 And your sire’s mother from their session here ?
-. TOLAUS ᾿
+IOLAUS.
 Here am I—such as my poor presence is.
 
 HENCHMAN. Why dost thou lie thus? Why these down-drooped
@@ -733,17 +734,17 @@ HENCHMAN. But bringing tidings of great joy I come.
 
 IOLAUS. Who art thou?—where have I met thee unremembered?
 
-HENCHMAN. Iam Hyllus’ vassal. Look, dost know me not?
-TOLAus
+HENCHMAN. I am Hyllus’ vassal. Look, dost know me not?
+IOLAUS.
 Friend, com’st thou our deliverer from bane ?
 
 HENCHMAN. Yea: therewithal thou art fortunate this day.
-Alemena, mother of ἃ hero-son,
+Alcmena, mother of a hero-son,
 Come forth, give ear to these most welcome words ;
 For travailing long in spirit hast thou fainted
 Lest those which now are come should ne’er return.
 
-ALCMENA. What means this outery filling all the house ?
+ALCMENA. What means this outcry filling all the house ?
 How, hath a herald from their Argos come
 Again to outrage thee? My strength is weakness ;
 Yet of this thing, O stranger, be assured,
@@ -754,7 +755,6 @@ With two old foes shalt have inglorious strife.
 
 IOLAUS. Fear not, grey queen, nor quake : no herald he
 From Argos cometh bearing hests of foes.
-HPAKAEIAAI
 
 ALCMENA. Why then didst raise a cry in-ushering fear ?
 
@@ -762,23 +762,23 @@ IOLAUS. That thou before this temple might’st draw nigh.
 
 ALCMENA. This was not in my thought :—now who is this?
 
-IOLAUS. He bringeth tidings. © Thy son’s son is here.
+IOLAUS. He bringeth tidings. Thy son’s son is here.
 
 ALCMENA. Hail also thou for this thine heralding!
 But wherefore absent, if he hath set foot
 In this land ?—where ?—what hap hath hindered him
 From coming with thee to make glad mine heart ?
-HENCHMAN”
+HENCHMAN.
 The host he hath brought he camps, and marshals it.
 
 ALCMENA. Such matter appertaineth not to me.
 It doth—though my part be to inquire thereof.
 
 HENCHMAN. What wouldst thou know concerning things achieved ?
-TOLAUs
+IOLAUS.
 How great a host of allies hath he brought ?
 
-HENCHMAN. Many : their tale'I cannot tell save thus.
+HENCHMAN. Many : their tale I cannot tell save thus.
 
 IOLAUS. All this, I trow, the chiefs Athenian know ?
 
@@ -792,14 +792,14 @@ IOLAUS. And distant how far is the Argive spear?
 
 HENCHMAN. So that thou plainly mayst discern their chief.
 
-IOLAUS. What doth he ?—marshals he the foemen’s lines? ?
+IOLAUS. What doth he ?—marshals he the foemen’s lines?
 
 HENCHMAN. So made we guess: not plainly could we hear.
 But I must go: I would not that without me,
 Through fault of mine, my lords should clash with
 foes:
 
-IOLAUS. And 1 with thee : my purpose is 88 thine,—
+IOLAUS. And I with thee : my purpose is 88 thine,—
 As meet is,—to be there and help my friends.
 
 HENCHMAN. Nay, nowise worthy thee were idle talk !
@@ -807,7 +807,7 @@ HENCHMAN. Nay, nowise worthy thee were idle talk !
 IOLAUS. Nor worthy of me to help not friends in fight !
 
 HENCHMAN. The glance can deal no wound, if hand strike not.
-TOLAus
+IOLAUS.
 How? Cannot I withal smite through a shield?
 
 HENCHMAN. Smite ?—yea, but thou thyself ere then mightst fall.
@@ -825,7 +825,7 @@ HENCHMAN. For deeds no power thou hast ;—hast will, perchance.
 Talk as-thou wilt, so I bide not behind.
 
 HENCHMAN. With mailed men how shalt thou unarmed appear?
-TOLAus
+IOLAUS.
 There hang within yon fane arms battle-won.
 These will I use, and, if I live, restore ;—
 The God will not require them of the slain.
@@ -835,7 +835,7 @@ Shameful it is—this loitering at home,
 That some should fight, some, craven souls, hang back!
 
 CHORUS. Not yet may the years quell thy spirit,
-. Young in heart, though thy strength be no more !
+Young in heart, though thy strength be no more !
 Why toil to thine hurt but in vain?
 Small help of thee Athens should gain.
 Let thine eld yet be wise, and refrain
@@ -849,24 +849,24 @@ IOLAUS. Yea, men must fight. For. these must thou take
 thought.
 
 ALCMENA. But, if thou perish, how shall.I be saved ?
-TOLAUs
+IOLAUS.
 Thy son’s sons which are left shall care for thee.
 
 ALCMENA. But if—which God forbid—aught hap to them?
-ToLaus Our hosts shall not forsake thee. Fear not thou.
+IOLAUS. Our hosts shall not forsake thee. Fear not thou.
 
-ALCMENA. Mine heart's last stay are these :*none else have I.
+ALCMENA. Mine heart's last stay are these : none else have I.
 
 IOLAUS. Nay, Zeus, I know, remembereth thy griefs.
 
 ALCMENA. Ah! (sighs heavily.)
 Never of me shall ill be said of Zeus ;
 But is he just to me-ward? Himself knows!
-᾿ [Retires within temple.
+[Retires within temple.
 
 HENCHMAN. Lo, here thou seest a warrior’s gear complete :
 Make all speed to encase in these thy frame.
-The fight is nigh, and most the War-god loathes /
+The fight is nigh, and most the War-god loathes
 Loiterers. If thou fear the armour's weight,
 In this array: till then will I bear all.
 
@@ -879,7 +879,7 @@ HENCHMAN. How, lead as a little child the man-at-arms !
 IOLAUS. For the omen’s sake unstumbling must I go.
 
 HENCHMAN. Would thou wert strong to do, as thou art fain!
-TOLAUs
+IOLAUS.
 On !—woe, if I be laggard for the fray !
 
 HENCHMAN. Not I, but thou art slow, who dream’st performance.
@@ -887,19 +887,19 @@ HENCHMAN. Not I, but thou art slow, who dream’st performance.
 IOLAUS. Seést thou not how onward speed my limbs ?
 
 HENCHMAN. More thiné imagining see I than thy speed.
-TOLAUs
+IOLAUS.
 Thou shalt not say so when thou seest me there—
-+ HENCHMAN
+HENCHMAN.
 Achieving what ?—I fain would see thy triumph !
 
 IOLAUS. Smiting some foeman, yea, clear through the shield.
 
 HENCHMAN. If we win ever thither,—this I doubt.
-TOLAUs
+IOLAUS.
 Would, O mine arm, that, as I call to mind
 Thy young strength, when thou didst with Hercules
 Smite Sparta, such a helper unto me
-Thou wouldst become !. How mightily would I rout
+Thou wouldst become ! How mightily would I rout
 Eurystheus—craven he to abide the spear!
 With high estate is this delusion linked,
 Repute for courage high : for still we deem
@@ -936,14 +936,14 @@ Who from Argos brings storm-rush of spearmen
 upon me, . won me
 Chase afar !—no such guerdon hath righteousness
 As from home to be driven !
-᾿ (Ant, 2)
+(Ant, 2)
 For the sacrifice-homage is rendered thee aye
 When the month waneth, bringing
 The day when young voices to thee chant the lay,
 When the dancers are singing,
 aS
 When the wind-haunted hill with the beat of the
-glancing ᾿ [dancing
+glancing [dancing
 White feet of fair girls through the night-season
 And with glad cries, is ringing.
 ALCMENA comes again out of the temple. Enter servant.
@@ -956,7 +956,7 @@ Hung with war-harness of thine enemies.
 ALCMENA. Dear friend, this day hath wrought thy severance
 From bondage, for the tidings thou hast brought.
 Yet from one ill not yet thou freest me—
-Fear touching those { love, if yet they live.
+Fear touching those I love, if yet they live.
 
 SERVANT. They live, in all the host most high-renowned.
 
@@ -1014,8 +1014,8 @@ Burst through our ranks: then gave they back again.
 Anon foot stood in grapple locked with foot,
 Man fronting man, hard-wrestling in the fray :
 Fast, fast they fell. Cheers ever answered cheers—
-« Dwellers in Athens !”—“ Tillers of the land
-Of Argos !”—* from dishonour save your town!”
+“ Dwellers in Athens !”—“ Tillers of the land
+Of Argos !”—“ from dishonour save your town!”
 With uttermost endeavour and strong strain
 Scarce turned we unto flight the Argive spear.
 Thereat old Iolaus, marking where
@@ -1059,7 +1059,7 @@ And sacrifice to your fathers’ Gods, from whom
 Banned ye have known a wretched homeless life.
 But for what veiled wise purpose Iolaus
 Hath spared Eurystheus, that he slew him not,
-Tell; for in our sight nothing wise is this Ὁ:
+Tell; for in our sight nothing wise is this:
 To capture foes and not requite their wrong.
 
 SERVANT. Of thought for thee, that him thine eyes might see
@@ -1101,11 +1101,10 @@ And with honour the Spousal-god crowned him,
 And to Hebe with love-links he bound him,—
 Zeus’ son to Zeus’ daughter,—where glisten
 Heaven's halls with gold-sheen.
-RS
 How oft be life’s strands interwisted !
 Of Athena, men say,
 Was their sire in hard emprise assisted ;
-. And the city this day,
+And the city this day,
 And the folk of that Goddess hath saved them,
 And hath curbed him whose blood-lust had craved
 em,
@@ -1114,7 +1113,7 @@ In my cause never pride be enlisted
 Insatiate for prey.
 chains.
 
-MESSENGER. Ὁ queen, thou seést,—yet shall it be told —
+MESSENGER. O queen, thou seést,—yet shall it be told —
 Leading Eurystheus unto thee we come,
 A sight unhoped, which ne’er he looked should hap,
 Who ne’er had thought to fall into thine hands,
@@ -1126,7 +1125,7 @@ Hyllus I left and valiant Iolaus
 Raising the victory-trophy unto Zeus ;
 But me they charge to bring this man to thee,
 Being fain to glad thine heart ; for ’tis most sweet
-To see a foe triumphant once brought low. ~
+To see a foe triumphant once brought low.
 
 ALCMENA. Loathed wretch, art come? Justice at last hath
 trapped thee!
@@ -1136,7 +1135,6 @@ No more art thou the master, but the thrall !
 Art thou he—for I would be certified—
 Who didst presume to load thine outrages,
 ay
-THE CHILDREN OF HER@{LES
 Caitiff, on my son—whereso now he be ?
 For wherein didst thou fear to outrage him,
 Who didst to Hades speed him living down,
@@ -1156,7 +1154,7 @@ CHORUS. It may not be that thou shouldst slay this man!
 
 MESSENGER. Captive in vain then have we taken him!
 
-ALCMENA. Prithee what law witholdeth him from death ?
+ALCMENA. Prithee what law withholdeth him from death ?
 
 CHORUS. It pleaseth not the rulers of this land.
 
@@ -1164,12 +1162,12 @@ ALCMENA. How ?—do these count it shame to slay their foes?
 
 CHORUS. Yea, such as they have ta’en in fight unslain.
 
-ALCMENA. Ay so ?—and this their doom hath Hyllus brooked ὃ
+ALCMENA. Ay so ?—and this their doom hath Hyllus brooked ?
 
 CHORUS. Should he, forsooth, defy this nation’s will ?
 
 ALCMENA. He should no more have lived, nor seen the light.
-Aye’scheming—Night sat by, and counselled me—
+Aye scheming—Night sat by, and counselled me—
 How I might scatter and destroy my foes,
 ‘And have thenceforth for housemate fear no more,
 Knowing thy son no cipher, but a man
@@ -1200,8 +1198,6 @@ Let this man go ; for so the city wills.
 ALCMENA. But—if he die, and I obey her still ?
 
 CHORUS. This should be best ; yet how can this thing be ?
-BBB
-HPAKAEIAAL
 
 ALCMENA. This will I lightly teach thee :—I will slay,
 ‘Then yield him dead to friends that come for him.
@@ -1225,7 +1221,7 @@ Came I, and feared not the God’s oracles?
 Hera, methought, was mightier far than these,
 And would not so forsake me. Shed not thou
 Drink-offerings nor blood upon’ my tomb!
-ΠῚ home-return will I give thy sons’ sons
+Ill home-return will I give thy sons’ sons
 For this! Of me shall ye have double gain —
 My death shall be your blessing and their curse.
 
@@ -1234,7 +1230,7 @@ Your city’s safety and your children’s weal—
 To slay this man, who hear this prophecy ?
 Himself the path of perfect safety points.
 Your foe he is, yet is his death your gain.
-Hence with him, thralls. | When ye have slain him,
+Hence with him, thralls. When ye have slain him,
 then
 To dogs ’twere good to cast him. Hope not thou
 To live, and drive me again from fatherland.
@@ -1244,5 +1240,3 @@ March on with the doomed. No blood-guilt
 stain,
 Proceeding of us, on our kings shall remain.
 (Exeunt omnes.
-soogle
-THE
