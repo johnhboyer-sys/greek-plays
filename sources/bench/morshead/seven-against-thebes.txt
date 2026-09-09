@@ -92,31 +92,41 @@ A signal, though speechless, of doom, a herald more
 clear than a cry !
 Hoof-trampled, the land of my love bears onward the
 din to mine ears.
+CHORUS
 As a torrent descending a mountain, it thunders and
 echoes and nears !
 The doom is unloosened and comcth ! O kings and O
 queens of high Heaven,
 Prevail that it fall not upon us ! the sign for their onset
 is given —
+CHORUS
 They stream to the walls from witliout, white-shielded
 and keen for the fray.
+CHORUS
 They storm to the citadel gates — what god or what
 goddess can stay
 The rush of their feet ? to what shrine shall I bow
 me in terror and pray ?
+CHORUS
 O gods high-throned in bliss, we must crouch at the
 shrines in your home I
+CHORUS
 Not here must we tarry and wail : shield clashes on
 shield as they come —
+CHORUS
 And now, even now is the hour for the robes and the
 chaplets of prayer I
+CHORUS
 Mine eyes feel the flash of the sword, the clang is
 instinct with the spear !
+CHORUS
 Is thy hand set against us, O Ares, in ruin and wrath
 to o'erwhelm
 Thine own immemorial land, O god of the golden helm ?
+CHORUS
 Look down upon us, we beseech thee, on the land
 that thou lovest of old.
+CHORUS
 And ye, O protecting gods, in pity your people
 behold !
 Yea, save us, the maidenly troop, from the doom and
@@ -161,6 +171,7 @@ The blast of the terrible stones on the ridge of our
 wall is not stayed,
 At the gates is the brazen clash of the bucklers —
 Apollo to aid !
+CHORUS
 Thou too, O daughter of Zeus, who guidest the
 wavering fray
 To the holy decision of fate, Athena I be with us to-day !
@@ -361,6 +372,7 @@ In this great aspect of a poised war.
 Return and plant them at the sevenfold gates,
 Or e'er the prompt and clamorous battle-scouts
 Haste to inflame our counsel with the need.
+CHORUS
 I mark his words, yet, dark and deep,
 My heart's alarm forl)i(idelh sleep !
 Close-clinging cares around my soul
@@ -396,6 +408,7 @@ By the gods of Achaean worship and arms of Achaean
 might
 Sacked and defiled and dishonoured, its women the
 prize of the fight —
+CHORUS
 That, haled by the hair as a steed, their mantles
 dishevelled and torn,
 The maiden and matron alike should pass to the
@@ -442,6 +455,7 @@ Fresh horror at your hearts — beneath the power
 Of those who crop the flower !
 Ye own the ruffian ravisher for lord.
 And night brings rites abhorred !
+CHORUS
 Woe, woe for you ! upon your grief and pain
 There comes a fouler stain.
 
@@ -989,6 +1003,7 @@ A root of blood I by frenzy lured, they came
 Unto their wedded shame.
 And now the waxing surge, the wave of fate.
 Rolls on them, triply great —
+CHORUS
 One billow sinks, the next towers, high and dark,
 Above our city's bark —
 Only the narrow barrier of the wall
@@ -1062,6 +1077,7 @@ out —
 
 CHORUS
 Lie they out yonder ? the full horror speak 1
+MESSENGER
 Did hands meet hands more close than brotherly?
 Came fate on each, and in the selfsame hour ?
 
@@ -1107,10 +1123,12 @@ Children of teen ! by disbelief ye erred —
 Yet in wild weeping came fulfilment of the word I
 Look up, look forth ! the doom is plain,
 Nor spake the messenger in vain !
+CHORUS
 A twofold sorrow, twofold strife —
 Each brave against a brother's life I
 In double doom hath sorrow come —
 How shall I speak it ? — on the home !
+CHORUS
 Alas, my sisters I be your sighs the gale,
 The smiting of your brows the plash of oars,
 Wafting the boat, to Acheron's dim shores
@@ -1120,6 +1138,7 @@ Far from thy beams, Apollo, god of day —
 The melancholy bark
 Bound for the common bourn, the harbour of the
 dark !
+CHORUS
 Look up, look yonder ! from the home
 Antigone, Ismene come.
 On the last, saddest errand bound,
@@ -1133,37 +1152,46 @@ Yet— ere they utter forth their woe- —
 We must awake the rueful strain
 To vengeful powers, in realms below,
 And mourn hell's triumph o'er the slain I
+CHORUS
 Alas I of all, the breast who bind, —
 Yea, all the race of womankind —
 O maidens, ye are most bereaved !
 For you, for you the tear-drops start —
 Deem that in truth, and undeceived,
 Ye hear the sorrows of my heart !
+ANTIGONE
 One, proud of heart against persuasion's voice,
 One, against exile proof! ye win your choice —
 Each in your fatherland, a separate grave !
+CHORUS
 Alack, on house and heritage
 They brought a baneful doom, and death for wage !
+ISMENE
 One strove through tottering walls to force his way,
 One claimed, in bitter arrogance, the sway,
 And both alike, even now and here.
 Have closed their suit, with steel for arbiter !
+CHORUS
 And lo, the Fury-fiend of Oedipus, their sire.
 Hath brought his curse to consummation dire '
+ANTIGONE
 Each in the left side smitten, see theni laid —
 The children of one womb,
 Slain by a mutual doom I
 Alas, their fate ! the combat murderous,
 The horror of the house,
 The curse of ancient bloodshed, now repaid !
+CHORUS
 Yea, deep and to the heart the deathblow fell,
 Edged by their feud ineffable —
 By the grim curse, their sire did imprecate —
 Discord and deadly hate !
+ISMENE
 Hark, how the city and its towers make moan —
 How the land mourns that held them for its own !
 Fierce greed and fell division did they blend.
 Till death made end !
+CHORUS
 They strove to part the heritage in twain.
 Giving to each a gain —
 Yet that which struck the balance in the strife,
@@ -1171,6 +1199,7 @@ The arbitrating sword.
 By those who loved the twain is held abhorred —
 Loathed is the god of death, who sundered each
 from life !
+ANTIGONE
 Here, by the stroke of steel, behold ! they
 lie—
 And rightly may we cry
@@ -1179,6 +1208,7 @@ Iron gave their doom, with iron their graves be
 made —
 Alack, the slaying siuord, alack, tli entouibing
 spade •
+CHORUS
 Alas, a piercing shriek, a rending groan,
 A cry unfeigned of sorrow felt at heart !
 With shuddering of grief, with tears that start.
@@ -1187,20 +1217,24 @@ For one or other make divided moan I
 No light lament of pity mixed with gladness.
 But with true tears, poured from the soul of sadness.
 Over the princes dead and their bereaved home
+ISMENE
 Say we, above these brethren dead,
 On citizen, on foreign foe,
 Brave was their rush, and stern their blotv —
 Now, lowly are they laid f
+CHORUS
 Beyond all women upon earth
 Woe, woe for her who gave them birth !
 Unknowingly, her son she wed —
 The children of that marriage-bed,
 Each in the self-same womb, were bred —
 Each by a brother's hand lies dead !
+ANTIGONE
 Yea, from one seed they sprang, and by one fate
 Their heritage is desolate.
 The heart's division sundered claim from claim,
 And, from their feud, death came !
+CHORUS
 Now is their hate allayed.
 Now is their life-stream shed.
 Ensanguining the earth with crimson dye —
@@ -1212,10 +1246,12 @@ The sharp, dividing sword.
 Fresh from the forge and fire
 The War-god treacherous gave ill award
 And brought their father's curse to a fulfilment dire 1
+ISMENE
 They have their portion — each his lot and doom.
 Given from the gods on high !
 Yea, the piled wealth of fatherland, for tomb.
 Shall underneath them lie !
+CHORUS
 Alas, alas ! with flowers of fame and pride
 Your home ye glorified ;
 But, in the end, the Furies gathered round
@@ -1228,69 +1264,106 @@ And the ill power beheld the brothers' fall,
 And triumphed over all 1
 
 ANTIGONE ISMENE AND CHORUS
+ANTIGONE
 Thou wert smitten, in smiting,
 Thou didst slay, and wert slain —
+ANTIGONE
 By the spear of each other
 Ye lie on the plain.
 And ruthless the deed that ye wrought was, and ruthless the death of the twain I
+ANTIGONE
 Take voice, O my sorrow !
 Flow tear upon tear —
+ANTIGONE
 Lay the slain by the slayer,
 Made one on the bier I
+ANTIGONE
 Our soul in distraction is lost, and we mourn o'er the
 prey of the spear I
+ANTIGONE
 Ah, woe for your ending,
+ISMENE
 Unbrotherly wrought I
+ANTIGONE
 And woe for the issue.
+ISMENE
 The fray that ye fought.
+ANTIGONE
 The doom of a mutual slaughter whereby to the
 grave ye are brought 1
+ANTIGONE
 Ah, twofold the sorrow —
 The heard and the seen !
+ANTIGONE
 And double the tide
 Of our tears and our teen.
+ISMENE
 As we stand by our brothers in death and wail for
 the love that has been I
+CHORUS
 O grievous the fate
 That attends upon wrong !
 Stern ghost of our sire,
 Thy vengeance is long !
 Dark Fury of hell and of death, the hands of thy
 kingdom are strong !
+ANTIGONE
 O dark were the sorrows
+ISMENE
 That exile hath known !
+ANTIGONE
 He slew, but returned not
 Alive to his own !
+ISMENE
 He struck down a brother, but fell, in the moment of
 triumph hewn down !
+ANTIGONE
 O lineage accurst,
 O doom and despair !
+ANTIGONE
 Alas, for their quarrel,
 The brothers that were !
+ANTIGONE
 And woe I for their pitiful end, who once were our
+ISMENE
 love and our care !
+CHORUS
 O grievous the fate
 That attends upon wrong !
 Stern ghost of our sire,
 Thy vengeance is long !
 Dark Fury of hell and of death, the hands of thy
 kingdom are strong !
+ANTIGONE
 By proof have ye learnt it !
+ISMENE
 At once and as one,
+ANTIGONE
 O brothers belov6d.
 To death ye were done !
+ISMENE
 Ye came to the strife of the sword, and behold I ye
 are botli overthrown !
+ANTIGONE
 O grievous the tale is,
+ANTIGONE
 And grievous their fall,
+ANTIGONE
 To the house, to the land.
+ANTIGONE
 And to me above all !
+ISMENE
 Ah God ! for the curse that hath come, the sin and
 the ruin withal !
+ANTIGONE
 O children distraught,
+ISMENE
 Who in madness have died I
+ANTIGONE
 Shall ye rest with old kings
+ISMENE
 In the place of their pride ?
+ANTIGONE
 Alas for the wrath of your sire if he findeth you laid
 by his side !
 
@@ -1378,6 +1451,7 @@ Nay — but for one man's sin he smote the State.
 
 ANTIGONE
 Contention doth out-talk all other gods I
+ANTIGONE
 Prate thou no more — I will to bury him.
 
 HERALD
@@ -1414,6 +1488,7 @@ Royal he was ; to him be paid
 Our grief, wherever he be laid !
 The crowd may sway, and change, and still
 Take its caprice for Justice' will !
+CHORUS
 But we this dead Eteocles,
 As Justice wills and Right decrees,
 Will bear unto his grave !

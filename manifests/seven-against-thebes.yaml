@@ -109,6 +109,8 @@ speakers:
     "First Half-Chorus": "Semichorus"
     "Second Half-Chorus": "Semichorus"
   english_secondary:
+    "ISMENE": "Ismene"  # REVIEW-CHECKLIST 8: labels inserted at Murray's divisions (2026-09-09)
+    "MESSENGER": "Scout"
     "ETEOCLES": "Eteocles"
     "SPY": "Scout"
     "CHORUS": "Chorus"
