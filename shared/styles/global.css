@@ -2132,7 +2132,16 @@ body {
 }
 .reader-body.play-line:not(.view-greek) .greek-line .line-text {
   position: relative;
-  padding-left: var(--pl-spk-w-greek);
+  /* Hanging indent (John, 2026-09-09): a Greek line that turns over on a
+     narrow column continues 1.4em in, so the turned part reads as part of
+     its line and never as a new one. The gutter is widened by the same
+     amount so the line's own start does not move. */
+  padding-left: calc(var(--pl-spk-w-greek) + 1.4em);
+  text-indent: -1.4em;
+}
+.reader-body.play-line.view-greek .greek-line .line-text {
+  padding-left: 1.4em;
+  text-indent: -1.4em;
 }
 /* ONLY a line-opening siglum hangs. A mid-line speaker change (an antilabe
    share, offset > 0) is never lineRenderParts' first part, so it stays
@@ -2153,7 +2162,7 @@ body {
    line, set to the right (text-indent from the share's position in the
    line), its siglum run in before the words instead of hanging in the
    gutter, no number. */
-.reader-body.play-line .greek-line.antilabe-share .line-text { text-indent: min(var(--share-indent, 0ch), 55%); }
+.reader-body.play-line .greek-line.antilabe-share .line-text { text-indent: calc(min(var(--share-indent, 0ch), 55%) - 1.4em); }
 .reader-body.play-line .greek-line.antilabe-share .line-text > .speaker:first-child {
   position: static; width: auto; margin-right: 0.4em; white-space: nowrap;
 }
