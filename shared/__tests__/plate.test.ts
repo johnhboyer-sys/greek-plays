@@ -148,11 +148,10 @@ describe('Plate.svelte', () => {
       .toEqual(['Greek text', 'Translations']);
   });
 
-  it('starts the reader on line 1, not on the plate', () => {
+  it('carries no "Start reading" link: the text follows on the same page (John, 2026-09-09)', () => {
     const { container } = render(Plate, { props });
-    const go = container.querySelector('.plate-go')!;
-    expect(go.textContent).toBe('Start reading →');
-    expect(go.getAttribute('href')).toBe('#col-1');
+    expect(container.querySelector('.plate-go')).toBeNull();
+    expect(container.textContent).not.toContain('Start reading');
   });
 });
 

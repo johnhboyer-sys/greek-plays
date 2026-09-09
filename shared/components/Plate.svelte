@@ -100,7 +100,6 @@
           {/each}
         </ul>
       {/if}
-      <a class="plate-go" href={startHref}>Start reading →</a>
     </div>
     <aside class="plate-margin">
       {#if production}<p><b>Production</b>{production}</p>{/if}

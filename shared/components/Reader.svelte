@@ -3707,6 +3707,11 @@
       <div class="rc-cite">
         {#if view === 'greek'}
           {#if greekSrc}<span class="rc-greek">{greekSrc.full}</span>{/if}
+        {:else if trans === 'compare' && playLine}
+          <!-- The play-line compare columns carry their own translator heads
+               (Reader's playColLabel); repeating them here read as a second
+               header row (John, 2026-09-09). The strip names the Greek source. -->
+          {#if greekSrc}<span class="rc-greek">{greekSrc.short}</span>{/if}
         {:else if trans === 'compare'}
           {#if view === 'both'}<span class="rc-col-spacer" aria-hidden="true"></span>{/if}
           <span class="rc-col-name">{citeShort(transById(compareLeft))}</span>
