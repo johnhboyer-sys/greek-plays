@@ -2800,8 +2800,16 @@
     closeFootnote();
   }
 
+  // Phone layout (rows stack, global.css): a line-keyed translation is then
+  // grouped by SPEECH, not by anchor -- five lines of Greek, a paragraph, five
+  // more lines read as interleaving on a phone (John, 2026-09-09).
+  let phoneLayout = false;
+
   onMount(async () => {
     reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const phoneMq = window.matchMedia('(max-width: 680px)');
+    phoneLayout = phoneMq.matches;
+    phoneMq.addEventListener?.('change', (e) => { phoneLayout = e.matches; });
     // Remember which book of this work was last open, for the work switcher —
     // and stamp the work's recency so hosts can offer "continue reading".
     try { localStorage.setItem(`reader-book-${work}`, String(bookNum)); } catch {}
@@ -4314,7 +4322,7 @@
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plTurnBlocks = plSource ? buildEnglishTurnBlocks(plSource.text, plSource.turns) : []}
-          {@const plRows = plSource ? (playTickRows(plItems, seg, plSource) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          {@const plRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
             <div class="seg-row play-row-split" data-chapter={block.currentChapter} use:playFlow={plRows}>
