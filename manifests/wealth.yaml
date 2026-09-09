@@ -27,6 +27,10 @@ english:
       - { greek: "177", english: "That troops are sent to succour the Egyptians?", run: 1 }
       - { greek: "849", english: "Fine presents to offer to the god!", run: 1 }
       - { greek: "927", english: "Hi! friend! 'tis you they are speaking to. Off", run: 1 }
+      - { greek: "891", english: "You vile impostor, may you burst with an empty", run: 1 }
+      - { greek: "896", english: "Can you smell anything, rascal", run: 1 }
+      - { greek: "926", english: "Come, quick, off with your cloak", run: 1 }
+      - { greek: "955", english: "Ah! the bath-man would grip you by the testicles", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -45,6 +49,9 @@ english:
     source: "bench/rogers/wealth.txt"
     play: "THE PLUTUS"
     footnotes: false
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
   gaps: []
 
 citation:

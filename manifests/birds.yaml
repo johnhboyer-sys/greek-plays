@@ -24,6 +24,20 @@ english:
     # Item 6 pins (John, 2026-09-09: real slips are never one-offs). The 1912
     # text swaps Euelpides and Pisthetaerus for 223-226, so name-matching set
     # every speech of the exchange one late; the pin holds it by position.
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "521", by: "518" }
+      - { greek: "522", by: "518" }
+      - { greek: "805", by: "803" }
+      - { greek: "308", by: "306" }
+      - { greek: "878", by: "873" }
+      - { greek: "290", by: "289" }
+      - { greek: "577", by: "571" }
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { greek: "877", english: "Oh! sovereign ostrich, Cybelé, the mother of Cleocritus", speaker: "CHORUS" }
     pins:
       - { greek: "223", english: "Oh! by Zeus! what a throat", run: 6 }
       - { greek: "277", english: "The Mede! But, by Heracles! how,", run: 22 }
@@ -32,13 +46,20 @@ english:
       - { greek: "554", english: "This, this being well done and completed", run: 4 }
       - { greek: "606", english: "Old Age also dwells in Olympus.", run: 1 }
       - { greek: "647", english: "Very well, 'tis you who lead us", run: 7 }
-      - { greek: "668", english: "Do you know how dearly I should", run: 5 }
       - { greek: "807", english: "'Tis ourselves asked for this transformation", run: 2 }
       - { greek: "806", english: "And you look like a close-shaven blackbird.", run: 1 }
       - { greek: "826", english: "Oh! what a splendid city! But what", run: 4 }
       - { greek: "880", english: "The dwellers in Chios! Ah! I am", run: 5 }
-      - { greek: "1315", english: "If fortune favours us.", run: 8 }
       - { greek: "1590", english: "And yet the birds must be thoroughly", run: 2 }
+      - { greek: "302", english: "Here is the magpie, the turtle-dove, the swallow", run: 1 }
+      - { greek: "586", english: "If on the other hand they recognize that you", run: 1 }
+      - { greek: "868", english: "Oh! Hawk, the sacred guardian of Sunium, oh, god", run: 1 }
+      - { greek: "1579", english: "Hand me the cheese-grater; bring me the silphium for", run: 1 }
+      - { greek: "289", english: "Is there another glutton besides Cleonymus?", run: 1 }
+      - { greek: "582", english: "The crows too will prove your divinity to", run: 1 }
+      - { greek: "1581", english: "Mortal! we who greet you are three gods", run: 1 }
+      - { greek: "877", english: "Oh! sovereign ostrich, Cybelé, the mother of Cleocritus", run: 1 }
+      - { greek: "581", english: "By Zeus, she'll take good care she does not", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -48,7 +69,12 @@ english:
     source: "bench/hickie/birds.txt"
     play: "THE BIRDS"
     footnotes: false
-  gaps: []
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
+  gaps:
+    - "576"  # Euelpides's thunderbolt jab is dropped; Pisthetaerus runs on from 571 
+    - "585"  # Euelpides's joke about selling his oxen first has no English
 
 citation:
   scheme: play-line

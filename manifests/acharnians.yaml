@@ -27,6 +27,12 @@ english:
     # Greek changes speaker; the tail becomes its own speech under the label.
     splits:
       - { english: "during the whole of that time I was holding", speaker: "THEORUS" }  # Greek 141
+      - { english: "It's cruel, not to be able to enjoy the feast!", speaker: "LAMACHUS" }  # Greek 1079
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "1138", by: "1136" }
+      - { greek: "1139", by: "1137" }
     pins:
       - { greek: "104", english: "Thou shalt not have gold, thou gaping-arsed", run: 1 }
       - { greek: "141", english: "during the whole of that time I was holding", run: 1 }
@@ -38,6 +44,8 @@ english:
       - { greek: "1078", english: "Ah! the Generals! they are numerous, but not", run: 1 }
       - { greek: "1085", english: "Dicaeopolis!", run: 1 }
       - { greek: "1085", english: "What is the matter? Come quickly to the feast", run: 40 }
+      - { greek: "1140", english: "Slave, take up the buckler and let's be off.", run: 1 }
+      - { greek: "1142", english: "Take up the basket, 'tis a question of getting to the feast.", run: 1 }
   # Hickie secondary pairs 0.838: the scan never labels Pseudartabas, the
   # Megarian's girls, or the numbered semichoruses. Every recovered English
   # turn already pairs; aliases cannot invent labels the scan never printed.
@@ -50,6 +58,9 @@ english:
     source: "bench/hickie/acharnians.txt"
     play: "THE ACHARNIANS"
     footnotes: false
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
   gaps: []
 
 citation:

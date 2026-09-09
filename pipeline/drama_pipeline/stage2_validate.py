@@ -825,6 +825,39 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         allowed.update(unmatched)
         allowed.update(_play_line_english_gap_ids(manifest, segments))
         allowed.update(_play_line_lacuna_segment_ids(segments))
+        # Item 6 (John, 2026-09-09: "all English matched to Greek, or flag
+        # that there is no Greek for the English"): with
+        # english.strict_coverage, every Greek speech that carries no English
+        # of its own must be declared -- in english.gaps (the translation
+        # omits it) or english.<slot>.covered (its English sits in the
+        # neighbouring speech) -- or the build fails naming it.
+        if english_cfg.get("strict_coverage"):
+            declared = (
+                _play_line_english_gap_ids(manifest, segments)
+                | set(covered_ids)
+                | _play_line_lacuna_segment_ids(segments)
+            )
+            speaking = {seg["id"] for seg in segments if seg.get("speakers")}
+            holes = [sid for sid in unmatched if sid in speaking and sid not in declared]
+            first_ref = {
+                seg["id"]: next((l.get("ref") for l in (seg.get("lines") or []) if l.get("ref")), None)
+                for seg in segments
+            }
+            strict_error = None
+            if holes:
+                named = ", ".join(str(first_ref.get(s) or s) for s in holes[:25])
+                strict_error = (
+                    f"{len(holes)} Greek speech(es) carry no English and are not "
+                    f"declared: {named}{' ...' if len(holes) > 25 else ''} -- pin the "
+                    "English, or declare each under english.gaps (omitted) or "
+                    "english.primary.covered (translated with a neighbour)"
+                )
+            report["checks"]["turn_text_strict_coverage"] = {
+                "count": len(holes),
+                "holes": holes,
+                "error": strict_error,
+                "ok": strict_error is None,
+            }
     # A column the manifest's own citation.kind_overrides declares `omit`
     # is ALSO a legitimate unmatched column (see _omit_declared_segment_ids)
     # -- derived from the SAME declaration stage1 already enforces, not a

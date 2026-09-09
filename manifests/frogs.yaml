@@ -29,6 +29,12 @@ english:
       - { english: "But yonder fellow got red instead, so horribly afraid was he!", speaker: "XANTHIAS" }  # Greek 308
       - { english: "Ten, when I asked for my money, he started to roar and shoot terrible looks", speaker: "FIRST WIFE" }  # Greek 561
       - { english: "Do you see the stupid thing", speaker: "AESCHYLUS" }  # Greek 1136
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "309", by: "308" }
+      - { greek: "575", by: "577" }
+      - { greek: "801", by: "799" }
     pins:
       - { greek: "308", english: "But yonder fellow got red instead, so horribly afraid was he!", run: 1 }
       - { greek: "313", english: "The sound of flutes. Aye, certainly, and the wind wafts a smell of torches", run: 1 }
@@ -64,6 +70,11 @@ english:
       - { greek: "1136", english: "Do you see the stupid thing? Faith! I don't care if I don't.", run: 1 }
       - { greek: "1461", english: "I will tell you the way on earth, but I won't here.", run: 1 }
       - { greek: "1462", english: "No, send her this blessing from here.", run: 1 }
+      - { greek: "584", english: "I know, I know, that you are in a fury", run: 1 }
+      - { greek: "589", english: "I accept your oath, and on those terms I agree", run: 1 }
+      - { greek: "788", english: "No, no! he embraced Aeschylus and shook his hand", run: 1 }
+      - { greek: "803", english: "If I mistake not, Aeschylus must be in a rage", run: 1 }
+      - { greek: "804", english: "With lowered head he glares fiercely like a bull", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -73,6 +84,9 @@ english:
     source: "bench/hickie/frogs.txt"
     play: "THE FROGS"
     footnotes: false
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
   gaps: []
 
 citation:

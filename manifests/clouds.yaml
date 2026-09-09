@@ -35,6 +35,13 @@ english:
       - { greek: "1421", english: "Was not the legislator who carried this", run: 1 }
       - { greek: "1434", english: "And if I have not, I shall have cried", run: 1 }
       - { greek: "1506", english: "Ah! you insulted the gods! Ah! you", run: 1 }
+      - { greek: "791", english: "Alas! what a calamity! what will become of me?", run: 1 }
+      - { greek: "1447", english: "Ah! if you do that, then you will only", run: 1 }
+      - { greek: "787", english: "Ah! let me see. What was the first thing?", run: 1 }
+      - { greek: "785", english: "But you forget as fast as you learn. Come, what was the thing I taught you first? Tell me.", run: 1 }
+      - { greek: "781", english: "You talk rubbish!", run: 1 }
+      - { greek: "783", english: "You are merely beating the air. Begone!", run: 1 }
+      - { greek: "784", english: "Why not? Oh! Socrates! in the name of the gods!", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -43,7 +50,13 @@ english:
     source: "perseus/tlg0019.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
-  gaps: []
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
+  gaps:
+    - "1505"  # second student's "I too shall be burned" has no English
+    - "932"  # no English in the 1912 text (lane 1)
+    - "933"  # no English in the 1912 text (lane 1)
 
 citation:
   scheme: play-line

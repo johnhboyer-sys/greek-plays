@@ -27,6 +27,13 @@ english:
     # Greek changes speaker; the tail becomes its own speech under the label.
     splits:
       - { english: "Then take this basket; put on a girdle, card wool, munch beans", speaker: "CALONICÉ" }  # Greek 535
+      - { english: "Nay, never let us be cast down by calamity", speaker: "LYSISTRATA" }  # Greek 778
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "777", by: "778" }
+      - { greek: "1225", by: "1228" }
+      - { greek: "1295", by: "1279" }
     pins:
       - { greek: "93", english: "With pleasure, my dear", run: 1 }
       - { greek: "97", english: "I will tell you. But first answer me one question.", run: 1 }
@@ -55,6 +62,9 @@ english:
       - { greek: "1189", english: "Embroidered stuffs, and dainty tunics, and flowing gowns", run: 1 }
       - { greek: "1216", english: "Go your way, I tell you. Why, bless me, they're sitting down now", run: 1 }
       - { greek: "1222", english: "No, no, you must be off--or I'll tear your hair out", run: 1 }
+      - { greek: "130", english: "No, I will not do it; let the War go", run: 1 }
+      - { greek: "774", english: "But if dissension do arise among the swallows", run: 1 }
+      - { greek: "1106", english: "Needless to call her; she has heard your voices", run: 1 }
   secondary:
     id: lindsay
     name: "Jack Lindsay (1925)"
@@ -83,7 +93,12 @@ english:
       source: "bench/rogers/lysistrata.txt"
       play: "THE LYSISTRATA"
       footnotes: false
-  gaps: []
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
+  gaps:
+    - "129"  # Calonice's echoed refusal has no separate English; only Myrrhine's 130
+    - "386"  # no English anywhere nearby
 
 citation:
   scheme: play-line

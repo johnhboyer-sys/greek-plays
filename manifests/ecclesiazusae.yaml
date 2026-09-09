@@ -27,6 +27,11 @@ english:
     # Greek changes speaker; the tail becomes its own speech under the label.
     splits:
       - { english: "but as regards us poor men, you will leave", speaker: "PRAXAGORA" }  # Greek 626
+      - { greek: "812", english: "Ah! I weary you! But, wretch, see what comes", speaker: "SECOND CITIZEN" }
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "1144", by: "1151" }
     pins:
       - { greek: "49", english: "And can't you see Gusistraté, the tavern-keeper's", run: 1 }
       - { greek: "51", english: "I can see many others too, indeed the whole", run: 1 }
@@ -55,6 +60,15 @@ english:
       - { greek: "689", english: "But that will not occur. Each man will have", run: 1 }
       - { greek: "717", english: "And what for? 'Tis clear enough why; so that", run: 1 }
       - { greek: "728", english: "Come, let us collect and examine all my", run: 1 }
+      - { greek: "41", english: "I see Clinareté coming too, along with Sostraté", run: 1 }
+      - { greek: "70", english: "Yea, by Hecaté! Is this not a fine one", run: 1 }
+      - { greek: "725", english: "I will march at your side, so that I may", run: 1 }
+      - { greek: "823", english: "And quite lately, were we not all swearing that the", run: 1 }
+      - { greek: "830", english: "The cases are quite different, my good fellow", run: 1 }
+      - { greek: "833", english: "I don't know what the devil you're chattering about", run: 1 }
+      - { greek: "937", english: "And I likewise. You will see I am not far", run: 1 }
+      - { greek: "43", english: "Hurry yourselves then, for Glycé has sworn", run: 1 }
+      - { greek: "815", english: "Ah! that cursed money did me enough harm", run: 1 }
   # Hickie secondary pairs 0.394: Google OCR of Blepyrus/old-women
   # abbreviations (Buep, Bier, Burp) is too damaged to recover the labels
   # the page images print. OCR ceiling, not a primary floor.
@@ -76,7 +90,13 @@ english:
     source: "bench/rogers/ecclesiazusae.txt"
     play: "THE ECCLESIAZUSAE"
     footnotes: false
-  gaps: []
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
+  gaps:
+    - "811"  # the bankrupt jab has no English; the neighbour covers the salt joke
+    - "335"  # neighbour's question left untranslated
+    - "336"  # Blepyrus's reply left untranslated
 
 citation:
   scheme: play-line

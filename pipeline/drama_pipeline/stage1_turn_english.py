@@ -976,6 +976,7 @@ def _resolve_pins(
     after a source edit must not silently vanish."""
     forced: list[tuple[int, int]] = []
     used: set[int] = set()
+    used_speech: set[int] = set()
     norm = _pin_norm
     normed = [norm(sp["text"]) for sp in speeches]
 
@@ -1007,19 +1008,31 @@ def _resolve_pins(
         gis = [k for k, r in enumerate(slot_refs) if r == ref]
         n = ref_num(ref)
         if not gis and n is not None:
-            # The ref names a line inside a Greek speech (no speaker change
-            # there): the pin means that speech, so it snaps back to the
-            # nearest slot at or before the line, within six lines.
+            # The ref names a line with no speaker change on it. If the Greek
+            # speech containing that line belongs to the English speech's own
+            # speaker, the reviewer meant that speech: snap back to its slot.
+            # If it belongs to someone else, the translation has a speech the
+            # edition does not (Peace 1227, the arms-dealer's line Coulon
+            # gives to Trygaeus): no pin can place it, so fail loud.
+            want0 = speeches[ejs[0]].get("canonical") if len(ejs) == 1 else None
             back = [
                 (n - ref_num(r), k) for k, r in enumerate(slot_refs)
                 if ref_num(r) is not None and 0 < n - ref_num(r) <= 6
             ]
             if back:
-                d, _k = min(back)
-                snapped = slot_refs[_k]
-                gis = [k for k, r in enumerate(slot_refs) if r == snapped]
-                if notes is not None:
-                    notes.append(f"pin {ref} snapped back to slot {snapped}")
+                _d, _k = min(back)
+                if slots[_k]["name"] == want0:
+                    snapped = slot_refs[_k]
+                    gis = [k for k, r in enumerate(slot_refs) if r == snapped]
+                    if notes is not None:
+                        notes.append(f"pin {ref} snapped back to slot {snapped}")
+                else:
+                    raise ValueError(
+                        f"{work_id}: pin {words[:40]!r} on line {ref}: the edition has no "
+                        f"speaker change there; that line is {slots[_k]['name']}'s speech "
+                        f"(from {slot_refs[_k]}), not {want0}'s -- the translation divides "
+                        "the passage differently, and a pin cannot place it"
+                    )
         if not gis:
             raise ValueError(f"{work_id}: pin {words!r}: no Greek speaker slot on line {ref}")
         if len(ejs) > 1:
@@ -1034,16 +1047,83 @@ def _resolve_pins(
         want = speeches[ej].get("canonical")
         free = [k for k in gis if k not in used] or gis
         gi = next((k for k in free if slots[k]["name"] == want), free[0])
+        # Pins must keep both texts' order. One that crosses an earlier pin
+        # (the translation prints the two speeches the other way round, or
+        # one review contradicts another) is noted and skipped, not fatal.
+        crossing = [(g, e) for g, e in forced if (g < gi) != (e < ej) and g != gi and e != ej]
+        if crossing:
+            if notes is not None:
+                notes.append(f"pin {ref} {words[:30]!r}: crosses the pin at {crossing[0]}, skipped")
+            continue
         if gi in used:
             if notes is not None:
                 notes.append(f"pin {ref} {words[:30]!r}: slot already pinned, skipped")
             continue
+        if ej in used_speech:
+            # Two reviews pinned one English speech to two Greek lines. The
+            # later pin wins: round two read the build round one produced
+            # (2026-09-09), so it is the better-informed ruling. The earlier
+            # pair is dropped and its slot freed.
+            dropped = [(g, e) for g, e in forced if e == ej]
+            forced[:] = [(g, e) for g, e in forced if e != ej]
+            for g, _e in dropped:
+                used.discard(g)
+            if notes is not None:
+                notes.append(f"pin {ref} {words[:30]!r}: replaces the earlier pin of that speech at slot(s) {[g for g, _ in dropped]}")
+        if run > _RUN_SWAP_WINDOW:
+            # A long run is a reviewer describing a stretch paired one late;
+            # the anchor fixes the phase and the LCS carries it from there.
+            # Held by position it would carry an offset past any speech the
+            # translation has and the edition lacks (Grok read of Peace's
+            # 27-, 33- and 44-pair runs, 2026-09-09).
+            if notes is not None:
+                notes.append(f"pin {ref} run {run} capped at {_RUN_SWAP_WINDOW}")
+            run = _RUN_SWAP_WINDOW
         for k in range(run):
             if gi + k >= len(slots) or ej + k >= len(speeches):
                 raise ValueError(f"{work_id}: pin {words!r} run {run} overruns the play")
             forced.append((gi + k, ej + k))
             used.add(gi + k)
+            used_speech.add(ej + k)
     return forced
+
+
+_RUN_SWAP_WINDOW = 8
+
+
+def _alignment_with_covered(spine: dict, english: dict) -> dict:
+    """The alignment plus the manifest's covered map (the perseus builder's
+    own wrapper; imported here, not at module level, because that module
+    imports this one)."""
+    from .stage1_perseus_play_english import _alignment_with_coverage
+
+    return _alignment_with_coverage(spine, english)
+
+
+def _resolve_covered(covered: list[dict], segments: list[dict], work_id: str) -> dict[str, str]:
+    """``english.<slot>.covered: [{greek: "777", by: "778"}]`` -> the map of
+    segment id to the segment whose English holds its translation.  Refs are
+    printed line refs of a segment's first line; fail loud on any other."""
+    first_ref: dict[str, str] = {}
+    for seg in segments:
+        lines = seg.get("lines") or seg.get("greek") or []
+        ref = next((str(l.get("ref")) for l in lines if isinstance(l, dict) and l.get("ref") is not None), None)
+        if ref is not None:
+            first_ref.setdefault(ref, seg["id"])
+            # A joined lyric ref ("873-875") also answers to its first number.
+            head = re.match(r"\d+", ref)
+            if head:
+                first_ref.setdefault(head.group(0), seg["id"])
+    out: dict[str, str] = {}
+    for item in covered:
+        greek = str(item.get("greek", "")).strip()
+        by = str(item.get("by", "")).strip()
+        if greek not in first_ref or by not in first_ref:
+            raise ValueError(f"{work_id}: covered {item!r}: no segment opens on line {greek if greek not in first_ref else by}")
+        if greek == by:
+            raise ValueError(f"{work_id}: covered {item!r}: a segment cannot cover itself")
+        out[first_ref[greek]] = first_ref[by]
+    return out
 
 
 def _pin_norm(t: str) -> str:
@@ -1055,13 +1135,18 @@ def _pin_norm(t: str) -> str:
     return re.sub(r"\s+", " ", t).strip()
 
 
-def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> None:
+def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> list[dict]:
     """Manifest splits cut a speech the source runs together where the Greek
     changes speaker: ``{english: "<words the new speech opens with>",
     speaker: "<printed label>"}``.  The words are found in exactly one
     speech (punctuation and footnote markers between them ignored), the
     speech is cut there, and the tail becomes a speech of its own under the
-    given label (aliased like any printed label).  Fail loud otherwise."""
+    given label (aliased like any printed label).  Fail loud otherwise.
+
+    A split whose words already open a speech needs no cut; when it carries
+    ``greek``, it is returned as a pin of that speech to that line instead
+    (reviewers name a split where the source already breaks, 2026-09-09)."""
+    pins: list[dict] = []
     for split in splits:
         words = _pin_norm(str(split.get("english", "")))
         label = str(split.get("speaker", "")).strip()
@@ -1078,9 +1163,13 @@ def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> Non
         head = speeches[j]["text"][: m.start()].rstrip()
         tail = speeches[j]["text"][m.start():].strip()
         if not head:
+            if split.get("greek"):
+                pins.append({"greek": split["greek"], "english": split["english"], "run": 1})
+                continue
             raise ValueError(f"{work_id}: split {words!r} is already the start of its speech")
         speeches[j]["text"] = head
         speeches.insert(j + 1, {"speaker_printed": label, "text": tail})
+    return pins
 
 
 def parse_translation(
@@ -1097,6 +1186,7 @@ def parse_translation(
     line_fixes: dict[int | str, str] | None = None,
     pins: list[dict] | None = None,
     splits: list[dict] | None = None,
+    covered: list[dict] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
@@ -1111,7 +1201,7 @@ def parse_translation(
         line_fixes=line_fixes,
     )
     if splits:
-        _apply_splits(speeches, splits, work_id)
+        pins = list(pins or []) + _apply_splits(speeches, splits, work_id)
 
     footnotes: dict[str, str] = {}
     seq = 0
@@ -1376,6 +1466,10 @@ def parse_translation(
         "translation": translation_id,
         "chunks": chunks,
         "chapters": [],
+        # Item 6 (2026-09-09): a Greek speech whose English sits inside the
+        # speech attached to a neighbour, declared in the manifest; the
+        # reader shows "Translated with the speech above" (stage7 reads it).
+        "english_covered_by": _resolve_covered(covered or [], segments, work_id),
     }
     report = {
         "work": work_id,
@@ -1489,6 +1583,7 @@ def run(
         line_fixes=cfg.get("line_fixes") or {},
         pins=cfg.get("pins") or [],
         splits=cfg.get("splits") or [],
+        covered=cfg.get("covered") or [],
     )
 
     out_dir = BUILD_DIR / "stage1"
@@ -1498,7 +1593,7 @@ def run(
         alignment_path = out_dir / "secondary_alignment.json"
         report_path = out_dir / "secondary_report.json"
         write_json(english_path, chunks_as_overlay(english))
-        write_json(alignment_path, build_alignment(spine, english))
+        write_json(alignment_path, _alignment_with_covered(spine, english))
         write_json(report_path, report)
         return english_path, alignment_path, report_path
     if slot == "third":
@@ -1506,7 +1601,7 @@ def run(
         alignment_path = out_dir / "third_alignment.json"
         report_path = out_dir / "third_report.json"
         write_json(english_path, chunks_as_overlay(english))
-        write_json(alignment_path, build_alignment(spine, english))
+        write_json(alignment_path, _alignment_with_covered(spine, english))
         write_json(report_path, report)
         return english_path, alignment_path, report_path
     if slot == "overlay":
@@ -1521,14 +1616,14 @@ def run(
         write_json(overlays_path, overlays)
         alignment_path = out_dir / f"overlay_{tid}_alignment.json"
         report_path = out_dir / f"overlay_{tid}_report.json"
-        write_json(alignment_path, build_alignment(spine, english))
+        write_json(alignment_path, _alignment_with_covered(spine, english))
         write_json(report_path, report)
         return overlays_path, alignment_path, report_path
     english_path = out_dir / "english_chunks.json"
     alignment_path = out_dir / "alignment.json"
     report_path = out_dir / "english_report.json"
     write_json(english_path, english)
-    write_json(alignment_path, build_alignment(spine, english))
+    write_json(alignment_path, _alignment_with_covered(spine, english))
     write_json(report_path, report)
     write_json(out_dir / "english_footnotes.json", footnotes)
     return english_path, alignment_path, report_path

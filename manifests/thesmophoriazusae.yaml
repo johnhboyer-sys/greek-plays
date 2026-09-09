@@ -28,6 +28,10 @@ english:
     splits:
       - { english: "Hail! thou blessed son of Latona!", speaker: "AGATHON'S CHORUS" }  # Greek 129
       - { english: "Silence! let all be quiet! Pay attention! for here she is spitting", speaker: "CHORUS" }  # Greek 381
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "869", by: "866" }
     pins:
       - { greek: "32", english: "He has a big beard?", run: 1 }
       - { greek: "34", english: "No, no, evidently you have never seen him.", run: 1 }
@@ -58,6 +62,15 @@ english:
       - { greek: "1064", english: "And you will repeat them?", run: 1 }
       - { greek: "1196", english: "Aye, that I will. Hand over the money.", run: 1 }
       - { greek: "1197", english: "You will bring her back? Follow me, my beautiful child.", run: 1 }
+      - { greek: "64", english: "Let him be, friend, and, quick, go and call Agathon", run: 1 }
+      - { greek: "760", english: "Ah! unfortunate Mica! who has robbed you of your daughter", run: 1 }
+      - { greek: "762", english: "That wretch. But as you are here, watch him well", run: 1 }
+      - { greek: "1065", english: "Oh! thou divine Night! how slowly thy chariot threads", run: 1 }
+      - { greek: "70", english: "And what am I to do?", run: 1 }
+      - { greek: "728", english: "Bring faggots, Mania!", run: 1 }
+      - { greek: "730", english: "Grill away, roast me, but you, my child", run: 1 }
+      - { greek: "739", english: "Faggots, Mania, plenty of them", run: 1 }
+      - { greek: "740", english: "Bring as many as you like. But answer", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -86,7 +99,12 @@ english:
   # re-export or cleaner change that loses three more pairs fails the build
   # instead of being waved through by a lower floor.
   min_pairing_rate: 0.85
-  gaps: []
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
+  gaps:
+    - "1082"  # the duplicated wail exchange has no matching English
+    - "1089"  # the doubled echo breaks off; no English nearby
 
 citation:
   scheme: play-line

@@ -25,18 +25,53 @@ english:
       6832: 'SON OF CLEONYMUS. "But I saved my life."'
     # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
     # each holds an English speech to the Greek line the reviewers matched it to.
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "251", by: "250" }
+      - { greek: "252", by: "250" }
+      - { greek: "258", by: "257" }
+      - { greek: "894", by: "883" }
+      - { greek: "1019", by: "987" }
+      - { greek: "1124", by: "1122" }
+      - { greek: "350-351", by: "346" }
+      - { greek: "443", by: "449" }
+      - { greek: "444", by: "450" }
+      - { greek: "446", by: "450" }
+      - { greek: "513", by: "512" }
+      - { greek: "514", by: "512" }
+      - { greek: "516", by: "512" }
+      - { greek: "541", by: "545" }
+      - { greek: "449", by: "447" }
+      - { greek: "452", by: "447" }
+      - { greek: "453", by: "447" }
+      - { greek: "549", by: "548" }
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { greek: "450", english: "If some ambitious man does not help us", speaker: "HERMES" }
     pins:
-      - { greek: "2", english: "Give it to him, and may it kill him!", run: 33 }
       - { greek: "253", english: "Oh! I beseech you! use some other honey", run: 2 }
       - { greek: "361", english: "How shall we set about removing these stones?", run: 1 }
-      - { greek: "402", english: "I' truth, never have you been greater thieves.", run: 18 }
       - { greek: "458", english: "Come, all strain at the ropes to tear away the stones.", run: 44 }
       - { greek: "960", english: "Give me some barley-seed, purify yourself and hand me the basin", run: 11 }
       - { greek: "1039", english: "Hold! here are the legs, place them upon the altar.", run: 1 }
       - { greek: "1050", english: "No, 'tis the odour of the fat that attracts him.", run: 3 }
       - { greek: "1064", english: "What! you are so ignorant you don't understand", run: 32 }
-      - { greek: "1227", english: "I will sell it you at cost price.", run: 27 }
-      - { greek: "1312", english: "You, who yesterday were dying of hunger", run: 1 }
+      - { greek: "1048", english: "Evidently he is coming to oppose the peace.", run: 1 }
+      - { greek: "428", english: "We go, but you, the cleverest of all", run: 1 }
+      - { greek: "431", english: "Quick, reach me your cup, and let us preface", run: 1 }
+      - { greek: "472", english: "Why does not the work advance then?", run: 1 }
+      - { greek: "473", english: "Lamachus, this is too bad! You are in", run: 1 }
+      - { greek: "527", english: "Is it then a smell like a soldier's", run: 1 }
+      - { greek: "528", english: "Oh! hateful soldier! your hideous satchel makes me", run: 1 }
+      - { greek: "447", english: "If a lance-maker or a dealer in shields desires war", run: 1 }
+      - { greek: "543", english: "But let us also scan the mien of the spectators", run: 1 }
+      - { greek: "550", english: "Now ask the husbandmen to be off.", run: 1 }
+      - { greek: "551", english: "Listen, good folk! Let the husbandmen take their farming tools", run: 1 }
+      - { greek: "454", english: "Don't say Paean, but simply, Io.", run: 1 }
+      - { greek: "455", english: "Very well, then! Io! Io! I'll simply say, Io!", run: 1 }
+      - { greek: "548", english: "And do you see with what pleasure this sickle-maker", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -46,7 +81,21 @@ english:
     source: "bench/hickie/peace.txt"
     play: "PEACE"
     footnotes: false
-  gaps: []
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
+  gaps:
+    - "517"  # bare heave-cries; the chant attached at 512 stands in for them
+    - "439"  # Trygaeus's wish (mistress, poking the coals) has no English
+    - "441"  # Hermes' curse on war-lovers has no English
+    - "468"  # bare heave-ho, an untranslated tug-of-war grunt
+    - "484"  # Hermes' "we accomplish nothing, take hold again" has no English
+    - "488"  # bare heave-ho, untranslated
+    - "489"  # bare heave, by Zeus, untranslated
+    - "490"  # Chorus's "we're moving it only a little" has no English
+    - "499"  # Chorus noting "some are hindering" has no English
+    - "350"  # Trygaeus's one-line interjection smoothed away by the translator
+    - "1063"  # Hierocles's vocative blends into 1064; Trygaeus's retort has no trace
 
 citation:
   scheme: play-line

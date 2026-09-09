@@ -29,6 +29,14 @@ english:
       - { english: "taste, taste the liquor of the genial soil", speaker: "DEMOSTHENES" }  # Greek 107
       - { english: "if caught in the act, why, I perjure", speaker: "CLEON" }  # Greek 298
       - { english: "that will please him mightily; now you can", speaker: "DEMOSTHENES" }  # Greek 440
+      - { english: "Oh! vigorous assailant and intrepid heart!", speaker: "CHORUS" }  # Greek 457
+      - { english: "come and see how I am insulted", speaker: "SAUSAGE-SELLER" }  # Greek 727
+      - { english: "Welcome, oh, dearest and bravest of men!", speaker: "CHORUS" }  # Greek 611: the Gutenberg text drops the label
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "299", by: "300" }
+      - { greek: "468", by: "465" }
     pins:
       - { greek: "107", english: "taste, taste the liquor of the genial soil", run: 1 }
       - { greek: "298", english: "if caught in the act, why, I perjure", run: 1 }
@@ -40,6 +48,8 @@ english:
       - { greek: "498", english: "Had one of the old authors asked", run: 1 }
       - { greek: "1200", english: "Ah! rascal! you have shamelessly robbed", run: 1 }
       - { greek: "1198", english: "Bah! What's that to you? Will you not", run: 1 }
+      - { greek: "470", english: "Well done! Forge on, if he be a wheelwright.", run: 1 }
+      - { greek: "439", english: "Hold! I will give you one; but keep it dark!", run: 1 }
   # Hickie secondary pairs 0.764: after Demus enters, `Dem.` is Demus not
   # Demosthenes; `S. S.` is the sausage-seller. Remaining hole is OCR of
   # Cleon/Demos labels, not a primary floor.
@@ -52,7 +62,12 @@ english:
     source: "bench/hickie/knights.txt"
     play: "THE KNIGHTS"
     footnotes: false
-  gaps: []
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
+  gaps:
+    - "275"  # no English for Paphlagonian's shouting boast
+    - "464"  # translator drops First Slave's wainwright line
 
 citation:
   scheme: play-line

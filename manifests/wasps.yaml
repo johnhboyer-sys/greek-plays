@@ -27,19 +27,41 @@ english:
     # Greek changes speaker; the tail becomes its own speech under the label.
     splits:
       - { english: "As for you, tell me whether you", speaker: "BDELYCLEON" }  # Greek 524
+    # Item 6: Greek speeches whose English sits inside the neighbouring
+    # speech (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "8", by: "6" }
+      - { greek: "417", by: "416" }
+      - { greek: "822", by: "821" }
+      - { greek: "834", by: "832" }
+      - { greek: "152", by: "146" }
+      - { greek: "1153", by: "1152" }
     pins:
       - { greek: "9", english: "No! 'Tis Bacchus who lulls me off.", run: 30 }
       - { greek: "156", english: "What are you dong, you wretches?", run: 13 }
       - { greek: "204", english: "Perhaps a rat loosened it.", run: 3 }
       - { greek: "314", english: "Oh! my little wallet! you seem like", run: 1 }
-      - { greek: "345", english: "He would not have dared, had he", run: 16 }
       - { greek: "398", english: "Mount quick to the other window,", run: 5 }
       - { greek: "458", english: "You will not go? The plague seize", run: 1 }
       - { greek: "524", english: "As for you, tell me whether you", run: 2 }
-      - { greek: "530", english: "Your tablets? Ha, ha! what an importance", run: 1 }
       - { greek: "823", english: "That is why, hero though he be,", run: 6 }
       - { greek: "936", english: "(Thesmothetes) Take it yourself. I go to call", run: 35 }
       - { greek: "1154", english: "Come! I will put it round you.", run: 54 }
+      - { greek: "78", english: "Not at all! The love of wine is the complaint of good men.", run: 1 }
+      - { greek: "81", english: "Well then, says Nicostratus of the Scambonian deme, he either", run: 1 }
+      - { greek: "83", english: "Ah! great gods! no, he is not fond of strangers, Nicostratus", run: 1 }
+      - { greek: "143", english: "By Zeus! what is that noise in the chimney?", run: 1 }
+      - { greek: "211", english: "And how that we have driven him in thoroughly", run: 1 }
+      - { greek: "228", english: "Have no fear! If I can find stones to throw", run: 1 }
+      - { greek: "77", english: "No, yet love is indeed the principal part", run: 1 }
+      - { greek: "957", english: "What? he fights for you, he guards your door", run: 1 }
+      - { greek: "74", english: "He's wrong! He is imputing his own malady to others.", run: 1 }
+      - { greek: "1122", english: "As long as I live, I will never give up this cloak", run: 1 }
+      - { greek: "54", english: "Come, I must explain the matter to the spectators.", run: 1 }
+      - { greek: "47", english: "This is might strange; Theorus turning into a crow!", run: 1 }
+      - { greek: "52", english: "Interpreting dreams so aptly certainly deserves two obols.", run: 1 }
+      - { greek: "42", english: "Seated on the ground close to it, I saw Theorus", run: 1 }
+      - { greek: "46", english: "Ah! 'twas very well lisped indeed!", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -49,7 +71,13 @@ english:
     source: "bench/hickie/wasps.txt"
     play: "THE WASPS"
     footnotes: false
-  gaps: []
+  # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
+  # declared below (gaps) or under primary.covered.
+  strict_coverage: true
+  gaps:
+    - "313"  # Chorus's retort to the boy has no English
+    - "532"  # Chorus's warning to Philocleon has no English
+    - "1009"  # the parabasis stretch has no English attached nearby
 
 citation:
   scheme: play-line

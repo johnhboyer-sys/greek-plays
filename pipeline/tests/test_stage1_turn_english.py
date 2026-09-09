@@ -1993,7 +1993,8 @@ def test_resolve_pins_snaps_inside_a_greek_speech_and_settles_duplicates():
     ]
     refs = m._slot_refs(segments, slots)
     notes: list[str] = []
-    # 345 has no speaker change: the pin snaps back to the Chorus slot at 342a.
+    # 345 has no speaker change: the pin snaps to the Chorus slot at 342a
+    # (the speech's own speaker), not to Philocleon's at 348 though nearer.
     assert m._resolve_pins([{"greek": "345", "english": "He would not have dared"}], slots, refs, speeches, "t", notes) == [(1, 1)]
     assert notes and "snapped back to slot 342a" in notes[0]
     # A short speech printed twice: the occurrence nearest the slot's position.
@@ -2005,6 +2006,21 @@ def test_resolve_pins_snaps_inside_a_greek_speech_and_settles_duplicates():
         slots, refs, speeches, "t", notes,
     )
     assert forced == [(1, 1)] and any("already pinned" in n for n in notes)
+    # One speech pinned to two lines: the later pin replaces the earlier.
+    notes.clear()
+    forced = m._resolve_pins(
+        [{"greek": "340", "english": "He would not"}, {"greek": "342a", "english": "He would not"}],
+        slots, refs, speeches, "t", notes,
+    )
+    assert forced == [(1, 1)] and any("replaces the earlier pin" in n for n in notes)
+    # A pin that crosses an earlier one (Greek order against English order)
+    # is skipped with a note rather than failing the play.
+    notes.clear()
+    forced = m._resolve_pins(
+        [{"greek": "342a", "english": "Tell us."}, {"greek": "340", "english": "He would not"}],
+        slots, refs, speeches, "t", notes,
+    )
+    assert forced == [(1, 0)] and any("crosses the pin" in n for n in notes)
     with pytest.raises(ValueError):
         m._resolve_pins([{"greek": "400", "english": "Tell us."}], slots, refs, speeches, "t")
 
@@ -2024,3 +2040,68 @@ def test_apply_splits_cuts_a_run_together_speech_at_the_greek_change():
         m._apply_splits(speeches, [{"english": "no such words", "speaker": "XANTHIAS"}], "t")
     with pytest.raises(ValueError):
         m._apply_splits(speeches, [{"english": "Where are we", "speaker": "DIONYSUS"}], "t")
+    # Already a speech start: with a greek ref it becomes a pin instead.
+    assert m._apply_splits(speeches, [{"greek": "5", "english": "Where are we", "speaker": "DIONYSUS"}], "t") == [
+        {"greek": "5", "english": "Where are we", "run": 1}
+    ]
+
+
+def test_resolve_pins_caps_a_long_run_and_refuses_a_line_inside_another_speaker():
+    from drama_pipeline import stage1_turn_english as m
+
+    names = ["A", "B"] * 6
+    segments = [{"greek": [{"n": i + 1, "ref": str(100 + i)} for i in range(12)]}]
+    slots = [{"segment": 0, "line": i + 1, "offset": 0, "name": nm} for i, nm in enumerate(names)]
+    speeches = [{"text": f"speech {i}", "canonical": nm} for i, nm in enumerate(names)]
+    refs = m._slot_refs(segments, slots)
+    notes: list[str] = []
+    # A run of 12 holds eight pairs by position; the LCS carries the rest.
+    forced = m._resolve_pins([{"greek": "100", "english": "speech 0", "run": 12}], slots, refs, speeches, "t", notes)
+    assert forced == [(k, k) for k in range(8)] and any("capped at 8" in n for n in notes)
+    # Peace 1227: the line sits inside A's speech, but the English speech is
+    # B's -- the translation divides the passage differently; fail loud.
+    slots2 = [{"segment": 0, "line": 1, "offset": 0, "name": "A"}, {"segment": 0, "line": 4, "offset": 0, "name": "B"}]
+    refs2 = m._slot_refs(segments, slots2)
+    with pytest.raises(ValueError, match="divides the passage differently"):
+        m._resolve_pins([{"greek": "101", "english": "speech 1"}], slots2, refs2, speeches, "t")
+
+
+def test_stage2_strict_coverage_names_every_undeclared_hole(tmp_path, monkeypatch):
+    """Item 6 (John, 2026-09-09): with english.strict_coverage a Greek
+    speech with no English of its own fails the build unless declared."""
+    base = {
+        "work": "test-play",
+        "pairing_rate": 0.99,
+        "paired": 100,
+        "length_ratio_outlier_count": 10,
+        "turn_shift_count": 2,
+        "turn_shift_rate": 0.02,
+        "turn_shift_new_drifts": 2,
+    }
+    loose = _stage2_with_report(monkeypatch, tmp_path, base, _turn_text_manifest(), unmatched_ids=("1:2",))
+    assert "turn_text_strict_coverage" not in loose["checks"]
+    strict = _stage2_with_report(
+        monkeypatch, tmp_path, base, _turn_text_manifest(strict_coverage=True), unmatched_ids=("1:2",)
+    )
+    check = strict["checks"]["turn_text_strict_coverage"]
+    assert check["ok"] is False and check["holes"] == ["1:2"] and "declared: 2" in check["error"]
+    declared = _stage2_with_report(
+        monkeypatch, tmp_path, base, _turn_text_manifest(strict_coverage=True, gaps=["2"]), unmatched_ids=("1:2",)
+    )
+    assert declared["checks"]["turn_text_strict_coverage"]["ok"] is True
+
+
+def test_resolve_covered_maps_first_line_refs_to_segments_and_fails_loud():
+    from drama_pipeline import stage1_turn_english as m
+
+    segments = [
+        {"id": "1:777", "lines": [{"n": 1, "ref": "777"}]},
+        {"id": "1:778", "lines": [{"n": 2, "ref": "778"}, {"n": 3, "ref": "779"}]},
+    ]
+    assert m._resolve_covered([{"greek": "777", "by": "778"}], segments, "t") == {"1:777": "1:778"}
+    joined = [{"id": "1:873-875", "lines": [{"n": 1, "ref": "873-875"}]}, {"id": "1:878", "lines": [{"n": 2, "ref": "878"}]}]
+    assert m._resolve_covered([{"greek": "878", "by": "873"}], joined, "t") == {"1:878": "1:873-875"}
+    with pytest.raises(ValueError):
+        m._resolve_covered([{"greek": "779", "by": "778"}], segments, "t")
+    with pytest.raises(ValueError):
+        m._resolve_covered([{"greek": "777", "by": "777"}], segments, "t")
