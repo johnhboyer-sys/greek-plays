@@ -3766,7 +3766,7 @@
     </div>
   {/snippet}
 
-  <div class="reader-body view-{view} trans-{trans}" role="main" style:--pl-spk-w-greek={greekGutterWidth} style:--pl-spk-w={englishGutterWidth}
+  <div class="reader-body view-{view} trans-{trans}" role="main" style:--pl-spk-w-greek-play={greekGutterWidth} style:--pl-spk-w-play={englishGutterWidth}
     bind:this={readerBodyEl}
     class:busse={busse}
     class:stephanus={stephanus}

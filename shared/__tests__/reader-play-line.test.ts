@@ -1246,7 +1246,7 @@ describe('English lead-ins and the gutter (John, 2026-09-09)', () => {
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
     await flush();
     const body = container.querySelector('.reader-body') as HTMLElement;
-    expect(body.style.getPropertyValue('--pl-spk-w')).toBe('8.84rem');
+    expect(body.style.getPropertyValue('--pl-spk-w-play')).toBe('8.84rem');
     const leads = [...container.querySelectorAll('.turn-para > .speaker')];
     expect(leads.map((l) => l.classList.contains('spk-long'))).toEqual([false, true]);
   });

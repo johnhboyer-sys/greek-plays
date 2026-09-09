@@ -2082,8 +2082,12 @@ body {
      for its longest name (playEnglishGutterWidth) and the centre gap
      narrowed to 1.25rem to pay for it (John, 2026-09-09). */
   --pl-num-w: 2.6rem;
-  --pl-spk-w-greek: 3.4rem;
-  --pl-spk-w: 7.5rem;
+  /* The per-play widths arrive as --pl-spk-w-greek-play / --pl-spk-w-play
+     (Reader.svelte, inline): indirected here so the phone block below can
+     override them. An inline --pl-spk-w would beat any media query
+     (John, 2026-09-09: mobile Frogs squeezed to a few words a line). */
+  --pl-spk-w-greek: var(--pl-spk-w-greek-play, 3.4rem);
+  --pl-spk-w: var(--pl-spk-w-play, 7.5rem);
 }
 /* No rules between speeches, no ornament anywhere (John, 2026-09-08) --
    the same posture verse-line takes, with a little air kept between one
@@ -3696,6 +3700,22 @@ body {
      also has to line the English lead-in up with the Greek siglum, so it
      restates its own widths against each of them. */
   .reader-body.play-line { --pl-num-w: 2.2rem; --pl-spk-w-greek: 3rem; --pl-spk-w: 6rem; }
+  /* A Greek siglum longer than the phone gutter stacks inside it. */
+  .reader-body.play-line:not(.view-greek) .greek-line .line-text > .speaker:first-child {
+    white-space: normal; line-height: 1.15; overflow-wrap: anywhere;
+  }
+  /* A phone stacks each play-line row: a speech's Greek, then its English
+     under it, the prose starting at the Greek text's own left edge with
+     the speaker's name run in before it (John, 2026-09-09: two columns at
+     375px left four words to a line). */
+  .reader-body.play-line.view-both .seg-row { grid-template-columns: 1fr; gap: 0; }
+  .reader-body.play-line.view-both .english-col { margin-top: 0.45rem; }
+  .reader-body.play-line.view-both .turn-stack .turn-para {
+    padding-left: calc(var(--pl-num-w) + var(--pl-spk-w-greek));
+  }
+  .reader-body.play-line.view-both .turn-stack .turn-para > .speaker:first-child {
+    position: static; width: auto; margin-right: 0.5em; white-space: nowrap;
+  }
   .reader-body.play-line .greek-line,
   .reader-body.play-line.view-both .greek-line,
   .reader-body.play-line.trans-compare .greek-line { gap: 0; }
