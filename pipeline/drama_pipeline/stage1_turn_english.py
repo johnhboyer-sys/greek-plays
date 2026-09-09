@@ -984,6 +984,36 @@ def _resolve_pins(
         m = re.match(r"(\d+)", r or "")
         return int(m.group(1)) if m else None
 
+    def matches(words: str) -> list[int]:
+        # The quoted words may run past one speech into the next (a reviewer
+        # quoting "Aye, that I will. Hand over the money." across two turns):
+        # a speech matches when it, joined to the speeches after it, opens
+        # with the words.
+        out = []
+        for j in range(len(speeches)):
+            cat = normed[j]
+            k = j + 1
+            while len(cat) < len(words) and k < len(speeches):
+                cat += " " + normed[k]
+                k += 1
+            if cat.startswith(words):
+                out.append(j)
+        return out
+
+    # Anchors for the ambiguous case below: every pin that names one speech
+    # and a line with a speaker change gives a (slot, speech) point, whatever
+    # order the manifest lists the pins in.
+    anchors: list[tuple[int, int]] = []
+    for pin in pins:
+        w = norm(str(pin.get("english", "")))
+        r = str(pin.get("greek", "")).strip()
+        if not w or not r:
+            continue
+        js = matches(w)
+        ks = [k for k, sr in enumerate(slot_refs) if sr == r]
+        if len(js) == 1 and ks:
+            anchors.append((ks[0], js[0]))
+
     for pin in pins:
         ref = str(pin.get("greek", "")).strip()
         words = norm(str(pin.get("english", "")))
@@ -994,15 +1024,7 @@ def _resolve_pins(
         # quoting "Aye, that I will. Hand over the money." across two turns):
         # a speech matches when it, joined to the speeches after it, opens
         # with the words.
-        ejs = []
-        for j in range(len(speeches)):
-            cat = normed[j]
-            k = j + 1
-            while len(cat) < len(words) and k < len(speeches):
-                cat += " " + normed[k]
-                k += 1
-            if cat.startswith(words):
-                ejs.append(j)
+        ejs = matches(words)
         if not ejs:
             raise ValueError(f"{work_id}: pin {words!r} matches 0 speeches")
         gis = [k for k, r in enumerate(slot_refs) if r == ref]
@@ -1036,9 +1058,26 @@ def _resolve_pins(
         if not gis:
             raise ValueError(f"{work_id}: pin {words!r}: no Greek speaker slot on line {ref}")
         if len(ejs) > 1:
-            # A short speech printed more than once ("Dicaeopolis!"): the
-            # occurrence nearest the slot's own position in the play.
-            expect = gis[0] * len(speeches) / max(1, len(slots))
+            # A short speech printed more than once ("Dicaeopolis!", Peace's
+            # two "What shall we do to her?"): the occurrence nearest where
+            # the neighbouring pins put the slot -- interpolated between the
+            # anchors either side, one speech per slot beyond a lone anchor,
+            # and the play-wide proportion only when no other pin helps
+            # (Peace 1337 took the second refrain by proportion, 2026-09-09).
+            before = [(g, e) for g, e in anchors if g < gis[0]]
+            after = [(g, e) for g, e in anchors if g > gis[0]]
+            if before and after:
+                g0, e0 = max(before)
+                g1, e1 = min(after)
+                expect = e0 + (gis[0] - g0) * (e1 - e0) / (g1 - g0)
+            elif before:
+                g0, e0 = max(before)
+                expect = e0 + (gis[0] - g0)
+            elif after:
+                g1, e1 = min(after)
+                expect = e1 - (g1 - gis[0])
+            else:
+                expect = gis[0] * len(speeches) / max(1, len(slots))
             ej = min(ejs, key=lambda j: abs(j - expect))
             if notes is not None:
                 notes.append(f"pin {ref} {words[:30]!r}: {len(ejs)} matches, took speech {ej}")

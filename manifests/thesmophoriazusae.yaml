@@ -71,6 +71,7 @@ english:
       - { greek: "730", english: "Grill away, roast me, but you, my child", run: 1 }
       - { greek: "739", english: "Faggots, Mania, plenty of them", run: 1 }
       - { greek: "740", english: "Bring as many as you like. But answer", run: 1 }
+      - { greek: "747", english: "It was born about the time of the last Dionysia.", run: 2 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

@@ -72,6 +72,12 @@ english:
       - { greek: "454", english: "Don't say Paean, but simply, Io.", run: 1 }
       - { greek: "455", english: "Very well, then! Io! Io! I'll simply say, Io!", run: 1 }
       - { greek: "548", english: "And do you see with what pleasure this sickle-maker", run: 1 }
+      - { greek: "1316", english: "Silence! Keep silence! Here is the bride about to appear!", run: 1 }
+      - { greek: "1333", english: "Oh! Hymen! oh! Hymenaeus! oh! thrice happy man", run: 1 }
+      - { greek: "1337", english: "What shall we do to her?", run: 4 }
+      - { greek: "1346", english: "You shall have a fine house, no cares and the finest of figs.", run: 1 }
+      - { greek: "1351", english: "The bridegroom's fig is great and thick", run: 1 }
+      - { greek: "1353", english: "While eating and drinking deep draughts of wine", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

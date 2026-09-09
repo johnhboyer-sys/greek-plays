@@ -2014,11 +2014,14 @@ def test_resolve_pins_snaps_inside_a_greek_speech_and_settles_duplicates():
     )
     assert forced == [(1, 1)] and any("replaces the earlier pin" in n for n in notes)
     # A pin that crosses an earlier one (Greek order against English order)
-    # is skipped with a note rather than failing the play.
+    # is skipped with a note rather than failing the play.  (Unique texts:
+    # a repeated speech now settles between its neighbouring pins, which
+    # keeps the order and so never crosses.)
     notes.clear()
+    crossed = speeches[:2] + [{"text": "Speak.", "canonical": "Philocleon"}]
     forced = m._resolve_pins(
         [{"greek": "342a", "english": "Tell us."}, {"greek": "340", "english": "He would not"}],
-        slots, refs, speeches, "t", notes,
+        slots, refs, crossed, "t", notes,
     )
     assert forced == [(1, 0)] and any("crosses the pin" in n for n in notes)
     with pytest.raises(ValueError):
@@ -2044,6 +2047,33 @@ def test_apply_splits_cuts_a_run_together_speech_at_the_greek_change():
     assert m._apply_splits(speeches, [{"greek": "5", "english": "Where are we", "speaker": "DIONYSUS"}], "t") == [
         {"greek": "5", "english": "Where are we", "run": 1}
     ]
+
+
+def test_resolve_pins_places_a_repeated_speech_between_the_neighbouring_pins():
+    """Peace 1337: two identical "What shall we do to her?" between the pins
+    at 1333 and 1346. Ten early slots the translation lacks make the
+    play-wide proportion point at the second; the anchors either side put
+    the pin on the first."""
+    from drama_pipeline import stage1_turn_english as m
+
+    refs_g = [str(100 + i) for i in range(10)] + ["1333", "1337", "1338", "1339", "1340", "1346"]
+    segments = [{"greek": [{"n": i + 1, "ref": r} for i, r in enumerate(refs_g)]}]
+    names = ["Chorus"] * 10 + ["Chorus", "Trygaeus", "Chorus", "Trygaeus", "Chorus", "Trygaeus"]
+    slots = [{"segment": 0, "line": i + 1, "offset": 0, "name": nm} for i, nm in enumerate(names)]
+    texts = ["Early one.", "Early two.", "Oh! thrice happy man", "Oh! Hymen!", "Oh! Hymen!",
+             "What shall we do to her?", "What shall we do to her?", "We will gather her kisses.",
+             "We will gather her kisses.", "Come, comrades", "You shall have a fine house"]
+    speeches = [{"text": x, "canonical": "Chorus"} for x in texts]
+    refs = m._slot_refs(segments, slots)
+    pins = [
+        {"greek": "1346", "english": "You shall have a fine house"},
+        {"greek": "1337", "english": "What shall we do to her?", "run": 4},
+        {"greek": "1333", "english": "Oh! thrice happy man"},
+    ]
+    forced = m._resolve_pins(pins, slots, refs, speeches, "t")
+    assert (11, 5) in forced and (12, 6) in forced and (13, 7) in forced and (14, 8) in forced
+    # With no other pin the play-wide proportion still decides.
+    assert m._resolve_pins([pins[1]], slots, refs, speeches, "t")[0] == (11, 6)
 
 
 def test_resolve_pins_caps_a_long_run_and_refuses_a_line_inside_another_speaker():

@@ -35,7 +35,6 @@ english:
       - { greek: "1225", by: "1228" }
       - { greek: "1295", by: "1279" }
     pins:
-      - { greek: "93", english: "With pleasure, my dear", run: 1 }
       - { greek: "97", english: "I will tell you. But first answer me one question.", run: 1 }
       - { greek: "102", english: "Mine has been the last five months in Thrace", run: 1 }
       - { greek: "104", english: "'Tis seven long months since mine left me for Pylos", run: 1 }
@@ -65,6 +64,11 @@ english:
       - { greek: "130", english: "No, I will not do it; let the War go", run: 1 }
       - { greek: "774", english: "But if dissension do arise among the swallows", run: 1 }
       - { greek: "1106", english: "Needless to call her; she has heard your voices", run: 1 }
+      - { greek: "67", english: "They are from Anagyra.", run: 2 }
+      - { greek: "69", english: "Are we late, Lysistrata? Tell us, pray; what, not a word?", run: 2 }
+      - { greek: "72", english: "I could not find my girdle in the dark.", run: 1 }
+      - { greek: "74", english: "No, but let us wait a moment more", run: 2 }
+      - { greek: "93", english: "But who has called together this council of women, pray?", run: 3 }
   secondary:
     id: lindsay
     name: "Jack Lindsay (1925)"
