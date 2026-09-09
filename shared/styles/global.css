@@ -3740,7 +3740,15 @@ body {
      plain line number with no speaker hanging beside it; play-line's gutter
      also has to line the English lead-in up with the Greek siglum, so it
      restates its own widths against each of them. */
-  .reader-body.play-line { --pl-num-w: 2.2rem; --pl-spk-w-greek: 3rem; --pl-spk-w: 6rem; }
+  /* No speaker gutter on a phone (John, 2026-09-09: "pretty big margin
+     between gutter numbers and text"): the Greek siglum runs in before its
+     line as the English lead-in already does, and the measure gains 3rem. The
+     number gutter keeps the desktop width so a joined ref ("173-174") still
+     fits beside the text. */
+  .reader-body.play-line { --pl-num-w: 2.6rem; --pl-spk-w-greek: 0rem; --pl-spk-w: 6rem; }
+  .reader-body.play-line:not(.view-greek) .greek-line .line-text > .speaker:first-child {
+    position: static; width: auto; margin-right: 0.4em; white-space: nowrap;
+  }
   /* A Greek siglum longer than the phone gutter stacks inside it. */
   .reader-body.play-line:not(.view-greek) .greek-line .line-text > .speaker:first-child {
     white-space: normal; line-height: 1.15; overflow-wrap: anywhere;
