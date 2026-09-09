@@ -399,9 +399,11 @@ const intro =
   </header>
   <header class="page-header">
     <div class="header-bar">
-      <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar">
-        <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text">Contents</span>
-      </button>
+      {!isPlayLine && (
+        <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar">
+          <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text">Contents</span>
+        </button>
+      )}
       <Breadcrumb authorId={work.author} authors={authorOptions} workId={workId} works={workOptions} readerNav client:load />
       <div class="bar-actions">
         <a class="header-support" href={SUPPORT_URL} target="_blank" rel="noopener" title="Support the site" aria-label="Support the site">
@@ -565,6 +567,10 @@ const intro =
     </div>
   </header>
 
+  {/* A play has no divisions to list (John, 2026-09-09): no Contents
+      drawer on play-line works; the shell script already tolerates its
+      absence (optional chaining on .toc-toggle / #toc-sidebar). */}
+  {!isPlayLine && (<Fragment>
   <div class="toc-backdrop" id="toc-backdrop" hidden></div>
   <aside class="toc-sidebar" id="toc-sidebar" aria-label={`${work.title} — table of contents`} aria-hidden="true">
     <div class="toc-head">
@@ -715,6 +721,7 @@ const intro =
       </button>
     </div>
   </aside>
+  </Fragment>)}
 
   <script>
     // Contents sidebar (full-work outline) drawer. On mobile this is the single
