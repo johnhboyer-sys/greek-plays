@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineRenderParts, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1091,5 +1091,37 @@ describe('P4 review follow-ups (2026-09-09)', () => {
     const m = await import('../lib/speakers');
     expect(m.playGreekGutterWidth(new Map([['Chorus', 'Χο.']]))).toBe('3.40rem');
     expect(m.playGreekGutterWidth(new Map([['Theoclymenus', 'Θεοκ.'], ['Theonoe', 'Θεον.']]))).toBe('4.00rem');
+  });
+});
+
+describe('playRepeatedRefs', () => {
+  it('marks every line that shares a printed ref, skipping lacunae', () => {
+    const segs = [{ greek: [
+      { n: 1, ref: '802' }, { n: 2, ref: '803' }, { n: 3, ref: '810' }, { n: 4, ref: '803' },
+      { n: 5, ref: '1226', role: 'lacuna' }, { n: 6, ref: '1226', role: 'lacuna' }, { n: 7, ref: '811' },
+    ] }];
+    expect([...playRepeatedRefs(segs)]).toEqual([2, 4]);
+  });
+});
+
+describe('playTransposed', () => {
+  const seg = (refs: string[]) => [{ greek: refs.map((ref, i) => ({ n: i + 1, ref })) }];
+  it('flags only the moved line, not its neighbours (Ag. 1290 before 1284)', () => {
+    expect([...playTransposed(seg(['1283', '1290', '1284', '1285', '1286', '1291']))]).toEqual([2]);
+  });
+  it('does not flag a gap in the numbering', () => {
+    expect(playTransposed(seg(['6', '7', '10', '11'])).size).toBe(0);
+  });
+  it('leaves a doublet to playRepeatedRefs: nothing else is out of order', () => {
+    expect(playTransposed(seg(['802', '803', '810', '803', '811'])).size).toBe(0);
+  });
+});
+
+describe('playEnglishGutterWidth', () => {
+  it('widens for a long name and never drops below the default', () => {
+    expect(playEnglishGutterWidth(['Chorus', 'Cleon'])).toBe('7.50rem');
+    expect(playEnglishGutterWidth(['Sausage-Seller'])).toBe('8.84rem');
+    // A joint name past 16 characters wraps instead of widening the gutter.
+    expect(playEnglishGutterWidth(['Sausage-seller and Paphlagonian', 'Cleon'])).toBe('7.50rem');
   });
 });

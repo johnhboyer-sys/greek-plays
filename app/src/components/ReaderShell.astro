@@ -434,6 +434,10 @@ const intro =
         <ThemeToggle />
       </div>
     </div>
+    {/* A play has no books and no chapter nav, so the panel would hold one
+        lone "Go to a line" button on its own row (John, 2026-09-09: pointless);
+        ⌘K and ?loc= still jump to a line. */}
+    {!isPlayLine && (
     <div class="nav-panel" id="nav-panel">
       {!busse && <BekkerJump work={workId} inputId="bekker-input-nav" client:load />}
       {!bookless && (
@@ -565,6 +569,7 @@ const intro =
         </nav>
       )}
     </div>
+    )}
   </header>
 
   {/* A play has no divisions to list (John, 2026-09-09): no Contents

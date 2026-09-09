@@ -880,6 +880,80 @@ export function playOutOfSequence(
   return out;
 }
 
+/** Lines the edition prints out of numerical order (Ag. 1290 before 1284):
+ * the lines NOT on a longest non-decreasing run of printed numbers, so a
+ * single moved line is flagged and the lines around it are not, and a plain
+ * gap in the numbering (7 then 10) flags nothing. playOutOfSequence, which
+ * decides which gutter numbers to print, keeps its looser "number changed
+ * unexpectedly" rule; this set drives the editor note. */
+export function playTransposed(
+  segments: { greek: { n: number; ref?: string; role?: string }[] }[],
+): Set<number> {
+  const seq: { n: number; v: number }[] = [];
+  const seen = new Set<string>();
+  for (const seg of segments) {
+    for (const line of seg.greek) {
+      if (line.role === 'lacuna' || line.role === 'heading') continue;
+      const m = /^([0-9]+)/.exec(line.ref ?? '');
+      if (!m) continue;
+      // A doublet's later copy is playRepeatedRefs' business, not a transposition.
+      if (seen.has(line.ref!)) continue;
+      seen.add(line.ref!);
+      seq.push({ n: line.n, v: Number(m[1]) });
+    }
+  }
+  // Longest non-decreasing subsequence, O(n log n) with parent links.
+  const tails: number[] = []; const tailIdx: number[] = []; const parent = new Array<number>(seq.length).fill(-1);
+  for (let i = 0; i < seq.length; i++) {
+    const v = seq[i].v;
+    let lo = 0, hi = tails.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (tails[mid] <= v) lo = mid + 1; else hi = mid; }
+    tails[lo] = v; tailIdx[lo] = i; parent[i] = lo > 0 ? tailIdx[lo - 1] : -1;
+  }
+  const keep = new Set<number>();
+  for (let i = tails.length ? tailIdx[tails.length - 1] : -1; i >= 0; i = parent[i]) keep.add(i);
+  const out = new Set<number>();
+  seq.forEach((x, i) => { if (!keep.has(i)) out.add(x.n); });
+  return out;
+}
+
+/** Lines whose printed ref the edition gives to more than one line (Septem's
+ * 803 doublet, Helen's two lacunae at 1226): every line carrying a duplicated
+ * plain or range ref, so the gutter can mark each copy. Lacunae and headings
+ * are skipped, as in playOutOfSequence. (John, 2026-09-09: repeated and
+ * transposed numbers are clickable, with a note that the editor did it.) */
+export function playRepeatedRefs(
+  segments: { greek: { n: number; ref?: string; role?: string }[] }[],
+): Set<number> {
+  const byRef = new Map<string, number[]>();
+  for (const seg of segments) {
+    for (const line of seg.greek) {
+      if (line.role === 'lacuna' || line.role === 'heading') continue;
+      const ref = line.ref ?? '';
+      if (!/^[0-9]+(?:[a-z]|-[0-9]+)?$/.test(ref)) continue;
+      const ns = byRef.get(ref);
+      if (ns) ns.push(line.n); else byRef.set(ref, [line.n]);
+    }
+  }
+  const out = new Set<number>();
+  for (const ns of byRef.values()) if (ns.length > 1) for (const n of ns) out.add(n);
+  return out;
+}
+
+/** The English speaker gutter's width for a play, from its longest name
+ * (SAUSAGE-SELLER overhung the 7.5rem default into the text; John,
+ * 2026-09-09). Small caps in Alegreya Sans SC run ~0.56rem a character at
+ * the lead-in size; 1rem of air; never narrower than the default. */
+export function playEnglishGutterWidth(names: Iterable<string>): string {
+  let longest = 0;
+  // A joint or descriptive name ("Sausage-seller and Paphlagonian", "Ghost
+  // of Clytaemestra") must not widen the gutter for the whole play: past 16
+  // characters a lead-in takes its own line above the text instead
+  // (Reader.svelte longLabel / .spk-long).
+  for (const n of names) if (n.length <= 16) longest = Math.max(longest, n.length);
+  return `${Math.max(7.5, longest * 0.56 + 1.0).toFixed(2)}rem`;
+}
+
 /** The Greek speaker gutter's width for a play, from its longest siglum
  *  (Helen's Θεοκ. / Θεον. need more than Χο.): never below the 3.4rem
  *  design width, about 0.62rem per glyph plus room for the gap. */

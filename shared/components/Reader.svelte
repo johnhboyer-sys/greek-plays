@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, leadInCase, playOutOfSequence, playGreekGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -792,9 +792,31 @@
   // one after it) get their number in the gutter even off the fifth-line
   // grid, as the OCT's margin does (John, 2026-09-09).
   $: numberedOutOfSequence = playLine ? playOutOfSequence(orderedSegments) : new Set<number>();
+  // Lines whose printed number the edition gives twice (Septem 803). With the
+  // transposed lines above these carry a clickable number and a one-line
+  // note that the editor did it (John, 2026-09-09, REVIEW-CHECKLIST 3).
+  $: repeatedRefs = playLine ? playRepeatedRefs(orderedSegments) : new Set<number>();
+  $: transposedLines = playLine ? playTransposed(orderedSegments) : new Set<number>();
+  let openLineNote: number | null = null;
+  function lineNote(line: RLine): string | null {
+    const ed = greekSrc?.short ?? 'The edition';
+    if (repeatedRefs.has(line.n)) return `Numbered twice by the editor: ${ed} gives the number ${line.ref} to two lines. Both stay as printed.`;
+    if (transposedLines.has(line.n)) return `Printed here by the editor: ${ed} places line ${line.ref} at this point, out of numerical order.`;
+    return null;
+  }
+  function toggleLineNote(n: number) { openLineNote = openLineNote === n ? null : n; }
+  function onLineNoteKey(e: KeyboardEvent) { if (e.key === 'Escape' && openLineNote != null) openLineNote = null; }
   // The Greek speaker gutter grows to the play's longest siglum (Helen's
   // Θεοκ./Θεον.) instead of wrapping it.
   $: greekGutterWidth = playLine ? playGreekGutterWidth(sigla) : undefined;
+  $: englishGutterWidth = playLine ? playEnglishGutterWidth(bookData?.speakerRoster ?? []) : undefined;
+  // A lead-in the gutter cannot hold (Frogs' joint "Aeschylus and Euripides",
+  // 23 characters) takes its own line above the text instead of overhanging
+  // into it (John, 2026-09-09) -- the gutter is sized for the roster's names.
+  function longLabel(display: string): boolean {
+    if (!playLine || !englishGutterWidth) return false;
+    return display.length * 0.56 + 0.6 > parseFloat(englishGutterWidth);
+  }
 
   // Ordered list of distinct chapter identifiers present in the loaded book.
   // Empty-string entries (no chapter assignment yet) are filtered out.
@@ -1681,7 +1703,18 @@
       perRow[cur].push(b);
     }
     if (!split) return null;
-    return items.map((it, i) => ({ items: [it], blocks: perRow[i] }));
+    // A row runs from one English-bearing Greek line to the next: the Greek
+    // lines of a speech stack in the left cell beside the speech's English in
+    // the right, so a one-paragraph prose speech (Knights 624-682 in the
+    // Athenian Society) no longer stretches the FIRST line's row and pushes
+    // the other thirty Greek lines below it (John, 2026-09-09: "more
+    // alignment nonsense"). Each turn still starts level with its first line.
+    const rows: PlayRow[] = [];
+    items.forEach((it, i) => {
+      if (i === 0 || perRow[i].length) rows.push({ items: [it], blocks: perRow[i] });
+      else rows[rows.length - 1].items.push(it);
+    });
+    return rows;
   }
 
   // An ode gets the narrower measure (John, 2026-09-08: "a narrower measure,
@@ -2586,6 +2619,7 @@
   function onDocPointerDown(e: MouseEvent) {
     const t = e.target as HTMLElement | null;
     if (bekkerInfoOpen && !t?.closest?.('.bekker-info')) bekkerInfoOpen = false;
+    if (openLineNote != null && !t?.closest?.('.line-num-wrap')) openLineNote = null;
     if (!fnPinned) return;
     if (t?.closest?.('.fn-marker') || t?.closest?.('.footnote-popup')) return;
     closeFootnote();
@@ -3535,7 +3569,7 @@
              "Chorus"); the printed page names the speaker once, so a lead-in
              that repeats the block before it is not shown (John, 2026-09-09). -->
         {@const repeatLead = bi > 0 && !!b.display && (blocks[bi - 1].speaker ?? blocks[bi - 1].display) === (b.speaker ?? b.display) && !blocks[bi - 1].lead}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(b.display)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(b.display)} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(b.display)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>
   {/snippet}
@@ -3727,7 +3761,7 @@
     </div>
   {/snippet}
 
-  <div class="reader-body view-{view} trans-{trans}" role="main" style:--pl-spk-w-greek={greekGutterWidth}
+  <div class="reader-body view-{view} trans-{trans}" role="main" style:--pl-spk-w-greek={greekGutterWidth} style:--pl-spk-w={englishGutterWidth}
     bind:this={readerBodyEl}
     class:busse={busse}
     class:stephanus={stephanus}
@@ -4069,7 +4103,7 @@
                        text begins, even a mid-word continuation (Q3.2). Every
                        other work's lines carry no `sec`, so this branch never
                        fires for them. -->
-                  <span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>
+                  {#if playLine && lineNote(item.line)}<span class="line-num line-num-wrap"><button type="button" class="line-num-btn" aria-expanded={openLineNote === item.line.n} aria-label="Line {item.line.ref}: a note on the numbering" on:click|stopPropagation={() => toggleLineNote(item.line.n)}>{item.line.ref}</button>{#if openLineNote === item.line.n}<span class="line-note" role="note">{lineNote(item.line)}</span>{/if}</span>{:else}<span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>{/if}
                   {#if item.line.role === 'lacuna'}
                     <!-- Editorial gap (design memo §3.2): rendered as a
                          styled placeholder, never the literal "* * *" the
@@ -4412,7 +4446,7 @@
                          text begins, even a mid-word continuation (Q3.2).
                          Every other work's lines carry no `sec`, so this
                          branch never fires for them. -->
-                    <span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>
+                    {#if playLine && lineNote(item.line)}<span class="line-num line-num-wrap"><button type="button" class="line-num-btn" aria-expanded={openLineNote === item.line.n} aria-label="Line {item.line.ref}: a note on the numbering" on:click|stopPropagation={() => toggleLineNote(item.line.n)}>{item.line.ref}</button>{#if openLineNote === item.line.n}<span class="line-note" role="note">{lineNote(item.line)}</span>{/if}</span>{:else}<span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>{/if}
                     {#if item.line.role === 'lacuna'}
                       <!-- Editorial gap (design memo §3.2): rendered as a
                            styled placeholder, never the literal "* * *" the
@@ -4947,7 +4981,7 @@
   />
 {/if}
 
-<svelte:window on:pointerdown={onDocPointerDown} />
+<svelte:window on:pointerdown={onDocPointerDown} on:keydown={onLineNoteKey} />
 
 {#if footnote}
   <FootnotePopup

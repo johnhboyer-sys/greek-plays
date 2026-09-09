@@ -884,12 +884,15 @@ describe('Reader.svelte play-line turn pairing edges (P4 Lane E, finding 4)', ()
       },
     });
     await flush();
+    // Rows run from one English-bearing line to the next (John, 2026-09-09):
+    // the Watchman's two untranslated lines share the first row.
     const rows = [...container.querySelectorAll('.play-row')];
-    expect(rows).toHaveLength(4);
-    expect(rows[2].querySelector('.english-col')?.textContent).toContain('First.');
-    expect(rows[2].querySelector('.english-col')?.textContent).not.toContain('Third.');
-    expect(rows[3].querySelector('.english-col')?.textContent).toContain('Second.');
-    expect(rows[3].querySelector('.english-col')?.textContent).toContain('Third.');
+    expect(rows).toHaveLength(3);
+    expect(rows[0].querySelectorAll('.greek-line')).toHaveLength(2);
+    expect(rows[1].querySelector('.english-col')?.textContent).toContain('First.');
+    expect(rows[1].querySelector('.english-col')?.textContent).not.toContain('Third.');
+    expect(rows[2].querySelector('.english-col')?.textContent).toContain('Second.');
+    expect(rows[2].querySelector('.english-col')?.textContent).toContain('Third.');
   });
 
   it('gives two events that share one display a turn each, in printed order', async () => {
@@ -1173,5 +1176,78 @@ describe('Reader.svelte play-line: a by-speech translation across a split speech
     const by = Object.fromEntries(cells.map((c) => [c.id, c]));
     expect(by['col-140']).toMatchObject({ covered: true, dash: false });
     expect(by['col-202']).toMatchObject({ empty: true, dash: false, covered: false });
+  });
+});
+
+describe('editor notes on repeated and transposed numbers (REVIEW-CHECKLIST 3)', () => {
+  beforeEach(() => localStorage.clear());
+  function bookWithEditorNumbers(): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Chorus'],
+      segments: [{
+        id: '1:1', column: '1',
+        greek: [
+          { n: 1, text: 'α', tokens: [], ref: '801' },
+          { n: 2, text: 'β', tokens: [], ref: '802' },
+          { n: 3, text: 'γ', tokens: [], ref: '803' },
+          { n: 4, text: 'δ', tokens: [], ref: '810' },
+          { n: 5, text: 'ε', tokens: [], ref: '804' },
+          { n: 6, text: 'ζ', tokens: [], ref: '805' },
+          { n: 7, text: 'η', tokens: [], ref: '803' },
+        ],
+        speakers: [{ line: 1, offset: 0, label: 'Χο.', display: 'Chorus' }],
+        english: null,
+      }],
+    };
+  }
+  it('renders the repeated and transposed numbers as buttons whose note names the editor', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: bookWithEditorNumbers() } });
+    await flush();
+    const btns = [...container.querySelectorAll('.line-num-btn')].map((b) => b.textContent);
+    expect(btns).toEqual(['803', '810', '803']);
+    expect(container.querySelector('.line-note')).toBeNull();
+    await fireEvent.click(container.querySelectorAll('.line-num-btn')[1]);
+    expect(container.querySelector('.line-note')?.textContent).toBe('Printed here by the editor: Test places line 810 at this point, out of numerical order.');
+    await fireEvent.click(container.querySelectorAll('.line-num-btn')[2]);
+    const notes = container.querySelectorAll('.line-note');
+    expect(notes.length).toBe(1);
+    expect(notes[0].textContent).toBe('Numbered twice by the editor: Test gives the number 803 to two lines. Both stay as printed.');
+    await fireEvent.keyDown(window, { key: 'Escape' });
+    expect(container.querySelector('.line-note')).toBeNull();
+  });
+});
+
+describe('English lead-ins and the gutter (John, 2026-09-09)', () => {
+  beforeEach(() => localStorage.clear());
+  it('sizes the English gutter to the roster and puts an over-long joint label on its own line', async () => {
+    const data: BookData = {
+      book: 1,
+      speakerRoster: ['Dionysus', 'Sausage-Seller'],
+      segments: [{
+        id: '1:1', column: '1',
+        greek: [
+          { n: 1, text: 'α', tokens: [], ref: '1' },
+          { n: 2, text: 'β', tokens: [], ref: '2' },
+        ],
+        speakers: [
+          { line: 1, offset: 0, label: 'Δι.', display: 'Dionysus' },
+          { line: 2, offset: 0, label: 'Αι.', display: 'Sausage-Seller' },
+        ],
+        english: {
+          text: 'Come. Here we are.', notes: [], markers: [],
+          turns: [
+            { offset: 0, speaker: 'Dionysus', display: 'DIONYSUS' },
+            { offset: 6, speaker: 'Sausage-Seller', display: 'AESCHYLUS AND EURIPIDES' },
+          ],
+        },
+      }],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const body = container.querySelector('.reader-body') as HTMLElement;
+    expect(body.style.getPropertyValue('--pl-spk-w')).toBe('8.84rem');
+    const leads = [...container.querySelectorAll('.turn-para > .speaker')];
+    expect(leads.map((l) => l.classList.contains('spk-long'))).toEqual([false, true]);
   });
 });
