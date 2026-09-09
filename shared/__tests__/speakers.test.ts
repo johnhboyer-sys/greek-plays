@@ -1025,6 +1025,16 @@ describe('playSigla — the Greek gutter siglum of each speaker', () => {
     expect(sigla.get('Aeschylus')).toBe('Αισ.');
   });
 
+  it('prints a joint label in full, title-cased around the κ. (Frogs, John 2026-09-09)', () => {
+    const sigla = playSigla([
+      ev('ΑΙΣΧΥΛΟΣ', 'Aeschylus'), ev('ΑΙ.', 'Aeschylus'),
+      ev('ΕΥΡΙΠΙΔΗΣ', 'Euripides'), ev('ΕΥ.', 'Euripides'),
+      ev('ΑΙ. κ. ΕΥ.', 'Aeschylus and Euripides'),
+    ]);
+    expect(sigla.get('Aeschylus and Euripides')).toBe('Αι. κ. Ευ.');
+    expect(sigla.get('Aeschylus')).toBe('Αι.');
+  });
+
   it('keeps the enumerator that is the whole distinction between two roles', () => {
     const sigla = playSigla([ev('ΗΜΙΧΟΡΙΟΝ Αʹ', 'First Semichorus'), ev('ΗΜΙΧΟΡΙΟΝ Βʹ', 'Second Semichorus')]);
     expect(sigla.get('First Semichorus')).toBe('Ημ. Αʹ');
@@ -1091,6 +1101,8 @@ describe('P4 review follow-ups (2026-09-09)', () => {
     const m = await import('../lib/speakers');
     expect(m.playGreekGutterWidth(new Map([['Chorus', 'Χο.']]))).toBe('3.40rem');
     expect(m.playGreekGutterWidth(new Map([['Theoclymenus', 'Θεοκ.'], ['Theonoe', 'Θεον.']]))).toBe('4.00rem');
+    // A joint siglum stacks in the gutter instead of widening it.
+    expect(m.playGreekGutterWidth(new Map([['Chorus', 'Χο.'], ['Aeschylus and Euripides', 'Αι. κ. Ευ.']]))).toBe('3.40rem');
   });
 });
 

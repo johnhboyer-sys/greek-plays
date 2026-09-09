@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -3360,7 +3360,7 @@
         aria-haspopup="dialog"
         on:click={(e) => handleTokenClick(e, part.tok)}
         on:keydown={(e) => onTokenKey(e, part.tok)}
-      >{part.text}</span>{:else if part.kind === 'speaker'}{@const siglum = (part.display && sigla.get(part.display)) || part.label}<span class="speaker" class:speaker-dash={part.dash} data-spk={part.display ? spkSlots.get(part.display) : undefined} lang={sourceLang} title={siglum === part.label ? undefined : part.label} aria-label={siglum === part.label ? undefined : part.label}>{siglum}</span>{:else}{part.text}{/if}{/each}{/snippet}
+      >{part.text}</span>{:else if part.kind === 'speaker'}{@const siglum = (part.display && sigla.get(part.display)) || part.label}<span class="speaker" class:speaker-dash={part.dash} class:spk-long={isJointSiglum(siglum)} data-spk={part.display ? spkSlots.get(part.display) : undefined} lang={sourceLang} title={siglum === part.label ? undefined : part.label} aria-label={siglum === part.label ? undefined : part.label}>{siglum}</span>{:else}{part.text}{/if}{/each}{/snippet}
   {#snippet chapterHead(block: Block)}
     <div class="chapter-head" id="ch-{bookNum}-{block.chapter}">
       <span class="chapter-label">{#if bookLabel}<span class="chapter-book">{bookLabel},&nbsp;</span>{/if}{chapterUnitNoun} {block.chapter}{#if chapterTitles[block.chapter ?? '']}: {chapterTitles[block.chapter ?? '']}{/if}</span>

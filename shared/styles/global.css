@@ -2145,6 +2145,11 @@ body {
   white-space: nowrap;
   overflow: visible;
 }
+/* A joint siglum (Frogs' "Αι. κ. Ευ.") prints in full and stacks in the
+   gutter, as a long English lead-in does (John, 2026-09-09). */
+.reader-body.play-line:not(.view-greek) .greek-line .line-text > .speaker.spk-long:first-child {
+  white-space: normal; line-height: 1.15;
+}
 /* A lacuna line's bracketed sigla (Diggle's <Ελ. >): the same hanging label,
    in the gap's own row, upright and unspaced. */
 .reader-body.play-line .lacuna-gap > .speaker { font-style: normal; letter-spacing: 0; }

@@ -784,6 +784,11 @@ export function playSigla(
   const sigla = new Map<string, string>();
   for (const [display, labels] of printed) {
     const short = shortest(labels);
+    // A joint label ("ΑΙ. κ. ΕΥ.", Aeschylus and Euripides speaking together
+    // in Frogs) prints in full: the κ. is the point, and an abbreviation
+    // would name only the first speaker (John, 2026-09-09). It stacks in
+    // the gutter (Reader's .spk-long) rather than widening it.
+    if (isJointSiglum(short)) { sigla.set(display, short); continue; }
     sigla.set(display, short.length <= SIGLUM_MAX ? short : abbreviateLabel(fullest(labels), 2));
   }
   for (let n = 3; n <= SIGLUM_MAX; n += 1) {
@@ -821,8 +826,15 @@ export function playSigla(
   return sigla;
 }
 
+/** Two sigla joined by κ. (καί): "ΑΙ. κ. ΕΥ.". */
+export function isJointSiglum(label: string): boolean {
+  return /\sκ\.?\s/.test(label);
+}
+
 /** First word in title case, medial sigma before the stop, tail untouched. */
 export function normalizeSiglumCase(s: string): string {
+  // A joint siglum title-cases each name and leaves the κ. as printed.
+  if (isJointSiglum(s)) return s.split(' ').map((w) => (/^κ\.?$/.test(w) ? w : normalizeSiglumCase(w))).join(' ');
   const sp = s.indexOf(' ');
   const head = sp < 0 ? s : s.slice(0, sp);
   const tail = sp < 0 ? '' : s.slice(sp);
@@ -968,7 +980,8 @@ export function playEnglishGutterWidth(names: Iterable<string>): string {
  *  design width, about 0.62rem per glyph plus room for the gap. */
 export function playGreekGutterWidth(sigla: Map<string, string>): string {
   let longest = 0;
-  for (const s of sigla.values()) longest = Math.max(longest, s.length);
+  // A joint siglum stacks inside the gutter (.spk-long) instead of sizing it.
+  for (const s of sigla.values()) if (!isJointSiglum(s)) longest = Math.max(longest, s.length);
   const rem = Math.max(3.4, longest * 0.62 + 0.9);
   return `${rem.toFixed(2)}rem`;
 }
