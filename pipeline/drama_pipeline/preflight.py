@@ -44,6 +44,7 @@ Problem = tuple[str, str, str]
 _LEGAL_ENGLISH_MODELS = {
     "archive", "chapter_concordance", "perseus_stephanus", "freeman",
     "perseus-play",
+    "turn-text",  # P3: speaker-turn aligned prose/verse without line numbers (stage1_turn_english)
 }
 PUBLIC_DOMAIN_ALLOWLIST_PATH = Path(__file__).with_name("public_domain_translations.yaml")
 
@@ -514,7 +515,9 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
         if not isinstance(primary, dict):
             problems.append((manifest.work_id, file_name, "english.primary must be an object"))
         else:
-            source_key = "source" if primary.get("model") == "perseus-play" else "file"
+            # perseus-play and turn-text (P3, the comedies and the verse
+            # benches) name their text with `source` (+ `play`), not `file`.
+            source_key = "source" if primary.get("model") in ("perseus-play", "turn-text") else "file"
             for key in ["id", "name", "model", source_key]:
                 if not isinstance(primary.get(key), str) or not primary.get(key):
                     problems.append((manifest.work_id, file_name, f"english.primary.{key} must be a non-empty string"))
@@ -537,10 +540,10 @@ def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Pro
                     problems.append((manifest.work_id, file_name,
                                      f"english.primary.model {model!r} is not a recognized model "
                                      f"-- expected one of {sorted(_LEGAL_ENGLISH_MODELS)}"))
-                elif scheme.play_line_scheme and model != "perseus-play":
+                elif scheme.play_line_scheme and model not in ("perseus-play", "turn-text"):
                     problems.append((manifest.work_id, file_name,
                                      "a play-line work with English must use "
-                                     "english.primary.model 'perseus-play'"))
+                                     "english.primary.model 'perseus-play' or 'turn-text'"))
                 elif model == "chapter_concordance" and not (scheme.flat_numeric or scheme.numeric_section):
                     problems.append((manifest.work_id, file_name,
                                      "english.primary.model 'chapter_concordance' is only "

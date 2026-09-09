@@ -639,3 +639,28 @@ def test_turn_text_floor_ignores_another_plays_report(tmp_path, monkeypatch):
         None,
         f"no stage1 English report at {tmp_path / 'elsewhere' / 'stage1' / 'english_report.json'}",
     )
+
+
+def test_preflight_accepts_a_turn_text_primary_on_a_play_line_work():
+    """The comedies' primaries are turn-text with `source` + `play`
+    (stage1_turn_english), not perseus-play with `file`. Corpus preflight
+    refused all eleven at the first full build:public after P3 (2026-09-08);
+    it now takes either play-line model, and still refuses a typo."""
+    from drama_pipeline import preflight
+
+    def problems_for(model: str, **extra: str) -> list[str]:
+        data = {
+            "work": {"id": "test-play", "title": "Test", "author": "aristophanes", "tlg_author": "0019", "tlg_work": "009"},
+            "citation": {"scheme": "play-line", "fingerprint": {"count": 1, "sha256": "x"}},
+            "books": [{"n": 1, "start": "1", "end": "10"}],
+            "english": {"primary": {"id": "athenian-society", "name": "The Eleven Comedies", "model": model, **extra}, "gaps": []},
+            "proper_names": [],
+        }
+        manifest = preflight.WorkManifest("test-play", Path("test-play.yaml"), data)
+        out: list = []
+        preflight._validate_manifest_schema(manifest, out)
+        return [p[2] for p in out if "english.primary" in p[2]]
+
+    assert problems_for("turn-text", source="gutenberg/pg8689.txt", play="THE FROGS") == []
+    assert any("not a recognized model" in p for p in problems_for("turn-txt", source="gutenberg/pg8689.txt"))
+    assert any("english.primary.source must be a non-empty string" in p for p in problems_for("turn-text"))
