@@ -813,6 +813,11 @@
   // A lead-in the gutter cannot hold (Frogs' joint "Aeschylus and Euripides",
   // 23 characters) takes its own line above the text instead of overhanging
   // into it (John, 2026-09-09) -- the gutter is sized for the roster's names.
+  // Smyth's TEI wraps an inferred attribution in parentheses ("(Leader of
+  // the Chorus)"); the lead-in drops them (John, 2026-09-09).
+  function leadName(display: string): string {
+    return display.replace(/^\((.*)\)$/, '$1').trim();
+  }
   function longLabel(display: string): boolean {
     if (!playLine || !englishGutterWidth) return false;
     return display.length * 0.56 + 0.6 > parseFloat(englishGutterWidth);
@@ -3569,7 +3574,7 @@
              "Chorus"); the printed page names the speaker once, so a lead-in
              that repeats the block before it is not shown (John, 2026-09-09). -->
         {@const repeatLead = bi > 0 && !!b.display && (blocks[bi - 1].speaker ?? blocks[bi - 1].display) === (b.speaker ?? b.display) && !blocks[bi - 1].lead}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(b.display)} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(b.display)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>
   {/snippet}

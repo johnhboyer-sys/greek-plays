@@ -839,9 +839,18 @@ export function normalizeSiglumCase(s: string): string {
  *  the casing the scan imposed. Mixed-case labels are returned untouched
  *  (John, REVIEW-CHECKLIST 2: each side keeps its printed label). */
 export function leadInCase(display: string): string {
-  const letters = display.replace(/[^\p{L}]/gu, '');
-  if (letters.length < 2 || letters !== letters.toUpperCase()) return display;
   const small = new Set(['of', 'the', 'and', 'a', 'an', 'to', 'in', 'for', 'or', 'at', 'on', 'by']);
+  const letters = display.replace(/[^\p{L}]/gu, '');
+  if (letters.length < 2 || letters !== letters.toUpperCase()) {
+    // Mixed case stays as printed, except a capitalised small word mid-label
+    // ("Leader Of The Chorus" -> "Leader of the Chorus"; John, 2026-09-09).
+    let first = true;
+    return display.replace(/\p{L}+/gu, (w) => {
+      const out = !first && small.has(w.toLowerCase()) ? w.toLowerCase() : w;
+      first = false;
+      return out;
+    });
+  }
   let first = true;
   return display.replace(/\p{L}+/gu, (w) => {
     const lower = w.toLowerCase();

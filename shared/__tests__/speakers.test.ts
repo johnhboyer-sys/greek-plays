@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineRenderParts, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1123,5 +1123,14 @@ describe('playEnglishGutterWidth', () => {
     expect(playEnglishGutterWidth(['Sausage-Seller'])).toBe('8.84rem');
     // A joint name past 16 characters wraps instead of widening the gutter.
     expect(playEnglishGutterWidth(['Sausage-seller and Paphlagonian', 'Cleon'])).toBe('7.50rem');
+  });
+});
+
+describe('leadInCase on mixed case', () => {
+  it('lowercases a capitalised small word mid-label and leaves names alone', () => {
+    expect(leadInCase('Leader Of The Chorus')).toBe('Leader of the Chorus');
+    expect(leadInCase('Servant Of The Hoopoe')).toBe('Servant of the Hoopoe');
+    expect(leadInCase('Sausage-Seller')).toBe('Sausage-Seller');
+    expect(leadInCase('A Fourth Elder')).toBe('A Fourth Elder');
   });
 });

@@ -2102,11 +2102,11 @@ body {
    speaker gutter, a line-opening siglum hanging in it. */
 .reader-body.play-line .greek-line { gap: 0; }
 .reader-body.play-line .line-num { min-width: var(--pl-num-w); padding-right: 0.6rem; }
-/* A lead-in too long for the gutter sits on its own line above the text,
-   starting level with the other labels (Frogs' joint label, John 2026-09-09). */
+/* A lead-in too long for the gutter STACKS inside it ("Leader / of the /
+   Chorus"), so the English still starts on its Greek line (John, 2026-09-09:
+   a label on its own line pushed the text off the row). */
 .reader-body.play-line .turn-stack .turn-para > .speaker.spk-long:first-child {
-  position: static; display: block; width: auto; white-space: normal;
-  margin-left: calc(-1 * var(--pl-spk-w)); margin-bottom: 0.1rem;
+  white-space: normal; line-height: 1.15; overflow-wrap: anywhere;
 }
 /* A repeated or transposed line number is a button; its note is a small
    popover on the Bekker-note pattern (REVIEW-CHECKLIST 3, John 2026-09-09). */
