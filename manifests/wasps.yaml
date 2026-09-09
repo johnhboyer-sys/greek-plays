@@ -21,6 +21,25 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE WASPS"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { english: "As for you, tell me whether you", speaker: "BDELYCLEON" }  # Greek 524
+    pins:
+      - { greek: "9", english: "No! 'Tis Bacchus who lulls me off.", run: 30 }
+      - { greek: "156", english: "What are you dong, you wretches?", run: 13 }
+      - { greek: "204", english: "Perhaps a rat loosened it.", run: 3 }
+      - { greek: "314", english: "Oh! my little wallet! you seem like", run: 1 }
+      - { greek: "345", english: "He would not have dared, had he", run: 16 }
+      - { greek: "398", english: "Mount quick to the other window,", run: 5 }
+      - { greek: "458", english: "You will not go? The plague seize", run: 1 }
+      - { greek: "524", english: "As for you, tell me whether you", run: 2 }
+      - { greek: "530", english: "Your tablets? Ha, ha! what an importance", run: 1 }
+      - { greek: "823", english: "That is why, hero though he be,", run: 6 }
+      - { greek: "936", english: "(Thesmothetes) Take it yourself. I go to call", run: 35 }
+      - { greek: "1154", english: "Come! I will put it round you.", run: 54 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

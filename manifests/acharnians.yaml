@@ -21,6 +21,23 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "THE ACHARNIANS"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { english: "during the whole of that time I was holding", speaker: "THEORUS" }  # Greek 141
+    pins:
+      - { greek: "104", english: "Thou shalt not have gold, thou gaping-arsed", run: 1 }
+      - { greek: "141", english: "during the whole of that time I was holding", run: 1 }
+      - { greek: "153", english: "And he has sent you the most warlike", run: 1 }
+      - { greek: "153", english: "Now we shall begin to see clearly", run: 1 }
+      - { greek: "801", english: "Can you eat chick-pease?", run: 1 }
+      - { greek: "920", english: "Should a Boeotian attach it to an insect's", run: 1 }
+      - { greek: "926", english: "Shut his mouth. Give him some hay", run: 1 }
+      - { greek: "1078", english: "Ah! the Generals! they are numerous, but not", run: 1 }
+      - { greek: "1085", english: "Dicaeopolis!", run: 1 }
+      - { greek: "1085", english: "What is the matter? Come quickly to the feast", run: 40 }
   # Hickie secondary pairs 0.838: the scan never labels Pseudartabas, the
   # Megarian's girls, or the numbered semichoruses. Every recovered English
   # turn already pairs; aliases cannot invent labels the scan never printed.

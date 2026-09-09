@@ -21,6 +21,40 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE ECCLESIAZUSAE"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { english: "but as regards us poor men, you will leave", speaker: "PRAXAGORA" }  # Greek 626
+    pins:
+      - { greek: "49", english: "And can't you see Gusistraté, the tavern-keeper's", run: 1 }
+      - { greek: "51", english: "I can see many others too, indeed the whole", run: 1 }
+      - { greek: "54", english: "Oh! my dear, I have had such trouble in getting", run: 1 }
+      - { greek: "60", english: "Yes. Firstly, as agreed, I have let the hair", run: 1 }
+      - { greek: "76", english: "I have brought Lamias' club, which I stole from", run: 1 }
+      - { greek: "254", english: "And if the blear-eyed Neoclides comes to insult", run: 1 }
+      - { greek: "255", english: "To him I shall say, \"Go and look at a dog's", run: 1 }
+      - { greek: "261", english: "If they seize you, we will bid them let you", run: 1 }
+      - { greek: "266", english: "'Tis difficult; yet it must be done, and the", run: 1 }
+      - { greek: "339", english: "But, by Posidon, 'tis the same with myself", run: 1 }
+      - { greek: "344", english: "What does it mean? Can some friend have invited her", run: 1 }
+      - { greek: "377", english: "Why, it is scarcely daylight. I did laugh, ye", run: 1 }
+      - { greek: "458", english: "And everything that used to be the men's concern", run: 1 }
+      - { greek: "468", english: "to work them. And if we are not able?", run: 1 }
+      - { greek: "473", english: "But if it be for the public weal, let us resign", run: 1 }
+      - { greek: "626", english: "but as regards us poor men, you will leave", run: 1 }
+      - { greek: "635", english: "But if we live in this fashion, how will each", run: 1 }
+      - { greek: "641", english: "But those around will prevent it. Hitherto, when", run: 1 }
+      - { greek: "651", english: "'Twould be awful. But who will do the work?", run: 1 }
+      - { greek: "653", english: "But how shall we obtain clothing? Tell me that!", run: 1 }
+      - { greek: "655", english: "Now another point: if the magistrates condemn a", run: 1 }
+      - { greek: "668", english: "People will not be robbed any more at night? No", run: 1 }
+      - { greek: "673", english: "The life in common. Athens will become nothing", run: 1 }
+      - { greek: "687", english: "No, to dine there. And the citizen whom the lot", run: 1 }
+      - { greek: "689", english: "But that will not occur. Each man will have", run: 1 }
+      - { greek: "717", english: "And what for? 'Tis clear enough why; so that", run: 1 }
+      - { greek: "728", english: "Come, let us collect and examine all my", run: 1 }
   # Hickie secondary pairs 0.394: Google OCR of Blepyrus/old-women
   # abbreviations (Buep, Bier, Burp) is too damaged to recover the labels
   # the page images print. OCR ceiling, not a primary floor.

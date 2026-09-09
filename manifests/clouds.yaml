@@ -21,6 +21,20 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "THE CLOUDS"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    pins:
+      - { greek: "700", english: "Ponder and examine closely, gather your", run: 1 }
+      - { greek: "707", english: "Oh, woe, woe! oh, woe, woe!", run: 1 }
+      - { greek: "708", english: "What ails you? why do you cry so?", run: 1 }
+      - { greek: "717", english: "How can I obey? I have lost my", run: 1 }
+      - { greek: "723", english: "Yes, by Posidon!", run: 1 }
+      - { greek: "726", english: "May death seize you, accursed man! Ah!", run: 1 }
+      - { greek: "743", english: "Keep yourself quiet, and if any notion", run: 1 }
+      - { greek: "1420", english: "But the law nowhere admits that fathers", run: 1 }
+      - { greek: "1421", english: "Was not the legislator who carried this", run: 1 }
+      - { greek: "1434", english: "And if I have not, I shall have cried", run: 1 }
+      - { greek: "1506", english: "Ah! you insulted the gods! Ah! you", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

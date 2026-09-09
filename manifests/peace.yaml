@@ -23,6 +23,20 @@ english:
     footnotes: true
     line_fixes:
       6832: 'SON OF CLEONYMUS. "But I saved my life."'
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    pins:
+      - { greek: "2", english: "Give it to him, and may it kill him!", run: 33 }
+      - { greek: "253", english: "Oh! I beseech you! use some other honey", run: 2 }
+      - { greek: "361", english: "How shall we set about removing these stones?", run: 1 }
+      - { greek: "402", english: "I' truth, never have you been greater thieves.", run: 18 }
+      - { greek: "458", english: "Come, all strain at the ropes to tear away the stones.", run: 44 }
+      - { greek: "960", english: "Give me some barley-seed, purify yourself and hand me the basin", run: 11 }
+      - { greek: "1039", english: "Hold! here are the legs, place them upon the altar.", run: 1 }
+      - { greek: "1050", english: "No, 'tis the odour of the fat that attracts him.", run: 3 }
+      - { greek: "1064", english: "What! you are so ignorant you don't understand", run: 32 }
+      - { greek: "1227", english: "I will sell it you at cost price.", run: 27 }
+      - { greek: "1312", english: "You, who yesterday were dying of hunger", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

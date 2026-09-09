@@ -21,6 +21,25 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "THE KNIGHTS"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { english: "taste, taste the liquor of the genial soil", speaker: "DEMOSTHENES" }  # Greek 107
+      - { english: "if caught in the act, why, I perjure", speaker: "CLEON" }  # Greek 298
+      - { english: "that will please him mightily; now you can", speaker: "DEMOSTHENES" }  # Greek 440
+    pins:
+      - { greek: "107", english: "taste, taste the liquor of the genial soil", run: 1 }
+      - { greek: "298", english: "if caught in the act, why, I perjure", run: 1 }
+      - { greek: "300", english: "These are my own special tricks. I will", run: 1 }
+      - { greek: "438", english: "I know that you got ten talents out of", run: 1 }
+      - { greek: "440", english: "that will please him mightily; now you can", run: 1 }
+      - { greek: "453", english: "Strike, strike with all your might; bruise his", run: 1 }
+      - { greek: "465", english: "His tricks at Argos do not escape me", run: 1 }
+      - { greek: "498", english: "Had one of the old authors asked", run: 1 }
+      - { greek: "1200", english: "Ah! rascal! you have shamelessly robbed", run: 1 }
+      - { greek: "1198", english: "Bah! What's that to you? Will you not", run: 1 }
   # Hickie secondary pairs 0.764: after Demus enters, `Dem.` is Demus not
   # Demosthenes; `S. S.` is the sausage-seller. Remaining hole is OCR of
   # Cleon/Demos labels, not a primary floor.

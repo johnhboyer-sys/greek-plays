@@ -21,6 +21,49 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE FROGS"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { english: "But yonder fellow got red instead, so horribly afraid was he!", speaker: "XANTHIAS" }  # Greek 308
+      - { english: "Ten, when I asked for my money, he started to roar and shoot terrible looks", speaker: "FIRST WIFE" }  # Greek 561
+      - { english: "Do you see the stupid thing", speaker: "AESCHYLUS" }  # Greek 1136
+    pins:
+      - { greek: "308", english: "But yonder fellow got red instead, so horribly afraid was he!", run: 1 }
+      - { greek: "313", english: "The sound of flutes. Aye, certainly, and the wind wafts a smell of torches", run: 1 }
+      - { greek: "440", english: "Let us go into the meadows, that are sprinkled with roses", run: 1 }
+      - { greek: "486", english: "But where? Good gods, where is your heart?", run: 1 }
+      - { greek: "491", english: "Aye, certainly. And you did not tremble at the sound of his threatening words?", run: 1 }
+      - { greek: "494", english: "Well then, since you are so brave and fearless, become what I am", run: 1 }
+      - { greek: "561", english: "Ten, when I asked for my money, he started to roar and shoot terrible looks", run: 1 }
+      - { greek: "564", english: "And he drew out his sword like a madman.", run: 1 }
+      - { greek: "574", english: "And I in hurling you into the malefactor's pit.", run: 1 }
+      - { greek: "645", english: "I have already struck you. No, you haven't.", run: 1 }
+      - { greek: "738", english: "A brave man! I should think so indeed", run: 1 }
+      - { greek: "741", english: "He has convicted you of lying and did not thrash the impudent rascal", run: 1 }
+      - { greek: "743", english: "Ah! he would have rued it if he had.", run: 1 }
+      - { greek: "745", english: "How, pray? I am beside myself with joy, when I can curse my master in secret.", run: 1 }
+      - { greek: "747", english: "And when you go off grumbling, after having been well thrashed?", run: 1 }
+      - { greek: "749", english: "And when you make yourself important? I know of nothing sweeter.", run: 1 }
+      - { greek: "750", english: "Ah! by Zeus! we are brothers.", run: 1 }
+      - { greek: "752", english: "And when you repeat it to strangers?", run: 1 }
+      - { greek: "754", english: "By Phoebus Apollo! reach me your hand", run: 1 }
+      - { greek: "759", english: "What do you mean? The matter is serious, very serious indeed; all Hades is in commotion.", run: 1 }
+      - { greek: "761", english: "We have a law here, according to which, whoever in each of the great sciences", run: 1 }
+      - { greek: "766", english: "...until someone cleverer than he in the same style of thing comes along", run: 1 }
+      - { greek: "769", english: "He held the chair for tragedy, as being the greatest in his art.", run: 1 }
+      - { greek: "771", english: "When Euripides descended here, he started reciting his verses", run: 1 }
+      - { greek: "779", english: "No, but the folk demanded loudly that a regular trial should decide", run: 1 }
+      - { greek: "781", english: "Their clamour reached right up to heaven.", run: 1 }
+      - { greek: "783", english: "Good people are very scarce here, just the same as on earth.", run: 1 }
+      - { greek: "785", english: "To open a contest as soon as possible; the two rivals will show their skill", run: 1 }
+      - { greek: "785", english: "What! has not Sophocles also claimed the chair then?", run: 1 }
+      - { greek: "795", english: "Directly! the battle royal is to take place on this very spot.", run: 1 }
+      - { greek: "799", english: "They will bring rulers and compasses to measure the words", run: 1 }
+      - { greek: "1136", english: "Do you see the stupid thing? Faith! I don't care if I don't.", run: 1 }
+      - { greek: "1461", english: "I will tell you the way on earth, but I won't here.", run: 1 }
+      - { greek: "1462", english: "No, send her this blessing from here.", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

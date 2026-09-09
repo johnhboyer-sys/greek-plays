@@ -21,6 +21,12 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "PLUTUS"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    pins:
+      - { greek: "177", english: "That troops are sent to succour the Egyptians?", run: 1 }
+      - { greek: "849", english: "Fine presents to offer to the god!", run: 1 }
+      - { greek: "927", english: "Hi! friend! 'tis you they are speaking to. Off", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

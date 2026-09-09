@@ -964,6 +964,7 @@ def _resolve_pins(
     slot_refs: list[str | None],
     speeches: list[dict],
     work_id: str,
+    notes: list[str] | None = None,
 ) -> list[tuple[int, int]]:
     """Manifest pins -> forced (slot, speech) pairs.
 
@@ -974,9 +975,13 @@ def _resolve_pins(
     slots by position.  Fail loud on anything unresolvable — a stale pin
     after a source edit must not silently vanish."""
     forced: list[tuple[int, int]] = []
+    used: set[int] = set()
+    norm = _pin_norm
+    normed = [norm(sp["text"]) for sp in speeches]
 
-    def norm(t: str) -> str:
-        return re.sub(r"\s+", " ", t).strip().lower()
+    def ref_num(r: str | None) -> int | None:
+        m = re.match(r"(\d+)", r or "")
+        return int(m.group(1)) if m else None
 
     for pin in pins:
         ref = str(pin.get("greek", "")).strip()
@@ -984,20 +989,98 @@ def _resolve_pins(
         run = int(pin.get("run", 1) or 1)
         if not ref or not words:
             raise ValueError(f"{work_id}: a pin needs both greek and english: {pin!r}")
-        ejs = [j for j, sp in enumerate(speeches) if norm(sp["text"]).startswith(words)]
-        if len(ejs) != 1:
-            raise ValueError(f"{work_id}: pin {words!r} matches {len(ejs)} speeches (need exactly 1)")
-        ej = ejs[0]
+        # The quoted words may run past one speech into the next (a reviewer
+        # quoting "Aye, that I will. Hand over the money." across two turns):
+        # a speech matches when it, joined to the speeches after it, opens
+        # with the words.
+        ejs = []
+        for j in range(len(speeches)):
+            cat = normed[j]
+            k = j + 1
+            while len(cat) < len(words) and k < len(speeches):
+                cat += " " + normed[k]
+                k += 1
+            if cat.startswith(words):
+                ejs.append(j)
+        if not ejs:
+            raise ValueError(f"{work_id}: pin {words!r} matches 0 speeches")
         gis = [k for k, r in enumerate(slot_refs) if r == ref]
+        n = ref_num(ref)
+        if not gis and n is not None:
+            # The ref names a line inside a Greek speech (no speaker change
+            # there): the pin means that speech, so it snaps back to the
+            # nearest slot at or before the line, within six lines.
+            back = [
+                (n - ref_num(r), k) for k, r in enumerate(slot_refs)
+                if ref_num(r) is not None and 0 < n - ref_num(r) <= 6
+            ]
+            if back:
+                d, _k = min(back)
+                snapped = slot_refs[_k]
+                gis = [k for k, r in enumerate(slot_refs) if r == snapped]
+                if notes is not None:
+                    notes.append(f"pin {ref} snapped back to slot {snapped}")
         if not gis:
             raise ValueError(f"{work_id}: pin {words!r}: no Greek speaker slot on line {ref}")
+        if len(ejs) > 1:
+            # A short speech printed more than once ("Dicaeopolis!"): the
+            # occurrence nearest the slot's own position in the play.
+            expect = gis[0] * len(speeches) / max(1, len(slots))
+            ej = min(ejs, key=lambda j: abs(j - expect))
+            if notes is not None:
+                notes.append(f"pin {ref} {words[:30]!r}: {len(ejs)} matches, took speech {ej}")
+        else:
+            ej = ejs[0]
         want = speeches[ej].get("canonical")
-        gi = next((k for k in gis if slots[k]["name"] == want), gis[0])
+        free = [k for k in gis if k not in used] or gis
+        gi = next((k for k in free if slots[k]["name"] == want), free[0])
+        if gi in used:
+            if notes is not None:
+                notes.append(f"pin {ref} {words[:30]!r}: slot already pinned, skipped")
+            continue
         for k in range(run):
             if gi + k >= len(slots) or ej + k >= len(speeches):
                 raise ValueError(f"{work_id}: pin {words!r} run {run} overruns the play")
             forced.append((gi + k, ej + k))
+            used.add(gi + k)
     return forced
+
+
+def _pin_norm(t: str) -> str:
+    """Pin matching ignores footnote markers, a leading stage note, and all
+    punctuation: "(as Helen) \"These shores[^3.1] are" -> "these shores are"."""
+    t = re.sub(r"\[\^[^\]]*\]", " ", t)
+    t = re.sub(r"^\s*\([^)]*\)", " ", t)
+    t = re.sub(r"[^\w\s]", " ", t.lower())
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> None:
+    """Manifest splits cut a speech the source runs together where the Greek
+    changes speaker: ``{english: "<words the new speech opens with>",
+    speaker: "<printed label>"}``.  The words are found in exactly one
+    speech (punctuation and footnote markers between them ignored), the
+    speech is cut there, and the tail becomes a speech of its own under the
+    given label (aliased like any printed label).  Fail loud otherwise."""
+    for split in splits:
+        words = _pin_norm(str(split.get("english", "")))
+        label = str(split.get("speaker", "")).strip()
+        if not words or not label:
+            raise ValueError(f"{work_id}: a split needs english and speaker: {split!r}")
+        # Between the words: punctuation, quotes, and footnote markers.
+        pat = re.compile(
+            r"(?:\[\^[^\]]*\]|\W)*".join(re.escape(w) for w in words.split()), re.IGNORECASE
+        )
+        hits = [(j, m) for j, sp in enumerate(speeches) for m in [pat.search(sp["text"])] if m]
+        if len(hits) != 1:
+            raise ValueError(f"{work_id}: split {words!r} matches {len(hits)} speeches (need exactly 1)")
+        j, m = hits[0]
+        head = speeches[j]["text"][: m.start()].rstrip()
+        tail = speeches[j]["text"][m.start():].strip()
+        if not head:
+            raise ValueError(f"{work_id}: split {words!r} is already the start of its speech")
+        speeches[j]["text"] = head
+        speeches.insert(j + 1, {"speaker_printed": label, "text": tail})
 
 
 def parse_translation(
@@ -1013,6 +1096,7 @@ def parse_translation(
     format: str = "gutenberg",
     line_fixes: dict[int | str, str] | None = None,
     pins: list[dict] | None = None,
+    splits: list[dict] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
@@ -1026,6 +1110,8 @@ def parse_translation(
         known_names=set(aliases),
         line_fixes=line_fixes,
     )
+    if splits:
+        _apply_splits(speeches, splits, work_id)
 
     footnotes: dict[str, str] = {}
     seq = 0
@@ -1090,7 +1176,8 @@ def parse_translation(
     # exact-name by construction. The segment's whole name set rides into
     # `_assign_speeches` instead, where it is the clean-park test (P3.3).
     crossed: dict[int, str | None] = {}
-    forced = _resolve_pins(pins or [], slots, _slot_refs(segments, slots), speeches, work_id)
+    pin_notes: list[str] = []
+    forced = _resolve_pins(pins or [], slots, _slot_refs(segments, slots), speeches, work_id, pin_notes)
     pairs = _pair_turns(slot_names, e_names, crossed=crossed, forced=forced)
     (
         assigned,
@@ -1207,6 +1294,11 @@ def parse_translation(
         name = slot_names[k]
         if name is None or e_names[ej] is None or e_ord[ej] is None or g_ord[k] is None:
             continue
+        # A pair whose names disagree is a declared crossing (an equal-length
+        # gap zipped by position, or a pin): its ordinals belong to two
+        # different names, so it opens no drift of its own (item 6, 2026-09-09).
+        if e_names[ej] != name:
+            continue
         delta = e_ord[ej] - g_ord[k]
         prev = last_delta.get(name)
         if (prev is None and delta != 0) or (prev is not None and delta != prev):
@@ -1294,6 +1386,7 @@ def parse_translation(
         "residual_flagged": len(residual_flags),
         "crossed_pairs": len(crossed),
         "pinned_pairs": len(forced),
+        "pin_notes": pin_notes,
         "residual_unassigned": residual_unassigned,
         "head_unassigned": head_unassigned,
         "greek_unpaired": len(greek_unpaired),
@@ -1395,6 +1488,7 @@ def run(
         format=cfg.get("format") or "gutenberg",
         line_fixes=cfg.get("line_fixes") or {},
         pins=cfg.get("pins") or [],
+        splits=cfg.get("splits") or [],
     )
 
     out_dir = BUILD_DIR / "stage1"

@@ -26,6 +26,19 @@ english:
     # every speech of the exchange one late; the pin holds it by position.
     pins:
       - { greek: "223", english: "Oh! by Zeus! what a throat", run: 6 }
+      - { greek: "277", english: "The Mede! But, by Heracles! how,", run: 22 }
+      - { greek: "500", english: "And when he was king, 'twas", run: 9 }
+      - { greek: "553", english: "Oh, Cebriones! oh, Porphyrion! what a terribly", run: 1 }
+      - { greek: "554", english: "This, this being well done and completed", run: 4 }
+      - { greek: "606", english: "Old Age also dwells in Olympus.", run: 1 }
+      - { greek: "647", english: "Very well, 'tis you who lead us", run: 7 }
+      - { greek: "668", english: "Do you know how dearly I should", run: 5 }
+      - { greek: "807", english: "'Tis ourselves asked for this transformation", run: 2 }
+      - { greek: "806", english: "And you look like a close-shaven blackbird.", run: 1 }
+      - { greek: "826", english: "Oh! what a splendid city! But what", run: 4 }
+      - { greek: "880", english: "The dwellers in Chios! Ah! I am", run: 5 }
+      - { greek: "1315", english: "If fortune favours us.", run: 8 }
+      - { greek: "1590", english: "And yet the birds must be thoroughly", run: 2 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"

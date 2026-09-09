@@ -21,6 +21,40 @@ english:
     source: "gutenberg/pg8688.txt"
     play: "LYSISTRATA"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { english: "Then take this basket; put on a girdle, card wool, munch beans", speaker: "CALONICÉ" }  # Greek 535
+    pins:
+      - { greek: "93", english: "With pleasure, my dear", run: 1 }
+      - { greek: "97", english: "I will tell you. But first answer me one question.", run: 1 }
+      - { greek: "102", english: "Mine has been the last five months in Thrace", run: 1 }
+      - { greek: "104", english: "'Tis seven long months since mine left me for Pylos", run: 1 }
+      - { greek: "105", english: "As for mine, if he ever does return from service", run: 1 }
+      - { greek: "107", english: "And not so much as the shadow of a lover", run: 1 }
+      - { greek: "119", english: "Refrain from what? tell us, tell us!", run: 1 }
+      - { greek: "119", english: "But will you do it?", run: 1 }
+      - { greek: "129", english: "No, I will not do it; let the War go on.", run: 1 }
+      - { greek: "124", english: "We must refrain from the male organ altogether", run: 1 }
+      - { greek: "207", english: "Now, my dears, let me swear first, if you please.", run: 1 }
+      - { greek: "352", english: "Ah, ha! here's something new! a swarm of women stand posted outside", run: 1 }
+      - { greek: "375", english: "You put out my fire--you!", run: 1 }
+      - { greek: "375", english: "Yes, you shall soon see.", run: 1 }
+      - { greek: "381", english: "Burn off her hair for her! Water, do your office!", run: 1 }
+      - { greek: "382", english: "Was it hot?", run: 1 }
+      - { greek: "384", english: "I'm watering you, to make you bloom afresh", run: 1 }
+      - { greek: "535", english: "Then take this basket; put on a girdle, card wool, munch beans", run: 1 }
+      - { greek: "769", english: "Silence then! Now--\"Whenas the swallows, fleeing before the hoopoes", run: 1 }
+      - { greek: "931", english: "I am just unfastening my girdle. But remember what you promised me about making Peace", run: 1 }
+      - { greek: "942", english: "Oh! in Apollo's name, I don't much like the smell of it", run: 1 }
+      - { greek: "1043", english: "We desire, Athenians, to speak ill of no man", run: 1 }
+      - { greek: "1108", english: "Needless to call her; she has heard your voices, and here she comes.", run: 1 }
+      - { greek: "1108", english: "Hail, boldest and bravest of womankind!", run: 1 }
+      - { greek: "1189", english: "Embroidered stuffs, and dainty tunics, and flowing gowns", run: 1 }
+      - { greek: "1216", english: "Go your way, I tell you. Why, bless me, they're sitting down now", run: 1 }
+      - { greek: "1222", english: "No, no, you must be off--or I'll tear your hair out", run: 1 }
   secondary:
     id: lindsay
     name: "Jack Lindsay (1925)"

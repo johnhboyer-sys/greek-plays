@@ -1953,3 +1953,74 @@ def test_resolve_pins_finds_the_speech_by_its_opening_words_and_fails_loud():
         m._resolve_pins([{"greek": "999", "english": "Hush!"}], slots, refs, speeches, "t")
     with pytest.raises(ValueError):
         m._resolve_pins([{"greek": "223", "english": "no such speech"}], slots, refs, speeches, "t")
+
+
+def test_resolve_pins_reads_past_punctuation_footnotes_and_a_run_on_quote():
+    """Item 6 review pins (2026-09-09): a reviewer quotes what the reader
+    shows -- footnote markers, curly quotes and a leading stage note
+    dropped, and sometimes two short turns run together."""
+    from drama_pipeline import stage1_turn_english as m
+
+    segments = [{"greek": [{"n": 1, "ref": "10"}, {"n": 2, "ref": "11"}, {"n": 3, "ref": "12"}]}]
+    slots = [
+        {"segment": 0, "line": 1, "offset": 0, "name": "Scythian"},
+        {"segment": 0, "line": 2, "offset": 0, "name": "Euripides"},
+        {"segment": 0, "line": 3, "offset": 0, "name": "Mnesilochus"},
+    ]
+    speeches = [
+        {"text": "Aye, that I will.", "canonical": "Scythian"},
+        {"text": "Hand over the money.", "canonical": "Euripides"},
+        {"text": '(as Helen) "These shores[^3.1] are those of the Nile"', "canonical": "Mnesilochus"},
+    ]
+    refs = m._slot_refs(segments, slots)
+    assert m._resolve_pins([{"greek": "10", "english": "Aye, that I will. Hand over the money."}], slots, refs, speeches, "t") == [(0, 0)]
+    assert m._resolve_pins([{"greek": "12", "english": "These shores are those"}], slots, refs, speeches, "t") == [(2, 2)]
+
+
+def test_resolve_pins_snaps_inside_a_greek_speech_and_settles_duplicates():
+    from drama_pipeline import stage1_turn_english as m
+
+    segments = [{"greek": [{"n": 1, "ref": "340"}, {"n": 2, "ref": "342a"}, {"n": 3, "ref": "345"}, {"n": 4, "ref": "348"}]}]
+    slots = [
+        {"segment": 0, "line": 1, "offset": 0, "name": "Philocleon"},
+        {"segment": 0, "line": 2, "offset": 0, "name": "Chorus"},
+        {"segment": 0, "line": 4, "offset": 0, "name": "Philocleon"},
+    ]
+    speeches = [
+        {"text": "Tell us.", "canonical": "Philocleon"},
+        {"text": "He would not have dared, had he", "canonical": "Chorus"},
+        {"text": "Tell us.", "canonical": "Philocleon"},
+    ]
+    refs = m._slot_refs(segments, slots)
+    notes: list[str] = []
+    # 345 has no speaker change: the pin snaps back to the Chorus slot at 342a.
+    assert m._resolve_pins([{"greek": "345", "english": "He would not have dared"}], slots, refs, speeches, "t", notes) == [(1, 1)]
+    assert notes and "snapped back to slot 342a" in notes[0]
+    # A short speech printed twice: the occurrence nearest the slot's position.
+    assert m._resolve_pins([{"greek": "348", "english": "Tell us."}], slots, refs, speeches, "t") == [(2, 2)]
+    # Two pins on one slot: the first holds, the second is noted and skipped.
+    notes.clear()
+    forced = m._resolve_pins(
+        [{"greek": "342a", "english": "He would not"}, {"greek": "342a", "english": "Tell us."}],
+        slots, refs, speeches, "t", notes,
+    )
+    assert forced == [(1, 1)] and any("already pinned" in n for n in notes)
+    with pytest.raises(ValueError):
+        m._resolve_pins([{"greek": "400", "english": "Tell us."}], slots, refs, speeches, "t")
+
+
+def test_apply_splits_cuts_a_run_together_speech_at_the_greek_change():
+    from drama_pipeline import stage1_turn_english as m
+
+    speeches = [
+        {"speaker_printed": "DIONYSUS", "text": "Oh! my god! how white I went. But yonder[^2.9] fellow got red instead!"},
+        {"speaker_printed": "XANTHIAS", "text": "Where are we?"},
+    ]
+    m._apply_splits(speeches, [{"english": "But yonder fellow got red", "speaker": "XANTHIAS"}], "t")
+    assert [s["speaker_printed"] for s in speeches] == ["DIONYSUS", "XANTHIAS", "XANTHIAS"]
+    assert speeches[0]["text"] == "Oh! my god! how white I went."
+    assert speeches[1]["text"].startswith("But yonder[^2.9] fellow got red")
+    with pytest.raises(ValueError):
+        m._apply_splits(speeches, [{"english": "no such words", "speaker": "XANTHIAS"}], "t")
+    with pytest.raises(ValueError):
+        m._apply_splits(speeches, [{"english": "Where are we", "speaker": "DIONYSUS"}], "t")

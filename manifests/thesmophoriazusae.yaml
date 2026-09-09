@@ -21,6 +21,43 @@ english:
     source: "gutenberg/pg8689.txt"
     play: "THE THESMOPHORIAZUSAE"
     footnotes: true
+    # Item 6 pins (John, 2026-09-09: real slips are never one-offs):
+    # each holds an English speech to the Greek line the reviewers matched it to.
+    # Item 6 splits: the 1912 text runs these speeches together where the
+    # Greek changes speaker; the tail becomes its own speech under the label.
+    splits:
+      - { english: "Hail! thou blessed son of Latona!", speaker: "AGATHON'S CHORUS" }  # Greek 129
+      - { english: "Silence! let all be quiet! Pay attention! for here she is spitting", speaker: "CHORUS" }  # Greek 381
+    pins:
+      - { greek: "32", english: "He has a big beard?", run: 1 }
+      - { greek: "34", english: "No, no, evidently you have never seen him.", run: 1 }
+      - { greek: "39", english: "Silence! oh, people! keep your mouths sedately shut!", run: 1 }
+      - { greek: "51", english: "Whose voice is that? 'Tis the silent Ether.", run: 1 }
+      - { greek: "52", english: "is going to construct the framework of a drama", run: 1 }
+      - { greek: "59", english: "Take care of yourself and of your sweet-voiced poet!", run: 1 }
+      - { greek: "63", english: "Old man, you must have been a very insolent fellow in your youth!", run: 1 }
+      - { greek: "66", english: "(to the servant) Let him be, friend, and, quick, go and call Agathon to me.", run: 1 }
+      - { greek: "104", english: "To what divinity is your homage addressed?", run: 1 }
+      - { greek: "111", english: "To thee, oh Phoebus, I dedicate my most beauteous songs", run: 1 }
+      - { greek: "116", english: "I, in my turn, celebrate the everlasting happiness of the chaste Artemis", run: 1 }
+      - { greek: "123", english: "I do honour to the divine Latona and to the lyre", run: 1 }
+      - { greek: "129", english: "Hail! thou blessed son of Latona!", run: 1 }
+      - { greek: "381", english: "Silence! let all be quiet! Pay attention! for here she is spitting", run: 1 }
+      - { greek: "740", english: "I carried it ten months", run: 1 }
+      - { greek: "743", english: "How much does it hold? Three cotylae? Tell me.", run: 1 }
+      - { greek: "852", english: "What are you ruminating over now again?", run: 1 }
+      - { greek: "855", english: "These shores are those of the Nile with the beautiful nymphs", run: 1 }
+      - { greek: "859", english: "\"Glorious Sparta is my country and Tyndareus is my father.\"", run: 1 }
+      - { greek: "862", english: "\"I was given the name of Helen.\"", run: 1 }
+      - { greek: "864", english: "\"A thousand warriors have died on my account\"", run: 1 }
+      - { greek: "866", english: "\"And here I am upon these shores; Menelaus\"", run: 1 }
+      - { greek: "874", english: "\"Of what Proteus?\" Oh! the thrice cursed rascal!", run: 1 }
+      - { greek: "1015", english: "Oh Nymphs, ye virgins who are dear to me, how am I to approach him?", run: 1 }
+      - { greek: "1015", english: "A pitiless ruffian has chained up the most unfortunate of mortal maids", run: 1 }
+      - { greek: "1059", english: "I am Echo, the nymph who repeats all she hears", run: 1 }
+      - { greek: "1064", english: "And you will repeat them?", run: 1 }
+      - { greek: "1196", english: "Aye, that I will. Hand over the money.", run: 1 }
+      - { greek: "1197", english: "You will bring her back? Follow me, my beautiful child.", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -77,6 +114,7 @@ speakers:
     "SCYTHIAN": "Scythian"
     "SCYTHIAN ARCHER": "Scythian"
     "CHORUS": "Chorus"
+    "AGATHON'S CHORUS": "Agathon's Chorus"  # Item 6 split label (the 1912 text prints CHORUS)
     "WOMEN": "Chorus"
     "AGATHON": "Agathon"
     "CLISTHENES": "Cleisthenes"
