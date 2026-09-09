@@ -23,7 +23,7 @@ vi.mock('../lib/works', async (importOriginal) => {
       greekEdition: 'Test edition', greekSource: { short: 'Test', full: 'Test edition, full.' },
       translations: [
         { id: 'smyth', name: 'Test Translator (Test, 1926)', short: 'Smyth', slot: 'english', footnotes: true },
-        { id: 'storr', name: 'Second Translator (Test, 1912) — by speech', short: 'Storr', slot: 'secondary', footnotes: true },
+        { id: 'storr', name: 'Second Translator (Test, 1912)', short: 'Storr', slot: 'secondary', footnotes: true },
       ],
       citation: { scheme: 'play-line', copyAbbr: 'Fix.' },
       blurb: 'Fixture for play-line Reader tests.',
@@ -556,7 +556,7 @@ describe('Reader.svelte play-line compare columns (P4)', () => {
     // The Greek column's own heading, level with the two translation headers;
     // "by speech" comes from the registry name's own suffix, "by line" is the
     // line-anchored default.
-    expect(heads).toEqual(['Chorus · 40–41', 'Smyth · 1926 · by line', 'Storr · 1912 · by speech']);
+    expect(heads).toEqual(['Chorus · 40–41', 'Smyth · 1926', 'Storr · 1912']);
     expect(container.querySelector('.greek-col .play-greek-head')).toBeTruthy();
   });
 
@@ -1129,5 +1129,49 @@ describe('Reader.svelte play-line gutter after John\'s review (2026-09-09)', () 
     const gaps = [...container.querySelectorAll('.greek-line.lacuna .lacuna-gap')];
     expect(gaps.map((g) => g.querySelector('.speaker')?.textContent)).toEqual(['<Ελ.>', '<Θε.>']);
     expect(gaps[0]!.querySelector('.speaker')?.getAttribute('title')).toBe('<Ελ. >');
+  });
+});
+
+
+describe('Reader.svelte play-line: a by-speech translation across a split speech (2026-09-09)', () => {
+  beforeEach(() => localStorage.clear());
+
+  function splitBook(): BookData {
+    const line = (n: number, ref: string) => ({ n, text: 'λόγος', tokens: [], ref });
+    return {
+      book: 1,
+      speakerRoster: ['Chorus', 'Creon'],
+      segments: [
+        { id: '1:100', column: '100', greek: [line(1, '100'), line(2, '101')],
+          speakers: [{ line: 1, offset: 0, label: 'Χο.', display: 'Chorus' }],
+          english: { text: 'Chorus sings.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }] },
+          ross: [{ chapter: '100', text: 'CHORUS. Sunbeam of all, the whole ode in one block.', cont: false }] },
+        { id: '1:140', column: '140', greek: [line(3, '140'), line(4, '141')],
+          speakers: [{ line: 3, offset: 0, label: 'Χο.', display: 'Chorus' }],
+          english: { text: 'Chorus goes on.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }] } },
+        { id: '1:162', column: '162', greek: [line(5, '162'), line(6, '163')],
+          speakers: [{ line: 5, offset: 0, label: 'Κρ.', display: 'Creon' }],
+          english: { text: 'Creon speaks.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Creon', display: 'CREON' }] },
+          ross: [{ chapter: '162', text: 'CREON. The whole edict in one block.', cont: false }] },
+        { id: '1:202', column: '202', greek: [line(7, '202'), line(8, '203')],
+          speakers: [],
+          english: { text: 'Creon still speaks.', notes: [], markers: [], turns: [] } },
+      ],
+    } as unknown as BookData;
+  }
+
+  it('shows "Translated with the speech above" where the same speaker continues in a new Greek speech, and nothing at all under a 40-line tail', async () => {
+    localStorage.setItem('reader-trans-PLAYLINE', 'storr');
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: splitBook() } });
+    await flush();
+    const cells = [...container.querySelectorAll('.segment')].map((seg) => ({
+      id: seg.id,
+      covered: !!seg.querySelector('.eng-covered'),
+      dash: !!seg.querySelector('.eng-missing'),
+      empty: !!seg.querySelector('.eng-continues'),
+    }));
+    const by = Object.fromEntries(cells.map((c) => [c.id, c]));
+    expect(by['col-140']).toMatchObject({ covered: true, dash: false });
+    expect(by['col-202']).toMatchObject({ empty: true, dash: false, covered: false });
   });
 });

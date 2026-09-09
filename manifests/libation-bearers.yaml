@@ -27,7 +27,7 @@ english:
     footnotes: true
   secondary:
     id: morshead
-    name: "E. D. A. Morshead (1881–1908) — by speech"
+    name: "E. D. A. Morshead (1881–1908)"
     short: Morshead
     model: turn-text
     format: verse-own-line
@@ -133,10 +133,12 @@ registry:
       short: Smyth
       slot: english
       footnotes: true
+      alignment: line
     - id: morshead
-      name: "E. D. A. Morshead (1881–1908) — by speech"
+      name: "E. D. A. Morshead (1881–1908)"
       short: Morshead
       slot: secondary
+      alignment: speech
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Cho."

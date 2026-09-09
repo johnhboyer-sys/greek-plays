@@ -35,6 +35,10 @@ export interface TranslationRef {
   // Independent of slot — the reader renders the markers for whichever
   // translation sets this.
   footnotes?: boolean;
+  // How the English is keyed to the Greek: by line (a line-numbered
+  // translation) or by speech (matched speaker turn by speaker turn). Shown
+  // on the opening plate only (John, 2026-09-09).
+  alignment?: 'line' | 'speech';
   // Copyright-encumbered translations carried only in the local/full build.
   // The public deploy sets PUBLIC_HIDE_PRIVATE=1 to drop them from the registry
   // (and is built from the work's -public manifest, so their text is absent too).

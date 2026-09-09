@@ -841,7 +841,7 @@ const intro =
       argument={work.argument ?? null}
       production={work.production ?? null}
       greekSource={work.greekSource.full}
-      translations={visibleTranslations(work).map((t) => t.name)}
+      translations={visibleTranslations(work).map((t) => (t.alignment ? `${t.name} — Aligned by ${t.alignment}` : t.name))}
       copyAbbr={work.citation?.copyAbbr ?? null}
       lastLine={plateLastLine}
       persons={platePersons}

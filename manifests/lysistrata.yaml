@@ -15,7 +15,7 @@ work:
 english:
   primary:
     id: athenian-society
-    name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
+    name: "The Eleven Comedies (The Athenian Society, 1912)"
     short: Athenian Society
     model: turn-text
     source: "gutenberg/pg8688.txt"
@@ -23,7 +23,7 @@ english:
     footnotes: true
   secondary:
     id: lindsay
-    name: "Jack Lindsay (1925) — by speech"
+    name: "Jack Lindsay (1925)"
     short: Lindsay
     model: turn-text
     source: "gutenberg/pg7700.txt"
@@ -31,7 +31,7 @@ english:
     footnotes: false
   third:
     id: hickie
-    name: "W. J. Hickie (Bohn, 1853) — by speech"
+    name: "W. J. Hickie (Bohn, 1853)"
     short: Hickie
     model: turn-text
     format: loeb-ocr
@@ -42,7 +42,7 @@ english:
     - id: rogers
       # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
       private: true
-      name: "B. B. Rogers (Loeb, 1924) — by speech"
+      name: "B. B. Rogers (Loeb, 1924)"
       short: Rogers
       model: turn-text
       format: loeb-ocr
@@ -247,24 +247,28 @@ registry:
     full: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
   translations:
     - id: athenian-society
-      name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
+      name: "The Eleven Comedies (The Athenian Society, 1912)"
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
     - id: lindsay
-      name: "Jack Lindsay (1925) — by speech"
+      name: "Jack Lindsay (1925)"
       short: Lindsay
       slot: secondary
+      alignment: speech
     - id: hickie
-      name: "W. J. Hickie (Bohn, 1853) — by speech"
+      name: "W. J. Hickie (Bohn, 1853)"
       short: Hickie
       slot: third
+      alignment: speech
     - id: rogers
       # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
       private: true
-      name: "B. B. Rogers (Loeb, 1924) — by speech"
+      name: "B. B. Rogers (Loeb, 1924)"
       short: Rogers
       slot: overlay
+      alignment: speech
   citation:
     scheme: play-line
     copyAbbr: "Ar. Lys."

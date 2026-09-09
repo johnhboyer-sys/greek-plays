@@ -27,7 +27,7 @@ english:
     footnotes: false
   secondary:
     id: storr
-    name: "F. Storr (Loeb, 1912) — by speech"
+    name: "F. Storr (Loeb, 1912)"
     short: Storr
     model: turn-text
     format: loeb-ocr
@@ -130,10 +130,12 @@ registry:
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+      alignment: line
     - id: storr
-      name: "F. Storr (Loeb, 1912) — by speech"
+      name: "F. Storr (Loeb, 1912)"
       short: Storr
       slot: secondary
+      alignment: speech
   citation:
     scheme: play-line
     copyAbbr: "Soph. Ant."

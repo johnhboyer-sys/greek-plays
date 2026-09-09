@@ -15,7 +15,7 @@ work:
 english:
   primary:
     id: athenian-society
-    name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
+    name: "The Eleven Comedies (The Athenian Society, 1912)"
     short: Athenian Society
     model: turn-text
     source: "gutenberg/pg8688.txt"
@@ -136,14 +136,16 @@ registry:
     full: "Dover, Aristophanes: Clouds (Oxford, 1968)"
   translations:
     - id: athenian-society
-      name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
+      name: "The Eleven Comedies (The Athenian Society, 1912)"
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
     - id: hickie
       name: "W. J. Hickie (Bohn, 1853)"
       short: Hickie
       slot: secondary
+      alignment: line
   citation:
     scheme: play-line
     copyAbbr: "Ar. Nub."

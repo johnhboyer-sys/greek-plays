@@ -104,7 +104,7 @@
     <aside class="plate-margin">
       {#if production}<p><b>Production</b>{production}</p>{/if}
       {#if greekSource}<p><b>Greek text</b>{greekSource}</p>{/if}
-      {#if translations.length}<p><b>Translations</b>{translations.join(' · ')}</p>{/if}
+      {#if translations.length}<p><b>Translations</b>{translations.join('; ')}</p>{/if}
       {#if citeAs}<p><b>Cite as</b>{citeAs}</p>{/if}
     </aside>
   </div>

@@ -15,7 +15,7 @@ work:
 english:
   primary:
     id: athenian-society
-    name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
+    name: "The Eleven Comedies (The Athenian Society, 1912)"
     short: Athenian Society
     model: turn-text
     source: "gutenberg/pg8688.txt"
@@ -25,7 +25,7 @@ english:
       6832: 'SON OF CLEONYMUS. "But I saved my life."'
   secondary:
     id: hickie
-    name: "W. J. Hickie (Bohn, 1853) — by speech"
+    name: "W. J. Hickie (Bohn, 1853)"
     short: Hickie
     model: turn-text
     format: loeb-ocr
@@ -152,14 +152,16 @@ registry:
     full: "Coulon & van Daele, Aristophane, vol. 2 (Budé, 1924)"
   translations:
     - id: athenian-society
-      name: "The Eleven Comedies (The Athenian Society, 1912) — by speech"
+      name: "The Eleven Comedies (The Athenian Society, 1912)"
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
     - id: hickie
-      name: "W. J. Hickie (Bohn, 1853) — by speech"
+      name: "W. J. Hickie (Bohn, 1853)"
       short: Hickie
       slot: secondary
+      alignment: speech
   citation:
     scheme: play-line
     copyAbbr: "Ar. Pax"

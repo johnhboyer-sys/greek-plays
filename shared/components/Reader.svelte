@@ -1568,6 +1568,32 @@
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
+  // A play-line segment with no English of its own in this translation is
+  // one of three things (John, 2026-09-09, Antigone 140 and 202 under Storr):
+  // a continuation the pipeline cut at 40 lines (no speaker event at all) —
+  // the speech simply runs on, so the cell stays empty; the same speaker
+  // continuing in a new Greek speech that a by-speech translator rendered
+  // inside the block before (Storr's one Chorus for the whole parodos) —
+  // "Translated with the speech above ↑"; or a real hole — the dash.
+  function playContinuation(seg: Segment, transId: string): 'tail' | string | null {
+    const events = seg.speakers ?? [];
+    if (!events.length) return 'tail';
+    const t = transById(transId);
+    if (!t) return null;
+    const names = new Set(events.map((e) => e.display).filter(Boolean));
+    const i = orderedSegments.findIndex((s) => s.id === seg.id);
+    for (let j = i - 1; j >= 0 && j >= i - 3; j -= 1) {
+      const prev = orderedSegments[j]!;
+      const prevEvents = prev.speakers ?? [];
+      if (!prevEvents.length) continue;
+      const prevNames = new Set(prevEvents.map((e) => e.display).filter(Boolean));
+      const same = [...names].every((n) => prevNames.has(n));
+      const has = t.slot === 'english' ? !!prev.english?.text?.trim() : piecesFor(prev, t).length > 0;
+      return same && has ? prev.id : null;
+    }
+    return null;
+  }
+
   function playEnglishSource(seg: Segment, transId: string): EnglishTurnSource | null {
     const t = transById(transId);
     if (!t) return null;
@@ -1719,8 +1745,9 @@
   // by printed line.
   function playColLabel(t: { short: string; name: string } | null | undefined): string {
     if (!t) return '';
-    const model = /by speech\s*$/i.test(t.name) ? 'by speech' : 'by line';
-    return [t.short, yearOf(t.name), model].filter(Boolean).join(' · ');
+    // Translator and year only: how the translation is aligned belongs on
+    // the opening plate and nowhere else (John, 2026-09-09).
+    return [t.short, yearOf(t.name)].filter(Boolean).join(' · ');
   }
 
   // The heading that sits inside the Greek column level with those two headers:
@@ -3501,9 +3528,14 @@
       on:keydown={onFootnoteClick}
       role="presentation"
     >
-      {#each blocks as b}
+      {#each blocks as b, bi}
         {@const mm = b.speakerMismatch ?? chunkMm}
-        <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(b.display)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
+        <!-- A translation's TEI can split one speech into several <sp> blocks
+             (Jebb's parodos: strophe, system, antistrophe, each headed
+             "Chorus"); the printed page names the speaker once, so a lead-in
+             that repeats the block before it is not shown (John, 2026-09-09). -->
+        {@const repeatLead = bi > 0 && !!b.display && (blocks[bi - 1].speaker ?? blocks[bi - 1].display) === (b.speaker ?? b.display) && !blocks[bi - 1].lead}
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(b.display)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>
   {/snippet}
@@ -3527,7 +3559,14 @@
            aligned passage" (which would be false). -->
       <div class="overlay-prose turn-eng"><button type="button" class="eng-covered" on:click={() => scrollToSegment(seg.englishCoveredBy!)}>Translated with the speech above ↑</button></div>
     {:else}
-      <div class="overlay-prose turn-eng"><span class="eng-missing" title="No aligned passage in this translation"><span class="sr-only">No aligned passage in this translation.</span><span aria-hidden="true">—</span></span></div>
+      {@const cont = playContinuation(seg, transId)}
+      {#if cont === 'tail'}
+        <div class="overlay-prose turn-eng eng-continues" aria-hidden="true"></div>
+      {:else if cont}
+        <div class="overlay-prose turn-eng"><button type="button" class="eng-covered" on:click={() => scrollToSegment(cont)}>Translated with the speech above ↑</button></div>
+      {:else}
+        <div class="overlay-prose turn-eng"><span class="eng-missing" title="No aligned passage in this translation"><span class="sr-only">No aligned passage in this translation.</span><span aria-hidden="true">—</span></span></div>
+      {/if}
     {/if}
   {/snippet}
 
