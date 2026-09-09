@@ -178,7 +178,20 @@ async function main() {
         // section-token-only jump ("?loc=17a"). This targets the column-level
         // segment anchor (`col-{column}`), not a line-level `L{column}-{n}` id.
         const ids = await idsFor(target);
-        if (!ids?.has(`col-${value}`)) {
+        // A play-line work (the drama corpus) has no column-level anchor for
+        // most refs: `?loc=50` lands on the LINE id `L50-<n>` (playLineDomId),
+        // and only a segment that begins at that ref carries `col-50`.
+        // Accept either.
+        // A ref printed as a range carries the id `L<a>-<b>-<n>`; the reader
+        // lands a number inside it on that line (resolvePlayLineRef).
+        const linePrefix = `L${value}-`;
+        const num = /^\d+$/.test(value) ? Number(value) : null;
+        const inRange = (id) => {
+          const m = id.match(/^L(\d+)-(\d+)-\d+$/);
+          return !!m && num != null && Number(m[1]) <= num && num <= Number(m[2]);
+        };
+        const hasLine = ids ? [...ids].some((id) => id.startsWith(linePrefix) || inRange(id)) : false;
+        if (!ids?.has(`col-${value}`) && !hasLine) {
           report(source, raw, `citation target col-${value} not found`);
         }
       }

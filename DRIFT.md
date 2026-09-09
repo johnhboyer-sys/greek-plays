@@ -794,3 +794,4 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   settle, the frogs' ode against Atossa's speech, the used-event positional
   fallback, the glued enumerator against a feminine ending, and the trailing
   lacuna-only segment's citation.
+- `scripts/check-links.mjs` — 2026-09-08: a bare `?loc=N` on a play-line work is accepted when the page carries the line id `L<N>-<n>` or a range id `L<a>-<b>-<n>` with a ≤ N ≤ b (the reader's resolvePlayLineRef lands there); `col-N` exists only where a segment begins at N. Was 2,490 false positives; now 0 broken.
