@@ -39,8 +39,6 @@ english:
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
   max_unresolved_mismatches: 1
   gaps:
-    - "1:708"  # no covering <l n> in the Perseus TEI
-    - "1:1042"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

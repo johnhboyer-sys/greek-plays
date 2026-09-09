@@ -25,6 +25,11 @@ english:
     source: "perseus/tlg0006.tlg008.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "41", by: "1" }
+      - { greek: "632", by: "628" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
@@ -39,9 +44,6 @@ english:
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
   max_unresolved_mismatches: 1
   gaps:
-    - "1:41"  # no covering <l n> in the Perseus TEI
-    - "1:632"  # no covering <l n> in the Perseus TEI
-    - "1:1158"  # no covering <l n> in the Perseus TEI
     - "1:1162"  # no covering <l n> in the Perseus TEI
 
 citation:

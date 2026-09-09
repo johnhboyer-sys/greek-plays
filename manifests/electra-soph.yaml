@@ -25,6 +25,10 @@ english:
     source: "perseus/tlg0011.tlg005.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "987", by: "947" }
   secondary:
     id: storr
     name: "F. Storr (Loeb, 1913)"
@@ -45,7 +49,6 @@ english:
   max_unresolved_mismatches: 7
   gaps:
     - "1:856"  # no covering <l n> in the Perseus TEI
-    - "1:987"  # no covering <l n> in the Perseus TEI
     - "1:1428"  # no covering <l n> in the Perseus TEI
 
 citation:

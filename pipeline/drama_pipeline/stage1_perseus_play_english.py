@@ -851,6 +851,7 @@ def parse_translation(
     translation_id: str,
     sigla: dict | None = None,
     english_aliases: dict[str, str] | None = None,
+    covered_decl: list[dict] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one ``perseus-play`` TEI and cut it on the Greek segments."""
     tree = etree.parse(str(xml_path))
@@ -1128,6 +1129,14 @@ def parse_translation(
         if turns and all(turn.get("speakerMismatch") for turn in turns):
             chunk["speakerMismatch"] = turns[0]["speakerMismatch"]
     covered = _continuation_covered_by(index, chunks_by_id, jobs)
+    # REVIEW-CHECKLIST 7 (2026-09-09): a hole the span rule cannot prove but
+    # a reviewer has confirmed sits inside a neighbour's block is declared in
+    # the manifest (english.<slot>.covered: [{greek, by}]) and shows in the
+    # reader as "Translated with the speech above"; the declaration wins
+    # over the computed map for its segment.
+    from .stage1_turn_english import _resolve_covered
+
+    covered.update(_resolve_covered(covered_decl or [], spine["segments"], work_id))
     english = {
         "work": work_id,
         "source": xml_path.name,
@@ -1202,6 +1211,7 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         xml_path,
         spine,
         work_id=manifest.work_id,
+        covered_decl=cfg.get("covered") or [],
         translation_id=cfg["id"],
         sigla=sigla,
         english_aliases=aliases,

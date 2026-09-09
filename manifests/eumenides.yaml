@@ -25,6 +25,14 @@ english:
     source: "perseus/tlg0085.tlg007.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "147", by: "143" }
+      - { greek: "148", by: "143" }
+      - { greek: "153", by: "149" }
+      - { greek: "154", by: "149" }
+      - { greek: "367", by: "354" }
   secondary:
     id: morshead
     name: "E. D. A. Morshead (1881–1908)"
@@ -35,11 +43,6 @@ english:
     play: THE FURIES
     footnotes: false
   gaps:
-    - "1:147"  # no covering <l n> in the Perseus TEI
-    - "1:148"  # no covering <l n> in the Perseus TEI
-    - "1:153"  # no covering <l n> in the Perseus TEI
-    - "1:154"  # no covering <l n> in the Perseus TEI
-    - "1:367"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

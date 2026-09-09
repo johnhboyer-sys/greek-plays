@@ -25,6 +25,12 @@ english:
     source: "perseus/tlg0006.tlg017.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "206", by: "204" }
+      - { greek: "591", by: "586" }
+      - { greek: "843a", by: "842" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
@@ -39,13 +45,6 @@ english:
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
   gaps:
-    - "1:206"
-    - "1:591"
-    - "1:843a"
-    - "1:934"
-    - "1:591"  # no covering <l n> in the Perseus TEI
-    - "1:843a"  # lettered twin; TEI has no covering <l n> for 843
-    - "1:934"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

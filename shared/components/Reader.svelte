@@ -740,6 +740,16 @@
   // build gate's exact-permutation check has passed; defensive only for a
   // runtime that somehow sees stale/partial data) keeps its original
   // spine position, appended after every named column.
+  // A declared cover may name the segment AFTER this one (REVIEW-CHECKLIST
+  // 7: Phoenician Women 1336 sits in 1337's block): the jump says so.
+  function coverBelow(seg: Segment): boolean {
+    const by = seg.englishCoveredBy;
+    if (!by) return false;
+    const a = orderedSegments.findIndex((s) => s.id === seg.id);
+    const b = orderedSegments.findIndex((s) => s.id === by);
+    return a >= 0 && b > a;
+  }
+
   $: orderedSegments = (() => {
     if (!displayOrder || !displayOrder.length) return segments;
     const byColumn = new Map(segments.map(s => [s.column, s]));
@@ -3643,7 +3653,7 @@
       <!-- P2e: the translator rendered this line inside a block anchored at
            an earlier speech; say so and offer the jump, rather than "no
            aligned passage" (which would be false). -->
-      <div class="overlay-prose turn-eng"><button type="button" class="eng-covered" on:click={() => scrollToSegment(seg.englishCoveredBy!)}>Translated with the speech above ↑</button></div>
+      <div class="overlay-prose turn-eng"><button type="button" class="eng-covered" on:click={() => scrollToSegment(seg.englishCoveredBy!)}>{coverBelow(seg) ? 'Translated with the speech below ↓' : 'Translated with the speech above ↑'}</button></div>
     {:else}
       {@const cont = playContinuation(seg, transId)}
       {#if cont === 'tail'}

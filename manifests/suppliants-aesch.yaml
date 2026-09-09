@@ -25,6 +25,11 @@ english:
     source: "perseus/tlg0085.tlg001.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "1041", by: "1038" }
+      - { greek: "1047", by: "1043" }
   secondary:
     id: morshead
     name: "E. D. A. Morshead (1881–1908)"
@@ -43,16 +48,8 @@ english:
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
   max_unresolved_mismatches: 2
   gaps:
-    - "1:1041"
-    - "1:1047"
-    - "1:298"
-    - "1:299"
-    - "1:313"
-    - "1:314"
-    - "1:316"
-    - "1:299"  # no covering <l n> in the Perseus TEI
-    - "1:314"  # no covering <l n> in the Perseus TEI
-    - "1:316"  # no covering <l n> in the Perseus TEI
+    - "1:298"  # clean stichomythia elsewhere; no English for this line nearby
+    - "1:313"  # clean stichomythia elsewhere; no English for this line nearby
 
 citation:
   scheme: play-line

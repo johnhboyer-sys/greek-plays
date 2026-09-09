@@ -25,6 +25,10 @@ english:
     source: "perseus/tlg0006.tlg018.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "1251", by: "1211" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
@@ -35,7 +39,6 @@ english:
     play: IPHIGENEIA AT AULIS
     footnotes: false
   gaps:
-    - "1:1251"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

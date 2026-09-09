@@ -25,6 +25,12 @@ english:
     source: "perseus/tlg0085.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "246", by: "248" }
+      - { greek: "247", by: "249" }
+      - { greek: "383", by: "386" }
   secondary:
     id: morshead
     name: "E. D. A. Morshead (1881–1908)"
@@ -39,15 +45,6 @@ english:
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
   gaps:
-    - "1:246"
-    - "1:247"
-    - "1:377"
-    - "1:383"
-    - "1:387"
-    - "1:246"  # no covering <l n> in the Perseus TEI
-    - "1:247"  # no covering <l n> in the Perseus TEI
-    - "1:377"  # no covering <l n> in the Perseus TEI
-    - "1:387"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

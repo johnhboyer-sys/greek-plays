@@ -25,6 +25,22 @@ english:
     source: "perseus/tlg0085.tlg004.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "101", by: "100" }
+      - { greek: "103", by: "104" }
+      - { greek: "1042", by: "1048" }
+      - { greek: "1044", by: "1050" }
+      - { greek: "1046", by: "1051" }
+      - { greek: "1047", by: "1052" }
+      - { greek: "106", by: "104" }
+      - { greek: "367", by: "327" }
+      - { greek: "97", by: "100" }
+      - { greek: "981", by: "985" }
+      - { greek: "991", by: "996" }
+      - { greek: "992", by: "997" }
+      - { greek: "993", by: "998" }
   secondary:
     id: morshead
     name: "E. D. A. Morshead (1881–1908)"
@@ -53,39 +69,6 @@ english:
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
   max_unresolved_mismatches: 1
   gaps:
-    - "1:101"
-    - "1:103"
-    - "1:1042"
-    - "1:1044"
-    - "1:1046"
-    - "1:1047"
-    - "1:106"
-    - "1:367"
-    - "1:97"
-    - "1:978"
-    - "1:979"
-    - "1:981"
-    - "1:991"
-    - "1:992"
-    - "1:993"
-    - "1:101"
-    - "1:103"
-    - "1:1042"
-    - "1:1044"
-    - "1:1046"
-    - "1:1047"
-    - "1:106"
-    - "1:367"
-    - "1:97"
-    - "1:978"
-    - "1:979"
-    - "1:992"
-    - "1:993"
-    - "1:367"  # no covering <l n> in the Perseus TEI
-    - "1:978"  # no covering <l n> in the Perseus TEI
-    - "1:979"  # no covering <l n> in the Perseus TEI
-    - "1:993"  # no covering <l n> in the Perseus TEI
-    - "1:992"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

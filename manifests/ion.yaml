@@ -25,6 +25,12 @@ english:
     source: "perseus/tlg0006.tlg010.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "232", by: "233" }
+      - { greek: "721", by: "676" }
+      - { greek: "81", by: "41" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
@@ -43,17 +49,8 @@ english:
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
   max_unresolved_mismatches: 1
   gaps:
-    - "1:223"
-    - "1:224"
-    - "1:232"
-    - "1:721"
-    - "1:766"
-    - "1:783"
-    - "1:81"
-    - "1:223"  # no covering <l n> in the Perseus TEI
-    - "1:224"  # no covering <l n> in the Perseus TEI
-    - "1:232"  # no covering <l n> in the Perseus TEI
-    - "1:721"  # no covering <l n> in the Perseus TEI
+    - "1:766"  # Creusa's "piercing pain" line has no counterpart nearby
+    - "1:783"  # Creusa's "unspeakable word" line has no counterpart nearby
     - "1:766"  # no covering <l n> in the Perseus TEI
     - "1:783"  # no covering <l n> in the Perseus TEI
 

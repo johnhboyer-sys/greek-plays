@@ -69,7 +69,7 @@ def _spine() -> dict:
     }
 
 
-def _parse(tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None):
+def _parse(tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None, covered=None):
     xml_path = tmp_path / "play.xml"
     xml_path.write_text(tei, encoding="utf-8")
     return parse_translation(
@@ -79,7 +79,18 @@ def _parse(tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None):
         translation_id="smyth",
         sigla=sigla if sigla is not None else SIGLA,
         english_aliases=aliases if aliases is not None else ALIASES,
+        covered_decl=covered,
     )
+
+
+def test_manifest_covered_declarations_join_the_covered_map(tmp_path: Path):
+    """REVIEW-CHECKLIST 7 (2026-09-09): a hole the span rule cannot prove but
+    a reviewer confirmed sits in a neighbour's block is declared in the
+    manifest and rides into english_covered_by like a computed one."""
+    english, _f, _r = _parse(tmp_path, TEI, _spine(), covered=[{"greek": "10", "by": "5"}])
+    assert english["english_covered_by"].get("1:10") == "1:5"
+    with pytest.raises(ValueError):
+        _parse(tmp_path, TEI, _spine(), covered=[{"greek": "999", "by": "5"}])
 
 
 def test_perseus_play_chunks_ticks_notes_turns_and_report(tmp_path: Path):

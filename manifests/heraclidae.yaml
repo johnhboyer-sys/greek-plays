@@ -25,6 +25,10 @@ english:
     source: "perseus/tlg0006.tlg004.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "271", by: "273" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
@@ -43,7 +47,6 @@ english:
   # ceiling on stichomythia, not OCR loss; every recovered turn already pairs.
   min_pairing_rate: 0.75
   gaps:
-    - "1:271"
 citation:
   scheme: play-line
 

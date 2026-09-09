@@ -25,6 +25,13 @@ english:
     source: "perseus/tlg0011.tlg007.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "1666", by: "1626" }
+      - { greek: "183", by: "182" }
+      - { greek: "532", by: "531" }
+      - { greek: "533", by: "531" }
   secondary:
     id: storr
     name: "F. Storr (Loeb, 1912)"
@@ -39,20 +46,6 @@ english:
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
   gaps:
-    - "1:1666"
-    - "1:179"
-    - "1:182"
-    - "1:183"
-    - "1:194"
-    - "1:197"
-    - "1:532"
-    - "1:533"
-    - "1:179"  # no covering <l n> in the Perseus TEI
-    - "1:182"  # no covering <l n> in the Perseus TEI
-    - "1:183"  # TEI n=183 is <gap reason="lost"/> only
-    - "1:194"  # no covering <l n> in the Perseus TEI
-    - "1:197"  # no covering <l n> in the Perseus TEI
-    - "1:533"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

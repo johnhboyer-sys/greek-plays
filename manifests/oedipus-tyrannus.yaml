@@ -25,6 +25,10 @@ english:
     source: "perseus/tlg0011.tlg004.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "625", by: "624" }
   secondary:
     id: storr
     name: "F. Storr (Loeb, 1912)"
@@ -47,14 +51,7 @@ english:
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
   max_unresolved_mismatches: 1
   gaps:
-    - "1:1149"
-    - "1:624"
-    - "1:625"
-    - "1:651"
-    - "1:679"
-    - "1:624"  # no covering <l n> in the Perseus TEI
-    - "1:679"  # no covering <l n> in the Perseus TEI
-    - "1:1149"  # no covering <l n> in the Perseus TEI
+    - "1:651"  # 652's English is the Chorus's own line, not Oedipus's question
 
 citation:
   scheme: play-line

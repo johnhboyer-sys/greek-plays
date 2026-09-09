@@ -25,6 +25,13 @@ english:
     source: "perseus/tlg0006.tlg012.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
+    # neighbouring block (the reader shows 'Translated with the speech above').
+    covered:
+      - { greek: "650", by: "post 651" }
+      - { greek: "652", by: "651" }
+      - { greek: "682", by: "693" }
+      - { greek: "966", by: "965" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
@@ -39,13 +46,7 @@ english:
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
   gaps:
-    - "1:1100"
-    - "1:650"
-    - "1:652"
-    - "1:682"
-    - "1:966"
-    - "1:652"  # no covering <l n> in the Perseus TEI
-    - "1:966"  # no covering <l n> in the Perseus TEI
+    - "1:1100"  # the couplet is bracketed as spurious in the edition; Coleridge does not render i
     - "1:1100"  # TEI n=1100 is entirely <del>
 
 citation:
