@@ -1012,7 +1012,11 @@ def _resolve_pins(
         js = matches(w)
         ks = [k for k, sr in enumerate(slot_refs) if sr == r]
         if len(js) == 1 and ks:
-            anchors.append((ks[0], js[0]))
+            # The share the main loop will force: the speaker's own, else
+            # the line's first (Grok read of 481c112: ks[0] alone is one
+            # slot early on an antilabe line).
+            want = speeches[js[0]].get("canonical")
+            anchors.append((next((k for k in ks if slots[k]["name"] == want), ks[0]), js[0]))
 
     for pin in pins:
         ref = str(pin.get("greek", "")).strip()
