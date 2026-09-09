@@ -233,6 +233,10 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
         entry = english.get(slot)
         if not entry:
             continue
+        # No per-translation `footnotes` flag: manifest.v1's translation
+        # entry forbids extra keys (18 works failed the contract validator at
+        # the first full build:public, 2026-09-08); the fact lives in
+        # `apparatus.footnotes` below.
         translations.append({
             "id": entry["id"],
             "name": entry["name"],
@@ -240,7 +244,6 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
             "default": slot == "primary",
             **({"alignment": entry["model"]} if entry.get("model") else {}),
             "license": entry.get("license") or {"status": "unverified"},
-            **({"footnotes": True} if entry.get("footnotes") else {}),
         })
     for entry in english.get("overlays") or []:
         translations.append({
@@ -250,7 +253,6 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
             "default": False,
             **({"alignment": entry["model"]} if entry.get("model") else {}),
             "license": entry.get("license") or {"status": "unverified"},
-            **({"footnotes": True} if entry.get("footnotes") else {}),
         })
     # Freeman-style summary overlay (Sol review finding 4, folded into P2
     # stage 5): a manifest's `english.summary_overlay` ({id, columns}) is a
