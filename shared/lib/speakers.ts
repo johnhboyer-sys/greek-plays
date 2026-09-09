@@ -550,6 +550,10 @@ export function buildEnglishTurnBlocks(
 export interface EnglishTurnSource {
   text: string;
   turns: EnglishTurn[];
+  // play-line, line-keyed translations (Smyth, Jebb, Coleridge): the chunk's
+  // real line anchors, each the char offset where the translator's text for
+  // that Greek line begins. The reader keys rows on them (REVIEW-CHECKLIST 15).
+  ticks?: { n: number; offset: number; real: boolean }[];
 }
 
 // The first play-line comparison data stored speaker lead-ins in overlay text

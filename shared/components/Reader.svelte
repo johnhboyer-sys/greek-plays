@@ -1636,13 +1636,13 @@
     if (!t) return null;
     if (t.slot === 'english') {
       return seg.english?.text?.trim()
-        ? { text: seg.english.text, turns: seg.english.turns ?? [] }
+        ? { text: seg.english.text, turns: seg.english.turns ?? [], ticks: seg.english.bekker }
         : null;
     }
     const pieces = piecesFor(seg, t);
     const piece = pieces.find((p) => p.cont) ?? pieces[0];
     if (!piece?.text?.trim()) return null;
-    if (piece.turns?.length) return { text: piece.text, turns: piece.turns };
+    if (piece.turns?.length) return { text: piece.text, turns: piece.turns, ticks: piece.bekker };
     const fallbackTurns = seg.english?.turns?.length
       ? seg.english.turns
       : (seg.speakers ?? []).map((event) => ({
@@ -1672,6 +1672,64 @@
   // antilabe packed into one printed line — this returns null and the segment
   // renders as the one Greek-beside-English row it always did.
   type PlayRow = { items: GreekItem[]; blocks: EnglishTurnBlock[] };
+
+  // REVIEW-CHECKLIST 15 (John, 2026-09-09: Smyth's paragraphs drifted off
+  // their Greek in the odes; "this should not happen on any work"). A
+  // line-keyed translation's chunk carries a real tick for every <l n>
+  // anchor the translator printed, with the offset where that line's
+  // English begins. A segment with two or more such ticks that land on its
+  // own lines is cut into rows AT THE TICKS: the Greek lines from one
+  // anchored line to the next sit beside exactly the English the translator
+  // keyed to them. Turns start on ticks in these translations, so the turn
+  // lead-ins fall out of the same slices. Null when fewer than two ticks
+  // map (the ordinary one-row segment, or a turn-text chunk with no ticks).
+  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource): PlayRow[] | null {
+    const ticks = (source.ticks ?? []).filter((tk) => tk.real).sort((a, b) => a.offset - b.offset);
+    if (ticks.length < 2 || items.length < 2) return null;
+    const lineInt = (line: RLine): number | null => {
+      const m = /^(\d+)/.exec(line.ref ?? '');
+      return m ? Number(m[1]) : line.n;
+    };
+    // The first item printing each anchored line number.
+    const itemOfN = new Map<number, number>();
+    items.forEach((it, i) => {
+      if (it.kind !== 'line' || (it.share && it.share.k > 0)) return;
+      const n = lineInt(it.line);
+      if (n != null && !itemOfN.has(n)) itemOfN.set(n, i);
+    });
+    // Ticks that map to a line of this segment, in text order, item index
+    // strictly increasing (a tick out of order or off the segment keeps its
+    // text with the slice before it).
+    const mapped: { i: number; offset: number }[] = [];
+    let lastI = -1;
+    for (const tk of ticks) {
+      const i = itemOfN.get(tk.n);
+      if (i == null || i <= lastI) continue;
+      mapped.push({ i, offset: tk.offset });
+      lastI = i;
+    }
+    if (mapped.length < 2) return null;
+    const rows: PlayRow[] = [];
+    const sliceBlocks = (from: number, to: number): EnglishTurnBlock[] => {
+      const text = source.text.slice(from, to).trim();
+      if (!text) return [];
+      const lead = source.text.slice(from, to).length - source.text.slice(from, to).trimStart().length;
+      const turns = source.turns
+        .filter((tu) => tu.offset >= from && tu.offset < to)
+        .map((tu) => ({ ...tu, offset: Math.max(0, tu.offset - from - lead) }));
+      return buildEnglishTurnBlocks(text, turns);
+    };
+    // Lines before the first anchored line, with any text before its tick.
+    if (mapped[0]!.i > 0) rows.push({ items: items.slice(0, mapped[0]!.i), blocks: sliceBlocks(0, mapped[0]!.offset) });
+    let carry = mapped[0]!.i === 0 && mapped[0]!.offset > 0 ? 0 : mapped[0]!.offset;
+    mapped.forEach((m, k) => {
+      const next = mapped[k + 1];
+      const from = k === 0 ? carry : m.offset;
+      const to = next ? next.offset : source.text.length;
+      rows.push({ items: items.slice(m.i, next ? next.i : items.length), blocks: sliceBlocks(from, to) });
+    });
+    return rows;
+  }
   function playRows(items: GreekItem[], seg: Segment, blocks: EnglishTurnBlock[]): PlayRow[] | null {
     if (!blocks.length || items.length < 2) return null;
     const evs = [...(seg.speakers ?? [])].sort((a, b) => a.line - b.line || a.offset - b.offset);
@@ -4201,7 +4259,7 @@
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plTurnBlocks = plSource ? buildEnglishTurnBlocks(plSource.text, plSource.turns) : []}
-          {@const plRows = plSource ? playRows(plItems, seg, plTurnBlocks) : null}
+          {@const plRows = plSource ? (playTickRows(plItems, seg, plSource) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
             <div class="seg-row play-row-split" data-chapter={block.currentChapter}>

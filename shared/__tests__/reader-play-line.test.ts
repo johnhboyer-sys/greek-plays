@@ -1275,3 +1275,57 @@ describe('English lead-ins and the gutter (John, 2026-09-09)', () => {
     expect(leads.map((l) => l.classList.contains('spk-long'))).toEqual([false, true]);
   });
 });
+
+describe('line-keyed rows: a translation paragraph sits beside the Greek line it is keyed to (REVIEW-CHECKLIST 15)', () => {
+  beforeEach(() => localStorage.clear());
+
+  // An ode segment of five Greek lines under one Chorus event, with Smyth's
+  // chunk keyed at 175, 180 and 184: three ticks, three rows. Before the
+  // change the whole paragraph sat beside 175 and drifted off its lines.
+  function odeBook(): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Chorus'],
+      segments: [{
+        id: '1:175',
+        column: '175',
+        greek: [
+          { n: 1, text: 'Ζεύς, ὅστις ποτ᾽ ἐστίν', tokens: [], ref: '175' },
+          { n: 2, text: 'εἰ τόδ᾽ αὐτῷ φίλον κεκλημένῳ', tokens: [], ref: '176' },
+          { n: 3, text: 'οὐκ ἔχω προσεικάσαι', tokens: [], ref: '180' },
+          { n: 4, text: 'πλὴν Διός', tokens: [], ref: '182' },
+          { n: 5, text: 'τὸν φρονεῖν βροτοὺς ὁδώσαντα', tokens: [], ref: '184' },
+        ],
+        speakers: [{ line: 1, offset: 0, label: 'Χο.', display: 'Chorus' }],
+        english: {
+          text: 'Zeus, whoever he may be, if this name pleases him. I cannot compare him to anything but Zeus. Zeus, who sets mortals on the path.',
+          notes: [], markers: [],
+          bekker: [
+            { n: 175, offset: 0, real: true },
+            { n: 180, offset: 51, real: true },
+            { n: 184, offset: 94, real: true },
+          ],
+          turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }],
+        },
+      }],
+    };
+  }
+
+  it('cuts the segment into one row per real tick, each with the English keyed to it', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: odeBook() } });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows).toHaveLength(3);
+    expect(rows.map((r) => [...r.querySelectorAll('.greek-line')].map((l) => l.id))).toEqual([
+      ['L175-1', 'L176-2'], ['L180-3', 'L182-4'], ['L184-5'],
+    ]);
+    const eng = rows.map((r) => r.querySelector('.english-col')?.textContent?.trim() ?? '');
+    expect(eng[0]).toContain('Zeus, whoever he may be');
+    expect(eng[0]).not.toContain('I cannot compare');
+    expect(eng[1]).toContain('I cannot compare him to anything but Zeus.');
+    expect(eng[2]).toContain('Zeus, who sets mortals on the path.');
+    // The turn lead-in rides in the first row only.
+    expect(rows[0].querySelector('.english-col .speaker')?.textContent).toBe('Chorus');
+    expect(rows[1].querySelector('.english-col .speaker')).toBeNull();
+  });
+});
