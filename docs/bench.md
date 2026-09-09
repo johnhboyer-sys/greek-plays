@@ -46,9 +46,10 @@ Greek pages, speaker names stay on their own line for `format: verse-own-line`.
 The six post-pilot sources below come from volume I
 (`sophocleswitheng01soph.txt`) or volume II
 (`in.ernet.dli.2015.183451.txt`). Counts are the cleaner report's page
-chunks, not the book's printed page count. The source text still has scattered
-word- and character-level OCR faults; fixing those safely would need a full
-check against the page images.
+chunks, not the book's printed page count. A correction pass on 2026-09-08 (three
+Sonnet lanes, a Grok read against the Loeb, hand reverts; logs under
+`build/storr/`, summary in REVIEW-CHECKLIST item 5) fixed some 600 scan
+faults; a few dozen unreadable lines remain as scanned.
 
 - `oedipus-tyrannus`: heading `THE KING`; 123 kept / 247 dropped.
   Speakers: `OEDIPUS`, `PRIEST`, `CREON`, `CHORUS`, `TEIRESIAS`, `JOCASTA`,

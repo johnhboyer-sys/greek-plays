@@ -78,7 +78,7 @@ STRANGER. Ask ; your request shall not be scorned by me.
 
 OEDIPUS. How call you then the place wherein we bide?
 STRANGER :
-Whate’er 1 know thou too shalt know ; the place
+Whate’er I know thou too shalt know ; the place
 Is all to great Poseidon consecrate.
 Hard by, the Titan, he who bears the torch,
 Prometheus, has his worship ; but the spot
@@ -177,14 +177,14 @@ Yet wot not where he hides,
 The wretch profane !
 I search and search in vain.
 
-OEDIPUS. I am that man; 1 know you near,
+OEDIPUS. I am that man; I know you near,
 Ears to the blind, they say, are eyes.
 
 CHORUS. O dread to see and dread to hear !
 
 OEDIPUS. O sirs, I am no outlaw under ban.
 
-CHORUS. Who can he be—Zeus save us !—this old man ἢ
+CHORUS. Who can he be—Zeus save us !—this old man ?
 
 OEDIPUS. No favourite of fate,
 That ye should envy his estate,
@@ -192,7 +192,7 @@ O, Sirs, would any happy mortal, say,
 Grope by the light of other eyes his way,
 Or face the storm upon so frail a stay ?
 
-CHORUS. Wast thou then sightless from thy birth? =
+CHORUS. Wast thou then sightless from thy birth?
 Evil, methinks, and long
 Thy pilgrimage on earth.
 Yet add not curse to curse and wrong to wrong.
@@ -204,7 +204,7 @@ Bowls of spring water mingled with sweet mead.
 Thou must not stay,
 Come, come away,
 Tired wanderer, dost thou heed ?
-If aught thou wouldst beseech, |
+If aught thou wouldst beseech,
 Speak where ’tis right ; till then refrain from speech
 
 OEDIPUS. Daughter, what counsel should we now pursue ?
@@ -236,7 +236,7 @@ Honour whatso’er the State
 Honours, all she frowns on hate.
 
 OEDIPUS. Guide me child, where we may range
-_ Safe within the paths of right ;
+Safe within the paths of right ;
 Counsel freely may exchange
 Nor with fate and fortune fight.
 
@@ -343,7 +343,7 @@ Wife, children, homestead, hearth and God !
 Where will you find one, search ye ne'er so well,
 Who ’scapes perdition if a god impel !
 
-CHORUS. Surely we pity thee and him alike |
+CHORUS. Surely we pity thee and him alike
 Daughter of Oedipus, for your distress ;
 But as we reverence the decrees of Heaven
 We cannot say aught other than we said.
@@ -422,7 +422,7 @@ To shade her from the sun, Who can it be?
 he resorts to a commonplace ; literally, ‘« For what generous
 man is not (in befriending others) a friend to himself ? ”
 She or a stranger? Do I wake or dream?
-Tis she; *tis not—I cannot tell, alack ;
+Tis she; ’tis not—I cannot tell, alack ;
 It is no other! Now her bright’ning glance
 Greets me with recognition, yes, ’tis she,
 Herself, Ismene !
@@ -460,10 +460,10 @@ OEDIPUS. What brought thee, daughter ?
 
 ISMENE. Father, care for thee.
 
-OEDIPUS. A daughter’s yearning ἢ
+OEDIPUS. A daughter’s yearning ?
 
 ISMENE. Yes, and I had news
-I would myself deliver, so 1 came
+I would myself deliver, so I came
 With the one thrall who yet is true to me.
 
 OEDIPUS. Thy valiant brothers, where are they at need?
@@ -534,7 +534,7 @@ OEDIPUS. And who could gain by such a one as I?
 
 ISMENE. On thee, ’tis said, their sovereignty depends.
 
-OEDIPUS. ~ So, when I cease to be, my worth begins.
+OEDIPUS. So, when I cease to be, my worth begins.
 
 ISMENE. The gods, who once abased, uplift thee now.
 
@@ -567,7 +567,7 @@ OEDIPUS. Then never shall they be my masters, never !
 
 ISMENE. Thebes, thou shalt rue this bitterly some day !
 
-OEDIPUS. When what conjunction comes to pass, my child Ὁ
+OEDIPUS. When what conjunction comes to pass, my child ?
 
 ISMENE. Thy angry wraith, when at thy tomb they stand.!
 1 Creon desires to bury Oedipus on the confines of Thebes
@@ -666,14 +666,14 @@ OEDIPUS. Pouring it from the urns whereof ye spake ?
 CHORUS. Yea, in three streams; and be the last bowl drained
 To the last drop.
 
-OEDIPUS. And wherewith shall 1 fill it,
+OEDIPUS. And wherewith shall I fill it,
 Ere in its place I set it? This too tell.
 
 CHORUS. With water and with honey ; add no wine.
 
 OEDIPUS. And when the embowered earth hath drunk thereof ?
 
-CHORUS. Then lay upon it thrice nine olive sprays) __
+CHORUS. Then lay upon it thrice nine olive sprays
 With both thy hands, and offer up this prayer.
 
 OEDIPUS. I fain would hear it; that imports the most.
@@ -690,7 +690,7 @@ OEDIPUS. Hear ye, my daughters, what these strangers say?
 
 ANTIGONE. We listened, and attend thy bidding, father.
 
-OEDIPUS. I cannot go, disabled as 1 am
+OEDIPUS. I cannot go, disabled as I am
 Doubly, by lack of strength and lack of sight ;
 But one of you may do it in my stead ;
 For one, I trow, may pay the sacrifice
@@ -707,9 +707,9 @@ The guardian of the close will lend his aid.
 
 ISMENE. I go, and thou, Antigone, meanwhile
 Must guard our father. In a parent’s cause
-Toil, if there be toil, is of no account. [αἱ ismene
+Toil, if there be toil, is of no account. [Exit ISMENE.
 
-CHORUS. ΠῚ is it, stranger, to awake
+CHORUS. Ill is it, stranger, to awake
 Pain that long since has ceased to ache,
 And yet I fain would hear—
 
@@ -719,7 +719,7 @@ CHORUS. Thy tale of cruel suffering
 For which no cure was found,
 The fate that held thee bound.
 
-OEDIPUS. _ Ὁ bid me not (as guest I claim
+OEDIPUS. O bid me not (as guest I claim
 This grace) expose my shame.
 
 CHORUS. The tale is bruited far and near,
@@ -773,7 +773,7 @@ CHORUS. Thou hast endured—
 
 OEDIPUS. Intolerable woe.
 
-CHORUS. And sinried—
+CHORUS. And sinned—
 
 OEDIPUS. I sinned not.
 
@@ -782,7 +782,7 @@ CHORUS. How so?
 OEDIPUS. I served the State; would I had never won
 That graceless grace by which I was undone.
 
-CHORUS. And next, unhappy man, thou hast shed blood ἢ
+CHORUS. And next, unhappy man, thou hast shed blood ?
 
 OEDIPUS. Must ye hear more ?
 
@@ -893,7 +893,7 @@ THESEUS. What are they threatened by the oracle?
 
 OEDIPUS. Destruction that awaits them in this land.
 
-THESEUS. What can beget ill blood ’twixt them and me ἢ
+THESEUS. What can beget ill blood ’twixt them and me ?
 
 OEDIPUS. Dear son of Aegeus, to the gods alone
 Is given immunity from eld and death ;
@@ -954,7 +954,7 @@ THESEUS. Fear not for me; I shall not play thee false.
 
 OEDIPUS. No need to back thy promise with an oath,
 
-THESEUS. _An oath would be no surer than my word.
+THESEUS. An oath would be no surer than my word.
 
 OEDIPUS. How wilt thou act then?
 
@@ -966,7 +966,7 @@ THESEUS. Our friends will look to that.
 
 OEDIPUS. But if thou leave me?
 
-THESEUS. Teach me not my duty. |
+THESEUS. Teach me not my duty.
 
 OEDIPUS. Tis fear constrains me.
 
@@ -992,7 +992,7 @@ O stranger worn with toil,
 To a land of all lands the goodliest
 Colonus’ glistening soil.
 ‘Tis the haunt of the clear-voiced nightingale,
-_ Who hid in her bower, among
+Who hid in her bower, among
 The wine-dark ivy that wreathes the vale,
 Trilleth her ceaseless song ;
 And she loves, where the clustering berries nod
@@ -1002,7 +1002,7 @@ The spot by no mortal footstep trod,
 The pleasance kept for the Bacchic god,
 Where he holds each night his revels wild
 With the nymphs who fostered the lusty child.
-And fed each morn by the pearly dew =
+And fed each morn by the pearly dew
 The starred narcissi shine,
 And a wreath with the crocus’ golden hue
 For the Mother and Daughter twine.
@@ -1046,7 +1046,7 @@ Creon approaches with his company.
 OEDIPUS. O kindly elders, lend me now your aid
 To find deliverance and my final rest.
 
-CHORUS. _ Fear not, it shall be so; if we are old,
+CHORUS. Fear not, it shall be so; if we are old,
 This country’s vigour has no touch of age.
 
 CREON. Burghers, my noble friends, ye take alarm
@@ -1124,7 +1124,7 @@ Howbeit, I know I waste my words—begone,
 And leave me here ; whate’er may be my lot,
 He lives not ill who lives withal content.
 CREON ied
-Which loses in this parley, I o’ erthrown
+Which loses in this parley, I o’erthrown
 By thee, or thou who overthrow’st thyself?
 
 OEDIPUS. I shall be well contented if thy suit
@@ -1138,7 +1138,7 @@ Methinks, can argue well on any side.
 CREON. Tis one thing to speak much, another well.
 
 OEDIPUS. Thy words, forsooth, are few and all well aimed !
-CREON ἢ
+CREON.
 Not for a man indeed with wits like thine.
 
 OEDIPUS. Depart ! I bid thee in these burghers’ name,
@@ -1179,7 +1179,7 @@ If she refuse of her free will to go.
 ANTIGONE. Ah, woe is me! where shall I fly, where find
 Succour from gods or men?
 
-CHORUS. What would’st thou, stranger ἢ
+CHORUS. What would’st thou, stranger ?
 
 CREON. I meddle not with him, but her who is mine.
 
@@ -1244,7 +1244,7 @@ Thou art an enemy to thyself, both now
 And in time past, when in despite of friends
 Thou gav’st the rein to passion, still thy bane.
 
-CHORUS. Hold there, sir stranger! _
+CHORUS. Hold there, sir stranger!
 
 CREON. Hands off, have a care!
 
@@ -1310,10 +1310,10 @@ Men of Athens, arm ye, arm!
 ‘Quickly to the rescue come
 Ere the robbers get them home.
 
-THESEUS. Why this outery? What is forward? wherefore was
+THESEUS. Why this outcry? What is forward? wherefore was
 I called away
 From the altar of Poseidon, lord of your Colonus? Say!
-On what errand have 1 hurried hither without stop
+On what errand have I hurried hither without stop
 or stay.
 
 OEDIPUS. Dear friend—those accents tell me who thou art,
@@ -1420,10 +1420,10 @@ A marriage as I straightway will proclaim.
 For I will speak ; thy lewd and impious speech
 Has broken all the bonds of reticence.
 She was, ah woe is me! she was my mother ;
-1 knew it not, nor she; and she my mother
+I knew it not, nor she; and she my mother
 Bare children to the son whom she had borne,
 A birth of shame. But this at least I know,
-Wittingly thou aspersest her and ine ;
+Wittingly thou aspersest her and me ;
 But I unwitting wed, unwilling speak.
 Nay neither in this marriage nor this deed
 Which thou art ever casting in my teeth—
@@ -1461,7 +1461,7 @@ While we the victims stand debating here.
 
 CREON. What would’st thou? What can I, a feeble man?
 
-THESEUS. Show us the trail, and [1] attend thee too,
+THESEUS. Show us the trail, and I attend thee too,
 That, if thou hast the maidens hereabouts,
 Thou mayst thyself discover them to me ;
 But if thy guards outstrip us with their spoil,
@@ -1478,7 +1478,7 @@ But I will search this matter home and see
 One man doth not prevail against the State.
 Dost take my drift, or seem these words as vain
 As seemed our warnings when the plot was
-hatched Ὁ
+hatched ?
 
 CREON. Nothing thou sayest can I here dispute,
 But once at home I too shall act my part.
@@ -1489,7 +1489,7 @@ Will stay my purpose to restore the maids.
 
 OEDIPUS. Heaven bless thee, Theseus, for thy nobleness
 And all thy loving care in my behalf.
-[ Eaxeunt THESEUS and CREON.
+[Exeunt THESEUS and CREON.
 eo
 tip
 
@@ -1538,7 +1538,7 @@ This day shall victory bring.
 O for the wings, the wings of a dove,
 To be borne with the speed of the gale,
 Up and still upwards to sail
-And gaze on the fray from the clouds above. ~
+And gaze on the fray from the clouds above.
 All-seeing Zeus, O lord of heaven,
 To our guardian host be given
 Might triumphant to surprise
@@ -1627,7 +1627,7 @@ To boast—thy daughters here will tell thee all.
 But of a matter that has lately chanced
 On my way hitherward, I fain would have
 Thy counsel—slight “twould seem, yet worthy
-thought. |
+thought.
 A wise man heeds all matters great or small.
 
 OEDIPUS. What is it,son of Aegeus? Let me hear.
@@ -1638,7 +1638,7 @@ But of thy kin, hath taken sanctuary
 Beside the altar of Poseidon, where
 I was at sacrifice when called away.
 
-OEDIPUS. What is his country? what the suitor’s prayer ἢ
+OEDIPUS. What is his country? what the suitor’s prayer ?
 
 THESEUS. I know but one thing ; he implores, I am told,
 A word with thee—he will not trouble thee.
@@ -1738,7 +1738,7 @@ Last comes the worst and most abhorréd stage
 Of unregarded age,
 Joyless, companionless and slow,
 Of woes the crowning woe.
-_
+
 Such ills not I alone,
 He too our guest hath known,
 E’en as some headland on an iron-bound shore,
@@ -1843,7 +1843,7 @@ And had not these my daughters tended me
 I had been dead for aught of aid from thee.
 They tend me, they preserve me, they are men
 Not women in true service to their sire ;
-_ But ye are bastards, and no sons of mine.
+But ye are bastards, and no sons of mine.
 Therefore just Heaven hath an eye on thee ;
 Howbeit not yet with aspect so austere
 As thou shalt soon experience, if indeed
@@ -1900,7 +1900,7 @@ And ruin not thyself and Thebes as well.
 POLYNEICES. That cannot be. How could I lead again
 An army that had seen their leader quail ?
 
-ANTIGONE. _ But, brother, why shouldst thou be wroth again?
+ANTIGONE. But, brother, why shouldst thou be wroth again?
 What profit from thy country’s ruin comes ?
 
 POLYNEICES. ‘Tis shame to live in exile, and shall I
@@ -1945,10 +1945,10 @@ ANTIGONE. . Then woe is me,
 If I must lose thee.
 
 POLYNEICES. Nay, that rests with fate,
-Whether 1 live or die ; but for you both
+Whether I live or die ; but for you both
 I pray to heaven ye may escape all ill ;
 For ye are blameless in the eyes of all.
-| ait POLYNEICES.
+[Exit POLYNEICES.
 
 CHORUS. Ills on ills! no pause or rest !
 Come they from our sightless guest?
@@ -1963,13 +1963,13 @@ Raising now from low estate.
 -- Hark! How the thunder rumbles! Zeus defend us!
 
 OEDIPUS. Children, my children! will no messenger
-(Go summon hither Theseus my best friend ἢ
+(Go summon hither Theseus my best friend ?
 
 ANTIGONE. And wherefore, father, dost thou summon him ?
 
 OEDIPUS. This winged thunder of the god must bear me
 Anon to Hades. Send and tarry not.
-=
+
 
 OEDIPUS. For all his benefits I would perform
 The promise made when I received them first.
@@ -1980,7 +1980,7 @@ If haply to Poseidon now
 In the far glade thou pay’st thy vow.
 For our guest to thee would bring
 And thy folk an offering,
-Thy due guerdon. Haste, O King! ©
+Thy due guerdon. Haste, O King!
 
 THESEUS. Wherefore again this general din? at once
 My people call me and the stranger calls.
@@ -2022,7 +2022,7 @@ Thyself shalt gather coming there alone ;
 Since not to any of thy subjects, nor
 To my own children, though I love them dearly,
 Can I reveal what thou must guard alone,
-And whisper to thy chosen heir alone, __
+And whisper to thy chosen heir alone,
 So to be handed down from heir to heir.
 Thus shalt thou hold this land inviolate
 From the dread Dragon’s brood.t The justest
@@ -2135,7 +2135,7 @@ His tears and swore to be their constant friend.
 This promise given, Oedipus put forth
 Blind hands and laid them on his children, saying,
 “ O children, prove your true nobility
-_ And hence depart nor seek to witness sights
+And hence depart nor seek to witness sights
 Unlawful or to hear unlawful words.
 Nay, go with speed; let none but Theseus stay,
 Our ruler, to behold what next shall hap.”
@@ -2174,7 +2174,7 @@ Twas ours to bear,
 In death must face the gloom
 That wraps his tomb.
 What tongue can tell
-That sight ineffable Ὁ
+That sight ineffable ?
 
 CHORUS. What mean ye, maidens?
 
@@ -2232,7 +2232,7 @@ Your sorrow. Man is born to fate a prey. "
 
 ANTIGONE. Sister, let us back again.
 
-ISMENE. Why return ἢ
+ISMENE. Why return ?
 
 ANTIGONE. My soul is fain—
 
@@ -2246,7 +2246,7 @@ ANTIGONE. Where our sire is laid.
 
 ISMENE. Nay, thou can’st not; dost not see—
 
-ANTIGONE. Sister, wherefore wroth with me ἢ
+ANTIGONE. Sister, wherefore wroth with me ?
 
 ISMENE. Know’ st not—beside—
 
@@ -2272,7 +2272,7 @@ CHORUS. Where thou shalt be safe from harm.
 
 ANTIGONE. I know it.
 
-CHORUS. Why then this alarm ἢ
+CHORUS. Why then this alarm ?
 
 ANTIGONE. How again to get us home
 I know not.
@@ -2307,7 +2307,7 @@ Our father’s tomb.
 
 THESEUS. That may not be.
 
-ANTIGONE. What say’st thou, King ἢ
+ANTIGONE. What say’st thou, King ?
 
 THESEUS. My children, he
 Charged me straitly that no mortal

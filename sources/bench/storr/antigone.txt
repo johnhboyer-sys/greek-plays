@@ -54,7 +54,7 @@ ANTIGONE. Lend me a hand to bear the corpse away.
 ISMENE. What, bury him despite the interdict?
 
 ANTIGONE. My brother, and, though thou deny him, thine.
-No man shall say that 7 betrayed a brother.
+No man shall say that I betrayed a brother.
 
 ISMENE. Wilt thou persist, though Creon has forbid ?
 
@@ -168,7 +168,7 @@ Who lance in rest, one ’gainst the other
 Drave, and both perished, brother slain by brother.
 one
 Now Victory to Thebes returns again
-And smiles upon her chariot-cireled plain.
+And smiles upon her chariot-circled plain.
 Now let feast and festal shout
 Memories of war blot out.
 Let us to the temples throng,
@@ -193,7 +193,7 @@ Again, when Oedipus restored our State,
 Both while he ruled and when his rule was o’er,
 Ye still were constant to the royal line.
 Now that his two sons perished in one day,
-Brother by brother wurderously slain,
+Brother by brother murderously slain,
 By right of kinship to the Princes dead,
 I claim and hold the throne and sovereignty.
 Yet ‘tis no easy matter to discern
@@ -209,7 +209,7 @@ To witness Zeus, whose eyes are everywhere,
 If I perceive some mischievous design
 To sap the State, I will not hold my tongue;
 Nor would I reckon as my private friend
-A public foe, well knowing that the State |
+A public foe, well knowing that the State
 Is the good ship that holds our fortunes all :
 Farewell to friendship, if she suffers wreck.
 Such is the policy by which I seek
@@ -250,7 +250,7 @@ CHORUS. What further duty would’st thou lay on us?
 CREON. Not to connive at disobedience.
 
 CHORUS. No man is mad enough to court his death.
-CREON The penalty zs death : yet hope of gain
+CREON. The penalty is death : yet hope of gain
 Hath lured men to their ruin oftentimes.
 
 GUARD. My lord, I will not make pretence to pant
@@ -258,14 +258,10 @@ And puff as some lightfooted messenger.
 In sooth my soul beneath its pack of thought
 Made many a halt and turned and turned again ;
 For conscience plied her spur and curb by turns.
-“ Why hurry headlong to thy fate, poor fool ὃ
+“ Why hurry headlong to thy fate, poor fool ?
 She whispered. Then again, “ If Creon learn
 This from another, thou wilt rue it worse.’
-bo
-ou
-oO
-
-ANTIGONE. Thus leisurely 1 hastened on my road ;
+Thus leisurely I hastened on my road ;
 Much thought extends a furlong to a league.
 But in the end the forward voice prevailed,
 To face thee. I will speak though I say nothing.
@@ -294,7 +290,7 @@ CREON. What say’st thou? Who hath dared to do this thing
 GUARD. I cannot tell, for there was ne’er a trace
 Of pick or mattock—hard unbroken ground,
 Without a scratch or rut of chariot wheels,
-No sign that human hands had been at work..
+No sign that human hands had been at work.
 When the first sentry of the morning watch
 Gave the alarm, we all were terror-stricken.
 The corpse had vanished, not interred in earth,
@@ -326,7 +322,7 @@ Of something more than natural at work.
 CREON. O cease, you vex me with your babblement ;
 I am like to think you dote in your old age.
 Is it not arrant folly to pretend
-That gods would have a thought for this dead man ἢ
+That gods would have a thought for this dead man ?
 Did they forsooth award him special grace,
 And as some benefactor bury him,
 Who came to fire their hallowed sanctuaries,
@@ -441,7 +437,7 @@ Madly brave the King’s decree?
 Therefore are they haling thee ?
 
 GUARD. Here is the culprit taken in the act
-Of giving burial. But where’s the King *
+Of giving burial. But where’s the King ?
 
 CHORUS. There from the palace he returns in time.
 Why is my presence timely ? What has chanced?
@@ -465,10 +461,10 @@ CREON. Say, how didst thou arrest the maid, and where ?
 GUARD. Burying the man. There’s nothing more to tell.
 
 CREON. Hast thou thy wits? Or know’st thou what thou
-say st?
+say’st?
 
 GUARD. I saw this woman burying the corpse
-Against thy orders. [5 that clear and plain?
+Against thy orders. Is that clear and plain?
 
 CREON. But how was she surprised and caught in the act?
 
@@ -548,7 +544,7 @@ CREON. Well, let her know the stubbornest of wills
 Are soonest bended, as the hardest iron,
 O’er-heated in the fire to brittleness,
 Flies soonest into fragments, shivered through.
-A snaftie curbs the fieriest steed, and he
+A snaffle curbs the fieriest steed, and he
 Who in subjection lives must needs be meek.
 But this proud girl, in insolence well-schooled,
 First overstepped the established law, and then —
@@ -561,7 +557,7 @@ Of kin than all who worship at my hearth,
 Nor she nor yet her sister shall escape
 The utmost penalty, for both I hold,
 As arch-conspirators, of equal guilt.
-Bring forth the other ; even now | saw her
+Bring forth the other ; even now I saw her
 Within the palace, frenzied and distraught.
 The workings of the mind discover oft
 Dark deeds in darkness schemed, before the act.
@@ -572,7 +568,7 @@ ANTIGONE. Would’st thou do more than slay thy prisoner ?
 
 CREON. Not I, thy life is mine, and that’s enough.
 
-ANTIGONE. Why dally then? To meno word of thine
+ANTIGONE. Why dally then? To me no word of thine
 Is pleasant : God forbid it e’er should please ;
 Nor am I more acceptable to thee.
 And yet how otherwise had I achieved
@@ -603,8 +599,8 @@ CREON. Surely, if good and evil fare alike.
 ANTIGONE. The slain man was no villain but a brother.
 
 CREON. The patriot perished by the outlaw’s brand.
-ANTIGONE ἢ
--Nathless the realms below these rites require.
+ANTIGONE.
+Nathless the realms below these rites require.
 
 CREON. Not that the base should fare as do the brave.
 
@@ -640,7 +636,7 @@ ISMENE. But now thy bark is stranded, I am bold
 To claim my share as partner in the loss.
 
 ANTIGONE. Who did the deed the under-world knows well :
-A friend in word is never friend of mine. ᾿
+A friend in word is never friend of mine.
 
 ISMENE. O sister, scorn me not, let me but share
 Thy work of piety, and with thee die.
@@ -680,7 +676,7 @@ Has lost her wits, the other was born mad.
 ISMENE. Yea, so it falls, sire, when misfortune comes,
 The wisest even lose their mother wit.
 
-CREON. Τ᾽ faith thy wit forsook thee when thou mad’st
+CREON. ’Faith thy wit forsook thee when thou mad’st
 Thy choice with evil-doers to do ill.
 
 ISMENE. What life for me without my sister here ?
@@ -720,7 +716,7 @@ Sweep o’er the blackening main and whirl to land
 From Ocean’s cavernous depths his ooze and sand,
 Billow on billow thunders on the shore.
 On the Labdacidae I see descending
-Woe upon woe ; from days of old some god |
+Woe upon woe ; from days of old some god
 Laid on the race a malison, and his rod
 Scourges each age with sorrows never ending.
 The light that dawned upon its last born son
@@ -754,8 +750,8 @@ Maid forlorn, Antigone ?
 
 CREON. Soon shall we know, better than seer can tell.
 Learning my fixed decree anent thy bride,
-Thou mean’st not, son, to rave against thy sire ἢ
-Know st not whate’er we do is done in love?
+Thou mean’st not, son, to rave against thy sire ?
+Know’st not whate’er we do is done in love?
 
 HAEMON. O father, I am thine, and I will take
 Thy wisdom as the helm to steer withal.
@@ -771,7 +767,7 @@ But who begets unprofitable sons,
 He verily breeds trouble for himself,
 And for his foes much laughter. Son, be warned
 And let no woman fool away thy wits.
-ΠῚ fares the husband mated with a shrew,
+Ill fares the husband mated with a shrew,
 And her embraces very soon wax cold.
 For what can wound so surely to the quick
 As a false friend? So spue and cast her off,
@@ -788,12 +784,12 @@ Will prove in civic matters no less wise.
 But he who overbears the laws, or thinks
 To overrule his rulers, such an one
 I never will allow. Whome’er the State
-Appoints, must be obeyed in’everything,
+Appoints, must be obeyed in everything,
 Both small and great, just and unjust alike.
 I warrant such an one in either case
 Would shine, as King or subject; such a man
 Would in the storm of battle stand his ground,
-~ A comrade leal and true; but Anarchy—
+A comrade leal and true; but Anarchy—
 What evils are not wrought by Anarchy !
 She ruins States, and overthrows the home,
 She dissipates and routs the embattled host ;
@@ -847,11 +843,11 @@ With absolute wisdom; but, if that’s denied,
 Next wise is he who lists to sage advice.
 
 CHORUS. If he says aught in season, heed him, King.
-| (to HAEMON)
+(to HAEMON)
 Heed thou thy sire too; both have spoken well.
 
 CREON. What, would you have us at our age be schooled,
-Lessoned in prudence by a beardless boy ἢ
+Lessoned in prudence by a beardless boy ?
 
 HAEMON. I plead for justice, father, nothing more.
 Weigh me upon my merit, not my years.
@@ -864,7 +860,7 @@ CREON. Is not this maid an arrant law-breaker ?
 
 HAEMON. The Theban commons with one voice say, No.
 
-CREON. What, shall the mob dictate my policy ὃ
+CREON. What, shall the mob dictate my policy ?
 
 HAEMON. ‘Tis thou, methinks, who speakest like a boy.
 
@@ -884,7 +880,7 @@ CREON. O reprobate, would’st wrangle with thy sire ?
 
 HAEMON. Because I see thee wrongfully perverse.
 
-CREON. _ And am I wrong, if I maintain my rights ?
+CREON. And am I wrong, if I maintain my rights ?
 
 HAEMON. Talk not of rights ; thou spurn’st the due of Heaven.
 
@@ -921,7 +917,7 @@ HAEMON. Think not that in my sight the maid shall die,
 Or by my side ; never shalt thou again
 Behold my face hereafter. Go, consort
 With friends who like a madman for their mate.
-[ Eat HAEMON.
+[ Exit HAEMON.
 
 CHORUS. Thy son has gone, my liege, in angry haste.
 Fell is the wrath of youth beneath a smart.
@@ -940,7 +936,7 @@ CREON. She shall be taken to some desert place
 By man untrod, and in a rock-hewn cave,
 With food no more than to avoid the taint
 That homicide might bring on all the State,
-_ Buried alive. There let her call in aid
+Buried alive. There let her call in aid
 The King of Death, the one god she reveres,
 Or learn too late a lesson learnt at last :
 "Tis labour lost, to reverence the dead.
@@ -1003,7 +999,7 @@ Recompenses all thy pain.
 Take this solace to thy tomb
 Hers in life and death thy doom.
 
-ANTIGONE. Alack, alack! Ye mock me. [5 it meet
+ANTIGONE. Alack, alack! Ye mock me. Is it meet
 Thus to insult me living, to my face?
 Cease, by our country’s altars I entreat,
 Ye lordly rulers of a lordly race.
@@ -1073,7 +1069,7 @@ Yet am I justified in wisdom’s eyes.
 For even had it been some child of mine,
 Or husband mouldering in death’s decay,
 I had not wrought this deed despite the State.
-What is the law I callin aid? “Tis thus
+What is the law I call in aid? “Tis thus
 I argue. Had it been a husband dead
 I might have wed another, and have borne
 Another child, to take the dead child’s place.
@@ -1088,14 +1084,14 @@ And marriage-bed and joys of motherhood,
 By friends deserted to a living grave.
 What ordinance of heaven have I transgressed ?
 Hereafter can I look to any god
-For succour, call on any man for help ἢ
+For succour, call on any man for help ?
 Alas, my piety is impious deemed.
 Well, if such justice is approved of heaven,
 I shall be taught by suffering my sin ;
 But if the sin is theirs, O may they suffer
 No worse ills than the wrongs they do to me!
 
-CHORUS. _The same ungovernable will
+CHORUS. The same ungovernable will
 Drives like a gale the maiden still.
 
 CREON. Therefore, my guards who let her stay
@@ -1112,7 +1108,7 @@ Ye gods of Thebes whence sprang my line,
 Look, puissant lords of Thebes, on me ;
 The last of all your royal house ye see.
 Martyred by men of sin, undone.
-Such meed my piety hath won. [ Evil. ANTIGONE,
+Such meed my piety hath won. [ Exit. ANTIGONE,
 
 CHORUS. Like to thee that maiden bright, GSiy.1)
 Danaé, in her brass-bound tower,
@@ -1162,7 +1158,7 @@ TEIRESIAS. Princes of Thebes, two wayfarers as one,
 Having betwixt us eyes for one, we are here.
 The blind man cannot move without a guide.
 
-CREON. What tidings, old Teiresias ἢ
+CREON. What tidings, old Teiresias ?
 
 TEIRESIAS. [ will tell thee ;
 And when thou hearest thou must heed the seer.
@@ -1234,7 +1230,7 @@ TEIRESIAS. Alas! doth any know and lay to heart—
 CREON. Is this the prelude to some hackneyed saw ?
 
 TEIRESIAS. How far good counsel is the best of goods ?
-fCREON
+CREON.
 True, as unwisdom is the worst of ills.
 
 TEIRESIAS. Thou art infected with that ill thyself.
@@ -1289,7 +1285,7 @@ Unerring, and their smart thou shalt not shun.
 Boy, lead me home, that he may vent his spleen
 On younger men, and learn to curb his tongue
 With gentler manners than his present mood.
-[Hatt TEIRESIAS.
+[Exit TEIRESIAS.
 
 CHORUS. My liege, the man hath gone, foretelling woe.
 And, O believe me, since these grizzled locks
@@ -1307,7 +1303,7 @@ CREON. What should I do. Advise me. I will heed.
 CHORUS. Go, free the maiden from her rocky cell ;
 And for the unburied outlaw build a tomb.
 
-CREON. Is that your counsel? You would have me yield ὃ
+CREON. Is that your counsel? You would have me yield ?
 
 CHORUS. Yea, king, this instant. Vengeance of the gods
 Is swift to overtake the impenitent.
@@ -1319,7 +1315,7 @@ CHORUS. Go, trust not others. Do it quick thyself.
 
 CREON. I go hot-foot. Bestir ye one and all,
 My henchmen. Get ye axes. Speed away
-To yonder eminence. _I too will go,
+To yonder eminence. I too will go,
 For all my resolution this way sways.
 "Twas I that bound, I too will set her free.
 Almost I am persuaded it is best
@@ -1359,7 +1355,7 @@ Or o'er the roaring straits thy swift way wending,
 Save us, O save.
 a
 
-ANTIGONE. |
+ANTIGONE.
 Brightest of all the orbs that breathe forth light,
 Authentic son of Zeus, immortal king,
 Leader of all the voices of the night,
@@ -1384,7 +1380,7 @@ Now all is gone and wasted, for a life
 Without life’s joys I count a living death.
 You'll tell me he has ample store of wealth,
 The pomp and circumstance of kings; but if
-_ These give no pleasure, all the rest I count
+These give no pleasure, all the rest I count
 The shadow of a shade, nor would I weigh
 His wealth and power ’gainst a dram of joy.
 
@@ -1438,7 +1434,7 @@ And ran back to our lord to tell the news.
 But as he nearer drew a hollow sound
 Of lamentation to the King was borne.
 He groaned and uttered then this bitter plaint:
-“ Am Ia prophet? miserable me !
+“ Am I a prophet? miserable me !
 Is this the saddest path I ever trod?
 "Tis my son’s voice that calls me. On press on,
 My henchmen, haste with double speed to the tomb
@@ -1447,7 +1443,7 @@ And tell me if in truth I recognise
 The voice of Haemon or am heaven-deceived.”’
 So at the bidding of our distraught lord
 We looked, and in the cavern’s vaulted gloom
-_ I saw the maiden lying strangled there,
+I saw the maiden lying strangled there,
 A noose of linen twined about her neck ;
 And hard beside her, clasping her cold form,
 Her lover lay bewailing his dead bride
@@ -1522,13 +1518,13 @@ CREON. What woe is lacking to my tale of woes ?
 MESSENGER. Thy wife, the mother of thy dead son here,
 Lies stricken by a fresh inflicted blow.
 
-CREON. How bottomless the pit! 7
+CREON. How bottomless the pit!
 Dost claim me too, O Death?
 What is this word he saith,
 This woeful messenger? Say, is it fit
 To slay anew a man already slain ?
 Is Death at work again,
-Stroke upon stroke, first son, then mother slain ἢ
+Stroke upon stroke, first son, then mother slain ?
 
 CHORUS. Look for thyself. She lies for all to view.
 
@@ -1563,7 +1559,7 @@ My henchmen, lead me hence, away, away,
 A cipher, less than nothing; no delay!
 
 CHORUS. Well said, if in disaster aught is well :
-Ils past endure demand the speediest cure.
+Ills past endure demand the speediest cure.
 
 CREON. Come, Fate, a friend at need,
 Come with all speed!
