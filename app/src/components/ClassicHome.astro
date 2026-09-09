@@ -117,11 +117,11 @@ const structuredData = Astro.site
        verification token here (a sibling reader's token was intentionally
        removed from this file — it belongs to a different GSC property). -->
   <ThemeInit />
-  <title>{SITE_NAME} — Ancient Philosophy in Greek, Latin &amp; English</title>
+  <title>{SITE_NAME} — Greek tragedy and comedy, Greek and English side by side</title>
   <meta name="description" content={homeDescription} />
   {canonical && <link rel="canonical" href={canonical} />}
   <meta property="og:type" content="website" />
-  <meta property="og:title" content={`${SITE_NAME} — Ancient Philosophy in Greek, Latin & English`} />
+  <meta property="og:title" content={`${SITE_NAME} — Greek tragedy and comedy, Greek and English side by side`} />
   <meta property="og:description" content={homeDescription} />
   <meta property="og:site_name" content={SITE_NAME} />
   {canonical && <meta property="og:url" content={canonical} />}
@@ -129,7 +129,7 @@ const structuredData = Astro.site
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={`${SITE_NAME} — Ancient Philosophy in Greek, Latin & English`} />
+  <meta name="twitter:title" content={`${SITE_NAME} — Greek tragedy and comedy, Greek and English side by side`} />
   <meta name="twitter:description" content={homeDescription} />
   {ogImage && <meta name="twitter:image" content={ogImage} />}
   {structuredData && structuredData.map((sd) => (
@@ -148,9 +148,9 @@ const structuredData = Astro.site
   <div class="home-theme"><ThemeToggle /></div>
   <main class="corpus">
     <header class="masthead">
-      <p class="eyebrow">Ancient Philosophy</p>
+      <p class="eyebrow">Greek Drama</p>
       <h1>{SITE_NAME}</h1>
-      <p class="lede">A parallel-text reader with morphology, dictionary, and citation tools. Choose an author to begin.</p>
+      <p class="lede">The forty-four surviving plays of Aeschylus, Sophocles, Euripides and Aristophanes, in Greek with public-domain English translations beside them. Click any Greek word for its parse and dictionary entry. Choose an author to begin.</p>
       <p class="wip-note">
         <strong>Work in progress.</strong> The corpus and translation alignment are
         still being built out. Spotted an error or have a suggestion?
