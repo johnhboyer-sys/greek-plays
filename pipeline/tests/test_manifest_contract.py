@@ -263,3 +263,16 @@ def test_manifest_v1_translations_include_gorgias_shaped_column_sources_and_summ
             },
         },
     ]
+
+
+def test_manifest_v1_translation_license_comes_from_the_public_domain_allowlist():
+    """An allowlisted id is stamped public-domain-us with the allowlist's
+    rationale; an unknown id stays unverified; a declared licence wins."""
+    from drama_pipeline.stage7_emit import _translation_license
+
+    pd = _translation_license({"id": "smyth", "name": "H. W. Smyth"})
+    assert pd["status"] == "public-domain-us"
+    assert "Smyth" in pd["rationale"] and "1922" in pd["rationale"]
+    assert _translation_license({"id": "fixture-primary"}) == {"status": "unverified"}
+    own = {"status": "licensed", "rationale": "by permission"}
+    assert _translation_license({"id": "smyth", "license": own}) == own

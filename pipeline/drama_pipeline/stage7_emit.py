@@ -220,6 +220,33 @@ def _play_line_english_roster_gate(
         )
 
 
+def _translation_license(entry: dict) -> dict:
+    """A translation's rights record for manifest.v1.
+
+    A manifest may declare one outright. Otherwise the id is looked up in
+    the fail-closed public-domain allowlist (the same one preflight
+    enforces) and stamped public-domain-us with the allowlist's own
+    rationale; an id the allowlist lacks stays 'unverified' (a validator
+    warning, never a pass). Every shipped translation read 'unverified'
+    before this (Astra lane B, 2026-09-09)."""
+    if entry.get("license"):
+        return entry["license"]
+    from .preflight import load_public_domain_allowlist
+    try:
+        allowed = load_public_domain_allowlist()
+    except (OSError, ValueError):
+        return {"status": "unverified"}
+    item = allowed.get(str(entry.get("id", "")))
+    if not item:
+        return {"status": "unverified"}
+    bits = [str(item.get("translator") or "").strip(), str(item.get("year") or "").strip()]
+    rationale = ", ".join(b for b in bits if b)
+    note = str(item.get("note") or "").strip()
+    if note:
+        rationale = f"{rationale}. {note}" if rationale else note
+    return {"status": "public-domain-us", "rationale": rationale or "listed in public_domain_translations.yaml"}
+
+
 def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
     """Build the versioned contract fields added to the legacy manifest."""
     work = manifest.data["work"]
@@ -243,7 +270,7 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
             "slot": slot,
             "default": slot == "primary",
             **({"alignment": entry["model"]} if entry.get("model") else {}),
-            "license": entry.get("license") or {"status": "unverified"},
+            "license": _translation_license(entry),
         })
     for entry in english.get("overlays") or []:
         translations.append({
@@ -252,7 +279,7 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
             "slot": "overlay",
             "default": False,
             **({"alignment": entry["model"]} if entry.get("model") else {}),
-            "license": entry.get("license") or {"status": "unverified"},
+            "license": _translation_license(entry),
         })
     # Freeman-style summary overlay (Sol review finding 4, folded into P2
     # stage 5): a manifest's `english.summary_overlay` ({id, columns}) is a
