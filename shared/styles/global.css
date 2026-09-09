@@ -2105,7 +2105,13 @@ body {
 /* Greek: the printed ref in the number gutter, the text indented past the
    speaker gutter, a line-opening siglum hanging in it. */
 .reader-body.play-line .greek-line { gap: 0; }
-.reader-body.play-line .line-num { min-width: var(--pl-num-w); padding-right: 0.6rem; }
+/* A fixed number gutter: a joined lyric ref ("173-174") overhangs into the
+   speaker gutter instead of pushing its line's text right of its
+   neighbours (John, 2026-09-09, Agamemnon 173-175). */
+.reader-body.play-line .line-num {
+  width: var(--pl-num-w); min-width: 0; flex: 0 0 var(--pl-num-w); box-sizing: border-box;
+  padding-right: 0.6rem; overflow: visible; white-space: nowrap;
+}
 /* A lead-in too long for the gutter STACKS inside it ("Leader / of the /
    Chorus"), so the English still starts on its Greek line (John, 2026-09-09:
    a label on its own line pushed the text off the row). */

@@ -18,9 +18,11 @@ work:
 
 english:
   primary:
-    id: coleridge
-    name: "E. P. Coleridge (London, 1891)"
-    short: Coleridge
+    # Perseus's Bacchae English (tlg0006.tlg017.perseus-eng2) is Buckley's
+    # Bohn version, not Coleridge's -- the TEI header names him (2026-09-09).
+    id: buckley
+    name: "T. A. Buckley (Bohn, 1850)"
+    short: Buckley
     model: perseus-play
     source: "perseus/tlg0006.tlg017.perseus-eng2.xml"
     anchor_model: sp-line
@@ -139,9 +141,9 @@ registry:
     short: Diggle (1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
   translations:
-    - id: coleridge
-      name: "E. P. Coleridge (London, 1891)"
-      short: Coleridge
+    - id: buckley
+      name: "T. A. Buckley (Bohn, 1850)"
+      short: Buckley
       slot: english
       alignment: line
     - id: way
