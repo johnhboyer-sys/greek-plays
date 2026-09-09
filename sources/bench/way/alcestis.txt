@@ -676,7 +676,7 @@ HERCULES. Thou say’st: such toil my fate imposeth still,
 Harsh evermore, uphillward straining aye,
 If I must still in battle close with sons
 Gotten of Ares; with Lycaon first,
-And Cyenus then; and lo, I come to grapple—
+And Cycnus then; and lo, I come to grapple—
 The third strife this—with yon steeds and their lord.
 But the man lives not who shall ever see
 Alcmena’s son flinch from a foeman’s hand.
@@ -753,7 +753,7 @@ ADMETUS. Dead are the dead :—but enter thou mine house.
 
 HERCULES. "Twere shame to banquet in the house of weeping.
 
-ADMETUS. Aloot the guest-halls are where we will lodge thee.
+ADMETUS. Aloof the guest-halls are where we will lodge thee.
 
 HERCULES. Let me pass on: so earn my thanks untold.
 
@@ -978,7 +978,7 @@ ADMETUS. Begone : leave me to bury this my dead.
 PHERES. I go: her murderer will bury her !
 Thou shalt yet answer for it to her kin.
 Surely Acastus is no more a man,
-If he of thee claim not his sister's blood. Bett.
+If he of thee claim not his sister's blood. [ Exit.
 
 ADMETUS. Avaunt, with her that kennelleth with thee !
 Childless grow old, as ye deserve, while lives
@@ -1310,7 +1310,7 @@ And whatsoever foe I have shall scoff:
 “‘ But whom he wedded gave, a coward’s ransom,
 “And ’scaped from Hades. Count ye him a man?
 “ He hates his parents, though himself was loth
-‘Todie!’’ Such ill report, besides my griefs,
+‘To die!’’ Such ill report, besides my griefs,
 Shall mine be. Ah, what honour is mine to live,
 O friends, in evil fame, in evil plight ?
 
@@ -1538,7 +1538,7 @@ ADMETUS. I have.
 
 HERCULES. Yea, guard her. Thou shalt call
 The child of Zeus one day a noble guest.
-[ Razses the veil, and discloses ALCESTIS.
+[ Raises the veil, and discloses ALCESTIS.
 Look on her, if in aught she seems to thee
 Like to thy wife. Step forth from grief to bliss.
 

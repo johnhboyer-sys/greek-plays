@@ -179,7 +179,7 @@ Hath the hand of the Huntress been
 For she flasheth o’er mountain and mere,
 And rideth her triumph-procession
 Over surges and swirls of the sea.
-Or thy princely lord, in whose leading (Azt. 2)
+Or thy princely lord, in whose leading (Ant. 2)
 Be the hosts of Erechtheus’ race,
 Hath one in his halls beguiled,
 That thy couch is in secret defiled ?
@@ -451,7 +451,7 @@ PHAEDRA. Thou sayest it, not I.
 NURSE. Woe, child! What wilt thou say ? Thou hast dealt
 me death !
 Friends, ’tis past bearing. I will not endure
-To live. Ovhateful life, loathed light to see!
+To live. O hateful life, loathed light to see!
 I'll cast away, yield up, my frame, be rid
 Of life by death! Farewell, I am no more.
 The virtuous love—not willingly, yet love
@@ -642,7 +642,7 @@ NURSE. Let be, my child: this will I order well.
 Only do thou, Queen Cypris, Sea-born One,
 Work with me. Whatso else I have in mind
 Shall it suffice to ‘speak to friends within.
-| | Ratt NURSE.
+[Exit NURSE.
 
 CHORUS. O Eros, O Eros, how melts love’s yearning
 From thine eyes, when thy sweet spell witcheth
@@ -688,7 +688,7 @@ O, the Dread One breatheth on all life, winging
 Softly ber flight as a bee low-humming.
 [Voices within]
 
-PHAEDRA. Hush ye, O hush ye, women! .... Lostam 1!
+PHAEDRA. Hush ye, O hush ye, women! .... Lost am I!
 
 CHORUS. What is this dread thing, Phaedra, in thine halls?
 
@@ -808,7 +808,7 @@ For all life's anguish, and all life’s shame
 Are upon me, and whelm like a shipwrecking breaker !
 Most accurst of my fate among women I am.
 
-CHORUS. Woe, woe! ’Tisdone. Queen, it hath naught availed,
+CHORUS. Woe, woe! ’Tis done. Queen, it hath naught availed,
 Thy bower-maid’s device: ’tis ruin all.
 
 PHAEDRA. Vilest of vile! destroyer of thy friends!
@@ -904,7 +904,7 @@ To the joy of a bridal of woe exceeding !—
 For, a bird ill-boding, thy sail flitted o'er
 ‘With the curse of the Cretan land unto Athens’
 glorious strand,
-Tilk the seafarers lashed to the beach Munychian
+Till the seafarers lashed to the beach Munychian
 the hawser-band,
 And sprang unto earth's firm floor.
 Wherefore, with love-pangs all unblest (Ant. 2)
@@ -928,7 +928,7 @@ CHORUS. Woe! Woe!. ‘Tis done! No more—no more is she,
 The queen—in yon noose rafter-hung upcaught !
 [Cry within.]
 O haste !—will no one bring the steel two-edged,
-’ Wherenith to loose this cincture of her neck ?
+’ Wherewith to loose this cincture of her neck ?
 
 SEMI-CHORUS 1. What shall we do, friends? Deem ye we should pass
 The doors, and from the halter loose the queen?
@@ -1326,7 +1326,7 @@ For never shall ye see a chaster man,
 Albeit this my sire believeth not. [Exit.
 
 CHORUS. When faith overfloweth my mind, God’s providence
-all-embracing [but to Anow !”’
+all-embracing [but to know !”’
 Banisheth griefs: but when doubt whispereth “Ah
 No clue through the tangle I find of fate and of life
 for my tracing :
@@ -1339,7 +1339,7 @@ to me these supplications— [of pain,
 A lot with prosperity sweet, and a soul unshadowed
 And a faith neither fixed foursquare on the flint,
 nor on sandy foundations!
-Quick-shitting my sail to the coming breeze
+Quick-shifting my sail to the coming breeze
 Of the morrow, so may I fleet, ever voyaging life’s
 wide main .
 Over stormless seas.
@@ -1373,7 +1373,7 @@ For thy woeful fate shall I pass amid tears fast-flowing
 A fortuneless fortune. O mother evil-starred,
 This day thy birth-joy effaces !
 I am wroth with the Gods :—O Graces
-Aye linkéd in Joving embraces,
+Aye linkéd in loving embraces,
 Why do ye suffer that he from his land should be going,
 From his home, who hath nowise earned a doom so
 bitter-hard ?
