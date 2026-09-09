@@ -2108,6 +2108,11 @@ body {
    far as the one above overruns, and pads the grid's bottom by the last
    overrun. Never in compare mode (three columns, its own rules). */
 @media (min-width: 681px) {
+  /* The English column takes more of the measure than the Greek (John,
+     2026-09-09): verse lines are short and Smyth's prose runs a quarter
+     longer than Murray's verse, so the wider column keeps the English
+     level with its lines more often. Compare mode keeps its own tracks. */
+  .reader-body.play-line.view-both:not(.trans-compare) .seg-row { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
   .reader-body.play-line:not(.trans-compare) .play-row-split { position: relative; }
   .reader-body.play-line:not(.trans-compare) .play-row-split .play-row > .english-col {
     height: 0; min-height: 0; overflow: visible; align-self: start;

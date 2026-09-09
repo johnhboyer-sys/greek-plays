@@ -1680,10 +1680,10 @@
   // the paragraph above it overruns (speakers.ts englishFlow). Re-run on any
   // resize of the grid; on a phone (stacked rows) it clears its work.
   function playFlow(node: HTMLElement) {
-    let raf = 0;
+    let timer: ReturnType<typeof setTimeout> | 0 = 0;
     const phone = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 680px)').matches;
     const apply = () => {
-      raf = 0;
+      timer = 0;
       const rows = [...node.querySelectorAll<HTMLElement>(':scope > .play-row')];
       const cells = rows.map((row) => ({
         g: row.querySelector<HTMLElement>(':scope > .greek-col'),
@@ -1710,15 +1710,21 @@
       const { pushes, paddingBottom } = englishFlow(measured, gap);
       cells.forEach((c, i) => { if (c.e) c.e.style.transform = pushes[i] ? `translateY(${pushes[i]}px)` : ''; });
       node.style.paddingBottom = paddingBottom ? `${paddingBottom}px` : '';
+      // The English cells are zero-height, so a late font or a reflow of the
+      // prose never resizes the grid itself: watch each paragraph as well.
+      for (const c of cells) if (c.e) ro?.observe(c.e);
     };
-    const schedule = () => { if (!raf) raf = requestAnimationFrame(apply); };
-    schedule();
+    // A timeout, not an animation frame: frames never fire in a hidden tab
+    // (a browser pane, a background window), and the layout must still land.
+    const schedule = () => { if (!timer) timer = setTimeout(apply, 0); };
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
     ro?.observe(node);
+    schedule();
+    if (typeof window !== 'undefined') window.addEventListener('load', schedule, { once: true });
     if (typeof document !== 'undefined' && (document as any).fonts?.ready) (document as any).fonts.ready.then(schedule);
     return {
       update: schedule,
-      destroy() { ro?.disconnect(); if (raf) cancelAnimationFrame(raf); },
+      destroy() { ro?.disconnect(); if (timer) clearTimeout(timer); },
     };
   }
 
