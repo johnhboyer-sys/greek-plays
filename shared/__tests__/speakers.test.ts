@@ -993,7 +993,7 @@ describe('playSigla — the Greek gutter siglum of each speaker', () => {
   it('keeps a printed label of four characters or fewer exactly as printed', () => {
     const sigla = playSigla([ev('ΧΟΡΟΣ', 'Chorus'), ev('Χο.', 'Chorus'), ev('ΞΑΝΘΙΑΣ', 'Xanthias'), ev('ΞΑ.', 'Xanthias')]);
     expect(sigla.get('Chorus')).toBe('Χο.');
-    expect(sigla.get('Xanthias')).toBe('ΞΑ.');
+    expect(sigla.get('Xanthias')).toBe('Ξα.');
   });
 
   it('abbreviates a speaker the edition only ever names in full', () => {
@@ -1010,8 +1010,8 @@ describe('playSigla — the Greek gutter siglum of each speaker', () => {
       ev('(ὡς Χορός.)', 'Euripides'),
       ev('ΧΟΡΟΣ ΔΑΝΑΙΔΩΝ', 'Chorus'),
     ]);
-    expect(sigla.get('Boy')).toBe('ΠΑΙΣ');       // four characters: as printed
-    expect(sigla.get('Euripides')).toBe('ΕΥ.');  // the note is not part of the label
+    expect(sigla.get('Boy')).toBe('Παις');       // four characters: as printed
+    expect(sigla.get('Euripides')).toBe('Ευ.');  // the note is not part of the label
     expect(sigla.get('Chorus')).toBe('Χο.');     // first word of the full label
   });
 
@@ -1063,5 +1063,33 @@ describe('playSigla — the Greek gutter siglum of each speaker', () => {
   it('gives the unattributed dash no siglum of its own', () => {
     const sigla = playSigla([ev('—', null), ev('ΦΥΛΑΞ', 'Watchman')]);
     expect([...sigla.keys()]).toEqual(['Watchman']);
+  });
+});
+
+describe('P4 review follow-ups (2026-09-09)', () => {
+  it('leadInCase reads a scanned all-capitals label in title case and leaves mixed case alone', async () => {
+    const m = await import('../lib/speakers');
+    expect(m.leadInCase('THEOCLYMENUS')).toBe('Theoclymenus');
+    expect(m.leadInCase('(A SECOND ELDER)')).toBe('(A Second Elder)');
+    expect(m.leadInCase('(LEADER OF THE CHORUS)')).toBe('(Leader of the Chorus)');
+    expect(m.leadInCase('Watchman')).toBe('Watchman');
+    expect(m.leadInCase('(A Second Elder)')).toBe('(A Second Elder)');
+    expect(m.leadInCase('—')).toBe('—');
+  });
+
+  it('playOutOfSequence numbers a transposed line and the line that resumes after it', async () => {
+    const m = await import('../lib/speakers');
+    const segs = [{ greek: [
+      { n: 1, ref: '1282' }, { n: 2, ref: '1283' }, { n: 3, ref: '1290' }, { n: 4, ref: '1284' },
+      { n: 5, ref: '1285' }, { n: 6, ref: 'post 1285', role: 'lacuna' }, { n: 7, ref: '1286' },
+      { n: 8, ref: '1287-1288' }, { n: 9, ref: '1289' }, { n: 10, ref: '1291' }, { n: 11, ref: '1291a' }, { n: 12, ref: '1292' },
+    ] }];
+    expect([...m.playOutOfSequence(segs)].sort((a, b) => a - b)).toEqual([3, 4, 10]);
+  });
+
+  it('playGreekGutterWidth never shrinks below the design width and grows for a five-glyph siglum', async () => {
+    const m = await import('../lib/speakers');
+    expect(m.playGreekGutterWidth(new Map([['Chorus', 'Χο.']]))).toBe('3.40rem');
+    expect(m.playGreekGutterWidth(new Map([['Theoclymenus', 'Θεοκ.'], ['Theonoe', 'Θεον.']]))).toBe('4.00rem');
   });
 });

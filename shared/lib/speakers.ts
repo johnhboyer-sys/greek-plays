@@ -814,5 +814,78 @@ export function playSigla(
     const distinct = new Set([...alt.values()].map((s) => s.toUpperCase())).size === group.length;
     if (distinct) for (const display of group) sigla.set(display, alt.get(display)!);
   }
+  // John, 2026-09-09: "none of this shouty all caps" — every siglum reads in
+  // title case whatever the edition's own casing (Coulon's ΞΑ. → Ξα.); the
+  // small-caps face does the rest. An enumerator tail (Αʹ) is left alone.
+  for (const [display, s] of sigla) sigla.set(display, normalizeSiglumCase(s));
   return sigla;
+}
+
+/** First word in title case, medial sigma before the stop, tail untouched. */
+export function normalizeSiglumCase(s: string): string {
+  const sp = s.indexOf(' ');
+  const head = sp < 0 ? s : s.slice(0, sp);
+  const tail = sp < 0 ? '' : s.slice(sp);
+  if (head.length < 2) return s;
+  const cased = head[0]!.toUpperCase() + head.slice(1).toLowerCase();
+  return cased.replace(/ς(?=\.)/g, 'σ') + tail;
+}
+
+// ── P4 follow-ups from John's review of the built site (2026-09-09) ──────────
+
+/** A printed English lead-in that the source set in capitals (Loeb / Gutenberg
+ *  scans: THEOCLYMENUS, (A SECOND ELDER)) reads in title case; small caps of
+ *  capitals is full caps and wraps mid-word. The words never change — only
+ *  the casing the scan imposed. Mixed-case labels are returned untouched
+ *  (John, REVIEW-CHECKLIST 2: each side keeps its printed label). */
+export function leadInCase(display: string): string {
+  const letters = display.replace(/[^\p{L}]/gu, '');
+  if (letters.length < 2 || letters !== letters.toUpperCase()) return display;
+  const small = new Set(['of', 'the', 'and', 'a', 'an', 'to', 'in', 'for', 'or', 'at', 'on', 'by']);
+  let first = true;
+  return display.replace(/\p{L}+/gu, (w) => {
+    const lower = w.toLowerCase();
+    const out = !first && small.has(lower) ? lower : lower[0]!.toUpperCase() + lower.slice(1);
+    first = false;
+    return out;
+  });
+}
+
+/** The `n` of every play-line Greek line whose printed ref breaks the ascending
+ *  sequence — a transposed line (Ag. 1290 printed before 1284) and the line
+ *  that resumes after it (1284) — so the gutter can print its number where
+ *  the edition does (John, 2026-09-09: "when an editor transposes a line,
+ *  have the number by the transposed line"). Ranges ("40-41") advance the
+ *  sequence to their end; suffixed refs ("47a") count as their integer; the
+ *  `post N` lacuna refs and headings are skipped. */
+export function playOutOfSequence(
+  segments: { greek: { n: number; ref?: string; role?: string }[] }[],
+): Set<number> {
+  const out = new Set<number>();
+  let prev: number | null = null;
+  for (const seg of segments) {
+    for (const line of seg.greek) {
+      const ref = line.ref ?? '';
+      if (line.role === 'lacuna' || line.role === 'heading') continue;
+      const range = /^([0-9]+)-([0-9]+)$/.exec(ref);
+      const plain = /^([0-9]+)([a-z]?)$/.exec(ref);
+      let start: number; let end: number;
+      if (range) { start = Number(range[1]); end = Number(range[2]); }
+      else if (plain) { start = Number(plain[1]); end = start; }
+      else continue;
+      if (prev != null && start !== prev && start !== prev + 1) out.add(line.n);
+      prev = end;
+    }
+  }
+  return out;
+}
+
+/** The Greek speaker gutter's width for a play, from its longest siglum
+ *  (Helen's Θεοκ. / Θεον. need more than Χο.): never below the 3.4rem
+ *  design width, about 0.62rem per glyph plus room for the gap. */
+export function playGreekGutterWidth(sigla: Map<string, string>): string {
+  let longest = 0;
+  for (const s of sigla.values()) longest = Math.max(longest, s.length);
+  const rem = Math.max(3.4, longest * 0.62 + 0.9);
+  return `${rem.toFixed(2)}rem`;
 }

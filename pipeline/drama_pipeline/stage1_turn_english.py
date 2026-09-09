@@ -369,7 +369,13 @@ def _join_parts(parts: list[str]) -> str:
             buf = []
     if buf:
         paragraphs.append(collapse_ws(" ".join(buf)).strip())
-    return "\n\n".join(paragraph for paragraph in paragraphs if paragraph)
+    # Gutenberg marks italics with underscores ("(_to Dionysus_)", 116 such
+    # stage notes in the 1912 comedies); the reader has no use for the
+    # markup, so the underscores go and the words stay (John, 2026-09-09).
+    return _GUTENBERG_ITALICS.sub(r"\1", "\n\n".join(paragraph for paragraph in paragraphs if paragraph))
+
+
+_GUTENBERG_ITALICS = re.compile(r"_([^_\n]{1,200}?)_")
 
 
 def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:

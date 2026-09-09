@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, leadInCase, playOutOfSequence, playGreekGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -787,6 +787,14 @@
   $: sigla = playLine
     ? playSigla(orderedSegments.flatMap((seg) => seg.speakers ?? []))
     : new Map<string, string>();
+
+  // Lines whose printed ref breaks the sequence (a transposed line and the
+  // one after it) get their number in the gutter even off the fifth-line
+  // grid, as the OCT's margin does (John, 2026-09-09).
+  $: numberedOutOfSequence = playLine ? playOutOfSequence(orderedSegments) : new Set<number>();
+  // The Greek speaker gutter grows to the play's longest siglum (Helen's
+  // Θεοκ./Θεον.) instead of wrapping it.
+  $: greekGutterWidth = playLine ? playGreekGutterWidth(sigla) : undefined;
 
   // Ordered list of distinct chapter identifiers present in the loaded book.
   // Empty-string entries (no chapter assignment yet) are filtered out.
@@ -2993,6 +3001,7 @@
     const ref = line.ref ?? '';
     const plain = /^([0-9]+)$/.exec(ref);
     if (line.n === 1 || !plain || Number(plain[1]) % 5 === 0) return ref;
+    if (numberedOutOfSequence.has(line.n)) return ref;
     return '';
   }
 
@@ -3494,7 +3503,7 @@
     >
       {#each blocks as b}
         {@const mm = b.speakerMismatch ?? chunkMm}
-        <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{b.display}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
+        <p class="turn-para">{#if !b.lead}{#if b.display}<span class="speaker" data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(b.display)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
       {/each}
     </div>
   {/snippet}
@@ -3679,7 +3688,7 @@
     </div>
   {/snippet}
 
-  <div class="reader-body view-{view} trans-{trans}" role="main"
+  <div class="reader-body view-{view} trans-{trans}" role="main" style:--pl-spk-w-greek={greekGutterWidth}
     bind:this={readerBodyEl}
     class:busse={busse}
     class:stephanus={stephanus}
@@ -4023,7 +4032,7 @@
                          print edition carries -- the line's own `text`/
                          `tokens` are always empty (see GreekLine.role's
                          doc comment), so there is nothing to click. -->
-                    <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>⁂ lacuna ⁂</span>
+                    <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'<' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>\s]/g, '')) + '>'}</span>{/each}{/if}⁂ lacuna ⁂</span>
                   {:else}
                     <!-- Lined-source only (Q2; wrapO deviation 2026-08-29,
                          §3): `item.leadFragment` (set when the PREVIOUS line
@@ -4366,7 +4375,7 @@
                            print edition carries -- the line's own `text`/
                            `tokens` are always empty (see GreekLine.role's
                            doc comment), so there is nothing to click. -->
-                      <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>⁂ lacuna ⁂</span>
+                      <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'<' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>\s]/g, '')) + '>'}</span>{/each}{/if}⁂ lacuna ⁂</span>
                     {:else}
                       <!-- Lined-source only (Q2; wrapO deviation 2026-08-29,
                            §3): `item.leadFragment` (set when the PREVIOUS

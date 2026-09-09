@@ -262,7 +262,7 @@ def test_real_own_line_labels_start_speeches():
         and "should you not be beaten" in speech["text"]
     ]
     assert len(dionysus) == 1
-    assert dionysus[0]["text"].startswith("(_to Xanthias_)\n\nBut why")
+    assert dionysus[0]["text"].startswith("(to Xanthias)\n\nBut why")
 
 
 def test_real_notes_stop_at_index_and_next_play_title():
@@ -1077,7 +1077,7 @@ FINIS
         },
         {
             "speaker_printed": "MYRRHINE",
-            "text": "(_above_) This is the third speech in the play.",
+            "text": "(above) This is the third speech in the play.",
         },
     ]
     assert notes == {}
@@ -1104,7 +1104,7 @@ def test_real_lindsay_lysistrata_speech_count_and_edge_speakers():
         speech
         for speech in speeches
         if speech["speaker_printed"] == "MYRRHINE"
-        and speech["text"].startswith("(_above_)")
+        and speech["text"].startswith("(above)")
     ]
     assert len(staged) == 1
 
@@ -1876,3 +1876,11 @@ def test_residual_prefers_the_slot_that_is_the_speaker_over_the_segment_set():
     )
     assert fallback == {0: [0], 1: [1], 2: []}
     assert (fb_residual, fb_unassigned, fb_flags) == (1, 0, {})
+
+
+def test_join_parts_drops_gutenberg_italic_underscores():
+    """"(_to Dionysus_)" is Gutenberg's italics markup, not text (John, 2026-09-09)."""
+    from drama_pipeline.stage1_turn_english import _join_parts
+    assert _join_parts(["(_to Dionysus_) Your advice is in vain,", "I shall not vacate the chair."]) == "(to Dionysus) Your advice is in vain, I shall not vacate the chair."
+    assert _join_parts(["a _b_ c", "", "d"]) == "a b c\n\nd"
+    assert _join_parts(["snake_case stays"]) == "snake_case stays"

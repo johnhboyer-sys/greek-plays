@@ -202,7 +202,7 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     // The Greek wears the play's siglum (P4 Lane C); the English column is
     // untouched, and both are keyed by the same canonical speaker.
     expect(greek?.textContent).toBe('Φυ.');
-    expect(english?.textContent).toBe('WATCHMAN');
+    expect(english?.textContent).toBe('Watchman');
     expect(greek?.getAttribute('data-spk')).toBeTruthy();
     expect(english?.getAttribute('data-spk')).toBe(greek?.getAttribute('data-spk'));
   });
@@ -313,7 +313,7 @@ describe('Reader.svelte play-line rendering (P1)', () => {
 
     const greek = container.querySelector('.greek-line .speaker');
     const english = container.querySelector('.english-col .speaker');
-    expect(english?.textContent).toBe('WATCHMAN');
+    expect(english?.textContent).toBe('Watchman');
     expect(english?.getAttribute('data-spk')).toBe(greek?.getAttribute('data-spk'));
   });
 
@@ -362,7 +362,7 @@ describe('Reader.svelte play-line attribution differences (P2f)', () => {
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
     await flush();
     const lead = container.querySelector('.english-col .speaker[data-mismatch]');
-    expect(lead?.textContent).toBe('CHORUS');
+    expect(lead?.textContent).toBe('Chorus');
     expect(lead?.getAttribute('title')).toContain('Watchman');
   });
 
@@ -384,9 +384,9 @@ describe('Reader.svelte play-line attribution differences (P2f)', () => {
     await flush();
     const marked = container.querySelectorAll('.english-col .speaker[data-mismatch]');
     expect(marked).toHaveLength(1);
-    expect(marked[0].textContent).toBe('CHORUS');
+    expect(marked[0].textContent).toBe('Chorus');
     const leads = [...container.querySelectorAll('.english-col .turn-para .speaker')].map(el => el.textContent);
-    expect(leads).toEqual(['CHORUS', 'WATCHMAN']);
+    expect(leads).toEqual(['Chorus', 'Watchman']);
   });
 });
 
@@ -448,7 +448,7 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     expect(rows[0].querySelector('.greek-line')?.id).toBe('L6-6');
     expect(rows[1].querySelector('.greek-line')?.id).toBe('L7-7');
     // The two shares of line 6 stack in line 6's row; line 7's share is alone.
-    expect(rowLeads(container)).toEqual([['XANTHIAS', 'DIONYSUS'], ['XANTHIAS']]);
+    expect(rowLeads(container)).toEqual([['Xanthias', 'Dionysus'], ['Xanthias']]);
     expect(rows[0].querySelector('.english-col')?.textContent).toContain('Come, take courage');
     expect(rows[1].querySelector('.english-col')?.textContent).toContain('Only what?');
   });
@@ -464,7 +464,7 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
       props: { work: 'PLAYLINE', bookNum: 1, bookData: packedBook(turns, `${packedText} A fourth speech.`) },
     });
     await flush();
-    expect(rowLeads(container)).toEqual([['XANTHIAS', 'DIONYSUS'], ['XANTHIAS', 'DIONYSUS']]);
+    expect(rowLeads(container)).toEqual([['Xanthias', 'Dionysus'], ['Xanthias', 'Dionysus']]);
     const rows = [...container.querySelectorAll('.play-row')];
     expect(rows[1].querySelector('.english-col')?.textContent).toContain('A fourth speech.');
   });
@@ -476,9 +476,9 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     // The line-opening siglum is the FIRST child (the CSS hangs only that one);
     // the antilabe share's siglum stays inside the line's own flow.
     expect(parts[0].className).toContain('speaker');
-    expect(parts[0].textContent).toBe('ΞΑ.');
+    expect(parts[0].textContent).toBe('Ξα.');
     const sigla = [...container.querySelectorAll('.greek-line[id="L6-6"] .speaker')].map((el) => el.textContent);
-    expect(sigla).toEqual(['ΞΑ.', 'ΔΙ.']);
+    expect(sigla).toEqual(['Ξα.', 'Δι.']);
   });
 
   it('leaves a single-speech chunk on the segment\'s first line (no row split)', async () => {
@@ -513,7 +513,7 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     await flush();
     const marked = container.querySelectorAll('.play-row .english-col .speaker[data-mismatch]');
     expect(marked).toHaveLength(1);
-    expect(marked[0].textContent).toBe('DIONYSUS');
+    expect(marked[0].textContent).toBe('Dionysus');
     expect(container.querySelector('.eng-covered')?.textContent).toContain('Translated with the speech above');
   });
 });
@@ -566,8 +566,8 @@ describe('Reader.svelte play-line compare columns (P4)', () => {
     const compare = container.querySelectorAll('input[name="trans-mode"]')[1] as HTMLInputElement;
     await fireEvent.change(compare);
     await flush();
-    expect(container.querySelector('.english-col .turn-para .speaker')?.textContent).toBe('CHORUS');
-    expect(container.querySelector('.overlay-col .turn-para .speaker')?.textContent).toBe('CHORUS');
+    expect(container.querySelector('.english-col .turn-para .speaker')?.textContent).toBe('Chorus');
+    expect(container.querySelector('.overlay-col .turn-para .speaker')?.textContent).toBe('Chorus');
     expect(container.querySelector('.greek-line .line-text > .speaker')?.textContent).toBe('Χο.');
   });
 });
@@ -659,9 +659,9 @@ describe('Reader.svelte play-line turn pairing by speaker (P4 fix, finding 2)', 
     expect(rows[1].querySelector('.greek-line')?.id).toBe('L415-406');
     // Xanthias speaks line 414, Dionysus line 415 — each English turn follows
     // its own speaker, not its position in the English.
-    expect(rows[0].querySelector('.english-col .turn-para .speaker')?.textContent).toBe('XANTHIAS');
+    expect(rows[0].querySelector('.english-col .turn-para .speaker')?.textContent).toBe('Xanthias');
     expect(rows[0].querySelector('.english-col')?.textContent).toContain('And I too.');
-    expect(rows[1].querySelector('.english-col .turn-para .speaker')?.textContent).toBe('DIONYSUS');
+    expect(rows[1].querySelector('.english-col .turn-para .speaker')?.textContent).toBe('Dionysus');
     expect(rows[1].querySelector('.english-col')?.textContent).toContain('Aye, I like to mingle');
   });
 });
@@ -709,7 +709,7 @@ describe('Reader.svelte play-line row edges (P4 fix, review item 5c–5e)', () =
     ];
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: packed(turns, text) } });
     await flush();
-    expect(leads(container)).toEqual([['XANTHIAS', 'DIONYSUS'], ['XANTHIAS']]);
+    expect(leads(container)).toEqual([['Xanthias', 'Dionysus'], ['Xanthias']]);
   });
 
   // (d) The tail of a speech begun in an earlier chunk carries turnIndex -1:
@@ -728,7 +728,7 @@ describe('Reader.svelte play-line row edges (P4 fix, review item 5c–5e)', () =
     const rows = [...container.querySelectorAll('.play-row')];
     expect(rows[0].querySelector('.english-col')?.textContent).toContain('A tail of the speech begun above.');
     expect(rows[1].querySelector('.english-col')?.textContent).not.toContain('A tail of the speech');
-    expect(leads(container)).toEqual([['XANTHIAS', 'DIONYSUS'], ['XANTHIAS']]);
+    expect(leads(container)).toEqual([['Xanthias', 'Dionysus'], ['Xanthias']]);
   });
 
   // (e) More Greek events than English turns: the unmatched event's line keeps
@@ -742,7 +742,7 @@ describe('Reader.svelte play-line row edges (P4 fix, review item 5c–5e)', () =
     await flush();
     // Both turns are Xanthias', so they take his two events (lines 6 and 7);
     // Dionysus' share of line 6 simply has no English of its own.
-    expect(leads(container)).toEqual([['XANTHIAS'], ['XANTHIAS']]);
+    expect(leads(container)).toEqual([['Xanthias'], ['Xanthias']]);
     const rows = [...container.querySelectorAll('.play-row')];
     expect(rows[1].querySelector('.english-col')?.textContent).toContain('Only what?');
   });
@@ -1078,5 +1078,56 @@ describe('Reader.svelte deep-link settle (P4 Lane E, build/p4/lane-d-brief.md)',
          toJSON: () => ({}) }) as DOMRect;
     await wait(2800);
     expect(behaviours(target)).toEqual(['smooth']);
+  });
+});
+
+
+// ── John's review of the built site, 2026-09-09 ─────────────────────────────
+describe('Reader.svelte play-line gutter after John\'s review (2026-09-09)', () => {
+  beforeEach(() => localStorage.clear());
+
+  function transposedBook(): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Cassandra', 'Helen', 'Theoclymenus'],
+      segments: [
+        {
+          id: '1:1282', column: '1282',
+          greek: [
+            { n: 1, text: 'α', tokens: [], ref: '1282' },
+            { n: 2, text: 'β', tokens: [], ref: '1283' },
+            { n: 3, text: 'γ', tokens: [], ref: '1290' },
+            { n: 4, text: 'δ', tokens: [], ref: '1284' },
+            { n: 5, text: 'ε', tokens: [], ref: '1285' },
+            { n: 6, text: '', tokens: [], ref: 'post 1285', role: 'lacuna' },
+            { n: 7, text: '', tokens: [], ref: 'post 1285', role: 'lacuna' },
+            { n: 8, text: 'ζ', tokens: [], ref: '1286' },
+          ],
+          speakers: [
+            { line: 1, offset: 0, label: 'Κα.', display: 'Cassandra' },
+            { line: 6, offset: 0, label: '<Ελ. >', display: 'Helen' },
+            { line: 7, offset: 0, label: '<Θε. >', display: 'Theoclymenus' },
+          ],
+          english: null,
+        },
+      ],
+    };
+  }
+
+  it('numbers a transposed line and the line that resumes after it, as the OCT margin does', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: transposedBook() } });
+    await flush();
+    const nums = [...container.querySelectorAll('.greek-line .line-num')].map((el) => el.textContent?.trim());
+    // Line 1 always; 1290 (jumped ahead) and 1284 (resumes) even off the fifth-line grid;
+    // 1285 on the grid; the lacuna placeholders carry their own "post" ref as before.
+    expect(nums.slice(0, 5)).toEqual(['1282', '', '1290', '1284', '1285']);
+  });
+
+  it("prints a lacuna line's bracketed sigla, the speakers whose lines are lost", async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: transposedBook() } });
+    await flush();
+    const gaps = [...container.querySelectorAll('.greek-line.lacuna .lacuna-gap')];
+    expect(gaps.map((g) => g.querySelector('.speaker')?.textContent)).toEqual(['<Ελ.>', '<Θε.>']);
+    expect(gaps[0]!.querySelector('.speaker')?.getAttribute('title')).toBe('<Ελ. >');
   });
 });
