@@ -36,9 +36,9 @@ english:
     footnotes: false
     line_fixes:
       # Scanner junk between speeches (page signature "VQL. I. R"), which the
-      # NAME. text rule read as a speaker (P2g finding 7). Line 1708 since
-      # the 2026-09-08 correction pass reinstated a dropped Electra line.
-      1708: ""
+      # NAME. text rule read as a speaker (P2g finding 7). Line 1706 since
+      # the 2026-09-08 correction pass reinstated a dropped Electra line; 1706 since the 2026-09-09 Wikisource pass removed two junk lines above it.
+      1706: ""
   # Measured attachment loss (sweep 2026-09-08): 7 English piece(s) with no
   # honest owner — attribution_hole 0, nless_slice_unattached 0, unmatched_anchor 7. Mostly stichomythia the translator's base
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).

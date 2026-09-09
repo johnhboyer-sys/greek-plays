@@ -149,7 +149,7 @@ The din of Ares panic-struck they hear.
 For Zeus who hates the braggart’s boast
 Beheld that gold-bespangled host ;
 As at the goal the pan they upraise,
-He struck them with his forkéd lightning blaze.
+He struck them with his forkèd lightning blaze.
 To earth from earth rebounding, down he crashed ;
 The fire-brand from his impious hand was dashed,
 As like a Bacchic reveller on he came,
@@ -179,7 +179,7 @@ Let us end our revels here ;
 Lo! Creon our new lord draws near.
 Crowned by this strange chance, our king.
 What, I marvel, pondering ?
-Why ἘΠΕ summons? Wherefore call
+Why this summons? Wherefore call
 Us, his elders, one and all,
 Bidding us with him debate,
 On some grave concern of State?
@@ -403,7 +403,7 @@ the briny flood.
 Master of cunning he: The savage bull, and the hart
 Who roams the mountain free, are tamed by his
 infinite art ;
-And the shaggy rough- ΠΝ ρα steed is broken to
+And the shaggy rough-maned steed is broken to
 bear the bit.
 Speech and the wind-swift speed of counsel and
 civic wit,
@@ -1138,7 +1138,7 @@ By the Iron Rocks that guard the double main,
 On Bosporus’ lone strand,
 Where stretcheth Salmydessus’ plain
 In the wild Thracian land,
-There on his borders Ares witnesséd
+There on his borders Ares witnessèd
 The vengeance by a jealous step-dame ta’en,
 The gore that trickled from a spindle red,
 The sightless orbits of her step-sons twain.
@@ -1493,7 +1493,7 @@ Evidence he with him bears
 But all must own,
 The guilt is his and his alone.
 
-CREON. Woe for sin of minds perverse, (Sir. 1)
+CREON. Woe for sin of minds perverse, (Str. 1)
 Deadly fraught with mortal curse.
 Behold us slain and slayers, all akin.
 Woe for my counsel dire, conceived in sin.
@@ -1538,7 +1538,7 @@ MESSENGER. Beside the altar on a keen-edged sword
 She fell and closed her eyes in night, but erst
 She mourned for Megareus who nobly died
 Long since, then for her son; with her last breath
-She curséd thee, the slayer of her child.
+She cursèd thee, the slayer of her child.
 
 CREON. I shudder with affright.
 O for a two-edged sword to slay outright

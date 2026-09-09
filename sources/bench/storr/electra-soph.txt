@@ -66,7 +66,7 @@ With pure libations and rich offerings
 Of new-shorn tresses, will return anon,
 An urn of well-wrought brasswork in our hands,
 The same we hid in the brush-wood, as thou know’st.
-This will confirm the feignéd tale we bring,
+This will confirm the feignèd tale we bring,
 That I am dead and to the pyre consigned,
 Naught left of me but ashes and grey dust:
 Little reck I by rumour to be dead,
@@ -178,7 +178,7 @@ Ah! Niobe forlorn,
 How blest art thou who tombed in stone dost lie
 And weep for aye.
 
-CHORUS. Not thou alone, hast sorrow ; others share (δώ) 2)
+CHORUS. Not thou alone, hast sorrow ; others share (Str. 2)
 Thy load of care.
 Think on thy kinsfolk whom afflictions press
 Than thine no less,
@@ -384,7 +384,7 @@ There’s profit in this parleying, if thou
 Wouldst learn of her, and she in turn of thee.
 
 CHRYSOTHEMIS. I know her moods too well to take offence,
-Nor had I 1Yow approached her, but I learnt
+Nor had I now approached her, but I learnt
 Of new impending peril that is like
 To put a finish to her long-drawn woes.
 
@@ -393,7 +393,7 @@ Than what I now bear, I will call a truce.
 
 CHRYSOTHEMIS. All I have learnt in full I will impart.
 They purpose, if thou wilt not stay thy plaints,
-To senc thee where thou shalt not see the sun,
+To send thee where thou shalt not see the sun,
 Far hence, to some dark dungeon, there to spend
 Thy days and nights in litanies of woe.
 Therefore reflect, and blame me not too late ;
@@ -456,7 +456,7 @@ CHRYSOTHEMIS. A nightly vision warned her, so I think.
 
 ELECTRA. Gods of my fathers, aid me in this pass!
 
-CHRYSOTHEMIS. Dost thou take heart of courage from her dread ἢ
+CHRYSOTHEMIS. Dost thou take heart of courage from her dread ?
 
 ELECTRA. Before I answer let me hear the dream.
 
@@ -583,7 +583,7 @@ His brother? Should such pretext stay my hand?
 Had not his brother children twain to serve
 As victims? Should not they, as born of sire
 And mother for whose sake the host embarked,
-Have been preferred before my innocent child ὃ
+Have been preferred before my innocent child ?
 Had Death forsooth some craving for my child
 Rather than hers? or had the wretch, her sire,
 A tender heart for Menelaus’ brood,
@@ -936,7 +936,7 @@ CHORUS. We have watched its tearful course.
 
 ELECTRA. Cease then to turn it where—
 
-CHORUS. What wouldst thou say Ὁ
+CHORUS. What wouldst thou say ?
 
 ELECTRA. No comfort’s left of hope
 From him of royal blood,
@@ -955,7 +955,7 @@ ELECTRA. Yea, in a strange land far away—
 
 CHORUS. Alas!
 
-ELECTRA. To tie untended by my hands,
+ELECTRA. To lie untended by my hands,
 Unwept, ungraced with sepulture by me!
 
 CHRYSOTHEMIS. Joy, dearest sister, sped me hitherward,
@@ -1012,8 +1012,6 @@ How couldst thou, when thou mayst not leave the
 house
 Not e’en to sacrifice? Our mother then?
 When did our mother’s heart that way incline?
-An , ” ὃ fal > 3 / @ > sf
-3 5 9) ft 7 an 3 nf /
 Could she have ’scaped our notice, had she done it?
 No, from Orestes comes this offering.
 Courage, dear sister. Never destiny
@@ -1161,7 +1159,7 @@ CHRYSOTHEMIS. Yes, for misfortune dogs such enterprise.
 
 ELECTRA. I praise thy prudence, hate thy cowardice.
 
-CHRYSOTHEMIS. E’en when tou shalt commend me, I will bear
+CHRYSOTHEMIS. E’en when thou shalt commend me, I will bear
 Thy commendation no less patiently.
 
 ELECTRA. That trial thou wilt ne’er endure from me.
@@ -1211,7 +1209,7 @@ CHRYSOTHEMIS. Then I will go, for thou canst not be brought
 To approve my words, nor I to approve thy ways.
 
 ELECTRA. E’en shouldst thou pray me: ‘tis insane to urge
-An i@le suit.
+An idle suit.
 
 CHRYSOTHEMIS. Well, if thou art wise
 In thine own eyes, so let it be; anon,
@@ -1367,7 +1365,7 @@ ELECTRA. By blows and tyrannies of every kind.
 
 ORESTES. And, is there none to help or stay her hand?
 
-ELECTRA. None; there ras one, the man whose dust I hold.
+ELECTRA. None; there was one, the man whose dust I hold.
 
 ORESTES. Poor maid! my pity’s stirred at sight of thee.
 
@@ -1396,8 +1394,8 @@ ty
 
 ORESTES. It may not be.
 
-ELECTRA. Al! woe for thee, Orestes, woe is me,
-It I am not to give thee burial.
+ELECTRA. Ah! woe for thee, Orestes, woe is me,
+If I am not to give thee burial.
 
 ORESTES. Guard well thy lips; thou hast no right to mourn.
 
@@ -1489,7 +1487,7 @@ ORESTES. By speaking out of season overmuch.
 ELECTRA. But who would barter speech for silence now,
 Who could be dumb,
 Now that beyond all thought and hope
-T’ve seen thee come?
+I’ve seen thee come?
 
 ORESTES. That sight was then vouchsafed thee when the gods
 First monished me to turn my steps towards home.
@@ -1513,7 +1511,7 @@ The presence of thy face.
 
 ORESTES. If any dared essay it, I were wrath.
 
-ELECTRA. Dost thou consent ἢ
+ELECTRA. Dost thou consent ?
 
 ORESTES. How could I otherwise ?
 
@@ -1521,7 +1519,7 @@ ELECTRA. Friends, a voice is in my ear,
 That I never hoped to hear.
 At the glad sound how could I
 Be mute nor raise a joyous cry?
-But I have thec, and the light
+But I have thee, and the light
 Of thy countenance so bright
 Not e’en sorrow can eclipse,
 Or still the music of those lips.
@@ -1529,7 +1527,7 @@ Or still the music of those lips.
 ORESTES. Spare me all superfluity of words —
 How vile our mother, how Aegisthus drains
 By waste and luxury our father’s house ;
-The time adinits not such prolixity.
+The time admits not such prolixity.
 But tell me rather what will best subserve
 Our present need-—where we must show ourselves,
 Or lie in wait, and either way confound
@@ -1537,16 +1535,16 @@ The mockery and triumph of our foes.
 And see that when we twain are gone within
 Our mother read not in thy radiant looks
 Our secret; weep as overwhelmed with grief
-At our feignéd story; when the victory’s won
+At our feignèd story; when the victory’s won
 We shall have time and liberty to laugh.
 
 ELECTRA. Yea, as it pleaseth thee it pleases me,
 Brother, for all my pleasure is thy gift,
 Not mine; nor would I purchase for myself
 The greatest boon that cost thee the least pang :
-So should [ cross the providence that guides us.
+So should I cross the providence that guides us.
 How it stands with us, doubtless thou hast heard.
-Aegisthuis, as thou knowest, is away ;
+Aegisthus, as thou knowest, is away ;
 Only our mother keeps the house, and fear not
 to
 to
@@ -1563,7 +1561,7 @@ So lead me as thou wilt, for left alone
 I had myself achieved of two things one,
 A noble living or a noble death.
 
-ORESTES. Hush, hush! J hear a stir within the house
+ORESTES. Hush, hush! I hear a stir within the house
 As if one issued forth.
 
 ELECTRA. Pass in, good sirs,
@@ -1573,7 +1571,7 @@ Reject your gift, though bitter it may prove.
 AGED SERVANT. Fools ! madmen! are ye weary of your lives,
 Or are your sole wits too dull to see
 That ye are standing, not upon the brink,
-But in the midst of ἠδ ένα! jeopardy ?
+But in the midst of mortal jeopardy ?
 Nay, had I not kept watch this weary while,
 Here at the door, your plot had slipped inside
 Ere ye yourselves had entered. As it is,
@@ -1591,12 +1589,12 @@ ORESTES. Thou hast reported, I presume, my death.
 
 AGED SERVANT. They’ll speak of thee as though thou wert a shade
 
-ORESTES. And are they glad thereat, or what say they ὃ
+ORESTES. And are they glad thereat, or what say they ?
 
 AGED SERVANT. I'll tell thee when the time is ripe: meanwhile
 Whate’er they do, however ill, is well.
 
-ELECTRA. I pray thee, brother, tell me who is this Ὁ
+ELECTRA. I pray thee, brother, tell me who is this ?
 
 ORESTES. Dost thou not see?
 
@@ -1620,7 +1618,7 @@ Art thou indeed our saviour who redeemed
 From endless woes my brother and myself?
 O hands beloved, O messenger whose feet
 Were bringers of glad tidings, how so long
-Couldst thou be With me a remain ἀπε αν,
+Couldst thou be with me and remain unknown,
 Stay me with feigned fables and conceal
 The truth that gave me life? Hail, father, hail !
 For ’tis a father whom I seem to see.
@@ -1633,7 +1631,7 @@ Shall serve, Electra, to unfold it all.
 Why stand ye here! ‘tis time for you to act,
 Now Clytemnestra is alone; no man
 Is now within; but, if ye stay your hand,
-Not only with her house: earls will ye ficht
+Not only with her house-carls will ye fight
 But with a troop more numerous and more skilled.
 
 ORESTES. Our business, Pylades, would seem to crave
@@ -1655,7 +1653,7 @@ How the gods vindicate impiety.
 
 CHORUS. Breathing out blood and vengeance, lo!
 Stalks Ares, sure though slow.
-K’en now the hounds are on the trail ;
+E’en now the hounds are on the trail ;
 Within, the sinners at their coming quail.
 A little while and death shall realise
 The vision that now floats before mine eyes.
@@ -1682,7 +1680,7 @@ Aegisthus should forestall us unawares.
 CLYTEMNESTRA. Woe! woe! O woeful house,
 Of friends forsaken, full of murderers !
 
-ELECTRA. Listen! acry within—hear ye not, friends ἢ
+ELECTRA. Listen! acry within—hear ye not, friends ?
 
 CHORUS. I heard and shuddered—oh, an awesome cry.
 
@@ -1708,7 +1706,7 @@ CLYTEMNESTRA. Woe, woe is me once more !
 VQL. I. R
 
 ELECTRA. I would that woe
-Were tor Aegisthas not for thee alone.
+Were for Aegisthus not for thee alone.
 
 CHORUS. The curses work ; the buried live again,
 And blood for blood, the slayer’s blood they drain,
@@ -1722,7 +1720,7 @@ ELECTRA. How have ye sped, Orestes?
 ORESTES. All within
 Is well, if Phoebus’ oracle spake well.
 
-ELECTRA. The wretched woman’s dead ἢ
+ELECTRA. The wretched woman’s dead ?
 
 ORESTES. No longer fear
 Thy mother’s, arrogance will flout thee more.
@@ -1777,13 +1775,13 @@ AEGISTHUS. Thou givest me much joy against thy wont.
 ELECTRA. I wish thee joy, if here is food for joy.
 
 AEGISTHUS. Silence ! attend ! throw open wide the gate,
-For ail Mycenae, Argos all, to see.
+For all Mycenae, Argos all, to see.
 If any heretofore was puffed with hopes
 Of this pretender, now he sees him dead,
 Let him in time accept my yoke, nor wait
 Wisdom by chastisement to learn too late,
 
-ELECTRA. My Jesson’s learnt already ; time hath taught me
+ELECTRA. My lesson’s learnt already ; time hath taught me
 The wisdom of consenting with the strong.
 (The scene opens showing a shrouded corpse with ORESTES
 and PYLADES beside it.)

@@ -1364,7 +1364,7 @@ def test_speaker_full_stop_needs_a_space_or_end_of_line():
 
 @pytest.mark.parametrize(
     "work, line_no, junk",
-    [("oedipus-tyrannus", 904, "WOU. 4, F"), ("electra-soph", 1708, "VQL. I. R")],
+    [("oedipus-tyrannus", 904, "WOU. 4, F"), ("electra-soph", 1706, "VQL. I. R")],
 )
 def test_bench_scanner_junk_lines_are_declared_line_fixes(work, line_no, junk):
     """The two spaced OCR artefacts are real `NAME. text` shapes, so the

@@ -291,7 +291,7 @@ OEDIPUS. I will; no plea for silence can I urge.
 
 CHORUS. Will neither speak ? Come, Sir, why dally thus !
 
-OEDIPUS. Know’st one of Laius’—
+OEDIPUS. Know’st one of Laïus’—
 
 CHORUS. Ha! Who!
 
@@ -363,7 +363,7 @@ To tell my mother’s story and my sire’s,
 The cause of this your fear. Yet am I then
 A villain born because in self-defence,
 Stricken, I struck the striker back again ?
-EF’en had I known, no villainy ‘twould prove :
+E’en had I known, no villainy ‘twould prove :
 But all unwitting whither I went, I went—
 To ruin; my destroyers knew it well,
 Wherefore, I pray you, sirs, in Heaven’s name,
@@ -446,7 +446,7 @@ ISMENE. Yes, ‘twas a weary way.
 
 OEDIPUS. Touch me, my child.
 
-ISMENE. [ give a hand to both.
+ISMENE. I give a hand to both.
 
 OEDIPUS. O children— sisters !
 
@@ -646,7 +646,7 @@ Whose grove by trespass thou didst first profane.
 OEDIPUS. After what manner, stranger? Teach me, pray.
 
 CHORUS. Make a libation first of water fetched
-With undefiléd hands from living spring.
+With undefilèd hands from living spring.
 
 OEDIPUS. And after I have gotten this pure draught ?
 
@@ -759,7 +759,7 @@ CHORUS. Oh God!
 
 OEDIPUS. Sprang from the wife and mother’s travail-pain.
 
-CHORUS. What, then thy offspring are at once— (Sir. 2)
+CHORUS. What, then thy offspring are at once— (Str. 2)
 
 OEDIPUS. Too true.
 Their father’s very sisters too.
@@ -811,7 +811,7 @@ Comes at thy summons to perform his part.
 
 THESEUS. Oft had I heard of thee in times gone by—
 The bloody mutilation of thine eyes—
-And therefore know thee, son of Laius.
+And therefore know thee, son of Laïus.
 All that I lately gathered on the way
 Made my conjecture doubly sure ; and now
 Thy garb and that marred visage prove to me
@@ -865,7 +865,7 @@ OEDIPUS. Prince, they would fain convey me back to Thebes.
 THESEUS. If there be no compulsion, then methinks
 To rest in banishment befits not thee.
 
-OEDIPUS. Nay, when 7 wished it they would not consent.
+OEDIPUS. Nay, when I wished it they would not consent.
 
 THESEUS. For shame ! such temper misbecomes the fallen.
 
@@ -924,7 +924,7 @@ Declared his power to offer to our land
 These and like benefits.
 
 THESEUS. Who could reject
-The piekered amity of such a friend ?
+The proffered amity of such a friend ?
 First, he can claim the hospitality
 To which by mutual contract we stand pledged :
 Next, coming here, a suppliant to the gods,
@@ -1055,7 +1055,7 @@ Fear nothing and refrain from angry words.
 I come with no ill purpose; I am old,
 And know the city whither I am come,
 Without a peer amongst the powers of Greece.
-It was by reason of my years that
+It was by reason of my years that I
 Was chosen to persuade your guest and bring
 Him back to Thebes; not the delegate
 Of one man, but commissioned by the State,
@@ -1110,7 +1110,7 @@ Yea, I will prove thee false, that these may hear ;
 Thou art come to take me, not to take me home,
 But plant me on thy borders, that thy State
 May so escape annoyance from this land.
-That thou shalt never gain, but thas instead—
+That thou shalt never gain, but this instead—
 My ghost to haunt thy country without end ;
 And for my sons, this heritage—no more—
 Just room to die in. Have not I more skill
@@ -1207,8 +1207,6 @@ CREON. "Tis war with Thebes if I am touched or harmed,
 OEDIPUS. Did I not warn thee?
 
 CHORUS. Quick, unhand the maid !
-rs
-da ws Ae ᾿
 
 CREON. Command your minions; I am not your slave.
 
@@ -1271,13 +1269,13 @@ OEDIPUS. Goddesses, allow
 Thy suppliant to utter yet one curse !
 Wretch, now my eyes are gone thou hast torn away
 The helpless maiden who was eyes to me ;
-For this to thee and all thy curséd race
+For this to thee and all thy cursèd race
 May the great Sun, whose eye is everywhere,
 Grant length of days and old age like to mine.
 
 CREON. Listen, O men of Athens, mark ye this?
 
-OEDIPUS. They mark us both and understand that
+OEDIPUS. They mark us both and understand that I
 Wronged by thy deeds defend myself with words.
 
 CREON. Nothing shall curb my will; though I be old
@@ -1335,7 +1333,7 @@ To where the paths that packmen use diverge,
 Lest the two maidens slip away, and I
 Become a mockery to this my guest,
 As one despoiled by force. Quick, as I bid.
-As for this stranger, had [ let my rage,
+As for this stranger, had I let my rage,
 Justly provoked, have play, he had not ’scaped
 Scathless and uncorrected at my hands.
 But now the laws to which himself appealed,
@@ -1357,7 +1355,7 @@ Nor would she praise thee, if she learnt that thou
 Wert robbing me—aye and the gods to boot,
 Haling by force their suppliants, poor maids.
 Were I on Theban soil, to prosecute
-The justest claim imaginable,
+The justest claim imaginable, I
 Would never wrest by violence my own
 Without the sanction of your State or King ;
 I should behave as fits an outlander
@@ -1369,7 +1367,7 @@ Therefore again I charge thee as before,
 See that the maidens are restored at once,
 Unless thou would’st continue here by force
 And not by choice a sojourner ; so much
-I tell thee home and what I say, [ mean.
+I tell thee home and what I say, I mean.
 
 CHORUS. Thy case is perilous ; though by birth and race
 Thou should’st be just, thou plainly doest wrong.
@@ -1402,13 +1400,13 @@ Thou blurtest forth against me, all I have borne,
 No willing sinner; so it pleased the gods
 Wrath haply with my sinful race of old,
 Since thou could’st find no sin in me myself
-For which in retribution [ was doomed
+For which in retribution I was doomed
 To trespass thus against myself and mine.
 Answer me now, if by some oracle
 My sire was destined to a bloody end
 By a son’s hand, can this reflect on me,
 Me then unborn, begotten by no sire,
--Conceivéd in no mother’s womb? And if
+-Conceivèd in no mother’s womb? And if
 When born to misery, as born I was,
 I met my sire, not knowing whom I met
 Or what I did, and slew him, how canst thou
@@ -1493,7 +1491,7 @@ And all thy loving care in my behalf.
 eo
 tip
 
-CHORUS. O when the flying foe, (St. 1)
+CHORUS. O when the flying foe, (Str. 1)
 Turning at last to bay,
 Soon will give blow for blow,
 Might I behold the fray ;
@@ -1604,10 +1602,10 @@ With thee and with this land! for fear of heaven
 I found above all peoples most with you,
 And righteousness and lips that cannot lie.
 I speak in gratitude of what I know,
-For all I have J owe to thee alone.
+For all I have I owe to thee alone.
 Give me thy hand, O Prince, that I may touch it,
 And if thou wilt permit me, kiss thy cheek.
-What say 1? Can I wish that thou should’st touch
+What say I? Can I wish that thou should’st touch
 One fallen like me to utter wretchedness,
 Corrupt and tainted with a thousand ills ?
 Oh no, I would not let thee if thou would’st.
@@ -1734,7 +1732,7 @@ Pain, pain for ever pain ;
 ‘And none escapes life’s coils.
 Envy, sedition, strife,
 Carnage and war, make up the tale of life.
-Last comes the worst and most abhorréd stage
+Last comes the worst and most abhorrèd stage
 Of unregarded age,
 Joyless, companionless and slow,
 Of woes the crowning woe.
@@ -1790,7 +1788,7 @@ Both for myself and my allies who now
 With squadrons seven beneath their seven spears
 Beleaguer all the plain that circles Thebes.
 Foremost the peerless warrior, peerless seer,
-Amphiaraiis with his lightning lance ;
+Amphiaraüs with his lightning lance ;
 Next an Aetolian, Tydeus, Oeneus’ son ;
 Eteoclus of Argive birth the third ;
 The fourth Hippomedon, sent to the war
@@ -1986,12 +1984,12 @@ THESEUS. Wherefore again this general din? at once
 My people call me and the stranger calls.
 Is it a thunderbolt of Zeus or sleet
 Of arrowy hail? a storm so fierce as this
-Would warrant al] surmises of mischance.
+Would warrant all surmises of mischance.
 
 OEDIPUS. Thou com’st much wished for, Prince, and sure some
 Hath bid good luck attend thee on thy way.
 
-THESEUS. What, son of Laius, hath chanced of new?
+THESEUS. What, son of Laïus, hath chanced of new?
 
 OEDIPUS. My life hath turned the scale. I would do all
 I promised thee and thine before I die.
@@ -2054,7 +2052,7 @@ Still for your welfare think on me, the dead.
 CHORUS. If mortal prayers are heard in hell, (».)
 Hear, Goddess dread, invisible!
 Monarch of the regions drear,
-Aidoneus, hear, O hear!
+Aïdoneus, hear, O hear!
 By a gentle, tearless doom
 Speed this stranger to the gloom,
 Let him enter without pain
@@ -2090,7 +2088,7 @@ Guiding us all. So having reached the abrupt
 Earth-rooted Threshold with its brazen stairs,
 He paused at one of the converging paths,
 Hard by the rocky basin which records
-The pact of Theseus and Peirithous.
+The pact of Theseus and Peirithoüs.
 Betwixt that rift and the Thorician rock,
 The hollow pear-tree and the marble tomb,
 Midway he sat and loosed his beggar’s weeds ;
@@ -2207,7 +2205,7 @@ What seemed bitter now is sweet.
 Ah me! that happy toil to miss,
 The guidance of those dear blind feet.
 Dear father, wrapt for aye in nether gloom,
-F’en in the tomb
+E’en in the tomb
 Never shalt thou for lack of love repine,
 Her love and mine.
 
@@ -2227,7 +2225,7 @@ But I, ah me, not by,
 ISMENE. Alas, my sister, what new fate
 Befalls us orphans desolate ?
 
-CHORUS. His end was blesséd ; therefore, children, stay
+CHORUS. His end was blessèd ; therefore, children, stay
 Your sorrow. Man is born to fate a prey. "
 
 ANTIGONE. Sister, let us back again.
