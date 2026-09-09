@@ -989,3 +989,27 @@ export function playGreekGutterWidth(sigla: Map<string, string>): string {
   const rem = Math.max(3.4, longest * 0.62 + 0.9);
   return `${rem.toFixed(2)}rem`;
 }
+
+/** Facing-page flow for play-line rows (John, 2026-09-09: the Greek column
+ *  must never open a gap for a long English paragraph). Each row gives the
+ *  Greek cell's top and height and the English content's natural height, all
+ *  in px relative to the grid. The English of row k starts level with its
+ *  Greek (push 0) unless the English above it runs past that point, in which
+ *  case it is pushed down to follow, `gap` px after it; the grid's own bottom
+ *  padding grows by whatever the last English overruns the last Greek. */
+export function englishFlow(
+  rows: readonly { greekTop: number; greekHeight: number; englishHeight: number }[],
+  gap: number,
+): { pushes: number[]; paddingBottom: number } {
+  const pushes: number[] = [];
+  let englishEnd = -Infinity;
+  let greekEnd = 0;
+  for (const r of rows) {
+    const push = Math.max(0, englishEnd + gap - r.greekTop);
+    pushes.push(r.englishHeight > 0 ? push : 0);
+    if (r.englishHeight > 0) englishEnd = r.greekTop + push + r.englishHeight;
+    greekEnd = Math.max(greekEnd, r.greekTop + r.greekHeight);
+  }
+  return { pushes, paddingBottom: Math.max(0, englishEnd - greekEnd) };
+}
+

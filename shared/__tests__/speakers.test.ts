@@ -1146,3 +1146,24 @@ describe('leadInCase on mixed case', () => {
     expect(leadInCase('A Fourth Elder')).toBe('A Fourth Elder');
   });
 });
+
+describe('englishFlow — facing-page pushes for play rows (John, 2026-09-09)', () => {
+  it('keeps English level with its Greek until a paragraph overruns, then follows it', async () => {
+    const m = await import('../lib/speakers');
+    // Rows of 5 Greek lines at 30px each; row 2's English is 6 lines long.
+    const rows = [
+      { greekTop: 0, greekHeight: 150, englishHeight: 120 },
+      { greekTop: 150, greekHeight: 150, englishHeight: 180 },
+      { greekTop: 300, greekHeight: 150, englishHeight: 60 },
+      { greekTop: 450, greekHeight: 60, englishHeight: 120 },
+    ];
+    const { pushes, paddingBottom } = m.englishFlow(rows, 8);
+    // Row 3 starts 38px late (row 2 ran 30px past 300, plus the 8px gap);
+    // row 4 is level again (row 3's 60px ended well before 450).
+    expect(pushes).toEqual([0, 0, 38, 0]);
+    // The last English (450 + 120 = 570) overruns the last Greek (510) by 60.
+    expect(paddingBottom).toBe(60);
+    // A row with no English pushes nothing and leaves the flow alone.
+    expect(m.englishFlow([{ greekTop: 0, greekHeight: 30, englishHeight: 0 }], 8)).toEqual({ pushes: [0], paddingBottom: 0 });
+  });
+});

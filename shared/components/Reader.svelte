@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -1672,6 +1672,55 @@
   // antilabe packed into one printed line — this returns null and the segment
   // renders as the one Greek-beside-English row it always did.
   type PlayRow = { items: GreekItem[]; blocks: EnglishTurnBlock[] };
+
+  // Facing-page flow (John, 2026-09-09, "more alignment issues"): above the
+  // phone width the English cell of a play row takes no height of its own
+  // (global.css), so the Greek column runs on without gaps; this action then
+  // measures each row and pushes an English paragraph down only as far as
+  // the paragraph above it overruns (speakers.ts englishFlow). Re-run on any
+  // resize of the grid; on a phone (stacked rows) it clears its work.
+  function playFlow(node: HTMLElement) {
+    let raf = 0;
+    const phone = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 680px)').matches;
+    const apply = () => {
+      raf = 0;
+      const rows = [...node.querySelectorAll<HTMLElement>(':scope > .play-row')];
+      const cells = rows.map((row) => ({
+        g: row.querySelector<HTMLElement>(':scope > .greek-col'),
+        e: row.querySelector<HTMLElement>(':scope > .english-col > *'),
+      }));
+      if (phone()) {
+        for (const c of cells) if (c.e) c.e.style.transform = '';
+        node.style.paddingBottom = '';
+        return;
+      }
+      const base = node.getBoundingClientRect().top;
+      const measured = cells.map((c) => {
+        const gr = c.g?.getBoundingClientRect();
+        let eh = 0;
+        if (c.e) {
+          const saved = c.e.style.transform;
+          c.e.style.transform = '';
+          eh = c.e.getBoundingClientRect().height;
+          c.e.style.transform = saved;
+        }
+        return { greekTop: gr ? gr.top - base : 0, greekHeight: gr ? gr.height : 0, englishHeight: eh };
+      });
+      const gap = parseFloat(getComputedStyle(node).fontSize) * 0.5;
+      const { pushes, paddingBottom } = englishFlow(measured, gap);
+      cells.forEach((c, i) => { if (c.e) c.e.style.transform = pushes[i] ? `translateY(${pushes[i]}px)` : ''; });
+      node.style.paddingBottom = paddingBottom ? `${paddingBottom}px` : '';
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(apply); };
+    schedule();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
+    ro?.observe(node);
+    if (typeof document !== 'undefined' && (document as any).fonts?.ready) (document as any).fonts.ready.then(schedule);
+    return {
+      update: schedule,
+      destroy() { ro?.disconnect(); if (raf) cancelAnimationFrame(raf); },
+    };
+  }
 
   // REVIEW-CHECKLIST 15 (John, 2026-09-09: Smyth's paragraphs drifted off
   // their Greek in the odes; "this should not happen on any work"). A
@@ -4262,7 +4311,7 @@
           {@const plRows = plSource ? (playTickRows(plItems, seg, plSource) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
-            <div class="seg-row play-row-split" data-chapter={block.currentChapter}>
+            <div class="seg-row play-row-split" data-chapter={block.currentChapter} use:playFlow={plRows}>
               {#each plRows as row}
                 <div class="play-row">
                   <!-- No explicit grid placement: the two cells of every row

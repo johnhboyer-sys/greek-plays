@@ -2101,6 +2101,18 @@ body {
    ordinary auto-placement pairs each Greek line with the English turns that
    start on it. Same device as .frag-row-split above. */
 .reader-body.play-line .play-row-split .play-row { display: contents; }
+/* Facing-page flow (John, 2026-09-09): above the phone width the English
+   cell of a play row is a zero-height anchor whose content overflows, so a
+   row is as tall as its GREEK only and the Greek column never opens a gap;
+   Reader.svelte's playFlow action pushes an English paragraph down only as
+   far as the one above overruns, and pads the grid's bottom by the last
+   overrun. Never in compare mode (three columns, its own rules). */
+@media (min-width: 681px) {
+  .reader-body.play-line:not(.trans-compare) .play-row-split { position: relative; }
+  .reader-body.play-line:not(.trans-compare) .play-row-split .play-row > .english-col {
+    height: 0; min-height: 0; overflow: visible; align-self: start;
+  }
+}
 
 /* Greek: the printed ref in the number gutter, the text indented past the
    speaker gutter, a line-opening siglum hanging in it. */
