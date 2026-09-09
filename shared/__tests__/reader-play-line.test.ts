@@ -439,18 +439,30 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     );
   }
 
-  it('puts each English turn in the row of the Greek line its speaker event starts on', async () => {
+  it('prints each antilabe share on its own line and puts each English turn beside its share', async () => {
+    // John, 2026-09-09: an antilabe line is printed one line per share, the
+    // OCT way -- the second share starts a new line set to the right, with
+    // its siglum run in and no number -- so every English turn sits level
+    // with its own Greek share, and the phone stacks them in that order.
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: packedBook(packedTurns, packedText) } });
     await flush();
     const rows = [...container.querySelectorAll('.play-row')];
-    expect(rows).toHaveLength(2);
-    // Row 1 is Greek line 6, row 2 is line 7 — one Greek line per row.
-    expect(rows[0].querySelector('.greek-line')?.id).toBe('L6-6');
-    expect(rows[1].querySelector('.greek-line')?.id).toBe('L7-7');
-    // The two shares of line 6 stack in line 6's row; line 7's share is alone.
-    expect(rowLeads(container)).toEqual([['Xanthias', 'Dionysus'], ['Xanthias']]);
-    expect(rows[0].querySelector('.english-col')?.textContent).toContain('Come, take courage');
-    expect(rows[1].querySelector('.english-col')?.textContent).toContain('Only what?');
+    expect(rows).toHaveLength(3);
+    const lines = [...container.querySelectorAll('.greek-line')];
+    expect(lines.map((l) => l.id)).toEqual(['L6-6', '', 'L7-7', '']);
+    expect(lines.map((l) => l.classList.contains('antilabe-share'))).toEqual([false, true, false, true]);
+    expect(lines.map((l) => l.querySelector('.line-text')?.textContent?.trim())).toEqual([
+      'Ξα.Τί δαί; Τὸ πάνυ γέλοιον εἴπω;', 'Δι.Νὴ Δία', 'θαρρῶν γε· μόνον ἐκεῖν᾽ ὅπως μὴ ᾽ρεῖς—', 'Ξα.Τὸ τί;',
+    ]);
+    // A later share carries no number and is set to the right of its predecessor.
+    expect(lines[1].querySelector('.line-num')?.textContent).toBe('');
+    expect((lines[1].querySelector('.line-text') as HTMLElement).style.getPropertyValue('--share-indent')).toBe('30ch');
+    // Rows: line 6's first share | Xanthias; line 6's second share + line 7's
+    // first | Dionysus; line 7's second share | Xanthias.
+    expect(rowLeads(container)).toEqual([['Xanthias'], ['Dionysus'], ['Xanthias']]);
+    expect(rows[1].querySelectorAll('.greek-line')).toHaveLength(2);
+    expect(rows[1].querySelector('.english-col')?.textContent).toContain('Come, take courage');
+    expect(rows[2].querySelector('.english-col')?.textContent).toContain('Only what?');
   });
 
   it('stacks a surplus English turn in the row of the last mapped line', async () => {
@@ -464,21 +476,28 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
       props: { work: 'PLAYLINE', bookNum: 1, bookData: packedBook(turns, `${packedText} A fourth speech.`) },
     });
     await flush();
-    expect(rowLeads(container)).toEqual([['Xanthias', 'Dionysus'], ['Xanthias', 'Dionysus']]);
+    expect(rowLeads(container)).toEqual([['Xanthias'], ['Dionysus'], ['Xanthias', 'Dionysus']]);
     const rows = [...container.querySelectorAll('.play-row')];
-    expect(rows[1].querySelector('.english-col')?.textContent).toContain('A fourth speech.');
+    expect(rows[2].querySelector('.english-col')?.textContent).toContain('A fourth speech.');
   });
 
   it('keeps a mid-line speaker change inline in the Greek, not in the gutter', async () => {
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: packedBook(packedTurns, packedText) } });
     await flush();
     const parts = [...container.querySelectorAll('.greek-line[id="L6-6"] .line-text > *')];
-    // The line-opening siglum is the FIRST child (the CSS hangs only that one);
-    // the antilabe share's siglum stays inside the line's own flow.
+    // The line-opening siglum is the FIRST child (the CSS hangs only that one).
     expect(parts[0].className).toContain('speaker');
     expect(parts[0].textContent).toBe('Ξα.');
     const sigla = [...container.querySelectorAll('.greek-line[id="L6-6"] .speaker')].map((el) => el.textContent);
-    expect(sigla).toEqual(['Ξα.', 'Δι.']);
+    expect(sigla).toEqual(['Ξα.']);
+    // The antilabe share is its own printed line (John, 2026-09-09), its
+    // siglum run in as the first child of that line, which the CSS keeps in
+    // the flow (.antilabe-share), never in the gutter.
+    const share = container.querySelector('.greek-line.antilabe-share');
+    expect(share?.querySelector('.line-text')?.textContent?.trim()).toBe('Δι.Νὴ Δία');
+    const shareParts = [...share!.querySelectorAll('.line-text > *')];
+    expect(shareParts[0].className).toContain('speaker');
+    expect(shareParts[0].textContent).toBe('Δι.');
   });
 
   it('leaves a single-speech chunk on the segment\'s first line (no row split)', async () => {
@@ -635,7 +654,7 @@ describe('Reader.svelte play-line turn pairing by speaker (P4 fix, finding 2)', 
         ],
         speakers: [
           { line: 405, offset: 0, label: 'ΞΑ.', display: 'Xanthias' },
-          { line: 406, offset: 26, label: 'ΔΙ.', display: 'Dionysus' },
+          { line: 406, offset: 37, label: 'ΔΙ.', display: 'Dionysus' },
         ],
         english: { text, notes: [], markers: [], turns },
       }],
@@ -655,8 +674,13 @@ describe('Reader.svelte play-line turn pairing by speaker (P4 fix, finding 2)', 
     await flush();
     const rows = [...container.querySelectorAll('.play-row')];
     expect(rows).toHaveLength(2);
-    expect(rows[0].querySelector('.greek-line')?.id).toBe('L414-405');
-    expect(rows[1].querySelector('.greek-line')?.id).toBe('L415-406');
+    // Line 415 is an antilabe: its first share continues Xanthias and stays
+    // in his row; Dionysus' share is its own printed line and its own row.
+    expect([...rows[0].querySelectorAll('.greek-line')].map((l) => l.id)).toEqual(['L414-405', 'L415-406']);
+    const share = rows[1].querySelector('.greek-line');
+    expect(share?.id).toBe('');
+    expect(share?.classList.contains('antilabe-share')).toBe(true);
+    expect(share?.querySelector('.line-text')?.textContent?.trim()).toBe('Δι.Κἄγωγε.');
     // Xanthias speaks line 414, Dionysus line 415 — each English turn follows
     // its own speaker, not its position in the English.
     expect(rows[0].querySelector('.english-col .turn-para .speaker')?.textContent).toBe('Xanthias');
@@ -709,7 +733,7 @@ describe('Reader.svelte play-line row edges (P4 fix, review item 5c–5e)', () =
     ];
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: packed(turns, text) } });
     await flush();
-    expect(leads(container)).toEqual([['Xanthias', 'Dionysus'], ['Xanthias']]);
+    expect(leads(container)).toEqual([['Xanthias'], ['Dionysus'], ['Xanthias']]);
   });
 
   // (d) The tail of a speech begun in an earlier chunk carries turnIndex -1:
@@ -728,7 +752,7 @@ describe('Reader.svelte play-line row edges (P4 fix, review item 5c–5e)', () =
     const rows = [...container.querySelectorAll('.play-row')];
     expect(rows[0].querySelector('.english-col')?.textContent).toContain('A tail of the speech begun above.');
     expect(rows[1].querySelector('.english-col')?.textContent).not.toContain('A tail of the speech');
-    expect(leads(container)).toEqual([['Xanthias', 'Dionysus'], ['Xanthias']]);
+    expect(leads(container)).toEqual([['Xanthias'], ['Dionysus'], ['Xanthias']]);
   });
 
   // (e) More Greek events than English turns: the unmatched event's line keeps

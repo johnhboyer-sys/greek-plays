@@ -1543,8 +1543,8 @@
   // carried block IS the line's entire rendered content there, with nothing
   // to separate it from. No space is ever inserted WITHIN the carried
   // block's own parts -- they were contiguous in the source text.
-  function lineParts(item: { line: RLine; leadFragment?: LineRenderPart[] }, seg: Segment): LineRenderPart[] {
-    const base = lineRenderParts(item.line.text, item.line.tokens, speakerEvents(seg, item.line));
+  function lineParts(item: { line: RLine; leadFragment?: LineRenderPart[]; events?: SpeakerEvent[] }, seg: Segment): LineRenderPart[] {
+    const base = lineRenderParts(item.line.text, item.line.tokens, item.events ?? speakerEvents(seg, item.line));
     const head = item.line.wrap != null && item.line.wrapO != null
       ? splitWrapLine(base, item.line.wrapO, item.line.wrap).head
       : base;
@@ -1666,9 +1666,18 @@
     if (!blocks.length || items.length < 2) return null;
     const evs = [...(seg.speakers ?? [])].sort((a, b) => a.line - b.line || a.offset - b.offset);
     if (evs.length < 2) return null;
-    // First item owning each printed line n (a line is never split across items).
-    const rowOfLine = new Map<number, number>();
-    items.forEach((it, i) => { if (it.kind === 'line' && !rowOfLine.has(it.line.n)) rowOfLine.set(it.line.n, i); });
+    // The item holding an event: the share of its line whose char range
+    // contains the event's offset (splitAntilabe), else the line's first item.
+    const rowOfEvent = (ev: SpeakerEvent): number | undefined => {
+      let first: number | undefined;
+      for (let i = 0; i < items.length; i += 1) {
+        const it = items[i]!;
+        if (it.kind !== 'line' || it.line.n !== ev.line) continue;
+        if (first == null) first = i;
+        if (!it.share || (it.share.from <= ev.offset && ev.offset < it.share.to)) return i;
+      }
+      return first;
+    };
     const perRow: EnglishTurnBlock[][] = items.map(() => []);
     const used = evs.map(() => false);
     // The k-th English turn claims the next UNUSED event its canonical speaker
@@ -1701,7 +1710,7 @@
       if (b.turnIndex >= 0) {
         const ev = claim(b, k);
         k += 1;
-        const r = ev ? rowOfLine.get(ev.line) : undefined;
+        const r = ev ? rowOfEvent(ev) : undefined;
         if (r != null) cur = r;
       }
       if (cur > 0) split = true;
@@ -1908,11 +1917,49 @@
         vIndent?: number;
         vFirst?: boolean;
         vLast?: boolean;
+        // play-line only (John, 2026-09-09): an antilabe line is printed as
+        // one line per share, the OCT way -- the first share keeps the
+        // number and the id, each later share starts a new printed line set
+        // to the right with its siglum run in, so every English turn can
+        // sit beside its own Greek share. `share` says which share this item
+        // is (k), the char range of the original line it covers (from, to,
+        // original coordinates, for the row mapping) and how many chars
+        // precede it (indent); `events` are its speaker events rebased to
+        // the slice. Absent on an unsplit line.
+        share?: { k: number; from: number; to: number; indent: number };
+        events?: SpeakerEvent[];
       }
     | { kind: 'table'; rows: RLine[] }
     | { kind: 'flow'; prose: Extract<ProseFlowItem, { kind: 'flow' }>; anchor: boolean }
     | { kind: 'source-head'; line: RLine }
     | { kind: 'witness'; witness: Witness };
+  // play-line: cut each antilabe line into one item per share (see the
+  // GreekItem `share` field). Text and tokens are sliced and rebased so the
+  // click-to-parse popups keep working; a share's own events sit at offset 0.
+  function splitAntilabe(items: GreekItem[], seg: Segment): GreekItem[] {
+    const out: GreekItem[] = [];
+    for (const item of items) {
+      if (item.kind !== 'line' || item.line.cont || item.line.role === 'lacuna' || item.line.role === 'context' || item.line.role === 'heading') { out.push(item); continue; }
+      const evs = [...speakerEvents(seg, item.line)].sort((a, b) => a.offset - b.offset);
+      const cuts = [...new Set(evs.map((e) => e.offset).filter((o) => o > 0 && o < item.line.text.length))].sort((a, b) => a - b);
+      if (!cuts.length) { out.push(item); continue; }
+      const bounds = [0, ...cuts, item.line.text.length];
+      for (let k = 0; k + 1 < bounds.length; k += 1) {
+        const from = bounds[k]!;
+        const to = bounds[k + 1]!;
+        const raw = item.line.text.slice(from, to);
+        const lead = raw.length - raw.trimStart().length;
+        const delta = from + lead;
+        const text = raw.trim();
+        const tokens = (item.line.tokens ?? []).filter((tk) => tk.o >= delta && tk.o < to).map((tk) => ({ ...tk, o: tk.o - delta }));
+        const events = evs.filter((e) => e.offset >= from && e.offset < to).map((e) => ({ ...e, offset: Math.max(0, e.offset - delta) }));
+        const line: RLine = k === 0 ? { ...item.line, text, tokens } : { ...item.line, text, tokens, label: undefined };
+        out.push({ ...item, line, share: { k, from, to, indent: delta }, events });
+      }
+    }
+    return out;
+  }
+
   function greekItems(lines: RLine[], column: string, sectionMarkerNumbers?: Set<number>, markerScanIncludesText?: boolean, witnesses?: Witness[]): GreekItem[] {
     // First split into table runs vs non-table stretches (order-preserving).
     type Stretch =
@@ -4100,7 +4147,7 @@
                      `.line-text`), so the inset shifts the whole painted
                      line -- fragment included -- exactly as Schenkl prints
                      it. -->
-                {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading' || item.line.role === 'lacuna') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && item.line.role !== 'lacuna' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
+                {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" class:antilabe-share={!!item.share && item.share.k > 0} id={(item.line.role === 'context' || item.line.role === 'heading' || item.line.role === 'lacuna' || (item.share && item.share.k > 0)) ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && !(item.share && item.share.k > 0) && item.line.role !== 'context' && item.line.role !== 'heading' && item.line.role !== 'lacuna' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
                   <!-- Lined-source only (Discourses, docs/lined-source-plan.md
                        Q3): a `sec`-carrying line shows its section number
                        here iff `secStart` (computed once in greekItems, in
@@ -4108,7 +4155,7 @@
                        text begins, even a mid-word continuation (Q3.2). Every
                        other work's lines carry no `sec`, so this branch never
                        fires for them. -->
-                  {#if playLine && lineNote(item.line)}<span class="line-num line-num-wrap"><button type="button" class="line-num-btn" aria-expanded={openLineNote === item.line.n} aria-label="Line {item.line.ref}: a note on the numbering" on:click|stopPropagation={() => toggleLineNote(item.line.n)}>{item.line.ref}</button>{#if openLineNote === item.line.n}<span class="line-note" role="note">{lineNote(item.line)}</span>{/if}</span>{:else}<span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>{/if}
+                  {#if item.share && item.share.k > 0}<span class="line-num"></span>{:else if playLine && lineNote(item.line)}<span class="line-num line-num-wrap"><button type="button" class="line-num-btn" aria-expanded={openLineNote === item.line.n} aria-label="Line {item.line.ref}: a note on the numbering" on:click|stopPropagation={() => toggleLineNote(item.line.n)}>{item.line.ref}</button>{#if openLineNote === item.line.n}<span class="line-note" role="note">{lineNote(item.line)}</span>{/if}</span>{:else}<span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>{/if}
                   {#if item.line.role === 'lacuna'}
                     <!-- Editorial gap (design memo §3.2): rendered as a
                          styled placeholder, never the literal "* * *" the
@@ -4127,7 +4174,7 @@
                          (located by `wrapO`) as the truncated head + hyphen
                          via splitWrapLine. Both no-ops (parts pass through
                          unchanged) for every line without these fields. -->
-                    <span class="line-text" lang={sourceLang} style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{@render greekToks(lineParts(item, seg))}</span>
+                    <span class="line-text" lang={sourceLang} style:--share-indent={item.share && item.share.k > 0 ? `${item.share.indent}ch` : undefined} style:text-indent={item.share && item.share.k > 0 ? undefined : item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{@render greekToks(lineParts(item, seg))}</span>
                   {/if}
                 </div>
               {/if}
@@ -4142,7 +4189,7 @@
                single-.seg-row path below byte-identical. Compare mode stays on
                the generic segment compare. -->
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
-          {@const plItems = plSource ? greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses) : []}
+          {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plTurnBlocks = plSource ? buildEnglishTurnBlocks(plSource.text, plSource.turns) : []}
           {@const plRows = plSource ? playRows(plItems, seg, plTurnBlocks) : null}
           {#if plRows}
@@ -4300,7 +4347,7 @@
                    no other scheme's `.greek-col` gains even an anchor node —
                    reader-prose-flow.test.ts pins that markup byte for byte. -->
               {#if spacerTitle}<div class="overlay-chapter-title overlay-chapter-title-spacer" aria-hidden="true">{spacerTitle}</div>{:else if playLine && trans === 'compare' && si === 0}<div class="col-label play-col-head play-greek-head">{playSegHead(seg)}</div>{/if}
-              {#each greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses) as item}
+              {#each (playLine ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses)) as item}
                 {#if item.kind === 'table'}
                   <!-- Greek inline table (the TLG ⎪ column square, e.g. De Int 22a). -->
                   <table class="greek-table"><tbody>
@@ -4443,7 +4490,7 @@
                        paratext, never a citation target, so it gets no id
                        either (and would otherwise collide with its letter's
                        role='salutation' line, which shares the same n). -->
-                  {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" id={(item.line.role === 'context' || item.line.role === 'heading' || item.line.role === 'lacuna') ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && item.line.role !== 'context' && item.line.role !== 'heading' && item.line.role !== 'lacuna' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
+                  {#if playLine && item.line.label}<div class="strophe-marker">{item.line.label}</div>{/if}<div class="greek-line" class:antilabe-share={!!item.share && item.share.k > 0} id={(item.line.role === 'context' || item.line.role === 'heading' || item.line.role === 'lacuna' || (item.share && item.share.k > 0)) ? undefined : item.line.cont ? `L${seg.column}-${item.line.n}-c${item.line.paraN ?? ''}` : playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && !(item.share && item.share.k > 0) && item.line.role !== 'context' && item.line.role !== 'heading' && item.line.role !== 'lacuna' && targetId === (playLine ? playLineDomId(item.line.ref ?? '', item.line.n) : `L${seg.column}-${item.line.n}`)} class:cont={item.line.cont} class:sec-piece={item.line.paraN != null} class:context={item.line.role === 'context'} class:lacuna={item.line.role === 'lacuna'} class:salutation={item.line.role === 'salutation'} class:heading={item.line.role === 'heading'} class:verse={item.vIndent != null} class:verse-run-first={item.vFirst} class:verse-run-last={item.vLast}>
                     <!-- Lined-source only (Discourses, docs/lined-source-plan.md
                          Q3): a `sec`-carrying line shows its section number
                          here iff `secStart` (computed once in greekItems, in
@@ -4451,7 +4498,7 @@
                          text begins, even a mid-word continuation (Q3.2).
                          Every other work's lines carry no `sec`, so this
                          branch never fires for them. -->
-                    {#if playLine && lineNote(item.line)}<span class="line-num line-num-wrap"><button type="button" class="line-num-btn" aria-expanded={openLineNote === item.line.n} aria-label="Line {item.line.ref}: a note on the numbering" on:click|stopPropagation={() => toggleLineNote(item.line.n)}>{item.line.ref}</button>{#if openLineNote === item.line.n}<span class="line-note" role="note">{lineNote(item.line)}</span>{/if}</span>{:else}<span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>{/if}
+                    {#if item.share && item.share.k > 0}<span class="line-num"></span>{:else if playLine && lineNote(item.line)}<span class="line-num line-num-wrap"><button type="button" class="line-num-btn" aria-expanded={openLineNote === item.line.n} aria-label="Line {item.line.ref}: a note on the numbering" on:click|stopPropagation={() => toggleLineNote(item.line.n)}>{item.line.ref}</button>{#if openLineNote === item.line.n}<span class="line-note" role="note">{lineNote(item.line)}</span>{/if}</span>{:else}<span class="line-num">{item.line.paraN != null ? item.line.paraN : item.line.sec != null ? (item.secStart ? item.line.sec : '') : item.line.cont ? '' : (playLine ? playLineGutter(item.line) : verseLine ? verseGutterNum(si) : showLineNum(item.line.n))}</span>{/if}
                     {#if item.line.role === 'lacuna'}
                       <!-- Editorial gap (design memo §3.2): rendered as a
                            styled placeholder, never the literal "* * *" the
@@ -4471,7 +4518,7 @@
                            the truncated head + hyphen via splitWrapLine.
                            Both no-ops (parts pass through unchanged) for every line
                            without these fields. -->
-                      <span class="line-text" lang={sourceLang} style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{@render greekToks(lineParts(item, seg))}</span>
+                      <span class="line-text" lang={sourceLang} style:--share-indent={item.share && item.share.k > 0 ? `${item.share.indent}ch` : undefined} style:text-indent={item.share && item.share.k > 0 ? undefined : item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{@render greekToks(lineParts(item, seg))}</span>
                     {/if}
                   </div>
                 {/if}

@@ -2149,6 +2149,14 @@ body {
   white-space: nowrap;
   overflow: visible;
 }
+/* An antilabe share after the first (John, 2026-09-09): its own printed
+   line, set to the right (text-indent from the share's position in the
+   line), its siglum run in before the words instead of hanging in the
+   gutter, no number. */
+.reader-body.play-line .greek-line.antilabe-share .line-text { text-indent: min(var(--share-indent, 0ch), 55%); }
+.reader-body.play-line .greek-line.antilabe-share .line-text > .speaker:first-child {
+  position: static; width: auto; margin-right: 0.4em; white-space: nowrap;
+}
 /* A joint siglum (Frogs' "Αι. κ. Ευ.") prints in full and stacks in the
    gutter, as a long English lead-in does (John, 2026-09-09). */
 .reader-body.play-line:not(.view-greek) .greek-line .line-text > .speaker.spk-long:first-child {
