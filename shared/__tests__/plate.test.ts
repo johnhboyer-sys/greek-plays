@@ -198,6 +198,13 @@ describe('data-genre picks the accent and the band', () => {
     expect(dark).toMatch(/--band-comedy:\s*#1f4a33/);
   });
 
+  it('a hanging Greek siglum does not inherit the hanging indent into the number gutter', () => {
+    const at = GLOBAL_CSS.indexOf('.reader-body.play-line:not(.view-greek) .greek-line .line-text > .speaker:first-child {');
+    const rule = GLOBAL_CSS.slice(at, GLOBAL_CSS.indexOf('}', at));
+    expect(rule).toMatch(/position:\s*absolute/);
+    expect(rule).toMatch(/text-indent:\s*0/);
+  });
+
   it('the plate band paints itself from --band, never from --accent', () => {
     const band = GLOBAL_CSS.slice(GLOBAL_CSS.indexOf('.plate-band {'));
     expect(band.slice(0, band.indexOf('}'))).toContain('background: var(--band)');
