@@ -2258,6 +2258,9 @@ body {
   top: 0;
   width: calc(var(--pl-spk-w) - 0.6em);
   padding-right: 0;
+  /* Right-aligned to the gutter's inner edge, so a short name ("Chorus")
+     sits as close to its speech as the longest does (John, 2026-09-10). */
+  text-align: right;
   /* Every lead-in stacks inside its gutter, breaking at spaces ("Just /
      Discourse"), never over the prose (John, 2026-09-09, corpus-wide). A
      single word longer than the gutter is not broken; it overhangs. */
@@ -2287,6 +2290,7 @@ body {
   position: static;
   display: block;
   width: auto;
+  text-align: left;
   margin-bottom: 0.35em;
 }
 .reader-body.play-line.trans-compare .greek-line .line-text { padding-left: 0; }

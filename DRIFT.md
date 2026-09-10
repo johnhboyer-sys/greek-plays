@@ -802,4 +802,5 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/lib/search.ts`, `shared/components/Search.svelte` — Astra lane A F10: `search()` returns `{ results, failed }`; a partial failure names the skipped plays with a Retry button (notice wording DRAFT).
 - `shared/components/CommandPalette.svelte`, `shared/components/BekkerJump.svelte`, `app/src/components/ClassicHome.astro` — Astra lane A F8, F9: play-line printed ranges are accepted; resume text hides the `--<k>` occurrence suffix (the link keeps it).
 - `shared/styles/global.css` — Astra lane A F1, F13: the zero-height split-row English rule applies only in `.view-both`; the skin's `--text-light` is #6d675d (light) and #928a7e (dark) for 4.5:1 (John, 2026-09-10).
+- `shared/styles/global.css` — 2026-09-10 (John): play-line English lead-ins are right-aligned in their gutter, so every name ends the same 0.6em before its speech; compare mode keeps its left-aligned block label.
 - `app/public/sw.js` — Astra lane A F11: an offline navigation that misses its exact URL retries the cache ignoring the query string before `offline.html`.
