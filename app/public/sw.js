@@ -68,7 +68,15 @@ async function networkFirst(request, { offlineFallback = false } = {}) {
   } catch (err) {
     const cached = await cache.match(request);
     if (cached) return cached;
-    if (offlineFallback) return cache.match(OFFLINE_URL);
+    if (offlineFallback) {
+      // Astra lane A, F11: citation jumps mint new ?loc= URLs for the same
+      // static reader HTML. After the exact match misses, ignore the query
+      // so a not-yet-visited ?loc= still serves the cached page; the
+      // browser keeps the query and the reader still jumps.
+      const loose = await cache.match(request, { ignoreSearch: true });
+      if (loose) return loose;
+      return cache.match(OFFLINE_URL);
+    }
     throw err;
   }
 }

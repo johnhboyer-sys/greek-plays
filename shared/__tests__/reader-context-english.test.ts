@@ -523,7 +523,9 @@ describe('Reader.svelte per-passage translation picker (item 82)', () => {
     const copied = fireCopy();
     const expectedCredit =
       'Source passage: Diogenes Laertius, Lives of Eminent Philosophers 1.22–23 (tr. Yonge, 1853).';
-    expect(copied).toBe(selectedText + '\n' + expectedCredit);
+    // Astra lane A, F6: English-only copy also appends a citation; the
+    // existing credited path still wins over a `tr. <name>` line.
+    expect(copied).toBe(selectedText + '\n(Fix. A P1)\n' + expectedCredit);
   });
 
   it('a selection spanning a credited primary translation and a differently-credited context-english span appends BOTH credits', async () => {
@@ -687,5 +689,70 @@ describe('Reader.svelte fragment-translation card (John review, 2026-07-28)', ()
     // The source-passage block exists, but NOT inside the card.
     expect(col.querySelector('.context-english')).toBeTruthy();
     expect(card.querySelector('.context-english')).toBeNull();
+  });
+});
+
+// Astra lane A, F6 follow-up (D2): skipping `tr. <name>` is not cell-grained.
+// An ordinary (uncredited) .english-col that merely CONTAINS a credited
+// .context-english span still needs its own translator line when the
+// selection reaches the cell's ordinary text — the nested credit still
+// comes through collectEnglishCreditsForRange, so the clipboard carries both.
+describe('Reader.svelte copy: ordinary English plus a nested credited span', () => {
+  function bookWithOrdinaryAndNestedCredit(): BookData {
+    return {
+      book: 1,
+      segments: [
+        {
+          id: 'seg-M1', column: 'M1',
+          greek: [{ n: 1, text: 'Greek line', tokens: [] }],
+          english: { text: 'Ordinary translation text.', notes: [], markers: [] },
+          contextEnglish: [
+            {
+              sourceAuthor: 'Diogenes Laertius',
+              sourceWork: 'Lives of Eminent Philosophers',
+              locus: '1.30',
+              status: 'translated',
+              translationCredit: 'Hicks, 1925',
+              text: 'Quoted source passage text.',
+            },
+          ],
+        },
+      ],
+    };
+  }
+
+  function fireCopy(): string | undefined {
+    const target = document.querySelector('.reader-body');
+    if (!target) throw new Error('no .reader-body rendered');
+    let captured: string | undefined;
+    const event = new Event('copy', { bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'clipboardData', {
+      value: { setData: (_type: string, value: string) => { captured = value; } },
+    });
+    target.dispatchEvent(event);
+    return captured;
+  }
+
+  it('a selection from ordinary English into a nested credited span appends citation, nested credit, and tr. name', async () => {
+    render(Reader, { props: { work: 'CTXFIX', bookNum: 1, bookData: bookWithOrdinaryAndNestedCredit() } });
+    await flush();
+    const col = document.querySelector('#col-M1 .english-col') as HTMLElement;
+    expect(col.getAttribute('data-eng-credit')).toBeNull();
+    const prose = col.querySelector('.overlay-prose');
+    const ctxPara = col.querySelector('.context-english .context-english-text');
+    if (!prose || !ctxPara) throw new Error('missing ordinary prose or nested context-english-text');
+    const range = document.createRange();
+    range.setStartBefore(prose);
+    range.setEndAfter(ctxPara);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+
+    const copied = fireCopy();
+    expect(copied).toContain('(Fix. A M1)');
+    expect(copied).toContain(
+      'Source passage: Diogenes Laertius, Lives of Eminent Philosophers 1.30 (tr. Hicks, 1925).',
+    );
+    expect(copied).toContain('tr. Test Translator (Test, 1900)');
   });
 });

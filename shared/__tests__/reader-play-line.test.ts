@@ -1329,3 +1329,328 @@ describe('line-keyed rows: a translation paragraph sits beside the Greek line it
     expect(rows[1].querySelector('.english-col .speaker')).toBeNull();
   });
 });
+
+// ── Astra lane A (F2, F3, F6, F7, F8) ─────────────────────────────────────
+function fireCopy(container: HTMLElement): string | undefined {
+  const target = container.querySelector('.reader-body');
+  if (!target) throw new Error('no .reader-body rendered');
+  let captured: string | undefined;
+  const event = new Event('copy', { bubbles: true, cancelable: true });
+  Object.defineProperty(event, 'clipboardData', {
+    value: { setData: (_type: string, value: string) => { captured = value; } },
+  });
+  target.dispatchEvent(event);
+  return captured;
+}
+
+function selectNode(el: Element): void {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const sel = window.getSelection();
+  sel?.removeAllRanges();
+  sel?.addRange(range);
+}
+
+describe('Reader.svelte loc-query hash update (Astra lane A, F2)', () => {
+  it('drops ?loc= when the scroll-spy writes a new hash, keeping the other query params', async () => {
+    window.history.replaceState(null, '', '/PLAYLINE/book/1?loc=100&view=both&trans=smyth&hlg=foo');
+    let ioCallback: IntersectionObserverCallback | undefined;
+    class CapturingIO {
+      constructor(cb: IntersectionObserverCallback) { ioCallback = cb; }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+      takeRecords() { return []; }
+    }
+    vi.stubGlobal('IntersectionObserver', CapturingIO);
+
+    const data: BookData = {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [
+        {
+          id: '1:100', column: '100',
+          greek: [{ n: 100, text: 'α', tokens: [], ref: '100' }],
+          speakers: [{ line: 100, offset: 0, label: 'Φυ.', display: 'Watchman' }],
+          english: { text: 'Hundred.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+        },
+        {
+          id: '1:200', column: '200',
+          greek: [{ n: 200, text: 'β', tokens: [], ref: '200' }],
+          speakers: [{ line: 200, offset: 0, label: 'Φυ.', display: 'Watchman' }],
+          english: { text: 'Two hundred.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+        },
+      ],
+    };
+    render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+
+    // loc restore + settleDeepLink hold a ~4s suppress window; wait it out
+    // so onScrollArm actually constructs the spy observer.
+    await wait(4200);
+    window.dispatchEvent(new Event('scroll'));
+    await flush();
+    expect(ioCallback).toBeTruthy();
+
+    const target = document.getElementById('L200-200');
+    expect(target).toBeTruthy();
+    ioCallback!(
+      [{ target, isIntersecting: true, boundingClientRect: { top: 5 } } as unknown as IntersectionObserverEntry],
+      {} as IntersectionObserver,
+    );
+
+    expect(window.location.search).not.toMatch(/(?:^|[?&])loc=/);
+    expect(window.location.search).toContain('view=both');
+    expect(window.location.search).toContain('trans=smyth');
+    expect(window.location.search).toContain('hlg=foo');
+    expect(window.location.hash).toBe('#200');
+    vi.unstubAllGlobals();
+    window.history.replaceState(null, '', '/');
+  }, 10000);
+});
+
+describe('Reader.svelte English-only hash scroll (Astra lane A, F3)', () => {
+  const offsetParentDesc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent');
+
+  beforeEach(() => {
+    localStorage.clear();
+    localStorage.setItem('reader-view', 'english');
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+      configurable: true,
+      get() {
+        const el = this as HTMLElement;
+        if (el.closest('.greek-col')) return null;
+        return document.body;
+      },
+    });
+    (Element.prototype.scrollIntoView as unknown as { mockClear: () => void }).mockClear();
+    window.history.replaceState(null, '', '/PLAYLINE/book/1#200');
+  });
+  afterEach(() => {
+    if (offsetParentDesc) Object.defineProperty(HTMLElement.prototype, 'offsetParent', offsetParentDesc);
+    else delete (HTMLElement.prototype as { offsetParent?: unknown }).offsetParent;
+    window.history.replaceState(null, '', '/');
+  });
+
+  it('scrolls the English cell when the Greek line is hidden, without switching to bilingual view', async () => {
+    const data: BookData = {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [{
+        id: '1:200', column: '200',
+        greek: [{ n: 200, text: 'β', tokens: [], ref: '200' }],
+        speakers: [{ line: 200, offset: 0, label: 'Φυ.', display: 'Watchman' }],
+        english: { text: 'Two hundred.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+      }],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+
+    expect(container.querySelector('.reader-body')?.classList.contains('view-english')).toBe(true);
+    expect(container.querySelector('.reader-body')?.classList.contains('view-both')).toBe(false);
+
+    const greek = document.getElementById('L200-200');
+    const eng = container.querySelector('.english-col');
+    expect(greek).toBeTruthy();
+    expect(eng).toBeTruthy();
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
+    const instances = (Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.instances;
+    expect(instances).not.toContain(greek);
+    expect(instances.some((n) => n === eng || (n instanceof Element && (eng!.contains(n) || n.contains(eng!))))).toBe(true);
+  });
+});
+
+describe('Reader.svelte English copy citation (Astra lane A, F6)', () => {
+  beforeEach(() => localStorage.clear());
+
+  function engBook(): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [{
+        id: '1:1', column: '1',
+        greek: [
+          { n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' },
+          { n: 2, text: 'δεύτερος λόγος', tokens: [], ref: '2' },
+        ],
+        speakers: [{ line: 1, offset: 0, label: 'Φυ.', display: 'Watchman' }],
+        english: {
+          text: 'Ordinary Athenian Society English.',
+          notes: [], markers: [],
+          turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+        },
+      }],
+    };
+  }
+
+  it('appends a play-line citation and tr. credit when copying ordinary English', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: engBook() } });
+    await flush();
+    const eng = container.querySelector('.english-col');
+    expect(eng).toBeTruthy();
+    selectNode(eng!);
+    const copied = fireCopy(container);
+    expect(copied).toContain('Ordinary Athenian Society English.');
+    expect(copied).toContain('(Fix. 1–2)');
+    expect(copied).toContain('tr. Test Translator (Test, 1926)');
+    const lines = copied!.split('\n');
+    expect(lines.at(-2)).toBe('(Fix. 1–2)');
+    expect(lines.at(-1)).toBe('tr. Test Translator (Test, 1926)');
+  });
+
+  it('does not append citation or credit when citeCopy is off', async () => {
+    localStorage.setItem('reader-cite-copy', 'false');
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: engBook() } });
+    await flush();
+    selectNode(container.querySelector('.english-col')!);
+    expect(fireCopy(container)).toBeUndefined();
+  });
+
+  it('keeps the Greek citation and does not add a second one when the selection already has one', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: engBook() } });
+    await flush();
+    selectNode(container.querySelector('#L1-1')!);
+    const copied = fireCopy(container);
+    expect(copied).toContain('(Fix. 1)');
+    expect(copied).not.toContain('(Fix. 1–2)');
+    expect(copied?.match(/\(Fix\./g)).toHaveLength(1);
+  });
+});
+
+describe('Reader.svelte later antilabe share citation (Astra lane A, F7)', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('cites the later share of Frogs 7 as line 7, not the segment start', async () => {
+    const data: BookData = {
+      book: 1,
+      speakerRoster: ['Xanthias', 'Dionysus'],
+      segments: [{
+        id: '1:6',
+        column: '6',
+        greek: [
+          { n: 6, text: 'Τί δαί; Τὸ πάνυ γέλοιον εἴπω; Νὴ Δία', tokens: [], ref: '6' },
+          { n: 7, text: 'θαρρῶν γε· μόνον ἐκεῖν᾽ ὅπως μὴ ᾽ρεῖς— Τὸ τί;', tokens: [], ref: '7' },
+        ],
+        speakers: [
+          { line: 6, offset: 0, label: 'ΞΑ.', display: 'Xanthias' },
+          { line: 6, offset: 30, label: 'ΔΙ.', display: 'Dionysus' },
+          { line: 7, offset: 39, label: 'ΞΑ.', display: 'Xanthias' },
+        ],
+        english: {
+          text: 'Then what witty thing shall I say? Come, take courage; only … Only what?',
+          notes: [], markers: [],
+          turns: [
+            { offset: 0, speaker: 'Xanthias', display: 'XANTHIAS' },
+            { offset: 35, speaker: 'Dionysus', display: 'DIONYSUS' },
+            { offset: 62, speaker: 'Xanthias', display: 'XANTHIAS' },
+          ],
+        },
+      }],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const shares = [...container.querySelectorAll('.greek-line.antilabe-share')];
+    expect(shares).toHaveLength(2);
+    // The second antilabe share is Xanthias' later half of line 7.
+    selectNode(shares[1]!);
+    const copied = fireCopy(container);
+    expect(copied).toContain('(Fix. 7)');
+    expect(copied).not.toContain('(Fix. 6)');
+  });
+});
+
+describe('Reader.svelte repeated printed refs (Astra lane A, F8)', () => {
+  beforeEach(() => localStorage.clear());
+
+  function doubletBook(): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Messenger'],
+      segments: [
+        {
+          id: '1:803', column: '803',
+          greek: [{ n: 803, text: 'πρῶτος 803', tokens: [], ref: '803' }],
+          speakers: [{ line: 803, offset: 0, label: 'Αγ.', display: 'Messenger' }],
+          english: { text: 'First 803.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Messenger', display: 'MESSENGER' }] },
+        },
+        {
+          id: '1:803.2', column: '803',
+          greek: [{ n: 900, text: 'δεύτερος 803', tokens: [], ref: '803' }],
+          speakers: [{ line: 900, offset: 0, label: 'Αγ.', display: 'Messenger' }],
+          english: { text: 'Second 803.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Messenger', display: 'MESSENGER' }] },
+        },
+        {
+          id: '1:810', column: '810',
+          greek: [{ n: 810, text: 'πρῶτος 810', tokens: [], ref: '810' }],
+          speakers: [{ line: 810, offset: 0, label: 'Αγ.', display: 'Messenger' }],
+          english: { text: 'First 810.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Messenger', display: 'MESSENGER' }] },
+        },
+        {
+          id: '1:810.2', column: '810',
+          greek: [{ n: 910, text: 'δεύτερος 810', tokens: [], ref: '810' }],
+          speakers: [{ line: 910, offset: 0, label: 'Αγ.', display: 'Messenger' }],
+          english: { text: 'Second 810.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Messenger', display: 'MESSENGER' }] },
+        },
+      ],
+    };
+  }
+
+  it('gives a later occurrence of a printed ref a unique segment id col-<ref>--<k>', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: doubletBook() } });
+    await flush();
+    expect(container.querySelectorAll('#col-803')).toHaveLength(1);
+    expect(container.querySelectorAll('#col-803--2')).toHaveLength(1);
+    expect(container.querySelectorAll('#col-810')).toHaveLength(1);
+    expect(container.querySelectorAll('#col-810--2')).toHaveLength(1);
+    expect(container.querySelector('#col-803')?.textContent).toContain('πρῶτος 803');
+    expect(container.querySelector('#col-803--2')?.textContent).toContain('δεύτερος 803');
+  });
+
+  it('a bare #803 / ?loc=803 still lands on the first occurrence', async () => {
+    window.history.replaceState(null, '', '/PLAYLINE/book/1?loc=803');
+    (Element.prototype.scrollIntoView as unknown as { mockClear: () => void }).mockClear();
+    render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: doubletBook() } });
+    await flush();
+    const first = document.getElementById('L803-803');
+    const second = document.getElementById('L803-900');
+    expect(first).toBeTruthy();
+    expect((Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.instances).toContain(first);
+    expect((Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.instances).not.toContain(second);
+    window.history.replaceState(null, '', '/');
+  });
+
+  it('restores #803--2 to the second occurrence and saves that occurrence on scroll', async () => {
+    window.history.replaceState(null, '', '/PLAYLINE/book/1#803--2');
+    let ioCallback: IntersectionObserverCallback | undefined;
+    class CapturingIO {
+      constructor(cb: IntersectionObserverCallback) { ioCallback = cb; }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+      takeRecords() { return []; }
+    }
+    vi.stubGlobal('IntersectionObserver', CapturingIO);
+    (Element.prototype.scrollIntoView as unknown as { mockClear: () => void }).mockClear();
+
+    render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: doubletBook() } });
+    await flush();
+    const secondSeg = document.getElementById('col-803--2');
+    expect(secondSeg).toBeTruthy();
+    expect((Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.instances).toContain(secondSeg);
+
+    await wait(4200);
+    window.dispatchEvent(new Event('scroll'));
+    await flush();
+    expect(ioCallback).toBeTruthy();
+    const line = document.getElementById('L803-900');
+    ioCallback!(
+      [{ target: line, isIntersecting: true, boundingClientRect: { top: 5 } } as unknown as IntersectionObserverEntry],
+      {} as IntersectionObserver,
+    );
+    expect(window.location.hash).toBe('#803--2');
+    expect(localStorage.getItem('reader-loc-PLAYLINE')).toBe('803--2');
+    vi.unstubAllGlobals();
+    window.history.replaceState(null, '', '/');
+  }, 10000);
+});
+

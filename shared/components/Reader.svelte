@@ -72,7 +72,7 @@
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
-  import { schemeFor, formatCite, formatCopyCitationRange, unitNounFor } from '../lib/citation';
+  import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
   import { lineRenderParts, englishFlow, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
@@ -890,7 +890,13 @@
     // Continuation ids L{col}-{n}-c{k} are excluded (see greekLineIdForScrollCite).
     if (el.id.startsWith('L')) {
       const g = greekLineIdForScrollCite(el.id);
-      if (g) return formatCite(work, g.column, g.line);
+      if (g) {
+        const cite = formatCite(work, g.column, g.line);
+        // Astra lane A, F8: a printed ref the edition prints twice keeps its
+        // occurrence in the saved hash via the owning segment's unique id.
+        const occ = el.closest('[id^="col-"]')?.id.match(/--(\d+)$/);
+        return occ ? `${cite}--${occ[1]}` : cite;
+      }
     }
     const cm = el.id.match(/^col-(.+)$/);       // segment/tick: col-{column} → {column}
     if (cm) return formatCite(work, cm[1]);
@@ -903,7 +909,14 @@
   function updateHash(cite: string | null) {
     if (!cite || cite === lastCite) return;
     lastCite = cite;
-    try { history.replaceState(history.state, '', `#${cite}`); } catch {}
+    try {
+      const u = new URL(window.location.href);
+      // Astra lane A, F2: a hash written after a ?loc= jump used to keep the
+      // query, so reload/share reopened the old location. Drop only `loc`.
+      u.searchParams.delete('loc');
+      u.hash = cite;
+      history.replaceState(history.state, '', `${u.pathname}${u.search}${u.hash}`);
+    } catch {}
     // Remember the last position per work so the work-switcher can resume here.
     try { localStorage.setItem(`reader-loc-${work}`, cite); } catch {}
   }
@@ -1139,7 +1152,16 @@
     const el = document.getElementById(id);
     if (el && (el as HTMLElement).offsetParent !== null) {
       el.scrollIntoView({ behavior: 'auto', block: 'center' });
+      return;
     }
+    // Astra lane A, F3: English-only view hides the Greek column
+    // (offsetParent === null). Scroll the English cell of the segment
+    // that contains the line; do not switch into bilingual view.
+    const rowEng = el?.closest('.play-row')?.querySelector('.english-col') as HTMLElement | null;
+    const seg = el?.closest('.segment') as HTMLElement | null;
+    const segEng = seg?.querySelector('.english-col') as HTMLElement | null;
+    const fallback = [rowEng, segEng, seg].find((n) => n && n.offsetParent !== null);
+    fallback?.scrollIntoView({ behavior: 'auto', block: 'center' });
   }
 
   // ── The deep-link settle pass (P4 Lane D, build/p4/lane-d-brief.md) ──────
@@ -1598,10 +1620,22 @@
   // Legacy play overlays carry their speaker labels in the text, so recover
   // standoff turns before sending every slot through buildEnglishTurnBlocks.
   // P2e: jump to the segment whose English block covers this speech. Play-line
-  // segment ids are "1:<start ref>" and segment elements carry id="col-<column>".
+  // segment ids are "1:<start ref>" and segment elements carry id="col-<column>"
+  // (a later copy of a repeated printed ref is col-<ref>--<k>, Astra lane A, F8).
+  function segmentAnchorId(seg: Segment): string {
+    let k = 0;
+    for (const s of orderedSegments) {
+      if (s.column === seg.column) {
+        k += 1;
+        if (s.id === seg.id) break;
+      }
+    }
+    return k <= 1 ? `col-${seg.column}` : `col-${seg.column}--${k}`;
+  }
   function scrollToSegment(segId: string): void {
+    const seg = orderedSegments.find((s) => s.id === segId);
     const col = segId.includes(':') ? segId.slice(segId.indexOf(':') + 1) : segId;
-    const el = document.getElementById(`col-${col}`);
+    const el = document.getElementById(seg ? segmentAnchorId(seg) : `col-${col}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
@@ -3281,6 +3315,20 @@
   // so single-flow columns stay byte-identical to before this fix.
   function citeForGreekLine(el: HTMLElement): { column: string; line?: number | null } | null {
     if (el.id) return idToCite(el.id);
+    // Astra lane A, F7: a later antilabe share has no id; its ancestor
+    // data-column is the segment start. Resolve through this line's first
+    // share (the nearest preceding .greek-line that carries an id).
+    if (el.classList.contains('antilabe-share')) {
+      const root = el.closest('.segment') ?? el.parentElement;
+      const lines = root ? [...root.querySelectorAll<HTMLElement>('.greek-line')] : [];
+      const i = lines.indexOf(el);
+      for (let j = i - 1; j >= 0; j--) {
+        if (lines[j]!.id) {
+          const cited = idToCite(lines[j]!.id);
+          if (cited) return cited;
+        }
+      }
+    }
     const col = el.closest<HTMLElement>('[data-column]');
     return col?.dataset.column ? { column: col.dataset.column, line: null } : null;
   }
@@ -3417,6 +3465,84 @@
     return credits.length ? credits.join('\n') : null;
   }
 
+  function firstPrintedRef(seg: Segment): string | null {
+    for (const line of seg.greek) {
+      if (line.role === 'lacuna' || line.role === 'heading') continue;
+      if (line.ref) return line.ref;
+    }
+    return seg.column ?? null;
+  }
+
+  function segmentFromEl(el: Element): Segment | null {
+    const segEl = el.closest('.segment');
+    if (!segEl) return null;
+    const all = document.querySelectorAll('.segment');
+    let i = 0;
+    for (const n of all) {
+      if (n === segEl) return orderedSegments[i] ?? null;
+      i += 1;
+    }
+    return null;
+  }
+
+  // Astra lane A, F6: ordinary English (no data-eng-credit) still gets a
+  // citation — the same formatter the Greek copy uses — plus one `tr. <name>`
+  // line per distinct translation the selection touches.
+  function englishRangeCiteAndCredits(range: Range): { cite: string | null; credits: string[] } {
+    const cells = document.querySelectorAll<HTMLElement>('.english-col, .overlay-col');
+    const touched: HTMLElement[] = [];
+    for (const el of cells) {
+      if (range.intersectsNode(el)) touched.push(el);
+    }
+    if (!touched.length) return { cite: null, credits: [] };
+    const segs: Segment[] = [];
+    const seenSeg = new Set<string>();
+    for (const el of touched) {
+      const s = segmentFromEl(el);
+      if (s && !seenSeg.has(s.id)) { seenSeg.add(s.id); segs.push(s); }
+    }
+    const startRef = segs[0] ? firstPrintedRef(segs[0]) : null;
+    const endRef = segs.length ? lastPrintedRef([segs[segs.length - 1]!]) : null;
+    const cite = formatCopyCitationRange(
+      work,
+      startRef ? { column: startRef, line: null } : null,
+      endRef ? { column: endRef, line: null } : null,
+    );
+    const credits: string[] = [];
+    const seenTrans = new Set<string>();
+    for (const el of touched) {
+      // Skip a translation whose selected text already carries a
+      // data-eng-credit on the cell itself. A credited descendant (e.g.
+      // `.context-english`) only suppresses the cell's `tr.` line when
+      // the selection lies entirely inside that descendant — the same
+      // test collectEnglishCreditsForRange's wrappedByDescendant uses.
+      // A mixed selection that starts in the cell's ordinary text still
+      // gets `tr. <name>` (and the nested credit still comes through
+      // the existing credited path).
+      const nested = [...el.querySelectorAll<HTMLElement>('[data-eng-credit]')].filter(
+        (n) => n.dataset.engCredit && range.intersectsNode(n),
+      );
+      const entirelyInNested = nested.some(
+        (n) => n.contains(range.startContainer) && n.contains(range.endContainer),
+      );
+      if (el.dataset.engCredit || entirelyInNested) continue;
+      const id = el.dataset.trans;
+      if (!id || seenTrans.has(id)) continue;
+      seenTrans.add(id);
+      const name = transById(id)?.name;
+      if (name) credits.push(`tr. ${name}`);
+    }
+    return { cite, credits };
+  }
+
+  function copyParts(range: Range): string[] {
+    const greekCite = greekCiteForRange(range);
+    const engCredit = englishCiteForRange(range);
+    const extra = englishRangeCiteAndCredits(range);
+    const cite = greekCite ?? extra.cite;
+    return [cite, engCredit, ...extra.credits].filter((p): p is string => !!p);
+  }
+
   function handleCopy(e: ClipboardEvent) {
     if (!citeCopy) return;
     const sel = window.getSelection();
@@ -3429,9 +3555,7 @@
     // selection (e.g. Greek at one end, licensed English elsewhere in the
     // range) appends BOTH, citation first, rather than returning as soon
     // as one is found.
-    const greekCite = greekCiteForRange(range);
-    const engCredit = englishCiteForRange(range);
-    const parts = [greekCite, engCredit].filter((p): p is string => !!p);
+    const parts = copyParts(range);
     if (!parts.length) return;
     e.clipboardData?.setData('text/plain', [text, ...parts].join('\n'));
     e.preventDefault();
@@ -3465,9 +3589,7 @@
     // Same mixed-range fix as handleCopy (finding 1, Sol xhigh review): a
     // Greek citation and credited English are both appended when both
     // apply, not treated as mutually exclusive.
-    const greekCite = greekCiteForRange(range);
-    const engCredit = englishCiteForRange(range);
-    const parts = [greekCite, engCredit].filter((p): p is string => !!p);
+    const parts = copyParts(range);
     const full = parts.length ? [text, ...parts].join('\n') : text;
     navigator.clipboard.writeText(full).catch(() => {});
     copyBtnPos = null;
@@ -4062,7 +4184,7 @@
            margin exception; every ordinary verse-line segment is untouched. -->
       <!-- P4: an ode (a chorus speech longer than six lines) reads at a
            narrower measure — the lyric set apart, and nothing else. -->
-      <div class="segment" id="col-{seg.column}" data-kind={seg.kind} data-discontinuity={verseDiscontinuity} class:play-ode={playLine && odeSegmentIds.has(seg.id)}>
+      <div class="segment" id={segmentAnchorId(seg)} data-kind={seg.kind} data-discontinuity={verseDiscontinuity} class:play-ode={playLine && odeSegmentIds.has(seg.id)}>
         {#if sectionFlow}<span class="sect-tick" aria-hidden="true" data-n={seg.column}></span>{/if}
         <!-- A chapter that opens this column heads the segment, ABOVE the column
              reference (the column ref is a marker within the chapter, not a
