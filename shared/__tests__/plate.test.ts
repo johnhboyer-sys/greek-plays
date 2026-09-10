@@ -219,6 +219,16 @@ describe('data-genre picks the accent and the band', () => {
     expect(rule).toMatch(/text-indent:\s*0/);
   });
 
+  it('an English lead-in takes the prose line-height, so its baseline is the speech\'s first baseline', () => {
+    // John, 2026-09-10: a 1.15 line box set every name 4.5px above its text.
+    const at = GLOBAL_CSS.indexOf('.reader-body.play-line .turn-stack .turn-para > .speaker:first-child {');
+    const rule = GLOBAL_CSS.slice(at, GLOBAL_CSS.indexOf('}', at));
+    expect(rule).toMatch(/line-height:\s*inherit/);
+    expect(rule).toMatch(/text-align:\s*right/);
+    const long = GLOBAL_CSS.indexOf('.reader-body.play-line .turn-stack .turn-para > .speaker.spk-long:first-child {');
+    expect(GLOBAL_CSS.slice(long, GLOBAL_CSS.indexOf('}', long))).not.toMatch(/line-height/);
+  });
+
   it('the plate band paints itself from --band, never from --accent', () => {
     const band = GLOBAL_CSS.slice(GLOBAL_CSS.indexOf('.plate-band {'));
     expect(band.slice(0, band.indexOf('}'))).toContain('background: var(--band)');

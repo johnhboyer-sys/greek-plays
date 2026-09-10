@@ -2156,7 +2156,7 @@ body {
    Chorus"), so the English still starts on its Greek line (John, 2026-09-09:
    a label on its own line pushed the text off the row). */
 .reader-body.play-line .turn-stack .turn-para > .speaker.spk-long:first-child {
-  white-space: normal; line-height: 1.15; overflow-wrap: anywhere;
+  white-space: normal; overflow-wrap: anywhere;
 }
 /* A repeated or transposed line number is a button; its note is a small
    popover on the Bekker-note pattern (REVIEW-CHECKLIST 3, John 2026-09-09). */
@@ -2289,7 +2289,10 @@ body {
      Discourse"), never over the prose (John, 2026-09-09, corpus-wide). A
      single word longer than the gutter is not broken; it overhangs. */
   white-space: normal;
-  line-height: 1.15;
+  /* The prose's own line-height, so the name's baseline is its speech's
+     first baseline, and a stacked name ("Chorus / Leader") sits on the
+     prose lines (John, 2026-09-10: a 1.15 line box set it 4.5px high). */
+  line-height: inherit;
   overflow: visible;
 }
 /* The "translated with the speech above" jump and the missing-passage dash
