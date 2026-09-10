@@ -183,6 +183,13 @@ describe('data-genre picks the accent and the band', () => {
     );
   });
 
+  it('sets --text-light to the contrast-safe skin values (Astra lane A, F13)', () => {
+    const light = GLOBAL_CSS.slice(GLOBAL_CSS.indexOf(':root {\n  /* Cardo for everything'));
+    expect(light).toMatch(/--text-light:\s*#6d675d;/);
+    const dark = GLOBAL_CSS.slice(GLOBAL_CSS.indexOf(':root[data-theme="dark"] {\n  --col-bg:       #24211d'));
+    expect(dark).toMatch(/--text-light:\s*#928a7e;/);
+  });
+
   it('lifts the accent in dark mode but keeps the bands deep', () => {
     const dark = GLOBAL_CSS.slice(GLOBAL_CSS.indexOf(':root[data-theme="dark"] {\n  --col-bg:       #24211d'));
     expect(dark).toMatch(/--accent-tragedy:\s*#e0634c/);

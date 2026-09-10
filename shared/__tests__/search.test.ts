@@ -91,27 +91,27 @@ describe('search', () => {
   });
 
   it('returns no results for empty queries or no works', async () => {
-    await expect(search('', ' ', 'all', 'all', 'and', ['TEmpty'])).resolves.toEqual([]);
-    await expect(search('logos', '', 'all', 'all', 'and', [])).resolves.toEqual([]);
+    await expect(search('', ' ', 'all', 'all', 'and', ['TEmpty'])).resolves.toEqual({ results: [], failed: [] });
+    await expect(search('logos', '', 'all', 'all', 'and', [])).resolves.toEqual({ results: [], failed: [] });
   });
 
   it('supports all, any, and phrase modes', async () => {
-    expect(await search('logos areth', '', 'all', 'all', 'and', ['TAll'])).toHaveLength(1);
-    expect(await search('yuxh areth', '', 'any', 'all', 'and', ['TAny'])).toHaveLength(2);
-    expect(await search('logos areth', '', 'phrase', 'all', 'and', ['TPhraseMiss'])).toHaveLength(1);
-    expect(await search('areth logos', '', 'phrase', 'all', 'and', ['TPhraseHit'])).toHaveLength(0);
+    expect((await search('logos areth', '', 'all', 'all', 'and', ['TAll'])).results).toHaveLength(1);
+    expect((await search('yuxh areth', '', 'any', 'all', 'and', ['TAny'])).results).toHaveLength(2);
+    expect((await search('logos areth', '', 'phrase', 'all', 'and', ['TPhraseMiss'])).results).toHaveLength(1);
+    expect((await search('areth logos', '', 'phrase', 'all', 'and', ['TPhraseHit'])).results).toHaveLength(0);
   });
 
   it('supports wildcards for Greek and English terms', async () => {
-    const greek = await search('tex*', '', 'all', 'all', 'and', ['TGreekWildcard']);
-    const english = await search('', 'hap*', 'all', 'all', 'and', ['TEngWildcard']);
+    const greek = (await search('tex*', '', 'all', 'all', 'and', ['TGreekWildcard'])).results;
+    const english = (await search('', 'hap*', 'all', 'all', 'and', ['TEngWildcard'])).results;
     expect(greek.map((r) => r.meta.id)).toEqual(['s3']);
     expect(english.map((r) => r.meta.id)).toEqual(['s2']);
   });
 
   it('combines Greek and English boxes with AND or OR', async () => {
-    const andHits = await search('logos', 'happiness', 'all', 'all', 'and', ['TAnd']);
-    const orHits = await search('texnh', 'happiness', 'all', 'all', 'or', ['TOr']);
+    const andHits = (await search('logos', 'happiness', 'all', 'all', 'and', ['TAnd'])).results;
+    const orHits = (await search('texnh', 'happiness', 'all', 'all', 'or', ['TOr'])).results;
     expect(andHits.map((r) => r.meta.id)).toEqual(['s2']);
     expect(orHits.map((r) => r.meta.id)).toEqual(['s2', 's3']);
   });
@@ -123,7 +123,40 @@ describe('search', () => {
     ['Greek string', 'λόγος τέχνη', 'virtue'],
     ['very long string', `${'logos '.repeat(500)}texnh`, `${'virtue '.repeat(500)}craft`],
   ])('does not throw for adversarial input: %s', async (_label, grk, eng) => {
-    await expect(search(grk, eng, 'any', 'any', 'or', [`TAdv-${_label}`])).resolves.toEqual(expect.any(Array));
+    await expect(search(grk, eng, 'any', 'any', 'or', [`TAdv-${_label}`])).resolves.toEqual(
+      expect.objectContaining({ results: expect.any(Array), failed: expect.any(Array) }),
+    );
+  });
+
+  it('returns failed work ids alongside hits when some indexes fail (Astra lane A, F10)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      const path = String(url);
+      if (path.includes('/TFail/')) {
+        return Promise.resolve({ ok: false, status: 500, json: async () => ({}) } as Response);
+      }
+      if (path.endsWith('/meta.json')) return json(meta);
+      if (path.endsWith('/lemma.json') || path.endsWith('/form.json')) return json(greekIndex);
+      if (path.endsWith('/english.json')) return json(englishIndex);
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const out = await search('logos', '', 'all', 'all', 'and', ['TOk', 'TFail']);
+    expect(out).toEqual(expect.objectContaining({
+      failed: ['TFail'],
+      results: expect.any(Array),
+    }));
+    expect(out.results.map((r) => r.meta.id)).toEqual(['s1', 's2']);
+    expect(out.failed).toEqual(['TFail']);
+    warn.mockRestore();
+  });
+
+  it('still throws when every work\'s index fails (Astra lane A, F10)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: false, status: 500, json: async () => ({}),
+    } as Response);
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await expect(search('logos', '', 'all', 'all', 'and', ['TFailA', 'TFailB']))
+      .rejects.toThrow(/Could not load the search index/);
   });
 });
 
@@ -163,15 +196,15 @@ describe('search — Latin work language dispatch', () => {
   });
 
   it('matches "vita" and "uita" as the same query (exact)', async () => {
-    const viaV = await search('vita', '', 'all', 'all', 'and', ['TLatExact']);
-    const viaU = await search('uita', '', 'all', 'all', 'and', ['TLatExact']);
+    const viaV = (await search('vita', '', 'all', 'all', 'and', ['TLatExact'])).results;
+    const viaU = (await search('uita', '', 'all', 'all', 'and', ['TLatExact'])).results;
     expect(viaV.map((r) => r.meta.id)).toEqual(['l1']);
     expect(viaU.map((r) => r.meta.id)).toEqual(['l1']);
   });
 
   it('matches "coniunx" and "conjunx" as the same query (exact)', async () => {
-    const viaI = await search('coniunx', '', 'all', 'all', 'and', ['TLatExact']);
-    const viaJ = await search('conjunx', '', 'all', 'all', 'and', ['TLatExact']);
+    const viaI = (await search('coniunx', '', 'all', 'all', 'and', ['TLatExact'])).results;
+    const viaJ = (await search('conjunx', '', 'all', 'all', 'and', ['TLatExact'])).results;
     expect(viaI.map((r) => r.meta.id)).toEqual(['l2']);
     expect(viaJ.map((r) => r.meta.id)).toEqual(['l2']);
   });
@@ -179,7 +212,7 @@ describe('search — Latin work language dispatch', () => {
   it('supports a u/v-folded wildcard prefix query', async () => {
     // "con*" and "uit*" should prefix-match the folded ("uita"/"coniunx")
     // keys regardless of which u/v i/j spelling the user types.
-    const hits = await search('con*', '', 'all', 'all', 'and', ['TLatWildcard']);
+    const hits = (await search('con*', '', 'all', 'all', 'and', ['TLatWildcard'])).results;
     expect(hits.map((r) => r.meta.id)).toEqual(['l2']);
   });
 
@@ -187,7 +220,7 @@ describe('search — Latin work language dispatch', () => {
     // meta.tokens for l2 is the fold sequence "coniunx kara" -- a phrase
     // query spelled with the alternate convention ("conjunx cara") must
     // still hit it.
-    const hits = await search('conjunx cara', '', 'phrase', 'all', 'and', ['TLatPhrase']);
+    const hits = (await search('conjunx cara', '', 'phrase', 'all', 'and', ['TLatPhrase'])).results;
     expect(hits.map((r) => r.meta.id)).toEqual(['l2']);
   });
 
@@ -206,7 +239,7 @@ describe('search — Latin work language dispatch', () => {
       if (path.endsWith('/english.json')) return json(englishIndex);
       return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
     });
-    const hits = await search('vita', '', 'all', 'all', 'and', ['TGreekUnaffected']);
+    const hits = (await search('vita', '', 'all', 'all', 'and', ['TGreekUnaffected'])).results;
     expect(hits).toEqual([]);
   });
 });
@@ -254,13 +287,13 @@ describe('search English occurrences (index integration)', () => {
   it('phrase past char 500 is found (regression for the [:500] truncation)', async () => {
     const idx = longText.toLowerCase().indexOf('shall avail');
     expect(idx).toBeGreaterThan(500);
-    const hits = await search('', 'shall avail', 'all', 'phrase', 'and', ['TEng500']);
+    const hits = (await search('', 'shall avail', 'all', 'phrase', 'and', ['TEng500'])).results;
     expect(hits).toHaveLength(1);
     expect(hits[0].engPositions).toEqual([idx]);
   });
 
   it('counts repeated English occurrences per segment', async () => {
-    const hits = await search('', 'word', 'all', 'all', 'and', ['TEngCount']);
+    const hits = (await search('', 'word', 'all', 'all', 'and', ['TEngCount'])).results;
     expect(hits).toHaveLength(1);
     // "word" appears 60 times in the filler.
     expect(hits[0].engPositions).toHaveLength(60);
@@ -305,7 +338,9 @@ describe('Search.svelte play-line result routing', () => {
     const link = container.querySelector('.inst-ref') as HTMLAnchorElement;
     expect(link.textContent).toBe('147-150');
     expect(link.getAttribute('href')).toBe('/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=147-150');
-    expect(container.querySelector('.search-note.warn')).toBeNull();
+    // Other works' indexes 404 in this fixture; F10 names them rather than
+    // pretending the search was complete.
+    expect(container.querySelector('.search-note.warn')?.textContent).toMatch(/Some plays could not be searched/);
   });
 
   it('keeps printed order and omits made-up book and line group labels', async () => {

@@ -127,7 +127,7 @@
   --page-bg:      #edeae2;   /* the vellum ground */
   --text:         #2a2420;   /* iron-gall ink */
   --text-mid:     #5b534b;
-  --text-light:   #8b8377;
+  --text-light:   #6d675d;
   --border:       #d6d0c4;
   --popup-bg:     #fbfaf6;
   --input-bg:     #fbfaf6;
@@ -168,7 +168,7 @@
   --page-bg:      #1c1a17;
   --text:         #e8e1d3;
   --text-mid:     #b9b0a1;
-  --text-light:   #867d71;
+  --text-light:   #928a7e;
   --border:       #3b362f;
   --popup-bg:     #24211d;
   --input-bg:     #24211d;
@@ -2114,7 +2114,10 @@ body {
      level with its lines more often. Compare mode keeps its own tracks. */
   .reader-body.play-line.view-both:not(.trans-compare) .seg-row { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
   .reader-body.play-line:not(.trans-compare) .play-row-split { position: relative; }
-  .reader-body.play-line:not(.trans-compare) .play-row-split .play-row > .english-col {
+  /* Astra lane A, F1: zero-height English cells are a bilingual facing-page
+     device. English-only view hides the Greek, so these cells must take their
+     natural height or later speeches overlap. */
+  .reader-body.play-line.view-both:not(.trans-compare) .play-row-split .play-row > .english-col {
     height: 0; min-height: 0; overflow: visible; align-self: start;
   }
 }

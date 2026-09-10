@@ -153,6 +153,15 @@ describe('fetch and lookup helpers', () => {
     });
   });
 
+  it('sanitizes fetched footnote HTML for drama works (Astra lane A, F4)', async () => {
+    mockFetch({
+      'F4Data/footnotes.json': { '1': '<img src=x onerror=alert(1)><em>ok</em>' },
+    });
+    const map = await fetchFootnotes('F4Data');
+    expect(map['1']).not.toMatch(/onerror/i);
+    expect(map['1']).toContain('<em>ok</em>');
+  });
+
   it('lookupWord returns the raw analyses for a key — no local dictionary fetch', async () => {
     mockFetch({
       'LookupWork/analyses.json': {

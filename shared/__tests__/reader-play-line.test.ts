@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/svelte';
+import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -253,6 +253,53 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     expect(marker).toBeTruthy();
     expect(marker!.tagName).toBe('BUTTON');
     expect(marker!.getAttribute('data-fn')).toBe('3.69_71');
+  });
+
+  it('replaces the footnote body when moving to another marker (Astra lane A, F5)', async () => {
+    const data = book();
+    data.segments = [{
+      id: '1:1',
+      column: '1',
+      greek: [
+        { n: 1, text: 'πρῶτος λόγος', tokens: [{ t: 'πρῶτος', o: 0, k: 'prwtos' }], ref: '1' },
+      ],
+      speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+      english: {
+        text: 'First [^1] then another [^2] later.',
+        notes: [],
+        markers: [],
+        turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+      },
+    }];
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (String(url).includes('footnotes.json')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            '1': '<p>First unique body ALPHA.</p>',
+            '2': '<p>Second unique body BETA.</p>',
+          }),
+        } as Response);
+      }
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+    try {
+      const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+      await flush();
+      const markers = container.querySelectorAll('.fn-marker');
+      expect(markers).toHaveLength(2);
+      await fireEvent.click(markers[0]!);
+      await waitFor(() => expect(document.querySelector('.footnote-text')?.textContent).toContain('ALPHA'));
+      expect(document.querySelector('.footnote-num')?.textContent).toContain('1');
+      await fireEvent.click(markers[1]!);
+      await waitFor(() => {
+        expect(document.querySelector('.footnote-num')?.textContent).toContain('2');
+        expect(document.querySelector('.footnote-text')?.textContent).toContain('BETA');
+      });
+      expect(document.querySelector('.footnote-text')?.textContent).not.toContain('ALPHA');
+    } finally {
+      vi.restoreAllMocks();
+    }
   });
 
   function comparisonBook(withSecondary = true): BookData {
@@ -535,6 +582,51 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     expect(marked[0].textContent).toBe('Dionysus');
     expect(container.querySelector('.eng-covered')?.textContent).toContain('Translated with the speech above');
   });
+
+  it('does not position English cells in English-only view (Astra lane A, F1)', async () => {
+    const origRect = Element.prototype.getBoundingClientRect;
+    const origStyle = window.getComputedStyle;
+    Element.prototype.getBoundingClientRect = function (this: Element) {
+      const empty = { x: 0, y: 0, width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0, toJSON() {} };
+      const el = this as HTMLElement;
+      if (el.classList?.contains('play-row-split')) {
+        return { ...empty, top: 1000, y: 1000 };
+      }
+      if (el.classList?.contains('greek-col')) {
+        if (el.closest('.view-english')) return empty;
+        return { ...empty, top: 1000, y: 1000, height: 20, bottom: 1020 };
+      }
+      if (el.classList?.contains('turn-stack')) {
+        return { ...empty, top: 1000, y: 1000, height: 100, width: 200, right: 200, bottom: 1100 };
+      }
+      return origRect.call(this);
+    };
+    window.getComputedStyle = ((elt: Element, pseudo?: string | null) => {
+      const style = origStyle.call(window, elt, pseudo);
+      if ((elt as HTMLElement).classList?.contains('play-row-split')) {
+        return new Proxy(style, { get: (t, k) => (k === 'fontSize' ? '16px' : Reflect.get(t, k)) });
+      }
+      return style;
+    }) as typeof window.getComputedStyle;
+    try {
+      const { container, getByRole } = render(Reader, {
+        props: { work: 'PLAYLINE', bookNum: 1, bookData: packedBook(packedTurns, packedText) },
+      });
+      await wait(20);
+      const bilingual = [...container.querySelectorAll('.play-row .english-col > *')]
+        .map((el) => (el as HTMLElement).style.transform);
+      expect(bilingual.some((t) => t.includes('translateY'))).toBe(true);
+      await fireEvent.click(getByRole('button', { name: 'English' }));
+      await wait(20);
+      const english = [...container.querySelectorAll('.play-row .english-col > *')]
+        .map((el) => (el as HTMLElement).style.transform);
+      expect(english.every((t) => !t)).toBe(true);
+      expect((container.querySelector('.play-row-split') as HTMLElement).style.paddingBottom).toBe('');
+    } finally {
+      Element.prototype.getBoundingClientRect = origRect;
+      window.getComputedStyle = origStyle;
+    }
+  });
 });
 
 describe('Reader.svelte play-line compare columns (P4)', () => {
@@ -812,6 +904,15 @@ describe('play-line stylesheet (P4 fix, findings 3 and 4)', () => {
   it('starts the compare Greek heading on the verse, not at the column edge', () => {
     expect(PLAY_CSS).toMatch(
       /\.reader-body\.play-line\.trans-compare \.play-greek-head \{[^}]*padding-left:\s*var\(--pl-num-w\)/,
+    );
+  });
+
+  it('applies the zero-height split-row English rule only in the bilingual view (Astra lane A, F1)', () => {
+    expect(PLAY_CSS).toMatch(
+      /\.reader-body\.play-line\.view-both:not\(\.trans-compare\) \.play-row-split \.play-row > \.english-col\s*\{[^}]*height:\s*0/,
+    );
+    expect(PLAY_CSS).not.toMatch(
+      /\.reader-body\.play-line:not\(\.trans-compare\) \.play-row-split \.play-row > \.english-col\s*\{[^}]*height:\s*0/,
     );
   });
 

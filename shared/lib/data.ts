@@ -2,6 +2,7 @@
 // build/dist/ne). Shards are cached in module-level Maps so a single
 // click won't re-fetch the same shard twice in a session.
 import { linkifyGlossaryRefs } from './glossary';
+import { sanitizeHtml } from './html';
 import { scheme, schemeFor } from './citation';
 import { getWork } from './works';
 
@@ -737,13 +738,16 @@ export function fetchFootnotes(work: string): Promise<Record<string, string>> {
   const p = fetch(`${workBase(work)}/footnotes.json`).then(r => {
     if (!r.ok) throw new Error(`${work} footnotes: ${r.status}`);
     return r.json();
-  }).then((map: Record<string, string>) =>
+  }).then((map: Record<string, string>) => {
     // The NE (Ostwald) footnotes reference glossary entries ("see Glossary,
     // <term>"); turn those into links to the standalone glossary page.
-    work === 'EN'
+    const linked = work === 'EN'
       ? Object.fromEntries(Object.entries(map).map(([k, v]) => [k, linkifyGlossaryRefs(v)]))
-      : map
-  );
+      : map;
+    // Astra lane A, F4: drama works used to return the map unchanged, so
+    // event-handler attributes in footnote HTML reached {@html} intact.
+    return Object.fromEntries(Object.entries(linked).map(([k, v]) => [k, sanitizeHtml(v)]));
+  });
   // Evict a rejected fetch so it can be retried (don't cache the failure).
   p.catch(() => { if (_footnotesCache.get(work) === p) _footnotesCache.delete(work); });
   _footnotesCache.set(work, p);
