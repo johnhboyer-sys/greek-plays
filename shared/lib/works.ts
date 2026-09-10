@@ -118,11 +118,13 @@ export interface Work {
   alsoCredits?: string;
   blurb: string;    // one line for the home index
   // P4 plate fields (Greek drama): the production line (festival, date, prize
-  // — facts, "date unknown" where it is) and the one-line argument (DRAFT
-  // until John approves it; the plate marks the prefix). Both optional; only
-  // play-line works declare them.
+  // — facts, "date unknown" where it is), the one-line argument, and the
+  // synopsis printed under it (item 12, approved by John 2026-09-10). A
+  // "DRAFT —" prefix marks unapproved copy; the plate tags it. All optional;
+  // only play-line works declare them.
   production?: string;
   argument?: string;
+  synopsis?: string;
   // Most works are cited by Bekker (column:line). Plato is cited by Stephanus
   // page + section only — no user-facing line numbers at all (see
   // shared/lib/citation.ts). Default (omitted) = bekker.

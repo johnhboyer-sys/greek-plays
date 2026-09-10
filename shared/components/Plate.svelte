@@ -15,6 +15,9 @@
   export let title: string;
   export let authorName: string;
   export let argument: string | null = null;
+  // The paragraph under the argument: what happens, ending included
+  // (REVIEW-CHECKLIST 12).
+  export let synopsis: string | null = null;
   export let production: string | null = null;
   export let greekSource: string | null = null;
   export let translations: string[] = [];
@@ -72,8 +75,11 @@
   // Registry copy is DRAFT until John approves it (p4-plan): the prefix is
   // stripped from the sentence and shown as a tag after it, so the plate
   // never presents unapproved copy as final.
-  $: draft = /^DRAFT\s*[—–-]\s*/.test(argument ?? '');
-  $: argumentText = (argument ?? '').replace(/^DRAFT\s*[—–-]\s*/, '');
+  const DRAFT = /^DRAFT\s*[—–-]\s*/;
+  $: draft = DRAFT.test(argument ?? '');
+  $: argumentText = (argument ?? '').replace(DRAFT, '');
+  $: synopsisDraft = DRAFT.test(synopsis ?? '');
+  $: synopsisText = (synopsis ?? '').replace(DRAFT, '');
   $: citeAs = copyAbbr && lastLine ? `${copyAbbr} 1–${lastLine}` : null;
   // Defensive: a slot outside the palette would resolve to an undefined
   // custom property and paint the cast initial in the inherited ink.
@@ -91,6 +97,9 @@
     <div class="plate-main">
       {#if argumentText}
         <p class="plate-arg">{argumentText}{#if draft}<span class="plate-draft">draft</span>{/if}</p>
+      {/if}
+      {#if synopsisText}
+        <p class="plate-syn">{synopsisText}{#if synopsisDraft}<span class="plate-draft">draft</span>{/if}</p>
       {/if}
       {#if persons.length}
         <h3 class="plate-h">Persons</h3>

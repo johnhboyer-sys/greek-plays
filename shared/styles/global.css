@@ -2429,6 +2429,14 @@ body {
   padding: .06em .1em 0 0;
   color: var(--accent);
 }
+/* The synopsis: body-size prose under the argument, closer to it than the
+   argument sits to the cast. */
+.plate-syn {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin: -.6rem 0 1.6rem;
+  max-width: 60ch;
+}
 .plate-draft {
   font-size: .75rem;
   font-style: italic;

@@ -796,3 +796,4 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
   lacuna-only segment's citation.
 - `scripts/check-links.mjs` — 2026-09-08: a bare `?loc=N` on a play-line work is accepted when the page carries the line id `L<N>-<n>` or a range id `L<a>-<b>-<n>` with a ≤ N ≤ b (the reader's resolvePlayLineRef lands there); `col-N` exists only where a segment begins at N. Was 2,490 false positives; now 0 broken.
 - `scripts/emit-wing.mjs` (new) + `scripts/build-public.mjs` — P6 2026-09-08: the Drama wing's snapshot.v1 entry is emitted from the manifests (build/dist/wing.drama.json) and validated in build:public; handoff note docs/lyceum-handoff.md.
+- `shared/lib/works.ts`, `shared/components/Plate.svelte`, `app/src/components/ReaderShell.astro`, `shared/styles/global.css`, `shared/__tests__/plate.test.ts` — REVIEW-CHECKLIST 12, 2026-09-10: the registry's optional `synopsis` prints under the argument on the plate (`.plate-syn`), with the same DRAFT-prefix tag rule.

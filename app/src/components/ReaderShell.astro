@@ -851,6 +851,7 @@ const intro =
       title={work.title}
       authorName={authorName}
       argument={work.argument ?? null}
+      synopsis={work.synopsis ?? null}
       production={work.production ?? null}
       greekSource={work.greekSource.full}
       translations={visibleTranslations(work).map((t) => (t.alignment ? `${t.name} — Aligned by ${t.alignment}` : t.name))}

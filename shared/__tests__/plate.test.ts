@@ -98,6 +98,18 @@ describe('Plate.svelte', () => {
     expect(container.querySelector('.plate-arg')!.textContent).toBe('Agamemnon comes home from Troy.');
   });
 
+  it('prints the synopsis straight under the argument, tagged only while DRAFT', () => {
+    const synopsis = 'A watchman sees the beacon. Clytaemestra kills Agamemnon in his bath.';
+    const { container } = render(Plate, { props: { ...props, synopsis } });
+    const syn = container.querySelector('.plate-syn')!;
+    expect(syn.previousElementSibling!.classList.contains('plate-arg')).toBe(true);
+    expect(syn.textContent).toBe(synopsis);
+    const drafted = render(Plate, { props: { ...props, synopsis: `DRAFT — ${synopsis}` } }).container;
+    expect(drafted.querySelector('.plate-syn')!.textContent).toBe(`${synopsis}draft`);
+    // No synopsis in the registry, no empty paragraph.
+    expect(render(Plate, { props }).container.querySelector('.plate-syn')).toBeNull();
+  });
+
   it('cites the play by its abbreviation and printed extent', () => {
     const { container } = render(Plate, { props });
     const cite = Array.from(container.querySelectorAll('.plate-margin p'))
