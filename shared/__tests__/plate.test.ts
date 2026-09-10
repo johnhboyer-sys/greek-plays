@@ -108,6 +108,10 @@ describe('Plate.svelte', () => {
     expect(drafted.querySelector('.plate-syn')!.textContent).toBe(`${synopsis}draft`);
     // No synopsis in the registry, no empty paragraph.
     expect(render(Plate, { props }).container.querySelector('.plate-syn')).toBeNull();
+    // The argument contains its floated initial, so a one-line argument
+    // cannot leave the drop cap hanging beside the synopsis.
+    const arg = GLOBAL_CSS.slice(GLOBAL_CSS.indexOf('.plate-arg {'));
+    expect(arg.slice(0, arg.indexOf('}'))).toMatch(/display:\s*flow-root/);
   });
 
   it('cites the play by its abbreviation and printed extent', () => {

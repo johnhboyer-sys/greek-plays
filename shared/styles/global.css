@@ -2415,6 +2415,9 @@ body {
   padding: 2.1rem 2.5rem 2.5rem;
 }
 .plate-arg {
+  /* Contains the floated initial, so a one-line argument cannot leave it
+     hanging into the synopsis below (Grok review, 2026-09-10). */
+  display: flow-root;
   font-size: 1.25rem;
   line-height: 1.5;
   margin: 0 0 1.6rem;
