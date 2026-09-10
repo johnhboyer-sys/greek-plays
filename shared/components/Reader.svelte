@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -1777,12 +1777,17 @@
   // lead-ins fall out of the same slices. Null when fewer than two ticks
   // map (the ordinary one-row segment, or a turn-text chunk with no ticks).
   function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource): PlayRow[] | null {
-    const ticks = (source.ticks ?? []).filter((tk) => tk.real).sort((a, b) => a.offset - b.offset);
-    if (ticks.length < 2 || items.length < 2) return null;
+    const realTicks = (source.ticks ?? []).filter((tk) => tk.real);
+    if (realTicks.length < 2 || items.length < 2) return null;
     const lineInt = (line: RLine): number | null => {
       const m = /^(\d+)/.exec(line.ref ?? '');
       return m ? Number(m[1]) : line.n;
     };
+    // John, 2026-09-10: cut only where a sentence or speech begins, each start
+    // on the Greek line interpolated between the markers (sentenceTicks), so
+    // a marker mid-sentence no longer breaks the sentence across a gap.
+    const lastN = Math.max(0, ...items.map((it) => (it.kind === 'line' ? lineInt(it.line) ?? 0 : 0)));
+    const ticks = sentenceTicks(source.text, realTicks, source.turns.map((tu) => tu.offset), lastN + 1);
     // The first item printing each anchored line number.
     const itemOfN = new Map<number, number>();
     items.forEach((it, i) => {

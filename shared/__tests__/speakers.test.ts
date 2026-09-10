@@ -1167,3 +1167,39 @@ describe('englishFlow — facing-page pushes for play rows (John, 2026-09-09)', 
     expect(m.englishFlow([{ greekTop: 0, greekHeight: 30, englishHeight: 0 }], 8)).toEqual({ pushes: [0], paddingBottom: 0 });
   });
 });
+
+describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-09-10)', () => {
+  it('places each sentence on the Greek line interpolated between the markers (Rhesus 1-10)', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    const text = 'Go to Hector’s couch. Which of you squires that tend the prince, or you armor-clad men, is awake? '
+      + 'He ought to receive fresh tidings from the warriors who were set to guard the assembly. Hector! It is time to hearken.';
+    const at = (s: string) => text.indexOf(s);
+    // Coleridge as Perseus encodes him: markers at 1, 5 and 10 only; the one
+    // at 5 falls mid-sentence ("fresh tidings ‖ from the warriors").
+    const out = sentenceTicks(text, [{ n: 1, offset: 0 }, { n: 5, offset: at('from the') }, { n: 10, offset: at('Hector!') }], [], 11);
+    expect(out).toEqual(expect.arrayContaining([
+      { n: 1, offset: 0 },
+      { n: 2, offset: at('Which') },
+      { n: 4, offset: at('He ought') },
+      { n: 10, offset: at('Hector!') },
+    ]));
+    // No cut at the mid-sentence marker.
+    expect(out.some((t) => t.offset === at('from the'))).toBe(false);
+  });
+
+  it('never cuts at a marker inside a sentence (Persians 135, "husbands; ‖ each")', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    const text = 'And marriage-beds are filled with tears through longing for husbands; each Persian woman has sent her consort.';
+    expect(sentenceTicks(text, [{ n: 133, offset: 0 }, { n: 135, offset: text.indexOf('each') }], [], 140))
+      .toEqual([{ n: 133, offset: 0 }]);
+  });
+
+  it('treats a speech start as a sentence start, and cuts nothing before the first marker', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    const text = 'Sentinels of the army. why this haste? Be of good courage.';
+    const out = sentenceTicks(text, [{ n: 15, offset: text.indexOf('Be of') }], [text.indexOf('why')], 17);
+    // 'why' opens a speech (lower-case, but a turn starts there); it precedes
+    // the only marker, so it has no line to interpolate from and cuts nothing.
+    expect(out).toEqual([{ n: 15, offset: text.indexOf('Be of') }]);
+  });
+});

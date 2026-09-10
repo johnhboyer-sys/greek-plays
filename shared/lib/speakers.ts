@@ -1013,3 +1013,42 @@ export function englishFlow(
   return { pushes, paddingBottom: Math.max(0, englishEnd - greekEnd) };
 }
 
+/** Where a line-keyed translation's English is cut into rows (John,
+ *  2026-09-10). The prose translations (Smyth, Jebb, Coleridge) mark a Greek
+ *  line only every five lines or so, and a marker often falls mid-sentence
+ *  ("Where does Hector ‖ take his rest"); cutting there broke the sentence
+ *  across a gap. Instead: cut only where a sentence or a speech begins, and
+ *  give each such start the Greek line it most likely renders, interpolated
+ *  by its place in the text between the markers either side (the last marker
+ *  runs to `endN`, the line after the segment's last). A marker that falls
+ *  exactly on a sentence start keeps its own line; one mid-sentence cuts
+ *  nothing but still steers the estimate. For now: a real line-by-line
+ *  alignment would replace this. */
+export function sentenceTicks(
+  text: string,
+  ticks: readonly { n: number; offset: number }[],
+  turnOffsets: readonly number[],
+  endN: number,
+): { n: number; offset: number }[] {
+  if (!ticks.length) return [];
+  const skipSpace = (o: number) => { while (o < text.length && /\s/.test(text[o]!)) o += 1; return o; };
+  const anchors = [...ticks]
+    .map((t) => ({ n: t.n, off: skipSpace(t.offset) }))
+    .sort((a, b) => a.off - b.off);
+  const last = anchors[anchors.length - 1]!;
+  const span = endN > last.n ? [...anchors, { n: endN, off: text.length }] : anchors;
+  const starts = new Set<number>([0, ...turnOffsets.filter((o) => o > 0 && o < text.length).map(skipSpace)]);
+  for (const m of text.matchAll(/[.!?]["'’”»)\]]*\s+(?=["'‘“«(\[]?\p{Lu})/gu)) starts.add(m.index! + m[0].length);
+  const out: { n: number; offset: number }[] = [];
+  for (const s of [...starts].sort((a, b) => a - b)) {
+    const exact = anchors.find((a) => a.off === s);
+    if (exact) { out.push({ n: exact.n, offset: s }); continue; }
+    const k = span.findIndex((a, i) => a.off <= s && (span[i + 1]?.off ?? Infinity) > s);
+    const a = span[k];
+    const b = span[k + 1];
+    if (!a || !b || b.off === a.off) continue; // before the first marker, or past the text
+    out.push({ n: Math.round(a.n + ((s - a.off) / (b.off - a.off)) * (b.n - a.n)), offset: s });
+  }
+  return out;
+}
+
