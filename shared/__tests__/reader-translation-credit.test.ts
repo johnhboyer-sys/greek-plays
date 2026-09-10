@@ -339,18 +339,17 @@ describe('Reader.svelte — copy path attaches a credited passage\'s translation
     );
   });
 
-  // The regression that matters: a passage under the work's own primary
-  // translation (no column_sources override at all) is unchanged — exactly
-  // as before this fix, handleCopy never calls setData/preventDefault for an
-  // English-only selection with no per-passage credit, leaving the
-  // browser's own default copy (the plain selected text, untouched) to
-  // happen instead.
-  it('English-only selection of an uncredited passage (B12) leaves the default copy untouched', async () => {
+  // Astra lane A, F6: ordinary (uncredited) English still gets a citation
+  // and a `tr. <registry name>` line when citeCopy is on — the setting is
+  // the gate, not the presence of a per-passage credit.
+  it('English-only selection of an uncredited passage (B12) appends a citation and tr. credit', async () => {
     render(Reader, { props: { work: 'CREDFIX', bookNum: 1, bookData: bookWith() } });
     await flush();
     selectEnglishOf('B12');
     const copied = fireCopy();
-    expect(copied).toBeUndefined();
+    expect(copied).toContain('The primary translation, uncredited per passage.');
+    expect(copied).toContain('(Fix. B B12)');
+    expect(copied).toContain('tr. Primary Translator (Press, 1900)');
   });
 
   // Fix round, finding 1 (Sol xhigh review): the prior handleCopy resolved

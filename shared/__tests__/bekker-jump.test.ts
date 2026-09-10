@@ -38,6 +38,8 @@ vi.mock('../lib/works', async (importOriginal) => {
         ? ({ id: 'DottedWork', title: 'Test Notebook', books: 12, citation: { scheme: 'book-section' } } as ReturnType<typeof actual.getWork>)
         : id === 'VerseWork'
         ? ({ id: 'VerseWork', title: 'Test Poem', books: 6, citation: { scheme: 'verse-line' } } as ReturnType<typeof actual.getWork>)
+        : id === 'PlayLineWork'
+        ? ({ id: 'PlayLineWork', title: 'Test Play', books: 1, citation: { scheme: 'play-line' } } as ReturnType<typeof actual.getWork>)
         : id === 'EN'
         ? ({ id: 'EN', title: 'Test Treatise', books: 1 } as ReturnType<typeof actual.getWork>)
         : id in DK_WORKS
@@ -67,6 +69,10 @@ vi.mock('../lib/data', async (importOriginal) => {
         // used below for the DK full-citation-form jump tests ("DK 22 B30").
         : work === 'DkWork'
         ? { B30: [{ book: 1, lo: 1, hi: 1 }] }
+        : work === 'PlayLineWork'
+        // Segment-start keys only, as columns.json is for play-line works —
+        // Agamemnon prints 106-107 but the map has no such key.
+        ? { '1': [{ book: 1, lo: 1, hi: 1 }], '108': [{ book: 1, lo: 108, hi: 108 }] }
         : { '1097a': [{ book: 1, lo: 1, hi: 20 }] },
     ),
   };
@@ -250,6 +256,21 @@ describe('BekkerJump — scheme-aware citation entry', () => {
 
     expect(window.location.href).toContain('/dk-author/dkwork2/book/1');
     expect(window.location.href).toContain('loc=B1');
+  });
+
+  // Astra lane A, F9: a play-line printed range (Ag. 106-107) is a real
+  // lineref, not a verse-line lacuna column. ?loc= already accepts it;
+  // the jump box must not require columns.json membership.
+  it('accepts a play-line printed range ref that is not a columns.json key', async () => {
+    const onJump = vi.fn();
+    render(BekkerJump, { props: { work: 'PlayLineWork', inputId: 'bk-play-range', onJump } });
+    await fireEvent.click(screen.getByRole('button', { name: /Go to a line/ }));
+
+    const input = screen.getByLabelText('Jump to a line');
+    await fireEvent.input(input, { target: { value: '106-107' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+
+    expect(onJump).toHaveBeenCalledWith(1, '106-107', null);
   });
 
   it('leaves a non-range verse-line citation unaffected', async () => {

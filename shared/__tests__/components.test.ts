@@ -106,6 +106,16 @@ vi.mock('../lib/works', async (importOriginal) => {
       citation: { scheme: 'verse-line' },
       blurb: 'Fixture work for CommandPalette tests (verse-line scheme, lacuna ranges).',
     },
+    PlayLine: {
+      id: 'PlayLine', title: 'Fixture Play', abbr: 'Fix.', author: 'Test',
+      language: 'grc', workType: 'verse',
+      books: 1, bookLabels: ['1'],
+      greekEdition: 'Test edition',
+      greekSource: { short: 'Test', full: 'Test edition, full citation.' },
+      translations: [],
+      citation: { scheme: 'play-line', copyAbbr: 'Fix.' },
+      blurb: 'Fixture work for CommandPalette play-line range jumps (Astra lane A, F9).',
+    },
     // Two same-titled fixture works under different (real) authors — the
     // Search.svelte regression fixture below: two "Fragments" result groups
     // must be told apart by author, not just by title (John's screenshot
@@ -281,6 +291,10 @@ vi.mock('../lib/data', async (importOriginal) => {
     fetchColumns: vi.fn((work: string) =>
       work === 'Verse'
         ? Promise.resolve({ '1.1094-1101': [{ book: 1, lo: 1094, hi: 1101 }] })
+        : work === 'PlayLine'
+        // Segment-start keys only — Agamemnon prints 106-107 but the map
+        // has no such key (Astra lane A, F9).
+        ? Promise.resolve({ '1': [{ book: 1, lo: 1, hi: 1 }], '108': [{ book: 1, lo: 108, hi: 108 }] })
         : actual.fetchColumns(work),
     ),
     // Section-scheme outline (dk, stephanus, book-section, letter). Defaults
@@ -863,6 +877,51 @@ describe('CommandPalette.svelte — citation jump', () => {
     expect(onNavigate).toHaveBeenCalledWith(
       expect.stringContaining('/test-author/Verse/book/1?loc=1.101'),
     );
+  });
+
+  // Astra lane A, F9: a play-line printed range is a real lineref. The
+  // palette used to require columns.json membership (the verse-line lacuna
+  // check) and omit the jump, even though ?loc=106-107 already works.
+  it('offers a "Go to" item for a play-line printed range that is not a columns.json key', async () => {
+    const onNavigate = vi.fn();
+    render(CommandPalette, { props: { work: 'PlayLine', onNavigate } });
+
+    await fireEvent.keyDown(window, { key: 'k', metaKey: true });
+    const input = screen.getByRole('combobox');
+    await fireEvent.input(input, { target: { value: '106-107' } });
+
+    const item = await screen.findByText('Go to 106-107');
+    await fireEvent.click(item.closest('button')!);
+    expect(onNavigate).toHaveBeenCalledWith(
+      expect.stringContaining('/test-author/PlayLine/book/1?loc=106-107'),
+    );
+  });
+
+  // Astra lane A, F8 follow-up (D1): a later occurrence is saved as
+  // "803--2" so the hash lands on the second 803, but that suffix is an
+  // internal disambiguator — the resume detail must show the printed ref.
+  it('strips an occurrence suffix from the resume detail but keeps it on the hash', async () => {
+    localStorage.setItem('reader-book-seven-against-thebes', '1');
+    localStorage.setItem('reader-loc-seven-against-thebes', '803--2');
+    try {
+      const onNavigate = vi.fn();
+      render(CommandPalette, { props: { work: null, onNavigate } });
+
+      await fireEvent.keyDown(window, { key: 'k', metaKey: true });
+      const input = screen.getByRole('combobox');
+      await fireEvent.input(input, { target: { value: 'Seven Against Thebes' } });
+
+      const title = await screen.findByText('Seven Against Thebes');
+      const btn = title.closest('button')!;
+      expect(btn.querySelector('.cp-detail')?.textContent).toBe('resumes at 803');
+      expect(btn.querySelector('.cp-detail')?.textContent).not.toContain('--2');
+
+      await fireEvent.click(btn);
+      expect(onNavigate).toHaveBeenCalledWith(expect.stringContaining('#803--2'));
+    } finally {
+      localStorage.removeItem('reader-book-seven-against-thebes');
+      localStorage.removeItem('reader-loc-seven-against-thebes');
+    }
   });
 });
 

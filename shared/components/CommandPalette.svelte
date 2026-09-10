@@ -82,7 +82,10 @@
       // lookup below — see citation.ts's bookFromColumn doc comment.
       const direct = schemeFor(work).bookFromColumn(cite.column);
       let book: number | null;
-      if (direct != null && !cite.isRange) {
+      // Astra lane A, F9: a play-line printed range (Ag. 106-107) is a real
+      // lineref, not a verse-line lacuna column. ?loc= already accepts it;
+      // keep the columns-map membership check for every other scheme.
+      if (direct != null && (!cite.isRange || schemeFor(work).id === 'play-line')) {
         book = direct;
       } else {
         // A verse-line range ("1.1094-1101") is valid jump input only when
@@ -141,10 +144,14 @@
     for (const w of rankWorks(trimmed)) {
       const pos = resumeFor(w.id);
       const book = pos ? Math.min(Math.max(1, pos.book), w.books) : 1;
+      // Astra lane A, F8: a later occurrence is saved as "803--2" so the
+      // hash lands on the second 803; drop that suffix from the displayed
+      // resume text. The href keeps the full cite.
+      const displayCite = pos?.cite ? pos.cite.replace(/--\d+$/, '') : null;
       out.push({
         kind: 'work',
         label: w.title,
-        detail: pos?.cite ? `resumes at ${pos.cite}` : w.blurb,
+        detail: displayCite ? `resumes at ${displayCite}` : w.blurb,
         href: `${base}${workPath(w.id, book)}${pos?.cite ? `#${pos.cite}` : ''}`,
       });
     }

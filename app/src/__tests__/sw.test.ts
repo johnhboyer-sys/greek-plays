@@ -47,7 +47,20 @@ function start(source: string) {
   const net = { offline: false, calls: [] as string[] };
 
   const cache = {
-    match: async (req: unknown) => store.get(keyOf(req as { url: string })),
+    match: async (req: unknown, opts?: { ignoreSearch?: boolean }) => {
+      const key = keyOf(req as { url: string } | string);
+      if (store.has(key)) return store.get(key);
+      if (!opts?.ignoreSearch) return undefined;
+      let want: URL;
+      try { want = new URL(key); } catch { return undefined; }
+      for (const [k, v] of store) {
+        try {
+          const have = new URL(k);
+          if (have.origin === want.origin && have.pathname === want.pathname) return v;
+        } catch { /* skip non-URL keys such as the offline page path */ }
+      }
+      return undefined;
+    },
     put: async (req: unknown, res: unknown) => { store.set(keyOf(req as { url: string }), res); },
     addAll: async () => {},
   };
@@ -72,12 +85,14 @@ function start(source: string) {
 
   return {
     net,
+    seed(key: string, body: string) { store.set(key, makeResponse(body)); },
     async get(url: string, mode = 'cors') {
       const request = { method: 'GET', url, mode };
       let promise: Promise<unknown> | undefined;
       handlers.fetch({ request, respondWith: (p: Promise<unknown>) => { promise = p; } });
       if (promise === undefined) return { handled: false, body: null };
-      return { handled: true, body: ((await promise) as { body: string }).body };
+      const resolved = await promise;
+      return { handled: true, body: (resolved as { body: string } | undefined)?.body ?? null };
     },
   };
 }
@@ -133,3 +148,31 @@ describe('postbuild-sw', () => {
     expect(() => build(R2, drifted)).toThrow();
   });
 });
+
+describe('service worker navigation fallback (Astra lane A, F11)', () => {
+  it('offline ?loc= jumps reuse the cached page, ignoring the query string', async () => {
+    const sw = start(build());
+    sw.seed('/offline.html', 'offline-html');
+    const page = `${ORIGIN}/aristophanes/frogs`;
+
+    const online = await sw.get(page, 'navigate');
+    expect(online.handled).toBe(true);
+    expect(online.body).toBe(`fresh:${page}`);
+
+    sw.net.offline = true;
+    const jumped = await sw.get(`${page}?loc=500`, 'navigate');
+    expect(jumped.handled).toBe(true);
+    expect(jumped.body).toBe(`fresh:${page}`);
+    expect(jumped.body).not.toBe('offline-html');
+  });
+
+  it('offline navigations still fall back to offline.html when no page is cached', async () => {
+    const sw = start(build());
+    sw.seed('/offline.html', 'offline-html');
+    sw.net.offline = true;
+    const miss = await sw.get(`${ORIGIN}/aristophanes/frogs?loc=500`, 'navigate');
+    expect(miss.handled).toBe(true);
+    expect(miss.body).toBe('offline-html');
+  });
+});
+

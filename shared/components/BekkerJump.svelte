@@ -56,7 +56,10 @@
     // lookup below — see citation.ts's bookFromColumn doc comment.
     const direct = citeScheme.bookFromColumn(ref.column);
     let book: number | null;
-    if (direct != null && !ref.isRange) {
+    // Astra lane A, F9: a play-line printed range (Ag. 106-107) is a real
+    // lineref, not a verse-line lacuna column. ?loc= already accepts it;
+    // keep the columns-map membership check for every other scheme.
+    if (direct != null && (!ref.isRange || citeScheme.id === 'play-line')) {
       book = direct;
     } else {
       const cols = columns ?? (await fetchColumns(work).catch(() => null));
