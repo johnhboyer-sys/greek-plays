@@ -512,6 +512,36 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     expect(rows[2].querySelector('.english-col')?.textContent).toContain('Only what?');
   });
 
+  it('keeps an editor\'s bracket with the share it opens, never on a line of its own (Rhesus 16)', async () => {
+    // Diggle prints "[ΧΟ. θάρσει. ΕΚ. θαρσῶ." -- the Chorus's siglum starts
+    // after the bracket, so a cut there stranded "[" as a printed line
+    // (John, 2026-09-10).
+    const book: BookData = {
+      book: 1,
+      speakerRoster: ['Chorus', 'Hector'],
+      segments: [{
+        id: '1:16',
+        column: '16',
+        greek: [{ n: 16, text: '[ θάρσει. θαρσῶ.', tokens: [], ref: '16' }],
+        speakers: [
+          { line: 16, offset: 2, label: 'ΧΟ.', display: 'Chorus' },
+          { line: 16, offset: 10, label: 'ΕΚ.', display: 'Hector' },
+        ],
+        english: {
+          text: 'Courage. I have it.', notes: [], markers: [],
+          turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }, { offset: 9, speaker: 'Hector', display: 'HECTOR' }],
+        },
+      }],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book } });
+    await flush();
+    const texts = [...container.querySelectorAll('.greek-line .line-text')].map((el) => el.textContent?.replace(/\s+/g, ' ').trim());
+    expect(texts).toHaveLength(2);
+    expect(texts).not.toContain('[');
+    expect(texts[0]).toMatch(/^\[ ?Χο\. ?θάρσει\.$/);
+    expect(texts[1]).toMatch(/^Εκ\. ?θαρσῶ\.$/);
+  });
+
   it('stacks a surplus English turn in the row of the last mapped line', async () => {
     // A fourth turn with no Greek event of its own: it belongs to line 7's row,
     // never to a row of its own and never back at the top.

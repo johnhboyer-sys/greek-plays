@@ -17,6 +17,7 @@ import ThemeToggle from './ThemeToggle.astro';
 import RunningHead from '@shared/components/RunningHead.svelte';
 import Plate from '@shared/components/Plate.svelte';
 import { assignSpeakerSlots } from '@shared/lib/speaker-colors';
+import { playSigla } from '@shared/lib/speakers';
 import { getWork, bookLabel, isBookless, workPath, workLanding, languageLabel, visibleTranslations, type Work } from '@shared/lib/works';
 import { getAuthor } from '@shared/lib/authors';
 import { schemeFor, navChipsNeedFullSectionList, dottedSectionChapter, unitNounFor, pageEntriesFor, nounForCount, lastPrintedRef } from '@shared/lib/citation';
@@ -217,8 +218,14 @@ const isPlayLine = work.citation?.scheme === 'play-line';
 // data-genre on <html> (accent BY GENRE, never by author — John).
 const genre = getAuthor(work.author)?.genre;
 const plateSlots = isPlayLine ? assignSpeakerSlots(roster) : new Map<string, number>();
+// Each person's Greek siglum, the same map the reader's gutter prints from
+// (Reader.svelte's playSigla over the book's speaker events), so the plate
+// reads "Chorus (Χο.)" exactly as the text does (John, 2026-09-10).
+const plateSigla = isPlayLine
+  ? playSigla((bookData.segments ?? []).flatMap((seg: { speakers?: { label: string; display?: string | null }[] }) => seg.speakers ?? []))
+  : new Map<string, string>();
 const platePersons = isPlayLine
-  ? roster.map((name) => ({ name, slot: plateSlots.get(name) ?? 0 }))
+  ? roster.map((name) => ({ name, slot: plateSlots.get(name) ?? 0, siglum: plateSigla.get(name) ?? null }))
   : [];
 const plateSegments: { column?: string; greek?: { ref?: string }[] }[] =
   isPlayLine ? bookData.segments ?? [] : [];

@@ -73,6 +73,20 @@ describe('Plate.svelte', () => {
       .toBe(`--spk: var(--spk-${s.get('Aegisthus')})`);
   });
 
+  it('prints each person\'s Greek siglum in parentheses: "Chorus (Χο.)" (John, 2026-09-10)', () => {
+    const roster = ['Watchman', 'Chorus', 'Elder 1', 'Elder 2', 'Messenger'];
+    const s = assignSpeakerSlots(roster);
+    const sig: Record<string, string> = { Watchman: 'Φυ.', Chorus: 'Χο.', 'Elder 1': '1.', 'Elder 2': '2.' };
+    const { container } = render(Plate, {
+      props: { ...props, persons: roster.map((name) => ({ name, slot: s.get(name)!, siglum: sig[name] ?? null })) },
+    });
+    const items = Array.from(container.querySelectorAll('.plate-cast li'));
+    // The collapsed family carries none (its members print different sigla);
+    // a person with no Greek siglum carries none.
+    expect(items.map((li) => li.textContent)).toEqual(['Watchman (Φυ.)', 'Chorus (Χο.)', 'Elders 1–2', 'Messenger']);
+    expect(items[1]!.querySelector('.plate-sigl')!.getAttribute('lang')).toBe('grc');
+  });
+
   it('leaves ordinal-word names and lone numbered entries alone', () => {
     const roster = ['First Innkeeper', 'Second Innkeeper', 'Elder 1'];
     const s = assignSpeakerSlots(roster);

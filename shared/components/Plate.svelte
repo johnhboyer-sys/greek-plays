@@ -30,7 +30,11 @@
   // The cast, in order of appearance (the book's own speakerRoster), each
   // with its palette slot from assignSpeakerSlots — the SAME slot the
   // reader tints that speaker's lead-in with.
-  export let persons: { name: string; slot: number }[] = [];
+  // `siglum`: the Greek abbreviation the reader's gutter prints for that
+  // speaker (playSigla), shown in parentheses after the name (John,
+  // 2026-09-10: "Chorus (Χο.)"). Absent for a person who never speaks in
+  // the Greek.
+  export let persons: { name: string; slot: number; siglum?: string | null }[] = [];
   // Anchor of line 1 (`#col-<first ref>`), so "Start reading →" scrolls
   // past the plate to the text.
   export let startHref: string;
@@ -52,13 +56,13 @@
       const base = NUMBERED.exec(p.name)?.[1];
       if (base) size.set(base, (size.get(base) ?? 0) + 1);
     }
-    const out: { key: string; label: string; slot: number | null }[] = [];
+    const out: { key: string; label: string; slot: number | null; siglum: string | null }[] = [];
     const done = new Set<string>();
     for (const p of persons) {
       const m = NUMBERED.exec(p.name);
       const base = m?.[1];
       if (!base || (size.get(base) ?? 0) < 2) {
-        out.push({ key: p.name, label: p.name, slot: p.slot });
+        out.push({ key: p.name, label: p.name, slot: p.slot, siglum: p.siglum ?? null });
         continue;
       }
       if (done.has(base)) continue;
@@ -67,7 +71,8 @@
         .map((q) => NUMBERED.exec(q.name))
         .filter((x): x is RegExpExecArray => !!x && x[1] === base)
         .map((x) => Number(x[2]));
-      out.push({ key: base, label: `${base}s ${Math.min(...ns)}–${Math.max(...ns)}`, slot: null });
+      // No siglum for a collapsed family: its members print different ones.
+      out.push({ key: base, label: `${base}s ${Math.min(...ns)}–${Math.max(...ns)}`, slot: null, siglum: null });
     }
     return out;
   })();
@@ -105,7 +110,7 @@
         <h3 class="plate-h">Persons</h3>
         <ul class="plate-cast">
           {#each cast as p (p.key)}
-            <li style={p.slot == null ? '--spk: var(--text-mid)' : slotVar(p.slot)}>{p.label}</li>
+            <li style={p.slot == null ? '--spk: var(--text-mid)' : slotVar(p.slot)}>{p.label}{#if p.siglum}{' '}<span class="plate-sigl" lang="grc">({p.siglum})</span>{/if}</li>
           {/each}
         </ul>
       {/if}

@@ -2102,7 +2102,11 @@
     for (const item of items) {
       if (item.kind !== 'line' || item.line.cont || item.line.role === 'lacuna' || item.line.role === 'context' || item.line.role === 'heading') { out.push(item); continue; }
       const evs = [...speakerEvents(seg, item.line)].sort((a, b) => a.offset - b.offset);
-      const cuts = [...new Set(evs.map((e) => e.offset).filter((o) => o > 0 && o < item.line.text.length))].sort((a, b) => a - b);
+      const allCuts = [...new Set(evs.map((e) => e.offset).filter((o) => o > 0 && o < item.line.text.length))].sort((a, b) => a - b);
+      // A cut with no letter before it (Rhesus 16, Diggle's "[ΧΟ. θάρσει.")
+      // would strand the bracket on a printed line of its own; the bracket
+      // stays with the share it opens (John, 2026-09-10).
+      const cuts = allCuts.filter((c, i) => /\p{L}/u.test(item.line.text.slice(i ? allCuts[i - 1] : 0, c)));
       if (!cuts.length) { out.push(item); continue; }
       const bounds = [0, ...cuts, item.line.text.length];
       for (let k = 0; k + 1 < bounds.length; k += 1) {
