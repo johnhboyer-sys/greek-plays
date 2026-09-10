@@ -240,6 +240,14 @@ export interface SearchResult {
   engPositions: number[]; // char offsets in the segment's English where a term matched
 }
 
+export interface SearchResponse {
+  results: SearchResult[];
+  // Work ids whose index failed to load. Empty when every selected play
+  // searched. Astra lane A, F10: returned alongside hits so the UI can name
+  // the skipped plays instead of looking complete.
+  failed: string[];
+}
+
 // Positions of a single term across segments: seg_idx → [token positions].
 function termPositions(idx: GrkIndex, term: string, lang: SourceLanguage): Map<number, number[]> {
   const m = new Map<number, number[]>();
@@ -398,9 +406,9 @@ export async function search(
   langOp: LangOp,
   works: string[],
   matchMode: MatchMode = 'lemma',
-): Promise<SearchResult[]> {
-  if (!grkQuery.trim() && !engQuery.trim()) return [];
-  if (!works.length) return [];
+): Promise<SearchResponse> {
+  if (!grkQuery.trim() && !engQuery.trim()) return { results: [], failed: [] };
+  if (!works.length) return { results: [], failed: [] };
 
   // Strip a leading '*' (Beta Code capital marker, e.g. *a)nqrwpos); the fold
   // form is caseless, and a leading wildcard would match everything anyway.
@@ -409,7 +417,7 @@ export async function search(
 
   // Bound how many works load at once, and let a single work's failed index
   // load drop just that work (logged) instead of rejecting the whole search.
-  let failures = 0;
+  const failedSet = new Set<string>();
   const perWork = await pool(works, 8, async w => {
     try {
       // Work language drives which fold function the query side uses
@@ -423,16 +431,16 @@ export async function search(
       return await searchWork(w, grkTerms, engTerms, grkMode, engMode, langOp, matchMode, lang);
     } catch (err) {
       console.warn(`search: skipping ${w} —`, err);
-      failures++;
+      failedSet.add(w);
       return [] as SearchResult[];
     }
   });
   // If EVERY work failed to load (e.g. offline, or a transient window mid-deploy
   // when the index JSONs are briefly unavailable), surface it as an error to
   // retry — not as an empty result that reads as a misleading "No passages
-  // found." A partial failure still returns what loaded.
-  if (failures === works.length) {
+  // found." A partial failure still returns what loaded, plus the skipped ids.
+  if (failedSet.size === works.length) {
     throw new Error('Could not load the search index — check your connection and try again.');
   }
-  return perWork.flat();
+  return { results: perWork.flat(), failed: works.filter((w) => failedSet.has(w)) };
 }

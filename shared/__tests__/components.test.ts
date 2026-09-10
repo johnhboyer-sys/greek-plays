@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import CommandPalette from '../components/CommandPalette.svelte';
 import Reader from '../components/Reader.svelte';
@@ -247,16 +247,19 @@ vi.mock('../lib/search', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/search')>();
   return {
     ...actual,
-    search: vi.fn(async () => [
-      {
-        work: 'EN',
-        meta: { id: 'seg1', book: 1, column: '1094a', head: 'λόγος', tokens: 'logos', english_head: 'Virtue (test) and κόσμος' },
-        grkMatch: true,
-        engMatch: true,
-        grkPositions: [0],
-        engPositions: [0],
-      },
-    ]),
+    search: vi.fn(async () => ({
+      failed: [] as string[],
+      results: [
+        {
+          work: 'EN',
+          meta: { id: 'seg1', book: 1, column: '1094a', head: 'λόγος', tokens: 'logos', english_head: 'Virtue (test) and κόσμος' },
+          grkMatch: true,
+          engMatch: true,
+          grkPositions: [0],
+          engPositions: [0],
+        },
+      ],
+    })),
   };
 });
 
@@ -318,18 +321,21 @@ describe('Search.svelte', () => {
   // ("Fragments — Book 1" twice). Each header must now name its author too.
   it('labels each result group with its author, disambiguating two same-titled works', async () => {
     const { search } = await import('../lib/search');
-    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      {
-        work: 'FragA',
-        meta: { id: 'seg1', book: 1, column: 'B1', head: 'πάντα', tokens: 'panta', english_head: 'All things' },
-        grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
-      },
-      {
-        work: 'FragB',
-        meta: { id: 'seg1', book: 1, column: 'B1', head: 'πάντα', tokens: 'panta', english_head: 'All things' },
-        grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
-      },
-    ]);
+    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      failed: [],
+      results: [
+        {
+          work: 'FragA',
+          meta: { id: 'seg1', book: 1, column: 'B1', head: 'πάντα', tokens: 'panta', english_head: 'All things' },
+          grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
+        },
+        {
+          work: 'FragB',
+          meta: { id: 'seg1', book: 1, column: 'B1', head: 'πάντα', tokens: 'panta', english_head: 'All things' },
+          grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
+        },
+      ],
+    });
 
     render(Search);
     await fireEvent.input(screen.getByLabelText('Greek'), { target: { value: 'panta' } });
@@ -373,13 +379,16 @@ describe('Search.svelte', () => {
         },
       ],
     });
-    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      {
-        work: 'DkFrag',
-        meta: { id: 'seg-b10', book: 1, column: 'B10', head: 'πάντα', tokens: 'panta', english_head: '' },
-        grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
-      },
-    ]);
+    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      failed: [],
+      results: [
+        {
+          work: 'DkFrag',
+          meta: { id: 'seg-b10', book: 1, column: 'B10', head: 'πάντα', tokens: 'panta', english_head: '' },
+          grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
+        },
+      ],
+    });
 
     const { container } = render(Search);
     await fireEvent.input(screen.getByLabelText('Greek'), { target: { value: 'panta' } });
@@ -411,13 +420,16 @@ describe('Search.svelte', () => {
         english: null,
       }],
     });
-    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      {
-        work: 'Marcus',
-        meta: { id: 'seg-4.23', book: 4, column: '4.23', head: 'ὅλων', tokens: 'holon', english_head: '' },
-        grkMatch: true, engMatch: false, grkPositions: [2], engPositions: [],
-      },
-    ]);
+    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      failed: [],
+      results: [
+        {
+          work: 'Marcus',
+          meta: { id: 'seg-4.23', book: 4, column: '4.23', head: 'ὅλων', tokens: 'holon', english_head: '' },
+          grkMatch: true, engMatch: false, grkPositions: [2], engPositions: [],
+        },
+      ],
+    });
 
     const { container } = render(Search);
     await fireEvent.input(screen.getByLabelText('Greek'), { target: { value: 'holon' } });
@@ -445,13 +457,16 @@ describe('Search.svelte', () => {
         english: null,
       }],
     });
-    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      {
-        work: 'SenLetter',
-        meta: { id: 'seg-47.1', book: 47, column: '47.1', head: 'placeholder', tokens: 'placeholder', english_head: '' },
-        grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
-      },
-    ]);
+    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      failed: [],
+      results: [
+        {
+          work: 'SenLetter',
+          meta: { id: 'seg-47.1', book: 47, column: '47.1', head: 'placeholder', tokens: 'placeholder', english_head: '' },
+          grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
+        },
+      ],
+    });
 
     const { container } = render(Search);
     await fireEvent.input(screen.getByLabelText('Greek'), { target: { value: 'placeholder' } });
@@ -460,6 +475,84 @@ describe('Search.svelte', () => {
     await waitFor(() => expect(container.querySelector('.book-name')).toBeTruthy());
     expect(container.querySelector('.book-name')!.textContent).toBe('Letter 47');
     expect(container.querySelector('.book-name')!.textContent).not.toContain('Book');
+  });
+});
+
+describe('Search.svelte partial index failures (Astra lane A, F10)', () => {
+  const hit = {
+    work: 'agamemnon',
+    meta: { id: 'seg1', book: 1, column: '1', head: 'λόγος', tokens: 'logos', english_head: '' },
+    grkMatch: true, engMatch: false, grkPositions: [0], engPositions: [],
+  };
+
+  afterEach(async () => {
+    cleanup();
+    const { search } = await import('../lib/search');
+    (search as unknown as ReturnType<typeof vi.fn>).mockImplementation(async () => ({
+      failed: [] as string[],
+      results: [
+        {
+          work: 'EN',
+          meta: { id: 'seg1', book: 1, column: '1094a', head: 'λόγος', tokens: 'logos', english_head: 'Virtue (test) and κόσμος' },
+          grkMatch: true, engMatch: true, grkPositions: [0], engPositions: [0],
+        },
+      ],
+    }));
+  });
+
+  it('names skipped plays and offers Retry when some indexes fail', async () => {
+    const { search } = await import('../lib/search');
+    (search as unknown as ReturnType<typeof vi.fn>).mockImplementation(async () => ({
+      results: [hit],
+      failed: ['frogs'],
+    }));
+
+    const { container } = render(Search);
+    const ui = within(container);
+    await fireEvent.input(ui.getByLabelText('Greek'), { target: { value: 'logos' } });
+    await fireEvent.click(ui.getByRole('button', { name: 'Search' }));
+
+    await waitFor(() => expect(container.textContent).toContain('Some plays could not be searched: Frogs.'));
+    const retry = container.querySelector('.retry-btn') as HTMLButtonElement;
+    expect(retry).toBeTruthy();
+    expect(retry.textContent).toBe('Retry');
+    expect(retry.getAttribute('type')).toBe('button');
+  });
+
+  it('joins two skipped titles with a comma and three with an Oxford comma', async () => {
+    const { search } = await import('../lib/search');
+    const mockSearch = search as unknown as ReturnType<typeof vi.fn>;
+    mockSearch.mockImplementation(async () => ({ results: [hit], failed: ['agamemnon', 'frogs'] }));
+    const two = render(Search);
+    const twoUi = within(two.container);
+    await fireEvent.input(twoUi.getByLabelText('Greek'), { target: { value: 'logos' } });
+    await fireEvent.click(twoUi.getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(two.container.textContent).toContain('Some plays could not be searched: Agamemnon, Frogs.'));
+    two.unmount();
+
+    mockSearch.mockImplementation(async () => ({
+      results: [hit],
+      failed: ['persians', 'agamemnon', 'frogs'],
+    }));
+    const three = render(Search);
+    const threeUi = within(three.container);
+    await fireEvent.input(threeUi.getByLabelText('Greek'), { target: { value: 'logos' } });
+    await fireEvent.click(threeUi.getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(three.container.textContent).toContain('Some plays could not be searched: Persians, Agamemnon, and Frogs.'));
+  });
+
+  it('shows no skip notice when every selected play searched', async () => {
+    const { search } = await import('../lib/search');
+    (search as unknown as ReturnType<typeof vi.fn>).mockImplementation(async () => ({
+      results: [hit],
+      failed: [],
+    }));
+    const { container } = render(Search);
+    const ui = within(container);
+    await fireEvent.input(ui.getByLabelText('Greek'), { target: { value: 'logos' } });
+    await fireEvent.click(ui.getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(container.querySelector('.result-count')).toBeTruthy());
+    expect(container.textContent).not.toContain('Some plays could not be searched');
   });
 });
 
@@ -498,13 +591,16 @@ describe('Search.svelte — per-passage credit on English hits (finding 1)', () 
     (fetchBook as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       book: 1, segments: [creditedSeg],
     });
-    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      {
-        work: 'CredWork',
-        meta: { id: 'seg-cred', book: 1, column: 'B11', head: 'πάντα', tokens: 'panta', english_head: creditedSeg.english.text },
-        grkMatch: false, engMatch: true, grkPositions: [], engPositions: [11],
-      },
-    ]);
+    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      failed: [],
+      results: [
+        {
+          work: 'CredWork',
+          meta: { id: 'seg-cred', book: 1, column: 'B11', head: 'πάντα', tokens: 'panta', english_head: creditedSeg.english.text },
+          grkMatch: false, engMatch: true, grkPositions: [], engPositions: [11],
+        },
+      ],
+    });
 
     const { container } = render(Search);
     await fireEvent.input(screen.getByLabelText('English'), { target: { value: 'courage' } });
@@ -523,13 +619,16 @@ describe('Search.svelte — per-passage credit on English hits (finding 1)', () 
     (fetchBook as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       book: 1, segments: [plainSeg],
     });
-    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      {
-        work: 'CredWork',
-        meta: { id: 'seg-plain', book: 1, column: 'B12', head: 'x', tokens: 'x', english_head: plainSeg.english.text },
-        grkMatch: false, engMatch: true, grkPositions: [], engPositions: [6],
-      },
-    ]);
+    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      failed: [],
+      results: [
+        {
+          work: 'CredWork',
+          meta: { id: 'seg-plain', book: 1, column: 'B12', head: 'x', tokens: 'x', english_head: plainSeg.english.text },
+          grkMatch: false, engMatch: true, grkPositions: [], engPositions: [6],
+        },
+      ],
+    });
 
     const { container } = render(Search);
     await fireEvent.input(screen.getByLabelText('English'), { target: { value: 'translation' } });
@@ -548,18 +647,21 @@ describe('Search.svelte — per-passage credit on English hits (finding 1)', () 
     (fetchBook as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       book: 1, segments: [creditedSeg, plainSeg],
     });
-    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      {
-        work: 'CredWork',
-        meta: { id: 'seg-cred', book: 1, column: 'B11', head: 'πάντα', tokens: 'panta', english_head: creditedSeg.english.text },
-        grkMatch: false, engMatch: true, grkPositions: [], engPositions: [11],
-      },
-      {
-        work: 'CredWork',
-        meta: { id: 'seg-plain', book: 1, column: 'B12', head: 'x', tokens: 'x', english_head: plainSeg.english.text },
-        grkMatch: false, engMatch: true, grkPositions: [], engPositions: [6],
-      },
-    ]);
+    (search as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      failed: [],
+      results: [
+        {
+          work: 'CredWork',
+          meta: { id: 'seg-cred', book: 1, column: 'B11', head: 'πάντα', tokens: 'panta', english_head: creditedSeg.english.text },
+          grkMatch: false, engMatch: true, grkPositions: [], engPositions: [11],
+        },
+        {
+          work: 'CredWork',
+          meta: { id: 'seg-plain', book: 1, column: 'B12', head: 'x', tokens: 'x', english_head: plainSeg.english.text },
+          grkMatch: false, engMatch: true, grkPositions: [], engPositions: [6],
+        },
+      ],
+    });
 
     render(Search);
     await fireEvent.input(screen.getByLabelText('English'), { target: { value: 'translation' } });

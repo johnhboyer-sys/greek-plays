@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import { fetchFootnotes } from '../lib/data';
+  import { sanitizeHtml } from '../lib/html';
 
   export let work: string = 'EN';
   export let n: string;             // full label identity, e.g. "1", "2.3.1", "*"
@@ -74,12 +75,13 @@
       __READER_IMPORT_FOOTNOTE_HOOK__?: (work: string, id: string, label: string) => string | null;
     }).__READER_IMPORT_FOOTNOTE_HOOK__;
     const note = hook ? hook(work, transId, n) : null;
-    html = note ?? '';
+    // Astra lane A, F4: every lookup path sanitizes before {@html}.
+    html = sanitizeHtml(note ?? '');
     if (!html) error = `Footnote ${display} not found.`;
     loading = false;
   } else {
     fetchFootnotes(work)
-      .then(map => { html = map[n] ?? ''; if (!html) error = `Footnote ${display} not found.`; })
+      .then(map => { html = sanitizeHtml(map[n] ?? ''); if (!html) error = `Footnote ${display} not found.`; })
       .catch(e => { error = String(e); })
       .finally(() => { loading = false; });
   }
@@ -106,10 +108,13 @@
     }
     const first = els[0];
     const last = els[els.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
+    const active = document.activeElement;
+    // Astra lane A, F12: mount focuses the dialog itself (tabindex=-1), which
+    // is not in the descendant control list; wrap Tab/Shift-Tab from there too.
+    if (e.shiftKey && (active === first || active === dialogEl)) {
       e.preventDefault();
       last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
+    } else if (!e.shiftKey && (active === last || active === dialogEl)) {
       e.preventDefault();
       first.focus();
     }

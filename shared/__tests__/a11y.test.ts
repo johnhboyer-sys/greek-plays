@@ -1,5 +1,5 @@
 import axe from 'axe-core';
-import { cleanup, render, screen } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import FootnotePopup from '../components/FootnotePopup.svelte';
 import Reader from '../components/Reader.svelte';
@@ -41,16 +41,19 @@ vi.mock('../lib/search', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/search')>();
   return {
     ...actual,
-    search: vi.fn(async () => [
-      {
-        work: 'EN',
-        meta: { id: 'seg1', book: 1, column: '1094a', head: 'λόγος', tokens: 'logos', english_head: 'Virtue and κόσμος' },
-        grkMatch: true,
-        engMatch: true,
-        grkPositions: [0],
-        engPositions: [0],
-      },
-    ]),
+    search: vi.fn(async () => ({
+      failed: [] as string[],
+      results: [
+        {
+          work: 'EN',
+          meta: { id: 'seg1', book: 1, column: '1094a', head: 'λόγος', tokens: 'logos', english_head: 'Virtue and κόσμος' },
+          grkMatch: true,
+          engMatch: true,
+          grkPositions: [0],
+          engPositions: [0],
+        },
+      ],
+    })),
   };
 });
 
@@ -114,6 +117,37 @@ describe('component accessibility', () => {
 
     await screen.findByText('Test footnote text.');
     await expectNoSeriousAxeViolations(container);
+  });
+
+  it('keeps Tab and Shift-Tab inside the footnote dialog (Astra lane A, F12)', async () => {
+    const { fetchFootnotes } = await import('../lib/data');
+    (fetchFootnotes as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      '1': '<p>Note with a <a href="/glossary">glossary link</a>.</p>',
+    });
+    const { container } = render(FootnotePopup, {
+      props: {
+        work: 'EN',
+        n: '1',
+        anchor: { x: 0, y: 0 },
+        onClose: vi.fn(),
+      },
+    });
+    await screen.findByText('glossary link');
+    const dialog = container.querySelector('[role="dialog"]') as HTMLElement;
+    const closeBtn = container.querySelector('.popup-close') as HTMLElement;
+    const link = container.querySelector('.footnote-text a') as HTMLElement;
+    expect(dialog).toBeTruthy();
+    expect(closeBtn).toBeTruthy();
+    expect(link).toBeTruthy();
+    dialog.focus();
+    expect(document.activeElement).toBe(dialog);
+    await fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(link);
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    dialog.focus();
+    await fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: false });
+    expect(document.activeElement).toBe(closeBtn);
+    expect(dialog.contains(document.activeElement)).toBe(true);
   });
 
   it('Search has no serious or critical axe violations', async () => {

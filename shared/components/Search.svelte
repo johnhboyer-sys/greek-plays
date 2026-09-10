@@ -19,6 +19,14 @@
     return `${authorName} — ${w.title}`;
   }
 
+  // Astra lane A, F10: display titles, comma-separated; Oxford comma before
+  // the last when there are three or more.
+  function failedPlaysPhrase(ids: string[]): string {
+    const titles = ids.map((id) => getWork(id)?.title ?? id);
+    if (titles.length < 3) return titles.join(', ');
+    return `${titles.slice(0, -1).join(', ')}, and ${titles[titles.length - 1]}`;
+  }
+
   // One match occurrence, located precisely enough to label and jump to.
   interface Instance {
     lang: 'grk' | 'eng';
@@ -64,6 +72,7 @@
   let loading = false;                    // running the index search
   let searched = false;
   let error = '';
+  let failedWorks: string[] = [];
   let showHelp = false;
   let helpModal: HTMLDivElement;
   let helpTrigger: HTMLElement | null = null;
@@ -601,6 +610,7 @@
     error = '';
     pageError = '';
     csvNote = '';
+    failedWorks = [];
     searched = false;
     try {
       const works = WORKS.map(w => w.id).filter(id => selectedWorks.has(id));
@@ -613,7 +623,8 @@
           ? grkQuery.trim().split(/\s+/).filter(Boolean).map(accentNorm)
           : [],
       };
-      const results = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      const { results, failed } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      failedWorks = failed;
       totalInstances = results.reduce((n, r) => n + instCount(r), 0);
       pages = paginate(results);
       searched = true;
@@ -1000,6 +1011,12 @@
   {#if error}
     <p class="search-error">{error}</p>
   {:else if searched}
+    {#if failedWorks.length}
+      <p class="search-note warn">
+        Some plays could not be searched: {failedPlaysPhrase(failedWorks)}.
+        <button type="button" class="retry-btn" on:click={doSearch} disabled={loading}>Retry</button>
+      </p>
+    {/if}
     <div class="result-bar">
       <p class="result-count">
         {totalInstances === 0

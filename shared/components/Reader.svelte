@@ -1679,8 +1679,9 @@
   // measures each row and pushes an English paragraph down only as far as
   // the paragraph above it overruns (speakers.ts englishFlow). Re-run on any
   // resize of the grid; on a phone (stacked rows) it clears its work.
-  function playFlow(node: HTMLElement) {
+  function playFlow(node: HTMLElement, params: { view?: View } = {}) {
     let timer: ReturnType<typeof setTimeout> | 0 = 0;
+    let currentView = params.view;
     const phone = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 680px)').matches;
     const apply = () => {
       timer = 0;
@@ -1689,7 +1690,10 @@
         g: row.querySelector<HTMLElement>(':scope > .greek-col'),
         e: row.querySelector<HTMLElement>(':scope > .english-col > *'),
       }));
-      if (phone()) {
+      // Astra lane A, F1: English-only view hides the Greek cells, so measuring
+      // them yields a zero rectangle and facing-page pushes overlap speeches.
+      // Phone and English-only both let cells take their natural height.
+      if (phone() || currentView === 'english') {
         for (const c of cells) if (c.e) c.e.style.transform = '';
         node.style.paddingBottom = '';
         return;
@@ -1723,7 +1727,7 @@
     if (typeof window !== 'undefined') window.addEventListener('load', schedule, { once: true });
     if (typeof document !== 'undefined' && (document as any).fonts?.ready) (document as any).fonts.ready.then(schedule);
     return {
-      update: schedule,
+      update(next: { view?: View } = {}) { currentView = next.view; schedule(); },
       destroy() { ro?.disconnect(); if (timer) clearTimeout(timer); },
     };
   }
@@ -4325,7 +4329,7 @@
           {@const plRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
-            <div class="seg-row play-row-split" data-chapter={block.currentChapter} use:playFlow={plRows}>
+            <div class="seg-row play-row-split" data-chapter={block.currentChapter} use:playFlow={{ plRows, view }}>
               {#each plRows as row}
                 <div class="play-row">
                   <!-- No explicit grid placement: the two cells of every row
@@ -5167,6 +5171,9 @@
 <svelte:window on:pointerdown={onDocPointerDown} on:keydown={onLineNoteKey} />
 
 {#if footnote}
+  <!-- Astra lane A, F5: key by note identity so a new marker remounts the
+       popup (its fetch runs only at creation). -->
+  {#key `${work}:${footnote.transId}:${footnote.n}`}
   <FootnotePopup
     {work}
     n={footnote.n}
@@ -5176,6 +5183,7 @@
     onHoverIn={cancelFnClose}
     onHoverOut={scheduleFnClose}
   />
+  {/key}
 {/if}
 
 {#if copyBtnPos}
