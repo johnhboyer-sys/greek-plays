@@ -2131,7 +2131,11 @@ def test_resolve_covered_maps_first_line_refs_to_segments_and_fails_loud():
     assert m._resolve_covered([{"greek": "777", "by": "778"}], segments, "t") == {"1:777": "1:778"}
     joined = [{"id": "1:873-875", "lines": [{"n": 1, "ref": "873-875"}]}, {"id": "1:878", "lines": [{"n": 2, "ref": "878"}]}]
     assert m._resolve_covered([{"greek": "878", "by": "873"}], joined, "t") == {"1:878": "1:873-875"}
+    # A line that no longer opens a segment covers nothing (John, 2026-09-11:
+    # the 40-line cap now meets the English's speech starts, so declared
+    # openers can move inside a segment); a line the play lacks is a typo.
+    assert m._resolve_covered([{"greek": "779", "by": "778"}], segments, "t") == {}
     with pytest.raises(ValueError):
-        m._resolve_covered([{"greek": "779", "by": "778"}], segments, "t")
+        m._resolve_covered([{"greek": "999", "by": "778"}], segments, "t")
     with pytest.raises(ValueError):
         m._resolve_covered([{"greek": "777", "by": "777"}], segments, "t")

@@ -1443,7 +1443,42 @@ def _rejoin_play_line_hyphens(flat: list[dict]) -> None:
             m["offset"] = max(0, m["offset"] - removed)
 
 
-def _segment_play_lines(flat: list[dict]) -> list[dict]:
+def _speech_start_lines_from_tei(text: str) -> set[int]:
+    """The Greek line each `<sp>` of a Perseus play translation opens on (the
+    `n` of its first `<l n>`, a lettered "85a" read as 85). Those are the
+    places the translator starts a speech block, and so a sentence."""
+    out: set[int] = set()
+    for sp in re.finditer(r"<sp\b[^>]*>(.*?)</sp>", text, re.S):
+        m = re.search(r'<l\b[^>]*\bn="(\d+)', sp.group(1))
+        if m:
+            out.add(int(m.group(1)))
+    return out
+
+
+def _marked_lines_from_tei(text: str) -> set[int]:
+    """Every Greek line a Perseus play translation marks with `<l n>`."""
+    return {int(m.group(1)) for m in re.finditer(r'<l\b[^>]*\bn="(\d+)', text)}
+
+
+def _english_line_marks(manifest: Manifest) -> tuple[set[int], set[int]] | None:
+    """(speech-block starts, every marked line) of the work's primary
+    line-keyed English (Smyth, Jebb, Coleridge as Perseus encodes them), or
+    None for a turn-text primary (the comedies), which has no line markers."""
+    cfg = (manifest.data.get("english") or {}).get("primary") or {}
+    if cfg.get("model") != "perseus-play" or not cfg.get("source"):
+        return None
+    path = SOURCES_DIR / cfg["source"]
+    if not path.exists():
+        return None
+    text = path.read_text(encoding="utf-8")
+    return _speech_start_lines_from_tei(text), _marked_lines_from_tei(text)
+
+
+def _segment_play_lines(
+    flat: list[dict],
+    cut_lines: set[int] | None = None,
+    marked_lines: set[int] | None = None,
+) -> list[dict]:
     """Group play-line's dense-numbered flat list into per-speech segments
     (see the module-doc block above this section for the cut rule). Each
     segment's `column` is its OWN first line's printed ref — unique per
@@ -1456,11 +1491,28 @@ def _segment_play_lines(flat: list[dict]) -> list[dict]:
     scheme and Reader.svelte, never by this internal column string)."""
     seg_ids_seen: dict[str, int] = {}
     _SEGMENT_LINE_CAP = 40
+    # John, 2026-09-11 (Persians 83): a long speech cut at an arbitrary 40th
+    # line opened a segment whose English only began at the translator's
+    # next marker, a gap in both columns and a sentence broken across rows.
+    # With the primary English's speech-block starts known (`cut_lines`), a
+    # speech past the cap is cut only where the English opens a block; past
+    # the ceiling (a long messenger speech the translator never breaks), at
+    # the next line the English marks at all (`marked_lines`), so the new
+    # segment still opens where its English does; at the hard stop regardless.
+    _SEGMENT_LINE_CEILING = 80
+    _SEGMENT_LINE_STOP = 100
     segments: list[dict] = []
     cur: dict | None = None
     for i, entry in enumerate(flat, start=1):
         starts_new_speaker = bool(entry.get("speakers")) and entry["speakers"][0]["offset"] == 0
-        if cur is not None and (starts_new_speaker or len(cur["lines"]) >= _SEGMENT_LINE_CAP):
+        over = cur is not None and len(cur["lines"]) >= _SEGMENT_LINE_CAP
+        if over and cut_lines is not None and len(cur["lines"]) < _SEGMENT_LINE_STOP:
+            m = re.match(r"(\d+)", str(entry.get("ref", "")))
+            n = int(m.group(1)) if m else None
+            over = n in cut_lines
+            if not over and len(cur["lines"]) >= _SEGMENT_LINE_CEILING:
+                over = marked_lines is None or n in marked_lines
+        if cur is not None and (starts_new_speaker or over):
             segments.append(cur)
             cur = None
         if cur is None:
@@ -1530,7 +1582,8 @@ def _parse_spine_play(xml_path: Path, manifest: Manifest, sch) -> dict:
             f"but manifest declares {declared_blocks!r}"
         )
 
-    segments = _segment_play_lines(flat)
+    marks = _english_line_marks(manifest)
+    segments = _segment_play_lines(flat, *(marks or (None, None)))
     return {
         "work": manifest.work_id,
         "edition": manifest.data["work"]["greek_edition"],

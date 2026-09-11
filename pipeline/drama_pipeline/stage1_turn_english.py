@@ -1157,15 +1157,35 @@ def _resolve_covered(covered: list[dict], segments: list[dict], work_id: str) ->
             head = re.match(r"\d+", ref)
             if head:
                 first_ref.setdefault(head.group(0), seg["id"])
+    # Every printed ref -> the segment holding it (not only segment openers).
+    containing: dict[str, str] = {}
+    for seg in segments:
+        for l in seg.get("lines") or seg.get("greek") or []:
+            if isinstance(l, dict) and l.get("ref") is not None:
+                r = str(l["ref"])
+                containing.setdefault(r, seg["id"])
+                head = re.match(r"\d+", r)
+                if head:
+                    containing.setdefault(head.group(0), seg["id"])
     out: dict[str, str] = {}
     for item in covered:
         greek = str(item.get("greek", "")).strip()
         by = str(item.get("by", "")).strip()
-        if greek not in first_ref or by not in first_ref:
+        # A declared line that no longer OPENS a segment (the 40-line cap now
+        # meets the English's own speech starts, John, 2026-09-11: Alcestis
+        # 368, Seven 367) has nothing to cover: it sits inside a segment whose
+        # English is its own, and stage2's strict coverage still names any
+        # segment left without English. A line the play lacks is a typo.
+        if greek not in first_ref and greek in containing:
+            continue
+        # The covering block is whichever segment holds `by`, opener or not.
+        by_seg = first_ref.get(by) or containing.get(by)
+        if greek not in first_ref or by_seg is None:
             raise ValueError(f"{work_id}: covered {item!r}: no segment opens on line {greek if greek not in first_ref else by}")
         if greek == by:
             raise ValueError(f"{work_id}: covered {item!r}: a segment cannot cover itself")
-        out[first_ref[greek]] = first_ref[by]
+        if first_ref[greek] != by_seg:
+            out[first_ref[greek]] = by_seg
     return out
 
 
