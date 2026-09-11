@@ -1005,7 +1005,12 @@ export function englishFlow(
   let englishEnd = -Infinity;
   let greekEnd = 0;
   for (const r of rows) {
-    const push = Math.max(0, englishEnd + gap - r.greekTop);
+    // Pushed only when the English above actually runs past this row's Greek
+    // (more than a pixel), and only then by the gap as well: a one-line speech
+    // is as tall as its one Greek line, and adding the gap to every such row
+    // walked stichomythia down the page 8px a turn (John, 2026-09-11, Birds 48-53).
+    const over = englishEnd - r.greekTop;
+    const push = over > 1 ? over + gap : 0;
     pushes.push(r.englishHeight > 0 ? push : 0);
     if (r.englishHeight > 0) englishEnd = r.greekTop + push + r.englishHeight;
     greekEnd = Math.max(greekEnd, r.greekTop + r.greekHeight);

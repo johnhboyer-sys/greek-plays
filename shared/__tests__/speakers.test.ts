@@ -1166,6 +1166,18 @@ describe('englishFlow — facing-page pushes for play rows (John, 2026-09-09)', 
     // A row with no English pushes nothing and leaves the flow alone.
     expect(m.englishFlow([{ greekTop: 0, greekHeight: 30, englishHeight: 0 }], 8)).toEqual({ pushes: [0], paddingBottom: 0 });
   });
+
+  it('does not walk one-line stichomythia down the page (John, 2026-09-11, Birds 48-53)', async () => {
+    const m = await import('../lib/speakers');
+    // Each speech is exactly as tall as its one Greek line: no row overruns,
+    // so none is pushed (the gap once pushed each 8px further than the last).
+    const lh = 28.56;
+    const rows = [0, 1, 2, 3].map((k) => ({ greekTop: k * lh, greekHeight: lh, englishHeight: lh }));
+    expect(m.englishFlow(rows, 8.64).pushes).toEqual([0, 0, 0, 0]);
+    // A real overrun still pushes, by the overrun plus the gap.
+    const two = [{ greekTop: 0, greekHeight: lh, englishHeight: 2 * lh }, { greekTop: lh, greekHeight: lh, englishHeight: lh }];
+    expect(m.englishFlow(two, 8.64).pushes[1]).toBeCloseTo(lh + 8.64);
+  });
 });
 
 describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-09-10)', () => {
