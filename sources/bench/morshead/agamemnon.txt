@@ -114,9 +114,6 @@ Age wendeth propped its journey drear,
 As forceless as a child, as light
 And fleeting as a dream of night
 Lost in the garish day !
-1 “The flameless shrine” appears to be a metaphor for
-impious neglect of law : a ceremonial phrase with a moral
-import.
 But thou, O child of Tyndareus,
 Queen Clytemnestra, speak ! and say
 What messenger of joy to-day
@@ -813,7 +810,7 @@ His foemen’s foe, in all her duties leal,
 Trusty to keep for ten long years unmarred
 The store whereon he set his master-seal.
 Be steel deep-dyed, before ye look to see
-111 joy, ill fame, from other wight, in me ! 1
+Ill joy, ill fame, from other wight, in me !
 
 HERALD
 ’Tis fairly said : thus speaks a noble dame,
@@ -822,21 +819,6 @@ Nor speaks amiss, when truth informs the boast
 CHORUS
 So has she spoken — be it yours to learn
 By clear interpreters her specious word.
-requires explanation for its full force to be seen. It is, literally,
-‘ ' I know not pleasure, nor scandalous report, from another
-man, more than (I know) the dipping of bronze.” This most
-naturally seems to imply, not a known process, such as dipping
-metal to temper or harden it (cf. Othello , Act v. , Sc. 2 : “It
-is a sword of Spain, the ice-brook’s temper”), but some unknown or very difficult thing — perhaps the dyeing of metal
-throughout. Such, at least, is the meaning to the Herald, and
-through him, to Agamemnon. Meantime, as elsewhere in her
-speech, there is a “double entendre,” ominous to the chorus,
-who seem vaguely to know of her unfaithfulness, and to the
-Athenian audience, acquainted with the whole story, of thrilling
-effectiveness. ‘ * I know no more of evil report with any other
-man, than I know of imbruing the steel." Before long she
-will stand forth with the steel imbrued in her husband’s blood,
-and vaunting aloud her love for Ægisthus, her trusty paramour.
 Turn to me, herald — tell me if anon
 The second well-loved lord of Argos comes ?
 Hath Menelaus safely sped with you ?
@@ -937,9 +919,6 @@ On fleet, and host, and citadel,
 War, sprung from her, and death did lour.
 When from the bride-bed’s fine-spun veil
 She to the Zephyr spread her sail.
-1 In Memoriam , x. —
-Than if with thee the roaring wells
-Should gulf him fathom-deep in brine.
 Strong blew the breeze — the surge closed o’er
 The cloven track of keel and oar,
 But while she fled, there drove along,
@@ -1442,19 +1421,7 @@ CASSANDRA
 Apollo, Apollo !
 God of all ways, but only Death’s to me,
 Once and again, O thou, Destroyer named,
-Thou hast destroyed me, thou, my love of old ! 1
-the god who had endowed her with prophetic power, and then,
-angered by her rejection of his suit, caused her prophecy to be
-disbelieved — was called dyvLdrrjs, i.e. god of streets or ways ;
-and it was usual to erect a rough statue to him at particular
-points of a road. No doubt such a statue was to be seen in
-front of the palace of Atreus. Apollo also, as a name, is, or
-at any rate closely resembles, the Greek word for “ Destroyer”
-The office of a translator, never a very hopeful one, becomes
-despair itself in the endeavour to reproduce this scene. The
-ravings of Lear have not its terror, nor those of Ophelia or
-Gretchen its pathos. The language has put away the besetting
-sin of Æschylus’ earlier dramas — a certain grandiose and stilted
+Thou hast destroyed me, thou, my love of old !
 
 CHORUS
 She grows presageful of her woes to come,
@@ -1463,34 +1430,6 @@ Slave tho’ she be, instinct with prophecy.
 CASSANDRA
 Apollo, Apollo !
 God of all ways, but only Death’s to me,
-character : here it is alternately wild with the actual inspiration
-of prophecy, and piteous with the sense of weakness, of the
-inevitable doom, of the £x@L(rT7l obforj, i roXXd (fopoveovra piTjdevbs
-Kparbeiv — “the worst of agonies, to know much and yet to
-avail nought.” The cadence is sometimes one long sigh —
-loo fipbreia Tpay/xar • evrvxovvra fikv
-aiaq, ns hv 7 rp£
-sometimes a voice broken with thick sobs, —
-loo loo Xiyelas pibpov ayjbbvos •
-7 repipaXov yap ol irrepo^bpov 86/aas
-deol , yXvKiov r aloova KXavfiaroov drep —
-sometimes strong and queenly with pride and scorn, —
-avTT) dlirovs Xiaiva, avyKOLiioopi^rrj
-XiJKipy X£optos evyevovs airovaiq. —
-sometimes frantic with hysterical terror, —
-opare rovade, robs 86fJ,ois i<py]/ji6ifovs
-v6ovs, bvelpoov tt poacfoepeis ixopcjodofiaGiv ;
-lastly, grave with the pathos of confronted death, —
-tI 8t)t eyoo k&tolkos <2>5’ avaarevoo ;
-iirel rb irpoorov elbov ’IXlov iroXiv
-irpd^aaav 60s h rpa^ev, ol 5’ eXXov 7 r6Xiv,
-ovtoos air aXXdaaovcrLv iv OeCov Kpiaeiy
-lovaa irpa^oo, rX’/jcropLat rb Kardavetv .
-Here, therefore, the translator may be allowed to fall back upon
-the humbler task of telling the reader what is to be found in
-the original, before endeavouring to call up its ghost in English.
-7roXXa (ppovbovra /arjdevbs Kparteiv, is not a bad account of the
-process of translation, and nowhere more applicable than here.
 O thou Apollo, thou Destroyer named !
 What way hast led me, to what evil home ?
 
@@ -1833,14 +1772,6 @@ And now why mourn I, tarrying on earth,
 Since first mine Ilion has found its fate
 And I beheld, and those who won the wall
 Pass to such issue as the gods ordain ?
-1 Though the resemblance is probably accidental, it is
-impossible not to be reminded of this passage by the last farewell of Meg Merrilies (Guy Mannering , ch. 55) — “When I
-was in life, I was the mad randy gipsy, that had been scourged,
-and banished, and branded — that had begged from door to
-door, and been hounded like a stray tike from parish to parish
-— wha would hae minded her tale ? But now I am a dying
-woman, and my words will not fall to the ground, any more
-than the earth will cover my blood ! ”
 I too will pass and like them dare to die !
 Grant me one boon — a swift and mortal stroke,
 That all unwrung by pain, with ebbing blood
@@ -1900,17 +1831,8 @@ Nay, let me pass within to cry aloud
 The monarch’s fate and mine — enough of life.
 Ah friends !
 Bear to me witness, since I fall in death,
-That not as birds that shun the bush and scream 2
-1 The Syrian scent, to which the Chorus attribute Cassandra’s
-disgust (which is in reality the quickened and prophetic foresense of blood soon to be shed), is either from some perfume
-burning on the altars within, or possibly, as has been suggested
-to me, the scent of perfumed cedar boxes, in which the bright
-purples strewn upon the path have been preserved.
-2 “ Birds that shun the bush,” i. e. birds that have been
-limed in a bush. Cf. Henry VI . , Part iii. , Act v., Sc. 6 : —
-‘ ‘ The bird that hath been limed in a bush,
-With trembling wings misdoubteth every bush.”
-I moan in idle terror. This attest ^
+That not as birds that shun the bush and scream
+I moan in idle terror. This attest
 When for my deaths revenge another dies,
 A woman for a woman, and a man
 Falls, for a man ill-wedded to his curse.
@@ -2127,10 +2049,7 @@ Ah woe and well-a-day ! I would that Fate —
 Not bearing agony too great,
 Nor stretching me too long on couch of pain —
 Would bid mine eyelids keep
-The morningless and unawakening sleep ! 1
-3 “ For there thine earth-forgetting eyelids keep
-The morningless and unawakening sleep.”
-M. Arnold, Thyrsis.
+The morningless and unawakening sleep !
 For life is weary, now my lord is slain,
 The gracious among kings !
 Hard fate of old he bore and many grievous things,
@@ -2401,9 +2320,6 @@ CHORUS
 Ay, thou art one to hold an Argive down —
 Thou, skilled to plan the murder of the king,
 But not with thine own hand to smite the blow !
-1 The metaphor is from a Grecian trireme, which was rowed
-by three tiers of oars, the upper being considered the most
-honourable position.
 
 AEGISTHUS
 That fraudful force was woman’s very part,
