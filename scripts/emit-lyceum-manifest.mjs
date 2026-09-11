@@ -294,22 +294,31 @@ export function toLyceumManifest(ourManifest, work, author) {
   const language = mapLanguage(ourManifest.language);
   const books = citationBooks(ourManifest);
   const scheme = ourManifest.citation?.scheme ?? null;
+  // A single-book play-line work (a play) has no /book/1 page at all -- see
+  // app/src/pages/[author]/[work]/book/[n].astro's getStaticPaths, which
+  // skips `n=1` exactly under this same condition, and shared/lib/works.ts's
+  // workPath, the site's own single source of truth for reader URLs. The
+  // owner ruled 2026-09-11: advertise the bare work route for these works;
+  // the partner changes its reading-page template for plays to match.
+  const isBarePlayRoute = scheme === 'play-line' && books.length === 1;
   // Alias pages (/read/<author>/<work>/section-<n>) exist ONLY for
   // section-scheme works -- see app/src/pages/read/_section-routes.ts. Every
   // other scheme has no alias page, so pointing reading_route at the alias
   // form would advertise a 404; point it at the real, always-built reader
   // page instead (app/src/pages/[author]/[work]/book/[n].astro generates
   // /<author>/<work>/book/<n> for every work, n=1..books). The alias-form
-  // grammar for non-section schemes is not yet agreed with the partner --
-  // reading_route_note carries that caveat below.
+  // grammar for non-section, non-bare-play schemes is not yet agreed with
+  // the partner -- reading_route_note carries that caveat below.
   const readingRoute =
     scheme === 'section'
       ? books[0]?.start != null
         ? `/read${ourManifest.route}/section-${books[0].start}`
         : null
-      : books[0]?.n != null
-        ? `${ourManifest.route}/book/${books[0].n}`
-        : null;
+      : isBarePlayRoute
+        ? ourManifest.route
+        : books[0]?.n != null
+          ? `${ourManifest.route}/book/${books[0].n}`
+          : null;
 
   const result = {
     work: workKey,
@@ -338,7 +347,11 @@ export function toLyceumManifest(ourManifest, work, author) {
     generator: 'scripts/emit-lyceum-manifest.mjs',
   };
 
-  if (scheme && scheme !== 'section') {
+  if (isBarePlayRoute) {
+    result.reading_route_note =
+      'scheme play-line; single-book plays read at the bare work route -- ' +
+      'owner ruled the shorter address 2026-09-11, partner to accept it';
+  } else if (scheme && scheme !== 'section') {
     result.reading_route_note =
       `scheme ${scheme}; route grammar for this scheme not yet agreed`;
   }

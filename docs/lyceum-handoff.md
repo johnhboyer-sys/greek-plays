@@ -104,3 +104,15 @@ prefix is the honesty marker, not a bug.
 `build/dist` ≈ 181 MB before the public prune; site 1,272 pages + 44
 partner manifests; the R2 estimate in `docs/plan.md` (100–150 MB after
 prune) stands to be measured at P5.
+
+## Reading routes for plays (2026-09-11)
+
+Every play is a single-book `play-line` work, and the site builds no
+`/book/1` page for one (`app/src/pages/[author]/[work]/book/[n].astro`
+skips it; the play reads at its bare work route instead). The owner ruled
+2026-09-11: partner manifests for these 44 works now advertise the bare
+`reading_route` (`/<author>/<work>`, no `/book/1`) rather than a dead link.
+The partner's `reading_route` pattern must accept this shorter form. Every
+other work is unchanged: a multi-book work still advertises
+`/<author>/<work>/book/<n>`, and a section work still advertises
+`/read/<author>/<work>/section-<n>`.
