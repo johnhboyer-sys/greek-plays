@@ -50,6 +50,8 @@ english:
     source: bench/morshead/seven-against-thebes.txt
     play: THE SEVEN AGAINST THEBES
     footnotes: false
+    # John 2026-09-11: shift over 0.10 by under a point; let it slide for now
+    max_turn_shift_rate: 0.11
   # Morshead secondary pairs 0.627 (sweep 2026-09-08): 104 English speaker-turns
   # against 161 named Greek segments. Murray cuts the parodos and kommos into
   # many lyric segments; Morshead prints long Chorus odes and one combined

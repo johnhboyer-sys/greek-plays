@@ -81,6 +81,10 @@ english:
     source: "bench/hickie/thesmophoriazusae.txt"
     play: "THE THESMOPHORIAZUSAE"
     footnotes: false
+    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
+    min_pairing_rate: 0.68
+    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
+    max_turn_shift_rate: 0.16
   third:
     id: rogers
     name: "B. B. Rogers (Loeb, 1924)"

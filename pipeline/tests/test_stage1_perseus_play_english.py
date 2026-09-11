@@ -1421,6 +1421,59 @@ def test_attachment_loss_is_gated(tmp_path: Path, monkeypatch):
     assert allowed["checks"]["attachment_loss"]["ok"] is True
 
 
+def test_non_numeric_and_zero_n_prose_count_as_attachment_loss(
+    tmp_path: Path, monkeypatch
+):
+    """Astra lane C, F8: dropped nonempty <l> without a supported n is gated."""
+    from drama_pipeline.stage2_validate import _attachment_loss_check
+
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "λογος"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "A"}],
+            }
+        ],
+    }
+
+    def parse_tail(tail: str):
+        tei = (
+            "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\"><text><body>"
+            "<div type=\"translation\"><sp><speaker>A</speaker>"
+            f"<l n=\"1\">Kept.</l>{tail}</sp></div></body></text></TEI>"
+        )
+        return _parse(tmp_path, tei, spine, aliases={"A": "A"}, sigla={"A": "A"})
+
+    def gate(report: dict) -> dict:
+        _write_english_report(monkeypatch, tmp_path, report)
+        return _attachment_loss_check(_play_manifest(gaps=[]))
+
+    english, _f, report = parse_tail('<l n="2-3">Lost speech.</l>')
+    assert "Lost speech" not in english["chunks"][0]["text"]
+    assert any(a["kind"] == "non_numeric_anchor" for a in report["anomalies"])
+    check = gate(report)
+    assert check["ok"] is False
+    assert check["dropped"]["non_numeric_anchor"] == 1
+
+    english, _f, report = parse_tail("<l>Lost speech.</l>")
+    assert any(a["kind"] == "non_numeric_anchor" for a in report["anomalies"])
+    assert gate(report)["ok"] is False
+
+    english, _f, report = parse_tail('<l n="0">Lost speech.</l>')
+    assert "Lost speech" not in english["chunks"][0]["text"]
+    assert any(a["kind"] == "zero_n_content" for a in report["anomalies"])
+    assert gate(report)["ok"] is False
+
+    english, _f, report = parse_tail('<l n="0">A</l>')
+    assert not any(a["kind"] == "zero_n_content" for a in report["anomalies"])
+    assert "Kept." in english["chunks"][0]["text"]
+    assert gate({**report, "work": "test-play"})["ok"] is True
+
+
 def test_attachment_loss_fails_closed_without_this_works_report(
     tmp_path: Path, monkeypatch
 ):
@@ -1777,11 +1830,11 @@ def test_attribution_hole_is_counted_as_attachment_loss(tmp_path: Path, monkeypa
     check = result["checks"]["attachment_loss"]
     assert check["ok"] is False
     assert check["unresolved"] == 3
-    assert check["dropped"] == {
-        "unmatched_anchor": 1,
-        "nless_slice_unattached": 1,
-        "attribution_hole": 1,
-    }
+    assert check["dropped"]["unmatched_anchor"] == 1
+    assert check["dropped"]["nless_slice_unattached"] == 1
+    assert check["dropped"]["attribution_hole"] == 1
+    assert check["dropped"]["non_numeric_anchor"] == 0
+    assert check["dropped"]["zero_n_content"] == 0
     assert "3 English piece(s) attached to no Greek speech" in check["error"]
 
     manifest = _play_manifest(gaps=["1:5", "1:10"])

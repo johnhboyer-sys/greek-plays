@@ -58,6 +58,10 @@ english:
     source: "bench/hickie/acharnians.txt"
     play: "THE ACHARNIANS"
     footnotes: false
+    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
+    min_pairing_rate: 0.78
+    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
+    max_turn_shift_rate: 0.12
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

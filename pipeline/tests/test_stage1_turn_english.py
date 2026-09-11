@@ -663,6 +663,7 @@ def _stage2_with_report(
     report: dict,
     manifest: Manifest,
     unmatched_ids: tuple[str, ...] = (),
+    slot_reports: dict | None = None,
 ):
     from drama_pipeline import stage2_validate as s2
 
@@ -672,6 +673,8 @@ def _stage2_with_report(
         (stage1 / "english_report.json").write_text(
             json.dumps(report), encoding="utf-8"
         )
+    for name, data in (slot_reports or {}).items():
+        (stage1 / name).write_text(json.dumps(data), encoding="utf-8")
     monkeypatch.setattr(s2, "BUILD_DIR", tmp_path)
     spine = {
         "work": "test-play",
@@ -958,6 +961,7 @@ def test_stage2_turn_text_checks_fail_closed_without_this_works_report(
         "turn_text_length_ratio",
         "turn_text_turn_shift",
         "turn_text_residual_unassigned",
+        "turn_text_head_unassigned",
         "turn_text_pairing_floor",
     ):
         assert foreign["checks"][key]["ok"] is False
@@ -971,10 +975,133 @@ def test_stage2_turn_text_checks_fail_closed_without_this_works_report(
         "turn_text_length_ratio",
         "turn_text_turn_shift",
         "turn_text_residual_unassigned",
+        "turn_text_head_unassigned",
         "turn_text_pairing_floor",
     ):
         assert missing["checks"][key]["ok"] is False
         assert "no stage1 English report" in missing["checks"][key]["error"]
+
+
+def test_stage2_gates_public_comparison_turn_text_reports(tmp_path, monkeypatch):
+    """Astra lane C, F1: public secondary/third/overlay reports use the slot floor."""
+    base = {
+        "work": "test-play",
+        "pairing_rate": 0.99,
+        "paired": 100,
+        "length_ratio_outlier_count": 10,
+        "turn_shift_count": 2,
+        "turn_shift_rate": 0.02,
+        "turn_shift_new_drifts": 2,
+        "residual_unassigned": 0,
+        "head_unassigned": 0,
+        "unresolved_mismatch_count": 0,
+    }
+    data = {
+        "work": {"id": "test-play", "title": "Test", "author": "aeschylus"},
+        "citation": {"scheme": "play-line"},
+        "books": [{"n": 1, "start": "1", "end": "3"}],
+        "english": {
+            "primary": {"id": "smyth", "name": "Smyth", "model": "perseus-play"},
+            "secondary": {
+                "id": "morshead",
+                "name": "Morshead",
+                "model": "turn-text",
+            },
+            "min_pairing_rate": 0.60,
+            "gaps": [],
+        },
+        "proper_names": [],
+    }
+    manifest = Manifest(data, Path("test-play.yaml"))
+    low = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        base,
+        manifest,
+        slot_reports={"secondary_report.json": {**base, "pairing_rate": 0.50}},
+    )
+    floor = low["checks"]["turn_text_pairing_floor_secondary"]
+    assert floor["ok"] is False
+    assert floor["rate"] == 0.50 and floor["floor"] == 0.60
+    assert "secondary turn-text pairing rate 0.500 is below the floor 0.600" in floor["error"]
+    assert low["ok"] is False
+
+    ok = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        base,
+        manifest,
+        slot_reports={"secondary_report.json": {**base, "pairing_rate": 0.62}},
+    )
+    assert ok["checks"]["turn_text_pairing_floor_secondary"]["ok"] is True
+
+    private_data = {
+        "work": {"id": "test-play", "title": "Test", "author": "aeschylus"},
+        "citation": {"scheme": "play-line"},
+        "books": [{"n": 1, "start": "1", "end": "3"}],
+        "english": {
+            "primary": {"id": "smyth", "name": "Smyth", "model": "perseus-play"},
+            "secondary": {
+                "id": "morshead",
+                "name": "Morshead",
+                "model": "turn-text",
+                "private": True,
+            },
+            "min_pairing_rate": 0.60,
+            "gaps": [],
+        },
+        "proper_names": [],
+    }
+    private_manifest = Manifest(private_data, Path("test-play.yaml"))
+    skipped = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        base,
+        private_manifest,
+        slot_reports={"secondary_report.json": {**base, "pairing_rate": 0.10}},
+    )
+    assert "turn_text_pairing_floor_secondary" not in skipped["checks"]
+    assert skipped["ok"] is True
+
+
+def test_stage2_gates_head_unassigned_unless_declared_front_matter(
+    tmp_path, monkeypatch
+):
+    """Astra lane C, F3: opening English dropped before the first pair is gated."""
+    base = {
+        "work": "test-play",
+        "pairing_rate": 0.99,
+        "paired": 100,
+        "length_ratio_outlier_count": 10,
+        "turn_shift_count": 2,
+        "turn_shift_rate": 0.02,
+        "residual_unassigned": 0,
+    }
+    lost = _stage2_with_report(
+        monkeypatch, tmp_path, {**base, "head_unassigned": 1}, _turn_text_manifest()
+    )
+    check = lost["checks"]["turn_text_head_unassigned"]
+    assert check["ok"] is False
+    assert check["count"] == 1
+    assert "english.primary.head_front_matter=0" in check["error"]
+    assert lost["ok"] is False
+
+    allowed = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "head_unassigned": 1},
+        _turn_text_manifest(head_front_matter=1),
+    )
+    assert allowed["checks"]["turn_text_head_unassigned"]["ok"] is True
+
+    stale = _stage2_with_report(
+        monkeypatch,
+        tmp_path,
+        {**base, "head_unassigned": 1},
+        _turn_text_manifest(head_front_matter=2),
+    )
+    assert stale["checks"]["turn_text_head_unassigned"]["ok"] is False
+    assert "english.head_front_matter=2" in stale["checks"]["turn_text_head_unassigned"]["error"]
 
 
 def test_manifest_line_fix_repairs_peace_speaker():
@@ -2049,6 +2176,31 @@ def test_apply_splits_cuts_a_run_together_speech_at_the_greek_change():
     ]
 
 
+def test_apply_splits_is_whole_word_unique_and_pins_greek():
+    """Astra lane C, F6: no substring cuts; one match position; greek becomes a pin."""
+    from drama_pipeline import stage1_turn_english as m
+
+    speeches = [
+        {
+            "speaker_printed": "A",
+            "text": "I therefore agree to wait for your reply. There will be another chance after we finish.",
+        }
+    ]
+    pins = m._apply_splits(
+        speeches,
+        [{"english": "there", "speaker": "B", "greek": "30"}],
+        "t",
+    )
+    assert speeches[0]["text"] == "I therefore agree to wait for your reply."
+    assert speeches[1]["speaker_printed"] == "B"
+    assert speeches[1]["text"].startswith("There will be another chance")
+    assert pins == [{"greek": "30", "english": "there", "run": 1}]
+
+    doubled = [{"speaker_printed": "A", "text": "Go there now, then wait there later."}]
+    with pytest.raises(ValueError, match="matches 2 positions"):
+        m._apply_splits(doubled, [{"english": "there", "speaker": "B"}], "t")
+
+
 def test_resolve_pins_places_a_repeated_speech_between_the_neighbouring_pins():
     """Peace 1337: two identical "What shall we do to her?" between the pins
     at 1333 and 1346. Ten early slots the translation lacks make the
@@ -2139,3 +2291,18 @@ def test_resolve_covered_maps_first_line_refs_to_segments_and_fails_loud():
         m._resolve_covered([{"greek": "999", "by": "778"}], segments, "t")
     with pytest.raises(ValueError):
         m._resolve_covered([{"greek": "777", "by": "777"}], segments, "t")
+
+
+def test_owning_covered_follows_chains_and_fails_cycles():
+    """Astra lane C, F7: emit the English-holding segment; fail cycles and dead ends."""
+    from drama_pipeline import stage1_turn_english as m
+
+    covered = {"1:443": "1:449", "1:449": "1:447"}
+    assert m._owning_covered(covered, {"1:447"}, "peace") == {
+        "1:443": "1:447",
+        "1:449": "1:447",
+    }
+    with pytest.raises(ValueError, match="covered cycle"):
+        m._owning_covered({"1:29": "1:30", "1:30": "1:29"}, set(), "t")
+    with pytest.raises(ValueError, match="reaches no English"):
+        m._owning_covered({"1:29": "1:30"}, set(), "t")

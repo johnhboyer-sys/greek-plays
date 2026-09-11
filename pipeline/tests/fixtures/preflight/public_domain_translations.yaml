@@ -1,4 +1,10 @@
 translations:
-  - { id: fixture, translator: "Test Fixture", year: 1900, note: "Synthetic test data." }
+  - id: fixture
+    translator: "Fixture English"
+    year: 1900
+    note: "Synthetic test data."
+    sources:
+      - fixture/med.xml
+      - fixture
   - { id: fowler, translator: "Harold North Fowler", year: 1914, note: "Published before 1931." }
   - { id: shorey, translator: "Paul Shorey", year: 1930, note: "Published before 1931." }
