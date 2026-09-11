@@ -1157,8 +1157,11 @@ def _resolve_covered(covered: list[dict], segments: list[dict], work_id: str) ->
             head = re.match(r"\d+", ref)
             if head:
                 first_ref.setdefault(head.group(0), seg["id"])
-    # Every printed ref -> the segment holding it (not only segment openers).
+    # Every printed ref -> the segment holding it (not only segment openers):
+    # exact refs for the declared line (Grok review of fa76916: "368" must not
+    # find "368a"), plus a joined ref's first number for its cover.
     containing: dict[str, str] = {}
+    containing_head: dict[str, str] = {}
     for seg in segments:
         for l in seg.get("lines") or seg.get("greek") or []:
             if isinstance(l, dict) and l.get("ref") is not None:
@@ -1166,7 +1169,7 @@ def _resolve_covered(covered: list[dict], segments: list[dict], work_id: str) ->
                 containing.setdefault(r, seg["id"])
                 head = re.match(r"\d+", r)
                 if head:
-                    containing.setdefault(head.group(0), seg["id"])
+                    containing_head.setdefault(head.group(0), seg["id"])
     out: dict[str, str] = {}
     for item in covered:
         greek = str(item.get("greek", "")).strip()
@@ -1179,7 +1182,7 @@ def _resolve_covered(covered: list[dict], segments: list[dict], work_id: str) ->
         if greek not in first_ref and greek in containing:
             continue
         # The covering block is whichever segment holds `by`, opener or not.
-        by_seg = first_ref.get(by) or containing.get(by)
+        by_seg = first_ref.get(by) or containing.get(by) or containing_head.get(by)
         if greek not in first_ref or by_seg is None:
             raise ValueError(f"{work_id}: covered {item!r}: no segment opens on line {greek if greek not in first_ref else by}")
         if greek == by:

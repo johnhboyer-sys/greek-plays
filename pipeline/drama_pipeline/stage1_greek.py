@@ -1443,24 +1443,35 @@ def _rejoin_play_line_hyphens(flat: list[dict]) -> None:
             m["offset"] = max(0, m["offset"] - removed)
 
 
-def _speech_start_lines_from_tei(text: str) -> set[int]:
-    """The Greek line each `<sp>` of a Perseus play translation opens on (the
-    `n` of its first `<l n>`, a lettered "85a" read as 85). Those are the
-    places the translator starts a speech block, and so a sentence."""
-    out: set[int] = set()
-    for sp in re.finditer(r"<sp\b[^>]*>(.*?)</sp>", text, re.S):
-        m = re.search(r'<l\b[^>]*\bn="(\d+)', sp.group(1))
-        if m:
-            out.add(int(m.group(1)))
+def _speech_start_lines_from_tei(text: str) -> set[str]:
+    """The printed Greek line each top-level `<sp>` of a Perseus play
+    translation opens on: the `n` of its first `<l n>` that is not inside a
+    speech quoted within it. Those are the places the translator starts a
+    speech block, and so a sentence. (Grok review of fa76916: parsed, not
+    regex-matched, so a quoted or unclosed `<sp>` cannot misplace a start.)"""
+    root = etree.fromstring(text.encode("utf-8"), parser=etree.XMLParser(recover=True, huge_tree=True))
+    if root is None:
+        return set()
+    out: set[str] = set()
+    for sp in root.iter("{*}sp", "sp"):
+        if next(sp.iterancestors("{*}sp", "sp"), None) is not None:
+            continue
+        first = next(
+            (l for l in sp.iter("{*}l", "l")
+             if l.get("n") and next(l.iterancestors("{*}sp", "sp"), None) is sp),
+            None,
+        )
+        if first is not None:
+            out.add(first.get("n"))
     return out
 
 
-def _marked_lines_from_tei(text: str) -> set[int]:
-    """Every Greek line a Perseus play translation marks with `<l n>`."""
-    return {int(m.group(1)) for m in re.finditer(r'<l\b[^>]*\bn="(\d+)', text)}
+def _marked_lines_from_tei(text: str) -> set[str]:
+    """Every printed Greek line a Perseus play translation marks with `<l n>`."""
+    return set(re.findall(r'<l\b[^>]*\bn="([^"]+)"', text))
 
 
-def _english_line_marks(manifest: Manifest) -> tuple[set[int], set[int]] | None:
+def _english_line_marks(manifest: Manifest) -> tuple[set[str], set[str]] | None:
     """(speech-block starts, every marked line) of the work's primary
     line-keyed English (Smyth, Jebb, Coleridge as Perseus encodes them), or
     None for a turn-text primary (the comedies), which has no line markers."""
@@ -1476,8 +1487,8 @@ def _english_line_marks(manifest: Manifest) -> tuple[set[int], set[int]] | None:
 
 def _segment_play_lines(
     flat: list[dict],
-    cut_lines: set[int] | None = None,
-    marked_lines: set[int] | None = None,
+    cut_lines: set[str] | None = None,
+    marked_lines: set[str] | None = None,
 ) -> list[dict]:
     """Group play-line's dense-numbered flat list into per-speech segments
     (see the module-doc block above this section for the cut rule). Each
@@ -1506,12 +1517,19 @@ def _segment_play_lines(
     for i, entry in enumerate(flat, start=1):
         starts_new_speaker = bool(entry.get("speakers")) and entry["speakers"][0]["offset"] == 0
         over = cur is not None and len(cur["lines"]) >= _SEGMENT_LINE_CAP
-        if over and cut_lines is not None and len(cur["lines"]) < _SEGMENT_LINE_STOP:
-            m = re.match(r"(\d+)", str(entry.get("ref", "")))
-            n = int(m.group(1)) if m else None
-            over = n in cut_lines
-            if not over and len(cur["lines"]) >= _SEGMENT_LINE_CEILING:
-                over = marked_lines is None or n in marked_lines
+        if over and cut_lines is not None:
+            # Printed refs compared whole ("85a" is not "85"); a joined
+            # ("173-174") or lacuna ("post 1241") ref never opens a segment,
+            # not even at the hard stop (Grok review of fa76916).
+            ref = str(entry.get("ref", ""))
+            numbered = re.fullmatch(r"\d+[a-z]?", ref) is not None
+            if len(cur["lines"]) >= _SEGMENT_LINE_STOP:
+                over = numbered
+            else:
+                over = ref in cut_lines or (
+                    len(cur["lines"]) >= _SEGMENT_LINE_CEILING
+                    and numbered and (marked_lines is None or ref in marked_lines)
+                )
         if cur is not None and (starts_new_speaker or over):
             segments.append(cur)
             cur = None

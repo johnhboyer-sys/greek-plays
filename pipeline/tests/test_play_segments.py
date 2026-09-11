@@ -24,26 +24,26 @@ def test_a_long_speech_is_cut_where_the_english_opens_a_speech_block():
     flat = _flat(41, 60)  # lines 41..100
     assert _starts(_segment_play_lines(flat)) == ["41", "81"]
     # With the English's speech-block starts known, the cut waits for one.
-    assert _starts(_segment_play_lines(flat, {41, 87})) == ["41", "87"]
+    assert _starts(_segment_play_lines(flat, {"41", "87"})) == ["41", "87"]
 
 
 def test_the_cut_falls_at_the_ceiling_when_the_english_opens_no_block():
     flat = _flat(1, 100)
-    assert _starts(_segment_play_lines(flat, {1})) == ["1", "81"]
+    assert _starts(_segment_play_lines(flat, {"1"})) == ["1", "81"]
 
 
 def test_past_the_ceiling_the_cut_waits_for_a_line_the_english_marks():
     # Bacchae 677-756: a messenger speech Coleridge never breaks; the 80-line
     # ceiling fell on 757 while his next marker was 760.
     flat = _flat(677, 120)  # lines 677..796
-    assert _starts(_segment_play_lines(flat, {677}, {677, 760, 765})) == ["677", "760"]
+    assert _starts(_segment_play_lines(flat, {"677"}, {"677", "760", "765"})) == ["677", "760"]
     # No marked line in reach: the hard stop at 100 lines.
-    assert _starts(_segment_play_lines(flat, {677}, {677})) == ["677", "777"]
+    assert _starts(_segment_play_lines(flat, {"677"}, {"677"})) == ["677", "777"]
 
 
 def test_a_speaker_change_still_cuts_at_once():
     flat = _flat(1, 10) + _flat(11, 10)
-    assert _starts(_segment_play_lines(flat, {1})) == ["1", "11"]
+    assert _starts(_segment_play_lines(flat, {"1"})) == ["1", "11"]
 
 
 def test_a_covered_speech_inside_its_covering_block_needs_no_mapping():
@@ -105,4 +105,27 @@ def test_speech_block_starts_are_read_from_the_tei():
         '<milestone unit="card" n="81"/><sp><speaker>Chorus</speaker><l n="81">With eyes</l>'
         '<l n="85">he leads</l></sp><sp><l n="87a">And there</l></sp></div>'
     )
-    assert _speech_start_lines_from_tei(tei) == {41, 81, 87}
+    assert _speech_start_lines_from_tei(tei) == {"41", "81", "87a"}
+
+
+def test_grok_review_of_fa76916_edge_cases():
+    # A speech quoted inside a messenger's speech neither supplies nor hides a start.
+    tei = ('<text><sp><speaker>Mes.</speaker><l n="100">the report</l>'
+           '<quote><sp><l n="112">he said</l></sp></quote><l n="120">more</l></sp>'
+           '<sp><l n="160">next</l></sp></text>')
+    assert _speech_start_lines_from_tei(tei) == {"100", "160"}
+    # A joined or lacuna ref never opens a segment, not even at the hard stop.
+    flat = _flat(1, 99) + [{"ref": "post 99", "text": "gap"}] + _flat(100, 10)
+    for e in flat[99:]:
+        e.pop("speakers", None)
+    starts = _starts(_segment_play_lines(flat, {"1"}, {"1"}))
+    assert "post 99" not in starts and starts[1] == "100"
+
+
+def test_a_declared_line_must_match_exactly():
+    import pytest
+    from drama_pipeline.stage1_turn_english import _resolve_covered
+
+    segs = [{"id": "1:328", "lines": [{"ref": "328"}, {"ref": "368a"}]}]
+    with pytest.raises(ValueError):
+        _resolve_covered([{"greek": "368", "by": "328"}], segs, "t")
