@@ -27,7 +27,7 @@ from pathlib import Path
 
 from . import scheme as scheme_mod
 from . import stage5_lsj
-from .config import BUILD_DIR, SOURCES_DIR, Manifest
+from .config import BUILD_DIR, SOURCES_DIR, Manifest, private_translation_ids
 from .parse_filter import filter_parses
 from .refs import column_key
 from .stage3_tokenize import _SPINE_FILENAMES
@@ -255,10 +255,21 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
     source_license = work.get("source_license") or {"status": "unverified"}
 
     english = manifest.data.get("english") or {}
+    # Astra lane B, F3: a public build must not list private comparison slots.
+    skip_ids: set[str] = set()
+    if getattr(manifest, "public", False):
+        skip_ids = private_translation_ids(manifest.data)
+        skip_ids.update(
+            tid for _slot, tid in getattr(manifest, "excluded_private_slots", []) if tid
+        )
     translations = []
     for slot in ("primary", "secondary", "third"):
         entry = english.get(slot)
         if not entry:
+            continue
+        if entry.get("id") in skip_ids or (
+            getattr(manifest, "public", False) and entry.get("private")
+        ):
             continue
         # No per-translation `footnotes` flag: manifest.v1's translation
         # entry forbids extra keys (18 works failed the contract validator at
@@ -273,6 +284,10 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
             "license": _translation_license(entry),
         })
     for entry in english.get("overlays") or []:
+        if entry.get("id") in skip_ids or (
+            getattr(manifest, "public", False) and entry.get("private")
+        ):
+            continue
         translations.append({
             "id": entry["id"],
             "name": entry["name"],
@@ -624,6 +639,33 @@ def _verse_line_column_sort_key(column: str) -> tuple:
         lineref.split("-", 1)[0] if scheme_mod.verse_line_kind(lineref) == "range" else lineref
     )
     return (int(book_s), num, suffix)
+
+
+def public_private_slot_leaks(
+    book_doc: dict, excluded: list[tuple[str, str]], file_name: str
+) -> list[str]:
+    """Messages for private comparison text found in an emitted book JSON.
+
+    Astra lane B, F3.
+    """
+    messages: list[str] = []
+    slots = {slot for slot, _tid in excluded}
+    overlay_ids = {tid for slot, tid in excluded if slot == "overlay"}
+    for segment in book_doc.get("segments") or []:
+        if not isinstance(segment, dict):
+            continue
+        if "secondary" in slots and segment.get("ross"):
+            messages.append(f"{file_name}: private secondary translation appears in public data")
+        if "third" in slots and segment.get("third"):
+            messages.append(f"{file_name}: private third translation appears in public data")
+        overlays = segment.get("overlays")
+        if isinstance(overlays, dict):
+            for overlay_id in overlay_ids:
+                if overlay_id in overlays:
+                    messages.append(
+                        f"{file_name}: private overlay {overlay_id!r} appears in public data"
+                    )
+    return messages
 
 
 def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
@@ -1256,6 +1298,21 @@ def run(manifest: Manifest) -> Path:
     third = json.loads(third_path.read_text(encoding="utf-8")) if third_path.exists() else {}
     overlays_path = BUILD_DIR / "stage1" / "overlays.json"
     overlays = json.loads(overlays_path.read_text(encoding="utf-8")) if overlays_path.exists() else {}
+    # Astra lane B, F3: a public build emits only the slots the (stripped)
+    # manifest still declares, so a leftover stage1 file cannot leak a
+    # private comparison translation into book JSON.
+    if getattr(manifest, "public", False):
+        english_block = manifest.data.get("english") or {}
+        if not english_block.get("secondary"):
+            ross = {}
+        if not english_block.get("third"):
+            third = {}
+        declared_overlays = {
+            entry.get("id")
+            for entry in (english_block.get("overlays") or [])
+            if isinstance(entry, dict) and entry.get("id")
+        }
+        overlays = {key: value for key, value in overlays.items() if key in declared_overlays}
     # Source-passage English (docs/source-passage-english-scoping.md):
     # present only for a work that declared sources/<work>/context-
     # english.json (stage1_context_english.run) -- every other work has no
@@ -1529,6 +1586,24 @@ def run(manifest: Manifest) -> Path:
         ),
         encoding="utf-8",
     )
+
+    if getattr(manifest, "public", False):
+        excluded = list(getattr(manifest, "excluded_private_slots", []) or [])
+        leaks: list[str] = []
+        for book_path in sorted(out_dir.glob("book-*.json")):
+            doc = json.loads(book_path.read_text(encoding="utf-8"))
+            leaks.extend(public_private_slot_leaks(doc, excluded, book_path.name))
+        private_ids = {tid for _slot, tid in excluded if tid}
+        emitted_manifest = json.loads((out_dir / "manifest.json").read_text(encoding="utf-8"))
+        for entry in emitted_manifest.get("translations") or []:
+            if isinstance(entry, dict) and entry.get("id") in private_ids:
+                leaks.append(f"manifest.json: private translation {entry['id']!r} listed")
+        if leaks:
+            unique = list(dict.fromkeys(leaks))
+            raise RuntimeError(
+                f"{manifest.work_id}: public build emitted private slot text: "
+                + "; ".join(unique)
+            )
 
     reports = BUILD_DIR / "dist" / "reports"
     reports.mkdir(exist_ok=True)

@@ -29,9 +29,9 @@ function sha256File(absPath) {
 }
 
 /** Walk sources/ + pipeline/ for basename hits (skip junk dirs). */
-function findByBasename(basename) {
+function findByBasename(basename, root = ROOT) {
   const hits = [];
-  const roots = [join(ROOT, 'sources'), join(ROOT, 'pipeline')];
+  const roots = [join(root, 'sources'), join(root, 'pipeline')];
   const skip = new Set(['node_modules', '__pycache__', '.git', 'dist', 'build']);
 
   function walk(dir) {
@@ -65,18 +65,18 @@ function findByBasename(basename) {
  * absolute file path, or null if zero/many matches.
  * @returns {{ abs: string, rel: string } | null}
  */
-function resolvePath(declared, hintDirs = []) {
+function resolvePath(declared, hintDirs = [], root = ROOT) {
   const raw = declared.replace(/^`|`$/g, '').trim();
   const candidates = [];
 
   if (raw.startsWith('sources/') || raw.startsWith('pipeline/')) {
-    candidates.push(join(ROOT, raw));
+    candidates.push(join(root, raw));
   } else if (raw.includes('/')) {
-    candidates.push(join(ROOT, 'sources', raw), join(ROOT, raw));
+    candidates.push(join(root, 'sources', raw), join(root, raw));
   } else {
-    const hits = findByBasename(raw);
+    const hits = findByBasename(raw, root);
     if (hits.length === 1) {
-      return { abs: hits[0], rel: relative(ROOT, hits[0]).split(sep).join('/') };
+      return { abs: hits[0], rel: relative(root, hits[0]).split(sep).join('/') };
     }
     if (hits.length > 1 && hintDirs.length) {
       const narrowed = hits.filter((h) =>
@@ -87,7 +87,7 @@ function resolvePath(declared, hintDirs = []) {
       if (narrowed.length === 1) {
         return {
           abs: narrowed[0],
-          rel: relative(ROOT, narrowed[0]).split(sep).join('/'),
+          rel: relative(root, narrowed[0]).split(sep).join('/'),
         };
       }
     }
@@ -96,7 +96,7 @@ function resolvePath(declared, hintDirs = []) {
 
   const existing = [...new Set(candidates.filter((c) => existsSync(c) && statSync(c).isFile()))];
   if (existing.length !== 1) return null;
-  return { abs: existing[0], rel: relative(ROOT, existing[0]).split(sep).join('/') };
+  return { abs: existing[0], rel: relative(root, existing[0]).split(sep).join('/') };
 }
 
 /** Collect nearby directory segments from path-like backticks in a line range. */
@@ -312,19 +312,50 @@ export function parseInventory(text) {
   return { entries, warnings };
 }
 
+const SUMS_REF = /`((?:sources\/|pipeline\/)[A-Za-z0-9_./-]*SHA256SUMS)`/g;
+const EMPTY_SOURCE_SET = /\bempty source set\b/i;
+
+function referencedSumsFiles(text) {
+  const found = [];
+  const seen = new Set();
+  SUMS_REF.lastIndex = 0;
+  let m;
+  while ((m = SUMS_REF.exec(text))) {
+    if (seen.has(m[1])) continue;
+    seen.add(m[1]);
+    found.push(m[1]);
+  }
+  return found;
+}
+
+function parseSha256Sums(text) {
+  const entries = [];
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const match = /^([a-fA-F0-9]{64})\s+\*?(\S.*)$/.exec(trimmed);
+    if (!match) continue;
+    entries.push({ expected: match[1].toLowerCase(), path: match[2].trim() });
+  }
+  return entries;
+}
+
 /**
  * Verify every unambiguous inventory entry against disk.
+ * Astra lane B, F4: also read referenced SHA256SUMS files.
  */
-export function verifyInventoryHashes(inventoryText = readFileSync(INVENTORY, 'utf8')) {
+export function verifyInventoryHashes(inventoryText = readFileSync(INVENTORY, 'utf8'), opts = {}) {
+  const root = opts.root ?? ROOT;
   const { entries, warnings } = parseInventory(inventoryText);
   const problems = [];
   let verified = 0;
   const seen = new Set();
+  let declarationCount = entries.length;
 
   for (const e of entries) {
-    const resolved = resolvePath(e.path, e.hintDirs || []);
+    const resolved = resolvePath(e.path, e.hintDirs || [], root);
     if (!resolved) {
-      const hits = e.path.includes('/') ? [] : findByBasename(e.path);
+      const hits = e.path.includes('/') ? [] : findByBasename(e.path, root);
       if (hits.length > 1) {
         warnings.push(
           `${e.where}: skipped ${e.path} — resolves to ${hits.length} files; association ambiguous`,
@@ -350,12 +381,55 @@ export function verifyInventoryHashes(inventoryText = readFileSync(INVENTORY, 'u
     }
   }
 
+  for (const sumsRel of referencedSumsFiles(inventoryText)) {
+    const sumsAbs = join(root, sumsRel);
+    if (!existsSync(sumsAbs) || !statSync(sumsAbs).isFile()) {
+      problems.push(`missing SHA256SUMS file ${sumsRel}`);
+      continue;
+    }
+    const listed = parseSha256Sums(readFileSync(sumsAbs, 'utf8'));
+    declarationCount += listed.length;
+    if (listed.length === 0) {
+      problems.push(`${sumsRel}: no hash declarations`);
+      continue;
+    }
+    const sumsDir = dirname(sumsAbs);
+    for (const item of listed) {
+      const abs = join(sumsDir, item.path);
+      const rel = relative(root, abs).split(sep).join('/');
+      if (!existsSync(abs) || !statSync(abs).isFile()) {
+        problems.push(`${sumsRel}: missing file for declared path ${item.path}`);
+        continue;
+      }
+      const actual = sha256File(abs);
+      const key = `${rel}|${item.expected}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (actual !== item.expected) {
+        problems.push(
+          `${sumsRel}: HASH MISMATCH ${rel}\n` +
+            `  expected ${item.expected}\n` +
+            `  actual   ${actual}`,
+        );
+      } else {
+        verified += 1;
+      }
+    }
+  }
+
+  const emptyDeclared = EMPTY_SOURCE_SET.test(inventoryText);
+  if (verified === 0 && declarationCount === 0 && !emptyDeclared) {
+    problems.push(
+      'zero hash declarations; inventory must list SHA256SUMS files or declare an empty source set',
+    );
+  }
+
   return {
-    ok: problems.length === 0 && verified > 0,
+    ok: problems.length === 0 && (verified > 0 || emptyDeclared),
     verified,
     problems,
     warnings,
-    entryCount: entries.length,
+    entryCount: declarationCount,
   };
 }
 

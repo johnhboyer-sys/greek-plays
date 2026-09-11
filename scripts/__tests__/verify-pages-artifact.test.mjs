@@ -113,3 +113,77 @@ test('fails when dist directory does not exist', () => {
     assert.ok(result.problems.some((p) => p.includes('does not exist')));
   });
 });
+
+const READER_HTML =
+  '<html><body><div id="toc-sidebar"></div><button class="settings-toggle">Settings</button></body></html>';
+
+function writeRegistry(dir, routes) {
+  const path = join(dir, 'route-registry.json');
+  writeFileSync(
+    path,
+    JSON.stringify({ schema_version: 'route-registry.v1', routes }, null, 2),
+    'utf8',
+  );
+  return path;
+}
+
+// Astra lane B, F1: single-book play-line readers live at the bare work
+// route (`/aeschylus/agamemnon/`), not under `/book/1`.
+test('accepts a single-book reader at the registry work route', () => {
+  withTmpDir((dir) => {
+    writeFileSync(join(dir, 'index.html'), '<html></html>', 'utf8');
+    writeFileSync(join(dir, 'sw.js'), `const DATA_ROOT = ${JSON.stringify(EXPECT_ROOT)};\n`, 'utf8');
+    const workDir = join(dir, 'aeschylus', 'agamemnon');
+    mkdirSync(workDir, { recursive: true });
+    writeFileSync(join(workDir, 'index.html'), READER_HTML, 'utf8');
+    const registryPath = writeRegistry(dir, [
+      { route: '/aeschylus/agamemnon', corpus: 'drama', work: 'agamemnon' },
+    ]);
+    const result = verifyArtifact({
+      distDir: dir,
+      expectDataRoot: EXPECT_ROOT,
+      registryPath,
+    });
+    assert.equal(result.ok, true, result.problems.join('; '));
+    assert.equal(result.problems.length, 0);
+  });
+});
+
+test('still accepts a multi-book /book/n reader named by the registry', () => {
+  withTmpDir((dir) => {
+    writeFileSync(join(dir, 'index.html'), '<html></html>', 'utf8');
+    writeFileSync(join(dir, 'sw.js'), `const DATA_ROOT = ${JSON.stringify(EXPECT_ROOT)};\n`, 'utf8');
+    const bookDir = join(dir, 'plato', 'republic', 'book', '1');
+    mkdirSync(bookDir, { recursive: true });
+    writeFileSync(join(bookDir, 'index.html'), READER_HTML, 'utf8');
+    const registryPath = writeRegistry(dir, [
+      { route: '/plato/republic', corpus: 'classical', work: 'republic' },
+    ]);
+    const result = verifyArtifact({
+      distDir: dir,
+      expectDataRoot: EXPECT_ROOT,
+      registryPath,
+    });
+    assert.equal(result.ok, true, result.problems.join('; '));
+  });
+});
+
+test('rejects a registry work route whose page is not a reader', () => {
+  withTmpDir((dir) => {
+    writeFileSync(join(dir, 'index.html'), '<html></html>', 'utf8');
+    writeFileSync(join(dir, 'sw.js'), `const DATA_ROOT = ${JSON.stringify(EXPECT_ROOT)};\n`, 'utf8');
+    const workDir = join(dir, 'aeschylus', 'agamemnon');
+    mkdirSync(workDir, { recursive: true });
+    writeFileSync(join(workDir, 'index.html'), '<html><body>landing plate</body></html>', 'utf8');
+    const registryPath = writeRegistry(dir, [
+      { route: '/aeschylus/agamemnon', corpus: 'drama', work: 'agamemnon' },
+    ]);
+    const result = verifyArtifact({
+      distDir: dir,
+      expectDataRoot: EXPECT_ROOT,
+      registryPath,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.problems.some((p) => p.includes('no reader page')));
+  });
+});

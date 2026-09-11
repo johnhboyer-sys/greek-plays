@@ -10,6 +10,7 @@ Repo layout assumed:
 
 from __future__ import annotations
 
+import copy
 import os
 from pathlib import Path
 
@@ -23,10 +24,75 @@ BUILD_DIR = REPO_ROOT / "build"
 SOURCES_DIR = REPO_ROOT / "sources"
 
 
+def private_translation_ids(data: dict) -> set[str]:
+    """Ids marked private: true on an english slot or registry.translations.
+
+    Astra lane B, F3: the six hidden comparison slots live on
+    registry.translations (and sometimes also on the english overlay).
+    """
+    ids: set[str] = set()
+    registry = data.get("registry") if isinstance(data.get("registry"), dict) else {}
+    for item in registry.get("translations") or []:
+        if isinstance(item, dict) and item.get("private") and isinstance(item.get("id"), str):
+            ids.add(item["id"])
+    english = data.get("english") if isinstance(data.get("english"), dict) else {}
+    for slot in ("primary", "secondary", "third"):
+        entry = english.get(slot)
+        if isinstance(entry, dict) and entry.get("private") and isinstance(entry.get("id"), str):
+            ids.add(entry["id"])
+    for item in english.get("overlays") or []:
+        if isinstance(item, dict) and item.get("private") and isinstance(item.get("id"), str):
+            ids.add(item["id"])
+    return ids
+
+
+def exclude_private_slots(data: dict) -> tuple[dict, list[tuple[str, str]]]:
+    """Copy `data` without private comparison slots (public build only).
+
+    Astra lane B, F3.
+    """
+    out = copy.deepcopy(data)
+    private_ids = private_translation_ids(out)
+    excluded: list[tuple[str, str]] = []
+    english = out.get("english")
+    if isinstance(english, dict):
+        for slot in ("secondary", "third"):
+            entry = english.get(slot)
+            if isinstance(entry, dict) and (
+                entry.get("private") or entry.get("id") in private_ids
+            ):
+                excluded.append((slot, entry.get("id") or ""))
+                del english[slot]
+        overlays = english.get("overlays")
+        if isinstance(overlays, list):
+            kept = []
+            for item in overlays:
+                if isinstance(item, dict) and (
+                    item.get("private") or item.get("id") in private_ids
+                ):
+                    excluded.append(("overlay", item.get("id") or ""))
+                else:
+                    kept.append(item)
+            english["overlays"] = kept
+    registry = out.get("registry")
+    if isinstance(registry, dict) and isinstance(registry.get("translations"), list):
+        registry["translations"] = [
+            item
+            for item in registry["translations"]
+            if not (
+                isinstance(item, dict)
+                and (item.get("private") or item.get("id") in private_ids)
+            )
+        ]
+    return out, excluded
+
+
 class Manifest:
-    def __init__(self, data: dict, path: Path):
+    def __init__(self, data: dict, path: Path, public: bool = False):
         self.data = data
         self.path = path
+        self.public = public
+        self.excluded_private_slots: list[tuple[str, str]] = []
 
     @classmethod
     def load(cls, path: Path | None = None) -> "Manifest":
@@ -40,12 +106,17 @@ class Manifest:
 
         Public builds use manifests/<work>-public.yaml when it exists, falling
         back to the normal manifest for works with no private translations.
+        Private comparison slots are then stripped (Astra lane B, F3).
         """
         manifests_dir = REPO_ROOT / "manifests"
         if public:
             public_path = manifests_dir / f"{work}-public.yaml"
-            if public_path.exists():
-                return cls.load(public_path)
+            loaded = cls.load(public_path if public_path.exists() else manifests_dir / f"{work}.yaml")
+            data, excluded = exclude_private_slots(loaded.data)
+            loaded.data = data
+            loaded.public = True
+            loaded.excluded_private_slots = excluded
+            return loaded
         return cls.load(manifests_dir / f"{work}.yaml")
 
     @property
