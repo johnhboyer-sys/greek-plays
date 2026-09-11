@@ -34,6 +34,8 @@ english:
     source: bench/way/medea.txt
     play: MEDEA
     footnotes: false
+    # John 2026-09-11: the dropped head is the cast list
+    head_front_matter: 3
   gaps: []
 
 citation:

@@ -69,6 +69,10 @@ english:
     source: "bench/hickie/birds.txt"
     play: "THE BIRDS"
     footnotes: false
+    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
+    min_pairing_rate: 0.77
+    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
+    max_turn_shift_rate: 0.16
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

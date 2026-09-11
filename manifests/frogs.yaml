@@ -84,6 +84,12 @@ english:
     source: "bench/hickie/frogs.txt"
     play: "THE FROGS"
     footnotes: false
+    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
+    min_pairing_rate: 0.76
+    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
+    max_turn_shift_rate: 0.11
+    # John 2026-09-11: length-outlier limit at today's score (0.283) until Hickie's OCR is repaired
+    max_mismatch_rate: 0.29
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

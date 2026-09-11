@@ -38,6 +38,8 @@ english:
     source: bench/way/iphigenia-at-aulis.txt
     play: IPHIGENEIA AT AULIS
     footnotes: false
+    # John 2026-09-11: the dropped head is the cast list
+    head_front_matter: 1
   gaps:
 
 citation:
