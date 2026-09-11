@@ -87,9 +87,8 @@ english:
     source: "bench/hickie/peace.txt"
     play: "PEACE"
     footnotes: false
-    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
-    min_pairing_rate: 0.77
-    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
+    # John 2026-09-11: limits at today's score; after the cue repair Hickie
+    # pairs 0.864 (default floor 0.85 holds) and shifts 0.104
     max_turn_shift_rate: 0.11
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
