@@ -1785,12 +1785,25 @@
   // lead-ins fall out of the same slices. Null when fewer than two ticks
   // map (the ordinary one-row segment, or a turn-text chunk with no ticks).
   function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource): PlayRow[] | null {
-    const realTicks = (source.ticks ?? []).filter((tk) => tk.real);
-    if (realTicks.length < 2 || items.length < 2) return null;
     const lineInt = (line: RLine): number | null => {
       const m = /^(\d+)/.exec(line.ref ?? '');
       return m ? Number(m[1]) : line.n;
     };
+    let realTicks = (source.ticks ?? []).filter((tk) => tk.real);
+    // A speech-aligned translation carries no line markers (Morshead, Storr,
+    // Way, the 1912 comedies), so a long single speech's English sat at the
+    // top of its segment and the Greek below stood bare (John, 2026-09-11,
+    // Agamemnon 140-159). Anchor it at the segment's first line and let
+    // sentenceTicks place each sentence by proportion to the segment's end.
+    // Dialogue keeps the speech-by-speech rows (playRows).
+    const synthetic = !realTicks.length && (seg.speakers ?? []).length <= 1 && source.turns.length <= 1;
+    if (synthetic) {
+      const first = items.find((it) => it.kind === 'line' && !(it.share && it.share.k > 0));
+      const n0 = first && first.kind === 'line' ? lineInt(first.line) : null;
+      if (n0 == null) return null;
+      realTicks = [{ n: n0, offset: 0, real: true }];
+    }
+    if ((!synthetic && realTicks.length < 2) || items.length < 2) return null;
     // John, 2026-09-10: cut only where a sentence or speech begins, each start
     // on the Greek line interpolated between the markers (sentenceTicks), so
     // a marker mid-sentence no longer breaks the sentence across a gap.
