@@ -1735,6 +1735,11 @@
       const base = node.getBoundingClientRect().top;
       const measured = cells.map((c) => {
         const gr = c.g?.getBoundingClientRect();
+        // The English starts level with the first Greek LINE, not with a
+        // strophe marker ("στρ. γ.") banded above it in the same cell (John,
+        // 2026-09-10, Persians 94): `lead` is the marker's height, 0 without one.
+        const first = c.g?.querySelector<HTMLElement>('.greek-line');
+        const lead = gr && first ? Math.max(0, first.getBoundingClientRect().top - gr.top) : 0;
         let eh = 0;
         if (c.e) {
           const saved = c.e.style.transform;
@@ -1742,11 +1747,14 @@
           eh = c.e.getBoundingClientRect().height;
           c.e.style.transform = saved;
         }
-        return { greekTop: gr ? gr.top - base : 0, greekHeight: gr ? gr.height : 0, englishHeight: eh };
+        return { greekTop: gr ? gr.top - base + lead : 0, greekHeight: gr ? gr.height - lead : 0, englishHeight: eh, lead };
       });
       const gap = parseFloat(getComputedStyle(node).fontSize) * 0.5;
       const { pushes, paddingBottom } = englishFlow(measured, gap);
-      cells.forEach((c, i) => { if (c.e) c.e.style.transform = pushes[i] ? `translateY(${pushes[i]}px)` : ''; });
+      cells.forEach((c, i) => {
+        const y = (measured[i]?.lead ?? 0) + (pushes[i] ?? 0);
+        if (c.e) c.e.style.transform = y ? `translateY(${y}px)` : '';
+      });
       node.style.paddingBottom = paddingBottom ? `${paddingBottom}px` : '';
       // The English cells are zero-height, so a late font or a reflow of the
       // prose never resizes the grid itself: watch each paragraph as well.
