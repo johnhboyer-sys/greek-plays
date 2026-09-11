@@ -28,6 +28,12 @@ test('skips a null reading_route (no reader page expected)', () => {
   assert.deepEqual(checkReadingRoutes(routes, new Set()), []);
 });
 
+test('fails when no partner manifests were read', () => {
+  const broken = checkReadingRoutes([], new Set(['/aeschylus/agamemnon']));
+  assert.equal(broken.length, 1);
+  assert.equal(broken[0].reason, 'no partner manifests found');
+});
+
 test('checks every route independently across a mixed batch', () => {
   const routes = [
     { source: 'data/agamemnon/manifest.lyceum.json', readingRoute: '/aeschylus/agamemnon' },

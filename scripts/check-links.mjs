@@ -94,6 +94,10 @@ function virtualDirectory(dist, source) {
 // trailing slash) the crawl below found an index.html under. Pure -- no I/O
 // of its own -- so it can be unit-tested with a plain Set.
 export function checkReadingRoutes(routes, pageDirs) {
+  // No manifests read is a failed check, not a clean one (Grok read of e0a6940).
+  if (routes.length === 0) {
+    return [{ source: 'data/*/manifest.lyceum.json', readingRoute: '(none)', reason: 'no partner manifests found' }];
+  }
   const broken = [];
   for (const { source, readingRoute } of routes) {
     if (readingRoute == null) continue;
@@ -297,8 +301,8 @@ async function main() {
     readingRouteChecks++;
     readingRoutes.push({ source: manifestPath, readingRoute: manifest.reading_route ?? null });
   }
-  for (const { source, readingRoute } of checkReadingRoutes(readingRoutes, pageDirs)) {
-    report(source, readingRoute, 'reading_route has no page');
+  for (const { source, readingRoute, reason } of checkReadingRoutes(readingRoutes, pageDirs)) {
+    report(source, readingRoute, reason ?? 'reading_route has no page');
   }
 
   // A dist with no pages (or no homepage) is a failed build, not a clean one —
