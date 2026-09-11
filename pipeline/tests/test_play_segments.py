@@ -99,6 +99,25 @@ def test_a_long_speech_english_is_spread_over_its_continuation_segments():
     assert [c["text"] for c in _spread_long_speeches([chunk, own], segs[:2])] == [chunk["text"], "Its own."]
 
 
+def test_the_spread_keeps_other_chunks_in_place_and_leaves_noted_chunks_whole():
+    # Grok review of b294d29: only a spread chunk is replaced by its pieces;
+    # a chunk carrying offset-keyed notes or markers is not cut.
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    segs = [
+        {"id": "1:40", "column": "40", "speakers": [{"line": 1}], "lines": [{}] * 10},
+        {"id": "1:104", "column": "104", "lines": [{}] * 10},
+        {"id": "1:258", "column": "258", "speakers": [{"line": 21}], "lines": [{}] * 2},
+    ]
+    text = "Ten years ago. The king went. Now the fire comes. It burns high."
+    chunk = {"id": "1:40", "column": "40", "text": text, "turns": [], "notes": [], "markers": []}
+    stray = {"id": "sd", "column": "0", "text": "[Exit].", "turns": [], "notes": [], "markers": []}
+    other = {"id": "1:258", "column": "258", "text": "Herald speaks.", "turns": [], "notes": [], "markers": []}
+    assert [c["id"] for c in _spread_long_speeches([other, stray, chunk], segs)] == ["1:258", "sd", "1:40", "1:104"]
+    noted = {**chunk, "notes": [{"offset": 16, "text": "fn"}]}
+    assert [c["id"] for c in _spread_long_speeches([noted], segs)] == ["1:40"]
+
+
 def test_speech_block_starts_are_read_from_the_tei():
     tei = (
         '<div><sp><speaker>Chorus</speaker><l n="41">For all</l><l n="45">the men</l></sp>'

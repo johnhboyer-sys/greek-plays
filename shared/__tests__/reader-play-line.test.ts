@@ -512,6 +512,29 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     expect(rows[2].querySelector('.english-col')?.textContent).toContain('Only what?');
   });
 
+  it('runs a marker-less single speech down its Greek, but leaves a mid-segment speaker to the dialogue rows (Grok review of 5748b3f)', async () => {
+    const greek = Array.from({ length: 12 }, (_, i) => ({ n: i + 1, text: `στίχος ${i + 1} ἐστίν.`, tokens: [], ref: String(200 + i) }));
+    const english = {
+      text: 'First sentence here. Second sentence here. Third sentence here. Fourth sentence here.',
+      notes: [], markers: [], turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }],
+    };
+    const book = (speakers: BookData['segments'][number]['speakers']): BookData => ({
+      book: 1, speakerRoster: ['Chorus'],
+      segments: [{ id: '1:200', column: '200', greek, speakers, english }],
+    });
+    const rowOf = (c: HTMLElement, s: string) =>
+      [...c.querySelectorAll('.play-row')].findIndex((r) => r.querySelector('.english-col')?.textContent?.includes(s));
+    // One speech opening the segment: its sentences run down the lines.
+    const one = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book([{ line: 1, offset: 0, label: 'ΧΟ.', display: 'Chorus' }]) } });
+    await flush();
+    expect(rowOf(one.container, 'Fourth')).toBeGreaterThan(rowOf(one.container, 'First'));
+    one.unmount();
+    // A lone speaker event further in (an antilabe) is dialogue: not spread.
+    const mid = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book([{ line: 6, offset: 4, label: 'ΧΟ.', display: 'Chorus' }]) } });
+    await flush();
+    expect(rowOf(mid.container, 'Fourth')).toBe(rowOf(mid.container, 'First'));
+  });
+
   it('keeps an editor\'s bracket with the share it opens, never on a line of its own (Rhesus 16)', async () => {
     // Diggle prints "[ΧΟ. θάρσει. ΕΚ. θαρσῶ." -- the Chorus's siglum starts
     // after the bracket, so a cut there stranded "[" as a printed line

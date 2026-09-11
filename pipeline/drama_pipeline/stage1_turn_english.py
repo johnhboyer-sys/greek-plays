@@ -1598,8 +1598,9 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict
     sentence start nearest that point. A continuation that no sentence start
     reaches stays empty, as before."""
     by_id = {c["id"]: c for c in chunks}
-    seg_ids = {s["id"] for s in segments}
-    out: list[dict] = []
+    # Each spread chunk's pieces, keyed by the chunk's own id; every other
+    # chunk keeps its place in the list (Grok review of b294d29).
+    pieces_of: dict[str, list[dict]] = {}
     k = 0
     while k < len(segments):
         seg = segments[k]
@@ -1611,9 +1612,11 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict
         while k < len(segments) and not segments[k].get("speakers") and segments[k]["id"] not in by_id:
             conts.append(segments[k])
             k += 1
-        if not conts:
-            out.append(chunk)
+        # Offset-keyed notes or markers would have to be cut with the text;
+        # a turn-text chunk carries none, so one that does is left whole.
+        if not conts or chunk.get("notes") or chunk.get("markers") or chunk.get("bekker"):
             continue
+        out: list[dict] = []
         text = chunk.get("text") or ""
         group = [seg, *conts]
         sizes = [max(1, len(s.get("lines") or s.get("greek") or [])) for s in group]
@@ -1649,8 +1652,11 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict
             else:
                 out.append({**chunk, "id": owner["id"], "column": owner["column"],
                             "text": body, "turns": turns, "notes": [], "markers": []})
-    out.extend(c for c in chunks if c["id"] not in seg_ids)
-    return out
+        pieces_of[chunk["id"]] = out
+    result: list[dict] = []
+    for c in chunks:
+        result.extend(pieces_of.get(c["id"], [c]))
+    return result
 
 
 def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:

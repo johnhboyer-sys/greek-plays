@@ -1796,7 +1796,13 @@
     // Agamemnon 140-159). Anchor it at the segment's first line and let
     // sentenceTicks place each sentence by proportion to the segment's end.
     // Dialogue keeps the speech-by-speech rows (playRows).
-    const synthetic = !realTicks.length && (seg.speakers ?? []).length <= 1 && source.turns.length <= 1;
+    // One speech only: no speaker event, or a single one opening the segment
+    // (its first line, offset 0). A lone event further in is an antilabe or a
+    // new speaker, which is dialogue (Grok review of 5748b3f).
+    const firstLineN = items.find((it) => it.kind === 'line')?.line.n;
+    const evs = seg.speakers ?? [];
+    const oneSpeech = evs.length === 0 || (evs.length === 1 && evs[0]!.line === firstLineN && (evs[0]!.offset ?? 0) === 0);
+    const synthetic = !realTicks.length && oneSpeech && source.turns.length <= 1;
     if (synthetic) {
       const first = items.find((it) => it.kind === 'line' && !(it.share && it.share.k > 0));
       const n0 = first && first.kind === 'line' ? lineInt(first.line) : null;
