@@ -1574,6 +1574,82 @@ def parse_translation(
     return english, footnotes, report
 
 
+# A sentence starts after . ! ? or … -- not the stop after a lone capital
+# initial ("H. W.") or a title ("Mr.", "St.") -- any closing quote or bracket,
+# then space or a dash; it opens with a capital, a digit, or a Greek letter
+# (the reader's sentenceTicks in shared/lib/speakers.ts reads the same way).
+_SENTENCE_START = re.compile(
+    r"(?<![\s(][A-Z])(?<!\sMr)(?<!\sMrs)(?<!\sDr)(?<!\sSt)(?<!\sMt)"
+    r"[.!?…][\"'’”»)\]]*(?:\s+|[—–]\s*)"
+    r"(?=[\"'‘“«(\[]?[A-ZÀ-Þ0-9Ͱ-Ͽἀ-῿])"
+)
+
+
+def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict]:
+    """A speech-aligned translation's English for a long Greek speech lands on
+    the speech's first segment; the Greek segments that continue it (cut at
+    the 40-line cap, no speaker change of their own, no chunk of their own)
+    stood bare -- Morshead's whole Agamemnon parodos sat beside 40-103 and
+    104-257 had nothing (John, 2026-09-11). Spread it: each continuation
+    takes the share of the text proportional to its Greek lines, cut at the
+    sentence start nearest that point. A continuation that no sentence start
+    reaches stays empty, as before."""
+    by_id = {c["id"]: c for c in chunks}
+    seg_ids = {s["id"] for s in segments}
+    out: list[dict] = []
+    k = 0
+    while k < len(segments):
+        seg = segments[k]
+        chunk = by_id.get(seg["id"])
+        k += 1
+        if chunk is None:
+            continue
+        conts: list[dict] = []
+        while k < len(segments) and not segments[k].get("speakers") and segments[k]["id"] not in by_id:
+            conts.append(segments[k])
+            k += 1
+        if not conts:
+            out.append(chunk)
+            continue
+        text = chunk.get("text") or ""
+        group = [seg, *conts]
+        sizes = [max(1, len(s.get("lines") or s.get("greek") or [])) for s in group]
+        total = sum(sizes)
+        starts = [m.end() for m in _SENTENCE_START.finditer(text)]
+        cuts: list[tuple[dict, int]] = []
+        acc = prev = 0
+        for i, cont in enumerate(conts):
+            acc += sizes[i]
+            target = len(text) * acc / total
+            cand = [p for p in starts if p > prev]
+            if not cand:
+                break
+            best = min(cand, key=lambda p: abs(p - target))
+            cuts.append((cont, best))
+            prev = best
+        bounds = [0, *[p for _, p in cuts], len(text)]
+        owners = [seg, *[c for c, _ in cuts]]
+        for idx, owner in enumerate(owners):
+            a, b = bounds[idx], bounds[idx + 1]
+            piece = text[a:b]
+            lead = len(piece) - len(piece.lstrip())
+            body = piece.strip()
+            if not body:
+                continue
+            turns = [
+                {**t, "offset": max(0, int(t.get("offset") or 0) - a - lead)}
+                for t in chunk.get("turns") or []
+                if a <= int(t.get("offset") or 0) < b
+            ]
+            if idx == 0:
+                out.append({**chunk, "text": body, "turns": turns})
+            else:
+                out.append({**chunk, "id": owner["id"], "column": owner["column"],
+                            "text": body, "turns": turns, "notes": [], "markers": []})
+    out.extend(c for c in chunks if c["id"] not in seg_ids)
+    return out
+
+
 def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
     """Turn-text chunks → the overlay dict stage7 reads from ``ross_chunks.json``.
 
@@ -1648,6 +1724,9 @@ def run(
         splits=cfg.get("splits") or [],
         covered=cfg.get("covered") or [],
     )
+    # A long speech's English reaches the Greek segments that continue it
+    # (John, 2026-09-11, Morshead's Agamemnon parodos).
+    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [])
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)

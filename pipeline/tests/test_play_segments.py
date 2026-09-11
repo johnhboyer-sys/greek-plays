@@ -73,6 +73,32 @@ def test_a_covered_speech_inside_its_covering_block_needs_no_mapping():
         _resolve_covered([{"greek": "999", "by": "328"}], segs, "t")
 
 
+def test_a_long_speech_english_is_spread_over_its_continuation_segments():
+    # Morshead's Agamemnon parodos: one speech, one chunk on 40-103; the
+    # segments continuing the Greek speech (no speaker change) stood bare.
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    segs = [
+        {"id": "1:40", "column": "40", "speakers": [{"line": 1}], "lines": [{}] * 10},
+        {"id": "1:104", "column": "104", "lines": [{}] * 10},
+        {"id": "1:258", "column": "258", "speakers": [{"line": 21}], "lines": [{}] * 2},
+    ]
+    chunk = {"id": "1:40", "column": "40", "text": "Ten years ago. The king went. Now the fire comes. It burns high.",
+             "turns": [{"offset": 0, "speaker": "Chorus"}], "notes": [], "markers": []}
+    other = {"id": "1:258", "column": "258", "text": "Herald speaks.", "turns": [], "notes": [], "markers": []}
+    out = _spread_long_speeches([chunk, other], segs)
+    assert [(c["id"], c["text"]) for c in out] == [
+        ("1:40", "Ten years ago. The king went."),
+        ("1:104", "Now the fire comes. It burns high."),
+        ("1:258", "Herald speaks."),
+    ]
+    # The lead-in stays with the speech's first segment only.
+    assert out[0]["turns"] == [{"offset": 0, "speaker": "Chorus"}] and out[1]["turns"] == []
+    # A continuation that already has English of its own is left alone.
+    own = {"id": "1:104", "column": "104", "text": "Its own.", "turns": [], "notes": [], "markers": []}
+    assert [c["text"] for c in _spread_long_speeches([chunk, own], segs[:2])] == [chunk["text"], "Its own."]
+
+
 def test_speech_block_starts_are_read_from_the_tei():
     tei = (
         '<div><sp><speaker>Chorus</speaker><l n="41">For all</l><l n="45">the men</l></sp>'
