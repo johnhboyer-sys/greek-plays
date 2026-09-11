@@ -31,11 +31,47 @@ function countFiles(dir) {
   return count;
 }
 
-// A reader page is one of the emitted /[author]/[work]/book/[n]/ pages
-// (app/src/pages/[author]/[work]/book/[n].astro) -- distinct from the
-// front-door, authors, search, and lemma routes, which exist even in an
-// empty-corpus build.
-function hasReaderPage(dir) {
+// Reader chrome that a landing plate / empty shell does not carry
+// (ReaderShell: toc sidebar + settings). Astra lane B, F1.
+function looksLikeReader(html) {
+  return (
+    html.includes('id="toc-sidebar"') ||
+    html.includes('settings-toggle') ||
+    html.includes('class="reader"') ||
+    /component-url="[^"]*Reader/.test(html)
+  );
+}
+
+function readerPageAt(distDir, route) {
+  const rel = String(route || '').replace(/^\/+|\/+$/g, '');
+  if (!rel) return false;
+  const rootPage = join(distDir, rel, 'index.html');
+  if (existsSync(rootPage) && looksLikeReader(readFileSync(rootPage, 'utf8'))) return true;
+  const bookRoot = join(distDir, rel, 'book');
+  if (!existsSync(bookRoot)) return false;
+  for (const entry of readdirSync(bookRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const page = join(bookRoot, entry.name, 'index.html');
+    if (existsSync(page) && looksLikeReader(readFileSync(page, 'utf8'))) return true;
+  }
+  return false;
+}
+
+function loadRegistryRoutes(registryPath) {
+  if (!registryPath || !existsSync(registryPath)) return null;
+  const doc = JSON.parse(readFileSync(registryPath, 'utf8'));
+  return Array.isArray(doc?.routes) ? doc.routes : null;
+}
+
+// A reader page is one of:
+//   /[author]/[work]/            — single-book play-line (route registry)
+//   /[author]/[work]/book/[n]/   — every other work
+// Distinct from the front-door, authors, search, and lemma routes, which
+// exist even in an empty-corpus build. Astra lane B, F1.
+function hasReaderPage(dir, routes = null) {
+  if (Array.isArray(routes) && routes.length) {
+    return routes.some((entry) => readerPageAt(dir, entry?.route));
+  }
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const child = join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -49,7 +85,7 @@ function hasReaderPage(dir) {
 
 // `limit` defaults to the real tripwire and is only overridable so tests can
 // exercise the boundary without writing 18,000 real files to a tmp dir.
-function verifyArtifact({ distDir, expectDataRoot, limit = FILE_COUNT_LIMIT }) {
+function verifyArtifact({ distDir, expectDataRoot, limit = FILE_COUNT_LIMIT, registryPath }) {
   const problems = [];
 
   if (!existsSync(distDir) || !statSync(distDir).isDirectory()) {
@@ -78,7 +114,8 @@ function verifyArtifact({ distDir, expectDataRoot, limit = FILE_COUNT_LIMIT }) {
     }
   }
 
-  if (!hasReaderPage(distDir)) {
+  const routes = loadRegistryRoutes(registryPath);
+  if (!hasReaderPage(distDir, routes)) {
     problems.push('no reader page (.../book/N/index.html) found under dist -- looks like an empty or failed build');
   }
 
@@ -113,7 +150,12 @@ async function main() {
   if (!expectDataRoot) usage('--expect-data-root <url> is required.');
   distDir = resolve(distDir || join(ROOT, 'app', 'dist'));
 
-  const { ok, count, problems } = verifyArtifact({ distDir, expectDataRoot });
+  const registryPath = join(ROOT, 'build', 'route-registry.json');
+  const { ok, count, problems } = verifyArtifact({
+    distDir,
+    expectDataRoot,
+    registryPath: existsSync(registryPath) ? registryPath : undefined,
+  });
   console.log(`verify-pages-artifact: ${distDir}`);
   console.log(`  file count: ${count === null ? 'n/a' : count} (limit ${FILE_COUNT_LIMIT})`);
   if (ok) {

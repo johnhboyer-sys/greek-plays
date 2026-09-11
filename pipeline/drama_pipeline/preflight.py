@@ -16,7 +16,7 @@ from typing import Any
 import yaml
 
 from . import scheme as scheme_mod
-from .config import SOURCES_DIR
+from .config import SOURCES_DIR, private_translation_ids
 from .refs import column_key, column_prefix_key, line_key, ref_key
 from .stage5_lsj import SHARD_DIR
 
@@ -117,25 +117,32 @@ class WorkManifest:
     private_data: dict[str, Any] | None = None
 
 
-def validate(data_dir: Path, manifests_dir: Path) -> list[Problem]:
+def validate(data_dir: Path, manifests_dir: Path, public: bool = False) -> list[Problem]:
     problems: list[Problem] = []
     manifests = _load_manifests(manifests_dir, problems)
     for manifest in manifests:
         _validate_manifest_schema(manifest, problems)
         _validate_public_domain_allowlist(manifest, problems)
-        _validate_work_data(data_dir, manifest, problems)
+        _validate_work_data(data_dir, manifest, problems, public_build=public)
     return problems
 
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    public = False
+    if "--public" in argv:
+        public = True
+        argv = [a for a in argv if a != "--public"]
     if len(argv) != 2:
-        print("usage: python3 -m drama_pipeline.preflight <data-dir> <manifests-dir>", file=sys.stderr)
+        print(
+            "usage: python3 -m drama_pipeline.preflight [--public] <data-dir> <manifests-dir>",
+            file=sys.stderr,
+        )
         return 2
 
     data_dir = Path(argv[0])
     manifests_dir = Path(argv[1])
-    problems = validate(data_dir, manifests_dir)
+    problems = validate(data_dir, manifests_dir, public=public)
     if problems:
         for work, file_name, problem in problems:
             print(f"{work}: {file_name}: {problem}")
@@ -849,7 +856,12 @@ def _validate_books_schema(
         previous_end = end_key
 
 
-def _validate_work_data(data_dir: Path, manifest: WorkManifest, problems: list[Problem]) -> None:
+def _validate_work_data(
+    data_dir: Path,
+    manifest: WorkManifest,
+    problems: list[Problem],
+    public_build: bool = False,
+) -> None:
     work_dir = data_dir / manifest.work_id
     if not work_dir.exists():
         problems.append((manifest.work_id, str(work_dir), "emitted work directory does not exist"))
@@ -916,7 +928,7 @@ def _validate_work_data(data_dir: Path, manifest: WorkManifest, problems: list[P
     _validate_chapters(manifest, loaded.get("chapters.json"), segments, anchors, problems, bekker_native, scheme)
     _validate_columns(manifest, loaded.get("columns.json"), segments, problems, scheme, dk_all_context_columns)
     _validate_analyses(manifest, data_dir, loaded.get("analyses.json"), token_keys, problems)
-    _validate_public_gating(manifest, loaded, problems)
+    _validate_public_gating(manifest, loaded, problems, public_build=public_build)
     if scheme.fragment_scheme:
         problems.append((
             manifest.work_id, "<scheme>",
@@ -2362,14 +2374,32 @@ def _validate_lsj_keys(
             problems.append((manifest.work_id, f"{shard_dir_name}/{shard_name}.json", f"dictionary key {key!r} is not present in shard"))
 
 
+def _private_flag_slots(data: dict[str, Any]) -> set[str]:
+    """Slots whose id is marked private: true (Astra lane B, F3)."""
+    ids = private_translation_ids(data)
+    omitted: set[str] = set()
+    english = data.get("english") if isinstance(data.get("english"), dict) else {}
+    for slot in ("secondary", "third"):
+        entry = english.get(slot)
+        if isinstance(entry, dict) and entry.get("id") in ids:
+            omitted.add(slot)
+    for item in english.get("overlays") or []:
+        if isinstance(item, dict) and item.get("id") in ids:
+            omitted.add(f"overlay:{item['id']}")
+    return omitted
+
+
 def _validate_public_gating(
     manifest: WorkManifest,
     loaded: dict[str, Any],
     problems: list[Problem],
+    public_build: bool = False,
 ) -> None:
-    if manifest.public_path is None or manifest.private_data is None:
-        return
-    omitted = _omitted_translation_slots(manifest.private_data, manifest.data)
+    omitted: set[str] = set()
+    if manifest.public_path is not None and manifest.private_data is not None:
+        omitted |= _omitted_translation_slots(manifest.private_data, manifest.data)
+    if public_build:
+        omitted |= _private_flag_slots(manifest.data)
     if not omitted:
         return
     for file_name, doc in loaded.items():

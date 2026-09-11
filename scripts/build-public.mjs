@@ -88,7 +88,7 @@ const { verifyInventoryHashes } = await import('./verify-inventory-hashes.mjs');
 const inv = verifyInventoryHashes();
 for (const w of inv.warnings) console.warn(`  warning: ${w}`);
 console.log(`  ${inv.verified} hash(es) verified, ${inv.problems.length} problem(s)`);
-if (inv.problems.length) {
+if (!inv.ok) {
   for (const p of inv.problems) console.error(`  ${p}`);
   process.exit(1);
 }
@@ -160,7 +160,7 @@ run('node', [join(ROOT, 'scripts', 'build-registry.mjs')]);
 run('node', [join(ROOT, 'scripts', 'build-route-registry.mjs')]);
 
 console.log('\nRunning corpus preflight validation');
-run(PY, ['-m', 'drama_pipeline.preflight', dataDir, MANIFESTS], {
+run(PY, ['-m', 'drama_pipeline.preflight', '--public', dataDir, MANIFESTS], {
   cwd: join(ROOT, 'pipeline'),
 });
 
