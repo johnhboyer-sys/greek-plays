@@ -2,6 +2,7 @@
 // Dependency-free link checker for the emitted Astro site (Node 22+).
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const BASE = process.env.READER_BASE_PATH || '';
 const MAX_ID_CACHE = 6000;
@@ -86,6 +87,28 @@ function virtualDirectory(dist, source) {
   return path.dirname(relative) === '.' ? '' : path.dirname(relative);
 }
 
+// Astra lane B F2: every partner manifest's reading_route must resolve to a
+// real page, or the partner catalogue links to a 404. `routes` is
+// [{source, readingRoute}] read from the emitted manifest.lyceum.json files;
+// `pageDirs` is the set of site-relative page directories (leading slash, no
+// trailing slash) the crawl below found an index.html under. Pure -- no I/O
+// of its own -- so it can be unit-tested with a plain Set.
+export function checkReadingRoutes(routes, pageDirs) {
+  const broken = [];
+  for (const { source, readingRoute } of routes) {
+    if (readingRoute == null) continue;
+    if (!pageDirs.has(readingRoute)) broken.push({ source, readingRoute });
+  }
+  return broken;
+}
+
+// The site-relative directory an index.html lives in, in reading_route form
+// (leading slash, no trailing slash; '' for the dist root itself).
+function pageDirOf(dist, htmlFile) {
+  const relative = path.relative(dist, path.dirname(htmlFile));
+  return relative === '.' ? '' : `/${relative.split(path.sep).join('/')}`;
+}
+
 async function main() {
   const dist = getDist();
   let stat;
@@ -97,6 +120,7 @@ async function main() {
   let anchors = 0;
   const broken = [];
   const idCache = new Map();
+  const pageDirs = new Set();
   const report = (source, href, reason) => broken.push({ source: path.relative(dist, source), href, reason });
 
   async function idsFor(file) {
@@ -200,6 +224,7 @@ async function main() {
 
   for await (const source of htmlFiles(dist)) {
     pages++;
+    if (path.basename(source) === 'index.html') pageDirs.add(pageDirOf(dist, source));
     let html;
     try { html = await fs.readFile(source, 'utf8'); } catch { report(source, '', 'cannot read HTML'); continue; }
     const tags = html.matchAll(/<(a|img|link|script|meta)\b[^>]*>/gi);
@@ -254,6 +279,28 @@ async function main() {
     }
   }
 
+  // Astra lane B F2: cross-check every emitted partner manifest's
+  // reading_route against the pages the crawl above just found. Runs on this
+  // (pre-prune) dist on purpose -- see build-public.mjs's call site, which
+  // invokes this script before the data prune so dist/data/*/manifest.lyceum.json
+  // still exist.
+  let readingRouteChecks = 0;
+  const dataDir = path.join(dist, 'data');
+  let workDirs = [];
+  try { workDirs = await fs.readdir(dataDir, { withFileTypes: true }); } catch { /* no data dir: nothing to check */ }
+  const readingRoutes = [];
+  for (const entry of workDirs) {
+    if (!entry.isDirectory()) continue;
+    const manifestPath = path.join(dataDir, entry.name, 'manifest.lyceum.json');
+    let manifest;
+    try { manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8')); } catch { continue; }
+    readingRouteChecks++;
+    readingRoutes.push({ source: manifestPath, readingRoute: manifest.reading_route ?? null });
+  }
+  for (const { source, readingRoute } of checkReadingRoutes(readingRoutes, pageDirs)) {
+    report(source, readingRoute, 'reading_route has no page');
+  }
+
   // A dist with no pages (or no homepage) is a failed build, not a clean one —
   // this gate must never bless an empty directory.
   if (pages === 0) usage(`No HTML pages found under ${dist} — not a built site.`);
@@ -261,13 +308,18 @@ async function main() {
     usage(`No index.html at the root of ${dist} — not a complete site build.`);
   }
 
-  console.log(`Pages crawled: ${pages}; links checked: ${links}; anchors checked: ${anchors}; broken: ${broken.length}`);
+  console.log(`Pages crawled: ${pages}; links checked: ${links}; anchors checked: ${anchors}; reading routes checked: ${readingRouteChecks}; broken: ${broken.length}`);
   for (const failure of broken.slice(0, MAX_REPORTS)) console.log(`${failure.source} -> ${failure.href} (${failure.reason})`);
   if (broken.length > MAX_REPORTS) console.log(`+${broken.length - MAX_REPORTS} more`);
   process.exitCode = broken.length ? 1 : 0;
 }
 
-main().catch(error => {
-  console.error(`Link checker failed: ${error.stack || error}`);
-  process.exit(2);
-});
+// Guarded so the pure `checkReadingRoutes` export can be imported by tests
+// (scripts/__tests__/check-links.test.mjs) without running the CLI.
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isMain) {
+  main().catch(error => {
+    console.error(`Link checker failed: ${error.stack || error}`);
+    process.exit(2);
+  });
+}

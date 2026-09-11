@@ -279,6 +279,75 @@ const CICERO = {
   floruit: '106–43 BC',
 };
 
+// Shaped on build/dist/agamemnon/manifest.json (play-line, one book) --
+// Astra lane B F2, owner ruling 2026-09-11: a single-book play reads at its
+// bare work route, since app/src/pages/[author]/[work]/book/[n].astro never
+// builds a /book/1 page for one.
+const AGAMEMNON_MANIFEST = {
+  schema_version: 'manifest.v1',
+  id: 'agamemnon',
+  author: 'aeschylus',
+  title: 'Agamemnon',
+  language: 'grc',
+  route: '/aeschylus/agamemnon',
+  citation: {
+    scheme: 'play-line',
+    books: [{ n: 1, start: '1', end: '1673' }],
+  },
+  editions: [
+    {
+      language: 'grc',
+      edition: 'Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)',
+      source: { kind: 'tlg', author: '0085', work: '005' },
+      license: { status: 'unverified' },
+    },
+  ],
+  translations: [
+    {
+      id: 'smyth',
+      name: 'Herbert Weir Smyth (Loeb Classical Library, 1926)',
+      slot: 'primary',
+      default: true,
+      alignment: 'archive',
+      license: { status: 'public-domain-us' },
+    },
+  ],
+  apparatus: {
+    footnotes: false,
+    sidenotes: false,
+    paratext: false,
+    figures: false,
+    sections: false,
+    philosophers: false,
+  },
+  corpus_version: 'c5b8ecf-2026-09-01',
+  books: [{ book: 1, segments: 226, first_column: '1', last_column: '1672' }],
+};
+
+const AGAMEMNON_WORK = {
+  id: 'agamemnon',
+  title: 'Agamemnon',
+  greekTitle: 'Ἀγαμέμνων',
+  abbr: 'Ag.',
+  author: 'aeschylus',
+  language: 'grc',
+  translations: [
+    {
+      id: 'smyth',
+      name: 'Herbert Weir Smyth (Loeb Classical Library, 1926)',
+      short: 'Smyth',
+      slot: 'english',
+    },
+  ],
+};
+
+const AESCHYLUS = {
+  id: 'aeschylus',
+  name: 'Aeschylus',
+  nativeName: 'Αἰσχύλος',
+  floruit: 'c. 525–456 BC',
+};
+
 describe('toLyceumManifest', () => {
   it('maps the enchiridion (section, one book) fixture', () => {
     const out = toLyceumManifest(ENCHIRIDION_MANIFEST, ENCHIRIDION_WORK, EPICTETUS);
@@ -570,6 +639,46 @@ describe('reading_route grammar by citation scheme', () => {
       expect(out.reading_route_note).toBe(`scheme ${scheme}; route grammar for this scheme not yet agreed`);
     }
     expectValid(out);
+  });
+});
+
+// Astra lane B F2, owner ruling 2026-09-11: the fix (F2 in
+// build/review/astra/B-findings.md).
+describe('reading_route for single-book plays (owner ruling 2026-09-11)', () => {
+  it('emits the bare work route for a single-book play-line work', () => {
+    const out = toLyceumManifest(AGAMEMNON_MANIFEST, AGAMEMNON_WORK, AESCHYLUS);
+    expect(out.reading_route).toBe('/aeschylus/agamemnon');
+    expect(out.reading_route_note).toBe(
+      'scheme play-line; single-book plays read at the bare work route -- ' +
+        'owner ruled the shorter address 2026-09-11, partner to accept it',
+    );
+    expectValid(out);
+  });
+
+  it('keeps /book/<n> for a multi-book play-line work', () => {
+    const twoBooks = structuredClone(AGAMEMNON_MANIFEST);
+    twoBooks.citation.books = [
+      { n: 1, start: '1', end: '800' },
+      { n: 2, start: '801', end: '1673' },
+    ];
+    const out = toLyceumManifest(twoBooks, AGAMEMNON_WORK, AESCHYLUS);
+    expect(out.reading_route).toBe('/aeschylus/agamemnon/book/1');
+    expect(out.reading_route_note).toBe(
+      'scheme play-line; route grammar for this scheme not yet agreed',
+    );
+    expectValid(out);
+  });
+
+  it('schema: accepts the bare-route and /book/<n> forms, rejects a malformed one', () => {
+    const bare = toLyceumManifest(AGAMEMNON_MANIFEST, AGAMEMNON_WORK, AESCHYLUS);
+    expectValid(bare);
+
+    const withBook = { ...bare, reading_route: '/aeschylus/agamemnon/book/1' };
+    expectValid(withBook);
+
+    const malformed = { ...bare, reading_route: '/aeschylus/agamemnon/extra/path' };
+    const errors = validateAgainstSchema(malformed, SCHEMA);
+    expect(errors.some((error: { path: string }) => error.path === '/reading_route')).toBe(true);
   });
 });
 
