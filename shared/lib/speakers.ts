@@ -1037,8 +1037,15 @@ export function sentenceTicks(
     .sort((a, b) => a.off - b.off);
   const last = anchors[anchors.length - 1]!;
   const span = endN > last.n ? [...anchors, { n: endN, off: text.length }] : anchors;
-  const starts = new Set<number>([0, ...turnOffsets.filter((o) => o > 0 && o < text.length).map(skipSpace)]);
-  for (const m of text.matchAll(/[.!?]["'’”»)\]]*\s+(?=["'‘“«(\[]?\p{Lu})/gu)) starts.add(m.index! + m[0].length);
+  // A speech starts where its turn says, whitespace and all: sliceBlocks trims
+  // it, and a cut moved past the turn would leave the lead-in on the row above.
+  const starts = new Set<number>([skipSpace(0), ...turnOffsets.filter((o) => o > 0 && o < text.length)]);
+  // A sentence ends at . ! ? or … -- never the stop after a lone capital
+  // initial ("H. W. Wilson") or a title ("Mr.", "St.") -- then any closing
+  // quote or bracket, and space or a dash ("stopped.—She"); it starts with a
+  // capital, a digit, or a Greek letter (Grok review of 1219ece).
+  const END = /(?<!(?:^|[\s(])(?:\p{Lu}|Mr|Mrs|Dr|St|Mt))[.!?…]["'’”»)\]]*(?:\s+|[—–]\s*)(?=["'‘“«(\[]?(?:\p{Lu}|\p{Nd}|\p{Script=Greek}))/gu;
+  for (const m of text.matchAll(END)) starts.add(m.index! + m[0].length);
   const out: { n: number; offset: number }[] = [];
   for (const s of [...starts].sort((a, b) => a - b)) {
     const exact = anchors.find((a) => a.off === s);
@@ -1047,7 +1054,11 @@ export function sentenceTicks(
     const a = span[k];
     const b = span[k + 1];
     if (!a || !b || b.off === a.off) continue; // before the first marker, or past the text
-    out.push({ n: Math.round(a.n + ((s - a.off) / (b.off - a.off)) * (b.n - a.n)), offset: s });
+    // Markers that run backwards (a transposed line printed early) give no
+    // span to interpolate across: hold the earlier marker's line. Never past
+    // the segment's last line (endN is the line after it).
+    const n = b.n < a.n ? a.n : Math.round(a.n + ((s - a.off) / (b.off - a.off)) * (b.n - a.n));
+    out.push({ n: Math.min(n, Math.max(a.n, endN - 1)), offset: s });
   }
   return out;
 }

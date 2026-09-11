@@ -1202,4 +1202,29 @@ describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-0
     // the only marker, so it has no line to interpolate from and cuts nothing.
     expect(out).toEqual([{ n: 15, offset: text.indexOf('Be of') }]);
   });
+
+  it('handles the edge cases from the Grok review of 1219ece', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    const offs = (text: string, ticks: { n: number; offset: number }[], endN: number, turns: number[] = []) =>
+      sentenceTicks(text, ticks, turns, endN).map((t) => t.offset);
+    // A title or a lone initial is not a sentence end.
+    const t1 = 'Go to Mr. Smith. He waits. The general H. W. Wilson spoke.';
+    expect(offs(t1, [{ n: 1, offset: 0 }, { n: 9, offset: t1.length - 1 }], 10))
+      .toEqual([0, t1.indexOf('He waits'), t1.indexOf('The general')]);
+    // A digit, an ellipsis, a stop-and-dash, and a Greek word all open sentences.
+    const t2 = 'They fled. 12,000 remained. He paused… Then he spoke.—She ran. Men cried. ἀνήρ waits.';
+    const o2 = offs(t2, [{ n: 1, offset: 0 }, { n: 9, offset: t2.length - 1 }], 10);
+    for (const s of ['12,000', 'Then he', 'She ran', 'ἀνήρ']) expect(o2).toContain(t2.indexOf(s));
+    // A leading space keeps the first marker.
+    expect(sentenceTicks(' Hello. World.', [{ n: 1, offset: 0 }, { n: 5, offset: 8 }], [], 6)[0]).toEqual({ n: 1, offset: 1 });
+    // A turn on whitespace cuts at the turn itself, not past it.
+    expect(offs('Hello.  Go now.', [{ n: 1, offset: 0 }, { n: 3, offset: 14 }], 4, [6])).toContain(6);
+    // Never past the segment's last line.
+    const t3 = 'Hi. ' + 'x'.repeat(80) + '. Zed.';
+    expect(Math.max(...sentenceTicks(t3, [{ n: 1, offset: 0 }, { n: 10, offset: 4 }], [], 11).map((t) => t.n))).toBe(10);
+    // Markers running backwards (a transposition): hold the earlier marker's line.
+    const t4 = 'Start here. Middle part. End.';
+    const back = sentenceTicks(t4, [{ n: 10, offset: 0 }, { n: 5, offset: t4.indexOf('End') }], [], 11);
+    expect(back.find((t) => t.offset === t4.indexOf('Middle'))!.n).toBe(10);
+  });
 });
