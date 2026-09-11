@@ -165,6 +165,12 @@ speakers:
     "HELMET MAKER": "Arms-dealer"
     "THEORIA": "Daughter"
     "PEACE": "Chorus"
+    "SERVANT": "Slave"
+    "FIRST SERVANT": "First Slave"
+    "SECOND SERVANT": "Second Slave"
+    "DAUGHTER": "Daughter"
+    "SON OF LAMACHUS": "First Boy"
+    "SON OF CLEONYMUS": "Second Boy"
   sigla:
     "ΤΡ.": "Trygaeus"
     "ΤΡΥΓΑΙΟΣ": "Trygaeus"
