@@ -585,6 +585,18 @@ class _Slice:
         return collapse_ws("".join(part for _n, part in self.pieces)).strip()
 
 
+def _line_plain_text(node) -> str:
+    return collapse_ws("".join(node.itertext())).strip()
+
+
+def _is_speaker_label(text: str, printed: str) -> bool:
+    def fold(value: str) -> str:
+        return re.sub(r"[^\w\s]", "", collapse_ws(value), flags=re.UNICODE).strip().casefold()
+
+    a, b = fold(text), fold(printed)
+    return bool(a) and bool(b) and a == b
+
+
 def _iter_speech_slices(
     speech,
     *,
@@ -592,6 +604,7 @@ def _iter_speech_slices(
     text_parser: _LineText,
     anomalies: list[dict],
     sp_index: int,
+    printed: str = "",
 ) -> list[_Slice]:
     slices: list[_Slice] = []
     current = _Slice()
@@ -645,20 +658,35 @@ def _iter_speech_slices(
             return
         if tag == "l":
             raw_n = node.get("n")
-            if raw_n == "0":
+            content = _line_plain_text(node)
+            lettered = _LETTERED_ANCHOR.fullmatch(raw_n or "")
+            # Astra lane C, F8: n="0" is display-only when it repeats the
+            # speaker label; any other nonempty n="0" (or n<=0) is loss.
+            zero_n = raw_n == "0" or (
+                bool(raw_n) and raw_n.isdigit() and int(raw_n) == 0
+            )
+            if zero_n:
+                if content and not _is_speaker_label(content, printed):
+                    anomalies.append(
+                        {"kind": "zero_n_content", "sp": sp_index, "n_raw": raw_n}
+                    )
                 if node.tail:
                     handle_text(node.tail, current_n)
                 return
-            lettered = _LETTERED_ANCHOR.fullmatch(raw_n or "")
             if not raw_n or (not raw_n.isdigit() and lettered is None):
-                anomalies.append(
-                    {"kind": "non_numeric_anchor", "sp": sp_index, "n_raw": raw_n}
-                )
+                if content:
+                    anomalies.append(
+                        {"kind": "non_numeric_anchor", "sp": sp_index, "n_raw": raw_n}
+                    )
                 if node.tail:
                     handle_text(node.tail, current_n)
                 return
             n = _anchor_base(raw_n)
             if n <= 0:
+                if content and not _is_speaker_label(content, printed):
+                    anomalies.append(
+                        {"kind": "zero_n_content", "sp": sp_index, "n_raw": raw_n}
+                    )
                 if node.tail:
                     handle_text(node.tail, current_n)
                 return
@@ -987,6 +1015,7 @@ def parse_translation(
             text_parser=text_parser,
             anomalies=anomalies,
             sp_index=sp_index,
+            printed=printed,
         )
         speech_anchors = [
             anchor
@@ -1134,9 +1163,10 @@ def parse_translation(
     # the manifest (english.<slot>.covered: [{greek, by}]) and shows in the
     # reader as "Translated with the speech above"; the declaration wins
     # over the computed map for its segment.
-    from .stage1_turn_english import _resolve_covered
+    from .stage1_turn_english import _owning_covered, _resolve_covered
 
     covered.update(_resolve_covered(covered_decl or [], spine["segments"], work_id))
+    covered = _owning_covered(covered, set(chunks_by_id), work_id)
     english = {
         "work": work_id,
         "source": xml_path.name,

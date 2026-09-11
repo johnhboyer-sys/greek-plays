@@ -10,7 +10,7 @@ def _manifest(translation_id: str = "smyth") -> WorkManifest:
     return WorkManifest(
         "play",
         Path("play.yaml"),
-        {"english": {"primary": {"id": translation_id}}},
+        {"english": {"primary": {"id": translation_id, "name": "H. W. Smyth"}}},
     )
 
 
@@ -65,7 +65,7 @@ def test_public_domain_allowlist_walks_column_sources_and_summary_overlay(tmp_pa
         Path("play.yaml"),
         {
             "english": {
-                "primary": {"id": "smyth"},
+                "primary": {"id": "smyth", "name": "H. W. Smyth"},
                 "summary_overlay": {"id": "smyth-summary", "columns": ["1"]},
                 "column_sources": [
                     {"column": "B11", "file": "gatt-helen.clean.json"}
@@ -128,3 +128,113 @@ def test_oneill_source_is_denied_even_on_an_allowlisted_id(tmp_path: Path):
     )
     messages = _messages(manifest, allowlist)
     assert any("is denied" in message for message in messages)
+
+
+def test_oneill_curly_apostrophe_is_denied(tmp_path: Path):
+    """Astra lane C, F2: curly apostrophes fold before the denied-name scan."""
+    allowlist = tmp_path / "allowlist.yaml"
+    allowlist.write_text(
+        "translations:\n"
+        "  - {id: smyth, translator: H. W. Smyth, year: 1922, note: Public domain., sources: [perseus/tlg0085.tlg004.perseus-eng2.xml]}\n"
+        "denied:\n"
+        "  - {pattern: \"o'?neill\", note: \"Eugene O'Neill Jr. 1938, not PD\"}\n",
+        encoding="utf-8",
+    )
+    manifest = WorkManifest(
+        "play",
+        Path("play.yaml"),
+        {
+            "english": {
+                "primary": {
+                    "id": "smyth",
+                    "name": "Eugene O\u2019Neill Jr. (1938)",
+                    "source": "perseus/tlg0085.tlg004.perseus-eng2.xml",
+                }
+            }
+        },
+    )
+    messages = _messages(manifest, allowlist)
+    assert any("is denied" in message for message in messages)
+
+
+def test_allowlisted_id_without_source_fails_binding(tmp_path: Path):
+    """Sonnet review of C1: a missing source is a binding failure, not a skip."""
+    allowlist = tmp_path / "allowlist.yaml"
+    allowlist.write_text(
+        "translations:\n"
+        "  - {id: smyth, translator: H. W. Smyth, year: 1922, note: Public domain., sources: [perseus/tlg0085.tlg004.perseus-eng2.xml]}\n",
+        encoding="utf-8",
+    )
+    manifest = WorkManifest(
+        "play",
+        Path("play.yaml"),
+        {"english": {"primary": {"id": "smyth", "name": "H. W. Smyth"}}},
+    )
+    messages = _messages(manifest, allowlist)
+    assert any("has no source/file" in message for message in messages)
+
+
+def test_allowlisted_id_is_bound_to_translator_and_source(tmp_path: Path):
+    """Astra lane C, F2: an allowlisted id still needs matching name and source."""
+    allowlist = tmp_path / "allowlist.yaml"
+    allowlist.write_text(
+        "translations:\n"
+        "  - id: rogers\n"
+        "    translator: B. B. Rogers\n"
+        "    year: 1902\n"
+        "    note: comparison only\n"
+        "    sources:\n"
+        "      - bench/rogers/wealth.txt\n",
+        encoding="utf-8",
+    )
+    wrong_name = WorkManifest(
+        "wealth",
+        Path("wealth.yaml"),
+        {
+            "work": {"id": "wealth", "author": "aristophanes"},
+            "english": {
+                "primary": {
+                    "id": "rogers",
+                    "name": "Eugene O\u2019Neill Jr. (1938)",
+                    "source": "bench/rogers/wealth.txt",
+                }
+            },
+        },
+    )
+    messages = _messages(wrong_name, allowlist)
+    assert any("does not match allowlist translator" in message for message in messages)
+
+    wrong_source = WorkManifest(
+        "wealth",
+        Path("wealth.yaml"),
+        {
+            "work": {"id": "wealth", "author": "aristophanes"},
+            "english": {
+                "primary": {
+                    "id": "rogers",
+                    "name": "B. B. Rogers (Loeb, 1924)",
+                    "source": "bench/oneill/wealth.txt",
+                }
+            },
+        },
+    )
+    messages = _messages(wrong_source, allowlist)
+    assert any("source 'bench/oneill/wealth.txt' is not an allowlisted source" in message for message in messages)
+
+    as_primary = WorkManifest(
+        "wealth",
+        Path("wealth.yaml"),
+        {
+            "work": {"id": "wealth", "author": "aristophanes"},
+            "english": {
+                "primary": {
+                    "id": "rogers",
+                    "name": "B. B. Rogers (Loeb, 1924)",
+                    "source": "bench/rogers/wealth.txt",
+                }
+            },
+        },
+    )
+    messages = _messages(as_primary, allowlist)
+    assert any("comparison-only" in message for message in messages)
+    assert any("Athenian Society" in message for message in messages)

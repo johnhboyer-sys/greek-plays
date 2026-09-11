@@ -25,7 +25,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from . import scheme as scheme_mod
-from .config import BUILD_DIR, Manifest, SOURCES_DIR
+from .config import BUILD_DIR, Manifest, SOURCES_DIR, private_translation_ids
 from .refs import column_key, column_range, ref_key
 from .stage3_tokenize import _SPINE_FILENAMES
 
@@ -289,7 +289,9 @@ def _play_line_english_gap_ids(manifest: Manifest, segments: list[dict]) -> set[
     return allowed
 
 
-def _stage1_english_report(work_id: str) -> tuple[dict | None, str | None]:
+def _stage1_english_report(
+    work_id: str, filename: str = "english_report.json"
+) -> tuple[dict | None, str | None]:
     """The stage1 English report for THIS work, or an explicit error string.
 
     ``build/stage1`` is single-work scratch: a report left by the previous play
@@ -297,17 +299,22 @@ def _stage1_english_report(work_id: str) -> tuple[dict | None, str | None]:
     missing or unreadable report must not silently open a gate (P2g finding
     11) -- both return an error the caller turns into ``ok: False``.
     """
-    path = BUILD_DIR / "stage1" / "english_report.json"
+    path = BUILD_DIR / "stage1" / filename
+    label = (
+        "English report"
+        if filename == "english_report.json"
+        else f"report {filename}"
+    )
     if not path.exists():
-        return None, f"no stage1 English report at {path}"
+        return None, f"no stage1 {label} at {path}"
     try:
         data = json.loads(path.read_text())
     except (ValueError, OSError) as exc:
-        return None, f"unreadable stage1 English report {path}: {exc}"
+        return None, f"unreadable stage1 {label} {path}: {exc}"
     if not isinstance(data, dict) or data.get("work") != work_id:
         got = data.get("work") if isinstance(data, dict) else None
         return None, (
-            f"stage1 English report is for {got!r}, not {work_id!r} "
+            f"stage1 {label} is for {got!r}, not {work_id!r} "
             "(build/stage1 is single-work scratch)"
         )
     return data, None
@@ -318,6 +325,8 @@ _ATTACHMENT_LOSS_KINDS = (
     "unmatched_anchor",
     "nless_slice_unattached",
     "attribution_hole",
+    "non_numeric_anchor",  # Astra lane C, F8
+    "zero_n_content",  # Astra lane C, F8
 )
 
 
@@ -376,6 +385,217 @@ def _attachment_loss_check(manifest: Manifest) -> dict:
         }
     )
     return check
+
+
+def _pick_turn_text_threshold(slot_entry: dict, english_cfg: dict, key: str, default):
+    if isinstance(slot_entry, dict) and slot_entry.get(key) is not None:
+        return slot_entry[key], f"english slot {key}"
+    if english_cfg.get(key) is not None:
+        return english_cfg[key], f"english.{key}"
+    return default, f"english.{key}"
+
+
+def _public_turn_text_comparison_slots(
+    manifest: Manifest,
+) -> list[tuple[str, dict, str]]:
+    """Public (non-private) secondary/third/overlay turn-text slots (Astra lane C, F1)."""
+    private_ids = private_translation_ids(manifest.data)
+    english = manifest.data.get("english") or {}
+    out: list[tuple[str, dict, str]] = []
+    for slot, filename in (
+        ("secondary", "secondary_report.json"),
+        ("third", "third_report.json"),
+    ):
+        entry = english.get(slot)
+        if not isinstance(entry, dict) or entry.get("model") != "turn-text":
+            continue
+        if entry.get("private") or entry.get("id") in private_ids:
+            continue
+        out.append((slot, entry, filename))
+    for item in english.get("overlays") or []:
+        if not isinstance(item, dict) or item.get("model") != "turn-text":
+            continue
+        if item.get("private") or item.get("id") in private_ids:
+            continue
+        tid = item.get("id") or ""
+        out.append((f"overlay:{tid}", item, f"overlay_{tid}_report.json"))
+    return out
+
+
+def _turn_text_quality_checks(
+    *,
+    work_id: str,
+    english_cfg: dict,
+    slot_entry: dict,
+    slot: str,
+    filename: str,
+    key_suffix: str,
+) -> dict[str, dict]:
+    """Pairing/shift/ratio/residual/head gates for one turn-text report."""
+    floor = float(
+        _pick_turn_text_threshold(slot_entry, english_cfg, "min_pairing_rate", 0.85)[0]
+        or 0.85
+    )
+    max_ratio_rate = float(
+        _pick_turn_text_threshold(slot_entry, english_cfg, "max_mismatch_rate", 0.25)[0]
+    )
+    max_shift_rate = float(
+        _pick_turn_text_threshold(slot_entry, english_cfg, "max_turn_shift_rate", 0.10)[0]
+    )
+    max_residual = int(
+        _pick_turn_text_threshold(slot_entry, english_cfg, "max_residual_unassigned", 0)[0]
+    )
+    if isinstance(slot_entry, dict) and slot_entry.get("head_front_matter") is not None:
+        declared_head = int(slot_entry["head_front_matter"])
+        head_key = f"english.{slot}.head_front_matter"
+    elif english_cfg.get("head_front_matter") is not None:
+        declared_head = int(english_cfg["head_front_matter"])
+        head_key = "english.head_front_matter"
+    else:
+        declared_head = 0
+        head_key = f"english.{slot}.head_front_matter"
+    slot_label = "" if slot == "primary" else f"{slot} "
+    data, read_error = _stage1_english_report(work_id, filename)
+    rate = None
+    ratio_check = {
+        "count": None,
+        "paired": None,
+        "rate": None,
+        "max_rate": max_ratio_rate,
+        "error": read_error,
+        "ok": read_error is None,
+    }
+    shift_check = {
+        "count": None,
+        "paired": None,
+        "rate": None,
+        "max_rate": max_shift_rate,
+        "error": read_error,
+        "ok": read_error is None,
+    }
+    residual_check = {
+        "count": None,
+        "max_count": max_residual,
+        "error": read_error,
+        "ok": read_error is None,
+    }
+    head_check = {
+        "count": None,
+        "declared": declared_head,
+        "error": read_error,
+        "ok": read_error is None,
+    }
+    if data is not None:
+        try:
+            rate = float(data.get("pairing_rate"))
+        except (ValueError, TypeError):
+            rate = None
+        paired = int(data.get("paired") or 0)
+        ratio_count = int(data.get("length_ratio_outlier_count") or 0)
+        ratio_rate = (
+            ratio_count / paired if paired else (1.0 if ratio_count else 0.0)
+        )
+        ratio_error = None
+        if ratio_rate > max_ratio_rate:
+            ratio_error = (
+                f"{slot_label}turn-text length-ratio outlier rate {ratio_rate:.3f} "
+                f"exceeds maximum {max_ratio_rate:.3f} "
+                f"({ratio_count}/{paired} paired speeches)"
+            )
+        ratio_check = {
+            "count": ratio_count,
+            "paired": paired,
+            "rate": ratio_rate,
+            "max_rate": max_ratio_rate,
+            "error": ratio_error,
+            "ok": ratio_error is None,
+        }
+        shift_count = int(data.get("turn_shift_count") or 0)
+        raw_rate = data.get("turn_shift_rate")
+        new_drifts = data.get("turn_shift_new_drifts")
+        if raw_rate is None:
+            new_drifts = shift_count
+            shift_rate = (
+                shift_count / paired if paired else (1.0 if shift_count else 0.0)
+            )
+        else:
+            shift_rate = float(raw_rate)
+            new_drifts = shift_count if new_drifts is None else int(new_drifts)
+        shift_error = None
+        if shift_rate > max_shift_rate:
+            shift_error = (
+                f"{slot_label}turn-text turn-shift rate {shift_rate:.3f} exceeds maximum "
+                f"{max_shift_rate:.3f} ({new_drifts}/{paired} pairs OPEN a new "
+                "same-name position drift; cumulative shifts "
+                f"{shift_count})"
+            )
+        shift_check = {
+            "count": shift_count,
+            "new_drifts": new_drifts,
+            "paired": paired,
+            "rate": shift_rate,
+            "max_rate": max_shift_rate,
+            "error": shift_error,
+            "ok": shift_error is None,
+        }
+        residual_unassigned = int(data.get("residual_unassigned") or 0)
+        residual_error = None
+        if residual_unassigned > max_residual:
+            residual_error = (
+                f"{slot_label}{residual_unassigned} residual English speech(es) parked "
+                f"on no Greek speech (maximum {max_residual}): that text "
+                "is dropped from the reader"
+            )
+        residual_check = {
+            "count": residual_unassigned,
+            "max_count": max_residual,
+            "error": residual_error,
+            "ok": residual_error is None,
+        }
+        # Astra lane C, F3: an opening English speech dropped before the first
+        # pair is reader-visible loss unless the manifest names the exact
+        # front-matter count.
+        head_unassigned = int(data.get("head_unassigned") or 0)
+        head_error = None
+        if head_unassigned != declared_head:
+            head_error = (
+                f"{slot_label}{head_unassigned} English opening speech(es) dropped "
+                f"before the first pair (declared {head_key}={declared_head}): "
+                "that text is dropped from the reader"
+            )
+        head_check = {
+            "count": head_unassigned,
+            "declared": declared_head,
+            "error": head_error,
+            "ok": head_error is None,
+        }
+    floor_error = read_error
+    if data is not None:
+        if rate is None:
+            floor_error = (
+                f"{slot_label}turn-text stage-1 report carries no pairing_rate: "
+                f"the {floor:.3f} floor cannot be checked"
+            )
+        elif rate < floor:
+            floor_error = (
+                f"{slot_label}turn-text pairing rate {rate:.3f} is below the floor "
+                f"{floor:.3f} (english.min_pairing_rate): too much of the "
+                "Greek carries no English of its own"
+            )
+    floor_check = {
+        "rate": rate,
+        "floor": floor,
+        "error": floor_error,
+        "ok": floor_error is None,
+    }
+    suffix = key_suffix
+    return {
+        f"turn_text_length_ratio{suffix}": ratio_check,
+        f"turn_text_turn_shift{suffix}": shift_check,
+        f"turn_text_residual_unassigned{suffix}": residual_check,
+        f"turn_text_head_unassigned{suffix}": head_check,
+        f"turn_text_pairing_floor{suffix}": floor_check,
+    }
 
 
 def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) -> dict:
@@ -669,159 +889,16 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         # share), which is what this floor now reads; the old per-segment
         # figure rides beside it as `segment_pairing_rate` and is not gated.
         english_cfg = manifest.data.get("english") or {}
-        floor = float(english_cfg.get("min_pairing_rate") or 0.85)
-        # Default 0.25: the length-ratio heuristic flags 9–21% of pairs in the
-        # comedies (residue grouping inflates English pieces), so 0.15 tripped
-        # four plays that read no worse than the six that passed (2026-09-08;
-        # REVIEW-CHECKLIST item 5 asks John to spot-check flagged pairs).
-        max_ratio_rate = float(english_cfg.get("max_mismatch_rate", 0.25))
-        # A turn shift is the real off-by-one. Event pairing makes the name
-        # check vacuous (a pair joins one Greek share to an English speech of
-        # the same name), so since P3.4 the builder measures POSITION: the
-        # English speech's place in its own same-name run against the Greek
-        # share's place in its. The gated number is an ONSET rate — pairs
-        # where a same-name drift BEGINS, over pairs — because an offset once
-        # opened is inherited by every later pair of that name and would
-        # otherwise be counted hundreds of times. One default, 0.10 (P3.4
-        # ruling 2026-09-08, the only one in code or docs): the eleven
-        # comedies read 0.026–0.078 on it, while the cumulative rate (report
-        # only) reads 0.35–0.74 and describes share-count structure.
-        max_shift_rate = float(english_cfg.get("max_turn_shift_rate", 0.10))
-        # P2j finding 3: a residual English speech the builder could not park
-        # (its speaker is nobody the preceding segment speaks) reaches NO
-        # chunk -- turn-text's own attachment loss, invisible until now.
-        # Default 0, like the perseus-play allowance; a play whose Gutenberg
-        # text really does carry an orphan declares
-        # `english.max_residual_unassigned`.
-        max_residual = int(english_cfg.get("max_residual_unassigned", 0))
-        data, read_error = _stage1_english_report(manifest.work_id)
-        rate = None
-        # P2g finding 11: no report, or another play's report, fails CLOSED.
-        ratio_check = {
-            "count": None,
-            "paired": None,
-            "rate": None,
-            "max_rate": max_ratio_rate,
-            "error": read_error,
-            "ok": read_error is None,
-        }
-        shift_check = {
-            "count": None,
-            "paired": None,
-            "rate": None,
-            "max_rate": max_shift_rate,
-            "error": read_error,
-            "ok": read_error is None,
-        }
-        residual_check = {
-            "count": None,
-            "max_count": max_residual,
-            "error": read_error,
-            "ok": read_error is None,
-        }
-        if data is not None:
-            try:
-                rate = float(data.get("pairing_rate"))
-            except (ValueError, TypeError):
-                rate = None
-            paired = int(data.get("paired") or 0)
-            ratio_count = int(data.get("length_ratio_outlier_count") or 0)
-            ratio_rate = (
-                ratio_count / paired if paired else (1.0 if ratio_count else 0.0)
+        report["checks"].update(
+            _turn_text_quality_checks(
+                work_id=manifest.work_id,
+                english_cfg=english_cfg,
+                slot_entry=english_cfg.get("primary") or {},
+                slot="primary",
+                filename="english_report.json",
+                key_suffix="",
             )
-            ratio_error = None
-            if ratio_rate > max_ratio_rate:
-                ratio_error = (
-                    f"turn-text length-ratio outlier rate {ratio_rate:.3f} "
-                    f"exceeds maximum {max_ratio_rate:.3f} "
-                    f"({ratio_count}/{paired} paired speeches)"
-                )
-            ratio_check = {
-                "count": ratio_count,
-                "paired": paired,
-                "rate": ratio_rate,
-                "max_rate": max_ratio_rate,
-                "error": ratio_error,
-                "ok": ratio_error is None,
-            }
-            shift_count = int(data.get("turn_shift_count") or 0)
-            # P3.5 finding 1: `is None`, not `or` — a clean play reports
-            # `turn_shift_rate: 0.0`, which `or` read as missing and replaced
-            # with the CUMULATIVE rate (0.35–0.74), failing the gate on the
-            # best-aligned play in the corpus.
-            raw_rate = data.get("turn_shift_rate")
-            new_drifts = data.get("turn_shift_new_drifts")
-            if raw_rate is None:
-                # A pre-P3.4 report has no onset rate. Fall back to the
-                # cumulative one, which is never smaller: fails closed.
-                new_drifts = shift_count
-                shift_rate = (
-                    shift_count / paired if paired else (1.0 if shift_count else 0.0)
-                )
-            else:
-                shift_rate = float(raw_rate)
-                new_drifts = shift_count if new_drifts is None else int(new_drifts)
-            shift_error = None
-            if shift_rate > max_shift_rate:
-                shift_error = (
-                    f"turn-text turn-shift rate {shift_rate:.3f} exceeds maximum "
-                    f"{max_shift_rate:.3f} ({new_drifts}/{paired} pairs OPEN a new "
-                    "same-name position drift; cumulative shifts "
-                    f"{shift_count})"
-                )
-            shift_check = {
-                "count": shift_count,
-                "new_drifts": new_drifts,
-                "paired": paired,
-                "rate": shift_rate,
-                "max_rate": max_shift_rate,
-                "error": shift_error,
-                "ok": shift_error is None,
-            }
-            residual_unassigned = int(data.get("residual_unassigned") or 0)
-            residual_error = None
-            if residual_unassigned > max_residual:
-                residual_error = (
-                    f"{residual_unassigned} residual English speech(es) parked "
-                    f"on no Greek speech (maximum {max_residual}): that text "
-                    "is dropped from the reader"
-                )
-            residual_check = {
-                "count": residual_unassigned,
-                "max_count": max_residual,
-                "error": residual_error,
-                "ok": residual_error is None,
-            }
-        report["checks"]["turn_text_length_ratio"] = ratio_check
-        report["checks"]["turn_text_turn_shift"] = shift_check
-        report["checks"]["turn_text_residual_unassigned"] = residual_check
-        # P3.5 finding 3: the floor is its own check, and it no longer doubles
-        # as the switch on the unmatched allowance. Below the floor the build
-        # used to fail with every hole reported as an alignment error, which
-        # buried the one number that had actually moved (Thesmophoriazusae
-        # sits three lost pairs from the default at 0.855). The floor now
-        # fails on its own terms and says the rate and the floor; the holes
-        # stay the expected, labelled "by speech" holes they are.
-        floor_error = read_error
-        if data is not None:
-            if rate is None:
-                floor_error = (
-                    "turn-text stage-1 report carries no pairing_rate: "
-                    f"the {floor:.3f} floor cannot be checked"
-                )
-            elif rate < floor:
-                floor_error = (
-                    f"turn-text pairing rate {rate:.3f} is below the floor "
-                    f"{floor:.3f} (english.min_pairing_rate): too much of the "
-                    "Greek carries no English of its own"
-                )
-        floor_check = {
-            "rate": rate,
-            "floor": floor,
-            "error": floor_error,
-            "ok": floor_error is None,
-        }
-        report["checks"]["turn_text_pairing_floor"] = floor_check
+        )
         allowed.update(unmatched)
         allowed.update(_play_line_english_gap_ids(manifest, segments))
         allowed.update(_play_line_lacuna_segment_ids(segments))
@@ -858,6 +935,22 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
                 "error": strict_error,
                 "ok": strict_error is None,
             }
+    if sch.play_line_scheme:
+        # Astra lane C, F1: public comparison turn-text reports use the same
+        # quality floors as primary (slot key, then english.*, then defaults).
+        english_cfg = manifest.data.get("english") or {}
+        for slot, entry, filename in _public_turn_text_comparison_slots(manifest):
+            suffix = "_" + slot.replace(":", "_")
+            report["checks"].update(
+                _turn_text_quality_checks(
+                    work_id=manifest.work_id,
+                    english_cfg=english_cfg,
+                    slot_entry=entry,
+                    slot=slot,
+                    filename=filename,
+                    key_suffix=suffix,
+                )
+            )
     # A column the manifest's own citation.kind_overrides declares `omit`
     # is ALSO a legitimate unmatched column (see _omit_declared_segment_ids)
     # -- derived from the SAME declaration stage1 already enforces, not a
@@ -1110,6 +1203,33 @@ def _to_markdown(report: dict) -> str:
         ]
         if ru["error"]:
             lines.append(f"- **FAIL:** {ru['error']}")
+    if "turn_text_head_unassigned" in c:
+        hu = c["turn_text_head_unassigned"]
+        lines += [
+            "",
+            "## Turn-text opening English dropped as front matter",
+            f"- count {hu['count'] if hu['count'] is not None else 'unavailable'}; "
+            f"declared {hu.get('declared')}",
+        ]
+        if hu["error"]:
+            lines.append(f"- **FAIL:** {hu['error']}")
+    for key, check in c.items():
+        if not key.startswith("turn_text_") or key in {
+            "turn_text_length_ratio",
+            "turn_text_turn_shift",
+            "turn_text_residual_unassigned",
+            "turn_text_head_unassigned",
+            "turn_text_pairing_floor",
+            "turn_text_strict_coverage",
+        }:
+            continue
+        if not isinstance(check, dict):
+            continue
+        lines += ["", f"## {key.replace('_', ' ').strip()}"]
+        if check.get("error"):
+            lines.append(f"- **FAIL:** {check['error']}")
+        elif check.get("ok") is True:
+            lines.append("- ok")
     lines += [
         "",
         "## Length ratios (english chars / greek chars)",

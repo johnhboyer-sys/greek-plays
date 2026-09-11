@@ -1,25 +1,182 @@
 # Positive allowlist for public English translations under US copyright law.
 # Every english.*.id in a manifest must appear here. Missing, unreadable, or
 # empty data fails preflight.
+# sources: path globs the slot's source must match (Astra lane C, F2).
 translations:
-  - { id: smyth, translator: "H. W. Smyth", year: 1922, note: "Loeb Aeschylus (1922–26); published before 1931." }
-  - { id: jebb, translator: "R. C. Jebb", year: 1883, note: "Sophocles editions (1883–1900); published before 1931." }
-  - { id: coleridge, translator: "E. P. Coleridge", year: 1891, note: "Euripides translation (1891); published before 1931." }
-  - { id: buckley, translator: "T. A. Buckley", year: 1850, note: "Bacchae, Bohn 1850 (the Perseus tlg017 eng2 text); published before 1931." }
-  - { id: athenian-society, translator: "The Athenian Society", year: 1912, note: "The Eleven Comedies, The Athenian Society, London 1912; anonymous; unexpurgated" }
-  - { id: lindsay, translator: "Jack Lindsay", year: 1925, note: "Lysistrata" }
-  - { id: browning, translator: "Robert Browning", year: 1877, note: "Published in 1877, before 1931." }
-  - { id: murray-verse, translator: "Gilbert Murray", year: 1902, note: "Verse translations (1902–15); published before 1931." }
-  - { id: storr, translator: "F. Storr", year: 1912, note: "Sophocles Loeb (1912); published before 1931." }
-  - { id: way, translator: "A. S. Way", year: 1912, note: "Euripides, Loeb Classical Library (1912); published before 1931" }
-  - { id: morshead, translator: "E. D. A. Morshead", year: 1881, note: "Aeschylus in English verse: The House of Atreus (1881; 1904 ed.), The Suppliant Maidens etc. (1908); published before 1931" }
-  - { id: plumptre, translator: "E. H. Plumptre", year: 1865, note: "Translations published from 1865 to 1868, before 1931." }
-  - { id: swanwick, translator: "Anna Swanwick", year: 1873, note: "Published in 1873, before 1931." }
-  - { id: campbell, translator: "Lewis Campbell", year: 1883, note: "Published in 1883, before 1931." }
-  - { id: potter, translator: "Robert Potter", year: 1781, note: "Published in 1781, long in the public domain." }
-  - { id: rogers, translator: "B. B. Rogers", year: 1902, note: "Aristophanes, Loeb (1924; plays first published 1902–1916); bowdlerized — comparison only" }
-  - { id: hickie, translator: "W. J. Hickie", year: 1853, note: "The Comedies of Aristophanes (Bohn, 1853); published before 1931; bowdlerized — comparison slot only" }
-  - { id: frere, translator: "John Hookham Frere", year: 1839, note: "Published in 1839, long in the public domain." }
+  - id: smyth
+    translator: "H. W. Smyth"
+    year: 1922
+    note: "Loeb Aeschylus (1922–26); published before 1931."
+    sources:
+      - perseus/tlg0085.tlg001.perseus-eng2.xml
+      - perseus/tlg0085.tlg002.perseus-eng2.xml
+      - perseus/tlg0085.tlg003.perseus-eng2.xml
+      - perseus/tlg0085.tlg004.perseus-eng2.xml
+      - perseus/tlg0085.tlg005.perseus-eng3.xml
+      - perseus/tlg0085.tlg006.perseus-eng2.xml
+      - perseus/tlg0085.tlg007.perseus-eng2.xml
+  - id: jebb
+    translator: "R. C. Jebb"
+    year: 1883
+    note: "Sophocles editions (1883–1900); published before 1931."
+    sources:
+      - perseus/tlg0011.tlg001.perseus-eng3.xml
+      - perseus/tlg0011.tlg002.perseus-eng2.xml
+      - perseus/tlg0011.tlg003.perseus-eng2.xml
+      - perseus/tlg0011.tlg004.perseus-eng2.xml
+      - perseus/tlg0011.tlg005.perseus-eng2.xml
+      - perseus/tlg0011.tlg006.perseus-eng2.xml
+      - perseus/tlg0011.tlg007.perseus-eng2.xml
+  - id: coleridge
+    translator: "E. P. Coleridge"
+    year: 1891
+    note: "Euripides translation (1891); published before 1931."
+    sources:
+      - perseus/tlg0006.tlg001.perseus-eng2.xml
+      - perseus/tlg0006.tlg002.perseus-eng2.xml
+      - perseus/tlg0006.tlg003.perseus-eng2.xml
+      - perseus/tlg0006.tlg004.perseus-eng2.xml
+      - perseus/tlg0006.tlg005.perseus-eng2.xml
+      - perseus/tlg0006.tlg006.perseus-eng2.xml
+      - perseus/tlg0006.tlg007.perseus-eng2.xml
+      - perseus/tlg0006.tlg008.perseus-eng2.xml
+      - perseus/tlg0006.tlg009.perseus-eng2.xml
+      - perseus/tlg0006.tlg010.perseus-eng2.xml
+      - perseus/tlg0006.tlg011.perseus-eng2.xml
+      - perseus/tlg0006.tlg012.perseus-eng2.xml
+      - perseus/tlg0006.tlg013.perseus-eng2.xml
+      - perseus/tlg0006.tlg014.perseus-eng2.xml
+      - perseus/tlg0006.tlg015.perseus-eng2.xml
+      - perseus/tlg0006.tlg016.perseus-eng2.xml
+      - perseus/tlg0006.tlg018.perseus-eng2.xml
+      - perseus/tlg0006.tlg019.perseus-eng3.xml
+  - id: buckley
+    translator: "T. A. Buckley"
+    year: 1850
+    note: "Bacchae, Bohn 1850 (the Perseus tlg017 eng2 text); published before 1931."
+    sources:
+      - perseus/tlg0006.tlg017.perseus-eng2.xml
+  - id: athenian-society
+    translator: "The Athenian Society"
+    year: 1912
+    note: "The Eleven Comedies, The Athenian Society, London 1912; anonymous; unexpurgated"
+    sources:
+      - gutenberg/pg8688.txt
+      - gutenberg/pg8689.txt
+  - id: lindsay
+    translator: "Jack Lindsay"
+    year: 1925
+    note: "Lysistrata"
+    sources:
+      - gutenberg/pg7700.txt
+  - id: browning
+    translator: "Robert Browning"
+    year: 1877
+    note: "Published in 1877, before 1931."
+    sources: []
+  - id: murray-verse
+    translator: "Gilbert Murray"
+    year: 1902
+    note: "Verse translations (1902–15); published before 1931."
+    sources: []
+  - id: storr
+    translator: "F. Storr"
+    year: 1912
+    note: "Sophocles Loeb (1912); published before 1931."
+    sources:
+      - bench/storr/ajax.txt
+      - bench/storr/antigone.txt
+      - bench/storr/electra-soph.txt
+      - bench/storr/oedipus-coloneus.txt
+      - bench/storr/oedipus-tyrannus.txt
+      - bench/storr/philoctetes.txt
+      - bench/storr/trachiniae.txt
+  - id: way
+    translator: "A. S. Way"
+    year: 1912
+    note: "Euripides, Loeb Classical Library (1912); published before 1931"
+    sources:
+      - bench/way/alcestis.txt
+      - bench/way/andromache.txt
+      - bench/way/bacchae.txt
+      - bench/way/cyclops.txt
+      - bench/way/electra-eur.txt
+      - bench/way/hecuba.txt
+      - bench/way/helen.txt
+      - bench/way/heracles.txt
+      - bench/way/heraclidae.txt
+      - bench/way/hippolytus.txt
+      - bench/way/ion.txt
+      - bench/way/iphigenia-at-aulis.txt
+      - bench/way/iphigenia-in-tauris.txt
+      - bench/way/medea.txt
+      - bench/way/orestes.txt
+      - bench/way/phoenician-women.txt
+      - bench/way/rhesus.txt
+      - bench/way/suppliants-eur.txt
+      - bench/way/trojan-women.txt
+  - id: morshead
+    translator: "E. D. A. Morshead"
+    year: 1881
+    note: "Aeschylus in English verse: The House of Atreus (1881; 1904 ed.), The Suppliant Maidens etc. (1908); published before 1931"
+    sources:
+      - bench/morshead/agamemnon.txt
+      - bench/morshead/eumenides.txt
+      - bench/morshead/libation-bearers.txt
+      - bench/morshead/persians.txt
+      - bench/morshead/prometheus-bound.txt
+      - bench/morshead/seven-against-thebes.txt
+      - bench/morshead/suppliants-aesch.txt
+  - id: plumptre
+    translator: "E. H. Plumptre"
+    year: 1865
+    note: "Translations published from 1865 to 1868, before 1931."
+    sources: []
+  - id: swanwick
+    translator: "Anna Swanwick"
+    year: 1873
+    note: "Published in 1873, before 1931."
+    sources: []
+  - id: campbell
+    translator: "Lewis Campbell"
+    year: 1883
+    note: "Published in 1883, before 1931."
+    sources: []
+  - id: potter
+    translator: "Robert Potter"
+    year: 1781
+    note: "Published in 1781, long in the public domain."
+    sources: []
+  - id: rogers
+    translator: "B. B. Rogers"
+    year: 1902
+    note: "Aristophanes, Loeb (1924; plays first published 1902–1916); bowdlerized — comparison only"
+    sources:
+      - bench/rogers/ecclesiazusae.txt
+      - bench/rogers/lysistrata.txt
+      - bench/rogers/thesmophoriazusae.txt
+      - bench/rogers/wealth.txt
+  - id: hickie
+    translator: "W. J. Hickie"
+    year: 1853
+    note: "The Comedies of Aristophanes (Bohn, 1853); published before 1931; bowdlerized — comparison slot only"
+    sources:
+      - bench/hickie/acharnians.txt
+      - bench/hickie/birds.txt
+      - bench/hickie/ecclesiazusae.txt
+      - bench/hickie/frogs.txt
+      - bench/hickie/knights.txt
+      - bench/hickie/lysistrata.txt
+      - bench/hickie/peace.txt
+      - bench/hickie/thesmophoriazusae.txt
+      - bench/hickie/wasps.txt
+      - bench/hickie/wealth.txt
+      - perseus/tlg0019.tlg003.perseus-eng2.xml
+  - id: frere
+    translator: "John Hookham Frere"
+    year: 1839
+    note: "Published in 1839, long in the public domain."
+    sources: []
 
 # DENIED: Eugene O'Neill Jr., The Complete Greek Drama (1938): not public
 # domain; Perseus's default Aristophanes English. The pattern matches even

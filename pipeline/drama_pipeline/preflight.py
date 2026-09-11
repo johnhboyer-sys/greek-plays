@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import fnmatch
 import hashlib
 import json
 import os
@@ -2464,6 +2465,18 @@ def load_public_domain_allowlist(path: Path | None = None) -> dict[str, dict[str
             raise ValueError(
                 f"public-domain allowlist {translation_id!r}: note must be a non-empty string"
             )
+        sources = item.get("sources")
+        if sources is None:
+            sources = []
+        if not isinstance(sources, list) or any(
+            not isinstance(pattern, str) or not pattern for pattern in sources
+        ):
+            raise ValueError(
+                f"public-domain allowlist {translation_id!r}: sources must be a "
+                "list of non-empty path globs"
+            )
+        item = dict(item)
+        item["sources"] = sources
         allowed[translation_id] = item
     return allowed
 
@@ -2541,6 +2554,34 @@ def manifest_emitted_translations(data: dict[str, Any]) -> list[tuple[str, dict[
     return found
 
 
+_PD_APOSTROPHES = str.maketrans({"\u2019": "'", "\u2018": "'", "\u02bc": "'"})
+_COMPARISON_ONLY_IDS = frozenset({"rogers", "hickie"})
+
+
+def _norm_pd_text(value: str) -> str:
+    """Fold curly apostrophes and case for PD name/source scans (Astra lane C, F2)."""
+    return value.translate(_PD_APOSTROPHES).casefold()
+
+
+def _translator_matches(entry: dict[str, Any], allowed_translator: str) -> bool:
+    needle = _norm_pd_text(allowed_translator)
+    if not needle:
+        return False
+    for field in (entry.get("name"), entry.get("translator")):
+        if isinstance(field, str) and needle in _norm_pd_text(field):
+            return True
+    return False
+
+
+def _source_matches(source: str, patterns: list[str]) -> bool:
+    path = source.replace("\\", "/")
+    return any(fnmatch.fnmatch(path, pattern.replace("\\", "/")) for pattern in patterns)
+
+
+def _is_comparison_slot(slot: str) -> bool:
+    return slot in ("secondary", "third") or slot.startswith("overlay:")
+
+
 def _validate_public_domain_allowlist(
     manifest: WorkManifest,
     problems: list[Problem],
@@ -2555,6 +2596,8 @@ def _validate_public_domain_allowlist(
     except Exception as exc:
         problems.append((manifest.work_id, label, str(exc)))
         return
+    work = manifest.data.get("work") if isinstance(manifest.data.get("work"), dict) else {}
+    author = str(work.get("author") or "")
     for slot, entry in manifest_emitted_translations(manifest.data):
         translation_id = entry.get("id")
         if translation_id not in allowed:
@@ -2566,13 +2609,71 @@ def _validate_public_domain_allowlist(
                     "public-domain allowlist",
                 )
             )
+        allowed_entry = allowed.get(translation_id) if isinstance(translation_id, str) else None
+        if isinstance(allowed_entry, dict):
+            allowed_translator = allowed_entry.get("translator")
+            if not isinstance(allowed_translator, str) or not _translator_matches(
+                entry, allowed_translator
+            ):
+                problems.append(
+                    (
+                        manifest.work_id,
+                        manifest.path.name,
+                        f"translation {translation_id!r} ({slot}) name/translator "
+                        f"does not match allowlist translator {allowed_translator!r}",
+                    )
+                )
+            source = entry.get("source") or entry.get("file") or entry.get("dir")
+            patterns = allowed_entry.get("sources") or []
+            if isinstance(source, str) and source:
+                if not patterns or not _source_matches(source, patterns):
+                    problems.append(
+                        (
+                            manifest.work_id,
+                            manifest.path.name,
+                            f"translation {translation_id!r} ({slot}) source {source!r} "
+                            "is not an allowlisted source for that id",
+                        )
+                    )
+            elif patterns:
+                # No source to bind is a failure, not a skip (Sonnet review of C1).
+                problems.append(
+                    (
+                        manifest.work_id,
+                        manifest.path.name,
+                        f"translation {translation_id!r} ({slot}) has no source/file "
+                        "to bind against the allowlist",
+                    )
+                )
+        if translation_id in _COMPARISON_ONLY_IDS and not _is_comparison_slot(slot):
+            problems.append(
+                (
+                    manifest.work_id,
+                    manifest.path.name,
+                    f"translation {translation_id!r} ({slot}) is comparison-only "
+                    "(Rogers/Hickie may not occupy english.primary)",
+                )
+            )
+        if (
+            author.casefold() == "aristophanes"
+            and slot == "primary"
+            and translation_id != "athenian-society"
+        ):
+            problems.append(
+                (
+                    manifest.work_id,
+                    manifest.path.name,
+                    "Aristophanes english.primary must be the Athenian Society "
+                    f"translation, not {translation_id!r}",
+                )
+            )
         fields = [
             entry.get("id"),
             entry.get("name"),
             entry.get("translator"),
             entry.get("source"),
+            entry.get("file"),
         ]
-        allowed_entry = allowed.get(translation_id) if isinstance(translation_id, str) else None
         if isinstance(allowed_entry, dict):
             fields.extend(
                 [
@@ -2580,9 +2681,16 @@ def _validate_public_domain_allowlist(
                     allowed_entry.get("translator"),
                 ]
             )
-        scanned = [value for value in fields if isinstance(value, str) and value]
+        scanned = [
+            (value, _norm_pd_text(value))
+            for value in fields
+            if isinstance(value, str) and value
+        ]
         for pattern, note in denied:
-            hit = next((value for value in scanned if pattern.search(value)), None)
+            hit = next(
+                (original for original, folded in scanned if pattern.search(folded)),
+                None,
+            )
             if hit is not None:
                 problems.append(
                     (

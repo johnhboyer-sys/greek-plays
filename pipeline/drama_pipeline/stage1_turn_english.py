@@ -1192,6 +1192,36 @@ def _resolve_covered(covered: list[dict], segments: list[dict], work_id: str) ->
     return out
 
 
+def _owning_covered(
+    covered: dict[str, str], chunk_ids: set[str], work_id: str
+) -> dict[str, str]:
+    """Follow each covered target to the segment that holds English.
+
+    Astra lane C, F7: a chain or a neighbour without a chunk must not ship
+    as ``englishCoveredBy``. Cycles and chains that reach no English fail.
+    """
+    out: dict[str, str] = {}
+    for sid, target in covered.items():
+        seen = [sid]
+        cur = target
+        while True:
+            if cur in seen:
+                raise ValueError(
+                    f"{work_id}: covered cycle {' -> '.join(seen + [cur])}"
+                )
+            seen.append(cur)
+            if cur in chunk_ids:
+                out[sid] = cur
+                break
+            nxt = covered.get(cur)
+            if not nxt:
+                raise ValueError(
+                    f"{work_id}: covered chain {' -> '.join(seen)} reaches no English"
+                )
+            cur = nxt
+    return out
+
+
 def _pin_norm(t: str) -> str:
     """Pin matching ignores footnote markers, a leading stage note, and all
     punctuation: "(as Helen) \"These shores[^3.1] are" -> "these shores are"."""
@@ -1219,12 +1249,18 @@ def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> lis
         if not words or not label:
             raise ValueError(f"{work_id}: a split needs english and speaker: {split!r}")
         # Between the words: punctuation, quotes, and footnote markers.
-        pat = re.compile(
-            r"(?:\[\^[^\]]*\]|\W)*".join(re.escape(w) for w in words.split()), re.IGNORECASE
-        )
-        hits = [(j, m) for j, sp in enumerate(speeches) for m in [pat.search(sp["text"])] if m]
+        # Astra lane C, F6: whole-word, one match position in the play.
+        inner = r"(?:\[\^[^\]]*\]|\W)*".join(re.escape(w) for w in words.split())
+        pat = re.compile(rf"(?<![\w]){inner}(?![\w])", re.IGNORECASE)
+        hits = [
+            (j, m)
+            for j, sp in enumerate(speeches)
+            for m in pat.finditer(sp["text"])
+        ]
         if len(hits) != 1:
-            raise ValueError(f"{work_id}: split {words!r} matches {len(hits)} speeches (need exactly 1)")
+            raise ValueError(
+                f"{work_id}: split {words!r} matches {len(hits)} positions (need exactly 1)"
+            )
         j, m = hits[0]
         head = speeches[j]["text"][: m.start()].rstrip()
         tail = speeches[j]["text"][m.start():].strip()
@@ -1235,6 +1271,8 @@ def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> lis
             raise ValueError(f"{work_id}: split {words!r} is already the start of its speech")
         speeches[j]["text"] = head
         speeches.insert(j + 1, {"speaker_printed": label, "text": tail})
+        if split.get("greek"):
+            pins.append({"greek": split["greek"], "english": split["english"], "run": 1})
     return pins
 
 
@@ -1535,7 +1573,11 @@ def parse_translation(
         # Item 6 (2026-09-09): a Greek speech whose English sits inside the
         # speech attached to a neighbour, declared in the manifest; the
         # reader shows "Translated with the speech above" (stage7 reads it).
-        "english_covered_by": _resolve_covered(covered or [], segments, work_id),
+        "english_covered_by": _owning_covered(
+            _resolve_covered(covered or [], segments, work_id),
+            chunk_ids,
+            work_id,
+        ),
     }
     report = {
         "work": work_id,
