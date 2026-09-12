@@ -63,17 +63,17 @@ english:
     # through Strepsiades' opening monologue (John's spot check, 2026-09-11).
     #
     # Greek 102 (Pheidippides names Socrates and Chaerephon in one turn) is
-    # preceded by an Arrowsmith-only comic stalling exchange -- two whole
-    # extra Pheidippides/Strepsiades turns ("Fine. Who are they?" / "Er . . .
-    # Gentlemen. Men of Learning."). Greek 100 already has this exchange, an
+    # preceded by Arrowsmith's comic stalling exchange ("Fine. Who are
+    # they?" / "Er . . . Gentlemen. Men of Learning."). Greek 100 has this
+    # exchange, an
     # antilabe split across the same printed line: Pheidippides asks
     # "εἰσὶν δὲ τίνες;" ("Who are they?"), Strepsiades answers at once,
     # unsure of the name, "οὐκ οἶδ' ἀκριβῶς τοὔνομα." ("I don't know
     # exactly the name."), then continues into 101 with his own invented
     # term, "μεριμνοφροντισταὶ καλοί τε κἀγαθοί." ("thought-worriers, fine
     # and good men."). Arrowsmith expands that one Greek antilabe (100-101)
-    # and the turn at 102 into six English turns, distributing and
-    # repeating the same material rather than adding anything new. Because
+    # into six English turns, distributing and repeating the same material;
+    # the identification at 102 is a seventh. Because
     # the insertion comes in a speaker-alternating pair, the name-only LCS
     # zip still "agrees" turn for turn and never flags it, so every turn
     # from here on paired one slot early (Codex review finding 7,
