@@ -20,6 +20,7 @@ from pathlib import Path
 
 from .bench_clean import rejoin_hyphens
 from .config import BUILD_DIR, REPO_ROOT, SOURCES_DIR
+from .stage1_turn_english import _split_lindsay_speaker_line
 
 
 PLAY_TITLES = (
@@ -1316,6 +1317,415 @@ def write_clean(
     return dest, report
 
 
+# --- Genie OCR HTML (Arrowsmith's Aristophanes: the owner's docx, converted
+# `textutil -convert html` so italic runs survive as `<i>...</i>`).
+#
+# History Genie OCR of the owner's Fulcrum PDF purchase. Layout per paragraph
+# (`<p class="p1|p2">...</p>`, one printed line each): speaker names on their
+# own bare line; footers ("Aristophanes, and William Arrowsmith...", the
+# e-book/DOI line, "Downloaded on behalf of Unknown Institution", a page
+# number, then "---") repeat after every page; a shared line's staggered
+# halves are indented with runs of regular or non-breaking spaces; footnote
+# markers are a bare trailing "*"; a few mid-line indents survive as literal
+# `$\qquad...$` (a LaTeX artifact of Genie's own rendering).
+#
+# The same fully-italic-paragraph markup carries THREE different things:
+# Arrowsmith's own stage directions (prose narration -- dropped, as the
+# verse-own-line format has no channel for them, same as Morshead), whole
+# choral odes/invocations set in italics as sung verse, and a handful of
+# emphasised one-line dialogue exclamations. Telling them apart by shape
+# alone is unreliable (a stage direction and a sung line can both be a bare
+# short sentence); `GENIE_DIALOGUE_OVERRIDES` is the reviewed list of
+# paragraph indices (0-based, in document order over the raw `<p>` matches)
+# where a fully-italic paragraph is actually dialogue and must be kept, each
+# checked against the printed page image rather than guessed.
+
+GENIE_ROSTERS: dict[str, frozenset[str]] = {
+    "clouds": frozenset(
+        {
+            "STREPSIADES", "PHEIDIPPIDES", "XANTHIAS", "SOKRATES", "CHORUS",
+            "KORYPHAIOS", "PHILOSOPHY", "SOPHISTRY", "PASIAS", "AMYNIAS",
+            "STUDENT", "FIRST STUDENT", "SECOND STUDENT", "ARISTOPHANES",
+            "CHAIREPHON",
+        }
+    ),
+    "birds": frozenset(
+        {
+            "PISTHETAIROS", "EUELPIDES", "HOOPOE", "KORYPHAIOS", "HERAKLES",
+            "CHORUS", "INFORMER", "PROMETHEUS", "POSEIDON", "IRIS",
+            "MESSENGER", "PROPHET", "SANDPIPER", "METON", "KINESIAS",
+            "POET", "INSPECTOR", "LEGISLATOR", "PRIEST", "DELINQUENT",
+            "SENTRY", "TRIBALLOS", "HERALD",
+        }
+    ),
+}
+
+# Reviewed against build/arrowsmith/genie-clouds.html / genie-birds.html and
+# the Fulcrum PDF page images (2026-09-11): every fully-italic paragraph in
+# the play, checked one by one, that is sung verse or emphasised dialogue
+# rather than narration (a plain narration paragraph is dropped by default
+# and needs no entry here -- see `clean_genie_html`). This is every such
+# paragraph, not just the hard-to-call ones: the cleaner has no way to keep
+# a fully-italic line except by its index being listed.
+GENIE_DIALOGUE_OVERRIDES: dict[str, frozenset[int]] = {
+    "clouds": frozenset(
+        {
+            179,  # "That's it." -- Strepsiades' own aside, not a stage direction
+            305,  # "Please." -- end of Strepsiades' plea to Pheidippides
+            351,  # "Yes, but what are their names?"
+            # the invocation to the Clouds (738-758 is one italic run; only
+            # 738 itself, "He stretches out his hands to heaven and prays.",
+            # is narration)
+            739, 740, 741, 742, 743, 749, 750, 751, 752, 753, 754, 755,
+            756, 757, 758,
+            882, 884, 886, 888, 889, 891, 892,  # the parodos ode
+            # Sokrates' list of a sophist's virtues, "-To wrangle -niggle..."
+            1081, 1082, 1083, 1084, 1085, 1086,
+            1155,  # "Yes, you can serve me up as salami!"
+            1344, 1349, 1353, 1358, 1412, 1416, 1422, 1427,  # the gods' invocation ode
+            # "and hard on the heels of the Levin rattled the steeds of
+            # Thunder?" -- Strepsiades quotes mock-epic parody; a footnote
+            # mark just outside the italics hid this from the fully-italic
+            # check until that check learned to ignore a trailing note mark
+            # (Codex review finding 3, 2026-09-11 -- same for every other
+            # newly-visible index added below).
+            1386,
+            1559,  # "A duchess?"
+            1664,  # "Now hence, ye Syrops of Sleep! Come hither, O Pain!"
+            1788, 1797, 1801, 1806, 1811,  # Strepsiades and Sokrates' exchange
+            2058,  # "No comment." -- Strepsiades' own aside
+            2471,  # "Q.E.D.! This is the rubbish I mean! ..."
+            # Strepsiades' mock-heroic song about his son, "Then let my loud
+            # falsetto peal..."
+            2685, 2686, 2687, 2688, 2689, 2690, 2691, 2692, 2693, 2694,
+            2695, 2696, 2697, 2698, 2699, 2700, 2701,
+            # Chorus's mocking song, "He went to school with Sokrates" (2814)
+            # missed by the original review -- Codex review finding 2,
+            # 2026-09-11.
+            2812, 2813, 2814, 2815, 2816, 2817, 2818, 2819, 2820, 2821,
+            2886, 2889, 2900,  # Pasias exchange
+            # Amynias' mock-tragic archaism, "Alackaday! Woe is me! ..."
+            2973, 2974, 2975, 2984, 2985, 2986, 2990, 2991, 2992, 2993,
+            2994, 2995,
+            3205,  # "Ouuch!"
+            3254,  # "Either which?"
+            3299,  # "Shearin' o' the Ram." -- the song Strepsiades' guest sang
+            3317,  # "A cricket-concert!"
+            3363,  # "Got it coming, do I?"
+            3379,  # "Yes, to do it on the floor!"
+            3452,  # "Spare the Rod and Spoil the Child?"
+            3462,  # "Honor your father and mother." -- Strepsiades quotes the maxim
+            3525,  # "HORSEWHIP YOUR OWN MOTHER?"
+        }
+    ),
+    # Reviewed against build/arrowsmith/genie-birds.html and the Fulcrum PDF
+    # page images (2026-09-11).
+    "birds": frozenset(
+        {
+            668, 682, 686, 691, 694,  # the Nightingale's "Itys, Itys!" call
+            # the Hoopoe's bird-call, "tio tio tio tio..."/"Toro toro toro tix..."
+            729, 735, 756, 757, 758, 759, 774,
+            800, 801,  # "Prithee, sir, / how is yon strange ... Bird yclept?"
+            1160,  # "Viz." -- opens the Chorus's promise-list ("all shall be yours...")
+            1269,  # "Older than Earth?"
+            1415, 1420,  # "Yes, they pour it over you!" / "Yes, to sterilize the rot!"
+            1450,  # "et cet." -- closes the Chorus's dedication list
+            1600,  # "Amen, we say." -- the Chorus's prayer response
+            1898, 1907, 1911, 1915, 1949, 1953, 1955, 1959, 1964,  # bird-call refrains
+            # the Chorus's mocking song about the Poet, "Undressed amidst..."
+            2247, 2248, 2249, 2284, 2285, 2286, 2287, 2288, 2289, 2290,
+            2291, 2304, 2305, 2306, 2307, 2308, 2309, 2310, 2311,
+            2312,  # "G'bye." -- the Poet's own parting word
+            3029, 3030, 3031, 3032,  # Pisthetairos quotes "the poet" in mock-epic verse
+            3215, 3216,  # "If I had the wings of an Eagle..."
+            # Kinesias' dithyrambic song parody, "delicately wending..."
+            3278, 3279, 3280, 3281, 3286, 3287, 3297, 3298,
+            3323, 3324, 3325, 3330, 3341, 3342, 3343, 3344,  # same song, continued
+            3363, 3364, 3365, 3372,  # the Informer's sung entrance
+            3431, 3450,  # "Your words are wings?" exchange
+            3841,  # "Fapple gleep." (Triballos' gibberish, a running joke)
+            3849,  # "well, so do mine."
+            3870, 3871,  # more Triballos gibberish
+            3929,  # "I'm a bastard?"
+            3988, 3989,  # more Triballos gibberish
+            4085, 4092, 4098, 4133,  # "O Hymen! Hymenaios O!" refrain
+            4148, 4149, 4150, 4152,  # "Alalalai! / Io! / Paion! / ... Kallinikos O!"
+        }
+    ),
+}
+
+# Birds prints "MESSENGER" for three Greek roles the Dover edition keeps
+# distinct: the wall-building report (First Messenger, ΑΓ. Αʹ), the
+# crown-bringer (the Herald, ΚΗΡΥΞ -- Arrowsmith drops the separate Herald
+# label and gives his lines to a generic Messenger), and the closing
+# ascension announcement (the one unlabelled ΑΓΓΕΛΟΣ at 1706, left as
+# plain "MESSENGER"). Checked against build/stage1/greek_spine.json
+# (2026-09-11): the three scenes fall in that order and match those three
+# Greek speakers one for one.
+GENIE_SPEAKER_RELABELS: dict[str, dict[int, str]] = {
+    "birds": {
+        # wall-building report -> First Messenger
+        2748: "FIRST MESSENGER", 2753: "FIRST MESSENGER", 2757: "FIRST MESSENGER",
+        2765: "FIRST MESSENGER", 2771: "FIRST MESSENGER", 2791: "FIRST MESSENGER",
+        2796: "FIRST MESSENGER", 2804: "FIRST MESSENGER", 2815: "FIRST MESSENGER",
+        # crown-bringer -> Herald
+        3081: "HERALD", 3092: "HERALD", 3100: "HERALD",
+    },
+}
+
+# Paragraphs that are stage direction in full but only PARTLY italic in the
+# markup (Genie italicises the first clause of the sentence and leaves the
+# rest plain), so the fully-italic rule never sees them as narration.
+# Reviewed against build/arrowsmith/genie-birds.html and the Fulcrum PDF
+# page images (2026-09-11): checked every paragraph in both plays that
+# opens in italics and still has real text after the closing `</i>`; these
+# two are the only ones that are narration rather than dialogue with an
+# italicised opening word or phrase (Codex review finding 3, 2026-09-11).
+GENIE_STAGE_DIRECTION_OVERRIDES: dict[str, frozenset[int]] = {
+    "birds": frozenset(
+        {
+            2521,  # "Exit Meton. From the other side enters an Inspector,"...
+            2567,  # "Enter an itinerant Legislator" reading from a huge volume of laws.
+        }
+    ),
+}
+
+
+_GENIE_TAG_RE = re.compile(r"<[^>]+>")
+_GENIE_ITALIC_SPAN_RE = re.compile(r"<i>.*?</i>", re.I | re.S)
+# A LaTeX spacing fragment Genie's own rendering leaves behind where the
+# source used an indent: `$\qquad\qquad$` (a Clouds/Birds page's italic
+# indent) and `$\hspace{18em}$` (Clouds' prose-rhetoric scene, ~2553) are
+# both artifacts, never content -- and a `$\hspace{...}$` prefix on a bare
+# speaker cue (`$\hspace{4em}$ SOKRATES`) hides the cue from name matching
+# entirely if left in place (Codex re-review finding 2, 2026-09-11).
+_GENIE_TEX_SPACING_RE = re.compile(r"\$(?:\\hspace\{[^}]*\}|\\qquad)+\$\s*")
+_GENIE_PAGE_NUM_RE = re.compile(r"^\d{1,4}$")
+_GENIE_NOTE_MARK_RE = re.compile(r"\*+$")
+# The footer's wording OCRs inconsistently (no comma, a stray page number
+# inserted mid-line, "Edited by" recast, three footer lines glued together
+# with no space) -- an exact-prefix match misses variants and leaves
+# publication credits in dialogue (Codex review finding 4, 2026-09-11). Any
+# of these phrases appearing anywhere in the paragraph is footer, never
+# genuine Aristophanes dialogue.
+_GENIE_FOOTER_MARKERS = ("William Arrowsmith", "Ann Arbor", "Downloaded on behalf")
+
+
+def _genie_strip_tags(s: str) -> str:
+    return _GENIE_TAG_RE.sub("", s)
+
+
+def _genie_is_fully_italic(inner_html: str) -> bool:
+    """True if every non-blank character sits inside an `<i>` span or is a
+    trailing footnote mark (a bare `*` right after the closing `</i>`,
+    outside it, still means the whole line is the same sung/narrated unit --
+    Codex review finding 3, 2026-09-11)."""
+    if not re.search(r"<i>", inner_html, re.I):
+        return False
+    without = _GENIE_ITALIC_SPAN_RE.sub("", inner_html)
+    remainder = _genie_strip_tags(without).strip()
+    return remainder == "" or _GENIE_NOTE_MARK_RE.fullmatch(remainder) is not None
+
+
+def _genie_is_footer(text: str) -> bool:
+    return (
+        text == "---"
+        or bool(_GENIE_PAGE_NUM_RE.match(text))
+        or any(marker in text for marker in _GENIE_FOOTER_MARKERS)
+    )
+
+
+def clean_genie_html(
+    html_text: str,
+    title: str,
+    speakers: frozenset[str],
+    *,
+    dialogue_overrides: frozenset[int] = frozenset(),
+    speaker_relabels: dict[int, str] | None = None,
+    stage_direction_overrides: frozenset[int] = frozenset(),
+) -> tuple[str, dict]:
+    """Clean a History Genie docx->html OCR into verse-own-line text.
+
+    Bounds the play at its "SCENE:" opening (after the front-matter
+    "Characters of the Play" list) and its "Notes" end matter. Paragraph
+    index (0-based over every ``<p class="pN">`` match, document order) is
+    the key `dialogue_overrides` uses, so it stays stable for a given html
+    file.
+
+    `speaker_relabels` swaps the EMITTED name for one printed speaker cue
+    (by its paragraph index) without touching the roster check: Arrowsmith
+    reuses one printed label ("MESSENGER") for three Greek roles the Dover
+    edition keeps distinct (First Messenger, the Herald, and the unlabelled
+    Messenger at 1706) -- the alias map alone can't tell those apart since
+    it maps by printed text, not by occurrence.
+
+    `stage_direction_overrides` force-drops a paragraph by index regardless
+    of how much of it is italic: a stage direction can be split across a
+    partial italic run ("Exit Meton. From the other side enters an
+    Inspector," dressed in a magnificent uniform.) with real, non-footnote
+    text outside the `<i>` span, so the fully-italic rule below never sees
+    it as narration (Codex review finding 3, 2026-09-11).
+    """
+    speaker_relabels = speaker_relabels or {}
+    paras = re.findall(r'<p class="p\d+">(.*?)</p>', html_text, re.S)
+    start = None
+    for i, p in enumerate(paras):
+        if _genie_strip_tags(p).strip().upper().startswith("SCENE"):
+            start = i
+            break
+    if start is None:
+        raise ValueError(f"{title}: SCENE start not found")
+    end = None
+    for i in range(start + 1, len(paras)):
+        if _genie_strip_tags(paras[i]).strip() == "Notes":
+            end = i
+            break
+    if end is None:
+        raise ValueError(f"{title}: Notes end not found")
+
+    # kind is "speaker" or "verse" ("" text marks a blank separator, kept
+    # inline in `out` once the merge pass below is done).
+    rows: list[tuple[str, str]] = []
+    current: str | None = None
+    speakers_found: list[str] = []
+    dropped_stage = 0
+    kept_lines = 0
+    overrides_used = 0
+
+    for idx in range(start, end):
+        p = paras[idx]
+        # Strip a TeX spacing fragment before any matching below -- a
+        # speaker cue prefixed with `$\hspace{4em}$` is not `in speakers`
+        # verbatim, so it would otherwise fall through as dialogue instead
+        # of opening its own speech (Codex re-review finding 2, 2026-09-11).
+        raw_txt = _GENIE_TEX_SPACING_RE.sub("", _genie_strip_tags(p)).strip()
+        if not raw_txt or _genie_is_footer(raw_txt):
+            continue
+        if idx in stage_direction_overrides:
+            dropped_stage += 1
+            continue
+        if _genie_is_fully_italic(p):
+            if idx not in dialogue_overrides:
+                dropped_stage += 1
+                continue
+            overrides_used += 1
+        # A footnote asterisk sits right after the printed name (`CHORUS*`);
+        # strip it before matching, or the cue isn't `in speakers` and falls
+        # through to become dialogue under the previous speaker instead of
+        # opening its own speech (Codex review finding 1, 2026-09-11).
+        noted = _GENIE_NOTE_MARK_RE.sub("", raw_txt).strip()
+        bare = noted.rstrip(".:").strip()
+        if bare in speakers and noted == bare:
+            if current is not None and rows and rows[-1][0] != "blank":
+                rows.append(("blank", ""))
+            current = speaker_relabels.get(idx, bare)
+            speakers_found.append(current)
+            rows.append(("speaker", current))
+            continue
+        text = _GENIE_TEX_SPACING_RE.sub("", p)
+        text = _genie_strip_tags(text)
+        text = text.replace("*", "")
+        text = re.sub(r"[ \t\xa0]+", " ", text).strip()
+        if not text or current is None:
+            continue
+        rows.append(("verse", text))
+        kept_lines += 1
+
+    # Arrowsmith sets a few dialogue phrases in caps for emphasis (a Western
+    # Union telegram, a shouted announcement). A bare all-caps line with no
+    # punctuation is exactly what the shared verse-own-line reader
+    # (`_split_lindsay_speaker_line`) takes for a NEW speaker cue, so any
+    # such "verse" row would be misread as one. The format already joins
+    # consecutive verse rows of one speech with a space (no blank line
+    # between them survives), so folding a risky row into its neighbour
+    # changes nothing about the rendered text -- it only keeps the row from
+    # standing alone where the reader would misparse it.
+    def _risky(kind: str, text: str) -> bool:
+        return kind == "verse" and _split_lindsay_speaker_line(text) is not None
+
+    # Pass 1: fold a risky row backward into the previous verse row.
+    merged: list[list[str]] = []
+    for kind, text in rows:
+        if _risky(kind, text) and merged and merged[-1][0] == "verse":
+            merged[-1][1] = f"{merged[-1][1]} {text}"
+            continue
+        merged.append([kind, text])
+    # Pass 2: anything still risky (a risky row right after a speaker cue,
+    # with no earlier verse row to join) folds forward into the next row
+    # instead -- same reasoning, just the other direction.
+    i = 0
+    while i < len(merged):
+        kind, text = merged[i]
+        if _risky(kind, text) and i + 1 < len(merged) and merged[i + 1][0] == "verse":
+            merged[i + 1][1] = f"{text} {merged[i + 1][1]}"
+            del merged[i]
+            continue
+        i += 1
+
+    out = [title, ""]
+    for kind, text in merged:
+        out.append("" if kind == "blank" else text)
+
+    while out and out[-1] == "":
+        out.pop()
+    out.append("")
+
+    found: list[str] = []
+    seen: set[str] = set()
+    for name in speakers_found:
+        if name not in seen:
+            seen.add(name)
+            found.append(name)
+    report = {
+        "title": title,
+        "start_line": start,
+        "end_line": end,
+        "lines_kept": kept_lines,
+        "speakers_found": found,
+        "speaker_events": len(speakers_found),
+        "stage_directions_dropped": dropped_stage,
+        "dialogue_overrides_used": overrides_used,
+        "dialogue_overrides_declared": len(dialogue_overrides),
+    }
+    return "\n".join(out), report
+
+
+def write_clean_genie_html(
+    html_path: Path,
+    translator: str,
+    play: str,
+    title: str,
+    *,
+    out_dir: Path | None = None,
+) -> tuple[Path, dict]:
+    html_text = html_path.read_text(encoding="utf-8", errors="replace")
+    speakers = GENIE_ROSTERS[play]
+    overrides = GENIE_DIALOGUE_OVERRIDES.get(play, frozenset())
+    relabels = GENIE_SPEAKER_RELABELS.get(play, {})
+    stage_overrides = GENIE_STAGE_DIRECTION_OVERRIDES.get(play, frozenset())
+    cleaned, report = clean_genie_html(
+        html_text,
+        title,
+        speakers,
+        dialogue_overrides=overrides,
+        speaker_relabels=relabels,
+        stage_direction_overrides=stage_overrides,
+    )
+    dest_dir = out_dir or (SOURCES_DIR / "bench" / translator)
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest = dest_dir / f"{play}.txt"
+    dest.write_text(cleaned, encoding="utf-8")
+    report_dir = BUILD_DIR / "bench" / translator
+    report_dir.mkdir(parents=True, exist_ok=True)
+    report_path = report_dir / f"{play}.json"
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
+    try:
+        report["output"] = str(dest.relative_to(REPO_ROOT))
+    except ValueError:
+        report["output"] = str(dest)
+    return dest, report
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="bench_clean_verse")
     p.add_argument("--volume", required=True, type=Path)
@@ -1326,9 +1736,20 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--layout",
         default="verse-own-line",
-        choices=("verse-own-line", "prose-inline"),
+        choices=("verse-own-line", "prose-inline", "genie-html"),
     )
     args = p.parse_args(argv)
+    if args.layout == "genie-html":
+        dest, report = write_clean_genie_html(
+            args.volume, args.translator, args.play, args.title
+        )
+        print(f"wrote {dest}")
+        print(
+            f"  lines_kept={report['lines_kept']} "
+            f"speakers={report['speakers_found']} events={report['speaker_events']} "
+            f"stage_directions_dropped={report['stage_directions_dropped']}"
+        )
+        return 0
     dest, report = write_clean(
         args.volume,
         args.translator,

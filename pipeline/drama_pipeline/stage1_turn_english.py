@@ -291,6 +291,16 @@ def _locate_title(lines: list[str], title: str) -> int:
 
 
 _LINDSAY_STAGE = re.compile(r"\s+(\([^)]*\))$")
+# `_LINDSAY_STAGE.search()` backtracks quadratically on a line stuffed with
+# unmatched "(" (no closing ")" for `[^)]*\)` to ever land on): "CHORUS" +
+# " (" * 100000, or "CHORUS" + " " * 100000 + "(", each took over 2s (Codex
+# re-review finding 1, 2026-09-11). The longest real speaker line across
+# every turn-text source in manifests/*.yaml -- Lindsay's own Lysistrata
+# (gutenberg/pg7700.txt), "MYRRHINE (_playing with the child_)" -- is 35
+# characters; this bound is nowhere near that ceiling, but it is reached
+# before any regex runs, so a malformed line this long is rejected in
+# constant time regardless of what is inside it.
+_LINDSAY_LINE_MAX = 200
 
 
 def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
@@ -299,6 +309,8 @@ def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
     Only one trailing period is a speaker mark. Ellipsis (``O....``) is verse.
     """
     s = line.strip()
+    if len(s) > _LINDSAY_LINE_MAX:
+        return None
     if not s or s in _DRAMATIS_HEADS or s.startswith("The Persons of the drama"):
         return None
     if s in {"INTRODUCTION", "INDEX", "CONTENTS"} or s.startswith("THE "):
@@ -310,6 +322,18 @@ def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
     if staged:
         stage = staged.group(1)
         s = s[: staged.start()].rstrip()
+    # A real speaker cue is a NAME, not a sentence (the longest in any
+    # roster here is ~26 chars); a long name risks catastrophic
+    # backtracking in `_LINDSAY_SPEAKER` on an almost-all-caps run that
+    # fails to match only at the very end (Arrowsmith's Birds bench text
+    # has an all-caps mock-legal decree over 100 chars long -- reproduced
+    # 2026-09-11, `bench_clean_verse.clean_genie_html`'s caller). The guard
+    # bounds the name only, checked AFTER the stage direction is split off
+    # above: bounding the whole line rejected a genuine cue with a long
+    # direction, e.g. `CHORUS (_turning to the audience and raising both
+    # hands toward the sky_).` (Codex review finding 5, 2026-09-11).
+    if len(s) > 64:
+        return None
     if not s or not _LINDSAY_SPEAKER.fullmatch(s):
         return None
     return s, stage
@@ -328,11 +352,23 @@ def _looks_like_speech_body(s: str) -> bool:
     return (len(words) >= 5 or len(s) >= 40) and any(ch.islower() for ch in s)
 
 
+def _looks_like_any_body(s: str) -> bool:
+    """Any real line -- for a source with no dramatis list to guard against."""
+    return bool(s) and not s.startswith("_") and not s.startswith("SCENE")
+
+
 def _body_start(
     lines: list[str], title_i: int, lindsay: bool, known_names: set[str]
 ) -> int:
     dp = _dramatis_index_after(lines, title_i)
     i = (dp + 1) if dp is not None else title_i + 1
+    # `_looks_like_speech_body` guards against mistaking a dramatis-list
+    # stub for the first speech; a verse-own-line source has no such list
+    # (no `dp`), so that guard only rejects real speech there -- Arrowsmith
+    # opens Clouds with a one-word interjection ("Yaaaahhuuuuu.") and later
+    # writes shouted lines in solid caps, both too short/too-caps for the
+    # stricter check (Codex review finding 6, 2026-09-11).
+    body_check = _looks_like_speech_body if dp is not None else _looks_like_any_body
     while i < len(lines):
         raw = lines[i]
         if lindsay:
@@ -342,7 +378,7 @@ def _body_start(
                     (lines[j].strip() for j in range(i + 1, len(lines)) if lines[j].strip()),
                     "",
                 )
-                if nxt and _lindsay_speaker(nxt) is None and _looks_like_speech_body(nxt):
+                if nxt and _lindsay_speaker(nxt) is None and body_check(nxt):
                     return i
         else:
             match = _SPEAKER_LINE.match(raw)

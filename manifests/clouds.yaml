@@ -50,6 +50,41 @@ english:
     source: "perseus/tlg0019.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  third:
+    id: arrowsmith
+    name: "William Arrowsmith (Michigan, 1962)"
+    short: Arrowsmith
+    model: turn-text
+    format: verse-own-line
+    source: bench/arrowsmith/clouds.txt
+    play: "THE CLOUDS"
+    footnotes: false
+    # Anchors the run of turn-shift drift the auto-aligner otherwise carries
+    # through Strepsiades' opening monologue (John's spot check, 2026-09-11).
+    #
+    # Greek 102 (Pheidippides names Socrates and Chaerephon in one turn) is
+    # preceded by Arrowsmith's comic stalling exchange ("Fine. Who are
+    # they?" / "Er . . . Gentlemen. Men of Learning."). Greek 100 has this
+    # exchange, an
+    # antilabe split across the same printed line: Pheidippides asks
+    # "εἰσὶν δὲ τίνες;" ("Who are they?"), Strepsiades answers at once,
+    # unsure of the name, "οὐκ οἶδ' ἀκριβῶς τοὔνομα." ("I don't know
+    # exactly the name."), then continues into 101 with his own invented
+    # term, "μεριμνοφροντισταὶ καλοί τε κἀγαθοί." ("thought-worriers, fine
+    # and good men."). Arrowsmith expands that one Greek antilabe (100-101)
+    # into six English turns, distributing and repeating the same material;
+    # the identification at 102 is a seventh. Because
+    # the insertion comes in a speaker-alternating pair, the name-only LCS
+    # zip still "agrees" turn for turn and never flags it, so every turn
+    # from here on paired one slot early (Codex review finding 7,
+    # 2026-09-11: a genuine edition difference -- Arrowsmith's own
+    # expansion, not a cleaner or parser defect -- so pinned rather than
+    # fixed at the source; comment corrected in the re-review, 2026-09-11:
+    # the exchange is not without a Greek counterpart, it is an expansion
+    # of one).
+    pins:
+      - { greek: "56", english: "There's no oil left in the lamp.", run: 1 }
+      - { greek: "102", english: "Oh lord, I know those filthy charlatans you mean", run: 1 }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -95,6 +130,27 @@ speakers:
     "SERVANT OF STREPSIADES": "Slave"
     "A SLAVE": "Slave"
     "SLAVE": "Slave"
+  # Arrowsmith's printed caps names (bench/arrowsmith/clouds.txt). ARISTOPHANES
+  # is the poet himself, brought on stage for the parabasis; his own note says
+  # the Greek gives that speech to the Chorus (see build/arrowsmith/genie-clouds.html).
+  # KORYPHAIOS is the Chorus Leader; CHAIREPHON has no Greek siglum of his own,
+  # same as the primary and secondary slots' Chaerephon -> Student.
+  english_third:
+    "STREPSIADES": "Strepsiades"
+    "SOKRATES": "Socrates"
+    "PHEIDIPPIDES": "Pheidippides"
+    "PHILOSOPHY": "Better Argument"
+    "SOPHISTRY": "Worse Argument"
+    "STUDENT": "Student"
+    "FIRST STUDENT": "First Student"
+    "SECOND STUDENT": "Second Student"
+    "KORYPHAIOS": "Chorus"
+    "CHORUS": "Chorus"
+    "PASIAS": "Creditor"
+    "AMYNIAS": "Creditor"
+    "XANTHIAS": "Slave"
+    "ARISTOPHANES": "Chorus"
+    "CHAIREPHON": "Student"
   # Hickie's Perseus TEI <speaker> strings (trailing period as printed).
   # Hermes is a Perseus <add> on lines the note assigns to Strepsiades.
   english_secondary:
@@ -173,6 +229,11 @@ registry:
       short: Hickie
       slot: secondary
       alignment: line
+    - id: arrowsmith
+      name: "William Arrowsmith (Michigan, 1962)"
+      short: Arrowsmith
+      slot: third
+      alignment: speech
   citation:
     scheme: play-line
     copyAbbr: "Ar. Nub."

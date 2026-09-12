@@ -177,6 +177,22 @@ translations:
     year: 1839
     note: "Published in 1839, long in the public domain."
     sources: []
+  - id: arrowsmith
+    translator: "William Arrowsmith"
+    year: 1961
+    note: >-
+      Birds (1961) and Clouds (1962), The Complete Greek Comedy, University of
+      Michigan Press. Basis is the publisher's own label, not a lapsed-copyright
+      claim: both books WERE renewed (Birds RE0000457018, 1989-12-26, renewing
+      A00000527041 of 1961-10-13; Clouds RE0000500595, 1990-12-03, renewing
+      A00000552209 of 1962-03-02), but Michigan marks both Fulcrum editions with
+      the Creative Commons Public Domain Mark 1.0
+      (fulcrum.org/concern/monographs/n009w531d for Birds,
+      /pr76f649p for Clouds). Owner ruling 2026-09-11: "If they label that way,
+      and they are the publisher, that's good enough for me."
+    sources:
+      - bench/arrowsmith/birds.txt
+      - bench/arrowsmith/clouds.txt
 
 # DENIED: Eugene O'Neill Jr., The Complete Greek Drama (1938): not public
 # domain; Perseus's default Aristophanes English. The pattern matches even
