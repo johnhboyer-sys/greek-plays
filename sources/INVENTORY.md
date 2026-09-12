@@ -168,7 +168,11 @@ italic runs the txt loses, and is the cleaner's actual input). The `.docx`
 covers the whole book; only the play (not the introduction, notes, or
 glossary) is vendored. SHA-256 of the owner's `.docx` files: *Birds*
 `9acbb23ab32880dfae1f2d91e5b675e9bf6c949b2dbd075b5e1163b014d45d8c`; *Clouds*
-`66d5ecd3a83a187beed70204ebac2d12e9ed3b81d20a0064f3e4ae36d972bd71`. A
+`66d5ecd3a83a187beed70204ebac2d12e9ed3b81d20a0064f3e4ae36d972bd71`. SHA-256
+of the Fulcrum PDFs (not committed): *Birds* (9780472910861.pdf)
+`e5b9cf5df6b51ba519129d80437b7502fa06c3a606a4fa989a863b615eed2f03`; *Clouds*
+(9780472910809.pdf)
+`b471e248f75772701982928029290e9d65722340dfa1b0729dd3b0b202e0007f`. A
 word-level diff of the play text against each PDF's own `pdftotext` layer
 (`sources/fulcrum/{birds,clouds}.txt`, extraction command below) found the
 PDF layer wrong in nearly every disagreement (`Pil`/`J`/`'m` for `I'll`/`I`/
