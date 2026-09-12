@@ -2648,7 +2648,7 @@ def _clouds_third_chunks(pins: list[dict]) -> dict:
         splits=cfg.get("splits") or [],
         covered=cfg.get("covered") or [],
     )
-    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [])
+    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [], sigla)
     return chunks_as_overlay(english)
 
 

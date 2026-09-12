@@ -1755,12 +1755,12 @@ _SENTENCE_START = re.compile(
 )
 
 
-def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict]:
+def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) -> list[dict]:
     """A speech-aligned translation's English for a long Greek speech lands on
-    the speech's first segment; the Greek segments that continue it (cut at
-    the 40-line cap, no speaker change of their own, no chunk of their own)
-    stood bare -- Morshead's whole Agamemnon parodos sat beside 40-103 and
-    104-257 had nothing (John, 2026-09-11). Spread it: each continuation
+    the speech's first segment; the Greek segments that continue it (no
+    chunk of their own, naming nobody or the same speaker again) stood bare
+    -- Morshead's whole Agamemnon parodos sat beside 40-103 and 104-257 had
+    nothing (John, 2026-09-11). Spread it: each continuation
     takes the share of the text proportional to its Greek lines, cut at the
     sentence start nearest that point. A continuation that no sentence start
     reaches stays empty, as before."""
@@ -1775,8 +1775,18 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict
         k += 1
         if chunk is None:
             continue
+        # The Greek speech goes on past a strophe's unnamed "—" and past its
+        # own speaker named again: Morshead's ode at Agamemnon 351 runs past
+        # both to 502 (John, 2026-09-12). Greek against Greek: the English
+        # turn's name can disagree with the edition (Birds 289).
+        named = [name for _ln, _off, name, _m in _segment_speaker_events(seg, sigla) if name]
+        own = set(named[-1:])
         conts: list[dict] = []
-        while k < len(segments) and not segments[k].get("speakers") and segments[k]["id"] not in by_id:
+        while (
+            k < len(segments)
+            and segments[k]["id"] not in by_id
+            and _segment_speaks(segments[k], sigla) <= own
+        ):
             conts.append(segments[k])
             k += 1
         # Offset-keyed notes or markers would have to be cut with the text;
@@ -1920,7 +1930,7 @@ def run(
     )
     # A long speech's English reaches the Greek segments that continue it
     # (John, 2026-09-11, Morshead's Agamemnon parodos).
-    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [])
+    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [], sigla)
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)

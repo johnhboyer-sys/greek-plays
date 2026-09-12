@@ -118,6 +118,41 @@ def test_the_spread_keeps_other_chunks_in_place_and_leaves_noted_chunks_whole():
     assert [c["id"] for c in _spread_long_speeches([noted], segs)] == ["1:40"]
 
 
+def test_the_spread_crosses_unnamed_and_same_speaker_events():
+    # Morshead's Agamemnon ode: the English speech of 351 runs to 502, but
+    # the Greek marks strophes with unnamed "—" events (355, 501) and names
+    # the Chorus again at 489; the spread stopped at 355 and 355-502 stood
+    # bare (John, 2026-09-12).
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    sigla = {"Χο.": "Chorus", "ΚΗΡΥΞ": "Herald"}
+    segs = [
+        {"id": "1:351", "column": "351", "speakers": [{"line": 1, "label": "Χο."}], "lines": [{}]},
+        {"id": "1:355", "column": "355", "speakers": [{"line": 2, "label": "—"}], "lines": [{}]},
+        {"id": "1:420", "column": "420", "lines": [{}]},
+        {"id": "1:489", "column": "489", "speakers": [{"line": 4, "label": "Χο."}], "lines": [{}]},
+        {"id": "1:503", "column": "503", "speakers": [{"line": 5, "label": "ΚΗΡΥΞ"}], "lines": [{}]},
+    ]
+    chunk = {"id": "1:351", "column": "351", "text": "One aaaa. Two bbbb. Six cccc. Ten dddd.",
+             "turns": [{"offset": 0, "speaker": "Chorus"}], "notes": [], "markers": []}
+    herald = {"id": "1:503", "column": "503", "text": "Herald speaks.", "turns": [], "notes": [], "markers": []}
+    out = _spread_long_speeches([chunk, herald], segs, sigla)
+    assert [(c["id"], c["text"]) for c in out] == [
+        ("1:351", "One aaaa."), ("1:355", "Two bbbb."), ("1:420", "Six cccc."),
+        ("1:489", "Ten dddd."), ("1:503", "Herald speaks."),
+    ]
+    # A bare segment that names somebody else is not the speech going on.
+    other = [segs[0], {**segs[1], "speakers": [{"line": 2, "label": "ΚΗΡΥΞ"}]}]
+    assert [c["id"] for c in _spread_long_speeches([chunk], other, sigla)] == ["1:351"]
+    # Nor is one that names the head's FIRST speaker after a mid-line change
+    # (Wasps 416: Chorus, then Bdelycleon; 417 is the Chorus again).
+    antilabe = [
+        {**segs[0], "speakers": [{"line": 1, "label": "Χο."}, {"line": 1, "offset": 9, "label": "ΚΗΡΥΞ"}]},
+        {**segs[1], "speakers": [{"line": 2, "label": "Χο."}]},
+    ]
+    assert [c["id"] for c in _spread_long_speeches([chunk], antilabe, sigla)] == ["1:351"]
+
+
 def test_speech_block_starts_are_read_from_the_tei():
     tei = (
         '<div><sp><speaker>Chorus</speaker><l n="41">For all</l><l n="45">the men</l></sp>'
