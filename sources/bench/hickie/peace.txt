@@ -1,21 +1,21 @@
 PEACE
 
-PEACE. busily engaged near a large pig-sty. |
-Ist SERVANT. BRING, bring as quickly as possible, a cake
+busily engaged near a large pig-sty. |
+FIRST SERVANT. BRING, bring as quickly as possible, a cake
 for the beetle.
-2nD SERVANT. Here it is. Give it to him, the devil take
+SECOND SERVANT. Here it is. Give it to him, the devil take
 him!! And may he never eat a sweeter cake than it !?
-Ist Ser. Give him another cake, made of ass’s dung.
-2np Ser. Well! there’s another!®? Why, where is the
+FIRST SERVANT. Give him another cake, made of ass’s dung.
+SECOND SERVANT. Well! there’s another!®? Why, where is the
 one you brought just now? Has he not devoured it?
-Ist Ser. Yes, by Jupiter, he snatched it away and bolted
+FIRST SERVANT. Yes, by Jupiter, he snatched it away and bolted
 it whole, having rolled it round with his feet. Come, beat
 up for him, then, as quickly as possible, many thick‘ ones.
-2nD Ser. You dung-gatherers,® help me, by the gods, if
+SECOND SERVANT. You dung-gatherers,® help me, by the gods, if
 you do not wish to allow me to be suffocated !°
-lst Ser. Give him another, another made of the dung of
+FIRST SERVANT. Give him another, another made of the dung of
 a boy-catamite; for he says he likes it beaten up.
-_ 2np Ser. Very well.—From one thing, sirs, methinks I am
+SECOND SERVANT. Very well.—From one thing, sirs, methinks I am
 free ; for no one can say that I eat while I knead.
 of the passage was lost in the corrupt reading ¢ayo: for ¢dyore. This
 is a frequent error of the copyists, especially in the end of a verse.”’
@@ -38,21 +38,21 @@ you shall have sweated and made supple the nerves of your
 joints with the rush of your wings. And do not breathe apon
 me offensively, I beseech you. But if you will do so, remain
 here in my house.
-Ist Ser. O lord and.master ! how ‘crazed you are!
+FIRST SERVANT. O lord and.master ! how ‘crazed you are!
 
 TRYGAOUS. Silence! silence!
-Ist Ser. Whither, pray, are you pursuing vanities® to no
+FIRST SERVANT. Whither, pray, are you pursuing vanities® to no
 purpose ? 7
 
 TRYGAOUS. I am flying in behalf of all the Greeks, having contrived a novel and daring exploit.
-Ist Ser. Why do you fly? Why to no purpose are you
+FIRST SERVANT. Why do you fly? Why to no purpose are you
 mad ?6 ;
 
 TRYGAOUS. It behoves you to use words of good omen, and not to
 mutter any thing bad, but to raise a shout; and command the
 people to be silent, and to wall up with new bricks the privies
 and sewers,’ and to shut up their backsides.
-Ist SER. It. is not possible that I can keep silence,® if you
+FIRST SERVANT. It. is not possible that I can keep silence,® if you
 do not tell me whither you are intending to fly.
 Soph. Col. 312, Eur. Cycl. 895, and Valck. on Phoen. 28.
 A parody on 4 similar line in the Bellerophon of Euripides.
@@ -62,21 +62,21 @@ favourite food. .
 Vv
 
 TRYGAOUS. What else than to Jove, into heaven ?’ ‘
-Ist Ser. With what intent.
+FIRST SERVANT. With what intent.
 
 TRYGAOUS. To ask him what he designs to do respecting all the
 Greeks.
-ist Ser. But if he should not tell you?
+FIRST SERVANT. But if he should not tell you?
 
 TRUMPET MAKER. I will indict him for betraying! Greece to the Medes.
-Ist Ser. Never, by Bacchus, while I live!
+FIRST SERVANT. Never, by Bacchus, while I live!
 
 TRYGAOUS. There is no? other way.
-lst Ser. Alas! alas! alas!
+FIRST SERVANT. Alas! alas! alas!
 © damsels, your father is secretly, taking his departure for
 heaven, having left you deserted! But entreat your father,
 O unhappy girls!
-Davexu. O father, father! has a true report come to our
+DAUGHTER. O father, father! has a true report come to our
 abodes, that with the birds thou wilt go bootlessly to the
 crows,® having deserted me? Is aught of these reports true?
 Tell me, O father, if at all you love me.
@@ -86,11 +86,11 @@ I am grieved at you, when you ask me for bread, calling me
 papa, and there is not even a: bit of money in the house at all.
 But if I come back again, having prospered well, you shall
 have in due season a large roll and fist-sauce to it.5
-Davex. Why, what means of performing your journey will
+DAUGHTER. Why, what means of performing your journey will
 you have? ‘for a ship cannot® convey you this road.
 
 TRYGAOUS. A winged colt will convey me. I shall‘not go by sea.”
-_ Daveu. But what is your purpose, dear little papa,’ that
+DAUGHTER. But what is your purpose, dear little papa,’ that
 you have saddled a beetle and are riding to the gods?’
 
 TRYGAOUS. He has been found in the fables of Asop, to have been
@@ -107,25 +107,25 @@ Suidas, ii. p. 237, voc. e6ydudoc. Shakspeare, Henry V. act v. sc. 1.
 TRYGAOUS. Once, in olden time,' he went there out of animosity
 against the eagle, rolling out its eggs, and revenging himself
 in turn. |
-Daveu. Therefore you ought to have saddled? a winged
+DAUGHTER. Therefore you ought to have saddled? a winged
 Pegasus, in order that you might have appeared to the gods
 more majestic. :
 
 TRYGAOUS. Nay, my dear, I should have needed double rations.
 But now, whatever? provisions I eat myself, with these shall I
 feed this beast. .
-Daven. But how, if it should fall into the watery depths‘
+DAUGHTER. But how, if it should fall into the watery depths‘
 of the sea? How will it, a winged creature, be able te
 escape ?
 
 TRYGAOUS. I had a rudder on purpose, which Ill make use of;
 and a Naxos-built Cantharus shall be the vessel ?5
-Daveu. But what harbour will receive you as you are
+DAUGHTER. But what harbour will receive you as you are
 carried along ? -
 
 TRYGAOUS. There is, you know, in the Pirgweus, the harbour of
 Cantharus.®
-Daven. Take care of that,’ lest you slip and tumble down
+DAUGHTER. Take care of that,’ lest you slip and tumble down
 from thence; and then, being crippled, furnish a subject for
 Euripides, and be made a tragedy.®
 
@@ -642,7 +642,7 @@ Anec. i. p. 91.
 MERCURY. Ah me! how compassionate I always am towards golden
 cups! Henceforth, sirs, the task is yours.! But go im and
 drag away the stones with your shovels as quickly as possible.
-. Cuo. This we will do: but do you, O wisest of the gods,
+CHORUS. This we will do: but do you, O wisest of the gods,
 stand by and dictate to us in a workmanlike manner, what
 we ought to do. For the rest, you will find us not slothful
 to follow your directions.
@@ -704,7 +704,7 @@ CHORUS. Now? strain to the utmost, each of you, and haul
 away with the ropes.
 
 MERCURY. Heave, ho!
-_Cuxo. Heave, ho, again!
+CHORUS. Heave, ho, again!
 
 MERCURY. Heave, ho!
 
@@ -751,7 +751,7 @@ like men. | .
 MERCURY. Do you know that? Only as many of them as are
 fastened to the stocks are zealous; but the blacksmith does
 not suffer them.!
-_ Cuo. Neither are the Megarians? doing any thing; and
+CHORUS. Neither are the Megarians? doing any thing; and
 yet they tug, tearing the flesh most greedily, like little dogs,
 being utterly destroyed, by Jupiter, through hunger.*
 
@@ -1288,7 +1288,7 @@ ant.comes out of the house. | _
 MERCURY. O master, are you come ?
 
 TRYGAOUS. Aye, as I’ve been told.
-. Ser. How haye you fared ?
+SERVANT. How haye you fared ?
 
 TRYGAOUS. I had a pain in my legs with having traversed so
 long a journey. .
@@ -1393,7 +1393,7 @@ the other things every one. But one thing is wanting.
 
 TRYGAOUS. Come then, let us quickly deliver over this Theoria
 to the senate here !
-.SER. What do you say? Is this Theoria, whom we once
+SERVANT. What do you say? Is this Theoria, whom we once
 ¢ kissed on the road to Brauron, when rather tipsy ?
 
 TRYGAOUS. Be well assured zt is; and she was caught too with
@@ -1413,10 +1413,10 @@ TRYGAOUS. (to the audience). Do you not yet tell me who is to
 take chre of her?
 hither you! for I will myself lead and deposit you in the
 midst.
-Sgr. (pointing to the audience). That man yonder nods.
+SERVANT. (pointing to the audience). That man yonder nods.
 
 TRYGAOUS. Who?
-Sex. Who? Ariphrades, beseeching you to lead her to him,
+SERVANT. Who? Ariphrades, beseeching you to lead her to him,
 
 TRYGAOUS. But, my good sir,-he will fall upon her and lap her
 up like broth.
@@ -1479,11 +1479,11 @@ TRYGAOUS. Or with a swine, fat and large? '
 CHORUS. No, no.
 
 TRYGAOUS. Why? -
-. Cuo. Lest there be a swinishness, such? as Theagenes’.
+CHORUS. Lest there be a swinishness, such? as Theagenes’.
 
 TRYGAOUS. With what then, pray, of the other victims, does it
 seem fit to you?
-Cuxo. With a sheep.
+CHORUS. With a sheep.
 
 TRYGAOUS. With a sheep?
 
@@ -1562,7 +1562,7 @@ by-standers with a torch dipped in the holy water.”’ Voss.
 £ A slang word for mioc, cf. vs. 449, Supra.
 
 TRYGAOUS. The women have not got any.
-Srr. But their husbands will give them some in the
+SERVANT. But their husbands will give them some in the
 evening.
 
 TRYGAOUS. Well, let us offer our prayers. Who is here? Where
@@ -1714,7 +1714,7 @@ hibation. .
 HIEROCLES. The.tongue is used to be cut out.‘
 
 TRYGAOUS. We recollect. But do you know what you are to do ?®
-Hirer. Yes, if you tell me.
+HIEROCLES. Yes, if you tell me.
 
 TRUMPET MAKER. Do not talk at all with us; for we are offering sacrifice to Peace.
 
@@ -1739,7 +1739,7 @@ HIEROCLES. who through your folly, not understanding the will
 of the gods, have made a treaty, men with fierce-eyed apes———
 
 TRYGAOUS. Ha, ha! | :
-Hirer. Why do you laugh ?
+HIEROCLES. Why do you laugh ?
 
 TRYGAOUS. I like your fierce-eyed apes.
 
@@ -1795,7 +1795,7 @@ TRYGAOUS. You will never again henceforth dine in the Prytaneum, nor in future c
 HIEROCLES. You can never make the rough hedgehog smooth.
 
 TRYGAOUS. Will you ever cease cheating the Athenians?
-Hirer. According to what oracle have you burned thighs
+HIEROCLES. According to what oracle have you burned thighs
 to the gods ?
 
 TRYGAOUS. According to that very fine oracle, to be sure, which!
@@ -1805,7 +1805,7 @@ with a sacrifice. But after the thighs were burnt down, and
 they had tasted the entrails, they made libations with cups;
 and I led the way: but no one gave a shining goblet to the
 soothsayer.” |
-Hirer. I have no concern in these, for Sibylla did not utter
+HIEROCLES. I have no concern in these, for Sibylla did not utter
 them.
 
 TRYGAOUS. But in truth the wise Homer,5 by Jupiter, has cleverly
@@ -1864,7 +1864,7 @@ spectators, and feed upon the entrails with us.
 HIEROCLES. And what shall I do?
 
 TRYGAOUS. Eat your Sibylla.
-Hirer. By the Earth, you certainly shall not devour these
+HIEROCLES. By the Earth, you certainly shall not devour these
 alone; but I will snatch them from you; for they lie as common property.
 
 TRYGAOUS. Smite, smite the Bacis !
@@ -2089,35 +2089,35 @@ Hee. 1149. Hermann, Vig. n. 38, 5. Kriiger, Gr. Gr. § 45, 4, § 68,
 have to sing.
 intend to sing, boy, stand beside me, and first make a prelude!
 here in this place.
-Son or L. “Now again let us begin from warlike men ”*?—
+SON OF LAMACHUS. “Now again let us begin from warlike men ”*?—
 
 TRYGAOUS. Leave off singing of warlike men ; especially, O thrice
 unlucky doy, when there is peace. You are ignorant and
 abominable.
-Son or L. “ But they, when now they were near, advancing
+SON OF LAMACHUS. “ But they, when now they were near, advancing
 against each other, dashed together their ox-hide shields and
 bossy bucklers.”® |
 
 TRYGAOUS. “Bucklers?” Will you not cease mentioning a
 buckler to us?
-Son or L. “Then at the same time arose the wailing and the
+SON OF LAMACHUS. “Then at the same time arose the wailing and the
 triumphant shout of men.”
 
 TRYGAOUS. “The wailing of men?” You shall repent, by Bacchus,
 of singing of wailings, especially such as have bosses !
-Son or L. What then, pray, shall I sing ? for do you tell me
+SON OF LAMACHUS. What then, pray, shall I sing ? for do you tell me
 in what songs you take pleasure.
 
 TRYGAOUS. songsas this. “They set out breakfast, and whatever is most
 agreeable to eat.”
-Son or L. ‘Thus they feasted on the flesh of oxen, and unharnessed the sweating necks of their horses when they were
+SON OF LAMACHUS. ‘Thus they feasted on the flesh of oxen, and unharnessed the sweating necks of their horses when they were
 sated of war.”
 ates Good ; “‘ They were sated of the war, and then they
-a SON or L. “Then they armed themselves, after they had
+SON OF LAMACHUS. “Then they armed themselves, after they had
 ceased ——~”
 
 TRYGAOUS. With delight, I dare say.
-Son or L. “ And poured forth from the towers, and an inextinguishable clamour arose.”
+SON OF LAMACHUS. “ And poured forth from the towers, and an inextinguishable clamour arose.”
 
 TRYGAOUS. May you perish most miserably, boy, together with
 proper meaning of owAdrepoc, see Liddell’s Lex
@@ -2127,10 +2127,10 @@ Vesp. 208, 1200. Eccles: 320, 998, 1065, 1185. Thesm. 292. Nub.
 geeus understands him in the second sense :—
 your battles! for you sing of nothing but war. Whose son
 in the world are you?!
-Son or L. I?
+SON OF LAMACHUS. I?
 
 TRYGAOUS. Yes, you, by Jupiter.
-Son or L. The son of Lamachus. ,
+SON OF LAMACHUS. The son of Lamachus. ,
 
 TRYGAOUS. Bah! Upon my word, I was wondering, as I listened
 to you, if you were not the son of some strife-desiring man
@@ -2140,12 +2140,12 @@ the son of Cleonymus?
 me something, before you go into the house! for I well know
 that you will not sing of battles; for you are the son ofa
 discreet father. |
-Son or Cx. “Some one of the Saians exults in my shield,
+SON OF CLEONYMUS. “Some one of the Saians exults in my shield,
 which I left unwillingly in the thicket, my blameless armour.”?
 
 TRYGAOUS. Tell me, you imp, are you singing against your own
 father ?
-Son or Ci. “But I saved my life.”
+SON OF CLEONYMUS. “But I saved my life.”
 
 TRYGAOUS. And disgraced your parents.—But let us go in ; for
 I well know for a certainty that, being the son of that father,
@@ -2190,7 +2190,7 @@ blessings! O Hymen, Hymeneus! O Hymen, Hymenzus!
 What shall we do to her? What shall we doto her? We
 will take a crop of her: we will take a crop of her. Come,
 sirs, let us? who are appointed take up and carry the bridegroom! QO Hymen, Hymeneus! O Hymen, Hymeneus!
-Try, At any rate you shall dwell happily, not having troubles, but gathering figs. O Hymen, Hymeneus! O Hymen,
+TRYGAOUS. At any rate you shall dwell happily, not having troubles, but gathering figs. O Hymen, Hymeneus! O Hymen,
 Hymeneus!
 
 CHORUS. His fig great and thick, and hers sweet.
