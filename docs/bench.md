@@ -268,9 +268,12 @@ html` to `build/arrowsmith/genie-{birds,clouds}.html`, keeping the `<i>`
 runs the plain-text conversion loses). `bench_clean_verse.
 write_clean_genie_html` (`--layout genie-html`) bounds the play at its
 "SCENE:" opening and "Notes" end matter, strips the per-page footer/page-
-number/`---` triplet, strips a footnote `*`, strips the odd `$\qquad...$`
-LaTeX artifact Genie left for a mid-line indent, and folds a staggered
-shared line's nbsp-indented halves into plain left-aligned lines.
+number/`---` triplet, strips a footnote `*`, strips a LaTeX spacing
+fragment Genie left for a mid-line indent (`$\qquad...$`, `$\hspace{...}$`
+— the latter also hides a speaker cue outright when it prefixes one, e.g.
+`$\hspace{4em}$ SOKRATES`, Codex re-review finding 2, 2026-09-11), and
+folds a staggered shared line's nbsp-indented halves into plain
+left-aligned lines.
 
 Arrowsmith's stage directions, sung odes, and a few emphasised one-line
 exclamations are all set identically (a fully-italic paragraph); the
@@ -296,7 +299,7 @@ dialogue text; see `build/arrowsmith/{birds,clouds}-changes.tsv`.
 
 | id | heading | lines kept | pairing | shift rate | length-ratio outliers |
 |---|---|---|---|---|---|
-| `clouds` | `THE CLOUDS` | 2275 | 0.988 | 0.035 | 0.142 |
+| `clouds` | `THE CLOUDS` | 2269 | 0.997 | 0.034 | 0.148 |
 | `birds` | `THE BIRDS` | 2626 | 0.990 | 0.050 | 0.142 |
 
 ```

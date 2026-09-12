@@ -291,6 +291,16 @@ def _locate_title(lines: list[str], title: str) -> int:
 
 
 _LINDSAY_STAGE = re.compile(r"\s+(\([^)]*\))$")
+# `_LINDSAY_STAGE.search()` backtracks quadratically on a line stuffed with
+# unmatched "(" (no closing ")" for `[^)]*\)` to ever land on): "CHORUS" +
+# " (" * 100000, or "CHORUS" + " " * 100000 + "(", each took over 2s (Codex
+# re-review finding 1, 2026-09-11). The longest real speaker line across
+# every turn-text source in manifests/*.yaml -- Lindsay's own Lysistrata
+# (gutenberg/pg7700.txt), "MYRRHINE (_playing with the child_)" -- is 35
+# characters; this bound is nowhere near that ceiling, but it is reached
+# before any regex runs, so a malformed line this long is rejected in
+# constant time regardless of what is inside it.
+_LINDSAY_LINE_MAX = 200
 
 
 def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
@@ -299,6 +309,8 @@ def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
     Only one trailing period is a speaker mark. Ellipsis (``O....``) is verse.
     """
     s = line.strip()
+    if len(s) > _LINDSAY_LINE_MAX:
+        return None
     if not s or s in _DRAMATIS_HEADS or s.startswith("The Persons of the drama"):
         return None
     if s in {"INTRODUCTION", "INDEX", "CONTENTS"} or s.startswith("THE "):

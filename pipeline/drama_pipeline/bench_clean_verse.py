@@ -1493,7 +1493,13 @@ GENIE_STAGE_DIRECTION_OVERRIDES: dict[str, frozenset[int]] = {
 
 _GENIE_TAG_RE = re.compile(r"<[^>]+>")
 _GENIE_ITALIC_SPAN_RE = re.compile(r"<i>.*?</i>", re.I | re.S)
-_GENIE_QQUAD_RE = re.compile(r"\$\\qquad(?:\\qquad)*\$\s*")
+# A LaTeX spacing fragment Genie's own rendering leaves behind where the
+# source used an indent: `$\qquad\qquad$` (a Clouds/Birds page's italic
+# indent) and `$\hspace{18em}$` (Clouds' prose-rhetoric scene, ~2553) are
+# both artifacts, never content -- and a `$\hspace{...}$` prefix on a bare
+# speaker cue (`$\hspace{4em}$ SOKRATES`) hides the cue from name matching
+# entirely if left in place (Codex re-review finding 2, 2026-09-11).
+_GENIE_TEX_SPACING_RE = re.compile(r"\$(?:\\hspace\{[^}]*\}|\\qquad)+\$\s*")
 _GENIE_PAGE_NUM_RE = re.compile(r"^\d{1,4}$")
 _GENIE_NOTE_MARK_RE = re.compile(r"\*+$")
 # The footer's wording OCRs inconsistently (no comma, a stray page number
@@ -1588,7 +1594,11 @@ def clean_genie_html(
 
     for idx in range(start, end):
         p = paras[idx]
-        raw_txt = _genie_strip_tags(p).strip()
+        # Strip a TeX spacing fragment before any matching below -- a
+        # speaker cue prefixed with `$\hspace{4em}$` is not `in speakers`
+        # verbatim, so it would otherwise fall through as dialogue instead
+        # of opening its own speech (Codex re-review finding 2, 2026-09-11).
+        raw_txt = _GENIE_TEX_SPACING_RE.sub("", _genie_strip_tags(p)).strip()
         if not raw_txt or _genie_is_footer(raw_txt):
             continue
         if idx in stage_direction_overrides:
@@ -1612,7 +1622,7 @@ def clean_genie_html(
             speakers_found.append(current)
             rows.append(("speaker", current))
             continue
-        text = _GENIE_QQUAD_RE.sub("", p)
+        text = _GENIE_TEX_SPACING_RE.sub("", p)
         text = _genie_strip_tags(text)
         text = text.replace("*", "")
         text = re.sub(r"[ \t\xa0]+", " ", text).strip()

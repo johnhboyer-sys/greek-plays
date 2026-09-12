@@ -1,4 +1,5 @@
 import json
+import time
 from pathlib import Path
 
 import pytest
@@ -1193,6 +1194,27 @@ def test_lindsay_speaker_line_rejects_long_lines_without_hanging():
     assert _split_lindsay_speaker_line("MYRRHINE (_above_)") == ("MYRRHINE", "(_above_)")
 
 
+def test_lindsay_speaker_line_rejects_malformed_parens_without_hanging():
+    # Codex re-review finding 1 (2026-09-11): moving the length guard AFTER
+    # `_LINDSAY_STAGE.search()` left that regex free to backtrack
+    # quadratically on a line stuffed with unmatched "(" -- there is no
+    # closing ")" anywhere for `[^)]*\)` to land on, so the engine retries
+    # the match from every "(" position before giving up. Both shapes below
+    # took over 2s pre-fix (`dea35ea` rejected each in under 0.1 ms); the
+    # total-length guard now runs before any regex, so each must return
+    # promptly regardless of what floods the line.
+    malformed = [
+        "CHORUS" + " (" * 100000,
+        "CHORUS" + " " * 100000 + "(",
+    ]
+    for line in malformed:
+        t0 = time.monotonic()
+        result = _split_lindsay_speaker_line(line)
+        elapsed = time.monotonic() - t0
+        assert result is None
+        assert elapsed < 1.0, f"took {elapsed:.3f}s: {line[:20]!r}..."
+
+
 def test_verse_own_line_body_start_accepts_a_short_interjection_and_a_caps_shout():
     # Codex review finding 6 (2026-09-11): `_body_start`'s speech-body check
     # requires >=5 words or >=40 chars AND a lowercase letter, so it skips
@@ -2371,3 +2393,102 @@ def test_owning_covered_follows_chains_and_fails_cycles():
         m._owning_covered({"1:29": "1:30", "1:30": "1:29"}, set(), "t")
     with pytest.raises(ValueError, match="reaches no English"):
         m._owning_covered({"1:29": "1:30"}, set(), "t")
+
+
+_CLOUDS_MANIFEST_PATH = Path(__file__).resolve().parents[2] / "manifests" / "clouds.yaml"
+
+
+def _clouds_export_xml_path() -> Path | None:
+    # A from-scratch drama checkout may not carry manifests/clouds.yaml at
+    # all -- check for the manifest itself first so collection never raises
+    # before the skipif below gets a chance to run (same guard shape as
+    # test_stage1_lined_source.py's `requires_export`).
+    if not _CLOUDS_MANIFEST_PATH.exists():
+        return None
+    from drama_pipeline import stage1_greek
+
+    manifest = Manifest.for_work("clouds")
+    return stage1_greek.exported_xml_path(manifest)
+
+
+_clouds_export = _clouds_export_xml_path()
+
+requires_clouds_export = pytest.mark.skipif(
+    _clouds_export is None or not _clouds_export.exists(),
+    reason="build/export's Diogenes TLG export for Clouds (author 0019, "
+           "work 003) is not present in this checkout -- run the Diogenes "
+           "export recipe in docs/tlg-phi-export.md before this test can "
+           "build the real Greek spine",
+)
+
+
+def _clouds_third_chunks(pins: list[dict]) -> dict:
+    """The real Arrowsmith `third`-slot English, cut on the real Clouds
+    Greek spine, exactly as `stage1_turn_english.run(manifest, spine,
+    slot="third")` builds it -- with `pins` substituted for the manifest's
+    own, so the caller can test with and without the Clouds 102 pin."""
+    from drama_pipeline import stage1_greek
+    from drama_pipeline.stage1_turn_english import (
+        _aliases_for_slot,
+        _SiglaResolver,
+        _spread_long_speeches,
+        chunks_as_overlay,
+    )
+
+    manifest = Manifest.for_work("clouds")
+    xml_path = stage1_greek.run_export(manifest)
+    spine = stage1_greek.parse_spine(xml_path, manifest)
+    cfg = manifest.data["english"]["third"]
+    speakers = manifest.data["speakers"]
+    aliases = _aliases_for_slot(speakers, "third", cfg["id"])
+    sigla = _SiglaResolver(manifest)
+    english, _footnotes, _report = parse_translation(
+        SOURCES_DIR / cfg["source"],
+        spine,
+        work_id=manifest.work_id,
+        translation_id=cfg["id"],
+        play=cfg["play"],
+        sigla=sigla,
+        english_aliases=aliases,
+        footnotes_enabled=bool(cfg.get("footnotes", False)),
+        format=cfg.get("format") or "gutenberg",
+        line_fixes=cfg.get("line_fixes") or {},
+        pins=pins,
+        splits=cfg.get("splits") or [],
+        covered=cfg.get("covered") or [],
+    )
+    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [])
+    return chunks_as_overlay(english)
+
+
+@requires_clouds_export
+def test_clouds_102_pin_keeps_the_thinkery_identification_off_of_the_stall():
+    # Codex re-review finding 4 (2026-09-11): none of the eight tests added
+    # for finding 7 actually exercised the Thinkery alignment the "102" pin
+    # fixes. Arrowsmith's own stalling exchange ("Fine. Who are they?" /
+    # "Er . . . Gentlemen. Men of Learning.") sits right before the Greek
+    # 102 turn that names Socrates and Chaerephon; without the pin, the
+    # name-only LCS zip still "agrees" turn for turn on the inserted pair
+    # and shifts everything one slot early -- confirmed by removing the
+    # pin: "Fine. Who are they?" lands at 1:102, and the identification
+    # itself is pushed out to 1:110.
+    manifest = Manifest.for_work("clouds")
+    real_pins = manifest.data["english"]["third"].get("pins") or []
+    assert any(p.get("greek") == "102" for p in real_pins), (
+        "the Clouds 102 pin is missing from manifests/clouds.yaml -- this "
+        "test can no longer prove the pin (rather than a coincidence) fixes "
+        "the alignment"
+    )
+
+    with_pin = _clouds_third_chunks(real_pins)
+    assert "Chairephon and that humbug, Sokrates" in with_pin["1:102"][0]["text"]
+    assert "Fine. Who are they?" not in with_pin["1:102"][0]["text"]
+
+    # Reproduce the regression directly: the same build, minus the 102 pin
+    # (any other declared pins -- e.g. the "56" pin -- are kept, since this
+    # is about the 102 pin specifically, not every pin at once).
+    without_102 = [p for p in real_pins if p.get("greek") != "102"]
+    assert len(without_102) < len(real_pins)
+    broken = _clouds_third_chunks(without_102)
+    assert "Fine. Who are they?" in broken["1:102"][0]["text"]
+    assert "Chairephon and that humbug, Sokrates" in broken["1:110"][0]["text"]

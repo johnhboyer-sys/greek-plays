@@ -782,6 +782,40 @@ def test_genie_html_strips_note_mark_before_matching_speaker_cue():
     assert [s["speaker_printed"] for s in speeches] == ["SPEAKERONE", "CHORUS"]
 
 
+def test_genie_html_strips_hspace_prefix_before_matching_speaker_cue():
+    # Codex re-review finding 2 (2026-09-11): Clouds' printed-rhetoric scene
+    # (genie-clouds.html ~2697-2724) indents lines with `$\hspace{Nem}$`
+    # rather than `$\qquad...$`, which the old regex did not cover. Left
+    # in place, `$\hspace{4em}$ SOKRATES` is not `in speakers` verbatim, so
+    # the cue falls through as raw dialogue -- hiding both the speaker
+    # change and the six turns that follow, and shifting the third column
+    # (Greek 1105-1130 got no English; 1:1131 got the speech for 1105-1106;
+    # 1:1150 showed the raw spacing command as if it were dialogue).
+    html = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">$\\hspace{18em}$ Well, let them.</p>
+<p class="p1">$\\hspace{4em}$ SPEAKERTWO</p>
+<p class="p1">$\\hspace{13em}$ Ah, greetings.</p>
+<p class="p1"><i>Notes</i></p>
+"""
+    speakers = frozenset({"SPEAKERONE", "SPEAKERTWO"})
+    cleaned, _report = clean_genie_html(html, "THE PLAY", speakers)
+    assert "\\hspace" not in cleaned and "$" not in cleaned
+    lines = [ln for ln in cleaned.splitlines() if ln]
+    assert lines == [
+        "THE PLAY",
+        "SPEAKERONE",
+        "Well, let them.",
+        "SPEAKERTWO",
+        "Ah, greetings.",
+    ]
+    speeches, _notes = parse_play_speeches(cleaned, "THE PLAY", format="verse-own-line")
+    assert [s["speaker_printed"] for s in speeches] == ["SPEAKERONE", "SPEAKERTWO"]
+
+
 def test_genie_html_drops_footer_ocr_variants():
     # Codex review finding 4 (2026-09-11): the footer check only matched an
     # exact prefix, so OCR variants (no comma, a stray page number inserted

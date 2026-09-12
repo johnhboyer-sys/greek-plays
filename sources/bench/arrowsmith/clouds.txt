@@ -2543,29 +2543,35 @@ And when I plead with them to be more reasonable—
 Take something on account. I'll pay you later."—
 they snort they'll never see the day, curse me
 for a filthy swindler and say they'll sue.
-$\hspace{18em}$ Well,
+Well,
 let them. If Pheidippides has learned to talk,
 I don't give a damn for them and their suits.
-$\hspace{20em}$ Now then,
+Now then,
 a little knock on the door and we'll have the answer.
-$\hspace{4em}$ Porter!
-$\hspace{8em}$ Hey, porter!
-$\hspace{4em}$ SOKRATES
-$\hspace{13em}$ Ah, Strepsiades. Salutations.
-$\hspace{4em}$ STREPSIADES
-$\hspace{4em}$ Same to you, Sokrates.
-$\hspace{14em}$ Here. A token of my esteem.
-$\hspace{4em}$ Call it an honorarium. Professors always get honorariums.
-$\hspace{4em}$ But wait: has Pheidippides learned his rhetoric yet—
-$\hspace{4em}$ that swindling Rhetoric that performed for us just now?
-$\hspace{4em}$ SOKRATES
-$\hspace{4em}$ He has mastered it.
-$\hspace{4em}$ STREPSIADES
-$\hspace{13em}$ O great goddess Bamboozle!
-$\hspace{4em}$ SOKRATES
-$\hspace{4em}$ Now, sir, you can evade any legal action you wish to.
-$\hspace{4em}$ STREPSIADES
-$\hspace{4em}$ Really? Even if I borrowed the money before witnesses?
+Porter!
+Hey, porter!
+
+SOKRATES
+Ah, Strepsiades. Salutations.
+
+STREPSIADES
+Same to you, Sokrates.
+Here. A token of my esteem.
+Call it an honorarium. Professors always get honorariums.
+But wait: has Pheidippides learned his rhetoric yet—
+that swindling Rhetoric that performed for us just now?
+
+SOKRATES
+He has mastered it.
+
+STREPSIADES
+O great goddess Bamboozle!
+
+SOKRATES
+Now, sir, you can evade any legal action you wish to.
+
+STREPSIADES
+Really? Even if I borrowed the money before witnesses?
 
 SOKRATES
 Before ten thousand of them. The more the merrier.
