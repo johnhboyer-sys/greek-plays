@@ -230,7 +230,7 @@ In murder-bond the while is dwelling !
 ; CHORUS i
 Of many an ill to Hellas and thine house
 Was Helen, sister of thy mother, cause.
-ORESTES and PYLADES approach.
+[ORESTES and PYLADES approach.]
 
 ELECTRA. Woe's me, friends !—needs must I break off my moan !
 Lo, yonder, strangers ambushed nigh the house
@@ -1591,7 +1591,7 @@ Thou barest them, thou, these hands death-dealing !
 ELECTRA. Lo, thou that wast dear and yet not dear,
 With the mantle I veil thee over: here
 May the curse of the house have end and healing '
-CASTOR and POLLUX appear in mid air above the stage.
+[CASTOR and POLLUX appear in mid air above the stage.]
 
 CHORUS. Lo, lo, where over the roof-ridge high
 Demigods gleam ;—or from thrones in the sky
