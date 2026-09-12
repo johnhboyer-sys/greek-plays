@@ -77,8 +77,9 @@ translations:
   - id: murray-verse
     translator: "Gilbert Murray"
     year: 1902
-    note: "Verse translations (1902–15); published before 1931."
-    sources: []
+    note: "Verse translations (1902–20); published before 1931. Project Gutenberg texts; the Frogs (1912) from Wikisource."
+    sources:
+      - bench/murray/*.txt
   - id: storr
     translator: "F. Storr"
     year: 1912
@@ -215,6 +216,24 @@ translations:
       derived data carries the same licence).
     sources:
       - bench/kosmos/*.txt
+  - id: johnston
+    translator: "Ian Johnston"
+    year: 2002
+    note: >-
+      Ian Johnston (Vancouver Island University), verse translations on his
+      johnstonia pages (web.viu.ca/johnstoi/; Bacchae from the Wayback copy of
+      his johnstoniatexts.x10host.com mirror), revised 2002-2020. Not public
+      domain; his own terms, web.viu.ca/johnstoi/copyright.htm: "All general
+      readers, teachers, students, and performing artists may download any
+      material on johnstonia web pages without permission and without charge,
+      provided they do not use the material in a commercial publication. They
+      may edit the material to suit their purposes and distribute the texts in
+      printed or electronic form to their friends and students." Owner ruling
+      2026-09-12: a translation whose terms allow reproduction may be used,
+      honouring the terms (a free, non-commercial site) and crediting the
+      translator.
+    sources:
+      - bench/johnston/*.txt
 
 # DENIED: Eugene O'Neill Jr., The Complete Greek Drama (1938): not public
 # domain; Perseus's default Aristophanes English. The pattern matches even

@@ -57,6 +57,26 @@ english:
         copyright restrictions". Every translator and reviser is credited in
         sources/INVENTORY.md and on the attribution page.
       source_url: https://kosmossociety.org/text-library/
+  overlays:
+    - id: johnston
+      name: "Ian Johnston (VIU)"
+      short: Johnston
+      model: turn-text
+      format: verse-own-line
+      source: bench/johnston/antigone.txt
+      play: ANTIGONE
+      footnotes: false
+      # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+      license:
+        status: licensed
+        rationale: >-
+          Ian Johnston (Vancouver Island University), johnstonia pages: "All
+          general readers, teachers, students, and performing artists may
+          download any material on johnstonia web pages without permission and
+          without charge, provided they do not use the material in a commercial
+          publication." Credited in sources/INVENTORY.md and on the attribution
+          page.
+        source_url: https://web.viu.ca/johnstoi/copyright.htm
   gaps:
 
 citation:
@@ -105,6 +125,19 @@ speakers:
     "CREON": "Creon"
     "GUARD": "Guard"
     "HAIMON": "Haemon"
+    "TEIRESIAS": "Teiresias"
+    "MESSENGER": "Messenger"
+    "EURYDICE": "Eurydice"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_johnston:
+    "ANTIGONE": "Antigone"
+    "ISMENE": "Ismene"
+    "CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "CHORAL LEADER": "Chorus"
+    "CREON": "Creon"
+    "GUARD": "Guard"
+    "HAEMON": "Haemon"
     "TEIRESIAS": "Teiresias"
     "MESSENGER": "Messenger"
     "EURYDICE": "Eurydice"
@@ -174,6 +207,7 @@ registry:
       slot: third
       alignment: speech
       form: prose
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Soph. Ant."

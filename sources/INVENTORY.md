@@ -114,8 +114,31 @@ unless John rules on it explicitly.
 | pg8688.* | *The Eleven Comedies*, vol. 1: Knights, Acharnians, Peace, Lysistrata, Clouds | Anonymous, The Athenian Society, London 1912 ("literally and completely translated" — unexpurgated) | 1912 < 1931 |
 | pg8689.* | *The Eleven Comedies*, vol. 2: Wasps, Birds, Frogs, Thesmophoriazusae, Ecclesiazusae, Plutus | same | 1912 < 1931 |
 | pg7700.* | Lysistrata | Jack Lindsay (Fanfrolico Press, 1925; unexpurgated) | 1925 < 1931 (UK publication, PD-US by date) |
+| pg14417.txt | Aeschylus, *Agamemnon* | Gilbert Murray, rhyming verse; London: George Allen & Unwin, "Tenth Thousand" (no date printed in the file) | first published 1920 (not verified from the file) < 1931 |
+| pg27673.txt | Sophocles, *Oedipus, King of Thebes* | Gilbert Murray ("First published February 1911") | 1911 < 1931 |
+| pg35451.txt | Euripides, *Medea* | Gilbert Murray ("Copyright, 1906"; Oxford University Press, American Branch, 1912) | 1906 < 1931 |
+| pg35173.txt | Euripides, *Bacchae* | Gilbert Murray (George Allen, second edition, 1906) | 1906 < 1931 |
+| pg35171.txt | Euripides, *The Trojan Women* | Gilbert Murray (1905) | 1905 < 1931 |
+| pg8418.txt | Euripides, *Hippolytus* and *Bacchae* (only Hippolytus is used) | Gilbert Murray (no date printed in the file) | first published 1902 (not verified from the file) < 1931 |
+| pg5063.txt | Euripides, *Iphigenia in Tauris* | Gilbert Murray (no date printed in the file) | first published 1910 (not verified from the file) < 1931 |
+| pg35170.txt | Euripides, *Rhesus* | Gilbert Murray (1913) | 1913 < 1931 |
+| pg14322.txt | Euripides, *Electra* | Gilbert Murray ("First Edition, November 1905") | 1905 < 1931 |
+| pg10523.txt | Euripides, *Alcestis* | Gilbert Murray (1915) | 1915 < 1931 |
 
 SHA-256 in `sources/gutenberg/SHA256SUMS`. No Greek line numbers in any of these; they align by speaker turn (plan §4).
+The ten Murray files were fetched 2026-09-12 from gutenberg.org/files/<n>/ (`-8.txt` Latin-1, `-0.txt` UTF-8, as served).
+`sources/bench/murray/<work id>.txt` (verse-own-line turn-text) is written from them, and from the Wikisource Frogs below, by
+`python -m drama_pipeline.murray_clean`; `pipeline/tests/test_murray_clean.py` checks each committed file is exactly the
+converter's output. Each play is cut at its own heading and at its notes; stage directions stay; a lettered cue joins its
+name ("ELDER B" → "ELDER-B") and a leading article goes, as for Johnston.
+
+## wikisource/ — Gilbert Murray's *Frogs* (vendored 2026-09-12; comparison slot)
+
+`frogs-murray-1912.html`: the rendered text of https://en.wikisource.org/wiki/Frogs_(Murray_1912)/Text
+(page revision 11384750; the text is transcluded from the proofread scan pages of `Index:Frogs (Murray
+1912).djvu`, pages 11–116), fetched 2026-09-12 through the MediaWiki `action=parse` API. Aristophanes, *The
+Frogs*, translated into English rhyming verse by Gilbert Murray (1912, per the Wikisource header): 1912 < 1931,
+public domain in the US. SHA-256 in `sources/wikisource/SHA256SUMS`.
 
 ## archive-org/ — OCR plaintext (`_djvu.txt`) of bench-translation scans (vendored 2026-09-05; texts pre-1931, PD-US; OCR quality to be judged per volume in P3)
 
@@ -233,3 +256,66 @@ each committed file is exactly the converter's output. The Sourcebook's
 Greek line numbers (every fifth line) and footnotes are dropped; bracketed
 Greek terms stay as printed. The pages never number the first line of a
 speech, so the column aligns by speaker turn, not by line.
+
+## johnston/ — Ian Johnston's verse translations (vendored 2026-09-12; third or overlay comparison slot on 23 plays)
+
+Ian Johnston (Vancouver Island University, Nanaimo, BC) keeps his
+translations on his "johnstonia" pages at https://web.viu.ca/johnstoi/.
+The 22 pages below were fetched from there on 2026-09-12 (curl, one page
+every 2 s). The index links most plays to a mirror,
+`johnstoniatexts.x10host.com`, whose account is suspended; `bacchae.htm` is
+the Wayback Machine's 2022 copy of that mirror's Bacchae page
+(https://web.archive.org/web/2022id_/http://johnstoniatexts.x10host.com/euripides/bacchaehtml.html,
+gunzipped), his own page and text, since web.viu.ca has no Bacchae.
+`copyright.htm` is his terms page as served. Per-file SHA-256 in
+`sources/johnston/SHA256SUMS`.
+
+**Licence basis** (owner's ruling 2026-09-12: a translation whose terms
+allow reproduction may be used, honouring the terms and crediting the
+translator). Johnston's terms, https://web.viu.ca/johnstoi/copyright.htm,
+verbatim: "All general readers, teachers, students, and performing artists
+may download any material on johnstonia web pages without permission and
+without charge, provided they do not use the material in a commercial
+publication. They may edit the material to suit their purposes and
+distribute the texts in printed or electronic form to their friends and
+students." The site is free and non-commercial. Not public domain: each
+manifest slot declares `license: {status: licensed}`.
+
+| file | work id | page |
+|---|---|---|
+| agamemnon.htm | agamemnon | https://web.viu.ca/johnstoi/aeschylus/aeschylus_agamemnon.htm |
+| libation-bearers.htm | libation-bearers | https://web.viu.ca/johnstoi/aeschylus/libationbearers.htm |
+| eumenides.htm | eumenides | https://web.viu.ca/johnstoi/aeschylus/aeschylus_eumenides.htm |
+| persians.htm | persians | https://web.viu.ca/johnstoi/aeschylus/persiansweb.htm |
+| prometheus-bound.htm | prometheus-bound | https://web.viu.ca/johnstoi/aeschylus/prometheusbound.htm |
+| seven-against-thebes.htm | seven-against-thebes | https://web.viu.ca/johnstoi/aeschylus/sevenagainstthebesweb.htm |
+| suppliants-aesch.htm | suppliants-aesch | https://web.viu.ca/johnstoi/aeschylus/suppliantwomen.htm |
+| ajax.htm | ajax | https://web.viu.ca/johnstoi/sophocles/ajax.htm |
+| antigone.htm | antigone | https://web.viu.ca/johnstoi/sophocles/antigone.htm |
+| oedipus-tyrannus.htm | oedipus-tyrannus | https://web.viu.ca/johnstoi/sophocles/oedipustheking.htm |
+| oedipus-coloneus.htm | oedipus-coloneus | https://web.viu.ca/johnstoi/sophocles/oedipusatcolonus.htm |
+| philoctetes.htm | philoctetes | https://web.viu.ca/johnstoi/sophocles/philoctetes.htm |
+| electra-eur.htm | electra-eur | https://web.viu.ca/johnstoi/euripides/electra.htm |
+| hippolytus.htm | hippolytus | https://web.viu.ca/johnstoi/euripides/hippolytus.htm |
+| medea.htm | medea | https://web.viu.ca/johnstoi/euripides/medea.htm |
+| orestes.htm | orestes | https://web.viu.ca/johnstoi/euripides/orestes.htm |
+| bacchae.htm | bacchae | Wayback copy of http://johnstoniatexts.x10host.com/euripides/bacchaehtml.html (2022) |
+| birds.htm | birds | https://web.viu.ca/johnstoi/aristophanes/birds.htm |
+| clouds.htm | clouds | https://web.viu.ca/johnstoi/aristophanes/clouds.htm |
+| frogs.htm | frogs | https://web.viu.ca/johnstoi/aristophanes/frogs.htm |
+| knights.htm | knights | https://web.viu.ca/johnstoi/aristophanes/knightsweb.htm |
+| lysistrata.htm | lysistrata | https://web.viu.ca/johnstoi/aristophanes/lysistrata.htm |
+| peace.htm | peace | https://web.viu.ca/johnstoi/aristophanes/peace.htm |
+
+**Derived text**: `sources/bench/johnston/<work id>.txt` (verse-own-line
+turn-text) is written from these pages by `python -m
+drama_pipeline.johnston_clean`; `pipeline/tests/test_johnston_clean.py`
+checks each committed file is exactly the converter's output. Johnston
+numbers every tenth line of his English and every tenth Greek line in
+brackets, mid-speech, never at a speech start, so the column aligns by
+speaker turn; both numbers and the footnote calls are dropped, stage
+directions stay. A few printed cues are respelled so the turn parser reads
+them as cues, and the reader shows them so: a number becomes a word
+("CHORUS MEMBER 1" → "CHORUS MEMBER ONE"), a lone letter joins its name
+("WOMAN C" → "WOMAN-C"), a leading article goes ("A SECOND HOOPOE" →
+"SECOND HOOPOE"), and a lowercase "and" in a joint cue is capitalised.

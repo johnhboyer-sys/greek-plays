@@ -68,6 +68,26 @@ english:
     max_turn_shift_rate: 0.20
     # John 2026-09-11: the dropped head is the cast list
     head_front_matter: 1
+  third:
+    id: johnston
+    name: "Ian Johnston (VIU)"
+    short: Johnston
+    model: turn-text
+    format: verse-own-line
+    source: bench/johnston/knights.txt
+    play: KNIGHTS
+    footnotes: false
+    # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Ian Johnston (Vancouver Island University), johnstonia pages: "All
+        general readers, teachers, students, and performing artists may
+        download any material on johnstonia web pages without permission and
+        without charge, provided they do not use the material in a commercial
+        publication." Credited in sources/INVENTORY.md and on the attribution
+        page.
+      source_url: https://web.viu.ca/johnstoi/copyright.htm
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -117,6 +137,20 @@ speakers:
     "CHORUS": "Chorus"
     "AGORACRITUS": "Sausage-seller"
     "DEMUS": "Demos"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_third:
+    "DEMOSTHENES": "First Slave"
+    "NICIAS": "Second Slave"
+    "DEMOSTHENES AND NICIAS": "Both Slaves"
+    "SAUSAGE SELLER": "Sausage-seller"
+    "PAPHLAGONIAN": "Paphlagonian"
+    "PAHPLAGONIAN": "Paphlagonian"
+    "PAMPHLAGONIAN": "Paphlagonian"
+    "PAPLAGONIAN": "Paphlagonian"
+    "CHORUS LEADER": "Chorus"
+    "CHORUS": "Chorus"
+    "DEMOS": "Demos"
+    "PAPHLAGONIAN AND SAUSAGE SELLER": "Sausage-seller and Paphlagonian"
   sigla:
     "ΑΛ.": "Sausage-seller"
     "ΑΛΛΑΝΤΟΠΩΛΗΣ": "Sausage-seller"
@@ -171,6 +205,7 @@ registry:
       short: Hickie
       slot: secondary
       alignment: speech
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Ar. Eq."

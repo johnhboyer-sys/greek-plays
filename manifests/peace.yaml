@@ -90,6 +90,26 @@ english:
     # John 2026-09-11: limits at today's score; after the cue repair Hickie
     # pairs 0.864 (default floor 0.85 holds) and shifts 0.104
     max_turn_shift_rate: 0.11
+  third:
+    id: johnston
+    name: "Ian Johnston (VIU)"
+    short: Johnston
+    model: turn-text
+    format: verse-own-line
+    source: bench/johnston/peace.txt
+    play: PEACE
+    footnotes: false
+    # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Ian Johnston (Vancouver Island University), johnstonia pages: "All
+        general readers, teachers, students, and performing artists may
+        download any material on johnstonia web pages without permission and
+        without charge, provided they do not use the material in a commercial
+        publication." Credited in sources/INVENTORY.md and on the attribution
+        page.
+      source_url: https://web.viu.ca/johnstoi/copyright.htm
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -174,6 +194,31 @@ speakers:
     "DAUGHTER": "Daughter"
     "SON OF LAMACHUS": "First Boy"
     "SON OF CLEONYMUS": "Second Boy"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_third:
+    "FIRST SERVANT": "First Slave"
+    "SECOND SERVANT": "Second Slave"
+    "SERVANT": "Slave"
+    "TRYGAEUS": "Trygaeus"
+    "CHILD": "Daughter"
+    "DAUGHTER": "Daughter"
+    "HERMES": "Hermes"
+    "WAR": "War"
+    "UPROAR": "Tumult"
+    "LEADER OF THE CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "CHORUS": "Chorus"
+    "FIRST HALF CHORUS": "Chorus"
+    "SECOND HALF CHORUS": "Chorus"
+    "HIEROCLES": "Hierocles"
+    "SICKLE MAKER": "Sickle-maker"
+    "ARMS DEALER": "Arms-dealer"
+    "ARMOURER": "Arms-dealer"
+    "TRUMPET MAKER": "Arms-dealer"
+    "HELMET MAKER": "Arms-dealer"
+    "SPEAR MAKER": "Arms-dealer"
+    "SON OF LAMACHUS": "First Boy"
+    "SON OF CLEONYMUS": "Second Boy"
   sigla:
     "ΤΡ.": "Trygaeus"
     "ΤΡΥΓΑΙΟΣ": "Trygaeus"
@@ -240,6 +285,7 @@ registry:
       short: Hickie
       slot: secondary
       alignment: speech
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Ar. Pax"

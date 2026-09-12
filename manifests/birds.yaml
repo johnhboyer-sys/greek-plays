@@ -82,6 +82,26 @@ english:
     source: bench/arrowsmith/birds.txt
     play: "THE BIRDS"
     footnotes: false
+  overlays:
+    - id: johnston
+      name: "Ian Johnston (VIU)"
+      short: Johnston
+      model: turn-text
+      format: verse-own-line
+      source: bench/johnston/birds.txt
+      play: BIRDS
+      footnotes: false
+      # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+      license:
+        status: licensed
+        rationale: >-
+          Ian Johnston (Vancouver Island University), johnstonia pages: "All
+          general readers, teachers, students, and performing artists may
+          download any material on johnstonia web pages without permission and
+          without charge, provided they do not use the material in a commercial
+          publication." Credited in sources/INVENTORY.md and on the attribution
+          page.
+        source_url: https://web.viu.ca/johnstoi/copyright.htm
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -204,6 +224,35 @@ speakers:
     "SENTRY": "Second Messenger"
     "TRIBALLOS": "Triballian"
     "HERALD": "Herald"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_johnston:
+    "EUELPIDES": "Euelpides"
+    "PISTHETAIROS": "Peisthetaerus"
+    "PISTHETAIROS AND EUELPIDES": "Peisthetaerus"  # the pair together; no joint role in the Greek
+    "SERVANT-BIRD": "Servant of the Hoopoe"
+    "TEREUS": "Hoopoe"
+    "BIRD": "Bird"
+    "CHORUS LEADER": "Chorus"
+    "CHORUS": "Chorus"
+    "PRIEST": "Priest"
+    "POET": "Poet"
+    "ORACLE MONGER": "Oracle-monger"
+    "METON": "Meton"
+    "COMMISSIONER": "Inspector"
+    "STATUTE SELLER": "Decree-seller"
+    "STATUE SELLER": "Decree-seller"
+    "FIRST MESSENGER": "First Messenger"
+    "SECOND MESSENGER": "Second Messenger"
+    "IRIS": "Iris"
+    "FIRST HERALD": "Herald"
+    "SECOND HERALD": "Messenger"
+    "YOUNG MAN": "Father-beater"
+    "CINESIAS": "Cinesias"
+    "SYCOPHANT": "Informer"
+    "PROMETHEUS": "Prometheus"
+    "POSEIDON": "Poseidon"
+    "HERCULES": "Heracles"
+    "TRIBALLIAN": "Triballian"
   sigla:
     "ΠΙ.": "Peisthetaerus"
     "ΠΙΣΘΕΤΑΙΡΟΣ": "Peisthetaerus"
@@ -292,6 +341,7 @@ registry:
       short: Arrowsmith
       slot: third
       alignment: speech
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Ar. Av."

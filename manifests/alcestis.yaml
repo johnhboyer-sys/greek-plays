@@ -40,6 +40,15 @@ english:
     footnotes: false
     # John 2026-09-11: the dropped head is the cast list
     head_front_matter: 1
+  third:
+    id: murray-verse
+    name: "Gilbert Murray"
+    short: Murray
+    model: turn-text
+    format: verse-own-line
+    source: bench/murray/alcestis.txt
+    play: ALCESTIS
+    footnotes: false
   gaps:
 
 citation:
@@ -84,6 +93,23 @@ speakers:
     "ADMETUS": "Admetus"
     "EUMELUS": "Eumelus"
     "HERCULES": "Heracles"
+    "PHERES": "Pheres"
+    "SERVANT": "Attendant"
+  # Gilbert Murray cues -> the roster.
+  english_third:
+    "APOLLO": "Apollo"
+    "THANATOS": "Death"
+    "LEADER": "Chorus"
+    "SECOND ELDER": "Chorus"
+    "THIRD ELDER": "Chorus"
+    "OTHERS": "Chorus"
+    "ALL": "Chorus"
+    "CHORUS": "Chorus"
+    "MAID": "Maid"
+    "ALCESTIS": "Alcestis"
+    "ADMETUS": "Admetus"
+    "LITTLE BOY": "Eumelus"
+    "HERACLES": "Heracles"
     "PHERES": "Pheres"
     "SERVANT": "Attendant"
   # Greek printed sigla -> canonical display (colour key; the printed label
@@ -149,6 +175,7 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Alc."

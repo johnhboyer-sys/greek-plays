@@ -39,6 +39,26 @@ english:
     source: bench/morshead/suppliants-aesch.txt
     play: THE SUPPLIANT MAIDENS
     footnotes: false
+  third:
+    id: johnston
+    name: "Ian Johnston (VIU)"
+    short: Johnston
+    model: turn-text
+    format: verse-own-line
+    source: bench/johnston/suppliants-aesch.txt
+    play: SUPPLIANT WOMEN
+    footnotes: false
+    # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Ian Johnston (Vancouver Island University), johnstonia pages: "All
+        general readers, teachers, students, and performing artists may
+        download any material on johnstonia web pages without permission and
+        without charge, provided they do not use the material in a commercial
+        publication." Credited in sources/INVENTORY.md and on the attribution
+        page.
+      source_url: https://web.viu.ca/johnstoi/copyright.htm
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -84,6 +104,14 @@ speakers:
     "KING OF ARGOS": "Pelasgus"
     "HERALD OF AEGYPTUS": "Herald"
     "SEMI-CHORUS": "Chorus"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_third:
+    "CHORUS": "Chorus"
+    "DANAUS": "Danaus"
+    "PELASGUS": "Pelasgus"
+    "HERALD": "Herald"
+    "CHORUS OF HANDMAIDENS": "Handmaidens"
+    "HANDMAIDENS": "Handmaidens"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances. TODO(P2): the exodos (~1034ff)
   # has genuinely confused manuscript attribution among the Danaids' own
@@ -152,6 +180,7 @@ registry:
       short: Morshead
       slot: secondary
       alignment: speech
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Supp."

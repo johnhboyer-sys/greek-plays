@@ -61,6 +61,34 @@ english:
         copyright restrictions". Every translator and reviser is credited in
         sources/INVENTORY.md and on the attribution page.
       source_url: https://kosmossociety.org/text-library/
+  overlays:
+    - id: johnston
+      name: "Ian Johnston (VIU)"
+      short: Johnston
+      model: turn-text
+      format: verse-own-line
+      source: bench/johnston/oedipus-tyrannus.txt
+      play: OEDIPUS THE KING
+      footnotes: false
+      # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+      license:
+        status: licensed
+        rationale: >-
+          Ian Johnston (Vancouver Island University), johnstonia pages: "All
+          general readers, teachers, students, and performing artists may
+          download any material on johnstonia web pages without permission and
+          without charge, provided they do not use the material in a commercial
+          publication." Credited in sources/INVENTORY.md and on the attribution
+          page.
+        source_url: https://web.viu.ca/johnstoi/copyright.htm
+    - id: murray-verse
+      name: "Gilbert Murray"
+      short: Murray
+      model: turn-text
+      format: verse-own-line
+      source: bench/murray/oedipus-tyrannus.txt
+      play: OEDIPUS KING OF THEBES
+      footnotes: false
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -121,6 +149,30 @@ speakers:
     "MESSENGER": "Messenger"
     "SERVANT": "Servant"
     "SECOND MESSENGER": "Second Messenger"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_johnston:
+    "OEDIPUS": "Oedipus"
+    "PRIEST": "Priest"
+    "CREON": "Creon"
+    "CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "TEIRESIAS": "Teiresias"
+    "JOCASTA": "Jocasta"
+    "MESSENGER": "Messenger"
+    "SERVANT": "Servant"
+    "SECOND MESSENGER": "Second Messenger"
+  # Gilbert Murray cues -> the roster.
+  english_murray-verse:
+    "OEDIPUS": "Oedipus"
+    "PRIEST": "Priest"
+    "CREON": "Creon"
+    "CHORUS": "Chorus"
+    "LEADER": "Chorus"
+    "TIRESIAS": "Teiresias"
+    "JOCASTA": "Jocasta"
+    "STRANGER": "Messenger"
+    "SHEPHERD": "Servant"
+    "MESSENGER": "Second Messenger"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -186,6 +238,8 @@ registry:
       slot: third
       alignment: speech
       form: prose
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Soph. OT"

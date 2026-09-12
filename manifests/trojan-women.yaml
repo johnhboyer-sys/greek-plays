@@ -58,6 +58,15 @@ english:
         copyright restrictions". Every translator and reviser is credited in
         sources/INVENTORY.md and on the attribution page.
       source_url: https://kosmossociety.org/text-library/
+  overlays:
+    - id: murray-verse
+      name: "Gilbert Murray"
+      short: Murray
+      model: turn-text
+      format: verse-own-line
+      source: bench/murray/trojan-women.txt
+      play: TROJAN WOMEN
+      footnotes: false
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -122,6 +131,32 @@ speakers:
     "ANDROMACHE": "Andromache"
     "MENELAOS": "Menelaus"
     "HELEN": "Helen"
+  # Gilbert Murray cues -> the roster.
+  english_murray-verse:
+    "POSEIDON": "Poseidon"
+    "PALLAS": "Athena"
+    "HECUBA": "Hecuba"
+    "FIRST WOMAN": "Chorus"
+    "SECOND WOMAN": "Chorus"
+    "THIRD WOMAN": "Chorus"
+    "FOURTH WOMAN": "Chorus"
+    "FIFTH WOMAN": "Chorus"
+    "SIXTH WOMAN": "Chorus"
+    "OTHER": "Chorus"
+    "ANOTHER": "Chorus"
+    "LEADER": "Chorus"
+    "LEADER OF CHORUS": "Chorus"
+    "CHORUS": "Chorus"
+    "MAIDEN": "Chorus"
+    "TALTHYBIUS": "Talthybius"
+    "CASSANDRA": "Cassandra"
+    "ANDROMACHE": "Andromache"
+    "MENELAUS": "Menelaus"
+    "HELEN": "Helen"
+    "AND": "Andromache"  # Murray's short cue in the Andromache-Hecuba lament
+    "HEC": "Hecuba"
+    "WOMAN": "Chorus"
+    "WOMAN TO ANOTHER": "Chorus"
   sigla:
     "—": null
     "ΠΟΣΕΙΔΩΝ": "Poseidon"
@@ -187,6 +222,7 @@ registry:
       slot: third
       alignment: speech
       form: prose
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Tro."

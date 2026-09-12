@@ -43,6 +43,15 @@ english:
     source: bench/way/rhesus.txt
     play: RHESUS
     footnotes: false
+  third:
+    id: murray-verse
+    name: "Gilbert Murray"
+    short: Murray
+    model: turn-text
+    format: verse-own-line
+    source: bench/murray/rhesus.txt
+    play: RHESUS
+    footnotes: false
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -93,6 +102,32 @@ speakers:
     "ATHENA": "Athena"
     "PARIS": "Paris"
     "CHARIOTEER": "Charioteer"
+    "MUSE": "Muse"
+  # Gilbert Murray cues -> the roster.
+  english_third:
+    "VARIOUS VOICES": "Chorus"
+    "LEADER": "Chorus"
+    "CHORUS": "Chorus"
+    "ANOTHER": "Chorus"
+    "OTHER": "Chorus"
+    "THIRD GUARD": "Chorus"
+    "DIVERS GUARDS": "Chorus"
+    "GUARD": "Chorus"
+    "GUARDS": "Chorus"
+    "VOICES": "Chorus"
+    "VOICE": "Charioteer"
+    "MAN": "Chorus"
+    "CAPTAIN": "Chorus"
+    "HECTOR": "Hector"
+    "AENEAS": "Aeneas"
+    "DOLON": "Dolon"
+    "SHEPHERD": "Messenger"
+    "RHESUS": "Rhesus"
+    "ODYSSEUS": "Odysseus"
+    "DIOMEDE": "Diomedes"
+    "ATHENA": "Athena"
+    "PARIS": "Paris"
+    "THRACIAN": "Charioteer"
     "MUSE": "Muse"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
@@ -159,6 +194,7 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Rh."

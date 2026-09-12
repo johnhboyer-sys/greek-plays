@@ -84,6 +84,34 @@ english:
         copyright restrictions". Every translator and reviser is credited in
         sources/INVENTORY.md and on the attribution page.
       source_url: https://kosmossociety.org/text-library/
+  overlays:
+    - id: johnston
+      name: "Ian Johnston (VIU)"
+      short: Johnston
+      model: turn-text
+      format: verse-own-line
+      source: bench/johnston/agamemnon.txt
+      play: AGAMEMNON
+      footnotes: false
+      # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+      license:
+        status: licensed
+        rationale: >-
+          Ian Johnston (Vancouver Island University), johnstonia pages: "All
+          general readers, teachers, students, and performing artists may
+          download any material on johnstonia web pages without permission and
+          without charge, provided they do not use the material in a commercial
+          publication." Credited in sources/INVENTORY.md and on the attribution
+          page.
+        source_url: https://web.viu.ca/johnstoi/copyright.htm
+    - id: murray-verse
+      name: "Gilbert Murray"
+      short: Murray
+      model: turn-text
+      format: verse-own-line
+      source: bench/murray/agamemnon.txt
+      play: AGAMEMNON
+      footnotes: false
   # Genuinely untranslated Greek speeches (filled after the P2b attachment)
   # pass). Segment ids or printed refs; any other unmatched id fails stage2.
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
@@ -180,6 +208,57 @@ speakers:
     "AGAMEMNON": "Agamemnon"
     "KASSANDRA": "Cassandra"
     "AEGISTHUS": "Aegisthus"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_johnston:
+    "WATCHMAN": "Watchman"
+    "CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "CHORUS MEMBER": "Chorus"
+    "CLYTAEMNESTRA": "Clytaemestra"
+    "CLYTAEMNESTR": "Clytaemestra"
+    "CHORUS MEMBER ONE": "Elder 1"
+    "CHORUS MEMBER TWO": "Elder 2"
+    "CHORUS MEMBER THREE": "Elder 3"
+    "CHORUS MEMBER FOUR": "Elder 4"
+    "CHORUS MEMBER FIVE": "Elder 5"
+    "CHORUS MEMBER SIX": "Elder 6"
+    "CHORUS MEMBER SEVEN": "Elder 7"
+    "CHORUS MEMBER EIGHT": "Elder 8"
+    "CHORUS MEMBER NINE": "Elder 9"
+    "CHORUS MEMBER TEN": "Elder 10"
+    "CHORUS MEMBER ELEVEN": "Elder 11"
+    "HERALD": "Herald"
+    "AGAMEMNON": "Agamemnon"
+    "CASSANDRA": "Cassandra"
+    "AEGISTHUS": "Aegisthus"
+  # Gilbert Murray cues -> the roster.
+  english_murray-verse:
+    "WATCHMAN": "Watchman"
+    "CHORUS": "Chorus"
+    "LEADER": "Chorus"
+    "ELDER": "Chorus"
+    "SECOND ELDER": "Chorus"
+    "ANOTHER": "Chorus"
+    "DIVERS ELDERS": "Chorus"
+    "OTHERS": "Chorus"
+    "MOURNERS": "Chorus"
+    "CLYTEMNESTRA": "Clytaemestra"
+    "HERALD": "Herald"
+    "AGAMEMNON": "Agamemnon"
+    "VOICE": "Agamemnon"
+    "CASSANDRA": "Cassandra"
+    "AIGISTHOS": "Aegisthus"
+    "ELDER-B": "Elder 1"
+    "ELDER-C": "Elder 2"
+    "ELDER-D": "Elder 3"
+    "ELDER-E": "Elder 4"
+    "ELDER-F": "Elder 5"
+    "ELDER-G": "Elder 6"
+    "ELDER-H": "Elder 7"
+    "ELDER-I": "Elder 8"
+    "ELDER-J": "Elder 9"
+    "ELDER-K": "Elder 10"
+    "ELDER-L": "Elder 11"
 
 books:
   - { n: 1, start: "1", end: "1673" }
@@ -209,6 +288,8 @@ registry:
     - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, footnotes: true, alignment: line }
     - { id: morshead, name: "E. D. A. Morshead (1881–1908)", short: Morshead, slot: secondary, alignment: speech }
     - { id: kosmos, name: "Smyth, rev. Crane, Bird & Nagy (Kosmos Society)", short: Kosmos, slot: third, alignment: speech, form: prose }
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Ag."
