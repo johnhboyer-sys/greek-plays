@@ -1,6 +1,7 @@
 THE BIRDS
 
 EUELPIDES
+_To his Magpie._
 Straight ahead, croaker? Over by that tree?
 
 PISTHETAIROS
@@ -31,6 +32,7 @@ PISTHETAIROS
 Friend, even Exekestides couldn't do that.
 
 EUELPIDES
+_Stumbling._
 Hell.
 
 PISTHETAIROS
@@ -45,6 +47,7 @@ old Tereus the Bird who used to be a man,
 and swindling us with this stinking jabbering Magpie here
 for two bits and that cluckhead Crow of yours for six!
 And what do they do but nip our fingers off?
+_To the Magpie._
 Well, what are you gaping at, imbecile? Where?
 Straight into the cliff? But there's no road there, idiot.
 
@@ -68,6 +71,7 @@ EUELPIDES
 It's a filthy shame, that's what. Think of it, man:
 here we are dying to go tell it to the Birds,
 and then, by god, we can't even find the way.
+_To the Audience._
 Yes, dear people, we confess we're completely mad.
 But it's not like Sakas' madness. Not a bit.
 For he, poor dumb foreigner, wants in, while we,
@@ -120,6 +124,7 @@ Pick up a rock and pound.
 
 EUELPIDES
 Good idea. I’ll try.
+_He picks up a rock and pounds on the cliff, shouting._
 Boy! Hey, boy!
 
 PISTHETAIROS
@@ -128,14 +133,17 @@ You’d better say, “Ho, Hoopoe!” or “Hey, Epops!”
 
 EUELPIDES
 Hey, Hoopoe!
+_No answer._
 Hmmm. Shall I try him again?
 Yoohoo, Hoopoe!
+_A concealed door in the cliff suddenly swings open and a Sandpiper with an enormous curved beak peers out, almost spitting Pisthetairos._
 
 SANDPIPER
 What are you whooping about?
 
 EUELPIDES
 Apollo help us! What a beak on the Bird!
+_In his fright he lets go of his Magpie who flaps off. Pisthetairos falls backward, losing his Crow, while the Sandpiper retreats in horror._
 
 SANDPIPER
 Halp!
@@ -164,6 +172,7 @@ EUELPIDES
 Not nonsense, crap. Look at my feet.
 
 SANDPIPER
+_Indicating Pisthetairos._
 And that bird over there? What’s his species?
 
 PISTHETAIROS
@@ -171,6 +180,7 @@ Him?
 Brown-tailed Smellyrump. Quail family.
 
 EUELPIDES
+_To Sandpiper._
 Say,
 what about you, Birdie? What the hell are you?
 
@@ -211,9 +221,11 @@ His nap be damned. Go wake him.
 SANDPIPER
 I warn you:
 He'll be grumpy. But just for a favor I'll do it.
+_Exit Sandpiper._
 
 PISTHETAIROS
 And then drop dead.
+_To Euelpides._
 —Whoosh, I'm still shaking.
 
 EUELPIDES
@@ -242,7 +254,9 @@ EUELPIDES
 And where were you? Holding on for dear life?
 
 HOOPOE
+_From within._
 CLEAR THE COPSE, I SAY, AND WHEEL ME OUT!
+_The eccyclema wheels out the Hoopoe, sitting on a pile of brush and peering out from a thicket. Except for his huge crest and beak and a few bedraggled feathers here and there, the Hoopoe is human._
 
 EUELPIDES
 Holy Herakles! That’s no Bird, it’s a freak.
@@ -278,6 +292,7 @@ you’re Tereus in person?
 Are you Bird or Peacock?
 
 HOOPOE
+_With ferocious dignity._
 I am a Bird.
 
 EUELPIDES
@@ -369,6 +384,7 @@ or I won’t turn to you when I’m in trouble.”
 
 HOOPOE
 Zeus, you like your troubles pleasant, don’t you?
+_To Pisthetairos._
 And you?
 
 PISTHETAIROS
@@ -428,6 +444,7 @@ EUELPIDES
 Gods alive, that's not life! That's a honeymoon!
 
 PISTHETAIROS
+_Suddenly illuminated._
 WAIT!
 WONDERFUL!
 I'VE GOT IT!
@@ -542,6 +559,7 @@ PISTHETAIROS
 Hoopoe, old Bird, you're wonderful!
 But hurry. Quick.
 Go wake your sleeping Nightingale and sing your song.
+_The Hoopoe retires and begins to sing._
 
 HOOPOE
 Awake from sleep, my love!
@@ -550,6 +568,7 @@ bird with honied tongue!
 Awake and sing
 your song and mine,
 Itys, Itys!
+_From the thicket the flute begins its obbligato in imitation of the song of the Nightingale at her most melancholy._
 Pure sound of sorrow!
 Hear it rise,
 a grief that goes,
@@ -566,6 +585,7 @@ Itys, Itys!
 and throats that cannot die
 sing the sorrow back,
 Itys! Itys! Itys!
+_There is a short coda by the flute, accompanied now by the distant sweeping of the lyre._
 
 EUELPIDES
 Holy Zeus, just hear the little Birdie’s song!
@@ -588,10 +608,12 @@ PISTHETAIROS
 The Hoopoe is preening to sing another song.
 
 HOOPOE
+_Singing, with flute obbligato._
 Epopopopopopopopopoi!
 Popopopopopopopoi!
 Io! Io! Io!
 Hear ye ye ye ye ye ye ye!
+_Calling first to the landbirds._
 O Birds of fellow feather come!
 Come, you Birds who graze, who feed
 over the farmers' fresh-sown fields!
@@ -608,11 +630,13 @@ O rangers on the mountain, come,
 arbutus-stealers, olive-thieves!
 Flock, fly to my call! Come, O come!
 trio trio trio totobrix!
+_To the Birds of marsh and meadow._
 O Birds of swamp and river, come!
 You whose beaks snap up the whining gnats,
 who splash in water where the earth is wet
 or skim the meadows over Marathon!
 O Birds of blazoned feather, come!
+_To the Seabirds._
 Come, Birds who soar upon the sea
 where the kingfisher swoops!
 O Birds with delicate necks,
@@ -644,12 +668,14 @@ and whooped himself hoarse, and all for nothing.
 
 HOOPOE
 Toro tix! Toro tix!
+_As the Hoopoe’s call ends, the first member of the Chorus enters. He is dressed as a Flamingo and is shortly followed by other members, each costumed in broad representation of some bird._
 
 PISTHETAIROS
 Pssst. Euelpides! Look over there! There’s a Bird coming in!
 
 EUELPIDES
 By Zeus, it is a Bird! What do you suppose he is? A Peacock?
+_Enter Hoopoe._
 
 PISTHETAIROS
 The Hoopoe will tell us.
@@ -673,6 +699,7 @@ What is it?
 
 EUELPIDES
 That Bird.
+_Enter a second bird, dressed in gorgeous Persian costume, with a magnificent strut._
 
 PISTHETAIROS
 Say, he’s exotic. Like something out of Aischylos.
@@ -688,6 +715,7 @@ But how could a Bedouin Bird get to Greece without a Camel Bird?
 
 EUELPIDES
 And look there! There comes another Bird with a whopping crest.
+_Enter a Hoopoe._
 
 PISTHETAIROS
 Say, that's odd. You mean you aren't the only Hoopoe going?
@@ -706,6 +734,7 @@ So this is the Kallias Hoopoe. Well, he sure looks plucked.
 HOOPOE
 He's quite the bird about town, so parasites strip him bare
 and the chorus girls keep yanking his pretty feathers out.
+_Enter a dazzlingly brilliant bird with an enormous crest and a great protruding belly._
 
 EUELPIDES
 Sweet Poseidon! Look at that gorgeous Birdie strutting in!
@@ -732,6 +761,7 @@ So some Birds sport their plumes on top, but others on their asses.
 
 PISTHETAIROS
 What an ungodly crowd of Birds! It gives me the jitters.
+_The rest of the Chorus, birds of every size and description, now stream into the orchestra._
 Look, Birds everywhere!
 
 EUELPIDES
@@ -770,11 +800,13 @@ HOOPOE
 And Jay and Pigeon. Lark, Wren, Wheatear, and Turtledove.
 Ringdove, Stockdove, Cuckoo, and Hawk. Firecrest and Wren,
 Rail and Kestrel and Gull, Waxwing, Woodpecker, and Vulture . . .
+_In one last surge the remaining members of the Chorus stream into the orchestra, ruffling their feathers and chirping and hissing._
 
 PISTHETAIROS
 Birds, Birds, billions of Birds!
 
 EUELPIDES
+_Indicating the Audience._
 But most of them Cuckoos and Geese.
 
 PISTHETAIROS
@@ -845,6 +877,7 @@ You mean they're here? In our midst?
 
 HOOPOE
 As much as I. Look.
+_He raises his wings, revealing the two men cowering behind him._
 
 CHORUS
 —O Treachery!
@@ -900,6 +933,7 @@ Mount the attack!
 Charge them, Birds! Bite them, tear them!
 On the double!
 Captain on the right! Advance your wing and charge!
+_The Chorus wheels in massed formation toward the stage. Euelpides in terror starts to run._
 
 EUELPIDES
 They're charging! Where can we run?
@@ -949,6 +983,7 @@ CHARGE!
 Rip ’em, scratch ’em, flay ’em, bite! BUT BREAK THAT POT!
 
 HOOPOE
+_Intervening._
 Truce, truce.
 No more of this bitterness. You Birds should be
 ashamed.
@@ -984,9 +1019,11 @@ There’s something in what you say.
 Perhaps we’d better hear them.
 
 PISTHETAIROS
+_To Euelpides._
 They’re beginning to show signs of reason. Don’t say a word.
 
 HOOPOE
+_To the Chorus._
 That’s better, friends. You’re doing right, and you’ll thank me for it later.
 
 KORYPHAIOS
@@ -1025,6 +1062,7 @@ The war’s over.
 AT EASE!
 You there, quiet!
 QUIET, PLEASE!
+_The Chorus returns to its normal position in the orchestra. Much whispering, nodding, and shuffling. Then silence._
 Now we have to inquire
 who these strangers are
 and why they've come.
@@ -1097,6 +1135,7 @@ So be it, then.
 —Men, take these weapons inside
 the house and hang them up beside the blazing hearth
 where the god of fire presides. They’ll bring us luck.
+_Servants pick up the pots and plates and skewers and carry them inside. The Hoopoe turns to Pisthetairos._
 Pisthetairos, you have the floor. Proceed with your case.
 Explain your proposal.
 
@@ -1109,6 +1148,7 @@ signed with his wife: no biting, scratching, or cutting,
 no hauling around by the balls, no shoving things—
 
 EUELPIDES
+_Bending over._
 —Up there?
 
 PISTHETAIROS
@@ -1134,6 +1174,7 @@ we agree to forfeit, say, forty-nine per cent
 of the votes.
 
 HOOPOE
+_To the Chorus._
 Fall out!
 Pick up your weapons, men
 and return at once to your quarters. On the double!
@@ -1350,6 +1391,7 @@ and they pour it piping hot,
 as though your meat were putrid,
 to sterilize the rot!
 Yes, to sterilize the rot!
+_As Pisthetairos finishes, a long low susurrus of grief runs through the Chorus and the Birds sigh, weep, and beat their breasts with their wings._
 
 CHORUS
 Stranger, forgive us if we cry,
@@ -1585,6 +1627,7 @@ No, after you.
 
 HOOPOE
 This way, gentlemen.
+_The Hoopoe begins to flap his wings to flutter into his nest._
 
 PISTHETAIROS
 Hey, you!
@@ -1633,8 +1676,10 @@ I've never met a Nightingale before.
 HOOPOE
 With all my heart.
 I'd be delighted, gentlemen.
+_Calling inside._
 Oh Prokne! Prokne.
 Please come out, my dear, and meet our visitors.
+_A lovely well-rounded young flutegirl shyly appears. She is dressed in the rich gold-encrusted robes of a young Athenian matron of high birth. On her head she wears the mask of the Nightingale._
 
 PISTHETAIROS
 Almighty Zeus! Gosh, what a baby of a Birdie!
@@ -1664,6 +1709,7 @@ Harrumph. This way.
 
 PISTHETAIROS
 And may good fortune go with us.
+_Exeunt Pisthetairos, Euelpides, and Hoopoe, followed by the slaves with the luggage._
 
 CHORUS
 O love,
@@ -1675,6 +1721,7 @@ honey-throated one!
 Come, O love,
 flutist of the Spring,
 accompany our song.
+_The Chorus turns sharply and faces the audience, while the flutegirl begins the song of the nightingale at its most mournful. The flute obbligato accompanies the Chorus throughout._
 O suffering mankind,
 lives of twilight,
 race feeble and fleeting,
@@ -1790,6 +1837,7 @@ and omens are Birds.
 Who are we then
 if we are not
 your prophetic Apollo?
+_The obbligato of the flute ceases as the Chorus now shifts to a lighter vein and a quicker tempo._
 So elect us as your gods
 and we, in turn, shall be
 your weathervane and Muse,
@@ -1897,6 +1945,7 @@ Look at Dieitrephes, our vulgar Ikaros of trade,
 who started life on wicker wings but rose to captain's rank,
 and now, still riding high, is colonel of a wing of horse.
 From horse's ass to Pegasos! But that's what wings can do!
+_The Chorus now turns and faces the stage as Pisthetairos and Euelpides return. Both of them now sport tiny wings, a few feathers, and outsize beaks._
 
 PISTHETAIROS
 Well, here we are.
@@ -1996,6 +2045,7 @@ Little Corporal Cock!
 He's the perfect Bird for protecting our rock.
 
 PISTHETAIROS
+_To Euelpides._
 Hop it, man!
 Quick, up the rigging of the air!
 Hurry! Done? Now supervise the workers on the wall.
@@ -2019,12 +2069,15 @@ and I hope you choke.
 PISTHETAIROS
 Obey your orders, friend.
 Unless you do your share, we shan't get done.
+_Exit Euelpides._
 Now, let me see.
 First, a priest to supervise
 our sacrifice.
 —Boy!
+_An Acolyte appears._
 Boy, go fetch me a priest.
 And when you're finished, bring me a basket and a laver.
+_Exit Acolyte._
 
 CHORUS
 The Birds agree
@@ -2043,6 +2096,7 @@ one miserable lamb chop!
 KORYPHAIOS
 Flutist, come in.
 Now let our sacrifice begin.
+_Enter the Flutist, a Raven whose beak is an enormous flute which is strapped to his mouth by means of a leather harness. After strenuous huffing, he manages to produce what are unmistakably caws._
 
 PISTHETAIROS
 Stop that raucous Rook!
@@ -2051,12 +2105,14 @@ what are you anyway?
 I’ve seen some weird sights,
 but this is the first time in my life I ever saw
 a Blackbird propping his beak with a leather belt.
+_Exit Flutist. Enter Priest, followed by the Acolyte with the paraphernalia of the sacrifice._
 At last.
 —Eminence, you may begin the inaugural sacrifice.
 
 PRIEST
 Your humble servant, sir.
 —But where’s my acolyte?
+_The Acolyte steps forward. The Priest raises his hands and begins the Bidding Prayer of the Birds._
 Now let us pray—
 PRAY TO THE HESTIA OF NESTS,
 TO THE HOUSEHOLDING HARRIER HAWK,
@@ -2110,6 +2166,7 @@ and suchlike to our feast? Or weren't you aware
 one single beak could tuck it all away?
 Clear out, and take your blasted ribands with you.
 So help me, I'll finish this sacrifice myself.
+_Exit Priest._
 
 CHORUS
 Again we raise
@@ -2127,6 +2184,7 @@ so stay away. Amen.
 
 PISTHETAIROS
 Let us pray to the pinion’d gods—
+_Enter a hungry, ragged Poet, chanting._
 
 POET
 In all thy songs, O Muse,
@@ -2170,6 +2228,7 @@ POET
 Ah, but swift are the mouths of the Muses,
 more swift than steeds the galloping news
 of the Muses!
+_He turns to the altar and with outstretched hands invokes it in Pindaric parody._
 O Father,
 Founder of Etna,
 of thy bounty give,
@@ -2183,8 +2242,10 @@ some token of favor—
 PISTHETAIROS
 You know, I think we’d better bribe this beggar bard
 to leave before we die of doggerel.
+_To the Acolyte._
 —You there,
 strip and let the beggar poet have your overcoat.
+_He hands the coat to the Poet._
 Dress.
 Why, you poor poet, you’re shivering with cold.
 
@@ -2213,6 +2274,7 @@ You catch my drift?
 PISTHETAIROS
 Yes, I catch your drift.
 You want some underwear.
+_To the Acolyte._
 All right, off with it, lad.
 We can’t allow our delicate poets to freeze to death.
 And now clear out, will you?
@@ -2220,6 +2282,7 @@ And now clear out, will you?
 POET
 I go, I go,
 but first my final valediction to this little village—
+_Singing._
 O Muse on golden throne,
 Muse with chattering teeth
 sing this capitol of cold,
@@ -2229,16 +2292,19 @@ I have traipsed where the furrows are sown with snow.
 Alalai!
 Alalai!
 G’bye.
+_Exit Poet._
 
 PISTHETAIROS
 Well, how do you like that? Griping about the cold
 after making off with an entire new winter outfit!
 And how in the name of heaven did that poetic plague
 discover us so fast?
+_To the naked and shivering Acolyte._
 —You there, to work again.
 Take up your laver and circle the altar, boy,
 and we'll resume our inaugural sacrifice once again.
 Quiet now, everyone.
+_As Pisthetairos approaches the altar with the sacrificial knife, an itinerant Prophet with a great open tome of oracles makes his appearance._
 
 PROPHET
 HALT! Forbear, I say!
@@ -2284,6 +2350,7 @@ Look here, what has Korinth got to do with me?
 PROPHET
 Why,
 it's ambiguous, of course. Korinth signifies "air."
+_Resuming._
 PRESENT, I SAY, A WHITE SHEEP TO PANDORA,
 BUT TO THE SEER WHO BRINGS MY BEHEST:
 IN PRIMIS, A WARM WINTER COAT
@@ -2294,6 +2361,7 @@ The best sandals, eh?
 
 PROPHET
 Yup. Look in the book.
+_Resuming._
 ITEM, A GOBLET OF WINE,
 ITEM, A GIBLET OF GOAT—
 
@@ -2302,6 +2370,7 @@ Giblet? It says giblet?
 
 PROPHET
 Yup. Look in the book.
+_Resuming._
 IF, O BLESSED YOUTH, THOU DOST AS I ENJOIN, REGAL EAGLE WINGS THIS VERY DAY ARE THINE.
 NOT SO MUCH AS PIGEON FLUFF, IF THOU DECLINE.
 
@@ -2312,6 +2381,7 @@ PROPHET
 Yup. Look in the book.
 
 PISTHETAIROS
+_Drawing out a huge tome from under his cloak._
 You know, your oracles somehow don't mesh with mine,
 and I got these from Apollo's mouth.
 Listen—
@@ -2324,6 +2394,7 @@ I suspect you're bluffing.
 
 PISTHETAIROS
 Nope. Look in the book.
+_Resuming._
 SMITE ON, I SAY, IF ANY PROPHET SHOULD COME,
 YEA, THOUGH HE SOARETH LIKE THE SWALLOW.
 FOR THE GREATER THE FAKER, THE HARDER HIS BUM SHOULD BE BATTERED. GOOD LUCK.
@@ -2334,6 +2405,7 @@ Honest? It says that?
 
 PISTHETAIROS
 Yup. Look in the book.
+_Suddenly throwing his tome at him and beating him._
 Take that!
 And that!
 And that!
@@ -2343,6 +2415,7 @@ Ouch. Help!
 
 PISTHETAIROS
 Scat. Go hawk your prophecies somewhere else.
+_Exit Prophet. From the other side enters the geometrician and surveyor Meton, his arms loaded with surveying instruments._
 
 METON
 The occasion that hath hied me hither—
@@ -2396,6 +2469,7 @@ as it were—
 
 PISTHETAIROS
 Why, this man’s a regular Thales!
+_Whispering confidentially._
 Pssst. Meton.
 
 METON
@@ -2435,12 +2509,14 @@ I'm half afraid you're just a bit too late.
 Yes!
 Look out!
 Here comes your thrashing!
+_He batters Meton with a surveying rod._
 
 METON
 HALP! MURDER!
 
 PISTHETAIROS
 I warned you. Go survey some other place, will you?
+_Exit Meton. From the other side enters an Inspector, dressed in a magnificent military uniform and swaggering imperiously._
 
 INSPECTOR
 Fetch me the Mayor, yokel.
@@ -2470,6 +2546,7 @@ The Persian crisis, you know.
 PISTHETAIROS
 Really? Splendid.
 I’ll pay you off right now.
+_Violently beating the Inspector._
 Take that!
 And that!
 
@@ -2482,14 +2559,17 @@ of the Great Debate.
 
 INSPECTOR
 But this is mutiny! Insubordination!
+_To the Chorus._
 Gentlemen, I call on you Birds to bear me witness
 that this man wilfully assaulted an Inspector.
 
 PISTHETAIROS
 Shoo, fellow,
 and take your ballot-boxes with you when you go.
+_Exit Inspector._
 What confounded gall! Sending us one of their Inspectors
 before we’ve even finished the Inaugural Service.
+_Enter an itinerant Legislator reading from a huge volume of laws._
 
 LEGISLATOR
 BE IT HEREBY PROVIDED THAT IF ANY CLOUD- CUCKOOLANDER SHALL WILFULLY INJURE OR
@@ -2507,10 +2587,12 @@ PISTHETAIROS
 Perhaps you’d better demonstrate your wares.
 
 LEGISLATOR
+_Reading._
 BE IT HEREBY PROVIDED BY LAW THAT FROM THE DATE SPECIFIED BELOW THE WEIGHTS AND MEASURES OF THE CLOUD-CUCKOOLANDERS ARE TO BE ADJUSTED
 TO THOSE IN EFFECT AMONG THE OLOPHYXIANS—
 
 PISTHETAIROS
+_Pummelling him._
 By god, I’ll Olo-phyx you!
 
 LEGISLATOR
@@ -2518,12 +2600,14 @@ Hey, mister, stop!
 
 PISTHETAIROS
 Get lost, you and your laws, or I’ll carve mine on the skin of your tail.
+_Exit Legislator. Enter Inspector._
 
 INSPECTOR
 I summon the defendant Pisthetairos to stand trial in court on charges of assault and battery not later than April.
 
 PISTHETAIROS
 Good gods, are you back too?
+_He thrashes Inspector who runs off. Re-enter Legislator._
 
 LEGISLATOR
 IF ANY MAN, EITHER BY WORD OR ACTION, DO IMPEDE OR RESIST
@@ -2532,12 +2616,14 @@ TO WELCOME HIM WITH THE COURTESY PRESCRIBED BY LAW—
 
 PISTHETAIROS
 Great thundery Zeus, are you back here too?
+_He drives the Legislator away. Re-enter Inspector._
 
 INSPECTOR
 I’ll have you sacked. What’s more, I’m suing you for a fat two thousand.
 
 PISTHETAIROS
 By Zeus, I’ll fix you and your blasted ballot boxes once and for all!
+_Exit Inspector under a barrage of blows. Re-enter Legislator._
 
 LEGISLATOR
 Remember that evening when you crapped in court?
@@ -2545,12 +2631,15 @@ Remember that evening when you crapped in court?
 PISTHETAIROS
 Dammit.
 Someone arrest that pest!
+_Exit Legislator._
 And this time stay away!
 But enough’s enough.
 We’ll take our goat inside
 and finish this sacrifice in peace and privacy.
+_Exit Pisthetairos into house, followed by Acolyte with basket and slaves with the sacrifice._
 
 CHORUS
+_Wheeling sharply and facing the audience._
 Praise Ye the Birds, O Mankind!
 Our sway is over all.
 The eyes of the Birds observe you:
@@ -2643,14 +2732,17 @@ against our falling guano.
 I repeat.
 Vote against THE BIRDS,
 and every Bird in town will cover you with—vituperation!
+_The Chorus turns and faces the stage. Enter Pisthetairos._
 
 PISTHETAIROS
 Birds, the omens are favorable. Our sacrifice has been auspicious.
 But I wonder where in the world our messenger is
 with news about our wall.
+_A sound of furious panting offstage._
 Aha. There he is now.
 I'd recognize that awful huffing and puffing anywhere.
 Those are the true Olympic pants and puffs I hear.
+_Enter Messenger, panting._
 
 FIRST MESSENGER
 Where anh where hoo where uh where can he be?
@@ -2746,6 +2838,7 @@ blazes with its watchfire. And in three words, sir,
 all is well.
 But I must go and wash my face.
 My job is done. The rest is up to you.
+_Exit Messenger._
 
 KORYPHAIOS
 Well,
@@ -2756,6 +2849,7 @@ A damn sight too wonderful. If you’re asking me,
 I think it’s all a lie.
 —But look what’s coming:
 another messenger, and a sentry judging by his looks.
+_Enter Sentry, whirling on stage in the wild steps of a military dance._
 —What are you, fellow? A soldier or a ballerina?
 
 SENTRY
@@ -2797,6 +2891,7 @@ is throbbing and buzzing with the whirr of beating wings
 as they comb the clouds for that sneaky little god.
 if you’re asking me, he’s not so far away either.
 He’s hereabouts, I’m sure.
+_Exit Sentry._
 
 PISTHETAIROS
 Where’s my bow?
@@ -2823,6 +2918,7 @@ KORYPHAIOS
 Quiet.
 I hear the whirr of beating wings.
 Listen. Some god comes whizzing through our air.
+_With a loud whoosh and a burst of baroque movement and color, Iris descends in the machine. She is a young girl with golden wings and billowing rainbow-colored robes. From her dress and hair, in gracious and extravagant loops of color, pennants and ribbons and streamers trail out behind._
 
 PISTHETAIROS
 Ship ahoy!
@@ -2938,6 +3034,7 @@ Why, the Birds, madam. Birds are now the gods.
 Men worship Birds, not gods. Good gods, no!
 
 IRIS
+_In the high tragic manner._
 Then beware, O Mole, lest thou court the choler
 of the gallèd gods, and Justice with the angry pick
 of peevèd Zeus prise up thy pedestals
@@ -2989,6 +3086,7 @@ Just you wait till my Father hears about this.
 PISTHETAIROS
 Heaven defend me from this flying flirt. Beat it!
 Go singe some youngster with your lechery, will you?
+_Exit Iris in the machine._
 
 CHORUS
 The gods' attack
@@ -3007,6 +3105,7 @@ the party's over, friends!
 PISTHETAIROS
 You know, it's rather odd about that other messenger
 we despatched to earth. He should be back by now.
+_Enter Messenger in great haste. He throws himself to the ground at Pisthetairos' feet and salaams profoundly._
 
 HERALD
 O Pisthetairos! O Paragon! O Pink!
@@ -3022,6 +3121,7 @@ You were about to say, my friend,
 when you so rudely interrupted yourself?
 
 HERALD
+_Rising and crowning Pisthetairos._
 Deign, my lord, to accept this crown of solid gold,
 proffered in honor of your glorious wisdom and chicane
 by an adoring world.
@@ -3078,15 +3178,18 @@ Vast swarms and coveys of men are on the move,
 all migrating here to Cloudcuckooland in quest of wings
 and the Feathered Way of Life. Somehow, sir,
 you’ll have to wing these mortal immigrants.
+_Exit Messenger._
 
 PISTHETAIROS
 Gad!
 We'd best get busy.
+_To a Slave._
 —You there.
 Run inside.
 Stuff every hamper you can find with sets of wings
 and tell Manes to bring them out. I'll stay here
 to give my greeting to these wingless refugees in person.
+_Exit Slave._
 
 CHORUS
 Upon thy head, Cloudcuckooland,
@@ -3100,15 +3203,18 @@ CHORUS
 This feather’d isle, this pinion’d place,
 where martyr-Birds have bled,
 where men aspire on wings of fluff—
+_Enter Manes, slowly and empty-handed._
 
 PISTHETAIROS
 —Their legs are made of lead.
+_Exit Manes._
 
 CHORUS
 What greater bliss can men require?
 Here the lovely Graces go,
 and Wisdom strolls with sweet Desire,
 and Peace comes tripping slow.
+_Enter Manes carrying two wings._
 
 PISTHETAIROS
 She’s miles ahead of Manes.
@@ -3116,28 +3222,35 @@ She’s miles ahead of Manes.
 
 CHORUS
 To work, dull clod! Heave-ho the wings!
+_Exit Manes._
+_To Pisthetairos._
 Now show him you're the master.
 Flog him, thrash him—
+_Enter Manes with two more wings._
 
 PISTHETAIROS
 —What’s the use?
 A mule could manage faster.
+_Exit Manes._
 
 CHORUS
 Now sort the wings in pinion-piles
 by order of professions:
 Seabird’s wings for nautical types,
 Warblers’ for musicians—
+_Enter Manes with three wings._
 
 PISTHETAIROS
 —So help me, Kestrels, if I don’t bash your head
 to a pulp, you lazy, stupid, bungling ass!
+_Beats him. Manes scurries off, instantly reappearing with crates and hampers of wings which he quickly dumps and sorts into the appropriate piles. Suddenly from offstage is heard the tenor voice of Delinquent, singing:_
 If I had the wings of an Eagle,
 o’er this barren blue brine I would fly . . .
 
 PISTHETAIROS
 That messenger of ours was telling the truth, by god.
 Here comes someone crooning Eagle-ballads.
+_Enter Delinquent, a strapping boy in his teens._
 
 DELINQUENT
 Some kicks!
@@ -3196,6 +3309,7 @@ What's more, I'm game.
 
 PISTHETAIROS
 You damn well better be.
+_Exit Delinquent. From the other side enters the dithyrambic poet Kinesias. His splay-footed galumphing entrance is in sharp contrast to his aerial pretensions._
 
 KINESIAS
 On gossamer I go,
@@ -3247,6 +3361,7 @@ KINESIAS
 Ah, but you shall, dear boy, you shall.
 I’ll do my Aerial Aria, and just for you.
 Ready?
+_Singing._
 Now wingèd wraiths
 of the hovering Plover
 over yon Ether rove—
@@ -3260,6 +3375,7 @@ in the buffeting gust of the gathered gale—
 
 PISTHETAIROS
 By god, I’ll give you some buffets you won’t like!
+_He snatches a pair of large wings from a pile and beats Kinesias who runs about, still spouting._
 
 KINESIAS
 —now north, now south,
@@ -3270,6 +3386,7 @@ of the featherfillip'd sky.
 Get that, old boy? A catchy figure, what?
 
 PISTHETAIROS
+_Lashing him again._
 Get that? What? No taste for featherfillips, poet?
 
 KINESIAS
@@ -3286,6 +3403,7 @@ Durst despise me, sir?
 Know then, I ne'er shall cease from Poesy
 until with wings I waltz upon Cloudcuckooland.
 Farewell.
+_Exit Kinesias. Enter an Informer in a tattered coat, singing._
 
 INFORMER
 What suspicious Birds are these
@@ -3433,6 +3551,7 @@ PISTHETAIROS
 Right. I’ve got it:
 you’re a top. And guess what I’ve got here for you:
 a lovely little set of Korkyrean wings.
+_He pulls out a whip._
 
 INFORMER
 Hey, that’s a whip!
@@ -3440,6 +3559,7 @@ Hey, that’s a whip!
 PISTHETAIROS
 Not a whip, it’s wings
 to make your little top go round.
+_He lashes Informer with the whip._
 Got it?
 
 INFORMER
@@ -3450,8 +3570,10 @@ Flap your wings, Birdie!
 That’s it, old top, wobble on your way!
 By god,
 I’ll make this legal whirligig go round!
+_Exit Informer under the lash. Pisthetairos signals to his slaves to pick up the piles of wings._
 —Hey,
 you there. Gather up the wings and bring them inside.
+_Exeunt Pisthetairos and Attendants with the hampers of wings._
 
 CHORUS
 Many the marvels I have seen,
@@ -3486,9 +3608,11 @@ For any man who ventures in
 may meet ORESTES there,
 the ghost who paralyzes men,
 the thief who strips them bare.
+_Enter Prometheus, so muffled in blankets as to be completely unrecognizable. His every motion is furtive, but his furtiveness is hampered by an immense umbrella which he carries underneath his blankets. He speaks in a whisper._
 
 PROMETHEUS
 Easy does it. I hope old Zeus can't see me.
+_To a Bird._
 Psst. Where’s Pisthetairos?
 
 PISTHETAIROS
@@ -3520,10 +3644,12 @@ What’s the weather doing?
 How’s the visibility? Clear skies? Low ceiling?
 
 PISTHETAIROS
+_Raising his stick._
 By god, if you won’t talk—
 
 PROMETHEUS
 Dark, eh? Good. I’m coming out.
+_Uncovers._
 
 PISTHETAIROS
 Hullo: it’s Prometheus!
@@ -3541,6 +3667,7 @@ Now then, if you want to learn the lay of the land
 in heaven, kindly open up this umbrella here
 and hold it over my head while I’m talking.
 Then the gods won’t see me.
+_Pisthetairos takes the umbrella, opens it up, and holds it over Prometheus._
 
 PISTHETAIROS
 Say, that's clever.
@@ -3642,6 +3769,7 @@ to be the girl behind the boy behind the basket.
 
 PISTHETAIROS
 Here—take this stool and watch yourself march by.
+_Exit Prometheus in solemn procession, draped in his blanket, the umbrella in one hand, the stool in the other. Pisthetairos and the Attendants retire._
 
 CHORUS
 There lies a marsh in Webfoot Land,
@@ -3660,10 +3788,12 @@ And then a phantom shape flew down,
 a specter cold and wan,
 and on the camel’s blood he pounced—
 the vampire CHAIREPHON!
+_Enter the Peace Delegation from Olympos: first, Poseidon, a god of immense and avuncular dignity, carrying a trident; then Herakles with lion skin and club, a god with the character and build of a wrestler and an appetite to match; and finally Triballos, hopelessly tangled up in the unfamiliar robes of Olympian civilization._
 
 POSEIDON
 Here we are. And there before us, ambassadors,
 lies Cloudcuckooland.
+_Triballos, by now hopelessly snarled up in his robes, trips and falls flat on his face._
 —Damn you! Back on your feet,
 you hulking oaf. Look, you’ve got your robes
 all twisted up.
@@ -3688,13 +3818,16 @@ is to treat for peace?
 
 HERAKLES
 I'd throttle him all the more.
+_Enter Pisthetairos, followed by Attendants with cooking utensils. He pointedly ignores the presence of the Divine Delegation._
 
 PISTHETAIROS
+_To Attendants._
 Hand me the cheese grater. Vinegar, please. All right,
 now the cheese. Poke up that fire, somebody.
 
 POSEIDON
 Mortal, three immortal gods give you greeting.
+_Dead Silence._
 Mortal, three immortal—
 
 PISTHETAIROS
@@ -3713,6 +3846,7 @@ And dat luscious gravy
 gets poured on foist?
 
 PISTHETAIROS
+_Looking up for the first time._
 Why hullo there: it's Herakles!
 What do you want?
 
@@ -3721,6 +3855,7 @@ Mortal, as the official spokesman
 for the Divine Delegation, I venture to suggest that—
 
 PISTHETAIROS
+_Holding up an empty bottle._
 Drat it. We're out of oil.
 
 HERAKLES
@@ -3779,6 +3914,7 @@ HERAKLES
 Youse is so right.
 
 POSEIDON
+_To Triballos._
 What do you say?
 
 TRIBALLOS
@@ -3815,6 +3951,7 @@ POSEIDON
 What do you think, Triballos?
 
 HERAKLES
+_Threatening him with his club._
 Vote Yes, bub, or I’ll drub youse.
 
 TRIBALLOS
@@ -3840,6 +3977,7 @@ I stand absolutely firm.
 POSEIDON
 Then you won’t have peace.
 Good afternoon.
+_The Delegation prepares to leave, Herakles with great reluctance._
 
 PISTHETAIROS
 It’s all the same to me.
@@ -3868,6 +4006,7 @@ to everything he owns.
 PISTHETAIROS
 Watch your step, Herakles.
 You’re being hoodwinked.
+_Taking Herakles by the arm and withdrawing a little._
 —Now, just step aside with me.
 I have something to tell you.
 Look, you poor chump,
@@ -3902,6 +4041,7 @@ would be the first person to challenge the will in court.
 As your father’s brother, he’s the next-of-kin, and hence
 the legal heir.
 Let me read you the provisions of the law.
+_He draws a lawbook from his robes._
 In the words of Solon himself: SO LONG AS LEGITIMATE ISSUE SHALL SURVIVE THE
 DECEASED, NO BASTARD SHALL INHERIT. IN THE CASE
 THAT NO LEGITIMATE ISSUE SURVIVES, THE ESTATE SHALL PASS TO THE NEXT OF KIN.
@@ -3961,6 +4101,7 @@ You two can come to terms together as you please.
 Since you seem to be agreed on everything, I’ll just abstain.
 
 HERAKLES
+_To Pisthetairos._
 Man, youse is getting everything youse wants.
 Fly up to Heaven wid us, and get your missus
 and anything else your little heart desires.
@@ -3982,8 +4123,10 @@ HERAKLES
 Aw, Unc, but it woulda tasted so good.
 
 PISTHETAIROS
+_To Attendants._
 —You there, servants.
 Bring my wedding clothes along.
+_Exeunt Pisthetairos, the gods and Attendants._
 
 CHORUS
 Beneath the clock in a courtroom,
@@ -4002,6 +4145,7 @@ But from this bellyblabbing tribe,
 one custom's come to stay:
 in Athens, when men sacrifice,
 they cut the tongue away.
+_Enter a Messenger._
 
 MESSENGER
 O blessèd, blessèd, blessèd breed of Bird,
@@ -4022,6 +4166,7 @@ on the drinking air.
 He comes!
 Greet your King with song!
 Raise the wedding song the lovely Muses sing!
+_Re-enter Pisthetairos, gorgeously attired, his long golden train carried by the three gods. Beside him, dressed in the magnificent golden robes of a bride, walks the veiled figure of Miss Universe._
 
 KORYPHAIOS
 Make way! Make way!
@@ -4067,11 +4212,13 @@ CHORUS
 O Lightning, flash of livid fire,
 O javelin of Zeus,
 everliving light!
+_A great low roll of thunder is heard._
 O thunders breaking on this lovely world,
 rumble majestic that runs before the rain!
 O Lightning and Thunders,
 bow low, bow down,
 bow before this man, bow to the lord of all!
+_Another great crack of thunder._
 He wields the thunder as his very own.
 Lightnings flare at the touch of his hand,
 winning, achieving
@@ -4082,6 +4229,7 @@ PISTHETAIROS
 Now follow our bridal party, one and all.
 Soar on high, you happy breed of Birds,
 to the halls of Zeus, to the bed of love!
+_He extends his hand to his bride and together they dance toward the waiting machine._
 Reach me your hand, dear bride.
 Now take me by my wings,
 oh my lovely,
@@ -4089,6 +4237,7 @@ my sweet,
 and let me lift you up,
 and soar beside you
 through the buoyant air!
+_Pisthetairos and his bride dance toward the waiting machine. With slowly beating wings they rise gradually heavenward. The gods and Attendants bow down in homage, the Chorus divides and flocks triumphantly toward the exits, chanting as they go._
 
 CHORUS
 Alalalai!

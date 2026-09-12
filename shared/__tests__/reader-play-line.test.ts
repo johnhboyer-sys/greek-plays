@@ -28,6 +28,18 @@ vi.mock('../lib/works', async (importOriginal) => {
       citation: { scheme: 'play-line', copyAbbr: 'Fix.' },
       blurb: 'Fixture for play-line Reader tests.',
     },
+    // A comedy whose third column carries Arrowsmith's stage directions.
+    PLAYDIR: {
+      id: 'PLAYDIR', title: 'Fixture Comedy', abbr: 'Fixc.', author: 'Test',
+      language: 'grc', workType: 'verse', books: 1, bookLabels: ['1'],
+      greekEdition: 'Test edition', greekSource: { short: 'Test', full: 'Test edition, full.' },
+      translations: [
+        { id: 'smyth', name: 'Test Translator (Test, 1926)', short: 'Smyth', slot: 'english', footnotes: true },
+        { id: 'arrowsmith', name: 'William Arrowsmith (Michigan, 1962)', short: 'Arrowsmith', slot: 'third' },
+      ],
+      citation: { scheme: 'play-line', copyAbbr: 'Fixc.' },
+      blurb: 'Fixture for stage directions.',
+    },
   };
   return {
     ...actual,
@@ -679,6 +691,139 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
       Element.prototype.getBoundingClientRect = origRect;
       window.getComputedStyle = origStyle;
     }
+  });
+});
+
+// John, 2026-09-12: "Keep stage directions but have a break in the Greek
+// where the stage directions are so english stays aligned with its Greek."
+describe('Reader.svelte stage directions (Arrowsmith)', () => {
+  beforeEach(() => localStorage.clear());
+
+  const LAMP = 'Suddenly the oil lamp sputters and goes out.';
+  function dirBook(): BookData {
+    const seg = (n: number, display: string, label: string, third: Record<string, unknown>) => ({
+      id: `1:${54 + n}`,
+      column: String(54 + n),
+      greek: [{ n, text: `λόγος ${n}`, tokens: [], ref: String(54 + n) }],
+      speakers: [{ line: n, offset: 0, label, display }],
+      english: { text: `Primary ${n}.`, notes: [], markers: [], turns: [{ offset: 0, speaker: display, display: display.toUpperCase() }] },
+      third: [{ chapter: String(54 + n), cont: false, ...third }],
+    });
+    return {
+      book: 1,
+      speakerRoster: ['Strepsiades', 'Slave'],
+      segments: [
+        seg(1, 'Strepsiades', 'Στ.', { text: 'STREPSIADES. Or a goat?' }),
+        seg(2, 'Slave', 'Ξα.', { text: "XANTHIAS. There's no oil left in the lamp.", directionsBefore: [LAMP] }),
+        seg(3, 'Strepsiades', 'Στ.', { text: 'STREPSIADES. Jackass!\n_He lunges at Xanthias._\nCome here and be whipped.' }),
+      ],
+    } as unknown as BookData;
+  }
+
+  it('gives a direction between speeches a row of its own, the Greek cell empty', async () => {
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: dirBook() } });
+    await flush();
+    const rows = container.querySelectorAll('.play-direction-row');
+    expect(rows).toHaveLength(1);
+    const row = rows[0]!;
+    expect(row.closest('.segment')?.id).toBe('col-56');
+    expect(row.querySelector('.greek-col')?.textContent?.trim()).toBe('');
+    expect(row.querySelector('.english-col .stage-dir')?.textContent).toBe(LAMP);
+    // It comes before the speech's own Greek and English.
+    const line = container.querySelector('#col-56 .greek-line')!;
+    expect(row.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('prints a direction inside a speech inline, in italics, with no row', async () => {
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: dirBook() } });
+    await flush();
+    const para = container.querySelector('#col-57 .english-col .turn-para')!;
+    expect(para.querySelector('.stage-dir')?.textContent).toBe('He lunges at Xanthias.');
+    expect(para.textContent).not.toContain('_');
+    expect(container.querySelector('#col-57 .play-direction-row')).toBeNull();
+  });
+
+  // Clouds 1:866 (Codex review of 7a9a16d): two speeches in one Greek
+  // segment, a direction between them.
+  const ENTER = 'Enter Sokrates from the Thinkery.';
+  function splitBook(): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Strepsiades', 'Socrates'],
+      segments: [{
+        id: '1:866',
+        column: '866',
+        greek: [
+          { n: 866, text: 'λόγος ἕν', tokens: [], ref: '866' },
+          { n: 867, text: 'λόγος δύο', tokens: [], ref: '867' },
+          { n: 868, text: 'λόγος τρία', tokens: [], ref: '868' },
+        ],
+        speakers: [
+          { line: 866, offset: 0, label: 'Στ.', display: 'Strepsiades' },
+          { line: 868, offset: 0, label: 'Σω.', display: 'Socrates' },
+        ],
+        english: {
+          text: 'Primary one. Primary two.', notes: [], markers: [],
+          turns: [
+            { offset: 0, speaker: 'Strepsiades', display: 'STREPSIADES' },
+            { offset: 13, speaker: 'Socrates', display: 'SOCRATES' },
+          ],
+        },
+        third: [{
+          chapter: '866', cont: false,
+          text: 'STREPSIADES. Ah, good dutiful boy.\n\nSOKRATES. Why, he is still a baby.',
+          turnDirections: [{ turn: 1, directions: [ENTER] }],
+        }],
+      }],
+    } as unknown as BookData;
+  }
+
+  it('gives a direction before a later speech of one segment a row between the two speeches', async () => {
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: splitBook() } });
+    await flush();
+    const seg = container.querySelector('#col-866')!;
+    const kids = [...seg.querySelectorAll('.play-row-split, .play-direction-row')];
+    expect(kids.map((el) => (el.classList.contains('play-direction-row') ? 'dir' : 'rows'))).toEqual(['rows', 'dir', 'rows']);
+    const dir = kids[1]!;
+    expect(dir.querySelector('.greek-col')?.textContent?.trim()).toBe('');
+    expect(dir.querySelector('.english-col .stage-dir')?.textContent).toBe(ENTER);
+    expect(kids[0]!.querySelector('.english-col')?.textContent).toContain('Ah, good dutiful boy.');
+    expect(kids[0]!.textContent).not.toContain(ENTER);
+    expect(kids[2]!.querySelector('.greek-col')?.textContent).toContain('λόγος τρία');
+    expect(kids[2]!.querySelector('.english-col')?.textContent).toContain('Why, he is still a baby.');
+    expect(seg.querySelectorAll('.stage-dir')).toHaveLength(1);
+  });
+
+  it('adds no row between speeches when Arrowsmith is not on screen', async () => {
+    const primary = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: splitBook() } });
+    await flush();
+    expect(primary.container.querySelector('.play-direction-row')).toBeNull();
+    expect(primary.container.querySelectorAll('.play-row-split')).toHaveLength(1);
+    primary.unmount();
+
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    localStorage.setItem('reader-view', 'greek');
+    const greek = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: splitBook() } });
+    await flush();
+    expect(greek.container.querySelector('.play-direction-row')).toBeNull();
+    expect(greek.container.querySelectorAll('.play-row-split')).toHaveLength(1);
+  });
+
+  it('adds no row when Arrowsmith is not on screen', async () => {
+    const primary = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: dirBook() } });
+    await flush();
+    expect(primary.container.querySelector('.play-direction-row')).toBeNull();
+    expect(primary.container.querySelector('.stage-dir')).toBeNull();
+    primary.unmount();
+
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    localStorage.setItem('reader-view', 'greek');
+    const greek = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: dirBook() } });
+    await flush();
+    expect(greek.container.querySelector('.play-direction-row')).toBeNull();
   });
 });
 

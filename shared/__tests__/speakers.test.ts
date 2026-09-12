@@ -1239,4 +1239,90 @@ describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-0
     const back = sentenceTicks(t4, [{ n: 10, offset: 0 }, { n: 5, offset: t4.indexOf('End') }], [], 11);
     expect(back.find((t) => t.offset === t4.indexOf('Middle'))!.n).toBe(10);
   });
+
+  it('never cuts inside a stage direction (John, 2026-09-12)', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    const text = 'First sentence here.\n_Exit Meton. From the side enters another._\nSecond sentence there. Third one.';
+    const out = sentenceTicks(text, [{ n: 1, offset: 0 }, { n: 9, offset: text.indexOf('Third') }], [], 10);
+    expect(out.some((t) => t.offset === text.indexOf('From'))).toBe(false);
+  });
+});
+
+// Arrowsmith's stage directions (John, 2026-09-12): "a break in the Greek
+// where the stage directions are so english stays aligned with its Greek".
+describe('stage directions', () => {
+  it('gives a direction between speeches a row of its own while its column is on screen', async () => {
+    const { directionRows } = await import('../lib/speakers');
+    const lamp = ['Suddenly the oil lamp sputters and goes out.'];
+    // One row per direction, one cell per English column shown; the Greek
+    // cell of the row is empty.
+    expect(directionRows([lamp], 'both')).toEqual([[lamp[0]]]);
+    expect(directionRows([lamp], 'english')).toEqual([[lamp[0]]]);
+    // Compare: the other translation's cell in the row is empty.
+    expect(directionRows([undefined, lamp], 'both')).toEqual([[null, lamp[0]]]);
+    expect(directionRows([['One.', 'Two.'], undefined], 'both')).toEqual([['One.', null], ['Two.', null]]);
+  });
+
+  it('adds no row when the column is hidden', async () => {
+    const { directionRows } = await import('../lib/speakers');
+    const lamp = ['Suddenly the oil lamp sputters and goes out.'];
+    expect(directionRows([lamp], 'greek')).toEqual([]);
+    // Another translation chosen: its pieces carry no directions.
+    expect(directionRows([undefined], 'both')).toEqual([]);
+    expect(directionRows([[]], 'both')).toEqual([]);
+  });
+
+  // Clouds 1:866 (Codex review of 7a9a16d): Strepsiades and Sokrates share a
+  // Greek segment; "Enter Sokrates from the Thinkery" goes between their rows.
+  const ENTER = 'Enter Sokrates from the Thinkery.';
+  const twoRows = async () => {
+    const { buildEnglishTurnBlocks } = await import('../lib/speakers');
+    const text = 'Ah, good dutiful boy.\n\nWhy, he is still a baby.';
+    const blocks = buildEnglishTurnBlocks(text, [
+      { offset: 0, speaker: 'Strepsiades', display: 'STREPSIADES' },
+      { offset: text.indexOf('Why'), speaker: 'Socrates', display: 'SOKRATES', directionsBefore: [ENTER] },
+    ]);
+    return [{ items: ['g860'], blocks: [blocks[0]!] }, { items: ['g862'], blocks: [blocks[1]!] }];
+  };
+
+  it('carries a turn\'s directions onto its block', async () => {
+    const rows = await twoRows();
+    expect(rows[0]!.blocks[0]!.directionsBefore).toBeUndefined();
+    expect(rows[1]!.blocks[0]!.directionsBefore).toEqual([ENTER]);
+  });
+
+  it('cuts the play rows at a direction before a later speech, the direction a run of its own', async () => {
+    const { splitAtDirections } = await import('../lib/speakers');
+    const rows = await twoRows();
+    const runs = splitAtDirections(rows, 'both');
+    expect(runs.map((r) => ('directions' in r ? r.directions : r.rows.map((x) => x.items[0])))).toEqual([
+      ['g860'], [ENTER], ['g862'],
+    ]);
+    // The direction has its row: the speech's block no longer prints it inline.
+    const after = runs[2]!;
+    expect('rows' in after && after.rows[0]!.blocks[0]!.directionsBefore).toBeUndefined();
+    expect(splitAtDirections(rows, 'english')).toHaveLength(3);
+  });
+
+  it('adds no direction run when the column is hidden, or when no speech carries one', async () => {
+    const { splitAtDirections } = await import('../lib/speakers');
+    const rows = await twoRows();
+    expect(splitAtDirections(rows, 'greek')).toEqual([{ rows }]);
+    const plain = rows.map((r) => ({ ...r, blocks: r.blocks.map(({ directionsBefore: _d, ...b }) => b) }));
+    expect(splitAtDirections(plain, 'both')).toEqual([{ rows: plain }]);
+    // A direction whose speech shares a row with the speech before it cannot
+    // have a row: it stays on its block and prints inline.
+    const shared = [{ items: ['g860'], blocks: [rows[0]!.blocks[0]!, rows[1]!.blocks[0]!] }];
+    expect(splitAtDirections(shared, 'both')).toEqual([{ rows: shared }]);
+  });
+
+  it('prints a direction inside a speech on its own line, in italics', async () => {
+    const { markStageDirections } = await import('../lib/speakers');
+    expect(markStageDirections('Sirrah, begone.\n_Exit Creon._'))
+      .toBe('Sirrah, begone.<span class="stage-dir">Exit Creon.</span>');
+    expect(markStageDirections('Sister.\n_She turns._\nSee here.'))
+      .toBe('Sister.<span class="stage-dir">She turns.</span>See here.');
+    // Text without a direction line is left alone.
+    expect(markStageDirections('a_b_c and _word_ here')).toBe('a_b_c and _word_ here');
+  });
 });

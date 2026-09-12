@@ -279,6 +279,9 @@ export interface EnglishTurn {
   // chunk can hold several turns and only some of them disagree (Seven 1:1004
   // packs Ismene's shares of the antilabe with the Herald's speech).
   speakerMismatch?: { english: string; greek: string };
+  // Stage directions printed before this turn when it is not the chunk's
+  // first speech (Arrowsmith; John, 2026-09-12). Absent when there are none.
+  directionsBefore?: string[];
 }
 
 // One entry of a dialogue book's global turn flow (see TurnFlow): `g` is the
@@ -365,6 +368,14 @@ export interface OverlayPiece {
   // anchored to the Bekker line `n` of the segment it belongs to; rendered as a
   // grid after that segment's row.
   tables?: { n: number; rows: string[][] }[];
+  // Stage directions printed before this segment's first speech (Arrowsmith;
+  // John, 2026-09-12). Absent when there are none. A direction inside a
+  // speech sits in `text` instead, on its own line as `_..._`.
+  directionsBefore?: string[];
+  // Stage directions before a later speech of the piece: `turn` is that
+  // speech's place among the speaker lead-ins prefixed into `text` (0-based).
+  // Absent when there are none.
+  turnDirections?: { turn: number; directions: string[] }[];
 }
 
 // A speaker-turn event in a Stephanus dialogue (Plato): the interlocutor whose

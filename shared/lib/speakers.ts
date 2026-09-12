@@ -516,6 +516,10 @@ export interface EnglishTurnBlock {
   // onto the k-th Greek speaker event, and an empty unlabeled turn is dropped
   // below — so a block's position in this array is NOT its turn index.
   turnIndex: number;
+  // Carried from the turn: stage directions printed before this speech
+  // (Arrowsmith). A row of their own where splitAtDirections can cut the
+  // rows; otherwise printed inline above the speech.
+  directionsBefore?: string[];
 }
 
 export function buildEnglishTurnBlocks(
@@ -535,6 +539,7 @@ export function buildEnglishTurnBlocks(
     // even when empty, so the attribution itself is never lost.
     if (!t && turns[i].display == null) continue;
     const mismatch = turns[i].speakerMismatch;
+    const directions = turns[i].directionsBefore;
     blocks.push({
       lead: false,
       display: turns[i].display,
@@ -542,6 +547,7 @@ export function buildEnglishTurnBlocks(
       text: t,
       turnIndex: i,
       ...(mismatch ? { speakerMismatch: mismatch } : {}),
+      ...(directions?.length ? { directionsBefore: directions } : {}),
     });
   }
   return blocks;
@@ -1018,6 +1024,59 @@ export function englishFlow(
   return { pushes, paddingBottom: Math.max(0, englishEnd - greekEnd) };
 }
 
+// Arrowsmith's stage directions (John, 2026-09-12: "have a break in the
+// Greek where the stage directions are so english stays aligned with its
+// Greek"). One inside a speech sits in the English text on a line of its
+// own, `_..._`; one between speeches rides the piece as `directionsBefore`.
+const STAGE_DIRECTION = /^_([^_\n]+)_$/gm;
+
+/** A direction inside a speech: its own line, in italics. */
+export function markStageDirections(html: string): string {
+  return html.replace(/\n?^_([^_\n]+)_$\n?/gm, '<span class="stage-dir">$1</span>');
+}
+
+/** The rows a segment's between-speech directions take before it: one per
+ *  direction, one cell per English column on screen (null where that
+ *  column's translation has none), and an empty Greek cell. None in the
+ *  Greek-only view, or when no column on screen carries a direction. */
+export function directionRows(
+  columns: readonly (readonly string[] | undefined)[],
+  view: 'both' | 'greek' | 'english',
+): (string | null)[][] {
+  if (view === 'greek') return [];
+  const n = Math.max(0, ...columns.map((c) => c?.length ?? 0));
+  return Array.from({ length: n }, (_, i) => columns.map((c) => c?.[i] ?? null));
+}
+
+/** A direction before a later speech of a segment split into play rows
+ *  (Clouds 1:866; Codex review of 7a9a16d): the rows are cut where that
+ *  speech's row starts, and the direction becomes a run of its own between
+ *  the two, rendered as a row with an empty Greek cell, so the speech after
+ *  it starts level with its Greek. The block that gave its directions to a
+ *  row no longer carries them. A speech that shares a row with the one
+ *  before it keeps its directions and prints them inline. None in the
+ *  Greek-only view. */
+export function splitAtDirections<R extends { blocks: EnglishTurnBlock[] }>(
+  rows: readonly R[],
+  view: 'both' | 'greek' | 'english',
+): ({ rows: R[] } | { directions: string[] })[] {
+  const out: ({ rows: R[] } | { directions: string[] })[] = [];
+  let run: R[] = [];
+  for (const row of rows) {
+    const first = row.blocks[0];
+    if (view !== 'greek' && first && first.turnIndex >= 0 && first.directionsBefore?.length) {
+      if (run.length) out.push({ rows: run });
+      out.push({ directions: first.directionsBefore });
+      const { directionsBefore: _moved, ...rest } = first;
+      run = [{ ...row, blocks: [rest, ...row.blocks.slice(1)] }];
+    } else {
+      run.push(row);
+    }
+  }
+  if (run.length) out.push({ rows: run });
+  return out;
+}
+
 /** Where a line-keyed translation's English is cut into rows (John,
  *  2026-09-10). The prose translations (Smyth, Jebb, Coleridge) mark a Greek
  *  line only every five lines or so, and a marker often falls mid-sentence
@@ -1050,7 +1109,12 @@ export function sentenceTicks(
   // quote or bracket, and space or a dash ("stopped.—She"); it starts with a
   // capital, a digit, or a Greek letter (Grok review of 1219ece).
   const END = /(?<!(?:^|[\s(])(?:\p{Lu}|Mr|Mrs|Dr|St|Mt))[.!?…]["'’”»)\]]*(?:\s+|[—–]\s*)(?=["'‘“«(\[]?(?:\p{Lu}|\p{Nd}|\p{Script=Greek}))/gu;
-  for (const m of text.matchAll(END)) starts.add(m.index! + m[0].length);
+  // Never cut inside a stage direction (John, 2026-09-12).
+  const inside = [...text.matchAll(STAGE_DIRECTION)].map((m) => [m.index!, m.index! + m[0].length]);
+  for (const m of text.matchAll(END)) {
+    const s = m.index! + m[0].length;
+    if (!inside.some(([a, b]) => a! < s && s < b!)) starts.add(s);
+  }
   const out: { n: number; offset: number }[] = [];
   for (const s of [...starts].sort((a, b) => a - b)) {
     const exact = anchors.find((a) => a.off === s);

@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -1685,7 +1685,18 @@
           display: event.display ?? null,
         }));
     const roster = bookSpeakerRoster.length ? bookSpeakerRoster : (speakerRoster ?? []);
-    return extractPrefixedEnglishTurns(piece.text, roster, fallbackTurns);
+    const source = extractPrefixedEnglishTurns(piece.text, roster, fallbackTurns);
+    // Arrowsmith's directions before a later speech ride the turn they
+    // precede (data.ts OverlayPiece.turnDirections).
+    const dirs = piece.turnDirections;
+    if (!dirs?.length) return source;
+    return {
+      ...source,
+      turns: source.turns.map((tu, k) => {
+        const d = dirs.find((x) => x.turn === k);
+        return d ? { ...tu, directionsBefore: d.directions } : tu;
+      }),
+    };
   }
 
   // ── P4 play-line layout (docs/p4-plan.md, docs/mockups/2026-09-08-blend.html) ──
@@ -3914,7 +3925,10 @@
              "Chorus"); the printed page names the speaker once, so a lead-in
              that repeats the block before it is not shown (John, 2026-09-09). -->
         {@const repeatLead = bi > 0 && !!b.display && (blocks[bi - 1].speaker ?? blocks[bi - 1].display) === (b.speaker ?? b.display) && !blocks[bi - 1].lead}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(b.text, transId)}</p>
+        <!-- A direction before this speech that got no row of its own
+             (splitAtDirections: compare mode, or a speech sharing its row). -->
+        {#if b.directionsBefore}{#each b.directionsBefore as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html markStageDirections(renderThird(b.text, transId))}</p>
       {/each}
     </div>
   {/snippet}
@@ -4481,14 +4495,43 @@
                tragedy norm: one chunk, one row), which keeps the ordinary
                single-.seg-row path below byte-identical. Compare mode stays on
                the generic segment compare. -->
+          <!-- Arrowsmith's stage directions between two speeches (John,
+               2026-09-12): each a row of its own before the speech, the Greek
+               cell empty, so the speech's Greek and English start level. Only
+               while a column on screen carries one (speakers.ts directionRows). -->
+          {@const dirCols = trans === 'compare' ? [compareLeft, compareRight] : [segTransId]}
+          {#if playLine && bi === 0}
+            {#each directionRows(dirCols.map((id) => piecesFor(seg, transById(id))[0]?.directionsBefore), view) as dirRow}
+              <div class="seg-row play-direction-row">
+                <div class="greek-col" aria-hidden="true"></div>
+                {#each dirRow as dir, di}
+                  <div class={di === 0 ? 'english-col' : 'overlay-col'} data-trans={dirCols[di]}>{#if dir}<div class="overlay-prose turn-eng"><p class="stage-dir">{dir}</p></div>{/if}</div>
+                {/each}
+              </div>
+            {/each}
+          {/if}
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plTurnBlocks = plSource ? buildEnglishTurnBlocks(plSource.text, plSource.turns) : []}
           {@const plRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
-            <div class="seg-row play-row-split" data-chapter={block.currentChapter} use:playFlow={{ plRows, view }}>
-              {#each plRows as row}
+            <!-- A direction before a later speech of the segment (Clouds
+                 1:866): the rows are cut there into two grids, each with
+                 its own facing-page flow, and the direction takes a row
+                 between them, the Greek cell empty (speakers.ts
+                 splitAtDirections). One grid when there is none. -->
+            {#each splitAtDirections(plRows, view) as run}
+            {#if 'directions' in run}
+              {#each run.directions as dir}
+                <div class="seg-row play-direction-row">
+                  <div class="greek-col" aria-hidden="true"></div>
+                  <div class="english-col" data-trans={segTransId}><div class="overlay-prose turn-eng"><p class="stage-dir">{dir}</p></div></div>
+                </div>
+              {/each}
+            {:else}
+            <div class="seg-row play-row-split" data-chapter={block.currentChapter} use:playFlow={{ plRows: run.rows, view }}>
+              {#each run.rows as row}
                 <div class="play-row">
                   <!-- No explicit grid placement: the two cells of every row
                        are consecutive children of the one grid (`.play-row` is
@@ -4510,6 +4553,8 @@
                 </div>
               {/each}
             </div>
+            {/if}
+            {/each}
           {:else if sectionRowSplit(seg) && trans !== 'compare'}
             <!-- Item 85 (John's live-review layout ruling): each DK numbered
                  section renders as its own row (Greek cell + English cell)

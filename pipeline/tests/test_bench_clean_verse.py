@@ -678,14 +678,17 @@ GENIE_HTML = """
 """
 
 
-def test_genie_html_drops_stage_directions_keeps_overrides():
+def test_genie_html_marks_stage_directions_keeps_overrides():
+    # John, 2026-09-12: keep Arrowsmith's stage directions, each on its own
+    # `_..._` line where he prints it, so the parser can tell them from speech.
     speakers = frozenset({"SPEAKERONE", "SPEAKERTWO"})
     cleaned, report = clean_genie_html(
         GENIE_HTML, "THE PLAY", speakers, dialogue_overrides=frozenset({8})
     )
     assert cleaned.startswith("THE PLAY\n\n")
-    assert "Turning to go." not in cleaned  # stage direction dropped
-    assert "That's it." in cleaned  # overridden: dialogue, not narration
+    lines = cleaned.splitlines()
+    assert lines.index("_Turning to go._") == lines.index("Line one, with real emphasis and a note.") + 1
+    assert "That's it." in lines  # overridden: dialogue, not narration
     assert "note." in cleaned and "*" not in cleaned  # footnote asterisk stripped
     assert "$" not in cleaned and "qquad" not in cleaned  # LaTeX indent stripped
     assert "Right you are." in cleaned
@@ -693,7 +696,7 @@ def test_genie_html_drops_stage_directions_keeps_overrides():
     assert "Aristophanes, and William Arrowsmith" not in cleaned  # footer stripped
     assert "11" not in cleaned.splitlines()  # page number stripped
     assert "Some annotation" not in cleaned  # Notes end matter excluded
-    assert report["stage_directions_dropped"] == 1
+    assert report["stage_directions_kept"] == 1
     assert report["dialogue_overrides_used"] == 1
     assert report["speakers_found"] == ["SPEAKERONE", "SPEAKERTWO"]
 
@@ -751,11 +754,12 @@ def test_genie_html_speaker_relabels_by_occurrence():
     assert report["speakers_found"] == ["MESSENGER", "HERALD"]
 
 
-def test_genie_html_without_override_drops_ambiguous_line():
+def test_genie_html_without_override_marks_ambiguous_line_as_direction():
     speakers = frozenset({"SPEAKERONE", "SPEAKERTWO"})
     cleaned, report = clean_genie_html(GENIE_HTML, "THE PLAY", speakers)
-    assert "That's it." not in cleaned
-    assert report["stage_directions_dropped"] == 2
+    assert "That's it." not in cleaned.splitlines()
+    assert "_That's it._" in cleaned.splitlines()
+    assert report["stage_directions_kept"] == 2
     assert report["dialogue_overrides_used"] == 0
 
 
@@ -862,11 +866,15 @@ def test_genie_html_drops_stage_direction_split_across_partial_italics():
     cleaned, report = clean_genie_html(
         html, "THE PLAY", speakers, stage_direction_overrides=frozenset({5})
     )
-    assert "Exit Speakerone" not in cleaned
-    assert "dressed in a magnificent uniform" not in cleaned
     lines = [ln for ln in cleaned.splitlines() if ln]
-    assert lines == ["THE PLAY", "SPEAKERONE", "First line.", "Second line."]
-    assert report["stage_directions_dropped"] == 1
+    assert lines == [
+        "THE PLAY",
+        "SPEAKERONE",
+        "First line.",
+        "_Exit Speakerone. From the other side enters an Inspector, dressed in a magnificent uniform._",
+        "Second line.",
+    ]
+    assert report["stage_directions_kept"] == 1
 
 
 def test_genie_html_fully_italic_ignores_a_trailing_note_mark():
@@ -886,10 +894,65 @@ def test_genie_html_fully_italic_ignores_a_trailing_note_mark():
 """
     speakers = frozenset({"SPEAKERONE"})
     cleaned, report = clean_genie_html(html, "THE PLAY", speakers)
-    assert "high tragic manner" not in cleaned
     lines = [ln for ln in cleaned.splitlines() if ln]
-    assert lines == ["THE PLAY", "SPEAKERONE", "First line.", "Second line."]
-    assert report["stage_directions_dropped"] == 1
+    assert lines == ["THE PLAY", "SPEAKERONE", "First line.", "_In the high tragic manner._", "Second line."]
+    assert report["stage_directions_kept"] == 1
+
+
+def test_genie_html_direction_does_not_change_how_a_caps_line_folds():
+    # A shouted caps line still folds into the verse before it when a stage
+    # direction sits between them, so the speech text is what it was when
+    # directions were dropped; the direction follows the joined line.
+    html = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">Gentlemen, hear this:</p>
+<p class="p1"><i>He shouts.</i></p>
+<p class="p1">YOUR ATTENTION</p>
+<p class="p1">That is all.</p>
+<p class="p1"><i>Notes</i></p>
+"""
+    cleaned, _report = clean_genie_html(html, "THE PLAY", frozenset({"SPEAKERONE"}))
+    lines = [ln for ln in cleaned.splitlines() if ln]
+    assert lines == [
+        "THE PLAY",
+        "SPEAKERONE",
+        "Gentlemen, hear this: YOUR ATTENTION",
+        "_He shouts._",
+        "That is all.",
+    ]
+
+
+# What the cleaner dropped as stage direction before 2026-09-12 (its own
+# `stage_directions_dropped` report on build/arrowsmith/genie-*.html): the
+# sung-dialogue overrides are already out of these counts.
+ARROWSMITH_DIRECTIONS_DROPPED = {"clouds": 212, "birds": 149}
+
+
+def test_real_arrowsmith_files_keep_every_stage_direction():
+    from drama_pipeline.config import REPO_ROOT
+    import drama_pipeline.bench_clean_verse as bcv
+
+    for play, title in (("clouds", "THE CLOUDS"), ("birds", "THE BIRDS")):
+        html = (REPO_ROOT / "build" / "arrowsmith" / f"genie-{play}.html").read_text(
+            encoding="utf-8", errors="replace"
+        )
+        cleaned, report = clean_genie_html(
+            html,
+            title,
+            bcv.GENIE_ROSTERS[play],
+            dialogue_overrides=bcv.GENIE_DIALOGUE_OVERRIDES.get(play, frozenset()),
+            speaker_relabels=bcv.GENIE_SPEAKER_RELABELS.get(play, {}),
+            stage_direction_overrides=bcv.GENIE_STAGE_DIRECTION_OVERRIDES.get(play, frozenset()),
+        )
+        text = (REPO_ROOT / "sources" / "bench" / "arrowsmith" / f"{play}.txt").read_text(
+            encoding="utf-8"
+        )
+        assert cleaned == text, f"{play}: cleaned file does not reproduce"
+        marked = [ln for ln in text.splitlines() if ln.startswith("_") and ln.endswith("_")]
+        assert len(marked) == report["stage_directions_kept"] == ARROWSMITH_DIRECTIONS_DROPPED[play]
 
 
 def test_clean_genie_html_real_clouds_keeps_the_mocking_songs_2814_line():

@@ -374,8 +374,15 @@ def _body_start(
         if lindsay:
             name = _lindsay_speaker(raw)
             if name:
+                # A verse-own-line speech may open with a stage direction
+                # (Clouds: "_Waking up crossly._"); its first line of speech
+                # is the one to check.
                 nxt = next(
-                    (lines[j].strip() for j in range(i + 1, len(lines)) if lines[j].strip()),
+                    (
+                        lines[j].strip()
+                        for j in range(i + 1, len(lines))
+                        if lines[j].strip() and not (dp is None and _DIRECTION.match(lines[j].strip()))
+                    ),
                     "",
                 )
                 if nxt and _lindsay_speaker(nxt) is None and body_check(nxt):
@@ -412,6 +419,30 @@ def _join_parts(parts: list[str]) -> str:
 
 
 _GUTENBERG_ITALICS = re.compile(r"_([^_\n]{1,200}?)_")
+
+# A stage direction on a line of its own, `_..._` (Arrowsmith: the cleaner
+# writes each printed line of one so; John, 2026-09-12). Read only in the
+# verse-own-line format, and marked the same way in the chunk text.
+_DIRECTION = re.compile(r"^_([^_\n]+)_$", re.M)
+
+
+def _add_direction(found: list[list], at: int, text: str) -> None:
+    # Consecutive `_..._` lines are one direction printed over several lines.
+    if found and found[-1][0] == at:
+        found[-1][1] = f"{found[-1][1]} {text}"
+    else:
+        found.append([at, text])
+
+
+def _shown(parts: list[str], inner: list[list]) -> str:
+    """The speech with its inner directions, each on a line of its own."""
+    out: list[str] = []
+    last = 0
+    for at, text in inner:
+        out += [_join_parts(parts[last:at]), f"_{text}_"]
+        last = at
+    out.append(_join_parts(parts[last:]))
+    return "\n".join(piece for piece in out if piece)
 
 
 def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
@@ -508,17 +539,39 @@ def _parse_as_speeches(
     return speeches, end_i
 
 
-def _parse_lindsay_speeches(lines: list[str], start: int) -> tuple[list[dict], int]:
+def _parse_lindsay_speeches(
+    lines: list[str],
+    start: int,
+    *,
+    directions: bool = False,
+    before: list[str] | None = None,
+) -> tuple[list[dict], int]:
     speeches: list[dict] = []
     parts: list[str] = []
     speaker = ""
     i = start
     end_i = len(lines)
+    # `inline`: [index into parts, text] for each stage direction met in the
+    # open speech; `before`, those that go before the next speech.
+    inline: list[list] = []
+    before = list(before or [])
 
     def flush() -> None:
+        nonlocal before
         text = _join_parts(parts)
-        if speaker and text:
-            speeches.append({"speaker_printed": speaker, "text": text})
+        if not (speaker and text):
+            before += [d for _at, d in inline]
+            return
+        speech = {"speaker_printed": speaker, "text": text}
+        # A direction after the speech's last line is printed before the
+        # next speech; one between its lines stays inside it (`shown`).
+        inner = [entry for entry in inline if any(parts[entry[0]:])]
+        if before:
+            speech["directions_before"] = before
+        if inner:
+            speech["shown"] = _shown(parts, inner)
+        speeches.append(speech)
+        before = [d for at, d in inline if not any(parts[at:])]
 
     while i < len(lines):
         raw = lines[i]
@@ -532,6 +585,11 @@ def _parse_lindsay_speeches(lines: list[str], start: int) -> tuple[list[dict], i
         if _is_play_end(s) or _is_gutenberg_end_line(raw):
             end_i = i
             break
+        direction = _DIRECTION.match(s) if directions and speaker else None
+        if direction:
+            _add_direction(inline, len(parts), direction.group(1))
+            i += 1
+            continue
         split = _split_lindsay_speaker_line(raw)
         if split:
             # Own-line speaker: NAME, optional (_stage_), optional period.
@@ -539,6 +597,7 @@ def _parse_lindsay_speeches(lines: list[str], start: int) -> tuple[list[dict], i
             flush()
             speaker = name
             parts = [stage] if stage else []
+            inline = []
             i += 1
             continue
         if speaker:
@@ -548,6 +607,11 @@ def _parse_lindsay_speeches(lines: list[str], start: int) -> tuple[list[dict], i
                 parts.append("")
         i += 1
     flush()
+    # Directions after the last speech have no next speech: print them at
+    # the end of the last one.
+    if before and speeches:
+        last = speeches[-1]
+        last["shown"] = "\n".join([last.get("shown") or last["text"], *(f"_{d}_" for d in before)])
     return speeches, end_i
 
 
@@ -591,7 +655,18 @@ def parse_play_speeches(
             raise ValueError(f"play title {title!r} not found")
         title_i = hits[0]
         start = _body_start(lines, title_i, lindsay=True, known_names=known_names)
-        speeches, _end_i = _parse_lindsay_speeches(lines, start)
+        # A direction before the first speaker cue goes before speech one.
+        opening: list[list] = []
+        k = 0
+        for line in lines[title_i + 1 : start]:
+            direction = _DIRECTION.match(line.strip())
+            if direction:
+                _add_direction(opening, k, direction.group(1))
+            else:
+                k += 1
+        speeches, _end_i = _parse_lindsay_speeches(
+            lines, start, directions=True, before=[d for _at, d in opening]
+        )
         return speeches, {}
     dp = _dramatis_index_after(lines, title_i)
     dp_line = lines[dp].strip() if dp is not None else ""
@@ -1544,13 +1619,24 @@ def parse_translation(
             continue
         texts: list[str] = []
         turns: list[dict] = []
+        directions_before: list[str] = []
         for ej in ejs:
             speech = speeches[ej]
-            piece = speech["text"]
+            piece = speech.get("shown") or speech["text"]
             if not piece:
                 continue
-            offset = len("\n\n".join(texts) + ("\n\n" if texts else ""))
+            # A stage direction before a speech gets a row of its own (John,
+            # 2026-09-12): before the segment when the speech opens it, else
+            # on the speech's turn, and the reader puts the row between the
+            # two speeches (Codex review of 7a9a16d). A speech with no turn
+            # to carry it takes it as a line after the speech before.
+            before = speech.get("directions_before") or []
             printed = speech["speaker_printed"]
+            if before and not texts:
+                directions_before = list(before)
+            elif before and not printed:
+                texts[-1] += "".join(f"\n_{d}_" for d in before)
+            offset = len("\n\n".join(texts) + ("\n\n" if texts else ""))
             if printed:
                 turn = {
                     "offset": offset,
@@ -1567,6 +1653,8 @@ def parse_translation(
                         "english": speech["canonical"] or printed,
                         "greek": residual_flags.get(ej, crossed.get(ej)),
                     }
+                if before and texts:
+                    turn["directionsBefore"] = list(before)
                 turns.append(turn)
             texts.append(piece)
         if not texts:
@@ -1582,6 +1670,7 @@ def parse_translation(
                 "bekker": [],
                 "turns": turns,
                 "approximate": True,
+                **({"directionsBefore": directions_before} if directions_before else {}),
             }
         )
 
@@ -1699,7 +1788,13 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict
         group = [seg, *conts]
         sizes = [max(1, len(s.get("lines") or s.get("greek") or [])) for s in group]
         total = sum(sizes)
-        starts = [m.end() for m in _SENTENCE_START.finditer(text)]
+        # Never cut inside a stage direction (John, 2026-09-12).
+        inside = [(m.start(), m.end()) for m in _DIRECTION.finditer(text)]
+        starts = [
+            m.end()
+            for m in _SENTENCE_START.finditer(text)
+            if not any(a < m.end() < b for a, b in inside)
+        ]
         cuts: list[tuple[dict, int]] = []
         acc = prev = 0
         for i, cont in enumerate(conts):
@@ -1728,7 +1823,9 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict
             if idx == 0:
                 out.append({**chunk, "text": body, "turns": turns})
             else:
-                out.append({**chunk, "id": owner["id"], "column": owner["column"],
+                # The directions before the speech belong to its first piece.
+                rest = {key: v for key, v in chunk.items() if key != "directionsBefore"}
+                out.append({**rest, "id": owner["id"], "column": owner["column"],
                             "text": body, "turns": turns, "notes": [], "markers": []})
         pieces_of[chunk["id"]] = out
     result: list[dict] = []
@@ -1754,11 +1851,21 @@ def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
             off = int(turn.get("offset") or 0)
             off = max(0, min(off, len(text)))
             text = text[:off] + f"{name}. " + text[off:]
+        # A turn's stage directions, keyed by its place among the prefixed
+        # turns, the order the reader recovers them in (John, 2026-09-12).
+        named = [t for t in turns if t.get("display") or t.get("speaker")]
+        turn_directions = [
+            {"turn": k, "directions": t["directionsBefore"]}
+            for k, t in enumerate(named)
+            if t.get("directionsBefore")
+        ]
         out[chunk["id"]] = [
             {
                 "chapter": str(chunk.get("column") or "1"),
                 "text": text,
                 "cont": False,
+                **({"directionsBefore": chunk["directionsBefore"]} if chunk.get("directionsBefore") else {}),
+                **({"turnDirections": turn_directions} if turn_directions else {}),
             }
         ]
     return out
