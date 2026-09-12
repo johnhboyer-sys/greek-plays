@@ -1625,16 +1625,18 @@ def parse_translation(
             piece = speech.get("shown") or speech["text"]
             if not piece:
                 continue
-            # A stage direction before a speech gets a row of its own when
-            # the speech opens the segment; otherwise it is a line between
-            # the two turns (John, 2026-09-12).
+            # A stage direction before a speech gets a row of its own (John,
+            # 2026-09-12): before the segment when the speech opens it, else
+            # on the speech's turn, and the reader puts the row between the
+            # two speeches (Codex review of 7a9a16d). A speech with no turn
+            # to carry it takes it as a line after the speech before.
             before = speech.get("directions_before") or []
-            if before and texts:
-                texts[-1] += "".join(f"\n_{d}_" for d in before)
-            elif before:
-                directions_before = list(before)
-            offset = len("\n\n".join(texts) + ("\n\n" if texts else ""))
             printed = speech["speaker_printed"]
+            if before and not texts:
+                directions_before = list(before)
+            elif before and not printed:
+                texts[-1] += "".join(f"\n_{d}_" for d in before)
+            offset = len("\n\n".join(texts) + ("\n\n" if texts else ""))
             if printed:
                 turn = {
                     "offset": offset,
@@ -1651,6 +1653,8 @@ def parse_translation(
                         "english": speech["canonical"] or printed,
                         "greek": residual_flags.get(ej, crossed.get(ej)),
                     }
+                if before and texts:
+                    turn["directionsBefore"] = list(before)
                 turns.append(turn)
             texts.append(piece)
         if not texts:
@@ -1847,12 +1851,21 @@ def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
             off = int(turn.get("offset") or 0)
             off = max(0, min(off, len(text)))
             text = text[:off] + f"{name}. " + text[off:]
+        # A turn's stage directions, keyed by its place among the prefixed
+        # turns, the order the reader recovers them in (John, 2026-09-12).
+        named = [t for t in turns if t.get("display") or t.get("speaker")]
+        turn_directions = [
+            {"turn": k, "directions": t["directionsBefore"]}
+            for k, t in enumerate(named)
+            if t.get("directionsBefore")
+        ]
         out[chunk["id"]] = [
             {
                 "chapter": str(chunk.get("column") or "1"),
                 "text": text,
                 "cont": False,
                 **({"directionsBefore": chunk["directionsBefore"]} if chunk.get("directionsBefore") else {}),
+                **({"turnDirections": turn_directions} if turn_directions else {}),
             }
         ]
     return out

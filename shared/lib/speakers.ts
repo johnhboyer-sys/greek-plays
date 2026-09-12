@@ -516,6 +516,10 @@ export interface EnglishTurnBlock {
   // onto the k-th Greek speaker event, and an empty unlabeled turn is dropped
   // below — so a block's position in this array is NOT its turn index.
   turnIndex: number;
+  // Carried from the turn: stage directions printed before this speech
+  // (Arrowsmith). A row of their own where splitAtDirections can cut the
+  // rows; otherwise printed inline above the speech.
+  directionsBefore?: string[];
 }
 
 export function buildEnglishTurnBlocks(
@@ -535,6 +539,7 @@ export function buildEnglishTurnBlocks(
     // even when empty, so the attribution itself is never lost.
     if (!t && turns[i].display == null) continue;
     const mismatch = turns[i].speakerMismatch;
+    const directions = turns[i].directionsBefore;
     blocks.push({
       lead: false,
       display: turns[i].display,
@@ -542,6 +547,7 @@ export function buildEnglishTurnBlocks(
       text: t,
       turnIndex: i,
       ...(mismatch ? { speakerMismatch: mismatch } : {}),
+      ...(directions?.length ? { directionsBefore: directions } : {}),
     });
   }
   return blocks;
@@ -1040,6 +1046,35 @@ export function directionRows(
   if (view === 'greek') return [];
   const n = Math.max(0, ...columns.map((c) => c?.length ?? 0));
   return Array.from({ length: n }, (_, i) => columns.map((c) => c?.[i] ?? null));
+}
+
+/** A direction before a later speech of a segment split into play rows
+ *  (Clouds 1:866; Codex review of 7a9a16d): the rows are cut where that
+ *  speech's row starts, and the direction becomes a run of its own between
+ *  the two, rendered as a row with an empty Greek cell, so the speech after
+ *  it starts level with its Greek. The block that gave its directions to a
+ *  row no longer carries them. A speech that shares a row with the one
+ *  before it keeps its directions and prints them inline. None in the
+ *  Greek-only view. */
+export function splitAtDirections<R extends { blocks: EnglishTurnBlock[] }>(
+  rows: readonly R[],
+  view: 'both' | 'greek' | 'english',
+): ({ rows: R[] } | { directions: string[] })[] {
+  const out: ({ rows: R[] } | { directions: string[] })[] = [];
+  let run: R[] = [];
+  for (const row of rows) {
+    const first = row.blocks[0];
+    if (view !== 'greek' && first && first.turnIndex >= 0 && first.directionsBefore?.length) {
+      if (run.length) out.push({ rows: run });
+      out.push({ directions: first.directionsBefore });
+      const { directionsBefore: _moved, ...rest } = first;
+      run = [{ ...row, blocks: [rest, ...row.blocks.slice(1)] }];
+    } else {
+      run.push(row);
+    }
+  }
+  if (run.length) out.push({ rows: run });
+  return out;
 }
 
 /** Where a line-keyed translation's English is cut into rows (John,

@@ -1515,9 +1515,13 @@ def test_stage_directions_ride_the_chunks_and_never_touch_pairing(tmp_path):
         assert report[key] == plain[key], key
 
 
-def test_a_direction_between_two_speeches_of_one_segment_stays_in_its_text(tmp_path):
-    # One Greek segment holds both speeches: the direction cannot have a row
-    # of its own before the segment, so it prints between the two turns.
+def test_a_direction_between_two_speeches_of_one_segment_rides_the_later_turn(tmp_path):
+    # Clouds 1:866: one Greek segment holds Strepsiades and Sokrates, and
+    # "Enter Sokrates from the Thinkery" falls between them. It rides the
+    # later speech's turn, never the earlier speech's text, so the reader can
+    # give it a row of its own between the two (Codex review of 7a9a16d).
+    from drama_pipeline.stage1_turn_english import chunks_as_overlay
+
     spine = {
         "work": "antigone",
         "segments": [
@@ -1536,12 +1540,26 @@ def test_a_direction_between_two_speeches_of_one_segment_stays_in_its_text(tmp_p
             }
         ],
     }
-    text = "THE PLAY\n\nANTIGONE\nSister.\n_Ismene enters._\n\nISMENE\nTo me.\n"
-    english, _fn, _report = _parse_directions(tmp_path, text, spine)
+    text = (
+        "THE PLAY\n\nANTIGONE\nAh, good dutiful boy.\n_Enter Sokrates from the Thinkery._\n\n"
+        "ISMENE\nWhy, he's still a baby.\n"
+    )
+    english, _fn, report = _parse_directions(tmp_path, text, spine)
     (chunk,) = english["chunks"]
     assert "directionsBefore" not in chunk
-    assert chunk["text"] == "Sister.\n_Ismene enters._\n\nTo me."
-    assert [t["offset"] for t in chunk["turns"]] == [0, chunk["text"].index("To me.")]
+    assert chunk["text"] == "Ah, good dutiful boy.\n\nWhy, he's still a baby."
+    assert [t["offset"] for t in chunk["turns"]] == [0, chunk["text"].index("Why,")]
+    assert "directionsBefore" not in chunk["turns"][0]
+    assert chunk["turns"][1]["directionsBefore"] == ["Enter Sokrates from the Thinkery."]
+    # The overlay has no turns: the piece says which prefixed turn it precedes.
+    (piece,) = chunks_as_overlay(english)["1:1"]
+    assert "_" not in piece["text"]
+    assert piece["turnDirections"] == [{"turn": 1, "directions": ["Enter Sokrates from the Thinkery."]}]
+    assert "directionsBefore" not in piece
+    _e, _f, plain = _parse_directions(tmp_path, _without_directions(text), spine)
+    for key in ("paired", "pairing_rate", "turn_shift_rate", "head_unassigned"):
+        assert report[key] == plain[key], key
+    assert "turnDirections" not in chunks_as_overlay(_e)["1:1"][0]
 
 
 def test_spread_keeps_a_direction_whole_and_on_the_first_piece_only():
