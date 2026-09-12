@@ -304,22 +304,26 @@ registry:
     full: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
   translations:
     - id: athenian-society
+      form: prose
       name: "The Eleven Comedies (The Athenian Society, 1912)"
       short: Athenian Society
       slot: english
       footnotes: true
       alignment: speech
     - id: lindsay
+      form: verse
       name: "Jack Lindsay (1925)"
       short: Lindsay
       slot: secondary
       alignment: speech
     - id: hickie
+      form: prose
       name: "W. J. Hickie (Bohn, 1853)"
       short: Hickie
       slot: third
       alignment: speech
     - id: rogers
+      form: verse
       # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
       private: true
       name: "B. B. Rogers (Loeb, 1924)"

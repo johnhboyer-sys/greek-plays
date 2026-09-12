@@ -40,6 +40,18 @@ vi.mock('../lib/works', async (importOriginal) => {
       citation: { scheme: 'play-line', copyAbbr: 'Fixc.' },
       blurb: 'Fixture for stage directions.',
     },
+    // PLAYLINE with each translation's form declared: Smyth prose, Storr verse.
+    PLAYPROSE: {
+      id: 'PLAYPROSE', title: 'Fixture Prose', abbr: 'Fixp.', author: 'Test',
+      language: 'grc', workType: 'verse', books: 1, bookLabels: ['1'],
+      greekEdition: 'Test edition', greekSource: { short: 'Test', full: 'Test edition, full.' },
+      translations: [
+        { id: 'smyth', name: 'Test Translator (Test, 1926)', short: 'Smyth', slot: 'english', footnotes: true, form: 'prose' },
+        { id: 'storr', name: 'Second Translator (Test, 1912)', short: 'Storr', slot: 'secondary', footnotes: true, form: 'verse' },
+      ],
+      citation: { scheme: 'play-line', copyAbbr: 'Fixp.' },
+      blurb: 'Fixture for the prose measure.',
+    },
   };
   return {
     ...actual,
@@ -1626,6 +1638,65 @@ describe('line-keyed rows: a translation paragraph sits beside the Greek line it
     // The turn lead-in rides in the first row only.
     expect(rows[0].querySelector('.english-col .speaker')?.textContent).toBe('Chorus');
     expect(rows[1].querySelector('.english-col .speaker')).toBeNull();
+  });
+
+  it('a prose translation starts a new piece only 5 or more lines after the last (the tick at 184 merges up)', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: odeBook() } });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows.map((r) => [...r.querySelectorAll('.greek-line')].map((l) => l.id))).toEqual([
+      ['L175-1', 'L176-2'], ['L180-3', 'L182-4', 'L184-5'],
+    ]);
+    expect(rows[1].querySelector('.english-col')?.textContent).toContain('anything but Zeus. Zeus, who sets mortals');
+  });
+});
+
+describe('prose measure: a prose translation gets the narrower English column', () => {
+  beforeEach(() => localStorage.clear());
+
+  function oneSpeech(): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [{
+        id: '1:1', column: '1',
+        greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+        speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+        english: { text: 'Primary words.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+        secondary: [{ chapter: '1', text: 'WATCHMAN. Secondary words.', cont: false }],
+      }],
+    };
+  }
+
+  it('marks the English column of a prose translation, and not of a verse one', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: oneSpeech() } });
+    await flush();
+    expect(container.querySelector('.english-col')?.classList.contains('prose-measure')).toBe(true);
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    expect(container.querySelector('.english-col')?.textContent).toContain('Secondary words.');
+    expect(container.querySelector('.english-col')?.classList.contains('prose-measure')).toBe(false);
+  });
+
+  it('marks each compare column by its own translation', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: oneSpeech() } });
+    await flush();
+    await fireEvent.change(container.querySelectorAll('input[name="trans-mode"]')[1] as HTMLInputElement);
+    await flush();
+    expect(container.querySelector('.english-col')?.classList.contains('prose-measure')).toBe(true);
+    expect(container.querySelector('.overlay-col')?.classList.contains('prose-measure')).toBe(false);
+  });
+
+  it('leaves a translation with no declared form as today', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: oneSpeech() } });
+    await flush();
+    expect(container.querySelector('.prose-measure')).toBeNull();
+  });
+
+  it('sets the prose column to 80% of its track above the phone width', () => {
+    const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../styles/global.css'), 'utf8');
+    expect(css).toMatch(/\.reader-body\.play-line\.view-both \.english-col\.prose-measure,\s*\.reader-body\.play-line\.view-both \.overlay-col\.prose-measure \{ max-width: 80%; \}/);
   });
 });
 

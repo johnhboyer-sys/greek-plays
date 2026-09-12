@@ -1248,6 +1248,41 @@ describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-0
   });
 });
 
+describe('sentenceTicks minSpan: fewer cuts inside a prose speech', () => {
+  // Ten equal sentences over lines 1-20: interpolated starts at 1, 3, 5, ... 19.
+  const text = Array.from({ length: 10 }, (_, i) => `Sentence ${String.fromCharCode(65 + i)} here.`).join(' ');
+  const at = (k: number) => text.indexOf(`Sentence ${String.fromCharCode(65 + k)}`);
+
+  it('cuts every sentence without a minimum span (today)', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21).map((t) => t.n)).toEqual([1, 3, 5, 7, 9, 11, 13, 15, 17, 19]);
+    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21, 0)).toEqual(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21));
+  });
+
+  it('starts a new piece only N or more lines after the previous piece', async () => {
+    const { sentenceTicks, MIN_PIECE_LINES } = await import('../lib/speakers');
+    expect(MIN_PIECE_LINES).toBe(5);
+    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21, 5)).toEqual([
+      { n: 1, offset: 0 }, { n: 7, offset: at(3) }, { n: 13, offset: at(6) }, { n: 19, offset: at(9) },
+    ]);
+  });
+
+  it('always anchors a speech start, and counts the span from it', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    // A new speech at sentence C (line 5), two lines after the piece at 1.
+    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [at(2)], 21, 5).map((t) => t.n)).toEqual([1, 5, 11, 17]);
+  });
+
+  it('thins the translator\'s own line markers as well', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    // Markers at 3 and 9 are sentence starts, but fall 2 lines after 1 and
+    // 2 lines after 7: both merge into the piece before them.
+    const ticks = [{ n: 1, offset: 0 }, { n: 3, offset: at(1) }, { n: 9, offset: at(4) }];
+    expect(sentenceTicks(text, ticks, [], 21).map((t) => t.n)).toEqual([1, 3, 5, 7, 9, 11, 13, 15, 17, 19]);
+    expect(sentenceTicks(text, ticks, [], 21, 5).map((t) => t.n)).toEqual([1, 7, 13, 19]);
+  });
+});
+
 // Arrowsmith's stage directions (John, 2026-09-12): "a break in the Greek
 // where the stage directions are so english stays aligned with its Greek".
 describe('stage directions', () => {

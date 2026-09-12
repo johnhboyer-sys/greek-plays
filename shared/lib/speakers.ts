@@ -1088,11 +1088,21 @@ export function splitAtDirections<R extends { blocks: EnglishTurnBlock[] }>(
  *  exactly on a sentence start keeps its own line; one mid-sentence cuts
  *  nothing but still steers the estimate. For now: a real line-by-line
  *  alignment would replace this. */
+// A prose translation's piece inside a speech spans at least this many Greek
+// lines. At the measured fill (Smyth's English 81% of its Greek's height) a
+// piece of k lines drifts about 0.19k rows above its Greek, so a cut sooner
+// than 5 lines corrects under one row of drift and costs a gap; 5 is also the
+// printed numbering interval, so every piece still starts within one.
+export const MIN_PIECE_LINES = 5;
+
 export function sentenceTicks(
   text: string,
   ticks: readonly { n: number; offset: number }[],
   turnOffsets: readonly number[],
   endN: number,
+  // 0 cuts at every sentence (today). Above 0, a piece that opens no speech
+  // starts only `minSpan` or more lines after the piece before it.
+  minSpan = 0,
 ): { n: number; offset: number }[] {
   if (!ticks.length) return [];
   const skipSpace = (o: number) => { while (o < text.length && /\s/.test(text[o]!)) o += 1; return o; };
@@ -1103,7 +1113,8 @@ export function sentenceTicks(
   const span = endN > last.n ? [...anchors, { n: endN, off: text.length }] : anchors;
   // A speech starts where its turn says, whitespace and all: sliceBlocks trims
   // it, and a cut moved past the turn would leave the lead-in on the row above.
-  const starts = new Set<number>([skipSpace(0), ...turnOffsets.filter((o) => o > 0 && o < text.length)]);
+  const speechStarts = new Set<number>([skipSpace(0), ...turnOffsets.filter((o) => o > 0 && o < text.length)]);
+  const starts = new Set<number>(speechStarts);
   // A sentence ends at . ! ? or … -- never the stop after a lone capital
   // initial ("H. W. Wilson") or a title ("Mr.", "St.") -- then any closing
   // quote or bracket, and space or a dash ("stopped.—She"); it starts with a
@@ -1129,6 +1140,12 @@ export function sentenceTicks(
     const n = b.n < a.n ? a.n : Math.round(a.n + ((s - a.off) / (b.off - a.off)) * (b.n - a.n));
     out.push({ n: Math.min(n, Math.max(a.n, endN - 1)), offset: s });
   }
-  return out;
+  if (minSpan <= 0) return out;
+  const kept: { n: number; offset: number }[] = [];
+  for (const t of out) {
+    const prev = kept[kept.length - 1];
+    if (!prev || speechStarts.has(t.offset) || t.n - prev.n >= minSpan) kept.push(t);
+  }
+  return kept;
 }
 

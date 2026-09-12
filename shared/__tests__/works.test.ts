@@ -363,3 +363,14 @@ describe('corpus-scoping (PUBLIC_WING)', () => {
     expect(fresh.WORKS.length).toBe(0);
   });
 });
+
+describe('translation form (prose or verse) drives the prose measure', () => {
+  const PROSE = ['athenian-society', 'buckley', 'coleridge', 'hickie', 'jebb', 'smyth'];
+  it('every corpus translation declares its form, and only the prose translators say prose', () => {
+    const all = WORKS.flatMap((w) => w.translations);
+    expect(all.length).toBeGreaterThan(0);
+    for (const t of all) expect(['prose', 'verse'], `${t.id} form`).toContain(t.form);
+    const prose = [...new Set(all.filter((t) => t.form === 'prose').map((t) => t.id))].sort();
+    expect(prose).toEqual(PROSE);
+  });
+});

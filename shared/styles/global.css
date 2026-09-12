@@ -2148,6 +2148,14 @@ body {
   .reader-body.play-line.view-both:not(.trans-compare) .play-row-split .play-row > .english-col {
     height: 0; min-height: 0; overflow: visible; align-self: start;
   }
+  /* Prose measure: prose packs more per row than verse, so a prose
+     translation's column (Reader.svelte `proseMeasure`, the registry's
+     `form: prose`) runs at 80% of its track, side by side and in compare,
+     and fills more of its Greek's height. The tracks, the Greek column and
+     the gutter are unchanged; the Column width slider scales the tracks, so
+     the 80% follows it. Verse keeps the full track. */
+  .reader-body.play-line.view-both .english-col.prose-measure,
+  .reader-body.play-line.view-both .overlay-col.prose-measure { max-width: 80%; }
 }
 
 /* Greek: the printed ref in the number gutter, the text indented past the
