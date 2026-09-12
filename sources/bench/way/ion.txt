@@ -1121,7 +1121,7 @@ OLD SERVANT. And how didst thou conceal Apollo’s rape ?
 CREUSA. I travailed—bear to hear my tale, old friend !—
 gt
 
-ION. nf ? , 3 KH ῇ ~ f
+
 
 CREUSA. Even I. My vesture darkling swaddled him.
 
@@ -2006,7 +2006,7 @@ Thee for thy good to another sire he gives.
 ION. Nay, not thus lightly on the quest I press.
 I will ask Phoebus, entering his fane,
 “Am I of Loxias, or a mortal sire?”
-ATHENA appears above the temple in her chariot.
+[ATHENA appears above the temple in her chariot.]
 Ha! high above the incense-breathing house ,
 What God reveals a face that fronts the Sun ?.
 Let us flee, mother, Jest we gaze on Gods,
