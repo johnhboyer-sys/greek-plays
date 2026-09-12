@@ -1274,8 +1274,8 @@ Evadne the princess renowned !
 On yon cliff why is she found
 Whose crags above this fane tower ?
 And she climbs, and she climbs ever higher !
-EVADNE appears on the cliff above the pyre of Capaneus,
-dressed in festal attire.
+[EVADNE appears on the cliff above the pyre of Capaneus,
+dressed in festal attire.]
 
 EVADNE. What light ill-omened shone
 When flashed thy wheels, O Sun,
@@ -1551,7 +1551,7 @@ THESEUS. What service yet remains that I may render?
 ADRASTUS. Fare well : for thou art worthy—thou and Athens.
 
 THESEUS. So be it, The same fortune light on thee. .
-ATHENA appears in her chariot above the temple-roof.
+[ATHENA appears in her chariot above the temple-roof.]
 
 ATHENA. Give ear, O Theseus, to Athena’s hest
 What thou must do—for Athens’ service do :—
