@@ -73,6 +73,15 @@ english:
     min_pairing_rate: 0.77
     # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
     max_turn_shift_rate: 0.16
+  third:
+    id: arrowsmith
+    name: "William Arrowsmith (Michigan, 1961)"
+    short: Arrowsmith
+    model: turn-text
+    format: verse-own-line
+    source: bench/arrowsmith/birds.txt
+    play: "THE BIRDS"
+    footnotes: false
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -161,6 +170,40 @@ speakers:
     "MESSENGERS": "Messenger"
     "COOK": "Servant of the Hoopoe"
     "SERVANTS": "Servant of the Hoopoe"
+  # Arrowsmith's printed caps names (bench/arrowsmith/birds.txt). SANDPIPER is
+  # his own name for the Hoopoe's servant (Trochilus elsewhere). SENTRY has no
+  # Greek siglum of his own; his "a god slipped past the gates" report is the
+  # Second Messenger's scene (ΑΓ. Βʹ), right before Iris's entrance in both
+  # texts (checked against build/stage1/greek_spine.json, 2026-09-11).
+  # `bench_clean_verse.GENIE_SPEAKER_RELABELS` retags two of Arrowsmith's
+  # three plain "MESSENGER" scenes (FIRST MESSENGER, HERALD) by occurrence,
+  # since one printed label covers three distinct Greek speakers here; the
+  # third stays "MESSENGER" (the Dover text's own unlabelled ΑΓΓΕΛΟΣ, 1706).
+  english_third:
+    "PISTHETAIROS": "Peisthetaerus"
+    "EUELPIDES": "Euelpides"
+    "HOOPOE": "Hoopoe"
+    "KORYPHAIOS": "Chorus"
+    "CHORUS": "Chorus"
+    "HERAKLES": "Heracles"
+    "INFORMER": "Informer"
+    "PROMETHEUS": "Prometheus"
+    "POSEIDON": "Poseidon"
+    "IRIS": "Iris"
+    "MESSENGER": "Messenger"
+    "FIRST MESSENGER": "First Messenger"
+    "PROPHET": "Oracle-monger"
+    "SANDPIPER": "Servant of the Hoopoe"
+    "METON": "Meton"
+    "KINESIAS": "Cinesias"
+    "POET": "Poet"
+    "INSPECTOR": "Inspector"
+    "LEGISLATOR": "Decree-seller"
+    "PRIEST": "Priest"
+    "DELINQUENT": "Father-beater"
+    "SENTRY": "Second Messenger"
+    "TRIBALLOS": "Triballian"
+    "HERALD": "Herald"
   sigla:
     "ΠΙ.": "Peisthetaerus"
     "ΠΙΣΘΕΤΑΙΡΟΣ": "Peisthetaerus"
@@ -243,6 +286,11 @@ registry:
       name: "W. J. Hickie (Bohn, 1853)"
       short: Hickie
       slot: secondary
+      alignment: speech
+    - id: arrowsmith
+      name: "William Arrowsmith (Michigan, 1961)"
+      short: Arrowsmith
+      slot: third
       alignment: speech
   citation:
     scheme: play-line

@@ -138,3 +138,49 @@ facing pages with the English; the P3 builder keeps only the English pages.
 | in.ernet.dli.2015.515630.txt | The Comedies of Aristophanes vol. 2 (Bohn) | W. J. Hickie, 1853 |
 | aristophanes0003benj_r6k0.txt | Aristophanes, Loeb vol. 3 (Lysistrata, Thesmophoriazusae, Ecclesiazusae, Plutus) | B. B. Rogers, 1924 — verse, bowdlerized (comparison only) |
 | aristophaniscomo04aris.txt | The Comedies of Aristophanes (1910 collected volume incl. Lysistrata) | B. B. Rogers |
+
+## fulcrum/ — William Arrowsmith's Birds and Clouds (vendored 2026-09-11; third comparison slot)
+
+William Arrowsmith, *The Complete Greek Comedy* (University of Michigan Press):
+*Birds* (1961) and *Clouds* (1962), verse, unexpurgated. Downloaded by the
+project owner from Fulcrum (free, open access) and OCR'd by him with History
+Genie; the PDFs and .docx files are not committed, the extracted text is:
+*Birds* https://www.fulcrum.org/concern/monographs/n009w531d (DOI
+[10.3998/mpub.12945782](https://doi.org/10.3998/mpub.12945782)); *Clouds*
+https://www.fulcrum.org/concern/monographs/pr76f649p (DOI
+[10.3998/mpub.12945776](https://doi.org/10.3998/mpub.12945776)).
+
+**Licence basis** (owner's ruling 2026-09-11, supersedes the "never renewed"
+wording used elsewhere in this file): these two books were NOT left
+unrenewed. Copyright Office records show renewals by Arrowsmith as author —
+*Birds* RE0000457018 (1989-12-26, renewing A00000527041 of 1961-10-13) and
+*Clouds* RE0000500595 (1990-12-03, renewing A00000552209 of 1962-03-02). The
+basis for treating them as public domain is instead the publisher's own
+label: the University of Michigan Press marks both Fulcrum editions with the
+Creative Commons [Public Domain Mark 1.0](https://creativecommons.org/publicdomain/mark/1.0/).
+The owner's ruling: "If they label that way, and they are the publisher,
+that's good enough for me."
+
+**Provenance**: the owner OCR'd each play from the Fulcrum PDF with History
+Genie (`.docx`, then `textutil -convert html`/`-convert txt` to
+`build/arrowsmith/genie-{birds,clouds}.{html,txt}` — the html keeps the
+italic runs the txt loses, and is the cleaner's actual input). The `.docx`
+covers the whole book; only the play (not the introduction, notes, or
+glossary) is vendored. SHA-256 of the owner's `.docx` files: *Birds*
+`9acbb23ab32880dfae1f2d91e5b675e9bf6c949b2dbd075b5e1163b014d45d8c`; *Clouds*
+`66d5ecd3a83a187beed70204ebac2d12e9ed3b81d20a0064f3e4ae36d972bd71`. A
+word-level diff of the play text against each PDF's own `pdftotext` layer
+(`sources/fulcrum/{birds,clouds}.txt`, extraction command below) found the
+PDF layer wrong in nearly every disagreement (`Pil`/`J`/`'m` for `I'll`/`I`/
+`I'm`, scrambled column reading order); no Genie slip survived into the
+cleaned dialogue text — see `build/arrowsmith/{birds,clouds}-changes.tsv`.
+
+| file | contents | extraction command |
+|---|---|---|
+| birds.txt | *Birds*, printed pp. 13–113 (PDF pp. 18–113) | `pdftotext -f 18 -l 113 9780472910861.pdf birds.txt` |
+| clouds.txt | *Clouds*, printed pp. 11–113 (PDF pp. 14–116) | `pdftotext -f 14 -l 116 9780472910809.pdf clouds.txt` |
+
+SHA-256 (raw text plus the two PDFs) in `sources/fulcrum/SHA256SUMS`. The
+cleaned turn-text the site actually reads is `sources/bench/arrowsmith/
+{birds,clouds}.txt` (verse-own-line, built by `bench_clean_verse.
+write_clean_genie_html` from the Genie html, not from these raw files).

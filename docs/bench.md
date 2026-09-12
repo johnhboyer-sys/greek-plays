@@ -258,3 +258,50 @@ half the pages as Greek, and the remaining English speaker-turns are far
 fewer than the Greek segments (bowdlerized cuts plus lost labels). Every
 recovered English turn already pairs; aliases cannot invent labels the
 scan never printed.
+
+### Aristophanes / Arrowsmith verse (Michigan, 1961–62)
+
+William Arrowsmith, *The Complete Greek Comedy* (unexpurgated) — `third`
+slot on birds and clouds. Not an OCR scan: the source is the owner's own
+History Genie OCR of the Fulcrum PDF (`.docx`, converted `textutil -convert
+html` to `build/arrowsmith/genie-{birds,clouds}.html`, keeping the `<i>`
+runs the plain-text conversion loses). `bench_clean_verse.
+write_clean_genie_html` (`--layout genie-html`) bounds the play at its
+"SCENE:" opening and "Notes" end matter, strips the per-page footer/page-
+number/`---` triplet, strips a footnote `*`, strips the odd `$\qquad...$`
+LaTeX artifact Genie left for a mid-line indent, and folds a staggered
+shared line's nbsp-indented halves into plain left-aligned lines.
+
+Arrowsmith's stage directions, sung odes, and a few emphasised one-line
+exclamations are all set identically (a fully-italic paragraph); the
+cleaner drops a fully-italic paragraph by default (matching Morshead: no
+channel for stage directions in this format) and keeps one only if its
+paragraph index is listed in `GENIE_DIALOGUE_OVERRIDES[play]` — every such
+index was checked by hand against the printed page image, not guessed.
+Arrowsmith also sets a phrase in bare caps for emphasis now and then (a
+telegram, a shouted announcement); a bare all-caps line with no punctuation
+is exactly what the shared verse-own-line reader takes for a new speaker
+cue, so the cleaner folds any such line into a neighbouring verse line
+(the format already joins consecutive lines of one speech with a space, so
+this changes nothing about the rendered text). `GENIE_SPEAKER_RELABELS`
+retags a printed speaker cue by paragraph index when Arrowsmith gives one
+label to more than one Greek role (Birds' "MESSENGER" covers the Dover
+text's First Messenger, the Herald, and the plain Messenger — checked
+against `build/stage1/greek_spine.json`).
+
+A word-level diff of the cleaned play text against each PDF's own
+`pdftotext` layer (`sources/fulcrum/{birds,clouds}.txt`) found the PDF
+layer wrong in nearly every disagreement and no Genie slip in the kept
+dialogue text; see `build/arrowsmith/{birds,clouds}-changes.tsv`.
+
+| id | heading | lines kept | pairing | shift rate | length-ratio outliers |
+|---|---|---|---|---|---|
+| `clouds` | `THE CLOUDS` | 2276 | 0.978 | 0.037 | 0.145 |
+| `birds` | `THE BIRDS` | 2644 | 0.986 | 0.050 | 0.148 |
+
+```
+pipeline/.venv/bin/python -m drama_pipeline.bench_clean_verse \
+  --layout genie-html \
+  --volume build/arrowsmith/genie-clouds.html \
+  --translator arrowsmith --play clouds --title "THE CLOUDS"
+```

@@ -50,6 +50,19 @@ english:
     source: "perseus/tlg0019.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+  third:
+    id: arrowsmith
+    name: "William Arrowsmith (Michigan, 1962)"
+    short: Arrowsmith
+    model: turn-text
+    format: verse-own-line
+    source: bench/arrowsmith/clouds.txt
+    play: "THE CLOUDS"
+    footnotes: false
+    # Anchors the run of turn-shift drift the auto-aligner otherwise carries
+    # through Strepsiades' opening monologue (John's spot check, 2026-09-11).
+    pins:
+      - { greek: "56", english: "There's no oil left in the lamp.", run: 1 }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -95,6 +108,27 @@ speakers:
     "SERVANT OF STREPSIADES": "Slave"
     "A SLAVE": "Slave"
     "SLAVE": "Slave"
+  # Arrowsmith's printed caps names (bench/arrowsmith/clouds.txt). ARISTOPHANES
+  # is the poet himself, brought on stage for the parabasis; his own note says
+  # the Greek gives that speech to the Chorus (see build/arrowsmith/genie-clouds.html).
+  # KORYPHAIOS is the Chorus Leader; CHAIREPHON has no Greek siglum of his own,
+  # same as the primary and secondary slots' Chaerephon -> Student.
+  english_third:
+    "STREPSIADES": "Strepsiades"
+    "SOKRATES": "Socrates"
+    "PHEIDIPPIDES": "Pheidippides"
+    "PHILOSOPHY": "Better Argument"
+    "SOPHISTRY": "Worse Argument"
+    "STUDENT": "Student"
+    "FIRST STUDENT": "First Student"
+    "SECOND STUDENT": "Second Student"
+    "KORYPHAIOS": "Chorus"
+    "CHORUS": "Chorus"
+    "PASIAS": "Creditor"
+    "AMYNIAS": "Creditor"
+    "XANTHIAS": "Slave"
+    "ARISTOPHANES": "Chorus"
+    "CHAIREPHON": "Student"
   # Hickie's Perseus TEI <speaker> strings (trailing period as printed).
   # Hermes is a Perseus <add> on lines the note assigns to Strepsiades.
   english_secondary:
@@ -173,6 +207,11 @@ registry:
       short: Hickie
       slot: secondary
       alignment: line
+    - id: arrowsmith
+      name: "William Arrowsmith (Michigan, 1962)"
+      short: Arrowsmith
+      slot: third
+      alignment: speech
   citation:
     scheme: play-line
     copyAbbr: "Ar. Nub."

@@ -1,4 +1,5 @@
 from drama_pipeline.bench_clean_verse import (
+    clean_genie_html,
     clean_play,
     clean_play_prose,
     collapse_spaces,
@@ -7,6 +8,7 @@ from drama_pipeline.bench_clean_verse import (
     parse_dramatis,
     speaker_from_line,
     write_clean,
+    write_clean_genie_html,
 )
 from drama_pipeline.stage1_turn_english import parse_play_speeches
 
@@ -648,3 +650,127 @@ def test_prose_inline_write_clean(tmp_path):
     assert text.startswith("THE ACHARNIANS")
     assert "DICAEOPOLIS." in text
     assert report["speakers_found"][0] == "DICAEOPOLIS"
+
+
+# Genie OCR HTML (Arrowsmith): paragraph index 0 is <p class="p1">THE PLAY</p>,
+# so "SCENE:" is index 3 and the fully-italic "That's it." aside is index 8.
+GENIE_HTML = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SPEAKERONE, a fellow</p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">Line one, with <i>real</i> emphasis and a note.*</p>
+<p class="p1"><i>Turning to go.</i></p>
+<p class="p1">SPEAKERTWO</p>
+<p class="p1"><i>That's it.</i></p>
+<p class="p1">$\\qquad\\qquad$ Right you are.</p>
+<p class="p1">\xa0\xa0\xa0\xa0trailing half of the line.</p>
+<p class="p1">11</p>
+<p class="p1">Aristophanes, and William Arrowsmith. <i>The Play</i>.</p>
+<p class="p1">E-book, Ann Arbor, MI: University of Michigan Press, 1962.</p>
+<p class="p1">Downloaded on behalf of Unknown Institution</p>
+<p class="p1">---</p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">Final line.</p>
+<p class="p1"><i>Notes</i></p>
+<p class="p1"><i>page</i> 11. Some annotation.</p>
+"""
+
+
+def test_genie_html_drops_stage_directions_keeps_overrides():
+    speakers = frozenset({"SPEAKERONE", "SPEAKERTWO"})
+    cleaned, report = clean_genie_html(
+        GENIE_HTML, "THE PLAY", speakers, dialogue_overrides=frozenset({8})
+    )
+    assert cleaned.startswith("THE PLAY\n\n")
+    assert "Turning to go." not in cleaned  # stage direction dropped
+    assert "That's it." in cleaned  # overridden: dialogue, not narration
+    assert "note." in cleaned and "*" not in cleaned  # footnote asterisk stripped
+    assert "$" not in cleaned and "qquad" not in cleaned  # LaTeX indent stripped
+    assert "Right you are." in cleaned
+    assert "trailing half of the line." in cleaned  # nbsp indent stripped
+    assert "Aristophanes, and William Arrowsmith" not in cleaned  # footer stripped
+    assert "11" not in cleaned.splitlines()  # page number stripped
+    assert "Some annotation" not in cleaned  # Notes end matter excluded
+    assert report["stage_directions_dropped"] == 1
+    assert report["dialogue_overrides_used"] == 1
+    assert report["speakers_found"] == ["SPEAKERONE", "SPEAKERTWO"]
+
+
+def test_genie_html_folds_shouted_caps_line_so_it_is_not_read_as_a_speaker():
+    # A bare all-caps line with no punctuation (Arrowsmith shouts a phrase
+    # in caps for emphasis) is exactly what the shared verse-own-line reader
+    # takes for a speaker cue; the cleaner must fold it into a neighbouring
+    # line rather than emit it standalone.
+    html = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">Gentlemen, hear this:</p>
+<p class="p1">YOUR ATTENTION</p>
+<p class="p1">PLEASE.</p>
+<p class="p1">That is all.</p>
+<p class="p1"><i>Notes</i></p>
+"""
+    speakers = frozenset({"SPEAKERONE"})
+    cleaned, _report = clean_genie_html(html, "THE PLAY", speakers)
+    lines = [ln for ln in cleaned.splitlines() if ln]
+    assert lines == [
+        "THE PLAY",
+        "SPEAKERONE",
+        "Gentlemen, hear this: YOUR ATTENTION PLEASE.",
+        "That is all.",
+    ]
+    speeches, _notes = parse_play_speeches(cleaned, "THE PLAY", format="verse-own-line")
+    assert [s["speaker_printed"] for s in speeches] == ["SPEAKERONE"]
+
+
+def test_genie_html_speaker_relabels_by_occurrence():
+    # Arrowsmith reuses one printed label for two Greek roles a manifest
+    # tells apart only by occurrence (Birds' "MESSENGER" cue covers First
+    # Messenger, the Herald, and a plain Messenger); the cleaner must retag
+    # the chosen occurrences without touching the roster check itself.
+    html = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">MESSENGER</p>
+<p class="p1">First report.</p>
+<p class="p1">MESSENGER</p>
+<p class="p1">Second report.</p>
+<p class="p1"><i>Notes</i></p>
+"""
+    speakers = frozenset({"MESSENGER"})
+    cleaned, report = clean_genie_html(
+        html, "THE PLAY", speakers, speaker_relabels={5: "HERALD"}
+    )
+    lines = [ln for ln in cleaned.splitlines() if ln]
+    assert lines == ["THE PLAY", "MESSENGER", "First report.", "HERALD", "Second report."]
+    assert report["speakers_found"] == ["MESSENGER", "HERALD"]
+
+
+def test_genie_html_without_override_drops_ambiguous_line():
+    speakers = frozenset({"SPEAKERONE", "SPEAKERTWO"})
+    cleaned, report = clean_genie_html(GENIE_HTML, "THE PLAY", speakers)
+    assert "That's it." not in cleaned
+    assert report["stage_directions_dropped"] == 2
+    assert report["dialogue_overrides_used"] == 0
+
+
+def test_write_clean_genie_html(tmp_path):
+    html_path = tmp_path / "genie-play.html"
+    html_path.write_text(GENIE_HTML, encoding="utf-8")
+    import drama_pipeline.bench_clean_verse as bcv
+
+    bcv.GENIE_ROSTERS["play"] = frozenset({"SPEAKERONE", "SPEAKERTWO"})
+    bcv.GENIE_DIALOGUE_OVERRIDES["play"] = frozenset({8})
+    dest, report = write_clean_genie_html(
+        html_path, "arrowsmith", "play", "THE PLAY", out_dir=tmp_path
+    )
+    text = dest.read_text(encoding="utf-8")
+    assert text.startswith("THE PLAY")
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="verse-own-line")
+    printed = [s["speaker_printed"] for s in speeches]
+    assert printed == ["SPEAKERONE", "SPEAKERTWO", "SPEAKERONE"]

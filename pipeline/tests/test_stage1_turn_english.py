@@ -7,6 +7,7 @@ from drama_pipeline.config import Manifest, SOURCES_DIR
 from drama_pipeline.stage1_english import build_alignment
 from drama_pipeline.stage1_turn_english import (
     _assign_speeches,
+    _split_lindsay_speaker_line,
     parse_play_speeches,
     parse_translation,
 )
@@ -1173,6 +1174,23 @@ Ten livelong years have rolled away.
     assert notes == {}
     assert [s["speaker_printed"] for s in speeches] == ["WATCHMAN", "CHORUS"]
     assert speeches[0]["text"].startswith("I pray the gods")
+
+
+def test_lindsay_speaker_line_rejects_long_lines_without_hanging():
+    # Reproduces a catastrophic-backtracking hang in `_LINDSAY_SPEAKER`: a
+    # long, almost-all-caps line that fails to match only at the very end
+    # (Arrowsmith's Birds bench text has an all-caps mock-legal decree like
+    # this) used to make `.fullmatch()` take minutes. A real speaker cue is
+    # always a short name, so a long line short-circuits before the regex.
+    long_decree = (
+        "BE IT HEREBY PROVIDED THAT IF ANY CLOUD- CUCKOOLANDER SHALL "
+        "WILFULLY INJURE OR WRONG ANY CITIZEN OF ATHENS—"
+    )
+    assert len(long_decree) > 64
+    assert _split_lindsay_speaker_line(long_decree) is None
+    # Short genuine speaker cues are unaffected.
+    assert _split_lindsay_speaker_line("STREPSIADES") == ("STREPSIADES", "")
+    assert _split_lindsay_speaker_line("MYRRHINE (_above_)") == ("MYRRHINE", "(_above_)")
 
 
 def test_lindsay_own_line_speakers_keep_optional_period_path():

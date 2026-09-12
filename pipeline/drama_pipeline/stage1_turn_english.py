@@ -303,6 +303,14 @@ def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
         return None
     if s in {"INTRODUCTION", "INDEX", "CONTENTS"} or s.startswith("THE "):
         return None
+    # A real speaker cue is a name, not a sentence (the longest in any
+    # roster here is ~26 chars); a long line risks catastrophic
+    # backtracking in `_LINDSAY_SPEAKER` on an almost-all-caps run that
+    # fails to match only at the very end (Arrowsmith's Birds bench text
+    # has an all-caps mock-legal decree over 100 chars long -- reproduced
+    # 2026-09-11, `bench_clean_verse.clean_genie_html`'s caller).
+    if len(s) > 64:
+        return None
     if s.endswith("."):
         s = s[:-1]
     stage = ""
