@@ -10,7 +10,7 @@ from drama_pipeline.bench_clean_verse import (
     write_clean,
     write_clean_genie_html,
 )
-from drama_pipeline.stage1_turn_english import parse_play_speeches
+from drama_pipeline.stage1_turn_english import _split_lindsay_speaker_line, parse_play_speeches
 
 
 MORSHEAD = """
@@ -757,6 +757,146 @@ def test_genie_html_without_override_drops_ambiguous_line():
     assert "That's it." not in cleaned
     assert report["stage_directions_dropped"] == 2
     assert report["dialogue_overrides_used"] == 0
+
+
+def test_genie_html_strips_note_mark_before_matching_speaker_cue():
+    # Codex review finding 1 (2026-09-11): a speaker cue carrying a footnote
+    # asterisk (`CHORUS*`) is not `in speakers` verbatim, so name matching
+    # missed it and it fell through to become dialogue under the previous
+    # speaker instead of opening its own speech.
+    html = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">First line.</p>
+<p class="p1">CHORUS*</p>
+<p class="p1">Second line.</p>
+<p class="p1"><i>Notes</i></p>
+"""
+    speakers = frozenset({"SPEAKERONE", "CHORUS"})
+    cleaned, _report = clean_genie_html(html, "THE PLAY", speakers)
+    lines = [ln for ln in cleaned.splitlines() if ln]
+    assert lines == ["THE PLAY", "SPEAKERONE", "First line.", "CHORUS", "Second line."]
+    speeches, _notes = parse_play_speeches(cleaned, "THE PLAY", format="verse-own-line")
+    assert [s["speaker_printed"] for s in speeches] == ["SPEAKERONE", "CHORUS"]
+
+
+def test_genie_html_drops_footer_ocr_variants():
+    # Codex review finding 4 (2026-09-11): the footer check only matched an
+    # exact prefix, so OCR variants (no comma, a stray page number inserted
+    # mid-line, an "Edited by" recasting) survived as dialogue.
+    html = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">First line.</p>
+<p class="p1">Aristophanes and William Arrowsmith. <i>The Play</i>.</p>
+<p class="p1">Aristophanes, 34 William Arrowsmith. <i>The Play</i>.</p>
+<p class="p1">Aristophanes, The Play. Edited by William Arrowsmith. The Play.</p>
+<p class="p1">E-book, Ann Arbor, MI: University of Michigan Press, 1962.</p>
+<p class="p1">Second line.</p>
+<p class="p1"><i>Notes</i></p>
+"""
+    speakers = frozenset({"SPEAKERONE"})
+    cleaned, _report = clean_genie_html(html, "THE PLAY", speakers)
+    assert "Arrowsmith" not in cleaned
+    assert "Ann Arbor" not in cleaned
+    lines = [ln for ln in cleaned.splitlines() if ln]
+    assert lines == ["THE PLAY", "SPEAKERONE", "First line.", "Second line."]
+
+
+def test_genie_html_drops_stage_direction_split_across_partial_italics():
+    # Codex review finding 3 (2026-09-11): a stage direction whose italics
+    # cover only part of the paragraph ("Exit ... From the other side
+    # enters ...," dressed in a magnificent uniform.) is not fully italic,
+    # so the default "fully-italic paragraphs only" rule keeps it as
+    # dialogue. `stage_direction_overrides` force-drops the whole paragraph
+    # by index regardless of how much of it is marked up in italics.
+    html = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">First line.</p>
+<p class="p1"><i>Exit Speakerone. From the other side enters an Inspector,</i> dressed in a magnificent uniform.</p>
+<p class="p1">Second line.</p>
+<p class="p1"><i>Notes</i></p>
+"""
+    speakers = frozenset({"SPEAKERONE"})
+    cleaned, report = clean_genie_html(
+        html, "THE PLAY", speakers, stage_direction_overrides=frozenset({5})
+    )
+    assert "Exit Speakerone" not in cleaned
+    assert "dressed in a magnificent uniform" not in cleaned
+    lines = [ln for ln in cleaned.splitlines() if ln]
+    assert lines == ["THE PLAY", "SPEAKERONE", "First line.", "Second line."]
+    assert report["stage_directions_dropped"] == 1
+
+
+def test_genie_html_fully_italic_ignores_a_trailing_note_mark():
+    # Codex review finding 3 (2026-09-11), the other half: a note mark
+    # sitting just OUTSIDE the italic span ("<i>In the high tragic
+    # manner.</i>*") makes the paragraph fail the "fully italic" test by a
+    # single stray "*", so the stage direction survives as dialogue.
+    html = """
+<p class="p1">THE PLAY</p>
+<p class="p1"><i>Characters of the Play</i></p>
+<p class="p1">SCENE: <i>A street.</i></p>
+<p class="p1">SPEAKERONE</p>
+<p class="p1">First line.</p>
+<p class="p1"><i>In the high tragic manner.</i>*</p>
+<p class="p1">Second line.</p>
+<p class="p1"><i>Notes</i></p>
+"""
+    speakers = frozenset({"SPEAKERONE"})
+    cleaned, report = clean_genie_html(html, "THE PLAY", speakers)
+    assert "high tragic manner" not in cleaned
+    lines = [ln for ln in cleaned.splitlines() if ln]
+    assert lines == ["THE PLAY", "SPEAKERONE", "First line.", "Second line."]
+    assert report["stage_directions_dropped"] == 1
+
+
+def test_clean_genie_html_real_clouds_keeps_the_mocking_songs_2814_line():
+    # Codex review finding 2 (2026-09-11): the Clouds override review
+    # missed paragraph 2814 -- a single sung dialogue line ("He went to
+    # school with Sokrates") inside the run 2812-2821, the Chorus's mocking
+    # song -- so it dropped as an unreviewed stage direction. A gap in an
+    # otherwise-contiguous override run is exactly the shape of the miss.
+    from drama_pipeline.config import REPO_ROOT
+    import drama_pipeline.bench_clean_verse as bcv
+
+    html_path = REPO_ROOT / "build" / "arrowsmith" / "genie-clouds.html"
+    html_text = html_path.read_text(encoding="utf-8")
+    cleaned, _report = clean_genie_html(
+        html_text,
+        "THE CLOUDS",
+        bcv.GENIE_ROSTERS["clouds"],
+        dialogue_overrides=bcv.GENIE_DIALOGUE_OVERRIDES["clouds"],
+        speaker_relabels=bcv.GENIE_SPEAKER_RELABELS.get("clouds", {}),
+    )
+    assert "He went to school with Sokrates" in cleaned
+
+
+def test_real_arrowsmith_files_every_speaker_cue_becomes_a_speech():
+    # The coverage check finding 6 was missing: `_body_start` can lock onto
+    # a LATER speaker cue and silently drop every genuine speech before it
+    # (six of them, in Clouds), with no count anywhere catching the loss.
+    # A speaker cue in the cleaned file (own-line, matched the same way the
+    # parser matches one) must equal the number of speeches the parser
+    # actually returns -- any gap means some cue's speech never made it in.
+    from drama_pipeline.config import REPO_ROOT
+
+    for play, title in (("clouds", "THE CLOUDS"), ("birds", "THE BIRDS")):
+        text = (REPO_ROOT / "sources" / "bench" / "arrowsmith" / f"{play}.txt").read_text(
+            encoding="utf-8"
+        )
+        cue_count = sum(
+            1 for line in text.splitlines() if _split_lindsay_speaker_line(line) is not None
+        )
+        speeches, _notes = parse_play_speeches(text, title, format="verse-own-line")
+        assert len(speeches) == cue_count, f"{play}: {len(speeches)} speeches, {cue_count} cues"
 
 
 def test_write_clean_genie_html(tmp_path):

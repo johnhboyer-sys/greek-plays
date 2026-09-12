@@ -296,8 +296,8 @@ dialogue text; see `build/arrowsmith/{birds,clouds}-changes.tsv`.
 
 | id | heading | lines kept | pairing | shift rate | length-ratio outliers |
 |---|---|---|---|---|---|
-| `clouds` | `THE CLOUDS` | 2276 | 0.978 | 0.037 | 0.145 |
-| `birds` | `THE BIRDS` | 2644 | 0.986 | 0.050 | 0.148 |
+| `clouds` | `THE CLOUDS` | 2275 | 0.988 | 0.035 | 0.142 |
+| `birds` | `THE BIRDS` | 2626 | 0.990 | 0.050 | 0.142 |
 
 ```
 pipeline/.venv/bin/python -m drama_pipeline.bench_clean_verse \

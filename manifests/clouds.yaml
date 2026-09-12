@@ -61,8 +61,20 @@ english:
     footnotes: false
     # Anchors the run of turn-shift drift the auto-aligner otherwise carries
     # through Strepsiades' opening monologue (John's spot check, 2026-09-11).
+    #
+    # Greek 102 (Pheidippides names Socrates and Chaerephon in one turn) is
+    # preceded by an Arrowsmith-only comic stalling exchange -- two whole
+    # extra Pheidippides/Strepsiades turns ("Fine. Who are they?" / "Er . . .
+    # Gentlemen. Men of Learning.") that have no Greek counterpart at all.
+    # Because the insertion comes in a speaker-alternating pair, the
+    # name-only LCS zip still "agrees" turn for turn and never flags it, so
+    # every turn from here on paired one slot early (Codex review finding 7,
+    # 2026-09-11: a genuine edition difference -- Arrowsmith's own
+    # expansion, not a cleaner or parser defect -- so pinned rather than
+    # fixed at the source).
     pins:
       - { greek: "56", english: "There's no oil left in the lamp.", run: 1 }
+      - { greek: "102", english: "Oh lord, I know those filthy charlatans you mean", run: 1 }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

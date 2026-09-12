@@ -1383,21 +1383,33 @@ GENIE_DIALOGUE_OVERRIDES: dict[str, frozenset[int]] = {
             1081, 1082, 1083, 1084, 1085, 1086,
             1155,  # "Yes, you can serve me up as salami!"
             1344, 1349, 1353, 1358, 1412, 1416, 1422, 1427,  # the gods' invocation ode
+            # "and hard on the heels of the Levin rattled the steeds of
+            # Thunder?" -- Strepsiades quotes mock-epic parody; a footnote
+            # mark just outside the italics hid this from the fully-italic
+            # check until that check learned to ignore a trailing note mark
+            # (Codex review finding 3, 2026-09-11 -- same for every other
+            # newly-visible index added below).
+            1386,
             1559,  # "A duchess?"
             1664,  # "Now hence, ye Syrops of Sleep! Come hither, O Pain!"
             1788, 1797, 1801, 1806, 1811,  # Strepsiades and Sokrates' exchange
+            2058,  # "No comment." -- Strepsiades' own aside
             2471,  # "Q.E.D.! This is the rubbish I mean! ..."
             # Strepsiades' mock-heroic song about his son, "Then let my loud
             # falsetto peal..."
-            2685, 2687, 2688, 2689, 2690, 2691, 2692, 2693, 2694, 2695,
-            2696, 2697, 2698, 2699, 2701,
-            2812, 2813, 2815, 2816, 2817, 2818, 2819, 2820, 2821,  # Chorus's mocking song
+            2685, 2686, 2687, 2688, 2689, 2690, 2691, 2692, 2693, 2694,
+            2695, 2696, 2697, 2698, 2699, 2700, 2701,
+            # Chorus's mocking song, "He went to school with Sokrates" (2814)
+            # missed by the original review -- Codex review finding 2,
+            # 2026-09-11.
+            2812, 2813, 2814, 2815, 2816, 2817, 2818, 2819, 2820, 2821,
             2886, 2889, 2900,  # Pasias exchange
             # Amynias' mock-tragic archaism, "Alackaday! Woe is me! ..."
             2973, 2974, 2975, 2984, 2985, 2986, 2990, 2991, 2992, 2993,
             2994, 2995,
             3205,  # "Ouuch!"
             3254,  # "Either which?"
+            3299,  # "Shearin' o' the Ram." -- the song Strepsiades' guest sang
             3317,  # "A cricket-concert!"
             3363,  # "Got it coming, do I?"
             3379,  # "Yes, to do it on the floor!"
@@ -1461,15 +1473,36 @@ GENIE_SPEAKER_RELABELS: dict[str, dict[int, str]] = {
     },
 }
 
+# Paragraphs that are stage direction in full but only PARTLY italic in the
+# markup (Genie italicises the first clause of the sentence and leaves the
+# rest plain), so the fully-italic rule never sees them as narration.
+# Reviewed against build/arrowsmith/genie-birds.html and the Fulcrum PDF
+# page images (2026-09-11): checked every paragraph in both plays that
+# opens in italics and still has real text after the closing `</i>`; these
+# two are the only ones that are narration rather than dialogue with an
+# italicised opening word or phrase (Codex review finding 3, 2026-09-11).
+GENIE_STAGE_DIRECTION_OVERRIDES: dict[str, frozenset[int]] = {
+    "birds": frozenset(
+        {
+            2521,  # "Exit Meton. From the other side enters an Inspector,"...
+            2567,  # "Enter an itinerant Legislator" reading from a huge volume of laws.
+        }
+    ),
+}
+
 
 _GENIE_TAG_RE = re.compile(r"<[^>]+>")
 _GENIE_ITALIC_SPAN_RE = re.compile(r"<i>.*?</i>", re.I | re.S)
 _GENIE_QQUAD_RE = re.compile(r"\$\\qquad(?:\\qquad)*\$\s*")
 _GENIE_PAGE_NUM_RE = re.compile(r"^\d{1,4}$")
-_GENIE_FOOTER_PREFIXES = (
-    "Aristophanes, and William Arrowsmith",
-    "E-book, Ann Arbor",
-)
+_GENIE_NOTE_MARK_RE = re.compile(r"\*+$")
+# The footer's wording OCRs inconsistently (no comma, a stray page number
+# inserted mid-line, "Edited by" recast, three footer lines glued together
+# with no space) -- an exact-prefix match misses variants and leaves
+# publication credits in dialogue (Codex review finding 4, 2026-09-11). Any
+# of these phrases appearing anywhere in the paragraph is footer, never
+# genuine Aristophanes dialogue.
+_GENIE_FOOTER_MARKERS = ("William Arrowsmith", "Ann Arbor", "Downloaded on behalf")
 
 
 def _genie_strip_tags(s: str) -> str:
@@ -1477,19 +1510,22 @@ def _genie_strip_tags(s: str) -> str:
 
 
 def _genie_is_fully_italic(inner_html: str) -> bool:
-    """True if every non-blank character sits inside an `<i>` span."""
+    """True if every non-blank character sits inside an `<i>` span or is a
+    trailing footnote mark (a bare `*` right after the closing `</i>`,
+    outside it, still means the whole line is the same sung/narrated unit --
+    Codex review finding 3, 2026-09-11)."""
     if not re.search(r"<i>", inner_html, re.I):
         return False
     without = _GENIE_ITALIC_SPAN_RE.sub("", inner_html)
-    return not _genie_strip_tags(without).strip()
+    remainder = _genie_strip_tags(without).strip()
+    return remainder == "" or _GENIE_NOTE_MARK_RE.fullmatch(remainder) is not None
 
 
 def _genie_is_footer(text: str) -> bool:
     return (
         text == "---"
         or bool(_GENIE_PAGE_NUM_RE.match(text))
-        or text.startswith(_GENIE_FOOTER_PREFIXES)
-        or text == "Downloaded on behalf of Unknown Institution"
+        or any(marker in text for marker in _GENIE_FOOTER_MARKERS)
     )
 
 
@@ -1500,6 +1536,7 @@ def clean_genie_html(
     *,
     dialogue_overrides: frozenset[int] = frozenset(),
     speaker_relabels: dict[int, str] | None = None,
+    stage_direction_overrides: frozenset[int] = frozenset(),
 ) -> tuple[str, dict]:
     """Clean a History Genie docx->html OCR into verse-own-line text.
 
@@ -1515,6 +1552,13 @@ def clean_genie_html(
     edition keeps distinct (First Messenger, the Herald, and the unlabelled
     Messenger at 1706) -- the alias map alone can't tell those apart since
     it maps by printed text, not by occurrence.
+
+    `stage_direction_overrides` force-drops a paragraph by index regardless
+    of how much of it is italic: a stage direction can be split across a
+    partial italic run ("Exit Meton. From the other side enters an
+    Inspector," dressed in a magnificent uniform.) with real, non-footnote
+    text outside the `<i>` span, so the fully-italic rule below never sees
+    it as narration (Codex review finding 3, 2026-09-11).
     """
     speaker_relabels = speaker_relabels or {}
     paras = re.findall(r'<p class="p\d+">(.*?)</p>', html_text, re.S)
@@ -1547,13 +1591,21 @@ def clean_genie_html(
         raw_txt = _genie_strip_tags(p).strip()
         if not raw_txt or _genie_is_footer(raw_txt):
             continue
+        if idx in stage_direction_overrides:
+            dropped_stage += 1
+            continue
         if _genie_is_fully_italic(p):
             if idx not in dialogue_overrides:
                 dropped_stage += 1
                 continue
             overrides_used += 1
-        bare = raw_txt.rstrip(".:").strip()
-        if bare in speakers and raw_txt == bare:
+        # A footnote asterisk sits right after the printed name (`CHORUS*`);
+        # strip it before matching, or the cue isn't `in speakers` and falls
+        # through to become dialogue under the previous speaker instead of
+        # opening its own speech (Codex review finding 1, 2026-09-11).
+        noted = _GENIE_NOTE_MARK_RE.sub("", raw_txt).strip()
+        bare = noted.rstrip(".:").strip()
+        if bare in speakers and noted == bare:
             if current is not None and rows and rows[-1][0] != "blank":
                 rows.append(("blank", ""))
             current = speaker_relabels.get(idx, bare)
@@ -1640,12 +1692,14 @@ def write_clean_genie_html(
     speakers = GENIE_ROSTERS[play]
     overrides = GENIE_DIALOGUE_OVERRIDES.get(play, frozenset())
     relabels = GENIE_SPEAKER_RELABELS.get(play, {})
+    stage_overrides = GENIE_STAGE_DIRECTION_OVERRIDES.get(play, frozenset())
     cleaned, report = clean_genie_html(
         html_text,
         title,
         speakers,
         dialogue_overrides=overrides,
         speaker_relabels=relabels,
+        stage_direction_overrides=stage_overrides,
     )
     dest_dir = out_dir or (SOURCES_DIR / "bench" / translator)
     dest_dir.mkdir(parents=True, exist_ok=True)

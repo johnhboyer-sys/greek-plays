@@ -1174,7 +1174,9 @@ in the somber twilight of your years,
 stride forth, undaunted, unafraid,
 toward that uttermost frontier of thought
 where wisdom lures you on,
-O pioneer! ARISTOPHANES
+O pioneer!
+
+ARISTOPHANES
 Gentlemen, in the name of Dionysos to whom I owe my nurture as a poet,
 I intend to confront you with my personal complaints, frankly and freely,
 as a poet should.
@@ -1362,7 +1364,6 @@ Define it then.
 STREPSIADES
 Why, it's tapping time
 with this finger. Of course, when I was a boy
-Raising his phallus to the ready.
 I used to make rhythm with this one.
 
 SOKRATES
@@ -2700,6 +2701,7 @@ offering us warmest congratulations on our success.
 Ready, everybody?
 Oh, Strepsiades, Strepsiades,
 there’s no one like Strepsiades!
+He went to school with Sokrates
 who taught him all his sophistries!
 He’s smarter than
 Euripides,

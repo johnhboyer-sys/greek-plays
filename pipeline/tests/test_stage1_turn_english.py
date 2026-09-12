@@ -1193,6 +1193,53 @@ def test_lindsay_speaker_line_rejects_long_lines_without_hanging():
     assert _split_lindsay_speaker_line("MYRRHINE (_above_)") == ("MYRRHINE", "(_above_)")
 
 
+def test_verse_own_line_body_start_accepts_a_short_interjection_and_a_caps_shout():
+    # Codex review finding 6 (2026-09-11): `_body_start`'s speech-body check
+    # requires >=5 words or >=40 chars AND a lowercase letter, so it skips
+    # past a genuine one-word interjection ("Yaaaahhuuuuu.") and a shouted
+    # all-caps line (Arrowsmith writes some dialogue in solid caps -- see
+    # `test_genie_html_folds_shouted_caps_line...`) and locks onto a LATER
+    # speech instead. There is no dramatis-personae list in this format to
+    # guard against (the docstring: verse-own-line has none to auto-detect),
+    # so any real line right after the title is body text.
+    text = """THE CLOUDS
+
+STREPSIADES
+Yaaaahhuuuuu.
+Great Zeus Almighty, what an endless monster of a night it's been!
+
+PHEIDIPPIDES
+PHILO,
+YOU FOULED ME! KEEP IN YOUR OWN LANE!
+
+STREPSIADES
+That's it.
+That's the horsey blight that has blasted me dead.
+"""
+    speeches, _notes = parse_play_speeches(text, "THE CLOUDS", format="verse-own-line")
+    assert speeches[0]["speaker_printed"] == "STREPSIADES"
+    assert speeches[0]["text"].startswith("Yaaaahhuuuuu.")
+    assert [s["speaker_printed"] for s in speeches] == [
+        "STREPSIADES",
+        "PHEIDIPPIDES",
+        "STREPSIADES",
+    ]
+
+
+def test_lindsay_speaker_line_bounds_only_the_name_not_the_stage_direction():
+    # Codex review finding 5 (2026-09-11): the length guard counted the
+    # parenthetical direction too, so a genuine cue with a long stage
+    # direction (over 64 chars in all) was rejected. Only the NAME needs
+    # bounding against the hang above; the direction is already split off
+    # by `_LINDSAY_STAGE` by the time the guard runs.
+    cue = "CHORUS (_turning to the audience and raising both hands toward the sky_)."
+    assert len(cue) > 64
+    assert _split_lindsay_speaker_line(cue) == (
+        "CHORUS",
+        "(_turning to the audience and raising both hands toward the sky_)",
+    )
+
+
 def test_lindsay_own_line_speakers_keep_optional_period_path():
     text = """LYSISTRATA
 The Persons of the drama.
