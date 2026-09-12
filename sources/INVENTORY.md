@@ -188,3 +188,48 @@ SHA-256 (raw text plus the two PDFs) in `sources/fulcrum/SHA256SUMS`. The
 cleaned turn-text the site actually reads is `sources/bench/arrowsmith/
 {birds,clouds}.txt` (verse-own-line, built by `bench_clean_verse.
 write_clean_genie_html` from the Genie html, not from these raw files).
+
+## kosmos/ — Kosmos Society / Center for Hellenic Studies online Sourcebook (vendored 2026-09-12; third comparison slot on 13 tragedies)
+
+The raw play pages as served on 2026-09-12 (curl, one page every 4 s),
+listed from https://kosmossociety.org/text-library/. The Sourcebook is
+edited by Gregory Nagy. Per-file SHA-256 in `sources/kosmos/SHA256SUMS`.
+
+**Licence basis** (owner's ruling 2026-09-12: a translation that is public
+domain, under any Creative Commons licence, or whose US copyright was never
+renewed may be used, honouring each licence's conditions — credit every
+translator and reviser; if share-alike, derived data carries the same
+licence). Nagy, as quoted on the text-library page: "All the translations in
+this online Sourcebook are free from copyright restrictions. That is because
+the translations belong either to me or to other authors who have waived
+copyright or to authors who died in a time that precedes any further
+application of copyright." The text-library page marks each of the 13 texts
+"Published under a Creative Commons License 3.0" (variant unstated).
+
+| file | work id | page | credit (as printed on the page) |
+|---|---|---|---|
+| seven-against-thebes.html | seven-against-thebes | https://kosmossociety.org/seven-against-thebes-aeschylus/ | Translated by Herbert Weir Smyth / Revised by the *Seven Against Thebes* Heroization team (Hélène Emeriaud, Kelly Lambert, Janet M. Ozsolak, Sarah Scott, Keith Stone) |
+| agamemnon.html | agamemnon | https://kosmossociety.org/agamemnon-aeschylus/ | Translated by Herbert Weir Smyth / Revised by Gregory Crane and Graeme Bird / Further Revised by Gregory Nagy |
+| libation-bearers.html | libation-bearers | https://kosmossociety.org/libation-bearers-aeschylus/ | Translated by Jim Erdman / Further Revised by Gregory Nagy |
+| eumenides.html | eumenides | https://kosmossociety.org/eumenides-aeschylus/ | Translated by Herbert Weir Smyth / Revised by Cynthia Bannon / Further Revised by Gregory Nagy |
+| antigone.html | antigone | https://kosmossociety.org/antigone-sophocles-2/ | Translation of R. C. Jebb / Revised by Pierre Habel and Gregory Nagy / Newly revised by the Hour 25 Antigone Team (Brian Prescott-Decie, Jacqui Donlon, Jessica Eichelburg, Claudia Filos, Sarah Scott) |
+| oedipus-coloneus.html | oedipus-coloneus | https://kosmossociety.org/sophocles-oedipus-at-colonus/ | Translated by R. C. Jebb / Revised by Roger Ceragioli / Further Revised by Gregory Nagy |
+| oedipus-tyrannus.html | oedipus-tyrannus | https://kosmossociety.org/oedipus-tyrannus-sophocles/ | Translated by R. C. Jebb / Revised by Alex Sens / Further Revised by Gregory Nagy |
+| helen.html | helen | https://kosmossociety.org/euripides-helen/ | Translation by E. P. Coleridge / Revised by the Helen Heroization team (Hélène Emeriaud, Claudia Filos, Janet M. Ozsolak, Sarah Scott, Jack Vaughan) |
+| heracles.html | heracles | https://chs.harvard.edu/primary-source/euripides-herakles | Translated by Robert Potter / Adapted by Mary Ebbott and Casey Dué / Further adapted by Miriam Kamil |
+| medea.html | medea | https://kosmossociety.org/euripides-medea/ | Translated by E.P. Coleridge, / revised by Roger Ceragioli, / further revised by Gregory Nagy / Newly revised by the Hour 25 Medea Heroization Team / (Jessica Eichelburg, Hélène Emeriaud, Claudia Filos, Janet M. Ozsolak, Sarah Scott, Jack Vaughan) |
+| trojan-women.html | trojan-women | https://kosmossociety.org/trojan-women-euripides/ | Translated by E. P. Coleridge. / Revised by the *Trojan Women* Heroization team (Keith DeStone, Hélène Emeriaud, Kelly Lambert, Janet M. Ozsolak, Sarah Scott) |
+| bacchae.html | bacchae | https://kosmossociety.org/bacchae-euripides/ | Translated by T. A. Buckley / Revised by Alex Sens / Further Revised by Gregory Nagy |
+| hippolytus.html | hippolytus | https://kosmossociety.org/hippolytus-euripides/ | Translated by E. P. Coleridge / Revised by Mary Jane Rein / Further Revised by Gregory Nagy |
+
+The text-library link for *Seven* is malformed (`http://seven-against-thebes-aeschylus/`);
+the page was fetched from its kosmossociety.org path. *Oedipus Tyrannus*
+answered HTTP 500 once and was fetched on a retry.
+
+**Derived text**: `sources/bench/kosmos/<work id>.txt` (verse-own-line
+turn-text) is written from these pages by `python -m
+drama_pipeline.kosmos_clean`; `pipeline/tests/test_kosmos_clean.py` checks
+each committed file is exactly the converter's output. The Sourcebook's
+Greek line numbers (every fifth line) and footnotes are dropped; bracketed
+Greek terms stay as printed. The pages never number the first line of a
+speech, so the column aligns by speaker turn, not by line.

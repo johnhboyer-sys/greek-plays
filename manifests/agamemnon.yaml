@@ -65,6 +65,25 @@ english:
     source: bench/morshead/agamemnon.txt
     play: AGAMEMNON
     footnotes: false
+  third:
+    id: kosmos
+    name: "Smyth, rev. Crane, Bird & Nagy (Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/agamemnon.txt
+    play: AGAMEMNON
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy, "Published under a Creative Commons License 3.0"
+        (variant unstated); Nagy states its translations are "free from
+        copyright restrictions". Every translator and reviser is credited in
+        sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/text-library/
   # Genuinely untranslated Greek speeches (filled after the P2b attachment)
   # pass). Segment ids or printed refs; any other unmatched id fails stage2.
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
@@ -152,6 +171,15 @@ speakers:
     "VOICE OF AGAMEMNON": "Agamemnon"
     "ONE OF THE CHORUS": "Chorus"
     "LEADER OF THE CHORUS": "Chorus"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "WATCHMAN": "Watchman"
+    "CHORUS": "Chorus"
+    "CLYTEMNESTRA": "Clytaemestra"
+    "HERALD": "Herald"
+    "AGAMEMNON": "Agamemnon"
+    "KASSANDRA": "Cassandra"
+    "AEGISTHUS": "Aegisthus"
 
 books:
   - { n: 1, start: "1", end: "1673" }
@@ -180,6 +208,7 @@ registry:
   translations:
     - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, footnotes: true, alignment: line }
     - { id: morshead, name: "E. D. A. Morshead (1881–1908)", short: Morshead, slot: secondary, alignment: speech }
+    - { id: kosmos, name: "Smyth, rev. Crane, Bird & Nagy (Kosmos Society)", short: Kosmos, slot: third, alignment: speech, form: prose }
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Ag."

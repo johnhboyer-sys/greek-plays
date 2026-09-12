@@ -39,6 +39,25 @@ english:
     source: bench/way/trojan-women.txt
     play: DAUGHTERS OF TROY
     footnotes: false
+  third:
+    id: kosmos
+    name: "Coleridge, rev. Trojan Women Heroization team (Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/trojan-women.txt
+    play: TROJAN WOMEN
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy, "Published under a Creative Commons License 3.0"
+        (variant unstated); Nagy states its translations are "free from
+        copyright restrictions". Every translator and reviser is credited in
+        sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/text-library/
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -88,6 +107,20 @@ speakers:
     "CASSANDRA": "Cassandra"
     "ANDROMACHE": "Andromache"
     "MENELAUS": "Menelaus"
+    "HELEN": "Helen"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "POSEIDON": "Poseidon"
+    "ATHENA": "Athena"
+    "HECUBA": "Hecuba"
+    "FIRST SEMI-CHORUS": "First Semichorus"
+    "SECOND SEMI-CHORUS": "Second Semichorus"
+    "CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "TALTHYBIOS": "Talthybius"
+    "KASSANDRA": "Cassandra"
+    "ANDROMACHE": "Andromache"
+    "MENELAOS": "Menelaus"
     "HELEN": "Helen"
   sigla:
     "—": null
@@ -148,6 +181,12 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - id: kosmos
+      name: "Coleridge, rev. Trojan Women Heroization team (Kosmos Society)"
+      short: Kosmos
+      slot: third
+      alignment: speech
+      form: prose
   citation:
     scheme: play-line
     copyAbbr: "Eur. Tro."

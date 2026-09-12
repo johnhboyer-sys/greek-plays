@@ -42,6 +42,25 @@ english:
     source: bench/morshead/eumenides.txt
     play: THE FURIES
     footnotes: false
+  third:
+    id: kosmos
+    name: "Smyth, rev. Bannon & Nagy (Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/eumenides.txt
+    play: EUMENIDES
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy, "Published under a Creative Commons License 3.0"
+        (variant unstated); Nagy states its translations are "free from
+        copyright restrictions". Every translator and reviser is credited in
+        sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/text-library/
   gaps:
 
 citation:
@@ -78,6 +97,15 @@ speakers:
     "CHORUS": "Chorus"
     "ATHENA": "Athena"
     "CHANT": "Escort"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "PYTHIA": "Priestess"
+    "APOLLO": "Apollo"
+    "ORESTES": "Orestes"
+    "GHOST OF CLYTEMNESTRA": "Ghost of Clytaemestra"
+    "CHORUS": "Chorus"
+    "ATHENA": "Athena"
+    "CHORUS OF THE PROCESSIONAL ESCORT": "Escort"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances (see docs/p2-greek-report.md).
   sigla:
@@ -132,6 +160,12 @@ registry:
       short: Morshead
       slot: secondary
       alignment: speech
+    - id: kosmos
+      name: "Smyth, rev. Bannon & Nagy (Kosmos Society)"
+      short: Kosmos
+      slot: third
+      alignment: speech
+      form: prose
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Eum."

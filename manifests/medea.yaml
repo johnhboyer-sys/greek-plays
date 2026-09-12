@@ -36,6 +36,25 @@ english:
     footnotes: false
     # John 2026-09-11: the dropped head is the cast list
     head_front_matter: 3
+  third:
+    id: kosmos
+    name: "Coleridge, rev. Ceragioli, Nagy & Hour 25 Medea team (Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/medea.txt
+    play: MEDEA
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy, "Published under a Creative Commons License 3.0"
+        (variant unstated); Nagy states its translations are "free from
+        copyright restrictions". Every translator and reviser is credited in
+        sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/text-library/
   gaps: []
 
 citation:
@@ -79,6 +98,18 @@ speakers:
     "AEGEUS": "Aegeus"
     "MESSENGER": "Messenger"
     "CHILD": "Son"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "NURSE": "Nurse"
+    "ATTENDANT": "Attendant"
+    "MEDEA": "Medea"
+    "CHORUS": "Chorus"
+    "CREON": "Creon"
+    "JASON": "Jason"
+    "AEGEUS": "Aegeus"
+    "MESSENGER": "Messenger"
+    "FIRST SON": "First Son"
+    "SECOND SON": "Second Son"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -139,6 +170,12 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - id: kosmos
+      name: "Coleridge, rev. Ceragioli, Nagy & Hour 25 Medea team (Kosmos Society)"
+      short: Kosmos
+      slot: third
+      alignment: speech
+      form: prose
   citation:
     scheme: play-line
     copyAbbr: "Eur. Med."

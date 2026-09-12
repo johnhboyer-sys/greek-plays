@@ -42,6 +42,25 @@ english:
     source: bench/way/bacchae.txt
     play: THE BACCHANALS
     footnotes: false
+  third:
+    id: kosmos
+    name: "Buckley, rev. Sens & Nagy (Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/bacchae.txt
+    play: BACCHAE
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy, "Published under a Creative Commons License 3.0"
+        (variant unstated); Nagy states its translations are "free from
+        copyright restrictions". Every translator and reviser is credited in
+        sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/text-library/
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -91,6 +110,16 @@ speakers:
     "HERDSMAN": "Messenger"
     "MESSENGER": "Second Messenger"
     "AGAVE": "Agave"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "DIONYSUS": "Dionysus"
+    "CHORUS": "Chorus"
+    "TEIRESIAS": "Teiresias"
+    "KADMOS": "Cadmus"
+    "PENTHEUS": "Pentheus"
+    "ATTENDANT": "Servant"
+    "MESSENGER": "Messenger"
+    "AGAUE": "Agave"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
   # normalization (stage7 _norm_siglum). '—' is attributed to no one.
@@ -151,6 +180,12 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - id: kosmos
+      name: "Buckley, rev. Sens & Nagy (Kosmos Society)"
+      short: Kosmos
+      slot: third
+      alignment: speech
+      form: prose
   citation:
     scheme: play-line
     copyAbbr: "Eur. Ba."
