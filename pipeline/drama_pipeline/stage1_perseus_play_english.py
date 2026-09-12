@@ -926,6 +926,7 @@ def parse_translation(
         printed: str,
         canonical: str | None,
         add_turn: bool,
+        tick: bool = True,
     ) -> dict | None:
         chunk = ensure_chunk(segment)
         if chunk["text"]:
@@ -939,7 +940,8 @@ def parse_translation(
                 "display": printed,
             }
             chunk["turns"].append(turn)
-        chunk["bekker"].append({"n": tick_n, "offset": offset, "real": True})
+        if tick:
+            chunk["bekker"].append({"n": tick_n, "offset": offset, "real": True})
         chunk["text"] += text
         return turn
 
@@ -957,6 +959,7 @@ def parse_translation(
         mismatch=None,
         add_turn=True,
         speaker_mismatch=None,
+        own_tick=True,
     ) -> None:
         if mismatch:
             mismatches.append(mismatch)
@@ -971,6 +974,7 @@ def parse_translation(
             printed=job["printed"],
             canonical=job["canonical"],
             add_turn=add_turn and bool(job["printed"]) and not already,
+            tick=own_tick,
         )
         if job["printed"] and not already:
             turns_emitted[turn_key] = turn
@@ -1053,10 +1057,16 @@ def parse_translation(
                 piece = collapse_ws(piece_text).strip()
                 if not piece:
                     continue
+                # A piece before the slice's first <l n> (a paragraph opened
+                # mid-line) takes the next anchor's number to find its
+                # segment, but that number is not where it starts: no tick,
+                # so the reader interpolates (Agamemnon 8 sat at 10; John,
+                # 2026-09-12).
                 jobs.append(
                     {
                         "n": _anchor_base(piece_n or anchor),
                         "anchor": piece_n if piece_n is not None else anchor,
+                        "own_tick": piece_n is not None,
                         "text": piece,
                         "printed": printed,
                         "canonical": canonical,
@@ -1110,7 +1120,10 @@ def parse_translation(
                 "segment": segment["id"],
                 "kind": "nless_para",
             }
-            commit_job(job, segment, tick_n, snap=snap)
+            # The segment's first line is a true start only for a piece that
+            # opens the chunk; mid-chunk it ran backwards (Agamemnon 1@1081).
+            opens = not (chunks_by_id.get(segment["id"]) or {}).get("text")
+            commit_job(job, segment, tick_n, snap=snap, own_tick=opens)
             prev_assigned[job["sp_index"]] = segment["id"]
             continue
         result = _resolve_slice_anchor(
@@ -1143,6 +1156,7 @@ def parse_translation(
             snap=result.get("snap"),
             mismatch=result.get("mismatch"),
             speaker_mismatch=result.get("speaker_mismatch"),
+            own_tick=job["own_tick"],
         )
         prev_assigned[job["sp_index"]] = job["assigned"]
 

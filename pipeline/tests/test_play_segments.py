@@ -133,13 +133,18 @@ def test_the_spread_crosses_unnamed_and_same_speaker_events():
         {"id": "1:489", "column": "489", "speakers": [{"line": 4, "label": "Χο."}], "lines": [{}]},
         {"id": "1:503", "column": "503", "speakers": [{"line": 5, "label": "ΚΗΡΥΞ"}], "lines": [{}]},
     ]
-    chunk = {"id": "1:351", "column": "351", "text": "One aaaa. Two bbbb. Six cccc. Ten dddd.",
+    # Four sentences of the ode on one Greek line: far above the column's
+    # other chunks (a few words a line), so really stacked.
+    one, two, six, ten = ("One " + "a" * 30 + ".", "Two " + "b" * 30 + ".",
+                          "Six " + "c" * 30 + ".", "Ten " + "d" * 30 + ".")
+    chunk = {"id": "1:351", "column": "351", "text": " ".join([one, two, six, ten]),
              "turns": [{"offset": 0, "speaker": "Chorus"}], "notes": [], "markers": []}
     herald = {"id": "1:503", "column": "503", "text": "Herald speaks.", "turns": [], "notes": [], "markers": []}
-    out = _spread_long_speeches([chunk, herald], segs, sigla)
-    assert [(c["id"], c["text"]) for c in out] == [
-        ("1:351", "One aaaa."), ("1:355", "Two bbbb."), ("1:420", "Six cccc."),
-        ("1:489", "Ten dddd."), ("1:503", "Herald speaks."),
+    fsegs, fchunks = _filler()
+    out = _spread_long_speeches([chunk, herald, *fchunks], [*segs, *fsegs], sigla)
+    assert [(c["id"], c["text"]) for c in out[:5]] == [
+        ("1:351", one), ("1:355", two), ("1:420", six),
+        ("1:489", ten), ("1:503", "Herald speaks."),
     ]
     # A bare segment that names somebody else is not the speech going on.
     other = [segs[0], {**segs[1], "speakers": [{"line": 2, "label": "ΚΗΡΥΞ"}]}]
@@ -151,6 +156,122 @@ def test_the_spread_crosses_unnamed_and_same_speaker_events():
         {**segs[1], "speakers": [{"line": 2, "label": "Χο."}]},
     ]
     assert [c["id"] for c in _spread_long_speeches([chunk], antilabe, sigla)] == ["1:351"]
+
+
+# The stacking guard (John, 2026-09-12, on the Codex review of 64e49a3): a
+# Greek segment with a speaker mark continues the speech only when the
+# English is really stacked, and only where the Greek goes on in one voice.
+_SIGLA = {"Χο.": "Chorus", "Ιων": "Ion", "ΚΗΡΥΞ": "Herald"}
+
+
+def _seg(sid, label=None, n=1, text="λόγος", strophe=None):
+    lines = [{"text": text} for _ in range(n)]
+    if strophe:
+        lines[0]["label"] = strophe
+    seg = {"id": sid, "column": sid.split(":")[1], "lines": lines}
+    if label:
+        seg["speakers"] = [{"line": 1, "label": label}]
+    return seg
+
+
+def _chunk(sid, text, turns=None):
+    return {"id": sid, "column": sid.split(":")[1], "text": text,
+            "turns": turns or [], "notes": [], "markers": []}
+
+
+def _filler():
+    # Ordinary chunks: 20 characters of English a Greek line (the median).
+    segs = [_seg(f"1:{900 + i}", "ΚΗΡΥΞ") for i in range(3)]
+    return segs, [_chunk(s["id"], "Twenty characters x.") for s in segs]
+
+
+def _spread_ids(head_label, head_text, cont, head_lines=1):
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    fsegs, fchunks = _filler()
+    segs = [_seg("1:1", head_label, head_lines), cont, *fsegs]
+    out = _spread_long_speeches([_chunk("1:1", head_text), *fchunks], segs, _SIGLA)
+    return [c["id"] for c in out if c["id"] in ("1:1", cont["id"])]
+
+
+def _speech(chars):
+    # Sentences of ten characters each, `chars` characters in all.
+    return " ".join(["Aaaa bbbb."] * (chars // 11 + 1))[:chars].rstrip()
+
+
+def test_a_bare_dash_is_crossed_only_when_the_english_is_really_stacked():
+    # Bacchae 586/591: the English fits its Greek; "—" at 591 is not its
+    # overflow (Codex: "With homage adore him" is 590, not 591).
+    dash = _seg("1:591", "—", 3)
+    assert _spread_ids("Χο.", _speech(40), dash) == ["1:1"]  # 2x the median
+    assert _spread_ids("Χο.", _speech(60), dash) == ["1:1", "1:591"]  # 3x
+
+
+def test_a_bare_dash_after_an_actor_is_a_new_speaker():
+    # Ion 224/225: Ion speaks, and the unnamed "—" is the Chorus answering.
+    assert _spread_ids("Ιων", _speech(200), _seg("1:225", "—")) == ["1:1"]
+    # Ion named again is Ion going on.
+    assert _spread_ids("Ιων", _speech(200), _seg("1:225", "Ιων")) == ["1:1", "1:225"]
+
+
+def test_a_same_voice_mark_needs_only_english_above_the_median():
+    # Orestes 1302/1311 (Χο. again, 1.1x) and Suppliants (Aesch.) 734/736
+    # (a strophe begins under "—") cross; Hecuba 754/759 (0.99x) does not;
+    # a bare dash at the same 1.1x does not.
+    assert _spread_ids("Χο.", _speech(24), _seg("1:5", "Χο.")) == ["1:1", "1:5"]
+    assert _spread_ids("Χο.", _speech(24), _seg("1:5", "—", strophe="στρ. α.")) == ["1:1", "1:5"]
+    assert _spread_ids("Χο.", _speech(19), _seg("1:5", "Χο.")) == ["1:1"]
+    assert _spread_ids("Χο.", _speech(24), _seg("1:5", "—")) == ["1:1"]
+
+
+def test_english_that_marks_the_changes_of_voice_is_cut_at_its_turns():
+    # Suppliants (Eur.) 598-602: half-choruses trade lines under bare "—";
+    # Way prints each change. Cut by sentence proportion, 600's question got
+    # 601's answer (Codex); cut at the turns, each lands on its own line.
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    t0 = "Ye hapless mothers. Ah, how my heart is tossed. What word is this."
+    t1, t2 = "What news do you bring?", "Battle, or parley?"
+    t3 = "This last were well. But if slaughter comes again. Then woe to us all."
+    text = " ".join([t0, t1, t2, t3])
+    turns = [{"offset": text.index(t), "speaker": "Half-Chorus"} for t in (t0, t1, t2, t3)]
+    fsegs, fchunks = _filler()
+    segs = [_seg("1:598", "Χο."), _seg("1:600", "—"), _seg("1:601", "—"), _seg("1:602", "—"), *fsegs]
+    out = _spread_long_speeches([_chunk("1:598", text, turns), *fchunks], segs, _SIGLA)
+    assert [(c["id"], c["text"]) for c in out[:4]] == [
+        ("1:598", t0), ("1:600", t1), ("1:601", t2), ("1:602", t3),
+    ]
+    assert all(c["turns"] == [{"offset": 0, "speaker": "Half-Chorus"}] for c in out[:4])
+
+
+def test_a_spread_cut_lands_on_a_greek_sentence_break():
+    # John, 2026-09-12: a segment cut mid-sentence (the 40-line cap) opens
+    # its English at its first Greek sentence start within 1.5 lines, so the
+    # Greek sentence running over the cut keeps its English above. Here the
+    # cut falls at line 4 of 8, mid-sentence; the next Greek sentence starts
+    # on line 5. English sentences start at 3.3 and 4.8 lines by proportion:
+    # 3.3 is nearer the cut, 4.8 nearer the Greek sentence.
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    greek = ["λόγος"] * 8
+    greek[4] = "τέλος."
+    head = {"id": "1:1", "column": "1", "speakers": [{"line": 1, "label": "Χο."}],
+            "lines": [{"text": g} for g in greek[:4]]}
+    cont = {"id": "1:5", "column": "5", "lines": [{"text": g} for g in greek[4:]]}
+    s1, s2, s3 = "A" + "a" * 327 + ".", "B" + "b" * 147 + ".", "C" + "c" * 318 + "."
+    text = " ".join([s1, s2, s3])
+    assert (text.index("B"), text.index("C"), len(text)) == (330, 480, 800)
+    out = _spread_long_speeches([_chunk("1:1", text)], [head, cont], _SIGLA)
+    assert [(c["id"], c["text"]) for c in out] == [("1:1", f"{s1} {s2}"), ("1:5", s3)]
+
+
+def test_a_mark_is_not_crossed_when_the_english_would_run_thin():
+    # Thesmophoriazusae 1008/1015 (Codex): Hickie's English runs 2.3x the
+    # median on 1008-1014, but none of it is the 39-line Andromeda lament;
+    # spread over 1015 too it would be a third of the median.
+    head = _speech(325)  # 7 lines at 20 a line would be 140
+    assert _spread_ids("Ιων", head, _seg("1:1015", "Ιων", 39), head_lines=7) == ["1:1"]
+    assert _spread_ids("Ιων", head, _seg("1:1015", "Ιων", 1), head_lines=7) == ["1:1", "1:1015"]
 
 
 def test_speech_block_starts_are_read_from_the_tei():

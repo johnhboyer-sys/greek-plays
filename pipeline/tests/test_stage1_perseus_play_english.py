@@ -2115,6 +2115,46 @@ def test_continuation_coverage_needs_every_printed_line(tmp_path: Path):
     assert english["english_covered_by"] == {"1:102": "1:100"}
 
 
+def test_a_paragraph_with_no_line_number_of_its_own_gets_no_tick(tmp_path: Path):
+    """Agamemnon 1:1 (John, 2026-09-12): Smyth's "So now I am still watching"
+    renders line 8 but opens a paragraph inside <l n="5">; it was ticked with
+    the NEXT anchor (10) and "real", so the reader put it at 10. A paragraph
+    with no anchor at all took the segment's first line mid-chunk (1@1081).
+    Neither is the translator's marker: no tick, so the reader interpolates."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": n, "ref": str(n), "text": f"g{n}"} for n in range(1, 13)],
+                "speakers": [{"line": 1, "offset": 0, "label": "A"}],
+            }
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker>
+      <l n="1">First part.</l>
+      <l n="5">Second part. <milestone unit="para"/>So now I watch.</l>
+      <l n="10">Tenth line here. <milestone unit="para"/>Loose paragraph.</l>
+    </sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(tmp_path, tei, spine)
+    (chunk,) = english["chunks"]
+    text = chunk["text"]
+    assert [(t["n"], t["offset"]) for t in chunk["bekker"]] == [
+        (1, 0),
+        (5, text.index("Second")),
+        (10, text.index("Tenth")),
+    ]
+    assert "So now I watch." in text and "Loose paragraph." in text
+
+
 def test_nless_snap_reports_the_speaker_of_the_tick_line(tmp_path: Path):
     """P2i finding 6: the snap row names the speaker of the line it ticked,
     never the segment's joined speaker set."""
