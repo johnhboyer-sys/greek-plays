@@ -277,10 +277,25 @@ left-aligned lines.
 
 Arrowsmith's stage directions, sung odes, and a few emphasised one-line
 exclamations are all set identically (a fully-italic paragraph); the
-cleaner drops a fully-italic paragraph by default (matching Morshead: no
-channel for stage directions in this format) and keeps one only if its
-paragraph index is listed in `GENIE_DIALOGUE_OVERRIDES[play]` — every such
-index was checked by hand against the printed page image, not guessed.
+cleaner treats a fully-italic paragraph as stage direction by default and
+keeps it as dialogue only if its paragraph index is listed in
+`GENIE_DIALOGUE_OVERRIDES[play]` — every such index was checked by hand
+against the printed page image, not guessed.
+
+Stage directions are kept (John, 2026-09-12), marked so the parser can tell
+them from speech: each printed line of one is a line of its own written
+`_text_` (underscores at both ends, none inside), where Arrowsmith prints it.
+Consecutive marked lines are one direction. Only the `verse-own-line`
+parser reads the mark (no other bench or Gutenberg source has such a line;
+Gutenberg's own-line format keeps an underscored line as speech, as
+before). A direction before a speaker cue is carried as that speech's
+"directions before" (in the built data, `directionsBefore` on the
+comparison piece of the segment the speech opens: the reader gives it a row
+of its own with the Greek cell empty); one between lines of a speech stays
+in the chunk text, on its own line as `_text_`, and prints inline in
+italics. Directions never enter the speech text used for pairing.
+Clouds keeps 212 such lines, Birds 149: exactly what the cleaner dropped
+before.
 Arrowsmith also sets a phrase in bare caps for emphasis now and then (a
 telegram, a shouted announcement); a bare all-caps line with no punctuation
 is exactly what the shared verse-own-line reader takes for a new speaker

@@ -1,6 +1,8 @@
 THE CLOUDS
 
+_Two cots are placed before Strepsiades' house, one occupied by Strepsiades himself, the other by Pheidippides. Huddled on the ground nearby lie several loudly snoring slaves. The time is just before dawn._
 STREPSIADES
+_Thrashing restlessly, then throwing off his blankets and sitting bolt upright. He yawns._
 Yaaaahhuuuuu.
 Great Zeus Almighty, what an endless monster
 of a night it's been! Won't the daylight ever come?
@@ -13,6 +15,7 @@ this stinking war anyway! It's ruined Athens.
 Why, you can't even whip your own slaves any more
 or they'll desert to the Spartans.
 Bah.
+_Pointing to Pheidippides._
 And as for him,
 that precious playboy son of mine, he's worse yet.
 Look at him, stretched out there sleeping like a log
@@ -20,9 +23,11 @@ under five fat blankets, farting away.
 —All right,
 if that's the way you want it, boy, I'll snuggle down
 and fart you back a burst or two.
+_He burrows under the blankets for a moment, then throws them off and sits up again._
 DAMN!
 I'm so bitten up by all these blasted bedbuggering debts
 and bills and stable-fees, I can't catch a wink.
+_Turning on Pheidippides._
 And all because of YOU!
 Yes, you and your damned horses!
 Gigs, rigs, nags, ponytails . . . . Hell,
@@ -30,12 +35,16 @@ horses everywhere! Horses in your dreams!
 But me?
 I'm bankrupt, broke, ruined, waiting for the end of the month
 when all these debts come due.
+_Savagely kicking Xanthias awake._
 —You. You there,
 light me a lamp and bring me my ledger.
+_The slave rises, lights a flickering lamp, and brings_
+_him the ledger._
 Now then,
 I'll just run over this account of my debts and see
 how much I owe.
 Hmmmm.
+_Reading aloud._
 TO PASIAS: THE SUM OF THREE
 HUNDRED—
 Three hundred to Pasias? What in god’s name for?
@@ -43,6 +52,7 @@ Of course. I remember. That gelding I bought him. Idiot!
 Better I should have gelded myself.
 
 PHEIDIPPIDES
+_Shouting in his sleep._
 PHILO,
 YOU FOULED ME! KEEP IN YOUR OWN LANE!
 
@@ -52,15 +62,19 @@ That's the horsey blight that has blasted me dead.
 Even in his dreams he thinks he's winning the derby.
 
 PHEIDIPPIDES
+_In his sleep._
 HOW MANY LAPS FOR THE STEEPLECHASE?
 
 STREPSIADES
 Laps, is it?
 A fat lot of laps you've driven your poor old man!
+_Resuming his accounting._
 Let's see now. What's the next entry after Pasias?
+_Reading aloud._
 TO AMYNIAS: FOR GIG, BODY AND WHEELS INCLUDED, THE SUM OF—
 
 PHEIDIPPIDES
+_In his sleep._
 ROLL THE HORSE IN THE DUST, TRAINER, AND THEN STABLE HIM.
 
 STREPSIADES
@@ -68,6 +82,7 @@ You've rolled me out of house and home, damn you!
 I've lost two or three lawsuits on your account and now the other creditors are clamoring for confiscation.
 
 PHEIDIPPIDES
+_Waking up crossly._
 Damn it, Dad, why do you have to thrash around like this all night long?
 
 STREPSIADES
@@ -78,6 +93,7 @@ Oh, for god's sake, let me sleep, will you?
 
 STREPSIADES
 Go on, damn you, sleep! But I give you warning, boy. Someday these debts will land on your head.
+_Pheidippides' only answer is a snore._
 By god,
 I hope that meddling matchmaker who prodded me on to marry your mother dies a nasty death!
 I used to be a farmer—the sweetest life on earth,
@@ -102,6 +118,7 @@ Clipped?
 I was shorn.
 “Madam,” I said, “what do you think I am? A man
 or a goat?
+_Suddenly the oil lamp sputters and goes out._
 
 XANTHIAS
 There’s no oil left in the lamp.
@@ -116,6 +133,8 @@ But why? What have I done?
 
 STREPSIADES
 Because you put in pot-bellied wicks, that’s why.
+_He lunges at Xanthias who ducks away and dis-_
+_appears into the house._
 Anyway, when that darling brat of ours was born
 to the missus and me, we immediately started squabbling
 over his name. She, of course, wanted something fancy,
@@ -139,10 +158,12 @@ Now if I can only shove him through it, I’m saved.
 But first I’ve got to find some way of waking him up.
 I wonder what’s the nicest way to wake up.
 Hmmmm.
+_Cooing in Pheidippides’ ear._
 Pheidippides.
 Little Pheidippides.
 
 PHEIDIPPIDES
+_Waking angrily._
 Damn it, Dad, what now?
 
 STREPSIADES
@@ -168,6 +189,7 @@ do what I ask.
 Please.
 
 PHEIDIPPIDES
+_Suspiciously._
 Depends. What are you asking?
 
 STREPSIADES
@@ -182,6 +204,7 @@ STREPSIADES
 First promise.
 
 PHEIDIPPIDES
+_Reluctantly._
 I promise.
 So help me—Dionysos.
 
@@ -193,6 +216,7 @@ PHEIDIPPIDES
 Yes. But what are you driving at, Dad?
 
 STREPSIADES
+_Awesomely._
 My boy,
 that little hovel is the Thinkery. Intellectuals live there,
 professors who will teach you—and what’s more, prove it—
@@ -225,6 +249,7 @@ PHEIDIPPIDES
 Oh lord, I know those filthy charlatans you mean— those frauds, those barefoot pedants with the look of death, Chairephon and that humbug, Sokrates.
 
 STREPSIADES
+_Scandalized._
 Here, here, boy. Hush. For shame. Don’t ever let me hear you talking so disrespectfully. What’s more, if you don’t want your poor Old Man to starve, you’d better go study there and ditch your damn horses.
 
 PHEIDIPPIDES
@@ -249,6 +274,7 @@ PHEIDIPPIDES
 Uncle Megakles
 won't let me go horseless for long. I'll go to him.
 The hell with you.
+_Exit Pheidippides._
 
 STREPSIADES
 I'm down, but not for long.
@@ -259,10 +285,13 @@ at my age the memory is bad, the intellect dull.
 How could I ever master that hair-splitting logic?
 Still, I have to go, so why am I dawdling here
 instead of banging on the door?
+_He walks over to Sokrates' house and kicks at the door._
 —Hey, porter!
 
 STUDENT
+_From within._
 Go bang yourself.
+_Opening the door._
 Who are you to kick our door?
 
 STREPSIADES
@@ -275,6 +304,7 @@ Do you realize that you've just caused the miscarriage
 of a great scientific discovery?
 
 STREPSIADES
+_Humbly apologetic._
 Oh, please excuse me.
 I didn't realize. You see, I come from the country.
 But tell me, what discovery miscarried?
@@ -290,6 +320,7 @@ to be a student at the Thinkery.
 STUDENT
 In that case, very well.
 But remember, our researches are solemn mysteries.
+_Whispering._
 Listen.
 Just a minute ago Sokrates was questioning Chairephon
 about the number of fleafeet a flea could broadjump.
@@ -322,6 +353,7 @@ which of two theories he held: that gnats tootled
 through their mouths or, in reverse, through their tails.
 
 STREPSIADES
+_Eagerly._
 Gosh. Go on. What was his theory about the gnat?
 
 STUDENT
@@ -379,6 +411,7 @@ Why, Thales himself was an amateur compared to this!
 Throw open the Thinkery! Unbolt the door
 and let me see this wizard Sokrates in person.
 Open up! I'm MAD for education!
+_The ekkyklema is wheeled about to show the whole interior court of Sokrates' Thinkery. High overhead the crane supports Sokrates in his basket busily scanning the heavens. Hanging on the walls of the Thinkery are various charts, maps, instruments, etc. In the center of the courtyard stand a number of utterly pale, emaciated students deeply engaged in a rapt contemplation of the ground._
 Great Herakles,
 what kind of zoo is this?
 
@@ -396,8 +429,10 @@ of the earth's strata.
 
 STREPSIADES
 Of course. Looking for truffles.
+_To one of the students._
 —You there, don't strain yourself looking. I know
 where they grow big and beautiful.
+_Pointing to other students who are bent completelydouble._
 Hey, and look there:
 what are those fellows doing bent over like that?
 
@@ -409,6 +444,7 @@ On Hades? Then why are their asses scanning the skies?
 
 STUDENT
 Taking a minor in Astronomy.
+_To the students._
 —Quick, inside with you. Hurry, before the Master catches you.
 
 STREPSIADES
@@ -416,14 +452,17 @@ No, wait. Let them stay a little longer. I want to speak to them on a private ma
 
 STUDENT
 Impossible. The statutes clearly forbid overexposure to fresh air.
+_The students disappear through a door at the rear. Strepsiades meanwhile is staring at the various maps and instruments on the walls._
 
 STREPSIADES
+_Pointing to a chart._
 In the name of heaven, what's that?
 
 STUDENT
 That's for astronomy.
 
 STREPSIADES
+_Pointing to surveying instruments._
 And what are those?
 
 STUDENT
@@ -445,6 +484,7 @@ STREPSIADES
 What a clever gadget! And as patriotic as it is useful.
 
 STUDENT
+_Pointing to a map._
 Now then, over here we have a map of the entire world. You see there? That's Athens.
 
 STREPSIADES
@@ -473,6 +513,7 @@ But that's utterly impossible.
 
 STREPSIADES
 You'll be sorry you didn't, by god.
+_For the first time Strepsiades catches sight of Sokrates in his basket overhead._
 Look: who's that dangling up there in the basket?
 
 STUDENT
@@ -489,13 +530,17 @@ SOKRATES!
 Then call him down. Go on. Give a great big shout.
 
 STUDENT
+_Hastily and apprehensively taking his leave._
 Er . . . you call him. I’m a busy man.
+_Exit Student._
 
 STREPSIADES
 O Sokrates!
+_No answer from the basket._
 Yoohoo, Sokrates!
 
 SOKRATES
+_From a vast philosophical height._
 Well, creature of a day?
 
 STREPSIADES
@@ -520,13 +565,16 @@ scientific accuracy in my survey of the vast empyrean.
 Had I pursued my inquiries from down there on the ground,
 my data would be worthless. The earth, you see, pulls down
 the delicate essence of thought to its own gross level.
+_As an afterthought._
 Much the same thing happens with watercress.
 
 STREPSIADES
+_Ecstatically bewildered._
 You don’t say?
 Thought draws down . . . delicate essence . . . into watercress.
 O dear little Sokrates, please come down. Lower away,
 and teach me what I need to know!
+_Sokrates is slowly lowered earthwards._
 
 SOKRATES
 What subject?
@@ -604,6 +652,8 @@ STREPSIADES
 Yeah? What's in it for me?
 
 SOKRATES
+_Sprinkling Strepsiades from head to toe with ritual_
+_flour._
 You shall be reborn, sir, as the perfect flower of orators,
 a consummate, blathering, tinkling rascal.
 
@@ -614,6 +664,7 @@ I'll be all flour the way you're powdering me.
 SOKRATES
 Silence!
 Holy hush command your tongue. Listen to my prayer.
+_He stretches out his hands to heaven and prays._
 O Lord God Immeasurable Ether, You who envelop the world!
 O Translucent Ozone!
 And you, O lightningthundered holy Clouds!
@@ -622,6 +673,7 @@ Reveal yourselves to your Sophist's eyes.
 
 STREPSIADES
 Whoa, ladies, don't rain yet. Don't get me wet. Let me wrap up.
+_He wraps his head in his tunic._
 What a damned fool! Coming without a hat.
 
 SOKRATES
@@ -635,6 +687,9 @@ come forth, great Clouds!
 Accept our prayers!
 O hear us!
 Amen.
+_From far off in the distance the Clouds are heard_
+_singing. As they slowly approach Athens, the singing_
+_increases steadily in volume as it rises in pitch._
 
 CHORUS
 Rise and soar
@@ -655,20 +710,24 @@ now breaks with blazoned light!
 Shake loose the rain,
 immortal forms,
 and walk upon the world!
+_A sustained burst of thunder is heard._
 
 SOKRATES
 O Clouds consummately blest, how clearly thy answer rumbles!
+_To Strepsiades._
 —Did you hear that thunder crack, that basso profundo peal?
 
 STREPSIADES
 And how!
 All hail your holyships! What a nasty jolt you gave me!
 What a ratatat! You scared me so I've got to thunder too.
+_He breaks wind._
 Sacrilege or not, I'VE GOT TO CRAP!
 
 SOKRATES
 Silence, boor!
 No more of your smut. Leave filth like that to the comic stage.
+_A short low growl of thunder is heard._
 Shhh.
 Quiet.
 The goddess swarm is stirring to its song.
@@ -705,6 +764,7 @@ our eloquence, intellect, fustian, casuistry, force, wit,
 prodigious vocabulary, circumlocutory skill—
 
 STREPSIADES
+_Suddenly carried away in cloudy inspiration._
 Then that’s why
 I suddenly tingled all over—as though I were carried up,
 buoyant, exalted, swollen somehow with the flatus of philosophy:
@@ -727,6 +787,7 @@ There, a vast drifting swarm
 nuzzling along through woods and valleys.
 
 STREPSIADES
+_Rubbing his eyes._
 I wonder what’s wrong.
 I can’t see them.
 
@@ -738,6 +799,7 @@ Now I see them!
 
 SOKRATES
 You've got cataracts, friend, if you can't see them now.
+_Slowly and majestically, the Chorus of Clouds files in and takes up its position in the orchestra._
 
 STREPSIADES
 Ooh, what venerable ladies! They take up all the space.
@@ -821,10 +883,13 @@ Welcome then, august Ladies!
 Welcome, queens of heaven!
 If ever you spoke to mortal man,
 I implore you, speak to me!
+_A great burst of thunder._
+_Strepsiades cowers with fright._
 
 KORYPHAIOS
 Hail, superannuated man!
 Hail, old birddog of culture!
+_To Sokrates._
 And hail to you, O Sokrates,
 high priest of poppycock!
 Inform us what your wishes are.
@@ -927,6 +992,7 @@ Say, you know, you've got something there. But how do you explain the lightning?
 
 SOKRATES
 Attend.
+_Illustrating his lecture by means of the potbellied-stove Model of the Universe._
 Let us hypothesize a current of arid air ascending heavenwards. Now then, as this funnelled flatus slowly invades the limp and dropsical sacks of the Clouds, they, in turn, begin to belly and swell, distended with gas like a child's balloon when inflated with air. Then, so prodigious become the pressures within that the cloud-casings burst apart, exploding with that celestial ratatat called thunder and thereby releasing
 the winds. These, in turn, whizz out at such incalculable velocities that they catch on fire.
 Result: lightning.
@@ -943,6 +1009,7 @@ guts.
 
 CHORUS
 —Ah, how he hungers after learning!
+_To Strepsiades._
 —Sir, if you can pass our test,
 we guarantee that you shall be
 —the cynosure of Hellas.
@@ -1136,6 +1203,7 @@ A policeman? This is a solemn philosophical initiation.
 So stop your idiot blather and get undressed.
 
 STREPSIADES
+_Starting to undress with extreme reluctance._
 Oh, all right.
 No, wait.
 First answer me this. If I study very hard
@@ -1149,10 +1217,14 @@ Chairephon.
 STREPSIADES
 CHAIREPHON! But he's a walking cadaver.
 I'll graduate a corpse.
+_He feverishly whisks his cloak back on._
 
 SOKRATES
 Damnation! Stop this stalling
 and GET UNDRESSED!
+_He pulls off Strepsiades' cloak and shoves him bodily_
+_toward the black cavelike opening at the rear of_
+_the Thinkery._
 Forward, Candidate!
 
 STREPSIADES
@@ -1163,6 +1235,11 @@ or they'll eat me alive.
 
 SOKRATES
 Forward, fool. No hesitation now!
+_Sokrates shoves Strepsiades before him into the_
+_opening at the rear of the Thinkery. Then he rushes_
+_back, snatches up Strepsiades' discarded cloak,_
+_smiles, tucks it under his tunic, and vanishes into_
+_the Thinkery._
 
 CHORUS
 Farewell, brave soul,
@@ -1175,6 +1252,7 @@ stride forth, undaunted, unafraid,
 toward that uttermost frontier of thought
 where wisdom lures you on,
 O pioneer!
+_The Chorus turns sharply and faces the audience. From the wing appears the poet, the bald Aristophanes; he strides forth and addresses the audience directly._
 
 ARISTOPHANES
 Gentlemen, in the name of Dionysos to whom I owe my nurture as a poet,
@@ -1202,6 +1280,7 @@ eels.
 I devoutly pray that those who like such stuff are bored to death
 by mine. But as for you men of taste who enjoy your Aristophanes
 and applaud his talent, why, posterity will endorse your judgment.
+_Exit Aristophanes._
 
 CHORUS
 You, our king, we summon first.
@@ -1298,6 +1377,7 @@ Very recently the gods
 stripped Hyperbolos of his seat on the Commission for Public Festivals
 and Other Red-Letter Days—a measure designed to teach him
 and all such Johnnies-Come-Lately a little respect for time.
+_While the Chorus resumes its customary position,the doors of the Thinkery are thrown open andSokrates appears._
 
 SOKRATES
 Almighty Effluvium! Ozone and Chaos! Never
@@ -1306,9 +1386,11 @@ such a bungling, oblivious, brainless imbecile as this!
 I no sooner teach him the merest snippets of science
 than he suffers an attack of total amnesia. Still,
 the Truth is my mistress and I obey.
+_He goes to the Thinkery door and peers into thedarkness._
 —Strepsiades,
 where are you?
 Fetch your mattress and come outside.
+_Strepsiades appears at the door, tugging at hismattress._
 
 STREPSIADES
 I can't come. The little bugs won't let me leave.
@@ -1362,8 +1444,10 @@ SOKRATES
 Define it then.
 
 STREPSIADES
+_Extending his middle finger in an obscene gesture._
 Why, it's tapping time
 with this finger. Of course, when I was a boy
+_Raising his phallus to the ready._
 I used to make rhythm with this one.
 
 SOKRATES
@@ -1519,6 +1603,7 @@ Permission refused.
 STREPSIADES
 Ohh, what a fate!
 Those little bugs are sure to crucify me now.
+_Strepsiades burrows under the infested sheepskins on his mattress, while Sokrates chants encouragement._
 
 SOKRATES
 First concentrate.
@@ -1564,6 +1649,9 @@ And then what’s more,
 when I tried to hum
 and forget these bites,
 I DAMN NEAR DIED!
+_There is a brief interval of silence during which_
+_Strepsiades hums and thrashes under his covers._
+_Then Sokrates picks up a sheepskin and peers under._
 
 SOKRATES
 Here, what’s this? Have you stopped lucubrating?
@@ -1593,10 +1681,12 @@ and fleece your creditors.
 STREPSIADES
 Who's fleecing who, Sokrates?
 That's what I'd like to know.
+_Another brief silence follows._
 
 SOKRATES
 Hmmm. I wonder
 what he's up to now? I'll just peek under the covers.
+_He lifts the sheepskin._
 What's this? Asleep on the job, are you?
 
 STREPSIADES
@@ -1634,12 +1724,14 @@ It's my debts. I want to welsh on my debts.
 SOKRATES
 Splendid.
 Then back to your pallet.
+_Strepsiades dutifully crawls under his sheepskin._
 And now distill your mind
 to its airiest essence, allowing the subtle elixirs of thought
 to permeate and penetrate every pore of the problem.
 Then Analyze, Refine, Synthesize, Define—
 
 STREPSIADES
+_Frantically thrashing to escape the bugs._
 OUCH!
 
 SOKRATES
@@ -1650,6 +1742,7 @@ sift your conclusions and knead vigorously. Then mull
 the results.
 
 STREPSIADES
+_Suddenly illuminated._
 Ooooh, Sokrates!
 
 SOKRATES
@@ -1706,6 +1799,7 @@ Allow your intellect instead to sally forth upon her own,
 as though you held a cockroach on a leash.
 
 STREPSIADES
+_Suddenly illuminated._
 Ooh, Sokrates, I’ve found a glorious bamboozle! I’ve got it!
 Admit it, it’s wonderful!
 
@@ -1772,6 +1866,7 @@ As your tutor, I hereby resign. And now, GET OUT!
 
 STREPSIADES
 You resign? But why?
+_Falling on his knees in supplication._
 Oh, please. I implore you, Sokrates . . .
 
 SOKRATES
@@ -1794,6 +1889,7 @@ You senile incompetent! You . . . you mooncalf! Clear out!
 STREPSIADES
 Sweet gods in heaven, what’s to become of me now?
 I’m a goner unless I master those sleights-of-tongue.
+_Falling on his knees before the Chorus._
 O most gracious Clouds, please advise me. Tell me
 what to do.
 
@@ -1816,7 +1912,9 @@ and there’s a bit of eagle-blood on his mother’s side.
 Still, I’ll go fetch him anyway. If he refuses
 to learn his lessons, by god, he’ll never set foot
 in my house again!
+_To Sokrates._
 —I won’t be gone a moment.
+_Exit Strepsiades into his house._
 
 CHORUS
 Now, sir, you see
@@ -1831,6 +1929,8 @@ No matter how well hooked,
 your fish is not
 fried fish till caught—
 and goose is better cooked.
+_Exit Sokrates. Enter Strepsiades, dragging_
+_Pheidippides._
 
 STREPSIADES
 Out with you! By Condensation, you won’t stay here!
@@ -1913,12 +2013,15 @@ Worth knowing? Why, the accumulated wisdom of mankind.
 For instance, what a blockhead and numskull you are.
 Hmmm.
 Wait here. I'll be right back.
+_Strepsiades darts into his house._
 
 PHEIDIPPIDES
 Gods in heaven,
 what should I do? My father's gone completely balmy.
 Should I hale him into court on charges of insanity
 or notify the undertakers?
+_Strepsiades reappears with a pair of ducks. He holds_
+_up first one and then the other._
 
 STREPSIADES
 Now then, what's this called?
@@ -1978,6 +2081,7 @@ Ah, good dutiful boy.
 —Hallo there, Sokrates!
 Hey, Sokrates, come outside.
 I've brought my son along—no damn thanks to him.
+_Enter Sokrates from the Thinkery._
 
 SOKRATES
 Why, he’s still a baby. How could a toddler like this possibly operate our Hanging Baskets?
@@ -1991,6 +2095,7 @@ Here,
 for shame! You’d insult the Master?
 
 SOKRATES
+_Imitating Pheidippides._
 “Thkip the bathket.”
 Dear me, what adorable, childish prattle. And look
 at those great sulking lower lips. How in the world
@@ -2023,6 +2128,7 @@ if you’ll excuse me, I must leave.
 STREPSIADES
 But remember, Sokrates:
 I want him able to make an utter mockery of the truth.
+_Exit Sokrates. After his departure the doors of the Thinkery are thrown open and Philosophy and Sophistry are rolled forward in great gilded cages. From the shoulders down, both are human; from the neck up they are fighting-cocks. Philosophy (or the Traditional Logic) is a large, muscular rooster, powerful but not heavy, expressing in his movements that inward harmony and grace and dignity which the Old Education was meant to produce; his plumage is so simple and dignified as to seem almost dingy. Sophistry, by contrast, is comparatively slight, with sloping shoulders, an emaciated pallor, an enormous tongue and a disproportionately large phallus. His body is graceless but extremely quick-moving; his every motion expresses defiant belligerence, and his plumage is brilliant to the point of flashiness. The debate itself should be conducted at top speed with much scratching and spurring. As the Attendants open the cages, the fighters step out and circle each other warily, jockeying for position._
 
 PHILOSOPHY
 Front and center, you Feathered Impertinence.
@@ -2167,10 +2273,12 @@ this maddened city which lets you live—
 you, corrupter and destroyer of her youth!
 
 SOPHISTRY
+_Throwing a wing about Pheidippides._
 Why, you Hoary Fossil! This is one student
 you’ll never teach!
 
 PHILOSOPHY
+_Pulling Pheidippides back._
 Teach him I shall—
 unless he’s prepared to devote his career
 exclusively to drivel.
@@ -2183,6 +2291,7 @@ PHILOSOPHY
 You touch him at your peril.
 
 KORYPHAIOS
+_Intervening._
 Gentlemen, forego your wrangling and abuse,
 and each present his arguments in turn.
 Describe how you taught the men of the past,
@@ -2230,6 +2339,7 @@ will win, is anybody’s guess.
 uage, Intellect, and Educated Athens hang.
 
 KORYPHAIOS
+_To Philosophy._
 Come, Sir, I summon you—you who conferred your crown of virtue
 upon the Older Generation—to take the stand. Be bold; rise
 and with clarion tongue tell us what you represent.
@@ -2271,11 +2381,13 @@ what musty, antiquated rubbish. It reeks of golden grasshoppers, all gewgaws and
 PHILOSOPHY
 Nonetheless, these were the precepts
 on which I bred a generation of heroes, the men who fought at Marathon.
+_To Sophistry_
 And what do you teach?
 Modesty?
 No, vanity and softness,
 and the naked beauty of the body muffled in swirling clothes, gross and unmanly. Why, at Panathenaia now it sickens me to see the boys dancing, ashamed of their own bodies, effetely forgetting their duty to the goddess while they screen their nakedness behind their shields.
 Bah.
+_To Pheidippides._
 No, young man, by your courage I challenge you. Turn your back upon his blandishments of vice, the rotten law courts and the cheap, corrupting softness of the baths. Choose instead the Old, the Philosophical Education. Follow me and from my lips acquire the virtues of a man:—
 A sense of shame, that decency and innocence of mind that shrinks from doing wrong. To feel the true man’s blaze of anger when his honor is provoked. Deference toward one’s elders; respect for one’s father and mother. To preserve intact, unsullied by disgrace or stained with wrong, that image of Manliness and Modesty by which alone you live. Purity:—to avoid the brothels and the low, salacious leer of prostituted love—which, being bought, corrupts your manhood and destroys your name. Toward your father scrupulous obedience; to honor his declining years who spent his prime in rearing you. Not to call him Dotard or Fogy—
 
@@ -2300,6 +2412,7 @@ the sudden fragrance of the season’s leisure, the smell of woodbine
 and the catkins flung by the poplar, while touching overhead,
 the leaves of the linden and plane rustle, in love, together.
 So follow me, young man, and win perfection of physique. To wit—
+_Demonstrating each attribute individually._
 BUILD, Stupendous.
 COMPLEXION, Splendid.
 SHOULDERS, Gigantic.
@@ -2335,6 +2448,7 @@ in every lovely word distilled!
 —beneath your dispensa-
 tion,
 —by all the ancient virtues blessed!
+_To Sophistry._
 —So, sir,
 —despite your vaunted subtlety and wit,
 —take care:
@@ -2355,6 +2469,7 @@ that among men of learning I am—somewhat pejoratively—dubbed the Sophistic, 
 this knack of taking what might appear to be the worse argument and nonetheless winning my case, has, I might add, proved to be an extremely lucrative source of income.
 But observe, gentlemen,
 how I refute his vaunted Education.
+_To Philosophy_
 Now then, in your curriculum hot baths are sternly prohibited. But what grounds can you possibly adduce for this condemnation of hot baths?
 
 PHILOSOPHY
@@ -2400,6 +2515,7 @@ and what did she do? Promptly ditched him for being cold,
 no passion for that all-night scrimmage between the sheets
 that lusty women love.
 Bah, you’re obsolete.
+_To Pheidippides._
 —Young man,
 I advise you to ponder this life of Virtue with scrupulous care,
 all that it implies, and all the pleasures of which its daily practice
@@ -2473,6 +2589,7 @@ PHILOSOPHY
 By heaven,
 I see an enormous crowd of people,
 and almost all of them Buggers.
+_Pointing to individuals in the audience._
 See there? That man's a Bugger,
 and that long-haired fop's a Bugger too.
 
@@ -2481,8 +2598,12 @@ Then how do we stand, my friend?
 
 PHILOSOPHY
 I've been beaten by the Buggers.
+_Flinging his cloak to the audience._
 O Buggers, catch my cloak
 and welcome me among the Buggers!
+_With a wild shriek Philosophy disappears into_
+_his cage and is wheeled away into the Thinkery, just_
+_as Sokrates comes out._
 
 SOKRATES
 Well, what are your wishes? Will you take your son home,
@@ -2503,10 +2624,14 @@ a consummate little sophist.
 PHEIDIPPIDES
 God, what a picture of misery—
 a nasty, pasty-faced, consummate little stinker!
+_Exeunt Sokrates and Pheidippides into the Thinkery._
 
 KORYPHAIOS
 Very well, go in.
+_To Strepsiades._
 —You, Sir, shall live to regret your decision.
+_Exit Strepsiades into his own house, as the_
+_Chorus turns sharply and faces the audience._
 
 CHORUS
 And now, Gentlemen of the Jury, a few brief words about the Prize
@@ -2530,6 +2655,8 @@ or relatives should celebrate a wedding, we'll send a DELUGE down
 and drown the wedding night in rain!
 By god, we'll make him say
 he'd rather be roasting in Egypt than have voted wrong today!
+_Enter Strepsiades from his house, counting on_
+_his fingers._
 
 STREPSIADES
 Five days, four days, three days, two days, and then
@@ -2548,20 +2675,25 @@ let them. If Pheidippides has learned to talk,
 I don't give a damn for them and their suits.
 Now then,
 a little knock on the door and we'll have the answer.
+_He knocks on Sokrates' door and calls out._
 Porter!
 Hey, porter!
+_Sokrates opens the door._
 
 SOKRATES
 Ah, Strepsiades. Salutations.
 
 STREPSIADES
 Same to you, Sokrates.
+_He hands Sokrates a bag of flour._
 Here. A token of my esteem.
 Call it an honorarium. Professors always get honorariums.
+_Snatching back the bag._
 But wait: has Pheidippides learned his rhetoric yet—
 that swindling Rhetoric that performed for us just now?
 
 SOKRATES
+_Taking the bag._
 He has mastered it.
 
 STREPSIADES
@@ -2577,6 +2709,7 @@ SOKRATES
 Before ten thousand of them. The more the merrier.
 
 STREPSIADES
+_In parody._
 Then let my loud falsetto peal
 with gladsome paeans plangent!
 Mourn, O ye lenders of money,
@@ -2594,6 +2727,8 @@ Ho, fetch forth mine son
 forthwith! O my son,
 debouch from mine abode!
 O heed thy father, prithee!
+_Pheidippides, the very image of “modern youth,”_
+_slouches contemptuously out of the Thinkery._
 
 SOKRATES
 Behold the man!
@@ -2631,6 +2766,7 @@ But how can one day be two days?
 STREPSIADES
 How should I know?
 It just is!
+_Resuming more calmly, patiently explaining._
 Today’s Dueday, son. This is the day
 when creditor’s are required by law to post their bond
 in court in order to obtain a summons against their debtors.
@@ -2661,6 +2797,7 @@ STREPSIADES
 Misinterpreted? But how?
 
 PHEIDIPPIDES
+_Enigmatically._
 Old Solon loved the people.
 
 STREPSIADES
@@ -2689,9 +2826,12 @@ Precisely because they are magistrates. Ipso facto, their greed is magisterial a
 to set the Duedate back a day earlier. Their procedure, of course, is utterly illegal.
 
 STREPSIADES
+_Still perplexed._
 Huh?
+_But suddenly illuminated._
 Hey!
 Haw, that’s good!
+_Turning to the audience._
 Well, numskulls, what are you gawking at?
 Yes, you down there!
 You dumb sheep with the pigeon faces!
@@ -2705,6 +2845,7 @@ you were born to be taken!
 A little ditty of my own, dedicated to me and my son,
 offering us warmest congratulations on our success.
 Ready, everybody?
+_Singing and dancing._
 Oh, Strepsiades, Strepsiades,
 there’s no one like Strepsiades!
 He went to school with Sokrates
@@ -2716,37 +2857,47 @@ yes, only he’s
 Pheidippides’
 Old Man!
 By god, if ever I heard a hit, that’s it!
+_To Pheidippides._
 Once you finish off my creditors’ suits, the whole town will go green with envy of Strepsiades.
 And now, son, I’m throwing a dinner in your honor. So let’s go in.
+_Exeunt Strepsiades and Pheidippides into the house. An instant later Pasias arrives, accompanied by his Witness, with a summons against Strepsiades. A notorious spendthrift, drunkard, and glutton, Pasias is grotesquely fat. Essentially a good-natured man, he has prepared himself for a difficult ordeal, and comes equipped with a wine flask from which he periodically fortifies himself._
 
 PASIAS
 Well, what am I supposed to do? Throw my hard-earned money down the drain?
+_Something in his own words reminds him that he needs a drink, a stiff one._
 Playboy Pasias, is it?
 Nossiree.
 Bah! Me and my great big heart! Soft-touch Pasias.
 But I should have known. You’ve got to be a bastard.
 Hard as nails.
+_He hardens himself with a drink._
 If I’d sent him packing when he tried
 to put the touch on me, I wouldn’t be in this fix now.
 What a mess!
+_To Witness._
 I have to drag you around to stand witness,
 and what’s more, I’ll make an enemy of Strepsiades for life.
+_He fortifies himself with still another drink._
 Well, I’ll sue him anyway.
 Yessiree.
 Athens expects it,
 and I won’t have it said that Pasias ever besmirched
 the National Honor.
 Nossiree.
+_Shouting into the house._
 —Strepsiades! I’m suing you!
 
 STREPSIADES
+_Appearing at the door._
 Somebody want me?
 
 PASIAS
 I do. Today’s the Dueday.
 
 STREPSIADES
+_To the audience._
 Gentlemen, you're all witnesses: he distinctly mentioned two days.
+_To Pasias._
 —What are you suing me for?
 
 PASIAS
@@ -2789,6 +2940,7 @@ Why, you barefaced swindler!
 You damnable liar!
 
 STREPSIADES
+_Prodding Pasias in the belly._
 Boy, what blubber!
 —You know,
 that paunch of yours ought to make someone a mighty dandy
@@ -2820,13 +2972,17 @@ and I’ll be off.
 STREPSIADES
 Don’t you budge. I’ll be right back
 and bring you my final answer.
+_Strepsiades rushes into the house._
 
 PASIAS
+_To his Witness._
 I wonder what he's doing.
 Do you think he'll pay me?
 
 STREPSIADES
+_Reappearing from the house; in his hands he holds a large basket._
 Now where's that creditor of mine?
+_Holding up the basket in front of Pasias._
 —All right, you, what's this?
 
 PASIAS
@@ -2842,6 +2998,7 @@ Then you won't pay me back?
 STREPSIADES
 Not if I know it.
 Look here, you Colossus of Lard, why don't you quietly melt away? Beat it, Fatboy!
+_He threatens to beat him with his baskette._
 
 PASIAS
 I'm going. Yessiree. And by god, if I don't post my bond with the magistrates right now, my name's not Pasias.
@@ -2850,8 +3007,10 @@ Nossiree.
 STREPSIADES
 Tch tch. Poor Pasias.
 You'll just lose your bond on top of all your other losses. And, personally speaking, I wouldn't want to see you suffer just because your grammar's bad.
+_Beating Pasias over the head with his baskette._
 Remember?
 Baskette!
+_Exit Pasias at a run pursued by Strepsiades. An instant later, hideous wails and shrieks are heard off-stage, and these are followed by the pathetic entrance of the notorious effeminate and gambler, Amynias. He has just had an accident with his chariot, and his entrance is a picture of misery: his head is covered with blood, his clothes torn, and his language, a delirious compound of tragic rhetoric and a marked lisp, is almost unintelligible._
 
 AMYNIAS
 Alackaday!
@@ -2991,32 +3150,46 @@ doesn’t grow, then who the hell are you to expect your money
 to grow?
 And now CLEAR OUT! Go peddle your subpoenas
 somewhere else.
+_Amynias stands firm and Strepsiades calls out_
+_to his slave._
 —Bring me my horsewhip.
+_The slave brings the whip and Strepsiades cracks_
+_it threateningly at Amynias._
 
 AMYNIAS
+_Appealing in terror to the audience._
 —Gentlemen,
 you’re my witnesses!
 
 STREPSIADES
 Still here, are you?
+_He flicks Amynias with the whip._
 Giddeap!
 Gallop, you gelding!
 Gee!
+_He flicks Amynias again with his whip, this time_
+_in the rear._
 
 AMYNIAS
 A hit! A hit!
 A palpable hit!
 
 STREPSIADES
+_Raising his phallus to the ready._
 Git, dammit, or I’ll sunder your rump
 with my ram!
+_With a wild whinny of fright, Amynias_
+_rushes offstage._
 Going, are you?
 A damned good thing.
 And don’t come back here nagging me about your money,
 or I’ll badger your bum!
 You’ll get the ride of your life!
+_Strepsiades re-enters the house to resume his inter-_
+_rupted dinner with Pheidippides._
 
 CHORUS
+_Individually_
 —Such is wickedness,
 —such its fatal fascina-
 tion:
@@ -3056,16 +3229,19 @@ he gloats.
 —But wait!
 —Take note:
 —the time will come—
+_Strepsiades howls in pain offstage._
 —in fact, it’s coming now—
 —when poor Strepsiades
 will wish to god
 —Pheidippides were
 —DUMB!
+_With a bellow of pain and teror, Strepsiades plunges out of his house, hotly pursued by Pheidippides with a murderous stick._
 
 STREPSIADES
 OOOUUUCH!!!
 HALP!
 For god’s sake, help me!
+_Appealing to the Audience._
 Friends!
 Fellow-countrymen! Aunts! Uncles! Fathers! Brothers!
 To the rescue!
@@ -3074,6 +3250,7 @@ Help me!
 Ouuch!
 O my poor head!
 Ooh, my jaw!
+_To Pheidippides._
 —You great big bully,
 Hit your own father, would you?
 
@@ -3162,6 +3339,7 @@ But, verbum sap.
 I wish you luck. You’ll need it.
 
 KORYPHAIOS
+_To Strepsiades._
 And now, Sir, I suggest you brief the Chorus. Begin at the beginning
 and describe your little fracas exactly as it happened.
 
@@ -3226,6 +3404,7 @@ Euripides!
 A GENIUS??
 That . . .
 That . . . that . . !
+_Pheidippides raises his stick threateningly._
 HALP! He's hitting me!
 
 PHEIDIPPIDES
@@ -3269,6 +3448,7 @@ And now that Doughty Champion of Change, that Golden-Tongued
 Attorney
 for Tomorrow, that Harbinger of Progress
 —PHEIDIPPIDES!
+_To Pheidippides._
 Remember, Sir,
 we want the truth
 —or a reasonable facsimile.
@@ -3364,12 +3544,14 @@ Because look: I lick you. All right, someday you'll have a son and you can even 
 
 PHEIDIPPIDES
 And if I don't have a son? You've licked me, but where am I? I'm left holding the bag, and you'll go to your grave laughing at me.
+_There is a long tense silence as the full force of this crushing argument takes its effect upon Strepsiades._
 
 STREPSIADES
 What?
 But how . . .?
 Hmm,
 by god, you’re right!
+_To the Audience._
 —Speaking for the older generation, gentlemen,
 I’m compelled to admit defeat. The kids have proved their point:
 naughty fathers should be flogged.
@@ -3414,6 +3596,7 @@ you can take your stinking Logics
 and your Thinkery as well
 with Sokrates inside it
 and damn well go to hell!
+_To the Chorus._
 —You Clouds got me into this! Why in god’s name
 did I ever believe you?
 
@@ -3440,6 +3623,7 @@ STREPSIADES
 Well, I can’t say much for your methods,
 though I had it coming. I was wrong to cheat my creditors,
 and I admit it.
+_To Pheidippides._
 —All right, boy, what do you say?
 Let’s go and take revenge on Sokrates and Chairephon
 for swindling us. Are you game?
@@ -3471,6 +3655,7 @@ Convection-Principle propaganda circulated by those windbags
 in the Thinkery!
 I was brainwashed! Why, they told me
 that the whole universe was a kind of potbellied stove
+_Pointing to the model in front of the Thinkery._
 like that model there, an enormous cosmical barbecue,
 and the gods were nothing but a lot of hot air and gas
 swirling around in the flue. And I swallowed it,
@@ -3479,11 +3664,13 @@ hook, line, and sinker!
 PHEIDIPPIDES
 Rave to yourself, Madman.
 I’m leaving.
+_Exit Pheidippides._
 
 STREPSIADES
 O Horse’s Ass, Blithering Imbecile,
 Brainless Booby, Bonehead that I was to ditch the gods
 for Sokrates!
+_He picks up Pheidippides’ stick and savagelysmashes the potbellied model of the Universe in frontof the Thinkery. He then rushes to his own houseand falls on his knees before the statue of Hermes._
 —Great Hermes, I implore you!
 Be gracious,
 lord! Forego your anger and give me your compassion.
@@ -3492,6 +3679,7 @@ drunk on drivel.
 O Hermes, give me your advice,
 tell me what to do.
 Should I sue?
+_He puts his ear close to the god's mouth as though listening to whispered advice._
 What?
 Ummm.
 Good.
@@ -3502,28 +3690,36 @@ Yes?
 BURN DOWN THE THINKERY . . SMOKE OUT THE CHARLATANS . . .
 INCINERATE THE FAKES!
 Aye aye, Sir!
+_Shouting to his slave._
 —Xanthias! come here!
 Quick, get me your ladder!
 Bring me an axe!
+_Xanthias runs up with a ladder and an axe._
 Now
 scramble up there on the Thinkery and rip up the tiles
 until the roof caves in.
 Shoo, boy!
+_Xanthias sets his ladder against the Thinkery, clambers up, and starts chopping at the tiles and prying them up with his axe._
 —Quick,
 bring me a torch!
+_Another slave runs up with a blazing torch._
 By god, I'll fix those fakes
 for what they did to me or my name's not Strepsiades!
 Let's see if they can fast-talk their way out of this.
+_He bounds up the ladder to the roof, furiously firing the rafters and beams with his torch, while Xanthias pries at the tiles with the axe. The smoke billows up in clouds and the whole roof begins to glare luridly, while inside the Thinkery are heard the first signs of alarm and confusion._
 
 FIRST STUDENT
+_From within._
 FIRE!! FIRE!!
 HELP!
 
 STREPSIADES
 Scorch ’em, Torch!
 Go get ’em!
+_When Xanthis stops to stare at the holocaust, Strepsiades tosses him the torch, snatches up the axe, and starts slashing furiously at the rafters._
 
 FIRST STUDENT
+_Rushing out of the Thinkery and peering up to the roof._
 —Sirrah, what dost?
 
 STREPSIADES
@@ -3531,12 +3727,14 @@ Dust? That’s chips,
 Buster. I’m chopping logic with the rafters of your roof.
 
 SECOND STUDENT
+_From within._
 Who roasteth our rookery?
 
 STREPSIADES
 A man without a coat.
 
 SECOND STUDENT
+_Rushing outside._
 But we’re burning alive!
 
 STREPSIADES
@@ -3547,9 +3745,11 @@ But this is Arson! Deliberate Arson! We’ll die!
 
 STREPSIADES
 Splendid. Exactly what I had in mind—
+_He narrowly misses his leg with the axe and then teeters dangerously on the roof._
 oops!—
 so long as I don’t split my shins with this axe
 or break my neck in the process.
+_Wheezing, hacking, and gagging, Sokrates scuttles out of the Thinkery, closely followed by an incredible procession of emaciated, ghostlike Students, all gibbering with terror. Finally, at the very rear, squawking and clucking like two frightened roosters, come Philosophy and Sophistry._
 
 SOKRATES
 You there, sirrah!
@@ -3561,6 +3761,8 @@ I walk upon the air and look down upon the sun
 from a superior standpoint.
 
 SOKRATES
+_Choking on the smoke and almost_
+_incoherent with rage._
 Why, you—
 agh!
 I'm gagging . . .
@@ -3570,6 +3772,12 @@ grhuahg . . .
 CAN'T . . .
 TALK!!
 Arrggghhh . . . .
+_As Sokrates collapses into a spasm of choked_
+_coughing, Strepsiades and Xanthias come scrambling_
+_down the ladder from the roof. Then Chairephon,_
+_totally covered with soot and cinders and his_
+_cloak smouldering, streaks from the_
+_holocaust of the Thinkery._
 
 CHAIREPHON
 Yiyi!
@@ -3578,12 +3786,16 @@ It’s like an oven in the Thinkery! I’m burnt to a crisp.
 I’m a cinder.
 
 STREPSIADES
+_Belaboring him with a stick as Xanthias_
+_lashes Sokrates._
 Then why did you blaspheme the gods?
 What made you spy upon the Moon in heaven?
 
 KORYPHAIOS
 Thrash them, beat them, flog them for their crimes, but most of all because they dared outrage the gods of heaven!
+_Strepsiades and his slaves thrash Sokrates and his followers, until the whole herd of thinkers, followed by Philosophy and Sophistry, stampedes madly toward the exit. Here they meet—and flatten—Pasias and Amynias returning to the Thinkery armed with summonses and accompanied by their witnesses. Exeunt omnes in a general rout. Behind them the Thinkery with an enormous crash collapses into blazing ruin._
 
 CHORUS
 Now ladies, let us leave and go our way.
 Our dances here are done, and so's our play.
+_Slowly and majestically, the Chorus files out._

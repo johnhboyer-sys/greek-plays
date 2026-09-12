@@ -1018,6 +1018,30 @@ export function englishFlow(
   return { pushes, paddingBottom: Math.max(0, englishEnd - greekEnd) };
 }
 
+// Arrowsmith's stage directions (John, 2026-09-12: "have a break in the
+// Greek where the stage directions are so english stays aligned with its
+// Greek"). One inside a speech sits in the English text on a line of its
+// own, `_..._`; one between speeches rides the piece as `directionsBefore`.
+const STAGE_DIRECTION = /^_([^_\n]+)_$/gm;
+
+/** A direction inside a speech: its own line, in italics. */
+export function markStageDirections(html: string): string {
+  return html.replace(/\n?^_([^_\n]+)_$\n?/gm, '<span class="stage-dir">$1</span>');
+}
+
+/** The rows a segment's between-speech directions take before it: one per
+ *  direction, one cell per English column on screen (null where that
+ *  column's translation has none), and an empty Greek cell. None in the
+ *  Greek-only view, or when no column on screen carries a direction. */
+export function directionRows(
+  columns: readonly (readonly string[] | undefined)[],
+  view: 'both' | 'greek' | 'english',
+): (string | null)[][] {
+  if (view === 'greek') return [];
+  const n = Math.max(0, ...columns.map((c) => c?.length ?? 0));
+  return Array.from({ length: n }, (_, i) => columns.map((c) => c?.[i] ?? null));
+}
+
 /** Where a line-keyed translation's English is cut into rows (John,
  *  2026-09-10). The prose translations (Smyth, Jebb, Coleridge) mark a Greek
  *  line only every five lines or so, and a marker often falls mid-sentence
@@ -1050,7 +1074,12 @@ export function sentenceTicks(
   // quote or bracket, and space or a dash ("stopped.—She"); it starts with a
   // capital, a digit, or a Greek letter (Grok review of 1219ece).
   const END = /(?<!(?:^|[\s(])(?:\p{Lu}|Mr|Mrs|Dr|St|Mt))[.!?…]["'’”»)\]]*(?:\s+|[—–]\s*)(?=["'‘“«(\[]?(?:\p{Lu}|\p{Nd}|\p{Script=Greek}))/gu;
-  for (const m of text.matchAll(END)) starts.add(m.index! + m[0].length);
+  // Never cut inside a stage direction (John, 2026-09-12).
+  const inside = [...text.matchAll(STAGE_DIRECTION)].map((m) => [m.index!, m.index! + m[0].length]);
+  for (const m of text.matchAll(END)) {
+    const s = m.index! + m[0].length;
+    if (!inside.some(([a, b]) => a! < s && s < b!)) starts.add(s);
+  }
   const out: { n: number; offset: number }[] = [];
   for (const s of [...starts].sort((a, b) => a - b)) {
     const exact = anchors.find((a) => a.off === s);

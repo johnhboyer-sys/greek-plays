@@ -365,6 +365,10 @@ export interface OverlayPiece {
   // anchored to the Bekker line `n` of the segment it belongs to; rendered as a
   // grid after that segment's row.
   tables?: { n: number; rows: string[][] }[];
+  // Stage directions printed before this segment's first speech (Arrowsmith;
+  // John, 2026-09-12). Absent when there are none. A direction inside a
+  // speech sits in `text` instead, on its own line as `_..._`.
+  directionsBefore?: string[];
 }
 
 // A speaker-turn event in a Stephanus dialogue (Plato): the interlocutor whose

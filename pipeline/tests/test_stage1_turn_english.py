@@ -1394,6 +1394,179 @@ def test_chunks_as_overlay_prefixes_speakers():
     assert "ISMENE. To me, Antigone." in piece["text"]
 
 
+# Arrowsmith's stage directions (John, 2026-09-12): the cleaner writes each
+# printed line of one as `_..._`; a direction between two speeches is carried
+# as the next speech's `directions_before`, one inside a speech in `shown`.
+DIRECTIONS = """THE PLAY
+
+_The scene opens._
+ANTIGONE
+Ismene, sister of my blood.
+_She turns_
+_slowly._
+See'st thou how Zeus would fulfil.
+_Ismene enters._
+
+ISMENE
+To me no word of friends has come.
+
+CHORUS
+Sunbeam of all that dawned.
+
+CREON
+Sirrah, begone.
+_Exit Creon._
+"""
+
+
+def _without_directions(text: str) -> str:
+    return "\n".join(ln for ln in text.splitlines() if not (ln.startswith("_") and ln.endswith("_"))) + "\n"
+
+
+def test_verse_own_line_separates_stage_directions_from_speech():
+    speeches, _notes = parse_play_speeches(DIRECTIONS, "THE PLAY", format="verse-own-line")
+    assert speeches == [
+        {
+            "speaker_printed": "ANTIGONE",
+            "text": "Ismene, sister of my blood. See'st thou how Zeus would fulfil.",
+            "directions_before": ["The scene opens."],
+            "shown": "Ismene, sister of my blood.\n_She turns slowly._\nSee'st thou how Zeus would fulfil.",
+        },
+        {
+            "speaker_printed": "ISMENE",
+            "text": "To me no word of friends has come.",
+            "directions_before": ["Ismene enters."],
+        },
+        {"speaker_printed": "CHORUS", "text": "Sunbeam of all that dawned."},
+        # After the last speech there is no next one: the direction stays inline.
+        {"speaker_printed": "CREON", "text": "Sirrah, begone.", "shown": "Sirrah, begone.\n_Exit Creon._"},
+    ]
+    # Speech text is what it was before directions were kept.
+    plain, _notes = parse_play_speeches(_without_directions(DIRECTIONS), "THE PLAY", format="verse-own-line")
+    assert [s["text"] for s in speeches] == [s["text"] for s in plain]
+
+
+def test_verse_own_line_first_speech_may_open_with_a_direction():
+    # Clouds: Pheidippides' first speech opens "_Waking up crossly._"; the
+    # first-speech search must look past it, or it skips two speeches.
+    text = "THE PLAY\n\nANTIGONE\n_Waking up._\nSister.\n\nISMENE\nTo me.\n"
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="verse-own-line")
+    assert [s["speaker_printed"] for s in speeches] == ["ANTIGONE", "ISMENE"]
+    assert speeches[0]["shown"] == "_Waking up._\nSister."
+
+
+def test_lindsay_format_keeps_an_underscored_line_as_speech():
+    # Only verse-own-line reads `_..._` as a direction; Gutenberg's own-line
+    # speakers (the 1912 comedies) keep it as speech text, as before.
+    text = """LYSISTRATA
+The Persons of the drama.
+
+LYSISTRATA
+This is the first speech in the play.
+_Exit._
+
+CALONICE.
+This is the second speech in the play.
+"""
+    speeches, _notes = parse_play_speeches(text, "LYSISTRATA")
+    assert speeches[0] == {
+        "speaker_printed": "LYSISTRATA",
+        "text": "This is the first speech in the play. Exit.",
+    }
+
+
+def _parse_directions(tmp_path, text: str, spine: dict):
+    path = tmp_path / "play.txt"
+    path.write_text(text, encoding="utf-8")
+    return parse_translation(
+        path,
+        spine,
+        work_id="antigone",
+        translation_id="arrowsmith",
+        play="THE PLAY",
+        sigla={"ΑΝ.": "Antigone", "ΙΣ.": "Ismene", "Χο.": "Chorus", "ΚΡ.": "Creon"},
+        english_aliases={
+            "ANTIGONE": "Antigone",
+            "ISMENE": "Ismene",
+            "CHORUS": "Chorus",
+            "CREON": "Creon",
+        },
+        footnotes_enabled=False,
+        format="verse-own-line",
+    )
+
+
+def test_stage_directions_ride_the_chunks_and_never_touch_pairing(tmp_path):
+    from drama_pipeline.stage1_turn_english import chunks_as_overlay
+
+    english, _fn, report = _parse_directions(tmp_path, DIRECTIONS, _antigone_spine())
+    chunks = {c["id"]: c for c in english["chunks"]}
+    assert chunks["1:1"]["directionsBefore"] == ["The scene opens."]
+    assert "\n_She turns slowly._\n" in chunks["1:1"]["text"]
+    assert chunks["1:2"]["directionsBefore"] == ["Ismene enters."]
+    assert "directionsBefore" not in chunks["1:3"]
+    assert chunks["1:4"]["text"].endswith("\n_Exit Creon._")
+    overlay = chunks_as_overlay(english)
+    assert overlay["1:1"][0]["directionsBefore"] == ["The scene opens."]
+    assert "directionsBefore" not in overlay["1:3"][0]
+
+    _e, _f, plain = _parse_directions(tmp_path, _without_directions(DIRECTIONS), _antigone_spine())
+    for key in ("paired", "pairing_rate", "turn_shift_rate", "head_unassigned", "length_ratio_outliers"):
+        assert report[key] == plain[key], key
+
+
+def test_a_direction_between_two_speeches_of_one_segment_stays_in_its_text(tmp_path):
+    # One Greek segment holds both speeches: the direction cannot have a row
+    # of its own before the segment, so it prints between the two turns.
+    spine = {
+        "work": "antigone",
+        "segments": [
+            {
+                "id": "1:1",
+                "book": 1,
+                "column": "1",
+                "lines": [
+                    {"n": 1, "ref": "1", "text": "Greek sample text"},
+                    {"n": 2, "ref": "2", "text": "Greek sample text"},
+                ],
+                "speakers": [
+                    {"line": 1, "offset": 0, "label": "ΑΝ."},
+                    {"line": 2, "offset": 0, "label": "ΙΣ."},
+                ],
+            }
+        ],
+    }
+    text = "THE PLAY\n\nANTIGONE\nSister.\n_Ismene enters._\n\nISMENE\nTo me.\n"
+    english, _fn, _report = _parse_directions(tmp_path, text, spine)
+    (chunk,) = english["chunks"]
+    assert "directionsBefore" not in chunk
+    assert chunk["text"] == "Sister.\n_Ismene enters._\n\nTo me."
+    assert [t["offset"] for t in chunk["turns"]] == [0, chunk["text"].index("To me.")]
+
+
+def test_spread_keeps_a_direction_whole_and_on_the_first_piece_only():
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    text = (
+        "First sentence here.\n_Exit Meton. From the side enters another._\n"
+        "Second sentence there. Third sentence now."
+    )
+    chunk = {
+        "id": "1:1", "book": 1, "column": "1", "text": text, "notes": [], "markers": [],
+        "bekker": [], "turns": [{"offset": 0, "speaker": "Chorus", "display": "CHORUS"}],
+        "directionsBefore": ["Enter Meton."],
+    }
+    segments = [
+        {"id": "1:1", "column": "1", "lines": [{"n": 1}], "speakers": [{"line": 1, "offset": 0}]},
+        {"id": "1:2", "column": "2", "lines": [{"n": 2}]},
+    ]
+    first, second = _spread_long_speeches([chunk], segments)
+    assert "_Exit Meton. From the side enters another._" in first["text"]
+    assert second["text"] == "Third sentence now."
+    assert first["directionsBefore"] == ["Enter Meton."]
+    assert "directionsBefore" not in second
+
+
 def test_run_secondary_writes_ross_chunks(tmp_path, monkeypatch):
     from drama_pipeline.config import Manifest
     from drama_pipeline import stage1_turn_english as m

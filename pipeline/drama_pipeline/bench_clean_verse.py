@@ -1330,8 +1330,8 @@ def write_clean(
 # `$\qquad...$` (a LaTeX artifact of Genie's own rendering).
 #
 # The same fully-italic-paragraph markup carries THREE different things:
-# Arrowsmith's own stage directions (prose narration -- dropped, as the
-# verse-own-line format has no channel for them, same as Morshead), whole
+# Arrowsmith's own stage directions (prose narration -- kept as `_..._`
+# lines, John 2026-09-12; see `clean_genie_html`), whole
 # choral odes/invocations set in italics as sung verse, and a handful of
 # emphasised one-line dialogue exclamations. Telling them apart by shape
 # alone is unreliable (a stage direction and a sung line can both be a bare
@@ -1363,8 +1363,8 @@ GENIE_ROSTERS: dict[str, frozenset[str]] = {
 # Reviewed against build/arrowsmith/genie-clouds.html / genie-birds.html and
 # the Fulcrum PDF page images (2026-09-11): every fully-italic paragraph in
 # the play, checked one by one, that is sung verse or emphasised dialogue
-# rather than narration (a plain narration paragraph is dropped by default
-# and needs no entry here -- see `clean_genie_html`). This is every such
+# rather than narration (a plain narration paragraph is a stage direction by
+# default and needs no entry here -- see `clean_genie_html`). This is every such
 # paragraph, not just the hard-to-call ones: the cleaner has no way to keep
 # a fully-italic line except by its index being listed.
 GENIE_DIALOGUE_OVERRIDES: dict[str, frozenset[int]] = {
@@ -1559,8 +1559,8 @@ def clean_genie_html(
     Messenger at 1706) -- the alias map alone can't tell those apart since
     it maps by printed text, not by occurrence.
 
-    `stage_direction_overrides` force-drops a paragraph by index regardless
-    of how much of it is italic: a stage direction can be split across a
+    `stage_direction_overrides` marks a paragraph as stage direction by index
+    regardless of how much of it is italic: a stage direction can be split across a
     partial italic run ("Exit Meton. From the other side enters an
     Inspector," dressed in a magnificent uniform.) with real, non-footnote
     text outside the `<i>` span, so the fully-italic rule below never sees
@@ -1583,14 +1583,19 @@ def clean_genie_html(
     if end is None:
         raise ValueError(f"{title}: Notes end not found")
 
-    # kind is "speaker" or "verse" ("" text marks a blank separator, kept
-    # inline in `out` once the merge pass below is done).
+    # kind is "speaker", "verse", or "direction" ("" text marks a blank
+    # separator, kept inline in `out` once the merge pass below is done).
     rows: list[tuple[str, str]] = []
     current: str | None = None
     speakers_found: list[str] = []
-    dropped_stage = 0
+    kept_stage = 0
     kept_lines = 0
     overrides_used = 0
+
+    def _direction(p: str) -> str:
+        text = _GENIE_TEX_SPACING_RE.sub("", p)
+        text = _genie_strip_tags(text).replace("*", "")
+        return re.sub(r"[ \t\xa0]+", " ", text).strip()
 
     for idx in range(start, end):
         p = paras[idx]
@@ -1601,13 +1606,15 @@ def clean_genie_html(
         raw_txt = _GENIE_TEX_SPACING_RE.sub("", _genie_strip_tags(p)).strip()
         if not raw_txt or _genie_is_footer(raw_txt):
             continue
-        if idx in stage_direction_overrides:
-            dropped_stage += 1
+        # A stage direction is kept as its own `_..._` line where Arrowsmith
+        # prints it, one line per printed line (John, 2026-09-12).
+        if idx in stage_direction_overrides or (
+            _genie_is_fully_italic(p) and idx not in dialogue_overrides
+        ):
+            rows.append(("direction", f"_{_direction(p)}_"))
+            kept_stage += 1
             continue
         if _genie_is_fully_italic(p):
-            if idx not in dialogue_overrides:
-                dropped_stage += 1
-                continue
             overrides_used += 1
         # A footnote asterisk sits right after the printed name (`CHORUS*`);
         # strip it before matching, or the cue isn't `in speakers` and falls
@@ -1643,11 +1650,14 @@ def clean_genie_html(
     def _risky(kind: str, text: str) -> bool:
         return kind == "verse" and _split_lindsay_speaker_line(text) is not None
 
+    # Both passes look past stage-direction rows, so the verse folds exactly
+    # as it did when directions were dropped.
     # Pass 1: fold a risky row backward into the previous verse row.
     merged: list[list[str]] = []
     for kind, text in rows:
-        if _risky(kind, text) and merged and merged[-1][0] == "verse":
-            merged[-1][1] = f"{merged[-1][1]} {text}"
+        prev = next((r for r in reversed(merged) if r[0] != "direction"), None)
+        if _risky(kind, text) and prev is not None and prev[0] == "verse":
+            prev[1] = f"{prev[1]} {text}"
             continue
         merged.append([kind, text])
     # Pass 2: anything still risky (a risky row right after a speaker cue,
@@ -1656,8 +1666,9 @@ def clean_genie_html(
     i = 0
     while i < len(merged):
         kind, text = merged[i]
-        if _risky(kind, text) and i + 1 < len(merged) and merged[i + 1][0] == "verse":
-            merged[i + 1][1] = f"{text} {merged[i + 1][1]}"
+        nxt = next((j for j in range(i + 1, len(merged)) if merged[j][0] != "direction"), None)
+        if _risky(kind, text) and nxt is not None and merged[nxt][0] == "verse":
+            merged[nxt][1] = f"{text} {merged[nxt][1]}"
             del merged[i]
             continue
         i += 1
@@ -1683,7 +1694,7 @@ def clean_genie_html(
         "lines_kept": kept_lines,
         "speakers_found": found,
         "speaker_events": len(speakers_found),
-        "stage_directions_dropped": dropped_stage,
+        "stage_directions_kept": kept_stage,
         "dialogue_overrides_used": overrides_used,
         "dialogue_overrides_declared": len(dialogue_overrides),
     }
@@ -1747,7 +1758,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"  lines_kept={report['lines_kept']} "
             f"speakers={report['speakers_found']} events={report['speaker_events']} "
-            f"stage_directions_dropped={report['stage_directions_dropped']}"
+            f"stage_directions_kept={report['stage_directions_kept']}"
         )
         return 0
     dest, report = write_clean(

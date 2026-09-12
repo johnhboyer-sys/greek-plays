@@ -1929,6 +1929,17 @@ body {
   margin: 0.35em 0 0.15em;
 }
 
+/* Arrowsmith's stage directions (John, 2026-09-12), in the seam note's small
+   italic: a row of their own between speeches (Reader.svelte
+   .play-direction-row), a line of their own inside one. */
+.stage-dir {
+  display: block;
+  color: var(--text-mid);
+  font-size: 0.78em;
+  font-style: italic;
+  margin: 0.35em 0 0.15em;
+}
+
 /* dk (Diels-Kranz) verse work (Parmenides' Fragmenta): a wrapped hexameter's
    continuation reads as part of the SAME poetic line, not a fresh one — hang
    the wrap under the line's own text start instead of flush under the gutter
