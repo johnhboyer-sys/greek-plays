@@ -1694,9 +1694,23 @@ describe('prose measure: a prose translation gets the narrower English column', 
     expect(container.querySelector('.prose-measure')).toBeNull();
   });
 
-  it('sets the prose column to 80% of its track above the phone width', () => {
+  it('marks the whole reader as a prose page for a prose translation, not for verse or compare', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: oneSpeech() } });
+    await flush();
+    expect(container.querySelector('.reader-body')?.classList.contains('prose-page')).toBe(true);
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    expect(container.querySelector('.reader-body')?.classList.contains('prose-page')).toBe(false);
+    await fireEvent.change(container.querySelectorAll('input[name="trans-mode"]')[1] as HTMLInputElement);
+    await flush();
+    expect(container.querySelector('.reader-body')?.classList.contains('prose-page')).toBe(false);
+  });
+
+  it('narrows the prose English track and centres the two columns above the phone width (option 3)', () => {
     const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../styles/global.css'), 'utf8');
-    expect(css).toMatch(/\.reader-body\.play-line\.view-both \.english-col\.prose-measure,\s*\.reader-body\.play-line\.view-both \.overlay-col\.prose-measure \{ max-width: 80%; \}/);
+    expect(css).toMatch(/\.reader-body\.play-line\.view-both\.prose-page:not\(\.trans-compare\) \.seg-row \{\s*grid-template-columns: minmax\(0, 0\.85fr\) minmax\(0, 1\.035fr\);\s*max-width: 94\.25%;\s*margin-inline: auto;/);
+    expect(css).toMatch(/\.reader-body\.play-line\.view-both\.trans-compare \.english-col\.prose-measure,\s*\.reader-body\.play-line\.view-both\.trans-compare \.overlay-col\.prose-measure \{ max-width: 90%; \}/);
   });
 });
 

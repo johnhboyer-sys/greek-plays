@@ -2149,13 +2149,20 @@ body {
     height: 0; min-height: 0; overflow: visible; align-self: start;
   }
   /* Prose measure: prose packs more per row than verse, so a prose
-     translation's column (Reader.svelte `proseMeasure`, the registry's
-     `form: prose`) runs at 80% of its track, side by side and in compare,
-     and fills more of its Greek's height. The tracks, the Greek column and
-     the gutter are unchanged; the Column width slider scales the tracks, so
-     the 80% follows it. Verse keeps the full track. */
-  .reader-body.play-line.view-both .english-col.prose-measure,
-  .reader-body.play-line.view-both .overlay-col.prose-measure { max-width: 80%; }
+     translation (Reader.svelte `proseMeasure`, the registry's `form: prose`)
+     gets a narrower English track and fills more of its Greek's height.
+     Side by side (John, 2026-09-12, option 3): the English track is 10%
+     narrower and the Greek and English sit centred together, so no empty
+     strip is left at the right. In compare, each prose column runs at 90% of
+     its track. The Column width slider scales the tracks. Verse keeps the
+     full track. */
+  .reader-body.play-line.view-both.prose-page:not(.trans-compare) .seg-row {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.035fr);
+    max-width: 94.25%;
+    margin-inline: auto;
+  }
+  .reader-body.play-line.view-both.trans-compare .english-col.prose-measure,
+  .reader-body.play-line.view-both.trans-compare .overlay-col.prose-measure { max-width: 90%; }
 }
 
 /* Greek: the printed ref in the number gutter, the text indented past the

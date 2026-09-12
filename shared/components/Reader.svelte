@@ -4130,6 +4130,7 @@
     class:dk-verse={dkVerse}
     class:verse-line={verseLine}
     class:play-line={playLine}
+    class:prose-page={playLine && trans !== 'compare' && proseMeasure(trans)}
     class:spk-color={playLine && spkColor}
     class:section-flow={sectionFlow}
     class:word-open={!!popup}
