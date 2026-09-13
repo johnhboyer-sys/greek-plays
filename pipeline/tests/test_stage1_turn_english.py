@@ -1585,6 +1585,109 @@ def test_spread_keeps_a_direction_whole_and_on_the_first_piece_only():
     assert "directionsBefore" not in second
 
 
+def test_spread_stops_before_the_thin_floor_across_a_same_speaker_run():
+    # Codex review of 05e6855: after crossing a "same"-speaker continuation,
+    # later crossed segments stopped counting in `lines_before`, so the 0.5x
+    # floor (_THIN) was checked against too few lines. A head (1 line) plus
+    # four five-line "same" continuations, at a column median of 20 chars per
+    # line, used to let all four in even though the true density over all 21
+    # lines is 0.238x the median; fixed, it stops after the first
+    # continuation, where the true density (0.833x, over 6 lines) still clears
+    # the floor -- the next one would not (0.4545x, over 11).
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    def lines(from_n, to_n):
+        return [{"n": n, "text": "λόγος ἄλλος"} for n in range(from_n, to_n + 1)]
+
+    def speech(n):
+        return [{"line": n, "offset": 0, "label": "ΧΟ."}]
+
+    head = {
+        "id": "1:1", "book": 1, "column": "1",
+        "text": (
+            "One is here. Two is here too. Three now enters the scene. "
+            "Four then arrives quickly. Five ends here."
+        ),
+        "notes": [], "markers": [], "bekker": [], "turns": [],
+    }
+    # Two owned 1-line/20-char segments pull the column median to 20 (median
+    # of [100, 20, 20]), independent of the head's own 100-char speech.
+    dummy = lambda cid: {"id": cid, "book": 1, "column": "1", "text": "x" * 20,
+                          "notes": [], "markers": [], "bekker": [], "turns": []}
+    segments = [
+        {"id": "1:1", "column": "1", "lines": lines(1, 1), "speakers": speech(1)},
+        {"id": "1:2", "column": "1", "lines": lines(2, 6), "speakers": speech(2)},
+        {"id": "1:3", "column": "1", "lines": lines(7, 11), "speakers": speech(7)},
+        {"id": "1:4", "column": "1", "lines": lines(12, 16), "speakers": speech(12)},
+        {"id": "1:5", "column": "1", "lines": lines(17, 21), "speakers": speech(17)},
+        {"id": "1:6", "column": "1", "lines": lines(22, 22)},
+        {"id": "1:7", "column": "1", "lines": lines(23, 23)},
+    ]
+    chunks = [head, dummy("1:6"), dummy("1:7")]
+    out = {c["id"]: c["text"] for c in _spread_long_speeches(chunks, segments)}
+    # Only "1:1" and "1:2" (the head and its first continuation) hold English;
+    # "1:3"/"1:4"/"1:5" stay bare -- the loop stopped at the floor.
+    assert set(out) & {"1:1", "1:2", "1:3", "1:4", "1:5"} == {"1:1", "1:2"}
+    assert out["1:2"] == (
+        "Two is here too. Three now enters the scene. "
+        "Four then arrives quickly. Five ends here."
+    )
+
+
+def _dash_group(turns):
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    def lines(from_n, to_n):
+        return [{"n": n, "text": "λόγος ἄλλος"} for n in range(from_n, to_n + 1)]
+
+    text = "Aa bit one. Bb marker1 bit two. Cc marker2 bit three. Dd marker3 bit four."
+    head = {
+        "id": "1:1", "book": 1, "column": "1", "text": text,
+        "notes": [], "markers": [], "bekker": [],
+        "turns": [{"offset": o} for o in turns],
+    }
+    dummy = lambda cid: {"id": cid, "book": 1, "column": "1", "text": "xx",
+                          "notes": [], "markers": [], "bekker": [], "turns": []}
+    segments = [
+        {"id": "1:1", "column": "1", "lines": lines(1, 1), "speakers": [{"line": 1, "offset": 0, "label": "CHORUS"}]},
+        {"id": "1:2", "column": "1", "lines": lines(2, 2), "speakers": [{"line": 2, "offset": 0, "label": "—"}]},
+        {"id": "1:3", "column": "1", "lines": lines(3, 3), "speakers": [{"line": 3, "offset": 0, "label": "—"}]},
+        {"id": "1:4", "column": "1", "lines": lines(4, 4), "speakers": [{"line": 4, "offset": 0, "label": "—"}]},
+        {"id": "1:8", "column": "1", "lines": lines(5, 5)},
+        {"id": "1:9", "column": "1", "lines": lines(6, 6)},
+    ]
+    chunks = [head, dummy("1:8"), dummy("1:9")]
+    out = _spread_long_speeches(chunks, segments)
+    return {c["id"]: c["text"] for c in out if c["id"] in ("1:1", "1:2", "1:3", "1:4")}
+
+
+def test_dash_continuations_fall_back_to_sentence_starts_when_turns_run_short():
+    # Codex review of 05e6855: OCR-damaged speaker labels leave a translation
+    # with fewer turn marks than there are unnamed ("dash") continuations to
+    # place (Suppliants-eur 600-619). Taking the turn pool anyway misreads
+    # later dashes -- here it loses two of three outright. With only one turn
+    # for three dashes, every cut must come from the sentence-start pool
+    # (`aim`), matching what a translation with no turns at all would give.
+    turn_case = _dash_group([15])
+    no_turns = _dash_group([])
+    assert turn_case == no_turns == {
+        "1:1": "Aa bit one.",
+        "1:2": "Bb marker1 bit two.",
+        "1:3": "Cc marker2 bit three.",
+        "1:4": "Dd marker3 bit four.",
+    }
+
+
+def test_dash_continuations_still_use_complete_turns():
+    # A turn for every dash still to place: unchanged, the turn pool wins.
+    assert _dash_group([15, 35, 57]) == {
+        "1:1": "Aa bit one. Bb",
+        "1:2": "marker1 bit two. Cc",
+        "1:3": "marker2 bit three. Dd",
+        "1:4": "marker3 bit four.",
+    }
+
+
 def test_run_secondary_writes_ross_chunks(tmp_path, monkeypatch):
     from drama_pipeline.config import Manifest
     from drama_pipeline import stage1_turn_english as m

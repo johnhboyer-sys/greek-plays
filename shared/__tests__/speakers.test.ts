@@ -1265,13 +1265,34 @@ describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-0
     expect(at(greek({ 6: 'τέλος λόγου.' }, 1, 10))).toBe(7);
     // A crux after the stop does not hide it (Agamemnon 103 "φρένα. †").
     expect(at(greek({ 6: 'τέλος λόγου. †' }, 1, 10))).toBe(7);
-    // A stop inside line 4 lies outside the window (line 4 is 1.63 lines
-    // away), so line 7 it is.
-    expect(at(greek({ 4: 'ἔφη· καὶ νῦν', 6: 'τέλος.' }, 1, 10))).toBe(7);
+    // A stop inside line 4 (at 4.5, 1.13 lines away by position) is nearer
+    // than the break at line 7 (1.37 away), so line 4 wins (Codex review of
+    // 05e6855: the window must measure distance by position, not by line).
+    expect(at(greek({ 4: 'ἔφη· καὶ νῦν', 6: 'τέλος.' }, 1, 10))).toBe(4);
     // A stop inside line 5 (5.5) is nearer still.
     expect(at(greek({ 5: 'ἔφη· καὶ νῦν', 6: 'τέλος.' }, 1, 10))).toBe(5);
     // Nothing within 1.5 lines (line 9 is 3.37 away): the proportion stands.
     expect(at(greek({ 8: 'τέλος.' }, 1, 10))).toBe(6);
+  });
+
+  it('measures the snap window by position, not by line (Codex review of 05e6855)', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    // Estimate 4.5, a break at line 6 with an internal stop (at 6.5, 2.0 away
+    // by position though only 1.5 away by line number): outside the window,
+    // so the proportion (rounds to 5) stands, never line 6.
+    const t1 = 'x'.repeat(20) + '. ' + 'Y ' + 'y'.repeat(20) + '.';
+    const s1 = 20 + 2;
+    const out1 = sentenceTicks(t1, [{ n: 1, offset: 0 }, { n: 8, offset: t1.length - 1 }], [], 15, greek({ 6: 'τέλος. ἄλλα' }, 1, 14))
+      .find((t) => t.offset === s1)!.n;
+    expect(out1).not.toBe(6);
+    expect(out1).toBe(5);
+    // Estimate 5, a break at line 3 with an internal stop (at 3.5, 1.5 away
+    // by position though 2 away by line number): inside the window, taken.
+    const t2 = 'x'.repeat(6) + '. ' + 'Y ' + 'y'.repeat(4) + '.';
+    const s2 = 6 + 2;
+    const out2 = sentenceTicks(t2, [{ n: 1, offset: 0 }, { n: 8, offset: t2.length - 1 }], [], 15, greek({ 3: 'τέλος. ἄλλα' }, 1, 14))
+      .find((t) => t.offset === s2)!.n;
+    expect(out2).toBe(3);
   });
 
   it('keeps a marker on a sentence start at its own line, whatever the Greek', async () => {

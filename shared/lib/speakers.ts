@@ -1156,7 +1156,7 @@ export function sentenceTicks(
       const x = a.n + ((s - a.off) / (b.off - a.off)) * (b.n - a.n);
       const top = b.n === endN ? endN - 1 : b.n;
       const near = breaks
-        .filter((g) => Math.abs(g.n - x) <= SNAP && g.n >= a.n && g.n <= top)
+        .filter((g) => Math.abs(g.at - x) <= SNAP && g.n >= a.n && g.n <= top)
         .sort((p, q) => Math.abs(p.at - x) - Math.abs(q.at - x))[0];
       n = near ? near.n : Math.round(x);
     }

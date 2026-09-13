@@ -1860,8 +1860,10 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) 
             )
             if kind is None:
                 break
-            if kind == "bare" and "same" not in kinds and "dash" not in kinds:
-                lines_before += lines_of(segments[k])
+            # Every crossed segment's lines count, "same"/"dash" included, or
+            # the floor below is measured against too few lines (Codex review
+            # of 05e6855: a case reached 0.238x before the loop noticed).
+            lines_before += lines_of(segments[k])
             conts.append(segments[k])
             kinds.append(kind)
             k += 1
@@ -1898,8 +1900,14 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) 
         cuts: list[tuple[dict, int]] = []
         prev = 0
         for i, cont in enumerate(conts, start=1):
-            # A change of voice the English marks takes an English turn.
-            if kinds[i - 1] == "dash" and turn_starts:
+            # A change of voice the English marks takes an English turn --
+            # but only when at least as many turns remain as there are dashes
+            # still to place in the group; OCR-damaged speaker labels drop
+            # turns, and taking the pool anyway misreads later dashes (Codex
+            # review of 05e6855: Suppliants-eur 600-619).
+            dashes_left = sum(1 for kd in kinds[i - 1:] if kd == "dash")
+            turns_left = sum(1 for p in turn_starts if p > prev)
+            if kinds[i - 1] == "dash" and turns_left >= dashes_left:
                 pool, at = turn_starts, float(firsts[i])
             else:
                 pool, at = starts, aim(firsts[i])
