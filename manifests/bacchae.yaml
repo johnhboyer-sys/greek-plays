@@ -89,6 +89,18 @@ english:
       source: bench/murray/bacchae.txt
       play: BACCHAE
       footnotes: false
+      # Murray cues both messengers MESSENGER (his cast list says "TWO
+      # MESSENGERS" but never distinguishes them in the text), so the
+      # herdsman's and Pentheus' servant's speeches both canonicalize to
+      # "Messenger" while the Greek splits into Messenger/Second Messenger
+      # at 1024 (speakers.overrides). Without an anchor the second
+      # messenger's stichomythia with the Chorus (1024-1042) and his death
+      # report (1043ff) drift onto the wrong Greek turns (Codex review,
+      # 2026-09-12). Two pins re-anchor the run; a run above 8 is capped
+      # (_RUN_SWAP_WINDOW), so the 11-turn stretch takes two.
+      pins:
+        - { greek: "1024", english: "Woe to the house once blest in Hellas", run: 8 }
+        - { greek: "1043", english: "We climbed beyond the utmost habitings", run: 1 }
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's

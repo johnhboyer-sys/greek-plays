@@ -2683,3 +2683,102 @@ def test_clouds_102_pin_keeps_the_thinkery_identification_off_of_the_stall():
     broken = _clouds_third_chunks(without_102)
     assert "Fine. Who are they?" in broken["1:102"][0]["text"]
     assert "Chairephon and that humbug, Sokrates" in broken["1:110"][0]["text"]
+
+
+_BACCHAE_MANIFEST_PATH = Path(__file__).resolve().parents[2] / "manifests" / "bacchae.yaml"
+
+
+def _bacchae_export_xml_path() -> Path | None:
+    if not _BACCHAE_MANIFEST_PATH.exists():
+        return None
+    from drama_pipeline import stage1_greek
+
+    manifest = Manifest.for_work("bacchae")
+    return stage1_greek.exported_xml_path(manifest)
+
+
+_bacchae_export = _bacchae_export_xml_path()
+
+requires_bacchae_export = pytest.mark.skipif(
+    _bacchae_export is None or not _bacchae_export.exists(),
+    reason="build/export's Diogenes TLG export for Bacchae (author 0006, "
+           "work 050) is not present in this checkout -- run the Diogenes "
+           "export recipe in docs/tlg-phi-export.md before this test can "
+           "build the real Greek spine",
+)
+
+
+def _bacchae_murray_chunks(pins: list[dict]) -> dict:
+    """The real Murray overlay English, cut on the real Bacchae Greek spine,
+    exactly as `stage1_turn_english.run(manifest, spine, slot="overlay",
+    overlay_entry=...)` builds it -- with `pins` substituted for the
+    manifest's own, so the caller can test with and without the second
+    messenger's pins."""
+    from drama_pipeline import stage1_greek
+    from drama_pipeline.stage1_turn_english import (
+        _aliases_for_slot,
+        _SiglaResolver,
+        _spread_long_speeches,
+        chunks_as_overlay,
+    )
+
+    manifest = Manifest.for_work("bacchae")
+    xml_path = stage1_greek.run_export(manifest)
+    spine = stage1_greek.parse_spine(xml_path, manifest)
+    overlays = manifest.data["english"]["overlays"]
+    cfg = next(o for o in overlays if o["id"] == "murray-verse")
+    speakers = manifest.data["speakers"]
+    aliases = _aliases_for_slot(speakers, "overlay", cfg["id"])
+    sigla = _SiglaResolver(manifest)
+    english, _footnotes, _report = parse_translation(
+        SOURCES_DIR / cfg["source"],
+        spine,
+        work_id=manifest.work_id,
+        translation_id=cfg["id"],
+        play=cfg["play"],
+        sigla=sigla,
+        english_aliases=aliases,
+        footnotes_enabled=bool(cfg.get("footnotes", False)),
+        format=cfg.get("format") or "gutenberg",
+        line_fixes=cfg.get("line_fixes") or {},
+        pins=pins,
+        splits=cfg.get("splits") or [],
+        covered=cfg.get("covered") or [],
+    )
+    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [])
+    return chunks_as_overlay(english)
+
+
+@requires_bacchae_export
+def test_bacchae_murray_second_messenger_pins_keep_the_death_report_on_its_own_line():
+    # Codex review (2026-09-12): Murray's cast list says "TWO MESSENGERS" but
+    # he cues both the herdsman and Pentheus' servant MESSENGER in the text
+    # itself, while the Greek splits into Messenger/Second Messenger at 1024
+    # (speakers.overrides). With no anchor, the second messenger's
+    # stichomythia with the Chorus (1024-1042) and his death report (1043ff)
+    # fall into the same "equal-length gap" the Dionysus/Pentheus dressing
+    # scene just vacated, and the whole run -- LEADER's cue to speak and the
+    # death report itself -- drifts forward onto 1:1153, the Chorus's ode
+    # after the report, instead of the second messenger's own lines.
+    manifest = Manifest.for_work("bacchae")
+    overlays = manifest.data["english"]["overlays"]
+    cfg = next(o for o in overlays if o["id"] == "murray-verse")
+    real_pins = cfg.get("pins") or []
+    assert any(p.get("greek") == "1024" for p in real_pins) and any(
+        p.get("greek") == "1043" for p in real_pins
+    ), (
+        "the Bacchae second-messenger pins are missing from "
+        "manifests/bacchae.yaml -- this test can no longer prove the pins "
+        "(rather than a coincidence) fix the alignment"
+    )
+
+    with_pins = _bacchae_murray_chunks(real_pins)
+    assert "We climbed beyond the utmost habitings" in with_pins["1:1043"][0]["text"]
+    assert "Speak of the mountain side" in with_pins["1:1041"][0]["text"]
+    assert "We climbed beyond" not in with_pins["1:1153"][0]["text"]
+    assert "Weave ye the dance" in with_pins["1:1153"][0]["text"]
+
+    # Reproduce the regression directly: the same build, minus the two pins.
+    broken = _bacchae_murray_chunks([])
+    assert "We climbed beyond the utmost habitings" in broken["1:1153"][0]["text"]
+    assert "1:1043" not in broken or "We climbed beyond" not in broken["1:1043"][0]["text"]
