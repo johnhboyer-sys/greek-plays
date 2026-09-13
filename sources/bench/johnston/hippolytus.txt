@@ -1192,7 +1192,14 @@ and decorating her with fancy clothes,
 lovely objects for a brainless figurine.
 And so the man, poor miserable wretch,
 little by little wastes his family wealth.
-_[The would-be husband has a fatal choice: if his wife comes from a worthy family, he can get some pleasure from his in-laws and let that compensate him for the pain of a marriage bond he finds distasteful, or else, if his in-laws are malicious but his wife is good, he can use that good to neutralize his sense of discontent.]_
+[The would-be husband has a fatal choice:
+if his wife comes from a worthy family,
+he can get some pleasure from his in-laws
+and let that compensate him for the pain
+of a marriage bond he finds distasteful,
+or else, if his in-laws are malicious
+but his wife is good, he can use that good
+to neutralize his sense of discontent.]
 It’s easier for the man who marries
 a stupid wife, even though a woman
 who’s a fool and just sits around the home
@@ -1882,7 +1889,8 @@ I never laid a hand upon your wife.
 I never could have entertained that wish
 or harboured such a thought. Let me perish
 ignominiously, without a name,
-_[without a city or a home, a vagrant wandering over the earth in exile]_
+[without a city or a home, a vagrant
+wandering over the earth in exile]
 if I am guilty—may the sea and earth
 refuse to receive my lifeless body.
 What fear it was made Phaedra kill herself

@@ -95,7 +95,7 @@ def test_directions_stay_out_of_the_speech_text():
             "<p>CLYTAEMNESTRA <i>[pulling Aegisthus<br>towards the doors]</i><br>"
             "Leave them their yelping.</p>"
             "<p><i>[They go in.</i><br><i>The doors close.]</i></p>"
-            "<p>CHORUS<br>[To the audience] Alas,<br>for this house.</p>"
+            "<p>CHORUS<br><i>[To the audience]</i> Alas,<br>for this house.</p>"
         ),
         "PLAY",
     )
@@ -120,6 +120,72 @@ def test_footnote_calls_linking_to_the_page_go_with_their_line_breaks_kept():
     )
     assert "No more.\nThen go." in out.text
     assert _speeches(out.text) == [("EUELPIDES", "I could use cords of linen. No more. Then go.")]
+
+
+def test_restored_dialogue_in_plain_brackets_stays_verse_not_a_direction():
+    # Johnston brackets dialogue he has himself restored or supplied after a
+    # manuscript gap, but -- unlike his stage directions -- prints it in the
+    # same plain (non-italic) verse font as the rest of the speech (e.g. his
+    # Suppliant Women note 9: "There is apparently a line missing here. The
+    # words in square brackets have been provided to maintain the logic of
+    # the conversation"). The converter used to treat every "[" the same way
+    # and read this restored dialogue as a stage direction.
+    out = convert(
+        _page(
+            "<p>CHORUS<br>Look over here well.<br>"
+            "[Look over here—<br>there is a symbol drawn, some form of bird.]</p>"
+        ),
+        "PLAY",
+    )
+    speeches = _parsed(out.text)
+    assert speeches[0].get("directions_before") is None
+    assert "_[Look over here" not in out.text
+    assert speeches[0]["text"] == (
+        "Look over here well. [Look over here— there is a symbol drawn, some form of bird.]"
+    )
+
+
+def test_an_unclosed_restoration_bracket_does_not_swallow_the_next_speaker():
+    # Ian Johnston's Bacchae page brackets Agave's speech at line 1244 as
+    # restored ("At this point, there is a major gap in the manuscript. The
+    # text here is reconstructed...") but never closes the bracket; the next
+    # "]" in the page belongs to an unrelated, later, italicized stage
+    # direction. The old code read a "[" as always opening a direction and
+    # accumulated every line -- Cadmus's whole intervening speech and cue
+    # included -- until that unrelated "]", silently dropping Cadmus's cue
+    # and merging his lines into Agave's.
+    out = convert(
+        _page(
+            "<p>AGAVE<br>"
+            "[From being your royal and honoured daughter,<br>"
+            "the mother of a king, I'm now transformed.<br>"
+            "Father, give me your permission now<br>"
+            "to lay out here the body of my son.</p>"
+            "<p>CADMUS<br>"
+            "That's no easy task to undertake.<br>"
+            "But if you think you can endure the work,<br>"
+            "then, my child, begin the appropriate rites.</p>"
+            "<p>AGAVE<br><i>[removing Pentheus's limbs]</i><br>"
+            "Alas, for my poor son, my only child.</p>"
+        ),
+        "PLAY",
+    )
+    speeches = _parsed(out.text)
+    assert [(s["speaker_printed"], s["text"]) for s in speeches] == [
+        (
+            "AGAVE",
+            "[From being your royal and honoured daughter, the mother of a "
+            "king, I'm now transformed. Father, give me your permission now "
+            "to lay out here the body of my son.",
+        ),
+        (
+            "CADMUS",
+            "That's no easy task to undertake. But if you think you can "
+            "endure the work, then, my child, begin the appropriate rites.",
+        ),
+        ("AGAVE", "Alas, for my poor son, my only child."),
+    ]
+    assert "_[removing Pentheus's limbs]_" in speeches[2]["shown"]
 
 
 def test_an_italic_line_without_brackets_is_speech():

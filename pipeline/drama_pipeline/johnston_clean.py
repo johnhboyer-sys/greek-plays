@@ -109,18 +109,28 @@ def _walk(el, out: list, italic: bool = False, upper: bool = False) -> None:
         out.append(("close",))
 
 
-def _lines(tokens: list) -> list[str | None]:
-    """Printed lines, ``None`` at each paragraph edge."""
-    out: list[str | None] = []
+def _lines(tokens: list) -> list[tuple[str, bool] | None]:
+    """Printed lines as ``(text, italic)``, ``None`` at each paragraph edge.
+
+    ``italic`` is true when the line carries any italicized text. Johnston
+    sets stage directions in italics; dialogue he has himself restored or
+    supplied after a manuscript gap is bracketed but printed in the same
+    plain verse font as the rest of the line (see ``convert``)."""
+    out: list[tuple[str, bool] | None] = []
     current: list[str] = []
+    italic: list[bool] = []
 
     def flush() -> None:
-        out.append(collapse_ws("".join(current)).strip())
+        text = collapse_ws("".join(current)).strip()
+        out.append((text, any(italic)))
         current.clear()
+        italic.clear()
 
     for token in tokens:
         if token[0] == "text":
             current.append(token[1])
+            if token[1].strip():
+                italic.append(token[2])
         elif token[0] == "br":
             flush()
         else:
@@ -167,18 +177,37 @@ def _is_end(line: str) -> bool:
     return line.upper() in _END or line.startswith(("[Back to", "Page loads on", "Notes to"))
 
 
+def _opens_direction(line: str, italic: bool) -> bool:
+    """A ``[``-led line is a stage direction, not restored dialogue.
+
+    Johnston sets stage directions in italics. He also brackets dialogue he
+    has himself restored or supplied after a manuscript gap, but prints it in
+    the same plain (non-italic) verse font as the rest of the speech; those
+    lines must stay in the turn-text as ordinary verse, brackets and all,
+    rather than being read as a direction. A bracketed line with no lowercase
+    letters at all (an ellipsis marking an untranslated gap, "[. . . .]") is
+    not restored dialogue either way, so it still opens a direction."""
+    return italic or not any(ch.islower() for ch in line)
+
+
 def convert(raw_html: str, title: str) -> Converted:
     doc = lxml.html.fromstring(raw_html)
     tokens: list = []
     _walk(doc, tokens)
     lines: list[str | None] = []
+    italics: list[bool] = []
     markers = 0
-    for line in _lines(tokens):
-        if line is not None:
-            # An unlinked footnote call ("death.*"); the verse has no asterisks.
-            line, n = _strip_numbers(line.replace("*", ""))
-            markers += n
+    for item in _lines(tokens):
+        if item is None:
+            lines.append(None)
+            italics.append(False)
+            continue
+        line, italic = item
+        # An unlinked footnote call ("death.*"); the verse has no asterisks.
+        line, n = _strip_numbers(line.replace("*", ""))
+        markers += n
         lines.append(line)
+        italics.append(italic)
 
     heads = [i for i, line in enumerate(lines) if line and line.casefold() == "dramatis personae"]
     if not heads:
@@ -228,7 +257,7 @@ def convert(raw_html: str, title: str) -> Converted:
             continue
         if k >= start and _is_end(line):
             break
-        if line.startswith("["):
+        if line.startswith("[") and _opens_direction(line, italics[k]):
             direction = []
             add_direction(line)
             continue

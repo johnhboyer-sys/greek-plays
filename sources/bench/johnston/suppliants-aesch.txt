@@ -265,7 +265,9 @@ DANAUS
 If Zeus is willing
 then all will turn out well.
 
-_[Look over here— there is a symbol drawn, some form of bird.]_
+CHORUS
+[Look over here—
+there is a symbol drawn, some form of bird.]
 
 DANAUS
 It is the bird of Zeus—invoke his name.
@@ -476,7 +478,9 @@ CHORUS
 He was called Epaphus, a fitting name,
 “born from Zeus’ touch.”
 
-_[And what offspring did Epaphus produce?]_
+PELASGUS
+[And what offspring
+did Epaphus produce?]
 
 CHORUS
 Libya—who reaped the fruit
@@ -598,8 +602,8 @@ and see our flight brings you no harm.
 And you with your mature experience
 should understand from younger hearts
 if you show reverence to a suppliant
-_[and piously give offerings to the gods, then you will never lack the gods’ goodwill]_
-.
+[and piously give offerings to the gods,
+then you will never lack the gods’ goodwill].
 
 PELASGUS
 But here you are not seated by the hearth

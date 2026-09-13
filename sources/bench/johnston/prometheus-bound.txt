@@ -1406,10 +1406,12 @@ deep in your memory.
 
 Once you have crossed
 the stream that separates two continents,
-_[select the route that]_
-leads towards the east,
+[select the route that] leads towards the east,
 the flaming pathway of the rising son,
-_[and you will come, at first, to northern lands where cold winds blow, and here you must beware of gusting storms, in case a winter blast surprises you and snatches you away.]_
+[and you will come, at first, to northern lands
+where cold winds blow, and here you must beware
+of gusting storms, in case a winter blast
+surprises you and snatches you away.]
 Then cross the roaring sea until you reach
 the Gorgons’ plains of Cisthene, the home
 of Phorcys’ daughters, three ancient women

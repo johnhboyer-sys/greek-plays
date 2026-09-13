@@ -900,7 +900,12 @@ will be directed chiefly at this man.
 He does not look as if he marched this far
 to trade blows in a minor scrap or two
 and make his lengthy trip a shameful waste.
-_[Parthenopaeus from Arcadia is not that sort of man. He was received in Argos as a resident, and now he wishes to repay that city state for all their fine support by threatening our Theban walls. May Zeus deny him that!]_
+[Parthenopaeus from Arcadia
+is not that sort of man. He was received
+in Argos as a resident, and now
+he wishes to repay that city state
+for all their fine support by threatening
+our Theban walls. May Zeus deny him that!]
 
 ETEOCLES
 O if only the gods would give those men
