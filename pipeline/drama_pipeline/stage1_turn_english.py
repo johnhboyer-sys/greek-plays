@@ -1851,19 +1851,22 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) 
         own = set(named[-1:])
         conts: list[dict] = []
         kinds: list[str] = []
-        lines_before = lines_of(seg)
+        # "Stacked" is measured at the head and the bare lines before any mark;
+        # the floor, over every line crossed (Codex review of 05e6855: a case
+        # reached 0.238x; counting marks in "stacked" too cut Way's half-chorus
+        # turns off Suppliants-eur 618-632).
+        lines_head = lines_crossed = lines_of(seg)
         while k < len(segments) and segments[k]["id"] not in by_id:
             per_line = len(text) / column_median if column_median else 0.0
             kind = _continuation_kind(
-                segments[k], own, per_line / lines_before,
-                per_line / (lines_before + lines_of(segments[k])), sigla,
+                segments[k], own, per_line / lines_head,
+                per_line / (lines_crossed + lines_of(segments[k])), sigla,
             )
             if kind is None:
                 break
-            # Every crossed segment's lines count, "same"/"dash" included, or
-            # the floor below is measured against too few lines (Codex review
-            # of 05e6855: a case reached 0.238x before the loop noticed).
-            lines_before += lines_of(segments[k])
+            if kind == "bare" and "same" not in kinds and "dash" not in kinds:
+                lines_head += lines_of(segments[k])
+            lines_crossed += lines_of(segments[k])
             conts.append(segments[k])
             kinds.append(kind)
             k += 1

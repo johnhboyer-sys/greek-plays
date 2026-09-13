@@ -1688,6 +1688,38 @@ def test_dash_continuations_still_use_complete_turns():
     }
 
 
+def test_dash_run_measures_stacking_at_the_head_and_the_floor_over_all():
+    # 1a3902b measured "stacked" over every line crossed, so a chorus head's
+    # English stopped at the second unnamed dash and the half-chorus turns
+    # after it piled onto one row (Way's Suppliants-eur 598-632). Stacking is
+    # judged at the head (4.3x the median here); the 0.5x floor over all six
+    # lines (0.71x) still holds, so every dash takes its own turn.
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    text = "Aa won. Bb won. Cc won. Dd won. Ee won. Ff won."
+    head = {
+        "id": "1:1", "book": 1, "column": "1", "text": text,
+        "notes": [], "markers": [], "bekker": [],
+        "turns": [{"offset": o} for o in (0, 8, 16, 24, 32, 40)],
+    }
+    dummy = lambda cid: {"id": cid, "book": 1, "column": "1", "text": "x" * (len(text) // 4),
+                          "notes": [], "markers": [], "bekker": [], "turns": []}
+    line = lambda n: [{"n": n, "text": "λόγος ἄλλος"}]
+    segments = [
+        {"id": "1:1", "column": "1", "lines": line(1), "speakers": [{"line": 1, "offset": 0, "label": "CHORUS"}]},
+        *[
+            {"id": f"1:{n}", "column": "1", "lines": line(n), "speakers": [{"line": n, "offset": 0, "label": "—"}]}
+            for n in range(2, 7)
+        ],
+        {"id": "1:8", "column": "1", "lines": line(8)},
+        {"id": "1:9", "column": "1", "lines": line(9)},
+    ]
+    out = {c["id"]: c["text"] for c in _spread_long_speeches([head, dummy("1:8"), dummy("1:9")], segments)}
+    assert [out.get(f"1:{n}") for n in range(1, 7)] == [
+        "Aa won.", "Bb won.", "Cc won.", "Dd won.", "Ee won.", "Ff won.",
+    ]
+
+
 def test_run_secondary_writes_ross_chunks(tmp_path, monkeypatch):
     from drama_pipeline.config import Manifest
     from drama_pipeline import stage1_turn_english as m
