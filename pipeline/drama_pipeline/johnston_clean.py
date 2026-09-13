@@ -233,17 +233,25 @@ def convert(raw_html: str, title: str) -> Converted:
     items: list[tuple[str, ...]] = []
     direction: list[str] | None = None
 
-    def add_direction(text: str) -> None:
-        # Text after a closing bracket is verse again.
+    def close_direction() -> None:
         nonlocal direction
         assert direction is not None
-        head, sep, tail = text.partition("]")
-        direction.append(head + sep)
-        if sep:
-            items.append(("dir", collapse_ws(" ".join(direction)).replace("_", " ")))
-            direction = None
-            if tail.strip():
-                items.append(("line", tail.strip()))
+        items.append(("dir", collapse_ws(" ".join(direction)).replace("_", " ")))
+        direction = None
+
+    def add_direction(text: str) -> None:
+        # Text after a closing bracket is verse again. Birds closes two
+        # directions with "}", a typo for "]".
+        assert direction is not None
+        ends = [i for i in (text.find("]"), text.find("}")) if i >= 0]
+        if not ends:
+            direction.append(text)
+            return
+        direction.append(text[: min(ends)] + "]")
+        close_direction()
+        tail = text[min(ends) + 1 :]
+        if tail.strip():
+            items.append(("line", tail.strip()))
 
     for k in range(heads[0] + 1, len(lines)):
         line = lines[k]
@@ -253,8 +261,14 @@ def convert(raw_html: str, title: str) -> Converted:
         if not line:
             continue
         if direction is not None:
-            add_direction(line)
-            continue
+            if italics[k] or not any(ch.isalpha() for ch in line):
+                add_direction(line)
+                continue
+            # Johnston's directions are italic: a plain line after one whose
+            # bracket he never closed (Birds, "[advancing towards Pisthetairos
+            # and Euelpides") is the speech again.
+            direction[-1] = direction[-1].rstrip() + "]"
+            close_direction()
         if k >= start and _is_end(line):
             break
         if line.startswith("[") and _opens_direction(line, italics[k]):

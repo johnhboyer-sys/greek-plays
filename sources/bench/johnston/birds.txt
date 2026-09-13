@@ -999,7 +999,28 @@ Now, you’re really talking nonsense—
 how do you intend to weep, once these birds
 poke out your eyes?
 
-_[advancing towards Pisthetairos and Euelpides On, on . . . let’s move in to attack, and launch a bloody rush, come in from front and back, and break ’em in the crush— with wings on every side they’ll have no place to hide. These two will start to howl, when my beak starts to eat and makes ’em food for fowl. There’s no well-shaded peak, no cloud or salt-grey sea where they can flee from me. CHORUS LEADER Now let’s bite and tear these two apart! Where’s the brigadier? Bring up the right wing! [The birds start to close in on Pisthetairos and Euelpides, cowering up on the rocks]_
+CHORUS
+_[advancing towards Pisthetairos and Euelpides]_
+On, on . . .
+let’s move in to attack,
+and launch a bloody rush,
+come in from front and back,
+and break ’em in the crush—
+with wings on every side
+they’ll have no place to hide.
+
+These two will start to howl,
+when my beak starts to eat
+and makes ’em food for fowl.
+There’s no well-shaded peak,
+no cloud or salt-grey sea
+where they can flee from me.
+
+CHORUS LEADER
+Now let’s bite and tear these two apart!
+Where’s the brigadier? Bring up the right wing!
+
+_[The birds start to close in on Pisthetairos and Euelpides, cowering up on the rocks]_
 
 EUELPIDES
 This is it! I’m done for. Where can I run?
@@ -1099,7 +1120,11 @@ Well, here’s what seems best to me—first of all,
 let’s hear what they have come to say. It’s true—
 our enemies can teach us something wise.
 
-_[to Euelpides} I think their anger’s easing off. Let’s retreat. [Pisthetairos and Euelpides inch their way toward the doors, still bunched together, with Euelpides holding up the pot]_
+PISTHETAIROS
+_[to Euelpides]_
+I think their anger’s easing off. Let’s retreat.
+
+_[Pisthetairos and Euelpides inch their way toward the doors, still bunched together, with Euelpides holding up the pot]_
 
 TEREUS
 _[to the Chorus Leader]_
@@ -2027,7 +2052,110 @@ then for a full command, so now, from being nobody,
 he carries out our great affairs—he’s now become
 a tawny civic horse-cock.
 
-_[Enter Pisthetairos and Euelpides from Tereus’ house. They now have wings on and feathers on their heads instead of hair} PISTHETAIROS Well, that’s that. By Zeus, I’ve never seen a more ridiculous sight! EUELPIDES What are you laughing at? PISTHETAIROS At your feathers. Have you any idea what you look like— what you most resemble with those feathers on? A goose painted by some cheap artiste! EUELPIDES And you look like a blackbird—one whose hair has just been cut using a barber’s bowl. PISTHETAIROS People will use us as metaphors— as Aeschlyus would say, “We’re shot by feathers not from someone else but of our very own.” CHORUS LEADER All right, then. What do we now need to do? PISTHETAIROS First, we have to name our city, something fine and grand. Then after that we sacrifice an offering to the gods. EUELPIDES That’s my view, too. CHORUS LEADER So what name shall we give our city? PISTHETAIROS Well, do you want to use that mighty name from Lacedaimon—shall we call it Sparta? EUELPIDES By Hercules, would I use that name Sparta for my city? No. I wouldn’t even try esparto grass to make my bed, not if I could use cords of linen. PISTHETAIROS All right then, what name shall we provide? CHORUS LEADER Some name from around here— to do with clouds, with high places full of air, something really extra grand. PISTHETAIROS Well, then, how do you like this: Cloudcuckooland? CHORUS LEADER Yes! That’s good! You’ve come up with a name that’s really wonderful—it’s great! EUELPIDES Hang on, is this Cloudcuckooland the very spot where Theogenes keeps lots of money, and Aeschines hides all his assets? PISTHETAIROS It’s even more than that—it’s Phlegra Plain, the place where gods beat up on all the giants in a bragging match. EUELPIDES This fine metropolis! O what a glittering thing this city is! Now who should be the city’s guardian god? Who gets to wear the sacred robes we weave? PISTHETAIROS Why not let Athena do the guarding? EUELPIDES But how can we have a finely ordered state where a female goddess stands there fully armed, while Cleisthenes still fondles weaving shuttles. PISTHETAIROS Well, who will hold our city’s strong Storkade? CHORUS LEADER A bird among us of a Persian breed— it’s said to be the fiercest anywhere of all the war god’s chicks. EUELPIDES Some princely cocks? They’re just the gods to live among the rocks! PISTHETAIROS [to Euelpides]_
+_[Enter Pisthetairos and Euelpides from Tereus’ house. They now have wings on and feathers on their heads instead of hair]_
+
+PISTHETAIROS
+Well, that’s that. By Zeus,
+I’ve never seen a more ridiculous sight!
+
+EUELPIDES
+What are you laughing at?
+
+PISTHETAIROS
+At your feathers.
+Have you any idea what you look like—
+what you most resemble with those feathers on?
+A goose painted by some cheap artiste!
+
+EUELPIDES
+And you look like a blackbird—one whose hair
+has just been cut using a barber’s bowl.
+
+PISTHETAIROS
+People will use us as metaphors—
+as Aeschlyus would say, “We’re shot by feathers
+not from someone else but of our very own.”
+
+CHORUS LEADER
+All right, then. What do we now need to do?
+
+PISTHETAIROS
+First, we have to name our city, something
+fine and grand. Then after that we sacrifice
+an offering to the gods.
+
+EUELPIDES
+That’s my view, too.
+
+CHORUS LEADER
+So what name shall we give our city?
+
+PISTHETAIROS
+Well, do you want to use that mighty name
+from Lacedaimon—shall we call it Sparta?
+
+EUELPIDES
+By Hercules, would I use that name Sparta
+for my city? No. I wouldn’t even try
+esparto grass to make my bed, not if
+I could use cords of linen.
+
+PISTHETAIROS
+All right then, what name
+shall we provide?
+
+CHORUS LEADER
+Some name from around here—
+to do with clouds, with high places full of air,
+something really extra grand.
+
+PISTHETAIROS
+Well, then,
+how do you like this: Cloudcuckooland?
+
+CHORUS LEADER
+Yes! That’s good! You’ve come up with a name
+that’s really wonderful—it’s great!
+
+EUELPIDES
+Hang on,
+is this Cloudcuckooland the very spot
+where Theogenes keeps lots of money,
+and Aeschines hides all his assets?
+
+PISTHETAIROS
+It’s even more than that—it’s Phlegra Plain,
+the place where gods beat up on all the giants
+in a bragging match.
+
+EUELPIDES
+This fine metropolis!
+O what a glittering thing this city is!
+Now who should be the city’s guardian god?
+Who gets to wear the sacred robes we weave?
+
+PISTHETAIROS
+Why not let Athena do the guarding?
+
+EUELPIDES
+But how can we have a finely ordered state
+where a female goddess stands there fully armed,
+while Cleisthenes still fondles weaving shuttles.
+
+PISTHETAIROS
+Well, who will hold our city’s strong Storkade?
+
+CHORUS LEADER
+A bird among us of a Persian breed—
+it’s said to be the fiercest anywhere
+of all the war god’s chicks.
+
+EUELPIDES
+Some princely cocks?
+They’re just the gods to live among the rocks!
+
+PISTHETAIROS
+_[to Euelpides]_
 Come now, you must move up into the air,
 and help the ones who’re building up the wall—
 hoist rubble for ’em, strip and mix the mortar,

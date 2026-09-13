@@ -188,6 +188,46 @@ def test_an_unclosed_restoration_bracket_does_not_swallow_the_next_speaker():
     assert "_[removing Pentheus's limbs]_" in speeches[2]["shown"]
 
 
+def test_a_brace_typed_for_a_bracket_still_closes_a_direction():
+    # Johnston's Birds closes two italic directions with "}" (Birds 1102,
+    # "[to Euelpides}"); the converter read on to the next "]" and swallowed
+    # the dialogue between as a stage direction.
+    out = convert(
+        _page(
+            "<p>PISTHETAIROS<br><i>[to Euelpides}</i> I think they're easing off.<br>"
+            "Let's retreat.</p>"
+            "<p>EUELPIDES<br>Agreed.</p>"
+            "<p>CHORUS<br><i>[to all]</i><br>Now.</p>"
+        ),
+        "PLAY",
+    )
+    assert _speeches(out.text) == [
+        ("PISTHETAIROS", "I think they're easing off. Let's retreat."),
+        ("EUELPIDES", "Agreed."),
+        ("CHORUS", "Now."),
+    ]
+    assert "[to Euelpides]" in out.text
+
+
+def test_an_unclosed_italic_direction_ends_where_the_italics_end():
+    # Birds: "<i>[advancing towards Pisthetairos and Euelpides<br></i>" never
+    # closes its bracket; the chorus's song follows in plain type, and the
+    # converter used to swallow it, and every speech after it, as a direction.
+    out = convert(
+        _page(
+            "<p>CHORUS<br><i>[advancing towards them<br></i>On, on, let's attack.<br>"
+            "Break them in the crush.</p>"
+            "<p>PISTHETAIROS<br>We're done for.</p>"
+        ),
+        "PLAY",
+    )
+    assert _speeches(out.text) == [
+        ("CHORUS", "On, on, let's attack. Break them in the crush."),
+        ("PISTHETAIROS", "We're done for."),
+    ]
+    assert "[advancing towards them]" in out.text
+
+
 def test_an_italic_line_without_brackets_is_speech():
     out = convert(_page("<p>HERMES<br><i>Io, Io!</i><br>Come here.</p>"), "PLAY")
     assert _speeches(out.text) == [("HERMES", "Io, Io! Come here.")]
