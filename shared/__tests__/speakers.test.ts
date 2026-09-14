@@ -1476,8 +1476,12 @@ describe('verseLineTicks: a markerless verse speech goes line for line', () => {
     expect(out.map((t) => t.n)).toEqual([152, 153, 154, 155]);
     expect(out.map((t) => text.slice(t.offset, t.offset + 8))).toEqual(['HANDMAID', 'What mus', 'How coul', 'More tha']);
   });
-  it('scales when the counts differ, and a single line sits at the first Greek line', () => {
+  it('scales down when there are more English lines than Greek, and a single line sits at the first Greek line', () => {
     expect(verseLineTicks('A\nB\nC\nD\nE\nF\nG', 10, 12).map((t) => t.n)).toEqual([10, 10, 11, 11, 11, 12, 12]);
     expect(verseLineTicks('Only line', 40, 45).map((t) => t.n)).toEqual([40]);
+  });
+  it('stays one to one when there are fewer English lines than Greek, leaving the rest bare', () => {
+    // Way's Alcestis 152-198: the scan dropped a page, so 24 verses face 47 Greek lines.
+    expect(verseLineTicks('A\nB\nC', 152, 198).map((t) => t.n)).toEqual([152, 153, 154]);
   });
 });
