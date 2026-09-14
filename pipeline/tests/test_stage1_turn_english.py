@@ -30,12 +30,25 @@ def test_english_override_can_switch_the_same_cue_again():
         {"speaker_printed": "MESSENGER", "text": "First report.", "canonical": "One"},
         {"speaker_printed": "MESSENGER", "text": "Second report.", "canonical": "One"},
         {"speaker_printed": "MESSENGER", "text": "Afterward.", "canonical": "One"},
+        # A repeated anchor: the first entry already fired and must not fire again.
+        {"speaker_printed": "MESSENGER", "text": "First report, once more.", "canonical": "One"},
     ]
     _apply_english_overrides(speeches, [
         {"slot": "third", "cue": "MESSENGER", "from_text": "First report", "display": "Two"},
         {"slot": "third", "cue": "MESSENGER", "from_text": "Second report", "display": "Three"},
     ], "test-play", "third")
-    assert [speech["canonical"] for speech in speeches] == ["Two", "Three", "Three"]
+    assert [speech["canonical"] for speech in speeches] == ["Two", "Three", "Three", "Three"]
+
+
+def test_english_canonical_names_keeps_both_names_of_a_switched_cue():
+    from drama_pipeline.stage1_turn_english import _english_canonical_names
+    speeches = [
+        {"speaker_printed": "MESSENGER", "text": "a", "canonical": "Messenger"},
+        {"speaker_printed": "CHORUS", "text": "b", "canonical": "Chorus"},
+        {"speaker_printed": "MESSENGER", "text": "c", "canonical": "Second Messenger"},
+        {"speaker_printed": "MESSENGER", "text": "d", "canonical": "Second Messenger"},
+    ]
+    assert _english_canonical_names(speeches) == ["Messenger", "Chorus", "Second Messenger"]
 
 
 def test_english_override_without_match_raises():
