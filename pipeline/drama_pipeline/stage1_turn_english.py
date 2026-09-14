@@ -1755,16 +1755,83 @@ _SENTENCE_START = re.compile(
 )
 
 
-def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict]:
+# The stacking guard (John, 2026-09-12, on the Codex review of 64e49a3).
+# English characters per Greek line, over the column's median, for the head
+# segment and the bare segments that follow it: a bare "—" is crossed only
+# at _STACKED or more; a mark of the same voice (its speaker named again, or
+# a strophe label on its first line) whenever the English runs above the
+# median. Of the 47 heads the unguarded rule crossed, the lowest case to
+# keep a bare-dash crossing is Eumenides 244 (3.4) and the highest to refuse
+# one Rhesus 527 (1.8); a same-voice mark keeps Orestes 1302 (1.11) and
+# refuses Hecuba 754 (0.99). Neither is crossed when the English, spread
+# over that segment too, would fall below half the median: a 39-line
+# lament is no sentence left over (Thesmophoriazusae 1015, 0.35; the
+# lowest crossing kept is Persians 548, 0.84).
+_STACKED = 2.5
+_THIN = 0.5
+# A Greek sentence starts on the line after a full stop, question mark or
+# raised dot, or partway into a line with one inside it (the reader's
+# sentenceTicks in shared/lib/speakers.ts reads the Greek the same way).
+_GREEK_STOP = "[.;;··!]"
+_GREEK_ENDS = re.compile(_GREEK_STOP + r"\s*[\]’'\"†]*\s*$")
+_GREEK_INSIDE = re.compile(_GREEK_STOP + r"\s*\S")
+_SNAP = 1.5
+
+
+def _greek_breaks(lines: list[dict]) -> list[tuple[int, float]]:
+    """(line index, place) of each Greek sentence start in ``lines``."""
+    out: list[tuple[int, float]] = []
+    for i, line in enumerate(lines):
+        if i and _GREEK_ENDS.search(lines[i - 1].get("text") or ""):
+            out.append((i, float(i)))
+        elif _GREEK_INSIDE.search(_GREEK_ENDS.sub("", line.get("text") or "")):
+            out.append((i, i + 0.5))
+    return out
+
+
+def _is_chorus(name: str) -> bool:
+    low = name.lower()
+    return "chorus" in low and "semi" not in low and "half" not in low
+
+
+def _continuation_kind(
+    segment: dict, own: set[str], stacked: float, spread: float, sigla
+) -> str | None:
+    """How a Greek segment with no English of its own goes on with the
+    speech before it: "bare" (no speaker mark), "same" (a mark of the same
+    voice), "dash" (an unnamed change of voice inside a chorus), or None
+    (it does not). ``stacked`` and ``spread`` are the English's characters
+    per Greek line over the column median, without and with this segment."""
+    if not segment.get("speakers"):
+        return "bare"
+    events = _segment_speaker_events(segment, sigla)
+    names = {name for _ln, _off, name, _m in events if name}
+    if not names <= own or spread < _THIN:
+        return None
+    lines = segment.get("lines") or segment.get("greek") or [{}]
+    if (names and all(name for _ln, _off, name, _m in events)) or lines[0].get("label"):
+        return "same" if stacked > 1.0 else None
+    # An unnamed mark after an actor is someone else speaking (Ion 225).
+    if own and _is_chorus(next(iter(own))) and stacked >= _STACKED:
+        return "dash"
+    return None
+
+
+def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) -> list[dict]:
     """A speech-aligned translation's English for a long Greek speech lands on
-    the speech's first segment; the Greek segments that continue it (cut at
-    the 40-line cap, no speaker change of their own, no chunk of their own)
-    stood bare -- Morshead's whole Agamemnon parodos sat beside 40-103 and
-    104-257 had nothing (John, 2026-09-11). Spread it: each continuation
-    takes the share of the text proportional to its Greek lines, cut at the
-    sentence start nearest that point. A continuation that no sentence start
-    reaches stays empty, as before."""
+    the speech's first segment; the Greek segments that continue it (no
+    chunk of their own, naming nobody or the same speaker again) stood bare
+    -- Morshead's whole Agamemnon parodos sat beside 40-103 and 104-257 had
+    nothing (John, 2026-09-11). Spread it: the English placed in proportion
+    to the Greek lines, each continuation takes the sentence start nearest
+    its first Greek sentence start; where the English marks each change of
+    voice (Way's half-choruses), a change in the Greek takes the English
+    turn nearest it instead. A continuation that no start reaches stays
+    empty, as before."""
     by_id = {c["id"]: c for c in chunks}
+    lines_of = lambda s: max(1, len(s.get("lines") or s.get("greek") or []))  # noqa: E731
+    ratios = [len(c.get("text") or "") / lines_of(s) for s in segments if (c := by_id.get(s["id"]))]
+    column_median = median(ratios) if ratios else 0.0
     # Each spread chunk's pieces, keyed by the chunk's own id; every other
     # chunk keeps its place in the list (Grok review of b294d29).
     pieces_of: dict[str, list[dict]] = {}
@@ -1775,19 +1842,56 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict
         k += 1
         if chunk is None:
             continue
+        text = chunk.get("text") or ""
+        # The Greek speech goes on past a strophe's unnamed "—" and past its
+        # own speaker named again: Morshead's ode at Agamemnon 351 runs past
+        # both to 502 (John, 2026-09-12). Greek against Greek: the English
+        # turn's name can disagree with the edition (Birds 289).
+        named = [name for _ln, _off, name, _m in _segment_speaker_events(seg, sigla) if name]
+        own = set(named[-1:])
         conts: list[dict] = []
-        while k < len(segments) and not segments[k].get("speakers") and segments[k]["id"] not in by_id:
+        kinds: list[str] = []
+        # "Stacked" is measured at the head and the bare lines before any mark;
+        # the floor, over every line crossed (Codex review of 05e6855: a case
+        # reached 0.238x; counting marks in "stacked" too cut Way's half-chorus
+        # turns off Suppliants-eur 618-632).
+        lines_head = lines_crossed = lines_of(seg)
+        while k < len(segments) and segments[k]["id"] not in by_id:
+            per_line = len(text) / column_median if column_median else 0.0
+            kind = _continuation_kind(
+                segments[k], own, per_line / lines_head,
+                per_line / (lines_crossed + lines_of(segments[k])), sigla,
+            )
+            if kind is None:
+                break
+            if kind == "bare" and "same" not in kinds and "dash" not in kinds:
+                lines_head += lines_of(segments[k])
+            lines_crossed += lines_of(segments[k])
             conts.append(segments[k])
+            kinds.append(kind)
             k += 1
         # Offset-keyed notes or markers would have to be cut with the text;
         # a turn-text chunk carries none, so one that does is left whole.
         if not conts or chunk.get("notes") or chunk.get("markers") or chunk.get("bekker"):
             continue
         out: list[dict] = []
-        text = chunk.get("text") or ""
         group = [seg, *conts]
-        sizes = [max(1, len(s.get("lines") or s.get("greek") or [])) for s in group]
+        sizes = [lines_of(s) for s in group]
         total = sum(sizes)
+        firsts = [sum(sizes[:i]) for i in range(len(group))]
+        glines = [
+            line
+            for s, size in zip(group, sizes)
+            for line in ((s.get("lines") or s.get("greek") or []) + [{}] * size)[:size]
+        ]
+        breaks = _greek_breaks(glines)
+
+        def aim(first: int) -> float:
+            # A segment's English begins at its first Greek sentence start
+            # within 1.5 lines, else at its first line: a Greek sentence
+            # running over the boundary keeps its English above.
+            return min((at for i, at in breaks if first <= i <= first + _SNAP), default=float(first))
+
         # Never cut inside a stage direction (John, 2026-09-12).
         inside = [(m.start(), m.end()) for m in _DIRECTION.finditer(text)]
         starts = [
@@ -1795,15 +1899,25 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict]) -> list[dict
             for m in _SENTENCE_START.finditer(text)
             if not any(a < m.end() < b for a, b in inside)
         ]
+        turn_starts = [o for t in chunk.get("turns") or [] if (o := int(t.get("offset") or 0)) > 0]
         cuts: list[tuple[dict, int]] = []
-        acc = prev = 0
-        for i, cont in enumerate(conts):
-            acc += sizes[i]
-            target = len(text) * acc / total
-            cand = [p for p in starts if p > prev]
+        prev = 0
+        for i, cont in enumerate(conts, start=1):
+            # A change of voice the English marks takes an English turn --
+            # but only when at least as many turns remain as there are dashes
+            # still to place in the group; OCR-damaged speaker labels drop
+            # turns, and taking the pool anyway misreads later dashes (Codex
+            # review of 05e6855: Suppliants-eur 600-619).
+            dashes_left = sum(1 for kd in kinds[i - 1:] if kd == "dash")
+            turns_left = sum(1 for p in turn_starts if p > prev)
+            if kinds[i - 1] == "dash" and turns_left >= dashes_left:
+                pool, at = turn_starts, float(firsts[i])
+            else:
+                pool, at = starts, aim(firsts[i])
+            cand = [p for p in pool if p > prev]
             if not cand:
                 break
-            best = min(cand, key=lambda p: abs(p - target))
+            best = min(cand, key=lambda p: abs(total * p / len(text) - at))
             cuts.append((cont, best))
             prev = best
         bounds = [0, *[p for _, p in cuts], len(text)]
@@ -1920,7 +2034,7 @@ def run(
     )
     # A long speech's English reaches the Greek segments that continue it
     # (John, 2026-09-11, Morshead's Agamemnon parodos).
-    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [])
+    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [], sigla)
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)

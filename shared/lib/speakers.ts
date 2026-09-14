@@ -1087,12 +1087,19 @@ export function splitAtDirections<R extends { blocks: EnglishTurnBlock[] }>(
  *  runs to `endN`, the line after the segment's last). A marker that falls
  *  exactly on a sentence start keeps its own line; one mid-sentence cuts
  *  nothing but still steers the estimate. For now: a real line-by-line
- *  alignment would replace this. */
+ *  alignment would replace this.
+ *  John, 2026-09-12 (the Agamemnon audit): given the segment's Greek lines,
+ *  an interpolated start moves to the nearest Greek line that begins a
+ *  sentence -- the line after a full stop (. ; · !), or a line with such a
+ *  stop inside it, counted from halfway through -- when one lies within
+ *  1.5 lines. And a one-word sentence ("Hallo!") is no piece of its own: it
+ *  stays with the piece before it. */
 export function sentenceTicks(
   text: string,
   ticks: readonly { n: number; offset: number }[],
   turnOffsets: readonly number[],
   endN: number,
+  greek: readonly { n: number; text: string }[] = [],
 ): { n: number; offset: number }[] {
   if (!ticks.length) return [];
   const skipSpace = (o: number) => { while (o < text.length && /\s/.test(text[o]!)) o += 1; return o; };
@@ -1101,9 +1108,22 @@ export function sentenceTicks(
     .sort((a, b) => a.off - b.off);
   const last = anchors[anchors.length - 1]!;
   const span = endN > last.n ? [...anchors, { n: endN, off: text.length }] : anchors;
+  // Where Greek sentences begin: at a line after a full stop, or partway
+  // into a line with one inside it. On Agamemnon's 473 hand-checked starts
+  // a window of 1.0, 1.5, 2.0 or 2.5 lines gives 88.3%, 89.6%, 89.6% and
+  // 88.9% exact; 1.5 has the fewest pieces two lines out.
+  const SNAP = 1.5;
+  // Full stop, question mark (; and U+037E), raised dot (U+00B7, U+0387), !.
+  const ENDS = /[.;;··!]\s*[\]’'"†]*\s*$/u;
+  const breaks = greek.flatMap((g, i) => {
+    if (i > 0 && ENDS.test(greek[i - 1]!.text)) return [{ n: g.n, at: g.n }];
+    if (/[.;;··!]\s*\S/u.test(g.text.replace(ENDS, ''))) return [{ n: g.n, at: g.n + 0.5 }];
+    return [];
+  });
   // A speech starts where its turn says, whitespace and all: sliceBlocks trims
   // it, and a cut moved past the turn would leave the lead-in on the row above.
-  const starts = new Set<number>([skipSpace(0), ...turnOffsets.filter((o) => o > 0 && o < text.length)]);
+  const speechStarts = new Set<number>([skipSpace(0), ...turnOffsets.filter((o) => o > 0 && o < text.length)]);
+  const starts = new Set<number>(speechStarts);
   // A sentence ends at . ! ? or … -- never the stop after a lone capital
   // initial ("H. W. Wilson") or a title ("Mr.", "St.") -- then any closing
   // quote or bracket, and space or a dash ("stopped.—She"); it starts with a
@@ -1116,19 +1136,32 @@ export function sentenceTicks(
     if (!inside.some(([a, b]) => a! < s && s < b!)) starts.add(s);
   }
   const out: { n: number; offset: number }[] = [];
-  for (const s of [...starts].sort((a, b) => a - b)) {
+  const sorted = [...starts].sort((a, b) => a - b);
+  sorted.forEach((s, i) => {
     const exact = anchors.find((a) => a.off === s);
-    if (exact) { out.push({ n: exact.n, offset: s }); continue; }
-    const k = span.findIndex((a, i) => a.off <= s && (span[i + 1]?.off ?? Infinity) > s);
+    if (exact) { out.push({ n: exact.n, offset: s }); return; }
+    // One word to the next start: it stays with the piece before it.
+    const piece = text.slice(s, sorted[i + 1] ?? text.length).replace(/\[\^[^\]]*\]/g, '');
+    const words = piece.match(/[\p{L}\p{N}][\p{L}\p{N}\p{M}’',-]*/gu) ?? [];
+    if (!speechStarts.has(s) && words.length < 2) return;
+    const k = span.findIndex((a, j) => a.off <= s && (span[j + 1]?.off ?? Infinity) > s);
     const a = span[k];
     const b = span[k + 1];
-    if (!a || !b || b.off === a.off) continue; // before the first marker, or past the text
+    if (!a || !b || b.off === a.off) return; // before the first marker, or past the text
     // Markers that run backwards (a transposed line printed early) give no
     // span to interpolate across: hold the earlier marker's line. Never past
     // the segment's last line (endN is the line after it).
-    const n = b.n < a.n ? a.n : Math.round(a.n + ((s - a.off) / (b.off - a.off)) * (b.n - a.n));
+    let n = a.n;
+    if (b.n >= a.n) {
+      const x = a.n + ((s - a.off) / (b.off - a.off)) * (b.n - a.n);
+      const top = b.n === endN ? endN - 1 : b.n;
+      const near = breaks
+        .filter((g) => Math.abs(g.at - x) <= SNAP && g.n >= a.n && g.n <= top)
+        .sort((p, q) => Math.abs(p.at - x) - Math.abs(q.at - x))[0];
+      n = near ? near.n : Math.round(x);
+    }
     out.push({ n: Math.min(n, Math.max(a.n, endN - 1)), offset: s });
-  }
+  });
   return out;
 }
 

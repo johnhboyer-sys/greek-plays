@@ -1825,7 +1825,9 @@
     // on the Greek line interpolated between the markers (sentenceTicks), so
     // a marker mid-sentence no longer breaks the sentence across a gap.
     const lastN = Math.max(0, ...items.map((it) => (it.kind === 'line' ? lineInt(it.line) ?? 0 : 0)));
-    const ticks = sentenceTicks(source.text, realTicks, source.turns.map((tu) => tu.offset), lastN + 1);
+    // The Greek lines, whole, so a start can snap to a Greek sentence break.
+    const greekLines = (seg.greek ?? []).map((l) => ({ n: lineInt(l) ?? l.n, text: l.text }));
+    const ticks = sentenceTicks(source.text, realTicks, source.turns.map((tu) => tu.offset), lastN + 1, greekLines);
     // The first item printing each anchored line number.
     const itemOfN = new Map<number, number>();
     items.forEach((it, i) => {
