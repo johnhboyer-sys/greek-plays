@@ -281,7 +281,7 @@ What time he stripped the dragon's ravening jaws,
 Will ye not lift the props of your right hands,
 Your staves, and dash with blood the impious head
 Of yon man, who, though no Cadmeian he,
-Base outland upstart, captains the Young Men ?1
+Base outland upstart, captains the Young Men[1] ?1
 Thou shalt not scatheless lord it over me !
 Not that which I have gotten by toil of hand
 Shalt thou have! Hence with curses whence thou
@@ -309,7 +309,7 @@ Suffer not scathe. Amphitryon, hearken thou
 My counsel, if my words seem good to thee :
 I love my sons,—how should I not love whom
 I bare and toiled for ?—and to die I count
-Fearful: yet—yet—against the inevitable[1]
+Fearful: yet—yet—against the inevitable
 Who strives, I hold him but a foolish man.
 Since we must néeds die, better ’tis to die
 Not with fire roasted, yielding laughter-scof
@@ -396,7 +396,7 @@ Of underworld gloom—whether Zeus’ Son’s
 story, [praises—
 Or Amphitryon’s scion be theme of my
 Sing : I am fain to uplift him before ye
-Wreathed with the Twelve Toils’ garland of
+Wreathed with the Twelve Toils[2]’ garland of
 glory :
 For the dead have a heritage, yea, have a crown,
 Even deathless memorial of deeds of renown.
@@ -405,7 +405,7 @@ In Zeus’ glen first, in the Lion’s lair,
 He fought, and the terror was no more there
 But the tawny beast’s grim jaws were veiling
 iis golden head, and behind swept, trailing
-Over his shoulders, its fell of hair.[2]
+Over his shoulders, its fell of hair.
 II. The Centaurs
 Then on the mountain-haunters raining
 Far-flying arrows, his hand laid low
@@ -523,17 +523,17 @@ A scoff, a glee, a thing to be destroyed.
 Woe and alas !
 Ah for my shattered dreams, my broken hopes, +460
 Hopes that I once built on your father’s words !
-Argos to thee, thy dead sire would allot :
+Argos to thee[3], thy dead sire would allot :
 Thou in Eurystheus’ palace wast to dwell
 In fair and rich Pelasgia’s sceptred sway :
 That beast’s fell o’er thine head he wont to throw,
 The lion’s skin wherein himself went clad.
-Thou? shouldst be king of chariot-loving Thebes,
+Thou[4]? shouldst be king of chariot-loving Thebes,
 And hold the champaigns of mine heritage ;
 Thy prayer won this of him that gave thee life ;
 And to thy right hand would he yield the club,
 A feigned gift, his carven battle-stay.
-To thee 5 the land, by his far-smiting bow
+To thee[5] 5 the land, by his far-smiting bow
 Once wasted, promised he, Oechalia.
 So with three princedoms would your sire exalt
 His three sons, in the pride of his great heart.
@@ -547,7 +547,7 @@ Tears for my bride-baths. Woe for those my dreams!
 And now your grandsire makes the spousal-feast
 With Hades for brides’ sire, grim marriage-kin.
 Ah me! whom first of you, or whom the last,
-To mine heart shall I press ?—whom to my lips?[3][4][5]
+To mine heart shall I press ?—whom to my lips?
 Whom shall I clasp? Oh but to gather store
 Of monn, like brown-winged bee, from grief's wide
 eld,
@@ -715,7 +715,7 @@ Thy city, ere thou hast ordered all things well.
 
 HERCULES. I will: well said. I pass mine halls within.
 Returned at last from sunless nether crypts
-Of Hades and The Maid, I will not slight
+Of Hades and The Maid[6], I will not slight
 The Gods, but hail them first beneath my roof.
 
 AMPHITRYON. Son, didst thou verily go to Hades’ halls?
@@ -738,7 +738,7 @@ AMPHITRYON. How wast thou so long time beneath the earth?
 
 HERCULES. From Hades rescuing Theseus, tarried I.
 
-AMPHITRYON. Where is he? Hath he passed to his fatherland?[6]
+AMPHITRYON. Where is he? Hath he passed to his fatherland?
 
 HERCULES. To Athens, glad to have ’scaped the underworld.
 Come, children, follow to the house your sire ;
@@ -930,7 +930,7 @@ Hurry man to his doom :—
 Law he outpaceth, and Lawlessness lasheth
 To speed ; nor his heart doth incline
 To take heed to the end—lo, his car suddencrasheth
-Shattered in gloom "1
+Shattered in gloom "[7]
 Deck thee with garlands, Ismenus, and ye
 Break-forth into dancing,
 Streets stately with Thebes’ fair masonry,
@@ -943,10 +943,6 @@ Pythian forest-peak, Hélicon’s steep
 Of the Song-queens haunted,
 To my town, to my walls, let the song-echoes leap
 Of the strains loud-chanted—
-Ὁ The presumptuous wrong-doer is compared to a reckless
-charioteer in 8 race, in which he tries to outstrip the rival
-chariot of Law. His four horses are Gold and Prosperity as
-yoke-horses, with Power and Lawlessness for trace-horses,
 To my town, whence the Dragon-seed rose to the
 day,
 The warrior nation,
@@ -1127,8 +1123,8 @@ To cleanse the house, since, having slain the king,
 Forth of these halls had Hercules flung the corpse.
 And there his children stood in fair array,
 His sire, and Megara. Round the altar now [hush.
-The maund[7] had passed; and we kept hallowed
-Then, even in act to bear the torch[8] in hand?
+The maund[8] had passed; and we kept hallowed
+Then, even in act to bear the torch[9] in hand?
 And plunge in lustral water, silent stood
 Alemena’s son : and, as their sire delayed,
 His sons looked—lo, he seemed no more the same,
@@ -1156,12 +1152,12 @@ Were glancing each at other, and one spake :
 Still was he pacing up and down the house ;
 Then, to the men’s hall rushing, cried, “I have
 come
-To Nisus’ town !”!—who stood in his own halls.
+To Nisus’ town[10] !”!—who stood in his own halls.
 He casts him on the bare floor, and prepares
 To feast: yet, tarrying there but little space,
 He cried, “I go to Isthmus’ woodland plains!”
 Then from his body cast his mantle’s folds,
-And wrestled with—no man /—proclaimed himself[9]
+And wrestled with—no man /—proclaimed himself
 “THE MADNESS OF HERCULES
 ‘To himself the victor, cried, “ Ye people, hear !"—
 To none! In fancy at Mycenae then
@@ -1201,7 +1197,7 @@ And shattered all the bones. This second slain,
 He speeds to add to victims twain a third.
 But first the wretched mother snatched the child,
 And bare within, and barred the chamber-door.
-But he, as though at siege of Cyclop walls,!
+But he, as though at siege of Cyclop walls[11],!
 Mines, heaves up doors, and hurls the door-posts down,
 And with one arrow laid low wife and child:
 Then charges down to spill his own sire’s blood.
@@ -1227,9 +1223,9 @@ strange tale told
 Of Danaus’ daughters, the workers of death :—
 But this hath surpassed, hath outrun, that horror of
 old— [the sacrifice done
-This horror that blasts Zeus’ Son! I might tell of[10]
+This horror that blasts Zeus’ Son! I might tell of
 uo
-To the Muses, of Procne[11] who slaughtered the only
+To the Muses, of Procne[12] who slaughtered the only
 child of her womb :— .
 But thou, who art father of children three, O un-
 "happiest one, ‘madness’s doom !
@@ -1440,7 +1436,7 @@ Woe! What shall I do?—where find solitude
 In ills?—take wings, or plunge beneath the ground ?
 Oh let me in black darkness pall mine head ;
 For I take shame for evils wrought of me,
-Nor would I taint him with bloodguiltiness[12]—!
+Nor would I taint him with bloodguiltiness[13]—!
 Nay, nowise would I harm the innocent.
 inter THESEUS, with attendants.
 
@@ -1509,11 +1505,10 @@ THESEUS. Unveil him—me hath sympathy hither led.
 AMPHITRYON. Son, cast from thine eyes thy mantle’s veil ;
 Fling it hence ; thy face to the sun forth show.
 Lo, a weight that outweigheth thy tears bears down
-grief's scale !1
+grief's scale[14] !
 I bow me in suppliance low f
 At thy beard, at thy knee, at thine hand, till th
 And mine old eyes drop the tear.
-) The claims of friendship outweigh those of grief.
 hear:
 ou.
 O son, refrain thou the furious lion’s mood!
@@ -1722,7 +1717,7 @@ Hanging athwart my side thus will they say :
 “With us thou slewest babes and wife—yet keep’st
 Thy children’s slayers!” Shall mine hand bear
 these ?,
-What can I plead? Yet, naked of mine arms[13]?
+What can I plead? Yet, naked of mine arms[15]?
 Wherewith I wrought most glorious deeds in Greece,
 ’Neath foes’ feet shall I cast me ?—foully die?
 Leave them I may not, to my grief must keep.
@@ -1767,7 +1762,7 @@ HERCULES. I yearn—and on my father’s breast would fall.
 
 AMPHITRYON. Lo here, my son : mine heart as thine is fain.
 
-THESEUS. Art thou so all-forgetful of thy toils ?1
+THESEUS. Art thou so all-forgetful of thy toils[16] ?1
 
 HERCULES. All toils endured of old were light by these.
 
@@ -1792,7 +1787,7 @@ AMPHITRYON. Farewell thou, son.
 
 HERCULES. Bury the lads.
 
-AMPHITRYON. Who burieth me, my child ?[14]
+AMPHITRYON. Who burieth me, my child ?
 ie
 
 AMPHITRYON. When com’st thou?
@@ -1819,11 +1814,13 @@ Footnotes:
 [4] The second son, Creontidas.
 [5] The third son, Deicoén,
 [6] Persephone, whose name it was perilous to utter.
-[7] A basket containing the sacrificial knife and barley was carried round the altar before the slaying of the victim.
-[8] A brand from the altar was quenched in water, with which the bystanders were then sprinkled.
-[9] Megara, half way on his imaginary journey, on the Isthmus of Corinth ; this suggested the Isthmian games
-[10] i.e. Eurystheus’ city, Mycenae.
-[11] ‘The legend of Procne’s murder of Itys has, in becoming a theme of song, been consecrated to the Muses.
-[12] ‘The mere sight of a murderer conveyed contamination.
-[13] He could not replace them by others as ; for they were gifts of Gods—the bow of Apollo, and the club of Hephaestus.
-[14] The Twelve Labours, of which this weakness is unworthy.
+[7] The presumptuous wrong-doer is compared to a reckless charioteer in 8 race, in which he tries to outstrip the rival chariot of Law. His four horses are Gold and Prosperity as yoke-horses, with Power and Lawlessness for trace-horses,
+[8] A basket containing the sacrificial knife and barley was carried round the altar before the slaying of the victim.
+[9] A brand from the altar was quenched in water, with which the bystanders were then sprinkled.
+[10] Megara, half way on his imaginary journey, on the Isthmus of Corinth ; this suggested the Isthmian games
+[11] i.e. Eurystheus’ city, Mycenae.
+[12] ‘The legend of Procne’s murder of Itys has, in becoming a theme of song, been consecrated to the Muses.
+[13] ‘The mere sight of a murderer conveyed contamination.
+[14] The claims of friendship outweigh those of grief.
+[15] He could not replace them by others as ; for they were gifts of Gods—the bow of Apollo, and the club of Hephaestus.
+[16] The Twelve Labours, of which this weakness is unworthy.

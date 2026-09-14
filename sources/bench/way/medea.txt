@@ -6,7 +6,7 @@ Creon, King of Corinth.
 JASON. Aegeus, King of Athens.
 MESSENGER,
 
-CHILDREN OF MEDEA. The Scene is in front of Jason’s House at Corinth.[1]
+CHILDREN OF MEDEA. The Scene is in front of Jason’s House at Corinth.
 
 NURSE. Would God that Argo’s hull had never flown
 Through those blue Clashing Rocks to Colchisland,
@@ -57,7 +57,7 @@ But lo, her boys, their racing-sport put by,
 Draw near, all careless of their mother’s wrongs,
 For the young heart loves not to brood in grief.
 
-CHILDREN'S GUARDIAN. O ancient chattel of my mistress’ home,
+CHILDREN'S GUARDIAN[1]. O ancient chattel of my mistress’ home,
 Why at the gates thus lonely standest thou,
 Thyself unto thyself discoursing ills?
 How wills Medea to be left of thee?
@@ -295,7 +295,7 @@ My lord, of all men basest hath become!
 Surely, of creatures that have life and wit,
 We women are of all unhappiest,
 Who, first, must buy, as buys the highest bidder,
-A husband—nay, we do but win for our lives
+A husband[2]—nay, we do but win for our lives
 A master! Deeper depth of wrong is this.
 Here too is dire risk—will the lord we gain
 Be evil or good ? Divorce ?—'tis infamy
@@ -313,7 +313,7 @@ We to one heart alone can look for comfort.
 But we, say they, live an unperilled life —
 At home, while they do battle with the spear—
 Unreasoning fools! Thrice would I under shield
-Stand, rather than bear childbirth-peril once.[2]
+Stand, rather than bear childbirth-peril once.
 But ah, thy story is not one with mine! .
 Thine is this city, thine a father’s home,
 Thine bliss of life and fellowship of friends ;
@@ -1035,7 +1035,7 @@ Aye quaffing of Wisdom’s glorious wine,
 Ever through air clear-shining brightly
 As on wings uplifted pacing lightly,
 Where Harmonia, they tell, of the tresses golden,
-- Bare the Pierid Muses, the stainless Nine.!
+- Bare the Pierid Muses, the stainless Nine[3].!
 ‘And the streams of Cephisus the lovely-flowing
 They tell how the Lady of Cyprus drew,
 And in Zephyr-wafts of the winds sweet-blowing
@@ -1047,7 +1047,7 @@ And over her hair is she throwing, throwing,
 Roses in odorous wreaths aye new.
 How then should the hallowed city,
 The city of sacred waters,
-Which shields with her guardian hand[3]
+Which shields with her guardian hand
 All friends that would fare through her land,
 Receive a murderess banned,
 Who had slaughtered her babes without pity,

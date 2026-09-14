@@ -113,13 +113,11 @@ SERVANT. And deem’st thou not this same may hold with
 
 HIPPOLYTUS. Yea, if men live by laws derived from Gods.
 
-SERVANT. Why not then greet a Goddess worshipful ?
+SERVANT. Why not then greet a Goddess worshipful[1] ?
 
 HIPPOLYTUS. Whom ?—have a care thy lips in no wise err.!
 
 SERVANT. Even Cypris, there above thy portal set.
-1 “The Worshipful Goddesses” was the peculiar title of
-the Eumenides, whom it was ill-omened to name.
 
 HIPPOLYTUS. From far I greet her, who am undefiled.
 
@@ -411,10 +409,10 @@ NURSE. Iam dumb: henceforth thy part it is to speak.
 
 PHAEDRA. O hapless mother!!—what strange love was thine !
 
-NURSE. Love for the bull[1], my child ?—or what wouldst
+NURSE. Love for the bull[2], my child ?—or what wouldst
 name ?
 
-PHAEDRA. And thou, sad sister, Dionysus’ bride[2]? !
+PHAEDRA. And thou, sad sister, Dionysus’ bride[3]? !
 
 NURSE. What ails thee, child ?—dost thou revile thy kin ?
 
@@ -662,11 +660,10 @@ Of her holy of holies, we have not adored,
 Though he marcheth through ruin victory-ward,
 Though he raineth calamity forth of his quiver
 On mortals against his on-coming that stand.
-For I call to remembrance Oechalia’s daughter,!
+For I call to remembrance Oechalia’s daughter[4],!
 Who, ere Love ‘neath his tyrannous car-yoke had
 brought her, hasted,
 Had been spouseless and free—overseas how she
-a Iole, to win whom Hercules sacked Oechalia.
 When Cypris the dear yoke of home had disparted,
 Like a bacchanal fiend out of hell that had darted,
 And with blood, and with smoke of a palace
@@ -1142,7 +1139,7 @@ Consort? Art thou the chaste, the stainless one?
 I will not trust thy boasts, for so should I
 Impute to Gods unwisdom’s ignorance.
 Now vaunt, ay now !—set out thy paltry wares
-Of lifeless food :[3] take Orpheus for thy king :
+Of lifeless food :[5] take Orpheus for thy king :
 Rave, worship vapourings of many a scroll :
 For ah, thou’rt caught! - I warn all men to shun
 Such hypocrites as this; for they hunt souls
@@ -1771,20 +1768,12 @@ CHORUS. On the city hath lighted a stroke without warning,
 On all hearts desolation.
 Rain down, O ye fast-dropping tears of our mourning!
 When the mighty are fallen, their burial-oblation
-Is the wail of a nation. .
-1 1462-66 allude to the death of Pericles, which happened
-shortly before the representation of this play. The poet in
-fact changed, to meet the occasion, the original ending,
-which ran thus :—
-O blest one, what honours have fallen to thee,
-O hero, because of thy chastity ;
-Never shall aught be more of worth
-Than virtue unto the sons of earth ;
-For soon or late on the fear of God
-Goodly reward shall be bestowed.
-. [Stobaeus, Florilegium. ]
+Is the wail of a nation. .[6]
 
 Footnotes:
-[1] Pasiphaé, of whose unnatural passion the Minotaur was born.
-[2] Ariadne, who, for Theseus’ sake, was traitress to her father.
-[3] Abstinence from animal food was a feature of the ascetic doctrines attributed to Orpheus, as of those of Pythagoras.
+[1] “The Worshipful Goddesses” was the peculiar title of the Eumenides, whom it was ill-omened to name.
+[2] Pasiphaé, of whose unnatural passion the Minotaur was born.
+[3] Ariadne, who, for Theseus’ sake, was traitress to her father.
+[4] Iole, to win whom Hercules sacked Oechalia.
+[5] Abstinence from animal food was a feature of the ascetic doctrines attributed to Orpheus, as of those of Pythagoras.
+[6] 1462-66 allude to the death of Pericles, which happened shortly before the representation of this play. The poet in fact changed, to meet the occasion, the original ending, which ran thus :— O blest one, what honours have fallen to thee, O hero, because of thy chastity ; Never shall aught be more of worth Than virtue unto the sons of earth ; For soon or late on the fear of God Goodly reward shall be bestowed. . [Stobaeus, Florilegium. ]

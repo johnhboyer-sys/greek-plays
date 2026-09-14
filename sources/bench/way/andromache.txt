@@ -177,8 +177,8 @@ halls came ;
 But I feared, for my lords be stern,
 That I held my peace: but thy lot ill-fated
 In silence aye I compassionated, [discern
-Lest the child of the daughter of Zeus! should
-O'er thy woes how I yearn.[1]
+Lest the child of the daughter of Zeus[1]! should
+O'er thy woes how I yearn.
 
 HERMIONE. With bravery of gold about mine head,
 And on my form this pomp of broidered robes,
@@ -546,7 +546,7 @@ Now ruin seize ye!.... Yet to me is death
 Not grievous as thou think’st. That was my death
 When Phrygia’s hapless city was destroyed,
 And my renowned lord, whose spear full oft
-Made thee a seaman, dastard, from a landsman.!
+Made thee a seaman, dastard, from a landsman[2].!
 Thou meet'st a woman, soul-appalling hero, [fawn
 Now,—and wouldst slay! Slay on! My tongue shall
 In flattery never on thy child or thee.
@@ -560,7 +560,7 @@ Neither sons not born of one mother:
 They were strife to the home, they were anguish of
 hate.
 For the couch of the husband suffice one mate :
-Be it shared of none other.[2]
+Be it shared of none other.
 Never land but hath borne a twofold yoke
 Of kings with wearier straining :
 There is burden on burden, and feud mid her

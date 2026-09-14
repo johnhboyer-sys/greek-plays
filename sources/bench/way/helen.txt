@@ -13,14 +13,14 @@ A son, Theoclymenus,—for that honouring
 The Gods his father lived,—a noble daughter,
 Named Eido, “ mother’s pride,” while yet a babe;
 But, since she grew to bloom of spousal-tide,
-Theonoé ! they called her, for she knew
+Theonoé[1] ! they called her, for she knew
 Heaven’s will for things that are and things to be,
 Inheriting from her grandsire Nereus this.
 For me, not fameless is my fatherland
 Sparta: my sire was Tyndarus. The tale
 Telleth that to my mother Leda flew
 Zeus, who had stoln the likeness of a swan,
-And, fleeing from a chasing eagle, wrought[1]
+And, fleeing from a chasing eagle, wrought
 By guile his pleasure,—if the tale be true.
 Helen my name, and these my sufferings :
 In strife for beauty came three Goddesses
@@ -337,7 +337,7 @@ HELEN. Friends, ‘neath the yoke of what doom am I
 bowed ?
 Bore not my mother a portent unto men?
 For never Hellene nor barbarian dame
-Brought forth white vial of a fledgling brood,
+Brought forth white vial[2] of a fledgling brood,
 Wherein to Zeus men say that Leda bare me.
 A portent are my life and all my fortunes,
 In part through Hera, through my beauty in part.
@@ -363,7 +363,7 @@ He hath died : who was mine anchor is no more.
 Dead is my mother, and her murderer I,—
 Innocently, yet cleaves the wrong to me.
 And she, erewhile mine house’s pride and mine,
-My child, is growing grey, a spouseless maid ;[2]
+My child, is growing grey, a spouseless maid ;
 And the Twin Brethren, named the Sons of
 Zeus,
 Are not. But, though I have nought but misery,
@@ -484,7 +484,7 @@ Ringeth heavenward wild and high,
 And with frenzied hands on her head
 She smiteth: her fingers are red
 From the cheeks that the blood-furrows dye,
-Ah, maiden of Arcady, happy, Callisto,' art thou,
+Ah, maiden of Arcady, happy, Callisto[3],' art thou,
 O fourfoot-pacing thing who wast Zeus’ bride,
 Better by far than my mother’s is thy lot now,
 Who hast cast the burden of human sorrow aside,
@@ -512,7 +512,7 @@ But led with Hellas’ heroes’ glad consent.
 Some must we count mid them that are no more ;
 Gladly have other some escaped the sea,
 And bring back home the names of men deemed dead.
-But I far o’er the grey sea’s shoreless surge[3]
+But I far o’er the grey sea’s shoreless surge
 Wander in pain, long as the leaguer-years
 Of Troy; and though I yearn to reach my land,
 Of this I am not held worthy by the Gods,
@@ -747,7 +747,7 @@ MENELAUS. Wife ?—thou my wife! Touch not my vesture thou!
 
 HELEN. Wife—whom my father Tyndarus gave to thee.
 
-MENELAUS. Light-bearer Hecate, send gracious visions!
+MENELAUS. Light-bearer Hecate[4], send gracious visions!
 
 HELEN. No phantom handmaid I of the Highway Queen.
 
@@ -767,7 +767,7 @@ MENELAUS. The form is hers, but plain truth bars the claim.
 
 HELEN. Look !—what more clear assurance needest thou ?
 
-MENELAUS. Like her thou art: this will I not deny.[4]
+MENELAUS. Like her thou art: this will I not deny.
 
 HELEN. Who then shall better teach thee than thine eyes?
 
@@ -1255,7 +1255,7 @@ Away with wealth—the wealth amassed by wrong!
 For common to all mortals is heaven’s air,
 And earth, whereby men ought to enrich their
 homes,
-Nor keep nor wrest by violence others’ goods. ]
+Nor keep nor wrest by violence others’ goods. ][5]
 Me for mine happiness—yet for my sorrow—
 To thy sire Hermes gave, to ward for him,
 My lord, who now is here, who claims his own.
@@ -1281,7 +1281,7 @@ To dwell in gold-abounding Phrygian halls.
 But if to Greece I come, in Sparta stand,
 Then, hearing, seeing, that by heaven’s device
 They died, nor was I traitress to my friends,
-They shall restore me unto virtue’s ranks ;[5]
+They shall restore me unto virtue’s ranks ;
 I shall betroth the child none now will wed;
 And, leaving this my bitter homelessness,
 Shall I enjoy the treasures in mine home.
@@ -1515,7 +1515,7 @@ Was their wives’ hair shorn in their widowed bowers ;
 And the beacon-lights glared on the headland that
 lowers
 O’er Euboean seas ;
-So that lone voyager! hurled
+So that lone voyager[6]! hurled
 Many Greeks on Caphereus’ scaur
 And Aegean skerries where wild surf swirled,
 When he lit that treachery-star.
@@ -1533,7 +1533,7 @@ This way and that in hopeless turmoil swayed ?
 Daughter of Zeus art thou, to Leda given,
 Helen, by him whom those swan-plumes arrayed :
 Yet wert thou cursed—“ Unrighteous, god-despising,
-Traitress, and faithless,’ Hellas deemed thy due ![6]
+Traitress, and faithless,’ Hellas deemed thy due !
 Nought I find certain, for all man’s surmising :
 Only Gods’ words have I found utter-true.
 Madmen, all ye who strive for manhood’s guerdons
@@ -1591,9 +1591,9 @@ HELEN. Menelaus—woe’s me !—how to speak it ?—dead '
 
 THEOCLYMENUS. I triumph not at thy words, yet am blest.
 
-HELEN. [Let my lord pardon that I joy not—yet.]
+HELEN. [Let my lord pardon that I joy not—yet.][8]
 
-THEOCLYMENUS. How know’st thou? Hath Theonoé told thee this?[8]
+THEOCLYMENUS. How know’st thou? Hath Theonoé told thee this?
 
 HELEN. Even she, and he who when he died was there.
 
@@ -1647,7 +1647,7 @@ HELEN. Unburied—woe is me! Alas mine ills!
 
 THEOCLYMENUS. For this cause hast thou shorn thy golden hair?
 
-HELEN. Yea, dear he is, whate’er he be—he is here.!
+HELEN. Yea, dear he is, whate’er he be—he is here[9].!
 
 THEOCLYMENUS. Is this αὐδεσενανις real, thy tears unfeigned ?
 
@@ -1655,7 +1655,7 @@ HELEN. O yea, thy sister’s ken were lightly ’scaped !
 
 THEOCLYMENUS. Nay, sooth. How then? Wilt dwell by this tomb still ?
 
-HELEN. Why mock me? Leave the dead awhile in peace.[9]
+HELEN. Why mock me? Leave the dead awhile in peace.
 
 THEOCLYMENUS. So loyal to thy lord, thou shunnest me.
 
@@ -1715,9 +1715,9 @@ MENELAUS. Decide thou: that thou givest shall suffice.
 
 THEOCLYMENUS. My people use to slay a horse or bull.
 
-MENELAUS. If thou wilt give, give worthily of a king.
+MENELAUS. If thou wilt give, give worthily[10] of a king.
 
-THEOCLYMENUS. Of such in my fair herds I have no lack.[10]
+THEOCLYMENUS. Of such in my fair herds I have no lack.
 
 MENELAUS. Next, a decked bier is borne, no corpse thereon.
 
@@ -1778,13 +1778,13 @@ In kindness to thee: thou with more good will
 Shalt pay all dues to my beloved lord,
 Menelaus, if thou have thy due of us.
 
-CHORUS. The Mountain-goddess,! with feet swift-racing, (Sér.1)
-Mother of Gods, rushed onward of yore[11]
+CHORUS. The Mountain-goddess[11],! with feet swift-racing, (Sér.1)
+Mother of Gods, rushed onward of yore
 By glens of the forest in frenzied chasing,
 By the new-born rivers’ cataract-roar,
 By the thunderous surge of the sea wind-tost,
 In anguished quest for a daughter lost
-Whose name is unuttered in prayer or praising ;
+Whose name[12] is unuttered in prayer or praising ;
 And a peal far-piercing the echoes bore
 As clashed the Bacchanal’s castanet ;
 And beasts of the wold by her spells controlled
@@ -1810,7 +1810,7 @@ And she caused that from herbless plains of
 earth
 No blade should shoot for the tilth-land’s fruit,
 And she wasted the tribes of men with dearth :
-And the cattle for tendril-sprays lush-trailing[12]
+And the cattle for tendril-sprays lush-trailing
 Looked yearning with famishing eyes in vain;
 And from many and many the life was failing,
 Nor the sacrifice-smoke made misty the fane;
@@ -1962,10 +1962,10 @@ The dolphin-dance sweepeth before
 And behind thee, when breezes no more
 Ruffle the sea thou dost ride on,
 And thus through the hush crieth she,
-Calm, child azure-eyed of the sea :—
+Calm[13], child azure-eyed of the sea :—
 “ Shake out the canvas, committing
 Your sails to what breezes may blow,
-And arow at the pine-blades sitting[13]
+And arow at the pine-blades sitting
 Give way, O sailors, yoho '
 Till the keel bearing Helen shall slide on
 The strand where the old homes be.”
