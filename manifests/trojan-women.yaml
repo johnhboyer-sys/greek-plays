@@ -38,7 +38,7 @@ english:
     format: loeb-ocr
     source: bench/way/trojan-women.txt
     play: DAUGHTERS OF TROY
-    footnotes: false
+    footnotes: true
   third:
     id: kosmos
     name: "Coleridge, rev. Trojan Women Heroization team (Kosmos Society)"
@@ -215,6 +215,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
     - id: kosmos
       name: "Coleridge, rev. Trojan Women Heroization team (Kosmos Society)"

@@ -1397,6 +1397,85 @@ def test_loeb_ocr_format_parses_name_dot_text(tmp_path):
     assert report["speeches_parsed"] == 4
 
 
+# Way's Loeb footnotes as popups (John, 2026-09-14): loeb-ocr notes are
+# moved out of the verse into a `Footnotes:` block (`[k] text` per note,
+# mirroring the Gutenberg `_parse_notes` shape) and a `[k]` marker is left
+# in the verse at the word each note glosses.
+LOEB_OCR_WITH_FOOTNOTES = """ANTIGONE
+
+ANTIGONE. Ismene, sister of my blood and heart,
+See'st thou how Zeus would in our lives fulfil
+the weird[1] of Oedipus.
+
+ISMENE. To me, Antigone, no word of friends
+has come.
+
+CHORUS. Sunbeam[2], of all that ever dawned upon
+our seven-gated Thebes.
+
+CREON. Sirrah, begone.
+
+Footnotes:
+[1] i.e. destined fate.
+[2] Addressed to the rising sun.
+"""
+
+
+def test_loeb_ocr_footnotes_block_parsed_into_notes_and_markers(tmp_path):
+    """Before the 2026-09-14 fix, ``format="loeb-ocr"`` never called
+    ``_parse_notes`` -- ``parse_play_speeches`` always returned ``{}`` for
+    notes, and ``_parse_as_speeches`` had no stopping condition for a
+    ``Footnotes:`` line, so the block's raw text (the ``Footnotes:`` header
+    and every ``[k] ...`` line) was swallowed into Creon's speech instead of
+    ending it there. This must fail on that code: ``notes`` was empty, and
+    the note bodies were part of a speech's text."""
+    speeches, notes = parse_play_speeches(LOEB_OCR_WITH_FOOTNOTES, "ANTIGONE", format="loeb-ocr")
+    assert notes == {
+        "1": "i.e. destined fate.",
+        "2": "Addressed to the rising sun.",
+    }
+    assert len(speeches) == 4
+    assert speeches[-1]["speaker_printed"] == "CREON"
+    assert speeches[-1]["text"] == "Sirrah, begone."
+    for speech in speeches:
+        assert "Footnotes:" not in speech["text"]
+        assert "destined fate" not in speech["text"]
+        assert "rising sun" not in speech["text"]
+
+
+def test_loeb_ocr_footnote_marker_glued_before_punctuation_becomes_popup(tmp_path):
+    """A ``[k]`` marker glued directly onto a word, with no space before the
+    punctuation that follows it (Way's own style once the OCR remnant of his
+    superscript is removed, e.g. ``heifer-maid[1] !``), must survive
+    ``_rewrite_footnotes`` as ``[^seq.k]`` in the same place, and the note
+    text must reach the ``footnotes`` map keyed by that same label."""
+    path = tmp_path / "antigone.txt"
+    path.write_text(LOEB_OCR_WITH_FOOTNOTES, encoding="utf-8")
+    english, footnotes, _report = parse_translation(
+        path,
+        _antigone_spine(),
+        work_id="antigone",
+        translation_id="way",
+        play="ANTIGONE",
+        sigla={"ΑΝ.": "Antigone", "ΙΣ.": "Ismene", "Χο.": "Chorus", "ΚΡ.": "Creon"},
+        english_aliases={
+            "ANTIGONE": "Antigone",
+            "ISMENE": "Ismene",
+            "CHORUS": "Chorus",
+            "CREON": "Creon",
+        },
+        footnotes_enabled=True,
+        format="loeb-ocr",
+    )
+    all_text = " ".join(c["text"] for c in english["chunks"])
+    assert "the weird[^1.1] of Oedipus" in all_text
+    assert "Sunbeam[^2.2], of all" in all_text
+    assert footnotes == {
+        "1.1": "i.e. destined fate.",
+        "2.2": "Addressed to the rising sun.",
+    }
+
+
 def test_chunks_as_overlay_prefixes_speakers():
     from drama_pipeline.stage1_turn_english import chunks_as_overlay
 
@@ -2947,3 +3026,18 @@ def test_bacchae_murray_second_messenger_pins_keep_the_death_report_on_its_own_l
     broken = _bacchae_murray_chunks([])
     assert "We climbed beyond the utmost habitings" in broken["1:1153"][0]["text"]
     assert "1:1043" not in broken or "We climbed beyond" not in broken["1:1043"][0]["text"]
+def test_loeb_ocr_roman_numeral_heading_is_not_a_speaker():
+    text = "\n".join([
+        "HERACLES",
+        "",
+        "CHORUS. First the grove of Zeus he freed",
+        "I. The Nemean Lion",
+        "Of the lion, and about his shoulders bound",
+        "II. The Centaurs",
+        "The hide of the beast.",
+        "AMPHITRYON. Enough.",
+    ])
+    speeches, _notes = parse_play_speeches(text, "HERACLES", format="loeb-ocr")
+    assert [sp["speaker_printed"] for sp in speeches] == ["CHORUS", "AMPHITRYON"]
+    assert "I. The Nemean Lion" in speeches[0]["text"]
+    assert "II. The Centaurs" in speeches[0]["text"]

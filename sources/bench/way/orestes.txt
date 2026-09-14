@@ -493,9 +493,7 @@ ORESTES. lspare. No horrors heaven spares to me!
 
 MENELAUS. What aileth thee? What sickness ruineth thee?
 
-ORESTES. Conscience !—to know I have wrought a fearful deed.
-1 Suppliants to a God brought leafy boughs, which they
-laid on his altar, linking themselves thereto by woollen fillets.
+ORESTES. Conscience !—to know I have wrought a fearful deed.[1]
 
 MENELAUS. How mean'st thou? Clear is wisdom, not obscure.
 
@@ -589,8 +587,7 @@ MENELAUS. For exile, death, or other doom than death ?
 
 ORESTES. To die by stoning at the people's hands.
 
-MENELAUS. Why flee not o'er the confines of the land?
-1 Purification must be performed in some unpolluted house.
+MENELAUS. Why flee not o'er the confines of the land?[2]
 
 ORESTES. I am in the toils, ringed round by brazen arms.
 
@@ -1358,14 +1355,10 @@ O might I win to the rock ’twixt heaven!
 And earth suspended in circles swinging,
 Upborne by the golden chains scarce-clinging,
 The shard from Olympus riven ;
-That to Tantalus, father of ancient time,
+That to Tantalus[3], father of ancient time,
 I might shriek with laments wild-ringing :
 For of his loins came those sires of our name
 Who looked upon that infatuate crime
-1 Tantalus lay in Tartarus beneath a rock, which at every
-moment seemed about to fall and crush him. Here Euripides
-seems to identify this rock with the sun, which Anaxagoras
-described as a red-hot mass of stone hung in heaven.
 Wrought when the car-steeds' winged feet chased,
 When the four-horsed chariot of Pelops raced
 By the strand, and his hand dashed Myrtilus
@@ -2247,13 +2240,11 @@ MENELAUS. Thou touch the sacred lavers !—!
 
 ORESTES. Wherefore not ?
 
-MENELAUS. And slay ere battle victims !—
+MENELAUS. And slay ere battle victims[4] !—
 
 ORESTES. Well mayst thou /
 
 MENELAUS. Yea, for mine hands are clean.
-1 The king, as commander-in-chief, sacrificed for the army
-before battle.
 
 ORESTES. But not thine heart !
 
@@ -2396,3 +2387,9 @@ Queen of the Sea.
 CHORUS. Hail, reveréd Victory :
 Rest upon my life, and me
 Crown, and crown eternally !
+
+Footnotes:
+[1] Suppliants to a God brought leafy boughs, which they laid on his altar, linking themselves thereto by woollen fillets.
+[2] Purification must be performed in some unpolluted house.
+[3] Tantalus lay in Tartarus beneath a rock, which at every moment seemed about to fall and crush him. Here Euripides seems to identify this rock with the sun, which Anaxagoras described as a red-hot mass of stone hung in heaven.
+[4] The king, as commander-in-chief, sacrificed for the army before battle.

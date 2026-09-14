@@ -411,12 +411,10 @@ NURSE. Iam dumb: henceforth thy part it is to speak.
 
 PHAEDRA. O hapless mother!!—what strange love was thine !
 
-NURSE. Love for the bull, my child ?—or what wouldst
+NURSE. Love for the bull[1], my child ?—or what wouldst
 name ?
-1 Pasiphaé, of whose unnatural passion the Minotaur was
-born.
 
-PHAEDRA. And thou, sad sister, Dionysus’ bride? !
+PHAEDRA. And thou, sad sister, Dionysus’ bride[2]? !
 
 NURSE. What ails thee, child ?—dost thou revile thy kin ?
 
@@ -435,7 +433,7 @@ NURSE. No seer am I to interpret hidden things.
 PHAEDRA. What mean they when they speak of this—to love ?
 
 NURSE. The sweetest thing, my child—the bitterest too.
-PHAEDRA,
+PHAEDRA.
 For me, the second only have I proved.
 
 NURSE. What say’st thou?—child, thou lovest—oh, what
@@ -446,7 +444,6 @@ PHAEDRA. Whate’er his name—’tis he—the Amazon’s—
 NURSE. Hippolytus !
 
 PHAEDRA. Thou sayest it, not I.
-1 Ariadne, who, for Theseus’ sake, was traitress to her father.
 
 NURSE. Woe, child! What wilt thou say ? Thou hast dealt
 me death !
@@ -1145,13 +1142,11 @@ Consort? Art thou the chaste, the stainless one?
 I will not trust thy boasts, for so should I
 Impute to Gods unwisdom’s ignorance.
 Now vaunt, ay now !—set out thy paltry wares
-Of lifeless food : 1 take Orpheus for thy king :
+Of lifeless food :[3] take Orpheus for thy king :
 Rave, worship vapourings of many a scroll :
 For ah, thou’rt caught! - I warn all men to shun
 Such hypocrites as this; for they hunt souls
 With canting words, the while they plot foul sin.
-1 Abstinence from animal food was a feature of the ascetic
-doctrines attributed to Orpheus, as of those of Pythagoras.
 Dead is she: thinkest thou this saveth thee ?
 Hereby thou art most convicted, basest thou !
 What oaths, what protestations shall bear down
@@ -1788,3 +1783,8 @@ Than virtue unto the sons of earth ;
 For soon or late on the fear of God
 Goodly reward shall be bestowed.
 . [Stobaeus, Florilegium. ]
+
+Footnotes:
+[1] Pasiphaé, of whose unnatural passion the Minotaur was born.
+[2] Ariadne, who, for Theseus’ sake, was traitress to her father.
+[3] Abstinence from animal food was a feature of the ascetic doctrines attributed to Orpheus, as of those of Pythagoras.

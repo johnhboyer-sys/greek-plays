@@ -1278,6 +1278,49 @@ def _merge_shared_lsj(language: str) -> None:
         )
 
 
+def _resolve_footnotes_source(manifest: Manifest, stage1_dir: Path) -> Path | None:
+    """Which stage1 footnotes file (if any) becomes a play's footnotes.json.
+
+    Called after the `third_footnotes.json` check (third always wins, kept
+    in `run` itself). The primary wins when it emits footnotes (turn-text
+    `english.primary.footnotes: true`, or a static `footnotes.json` beside
+    a `dir`-based primary source). Otherwise a secondary flagged
+    `footnotes: true` (e.g. Way's Loeb, 2026-09-14) supplies its own
+    `secondary_footnotes.json`, when that file exists and is non-empty. A
+    play whose primary AND secondary would both emit footnotes is a hard
+    failure: the reader loads only one footnotes.json per play.
+    """
+    prim = (manifest.data.get("english") or {}).get("primary") or {}
+    primary_src: Path | None = None
+    if prim.get("footnotes"):
+        play_footnotes = stage1_dir / "english_footnotes.json"
+        if not play_footnotes.exists():
+            raise RuntimeError(
+                f"{manifest.work_id}: english.primary.footnotes is true but "
+                "stage1/english_footnotes.json is missing"
+            )
+        primary_src = play_footnotes
+    elif prim.get("dir"):
+        src = SOURCES_DIR / prim["dir"] / "footnotes.json"
+        if src.exists():
+            primary_src = src
+
+    secondary_footnotes_path = stage1_dir / "secondary_footnotes.json"
+    secondary_src: Path | None = None
+    if secondary_footnotes_path.exists():
+        secondary_data = json.loads(secondary_footnotes_path.read_text(encoding="utf-8"))
+        if secondary_data:
+            secondary_src = secondary_footnotes_path
+
+    if primary_src and secondary_src:
+        raise RuntimeError(
+            f"{manifest.work_id}: both the primary and secondary "
+            "translations emit footnotes; the reader loads only one "
+            "footnotes.json per play"
+        )
+    return primary_src or secondary_src
+
+
 def run(manifest: Manifest) -> Path:
     # Per-language spine filename (shared with stage2/stage3 via the same
     # mapping — see stage3_tokenize._SPINE_FILENAMES's doc).
@@ -1436,19 +1479,9 @@ def run(manifest: Manifest) -> Path:
     if footnotes_path.exists():
         shutil.copy(footnotes_path, out_dir / "footnotes.json")
     else:
-        prim = (manifest.data.get("english") or {}).get("primary") or {}
-        play_footnotes = BUILD_DIR / "stage1" / "english_footnotes.json"
-        if prim.get("footnotes"):
-            if not play_footnotes.exists():
-                raise RuntimeError(
-                    f"{manifest.work_id}: english.primary.footnotes is true but "
-                    "stage1/english_footnotes.json is missing"
-                )
-            shutil.copy(play_footnotes, out_dir / "footnotes.json")
-        elif prim.get("dir"):
-            src = SOURCES_DIR / prim["dir"] / "footnotes.json"
-            if src.exists():
-                shutil.copy(src, out_dir / "footnotes.json")
+        src = _resolve_footnotes_source(manifest, BUILD_DIR / "stage1")
+        if src is not None:
+            shutil.copy(src, out_dir / "footnotes.json")
     prim = (manifest.data.get("english") or {}).get("primary") or {}
     if prim.get("dir"):
         for source_name, output_name in (

@@ -45,13 +45,7 @@ That women, which be wise, still act through men.
 CHORUS. Reverend Queen, with agéd lips do I implore thee
 In my suppliance at thy knee I fall before thee.
 O redeem thou unto me from that assemblage of the
-. dead
-1 ‘The woollen fillets and boughs could not be removed
-without sacrilege.
-2 The presence of such, especially at the temple of
-Demeter, was ominous of evil, which the king only could
-avert, either by granting their request, or by refusing it and
-ordering them to depart.
+. dead[1][2]
 My beloved, from the harvest that the hand of death
 hath spread [my womb!
 For the mountain-beasts to ravin on the children of
@@ -79,8 +73,7 @@ Whence to heaven leaps the flame ; and the right
 is that I claim.
 Thou art strong, thy son remaineth ;—thou canst
 make my sorrows end. [wild
-Out of depths of sorest anguish rings my supplication
-1 ‘There was no place in the temple-ritual for mourning.
+Out of depths of sorest anguish rings my supplication[3]
 That thou give me but a corpse, in mine embrace
 to hold the same, + [my child.
 And to fling mine arms around the piteous body of
@@ -158,13 +151,13 @@ ADRASTUS. And these my dead I went to ask of Thebes.
 THESEUS. Did heralds sanctify thy burial-claim ?
 
 ADRASTUS. Yea : even so the slayers grant them not.
-‘THESEUS ᾿
+THESEUS.
 What say they to thy plea of holy right ?
 
 ADRASTUS. Ay, what ?—prosperity hath puffed them up.
 
 THESEUS. For counsel com’st thou then, or what wouldst thou ?
-ADRASTUS ᾿
+ADRASTUS.
 That thou shouldst rescue, Theseus, Argos’ sons.
 THESEUS.
 Where is your Argos? Is her vaunting vain?
@@ -273,7 +266,7 @@ To lead their hosts, have many cities fallen.
 
 CHORUS. I too put up to thee the selfsame prayer,
 Theseus, to have compassion on my lot.
-+ THESEUS
+THESEUS.
 With others oft in wrestle of argument
 I have grappled touching this :—there be that say
 That evil more abounds with men than good.
@@ -366,9 +359,7 @@ floor ; [thine hands, and implore
 Rise thou, and bow at his knees, flinging round them
 That he rescue the clay of my dead, my beloved—ah,
 woe is me, woe !— {in dust lying low.
-Of the sons I have lost, under ramparts of Cadmus
-4 If the petitioner's prayer was granted, he carried away
-with him his suppliant-bough ; if not, he left it on the altar.
+Of the sons I have lost, under ramparts of Cadmus[4]
 How ? wilt how fumr neve gearen. cat ΔΝ the
 Land
 Grey mothers. witch have zaimed of there dies lt ©
@@ -468,8 +459,7 @@ Hath shown to sons of Hellas this my wont,
 Ever to be a punisher of wrong.
 Toil’s challenge therefore cannot I refuse :
 For what will they which hate me say of me,
-When she that bare me—who, beyond all, fears
-1 Phaea, the wild sow of Krommyon, slain by Theseus.
+When she that bare me—who, beyond all, fears[5]
 For me,—first bids me undertake this toil ?
 I will unto the deed, redeem their dead
 By fair words, if I may ; if not, the might
@@ -596,9 +586,7 @@ What boots it to win wealth and store for sons,
 When all one’s toil but swells a despot’s hoard ?
 Or to rear maiden daughters virtuous].
 To be a king’s sweet morsels at his will,
-And tears to them that dressed this dish for him ?
-1 He quotes the formula with which the herald opened the
-proceedings of the popular assembly at Athens,
+And tears to them that dressed this dish for him ?[6]
 May I die ere I see my daughters ravished !
 Such answering shaft to thine do I hurl back.
 But thou, what wouldst thou have of this our land?
@@ -822,9 +810,7 @@ HALF-CHORUS. We have cried to the Gods, and we cry once more
 To the first best trust of the sore afraid.
 
 HALF-CHORUS. Zeus, hear us, whose offspring was born of yore
-Of Inachus’ daughter, the heifer-maid !
-1 Thebes: round the old citadel flowed, on one side, the
-Ismenus, on the other, the Dirce.
+Of Inachus’ daughter, the heifer-maid[7] !
 
 HALF-CHORUS. Oh be our champion thou,
 To our city be gracious now !
@@ -971,20 +957,17 @@ MESSENGER. Even all which captained those seven bands renowned.
 ADRASTUS. Ha!—and the rest which perished, where be they?
 
 MESSENGER. Laid in the tomb, hard by Cithaeron’s folds.
-ADRASTUS)—*
-On that side, or on this? 1—who buried them?
+ADRASTUS.
+On that side, or on this?[8]—who buried them?
 
 MESSENGER. Theseus, where hangs Eleutherae’s shadowing rock.
 
 ADRASTUS. Where leftest thou those whom he buried not ?
-᾿ MESSENGER,
+MESSENGER.
 At hand: for earnest haste brings all things near.
 
 ADRASTUS. With loathing, surely, thralls took up the slain.
-1 .e. On the Theban or the Attic side of the range: the
-tombe would be in the possession of the people in whose land
-they were, Eleutherae was in Attics.
-‘MESSENGER,
+MESSENGER.
 Never a slave set hand unto the toil.
 
 ADRASTUS. [How ?—did the hing endure this, of his love? ]
@@ -1192,9 +1175,7 @@ THESEUS. To Oekleus’ noble son the very Gods,
 Living, gave manifest token of their praise.
 But Oedipus’ son—I tell of Polyneices—
 Myself shall praise, nor falsely speak herein.
-My guest was he, ere, leaving Cadmus’ town
-1 As being rescued from pursuers, and entombed by the
-Sa
+My guest was he, ere, leaving Cadmus’ town[9]
 Self-banished, unto Argos he crossed o’er.
 But knowest thou my wish as touching these?
 
@@ -1311,7 +1292,7 @@ Down into yon fire’s heart
 To meet him, ne’er to part,—
 Flames reddening o'er me,—
 To nestle to his side,
-In Cora’s! bowers a bride!
+In Cora’s[10]! bowers a bride!
 Ὁ love, though thou hast died,
 I’ll not forsake thee.
 Farewell life, bridal bed !
@@ -1320,7 +1301,6 @@ Ah, be our children wed !
 May leal love make ye,
 Bridegrooms to be, life through
 Unto my daughters true:
-1 Persephone, queen of Hades.
 One love-breath breathe in you.
 Now, Death, come—take me!
 
@@ -1607,5 +1587,17 @@ To Athens, shall we ever safely dwell.
 
 CHORUS. On pass we, Adrastus, and take oath-plight
 Unto Theseus and Athens. That worship requite
-Their travail for us, is meet and right.
-1 Son of Adrastus.
+Their travail for us, is meet and right.[11]
+
+Footnotes:
+[1] ‘The woollen fillets and boughs could not be removed without sacrilege.
+[2] The presence of such, especially at the temple of Demeter, was ominous of evil, which the king only could avert, either by granting their request, or by refusing it and ordering them to depart.
+[3] ‘There was no place in the temple-ritual for mourning.
+[4] If the petitioner's prayer was granted, he carried away with him his suppliant-bough ; if not, he left it on the altar.
+[5] Phaea, the wild sow of Krommyon, slain by Theseus.
+[6] He quotes the formula with which the herald opened the proceedings of the popular assembly at Athens,
+[7] Thebes: round the old citadel flowed, on one side, the Ismenus, on the other, the Dirce.
+[8] .e. On the Theban or the Attic side of the range: the tombe would be in the possession of the people in whose land they were, Eleutherae was in Attics.
+[9] As being rescued from pursuers, and entombed by the Sa
+[10] Persephone, queen of Hades.
+[11] Son of Adrastus.

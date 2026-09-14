@@ -42,7 +42,7 @@ english:
     format: loeb-ocr
     source: bench/way/rhesus.txt
     play: RHESUS
-    footnotes: false
+    footnotes: true
   third:
     id: murray-verse
     name: "Gilbert Murray"
@@ -97,6 +97,7 @@ speakers:
     "SHEPHERD": "Messenger"
     "RHESUS": "Rhesus"
     "SEMICHORUS": "Chorus"
+    "SEMICHORUS I": "Chorus"
     "ODYSSEUS": "Odysseus"
     "DIOMEDES": "Diomedes"
     "ATHENA": "Athena"
@@ -195,6 +196,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
     - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
   citation:

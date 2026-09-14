@@ -37,7 +37,7 @@ english:
     format: loeb-ocr
     source: bench/way/iphigenia-in-tauris.txt
     play: IPHIGENEIA IN TAURICA
-    footnotes: false
+    footnotes: true
   third:
     id: murray-verse
     name: "Gilbert Murray"
@@ -167,6 +167,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
     - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
   citation:

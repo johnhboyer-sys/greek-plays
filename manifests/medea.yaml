@@ -33,7 +33,7 @@ english:
     format: loeb-ocr
     source: bench/way/medea.txt
     play: MEDEA
-    footnotes: false
+    footnotes: true
     # John 2026-09-11: the dropped head is the cast list
     head_front_matter: 3
   third:
@@ -119,6 +119,7 @@ speakers:
     "CHILDREN OF MEDEA": "Son"
     "NURSE": "Nurse"
     "CHILDREN'S GUARDIAN": "Attendant"
+    "CHILDREN’S GUARDIAN": "Attendant"  # Way prints a curly apostrophe once (line 1253)
     "CHORUS": "Chorus"
     "CREON": "Creon"
     "AEGEUS": "Aegeus"
@@ -222,6 +223,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
     - id: kosmos
       name: "Coleridge, rev. Ceragioli, Nagy & Hour 25 Medea team (Kosmos Society)"

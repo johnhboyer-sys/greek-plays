@@ -41,7 +41,7 @@ english:
     format: loeb-ocr
     source: bench/way/bacchae.txt
     play: THE BACCHANALS
-    footnotes: false
+    footnotes: true
   third:
     id: kosmos
     name: "Buckley, rev. Sens & Nagy (Kosmos Society)"
@@ -259,6 +259,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
     - id: kosmos
       name: "Buckley, rev. Sens & Nagy (Kosmos Society)"

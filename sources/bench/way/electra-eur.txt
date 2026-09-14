@@ -202,7 +202,7 @@ Daughter to Agamemnon born,
 Or Troy, that, smitten by my sire,
 Of him in nightmare memories dreameth ?
 
-CHORUS. Great is the Goddess :1 borrow then of me
+CHORUS. Great is the Goddess :[1] borrow then of me
 Robes woven cunningly,
 And jewels whereby shall beauty fairer shine.
 Dost think these tears of thine,
@@ -211,7 +211,6 @@ Thy foes low ?—reverencing
 The Gods with prayers, not groans, shalt thou
 obi : bor ll
 ~ Clear shining after rain.
-1 Therefore her festival is not lightly to be neglected.
 
 ELECTRA. No God regards a wretch’s cries,
 Nor heeds old flames of sacrifice
@@ -619,8 +618,7 @@ Rich-odoured—little enow ; yet weaker draughts
 Are turned to nectar, blent with a cup of this.
 Let one bear these unto thy guests within.
 Lo, with this tattered vesture am I fain
-To wipe away the tears that dim mine eyes.
-1 Bellerophon, mounted on Pegasus, attacking the Chimaera.
+To wipe away the tears that dim mine eyes.[2]
 
 ELECTRA. Whence to thine eyes, grey sire, this sorrow-rain?
 Have mine ills wakened memories long asleep ?
@@ -959,16 +957,7 @@ And the gold-laid pavements in glorious wise
 Were tapestry-spread : through street on street
 Flashed flames of the Argives' sacrifice ;
 And the voices were ringing of flutes most sweet,
-Which render the Muses service meet :
-1 When Atreus and Thyestes both claimed the throne, it
-was decided that whichever of them should display a divine
-portent should be king. A lamb with golden fleece
-appeared amongst the flocks of Atreus; but Aerope, his
-wife, conveyed it to her paramour Thyestes. Atreus, in
-revenge, threw Aerope into the sea, murdered Thyestes'
-sons, and served their flesh up at a feast to their father.
-Euripides omits the details of this vengeance, and passes on
-directly to its consequences in the judgment of Heaven.
+Which render the Muses service meet :[3]
 Enz
 But with triumph-swell did a strange chant rise—
 “ Lo, the Golden Lamb is Thyestes’ prize ! "
@@ -1094,9 +1083,7 @@ Their weapons, faced them: “ Not a foe,” he cried,
 “To Argos, nor my servants, am I come!
 I have avenged me on my father’s slayer,—
 Orestes I, the hapless! Slay me not,
-My father’s ancient thralls !” They, when they heard
-1 A heavy cleaver, better adapted both for his ostensible
-and for his real purpose.
+My father’s ancient thralls !” They, when they heard[4]
 His words, stayed spear; and recognised was he
 Of an old servant, long time of the house.
 Straightway a wreath upon thy brother's brow
@@ -1287,8 +1274,7 @@ Hail, sister of Zeus’ sons, heroes twain .
 In the glittering heavens mid stars who stand,
 And their proud right this, to deliver from bane
 Men tossed on the storm-vext water.
-Hail! As to the Blest, do I yield thee thine own,
-1 i.e., Her avenging Furies will exact satisfaction from me.
+Hail! As to the Blest, do I yield thee thine own,[5]
 Mine homage, for awe of thy wealth and thy bliss.
 With watchful service to compass thy throne
 This, Queen, is the hour, even this!
@@ -1319,9 +1305,7 @@ As touching me, unjustly: let men learn
 The truth, and if the hate be proved my due,
 Tis just they loathe me; if not, wherefore loathe ?
 Of Tyndareus was I given to thy sire—
-Not to be slain, nor I, nor those I bare.
-1 Iphigeneia, sacrificed for the Greeks’ sake, who have
-therefore given these as some compensation.
+Not to be slain, nor I, nor those I bare.[6]
 He took my child—drawn by this lie from me,
 That she should wed Achilles,—far from home
 To that fleet's prison, laid her on the pyre,
@@ -1547,8 +1531,7 @@ The slayer of his mother—me ?
 
 ELECTRA. Woe’s me! What refuge shall what land give me?
 O feet from the dance aye banned! O spousal-hopeless hand !
-What lord to a bridal-bower shall receive me?
-1 Conjecturally supplied to fill lacuna,
+What lord to a bridal-bower shall receive me?[7]
 
 CHORUS. Again have thy thoughts veered round, yet again !
 Now right is thine heart, which was then not right
@@ -1679,8 +1662,7 @@ That I with a mother's blood be stained ?
 
 CASTOR. In the deed ye shared, as the doom ye shared :
 The curse of your sires was for twain prepared,
-And it hath not spared.
-1 Thy nominal brother-in-law, the peasant.
+And it hath not spared.[8]
 
 ORESTES. Ah, sister mine, after long, long space of weary
 waiting, to see thy face,
@@ -1748,3 +1730,13 @@ I am a God: to men I publish this.
 CHORUS. Farewell! Ah, whosoe'er may know this blessing,
 To fare mell, never crushed 'neath ills oppressing,
 Alone of mortals tastes abiding bliss.
+
+Footnotes:
+[1] Therefore her festival is not lightly to be neglected.
+[2] Bellerophon, mounted on Pegasus, attacking the Chimaera.
+[3] When Atreus and Thyestes both claimed the throne, it was decided that whichever of them should display a divine portent should be king. A lamb with golden fleece appeared amongst the flocks of Atreus; but Aerope, his wife, conveyed it to her paramour Thyestes. Atreus, in revenge, threw Aerope into the sea, murdered Thyestes' sons, and served their flesh up at a feast to their father. Euripides omits the details of this vengeance, and passes on directly to its consequences in the judgment of Heaven.
+[4] A heavy cleaver, better adapted both for his ostensible and for his real purpose.
+[5] i.e., Her avenging Furies will exact satisfaction from me.
+[6] Iphigeneia, sacrificed for the Greeks’ sake, who have therefore given these as some compensation.
+[7] Conjecturally supplied to fill lacuna,
+[8] Thy nominal brother-in-law, the peasant.

@@ -38,7 +38,7 @@ english:
     format: loeb-ocr
     source: bench/way/hippolytus.txt
     play: HIPPOLYTUS
-    footnotes: false
+    footnotes: true
   third:
     id: kosmos
     name: "Coleridge, rev. Rein & Nagy (Kosmos Society)"
@@ -251,6 +251,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
     - id: kosmos
       name: "Coleridge, rev. Rein & Nagy (Kosmos Society)"

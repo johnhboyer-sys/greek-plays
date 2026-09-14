@@ -293,7 +293,7 @@ TALTHYBIUS. Your lots are cast—if this thing was your fear.
 
 HECUBA. Woe !—of what city in Thessaly,
 Or in Cadmus’ land, dost thou tell ?
-TALTHYBIUS,
+TALTHYBIUS.
 Ye have fallen each to her lord, not all together,
 
 HECUBA. Unto whom hath each been allotted ?—for whom
@@ -526,9 +526,8 @@ him,
 Such, that my woes and Phrygia’s yet shall seem
 As gold to him. Ten years to these past ten
 Accomplished, shall he reach his land—alone ;
-Shall see where in the rock-gorge fell Charybdis
+Shall see where in the rock-gorge fell Charybdis[1]
 } 2,6. slave to Penelope.
-3 i.e. the manner of her death. See Hecuba, ll. 1259-73.
 Hath made her lair,—where mountain-haunting
 Cyclops
 Ravins,—see her that turneth men to swine,
@@ -652,14 +651,9 @@ The coils of the flax have they tied.
 Like a dark ship on did it glide
 To the marble-gleam of the fane, with the stream
 Of our fatherland’s blood to be dyed,
-Even Pallas’ shrine.
+Even Pallas’[4][3] shrine.
 Now over their toil and their glee
-Spread black night’s wings divine ;
-1 Alluding to the clang of arms from within, of which tho
-Trojans in their infatuation took no heed, as they dragged
-the Wooden Horse into the city. Cf. Virgil, Aen. ii. 243.
-2 Pallas Athena, who sprang from the head of Zeus,
-8 Athena, named “‘ Pallas of the chariot-steeds.”
+Spread black night’s wings divine ;[2]
 But the flute still pealeth merrily,
 Still wreathe the dancers and twine
 The fairy-footed maze ;
@@ -747,10 +741,8 @@ ANDROMACHE. Sore are our yearnings, sharp anguish is come on us,
 O sorrow-stricken !
 Ruined our city is; cloud upon cloud do our miseries
 thicken,
-Sent by the hate of the Gods, since thy son was from
+Sent by the hate of the Gods, since thy son[5] was from
 Hades delivered,}
-1 Paris, spared at his birth, in spite of the prophecy that
-he should ruin Troy.
 He for whose bridal accurst were the bulwarks of
 Ilium shivered. [that crowd her,
 Pallas the Goddess is left amid corpses blood-boultered
@@ -1032,15 +1024,9 @@ and he harried the Trojan plain :
 Yea, twice did it fall that the coronal of Dardanus’
 towers, by spear-strokes twain lay.
 Shattered and rent, all blood-besprent in ruin
-1 Zeus gave to Laomedon, father of Ganymede, a
-team of immortal chariot-steeds. When the land was
-wasted by a dragon, the king promised these horses to
-Hercules, if he would slay it, but afterwards withheld the
-reward. So Hercules sailed against Troy with a Hellene
-host and destroyed it.
 In vain, O thou who art pacing now with delicate
 feet where the chalices shine (Sir. 2)
-All-golden, O Laomedon’s heir,
+All-golden, O Laomedon’s[6] heir,
 Is the office thine to brim with the wine
 The goblets of Zeus, a service fair,—
 And the land of thy birth in devouring flame is
@@ -1292,9 +1278,7 @@ Enthroned,—that my city to ruin is given,
 That the bands of her strength is the fire-blast breaking?
 O my belovéd, O husband mine,
 Thou art dead, and unburied thou wanderest
-yonder,
-1 The range of Mount Ida, the supposed boundary of the
-world on the east (Paley).
+yonder,[7]
 Unwashen '—but me shall the keel thro’ the brine
 Waft, onward sped by its pinions of pine,
 To the horse-land Argos, where that stone wonder
@@ -1546,8 +1530,7 @@ Of the righteous, by hand of the impious slain,
 
 HECUBA. O fanes of the Gods, dear city mine!
 
-CHORUS. Woe !—wail the refrain '
-1 Paley’s arrangement adopted.
+CHORUS. Woe !—wail the refrain '[8]
 
 HECUBA. The death-flame, the spear, in your midst have
 dominion,—
@@ -1578,3 +1561,13 @@ And the galleys Achaean thy feet must strain.
 HECUBA. O land—of my children the nursing-land !
 
 CHORUS. Woe !—wail the refrain '
+
+Footnotes:
+[1] i.e. the manner of her death. See Hecuba, ll. 1259-73.
+[2] Alluding to the clang of arms from within, of which tho Trojans in their infatuation took no heed, as they dragged the Wooden Horse into the city. Cf. Virgil, Aen. ii. 243.
+[3] Pallas Athena, who sprang from the head of Zeus,
+[4] Athena, named “‘ Pallas of the chariot-steeds.”
+[5] Paris, spared at his birth, in spite of the prophecy that he should ruin Troy.
+[6] Zeus gave to Laomedon, father of Ganymede, a team of immortal chariot-steeds. When the land was wasted by a dragon, the king promised these horses to Hercules, if he would slay it, but afterwards withheld the reward. So Hercules sailed against Troy with a Hellene host and destroyed it.
+[7] The range of Mount Ida, the supposed boundary of the world on the east (Paley).
+[8] Paley’s arrangement adopted.

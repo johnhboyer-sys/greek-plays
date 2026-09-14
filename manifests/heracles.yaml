@@ -39,7 +39,7 @@ english:
     format: loeb-ocr
     source: bench/way/heracles.txt
     play: MADNESS OF HERCULES
-    footnotes: false
+    footnotes: true
   third:
     id: kosmos
     name: "Potter, adapted by Ebbott, Dué & Kamil (CHS, Kosmos Society)"
@@ -181,6 +181,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
     - id: kosmos
       name: "Potter, adapted by Ebbott, Dué & Kamil (CHS, Kosmos Society)"
