@@ -862,10 +862,7 @@ Hitherward, hitherward, all '
 SEMICHORUS. I have them caught in the grasp of mine hand!
 
 SEMICHORUS. (To Odysseus.) What is thy troop ?—whence art thou?—a
-man of what land?
-' The dialogue that follows is differently distributed by
-various editors. Badham’s arrangement, adopted by Paley,
-is here followed, also his reading of ἱστορῶ for ἴστω of MSS.
+man of what land?[1]
 
 ODYSSEUS. Nought to thee is this !
 
@@ -1289,3 +1286,6 @@ et)
 "Yee
 rate Se | :
 ~
+
+Footnotes:
+[1] The dialogue that follows is differently distributed by various editors. Badham’s arrangement, adopted by Paley, is here followed, also his reading of ἱστορῶ for ἴστω of MSS.

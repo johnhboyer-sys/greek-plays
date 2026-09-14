@@ -31,13 +31,13 @@ And Athens. Now it chanceth that I come
 For the land’s harvest’s sake from forth mine halls
 To this god’s-acre, where first rose to light
 Above the earth’s face bristling ears of corn.
-And, bound in this strong gossamer-chain of leaves,
+And, bound in this strong gossamer-chain of leaves[1],
 At the two Goddesses’ holy hearths I stay,
 Demeter’s and her Daughter’s, both for ruth
 Of these unchilded mothers silver-haired,
 And awe of the holy bands. To Athens sped
 Mine herald is, to summon Theseus hither,
-That he may banish from the land these mourners,?
+That he may banish from the land these mourners[2],?
 Or loose this strong constraint of suppliance
 By rendering heaven its due. Seemly it is
 That women, which be wise, still act through men.
@@ -45,7 +45,7 @@ That women, which be wise, still act through men.
 CHORUS. Reverend Queen, with agéd lips do I implore thee
 In my suppliance at thy knee I fall before thee.
 O redeem thou unto me from that assemblage of the
-. dead[1][2]
+. dead
 My beloved, from the harvest that the hand of death
 hath spread [my womb!
 For the mountain-beasts to ravin on the children of
@@ -67,13 +67,13 @@ help we crave, ‘our dead—
 To Ismenus, that our hands may lay the bodies of
 Who are outcasts now in Hades, being tombless—
 in the grave.
-Not according unto rite, but as overmastering might
+Not according unto rite[3], but as overmastering might
 Of Necessity constraineth, at the altars do I bend
 Whence to heaven leaps the flame ; and the right
 is that I claim.
 Thou art strong, thy son remaineth ;—thou canst
 make my sorrows end. [wild
-Out of depths of sorest anguish rings my supplication[3]
+Out of depths of sorest anguish rings my supplication
 That thou give me but a corpse, in mine embrace
 to hold the same, + [my child.
 And to fling mine arms around the piteous body of
@@ -336,7 +336,7 @@ Need I thy chastisement and chiding, king,
 No, but thine aid. And if thou wilt not this,
 I must content me with thy choice :—what help ?
 Come, aged dames, depart :—yet leave ye here
-The grey-green boughs to roof the altar o’er,!
+The grey-green boughs[4] to roof the altar o’er,!
 Calling to witness heaven and earth, Demeter,
 Fire-bearing Goddess, and the Sun-god’s light,
 That naught our prayers unto the Gods availed.
@@ -359,7 +359,7 @@ floor ; [thine hands, and implore
 Rise thou, and bow at his knees, flinging round them
 That he rescue the clay of my dead, my beloved—ah,
 woe is me, woe !— {in dust lying low.
-Of the sons I have lost, under ramparts of Cadmus[4]
+Of the sons I have lost, under ramparts of Cadmus
 How ? wilt how fumr neve gearen. cat ΔΝ the
 Land
 Grey mothers. witch have zaimed of there dies lt ©
@@ -430,7 +430,7 @@ Is this, when they with honour hold by law.
 Ay, some will say faint heart made feeble hand ;
 That to win Athens glory’s crown was thine,
 Yet didst thou flinch for fear; that thou didst close
-In strife of little toil with that wild swine,!
+In strife of little toil with that wild swine[5],!
 But when behoved to face the helm, bear brunt
 Of the spear’s point, a craven wert thou found.
 Ah, do not so, my son, as thou art mine !
@@ -459,7 +459,7 @@ Hath shown to sons of Hellas this my wont,
 Ever to be a punisher of wrong.
 Toil’s challenge therefore cannot I refuse :
 For what will they which hate me say of me,
-When she that bare me—who, beyond all, fears[5]
+When she that bare me—who, beyond all, fears
 For me,—first bids me undertake this toil ?
 I will unto the deed, redeem their dead
 By fair words, if I may ; if not, the might
@@ -569,7 +569,7 @@ And wealthy have alike but equal right.
 Yea, even the weaker may fling back the scoff
 Against the prosperous, if he be reviled ;
 And, armed with right, the less o’ercomes the great.
-Thus Freedom speaks!:—“ What man desires to bring
+Thus Freedom speaks[6]!:—“ What man desires to bring
 Good counsel for his country to the people ?”
 Who chooseth this, is famous : who will not,
 Keeps silence. Can equality further go?
@@ -586,7 +586,7 @@ What boots it to win wealth and store for sons,
 When all one’s toil but swells a despot’s hoard ?
 Or to rear maiden daughters virtuous].
 To be a king’s sweet morsels at his will,
-And tears to them that dressed this dish for him ?[6]
+And tears to them that dressed this dish for him ?
 May I die ere I see my daughters ravished !
 Such answering shaft to thine do I hurl back.
 But thou, what wouldst thou have of this our land?
@@ -1566,7 +1566,7 @@ Be the God’s Close, by those three Isthmian ways.
 This to thee : now to the Argives’ sons I speak.
 Ye shall, to man grown, waste Ismenus’ town
 In vengeance for the slaughter of dead sires.
-‘Thou in thy sire’s stead, Aegialeus,} shalt be
+‘Thou in thy sire’s stead, Aegialeus[11],} shalt be
 Their young chief : from Aetolia Tydeus’ son,
 Named Diomedes of his sire, shall come.
 When beards your cheeks are shadowing, tarry not
@@ -1587,7 +1587,7 @@ To Athens, shall we ever safely dwell.
 
 CHORUS. On pass we, Adrastus, and take oath-plight
 Unto Theseus and Athens. That worship requite
-Their travail for us, is meet and right.[11]
+Their travail for us, is meet and right.
 
 Footnotes:
 [1] ‘The woollen fillets and boughs could not be removed without sacrilege.

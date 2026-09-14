@@ -520,14 +520,13 @@ Who are but menials of kings and cities?
 Say’st thou my mother to Odysseus’ halls
 Shall come? Where be Apollo’s bodings then,
 Which say—to me no mystery—that she
-Shall here die ?—other shame I will not speak.?
+Shall here die[1] ?—other shame I will not speak.?
 Wretch !—he knows not what sufferings wait for
 him,
 Such, that my woes and Phrygia’s yet shall seem
 As gold to him. Ten years to these past ten
 Accomplished, shall he reach his land—alone ;
-Shall see where in the rock-gorge fell Charybdis[1]
-} 2,6. slave to Penelope.
+Shall see where in the rock-gorge fell Charybdis[2]
 Hath made her lair,—where mountain-haunting
 Cyclops
 Ravins,—see her that turneth men to swine,
@@ -629,14 +628,14 @@ For now through my lips outwailing clear
 Troy’s ruin-dirge shall ring,—
 How the Argives’ four-foot wain
 Brought me ruin with spear and with chain,
-When clashed to the sky death’s armoury
+When clashed to the sky death’s armoury[3]
 That they left at our gates for our bane—
 That gold-decked thing !
 And afar from the rock’s sheer crest
 A shout did the Troy-folk fling—
 “ Come, ye that from troubles have now found rest,
 And the sacred image bring
-To the Ilian Maid 3 Zeus bare!”
+To the Ilian Maid[4] Zeus bare!”
 Who then of the youths but was there ?
 What hoary head but from home forth sped,
 With songs that ruin-snare
@@ -644,16 +643,16 @@ Encompassing ?
 Swift streamed they all to the gate,
 The children of Dardanus’ line,
 With the Argives’ gift to propitiate
-The Maid supreme of the deathless team 8 :
+The Maid supreme of the deathless team[5] :
 And to Phrygia’s curse, to the ambushed fate
 That was pent in the mountain-pine,
 The coils of the flax have they tied.
 Like a dark ship on did it glide
 To the marble-gleam of the fane, with the stream
 Of our fatherland’s blood to be dyed,
-Even Pallas’[4][3] shrine.
+Even Pallas’ shrine.
 Now over their toil and their glee
-Spread black night’s wings divine ;[2]
+Spread black night’s wings divine ;
 But the flute still pealeth merrily,
 Still wreathe the dancers and twine
 The fairy-footed maze ;
@@ -741,7 +740,7 @@ ANDROMACHE. Sore are our yearnings, sharp anguish is come on us,
 O sorrow-stricken !
 Ruined our city is; cloud upon cloud do our miseries
 thicken,
-Sent by the hate of the Gods, since thy son[5] was from
+Sent by the hate of the Gods, since thy son[6] was from
 Hades delivered,}
 He for whose bridal accurst were the bulwarks of
 Ilium shivered. [that crowd her,
@@ -1026,7 +1025,7 @@ towers, by spear-strokes twain lay.
 Shattered and rent, all blood-besprent in ruin
 In vain, O thou who art pacing now with delicate
 feet where the chalices shine (Sir. 2)
-All-golden, O Laomedon’s[6] heir,
+All-golden, O Laomedon’s[7] heir,
 Is the office thine to brim with the wine
 The goblets of Zeus, a service fair,—
 And the land of thy birth in devouring flame is
@@ -1265,7 +1264,7 @@ O Zeus, and the flame of our sacrificing,
 And the holy burg with its myrrh-smoke rising,
 And the ivy-mantled glens Idaean
 Overstreamed with the wan snow riverward-rushing,
-And the haunted bowers of the World’s Wall,} flushing
+And the haunted bowers of the World’s Wall[8],} flushing
 With the first shafts flashed through the empyrean !
 Thine altars are cold; and the blithesome calling
 Of the dancers is hushed ; nor at twilight’s falling
@@ -1278,7 +1277,7 @@ Enthroned,—that my city to ruin is given,
 That the bands of her strength is the fire-blast breaking?
 O my belovéd, O husband mine,
 Thou art dead, and unburied thou wanderest
-yonder,[7]
+yonder,
 Unwashen '—but me shall the keel thro’ the brine
 Waft, onward sped by its pinions of pine,
 To the horse-land Argos, where that stone wonder
@@ -1530,7 +1529,7 @@ Of the righteous, by hand of the impious slain,
 
 HECUBA. O fanes of the Gods, dear city mine!
 
-CHORUS. Woe !—wail the refrain '[8]
+CHORUS. Woe !—wail the refrain '[9]
 
 HECUBA. The death-flame, the spear, in your midst have
 dominion,—
@@ -1564,10 +1563,11 @@ CHORUS. Woe !—wail the refrain '
 
 Footnotes:
 [1] i.e. the manner of her death. See Hecuba, ll. 1259-73.
-[2] Alluding to the clang of arms from within, of which tho Trojans in their infatuation took no heed, as they dragged the Wooden Horse into the city. Cf. Virgil, Aen. ii. 243.
-[3] Pallas Athena, who sprang from the head of Zeus,
-[4] Athena, named “‘ Pallas of the chariot-steeds.”
-[5] Paris, spared at his birth, in spite of the prophecy that he should ruin Troy.
-[6] Zeus gave to Laomedon, father of Ganymede, a team of immortal chariot-steeds. When the land was wasted by a dragon, the king promised these horses to Hercules, if he would slay it, but afterwards withheld the reward. So Hercules sailed against Troy with a Hellene host and destroyed it.
-[7] The range of Mount Ida, the supposed boundary of the world on the east (Paley).
-[8] Paley’s arrangement adopted.
+[2] slave to Penelope.
+[3] Alluding to the clang of arms from within, of which tho Trojans in their infatuation took no heed, as they dragged the Wooden Horse into the city. Cf. Virgil, Aen. ii. 243.
+[4] Pallas Athena, who sprang from the head of Zeus,
+[5] Athena, named “‘ Pallas of the chariot-steeds.”
+[6] Paris, spared at his birth, in spite of the prophecy that he should ruin Troy.
+[7] Zeus gave to Laomedon, father of Ganymede, a team of immortal chariot-steeds. When the land was wasted by a dragon, the king promised these horses to Hercules, if he would slay it, but afterwards withheld the reward. So Hercules sailed against Troy with a Hellene host and destroyed it.
+[8] The range of Mount Ida, the supposed boundary of the world on the east (Paley).
+[9] Paley’s arrangement adopted.
