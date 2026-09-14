@@ -1927,6 +1927,59 @@ def test_run_third_writes_third_chunks(tmp_path, monkeypatch):
     assert report["speeches_parsed"] == 4
 
 
+def test_run_looks_up_verse_form_from_the_registry(tmp_path, monkeypatch):
+    """`registry.translations[].form: verse` on the slot's translation id
+    makes `run()` keep the source's own line breaks; a translation with no
+    `form` (or `form: prose`) is unaffected (John, 2026-09-14, "show verse as
+    verse!!!!")."""
+    from drama_pipeline.config import Manifest
+    from drama_pipeline import stage1_turn_english as m
+
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "play.txt").write_text(LOEB_OCR, encoding="utf-8")
+    monkeypatch.setattr(m, "BUILD_DIR", tmp_path)
+    monkeypatch.setattr(m, "SOURCES_DIR", src_dir)
+    spine = _antigone_spine()
+
+    def _manifest(form: str | None) -> Manifest:
+        data = {
+            "work": {"id": "antigone"},
+            "english": {
+                "secondary": {
+                    "id": "storr",
+                    "source": "play.txt",
+                    "play": "ANTIGONE",
+                    "format": "loeb-ocr",
+                    "footnotes": False,
+                }
+            },
+            "speakers": {
+                "sigla": {
+                    "ΑΝ.": "Antigone", "ΙΣ.": "Ismene", "Χο.": "Chorus", "ΚΡ.": "Creon",
+                    "—": None,
+                },
+                "english_secondary": {
+                    "ANTIGONE": "Antigone", "ISMENE": "Ismene", "CHORUS": "Chorus", "CREON": "Creon",
+                },
+            },
+        }
+        if form is not None:
+            data["registry"] = {"translations": [{"id": "storr", "form": form}]}
+        return Manifest(data, tmp_path / "antigone.yaml")
+
+    # Antigone's own speech (chunk "1:1") is three source lines.
+    verse_path, _a, _r = m.run(_manifest("verse"), spine, slot="secondary")
+    verse_text = json.loads(verse_path.read_text(encoding="utf-8"))["1:1"][0]["text"]
+    assert "\n" in verse_text
+
+    for form in (None, "prose"):
+        prose_path, _a, _r = m.run(_manifest(form), spine, slot="secondary")
+        prose_text = json.loads(prose_path.read_text(encoding="utf-8"))["1:1"][0]["text"]
+        assert "\n" not in prose_text
+        assert verse_text.replace("\n", " ") == prose_text
+
+
 def test_loeb_ocr_unaliased_speakers_are_unattributed_not_fatal(tmp_path):
     """An OCR junk label in a loeb-ocr comparison slot must not fail the play:
     the speech stays, unattributed (no colour key), and is reported."""
@@ -2533,6 +2586,23 @@ def test_join_parts_drops_gutenberg_italic_underscores():
     assert _join_parts(["(_to Dionysus_) Your advice is in vain,", "I shall not vacate the chair."]) == "(to Dionysus) Your advice is in vain, I shall not vacate the chair."
     assert _join_parts(["a _b_ c", "", "d"]) == "a b c\n\nd"
     assert _join_parts(["snake_case stays"]) == "snake_case stays"
+
+
+def test_join_parts_verse_keeps_source_line_breaks():
+    """A verse-form translation prints one line per source line instead of
+    running a speech together as one paragraph (John, 2026-09-14, "show verse
+    as verse!!!!"); replacing every `\\n` with a space must reproduce exactly
+    what the prose join already produces -- byte offsets must not move."""
+    from drama_pipeline.stage1_turn_english import _join_parts
+    parts = ["let them, and refuse", "The corpses, setting the Gods' laws at naught."]
+    prose = _join_parts(parts)
+    verse = _join_parts(parts, verse=True)
+    assert verse == "let them, and refuse\nThe corpses, setting the Gods' laws at naught."
+    assert verse.replace("\n", " ") == prose
+    # a paragraph break (a blank source line) still prints as "\n\n"
+    assert _join_parts(["a", "", "b"], verse=True) == "a\n\nb"
+    # Gutenberg italics markup still strips within one line
+    assert _join_parts(["(_to Dionysus_) hail"], verse=True) == "(to Dionysus) hail"
 
 
 def test_equal_length_gap_with_disagreeing_names_pairs_and_is_flagged():

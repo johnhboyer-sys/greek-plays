@@ -1774,6 +1774,92 @@ describe('prose measure: a prose translation gets the narrower English column', 
   });
 });
 
+// John, 2026-09-14, "show verse as verse!!!!": a verse-form translation's
+// speech keeps the source's own line breaks (a literal `\n` per printed
+// line, from stage1_turn_english's verse-form `_join_parts`) instead of
+// running the whole speech together as one paragraph. Fails on the
+// pre-fix Reader.svelte because `.turn-para` always rendered
+// `markStageDirections(renderThird(b.text, transId))` unconditionally, with
+// no per-line split at all -- a verse piece's embedded `\n`s just vanished
+// into ordinary HTML whitespace collapsing, one run-on paragraph exactly
+// like a prose piece.
+describe('verse form: a verse translation renders each source line as its own block', () => {
+  beforeEach(() => localStorage.clear());
+
+  function threeLineSpeech(secondaryText: string): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [{
+        id: '1:1', column: '1',
+        greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+        speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+        english: { text: 'Primary words.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+        secondary: [{ chapter: '1', text: secondaryText, cont: false }],
+      }],
+    };
+  }
+
+  it('a verse-form piece with three lines renders three line blocks and one speaker lead-in', async () => {
+    const { container } = render(Reader, {
+      props: { work: 'PLAYPROSE', bookNum: 1, bookData: threeLineSpeech('WATCHMAN. Line one\nLine two\nLine three') },
+    });
+    await flush();
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    const lines = [...container.querySelectorAll('.turn-para .verse-line')];
+    expect(lines.map((l) => l.textContent)).toEqual(['Line one', 'Line two', 'Line three']);
+    // One lead-in for the whole speech, not one per line.
+    expect(container.querySelectorAll('.turn-para .speaker').length).toBe(1);
+    expect(container.querySelector('.turn-para .speaker')?.textContent).toBe('Watchman');
+  });
+
+  it('a prose-form piece with the same text renders one paragraph', async () => {
+    const { container } = render(Reader, {
+      props: {
+        work: 'PLAYPROSE', bookNum: 1,
+        bookData: {
+          book: 1,
+          speakerRoster: ['Watchman'],
+          segments: [{
+            id: '1:1', column: '1',
+            greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+            speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+            english: { text: 'Line one\nLine two\nLine three', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+          }],
+        },
+      },
+    });
+    await flush();
+    // smyth (the default, primary translation) is form: 'prose' -- no split.
+    expect(container.querySelectorAll('.turn-para').length).toBe(1);
+    expect(container.querySelectorAll('.verse-line').length).toBe(0);
+  });
+
+  it('a [^1.1] marker and a highlighted term inside line two stay inside line two', async () => {
+    window.history.replaceState(null, '', '/PLAYPROSE/book/1?hle=highlightme');
+    const { container } = render(Reader, {
+      props: {
+        work: 'PLAYPROSE', bookNum: 1,
+        bookData: threeLineSpeech('WATCHMAN. Line one\nA highlightme[^1.1] word\nLine three'),
+      },
+    });
+    await flush();
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    const lines = [...container.querySelectorAll('.turn-para .verse-line')];
+    expect(lines).toHaveLength(3);
+    expect(lines[0].querySelector('mark')).toBeNull();
+    expect(lines[0].querySelector('.fn-marker')).toBeNull();
+    expect(lines[1].querySelector('mark')?.textContent).toBe('highlightme');
+    expect(lines[1].querySelector('.fn-marker')).not.toBeNull();
+    expect(lines[2].querySelector('mark')).toBeNull();
+    expect(lines[2].querySelector('.fn-marker')).toBeNull();
+  });
+});
+
 // ── Astra lane A (F2, F3, F6, F7, F8) ─────────────────────────────────────
 function fireCopy(container: HTMLElement): string | undefined {
   const target = container.querySelector('.reader-body');

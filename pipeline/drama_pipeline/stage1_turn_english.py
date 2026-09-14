@@ -402,17 +402,31 @@ def _is_gutenberg_end_line(line: str) -> bool:
     return bool(_PG_END.match(line.strip()))
 
 
-def _join_parts(parts: list[str]) -> str:
+_WS = re.compile(r"\s+")
+
+
+def _collapse_ws_lines(text: str) -> str:
+    """Like ``collapse_ws``, but a whitespace run that contains a newline
+    collapses to one newline instead of one space -- a verse-form speech's
+    line breaks (each one, exactly the join point ``_join_parts`` put a
+    single ``\\n`` at) must survive, while any other run of whitespace still
+    folds to a single space (John, 2026-09-14, "show verse as verse")."""
+    return _WS.sub(lambda m: "\n" if "\n" in m.group(0) else " ", text)
+
+
+def _join_parts(parts: list[str], verse: bool = False) -> str:
+    sep = "\n" if verse else " "
+    collapse = _collapse_ws_lines if verse else collapse_ws
     paragraphs: list[str] = []
     buf: list[str] = []
     for part in parts:
         if part:
             buf.append(part)
         elif buf:
-            paragraphs.append(collapse_ws(" ".join(buf)).strip())
+            paragraphs.append(collapse(sep.join(buf)).strip())
             buf = []
     if buf:
-        paragraphs.append(collapse_ws(" ".join(buf)).strip())
+        paragraphs.append(collapse(sep.join(buf)).strip())
     # Gutenberg marks italics with underscores ("(_to Dionysus_)", 116 such
     # stage notes in the 1912 comedies); the reader has no use for the
     # markup, so the underscores go and the words stay (John, 2026-09-09).
@@ -435,14 +449,14 @@ def _add_direction(found: list[list], at: int, text: str) -> None:
         found.append([at, text])
 
 
-def _shown(parts: list[str], inner: list[list]) -> str:
+def _shown(parts: list[str], inner: list[list], verse: bool = False) -> str:
     """The speech with its inner directions, each on a line of its own."""
     out: list[str] = []
     last = 0
     for at, text in inner:
-        out += [_join_parts(parts[last:at]), f"_{text}_"]
+        out += [_join_parts(parts[last:at], verse), f"_{text}_"]
         last = at
-    out.append(_join_parts(parts[last:]))
+    out.append(_join_parts(parts[last:], verse))
     return "\n".join(piece for piece in out if piece)
 
 
@@ -489,7 +503,7 @@ def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
 
 
 def _parse_as_speeches(
-    lines: list[str], start: int, known_names: set[str]
+    lines: list[str], start: int, known_names: set[str], verse: bool = False
 ) -> tuple[list[dict], int]:
     speeches: list[dict] = []
     parts: list[str] = []
@@ -498,7 +512,7 @@ def _parse_as_speeches(
     end_i = len(lines)
 
     def flush() -> None:
-        text = _join_parts(parts)
+        text = _join_parts(parts, verse)
         if speaker and text:
             speeches.append({"speaker_printed": speaker, "text": text})
 
@@ -554,6 +568,7 @@ def _parse_lindsay_speeches(
     *,
     directions: bool = False,
     before: list[str] | None = None,
+    verse: bool = False,
 ) -> tuple[list[dict], int]:
     speeches: list[dict] = []
     parts: list[str] = []
@@ -567,7 +582,7 @@ def _parse_lindsay_speeches(
 
     def flush() -> None:
         nonlocal before
-        text = _join_parts(parts)
+        text = _join_parts(parts, verse)
         if not (speaker and text):
             before += [d for _at, d in inline]
             return
@@ -578,7 +593,7 @@ def _parse_lindsay_speeches(
         if before:
             speech["directions_before"] = before
         if inner:
-            speech["shown"] = _shown(parts, inner)
+            speech["shown"] = _shown(parts, inner, verse)
         speeches.append(speech)
         before = [d for at, d in inline if not any(parts[at:])]
 
@@ -631,6 +646,7 @@ def parse_play_speeches(
     format: str = "gutenberg",
     known_names: set[str] | None = None,
     line_fixes: dict[int | str, str] | None = None,
+    verse: bool = False,
 ) -> tuple[list[dict], dict[str, str]]:
     """Split one play into ``{speaker_printed, text}`` speeches + notes.
 
@@ -654,7 +670,7 @@ def parse_play_speeches(
     title_i = _locate_title(lines, title)
     if format == "loeb-ocr":
         start = _body_start(lines, title_i, lindsay=False, known_names=known_names)
-        speeches, end_i = _parse_as_speeches(lines, start, known_names)
+        speeches, end_i = _parse_as_speeches(lines, start, known_names, verse)
         notes = _parse_notes(lines, end_i, title)
         return speeches, notes
     if format == "verse-own-line":
@@ -675,7 +691,7 @@ def parse_play_speeches(
             else:
                 k += 1
         speeches, _end_i = _parse_lindsay_speeches(
-            lines, start, directions=True, before=[d for _at, d in opening]
+            lines, start, directions=True, before=[d for _at, d in opening], verse=verse
         )
         return speeches, {}
     dp = _dramatis_index_after(lines, title_i)
@@ -683,9 +699,9 @@ def parse_play_speeches(
     lindsay = dp_line.startswith("The Persons of the drama")
     start = _body_start(lines, title_i, lindsay, known_names)
     if lindsay:
-        speeches, end_i = _parse_lindsay_speeches(lines, start)
+        speeches, end_i = _parse_lindsay_speeches(lines, start, verse=verse)
     else:
-        speeches, end_i = _parse_as_speeches(lines, start, known_names)
+        speeches, end_i = _parse_as_speeches(lines, start, known_names, verse)
     notes = _parse_notes(lines, end_i, title)
     return speeches, notes
 
@@ -1453,6 +1469,7 @@ def parse_translation(
     covered: list[dict] | None = None,
     english_overrides: list[dict] | None = None,
     slot: str = "primary",
+    verse: bool = False,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
@@ -1465,6 +1482,7 @@ def parse_translation(
         format=format,
         known_names=set(aliases),
         line_fixes=line_fixes,
+        verse=verse,
     )
     if splits:
         pins = list(pins or []) + _apply_splits(speeches, splits, work_id)
@@ -2081,6 +2099,16 @@ def run(
     play = cfg.get("play")
     if not play:
         raise ValueError(f"{manifest.work_id}: english.{slot}.play is required for turn-text")
+    # A translation's registry entry says whether it prints verse or prose
+    # (John, 2026-09-14, "show verse as verse!!!!"): verse keeps the source's
+    # own line breaks instead of running a speech together as one paragraph.
+    registry_translations = (manifest.data.get("registry") or {}).get("translations") or []
+    form = next(
+        (item.get("form") for item in registry_translations
+         if isinstance(item, dict) and item.get("id") == cfg.get("id")),
+        None,
+    )
+    verse = form == "verse"
     english, footnotes, report = parse_translation(
         source_path,
         spine,
@@ -2097,6 +2125,7 @@ def run(
         covered=cfg.get("covered") or [],
         english_overrides=speakers.get("english_overrides") or [],
         slot=slot,
+        verse=verse,
     )
     # A long speech's English reaches the Greek segments that continue it
     # (John, 2026-09-11, Morshead's Agamemnon parodos).

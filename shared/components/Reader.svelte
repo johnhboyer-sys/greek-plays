@@ -269,6 +269,11 @@
   // A prose translation's column takes the narrower prose measure
   // (global.css `.prose-measure`) and fewer cuts inside a speech.
   const proseMeasure = (id: string | null | undefined): boolean => transById(id)?.form === 'prose';
+  // A verse translation's source line breaks are shown as verse (John,
+  // 2026-09-14, "show verse as verse!!!!"): each `\n`-separated line the
+  // pipeline kept (stage1_turn_english's verse-form `_join_parts`) renders as
+  // its own block instead of running the speech together as one paragraph.
+  const verseForm = (id: string | null | undefined): boolean => transById(id)?.form === 'verse';
 
   // §Phase-4B-revised (John's call 2026-07-06): an imported translation's own
   // converter-derived chapter title is this edition's editorial paratext, not
@@ -1306,6 +1311,24 @@
         return `<span class="fn-anchor">${lead}<button type="button" class="fn-marker" data-fn="${label}" data-fn-trans="${transId}" aria-label="Footnote ${display}">${display}</button></span>`;
       },
     );
+  }
+
+  // A verse-form turn's text keeps the source's own line breaks (a literal
+  // `\n` per printed line, `\n\n` between paragraphs — stage1_turn_english's
+  // verse-form `_join_parts`). Each line is marked up on its own (so a
+  // footnote marker or highlighted term never has to survive a split mid-
+  // markup) and wrapped in its own block, `.verse-line` (global.css), whose
+  // hanging indent (padding-left plus a matching negative text-indent) keeps
+  // a WRAPPED line's continuation indented while the line itself starts
+  // flush — `white-space: pre-line` alone cannot do that. Splitting the raw
+  // text first, before markStageDirections/renderThird run, is also what
+  // keeps a `_..._` stage-direction line (already its own printed line)
+  // intact: that regex only ever needs to match within one line here.
+  function renderVerseTurn(text: string, transId: string): string {
+    return text
+      .split('\n')
+      .map((line) => `<span class="verse-line">${markStageDirections(renderThird(line, transId))}</span>`)
+      .join('');
   }
 
   // A segment renders as one or more blocks split at chapter boundaries.
@@ -3954,7 +3977,7 @@
         <!-- A direction before this speech that got no row of its own
              (splitAtDirections: compare mode, or a speech sharing its row). -->
         {#if b.directionsBefore}{#each b.directionsBefore as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html markStageDirections(renderThird(b.text, transId))}</p>
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId))}</p>
       {/each}
     </div>
   {/snippet}
