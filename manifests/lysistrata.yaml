@@ -77,19 +77,6 @@ english:
     source: "gutenberg/pg7700.txt"
     play: LYSISTRATA
     footnotes: false
-  third:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/lysistrata.txt"
-    play: "LYSISTRATA"
-    footnotes: false
-    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
-    min_pairing_rate: 0.76
-    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
-    max_turn_shift_rate: 0.12
   overlays:
     - id: rogers
       # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
@@ -218,24 +205,6 @@ speakers:
     "1ST MARKET-LOUNGER": "Athenian"
     "2ND MARKET-LOUNGER": "Athenian"
     "CHILD": "Child"
-  english_third:
-    "LYSISTRATA": "Lysistrata"
-    "CALONICE": "Calonice"
-    "HERALD OF THE LACEDZMONIANS": "Spartan Herald"
-    "COMMITTEE MAN": "Magistrate"
-    "MYRRHINA": "Myrrhine"
-    "LAMPITO": "Lampito"
-    "CHORUS": "Chorus"
-    "CHORUS OF OLD WOMEN": "Chorus of Women"
-    "CHORUS OF OLD MEN": "Chorus of Old Men"
-    "CINESIAS": "Cinesias"
-    "CHILD": "Child"
-    "MARKET LOUNGERS": "Athenian"
-    "SERVANT": "Athenian"
-    "VARIOUS WOMEN": "Woman"
-    "VARIOUS ATHENIANS": "Athenian"
-    "POLICE": "Athenian Envoy"
-    "STRATYLLIS": "Chorus of Women"
   english_rogers:
     "LYSISTRATA": "Lysistrata"
     "CALONICE": "Calonice"
@@ -369,12 +338,6 @@ registry:
       name: "Jack Lindsay (1925)"
       short: Lindsay
       slot: secondary
-      alignment: speech
-    - id: hickie
-      form: prose
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: third
       alignment: speech
     - id: rogers
       form: verse

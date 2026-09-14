@@ -75,21 +75,6 @@ english:
       - { greek: "788", english: "No, no! he embraced Aeschylus and shook his hand", run: 1 }
       - { greek: "803", english: "If I mistake not, Aeschylus must be in a rage", run: 1 }
       - { greek: "804", english: "With lowered head he glares fiercely like a bull", run: 1 }
-  secondary:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/frogs.txt"
-    play: "THE FROGS"
-    footnotes: false
-    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
-    min_pairing_rate: 0.76
-    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
-    max_turn_shift_rate: 0.11
-    # John 2026-09-11: length-outlier limit at today's score (0.283) until Hickie's OCR is repaired
-    max_mismatch_rate: 0.29
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
@@ -168,20 +153,6 @@ speakers:
     "ATTENDANT": "Maid"
     "FEMALE ATTENDANT OF PERSEPHONÉ": "Maid"
     "AESCHYLUS AND EURIPIDES": "Aeschylus and Euripides"
-  english_secondary:
-    "XANTHIAS": "Xanthias"
-    "BACCHUS": "Dionysus"
-    "CHORUS": "Chorus"
-    "HERCULES": "Heracles"
-    "EURIPIDES": "Euripides"
-    "CHARON": "Charon"
-    "FROGS": "Frogs"
-    "PLUTO": "Pluto"
-    "SERVANT OF BACCHUS": "Slave"
-    "ZBACUS": "Aeacus"
-    "ASCH YLUS": "Aeschylus"
-    "AESCHYLUS": "Aeschylus"
-    "AEACUS": "Aeacus"
   # Ian Johnston (VIU) cues -> the roster.
   english_third:
     "XANTHIAS": "Xanthias"
@@ -296,12 +267,6 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
-      alignment: speech
-    - id: hickie
-      form: prose
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: secondary
       alignment: speech
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
     - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
