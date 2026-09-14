@@ -31,15 +31,6 @@ english:
       - { greek: "896", english: "Can you smell anything, rascal", run: 1 }
       - { greek: "926", english: "Come, quick, off with your cloak", run: 1 }
       - { greek: "955", english: "Ah! the bath-man would grip you by the testicles", run: 1 }
-  secondary:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/wealth.txt"
-    play: "PLUTUS"
-    footnotes: false
   third:
     id: rogers
     name: "B. B. Rogers (Loeb, 1924)"
@@ -94,19 +85,6 @@ speakers:
     "A JUST MAN": "Just Man"
     "PRIEST": "Priest"
     "A PRIEST OF ZEUS": "Priest"
-  english_secondary:
-    "CARIO": "Cario"
-    "CHREMYLUS": "Chremylus"
-    "PRIEST OF JUPITER": "Priest"
-    "CHORUS": "Chorus"
-    "POVERTY": "Poverty"
-    "BLEPSIDEMUS": "Blepsidemus"
-    "PLUTUS": "Wealth"
-    "JUST MAN": "Just Man"
-    "MERCURY": "Hermes"
-    "WIFE OF CHREMYLUS": "Wife"
-    "INFORMER": "Informer"
-    "YOUNG MAN": "Young Man"
   english_third:
     "CARIO": "Cario"
     "CHREMYLUS": "Chremylus"
@@ -182,13 +160,6 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
-      alignment: speech
-    - id: hickie
-      # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
-      private: true
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: secondary
       alignment: speech
     - id: rogers
       # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)

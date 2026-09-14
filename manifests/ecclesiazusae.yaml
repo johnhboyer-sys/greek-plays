@@ -69,18 +69,6 @@ english:
       - { greek: "937", english: "And I likewise. You will see I am not far", run: 1 }
       - { greek: "43", english: "Hurry yourselves then, for Glycé has sworn", run: 1 }
       - { greek: "815", english: "Ah! that cursed money did me enough harm", run: 1 }
-  # Hickie secondary pairs 0.394: Google OCR of Blepyrus/old-women
-  # abbreviations (Buep, Bier, Burp) is too damaged to recover the labels
-  # the page images print. OCR ceiling, not a primary floor.
-  secondary:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/ecclesiazusae.txt"
-    play: "THE ECCLESIAZUSAE"
-    footnotes: false
   third:
     id: rogers
     name: "B. B. Rogers (Loeb, 1924)"
@@ -153,13 +141,6 @@ speakers:
     "A SERVANT MAID": "Maid"
     "A SERVANT-MAID TO PRAXAGORA": "Maid"
     "HERALD": "Herald"
-  english_secondary:
-    "PRAXAGORA": "Praxagora"
-    "BLEPYRUS": "Blepyrus"
-    "NEIGHBOUR": "Neighbour"
-    "CHREMES": "Chremes"
-    "CHORUS": "Chorus"
-    "MASTER": "Blepyrus"
   english_third:
     "PRAXAGORA": "Praxagora"
     "FIRST WOMAN": "First Woman"
@@ -236,13 +217,6 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
-      alignment: speech
-    - id: hickie
-      # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
-      private: true
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: secondary
       alignment: speech
     - id: rogers
       # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)

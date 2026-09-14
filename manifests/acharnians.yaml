@@ -46,22 +46,6 @@ english:
       - { greek: "1085", english: "What is the matter? Come quickly to the feast", run: 40 }
       - { greek: "1140", english: "Slave, take up the buckler and let's be off.", run: 1 }
       - { greek: "1142", english: "Take up the basket, 'tis a question of getting to the feast.", run: 1 }
-  # Hickie secondary pairs 0.838: the scan never labels Pseudartabas, the
-  # Megarian's girls, or the numbered semichoruses. Every recovered English
-  # turn already pairs; aliases cannot invent labels the scan never printed.
-  secondary:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/acharnians.txt"
-    play: "THE ACHARNIANS"
-    footnotes: false
-    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
-    min_pairing_rate: 0.78
-    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
-    max_turn_shift_rate: 0.12
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -126,27 +110,6 @@ speakers:
     "MESSENGERS": "Messenger"
     "A PRYTANIS": "Herald"
     "PRYTANIS": "Herald"
-  english_secondary:
-    "DICAEOPOLIS": "Dicaeopolis"
-    "AMBASSADORS": "Ambassador"
-    "AMPHITHEUS": "Amphitheus"
-    "HERALD": "Herald"
-    "THEORUS": "Theorus"
-    "CHORUS": "Chorus"
-    "WIFE OF DICAEOPOLIS": "Daughter"
-    "SERVANT OF EURIPIDES": "Servant"
-    "EURIPIDES": "Euripides"
-    "LAMACHUS": "Lamachus"
-    "MESSENGERS": "Messenger"
-    "MEGARIAN": "Megarian"
-    "BQOTIAN": "Boeotian"
-    "NICHARCHUS": "Nicarchus"
-    "HUSBANDMEN": "Farmer"
-    "PARANYMPH": "Bridesmaid"
-    "INFORMER": "Informer"
-    "SYCOPHANT": "Informer"
-    "P CHO": "Chorus"
-    "EG": "Megarian"
   sigla:
     "ΔΙ.": "Dicaeopolis"
     "ΔΙΚΑΙΟΠΟΛΙΣ": "Dicaeopolis"
@@ -221,11 +184,6 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
-      alignment: speech
-    - id: hickie
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: secondary
       alignment: speech
   citation:
     scheme: play-line

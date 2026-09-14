@@ -60,19 +60,6 @@ english:
       - { greek: "1581", english: "Mortal! we who greet you are three gods", run: 1 }
       - { greek: "877", english: "Oh! sovereign ostrich, Cybelé, the mother of Cleocritus", run: 1 }
       - { greek: "581", english: "By Zeus, she'll take good care she does not", run: 1 }
-  secondary:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/birds.txt"
-    play: "THE BIRDS"
-    footnotes: false
-    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
-    min_pairing_rate: 0.77
-    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
-    max_turn_shift_rate: 0.16
   third:
     id: arrowsmith
     name: "William Arrowsmith (Michigan, 1961)"
@@ -146,30 +133,6 @@ speakers:
     "DEALER IN DECREES": "Decree-seller"
     "A DEALER IN DECREES": "Decree-seller"
     "PHOENICOPTERUS": "Bird"
-  english_secondary:
-    "EUELPIDES": "Euelpides"
-    "PISTHETAIRUS": "Peisthetaerus"
-    "TROCHILUS": "Servant of the Hoopoe"
-    "EPOPS": "Hoopoe"
-    "CHORUS": "Chorus"
-    "PHENICOPTERUS": "Bird"
-    "IRIS": "Iris"
-    "PRIEST": "Priest"
-    "POET": "Poet"
-    "PROPHET": "Oracle-monger"
-    "METON": "Meton"
-    "COMMISSIONER": "Inspector"
-    "HAWKER OF DECREES": "Decree-seller"
-    "INFORMER": "Informer"
-    "HERCULES": "Heracles"
-    "PARRICIDE": "Father-beater"
-    "CINESIAS": "Cinesias"
-    "PROMETHEUS": "Prometheus"
-    "NEPTUNE": "Poseidon"
-    "TRIBALLUS": "Triballian"
-    "MESSENGERS": "Messenger"
-    "COOK": "Servant of the Hoopoe"
-    "SERVANTS": "Servant of the Hoopoe"
   # Arrowsmith's printed caps names (bench/arrowsmith/birds.txt). SANDPIPER is
   # his own name for the Hoopoe's servant (Trochilus elsewhere). SENTRY has no
   # Greek siglum of his own; his "a god slipped past the gates" report is the
@@ -281,11 +244,6 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
-      alignment: speech
-    - id: hickie
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: secondary
       alignment: speech
     - id: arrowsmith
       name: "William Arrowsmith (Michigan, 1961)"

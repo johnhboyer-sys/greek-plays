@@ -62,19 +62,6 @@ english:
       - { greek: "52", english: "Interpreting dreams so aptly certainly deserves two obols.", run: 1 }
       - { greek: "42", english: "Seated on the ground close to it, I saw Theorus", run: 1 }
       - { greek: "46", english: "Ah! 'twas very well lisped indeed!", run: 1 }
-  secondary:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/wasps.txt"
-    play: "THE WASPS"
-    footnotes: false
-    # John 2026-09-11: limits at today's score; after the cue repair Hickie
-    # pairs 0.898 (default floor 0.85 holds) and shifts 0.129 (he runs short
-    # exchanges together, the opening dream scene most of all)
-    max_turn_shift_rate: 0.13
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -113,16 +100,6 @@ speakers:
     "A BAKER'S WIFE": "Bread-seller"
     "A DOG": "Dog"
     "DOG": "Dog"
-  english_secondary:
-    "SOSEAS": "Sosias"
-    "XANTHIAS": "Xanthias"
-    "BDELYCLEON": "Bdelycleon"
-    "PHILOCLEON": "Philocleon"
-    "CHORUS": "Chorus"
-    "BOYS": "Boy"
-    "PLAINTIFF": "Accuser"
-    "BAKING WOMAN": "Bread-seller"
-    "ATTENDING THE CHORUS": "Xanthias"
   sigla:
     "Φι.": "Philocleon"
     "ΦΙΛΟΚΛΕΩΝ": "Philocleon"
@@ -175,11 +152,6 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
-      alignment: speech
-    - id: hickie
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: secondary
       alignment: speech
   citation:
     scheme: play-line
