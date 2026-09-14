@@ -69,6 +69,9 @@ const shelves: ShelfView[] = AUTHOR_PERIOD_ORDER
   // when the sophists moved off 'classical' and left it empty).
   .filter((s) => s.authorCount > 0)
   .map((s, i) => ({ ...s, numeral: String(i + 1) }));
+// One period only (the drama corpus: four Classical authors): show its authors
+// directly, with no collapsible period heading (John, 2026-09-12).
+const flat = shelves.length === 1;
 
 // "Start here" — a curated featured strip above the shelves (see START_HERE
 // in shared/lib/works.ts). Built works only; the registry may list works
@@ -209,7 +212,8 @@ const structuredData = Astro.site
 
     <div class="toc">
       {shelves.map((s) => (
-        <section class="cat">
+        <section class="cat" data-open={flat ? '' : undefined}>
+          {!flat && (
           <h2 class="cat-heading">
             <button class="cat-toggle" type="button" aria-expanded="false">
               <span class="cat-head">
@@ -219,6 +223,7 @@ const structuredData = Astro.site
               <span class="cat-chev" aria-hidden="true"></span>
             </button>
           </h2>
+          )}
           <div class="cat-body">
             {s.groups.map((g) => (
               <div class="school-group">
