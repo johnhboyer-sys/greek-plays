@@ -40,7 +40,7 @@ english:
     format: loeb-ocr
     source: bench/way/electra-eur.txt
     play: ELECTRA
-    footnotes: false
+    footnotes: true
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -154,6 +154,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
   citation:
     scheme: play-line

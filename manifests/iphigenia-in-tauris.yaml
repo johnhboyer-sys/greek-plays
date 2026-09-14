@@ -37,7 +37,7 @@ english:
     format: loeb-ocr
     source: bench/way/iphigenia-in-tauris.txt
     play: IPHIGENEIA IN TAURICA
-    footnotes: false
+    footnotes: true
   gaps:
     - "1:1188"  # no covering <l n> in the Perseus TEI
 
@@ -138,6 +138,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
   citation:
     scheme: play-line

@@ -37,7 +37,7 @@ english:
     format: loeb-ocr
     source: bench/way/heraclidae.txt
     play: CHILDREN OF HERCULES
-    footnotes: false
+    footnotes: true
     # John 2026-09-11: shift over 0.10 by under a point; let it slide for now
     max_turn_shift_rate: 0.11
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
@@ -155,6 +155,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
   citation:
     scheme: play-line

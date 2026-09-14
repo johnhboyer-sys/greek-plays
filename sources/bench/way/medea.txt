@@ -6,11 +6,7 @@ Creon, King of Corinth.
 JASON. Aegeus, King of Athens.
 MESSENGER,
 
-CHILDREN OF MEDEA. The Scene is in front of Jason’s House at Corinth.
-1 Paedagogus.—A trusted servant, responsible for keeping the boys
-out of harm’s way: he was present at their sports, accompanied them to
-and from school, and never let them be out of his sight, A similar
-institution is familiar to Englishmen resident in India.
+CHILDREN OF MEDEA. The Scene is in front of Jason’s House at Corinth.[1]
 
 NURSE. Would God that Argo’s hull had never flown
 Through those blue Clashing Rocks to Colchisland,
@@ -317,9 +313,7 @@ We to one heart alone can look for comfort.
 But we, say they, live an unperilled life —
 At home, while they do battle with the spear—
 Unreasoning fools! Thrice would I under shield
-Stand, rather than bear childbirth-peril once.
-1 A Greek girl’s husband was chosen for her by her
-parents.
+Stand, rather than bear childbirth-peril once.[2]
 But ah, thy story is not one with mine! .
 Thine is this city, thine a father’s home,
 Thine bliss of life and fellowship of friends ;
@@ -727,7 +721,7 @@ JASON. Know’st how to change thy prayer, and wiser
 show ?
 May thy good never seem to thee thy grief ;
 Nor in fair fortune deem thy lot misfortune.
-MEDEA ᾿
+MEDEA.
 O yea, insult! Thou hast a refuge, thou ; :
 But desolate I am banished from this land.
 
@@ -1053,9 +1047,7 @@ And over her hair is she throwing, throwing,
 Roses in odorous wreaths aye new.
 How then should the hallowed city,
 The city of sacred waters,
-Which shields with her guardian hand
-1 Another interpretation is equally admitted by the
-Greek —‘‘ Grew, sown by the Muses, the stainless Nine.”
+Which shields with her guardian hand[3]
 All friends that would fare through her land,
 Receive a murderess banned,
 Who had slaughtered her babes without pity,
@@ -1763,7 +1755,7 @@ My sons’ dear lips in my wretchedness.
 MEDEA. Ha, now art thou calling upon them, now wouldst
 thou kiss,
 Who rejectedst them then ?
-_ JASON.
+JASON.
 For the Gods’ sake grant me but this, [
 The sweet soft flesh of my children to feel !
 
@@ -1790,3 +1782,8 @@ not to fulfil them ;
 And the paths undiscerned of our eyes, the Gods
 unseal them.
 So fell this marvellous thing.
+
+Footnotes:
+[1] Paedagogus.—A trusted servant, responsible for keeping the boys out of harm’s way: he was present at their sports, accompanied them to and from school, and never let them be out of his sight, A similar institution is familiar to Englishmen resident in India.
+[2] A Greek girl’s husband was chosen for her by her parents.
+[3] Another interpretation is equally admitted by the Greek —‘‘ Grew, sown by the Muses, the stainless Nine.”

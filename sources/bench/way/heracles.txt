@@ -309,9 +309,7 @@ Suffer not scathe. Amphitryon, hearken thou
 My counsel, if my words seem good to thee :
 I love my sons,—how should I not love whom
 I bare and toiled for ?—and to die I count
-Fearful: yet—yet—against the inevitable
-1 The revolutionary party, who styled themselves ‘ Young
-Thebes.”
+Fearful: yet—yet—against the inevitable[1]
 Who strives, I hold him but a foolish man.
 Since we must néeds die, better ’tis to die
 Not with fire roasted, yielding laughter-scof
@@ -407,10 +405,7 @@ In Zeus’ glen first, in the Lion’s lair,
 He fought, and the terror was no more there
 But the tawny beast’s grim jaws were veiling
 iis golden head, and behind swept, trailing
-Over his shoulders, its fell of hair.
-1 For II, V, VI, VIII, later writers substitute the Eryman-
-thian Boar, the Augean Stables, the Stymphalian Birds, and
-the Cretan Bull.
+Over his shoulders, its fell of hair.[2]
 II. The Centaurs
 Then on the mountain-haunters raining
 Far-flying arrows, his hand laid low
@@ -552,10 +547,7 @@ Tears for my bride-baths. Woe for those my dreams!
 And now your grandsire makes the spousal-feast
 With Hades for brides’ sire, grim marriage-kin.
 Ah me! whom first of you, or whom the last,
-To mine heart shall I press ?—whom to my lips?
-1 The eldest eon, Therimachus.
-3 The second son, Creontidas.
-5 The third son, Deicoén,
+To mine heart shall I press ?—whom to my lips?[3][4][5]
 Whom shall I clasp? Oh but to gather store
 Of monn, like brown-winged bee, from grief's wide
 eld,
@@ -746,8 +738,7 @@ AMPHITRYON. How wast thou so long time beneath the earth?
 
 HERCULES. From Hades rescuing Theseus, tarried I.
 
-AMPHITRYON. Where is he? Hath he passed to his fatherland?
-1 Persephone, whose name it was perilous to utter.
+AMPHITRYON. Where is he? Hath he passed to his fatherland?[6]
 
 HERCULES. To Athens, glad to have ’scaped the underworld.
 Come, children, follow to the house your sire ;
@@ -896,7 +887,7 @@ CHORUS. Old friends, look we within the halls, to see
 Our soul’s desire upon our enemy.
 
 LYCUS. Ah me! ‘Woe's me!
-cHorus 8
+CHORUS.
 Hark to the outburst !—as music it is for mine ears
 to hear is exceeding near.
 That strain ringing sweet through the halls: lo, death
@@ -988,7 +979,7 @@ With haste of laggard feet !--speed thou away !
 Healer, to thee,
 O King, to avert from me yon bane I pray !
 atl, fe
-. IRIs
+IRIS.
 Fear not : this is the child of Night ye see,
 Madness, grey sires : 1, handmaid of the Gods,
 Iris. We come not for your city’s hurt ;
@@ -1136,14 +1127,10 @@ To cleanse the house, since, having slain the king,
 Forth of these halls had Hercules flung the corpse.
 And there his children stood in fair array,
 His sire, and Megara. Round the altar now [hush.
-The maund! had passed; and we kept hallowed
-Then, even in act to bear the torch in hand?
+The maund[7] had passed; and we kept hallowed
+Then, even in act to bear the torch[8] in hand?
 And plunge in lustral water, silent stood
 Alemena’s son : and, as their sire delayed,
-1 A basket containing the sacrificial knife and barley was
-carried round the altar before the slaying of the victim.
-2 A brand from the altar was quenched in water, with
-which the bystanders were then sprinkled.
 His sons looked—lo, he seemed no more the same,
 But wholly marred, with rolling eyes distraught,
 With bloodshot eye-roots starting from his head,
@@ -1174,9 +1161,7 @@ He casts him on the bare floor, and prepares
 To feast: yet, tarrying there but little space,
 He cried, “I go to Isthmus’ woodland plains!”
 Then from his body cast his mantle’s folds,
-And wrestled with—no man /—proclaimed himself
-1 Megara, half way on his imaginary journey, on the
-Isthmus of Corinth ; this suggested the Isthmian games
+And wrestled with—no man /—proclaimed himself[9]
 “THE MADNESS OF HERCULES
 ‘To himself the victor, cried, “ Ye people, hear !"—
 To none! In fancy at Mycenae then
@@ -1242,10 +1227,9 @@ strange tale told
 Of Danaus’ daughters, the workers of death :—
 But this hath surpassed, hath outrun, that horror of
 old— [the sacrifice done
-This horror that blasts Zeus’ Son! I might tell of
-1 i.e. Eurystheus’ city, Mycenae.
+This horror that blasts Zeus’ Son! I might tell of[10]
 uo
-To the Muses, of Procne who slaughtered the only
+To the Muses, of Procne[11] who slaughtered the only
 child of her womb :— .
 But thou, who art father of children three, O un-
 "happiest one, ‘madness’s doom !
@@ -1275,8 +1259,6 @@ By slumber's release.
 CHORUS.
 With tears I bemoan thee, and these babes dead,
 O ancient, and that victorious head.
-1 ‘The legend of Procne’s murder of Itys has, in becoming
-a theme of song, been consecrated to the Muses.
 
 AMPHITRYON. Withdraw you farther, beat-not the breast,
 Neither cry, neither break ye his slumbrous rest
@@ -1458,7 +1440,7 @@ Woe! What shall I do?—where find solitude
 In ills?—take wings, or plunge beneath the ground ?
 Oh let me in black darkness pall mine head ;
 For I take shame for evils wrought of me,
-Nor would I taint him with bloodguiltiness—!
+Nor would I taint him with bloodguiltiness[12]—!
 Nay, nowise would I harm the innocent.
 inter THESEUS, with attendants.
 
@@ -1466,7 +1448,6 @@ THESEUS. I come, with them that by Asopus’ stream
 In arms are tarrying, Athens’ warrior sons,
 Ancient, to bring thy son my battle-aid.
 For rumour came to the Erechtheids’ town
-1 ‘The mere sight of a murderer conveyed contamination.
 That Lycus, this land’s sceptered sway usurped,
 For war had risen against you, and for fight.
 And to requite the service done of him,
@@ -1741,7 +1722,7 @@ Hanging athwart my side thus will they say :
 “With us thou slewest babes and wife—yet keep’st
 Thy children’s slayers!” Shall mine hand bear
 these ?,
-What can I plead? Yet, naked of mine arms?
+What can I plead? Yet, naked of mine arms[13]?
 Wherewith I wrought most glorious deeds in Greece,
 ’Neath foes’ feet shall I cast me ?—foully die?
 Leave them I may not, to my grief must keep.
@@ -1750,9 +1731,6 @@ To back my claim of hire for Cerberus brought,
 Lest grief for children slay me faring lone.
 O Land of Cadmus, all ye Theban folk,
 With shorn hair grieve with me: to my sons’ tomb
-1 He could not replace them by others as ; for they
-were gifts of Gods—the bow of Apollo, and the club of
-Hephaestus.
 Pass, and in one wail make ye moan for all—
 The lead and me: we have wholly perished all,
 Smitten by one sore doom from Hera’s hand.
@@ -1814,8 +1792,7 @@ AMPHITRYON. Farewell thou, son.
 
 HERCULES. Bury the lads.
 
-AMPHITRYON. Who burieth me, my child ?
-1 The Twelve Labours, of which this weakness is unworthy.
+AMPHITRYON. Who burieth me, my child ?[14]
 ie
 
 AMPHITRYON. When com’st thou?
@@ -1834,3 +1811,19 @@ Rather than loyal friends, is sense-bereft.
 CHORUS. With mourning and weeping sore do we pass away,
 Who have lost the chiefest of all our friends this day.
 [Exeunt omnes.
+
+Footnotes:
+[1] The revolutionary party, who styled themselves ‘ Young Thebes.”
+[2] For II, V, VI, VIII, later writers substitute the Eryman- thian Boar, the Augean Stables, the Stymphalian Birds, and the Cretan Bull.
+[3] The eldest eon, Therimachus.
+[4] The second son, Creontidas.
+[5] The third son, Deicoén,
+[6] Persephone, whose name it was perilous to utter.
+[7] A basket containing the sacrificial knife and barley was carried round the altar before the slaying of the victim.
+[8] A brand from the altar was quenched in water, with which the bystanders were then sprinkled.
+[9] Megara, half way on his imaginary journey, on the Isthmus of Corinth ; this suggested the Isthmian games
+[10] i.e. Eurystheus’ city, Mycenae.
+[11] ‘The legend of Procne’s murder of Itys has, in becoming a theme of song, been consecrated to the Muses.
+[12] ‘The mere sight of a murderer conveyed contamination.
+[13] He could not replace them by others as ; for they were gifts of Gods—the bow of Apollo, and the club of Hephaestus.
+[14] The Twelve Labours, of which this weakness is unworthy.

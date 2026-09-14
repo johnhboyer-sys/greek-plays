@@ -38,7 +38,7 @@ english:
     format: loeb-ocr
     source: bench/way/suppliants-eur.txt
     play: SUPPLIANTS
-    footnotes: false
+    footnotes: true
   # Measured attachment loss (sweep 2026-09-08): 1 English piece(s) with no
   # honest owner — attribution_hole 0, nless_slice_unattached 0, unmatched_anchor 1. Mostly stichomythia the translator's base
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
@@ -163,6 +163,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
   citation:
     scheme: play-line

@@ -599,8 +599,7 @@ PENTHEUS. I bid them bind, who have better right than thou.
 
 DIONYSUS. Thy life nor acts thou know’st, nor what thou art.
 
-PENTHEUS. Pentheus—Agave's and Echion’s son.
-1 ie, Never, for you shall not escape to rejoin them.
+PENTHEUS. Pentheus—Agave's and Echion’s son.[1]
 
 DIONYSUS. Yea, fitly named to be in misery pent.
 
@@ -962,7 +961,7 @@ The bowstring ; for against the Bacchanals
 \ Forth will we march. Yea, this should pass all bounds,
 |. To endure of women that we now endure !
 Yop. 11, F
-_ DIONYsus
+DIONYSUS.
 No whit thou yieldest, though thou hear'st my words,
 Pentheus. Yet, though thou dost despite to me,
 I warn thee—bear not arms against a God;
@@ -996,7 +995,7 @@ DIONYSUS. Treachery ?—I would save thee by mine art!
 Fe
 
 PENTHEUS. Ye have made this covenant, so to revel aye.
-DIONYsus
+DIONYSUS.
 Nay: know, that covenant made I with the God.
 
 PENTHEUS. Bring forth mine arms !—thou, make an end of speech.
@@ -1013,7 +1012,7 @@ PENTHEUS. To see them drunk with wine_—a bitter sight !
 DIONYSUS. Yet wouldst thou gladly see a bitter sight?
 
 PENTHEUS. Yea, sooth, in silence crouched beneath the pines.
-DIONYsus
+DIONYSUS.
 Yet will they track thee, stealthily though thou come.
 
 PENTHEUS. Openly then !—yea, well hast thou said this.
@@ -1209,10 +1208,7 @@ Hide ?—thou shalt hide as Fate ordains thine hiding,
 Who com’st with guile, a spy on Bacchanals,
 
 PENTHEUS. Methinks I see them mid the copses caught,
-Like birds, in toils of their sweet dalliance.
-1 Among signs of incipient madness is a failure to discriminate resistance, so that the patient, while raising slight
-weighte (here, the thyrsus), imagines himself to be putting
-forth strength enough to raise enormous ones.
+Like birds, in toils of their sweet dalliance.[2]
 
 DIONYSUS. To this end then art thou appointed watchman :
 Perchance shalt catch them—if they catch not thee.
@@ -1642,7 +1638,7 @@ CADMUS. Gaze, gaze on it, and be thou certified.
 
 AGAVE. I see—mine uttermost anguish! Woe is me!
 
-CADEUS. Seems it to thee now like a lion’s head ?
+CADMUS. Seems it to thee now like a lion’s head ?
 
 AGAVE. No!—wretched!—wretched !—Pentheus’ head I hold!
 
@@ -1738,8 +1734,7 @@ And stablish in the Blessed: Land your lives.
 This say I, of no mortal father born,
 Dionysus, but of Zeus. Had ye but learnt
 Wisdom, what time ye would ‘not, ye had been
-Blest now, with Zeus’ Son for your champion gained.
-1 For preserved fragments of this lost portion, see Appendix.
+Blest now, with Zeus’ Son for your champion gained.[3]
 IIs
 
 AGAVE. Dionysus, we beseech thee !—we have sinned.
@@ -1843,8 +1838,7 @@ Lo, with this vesture do I veil thine head,
 And thete thy blood-bedabbled, furrow scarred
 ml Dele lene
 ‘Whose is the mantle that shall shroud thy form
-Ah, whose the hands that now shall tend thee, son?
-1 From Lucian, 5. From the Scholiast to Aristophanes’ Plutus.
+Ah, whose the hands that now shall tend thee, son?[4]
 APPENDIX
 Ὁ. He dared the chain, he dared the scoffing word . . .
 They which should have been isst to slay him, slew .
@@ -1859,3 +1853,9 @@ The impious pollution of his murder,
 ‘And see no more their own land—God forbid
 ‘That murderers by their victims’ graves should lie !
 All woes thou too must suffer will I tell.”
+
+Footnotes:
+[1] ie, Never, for you shall not escape to rejoin them.
+[2] Among signs of incipient madness is a failure to discriminate resistance, so that the patient, while raising slight weighte (here, the thyrsus), imagines himself to be putting forth strength enough to raise enormous ones.
+[3] For preserved fragments of this lost portion, see Appendix.
+[4] From Lucian, 5. From the Scholiast to Aristophanes’ Plutus.

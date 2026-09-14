@@ -178,7 +178,7 @@ Yet a chief—for in armour brazen-glowing
 See his followers throng !
 
 OLD SERVANT. Parthenopaeus, Atalanta’s son.
-ANTIGONE ᾿
+ANTIGONE.
 Now may Artemis, over the mountains hasting
 With his mother, smite with her bow, and in death
 lay yon man low,
@@ -483,7 +483,7 @@ POLYNEICES. To Adrastus Loxias spake an oracle.
 JOCASTA. What was it? How mean’st thou? I cannot guess.
 
 POLYNEICES. “ Thy daughters wed to a lion and a boar.”
-JOCASTA ,
+JOCASTA.
 Son, with a brute’s name what hadst thou to do?
 
 POLYNEICES. "Twas night: to Adrastus’ palace-porch I came.
@@ -619,7 +619,7 @@ I will not render him my sovereignty.
 vou. πὶ cc
 If wrong may e’er be right, for a throne’s sake
 Were wrong. most right :—be God in all else feared!
-chorus
+CHORUS.
 Befits not fair speech glozing deeds unfair :
 Not fair it is, but an offence to justice.
 
@@ -753,7 +753,7 @@ ETEOCLES. These thou never more shalt see.
 POLYNEICES. O my sisters!
 
 ETEOCLES. Why dost call on these, their bitterest enemy ?
-POLYNEICES ᾿
+POLYNEICES.
 Farewell, O my mother?
 
 JOCASTA. Sooth, my son, I fare sell, thus forlorn !
@@ -1060,8 +1060,7 @@ Was mother of kings unto Cadmus’ house.
 Lo, how hath this city, through line on line
 Of blessings unnumbered, attained to the height
 Where the War-god’s crowns of vietory-might
-Shine!
-1 Cadmus wedded Harmonia, Ares’ daughter.
+Shine![1]
 
 TEIRESIAS. Lead on, my daughter : to my sightless feet
 As eyes art thou, as star to, mariners.
@@ -1163,7 +1162,7 @@ TEIRESIAS. Let him withdraw then from my bodings far.
 CREON. He is my son, will keep what must be secret.
 
 TEIRESIAS. Wilt thou indeed I speak before his face ?
-cREON ” ᾿
+CREON.
 Yea; of this safety gladly shall he hear.
 
 TEIRESIAS. Hear then the tenor of mine oracle,
@@ -1190,7 +1189,7 @@ TEIRESIAS. Is truth dead, for that thou art fortune-crost ?
 CREON. Oh, by thy knees, and by thy reverend hair !—
 
 TEIRESIAS. Why kneel? Thou prayest for ruin inevitable.
-CREON ᾿
+CREON.
 Keep silence: to the city tell not this.
 
 TEIRESIAS. Thou bidd’st me sin: I will not hold my peace.
@@ -1272,7 +1271,7 @@ CREON. Thesprotia’s soil.
 MENOECEUS. Dodona’s hallowed floor ?
 
 CREON. Thou say’st.
-MENOECEUS ᾿
+MENOECEUS.
 What shall be my protection there ?
 
 CREON. The God shall speed thee.
@@ -1378,7 +1377,7 @@ JOCASTA. And the seven towers, how fares the fence thereof ?
 MESSENGER. They stand unshattered : Thebes not yet is spoiled.
 
 JOCASTA. Were they sore perilled of the Argive spear?
-MESSENGER,
+MESSENGER.
 At ruin’s brink : but stronger proved the might
 Of Cadmus’ people than Mycenae’s spear.
 
@@ -1439,7 +1438,7 @@ So then for this day have we barred the fall
 Of our land’s towers ; but if good fortune waits
 On Thebes henceforth, this resteth with the Gods :
 Only a God’s hand rescued her to-day.
-CHORUS ᾿
+CHORUS.
 Glorious is victory: if more favours yet
 The Gods intend—ah, may I so be blest!
 
@@ -1458,7 +1457,7 @@ JOCASTA. Thou stirr’st surmisings ! I can not forbear !
 MESSENGER. How, wouldst thou more than know thy sons.are safe ?
 
 JOCASTA. Yea, know if things to come be well for me.
-MESSENGER ᾿
+MESSENGER.
 Now let me go: thy son his henchman lacks.
 
 JOCASTA. Some ill thou hid’st—in darkness veilest it !
@@ -1548,7 +1547,7 @@ ANTIGONE. Mother that bare me, what strange terror-cry Before these halls to thy
 
 JOCASTA. Daughter, thy brethren’s life is come to naught.”
 tS)
-ANTIGONE ΄
+ANTIGONE.
 How say’st thou?
 
 JOCASTA. Met they are for single fight.
@@ -2007,7 +2006,7 @@ CREON. How, were’t not just to carry out his hests?
 ANTIGONE. If they be wrong, in malice spoken—no !
 
 CREON. How, were’t not just to cast yon man to dogs?
-ANTIGONE **
+ANTIGONE.
 Nay : so ye wreak on him no lawful vengeance.
 
 CREON. Yea, if to Thebes a foe, no foe by birth.
@@ -2036,7 +2035,7 @@ CREON. God hath decreed, girl, not as seems thee good.
 ANTIGONE. Yea—hath decreed this, Outrage not the dead !
 
 CREON. Know, none shall spread the damp dust over him.
-ANTIGONE ᾿
+ANTIGONE.
 Nay !—for Jocasta’s, for his mother’s sake !
 
 CREON. Vain is thy labour’: this thou shalt not win.
@@ -2086,8 +2085,7 @@ OEDIPUS. Where my weird is, there shall I fall, there lie.
 
 ANTIGONE. Ah, where is Oedipus ?—where that riddle famed ?
 
-OEDIPUS. Lost. One day blessed me, one hath ruined me
-1 Who slew the husbands whom they wedded perforce.
+OEDIPUS. Lost. One day blessed me, one hath ruined me[2]
 
 ANTIGONE. Is it not then my due to share thine ills ?
 
@@ -2151,9 +2149,7 @@ Ah woes I have borne! Ah horror’s height !
 
 ANTIGONE. Thou hast borne ?—thou hast borne ?—doth Justice
 regard not then
-The sinner? Requiteth she not the follies of men ?
-1 Poseidon, the Sea-god, who created the first war-horse,
-eV
+The sinner? Requiteth she not the follies of men ?[3]
 
 OEDIPUS. Lo, I am he on breath
 Of song upraised to heaven, ᾿
@@ -2212,4 +2208,7 @@ Hail, revered Victory !
 Rest upon my life ; and me
 Crown, and crown eternally !
 
-
+Footnotes:
+[1] Cadmus wedded Harmonia, Ares’ daughter.
+[2] Who slew the husbands whom they wedded perforce.
+[3] Poseidon, the Sea-god, who created the first war-horse, eV

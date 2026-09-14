@@ -33,7 +33,7 @@ english:
     format: loeb-ocr
     source: bench/way/medea.txt
     play: MEDEA
-    footnotes: false
+    footnotes: true
     # John 2026-09-11: the dropped head is the cast list
     head_front_matter: 3
   gaps: []
@@ -138,6 +138,7 @@ registry:
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
+      footnotes: true
       alignment: speech
   citation:
     scheme: play-line

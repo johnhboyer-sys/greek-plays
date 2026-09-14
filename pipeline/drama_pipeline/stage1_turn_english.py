@@ -504,6 +504,9 @@ def _parse_as_speeches(
     while i < len(lines):
         raw = lines[i]
         s = raw.strip()
+        if s in ("Footnotes:", "FOOTNOTES:"):
+            end_i = i
+            break
         if _is_star_rule(s):
             if _star_ends_play(lines, i):
                 end_i = i
@@ -645,8 +648,9 @@ def parse_play_speeches(
     title_i = _locate_title(lines, title)
     if format == "loeb-ocr":
         start = _body_start(lines, title_i, lindsay=False, known_names=known_names)
-        speeches, _end_i = _parse_as_speeches(lines, start, known_names)
-        return speeches, {}
+        speeches, end_i = _parse_as_speeches(lines, start, known_names)
+        notes = _parse_notes(lines, end_i, title)
+        return speeches, notes
     if format == "verse-own-line":
         # First exact title line: a later speaker can share the title
         # (Agamemnon). `_locate_title` would take the last hit.
@@ -2045,6 +2049,7 @@ def run(
         write_json(english_path, chunks_as_overlay(english))
         write_json(alignment_path, _alignment_with_covered(spine, english))
         write_json(report_path, report)
+        write_json(out_dir / "secondary_footnotes.json", footnotes)
         return english_path, alignment_path, report_path
     if slot == "third":
         english_path = out_dir / "third_chunks.json"

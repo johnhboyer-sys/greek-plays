@@ -244,8 +244,7 @@ To me; the homeless, friendless, cannot give
 To Hera praise of singing
 In Argos; nor to music of my loom
 Shall Pallas’ image grow
-Splendid in strife Titanic :—in my doom
-1 See note to Electra, l. 699.
+Splendid in strife Titanic :—in my doom[1]
 Blood-streams mid groanings flow,
 The ghastly music made of strangers laid
 Yet from these horrors now my thoughts have strayed,
@@ -1024,10 +1023,9 @@ ORESTES. And pictured in thy loom, the sun turned back ?
 
 IPHIGENEIA. This too I wrought with fine-spun broidery-threads.
 
-ORESTES. Bath-water at Aulis hadst thou from thy mother ? Ἱ----
+ORESTES. Bath-water[2] at Aulis hadst thou from thy mother ? Ἱ----
 
 IPHIGENEIA. I know—that bridal’s bliss stole not remembrance.
-1 Ritual required the bride to bathe on her wedding morning in water from the sacred spring of her native town.
 
 ORESTES. Again—thine hair unto thy mother sent?
 
@@ -1649,13 +1647,8 @@ All, and, Goddess, unto thee, mine heart’s desire I
 ORESTES, PYLADES, and attendant:
 
 CHORUS. A glorious babe in the days of old
-Leto in Delos bare,
-1 Apollo's oracle was now proved right, and Iphigeneia’s
-dream wrong; so this ode celebrates the institution of that
-oracle, and the abolition of the ancient dream-oracles.
+Leto in Delos bare,[3][4]
 i ¥
-1 Weil:
-Artemis.
 Mid its valleys of fruitage manifold,
 The babe of the golden hair,—
 Lord of the harp sweet-ringing, king of the bow
@@ -1933,3 +1926,9 @@ Is the glad, glad sound to our ears that is given.
 Hail, reveréd Victory :
 Rest upon my life; and me
 Crown, and crown eternally.
+
+Footnotes:
+[1] See note to Electra, l. 699.
+[2] Ritual required the bride to bathe on her wedding morning in water from the sacred spring of her native town.
+[3] Apollo's oracle was now proved right, and Iphigeneia’s dream wrong; so this ode celebrates the institution of that oracle, and the abolition of the ancient dream-oracles.
+[4] Weil: Artemis.
