@@ -262,3 +262,43 @@ def test_vendored_text_is_the_converter_output(work_id):
     assert (SOURCES / "bench" / "murray" / f"{work_id}.txt").read_text(encoding="utf-8") == out.text
     # Every cue the converter wrote reads back as one speech.
     assert len(_speeches(out.text, title)) == out.speeches
+
+
+def test_gutenberg_italic_paragraph_without_brackets_is_a_direction():
+    text = """\
+*** START OF THE PROJECT GUTENBERG EBOOK ***
+
+                         CHARACTERS OF THE PLAY
+
+APOLLO.
+THANATOS.
+
+
+                 ALCESTIS
+
+
+                 APOLLO.
+
+  He hath watched, and cometh at the fall of fate.
+
+_Enter from the other side_ THANATOS; _a crouching black-haired and
+winged figure, carrying a drawn sword. He starts in revulsion on
+seeing_ APOLLO.
+
+                 THANATOS.
+
+  Aha! _Thou_ here?
+_Sorrow, sing sorrow: but good prevail, prevail_!
+
+NOTES
+"""
+    out = convert_gutenberg(text, "PLAY", start="ALCESTIS", end="NOTES")
+    speeches = _parsed(out.text)
+    assert [s["speaker_printed"] for s in speeches] == ["APOLLO", "THANATOS"]
+    assert speeches[1]["directions_before"] == [
+        "Enter from the other side THANATOS; a crouching black-haired and winged figure, carrying a drawn sword. He starts in revulsion on seeing APOLLO."
+    ]
+    assert "Enter from the other side" not in speeches[0]["text"]
+    # A verse line that merely opens with an italic word stays verse, and so
+    # does a wholly italic refrain that names no one in capitals.
+    assert speeches[1]["text"] == "Aha! Thou here? Sorrow, sing sorrow: but good prevail, prevail!"

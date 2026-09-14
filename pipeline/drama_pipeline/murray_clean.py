@@ -57,6 +57,24 @@ _CUE_AND_VERSE = re.compile(r"^([A-Z][A-Z' ]+)\.\s{2,}(\S.*)$")
 _RUNNING_HEADS = frozenset({"AESCHYLUS", "SOPHOCLES", "EURIPIDES"})
 
 
+def _italic_paragraph(lines: list[str]) -> bool:
+    """A paragraph printed wholly in italics except for names in capitals is
+    a stage direction with no bracket ("_Enter from the other side_ THANATOS;
+    _a crouching black-haired and winged figure ..._", Alcestis): once the
+    italic spans and the capitals go, no lowercase letter is left."""
+    text = " ".join(lines)
+    if not text.startswith("_") or text.count("_") % 2:
+        return False
+    rest = re.sub(r"_[^_]*_", " ", text)
+    # A sung refrain or a gloss is italic too ("_Sorrow, sing sorrow: but
+    # good prevail, prevail!_", Agamemnon): a direction names someone in
+    # capitals outside the italics.
+    if not re.search(r"[A-Z][A-Z'’\-]+", rest):
+        return False
+    rest = re.sub(r"[A-Z][A-Z'’\-]*", " ", rest)
+    return not any(ch.islower() for ch in rest)
+
+
 def read_text(path: Path) -> str:
     """Gutenberg's ``-8`` files are Latin-1; the rest UTF-8."""
     data = Path(path).read_bytes()
@@ -151,11 +169,25 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
             items.append(("dir", _plain(" ".join(direction))))
         direction = None
 
-    for line in flat[first:]:
+    skip_to = -1
+    for idx, line in enumerate(flat[first:], start=first):
+        if idx < skip_to:
+            continue
         if line is None:
             close()  # an unclosed bracket ends with its paragraph
             items.append(("para",))
             continue
+        if direction is None and line.startswith("_") and not _ITALIC_LINE.match(line):
+            # A wholly italic paragraph (capitals for names) is a direction
+            # the page prints without brackets (2026-09-14, John).
+            end = idx
+            while end < len(flat) and flat[end] is not None:
+                end += 1
+            para_lines = [ln for ln in flat[idx:end] if ln]
+            if _italic_paragraph(para_lines):
+                items.append(("dir", _plain(" ".join(para_lines))))
+                skip_to = end
+                continue
         if direction is None and line.startswith("["):
             direction = []
         if direction is not None:

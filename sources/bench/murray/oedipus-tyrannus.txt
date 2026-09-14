@@ -137,7 +137,7 @@ _(from a distance)_
 
 Message of joy!
 
-Enter CREON
+_Enter CREON_
 
 I tell thee, what is now our worst annoy,
 If the right deed be done, shall turn to good.
@@ -965,7 +965,7 @@ Oh, my heart shall uphold him to the last!
 
 _[Sidenote: vv. 513-531]_
 
-Enter CREON.
+_Enter CREON._
 
 CREON
 
@@ -1007,7 +1007,7 @@ My masters do.--But see, here comes the King.
 
 _[Sidenote: vv. 532-550]_
 
-Enter OEDIPUS from the Palace.
+_Enter OEDIPUS from the Palace._
 
 OEDIPUS
 
@@ -3168,7 +3168,7 @@ Alas, what word to Creon can I speak,
 How make him trust me more? He hath seen of late
 So vile a heart in me, so full of hate.
 
-Enter CREON.
+_Enter CREON._
 
 CREON
 

@@ -475,7 +475,7 @@ Stay:
 'Tis Creon, lord of Corinth, makes his way
 Hither, and bears, methinks, some word of weight.
 
-Enter from the right CREON, the King, with armed Attendants.
+_Enter from the right CREON, the King, with armed Attendants._
 
 CREON
 
@@ -778,7 +778,7 @@ House that was sworn to love thee,
 Another, queenlier, dearer,
 Is thronèd above thee.
 
-Enter from the right JASON.
+_Enter from the right JASON._
 
 JASON
 
@@ -1581,7 +1581,7 @@ Thy babes--though thine hardihood be fell,
 When they cling about thy knee,
 'Twill be well!
 
-Enter JASON.
+_Enter JASON._
 
 JASON
 

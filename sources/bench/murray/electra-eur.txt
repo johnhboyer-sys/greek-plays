@@ -749,7 +749,7 @@ LEADER
 But hold: is this thy husband from the plain,
 His labour ended, hasting home again?
 
-Enter the PEASANT.
+_Enter the PEASANT._
 
 PEASANT
 
@@ -1066,7 +1066,7 @@ ELECTRA
 
 Here at the door! How swift upon the thought!
 
-Enter ORESTES and PYLADES.
+_Enter ORESTES and PYLADES._
 
 OLD MAN
 
@@ -1783,7 +1783,7 @@ LEADER
 The message yet will come. 'Tis not a thing
 So light of compass, to strike down a king.
 
-Enter a MESSENGER, running.
+_Enter a MESSENGER, running._
 
 MESSENGER
 
@@ -2233,8 +2233,7 @@ God-like for gold and marvelled power:
 Ah, well may mortal eyes this hour
 Observe thy state: All hail, O Queen!
 
-Enter from the right CLYTEMNESTRA on a chariot, accompanied by richly
-dressed Handmaidens.
+_Enter from the right CLYTEMNESTRA on a chariot, accompanied by richly dressed Handmaidens._
 
 CLYTEMNESTRA
 

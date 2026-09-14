@@ -32,9 +32,7 @@ But ha! The Headsman of the Pit, above
 Earth's floor, to ravish her! Aye, long and late
 He hath watched, and cometh at the fall of fate.
 
-Enter from the other side THANATOS; a crouching black-haired and
-winged figure, carrying a drawn sword. He starts in revulsion on
-seeing APOLLO.
+_Enter from the other side THANATOS; a crouching black-haired and winged figure, carrying a drawn sword. He starts in revulsion on seeing APOLLO._
 
 THANATOS
 Aha!
@@ -233,7 +231,7 @@ Full paid; and every altar's brow
 Full crowned with spice of sacrifice.
 No help remains nor respite now.
 
-Enter from the Castle a HANDMAID, almost in tears.
+_Enter from the Castle a HANDMAID, almost in tears._
 
 LEADER
 But see, a handmaid cometh, and the tear
@@ -846,7 +844,7 @@ LEADER
 Lo, as we speak, this land's high governor,
 Admetus, cometh from his castle door.
 
-Enter ADMETUS from the Castle.
+_Enter ADMETUS from the Castle._
 
 ADMETUS
 Zeus-born of Perseid line, all joy to thee!
@@ -1080,7 +1078,7 @@ Nay, lord; thy father, walking old and grey;
 And followers bearing burial gifts and brave
 Gauds, which men call the comfort of the grave.
 
-Enter PHERES with followers bearing robes and gifts.
+_Enter PHERES with followers bearing robes and gifts._
 
 PHERES
 I come in sorrow for thy sorrow, son.

@@ -165,7 +165,7 @@ LEADER
 Who comes? Aeneas, and in haste, as though
 Fraught with some sudden tiding of the night.
 
-Enter AENEAS.
+_Enter AENEAS._
 
 AENEAS
 
@@ -696,10 +696,7 @@ And danced again in the dancing place;
 And the land shall laugh for the sheaves she reapeth,
 Of spoilers dead by a sword from Thrace.
 
-Enter RHESUS in dazzling white armour, followed by his
-CHARIOTEER and Attendants. The CHARIOTEER carries
-his golden shield. The CHORUS break into a shout of
-"All Hail!"
+_Enter RHESUS in dazzling white armour, followed by his CHARIOTEER and Attendants. The CHARIOTEER carries his golden shield. The CHORUS break into a shout of "All Hail!"_
 
 LEADER
 
@@ -717,7 +714,7 @@ A God, O Troy, a God and more!
 Of Strymon and the Muse of song,
 Whose breath is fragrant on thy shore!
 
-Re-enter HECTOR.
+_Re-enter HECTOR._
 
 RHESUS
 
@@ -1205,7 +1202,7 @@ Shall die; it is another who must bleed
 To-night. Therefore be swift!
 _[Exeunt ODYSSEUS and DIOMEDE. For me, my guise Shall melt and change in Alexander's eyes, Yea, till he dream 'tis Cypris, his delight And help in need, that meets him in the night, And soft shall be my words to him I hate. So speak I; but on whom my spell is set He hears not, sees not, though so near I stand. [She becomes invisible where she stands._
 
-Enter PARIS.
+_Enter PARIS._
 
 PARIS
 
@@ -1262,8 +1259,7 @@ _[Exit PARIS. She raises her voice. Back, back, ye twain! Are ye in love with de
 
 _[ATHENA vanishes; a noise of tumult is heard._
 
-Enter a crowd of Thracians running in confusion, in the midst
-of them ODYSSEUS and DIOMEDE.
+_Enter a crowd of Thracians running in confusion, in the midst of them ODYSSEUS and DIOMEDE._
 
 VOICES
 _(amid the tumult)_
@@ -1552,7 +1548,7 @@ Suspect us not. 'Tis Greeks have done this thing.
 But yonder Hector comes. He hath been shown
 The foul deed, and thy sorrows are his own.
 
-Enter HECTOR in wrath, with a band of Guards.
+_Enter HECTOR in wrath, with a band of Guards._
 
 HECTOR
 

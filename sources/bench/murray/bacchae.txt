@@ -232,9 +232,7 @@ A colt by his dam, when the heart of him sings,
 With the keen limbs drawn and the fleet foot a-quiver,
 Away the Bacchanal springs!
 
-Enter TEIRESIAS. He is an old man and blind, leaning upon a staff
-and moving with slow stateliness, though wearing the Ivy and the
-Bacchic fawn-skin.
+_Enter TEIRESIAS. He is an old man and blind, leaning upon a staff and moving with slow stateliness, though wearing the Ivy and the Bacchic fawn-skin._
 
 TEIRESIAS
 
@@ -248,8 +246,7 @@ I vowed with him, grey hair with snow-white hair,
 To deck the new God's thyrsus, and to wear
 His fawn-skin, and with ivy crown our brows.
 
-Enter CADMUS from the Castle. He is even older than TEIRESIAS,
-_and wears the same attire._
+_Enter CADMUS from the Castle. He is even older than TEIRESIAS, and wears the same attire._
 
 CADMUS
 
@@ -1146,7 +1143,7 @@ But soft, methinks a footstep sounds even now within the hall;
 I will endure him gently, though he come in fury hot.
 For still are the ways of Wisdom, and her temper trembleth not!
 
-Enter PENTHEUS in fury.
+_Enter PENTHEUS in fury._
 
 PENTHEUS
 
@@ -1734,7 +1731,7 @@ But whoe'er can know,
 As the long days go,
 That To Live is happy, hath found his Heaven!
 
-Re-enter DIONYSUS from the Castle.
+_Re-enter DIONYSUS from the Castle._
 
 DIONYSUS
 
@@ -2024,7 +2021,7 @@ Cast o'er his head thy snare;
 And laugh aloud and drag him to his death,
 Who stalks thy herded madness in its lair!
 
-Enter hastily a MESSENGER from the Mountain, pale and distraught.
+_Enter hastily a MESSENGER from the Mountain, pale and distraught._
 
 MESSENGER
 
