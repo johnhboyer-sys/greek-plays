@@ -1391,20 +1391,39 @@ def _apply_english_overrides(
     pending = [dict(override) for override in overrides if override["slot"] == slot]
     for speech in speeches:
         printed = speech["speaker_printed"]
-        for override in pending:
+        # An entry fires once, at its first matching speech, and then holds:
+        # a later speech that opens with the same words must not switch the
+        # cue back (Codex re-check of open-trans, finding 2, 2026-09-14).
+        for override in list(pending):
             if (
                 printed == override["cue"]
                 and _pin_norm(speech["text"]).startswith(_pin_norm(override["from_text"]))
             ):
                 active[printed] = override["display"]
-                override["_matched"] = True
+                pending.remove(override)
+                break
         if printed in active:
             speech["canonical"] = active[printed]
     for override in pending:
-        if not override.get("_matched"):
-            raise RuntimeError(
-                f"{work_id}: english override cue {override['cue']!r} text {override['from_text']!r}: no matching speech"
-            )
+        raise RuntimeError(
+            f"{work_id}: english override cue {override['cue']!r} text {override['from_text']!r}: no matching speech"
+        )
+
+
+def _english_canonical_names(speeches: list[dict]) -> list[str]:
+    """Every distinct canonical name the printed cues resolve to, in order of
+    first appearance. One printed cue can name two characters once an
+    english_overrides entry has switched it, so the roster comparison must
+    see both (Codex re-check of open-trans, finding 3, 2026-09-14)."""
+    out: list[str] = []
+    seen: set[tuple[str, str]] = set()
+    for speech in speeches:
+        printed = speech["speaker_printed"]
+        canonical = speech["canonical"]
+        if printed and canonical and (printed, canonical) not in seen:
+            seen.add((printed, canonical))
+            out.append(canonical)
+    return out
 
 
 def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> list[dict]:
@@ -1511,15 +1530,7 @@ def parse_translation(
     if english_overrides:
         _apply_english_overrides(speeches, english_overrides, work_id, slot)
         e_names = [speech["canonical"] for speech in speeches]
-        english_canonical = []
-        display_seen.clear()
-        for speech in speeches:
-            printed = speech["speaker_printed"]
-            canonical = speech["canonical"]
-            if printed and printed not in display_seen:
-                display_seen.add(printed)
-                if canonical:
-                    english_canonical.append(canonical)
+        english_canonical = _english_canonical_names(speeches)
 
     speakers_report = _speaker_report(
         spine, sigla, english_canonical, english_printed

@@ -169,7 +169,9 @@ speakers:
     "CHORUS LEADER": "Chorus"
     "CHORUS": "Chorus"
     "AEACUS": "Aeacus"
-    "SERVANT": "Slave"
+    # Johnston prints SERVANT for Persephone's maid (Greek 503 ff.) and then
+    # for Pluto's slave (738 ff.); english_overrides switches it (Codex, 2026-09-14).
+    "SERVANT": "Maid"
     "SLAVE": "Slave"
     "PANDOKEUTRIA": "First Innkeeper"
     "PANDODEUTRIA": "First Innkeeper"
@@ -179,6 +181,8 @@ speakers:
     "AESCHLYUS": "Aeschylus"
     "AESCHYLUS AND EURIPIDES": "Aeschylus and Euripides"
     "PLUTO": "Pluto"
+  english_overrides:
+    - { slot: third, cue: "SERVANT", from_text: "By Zeus who saves us, that master of yours", display: "Slave" }
   # Gilbert Murray cues -> the roster.
   english_murray-verse:
     "XANTHIAS": "Xanthias"
