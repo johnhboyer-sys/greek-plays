@@ -40,6 +40,43 @@ english:
     source: bench/morshead/libation-bearers.txt
     play: THE LIBATION-BEARERS
     footnotes: false
+  third:
+    id: kosmos
+    name: "Erdman, rev. Nagy (Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/libation-bearers.txt
+    play: LIBATION BEARERS
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy. Reproduced without change under CC BY-NC-ND 3.0:
+        https://creativecommons.org/licenses/by-nc-nd/3.0/ . This site gives credit and is non-commercial. Every translator and reviser is credited in sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/libation-bearers-aeschylus/
+  overlays:
+    - id: johnston
+      name: "Ian Johnston (VIU)"
+      short: Johnston
+      model: turn-text
+      format: verse-own-line
+      source: bench/johnston/libation-bearers.txt
+      play: LIBATION BEARERS
+      footnotes: false
+      # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+      license:
+        status: licensed
+        rationale: >-
+          Ian Johnston (Vancouver Island University), johnstonia pages: "All
+          general readers, teachers, students, and performing artists may
+          download any material on johnstonia web pages without permission and
+          without charge, provided they do not use the material in a commercial
+          publication." Credited in sources/INVENTORY.md and on the attribution
+          page.
+        source_url: https://web.viu.ca/johnstoi/copyright.htm
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -81,6 +118,28 @@ speakers:
     "KILISSA": "Nurse"
     "AEGISTHUS": "Aegisthus"
     "VOICE OF AEGISTHUS": "Aegisthus"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "ORESTES": "Orestes"
+    "CHORUS": "Chorus"
+    "ELECTRA": "Electra"
+    "SERVANT": "Servant"
+    "CLYTEMNESTRA": "Clytaemestra"
+    "NURSE": "Nurse"
+    "AEGISTHUS": "Aegisthus"
+    "PYLADES": "Pylades"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_johnston:
+    "ORESTES": "Orestes"
+    "CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "CHORUS MEMBERS": "Chorus"
+    "ELECTRA": "Electra"
+    "SERVANT": "Servant"
+    "CLYTAEMNESTRA": "Clytaemestra"
+    "NURSE": "Nurse"
+    "AEGISTHUS": "Aegisthus"
+    "PYLADES": "Pylades"
   # Murray's Greek sigla -> canonical English display, hand-resolved from the
   # export's own full-caps first appearances (see docs/p2-greek-report.md).
   sigla:
@@ -138,6 +197,13 @@ registry:
       short: Morshead
       slot: secondary
       alignment: speech
+    - id: kosmos
+      name: "Erdman, rev. Nagy (Kosmos Society)"
+      short: Kosmos
+      slot: third
+      alignment: speech
+      form: prose
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Cho."

@@ -39,6 +39,26 @@ english:
     source: bench/way/orestes.txt
     play: ORESTES
     footnotes: false
+  third:
+    id: johnston
+    name: "Ian Johnston (VIU)"
+    short: Johnston
+    model: turn-text
+    format: verse-own-line
+    source: bench/johnston/orestes.txt
+    play: ORESTES
+    footnotes: false
+    # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Ian Johnston (Vancouver Island University), johnstonia pages: "All
+        general readers, teachers, students, and performing artists may
+        download any material on johnstonia web pages without permission and
+        without charge, provided they do not use the material in a commercial
+        publication." Credited in sources/INVENTORY.md and on the attribution
+        page.
+      source_url: https://web.viu.ca/johnstoi/copyright.htm
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -92,6 +112,22 @@ speakers:
     "PYLADES": "Pylades"
     "MESSENGER": "Messenger"
     "SEMICHORUS": "Chorus"
+    "HERMIONE": "Hermione"
+    "PHRYGIAN": "Phrygian"
+    "APOLLO": "Apollo"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_third:
+    "ELECTRA": "Electra"
+    "HELEN": "Helen"
+    "CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "FIRST SEMI-CHORUS": "Chorus"
+    "SECOND SEMI-CHORUS": "Chorus"
+    "ORESTES": "Orestes"
+    "MENELAUS": "Menelaus"
+    "TYNDAREUS": "Tyndareus"
+    "PYLADES": "Pylades"
+    "MESSENGER": "Messenger"
     "HERMIONE": "Hermione"
     "PHRYGIAN": "Phrygian"
     "APOLLO": "Apollo"
@@ -158,6 +194,7 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Or."

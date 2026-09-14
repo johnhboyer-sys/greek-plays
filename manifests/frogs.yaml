@@ -90,6 +90,35 @@ english:
     max_turn_shift_rate: 0.11
     # John 2026-09-11: length-outlier limit at today's score (0.283) until Hickie's OCR is repaired
     max_mismatch_rate: 0.29
+  third:
+    id: johnston
+    name: "Ian Johnston (VIU)"
+    short: Johnston
+    model: turn-text
+    format: verse-own-line
+    source: bench/johnston/frogs.txt
+    play: FROGS
+    footnotes: false
+    # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Ian Johnston (Vancouver Island University), johnstonia pages: "All
+        general readers, teachers, students, and performing artists may
+        download any material on johnstonia web pages without permission and
+        without charge, provided they do not use the material in a commercial
+        publication." Credited in sources/INVENTORY.md and on the attribution
+        page.
+      source_url: https://web.viu.ca/johnstoi/copyright.htm
+  overlays:
+    - id: murray-verse
+      name: "Gilbert Murray"
+      short: Murray
+      model: turn-text
+      format: verse-own-line
+      source: bench/murray/frogs.txt
+      play: FROGS
+      footnotes: false
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -153,6 +182,56 @@ speakers:
     "ASCH YLUS": "Aeschylus"
     "AESCHYLUS": "Aeschylus"
     "AEACUS": "Aeacus"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_third:
+    "XANTHIAS": "Xanthias"
+    "XANTHUS": "Xanthias"
+    "DIONYSUS": "Dionysus"
+    "DIOYSUS": "Dionysus"
+    "DIONYSU": "Dionysus"
+    "HERCULES": "Heracles"
+    "CORPSE": "Corpse"
+    "CHARON": "Charon"
+    "CHORUS OF FROGS": "Frogs"
+    "CHORUS OF INITIATES": "Chorus"
+    "LEADER OF THE CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "CHORUS": "Chorus"
+    "AEACUS": "Aeacus"
+    "SERVANT": "Slave"
+    "SLAVE": "Slave"
+    "PANDOKEUTRIA": "First Innkeeper"
+    "PANDODEUTRIA": "First Innkeeper"
+    "PLATHANE": "Second Innkeeper"
+    "EURIPIDES": "Euripides"
+    "AESCHYLUS": "Aeschylus"
+    "AESCHLYUS": "Aeschylus"
+    "AESCHYLUS AND EURIPIDES": "Aeschylus and Euripides"
+    "PLUTO": "Pluto"
+  # Gilbert Murray cues -> the roster.
+  english_murray-verse:
+    "XANTHIAS": "Xanthias"
+    "DIONYSUS": "Dionysus"
+    "HERACLES": "Heracles"
+    "CORPSE": "Corpse"
+    "CHARON": "Charon"
+    "CHORUS": "Chorus"
+    "HIEROPHANT": "Chorus"
+    "ONE OF THE LEADERS": "Chorus"
+    "OTHER LEADER": "Chorus"
+    "SEMI-CHORUS-I": "Chorus"
+    "SEMI-CHORUS II": "Chorus"
+    "FROGS": "Frogs"
+    "AEACUS": "Aeacus"
+    "MAID": "Maid"
+    "LANDLADY": "First Innkeeper"
+    "PLATHANE": "Second Innkeeper"
+    "EURIPIDES": "Euripides"
+    "AESCHYLUS": "Aeschylus"
+    "AESCHYLUS AND EURIPIDES": "Aeschylus and Euripides"
+    "PLUTO": "Pluto"
+    "BOTH": "Dionysus"
+    "VOICE": "Chorus"
   sigla:
     "ΔΙ.": "Dionysus"
     "ΔΙΟΝΥΣΟΣ": "Dionysus"
@@ -222,6 +301,8 @@ registry:
       short: Hickie
       slot: secondary
       alignment: speech
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Ar. Ran."

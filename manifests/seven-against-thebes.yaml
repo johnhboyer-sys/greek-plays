@@ -52,6 +52,43 @@ english:
     footnotes: false
     # John 2026-09-11: shift over 0.10 by under a point; let it slide for now
     max_turn_shift_rate: 0.11
+  third:
+    id: kosmos
+    name: "Smyth, rev. Seven Heroization team (Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/seven-against-thebes.txt
+    play: SEVEN AGAINST THEBES
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy. Reproduced without change under CC BY-NC-ND 3.0:
+        https://creativecommons.org/licenses/by-nc-nd/3.0/ . This site gives credit and is non-commercial. Every translator and reviser is credited in sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/seven-against-thebes-aeschylus/
+  overlays:
+    - id: johnston
+      name: "Ian Johnston (VIU)"
+      short: Johnston
+      model: turn-text
+      format: verse-own-line
+      source: bench/johnston/seven-against-thebes.txt
+      play: SEVEN AGAINST THEBES
+      footnotes: false
+      # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+      license:
+        status: licensed
+        rationale: >-
+          Ian Johnston (Vancouver Island University), johnstonia pages: "All
+          general readers, teachers, students, and performing artists may
+          download any material on johnstonia web pages without permission and
+          without charge, provided they do not use the material in a commercial
+          publication." Credited in sources/INVENTORY.md and on the attribution
+          page.
+        source_url: https://web.viu.ca/johnstoi/copyright.htm
   # Morshead secondary pairs 0.627 (sweep 2026-09-08): 104 English speaker-turns
   # against 161 named Greek segments. Murray cuts the parodos and kommos into
   # many lyric segments; Morshead prints long Chorus odes and one combined
@@ -120,6 +157,31 @@ speakers:
     "ANTIGONE ISMENE AND CHORUS": "Chorus"
     "HERALD": "Herald"
     "ANTIGONE": "Antigone"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "ETEOKLES": "Eteocles"
+    "SCOUT": "Scout"
+    "CHORUS": "Chorus"
+    "ANTIGONE": "Antigone"
+    "ISMENE": "Ismene"
+    "HERALD": "Herald"
+    "MESSENGER": "Scout"
+    "LEADER OF THE FIRST HALF CHORUS": "Semichorus"
+    "LEADER OF THE SECOND HALF CHORUS": "Semichorus"
+    "FIRST HALF CHORUS": "Semichorus"
+    "SECOND HALF CHORUS": "Semichorus"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_johnston:
+    "ETEOCLES": "Eteocles"
+    "MESSENGER": "Scout"
+    "CHORUS": "Chorus"
+    "CHORUS MEMBER ONE": "Chorus"
+    "CHORUS MEMBER TWO": "Chorus"
+    "ANTIGONE": "Antigone"
+    "ISMENE": "Ismene"
+    "HERALD": "Herald"
+    "HALF CHORUS ONE": "Semichorus"
+    "HALF CHORUS TWO": "Semichorus"
   sigla:
     "—": null
     "ΕΤΕΟΚΛΗΣ": "Eteocles"
@@ -171,6 +233,13 @@ registry:
       short: Morshead
       slot: secondary
       alignment: speech
+    - id: kosmos
+      name: "Smyth, rev. Seven Heroization team (Kosmos Society)"
+      short: Kosmos
+      slot: third
+      alignment: speech
+      form: prose
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Aesch. Sept."

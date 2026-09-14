@@ -40,6 +40,23 @@ english:
     source: bench/way/heracles.txt
     play: MADNESS OF HERCULES
     footnotes: false
+  third:
+    id: kosmos
+    name: "Potter, adapted by Ebbott, Dué & Kamil (CHS, Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/heracles.txt
+    play: HERAKLES
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy. Reproduced without change under CC BY-NC-ND 3.0:
+        https://creativecommons.org/licenses/by-nc-nd/3.0/ . This site gives credit and is non-commercial. Every translator and reviser is credited in sources/INVENTORY.md and on the attribution page.
+      source_url: https://chs.harvard.edu/primary-source/euripides-herakles
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -90,6 +107,17 @@ speakers:
     "MADNESS": "Madness"
     "IRIS": "Iris"
     "SERVANT": "Messenger"
+    "THESEUS": "Theseus"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "AMPHITRYON": "Amphitryon"
+    "MEGARA": "Megara"
+    "CHORUS": "Chorus"
+    "LYKOS": "Lycus"
+    "HERAKLES": "Heracles"
+    "IRIS": "Iris"
+    "LUSSA": "Madness"
+    "MESSENGER": "Messenger"
     "THESEUS": "Theseus"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
@@ -152,6 +180,12 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - id: kosmos
+      name: "Potter, adapted by Ebbott, Dué & Kamil (CHS, Kosmos Society)"
+      short: Kosmos
+      slot: third
+      alignment: speech
+      form: prose
   citation:
     scheme: play-line
     copyAbbr: "Eur. HF"

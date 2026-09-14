@@ -38,6 +38,15 @@ english:
     source: bench/way/iphigenia-in-tauris.txt
     play: IPHIGENEIA IN TAURICA
     footnotes: false
+  third:
+    id: murray-verse
+    name: "Gilbert Murray"
+    short: Murray
+    model: turn-text
+    format: verse-own-line
+    source: bench/murray/iphigenia-in-tauris.txt
+    play: IPHIGENIA IN TAURIS
+    footnotes: false
   gaps:
     - "1:1188"  # no covering <l n> in the Perseus TEI
 
@@ -78,6 +87,24 @@ speakers:
     "ORESTES": "Orestes"
     "PYLADES": "Pylades"
     "CHORUS": "Chorus"
+    "HERDSMAN": "Herdsman"
+    "THOAS": "Thoas"
+    "MESSENGER": "Messenger"
+    "ATHENA": "Athena"
+  # Gilbert Murray cues -> the roster.
+  english_third:
+    "IPHIGENIA": "Iphigenia"
+    "IPHIGENIA'": "Iphigenia"
+    "ORESTES": "Orestes"
+    "PYLADES": "Pylades"
+    "CHORUS": "Chorus"
+    "LEADER": "Chorus"
+    "LEADER OF THE CHORUS": "Chorus"
+    "DIVERS WOMEN OF THE CHORUS": "Chorus"
+    "SOME WOMEN": "Chorus"
+    "OTHERS": "Chorus"
+    "VOICE": "Orestes"
+    "ANOTHER VOICE": "Pylades"
     "HERDSMAN": "Herdsman"
     "THOAS": "Thoas"
     "MESSENGER": "Messenger"
@@ -139,6 +166,7 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Eur. IT"

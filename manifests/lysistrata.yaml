@@ -101,6 +101,25 @@ english:
       source: "bench/rogers/lysistrata.txt"
       play: "THE LYSISTRATA"
       footnotes: false
+    - id: johnston
+      name: "Ian Johnston (VIU)"
+      short: Johnston
+      model: turn-text
+      format: verse-own-line
+      source: bench/johnston/lysistrata.txt
+      play: LYSISTRATA
+      footnotes: false
+      # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+      license:
+        status: licensed
+        rationale: >-
+          Ian Johnston (Vancouver Island University), johnstonia pages: "All
+          general readers, teachers, students, and performing artists may
+          download any material on johnstonia web pages without permission and
+          without charge, provided they do not use the material in a commercial
+          publication." Credited in sources/INVENTORY.md and on the attribution
+          page.
+        source_url: https://web.viu.ca/johnstoi/copyright.htm
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -240,6 +259,41 @@ speakers:
     "MEN": "Chorus of Old Men"
     "WOMEN": "Chorus of Women"
     "STRATYLLIS": "Chorus of Women"
+  # Ian Johnston (VIU) cues -> the roster.
+  english_johnston:
+    "LYSISTRATA": "Lysistrata"
+    "CALONICE": "Calonice"
+    "MYRRHINE": "Myrrhine"
+    "LAMPITO": "Lampito"
+    "ALL": "All the Women"
+    "LEADER OF MEN’S CHORUS": "Chorus of Old Men"
+    "CHORUS OF OLD MEN": "Chorus of Old Men"
+    "LEADER OF THE MEN’S CHORUS": "Chorus of Old Men"
+    "MEN’S CHORUS": "Chorus of Old Men"
+    "LEADER OF WOMEN’S CHORUS": "Chorus of Women"
+    "CHORUS OF OLD WOMEN": "Chorus of Women"
+    "WOMEN’S CHORUS": "Chorus of Women"
+    "LEADER OF WOMAN’S CHORUS": "Chorus of Women"
+    "MAGISTRATE": "Magistrate"
+    "OLD WOMAN-A": "First Woman"
+    "OLD WOMAN-B": "Second Woman"
+    "OLD WOMEN-C": "Third Woman"
+    "OLD WOMAN": "Woman"
+    "WOMAN-A": "First Woman"
+    "WOMAN-B": "Second Woman"
+    "WOMAN-C": "Third Woman"
+    "WOMAN-D": "Fourth Woman"
+    "CINESIAS": "Cinesias"
+    "CHILD": "Child"
+    "SPARTAN HERALD": "Spartan Herald"
+    "COMBINED CHORUS": "Chorus"
+    "LEADER OF THE CHORUS": "Chorus"
+    "CHORUS": "Chorus"
+    "SPARTAN AMBASSADOR": "Spartan"
+    "ATHENIAN AMBASSADOR": "Athenian Envoy"
+    "ATHENIAN AMBASSADORS": "Athenian Envoy"
+    "ATHENIAN DELEGATE-A": "Athenian"
+    "ATHENIAN DELEGATE-B": "Athenian"
   sigla:
     "ΛΥ.": "Lysistrata"
     "ΛΥΣΙΣΤΡΑΤΗ": "Lysistrata"
@@ -326,6 +380,7 @@ registry:
       short: Rogers
       slot: overlay
       alignment: speech
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Ar. Lys."

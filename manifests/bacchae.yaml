@@ -42,6 +42,65 @@ english:
     source: bench/way/bacchae.txt
     play: THE BACCHANALS
     footnotes: false
+  third:
+    id: kosmos
+    name: "Buckley, rev. Sens & Nagy (Kosmos Society)"
+    short: Kosmos
+    model: turn-text
+    format: verse-own-line
+    source: bench/kosmos/bacchae.txt
+    play: BACCHAE
+    footnotes: false
+    # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
+    license:
+      status: licensed
+      rationale: >-
+        Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
+        Gregory Nagy. Reproduced without change under CC BY-NC-ND 3.0:
+        https://creativecommons.org/licenses/by-nc-nd/3.0/ . This site gives
+        credit and is non-commercial. Every translator and reviser is credited
+        in sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/bacchae-euripides/
+  overlays:
+    - id: johnston
+      name: "Ian Johnston (VIU)"
+      short: Johnston
+      model: turn-text
+      format: verse-own-line
+      source: bench/johnston/bacchae.txt
+      play: BACCHAE
+      footnotes: false
+      # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
+      license:
+        status: licensed
+        rationale: >-
+          Ian Johnston (Vancouver Island University), johnstonia pages: "All
+          general readers, teachers, students, and performing artists may
+          download any material on johnstonia web pages without permission and
+          without charge, provided they do not use the material in a commercial
+          publication." Credited in sources/INVENTORY.md and on the attribution
+          page.
+        source_url: https://web.viu.ca/johnstoi/copyright.htm
+    - id: murray-verse
+      name: "Gilbert Murray"
+      short: Murray
+      model: turn-text
+      format: verse-own-line
+      source: bench/murray/bacchae.txt
+      play: BACCHAE
+      footnotes: false
+      # Murray cues both messengers MESSENGER (his cast list says "TWO
+      # MESSENGERS" but never distinguishes them in the text), so the
+      # herdsman's and Pentheus' servant's speeches both canonicalize to
+      # "Messenger" while the Greek splits into Messenger/Second Messenger
+      # at 1024 (speakers.overrides). Without an anchor the second
+      # messenger's stichomythia with the Chorus (1024-1042) and his death
+      # report (1043ff) drift onto the wrong Greek turns (Codex review,
+      # 2026-09-12). Two pins re-anchor the run; a run above 8 is capped
+      # (_RUN_SWAP_WINDOW), so the 11-turn stretch takes two.
+      pins:
+        - { greek: "1024", english: "Woe to the house once blest in Hellas", run: 8 }
+        - { greek: "1043", english: "We climbed beyond the utmost habitings", run: 1 }
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
@@ -90,6 +149,54 @@ speakers:
     "SERVANT": "Servant"
     "HERDSMAN": "Messenger"
     "MESSENGER": "Second Messenger"
+    "AGAVE": "Agave"
+  # Kosmos Society Sourcebook (third slot) cues -> the roster.
+  english_third:
+    "DIONYSUS": "Dionysus"
+    "CHORUS": "Chorus"
+    "TEIRESIAS": "Teiresias"
+    "KADMOS": "Cadmus"
+    "PENTHEUS": "Pentheus"
+    "ATTENDANT": "Servant"
+    "MESSENGER": "Messenger"
+    "AGAUE": "Agave"
+  english_overrides:
+    - { slot: third, cue: "MESSENGER", from_text: "House once fortunate in Hellas", display: "Second Messenger" }
+  # Ian Johnston (VIU) cues -> the roster.
+  english_johnston:
+    "DIONYSUS": "Dionysus"
+    "CHORUS": "Chorus"
+    "CHORUS LEADER": "Chorus"
+    "CHORUS VOICE ONE": "Chorus"
+    "CHORUS VOICE TWO": "Chorus"
+    "CHORUS VOICE THREE": "Chorus"
+    "CHORUS VOICE FOUR": "Chorus"
+    "CHORUS VOICE FIVE": "Chorus"
+    "CHORUS ONE": "Chorus"
+    "CHORUS TWO": "Chorus"
+    "CHORUS THREE": "Chorus"
+    "TIRESIAS": "Teiresias"
+    "CADMUS": "Cadmus"
+    "PENTHEUS": "Pentheus"
+    "SOLDIER": "Servant"
+    "MESSENGER": "Messenger"
+    "SECOND MESSENGER": "Second Messenger"
+    "AGAVE": "Agave"
+  # Gilbert Murray cues -> the roster.
+  english_murray-verse:
+    "DIONYSUS": "Dionysus"
+    "CHORUS": "Chorus"
+    "TEIRESIAS": "Teiresias"
+    "CADMUS": "Cadmus"
+    "PENTHEUS": "Pentheus"
+    "LEADER OF THE CHORUS": "Chorus"
+    "SOLDIER": "Servant"
+    "VOICE WITHIN": "Dionysus"
+    "VOICE": "Dionysus"
+    "MAIDEN": "Chorus"
+    "ANOTHER": "Chorus"
+    "LEADER": "Chorus"
+    "MESSENGER": "Messenger"
     "AGAVE": "Agave"
   # Greek printed sigla -> canonical display (colour key; the printed label
   # is shown as printed). Keys match after bracket/space/trailing-dot
@@ -151,6 +258,14 @@ registry:
       short: Way
       slot: secondary
       alignment: speech
+    - id: kosmos
+      name: "Buckley, rev. Sens & Nagy (Kosmos Society)"
+      short: Kosmos
+      slot: third
+      alignment: speech
+      form: prose
+    - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Ba."
