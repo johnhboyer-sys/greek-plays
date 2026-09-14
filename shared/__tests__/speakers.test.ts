@@ -1232,7 +1232,7 @@ describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-0
     // A turn on whitespace cuts at the turn itself, not past it.
     expect(offs('Hello.  Go now.', [{ n: 1, offset: 0 }, { n: 3, offset: 14 }], 4, [6])).toContain(6);
     // Never past the segment's last line.
-    const t3 = 'Hi. ' + 'x'.repeat(80) + '. Zed.';
+    const t3 = 'Hi. ' + 'x'.repeat(80) + '. Zed ends.';
     expect(Math.max(...sentenceTicks(t3, [{ n: 1, offset: 0 }, { n: 10, offset: 4 }], [], 11).map((t) => t.n))).toBe(10);
     // Markers running backwards (a transposition): hold the earlier marker's line.
     const t4 = 'Start here. Middle part. End.';
@@ -1246,6 +1246,76 @@ describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-0
     const out = sentenceTicks(text, [{ n: 1, offset: 0 }, { n: 9, offset: text.indexOf('Third') }], [], 10);
     expect(out.some((t) => t.offset === text.indexOf('From'))).toBe(false);
   });
+
+  // John, 2026-09-12 (Agamemnon audit): an interpolated start goes to the
+  // nearest Greek line that begins a sentence, within 1.5 lines.
+  const greek = (texts: Record<number, string>, from: number, to: number) =>
+    Array.from({ length: to - from + 1 }, (_, i) => ({ n: from + i, text: texts[from + i] ?? 'λόγος ἄλλος' }));
+
+  it('snaps an interpolated start to the Greek line after a full stop', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    const text = 'aaaa aaaa aaaa aaaa aaaa aaaa aaa. So now I am still watching here. Tail.';
+    const so = text.indexOf('So now');
+    const ticks = [{ n: 1, offset: 0 }, { n: 10, offset: text.indexOf('Tail') }];
+    const at = (lines?: { n: number; text: string }[]) =>
+      sentenceTicks(text, ticks, [], 11, lines).find((t) => t.offset === so)!.n;
+    // Proportion alone: 1 + 35/68 * 9 = 5.63, so line 6.
+    expect(at()).toBe(6);
+    // Line 6 ends a Greek sentence, so line 7 begins one (1.37 away).
+    expect(at(greek({ 6: 'τέλος λόγου.' }, 1, 10))).toBe(7);
+    // A crux after the stop does not hide it (Agamemnon 103 "φρένα. †").
+    expect(at(greek({ 6: 'τέλος λόγου. †' }, 1, 10))).toBe(7);
+    // A stop inside line 4 (at 4.5, 1.13 lines away by position) is nearer
+    // than the break at line 7 (1.37 away), so line 4 wins (Codex review of
+    // 05e6855: the window must measure distance by position, not by line).
+    expect(at(greek({ 4: 'ἔφη· καὶ νῦν', 6: 'τέλος.' }, 1, 10))).toBe(4);
+    // A stop inside line 5 (5.5) is nearer still.
+    expect(at(greek({ 5: 'ἔφη· καὶ νῦν', 6: 'τέλος.' }, 1, 10))).toBe(5);
+    // Nothing within 1.5 lines (line 9 is 3.37 away): the proportion stands.
+    expect(at(greek({ 8: 'τέλος.' }, 1, 10))).toBe(6);
+  });
+
+  it('measures the snap window by position, not by line (Codex review of 05e6855)', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    // Estimate 4.5, a break at line 6 with an internal stop (at 6.5, 2.0 away
+    // by position though only 1.5 away by line number): outside the window,
+    // so the proportion (rounds to 5) stands, never line 6.
+    const t1 = 'x'.repeat(20) + '. ' + 'Y ' + 'y'.repeat(20) + '.';
+    const s1 = 20 + 2;
+    const out1 = sentenceTicks(t1, [{ n: 1, offset: 0 }, { n: 8, offset: t1.length - 1 }], [], 15, greek({ 6: 'τέλος. ἄλλα' }, 1, 14))
+      .find((t) => t.offset === s1)!.n;
+    expect(out1).not.toBe(6);
+    expect(out1).toBe(5);
+    // Estimate 5, a break at line 3 with an internal stop (at 3.5, 1.5 away
+    // by position though 2 away by line number): inside the window, taken.
+    const t2 = 'x'.repeat(6) + '. ' + 'Y ' + 'y'.repeat(4) + '.';
+    const s2 = 6 + 2;
+    const out2 = sentenceTicks(t2, [{ n: 1, offset: 0 }, { n: 8, offset: t2.length - 1 }], [], 15, greek({ 3: 'τέλος. ἄλλα' }, 1, 14))
+      .find((t) => t.offset === s2)!.n;
+    expect(out2).toBe(3);
+  });
+
+  it('keeps a marker on a sentence start at its own line, whatever the Greek', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    const text = 'First sentence here. Second one starts on its marker.';
+    const ticks = [{ n: 1, offset: 0 }, { n: 5, offset: text.indexOf('Second') }];
+    expect(sentenceTicks(text, ticks, [], 9, greek({ 5: 'τέλος.' }, 1, 8))).toEqual(ticks);
+  });
+
+  it('never starts a piece with a single word (John, 2026-09-12: "Hallo! Hallo!")', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    // Agamemnon 25: both cries render ἰοὺ ἰού; the second made a piece of its own.
+    const text = 'But tonight may there come release. Hallo! Hallo! To Agamemnon’s queen I thus cry aloud. Ah!';
+    const ticks = [{ n: 20, offset: 0 }, { n: 25, offset: text.indexOf('Hallo!') }];
+    const offs = sentenceTicks(text, ticks, [], 40).map((t) => t.offset);
+    expect(offs).toContain(text.indexOf('Hallo!'));
+    expect(offs).not.toContain(text.lastIndexOf('Hallo!'));
+    expect(offs).toContain(text.indexOf('To Agamemnon'));
+    // A one-word sentence at the end joins the piece before it too.
+    expect(offs).not.toContain(text.indexOf('Ah!'));
+    // A speech start is never joined to the speech before it.
+    expect(sentenceTicks(text, ticks, [text.indexOf('Ah!')], 40).map((t) => t.offset)).toContain(text.indexOf('Ah!'));
+  });
 });
 
 describe('sentenceTicks minSpan: fewer cuts inside a prose speech', () => {
@@ -1256,13 +1326,13 @@ describe('sentenceTicks minSpan: fewer cuts inside a prose speech', () => {
   it('cuts every sentence without a minimum span (today)', async () => {
     const { sentenceTicks } = await import('../lib/speakers');
     expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21).map((t) => t.n)).toEqual([1, 3, 5, 7, 9, 11, 13, 15, 17, 19]);
-    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21, 0)).toEqual(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21));
+    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21, [], 0)).toEqual(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21));
   });
 
   it('starts a new piece only N or more lines after the previous piece', async () => {
     const { sentenceTicks, MIN_PIECE_LINES } = await import('../lib/speakers');
     expect(MIN_PIECE_LINES).toBe(5);
-    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21, 5)).toEqual([
+    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21, [], 5)).toEqual([
       { n: 1, offset: 0 }, { n: 7, offset: at(3) }, { n: 13, offset: at(6) }, { n: 19, offset: at(9) },
     ]);
   });
@@ -1270,7 +1340,7 @@ describe('sentenceTicks minSpan: fewer cuts inside a prose speech', () => {
   it('always anchors a speech start, and counts the span from it', async () => {
     const { sentenceTicks } = await import('../lib/speakers');
     // A new speech at sentence C (line 5), two lines after the piece at 1.
-    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [at(2)], 21, 5).map((t) => t.n)).toEqual([1, 5, 11, 17]);
+    expect(sentenceTicks(text, [{ n: 1, offset: 0 }], [at(2)], 21, [], 5).map((t) => t.n)).toEqual([1, 5, 11, 17]);
   });
 
   it('thins the translator\'s own line markers as well', async () => {
@@ -1279,7 +1349,7 @@ describe('sentenceTicks minSpan: fewer cuts inside a prose speech', () => {
     // 2 lines after 7: both merge into the piece before them.
     const ticks = [{ n: 1, offset: 0 }, { n: 3, offset: at(1) }, { n: 9, offset: at(4) }];
     expect(sentenceTicks(text, ticks, [], 21).map((t) => t.n)).toEqual([1, 3, 5, 7, 9, 11, 13, 15, 17, 19]);
-    expect(sentenceTicks(text, ticks, [], 21, 5).map((t) => t.n)).toEqual([1, 7, 13, 19]);
+    expect(sentenceTicks(text, ticks, [], 21, [], 5).map((t) => t.n)).toEqual([1, 7, 13, 19]);
   });
 });
 

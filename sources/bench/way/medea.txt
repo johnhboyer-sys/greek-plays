@@ -1216,7 +1216,7 @@ CHORUS. Now for the life of the children mine hope hath
 been turned to despairing.
 No hope any. more! On the slaughterward path
 even now are they faring:
-avr. B
+
 
 MEDEA. The bride shall receive it, the diadem-garland that
 beareth enfolden
@@ -1633,8 +1633,8 @@ CHORUS. Open, and thou shalt see thy children’s corpses.
 JASON. Burst in the bolts with all speed, serving-men—
 Force hinges !—let me see this twofold horror,—
 The dead, and her,—and in her blood avenge me !
-MEDEA appears above the palace roof in a chariot
-drawn by dragons.
+[MEDEA appears above the palace roof in a chariot
+drawn by dragons.]
 
 MEDEA. Why shakest thou these doors and wouldst unbar,
 Seeking thy dead and me who wrought the deed ?
