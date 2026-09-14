@@ -1788,7 +1788,12 @@
         }
         return { greekTop: gr ? gr.top - base + lead : 0, greekHeight: gr ? gr.height - lead : 0, englishHeight: eh, lead };
       });
-      const gap = parseFloat(getComputedStyle(node).fontSize) * 0.5;
+      // A verse column pushed past its Greek stacks at the verse pitch, no
+      // extra air between pushed lines (John, 2026-09-14, Persians 1-13:
+      // Morshead's chorus has more lines than the Greek, and the half-em gap
+      // after each pushed line spaced the English wider than the Greek).
+      const verse = cells.some((c) => !!c.e?.querySelector('.verse-line'));
+      const gap = verse ? 0 : parseFloat(getComputedStyle(node).fontSize) * 0.5;
       const { pushes, paddingBottom } = englishFlow(measured, gap);
       cells.forEach((c, i) => {
         const y = (measured[i]?.lead ?? 0) + (pushes[i] ?? 0);
