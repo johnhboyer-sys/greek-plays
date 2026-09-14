@@ -1858,6 +1858,36 @@ describe('verse form: a verse translation renders each source line as its own bl
     expect(lines).toEqual(['Alpha beta gamma delta epsilon zeta.', 'Eta theta. Iota kappa lambda mu nu', 'Xi omicron pi rho sigma.']);
   });
 
+  it('a markerless verse speech sits line for line beside its Greek', async () => {
+    // Way's Alcestis 152-155: four English verses for four Greek lines; by
+    // character proportion the second line landed on 155 instead of 153.
+    const text = 'HANDMAID. Noblest? how not? what tongue will dare gainsay?\nWhat must the woman be who passeth her?\nHow could a wife give honour to her lord\nMore than by yielding her to die for him?';
+    const book: BookData = {
+      book: 1,
+      speakerRoster: ['Handmaid'],
+      segments: [{
+        id: '1:152', column: '1',
+        greek: [152, 153, 154, 155].map((n) => ({ n, text: `στίχος ${n}`, tokens: [], ref: String(n) })),
+        speakers: [{ line: 152, offset: 0, label: 'ΘΕ.', display: 'Handmaid' }],
+        english: { text: 'Primary words.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Handmaid', display: 'HANDMAID' }] },
+        secondary: [{ chapter: '152', text, cont: false }],
+      }],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: book } });
+    await flush();
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows.map((r) => [...r.querySelectorAll('.greek-line')].map((l) => l.id))).toEqual([['L152-152'], ['L153-153'], ['L154-154'], ['L155-155']]);
+    expect(rows.map((r) => [...r.querySelectorAll('.verse-line')].map((l) => l.textContent))).toEqual([
+      ['Noblest? how not? what tongue will dare gainsay?'],
+      ['What must the woman be who passeth her?'],
+      ['How could a wife give honour to her lord'],
+      ['More than by yielding her to die for him?'],
+    ]);
+  });
+
   it('a prose-form piece with the same text renders one paragraph', async () => {
     const { container } = render(Reader, {
       props: {

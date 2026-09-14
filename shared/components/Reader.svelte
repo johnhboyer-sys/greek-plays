@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -1842,13 +1842,16 @@
     const evs = seg.speakers ?? [];
     const oneSpeech = evs.length === 0 || (evs.length === 1 && evs[0]!.line === firstLineN && (evs[0]!.offset ?? 0) === 0);
     const synthetic = !realTicks.length && oneSpeech && source.turns.length <= 1;
-    if (synthetic) {
+    // A verse column's single speech with at most one marker (none, or the
+    // piece's chapter anchor) goes line for line (verseLineTicks below).
+    const verseLineMode = verse && oneSpeech && source.turns.length <= 1 && realTicks.length <= 1;
+    if (synthetic || (verseLineMode && !realTicks.length)) {
       const first = items.find((it) => it.kind === 'line' && !(it.share && it.share.k > 0));
       const n0 = first && first.kind === 'line' ? lineInt(first.line) : null;
       if (n0 == null) return null;
       realTicks = [{ n: n0, offset: 0, real: true }];
     }
-    if ((!synthetic && realTicks.length < 2) || items.length < 2) return null;
+    if ((!synthetic && !verseLineMode && realTicks.length < 2) || items.length < 2) return null;
     // John, 2026-09-10: cut only where a sentence or speech begins, each start
     // on the Greek line interpolated between the markers (sentenceTicks), so
     // a marker mid-sentence no longer breaks the sentence across a gap.
@@ -1856,9 +1859,16 @@
     // The Greek lines, whole, so a start can snap to a Greek sentence break.
     const greekLines = (seg.greek ?? []).map((l) => ({ n: lineInt(l) ?? l.n, text: l.text }));
     const turnOffsets = source.turns.map((tu) => tu.offset);
-    const sentenceCuts = sentenceTicks(source.text, realTicks, turnOffsets, lastN + 1, greekLines);
-    // A verse-form column cuts only where a printed line begins (lineStartTicks).
-    const ticks = verse ? lineStartTicks(source.text, sentenceCuts) : sentenceCuts;
+    // A verse-form column with no markers of its own goes line for line
+    // (verseLineTicks); with markers, or in prose, sentence starts are placed
+    // by proportion, and in verse those cuts move to the next printed line
+    // start (lineStartTicks) so no verse is split across rows.
+    const ticks = verseLineMode
+      ? verseLineTicks(source.text, realTicks[0]!.n, lastN)
+      : (() => {
+          const sentenceCuts = sentenceTicks(source.text, realTicks, turnOffsets, lastN + 1, greekLines);
+          return verse ? lineStartTicks(source.text, sentenceCuts) : sentenceCuts;
+        })();
     // The first item printing each anchored line number.
     const itemOfN = new Map<number, number>();
     items.forEach((it, i) => {

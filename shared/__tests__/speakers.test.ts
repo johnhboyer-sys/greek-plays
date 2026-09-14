@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineStartTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1465,5 +1465,19 @@ describe('lineStartTicks: a verse-form column cuts only where a printed line beg
   it('collapses two cuts that land on the same line start, keeping the first', () => {
     const ticks = [{ n: 1, offset: 0 }, { n: 2, offset: text.indexOf('eps') }, { n: 3, offset: text.indexOf('Zeta') }];
     expect(lineStartTicks(text, ticks).map((t) => [t.n, t.offset])).toEqual([[1, 0], [2, text.indexOf('Iota')]]);
+  });
+});
+
+
+describe('verseLineTicks: a markerless verse speech goes line for line', () => {
+  it('maps L lines onto the segment span by index, skipping blank and direction lines', () => {
+    const text = 'HANDMAID. Noblest?\nWhat must the woman be?\n\n_She weeps._\nHow could a wife\nMore than by yielding';
+    const out = verseLineTicks(text, 152, 155);
+    expect(out.map((t) => t.n)).toEqual([152, 153, 154, 155]);
+    expect(out.map((t) => text.slice(t.offset, t.offset + 8))).toEqual(['HANDMAID', 'What mus', 'How coul', 'More tha']);
+  });
+  it('scales when the counts differ, and a single line sits at the first Greek line', () => {
+    expect(verseLineTicks('A\nB\nC\nD\nE\nF\nG', 10, 12).map((t) => t.n)).toEqual([10, 10, 11, 11, 11, 12, 12]);
+    expect(verseLineTicks('Only line', 40, 45).map((t) => t.n)).toEqual([40]);
   });
 });

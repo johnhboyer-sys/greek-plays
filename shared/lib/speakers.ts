@@ -1192,6 +1192,27 @@ export function sentenceTicks(
 // across two rows). A cut that falls inside a line moves to the start of the
 // next line; one with no line after it is dropped; duplicates collapse to the
 // first. `n` is kept as estimated -- the row still sits by that Greek line.
+// A verse translation with no line markers of its own (Way, Morshead,
+// Storr) renders line for line, so a long single speech is placed by LINE
+// INDEX, not by character proportion (John, 2026-09-14, Alcestis 152-155:
+// Way's second line sat by Greek 155 instead of 153). Line i of L English
+// lines goes to Greek line firstN + round(i * (lastN - firstN) / (L - 1));
+// a blank line or a `_..._` direction is not a line and stays with the
+// piece before it.
+export function verseLineTicks(text: string, firstN: number, lastN: number): { n: number; offset: number }[] {
+  const starts: number[] = [];
+  let at = 0;
+  for (const line of text.split('\n')) {
+    const lead = line.length - line.trimStart().length;
+    const body = line.trim();
+    if (body && !/^_.*_$/.test(body)) starts.push(at + lead);
+    at += line.length + 1;
+  }
+  const L = starts.length;
+  const span = Math.max(0, lastN - firstN);
+  return starts.map((offset, i) => ({ n: firstN + (L > 1 ? Math.round((i * span) / (L - 1)) : 0), offset }));
+}
+
 export function lineStartTicks<T extends { n: number; offset: number }>(text: string, ticks: readonly T[]): T[] {
   const out: T[] = [];
   const seen = new Set<number>();
