@@ -50,24 +50,6 @@ english:
       - { greek: "1198", english: "Bah! What's that to you? Will you not", run: 1 }
       - { greek: "470", english: "Well done! Forge on, if he be a wheelwright.", run: 1 }
       - { greek: "439", english: "Hold! I will give you one; but keep it dark!", run: 1 }
-  # Hickie secondary pairs 0.764: after Demus enters, `Dem.` is Demus not
-  # Demosthenes; `S. S.` is the sausage-seller. Remaining hole is OCR of
-  # Cleon/Demos labels, not a primary floor.
-  secondary:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/knights.txt"
-    play: "THE KNIGHTS"
-    footnotes: false
-    # John 2026-09-11: floor at today's score until Hickie's OCR is repaired; raise it after
-    min_pairing_rate: 0.77
-    # John 2026-09-11: shift limit at today's score until Hickie's OCR is repaired; lower it after
-    max_turn_shift_rate: 0.20
-    # John 2026-09-11: the dropped head is the cast list
-    head_front_matter: 1
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -108,15 +90,6 @@ speakers:
     "DEMOSTHENES AND NICIAS": "Both Slaves"
     "CHORUS": "Chorus"
     "CHORUS OF KNIGHTS": "Chorus"
-  english_secondary:
-    "NICIAS": "Second Slave"
-    "DEMOSTHENES": "First Slave"
-    "SAUSAGE SELLER": "Sausage-seller"
-    "CLEON": "Paphlagonian"
-    "PAPHLAGONIAN": "Paphlagonian"
-    "CHORUS": "Chorus"
-    "AGORACRITUS": "Sausage-seller"
-    "DEMUS": "Demos"
   sigla:
     "ΑΛ.": "Sausage-seller"
     "ΑΛΛΑΝΤΟΠΩΛΗΣ": "Sausage-seller"
@@ -166,12 +139,6 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
-      alignment: speech
-    - id: hickie
-      form: prose
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: secondary
       alignment: speech
   citation:
     scheme: play-line

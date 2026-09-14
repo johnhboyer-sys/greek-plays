@@ -78,18 +78,6 @@ english:
       - { greek: "1346", english: "You shall have a fine house, no cares and the finest of figs.", run: 1 }
       - { greek: "1351", english: "The bridegroom's fig is great and thick", run: 1 }
       - { greek: "1353", english: "While eating and drinking deep draughts of wine", run: 1 }
-  secondary:
-    id: hickie
-    name: "W. J. Hickie (Bohn, 1853)"
-    short: Hickie
-    model: turn-text
-    format: loeb-ocr
-    source: "bench/hickie/peace.txt"
-    play: "PEACE"
-    footnotes: false
-    # John 2026-09-11: limits at today's score; after the cue repair Hickie
-    # pairs 0.864 (default floor 0.85 holds) and shifts 0.104
-    max_turn_shift_rate: 0.11
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -152,28 +140,6 @@ speakers:
     "A HELMET-MAKER": "Arms-dealer"
     "SICKLE-MAKER": "Sickle-maker"
     "A SICKLE-MAKER": "Sickle-maker"
-  english_secondary:
-    "TRYGAOUS": "Trygaeus"
-    "TRYGAEUS": "Trygaeus"
-    "MERCURY": "Hermes"
-    "WAR": "War"
-    "TUMULT": "Tumult"
-    "CHORUS": "Chorus"
-    "HIEROCLES": "Hierocles"
-    "SICKLE MAKER": "Sickle-maker"
-    "TRUMPET MAKER": "Arms-dealer"
-    "CREST MAKER": "Arms-dealer"
-    "BREASTPLATE MAKER": "Arms-dealer"
-    "SPEAR MAKER": "Arms-dealer"
-    "HELMET MAKER": "Arms-dealer"
-    "THEORIA": "Daughter"
-    "PEACE": "Chorus"
-    "SERVANT": "Slave"
-    "FIRST SERVANT": "First Slave"
-    "SECOND SERVANT": "Second Slave"
-    "DAUGHTER": "Daughter"
-    "SON OF LAMACHUS": "First Boy"
-    "SON OF CLEONYMUS": "Second Boy"
   sigla:
     "ΤΡ.": "Trygaeus"
     "ΤΡΥΓΑΙΟΣ": "Trygaeus"
@@ -235,12 +201,6 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
-      alignment: speech
-    - id: hickie
-      form: prose
-      name: "W. J. Hickie (Bohn, 1853)"
-      short: Hickie
-      slot: secondary
       alignment: speech
   citation:
     scheme: play-line
