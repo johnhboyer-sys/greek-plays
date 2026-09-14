@@ -37,6 +37,7 @@ from . import turns as turns_mod
 
 
 _DRAMATIS_HEADS = ("DRAMATIS PERSONAE", "The Persons of the drama.")
+_ROMAN_NUMERAL = re.compile(r"[IVXLC]+")
 _SPEAKER_LINE = re.compile(
     r"^(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ0-9'’\-]*(?:[ ,]+(?:AND[ ,]+)?[A-ZÀ-Þ][A-ZÀ-Þ0-9'’\-]*)*)"
     r"(?:\[(?P<fn1>\d+)\])?"
@@ -517,6 +518,11 @@ def _parse_as_speeches(
             end_i = i
             break
         m = _SPEAKER_LINE.match(raw)
+        if m and _ROMAN_NUMERAL.fullmatch(m.group("name").strip()):
+            # "I. The Nemean Lion": a numbered heading inside a speech (Way's
+            # Heracles labours catalogue), not a speaker; no cue is a bare
+            # numeral (2026-09-14).
+            m = None
         periodless = None if m else _periodless_speaker(raw, known_names)
         if m or periodless:
             flush()

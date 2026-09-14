@@ -2897,3 +2897,20 @@ def test_clouds_102_pin_keeps_the_thinkery_identification_off_of_the_stall():
     broken = _clouds_third_chunks(without_102)
     assert "Fine. Who are they?" in broken["1:102"][0]["text"]
     assert "Chairephon and that humbug, Sokrates" in broken["1:110"][0]["text"]
+
+
+def test_loeb_ocr_roman_numeral_heading_is_not_a_speaker():
+    text = "\n".join([
+        "HERACLES",
+        "",
+        "CHORUS. First the grove of Zeus he freed",
+        "I. The Nemean Lion",
+        "Of the lion, and about his shoulders bound",
+        "II. The Centaurs",
+        "The hide of the beast.",
+        "AMPHITRYON. Enough.",
+    ])
+    speeches, _notes = parse_play_speeches(text, "HERACLES", format="loeb-ocr")
+    assert [sp["speaker_printed"] for sp in speeches] == ["CHORUS", "AMPHITRYON"]
+    assert "I. The Nemean Lion" in speeches[0]["text"]
+    assert "II. The Centaurs" in speeches[0]["text"]

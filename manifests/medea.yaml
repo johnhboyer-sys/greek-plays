@@ -74,6 +74,7 @@ speakers:
     "CHILDREN OF MEDEA": "Son"
     "NURSE": "Nurse"
     "CHILDREN'S GUARDIAN": "Attendant"
+    "CHILDREN’S GUARDIAN": "Attendant"  # Way prints a curly apostrophe once (line 1253)
     "CHORUS": "Chorus"
     "CREON": "Creon"
     "AEGEUS": "Aegeus"
