@@ -365,7 +365,7 @@ describe('corpus-scoping (PUBLIC_WING)', () => {
 });
 
 describe('translation form (prose or verse) drives the prose measure', () => {
-  const PROSE = ['athenian-society', 'buckley', 'coleridge', 'hickie', 'jebb', 'smyth'];
+  const PROSE = ['athenian-society', 'buckley', 'coleridge', 'hickie', 'jebb', 'kosmos', 'smyth'];
   it('every corpus translation declares its form, and only the prose translators say prose', () => {
     const all = WORKS.flatMap((w) => w.translations);
     expect(all.length).toBeGreaterThan(0);
