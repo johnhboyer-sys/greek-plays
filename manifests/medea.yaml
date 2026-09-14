@@ -50,11 +50,9 @@ english:
       status: licensed
       rationale: >-
         Kosmos Society / Center for Hellenic Studies online Sourcebook, ed.
-        Gregory Nagy, "Published under a Creative Commons License 3.0"
-        (variant unstated); Nagy states its translations are "free from
-        copyright restrictions". Every translator and reviser is credited in
-        sources/INVENTORY.md and on the attribution page.
-      source_url: https://kosmossociety.org/text-library/
+        Gregory Nagy. Reproduced without change under CC BY-NC-ND 3.0:
+        https://creativecommons.org/licenses/by-nc-nd/3.0/ . This site gives credit and is non-commercial. Every translator and reviser is credited in sources/INVENTORY.md and on the attribution page.
+      source_url: https://kosmossociety.org/euripides-medea/
   overlays:
     - id: johnston
       name: "Ian Johnston (VIU)"

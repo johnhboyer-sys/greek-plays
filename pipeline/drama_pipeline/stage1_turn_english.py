@@ -1342,6 +1342,45 @@ def _pin_norm(t: str) -> str:
     return re.sub(r"\s+", " ", t).strip()
 
 
+def _apply_english_overrides(
+    speeches: list[dict], overrides: list[dict], work_id: str, slot: str
+) -> None:
+    """Apply source-order canonical-name switches for repeated printed cues."""
+    for override in overrides:
+        if not isinstance(override, dict):
+            raise RuntimeError(f"{work_id}: english override cue '' text '': malformed {override!r}")
+        cue = override.get("cue")
+        text = override.get("from_text")
+        display = override.get("display")
+        entry_slot = override.get("slot")
+        if not all(isinstance(v, str) and v.strip() for v in (cue, text, display)):
+            raise RuntimeError(
+                f"{work_id}: english override cue {cue!r} text {text!r}: needs cue, from_text, and display"
+            )
+        if entry_slot not in {"primary", "secondary", "third", "overlay"}:
+            raise RuntimeError(
+                f"{work_id}: english override cue {cue!r} text {text!r}: unknown slot {entry_slot!r}"
+            )
+    active: dict[str, str] = {}
+    pending = [dict(override) for override in overrides if override["slot"] == slot]
+    for speech in speeches:
+        printed = speech["speaker_printed"]
+        for override in pending:
+            if (
+                printed == override["cue"]
+                and _pin_norm(speech["text"]).startswith(_pin_norm(override["from_text"]))
+            ):
+                active[printed] = override["display"]
+                override["_matched"] = True
+        if printed in active:
+            speech["canonical"] = active[printed]
+    for override in pending:
+        if not override.get("_matched"):
+            raise RuntimeError(
+                f"{work_id}: english override cue {override['cue']!r} text {override['from_text']!r}: no matching speech"
+            )
+
+
 def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> list[dict]:
     """Manifest splits cut a speech the source runs together where the Greek
     changes speaker: ``{english: "<words the new speech opens with>",
@@ -1402,6 +1441,8 @@ def parse_translation(
     pins: list[dict] | None = None,
     splits: list[dict] | None = None,
     covered: list[dict] | None = None,
+    english_overrides: list[dict] | None = None,
+    slot: str = "primary",
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
@@ -1438,6 +1479,19 @@ def parse_translation(
             english_printed.append(printed)
             if canonical:
                 english_canonical.append(canonical)
+
+    if english_overrides:
+        _apply_english_overrides(speeches, english_overrides, work_id, slot)
+        e_names = [speech["canonical"] for speech in speeches]
+        english_canonical = []
+        display_seen.clear()
+        for speech in speeches:
+            printed = speech["speaker_printed"]
+            canonical = speech["canonical"]
+            if printed and printed not in display_seen:
+                display_seen.add(printed)
+                if canonical:
+                    english_canonical.append(canonical)
 
     speakers_report = _speaker_report(
         spine, sigla, english_canonical, english_printed
@@ -1917,6 +1971,8 @@ def run(
         pins=cfg.get("pins") or [],
         splits=cfg.get("splits") or [],
         covered=cfg.get("covered") or [],
+        english_overrides=speakers.get("english_overrides") or [],
+        slot=slot,
     )
     # A long speech's English reaches the Greek segments that continue it
     # (John, 2026-09-11, Morshead's Agamemnon parodos).

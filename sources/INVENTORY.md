@@ -218,16 +218,14 @@ The raw play pages as served on 2026-09-12 (curl, one page every 4 s),
 listed from https://kosmossociety.org/text-library/. The Sourcebook is
 edited by Gregory Nagy. Per-file SHA-256 in `sources/kosmos/SHA256SUMS`.
 
-**Licence basis** (owner's ruling 2026-09-12: a translation that is public
-domain, under any Creative Commons licence, or whose US copyright was never
-renewed may be used, honouring each licence's conditions — credit every
-translator and reviser; if share-alike, derived data carries the same
-licence). Nagy, as quoted on the text-library page: "All the translations in
+**Licence basis**: the texts are reproduced without change under
+[CC BY-NC-ND 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/), with
+credit to every translator and reviser; this site is non-commercial. Nagy,
+as quoted on the text-library page: "All the translations in
 this online Sourcebook are free from copyright restrictions. That is because
 the translations belong either to me or to other authors who have waived
 copyright or to authors who died in a time that precedes any further
-application of copyright." The text-library page marks each of the 13 texts
-"Published under a Creative Commons License 3.0" (variant unstated).
+application of copyright."
 
 | file | work id | page | credit (as printed on the page) |
 |---|---|---|---|

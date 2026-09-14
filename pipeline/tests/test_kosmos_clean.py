@@ -88,6 +88,30 @@ def test_footnote_calls_and_label_glosses_are_dropped():
     ]
 
 
+def test_bracketed_cue_suffix_becomes_a_direction():
+    out = convert(
+        _page("<p><strong>Lykos</strong> [<em>within</em>]<br />Open the door.</p>"),
+        "PLAY",
+    )
+    assert out.text == "PLAY\n\nLYKOS\n_[within]_\n\nOpen the door.\n"
+
+
+def test_opening_brackets_and_silent_cast_are_directions():
+    out = convert(
+        _page(
+            "<p><em>Introduction</em>: do not keep this.</p>"
+            "<p>[The scene is at Thebes.]</p>"
+            "<p><em>AMPHITRYON, MEGARA</em> (silent)</p>"
+            "<p><strong>Amphitryon</strong><br />Speak.</p>"
+        ),
+        "PLAY",
+    )
+    assert out.text == (
+        "PLAY\n\n_[The scene is at Thebes.]_\n\n_AMPHITRYON, MEGARA (silent)_"
+        "\n\nAMPHITRYON\nSpeak.\n"
+    )
+
+
 def test_directions_kept_metre_labels_dropped():
     out = convert(
         _page(

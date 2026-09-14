@@ -166,12 +166,13 @@ def _lines(tokens: list, line_end_numbers: bool) -> list[tuple[str, bool, list]]
     return out
 
 
-def _label(tokens: list) -> tuple[str | None, list]:
+def _label(tokens: list) -> tuple[str | None, str | None, list]:
     """A leading speaker name: bold (``Attendant [therapōn]`` keeps only the
     name), or italic when it is a bare name alone on its line (Oedipus at
     Colonus prints the Stranger's cue as ``<em>Xenos</em>``, a Greek word)."""
     words: list[str] = []
     bold_seen = italic_seen = False
+    bracket_open_bold: bool | None = None
     rest: list = []
     for k, token in enumerate(tokens):
         if token[0] != "text":
@@ -186,6 +187,8 @@ def _label(tokens: list) -> tuple[str | None, list]:
             break
         if bold or stripped in _LABEL_PUNCT or (italic and (in_gloss or not bold_seen)):
             words.append(text)
+            if "[" in text and bracket_open_bold is None:
+                bracket_open_bold = bold
             bold_seen = bold_seen or (bold and bool(stripped))
             italic_seen = italic_seen or (italic and not bold and bool(stripped))
             continue
@@ -194,13 +197,22 @@ def _label(tokens: list) -> tuple[str | None, list]:
     raw = re.sub(r"\[[^\]]*\]?", " ", "".join(words))
     name = collapse_ws(raw.replace("–", " ").replace("—", " ")).strip(" .:,;-")
     if not name or not _NAME.match(name) or not any(ch.isalpha() for ch in name):
-        return None, tokens
+        return None, None, tokens
     if not bold_seen:
         alone = bool(rest) and rest[0][0] == "br"
         bare = not re.search(r"[.,;:!?]", "".join(words)) and len(name.split()) <= 2
         if not (italic_seen and alone and bare):
-            return None, tokens
-    return name, rest
+            return None, None, tokens
+    suffix = re.search(r"\[([^\]]*)\]", "".join(words))
+    # A bold bracket belongs to a cue gloss ("Attendant [therapōn]"); a
+    # bracket after the bold cue is a printed direction ("Lykos [within]").
+    suffix_text = collapse_ws(suffix.group(1)).strip() if suffix else ""
+    direction = (
+        collapse_ws(suffix.group(0)).strip()
+        if suffix and bracket_open_bold is False and suffix_text.casefold() == "within"
+        else None
+    )
+    return name, direction or None, rest
 
 
 def _cue(name: str) -> str:
@@ -242,9 +254,11 @@ def convert(raw_html: str, title: str) -> Converted:
             continue
         if el is not None and el.tag in _HEADINGS:
             continue  # the play title (Antigone prints it bold)
-        name, rest = _label(block)
+        name, cue_direction, rest = _label(block)
         if name is not None:
             speeches.append((_cue(name), []))
+            if cue_direction:
+                speeches[-1][1].append(("dir", cue_direction))
             block = rest
         lines = _lines(block, line_end_numbers)
         text = collapse_ws(" ".join(line for line, _it, _t in lines))
@@ -256,7 +270,12 @@ def convert(raw_html: str, title: str) -> Converted:
         if italic_only and _aligned(el, "right"):
             continue  # a metre label printed on its own line
         if not speeches:
-            if italic_only and not _aligned(el, "center"):
+            bracketed = text.startswith("[") and text.endswith("]")
+            non_italic = collapse_ws("".join(
+                t[1] for t in block if t[0] == "text" and not t[3]
+            )).strip()
+            silent_parenthesis = bool(re.fullmatch(r"\([^)]*\)", non_italic))
+            if (italic_only or bracketed or silent_parenthesis) and not _aligned(el, "center"):
                 opening.append(text)
             continue
         speeches[-1][1].append(("dir" if italic_only else "para", text.replace("_", " ")))

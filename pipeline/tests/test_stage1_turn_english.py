@@ -8,10 +8,40 @@ from drama_pipeline.config import Manifest, SOURCES_DIR
 from drama_pipeline.stage1_english import build_alignment
 from drama_pipeline.stage1_turn_english import (
     _assign_speeches,
+    _apply_english_overrides,
     _split_lindsay_speaker_line,
     parse_play_speeches,
     parse_translation,
 )
+
+
+def test_english_override_switches_at_match_and_not_before():
+    speeches = [
+        {"speaker_printed": "MESSENGER", "text": "Earlier words.", "canonical": "Servant"},
+        {"speaker_printed": "MESSENGER", "text": "(aside) Go to work on the courtship of another woman.", "canonical": "Servant"},
+        {"speaker_printed": "MESSENGER", "text": "Later words.", "canonical": "Servant"},
+    ]
+    _apply_english_overrides(speeches, [{"slot": "third", "cue": "MESSENGER", "from_text": "Go to work on the courtship of another woman", "display": "Messenger"}], "test-play", "third")
+    assert [speech["canonical"] for speech in speeches] == ["Servant", "Messenger", "Messenger"]
+
+
+def test_english_override_can_switch_the_same_cue_again():
+    speeches = [
+        {"speaker_printed": "MESSENGER", "text": "First report.", "canonical": "One"},
+        {"speaker_printed": "MESSENGER", "text": "Second report.", "canonical": "One"},
+        {"speaker_printed": "MESSENGER", "text": "Afterward.", "canonical": "One"},
+    ]
+    _apply_english_overrides(speeches, [
+        {"slot": "third", "cue": "MESSENGER", "from_text": "First report", "display": "Two"},
+        {"slot": "third", "cue": "MESSENGER", "from_text": "Second report", "display": "Three"},
+    ], "test-play", "third")
+    assert [speech["canonical"] for speech in speeches] == ["Two", "Three", "Three"]
+
+
+def test_english_override_without_match_raises():
+    speeches = [{"speaker_printed": "MESSENGER", "text": "Here.", "canonical": "Messenger"}]
+    with pytest.raises(RuntimeError, match="test-play.*MESSENGER.*Missing"):
+        _apply_english_overrides(speeches, [{"slot": "third", "cue": "MESSENGER", "from_text": "Missing words", "display": "Second Messenger"}], "test-play", "third")
 
 
 FIXTURES = Path(__file__).parent / "fixtures" / "turn_english"

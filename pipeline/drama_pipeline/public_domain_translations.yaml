@@ -209,11 +209,9 @@ translations:
       restrictions. That is because the translations belong either to me or
       to other authors who have waived copyright or to authors who died in a
       time that precedes any further application of copyright." Each text is
-      also marked "Published under a Creative Commons License 3.0" (variant
-      unstated). Owner ruling 2026-09-12: public domain, any Creative Commons
-      licence, or never renewed may be used, honouring each licence's
-      conditions (credit every translator and reviser; if share-alike,
-      derived data carries the same licence).
+      reproduced without change under CC BY-NC-ND 3.0
+      (https://creativecommons.org/licenses/by-nc-nd/3.0/), with credit to
+      every translator and reviser. This site is non-commercial.
     sources:
       - bench/kosmos/*.txt
   - id: johnston

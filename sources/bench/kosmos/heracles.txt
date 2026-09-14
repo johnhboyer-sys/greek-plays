@@ -1,5 +1,9 @@
 HERAKLES
 
+_[The scene is at Thebes, before the house of Herakles.]_
+
+_AMPHITRYON, MEGARA, SONS OF HERAKLES (silent)_
+
 AMPHITRYON
 Who among mortals does not know the one who shared his bed with Zeus, the Argive Amphitryon? Alcaeus was his sire, from Perseus sprung, and Herakles his son. He held his seat in Thebes, where the earthborn crop of sown men grew, of which race [genos] only a few Mars spared: their great descendants in the city [polis] of Kadmos [i.e., Thebes] flourished: Creon, of their line, son of Menoikeus, was king of this land. And Creon was father of Megara here— to her the sons of Thebes attuned their reeds and wedding hymns, when to my house the illustrious Herakles with festive joy led her as his bride. But leaving Thebes, my residence, and this Megara, and the alliance formed through her, my son desired to fix his seat at Argos, in the city walls [polis] raised by the Cyclopes: exiled from there I fled, having killed Electryon. To alleviate my misfortunes, and wishing to inhabit his fatherland, he offered high rewards to Eurystheus to civilize the earth, whether he was prompted by the goads of Hera or by necessity. The other toils [ponos] he achieved with hard labor; but for the last, to Hades’ dreary abode through the dark jaws of Tainaros he went, to drag the thrice-fanged hound to light. From there he has not returned. Yet in Thebes remains the story of times of old, that Lykos once, wedded to Dirce, held his awful reign over the seven towers of Thebes, before the sons of Zeus, Amphion and his brother Zethus, the so-called white colts, were monarchs [verb of turannos] of the land. His son, who bears his father’s name, (no Theban, but coming from Euboea), killed Creon, and having killed him now rules the land, having fallen on this city when it was sick with strife [stasis]. We, because, it seems, we are allied to Creon’s family, draw our greatest miseries: for, while my son, is in the dark recesses of the earth below, Lykos, the new ruler of this land, wishes to destroy the sons of Herakles, to slay his wife, and, that murder may be quenched by murder, me, too, a weak old man, (if somehow I can be numbered among men); so that, when they become men they should not achieve vengeance [dikē] for their mother’s family. I (for my son left me in his house, to guard his children when down the earth’s dark steep he took his way), to save them from impending ruin, sit here, with their mother, at this altar, raised to Zeus, the high savior [sōtēr], which my son erected as a generous monument of his victorious spear, when his strong arm subdued the Minyae. Deprived of all things, food and drink, and clothing, we keep these seats in this sanctuary. On the bare, uncovered ground we make our beds, for our house is closed shut against us. Here we sit at a loss for safety [sōtēria]. Of my friends [philos], I see some who were not such; and they, who are indeed my true friends, are powerless to help. Among men such is the influence of calamity. May no one who was the least well-minded [with good noos] to me encounter it— calamity, that most unerring test of friendship. [philos].
 
@@ -330,12 +334,16 @@ At last you have arrived where with death you will pay the penalty [dikē] for c
 Joy has thrown out tears, he has come back, the lord of this land, a thing which earlier I had no hope in my mind [phrēn] of experiencing [paskhō]. But, old men, let us see if the matters inside the house are happening as I want them to.
 
 LYKOS
+_[within]_
+
 Ah me! Ah me!
 
 CHORUS
 The music arising inside the house is dear [philos] to my ears. Death is not far off: he cries, he cries, the proud king groans, the prelude to his death.
 
 LYKOS
+_[within]_
+
 O land of Thebes, I am destroyed by a trick.
 
 CHORUS
@@ -376,6 +384,8 @@ CHORUS
 Oh, oh! Lament, O Thebes! Cut down is the flower of the city [polis], the offspring of Zeus. Unhappy Greece, mourn, for you have lost the patron of mankind. He now dances to the reed of murderous frenzy [lussa]. The Gorgon progeny of Night, Lussa, with mournful rage ascends her car, with hundred-headed hissing serpents she wreathes her horrid hair, and glares pernicious lightning from her eyes. Quickly the daimōn changes good fortune— soon the children will breathe their last at the hands of their father.
 
 AMPHITRYON
+_[within]_
+
 Oh horror!
 
 CHORUS
@@ -400,6 +410,8 @@ CHORUS
 Hostile, hostile is the song played on the reeds, The chase is the hunt for children. For Lussa will not in vain rave [bakkheuō] in this house.
 
 AMPHITRYON
+_[within]_
+
 Woe, woe.
 
 CHORUS
