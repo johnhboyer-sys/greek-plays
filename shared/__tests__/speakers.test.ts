@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1443,5 +1443,27 @@ describe('stage directions', () => {
       .toBe('Sister.<span class="stage-dir">She turns.</span>See here.');
     // Text without a direction line is left alone.
     expect(markStageDirections('a_b_c and _word_ here')).toBe('a_b_c and _word_ here');
+  });
+});
+
+
+describe('lineStartTicks: a verse-form column cuts only where a printed line begins', () => {
+  const text = 'Alpha beta gamma.\nDelta eps. Zeta eta theta\nIota kappa.';
+  it('keeps a cut at a line start, moves a mid-line cut to the next line, drops one with no line after it', () => {
+    const ticks = [
+      { n: 1, offset: 0 },
+      { n: 2, offset: text.indexOf('Delta') },
+      { n: 3, offset: text.indexOf('Zeta') },
+      { n: 4, offset: text.indexOf('kappa') },
+    ];
+    expect(lineStartTicks(text, ticks)).toEqual([
+      { n: 1, offset: 0 },
+      { n: 2, offset: text.indexOf('Delta') },
+      { n: 3, offset: text.indexOf('Iota') },
+    ]);
+  });
+  it('collapses two cuts that land on the same line start, keeping the first', () => {
+    const ticks = [{ n: 1, offset: 0 }, { n: 2, offset: text.indexOf('eps') }, { n: 3, offset: text.indexOf('Zeta') }];
+    expect(lineStartTicks(text, ticks).map((t) => [t.n, t.offset])).toEqual([[1, 0], [2, text.indexOf('Iota')]]);
   });
 });

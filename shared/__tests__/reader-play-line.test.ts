@@ -1828,6 +1828,36 @@ describe('verse form: a verse translation renders each source line as its own bl
     expect(container.querySelector('.turn-para .verse-line')?.textContent).not.toContain('[^');
   });
 
+  it('a sentence that begins mid-line never splits a verse line across rows', async () => {
+    // Way, Suppliants 549: "With all thy vauntings. Get thee forth the land:"
+    // is one printed verse; the sentence cut at "Get" must move to the next
+    // line start instead of breaking the verse across two rows.
+    const text = 'WATCHMAN. Alpha beta gamma delta epsilon zeta.\nEta theta. Iota kappa lambda mu nu\nXi omicron pi rho sigma.';
+    const book: BookData = {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [{
+        id: '1:1', column: '1',
+        greek: [
+          { n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' },
+          { n: 2, text: 'δεύτερος λόγος', tokens: [], ref: '2' },
+          { n: 3, text: 'τρίτος λόγος', tokens: [], ref: '3' },
+        ],
+        speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+        english: { text: 'Primary words.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+        secondary: [{ chapter: '1', text, cont: false }],
+      }],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: book } });
+    await flush();
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    expect(container.querySelectorAll('.play-row').length).toBeGreaterThanOrEqual(2);
+    const lines = [...container.querySelectorAll('.verse-line')].map((l) => l.textContent);
+    expect(lines).toEqual(['Alpha beta gamma delta epsilon zeta.', 'Eta theta. Iota kappa lambda mu nu', 'Xi omicron pi rho sigma.']);
+  });
+
   it('a prose-form piece with the same text renders one paragraph', async () => {
     const { container } = render(Reader, {
       props: {

@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -1823,7 +1823,7 @@
   // keyed to them. Turns start on ticks in these translations, so the turn
   // lead-ins fall out of the same slices. Null when fewer than two ticks
   // map (the ordinary one-row segment, or a turn-text chunk with no ticks).
-  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0): PlayRow[] | null {
+  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0, verse = false): PlayRow[] | null {
     const lineInt = (line: RLine): number | null => {
       const m = /^(\d+)/.exec(line.ref ?? '');
       return m ? Number(m[1]) : line.n;
@@ -1856,7 +1856,9 @@
     // The Greek lines, whole, so a start can snap to a Greek sentence break.
     const greekLines = (seg.greek ?? []).map((l) => ({ n: lineInt(l) ?? l.n, text: l.text }));
     const turnOffsets = source.turns.map((tu) => tu.offset);
-    const ticks = sentenceTicks(source.text, realTicks, turnOffsets, lastN + 1, greekLines);
+    const sentenceCuts = sentenceTicks(source.text, realTicks, turnOffsets, lastN + 1, greekLines);
+    // A verse-form column cuts only where a printed line begins (lineStartTicks).
+    const ticks = verse ? lineStartTicks(source.text, sentenceCuts) : sentenceCuts;
     // The first item printing each anchored line number.
     const itemOfN = new Map<number, number>();
     items.forEach((it, i) => {
@@ -4565,7 +4567,7 @@
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plTurnBlocks = plSource ? buildEnglishTurnBlocks(plSource.text, plSource.turns) : []}
-          {@const plRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          {@const plRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, verseForm(segTransId))) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
             <!-- A direction before a later speech of the segment (Clouds

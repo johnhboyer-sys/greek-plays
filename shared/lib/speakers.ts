@@ -1186,6 +1186,31 @@ export function sentenceTicks(
 // neither consume span nor be judged by it, or it can suppress a valid cut
 // after it while itself vanishing at the mapping step, silently reducing the
 // segment to the fewer-than-two-cuts fallback.
+// A verse-form translation's rows may break only where a printed line
+// begins (John, 2026-09-14, Way's Suppliants 549: "With all thy vauntings. Get
+// thee forth the land:" is one verse, and the sentence cut at "Get" split it
+// across two rows). A cut that falls inside a line moves to the start of the
+// next line; one with no line after it is dropped; duplicates collapse to the
+// first. `n` is kept as estimated -- the row still sits by that Greek line.
+export function lineStartTicks<T extends { n: number; offset: number }>(text: string, ticks: readonly T[]): T[] {
+  const out: T[] = [];
+  const seen = new Set<number>();
+  for (const t of ticks) {
+    let o = t.offset;
+    if (o > 0 && text[o - 1] !== '\n') {
+      const nl = text.indexOf('\n', o);
+      if (nl === -1) continue;
+      o = nl + 1;
+      while (o < text.length && /[ \t]/.test(text[o]!)) o += 1;
+      if (o >= text.length) continue;
+    }
+    if (seen.has(o)) continue;
+    seen.add(o);
+    out.push(o === t.offset ? t : { ...t, offset: o });
+  }
+  return out;
+}
+
 export function spaceTicks<T extends { n: number; offset: number }>(
   cuts: readonly T[],
   protectedOffsets: ReadonlySet<number>,
