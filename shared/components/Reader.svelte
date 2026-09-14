@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -266,6 +266,9 @@
   };
   const transById = (id: string | null | undefined): TranslationRef | null =>
     id ? (translations.find(t => t.id === id) ?? null) : null;
+  // A prose translation's column takes the narrower prose measure
+  // (global.css `.prose-measure`) and fewer cuts inside a speech.
+  const proseMeasure = (id: string | null | undefined): boolean => transById(id)?.form === 'prose';
 
   // §Phase-4B-revised (John's call 2026-07-06): an imported translation's own
   // converter-derived chapter title is this edition's editorial paratext, not
@@ -1795,7 +1798,7 @@
   // keyed to them. Turns start on ticks in these translations, so the turn
   // lead-ins fall out of the same slices. Null when fewer than two ticks
   // map (the ordinary one-row segment, or a turn-text chunk with no ticks).
-  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource): PlayRow[] | null {
+  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0): PlayRow[] | null {
     const lineInt = (line: RLine): number | null => {
       const m = /^(\d+)/.exec(line.ref ?? '');
       return m ? Number(m[1]) : line.n;
@@ -1827,7 +1830,8 @@
     const lastN = Math.max(0, ...items.map((it) => (it.kind === 'line' ? lineInt(it.line) ?? 0 : 0)));
     // The Greek lines, whole, so a start can snap to a Greek sentence break.
     const greekLines = (seg.greek ?? []).map((l) => ({ n: lineInt(l) ?? l.n, text: l.text }));
-    const ticks = sentenceTicks(source.text, realTicks, source.turns.map((tu) => tu.offset), lastN + 1, greekLines);
+    const turnOffsets = source.turns.map((tu) => tu.offset);
+    const ticks = sentenceTicks(source.text, realTicks, turnOffsets, lastN + 1, greekLines);
     // The first item printing each anchored line number.
     const itemOfN = new Map<number, number>();
     items.forEach((it, i) => {
@@ -1837,16 +1841,36 @@
     });
     // Ticks that map to a line of this segment, in text order, item index
     // strictly increasing (a tick out of order or off the segment keeps its
-    // text with the slice before it).
-    const mapped: { i: number; offset: number }[] = [];
+    // text with the slice before it). minSpan thinning (spaceTicks) runs
+    // only AFTER this mapping, so a candidate the segment doesn't print
+    // never consumes span or suppresses a cut after it (Codex review of
+    // gap-layout, finding 2) -- and so the fewer-than-two fallback below
+    // judges the THINNED set, matching the feature's own intent that a
+    // prose speech get fewer, not more, rows than an unthinned mapping would
+    // give it.
+    const mapped: { i: number; n: number; offset: number }[] = [];
     let lastI = -1;
     for (const tk of ticks) {
       const i = itemOfN.get(tk.n);
       if (i == null || i <= lastI) continue;
-      mapped.push({ i, offset: tk.offset });
+      mapped.push({ i, n: tk.n, offset: tk.offset });
       lastI = i;
     }
-    if (mapped.length < 2) return null;
+    // A cut sitting on a speech start or one of the translator's own printed
+    // markers is protected from thinning (finding 1): it is never dropped
+    // for falling inside minSpan of the piece before it.
+    const skipSpace = (o: number) => {
+      let i = o;
+      while (i < source.text.length && /\s/.test(source.text[i]!)) i += 1;
+      return i;
+    };
+    const protectedOffsets = new Set<number>([
+      skipSpace(0),
+      ...turnOffsets.filter((o) => o > 0 && o < source.text.length),
+      ...realTicks.map((tk) => skipSpace(tk.offset)),
+    ]);
+    const spaced = minSpan > 0 ? spaceTicks(mapped, protectedOffsets, minSpan) : mapped;
+    if (spaced.length < 2) return null;
     const rows: PlayRow[] = [];
     const sliceBlocks = (from: number, to: number): EnglishTurnBlock[] => {
       const text = source.text.slice(from, to).trim();
@@ -1858,10 +1882,10 @@
       return buildEnglishTurnBlocks(text, turns);
     };
     // Lines before the first anchored line, with any text before its tick.
-    if (mapped[0]!.i > 0) rows.push({ items: items.slice(0, mapped[0]!.i), blocks: sliceBlocks(0, mapped[0]!.offset) });
-    let carry = mapped[0]!.i === 0 && mapped[0]!.offset > 0 ? 0 : mapped[0]!.offset;
-    mapped.forEach((m, k) => {
-      const next = mapped[k + 1];
+    if (spaced[0]!.i > 0) rows.push({ items: items.slice(0, spaced[0]!.i), blocks: sliceBlocks(0, spaced[0]!.offset) });
+    let carry = spaced[0]!.i === 0 && spaced[0]!.offset > 0 ? 0 : spaced[0]!.offset;
+    spaced.forEach((m, k) => {
+      const next = spaced[k + 1];
       const from = k === 0 ? carry : m.offset;
       const to = next ? next.offset : source.text.length;
       rows.push({ items: items.slice(m.i, next ? next.i : items.length), blocks: sliceBlocks(from, to) });
@@ -4129,6 +4153,7 @@
     class:dk-verse={dkVerse}
     class:verse-line={verseLine}
     class:play-line={playLine}
+    class:prose-page={playLine && trans !== 'compare' && proseMeasure(trans)}
     class:spk-color={playLine && spkColor}
     class:section-flow={sectionFlow}
     class:word-open={!!popup}
@@ -4507,7 +4532,7 @@
               <div class="seg-row play-direction-row">
                 <div class="greek-col" aria-hidden="true"></div>
                 {#each dirRow as dir, di}
-                  <div class={di === 0 ? 'english-col' : 'overlay-col'} data-trans={dirCols[di]}>{#if dir}<div class="overlay-prose turn-eng"><p class="stage-dir">{dir}</p></div>{/if}</div>
+                  <div class={di === 0 ? 'english-col' : 'overlay-col'} class:prose-measure={proseMeasure(dirCols[di])} data-trans={dirCols[di]}>{#if dir}<div class="overlay-prose turn-eng"><p class="stage-dir">{dir}</p></div>{/if}</div>
                 {/each}
               </div>
             {/each}
@@ -4515,7 +4540,7 @@
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plTurnBlocks = plSource ? buildEnglishTurnBlocks(plSource.text, plSource.turns) : []}
-          {@const plRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          {@const plRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
             <!-- A direction before a later speech of the segment (Clouds
@@ -4528,7 +4553,7 @@
               {#each run.directions as dir}
                 <div class="seg-row play-direction-row">
                   <div class="greek-col" aria-hidden="true"></div>
-                  <div class="english-col" data-trans={segTransId}><div class="overlay-prose turn-eng"><p class="stage-dir">{dir}</p></div></div>
+                  <div class="english-col" class:prose-measure={proseMeasure(segTransId)} data-trans={segTransId}><div class="overlay-prose turn-eng"><p class="stage-dir">{dir}</p></div></div>
                 </div>
               {/each}
             {:else}
@@ -4547,6 +4572,7 @@
                   </div>
                   <div
                     class="english-col"
+                    class:prose-measure={proseMeasure(segTransId)}
                     data-trans={segTransId}
                     data-eng-credit={engCreditFor(segTransId, seg)}
                   >
@@ -4884,7 +4910,7 @@
                  seg.english?.credit must never leak onto that alternate's
                  copy (overlay translations carry no per-chunk credit of
                  their own, so an alternate's copy simply carries none). -->
-            <div class="english-col" data-trans={trans === 'compare' ? compareLeft : segTransId} data-eng-credit={engCreditFor(trans === 'compare' ? compareLeft : segTransId, seg)}>
+            <div class="english-col" class:prose-measure={playLine && proseMeasure(trans === 'compare' ? compareLeft : segTransId)} data-trans={trans === 'compare' ? compareLeft : segTransId} data-eng-credit={engCreditFor(trans === 'compare' ? compareLeft : segTransId, seg)}>
               <!-- Fix round, finding 3 (Sol xhigh review): this label used
                    to read the compare slot's work-level `short` unconditionally,
                    so a segment whose primary chunk carries a per-passage
@@ -5166,7 +5192,7 @@
                    attached to that alternate's (uncredited) text. Gated on
                    compareRight === engSlot?.id, the same condition the
                    visible credit below already uses. -->
-              <div class="overlay-col" data-trans={compareRight} data-eng-credit={engCreditFor(compareRight, seg)}>
+              <div class="overlay-col" class:prose-measure={playLine && proseMeasure(compareRight)} data-trans={compareRight} data-eng-credit={engCreditFor(compareRight, seg)}>
                 <div class="col-label" class:play-col-head={playLine && si === 0}>{playLine ? playColLabel(transById(compareRight)) : rightLabel}</div>
                 {#if seg.english?.title && compareRight === engSlot?.id && (busse || verseLine)}
                   <div class="overlay-chapter-title eng-chapter-title">{seg.english.title}</div>

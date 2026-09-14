@@ -40,6 +40,18 @@ vi.mock('../lib/works', async (importOriginal) => {
       citation: { scheme: 'play-line', copyAbbr: 'Fixc.' },
       blurb: 'Fixture for stage directions.',
     },
+    // PLAYLINE with each translation's form declared: Smyth prose, Storr verse.
+    PLAYPROSE: {
+      id: 'PLAYPROSE', title: 'Fixture Prose', abbr: 'Fixp.', author: 'Test',
+      language: 'grc', workType: 'verse', books: 1, bookLabels: ['1'],
+      greekEdition: 'Test edition', greekSource: { short: 'Test', full: 'Test edition, full.' },
+      translations: [
+        { id: 'smyth', name: 'Test Translator (Test, 1926)', short: 'Smyth', slot: 'english', footnotes: true, form: 'prose' },
+        { id: 'storr', name: 'Second Translator (Test, 1912)', short: 'Storr', slot: 'secondary', footnotes: true, form: 'verse' },
+      ],
+      citation: { scheme: 'play-line', copyAbbr: 'Fixp.' },
+      blurb: 'Fixture for the prose measure.',
+    },
   };
   return {
     ...actual,
@@ -1626,6 +1638,139 @@ describe('line-keyed rows: a translation paragraph sits beside the Greek line it
     // The turn lead-in rides in the first row only.
     expect(rows[0].querySelector('.english-col .speaker')?.textContent).toBe('Chorus');
     expect(rows[1].querySelector('.english-col .speaker')).toBeNull();
+  });
+
+  it('a real line marker keeps its own row even within minSpan of the piece before it (Codex review of gap-layout: 184 must not merge into 180)', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: odeBook() } });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    // 184 is 4 lines after 180 -- inside the 5-line minSpan window -- but it
+    // is the translator's OWN printed marker, not an interpolated sentence
+    // start, so minSpan thinning must never drop it (defect 1, review-
+    // gap-layout-findings.md #1: englishFlow can't restore a dropped anchor).
+    expect(rows).toHaveLength(3);
+    expect(rows.map((r) => [...r.querySelectorAll('.greek-line')].map((l) => l.id))).toEqual([
+      ['L175-1', 'L176-2'], ['L180-3', 'L182-4'], ['L184-5'],
+    ]);
+    const eng = rows.map((r) => r.querySelector('.english-col')?.textContent?.trim() ?? '');
+    expect(eng[1]).toContain('I cannot compare him to anything but Zeus.');
+    expect(eng[1]).not.toContain('Zeus, who sets mortals');
+    expect(eng[2]).toContain('Zeus, who sets mortals on the path.');
+  });
+
+  // A prose speech with no line markers at all (Morshead, Storr, Way): one
+  // synthetic tick at the segment's first line, sentence starts interpolated
+  // by proportion (John, 2026-09-11, Agamemnon 140-159). The segment's own
+  // printed refs skip "6" (an editorial numbering gap, same shape as the ode
+  // above skipping 177-179 and 181/183): the 2nd sentence interpolates to
+  // that missing number and the 3rd to line 8 -- verified directly against
+  // sentenceTicks before wiring this fixture. The unmapped candidate must
+  // never survive to consume minSpan's budget against the real candidate
+  // after it (defect 2, review-gap-layout-findings.md #2: spacing must run
+  // only over cuts that map to a line the segment actually prints).
+  function gapNumberedSpeech() {
+    const bank = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango'];
+    const words = (len: number) => { let out = ''; let i = 0; while (out.length < len) out += (out ? ' ' : '') + bank[i++ % bank.length]; return out.slice(0, len).trim(); };
+    const sentence = (len: number) => { const w = words(len - 1); return `${w[0]!.toUpperCase()}${w.slice(1)}.`; };
+    const s1 = sentence(149);
+    const s2 = sentence(59);
+    const s3 = sentence(30);
+    const text = `${s1} ${s2} ${s3}`;
+    const book: BookData = {
+      book: 1,
+      speakerRoster: ['Chorus'],
+      segments: [{
+        id: '1:1',
+        column: '1',
+        greek: [1, 2, 3, 4, 5, 7, 8].map((ref, i) => ({ n: i + 1, text: 'λόγος ἄλλος', tokens: [], ref: String(ref) })),
+        speakers: [{ line: 1, offset: 0, label: 'Χο.', display: 'Chorus' }],
+        english: { text, notes: [], markers: [], turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }] },
+      }],
+    };
+    return { book, s1, s2, s3 };
+  }
+
+  it('a candidate on a line the segment does not print does not suppress the valid cut after it', async () => {
+    const { book, s1, s2, s3 } = gapNumberedSpeech();
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: book } });
+    await flush();
+    const rows = [...container.querySelectorAll('.play-row')];
+    // The unmapped candidate at line 6 must be dropped from consideration
+    // before minSpan is judged, so the valid candidate at line 8 (7 lines
+    // after the piece at line 1) keeps its own row: two rows, not the
+    // fewer-than-two-cuts fallback (speech-by-speech via playRows). Line 7
+    // (ref "7") has no cut before it, so it stays in the first row along
+    // with the merged-up 2nd sentence (its own candidate never mapped).
+    expect(rows).toHaveLength(2);
+    expect(rows.map((r) => [...r.querySelectorAll('.greek-line')].map((l) => l.id))).toEqual([
+      ['L1-1', 'L2-2', 'L3-3', 'L4-4', 'L5-5', 'L7-6'], ['L8-7'],
+    ]);
+    const eng = rows.map((r) => r.querySelector('.english-col')?.textContent?.trim() ?? '');
+    expect(eng[0]).toContain(`${s1} ${s2}`);
+    expect(eng[1]).toBe(s3);
+  });
+});
+
+describe('prose measure: a prose translation gets the narrower English column', () => {
+  beforeEach(() => localStorage.clear());
+
+  function oneSpeech(): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [{
+        id: '1:1', column: '1',
+        greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+        speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+        english: { text: 'Primary words.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+        secondary: [{ chapter: '1', text: 'WATCHMAN. Secondary words.', cont: false }],
+      }],
+    };
+  }
+
+  it('marks the English column of a prose translation, and not of a verse one', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: oneSpeech() } });
+    await flush();
+    expect(container.querySelector('.english-col')?.classList.contains('prose-measure')).toBe(true);
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    expect(container.querySelector('.english-col')?.textContent).toContain('Secondary words.');
+    expect(container.querySelector('.english-col')?.classList.contains('prose-measure')).toBe(false);
+  });
+
+  it('marks each compare column by its own translation', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: oneSpeech() } });
+    await flush();
+    await fireEvent.change(container.querySelectorAll('input[name="trans-mode"]')[1] as HTMLInputElement);
+    await flush();
+    expect(container.querySelector('.english-col')?.classList.contains('prose-measure')).toBe(true);
+    expect(container.querySelector('.overlay-col')?.classList.contains('prose-measure')).toBe(false);
+  });
+
+  it('leaves a translation with no declared form as today', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: oneSpeech() } });
+    await flush();
+    expect(container.querySelector('.prose-measure')).toBeNull();
+  });
+
+  it('marks the whole reader as a prose page for a prose translation, not for verse or compare', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: oneSpeech() } });
+    await flush();
+    expect(container.querySelector('.reader-body')?.classList.contains('prose-page')).toBe(true);
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    expect(container.querySelector('.reader-body')?.classList.contains('prose-page')).toBe(false);
+    await fireEvent.change(container.querySelectorAll('input[name="trans-mode"]')[1] as HTMLInputElement);
+    await flush();
+    expect(container.querySelector('.reader-body')?.classList.contains('prose-page')).toBe(false);
+  });
+
+  it('narrows the prose English track and centres the two columns above the phone width (option 3)', () => {
+    const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../styles/global.css'), 'utf8');
+    expect(css).toMatch(/\.reader-body\.play-line\.view-both\.prose-page:not\(\.trans-compare\) \.seg-row \{\s*grid-template-columns: minmax\(0, 0\.85fr\) minmax\(0, 1\.035fr\);\s*max-width: 94\.25%;\s*margin-inline: auto;/);
+    expect(css).toMatch(/\.reader-body\.play-line\.view-both\.trans-compare \.english-col\.prose-measure,\s*\.reader-body\.play-line\.view-both\.trans-compare \.overlay-col\.prose-measure \{ max-width: 90%; \}/);
   });
 });
 

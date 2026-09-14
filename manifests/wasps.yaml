@@ -171,12 +171,14 @@ registry:
     full: "MacDowell, Aristophanes: Wasps (Oxford, 1971)"
   translations:
     - id: athenian-society
+      form: prose
       name: "The Eleven Comedies (The Athenian Society, 1912)"
       short: Athenian Society
       slot: english
       footnotes: true
       alignment: speech
     - id: hickie
+      form: prose
       name: "W. J. Hickie (Bohn, 1853)"
       short: Hickie
       slot: secondary

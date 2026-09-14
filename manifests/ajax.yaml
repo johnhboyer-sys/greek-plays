@@ -168,11 +168,13 @@ registry:
     full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
   translations:
     - id: jebb
+      form: prose
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
       alignment: line
     - id: storr
+      form: verse
       name: "F. Storr (Loeb, 1913)"
       short: Storr
       slot: secondary

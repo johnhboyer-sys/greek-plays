@@ -212,11 +212,13 @@ registry:
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
   translations:
     - id: coleridge
+      form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary

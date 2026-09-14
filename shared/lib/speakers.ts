@@ -1094,6 +1094,13 @@ export function splitAtDirections<R extends { blocks: EnglishTurnBlock[] }>(
  *  stop inside it, counted from halfway through -- when one lies within
  *  1.5 lines. And a one-word sentence ("Hallo!") is no piece of its own: it
  *  stays with the piece before it. */
+// A prose translation's piece inside a speech spans at least this many Greek
+// lines. At the measured fill (Smyth's English 81% of its Greek's height) a
+// piece of k lines drifts about 0.19k rows above its Greek, so a cut sooner
+// than 5 lines corrects under one row of drift and costs a gap; 5 is also the
+// printed numbering interval, so every piece still starts within one.
+export const MIN_PIECE_LINES = 5;
+
 export function sentenceTicks(
   text: string,
   ticks: readonly { n: number; offset: number }[],
@@ -1163,5 +1170,33 @@ export function sentenceTicks(
     out.push({ n: Math.min(n, Math.max(a.n, endN - 1)), offset: s });
   });
   return out;
+}
+
+// Thin cuts inside a prose speech to at least `minSpan` Greek lines apart
+// (`MIN_PIECE_LINES`), except one in `protectedOffsets` -- a speech start or
+// one of the translator's own printed line markers -- which is never dropped
+// regardless of its span from the piece before it: only an INTERPOLATED
+// sentence start is thinned (Codex review of gap-layout, finding 1 -- the
+// old filter protected speech starts but not real markers, so a translator's
+// own line 184 could merge silently into 180's row; `englishFlow` prevents
+// overlap but cannot restore a dropped anchor).
+//
+// Callers must run this AFTER mapping candidates to a real Greek line of the
+// segment (finding 2): a candidate whose line the segment doesn't print must
+// neither consume span nor be judged by it, or it can suppress a valid cut
+// after it while itself vanishing at the mapping step, silently reducing the
+// segment to the fewer-than-two-cuts fallback.
+export function spaceTicks<T extends { n: number; offset: number }>(
+  cuts: readonly T[],
+  protectedOffsets: ReadonlySet<number>,
+  minSpan: number,
+): T[] {
+  if (minSpan <= 0) return [...cuts];
+  const kept: T[] = [];
+  for (const t of cuts) {
+    const prev = kept[kept.length - 1];
+    if (!prev || protectedOffsets.has(t.offset) || t.n - prev.n >= minSpan) kept.push(t);
+  }
+  return kept;
 }
 

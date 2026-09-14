@@ -283,8 +283,8 @@ registry:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
   translations:
-    - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, footnotes: true, alignment: line }
-    - { id: morshead, name: "E. D. A. Morshead (1881–1908)", short: Morshead, slot: secondary, alignment: speech }
+    - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, footnotes: true, alignment: line, form: prose }
+    - { id: morshead, name: "E. D. A. Morshead (1881–1908)", short: Morshead, slot: secondary, alignment: speech, form: verse }
     - { id: kosmos, name: "Smyth, rev. Crane, Bird & Nagy (Kosmos Society)", short: Kosmos, slot: third, alignment: speech, form: prose }
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
     - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }

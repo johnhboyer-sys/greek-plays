@@ -1318,6 +1318,55 @@ describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-0
   });
 });
 
+// minSpan thinning moved out of sentenceTicks (which keeps only `greek`, for
+// snapping to a Greek sentence break) into spaceTicks, a small function the
+// reader calls AFTER a segment's candidates are mapped to real Greek lines
+// (Codex review of gap-layout, findings 1 and 2 -- see
+// build/review/review-gap-layout-findings.md and shared/components/
+// Reader.svelte's playTickRows).
+describe('spaceTicks: fewer cuts inside a prose speech', () => {
+  // Ten equal sentences over lines 1-20: interpolated starts at 1, 3, 5, ... 19.
+  const text = Array.from({ length: 10 }, (_, i) => `Sentence ${String.fromCharCode(65 + i)} here.`).join(' ');
+  const at = (k: number) => text.indexOf(`Sentence ${String.fromCharCode(65 + k)}`);
+
+  it('cuts every sentence, and a 0 span is a no-op', async () => {
+    const { sentenceTicks, spaceTicks } = await import('../lib/speakers');
+    const cuts = sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21);
+    expect(cuts.map((t) => t.n)).toEqual([1, 3, 5, 7, 9, 11, 13, 15, 17, 19]);
+    expect(spaceTicks(cuts, new Set([0]), 0)).toEqual(cuts);
+  });
+
+  it('starts a new piece only N or more lines after the previous piece', async () => {
+    const { sentenceTicks, spaceTicks, MIN_PIECE_LINES } = await import('../lib/speakers');
+    expect(MIN_PIECE_LINES).toBe(5);
+    const cuts = sentenceTicks(text, [{ n: 1, offset: 0 }], [], 21);
+    expect(spaceTicks(cuts, new Set([0]), 5)).toEqual([
+      { n: 1, offset: 0 }, { n: 7, offset: at(3) }, { n: 13, offset: at(6) }, { n: 19, offset: at(9) },
+    ]);
+  });
+
+  it('always anchors a speech start, and counts the span from it', async () => {
+    const { sentenceTicks, spaceTicks } = await import('../lib/speakers');
+    // A new speech at sentence C (line 5), two lines after the piece at 1.
+    const turnStart = at(2);
+    const cuts = sentenceTicks(text, [{ n: 1, offset: 0 }], [turnStart], 21);
+    expect(spaceTicks(cuts, new Set([0, turnStart]), 5).map((t) => t.n)).toEqual([1, 5, 11, 17]);
+  });
+
+  it('protects the translator\'s own line markers from thinning, whatever their span (Codex review of gap-layout, finding 1)', async () => {
+    const { sentenceTicks, spaceTicks } = await import('../lib/speakers');
+    // Markers at 3 and 9 are the translator's own printed anchors, not mere
+    // interpolated sentence starts -- unlike an interpolated cut, they must
+    // never be dropped for falling inside minSpan of the piece before them
+    // (the reader-play-line.test.ts "184 must not merge into 180" case).
+    const ticks = [{ n: 1, offset: 0 }, { n: 3, offset: at(1) }, { n: 9, offset: at(4) }];
+    const cuts = sentenceTicks(text, ticks, [], 21);
+    expect(cuts.map((t) => t.n)).toEqual([1, 3, 5, 7, 9, 11, 13, 15, 17, 19]);
+    const protectedOffsets = new Set(ticks.map((t) => t.offset));
+    expect(spaceTicks(cuts, protectedOffsets, 5).map((t) => t.n)).toEqual([1, 3, 9, 15]);
+  });
+});
+
 // Arrowsmith's stage directions (John, 2026-09-12): "a break in the Greek
 // where the stage directions are so english stays aligned with its Greek".
 describe('stage directions', () => {

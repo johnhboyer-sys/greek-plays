@@ -179,12 +179,14 @@ registry:
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
   translations:
     - id: smyth
+      form: prose
       name: "H. W. Smyth (Loeb, 1922–26)"
       short: Smyth
       slot: english
       footnotes: true
       alignment: line
     - id: morshead
+      form: verse
       name: "E. D. A. Morshead (1881–1908)"
       short: Morshead
       slot: secondary
