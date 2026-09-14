@@ -1107,9 +1107,6 @@ export function sentenceTicks(
   turnOffsets: readonly number[],
   endN: number,
   greek: readonly { n: number; text: string }[] = [],
-  // 0 cuts at every sentence (today). Above 0, a piece that opens no speech
-  // starts only `minSpan` or more lines after the piece before it.
-  minSpan = 0,
 ): { n: number; offset: number }[] {
   if (!ticks.length) return [];
   const skipSpace = (o: number) => { while (o < text.length && /\s/.test(text[o]!)) o += 1; return o; };
@@ -1172,11 +1169,33 @@ export function sentenceTicks(
     }
     out.push({ n: Math.min(n, Math.max(a.n, endN - 1)), offset: s });
   });
-  if (minSpan <= 0) return out;
-  const kept: { n: number; offset: number }[] = [];
-  for (const t of out) {
+  return out;
+}
+
+// Thin cuts inside a prose speech to at least `minSpan` Greek lines apart
+// (`MIN_PIECE_LINES`), except one in `protectedOffsets` -- a speech start or
+// one of the translator's own printed line markers -- which is never dropped
+// regardless of its span from the piece before it: only an INTERPOLATED
+// sentence start is thinned (Codex review of gap-layout, finding 1 -- the
+// old filter protected speech starts but not real markers, so a translator's
+// own line 184 could merge silently into 180's row; `englishFlow` prevents
+// overlap but cannot restore a dropped anchor).
+//
+// Callers must run this AFTER mapping candidates to a real Greek line of the
+// segment (finding 2): a candidate whose line the segment doesn't print must
+// neither consume span nor be judged by it, or it can suppress a valid cut
+// after it while itself vanishing at the mapping step, silently reducing the
+// segment to the fewer-than-two-cuts fallback.
+export function spaceTicks<T extends { n: number; offset: number }>(
+  cuts: readonly T[],
+  protectedOffsets: ReadonlySet<number>,
+  minSpan: number,
+): T[] {
+  if (minSpan <= 0) return [...cuts];
+  const kept: T[] = [];
+  for (const t of cuts) {
     const prev = kept[kept.length - 1];
-    if (!prev || speechStarts.has(t.offset) || t.n - prev.n >= minSpan) kept.push(t);
+    if (!prev || protectedOffsets.has(t.offset) || t.n - prev.n >= minSpan) kept.push(t);
   }
   return kept;
 }

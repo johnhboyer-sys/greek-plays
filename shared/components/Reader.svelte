@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -1830,7 +1830,8 @@
     const lastN = Math.max(0, ...items.map((it) => (it.kind === 'line' ? lineInt(it.line) ?? 0 : 0)));
     // The Greek lines, whole, so a start can snap to a Greek sentence break.
     const greekLines = (seg.greek ?? []).map((l) => ({ n: lineInt(l) ?? l.n, text: l.text }));
-    const ticks = sentenceTicks(source.text, realTicks, source.turns.map((tu) => tu.offset), lastN + 1, greekLines, minSpan);
+    const turnOffsets = source.turns.map((tu) => tu.offset);
+    const ticks = sentenceTicks(source.text, realTicks, turnOffsets, lastN + 1, greekLines);
     // The first item printing each anchored line number.
     const itemOfN = new Map<number, number>();
     items.forEach((it, i) => {
@@ -1840,16 +1841,36 @@
     });
     // Ticks that map to a line of this segment, in text order, item index
     // strictly increasing (a tick out of order or off the segment keeps its
-    // text with the slice before it).
-    const mapped: { i: number; offset: number }[] = [];
+    // text with the slice before it). minSpan thinning (spaceTicks) runs
+    // only AFTER this mapping, so a candidate the segment doesn't print
+    // never consumes span or suppresses a cut after it (Codex review of
+    // gap-layout, finding 2) -- and so the fewer-than-two fallback below
+    // judges the THINNED set, matching the feature's own intent that a
+    // prose speech get fewer, not more, rows than an unthinned mapping would
+    // give it.
+    const mapped: { i: number; n: number; offset: number }[] = [];
     let lastI = -1;
     for (const tk of ticks) {
       const i = itemOfN.get(tk.n);
       if (i == null || i <= lastI) continue;
-      mapped.push({ i, offset: tk.offset });
+      mapped.push({ i, n: tk.n, offset: tk.offset });
       lastI = i;
     }
-    if (mapped.length < 2) return null;
+    // A cut sitting on a speech start or one of the translator's own printed
+    // markers is protected from thinning (finding 1): it is never dropped
+    // for falling inside minSpan of the piece before it.
+    const skipSpace = (o: number) => {
+      let i = o;
+      while (i < source.text.length && /\s/.test(source.text[i]!)) i += 1;
+      return i;
+    };
+    const protectedOffsets = new Set<number>([
+      skipSpace(0),
+      ...turnOffsets.filter((o) => o > 0 && o < source.text.length),
+      ...realTicks.map((tk) => skipSpace(tk.offset)),
+    ]);
+    const spaced = minSpan > 0 ? spaceTicks(mapped, protectedOffsets, minSpan) : mapped;
+    if (spaced.length < 2) return null;
     const rows: PlayRow[] = [];
     const sliceBlocks = (from: number, to: number): EnglishTurnBlock[] => {
       const text = source.text.slice(from, to).trim();
@@ -1861,10 +1882,10 @@
       return buildEnglishTurnBlocks(text, turns);
     };
     // Lines before the first anchored line, with any text before its tick.
-    if (mapped[0]!.i > 0) rows.push({ items: items.slice(0, mapped[0]!.i), blocks: sliceBlocks(0, mapped[0]!.offset) });
-    let carry = mapped[0]!.i === 0 && mapped[0]!.offset > 0 ? 0 : mapped[0]!.offset;
-    mapped.forEach((m, k) => {
-      const next = mapped[k + 1];
+    if (spaced[0]!.i > 0) rows.push({ items: items.slice(0, spaced[0]!.i), blocks: sliceBlocks(0, spaced[0]!.offset) });
+    let carry = spaced[0]!.i === 0 && spaced[0]!.offset > 0 ? 0 : spaced[0]!.offset;
+    spaced.forEach((m, k) => {
+      const next = spaced[k + 1];
       const from = k === 0 ? carry : m.offset;
       const to = next ? next.offset : source.text.length;
       rows.push({ items: items.slice(m.i, next ? next.i : items.length), blocks: sliceBlocks(from, to) });
