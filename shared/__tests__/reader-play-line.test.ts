@@ -1815,6 +1815,19 @@ describe('verse form: a verse translation renders each source line as its own bl
     expect(container.querySelector('.turn-para .speaker')?.textContent).toBe('Watchman');
   });
 
+  it('two footnote markers on one word each render their own button', async () => {
+    const { container } = render(Reader, {
+      props: { work: 'PLAYPROSE', bookNum: 1, bookData: threeLineSpeech('WATCHMAN. assemblage of the dead[^1.1][^2.2]\nLine two\nLine three') },
+    });
+    await flush();
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    const buttons = [...container.querySelectorAll('.turn-para .verse-line .fn-marker')];
+    expect(buttons.map((b) => b.getAttribute('data-fn'))).toEqual(['1.1', '2.2']);
+    expect(container.querySelector('.turn-para .verse-line')?.textContent).not.toContain('[^');
+  });
+
   it('a prose-form piece with the same text renders one paragraph', async () => {
     const { container } = render(Reader, {
       props: {

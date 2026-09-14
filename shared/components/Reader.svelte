@@ -1303,9 +1303,11 @@
     // deliberately stops at whitespace, tag brackets, and entities so it can
     // never swallow a fragment of highlightEng's own markup; if a tag abuts
     // the marker the wrapper just holds the marker alone (no worse than
-    // before).
+    // before). Brackets are excluded too, so two markers on one word
+    // ("dead[^1.1][^2.2]", Way's Suppliants 1:48) each get a button instead
+    // of the first being swallowed as the second's lead word (2026-09-14).
     return highlightEng(text).replace(
-      /([^\s<>&]*)\[\^([\w._*†]+)\]/g,
+      /([^\s<>&\[\]]*)\[\^([\w._*†]+)\]/g,
       (_m, lead: string, label: string) => {
         const display = fnDisplay(label);
         return `<span class="fn-anchor">${lead}<button type="button" class="fn-marker" data-fn="${label}" data-fn-trans="${transId}" aria-label="Footnote ${display}">${display}</button></span>`;
