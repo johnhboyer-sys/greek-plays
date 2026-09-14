@@ -39,6 +39,10 @@ export interface TranslationRef {
   // translation) or by speech (matched speaker turn by speaker turn). Shown
   // on the opening plate only (John, 2026-09-09).
   alignment?: 'line' | 'speech';
+  // Whether the translator wrote prose or verse. A prose translation packs
+  // more per row, so the play-line reader gives it a narrower English column
+  // and fewer cuts inside a speech; verse (or no form) keeps today's layout.
+  form?: 'prose' | 'verse';
   // Copyright-encumbered translations carried only in the local/full build.
   // The public deploy sets PUBLIC_HIDE_PRIVATE=1 to drop them from the registry
   // (and is built from the work's -public manifest, so their text is absent too).
