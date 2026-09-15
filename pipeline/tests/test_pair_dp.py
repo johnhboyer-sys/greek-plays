@@ -160,6 +160,52 @@ def test_frogs_refrain_matches_by_position_not_just_name():
     assert result.pairs == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
 
 
+def test_speakerless_continuation_inherits_speaker_not_a_magnet():
+    """Round 3 (turn-pairing-round3-2026-09-15.md, P1). A Greek share with no
+    speaker event of its own is fed to the DP with its preceding named
+    speaker's name INHERITED (the caller's job, `stage1_turn_english.py`'s
+    `dp_names`) rather than `None` -- so a speakerless continuation node
+    sitting between two named ones must NOT act as a cheap magnet for the
+    following named speaker's English (the shape of Bacchae 1:1125's
+    Messenger continuation absorbing the Chorus's dance ode meant for
+    1:1153): with the name inherited, the continuation keeps its own
+    speaker's long English and the next Greek node keeps its own."""
+    greek = [
+        GreekNode(name="Messenger", chars=40),
+        GreekNode(name="Messenger", chars=400),  # the continuation, INHERITED
+        GreekNode(name="Chorus", chars=60),  # the dance ode's own Greek
+    ]
+    english = [
+        EnglishNode(name="Messenger", chars=40),
+        EnglishNode(name="Messenger", chars=420),  # the battle narrative
+        EnglishNode(name="Chorus", chars=60),  # "Weave ye the dance"
+    ]
+
+    result = align(greek, english, pins=[])
+
+    assert (1, 1) in result.pairs  # the continuation keeps its own speaker's text
+    assert (2, 2) in result.pairs  # the ode lands on its own Greek
+
+
+def test_disagreeing_run_is_matched_not_double_gapped():
+    """Round 3, P3 (the Lysistrata 1:439-1:447 oath stichomythia shape): a
+    five-turn run where two of the five names agree (both "Magistrate") and
+    three differ must be matched pair by pair -- the three disagreements
+    flagged, not swallowed into a parallel two-sided gap. P3's inequality 2
+    is exactly what keeps a run this long from tunnelling."""
+    greek_names = ["Calonice", "Magistrate", "Myrrhine", "Magistrate", "Lysistrata"]
+    english_names = ["First Woman", "Magistrate", "Second Woman", "Magistrate", "Third Woman"]
+    greek = [GreekNode(name=n, chars=40) for n in greek_names]
+    english = [EnglishNode(name=n, chars=40) for n in english_names]
+
+    result = align(greek, english, pins=[])
+
+    assert len(result.pairs) == 5
+    pairs = dict(result.pairs)
+    for gi in range(5):
+        assert pairs[gi] == gi
+
+
 def test_antilabe_merge_reduced_extend_cost():
     """One Greek line, two shares, one English speech (the Ecclesiazusae
     shape): the second share is a SKIP_G at the REDUCED same-line rate, not
