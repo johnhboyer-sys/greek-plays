@@ -1611,9 +1611,31 @@ def parse_translation(
     # name-LCS: `pair_dp.align` replaces the deleted `_pair_turns`. Pins are
     # unchanged hard constraints; the DP still runs independently between
     # consecutive ones (section 3.3).
+    #
+    # P1 (turn-pairing-round3-2026-09-15.md, defect 1): a slot with no
+    # speaker event of its own (`slot_names[k] is None`) is, by construction,
+    # the CONTINUATION of the preceding named speaker -- `_greek_event_slots`
+    # cuts only at a line-start speaker event, never mid-continuation. Fed to
+    # the DP as `name=None`, it reads as an unattributed lyric and gets the
+    # 0.35 unnamed-match discount, making a long continuation the cheapest
+    # landing site for ANY English speech (Bacchae 1:1125's Messenger
+    # continuation absorbing the Chorus's dance ode meant for 1:1153). `dp_names`
+    # carries the last named slot forward into every `None` that follows it
+    # (a leading `None` with no predecessor stays `None`) and feeds ONLY the
+    # DP's nodes. `slot_names` itself is untouched: it also feeds `crossed`,
+    # `turn_shifts`, `greek_named` (the `pairing_rate` denominator), and
+    # `_assign_speeches`, and inheriting there would move every reported
+    # number for reasons unrelated to the alignment.
+    dp_names: list[str | None] = []
+    _last_named: str | None = None
+    for _name in slot_names:
+        if _name is not None:
+            _last_named = _name
+        dp_names.append(_name if _name is not None else _last_named)
+
     greek_nodes = [
         pair_dp.GreekNode(
-            name=slot_names[k],
+            name=dp_names[k],
             chars=slot_spans[k][0],
             line_key=(slot["segment"], slot["line"]),
             text=slot_spans[k][1],
