@@ -36,6 +36,29 @@ Footnotes:
 [2] A gloss on the ransom.
 """
 
+# Way vol. 4's page shape (seen 2026-09-15): &emsp; indents, bare $\quad$/
+# $\qquad$ spacing macros, <small>...</small> and <p align="center">...</p>
+# cues, and $^{1}$/<sup>1</sup> footnote calls.
+WAY_FIXTURE = """\
+# ALCESTIS
+
+<p align="center">APOLLO</p>
+Fear not: fair words and justice are with me.
+
+<small>HANDMAID</small>
+She liveth, and is dead : both mayst thou say.
+
+&emsp;&emsp;Though ye voyage all seas,
+$\\quad$Ye shall light on no lands,
+$\\qquad\\qquad$(Ant.)
+
+Of lifeless food: $^{1}$ take Orpheus for thy king:
+
+$^{1}$ Abstinence from animal food.
+
+<sup>1</sup> A gloss on the name.
+"""
+
 
 def test_page_index_increments_on_bare_dash_separator():
     paras = paragraphs_from_text(FIXTURE)
@@ -83,6 +106,32 @@ def test_is_greek_paragraph():
     assert is_greek_paragraph("Ἀεί μέν, ὦ παῖ Λαρτίου") is True
     assert is_greek_paragraph("Son of Laertes, ever on the prowl") is False
     assert is_greek_paragraph("6") is False
+
+
+def test_way_vol4_p_align_and_small_cue_tags_stripped():
+    paras = paragraphs_from_text(WAY_FIXTURE)
+    assert any(p.text == "APOLLO" for p in paras)
+    assert any(p.text == "HANDMAID" for p in paras)
+    assert not any("<p" in p.text or "<small" in p.text for p in paras)
+
+
+def test_way_vol4_emsp_and_quad_macros_stripped():
+    paras = paragraphs_from_text(WAY_FIXTURE)
+    line = next(p for p in paras if p.text.startswith("Though ye voyage"))
+    assert line.text == "Though ye voyage all seas,"
+    line2 = next(p for p in paras if "no lands" in p.text)
+    assert line2.text == "Ye shall light on no lands,"
+    line3 = next(p for p in paras if "(Ant.)" in p.text)
+    assert line3.text == "(Ant.)"
+    assert "\\quad" not in line3.text and "$" not in line3.text
+
+
+def test_way_vol4_footnote_calls_normalised():
+    paras = paragraphs_from_text(WAY_FIXTURE)
+    food = next(p for p in paras if p.text.startswith("Of lifeless food"))
+    assert food.text == "Of lifeless food: [1] take Orpheus for thy king:"
+    gloss = next(p for p in paras if "gloss on the name" in p.text)
+    assert gloss.text == "[1] A gloss on the name."
 
 
 def paragraphs_from_text(text: str) -> list[Paragraph]:

@@ -1,4 +1,4 @@
-"""Read History Genie's markdown-flavoured OCR of a Loeb volume.
+r"""Read History Genie's markdown-flavoured OCR of a Loeb volume.
 
 Genie exports each scanned volume as one ``.txt`` per Internet Archive item
 (``build/genie/<item>.txt``, John's second, independent OCR pass used to
@@ -11,15 +11,21 @@ check the Storr/Way bench text against ABBYY -- see
   sometimes ``<center>...</center>``).
 - Speaker cues print as ``**NAME**`` or plain ``NAME`` alone on a line.
 - Stage directions are ``*italic*`` runs, often inside ``[...]``.
-- Footnote calls are ``¹`` (a bare superscript digit) or ``$^1$``.
+- Footnote calls are ``¹`` (a bare superscript digit), ``$^1$``/``$^{1}$``,
+  or ``<sup>1</sup>`` (Way vol. 4, seen 2026-09-15).
 - Verse indents and marginal Greek line numbers are ``&nbsp;`` runs, the
   numbers sometimes wrapped in ``<span style="float: right;">10</span>``.
+  Way vol. 4 also uses ``&emsp;`` runs for the same indents, and renders
+  some indentation and strophe/antistrophe spacing as bare LaTeX macros,
+  ``$\quad$``/``$\qquad$``, with no wrapping tag.
+- Way vol. 4 marks a few cues/notes with ``<small>...</small>`` or
+  ``<p align="center">...</p>`` instead of ``**bold**``/``<center>``.
 
 This module turns one page-delimited paragraph stream into cleaned,
-plain-text lines -- markdown/``&nbsp;``/``<span>`` noise stripped, footnote
-calls normalised to ``[n]`` -- annotated with an italic flag and a page
-index, so a caller can drop Greek pages (mostly Greek letters) and align
-what is left to a bench file.
+plain-text lines -- markdown/``&nbsp;``/``&emsp;``/``<span>``/``<small>``/
+``<p>``/``$\quad$`` noise stripped, footnote calls normalised to ``[n]`` --
+annotated with an italic flag and a page index, so a caller can drop Greek
+pages (mostly Greek letters) and align what is left to a bench file.
 """
 
 from __future__ import annotations
@@ -34,11 +40,18 @@ _LETTER_RE = re.compile(r"[^\W\d_]", re.UNICODE)
 
 _SPAN_RE = re.compile(r"<span[^>]*>(.*?)</span>", re.S | re.I)
 _CENTER_RE = re.compile(r"</?center>", re.I)
+_SMALL_RE = re.compile(r"</?small>", re.I)
+_P_TAG_RE = re.compile(r"</?p[^>]*>", re.I)
 _HEADING_RE = re.compile(r"^#{1,6}\s*")
 _BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 _ITALIC_RUN_RE = re.compile(r"(?<!\*)\*([^*]+)\*(?!\*)")
 _ITALIC_WHOLE_RE = re.compile(r"\A\*([^*].*[^*]|[^*])\*\Z")
-_DOLLAR_FOOTNOTE_RE = re.compile(r"\$\^(\d+)\$")
+# Way vol. 4's page shape: footnote calls as $^1$ or $^{1}$, and occasional
+# $\quad$/$\qquad$ LaTeX spacing macros standing in for indentation (the
+# Sophocles vol. 2 shape used &nbsp; runs for the same purpose instead).
+_DOLLAR_FOOTNOTE_RE = re.compile(r"\$\^\{?(\d+)\}?\$")
+_QUAD_RE = re.compile(r"\$(?:\\q{1,2}uad)+\$")
+_SUP_TAG_RE = re.compile(r"<sup>(\d+)</sup>", re.I)
 _SUPERSCRIPT_RUN_RE = re.compile(r"[¹²³⁰-⁹]+")
 
 
@@ -65,9 +78,13 @@ def _superscript_to_plain(match: "re.Match[str]") -> str:
 
 def _clean_line(line: str) -> tuple[str, bool]:
     line = _SPAN_RE.sub("", line)
-    line = line.replace("\xa0", " ").replace("&nbsp;", " ")
+    line = line.replace("\xa0", " ").replace("&nbsp;", " ").replace("&emsp;", " ")
     line = _CENTER_RE.sub("", line)
+    line = _SMALL_RE.sub("", line)
+    line = _P_TAG_RE.sub("", line)
     line = _HEADING_RE.sub("", line)
+    line = _QUAD_RE.sub(" ", line)
+    line = _SUP_TAG_RE.sub(lambda m: f"[{m.group(1)}]", line)
     line = _DOLLAR_FOOTNOTE_RE.sub(lambda m: f"[{m.group(1)}]", line)
     line = _SUPERSCRIPT_RUN_RE.sub(_superscript_to_plain, line)
     stripped = line.strip()
