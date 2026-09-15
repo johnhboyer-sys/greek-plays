@@ -201,13 +201,12 @@ def _region_align(
         hi = min(E, math.ceil(center + w))
         return lo, hi
 
-    def run(w: int) -> tuple[list[list[float]], list[list[float]], list[list[float]], list[tuple[int, int]], bool]:
+    def run(w: int) -> tuple[list[list[float]], list[list[float]], list[list[float]], list[tuple[int, int]]]:
         lohi = [band_lo_hi(i, w) for i in range(G + 1)]
         M = [{} for _ in range(G + 1)]
         Ig = [{} for _ in range(G + 1)]
         Ie = [{} for _ in range(G + 1)]
         M[0][0] = 0.0
-        touched_edge = False
         for i in range(G + 1):
             lo, hi = lohi[i]
             for j in range(lo, hi + 1):
@@ -281,117 +280,149 @@ def _region_align(
                         ):
                             best_e += weights.w_cohere
                     Ie[i][j] = best_e
-                if j in (lo, hi) and min(
-                    M[i].get(j, INF), Ig[i].get(j, INF), Ie[i].get(j, INF)
-                ) < INF:
+        return M, Ig, Ie, lohi
+
+    def solve(
+        M: list[dict], Ig: list[dict], Ie: list[dict], lohi: list[tuple[int, int]],
+    ):
+        """Pick the cheapest final layer, trace back, and report whether the
+        PATH -- not the forward pass -- touched its row's band edge anywhere
+        strictly inside the region (P4, turn-pairing-round3-2026-09-15.md).
+
+        The forward pass's old `touched_edge` test fired on every row of
+        every play (98/98): `band_lo_hi` pins `lo == 0` at i == 0 and
+        `hi == E` at i == G by construction, so the trivial start and end
+        cells always sit on an edge whether or not the band was too narrow
+        anywhere real. Only an INTERIOR traceback cell (0 < i < G) sitting at
+        its row's lo/hi is a genuine signal that the optimal path wanted to
+        go further and the band should widen. Returns ``None`` when no
+        finite path reaches the end cell (caller decides how to react).
+        """
+        end = (G, E)
+        layer_costs = {
+            "M": M[end[0]].get(end[1], INF),
+            "Ig": Ig[end[0]].get(end[1], INF),
+            "Ie": Ie[end[0]].get(end[1], INF),
+        }
+        layer = min(layer_costs, key=layer_costs.get)
+        total_cost = layer_costs[layer]
+        if total_cost == INF:
+            return None
+
+        pairs: list[tuple[int, int]] = []
+        skip_g_marks: list[int] = []
+        skip_e_marks: list[int] = []
+        touched_edge = False
+        i, j = end
+        cur = layer
+        while (i, j) != (0, 0):
+            if 0 < i < G:
+                lo_i, hi_i = lohi[i]
+                if j == lo_i or j == hi_i:
                     touched_edge = True
-        return M, Ig, Ie, lohi, touched_edge
+            if cur == "M":
+                pairs.append((i - 1, j - 1))
+                base_candidates = {
+                    "M": M[i - 1].get(j - 1, INF),
+                    "Ig": Ig[i - 1].get(j - 1, INF),
+                    "Ie": Ie[i - 1].get(j - 1, INF),
+                }
+                cur = min(base_candidates, key=base_candidates.get)
+                i, j = i - 1, j - 1
+            elif cur == "Ig":
+                skip_g_marks.append(i - 1)
+                same_line = (
+                    i >= 2
+                    and greek[i - 1].line_key is not None
+                    and greek[i - 1].line_key == greek[i - 2].line_key
+                )
+                m_prev = M[i - 1].get(j, INF)
+                ie_prev = Ie[i - 1].get(j, INF)
+                ig_prev = Ig[i - 1].get(j, INF)
+                if same_line:
+                    cand = {
+                        "M": m_prev + weights.ext_g_same_line if m_prev < INF else INF,
+                        "Ie": ie_prev + weights.ext_g_same_line if ie_prev < INF else INF,
+                        "Ig": ig_prev + weights.ext_g_same_line if ig_prev < INF else INF,
+                    }
+                else:
+                    cand = {
+                        "M": m_prev + weights.open_g if m_prev < INF else INF,
+                        "Ie": ie_prev + weights.open_g if ie_prev < INF else INF,
+                        "Ig": ig_prev + weights.ext_g if ig_prev < INF else INF,
+                    }
+                cur = min(cand, key=cand.get)
+                i = i - 1
+            else:  # Ie
+                skip_e_marks.append(j - 1)
+                m_prev = M[i].get(j - 1, INF)
+                ig_prev = Ig[i].get(j - 1, INF)
+                ie_prev = Ie[i].get(j - 1, INF)
+                cohere = (
+                    0 < i < G
+                    and greek[i - 1].line_key is not None
+                    and greek[i - 1].line_key == greek[i].line_key
+                )
+                open_cost = min(
+                    m_prev + weights.open_e if m_prev < INF else INF,
+                    ig_prev + weights.open_e if ig_prev < INF else INF,
+                )
+                if cohere:
+                    open_cost_display = open_cost + weights.w_cohere
+                else:
+                    open_cost_display = open_cost
+                extend_cost = ie_prev + weights.ext_e if ie_prev < INF else INF
+                cand = {"open": open_cost_display, "extend": extend_cost}
+                choice = min(cand, key=cand.get)
+                if choice == "extend":
+                    cur = "Ie"
+                else:
+                    cur = min(
+                        {"M": m_prev, "Ig": ig_prev},
+                        key=lambda k: {"M": m_prev, "Ig": ig_prev}[k],
+                    )
+                j = j - 1
 
-    M, Ig, Ie, lohi, touched_edge = run(W)
+        pairs.reverse()
+        skip_g_marks.sort()
+        skip_e_marks.sort()
+
+        greek_skip_runs: list[tuple[int, int]] = []
+        for idx in skip_g_marks:
+            if greek_skip_runs and greek_skip_runs[-1][1] == idx:
+                greek_skip_runs[-1] = (greek_skip_runs[-1][0], idx + 1)
+            else:
+                greek_skip_runs.append((idx, idx + 1))
+
+        return pairs, greek_skip_runs, skip_e_marks, total_cost, touched_edge
+
     widened = False
-    if band and touched_edge:
-        M, Ig, Ie, lohi, _ = run(2 * W)
-        widened = True
-    if not band:
-        # Unbanded: recompute with a band wide enough to cover everything.
-        M, Ig, Ie, lohi, _ = run(max(G, E) + 1)
+    if band:
+        M, Ig, Ie, lohi = run(W)
+        solved = solve(M, Ig, Ie, lohi)
+        if solved is None or solved[4]:
+            # No path at all, or the path leaned on the band edge somewhere
+            # interior to the region: widen once and re-solve (P4). A
+            # missing path at W is itself the strongest widen signal, so it
+            # is treated the same as an interior edge touch.
+            M2, Ig2, Ie2, lohi2 = run(2 * W)
+            solved2 = solve(M2, Ig2, Ie2, lohi2)
+            widened = True
+            if solved2 is not None:
+                M, Ig, Ie, lohi, solved = M2, Ig2, Ie2, lohi2, solved2
+    else:
+        # Unbanded: a band wide enough to cover everything, no widen report.
+        M, Ig, Ie, lohi = run(max(G, E) + 1)
+        solved = solve(M, Ig, Ie, lohi)
 
-    end = (G, E)
-    layer_costs = {
-        "M": M[end[0]].get(end[1], INF),
-        "Ig": Ig[end[0]].get(end[1], INF),
-        "Ie": Ie[end[0]].get(end[1], INF),
-    }
-    layer = min(layer_costs, key=layer_costs.get)
-    total_cost = layer_costs[layer]
-    if total_cost == INF:
-        # No path found even unbanded (should not happen for finite costs);
-        # fall back to skip-everything.
+    if solved is None:
+        # No path found even at the widest band tried (should not happen for
+        # finite costs); fall back to skip-everything.
         fallback_cost = weights.open_g + max(0, G - 1) * weights.ext_g
         fallback_cost += weights.open_e + max(0, E - 1) * weights.ext_e
         return [], [(0, G)], list(range(E)), {}, widened, fallback_cost
 
-    # Traceback.
-    pairs: list[tuple[int, int]] = []
-    skip_g_marks: list[int] = []
-    skip_e_marks: list[int] = []
-    i, j = end
-    cur = layer
-    while (i, j) != (0, 0):
-        if cur == "M":
-            pairs.append((i - 1, j - 1))
-            base_candidates = {
-                "M": M[i - 1].get(j - 1, INF),
-                "Ig": Ig[i - 1].get(j - 1, INF),
-                "Ie": Ie[i - 1].get(j - 1, INF),
-            }
-            cur = min(base_candidates, key=base_candidates.get)
-            i, j = i - 1, j - 1
-        elif cur == "Ig":
-            skip_g_marks.append(i - 1)
-            same_line = (
-                i >= 2
-                and greek[i - 1].line_key is not None
-                and greek[i - 1].line_key == greek[i - 2].line_key
-            )
-            m_prev = M[i - 1].get(j, INF)
-            ie_prev = Ie[i - 1].get(j, INF)
-            ig_prev = Ig[i - 1].get(j, INF)
-            if same_line:
-                cand = {
-                    "M": m_prev + weights.ext_g_same_line if m_prev < INF else INF,
-                    "Ie": ie_prev + weights.ext_g_same_line if ie_prev < INF else INF,
-                    "Ig": ig_prev + weights.ext_g_same_line if ig_prev < INF else INF,
-                }
-            else:
-                cand = {
-                    "M": m_prev + weights.open_g if m_prev < INF else INF,
-                    "Ie": ie_prev + weights.open_g if ie_prev < INF else INF,
-                    "Ig": ig_prev + weights.ext_g if ig_prev < INF else INF,
-                }
-            cur = min(cand, key=cand.get)
-            i = i - 1
-        else:  # Ie
-            skip_e_marks.append(j - 1)
-            m_prev = M[i].get(j - 1, INF)
-            ig_prev = Ig[i].get(j - 1, INF)
-            ie_prev = Ie[i].get(j - 1, INF)
-            cohere = (
-                0 < i < G
-                and greek[i - 1].line_key is not None
-                and greek[i - 1].line_key == greek[i].line_key
-            )
-            open_cost = min(
-                m_prev + weights.open_e if m_prev < INF else INF,
-                ig_prev + weights.open_e if ig_prev < INF else INF,
-            )
-            if cohere:
-                open_cost_display = open_cost + weights.w_cohere
-            else:
-                open_cost_display = open_cost
-            extend_cost = ie_prev + weights.ext_e if ie_prev < INF else INF
-            cand = {"open": open_cost_display, "extend": extend_cost}
-            choice = min(cand, key=cand.get)
-            if choice == "extend":
-                cur = "Ie"
-            else:
-                cur = min(
-                    {"M": m_prev, "Ig": ig_prev},
-                    key=lambda k: {"M": m_prev, "Ig": ig_prev}[k],
-                )
-            j = j - 1
-
-    pairs.reverse()
-    skip_g_marks.sort()
-    skip_e_marks.sort()
-
-    # Coalesce Greek skip marks into half-open runs.
-    greek_skip_runs: list[tuple[int, int]] = []
-    for idx in skip_g_marks:
-        if greek_skip_runs and greek_skip_runs[-1][1] == idx:
-            greek_skip_runs[-1] = (greek_skip_runs[-1][0], idx + 1)
-        else:
-            greek_skip_runs.append((idx, idx + 1))
+    pairs, greek_skip_runs, skip_e_marks, total_cost, _touched_edge = solved
 
     # Margins: for each matched pair, how much cheaper the chosen match is
     # than the best DIFFERENTLY-NAMED candidate in that row (or skipping the
