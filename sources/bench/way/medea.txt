@@ -14,7 +14,7 @@ Nor that the axe-hewn pine in Pelion’s glens
 Ever had fallen, nor filled with oars the hands
 Of hero-princes, who at Pelias’ hest
 Quested the Golden Fleece! My mistress then,
-Medea, ne’er had sailed to Jolcos’ towers
+Medea, ne’er had sailed to Iolcos’ towers
 With love for Jason thrilled through all her soul,
 Nor had on Pelias’ daughters wrought to slay"
 Their sire, nor now in this Corinthian land
@@ -120,7 +120,6 @@ For late I saw her glare, as glares a bull,
 On these, as ’twere for mischief; nor her wrath,
 I know, shall cease, until its lightning strike.
 To foes may she work ill, and not to friends !
-wo ae
 
 MEDEA. O hapless I! O miseries heaped on mine head!
 Ah me! ah me! would God I were dead !
@@ -192,7 +191,7 @@ ending, an ending,
 The life that I loathe, and behind me might cast
 all its burden of pain !
 
-CHORUS. O Zeus, Earth, Light, did ye hear her, (Sir.)
+CHORUS. O Zeus, Earth, Light, did ye hear her, (Str.)
 How waileth the woe-laden breath
 Of the bride in unhappiest plight ?
 What yearning for vanished delight,
@@ -250,7 +249,7 @@ He should err not, who named the old singers in
 singing
 Not cunning, but left-handed. bards, for their lays |
 Did they frame for the mirth-tide, the festal in-’
-bringi “
+bringing
 Of the wine, and the feast, when the harp-strings are
 ringing |
 To sweeten with melody life’s sweet days.
@@ -394,7 +393,7 @@ And all the less I trust thee than before.
 The vehement-hearted woman—yea, or man—
 Is easier watched-for than the silent-cunning.
 Nay, forth with all speed: plead me pleadings none ;
-For this is stablished: no dévice hast thou
+For this is stablished: no device hast thou
 To bide with us, who art a foe to me.
 
 MEDEA. Nay,—by thy knees, and by the bride, thy child!
@@ -496,7 +495,7 @@ Above all, and for fellow-worker chose,
 Hecate, dweller by mine hearth’s dark shrine,
 None, none shall vex my soul, and rue it not.
 Bitter and woeful bridal will I give them,
-Bitter troth-plight and banishing οὗ...
+Bitter troth-plight and banishing of me.
 Up then !—spare naught of all thy sorcery-lore,
 Medea, of thy plotting and contriving ;
 On to the dread deed! Now is need of daring.
@@ -527,7 +526,7 @@ Of Phoebus, the Harper-king, of the inspirationiver ! ringing
 Else had I lifted my voice in challenge of song high Unto men: for the roll of the ages shall find for
 the poet-sages | (their singing.
 Proud woman-themes for their pages, heroines worthy
-|
+(Str. 2)
 But thou from the ancient home didst sail over
 leagues of foam, [sawest dispart,
 On-sped by a frenzied heart, and the sea-gates
@@ -631,7 +630,7 @@ JASON. Needs must I be not ill at speech, meseems,
 But, like the careful helmsman of a ship,
 With close-reefed canvas run before the gale,
 Woman, of thy tempestuous-railing tongue.
-]—for thy kindness tower-high thou pilest—
+I—for thy kindness tower-high thou pilest—
 Deem Cypris saviour of my voyaging,
 Her, and none other or of Gods or men.
 Thou art subtle of wit—nay, but ungenerous
@@ -760,7 +759,7 @@ Thine shall be bridal thou wouldst fain renounce.
 CHORUS.
 Love bringeth nor honour nor profit to men when it
 cometh restraining [raining
-Not its unsecanted excess: but if Cypris, in measure
+Not its unscanted excess: but if Cypris, in measure
 Her joy, cometh down, there is none other
 Goddess so winsome as she.
 Not upon me, O Queen, do thou aim from thy bow
@@ -1098,7 +1097,7 @@ Now then I praise thee : wise thou seem’st to me
 In gaining us this kinship, senseless I,
 Who in these counsels should have been thine
 ally,
-Have farthered all, have decked the bridal couch,
+Have furthered all, have decked the bridal couch,
 And joyed to minister unto the bride.
 But we are—women : needs not harsher word.
 Yet shouldst thou not for evil render evil,
@@ -1240,9 +1239,16 @@ Thy babes, to avenge thee on him who would
 lawlessly wed with another,
 Would forsake thee to dwell with a
 prince’s daughter,
+Mistress, remission for thy sons of exile !
+Thy gifts the princess-bride with joy received
+In hand ; and there is peace unto thy sons.
+Ha !
+Why dost thou stand confounded mid good hap ?
+Now wherefore turnest thou thy face away,
+And dost not hear with gladness this my speech ?
 Woe's me!
 
-CHILDREN'S GUARDIAN. This ery is to the tidings not attuned.
+CHILDREN'S GUARDIAN. This cry is to the tidings not attuned.
 
 MEDEA. Woe yet again!
 
@@ -1382,7 +1388,7 @@ lawless,
 Flee, O Medea, flee, nor once leave thou
 The sea-wain, or the car that scours the plain.
 
-MEDEA. Now what hath happed that calleth for such b flight ?
+MEDEA. Now what hath happed that calleth for such flight ?
 
 MESSENGER. Dead is the princess even now, and dead
 Creon her father, by thy poison-drugs.
@@ -1474,7 +1480,7 @@ The corpse: her hideous fate had we for warning.
 But, ignorant of all, her wretched sire,
 Suddenly entering, falls upon her corpse,
 And. straightway wailed and clasped the body round,
-And kissed it, crying, “Ὁ my hapless child,
+And kissed it, crying, “O my hapless child,
 What God thus horribly hath thee destroyed ?
 Who maketh this old sepulchre bereft
 Of thee? Ah me, would I might die with thee!”
@@ -1731,7 +1737,8 @@ Caitiff forsworn, who betrayest the guest?
 
 JASON. Avaunt, foul thing by whose deed thy children have
 died !
-MEDEA.
+
+MEDEA. Go hence to thine halls, thence lead to the grave
 thy bride !
 
 JASON. I go, a father forlorn of the two sons reft from his

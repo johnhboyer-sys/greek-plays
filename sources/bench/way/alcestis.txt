@@ -133,9 +133,6 @@ Alcestis looketh, and liveth the Queen,
 The daughter of Pelias, noblest, I ween—
 Yea, in all men’s sight
 Most leal to her lord of all wives hath she been.
-Arl
-LA x 4 2 93 ?
-, 3 > A / ’
 
 HALF-CHORUS. Or hearest thou mourning or sighing
 Or beating of hands,
@@ -262,6 +259,29 @@ Plucking the while the tresses of the myrtle,
 Tearless, unsighing, and the imminent fate
 Changed not the lovely rose-tint of her cheek.
 Then to her bower she rushed, fell on the bed ;
+And there, O there she wept, and thus she speaks:
+“O couch, whereon I loosed the maiden zone
+For this man, for whose sake I die to-day,
+Farewell: I hate thee not. Me hast thou slain,
+Me only: loth to fail thee and my lord
+I die; but thee another bride shall own,
+Not more true-hearted; happier perchance.”
+Then falls thereon, and kisses: all the bed
+Is watered with the flood of melting eyes.
+But having wept her fill of many tears,
+Drooping she goeth, reeling from the couch;
+Yet oft, as forth the bower she passed, returned,
+And flung herself again upon the bed.
+And the babes, clinging to their mother’s robes,
+Were weeping; and she clasped them in her arms,
+Fondling now this, now that, as one death-doomed.
+And all the servants ’neath the roof were weeping,
+Pitying their lady. But to each she stretched
+Her right hand forth; and none there was so mean
+To whom she spake not and received reply.
+Such are the ills Admetus’ home within.
+Now, had he died, he had ended; but, in ’scaping,
+He bears a pain that he shall ne’er forget.
 
 CHORUS. Doth not Admetus groan for this affliction
 Of such a noble wife to be bereft ?
@@ -418,7 +438,7 @@ Wed not a stepdame to supplant our babes,
 Whose heart shall tell her she is no Alcestis,
 Whose jealous hand shall smite them, “thine and
 mine.
-Do not, ah, do not t this—I pray thee, I!
+Do not, ah, do not this—I pray thee, I!
 For the new stepdame hateth still the babes
 Of her that’s gone with more than viper-venom.
 The boy—his father is his tower of strength
@@ -1059,7 +1079,7 @@ SERVANT. All this we know: but now are we in plight
 Not meet for laughter and for revelry. .
 
 HERCULES. The woman dead is alien-born : grieve not
-Exceeding much. Yét live the household’s lords.
+Exceeding much. Yet live the household’s lords.
 
 SERVANT. Live, quotha !—know’st thou not the house’s ills?
 
@@ -1156,7 +1176,7 @@ To mine eyes nothing sweet
 Is the light of the heaven,
 Nor the earth to my feet ;
 Such a helpmeet is riven .
-By Death from my side, and my darling t to Hades
+By Death from my side, and my darling to Hades
 the spoiler hath given.
 
 CHORUS. Pass on thou, and hide thee — (Str.
@@ -1166,7 +1186,8 @@ ADMETUS. Ah woe !
 CHORUS.
 Wail the griefs that betide thee :
 How canst thou but so?
-‘ ADMETUS O God!
+
+ADMETUS. O God!
 
 CHORUS. Thou hast passed through deep waters
 of anguish—I know it, I know.
@@ -1499,8 +1520,6 @@ HERCULES. Yet thy friend’s victory is surely thine.
 ADMETUS. Well said: yet let the woman hence depart.
 
 HERCULES. Yea—if need be. First look well—need it be?
-καὺ 09) TPOTELVG@, 1 OPYOV WS KAPATOMOV.
-HPAKAH®
 
 ADMETUS. Needs must—save thou wilt else be wroth with me.
 
@@ -1529,7 +1548,7 @@ HERCULES. Be strong : stretch forth thine hand and touch thy
 
 ADMETUS. I do, as one who doth behead a Gorgon.
 
-HERCULES. Hast her? so
+HERCULES. Hast her?
 
 ADMETUS. I have.
 
