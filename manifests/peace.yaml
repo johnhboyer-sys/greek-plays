@@ -28,8 +28,13 @@ english:
     # Item 6: Greek speeches whose English sits inside the neighbouring
     # speech (the reader shows 'Translated with the speech above').
     covered:
-      - { greek: "251", by: "250" }
-      - { greek: "252", by: "250" }
+      # Round 3 (turn-pairing-round3-2026-09-15.md, P5): 250 and 251 no longer
+      # anchor the "Oh, Sicily!" block under the DP -- 1:252's own chunk now
+      # carries all three lines ("Oh, Sicily! you too must perish!" = 250,
+      # "Your wretched towns shall be grated like this cheese" = 251, "Now
+      # let us pour some Attic honey into the mortar" = 252's own line).
+      - { greek: "250", by: "252" }
+      - { greek: "251", by: "252" }
       - { greek: "258", by: "257" }
       - { greek: "894", by: "883" }
       - { greek: "1019", by: "987" }
@@ -38,14 +43,22 @@ english:
       - { greek: "443", by: "449" }
       - { greek: "444", by: "450" }
       - { greek: "446", by: "450" }
-      - { greek: "513", by: "512" }
-      - { greek: "514", by: "512" }
-      - { greek: "516", by: "512" }
+      # Round 3: the "heave-ho" chant (Chorus/Hermes hauling the statue) --
+      # 1:517's chunk ("Come then, come, and all together! Hah! hah! ...")
+      # now carries 512-516; the DP moved the anchor from 512 to 517.
+      - { greek: "512", by: "517" }
+      - { greek: "513", by: "517" }
+      - { greek: "514", by: "517" }
+      - { greek: "516", by: "517" }
       - { greek: "541", by: "545" }
       - { greek: "449", by: "447" }
       - { greek: "452", by: "447" }
       - { greek: "453", by: "447" }
       - { greek: "549", by: "548" }
+      # Round 3: Trygaeus's "I grant you this much, so as not to trouble you
+      # further" (1:333) is the 1912 text's "Come, I grant you that, but
+      # pray, annoy me no further" -- attached under 1:337 by the DP.
+      - { greek: "333", by: "337" }
     # Item 6 splits: the 1912 text runs these speeches together where the
     # Greek changes speaker; the tail becomes its own speech under the label.
     splits:

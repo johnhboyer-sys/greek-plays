@@ -34,6 +34,14 @@ english:
       - { greek: "777", by: "778" }
       - { greek: "1225", by: "1228" }
       - { greek: "1295", by: "1279" }
+      # Round 3 (turn-pairing-round3-2026-09-15.md, P5): Lysistrata's "would
+      # not the women have done best to come?" (1:54) sits inside 1:56's
+      # combined chunk, which also carries Calonice's reply and the rest of
+      # the exchange.
+      - { greek: "54", by: "56" }
+      # Round 3: Myrrhine's flatfish oath ("though I must be split in two
+      # like a flat-fish...", 1:115) is the third turn inside 1:107's chunk.
+      - { greek: "115", by: "107" }
     pins:
       - { greek: "97", english: "I will tell you. But first answer me one question.", run: 1 }
       - { greek: "102", english: "Mine has been the last five months in Thrace", run: 1 }

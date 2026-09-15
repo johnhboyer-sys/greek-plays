@@ -42,6 +42,14 @@ english:
       - { greek: "781", english: "You talk rubbish!", run: 1 }
       - { greek: "783", english: "You are merely beating the air. Begone!", run: 1 }
       - { greek: "784", english: "Why not? Oh! Socrates! in the name of the gods!", run: 1 }
+    # Round 3 (turn-pairing-round3-2026-09-15.md, P5): Greek speeches whose
+    # English sits inside the neighbouring speech (the reader shows
+    # 'Translated with the speech above'). Phidippides' "and indeed you
+    # probably won't be upset, having suffered what you've now suffered"
+    # (1:1441) is the 1912 text's "But you will certainly feel no more anger
+    # because of the blows I have given you", attached under 1:1440.
+    covered:
+      - { greek: "1441", by: "1440" }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
