@@ -75,15 +75,26 @@ class EnglishNode:
 @dataclass(frozen=True)
 class Weights:
     open_g: float = 1.60
-    ext_g: float = 0.25
+    # P3 (turn-pairing-round3-2026-09-15.md): the extension rates are priced
+    # PER EVENT, not swept. Three inequalities the design's own cases
+    # require -- the lane may move the numbers but must keep all three:
+    #   1. open_e < w_spk            -- a single surplus English turn is
+    #      skipped, not cross-matched (design 5.4, Frogs 57-87).
+    #   2. n*w_spk < open_g + open_e + (n-1)*(ext_g + ext_e), n>=3 -- a run
+    #      of label disagreements is matched-with-flags, not tunnelled
+    #      through a parallel two-sided gap (defect 4).
+    #   3. w_bridge < open_g          -- P2, the bridge is a tie-breaker only.
+    ext_g: float = 0.55
     ext_g_same_line: float = 0.05
     open_e: float = 2.20
-    ext_e: float = 0.90
+    ext_e: float = 2.20
     w_cohere: float = 1.20
-    w_spk: float = 4.0
+    w_spk: float = 3.0
     w_len: float = 0.45
     w_pos: float = 0.60
-    w_bridge: float = 2.5
+    # P2: a tie-breaker, not a bonus that can buy a hole or a cross-name
+    # match on its own -- the invariant is w_bridge < open_g.
+    w_bridge: float = 0.8
     w_anch: float = 0.0  # off by default (design 3.2: cut first if it doesn't help)
     covered_length_threshold: float = 0.7  # L at which a SKIP_G run after a
     # MATCH is emitted as derived_covered ("the English is long for its Greek")
