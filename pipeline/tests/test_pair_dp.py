@@ -253,3 +253,20 @@ def test_continuation_node_does_not_take_its_speakers_next_english():
 
     assert (1, 1) in result.pairs  # the named node keeps its own English
     assert all(gi != 2 for gi, _ej in result.pairs)  # the continuation does not
+
+
+def test_disagreeing_run_of_twelve_is_matched_not_tunnelled():
+    """Round 4, P2 (the Agamemnon 1348-1371 shape: twelve separate Elders
+    against twelve Chorus speeches in Morshead). Round 3's inequality 2 held
+    only at n=3; its asymptotic form (`w_spk < ext_g + ext_e`) must hold at
+    any length, so a run this long is matched pair by pair, not swallowed by
+    a cheaper parallel two-sided gap."""
+    greek = [GreekNode(name=f"Elder{i}", chars=60) for i in range(12)]
+    english = [EnglishNode(name="Chorus", chars=60) for _ in range(12)]
+
+    result = align(greek, english, pins=[])
+
+    assert len(result.pairs) == 12
+    pairs = dict(result.pairs)
+    for gi in range(12):
+        assert pairs[gi] == gi

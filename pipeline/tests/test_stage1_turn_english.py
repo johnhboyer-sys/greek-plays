@@ -2202,8 +2202,7 @@ def test_greek_segment_name_is_the_first_lines_start_speaker(tmp_path):
     # `_pair_turns` is deleted (turn-pairing-design-2026-09-15); the DP
     # replaces it, and the outcome is the same: the packed segment is TWO
     # pairing slots, so the Herald's English pairs with the Herald's own
-    # share instead of borrowing Ismene's slot, and an English speech naming
-    # a third character pairs with neither.
+    # share instead of borrowing Ismene's slot.
     from drama_pipeline.pair_dp import EnglishNode, GreekNode, align
 
     greek_nodes = [
@@ -2216,8 +2215,14 @@ def test_greek_segment_name_is_the_first_lines_start_speaker(tmp_path):
         pins=[],
     )
     assert result.pairs == [(0, 0), (1, 1)]
+    # Round 4 (turn-pairing-round4-2026-09-15.md, P2): `w_spk` dropped so a
+    # disagreeing run is matched-with-flags at every length, not tunnelled,
+    # which now includes this two-node one. An English speech naming a third
+    # character is cheaper matched (and flagged as crossed) than skipping
+    # both Greek shares outright, so it lands on the node closest to it in
+    # length and position rather than pairing with neither.
     result2 = align(greek_nodes, [EnglishNode(name="Antigone", chars=10)], pins=[])
-    assert result2.pairs == []
+    assert result2.pairs == [(0, 0)]
 
 
 def _one_liner(tmp_path, source: str, spine: dict, sigla: dict, aliases: dict):

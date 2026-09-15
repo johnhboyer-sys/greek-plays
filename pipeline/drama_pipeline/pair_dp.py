@@ -83,25 +83,32 @@ class EnglishNode:
 @dataclass(frozen=True)
 class Weights:
     open_g: float = 1.60
-    # P3 (turn-pairing-round3-2026-09-15.md): the extension rates are priced
-    # PER EVENT, not swept. Three inequalities the design's own cases
-    # require -- the lane may move the numbers but must keep all three:
-    #   1. open_e < w_spk            -- a single surplus English turn is
+    # P2 (turn-pairing-round4-2026-09-15.md): the extension rates are priced
+    # PER EVENT, not swept. Round 3's inequality 2 was checked at n=3 and
+    # fails asymptotically (n -> infinity gives w_spk < ext_g + ext_e, not
+    # the n=3 statement); round 4 replaces it with the asymptotic form. Four
+    # inequalities the design's own cases require -- the lane may move the
+    # numbers but must keep all four:
+    #   1. open_e < w_spk             -- a single surplus English turn is
     #      skipped, not cross-matched (design 5.4, Frogs 57-87).
-    #   2. n*w_spk < open_g + open_e + (n-1)*(ext_g + ext_e), n>=3 -- a run
-    #      of label disagreements is matched-with-flags, not tunnelled
-    #      through a parallel two-sided gap (defect 4).
-    #   3. w_bridge < open_g          -- P2, the bridge is a tie-breaker only.
+    #   2. w_spk < ext_g + ext_e      -- a run of label disagreements is
+    #      matched-with-flags at EVERY length, not tunnelled through a
+    #      parallel two-sided gap (round4 defect 2: 2.50 < 2.75).
+    #   3. w_bridge < open_g          -- round 3's P2, the bridge is a
+    #      tie-breaker only.
+    #   4. ext_g < w_spk              -- a one-sided Greek hole (a lost Loeb
+    #      page) stays far cheaper than carrying a cross-name offset.
     ext_g: float = 0.55
     ext_g_same_line: float = 0.05
     open_e: float = 2.20
     ext_e: float = 2.20
     w_cohere: float = 1.20
-    w_spk: float = 3.0
+    # P2: 2.5, not 3.0 -- see the inequalities above.
+    w_spk: float = 2.5
     w_len: float = 0.45
     w_pos: float = 0.60
-    # P2: a tie-breaker, not a bonus that can buy a hole or a cross-name
-    # match on its own -- the invariant is w_bridge < open_g.
+    # P2 (round 3): a tie-breaker, not a bonus that can buy a hole or a
+    # cross-name match on its own -- the invariant is w_bridge < open_g.
     w_bridge: float = 0.8
     w_anch: float = 0.0  # off by default (design 3.2: cut first if it doesn't help)
     # P1 (turn-pairing-round4-2026-09-15.md, defect 1): charged in
