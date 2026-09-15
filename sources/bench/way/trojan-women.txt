@@ -310,7 +310,7 @@ A handmaid, a bondwoman ?—woe is me!
 
 TALTHYBIUS. Nay, but his concubine in secret love.
 
-HECUBA. How ?—Phoebus’ maiden, whose guerdon-graee
+HECUBA. How ?—Phoebus’ maiden, whose guerdon-grace
 Of the Golden-haired was virgin days !
 
 TALTHYBIUS. That maiden inspiration winged love’s shaft.
@@ -804,7 +804,7 @@ But better death than life in bitterness.
 No pain feels death, which hath no sense of ills:
 But who hath prospered, and hath fallen on woe,
 Forlorn of soul strays far from olden bliss.
-Thy panes as though she ne’er had looked on
+Thy child as though she ne’er had looked on
 Tis
 Is dead, and nothing knoweth of her ills
 But I, who drew my bow at fair repute,
@@ -1220,6 +1220,40 @@ flood
 With torrent waste : Menelaus’ halls sufficed
 Not thee for all thine insolence of pomp.
 And my son, say’st thou, haled thee thence by force !
+What son of Sparta heard? What rescue-cry
+Didst thou upraise, though Castor, yet a youth,
+Lived, and his brother, starward rapt not yet?
+And when to Troy thou cam’st, and on thy track
+The Argives, and the strife of raining spears,
+If tidings of his prowess came to thee,
+Menelaus wouldst thou praise, to vex my son
+Who in his love such mighty rival had:
+But, if the Trojans prospered, naught was he.
+Still watching fortune’s flight, ’twas aye thy wont
+To follow her—not virtue’s path for thee!
+And thou forsooth wouldst steal thy liberty,
+By cords let down from towers, as loth to stay!
+Where wast thou found with noose about thy neck,
+Or whetting steel, as a true-hearted wife
+Had done for yearning for her spouse of old?
+Yet many a time and oft I counselled thee:—
+“Daughter, go forth from Troy: my sons shall wed
+New brides; and thee to the Achaean ships
+Will I send secretly: so stay the war
+’Twixt Greece and us.” But this was gall to thee.
+For thou didst flaunt in Alexander’s halls,
+Didst covet Asia’s reverent courtesies—
+Proud state for thee! And yet hast thou come forth
+Costly arrayed, looked on the selfsame sky
+As thy wronged spouse. O wanton all-abhorred,
+Who oughtest, abject, and with garments rent,
+Quaking with fear, with shaven head to have come,
+Having regard to modesty, above
+Bold shamelessness, for thy transgressions past!
+Menelaus,—so to sum my mine argument,—
+Crown Greece, by slaying, as beseemeth thee,
+Yon woman: so ordain to all her sisters
+This law—the traitress to her lord shall die.
 
 CHORUS. Prince, worthily of thy fathers and thine house
 Punish her: show thee unto foes unflinching.
@@ -1376,6 +1410,35 @@ Upreared by Loxias, from thine head have shorn
 The curls that oft thy mother softly smoothed
 And kissed, wherefrom through shattered bones forth
 “- ghastliness I cannot speak !
+O hands, how sweet the likeness to your sire
+Ye keep!—limp in your sockets now ye lie.
+Dear lips, that babbled many a child-boast once,
+Ye are dead! ’Twas false, when, bounding to my bed,
+“Mother,” thou saidst, “full many a curl I’ll shear
+For thee, and troops of friends unto thy tomb
+Will lead, to cry the loving last farewell.”
+Not I of thee, but thou, the young, of me,—
+Old, homeless, childless,—wretched corpse, art buried.
+Ah me, the kisses, and my nursing-cares,
+Thy love-watched slumbers,—gone! What word, ah what,
+Shall bard inscribe of thee upon thy tomb?
+“This child the Argives murdered in time past,
+Dreading him”—an inscription shaming Greece!
+Yet thou, of thy sire’s wealth though nought thou hast,
+Shalt in thy burial have his brazen targe.
+Ah shield that keptest Hector’s goodly arm
+Safe, thine heroic warder hast thou lost!
+How dear his imprint on thine handle lies!
+Dear stains of sweat upon thy shapely rim,
+Which oft mid battle’s toil would Hector drip
+Down from his brow, as to his beard he pressed thee!
+Come, bring ye adorning for the hapless corse
+Of that ye have: our fortune gives no place
+For rich array: mine all shalt thou receive.
+A fool is he, who, in prosperity
+Secure, rejoices: fortune, in her moods,
+Like some wild maniac, hither now, now thither,
+Leaps, and none prospers ever without change.
 
 CHORUS. Lo, ready to thine hand, from spoils of Troy,
 They bring adornings on the dead to lay.
@@ -1446,7 +1509,7 @@ O thou who wert born to exceeding bliss,
 Thou hero’s son,
 What awful death for thy dying was this !
 What ho! what ho!
-Whom see I on I[lium’s tower-crowned wall,
+Whom see I on Ilium’s tower-crowned wall,
 And the tossing torches fierily glow
 In the hands of them ?—some new evil, I trow,
 Shall on Troy-town fall.
@@ -1491,8 +1554,8 @@ CHORUS. He hath seen: yet is Troy, the stately city,
 A city no more, destroyed without pity.
 
 HECUBA. Woe is me, woe, and a threefold woe! (Ant, 1)
-llios is blazing, the ramparts of Pergamus crashing
-Down, with the homes of our city, mid flames farflashing
+Ilios is blazing, the ramparts of Pergamus crashing
+Down, with the homes of our city, mid flames far-flashing
 Over their ruins, a furnace-glow '
 
 CHORUS. With its wide-winged blackness the heaven’s face
@@ -1511,7 +1574,7 @@ And mine hands, and mine hands on the
 earth are beating !
 
 CHORUS. Earthward my knee, as I follow thee, bows,
-As I ery to the dweller in Hades’ House,
+As I cry to the dweller in Hades’ House,
 To mine hapless spouse.
 
 HECUBA. I am haled—I am borne—
@@ -1534,7 +1597,7 @@ CHORUS. Woe !—wail the refrain '[9]
 HECUBA. The death-flame, the spear, in your midst have
 dominion,—
 
-CHORUS. Swift-falling to earth your memoria] shall vanish,—
+CHORUS. Swift-falling to earth your memorial shall vanish,—
 
 HECUBA. And the dust, o’er the welkin wide-stretching its
 pinion, [banish,
