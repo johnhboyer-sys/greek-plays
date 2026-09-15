@@ -74,6 +74,30 @@ def _sbert_matrix(refs: list[str], tgts: list[str], model: str) -> list[list[flo
     return util.cos_sim(rv, tv).cpu().tolist()
 
 
+class BandedCosine:
+    """TF-IDF vectors built once over both sides, with a cheap pairwise
+    ``cos(i, j)`` lookup -- for a caller (the turn-pairing DP's bridge term,
+    ``pair_dp.py``) that only ever asks for a handful of cells per row and
+    would otherwise pay for the full ``refs`` x ``tgts`` matrix it never
+    reads. Additive: ``cos_matrix`` and its ``align_turns.py`` caller are
+    unchanged."""
+
+    def __init__(self, refs: list[str], tgts: list[str]):
+        vecs = _tfidf_vectors([_tokens(t) for t in refs] + [_tokens(t) for t in tgts])
+        self._refs = vecs[: len(refs)]
+        self._tgts = vecs[len(refs):]
+
+    def cos(self, i: int, j: int) -> float:
+        if not (0 <= i < len(self._refs)) or not (0 <= j < len(self._tgts)):
+            return 0.0
+        return _cos(self._refs[i], self._tgts[j])
+
+
+def banded_cosine(refs: list[str], tgts: list[str]) -> BandedCosine:
+    """Build the once-computed vectors for a ``BandedCosine`` lookup."""
+    return BandedCosine(refs, tgts)
+
+
 def cos_matrix(refs: list[str], tgts: list[str], backend: str = "lexical") -> list[list[float]]:
     """Cosine-similarity matrix, refs (rows) x tgts (cols).
 

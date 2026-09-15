@@ -33,6 +33,7 @@ from statistics import median
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
 from .stage1_common import collapse_ws, write_json
 from .stage1_english import build_alignment
+from . import pair_dp
 from . import turns as turns_mod
 
 
@@ -58,6 +59,11 @@ _SINGLE_CAP = re.compile(r"[A-ZÀ-Þ]")
 # Canonical name for a speech whose printed label is OCR junk: it must never
 # equal a Greek roster name, and must not be None (a pairing wildcard).
 _OCR_JUNK = "\x00ocr-junk"
+# A matched pair's DP margin (its cost's lead over the best alternative match
+# in its row) below this is "low confidence" -- a reviewer's cue, not a gate
+# on its own (turn-pairing design 2026-09-15, section 3.4). Chosen as roughly
+# one `w_spk` mismatch's worth of headroom; not swept against the corpus.
+_LOW_CONFIDENCE_MARGIN = 1.0
 _NOTE_START = re.compile(r"^\[(\d+)\]\s*(.*)$")
 _FN_MARK = re.compile(r"\[(\d+)\]")
 _PG_END = re.compile(r"^\*\*\*\s*END OF|End of the Project Gutenberg")
@@ -730,93 +736,6 @@ def _rewrite_footnotes(
     return _FN_MARK.sub(repl, text), seq
 
 
-def _pair_turns(
-    greek_names: list[str | None],
-    english_names: list[str | None],
-    crossed: dict[int, str | None] | None = None,
-    forced: list[tuple[int, int]] | None = None,
-) -> list[tuple[int, int]]:
-    """Anchors via LCS of named turns, then zip equal-length name-agreeing gaps.
-
-    ``greek_names`` is one entry per Greek speaker SHARE (P3.4,
-    ``_greek_event_slots``), so a name here is a single speaker and a pair is
-    exact-name. The alternative-name escape the segment-level pairing needed
-    (P2h finding 9: a gap turn agreeing with any share of a packed line) is
-    gone with the packing it worked around.
-
-    Item 6 (John, 2026-09-09: a real slip is never a one-off): an equal-length
-    gap whose sides are all NAMED but do not all agree is zipped too — both
-    editions print the same number of speeches between the same two anchors,
-    so they correspond by position, and the translator merely gave one to a
-    different character (Birds 223–224: Coulon's Euelpides, the 1912 text's
-    Pisthetaerus; the old rule left the Greek bare and parked the English on
-    Pisthetaerus' next line).  Each disagreeing pair is recorded in
-    ``crossed`` (English index -> the Greek slot's speaker) so the emitted
-    turn carries the same ``speakerMismatch`` a parked residual would.  A
-    gap with an unnamed slot on either side is still never zipped.
-
-    ``forced`` are manifest pins (``english.<slot>.pins``, resolved by
-    ``_resolve_pins``): (slot, speech) pairs that hold whatever the names say.
-    The LCS then runs separately inside each region between them, so a pin
-    re-anchors everything around it — the cure for an exchange where the
-    translator swapped two characters' names and name-matching set every
-    speech one late (Birds 223–226)."""
-
-    def agrees(i: int, j: int) -> bool:
-        # P3.5 finding 2: `turns._names_match` treats None as a WILDCARD, so an
-        # unnamed slot (a speakerless lyric continuation) matched any named
-        # English speech in an equal-length gap zip — a pair the LCS and the
-        # residual walk both refuse. A pair needs two real, equal names.
-        g, e = greek_names[i], english_names[j]
-        return g is not None and e is not None and g == e
-
-    pinned = sorted(forced or [])
-    for (agi, aej), (bgi, bej) in zip(pinned, pinned[1:]):
-        if bgi <= agi or bej <= aej:
-            raise ValueError(f"pins must run forward in both texts: {(agi, aej)} then {(bgi, bej)}")
-    anchors: list[tuple[int, int]] = list(pinned)
-    if crossed is not None:
-        for gi, ej in pinned:
-            if not agrees(gi, ej):
-                crossed[ej] = greek_names[gi]
-    regions = [(-1, -1)] + pinned + [(len(greek_names), len(english_names))]
-    for (agi, aej), (bgi, bej) in zip(regions, regions[1:]):
-        g_named = [i for i in range(agi + 1, bgi) if greek_names[i] is not None]
-        e_named = [j for j in range(aej + 1, bej) if english_names[j] is not None]
-        anchors.extend(
-            (g_named[x], e_named[y])
-            for x, y in turns_mod._lcs_pairs(
-                [greek_names[i] for i in g_named],
-                [english_names[j] for j in e_named],
-            )
-        )
-    anchors.sort()
-    pairs = list(anchors)
-    bounds = [(-1, -1)] + anchors + [(len(greek_names), len(english_names))]
-    for (agi, aej), (bgi, bej) in zip(bounds, bounds[1:]):
-        sub_g = list(range(agi + 1, bgi))
-        sub_e = list(range(aej + 1, bej))
-        if not (sub_g and sub_e and len(sub_g) == len(sub_e)):
-            continue
-        if all(agrees(i, j) for i, j in zip(sub_g, sub_e)):
-            pairs.extend(zip(sub_g, sub_e))
-        elif all(greek_names[i] is not None for i in sub_g) and all(
-            english_names[j] is not None and english_names[j] != _OCR_JUNK for j in sub_e
-        ):
-            for i, j in zip(sub_g, sub_e):
-                pairs.append((i, j))
-                if crossed is not None and not agrees(i, j):
-                    crossed[j] = greek_names[i]
-    pairs.sort()
-    out: list[tuple[int, int]] = []
-    last_e = -1
-    for gi, ej in pairs:
-        if ej > last_e:
-            out.append((gi, ej))
-            last_e = ej
-    return out
-
-
 def _greek_segment_name(segment: dict, sigla: dict) -> str | None:
     """The segment's speaker for pairing: the speaker of its FIRST line at
     offset 0 (the line-level rule), not merely its first speaker event — a
@@ -875,6 +794,50 @@ def _greek_event_slots(segments: list[dict], sigla) -> list[dict]:
                 {"segment": gi, "line": line, "offset": offset, "name": name}
             )
     return slots
+
+
+def _greek_slot_spans(segments: list[dict], slots: list[dict]) -> list[tuple[int, str]]:
+    """``(chars, text)`` of each pairing slot's OWN Greek span (turn-pairing
+    design 2026-09-15, section 3.2, term L): for a segment with k shares, the
+    k-th share's span runs from its own (line, offset) to the next share's,
+    or the end of the segment for the last share -- not the whole segment's
+    text for every share, which would flatten a long antilabe line's actual
+    length against a short one."""
+    by_segment: dict[int, list[int]] = {}
+    for idx, slot in enumerate(slots):
+        by_segment.setdefault(slot["segment"], []).append(idx)
+    out: list[tuple[int, str]] = [(0, "")] * len(slots)
+    for gi, segment in enumerate(segments):
+        idxs = by_segment.get(gi) or []
+        if not idxs:
+            continue
+        lines = segment.get("lines") or segment.get("greek") or []
+        starts: dict[int, int] = {}
+        pieces: list[str] = []
+        total = 0
+        for line in lines:
+            if not isinstance(line, dict):
+                continue
+            n = line.get("n")
+            text = str(line.get("text") or "")
+            if n is not None:
+                starts[n] = total
+            pieces.append(text)
+            total += len(text)
+        whole = "".join(pieces)
+        if len(idxs) == 1:
+            out[idxs[0]] = (total, whole)
+            continue
+        positions = [
+            starts.get(slots[idx]["line"], 0) + int(slots[idx].get("offset") or 0)
+            for idx in idxs
+        ]
+        for k, idx in enumerate(idxs):
+            start = positions[k]
+            end = positions[k + 1] if k + 1 < len(idxs) else total
+            end = max(start, end)
+            out[idx] = (end - start, whole[start:end])
+    return out
 
 
 def _segment_speaks(segment: dict, sigla) -> set[str]:
@@ -1570,13 +1533,45 @@ def parse_translation(
     slot_names = [slot["name"] for slot in slots]
     seg_names = [_greek_segment_name(seg, sigla) for seg in segments]
     seg_speaks = [_segment_speaks(seg, sigla) for seg in segments]
+    slot_refs = _slot_refs(segments, slots)
+    slot_spans = _greek_slot_spans(segments, slots)
     # No alt names in the pairing itself: a slot IS one share, so a pair is
     # exact-name by construction. The segment's whole name set rides into
     # `_assign_speeches` instead, where it is the clean-park test (P3.3).
     crossed: dict[int, str | None] = {}
     pin_notes: list[str] = []
-    forced = _resolve_pins(pins or [], slots, _slot_refs(segments, slots), speeches, work_id, pin_notes)
-    pairs = _pair_turns(slot_names, e_names, crossed=crossed, forced=forced)
+    forced = _resolve_pins(pins or [], slots, slot_refs, speeches, work_id, pin_notes)
+
+    # Turn pairing is a global banded affine alignment (design
+    # build/review/turn-pairing-design-2026-09-15.md section 3), not a
+    # name-LCS: `pair_dp.align` replaces the deleted `_pair_turns`. Pins are
+    # unchanged hard constraints; the DP still runs independently between
+    # consecutive ones (section 3.3).
+    greek_nodes = [
+        pair_dp.GreekNode(
+            name=slot_names[k],
+            chars=slot_spans[k][0],
+            line_key=(slot["segment"], slot["line"]),
+            text=slot_spans[k][1],
+        )
+        for k, slot in enumerate(slots)
+    ]
+    english_nodes = [
+        pair_dp.EnglishNode(
+            name=e_names[j], chars=len(speeches[j]["text"]), text=speeches[j]["text"]
+        )
+        for j in range(len(speeches))
+    ]
+    dp_result = pair_dp.align(greek_nodes, english_nodes, pins=forced)
+    pairs = dp_result.pairs
+    for gi, ej in pairs:
+        if (
+            slot_names[gi] is not None
+            and e_names[ej] is not None
+            and slot_names[gi] != e_names[ej]
+        ):
+            crossed[ej] = slot_names[gi]
+
     (
         assigned,
         residual_grouped,
@@ -1782,6 +1777,21 @@ def parse_translation(
     seg_named = sum(1 for name in seg_names if name is not None)
     seg_paired_named = sum(1 for gi in paired_segments if seg_names[gi] is not None)
     total_segments = len(segments)
+
+    # The DP's own derived-covered runs (a SKIP_G run right after a MATCH
+    # whose English is long for its Greek) merge into the manifest's
+    # declared `covered`, which wins on conflict (design 3.5's `covered`
+    # sibling, `englishCoveredBy` on the existing reader contract).
+    derived_covered_by_segment: dict[str, str] = {}
+    for gi, cover_gi in dp_result.derived_covered.items():
+        seg_id = segments[slots[gi]["segment"]]["id"]
+        cover_seg_id = segments[slots[cover_gi]["segment"]]["id"]
+        if seg_id == cover_seg_id or seg_id in chunk_ids:
+            continue
+        derived_covered_by_segment.setdefault(seg_id, cover_seg_id)
+    manifest_covered = _resolve_covered(covered or [], segments, work_id)
+    merged_covered = {**derived_covered_by_segment, **manifest_covered}
+
     english = {
         "work": work_id,
         "source": path.name,
@@ -1789,14 +1799,41 @@ def parse_translation(
         "chunks": chunks,
         "chapters": [],
         # Item 6 (2026-09-09): a Greek speech whose English sits inside the
-        # speech attached to a neighbour, declared in the manifest; the
-        # reader shows "Translated with the speech above" (stage7 reads it).
-        "english_covered_by": _owning_covered(
-            _resolve_covered(covered or [], segments, work_id),
-            chunk_ids,
-            work_id,
-        ),
+        # speech attached to a neighbour, declared in the manifest or
+        # derived by the DP; the reader shows "Translated with the speech
+        # above" (stage7 reads it).
+        "english_covered_by": _owning_covered(merged_covered, chunk_ids, work_id),
     }
+
+    # Turn-pairing design 2026-09-15 section 7: report numbers the old
+    # positional pairer had no term for -- displacement (`greek_skip_runs`,
+    # `align_cost`) and confidence (`low_confidence_*`, from the DP's own
+    # per-pair `margin`) -- plus the antilabe split section 2(c) requires.
+    greek_skip_runs = []
+    for lo, hi in dp_result.greek_skips:
+        covered_run = all(gi in dp_result.derived_covered for gi in range(lo, hi))
+        greek_skip_runs.append(
+            {
+                "start_ref": slot_refs[lo] if lo < len(slot_refs) else None,
+                "end_ref": slot_refs[hi - 1] if hi - 1 < len(slot_refs) else None,
+                "events": hi - lo,
+                "covered": covered_run,
+            }
+        )
+    low_confidence_pairs = sum(
+        1 for m in dp_result.margins.values() if m < _LOW_CONFIDENCE_MARGIN
+    )
+    seg_share_counts: dict[int, int] = {}
+    for slot in slots:
+        seg_share_counts[slot["segment"]] = seg_share_counts.get(slot["segment"], 0) + 1
+    packed_segment_ids = {
+        segments[gi]["id"] for gi, count in seg_share_counts.items() if count > 1
+    }
+    turn_shift_count_packed = sum(
+        1 for ts in turn_shifts if ts["greek_id"] in packed_segment_ids
+    )
+    turn_shift_count_unpacked = len(turn_shifts) - turn_shift_count_packed
+
     report = {
         "work": work_id,
         "translation": translation_id,
@@ -1827,6 +1864,15 @@ def parse_translation(
         "turn_shift_rate": turn_shift_rate,
         "turn_shift_new_drifts": turn_shift_new_drifts,
         "turn_shift_rate_cumulative": turn_shift_rate_cumulative,
+        "turn_shift_count_packed": turn_shift_count_packed,
+        "turn_shift_count_unpacked": turn_shift_count_unpacked,
+        "align_cost": dp_result.cost,
+        "greek_skip_runs": greek_skip_runs,
+        "english_skip_count": len(dp_result.english_skips),
+        "derived_covered_count": len(dp_result.derived_covered),
+        "band_widened": dp_result.band_widened,
+        "low_confidence_pairs": low_confidence_pairs,
+        "low_confidence_rate": (low_confidence_pairs / len(pairs)) if pairs else 0.0,
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,
