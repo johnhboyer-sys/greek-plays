@@ -2077,6 +2077,20 @@ def test_speaker_full_stop_needs_a_space_or_end_of_line():
     assert marked.group("fn3") == "412"
 
 
+def test_speaker_line_accepts_a_digit_led_continuation_word():
+    """Ajax's Storr text prints "SEMI-CHORUS 1." for the search-scene
+    semichorus (storr/ajax.txt:977, `Πόνος πόνῳ πόνον φέρει`); the
+    continuation branch required its next token to start [A-ZÀ-Þ], so the
+    digit broke the name, the required "." never landed, and the whole
+    semichorus scene glued onto Ajax's suicide speech (ajax finding #5,
+    2026-09-15)."""
+    from drama_pipeline.stage1_turn_english import _SPEAKER_LINE
+
+    m = _SPEAKER_LINE.match("SEMI-CHORUS 1. Toil, toil, and toil on toil !")
+    assert m is not None
+    assert m.group("name") == "SEMI-CHORUS 1"
+
+
 @pytest.mark.parametrize(
     "work, line_no, junk",
     [("oedipus-tyrannus", 904, "WOU. 4, F"), ("electra-soph", 1706, "VQL. I. R")],

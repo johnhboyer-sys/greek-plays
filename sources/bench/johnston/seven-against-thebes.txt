@@ -1582,7 +1582,7 @@ Now you lie dead.
 ISMENE
 You did the killing.
 
-Antigone
+ANTIGONE
 Alas!
 
 ISMENE

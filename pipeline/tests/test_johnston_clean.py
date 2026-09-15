@@ -269,6 +269,74 @@ def test_cue_labels_the_parser_cannot_read_are_respelled():
     ]
 
 
+def test_a_title_case_return_cue_is_recognised_when_already_seen():
+    # Persians and Seven Against Thebes print a later return cue in title
+    # case ("Xerxes", "Chorus", "Antigone") instead of full capitals; _CUE
+    # required full capitals, so the bare line collapsed into the speech
+    # above it and printed as verse inside the wrong speaker's turn
+    # (persians findings #2/#3, 2026-09-15).
+    out = convert(
+        _page(
+            "<p>CHORUS<br>Away unto the Grecian land.</p>"
+            "<p>XERXES<br>Woe is me.</p>"
+            "<p>Chorus<br>So small a remnant from so many!</p>"
+        ),
+        "PLAY",
+    )
+    assert _speeches(out.text) == [
+        ("CHORUS", "Away unto the Grecian land."),
+        ("XERXES", "Woe is me."),
+        ("CHORUS", "So small a remnant from so many!"),
+    ]
+
+
+def test_a_title_case_line_that_is_no_cue_yet_stays_verse():
+    # The guard for the fix above: a one-word line of verse that happens to
+    # start with a capital letter (every English sentence does) must not be
+    # mistaken for a return cue just because it is title case. Only a name
+    # already spoken in full capitals earlier in the play qualifies.
+    out = convert(_page("<p>WATCHMAN<br>Zero.</p>"), "PLAY")
+    assert _speeches(out.text) == [("WATCHMAN", "Zero.")]
+
+
+def test_a_colon_punctuated_cue_is_recognised():
+    # Frogs and Ajax print some Johnston cues with a trailing colon instead
+    # of the cue standing alone on its line ("CHORUS:", "AESCHYLUS:",
+    # "AESCHYLUS and EURIPIDES: [...]"); _CUE required the name to be the
+    # whole line with nothing after it, so these speeches folded into the
+    # one above and the Greek they render showed an empty column (frogs
+    # finding #2, ajax finding #6, 2026-09-15).
+    out = convert(
+        _page(
+            "<p>DIONYSUS<br>Come here, then.</p>"
+            "<p>CHORUS:<br>Clever men like these take pains.</p>"
+            "<p>AESCHYLUS and EURIPIDES: <i>[each one holding a scale pan]</i><br>"
+            "We are ready.</p>"
+        ),
+        "PLAY",
+    )
+    speeches = _parsed(out.text)
+    assert [(s["speaker_printed"], s["text"]) for s in speeches] == [
+        ("DIONYSUS", "Come here, then."),
+        ("CHORUS", "Clever men like these take pains."),
+        ("AESCHYLUS AND EURIPIDES", "We are ready."),
+    ]
+    assert "_[each one holding a scale pan]_" in speeches[2]["shown"]
+
+
+def test_a_digit_named_cue_with_a_colon_is_recognised():
+    # Ajax's Johnston text prints "CHORAL GROUP 2 LEADER:" in the search
+    # scene: a cue that already carries a digit also failed once a trailing
+    # colon was added (ajax finding #6, 2026-09-15).
+    out = convert(
+        _page("<p>CHORAL GROUP 2 LEADER:<br>We've searched everywhere.</p>"),
+        "PLAY",
+    )
+    assert _speeches(out.text) == [
+        ("CHORAL GROUP TWO LEADER", "We've searched everywhere.")
+    ]
+
+
 def test_output_has_title_line_and_speaker_count():
     out = convert(_page("<p>CASSANDRA<br>Otototoi.</p>"), "AGAMEMNON")
     assert out.text.splitlines()[0] == "AGAMEMNON"

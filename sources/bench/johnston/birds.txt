@@ -34,7 +34,7 @@ EUELPIDES
 You mean from here
 you couldn’t make it back to your place?
 
-PISTHETAIROS:
+PISTHETAIROS
 No way—not even Execestides
 could manage that.
 
@@ -275,7 +275,8 @@ It flew off on its own.
 EUELPIDES
 You didn’t let go? What a valiant man!
 
-TEREUS: [from inside, speaking in a grand style]
+TEREUS
+_[from inside, speaking in a grand style]_
 Throw open this wood, so I may issue forth.
 
 _[The doors open. Enter Tereus, a hoopoe bird, with feathers on his head and wings but none on his body. He struts and speaks with a ridiculously affected confidence. Euelpides and Pisthetairos are greatly amused at his appearance]_
@@ -1067,7 +1068,8 @@ _[producing a couple of tin bowls]_
 An upturned bowl.
 Set this on your head.
 
-EUELPIDES: [putting the tin bowl upside down on his head and holding up the pot, with the spit stuck in the ground]
+EUELPIDES
+_[putting the tin bowl upside down on his head and holding up the pot, with the spit stuck in the ground]_
 That’s brilliant!
 What a grand stroke of warlike strategy!
 In military matters you’re the best—
@@ -2710,7 +2712,8 @@ COMMISSIONER
 I’ll ruin you! I’ll take you to court—
 ten thousand drachmas you’ll . . .
 
-PISTHETAIROS: [turning and chasing the Commissioner off stage]
+PISTHETAIROS
+_[turning and chasing the Commissioner off stage]_
 And I’ll throw out those voting urns of yours!
 
 STATUTE SELLER
@@ -3629,7 +3632,7 @@ Let’s gather up these wings and go inside.
 
 _[Pisthetairos and the two slaves carry the baskets of wings back into the house]_
 
-CHORUS:
+CHORUS
 When we fly
 we often spy
 strange amazing spots—

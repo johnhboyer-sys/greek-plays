@@ -56,7 +56,16 @@ _SKIP = frozenset({"script", "style", "head", "title", "sup"})
 _GREEK_NUMBER = re.compile(r"\[\s*\d{1,4}[a-z]?\s*\]")
 _END_NUMBER = re.compile(r"(?:^|\s)\d{1,4}[a-z]?$")
 _CUE = re.compile(
-    r"^([A-Z][A-Z0-9'’\-]*(?:\s+(?:and\s+)?[A-Z0-9][A-Z0-9'’\-]*)*)\s*(\[.*)?$"
+    r"^([A-Z][A-Z0-9'’\-]*(?:\s+(?:and\s+)?[A-Z0-9][A-Z0-9'’\-]*)*)[:.]?\s*(\[.*)?$"
+)
+# A title-case return cue ("Xerxes", "Chorus"): same shape as `_CUE` but each
+# word may carry lowercase letters after its capital. Only tried when `_CUE`
+# fails, and only trusted (see `_cue`) when the name was already spoken in
+# full capitals earlier in the same play -- otherwise an ordinary one-word
+# line of verse ("Enough.") would be misread as a return cue, since every
+# English sentence starts with a capital letter too.
+_CUE_LOOSE = re.compile(
+    r"^([A-Za-z][A-Za-z0-9'’\-]*(?:\s+(?:and\s+)?[A-Za-z0-9][A-Za-z0-9'’\-]*)*)[:.]?\s*(\[.*)?$"
 )
 _CAST_ENTRY = re.compile(r"^[^a-z:,]{2,}[:,]")
 _END = frozenset({"ENDNOTES", "NOTES", "FOOTNOTES", "EPILOGUE"})
@@ -151,9 +160,26 @@ def _strip_numbers(line: str) -> tuple[str, int]:
     return line, n
 
 
-def _cue(line: str) -> tuple[str, str] | None:
-    """``(cue, rest)`` for a speaker line; the rest opens a stage direction."""
-    match = _CUE.match(line.rstrip(" |"))  # Agamemnon prints "WATCHMAN |"
+def _cue(
+    line: str, known: set[str] | None = None, para_initial: bool = False
+) -> tuple[str, str, bool] | None:
+    """``(cue, rest, loose)`` for a speaker line; ``rest`` opens a stage
+    direction and ``loose`` marks a title-case match the caller must not
+    trust unless real speech follows it (see ``convert``).
+
+    ``known`` is the set of cues already spoken (in full capitals) earlier in
+    this same play, and ``para_initial`` says whether ``line`` opens its own
+    ``<p>``: together they are what let a later title-case return cue
+    ("Xerxes", "Chorus") through ``_CUE_LOOSE`` without also swallowing a
+    character's own name where it ends someone else's sentence mid-paragraph
+    ("Menelaus" in Orestes, "Danaus." in Suppliant Women) or an ordinary
+    one-word line of verse -- so a loose match needs both, and the caller
+    must also check ``is_speech`` before trusting it."""
+    stripped = line.rstrip(" |")  # Agamemnon prints "WATCHMAN |"
+    match = _CUE.match(stripped)
+    loose = match is None
+    if loose:
+        match = _CUE_LOOSE.match(stripped)
     if not match or sum(ch.isalpha() for ch in match.group(1)) < 2:
         return None
     words = match.group(1).upper().split()  # "HIPPOLYTUS and ATTENDANTS"
@@ -168,9 +194,11 @@ def _cue(line: str) -> tuple[str, str] | None:
             joined.append(word)
     words = joined
     cue = " ".join(words)
+    if loose and (not para_initial or cue not in (known or ())):
+        return None
     if _lindsay_speaker(cue) != cue:
         raise ValueError(f"speaker cue {line!r} cannot be written as a verse-own-line cue")
-    return cue, (match.group(2) or "")
+    return cue, (match.group(2) or ""), loose
 
 
 def _is_end(line: str) -> bool:
@@ -213,17 +241,45 @@ def convert(raw_html: str, title: str) -> Converted:
     if not heads:
         raise ValueError("no Dramatis Personae heading")
 
+    # Cues already spoken in full capitals, in document order -- what lets a
+    # later title-case return cue ("Xerxes", "Chorus") through `_cue` without
+    # also swallowing an ordinary one-word line of verse.
+    known_cues: set[str] = set()
+
+    def is_para_initial(k: int) -> bool:
+        # `lines[k]` opens its `<p>` when nothing but paragraph-boundary
+        # `None`s and empty flush artifacts ("") separate it from the last
+        # real content -- a `<p>` open/close pair around a genuine speech
+        # break shows up as `[..., None, "", None, ...]` in `lines`. A name
+        # that merely ends the previous speaker's sentence ("Menelaus" in
+        # Orestes, "Danaus." in Suppliant Women) sits mid-paragraph instead,
+        # a plain `<br>` away from real text, and fails this check.
+        for prev in reversed(lines[:k]):
+            if prev is None:
+                return True
+            if prev:
+                return False
+        return True
+
     def is_speech(k: int) -> bool:
         # The next printed line after a cue, directions, scene notes and
         # cast-list entries ("AEACUS: a gatekeeper") skipped, is verse.
-        for line in lines[k + 1 :]:
+        for j in range(k + 1, len(lines)):
+            line = lines[j]
             if not line or line.startswith(("[", "Scene")) or _CAST_ENTRY.match(line):
                 continue
-            return _cue(line) is None and any(ch.islower() for ch in line)
+            return (
+                _cue(line, known_cues, is_para_initial(j)) is None
+                and any(ch.islower() for ch in line)
+            )
         return False
 
     start = next(
-        (k for k in range(heads[0] + 1, len(lines)) if lines[k] and _cue(lines[k]) and is_speech(k)),
+        (
+            k
+            for k in range(heads[0] + 1, len(lines))
+            if lines[k] and _cue(lines[k], known_cues, is_para_initial(k)) and is_speech(k)
+        ),
         None,
     )
     if start is None:
@@ -277,8 +333,9 @@ def convert(raw_html: str, title: str) -> Converted:
             continue
         if k < start:
             continue  # the cast list and scene notes
-        cue = _cue(line)
-        if cue:
+        cue = _cue(line, known_cues, is_para_initial(k))
+        if cue and (not cue[2] or is_speech(k)):
+            known_cues.add(cue[0])
             items.append(("cue", cue[0]))
             if cue[1]:
                 direction = []

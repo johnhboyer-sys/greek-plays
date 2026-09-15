@@ -39,7 +39,7 @@ from . import turns as turns_mod
 _DRAMATIS_HEADS = ("DRAMATIS PERSONAE", "The Persons of the drama.")
 _ROMAN_NUMERAL = re.compile(r"[IVXLC]+")
 _SPEAKER_LINE = re.compile(
-    r"^(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ0-9'’\-]*(?:[ ,]+(?:AND[ ,]+)?[A-ZÀ-Þ][A-ZÀ-Þ0-9'’\-]*)*)"
+    r"^(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ0-9'’\-]*(?:[ ,]+(?:AND[ ,]+)?[A-ZÀ-Þ0-9][A-ZÀ-Þ0-9'’\-]*)*)"
     r"(?:\[(?P<fn1>\d+)\])?"
     r"(?:\s+(?P<stage>\([^)]*\)))?"
     r"(?:\[(?P<fn2>\d+)\])?"

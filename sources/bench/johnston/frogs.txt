@@ -1594,7 +1594,7 @@ On those conditions I accept your oath.
 
 _[Xanthias and Dionysus exchange the lion skin and club once again]_
 
-CHORUS:
+CHORUS
 Since you’ve taken up the skin,
 the one you had before,
 your task is now to start again,
@@ -2249,7 +2249,7 @@ _[to the attendants]_
 Hey, boys, bring out a sheep—a black one, too.
 It looks as if a storm’s about to break.
 
-AESCHYLUS:
+AESCHYLUS
 . . . collecting all those monodies from Crete,
 
 importing impure marriage into art . . .
@@ -3447,7 +3447,7 @@ DIONYSUS
 Come here, then, if I have to do this—
 treating poets just like cheese for sale.
 
-CHORUS:
+CHORUS
 Clever men like these take pains,
 for here’s a marvel once again.
 Devices new and strange they bring.
@@ -3466,7 +3466,8 @@ DIONYSUS
 Now, each of you grab hold and don’t let go
 until I yell at you—I’ll say “Cuckoo!”
 
-AESCHYLUS and EURIPIDES: [each one holding a scale pan]
+AESCHYLUS AND EURIPIDES
+_[each one holding a scale pan]_
 We’re holding on.
 
 DIONYSUS

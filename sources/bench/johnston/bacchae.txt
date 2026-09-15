@@ -1907,7 +1907,8 @@ DIONYSUS
 
 You’ll be carried back . . .
 
-PENTHEUS: [interrupting]
+PENTHEUS
+_[interrupting]_
 
 You’re pampering me!
 
@@ -2909,7 +2910,7 @@ AGAVE
 Lord Dionysus has inflicted
 such brutal terror on your house.
 
-DIONYSUS:
+DIONYSUS
 
 Yes. For at your hands I suffered, too—
 and dreadfully. For here in Thebes
