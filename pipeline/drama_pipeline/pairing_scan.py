@@ -64,6 +64,14 @@ _NEW_COLUMNS = [
     "speaker_mismatch_pairs",
     "bare_events",
     "length_outlier_pairs",
+    # P4 (turn-pairing-round4-2026-09-15.md): the two inflated numbers,
+    # reported honestly. `unreadable_cue_pairs` is the OCR-junk share of
+    # `crossed_pairs` that `speaker_mismatch_pairs` above now excludes;
+    # `placed_events` is `paired + derived_covered_count`, read beside
+    # `turn_shift_new_drifts` (§1.4: the drift count measures how much MORE
+    # English got placed, not displacement).
+    "unreadable_cue_pairs",
+    "placed_events",
 ]
 _HEADER = ["play", "slot", "translation_id", *_REPORT_COLUMNS, *_NEW_COLUMNS, "play_wall_clock_s"]
 
@@ -149,6 +157,8 @@ def scan(work_ids: list[str] | None = None) -> list[list[str]]:
                     if report.get("length_outlier_pairs") is not None
                     else report.get("length_ratio_outlier_count")
                 ))
+                row.append(_fmt(report.get("unreadable_cue_pairs")))
+                row.append(_fmt(report.get("placed_events")))
             row.append(f"{elapsed:.3f}")
             rows.append(row)
     if failures:

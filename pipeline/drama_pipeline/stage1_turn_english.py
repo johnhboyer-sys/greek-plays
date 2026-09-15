@@ -1661,6 +1661,14 @@ def parse_translation(
     bridge_texts = _primary_bridge_texts(segments, slots, primary_bridge)
     dp_result = pair_dp.align(greek_nodes, english_nodes, pins=forced, bridge=bridge_texts)
     pairs = dp_result.pairs
+    # P4 (turn-pairing-round4-2026-09-15.md): `crossed`'s own membership --
+    # and everything it feeds below (`turn_shifts`'s flagging, `crossed_pairs`)
+    # -- is UNCHANGED. `unreadable_cue_pairs` is a second, finer count read
+    # off the same loop: a pair whose English name is the OCR-junk sentinel
+    # is not a genuine speaker disagreement (design 3.2: `S = 0.35` for
+    # `_OCR_JUNK`, not 1.0), so `speaker_mismatch_pairs` below reports only
+    # the pairs that are neither -- both sides named and genuinely different.
+    unreadable_cue_pairs: dict[int, str | None] = {}
     for gi, ej in pairs:
         if (
             slot_names[gi] is not None
@@ -1668,6 +1676,8 @@ def parse_translation(
             and slot_names[gi] != e_names[ej]
         ):
             crossed[ej] = slot_names[gi]
+            if e_names[ej] == _OCR_JUNK:
+                unreadable_cue_pairs[ej] = slot_names[gi]
 
     (
         assigned,
@@ -1977,7 +1987,11 @@ def parse_translation(
         "residual_grouped": residual_grouped,
         "residual_flagged": len(residual_flags),
         "crossed_pairs": len(crossed),
-        "speaker_mismatch_pairs": len(crossed),
+        # P4: genuine disagreements only -- `crossed` minus the OCR-junk
+        # cues, which the acceptance table (round4 brief §3) reads instead
+        # of the old, instrument-inflated `crossed_pairs` count.
+        "speaker_mismatch_pairs": len(crossed) - len(unreadable_cue_pairs),
+        "unreadable_cue_pairs": len(unreadable_cue_pairs),
         "bare_events": bare_events,
         "stale_covered": stale_covered,
         "pinned_pairs": len(forced),
@@ -2002,6 +2016,10 @@ def parse_translation(
         "turn_shift_count": len(turn_shifts),
         "turn_shift_rate": turn_shift_rate,
         "turn_shift_new_drifts": turn_shift_new_drifts,
+        # P4: placement, beside the ordinal drift count -- `turn_shift_new_
+        # drifts` measures how much MORE English got placed, not displacement
+        # (round4 brief §1.4), and is only read that way alongside this.
+        "placed_events": len(pairs) + len(derived_covered_by_segment),
         "turn_shift_rate_cumulative": turn_shift_rate_cumulative,
         "turn_shift_count_packed": turn_shift_count_packed,
         "turn_shift_count_unpacked": turn_shift_count_unpacked,
