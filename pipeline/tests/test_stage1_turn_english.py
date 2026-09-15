@@ -3164,10 +3164,20 @@ def test_bacchae_murray_second_messenger_pins_keep_the_death_report_on_its_own_l
     assert "We climbed beyond" not in with_pins["1:1153"][0]["text"]
     assert "Weave ye the dance" in with_pins["1:1153"][0]["text"]
 
-    # Reproduce the regression directly: the same build, minus the two pins.
-    broken = _bacchae_murray_chunks([])
-    assert "We climbed beyond the utmost habitings" in broken["1:1153"][0]["text"]
-    assert "1:1043" not in broken or "We climbed beyond" not in broken["1:1043"][0]["text"]
+    # Round 3 (turn-pairing-round3-2026-09-15.md, P1): the pins are no longer
+    # load-bearing for this shape. `pair_dp` now inherits the preceding named
+    # speaker onto a speakerless continuation slot before matching it
+    # (defect 1's fix), so the second messenger's death report lands on its
+    # own line even with the pins removed -- the regression this assertion
+    # used to reproduce ("minus the two pins") no longer reproduces, because
+    # the fix is in the alignment itself, not only in the manifest's pins.
+    # Rule 5's inherited discipline: a test asserting a bug's reproduction is
+    # a claim about the deleted defect, not a reader outcome, and it is
+    # replaced here with the outcome the pins and the fix both now agree on.
+    unpinned = _bacchae_murray_chunks([])
+    assert "We climbed beyond the utmost habitings" in unpinned["1:1043"][0]["text"]
+    assert "Weave ye the dance" in unpinned["1:1153"][0]["text"]
+    assert "We climbed beyond" not in unpinned["1:1153"][0]["text"]
 def test_loeb_ocr_roman_numeral_heading_is_not_a_speaker():
     text = "\n".join([
         "HERACLES",
