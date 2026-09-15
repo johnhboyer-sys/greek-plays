@@ -1639,6 +1639,11 @@ def parse_translation(
             chars=slot_spans[k][0],
             line_key=(slot["segment"], slot["line"]),
             text=slot_spans[k][1],
+            # P1 (turn-pairing-round4-2026-09-15.md): this node's name came
+            # from the PRECEDING named slot, not its own speaker event --
+            # `_match_cost` charges `w_cont` so it loses a tie against that
+            # speaker's own next named node.
+            inherited=(slot_names[k] is None and dp_names[k] is not None),
         )
         for k, slot in enumerate(slots)
     ]

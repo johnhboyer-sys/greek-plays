@@ -226,3 +226,30 @@ def test_antilabe_merge_reduced_extend_cost():
     assert match_cost < w.open_g  # the whole alignment is cheaper than one
     # ordinary opened skip would have been on its own, proving the reduced
     # rate (not the standard affine open) was charged.
+
+
+def test_continuation_node_does_not_take_its_speakers_next_english():
+    """Round 4 (turn-pairing-round4-2026-09-15.md, P1, defect 1). A
+    continuation node (`inherited=True`, the caller's `dp_names` name)
+    sitting between two named nodes of the same speaker must not out-bid the
+    later NAMED node for the English that starts there, even when the
+    continuation is closer in length -- the shape of Kosmos' Chorus
+    continuations absorbing English meant for the named node that follows
+    (libation-bearers, third). Without `w_cont` the DP prefers the
+    continuation here; with it, the named node wins."""
+    greek = [
+        GreekNode(name="Chorus", chars=200),
+        GreekNode(name="Chorus", chars=5),  # the named node the English is for
+        GreekNode(name="Chorus", chars=60, inherited=True),  # the continuation
+        GreekNode(name="Chorus", chars=200),
+    ]
+    english = [
+        EnglishNode(name="Chorus", chars=2000),
+        EnglishNode(name="Chorus", chars=300),
+        EnglishNode(name="Chorus", chars=2000),
+    ]
+
+    result = align(greek, english, pins=[])
+
+    assert (1, 1) in result.pairs  # the named node keeps its own English
+    assert all(gi != 2 for gi, _ej in result.pairs)  # the continuation does not

@@ -61,6 +61,14 @@ class GreekNode:
     # are always adjacent indices, per `_greek_event_slots`); None if unknown.
     line_key: object = None
     text: str = ""  # only used by the (off-by-default) transliteration term
+    # P1 (turn-pairing-round4-2026-09-15.md, defect 1): True when this node's
+    # `name` was INHERITED from the preceding named slot by the caller
+    # (`stage1_turn_english.run()`'s `dp_names`), not read off its own
+    # speaker event. Charged `weights.w_cont` in `_match_cost` so a
+    # continuation, otherwise tied with the named node of the same speaker
+    # that follows it, loses the tie -- without making it dearer than a
+    # cross-name match (`w_cont` stays well below `w_spk`).
+    inherited: bool = False
 
 
 @dataclass(frozen=True)
@@ -96,6 +104,13 @@ class Weights:
     # match on its own -- the invariant is w_bridge < open_g.
     w_bridge: float = 0.8
     w_anch: float = 0.0  # off by default (design 3.2: cut first if it doesn't help)
+    # P1 (turn-pairing-round4-2026-09-15.md, defect 1): charged in
+    # `_match_cost` when the GREEK node is `inherited` (a continuation, not
+    # its own speaker event). Must exceed the typical length/position
+    # difference between adjacent nodes (measured 0.02-0.30) and stay well
+    # below `w_spk`, so a continuation never becomes dearer than a
+    # cross-name match.
+    w_cont: float = 0.80
     covered_length_threshold: float = 0.7  # L at which a SKIP_G run after a
     # MATCH is emitted as derived_covered ("the English is long for its Greek")
 
@@ -129,6 +144,8 @@ def _match_cost(
     length_term = min(max(abs(math.log(max(length_ratio, 1e-9))), 0.0), 3.0)
     pos_term = min(2.0 * abs((ei / E if E else 0.0) - (gi / G if G else 0.0)), 1.0)
     cost = weights.w_spk * s + weights.w_len * length_term + weights.w_pos * pos_term
+    if g.inherited:
+        cost += weights.w_cont
     if weights.w_bridge and bridge_cos:
         cost -= weights.w_bridge * bridge_cos
     if weights.w_anch:
