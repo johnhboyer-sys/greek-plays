@@ -118,6 +118,10 @@ speakers:
     "KILISSA": "Nurse"
     "AEGISTHUS": "Aegisthus"
     "VOICE OF AEGISTHUS": "Aegisthus"
+    "NURSE": "Nurse"  # Wikisource's own cue for Kilissa, in place of her Greek name
+    "ATTENDANT": "Servant"  # the Servant who announces Aegisthus's death, Wikisource's cue
+    "CHORUS OF SLAVE WOMEN": "Chorus"
+    "LEADER OF THE CHORUS": "Chorus"
   # Kosmos Society Sourcebook (third slot) cues -> the roster.
   english_third:
     "ORESTES": "Orestes"

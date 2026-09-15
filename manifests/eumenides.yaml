@@ -115,6 +115,9 @@ speakers:
     "CHORUS": "Chorus"
     "ATHENA": "Athena"
     "CHANT": "Escort"
+    "FURIES": "Chorus"
+    "FIRST FURY": "Chorus"  # a Fury waking the others, Wikisource's proofread text
+    "OSESTES": "Orestes"  # Wikisource's own typo (the OCR and the printed book read ORESTES)
   # Kosmos Society Sourcebook (third slot) cues -> the roster.
   english_third:
     "PYTHIA": "Priestess"

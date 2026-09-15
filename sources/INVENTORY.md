@@ -140,6 +140,30 @@ name ("ELDER B" → "ELDER-B") and a leading article goes, as for Johnston.
 Frogs*, translated into English rhyming verse by Gilbert Murray (1912, per the Wikisource header): 1912 < 1931,
 public domain in the US. SHA-256 in `sources/wikisource/SHA256SUMS`.
 
+## wikisource/morshead/ — E. D. A. Morshead's Aeschylus (vendored 2026-09-15; replaces the archive-org OCR scans below as the secondary slot for all seven Aeschylus plays)
+
+Fetched 2026-09-15 through the REST `page/html` API (`https://en.wikisource.org/api/rest_v1/page/html/<title>`).
+Aeschylus, translated into English verse by E. D. A. Morshead: the translation is public domain (1881 and 1908,
+both < 1931); Wikisource's transcription of it is licensed CC BY-SA 4.0 (per the site's standard terms). SHA-256
+in `sources/wikisource/morshead/SHA256SUMS`.
+
+| file | source page | revision | status as the page shows it |
+|---|---|---|---|
+| persians.html | [Four Plays of Aeschylus (1908) Morshead/Persians](https://en.wikisource.org/wiki/Four_Plays_of_Aeschylus_(1908)_Morshead/Persians) | 6905898 | validated |
+| prometheus-bound.html | [Four Plays of Aeschylus (1908) Morshead/Prometheus Bound](https://en.wikisource.org/wiki/Four_Plays_of_Aeschylus_(1908)_Morshead/Prometheus_Bound) | 6907853 | validated |
+| seven-against-thebes.html | [Four Plays of Aeschylus (1908) Morshead/Seven against Thebes](https://en.wikisource.org/wiki/Four_Plays_of_Aeschylus_(1908)_Morshead/Seven_against_Thebes) | 6909680 | validated |
+| suppliants-aesch.html | [Four Plays of Aeschylus (1908) Morshead/Suppliant Maidens](https://en.wikisource.org/wiki/Four_Plays_of_Aeschylus_(1908)_Morshead/Suppliant_Maidens) | 6885638 | validated |
+| agamemnon.html | [The House of Atreus/Agamemnon](https://en.wikisource.org/wiki/The_House_of_Atreus/Agamemnon) | 14482130 | no ProofreadPage status (plain wikitext, not scan-backed) |
+| libation-bearers.html | [The House of Atreus/The Libation-Bearers](https://en.wikisource.org/wiki/The_House_of_Atreus/The_Libation-Bearers) | 14482122 | no ProofreadPage status (plain wikitext, not scan-backed) |
+| eumenides.html | [The House of Atreus/The Furies](https://en.wikisource.org/wiki/The_House_of_Atreus/The_Furies) | 14482129 | no ProofreadPage status (plain wikitext, not scan-backed) |
+
+*Four Plays of Aeschylus* (1908) is scan-backed (ProofreadPage transclusion of `Index:Four Plays of Aeschylus
+(1908) Morshead.djvu`) and every one of its pages carries `data-page-quality="4"` ("validated": proofread twice
+against the scan). *The House of Atreus* (1881, in `<poem>` markup) carries no such indicator at all -- it was
+never run through ProofreadPage, so there is no page-by-page quality signal to report for those three.
+`sources/bench/morshead/<work id>.txt` is written from these by `python -m drama_pipeline.morshead_clean`;
+`pipeline/tests/test_morshead_clean.py` checks each committed file is exactly the converter's output.
+
 ## archive-org/ — OCR plaintext (`_djvu.txt`) of bench-translation scans (vendored 2026-09-05; texts pre-1931, PD-US; OCR quality to be judged per volume in P3)
 
 | file | contents | translator / edition |
@@ -147,8 +171,8 @@ public domain in the US. SHA-256 in `sources/wikisource/SHA256SUMS`.
 | sophocleswitheng01soph.txt | Sophocles Loeb vol. 1 (OT, OC, Antigone) | F. Storr, 1912 |
 | in.ernet.dli.2015.183451.txt | Sophocles Loeb vol. 2 (Ajax, Electra, Trachiniae, Philoctetes) | F. Storr, 1913 |
 | euripidesway01–04euriuoft.txt | Euripides Loeb vols. 1–4 (all 19 plays) | A. S. Way, 1912 |
-| houseofatreusbei00aesc.txt | The House of Atreus (Agamemnon, Libation-Bearers, Furies) | E. D. A. Morshead, 1904 ed. |
-| suppliantmaidens00aesc.txt | Suppliant Maidens, Persians, Seven, Prometheus | E. D. A. Morshead, 1908 ed. |
+| houseofatreusbei00aesc.txt | The House of Atreus (Agamemnon, Libation-Bearers, Furies) | E. D. A. Morshead, 1904 ed. — **retired from the site 2026-09-15: the secondary slot for these three plays now reads Wikisource's proofread transcription of the 1881 first edition (`sources/wikisource/morshead/`), not this OCR scan; kept vendored, unused.** |
+| suppliantmaidens00aesc.txt | Suppliant Maidens, Persians, Seven, Prometheus | E. D. A. Morshead, 1908 ed. — **retired from the site 2026-09-15: the secondary slot for these four plays now reads Wikisource's validated transcription (`sources/wikisource/morshead/`), not this OCR scan; kept vendored, unused.** |
 
 SHA-256 in `sources/archive-org/SHA256SUMS`. Loeb scans interleave the Greek
 facing pages with the English; the P3 builder keeps only the English pages.

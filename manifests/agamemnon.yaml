@@ -197,6 +197,8 @@ speakers:
     "VOICE OF AGAMEMNON": "Agamemnon"
     "ONE OF THE CHORUS": "Chorus"
     "LEADER OF THE CHORUS": "Chorus"
+    "ANOTHER": "Chorus"  # the Elders' stichomythia, Wikisource's proofread text
+    "CLYMEMNESTRA": "Clytaemestra"  # Wikisource spells her this way throughout Agamemnon
   # Kosmos Society Sourcebook (third slot) cues -> the roster.
   english_third:
     "WATCHMAN": "Watchman"
