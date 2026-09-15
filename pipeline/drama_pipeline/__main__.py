@@ -32,8 +32,16 @@ def _stage1(manifest):
     for scratch in ("ross_chunks.json", "third_chunks.json", "third_footnotes.json",
                     "overlays.json", "paratext.json", "context_english.json",
                     "citation_expansion.json", "english_report.json",
-                    "english_footnotes.json", "secondary_footnotes.json"):
+                    "english_footnotes.json", "secondary_footnotes.json",
+                    "secondary_report.json", "third_report.json"):
         (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
+    # Overlay report/alignment files are named per translation id
+    # (overlay_<id>_report.json), so a fixed list can't cover them; a play
+    # with fewer overlays than the previous build otherwise keeps the extra
+    # overlay's stale report (the audit sheet reads it and reports it as
+    # this play's).
+    for stale in (BUILD_DIR / "stage1").glob("overlay_*_report.json"):
+        stale.unlink(missing_ok=True)
 
     # Section-scheme works can opt into a parallel Perseus Stephanus TEI pass.
     # Others remain Greek-only, with stale English scratch removed.
