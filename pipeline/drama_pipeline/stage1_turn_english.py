@@ -1809,17 +1809,35 @@ def parse_translation(
     # positional pairer had no term for -- displacement (`greek_skip_runs`,
     # `align_cost`) and confidence (`low_confidence_*`, from the DP's own
     # per-pair `margin`) -- plus the antilabe split section 2(c) requires.
+    #
+    # `greek_skip_runs` reports the FINAL bare Greek (no chunk at all after
+    # `_assign_speeches`' residual park), not the DP's raw SKIP_G decisions:
+    # most of those get filled in by a nearby residual English speech the
+    # park pass finds (P3.3's clean park, unchanged), so counting the raw
+    # DP skips as "bare" wildly overstates it -- caught empirically on
+    # Acharnians, where 20 raw skips left only 6 truly bare (matching
+    # strict_coverage's own independent count).
+    final_covered_by = english["english_covered_by"]
+    bare_slot = [segments[slot["segment"]]["id"] not in chunk_ids for slot in slots]
     greek_skip_runs = []
-    for lo, hi in dp_result.greek_skips:
-        covered_run = all(gi in dp_result.derived_covered for gi in range(lo, hi))
-        greek_skip_runs.append(
-            {
-                "start_ref": slot_refs[lo] if lo < len(slot_refs) else None,
-                "end_ref": slot_refs[hi - 1] if hi - 1 < len(slot_refs) else None,
-                "events": hi - lo,
-                "covered": covered_run,
-            }
-        )
+    run_start = None
+    for k in range(len(slots) + 1):
+        is_bare = k < len(slots) and bare_slot[k]
+        if is_bare and run_start is None:
+            run_start = k
+        elif not is_bare and run_start is not None:
+            lo, hi = run_start, k
+            run_seg_ids = {segments[slots[i]["segment"]]["id"] for i in range(lo, hi)}
+            covered_run = all(sid in final_covered_by for sid in run_seg_ids)
+            greek_skip_runs.append(
+                {
+                    "start_ref": slot_refs[lo] if lo < len(slot_refs) else None,
+                    "end_ref": slot_refs[hi - 1] if hi - 1 < len(slot_refs) else None,
+                    "events": hi - lo,
+                    "covered": covered_run,
+                }
+            )
+            run_start = None
     low_confidence_pairs = sum(
         1 for m in dp_result.margins.values() if m < _LOW_CONFIDENCE_MARGIN
     )
@@ -1869,7 +1887,7 @@ def parse_translation(
         "align_cost": dp_result.cost,
         "greek_skip_runs": greek_skip_runs,
         "english_skip_count": len(dp_result.english_skips),
-        "derived_covered_count": len(dp_result.derived_covered),
+        "derived_covered_count": len(derived_covered_by_segment),
         "band_widened": dp_result.band_widened,
         "low_confidence_pairs": low_confidence_pairs,
         "low_confidence_rate": (low_confidence_pairs / len(pairs)) if pairs else 0.0,

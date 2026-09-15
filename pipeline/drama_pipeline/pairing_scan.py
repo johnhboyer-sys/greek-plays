@@ -87,9 +87,19 @@ def scan(work_ids: list[str] | None = None) -> list[list[str]]:
     from . import __main__ as cli
 
     rows: list[list[str]] = []
+    failures: list[tuple[str, str]] = []
     for work_id in work_ids or _all_work_ids():
         start = time.time()
-        cli.main(["all", "--work", work_id])
+        try:
+            cli.main(["all", "--work", work_id])
+        except SystemExit as exc:
+            # stage2 can legitimately fail a play (e.g. a new undeclared
+            # bare-run gate catching a real hole a manifest has not yet
+            # declared) -- stage1's reports are already on disk by then, so
+            # the scan still collects this play's numbers and reports the
+            # gate failure separately rather than aborting the whole corpus.
+            failures.append((work_id, str(exc)))
+            print(f"  {work_id}: gate failed -- {exc}")
         elapsed = time.time() - start
         manifest = Manifest.for_work(work_id)
         stage1_dir = BUILD_DIR / "stage1"
@@ -113,6 +123,9 @@ def scan(work_ids: list[str] | None = None) -> list[list[str]]:
                 row.append(_fmt(report.get("align_cost")))
             row.append(f"{elapsed:.3f}")
             rows.append(row)
+    if failures:
+        print(f"{len(failures)} play(s) failed a pipeline gate: "
+              f"{', '.join(w for w, _ in failures)}")
     return rows
 
 
