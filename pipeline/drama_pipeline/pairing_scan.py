@@ -92,14 +92,18 @@ def scan(work_ids: list[str] | None = None) -> list[list[str]]:
         start = time.time()
         try:
             cli.main(["all", "--work", work_id])
-        except SystemExit as exc:
+        except (SystemExit, Exception) as exc:
             # stage2 can legitimately fail a play (e.g. a new undeclared
             # bare-run gate catching a real hole a manifest has not yet
             # declared) -- stage1's reports are already on disk by then, so
             # the scan still collects this play's numbers and reports the
             # gate failure separately rather than aborting the whole corpus.
-            failures.append((work_id, str(exc)))
-            print(f"  {work_id}: gate failed -- {exc}")
+            # A plain exception (e.g. a manifest-declared `covered` chain
+            # that pointed at real English before the DP and no longer
+            # does) is caught the same way -- named for the report, not
+            # allowed to lose the rest of the corpus.
+            failures.append((work_id, f"{type(exc).__name__}: {exc}"))
+            print(f"  {work_id}: gate failed -- {type(exc).__name__}: {exc}")
         elapsed = time.time() - start
         manifest = Manifest.for_work(work_id)
         stage1_dir = BUILD_DIR / "stage1"

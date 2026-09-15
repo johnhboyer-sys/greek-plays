@@ -21,7 +21,7 @@ INF = float("inf")
 
 _WORD = re.compile(r"[A-Za-z]+")
 _CAP_WORD = re.compile(r"[A-Z][a-z]+")
-_GREEK_CAP_RUN = re.compile(r"[Α-Ωα-ω]+")
+_GREEK_CAP_RUN = re.compile(r"[Α-Ω][α-ωΑ-Ω]*")  # tokens STARTING capitalised
 
 # Transliteration folds (design 3.2, term A): romanize the Greek run's
 # capitalised-looking token, fold the usual digraphs, take a 3-letter stem.

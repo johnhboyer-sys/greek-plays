@@ -1786,7 +1786,14 @@ def parse_translation(
     for gi, cover_gi in dp_result.derived_covered.items():
         seg_id = segments[slots[gi]["segment"]]["id"]
         cover_seg_id = segments[slots[cover_gi]["segment"]]["id"]
-        if seg_id == cover_seg_id or seg_id in chunk_ids:
+        # The covering node is "paired" at the slot level, but its segment
+        # can still end up with no chunk of its own (its matched speech's
+        # text was empty after stripping) -- a derived claim must never
+        # point at a dead end the way a stale manifest declaration is
+        # allowed to fail loud over (_owning_covered raises for THAT case
+        # on purpose); silently skip it instead and leave the slot in
+        # `greek_skip_runs`, uncovered but honest.
+        if seg_id == cover_seg_id or seg_id in chunk_ids or cover_seg_id not in chunk_ids:
             continue
         derived_covered_by_segment.setdefault(seg_id, cover_seg_id)
     manifest_covered = _resolve_covered(covered or [], segments, work_id)
