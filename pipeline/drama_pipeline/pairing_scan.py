@@ -55,6 +55,15 @@ _NEW_COLUMNS = [
     "turn_shift_count_unpacked",
     "band_widened",
     "align_cost",
+    # Round 2 task 2: a placement metric beside the ordinal
+    # `turn_shift_count` (design 2026-09-15 §7.B). `speaker_mismatch_pairs`
+    # and `length_outlier_pairs` are aliases of columns already in
+    # `_REPORT_COLUMNS` (`crossed_pairs`, `length_ratio_outlier_count`) --
+    # read from their own report keys so a report that only ever wrote the
+    # OLD names (the pre-DP baseline) still fills in via the fallback below.
+    "speaker_mismatch_pairs",
+    "bare_events",
+    "length_outlier_pairs",
 ]
 _HEADER = ["play", "slot", "translation_id", *_REPORT_COLUMNS, *_NEW_COLUMNS, "play_wall_clock_s"]
 
@@ -125,6 +134,21 @@ def scan(work_ids: list[str] | None = None) -> list[list[str]]:
                 row.append(_fmt(report.get("turn_shift_count_unpacked")))
                 row.append(_fmt(report.get("band_widened")))
                 row.append(_fmt(report.get("align_cost")))
+                row.append(_fmt(
+                    report.get("speaker_mismatch_pairs")
+                    if report.get("speaker_mismatch_pairs") is not None
+                    else report.get("crossed_pairs")
+                ))
+                row.append(_fmt(
+                    report.get("bare_events")
+                    if report.get("bare_events") is not None
+                    else _bare_run_events(report)
+                ))
+                row.append(_fmt(
+                    report.get("length_outlier_pairs")
+                    if report.get("length_outlier_pairs") is not None
+                    else report.get("length_ratio_outlier_count")
+                ))
             row.append(f"{elapsed:.3f}")
             rows.append(row)
     if failures:

@@ -607,7 +607,11 @@ def _turn_text_quality_checks(
             "count": low_conf_pairs,
             "max_rate": max_low_confidence,
             "error": low_conf_error,
-            "ok": low_conf_error is None,
+            # Round 2 task 3: WARN, never fail the build, until a later
+            # per-play pass declares `known_gaps` and turns this into a real
+            # gate -- "ok" stays true so `report["ok"]` never sees it.
+            "warn": low_conf_error is not None,
+            "ok": True,
         }
         known_gaps = (
             slot_entry.get("known_gaps") if isinstance(slot_entry, dict) else None
@@ -635,7 +639,11 @@ def _turn_text_quality_checks(
             "max_count": max_bare_run,
             "runs": runs,
             "error": bare_error,
-            "ok": bare_error is None,
+            # Round 2 task 3: WARN, never fail the build (see low_conf_check
+            # above) -- a later per-play pass declares `known_gaps` and turns
+            # this into a real gate.
+            "warn": bare_error is not None,
+            "ok": True,
         }
     floor_error = read_error
     if data is not None:
@@ -1317,7 +1325,9 @@ def _to_markdown(report: dict) -> str:
         if not isinstance(check, dict):
             continue
         lines += ["", f"## {key.replace('_', ' ').strip()}"]
-        if check.get("error"):
+        if check.get("warn"):
+            lines.append(f"- **WARN:** {check['error']}")
+        elif check.get("error"):
             lines.append(f"- **FAIL:** {check['error']}")
         elif check.get("ok") is True:
             lines.append("- ok")

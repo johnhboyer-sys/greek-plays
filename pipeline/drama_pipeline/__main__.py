@@ -262,7 +262,8 @@ def _stage2(manifest):
         (BUILD_DIR / "stage2" / "validation_report.json").read_text()
     )
     checks = " ".join(
-        f"{name}={'ok' if c['ok'] else 'FAIL'}" for name, c in report["checks"].items()
+        f"{name}={'warn' if c.get('warn') else ('ok' if c['ok'] else 'FAIL')}"
+        for name, c in report["checks"].items()
     )
     print(f"stage2: {checks}")
     print(f"  overall: {'PASS' if report['ok'] else 'FAIL'}")
