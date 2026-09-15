@@ -16,8 +16,8 @@ Thus keenly urged, and learn from one who knows.
 
 ODYSSEUS. Voice of Athena, Goddess most by me
 Beloved, how clearly, though I see thee not,
-Those accents strike iny ear and thrill my soul,
-Like some Tyrrhenian trumpet, brazen-mnouthed.
+Those accents strike my ear and thrill my soul,
+Like some Tyrrhenian trumpet, brazen-mouthed.
 Yea, thou hast well divined why thus I cast
 About in hot pursuance of a foe,
 Ajax, the bearer of the seven-fold shield :
@@ -73,7 +73,7 @@ A vision of the havoc he should make.
 I turned his wrath aside upon the flocks
 And the promiscuous cattle in the charge
 Of drovers, booty not apportioned yet.
-On them irestell and hewing right and left
+On them he fell and hewing right and left
 Dealt death among the hornèd herd ; and now
 It was the two Atridae whom he slew,
 And now a third, and now some other chief.
@@ -223,7 +223,7 @@ Is a target for each dart ;
 Aimed at me such shafts would fail:
 Envy doth the great assail.
 Yet without the great the small
-I could guard the city wall ;
+Ill could guard the city wall ;
 Leagued together small and great
 Best defend the common state.
 Fools this precept will not heed,
@@ -233,7 +233,7 @@ Can do nothing without thee,
 To confound their charge, O King.
 Like to birds they flap the wing,
 And chatter, when.they ’scape thine eye;
-But if f hovering in the sky
+But if hovering in the sky
 The great vulture should appear,
 Mute they cower in sudden fear.
 Was it the Tauric Artemis, Jove’s daughter, —
@@ -242,12 +242,42 @@ slaughter’?
 Didst thou in victory rob her of her claim
 To tithe of spoil, her part,
 When to thy bow there fell some noble hart ?
+Or did the mail-clad God of War resent (Ant.)
+Thy negligence thank-offering to pay?
+By him at night was the delusion sent
+That led astray?
+Ne’er wouldst thou, Ajax, of thine own intent
+Have wrought this havoc and the cattle slain.
+Such frenzy comes from Heaven in punishment.
+(Zeus and Apollo prove the rumour vain!)
+And if the great chiefs falsely charge thee, King,
+Spreading foul scandal, or the accursed race
+Of Sisyphus, let not this ill fame cling
+To us thy friends; no longer hide thy face,
+Quit, we implore,
+Thy tent upon the shore.
+Rouse thee, my King, where’er thou sittest brooding;
+Too long thou mak’st the stour of battle cease,
+While in the camp red ruin flames to heaven,
+And, like the west wind soughing in the trees,
+Unchecked the mockery goes
+Of thy o’erweening foes.
+My woe no respite knows!
+[Enter TECMESSA.]
+
+TECMESSA. Crew of Ajax, men who trace
+Back to Erechtheus your famed race,
+Woe is ours who muse upon
+The far-off house of Telamon;
+For our lord of dreaded might
+Stricken lies in desperate plight,
+And his soul is dark as night.
 
 CHORUS. What the change so grievous, say,
 Of the morn from yesterday ?
 Daughter of Teleutas, tell;
 Stalwart Ajax loves thee well,
-Tkee his spear-won bride; ’tis thine
+Thee his spear-won bride; ’tis thine
 What befalls him to divine.
 
 TECMESSA. e Ah, how tell a tale so drear?
@@ -339,12 +369,12 @@ He answered lightly with an ancient saw,
 “ Woman, for women silence is a grace.”
 Admonished thus I held my tongue; but he
 Sped forth alone. What happened afterwards
-] know not, but he came back with his spoil,
+I know not, but he came back with his spoil,
 Oxen and sheep dogs with their fleecy charge.
-Some lee beheads, of some the upturned necks
+Some he beheads, of some the upturned necks
 He cuts, or cleaves the chine ; others again
 He buffeted and mangled in their bonds,
-Mawling the beasts, as if they had been men.
+Mauling the beasts, as if they had been men.
 At last he darted through the door and held
 Wild converse with some phantom of the brain;
 Now the Atridae, and Odysseus now,
@@ -356,7 +386,7 @@ And as he scanned the havoc all around,
 He smote his head and wailed and sank to earth,
 A wreck among the wreck of slaughtered sheep,
 Digging into his hair his clenchèd nails.
-At first—a long, long while—he spike no word,
+At first—a long, long while—he spake no word,
 Then against me he uttered those dire threats,
 If I declarèd not all that had befallen,
 Bidding me tell him in what plight he stood.
@@ -372,7 +402,7 @@ But now, confounded in his abject woe,
 Refusing food or drink, he sits there still,
 Just where he fell amid the carcases
 Of the slain sheep and cattle. And ’tis plain
-He meditates some mischief, so 1 read
+He meditates some mischief, so I read
 His muttered exclamations and laments.
 Come, friends, and help me, if so be ye can—
 This was my errand—men in case like his
@@ -466,7 +496,7 @@ AJAX. O woe is me! (Sér.
 Darkness, my light !
 O nether gloom to me more bright
 Than midday, take, O take me to your care!
-I am foo vile to share
+I am too vile to share
 The kindly aid of mortals, and the gods
 Have left me. Nay, the Warrior Maid, Zeus-born,
 Laughs me to scorn ;
@@ -513,7 +543,7 @@ And I, his son, in might not less than he,
 Sailed after him to this same land of Troy,
 And served the host by deeds of no less worth,
 And for reward I perish by the Greeks
-Dishonourgd. Yet one thing I know full well :
+Dishonoured. Yet one thing I know full well :
 If to Achilles living it had fallen
 His arms as meed of valour to award,
 No man had grasped the prize, preferred to me.
@@ -548,7 +578,7 @@ Alone to storm the Trojan battlements,
 And facing single-handed a whole host,
 Do some high deed of prowess—and so die?
 Nay, that methinks would give the Atridae joy.
-It may not be ; seme emprise must be found
+It may not be ; some emprise must be found
 That shall convince my aged sire his son
 Is not, in soul at least, degenerate.
 Base were it that a man whose misery
@@ -584,7 +614,7 @@ Our portion, slavery. Then shall I hear
 The flouts and gibes that my new lords let fly.
 “ Took on her,” one will say, “the leman once
 Of Ajax, mightiest of the Argive chiefs,
-How has she fallen from her “place of pride | ce
+How has she fallen from her “place of pride ! ”
 Thus will they prate, and hard will be my lot,
 But on thy race and thee how foul a slur.
 Take pity and bethink thee of the sire
@@ -600,7 +630,7 @@ Save thee. By thee my country was laid waste,
 My mother and my father too were snatched
 To dwell with Hades by another fate.
 What home is left me then, if thou art ta’en?
-Wha? weal? my welfare is bound up in thee.
+What weal? my welfare is bound up in thee.
 Think of me also: gratitude’s due
 From man for favours that a woman gives.
 Kindness return of kindness e’er begets.
@@ -662,7 +692,7 @@ To prove the inbred virtue of thy race,
 And shew thy father’s foes whose son thou art.
 Meanwhile let light airs feed thee ; cherish thou
 Thy tender years to glad thy mother’s heart.
-Thoy need’st hot fear that any of the Greeks
+Thou need’st not fear that any of the Greeks
 Will tease or vex thee, e’en when I am gone.
 So stout a guardian will I leave in charge,
 Whose watchful eye will slumber not, though now
@@ -751,17 +781,17 @@ Who lives with brain bewilderèd.
 Of all the Greeks toil-worn
 Behold the noblest born,
 Now from his native temper warped and strange,
-Whéte thoughts in alien paths distracted range.
+Whose thoughts in alien paths distracted range.
 O wretched father, what a curse ’tis thine
 Upon thy son to hear—curse that on none
-H’er fell of all the Aeacidae’s great line
+E’er fell of all the Aeacidae’s great line
 Save him alone.
 
 AJAX. Time in its slow, illimitable course
 Brings all to light and buries all again ;
 Strange things it brings to pass, the dreadest oath
 Is broken and the stubbornest will is bent.
-K’en I whose will aforetime was as iron
+E’en I whose will aforetime was as iron
 Steeled in the dipping, now have lost the edge
 Of resolution, by this woman’s words
 Unmanned, to pity melted at the thought
@@ -873,9 +903,9 @@ MESSENGER. Thus much I know, for J was there. The seer
 Leaving the council of assembled chiefs,
 From the Atridae drew aside and laid
 His right hand lovingly in Teucer’s hand,
-And nen and charged him straitly by all means,
+And spake and charged him straitly by all means,
 For this one day whose light yet shines, to keep
-Ajax, within hts tent nor let him forth,
+Ajax, within his tent nor let him forth,
 If he would see him still a living man.
 “ Only to-day,” said Calchas, “ will the wrath
 Of dread Athena vex him, and no more.
@@ -899,7 +929,39 @@ He spake a blasphemous, outrageous word,
 Am posted, fear not that our ranks will break.’
 Such vaunting words drew on him the dire wrath
 Of the goddess—pride too high for mortal man.
-ay
+But if he can survive this day, perchance
+With God’s good aid we may avail to save him.
+So spake the seer, and Teucer straightway rose
+And sent me with these mandates. Have I failed,
+Ajax is doomed, or Calchas is no seer.
+
+CHORUS. Ill-starred Tecmessa, born to woe, come forth,
+And hearken to this messenger, whose words
+That touch us to the quick brook no delay.
+[Enter TECMESSA.]
+
+TECMESSA. Why break my rest and trouble me again,
+Relieved awhile from woes that have no end?
+
+CHORUS. List to this man—the tidings he has brought
+Of Ajax’ fortunes, filling me with grief.
+
+TECMESSA. What is thy news, man? Say, are we undone?
+
+MESSENGER. I know not of thy fortunes, only this—
+If Ajax is abroad, I augur ill.
+
+TECMESSA. Alas! he is. How thy words chill my soul!
+
+MESSENGER. Teucer’s injunction is to keep him close
+Indoors, nor let him go abroad alone.
+
+TECMESSA. And where is Teucer? Wherefore speaks he thus?
+
+MESSENGER. He hath returned but lately and forbodes
+Grave jeopardy, if Ajax goes abroad.
+
+TECMESSA. Ah woe is me! Who warned him of this peril?
 
 MESSENGER. The prophet, son of Thestor, but to-day,
 When in the scales for him hang life and death.
@@ -909,17 +971,17 @@ Speed, some to hasten Teucer on his way,
 Some to the western creeks and some to those
 That front the morn; pursue his ill-starred track.
 I see too well my lord hath cheated me,
-a sendrayen the favour that long time was mine.
+Withdrawn the favour that long time was mine.
 Ah me! What shall I do, my child? No time
 To sit with folded hands ; I too will go,
 So far as this weak frame allows, in search.
 Up, quick, to work! no moment must be lost,
 If we would save a man who hastes to death.
 
-CHORUS. Ready am I; not words alone shall-prove,
-But speed of act and foot, my readiness. [ Lveunt.
-[Ajax alone on the sea-shore, planting his sword in the
-ground. ]
+CHORUS. Ready am I; not words alone shall prove,
+But speed of act and foot, my readiness. [Exeunt.
+[AJAX alone on the sea-shore, planting his sword in the
+ground.]
 
 AJAX. The slayer standeth where his stroke is sure ;
 If I have time to muse thus curiously.
@@ -931,7 +993,7 @@ Here have I planted it and set it fast,
 A friend to help me to a speedy death.
 My part is done; for what remains, O Zeus,
 First I invoke thine aid ; and claim my due;
-Tis no excessive boon [ shall demand.
+Tis no excessive boon I shall demand.
 I pray thee send some messenger to bear
 To Teucer the sad tale, that he may come
 To lift me where I lie a bleeding corpse,
@@ -940,7 +1002,7 @@ Discovered by some enemy and cast forth,
 A prey to dogs and birds. Thus much, O Zeus,
 I crave of thee; and Hermes I invoke,
 Born guide of spirits to the nether world,
-To Jay me soft to rest at one swift gasp,
+To lay me soft to rest at one swift gasp,
 Without a struggle, when into my side
 I plunge this sword. Ye too I call to aid,
 Maidens immortal, with immortal eyes
@@ -970,14 +1032,14 @@ O light! O sacred soil of mine own land,
 My Salamis! my home, my ancestral hearth !
 O far-famed Athens, race akin to mine,
 Ye Trojan springs and streams, ye plains of Troy,
-Farewedl, ye nurses of my fame, farewell!
+Farewell, ye nurses of my fame, farewell!
 This is the last word Ajax speaks to you.
 Henceforth he talks in Hades with the dead.
 [He falls upon his sword.
 
 SEMI-CHORUS 1. Toil, toil, and toil on toil !
 Where have my steps not roamed, and yet,
-No place that hath a secret for my ear.!
+No place that hath a secret for my ear.
 Hist! hist ! what sound was that?
 
 SEMI-CHORUS 2. "Tis we, thy mates.
@@ -1161,7 +1223,7 @@ gone.
 I heard it and I moaned in spirit afar,
 But now the sight strikes death into my soul.
 O woe!.
-Come, lift the searcloth ; let mie see the worst.
+Come, lift the searcloth ; let me see the worst.
 O bleeding form, O agonising sight !
 How brave, how rash, how cruel in thy death ;
 Thy death, what seed of misery for me!
@@ -1189,7 +1251,7 @@ See’st thou how Hector dead and turned to dust
 Was fated in the end to be thy death?
 Look on the fortunes of the two, I pray ye:
 Hector, who by the very belt he wore,
-A gift fidém Ajax, lashed to the car-rail
+A gift from Ajax, lashed to the car-rail
 Was dragged and mangled till his ghost expired ;1
 And this the sword whose murderous edge transfixed
 The Side of Ajax—this was Hector’s gift.
@@ -1202,7 +1264,7 @@ Cling to his own belief, as I to mine.
 
 CHORUS. Abridge thy large discourse; think how to lay
 The dead man in his grave and what thy plea
-Shall be anon; J see a foe approach.
+Shall be anon; I see a foe approach.
 Perchance he comes with mocking of our grief,
 
 TEUCER. What captain dost thou see?
@@ -1235,7 +1297,7 @@ While he had now been living. But a god
 Turned his blind malice on the flocks and herds.
 Thus hath he done, and no man shall prevail
 By might to lay his body in the tomb.
-He shall be gast forth on the yellow sands
+He shall be cast forth on the yellow sands
 To feed the carrion birds that haunt the beach.
 Rage not nor bluster as thou hear’st, for we,
 E’en if we could not master him alive,
@@ -1246,7 +1308,7 @@ Yet ‘tis a mark of villainy when one
 Of the common deigns not to obey his lords.
 For in a State that hath no dread of law
 The laws can never prosper and prevail,
-Nor could an armed force be disciplined
+Nor could an armèd force be disciplined
 Lacking the guard of awe and reverence.
 
 CHORUS. Sage ‘precepts these, my lord, and do not thou
@@ -1255,7 +1317,7 @@ Thyself become a scoffer of the dead.
 TEUCER. Friends, I shall never marvel after this
 If any basebern fellow gives offence,
 When men who pride them on their lineage
-By their perverted utterance thus oifend.
+By their perverted utterance thus offend.
 Repeat thy tale: thou claimest to have brought
 My brother hither as a Greek ally,
 Secured by thee forsooth. Sailed he not forth
@@ -1337,7 +1399,7 @@ Lay like a dead log muffled in his cloak,
 And let the sailors trample him at will.
 E’en so with thee and thy unbridled tongue:
 Perchance a mighty hurricane may rise,
-Spruag from a cloud no bigger than a hand,
+Sprung from a cloud no bigger than a hand,
 Swoop down on thee and quench thy blustering.
 
 TEUCER. Once too [ knew a fool, a silly fool,
@@ -1366,7 +1428,7 @@ Deathless in men’s memory.
 TEUCER. Lo! in good time I see his child and wife
 Draw near to tend the hero’s obsequies.
 Come hither, child, and take thy place beside him
-And lays in suppliant guise, thy hand in his,
+And lay, in suppliant guise, thy hand in his,
 And kneel as one who hath taken sanctuary,
 With locks of hair as offering in thine hand—
 Mine, hers, and thine,—all-potent means of grace.
@@ -1380,7 +1442,7 @@ Kneel thou, and clasp in close embrace the dead.
 And ye, his comrades, stand not idly by
 As women mourners ; quit yourselves as men
 In his defence, till I have made a grave
-To bury hin, though all the world forbid.
+To bury him, though all the world forbid.
 [ Exit TEUCER.
 
 CHORUS. When shall the score be told, the sum of the endless
@@ -1399,7 +1461,7 @@ Yea, it was he who begat the plague and ruin of man.
 Wretch ! for me no garlands fine, (Str. 2)
 Cups o’erbrimming with red wine ;
 No shrill flutes didst thou assign.
-Wretch ! a foe to al] delight.
+Wretch ! a foe to all delight.
 E’en the slumbers soft of night
 Thy alarms have banished quite.
 And my loves, ah well-a-day!
@@ -1450,12 +1512,43 @@ Or plot to stab us, when ye lose your suit.
 Never with tempers such as yours could law
 Be firmly based, if we are called to oust
 The rightful victors and promote the worse.
-his must be stopped. ‘Tis not the brawny, big,
+This must be stopped. ‘Tis not the brawny, big,
 Broad-shouldered men who prove the best at need ;
+The wise and prudent everywhere prevail.
+The broad-ribbed ox is guided on his path
+Down the straight furrow by a little goad.
+A like corrective is in store for thee,
+If thou acquire not some small sense full soon.
+The man is dead, a shadow, and yet thou
+Let’st thy tongue wag and waxest insolent.
+Come to a sober mind ; recall thy birth,
+Bring hither someone else, a free-born man,
+To plead thy cause before us in thy stead ;
+For when thou speak’st thy words convey no sense ;
+I understand not a barbarian tongue.
+
+CHORUS. I would ye twain might learn sobriety ;
+’Tis the best counsel I can give you both.
+
+TEUCER. Out on man’s gratitude ! how soon it fades,
+Or proves a traitor when a friend is dead !
+What memory, what tittle of regard
+Hath he for thee, my Ajax, thou who oft
+At peril of thy life didst toil for him ?
+Lost labour, cast away and all forgot !
+Vain, windy orator, canst not recall
+The day when ye were cooped within your lines,
+Scattered, half routed and as good as lost,
+How single-handed he stood forth and saved you,
+Though at your ships the poop decks were ablaze,
+And Hector o’er the fosse came bounding, prompt
+To board them ? Who averted then the rout ?
+The very man of whom thou sayest now,
+“ He did no deed I have not done myself.”
 Was that no loyal service? Judge yourselves ;
 Or once again when he in single fight
 Confronted Hector, under no constraint,
-But by the lot he drew—no skulking lot,!
+But by the lot he drew—no skulking lot,
 No lump of loam, but one that well he knew
 Would first leap lightly from the crested helm ?
 Such deeds were his, and at his side was I,
@@ -1473,7 +1566,7 @@ Thus basely born thou twit’st me with my birth!
 My sire was Telamon who won the prize
 As champion of the host, a peerless bride,
 A princess, daughter of Laomedon,
-The meed assigned him by Alemena’s son.
+The meed assigned him by Alcmena’s son.
 She was my mother. And am I, thus born
 Nobly of parents both of noblest birth,
 Am I to shame my kindred overthrown,
@@ -1491,7 +1584,7 @@ For me ’twere nobler before all men’s eyes
 To fall in his behalf than for a wife
 Of thine—or of thy brother, should I say?
 Therefore bethink thee—’tis thine interest
-Ne less than mine—if on me thou dar’st lay
+No less than mine—if on me thou dar’st lay
 A finger, thou wilt surely wish full soon
 Rather to bear the brand of cowardice
 el‘han prove thy reckless bravery on me.
@@ -1632,7 +1725,7 @@ Consents not, I will acquiesce and go.
 
 TEUCER. Enough: too long have we delayed.
 Dig the grave pit speedily ;
-Lustral watérs to supply,
+Lustral waters to supply,
 Others set the cauldron high,
 Piling around it faggots dry,
 Let another band be sent

@@ -19,7 +19,7 @@ And help me to discover hereabouts
 A cave with double mouth by nature made
 To catch on either side the winter sun,
 Or by the breeze that through the archway blows
-Invite in sammer’s heat to gentle sleep ;
+Invite in summer’s heat to gentle sleep ;
 And lower down, a little to the left,
 A spring, if still it flows, thou art like to find.
 Whether he still is there or further gone.
@@ -59,7 +59,7 @@ It will not hurt me, but if thou should’st fail
 This man’s artillery we needs must have ;
 No hope to capture Troy-town otherwise.
 Why thou canst hold free converse with the man
-Securelyeand I cannot, thou shalt learn.
+Securely and I cannot, thou shalt learn.
 Thou wast not bound by oath or pledge to sail
 Nor wast thou with the fleet that first embarked ;
 But naught of this, if taxed, can I deny.
@@ -376,7 +376,7 @@ Art thou too stirred to anger by some wrong?
 
 NEOPTOLEMUS. O that my wrath might vent itself in deeds!
 Mycenae then and Sparta both would learn
-That Seyros too is mother of brave sons.
+That Scyros too is mother of brave sons.
 
 PHILOCTETES. Well said, my son! But I would know the grounds
 Of thy resentment, what the charge thou bring’st,
@@ -623,6 +623,70 @@ Our ship methinks will not refuse her aid.
 Only may heaven convey us from this shore
 Safe to the haven whither we would sail !
 
+PHILOCTETES. O gladdest day, O dearest, dearest friend,
+And ye, kind sailors, would that I could prove
+By acts my heartfelt gratitude! My son,
+Let us be going, but before I go
+Salute this homeless home, that thou mayst learn
+How hard my life, how great my hardihood.
+I think scarce any other man than I,
+Had he but seen it once, could have endured;
+But I was schooled by hard necessity.
+[NEOPTOLEMUS is about to enter the cave with him.]
+
+CHORUS. Stay, for I see two men approach, the one
+A sailor from thy ship, and one a stranger.
+First let us learn their errand, then go in.
+[Enter TWO SAILORS, one disguised as a Merchant Captain.]
+
+SAILOR. Son of Achilles, finding I was moored
+In the same roadstead as thyself (by chance
+Not of intent), I asked thy shipmate here,
+Who with two other hands was left aboard
+On guard, to tell me where thou might’st be found.
+For I, the captain of a single craft,
+Was on my way from Ilium, homeward bound,
+To Peparethus, for its vintage famed;
+And learning that the crew I met ashore
+Were all thy fellow-voyagers, I thought
+It would be well, before I sailed away,
+To have a word with thee and earn my dues.
+I doubt thou knowest naught of thy concerns—
+What new designs the Argives have upon thee:
+Designs, say I? Nay rather, plots full hatched.
+
+NEOPTOLEMUS. I shall remember, sir, thy zealous care
+On my behalf; I am no graceless churl.
+But tell me more precisely: let me learn
+These strange designs against me of the Greeks.
+
+SAILOR. Old Phoenix has embarked with Theseus’ sons
+On a war galley in pursuit of thee.
+
+NEOPTOLEMUS. To bring me back by force or of my will?
+
+SAILOR. I know not; I report but what I heard.
+
+NEOPTOLEMUS. Are Phoenix and his co-mates fired with zeal
+To pleasure the Atridae? can this be?
+
+SAILOR. ’Tis no surmise of mine; they are on the way.
+
+NEOPTOLEMUS. How came it that Odysseus had no mind
+To sail on his own business? Was he afraid?
+
+SAILOR. He and the son of Tydeus were engaged
+In quest of yet another, when I sailed.
+
+NEOPTOLEMUS. Another? Who this second man for whom
+Odysseus sailed himself?
+
+SAILOR. A certain one . . .
+Stay, who is this beside thee? tell me first
+His name, and breathe it softly in my ear.
+
+NEOPTOLEMUS. This, sir, is Philoctetes of world fame.
+
 SAILOR. Stop not for further questioning! Remove!
 Fly with all speed thou mayest from this land.
 
@@ -677,9 +741,9 @@ The prophet uttered, and he spake this word:
 Till by persuasion ye have won him over
 And brought him from the island where he bides.’
 Hearing the prophet’s word, Odysseus straight
-Engaged himself to bring the man awa
+Engaged himself to bring the man away
 And show him to the host. “ Willing” (he said),
-‘“T hope, but at the worst, against his will.”’
+‘“I hope, but at the worst, against his will.”’
 He staked his head on the venture ; any one
 Who chose might be his headsman if he failed.
 Thou hast heard all, my son; be warned in time ;
@@ -840,7 +904,7 @@ PHILOCTETES. My son, I am lost, undone! Impossible
 To hide it longer from you; lost, undone !
 It stabs me, stabs me through and through and
 through.
-Ab me! ah me! ah me!
+Ah me! ah me! ah me!
 For heaven’s sake, if thou hast a sword at hand,
 Draw it, my son, strike swiftly, at a stroke
 Cut off this foot, no matter if it kill me;
@@ -879,7 +943,7 @@ Which thou didst crave to handle, and until
 The spasm that now disables me is gone,
 Keep it and guard it well; for when the fit
 Passes, a drowsiness comes over me ;
-sind sleep’s the only medicine that gives ease.
+And sleep’s the only medicine that gives ease.
 So let me slumber undisturbed, and if
 They come the while, I charge ‘thee, boy, by heaven,
 Let them not have it, yield not up the bow,
@@ -908,7 +972,7 @@ What plague hast yet in store for me? Alack!
 It prowls, it stalks amain, ready to spring.
 Woe! Now ye know my torture, leave me not!
 Ahme! Ah me!
-Would God, O Cepallenian, through thy breast
+Would God, O Cephallenian, through thy breast
 This spasm might pass and hold thee in its grip!
 Woe’s me and woe once more! Ye generals twain,
 Menelaus, Agamemnon, might this worm
@@ -919,7 +983,7 @@ Boy, noble boy, of thy nobility
 I pray thee take and in those Lemnian flames
 Consume me, welcome now to me as when
 I dared to do it for the son of Zeus,
-And won for meed the bow thy bearest now.
+And won for meed the bow thou bearest now.
 Speak! answer! why thus absent, O my son?
 
 NEOPTOLEMUS. My heart was heavy, musing on thy woes.
@@ -1004,7 +1068,7 @@ Quick-eared to catch each sound ;
 His eyes, though closed, yet keep
 Sharp watch around.
 Wherefore explore in stealth, my son,
-How whit thou dost may best be done.
+How what thou dost may best be done.
 If thy plan be still the same,
 What it is I need not name,
 Plain to one who looks before
@@ -1043,7 +1107,7 @@ For to appearance thou didst bear the seal
 And signature of death. Now raise thyself,
 Or if thou choosest, these shall carry thee ;
 Such service will they readily perform,
-Since thou and J alike are thus resolved.
+Since thou and I alike are thus resolved.
 
 PHILOCTETES. I thank thee, son, and, if it pleaseth thee,
 Raise me thyself and spare thy men this task,
@@ -1113,7 +1177,7 @@ Give back my bow !
 
 NEOPTOLEMUS. That cannot be, for I
 By policy and duty both am bound
-Tc obey my chiefs.
+To obey my chiefs.
 
 PHILOCTETES. Thou fire, thou utter monster,
 Abhorrèd masterpiece of knavery,
@@ -1154,16 +1218,49 @@ Yon bow shall slay, but dying I shall make
 A feast for those who fed me when alive,
 A quarry for the creatures I pursued,
 My blood for their blood shed. And this I owe
-To oné who seemed a child in innocence.
+To one who seemed a child in innocence.
 My curse upon thee—nay I will forbear,
 Till first I hear whether thou wilt repent
 Or not; if no, die blasted by my curse!
+
+CHORUS. What shall we do, prince? ’tis for thee to say
+Whether we sail or hearken to his prayer.
+
+NEOPTOLEMUS. My heart is strangely wrought, and from the first
+I have been moved with pity for the man.
+
+PHILOCTETES. In heaven’s name show mercy, let not men
+Brand thee as my betrayer, O my son!
+
+NEOPTOLEMUS. What shall I do? Would I had never left
+Scyros, to fall into this desperate plight.
+
+PHILOCTETES. Thou art not base, but coming here wast schooled
+To play the rogue by villains; leave that part
+To others framed by nature to be rogues.
+Sail hence, but ere thou sail give back my arms.
+
+NEOPTOLEMUS. What shall we do, friends?
+
+[ODYSSEUS appears suddenly from behind the cave.]
+
+ODYSSEUS. Wretch, what art thou at?
+Back with thee, sirrah! give the bow to me.
+
+PHILOCTETES. Ah who is here? Is that Odysseus’ voice?
+
+ODYSSEUS. Odysseus, as thou seest. Here am I.
+
+PHILOCTETES. Oh I am sold, betrayed. So it was he
+Who trapped me and bereft me of my arms.
+
+ODYSSEUS. I and no other. I avow ’twas I.
 
 PHILOCTETES. Give back my bow, son, give it.
 
 ODYSSEUS. That he shall not,
 E’en if he would ; and what is more, thou with it
-Must ga, or these shall drag thee hence by force.
+Must go, or these shall drag thee hence by force.
 
 PHILOCTETES. Thou brazen-facèd villain, shall thy knaves
 Drag me by force?
@@ -1369,7 +1466,7 @@ Speaks for the host, obeying their behest.
 PHILOCTETES. Ye feathered tribes, my prey,
 Ye bright-eyed beasts who roam
 The hills, start not away
-, seared from the hunter’s home.
+Scared from the hunter’s home.
 Stray where ye will, secure, unharmed ;
 Why shun a helpless man unarmed ?
 Gone is the mighty bow ;
@@ -1455,7 +1552,7 @@ CHORUS. In what land?
 PHILOCTETES. | Below ;
 For I shall find him nowhere on this earth.
 My native land, fair land that gave me birth,
-Might I but see thee! Wheretore did I roam
+Might I but see thee! Wherefore did I roam
 And leave the sacred stream that guards my home?
 To help the Greeks those stormy seas I crossed,
 My mortal foes, by them undone, lost, lost!
@@ -1636,7 +1733,7 @@ NEOPTOLEMUS. Sweet to my ears the praises of my sire,
 And of myself; but now I crave of thee
 A boon. . What fates the gods allot to men
 They needs must bear, but whoso hug their griefs,
-As thou dost,—who can pity or ἐδη σὴ
+As thou dost,—who can pity or condone
 Such self-tormentors? Thou, inexorable,
 Wilt tolerate no counsel, deemest him
 Who would admonish thee in love a foe;
@@ -1671,13 +1768,13 @@ How turn a deaf ear to the kindly words
 Of one who counsels well and seeks my good?
 Shall I then’ yield? How, having yielded, face
 The public gaze? Will not all turn from me?
-¥e eyes, so long the witness of my wrongs,
+Ye eyes, so long the witness of my wrongs,
 How will ye brook to see me once again
 Consorting with my torturers, the sons
 Of Atreus and Odysseus, the arch-fiend ?
 ‘Tis not resentment for the past that stings,
 But a prevision of the ills to come;
-For whén a mind is warped it takes the ply,
+For when a mind is warped it takes the ply,
 And evil-doers will be evil still.
 Thee too, my son, I marvel much at thee;
 Never should’st thou have gone thyself to Troy,
@@ -1742,13 +1839,13 @@ NEOPTOLEMUS. Kiss the earth and let us go.
 
 HERACLES. Son of Poeas, first my word :
 Heracles to thee appears,
-His tl?e voice that thrills thine ears,
+His the voice that thrills thine ears,
 ‘Tis for thy sake I have come,
 Leaving my Olympian home.
 Mandate from high Zeus I bring
 To forbid thy journeying :
 Hear the will of heaven’s King.
-But first Pll mind thee of my own career,
+But first I’ll mind thee of my own career,
 How, having laboured hugely and endured,
 I won immortal glory, as thou seest.
 Know that thy fortune like to mine shall be,
@@ -1774,7 +1871,7 @@ To Troas; for a second time Troy towers
 Mugt fall before my shafts. Only take heed,
 In laying waste the land to reverence
 Its gods; all else by Zeus my sire is less
-Regarded. Piety can never dice;
+Regarded. Piety can never die;
 It lives on earth and blossoms in the grave.
 
 PHILOCTETES. Voice for which I long have yearned,
@@ -1792,11 +1889,11 @@ Nymphs of the streams and grass-fringed shore,
 Caves where the deep-voiced breakers roar,
 When through the cavern’s open mouth,
 Borne on the wings of the wild South,
-Ben to my dwelling’s inmost lair,
+E’en to my dwelling’s inmost lair,
 The rain and spray oft drenched my hair ;
 And oft responsive to my groan
 Mount Hermaeum made his moan ;
-O Ician fount, O limpid well,
+O Lycian fount, O limpid well,
 i thought with you all time to dwell ;
 And now I take my last farewell.
 Sea-girt Lemnos, hear my prayer,
