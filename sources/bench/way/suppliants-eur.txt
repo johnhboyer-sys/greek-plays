@@ -1,5 +1,7 @@
 SUPPLIANTS
 
+[On the steps of the altar AETHRA is seated ; and around her sit the members of the CHORUS. The olive-boughs of suppliance lie upon the altar, and from these are stretched woollen fillets, attaching them to AETHRA and the CHORUS. ADRASTUS lies prostrate on the earth, apart from these.
+
 AETHRA. Demeter, warder of Eleusis-land,
 And ye which keep and serve the Goddess’ fanes,
 Grant me and my son Theseus prosperous days,
@@ -138,7 +140,7 @@ Theseus, I come thy suppliant and thy city’s.
 
 THESEUS. What seekest thou, and whereof hast thou need?
 
-ADRASTUS. ον δὲ what host I to destruction led.
+ADRASTUS. Thou know’st what host I to destruction led.
 
 THESEUS. silence passedst thou through Greece.
 
@@ -293,7 +295,6 @@ Than God: we have gotten overweening hearts,
 ‘And dream that we be wiser than the Gods.
 ‘And thou art of this fellowship of folly,
 Who didst by Phoebus’ hest thy daughters wed,
-a
 To aliens—thus far recognising Gods ;—
 Yet mingling thy clear blood with turbid, so
 Didst mar thine house: thou oughtest ne'er to have
@@ -436,7 +437,7 @@ Of the spear’s point, a craven wert thou found.
 Ah, do not so, my son, as thou art mine !
 Hast marked—bemocked for reckless policy,
 How on the mockers glares with fierce bright eyes
-Thy country ?—in her energy is her life. ᾿
+Thy country ?—in her energy is her life.
 But states which work in darkness, cautelous,
 Grope in the darkness, for their caution’s meed.
 What, to the dead, and women misery-worn
@@ -491,8 +492,6 @@ that seeth my miseries end! _ [mother to bring
 Forth let him go, let him wrest from the foe, to the
 Her darling’s clay blood-stained, and for aye have
 our own dear Inachus’ land to friend.
-ms
-vou. πα. we
 Memorial fair shall the cities share of the sacred labour
 of love : evermore [lingering.
 The grace thereof shall abide, and the love aye
@@ -685,7 +684,6 @@ If one shall rob the dead of rightful dues,
 Even heroes, if such law shall be ordained.
 ‘And to me comest thou to bluster threats,
 While ye fear corpses, if they be entombed ?
-Su
 What fear ye? Lest they undermine your land,
 There buried ?—or in earth’s dark womb beget
 Children, of whom shall vengeance fall on you?
@@ -717,7 +715,6 @@ THESEUS. Speak, an thou list: no tongue-tied wight art thou.
 HERALD. Thou ne’er shalt win from our land Argos’ sons.
 
 THESEUS. Give ear to me in turn, then, if thou wilt.
-Su
 
 HERALD. Yea—since I cannot choose but hear in turn.
 
@@ -843,7 +840,6 @@ MESSENGER. Bright the sun’s beam, true-levelled shaft of light,
 Smote on the earth. Beside Electra’s gate
 On a far-looking tower I stood to watch.
 And three tribes I beheld of war-bands three :
-ws
 A mail-clad host far-stretching up the slopes
 Unto the height Ismenian, as men said ;
 _ I saw the king’s self, Aegeus’ glorious son,
@@ -1147,7 +1143,6 @@ Yet from transgression did he keep him pure.
 Tydeus’ high praise next will I sum in brief.
 In speech he shone not; a dread reasoner he
 In logic of the shield, and war’s inventions :
-we
 In counsel not as his brother Meleager, Yet of like fame, through science of the spear
 Getting him ripest scholarship of war.
 A soaring soul was his, a spirit rich
@@ -1206,7 +1201,6 @@ THESEUS. "Twere death to look on them so sorely marred.
 ADRASTUS. Bitter to see are slain men’s blood and wounds.
 
 THESEUS. Why then wouldst add fresh anguish to their grief?
-su
 
 ADRASTUS. Well said. Ye, tarry patiently, for well
 Speaks Theseus. When to fire we have given these,
@@ -1219,7 +1213,7 @@ Softly as may be, not with travail worn,
 The funeral i on to the , which are
 Foe eed wig ofthe nage
 
-CHORUS. Crowned with fair sons above others (δὶγ.)
+CHORUS. Crowned with fair sons above others (Str.)
 No more am I seen,
 Neither blesséd mid Argive mothers ;
 Nor the Travail-queen,
@@ -1293,7 +1287,7 @@ To meet him, ne’er to part,—
 Flames reddening o'er me,—
 To nestle to his side,
 In Cora’s[10]! bowers a bride!
-Ὁ love, though thou hast died,
+O love, though thou hast died,
 I’ll not forsake thee.
 Farewell life, bridal bed !
 By happier omens led, -
@@ -1307,7 +1301,6 @@ Now, Death, come—take me!
 CHORUS. Lo, here himself, thy sire, is drawing nigh,
 Old Iphis, within sound of thy strange speech,
 Which, heard not yet, shall wring his heart to hear.
-Tes
 O hapless ye !—O hapless ancient I!
 Burdened with twofold grief for kin I came,
 To bear unto his fatherland oversea
@@ -1332,7 +1325,6 @@ EVADNE. Thou wouldst be wroth to hear my purposes.
 O father, I would not that thou shouldst hear.
 
 IPHIS. How ? were't not just thy very father knew?,
-kB
 
 EVADNE. Thou wouldst be no wise judge of my resolve.
 
@@ -1365,7 +1357,6 @@ IPHIS. O daughter, speak not so before a throng !
 EVADNE. Even this would I, that all the Argives hear.
 
 IPHIS. Nay, surely will I let thee from this deed.
-Bs
 
 EVADNE. Let or let not—thou canst not reach nor seize me.
 Lo, hurled my body falls, for grief to thee,
@@ -1420,9 +1411,7 @@ By meats and drinks and magic philtre-spells
 To turn life’s channel, that they may not die,
 Who, when they are but cumberers of the ground,
 Should hence, and die, and make way for the young.
-The sta, -adt jfills with a session, in which the
-ΒΟΝΒ 9 Si ical ony fs bear the wns containing their ashes.
-The members of the chorus advance to meet them.
+[The stage gradually fills with a procession, in which the SONS of the dead chiefs bear the urns containing their ashes. The members of the CHORUS advance to meet them.
 
 CHORUS. Woe is me, woe !
 Onward, onward the bones of sons, sons dead,
@@ -1490,7 +1479,6 @@ FIFTH MOTHER. ‘A champion thou of thy perished father’s right.
 SIXTH CHILD. O father mine, methinks I see thee now— (Str. 3)
 
 SIXTH MOTHER. Laying the kiss of love upon thy brow.
-vot πὶ. ee
 
 SIXTH CHILD. But thy words of exhorting are come to naught ;
 They are wafted afar on the wind’s wing caught.
