@@ -840,6 +840,51 @@ def _greek_slot_spans(segments: list[dict], slots: list[dict]) -> list[tuple[int
     return out
 
 
+def _primary_bridge_texts(
+    segments: list[dict],
+    slots: list[dict],
+    primary_chunks_by_id: dict[str, dict] | None,
+) -> list[str | None] | None:
+    """Design 3.2, term B: each slot's own primary-English text for the TF-IDF
+    bridge -- the primary (``perseus-play``) chunk covering the slot's
+    segment, or that chunk's k-th TURN slice when the slot is the k-th share
+    of a packed segment (mirroring ``_greek_slot_spans``'s per-share split on
+    the Greek side, since the primary column carries its own antilabe
+    ``turns`` exactly as a turn-text chunk does -- section 2(b)).
+
+    ``None`` when there is no perseus-play primary to bridge against at all
+    (the eleven Aristophanes plays, whose primary is itself turn-text: design
+    3.2, "off for the eleven Aristophanes plays in this change") -- the
+    caller then runs the DP with the bridge term off, exactly as before.
+    """
+    if primary_chunks_by_id is None:
+        return None
+    by_segment: dict[int, list[int]] = {}
+    for idx, slot in enumerate(slots):
+        by_segment.setdefault(slot["segment"], []).append(idx)
+    out: list[str | None] = [None] * len(slots)
+    for gi, idxs in by_segment.items():
+        chunk = primary_chunks_by_id.get(segments[gi]["id"])
+        if not chunk:
+            continue
+        text = chunk.get("text") or ""
+        turns = chunk.get("turns") or []
+        if len(idxs) == 1 or not turns:
+            # A single share, or a packed segment whose primary has no
+            # sub-line turns to slice: the whole primary chunk is the best
+            # signal available for the (first) share.
+            out[idxs[0]] = text or None
+            continue
+        offsets = [int(t.get("offset") or 0) for t in turns]
+        for k, idx in enumerate(idxs):
+            if k >= len(offsets):
+                break
+            start = offsets[k]
+            end = offsets[k + 1] if k + 1 < len(offsets) else len(text)
+            out[idx] = text[start:end].strip() or None
+    return out
+
+
 def _segment_speaks(segment: dict, sigla) -> set[str]:
     """Every canonical name the segment's own lines carry (primary + shares).
 
@@ -1293,17 +1338,29 @@ def _resolve_covered(covered: list[dict], segments: list[dict], work_id: str) ->
 
 
 def _owning_covered(
-    covered: dict[str, str], chunk_ids: set[str], work_id: str
+    covered: dict[str, str], chunk_ids: set[str], work_id: str,
+    *, stale_report: list[dict] | None = None,
 ) -> dict[str, str]:
     """Follow each covered target to the segment that holds English.
 
     Astra lane C, F7: a chain or a neighbour without a chunk must not ship
-    as ``englishCoveredBy``. Cycles and chains that reach no English fail.
+    as ``englishCoveredBy``. A CYCLE still fails loud (a real bug, never
+    produced by ``_resolve_covered``'s own resolution). A chain that reaches
+    no English is DROPPED instead of raising (turn-pairing design
+    2026-09-15, round 2 task 3): under the DP's pairing, a manifest-declared
+    ``covered`` target can lose its own chunk entirely (the DP moved that
+    content elsewhere -- Peace and Wasps both hit this on the full-corpus
+    scan), and a stale manifest declaration is not a crash. The segment
+    falls back to an honest bare ``greek_skip_runs`` entry; the drop is
+    named in ``stale_report`` (the caller's report gets a ``stale_covered``
+    key) and printed as a warning so it stays visible without failing the
+    build.
     """
     out: dict[str, str] = {}
     for sid, target in covered.items():
         seen = [sid]
         cur = target
+        stale = False
         while True:
             if cur in seen:
                 raise ValueError(
@@ -1315,10 +1372,16 @@ def _owning_covered(
                 break
             nxt = covered.get(cur)
             if not nxt:
-                raise ValueError(
-                    f"{work_id}: covered chain {' -> '.join(seen)} reaches no English"
-                )
+                stale = True
+                break
             cur = nxt
+        if stale:
+            if stale_report is not None:
+                stale_report.append({"greek": sid, "chain": seen})
+            print(
+                f"  WARNING: {work_id}: covered chain {' -> '.join(seen)} reaches no "
+                "English -- stale declaration dropped, not applied"
+            )
     return out
 
 
@@ -1452,6 +1515,7 @@ def parse_translation(
     english_overrides: list[dict] | None = None,
     slot: str = "primary",
     verse: bool = False,
+    primary_bridge: dict[str, dict] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
@@ -1562,7 +1626,13 @@ def parse_translation(
         )
         for j in range(len(speeches))
     ]
-    dp_result = pair_dp.align(greek_nodes, english_nodes, pins=forced)
+    # The primary-English bridge (design 3.2, term B): each Greek share's own
+    # line-keyed primary text, TF-IDF-cosined against every English speech.
+    # `None` (bridge off) for the eleven Aristophanes plays, whose primary is
+    # itself turn-text -- `run()` only passes `primary_bridge` when this
+    # work's `english.primary.model` is `perseus-play`.
+    bridge_texts = _primary_bridge_texts(segments, slots, primary_bridge)
+    dp_result = pair_dp.align(greek_nodes, english_nodes, pins=forced, bridge=bridge_texts)
     pairs = dp_result.pairs
     for gi, ej in pairs:
         if (
@@ -1789,16 +1859,17 @@ def parse_translation(
         # The covering node is "paired" at the slot level, but its segment
         # can still end up with no chunk of its own (its matched speech's
         # text was empty after stripping) -- a derived claim must never
-        # point at a dead end the way a stale manifest declaration is
-        # allowed to fail loud over (_owning_covered raises for THAT case
-        # on purpose); silently skip it instead and leave the slot in
-        # `greek_skip_runs`, uncovered but honest.
+        # point at a dead end the way a stale MANIFEST declaration now only
+        # warns over (`_owning_covered`, round 2 task 3); silently skip it
+        # here instead and leave the slot in `greek_skip_runs`, uncovered
+        # but honest -- a DP-internal mistake should never even print.
         if seg_id == cover_seg_id or seg_id in chunk_ids or cover_seg_id not in chunk_ids:
             continue
         derived_covered_by_segment.setdefault(seg_id, cover_seg_id)
     manifest_covered = _resolve_covered(covered or [], segments, work_id)
     merged_covered = {**derived_covered_by_segment, **manifest_covered}
 
+    stale_covered: list[dict] = []
     english = {
         "work": work_id,
         "source": path.name,
@@ -1809,7 +1880,9 @@ def parse_translation(
         # speech attached to a neighbour, declared in the manifest or
         # derived by the DP; the reader shows "Translated with the speech
         # above" (stage7 reads it).
-        "english_covered_by": _owning_covered(merged_covered, chunk_ids, work_id),
+        "english_covered_by": _owning_covered(
+            merged_covered, chunk_ids, work_id, stale_report=stale_covered
+        ),
     }
 
     # Turn-pairing design 2026-09-15 section 7: report numbers the old
@@ -1858,6 +1931,16 @@ def parse_translation(
         1 for ts in turn_shifts if ts["greek_id"] in packed_segment_ids
     )
     turn_shift_count_unpacked = len(turn_shifts) - turn_shift_count_packed
+    # Round 2 task 2: a placement metric beside the ordinal one
+    # (`turn_shift_count`), which counts same-name offsets CUMULATIVELY and
+    # so keeps rising for the rest of the play even after every later speech
+    # sits beside the right Greek. `speaker_mismatch_pairs` is the same
+    # count `crossed_pairs` already carries, named for the acceptance-B
+    # comparison; `bare_events` is the FINAL bare-Greek total (the same
+    # events `greek_skip_runs` reports, minus any covered run) rather than
+    # the DP's raw skip count; `length_outlier_pairs` is the report's
+    # existing length-ratio outlier count, named to match.
+    bare_events = sum(r["events"] for r in greek_skip_runs if not r["covered"])
 
     report = {
         "work": work_id,
@@ -1867,6 +1950,9 @@ def parse_translation(
         "residual_grouped": residual_grouped,
         "residual_flagged": len(residual_flags),
         "crossed_pairs": len(crossed),
+        "speaker_mismatch_pairs": len(crossed),
+        "bare_events": bare_events,
+        "stale_covered": stale_covered,
         "pinned_pairs": len(forced),
         "pin_notes": pin_notes,
         "residual_unassigned": residual_unassigned,
@@ -1884,6 +1970,7 @@ def parse_translation(
         "snap_count": 0,
         "length_ratio_outliers": length_ratio_outliers,
         "length_ratio_outlier_count": len(length_ratio_outliers),
+        "length_outlier_pairs": len(length_ratio_outliers),
         "turn_shifts": turn_shifts,
         "turn_shift_count": len(turn_shifts),
         "turn_shift_rate": turn_shift_rate,
@@ -2191,6 +2278,20 @@ def run(
         None,
     )
     verse = form == "verse"
+    # The primary-English bridge (design 3.2, term B) is on only where this
+    # work's primary is `perseus-play` (the 33 tragedies) -- never for a
+    # `slot="primary"` call itself, since that only happens when THIS play's
+    # primary is turn-text (the eleven comedies), which is exactly the case
+    # the design keeps the bridge off for (section 3.2, "off for the eleven
+    # Aristophanes plays"; section 8's second risk). The primary's chunks are
+    # already on disk by the time a secondary/third/overlay slot runs
+    # (`__main__._stage1` builds `english.primary` first).
+    primary_bridge: dict[str, dict] | None = None
+    if (english_block.get("primary") or {}).get("model") == "perseus-play":
+        primary_chunks_path = BUILD_DIR / "stage1" / "english_chunks.json"
+        if primary_chunks_path.exists():
+            primary_data = json.loads(primary_chunks_path.read_text(encoding="utf-8"))
+            primary_bridge = {c["id"]: c for c in primary_data.get("chunks") or []}
     english, footnotes, report = parse_translation(
         source_path,
         spine,
@@ -2208,6 +2309,7 @@ def run(
         english_overrides=speakers.get("english_overrides") or [],
         slot=slot,
         verse=verse,
+        primary_bridge=primary_bridge,
     )
     # A long speech's English reaches the Greek segments that continue it
     # (John, 2026-09-11, Morshead's Agamemnon parodos).

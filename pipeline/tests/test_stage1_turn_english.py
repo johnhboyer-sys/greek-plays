@@ -2923,7 +2923,16 @@ def test_resolve_covered_maps_first_line_refs_to_segments_and_fails_loud():
 
 
 def test_owning_covered_follows_chains_and_fails_cycles():
-    """Astra lane C, F7: emit the English-holding segment; fail cycles and dead ends."""
+    """Astra lane C, F7: emit the English-holding segment; fail cycles.
+
+    A CYCLE stays a hard failure (a real bug: ``_resolve_covered`` never
+    produces one on its own). A chain that reaches no English used to raise
+    too, but round 2 task 3 of the turn-pairing fix (Peace and Wasps: a
+    manifest-declared `covered` target losing its own chunk under the new
+    DP pairing) downgrades that one case to a dropped, warned-about
+    declaration -- named in the optional `stale_report` list rather than
+    crashing the build.
+    """
     from drama_pipeline import stage1_turn_english as m
 
     covered = {"1:443": "1:449", "1:449": "1:447"}
@@ -2933,8 +2942,9 @@ def test_owning_covered_follows_chains_and_fails_cycles():
     }
     with pytest.raises(ValueError, match="covered cycle"):
         m._owning_covered({"1:29": "1:30", "1:30": "1:29"}, set(), "t")
-    with pytest.raises(ValueError, match="reaches no English"):
-        m._owning_covered({"1:29": "1:30"}, set(), "t")
+    stale: list[dict] = []
+    assert m._owning_covered({"1:29": "1:30"}, set(), "t", stale_report=stale) == {}
+    assert stale == [{"greek": "1:29", "chain": ["1:29", "1:30"]}]
 
 
 _CLOUDS_MANIFEST_PATH = Path(__file__).resolve().parents[2] / "manifests" / "clouds.yaml"
@@ -3086,6 +3096,25 @@ def _bacchae_murray_chunks(pins: list[dict]) -> dict:
     speakers = manifest.data["speakers"]
     aliases = _aliases_for_slot(speakers, "overlay", cfg["id"])
     sigla = _SiglaResolver(manifest)
+    # Bacchae's primary is perseus-play (a tragedy): `run()` bridges every
+    # turn-text slot -- including an overlay -- against it (design 3.2, term
+    # B), so this direct `parse_translation` call must build and pass the
+    # same bridge `run()` would, or it is testing a code path no play ever
+    # takes in the real pipeline.
+    from drama_pipeline import stage1_perseus_play_english
+
+    primary_cfg = manifest.data["english"]["primary"]
+    assert primary_cfg.get("model") == "perseus-play"
+    primary_english, _primary_footnotes, _primary_report = stage1_perseus_play_english.parse_translation(
+        SOURCES_DIR / primary_cfg["source"],
+        spine,
+        work_id=manifest.work_id,
+        covered_decl=primary_cfg.get("covered") or [],
+        translation_id=primary_cfg["id"],
+        sigla=sigla,
+        english_aliases=speakers.get("english") or {},
+    )
+    primary_bridge = {c["id"]: c for c in primary_english.get("chunks") or []}
     english, _footnotes, _report = parse_translation(
         SOURCES_DIR / cfg["source"],
         spine,
@@ -3100,6 +3129,7 @@ def _bacchae_murray_chunks(pins: list[dict]) -> dict:
         pins=pins,
         splits=cfg.get("splits") or [],
         covered=cfg.get("covered") or [],
+        primary_bridge=primary_bridge,
     )
     english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [])
     return chunks_as_overlay(english)
