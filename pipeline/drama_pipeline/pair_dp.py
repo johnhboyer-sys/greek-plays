@@ -99,7 +99,13 @@ class Weights:
     #   4. ext_g < w_spk              -- a one-sided Greek hole (a lost Loeb
     #      page) stays far cheaper than carrying a cross-name offset.
     ext_g: float = 0.55
-    ext_g_same_line: float = 0.05
+    # P3 (turn-pairing-round4-2026-09-15.md, defect 3): must cost MORE than
+    # an agreeing-name match (so a share whose own English exists is matched,
+    # not dropped for a flat 0.05 that lets the DP carry a one-speech offset
+    # forward) and LESS than w_spk (so a genuinely merged antilabe -- one
+    # English speech for k shares of one physical line, design 3.2 -- is
+    # still skipped rather than cross-matched). 0.1 < 0.60 < 2.50.
+    ext_g_same_line: float = 0.60
     open_e: float = 2.20
     ext_e: float = 2.20
     w_cohere: float = 1.20

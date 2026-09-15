@@ -270,3 +270,25 @@ def test_disagreeing_run_of_twelve_is_matched_not_tunnelled():
     pairs = dict(result.pairs)
     for gi in range(12):
         assert pairs[gi] == gi
+
+
+def test_two_share_line_whose_english_is_two_turns_gets_both():
+    """Round 4, P3 (defect 3): when the translator renders an antilabe's two
+    shares as TWO separate speeches -- the normal case (design 2(c)) -- both
+    shares must be matched to their own English, not one dropped at the
+    reduced same-line rate to carry a one-speech offset forward (the
+    Acharnians 1:1117, Ecclesiazusae 1:328, and Wasps 1:145 shape)."""
+    greek = [
+        GreekNode(name="Alpha", chars=20, line_key="L1"),
+        GreekNode(name="Beta", chars=20, line_key="L1"),
+    ]
+    english = [
+        EnglishNode(name="Alpha", chars=20),
+        EnglishNode(name="Beta", chars=20),
+    ]
+
+    result = align(greek, english, pins=[])
+
+    assert result.pairs == [(0, 0), (1, 1)]
+    assert result.greek_skips == []
+    assert result.english_skips == []
