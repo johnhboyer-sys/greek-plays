@@ -1545,6 +1545,88 @@ def test_loeb_ocr_bracket_direction_keeps_trailing_period_off_the_next_speech():
     }
 
 
+# Codex merge-gate finding 2 (2026-09-16): a stage direction that opens a
+# verse line in brackets, with the spoken words following it on the same
+# line, kept printing as speech -- Way's Andromache 660, `[To attendant]
+# Lead the way faster!` -- because `_loeb_direction` only read a direction
+# that filled the whole line. The leading bracket must now split off, the
+# cue attaching to the open speech's `shown` and the words riding on as its
+# next verse line.
+def test_loeb_ocr_leading_bracket_direction_splits_off_the_verse_line():
+    text = (
+        "THE PLAY\n\n"
+        "PELEUS. Menelaus, hold! Press not where justice bars.\n"
+        "[To attendant] Lead the way faster!\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "PELEUS",
+            "text": "Menelaus, hold! Press not where justice bars.\nLead the way faster!",
+            "shown": "Menelaus, hold! Press not where justice bars.\n_To attendant_\nLead the way faster!",
+        }
+    ]
+
+
+# The Loeb habit is to never close the bracket at all -- Cyclops 538,
+# `... make your host good\ncheer. [Begins to drive the crew in.` -- so the
+# trailing form must split on an unclosed bracket too. At the very end of a
+# speech (nothing follows on the same or a later line) it rides forward as
+# the next speech's `directions_before`, exactly like a whole-line direction.
+def test_loeb_ocr_trailing_bracket_direction_rides_to_next_speech():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. Ready am I,\n"
+        "and glad of cheer. [Begins to drive the crew in.\n\n"
+        "ODYSSEUS. And perils of the sea, only to run.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {"speaker_printed": "CHORUS", "text": "Ready am I,\nand glad of cheer."},
+        {
+            "speaker_printed": "ODYSSEUS",
+            "text": "And perils of the sea, only to run.",
+            "directions_before": ["Begins to drive the crew in."],
+        },
+    ]
+
+
+def test_loeb_ocr_trailing_bracket_direction_may_close():
+    # oedipus-coloneus.txt:710 form, bracket closed but no trailing period:
+    # `... is of no account. [Exit ISMENE.`. Bench text never closes it, but
+    # the split must accept either.
+    text = "THE PLAY\n\nISMENE. I go, and thou must guard our father.\nToil is of no account. [Exit ISMENE.]\n\nCHORUS. Ill is it, stranger.\n"
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0]["text"] == "I go, and thou must guard our father.\nToil is of no account."
+    assert speeches[1] == {
+        "speaker_printed": "CHORUS",
+        "text": "Ill is it, stranger.",
+        "directions_before": ["Exit ISMENE."],
+    }
+
+
+# Guard against the real false-positive risk (grep of every Way/Storr bench
+# file, 2026-09-16): Storr's Sophocles verse also uses a bare parenthesis for
+# a rhetorical aside inside the line itself, not a stage direction --
+# electra-soph.txt:57, `(So let thy tale run) at the Pythian games.` A
+# leading/trailing bracket only reads as a direction for a recognised cue
+# (`To ...`, `Aside`, `Enter`/`Exit`/`Exeunt`, `Begins`); an ordinary
+# parenthetical remark must stay exactly where it was printed.
+def test_loeb_ocr_leading_parenthetical_aside_is_not_a_direction():
+    text = (
+        "THE PLAY\n\n"
+        "ORESTES. Say thou hast perished at the Pythian games,\n"
+        "(So let thy tale run) at the Pythian games.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "ORESTES",
+            "text": "Say thou hast perished at the Pythian games,\n(So let thy tale run) at the Pythian games.",
+        }
+    ]
+
+
 def test_chunks_as_overlay_prefixes_speakers():
     from drama_pipeline.stage1_turn_english import chunks_as_overlay
 
@@ -1631,6 +1713,60 @@ def test_verse_own_line_first_speech_may_open_with_a_direction():
     speeches, _notes = parse_play_speeches(text, "THE PLAY", format="verse-own-line")
     assert [s["speaker_printed"] for s in speeches] == ["ANTIGONE", "ISMENE"]
     assert speeches[0]["shown"] == "_Waking up._\nSister."
+
+
+# Codex merge-gate finding 2 (2026-09-16): the verse-own-line path only read
+# a direction on a line of its own (`_..._`); a leading/trailing bracket
+# direction sharing a verse line with spoken text must split the same way
+# the loeb-ocr path now does, using the format's existing `inline`/`shown`
+# machinery -- gated on `directions=True` (verse-own-line only), so the
+# Lindsay comedy format is untouched.
+def test_verse_own_line_leading_bracket_direction_splits_off_the_verse_line():
+    text = "THE PLAY\n\nPELEUS\nMenelaus, hold!\n[To attendant] Lead the way faster!\n"
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="verse-own-line")
+    assert speeches == [
+        {
+            "speaker_printed": "PELEUS",
+            "text": "Menelaus, hold! Lead the way faster!",
+            "shown": "Menelaus, hold!\n_To attendant_\nLead the way faster!",
+        }
+    ]
+
+
+def test_verse_own_line_trailing_bracket_direction_rides_to_next_speech():
+    text = (
+        "THE PLAY\n\n"
+        "HERMIONE\n"
+        "So far as in me lies, ye are saved. [Enters the palace.\n\n"
+        "ELECTRA\n"
+        "Ho ye, armed friends within.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="verse-own-line")
+    assert speeches == [
+        {"speaker_printed": "HERMIONE", "text": "So far as in me lies, ye are saved."},
+        {
+            "speaker_printed": "ELECTRA",
+            "text": "Ho ye, armed friends within.",
+            "directions_before": ["Enters the palace."],
+        },
+    ]
+
+
+def test_lindsay_format_keeps_a_bracketed_line_as_speech():
+    # Same guard as the underscore case just below: the comedy (Lindsay)
+    # format never reads a direction at all, bracket or underscore, so a
+    # leading `[To someone]` stays put as spoken text.
+    text = """LYSISTRATA
+The Persons of the drama.
+
+LYSISTRATA
+[To attendant] Lead the way faster!
+"""
+    speeches, _notes = parse_play_speeches(text, "LYSISTRATA")
+    assert speeches[0] == {
+        "speaker_printed": "LYSISTRATA",
+        "text": "[To attendant] Lead the way faster!",
+    }
 
 
 def test_lindsay_format_keeps_an_underscored_line_as_speech():

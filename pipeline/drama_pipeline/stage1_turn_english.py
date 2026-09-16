@@ -469,6 +469,49 @@ def _loeb_direction(s: str) -> str | None:
     return None
 
 
+# A restored direction that opens a verse line together with the spoken
+# words that follow it on the same line -- Way's Andromache 660, `[To
+# attendant] Lead the way faster!` -- or that closes one, Loeb's habit of
+# never closing the bracket: `... my readiness. [Exeunt.` (Codex merge-gate
+# finding 2, 2026-09-16). Recognised only for a short list of stage-direction
+# cues; the Way and Storr bench files also use a plain, unrelated
+# parenthesis for a rhetorical aside inside the verse itself ("(So let thy
+# tale run) at the Pythian games.", Storr's electra-soph.txt:57) and, with no
+# closing bracket at all, to carry one rhymed half-line onto the next when
+# the OCR text was run together -- neither is a direction, and a bare
+# bracket test would wrongly cut them out of the spoken text.
+_DIRECTION_CUE = re.compile(r"^(?:To\s|Aside\b|Apart\b|Enters?\b|Exit\b|Exeunt\b|Begins\b)", re.IGNORECASE)
+_LEADING_BRACKET = (
+    re.compile(r"^\[(?P<dir>[^\]\n]+)\]\.?\s+(?P<rest>\S.*)$"),
+    re.compile(r"^\((?P<dir>[^)\n]+)\)\.?\s+(?P<rest>\S.*)$"),
+)
+_TRAILING_BRACKET = (
+    re.compile(r"^(?P<rest>.*\S)\s+\[(?P<dir>[^\]\n]+)\]\.?\s*$"),
+    re.compile(r"^(?P<rest>.*\S)\s+\[(?P<dir>[^\]\n]+)$"),
+)
+
+
+def _split_leading_direction(s: str) -> tuple[str, str] | None:
+    """``(direction, rest)`` if ``s`` opens with a recognised bracketed cue
+    followed by spoken text on the same line, else ``None``."""
+    for pattern in _LEADING_BRACKET:
+        m = pattern.match(s)
+        if m and _DIRECTION_CUE.match(m.group("dir").strip()):
+            return m.group("dir").strip(), m.group("rest")
+    return None
+
+
+def _split_trailing_direction(s: str) -> tuple[str, str] | None:
+    """``(rest, direction)`` if ``s`` ends with a recognised bracketed cue
+    after spoken text on the same line -- closed, or, the Loeb habit, not --
+    else ``None``."""
+    for pattern in _TRAILING_BRACKET:
+        m = pattern.match(s)
+        if m and _DIRECTION_CUE.match(m.group("dir").strip()):
+            return m.group("rest"), m.group("dir").strip()
+    return None
+
+
 def _add_direction(found: list[list], at: int, text: str) -> None:
     # Consecutive `_..._` lines are one direction printed over several lines.
     if found and found[-1][0] == at:
@@ -546,16 +589,29 @@ def _parse_as_speeches(
     # this speech's own.
     directions_before: list[str] = []
     pending = list(pending or [])
+    # A leading/trailing bracket direction split off a verse line of the
+    # speech now open: [index into parts, text], same convention as the
+    # verse-own-line `inline` (Codex merge-gate finding 2, 2026-09-16).
+    inline: list[list] = []
     i = start
     end_i = len(lines)
 
     def flush() -> None:
+        nonlocal pending
         text = _join_parts(parts, verse)
-        if speaker and text:
-            speech = {"speaker_printed": speaker, "text": text}
-            if directions_before:
-                speech["directions_before"] = list(directions_before)
-            speeches.append(speech)
+        if not (speaker and text):
+            pending += [d for _at, d in inline]
+            return
+        speech = {"speaker_printed": speaker, "text": text}
+        if directions_before:
+            speech["directions_before"] = list(directions_before)
+        # A direction split off the speech's last line has no more text
+        # after it in this speech; it rides forward like a whole-line one.
+        inner = [entry for entry in inline if any(parts[entry[0]:])]
+        if inner:
+            speech["shown"] = _shown(parts, inner, verse)
+        speeches.append(speech)
+        pending += [d for at, d in inline if not any(parts[at:])]
 
     while i < len(lines):
         raw = lines[i]
@@ -588,6 +644,7 @@ def _parse_as_speeches(
             flush()
             speaker = m.group("name").strip() if m else periodless[0]
             parts = []
+            inline = []
             directions_before = pending
             pending = []
             if m:
@@ -602,7 +659,17 @@ def _parse_as_speeches(
                 parts.append(periodless[1])
         elif speaker:
             if s:
-                parts.append(s)
+                lead = _split_leading_direction(s)
+                if lead:
+                    direction, s = lead
+                    _add_direction(inline, len(parts), direction)
+                trail = _split_trailing_direction(s)
+                if trail:
+                    s, direction = trail
+                    parts.append(s)
+                    _add_direction(inline, len(parts), direction)
+                else:
+                    parts.append(s)
             elif parts and parts[-1] != "":
                 parts.append("")
         i += 1
@@ -674,7 +741,20 @@ def _parse_lindsay_speeches(
             continue
         if speaker:
             if s:
-                parts.append(s)
+                if directions:
+                    lead = _split_leading_direction(s)
+                    if lead:
+                        direction, s = lead
+                        _add_direction(inline, len(parts), direction)
+                    trail = _split_trailing_direction(s)
+                    if trail:
+                        s, direction = trail
+                        parts.append(s)
+                        _add_direction(inline, len(parts), direction)
+                    else:
+                        parts.append(s)
+                else:
+                    parts.append(s)
             elif parts and parts[-1] != "":
                 parts.append("")
         i += 1
