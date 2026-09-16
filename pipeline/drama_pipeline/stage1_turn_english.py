@@ -2486,14 +2486,30 @@ def _spread_long_speeches(
             # review of 05e6855: Suppliants-eur 600-619).
             dashes_left = sum(1 for kd in kinds[i - 1:] if kd == "dash")
             turns_left = sum(1 for p in turn_starts if p > prev)
-            if kinds[i - 1] == "dash" and turns_left >= dashes_left:
-                pool, at = turn_starts, float(firsts[i])
-            else:
-                pool, at = starts, aim(firsts[i])
-            cand = [p for p in pool if p > prev]
+            cand = [p for p in starts if p > prev]
             if not cand:
                 break
-            best = min(cand, key=lambda p: abs(where(p) - at))
+            best = min(cand, key=lambda p: abs(where(p) - aim(firsts[i])))
+            if kinds[i - 1] == "dash" and turns_left >= dashes_left:
+                # ...and only when the turn actually MARKS this change. The
+                # rule took the nearest remaining turn however far off it
+                # was, and a translator who divides the first strophe and
+                # runs the rest together has turns only at the head: Way's
+                # Heracles ode at 755 is that shape -- four turns inside the
+                # first twelve of seventy-four printed lines against four
+                # unnamed changes in the Greek spread over sixty-three -- and
+                # the count test `turns_left >= dashes_left` passes on it by
+                # coincidence. Taking the last turn for a boundary
+                # forty-six Greek lines further on put fifty-eight of his
+                # lines on a three-line segment (round 9). A turn that marks
+                # this segment's opening stands, in proportion, within the
+                # segment's own Greek span of it; one that does not is
+                # marking something else, and the ordinary pool decides.
+                reach = max(1.0, float(sizes[i]))
+                tbest = min((p for p in turn_starts if p > prev),
+                            key=lambda p: abs(where(p) - firsts[i]), default=None)
+                if tbest is not None and abs(where(tbest) - firsts[i]) <= reach:
+                    best = tbest
             cuts.append((cont, best))
             prev = best
         bounds = [0, *[p for _, p in cuts], len(text)]

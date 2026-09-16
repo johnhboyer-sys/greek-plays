@@ -3403,3 +3403,53 @@ def test_a_verse_cut_is_measured_in_printed_lines_and_falls_on_a_line():
     # Every printed line of the speech survives the cut, in order, whole.
     assert [l for c in out if c["id"] in dict(_PERSIANS_RUN)
             for l in _printed(c["text"])] == _printed(text)
+
+
+def test_a_turn_too_far_from_the_boundary_is_marking_something_else():
+    """Way's Heracles ode at 755 (round 9).
+
+    One Chorus speech over five segments of 2 / 54 / 3 / 2 / 2 Greek lines,
+    each continuation opening on a bare "—", against seventy-four printed
+    English lines whose four turns all fall inside the first twelve: Way
+    divides the opening exchange and runs the rest of the ode together. The
+    count test (`turns_left >= dashes_left`) passes on that by coincidence,
+    and the rule then took the last remaining turn for a boundary
+    forty-six Greek lines further on -- fifty-eight of the seventy-four lines
+    landed on a three-line segment while the fifty-four-line segment kept
+    nine. A turn that marks a segment's opening stands within that segment's
+    own Greek span of it in proportion; this one is forty-six lines out, so
+    the ordinary pool decides and the long segment keeps its share.
+    """
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    sizes = [2, 54, 3, 2, 2]
+    ids = ["1:755", "1:757", "1:815", "1:818", "1:820"]
+    segments = []
+    n = 750
+    for i, (sid, size) in enumerate(zip(ids, sizes)):
+        segments.append({
+            "id": sid, "column": "1",
+            "lines": [{"n": m, "ref": str(m), "text": "λόγος ἄλλος"} for m in range(n, n + size)],
+            "speakers": [{"line": n, "offset": 0, "label": "CHORUS" if i == 0 else "—"}],
+        })
+        n += size
+    segments.append({"id": "1:822", "column": "1", "lines": [{"n": 900, "text": "λ"}],
+                     "speakers": [{"line": 900, "offset": 0, "label": "IRIS"}]})
+    lines = [f"Line {i} of the ode that Way runs together." for i in range(74)]
+    text = "\n".join(lines)
+    # Four turns, all inside the first twelve printed lines.
+    offsets = [0] + [text.index(lines[i]) for i in (3, 8, 11)]
+    head = {"id": "1:755", "book": 1, "column": "1", "text": text,
+            "notes": [], "markers": [], "bekker": [],
+            "turns": [{"offset": o, "speaker": "Chorus"} for o in offsets]}
+    filler = {"id": "1:822", "book": 1, "column": "1", "text": "x" * 45,
+              "notes": [], "markers": [], "bekker": [], "turns": []}
+    covered = {sid: "1:755" for sid in ids[1:]}
+
+    out = {c["id"]: c["text"]
+           for c in _spread_long_speeches([head, filler], segments, covered=covered, verse=True)}
+    got = [len(_printed(out[sid])) if sid in out else 0 for sid in ids]
+    assert got == [2, 64, 3, 3, 2]
+    # The fifty-four-line segment keeps the bulk; nothing lands on a
+    # three-line segment that its own Greek cannot hold.
+    assert got[1] > 0.7 * 74 and got[2] <= 2 * sizes[2]
