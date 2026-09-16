@@ -1961,6 +1961,22 @@ def parse_translation(
     low_confidence_pairs = sum(
         1 for m in dp_result.margins.values() if m < _LOW_CONFIDENCE_MARGIN
     )
+    # Round 6, finding 9: the margin DISTRIBUTION, not just the count under a
+    # threshold. `low_confidence_pairs` answers "how many pairs are thin";
+    # these answer "how thin is this column overall", which is the number
+    # that moves when placement improves without the pair count changing --
+    # the case round 5's pins made and `pairing_rate` could not show.
+    _margins = sorted(dp_result.margins.values())
+    if _margins:
+        _mid = len(_margins) // 2
+        margin_median = (
+            _margins[_mid] if len(_margins) % 2
+            else (_margins[_mid - 1] + _margins[_mid]) / 2.0
+        )
+        margin_p10 = _margins[max(0, (len(_margins) * 10) // 100 - 1)]
+    else:
+        margin_median = None
+        margin_p10 = None
     seg_share_counts: dict[int, int] = {}
     for slot in slots:
         seg_share_counts[slot["segment"]] = seg_share_counts.get(slot["segment"], 0) + 1
@@ -2033,6 +2049,8 @@ def parse_translation(
         "band_widened": dp_result.band_widened,
         "low_confidence_pairs": low_confidence_pairs,
         "low_confidence_rate": (low_confidence_pairs / len(pairs)) if pairs else 0.0,
+        "margin_median": margin_median,
+        "margin_p10": margin_p10,
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,

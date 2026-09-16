@@ -72,6 +72,18 @@ _NEW_COLUMNS = [
     # English got placed, not displacement).
     "unreadable_cue_pairs",
     "placed_events",
+    # Round 6, finding 9 (grok static review 2026-09-16): gate on the margin
+    # and on named mismatch, not on `pairing_rate` or raw `bare_events`.
+    # `margin_median` / `margin_p10` are the margin DISTRIBUTION beside
+    # `low_confidence_*`'s count under a fixed threshold -- the numbers that
+    # move when placement improves and the pair count does not.
+    # `speaker_mismatch_pairs` above is already the named-mismatch count
+    # AFTER the alias maps (`e_names` is canonical: the printed cue has been
+    # through `_canonical_english` and the manifest's `speakers.english`
+    # aliases) and after the OCR-junk split, so it is read as that column
+    # rather than duplicated here.
+    "margin_median",
+    "margin_p10",
 ]
 _HEADER = ["play", "slot", "translation_id", *_REPORT_COLUMNS, *_NEW_COLUMNS, "play_wall_clock_s"]
 
@@ -159,6 +171,8 @@ def scan(work_ids: list[str] | None = None) -> list[list[str]]:
                 ))
                 row.append(_fmt(report.get("unreadable_cue_pairs")))
                 row.append(_fmt(report.get("placed_events")))
+                row.append(_fmt(report.get("margin_median")))
+                row.append(_fmt(report.get("margin_p10")))
             row.append(f"{elapsed:.3f}")
             rows.append(row)
     if failures:
