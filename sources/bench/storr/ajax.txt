@@ -50,7 +50,6 @@ ODYSSEUS. What moved him to this rash, insensate deed ?
 ATHENA. Resentment touching dead Achilles’ arms.
 
 ODYSSEUS. Why did he fall upon the innocent sheep?
-yu }
 
 ATHENA. He thought his hands were gory with your blood.
 
@@ -86,7 +85,6 @@ And not poor innocent beasts with hoofs and horns,
 And now is mangling them fast bound within.
 Thou too this raving madness shalt behold,
 That thou mayst bruit the sight to all the Greeks.
-tT
 Be of good heart and stand thy ground; no harm
 Shall come from him, for I will turn aside
 His vision, lest he should behold thy face.
@@ -242,7 +240,7 @@ slaughter’?
 Didst thou in victory rob her of her claim
 To tithe of spoil, her part,
 When to thy bow there fell some noble hart ?
-Or did the mail-clad God of War resent (Ant.)
+Or did the mail-clad God of War resent
 Thy negligence thank-offering to pay?
 By him at night was the delusion sent
 That led astray?
@@ -280,7 +278,7 @@ Stalwart Ajax loves thee well,
 Thee his spear-won bride; ’tis thine
 What befalls him to divine.
 
-TECMESSA. e Ah, how tell a tale so drear?
+TECMESSA. Ah, how tell a tale so drear?
 Sad as death what thou shalt hear
 Of great Ajax, undone quite,
 Smit with madness, in the night.
@@ -312,7 +310,7 @@ And as he plied the whistling thong
 He uttered imprecations strong,
 Dread words a god, no man, had taught.
 
-CHORUS. ’Tis time to veil the head and steal away (Ant.)
+CHORUS. ’Tis time to veil the head and steal away
 On foot, or straight embarking ply the oar,
 And let the good ship bear us from the bay ;
 Such bitter threats the Atridae on us pour.
@@ -492,7 +490,7 @@ Then let me die!
 TECMESSA. When thus thou prayest, pray that I with thee
 May die; why should I live when thou art dead?
 
-AJAX. O woe is me! (Sér.
+AJAX. O woe is me!
 Darkness, my light !
 O nether gloom to me more bright
 Than midday, take, O take me to your care!
@@ -511,7 +509,7 @@ Would strike, and smite me dead?
 TECMESSA. Ah me that one so good should utter words
 That hitherto he ne’er had deigned to breathe!
 
-AJAX. Paths of the roaring waves, (Ant.
+AJAX. Paths of the roaring waves,
 Ye salt sea caves
 And pastures by the shore,
 Where long, too long I roam
@@ -637,13 +635,12 @@ Kindness return of kindness e’er begets.
 Who lets the memory of service pass
 Him will I ne’er with noble spirits rank.
 
-CHORUS. - Ajax, I would that thou'wert moved as I
+CHORUS. Ajax, I would that thou wert moved as I
 To pity ; then wouldst thou approve her rede.
 
 AJAX. Yea, and my full approval she shall win,
 If only she take heart to do my hest.
-z TECMESSA
-Aye, my dear lord, I will obey in all.
+TECMESSA. Aye, my dear lord, I will obey in all.
 
 AJAX. Bring hither then my son, that I may see him.
 
@@ -776,7 +773,7 @@ Hears of his shattered reason, what wild wail
 Will she upraise, a dirge of shrill despair,
 With beating of the breast and rending of white
 hair.
-Better be buried with the dead (Ant. 2)
+Better be buried with the dead
 Who lives with brain bewilderèd.
 Of all the Greeks toil-worn
 Behold the noblest born,
@@ -899,7 +896,7 @@ If there be sense in Calchas’ prophecy.
 
 CHORUS. What prophecy ? what knowest thou thereof ?
 
-MESSENGER. Thus much I know, for J was there. The seer
+MESSENGER. Thus much I know, for I was there. The seer
 Leaving the council of assembled chiefs,
 From the Atridae drew aside and laid
 His right hand lovingly in Teucer’s hand,
@@ -1053,11 +1050,10 @@ SEMI-CHORUS 1. Found, say you!
 SEMI-CHORUS 2. Of moil enow, of what we sought no trace.
 
 SEMI-CHORUS 1. No better luck to the eastward ; on the road
-That fronts the sunrise not a trace of hin.
+That fronts the sunrise not a trace of him.
 1 Or, ‘No spot can tell me of his presence there.’
-i
 
-CHORUS. O that some toiling fisher by the bay, (Sér.)
+CHORUS. O that some toiling fisher by the bay,
 Dragging his nets all night,
 Some Oread from Olympus’ height,
 Or nymph who haunts the tides of Bosporus,
@@ -1132,8 +1128,8 @@ TECMESSA. Woe, woe is me!
 
 CHORUS. The anguish, well I know it,
 Pierces to thy true heart.
-TECMESSa
-Woe, woe is me!
+
+TECMESSA. Woe, woe is me!
 
 CHORUS. No marvel thou shouldst wail and wail again
 Bereft so lately and of one so loved.
@@ -1185,7 +1181,6 @@ That woeful strain of mourning at our loss.
 
 TEUCER. Beloved Ajax, dearest of my kin,
 Did fame not lie then? hast thou fared thus ill ?
-of
 
 CHORUS. He hath perished, Teucer, and report spake true.
 
@@ -1367,8 +1362,7 @@ TEUCER. Murdered, and yet thou livest! that is strange !
 MENELAUS. Heaven saved me ; in intention I was slain.
 
 TEUCER. If the gods saved thee, sin not ’gainst the gods.
-i MENELAUS
-I! could I e’er abuse the laws of Heaven?
+MENELAUS. I! could I e’er abuse the laws of Heaven?
 
 TEUCER. Yea, if thou com’st to stop the burial.
 
@@ -1459,7 +1453,7 @@ Who first admonished the Greeks to league themselves for the war—
 War, the father of toils, whence mortal sorrows
 began ;
 Yea, it was he who begat the plague and ruin of man.
-Wretch ! for me no garlands fine, (Str. 2)
+Wretch ! for me no garlands fine,
 Cups o’erbrimming with red wine ;
 No shrill flutes didst thou assign.
 Wretch ! a foe to all delight.
@@ -1471,7 +1465,7 @@ Here I lie on the cold clay:
 All alone, with none to care,
 While the dank dews wet my hair.
 Such, accursèd Troy, thy fare !
-Erewhile Ajax, stalwart knight, (Ant. 2)
+Erewhile Ajax, stalwart knight,
 Was my buckler in the fight,
 Shield against the alarm of might.
 Now by Fate a victim led
@@ -1488,7 +1482,7 @@ TEUCER. Lo I return in haste ; I saw approach
 Great Agamemnon, captain of the host ;
 Tis plain he means to vent on us his spleen
 
-AGAMEMNON. So, Sirrah, it js thou (for thus I learn)
+AGAMEMNON. So, Sirrah, it is thou (for thus I learn)
 Hast dared to rant and curse and threaten us,
 Thus far unpunished ; thou the bondmaid’s son.
 Ha! had thy mother been a high-born dame,
@@ -1588,7 +1582,7 @@ Therefore bethink thee—’tis thine interest
 No less than mine—if on me thou dar’st lay
 A finger, thou wilt surely wish full soon
 Rather to bear the brand of cowardice
-el‘han prove thy reckless bravery on me.
+Than prove thy reckless bravery on me.
 
 CHORUS. My lord Odysseus, thou art come in time,
 If thou art here to mediate, not embroil.
@@ -1643,7 +1637,6 @@ ODYSSEUS. Delight not, son of Atreus, in ill gains.
 AGAMEMNON. "Tis hard for monarchs to show piety.
 
 ODYSSEUS. But not respect for friends who counsel well.
-Tit
 
 AGAMEMNON. A true man ever heeds authority.
 
@@ -1683,7 +1676,7 @@ AGAMEMNON. Well, let it seem thy doing, friend, not mine.
 ODYSSEUS. Howe’ar ’tis done, twill prove thee good and kind.
 
 AGAMEMNON. To thee, my friend, of this be well assured,
-1 ἃ grant a favour greater e’en than this.
+I grant a favour greater e’en than this,
 But that man, as in living so in death,
 Shall have my hate. So do as pleaseth thee.
 [Exit AGAMEMNON.]

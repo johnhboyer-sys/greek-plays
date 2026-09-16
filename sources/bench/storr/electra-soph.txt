@@ -178,7 +178,7 @@ Ah! Niobe forlorn,
 How blest art thou who tombed in stone dost lie
 And weep for aye.
 
-CHORUS. Not thou alone, hast sorrow ; others share (Str. 2)
+CHORUS. Not thou alone, hast sorrow ; others share
 Thy load of care.
 Think on thy kinsfolk whom afflictions press
 Than thine no less,
@@ -242,7 +242,7 @@ May the great Olympian King
 Send on them like suffering ;
 Bitter be of sin the fruit;
 May they perish branch and root!
-CHORUS (Ant.
+CHORUS.
 O curb thy tongue! hast thou no thought
 For if to dust and nothingness the dead
 Are doomed, nor blood for blood be shed,
@@ -949,7 +949,7 @@ Entangled in the reins
 Beneath the tramp of coursers’ hoofs !
 
 CHORUS. Torture ineffable !
-Ig
+
 
 ELECTRA. Yea, in a strange land far away—
 
@@ -1051,7 +1051,7 @@ I find fresh sorrows added to the old.
 
 ELECTRA. So stands the case ; but be advised by me
 And lighten this the burden of our woes.
-&
+
 
 CHRYSOTHEMIS. Wouldst have me raise the dead to life again ?
 
@@ -1229,7 +1229,7 @@ O voice “that echoes to the world below,
 Bear to the dead a wail of woe,
 A coronach, a tale of shame
 To Atreus’ line proclaim.
-Tell him his house is stricken sore, (Ant. 1)
+Tell him his house is stricken sore,
 Tell him his children now no more
 In amity together dwell;
 Dire strife the twain divides,
@@ -1241,7 +1241,7 @@ Reckless of life, could: she but quell
 The cursed pair, those Furies fell.
 Where shall ye find on earth
 A maid to match her worth?
-No generous soul were fain (Str.
+No generous soul were fain
 By a base life his fair repute to stain.
 Such baseness thou didst scorn,
 Choosing, my child, to mourn with them that mourn.
@@ -1418,10 +1418,10 @@ ORESTES. Do as I bid thee; thou shalt not repent it.
 
 ELECTRA. O, I adjure thee, rob me not of that
 The most I prize on earth.
-te
-tQ
-to
-ty
+
+
+
+
 
 ORESTES. It may not be.
 
@@ -1478,7 +1478,7 @@ By feigning is alive again and safe.
 CHORUS. We see him, daughter, and this glad surprise
 Makes our eyes overflow with happy tears.
 
-ELECTRA. Son of my best loved sire, (Str)
+ELECTRA. Son of my best loved sire,
 Now hast thou come, art here to find, to see
 Thy heart's desire.
 
@@ -1740,7 +1740,7 @@ CHORUS. The curses work ; the buried live again,
 And blood for blood, the slayer’s blood they drain,
 The ghosts of victims long since slain.
 Enter ORESTES and PYLADES from the palace.
-Lo they come forth with gory hands that reek (Ant.)
+Lo they come forth with gory hands that reek
 Of sacrifice to Ares—’twas done well.
 
 ELECTRA. How have ye sped, Orestes?
