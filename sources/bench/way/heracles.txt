@@ -1,5 +1,7 @@
 MADNESS OF HERCULES
 
+_AMPHITRYON, MEGARA, and her three Sons by Hercules, seated on the steps of the altar of Zeus the Deliverer._
+
 AMPHITRYON. Who knows not Zeus’s couch-mate, who of men,
 Argive Amphitryon, sprung from Perseus’ son
 Alcaeus, father of great Hercules ?
@@ -115,7 +117,7 @@ Nor prosperous to the end the prosperous are ;
 For all things fleet and yield each other place.
 He is the hero, who in steadfast hope
 Trusts on: despair is but the coward’s part.
-ascent to the altar.
+_Enter CHORUS, leaning on their staves, and climbing the ascent to the altar._
 
 CHORUS. Unto the stately palace-roofs, whereby
 The ancient coucheth on the ground,
@@ -153,6 +155,7 @@ Beholdest them slain, what a band
 Of champions is lost to our land !
 But lo, the ruler of this realm I see,
 Lycus, unto these mansions drawing nigh.
+_Enter LYCUS._
 
 LYCUS. Thee, sire of Hercules, and thee, his wife,
 I ask—if ask I may :—I may, I trow,
@@ -369,11 +372,15 @@ LYCUS. So be it: I bid my men throw wide the doors..
 Pass in ; adorn you : I begrudge no robes.
 But, when ye have cast the arraying round your
 limbs,
-I come, to give you to the nether world, [Exit.
+I come, to give you to the nether world.
+
+_Exit._
 
 MEGARA. Children, attend your hapless mother's steps
 To your sire’s halls, where others’ mastery holds
 His substance, but his name yet lingereth ours.
+
+_Exit with children._
 
 AMPHITRYON. Zeus, for my couch-mate gained I thee in vain,
 Named thee in vain co-father of my son.
@@ -384,6 +391,8 @@ Cunning wast thou to steal unto my couch,—
 To filch another's right none tendered thee,—
 Yet know’st not how to save thy dear ones now !
 Thine is unwisdom, or injustice thine.
+
+_Exit._
 
 CHORUS. The Lay of the Labours of Hercules *
 Hard on the pean triumphant-ringing
@@ -510,6 +519,7 @@ Like to’a chariot’s trace-led steeds,—the father
 Stricken in years of Hercules !—woe's me’!
 Fountains of tears within mine old eyes gather ;
 How should I stay them, such a sight who see?
+_Enter MEGARA, AMPHITRYON, and children._
 
 MEGARA. Who is the priest, the butcher, of the ill-starred ?
 Or who the murderer of my woeful life ?
@@ -577,7 +587,7 @@ Fortune hath snatched, as a feather skyward blown.
 None know I whose great wealth or high repute
 Is sure. Farewell: for him that was your friend
 Now for the last time, age-mates, have ye seen.
-[HERCULES appears in the distance.]
+_HERCULES appears in the distance._
 
 MEGARA. Ha!
 Ancient, my dear lord—else what ?—do I see?
@@ -660,7 +670,7 @@ MEGARA. Friends !—what friends hath a man unfortunate ?
 
 HERCULES. Scorned they the fights with Minyans I endured ?
 
-MEGARA. Friendless, [ tell thee again, misfortune is.
+MEGARA. Friendless, I tell thee again, misfortune is.
 
 HERCULES. Fling from your hair these cerements of the grave :
 Look up to the light, beholding with your eyes
@@ -757,6 +767,7 @@ Care of my sons. Men’s hearts be all like-framed :
 They love their babes, as well the nobler sort, :
 As they that are but naught. In wealth they differ;
 These have, those lack : their children all men love.
+_Exeunt HERCULES, AMPHITRYON, MEGARA, and children._
 
 CHORUS. Ah, sweet is youth !—but always eld,
 On mine head weighing, downward drags,
@@ -813,12 +824,13 @@ Swan-song of singer hoary-grey :
 The portals of thine halls to-day shall hear the old
 lips chanting.
 Proud theme hath minstrelsy, to sing mine hero's
-high achieving : (mounts, far-leaving
+high achieving : [mounts, far-leaving
 He is Zeus’ son, but deeds hath done whose glory
 The praise of birth divine behind,
 Whose toils gave peace to humankind,
 Slaying dread shapes that filled man’s mind with
 terrors ceaseless-haunting.
+_Enter LYCUS, attended. Re-enter AMPHITRYON._
 
 LYCUS. So !—in good time, Amphitryon, com’st thou forth.
 Ye have tarried all too long as ye arrayed
@@ -856,14 +868,17 @@ Who am past all fear, will bring forth with her sons
 This mother. Henchmen, hither, follow me,
 With joy to sweep this hindrance from our path
 
+_Exit._
 AMPHITRYON. Another shall take thought. Look thou for ill
 To suffer ill! Old friends, in happy hour
 He paceth on: in toils of snaring swords
 Shall he be trapped who thought to slay his neighbours,
 The utter-vile! I go to see him fall
 Dead. Joy it is to see an orem
-Die, suffering vengeance for his ill-deeds done. [Ezit.
-The members of the Chorus chant successively.
+Die, suffering vengeance for his ill-deeds done.
+
+_Exit._
+_The members of the Chorus chant successively._
 
 CHORUS. Ho for requital of wrong! the king who was great
 heretofore door !
@@ -923,7 +938,7 @@ Re-arisen from Hades’ drear ghost-haven :
 Hope springs from despair.
 ‘Ant, 2)
 The Gods, O the Gods now are sealing unrighteousness’ doom, and revealing
-The right, their eternal design. _[victorious
+The right, their eternal design. [victorious
 But Gold and Fair-fortune, with Power the
 Harnessed beside them, in folly vainglorious
 Hurry man to his doom :—
@@ -974,7 +989,9 @@ Old friends, what phantom hovereth o'er the hall ?
 With haste of laggard feet !--speed thou away !
 Healer, to thee,
 O King, to avert from me yon bane I pray !
-atl, fe
+
+_The forms of IRIS and MADNESS appear above the palace._
+
 IRIS.
 Fear not : this is the child of Night ye see,
 Madness, grey sires : 1, handmaid of the Gods,
@@ -1043,7 +1060,7 @@ Wilder yet shall be thy dance, as peals my pipe’s
 —Ay, unto Olympus soaring, Iris, tread thy path
 serene! (unseen.
 Mine the task into the halls of Hercules to plunge
-[iris ascends, and madness enters the palace.
+_IRIS ascends, and MADNESS enters the palace._
 
 CHORUS. For thy goodliest flower, Zeus’ son, mown down!
 Thy champion shall slip from thine hands, to thy
@@ -1073,7 +1090,7 @@ As the banqueters pour it forth for the Wine-god’s
 Away, O ye children, in flight, for death,
 Death shrieks through her pipe by the blast of
 her breath !
-[Cries and sound of rusking within.]
+_Cries and sound of rushing within._
 Like a hound is he holding the children in chase !—
 Never shall Madness keep revel for naught through
 his dwelling-place.
@@ -1081,7 +1098,7 @@ Woe, anguish and pain!
 Woe and alas for the silver hair
 Of his father !—woe for the mother who bare
 His babes in vain!
-[Sound of battering and rending within. ]
+_Sound of battering and rending within._
 Lo you, lo you?
 A whirlwind is shaking the house—its roofs fall
 crashing—
@@ -1089,6 +1106,7 @@ Ah what, ah what, Zeus’ Son, wouldst thou do?
 Down on thy palace the turmoil of hell art thou
 dashing, [Enceladus flashing.
 As the levin from Pallas’s hand to the heart of
+_Enter SERVANT from within._
 
 SERVANT. O reverend presences hoary-white—
 
@@ -1158,7 +1176,6 @@ To feast: yet, tarrying there but little space,
 He cried, “I go to Isthmus’ woodland plains!”
 Then from his body cast his mantle’s folds,
 And wrestled with—no man /—proclaimed himself
-“THE MADNESS OF HERCULES
 ‘To himself the victor, cried, “ Ye people, hear !"—
 To none! In fancy at Mycenae then
 He stormed against Eurystheus. But his sire
@@ -1224,7 +1241,6 @@ Of Danaus’ daughters, the workers of death :—
 But this hath surpassed, hath outrun, that horror of
 old— [the sacrifice done
 This horror that blasts Zeus’ Son! I might tell of
-uo
 To the Muses, of Procne[12] who slaughtered the only
 child of her womb :— .
 But thou, who art father of children three, O un-
@@ -1236,7 +1252,7 @@ dirge of the tomb ?
 Alas! O see
 How the bolts slide back, and asunder fall
 The stately doors of the palace-hall.
-The palace is thrown open, and the scene within disclosed.
+_The palace is thrown open, and the scene within disclosed._
 Lo there the children—ah misery !
 At the feet of their wretched father they lie:
 And from murder of sons he is resting in awful sleep ;
@@ -1324,7 +1340,7 @@ Through the city of Cadmus storming in awful revelry.
 CHORUS. Ah Zeus, why this stern hate against thy son ?
 Why hast thou brought him to this sea of ills?
 Ha!
-Breathing I am—all I should see I see,
+HERCULES. Breathing I am—all I should see I see,
 The sky, the earth, the shafts of yonder sun :
 Yet as in surge and storm of turmoiled soul
 Am whelmed, and fiery-fervent breath I breathe
@@ -1438,7 +1454,7 @@ Oh let me in black darkness pall mine head ;
 For I take shame for evils wrought of me,
 Nor would I taint him with bloodguiltiness[13]—!
 Nay, nowise would I harm the innocent.
-inter THESEUS, with attendants.
+_Enter THESEUS, with attendants._
 
 THESEUS. I come, with them that by Asopus’ stream
 In arms are tarrying, Athens’ warrior sons,
@@ -1805,7 +1821,7 @@ Rather than loyal friends, is sense-bereft.
 
 CHORUS. With mourning and weeping sore do we pass away,
 Who have lost the chiefest of all our friends this day.
-[Exeunt omnes.
+_Exeunt OMNES._
 
 Footnotes:
 [1] The revolutionary party, who styled themselves ‘ Young Thebes.”

@@ -1,5 +1,7 @@
 PHOENICIAN MAIDENS
 
+_Enter JOCASTA._
+
 JOCASTA. O thou who cleav’st thy path mid heaven's stars,
 Who ridest on thy chariot golden-clamped,
 Sun, whirling on with flying steeds thy fire,
@@ -88,7 +90,10 @@ And, saith the messenger I sent, he comes.
 O dweller Zeus in heaven’s veiling light,
 Save us, grant reconciling to my sons !
 Thou oughtest not, so thou be wise, to leave
-The same man evermore to be unblest. (Exit.
+The same man evermore to be unblest.
+
+_Exit._
+_Enter, above, OLD SERVANT and ANTIGONE._
 
 OLD SERVANT. Fair flower of thy sire’s house, Antigone,
 Albeit thy mother suffered thee to leave
@@ -248,6 +253,11 @@ And scandal-loving still is womankind ;
 Far, so they find slight cause for idle talk,
 More they invent. Strange pleasure women take
 To speak of sister-women nothing good.
+
+_Exeunt OLD SERVANT and ANTIGONE._
+
+_Enter CHORUS._
+
 Afar from the tides against Tyre’s walls swelling,
 For Loxias chosen an offering,
 From the Isle of Phoenicia I came, to be thrall
@@ -305,6 +315,7 @@ On the sons of that blind king.
 Argos, thy Pelasgian might[5]
 But thou, make answer, who art thou that com’st
 Into this fortress of seven-gated Thebes ?
+_Enter POLYNEICES._
 
 POLYNEICES. Oedipus, son of Laius, was my sire ;
 Menoeceus’ child Jocasta gave me birth ;
@@ -420,7 +431,7 @@ POLYNEICES. Nay, ask ; leave no desire unsatisfied ;
 For, mother, that thou wouldst is dear to me.
 
 JOCASTA. First, then, I ask thee that I fain would learn.
-What meaneth exile? [5 it a sore ill?
+What meaneth exile? Is it a sore ill?
 
 POLYNEICES. The sorest. In deed sorer than in word.
 
@@ -520,6 +531,7 @@ For the high-born in poverty is naught.
 CHORUS. Lo, unto parley Eteocles comes.
 Mother Jocasta, thine the task to speak
 Words whereby thou shalt set thy sons at one.
+_Enter ETEOCLES._
 
 ETEOCLES. Here am I, mother—all for grace to thee
 I come. What needs to do? Be speech begun.
@@ -772,7 +784,7 @@ But I call to witness earth that nursed me, witness
 How with shame and piteous usage from the homeland I am driven, [Oedipus, came.
 Like a bondman, not a son that of one father,
 City, whatsoe’er befall thee, blame not me: yon
-t blame. { willingly.
+tyrant blame. [willingly.
 Willingly I came not, from the land am cast unFarewell, Phoebus, Highway-king, O palace-bowers,
 farewell ye! [where sheep are slain !
 Friends of youth, farewell, and statues of the Gods
@@ -785,6 +797,8 @@ my sceptre swayed,
 ETEOCLES. Get thee forth! Ha, truly Polyneices, “Man of
 many a feud,” [thy feuds endued !
 Named thy father thee, with heavenly prescience of
+
+_Exit POLYNEICES._
 
 CHORUS. To this land from Phoenicia Cadmus speeding (Str)
 Came, till the heifer unbroken, leading .
@@ -844,6 +858,7 @@ Touching our own advantage and the land’s,
 Ere we go battleward and range the spears.”
 But lo, he cometh, sparing thy foot’s toil.
 Myself behold him drawing nigh mine halls.
+_Enter CREON._
 
 CREON. Seeking to see thee, far I have wended, King
 Eteocles ; round to all Cadmean gates
@@ -974,7 +989,9 @@ Bring forth my arms, mine harness-panoply,
 That to the imminent conflict of the spear
 I may set forth, with Right to crown mine arms.
 To Heedfulness, of all Gods helpfullest,
-That she will save this city, now we pray. [Exit.
+That she will save this city, now we pray.
+
+_Exit._
 
 CHORUS. Ares the troublous, O whence is thy passion _
 For blood and for death, unattuned to the feasts of
@@ -1029,7 +1046,7 @@ same root.
 For I heard, yea, 1 heard in mine home, in an alien
 tongue, the story—
 From the dragon of crimson crest that battened on
-beasts of the wold {and her glory.
+beasts of the wold [and her glory.
 A race of the seed of his teeth, to be Thebes’ reproach
 To Harmonia’s[2] bridal descended of yore!
 The Children of Heaven; and Thebes’ walls rose to the
@@ -1044,6 +1061,7 @@ Lo, how hath this city, through line on line
 Of blessings unnumbered, attained to the height
 Where the War-god’s crowns of vietory-might
 Shine!
+_Enter TEIRESIAS led by his DAUGHTER, with MENOECEUS._
 
 TEIRESIAS. Lead on, my daughter : to my sightless feet
 As eyes art thou, as star to, mariners.
@@ -1113,7 +1131,7 @@ And bitter unto those whom fate endows
 With power to give their city safety’s balm.
 I go. Farewell! What must befall will I—
 One midst a multitude—endure. What help?
-[Turns to go.
+_Turns to go._
 
 CREON. Abide here, ancient !
 
@@ -1212,6 +1230,7 @@ He is loathed of those to whom he prophesies.
 If, pitying them that seek to him, he lie,
 He wrongs the Gods. Sole prophet unto men,
 Ought Phoebus to have been, who feareth none.
+_Exit._
 
 CHORUS. Why silent, Creon, with lips held from speech? .
 On me, too, consternation weighs no less.
@@ -1267,6 +1286,8 @@ Jocasta, on whose bosom first I lay,
 Reft of my mother, left an orphan lone,—
 To bid her farewell, ere I flee for life.
 On then : pass in, be hindrance not in- thee.
+
+_Exit CREON._
 Maidens, how well I have stilled my father’s fear
 By guileful words, to attain the end I would !
 Me would he steal hence, robbing Thebes of hope,
@@ -1294,6 +1315,9 @@ For, if each man would take his all of good,
 Lavish it, lay it at his country’s feet,
 Then fewer evils should the nations prove,
 And should through days to come be prosperous.
+
+_Exit._
+
 CHORUS. Thou camest, camest, O thou wingéd doom, (Str.)
 Fruit of Earth’s travailing,
 Begotten of the Worm of Nether-gloom,
@@ -1542,26 +1566,6 @@ Then ancient Oedipus’ two sons straightway
 ’Gan case their bodies in all-brazen mail,
 Holpen of friends; by Theban lords the king
 Of this land, and by Danaan chiefs his brother.
-that bodeth ill,
-“decisions twain,
-Betokening victory or overthrow.
-If any power thou hast or cunning words,
-Or spell of charms, go, pluck thou back thy sons
-From that dread strife ; for grim the peril is ;
-And, for dread guerdon, tears shall be thy portion,
-If thou of two sons be this day bereaved. [Exit.
-JOCASTA. Daughter Antigone, come forth the house !
-No dances, neither toils of maiden hands,
-Beseem thee in this hour of heaven’s doom ;
-But heroes twain, yea, brethren unto thee,
-Now deathward reeling, with thy mother thou
-Must hold from dying, each by other slain.
-Enter ANTIGONE.
-
-ANTIGONE. Mother that bare me, what strange terror-cry
-Before these halls to thy friends utterest thou ?
-
-JOCASTA. Daughter, thy brethren’s life is come to naught.
 There ‘stood they gleaming,—never paled their
 cheeks,--Each panting at his foe to-dart the spear.
 On this side and on that their friends drew nigh,
@@ -1580,17 +1584,22 @@ If any power thou hast or cunning words,
 Or spell of charms, go, pluck thou back thy sons
 From that dread strife ; for grim the peril is ;
 ‘And, for dread guerdon, tears shall be thy portion,
-If thou of two sons be this day bereaved. [Exit.
-JOCASTA Daughter Antigone, come forth the house !
+If thou of two sons be this day bereaved.
+
+_Exit._
+
+JOCASTA. Daughter Antigone, come forth the house !
 No dances, neither toils of maiden hands,
 Beseem thee in this hour of heaven’s doom ;
 But heroes twain, yea, brethren unto thee,
 Now deathward reeling, with thy mother thou
-Must hold from dying, each by other-slain.
+Must hold from dying, each by other slain.
+
+_Enter ANTIGONE._
 
 ANTIGONE. Mother that bare me, what strange terror-cry Before these halls to thy friends utterest thou ?
 
-JOCASTA. Daughter, thy brethren’s life is come to naught.”
+JOCASTA. Daughter, thy brethren’s life is come to naught.
 ANTIGONE.
 How say’st thou?
 
@@ -1620,12 +1629,13 @@ ANTIGONE. Lead to the mid-space! We may tarry not.
 Jacasta
 Haste, daughter, haste: for, may I but forestall
 My sons ere fighting, light of life is mine:
-If they be dead, dead with them will I lie. [Exeunt.
-- 9
+If they be dead, dead with them will I lie.
+
+_Exeunt._
 
 CHORUS. Shuddering, shuddering horror of soul have I :
 Through the very flesh of me pass
-Compassion-thrills for a mother in misery. _[lie—
+Compassion-thrills for a mother in misery. [lie—
 Two sons—who, slain of the other, i in blood shall
 Woe, anguish, and dismay
 Zeus !—Earth !—to you my pray! -With his throat pierced, his life by a brother sped,
@@ -1644,7 +1654,7 @@ Fate presseth nearer, murder is hard by,
 In the sword’s balance hung —
 Curst slaughter, curst, the work of Vengeance-destiny !
 Ha, tis Creon I behold, that hitherward with clouded
-brow {but now.
+brow [but now.
 Hasteth to the palace. I will hush the wail begun
 
 CREON. What shall I do? Weeping shall I bemoan
@@ -1678,6 +1688,7 @@ Is ended 'twixt the sons of Oedipus.
 CREON. Ah me! a token yonder do I see,
 The joyless eye and face of one who comes
 A messenger, to tell all horrors doze.
+_Enter MESSENGER._
 
 MESSENGER. Woe is me ! what story can I tell, or utter. forth what
 wail?
@@ -1850,6 +1861,7 @@ Is the bale of the house: ye may see
 Here, now, yon corpses three
 By the palace, in death as one
 To the life that is darkness gone.
+_Enter procession bearing corpses, with CREON and ANTIGONE._
 
 ANTIGONE. Never a veil o’er the tresses I threw
 O’er my soft cheek sweeping,
@@ -1907,6 +1919,7 @@ Weariful days out. O hearken,
 Whose old feet grope through the hall,
 Who in gloom that no night-tide can darken
 On thy pallet dost fall.
+_Enter OEDIPUS._
 
 OEDIPUS. Why hast thou drawn me, my child, to the light,
 Whose sightless hand to thine hand's prop clings, .
@@ -2109,6 +2122,8 @@ CREON. Noble thy spirit, yet lurks folly there.
 ANTIGONE. Yea, and with him will die. Know this withal.
 
 CREON. Thou shalt not slay my son. Hence, leave the land !
+
+_Exit._
 OEDIPUS.
 Daughter, for thy devotion thank I thee. «
 
@@ -2238,11 +2253,15 @@ piteous plight.
 Yet what boots it thus to wail? What. profits vainly
 to lament?
 Whoso is but mortal:needs must bear the fate of
-heaven sent. [Exeunt Oedipus and Antigone.
+heaven sent.
+
+_Exeunt OEDIPUS and ANTIGONE._
 CHORUS.
 Hail, revered Victory !
 Rest upon my life ; and me
 Crown, and crown eternally !
+
+_Exeunt OMNES._
 
 Footnotes:
 [1] “The spell of the steel itself draws men on to fight . xix. 13,

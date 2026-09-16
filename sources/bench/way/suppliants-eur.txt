@@ -1,6 +1,6 @@
 SUPPLIANTS
 
-[On the steps of the altar AETHRA is seated ; and around her sit the members of the CHORUS. The olive-boughs of suppliance lie upon the altar, and from these are stretched woollen fillets, attaching them to AETHRA and the CHORUS. ADRASTUS lies prostrate on the earth, apart from these.]
+_On the steps of the altar AETHRA is seated ; and around her sit the members of the CHORUS. The olive-boughs of suppliance lie upon the altar, and from these are stretched woollen fillets, attaching them to AETHRA and the CHORUS. ADRASTUS lies prostrate on the earth, apart from these._
 
 AETHRA. Demeter, warder of Eleusis-land,
 And ye which keep and serve the Goddess’ fanes,
@@ -98,6 +98,7 @@ For the hearts love of woman but one path knows,
 Nor can choose but to moan for the dear dead son :—
 And oh that the days of my life were done,
 And forgotten my woes !
+_Enter THESEUS._
 
 THESEUS. What wailings heard I, smitings upon breasts,
 And dirges for the dead, as rang the sound —_— [fear
@@ -482,6 +483,8 @@ Is he that pays not service-debt to parents.
 Who giveth of love’s best, by his own sons
 For all he hath given his parents is repaid.
 
+_Exeunt THESEUS and AETHRA._
+
 CHORUS. Argos, mead of the battle-steed, O land where my
 fathers abode of yore, [the hero-king,
 Ye have heard it, heard in Heaven was the word of
@@ -505,6 +508,7 @@ So the laws of men shall be made not then a polluted
 Thou reverencest great Justice’ hest : injustice beneath thy yoke shall bend :
 And through all the lands thy champion hands to the
 helpless oppressed deliverance send.
+_Enter THESEUS with ATHENIAN HERALD._
 
 THESEUS. O thou that usest still thine art to serve
 Athens and me, wide publishing mine hests,
@@ -524,6 +528,7 @@ Ha !—breaking in upon my speech who comes ?
 Theban, I deem, yet know not certainly :—
 A herald !—stay : thy toil perchance is spared.
 His coming meets my purpose in mid way.
+_Enter THEBAN HERALD._
 
 HERALD. Your despot, who?—to whom must I proclaim
 The words of Creon, lord of Cadmus’ land
@@ -743,6 +748,8 @@ THESEUS. Tush, man, thou canst not move mine heart to wrath
 With all thy vauntings. Get thee forth the land:
 The idle words thou broughtest, bear them back.
 Naught comes of wrangling.
+
+_Exit HERALD._
 Let each man-at-arms,
 Each chariot-rider, and each battle-steed,
 ‘Whose swinging cheek-plate dashes round his jaws
@@ -756,7 +763,9 @@ Mine host, a taintless chief with taintless spear.
 One only thing I need, all Gods to have
 Which reverence right : for where these are, they give
 Victory. Naked valour naught avails
-To men, except it have the Gods’ good will. [Exit.
+To men, except it have the Gods’ good will.
+
+_Exit._
 
 HALF-CHORUS. Ye hapless mothers of hapless chieftains dead,
 Ah, how is mine heart stormed-tossed with pale
@@ -815,6 +824,7 @@ To our city be gracious now !
 HALF-CHORUS. Thy beloved are we, it was planted of thee,
 This city whose sons we would gain
 For the tomb from the outrage-stain.
+_Enter MESSENGER._
 
 MESSENGER. Women, I come with tidings full of joy,—
 Myself escaped, for I was ta’en in fight,
@@ -966,7 +976,7 @@ ADRASTUS. With loathing, surely, thralls took up the slain.
 MESSENGER.
 Never a slave set hand unto the toil.
 
-ADRASTUS. [How ?—did the hing endure this, of his love? ]
+ADRASTUS. [How ?—did the king endure this, of his love? ]
 
 MESSENGER. Hadst thou but seen his ministry of love !
 
@@ -1011,7 +1021,7 @@ Ah, yonder I see the forms draw nigh
 Of our perished children ; alas!
 O but with these my beloved to die,
 Unto union in Hades to pass !
-procession with corpses on biers.
+_Enter THESEUS, with Athenian soldiers marching in procession with corpses on biers._
 
 ADRASTUS. Mothers, ring out the moan
 For dear dead ‘neath the ground ;
@@ -1210,6 +1220,9 @@ To fellow-men? Stay, from such toils forbear,
 And peaceful mid the peaceful ward your towns.
 Short is life’s span : behoves to pass through this
 Softly as may be, not with travail worn,
+
+_The funeral procession passes on to the pyres, which are kindled in sight of the stage._
+
 The funeral i on to the , which are
 Foe eed wig ofthe nage
 
@@ -1249,8 +1262,7 @@ Evadne the princess renowned !
 On yon cliff why is she found
 Whose crags above this fane tower ?
 And she climbs, and she climbs ever higher !
-[EVADNE appears on the cliff above the pyre of Capaneus,
-dressed in festal attire.]
+_EVADNE appears on the cliff above the pyre of Capaneus, dressed in festal attire._
 
 EVADNE. What light ill-omened shone
 When flashed thy wheels, O Sun,
@@ -1361,6 +1373,8 @@ IPHIS. Nay, surely will I let thee from this deed.
 EVADNE. Let or let not—thou canst not reach nor seize me.
 Lo, hurled my body falls, for grief to thee,
 For joy to me and him with me consumed.
+
+_Throws herself from the cliff on to the pyre._
 Throws herself from the cliff on to the pyre.
 
 CHORUS. O lady, what awful deed hath been compassed of
@@ -1411,7 +1425,7 @@ By meats and drinks and magic philtre-spells
 To turn life’s channel, that they may not die,
 Who, when they are but cumberers of the ground,
 Should hence, and die, and make way for the young.
-[The stage gradually fills with a procession, in which the SONS of the dead chiefs bear the urns containing their ashes. The members of the CHORUS advance to meet them.]
+_The stage gradually fills with a procession, in which the SONS of the dead chiefs bear the urns containing their ashes. The members of the CHORUS advance to meet them._
 
 CHORUS. Woe is me, woe !
 Onward, onward the bones of sons, sons dead,
@@ -1519,7 +1533,7 @@ THESEUS. What service yet remains that I may render?
 ADRASTUS. Fare well : for thou art worthy—thou and Athens.
 
 THESEUS. So be it, The same fortune light on thee. .
-[ATHENA appears in her chariot above the temple-roof.]
+_ATHENA appears in her chariot above the temple-roof._
 
 ATHENA. Give ear, O Theseus, to Athena’s hest
 What thou must do—for Athens’ service do :—
@@ -1554,7 +1568,7 @@ Be the God’s Close, by those three Isthmian ways.
 This to thee : now to the Argives’ sons I speak.
 Ye shall, to man grown, waste Ismenus’ town
 In vengeance for the slaughter of dead sires.
-‘Thou in thy sire’s stead, Aegialeus[11],} shalt be
+‘Thou in thy sire’s stead, Aegialeus[11], shalt be
 Their young chief : from Aetolia Tydeus’ son,
 Named Diomedes of his sire, shall come.
 When beards your cheeks are shadowing, tarry not
@@ -1576,6 +1590,8 @@ To Athens, shall we ever safely dwell.
 CHORUS. On pass we, Adrastus, and take oath-plight
 Unto Theseus and Athens. That worship requite
 Their travail for us, is meet and right.
+
+_Exeunt OMNES._
 
 Footnotes:
 [1] ‘The woollen fillets and boughs could not be removed without sacrilege.
