@@ -314,19 +314,31 @@ def _region_align(
 
     def solve(
         M: list[dict], Ig: list[dict], Ie: list[dict], lohi: list[tuple[int, int]],
+        w: int,
     ):
         """Pick the cheapest final layer, trace back, and report whether the
-        PATH -- not the forward pass -- touched its row's band edge anywhere
-        strictly inside the region (P4, turn-pairing-round3-2026-09-15.md).
+        band may have distorted the PATH -- not the forward pass (P4,
+        turn-pairing-round3-2026-09-15.md; round 6, finding 1).
 
-        The forward pass's old `touched_edge` test fired on every row of
-        every play (98/98): `band_lo_hi` pins `lo == 0` at i == 0 and
-        `hi == E` at i == G by construction, so the trivial start and end
-        cells always sit on an edge whether or not the band was too narrow
-        anywhere real. Only an INTERIOR traceback cell (0 < i < G) sitting at
-        its row's lo/hi is a genuine signal that the optimal path wanted to
-        go further and the band should widen. Returns ``None`` when no
-        finite path reaches the end cell (caller decides how to react).
+        The forward pass's old test fired on every row of every play (98/98):
+        `band_lo_hi` pins `lo == 0` at i == 0 and `hi == E` at i == G by
+        construction, so the trivial start and end cells always sit on an
+        edge whether or not the band was too narrow anywhere real. Round 3
+        answered that by ignoring rows 0 and G outright, which throws away a
+        real signal: row 0's `hi` is NOT clamped. Two tests replace it, both
+        on the path:
+
+        1. a cell at an edge the BAND imposed rather than the text -- `lo`
+           where `lo > 0`, `hi` where `hi < E`, at any row including 0 and G;
+        2. a one-sided run (SKIP_G or SKIP_E) longer than `w`. A run of
+           length L carries the path L columns away from the row it entered
+           on while the diagonal stays put, so a run longer than the band's
+           half-width is an excursion the band cannot hold -- and clamping
+           can hide it from test 1 by widening the one row that survived
+           while the cheaper path through a neighbouring row was cut off.
+
+        Returns ``None`` when no finite path reaches the end cell (caller
+        decides how to react).
         """
         end = (G, E)
         layer_costs = {
@@ -346,10 +358,9 @@ def _region_align(
         i, j = end
         cur = layer
         while (i, j) != (0, 0):
-            if 0 < i < G:
-                lo_i, hi_i = lohi[i]
-                if j == lo_i or j == hi_i:
-                    touched_edge = True
+            lo_i, hi_i = lohi[i]
+            if (j == lo_i and lo_i > 0) or (j == hi_i and hi_i < E):
+                touched_edge = True
             if cur == "M":
                 pairs.append((i - 1, j - 1))
                 base_candidates = {
@@ -424,26 +435,53 @@ def _region_align(
             else:
                 greek_skip_runs.append((idx, idx + 1))
 
+        if not touched_edge:
+            # Test 2: an excursion longer than the band's half-width.
+            longest_g = max((hi - lo for lo, hi in greek_skip_runs), default=0)
+            longest_e = 0
+            run_len = 0
+            prev = None
+            for idx in skip_e_marks:
+                run_len = run_len + 1 if prev is not None and idx == prev + 1 else 1
+                longest_e = max(longest_e, run_len)
+                prev = idx
+            touched_edge = max(longest_g, longest_e) > w
+
         return pairs, greek_skip_runs, skip_e_marks, total_cost, touched_edge
 
     widened = False
     if band:
         M, Ig, Ie, lohi = run(W)
-        solved = solve(M, Ig, Ie, lohi)
+        solved = solve(M, Ig, Ie, lohi, W)
         if solved is None or solved[4]:
-            # No path at all, or the path leaned on the band edge somewhere
-            # interior to the region: widen once and re-solve (P4). A
-            # missing path at W is itself the strongest widen signal, so it
-            # is treated the same as an interior edge touch.
+            # No path at all, or the path leaned on a band-imposed edge:
+            # widen once and re-solve (P4). A missing path at W is itself the
+            # strongest widen signal, so it is treated the same as an edge
+            # touch.
             M2, Ig2, Ie2, lohi2 = run(2 * W)
-            solved2 = solve(M2, Ig2, Ie2, lohi2)
+            solved2 = solve(M2, Ig2, Ie2, lohi2, 2 * W)
             widened = True
             if solved2 is not None:
                 M, Ig, Ie, lohi, solved = M2, Ig2, Ie2, lohi2, solved2
+            if solved is None or solved[4]:
+                # Still pressed against the band at 2W (or still no path at
+                # all: with E/G > 2W consecutive rows are DISJOINT and no
+                # widening short of the full matrix connects them). The band
+                # is an optimisation, not a correctness requirement (design
+                # 3.3-3.4: the unbanded DP is inside budget), so the last
+                # resort is the unbanded DP, never the skip-everything
+                # fallback below -- round 6, finding 1.
+                full = max(G, E) + 1
+                if full > 2 * W:
+                    M3, Ig3, Ie3, lohi3 = run(full)
+                    solved3 = solve(M3, Ig3, Ie3, lohi3, full)
+                    if solved3 is not None:
+                        M, Ig, Ie, lohi, solved = M3, Ig3, Ie3, lohi3, solved3
     else:
         # Unbanded: a band wide enough to cover everything, no widen report.
-        M, Ig, Ie, lohi = run(max(G, E) + 1)
-        solved = solve(M, Ig, Ie, lohi)
+        full = max(G, E) + 1
+        M, Ig, Ie, lohi = run(full)
+        solved = solve(M, Ig, Ie, lohi, full)
 
     if solved is None:
         # No path found even at the widest band tried (should not happen for

@@ -292,3 +292,41 @@ def test_two_share_line_whose_english_is_two_turns_gets_both():
     assert result.pairs == [(0, 0), (1, 1)]
     assert result.greek_skips == []
     assert result.english_skips == []
+
+
+def test_band_falls_back_to_the_unbanded_dp_when_the_band_has_no_path():
+    """Round 6, finding 1 (grok static review 2026-09-16). The band's rows are
+    centred on `i*E/G` with no predecessor closure, so when `E/G > 2W`
+    consecutive rows are DISJOINT and no path reaches the end cell at either
+    `W` or `2W`. One Greek share against 200 English speeches is that shape
+    (`W = 40`, row 0 reaches j <= 40, row 1 starts at j >= 160). The old code
+    fell back to "skip everything", losing a pair the unbanded DP finds."""
+    greek = [GreekNode(name="A", chars=50)]
+    english = [
+        EnglishNode(name="A" if j == 0 else "B", chars=50) for j in range(200)
+    ]
+
+    banded = align(greek, english, pins=[])
+    unbanded = align(greek, english, pins=[], band=False)
+
+    assert banded.pairs == unbanded.pairs == [(0, 0)]
+    assert banded.greek_skips == []
+    assert banded.cost == unbanded.cost
+
+
+def test_band_edge_on_row_zero_widens():
+    """Round 6, finding 1, second clause. `band_lo_hi` clamps `lo` to 0 at
+    row 0 and `hi` to E at row G, but row 0's `hi` is NOT clamped: an English
+    skip run longer than W at the head of a region runs along a real band
+    edge, and the old test (`0 < i < G` only) never saw it. Sixty surplus
+    English speeches before the first Greek's own English is that shape --
+    the banded run matched the first Greek to the wrong speech."""
+    greek = [GreekNode(name="A", chars=50) for _ in range(3)]
+    english = [EnglishNode(name="X", chars=50) for _ in range(60)]
+    english += [EnglishNode(name="A", chars=50) for _ in range(3)]
+
+    banded = align(greek, english, pins=[])
+    unbanded = align(greek, english, pins=[], band=False)
+
+    assert banded.pairs == unbanded.pairs == [(0, 60), (1, 61), (2, 62)]
+    assert banded.band_widened is True
