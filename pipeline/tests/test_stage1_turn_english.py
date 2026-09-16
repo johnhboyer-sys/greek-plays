@@ -1627,6 +1627,107 @@ def test_loeb_ocr_leading_parenthetical_aside_is_not_a_direction():
     ]
 
 
+# A stage direction printed on a line of its own with no closing bracket at
+# all -- Way's Andromache 556, `[Exit, led by MENELAUS.` -- still printed as
+# speech: `_loeb_direction` required a closing `]`. Read now as a direction
+# whenever the line opens with a recognised cue (2026-09-16).
+def test_loeb_ocr_unclosed_whole_line_bracket_direction_is_read_as_a_direction():
+    text = (
+        "THE PLAY\n\n"
+        "ANDROMACHE. Boast not herein :—thine hour shall haply come.\n"
+        "[Exit, led by MENELAUS.\n\n"
+        "CHORUS. Never rival brides blessed marriage-estate.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {"speaker_printed": "ANDROMACHE", "text": "Boast not herein :—thine hour shall haply come."},
+        {
+            "speaker_printed": "CHORUS",
+            "text": "Never rival brides blessed marriage-estate.",
+            "directions_before": ["Exit, led by MENELAUS."],
+        },
+    ]
+    for speech in speeches:
+        assert "Exit, led by MENELAUS" not in speech["text"]
+
+
+# The same unclosed-bracket habit also covers "Re-enter"/"Re-enters" -- added
+# to `_DIRECTION_CUE` alongside this fix.
+def test_loeb_ocr_unclosed_whole_line_bracket_recognises_re_enter():
+    text = "THE PLAY\n\nISMENE. I go.\n[Re-enter ISMENE.\n\nCHORUS. Ill is it, stranger.\n"
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[1] == {
+        "speaker_printed": "CHORUS",
+        "text": "Ill is it, stranger.",
+        "directions_before": ["Re-enter ISMENE."],
+    }
+
+
+# A run-on unclosed bracket with no recognised cue stays speech -- Way's
+# Cyclops 218, `[Shows corner of skin.`, where "Shows" is not a direction
+# cue; a bare unclosed-`[` test would wrongly cut real speech text.
+def test_loeb_ocr_unclosed_whole_line_bracket_with_no_cue_stays_speech():
+    text = (
+        "THE PLAY\n\n"
+        "ODYSSEUS. Old man, it's in this very skin—behold !\n"
+        "[Shows corner of skin.\n\n"
+        "SILENUS. That !—why there's not a toothful in't, I swear !\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0] == {
+        "speaker_printed": "ODYSSEUS",
+        "text": "Old man, it's in this very skin—behold !\n[Shows corner of skin.",
+    }
+    assert "directions_before" not in speeches[1]
+
+
+# Same fix, the verse-own-line path (`_parse_lindsay_speeches`): the own-line
+# direction check only read `_..._`, so an unclosed `[...` on its own line
+# also printed as speech there.
+def test_verse_own_line_unclosed_whole_line_bracket_direction_is_read_as_a_direction():
+    text = (
+        "THE PLAY\n\n"
+        "ANDROMACHE\n"
+        "Boast not herein :—thine hour shall haply come.\n"
+        "[Exit, led by MENELAUS.\n\n"
+        "CHORUS\n"
+        "Never rival brides blessed marriage-estate.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="verse-own-line")
+    assert speeches == [
+        {"speaker_printed": "ANDROMACHE", "text": "Boast not herein :—thine hour shall haply come."},
+        {
+            "speaker_printed": "CHORUS",
+            "text": "Never rival brides blessed marriage-estate.",
+            "directions_before": ["Exit, led by MENELAUS."],
+        },
+    ]
+
+
+def test_verse_own_line_unclosed_whole_line_bracket_with_no_cue_stays_speech():
+    text = "THE PLAY\n\nODYSSEUS\nOld man, it's in this very skin.\n[Shows corner of skin.\n\nSILENUS\nThat!\n"
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="verse-own-line")
+    assert speeches[0] == {
+        "speaker_printed": "ODYSSEUS",
+        "text": "Old man, it's in this very skin. [Shows corner of skin.",
+    }
+    assert "directions_before" not in speeches[1]
+
+
+def test_lindsay_format_keeps_an_unclosed_bracketed_line_as_speech():
+    # The comedy (Lindsay) format is `directions=False`: unlike verse-own-line
+    # it never reads an own-line direction at all, closed or unclosed.
+    text = (
+        "LYSISTRATA\nThe Persons of the drama.\n\n"
+        "LYSISTRATA\nHear me now, O women of the mighty city.\n[Exit LYSISTRATA.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "LYSISTRATA")
+    assert speeches[0] == {
+        "speaker_printed": "LYSISTRATA",
+        "text": "Hear me now, O women of the mighty city. [Exit LYSISTRATA.",
+    }
+
+
 def test_chunks_as_overlay_prefixes_speakers():
     from drama_pipeline.stage1_turn_english import chunks_as_overlay
 
