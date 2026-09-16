@@ -140,19 +140,19 @@ In lightnings of fury yet fiercer.
 What deeds shall be dared of that soul,
 So haughty, when wrong’s goads pierce her,
 So hard to control ?
-[ Exeunt CHILDREN with GUARDIAN.
+_Exeunt CHILDREN with GUARDIAN._
 
 MEDEA. Woe! I have suffered, have suffered, foul wrongs that
 may waken, may waken
 Mighty lamentings full well! O ye children
 accursed from the womb,
-Hence to destruction, ye brood of a loathed one forsaken, forsaken ! [blackness of doom !
-Hence with your father, and perish our home in the
+Hence to destruction, ye brood of a loathed one forsaken, forsaken !
+Hence with your father, and perish our home in the blackness of doom !
 
 NURSE. Ah me, in the father’s offences
 What part have the babes, that thine hate
 Should blast them ?—forlorn innocences, “
-How sorely I fear for your fate ! [
+How sorely I fear for your fate !
 How terrible princes’ moods are !—
 Long ruling, unschooled to obey,—
 Unforgiving, unsleeping their feuds are:
@@ -179,8 +179,8 @@ The house I have loved so well.
 NURSE. Home ?—home there is none: it hath vanished
 away :
 For my lord to a bride of the princes is thrall ;
-And my lady is pining the livelong day [say
-In her bower, and for naught that her friends’ lips
+And my lady is pining the livelong day
+In her bower, and for naught that her friends’ lips say
 On her heart may the dews of comfort fall.
 
 MEDEA. Would God that the flame of the lightning from
@@ -204,9 +204,13 @@ New love, that estrangéd he is,
 O harrow thy soul not for this:
 It is Zeus that shall right thee, I wis.
 Ah, pine not in over-vexation
-Of spirit, bewailing thy lord ! MEDEA (behind the scenes)
-it— [lasting who tied
-Look on the wrongs that I suffer, by oaths ever The soul of mine husband, that ne’er from the curse
+Of spirit, bewailing thy lord !
+
+MEDEA (behind the scenes)
+O Lady of Justice, O Artemis’ Majesty, see it, O see
+it—
+Look on the wrongs that I suffer, by oaths everlasting who tied
+The soul of mine husband, that ne’er from the curse
 he might free it, nor free it
 From your vengeance ! O may I behold him at
 last, even him and his bride,
@@ -253,8 +257,8 @@ bringing
 Of the wine, and the feast, when the harp-strings are
 ringing |
 To sweeten with melody life’s sweet days.
-But the dread doom of mortals, the anguish heartrending— [peace,
-Never minstrel by music hath breathed on them
+But the dread doom of mortals, the anguish heartrending—
+Never minstrel by music hath breathed on them peace,
 Nor by song with his harp-notes in harmony blending ;
 Albeit thereof cometh death’s dark ending
 Unto many a home that is wrecked by these.
@@ -263,7 +267,7 @@ Of sorrow to mortals with song ; but in vain
 Mid the fulness of feasting ring voices clear-pealing,
 And the banquet itself hath a glamour, concealing
 From mortals their doom, flinging spells over pain.
-[Exit NURSE,
+_Exit NURSE._
 
 CHORUS. I have heard it, the sigh-laden cry of the daughter
 Of Colchis, the woe-shrilling anguish of wailing
@@ -328,7 +332,6 @@ Keep silence. Woman quails at every peril,
 Faint-heart to face the fray and look on steel;
 But when in wedlock-rights she suffers wrong,
 No spirit more bloodthirsty shall be found.
-. ena
 
 CHORUS. This will I; for ’tis just that thou, Medea,
 Requite thy lord: no marvel thou dost grieve.
@@ -443,7 +446,8 @@ If thee the approaching Sun-god’s torch behold
 Within this country’s confines with thy sons,
 Thou diest :—the word is said that shall not lie.
 Now, if remain thou must, remain one day—
-Too short for thee to do the deeds I dread. [ Exit.
+Too short for thee to do the deeds I dread.
+_Exit._
 
 CHORUS. O hapless thou !
 Woe’s me for thy misery, woe for the trouble and
@@ -457,7 +461,7 @@ God’s hand on thine helm
 Hath steered, O Medea, thy prow!
 
 MEDEA. Wronged—wronged by God and man! Who shall
-_ gainsay?
+gainsay?
 But is it mere despair ?—deem not so yet.
 Bridegroom and bride grim wrestlings yet await ;
 Nor troubles light abide these marriage-makers.
@@ -471,8 +475,8 @@ The father, and the daughter, and mine husband.
 And, having for them many paths of death,
 Which first to take in hand I know not, friends—
 To fire yon palace midst their marriage-feast,
-Or to steal softly to their bridal-bower, [knife.
-And through their two hearts thrust the whetted
+Or to steal softly to their bridal-bower,
+And through their two hearts thrust the whetted knife.
 wee
 Yet one thing bars the way—if I be found
 Crossing the threshold of the house and plotting,
@@ -508,18 +512,18 @@ Men say we are most helpless for all good,
 But of dark deeds most cunning fashioners.
 
 CHORUS. Upward and back | to their fountains the sacred rivers
-are stealing ; [ confusion :
-Justice is turned to injustice, the order of old to
+are stealing ;
+Justice is turned to injustice, the order of old to confusion :
 The thoughts of the hearts of men are treachery
-wholly, and, reeling [become a delusion. )
-From its ancient foundations, the faith of the Gods is
+wholly, and, reeling
+From its ancient foundations, the faith of the Gods is become a delusion.
 Everywhere change !—even me men’s voices henceforth shall honour ;
 My life shall be sunlit with glory ; for woman the
-old-time story [be upon her.
-Is ended, the slanders hoary no more shall as chains
+old-time story
+Is ended, the slanders hoary no more shall as chains be upon her.
 And the strains of the singers of old generations for
-_ shame shall falter, {faithlessness ever.
-Which sang evermore of the treason of woman, her
+shame shall falter,
+Which sang evermore of the treason of woman, her faithlessness ever.
 Alas, that our lips are not touched with the fire of
 song from the altar
 Of Phoebus, the Harper-king, of the inspirationiver ! ringing
@@ -528,8 +532,8 @@ the poet-sages | (their singing.
 Proud woman-themes for their pages, heroines worthy
 (Str. 2)
 But thou from the ancient home didst sail over
-leagues of foam, [sawest dispart,
-On-sped by a frenzied heart, and the sea-gates
+leagues of foam,
+On-sped by a frenzied heart, and the sea-gates sawest dispart,
 The Twin Rocks. Now, in the land
 Of the stranger, thy doom is to waken
 To a widowed couch, and forsaken
@@ -748,8 +752,7 @@ JASON. In any wise I call the Gods to witness
 That all help would I give thee and thy sons ;
 But thy good likes thee not: thy stubborn pride ἱ
 Spurns friends : the more thy grief shall therefore be.
-[ Exit.
-~— -
+_Exit._
 
 MEDEA. Away !—impatience for the bride new-trapped
 Consumes thee loitering from her bower afar !
@@ -771,16 +774,17 @@ Nor ever with passion of jarring contention, nor feuds
 In her terrors may Love’s Queen visit me, smiting
 with maddened unrest
 For a couch mismated my soul; but the peace of the
-bride-bed be holden [bonds that be best.
-In honour of her, and her keen eyes choose for us
+bride-bed be holden
+In honour of her, and her keen eyes choose for us bonds that be best.
 O fatherland, O mine home,
 Not mine be the exile’s doom !
 Into poverty’s pathways hard to be trod may my feet
 not be guided !
 Most piteous anguish were this.
 By death—-O by death ere then may the conflict of
-life be decided, [land divided—
-Ended be life’s little day ! To be thus from the home No pang more bitter there is.
+life be decided,
+Ended be life’s little day ! To be thus from the homeland divided—
+No pang more bitter there is.
 |
 We have seen, and it needeth naught
 That of others herein we be taught :
@@ -947,7 +951,7 @@ AEGEUS. The worst that scourgeth God-despising men.
 MEDEA. Pass on thy way rejoicing : all is well.
 I too will come with all speed to thy burg,
 When mine intent is wrought, my wish attained.
-[ Exit AEGEUS.
+_Exit AEGEUS._
 
 CHORUS. Now the Scion of Maia, the Wayfarer’s King,
 Bring thee safe to thine home, and the dream of |
@@ -1021,8 +1025,10 @@ MEDEA. Yea: so mine husband’s heart shall most be wrung.
 CHORUS. But thou of wives most wretched shouldst become.
 
 MEDEA. So be it: wasted are all hindering words.
-But ho! [enter nurse] go thou and Jason bring to
-me— |
+But ho!
+_Enter NURSE._
+go thou and Jason bring to
+me—
 Thou whom I use for every deed of trust,
 And look thou tell none aught of mine intent,
 If thine is loyal service, thou a woman.
@@ -1034,11 +1040,11 @@ Aye quaffing of Wisdom’s glorious wine,
 Ever through air clear-shining brightly
 As on wings uplifted pacing lightly,
 Where Harmonia, they tell, of the tresses golden,
-- Bare the Pierid Muses, the stainless Nine[3].!
+Bare the Pierid Muses, the stainless Nine[3].!
 ‘And the streams of Cephisus the lovely-flowing
 They tell how the Lady of Cyprus drew,
 And in Zephyr-wafts of the winds sweet-blowing
-_Breathed far over the land their dew.
+Breathed far over the land their dew.
 And she sendeth her Loves which, throned in
 glory
 By Wisdom, fashion all virtue’s story ;
@@ -1175,7 +1181,7 @@ In beauty aught in these days seen, I know,
 A robe fine-spun, a golden diadem ;
 Our sons to bear them. Now must an attendant
 With all speed hither bring the ornaments.
-[Handmaid goes.
+_Handmaid goes._
 Blessings shall hers be, not one, but untold,
 Who winneth thee for lord, a peerless spouse,
 Who owneth ornaments which once the Sun,
@@ -1197,7 +1203,7 @@ Young, and a queen! Life would I give for ransom.
 Of my sons’ banishment, not gold alone.
 Now, children, enter ye the halls of wealth.
 Unto your sire’s new wife, my lady-queen,
-_Make supplication, pray ye be not exiled,
+Make supplication, pray ye be not exiled,
 And give mine ornaments—most importeth this,
 That she in her own hands receive my gifts.
 Haste ye, and to your mother bring glad tidings
@@ -1229,8 +1235,8 @@ And thou, wretch, bridegroom accurst, who art fain
 of a princely alliance,
 Blasting thou bringest—unknowing, unthinking !——
 Of life on thy sons, and thy bride shall to foul death
-plight her affiance. [sinking !
-How far from thy fortune of old art thou
+plight her affiance.
+How far from thy fortune of old art thou sinking !
 And amidst my lamentings I mourn for thine anguish,
 O hapless mother
 Of children, who makest thee ready to
@@ -1305,7 +1311,8 @@ Not I, not I! Ye purposes, farewell!
 Letting my foes slip from mine hand unpunished ?
 I must dare this. Out on my coward mood
 That let words of relenting touch mine heart !
-Children, pass ye within. [ Exeunt CHILDREN.
+Children, pass ye within.
+_Exeunt CHILDREN._
 Now, whoso may not
 Sinless be present at my sacrifice,
 On his head be it : mine hand faltereth not.
@@ -1323,7 +1330,8 @@ Yea, on her head the wreath is ; in my robes
 The princess-bride is perishing—I know it!
 But—for I fare on journey most unhappy,
 And shall speed these on yet unhappier—
-I would speak to my sons. [ Re-enter CHILDREN.
+I would speak to my sons.
+_Re-enter CHILDREN._
 Give, O my babes,
 Give to your mother the right hand to kiss.
 O dearest hand, O lips most dear to me,
@@ -1332,7 +1340,8 @@ Blessing be on you—there /—for all things here
 Your sire hath stolen. Sweet, O sweet embrace!
 O children’s roseleaf skin, O balmy breath!
 Away, away! Strength faileth me to gaze
-On you, but I am overcome of evil. [Exeunt CHILDREN.
+On you, but I am overcome of evil.
+_Exeunt CHILDREN._
 Now, now, I learn what horrors I intend :
 But passion overmastereth sober thought ;
 And this is cause of direst ills to men.
@@ -1503,9 +1512,9 @@ But man’s lot now, as oft, I count a shadow,
 | Nor fear to say that such as seem to be
 ' In wit most keen of men, most subtle of speech,
 : Even these pay heaviest penalty of all ;
-_ For among mortals happy man is none.
+For among mortals happy man is none.
 ᾿ In fortune’s flood-tide might a man become
-_ More prosperous than his neighbour: happy?—no!
+More prosperous than his neighbour: happy?—no!
 
 CHORUS. Fortune, meseems, with many an ill this day
 Doth compass Jason,—yea, and rightfully.
@@ -1556,7 +1565,7 @@ For stern upon mortals the vengeance falleth
 For kin’s blood spilt ; from the earth it calleth,
 A voice from the Gods, and the slayers appalleth
 | On whose homes it shall light.
-[ CHILDREN’S cries behind the scenes |
+_CHILDREN’S cries behind the scenes._
 
 CHILD. What shall I do ?—how flee my mother’s hands ?
 
@@ -1566,13 +1575,12 @@ CHORUS. Ah the cry |_-dost thou hear it ?—the children’s cry!
 Wretch !—woman of curséd destiny!
 Shall I enter? My heart crieth, “Rescue the
 children from murder nigh!”
-[ They beat at the barred doors.
+_They beat at the barred doors._
 
 CHILD. Help !—for the Gods’ sake help! Sore is our need ! /
 
 CHILD. The sword’s death-net is closing round us now !
-[Silence within. Blood flows out beneath the door. The
-women shrink back.
+_Silence within. Blood flows out beneath the door. The women shrink back._
 
 CHORUS. Wretch ! of what rock is thy breast ?—of what steel
 is the heart of thee moulded,
@@ -1631,8 +1639,7 @@ CHORUS. Open, and thou shalt see thy children’s corpses.
 JASON. Burst in the bolts with all speed, serving-men—
 Force hinges !—let me see this twofold horror,—
 The dead, and her,—and in her blood avenge me !
-[MEDEA appears above the palace roof in a chariot
-drawn by dragons.]
+_MEDEA appears above the palace roof in a chariot drawn by dragons._
 
 MEDEA. Why shakest thou these doors and wouldst unbar,
 Seeking thy dead and me who wrought the deed ?
@@ -1722,7 +1729,7 @@ To Mountain Hera’s precinct bearing them,
 That never foe may do despite to them,
 Rifling their tomb. This land of Sisyphus
 Will I constrain with solemn festival
-. And rites to atone for this unhallowed murder.
+And rites to atone for this unhallowed murder.
 But I—I go unto Erechtheus’ land,
 With Aegeus to abide, Pandion’s son.
 Thou, as is meet, foul wretch, shalt foully die,
@@ -1763,7 +1770,7 @@ MEDEA. Ha, now art thou calling upon them, now wouldst
 thou kiss,
 Who rejectedst them then ?
 JASON.
-For the Gods’ sake grant me but this, [
+For the Gods’ sake grant me but this,
 The sweet soft flesh of my children to feel !
 
 MEDEA. No—wasted in air is all thine appeal.

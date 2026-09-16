@@ -95,13 +95,13 @@ And the stars from the firmament flee from the fiery
 arrows chasing,
 To the sacred night:
 And the crests of Parnassus untrodden are flaming
-and flushed, as with yearning [daylight returning
-Of welcome to far-flashing wheels with the glory of
+and flushed, as with yearning
+Of welcome to far-flashing wheels with the glory of daylight returning
 To mortal sight.
 To the roof-ridge of Phoebus the fume of the incense
 of Araby burning
-As a bird taketh flight. [Maiden
-On the tripod most holy is seated the Delphian
+As a bird taketh flight.
+On the tripod most holy is seated the Delphian Maiden
 Chanting to children of Hellas the wild cries, laden
 With doom, from the lips of Apollo that ring.
 Delphians, Phoebus’s priesthood-train,
@@ -112,8 +112,8 @@ Set a watch on the door of your lips; be there heard
 Nothing but good in the secret word
 That ye murmur to them whose hearts be stirred
 To seek to his shrine, that they seek not in vain.
-And I in the toil that is mine—mine now, [bough,
-And from childhood up,—with the bay’s young
+And I in the toil that is mine—mine now,
+And from childhood up,—with the bay’s young bough,
 And with wreathèd garlands holy, will cleanse
 The portals of Phoebus; with dews from the spring
 Will I sprinkle his pavement, and chase far thence
@@ -278,7 +278,6 @@ We would trespass on naught by the God’ s law
 hidden :
 Enough is without for our feast of sight.
 Let your eyes gaze on upon all unforbidden.
-[ON
 
 CHORUS. Our lady had given us leave,—“ Upon all
 These shrines,” hath she said, “ may ye gaze.”’
@@ -597,12 +596,13 @@ Thou to the bay-crowned altars bear the boughs,
 My wife, and pray the Gods that I may win
 Promise of fair sons from Apollo’s fane.
 
-CREUSA. Yea, this shall be. [Exit XUTHUS to inner Temple.
+CREUSA. Yea, this shall be.
+_Exit XUTHUS to inner Temple._
 If Loxias consent
 Now at the last to atone for olden wrongs,
 Not wholly will he show himself my friend,
 Yet, since he is God, whate’er he grants I take.
-[Exit.
+_Exit._
 
 ION. Why doth this stranger rail upon the God
 In riddles of dark sayings evermore ?
@@ -627,7 +627,8 @@ For, following pleasure past all wisdom’s bounds,
 Ye work unrighteousness. Unjust it were
 To call men vile, if we but imitate
 What Gods deem good :—they are vile who teach us
-this. [ Bait.
+this.
+_Exit._
 
 CHORUS. My Queen, at whose birth-tide was given (17.)
 Of the Lady of Travail-pang
@@ -695,8 +696,10 @@ Or within yet lingering asks he touching that long-
 CHORUS.
 In the temple is he, stranger, treads not yet the
 threshold-stone.
-List, a sound at yonder portal—-through the porchway passeth one : — [for eyes to see.
-Lo, where now he cometh forth—our master, plain
+List, a sound at yonder portal—-through the porchway passeth one : —
+Lo, where now he cometh forth—our master, plain for eyes to see.
+
+_Enter XUTHUS: attempts to embrace ION._
 
 XUTHUS. Joy to thee, son!—fitting prelude this is of my
 speech to thee.
@@ -864,8 +867,8 @@ XUTHUS. Happy man it maketh me.
 
 ION. Ah, belovéd mother, when thy visage also shall I see ?
 More than ever now I long to see thee, who thou
-be soe’er. {should be my prayer.
-Ah, but thou perchance art dead, and all in vain
+be soe’er.
+Ah, but thou perchance art dead, and all in vain should be my prayer.
 
 CHORUS. Ours too the house’s happy fortune is:
 Yet fain were I our queen were also blest
@@ -985,7 +988,7 @@ That by my mother may free speech be mine.
 The alien who entereth a burg
 Of pure blood, burgher though he be in name,
 Hath not free speech ; he bears a bondman’s tongue.
-[Exeunt XUTHUS and ION.
+_Exeunt XUTHUS and ION._
 
 CHORUS. O vision of tears, and of fierce heart-burning —(Sér.)
 Breaking forth into shrieks and the onrush of
@@ -1011,11 +1014,11 @@ revealing ?
 Whom she counted her all and in all—heretofore he
 Had share in her dreams of a yet-coming glory.
 Now in woe is she whelmed, but his heart hath
-found healing, [strewing!
-That he flouts the dear tresses and eld’s silver-
+found healing,
+That he flouts the dear tresses and eld’s silver-strewing!
 O caitiff and outlander, he that came stealing
-On the wealth of a house he saved not from undoing !!— [dealing—
-Who would cozen my lady with treacherous
+On the wealth of a house he saved not from undoing !!—
+Who would cozen my lady with treacherous dealing—
 False one, away to thy ruin, thy ruin!
 O’er the consecrate cake he shall lay
 Mid your altar-flames, Gods, let them play
@@ -1227,8 +1230,8 @@ Thy fate,—or death, or honourable life.
 CREUSA. O, how keep silence, my soul?
 Yet how shall I dare to unroll
 Deeds hidden of darkness, and cast the shame behind
-me ? [bind me?
-Yet what thing remaineth to fetter me, what thing to
+me ?
+Yet what thing remaineth to fetter me, what thing to bind me?
 With whom can I stand in virtue’s glorious strife?
 Hath not mine husband a traitor been shown to his
 wife ?
@@ -1265,8 +1268,8 @@ shrieked out my wail,—
 Wroughtest the pleasure of Cypris: no shame made
 the god-lover quail.
 Wretched I bare thee a child, and I cast him with
-shuddering throe [a bride-bed of woe.
-Forth on thy couch where thou forcedst thy victim,
+shuddering throe
+Forth on thy couch where thou forcedst thy victim, a bride-bed of woe.
 Lost—-my poor baby and thine! for the eagles
 devoured him ;—and lo,
 Victory-songs to thy lyre dost thou chant! Ho, I call to thee, son
@@ -1528,14 +1531,14 @@ But the noble Erechtheids—none save they !
 But—the death unaccomplished ?—the deed unabetted
 Of the hour, and my mistress’s purposes ended,
 And the hopes that upbore her?-—remains the
-sword whetted ; [pended ;
-Remaineth the neck in the death-noose sus-
+sword whetted ;
+Remaineth the neck in the death-noose suspended;
 And, by agony ending the agony-strife,
 Shall she pass to the life beyond this life.
 For never this queen from kings descended
 Shall endure that the splendour-light of her
-eyne, . [the ancient hall
-No, not while she liveth, should fall on the shame of
+eyne,
+No, not while she liveth, should fall on the shame of the ancient hall
 Ruled by the upstart of alien line.
 Shame for the God oft-chanted! (Ant. 2)[9]
 In hymns, if he[10];?
@@ -1555,8 +1558,8 @@ Gold-crowned, and our Earth-mother Awful is she !
 Shall he press in, that other,
 To sovranty ?
 Shall not his hopes be foiled ?—
-Where kings and heroes toiled, [fee ?
-Shall that proud realm be spoiled, a vagrant’s
+Where kings and heroes toiled,
+Shall that proud realm be spoiled, a vagrant’s fee?
 Mark—-ye whose strains of slander
 Scourge evermore
 Woman in song, and brand her
@@ -1635,8 +1638,8 @@ After him drawing the bright Evening Star.
 And sable-vestured Night with team of twain
 Upfloated ; and the stars companioned her.
 The Pleiad swam her mid-sky path along,
-And sword-begirt Orion ; and, above, [sphere.
-The Bear's tail wheeled around the gold-gemmed
+And sword-begirt Orion ; and, above,
+The Bear's tail wheeled around the gold-gemmed sphere.
 The Moon’s full circle of the parted month
 Shot silver shafts: the Hyads, surest sign
 To shipmen ; and the Light-uplifter, Dawn,
@@ -1769,8 +1772,7 @@ CHORUS. Upon the altar take thy seat ;
 For, if here they slay thee, shall thy blood to heaven
 for vengeance call
 - On the murderers.
-[creusa seats herself on the altar, grasping
-at rth her hands.
+_CREUSA seats herself on the altar, grasping it with her hands._
 So :—and now to bear what fate soe’er befall.
 
 ION. O form bull-shapen of her sire Cephisus[13],!
@@ -1950,7 +1952,8 @@ Where thou shouldst seek thy mother, there begin—
 First, did a Delphian bride unwedded bear
 And cast thee forth upon these temple-steps ?
 Then, any maid of Greece? . . . So hast thou all
-Of me, and Phoebus, partner in thy fortune. [ Exit.
+Of me, and Phoebus, partner in thy fortune.
+_Exit._
 
 ION. Ah me, mine eyes are drowned in streaming tears,
 As leaps my thought to that day when the bride
@@ -1989,7 +1992,7 @@ I see the ark wherein I set thee forth,—
 Thee, O my child, my babbling baby then,—
 In Cecrops’ cave, beneath the Long Cliff's brow!
 This altar will I leave, yea, though I die.
-[Flings her arms round has neck.
+_Flings her arms round his neck._
 Seize her !—-she hath been driven god-distraught
 To leave the carven altar! Bind her arms.
 
@@ -2084,11 +2087,11 @@ A miracle : but through our lot to be
 May we be happy as our past was sad.
 
 CREUSA. At thy birth-travail, O my child, was there many a
-tear : [many a moan :
-Thou wert torn from the arms of thy mother with
+tear :
+Thou wert torn from the arms of thy mother with many a moan :
 And now on thy cheeks is my breath : my darling is
-here ! [known !
-The uttermost bliss of the Blesséd, lo, now have I
+here !
+The uttermost bliss of the Blesséd, lo, now have I known !
 Thou speakest for mine heart and thine, as one.
 
 CREUSA. No more are we childless, no more unto barrenness
@@ -2211,7 +2214,7 @@ Thee for thy good to another sire he gives.
 ION. Nay, not thus lightly on the quest I press.
 I will ask Phoebus, entering his fane,
 “Am I of Loxias, or a mortal sire?”
-[ATHENA appears above the temple in her chariot.]
+_ATHENA appears above the temple in her chariot._
 Ha! high above the incense-breathing house ,
 What God reveals a face that fronts the Sun ?.
 Let us flee, mother, Jest we gaze on Gods,
@@ -2272,8 +2275,8 @@ Farewell ye : after this relief from woes
 I bring you tidings of a happy lot.
 
 ION. Pallas, Daughter of the Highest, child of Zeus, we
-will receive [believe
-These thy words with no unfaith, but Loxias do I
+will receive
+These thy words with no unfaith, but Loxias do I believe
 Sire to me, and her my mother :—never was this
 past belief.
 
