@@ -3,11 +3,17 @@ section 7, acceptance A). Each reproduces a SHAPE from the corpus, not the
 text: a small synthetic Greek-share / English-speech spine standing in for
 Persians' Salamis scene, Alcestis' kommos, Ajax's lost pages, Frogs' antilabe
 and refrains, and the antilabe line-merge rule.
+
+The round-7 cases at the foot go through ``_align_speech_runs``, the caller's
+front door onto ``align``: it is the node set, not the weights, that had to
+change for them, and the shape they reproduce (one Greek SPEECH cut across
+several segments) only exists once slots are grouped into speeches.
 """
 
 from __future__ import annotations
 
 from drama_pipeline.pair_dp import OCR_JUNK, EnglishNode, GreekNode, Weights, align
+from drama_pipeline.stage1_turn_english import _align_speech_runs
 
 
 def _names(nodes):
@@ -412,3 +418,148 @@ def test_unreadable_cue_is_a_discount_not_a_cross_name_match():
     assert result.pairs == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
     assert result.english_skips == []
     assert result.greek_skips == []
+
+
+
+
+def _run_align(slot_names, greek_chars, english):
+    """The caller's node build, reduced to what these cases need: one Greek
+    node per slot, `inherited` where the slot has no speaker event of its
+    own and a named slot precedes it (``run()``'s ``dp_names``), no pins and
+    no primary bridge (the bench columns of a play whose primary is
+    turn-text, and the shape has to come out right without it)."""
+    last = None
+    nodes = []
+    for name, chars in zip(slot_names, greek_chars):
+        inherited = name is None and last is not None
+        nodes.append(
+            GreekNode(name=name if name is not None else last, chars=chars, inherited=inherited)
+        )
+        if name is not None:
+            last = name
+    spans = [(c, "") for c in greek_chars]
+    return _align_speech_runs(nodes, english, slot_names, [], None, spans)
+
+
+def test_persians_353_narrative_pairs_with_its_own_speech_not_the_continuation():
+    """Round 7, defect 1 (`play-persians-recheck-2026-09-16.md` finding 1).
+
+    Persians 348-432 with Morshead's own character counts, inside ordinary
+    stichomythia on either side. The Greek is Atossa(348) / Messenger(349) /
+    Atossa(350-352) / Messenger(353-394, the 42-line Salamis rhesis) and then
+    that same speech CONTINUED at 395-432 -- 38 lines the segmenter cut out
+    of the middle of one speech, carrying no speaker event, so the caller
+    marks it `inherited`. Morshead prints two turns the edition does not
+    (his 345-346 and 347, which belong with the Messenger's 337-347 above),
+    so six English turns of 2, 1, 1, 1, 3 and 40 lines, named A M A M A M,
+    stand against five Greek nodes named A M A M M(cont).
+
+    Shipped, the 3,882-character narrative went onto the CONTINUATION and
+    the speech itself held a 46-character stub. Traced, the right path lost
+    by 0.024: it pays `open_g` (1.60) to skip the continuation on top of two
+    English skips, and the length term cannot make that back -- it clips at
+    3.0 and weighs 0.45, so the worst length pairing possible costs 1.35,
+    less than one `open_e`. No weight fixes that; the node set does. A
+    continuation is not a speech of its own, so it is not a node of its
+    own."""
+    # Ordinary exchanges, closing on the Messenger's 337-347 -- the speech
+    # Morshead's two surplus turns actually belong inside.
+    lead = ["Atossa", "Messenger"] * 4 + ["Atossa", "Messenger"]
+    slot_names = lead + ["Atossa", "Messenger", "Atossa", "Messenger", None]
+    greek_chars = [36] * 9 + [403] + [36, 37, 113, 1497, 1374]
+    english = [EnglishNode(name=n, chars=47, text="line") for n in lead[:9]]
+    english.append(
+        EnglishNode(name="Messenger", chars=391, text="Know, if mere count of ships could win the day")
+    )
+    english += [
+        EnglishNode(name="Atossa", chars=84, text="Nay, we were worsted by an unseen power"),
+        EnglishNode(name="Messenger", chars=42, text="In ward of heaven doth Pallas' city stand."),
+        EnglishNode(name="Atossa", chars=34, text="How then? is Athens yet inviolate?"),
+        EnglishNode(name="Messenger", chars=46, text="While her men live, her bulwark standeth firm!"),
+        EnglishNode(name="Atossa", chars=125, text="Say, how began the struggle of the ships?"),
+        EnglishNode(name="Messenger", chars=3882, text="O queen, our whole disaster thus befell"),
+    ]
+
+    result = _run_align(slot_names, greek_chars, english)
+
+    by_g = dict(result.pairs)
+    # The narrative stands beside the speech it translates, read by its text
+    # -- not beside the continuation, and not as a 46-character stub.
+    assert english[by_g[13]].text == "O queen, our whole disaster thus befell"
+    assert english[by_g[10]].text == "How then? is Athens yet inviolate?"
+    assert english[by_g[11]].text == "While her men live, her bulwark standeth firm!"
+    assert english[by_g[12]].text == "Say, how began the struggle of the ships?"
+    # The two turns the edition does not have are skipped, not carried.
+    assert result.english_skips == [10, 11]
+    # The continuation is never matched; it is translated with the speech
+    # above, which is what the reader is shown.
+    assert 14 not in by_g
+    assert result.derived_covered[14] == 13
+
+
+def test_english_cued_inside_one_greek_speech_stays_on_that_speech():
+    """Round 7, defect 2 (Persians 623-680, Johnston, `1:623`/`1:664`).
+
+    One Greek speech, cut by the segmenter at 663: a 41-line head and a
+    17-line continuation. Johnston cues it as two speeches, but his break
+    falls at Greek 632 -- inside the head -- so no monotone one-to-one
+    pairing over two nodes can be right. Shipped, the DP took the obvious
+    one and put his 1,620-character kommos on the 17-line continuation,
+    leaving Greek 633-663 with nothing beside it. Merged, the speech is one
+    node: the kommos pairs with it, the leader's five lines are left to
+    `_assign_speeches`' residual park (which puts them on the same speech,
+    ahead of the kommos), and `_spread_long_speeches` distributes the block
+    over both segments -- the shape yesterday's review passed."""
+    lead = ["Atossa", "Chorus"] * 4
+    slot_names = lead + ["Chorus", None, "Ghost of Darius"]
+    greek_chars = [600] * 8 + [975, 295, 475]
+    english = [EnglishNode(name=n, chars=900, text="line") for n in lead]
+    english += [
+        EnglishNode(name="Chorus", chars=517, text="O royal lady, whom Persians all revere"),
+        EnglishNode(name="Chorus", chars=1620, text="Our sacred, godlike king"),
+        EnglishNode(name="Ghost of Darius", chars=774, text="You loyal men in whom I placed my trust"),
+    ]
+
+    result = _run_align(slot_names, greek_chars, english)
+
+    by_g = dict(result.pairs)
+    assert english[by_g[8]].text == "Our sacred, godlike king"
+    assert 9 not in by_g                      # the continuation takes nothing
+    assert result.derived_covered[9] == 8
+    assert result.english_skips == [8]        # the leader's lines, parked later
+    assert english[by_g[10]].text.startswith("You loyal men")
+
+
+def test_a_speech_split_five_ways_takes_one_english_at_its_head():
+    """Round 7, defect 3 (Persians 1-158, Johnston, the parodos, per-play
+    finding 13).
+
+    The parodos and the anapaests are ONE Greek speech across six segments:
+    a head and five continuations. Johnston cues three stanzas inside it,
+    and his breaks fall at Greek 64 and 139 -- neither on a segment
+    boundary. Shipped, each of his first two stanzas took a continuation
+    node by position, his stanza for Greek 140 landed on the segment for
+    111-139, and the last three segments stood bare. Merged, the speech
+    takes one English node at its head and the other two park there too, so
+    the spread carries all three across the whole speech."""
+    slot_names = ["Chorus", None, None, None, None, None, "Atossa"]
+    greek_chars = [1761, 975, 628, 243, 139, 176, 636]
+    english = [
+        EnglishNode(name="Chorus", chars=2422, text="We are here as trustworthy delegates"),
+        EnglishNode(name="Chorus", chars=2424, text="Obliterating cities as it moves"),
+        EnglishNode(name="Chorus", chars=824, text="Come now, Persians, let us take our seats"),
+        EnglishNode(name="Atossa", chars=871, text="That is why I have left my gold-decked home"),
+    ]
+
+    result = _run_align(slot_names, greek_chars, english)
+
+    by_g = dict(result.pairs)
+    # Exactly one English lands inside the speech, and it lands on the head.
+    assert set(by_g) == {0, 6}
+    assert by_g[0] in (0, 1, 2)
+    assert english[by_g[6]].text.startswith("That is why")
+    # No continuation is given a stanza of its own -- least of all the one
+    # for Greek 140, which the shipped build put beside 111-139.
+    for k in range(1, 6):
+        assert result.derived_covered[k] == 0
+    assert len(result.english_skips) == 2

@@ -846,6 +846,110 @@ def _greek_event_slots(segments: list[dict], sigla) -> list[dict]:
     return slots
 
 
+def _speech_runs(slot_names: list[str | None]) -> list[int]:
+    """``run_of[k]``: the index of the Greek SPEECH slot ``k`` belongs to.
+
+    A run opens at every NAMED slot and absorbs the unnamed slots after it.
+    The test is the name, not the presence of a speaker event, and that is
+    deliberate: it is the same test `dp_names` and `GreekNode.inherited`
+    already use (round 3's P1), so one rule decides what a continuation is.
+    An anonymous `--` event is a strophe division inside one lyric far more
+    often than it is a new speaker, and measured both ways over the corpus
+    the name test wins -- reading `--` as a speech head puts Persians'
+    second parodos stanza beside Greek 140 and costs 95 placed events, 8
+    bare, and 0.0008 mean pairing rate. A leading unnamed slot heads a run
+    of its own."""
+    run_of: list[int] = []
+    runs = 0
+    for k, name in enumerate(slot_names):
+        if name is not None or runs == 0:
+            runs += 1
+        run_of.append(runs - 1)
+    return run_of
+
+
+def _align_speech_runs(
+    greek_nodes: list["pair_dp.GreekNode"],
+    english_nodes: list["pair_dp.EnglishNode"],
+    slot_names: list[str | None],
+    forced: list[tuple[int, int]],
+    bridge_texts: list[str | None] | None,
+    slot_spans: list[tuple[int, str]],
+) -> "pair_dp.Alignment":
+    """Align over Greek SPEECHES, then report the answer back in slot indices.
+
+    A speech the segmenter cut across a layout boundary reaches the DP as a
+    head node plus one continuation node per further segment, and the DP --
+    one match per node -- is then free to hang the speech's English on any
+    one of them. Round 7 measured the damage: Persians' Salamis narrative on
+    the continuation at 395 instead of the speech at 353, Johnston's raising
+    of Darius on 664 instead of 623, his parodos stanza for 140 on 111.
+    Merging the run into one node says what is true -- a Greek speech takes
+    one English speech -- and leaves the surplus to the two mechanisms built
+    for it: ``_assign_speeches``' residual park, which puts it on the same
+    speech's head, and ``_spread_long_speeches``, which distributes the
+    head's whole block across the speech's segments."""
+    run_of = _speech_runs(slot_names)
+    heads = [k for k in range(len(slot_names)) if k == 0 or run_of[k] != run_of[k - 1]]
+    members: list[list[int]] = [[] for _ in heads]
+    for k, r in enumerate(run_of):
+        members[r].append(k)
+    merged = [
+        pair_dp.GreekNode(
+            name=greek_nodes[h].name,
+            chars=sum(slot_spans[k][0] for k in members[r]),
+            line_key=greek_nodes[h].line_key,
+            text="".join(slot_spans[k][1] for k in members[r]),
+            # A run head is a named slot by construction (the only unnamed
+            # one is the leading run, which has nothing to inherit from), so
+            # no merged node is ever a continuation.
+            inherited=False,
+        )
+        for r, h in enumerate(heads)
+    ]
+    # The run's bridge text is its segments' primary English joined, not the
+    # head segment's alone: the primary covers the whole speech, and a head
+    # segment of four lines would otherwise bridge a forty-line speech.
+    merged_bridge = (
+        [
+            " ".join(bridge_texts[k] for k in members[r] if bridge_texts[k]) or None
+            for r in range(len(heads))
+        ]
+        if bridge_texts
+        else None
+    )
+    # A pin names a slot; the run that slot belongs to is the node it pins.
+    # Two pins in one run would pin the same node twice, which `align`
+    # rejects -- keep the first, which is the head-most.
+    merged_pins: list[tuple[int, int]] = []
+    for gi, ej in sorted(forced):
+        r = run_of[gi]
+        if merged_pins and merged_pins[-1][0] == r:
+            continue
+        merged_pins.append((r, ej))
+    res = pair_dp.align(
+        merged, english_nodes, pins=merged_pins, bridge=merged_bridge
+    )
+    out = pair_dp.Alignment(cost=res.cost, band_widened=res.band_widened)
+    out.pairs = [(heads[r], ej) for r, ej in res.pairs]
+    out.english_skips = list(res.english_skips)
+    out.margins = {(heads[r], ej): m for (r, ej), m in res.margins.items()}
+    # A matched run's continuations are translated with the speech above:
+    # that is the `englishCoveredBy` contract, and it is what keeps them out
+    # of `bare_events` when the spread does not reach them.
+    for r, _ej in res.pairs:
+        for k in members[r][1:]:
+            out.derived_covered[k] = heads[r]
+    skips: list[tuple[int, int]] = []
+    for lo, hi in res.greek_skips:
+        skips.append((members[lo][0], members[hi - 1][-1] + 1))
+    out.greek_skips = skips
+    for r, cover_r in res.derived_covered.items():
+        for k in members[r]:
+            out.derived_covered[k] = heads[cover_r]
+    return out
+
+
 def _greek_slot_spans(segments: list[dict], slots: list[dict]) -> list[tuple[int, str]]:
     """``(chars, text)`` of each pairing slot's OWN Greek span (turn-pairing
     design 2026-09-15, section 3.2, term L): for a segment with k shares, the
@@ -1709,7 +1813,9 @@ def parse_translation(
     # itself turn-text -- `run()` only passes `primary_bridge` when this
     # work's `english.primary.model` is `perseus-play`.
     bridge_texts = _primary_bridge_texts(segments, slots, primary_bridge)
-    dp_result = pair_dp.align(greek_nodes, english_nodes, pins=forced, bridge=bridge_texts)
+    dp_result = _align_speech_runs(
+        greek_nodes, english_nodes, slot_names, forced, bridge_texts, slot_spans,
+    )
     pairs = dp_result.pairs
     # P4 (turn-pairing-round4-2026-09-15.md): `crossed`'s own membership --
     # and everything it feeds below (`turn_shifts`'s flagging, `crossed_pairs`)
