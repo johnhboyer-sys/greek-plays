@@ -2269,11 +2269,30 @@ def test_greek_segment_name_is_the_first_lines_start_speaker(tmp_path):
         (0, 1004, 0, "Ismene"),
         (0, 1005, 1, "Herald"),
     ]
-    assert m._pair_turns([s["name"] for s in slots], ["Ismene", "Herald"]) == [
-        (0, 0),
-        (1, 1),
+    # `_pair_turns` is deleted (turn-pairing-design-2026-09-15); the DP
+    # replaces it, and the outcome is the same: the packed segment is TWO
+    # pairing slots, so the Herald's English pairs with the Herald's own
+    # share instead of borrowing Ismene's slot.
+    from drama_pipeline.pair_dp import EnglishNode, GreekNode, align
+
+    greek_nodes = [
+        GreekNode(name=s["name"], chars=10, line_key=(s["segment"], s["line"]))
+        for s in slots
     ]
-    assert m._pair_turns(["Ismene", "Herald"], ["Antigone"]) == []
+    result = align(
+        greek_nodes,
+        [EnglishNode(name="Ismene", chars=10), EnglishNode(name="Herald", chars=10)],
+        pins=[],
+    )
+    assert result.pairs == [(0, 0), (1, 1)]
+    # Round 4 (turn-pairing-round4-2026-09-15.md, P2): `w_spk` dropped so a
+    # disagreeing run is matched-with-flags at every length, not tunnelled,
+    # which now includes this two-node one. An English speech naming a third
+    # character is cheaper matched (and flagged as crossed) than skipping
+    # both Greek shares outright, so it lands on the node closest to it in
+    # length and position rather than pairing with neither.
+    result2 = align(greek_nodes, [EnglishNode(name="Antigone", chars=10)], pins=[])
+    assert result2.pairs == [(0, 0)]
 
 
 def _one_liner(tmp_path, source: str, spine: dict, sigla: dict, aliases: dict):
@@ -2429,31 +2448,33 @@ def test_a_segment_with_no_speaker_event_keeps_one_slot(tmp_path):
     ]
 
 
-def test_an_unnamed_slot_never_pairs_in_a_gap_zip():
-    """P3.5 finding 2: the gap zip used `turns._names_match`, where None is a
-    WILDCARD.  So a speakerless lyric slot — the one every eventless segment
-    gets — could take any named English speech that happened to fall in an
-    equal-length gap, a pair the LCS and the residual walk both refuse.  A
-    pair now needs two real, equal names on both sides."""
-    from drama_pipeline import stage1_turn_english as m
+def test_an_unnamed_slot_never_steals_a_named_pair():
+    """`_pair_turns` and its gap zip are deleted (turn-pairing-design-
+    2026-09-15); the DP replaces the whole mechanism. The outcome P3.5
+    finding 2 cared about survives: a speakerless lyric slot or an
+    unattributed English continuation must not disrupt the named pairs
+    either side of it, and a same-length, name-agreeing run still pairs
+    position for position."""
+    from drama_pipeline.pair_dp import EnglishNode, GreekNode, align
 
-    # The anchors are Alpha and Gamma; the gap is one slot against one speech.
-    assert m._pair_turns(["Alpha", None, "Gamma"], ["Alpha", "Beta", "Gamma"]) == [
-        (0, 0),
-        (2, 2),
-    ]
-    # And symmetrically: an unattributed English continuation is residue, not
-    # a pairing wildcard for a named Greek share.
-    assert m._pair_turns(["Alpha", "Beta", "Gamma"], ["Alpha", None, "Gamma"]) == [
-        (0, 0),
-        (2, 2),
-    ]
-    assert m._pair_turns(["Alpha", None, "Gamma"], ["Alpha", None, "Gamma"]) == [
-        (0, 0),
-        (2, 2),
-    ]
-    # A named gap of equal length still zips — that is the whole point of it.
-    assert m._pair_turns(["Alpha", "Beta"], ["Alpha", "Beta"]) == [(0, 0), (1, 1)]
+    def g(name):
+        return GreekNode(name=name, chars=20)
+
+    def e(name):
+        return EnglishNode(name=name, chars=20)
+
+    result = align([g("Alpha"), g(None), g("Gamma")], [e("Alpha"), e("Beta"), e("Gamma")], pins=[])
+    assert (0, 0) in result.pairs and (2, 2) in result.pairs
+
+    result = align([g("Alpha"), g("Beta"), g("Gamma")], [e("Alpha"), e(None), e("Gamma")], pins=[])
+    assert (0, 0) in result.pairs and (2, 2) in result.pairs
+
+    result = align([g("Alpha"), g(None), g("Gamma")], [e("Alpha"), e(None), e("Gamma")], pins=[])
+    assert (0, 0) in result.pairs and (2, 2) in result.pairs
+
+    # A named run of equal length still pairs position for position.
+    result = align([g("Alpha"), g("Beta")], [e("Alpha"), e("Beta")], pins=[])
+    assert result.pairs == [(0, 0), (1, 1)]
 
 
 def test_crossed_antilabe_parks_on_its_own_share_and_reads_in_english_order(tmp_path):
@@ -2688,43 +2709,51 @@ def test_join_parts_verse_keeps_source_line_breaks():
     assert _join_parts(["(_to Dionysus_) hail"], verse=True) == "(to Dionysus) hail"
 
 
-def test_equal_length_gap_with_disagreeing_names_pairs_and_is_flagged():
-    """Item 6 (2026-09-09): both editions print ONE speech between the same two
-    anchors; the translator gave it to another character (Birds 223-224).  It
-    pairs by position and the crossing is recorded for the speakerMismatch
-    flag.  A gap with an unnamed slot still never zips (P3.5 finding 2)."""
-    from drama_pipeline import stage1_turn_english as m
+def test_mismatched_match_is_possible_but_priced():
+    """`_pair_turns`' disagreeing zip is deleted (turn-pairing-design-
+    2026-09-15, section 1: "the rule that holds the Frogs 83-87 exchange one
+    turn out. Delete it."). Design section 3.2 replaces the free zip with a
+    priced one: a disagreeing MATCH (Birds 223's Coulon-vs-1912-text
+    re-attribution) must stay POSSIBLE, at a real cost (`w_spk`), never
+    forbidden outright and never bought for free. Whichever the DP prefers
+    for a single stray turn under default weights, the content is never
+    silently dropped."""
+    from drama_pipeline.pair_dp import EnglishNode, GreekNode, Weights, align
 
-    crossed: dict = {}
-    assert m._pair_turns(["Alpha", "Euelpides", "Gamma"], ["Alpha", "Pisthetaerus", "Gamma"], crossed=crossed) == [
-        (0, 0), (1, 1), (2, 2),
-    ]
-    assert crossed == {1: "Euelpides"}
-    crossed = {}
-    assert m._pair_turns(["Alpha", None, "Gamma"], ["Alpha", "Beta", "Gamma"], crossed=crossed) == [(0, 0), (2, 2)]
-    assert crossed == {}
-    # Two-for-two with one agreeing and one crossed: both pair, one flagged.
-    crossed = {}
-    assert m._pair_turns(["A", "X", "Y", "Z"], ["A", "X", "Q", "Z"], crossed=crossed) == [(0, 0), (1, 1), (2, 2), (3, 3)]
-    assert crossed == {2: "Y"}
+    g = [GreekNode(name="Euelpides", chars=20)]
+    e = [EnglishNode(name="Pisthetaerus", chars=20)]
+    cheap_skip = align(g, e, pins=[])
+    assert cheap_skip.pairs == [(0, 0)] or (
+        cheap_skip.greek_skips == [(0, 1)] and cheap_skip.english_skips == [0]
+    )
+    # Once skipping is made expensive, the mismatched match must still be
+    # reachable -- the mechanism is possible, not structurally forbidden.
+    forced_match = align(g, e, pins=[], weights=Weights(open_g=10.0, open_e=10.0))
+    assert forced_match.pairs == [(0, 0)]
 
 
-def test_pins_force_a_pair_and_reanchor_the_lcs_around_it():
-    """Item 6 pins (2026-09-09).  Birds 223-226 in miniature: the translator
-    swapped Euelpides and Pisthetaerus for the exchange, so name-matching
-    pairs every speech one late; a pin on the first speech with a run holds
-    the whole exchange by position, each crossed pair flagged."""
-    from drama_pipeline import stage1_turn_english as m
+def test_pins_reanchor_a_swap_and_the_crossing_reads_off_the_names():
+    """Item 6 pins (2026-09-09), Birds 223-226 in miniature: pins are
+    UNCHANGED hard constraints under the DP (design 3.3) -- the translator
+    swapped Euelpides and Pisthetaerus for the exchange, and a pin on the
+    first speech with a run holds the whole exchange by position. A crossed
+    pair is just one whose two names disagree, read directly off the result
+    (the call site sets `speakerMismatch` from exactly this comparison)."""
+    from drama_pipeline.pair_dp import EnglishNode, GreekNode, align
 
-    g = ["Hoopoe", "Euelpides", "Pisthetaerus", "Euelpides", "Pisthetaerus", "Chorus"]
-    e = ["Hoopoe", "Pisthetaerus", "Euelpides", "Pisthetaerus", "Euelpides", "Chorus"]
-    assert m._pair_turns(g, e) == [(0, 0), (2, 1), (3, 2), (4, 3), (5, 5)]
-    crossed: dict = {}
+    g = [GreekNode(name=n, chars=20) for n in
+         ["Hoopoe", "Euelpides", "Pisthetaerus", "Euelpides", "Pisthetaerus", "Chorus"]]
+    e = [EnglishNode(name=n, chars=20) for n in
+         ["Hoopoe", "Pisthetaerus", "Euelpides", "Pisthetaerus", "Euelpides", "Chorus"]]
     forced = [(1, 1), (2, 2), (3, 3), (4, 4)]
-    assert m._pair_turns(g, e, crossed=crossed, forced=forced) == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5)]
+    result = align(g, e, pins=forced)
+    assert set(forced) <= set(result.pairs)
+    assert (0, 0) in result.pairs and (5, 5) in result.pairs
+    crossed = {ej: g[gi].name for gi, ej in result.pairs if g[gi].name != e[ej].name}
     assert crossed == {1: "Euelpides", 2: "Pisthetaerus", 3: "Euelpides", 4: "Pisthetaerus"}
+
     with pytest.raises(ValueError):
-        m._pair_turns(g, e, forced=[(3, 1), (1, 3)])
+        align(g, e, pins=[(3, 1), (1, 3)])
 
 
 def test_resolve_pins_finds_the_speech_by_its_opening_words_and_fails_loud():
@@ -2969,7 +2998,16 @@ def test_resolve_covered_maps_first_line_refs_to_segments_and_fails_loud():
 
 
 def test_owning_covered_follows_chains_and_fails_cycles():
-    """Astra lane C, F7: emit the English-holding segment; fail cycles and dead ends."""
+    """Astra lane C, F7: emit the English-holding segment; fail cycles.
+
+    A CYCLE stays a hard failure (a real bug: ``_resolve_covered`` never
+    produces one on its own). A chain that reaches no English used to raise
+    too, but round 2 task 3 of the turn-pairing fix (Peace and Wasps: a
+    manifest-declared `covered` target losing its own chunk under the new
+    DP pairing) downgrades that one case to a dropped, warned-about
+    declaration -- named in the optional `stale_report` list rather than
+    crashing the build.
+    """
     from drama_pipeline import stage1_turn_english as m
 
     covered = {"1:443": "1:449", "1:449": "1:447"}
@@ -2979,8 +3017,9 @@ def test_owning_covered_follows_chains_and_fails_cycles():
     }
     with pytest.raises(ValueError, match="covered cycle"):
         m._owning_covered({"1:29": "1:30", "1:30": "1:29"}, set(), "t")
-    with pytest.raises(ValueError, match="reaches no English"):
-        m._owning_covered({"1:29": "1:30"}, set(), "t")
+    stale: list[dict] = []
+    assert m._owning_covered({"1:29": "1:30"}, set(), "t", stale_report=stale) == {}
+    assert stale == [{"greek": "1:29", "chain": ["1:29", "1:30"]}]
 
 
 _CLOUDS_MANIFEST_PATH = Path(__file__).resolve().parents[2] / "manifests" / "clouds.yaml"
@@ -3055,31 +3094,36 @@ def test_clouds_102_pin_keeps_the_thinkery_identification_off_of_the_stall():
     # for finding 7 actually exercised the Thinkery alignment the "102" pin
     # fixes. Arrowsmith's own stalling exchange ("Fine. Who are they?" /
     # "Er . . . Gentlemen. Men of Learning.") sits right before the Greek
-    # 102 turn that names Socrates and Chaerephon; without the pin, the
-    # name-only LCS zip still "agrees" turn for turn on the inserted pair
-    # and shifts everything one slot early -- confirmed by removing the
-    # pin: "Fine. Who are they?" lands at 1:102, and the identification
-    # itself is pushed out to 1:110.
+    # 102 turn that names Socrates and Chaerephon.
+    #
+    # Under the name-LCS pairer this pin was load-bearing: without it, the
+    # zip still "agreed" turn for turn on the inserted pair and shifted
+    # everything one slot early. Under the turn-pairing DP (design
+    # 2026-09-15) the pin is a no-op here -- exactly what section 3.5
+    # predicts ("expected to become mostly no-ops; measured, not deleted"):
+    # the length and position terms alone now place the stalling exchange at
+    # 1:100 and the identification at 1:102 with no pin at all. The pin
+    # stays in the manifest (pins are not deleted in this change) and this
+    # test now documents the improvement instead of the old regression.
     manifest = Manifest.for_work("clouds")
     real_pins = manifest.data["english"]["third"].get("pins") or []
     assert any(p.get("greek") == "102" for p in real_pins), (
         "the Clouds 102 pin is missing from manifests/clouds.yaml -- this "
-        "test can no longer prove the pin (rather than a coincidence) fixes "
-        "the alignment"
+        "test can no longer prove the pin still resolves (or has become a "
+        "no-op for) the alignment"
     )
 
     with_pin = _clouds_third_chunks(real_pins)
     assert "Chairephon and that humbug, Sokrates" in with_pin["1:102"][0]["text"]
     assert "Fine. Who are they?" not in with_pin["1:102"][0]["text"]
 
-    # Reproduce the regression directly: the same build, minus the 102 pin
-    # (any other declared pins -- e.g. the "56" pin -- are kept, since this
-    # is about the 102 pin specifically, not every pin at once).
+    # The pin is now a no-op: the same build, minus the 102 pin, still gets
+    # the identification right without it.
     without_102 = [p for p in real_pins if p.get("greek") != "102"]
     assert len(without_102) < len(real_pins)
-    broken = _clouds_third_chunks(without_102)
-    assert "Fine. Who are they?" in broken["1:102"][0]["text"]
-    assert "Chairephon and that humbug, Sokrates" in broken["1:110"][0]["text"]
+    unpinned = _clouds_third_chunks(without_102)
+    assert "Fine. Who are they?" in unpinned["1:100"][0]["text"]
+    assert "Chairephon and that humbug, Sokrates" in unpinned["1:102"][0]["text"]
 
 
 _BACCHAE_MANIFEST_PATH = Path(__file__).resolve().parents[2] / "manifests" / "bacchae.yaml"
@@ -3127,6 +3171,25 @@ def _bacchae_murray_chunks(pins: list[dict]) -> dict:
     speakers = manifest.data["speakers"]
     aliases = _aliases_for_slot(speakers, "overlay", cfg["id"])
     sigla = _SiglaResolver(manifest)
+    # Bacchae's primary is perseus-play (a tragedy): `run()` bridges every
+    # turn-text slot -- including an overlay -- against it (design 3.2, term
+    # B), so this direct `parse_translation` call must build and pass the
+    # same bridge `run()` would, or it is testing a code path no play ever
+    # takes in the real pipeline.
+    from drama_pipeline import stage1_perseus_play_english
+
+    primary_cfg = manifest.data["english"]["primary"]
+    assert primary_cfg.get("model") == "perseus-play"
+    primary_english, _primary_footnotes, _primary_report = stage1_perseus_play_english.parse_translation(
+        SOURCES_DIR / primary_cfg["source"],
+        spine,
+        work_id=manifest.work_id,
+        covered_decl=primary_cfg.get("covered") or [],
+        translation_id=primary_cfg["id"],
+        sigla=sigla,
+        english_aliases=speakers.get("english") or {},
+    )
+    primary_bridge = {c["id"]: c for c in primary_english.get("chunks") or []}
     english, _footnotes, _report = parse_translation(
         SOURCES_DIR / cfg["source"],
         spine,
@@ -3141,6 +3204,7 @@ def _bacchae_murray_chunks(pins: list[dict]) -> dict:
         pins=pins,
         splits=cfg.get("splits") or [],
         covered=cfg.get("covered") or [],
+        primary_bridge=primary_bridge,
     )
     english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [])
     return chunks_as_overlay(english)
@@ -3175,10 +3239,20 @@ def test_bacchae_murray_second_messenger_pins_keep_the_death_report_on_its_own_l
     assert "We climbed beyond" not in with_pins["1:1153"][0]["text"]
     assert "Weave ye the dance" in with_pins["1:1153"][0]["text"]
 
-    # Reproduce the regression directly: the same build, minus the two pins.
-    broken = _bacchae_murray_chunks([])
-    assert "We climbed beyond the utmost habitings" in broken["1:1153"][0]["text"]
-    assert "1:1043" not in broken or "We climbed beyond" not in broken["1:1043"][0]["text"]
+    # Round 3 (turn-pairing-round3-2026-09-15.md, P1): the pins are no longer
+    # load-bearing for this shape. `pair_dp` now inherits the preceding named
+    # speaker onto a speakerless continuation slot before matching it
+    # (defect 1's fix), so the second messenger's death report lands on its
+    # own line even with the pins removed -- the regression this assertion
+    # used to reproduce ("minus the two pins") no longer reproduces, because
+    # the fix is in the alignment itself, not only in the manifest's pins.
+    # Rule 5's inherited discipline: a test asserting a bug's reproduction is
+    # a claim about the deleted defect, not a reader outcome, and it is
+    # replaced here with the outcome the pins and the fix both now agree on.
+    unpinned = _bacchae_murray_chunks([])
+    assert "We climbed beyond the utmost habitings" in unpinned["1:1043"][0]["text"]
+    assert "Weave ye the dance" in unpinned["1:1153"][0]["text"]
+    assert "We climbed beyond" not in unpinned["1:1153"][0]["text"]
 def test_loeb_ocr_roman_numeral_heading_is_not_a_speaker():
     text = "\n".join([
         "HERACLES",

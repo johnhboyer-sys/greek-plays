@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import hashlib
 import math
+import re
 import statistics
 import unicodedata
 from collections import defaultdict
@@ -445,6 +446,12 @@ def _turn_text_quality_checks(
     max_residual = int(
         _pick_turn_text_threshold(slot_entry, english_cfg, "max_residual_unassigned", 0)[0]
     )
+    max_low_confidence = float(
+        _pick_turn_text_threshold(slot_entry, english_cfg, "max_low_confidence_rate", 0.08)[0]
+    )
+    max_bare_run = int(
+        _pick_turn_text_threshold(slot_entry, english_cfg, "max_bare_run_events", 12)[0]
+    )
     if isinstance(slot_entry, dict) and slot_entry.get("head_front_matter") is not None:
         declared_head = int(slot_entry["head_front_matter"])
         head_key = f"english.{slot}.head_front_matter"
@@ -482,6 +489,20 @@ def _turn_text_quality_checks(
     head_check = {
         "count": None,
         "declared": declared_head,
+        "error": read_error,
+        "ok": read_error is None,
+    }
+    low_conf_check = {
+        "rate": None,
+        "count": None,
+        "max_rate": max_low_confidence,
+        "error": read_error,
+        "ok": read_error is None,
+    }
+    bare_run_check = {
+        "count": None,
+        "max_count": max_bare_run,
+        "runs": None,
         "error": read_error,
         "ok": read_error is None,
     }
@@ -569,6 +590,61 @@ def _turn_text_quality_checks(
             "error": head_error,
             "ok": head_error is None,
         }
+        # Turn-pairing design 2026-09-15 section 7: the DP's own confidence
+        # signal (margin) and its loud holes (a Greek stretch the DP left
+        # bare rather than sliding the rest of the play).
+        low_conf_rate = data.get("low_confidence_rate")
+        low_conf_pairs = int(data.get("low_confidence_pairs") or 0)
+        low_conf_error = None
+        if low_conf_rate is not None and low_conf_rate > max_low_confidence:
+            low_conf_error = (
+                f"{slot_label}turn-text low-confidence pairing rate {low_conf_rate:.3f} "
+                f"exceeds maximum {max_low_confidence:.3f} ({low_conf_pairs}/{paired} "
+                "pairs whose margin over the next-best match is thin)"
+            )
+        low_conf_check = {
+            "rate": low_conf_rate,
+            "count": low_conf_pairs,
+            "max_rate": max_low_confidence,
+            "error": low_conf_error,
+            # Round 2 task 3: WARN, never fail the build, until a later
+            # per-play pass declares `known_gaps` and turns this into a real
+            # gate -- "ok" stays true so `report["ok"]` never sees it.
+            "warn": low_conf_error is not None,
+            "ok": True,
+        }
+        known_gaps = (
+            slot_entry.get("known_gaps") if isinstance(slot_entry, dict) else None
+        ) or []
+        runs = data.get("greek_skip_runs") or []
+        undeclared_events = sum(
+            int(r.get("events") or 0)
+            for r in runs
+            if not r.get("covered") and not _gap_declared(r, known_gaps)
+        )
+        bare_error = None
+        if undeclared_events > max_bare_run:
+            spans = ", ".join(
+                f"{r.get('start_ref')}–{r.get('end_ref')}"
+                for r in runs
+                if not r.get("covered") and not _gap_declared(r, known_gaps)
+            )
+            bare_error = (
+                f"{slot_label}{undeclared_events} Greek event(s) left bare in an "
+                f"undeclared skip run (maximum {max_bare_run}): {spans} -- declare "
+                f"each under english.{slot}.known_gaps or restore the missing text"
+            )
+        bare_run_check = {
+            "count": undeclared_events,
+            "max_count": max_bare_run,
+            "runs": runs,
+            "error": bare_error,
+            # Round 2 task 3: WARN, never fail the build (see low_conf_check
+            # above) -- a later per-play pass declares `known_gaps` and turns
+            # this into a real gate.
+            "warn": bare_error is not None,
+            "ok": True,
+        }
     floor_error = read_error
     if data is not None:
         if rate is None:
@@ -595,7 +671,30 @@ def _turn_text_quality_checks(
         f"turn_text_residual_unassigned{suffix}": residual_check,
         f"turn_text_head_unassigned{suffix}": head_check,
         f"turn_text_pairing_floor{suffix}": floor_check,
+        f"turn_text_low_confidence{suffix}": low_conf_check,
+        f"turn_text_bare_run{suffix}": bare_run_check,
     }
+
+
+def _gap_declared(run: dict, known_gaps: list) -> bool:
+    """Is a ``greek_skip_runs`` entry covered by a manifest-declared
+    ``english.<slot>.known_gaps: [{from, to, note}]`` span (turn-pairing
+    design 2026-09-15, section 3.5)?"""
+
+    def num(ref) -> int | None:
+        m = re.match(r"(\d+)", str(ref or ""))
+        return int(m.group(1)) if m else None
+
+    lo, hi = num(run.get("start_ref")), num(run.get("end_ref"))
+    if lo is None or hi is None:
+        return False
+    for gap in known_gaps:
+        if not isinstance(gap, dict):
+            continue
+        glo, ghi = num(gap.get("from")), num(gap.get("to"))
+        if glo is not None and ghi is not None and glo <= lo and hi <= ghi:
+            return True
+    return False
 
 
 def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) -> dict:
@@ -1226,7 +1325,9 @@ def _to_markdown(report: dict) -> str:
         if not isinstance(check, dict):
             continue
         lines += ["", f"## {key.replace('_', ' ').strip()}"]
-        if check.get("error"):
+        if check.get("warn"):
+            lines.append(f"- **WARN:** {check['error']}")
+        elif check.get("error"):
             lines.append(f"- **FAIL:** {check['error']}")
         elif check.get("ok") is True:
             lines.append("- ok")

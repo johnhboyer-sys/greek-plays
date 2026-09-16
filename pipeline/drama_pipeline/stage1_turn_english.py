@@ -33,6 +33,7 @@ from statistics import median
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
 from .stage1_common import collapse_ws, write_json
 from .stage1_english import build_alignment
+from . import pair_dp
 from . import turns as turns_mod
 
 
@@ -57,7 +58,15 @@ _LINDSAY_SPEAKER = re.compile(
 _SINGLE_CAP = re.compile(r"[A-ZÀ-Þ]")
 # Canonical name for a speech whose printed label is OCR junk: it must never
 # equal a Greek roster name, and must not be None (a pairing wildcard).
-_OCR_JUNK = "\x00ocr-junk"
+# One definition, in the module that prices it: `pair_dp._match_cost`
+# charges S = 0.35 for an unreadable cue (design 3.2), which it can only
+# do if it recognises the same sentinel (round 6, finding 8).
+_OCR_JUNK = pair_dp.OCR_JUNK
+# A matched pair's DP margin (its cost's lead over the best alternative match
+# in its row) below this is "low confidence" -- a reviewer's cue, not a gate
+# on its own (turn-pairing design 2026-09-15, section 3.4). Chosen as roughly
+# one `w_spk` mismatch's worth of headroom; not swept against the corpus.
+_LOW_CONFIDENCE_MARGIN = 1.0
 _NOTE_START = re.compile(r"^\[(\d+)\]\s*(.*)$")
 _FN_MARK = re.compile(r"\[(\d+)\]")
 _PG_END = re.compile(r"^\*\*\*\s*END OF|End of the Project Gutenberg")
@@ -777,93 +786,6 @@ def _rewrite_footnotes(
     return _FN_MARK.sub(repl, text), seq
 
 
-def _pair_turns(
-    greek_names: list[str | None],
-    english_names: list[str | None],
-    crossed: dict[int, str | None] | None = None,
-    forced: list[tuple[int, int]] | None = None,
-) -> list[tuple[int, int]]:
-    """Anchors via LCS of named turns, then zip equal-length name-agreeing gaps.
-
-    ``greek_names`` is one entry per Greek speaker SHARE (P3.4,
-    ``_greek_event_slots``), so a name here is a single speaker and a pair is
-    exact-name. The alternative-name escape the segment-level pairing needed
-    (P2h finding 9: a gap turn agreeing with any share of a packed line) is
-    gone with the packing it worked around.
-
-    Item 6 (John, 2026-09-09: a real slip is never a one-off): an equal-length
-    gap whose sides are all NAMED but do not all agree is zipped too — both
-    editions print the same number of speeches between the same two anchors,
-    so they correspond by position, and the translator merely gave one to a
-    different character (Birds 223–224: Coulon's Euelpides, the 1912 text's
-    Pisthetaerus; the old rule left the Greek bare and parked the English on
-    Pisthetaerus' next line).  Each disagreeing pair is recorded in
-    ``crossed`` (English index -> the Greek slot's speaker) so the emitted
-    turn carries the same ``speakerMismatch`` a parked residual would.  A
-    gap with an unnamed slot on either side is still never zipped.
-
-    ``forced`` are manifest pins (``english.<slot>.pins``, resolved by
-    ``_resolve_pins``): (slot, speech) pairs that hold whatever the names say.
-    The LCS then runs separately inside each region between them, so a pin
-    re-anchors everything around it — the cure for an exchange where the
-    translator swapped two characters' names and name-matching set every
-    speech one late (Birds 223–226)."""
-
-    def agrees(i: int, j: int) -> bool:
-        # P3.5 finding 2: `turns._names_match` treats None as a WILDCARD, so an
-        # unnamed slot (a speakerless lyric continuation) matched any named
-        # English speech in an equal-length gap zip — a pair the LCS and the
-        # residual walk both refuse. A pair needs two real, equal names.
-        g, e = greek_names[i], english_names[j]
-        return g is not None and e is not None and g == e
-
-    pinned = sorted(forced or [])
-    for (agi, aej), (bgi, bej) in zip(pinned, pinned[1:]):
-        if bgi <= agi or bej <= aej:
-            raise ValueError(f"pins must run forward in both texts: {(agi, aej)} then {(bgi, bej)}")
-    anchors: list[tuple[int, int]] = list(pinned)
-    if crossed is not None:
-        for gi, ej in pinned:
-            if not agrees(gi, ej):
-                crossed[ej] = greek_names[gi]
-    regions = [(-1, -1)] + pinned + [(len(greek_names), len(english_names))]
-    for (agi, aej), (bgi, bej) in zip(regions, regions[1:]):
-        g_named = [i for i in range(agi + 1, bgi) if greek_names[i] is not None]
-        e_named = [j for j in range(aej + 1, bej) if english_names[j] is not None]
-        anchors.extend(
-            (g_named[x], e_named[y])
-            for x, y in turns_mod._lcs_pairs(
-                [greek_names[i] for i in g_named],
-                [english_names[j] for j in e_named],
-            )
-        )
-    anchors.sort()
-    pairs = list(anchors)
-    bounds = [(-1, -1)] + anchors + [(len(greek_names), len(english_names))]
-    for (agi, aej), (bgi, bej) in zip(bounds, bounds[1:]):
-        sub_g = list(range(agi + 1, bgi))
-        sub_e = list(range(aej + 1, bej))
-        if not (sub_g and sub_e and len(sub_g) == len(sub_e)):
-            continue
-        if all(agrees(i, j) for i, j in zip(sub_g, sub_e)):
-            pairs.extend(zip(sub_g, sub_e))
-        elif all(greek_names[i] is not None for i in sub_g) and all(
-            english_names[j] is not None and english_names[j] != _OCR_JUNK for j in sub_e
-        ):
-            for i, j in zip(sub_g, sub_e):
-                pairs.append((i, j))
-                if crossed is not None and not agrees(i, j):
-                    crossed[j] = greek_names[i]
-    pairs.sort()
-    out: list[tuple[int, int]] = []
-    last_e = -1
-    for gi, ej in pairs:
-        if ej > last_e:
-            out.append((gi, ej))
-            last_e = ej
-    return out
-
-
 def _greek_segment_name(segment: dict, sigla: dict) -> str | None:
     """The segment's speaker for pairing: the speaker of its FIRST line at
     offset 0 (the line-level rule), not merely its first speaker event — a
@@ -922,6 +844,95 @@ def _greek_event_slots(segments: list[dict], sigla) -> list[dict]:
                 {"segment": gi, "line": line, "offset": offset, "name": name}
             )
     return slots
+
+
+def _greek_slot_spans(segments: list[dict], slots: list[dict]) -> list[tuple[int, str]]:
+    """``(chars, text)`` of each pairing slot's OWN Greek span (turn-pairing
+    design 2026-09-15, section 3.2, term L): for a segment with k shares, the
+    k-th share's span runs from its own (line, offset) to the next share's,
+    or the end of the segment for the last share -- not the whole segment's
+    text for every share, which would flatten a long antilabe line's actual
+    length against a short one."""
+    by_segment: dict[int, list[int]] = {}
+    for idx, slot in enumerate(slots):
+        by_segment.setdefault(slot["segment"], []).append(idx)
+    out: list[tuple[int, str]] = [(0, "")] * len(slots)
+    for gi, segment in enumerate(segments):
+        idxs = by_segment.get(gi) or []
+        if not idxs:
+            continue
+        lines = segment.get("lines") or segment.get("greek") or []
+        starts: dict[int, int] = {}
+        pieces: list[str] = []
+        total = 0
+        for line in lines:
+            if not isinstance(line, dict):
+                continue
+            n = line.get("n")
+            text = str(line.get("text") or "")
+            if n is not None:
+                starts[n] = total
+            pieces.append(text)
+            total += len(text)
+        whole = "".join(pieces)
+        if len(idxs) == 1:
+            out[idxs[0]] = (total, whole)
+            continue
+        positions = [
+            starts.get(slots[idx]["line"], 0) + int(slots[idx].get("offset") or 0)
+            for idx in idxs
+        ]
+        for k, idx in enumerate(idxs):
+            start = positions[k]
+            end = positions[k + 1] if k + 1 < len(idxs) else total
+            end = max(start, end)
+            out[idx] = (end - start, whole[start:end])
+    return out
+
+
+def _primary_bridge_texts(
+    segments: list[dict],
+    slots: list[dict],
+    primary_chunks_by_id: dict[str, dict] | None,
+) -> list[str | None] | None:
+    """Design 3.2, term B: each slot's own primary-English text for the TF-IDF
+    bridge -- the primary (``perseus-play``) chunk covering the slot's
+    segment, or that chunk's k-th TURN slice when the slot is the k-th share
+    of a packed segment (mirroring ``_greek_slot_spans``'s per-share split on
+    the Greek side, since the primary column carries its own antilabe
+    ``turns`` exactly as a turn-text chunk does -- section 2(b)).
+
+    ``None`` when there is no perseus-play primary to bridge against at all
+    (the eleven Aristophanes plays, whose primary is itself turn-text: design
+    3.2, "off for the eleven Aristophanes plays in this change") -- the
+    caller then runs the DP with the bridge term off, exactly as before.
+    """
+    if primary_chunks_by_id is None:
+        return None
+    by_segment: dict[int, list[int]] = {}
+    for idx, slot in enumerate(slots):
+        by_segment.setdefault(slot["segment"], []).append(idx)
+    out: list[str | None] = [None] * len(slots)
+    for gi, idxs in by_segment.items():
+        chunk = primary_chunks_by_id.get(segments[gi]["id"])
+        if not chunk:
+            continue
+        text = chunk.get("text") or ""
+        turns = chunk.get("turns") or []
+        if len(idxs) == 1 or not turns:
+            # A single share, or a packed segment whose primary has no
+            # sub-line turns to slice: the whole primary chunk is the best
+            # signal available for the (first) share.
+            out[idxs[0]] = text or None
+            continue
+        offsets = [int(t.get("offset") or 0) for t in turns]
+        for k, idx in enumerate(idxs):
+            if k >= len(offsets):
+                break
+            start = offsets[k]
+            end = offsets[k + 1] if k + 1 < len(offsets) else len(text)
+            out[idx] = text[start:end].strip() or None
+    return out
 
 
 def _segment_speaks(segment: dict, sigla) -> set[str]:
@@ -1377,17 +1388,29 @@ def _resolve_covered(covered: list[dict], segments: list[dict], work_id: str) ->
 
 
 def _owning_covered(
-    covered: dict[str, str], chunk_ids: set[str], work_id: str
+    covered: dict[str, str], chunk_ids: set[str], work_id: str,
+    *, stale_report: list[dict] | None = None,
 ) -> dict[str, str]:
     """Follow each covered target to the segment that holds English.
 
     Astra lane C, F7: a chain or a neighbour without a chunk must not ship
-    as ``englishCoveredBy``. Cycles and chains that reach no English fail.
+    as ``englishCoveredBy``. A CYCLE still fails loud (a real bug, never
+    produced by ``_resolve_covered``'s own resolution). A chain that reaches
+    no English is DROPPED instead of raising (turn-pairing design
+    2026-09-15, round 2 task 3): under the DP's pairing, a manifest-declared
+    ``covered`` target can lose its own chunk entirely (the DP moved that
+    content elsewhere -- Peace and Wasps both hit this on the full-corpus
+    scan), and a stale manifest declaration is not a crash. The segment
+    falls back to an honest bare ``greek_skip_runs`` entry; the drop is
+    named in ``stale_report`` (the caller's report gets a ``stale_covered``
+    key) and printed as a warning so it stays visible without failing the
+    build.
     """
     out: dict[str, str] = {}
     for sid, target in covered.items():
         seen = [sid]
         cur = target
+        stale = False
         while True:
             if cur in seen:
                 raise ValueError(
@@ -1399,10 +1422,16 @@ def _owning_covered(
                 break
             nxt = covered.get(cur)
             if not nxt:
-                raise ValueError(
-                    f"{work_id}: covered chain {' -> '.join(seen)} reaches no English"
-                )
+                stale = True
+                break
             cur = nxt
+        if stale:
+            if stale_report is not None:
+                stale_report.append({"greek": sid, "chain": seen})
+            print(
+                f"  WARNING: {work_id}: covered chain {' -> '.join(seen)} reaches no "
+                "English -- stale declaration dropped, not applied"
+            )
     return out
 
 
@@ -1536,6 +1565,7 @@ def parse_translation(
     english_overrides: list[dict] | None = None,
     slot: str = "primary",
     verse: bool = False,
+    primary_bridge: dict[str, dict] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
@@ -1617,13 +1647,88 @@ def parse_translation(
     slot_names = [slot["name"] for slot in slots]
     seg_names = [_greek_segment_name(seg, sigla) for seg in segments]
     seg_speaks = [_segment_speaks(seg, sigla) for seg in segments]
+    slot_refs = _slot_refs(segments, slots)
+    slot_spans = _greek_slot_spans(segments, slots)
     # No alt names in the pairing itself: a slot IS one share, so a pair is
     # exact-name by construction. The segment's whole name set rides into
     # `_assign_speeches` instead, where it is the clean-park test (P3.3).
     crossed: dict[int, str | None] = {}
     pin_notes: list[str] = []
-    forced = _resolve_pins(pins or [], slots, _slot_refs(segments, slots), speeches, work_id, pin_notes)
-    pairs = _pair_turns(slot_names, e_names, crossed=crossed, forced=forced)
+    forced = _resolve_pins(pins or [], slots, slot_refs, speeches, work_id, pin_notes)
+
+    # Turn pairing is a global banded affine alignment (design
+    # build/review/turn-pairing-design-2026-09-15.md section 3), not a
+    # name-LCS: `pair_dp.align` replaces the deleted `_pair_turns`. Pins are
+    # unchanged hard constraints; the DP still runs independently between
+    # consecutive ones (section 3.3).
+    #
+    # P1 (turn-pairing-round3-2026-09-15.md, defect 1): a slot with no
+    # speaker event of its own (`slot_names[k] is None`) is, by construction,
+    # the CONTINUATION of the preceding named speaker -- `_greek_event_slots`
+    # cuts only at a line-start speaker event, never mid-continuation. Fed to
+    # the DP as `name=None`, it reads as an unattributed lyric and gets the
+    # 0.35 unnamed-match discount, making a long continuation the cheapest
+    # landing site for ANY English speech (Bacchae 1:1125's Messenger
+    # continuation absorbing the Chorus's dance ode meant for 1:1153). `dp_names`
+    # carries the last named slot forward into every `None` that follows it
+    # (a leading `None` with no predecessor stays `None`) and feeds ONLY the
+    # DP's nodes. `slot_names` itself is untouched: it also feeds `crossed`,
+    # `turn_shifts`, `greek_named` (the `pairing_rate` denominator), and
+    # `_assign_speeches`, and inheriting there would move every reported
+    # number for reasons unrelated to the alignment.
+    dp_names: list[str | None] = []
+    _last_named: str | None = None
+    for _name in slot_names:
+        if _name is not None:
+            _last_named = _name
+        dp_names.append(_name if _name is not None else _last_named)
+
+    greek_nodes = [
+        pair_dp.GreekNode(
+            name=dp_names[k],
+            chars=slot_spans[k][0],
+            line_key=(slot["segment"], slot["line"]),
+            text=slot_spans[k][1],
+            # P1 (turn-pairing-round4-2026-09-15.md): this node's name came
+            # from the PRECEDING named slot, not its own speaker event --
+            # `_match_cost` charges `w_cont` so it loses a tie against that
+            # speaker's own next named node.
+            inherited=(slot_names[k] is None and dp_names[k] is not None),
+        )
+        for k, slot in enumerate(slots)
+    ]
+    english_nodes = [
+        pair_dp.EnglishNode(
+            name=e_names[j], chars=len(speeches[j]["text"]), text=speeches[j]["text"]
+        )
+        for j in range(len(speeches))
+    ]
+    # The primary-English bridge (design 3.2, term B): each Greek share's own
+    # line-keyed primary text, TF-IDF-cosined against every English speech.
+    # `None` (bridge off) for the eleven Aristophanes plays, whose primary is
+    # itself turn-text -- `run()` only passes `primary_bridge` when this
+    # work's `english.primary.model` is `perseus-play`.
+    bridge_texts = _primary_bridge_texts(segments, slots, primary_bridge)
+    dp_result = pair_dp.align(greek_nodes, english_nodes, pins=forced, bridge=bridge_texts)
+    pairs = dp_result.pairs
+    # P4 (turn-pairing-round4-2026-09-15.md): `crossed`'s own membership --
+    # and everything it feeds below (`turn_shifts`'s flagging, `crossed_pairs`)
+    # -- is UNCHANGED. `unreadable_cue_pairs` is a second, finer count read
+    # off the same loop: a pair whose English name is the OCR-junk sentinel
+    # is not a genuine speaker disagreement (design 3.2: `S = 0.35` for
+    # `_OCR_JUNK`, not 1.0), so `speaker_mismatch_pairs` below reports only
+    # the pairs that are neither -- both sides named and genuinely different.
+    unreadable_cue_pairs: dict[int, str | None] = {}
+    for gi, ej in pairs:
+        if (
+            slot_names[gi] is not None
+            and e_names[ej] is not None
+            and slot_names[gi] != e_names[ej]
+        ):
+            crossed[ej] = slot_names[gi]
+            if e_names[ej] == _OCR_JUNK:
+                unreadable_cue_pairs[ej] = slot_names[gi]
+
     (
         assigned,
         residual_grouped,
@@ -1829,6 +1934,29 @@ def parse_translation(
     seg_named = sum(1 for name in seg_names if name is not None)
     seg_paired_named = sum(1 for gi in paired_segments if seg_names[gi] is not None)
     total_segments = len(segments)
+
+    # The DP's own derived-covered runs (a SKIP_G run right after a MATCH
+    # whose English is long for its Greek) merge into the manifest's
+    # declared `covered`, which wins on conflict (design 3.5's `covered`
+    # sibling, `englishCoveredBy` on the existing reader contract).
+    derived_covered_by_segment: dict[str, str] = {}
+    for gi, cover_gi in dp_result.derived_covered.items():
+        seg_id = segments[slots[gi]["segment"]]["id"]
+        cover_seg_id = segments[slots[cover_gi]["segment"]]["id"]
+        # The covering node is "paired" at the slot level, but its segment
+        # can still end up with no chunk of its own (its matched speech's
+        # text was empty after stripping) -- a derived claim must never
+        # point at a dead end the way a stale MANIFEST declaration now only
+        # warns over (`_owning_covered`, round 2 task 3); silently skip it
+        # here instead and leave the slot in `greek_skip_runs`, uncovered
+        # but honest -- a DP-internal mistake should never even print.
+        if seg_id == cover_seg_id or seg_id in chunk_ids or cover_seg_id not in chunk_ids:
+            continue
+        derived_covered_by_segment.setdefault(seg_id, cover_seg_id)
+    manifest_covered = _resolve_covered(covered or [], segments, work_id)
+    merged_covered = {**derived_covered_by_segment, **manifest_covered}
+
+    stale_covered: list[dict] = []
     english = {
         "work": work_id,
         "source": path.name,
@@ -1836,14 +1964,87 @@ def parse_translation(
         "chunks": chunks,
         "chapters": [],
         # Item 6 (2026-09-09): a Greek speech whose English sits inside the
-        # speech attached to a neighbour, declared in the manifest; the
-        # reader shows "Translated with the speech above" (stage7 reads it).
+        # speech attached to a neighbour, declared in the manifest or
+        # derived by the DP; the reader shows "Translated with the speech
+        # above" (stage7 reads it).
         "english_covered_by": _owning_covered(
-            _resolve_covered(covered or [], segments, work_id),
-            chunk_ids,
-            work_id,
+            merged_covered, chunk_ids, work_id, stale_report=stale_covered
         ),
     }
+
+    # Turn-pairing design 2026-09-15 section 7: report numbers the old
+    # positional pairer had no term for -- displacement (`greek_skip_runs`,
+    # `align_cost`) and confidence (`low_confidence_*`, from the DP's own
+    # per-pair `margin`) -- plus the antilabe split section 2(c) requires.
+    #
+    # `greek_skip_runs` reports the FINAL bare Greek (no chunk at all after
+    # `_assign_speeches`' residual park), not the DP's raw SKIP_G decisions:
+    # most of those get filled in by a nearby residual English speech the
+    # park pass finds (P3.3's clean park, unchanged), so counting the raw
+    # DP skips as "bare" wildly overstates it -- caught empirically on
+    # Acharnians, where 20 raw skips left only 6 truly bare (matching
+    # strict_coverage's own independent count).
+    final_covered_by = english["english_covered_by"]
+    bare_slot = [segments[slot["segment"]]["id"] not in chunk_ids for slot in slots]
+    greek_skip_runs = []
+    run_start = None
+    for k in range(len(slots) + 1):
+        is_bare = k < len(slots) and bare_slot[k]
+        if is_bare and run_start is None:
+            run_start = k
+        elif not is_bare and run_start is not None:
+            lo, hi = run_start, k
+            run_seg_ids = {segments[slots[i]["segment"]]["id"] for i in range(lo, hi)}
+            covered_run = all(sid in final_covered_by for sid in run_seg_ids)
+            greek_skip_runs.append(
+                {
+                    "start_ref": slot_refs[lo] if lo < len(slot_refs) else None,
+                    "end_ref": slot_refs[hi - 1] if hi - 1 < len(slot_refs) else None,
+                    "events": hi - lo,
+                    "covered": covered_run,
+                }
+            )
+            run_start = None
+    low_confidence_pairs = sum(
+        1 for m in dp_result.margins.values() if m < _LOW_CONFIDENCE_MARGIN
+    )
+    # Round 6, finding 9: the margin DISTRIBUTION, not just the count under a
+    # threshold. `low_confidence_pairs` answers "how many pairs are thin";
+    # these answer "how thin is this column overall", which is the number
+    # that moves when placement improves without the pair count changing --
+    # the case round 5's pins made and `pairing_rate` could not show.
+    _margins = sorted(dp_result.margins.values())
+    if _margins:
+        _mid = len(_margins) // 2
+        margin_median = (
+            _margins[_mid] if len(_margins) % 2
+            else (_margins[_mid - 1] + _margins[_mid]) / 2.0
+        )
+        margin_p10 = _margins[max(0, (len(_margins) * 10) // 100 - 1)]
+    else:
+        margin_median = None
+        margin_p10 = None
+    seg_share_counts: dict[int, int] = {}
+    for slot in slots:
+        seg_share_counts[slot["segment"]] = seg_share_counts.get(slot["segment"], 0) + 1
+    packed_segment_ids = {
+        segments[gi]["id"] for gi, count in seg_share_counts.items() if count > 1
+    }
+    turn_shift_count_packed = sum(
+        1 for ts in turn_shifts if ts["greek_id"] in packed_segment_ids
+    )
+    turn_shift_count_unpacked = len(turn_shifts) - turn_shift_count_packed
+    # Round 2 task 2: a placement metric beside the ordinal one
+    # (`turn_shift_count`), which counts same-name offsets CUMULATIVELY and
+    # so keeps rising for the rest of the play even after every later speech
+    # sits beside the right Greek. `speaker_mismatch_pairs` is the same
+    # count `crossed_pairs` already carries, named for the acceptance-B
+    # comparison; `bare_events` is the FINAL bare-Greek total (the same
+    # events `greek_skip_runs` reports, minus any covered run) rather than
+    # the DP's raw skip count; `length_outlier_pairs` is the report's
+    # existing length-ratio outlier count, named to match.
+    bare_events = sum(r["events"] for r in greek_skip_runs if not r["covered"])
+
     report = {
         "work": work_id,
         "translation": translation_id,
@@ -1852,6 +2053,13 @@ def parse_translation(
         "residual_grouped": residual_grouped,
         "residual_flagged": len(residual_flags),
         "crossed_pairs": len(crossed),
+        # P4: genuine disagreements only -- `crossed` minus the OCR-junk
+        # cues, which the acceptance table (round4 brief §3) reads instead
+        # of the old, instrument-inflated `crossed_pairs` count.
+        "speaker_mismatch_pairs": len(crossed) - len(unreadable_cue_pairs),
+        "unreadable_cue_pairs": len(unreadable_cue_pairs),
+        "bare_events": bare_events,
+        "stale_covered": stale_covered,
         "pinned_pairs": len(forced),
         "pin_notes": pin_notes,
         "residual_unassigned": residual_unassigned,
@@ -1869,11 +2077,27 @@ def parse_translation(
         "snap_count": 0,
         "length_ratio_outliers": length_ratio_outliers,
         "length_ratio_outlier_count": len(length_ratio_outliers),
+        "length_outlier_pairs": len(length_ratio_outliers),
         "turn_shifts": turn_shifts,
         "turn_shift_count": len(turn_shifts),
         "turn_shift_rate": turn_shift_rate,
         "turn_shift_new_drifts": turn_shift_new_drifts,
+        # P4: placement, beside the ordinal drift count -- `turn_shift_new_
+        # drifts` measures how much MORE English got placed, not displacement
+        # (round4 brief §1.4), and is only read that way alongside this.
+        "placed_events": len(pairs) + len(derived_covered_by_segment),
         "turn_shift_rate_cumulative": turn_shift_rate_cumulative,
+        "turn_shift_count_packed": turn_shift_count_packed,
+        "turn_shift_count_unpacked": turn_shift_count_unpacked,
+        "align_cost": dp_result.cost,
+        "greek_skip_runs": greek_skip_runs,
+        "english_skip_count": len(dp_result.english_skips),
+        "derived_covered_count": len(derived_covered_by_segment),
+        "band_widened": dp_result.band_widened,
+        "low_confidence_pairs": low_confidence_pairs,
+        "low_confidence_rate": (low_confidence_pairs / len(pairs)) if pairs else 0.0,
+        "margin_median": margin_median,
+        "margin_p10": margin_p10,
         "segments_with_chunk": len(chunks),
         "segments_total": total_segments,
         "coverage_ratio": len(chunks) / total_segments if total_segments else 0.0,
@@ -2167,6 +2391,20 @@ def run(
         None,
     )
     verse = form == "verse"
+    # The primary-English bridge (design 3.2, term B) is on only where this
+    # work's primary is `perseus-play` (the 33 tragedies) -- never for a
+    # `slot="primary"` call itself, since that only happens when THIS play's
+    # primary is turn-text (the eleven comedies), which is exactly the case
+    # the design keeps the bridge off for (section 3.2, "off for the eleven
+    # Aristophanes plays"; section 8's second risk). The primary's chunks are
+    # already on disk by the time a secondary/third/overlay slot runs
+    # (`__main__._stage1` builds `english.primary` first).
+    primary_bridge: dict[str, dict] | None = None
+    if (english_block.get("primary") or {}).get("model") == "perseus-play":
+        primary_chunks_path = BUILD_DIR / "stage1" / "english_chunks.json"
+        if primary_chunks_path.exists():
+            primary_data = json.loads(primary_chunks_path.read_text(encoding="utf-8"))
+            primary_bridge = {c["id"]: c for c in primary_data.get("chunks") or []}
     english, footnotes, report = parse_translation(
         source_path,
         spine,
@@ -2184,6 +2422,7 @@ def run(
         english_overrides=speakers.get("english_overrides") or [],
         slot=slot,
         verse=verse,
+        primary_bridge=primary_bridge,
     )
     # A long speech's English reaches the Greek segments that continue it
     # (John, 2026-09-11, Morshead's Agamemnon parodos).

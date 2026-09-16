@@ -31,6 +31,10 @@ english:
       - { greek: "522", by: "518" }
       - { greek: "805", by: "803" }
       - { greek: "308", by: "306" }
+      # Round 3 (turn-pairing-round3-2026-09-15.md, P5): "How they chirp and
+      # run about screeching!" (1:307) is folded into 1:306's Euelpides turn
+      # ("...how they scold, how they come rushing up! What a noise!...").
+      - { greek: "307", by: "306" }
       - { greek: "878", by: "873" }
       - { greek: "290", by: "289" }
       - { greek: "577", by: "571" }

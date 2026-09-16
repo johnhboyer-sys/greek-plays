@@ -42,6 +42,12 @@ english:
       - { greek: "255", english: "To him I shall say, \"Go and look at a dog's", run: 1 }
       - { greek: "261", english: "If they seize you, we will bid them let you", run: 1 }
       - { greek: "266", english: "'Tis difficult; yet it must be done, and the", run: 1 }
+      # Round 5: the 1912 text folds 328's two shares into the neighbour's 327
+      # speech ("Why, yes, 'tis himself and no other. Tell me, what's all that
+      # yellow about you?"), so Blepyrus's reply belongs to 331; without this the
+      # DP takes the cheap same-line opening at 328 and leaves 331 bare.
+      - { greek: "327", english: "Who's there? Is that not my neighbour Blepyrus?", run: 1 }
+      - { greek: "331", english: "No, no, I only slipped on my wife's tunic", run: 1 }
       - { greek: "339", english: "But, by Posidon, 'tis the same with myself", run: 1 }
       - { greek: "344", english: "What does it mean? Can some friend have invited her", run: 1 }
       - { greek: "377", english: "Why, it is scarcely daylight. I did laugh, ye", run: 1 }
