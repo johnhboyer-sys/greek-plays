@@ -167,12 +167,12 @@ We from the spy our foes’ devices learn,
 And so confer; this is my mind, O King.
 
 CHORUS. Even such is my mind; be it thine, from thy mood
-be thou swayed ; [snare.
-For I love not behests of captains that bring but a
+be thou swayed ;
+For I love not behests of captains that bring but a snare.
 Now what thing better than this shall our emprise aid
 Than to send forth a scout who anigh to the
-galleys shall fare [arrayed
-Swift-footed, and learn why comes it that, where be
+galleys shall fare
+Swift-footed, and learn why comes it that, where be arrayed
 The prows of the galleys, the fires of the foemen
 glare?
 
@@ -261,8 +261,8 @@ Be thou not envious: countless things beside
 Shall make thee glad, the ruler of the land.
 
 CHORUS. Great thine emprise is, and great the reward thou dost
-claim ; [shalt thou know.
-So thou may’st but attain thereunto, high bliss
+claim ;
+So thou may’st but attain thereunto, high bliss shalt thou know.
 Verily this thine adventure is fraught with fame.
 Yet, to wed with a princess !—glory had this been,
 I trow.
@@ -318,21 +318,21 @@ he drive the Phthian steeds,
 The steeds that on Peleus, Aeacus’ son, were bestowed
 by the Lord of the Sea.
 Forasmuch as for home and for fatherland alone he
-hath dared to go [of the Hellene ships,
-Thither, and gaze on the fenced place, on the camp
+hath dared to go
+Thither, and gaze on the fenced place, on the camp of the Hellene ships,
 His hardihood I extol,—of such heroes but few shall
-be found, I trow, [state’s prow heavily dips.
-When the sun in the sea sinks stormily, and the
+be found, I trow,
+When the sun in the sea sinks stormily, and the state’s prow heavily dips.
 There is, there is mid the Phrygians found a hero !—
 our prowess shall glow
 Mid the clash of the spears :—at our help who sneers,
 save the envious Mysian lips ?
 What chieftain Achaean shall he, as with death in his
-hand he prowls to and fro, [earth he steals,
-As in shape of a brute of fourfold foot o’er the darkling
+hand he prowls to and fro,
+As in shape of a brute of fourfold foot o’er the darkling earth he steals,
 Stab mid the tents? May he slay Menelaus, and lay
-Agamemnon low, [her shriek outpeals,
-Yea, bear the head of the war-king dead, and, loud as
+Agamemnon low,
+Yea, bear the head of the war-king dead, and, loud as her shriek outpeals,
 Lay it in Helen’s hands—the head of her kinsman who
 worked us woe, lord of a thousand keels.
 Who sailed to the strand of Troy’s fair land with
@@ -477,7 +477,7 @@ Upon Argive lawn unto Hera dancing
 Shall stand, but here shall the corpse of him slain
 Lie, by the Thracians’ doom of bane,
 To cumber the soil of its load full fain.
-Enter RHESUS in his chariot, with Thracian guard.
+_Enter RHESUS in his chariot, with Thracian guard._
 Hail, great King, hail !—O Thrace, of thy scions
 The glory is this—true prince to behold !
 Mark ye the strong limbs lapped in gold:
@@ -565,15 +565,15 @@ from Zeus and our friend !
 Only may Zeus the most highest forgive thee thy
 vaunt, and defend
 Thee from the malice of Jealousy, her with whom
-none may contend ! [land
-Never the galleys of Argos, aforetime nor late, to our
+none may contend !
+Never the galleys of Argos, aforetime nor late, to our land
 Brought mid the hosts of their heroes a champion so
-mighty of hand. [ withstand ?
-How shall Achilles or Aias thy battle-spear’s lightning
+mighty of hand.
+How shall Achilles or Aias thy battle-spear’s lightning withstand ?
 O that I also may live to behold it, the on-coming day!
 O to behold it, thy vengeance triumphant, when lifted
-to slay [through Hellas’ array !
-Flasheth the lance in thine hand, spreading havoc
+to slay
+Flasheth the lance in thine hand, spreading havoc through Hellas’ array !
 
 RHESUS. Such deeds will I, for my long absence’ sake,
 Perform for thee. So Nemesis say not nay,
@@ -657,8 +657,8 @@ For the stars that were high in the evening sky are
 setting : uprisen ye see broad wings shine.
 The Pleiads seven: in the midst of heaven the Eagle’s
 Ho, comrades, awake from your slumber ! Why do ye
-linger? Hither to me! [tramp appear !
-Ho ye, ho ye, from your couches leap, for the sentinel-
+linger? Hither to me!
+Ho ye, ho ye, from your couches leap, for the sentinel-tramp appear !
 Do ye see not afar where the silver car of the moon
 o’er the sea hangs low?
 The dayspring cometh—break off your sleep, for the
@@ -681,18 +681,18 @@ When the lot to our stations assigned us all.
 
 CHORUS. (Ant.
 I hear, I hear—'tis the nightingale ! The mother ae
-slew her child— [murder-stain—
-As broodeth her wing o’er the fearful thing, the eternal
+slew her child—
+As broodeth her wing o’er the fearful thing, the eternal murder-stain—
 By Simois chanteth her heart-stricken wail ; the voice
-of her woe rings wild, [hopeless pain !
-As passions a lute of many a string,— winged poet of
+of her woe rings wild,
+As passions a lute of many a string,— winged poet of hopeless pain !
 Hark! flocks to the pasture are going: they bleat as
 they stray down Ida’s brow ;
 And I hear it float through the dark, the note of the
 pipe’s ethereal cry ;
 And drowsihead with her witchery sweet is lulling
-mine eyelids now ; [the dawn is nigh.
-For to weary eyes she cometh, I wot, most dear when
+mine eyelids now ;
+For to weary eyes she cometh, I wot, most dear when the dawn is nigh.
 
 SEMICHORUS. Why draweth not near unto us that scout
 Whom Hector to spy on the fleet sent out ?
@@ -753,7 +753,7 @@ ODYSSEUS. Nothing achieved? Have we not slain the spy
 Upon the galleys, Dolon? Have we not
 His spoils? Look’st thou to ravage all their camp?
 Hear me—return we ; so good speed be ours.
-[ATHENA appears above the stage.]
+_ATHENA appears above the stage._
 
 ATHENA. Ho! whither go ye, from the lines of Troy
 Fleeing, with sorrow rankling in your hearts
@@ -900,7 +900,7 @@ raise the ’larum cry?
 
 ODYSSEUS. Nay, ‘twere perilous to scare with night-alarms a
 war-ally.
-[odysseus slips away into the darkness.
+_ODYSSEUS slips away into the darkness._
 
 CHORUS. He is gone from us !—who was the man
 Who shall vaunt of his aweless might ?
@@ -912,8 +912,8 @@ Passed ranks, passed many a sentinel-post?
 A Thessalian is he?
 Doth he dwell in a town that from Locris’ coast
 Looketh over the sea?
-Or, an islander, lives he by piracy? [boast ?
-Who ?—whence ?—what fatherland-home doth he
+Or, an islander, lives he by piracy?
+Who ?—whence ?—what fatherland-home doth he boast ?
 Of the Gods whom doth he confess most high ?
 
 SEMICHORUS. Whose deed is this ?—Odysseus’ dark design ?
@@ -992,8 +992,8 @@ Befalls—if this man’s words mean aught for me.
 
 CHARIOTEER. Undone is our host, laid low is our king
 By a deadly stab, by a stroke of guile!
-Ah, how am I inly racked by the sting [die !
-Of my gory wound’ Would God I might straightway
+Ah, how am I inly racked by the sting
+Of my gory wound’ Would God I might straightway die !
 Was it meet that so soon as he came, your Troy’s ally,
 Rhesus and I should perish by end so vile?
 
@@ -1086,8 +1086,8 @@ guiltless, O King!
 Then, if hereafter, as time runneth on, or in word or
 in deed
 Ever thou find me transgressing, O then to the grave
-do thou speed [I plead.
-Me,—yea, alive to go down to the pit ; nor for mercy
+do thou speed
+Me,—yea, alive to go down to the pit ; nor for mercy I plead.
 
 CHARIOTEER. Why threaten these, and strive, barbarian thou,
 To cozen barbarian wit with glozing speech ?
@@ -1281,7 +1281,7 @@ And tell unto them that with Troy be allied
 These things. May the God give triumph to us
 straightway
 Who fights on our side.
-[Exeunt omnes,
+_Exeunt omnes,_
 et)
 "Yee
 rate Se | :

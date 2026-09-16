@@ -229,7 +229,8 @@ To thee for thy fair deeds requital fair.
 A form hast thou like Helen’s, but thou hast
 No heart like hers, nay, diverse utterly.
 Ruin be hers! Ne’er to Eurotas’ streams
-Come she! But be thou, lady, ever blest. [ Exit.
+Come she! But be thou, lady, ever blest.
+_Exit._
 
 HELEN. For mine anguish I raise an exceeding great and
 bitter cry!
@@ -496,7 +497,7 @@ Because of her beauty ; but mine with the brands of
 desire
 Hath enkindled Dardanian Pergamus’ ruin-pyre,
 And hath given the Achaeans to slaughter.
-[ They pass into the palace.
+_They pass into the palace._
 
 MENELAUS. Ah, Pelops, thou at Pisa victor once
 Over Oenomaus in chariot-strife,
@@ -549,7 +550,7 @@ And stately portals of a prosperous man,
 I drew nigh: from a wealthy house is hope
 Of somewhat for my crew; but from bare walls
 Nought could men aid us, howsoe’er they would.
-[Knocks at gate.
+_Knocks at gate._
 Ho! what gate-warder forth the halls will come
 To tell within of my calamities?
 Door of palace opens. PoRTREsS appears on threshold.
@@ -634,7 +635,8 @@ Whereby the palace is disquieted.
 Thou art come in evil hour, and if my lord
 Find thee, thy stranger’s welcome shall be death.
 Well-wisher unto Greeks am I, although
-Harsh words I gave for terror of my lord. [Exit.
+Harsh words I gave for terror of my lord.
+_Exit._
 
 MENELAUS. What shall I think ?—what say ?—for lo, I hear
 Of imminent ills hard-following on the old,
@@ -668,7 +670,7 @@ That I, who am a king, should beg my bread
 Of other princes : yet it needs must be.
 Not mine the saying is, but wisdom’s saw—
 “ Stronger is nought than dread Necessity.”
-[ Retires to back of stage.
+_Retires to back of stage._
 
 CHORUS. The word which the prophetess said,
 In the king’s halls heard I its sound—
@@ -709,7 +711,7 @@ MENELAUS. Thou that with fearful effort strainest on
 To the tomb’s basement and the altar-pillars,
 Stay !—wherefore flee?—with one glimpse of thy form
 Thou with tongue-tied amazement fillest me.
-[Seizes her hand.
+_Seizes her hand._
 
 HELEN. I am outraged, women! for I am held back
 Of this man from the tomb! He hath caught me, fain
@@ -860,8 +862,8 @@ Erstwhile ; and Gods removed her from mine home :
 But now God speeds us on to newer, happier doom.
 
 HELEN. And the evil made good hath united us, though it be
-late ; [new fate !
-Yet may blessing be on me, mine husband, in this
+late ;
+Yet may blessing be on me, mine husband, in this new fate !
 
 MENELAUS. Blessing on thee! I pray the selfsame prayer ;
 For grief and joy the twain made one must share.
@@ -913,8 +915,8 @@ By the bride of Zeus was I then undone.
 MENELAUS. Hera ?—What would she, heaping on us bale?
 
 HELEN. Woe for my curse—for the baths from the hill-springs
-flowing [ing,
-Where flushed the Goddesses’ loveliness lovelier-glow-
+flowing
+Where flushed the Goddesses’ loveliness lovelier-glowing,
 Whereof that Judgment came for a land’s over-
 throwing !
 
@@ -950,8 +952,8 @@ Ruin for thee too, Paris, this was made,
 Ruin for hosts of Danaans brass-arrayed.
 
 HELEN. And me from my country, my city, from thee, God took,
-Casting me forth accurst to an evil lot, [I forsook—
-For that husband and home for a marriage of shame
+Casting me forth accurst to an evil lot,
+For that husband and home for a marriage of shame I forsook—
 Who forsook them not !
 
 CHORUS. If ye shall light in days to be on bliss
@@ -1007,7 +1009,7 @@ And now, partaker in my happy lot,
 Go, tidings to our friends left yonder bear
 In what plight thou hast found us, and our bliss.
 Bid them await, abiding by the strand,
-The issue of strife that waits me, as [ deem;
+The issue of strife that waits me, as I deem;
 Bid them, if we by stealth may take her hence,
 To watch, that we, in one good fortune joined,
 May ’scape from these barbarians, if we may.
@@ -1026,7 +1028,7 @@ To Gods, ask blessings: let soothsayings be,
 They were but as a bait for greed devised :
 No sluggard getteth wealth through divination.
 Sound wit, with prudence, is the seer of seers.
-[Exit MESSENGER.
+_Exit MESSENGER._
 
 CHORUS. My mind as touching seers is even at one
 With yonder ancient. Who hath Gods for friends
@@ -1216,7 +1218,7 @@ Of foot unclean, sweep o’er it cleansing flame,
 And shake the torch before, that I may pass.
 And, when ye have paid the Gods my wonted service,
 Bear back again the hearth-flame to the halls.
-[Attendants pass on.
+_Attendants pass on._
 Helen, how fall my words prophetic now?
 Thy lord is come, Menelaus, here in sight,
 Spoiled of his ships, and of thy counterfeit.
@@ -1236,7 +1238,7 @@ As Cypris wills, thy presence, ruining thee,
 Or, standing Hera’s ally, save thy life,
 Hiding it from my brother, who bids that I
 Declare it, when thou comest to our shore.
-[A pause
+_A pause_
 Go, some one, tell my brother that this man
 Is here, that I of peril clear may stand.
 
@@ -1403,7 +1405,7 @@ As thou wouldst work deliverance for us twain.
 MENELAUS. Couldst thou persuade some warder of four-horse cars
 To give to us a chariot and steeds?
 
-HELEN. [ might persuade—yet what avails our flight
+HELEN. I might persuade—yet what avails our flight
 Who know these plains not, nor the alien’s land ?
 
 MENELAUS. A hopeless bar! What if I hide within
@@ -1848,8 +1850,8 @@ As it swings, as it rings, to the light touch quivering,
 And if Bacchanal hair to the winds shall be thrown,
 When the Goddess’s vigils are revelling nightly,
 And the shafts of the moon’s bow touch them
-lightly, [brightly.
-Shot from the heights where her eyes gleam
+lightly,
+Shot from the heights where her eyes gleam brightly.
 Repent—thou didst trust in thy fairness alone.
 
 HELEN. Within the palace all is well, my friends ;
@@ -1941,7 +1943,8 @@ Thou, stranger, go, and into the sea’s arms
 These offerings cast to Helen’s sometime lord,
 Then homeward speed again with this my wife,
 That, having shared with me her spousal-feast,
-Thou mayst fare home, or here abide in bliss. [ Exit,
+Thou mayst fare home, or here abide in bliss.
+_Exit,_
 Attendants pass on with the offerings.
 
 MENELAUS. Zeus, Father art thou called, and the Wise God:
@@ -2206,8 +2209,8 @@ THEOCLYMENUS. Fain thou art to die, methinks !
 
 CHORUS. Ah slay me: but thy sister ne’er
 Shalt thou kill, with my consent! Slay me! For 16¢0
-noble slaves that dare _ [glorious past compare.
-Death, to shield their lords, the doom of death is
+noble slaves that dare
+Death, to shield their lords, the doom of death is glorious past compare.
 The TWIN-BRETHREN appear in air above the stage.
 
 THE TWIN-BRETHREN. Refrain thy wrath whereby thou art folly-driven,
