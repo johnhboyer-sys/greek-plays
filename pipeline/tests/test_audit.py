@@ -105,6 +105,31 @@ def test_bare_greek_flags_short_column_but_not_a_full_one(tmp_path):
     assert "1:11" not in sheet.split("## 3.")[0].split("## 2.")[1]
 
 
+def test_bare_greek_flags_a_wholly_empty_column_under_the_eight_line_floor(tmp_path):
+    """Ajax review finding B (2026-09-16): three Storr cells at 1:529, 1:939,
+    1:1130 have no `ross` text at all, but each is a one-line stichomythia
+    turn, so the old 8-line floor skipped the segment before the "no text"
+    check ever ran. A wholly empty column must be flagged at any Greek
+    content (a segment with zero Greek lines has nothing to compare and
+    stays skipped); the 8-line floor still gates the 30%/25% ratio checks."""
+    dist_dir = tmp_path / "dist" / WORK
+    stage1_dir = tmp_path / "stage1"
+    empty = _segment("1:1", 1, ross_pieces=[])  # one greek line, ross wholly empty
+    clean = _segment("1:2", 1, ross_pieces=[{"text": "a line"}], greek_start=2)
+    no_greek = _segment("1:3", 0, ross_pieces=[], greek_start=3)  # nothing to compare
+    _write_book(dist_dir, [empty, clean, no_greek])
+    manifest = _manifest(english={
+        "secondary": {"id": "sec", "model": "turn-text", "source": "bench/sec/testplay.txt"},
+    }, registry_translations=[{"id": "sec", "form": "verse"}])
+    sheet, totals = audit.build_sheet(WORK, dist_dir, stage1_dir, manifest)
+    section2 = sheet.split("## 2. Bare Greek")[1].split("## 3.")[0]
+    assert "1:1" in section2
+    assert "no text" in section2
+    assert "1:2" not in section2
+    assert "1:3" not in section2
+    assert totals["bare_greek"] == 1
+
+
 def test_overstuffed_flags_oversized_column_but_not_a_proportionate_one(tmp_path):
     dist_dir = tmp_path / "dist" / WORK
     stage1_dir = tmp_path / "stage1"
@@ -119,6 +144,36 @@ def test_overstuffed_flags_oversized_column_but_not_a_proportionate_one(tmp_path
     section3 = sheet.split("## 3. Overstuffed")[1].split("## 4.")[0]
     assert "1:1" in section3
     assert "1:3" not in section3
+
+
+# --------------------------------------------------------------- section 6 --
+
+def test_directions_counts_built_directionsbefore_when_source_has_none(monkeypatch, tmp_path):
+    """Ajax review finding B (2026-09-16): the loeb-ocr turn-english path
+    lifts stage directions onto the built pieces' `directionsBefore`
+    (commit 7db48a2) without ever writing `_..._` markup into the raw bench
+    text, so the old source-only scan reported "0" for a play the built
+    JSON carries eight directions for. Directions must be counted from the
+    built pieces (and their turns) as well as from the source, and both
+    numbers printed."""
+    dist_dir = tmp_path / "dist" / WORK
+    stage1_dir = tmp_path / "stage1"
+    seg1 = _segment("1:1", 3, ross_pieces=[
+        {"text": "TECMESSA. Aye, my dear lord.", "directionsBefore": ["Enter TECMESSA."]},
+    ])
+    seg2 = _segment("1:4", 3, ross_pieces=[
+        {"text": "more verse", "turns": [{"speaker": "Ajax", "directionsBefore": ["Exit MENELAUS."]}]},
+    ], greek_start=4)
+    _write_book(dist_dir, [seg1, seg2])
+    manifest = _manifest(english={
+        "secondary": {"id": "sec", "model": "turn-text", "source": "bench/sec/testplay.txt"},
+    }, registry_translations=[{"id": "sec", "form": "verse"}])
+    # The loeb-ocr bench file itself has no `_..._` markup -- both directions
+    # live only in the built pieces.
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: ["TECMESSA. Aye, my dear lord."])
+    sheet, totals = audit.build_sheet(WORK, dist_dir, stage1_dir, manifest)
+    section6 = sheet.split("## 6. Directions")[1].split("## 7.")[0]
+    assert "| sec | 0 | 2 | - |" in section6  # 0 source markers, 2 built directions
 
 
 # --------------------------------------------------------------- section 8 --

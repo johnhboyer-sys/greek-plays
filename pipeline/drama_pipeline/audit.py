@@ -234,19 +234,28 @@ def section_columns(columns: list[dict], reports: dict[str, dict | None]) -> tup
     return table, notes
 
 
+_BARE_TEXT_MIN_GREEK = 1  # a wholly empty column is bare at any Greek content
+_BARE_RATIO_MIN_GREEK = 8  # the 30%/25% ratio checks need the longer segment
+
+
 def section_bare_greek(columns: list[dict], segments: list[dict]) -> tuple[str, int]:
     headers = ["Segment", "Ref", "Column", "Greek lines", "Column lines/chars", "Reason"]
     rows = []
     for seg in segments:
         greek = seg.get("greek") or []
-        if len(greek) < 8:
+        if len(greek) < _BARE_TEXT_MIN_GREEK:
             continue
         for col in columns:
             if col["slot"] == "primary" and seg.get("englishCoveredBy"):
                 continue
             text = _col_text(seg, col)
             if not text:
+                # A wholly empty column is bare regardless of segment length
+                # (Ajax review finding B, 2026-09-16: three one-line Storr
+                # cells with no `ross` text were missed by the 8-line floor).
                 rows.append([seg["id"], _ref_range(greek), col["id"], len(greek), 0, "no text"])
+                continue
+            if len(greek) < _BARE_RATIO_MIN_GREEK:
                 continue
             if col["form"] == "verse":
                 n_lines = len(_col_lines(seg, col))
@@ -349,22 +358,36 @@ def section_cues_in_speech(columns: list[dict], roster: list[str]) -> tuple[str,
     return table, total
 
 
-def section_directions(columns: list[dict]) -> tuple[str, int]:
-    headers = ["Column", "Directions (_..._)", "Bare stage directions"]
+def _built_direction_count(segments: list[dict], col: dict) -> int:
+    """Directions the loeb-ocr turn-english path lifted onto the built
+    pieces (`directionsBefore`, commit 7db48a2) -- these never appear as
+    `_..._` markup in the raw bench source, so the source-text scan below
+    counts none of them (Ajax review finding B, 2026-09-16)."""
+    count = 0
+    for seg in segments:
+        for piece in _pieces(seg, col):
+            count += len(piece.get("directionsBefore") or [])
+            for turn in piece.get("turns") or []:
+                count += len(turn.get("directionsBefore") or [])
+    return count
+
+
+def section_directions(columns: list[dict], segments: list[dict]) -> tuple[str, int]:
+    headers = ["Column", "Directions (source _..._)", "Directions (built)", "Bare stage directions"]
     rows = []
     total = 0
     for col in columns:
         lines = _read_source_lines(col)
-        if not lines:
+        n_built = _built_direction_count(segments, col)
+        if not lines and not n_built:
             continue
-        text = "\n".join(lines)
-        n_directions = len(_DIRECTION_RE.findall(text))
+        n_source = len(_DIRECTION_RE.findall("\n".join(lines))) if lines else 0
         bare = [
             (i, raw.strip()[:80])
             for i, raw in enumerate(lines, start=1)
             if _STAGE_WORD_RE.match(raw.strip()) and not raw.strip().startswith("_")
-        ]
-        rows.append([col["id"], n_directions, "; ".join(f"L{i}: {t}" for i, t in bare[:5]) or "-"])
+        ] if lines else []
+        rows.append([col["id"], n_source, n_built, "; ".join(f"L{i}: {t}" for i, t in bare[:5]) or "-"])
         total += len(bare)
     table, _ = _table(headers, rows)
     return table, total
@@ -487,7 +510,7 @@ def build_sheet(work_id: str, dist_dir: Path, stage1_dir: Path, manifest: Manife
     over_table, over_total = section_overstuffed(columns, segments)
     speakers_table, speakers_total = section_speakers(columns, reports)
     cues_table, cues_total = section_cues_in_speech(columns, roster)
-    dirs_table, dirs_total = section_directions(columns)
+    dirs_table, dirs_total = section_directions(columns, segments)
     scan_table, scan_total = section_scan_noise(columns)
     foot_table, foot_total = section_footnotes(columns, segments, footnotes)
     verse_table, verse_total = section_verse_shape(columns, segments)
