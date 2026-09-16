@@ -1,5 +1,7 @@
 CHILDREN OF HERCULES
 
+_IOLAUS with HERCULES’ CHILDREN, discovered sitting on the altar-steps._
+
 IOLAUS. I nop it truth, and long have held :—the just
 Lives for his brother men; but he whose soul
 Uncurbed hunts gain alone, unto the state
@@ -55,6 +57,7 @@ Loathed wretch! Now ruin seize thee and him that
 sent,
 Who ofttimes to the noble sire of these
 From that same mouth hast published evil hests.
+_Enter COPREUS._
 
 COPREUS. Ha, deem'st thou this thy session bravely chosen,
 This state thou hast reached thine ally? O thou fool !
@@ -70,18 +73,19 @@ COPREUS. Ha ! wouldst thou find some work for this mine hand ?
 Nor me nor these by force shalt thou hale hence.
 
 COPREUS. That shalt thou prove : ill seer thou art in this.
-[Seizes CHILDREN.
+_Seizes CHILDREN._
 . ToLaus resting ing)
 This shall not be! no, never while I live!
 
 COPREUS. Hands off! these ‘will I-hale, though thou say nay,
 Accounting them Eurystheus’ : his they are.
-[Hurls IOLAUS to the ground.
+_Hurls IOLAUS to the ground._
 
 IOLAUS. O ye, in Athens dwellers from of old,
 Help! Suppliants we of Zeus of the Market-stead
 Are evil-entreated, holy wreaths defiled,
 To Athens’ shame and to your God’s dishonour !
+_Enter CHORUS._
 
 CHORUS. What ho! what outcry by the altar wakes ?
 Now what calamity shall this reveal ?
@@ -150,6 +154,7 @@ Be held alone : all else is idle talk.
 
 CHORUS. Lo, hitherward himself in haste draws nigh,
 And Acamas his brother, to hear thy claim.
+_Enter DEMOPHON, ACAMAS, and attendants._
 
 DEMOPHON. Since thou, the old, preventedst younger men
 In rescue-rush to Zeus’s altar-hearth,
@@ -332,7 +337,7 @@ COPREUS. Yet will I take mine own and hale them hence.
 DEMOPHON. Not lightly shalt thou win to Argos back.
 
 COPREUS. That will I now try, and be certified.
-[Attempts to seize them.
+_Attempts to seize them._
 
 DEMOPHON. Touch these, and thou shalt rue, and that right soon.
 CHORUS.
@@ -340,7 +345,7 @@ Dare not to strike a herald, for heaven’s sake !
 
 DEMOPHON. That will I, if the herald learn not wisdom.
 
-CHORUS. [To wenatp] Depart thou :—touch thou not this man,
+CHORUS. [To HERALD] Depart thou :—touch thou not this man,
 O king.
 
 COPREUS. I go; for feeble fight one hand may make.
@@ -372,7 +377,7 @@ Cah)
 
 IOLAUS. No fairer honour-guerdon may sons win
 Than this, to spring from noble sires and good,
-{And so wed noble wives. Who, passion’s thrall,
+[And so wed noble wives. Who, passion’s thrall,
 links him with base folk, ne’er shall have my
 praise,
 Who, for his lust’s sake, stamps his seed with shame. ]
@@ -401,7 +406,6 @@ My tale how thou didst welcome, didst defend
 Hercules’ sons, how nobly Hellas through
 ‘Thou guard’st thy sire’s renown : thy father's son
 Shames not the noble line wherefrom he sprang.
-as
 Few such there be : amid a thousand, one
 Thou shouldst find undegenerate from his sire.
 
@@ -431,7 +435,7 @@ Though Hera, bride of Zeus, before them go,
 Ours is Athena; and this tells, say I,
 For triumph, to have gotten mightier Gods ;
 For Pallas never shall brook overthrow.
-[Exit DEMOPHON,
+_Exit DEMOPHON._
 
 CHORUS. Ay, vaunt as thou wilt, yet uncaring
 Will we swerve none the more from the right,
@@ -466,7 +470,7 @@ Trouble not, trouble not with thy spear
 The burg that the Graces make brightest
 Of cities:—dread thou and forbear. 380
 
-[Re-enter DEMOPHON.]
+_Re-enter DEMOPHON._
 
 IOLAUS. My son, why com’st thou with care-clouded eyes ?
 Tellest thou evil tidings of the foe?
@@ -568,6 +572,7 @@ And all this he foresees, he needs must so.
 If any rede thou knowest more than this
 In season, set it forth: I am desperate,
 Hearing these oracles, and full of fear.
+_Enter MACARIA from the temple._
 
 MACARIA. Strangers, impute not for my coming forth
 Boldness to me : this is my first request
@@ -678,7 +683,9 @@ For causes manifold ; for thy great heart,
 For justice’ sake, and for that thou art brave
 Above all women that mine eyes have seen.
 Wouldst thou say aught to these, or this grey sire,
-Speak thy last word, or ever thou depart. [Exit.
+Speak thy last word, or ever thou depart.
+
+_Exit._
 
 MACARIA. Farewell, old sire, farewell, and teach, O teach
 These boys to be like thee, in all things wise a
@@ -709,6 +716,9 @@ Above all women, know, in life, in death,
 Most chiefest honour shalt thou have of us.
 Farewell; for awe I dare not curse the Goddess,
 Demeter’s child, to whom thy life is sealed.
+
+_Exit MACARIA. IOLAUS sinks to the ground._
+
 O boys, we are undone !—faint fail my limbs
 For anguish! Take, upbear me to a seat
 Hereby, and muffle with these robes, my sons.
@@ -717,7 +727,7 @@ Nor might we live, the oracle unfulfilled.
 This is calamity, that were deeper ruin.
 
 CHORUS. Never man hath been blessed save by God's dispensation, nor bowed under sorrow :—
-Lo, this do I cry — + [ways
+Lo, this do I cry — [ways
 Nor the same house treads evermore in prosperity’s
 But the fate of to-day is dogged by the feet of the
 fate of to-morrow
@@ -742,6 +752,7 @@ For through tangle of trouble doth virtue unfalter-
 Of her sire is it worthily done, of her line’s heroic
 splendour. [share.
 In thine homage to noble death mine heart hath
+_Enter HENCHMAN OF HYLLUS._
 
 HENCHMAN. Hail, children! Where stay ancient Iolaus
 And your sire’s mother from their session here ?
@@ -858,6 +869,8 @@ These will I use, and, if I live, restore ;—
 The God will not require them of the slain.
 Pass thou within, and from the nails take down,
 ‘And bring with speed to me, that warrior-gear.
+
+_Exit HENCHMAN._
 Shameful it is—this loitering at home,
 That some should fight, some, craven souls, hang back!
 
@@ -889,7 +902,9 @@ IOLAUS. Nay, Zeus, I know, remembereth thy griefs.
 ALCMENA. Ah! (sighs heavily.)
 Never of me shall ill be said of Zeus ;
 But is he just to me-ward? Himself knows!
-[Retires within temple.
+_Retires within temple._
+
+_Re-enter HENCHMAN._
 
 HENCHMAN. Lo, here thou seest a warrior’s gear complete :
 Make all speed to encase in these thy frame.
@@ -922,6 +937,8 @@ Achieving what ?—I fain would see thy triumph !
 IOLAUS. Smiting some foeman, yea, clear through the shield.
 
 HENCHMAN. If we win ever thither,—this I doubt.
+
+_Exeunt._
 IOLAUS.
 Would, O mine arm, that, as I call to mind
 Thy young strength, when thou didst with Hercules
@@ -971,7 +988,7 @@ When the wind-haunted hill with the beat of the
 glancing [dancing
 White feet of fair girls through the night-season
 And with glad cries, is ringing.
-[ALCMENA comes again out of the temple. Enter servant.]
+_ALCMENA comes again out of the temple. Enter SERVANT._
 
 SERVANT. Mistress, I bring thee tidings passing brief
 To hear, and passing fair for me to tell.
@@ -1093,7 +1110,9 @@ Living to meet thine eye and taste thy vengeance.
 Farewell, grey queen: forget not that which erst
 Thou saidst to me when I began my tale.
 Make me free man ; for, touching suchlike boons,
-The lips that lie not best beseem the noble. [Exit
+The lips that lie not best beseem the noble.
+
+_Exit._
 
 CHORUS. Sweet to me is the dance, when clear-pealing
 Ring the flutes o’er the wine,
@@ -1133,7 +1152,7 @@ them,
 Whose tyranny fain had enslaved them.
 In my cause never pride be enlisted
 Insatiate for prey.
-chains.
+_Enter MESSENGER with guards leading EURYSTHEUS in chains._
 
 MESSENGER. O queen, thou seést,—yet shall it be told —
 Leading Eurystheus unto thee we come,
@@ -1156,7 +1175,6 @@ And dare to look thine enemies in the face.
 No more art thou the master, but the thrall !
 Art thou he—for I would be certified—
 Who didst presume to load thine outrages,
-ay
 Caitiff, on my son—whereso now he be ?
 For wherein didst thou fear to outrage him,
 Who didst to Hades speed him living down,
@@ -1256,12 +1274,12 @@ Hence with him, thralls. When ye have slain him,
 then
 To dogs ’twere good to cast him. Hope not thou
 To live, and drive me again from fatherland.
-
+_Exeunt GUARDS with EURYSTHEUS._
 CHORUS. I also consent. On, henchman-train,
 March on with the doomed. No blood-guilt
 stain,
 Proceeding of us, on our kings shall remain.
-(Exeunt omnes.
+_Exeunt OMNES._
 
 Footnotes:
 [1] The belt of Hippolyta, queen of the Amazons, the winning of which cost many lives.
