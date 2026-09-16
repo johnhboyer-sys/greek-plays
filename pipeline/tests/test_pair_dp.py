@@ -12,7 +12,12 @@ several segments) only exists once slots are grouped into speeches.
 
 from __future__ import annotations
 
-from drama_pipeline.pair_dp import OCR_JUNK, EnglishNode, GreekNode, Weights, align
+import pytest
+
+from drama_pipeline.pair_dp import (
+    DEFAULTS, OCR_JUNK, EnglishNode, GreekNode, Weights, _match_cost,
+    _median_ratio, align,
+)
 from drama_pipeline.stage1_turn_english import _align_speech_runs
 
 
@@ -300,42 +305,41 @@ def test_two_share_line_whose_english_is_two_turns_gets_both():
     assert result.english_skips == []
 
 
-def test_band_falls_back_to_the_unbanded_dp_when_the_band_has_no_path():
-    """Round 6, finding 1 (grok static review 2026-09-16). The band's rows are
-    centred on `i*E/G` with no predecessor closure, so when `E/G > 2W`
-    consecutive rows are DISJOINT and no path reaches the end cell at either
-    `W` or `2W`. One Greek share against 200 English speeches is that shape
-    (`W = 40`, row 0 reaches j <= 40, row 1 starts at j >= 160). The old code
-    fell back to "skip everything", losing a pair the unbanded DP finds."""
+def test_one_greek_share_against_two_hundred_english_speeches():
+    """Round 6, finding 1 (grok static review 2026-09-16), kept after round 9
+    removed the band. When the band's rows were centred on `i*E/G` with no
+    predecessor closure and `E/G > 2W`, consecutive rows were DISJOINT and no
+    path reached the end cell at `W` or `2W`; this shape (`W` was 40, row 0
+    reached j <= 40 and row 1 started at j >= 160) fell back to "skip
+    everything" and lost the pair. The shape is the case, not the band: the
+    one Greek share must still take its own English speech."""
     greek = [GreekNode(name="A", chars=50)]
     english = [
         EnglishNode(name="A" if j == 0 else "B", chars=50) for j in range(200)
     ]
 
-    banded = align(greek, english, pins=[])
-    unbanded = align(greek, english, pins=[], band=False)
+    result = align(greek, english, pins=[])
 
-    assert banded.pairs == unbanded.pairs == [(0, 0)]
-    assert banded.greek_skips == []
-    assert banded.cost == unbanded.cost
+    assert result.pairs == [(0, 0)]
+    assert result.greek_skips == []
+    assert result.band_widened is False
 
 
-def test_band_edge_on_row_zero_widens():
-    """Round 6, finding 1, second clause. `band_lo_hi` clamps `lo` to 0 at
-    row 0 and `hi` to E at row G, but row 0's `hi` is NOT clamped: an English
-    skip run longer than W at the head of a region runs along a real band
-    edge, and the old test (`0 < i < G` only) never saw it. Sixty surplus
-    English speeches before the first Greek's own English is that shape --
-    the banded run matched the first Greek to the wrong speech."""
+def test_sixty_surplus_english_speeches_before_the_first_greek():
+    """Round 6, finding 1, second clause, kept after round 9 removed the band.
+    `band_lo_hi` clamped `lo` to 0 at row 0 and `hi` to E at row G, but row
+    0's `hi` was NOT clamped, so an English skip run longer than the
+    half-width at the head of a region ran along a real band edge that the
+    old widen test never saw, and the first Greek matched the wrong speech.
+    Unbanded there is no edge to lean on, and each Greek takes its own."""
     greek = [GreekNode(name="A", chars=50) for _ in range(3)]
     english = [EnglishNode(name="X", chars=50) for _ in range(60)]
     english += [EnglishNode(name="A", chars=50) for _ in range(3)]
 
-    banded = align(greek, english, pins=[])
-    unbanded = align(greek, english, pins=[], band=False)
+    result = align(greek, english, pins=[])
 
-    assert banded.pairs == unbanded.pairs == [(0, 60), (1, 61), (2, 62)]
-    assert banded.band_widened is True
+    assert result.pairs == [(0, 60), (1, 61), (2, 62)]
+    assert result.english_skips == list(range(60))
 
 
 def test_pinned_predecessor_keeps_the_same_line_rate_for_the_regions_first_share():
@@ -395,7 +399,21 @@ def test_cohere_is_inside_the_ie_minimum_not_added_after_it():
     assert result.pairs == [(0, 0), (1, 3)]
     assert result.greek_skips == []
     assert result.english_skips == [1, 2]
-    assert result.cost == align(greek, english, pins=[], band=False).cost
+    # The reported cost must be the cost of the path actually returned. Round
+    # 6 checked that by comparing the banded run against the unbanded one;
+    # round 9 removed the band, so the path is re-costed from the weights
+    # instead -- two matches and one English gap of two, opened once, and
+    # opened strictly between the two shares of physical line L1, so it pays
+    # `w_cohere` as well.
+    rho = _median_ratio(greek, english)
+    walked = (
+        _match_cost(greek[0], english[0], rho=rho, gi=0, ei=0, G=2, E=4,
+                    bridge_cos=0.0, weights=DEFAULTS)
+        + DEFAULTS.open_e + DEFAULTS.w_cohere + DEFAULTS.ext_e
+        + _match_cost(greek[1], english[3], rho=rho, gi=1, ei=3, G=2, E=4,
+                      bridge_cos=0.0, weights=DEFAULTS)
+    )
+    assert result.cost == pytest.approx(walked)
 
 
 def test_unreadable_cue_is_a_discount_not_a_cross_name_match():
@@ -439,7 +457,10 @@ def _run_align(slot_names, greek_chars, english, forced=()):
         if name is not None:
             last = name
     spans = [(c, "") for c in greek_chars]
-    return _align_speech_runs(nodes, english, slot_names, list(forced), None, spans)
+    refs = [str(k) for k in range(len(slot_names))]
+    return _align_speech_runs(
+        nodes, english, slot_names, list(forced), None, spans, refs, "test-work", "primary",
+    )
 
 
 def test_persians_353_narrative_pairs_with_its_own_speech_not_the_continuation():
@@ -695,3 +716,71 @@ def test_a_translator_gap_needs_a_pin_on_both_of_its_sides():
     assert g1451 not in by_g and g1453 not in by_g
     assert english[by_g[g1454]].text == "And what say you?"
     assert english[by_g[g1446]].text == "If we count all the men whom now we trust"
+
+
+def test_two_pins_on_one_merged_greek_speech_fail_loud():
+    """Round 9, Codex merge-gate finding 2.
+
+    Since round 7's slot-to-speech merge a Greek SPEECH is one DP node and
+    takes one English speech, so `_align_speech_runs` can keep only one pin
+    per speech. It used to keep the head-most and drop the rest in silence:
+    the manifest said two things and the build did one, with nothing in the
+    report. Two pins naming DIFFERENT English speeches now raise, naming both
+    refs and both speeches; two naming the SAME one are redundant, not
+    contradictory, and still collapse to a single pin.
+    """
+    # One named head and two unnamed continuations -- one Greek speech.
+    slot_names = ["Chorus", None, None, "Xerxes"]
+    greek_chars = [200, 120, 120, 90]
+    english = [
+        EnglishNode(name="Chorus", chars=200, text="The strophe opens here"),
+        EnglishNode(name="Chorus", chars=240, text="The antistrophe answers"),
+        EnglishNode(name="Xerxes", chars=90, text="I am the one who wept"),
+    ]
+
+    with pytest.raises(ValueError) as caught:
+        _run_align(slot_names, greek_chars, english, forced=[(0, 0), (2, 1)])
+    message = str(caught.value)
+    assert "two pins naming different English speeches" in message
+    assert "The strophe opens here" in message and "The antistrophe answers" in message
+    assert "'0'" in message and "'2'" in message
+
+    # The same English speech twice: redundant, and the head-most wins.
+    same = _run_align(slot_names, greek_chars, english, forced=[(0, 0), (2, 0)])
+    assert dict(same.pairs)[0] == 0
+    assert same.pairs == _run_align(slot_names, greek_chars, english, forced=[(0, 0)]).pairs
+
+
+def test_three_short_gap_runs_carry_the_path_off_the_diagonal():
+    """Round 9, Codex merge-gate finding 1: the shape the band's completeness
+    test could not see.
+
+    The band's half-width here was `max(40, 0.12 * max(G, E))` = 40, and the
+    widen retry fired on two signals: the returned path touching an edge the
+    BAND imposed, or ONE one-sided gap run longer than the half-width.
+    Neither sees this. Three runs of twenty surplus English speeches, each run
+    half the half-width, carry the true path sixty columns off the
+    interpolated diagonal `i*E/G` by the third Greek node -- where the band
+    reached j <= 45 -- while a constrained path through the band can sit
+    comfortably inside it and trip nothing. Several short excursions add up;
+    the test only ever looked at one at a time.
+
+    Decided over the full matrix, the answer is the obvious one: every
+    surplus speech is skipped and each Greek takes its own English.
+    """
+    greek = [GreekNode(name="A", chars=50) for _ in range(100)]
+    english: list[EnglishNode] = []
+    surplus: list[int] = []
+    for _run in range(3):
+        for _x in range(20):
+            surplus.append(len(english))
+            english.append(EnglishNode(name="X", chars=50))
+        english.append(EnglishNode(name="A", chars=50))
+    english += [EnglishNode(name="A", chars=50) for _ in range(97)]
+
+    result = align(greek, english, pins=[])
+
+    assert result.english_skips == surplus
+    assert result.greek_skips == []
+    assert result.pairs == [(i, [j for j in range(len(english)) if j not in set(surplus)][i])
+                            for i in range(100)]

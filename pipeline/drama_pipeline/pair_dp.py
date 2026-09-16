@@ -1,10 +1,12 @@
-"""Turn pairing as a global, banded, affine alignment.
+"""Turn pairing as a global affine alignment.
 
 Replaces the name-LCS objective (``stage1_turn_english._pair_turns``, deleted)
 with a minimum-cost monotone alignment between Greek speaker-share nodes and
 English speech nodes, following
 ``build/review/turn-pairing-design-2026-09-15.md`` section 3 (the DP shape,
-Gotoh three-layer affine gaps) and section 7 (this module's contract).
+Gotoh three-layer affine gaps) and section 7 (this module's contract). The
+design's banded variant was removed in round 9: its completeness test was not
+sound and the full matrix is inside the per-play budget (`_region_align`).
 
 Pure: no I/O, no manifest knowledge, no knowledge of segments or slots. The
 caller (``stage1_turn_english.py``) builds ``GreekNode``/``EnglishNode`` lists
@@ -146,6 +148,9 @@ class Alignment:
     margins: dict[tuple[int, int], float] = field(default_factory=dict)
     derived_covered: dict[int, int] = field(default_factory=dict)
     cost: float = 0.0
+    # Dead since round 9: the DP is unbanded, so nothing is ever widened. The
+    # field and its report/scan column stay so the round-by-round baselines
+    # still line up (`pairing_scan.py`'s `band_widened`).
     band_widened: bool = False
 
 
@@ -213,10 +218,9 @@ def _region_align(
     bridge: list[str | None],
     weights: Weights,
     rho: float,
-    band: bool,
     prev_line_key: object = None,
 ) -> tuple[list[tuple[int, int]], list[tuple[int, int]], list[int], dict[tuple[int, int], float], bool, float]:
-    """Banded affine (Gotoh) DP over one pin-free region. Returns
+    """Affine (Gotoh) DP over one pin-free region. Returns
     (pairs, greek_skip_runs, english_skip_indices, margins, band_widened,
     total_cost), all indices LOCAL to this region.
 
@@ -249,7 +253,19 @@ def _region_align(
         before = greek[i - 2].line_key if i >= 2 else prev_line_key
         return before is not None and key == before
 
-    W = max(40, math.ceil(0.12 * max(G, E)))
+    # Round 9, Codex merge-gate finding 1: the band is gone. It pruned cells
+    # to a half-width of `max(40, 0.12 * max(G, E))` and retried wider when
+    # the returned path touched a band-imposed edge or held ONE gap run
+    # longer than the half-width -- neither of which is a sound completeness
+    # test. A cheaper path can leave the band through several SHORTER gap
+    # runs while the constrained path stays comfortably inside, and nothing
+    # would notice. Measured over the three widest comedies the unbanded DP
+    # costs 4.76 / 4.03 / 4.18 s a play (Birds / Frogs / Clouds) against
+    # 2.94 / 2.65 / 2.71 s banded, on a 10 s per-play budget: the
+    # optimisation bought under two seconds for a soundness argument nobody
+    # had written. `band_lo_hi` stays only as the full-width row bounds the
+    # forward pass and the margin sweep both read.
+    W = max(G, E) + 1
 
     def band_lo_hi(i: int, w: int) -> tuple[int, int]:
         center = i * E / G if G else 0.0
@@ -337,31 +353,13 @@ def _region_align(
 
     def solve(
         M: list[dict], Ig: list[dict], Ie: list[dict], lohi: list[tuple[int, int]],
-        w: int,
     ):
-        """Pick the cheapest final layer, trace back, and report whether the
-        band may have distorted the PATH -- not the forward pass (P4,
-        turn-pairing-round3-2026-09-15.md; round 6, finding 1).
-
-        The forward pass's old test fired on every row of every play (98/98):
-        `band_lo_hi` pins `lo == 0` at i == 0 and `hi == E` at i == G by
-        construction, so the trivial start and end cells always sit on an
-        edge whether or not the band was too narrow anywhere real. Round 3
-        answered that by ignoring rows 0 and G outright, which throws away a
-        real signal: row 0's `hi` is NOT clamped. Two tests replace it, both
-        on the path:
-
-        1. a cell at an edge the BAND imposed rather than the text -- `lo`
-           where `lo > 0`, `hi` where `hi < E`, at any row including 0 and G;
-        2. a one-sided run (SKIP_G or SKIP_E) longer than `w`. A run of
-           length L carries the path L columns away from the row it entered
-           on while the diagonal stays put, so a run longer than the band's
-           half-width is an excursion the band cannot hold -- and clamping
-           can hide it from test 1 by widening the one row that survived
-           while the cheaper path through a neighbouring row was cut off.
+        """Pick the cheapest final layer and trace back.
 
         Returns ``None`` when no finite path reaches the end cell (caller
-        decides how to react).
+        decides how to react). Before round 9 this also reported whether the
+        band may have distorted the path; with no band there is nothing to
+        report.
         """
         end = (G, E)
         layer_costs = {
@@ -377,13 +375,9 @@ def _region_align(
         pairs: list[tuple[int, int]] = []
         skip_g_marks: list[int] = []
         skip_e_marks: list[int] = []
-        touched_edge = False
         i, j = end
         cur = layer
         while (i, j) != (0, 0):
-            lo_i, hi_i = lohi[i]
-            if (j == lo_i and lo_i > 0) or (j == hi_i and hi_i < E):
-                touched_edge = True
             if cur == "M":
                 pairs.append((i - 1, j - 1))
                 base_candidates = {
@@ -453,62 +447,20 @@ def _region_align(
             else:
                 greek_skip_runs.append((idx, idx + 1))
 
-        if not touched_edge:
-            # Test 2: an excursion longer than the band's half-width.
-            longest_g = max((hi - lo for lo, hi in greek_skip_runs), default=0)
-            longest_e = 0
-            run_len = 0
-            prev = None
-            for idx in skip_e_marks:
-                run_len = run_len + 1 if prev is not None and idx == prev + 1 else 1
-                longest_e = max(longest_e, run_len)
-                prev = idx
-            touched_edge = max(longest_g, longest_e) > w
-
-        return pairs, greek_skip_runs, skip_e_marks, total_cost, touched_edge
+        return pairs, greek_skip_runs, skip_e_marks, total_cost
 
     widened = False
-    if band:
-        M, Ig, Ie, lohi = run(W)
-        solved = solve(M, Ig, Ie, lohi, W)
-        if solved is None or solved[4]:
-            # No path at all, or the path leaned on a band-imposed edge:
-            # widen once and re-solve (P4). A missing path at W is itself the
-            # strongest widen signal, so it is treated the same as an edge
-            # touch.
-            M2, Ig2, Ie2, lohi2 = run(2 * W)
-            solved2 = solve(M2, Ig2, Ie2, lohi2, 2 * W)
-            widened = True
-            if solved2 is not None:
-                M, Ig, Ie, lohi, solved = M2, Ig2, Ie2, lohi2, solved2
-            if solved is None or solved[4]:
-                # Still pressed against the band at 2W (or still no path at
-                # all: with E/G > 2W consecutive rows are DISJOINT and no
-                # widening short of the full matrix connects them). The band
-                # is an optimisation, not a correctness requirement (design
-                # 3.3-3.4: the unbanded DP is inside budget), so the last
-                # resort is the unbanded DP, never the skip-everything
-                # fallback below -- round 6, finding 1.
-                full = max(G, E) + 1
-                if full > 2 * W:
-                    M3, Ig3, Ie3, lohi3 = run(full)
-                    solved3 = solve(M3, Ig3, Ie3, lohi3, full)
-                    if solved3 is not None:
-                        M, Ig, Ie, lohi, solved = M3, Ig3, Ie3, lohi3, solved3
-    else:
-        # Unbanded: a band wide enough to cover everything, no widen report.
-        full = max(G, E) + 1
-        M, Ig, Ie, lohi = run(full)
-        solved = solve(M, Ig, Ie, lohi, full)
+    M, Ig, Ie, lohi = run(W)
+    solved = solve(M, Ig, Ie, lohi)
 
     if solved is None:
-        # No path found even at the widest band tried (should not happen for
-        # finite costs); fall back to skip-everything.
+        # No path at all (should not happen for finite costs over the full
+        # matrix); fall back to skip-everything.
         fallback_cost = weights.open_g + max(0, G - 1) * weights.ext_g
         fallback_cost += weights.open_e + max(0, E - 1) * weights.ext_e
         return [], [(0, G)], list(range(E)), {}, widened, fallback_cost
 
-    pairs, greek_skip_runs, skip_e_marks, total_cost, _touched_edge = solved
+    pairs, greek_skip_runs, skip_e_marks, total_cost = solved
 
     # Margins: for each matched pair, how much cheaper the chosen match is
     # than the best DIFFERENTLY-NAMED candidate in that row (or skipping the
@@ -552,7 +504,6 @@ def align(
     pins: list[tuple[int, int]],
     bridge: list[str | None] | None = None,
     weights: Weights = DEFAULTS,
-    band: bool = True,
 ) -> Alignment:
     """Minimum-cost monotone alignment of Greek shares to English speeches.
 
@@ -586,7 +537,7 @@ def align(
         e_slice = english[aej + 1 : bej]
         b_slice = bridge[agi + 1 : bgi]
         sub_pairs, sub_greek_skips, sub_english_skips, sub_margins, widened, sub_cost = _region_align(
-            g_slice, e_slice, bridge=b_slice, weights=weights, rho=rho, band=band,
+            g_slice, e_slice, bridge=b_slice, weights=weights, rho=rho,
             # The pinned share this region opens after: its physical line is
             # what makes the region's first share a same-line skip (finding 2).
             prev_line_key=greek[agi].line_key if agi >= 0 else None,

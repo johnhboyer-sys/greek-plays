@@ -876,6 +876,9 @@ def _align_speech_runs(
     forced: list[tuple[int, int]],
     bridge_texts: list[str | None] | None,
     slot_spans: list[tuple[int, str]],
+    slot_refs: list[str | None],
+    work_id: str,
+    slot: str,
 ) -> "pair_dp.Alignment":
     """Align over Greek SPEECHES, then report the answer back in slot indices.
 
@@ -921,12 +924,34 @@ def _align_speech_runs(
     )
     # A pin names a slot; the run that slot belongs to is the node it pins.
     # Two pins in one run would pin the same node twice, which `align`
-    # rejects -- keep the first, which is the head-most.
+    # rejects.
+    #
+    # The contract (round 9, Codex merge-gate finding 2). Since round 7 a
+    # Greek SPEECH is one DP node and takes one English speech, so two pins
+    # on one speech naming two DIFFERENT English speeches ask for something
+    # the aligner cannot do -- and dropping the second silently, as this did,
+    # let a manifest say one thing and the build do another. It fails loud
+    # instead, naming both refs and both speeches, because the fix is a
+    # manifest edit John has to make: pin the speech's head, or declare the
+    # second under `covered:`. Two pins naming the SAME English speech are
+    # redundant, not contradictory, and still collapse to one.
     merged_pins: list[tuple[int, int]] = []
+    pinned_at: dict[int, int] = {}
     for gi, ej in sorted(forced):
         r = run_of[gi]
         if merged_pins and merged_pins[-1][0] == r:
+            if merged_pins[-1][1] != ej:
+                first_gi = pinned_at[r]
+                raise ValueError(
+                    f"{work_id}: english.{slot}: one Greek speech carries two pins "
+                    f"naming different English speeches -- "
+                    f"ref {slot_refs[first_gi]!r} -> {english_nodes[merged_pins[-1][1]].text[:60]!r} "
+                    f"and ref {slot_refs[gi]!r} -> {english_nodes[ej].text[:60]!r}. "
+                    f"Since the speech merge a Greek speech takes ONE English speech: "
+                    f"pin its head only, or declare the other under `covered:`"
+                )
             continue
+        pinned_at[r] = gi
         merged_pins.append((r, ej))
     res = pair_dp.align(
         merged, english_nodes, pins=merged_pins, bridge=merged_bridge
@@ -1816,6 +1841,7 @@ def parse_translation(
     bridge_texts = _primary_bridge_texts(segments, slots, primary_bridge)
     dp_result = _align_speech_runs(
         greek_nodes, english_nodes, slot_names, forced, bridge_texts, slot_spans,
+        slot_refs, work_id, slot,
     )
     pairs = dp_result.pairs
     # P4 (turn-pairing-round4-2026-09-15.md): `crossed`'s own membership --
