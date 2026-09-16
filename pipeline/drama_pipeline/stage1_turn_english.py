@@ -25,6 +25,7 @@ agree by construction). stage2 gates both. ``pairing_rate`` is per EVENT;
 
 from __future__ import annotations
 
+import bisect
 import json
 import re
 from pathlib import Path
@@ -955,6 +956,9 @@ def _align_speech_runs(
     forced: list[tuple[int, int]],
     bridge_texts: list[str | None] | None,
     slot_spans: list[tuple[int, str]],
+    slot_refs: list[str | None],
+    work_id: str,
+    slot: str,
 ) -> "pair_dp.Alignment":
     """Align over Greek SPEECHES, then report the answer back in slot indices.
 
@@ -1000,12 +1004,34 @@ def _align_speech_runs(
     )
     # A pin names a slot; the run that slot belongs to is the node it pins.
     # Two pins in one run would pin the same node twice, which `align`
-    # rejects -- keep the first, which is the head-most.
+    # rejects.
+    #
+    # The contract (round 9, Codex merge-gate finding 2). Since round 7 a
+    # Greek SPEECH is one DP node and takes one English speech, so two pins
+    # on one speech naming two DIFFERENT English speeches ask for something
+    # the aligner cannot do -- and dropping the second silently, as this did,
+    # let a manifest say one thing and the build do another. It fails loud
+    # instead, naming both refs and both speeches, because the fix is a
+    # manifest edit John has to make: pin the speech's head, or declare the
+    # second under `covered:`. Two pins naming the SAME English speech are
+    # redundant, not contradictory, and still collapse to one.
     merged_pins: list[tuple[int, int]] = []
+    pinned_at: dict[int, int] = {}
     for gi, ej in sorted(forced):
         r = run_of[gi]
         if merged_pins and merged_pins[-1][0] == r:
+            if merged_pins[-1][1] != ej:
+                first_gi = pinned_at[r]
+                raise ValueError(
+                    f"{work_id}: english.{slot}: one Greek speech carries two pins "
+                    f"naming different English speeches -- "
+                    f"ref {slot_refs[first_gi]!r} -> {english_nodes[merged_pins[-1][1]].text[:60]!r} "
+                    f"and ref {slot_refs[gi]!r} -> {english_nodes[ej].text[:60]!r}. "
+                    f"Since the speech merge a Greek speech takes ONE English speech: "
+                    f"pin its head only, or declare the other under `covered:`"
+                )
             continue
+        pinned_at[r] = gi
         merged_pins.append((r, ej))
     res = pair_dp.align(
         merged, english_nodes, pins=merged_pins, bridge=merged_bridge
@@ -1895,6 +1921,7 @@ def parse_translation(
     bridge_texts = _primary_bridge_texts(segments, slots, primary_bridge)
     dp_result = _align_speech_runs(
         greek_nodes, english_nodes, slot_names, forced, bridge_texts, slot_spans,
+        slot_refs, work_id, slot,
     )
     pairs = dp_result.pairs
     # P4 (turn-pairing-round4-2026-09-15.md): `crossed`'s own membership --
@@ -2156,6 +2183,15 @@ def parse_translation(
         "english_covered_by": _owning_covered(
             merged_covered, chunk_ids, work_id, stale_report=stale_covered
         ),
+        # The ALIGNER's own half of that map, kept apart from the manifest's
+        # declarations: `_spread_long_speeches` distributes a speech the Greek
+        # segmenter cut across a layout boundary, which is exactly what the
+        # DP's derived-covered says, while a manifest `covered:` entry is
+        # John's statement about a TRANSLATOR's undivided block and is his to
+        # rule on (round 8 §1.3). Every target already holds a chunk (the
+        # guard above drops the rest), so no chain to follow. `run()` pops it
+        # before the file is written.
+        "derived_covered_by": dict(derived_covered_by_segment),
     }
 
     # Turn-pairing design 2026-09-15 section 7: report numbers the old
@@ -2345,39 +2381,86 @@ def _is_chorus(name: str) -> bool:
 
 
 def _continuation_kind(
-    segment: dict, own: set[str], stacked: float, spread: float, sigla
+    segment: dict, own: set[str], stacked: float, spread: float, sigla,
+    vouched: bool = False,
 ) -> str | None:
     """How a Greek segment with no English of its own goes on with the
     speech before it: "bare" (no speaker mark), "same" (a mark of the same
     voice), "dash" (an unnamed change of voice inside a chorus), or None
     (it does not). ``stacked`` and ``spread`` are the English's characters
-    per Greek line over the column median, without and with this segment."""
+    per Greek line over the column median, without and with this segment.
+
+    ``vouched`` says the ALIGNER has already ruled on this segment: round 7's
+    `_align_speech_runs` merged the Greek speech's segments into one DP node
+    and recorded every continuation in `derived_covered`, which stage 1 ships
+    as `englishCoveredBy` ("translated with the speech above"). Where that map
+    names this segment, the density tests are skipped and only the kind is
+    read off. They have to be: `stacked` is the English's characters per Greek
+    line over the COLUMN median, and a column's median is set by iambic
+    dialogue, so a long lyric run -- whose English is thinner per Greek line
+    than dialogue is -- falls under `_STACKED` by construction however plainly
+    it continues (Persians' parodos, one Chorus speech over six segments,
+    reads 0.854 at the fourth). The constants stay as John measured them for
+    the case they were measured on: a head the aligner makes no claim about."""
     if not segment.get("speakers"):
         return "bare"
     events = _segment_speaker_events(segment, sigla)
     names = {name for _ln, _off, name, _m in events if name}
-    if not names <= own or spread < _THIN:
+    if not names <= own or (spread < _THIN and not vouched):
         return None
     lines = segment.get("lines") or segment.get("greek") or [{}]
     if (names and all(name for _ln, _off, name, _m in events)) or lines[0].get("label"):
-        return "same" if stacked > 1.0 else None
+        return "same" if (vouched or stacked > 1.0) else None
     # An unnamed mark after an actor is someone else speaking (Ion 225).
-    if own and _is_chorus(next(iter(own))) and stacked >= _STACKED:
+    if own and _is_chorus(next(iter(own))) and (vouched or stacked >= _STACKED):
         return "dash"
     return None
 
 
-def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) -> list[dict]:
+def _printed_line_starts(text: str) -> list[int]:
+    """Offsets of a verse translation's PRINTED lines, by the reader's own
+    rule (`verseLineTicks`, shared/lib/speakers.ts): a blank line and a
+    `_..._` stage direction are not lines, and a line starts after its
+    indent."""
+    out: list[int] = []
+    at = 0
+    for line in text.split("\n"):
+        body = line.strip()
+        if body and not _DIRECTION.fullmatch(body):
+            out.append(at + len(line) - len(line.lstrip()))
+        at += len(line) + 1
+    return out
+
+
+def _spread_long_speeches(
+    chunks: list[dict], segments: list[dict], sigla=None,
+    covered: dict[str, str] | None = None, verse: bool = False,
+) -> list[dict]:
     """A speech-aligned translation's English for a long Greek speech lands on
     the speech's first segment; the Greek segments that continue it (no
     chunk of their own, naming nobody or the same speaker again) stood bare
     -- Morshead's whole Agamemnon parodos sat beside 40-103 and 104-257 had
     nothing (John, 2026-09-11). Spread it: the English placed in proportion
-    to the Greek lines, each continuation takes the sentence start nearest
-    its first Greek sentence start; where the English marks each change of
-    voice (Way's half-choruses), a change in the Greek takes the English
-    turn nearest it instead. A continuation that no start reaches stays
-    empty, as before."""
+    to the Greek lines, each continuation takes the start nearest its first
+    Greek sentence start; where the English marks each change of voice (Way's
+    half-choruses), a change in the Greek takes the English turn nearest it
+    instead. A continuation that no start reaches stays empty, as before.
+
+    ``covered`` is the aligner's own derived map, segment id -> the segment
+    whose chunk holds its translation (`_align_speech_runs`' merged-run
+    continuations, and the DP's own derived-covered runs). A segment it names
+    belongs to this speech whatever the density reads: see `_continuation_kind`.
+
+    ``verse`` picks the unit of the cut, and it is the reader's unit. A verse
+    column renders a markerless speech LINE FOR LINE (`verseLineTicks`: the
+    translator's printed line i of L stands beside Greek line firstN +
+    round(i * span/(L-1))), so the cut is measured in printed lines -- a
+    segment of g Greek lines out of G takes about g/G of the translator's L
+    lines -- and falls only on a line boundary, since a verse split across two
+    segments is a verse broken across two rows (John, 2026-09-14, Way's
+    Suppliants 549). A prose column has no printed lines to keep: it keeps the
+    sentence-start cut measured in characters, which is what `sentenceTicks`
+    does with the piece afterwards."""
     by_id = {c["id"]: c for c in chunks}
     lines_of = lambda s: max(1, len(s.get("lines") or s.get("greek") or []))  # noqa: E731
     ratios = [len(c.get("text") or "") / lines_of(s) for s in segments if (c := by_id.get(s["id"]))]
@@ -2411,6 +2494,7 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) 
             kind = _continuation_kind(
                 segments[k], own, per_line / lines_head,
                 per_line / (lines_crossed + lines_of(segments[k])), sigla,
+                vouched=(covered or {}).get(segments[k]["id"]) == chunk["id"],
             )
             if kind is None:
                 break
@@ -2444,12 +2528,34 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) 
 
         # Never cut inside a stage direction (John, 2026-09-12).
         inside = [(m.start(), m.end()) for m in _DIRECTION.finditer(text)]
-        starts = [
-            m.end()
-            for m in _SENTENCE_START.finditer(text)
-            if not any(a < m.end() < b for a, b in inside)
-        ]
+        line_starts = _printed_line_starts(text) if verse else []
+        if line_starts:
+            # A verse column cuts at printed lines and measures in printed
+            # lines: the cut before the translator's line i stands beside
+            # Greek line total * i / L. A direction line is not a line, so
+            # it stays with the piece above it, as the old `inside` guard
+            # intended and as the reader reads it.
+            def where(p: int) -> float:
+                return total * bisect.bisect_left(line_starts, p) / len(line_starts)
+
+            starts = [p for p in line_starts if p > 0]
+        else:
+            def where(p: int) -> float:
+                return total * p / len(text) if text else 0.0
+
+            starts = [
+                m.end()
+                for m in _SENTENCE_START.finditer(text)
+                if not any(a < m.end() < b for a, b in inside)
+            ]
         turn_starts = [o for t in chunk.get("turns") or [] if (o := int(t.get("offset") or 0)) > 0]
+        if line_starts:
+            # A turn mark inside a verse line would split the verse; take the
+            # start of the line the turn opens.
+            turn_starts = sorted({
+                line_starts[max(0, bisect.bisect_right(line_starts, p) - 1)]
+                for p in turn_starts
+            } - {0})
         cuts: list[tuple[dict, int]] = []
         prev = 0
         for i, cont in enumerate(conts, start=1):
@@ -2460,14 +2566,30 @@ def _spread_long_speeches(chunks: list[dict], segments: list[dict], sigla=None) 
             # review of 05e6855: Suppliants-eur 600-619).
             dashes_left = sum(1 for kd in kinds[i - 1:] if kd == "dash")
             turns_left = sum(1 for p in turn_starts if p > prev)
-            if kinds[i - 1] == "dash" and turns_left >= dashes_left:
-                pool, at = turn_starts, float(firsts[i])
-            else:
-                pool, at = starts, aim(firsts[i])
-            cand = [p for p in pool if p > prev]
+            cand = [p for p in starts if p > prev]
             if not cand:
                 break
-            best = min(cand, key=lambda p: abs(total * p / len(text) - at))
+            best = min(cand, key=lambda p: abs(where(p) - aim(firsts[i])))
+            if kinds[i - 1] == "dash" and turns_left >= dashes_left:
+                # ...and only when the turn actually MARKS this change. The
+                # rule took the nearest remaining turn however far off it
+                # was, and a translator who divides the first strophe and
+                # runs the rest together has turns only at the head: Way's
+                # Heracles ode at 755 is that shape -- four turns inside the
+                # first twelve of seventy-four printed lines against four
+                # unnamed changes in the Greek spread over sixty-three -- and
+                # the count test `turns_left >= dashes_left` passes on it by
+                # coincidence. Taking the last turn for a boundary
+                # forty-six Greek lines further on put fifty-eight of his
+                # lines on a three-line segment (round 9). A turn that marks
+                # this segment's opening stands, in proportion, within the
+                # segment's own Greek span of it; one that does not is
+                # marking something else, and the ordinary pool decides.
+                reach = max(1.0, float(sizes[i]))
+                tbest = min((p for p in turn_starts if p > prev),
+                            key=lambda p: abs(where(p) - firsts[i]), default=None)
+                if tbest is not None and abs(where(tbest) - firsts[i]) <= reach:
+                    best = tbest
             cuts.append((cont, best))
             prev = best
         bounds = [0, *[p for _, p in cuts], len(text)]
@@ -2611,8 +2733,12 @@ def run(
         primary_bridge=primary_bridge,
     )
     # A long speech's English reaches the Greek segments that continue it
-    # (John, 2026-09-11, Morshead's Agamemnon parodos).
-    english["chunks"] = _spread_long_speeches(english.get("chunks") or [], spine.get("segments") or [], sigla)
+    # (John, 2026-09-11, Morshead's Agamemnon parodos), cut in printed lines
+    # for a verse column and in sentences for prose.
+    english["chunks"] = _spread_long_speeches(
+        english.get("chunks") or [], spine.get("segments") or [], sigla,
+        covered=english.pop("derived_covered_by", None), verse=verse,
+    )
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)
