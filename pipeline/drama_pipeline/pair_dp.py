@@ -309,18 +309,20 @@ def _region_align(
                         m_prev + weights.open_e if m_prev < INF else INF,
                         ig_prev + weights.open_e if ig_prev < INF else INF,
                     )
+                    # A fresh open pays `w_cohere` when the skip falls
+                    # strictly between two shares of one physical Greek line.
+                    # It is part of the price of OPENING, so it goes inside
+                    # the minimum: added after it (round 6, finding 4), a
+                    # cell could store a cost dearer than the extend path the
+                    # traceback then reconstructs.
+                    if opening_cost < INF and (
+                        0 < i < G
+                        and greek[i - 1].line_key is not None
+                        and greek[i - 1].line_key == greek[i].line_key
+                    ):
+                        opening_cost += weights.w_cohere
                     extending_cost = ie_prev + weights.ext_e if ie_prev < INF else INF
-                    best_e = min(opening_cost, extending_cost)
-                    if best_e < INF and opening_cost <= extending_cost:
-                        # Fresh open: does this skip fall strictly between two
-                        # shares of one physical Greek line?
-                        if (
-                            0 < i < G
-                            and greek[i - 1].line_key is not None
-                            and greek[i - 1].line_key == greek[i].line_key
-                        ):
-                            best_e += weights.w_cohere
-                    Ie[i][j] = best_e
+                    Ie[i][j] = min(opening_cost, extending_cost)
         return M, Ig, Ie, lohi
 
     def solve(

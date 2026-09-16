@@ -361,3 +361,32 @@ def test_pinned_predecessor_keeps_the_same_line_rate_for_the_regions_first_share
     assert unpinned.pairs == [(0, 0), (2, 1), (3, 2)]
     assert pinned.pairs == unpinned.pairs
     assert pinned.greek_skips == [(1, 2)]
+
+
+def test_cohere_is_inside_the_ie_minimum_not_added_after_it():
+    """Round 6, finding 4. `Ie` took `min(opening, extending)` and THEN added
+    `w_cohere` when opening won the comparison -- so whenever extending cost
+    between 0 and `w_cohere` more than opening, the cell stored a value
+    dearer than a real path, and the traceback (which compares
+    `opening + w_cohere` against extending) could reconstruct the other one.
+    A run of English skips beside an antilabe line is that shape: here the
+    overcharge pushed the DP off the alignment that matches the second share
+    to its own English and onto one that leaves it bare. The reported cost
+    must also be the cost of the path actually returned."""
+    greek = [
+        GreekNode(name=None, chars=20, line_key="L1", inherited=True),
+        GreekNode(name="Alpha", chars=20, line_key="L1"),
+    ]
+    english = [
+        EnglishNode(name=None, chars=400),
+        EnglishNode(name="Beta", chars=400),
+        EnglishNode(name="Gamma", chars=20),
+        EnglishNode(name="Alpha", chars=60),
+    ]
+
+    result = align(greek, english, pins=[])
+
+    assert result.pairs == [(0, 0), (1, 3)]
+    assert result.greek_skips == []
+    assert result.english_skips == [1, 2]
+    assert result.cost == align(greek, english, pins=[], band=False).cost
