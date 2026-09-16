@@ -178,7 +178,7 @@ Couldst thou have found a man more circumspect,
 Or one more prompt for all emergencies ?
 
 ODYSSEUS. I know none such, and though he be my toe,
-[ still must pity lim in his distress.
+I still must pity him in his distress,
 Bound, hand and foot, to fatal destiny;
 And therein mind my case no less than his.
 Alas! we living mortals, what are we
@@ -427,7 +427,7 @@ TECMESSA. Ahme! Eurysaces, ’tis for thee he calls.
 What would he? Where art thou, my son? ah me!
 
 AJAX. Ho Teucer! where is Teucer? Will his raid
-End never? And the while [ am undone!
+End never? And the while I am undone!
 
 CHORUS. He seems himself again. Quick, ope the door.
 Perchance the sight of us his humble friends
@@ -979,7 +979,8 @@ Up, quick, to work! no moment must be lost,
 If we would save a man who hastes to death.
 
 CHORUS. Ready am I; not words alone shall prove,
-But speed of act and foot, my readiness. [Exeunt.
+But speed of act and foot, my readiness.
+[Exeunt.]
 [AJAX alone on the sea-shore, planting his sword in the ground.]
 
 AJAX. The slayer standeth where his stroke is sure ;
@@ -1034,7 +1035,7 @@ Ye Trojan springs and streams, ye plains of Troy,
 Farewell, ye nurses of my fame, farewell!
 This is the last word Ajax speaks to you.
 Henceforth he talks in Hades with the dead.
-[He falls upon his sword.
+[He falls upon his sword.]
 
 SEMI-CHORUS 1. Toil, toil, and toil on toil !
 Where have my steps not roamed, and yet,
@@ -1401,7 +1402,7 @@ Perchance a mighty hurricane may rise,
 Sprung from a cloud no bigger than a hand,
 Swoop down on thee and quench thy blustering.
 
-TEUCER. Once too [ knew a fool, a silly fool,
+TEUCER. Once too I knew a fool, a silly fool,
 Who triumphed at his neighbour’s woes and mocked ;
 And then it chanced that one, a man like me
 In looks and character, addressed him thus:
@@ -1415,7 +1416,8 @@ MENELAUS. I go, for ’twould disgrace me, were it known
 That I, with power to act, chastised with words.
 
 TEUCER. Begone then! ’twere for me a worse disgrace
-To listen to a bragster’s idle prate. [Exit MENELAUS.
+To listen to a bragster’s idle prate.
+[Exit MENELAUS.]
 
 CHORUS. Soon a mortal strife will come.
 Seek a hollow grave, and haste,
@@ -1442,7 +1444,7 @@ And ye, his comrades, stand not idly by
 As women mourners ; quit yourselves as men
 In his defence, till I have made a grave
 To bury him, though all the world forbid.
-[ Exit TEUCER.
+[Exit TEUCER.]
 
 CHORUS. When shall the score be told, the sum of the endless
 years ?
@@ -1684,7 +1686,7 @@ AGAMEMNON. To thee, my friend, of this be well assured,
 1 ἃ grant a favour greater e’en than this.
 But that man, as in living so in death,
 Shall have my hate. So do as pleaseth thee.
-[ Exit AGAMEMNON.
+[Exit AGAMEMNON.]
 
 CHORUS. Whoe’er, Odysseus, having proof like this,
 Denies thy wisdom is himself a fool.

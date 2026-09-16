@@ -525,7 +525,7 @@ Only when I essay this perilous task,
 Be silent, an you love me, friends, for if
 My mother hears of it, I shall have cause
 To rue my indiscretion soon or late.
-[Exit CHRYSOTHEMIS.
+[Exit CHRYSOTHEMIS.]
 
 CHORUS. Count me a prophet false, a witless wight,
 “If Justice, who inspires my prophecy,
@@ -1668,12 +1668,9 @@ But with a troop more numerous and more skilled.
 ORESTES. Our business, Pylades, would seem to crave
 No longer parley; let us instantly
 The gods who keep the threshold of the house.
-[ORESTES and PYLADES enter the palace.
+[ORESTES and PYLADES enter the palace.]
 
 ELECTRA. O King Apollo! lend a gracious ear
-ty)
-ws
-~]
 To them and me, to me too who so oft
 Laid on thy shrine with humble hands my best.
 And now with vows (I cannot offer more),

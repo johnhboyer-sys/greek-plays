@@ -395,7 +395,7 @@ Should add another to her present pains,
 Enough God knows. Now let us all go in,
 That thou, may’st start at once upon thy way.
 And I make all things ready in the house.
-[ Exeunt LICHAS and CAPTIVES.
+[Exeunt LICHAS and CAPTIVES.]
 
 MESSENGER. So be it, but first tarry here awhile
 That thou may’st learn in private who are these
@@ -583,7 +583,7 @@ And, as a fit return for gifts received,
 My gift withal. It were not meet that thou
 Should’st leave me empty-handed, having come
 Accompanied by such a goodly train.
-[ Exeunt LICHAS and DEIANIRA.
+[Exeunt LICHAS and DEIANIRA.]
 
 CHORUS. Many a trophy of war the Cyprian bears away ;
 To tell of the triumphs she wins o’er gods I may not
@@ -815,7 +815,7 @@ Remote from firelight and the sun’s hot ray,
 Till I had need to use it, freshly smeared.
 And so I did, and, when the occasion rose,
 I took a tuft of wool that I had plucked
-. From one of our home flock ; therewith I spread
+From one of our home flock ; therewith I spread
 The unguent in my chamber privily ;
 Then-folded and within its coffer laid,
 Safe from the sunlight, as ye saw, my gift.
@@ -959,7 +959,7 @@ So pray I, if ‘tis right, and right it is,
 For I have seen thee trample on the right,
 Slaying the noblest man who ever lived,
 Whose peer thou never shalt behold again.
-[ Fait DEIANIRA.
+[Exit DEIANIRA.]
 
 CHORUS. Why dost thou steal away thus silently?
 Such silence sure is eloquent of guilt.
@@ -1121,7 +1121,7 @@ Lo a foreign train appear,
 And they move with muffled tread,
 Mute as bearers of a bier.
 Is it sleep, or is he dead?
-[ HERACLES on a litter.
+[Enter HYLLUS, an OLD MAN, and ATTENDANTS bearing HERACLES on a litter.]
 
 HYLLUS. Ah woe is me,
 Woe, father, woe for thee!

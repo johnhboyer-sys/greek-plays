@@ -35,6 +35,8 @@ Now in his arms upborne within yon home .
 She gaspeth forth her life: for on this day
 Her weird it is to die and fleet from life.
 I, lest pollution taint me in their house,
+Go forth of yonder hall's belovèd roof.
+_Enter DEATH._
 Lo, yonder Death ;——I see him nigh at hand,
 Priest of the dead, who comes to hale her down
 To Hades’ halls —well hath he kept his time,
@@ -113,15 +115,15 @@ Guest-welcomed in Admetus’ palace here,
 By force yon woman shall he wrest from thee.
 Yea, thou of me shalt have no thank for this,
 And yet shalt do it, and shalt have mine hate.
-[Exit APOLLO.
+_Exit APOLLO._
 
 DEATH. Talk on, talk on: no profit shalt thou win.
 This woman down to Hades’ halls shall pass.
 For her I go: my sword shall seal her ours :
 For consecrated to the Nether Gods
 Is every head whose hair this sword hath shorn.
-[Exit DEATH.
-tions answer one another tall they unite at ἐ. 112.
+_Exit DEATH._
+_Enter CHORUS, dividing to right and left, so that the sections answer one another till they unite at l. 112._
 
 HALF-CHORUS. What meaneth this hush afront of the hall?
 The home of Admetus, why voiceless all ?
@@ -138,8 +140,8 @@ HALF-CHORUS. Or hearest thou mourning or sighing
 Or beating of hands,
 Or the wail of bereaved ones outcrying ?
 No handmaid stands
-_ At the palace-gate. [bird flying
-O Healer, appear for the dying, appear as a bright:
+At the palace-gate.
+O Healer, appear for the dying, appear as a bright bird flying
 ‘Twixt the surges of fate !
 
 HALF-CHORUS 2. She lives !—were she dead, they had raised the keen.
@@ -253,8 +255,8 @@ A loving wife, with her a noble husband.
 Nor, as their mother dieth, so may they,
 My children, die untimely, but with weal
 In the home-land fill up a life of bliss.”’.
-To all the altars through Admetus’ halls [prayed,
-She went, with wreaths she hung them, and she
+To all the altars through Admetus’ halls
+She went, with wreaths she hung them, and she prayed,
 Plucking the while the tresses of the myrtle,
 Tearless, unsighing, and the imminent fate
 Changed not the lovely rose-tint of her cheek.
@@ -291,15 +293,15 @@ And prays, “ Forsake me not !”—asking the while
 The impossible, for still she wanes and wastes,
 Drooping her hand, a misery-burdened weight ;
 But yet, albeit hardly breathing still,
-(O there, O there she wept, and thus she speaks :
 To the sun’s rays fain would she lift her eyes,
 As nevermore, but for the last time now
 Destined to see the sun’s beam and his orb.
 But I will go and make thy presence known :
 For ‘tis not all that love so well their kings —
 As to stand by them, in afflictions loyal.
-But from of old my lords were loved of thee. —[ Exit.
-[Nine members of the chorus chant successively :—
+But from of old my lords were loved of thee.
+_Exit._
+_Nine members of the CHORUS chant successively:—_
 
 CHORUS. O Zeus, for our lords is there naught but
 ' despair?
@@ -551,22 +553,23 @@ ALCESTIS. Nothing am I henceforth.
 
 ADMETUS. Ah, leav’st thou us?
 
-ALCESTIS. Farewell. [ Dies.
+ALCESTIS. Farewell.
+_Dies._
 
 ADMETUS. O wretch undone! ,
 
 CHORUS. Gone,—gone! No more she lives, Admetus’ wife !
 
 EUMELUS.
-Woe for my lot !—to the tomb hath my mother descended, descended ! [the sun
-Never again, O my father, she seéth the light of
+Woe for my lot !—to the tomb hath my mother descended, descended !
+Never again, O my father, she seëth the light of the sun
 In anguish she leaves us forsaken: the story is
-ended, is ended, [motherless life is begun.
-Of her sheltering love, and the tale of the
+ended, is ended,
+Of her sheltering love, and the tale of the motherless life is begun.
 Look—look on her eyelids, her hands drooping nerveless! O hear me, O hear me!
 It is I—I beseech thee, my mother !—thine own
-little, own little bird ! [me, so near me ;
-It is I—O, I cast me upon thee—thy lips are so near
+little, own little bird !
+It is I—O, I cast me upon thee—thy lips are so near me, so near me;
 Unto mine am I pressing them, mother !—I plead
 for a word—but a word!
 
@@ -639,8 +642,8 @@ The babes of the dead.
 When his mother would not be contented
 To hide her for him in the tomb,
 Nor his grey-haired father consented,
-Unholpen he looked on his doom. [not,
-Whom they bare—the hard-hearted !—they cared
+Unholpen he looked on his doom.
+Whom they bare—the hard-hearted !—they cared not,
 Though hoary their locks were, to save !
 Thou art gone, for thy great love spared not
 Thy blossom of youth from the grave.
@@ -648,7 +651,7 @@ Ah, may it be mine, such communion
 Of hearts !—’tis vouchsafed unto few :—
 Then ours should be sorrowless union
 Our life-days through.
-Enter HERCULES.
+_Enter HERCULES._
 
 HERCULES. Strangers, who dwell in this Pheraean land,
 Say, do I find Admetus in his home ?
@@ -685,6 +688,8 @@ CHORUS. Hard task, to set the bit betwixt their jaws.
 HERCULES. That shall I, if their nostrils breathe not fire.
 
 CHORUS. Yea, but with ravening jaws do they rend men.
+
+HERCULES. Go to—thus mountain-wolves, not horses, feast.
 
 CHORUS. Nay, thou canst see their cribs besprent with gore.
 
@@ -778,12 +783,13 @@ ADMETUS. Aloof the guest-halls are where we will lodge thee.
 HERCULES. Let me pass on: so earn my thanks untold.
 
 ADMETUS. Unto another’s hearth thou canst not go.
-[To an attendant] Ho thou, lead on: open the guest-halls looking
+_To an attendant._
+Ho thou, lead on: open the guest-halls looking
 Away from these our chambers. Tell my stewards:
 To set on meat in plenty. Shut withal
 The mid-court doors: it fits not that the guests,
-. The while they feast, hear wailings, and be vexed.
-[Exit HERCULES.
+The while they feast, hear wailings, and be vexed.
+_Exit HERCULES._
 
 CHORUS. What dost thou >—such affliction at the door,
 And guests for thee, Admetus? . Art thou mad?
@@ -840,8 +846,8 @@ And the good are with truest wisdom gifted ;
 And there broods on mine heart bright trust unwaning
 That the god-reverer shall yet be blest.
 
-ADMETUS. O kindly presence of Pheraean men, _[{servants
-This corpse even now, with all things meet, my
+ADMETUS. O kindly presence of Pheraean men,
+This corpse even now, with all things meet, my servants
 Bear on their shoulders to the tomb and pyre.
 Wherefore, as custom is, hail ye the dead,
 On the last journey as she goeth forth.
@@ -864,6 +870,7 @@ With glory, daring such a deed as this.
 O saviour of my son, who hast raised us up
 In act to fall, all hail! May bliss be thine
 Even in Hades. Thus to wed, I say,
+Profiteth men—or nothing-worth is marriage.
 
 ADMETUS. Not bidden of me to her burial comest thou,
 Nor count I thine the presence of a friend.
@@ -998,7 +1005,8 @@ ADMETUS. Begone : leave me to bury this my dead.
 PHERES. I go: her murderer will bury her !
 Thou shalt yet answer for it to her kin.
 Surely Acastus is no more a man,
-If he of thee claim not his sister's blood. [ Exit.
+If he of thee claim not his sister's blood.
+_Exit._
 
 ADMETUS. Avaunt, with her that kennelleth with thee !
 Childless grow old, as ye deserve, while lives
@@ -1015,7 +1023,7 @@ Receive thee! If any atonement
 For ills even there may betide
 To the good, O thine be enthronement
 ’ By Hades’ bride!
-[Exeunt omnes in funeral procession.
+_Exeunt omnes in funeral procession._
 SERVANT.
 Full many a guest, from many a land which came
 Unto Admetus’ dwelling, have I known,
@@ -1093,8 +1101,8 @@ SERVANT. O yea, an alien—overmuch an alien !
 
 HERCULES. Ha! was he keeping some affliction back?
 
-SERVANT. Turns away; but HERCULES seizes him, and
-makes him face him.
+SERVANT. Go thou in peace: our lords’ ills are for us.
+_Turns away; but HERCULES seizes him, and makes him face him._
 
 HERCULES. Grief for a stranger—such words mean not that!
 
@@ -1157,8 +1165,8 @@ But hid it, like a prince, respecting me.
 Who is more guest-fain of Thessalians ?
 Who in all Hellas? O, he shall not say
 That one so princely showed a base man kindness.
-Exit.
-returning from the funeral.
+_Exit._
+_Enter ADMETUS, with CHORUS and Attendants, returning from the funeral._
 
 ADMETUS. O hateful returning !
 O hateful to see’
@@ -1256,8 +1264,8 @@ had passed this day.
 CHORUS. Of my kin was there one,
 And the life’s light failed
 In his halls of a son,
-One meet to be wailed, [prevailed ;
-His only beloved: howbeit the manhood within him
+One meet to be wailed,
+His only beloved: howbeit the manhood within him prevailed;
 And the ills heaven-sent.
 As a man did he bear,
 Though by this was he bent
@@ -1296,11 +1304,10 @@ Never lesson like this
 To thine heart had been taught :
 Yet thy life hast thou won, and thy soul hast
 delivered from death :—is it naught?
-ed
 Thy wife hath departed :
 Love tender and true
 Hath she left :—stricken-hearted,
-. Wherein is this new?
+Wherein is this new?
 Hath Death not unyoked from the chariot of Love
 full many ere you?
 
@@ -1554,7 +1561,7 @@ ADMETUS. I have.
 
 HERCULES. Yea, guard her. Thou shalt call
 The child of Zeus one day a noble guest.
-[ Raises the veil, and discloses ALCESTIS.
+_Raises the veil, and discloses ALCESTIS._
 Look on her, if in aught she seems to thee
 Like to thy wife. Step forth from grief to bliss.
 
@@ -1619,7 +1626,7 @@ Have we attained. I own me blest indeed.
 CHORUS. O the works of the Gods—in manifold forms they
 reveal them :
 Manifold things unhoped-for the Gods to accomplishment bring.
-. and the things that we looked for, the Gods deign
+And the things that we looked for, the Gods deign
 not to fulfil them ;
 And the paths undiscerned of our eyes, the Gods
 unseal them.

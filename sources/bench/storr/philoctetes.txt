@@ -1038,7 +1038,7 @@ The black blood spurts. So let us leave him, friends
 In peace and quiet till he fall asleep.
 
 CHORUS. Sleep immune of cares,
-. Sleep that knows not cumber,
+Sleep that knows not cumber,
 Breathe thy softest airs,
 Prince of painless slumber!
 O’er his eyes alway
@@ -1715,7 +1715,7 @@ PHILOCTETES. Why, O why didst thou prevent me
 From slaying with my bow the man I hate?
 
 NEOPTOLEMUS. That were dishonourable for thee and me.
-[ Exit ODYSSEUS.
+[Exit ODYSSEUS.]
 
 PHILOCTETES. Well of one thing thou may’st be sure, the chiefs,
 Those lying heralds of the Achaean host,

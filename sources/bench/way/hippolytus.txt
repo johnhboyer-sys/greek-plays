@@ -59,7 +59,8 @@ Ha, a great press of henchmen following shout,
 Honouring with songs the Goddess Artemis !
 He knows not Hades’ gates wide flung for him,
 And this day’s light the last his eyes shall see.
-[ Evil,
+_Exit._
+_Enter HIPPOLYTUS and ATTENDANT HUNTSMEN._
 
 HIPPOLYTUS. Follow on, follow on, ring out the lay
 Unto Artemis high enthroned in the sky,
@@ -136,7 +137,8 @@ And set on bread. The full board welcome is
 When hunting’s done. And one must groom my steeds,
 That I may yoke them to the chariot-pole,
 Being full of meat, and breathe them in the race.
-But to thy Cypris wave I long farewell. [Exit.
+But to thy Cypris wave I long farewell.
+_Exit._
 
 SERVANT. But we—who must not tread in steps of youth—
 With whispered humbleness most meet for thralls
@@ -144,7 +146,8 @@ Make supplication to thine images,
 Queen Cypris. It beseems thee to forgive,
 If one that bears through youth a vehement heart
 Speak folly. Be as though thou heardest not ;
-For wiser Gods should be than mortal men. [Exit.
+For wiser Gods should be than mortal men.
+_Exit._
 
 CHORUS. A rock there is, wherefrom, as they tell, the springs
 of the heart of the Ocean well,
@@ -161,7 +164,7 @@ For a tale they told of a fevered bed, of the feet that
 forth of her bower ne'er tread,
 Of the dainty-woven veil that is cast
 For a darkness over the tresses golden.
-Yea, and by this hath the third day past [holden
+Yea, and by this hath the third day past
 That the queen from her fair young lips hath withheld the gift of the Lady of Corn,
 Keeping her body thereof unfed, as though ‘twere
 pollution to taste of bread,
@@ -172,8 +175,8 @@ Of Pan or of Hecate ?—
 Of the Mother of Dindymus’ Hill?—
 Or the awful Corybant thrill ?
 Or hath Artemis found transgression
-Of offerings unrendered in thee? [here ?-—
-Hath the hand of the Huntress been
+Of offerings unrendered in thee?
+Hath the hand of the Huntress been here?-—
 For she flasheth o’er mountain and mere,
 And rideth her triumph-procession
 Over surges and swirls of the sea.
@@ -188,8 +191,8 @@ Brought dolorous tidings to thee
 That hath bowed thee with anguish exceeding
 On thy bed through thy soul's prison-days
 Or shall this be the discord mournful, weirdly
-haunting, [of woman’s being ?
-That ofttimes jarreth and jangleth the strings
+haunting,
+That ofttimes jarreth and jangleth the strings of woman’s being ?
 "Tis the shadow of travail-throes nigh, a delirium
 spirit-daunting : (have felt it shiver:
 Yea, I have known it, through mine own bosom
@@ -203,7 +206,7 @@ On her brows aye darker the care-cloud lowers.
 My spirit is yearning to know what is this strange
 curse,
 Wherefore the queen's cheek ever is paling,
-. And her strength is failing.
+And her strength is failing.
 
 NURSE. O afflictions of mortals, O bitter pain !
 What shall I do unto thee, or refrain ?
@@ -397,7 +400,7 @@ drives thee ?
 PHAEDRA. Let be my sin! Not against thee I sin.
 
 NURSE. Of my will, never! On thine head my failure !
-[Clings to Phaedra’s hands.
+_Clings to Phaedra’s hands._
 
 PHAEDRA. Violence to me!-—to mine hand clingest thou ?
 
@@ -570,7 +573,7 @@ And wander still themselves by paths of song,
 They know how Zeus of yore desired the embrace
 Of Semele; they know how radiant Dawn
 Up to the Gods snatched Cephalus of yore,
-. And all for love ; yet these in Heaven their home
+And all for love ; yet these in Heaven their home
 Dwell, neither do they flee the face of Gods,
 Content, I trow, to be love’s vanquished ones.
 Thou—wilt not yield? Thy sire by several treaty
@@ -654,19 +657,20 @@ NURSE. Let be, my child: this will I order well.
 Only do thou, Queen Cypris, Sea-born One,
 Work with me. Whatso else I have in mind
 Shall it suffice to ‘speak to friends within.
-[Exit NURSE.
+_Exit NURSE._
 
 CHORUS. O Eros, O Eros, how melts love’s yearning
 From thine eyes, when thy sweet spell witcheth
-the heart [thy might !
-Of them against whom thou hast marched in
+the heart
+Of them against whom thou hast marched in thy might !
 Not me, not me for mine hurt do thou smite,
 My life’s heart-music to discord tur ning.
 For never so hotly the flame-spears dart,
 Nor so fleet are the star-shot arrows of light,
 As the shaft from thy fingers that speedeth its
-flight, [burning,
-As the flame of the Love-queen’s bolts fierce O Eros, the child of Zeus who art!
+flight,
+As the flame of the Love-queen’s bolts fierce-burning,
+O Eros, the child of Zeus who art!
 In vain, O in vain by Alpheus the river
 And in Phoebus’s Pythian shrine hath the land
 Of Hellas the blood of her oxen outpoured.
@@ -684,8 +688,8 @@ Had been spouseless and free—overseas how she
 When Cypris the dear yoke of home had disparted,
 Like a bacchanal fiend out of hell that had darted,
 And with blood, and with smoke of a palace
-flame-wasted, [ chanted,
-And with death-shrieks for hymns at her bridal-feast
+flame-wasted,
+And with death-shrieks for hymns at her bridal-feast chanted,
 By Love’s Queen to the son of Alcmena was granted—
 Woe, woe for the joys of espousal she tasted !
 And ye, O ye ramparts of hallowéd Thebe, (Ant. 2)
@@ -697,7 +701,7 @@ To the mother of Zeus’ seed Bacchus: for dooming
 Of death had she blent with the bride-chant’s singing.
 O, the Dread One breatheth on all life, winging
 Softly her flight as a bee low-humming.
-[Voices within]
+_Voices within._
 
 PHAEDRA. Hush ye, O hush ye, women! .... Lost am I!
 
@@ -711,8 +715,8 @@ PHAEDRA. Ah me! ah me! alas!
 O wretched, wretched !—ah, mine agonies!
 
 CHORUS. What cry dost thou utter? What word dost thou
-shriek ? [speak !
-What voice through thy soul thrills terror ?—O
+shriek ?
+What voice through thy soul thrills terror ?—O speak !
 
 PHAEDRA. Iam undone! O stand ye by these doors,
 And hear what clamour clasheth in the house.
@@ -830,7 +834,8 @@ Not though one say that this is all my theme :
 For they be ever strangely steeped in sin.
 Let some one now stand forth and prove them
 chaste,
-Or leave me free to trample on them ever. [Exit.]
+Or leave me free to trample on them ever.
+_Exit._
 (Ant. to 362-72)
 
 CHORUS. O drear dark doom that on women hath lighted !
@@ -913,13 +918,13 @@ Yet in my death will I become the bane
 Of one beside, that he may triumph not
 Over my woes, and, taking of my pain,
 His share, may learn sound wisdom’s temperance.
-[Exit PHAEDRA.
+_Exit PHAEDRA._
 
 CHORUS. Under the arched cliffs O were I lying, (Str. 1)
 That there to a bird might a God change me,
 And afar mid the flocks of the winged things flying
-Over the swell of the Adrian sea [ing,
-- I might soar—and soar,—upon poised wings dream o’er the strand where Eridanus’ waters be,
+Over the swell of the Adrian sea
+I might soar—and soar,—upon poised wings dreaming, o’er the strand where Eridanus’ waters be,
 Where down to the sea-swell purple-gleaming
 The tears of the Sun-god’s daughters are streaming,
 Of the thrice-sad sisters for Phaéthon sighing, "740
@@ -949,7 +954,7 @@ And sprang unto earth's firm floor.
 Wherefore, with love-pangs all unblest (Ant. 2)
 For her gift, entered in Aphrodite, wringing
 Her heart-strings asunder, a fearful guest.
-. Like a wrecked ship sinking, disaster-oppressed
+Like a wrecked ship sinking, disaster-oppressed
 Over her bride-bower’s rafters flinging
 The noose, shall she cast the coil close-clinging
 Round the neck that was whitest and loveliest,
@@ -958,14 +963,14 @@ a loathéd name,
 And she chose, in its stead, the stainless renown of
 a wife’s fair fame,
 And, for anguish of love, heart-rest.
-[A cry within]
+_A cry within._
 Run to the rescue, all ye nigh the house !
 In the strangling noose is Theseus wife, our mistress !
 Sung ’
 
 CHORUS. Woe! Woe!. ‘Tis done! No more—no more is she,
 The queen—in yon noose rafter-hung upcaught !
-[Cry within.]
+_Cry within._
 O haste !—will no one bring the steel two-edged,
 ’ Wherewith to loose this cincture of her neck ?
 
@@ -974,7 +979,7 @@ The doors, and from the halter loose the queen?
 
 SEMI-CHORUS 2. Wherefore? Are no young handmaids at her side ?
 "The busy meddler treadeth perilous paths.
-[Cry within.]
+_Cry within._
 Uncramp the limbs, streak out the hapless corpse.
 Bitter house-warding this is for my lords !
 
@@ -1030,8 +1035,8 @@ On a sea of disaster I look, on a sea without shore,
 So vast, that never can I swim thereout,
 Nor ride the surge of this calamity.
 What word can I speak unto thee ?—how name, dear
-wife, [thy life ?
-The doom that on thee hath descended and crushed
+wife,
+The doom that on thee hath descended and crushed thy life ?
 Like a bird hast thou fleeted from mine hands,
 And with swift leap hast rushed to Hades’ halls.
 Never sorrow of sorrows was like unto mine.
@@ -1064,7 +1069,8 @@ Or the splendour of star-eyed night !
 
 CHORUS. With ruth for thy fate running o’er do mine eyes
 the tear-drops pour:
-[Aside] But for woe which must follow I shudder
+_Aside._
+But for woe which must follow I shudder
 and shudder still.
 
 THESEUS. Ha!
@@ -1083,8 +1089,8 @@ CHORUS. Woe, woe! How God bringeth evil following hard
 on the track
 Of evil! I count for living unmeet
 The lot of a life such as this, as on deeds that are
-wrought I look back: [but in ruin and wrack
-For the house of my lords standeth not any more,
+wrought I look back:
+For the house of my lords standeth not any more, but in ruin and wrack
 I behold it hurled ‘from its ancient seat.
 Ah God, if this may be, wreck not the house,
 But hearken my beseeching, for I trace,
@@ -1176,7 +1182,7 @@ For the unrighteous and unjust in grain.
 Look on this man, who, though he be my son,
 Hath shamed my.couch, and shall be manifest proved
 Most vile, by testimony of the dead.
-[HIPPOLYTUS covers his face in horror.]
+_HIPPOLYTUS covers his face in horror._
 Nay, show thy face—since thou hast come to this,
 This foulness,—look thy father in the face!
 Dost thou with Gods—O thou no common man !—
@@ -1229,7 +1235,7 @@ Unrein my tongue. And first will I begin
 Where thou didst first assail, as thou wouldst crush me,
 And I find no reply. See’st thou yon sun
 And earth ?—within their compass is no man—
-. Though thou deny it—chaster-souled than I.
+Though thou deny it—chaster-souled than I.
 For I have learnt, first, to revere the Gods,
 Then, to have friends which seek to do no wrong,
 Friends who think shame to proffer aught of base,
@@ -1341,13 +1347,14 @@ HIPPOLYTUS. Ah, hapless mother !—ah, my bitter birth !
 Base-born be never any that I love!
 
 THESEUS. Will ye not hale him hence, thralls ?—heard ye not
-. Long since his banishment pronounced of me?
+Long since his banishment pronounced of me?
 
 HIPPOLYTUS. Who layeth hand on me of them shall rue!
 Thou thrust me from the land, if such thy mood.
 
 THESEUS. That will I, an thou wilt not heed mine hest.
-No pity for thine exile visits me. [Exit THESEUS.
+No pity for thine exile visits me.
+_Exit THESEUS._
 
 HIPPOLYTUS. So then my fate is sealed. Ah, woe is me!
 I know the truth, yet know not how to tell it.
@@ -1360,10 +1367,11 @@ Farewell: I see thee, hail thee, the last time.
 Come, O ye youths, mine age-mates in this land,
 Speak parting word: escort me from this soil :
 For never shall ye see a chaster man,
-Albeit this my sire believeth not. [Exit.
+Albeit this my sire believeth not.
+_Exit._
 
 CHORUS. When faith overfloweth my mind, God’s providence
-all-embracing [but to know !”’
+all-embracing—but to know !—
 Banisheth griefs: but when doubt whispereth “Ah
 No clue through the tangle I find of fate and of life
 for my tracing :
@@ -1372,7 +1380,7 @@ And the mutable fortune of men evermore sways
 to and fro
 Over limitless range.
 Ah, would the Gods hear prayer !—would they grant
-to me these supplications— [of pain,
+to me these supplications, of pain,
 A lot with prosperity sweet, and a soul unshadowed
 And a faith neither fixed foursquare on the flint,
 nor on sandy foundations!
@@ -1575,8 +1583,8 @@ ARTEMIS. Thou high-born scion of Aegeus, I call upon thee:
 Theseus, give ear unto me.
 It is Artemis, Leto’s Daughter, that nameth thy
 "name:
-Why dost thou joy in thy shame, [moved
-Who hast murdered thy son unrighteously, thereto
+Why dost thou joy in thy shame,
+Who hast murdered thy son unrighteously, thereto moved
 By the lies of thy wife unproved? —[found.
 Ruin and wrack in the sight of the sun hast thou
 How wilt thou hide underground
@@ -1803,7 +1811,8 @@ HIPPOLYTUS. Father, farewell thou too—untold farewells!
 THESEUS. Forsake me not, my son !—be strong to bear!
 
 HIPPOLYTUS. My strength is overborne—I am gone, my father.
-Cover my face with mantles with all speed. [Dies.
+Cover my face with mantles with all speed.
+_Dies._
 
 THESEUS. O bounds of Athens, Pallas’ glorious realm,
 What hero will be lost to you! Woe’s me!
