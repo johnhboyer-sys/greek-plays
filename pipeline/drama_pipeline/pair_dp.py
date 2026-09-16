@@ -263,9 +263,21 @@ def _region_align(
     # costs 4.76 / 4.03 / 4.18 s a play (Birds / Frogs / Clouds) against
     # 2.94 / 2.65 / 2.71 s banded, on a 10 s per-play budget: the
     # optimisation bought under two seconds for a soundness argument nobody
-    # had written. `band_lo_hi` stays only as the full-width row bounds the
-    # forward pass and the margin sweep both read.
+    # had written.
+    #
+    # `band_lo_hi` stays, for two jobs that are now distinct. The forward
+    # pass reads the FULL width, so nothing is pruned. The margin sweep
+    # below reads `MARGIN_W`, which is the old band's half-width kept as
+    # what it always really was for that sweep: the neighbourhood a reviewer
+    # would actually look at. The margin is "how much cheaper the chosen
+    # match is than the best differently-named candidate NEARBY"; comparing
+    # against a candidate two hundred speeches away is not a confidence
+    # report, and letting the band's removal redefine the metric would have
+    # moved `margin_median`, `low_confidence_pairs` and their acceptance
+    # targets for no reason anyone asked for (measured: mean `margin_median`
+    # 2.5832 -> 2.5567 and `low_confidence_pairs` 1263 -> 1278 corpus-wide).
     W = max(G, E) + 1
+    MARGIN_W = max(40, math.ceil(0.12 * max(G, E)))
 
     def band_lo_hi(i: int, w: int) -> tuple[int, int]:
         center = i * E / G if G else 0.0
@@ -273,7 +285,7 @@ def _region_align(
         hi = min(E, math.ceil(center + w))
         return lo, hi
 
-    def run(w: int) -> tuple[list[list[float]], list[list[float]], list[list[float]], list[tuple[int, int]]]:
+    def run(w: int) -> tuple[list[dict], list[dict], list[dict]]:
         lohi = [band_lo_hi(i, w) for i in range(G + 1)]
         M = [{} for _ in range(G + 1)]
         Ig = [{} for _ in range(G + 1)]
@@ -349,11 +361,9 @@ def _region_align(
                         opening_cost += weights.w_cohere
                     extending_cost = ie_prev + weights.ext_e if ie_prev < INF else INF
                     Ie[i][j] = min(opening_cost, extending_cost)
-        return M, Ig, Ie, lohi
+        return M, Ig, Ie
 
-    def solve(
-        M: list[dict], Ig: list[dict], Ie: list[dict], lohi: list[tuple[int, int]],
-    ):
+    def solve(M: list[dict], Ig: list[dict], Ie: list[dict]):
         """Pick the cheapest final layer and trace back.
 
         Returns ``None`` when no finite path reaches the end cell (caller
@@ -450,8 +460,8 @@ def _region_align(
         return pairs, greek_skip_runs, skip_e_marks, total_cost
 
     widened = False
-    M, Ig, Ie, lohi = run(W)
-    solved = solve(M, Ig, Ie, lohi)
+    M, Ig, Ie = run(W)
+    solved = solve(M, Ig, Ie)
 
     if solved is None:
         # No path at all (should not happen for finite costs over the full
@@ -476,9 +486,9 @@ def _region_align(
             greek[gi], english[ej], rho=rho, gi=gi, ei=ej, G=G, E=E,
             bridge_cos=bcos(gi, ej), weights=weights,
         )
-        # `lohi[gi + 1]` holds valid DP *j* values (english-consumed counts,
-        # 1-indexed) for the row matching greek[gi]; the node index is j - 1.
-        lo, hi = lohi[gi + 1] if gi + 1 < len(lohi) else band_lo_hi(gi + 1, W)
+        # Valid *j* values (english-consumed counts, 1-indexed) for the row
+        # matching greek[gi], within the margin window; the node index is j - 1.
+        lo, hi = band_lo_hi(gi + 1, MARGIN_W)
         chosen_name = english[ej].name
         best_alt = INF
         for j2 in range(max(1, lo), min(E, hi) + 1):
