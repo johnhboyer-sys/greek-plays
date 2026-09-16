@@ -330,3 +330,34 @@ def test_band_edge_on_row_zero_widens():
 
     assert banded.pairs == unbanded.pairs == [(0, 60), (1, 61), (2, 62)]
     assert banded.band_widened is True
+
+
+def test_pinned_predecessor_keeps_the_same_line_rate_for_the_regions_first_share():
+    """Round 6, finding 2. `same_line` compares `greek[i-1]` with `greek[i-2]`
+    INSIDE the region slice, so the first share of a region can never take
+    the reduced same-line rate -- even when the pin immediately before it is
+    the other share of its own physical line. Here Alpha's pinned speech
+    carries the whole of line L1 (Beta's share merged into it) and Beta's own
+    next speech follows: with the reduced rate the merged share is skipped
+    and Beta's speech lands on Beta's own Greek; at the ordinary `open_g` the
+    merged share outbids it and steals it, leaving the real Greek bare. The
+    unpinned run of the same data already gets this right, so a pin must not
+    change the answer on nodes it does not touch."""
+    greek = [
+        GreekNode(name="Alpha", chars=100, line_key="L1"),
+        GreekNode(name="Beta", chars=40, line_key="L1"),  # merged into Alpha's speech
+        GreekNode(name="Beta", chars=180, line_key="L2"),  # Beta's own next speech
+        GreekNode(name="Gamma", chars=100, line_key="L3"),
+    ]
+    english = [
+        EnglishNode(name="Alpha", chars=140),  # the whole of L1
+        EnglishNode(name="Beta", chars=90),
+        EnglishNode(name="Gamma", chars=100),
+    ]
+
+    pinned = align(greek, english, pins=[(0, 0)])
+    unpinned = align(greek, english, pins=[])
+
+    assert unpinned.pairs == [(0, 0), (2, 1), (3, 2)]
+    assert pinned.pairs == unpinned.pairs
+    assert pinned.greek_skips == [(1, 2)]

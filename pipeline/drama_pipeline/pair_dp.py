@@ -204,10 +204,16 @@ def _region_align(
     weights: Weights,
     rho: float,
     band: bool,
+    prev_line_key: object = None,
 ) -> tuple[list[tuple[int, int]], list[tuple[int, int]], list[int], dict[tuple[int, int], float], bool, float]:
     """Banded affine (Gotoh) DP over one pin-free region. Returns
     (pairs, greek_skip_runs, english_skip_indices, margins, band_widened,
-    total_cost), all indices LOCAL to this region."""
+    total_cost), all indices LOCAL to this region.
+
+    ``prev_line_key`` is the ``line_key`` of the PINNED Greek node just
+    before this region (``None`` at the head of the play). Without it the
+    region's first share can never be recognised as the second share of a
+    physical line the pin already matched -- round 6, finding 2."""
     G, E = len(greek), len(english)
     if G == 0 and E == 0:
         return [], [], [], {}, False, 0.0
@@ -222,6 +228,16 @@ def _region_align(
 
     def bcos(gi: int, ej: int) -> float:
         return bridge_table.cos(gi, ej) if bridge_table else 0.0
+
+    def same_line(i: int) -> bool:
+        """Is the share about to be SKIPPED (``greek[i - 1]``) on the same
+        physical Greek line as the node before it? At ``i == 1`` that node is
+        the pin that opened this region, not a node of the slice."""
+        key = greek[i - 1].line_key
+        if key is None:
+            return False
+        before = greek[i - 2].line_key if i >= 2 else prev_line_key
+        return before is not None and key == before
 
     W = max(40, math.ceil(0.12 * max(G, E)))
 
@@ -268,15 +284,10 @@ def _region_align(
                     # "those shares live inside the same physical line and
                     # the reader shows the whole line beside that one speech
                     # regardless") -- it never pays the ordinary opening cost.
-                    same_line = (
-                        i >= 2
-                        and greek[i - 1].line_key is not None
-                        and greek[i - 1].line_key == greek[i - 2].line_key
-                    )
                     m_prev = M[i - 1].get(j, INF)
                     ie_prev = Ie[i - 1].get(j, INF)
                     ig_prev = Ig[i - 1].get(j, INF)
-                    if same_line:
+                    if same_line(i):
                         best_g = min(
                             m_prev + weights.ext_g_same_line if m_prev < INF else INF,
                             ie_prev + weights.ext_g_same_line if ie_prev < INF else INF,
@@ -372,15 +383,10 @@ def _region_align(
                 i, j = i - 1, j - 1
             elif cur == "Ig":
                 skip_g_marks.append(i - 1)
-                same_line = (
-                    i >= 2
-                    and greek[i - 1].line_key is not None
-                    and greek[i - 1].line_key == greek[i - 2].line_key
-                )
                 m_prev = M[i - 1].get(j, INF)
                 ie_prev = Ie[i - 1].get(j, INF)
                 ig_prev = Ig[i - 1].get(j, INF)
-                if same_line:
+                if same_line(i):
                     cand = {
                         "M": m_prev + weights.ext_g_same_line if m_prev < INF else INF,
                         "Ie": ie_prev + weights.ext_g_same_line if ie_prev < INF else INF,
@@ -569,6 +575,9 @@ def align(
         b_slice = bridge[agi + 1 : bgi]
         sub_pairs, sub_greek_skips, sub_english_skips, sub_margins, widened, sub_cost = _region_align(
             g_slice, e_slice, bridge=b_slice, weights=weights, rho=rho, band=band,
+            # The pinned share this region opens after: its physical line is
+            # what makes the region's first share a same-line skip (finding 2).
+            prev_line_key=greek[agi].line_key if agi >= 0 else None,
         )
         band_widened = band_widened or widened
         total_cost += sub_cost
