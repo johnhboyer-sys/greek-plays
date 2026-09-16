@@ -422,12 +422,13 @@ def test_unreadable_cue_is_a_discount_not_a_cross_name_match():
 
 
 
-def _run_align(slot_names, greek_chars, english):
+def _run_align(slot_names, greek_chars, english, forced=()):
     """The caller's node build, reduced to what these cases need: one Greek
     node per slot, `inherited` where the slot has no speaker event of its
-    own and a named slot precedes it (``run()``'s ``dp_names``), no pins and
-    no primary bridge (the bench columns of a play whose primary is
-    turn-text, and the shape has to come out right without it)."""
+    own and a named slot precedes it (``run()``'s ``dp_names``), and no
+    primary bridge (the bench columns of a play whose primary is turn-text,
+    and the shape has to come out right without it).  ``forced`` is what
+    ``_resolve_pins`` hands the aligner: (slot, speech) pairs."""
     last = None
     nodes = []
     for name, chars in zip(slot_names, greek_chars):
@@ -438,7 +439,7 @@ def _run_align(slot_names, greek_chars, english):
         if name is not None:
             last = name
     spans = [(c, "") for c in greek_chars]
-    return _align_speech_runs(nodes, english, slot_names, [], None, spans)
+    return _align_speech_runs(nodes, english, slot_names, list(forced), None, spans)
 
 
 def test_persians_353_narrative_pairs_with_its_own_speech_not_the_continuation():
@@ -563,3 +564,134 @@ def test_a_speech_split_five_ways_takes_one_english_at_its_head():
     for k in range(1, 6):
         assert result.derived_covered[k] == 0
     assert len(result.english_skips) == 2
+
+
+# --- Round 8 (build/review/turn-pairing-round8-2026-09-16.md) -------------
+#
+# Both cases below are Frogs, Murray overlay, and neither is a defect in the
+# DP's own reasoning: the objective prefers the wrong answer because the only
+# local evidence it has is the speaker name, and Murray's cues are not this
+# Greek edition's.  The primary bridge -- the one content signal the design
+# gives the aligner -- is off for the eleven comedies, whose primary is
+# itself turn-text.  These tests record the arithmetic that says so, and
+# assert that the pin puts each scene right.  If a later weighting makes the
+# unpinned assertion fail, that is the signal to drop the pins in
+# `manifests/frogs.yaml`, not to appease the test.
+
+_FROGS_LEAD_NAMES = ["Dionysus", "Xanthias"] * 6
+_FROGS_LEAD_GREEK = [50] * 12
+_FROGS_LEAD_ENGLISH = [
+    EnglishNode(name=n, chars=58, text="line") for n in _FROGS_LEAD_NAMES
+]
+
+
+def test_a_relabelled_run_slides_by_one_and_only_a_pin_holds_it():
+    """Frogs 568-579, Murray (`play-frogs-recheck-2026-09-16.md` N2).
+
+    Murray follows the modern distribution of the innkeepers' lines: 574
+    PLATHANE, 575 LANDLADY, 577 PLATHANE.  This Greek gives 574 to Xanthias,
+    575 to the second innkeeper (= Plathane) and 577 to the first (= the
+    Landlady).  Over those three turns Murray's names are exactly the
+    edition's shifted by one, so the DP can buy three agreeing pairs for one
+    Greek gap and one English gap: `open_g` (1.60) + `open_e` (2.20) = 3.80
+    against three cross-name matches at `w_spk` (2.50) = 7.50.  Measured on
+    the real nodes the two paths cost 4.34 and 7.89.
+
+    No weight closes that.  It would need `w_spk < (open_g + open_e) / n`
+    for a relabelled run of length n -- below 1.90 at n = 2 and below 1.27 at
+    n = 3 -- which is far under design 3.2's own floor (inequality 1,
+    `open_e < w_spk`, is what keeps a single surplus English turn from being
+    cross-matched).  Nor does the length term: the true path's length
+    advantage here is 0.24 against a name deficit of 3.70.
+    """
+    slot_names = _FROGS_LEAD_NAMES + [
+        "Xanthias", "First Innkeeper", "Second Innkeeper", "First Innkeeper",
+        "Xanthias", "Second Innkeeper", "First Innkeeper", "Dionysus",
+    ]
+    greek_chars = _FROGS_LEAD_GREEK + [26, 59, 39, 112, 39, 78, 75, 38]
+    english = _FROGS_LEAD_ENGLISH + [
+        EnglishNode(name="Xanthias", chars=16, text="Like him, again."),
+        EnglishNode(name="Second Innkeeper", chars=27, text="But something must be done!"),
+        EnglishNode(name="First Innkeeper", chars=43, text="Run, you, and fetch me my protector, Cleon."),
+        EnglishNode(name="Second Innkeeper", chars=76, text="And you fetch me Hyperbolus"),
+        EnglishNode(name="First Innkeeper", chars=109, text="Oh, that ugly jaw!"),
+        EnglishNode(name="Second Innkeeper", chars=42, text="And I should like to fling you in the pit!"),
+        EnglishNode(name="First Innkeeper", chars=86, text="And I should like to get a scythe, and cut"),
+        EnglishNode(name="Second Innkeeper", chars=101, text="Well, I'll go straight to Cleon"),
+        EnglishNode(name="Dionysus", chars=74, text="Plague take me!"),
+    ]
+    pit, scythe, cleon = 17, 18, 19
+    g574, g575, g577 = 16, 17, 18
+
+    # Unpinned: the objective slides.  Greek 574 takes nothing and the pit
+    # goes to 575 -- the shape the re-review found.
+    loose = _run_align(slot_names, greek_chars, english)
+    by_g = dict(loose.pairs)
+    assert g574 not in by_g
+    assert by_g[g575] == pit
+
+    # Pinned at the head of the run, three turns long: every speech stands
+    # beside the Greek it translates, each pair flagged `speakerMismatch`
+    # downstream because the editions really do disagree.
+    held = _run_align(
+        slot_names, greek_chars, english,
+        forced=[(g574, pit), (g575, scythe), (g577, cleon)],
+    )
+    by_g = dict(held.pairs)
+    assert english[by_g[g574]].text == "And I should like to fling you in the pit!"
+    assert english[by_g[g575]].text == "And I should like to get a scythe, and cut"
+    assert english[by_g[g577]].text == "Well, I'll go straight to Cleon"
+    assert held.english_skips == [13]  # Murray's extra turn inside Greek 568
+
+
+def test_a_translator_gap_needs_a_pin_on_both_of_its_sides():
+    """Frogs 1443-1457, Murray (`play-frogs-recheck-2026-09-16.md` N3).
+
+    Murray has no rendering of Greek 1451-1453 (the Palamedes / Cephisophon
+    exchange) and two extra turns inside 1455.  Closing the gap honestly
+    costs `open_g` + `ext_g` for the two Greek speeches plus `open_e` twice
+    for the two surplus English turns -- about 6.55 -- where sliding the
+    whole block back two nodes costs one cross-name match, 2.50.  So the DP
+    slides, and 1454's English prints beside 1451.
+
+    A pin after the gap alone does not hold it: the DP simply slides the
+    block before the pin instead, which is what the first assertion records.
+    A gap wants a pin on BOTH sides, so that the Greek speeches between them
+    have no English left to take.
+    """
+    slot_names = _FROGS_LEAD_NAMES + [
+        "Euripides", "Dionysus", "Euripides",
+        "Dionysus", "Euripides",
+        "Dionysus", "Aeschylus", "Dionysus", "Aeschylus",
+    ]
+    greek_chars = _FROGS_LEAD_GREEK + [58, 52, 189, 74, 35, 22, 66, 45, 113]
+    english = _FROGS_LEAD_ENGLISH + [
+        EnglishNode(name="Euripides", chars=95, text="Where Mistrust now has sway"),
+        EnglishNode(name="Dionysus", chars=86, text="I don't quite follow"),
+        EnglishNode(name="Euripides", chars=129, text="If we count all the men whom now we trust"),
+        EnglishNode(name="Dionysus", chars=17, text="And what say you?"),
+        EnglishNode(name="Aeschylus", chars=70, text="First tell me about the City"),
+        EnglishNode(name="Dionysus", chars=32, text="Great Heavens, She loathes them!"),
+        EnglishNode(name="Aeschylus", chars=31, text="And takes pleasure in the vile?"),
+        EnglishNode(name="Dionysus", chars=48, text="Not she, but has perforce to let them serve her!"),
+        EnglishNode(name="Aeschylus", chars=90, text="What hope of comfort is there for a City"),
+    ]
+    g1446, g1451, g1453, g1454 = 14, 15, 16, 17
+    e1446, e1454 = 14, 15
+
+    loose = _run_align(slot_names, greek_chars, english)
+    by_g = dict(loose.pairs)
+    assert english[by_g[g1451]].text == "And what say you?"  # two nodes early
+
+    # The pin after the gap alone: the slide moves back, it does not stop.
+    one_sided = _run_align(slot_names, greek_chars, english, forced=[(g1454, e1454)])
+    by_g = dict(one_sided.pairs)
+    assert english[by_g[g1451]].text == "I don't quite follow"
+
+    both = _run_align(
+        slot_names, greek_chars, english, forced=[(g1446, e1446), (g1454, e1454)]
+    )
+    by_g = dict(both.pairs)
+    assert g1451 not in by_g and g1453 not in by_g
+    assert english[by_g[g1454]].text == "And what say you?"
+    assert english[by_g[g1446]].text == "If we count all the men whom now we trust"
