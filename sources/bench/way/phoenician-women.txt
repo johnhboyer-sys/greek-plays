@@ -1626,7 +1626,7 @@ ANTIGONE. Mother, whereby ?
 JOCASTA. Fall at their feet with me.
 
 ANTIGONE. Lead to the mid-space! We may tarry not.
-Jacasta
+JOCASTA.
 Haste, daughter, haste: for, may I but forestall
 My sons ere fighting, light of life is mine:
 If they be dead, dead with them will I lie.
@@ -1978,7 +1978,7 @@ Lo, all the griefs of our line, one marshalled array,
 Have been gathered, O father, against our house
 this day [ment lay.
 Of the God in whose hands their accomplish-
-cuonus
+CHORUS.
 Many an ill to Oedipus’ house this day
 Brings forth. May happier life be yet in store!
 

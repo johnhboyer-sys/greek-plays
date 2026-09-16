@@ -38,8 +38,9 @@ english:
     source: bench/way/alcestis.txt
     play: ALCESTIS
     footnotes: true
-    # John 2026-09-11: the dropped head is the cast list
-    head_front_matter: 1
+    # 2026-09-16: was 1 (dropped cast-list head); 0 since the Genie restore
+    # of the garbled APOLLO./HANDMAID. dramatis-personae lines leaves no head chunk
+    head_front_matter: 0
   third:
     id: murray-verse
     name: "Gilbert Murray"
