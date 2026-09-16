@@ -102,6 +102,28 @@ english:
       source: bench/murray/frogs.txt
       play: FROGS
       footnotes: false
+      # Round 8 (build/review/turn-pairing-round8-2026-09-16.md, case 1):
+      # Murray follows the modern distribution of the innkeepers' lines --
+      # 574 PLATHANE, 575 LANDLADY, 577 PLATHANE -- where this Greek gives
+      # 574 to Xanthias, 575 to the second innkeeper and 577 to the first.
+      # Over those three turns his names are exactly the edition's shifted
+      # by one, so the aligner buys three agreeing pairs for one Greek gap
+      # (1.60) plus one English gap (2.20) -- 4.34 against the true path's
+      # 7.89 (three cross-name matches at 2.50 each). No weight can flip
+      # that without dropping w_spk below (open_g + open_e) / 3; the pin is
+      # the mechanism the design provides when the DP has no content signal
+      # (the primary bridge is off for the eleven comedies).
+      pins:
+        - { greek: "574", english: "And I should like to fling you in the pit!", run: 3 }
+        # Case 2: Murray has no rendering of 1451-1453 (the Palamedes /
+        # Cephisophon exchange) and two extra turns inside 1455, so the
+        # true path pays open_g + ext_g + two open_e (6.55) where sliding
+        # the block back two nodes pays one cross-name match (2.50).
+        # A gap needs a pin on BOTH sides: 1446 holds the last turn before
+        # the omission, 1454 the first one after it, so the two Greek
+        # speeches between them have no English to take.
+        - { greek: "1446", english: "If we count all the men whom now we trust", run: 1 }
+        - { greek: "1454", english: "And what say you?", run: 1 }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
