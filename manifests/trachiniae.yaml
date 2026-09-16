@@ -73,6 +73,7 @@ speakers:
     "CHORUS": "Chorus"
     "MESSENGER": "Messenger"
     "LICHAS": "Lichas"
+    "SEMI-CHORUS 1": "Second Semichorus"  # 2026-09-16: SEMI-CHORUS 1 parses since the digit fix; was unmapped
     "SEMI-CHORUS 2": "Second Semichorus"
     "OLD MAN": "Old Man"
     "HERACLES": "Heracles"

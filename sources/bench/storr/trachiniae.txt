@@ -122,14 +122,14 @@ Doth he on either mainland bide ?
 Roams he over the sea straits driven ?
 Thou, omniscient eye of heaven,
 Declare, declare !
-For like bird bereft of her mate (Ant. 1)
+For like bird bereft of her mate
 Deianira, desolate,
 She the maiden of many wooed,
 Pines by fears for her lord pursued ;
 Ever she bodes some instant harm
 Ever she starts at a new alarm,
 With vigils pale.
-(Str. 2)
+
 For as the tireless South or Northern blast
 Billow on billow rolls o'er ocean wide,
 So on the son of Cadmus follows fast
@@ -1003,7 +1003,7 @@ Too late her error doth she rue,
 And pearly tears her eyes bedew:
 Awe-stricken we await
 The swoop of instant fate.
-Our pent up tears outflow. (Ant. 2)
+Our pent up tears outflow.
 Ye gods! did e’er such blow
 From his worst foes afflict our King before
 As this fell plague? O bloodstained spear that
@@ -1167,9 +1167,9 @@ Where is the charmer, where the leech,
 Whose art a remedy could teach,
 Save Zeus alone? If one could tell
 Of such a wizard, ’twere a miracle.
-O leave me, let me lie (Str. 1)
+O leave me, let me lie
 In my last agony !
-Ye touch me ? have a care ! (Str. 2)
+Ye touch me ? have a care !
 Would turn me? O forbear !
 To agony ye wake
 The slumbering ache.
@@ -1182,7 +1182,7 @@ Your land from ravening beasts of prey and monsters
 of the sea;
 And now in long drawn agony ye leave me to expire.
 Will none of you deliver me with sword or kindly fire?
-Would God that I were dead! (Ant. 1)
+Would God that I were dead!
 Will no man sever at a stroke this head?
 
 OLD MAN. O help me, son of Heracles, for I am all too frail
@@ -1195,7 +1195,7 @@ That haunts him to the very end. Such doom the
 gods ordain.
 
 HERACLES. My son, where art thou: Raise me, hold me here,
-here ! (Ant. 2)
+here !
 Ah me! once more the pest doth leap
 Upon me and its fangs bite deep.
 Pallas! ‘tis torture. O for pity save
@@ -1387,7 +1387,7 @@ HYLLUS. What wouldst thou have me swear? May I not know?
 
 HERACLES. Swear to perform the task that I enjoin.
 
-HYLLUS. J will and take the oath, so help me Zeus.
+HYLLUS. I will and take the oath, so help me Zeus.
 
 HERACLES. And add thereto the curse on perjurers.
 

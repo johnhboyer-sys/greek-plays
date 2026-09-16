@@ -118,7 +118,7 @@ NEOPTOLEMUS. What gain to me, should he be brought to Troy?
 
 ODYSSEUS. Without these arms Troy-town cannot be sacked.
 
-NEOPTOLEMUS. Ye told me J should take it. Was that false?
+NEOPTOLEMUS. Ye told me I should take it. Was that false?
 
 ODYSSEUS. Not thou apart from these nor these from thee.
 
@@ -169,7 +169,7 @@ When the wild man ye have spied
 Who within this cave doth bide,
 Watch the motions of my hand,
 Prompt to act as I command.
-CHORUS (Ant. 1)
+CHORUS.
 Now, as at all times, Prince, I gladly heed,
 And serve thy need.
 But first to learn his common haunts t’were well;
@@ -858,7 +858,7 @@ With simples gathered from the kindly soil ;
 But ‘twixt the spasms he must crawl and moil
 To find the herb, a spell to lay the curse,
 Like some weak infant parted from its nurse.
-Not his to sow the seed (Str. 2)
+Not his to sow the seed
 Or on the largesse feed
 That boon earth showers on all the sons of men;
 Happy, if now and then
@@ -1385,7 +1385,6 @@ Thou too in-silence, deaf to my appeal?
 
 ODYSSEUS. Away! and look not on him lest thou mar
 Our stroke of fortune by thy quixotry.
-ped
 
 PHILOCTETES. Ye also, friends, will ye abandon me
 And show no pity for my sad estate?
