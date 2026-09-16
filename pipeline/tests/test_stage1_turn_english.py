@@ -3268,3 +3268,138 @@ def test_loeb_ocr_roman_numeral_heading_is_not_a_speaker():
     assert [sp["speaker_printed"] for sp in speeches] == ["CHORUS", "AMPHITRYON"]
     assert "I. The Nemean Lion" in speeches[0]["text"]
     assert "II. The Centaurs" in speeches[0]["text"]
+
+
+# --- Round 9: the Persians parodos, the shape `_spread_long_speeches` governs.
+#
+# One Chorus speech, Greek 1-158, which the segmenter cut across six segments
+# (64 + 42 + 28 + 10 + 5 + 4 = 153 lines): 1:1 named, 1:65 and 1:111 with no
+# speaker event at all, and 1:140 / 1:150 / 1:155 each opening on a bare "—".
+# Round 7's `_align_speech_runs` merges all six into ONE DP node, so the whole
+# of Johnston's English -- 140 printed verse lines -- lands on 1:1 and the
+# spread has to hand it back out. The character counts are chosen so the
+# density readings match the real build's: 1.78x the column median at 1:65,
+# 1.08x at 1:111, 0.85x at 1:140.
+_PERSIANS_RUN = [("1:1", 64), ("1:65", 42), ("1:111", 28), ("1:140", 10), ("1:150", 5), ("1:155", 4)]
+
+
+def _persians_parodos():
+    from drama_pipeline.stage1_turn_english import _printed_line_starts
+
+    def glines(first, count):
+        # No Greek stop anywhere: `_greek_breaks` finds nothing, so every
+        # segment aims at its own first line and the cut is the proportion,
+        # undisturbed by the 1.5-line sentence snap.
+        return [{"n": n, "ref": str(n), "text": "λόγος ἄλλος ἔτι"}
+                for n in range(first, first + count)]
+
+    segments = []
+    n = 1
+    for i, (sid, size) in enumerate(_PERSIANS_RUN):
+        seg = {"id": sid, "column": "1", "lines": glines(n, size)}
+        if i == 0:
+            seg["speakers"] = [{"line": n, "offset": 0, "label": "CHORUS"}]
+        elif i >= 3:
+            seg["speakers"] = [{"line": n, "offset": 0, "label": "—"}]
+        segments.append(seg)
+        n += size
+    # Two one-line segments with English of their own, to set the column
+    # median at 55 characters per Greek line, which puts the run's density
+    # readings on the real build's: 1.79x at 1:65, 1.08x at 1:111, 0.854x at
+    # 1:140 (the real Persians build reads 1.787, 1.079, 0.854).
+    segments += [
+        {"id": "1:159", "column": "1", "lines": glines(200, 1),
+         "speakers": [{"line": 200, "offset": 0, "label": "ΒΑ."}]},
+        {"id": "1:160", "column": "1", "lines": glines(201, 1),
+         "speakers": [{"line": 201, "offset": 0, "label": "CHORUS"}]},
+    ]
+    # 140 printed lines: 60 long ones (the anapaestic catalogue) then 80 short
+    # ones (the lyric). Characters per printed line therefore differ by more
+    # than two to one across the speech, which is where a cut measured in
+    # characters and a cut measured in lines part company. Every line opens on
+    # a capital so that the sentence-start pool and the printed-line pool hold
+    # the same offsets: the two cuts below then differ only in the METRIC.
+    long_line = "Streaming out of Susa and the ancient parapets of Kissa."
+    short_line = "And groans with fierce desire."
+    lines = [f"{long_line[:-1]} {i}." for i in range(60)]
+    lines += [f"{short_line[:-1]} {i}." for i in range(80)]
+    text = "\n".join(lines)
+    assert len(_printed_line_starts(text)) == 140
+    head = {"id": "1:1", "book": 1, "column": "1", "text": text,
+            "notes": [], "markers": [], "bekker": [],
+            "turns": [{"offset": 0, "speaker": "Chorus", "display": "CHORUS LEADER"}]}
+    filler = lambda cid: {"id": cid, "book": 1, "column": "1", "text": "x" * 55,
+                          "notes": [], "markers": [], "bekker": [], "turns": []}
+    chunks = [head, filler("1:159"), filler("1:160")]
+    covered = {sid: "1:1" for sid, _size in _PERSIANS_RUN[1:]}
+    return chunks, segments, covered
+
+
+def _printed(text):
+    import re as _re
+
+    return [l for l in text.split("\n")
+            if l.strip() and not _re.fullmatch(r"_.*_", l.strip())]
+
+
+def test_the_spread_reaches_every_segment_the_aligner_merged_into_one_speech():
+    """Persians 1-158, Johnston (round 8 §1.4, findings 6, 7 and 13).
+
+    The unvouched half asserts the WRONG behaviour deliberately, and says so:
+    `_continuation_kind` refuses the three bare-dash segments because the
+    bare-dash test wants `stacked >= 2.5` and a lyric run reads 0.85 -- the
+    English is thinner per Greek line than the dialogue that sets the column
+    median, so no long lyric can ever pass it. Refusing them does not merely
+    empty 1:140-1:155: it shortens the denominator of the proportional cut,
+    so the three segments that DO get English take 67, 44 and 29 printed lines
+    against Greek spans of 64, 42 and 28. Vouched by the aligner's own
+    derived-covered map, every segment of the speech takes its share.
+    """
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    chunks, segments, covered = _persians_parodos()
+    shipped = {c["id"]: c["text"] for c in _spread_long_speeches(chunks, segments, verse=True)}
+    assert [len(_printed(shipped[sid])) if sid in shipped else None
+            for sid, _size in _PERSIANS_RUN] == [67, 44, 29, None, None, None]
+
+    out = {c["id"]: c["text"]
+           for c in _spread_long_speeches(chunks, segments, covered=covered, verse=True)}
+    got = [len(_printed(out[sid])) for sid, _size in _PERSIANS_RUN]
+    assert got == [59, 38, 26, 9, 4, 4]
+    assert sum(got) == 140
+    # Each segment's English within one printed line of its Greek's share of
+    # the run -- which is what "line for line" means across a cut speech.
+    total_greek = sum(size for _sid, size in _PERSIANS_RUN)
+    for (sid, size), lines in zip(_PERSIANS_RUN, got):
+        assert abs(lines - 140 * size / total_greek) <= 1.0, sid
+
+
+def test_a_verse_cut_is_measured_in_printed_lines_and_falls_on_a_line():
+    """The same run, cut by characters (prose) and by printed lines (verse).
+
+    A verse column renders line for line, so the unit of the cut is the
+    translator's printed line: measured in characters, the 60 long lines of
+    the catalogue eat the head's whole budget and it keeps only 40 of the 59
+    lines its Greek is owed, with the shortfall pushed down the run. No piece
+    may begin inside a verse either -- a line split across two segments is a
+    verse broken across two rows.
+    """
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches, _printed_line_starts
+
+    chunks, segments, covered = _persians_parodos()
+    text = chunks[0]["text"]
+    by_chars = {c["id"]: c["text"]
+                for c in _spread_long_speeches(chunks, segments, covered=covered, verse=False)}
+    assert [len(_printed(by_chars[sid])) for sid, _size in _PERSIANS_RUN] == [44, 39, 34, 12, 6, 5]
+
+    out = _spread_long_speeches(chunks, segments, covered=covered, verse=True)
+    starts = set(_printed_line_starts(text))
+    at = 0
+    for piece in out:
+        if piece["id"] not in dict(_PERSIANS_RUN):
+            continue
+        at = text.index(piece["text"].split("\n")[0], at)
+        assert at in starts, piece["id"]
+    # Every printed line of the speech survives the cut, in order, whole.
+    assert [l for c in out if c["id"] in dict(_PERSIANS_RUN)
+            for l in _printed(c["text"])] == _printed(text)
