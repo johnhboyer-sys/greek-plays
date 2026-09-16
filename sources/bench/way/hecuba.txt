@@ -56,7 +56,7 @@ Accomplished shall be all for which I longed.
 But agéd Hecuba’s sight will I avoid;
 For forth of Agamemnon’s tent she sets
 Her feet, appalled by this my ghostly phantom.
-HECUBA, dressed as a slave, and supported by fellow-captives, appears coming out of Agamemnon’s tent.
+_HECUBA, dressed as a slave, and supported by fellow-captives, appears coming out of Agamemnon’s tent._
 Mother, who after royal halls hast seen
 The day of thraldom, how thy depth of woe
 Equals thine height of weal! A God bears down
@@ -78,8 +78,8 @@ might,
 Mother of dreams that hover in dusk-winged flight,
 I cry to the vision of darkness “‘Avaunt thee!””—
 The dream of my son who was sent into Thrace to
-be saved from the slaughter, [loved daughter,
-The dream that I saw of Polyxena’s doom, my dear-
+be saved from the slaughter,
+The dream that I saw of Polyxena’s doom, my dear-loved daughter,
 Which I saw, which I knew, which abideth to
 daunt me.
 Gods of the Underworld, save ye my son,
@@ -124,11 +124,11 @@ For thou knowest how in sheen of golden armour seen
 He stood upon his tomb, and on the ocean-pacing
 ships
 Laid a spell, that none hath sailed,—yea, though the
-halliards brailed {his lips:
-The sails up to the yards;—and a cry rang from
+halliards brailed
+The sails up to the yards;—and a cry rang from his lips:
 “Ho, Danaans! whither now, leaving unredeemed
-your vow [away ?”
-Of honour to my tomb, and my glory spurned
+your vow
+Of honour to my tomb, and my glory spurned away ?”
 Then a surge of high contention clashed: the spearhost in dissension
 Was cleft, some crying, “ Yield his tomb the
 victim! ’’—others, “ Nay!”
@@ -147,16 +147,17 @@ Shall any dare prefer to Achilles’ prowess her—
 A concubine, a bondslave ?—It shall never be! ”
 they said.
 But the vehemence of speech, each contending
-against each, [souled,
-Was balanced, as it were, till the prater subtle The man of honied tongue, the truckler to the
-throng, [mould :
-Laertes’ spawn, ‘gan fashion the host unto his
+against each,
+Was balanced, as it were, till the prater subtle-souled,
+The man of honied tongue, the truckler to the
+throng,
+Laertes’ spawn, ’gan fashion the host unto his mould:
 “ We may not thrust aside like an outcast wretch,”
-he cried, {Danaan hand,
-“The bravest Danaan heart and the stoutest
+he cried,
+The bravest Danaan heart and the stoutest Danaan hand,
 All to spare our hands the stain of the blood of
-bondmaid slain, [that stand
-Neither suffer that a voice from the ranks of them
+bondmaid slain,
+Neither suffer that a voice from the ranks of them that stand
 In the presence of Hell’s Queen should with scoffing
 bitter-keen
 Cry, ‘Thankless from the plains of Troy the
@@ -170,20 +171,20 @@ here
 From thy breast to rend thy darling, from thine
 age-enfeebled grasp.
 Hie thee to the temples now: haste, before the
-altars bow : | clasp.
-Crouch low to Agamemnon, his knees in suppliance
+altars bow :
+Crouch low to Agamemnon, his knees in suppliance clasp.
 Lift up thy voice and cry to the Gods that sit on high :
 Let the Nether-dwellers hear it through their dark-
 ness ringing wild.
 For, except they turn and spare, and thy prevalence
-of prayer [child,
-Redeem thee from bereavement of thy ruin-stricken
+of prayer
+Redeem thee from bereavement of thy ruin-stricken child,
 Thou must surely live to gaze where a maiden on her
-face [darkly-gleaming tide
-On a grave-mound lieth slaughtered, while the
+face
+On a grave-mound lieth slaughtered, while the darkly-gleaming tide
 Welleth, welleth from the neck which the golden
-mockeries deck, {dyed.
-And all her body crimsons in the bubbling horror
+mockeries deck,
+And all her body crimsons in the bubbling horror dyed.
 
 HECUBA. Woe for mine anguish ! what outcry availeth
 To thrill forth its agony-throes ?
@@ -193,23 +194,24 @@ flesh faileth
 Ah me for my woes !
 What champion is left me ?—what sons to defend
 me ?.
-What city remains tome? Gone
-wend me ὃ [befriend me?
-> Ἢ _ Whither flee? Is there God—is there fiend shall
+What city remains to me? Gone
+Are my lord and my sons! Whither now shall I
+wend me?
+Whither flee? Is there God—is there fiend shall befriend me?
 Alone—alone !
 Daughters of Troy—O ye heralds of ruin, ye heralds
 of ruin !—
 What profits my life any more, whom your words
 have undone, have undone ?
 Now unto yonder pavilion, to tell to my child her
-undoing, one !
-Lead, O yewretchedest feet, lead y~ the eld-stricken
+undoing,
+Lead, O yewretchedest feet, lead y~ the eld-stricken one!
 O daughter, O child of a mother most wretched, forth
-faring, forth faring, [mother’s word,
-Come from the tent, O hearken the voice of thy
+faring, forth faring,
+Come from the tent, O hearken the voice of thy mother’s word,
 To the end thou mayst know what a rumour of awful
-despairing, despairing, {have I heard !
-Concerning the life of thee, my belovéd, but now
+despairing, despairing,
+Concerning the life of thee, my belovéd, but now have I heard !
 O mother, my mother, what meaneth thy crying?
 What strange dread thing
 Is this that thou heraldest
@@ -554,7 +556,7 @@ Oh thus to see that sister of Zeus’ Sons,
 Helen the Spartan !—for by her bright eyes
 In shameful fall she brought down Prosperous
 Troy.
-[Swoons.
+_Swoons._
 
 CHORUS. O breeze, O breeze, over sea-ways racing,
 Who onward waftest the ocean-pacing
@@ -731,7 +733,7 @@ That none my daughter touch, but that they keep
 The crowd thence : in a war-array untold
 Lawless the mob is, and the shipmen’s licence
 Outraveneth flame—they rail on who sins not !
-[Exit TALTHYBIUS.
+_Exit TALTHYBIUS._
 But, ancient handmaid, take a vessel thou,
 And dip, and of the sea-brine hither bring,
 That with the last bath I may wash my child,—
@@ -808,7 +810,7 @@ Of prophetess Cassandra bring’st thou hither?
 
 HANDMAID. Thou nam’st the living: but the dead—this dead,
 Bewailest not,—look, the dead form is bared !
-[ Uncovers the corpse.
+_Uncovers the corpse._
 Seems it not strange—worse than all boding fears ?
 
 HECUBA. Ah me, my son !—I see Polydorus dead,
@@ -852,8 +854,8 @@ of the light.
 CHORUS. Who slew him? Canst thou, dream-arreder, tell ?
 
 HECUBA. ‘Twas my friend, ‘twas my guest, ’twas the Thracian
-chariot-lord [hide and to ward.
-To whose charge his grey father had given him to
+chariot-lord
+To whose charge his grey father had given him to hide and to ward.
 
 CHORUS. Oh, what wouldst say ?—slew him to keep the gold?
 
@@ -862,8 +864,8 @@ Impious, unbearable! Where are they, friendship
 and truth?
 O accurséd of men, lo, how hast thou carved asunder
 His flesh !—how thy knife, when my child’s limbs
-quivered thereunder, [unmelted of ruth!
-Hath slashed him and mangled, and thou wast
+quivered thereunder,
+Hath slashed him and mangled, and thou wast unmelted of ruth!
 
 CHORUS. O hapless, how a God, whose hand on thee
 Is heavy, above all mortals heaps thee pain !
@@ -1098,7 +1100,8 @@ But, seeing God sends no fair-following winds,
 Needs must we tarry watching idle sails.
 Now fair befall: for all men’s weal is this,—
 Each several man’s, and for the state,—that ill
-Betide the bad, prosperity the good. [ Exit.
+Betide the bad, prosperity the good.
+_Exit._
 
 CHORUS. O my fatherland, Ilium, thou art named no more
 Mid burgs unspoiled,
@@ -1112,10 +1115,10 @@ tread them,
 Ah me, again !
 At the midnight my doom lighted on me, when sleep
 shed
-O’er eyes sweet rain, [his bed
-When from sacrifice-dance and from hushed songs on
-My lord had lain, [ken
-And the spear on the wall was uphung, for watchman’s
+O’er eyes sweet rain,
+When from sacrifice-dance and from hushed songs on his bed
+My lord had lain,
+And the spear on the wall was uphung, for watchman’s ken
 Saw near nor far
 Overtrampling the Ilian plains those sea-borne men,
 That host of war.
@@ -1123,8 +1126,8 @@ I was ranging the braids of mine hair "neath soft
 snood-fold :
 On mine eyes thrown
 Was the gleam from the fathomless depths of mirror-gold,
-Ere I sank down [blast
-To my rest on the couch ;—but a tumult’s tempest-
+Ere I sank down
+To my rest on the couch ;—but a tumult’s tempest-blast
 Swept up the street,
 And a battle-cry thundered—“ Ye sons of Greeks, on
 fast '
@@ -1182,7 +1185,8 @@ HECUBA. A secret of mine own I fain would tell
 To thee and thine. I pray thee, bid thy guards
 Aloof from these pavilions to withdraw.
 
-POLYMESTOR. Depart ye, for this solitude is safe. [ Exeunt guards.
+POLYMESTOR. Depart ye, for this solitude is safe.
+_Exeunt guards._
 My friend art thou, well-willed to me this host
 Achaean. Now behoves thee to declare
 Wherein the prosperous must render help
@@ -1254,21 +1258,21 @@ HECUBA. Within is no Achaean, only we.
 To unmoor the ships for homeward flight from Troy,—
 That, all well done, thou mayst with thy sons fare
 To where thou gav’st a home unto my child.
-[HECUBA and POLYMESTOR with Children enter the tent.]
+_HECUBA and POLYMESTOR with Children enter the tent._
 
 CHORUS. Not yet is the penalty paid, but thy time is at hand,
 As who reeleth adown an abyss wherein foothold is
-none [thou hast ta’en.
-Slant-slipping, from sweet life hurled, for the life
+none
+Slant-slipping, from sweet life hurled, for the life thou hast ta’en.
 For wherever it cometh to pass that the rightful
 demand
 Of justice’s claim and the laws of the Gods be at one,
 Then is ruinous bane for the sinner, O ruinous
-bane ! [Unseen Land,
-It shall mock thee, thy wayfaring’s hope; to the
+bane !
+It shall mock thee, thy wayfaring’s hope; to the Unseen Land,
 To the place of the dead hath it drawn thee, O
-wretch undone! [thou be slain.
-By the hand not of warriors, thou hero, shalt
+wretch undone!
+By the hand not of warriors, thou hero, shalt thou be slain.
 
 POLYMESTOR. Ah, I am blinded of mine eyes’ light—wretch !
 
@@ -1305,8 +1309,8 @@ Where find me a mooring-place ?
 Must I prowl on their track with foot and with hand
 As a mountain-beast should pace ?
 Or to this side or that shall I turn me, for vengeance
-pursuing [mine undoing ?
-The slaughterous hags of Troy which have wrought
+pursuing
+The slaughterous hags of Troy which have wrought mine undoing ?
 Foul daughters of Phrygia, murderesses
 Accursed, in what deep-hidden recesses
 Are ye cowering in flight?
@@ -1323,10 +1327,10 @@ Requiting their outrage well
 With grimmer revenge ?—Woe! where am I
 borne
 Forsaking my fenceless babes to be torn
-Of the bacchanals of hell, [prey
-Butchered and cast away for the dogs’ blood-boultered
-On a desolate mountain-fell ? [rest ?
-Ah, where shall I stand ?—whither go?—where
+Of the bacchanals of hell,
+Butchered and cast away for the dogs’ blood-boultered prey
+On a desolate mountain-fell ?
+Ah, where shall I stand ?—whither go?—where rest ?
 Asa ship furls sail that hath havenward pressed,
 I would dart into that death-haunted lair,
 I would shroud my babes in my linen vest,
@@ -1342,13 +1346,13 @@ Thracians possessed of the War-god, lords of the
 What ho, ye Achaeans !—Atreus’ seed!
 Rescue ! Rescue! I raise the cry.
 O come, in the name of the Gods draw
-nigh ! {help me nor heed ?
-Hears any man?—wherefore delay ?—will no man
+nigh !
+Hears any man?—wherefore delay ?—will no man help me nor heed ?
 Of women undone, destroyed, am I—
-The women of Troy’s captivity. [deed!
-Horrors are wrought on me—horrors! Woe for the felon
-Whitherward shall I turn me? Whitherward fare? [to the mansions of air,
-Shall I leap as on wings to the height of the heaven,
+The women of Troy’s captivity.
+Horrors are wrought on me—horrors! Woe for the felon deed!
+Whitherward shall I turn me? Whitherward fare?
+Shall I leap as on wings to the height of the heaven, to the mansions of air,
 To Orion or Sirius, fearful-gleaming
 With the burning flames from his eyes outstreaming, (gorge in despair?
 Or plunge to the blackness of darkness, to Hades’

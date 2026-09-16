@@ -200,7 +200,8 @@ With the dawn’s first flush, and the Sun-god’s car.
 Now help thou my strait !
 No man to the end is fortunate,
 Happy is none:
-For a lot unvexed never man yet won. [ Exit,
+For a lot unvexed never man yet won.
+_Exit,_
 
 CHORUS. I have come to the Aulian sea-gulf’s verge, (Sir. 7)
 To her gleaming sands :
@@ -255,18 +256,18 @@ storm-rush unreined :
 Him I beheld who of Thetis was born, who of
 Cheiron was trained ;
 Clad in his armour he raced, over sand, over shingle
-he strained, [chariot of four,
-Matching in contest of swiftness his feet with a
+he strained,
+Matching in contest of swiftness his feet with a chariot of four,
 Rounding the sweep of the course for the victory :—
-rang evermore [that he bore
-Shouts from Pheretid Eumelus, and aye with the goad
+rang evermore
+Shouts from Pheretid Eumelus, and aye with the goad that he bore
 Smote he his horses most goodly—I saw them, saw
 gold-glitter deck
 Richly their bits ; and the midmost, the car-yoke who
 bore on their neck,
 Dappled were they, with a hair here and there like a
-snow-smitten fleck. [turning-post swept,
-They that in traces without round the perilous
+snow-smitten fleck.
+They that in traces without round the perilous turning-post swept,
 Bays were they, spotted their fetlocks: Peleides
 beside them on-leapt :
 Sheathed in his harness, unflagging by car-rail and
@@ -380,7 +381,8 @@ MENELAUS. Mine the right to speak is—mine before this fellow
 to be heard.
 
 AGAMEMNON. Wherefore dost thou strive with him, Menelaus, and
-by violence hale* [μεν. releases 0.8., who exit.
+by violence hale?
+_MEN. releases O.S., who exit._
 
 MENELAUS. Look me in the face, that I may make beginning of
 the tale.
@@ -392,7 +394,8 @@ MENELAUS. Seest thou this tablet—this, the bearer of a tale of
 shame ?
 
 AGAMEMNON. I behold it,—and from thine hand first do thou surrender it.
-MENELAUS [writ !
+MENELAUS.
+_writ!_
 Never, ere I show to all the Danaans that therein is
 
 AGAMEMNON. How ?—and didst thou break my seal, and know’st
@@ -425,18 +428,18 @@ artful tongue !
 MENELAUS. But the treacherous heart, to friends disloyal, is a
 hoard of wrong.
 I would question thee, and do not thou with spirit
-anger-jarred [over-hard.
-Fence aside from thee the truth, nor I will press thee
+anger-jarred
+Fence aside from thee the truth, nor I will press thee over-hard.
 Hast forgotten how thou fain wouldst lead the Greeks
 to Ilium’s shore,
 Feignedst not to wish the thing, but in thine heart
 didst crave it sore,
 How to all men wast thou lowly, clasping hands of
-amity, [to thee,
-Keeping open doors for whoso of the folk would seek
+amity,
+Keeping open doors for whoso of the folk would seek to thee,
 Bidding all accost thee freely, challenging the modest
-heart, [mart ?
-Seeking by thy shifts to buy advancement as in open
+heart,
+Seeking by thy shifts to buy advancement as in open mart?
 Ah, but when thy power was won, thou changedst all
 thy mien: no more
 Wast thou unto friends of days gone by a friend as
@@ -451,17 +454,17 @@ prosperity.
 First therein, where first I found thee base, I visit
 thee with blame.
 Then, when thou and all the host of Hellas unto Aulis
-came, [mayed,
-Nought wast thou, at Heaven’s visitation utterly dis-
+came,
+Nought wast thou, at Heaven’s visitation utterly dismayed,
 When the wafting breezes failed thee, when the sons
-of Danaus bade [in vain.
-Send the ships disbanded thence, nor toil at Aulis all
+of Danaus bade
+Send the ships disbanded thence, nor toil at Aulis all in vain.
 O thy rueful face, thy ’wildered eye, lest thou on
-Priam’s plain, [pour thy spears !
-Thou, the captain of a thousand galleys, ne’er shouldst
+Priam’s plain,
+Thou, the captain of a thousand galleys, ne’er shouldst pour thy spears !
 “What shall I do?” didst thou ask me. ‘“ What
-device, and whence, appears, [nown αὶ
-That of lordship I be not bereft, nor lose my fair re-
+device, and whence, appears,
+That of lordship I be not bereft, nor lose my fair renown?
 Then, when Calchas on the altar bade thee lay thy
 child’s life down
 Unto Artemis,—the Danaids so should sail,—with
@@ -473,22 +476,22 @@ that hitherward
 She should send thy child, as who should take
 Achilles for her lord :—
 Lo, the selfsame sky o’erhead which heard thee then
-record thy vow !— [message now,
-Now thou turn’st about, art found recasting that thy
+record thy vow !—
+Now thou turn’st about, art found recasting that thy message now,
 Saying thou wilt ne’er be slayer of thy child! So is
-it still— [flagging will
-Many and many a man is like thee, toileth with un-
+it still—
+Many and many a man is like thee, toileth with unflagging will
 Up the heights of power ; thereafter from its summit
-falls with shame, [themselves to blame,
-Some through blindness of the people, some be all
+falls with shame,
+Some through blindness of the people, some be all themselves to blame,
 They whose nerveless hands can ward the city not
-that they have won. {bemoan ;
-But, for me, ‘tis hapless Hellas most of all that I
+that they have won.
+But, for me, ‘tis hapless Hellas most of all that I bemoan ;
 Fain she is of high achievement, yet shall caitiff aliens
 make
 Her a mock, who ’scape her hands for thine and for
-thy daughter’s sake. [the land,
-Ne’er may I for kinship’s cause exalt a man to rule
+thy daughter’s sake.
+Ne’er may I for kinship’s cause exalt a man to rule the land,
 Nor to lead a host! He needeth wisdom who would
 men command ;
 For ’tis his to helm a nation who hath wit to understand.
@@ -509,31 +512,32 @@ This I cannot find thee: her thou gainedst, vilely
 ruledst thou.
 What ?—must I, who have not erred, for thy transgression suffer now ?
 Or doth mine advancement gall thee ?—nay, but one
-desire thou hast, [thou cast,
-In thine arms to clasp a lovely woman !—reason dost
+desire thou hast,
+In thine arms to clasp a lovely woman !—reason dost thou cast,
 Yea, and honour to the winds !—the pleasures of the
-vile are base. [place,
-I, who erst took evil counsel, if I now give wisdom
+vile are base.
+I, who erst took evil counsel, if I now give wisdom place,
 Am I mad? Nay rather thou, who, having lost an
 evil spouse,
 Wouldst re-win her, though thy loss be gain, God’s
 kindness to thy house.
 Those infatuate marriage-craving suitors swore an
-oath indeed [ Goddess, lead
-Unto Tyndareus ; yet these did Hope, I τον, the
+oath indeed
+Unto Tyndareus ; yet these did Hope, I trow, the Goddess, lead
 On, and brought it more to pass than thou and all
-thy strong control. [their soul !
-Lead them thou—O these are ready in the folly of
+thy strong control.
+Lead them thou—O these are ready in the folly of their soul !
 God is not an undiscerning judge ; his eyes are keen
 to try unrighteously.
 Oaths exacted by constraint, and troth-plight held
 "Tis not I will slay my children! Not in justice’s despite
 So shall thine avenging on a wife most wanton speed
-aright, [days of misery,
-While I waste through nights of weeping, pine through
+aright,
+While I waste through nights of weeping, pine through days of misery,
 For my lawless, godless dealing with the children born
-to me! [stood.
-Lo, mine answer, brief and clear, and easy tobe underIf thou turn from wisdom, yet shall mine house follow
+to me!
+Lo, mine answer, brief and clear, and easy to be understood.
+If thou turn from wisdom, yet shall mine house follow
 after good.
 
 CHORUS. This controverteth that thou saidst before ;
@@ -713,7 +717,7 @@ Passing, that Clytemnestra hear this not,
 Till I to Hades shall have sealed my child,
 That mine affliction be with fewest tears.
 And, stranger damsels, hold your peace thereof.
-[ Exeunt.
+_Exeunt._
 
 CHORUS. O well for them for whom the Queen
 Of Love shall temper passion’s fire,
@@ -1150,8 +1154,8 @@ ACHILLES. Farewell I bid thee too. I pass within
 Yonder pavilion now to seek thy lord.
 
 OLD SERVANT. Stranger, Aeacus’ scion, tarry thou: what ho, to
-thee I call [unto thee withal.
-Whom the Goddess bare !—and Leda’s daughter,
+thee I call
+Whom the Goddess bare !—and Leda’s daughter, unto thee withal.
 
 ACHILLES. Who through doors half-opened calleth ?—calleth
 with what fearful breath ?
@@ -1282,22 +1286,25 @@ ACHILLES. Wroth am I against thy lord: I count it not a little
 thing.
 
 CLYTEMNESTRA. I will not think shame to bow me down unto thy knees
-to cling,— [pride to me?
-Mortal unto child of Goddess:—what is matronLo, for whom above my daughter should I labour in-
-stantly ? [pair
-Ah, be thou, O goddess-born, protector unto my desAnd unto the maiden named thy bride, all vainly though
-it were. [bride I came—
-All for thee I wreathed her; leading her to be thy
+to cling,—
+Mortal unto child of Goddess:—what is matron-pride to me?
+Lo, for whom above my daughter should I labour in-
+stantly?
+Ah, be thou, O goddess-born, protector unto my despair
+And unto the maiden named thy bride, all vainly though
+it were.
+All for thee I wreathed her; leading her to be thy bride I came—
 Came to slaughter leading her !—on thee shall fall
-reproach’s shame, {linked in marriage-ties,
-Who didst shield her not ; for though ye ne’er were
+reproach’s shame,
+Who didst shield her not ; for though ye ne’er were linked in marriage-ties,
 Yet the hapless maiden’s husband wast thou called in
-_ any wise. [deity !|—
-By thy beard I pray, thy right hand, by thy mother’s
-Since thy name was mine undoing, see thy name untarnished be. [tress.
-Altar have I none to flee to, save thy knee, in my disNota friend is near. Of Agamemnon’s cruel reckless-
-ness [dost behold,—
-Thou hast heard; and I am come—a woman, as thou
+any wise.
+By thy beard I pray, thy right hand, by thy mother’s deity !—
+Since thy name was mine undoing, see thy name untarnished be.
+Altar have I none to flee to, save thy knee, in my distress.
+Not a friend is near. Of Agamemnon’s cruel reckless-
+ness
+Thou hast heard; and I am come—a woman, as thou dost behold,—
 Unto this array of seafolk, lawless, and to evil bold,
 Yet, so they be willing, strong to help. If thou but
 dare extend
@@ -1818,8 +1825,8 @@ CLYTEMNESTRA. Wherefore so?
 IPHIGENEIA. With shame the misery of my bridal crusheth me.
 
 CLYTEMNESTRA. Not in plight for dainty shrinking art thou when ’tis
-thus with thee. [but may—
-Tarry then: no time is this for maiden pride, if we
+thus with thee.
+Tarry then: no time is this for maiden pride, if we but may—
 Hapless woman, child of Leda !—
 
 CLYTEMNESTRA. Truly “ hapless” named this day!
@@ -1916,41 +1923,42 @@ CLYTEMNESTRA. If this may save her, slain she shall not be.
 ACHILLES. Ay, and surely unto this it will come.
 
 IPHIGENEIA. Mother,—to my word
-| Hearken ye !—against thine husband I behold thee
-anger-stirred [brave.
-Causelessly : *twere hard for us inevitable doom to
-_ Meet it is we thank the stranger-hero for his will to
-save. [beware ;
-Yet, that he be not reproached of Hellas’ host must we
+Hearken ye !—against thine husband I behold thee
+anger-stirred
+Causelessly : ’twere hard for us inevitable doom to brave.
+Meet it is we thank the stranger-hero for his will to
+save.
+Yet, that he be not reproached of Hellas’ host must we beware ;
 So should ruin seize him, and ourselves in no wise
-better fare. [thought hereon.
-Hear the thing that flashed upon me, mother, as |
+better fare.
+Hear the thing that flashed upon me, mother, as thought hereon.
 Lo, resolved I am to die; and fain am I that this be
-done [away.
-Gloriously—that I thrust ignoble craven thoughts
+done
+Gloriously—that I thrust ignoble craven thoughts away.
 Prithee, mother, this consider with me: mark how well
 I say.
 Unto thee all mighty Hellas looks: I only can bestow
 Boons upon her—sailing of her galleys, Phrygia’s overthrow,
 Safety for her daughters from barbarians in the days to
-come, [happy home,
-That the ravisher no more may snatch them from a
+come,
+That the ravisher no more may snatch them from a happy home,
 When the penalty is paid for Paris’ outrage, Helen’s
-shame. [my name,
-All this great deliverance I in death shall compass, and
-As of one who gave to Hellas freedom, shall be blessing-crowned. [should be found?
-Must I live, that clutching life with desperate hand I
+shame.
+All this great deliverance I in death shall compass, and my name,
+As of one who gave to Hellas freedom, shall be blessing-crowned.
+Must I live, that clutching life with desperate hand I should be found?
 For the good of Hellenes didst thou bear me, not for
-thine alone. [bosom thrown,—
-Lo, how countless warriors with the shield before the
+thine alone.
+Lo, how countless warriors with the shield before the bosom thrown,—
 Myriads, now the fatherland is wronged, with strenuous
-oar in hand,— [land.
-All will fear not to encounter foes, to die for Hellas And shall all be thwarted, baffled by the life of one—
-of me? [for answering plea ?
-Where were justice here ?—and what can I set forth
+oar in hand,—
+All will fear not to encounter foes, to die for Hellas land.
+And shall all be thwarted, baffled by the life of one—
+of me?
+Where were justice here ?—and what can I set forth for answering plea ?
 Turn we now to this thing also :—never ought this
-man to make [sake!
-War on all the Argives, no, nor perish—for a woman's
+man to make
+War on all the Argives, no, nor perish—for a woman’s sake!
 Worthier than ten thousand women one man is to look
 on light.
 Lo, if Artemis hath willed to claim my body as her
@@ -1959,11 +1967,11 @@ What, shall I, a helpless mortal woman, thwart the
 will divine?
 Nay, it cannot be. My body unto Hellas I resign.
 Sacrifice me, raze ye Troy ; for this through all the
-ages is [in this !
-My memorial: children, marriage, glory—all are mine
-Right it is that Hellenes rule barbarians,not that alien
-yoke [freeborn folk.
-Rest on Hellenes, mother. They be bondmen, we be
+ages is
+My memorial: children, marriage, glory—all are mine in this !
+Right it is that Hellenes rule barbarians, not that alien
+yoke
+Rest on Hellenes, mother. They be bondmen, we be freeborn folk.
 
 CHORUS. Noble the part thou playest, maiden, is :
 But Fate and Artemis—ill part is theirs!
@@ -1999,7 +2007,8 @@ _ Thou mayst, even thou, unto mine offer turn,
 When thou beholdest at thy throat the knife.
 Thou shalt not through a hasty impulse die.
 No, with these arms will I unto the shrine,
-And for thy coming thither will I wait. [ Exit.
+And for thy coming thither will I wait.
+_Exit._
 
 IPHIGENEIA. Mother, why art thou weeping silently ?
 
@@ -2113,7 +2122,8 @@ Hail, Day in whose hands doth the World’s Torch
 shine!
 In a strange new life must I dwell,
 And a strange new lot must be mine.
-Farewell, dear light, farewell! [ Exit.
+Farewell, dear light, farewell!
+_Exit._
 
 CHORUS. See who, for Ilium’s, Phrygia’s, overthrowing,
 With her fair hair for death bestarred with flowers,
