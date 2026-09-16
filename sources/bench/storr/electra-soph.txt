@@ -5,9 +5,9 @@ Was Captain of the host that leaguered Troy,
 Tis thine at last to view before thee spread
 The scene thy heart was set on. Yonder lies
 Old Argos thou so long hast yearned to see,
-Once refuge of the gadfly-driven maid,1
+Once refuge of the gadfly-driven maid[1],
 Daughter of Inachus; and, Orestes, here
-The market-place from the Wolf-slayer2 named ;
+The market-place from the Wolf-slayer[2] named ;
 There on our left is Hera’s far-famed shrine ;
 And lo! before us, at our very feet
 Thou seest Mycenae of the golden hoard,
@@ -20,11 +20,6 @@ To be the avenger of thy father’s blood.
 But now, Orestes, and thou, Pylades,
 Dearest of friends, the hour for you is ripe
 To take resolve and that right speedily.
-1 Inachus, the river god, was the legendary founder of
-Argos, whither his daughter Io, changed by the jealous
-Hera into cow, was driven in her wanderings.
-2 Apollo Luketos, the god of light, but by folk-etymology
-connected with λύκος, wolf.
 For lo, already the bright beams of day
 Waken to melody the pipe of birds,
 And black night with her glimmering stars has
@@ -248,6 +243,29 @@ For if to dust and nothingness the dead
 Are doomed, nor blood for blood be shed,
 Farewell to sanctities of law,
 Farewell to reverence and awe.
+
+ELECTRA. Bitter constraint compelled me, and I know
+My heart with wrath did overflow;
+But never while life lasts will I control,
+Thus wronged, the indignant passion of my soul.
+Ye mean me well, but solace is there none
+For woes like mine, so all who know must own.
+Forbear, kind comforters, forbear; be sure
+A case so desperate admits no cure.
+What respite to my sorrows, what relief?
+No tears, no moans, can satisfy such grief.
+
+CHORUS. O heap not misery on misery,
+As a fond mother I would plead with thee.
+
+ELECTRA. No, for this villainy grows and knows no bound.
+Where can a race be found
+So vile as they, to disregard the dead?
+By praise of such men I were ill bestead.
+O may I ne’er, if fate should on me smile,
+In careless ease sad memories beguile,
+Clipping the pinions of my mournful song,
+The dirges due that to my sire belong.
 
 CHORUS. I came in thy behalf no less than mine,
 Daughter, but if my words displease thee, well,
@@ -494,7 +512,7 @@ To crown her murdered victim’s sepulchre.
 Think’st thou ‘tis likely that her buried lord
 Will take these honours kindly at her hands
 Who slew him without pity like a foe,
-Mangled 1 his corse, and for ablution washed
+Mangled[3] his corse, and for ablution washed
 The bloodstains on his head? Say, is it like
 These gifts will purge her of blood-guiltiness ?
 It cannot be. Fling them away and cut
@@ -518,9 +536,6 @@ Wilt do her bidding, if thou art discreet.
 
 CHRYSOTHEMIS. I will. When duty calls, ’twere lack of sense
 For two to wrangle; both should join to act.
-1 The full meaning is ‘‘to cut off the hands and feet and
-suspend them to the armpits.” This was done to prevent
-the victim from taking vengeance.
 Only when I essay this perilous task,
 Be silent, an you love me, friends, for if
 My mother hears of it, I shall have cause
@@ -567,11 +582,7 @@ Died by my hand, aye mine, I know it well,
 ‘Tis true beyond denial ; yet not I,
 Not I alone, but Justice slew him too:
 And thou shouldst side with Justice, wert thou wise.
-This sire of thine for whom thy tears still flow
-1 The charioteer of Oenomaiis, In the race for the hand
-of Hippodameia, the king’s daughter, he betrayed his master
-by removing a linch-pin. Pelops won the race, but afterwards for an insult offered to his wife, he hurled into the
-sea Myrtilus, who invoked a dying curse on the house.
+This sire of thine for whom thy tears still flow[4]
 Alone of all the Greeks could steel his heart
 To yield thy sister as a sacrifice ;
 A father who begat her and ne’er felt
@@ -900,7 +911,7 @@ That they we know for dead may be alive ;
 Ye trample on a bleeding heart.
 
 CHORUS. Nay, I bethink me how
-The Argive seer! was swallowed up,
+The Argive seer[5] was swallowed up,
 Snared by a woman for a golden chain,
 And now in the nether world—
 
@@ -913,10 +924,6 @@ ELECTRA. Ah woe!
 CHORUS. Aye woe! for the murderess—
 
 ELECTRA. Was slain.
-1 Amphiaraus. Induced by his wife Eriphyle to join the
-expedition of Polyneices against Argos, he was swallowed up
-by an earthquake. His son (like Orestes) avenged his father
-and Amphiaraus was honoured as an earth-god.
 
 CHORUS. Aye, slain.
 
@@ -1888,3 +1895,10 @@ CHORUS. House of Atreus ! thou hast passed
 Through the fire and won at last
 Freedom, perfected to-day
 By this glorious essay.
+
+Footnotes:
+[1] Inachus, the river god, was the legendary founder of Argos, whither his daughter Io, changed by the jealous Hera into cow, was driven in her wanderings.
+[2] Apollo Luketos, the god of light, but by folk-etymology connected with λύκος, wolf.
+[3] The full meaning is ‘‘to cut off the hands and feet and suspend them to the armpits.” This was done to prevent the victim from taking vengeance.
+[4] The charioteer of Oenomaiis, In the race for the hand of Hippodameia, the king’s daughter, he betrayed his master by removing a linch-pin. Pelops won the race, but afterwards for an insult offered to his wife, he hurled into the sea Myrtilus, who invoked a dying curse on the house.
+[5] Amphiaraus. Induced by his wife Eriphyle to join the expedition of Polyneices against Argos, he was swallowed up by an earthquake. His son (like Orestes) avenged his father and Amphiaraus was honoured as an earth-god.

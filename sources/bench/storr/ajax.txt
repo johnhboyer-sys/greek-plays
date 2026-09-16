@@ -531,7 +531,7 @@ CHORUS. How to restrain or how to let thee speak
 I cannot tell; beset by endless woes.
 
 AJAX. Ay me! Whoe’er had thought how well my name
-Would fit my misery? Ay me! Ay me !1
+Would fit my misery? Ay me! Ay me[1] !
 Yea, twice and thrice may I repeat the wail
 That syllables my woe-begone estate.
 My sire, a peerless warrior, home returned
@@ -552,8 +552,6 @@ And wrested from its purpose, they had never
 Procured false sentence ’gainst a second man.
 Alas! the grim-eyed goddess, unsubdued
 Daughter of Zeus—as I was at their heels,
-1 Like Shakespeare’s ‘Gaunt’ (Richard IZ, II, i) he plays
-on his name Aas.
 Almost at grips with them, in act to strike—
 Foiled me, abused me by a frenzy fit,
 Imbrued my hands with blood of these poor beasts.
@@ -703,7 +701,7 @@ That he may comfort their old age till death.
 And for my arms, let no Greek arbiter
 Of games (so bid him) nor my venomous foe
 Set them as prize for the Achaean host.
-But this, the shield from which thou took’st thy name,!
+But this, the shield from which thou took’st thy name[2],
 Take this, my son, this sevenfold, spear-proof targe,
 Take it and wield it by the close-stitched thongs.
 My other arms shall lie with me interred.
@@ -712,7 +710,6 @@ Nor at the tent side moan and make lament.
 In sooth a woman is a tearful thing.
 Quick, make all fast: ’tis not a skilful leech
 Who mumbles charms o’er ills that need the knife.
-1 Eurysaces means ‘ broad shield.’
 
 CHORUS. I tremble as I mark this eager haste :
 Thy words are sharp as swords and like me not.
@@ -1050,8 +1047,7 @@ SEMI-CHORUS 1. Found, say you!
 SEMI-CHORUS 2. Of moil enow, of what we sought no trace.
 
 SEMI-CHORUS 1. No better luck to the eastward ; on the road
-That fronts the sunrise not a trace of him.
-1 Or, ‘No spot can tell me of his presence there.’
+That fronts the sunrise not a trace of him[3].
 
 CHORUS. O that some toiling fisher by the bay,
 Dragging his nets all night,
@@ -1247,7 +1243,7 @@ Was fated in the end to be thy death?
 Look on the fortunes of the two, I pray ye:
 Hector, who by the very belt he wore,
 A gift from Ajax, lashed to the car-rail
-Was dragged and mangled till his ghost expired ;1
+Was dragged and mangled till his ghost expired[4] ;
 And this the sword whose murderous edge transfixed
 The Side of Ajax—this was Hector’s gift.
 Say, was it not some Fury forged this blade,
@@ -1270,8 +1266,6 @@ TEUCER. "Tis he, not hard to recognise thus near.
 
 MENELAUS. Stop, sirrah, bear no hand in raising up
 The corse, I charge thee ; leave it where it lies.
-1 Homer knows nothing of the belt and it is the dead
-Hector who is dragged round the tomb of Patroclus.
 
 TEUCER. Wherefore dost waste thy breath in these proud
 words ?
@@ -1339,7 +1333,7 @@ Whilst thou art what thou art, I care no straw.
 CHORUS. This speech again mislikes me in the midst
 Of woes ; hard words, how just soever, wound.
 
-MENELAUS. Methinks this archer! hath a captain’s pride.
+MENELAUS. Methinks this archer[5] hath a captain’s pride.
 
 TEUCER. Aye, as the master of no vulgar art.
 
@@ -1351,9 +1345,6 @@ In panoply.
 MENELAUS. How valorous with thy tongue !
 
 TEUCER. He can be bold who hath his quarrel just.
-1 ‘Archer’ like ‘ranker’ by itself is a term of reproach.
-In the Iliad Teucer is the best bowman in the Achaean
-host, but also a good man-at-arms.
 
 MENELAUS. Justice quotha, to exalt my murderer?
 
@@ -1568,12 +1559,7 @@ Am I to shame my kindred overthrown,
 Now helpless, whelmed in utter misery,
 Whom thou wouldst spurn and rob of burial rites,
 Nor art ashamed to promulgate this ban?
-Know this full well, where’er ye cast this man,
-1 An allusion to the story of Cresphontes who after the
-Dorian Conquest agreed to cast lots for his share of the
-Peloponnese and in order to secure the last lot, which he
-coveted, put a lump of clay into the urn instead of a
-potsherd.
+Know this full well, where’er ye cast this man[6],
 We three, three corpses, ye will cast beside.
 For me ’twere nobler before all men’s eyes
 To fall in his behalf than for a wife
@@ -1741,3 +1727,11 @@ CHORUS. Wisdom still by seeing grows,
 But no man the unseen knows.
 Shall he fare or ill or well
 Who of mortals can foretell ?
+
+Footnotes:
+[1] Like Shakespeare’s ‘Gaunt’ (Richard IZ, II, i) he plays on his name Aas.
+[2] Eurysaces means ‘ broad shield.’
+[3] Or, ‘No spot can tell me of his presence there.’
+[4] Homer knows nothing of the belt and it is the dead Hector who is dragged round the tomb of Patroclus.
+[5] ‘Archer’ like ‘ranker’ by itself is a term of reproach. In the Iliad Teucer is the best bowman in the Achaean host, but also a good man-at-arms.
+[6] An allusion to the story of Cresphontes who after the Dorian Conquest agreed to cast lots for his share of the Peloponnese and in order to secure the last lot, which he coveted, put a lump of clay into the urn instead of a potsherd.

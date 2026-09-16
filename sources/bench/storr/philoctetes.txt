@@ -54,6 +54,23 @@ Dank with the ooze of some malignant sore.
 
 ODYSSEUS. This clearly is his dwelling-place, and he
 Hard by, for how could any travel far
+Thus maimed and hobbled by an ancient wound?
+Either in quest of food, or else to find
+Some simples known to him as anodynes,
+He’s gone abroad, and shortly will return;
+So post thy henchman there to watch the path,
+Lest he surprise me. I of all the Greeks
+Am the one foe he liefest here would catch.
+
+NEOPTOLEMUS. Guard shall be kept; my man is on his way;
+And now if thou hast more to say, say on.
+[Exit ATTENDANT.]
+
+ODYSSEUS. Son of Achilles, not in thews alone
+Or prowess must thou prove thy breed to-day.
+If tasks be set thee that seem strange, no less
+Thou must perform them; therefore wast thou sent.
+
 It will not hurt me, but if thou should’st fail
 ‘Twill sorely vex the Argives one and all.
 This man’s artillery we needs must have ;
@@ -222,7 +239,7 @@ His interminable groans.
 NEOPTOLEMUS. Nothing strange I see in this.
 By heaven ordained (if not amiss
 I augur) comes this punishment,
-By the unpitying Chrysé! sent ;
+By the unpitying Chrysé[1] sent ;
 And what he suffers now must be
 Designed by some wise deity,
 Lest too soon ’gainst Troy should go
@@ -240,8 +257,6 @@ Or here? ’Tis nearer now, I look around,
 The footfall of a laboured tread grows clear ;
 And now, though distant still, I catch a cry
 Distinct, the voice of human agony.
-1 The nymph by whose guardian serpent Philoctetes was
-bitten. See 1. 1326.
 
 CHORUS. Bethink thee, Prince.
 
@@ -423,11 +438,10 @@ There lay my sire in death, and I, poor fool,
 When I had mourned for him a while, betook me
 To the Atridae as my natural friends,
 Claiming my sire’s arms and what else was his.
-O ’twas a sorry answer that they made:
+O ’twas a sorry answer that they made[2]:
 “‘ Child of “Achilles, all that was thy sire’s
 Is thine and welcome—all except his arms ;
 These to Laertes’ son have been assigned.”
-1 Phoenix,
 I wept, I started to my feet in wrath,
 And bitterly I spake, “ O tyrannous men,
 How dare ye give these arms, my own by right,
@@ -458,15 +472,12 @@ CHORUS. O mother Earth, enthronèd on the hills,
 Mother of Zeus himself, who feedest all ;
 From thee Pactolus draws his brimming rills,
 His “golden sands; Mother, to thee I call,
-1 According to the tradition that Ovid followed (Met.
-18. 284) Odysseus rescued the body and arms of Achilles
-from the fray.
 As once I called when, flushed with upstart pride,
 The fierce Atridae ’gainst my master raged,
 (O lady who on yoked lions doth ride,
 Their bloody ravening by thee assuaged,)
 What time the tyrants to Laertes’ son
-The guerdon gave, those arms his sire had won.
+The guerdon gave, those arms his sire had won[3].
 
 PHILOCTETES. Good sirs, ye bring me as a talisman,
 A common grief; a plaint attuned to mine.
@@ -758,7 +769,7 @@ SAILOR. That’s not for me to say, I must be going
 To join my ship. Farewell, and may the gods
 Be with you both and order all things well.
 
-PHILOCTETES. What say’st thou, boy? That he, Laertes’ son,
+PHILOCTETES. What say’st thou, boy? That he, Laertes’ son[4],
 Should think to wheedle me aboard his ship,
 And make a show of me to the Greek host !
 Is it not monstrous? Sooner would I heed
@@ -782,9 +793,6 @@ Of pillaging or robbery under arms.
 
 NEOPTOLEMUS. Well, as thou will’st, we'll sail; but from the cave
 Take anything thou needest or dost prize.
-1 Sisyphus, the reputed father of Odysseus, ordered his
-wife to leave his body unburied and so obtained leave from
-Pluto to return to earth in order to punish her impiety.
 
 PHILOCTETES. My store is scant, but certain things I need.
 
@@ -821,7 +829,7 @@ For when I lay beneath my enemies’ heel,
 It shall be thine to handle and return ;
 Fear not, and thou shalt boast that thou alone
 Of mortals, for thy worth, hast handled it.
-‘Twas for a service done it came to me.!
+‘Twas for a service done it came to me.[5]
 
 NEOPTOLEMUS. ‘Tis pleasant to have found and proved a friend ;
 For him who good for good returns I hold
@@ -847,7 +855,6 @@ Hearing the breakers gride the cold grey stones,
 Himself for neighbour to himself he groans ;
 Limping with crippled feet,
 He treads his weary beat ;
-1 For kindling the funeral-pyre of Heracles on Mount Oeta
 No comrade by
 To give him sigh for sigh,
 No friend in whose responsive ear to pour
@@ -1268,7 +1275,7 @@ Drag me by force?
 ODYSSEUS. Yea, if thou’lt not consent,
 
 PHILOCTETES. O Lemnian land, O all-subduing fires
-Lit by Hephaestus,! will ye suffer it,
+Lit by Hephaestus[6], will ye suffer it,
 That yonder man should hale me from your realm?
 
 ODYSSEUS. ‘Tis Zeus, I tell thee, Zeus who rules this land,
@@ -1285,9 +1292,6 @@ ODYSSEUS. But I say yes; consent thou must.
 
 PHILOCTETES. Oh I was born to sorrow, so it seems ;
 No free man but a slave my sire begot.
-1 Lemnos was the island on which Hephaestus fell when
-hurled from heaven (77. i. 593) and Moschylus on the east
-coast seems to have been an active volcano in historic times.
 
 ODYSSEUS. Nay, but a peer of paladins, ordained
 To storm proud Troy and lay it in the dust.
@@ -1351,11 +1355,7 @@ Their ruin, I should half forget my plague.
 CHORUS. His mood is bitter, bitter his reply
 To thee, Odysseus ; suffering tames him not.
 
-ODYSSEUS. Much could I answer, did the time permit ;
-1 Odysseus to escape service feigned madness but was
-detected by Palamedes, who laid the infant Telemachus in
-front of the plough which he was driving with a yoked
-ox and ass,
+ODYSSEUS. Much could I answer, did the time permit[7] ;
 One word must now suffice. I am a man
 Who can adapt his humour to the hour.
 When justice and plain-dealing are required,
@@ -1809,6 +1809,34 @@ NEOPTOLEMUS. Why should a man feel fear who helps his friends?
 Who judged Odysseus of thy father’s arms
 More worthy than the hapless Ajax.
 
+PHILOCTETES. Help for the sons of Atreus, or for me?
+
+NEOPTOLEMUS. For thee, as these my words attest, thy friend.
+
+PHILOCTETES. A friend, when thou would’st hand me to my foes?
+
+NEOPTOLEMUS. O let not suffering make thee truculent.
+
+PHILOCTETES. I know thou would’st undo me pleading thus.
+
+NEOPTOLEMUS. Not I, but thou thyself, who wilt not learn.
+
+PHILOCTETES. Do I not know the Atridae cast me forth?
+
+NEOPTOLEMUS. ’Tis true, but now they would deliver thee.
+
+PHILOCTETES. Not with my will, if first I must to Troy.
+
+NEOPTOLEMUS. What must I do, if all persuasion fails
+To make thee budge an inch? ’Twere easier
+To cease from words and leave thee here to live,
+As thou hast lived, a hopeless castaway.
+
+PHILOCTETES. Well, let me dree my weird; but thou, my son,
+Perform the promise made with clasp of hands,
+Take me straight home, and talk no more of Troy.
+My cup of lamentations I have drained.
+
 NEOPTOLEMUS. As thou wilt then ; let us forward.
 
 PHILOCTETES. Nobly spoken, let us go.
@@ -1906,3 +1934,12 @@ CHORUS. Let us to the Sea Nymphs pray
 To waft us on our Troy-ward way.
 Mariners, attend my call ;
 Let us voyage, one and all.
+
+Footnotes:
+[1] The nymph by whose guardian serpent Philoctetes was bitten. See 1. 1326.
+[2] Phoenix,
+[3] According to the tradition that Ovid followed (Met. 18. 284) Odysseus rescued the body and arms of Achilles from the fray.
+[4] Sisyphus, the reputed father of Odysseus, ordered his wife to leave his body unburied and so obtained leave from Pluto to return to earth in order to punish her impiety.
+[5] For kindling the funeral-pyre of Heracles on Mount Oeta
+[6] Lemnos was the island on which Hephaestus fell when hurled from heaven (77. i. 593) and Moschylus on the east coast seems to have been an active volcano in historic times.
+[7] Odysseus to escape service feigned madness but was detected by Palamedes, who laid the infant Telemachus in front of the plough which he was driving with a yoked ox and ass,

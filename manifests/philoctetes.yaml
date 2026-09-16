@@ -37,7 +37,7 @@ english:
     format: loeb-ocr
     source: bench/storr/philoctetes.txt
     play: PHILOCTETES
-    footnotes: false
+    footnotes: true
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
