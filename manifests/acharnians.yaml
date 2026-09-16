@@ -44,6 +44,11 @@ english:
       - { greek: "1078", english: "Ah! the Generals! they are numerous, but not", run: 1 }
       - { greek: "1085", english: "Dicaeopolis!", run: 1 }
       - { greek: "1085", english: "What is the matter? Come quickly to the feast", run: 40 }
+      # Round 5: the 1132-1139 corselet stichomythia alternates Lamachus/Dicaeopolis
+      # with near-equal line lengths and no bridge (the primary IS this column), so a
+      # two-speech shift costs the DP 0.13 less than the true reading; this run holds
+      # 1132-1137 to their own speeches so the covered entries above land.
+      - { greek: "1132", english: "Slave, full war armour.", run: 6 }
       - { greek: "1140", english: "Slave, take up the buckler and let's be off.", run: 1 }
       - { greek: "1142", english: "Take up the basket, 'tis a question of getting to the feast.", run: 1 }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
