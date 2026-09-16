@@ -51,6 +51,12 @@ english:
       - { greek: "81", english: "Well then, says Nicostratus of the Scambonian deme, he either", run: 1 }
       - { greek: "83", english: "Ah! great gods! no, he is not fond of strangers, Nicostratus", run: 1 }
       - { greek: "143", english: "By Zeus! what is that noise in the chimney?", run: 1 }
+      # Round 5: the 1912 text runs 146-151 and 152 into one 468-char Bdelycleon
+      # speech. In the seven-node region the pins at 143/156 carve out, the
+      # position term alone (no bridge -- this column IS the primary) pulls that
+      # speech onto 152's third share and leaves 145b and 146 bare; this holds
+      # them to their own speeches so `152 by 146` above resolves.
+      - { greek: "145", english: "Of fig-wood.", run: 2 }
       - { greek: "211", english: "And how that we have driven him in thoroughly", run: 1 }
       - { greek: "228", english: "Have no fear! If I can find stones to throw", run: 1 }
       - { greek: "77", english: "No, yet love is indeed the principal part", run: 1 }
