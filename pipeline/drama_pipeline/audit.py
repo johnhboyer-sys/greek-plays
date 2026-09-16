@@ -18,9 +18,11 @@ import json
 import re
 import sys
 import time
+import unicodedata
 from pathlib import Path
 
 from .config import BUILD_DIR, REPO_ROOT, SOURCES_DIR, Manifest
+from .stage1_turn_english import _SPEAKER_LINE
 
 AUDIT_DIR = BUILD_DIR / "audit"
 MANIFESTS_DIR = REPO_ROOT / "manifests"
@@ -34,6 +36,18 @@ _STRAY_NOTE_LINE_RE = re.compile(r"^[1-9]\d*\s[A-Za-z]")
 _CAPS_RUN_RE = re.compile(r"[A-Z]{3,}")
 _GLUED_DIGIT_RE = re.compile(r"[A-Za-z]\d|\d[A-Za-z]")
 _ALLOWED_NON_ASCII = "’‘“”—–…"
+
+
+def _is_accented_latin(ch: str) -> bool:
+    """True for a combining diacritical mark or a Latin letter carrying one
+    (`cursèd`, `wingèd`, `Cyllené`, `Phaéthon`): ordinary English verse
+    spelling, not scan noise (review finding 9)."""
+    category = unicodedata.category(ch)
+    if category == "Mn":
+        return True
+    if category.startswith("L") and "LATIN" in unicodedata.name(ch, ""):
+        return True
+    return False
 
 
 def _fold(text: str) -> str:
@@ -321,8 +335,16 @@ def section_cues_in_speech(columns: list[dict], roster: list[str]) -> tuple[str,
             is_caps_cue = bool(re.match(r"^[A-Z][A-Z .]{1,30}\.$", s)) and any(
                 folded in rf or rf in folded for rf in roster_folds
             )
-            if is_short_fold or is_caps_cue:
-                rows.append([col["id"], i, s[:80]])
+            if not (is_short_fold or is_caps_cue):
+                continue
+            # A line the model's own parser (`_parse_as_speeches`) already
+            # recognises as a standalone speaker cue is a genuine cue, not
+            # one embedded inside a speech -- excluded here (review finding
+            # 8: nine genuine cues in Alcestis were reported as defects).
+            speaker_match = _SPEAKER_LINE.match(s)
+            if speaker_match and not (speaker_match.group("rest") or "").strip():
+                continue
+            rows.append([col["id"], i, s[:80]])
     table, total = _table(headers, rows)
     return table, total
 
@@ -371,7 +393,10 @@ def section_scan_noise(columns: list[dict]) -> tuple[str, int]:
                 for tok in re.findall(r"[A-Za-z']+", s)
             ):
                 reason = "3+ consecutive capitals inside a word"
-            elif any(ch for ch in s if ord(ch) > 127 and ch not in _ALLOWED_NON_ASCII):
+            elif any(
+                ch for ch in s
+                if ord(ch) > 127 and ch not in _ALLOWED_NON_ASCII and not _is_accented_latin(ch)
+            ):
                 reason = "non-Latin glyph"
             if reason:
                 rows.append([col["id"], i, s[:80], reason])
@@ -480,7 +505,10 @@ def build_sheet(work_id: str, dist_dir: Path, stage1_dir: Path, manifest: Manife
         "\n\n## 7. Scan noise\n", scan_table,
         "\n\n## 8. Footnotes\n", foot_table,
         "\n\n## 9. Verse shape\n", verse_table,
-        "\n\n## 10. Line count\n", line_table,
+        "\n\n## 10. Line count\n",
+        "Coarse total, not a coverage check: a ratio near 1.00 can still hide "
+        "a page-sized gap offset by excess elsewhere (review finding 9).\n\n",
+        line_table,
         "\n",
     ]
     totals = {

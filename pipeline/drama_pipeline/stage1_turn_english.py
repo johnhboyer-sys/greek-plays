@@ -440,6 +440,25 @@ _GUTENBERG_ITALICS = re.compile(r"_([^_\n]{1,200}?)_")
 # verse-own-line format, and marked the same way in the chunk text.
 _DIRECTION = re.compile(r"^_([^_\n]+)_$", re.M)
 
+# The Loeb bench's own bracket convention for a restored direction on a line
+# of its own, `[Enter TECMESSA.]` / `[Exeunt.]` (Sol review finding 4,
+# 2026-09-16): a whole printed line inside `[...]`, with an optional period
+# after the closing bracket.
+_BRACKET_DIRECTION = re.compile(r"^\[(.+)\]\.?$")
+
+
+def _loeb_direction(s: str) -> str | None:
+    """A whole-line direction in either the Loeb bench's `[...]` form or the
+    `_..._` form -- the text inside, brackets/underscores stripped -- or
+    ``None`` if ``s`` is not one."""
+    m = _DIRECTION.match(s)
+    if m:
+        return m.group(1)
+    m = _BRACKET_DIRECTION.match(s)
+    if m:
+        return m.group(1)
+    return None
+
 
 def _add_direction(found: list[list], at: int, text: str) -> None:
     # Consecutive `_..._` lines are one direction printed over several lines.
@@ -503,18 +522,31 @@ def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
 
 
 def _parse_as_speeches(
-    lines: list[str], start: int, known_names: set[str], verse: bool = False
+    lines: list[str],
+    start: int,
+    known_names: set[str],
+    verse: bool = False,
+    pending: list[str] | None = None,
 ) -> tuple[list[dict], int]:
     speeches: list[dict] = []
     parts: list[str] = []
     speaker = ""
+    # Directions read while the speech now open was being built: they are
+    # not that speech's text (Sol review finding 4) but the *next* one's
+    # `directions_before` -- `pending` seeded from `parse_play_speeches` is
+    # this speech's own.
+    directions_before: list[str] = []
+    pending = list(pending or [])
     i = start
     end_i = len(lines)
 
     def flush() -> None:
         text = _join_parts(parts, verse)
         if speaker and text:
-            speeches.append({"speaker_printed": speaker, "text": text})
+            speech = {"speaker_printed": speaker, "text": text}
+            if directions_before:
+                speech["directions_before"] = list(directions_before)
+            speeches.append(speech)
 
     while i < len(lines):
         raw = lines[i]
@@ -531,6 +563,11 @@ def _parse_as_speeches(
         if _is_play_end(s) or _is_gutenberg_end_line(raw):
             end_i = i
             break
+        direction = _loeb_direction(s)
+        if direction is not None:
+            pending.append(direction)
+            i += 1
+            continue
         m = _SPEAKER_LINE.match(raw)
         if m and _ROMAN_NUMERAL.fullmatch(m.group("name").strip()):
             # "I. The Nemean Lion": a numbered heading inside a speech (Way's
@@ -542,6 +579,8 @@ def _parse_as_speeches(
             flush()
             speaker = m.group("name").strip() if m else periodless[0]
             parts = []
+            directions_before = pending
+            pending = []
             if m:
                 for mark in (m.group("fn1"), m.group("fn2"), m.group("fn3")):
                     if mark:
@@ -670,7 +709,15 @@ def parse_play_speeches(
     title_i = _locate_title(lines, title)
     if format == "loeb-ocr":
         start = _body_start(lines, title_i, lindsay=False, known_names=known_names)
-        speeches, end_i = _parse_as_speeches(lines, start, known_names, verse)
+        # A direction before the first speaker cue (Way's Suppliants opens on
+        # one) has no speech of its own to sit inside; seed it as the first
+        # speech's `directions_before` (Sol review finding 4).
+        opening = [
+            d
+            for d in (_loeb_direction(line.strip()) for line in lines[title_i + 1 : start])
+            if d is not None
+        ]
+        speeches, end_i = _parse_as_speeches(lines, start, known_names, verse, pending=opening)
         notes = _parse_notes(lines, end_i, title)
         return speeches, notes
     if format == "verse-own-line":

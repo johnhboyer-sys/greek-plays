@@ -980,8 +980,7 @@ If we would save a man who hastes to death.
 
 CHORUS. Ready am I; not words alone shall prove,
 But speed of act and foot, my readiness. [Exeunt.
-[AJAX alone on the sea-shore, planting his sword in the
-ground.]
+[AJAX alone on the sea-shore, planting his sword in the ground.]
 
 AJAX. The slayer standeth where his stroke is sure ;
 If I have time to muse thus curiously.
@@ -1428,7 +1427,7 @@ Deathless in men’s memory.
 TEUCER. Lo! in good time I see his child and wife
 Draw near to tend the hero’s obsequies.
 Come hither, child, and take thy place beside him
-And lay, in suppliant guise, thy hand in his,
+And lays in suppliant guise, thy hand in his,
 And kneel as one who hath taken sanctuary,
 With locks of hair as offering in thine hand—
 Mine, hers, and thine,—all-potent means of grace.

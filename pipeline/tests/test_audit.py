@@ -203,3 +203,48 @@ def test_stage1_clears_stale_report_jsons(tmp_path, monkeypatch):
 
     for name in stale_names:
         assert not (stage1_dir / name).exists()
+
+
+# ------------------------------------------------- cues_in_speech / scan_noise --
+
+def test_cues_in_speech_excludes_a_genuine_standalone_cue(monkeypatch):
+    """Review finding 8: a line the model's own `_parse_as_speeches` cue
+    rule (`_SPEAKER_LINE`) already recognises as a standalone speaker cue
+    is a real cue, not one embedded inside a speech -- it must not be
+    reported as a defect (nine such rows in Alcestis, review 2026-09-16)."""
+    lines = ["CHORUS.", "Some running speech text that continues here."]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "sec", "model": "turn-text", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Chorus"])
+    assert total == 0
+
+
+def test_cues_in_speech_still_flags_a_line_the_parser_would_not_treat_as_a_cue(monkeypatch):
+    """A cue-shaped line the model's cue rule would NOT recognise (here,
+    title case rather than the format's all-caps cue convention, so
+    `_SPEAKER_LINE` does not match) is a genuine defect and stays flagged."""
+    lines = ["Chorus."]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "sec", "model": "turn-text", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Chorus"])
+    assert total == 1
+
+
+def test_scan_noise_does_not_flag_accented_latin_verse(monkeypatch):
+    """Review finding 9: accented Latin letters (Latin-1 Supplement,
+    Latin Extended-A, and combining marks) are ordinary English verse
+    diacritics (`cursed`, `winged`, `Cyllene`, `Phaethon`), not scan
+    noise, and must not inflate the audit's non-Latin-glyph count."""
+    lines = ["The cursèd king with wingèd feet climbs Cyllené's height,", "Phaéthon fell."]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "sec", "model": "turn-text", "source": "x"}]
+    _, total = audit.section_scan_noise(columns)
+    assert total == 0
+
+
+def test_scan_noise_still_flags_a_genuine_non_latin_glyph(monkeypatch):
+    lines = ["This line has a stray Cyrillic д letter in it."]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "sec", "model": "turn-text", "source": "x"}]
+    _, total = audit.section_scan_noise(columns)
+    assert total == 1

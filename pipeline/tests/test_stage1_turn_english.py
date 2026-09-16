@@ -1489,6 +1489,62 @@ def test_loeb_ocr_footnote_marker_glued_before_punctuation_becomes_popup(tmp_pat
     }
 
 
+# Sol review finding 4 (2026-09-16): `_parse_as_speeches` (the loeb-ocr model
+# path) had no direction handling at all, so a restored stage direction on a
+# line of its own -- `[Enter TECMESSA.]`, `_Flights of birds are seen
+# approaching._` -- was swallowed into whichever speech was still open,
+# becoming spoken verse. Both the Storr bracket form and the Way underscore
+# form must now read as a direction and land on the *next* speech's
+# `directions_before`, never inside any speech's text.
+LOEB_OCR_DIRECTIONS = """THE PLAY
+
+[The scene opens.]
+ANTIGONE. Ismene, sister of my blood.
+_She turns slowly._
+See'st thou how Zeus would fulfil.
+[Ismene enters.]
+
+ISMENE. To me no word of friends has come.
+
+CHORUS. Sunbeam of all that dawned.
+"""
+
+
+def test_loeb_ocr_directions_are_not_swallowed_into_speech_text():
+    speeches, _notes = parse_play_speeches(LOEB_OCR_DIRECTIONS, "THE PLAY", format="loeb-ocr")
+    assert speeches == [
+        {
+            "speaker_printed": "ANTIGONE",
+            "text": "Ismene, sister of my blood. See'st thou how Zeus would fulfil.",
+            "directions_before": ["The scene opens."],
+        },
+        {
+            "speaker_printed": "ISMENE",
+            "text": "To me no word of friends has come.",
+            # Both the mid-speech underscore direction and the one after
+            # Antigone's last line defer to the next speech, in order.
+            "directions_before": ["She turns slowly.", "Ismene enters."],
+        },
+        {"speaker_printed": "CHORUS", "text": "Sunbeam of all that dawned."},
+    ]
+    for speech in speeches:
+        assert "scene opens" not in speech["text"]
+        assert "turns slowly" not in speech["text"]
+        assert "Ismene enters" not in speech["text"]
+
+
+def test_loeb_ocr_bracket_direction_keeps_trailing_period_off_the_next_speech():
+    # Ajax bench form: `[Exeunt.]` (period inside the brackets).
+    text = "THE PLAY\n\nCHORUS. Ready am I.\n[Exeunt.]\n\nAJAX. The slayer standeth.\n"
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr")
+    assert speeches[0] == {"speaker_printed": "CHORUS", "text": "Ready am I."}
+    assert speeches[1] == {
+        "speaker_printed": "AJAX",
+        "text": "The slayer standeth.",
+        "directions_before": ["Exeunt."],
+    }
+
+
 def test_chunks_as_overlay_prefixes_speakers():
     from drama_pipeline.stage1_turn_english import chunks_as_overlay
 
