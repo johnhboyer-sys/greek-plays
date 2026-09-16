@@ -33,7 +33,7 @@ english:
     format: loeb-ocr
     source: bench/storr/ajax.txt
     play: AJAX
-    footnotes: false
+    footnotes: true
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
