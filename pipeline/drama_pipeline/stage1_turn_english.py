@@ -456,16 +456,43 @@ _DIRECTION = re.compile(r"^_([^_\n]+)_$", re.M)
 _BRACKET_DIRECTION = re.compile(r"^\[(.+)\]\.?$")
 
 
+# A whole line that opens a stage direction with `[` and never closes it --
+# Way's Andromache 556, `[Exit, led by MENELAUS.` (Sol review, 2026-09-16).
+# Read as a direction only when it opens with a recognised cue (below); an
+# unclosed `[` with no cue is a run-on half-line in these OCR scans (Way's
+# Cyclops runs several, e.g. `[Shows corner of skin.`), not a direction, and
+# a bare unclosed-bracket test would wrongly cut it out of the spoken text.
+_UNCLOSED_DIRECTION = re.compile(r"^\[(?P<dir>[^\]\n]+)$")
+
+
 def _loeb_direction(s: str) -> str | None:
-    """A whole-line direction in either the Loeb bench's `[...]` form or the
-    `_..._` form -- the text inside, brackets/underscores stripped -- or
-    ``None`` if ``s`` is not one."""
+    """A whole-line direction in the Loeb bench's `[...]` form (closed or,
+    for a recognised cue, never closed), or the `_..._` form -- the text
+    inside, brackets/underscores stripped -- or ``None`` if ``s`` is not
+    one."""
     m = _DIRECTION.match(s)
     if m:
         return m.group(1)
     m = _BRACKET_DIRECTION.match(s)
     if m:
         return m.group(1)
+    m = _UNCLOSED_DIRECTION.match(s)
+    if m and _DIRECTION_CUE.match(m.group("dir").strip()):
+        return m.group("dir").strip()
+    return None
+
+
+def _own_line_verse_direction(s: str) -> str | None:
+    """The verse-own-line format's own-line direction forms: `_..._`, or an
+    unclosed `[...` opening with a recognised cue (2026-09-16, same fix as
+    `_loeb_direction`). A closed `[...]` own-line direction is the Loeb
+    bench's convention, not this format's, and stays out of scope here."""
+    m = _DIRECTION.match(s)
+    if m:
+        return m.group(1)
+    m = _UNCLOSED_DIRECTION.match(s)
+    if m and _DIRECTION_CUE.match(m.group("dir").strip()):
+        return m.group("dir").strip()
     return None
 
 
@@ -480,7 +507,9 @@ def _loeb_direction(s: str) -> str | None:
 # closing bracket at all, to carry one rhymed half-line onto the next when
 # the OCR text was run together -- neither is a direction, and a bare
 # bracket test would wrongly cut them out of the spoken text.
-_DIRECTION_CUE = re.compile(r"^(?:To\s|Aside\b|Apart\b|Enters?\b|Exit\b|Exeunt\b|Begins\b)", re.IGNORECASE)
+_DIRECTION_CUE = re.compile(
+    r"^(?:To\s|Aside\b|Apart\b|Enters?\b|Exit\b|Exeunt\b|Begins\b|Re-enters?\b)", re.IGNORECASE
+)
 _LEADING_BRACKET = (
     re.compile(r"^\[(?P<dir>[^\]\n]+)\]\.?\s+(?P<rest>\S.*)$"),
     re.compile(r"^\((?P<dir>[^)\n]+)\)\.?\s+(?P<rest>\S.*)$"),
@@ -724,9 +753,9 @@ def _parse_lindsay_speeches(
         if _is_play_end(s) or _is_gutenberg_end_line(raw):
             end_i = i
             break
-        direction = _DIRECTION.match(s) if directions and speaker else None
-        if direction:
-            _add_direction(inline, len(parts), direction.group(1))
+        direction_text = _own_line_verse_direction(s) if directions and speaker else None
+        if direction_text is not None:
+            _add_direction(inline, len(parts), direction_text)
             i += 1
             continue
         split = _split_lindsay_speaker_line(raw)
