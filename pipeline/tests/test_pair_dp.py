@@ -7,7 +7,7 @@ and refrains, and the antilabe line-merge rule.
 
 from __future__ import annotations
 
-from drama_pipeline.pair_dp import EnglishNode, GreekNode, Weights, align
+from drama_pipeline.pair_dp import OCR_JUNK, EnglishNode, GreekNode, Weights, align
 
 
 def _names(nodes):
@@ -390,3 +390,25 @@ def test_cohere_is_inside_the_ie_minimum_not_added_after_it():
     assert result.greek_skips == []
     assert result.english_skips == [1, 2]
     assert result.cost == align(greek, english, pins=[], band=False).cost
+
+
+def test_unreadable_cue_is_a_discount_not_a_cross_name_match():
+    """Round 6, finding 8. A scanned bench column whose speaker cue the OCR
+    could not read carries `stage1_turn_english`'s `_OCR_JUNK` sentinel as
+    its name, and design 3.2 prices that at `S = 0.35` -- the same as an
+    unattributed speech -- not at the full 1.0 of two names that genuinely
+    differ. `pair_dp` did not know the sentinel, so the junk-cued speech was
+    charged `w_spk` in full and the DP preferred to leave it unplaced. Here
+    the three junk cues sit in an otherwise identity-aligned scan."""
+    names = ["Lysistrata", "Magistrate", "Calonice", "Magistrate", "Lysistrata"]
+    greek = [GreekNode(name=n, chars=60) for n in names]
+    english = [
+        EnglishNode(name=OCR_JUNK if k in (1, 2, 3) else names[k], chars=60)
+        for k in range(len(names))
+    ]
+
+    result = align(greek, english, pins=[])
+
+    assert result.pairs == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
+    assert result.english_skips == []
+    assert result.greek_skips == []

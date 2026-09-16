@@ -58,7 +58,10 @@ _LINDSAY_SPEAKER = re.compile(
 _SINGLE_CAP = re.compile(r"[A-ZÀ-Þ]")
 # Canonical name for a speech whose printed label is OCR junk: it must never
 # equal a Greek roster name, and must not be None (a pairing wildcard).
-_OCR_JUNK = "\x00ocr-junk"
+# One definition, in the module that prices it: `pair_dp._match_cost`
+# charges S = 0.35 for an unreadable cue (design 3.2), which it can only
+# do if it recognises the same sentinel (round 6, finding 8).
+_OCR_JUNK = pair_dp.OCR_JUNK
 # A matched pair's DP margin (its cost's lead over the best alternative match
 # in its row) below this is "low confidence" -- a reviewer's cue, not a gate
 # on its own (turn-pairing design 2026-09-15, section 3.4). Chosen as roughly

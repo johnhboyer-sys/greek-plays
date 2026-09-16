@@ -19,6 +19,13 @@ from dataclasses import dataclass, field
 
 INF = float("inf")
 
+# The speaker name a scanned bench column carries when the OCR could not read
+# its printed cue. `stage1_turn_english` puts this sentinel on the speech (a
+# sentinel, not `None`, so the reader shows the speech unattributed rather
+# than crediting "WOU"), and design 3.2 prices it like an unattributed
+# speech -- `S = 0.35`, not the 1.0 of two names that genuinely differ.
+OCR_JUNK = "\x00ocr-junk"
+
 _WORD = re.compile(r"[A-Za-z]+")
 _CAP_WORD = re.compile(r"[A-Z][a-z]+")
 _GREEK_CAP_RUN = re.compile(r"[Α-Ω][α-ωΑ-Ω]*")  # tokens STARTING capitalised
@@ -146,12 +153,15 @@ def _match_cost(
     g: GreekNode, e: EnglishNode, *, rho: float, gi: int, ei: int, G: int, E: int,
     bridge_cos: float, weights: Weights,
 ) -> float:
-    if g.name is not None and e.name is not None:
+    if (
+        g.name is not None and g.name != OCR_JUNK
+        and e.name is not None and e.name != OCR_JUNK
+    ):
         s = 0.0 if g.name == e.name else 1.0
-    elif g.name is None and e.name is None:
-        s = 0.0
     else:
-        s = 0.35
+        # One side unattributed or unreadable: the discount, not a full
+        # cross-name charge (design 3.2, term S).
+        s = 0.0 if g.name == e.name else 0.35
     g_chars = max(g.chars, 1)
     length_ratio = (e.chars + 20) / (rho * g_chars + 20) if rho > 0 else 1.0
     length_term = min(max(abs(math.log(max(length_ratio, 1e-9))), 0.0), 3.0)
