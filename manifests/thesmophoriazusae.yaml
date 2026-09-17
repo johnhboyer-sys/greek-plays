@@ -80,7 +80,7 @@ english:
     format: loeb-ocr
     source: "bench/rogers/thesmophoriazusae.txt"
     play: "THE THESMOPHORIAZUSAE"
-    footnotes: false
+    footnotes: true
   # Measured 0.855 (432 of 505 Greek speaker events pair, sweep 2026-09-08):
   # the lowest of the eleven comedies and three lost pairs from the 0.85
   # default. 129 of its segments pack two or more speakers into one line, and
@@ -147,6 +147,10 @@ speakers:
     "AGATHON": "Agathon"
     "CHORUS": "Chorus"
     "SECOND WOMAN": "Second Woman"
+    # The Greek roster distinguishes a First Woman (Γυ. Αʹ) the same way it
+    # does a Second; Rogers's own "F. W."/"F W." cue was missing this key
+    # (Genie check, 2026-09-17).
+    "FIRST WOMAN": "First Woman"
     "CLEISTHENES": "Cleisthenes"
     "CRITYLLA": "Woman"
     "POLICEMAN": "Scythian"

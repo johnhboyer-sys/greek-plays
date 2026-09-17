@@ -95,7 +95,7 @@ english:
       format: loeb-ocr
       source: "bench/rogers/lysistrata.txt"
       play: "THE LYSISTRATA"
-      footnotes: false
+      footnotes: true
     - id: johnston
       name: "Ian Johnston (VIU)"
       short: Johnston
@@ -230,9 +230,15 @@ speakers:
     "IDLER": "Athenian"
     "SECOND IDLER": "Athenian"
     "PORTER": "Athenian"
+    "FIRST W": "First Woman"
     "SECOND W": "Second Woman"
     "THIRD W": "Third Woman"
     "FOURTH W": "Fourth Woman"
+    # Rogers's busybody-women scene runs to a fifth interrupter the Greek
+    # roster does not itself distinguish (only First-Fourth Woman have their
+    # own sigla); folded into the generic "Woman" the Greek's bare ΓΥ. also
+    # gets (Genie check, 2026-09-17).
+    "FIFTH W": "Woman"
     "MEN": "Chorus of Old Men"
     "WOMEN": "Chorus of Women"
     "STRATYLLIS": "Chorus of Women"
