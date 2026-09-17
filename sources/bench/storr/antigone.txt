@@ -29,6 +29,7 @@ He hath consigned to earth (as fame reports)
 With obsequies that use and wont ordain,
 So gracing him among the dead below.
 But Polyneices, a dishonoured corse,
+(So by report the royal edict runs)
 No man may bury him or make lament—
 Must leave him tombless and unwept, a feast
 For kites to scent afar and swoop upon.
@@ -82,6 +83,7 @@ To overstep in aught the golden mean.
 
 ANTIGONE. I urge no more; nay, wert thou willing still,
 I would not welcome such a fellowship.
+Go thine own way ; myself will bury him.
 How sweet to die in such employ, to rest,—
 Sister and brother linked in love’s embrace—
 A sinless sinner, banned awhile on earth,
@@ -110,7 +112,6 @@ ISMENE. Thou hast a fiery soul for numbing work.
 ANTIGONE. I pleasure those whom I would liefest please.
 
 ISMENE. If thou succeed ; but thou art doomed to fail.
-Tol. Y
 
 ANTIGONE. When strength shall fail me, yes, but not before.
 
@@ -183,6 +184,8 @@ Why this summons? Wherefore call
 Us, his elders, one and all,
 Bidding us with him debate,
 On some grave concern of State?
+
+[Enter CREON.]
 
 CREON. Elders, the gods have righted once again
 Our storm-tossed ship of state, now safe in port.
@@ -377,7 +380,7 @@ GUARD. Alas ! how sad when reasoners reason wrong.
 CREON. Go, quibble with thy reason. If thou fail’st
 To find these malefactors, thou shalt own
 The wages of ill-gotten gains is death.
-[ Hatt CREON.
+[Exit CREON.]
 
 GUARD. I pray he may be found. But caught or not
 (And fortune must determine that) thou never
@@ -390,10 +393,10 @@ than man :
 Over the surging sea, with a whitening south wind
 wan,
 Through the foam of the firth, man makes his perilous
-wa
-And ἔων eldest of deities Earth that knows not toil
-nor decay [out,
-Ever he furrows and scores, as his team, year in year
+way;
+And the eldest of deities Earth that knows not toil
+nor decay,
+Ever he furrows and scores, as his team, year in year out,
 With breed of the yoked horse, the ploughshare
 turneth about.
 The light-witted birds of the air, the beasts of the
@@ -416,7 +419,7 @@ learnt to endure ;
 Safe whate’er may befall: yet for death he hath
 found no cure,
 
-ANTIGONE. Passing the wildest flight of thought are the ee
+ANTIGONE. Passing the wildest flight of thought are the cunning
 and skill,
 That guide man now to the light, but now to
 counsels of ill.
@@ -436,11 +439,16 @@ Didst thou recklessly conspire,
 Madly brave the King’s decree?
 Therefore are they haling thee ?
 
+[Enter GUARD bringing ANTIGONE.]
+
 GUARD. Here is the culprit taken in the act
 Of giving burial. But where’s the King ?
 
 CHORUS. There from the palace he returns in time.
-Why is my presence timely ? What has chanced?
+
+[Enter CREON.]
+
+CREON. Why is my presence timely ? What has chanced?
 
 GUARD. No man, my lord, should make a vow, for if
 He ever swears he will not do a thing,
@@ -611,7 +619,9 @@ CREON. Not even death can make a foe a friend.
 ANTIGONE. My nature is for mutual love, not hate.
 
 CREON. Die then, and love the dead if love thou must ;
-No woman shall be master while [ live.
+No woman shall be master while I live.
+
+[Enter ISMENE.]
 
 CHORUS. Lo from out the palace gate,
 Weeping o’er her sister's fate,
@@ -739,7 +749,7 @@ But no man knoweth how her gifts may turn,
 Till ‘neath his feet the treacherous ashes burn.
 Sure ‘twas a sage inspired that spake this word ;
 If evil good appear
-To any, Fate ts near ;
+To any, Fate is near ;
 And brief the respite from her flaming sword.
 Hither comes in angry mood
 Haemon, latest of thy brood ;
@@ -840,6 +850,7 @@ Relent then and repent thee of thy wrath ;
 For, if one young in years may claim some sense,
 I'll say ‘tis best of all to be endowed
 With absolute wisdom; but, if that’s denied,
+(And nature takes not readily that ply)
 Next wise is he who lists to sage advice.
 
 CHORUS. If he says aught in season, heed him, King.
@@ -904,7 +915,7 @@ CREON. Vain fool to instruct thy betters ; thou shalt rue it.
 
 HAEMON. Wert not my father, I had said thou err’st.
 
-CREON. Play not me spaniel, thou a woman’s slave.
+CREON. Play not the spaniel, thou a woman’s slave.
 
 HAEMON. When thou dost speak, must no man make reply ?
 
@@ -958,7 +969,8 @@ her heart to win.
 For as her consort still, enthroned with Justice above,
 Thou bendest man to thy will, O all invincible Love.
 Lo I myself am borne aside,
-From Justice, as I view. this bride.
+From Justice, as I view this bride.
+(O sight an eye in tears to drown)
 Antigone, so young, so fair,
 Thus hurried down
 Death’s bower with the dead to share.
@@ -1108,9 +1120,11 @@ Ye gods of Thebes whence sprang my line,
 Look, puissant lords of Thebes, on me ;
 The last of all your royal house ye see.
 Martyred by men of sin, undone.
-Such meed my piety hath won. [ Exit. ANTIGONE,
+Such meed my piety hath won.
 
-CHORUS. Like to thee that maiden bright, GSiy.1)
+[Exit ANTIGONE.]
+
+CHORUS. Like to thee that maiden bright,
 Danaé, in her brass-bound tower,
 Once exchanged the glad sunlight
 For a cell, her bridal bower.
@@ -1132,8 +1146,7 @@ He learnt at last
 ‘Twas madness gibes against a god to fling.
 For once he fain had quenched the Maenad’s fire ;
 And of the tuneful Nine provoked the ire.
-ee?
-; (Str. zp
+
 By the Iron Rocks that guard the double main,
 On Bosporus’ lone strand,
 Where stretcheth Salmydessus’ plain
@@ -1145,7 +1158,7 @@ The sightless orbits of her step-sons twain.
 Wasting away they mourned their piteous doom,
 The blasted issue of their mother’s womb.
 But she her lineage could trace
-To great Erecththeus’ race ;
+To great Erechtheus’ race ;
 Daughter of Boreas in her sire’s vast caves
 Reared, where the tempest raves,
 Swift as his horses o’er the hills she sped ;
@@ -1154,13 +1167,15 @@ By Destiny
 That knows not death nor age—she too was
 vanquished.
 
+[Enter TEIRESIAS and BOY.]
+
 TEIRESIAS. Princes of Thebes, two wayfarers as one,
 Having betwixt us eyes for one, we are here.
 The blind man cannot move without a guide.
 
 CREON. What tidings, old Teiresias ?
 
-TEIRESIAS. [ will tell thee ;
+TEIRESIAS. I will tell thee ;
 And when thou hearest thou must heed the seer.
 
 CREON. Thus far I ne’er have disobeyed thy rede.
@@ -1214,6 +1229,7 @@ CREON. Old man, ye all let fly at me your shafts
 Like archers at a target ; yea, ye set
 Your soothsayer on me. Pedlars are ye all
 And I the merchandise ye buy and sell.
+Go to, and make your profit where ye will,
 Silver of Sardis change for gold of Ind ;
 Ye will not purchase this man’s burial,
 Not though the winged ministers of Zeus
@@ -1365,6 +1381,8 @@ Who dance before thee all night long, and shout,
 Thy handmaids we,
 Evoé, Evoé!
 
+[Enter MESSENGER.]
+
 MESSENGER. Attend all ye who dwell beside the halls
 Of Cadmus and Amphion. No man’s life
 As of one tenour would I praise or blame,
@@ -1403,6 +1421,8 @@ MESSENGER. So stands the case ; now ’tis for you to act.
 CHORUS. Lo! from the palace gates I see approaching
 Creon’s unhappy wife, Eurydice.
 Comes she by chance or learning her son’s fate ?
+
+[Enter EURYDICE.]
 
 EURYDICE. Ye men of Thebes, I overheard your talk.
 As I passed out to offer up my prayer
@@ -1467,7 +1487,7 @@ Two corpses, one in death. His marriage rites
 Are consummated in the halls of Death :
 A witness that of ills whate’er befall
 Mortals’ unwisdom is the worst of all.
-[ Lait EURYDICE.
+[Exit EURYDICE.]
 
 CHORUS. What makest thou of this? The Queen has gone
 Without a word importing good or ill.
@@ -1493,7 +1513,7 @@ Evidence he with him bears
 But all must own,
 The guilt is his and his alone.
 
-CREON. Woe for sin of minds perverse, (Str. 1)
+CREON. Woe for sin of minds perverse,
 Deadly fraught with mortal curse.
 Behold us slain and slayers, all akin.
 Woe for my counsel dire, conceived in sin.

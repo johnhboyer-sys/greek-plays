@@ -37,11 +37,12 @@ english:
     format: loeb-ocr
     source: bench/storr/oedipus-tyrannus.txt
     play: THE KING
-    footnotes: false
+    footnotes: true
     line_fixes:
       # Scanner junk between speeches (page signature "WOU. 4, F"), which the
-      # NAME. text rule read as a speaker (P2g finding 7).
-      904: ""
+      # NAME. text rule read as a speaker (P2g finding 7). Line number moved
+      # from 904 with the Genie restorations (2026-09-17).
+      951: ""
   third:
     id: kosmos
     name: "Jebb, rev. Sens & Nagy (Kosmos Society)"

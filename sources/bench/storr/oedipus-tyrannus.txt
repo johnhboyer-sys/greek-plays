@@ -50,15 +50,13 @@ And now, O Oedipus, our peerless king,
 All we thy votaries beseech thee, find
 Some succour, whether by a voice from heaven
 Whispered, or haply known by human wit.
-Tried counsellors, methinks, are aptest found !
+Tried counsellors, methinks, are aptest found[1] !
 To furnish for the future pregnant rede.
 Upraise, O chief of men, upraise our State !
 Look to thy laurels ! for thy zeal of yore
 Our country’s saviour thou art justly hailed :
 O never may we thus record thy reign :—
-1 Dr. Kennedy and others render ‘‘Since to men of experience I see that also comparisons of their counsels are in
-most lively use.”
-“ He raised us up only to cast us down.”’
+“ He raised us up only to cast us down.”
 Uplift us, build our city on a rock.
 Thy happy star ascendant brought us luck,
 O let it not decline! If thou wouldst rule
@@ -91,7 +89,6 @@ If I perform not all the god declares.
 
 PRIEST. Thy words are well timed ; even as thou speakest
 That shouting tells me Creon is at hand.
-Tl]
 
 OEDIPUS. O King Apollo! may his joyous looks
 Be presage of the joyous news he brings !
@@ -100,7 +97,10 @@ PRIEST. As I surmise, tis welcome ; else his head
 Had scarce been crowned with berry-laden bays.
 
 OEDIPUS. We soon shall know; he’s now in earshot range.
-My royal cousin, say, Menoeceus’ child,
+
+[Enter CREON.]
+
+CREON. My royal cousin, say, Menoeceus’ child,
 What message hast thou brought us from the god?
 
 CREON. Good news, for e’en intolerable ills,
@@ -171,7 +171,7 @@ When royalty had fallen thus miserably ?
 CREON. The riddling ‘Sphinx compelled us to let slide
 The dim past and attend to instant needs.
 
-OEDIPUS. Well, Z will start afresh and once again
+OEDIPUS. Well, I will start afresh and once again
 Make dark things clear. Right worthy the concern
 Of Phoebus, worthy thine too, for the dead ;
 I also, as is meet, will lend my aid
@@ -184,20 +184,24 @@ Therefore in righting him I serve myself.
 Up, children, haste ye, quit these altar stairs,
 Take hence your suppliant wands, go summon
 hither
-ay
 The Theban commons. With the god’s good help
 Success is sure; ‘tis ruin if we fail.
+
+[Exeunt OEDIPUS and CREON.]
 
 PRIEST. Come, children, let us hence ; these gracious words
 Forestall the very purpose of our suit.
 And may the god who sent this oracle
 Save us withal and rid us of this pest.
 
+[Exeunt PRIEST and SUPPLIANTS.]
+
 CHORUS. Sweet-voiced daughter of Zeus from thy gold-paved
 Pythian shrine
 Wafted to Thebes divine,
 What dost thou bring me? My soul is racked and
 shivers with fear.
+(Healer of Delos, hear!)
 Hast thou some pain unknown before,
 Or with the circling years renewest a penance of
 yore?
@@ -258,7 +262,10 @@ Bacchus to whom thy Maenads Evoé shout ;
 Come with thy bright torch, rout,
 Blithe god whom we adore,
 The god whom gods abhor.
-Ye pray ; ‘tis well, but would ye hear my words
+
+[Enter OEDIPUS.]
+
+OEDIPUS. Ye pray ; ‘tis well, but would ye hear my words
 And heed them and apply the remedy,
 Ye might perchance find comfort and relief.
 Mind you, I speak as one who comes a stranger
@@ -365,6 +372,8 @@ CHORUS. But here is one to arraign him. Lo, at length
 They bring the god-inspired seer in whom
 Above all other men is truth inborn.
 
+[Enter TEIRESIAS, led by a boy.]
+
 OEDIPUS. Teiresias, seer who comprehendest all,
 Lore of the wise and hidden mysteries,
 High things of heaven and low things of the earth,
@@ -429,9 +438,7 @@ TEIRESIAS. Well, it will come what will, though I be mute.
 OEDIPUS. Since come it must, thy duty is to tell me.
 
 TEIRESIAS. I have no more to say ; storm as thou willst,
-And give the rein to all thy pent-up rage.
-1 Literally ‘‘ not to call them thine,” but the Greek may
-be rendered ‘‘ In order not to reveal thine.”
+And give the rein to all thy pent-up rage[2].
 
 OEDIPUS. Yea, I am wroth, and will not stint my words,
 But speak my whole mind, Thou methinks art he,
@@ -477,7 +484,7 @@ OEDIPUS. Think’st thou for aye unscathed to wag thy tongue?
 
 TEIRESIAS. Yea, if the might of truth can aught prevail.
 
-OEDIPUS. With other men, but not with thee, for as
+OEDIPUS. With other men, but not with thee, for thou
 In ear, wit, eye, in everything art blind.
 
 TEIRESIAS. Poor fool to utter gibes at me which all
@@ -509,8 +516,8 @@ Why hadst thou no deliverance for this folk ?
 And yet the riddle was not to be solved
 By guess-work but required the prophet’s art ;
 Wherein thou wast found lacking ; neither birds
-Nor sign from heaven helped thee, but J came,
-The simple Oedipus ; J stopped her mouth
+Nor sign from heaven helped thee, but I came,
+The simple Oedipus ; I stopped her mouth
 By mother wit, untaught of auguries.
 This is the man whom thou wouldst undermine,
 In hope to reign with Creon in my stead.
@@ -523,8 +530,6 @@ CHORUS. To us it seems that both the seer and thou,
 O Oedipus, have spoken angry words.
 This is no time to wrangle but consult
 How best we may fulfil the oracle.
-=
-i me” ε
 
 TEIRESIAS. King as thou art, free speech at least is mine
 To make reply ; in this I am thy peer.
@@ -597,8 +602,11 @@ And of the children, inmates of his home,
 He shall be proved the brother and the sire,
 Of her who bare him son and husband both,
 Co-partner and assassin of his sire.
+Go in and ponder this, and if thou find
 That I have missed the mark, henceforth declare
 I have no wit nor skill in prophecy.
+
+[Exeunt TEIRESIAS and OEDIPUS.]
 
 CHORUS. Who is he by voice immortal named from Pythia’s
 rocky cell,
@@ -610,7 +618,6 @@ For on his heels doth follow,
 Armed with the lightnings of his Sire, Apollo.
 Like sleuth-hounds too
 The Fates pursue.
-(Ant. ἃ
 Yea, but now flashed forth the summons from
 Parnassus’ snowy peak,
 Near and far the undiscovered doer of this murder
@@ -677,6 +684,8 @@ When upon me he fixed this monstrous charge ?
 CHORUS. I know not ; to my sovereign’s acts I am blind.
 But lo, he comes to answer for himself.
 
+[Enter OEDIPUS.]
+
 OEDIPUS. Sirrah, what mak’st thou here? Dost thou presume
 To approach my doors, thou brazen-facèd rogue,
 My murderer and the filcher of my crown?
@@ -694,7 +703,7 @@ CREON. Attend me. Thou hast spoken, ’tis my turn
 To make reply. Then having heard me, judge.
 
 OEDIPUS. Thou art glib of tongue, but I am slow to learn
-Of thee ; [ know too well thy venomous hate.
+Of thee ; I know too well thy venomous hate.
 
 CREON. First I would argue out this very point.
 
@@ -733,8 +742,8 @@ CREON. Not to my knowledge, not when I was by.
 OEDIPUS. But was no search and inquisition made?
 
 CREON. Surely full quest was made, but nothing learnt.
-ae OEDIPUS
-Why failed the seer to tell his story then?
+
+OEDIPUS. Why failed the seer to tell his story then?
 
 CREON. I know not, and not knowing hold my tongue.
 
@@ -747,6 +756,40 @@ Ascribed to me the death of Laius.
 
 CREON. If so he says thou knowest best; but I
 Would put thee to the question in my turn.
+
+OEDIPUS. Question and prove me murderer if thou canst.
+
+CREON. Then let me ask thee, didst thou wed my sister ?
+
+OEDIPUS. A fact so plain I cannot well deny.
+
+CREON. And as thy consort queen she shares the throne ?
+
+OEDIPUS. I grant her freely all her heart desires.
+
+CREON. And with you twain I share the triple rule ?
+
+OEDIPUS. Yea, this it is that proves thee a false friend.
+
+CREON. Not so, if thou wouldst reason with thyself,
+As I with myself. First, I bid thee think,
+Would any mortal choose a troubled reign
+Of terrors rather than secure repose,
+If the same power were given him ? As for me,
+I have no natural craving for the name
+Of king, preferring to do kingly deeds,
+And so thinks every sober-minded man.
+Now all my needs are satisfied through thee,
+And I have nought to fear ; but were I king,
+My acts would oft run counter to my will.
+How could a title then have charms for me
+Above the sweets of boundless influence ?
+I am not so infatuate as to grasp
+The shadow when I hold the substance fast.
+Now all men cry me Godspeed ! wish me well,
+And every suitor seeks to gain my ear,
+If he would hope to win a grace from thee.
+
 Why should I leave the better, choose the worse ?
 That were sheer madness, and I am not mad.
 No such ambition ever tempted me,
@@ -805,16 +848,18 @@ CHORUS. Cease, princes ; lo there comes, and none too soon:
 Jocasta from the palace. Who so fit
 As peacemaker to reconcile your feud ?
 
+[Enter JOCASTA.]
+
 JOCASTA. Misguided princes, why have ye upraised
 This wordy wrangle? Are ye not ashamed,
 While the whole land lies stricken, thus to voice
 Your private injuries ? Go in, my lord ;
-eee Be te eee
+Go home, my brother, and forbear to make
 A public scandal of a petty grief.
 
 CREON. My royal sister, Oedipus, thy lord,
 Hath bid me choose (O dread alternative !)
-An outlaw’s exile or a felon’s déath.
+An outlaw’s exile or a felon’s death.
 
 OEDIPUS. Yes, lady; I have caught him practising
 Against my royal person his vile arts.
@@ -867,7 +912,9 @@ Such tempers justly plague themselves the most.
 OEDIPUS. Leave me in peace and get thee gone.
 
 CREON. I go,
-By thee misjudged, but eae by these.
+By thee misjudged, but justified by these.
+
+[Exit CREON.]
 
 CHORUS. Lady, lead indoors thy consort ; wherefore longer
 here delay ?
@@ -895,7 +942,7 @@ Witless were I proved, insane,
 If I lightly put away
 Thee my country’s prop and stay,
 Pilot who, in danger sought,
-Toa quiet haven brought
+To a quiet haven brought
 Our distracted State ; and now
 Who can guide us right but thou ?
 
@@ -973,7 +1020,7 @@ With silver; and not unlike thee in form.
 OEDIPUS. O woe is me! Methinks unwittingly
 I laid but now a dread curse on myself.
 
-JOCASTA. What say’ st thou? When I look on thee, my king,
+JOCASTA. What say’st thou? When I look on thee, my king,
 I tremble.
 
 OEDIPUS. Tis a dread presentiment
@@ -1150,7 +1197,7 @@ Who when such deeds are done
 Can hope heaven’s bolts to shun?
 If sin like this to honour can aspire,
 Why dance I still and lead the sacred choir?
-No more I seek earth’s central oracle,
+No more I’ll seek earth’s central oracle,
 Or Abae’s hallowed cell,
 Nor to Olympia bring
 My votive offering,
@@ -1161,6 +1208,8 @@ Omnipotent, all-seeing, as of old ;
 For Laius is forgot ;
 His weird, men heed it not ;
 Apollo is forsook and faith grows cold.
+
+[Enter JOCASTA.]
 
 JOCASTA. My lords, ye look amazed to see your queen
 With wreaths and gifts of incense in her hands.
@@ -1177,6 +1226,8 @@ My prayers and supplications here I bring.
 Lighten us, lord, and cleanse us from this curse !
 For now we all are cowed like mariners
 Who see their helmsman dumbstruck in the storm.
+
+[Enter CORINTHIAN MESSENGER.]
 
 MESSENGER. My masters, tell me where the palace is
 Of Oedipus ; or better, where’s the king.
@@ -1218,6 +1269,8 @@ This is the man whom Oedipus long shunned,
 In dread to prove his murderer ; and now
 He dies in nature’s course, not by his hand.
 
+[Enter OEDIPUS.]
+
 OEDIPUS. My wife, my queen, Jocasta, why hast thou
 Summoned me from my palace?
 
@@ -1249,7 +1302,7 @@ Did they not point at me as doomed to slay
 My father? but he’s dead and in his grave
 And here am I who ne’er unsheathed a sword ;
 Unless the longing for his absent son
-Killed him and so J slew him in a sense.
+Killed him and so I slew him in a sense.
 But, as they stand, the oracles are dead—Dust, ashes, nothing, dead as Polybus.
 
 JOCASTA. Say, did not I foretell this long ago?
@@ -1313,7 +1366,7 @@ OEDIPUS. How so, old man? For heaven’s sake tell me all.
 
 MESSENGER. If this is why thou dreadest to return.
 
-OEDIPUS. Yea, ee the god’s word be fulfilled in me.
+OEDIPUS. Yea, lest the god’s word be fulfilled in me.
 
 MESSENGER. Lest through thy parents thou shouldst be accursed ?
 
@@ -1321,7 +1374,7 @@ OEDIPUS. This and none other is my constant dread
 
 MESSENGER. Dost thou not know thy fears are baseless all ?
 
-OEDIPUS. How Prise: if I am their very son?
+OEDIPUS. How baseless, if I am their very son?
 
 MESSENGER. Since Polybus was naught to thee in blood.
 
@@ -1395,7 +1448,6 @@ The hour hath come to clear this business up.
 CHORUS. Methinks he means none other than the hind
 Whom thou anon wert fain to see ; but that
 Our queen Jocasta best of all could tell.
-oF
 
 OEDIPUS. Madam, dost know the man we sent to fetch ?
 Is he the same of whom the stranger speaks ?
@@ -1407,7 +1459,7 @@ OEDIPUS. No, with such guiding clues I cannot fail
 To ‘bring to light the secret of my birth.
 
 JOCASTA. Oh, as thou carest for thy life, give o’er
-This quest. Enough the anguish J endure.
+This quest. Enough the anguish I endure.
 
 OEDIPUS. Be of good cheer ; though I be proved the son
 Of a bondwoman, aye, through three descents
@@ -1428,6 +1480,8 @@ To glory in her pride of ancestry.
 
 JOCASTA. O woe is thee, poor wretch! With that last word
 I leave thee, henceforth silent evermore.
+
+[Exit JOCASTA.]
 
 CHORUS. Why, Oedipus, why stung with passionate grief
 Hath the queen thus departed? Much I fear
@@ -1454,7 +1508,6 @@ is meet.
 Dance and song shall hymn thy praises, lover of our
 royal race.
 Phoebus, may my words find grace!
-Ant.
 Child, who bare thee, nymph or goddess? sure
 sire was more than man,
 Haply the hill-roamer Pan.
@@ -1476,6 +1529,8 @@ May better by sure knowledge my surmise.
 
 CHORUS. I recognise him ; one of Laius’ house ;
 A simple hind, but true as any man.
+
+[Enter HERDSMAN.]
 
 OEDIPUS. Corinthian, stranger, I address thee first,
 Is this the man thou meanest !
@@ -1543,7 +1598,6 @@ HERDSMAN. Alack, alack !
 What have I done? what wouldst thou further learn?
 
 OEDIPUS. Didst give this man the child of whom he asks?
-Fb pr pe Oe ee MR
 
 HERDSMAN. I did; and would that I had died that day!
 
@@ -1605,10 +1659,10 @@ OEDIPUS. Ah me! ah me! all brought to pass, all true!
 O light, may I behold thee nevermore !
 I stand a wretch, in birth, in wedlock cursed,
 A parricide, incestuous, triply cursed.
-| | Katt onpIPuS
-aX \ “
 
-CHORUS. Races of mortal man (Str. 1)
+[Exit OEDIPUS.]
+
+CHORUS. Races of mortal man
 Whose life is but a span,
 -I count ye but the shadow of a shade !
 For he who most doth know
@@ -1616,7 +1670,7 @@ Of bliss, hath but the show ;
 A moment, and the visions pale and fade.
 Thy fall, O Oedipus, thy piteous fall
 Warns me none born of woman blest to call.
-For he of marksmen best, (Ant. 1)
+For he of marksmen best,
 O Zeus, outshot the rest,
 And won the prize supreme of wealth and power.
 By him the vulture maid
@@ -1633,7 +1687,6 @@ Thy cradle was thy marriage bed ;
 One harbourage sufficed for son and sire.
 How could the soil thy father eared so long
 Endure to bear in silence such a wrong?
-: ms
 All-seeing Time hath caught
 Guilt, and to justice brought
 The son and sire commingled in one bed.
@@ -1642,6 +1695,8 @@ Would I had ne’er beheld thy face!
 I raise for thee a dirge as o'er the dead.
 Yet, sooth to say, through thee I drew new breath,
 And now through thee I feel a second death.
+
+[Enter SECOND MESSENGER.]
 
 SECOND MESSENGER. Most grave and reverend senators of Thebes,
 What deeds ye soon must hear, what sights behold '
@@ -1687,13 +1742,13 @@ For stalking to and fro “ A sword!” he cried,
 “ Where is the wife, no wife, the teeming womb
 That bore a double harvest, me and mine? ”’
 And in his frenzy some supernal power
+(No mortal, surely, none of us who watched him)
 Guided his footsteps ; with a terrible shriek,
 As though one beckoned him, he crashed against
 The folding doors, and from their staples forced
 The wrenchèd bolts and hurled himself within.
 Then we beheld the woman hanging there,
 A running noose entwined about her neck.
-ay
 But when he saw her, with a maddened roar
 He loosed the cord ; and when her wretched corpse
 Lay stretched on earth, what followed—O ’twas
@@ -1731,6 +1786,8 @@ Than man can suffer, as yourselves will see.
 For lo, the palace portals are unbarred,
 And soon ye shall behold a sight so sad
 That he who most abhorred would pity it.
+
+[Enter OEDIPUS blinded.]
 
 CHORUS. Woeful sight ! more woeful none
 These sad eyes have looked upon.
@@ -1773,8 +1830,10 @@ OEDIPUS. Apollo, friends, Apollo, he it was
 That brought these ills to pass ;
 But the right hand that dealt the blow
 Was mine, none other. How
-How could J longer see when sight
+How could I longer see when sight
 Brought no delight ?
+
+CHORUS. Alas! ’tis as thou sayest.
 
 OEDIPUS. Say, friends, can any look or voice
 Or touch of love henceforth my heart rejoice ?
@@ -1782,7 +1841,6 @@ Haste, friends, no fond delay,
 Take the twice cursed away
 Far from all ken,
 The man abhorred of gods, accursed of men.
-A Le
 
 CHORUS. O thy despair well suits thy desperate case.
 Would I had never looked upon thy face!
@@ -1846,7 +1904,6 @@ My father’s ; do ye call to mind perchance
 Those deeds of mine ye witnessed and the work
 I wrought thereafter when I came to Thebes ?
 O fatal wedlock, thou didst give me birth,
-cod |
 And, having borne me, sowed again my seed,
 Mingling the blood of fathers, brothers, children,
 Brides, wives and mothers, an incestuous brood,
@@ -1858,6 +1915,8 @@ Far from this land, or slay me straight, or cast me
 Come hither, deign to touch an abject wretch ;
 Draw near and fear not ; I myself must bear
 The load of guilt that none but I can share.
+
+[Enter CREON.]
 
 CREON. Lo, here is Creon, the one man to grant
 Thy prayer by action or advice, for he
@@ -1929,7 +1988,7 @@ For them, I pray thee, care, and, if thou willst,
 O might I feel their touch and make my moan.
 Hear me, O prince, my noble-hearted prince !
 Could I but blindly touch them with my hands,
-I think they still were mine, as when I saw.
+I’d think they still were mine, as when I saw.
 What say I? can it be my pretty ones
 Whose sobs I hear? Has Creon pitied me
 And sent me my two darlings? Can this be?
@@ -2018,3 +2077,7 @@ Therefore wait to see life's ending ere thou count
 one mortal blest ;
 Wait till free from pain and sorrow he has gained his
 final rest.
+
+Footnotes:
+[1] Dr. Kennedy and others render “Since to men of experience I see that also comparisons of their counsels are in most lively use.”
+[2] Literally “not to call them thine,” but the Greek may be rendered “In order not to reveal thine.”
