@@ -489,6 +489,16 @@ export interface Segment {
   // segment named here (a segment id such as "1:1320"); the reader points at
   // that segment instead of showing "no aligned passage".
   englishCoveredBy?: string;
+  // play-line only, round 9 §4 option A (John's ruling 2026-09-16): the same
+  // idea as englishCoveredBy, one per NON-primary column -- a bench column
+  // (ross/third/an overlay) whose own translator printed an undivided block
+  // spanning this Greek speech carries no piece of its own here, so this
+  // names the segment IN THAT SAME COLUMN whose piece holds it. Keyed by the
+  // emitted field name ("ross"/"third") or the overlay's translation id.
+  // Present only for a column that is both covered and empty at this
+  // segment; a segment with no covered bench column carries no "coveredBy"
+  // key at all.
+  coveredBy?: Record<string, string>;
   chapterStarts?: ChapterStart[];
   // Source-passage English spans for this column's context run(s) — present
   // only for a segment named in the work's sources/<work>/context-
