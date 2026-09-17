@@ -73,6 +73,19 @@ english:
       - { greek: "788", english: "No, no! he embraced Aeschylus and shook his hand", run: 1 }
       - { greek: "803", english: "If I mistake not, Aeschylus must be in a rage", run: 1 }
       - { greek: "804", english: "With lowered head he glares fiercely like a bull", run: 1 }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/frogs.txt"
+    play: "THE FROGS"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
@@ -173,6 +186,24 @@ speakers:
     "ATTENDANT": "Maid"
     "FEMALE ATTENDANT OF PERSEPHONÉ": "Maid"
     "AESCHYLUS AND EURIPIDES": "Aeschylus and Euripides"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_secondary:
+    "BACCHUS": "Dionysus"
+    "XANTHIAS": "Xanthias"
+    "EURIPIDES": "Euripides"
+    "AESCHYLUS": "Aeschylus"  # printed "ÆSCH."
+    "AEACUS": "Aeacus"  # printed "ÆAC."
+    "HERCULES": "Heracles"
+    "CHORUS": "Chorus"
+    "CHORUS OF INITIATES": "Chorus"
+    "CHARON": "Charon"
+    "DEAD MAN": "Corpse"
+    "SERVANT OF PROSERPINE": "Maid"
+    "AESCHYLUS AND EURIPIDES": "Aeschylus and Euripides"  # printed "ÆSCH. AND EUR."
+    "PLUTO": "Pluto"
+    "FROGS": "Frogs"
+    "FIRST INNKEEPER": "First Innkeeper"
+    "SECOND INNKEEPER": "Second Innkeeper"
   # Ian Johnston (VIU) cues -> the roster.
   english_third:
     "XANTHIAS": "Xanthias"
@@ -291,6 +322,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
     - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }

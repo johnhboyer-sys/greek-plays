@@ -75,6 +75,19 @@ english:
       - { greek: "937", english: "And I likewise. You will see I am not far", run: 1 }
       - { greek: "43", english: "Hurry yourselves then, for Glycé has sworn", run: 1 }
       - { greek: "815", english: "Ah! that cursed money did me enough harm", run: 1 }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/ecclesiazusae.txt"
+    play: "THE ECCLESIAZUSAE"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
   third:
     id: rogers
     name: "B. B. Rogers (Loeb, 1924)"
@@ -147,6 +160,33 @@ speakers:
     "A SERVANT MAID": "Maid"
     "A SERVANT-MAID TO PRAXAGORA": "Maid"
     "HERALD": "Herald"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_secondary:
+    "BLEPYRUS": "Blepyrus"
+    "PRAXAGORA": "Praxagora"
+    "YOUNG MAN": "Young Man"
+    "CHREMES": "Chremes"
+    "YOUNG WOMAN": "Girl"
+    "NEIGHBOUR": "Neighbour"
+    "MAID-SERVANT": "Maid"
+    "CHORUS": "Chorus"
+    "CHORUS OF WOMEN": "Chorus"
+    "MASTER": "Blepyrus"
+    "CRIER": "Herald"
+    "FIRST WOMAN": "First Woman"
+    "SECOND WOMAN": "Second Woman"
+    "THIRD WOMAN": "Second Woman"
+    "FOURTH WOMAN": "Second Woman"
+    "FIFTH WOMAN": "Second Woman"
+    "SIXTH WOMAN": "Second Woman"
+    "SEVENTH WOMAN": "Second Woman"
+    "EIGHTH WOMAN": "Second Woman"
+    "NINTH WOMAN": "Second Woman"
+    "FIRST OLD WOMAN": "First Old Woman"
+    "SECOND OLD WOMAN": "Second Old Woman"
+    "THIRD OLD WOMAN": "Third Old Woman"
+    "FIRST CITIZEN": "Chremes"
+    "SECOND CITIZEN": "Neighbour"
   english_third:
     "PRAXAGORA": "Praxagora"
     "FIRST WOMAN": "First Woman"
@@ -224,6 +264,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
     - id: rogers
       form: verse

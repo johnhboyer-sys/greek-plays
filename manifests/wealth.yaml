@@ -31,6 +31,25 @@ english:
       - { greek: "896", english: "Can you smell anything, rascal", run: 1 }
       - { greek: "926", english: "Come, quick, off with your cloak", run: 1 }
       - { greek: "955", english: "Ah! the bath-man would grip you by the testicles", run: 1 }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/wealth.txt"
+    play: "PLUTUS"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
+    # Measured 0.819 (sweep 2026-09-17, Genie rebuild): Hickie's own prose
+    # runs several short Greek turns into one sentence more often on this
+    # play than on the other four. Declared AT the measured value on
+    # purpose, same as Rogers's own floor elsewhere: the gap is on record
+    # here, and a regression that loses more pairs still fails the build.
+    min_pairing_rate: 0.81
   third:
     id: rogers
     name: "B. B. Rogers (Loeb, 1924)"
@@ -85,6 +104,21 @@ speakers:
     "A JUST MAN": "Just Man"
     "PRIEST": "Priest"
     "A PRIEST OF ZEUS": "Priest"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_secondary:
+    "CHREMYLUS": "Chremylus"
+    "CARIO": "Cario"
+    "BLEPSIDEMUS": "Blepsidemus"
+    "PLUTUS": "Wealth"
+    "OLD WOMAN": "Old Woman"
+    "WIFE": "Wife"
+    "MERCURY": "Hermes"
+    "JUST MAN": "Just Man"
+    "INFORMER": "Informer"
+    "CHORUS": "Chorus"
+    "YOUTH": "Young Man"
+    "POVERTY": "Poverty"
+    "PRIEST": "Priest"
   english_third:
     "CARIO": "Cario"
     "CHREMYLUS": "Chremylus"
@@ -168,6 +202,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
     - id: rogers
       form: verse
