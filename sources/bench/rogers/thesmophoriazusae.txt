@@ -35,7 +35,6 @@ E. Be sure of it. M. How diverse? E. This is how they
 - were separated at the time when, etc.
 
 EURIPIDES. ^ MN.
-E EU.
 
 EURIPIDES. THE THESMOPHORIAZUSAE, 13-31
 I will explicate my meaning.
@@ -98,7 +97,7 @@ And be noiseless. ;
 MNESILOCHUS. Fudge !
 
 EURIPIDES. Hush, hush, if you please.
-SER. Sleep, birds of the air, with your pinions at ease ;
+SERVANT. Sleep, birds of the air, with your pinions at ease ;
 Sleep, beasts of the field, with entranquillized
 feet ;
 Sleep, sleep, and be still.
@@ -155,7 +154,7 @@ O, what's the matter? what disturbs you so ?
 O, tell me what : I really want to know.
 - Come, I'm yourcousin; won't youtell yourcousin?
 O Zeus, what do you mean to do to me this day!
-M. Yes, by the Gods, that's what I want to ask, what means
+MNESILOCHUS. Yes, by the Gods, that's what I want to ask, what means
 this busi
 iness,”
 THE THESMOPHORIAZUSAE, 75-95
@@ -293,13 +292,7 @@ And sift thee with the words of Aeschylus,
 Whence art thou, what thy country, what thy
 garb ??
 Why all this wondrous medley? Lyre and silks,
-Bey!
-ros j
-ων. Neh sw
 Eea Uim afa iati Nan
-T
-Anh
-Y rs ore
 gin italy
 Peete ae
 
@@ -337,8 +330,6 @@ But you've a baby face, a treble voice,
 * These two lines come from the Aeolus of Euripides, with
 * Agathon ” for Παῖδες. Line 179 is from Alcestis 856 καίπερ
 * Lit. *for you alone could speak in a manner worthy
-of me."
-TA
 
 AGATHON. THE THESMOPHORIAZUSAE, 192-212
 A fair complexion, pretty, smooth, and soft.
@@ -440,7 +431,6 @@ MNESILOCHUS. AT.
 MNESILOCHUS. EY.
 
 MNESILOCHUS. . Well, never mind ; you're looking beautiful.
-THE THESMOPHORIAZUSAE, 230-253
 Sit steady ; raise your chin ; don't wriggle so.
 (wineing: O tchi, tchi, tchi |
 There, there, it’s over now.
@@ -512,7 +502,7 @@ In any scrape, you'll surely see me through.
 I swear by Ether, Zeus's dwelling-place.*
 Agathon’s apartment, with A. in it, is wheeled back into
 house; E. and Mn. are left standing on the stage.
-E. turns Mn. round, and surveys him with complacency.
+EURIPIDES. turns Mn. round, and surveys him with complacency.
 ο From the Melanippe Sapiens of Euripides (fr. 487 Nauck),
 THE THESMOPHORIAZUSAE, 273-294
 
@@ -830,14 +820,7 @@ Such odious subjects for his plays,
 on purpose to abuse us ?
 Phaedras and Melanippes too :
 but ne'er a drama made he
-ο Cinere alicunde sumpto, cunnum eius depilabimus, ut
 discat mulier mulieribus non male dicere.
-Se Ae
-f
-ARISTOPHANES
-, / > 3 + > ο x 4 eo
-- ^ ^ / >
-THE THESMOPHORIAZUSAE, 548-563
 About the good Penelope,
 or such-like virtuous lady.
 
@@ -864,7 +847,7 @@ F.W. Confound you and your slanders !
 MNESILOCHUS. Nor how the Apaturian meat ?
 we steal to give our panders,
 And then declare the cat was there.
-FW. You nasty telltale you !
+MNESILOCHUS. You nasty telltale you !
 ΜΝ. Nor how with deadly axe a wife
 aes her lord and master slew,
 Another drove her husband mad
@@ -1142,7 +1125,6 @@ fagots.
 night.
 
 MNESILOCHUS. (Busily engaged in unpacking the baby)
-F.W.
 
 MNESILOCHUS. F.W.
 With all my heart. Now I'll undo these wrappers,
@@ -1215,8 +1197,6 @@ mains?
 care that none shall fall into the bason which the F.W. 4s holding underneath. ο Another woman, Critylla, now enters.
 as if it meant “ robbed you of your child."
 * F.W. goes out.
-dos TES
-ERANT.
 THE THESMOPHORIAZUSAE, 766—788
 What plan? what stratagem? My worthy cousin,
 Who first involved me in this dreadful scrape,
@@ -1251,8 +1231,6 @@ chisel : ‘* move on.’
 4 Here follows the parasasts. As a rule, all the actors
 leave the stage before the Parabasis begins : but Mnesilochus
 {8 unable to leave, and retta remains to keep watch.
-ue
-THE THESMOPHORIAZUSAE, 789-804
 Why, if we're really a Plague,
 you're so anxious to have us for wives ;
 And charge us not to be peeping,
@@ -1413,16 +1391,16 @@ cR. Sweet-shining Hecate, what a rogue it is.
 
 MNESILOCHUS. Ah, not unknown my Spartan fatherland,
 Nor yet my father Tyndareus.* |
-CR. My gracious !
+CRITYLLA. My gracious !
 Was he your father? Sure, Phrynondas*^ was.
 
 MNESILOCHUS. And I was Helen.
-CR. What, again a woman ?
+CRITYLLA. What, again a woman ?
 You've not been punished for your first freak yet.
 
 MNESILOCHUS. Full many a soul, by bright Scamander's stream,
 Died for my sake.?
-CR. Would yours had died among them |
+CRITYLLA. Would yours had died among them |
 
 MNESILOCHUS. Απά now I linger here ; but Menelaus,
 My dear, dear lord, ah wherefore comes he not ?
@@ -1468,7 +1446,6 @@ MNESILOCHUS. CR.
 MNESILOCHUS. CR.
 
 MNESILOCHUS. CR.
-MN,
 
 EURIPIDES. THE THESMOPHORIAZUSAE, 877-902
 Then whither, whither have we steered our bark ?
@@ -1557,7 +1534,7 @@ plank ;
 Then bring him here and watch him. Let not any
 Approach too near him : should they try to, take
 The whip, and smite them.
-CR. Aye, one came but now
+CRITYLLA. Aye, one came but now
 Spinning his yarns, and all but got him off.
 
 MNESILOCHUS. O sir! policeman! grani me one request,
@@ -1967,14 +1944,10 @@ Like good honest women,
 straight home from the Play.
 And we trust that the twainHome-givers- will deign
 To bless with success our performance to-day.
-Pat
-CLESIAZUSAE.
-INTRODUCTION
 Tuere is no direct evidence of the date of this
 Comedy ; but the allusions made in the play itself,
 and the Scholiasts’ comments, make it clear that it
 was exhibited in 393 π.ς., when Eubulides was
-archon.
 After the Peloponnesian War, Athens remained
 for about nine years, 404-395 B.c., in a state of
 humiliation and subjection to Sparta. The Spartans
@@ -1994,11 +1967,4 @@ appealed to Athens to form a league against Sparta.
 “ It must have been a time for great searchings of
 heart amongst the wisest Athenians; and Thrasybulus, then the most eminent leader of the people,
 seems to have been seriously perplexed and uncertain which course it would be most prudent to
-T,
-oak.
-s%
 ων diet ttl Fotainstgin ina] 1 ΘΝ Pei m Rm
-Lp d
-N
-E
-£

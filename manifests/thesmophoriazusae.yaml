@@ -153,6 +153,11 @@ speakers:
     "SCYTHIAN": "Scythian"
     "WOMAN": "Woman"
     "PRYTANIS": "Prytanis"
+    # Rogers prints Echo's cue only as "EC." throughout the Andromeda burlesque
+    # (never spelled in full); Genie's OCR of the same page agrees letter for
+    # letter, so this is a missing roster entry, not a bench OCR error
+    # (Genie check, 2026-09-17).
+    "EC": "Echo"
   sigla:
     "ΚΗ.": "Mnesilochus"
     "ΚΗΔΕΣΤΗΣ": "Mnesilochus"

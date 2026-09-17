@@ -79,7 +79,7 @@ CARIO. (to Wealth) Hallo, you sirrah, tell me who you are,
 Or take the consequence! Out with it, quick |
 
 WEALTH. Go and be hanged!
-E CA. O master, did you hear
+CARIO. O master, did you hear
 The name he gave ?
 
 CHREMYLUS. "Twas meant for you, not me.
@@ -171,7 +171,7 @@ If you're persuaded to abide with us.
 For well I trust,—I trust, with God to aid,®
 That I shall rid you of this eye-disease,
 And make you see.
-WE. | For mercy's sake, forbear,
+WEALTH. | For mercy's sake, forbear,
 I do not wish to see again.
 
 CHREMYLUS. Eh? what?
@@ -192,13 +192,13 @@ A slave, forsooth, because I’ve got no wealth.
 -cun. And those Corinthian huzzies, so they say,
 — . Jfhe who sues them for their love is poor,
 Turn up their noses at the man; but grant
-A. wealthy suitor more than he desires.
+CHREMYLUS. wealthy suitor more than he desires.
 
 CARIO. So too the boy-loves ; just to get some money,
 And not at all because they love their lovers.
 cur. Those are the baser, not the nobler sort,
 i These never ask for money.
-EA. No? what then?
+CARIO. No? what then?
 _ cur. O one a hunter, one a pack of hounds.
 
 CARIO. Ah, they're ashamed, I warrant, of their vice,
@@ -314,10 +314,8 @@ Don’t fret yourself, my worthy friend.
 > The keen-eyed Argonaut, who could see into the bowels of
 
 CHREMYLUS. WE.
-` CHR.
 
 CHREMYLUS. WE.
-THE PLUTUS, 216-244
 I am the man: I'll work the matter through,
 Though I should die for it.
 And so will I.
@@ -596,7 +594,7 @@ her dead son Heracles) supplicating the King of Athens to protect
 CHREMYLUS. Yes
 
 BLEPSIDEMUS. You be hanged! "Wealth in your house ?
-SCHR. I swear it.
+CHREMYLUS. I swear it.
 
 BLEPSIDEMUS. Is this the truth?
 
@@ -605,7 +603,7 @@ CHREMYLUS. It is.
 BLEPSIDEMUS. By Hestia δα
 
 CHREMYLUS. Aye; by Poseidon.
-E BL. Him that rules the sea ?
+BLEPSIDEMUS. Him that rules the sea ?
 cur. If there's another, by that other too.
 
 BLEPSIDEMUS. Then don't you send him round for friends to share ?
@@ -817,9 +815,7 @@ BLEPSIDEMUS. No, nothing, that’s flat; I will answer for that ;
 so don’t be inquiring of her.
 . €HR. For our life of to-day were a man to survey
 and consider its chances aright,
-' pov.
 "UAM ER WW T PETS
-THE PLUTUS, 501-517
 He might fancy, I ween, it were madness or e'en
 the sport of some mischievous sprite.
 So often the best of the world is possessed
@@ -854,11 +850,6 @@ If regardless of these he can dwell at his ease,
 a life without labour enjoying ?
 - cHR. Absurd! why the troubles and tasks you describe
 we of course shall our servants employ in.
-TIE.
-XP.
-TIE.
-XP.
-TIE.
 
 POVERTY. THE PLUTUS, 518-533
 Your servants! But how will ye get any now?
@@ -970,9 +961,6 @@ delivered Athens from the Thirty Tyrants, yet in his later years
 -he had been denounced by hireling orators; E. 203.
 
 CHREMYLUS. E ar.
-E Pov.
-j
-THE PLUTUS, 566-582
 Such modesty too! In whatever they do
 they are careful to keep out of sight.
 Behold in the cities the Orator tribe ;
@@ -1008,13 +996,10 @@ there are tumours titanic within it.
 Zeus wealthy ! Not he: he's as poor as can be:
 and this I can prove in a minute.
 XP.
-IIE.
-XP.
 a ** On the thirtieth day of every month (ταῖς τριακάσι, Ahel
 naeus vii. 126) those who could afford it were accustomed to)
 
 POVERTY. L^ CHR.
-THE PLUTUS, 583-598
 If Zeus be so wealthy, how came it of yore
 that out of his riches abounding
 He could find but a wreath of wild olive for those
@@ -1133,9 +1118,6 @@ and prospects ": R. -
 himself, blinded, had to endure the assaults of Harpies until
 Asclepius restored sight to his sons. Line 638 is some tragic
 fragment or parody: Schol. sos
-rr.
-KA,
-rr.
 KA.
 rr.
 KA.
@@ -1163,7 +1145,7 @@ Each for himself stitched up a pallet near.
 
 WIFE. Were there no others waiting to be healed?
 ολ. Neocleides* was, for one ; ihe purblind man,
-E. Who in his thefts out-shoots the keenest-eyed.
+CARIO. Who in his thefts out-shoots the keenest-eyed.
 ; And many others, sick with every form
 4 Of ailment. Soon the Temple servitor
 Put out the lights, and bade us fall asleep,
@@ -1171,7 +1153,6 @@ Nor stir, nor speak, whatever noise we heard.
 So down we lay in orderly repose.
 And I could catch no slumber, not one wink,
 Struck by a nice tureen of broth which stood
-TENIS
 A little distance from an old wife's head,
 f Whereto I marvellously longed to creep.
 1 Then, glancing upwards, I behold the priest
@@ -1388,7 +1369,6 @@ Yes.
 What charming presents to the God you bring ! ®
 
 INFORMER. O me unlucky ! O my hard, hard fate !
-E CA.
 
 INFORMER. O thrice unlucky, four times, five times, yea
 Twelve times, ten thousand times! O woe is me,
@@ -1903,10 +1883,10 @@ Wealth in the place where he was erst installed,“
 Guarding the Treasury in Athene's Temple.^
 Hi! bring me lighted candles. Take them, you,
 And march before the God.
-PR. With all my heart.
+CHREMYLUS. With all my heart.
 
 CHREMYLUS. Call Wealth out, somebody.^
-OL. And I?
+OLD LADY. And I?
 
 CHREMYLUS. O, you.
 Here, balance me these installation pots ἆ
@@ -1936,7 +1916,6 @@ sion to the Acropolis, there to install Wealth, as a perpetual
 resident, in a place with which he had once been familiar, but to
 which he had long been a stranger, viz. in the Treasury of the
 Athenian Republic at the back of Athene's Temple. ;
-B
 INDEX
 ACBELOUS, 8 river, L.
 Adonis, L.
