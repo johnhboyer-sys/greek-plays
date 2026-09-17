@@ -37,6 +37,16 @@ def _load(rel: str):
     return json.loads((BUILD_DIR / rel).read_text(encoding="utf-8"))
 
 
+def _covered_map(path: Path) -> dict[str, str]:
+    """A turn-text slot's own ``english_covered_by`` map, as written into its
+    ``*_alignment.json`` by ``stage1_turn_english.run`` (round 9 §4). Absent
+    for a work that declares no such slot -- ``_stage1`` clears these files
+    per-work, same posture as ``ross_chunks.json`` etc."""
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8")).get("english_covered_by") or {}
+
+
 def _raise_unmapped_speaker_sigla(
     work_id: str,
     spine: dict,
@@ -673,13 +683,24 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                is_freeman: bool = False, display_order: list[str] | None = None,
                context_english=None, citation_expansion=None,
                whole_column_verbatim=None, section_paragraph_columns=None,
-               fragment_kinds=None, speaker_rosters=None) -> list[dict]:
+               fragment_kinds=None, speaker_rosters=None,
+               ross_covered=None, third_covered=None,
+               overlay_covered=None) -> list[dict]:
     turn_flows = turn_flows or {}
     tokens_by_id = {s["id"]: s for s in tokens_doc["segments"]}
     english_by_id = {c["id"]: c for c in english["chunks"]}
     ross = ross or {}
     third = third or {}
     overlays = overlays or {}
+    # Per-column siblings to englishCoveredBy (John's ruling 2026-09-16,
+    # round 9 §4 option A): each slot id -> {segment id -> the segment in
+    # THAT SAME slot whose piece holds this one's translation}. Computed by
+    # parse_translation exactly like the primary's english_covered_by
+    # (stage1_turn_english.py), merging the DP's own derived-covered runs
+    # with a manifest `covered:` declaration -- no new inference here.
+    ross_covered = ross_covered or {}
+    third_covered = third_covered or {}
+    overlay_covered = overlay_covered or {}
     context_english = context_english or {}
     citation_expansion = citation_expansion or {}
     whole_column_verbatim = whole_column_verbatim or {}
@@ -959,6 +980,31 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                         tid: chunks[seg["id"]]
                         for tid, chunks in overlays.items()
                         if chunks.get(seg["id"])
+                    })
+                    else {}
+                ),
+                # Per-column coverage (John's ruling 2026-09-16, round 9 §4
+                # option A): a bench column whose OWN translator printed an
+                # undivided block spanning this Greek speech carries no piece
+                # of its own here; name the segment, IN THAT SAME COLUMN,
+                # whose piece holds it, mirroring "englishCoveredBy" one key
+                # per non-primary column. Keyed "ross"/"third" (the emitted
+                # field names) or the overlay's own translation id. Present
+                # only for a column that is both covered and empty here;
+                # every other segment carries no "coveredBy" key at all.
+                **(
+                    {"coveredBy": cb}
+                    if (cb := {
+                        **({"ross": c} if not ross.get(seg["id"])
+                           and (c := ross_covered.get(seg["id"])) else {}),
+                        **({"third": c} if not third.get(seg["id"])
+                           and (c := third_covered.get(seg["id"])) else {}),
+                        **{
+                            tid: c
+                            for tid, cov in overlay_covered.items()
+                            if not (overlays.get(tid) or {}).get(seg["id"])
+                            and (c := cov.get(seg["id"]))
+                        },
                     })
                     else {}
                 ),
@@ -1341,21 +1387,39 @@ def run(manifest: Manifest) -> Path:
     third = json.loads(third_path.read_text(encoding="utf-8")) if third_path.exists() else {}
     overlays_path = BUILD_DIR / "stage1" / "overlays.json"
     overlays = json.loads(overlays_path.read_text(encoding="utf-8")) if overlays_path.exists() else {}
+    # Per-column coverage (round 9 §4 option A): each slot's OWN
+    # english_covered_by map, which parse_translation already computes and
+    # stage1_turn_english.run writes into that slot's *_alignment.json
+    # (secondary_alignment.json / third_alignment.json /
+    # overlay_<id>_alignment.json) -- nothing downstream read it before this.
+    ross_covered = _covered_map(BUILD_DIR / "stage1" / "secondary_alignment.json")
+    third_covered = _covered_map(BUILD_DIR / "stage1" / "third_alignment.json")
+    overlay_covered = {
+        tid: _covered_map(BUILD_DIR / "stage1" / f"overlay_{tid}_alignment.json")
+        for tid in overlays
+    }
     # Astra lane B, F3: a public build emits only the slots the (stripped)
     # manifest still declares, so a leftover stage1 file cannot leak a
-    # private comparison translation into book JSON.
+    # private comparison translation into book JSON. The per-slot covered
+    # maps get the same treatment -- an undeclared slot's *_alignment.json
+    # is never read into the emitted book either.
     if getattr(manifest, "public", False):
         english_block = manifest.data.get("english") or {}
         if not english_block.get("secondary"):
             ross = {}
+            ross_covered = {}
         if not english_block.get("third"):
             third = {}
+            third_covered = {}
         declared_overlays = {
             entry.get("id")
             for entry in (english_block.get("overlays") or [])
             if isinstance(entry, dict) and entry.get("id")
         }
         overlays = {key: value for key, value in overlays.items() if key in declared_overlays}
+        overlay_covered = {
+            key: value for key, value in overlay_covered.items() if key in declared_overlays
+        }
     # Source-passage English (docs/source-passage-english-scoping.md):
     # present only for a work that declared sources/<work>/context-
     # english.json (stage1_context_english.run) -- every other work has no
@@ -1533,7 +1597,8 @@ def run(manifest: Manifest) -> Path:
                             third, overlays, turn_flows, sch, is_freeman, display_order,
                             context_english, citation_expansion, whole_column_verbatim,
                             section_paragraph_columns, fragment_kinds,
-                            speaker_rosters)
+                            speaker_rosters, ross_covered=ross_covered,
+                            third_covered=third_covered, overlay_covered=overlay_covered)
     analyses_stats = emit_analyses(out_dir)
 
     # Per-book ordered chapter list for navigation (Work → Book → Chapter).
