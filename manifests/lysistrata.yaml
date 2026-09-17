@@ -85,6 +85,29 @@ english:
     source: "gutenberg/pg7700.txt"
     play: LYSISTRATA
     footnotes: false
+  third:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/lysistrata.txt"
+    play: "LYSISTRATA"
+    # John's own 2026-09-14 retirement of the old bench kept Hickie's own
+    # footnotes off in every play (the reader shows only one footnotes.json
+    # per play, and the primary already carries its own); the bench text
+    # still keeps every note as a [n] marker + Footnotes: block.
+    footnotes: false
+    # Measured 0.790 (sweep 2026-09-17, Genie rebuild): Hickie's own prose
+    # habit of running two or three short Greek turns into one flowing
+    # English sentence (most visible in the fast stichomythia exchanges)
+    # pairs a real turn-by-turn fraction lower than the verse columns on
+    # this same play. Declared AT the measured value on purpose, same as
+    # Rogers's own floor elsewhere: the gap is on record here, and a
+    # regression that loses more pairs still fails the build.
+    min_pairing_rate: 0.789
+    max_turn_shift_rate: 0.135
+    # (rate measured 0.7896; floor set just under it)
   overlays:
     - id: rogers
       # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
@@ -213,6 +236,31 @@ speakers:
     "1ST MARKET-LOUNGER": "Athenian"
     "2ND MARKET-LOUNGER": "Athenian"
     "CHILD": "Child"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_third:
+    "LYSISTRATA": "Lysistrata"
+    "CALONICE": "Calonice"
+    "MYRRHINA": "Myrrhine"  # Hickie's own dramatis-personae spelling
+    "CINESIAS": "Cinesias"
+    "COMMITTEE-MAN": "Magistrate"  # Hickie's own name for the role
+    "CHORUS OF OLD MEN": "Chorus of Old Men"
+    "CHORUS OF OLD WOMEN": "Chorus of Women"
+    "ATHENIAN": "Athenian Envoy"
+    "SPARTAN": "Spartan"
+    "LAMPITO": "Lampito"
+    "HERALD": "Spartan Herald"
+    "MARKET-LOUNGER": "Athenian"
+    "SERVANT": "Athenian"
+    "CHORUS": "Chorus"
+    "WOMAN": "Woman"
+    "OLD MAN": "Old Man"
+    "CHORUS OF SPARTANS": "Spartan"
+    "CHILD": "Child"
+    "CHORUS OF ATHENIANS": "Chorus"
+    "FIRST WOMAN": "First Woman"
+    "SECOND WOMAN": "Second Woman"
+    "THIRD WOMAN": "Third Woman"
+    "FOURTH WOMAN": "Fourth Woman"
   english_rogers:
     "LYSISTRATA": "Lysistrata"
     "CALONICE": "Calonice"
@@ -352,6 +400,12 @@ registry:
       name: "Jack Lindsay (1925)"
       short: Lindsay
       slot: secondary
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: third
       alignment: speech
     - id: rogers
       form: verse

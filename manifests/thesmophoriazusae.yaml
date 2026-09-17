@@ -72,6 +72,19 @@ english:
       - { greek: "739", english: "Faggots, Mania, plenty of them", run: 1 }
       - { greek: "740", english: "Bring as many as you like. But answer", run: 1 }
       - { greek: "747", english: "It was born about the time of the last Dionysia.", run: 2 }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/thesmophoriazusae.txt"
+    play: "THE THESMOPHORIAZUSAE"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
   third:
     id: rogers
     name: "B. B. Rogers (Loeb, 1924)"
@@ -140,6 +153,26 @@ speakers:
     "HERALD": "Woman"
     "PRYTANIS": "Prytanis"
     "THE PRYTANIS": "Prytanis"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_secondary:
+    "MNESILOCHUS": "Mnesilochus"
+    "EURIPIDES": "Euripides"
+    "POLICEMAN": "Scythian"  # Hickie's own cast-list name for the Scythian archer
+    "AGATHON": "Agathon"
+    "CLISTHENES": "Cleisthenes"
+    "CHORUS": "Chorus"
+    "SERVANT OF AGATHON": "Servant"
+    "HERALD": "Woman"  # the Female Herald opening the women's assembly
+    "PRYTANIS": "Prytanis"
+    "FIRST WOMAN": "First Woman"
+    "SECOND WOMAN": "Second Woman"
+    "THIRD WOMAN": "Woman"
+    "FOURTH WOMAN": "Woman"
+    "FIFTH WOMAN": "Woman"
+    "SIXTH WOMAN": "Woman"
+    "SEVENTH WOMAN": "Woman"
+    "EIGHTH WOMAN": "Woman"
+    "NINTH WOMAN": "Woman"
   english_third:
     "MNESILOCHUS": "Mnesilochus"
     "EURIPIDES": "Euripides"
@@ -224,6 +257,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
     - id: rogers
       form: verse
