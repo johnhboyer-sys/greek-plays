@@ -109,7 +109,7 @@ Lo, I will go. What matter is the life
 Of a bondwoman, though I light on death ?
 
 ANDROMACHE. My lamentations and my moans and tears,
-Wherein I am ever whelmed. [Exit HANDMAID,
+Wherein I am ever whelmed. [Exit HANDMAID.]
 "Tis in the heart
 Of woman with a mournful pleasure aye
 To bear on lip and tongue her present ills.
@@ -335,7 +335,7 @@ Such lure have I for thee :—yet will I hide
 The word: the deed itself shall soon declare.
 Ay, sit thou fast !—though clamps of molten lead
 Encompassed thee, yet will I make thee rise,
-Ere come Achilles’ son, in whom thou trustest. [Exit.
+Ere come Achilles’ son, in whom thou trustest. [Exit.]
 
 ANDROMACHE. I do trust . . . . Strange that God hath given to men
 Salves for the venom of all creeping pests,
@@ -415,8 +415,7 @@ Think ye his sire shall hold it a little thing ?
 So void of manhood Troy proclaims him not.
 Nay, he shall follow duty’s call, be proved,
 By deeds, of Peleus worthy and Achilles,
-Shall thrust thy child forth. Thou, what plea wilt
-find
+Shall thrust thy child forth. Thou, what plea wilt find
 For a new spouse? This lie—* the saintly soul
 Of this pure thing shrank from her wicked lord" ?
 Who shall wed such? Wilt keep her in thine halls
@@ -424,8 +423,7 @@ Spouseless, a grey-haired widow? O thou wretch,
 Seest not the floods of evil bursting o’er thee?
 How many a wedlock-wrong wouldst thou be fain
 Thy child knew rather than the ills I name!
-We ought not for slight cause court grievous
-harm ;
+We ought not for slight cause court grievous harm ;
 Nor, if we women be a baleful curse,
 Ought men to make their nature woman-like.
 For, if I practise on thy child by philtres,
@@ -451,8 +449,7 @@ Nought else a wife may suffer matcheth this.
 Losing her husband, she doth lose her life.
 Over my thralls her lord hath claim to rule,
 And over his like right have I and mine:
-For nought that friends have, if true friends
-they be,
+For nought that friends have, if true friends they be,
 Is private ; held in common is all wealth.
 Waiting the absent, if I order not
 Mine own things well, weak am I, and not wise.
@@ -465,8 +462,7 @@ ANDROMACHE. Woe! Dire lot-drawing, bitter choice of life,
 Thou giv'st me! If I draw, I am wretched made ;
 And if I draw not, all unblest I am.
 O thou for paltry cause that dost great wrong,
-Hearken: why slay me?—for what crime ?— what
-town
+Hearken: why slay me?—for what crime ?— what town
 Have I betrayed ?—have slain what child of thine ?—
 Have fired what home? Beside my lord I couched
 Perforce—and lo, thou wilt slay me, not him,
@@ -491,7 +487,7 @@ For him, for him, hope lives, if he be saved ;
 And mine were shame to die not for my child.
 Lo, I forsake the altar—yours I am
 To hack, bind, murder, strangle with the cord! [ Rises.
-O child, thy mether, that thou mayst not die,
+O child, thy mother, that thou mayst not die,
 Passeth to Hades. If thou 'scape the doom,
 Think on thy mother—how I suffered—died !
 And to thy sire with kisses and with tears
@@ -553,12 +549,11 @@ In flattery never on thy child or thee.
 What if thou be in Sparta some great one?
 Even so in Troy was I. Am I brought low?
 Boast not herein :—thine hour shall haply come.
-[Exit, led by MENELAUS.
+[Exit, led by MENELAUS.]
 
 CHORUS. Never rival brides blessed marriage-estate,
 Neither sons not born of one mother:
-They were strife to the home, they were anguish of
-hate.
+They were strife to the home, they were anguish of hate.
 For the couch of the husband suffice one mate :
 Be it shared of none other.
 Never land but hath borne a twofold yoke
@@ -613,8 +608,7 @@ Mother, of what dread thing ?
 MENELAUS. Down, down to the grave !—from our foemen’s towers
 Ye came : and for several cause unto slaughter
 Ye twain be constrainéd. The sentence is ours
-That condemneth thee, woman: this boy my
-daughter
+That condemneth thee, woman: this boy my daughter
 Hermione dooms. Utter folly it were
 For our foemen’s avenging their offspring to spare,
 When into our hands they be given to slay,
@@ -662,8 +656,7 @@ methinks,
 Brooks no delay ; but now, if ever, fain
 Would I renew the vigour of my youth.
 But first, like breeze that fills the sails, will I
-Breathe life through her:— say, by what right have
-these
+Breathe life through her:— say, by what right have these
 Pinioned thine hands in bonds, and with thy son
 Hale—for like ewe with lamb thou goest to death —
 Whilst I and thy true lord be far away?
@@ -717,8 +710,7 @@ Who leftest hearth and home unbarred, unwarded,
 As who kept in his halls a virtuous wife, —
 And she the vilest! Though one should essay,
 Virtuous could daughter of Sparta never be.
-They gad abroad with young men from their
-homes,
+They gad abroad with young men from their homes,
 And with bare thighs and loose disgirdled vesture
 Race, wrestle with them,—things intolerable
 To me! And is it wonder-worthy then
@@ -808,8 +800,7 @@ But upon friends and parents leans her cause.
 Do I not justly then to aid mine own?
 Dotard —thou dotard ! —thou wouldst help me more
 By praise than slurring of my leadership !
-Not of her will but Heavens, came Helen’s
-trouble,
+Not of her will but Heavens, came Helen’s trouble,
 And a great boon bestowed she thus on Greece ;
 For they which were unschooled to arms and war
 Turned them to brave deeds: fellowship in fight
@@ -829,8 +820,7 @@ When hosts rear trophies over vanquished foes,
 Men count not this the battle-toiler's work ;
 Nay, but their captain filcheth the renown:
 Amidst ten thousand one, he raised a spear,
-Wrought one man's work—no more; yet hath more
-praise.
+Wrought one man's work—no more; yet hath more praise.
 In proud authority's pomp men sit, and scorn
 The city's common folk, though they be naught.
 Yet are those others wiser a thousandfold,
@@ -933,7 +923,8 @@ There did thy world-famed war-spear shine,—
 That, on Argo riding the havenless brine,
 Thou didst burst through the gates of the Clashing
 Rocks on the sea-quest glorious ; [past
-And when great Zeus' son in the days overRound Ilium the meshes of slaughter had cast,
+And when great Zeus' son in the days over-
+Round Ilium the meshes of slaughter had cast,
 As ye sped unto Europe returning, there too was thy
 fame's star burning,
 For the half of the glory was thine.
@@ -990,8 +981,7 @@ NURSE. Thy lord shall yet forgive thee this thy sin.
 
 HERMIONE. O why didst thou wrest that sword from mine hand?
 Give it back, give it back, dear friend ; be the brand
-Thrust home !—mine hanging why didst thou with-
-stand ?
+Thrust home !—mine hanging why didst thou withstand ?
 
 NURSE. What, should I leave thee thus distraught to die ?
 
@@ -1196,7 +1186,7 @@ By that God's wrath, and slanders sown of me,
 Die shall he foully, and shall know mine hate :
 For the God turns the fortune of his foes
 To overthrow, nor suffereth their high thoughts.
-[Exeunt ORESTES and HERMIONE,
+[Exeunt ORESTES and HERMIONE.]
 
 CHORUS. O Phoebus, who gavest to Ilium a glory
 Of diadem-towers on her heights,—and O Master
@@ -1531,17 +1521,6 @@ not to fulfil them ;
 And the paths undiscerned of our eyes, the Gods
 unseal them.
 So fell this marvellous thing.
-vadit tü f
-"a E et :
-να : | ive i id
-TAPE deris Hes TAPA gi od Mg
-zd
-| Ze
-esr m
-" m
-y
-f
-j
 
 Footnotes:
 [1] Hermione, daughter of Helen.

@@ -37,8 +37,7 @@ And Pylades, who helped to compass it.
 Thereafter, wasted with fierce malady,
 Hapless Orestes, fallen on his couch,
 Lieth : his mother's blood aye scourgeth him
-With madness. Scarce for awe I name their
-names
+With madness. Scarce for awe I name their names
 Whose terrors rack him, the Eumenides.
 And to this day, the sixth since cleansing fire
 Enwrapped the murdered form, his mother's corse,
@@ -52,8 +51,7 @@ Or fire receive us, none speak word to us,
 The matricides. The appointed day is this,
 Whereon the Argive state shall cast the vote,
 Whether we twain must die, by stoning die,
-Or through our own necks plunge the whetted
-steel.
+Or through our own necks plunge the whetted steel.
 Yet one hope have we of escape from death ;
 For Menelaus from Troy hath reached the land.
 Thronging the Nauplian haven with his fleet
@@ -105,8 +103,7 @@ ELECTRA. So far as this my tendance suffereth me.
 
 HELEN. Wilt go for me unto my sisters tomb?
 
-ELECTRA. canst thou ask me ?—for what cause ?
-My mother's?
+ELECTRA. My mother's?—canst thou ask me?—for what cause?
 
 HELEN. Shorn locks bear from me and drink-offerings.
 
@@ -323,8 +320,7 @@ Not in word only, but in inmost thought !
 
 ELECTRA. Woe's me, my brother! Wildly rolls thine eye:
 Swift changest thou to madness, sane but now!
-l ORESTES
-Mother !— beseech thee, hark not thou on me
+ORESTES. Mother !— beseech thee, hark not thou on me
 Yon maidens gory-eyed and snaky-haired !
 Lo there!—lo there! They are nigh; they leap on me!
 
@@ -366,8 +362,7 @@ For mine affliction’s sake break not, dear heart.
 Thou didst consent thereto, yet spilt of me
 My mother’s blood was. Loxias I blame,
 Who to a deed accurséd thrust me on,
-‘And cheered me stil with words, but not with
-deeds.
+‘And cheered me still with words, but not with deeds.
 I trow, my father, had I face to face
 Questioned him if I must my mother slay,
 Had earnestly besought me by this beard
@@ -396,7 +391,7 @@ Wilt have it so, I must. But lay thee down,
 And heed not terrors overmuch, that scare
 Thee from thy couch, but on thy bed abide.
 For, though thy sickness be but of the brain,
-This is affliction, this despair, to men. [ Exit.
+This is affliction, this despair, to men. [Exit.]
 
 CHORUS. Terrible Ones of the on-rushing feet, (Str)
 Of the pinions far-sailing,
@@ -418,8 +413,7 @@ O Zeus, is there mercy ? What struggle of doom
 Cometh fraught with death-danger,
 Thrusting thee onward, the wretched, on whom
 The Erinnys-avenger
-Heapeth tears upon tears, and the blood hath she
-brought
+Heapeth tears upon tears, and the blood hath she brought
 Of thy mother upon thee [traught !
 And thine house, that it driveth thee frenzy-disI bemoan thee, bemoan thee!
 Not among men doth fair fortune abide,
@@ -461,8 +455,7 @@ Of Tyndareus’ daughter's murder heaven-accurst.
 Now tell to me, ye damsels, where is he,
 Agamemnon's son, who dared that awful deed ?
 A babe was he in Clytemnestra's arms,
-When Troyward bound I went from mine halls
-forth :
+When Troyward bound I went from mine halls forth :
 Wherefore I should not know him, if I saw.
 
 ORESTES. I am Orestes! This is he thou seekest.
@@ -489,7 +482,7 @@ ORESTES. A hapless mother’s murderer am I.
 
 MENELAUS. I heard :—its horrors spare: thy words be few
 
-ORESTES. lspare. No horrors heaven spares to me!
+ORESTES. I spare. No horrors heaven spares to me!
 
 MENELAUS. What aileth thee? What sickness ruineth thee?
 
@@ -595,8 +588,7 @@ MENELAUS. Of private foes, or of all Argos' power?
 
 ORESTES. Of all the folk, that I may die ;—soon said.
 
-MENELAUS. Hapless! Misfortune's deepest depth thou hast
-reached !
+MENELAUS. Hapless! Misfortune's deepest depth thou hast reached !
 
 ORESTES. In thee mine hope hath refuge yet from ills.
 Thou com’st to folk in misery, prosperous thou :
@@ -673,7 +665,7 @@ But now, he but partakes his mother's curse ;
 For, rightfully accounting her as vile,
 Viler himself is made by matricide.
 But this, Menelaus, will I ask of thee :—
-1f of his wedded wife this man were slain,
+If of his wedded wife this man were slain,
 And his son in revenge his mother slay,
 And his son blood with blood requite thereafter,
 Where shall the limit of the horror lie ?
@@ -758,8 +750,7 @@ Thou, ancient, in begetting a vile daughter,
 Didst ruin me ; for, through her recklessness
 Unfathered, I became a matricide.
 Mark this—Odysseus' wife Telemachus
-Slew not; she took no spouse while lived her
-lord,
+Slew not; she took no spouse while lived her lord,
 But pure her couch abideth in her halls.
 Mark this—Apollo at earth's navel-throne
 Gives most true revelation unto men,
@@ -799,11 +790,10 @@ If thou regard mine hate, our tie of kin,
 Shield not this man from death in heaven’s despite.
 Leave him to die by stoning of the folk,
 Or never set thou foot in Spartan land !
-Thou hast heard—remember! Choose the impious
-not,
+Thou hast heard—remember! Choose the impious not,
 To thrust aside the friends that reverence God.
 My servants, lead me from this dwelling hence.
-[ Emit.
+[Exit.]
 
 ORESTES. Go, that unharassed what I yet would say
 May reach his ears, escaped thine hindering age.
@@ -953,95 +943,67 @@ sailing hitherward ?
 ORESTES. "Tis not he hath brought her, nay, ‘twas she that
 hither brought her lord.
 
-PYLADES. Where is she, who hath slain Achaians more than any
-woman else?
+PYLADES. Where is she, who hath slain Achaians more than any woman else?
 
-ORESTES. In mine house—if yonder palace mine may now be
-called—she dwells.
+ORESTES. In mine house—if yonder palace mine may now be called—she dwells.
 
-PYLADES. Thou, what wouldst thou of thy father’s brother by
-thy pleadings gain ?
+PYLADES. Thou, what wouldst thou of thy father’s brother by thy pleadings gain ?
 
-ORESTES. That he would not see me and my sister by the
-people slain.
+ORESTES. That he would not see me and my sister by the people slain.
 
-PYLADES. By the Gods, to this what said he ?—fain would I
-know this of thee.
+PYLADES. By the Gods, to this what said he ?—fain would I know this of thee.
 
-ORESTES. Cautious was he—as the false friend still to friends is
-wont to be.
+ORESTES. Cautious was he—as the false friend still to friends is wont to be.
 
-PYLADES. Fleeing to what plea for refuge ?—all I know when
-this I hear.
+PYLADES. Fleeing to what plea for refuge ?—all I know when this I hear.
 
-ORESTES. He had come, the father who begat the daughters
-without peer.
+ORESTES. He had come, the father who begat the daughters without peer.
 
-PYLADES. Tyndareus thou meanest,—for his daughter haply
-filled with ire.
+PYLADES. Tyndareus thou meanest,—for his daughter haply filled with ire.
 
-ORESTES. Rightly guessed: such kinsman Menelaus chose
-before my sire.
+ORESTES. Rightly guessed: such kinsman Menelaus chose before my sire.
 
-PYLADES. Dared he not lay hand unto thy burden, not when
-here he stood ?
+PYLADES. Dared he not lay hand unto thy burden, not when here he stood?
 
-ORESTES. Hero is there none in him!—mid women valiant he
-of mood.
+ORESTES. Hero is there none in him!—mid women valiant he of mood.
 
-PYLADES. Then art thou in depth of evil: death for thee must
-needs abide.
+PYLADES. Then art thou in depth of evil: death for thee must needs abide.
 
-ORESTES. Touching this our murder must the vote of Argos’
-folk decide.
+ORESTES. Touching this our murder must the vote of Argos’ folk decide.
 
-PYLADES. What shall this determine? Tell me, for mine heart
-is full of dread.
+PYLADES. What shall this determine? Tell me, for mine heart is full of dread.
 
-ORESTES. Death or life. The word that names the dateless
-doom is quickly said.
+ORESTES. Death or life. The word that names the dateless doom is quickly said.
 
-PYLADES. Flee then: yonder palace-halls forsake thou: with
-thy sister flee.
+PYLADES. Flee then: yonder palace-halls forsake thou: with thy sister flee.
 
-ORESTES. Dost thou see not ?— warded round on every hand by
-guards are we.
+ORESTES. Dost thou see not?—warded round on every hand by guards are we.
 
-PYLADES. Lines of spears and shields I marked: the pass of
-every street they close.
+PYLADES. Lines of spears and shields I marked: the pass of every street they close.
 
 ORESTES. Yea, beleaguered are we, even as a city by her foes.
 
-PYLADES. Ask me also of my plight; for,like to thee, undone
-am I.
+PYLADES. Ask me also of my plight; for, like to thee, undone am I.
 
-ORESTES. Yea?—of whom? This shall be evil eased on my
-calamity.
+ORESTES. Yea?—of whom? This shall be evil eased on my calamity.
 
-PYLADES. Strophius banished me mine home: my father’s
-wrath hath thrust me thence. à;
+PYLADES. Strophius banished me mine home: my father’s wrath hath thrust me thence.
 
-ORESTES. What the charge? "Twixt thee and him ?—or hath
-the nation found offence ?
+ORESTES. What the charge? "Twixt thee and him ?—or hath the nation found offence?
 
-PYLADES. That I helped thee slay thy mother, this he names
-an impious thing.
+PYLADES. That I helped thee slay thy mother, this he names an impious thing.
 
-ORESTES. Woe is me ! the anguish of mine anguish unto thee
-must cling !
+ORESTES. Woe is me! the anguish of mine anguish unto thee must cling!
 
-PYLADES. I am not a Menelaus : these afflictions must I bear.
+PYLADES. I am not a Menelaus: these afflictions must I bear.
 
-ORESTES. Fear'st thou not lest Argos doom thee with my deed
-my death to share?
+ORESTES. Fear'st thou not lest Argos doom thee with my deed my death to share?
 
 PYLADES. I belong not unto them to punish, but to Phocis-land.
 
-ORESTES. Fearful is the people's rage, when evil men its course
-command.
+ORESTES. Fearful is the people's rage, when evil men its course command.
 
-PYLADES. Nay, but when they take them honest chiefs, they
-counsel honest rede.
+PYLADES. Nay, but when they take them honest chiefs, they counsel honest rede.
 
 ORESTES. Come, let thou and I commune—
 
@@ -1179,8 +1141,7 @@ Of impious sophistry putteth for right
 The wrong, 'tis the sinners' infatuate folly !
 Ah, Tyndareus' daughter, in frenzied fear
 Of death, shrieked, shrieked in her anguish dread,
-“ Son, slaying thy mother, the right does thou
-tread
+“ Son, slaying thy mother, the right does thou tread
 Under foot! O beware lest thy grace to the dead,
 Thy sire, in dishonour enwrap thee wholly,
 As a fire that for ever thy name shall sear!”
@@ -1291,7 +1252,7 @@ Slaying the wicked and the godless wife
 Who sapped our strength :—none would take shield on
 arm,
 Or would forsake his home to march to war,
-1f men's house-warders be seduced the while
+If men's house-warders be seduced the while
 By stayers at home, and couches be defiled.
 To honest men he seemed to speak right well ;
 And none spake after. Then thy brother rose,
@@ -1307,8 +1268,7 @@ For now the traitress to my father's couch
 Is dead : but if ye shall indeed slay me,
 Law is annulled : better men died straightway ;
 Since for no crime shall wives lack daring now."
-They would not hear, though well he spake, me-
-seemed.
+They would not hear, though well he spake, meseemed.
 That knave prevailed, who to the mob appealed,
 Who called on them to slay thy brother and thee.
 Hapless Orestes scarce could gain the boon
@@ -1321,7 +1281,7 @@ To thee, sight bitter and woeful to behold,
 Prepare the sword, or halter for thy neck ;
 For thou must leave the light. Thy princely birth
 Nought hath availed thee, nor the Pythian King
-Apollo tripod-throned ; nay, ruined thee. [ Exit.
+Apollo tripod-throned ; nay, ruined thee. [Exit.]
 
 CHORUS. O misery-burdened maiden, how art thou
 Speechless, with veiled head bowed unto the earth,
@@ -1332,8 +1292,7 @@ Scoring red furrows with fingers white
 In my cheeks, as with blood-streaks I mar them, and
 hailing [right,
 On the head of me blows, which she claims as her
-The fair Queen of the dead 'neath the earth that
-are lying.
+The fair Queen of the dead 'neath the earth that are lying.
 On thy locks let the steel of the shearing light,
 Land Cyclopean ; break forth into crying,
 For the woes of the house of thy princes sighing.
@@ -1460,11 +1419,11 @@ Come, prove we by our deeds our high-born strain,
 And worthily of Agamemnon die.
 Yea, I will show all men my royal blood,
 Plunging the sword into mine heart: but thou
-Must match with thine the unflinching deed J do.
+Must match with thine the unflinching deed I do.
 Sit thou as umpire, Pylades, to our death.
 Meetly lay out the bodies of the dead :
 Bear to our sire’s grave, and with him entomb.
-Farewell: I go, thou seest, to do the deed. [ Going.
+Farewell: I go, thou seest, to do the deed. [Going.]
 
 PYLADES. Tarry :—first, one reproach have I for thee:
 Thou didst expect that I would live, thou dead!
@@ -1719,7 +1678,7 @@ Forefather Zeus, and Justice’ majesty,
 To him, to me, to her, grant happy speed !
 Three friends—their venture one, the forfeit one,—
 Owe all the selfsame debt, to live or die.
-[ORESTES and PYLADES enter the palace.
+[ORESTES and PYLADES enter the palace.]
 
 ELECTRA. Dames of Mycenae, beloved of me,
 In the Argives' Pelasgian dwelling the noblest ye—
@@ -1794,7 +1753,7 @@ HELEN. Husband, I die ! So near, yet help'st thou not !
 
 ELECTRA. Stab ye her—slay her— destroy !
 Let them leap, the double-edged falchions twain,
-From your grasp with a furious j joy
+From your grasp with a furious joy
 Upon her who left husband and sire, who hath slain
 Beside that river of Troy
 Many a Greek by the spear who died,
@@ -1850,7 +1809,7 @@ Come hither, meet the peril: I will lead.
 With thee alone our safety's issue lies.
 
 HERMIONE. Behold, into the house I speed my feet.
-So far as in me lies, ye are saved. [Enters the palace.
+So far as in me lies, ye are saved. [Enters the palace.]
 
 ELECTRA. Ho ye,
 Armed friends within, will ye not seize the prey ?
@@ -1861,7 +1820,7 @@ Thou com'st for our deliverance, not for thine.
 ELECTRA. Hold ye her—hold! Set to her throat the sword,
 And silent wait, till Menelaus learn
 That men, not Phrygian cowards, hath he found,
-And fares now as 'tis meet that cowards fare. [Exit.
+And fares now as 'tis meet that cowards fare. [Exit.]
 
 CHORUS. What ho ! friends, ho! awake
 A din by the halls; let your clamour outbreak,
@@ -2023,15 +1982,12 @@ We fled, we fled through the darkness away,
 While some were falling, and staggering some, some
 lay still there.
 Then hapless Hermione came to the halls, to the earth
-As fell for her death the wretched mother who gave
-her birth.
+As fell for her death the wretched mother who gave her birth.
 But as Bacchanals dropping the thyrsus to seize
 A wolf's whelp over the hills that flees,
-They rushed on her—grasped—turned back to
-the slaughter
+They rushed on her—grasped—turned back to the slaughter
 Of Helen— but vanished was Zeus's daughter '
-From the bowers, through the house, gone
-wholly from sight !
+From the bowers, through the house, gone wholly from sight !
 O Zeus, O Earth, O Sun, O Night !
 Whether by charms or by wizardry,
 Or stolen by Gods—not there was she!
@@ -2056,49 +2012,35 @@ hereby.
 PHRYGIAN. Everywhere shall wise men better love to cling to life
 than die.
 
-ORESTES. Didst thou not to Menelaus shout the rescue-cry but
-now?
+ORESTES. Didst thou not to Menelaus shout the rescue-cry but now?
 
-PHRYGIAN. Nay, O nay !—but for thine helping cried I :—worthier
-art thou.
+PHRYGIAN. Nay, O nay !—but for thine helping cried I :—worthier art thou.
 
 ORESTES. Answer—did the child of Tyndareus by righteous sentence fall?
 
-PHRYGIAN. Righteous—wholly righteous—though she had three
-throats to die withal.
-ORESTES i
-Dastard, 'tis thy tongue but truckles: in thine heart
-thou think'st not so.
+PHRYGIAN. Righteous—wholly righteous—though she had three throats to die withal.
 
-PHRYGIAN. Should she not, who Hellas laid, and Phrygia's folk,
-in ruin low?
+ORESTES. Dastard, 'tis thy tongue but truckles: in thine heart thou think'st not so.
 
-ORESTES. Swear—or I will slay thee,—that thou speakest not to
-pleasure me.
+PHRYGIAN. Should she not, who Hellas laid, and Phrygia's folk, in ruin low?
 
-PHRYGIAN. By my life I swear—an oath I sure should honour
-sacredly.
+ORESTES. Swear—or I will slay thee,—that thou speakest not to pleasure me.
 
-ORESTES. Like to thee at Troy did steel fill all the Trojan folk
-with fear?
+PHRYGIAN. By my life I swear—an oath I sure should honour sacredly.
+
+ORESTES. Like to thee at Troy did steel fill all the Trojan folk with fear?
 
 PHRYGIAN. Take, take hence thy sword! It glareth ghastly murder, held so near!
 
-ORESTES. Fear’st thou lest thou turn to stone, as who hath
-seen the Gorgon nigh?
-NOL, 11,
+ORESTES. Fear’st thou lest thou turn to stone, as who hath seen the Gorgon nigh?
 
-PHRYGIAN. Nay, but rather to a corpse; of head of Gorgon
-nought know I.
+PHRYGIAN. Nay, but rather to a corpse; of head of Gorgon nought know I.
 
-ORESTES. Thou a slave, and fearest Death, who shall from
-misery set thee free !
+ORESTES. Thou a slave, and fearest Death, who shall from misery set thee free !
 
-PHRYGIAN. Every man, though ne'er so much a thrall, yet joys
-the light to see.
+PHRYGIAN. Every man, though ne'er so much a thrall, yet joys the light to see.
 
-ORESTES. Well thou say'st: thy wit hath saved thee. Hence
-within the house—away !
+ORESTES. Well thou say'st: thy wit hath saved thee. Hence within the house—away !
 
 PHRYGIAN. Then thou wilt not slay me?
 
@@ -2124,8 +2066,7 @@ these halls, [will set me free—
 Claiming blood-revenge for Helen, nor from death
 Me, my sister too, and Pylades who wrought herein
 with me,—
-Corpses twain, his maiden daughter and his wife, his
-eyes shall see. [ Exit.
+Corpses twain, his maiden daughter and his wife, his eyes shall see. [Exit.]
 
 CHORUS. Ho, fortune, ho !—again, again,
 The house into terrible conflict-strain
@@ -2315,7 +2256,7 @@ Peace thou, Orestes, too, whose sword doth guard
 Yon maid, that thou mayst hear the words I bear.
 Helen, whose death thou hast essayed, to sting
 The heart of Menelaus, yet hast missed,
-15 here,—whom wrapped in folds of air ye see,—
+Is here,—whom wrapped in folds of air ye see,—
 From death delivered, and not slain of thee.
 "Twas I that rescued her, and from thy sword
 Snatched her away by Father Zeus’ behest ;

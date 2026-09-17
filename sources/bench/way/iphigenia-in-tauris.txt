@@ -69,7 +69,7 @@ I with mine handmaids, given me of the king,
 Greek damsels. But for some cause are they here
 Not yet: within the portals will I pass
 Of this, the Goddess' shrine, wherein I dwell.
-[Re-enters temple.
+[Re-enters temple.]
 
 ORESTES. Look thou—take heed that none be in the path.
 
@@ -509,7 +509,7 @@ Must I take heed. Unbind the strangers’ hands,
 That, being hallowed, they be chained no more ;
 Then, pass within the temple, and prepare
 What needs for present use, what custom bids.
-Sighs. [Exeunt attendants,
+Sighs. [Exeunt attendants.]
 Who was your mother, she which gave you birth ?—
 Your sire ?—your sister who ?—if such there be,
 Of what fair brethren shall she be bereaved,
@@ -736,13 +736,13 @@ Hast thou sprung, thou so loyal to thy friends !
 Even such be he that of my father's house
 Is left alive! For, stranger, brotherless
 I too am not, save "that I see him not.
-i thou: πι have it so, him will I send
-the letter: thou wilt die. Ah, deep
-strange yearning unto death must be !
+Since thou wilt have it so, him will I send
+Bearing the letter: thou wilt die. Ah, deep
+This thy strange yearning unto death must be !
 
-ORESTES. l be that dread deed, my sacrifice ?
+ORESTES. Whose shall be that dread deed, my sacrifice ?
 
-IPHIGENEIA. ; for this office hold I of the Goddess.
+IPHIGENEIA. Mine; for this office hold I of the Goddess.
 
 ORESTES. A task, O maid, of horror, all unblest !
 
@@ -777,7 +777,7 @@ Ward them, ye guards, but with no manacles.
 Perchance to a friend in Argos shall I send
 Tidings unhoped—the friend whom most I love :—
 The letter, telling that she lives whom dead
-He deems, shall seal the happy tidings’ faith. [Exit
+He deems, shall seal the happy tidings’ faith. [Exit.]
 
 CHORUS. To ORESTES.
 I wail for thee, for whom there wait
@@ -880,7 +880,7 @@ ORESTES. Peace! Phoebus’ words avail me nothing now ;
 For yonder forth the temple comes the maid.
 
 IPHIGENEIA. Depart ye, and within make ready all
-For them whose office is the sacrifice. [Exeunt attendants.
+For them whose office is the sacrifice. [Exeunt attendants.]
 Strangers, my letter's many-leavéd folds
 Are here: but that which therebeside I wish
 Hear :—in affliction is no man the same
@@ -1164,7 +1164,7 @@ IPHIGENEIA. I am silent. Looketh Argos now to thee?
 
 ORESTES. Menelaus rules: I am exiled from the land.
 
-IPHIGENEIA. Our uncle—4Ae insult our stricken house !
+IPHIGENEIA. Our uncle—he insult our stricken house !
 
 ORESTES. Nay, but the Erinyes' terror drives me forth.
 
@@ -1195,7 +1195,7 @@ Thither I came; but no bond-friend at first
 Would welcome me, as one abhorred of heaven.
 Some pitied ; yet my guest-fare set they out
 On a several table, 'neath the selfsame roof;
-Yet from all converse by their silence banned me, q
+Yet from all converse by their silence banned me,
 So from their meat and drink to hold me apart ;
 And, filling for each man his private cup,
 All equal, had their pleasure of the wine.
@@ -1375,11 +1375,11 @@ Through thee shall be no more believed of men.
 But graciously come forth this barbarous land
 To Athens. It beseems thee not to dwell
 Here, when so blest a city may be thine.
-[IPHIGENEIA, ORESTES, and PYLADES enter the temple.
+[IPHIGENEIA, ORESTES, and PYLADES enter the temple.]
 
 CHORUS. Thou bird, who by scaurs o'er the sea-breakers leaning
 Ever chantest thy song
-O Halcyon, thy burden of sorrow, sr meaning
+O Halcyon, thy burden of sorrow, whose meaning
 To the wise doth belong,
 Who discern that for aye on thy mate thou art crying,
 I lift up a dirge to thy dirges replying—
@@ -1644,15 +1644,14 @@ So I sacrifice where meet is, stainless temple shalt
 Blest withal shall we be—more I say not, yet to
 Gods who know [plainly show.
 All, and, Goddess, unto thee, mine heart’s desire I
-ORESTES, PYLADES, and attendant:
+[THOAS enters temple. Exeunt IPHIGENEIA, ORESTES, PYLADES, and attendants.]
 
 CHORUS. A glorious babe in the days of old
 Leto in Delos bare,[3][4]
-i ¥
 Mid its valleys of fruitage manifold,
 The babe of the golden hair,—
 Lord of the harp sweet-ringing, king of the bow
-sure-winging " [rock by the swell
+sure-winging [rock by the swell
 The shaft that he loveth well, —and she fled from the
 Of the sea encompassed, bringing
 From the place where her travail befell
@@ -1836,6 +1835,31 @@ Smote they the brine. The ship made way, while yet
 Within the bay ; but, as she cleared its mouth,
 By fierce surge met, she laboured heavily ;
 For suddenly swooped a wild gust on the ship,
+Stern-foremost thrusting her. With might and main
+Fought they the waves, but towards the land again
+The back-sweep drave the ship: then stood and prayed
+Agamemnon's daughter, "Leto's Child, O Maid,
+Save me, thy priestess! Bring me unto Greece
+From alien land; forgive my theft of thee!
+Thy brother, Goddess, dost thou also love:
+O then believe that I too love my kin!"
+The mariners' pæan to the maiden's prayer
+Answered, the while with shoulders bare they strained
+The oar-blade deftly to the timing-cry.
+Nearer the rocks—yet nearer—came the bark.
+Then of us some rushed wading through the sea,
+And some held nooses ready for the cast.
+And straightway hitherward I sped to thee,
+To tell to thee, O King, what there befell.
+On then! Take with thee chain and cord in hand.
+For, if the sea-swell sink not into calm,
+Hope of deliverance have the strangers none.
+The sea's Lord, dread Poseidon, graciously
+Looketh on Ilium, wroth with Pelops' line,
+And now shall give up Agamemnon's son
+To thine hands and thy people's, as is meet,
+With her who, traitress to the Goddess proved,
+That sacrifice in Aulis hath forgot.
 
 CHORUS. Woe is thee, Iphigeneia! With thy brother
 Caught in the tyrant’s grasp shalt thou be slain !
