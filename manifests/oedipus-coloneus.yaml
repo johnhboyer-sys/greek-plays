@@ -40,7 +40,7 @@ english:
     format: loeb-ocr
     source: bench/storr/oedipus-coloneus.txt
     play: OEDIPUS AT COLONUS
-    footnotes: false
+    footnotes: true
   third:
     id: kosmos
     name: "Jebb, rev. Ceragioli & Nagy (Kosmos Society)"
