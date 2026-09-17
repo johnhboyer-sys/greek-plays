@@ -354,6 +354,73 @@ def test_transposed_fixture_emits_printed_order_and_no_seam_note(tmp_path):
     assert all("seamNote" not in line for line in lines)
 
 
+def test_per_column_coverage_emits_coveredby_on_the_empty_slot(tmp_path):
+    """John's ruling 2026-09-16, round 9 §4 option A: a bench column (ross/
+    third/overlay) whose own translator's block covers a Greek speech gets
+    the same "englishCoveredBy" treatment as the primary, keyed by column,
+    on the segment that has no piece of its own in THAT column -- never on
+    a segment that does (round 8 §1.3's Alcestis/Way shape, in miniature:
+    two Greek segments, one Way block anchored at the first)."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {"id": "1:1", "book": 1, "column": "1",
+             "lines": [{"n": 1, "ref": "1", "text": "alpha"}]},
+            {"id": "1:2", "book": 1, "column": "1",
+             "lines": [{"n": 2, "ref": "2", "text": "beta"}]},
+        ],
+    }
+    tokens = {"segments": [
+        {"id": seg["id"], "lines": [{"tokens": []} for _ in seg["lines"]]}
+        for seg in spine["segments"]
+    ]}
+    ross = {"1:1": [{"chapter": "1", "text": "Piece one.", "cont": False}]}
+    ross_covered = {"1:2": "1:1"}
+    stage7_emit.emit_books(
+        spine, tokens, {"chunks": []}, {}, tmp_path,
+        ross=ross, ross_covered=ross_covered,
+    )
+    book = json.loads((tmp_path / "book-01.json").read_text(encoding="utf-8"))
+    emitted = {seg["id"]: seg for seg in book["segments"]}
+    assert emitted["1:1"]["ross"][0]["text"] == "Piece one."
+    assert "coveredBy" not in emitted["1:1"]
+    assert "ross" not in emitted["1:2"]
+    assert emitted["1:2"]["coveredBy"] == {"ross": "1:1"}
+
+
+def test_per_column_coverage_is_silent_once_the_column_has_its_own_piece(tmp_path):
+    """A stale/derived covered entry for a segment that DOES carry its own
+    piece in that column (the spread having filled it -- round 9 §2.1) must
+    never surface a coveredBy for that column, the same guard the primary's
+    englishCoveredBy already applies (`and not eng`)."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {"id": "1:1", "book": 1, "column": "1",
+             "lines": [{"n": 1, "ref": "1", "text": "alpha"}]},
+            {"id": "1:2", "book": 1, "column": "1",
+             "lines": [{"n": 2, "ref": "2", "text": "beta"}]},
+        ],
+    }
+    tokens = {"segments": [
+        {"id": seg["id"], "lines": [{"tokens": []} for _ in seg["lines"]]}
+        for seg in spine["segments"]
+    ]}
+    ross = {
+        "1:1": [{"chapter": "1", "text": "Piece one.", "cont": False}],
+        "1:2": [{"chapter": "1", "text": "Piece two.", "cont": False}],
+    }
+    ross_covered = {"1:2": "1:1"}
+    stage7_emit.emit_books(
+        spine, tokens, {"chunks": []}, {}, tmp_path,
+        ross=ross, ross_covered=ross_covered,
+    )
+    book = json.loads((tmp_path / "book-01.json").read_text(encoding="utf-8"))
+    emitted = {seg["id"]: seg for seg in book["segments"]}
+    assert emitted["1:2"]["ross"][0]["text"] == "Piece two."
+    assert "coveredBy" not in emitted["1:2"]
+
+
 def test_transposition_declaration_remains_required():
     manifest = _transposition_manifest(declared=False)
     with pytest.raises(ValueError, match=r"citation\.transpositions\['1'\] is required"):

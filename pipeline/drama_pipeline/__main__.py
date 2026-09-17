@@ -33,14 +33,23 @@ def _stage1(manifest):
                     "overlays.json", "paratext.json", "context_english.json",
                     "citation_expansion.json", "english_report.json",
                     "english_footnotes.json", "secondary_footnotes.json",
-                    "secondary_report.json", "third_report.json"):
+                    "secondary_report.json", "third_report.json",
+                    # secondary/third's own englishCoveredBy map (round 9 §4
+                    # option A, stage7_emit.py's per-column "coveredBy"):
+                    # left uncleared here before, these were never read back
+                    # by anything, so a previous work's stale map sat
+                    # harmlessly; stage7_emit.run now reads them, so a work
+                    # with no english.secondary/third must see none of it.
+                    "secondary_alignment.json", "third_alignment.json"):
         (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
     # Overlay report/alignment files are named per translation id
     # (overlay_<id>_report.json), so a fixed list can't cover them; a play
     # with fewer overlays than the previous build otherwise keeps the extra
     # overlay's stale report (the audit sheet reads it and reports it as
-    # this play's).
+    # this play's) -- and, since round 9 §4, its stale coveredBy map too.
     for stale in (BUILD_DIR / "stage1").glob("overlay_*_report.json"):
+        stale.unlink(missing_ok=True)
+    for stale in (BUILD_DIR / "stage1").glob("overlay_*_alignment.json"):
         stale.unlink(missing_ok=True)
 
     # Section-scheme works can opt into a parallel Perseus Stephanus TEI pass.

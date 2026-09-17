@@ -416,6 +416,57 @@ describe('Reader.svelte play-line continuation coverage (P2e)', () => {
     // The affordance replaces the missing-passage dash for that segment only.
     expect(container.querySelectorAll('.eng-covered')).toHaveLength(1);
   });
+
+  // John's ruling 2026-09-16, round 9 §4 option A: the same affordance, one
+  // per NON-primary column (Segment.coveredBy, keyed "ross"/"third"/an
+  // overlay id) -- a bench column's own translator can print an undivided
+  // block the primary never does, so the note has to be independent of
+  // englishCoveredBy, not inherited from it.
+  it('shows the same note for a comparison column whose own translator covers this segment, in single-column view', async () => {
+    const data = book();
+    data.segments[0].secondary = [
+      { chapter: '1', text: 'STORR. A block Storr anchored once.', cont: false },
+    ];
+    data.segments[1].coveredBy = { ross: '1:1' };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+    await fireEvent.change(picker, { target: { value: 'storr' } });
+    await flush();
+    const covered = container.querySelector('.eng-covered');
+    expect(covered?.textContent).toContain('Translated with the speech above');
+    expect(container.querySelectorAll('.eng-covered')).toHaveLength(1);
+  });
+
+  it('tracks the comparison column independently of the primary in compare mode', async () => {
+    const data = book();
+    // The PRIMARY has its own text on every segment -- never covered.
+    data.segments[0].english = {
+      text: 'The primary keeps its own line here too.',
+      notes: [], markers: [],
+      turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+    };
+    data.segments[1].english = {
+      text: 'And here.',
+      notes: [], markers: [],
+      turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }],
+    };
+    // Storr's own block covers 1:5 from 1:1 -- a coveredBy the primary
+    // never declares (englishCoveredBy is left unset on both segments).
+    data.segments[0].secondary = [
+      { chapter: '1', text: 'STORR. A different block Storr anchored once.', cont: false },
+    ];
+    data.segments[1].coveredBy = { ross: '1:1' };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    await fireEvent.change(container.querySelectorAll('input[name="trans-mode"]')[1] as HTMLInputElement);
+    await flush();
+    // The primary (left) column has its own text everywhere -- no covered note.
+    expect(container.querySelector('.english-col .eng-covered')).toBeNull();
+    // The secondary (right, compare) column is covered in ITS OWN column.
+    const covered = container.querySelector('.overlay-col .eng-covered');
+    expect(covered?.textContent).toContain('Translated with the speech above');
+  });
 });
 
 

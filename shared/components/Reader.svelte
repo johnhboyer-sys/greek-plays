@@ -749,13 +749,29 @@
   // runtime that somehow sees stale/partial data) keeps its original
   // spine position, appended after every named column.
   // A declared cover may name the segment AFTER this one (REVIEW-CHECKLIST
-  // 7: Phoenician Women 1336 sits in 1337's block): the jump says so.
-  function coverBelow(seg: Segment): boolean {
-    const by = seg.englishCoveredBy;
+  // 7: Phoenician Women 1336 sits in 1337's block): the jump says so. Takes
+  // the covering id explicitly (round 9 §4: a bench column's own coveredBy
+  // target can differ from the primary's) rather than reading
+  // seg.englishCoveredBy itself.
+  function coverBelow(seg: Segment, by: string | undefined): boolean {
     if (!by) return false;
     const a = orderedSegments.findIndex((s) => s.id === seg.id);
     const b = orderedSegments.findIndex((s) => s.id === by);
     return a >= 0 && b > a;
+  }
+
+  // The covering segment id for ONE column (round 9 §4 option A): the
+  // primary reads seg.englishCoveredBy as always; a bench column reads its
+  // own sibling off seg.coveredBy, keyed the same way piecesFor keys that
+  // column's pieces -- "ross" (secondary), "third", or the overlay's own
+  // translation id.
+  function coveredByFor(seg: Segment, t: TranslationRef | null): string | undefined {
+    if (!t) return undefined;
+    if (t.slot === 'english') return seg.englishCoveredBy;
+    if (t.slot === 'secondary') return seg.coveredBy?.secondary ?? seg.coveredBy?.ross;
+    if (t.slot === 'third') return seg.coveredBy?.third;
+    if (t.slot === 'overlay') return seg.coveredBy?.[t.id];
+    return undefined;
   }
 
   $: orderedSegments = (() => {
@@ -4014,11 +4030,15 @@
     {@const blocks = buildEnglishTurnBlocks(source.text, source.turns)}
     {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
     {@render playTurnStack(blocks, chunkMm, transId)}
-    {:else if seg.englishCoveredBy && (transById(transId)?.slot === 'english' || !transById(transId) || !piecesFor(seg, transById(transId)!).length)}
-      <!-- P2e: the translator rendered this line inside a block anchored at
-           an earlier speech; say so and offer the jump, rather than "no
-           aligned passage" (which would be false). -->
-      <div class="overlay-prose turn-eng"><button type="button" class="eng-covered" on:click={() => scrollToSegment(seg.englishCoveredBy!)}>{coverBelow(seg) ? 'Translated with the speech below ↓' : 'Translated with the speech above ↑'}</button></div>
+    {:else if coveredByFor(seg, transById(transId))}
+      {@const covBy = coveredByFor(seg, transById(transId))!}
+      <!-- P2e, extended per column at round 9 §4 (John's ruling
+           2026-09-16, option A): the translator rendered this line inside a
+           block anchored at an earlier speech IN THIS SAME COLUMN; say so
+           and offer the jump, rather than "no aligned passage" (which would
+           be false). Reuses the primary's own note verbatim -- neither
+           names a translator, so the wording already fits any column. -->
+      <div class="overlay-prose turn-eng"><button type="button" class="eng-covered" on:click={() => scrollToSegment(covBy)}>{coverBelow(seg, covBy) ? 'Translated with the speech below ↓' : 'Translated with the speech above ↑'}</button></div>
     {:else}
       {@const cont = playContinuation(seg, transId)}
       {#if cont === 'tail'}
