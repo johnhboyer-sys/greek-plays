@@ -1568,6 +1568,29 @@ def test_loeb_ocr_leading_bracket_direction_splits_off_the_verse_line():
     ]
 
 
+# Sol re-check finding 6 (2026-09-16): a leading bracketed direction on the
+# *cue* line itself -- way/heraclidae.txt:348, `CHORUS. [To HERALD] Depart
+# thou :--touch thou not this man,` -- was never split at all. The cue
+# branch appended the speaker-line regex's whole `rest` group straight into
+# `parts`, so `[To HERALD]` rode into the spoken text; only a *continuation*
+# line got `_split_leading_direction`/`_split_trailing_direction`.
+def test_loeb_ocr_leading_bracket_direction_on_the_cue_line_splits_off():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. [To HERALD] Depart thou :—touch thou not this man,\n"
+        "O king.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": "Depart thou :—touch thou not this man,\nO king.",
+            "shown": "_To HERALD_\nDepart thou :—touch thou not this man,\nO king.",
+        }
+    ]
+    assert "[To HERALD]" not in speeches[0]["text"]
+
+
 # The Loeb habit is to never close the bracket at all -- Cyclops 538,
 # `... make your host good\ncheer. [Begins to drive the crew in.` -- so the
 # trailing form must split on an unclosed bracket too. At the very end of a
@@ -3690,3 +3713,23 @@ def test_a_turn_too_far_from_the_boundary_is_marking_something_else():
     # The fifty-four-line segment keeps the bulk; nothing lands on a
     # three-line segment that its own Greek cannot hold.
     assert got[1] > 0.7 * 74 and got[2] <= 2 * sizes[2]
+
+
+# Sol re-check finding 8 (2026-09-16): `margin_p10`'s index was
+# `floor(0.1n) - 1`, which undercounts nearest-rank -- for n=11 it picked
+# index 0 (the 1st of 11 sorted margins) where nearest-rank picks index 1
+# (the 2nd, at or above which 10% of the data falls). Fixed to
+# `max(0, ceil(0.10n) - 1)`.
+def test_p10_index_is_nearest_rank_not_floor_minus_one():
+    from drama_pipeline.stage1_turn_english import _p10_index
+
+    # n=1: only one value -- its own index, never negative.
+    assert _p10_index(1) == 0
+    # n=9, n=10: the old floor(0.1n)-1 formula already agreed with
+    # nearest-rank here (both 0); the fix must not regress them.
+    assert _p10_index(9) == 0
+    assert _p10_index(10) == 0
+    # n=11: the bug's own evidence -- floor(0.1*11)-1 = 0, nearest-rank = 1.
+    assert _p10_index(11) == 1
+    # n=20: an exact decile boundary, unaffected either way.
+    assert _p10_index(20) == 1

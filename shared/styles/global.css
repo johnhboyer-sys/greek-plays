@@ -1985,15 +1985,20 @@ body {
    epigrams): each line indented and on its own row. Styling hooks only —
    minimal by design; a later design pass may restyle. */
 .verse { display: block; margin: 0.4em 0; }
+.verse-line { display: block; padding-left: 1.5em; }
 /* text-indent cancels this element's own padding-left for its first line
    only (CSS' one-line-per-block rule): a verse line starts flush wherever it
    sits, and a wrapped continuation -- of this line's own text, or a browser
-   line-break inside it -- hangs indented by the same amount. Reused by the
-   Greek Drama Reader's play-line turn text (Reader.svelte's renderVerseTurn,
-   John, 2026-09-14, "show verse as verse!!!!"): each `\n`-separated source
-   line is its own `.verse-line`, so this same hanging indent now also
-   applies there. */
-.verse-line { display: block; padding-left: 1.5em; text-indent: -1.5em; }
+   line-break inside it -- hangs indented by the same amount. The Greek
+   Drama Reader's play-line turn text (Reader.svelte's renderVerseTurn,
+   John, 2026-09-14, "show verse as verse!!!!") reuses the bare `.verse-line`
+   block above for each `\n`-separated source line, but the hanging indent
+   itself is scoped to `.turn-para` -- the element renderVerseTurn's spans
+   always sit inside -- because the bare class also serves `groupVerse`'s
+   quoted-verse epigrams in non-drama prose works (above), whose contract is
+   "each line indented", not hanging (Sol re-check finding 7, 2026-09-16: the
+   unscoped text-indent cancelled that contract site-wide). */
+.turn-para .verse-line { text-indent: -1.5em; }
 /* An imported translation's own converter-derived chapter title (Reader.svelte's
    importChapterTitle) — this edition's editorial paratext, rendered unaligned at
    the start of its chapter, INSIDE only that import's own overlay column. Not

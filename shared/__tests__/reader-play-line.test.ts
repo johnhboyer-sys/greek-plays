@@ -1931,6 +1931,25 @@ describe('verse form: a verse translation renders each source line as its own bl
     expect(lines[2].querySelector('mark')).toBeNull();
     expect(lines[2].querySelector('.fn-marker')).toBeNull();
   });
+
+  // Sol re-check finding 7 (2026-09-16): the bare `.verse-line` rule already
+  // served `groupVerse`'s quoted-verse epigrams in non-drama prose works
+  // (components.test.ts "renders a verse range as a .verse block..."),
+  // whose contract is "each line indented" -- NOT hanging. The drama fix
+  // above bolted `text-indent: -1.5em` onto that same bare selector, so
+  // every quoted epigram line everywhere on the site lost its indent on
+  // wrapped continuations. The hanging indent must be scoped to the drama
+  // turn-text container (`.turn-para`, the element `renderVerseTurn`'s
+  // spans always sit inside; `groupVerse`'s spans sit inside `.verse`
+  // instead and never inside a `.turn-para`).
+  it('scopes the verse-line hanging indent to the drama turn-text container, leaving the bare rule untouched', () => {
+    const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../styles/global.css'), 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '');
+    const bareRule = css.match(/^\.verse-line\s*\{[^}]*\}/m);
+    expect(bareRule).not.toBeNull();
+    expect(bareRule![0]).not.toMatch(/text-indent/);
+    expect(css).toMatch(/\.turn-para \.verse-line\s*\{[^}]*text-indent:\s*-1\.5em[^}]*\}/);
+  });
 });
 
 // ── Astra lane A (F2, F3, F6, F7, F8) ─────────────────────────────────────

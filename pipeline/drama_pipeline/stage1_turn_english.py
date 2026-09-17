@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import bisect
 import json
+import math
 import re
 from pathlib import Path
 from statistics import median
@@ -68,6 +69,17 @@ _OCR_JUNK = pair_dp.OCR_JUNK
 # on its own (turn-pairing design 2026-09-15, section 3.4). Chosen as roughly
 # one `w_spk` mismatch's worth of headroom; not swept against the corpus.
 _LOW_CONFIDENCE_MARGIN = 1.0
+
+
+def _p10_index(n: int) -> int:
+    """The nearest-rank index (0-based) of the 10th percentile among ``n``
+    sorted values. ``floor(0.1n) - 1`` undercounts: for n=11 it picks index
+    0 (the 1st of 11) where nearest-rank picks index 1 (the 2nd), the value
+    at or above which 10% of the data falls (Sol re-check finding 8,
+    2026-09-16). Clamped to 0 so a single value still has a p10."""
+    return max(0, math.ceil(n * 0.10) - 1)
+
+
 _NOTE_START = re.compile(r"^\[(\d+)\]\s*(.*)$")
 _FN_MARK = re.compile(r"\[(\d+)\]")
 _PG_END = re.compile(r"^\*\*\*\s*END OF|End of the Project Gutenberg")
@@ -684,7 +696,23 @@ def _parse_as_speeches(
                 if m.group("stage"):
                     parts.append(m.group("stage"))
                 if m.group("rest"):
-                    parts.append(m.group("rest"))
+                    # The cue's own remainder can open (or close) with a
+                    # bracketed direction too -- way/heraclidae.txt:348
+                    # `CHORUS. [To HERALD] Depart thou...` -- same split as
+                    # a continuation line, just below (Sol re-check finding
+                    # 6, 2026-09-16).
+                    rest = m.group("rest")
+                    lead = _split_leading_direction(rest)
+                    if lead:
+                        direction, rest = lead
+                        _add_direction(inline, len(parts), direction)
+                    trail = _split_trailing_direction(rest)
+                    if trail:
+                        rest, direction = trail
+                        parts.append(rest)
+                        _add_direction(inline, len(parts), direction)
+                    else:
+                        parts.append(rest)
             else:
                 parts.append(periodless[1])
         elif speaker:
@@ -2271,7 +2299,7 @@ def parse_translation(
             _margins[_mid] if len(_margins) % 2
             else (_margins[_mid - 1] + _margins[_mid]) / 2.0
         )
-        margin_p10 = _margins[max(0, (len(_margins) * 10) // 100 - 1)]
+        margin_p10 = _margins[_p10_index(len(_margins))]
     else:
         margin_median = None
         margin_p10 = None
