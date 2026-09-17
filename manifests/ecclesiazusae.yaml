@@ -83,7 +83,7 @@ english:
     format: loeb-ocr
     source: "bench/rogers/ecclesiazusae.txt"
     play: "THE ECCLESIAZUSAE"
-    footnotes: false
+    footnotes: true
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

@@ -39,7 +39,7 @@ english:
     format: loeb-ocr
     source: "bench/rogers/wealth.txt"
     play: "THE PLUTUS"
-    footnotes: false
+    footnotes: true
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -98,6 +98,13 @@ speakers:
     "HERMES": "Hermes"
     "PLUTUS": "Wealth"
     "CHORUS": "Chorus"
+    # Rogers's "Good Man" (G.M.), the honest citizen made rich in the
+    # temple scene, is the Greek roster's "Just Man" (ΔΙ./ΔΙΚΑΙΟΣ), which
+    # had no English cue mapped to it at all (Genie check, 2026-09-17).
+    "GOOD MAN": "Just Man"
+    # Zeus's priest, in the play's final scene: printed in full throughout,
+    # but never had an alias entry (Genie check, 2026-09-17).
+    "PRIEST": "Priest"
   sigla:
     "ΧΡ.": "Chremylus"
     "ΧΡΕΜΥΛΟΣ": "Chremylus"
