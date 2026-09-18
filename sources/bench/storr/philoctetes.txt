@@ -71,6 +71,21 @@ Or prowess must thou prove thy breed to-day.
 If tasks be set thee that seem strange, no less
 Thou must perform them; therefore wast thou sent.
 
+NEOPTOLEMUS. What is thy hest?
+
+ODYSSEUS. Thou must cajole and cheat
+The soul of Philoctetes by fair words,
+And when he asks thee who and whence thou art,
+“Achilles’ son,” make answer; hide not this.
+But add, “I am sailing homewards and have left
+The fleet in dudgeon, wroth against the chiefs
+Who first prevailed on me to quit my home,
+Because without me Troy could ne’er be taken,
+And then upon my coming basely spurned
+My righteous title to Achilles’ arms,
+And gave them to Odysseus.” At my name
+Heap on me every scoff and scorn and taunt;
+
 It will not hurt me, but if thou should’st fail
 ‘Twill sorely vex the Argives one and all.
 This man’s artillery we needs must have ;
@@ -460,7 +475,7 @@ To Scyros with these arms thou ne’er shalt sail.”
 Thus flouted and abused I left the host,
 And now am sailing homewards, robbed by him,
 Odysseus, the base villain, basely born.
-Yetis he less to blame than those who rule ;
+Yet is he less to blame than those who rule ;
 For like a commonwealth each armèd host
 Perforce is subject to authority,
 And all the lawless doings in the world
@@ -565,7 +580,7 @@ Whene’er the gods shall send a favouring breeze.
 PHILOCTETES. So soon, my son, departing ?
 
 NEOPTOLEMUS. ‘Tis high time,
-Not here, Dut from the strand to watch the tide.
+Not here, but from the strand to watch the tide.
 
 PHILOCTETES. Oh ! in thy father’s, in thy mother’s name,
 By all the sanctities of home, my son,
@@ -798,7 +813,7 @@ PHILOCTETES. My store is scant, but certain things I need.
 
 NEOPTOLEMUS. What that thou wilt not find on board my ship?
 
-PHILOCTETES. A herb ef wondrous virtue wherewithal
+PHILOCTETES. A herb of wondrous virtue wherewithal
 I use to mollify and lull my wound.
 
 NEOPTOLEMUS. Then bring it with thee. What else wouldst thou
@@ -943,7 +958,7 @@ Awhile, and then come home again, belike
 Tired with its holiday.
 
 NEOPTOLEMUS. Wretched indeed in all thy suffering proved.
-Wilt leah on me? Shall I take hold of thee?
+Wilt lean on me? Shall I take hold of thee?
 
 PHILOCTETES. Nay touch me not, I beg, but take this bow
 Which thou didst crave to handle, and until
@@ -978,7 +993,7 @@ Out, out upon thee, damnèd foot! Alack!
 What plague hast yet in store for me? Alack!
 It prowls, it stalks amain, ready to spring.
 Woe! Now ye know my torture, leave me not!
-Ahme! Ah me!
+Ah me! Ah me!
 Would God, O Cephallenian, through thy breast
 This spasm might pass and hold thee in its grip!
 Woe’s me and woe once more! Ye generals twain,
@@ -1086,7 +1101,7 @@ As one who hath nor ears nor eyes.
 Of hand or foot, no motion has he, none
 More than the dead who in Earth’s bosom rest.
 Then look, my son, look that thou utterest
-Sane counsels, Ifa plain man might advise
+Sane counsels, if a plain man might advise
 Thy wisdom, the discreetest way is best.
 
 NEOPTOLEMUS. Silence, and keep your wits; his eyes begin
@@ -1131,7 +1146,7 @@ NEOPTOLEMUS. Ye Gods! What now remains for me to do?
 PHILOCTETES. What is it, my son, what mean these whirling
 words?
 
-NEOPTOLEMUS. I speak perplextly, know not how to speak.
+NEOPTOLEMUS. I speak perplexedly, know not how to speak.
 
 PHILOCTETES. What can perplex thee? say not so, my son.
 
@@ -1326,7 +1341,7 @@ I curse thee; when have I
 Not cursed thee these long years? But since the Gods
 Grant nothing sweet to me, thou livest on
 Exultant ; and to me, with endless woes
-Enconmpassed, life itself is misery ;
+Encompassed, life itself is misery ;
 Mocked as I am by thee and the two sons
 Of Atreus whose abettor now thou art.
 Thou of constraint and by a stratagem
@@ -1479,7 +1494,7 @@ Soon will ye eye me dead ;
 Who can survive one day
 By airs of heaven fed ?
 Of all that Earth affords each son,
-Hetb, root and fruit, possessing none.
+Herb, root and fruit, possessing none.
 
 CHORUS. If thou regardest a well-wishing friend,
 Draw near and to his kindly rule attend.
@@ -1511,21 +1526,21 @@ PHILOCTETES. Stay, O stay!
 
 CHORUS. Why should we wait ?
 
-PHILOCTETES. O woe isme! Out on my fate, my fate!
+PHILOCTETES. O woe is me! Out on my fate, my fate!
 Accursed foot, what shall I make of thee?
-Iam undone! O friends, come back to me.
+I am undone! O friends, come back to me.
 
 CHORUS. What would’st thou? First thou bid’st us go, and
 then
 In the same breath thou biddest us remain.
 
 PHILOCTETES. O be not wrath if one distraught with pain
-Blurts out d?scordant words beside the mark.
+Blurts out discordant words beside the mark.
 
 CHORUS. Come then, unhappy man, with us embark.
 
 PHILOCTETES. Never, no never, though the King of Heaven
-Should threat to blast me with his fiery leven.
+Should threat to blast me with his fiery levin.
 No, perish rather Ilium, perish all
 The Achaean host that batter at its wall;
 Hard hearts who cast me forth as halt and maim.
@@ -1548,7 +1563,7 @@ To seek my father.
 
 CHORUS. In what land?
 
-PHILOCTETES. | Below ;
+PHILOCTETES. Below ;
 For I shall find him nowhere on this earth.
 My native land, fair land that gave me birth,
 Might I but see thee! Wherefore did I roam
@@ -1599,7 +1614,7 @@ NEOPTOLEMUS. Rest well assured I have nothing more to add.
 
 ODYSSEUS. There is, I tell thee, one to stay thy hand.
 
-NEOPTOLEMUS. Who pr&thee? who to stay me or prevent?
+NEOPTOLEMUS. Who prithee? who to stay me or prevent?
 
 ODYSSEUS. The whole Achaean host, and I for one.
 
@@ -1669,7 +1684,7 @@ NEOPTOLEMUS. Art resolute ?
 PHILOCTETES. More resolute than words can tell.
 
 NEOPTOLEMUS. Well, I would gladly have persuaded thee
-By trgument, but if thou wilt not heed,
+By argument, but if thou wilt not heed,
 Why, I have done.
 
 PHILOCTETES. Thou needs must speak in vain.
@@ -1862,7 +1877,7 @@ NEOPTOLEMUS. Say’st thou?
 PHILOCTETES. Will prevent their landing.
 
 NEOPTOLEMUS. Kiss the earth and let us go.
--ipparition of MERACcLES behind the stage.
+[Apparition of HERACLES behind the stage.]
 
 HERACLES. Son of Poeas, first my word :
 Heracles to thee appears,
@@ -1877,7 +1892,7 @@ How, having laboured hugely and endured,
 I won immortal glory, as thou seest.
 Know that thy fortune like to mine shall be,
 Through suffering to glorify thy life.
-Thou shalt be heaied of thy grievous sore ;
+Thou shalt be healèd of thy grievous sore ;
 Then, chosen as the champion of the host,
 With these my arrows thou shalt pierce to the heart
 Paris, the guilty cause of all that woe.
@@ -1895,10 +1910,10 @@ Either the other guards.
 To cure thy wounds
 Asclepius, the healer, will I send
 To Troas; for a second time Troy towers
-Mugt fall before my shafts. Only take heed,
+Must fall before my shafts. Only take heed,
 In laying waste the land to reverence
 Its gods; all else by Zeus my sire is less
-Regarded. Piety can never dice;
+Regarded. Piety can never die;
 It lives on earth and blossoms in the grave.
 
 PHILOCTETES. Voice for which I long have yearned,
@@ -1928,7 +1943,7 @@ Bid thy guest a voyage fair
 Speed him to the land where he,
 Borne by mighty Destiny,
 And the god at whose decree
-All gvas ordered, fain would be.
+All was ordered, fain would be.
 
 CHORUS. Let us to the Sea Nymphs pray
 To waft us on our Troy-ward way.

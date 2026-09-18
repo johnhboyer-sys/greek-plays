@@ -100,7 +100,7 @@ OEDIPUS. We soon shall know; he’s now in earshot range.
 
 [Enter CREON.]
 
-CREON. My royal cousin, say, Menoeceus’ child,
+OEDIPUS. My royal cousin, say, Menoeceus’ child,
 What message hast thou brought us from the god?
 
 CREON. Good news, for e’en intolerable ills,
@@ -1918,7 +1918,7 @@ The load of guilt that none but I can share.
 
 [Enter CREON.]
 
-CREON. Lo, here is Creon, the one man to grant
+CHORUS. Lo, here is Creon, the one man to grant
 Thy prayer by action or advice, for he
 Is left the State’s sole guardian in thy stead.
 

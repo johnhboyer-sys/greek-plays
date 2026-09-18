@@ -79,7 +79,7 @@ As a wayfarer ; tell me what I crave.
 STRANGER. Ask ; your request shall not be scorned by me.
 
 OEDIPUS. How call you then the place wherein we bide?
-STRANGER :
+STRANGER.
 Whate’er I know thou too shalt know ; the place
 Is all to great Poseidon consecrate.
 Hard by, the Titan, he who bears the torch,
@@ -760,7 +760,7 @@ CHORUS. What, then thy offspring are at once—
 
 OEDIPUS. Too true.
 Their father’s very sisters too.
-CHORUS :
+CHORUS.
 Oh horror!
 
 OEDIPUS. Horrors from the boundless deep
@@ -2190,10 +2190,10 @@ Too long, too long thy passing is delayed.”
 But when he heard the summons of the god,
 He prayed that Theseus might be brought, and when
 The Prince came nearer: “ O my friend,” he cried,
-« Pledge ye my daughters, giving thy right hand—
+“ Pledge ye my daughters, giving thy right hand—
 And, daughters, give him yours—and promise me
 Thou never wilt forsake them, but do all
-That time and friendship prompt in their behoof.”’
+That time and friendship prompt in their behoof.”
 And he of his nobility repressed
 His tears and swore to be their constant friend.
 This promise given, Oedipus put forth
@@ -2294,7 +2294,7 @@ ISMENE. Alas, my sister, what new fate
 Befalls us orphans desolate ?
 
 CHORUS. His end was blessèd ; therefore, children, stay
-Your sorrow. Man is born to fate a prey. "
+Your sorrow. Man is born to fate a prey.
 
 ANTIGONE. Sister, let us back again.
 
