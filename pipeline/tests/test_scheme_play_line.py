@@ -421,6 +421,38 @@ def test_per_column_coverage_is_silent_once_the_column_has_its_own_piece(tmp_pat
     assert "coveredBy" not in emitted["1:2"]
 
 
+def test_transposition_row_may_declare_the_english_keying():
+    """Lane C round 3b item 1: the English builder needs to be told, per
+    row, when a translation numbers a transposed stretch by its PRINTED
+    position rather than by the edition's own numbers (oedipus-coloneus
+    328-330).  The declaration rides on the row as ``english_keyed:
+    printed``; it says nothing about the Greek, so the derived-vs-declared
+    gate must compare the derived keys only and still pass.  A typo in the
+    key or its value is a silent fail-open hazard, so it raises."""
+    manifest = _transposition_manifest()
+    sch = scheme_mod.for_manifest(manifest)
+    row = manifest.data["citation"]["transpositions"]["1"][0]
+    row["english_keyed"] = "printed"
+    spine = stage1_greek._parse_spine_play(
+        FIX / "synthetic_transposition.xml", manifest, sch
+    )
+    refs = [line["ref"] for seg in spine["segments"] for line in seg["lines"]]
+    assert refs == ["1283", "1290", "1284", "1285", "1291"]
+
+    row["english_keyed"] = "prined"
+    with pytest.raises(ValueError, match=r"english_keyed"):
+        stage1_greek._parse_spine_play(
+            FIX / "synthetic_transposition.xml", manifest, sch
+        )
+
+    del row["english_keyed"]
+    row["english_keyd"] = "printed"
+    with pytest.raises(ValueError, match=r"unknown key"):
+        stage1_greek._parse_spine_play(
+            FIX / "synthetic_transposition.xml", manifest, sch
+        )
+
+
 def test_transposition_declaration_remains_required():
     manifest = _transposition_manifest(declared=False)
     with pytest.raises(ValueError, match=r"citation\.transpositions\['1'\] is required"):
@@ -588,14 +620,26 @@ def test_metrical_schema_only_line_becomes_a_lacuna():
 
 
 def test_ordinary_en_dash_outside_a_schema_run_is_kept():
-    """The schema strip must not eat a real editorial em dash or a lone en
-    dash that sits among ordinary Greek words (an antilabe interruption),
-    only a RUN made up solely of scheme glyphs and spaces."""
-    tree = _play_xml([("1", "καὶ νῦν — ἄφνω — τόδ' εἶπεν.")])
+    """Sol review of 6e8a9d6, finding 4: this test claimed to cover the lone
+    EN dash and used em dashes (—), which the strip never touched, so it
+    passed with C5 reverted.  With the real character, the strip ate it: a
+    one-character run of ``–`` matched, and an editorial dash among Greek
+    words is punctuation, not a metrical scheme.  A run has to carry a true
+    metrical glyph (``⏑⏓⏔⏕`` or the anceps ``×``) or more than one dash
+    before it is apparatus."""
+    tree = _play_xml([
+        ("1", "καὶ νῦν – ἄφνω – τόδ' εἶπεν."),
+        ("2", "καὶ νῦν — ἄφνω — τόδ' εἶπεν."),
+        # bacchae 757a, as the export prints it: the anceps sits INSIDE the
+        # run, so a class that stops at it left "<×>," in the Greek.
+        ("3", "οὐ χαλκός, οὐ σίδηρος &lt;–×–⏑–&gt;,"),
+    ])
     m = _M({"title_labels": _title_decl(), "transpositions": {"1": []}})
     flat = stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
-    line = next(e for e in flat if e["ref"] == "1")
-    assert line["text"] == "καὶ νῦν — ἄφνω — τόδ' εἶπεν."
+    by_ref = {e["ref"]: e for e in flat}
+    assert by_ref["1"]["text"] == "καὶ νῦν – ἄφνω – τόδ' εἶπεν."
+    assert by_ref["2"]["text"] == "καὶ νῦν — ἄφνω — τόδ' εἶπεν."
+    assert by_ref["3"]["text"] == "οὐ χαλκός, οὐ σίδηρος <>,"
 
 
 # ── Speaker sigla: normalization + range overrides (stage7) ──────────────

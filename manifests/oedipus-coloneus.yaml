@@ -93,8 +93,20 @@ citation:
     "1": ["1718", "1719"]
 
   transpositions:
-    "1": 
-      - { start: "328", end: "328", before: "330" }
+    "1":
+      # Dain-Mazon print 328 after 330, so the printed order here is 329,
+      # 330, 328. `english_keyed` (optional, `printed` or `number`; default
+      # `number`) tells the English builder which reading THIS translation
+      # follows over the row's stretch: `printed` means the translation's
+      # nth line in the stretch renders the edition's nth PRINTED line, so
+      # Jebb's own 328/329/330 seat on Greek 329/330/328; the default means
+      # both editions number the same verses alike and each anchor's own
+      # number is already right. Verified for this row (Lane C round 3/3b,
+      # Jebb renumbers his transposed verse and Dain-Mazon keep the
+      # vulgate's number); the stichomythia's repeating Oedipus/Ismene
+      # antilabe makes the Greek's own attributions score the two readings
+      # a tie, which stands down by default, so the row has to say it.
+      - { start: "328", end: "328", before: "330", english_keyed: printed }
 
   fingerprint: { count: 1763, sha256: "dbcf98f5c385c325c8c2fef5bd7a67c03b669eb8739aa85a483e2028226329a1" }
 

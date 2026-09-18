@@ -900,7 +900,16 @@ def _crowded_seat_anchors(
     one Greek seat, and a translation does not number two lines for one
     verse.  OT 625's only co-occupant is 625a — the second half of its own
     line, which is what an antilabe is and implies no slip at all.  So the
-    co-occupant must carry a different base number.
+    co-occupant must be a different SOURCE LINE, which is not the same
+    thing as a different number (Sol review of 6e8a9d6, finding 2): a
+    translator may number the halves of one Greek line 625 and 626 rather
+    than 625/625a, and then the bases differ while the source line is one.
+    What says so is the line itself — two anchors on ONE printed ref whose
+    line carries TWO SPEAKER SHARES are that antilabe's two halves,
+    however they are numbered, and imply no slip.  Anything else is
+    evidence: a co-occupant on another of the seat's printed refs (Smyth's
+    Persians 1075 and 1076, two refs in one Greek speech), or two English
+    lines on a single-speaker ref (Diggle's Hecuba 709-710).
 
     And a LONE move must fill a hole: the same-speaker speech the repair
     would reach must hold no English anchor of its own, so it never
@@ -934,6 +943,7 @@ def _crowded_seat_anchors(
         return greek is not None and greek == speaker
 
     seats: dict[str, list[int]] = {}
+    seat_ref: dict[int, str] = {}
     for pos, job in enumerate(jobs):
         anchor = job.get("anchor")
         if anchor is None:
@@ -941,6 +951,7 @@ def _crowded_seat_anchors(
         hit = index.segment_for_anchor(anchor)
         if hit is not None:
             seats.setdefault(hit[0]["id"], []).append(pos)
+            seat_ref[pos] = hit[1]
     anchored = set(seats)
 
     numbered = [pos for pos, job in enumerate(jobs) if job.get("n") is not None]
@@ -978,8 +989,11 @@ def _crowded_seat_anchors(
         hit = index.segment_for_anchor(anchor) if anchor is not None else None
         if hit is None or n is None or not speaker:
             continue
+        shares = len([s for s in index.line_shares(hit[0], n) if s is not None])
         settled = any(
-            jobs[other].get("n") != n and agrees(jobs[other])
+            jobs[other].get("n") != n
+            and (seat_ref.get(other) != seat_ref.get(pos) or shares < 2)
+            and agrees(jobs[other])
             for other in seats.get(hit[0]["id"], ())
         )
         if not settled:
@@ -1324,6 +1338,63 @@ def _multi_span_tail_redirects(
     return redirects
 
 
+_TERMINAL_PUNCTUATION = ".!?…"
+# Quotes and brackets an edition closes AFTER the stop, plus the Greek colon.
+_TRAILING_MARKS = "\"'’”)]»· "
+
+
+def _runs_line_for_line(
+    jobs: list[dict], index: _SpeechIndex, sp_index: int, n: int, segment: dict
+) -> bool:
+    """Is this speech's head numbered the very NEXT printed line after the
+    last line the PREVIOUS English speech numbered inside ``segment``?
+
+    That is the shape of a translation running line for line with the Greek
+    (Coleridge's Hecuba has her 159 and gives 160 to the semi-chorus), and
+    where it holds, the head's own number is as trustworthy as any other
+    anchor's.  Where the previous speech left printed lines of its own
+    unnumbered before this one — its last anchor is two or more lines back,
+    or it never anchored in this segment at all — the translation's
+    lineation has already parted from the edition's and the number carries
+    no such weight.  A head sharing one line with the previous speech (an
+    antilabe half, Trachiniae 879a/879b) is not line-for-line either.
+    """
+    printed = index.printed.get(segment["id"]) or []
+    previous = max((j["sp_index"] for j in jobs if j["sp_index"] < sp_index), default=None)
+    if previous is None or n not in printed:
+        return False
+    lines = [
+        j["n"]
+        for j in jobs
+        if j["sp_index"] == previous
+        and j.get("anchor") is not None
+        and j.get("n") in printed
+        and (index.segment_for_anchor(j["anchor"]) or (None,))[0] is not None
+        and index.segment_for_anchor(j["anchor"])[0]["id"] == segment["id"]
+    ]
+    if not lines:
+        return False
+    return printed.index(n) == printed.index(max(lines)) + 1
+
+
+def _reads_as_a_continuation(text: str) -> bool:
+    """Does this piece read as part of a sentence rather than a whole one?
+
+    True when it begins mid-sentence (its first letter is lowercase) or ends
+    without terminal punctuation — the two ways a translator's line shows on
+    the page that the sentence runs on past it.
+    """
+    body = (text or "").strip()
+    if not body:
+        return False
+    first = next((ch for ch in body if ch.isalpha()), "")
+    if first and first.islower():
+        return True
+    return body.rstrip(_TRAILING_MARKS)[-1:] not in ("",) + tuple(
+        _TERMINAL_PUNCTUATION
+    )
+
+
 def _multi_span_head_redirects(
     jobs: list[dict], index: _SpeechIndex
 ) -> dict[tuple[int, int], tuple[str, str]]:
@@ -1342,7 +1413,43 @@ def _multi_span_head_redirects(
 
     The conditions mirror C7's: the head piece disagrees with the Greek
     speaker of the segment its number names, and the NEXT piece of the same
-    speech agrees with its own segment.  The third — that the head really is
+    speech agrees with its own segment.  That layout alone is not enough
+    (Sol review of 6e8a9d6, finding 3): it is also exactly what a plain
+    attribution difference looks like where the translator gives the
+    previous speaker's last line to the incoming one.  Coleridge's Trojan
+    Women ``n="160"``, "The rower's hand is busy?", renders Greek 160,
+    the second line of Hecuba's couplet — Perseus's own note in the file
+    says the line was reassigned in the translation — and moving it took
+    Greek 160's only English off Greek 160.
+
+    The extra condition is asked for only where the head's own number is
+    worth something, which :func:`_runs_line_for_line` decides: when the
+    previous English speech numbered the line immediately before this one
+    inside the same Greek speech, the translation is running line for line
+    there, and a head that is a whole sentence stays where its number puts
+    it, flagged (Trojan Women 160 and 183, Iphigenia in Tauris 116 — all
+    three verified against the Greek).  It may still move if its own text
+    says it is a continuation: it begins mid-sentence, or ends without
+    terminal punctuation, the way a split sentence reads on the page
+    ("Speak," / "woman, with what end…"; "As for me" / "whose hair is
+    white with age").  Where the previous speech's numbering has already
+    parted from the edition's — it left printed lines unnumbered, or the
+    two share one line — the number proves nothing and the layout decides
+    as before (Oedipus at Colonus 148, Philoctetes 1115 and 1162,
+    Persians 1074, Hippolytus 1313, all verified to belong in the speech
+    they are moved to).
+
+    Known cost, measured: Ajax 231.  Jebb numbers the Chorus's last piece
+    230 and renders 230-232 in it, so the test reads that stretch as line
+    for line when it is not, and Tecmessa's opening — which translates
+    Greek 233-234 — now stays at the end of the Chorus's block, flagged.
+    (The round-3b brief's third signal, the PREVIOUS speech's last piece
+    ending unterminated, is deliberately not used: it is evidence about
+    that speech's own text, and the one place in the corpus where it would
+    fire is Trojan Women 160, where Hecuba's line ends on a dash and the
+    move is wrong.)
+
+    The third condition — that the head really is
     sitting inside the PREVIOUS speech's block rather than opening a Greek
     speech of its own — is checked at commit time against the segment that
     speech actually landed on, because the previous speech may itself have
@@ -1363,6 +1470,13 @@ def _multi_span_head_redirects(
         head, nxt = pieces[0], pieces[1]
         speaker = head.get("canonical")
         if not speaker or speaker != nxt.get("canonical"):
+            continue
+        head_hit_early = index.segment_for_anchor(head["anchor"])
+        if (
+            head_hit_early is not None
+            and _runs_line_for_line(jobs, index, sp_index, head["n"], head_hit_early[0])
+            and not _reads_as_a_continuation(head.get("text") or "")
+        ):
             continue
         head_hit = index.segment_for_anchor(head["anchor"])
         next_hit = index.segment_for_anchor(nxt["anchor"])
@@ -1641,7 +1755,7 @@ def _ref_order_key(ref: str) -> tuple[int, int, str] | None:
 
 def _transposition_printed_stretches(
     blocks: list[dict], printed_refs: list[str]
-) -> tuple[list[list[int]], list[dict]]:
+) -> tuple[list[tuple[list[int], bool]], list[dict]]:
     """The document-position stretches the declared rows disorder.
 
     A ``citation.transpositions`` row records that the run ``start``-``end``
@@ -1661,21 +1775,23 @@ def _transposition_printed_stretches(
     single printed rotation 993, 984-992, 983, not two rotations to fold
     into one dict, last write winning (G4).
 
-    Returns the merged stretches (lists of document positions) and the rows
-    that yielded none, each with its reason.
+    Returns the merged stretches — each a list of document positions with
+    the flag saying whether a row declared ``english_keyed: printed`` over
+    it — and the rows that yielded none, each with its reason.
     """
     anomalies: list[dict] = []
     positions: dict[str, list[int]] = {}
     for i, ref in enumerate(printed_refs):
         positions.setdefault(ref, []).append(i)
 
-    stretches: list[list[int]] = []
+    stretches: list[tuple[list[int], bool]] = []
     for block in blocks:
         row = {
             "start": block.get("start"),
             "end": block.get("end"),
             "before": block.get("before"),
         }
+        forced = block.get("english_keyed") == "printed"
         starts = positions.get(row["start"] or "")
         ends = positions.get(row["end"] or "")
         end_key = _ref_order_key(row["end"]) if isinstance(row["end"], str) else None
@@ -1719,15 +1835,19 @@ def _transposition_printed_stretches(
                 }
             )
             continue
-        stretches.append(span)
+        stretches.append((span, forced))
 
-    stretches.sort(key=lambda span: (span[0], span[-1]))
-    merged: list[list[int]] = []
-    for span in stretches:
-        if merged and span[0] <= merged[-1][-1]:
-            merged[-1] = list(range(min(merged[-1][0], span[0]), max(merged[-1][-1], span[-1]) + 1))
+    stretches.sort(key=lambda item: (item[0][0], item[0][-1]))
+    merged: list[tuple[list[int], bool]] = []
+    for span, forced in stretches:
+        if merged and span[0] <= merged[-1][0][-1]:
+            prev, prev_forced = merged[-1]
+            merged[-1] = (
+                list(range(min(prev[0], span[0]), max(prev[-1], span[-1]) + 1)),
+                prev_forced or forced,
+            )
             continue
-        merged.append(span)
+        merged.append((span, forced))
     return merged, anomalies
 
 
@@ -1783,24 +1903,40 @@ def _transposition_anchor_remap(
     numeric range are EXACTLY the stretch's own refs, one for one.
     Otherwise the anchors keep their numbers and the skip is reported.
 
-    A declared row means one of two things, and only the Greek's own speaker
-    attributions tell them apart.  Either the two editions NUMBER the same
-    verses differently, and then the translation's nth line in the stretch
-    is the edition's nth printed line (OC 328-330: Jebb renumbers his
-    transposed verse, Dain-Mazon keeps the vulgate's number).  Or both
-    number the verses alike and only the printed ORDER differs, and then the
-    anchor's own number is already right (Hecuba 758/759, Iphigenia at Aulis
-    653-665, Iphigenia in Tauris 1050/1051, Phoenician Women 1747-1749,
-    Rhesus 334-338 — in each, re-keying by printed position moves every line
-    onto a speech the edition gives to the other character).  So the remap
-    stands down whenever it scores STRICTLY MORE speaker disagreements than
-    leaving the anchors alone; where the speakers cannot tell (a stretch
-    whose characters alternate the same way under either keying) the
-    printed-position reading stands, as C4 established.
+    A declared row means one of two things, and which one is a per-play data
+    call the Greek's own speaker attributions are only EVIDENCE for.  Either
+    the two editions NUMBER the same verses differently, and then the
+    translation's nth line in the stretch is the edition's nth printed line
+    (OC 328-330: Jebb renumbers his transposed verse, Dain-Mazon keeps the
+    vulgate's number).  Or both number the verses alike and only the printed
+    ORDER differs, and then the anchor's own number is already right (Hecuba
+    758/759, Iphigenia at Aulis 653-665, Iphigenia in Tauris 1050/1051,
+    Phoenician Women 1747-1749, Rhesus 334-338 — in each, re-keying by
+    printed position moves every line onto a speech the edition gives to the
+    other character).
+
+    The numbers are the default, and printed position has to earn the
+    stretch: the remap fires only where it scores STRICTLY FEWER speaker
+    disagreements than leaving the anchors alone.  A TIE — a stichomythia
+    whose characters alternate the same way under either keying, so the
+    attributions cannot tell the readings apart — stands down too (Sol
+    review of 6e8a9d6, finding 1).  The corpus is 14 tie stretches where the
+    content says the numbers are right (hippolytus 104-107, where Coleridge's
+    ``n="104"`` translates Greek 104, and 13 more) against one where printed
+    position is right and verified (OC 328-330), so guessing on a tie loses
+    fourteen times to win once.
+
+    A row may instead DECLARE the reading, with ``english_keyed: printed``,
+    and then it is honoured whatever the speaker count says — a verified
+    manifest declaration outranks an inference from the attributions (the
+    same precedence a hand-written ``speakers.overrides`` entry has over the
+    synthesized one).  Only the one-for-one anchor guard above still applies
+    to a declared row: where the translation does not print one line per
+    printed Greek line, position keying has nothing to mean.
     """
     stretches, anomalies = _transposition_printed_stretches(blocks, printed_refs)
     remap: dict[int, int] = {}
-    for span in stretches:
+    for span, forced in stretches:
         span_refs = [printed_refs[p] for p in span]
         printed_bases = [_anchor_base(_ref_root(ref)) for ref in span_refs]
         detail = {
@@ -1828,16 +1964,25 @@ def _transposition_anchor_remap(
             for numeric, printed in zip(numeric_bases, printed_bases)
             if numeric != printed
         ]
-        if index is not None and english_speakers:
+        if not pairs:
+            continue  # the permutation moves no number: nothing to key either way
+        if not forced:
+            if index is None or not english_speakers:
+                anomalies.append({**detail, "reason": "printed_keying_unevidenced"})
+                continue
             by_number = _printed_keying_disagreements(
                 index, english_speakers, [(base, base) for base, _ in pairs]
             )
             by_printed = _printed_keying_disagreements(index, english_speakers, pairs)
-            if by_printed > by_number:
+            if by_printed >= by_number:
                 anomalies.append(
                     {
                         **detail,
-                        "reason": "printed_keying_contradicted_by_greek_speakers",
+                        "reason": (
+                            "printed_keying_contradicted_by_greek_speakers"
+                            if by_printed > by_number
+                            else "printed_keying_not_favoured_by_greek_speakers"
+                        ),
                         "disagreements": {"by_number": by_number, "by_printed": by_printed},
                     }
                 )

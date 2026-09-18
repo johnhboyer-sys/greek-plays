@@ -1151,8 +1151,24 @@ def _normalize_strophe_label(text: str) -> str:
     return text[1:] if text.startswith("[") else text
 
 
-_METRICAL_SCHEMA_CHARS = "⏑–⏓⏔⏕"
+# A printed scheme is written with breve/macron glyphs and the anceps "×";
+# the "macron" itself is typeset as an EN DASH, which is also ordinary
+# editorial punctuation in Greek text (Sol review of 6e8a9d6, finding 4:
+# Cyclops's own dash was being eaten).  So the dash alone never makes a run
+# apparatus: a run must carry one of the unmistakable glyphs, or more than
+# one dash.  "×" counts as a glyph and belongs INSIDE the run — a class that
+# stopped at it split "<–×–⏑–>" into pieces and left "<×>," in Bacchae 757a.
+_METRICAL_SCHEMA_GLYPHS = "⏑⏓⏔⏕×"
+_METRICAL_SCHEMA_DASH = "–"
+_METRICAL_SCHEMA_CHARS = _METRICAL_SCHEMA_GLYPHS + _METRICAL_SCHEMA_DASH
 _METRICAL_SCHEMA_RUN = re.compile(rf"[{_METRICAL_SCHEMA_CHARS}][{_METRICAL_SCHEMA_CHARS} ]*")
+
+
+def _is_metrical_schema(run: str) -> bool:
+    """A matched run that really is printed apparatus rather than a dash."""
+    return any(ch in _METRICAL_SCHEMA_GLYPHS for ch in run) or (
+        run.count(_METRICAL_SCHEMA_DASH) > 1
+    )
 
 
 def _strip_metrical_schema(text: str, markers: list[dict]) -> tuple[str, list[dict], bool]:
@@ -1164,17 +1180,20 @@ def _strip_metrical_schema(text: str, markers: list[dict]) -> tuple[str, list[di
     whole numbered line with nothing else (oedipus-coloneus 1718/1719).
 
     Strips every maximal run of scheme glyphs (and the plain spaces inside
-    it) from the line; a speaker marker that pointed past a stripped run
+    it) that :func:`_is_metrical_schema` recognises — a lone en dash among
+    Greek words is punctuation and stays; a speaker marker that pointed
+    past a stripped run
     is pulled back by what was removed, clamped to the end of what
     remains when nothing real follows it (the same convention a declared
     lacuna's own speaker marker already uses).  Returns ``(text, markers,
     had_schema)``; ``had_schema`` tells the caller a line reduced to
     nothing was schema all along, not an empty tag.
     """
-    if not _METRICAL_SCHEMA_RUN.search(text):
+    runs = [m for m in _METRICAL_SCHEMA_RUN.finditer(text) if _is_metrical_schema(m.group(0))]
+    if not runs:
         return text, markers, False
     keep = [True] * len(text)
-    for m in _METRICAL_SCHEMA_RUN.finditer(text):
+    for m in runs:
         for i in range(m.start(), m.end()):
             keep[i] = False
     removed_before: list[int] = [0] * (len(text) + 1)
@@ -1338,6 +1357,49 @@ def _derive_play_line_transposed_blocks(doc_refs: list[str]) -> list[dict]:
         i += 1
     return blocks
 
+
+
+# A `citation.transpositions` row is DERIVED from the export — start, end
+# and before, compared to what the parse observed, verbatim. One optional
+# advisory key rides on the row for the English builders and takes no part
+# in that comparison: `english_keyed: printed` (Lane C round 3b item 1) says
+# the translation numbers this stretch's lines by their PRINTED position
+# rather than by the edition's own numbers, which is a per-play data call
+# stage1_perseus_play_english's transposition remap cannot infer where the
+# Greek's own speaker attributions score the two readings a tie. Absent (or
+# `number`) the anchors keep their numbers. Anything else on a row, or any
+# other value, is a typo and fails loudly rather than passing unread.
+_TRANSPOSITION_DERIVED_KEYS = ("start", "end", "before")
+_TRANSPOSITION_ENGLISH_KEYED = ("printed", "number")
+
+
+def _transposition_derived_rows(declared, work_id: str):
+    """The derived part of each declared `citation.transpositions` row, for
+    comparison against the observed blocks."""
+    if not isinstance(declared, list):
+        return declared
+    rows = []
+    for row in declared:
+        if not isinstance(row, dict):
+            rows.append(row)
+            continue
+        unknown = set(row) - set(_TRANSPOSITION_DERIVED_KEYS) - {"english_keyed"}
+        if unknown:
+            raise ValueError(
+                f"{work_id}: citation.transpositions['1'] row {row!r} has an "
+                f"unknown key {sorted(unknown)!r} — the derived keys are "
+                f"{list(_TRANSPOSITION_DERIVED_KEYS)!r} plus the optional "
+                f"advisory 'english_keyed'"
+            )
+        keyed = row.get("english_keyed")
+        if keyed is not None and keyed not in _TRANSPOSITION_ENGLISH_KEYED:
+            raise ValueError(
+                f"{work_id}: citation.transpositions['1'] row {row!r} declares "
+                f"english_keyed {keyed!r} — expected one of "
+                f"{list(_TRANSPOSITION_ENGLISH_KEYED)!r}"
+            )
+        rows.append({k: row[k] for k in _TRANSPOSITION_DERIVED_KEYS if k in row})
+    return rows
 
 
 def _load_repeated_refs(manifest) -> dict[str, int]:
@@ -1643,7 +1705,9 @@ def _parse_spine_play(xml_path: Path, manifest: Manifest, sch) -> dict:
             f"state"
         )
     observed_blocks = _derive_play_line_transposed_blocks(doc_refs)
-    declared_blocks = declared_transpositions["1"]
+    declared_blocks = _transposition_derived_rows(
+        declared_transpositions["1"], manifest.work_id
+    )
     if declared_blocks != observed_blocks:
         raise ValueError(
             f"{manifest.work_id}: transposition mismatch against "
