@@ -86,6 +86,51 @@ def test_four_plays_cue_verse_direction_and_page_furniture():
     assert out.speeches == 4
 
 
+# B8 (fix-mechanisms brief, 2026-09-17): prometheus-bound review finding 5.
+# Wikisource wraps only the word "To" in `<i>`, not the whole "(To NAME)"
+# phrase, so the direction never reads as italic and the `<p>`-tag path
+# (which has no direction detection at all) printed it as a verse line.
+def test_four_plays_p_tag_direction_unitalicised_except_the_word_to():
+    # `convert_four_plays` picks the block with the most children; a third,
+    # otherwise-irrelevant element keeps this fixture bigger than the
+    # front-matter block it is compared against.
+    html = _four_plays_page(
+        f'<div class="wst-center tiInherit">{SC.format("Chorus")}</div>'
+        "<p>For Zeus, defied, is heavy in revenge!<br/>"
+        f"(<i>To</i> {SC.format('Prometheus')})<br/>"
+        "O deep-devising child of Themis sage,</p>"
+        '<div class="wst-right">[Exeunt.</div>'
+    )
+    out = convert_four_plays(html, "PLAY")
+    speeches = _parsed(out.text)
+    assert speeches[0]["speaker_printed"] == "CHORUS"
+    assert speeches[0]["text"] == (
+        "For Zeus, defied, is heavy in revenge! O deep-devising child of Themis sage,"
+    )
+    assert "(To PROMETHEUS)" not in speeches[0]["text"]
+    assert "_(To PROMETHEUS)_" in speeches[0]["shown"]
+
+
+# The same `<p>`-tag path must also catch an unclosed bracket direction by
+# shape alone (persians.txt:137 "[Enter ATOSSA.").
+def test_four_plays_p_tag_unclosed_bracket_direction_by_shape_alone():
+    # A third, otherwise-irrelevant element keeps this fixture's block
+    # bigger than the front-matter block it is compared against.
+    html = _four_plays_page(
+        f'<div class="wst-center tiInherit">{SC.format("Chorus")}</div>'
+        "<p>Or hath the lance-point conquered now?<br/>"
+        "[Enter ATOSSA.<br/>"
+        "See, yonder comes the mother-queen,</p>"
+        '<div class="wst-right">[Exeunt.</div>'
+    )
+    out = convert_four_plays(html, "PLAY")
+    speeches = _parsed(out.text)
+    assert speeches[0]["text"] == (
+        "Or hath the lance-point conquered now? See, yonder comes the mother-queen,"
+    )
+    assert "_[Enter ATOSSA._" in speeches[0]["shown"]
+
+
 def _poem_page(body: str) -> str:
     return f'<html><body><h2>Drama</h2><div class="poem"><p>{body}</p></div></body></html>'
 

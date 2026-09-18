@@ -19,8 +19,6 @@ In dread or sure hope? Know ye not, my will
 Is yours for aid 'gainst all? Stern were indeed
 The heart that felt not for so dire a need.
 
-_[Sidenote: vv. 15-39]_
-
 PRIEST
 
 O Oedipus, who holdest in thy hand
@@ -55,8 +53,6 @@ Nor taught of any man, but by God's breath
 Filled, thou didst raise our life. So the world saith;
 So we say.
 
-_[Sidenote: vv. 40-69]_
-
 Therefore now, O Lord and Chief,
 We come to thee again; we lay our grief
 On thy head, if thou find us not some aid.
@@ -90,8 +86,6 @@ Ye come with waking. Many tears these days
 For your sake I have wept, and many ways
 Have wandered on the beating wings of thought.
 And, finding but one hope, that I have sought
-
-_[Sidenote: vv. 70-86]_
 
 And followed. I have sent Menoikeus' son,
 Creon, my own wife's brother, forth alone
@@ -129,8 +123,6 @@ Clear-voiced.
 
 (Shouting) Ho, brother! Prince! Menoikeus' son,
 What message from the God?
-
-_[Sidenote: vv. 87-99]_
 
 CREON
 _(from a distance)_
@@ -171,8 +163,6 @@ OEDIPUS
 
 How cast it out? What was the evil deed?
 
-_[Sidenote: vv. 100-113]_
-
 CREON
 
 Hunt the men out from Thebes, or make them bleed
@@ -211,8 +201,6 @@ OEDIPUS
 And where did Laïus meet them? Did he die
 In Thebes, or in the hills, or some far land?
 
-_[Sidenote: vv. 114-127]_
-
 CREON
 
 To ask God's will in Delphi he had planned
@@ -247,8 +235,6 @@ CREON
 
 So some men thought. But Laïus lay slain,
 And none to avenge him in his evil day.
-
-_[Sidenote: vv. 128-148]_
 
 OEDIPUS
 
@@ -285,8 +271,6 @@ PRIEST
 My children, rise.--The King most lovingly
 Hath promised all we came for. And may He
 
-_[Sidenote: vv. 149-161]_
-
 Who sent this answer, Phoebus, come confessed
 Helper to Thebes, and strong to stay the pest.
 
@@ -313,8 +297,6 @@ Zeus-Child that knowest not death, to thee I pray,
 O Pallas; next to thy Sister, who calleth Thebes her own,
 Artemis, named of Fair Voices, who sitteth her orbèd throne
 In the throng of the market way:
-
-_[Sidenote: vv. 162-189]_
 
 And I-ê! I-ê!
 Apollo, the Pure, the Far-smiter; O Three that keep evil away,
@@ -346,8 +328,6 @@ Lo, joy-cries to fright the Destroyer; a flash in the dark they rise,
 Then die by the sobs overladen.
 Send help, O heaven-born Maiden,
 Let us look on the light of her eyes!
-
-_[Sidenote: vv. 190-217]_
 
 _[To ZEUS, that he drive out the Slayer,_
 
@@ -386,8 +366,6 @@ OEDIPUS
 Thou prayest: but my words if thou wilt hear
 And bow thee to their judgement, strength is near
 
-_[Sidenote: vv. 218-245]_
-
 For help, and a great lightening of ill.
 Thereof I come to speak, a stranger still
 To all this tale, a stranger to the deed:
@@ -423,8 +401,6 @@ Being this land's curse. Thus hath the God replied
 This day to me from Delphi, and my sword
 I draw thus for the dead and for God's word.
 
-_[Sidenote: vv. 246-273]_
-
 And lastly for the murderer, be it one
 Hiding alone or more in unison,
 I speak on him this curse: even as his soul
@@ -457,8 +433,6 @@ Nor seed in earth may bear them corn nor fruit,
 No wife bear children, but this present curse
 Cleave to them close and other woes yet worse.
 Enough: ye other people of the land,
-
-_[Sidenote: vv. 274-289]_
 
 Whose will is one with mine, may Justice stand
 Your helper, and all gods for evermore.
@@ -498,8 +472,6 @@ That also have I thought for. Aye, and two
 Heralds have sent ere now. 'Twas Creon set
 Me on.--I marvel that he comes not yet.
 
-_[Sidenote: vv. 290-301]_
-
 LEADER
 
 Our other clues are weak, old signs and far.
@@ -538,8 +510,6 @@ OEDIPUS
 Tiresias, thou whose mind divineth well
 All Truth, the spoken and the unspeakable,
 
-_[Sidenote: vv. 302-321]_
-
 The things of heaven and them that walk the earth;
 Our city ... thou canst see, for all thy dearth
 Of outward eyes, what clouds are over her.
@@ -575,8 +545,6 @@ TIRESIAS
 
 Let me go back! Thy work shall weigh on thee
 The less, if thou consent, and mine on me.
-
-_[Sidenote: vv. 322-336]_
 
 OEDIPUS
 
@@ -620,8 +588,6 @@ Nay; the wrath of any stone
 Would rise at him. It lies with thee to have done
 And speak. Is there no melting in thine eyes!
 
-_[Sidenote: vv. 337-351]_
-
 TIRESIAS
 
 Naught lies with me! With thee, with thee there lies,
@@ -662,8 +628,6 @@ _(returning)_
 So?--I command thee by thine own word's power,
 To stand accurst, and never from this hour
 
-_[Sidenote: vv. 352-363]_
-
 Speak word to me, nor yet to these who ring
 Thy throne. Thou art thyself the unclean thing.
 
@@ -703,8 +667,6 @@ Thou seek'st this man of blood: Thyself art he.
 OEDIPUS
 
 'Twill cost thee dear, twice to have stabbed at me!
-
-_[Sidenote: vv. 364-377]_
 
 TIRESIAS
 
@@ -747,8 +709,6 @@ TIRESIAS
 God is enough.--'Tis not my doom to fall
 By thee. He knows and shall accomplish all.
 
-_[Sidenote: vv. 378-402]_
-
 OEDIPUS
 _(with a flash of discovery)_
 
@@ -785,8 +745,6 @@ Foremost in honour at King Creon's hand.
 I think ye will be sorry, thou and he
 That shares thy sin-hunt. Thou dost look to me
 
-_[Sidenote: vv. 403-424]_
-
 An old man; else, I swear this day should bring
 On thee the death thou plottest for thy King.
 
@@ -820,8 +778,6 @@ In answer, when thou hear'st what bridal song,
 What wind among the torches, bore thy strong
 Sail to its haven, not of peace but blood.
 Yea, ill things multitude on multitude
-
-_[Sidenote: vv. 425-438]_
 
 Thou seest not, which so soon shall lay thee low,
 Low as thyself, low as thy children.--Go,
@@ -859,8 +815,6 @@ Birth?... Stop! Who were they? Speak thy prophecies.
 TIRESIAS
 
 This day shall give thee birth and blot thee out.
-
-_[Sidenote: vv. 439-455]_
 
 OEDIPUS
 
@@ -904,8 +858,6 @@ Shall prove him Theban true, nor shall he praise
 His birthright. Blind, who once had seeing eyes,
 Beggared, who once had riches, in strange guise,
 
-_[Sidenote: vv. 456-478]_
-
 His staff groping before him, he shall crawl
 O'er unknown earth, and voices round him call:
 "Behold the brother-father of his own
@@ -937,8 +889,6 @@ Is he fled to the wild forest,
 To caves where the eagles nest?
 O angry bull of the rocks, cast out from thy herd-fellows!
 
-_[Sidenote: vv. 479-512]_
-
 Rage in his heart, and rage across his way,
 He toileth ever to beat from his ears away
 The word that floateth about him, living, where'er he goes.
@@ -962,8 +912,6 @@ But I list not nor hearken when they speak Oedipus ill.
 We saw his face of yore, when the riddling singer passed;
 And we knew him that he loved us, and we saw him great in skill.
 Oh, my heart shall uphold him to the last!
-
-_[Sidenote: vv. 513-531]_
 
 _Enter CREON._
 
@@ -1005,8 +953,6 @@ LEADER
 I know not. I have no eyes for the thing
 My masters do.--But see, here comes the King.
 
-_[Sidenote: vv. 532-550]_
-
 _Enter OEDIPUS from the Palace._
 
 OEDIPUS
@@ -1045,8 +991,6 @@ CREON
 
 The man who thinks that bitter pride alone
 Can guide him, without thought--his mind is sick.
-
-_[Sidenote: vv. 551-562]_
 
 OEDIPUS
 
@@ -1093,8 +1037,6 @@ OEDIPUS
 
 At that time was this seer in Thebes, or how?
 
-_[Sidenote: vv. 563-573]_
-
 CREON
 
 He was; most wise and honoured, even as now.
@@ -1135,8 +1077,6 @@ OEDIPUS
 
 This: that until he talked with thee, the seer
 Ne'er spoke of me as Laïus' murderer.
-
-_[Sidenote: vv. 574-589]_
 
 CREON
 
@@ -1179,8 +1119,6 @@ Thine own charge close. Think'st thou that any man
 Would rather rule and be afraid than rule
 And sleep untroubled? Nay, where lives the fool--
 
-_[Sidenote: vv. 590-613]_
-
 I know them not nor am I one of them--
 Who careth more to bear a monarch's name
 Than do a monarch's deeds? As now I stand
@@ -1214,8 +1152,6 @@ And this I tell thee. He who plucks a friend
 Out from his heart hath lost a treasured thing
 Dear as his own dear life.
 But Time shall bring
-
-_[Sidenote: vv. 614-626]_
 
 Truth back. 'Tis Time alone can make men know
 What hearts are true; the false one day can show.
@@ -1257,8 +1193,6 @@ OEDIPUS
 I think to save
 My life.
 
-_[Sidenote: vv. 627-633]_
-
 CREON
 
 Think, too, of mine.
@@ -1296,8 +1230,6 @@ Stay, Princes, stay! See, on the Castle stair
 The Queen Jocasta standeth. Show to her
 Your strife. She will assuage it as is well.
 
-_[Sidenote: vv. 634-648]_
-
 JOCASTA
 
 Vain men, what would ye with this angry swell
@@ -1333,9 +1265,8 @@ In God's name, Oedipus, believe him, both
 For my sake, and for these whose hearts are all
 Thine own, and for my brother's oath withal.
 
-_[Sidenote: vv. 649-664]_
-
-LEADER. [Strophe.
+LEADER
+_[Strophe._
 
 Yield; consent; think! My Lord, I conjure thee!
 
@@ -1378,8 +1309,6 @@ May he desert me here, and every friend
 With him, to death and utterest malison,
 If e'er my heart could dream of such an end!
 
-_[Sidenote: vv. 665-680]_
-
 But it bleedeth, it bleedeth sore,
 In a land half slain,
 If we join to the griefs of yore
@@ -1419,8 +1348,6 @@ JOCASTA
 
 I will, when I have heard.
 
-_[Sidenote: vv. 681-696]_
-
 LEADER
 
 There fell some word, some blind imagining
@@ -1459,8 +1386,6 @@ When Thebes in the storm and rain
 Reeled, like to die.
 Oh, if thou canst, again
 Blue sky, blue sky...!
-
-_[Sidenote: vv. 697-713]_
 
 JOCASTA
 
@@ -1502,8 +1427,6 @@ Himself, but from the priests and seers who trod
 His sanctuary: if ever son were bred
 From him and me, by that son's hand, it said,
 
-_[Sidenote: vv. 714-732]_
-
 Laïus must die. And he, the tale yet stays
 Among us, at the crossing of three ways
 Was slain by robbers, strangers. And my son--
@@ -1540,8 +1463,6 @@ That was the tale. It is not yet forgot.
 OEDIPUS
 
 The crossing of three ways! And in what land?
-
-_[Sidenote: vv. 733-746]_
 
 JOCASTA
 
@@ -1585,8 +1506,6 @@ JOCASTA
 How sayst thou? O my King, I look on thee
 And tremble.
 
-_[Sidenote: vv. 747-760]_
-
 OEDIPUS
 _(to himself)_
 
@@ -1627,8 +1546,6 @@ Indeed no. When he came that day, and found
 Thee on the throne where once sat Laïus crowned,
 He took my hand and prayed me earnestly
 
-_[Sidenote: vv. 761-779]_
-
 To send him to the mountain heights, to be
 A herdsman, far from any sight or call
 Of Thebes. And there I sent him. 'Twas a thrall
@@ -1667,8 +1584,6 @@ A thing befell: strange was it, but no way
 Meet for such wonder and such rage as mine.
 A feast it was, and some one flushed with wine
 
-_[Sidenote: vv. 780-807]_
-
 Cried out at me that I was no true son
 Of Polybus. Oh, I was wroth! That one
 Day I kept silence, but the morrow morn
@@ -1702,8 +1617,6 @@ He and a thrall in front. And I in wrath
 Smote him that pushed me--'twas a groom who led
 The horses. Not a word the master said,
 
-_[Sidenote: vv. 808-828]_
-
 But watched, and as I passed him on the road
 Down on my head his iron-branchèd goad
 Stabbed. But, by heaven, he rued it! In a flash
@@ -1735,8 +1648,6 @@ To be, that e'er I look on such a day!
 Out of all vision of mankind away
 To darkness let me fall ere such a fate
 Touch me, so unclean and so desolate!
-
-_[Sidenote: vv. 829-850]_
 
 LEADER
 
@@ -1775,8 +1686,6 @@ JOCASTA
 Be sure of this. He told the story so
 When first he came. All they that heard him know,
 
-_[Sidenote: vv. 850-870]_
-
 Not only I. He cannot change again
 Now. And if change he should, O Lord of men,
 No change of his can make the prophecy
@@ -1814,8 +1723,6 @@ Their father is Olympus uncreate;
 No man hath made nor told
 Their being; neither shall Oblivion set
 
-_[Sidenote: vv. 870-893]_
-
 Sleep on their eyes, for in them lives a great
 Spirit and grows not old. [Antistrophe.
 
@@ -1848,8 +1755,6 @@ From man's touch sanctified.
 
 In a world where such things be,
 What spirit hath shield or lance
-
-_[Sidenote: vv. 893-916]_
 
 To ward him secretly
 From the arrow that slays askance?
@@ -1886,8 +1791,6 @@ With flowers and incense flame. So dire a storm
 Doth shake the King, sin, dread and every form
 Of grief the world knows. 'Tis the wise man's way
 To judge the morrow by the yester day;
-
-_[Sidenote: vv. 917-933]_
 
 Which he doth never, but gives eye and ear
 To all who speak, will they but speak of fear.
@@ -1929,8 +1832,6 @@ To one so fair of speech may the Gods give
 Like blessing, courteous stranger; 'tis thy due.
 But say what leads thee hither. Can we do
 Thy wish in aught, or hast thou news to bring?
-
-_[Sidenote: vv. 934-947]_
 
 STRANGER
 
@@ -1979,8 +1880,6 @@ _[The maiden goes._
 
 Where stand ye at the last
 
-_[Sidenote: vv. 948-961]_
-
 Ye oracles of God? For many a year
 Oedipus fled before that man, in fear
 To slay him. And behold we find him thus
@@ -2024,8 +1923,6 @@ STRANGER
 
 A slight thing turns an old life to its peace.
 
-_[Sidenote: vv. 962-978]_
-
 OEDIPUS
 
 Poor father!... 'Tis by sickness he is dead?
@@ -2067,8 +1964,6 @@ JOCASTA
 
 What should man do with fear, who hath but Chance
 Above him, and no sight nor governance
-
-_[Sidenote: vv. 979-993]_
 
 Of things to be? To live as life may run,
 No fear, no fret, were wisest 'neath the sun.
@@ -2112,8 +2007,6 @@ A voice of God, stranger, of dire import.
 STRANGER
 
 Meet for mine ears? Or of some secret sort?
-
-_[Sidenote: vv. 994-1009]_
 
 OEDIPUS
 
@@ -2160,8 +2053,6 @@ OEDIPUS
 
 How? In God's name, say!
 How clear?
-
-_[Sidenote: vv. 1010-1019]_
 
 STRANGER
 
@@ -2212,8 +2103,6 @@ OEDIPUS
 Thou art naught;
 'Twas he begot me.
 
-_[Sidenote: vv. 1020-1028]_
-
 STRANGER
 
 'Twas not I begot
@@ -2261,8 +2150,6 @@ STRANGER
 I came to tend
 The flocks here on the mountain.
 
-_[Sidenote: vv. 1029-1037]_
-
 OEDIPUS
 
 Thou wast one
@@ -2306,8 +2193,6 @@ OEDIPUS
 
 Who called me so--father or mother? Oh,
 In God's name, speak!
-
-_[Sidenote: vv. 1038-1046]_
 
 STRANGER
 
@@ -2353,8 +2238,6 @@ _[Turning to the Chorus._
 
 Ye will know that, being natives to the place.
 
-_[Sidenote: vv. 1047-1062]_
-
 OEDIPUS
 
 How?--Is there one of you within my pale
@@ -2395,8 +2278,6 @@ _(bitterly)_
 
 Fear not!... Though I be thrice of slavish stuff
 From my third grand-dam down, it shames not thee.
-
-_[Sidenote: vv. 1063-1075]_
 
 JOCASTA
 
@@ -2440,8 +2321,6 @@ King, what was that? She passed like one who flies
 In very anguish. Dread is o'er mine eyes
 Lest from this silence break some storm of wrong.
 
-_[Sidenote: vv. 1076-1097]_
-
 OEDIPUS
 
 Break what break will! My mind abideth strong
@@ -2472,8 +2351,6 @@ And the old men shall dance to thy glory, and raise thee
 To worship, O bearer of joy to my kings.
 And thou, we pray,
 Look down in peace, O Apollo; I-ê, I-ê!
-
-_[Sidenote: vv. 1098-1120]_
 
 _[Antistrophe._
 
@@ -2510,8 +2387,6 @@ OEDIPUS
 
 Thou first, our guest from Corinth: say withal
 Is this the man?
-
-_[Sidenote: vv. 1120-1130]_
 
 STRANGER
 
@@ -2558,8 +2433,6 @@ _[Pointing to the STRANGER._
 
 Look! Hath he ever crossed thy path before?
 
-_[Sidenote: vv. 1131-1146]_
-
 SHEPHERD
 
 I call him not to mind, I must think more.
@@ -2605,8 +2478,6 @@ No, in the name of death!... Fool, hold thy peace.
 
 _[He lifts his staff at the STRANGER._
 
-_[Sidenote: vv. 1147-1157]_
-
 OEDIPUS
 
 Ha, greybeard! Wouldst thou strike him?--'Tis not his
@@ -2649,8 +2520,6 @@ Didst give this man the child, as he doth say?
 SHEPHERD
 
 I did.... Would God that I had died this day!
-
-_[Sidenote: vv. 1158-1167]_
 
 OEDIPUS
 
@@ -2700,8 +2569,6 @@ SHEPHERD
 From the folk of Laïus, then,
 It came.
 
-_[Sidenote: vv. 1168-1176]_
-
 OEDIPUS
 
 A slave, or born of Laïus' blood?
@@ -2747,8 +2614,6 @@ OEDIPUS
 
 What words?
 
-_[Sidenote: vv. 1176-1192]_
-
 SHEPHERD
 
 The babe must slay his father; so
@@ -2790,8 +2655,6 @@ Seeking to live, hath won
 More than to seem, and to cease
 Again from his seeming.
 
-_[Sidenote: vv. 1193-1212]_
-
 While ever before mine eyes
 One fate, one ensample, lies--
 Thine, thine, O Oedipus, sore
@@ -2825,8 +2688,6 @@ O great King, our master,
 How oped the one haven to the slayer and the slain?
 And the furrows of thy father, did they turn not nor shriek,
 Did they bear so long silent thy casting of the grain?
-
-_[Sidenote: vv. 1213-1235]_
 
 _[Antistrophe._
 
@@ -2862,8 +2723,6 @@ MESSENGER
 
 One thing I bring thee first.... 'Tis quickly said.
 Jocasta, our anointed queen, is dead.
-
-_[Sidenote: vv. 1236-1260]_
 
 LEADER
 
@@ -2901,8 +2760,6 @@ Raged on, some god--for sure 'twas none of us--
 Showed where she was; and with a shout away,
 As though some hand had pointed to the prey,
 
-_[Sidenote: vv. 1261-1286]_
-
 He dashed him on the chamber door. The straight
 Door-bar of oak, it bent beneath his weight,
 Shook from its sockets free, and in he burst
@@ -2937,8 +2794,6 @@ Hath ever dreamed of misery, is here.
 LEADER
 
 And now how fares he? Doth the storm abate?
-
-_[Sidenote: vv. 1287-1308]_
 
 MESSENGER
 
@@ -2977,8 +2832,6 @@ OEDIPUS
 
 Oh, pain; pain and woe!
 Whither? Whither?
-
-_[Sidenote: vv. 1308-1328]_
 
 They lead me and I go;
 And my voice drifts on the air
@@ -3024,8 +2877,6 @@ LEADER
 O fearful sufferer, and could'st thou kill
 Thy living orbs? What God made blind thy will?
 
-_[Sidenote: vv. 1329-1351]_
-
 OEDIPUS
 
 _[Strophe._
@@ -3069,8 +2920,6 @@ That man whom pity held in the wilderness,
 Who saved the feet alive from the blood-fetter
 And loosed the barb thereof!
 
-_[Sidenote: vv. 1351-1377]_
-
 That babe--what grace was done him,
 Had he died shelterless,
 He had not laid on himself this grief to bear,
@@ -3109,8 +2958,6 @@ Or children--born as mine were born, to see
 Their shapes should bring me joy? Great God!
 To me
 
-_[Sidenote: vv. 1378-1403]_
-
 There is no joy in city nor in tower
 Nor temple, from all whom, in this mine hour,
 I that was chief in Thebes alone, and ate
@@ -3144,8 +2991,6 @@ From mine own father's heart. Have ye forgot
 What deed I did among you, and what new
 And direr deed I fled from you to do?
 O flesh, horror of flesh!...
-
-_[Sidenote: vv. 1409-1431]_
 
 But what is shame
 To do should not be spoken. In God's name,
@@ -3183,8 +3028,6 @@ As this, which never mother Earth may touch,
 Nor God's clean rain nor sunlight. Quick within!
 Guide him.--The ills that in a house have been
 They of the house alone should know or hear.
-
-_[Sidenote: vv. 1432-1447]_
 
 OEDIPUS
 
@@ -3230,8 +3073,6 @@ OEDIPUS
 I charge thee more ... and, if thou fail, my sin
 Shall cleave to thee.... For her who lies within,
 
-_[Sidenote: vv. 1448-1472]_
-
 Make as thou wilt her burial. 'Tis thy task
 To tend thine own. But me: let no man ask
 This ancient city of my sires to give
@@ -3264,8 +3105,6 @@ If I might touch them, I should seem to keep
 And not to have lost them, now mine eyes are gone....
 What say I?
 In God's name, can it be I hear mine own
-
-_[Sidenote: vv. 1473-1505]_
 
 Beloved ones sobbing? Creon of his grace
 Hath brought my two, my dearest, to this place.
@@ -3302,8 +3141,6 @@ And fruitless.
 Creon, thou alone art left
 Their father now, since both of us are gone
 Who cared for them. Oh, leave them not alone
-
-_[Sidenote: vv. 1505-1518]_
 
 To wander masterless, these thine own kin,
 And beggared. Neither think of them such sin
@@ -3345,8 +3182,6 @@ OEDIPUS
 
 To cast me from this land.
 
-_[Sidenote: vv. 1519-1523]_
-
 CREON
 
 A gift not mine but God's thou askest me.
@@ -3385,8 +3220,6 @@ CREON
 
 Seek not to be master more. Did not thy
 masteries of old forsake thee when the end was near?
-
-_[Sidenote: vv. 1524-1530]_
 
 CHORUS
 

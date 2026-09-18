@@ -145,6 +145,14 @@ _ENTRANCE = {"Enter", "Re-enter"}
 # A bare, unbolded line that still reads as a cue by shape alone (2+ letters,
 # all uppercase): Wikisource's own missing-markup slip, not spoken verse.
 _BARE_CUE = re.compile(r"^[A-Z][A-Z '\-]+$")
+# A bracketed stage direction inside a `<p>` block that Wikisource left
+# unitalicised -- only the word "To" or nothing at all sits in an `<i>`, so
+# `_ws_text` never sees the whole phrase as a direction (prometheus-bound
+# review finding 5, 2026-09-17: "(To PROMETHEUS)", "(Aside)", an unclosed
+# "[A pause."). Read by shape alone, regardless of markup; the same three
+# shapes the Loeb parser (`stage1_turn_english._DIRECTION_CUE`) already
+# recognises, applied at the whole-line level `<p>` text uses.
+_PLAIN_DIRECTION_LINE = re.compile(r"^\(To [^)]+\)$|^\(Aside\)$|^\[.+", re.I)
 _NOISE = "'’ "  # a stray straight/curly quote and space either side of a run
 
 
@@ -167,6 +175,22 @@ def _divide(items: list[tuple[str, ...]], divisions: tuple[tuple[str, str], ...]
     return out
 
 
+def _emit_verse_lines(text: str, items: list[tuple[str, ...]]) -> None:
+    """Append ``text``'s lines as ``("line", ...)`` items, except a whole
+    line matching `_PLAIN_DIRECTION_LINE`, which is a stage direction the
+    source left unitalicised (B8, 2026-09-17) and becomes ``("dir", ...)``
+    instead. Shared by the `<p>`-tag path and the indented-reply div path
+    ("Layout 2"): a direction can land in either."""
+    for line in text.split("\n"):
+        line = collapse_ws(line).strip()
+        if not line:
+            continue
+        if _PLAIN_DIRECTION_LINE.match(line):
+            items.append(("dir", line))
+        else:
+            items.append(("line", line))
+
+
 def convert_four_plays(html: str, title: str, divisions: tuple[tuple[str, str], ...] = ()) -> Converted:
     blocks = lxml.html.fromstring(html).xpath('//div[contains(@class, "prp-pages-output")]')
     root = max(blocks, key=len)  # front matter and a footnote reflist are tiny
@@ -178,9 +202,7 @@ def convert_four_plays(html: str, title: str, divisions: tuple[tuple[str, str], 
             continue
         text, italic_head = _ws_text(el)
         if tag == "p":
-            for line in text.split("\n"):
-                if line.strip():
-                    items.append(("line", collapse_ws(line).strip()))
+            _emit_verse_lines(text, items)
             items.append(("para",))
             continue
         flat = collapse_ws(text).strip()
@@ -208,9 +230,7 @@ def convert_four_plays(html: str, title: str, divisions: tuple[tuple[str, str], 
             continue
         # Any other div (wst-dent, wst-right, or a bare margin-left div under a
         # centred cue, "Layout 2"'s indented-response convention): verse.
-        for line in text.split("\n"):
-            if line.strip():
-                items.append(("line", collapse_ws(line).strip()))
+        _emit_verse_lines(text, items)
         items.append(("para",))
     text_out, written = write_turn_text(title, _divide(items, divisions))
     return Converted(text_out, 0, written)

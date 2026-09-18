@@ -53,8 +53,19 @@ _OPEN_CUE = re.compile(r"^[A-Z][A-Z' ]+\s*\([^)]*$")
 _LYRIC_LABEL = re.compile(r"^\[_?(?:Str(?:ophe)?|Antistr(?:ophe)?|Epode|Mesode)(?![a-z])", re.I)
 # A cue and its half-line of verse on one line: "HECUBA.      Peace, child."
 _CUE_AND_VERSE = re.compile(r"^([A-Z][A-Z' ]+)\.\s{2,}(\S.*)$")
+# A cue whose bracketed direction opens on the same line and wraps a
+# turnover onto the next: "CASSANDRA. [By an effort she regains mastery of
+# herself, and speaks" / "directly to the Leader.]" (agamemnon.txt:1613-1614,
+# B4, 2026-09-17). One space, unlike `_CUE_AND_VERSE`'s two.
+_CUE_AND_OPEN_BRACKET = re.compile(r"^([A-Z][A-Z' ]+)\.\s\[(?P<rest>.*)$")
 # A page's running head left in the text (pg8418 prints "EURIPIDES" mid-speech).
 _RUNNING_HEADS = frozenset({"AESCHYLUS", "SOPHOCLES", "EURIPIDES"})
+# Project Gutenberg's page-reference marker (pg27673, the only Murray source
+# that carries them): "_[Sidenote: vv. 87-99]_", a printer's page-boundary
+# note, not verse and not stage business (B4, 2026-09-17). `_NOTE_CALL`
+# already drops the plain `[vv. N-N]` form; this is the "Sidenote:"-prefixed
+# one, own-line and underscore-wrapped.
+_SIDENOTE = re.compile(r"^_?\[Sidenote:[^\]]*\]_?\.?$", re.I)
 
 
 def _italic_paragraph(lines: list[str]) -> bool:
@@ -118,7 +129,12 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
     flat: list[str | None] = []
     for raw in lines[head + 1 : stop]:
         line = _NOTE_CALL.sub("", raw).strip()
-        if line.startswith("[Illustration") or line in _RUNNING_HEADS or (line and _STAR_RULE.match(line)):
+        if (
+            line.startswith("[Illustration")
+            or line in _RUNNING_HEADS
+            or (line and _STAR_RULE.match(line))
+            or _SIDENOTE.match(line)
+        ):
             continue
         if line and flat and flat[-1] and _OPEN_CUE.match(_fold(flat[-1])):
             flat[-1] = f"{flat[-1]} {line}"
@@ -217,6 +233,18 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
                 items.append(("cue", name[0]))
                 # "LEADER.   [_Antistrophe._" carries a lyric label, not verse.
                 items.append(("dir" if rest.startswith("[") else "line", rest))
+                continue
+        cue_bracket = _CUE_AND_OPEN_BRACKET.match(line)
+        if cue_bracket:
+            name = _cue(_fold(cue_bracket.group(1).strip()))
+            if name and not name[1]:
+                items.append(("cue", name[0]))
+                head_, sep, tail = cue_bracket.group("rest").partition("]")
+                direction = [f"[{head_}{sep}"]
+                if sep:
+                    close()
+                    if tail.strip():
+                        items.append(("line", _plain(tail)))
                 continue
         items.append(("line", _plain(line)))
     close()

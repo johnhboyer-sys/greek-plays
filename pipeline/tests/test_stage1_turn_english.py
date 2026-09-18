@@ -328,6 +328,19 @@ def test_real_notes_stop_at_index_and_next_play_title():
     assert sum(1 for n in eccl_ns if 665 <= n <= 735) == 71
 
 
+# B7 addendum (fix-mechanisms brief, 2026-09-17): Project Gutenberg's
+# `[Greek: ...]` and `[Symbol: ...]` markup -- a word its plain-text edition
+# could not set in Greek type or as a symbol -- printed raw in the footnote
+# popup instead of the transliteration or description it wraps. Knights
+# review finding 5: footnote 1 is on the play's first line.
+def test_gutenberg_footnote_translit_and_symbol_markup_is_unwrapped():
+    knights, knights_notes = _manifest_speeches("knights")
+    assert "[Greek:" not in "".join(knights_notes.values())
+    assert "[Symbol:" not in "".join(knights_notes.values())
+    assert "Paphlag_on" in knights_notes["5"]
+    assert "Letter 'san'" in knights_notes["80"]
+
+
 def test_unaliased_english_speakers_fail_with_play_and_name(tmp_path):
     path = tmp_path / "play.txt"
     path.write_text("TEST PLAY\nKNOWN. Yes.\nSTRANGER. No.\nFINIS\n", encoding="utf-8")
@@ -1220,6 +1233,151 @@ Ten livelong years have rolled away.
     assert speeches[0]["text"].startswith("I pray the gods")
 
 
+# B3 (fix-mechanisms brief, 2026-09-17): Murray's Gutenberg text prints a
+# strophe/antistrophe label as editorial apparatus, not spoken text and not
+# stage business. It must vanish entirely -- not become a cue, not survive
+# as verse, and not become a rendered direction either (agamemnon.txt:1290,
+# 1310, 1329, 1348).
+def test_verse_own_line_mid_line_strophe_label_is_dropped():
+    text = """AGAMEMNON
+
+CHORUS
+What is this that evermore, [Strophe 1.
+A cold terror at the door
+"""
+    speeches, _notes = parse_play_speeches(text, "AGAMEMNON", format="verse-own-line", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": "What is this that evermore,\nA cold terror at the door",
+        }
+    ]
+    assert "Strophe" not in speeches[0]["text"]
+
+
+def test_verse_own_line_own_line_antistrophe_label_is_dropped_not_a_direction():
+    text = """AGAMEMNON
+
+CHORUS
+The long galleys took the brine
+
+_[Antistrophe 1._
+And in harbour, mine own eye
+"""
+    speeches, _notes = parse_play_speeches(text, "AGAMEMNON", format="verse-own-line")
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": "The long galleys took the brine\n\nAnd in harbour, mine own eye",
+        }
+    ]
+    assert "shown" not in speeches[0]
+    assert "Antistrophe" not in (speeches[0].get("shown") or "")
+
+
+def test_verse_own_line_bare_strophe_and_epode_labels_are_dropped():
+    text = "AGAMEMNON\n\nCHORUS\nYet that lyreless music hidden\n\n_[Strophe 2._\nWhispers still words of ill,\n\n_[Epode._\nThe Soul unbidden.\n"
+    speeches, _notes = parse_play_speeches(text, "AGAMEMNON", format="verse-own-line")
+    text_out = speeches[0]["text"]
+    assert "Strophe" not in text_out and "Epode" not in text_out
+    assert "shown" not in speeches[0]
+
+
+# B5 (fix-mechanisms brief, 2026-09-17): Johnston's source sometimes prints a
+# cue sharing its line with spoken text, `NAME: text`, instead of the usual
+# own-line form -- birds.txt:2905 "FIRST MESSENGER: Then, by god, the ducks,
+# with slings attached" -- and the own-line-only cue reader missed it,
+# folding the speech into the block above and leaving the Greek bare.
+def test_verse_own_line_mid_line_colon_cue_is_recognised():
+    text = (
+        "THE PLAY\n\n"
+        "PISTHETAIROS\n"
+        "Is there anything we can't do with our feet?\n\n"
+        "FIRST MESSENGER: Then, by god, the ducks, with slings attached\n"
+        "around their waists, set up the bricks.\n\n"
+        "PISTHETAIROS\n"
+        "Why should we hire wage labour any more?\n"
+    )
+    speeches, _notes = parse_play_speeches(
+        text,
+        "THE PLAY",
+        format="verse-own-line",
+        known_names={"FIRST MESSENGER", "PISTHETAIROS"},
+        verse=True,
+    )
+    assert speeches[1] == {
+        "speaker_printed": "FIRST MESSENGER",
+        "text": "Then, by god, the ducks, with slings attached\naround their waists, set up the bricks.",
+    }
+    assert speeches[2]["speaker_printed"] == "PISTHETAIROS"
+
+
+# Without a `known_names` entry for the capitalised phrase, the mid-line
+# form must never fire -- guarding against an ordinary capitalised aside
+# ("NOTE: see above") being mistaken for a cue.
+def test_verse_own_line_mid_line_colon_cue_requires_a_known_name():
+    text = "THE PLAY\n\nCHORUS\nAs the old proverb goes, NOTE: this changes nothing.\n"
+    speeches, _notes = parse_play_speeches(
+        text, "THE PLAY", format="verse-own-line", known_names={"CHORUS"}
+    )
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": "As the old proverb goes, NOTE: this changes nothing.",
+        }
+    ]
+
+
+# A direction can carry a roster name of its own right after a period --
+# oedipus-coloneus.txt:2577 `_[Enter POLYNEICES. He greets ANTIGONE and
+# ISMENE first.]_` -- and must never be cut apart looking for an embedded
+# cue; a direction is never itself a speaker turn.
+def test_verse_own_line_embedded_cue_split_does_not_touch_a_direction_line():
+    text = (
+        "THE PLAY\n\n"
+        "ANTIGONE\n"
+        "Here is my father's home.\n\n"
+        "_[Enter POLYNEICES. He greets ANTIGONE and ISMENE first.]_\n\n"
+        "POLYNEICES\n"
+        "My sisters, well beloved.\n"
+    )
+    speeches, _notes = parse_play_speeches(
+        text,
+        "THE PLAY",
+        format="verse-own-line",
+        known_names={"ANTIGONE", "ISMENE", "POLYNEICES"},
+    )
+    assert speeches[1]["speaker_printed"] == "POLYNEICES"
+    assert speeches[1]["directions_before"] == [
+        "[Enter POLYNEICES. He greets ANTIGONE and ISMENE first.]"
+    ]
+
+
+# B5 addendum (2026-09-17, electra-eur review finding 3): Murray's Gutenberg
+# kommoi run several speakers' half-lines together on one physical line,
+# cue and all -- electra-eur.txt:2873 "ORESTES. No more to see thee!
+# ELECTRA. Nor thy breath" -- so six Greek turns collapsed into one Murray
+# turn and nine segments went bare. The rule guards on a known name exactly
+# as the colon form does; Murray's separator is a period.
+def test_verse_own_line_run_on_kommos_line_splits_at_each_embedded_cue():
+    text = (
+        "THE PLAY\n\n"
+        "ORESTES\n"
+        "Stand thou beside me.\n\n"
+        "ORESTES. No more to see thee! ELECTRA. Nor thy breath\n"
+        "Be near my face! ORESTES. Ah, so it ends.\n"
+    )
+    speeches, _notes = parse_play_speeches(
+        text, "THE PLAY", format="verse-own-line", known_names={"ORESTES", "ELECTRA"}, verse=True
+    )
+    assert [(s["speaker_printed"], s["text"]) for s in speeches] == [
+        ("ORESTES", "Stand thou beside me."),
+        ("ORESTES", "No more to see thee!"),
+        ("ELECTRA", "Nor thy breath\nBe near my face!"),
+        ("ORESTES", "Ah, so it ends."),
+    ]
+
+
 def test_lindsay_speaker_line_rejects_long_lines_without_hanging():
     # Reproduces a catastrophic-backtracking hang in `_LINDSAY_SPEAKER`: a
     # long, almost-all-caps line that fails to match only at the very end
@@ -1628,6 +1786,135 @@ def test_loeb_ocr_trailing_bracket_direction_may_close():
     }
 
 
+# B6 (fix-mechanisms brief, 2026-09-17): a Loeb volume prints its editorial
+# appendix -- fragments, textual notes -- after the play's last verse line,
+# under an "APPENDIX" heading; the parser read straight through it into the
+# Chorus's closing turn (way/bacchae.txt:1823).
+def test_loeb_ocr_stops_at_the_appendix_heading():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. O the works of the Gods—in manifold wise they reveal them.\n\n"
+        'APPENDIX TO THE "BACCHANALS."\n\n'
+        "A few fragments, given below, of the lost close of the play.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": "O the works of the Gods—in manifold wise they reveal them.",
+        }
+    ]
+    assert "APPENDIX" not in speeches[0]["text"]
+    assert "fragments" not in speeches[0]["text"]
+
+
+# B1 (fix-mechanisms brief, 2026-09-17): a Loeb verse line too long for the
+# printed column wraps, and its tail was never rejoined -- it survived into
+# the build as a whole line of its own. A Loeb verse line always opens with a
+# capital (or an opening quote/bracket ahead of one; confirmed against
+# storr/antigone.txt:391-432 and way/bacchae.txt), so a line that opens
+# lowercase instead is the wrapped tail of the line above it. Antigone's Ode
+# to Man (storr/antigone.txt:391-432): "Many wonders there be, but naught
+# more wondrous" / "than man :" must rejoin as one line.
+def test_loeb_ocr_hanging_turnover_without_bracket_rejoins_the_wrapped_line():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. Many wonders there be, but naught more wondrous\n"
+        "than man :\n"
+        "Over the surging sea, with a whitening south wind\n"
+        "wan,\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": (
+                "Many wonders there be, but naught more wondrous than man :\n"
+                "Over the surging sea, with a whitening south wind wan,"
+            ),
+        }
+    ]
+
+
+# oedipus-tyrannus.txt:426-427, a second instance of the same shape, with two
+# wraps in one speech.
+def test_loeb_ocr_hanging_turnover_rejoins_across_several_wraps():
+    text = (
+        "THE PLAY\n\n"
+        "OEDIPUS. Will nothing loose thy tongue? Can nothing melt\n"
+        "thee,\n"
+        "Nor breed compassion? Thou dost still hold back.\n"
+        "the secret.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "OEDIPUS",
+            "text": (
+                "Will nothing loose thy tongue? Can nothing melt thee,\n"
+                "Nor breed compassion? Thou dost still hold back. the secret."
+            ),
+        }
+    ]
+
+
+# A legitimate mid-speech line never opens lowercase in these Loeb benches
+# (confirmed against the corpus), so the rejoin rule must not need a length
+# heuristic to tell a real short verse line from a tail -- but it must leave
+# an ordinary, capitalised short line alone.
+def test_loeb_ocr_short_capitalised_line_is_not_treated_as_a_turnover():
+    text = "THE PLAY\n\nCHORUS. Ah me!\nWoe is me.\n"
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {"speaker_printed": "CHORUS", "text": "Ah me!\nWoe is me."}
+    ]
+
+
+# Bacchae's shape (finding 4, 2026-09-17) is a *different* turnover: the
+# Loeb column set a short line's overflow to the right of the *next*,
+# unrelated line, so the OCR glues an unclosed `[...` tail onto the end of
+# the line ABOVE the one it continues. way/bacchae.txt:78-79: "...to my
+# painless toil [with greeting." / "For the Clamour-king, hailing the
+# Bacchanals' God" reads correctly only when "with greeting." moves onto the
+# end of the second line -- "hailing the Bacchanals' God with greeting."
+def test_loeb_ocr_bracket_tail_moves_to_the_following_line():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. From Asian soil\n"
+        "Far over the hallowed ridges of Tmolus fleeting,\n"
+        "To the task that I love do I speed, to my painless toil [with greeting.\n"
+        "For the Clamour-king, hailing the Bacchanals' God\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": (
+                "From Asian soil\n"
+                "Far over the hallowed ridges of Tmolus fleeting,\n"
+                "To the task that I love do I speed, to my painless toil\n"
+                "For the Clamour-king, hailing the Bacchanals' God with greeting."
+            ),
+        }
+    ]
+    assert "[with greeting" not in speeches[0]["text"]
+
+
+# A recognised direction cue in a trailing bracket (`Enter`/`Exit`/`To `/...)
+# is `_split_trailing_direction`'s, not the bracket-tail turnover's -- the
+# two must not collide.
+def test_loeb_ocr_bracket_tail_does_not_swallow_a_real_trailing_direction():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. Ready am I,\n"
+        "and glad of cheer. [Begins to drive the crew in.\n\n"
+        "ODYSSEUS. And perils of the sea, only to run.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0] == {"speaker_printed": "CHORUS", "text": "Ready am I,\nand glad of cheer."}
+    assert speeches[1]["directions_before"] == ["Begins to drive the crew in."]
+
+
 # Guard against the real false-positive risk (grep of every Way/Storr bench
 # file, 2026-09-16): Storr's Sophocles verse also uses a bare parenthesis for
 # a rhetorical aside inside the line itself, not a stage direction --
@@ -1648,6 +1935,75 @@ def test_loeb_ocr_leading_parenthetical_aside_is_not_a_direction():
             "text": "Say thou hast perished at the Pythian games,\n(So let thy tale run) at the Pythian games.",
         }
     ]
+
+
+# B2 (fix-mechanisms brief, 2026-09-17): Way cues the god's off-stage
+# utterances in mixed case with a parenthetical location -- `Dionysus
+# (within).` -- instead of the usual all-caps `NAME.`, so `_SPEAKER_LINE`
+# never saw a cue and the lines were swallowed into the surrounding Chorus
+# speech (way/bacchae.txt:675, 689, 704).
+def test_loeb_ocr_offstage_mixed_case_cue_is_recognised():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. Spread fatness on every hand.\n"
+        "Dionysus (within).\n"
+        "What ho! Give heed to my voice, give heed !\n"
+        "\n"
+        "CHORUS. What cry was it?\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0] == {"speaker_printed": "CHORUS", "text": "Spread fatness on every hand."}
+    assert speeches[1] == {
+        "speaker_printed": "DIONYSUS",
+        "text": "What ho! Give heed to my voice, give heed !",
+    }
+    assert speeches[2]["speaker_printed"] == "CHORUS"
+
+
+# The OCR sometimes glues a stray ". " onto the front of the cue
+# (way/bacchae.txt:675: ". Dionysus (within).") and sometimes drops the
+# trailing period (:689: "Dionysus (within)"); both must still read as a cue.
+def test_loeb_ocr_offstage_cue_tolerates_stray_leading_dot_and_missing_period():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. Our Lord!\n"
+        ". Dionysus (within).\n"
+        "Earth-floor, sway to and fro!\n"
+        "\n"
+        "CHORUS. Ha, swiftly shall fall!\n"
+        "Dionysus (within)\n"
+        "Kindle the torch.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[1] == {"speaker_printed": "DIONYSUS", "text": "Earth-floor, sway to and fro!"}
+    assert speeches[3] == {"speaker_printed": "DIONYSUS", "text": "Kindle the torch."}
+
+
+# B2 addendum (2026-09-17, oedipus-coloneus review finding 3): Storr's OCR
+# sometimes writes the cue as `NAME :` (a space then a colon) instead of
+# `NAME.`, alone on its own line -- oedipus-coloneus.txt:82 `STRANGER :`,
+# :763 `CHORUS :` -- and the whole speech that follows was folded into the
+# turn above.
+def test_loeb_ocr_space_colon_cue_is_recognised():
+    text = (
+        "THE PLAY\n\n"
+        "OEDIPUS. How call you then the place wherein we bide?\n"
+        "STRANGER :\n"
+        "Whate’er I know thou too shalt know ; the place\n"
+        "Is all to great Poseidon consecrate.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0]["speaker_printed"] == "OEDIPUS"
+    assert speeches[1] == {
+        "speaker_printed": "STRANGER",
+        "text": "Whate’er I know thou too shalt know ; the place\nIs all to great Poseidon consecrate.",
+    }
+
+
+def test_loeb_ocr_space_colon_cue_second_instance():
+    text = "THE PLAY\n\nOEDIPUS. Too true.\nCHORUS :\nOh horror!\n\nOEDIPUS. Horrors from the deep.\n"
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[1] == {"speaker_printed": "CHORUS", "text": "Oh horror!"}
 
 
 # A stage direction printed on a line of its own with no closing bracket at

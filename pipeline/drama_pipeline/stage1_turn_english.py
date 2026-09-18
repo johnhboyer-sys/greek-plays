@@ -49,9 +49,21 @@ _SPEAKER_LINE = re.compile(
     # A speaker's full stop is followed by space or the end of the line.
     # `\.\s*` matched with zero space, so any mid-prose abbreviation became a
     # speaker: Storr philoctetes.txt:830 `O.God!` -> speaker "O" (P2g finding 7).
-    r"\.(?=\s|\[|$)\s*"
+    # Some Loeb OCR writes the cue as `NAME :` instead -- a space then a
+    # colon (oedipus-coloneus.txt:82 `STRANGER :`, :763 `CHORUS :`; B2
+    # addendum, 2026-09-17) -- accepted as the other terminator.
+    r"(?:\.(?=\s|\[|$)| :(?=\s|\[|$))\s*"
     r"(?:\[(?P<fn3>\d+)\])?\s*"
     r"(?P<rest>\S.*)?$"
+)
+
+# A Loeb OCR cue for an off-stage voice, printed in mixed case with a
+# parenthetical location instead of the usual all-caps `NAME.` (B2,
+# 2026-09-17): `Dionysus (within).` -- way/bacchae.txt:675,689,704 -- alone
+# on its own line, sometimes with a stray leading ". " the OCR glued on.
+_LOEB_OFFSTAGE_CUE = re.compile(
+    r"^(?:\.\s+)?(?P<name>[A-ZÀ-Þ][a-zà-öø-ÿ]+)\s+"
+    r"\((?:within|without|from within|off)\)\.?\s*$"
 )
 _LINDSAY_SPEAKER = re.compile(
     r"^(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH))"
@@ -82,6 +94,12 @@ def _p10_index(n: int) -> int:
 
 _NOTE_START = re.compile(r"^\[(\d+)\]\s*(.*)$")
 _FN_MARK = re.compile(r"\[(\d+)\]")
+# Project Gutenberg's markup for a word its plain-text edition could not set
+# in Greek type or as a symbol -- `[Greek: Paphlag_on]`, `[Symbol: Letter
+# 'san']` -- printed raw in a footnote popup instead of the transliteration
+# or description it wraps (Knights review finding 5, Clouds review finding
+# 8; B7, 2026-09-17). The content is kept, the Gutenberg wrapper dropped.
+_GUTENBERG_TRANSLIT = re.compile(r"\[(?:Greek|Symbol):\s*([^\]]*)\]")
 _PG_END = re.compile(r"^\*\*\*\s*END OF|End of the Project Gutenberg")
 _COMEDY_TITLES = {
     "THE ACHARNIANS",
@@ -283,6 +301,12 @@ def _is_play_end(line: str) -> bool:
         return True
     if s in ("Footnotes:", "FOOTNOTES:"):
         return True
+    # A Loeb volume prints its editorial appendix after the play's last
+    # verse line under this heading (way/bacchae.txt:1823 `APPENDIX TO THE
+    # "BACCHANALS."`); without a stop here it reads into the Chorus's
+    # closing turn as its own speech (B6, 2026-09-17).
+    if s.startswith("APPENDIX"):
+        return True
     return False
 
 
@@ -365,6 +389,59 @@ def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
 def _lindsay_speaker(line: str) -> str | None:
     split = _split_lindsay_speaker_line(line)
     return None if split is None else split[0]
+
+
+# A cue sharing its line with spoken text instead of sitting alone: Johnston
+# writes `FIRST MESSENGER: Then, by god, ...` (birds.txt:2905, clouds.txt
+# four times); Murray's Gutenberg kommoi run several speakers' half-lines
+# together, `ORESTES. No more to see thee! ELECTRA. Nor thy breath`
+# (electra-eur.txt:2873). Both a colon and a period terminate the name (B5,
+# 2026-09-17 + addendum).
+_MID_LINE_CUE = re.compile(r"^(?P<name>[A-Z][A-Z .'\-]*[A-Z])[.:]\s+(?P<rest>\S.*)$")
+# The same shape, matched anywhere in a line (not just at its head), to find
+# every cue a run-on line glues together before splitting on them.
+_EMBEDDED_CUE = re.compile(r"(?P<name>[A-Z][A-Z .'\-]*[A-Z])[.:]\s+(?=\S)")
+
+
+def _mid_line_cue(raw: str, known_names: set[str]) -> tuple[str, str] | None:
+    """``(name, rest)`` if ``raw`` opens with a cue that shares its line with
+    spoken text, guarded on a known roster name so an ordinary capitalised
+    aside is never mistaken for one."""
+    m = _MID_LINE_CUE.match(raw.strip())
+    if not m:
+        return None
+    name = m.group("name").strip()
+    if name not in known_names:
+        return None
+    return name, m.group("rest")
+
+
+def _split_embedded_cues(line: str, known_names: set[str]) -> list[str]:
+    """Split ``line`` at every internal cue that names a known roster
+    character, so a run-on line -- several speakers' half-lines glued
+    together -- becomes one line per speaker. A line with no such cue, or
+    only one at its own head, is returned unchanged."""
+    stripped = line.strip()
+    if not known_names or stripped.startswith(("_", "[")):
+        # A direction line (`_[Enter POLYNEICES. ...]_`) can carry a roster
+        # name of its own right after a period; it is never a cue and must
+        # not be cut apart looking for one.
+        return [line]
+    cuts = [
+        m.start()
+        for m in _EMBEDDED_CUE.finditer(line)
+        if m.group("name").strip() in known_names
+    ]
+    if not cuts or cuts == [0]:
+        return [line]
+    if cuts[0] != 0:
+        cuts = [0] + cuts
+    cuts.append(len(line))
+    return [
+        piece
+        for a, b in zip(cuts, cuts[1:])
+        if (piece := line[a:b].strip())
+    ]
 
 
 def _looks_like_speech_body(s: str) -> bool:
@@ -532,6 +609,31 @@ _TRAILING_BRACKET = (
     re.compile(r"^(?P<rest>.*\S)\s+\[(?P<dir>[^\]\n]+)$"),
 )
 
+# A strophe/antistrophe/epode label -- editorial apparatus marking the
+# lyric's metrical structure, not spoken text and not stage business -- read
+# either as a cue or as text where it should be neither (B3, 2026-09-17):
+# Murray's Gutenberg source prints it mid-line, trailing an unclosed `[`
+# (agamemnon.txt:1290 `What is this that evermore, [Strophe 1.`) or alone on
+# its own underscored line (:1310 `_[Antistrophe 1._`).
+_METRICAL_LABEL = re.compile(
+    r"^\[?(?:Strophe|Antistrophe|Epode|Str\.|Ant\.|Ep\.)\s*\d*\.?\]?$", re.IGNORECASE
+)
+_TRAILING_METRICAL_LABEL = re.compile(
+    r"^(?P<rest>.*\S)\s\[(?P<label>(?:Strophe|Antistrophe|Epode)\s*\d*\.?)$",
+    re.IGNORECASE,
+)
+
+
+def _is_metrical_label(text: str) -> bool:
+    return bool(_METRICAL_LABEL.match(text.strip()))
+
+
+def _strip_trailing_metrical_label(s: str) -> str:
+    """``s`` with a Murray-style mid-line metrical label removed from its
+    end, or ``s`` unchanged if it carries none."""
+    m = _TRAILING_METRICAL_LABEL.match(s)
+    return m.group("rest") if m else s
+
 
 def _split_leading_direction(s: str) -> tuple[str, str] | None:
     """``(direction, rest)`` if ``s`` opens with a recognised bracketed cue
@@ -592,7 +694,8 @@ def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
 
     def flush() -> None:
         if current is not None:
-            notes[current] = collapse_ws(" ".join(buf)).strip()
+            text = collapse_ws(" ".join(buf)).strip()
+            notes[current] = _GUTENBERG_TRANSLIT.sub(r"\1", text)
 
     while i < len(lines):
         s = lines[i].strip()
@@ -615,6 +718,58 @@ def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
     return notes
 
 
+def _is_loeb_wrap_tail(s: str) -> bool:
+    """A Loeb verse line's hanging turnover, printed as its own line: the
+    wrapped tail of the line before it.  A Loeb verse line always opens with
+    a capital (or an opening quote/bracket ahead of one); a line that opens
+    lowercase instead -- with or without a stray unclosed ``[`` the OCR
+    tacked on -- never starts a new verse line in Storr or Way, so it can
+    only be a turnover the printed column was too narrow to hold (B1,
+    2026-09-17: antigone's Ode to Man, oedipus-tyrannus, bacchae). Only a
+    candidate: the caller still requires a full-length predecessor
+    (`_has_full_length_predecessor`) before treating it as one -- a genuinely
+    short printed line can be followed by a new, deliberately lowercase verse
+    line (Rogers's Genie-checked bench already rejoins its own turnovers and
+    is not this bug; `test_cue_verse_run_direction_and_footnote`)."""
+    return bool(_LOEB_WRAP_TAIL.match(s))
+
+
+_LOEB_WRAP_TAIL = re.compile(r"^\[?[a-zà-öø-ÿ]")
+
+# A printed Loeb verse line runs close to the column's full width; a line
+# this short never legitimately triggers the turnover rule below, only a
+# deliberate short verse line can be that brief (confirmed against every
+# antigone/oedipus-tyrannus instance in the reviews, all >= 40 characters).
+_LOEB_FULL_LINE_MIN = 30
+
+
+def _has_full_length_predecessor(parts: list[str]) -> bool:
+    for idx in range(len(parts) - 1, -1, -1):
+        if parts[idx]:
+            return len(parts[idx]) >= _LOEB_FULL_LINE_MIN
+    return False
+
+
+# A hanging turnover the Loeb column set to the right of a *different*,
+# unrelated line, so the OCR's line order glues the tail onto the end of the
+# line ABOVE it instead of the one it continues (bacchae finding 4,
+# 2026-09-17): `to my painless toil [with greeting.` / `For the Clamour-king,
+# hailing the Bacchanals' God` -- the correct reading moves "with greeting."
+# onto the end of the *next* line. Only a bracket the recognised direction
+# cues (`_DIRECTION_CUE`) do not claim reaches here (Enter/Exit/To/Aside are
+# `_split_trailing_direction`'s, tried first).
+_LOEB_TRAILING_TAIL = re.compile(r"^(?P<rest>.*\S)\s\[(?P<tail>[a-zà-öø-ÿ][^\]\n]*)$")
+
+
+def _merge_wrap_tail(parts: list[str], tail: str) -> None:
+    text = tail[1:] if tail.startswith("[") else tail
+    for idx in range(len(parts) - 1, -1, -1):
+        if parts[idx]:
+            parts[idx] = f"{parts[idx]} {text}"
+            return
+    parts.append(text)
+
+
 def _parse_as_speeches(
     lines: list[str],
     start: int,
@@ -635,6 +790,9 @@ def _parse_as_speeches(
     # speech now open: [index into parts, text], same convention as the
     # verse-own-line `inline` (Codex merge-gate finding 2, 2026-09-16).
     inline: list[list] = []
+    # A `_LOEB_TRAILING_TAIL` fragment carried from the line before, waiting
+    # for the line it actually belongs to (B1).
+    pending_tail: str | None = None
     i = start
     end_i = len(lines)
 
@@ -681,10 +839,19 @@ def _parse_as_speeches(
             # Heracles labours catalogue), not a speaker; no cue is a bare
             # numeral (2026-09-14).
             m = None
-        periodless = None if m else _periodless_speaker(raw, known_names)
-        if m or periodless:
+        offstage = None if m else _LOEB_OFFSTAGE_CUE.match(raw.strip())
+        periodless = None if (m or offstage) else _periodless_speaker(raw, known_names)
+        if m or offstage or periodless:
+            if pending_tail is not None:
+                _merge_wrap_tail(parts, pending_tail)
+                pending_tail = None
             flush()
-            speaker = m.group("name").strip() if m else periodless[0]
+            if m:
+                speaker = m.group("name").strip()
+            elif offstage:
+                speaker = offstage.group("name").strip().upper()
+            else:
+                speaker = periodless[0]
             parts = []
             inline = []
             directions_before = pending
@@ -713,6 +880,8 @@ def _parse_as_speeches(
                         _add_direction(inline, len(parts), direction)
                     else:
                         parts.append(rest)
+            elif offstage:
+                pass  # the whole line is the cue; its speech follows below.
             else:
                 parts.append(periodless[1])
         elif speaker:
@@ -726,11 +895,27 @@ def _parse_as_speeches(
                     s, direction = trail
                     parts.append(s)
                     _add_direction(inline, len(parts), direction)
+                elif verse and pending_tail is not None:
+                    parts.append(f"{s} {pending_tail}")
+                    pending_tail = None
+                elif (
+                    verse
+                    and _is_loeb_wrap_tail(s)
+                    and _has_full_length_predecessor(parts)
+                ):
+                    _merge_wrap_tail(parts, s)
                 else:
-                    parts.append(s)
+                    tail_match = _LOEB_TRAILING_TAIL.match(s) if verse else None
+                    if tail_match and len(tail_match.group("rest")) >= _LOEB_FULL_LINE_MIN:
+                        parts.append(tail_match.group("rest"))
+                        pending_tail = tail_match.group("tail")
+                    else:
+                        parts.append(s)
             elif parts and parts[-1] != "":
                 parts.append("")
         i += 1
+    if pending_tail is not None:
+        _merge_wrap_tail(parts, pending_tail)
     flush()
     return speeches, end_i
 
@@ -742,7 +927,17 @@ def _parse_lindsay_speeches(
     directions: bool = False,
     before: list[str] | None = None,
     verse: bool = False,
+    known_names: set[str] | None = None,
 ) -> tuple[list[dict], int]:
+    known_names = known_names or set()
+    if known_names:
+        # A run-on line gluing several speakers' half-lines together must be
+        # split before the main loop ever sees it (B5 addendum, 2026-09-17).
+        lines = lines[:start] + [
+            piece
+            for raw in lines[start:]
+            for piece in _split_embedded_cues(raw, known_names)
+        ]
     speeches: list[dict] = []
     parts: list[str] = []
     speaker = ""
@@ -784,7 +979,8 @@ def _parse_lindsay_speeches(
             break
         direction_text = _own_line_verse_direction(s) if directions and speaker else None
         if direction_text is not None:
-            _add_direction(inline, len(parts), direction_text)
+            if not _is_metrical_label(direction_text):
+                _add_direction(inline, len(parts), direction_text)
             i += 1
             continue
         split = _split_lindsay_speaker_line(raw)
@@ -797,9 +993,18 @@ def _parse_lindsay_speeches(
             inline = []
             i += 1
             continue
+        mid_cue = _mid_line_cue(raw, known_names) if known_names else None
+        if mid_cue:
+            flush()
+            speaker, rest = mid_cue
+            parts = [rest]
+            inline = []
+            i += 1
+            continue
         if speaker:
             if s:
                 if directions:
+                    s = _strip_trailing_metrical_label(s)
                     lead = _split_leading_direction(s)
                     if lead:
                         direction, s = lead
@@ -885,7 +1090,12 @@ def parse_play_speeches(
             else:
                 k += 1
         speeches, _end_i = _parse_lindsay_speeches(
-            lines, start, directions=True, before=[d for _at, d in opening], verse=verse
+            lines,
+            start,
+            directions=True,
+            before=[d for _at, d in opening],
+            verse=verse,
+            known_names=known_names,
         )
         return speeches, {}
     dp = _dramatis_index_after(lines, title_i)
