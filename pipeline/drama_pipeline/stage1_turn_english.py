@@ -1619,7 +1619,10 @@ def _transposed_run_groups(
 
 
 def _english_transposed_run_groups(
-    run_keys: list[tuple | None], blocks: list[dict] | None
+    run_keys: list[tuple | None],
+    blocks: list[dict] | None,
+    work_id: str = "?",
+    slot: str = "?",
 ) -> list[list[int]]:
     """The Greek SPEECHES a declared ENGLISH transposition reorders (R9).
 
@@ -1639,30 +1642,46 @@ def _english_transposed_run_groups(
     is already numeric and the English is not, so the permutation it would
     return is the identity and the block would be dropped.
 
-    A block whose speeches are not a contiguous stretch of the printed order,
-    or which moves nothing, is dropped: there is nothing to reorder.
+    A declaration that cannot be read FAILS LOUD (Grok's read of round 3): a
+    citation block that reorders nothing is dropped because the numbering
+    already says so and there is nothing to choose, but an English block is a
+    reviewer's statement about a column he has read, so one that names refs
+    the play does not print, or reads backwards, or moves nothing, is a
+    manifest fault -- and a fault dropped with a `continue` looks exactly
+    like a column that needed no declaration.
     """
     out: list[list[int]] = []
     for block in blocks or []:
+        def bad(why: str) -> ValueError:
+            return ValueError(
+                f"{work_id}: english.{slot} transposition {block!r}: {why}"
+            )
+
         start, end, before = block.get("start"), block.get("end"), block.get("before")
         if not all(isinstance(x, str) for x in (start, end, before)):
-            continue
+            raise bad("needs string refs `start`, `end` and `before`")
         lo = _play_line_start_key(before)
         mid = _play_line_start_key(start)
         hi = _play_line_start_key(end)
         if not lo < mid <= hi:
-            continue
+            raise bad(
+                "reads `before` < `start` <= `end` -- this column prints the "
+                "English of start..end BEFORE the English of `before`"
+            )
         idxs = [
             r for r, key in enumerate(run_keys)
             if key is not None and lo <= key <= hi
         ]
         if len(idxs) < 2 or idxs != list(range(idxs[0], idxs[-1] + 1)):
-            continue
+            raise bad(
+                f"names {len(idxs)} Greek speech(es) in {before}..{end}, which are "
+                "not a contiguous stretch of the printed order"
+            )
         moved = [r for r in idxs if mid <= run_keys[r] <= hi]
         stayed = [r for r in idxs if lo <= run_keys[r] < mid]
         offer = moved + stayed
         if not moved or not stayed or offer == idxs:
-            continue
+            raise bad("moves nothing: the speeches are already in that order")
         out.append(offer)
     return out
 
@@ -2122,16 +2141,25 @@ def _align_speech_runs(
     # is where that shows). And it is per COLUMN, so it lives under
     # `english.<slot>.transpositions`, not under `citation`, which is a fact
     # about the Greek edition that every column shares.
-    for group in _english_transposed_run_groups(run_keys, english_transpositions):
-        step = _apply(group, order)
-        if step is not None:
-            order, span = step
-            applied.append((span[0], span[1]))
+    english_groups = _english_transposed_run_groups(
+        run_keys, english_transpositions, work_id, slot
+    )
+    english_runs = {r for group in english_groups for r in group}
     groups = _transposed_run_groups(run_keys, transpositions, repeated_keys)
     if groups:
         blind = pair_dp.Weights(w_spk=0.0)
         best = _run_align(order, blind)
         for group in groups:
+            # R9b (Grok's read of round 3): an adopted English span is not
+            # A1's to re-choose. A1 weighs two readings of the Greek's own
+            # printed order; a declaration states what one column does, and
+            # a group that reaches into a declared span would overrule the
+            # statement whenever the numeric order happened to score
+            # cheaper. The two say different kinds of thing about the same
+            # speeches, so the declaration stands and this group is left
+            # alone.
+            if english_runs & set(group):
+                continue
             step = _apply(group, order)
             if step is None:
                 continue
@@ -2145,6 +2173,18 @@ def _align_speech_runs(
             if best is None or _strictly_cheaper(alt.cost, best.cost):
                 order, best = candidate, alt
                 applied.append((span[0], span[1]))
+    # R9b: the declarations go on LAST, after every order A1 chose between,
+    # so nothing downstream of them can put the column back.
+    for group in english_groups:
+        step = _apply(group, order)
+        if step is None:
+            raise ValueError(
+                f"{work_id}: english.{slot} transposition over Greek speeches "
+                f"{group}: they are no longer a contiguous stretch of the "
+                "order the aligner reads"
+            )
+        order, span = step
+        applied.append((span[0], span[1]))
     res = _run_align(order)
     res_fallback = res is None
     if res is None:
@@ -2609,10 +2649,23 @@ def _resolve_pins(
     # translation that follows the numbering cross in PRINTED order without
     # contradicting each other; `_align_speech_runs` decides between the two
     # orders and tests the pins against each candidate (round 2, finding 3).
+    #
+    # R9a (Grok's read of round 3): the bound is the LOWEST and HIGHEST ref
+    # the block names, not the pair `(start, before)`. A citation block
+    # prints `start..end` after `before`, so `before` is the high end and
+    # that pair read right; an ENGLISH block (R9) prints the English of
+    # `start..end` BEFORE that of `before`, so `before` is the LOW end and
+    # `(start, before)` is an empty interval -- the exemption never fired
+    # for the column it was extended for.
     windows = [
-        (_play_line_start_key(b["start"]), _play_line_start_key(b["before"]))
+        (min(keys), max(keys))
         for b in (transpositions or [])
         if isinstance(b.get("start"), str) and isinstance(b.get("before"), str)
+        and (keys := [
+            _play_line_start_key(b[k])
+            for k in ("start", "end", "before")
+            if isinstance(b.get(k), str)
+        ])
     ]
 
     def transposed_together(a: str | None, b: str | None) -> bool:
@@ -3547,13 +3600,14 @@ def parse_translation(
     # being distributed over Eumenides 143-169 at all -- three lines piled on
     # 1:140 and eight bare rows after it, which is worse than the note it was
     # meant to correct.
-    merged_covered = {
-        **_plausible_covers(
-            _content_covered(
-                segments, chunks, primary_bridge, derived_covered_by_segment
-            ),
-            chunks, segments,
+    content_covered = _plausible_covers(
+        _content_covered(
+            segments, chunks, primary_bridge, derived_covered_by_segment
         ),
+        chunks, segments,
+    )
+    merged_covered = {
+        **content_covered,
         **repeat_covered,
         **manifest_covered,
     }
@@ -3581,6 +3635,19 @@ def parse_translation(
         # guard above drops the rest), so no chain to follow. `run()` pops it
         # before the file is written.
         "derived_covered_by": dict(derived_covered_by_segment),
+        # R2: the column's OWN claims, which say a block of this translation
+        # holds those Greek speeches -- where an undivided block begins
+        # (`_claim_anchors`) and how far the spread may walk inside it. The
+        # manifest's declarations are left out (John's ruling about a
+        # translator's block is his to make, round 8 section 1.3) and so are
+        # R1's structural repeat claims (one printing's turn must never be
+        # sliced across both seats). `run()` pops it before the file is
+        # written.
+        "content_covered_by": {
+            sid: cid
+            for sid, cid in content_covered.items()
+            if sid not in manifest_covered and sid not in repeat_covered
+        },
     }
 
     # Turn-pairing design 2026-09-15 section 7: report numbers the old
@@ -3794,9 +3861,65 @@ def _is_chorus(name: str) -> bool:
     return "chorus" in low and "semi" not in low and "half" not in low
 
 
+def _claim_anchors(
+    chunks: list[dict], segments: list[dict], claimed: dict[str, str] | None,
+    covered: dict[str, str] | None = None,
+) -> dict[str, str]:
+    """R2: where an undivided block that claims a run of segments belongs.
+
+    Returns ``chunk id -> the first segment of the run claiming it``, for the
+    blocks that claim segments BEFORE the one they sit on. A translator who
+    prints a whole kommos as one block gives the DP one English speech, and
+    the DP hangs it on one Greek node -- at Septem 875-960 Johnston's is
+    1:951, the LAST segment of the range the column's own claim names, since
+    that is where the speech matched. `_spread_long_speeches` walks strictly
+    forward, so the sixteen segments claiming it could never be reached.
+
+    The run is the contiguous stretch of segments immediately before the
+    block that hold no English of their own and name that block: contiguous,
+    because a chunk between the two is a division the translator made, and
+    the spread cannot cross it either.
+
+    ``covered`` stops the walk where the ALIGNER has already given a segment
+    to another block. The claim map is coarse by construction -- a claim
+    earned anywhere in a bare run is carried back over the whole of it
+    (`_content_covered`) -- so at Septem the claim on Johnston's 1:951 runs
+    back over 848-871, which the DP itself reads as the continuation of the
+    block at 1:822 and which that block is already spread across. The DP's
+    reading of a skip right after its own match is the better evidence, and
+    it bounds the run at 1:875.
+    """
+    if not claimed:
+        return {}
+    ids = [seg["id"] for seg in segments]
+    at = {sid: i for i, sid in enumerate(ids)}
+    held = {c["id"] for c in chunks}
+    out: dict[str, str] = {}
+    for chunk in chunks:
+        # A chunk with offset-keyed notes or markers is never cut (see
+        # `_spread_long_speeches`), so moving it would only move the whole
+        # block off the Greek the DP matched it to.
+        if chunk.get("notes") or chunk.get("markers") or chunk.get("bekker"):
+            continue
+        p = at.get(chunk["id"])
+        if p is None:
+            continue
+        k = p
+        while (
+            k - 1 >= 0
+            and ids[k - 1] not in held
+            and claimed.get(ids[k - 1]) == chunk["id"]
+            and (covered or {}).get(ids[k - 1], chunk["id"]) == chunk["id"]
+        ):
+            k -= 1
+        if k < p:
+            out[chunk["id"]] = ids[k]
+    return out
+
+
 def _continuation_kind(
     segment: dict, own: set[str], stacked: float, spread: float, sigla,
-    vouched: bool = False,
+    vouched: bool = False, claimed: bool = False,
 ) -> str | None:
     """How a Greek segment with no English of its own goes on with the
     speech before it: "bare" (no speaker mark), "same" (a mark of the same
@@ -3815,18 +3938,32 @@ def _continuation_kind(
     than dialogue is -- falls under `_STACKED` by construction however plainly
     it continues (Persians' parodos, one Chorus speech over six segments,
     reads 0.854 at the fourth). The constants stay as John measured them for
-    the case they were measured on: a head the aligner makes no claim about."""
+    the case they were measured on: a head the aligner makes no claim about.
+
+    ``claimed`` (R2) says THIS COLUMN's own claim run names this segment for
+    the block being spread -- the reader-facing "translated with the speech
+    at ..." that `_content_covered` earned by comparing the line-keyed
+    primary against this column's blocks. It goes further than ``vouched``,
+    and has to: a claim over a kommos covers Greek speeches the edition
+    gives to somebody else (Antigone and Ismene answer the Chorus at Septem
+    875-960), and the claim is exactly the statement that the translator did
+    not divide there. So a named change of voice inside a claimed run reads
+    as a change of voice inside one block -- a "dash", which takes an
+    English turn where the column marks one -- not as the end of the
+    speech."""
     if not segment.get("speakers"):
         return "bare"
     events = _segment_speaker_events(segment, sigla)
     names = {name for _ln, _off, name, _m in events if name}
-    if not names <= own or (spread < _THIN and not vouched):
+    if not names <= own:
+        return "dash" if claimed else None
+    if spread < _THIN and not (vouched or claimed):
         return None
     lines = segment.get("lines") or segment.get("greek") or [{}]
     if (names and all(name for _ln, _off, name, _m in events)) or lines[0].get("label"):
-        return "same" if (vouched or stacked > 1.0) else None
+        return "same" if (vouched or claimed or stacked > 1.0) else None
     # An unnamed mark after an actor is someone else speaking (Ion 225).
-    if own and _is_chorus(next(iter(own))) and (vouched or stacked >= _STACKED):
+    if own and _is_chorus(next(iter(own))) and (vouched or claimed or stacked >= _STACKED):
         return "dash"
     return None
 
@@ -3846,9 +3983,36 @@ def _printed_line_starts(text: str) -> list[int]:
     return out
 
 
+# A7: how much of each side's opening the paragraph cut is chosen on. Long
+# enough to name the passage (four to six verse lines), short enough not to
+# reach the next one: at Agamemnon 160/205/248 the decision is the same at
+# 200, 300 and 400 characters, and the two segments the rule must NOT move
+# (1:104, 1:258) are refused by the margin at all three.
+_PARA_HEAD = 300
+
+
+def _paragraph_starts(text: str) -> list[int]:
+    """Offsets of the paragraphs a translator's own block is printed in: the
+    start of the block and the start of each line after a blank one."""
+    out = [0]
+    at = 0
+    blank = False
+    for line in text.split("\n"):
+        if not line.strip():
+            blank = True
+        else:
+            if blank:
+                out.append(at + len(line) - len(line.lstrip()))
+            blank = False
+        at += len(line) + 1
+    return out
+
+
 def _spread_long_speeches(
     chunks: list[dict], segments: list[dict], sigla=None,
     covered: dict[str, str] | None = None, verse: bool = False,
+    claimed: dict[str, str] | None = None,
+    bridge: dict[str, str] | None = None,
 ) -> list[dict]:
     """A speech-aligned translation's English for a long Greek speech lands on
     the speech's first segment; the Greek segments that continue it (no
@@ -3874,7 +4038,48 @@ def _spread_long_speeches(
     segments is a verse broken across two rows (John, 2026-09-14, Way's
     Suppliants 549). A prose column has no printed lines to keep: it keeps the
     sentence-start cut measured in characters, which is what `sentenceTicks`
-    does with the piece afterwards."""
+    does with the piece afterwards.
+
+    ``claimed`` is this column's own claim map (`_content_covered`'s, without
+    the manifest's declarations, which are John's to rule on): segment id ->
+    the block that holds its translation. R2 reads two things off it -- where
+    an undivided block begins (`_claim_anchors`) and that the walk may cross
+    a change of Greek speaker inside the run it claims.
+
+    ``bridge`` is the line-keyed primary column's own English per segment
+    (A7). Where the block is printed in paragraphs, a continuation's cut is
+    taken at the paragraph whose text the primary's translation of that
+    segment actually matches, instead of at the sentence or printed line the
+    proportion points at: Kosmos's Agamemnon parodos opens a paragraph at
+    Greek 160 and another at 205, and the proportional cut lands one and two
+    paragraphs early. Round 3 tried the paragraph pool chosen by `where()`
+    and it failed its acceptance run, for the reason the design gives: a
+    paragraph chosen by a length estimate inherits the bias it is meant to
+    correct. The primary is keyed to the Greek line, so it is the one thing
+    in the build that knows what this segment SAYS."""
+    anchors = _claim_anchors(chunks, segments, claimed, covered)
+    if anchors:
+        # R2: the block moves to the head of the run it claims, and the
+        # claims move with it -- the head is a claimant no longer, and the
+        # rest of the run names the block where it now stands.
+        column_of = {seg["id"]: seg.get("column") for seg in segments}
+        chunks = [
+            {**c, "id": anchors[c["id"]],
+             "column": column_of.get(anchors[c["id"]], c.get("column"))}
+            if c["id"] in anchors else c
+            for c in chunks
+        ]
+        heads = set(anchors.values())
+        claimed = {
+            sid: anchors.get(cid, cid)
+            for sid, cid in (claimed or {}).items()
+            if sid not in heads
+        }
+        # The seat the DP matched the block to belongs to the run as well --
+        # the strongest claim of the lot, and the walk has to reach it or the
+        # block's last piece would stop short of its own Greek.
+        for old, new in anchors.items():
+            claimed[old] = new
     by_id = {c["id"]: c for c in chunks}
     lines_of = lambda s: max(1, len(s.get("lines") or s.get("greek") or []))  # noqa: E731
     ratios = [len(c.get("text") or "") / lines_of(s) for s in segments if (c := by_id.get(s["id"]))]
@@ -3909,6 +4114,7 @@ def _spread_long_speeches(
                 segments[k], own, per_line / lines_head,
                 per_line / (lines_crossed + lines_of(segments[k])), sigla,
                 vouched=(covered or {}).get(segments[k]["id"]) == chunk["id"],
+                claimed=(claimed or {}).get(segments[k]["id"]) == chunk["id"],
             )
             if kind is None:
                 break
@@ -3962,6 +4168,12 @@ def _spread_long_speeches(
                 for m in _SENTENCE_START.finditer(text)
                 if not any(a < m.end() < b for a, b in inside)
             ]
+        # A7's pool: the block's own paragraph openings, never one inside a
+        # stage direction (the same rule the sentence pool keeps).
+        para_starts = [
+            p for p in _paragraph_starts(text)
+            if p > 0 and not any(a < p < b for a, b in inside)
+        ]
         turn_starts = [o for t in chunk.get("turns") or [] if (o := int(t.get("offset") or 0)) > 0]
         if line_starts:
             # A turn mark inside a verse line would split the verse; take the
@@ -3984,6 +4196,37 @@ def _spread_long_speeches(
             if not cand:
                 break
             best = min(cand, key=lambda p: abs(where(p) - aim(firsts[i])))
+            # A7: where the block is printed in paragraphs and the primary
+            # column has words for this segment, the paragraph the primary
+            # MATCHES is the cut -- inside the segment's own Greek span of
+            # the block, the same guard the turn pool takes, and only on a
+            # claim the cosine can actually speak for (`_COVER_MIN_TOKENS`,
+            # `_COVER_FLOOR`, `_COVER_MARGIN`: the A2 thresholds, measured on
+            # the same kind of comparison).
+            #
+            # HEADS, not whole passages: this asks where the segment BEGINS,
+            # and a segment of forty Greek lines runs over several of the
+            # translator's paragraphs, so whole-text cosine answers "which
+            # paragraph shares most words with these forty lines" -- which at
+            # Agamemnon 160 is the Strymon paragraph forty lines on (0.656)
+            # over "Zeus, whoever he may be" (0.470), the paragraph that
+            # actually opens there. Compared head to head the same case reads
+            # 0.969 against 0.261.
+            ref = ((bridge or {}).get(cont["id"]) or "")[:_PARA_HEAD]
+            paras = [p for p in para_starts if p > prev]
+            if paras and len(set(_COVER_WORD.findall(ref.lower()))) >= _COVER_MIN_TOKENS:
+                table = banded_cosine([ref], [text[p:p + _PARA_HEAD] for p in paras])
+                ranked = sorted(
+                    ((table.cos(0, k), p) for k, p in enumerate(paras)), reverse=True,
+                )
+                runner = ranked[1][0] if len(ranked) > 1 else 0.0
+                reach = max(1.0, float(sizes[i]))
+                if (
+                    ranked[0][0] >= _COVER_FLOOR
+                    and ranked[0][0] - runner >= _COVER_MARGIN
+                    and abs(where(ranked[0][1]) - firsts[i]) <= reach
+                ):
+                    best = ranked[0][1]
             if kinds[i - 1] == "dash" and turns_left >= dashes_left:
                 # ...and only when the turn actually MARKS this change. The
                 # rule took the nearest remaining turn however far off it
@@ -4176,9 +4419,34 @@ def run(
     # A long speech's English reaches the Greek segments that continue it
     # (John, 2026-09-11, Morshead's Agamemnon parodos), cut in printed lines
     # for a verse column and in sentences for prose.
+    segments = spine.get("segments") or []
+    claimed = english.pop("content_covered_by", None)
+    # R2: where an undivided block is moved to the head of the run it claims,
+    # the reader-facing map moves with it -- a note pointing at the seat the
+    # block has left is a dead claim of exactly the kind R13 removed.
+    anchors = _claim_anchors(
+        english.get("chunks") or [], segments, claimed,
+        english.get("derived_covered_by"),
+    )
+    if anchors:
+        heads = set(anchors.values())
+        english["english_covered_by"] = {
+            sid: anchors.get(cid, cid)
+            for sid, cid in (english.get("english_covered_by") or {}).items()
+            if sid not in heads
+        }
     english["chunks"] = _spread_long_speeches(
-        english.get("chunks") or [], spine.get("segments") or [], sigla,
+        english.get("chunks") or [], segments, sigla,
         covered=english.pop("derived_covered_by", None), verse=verse,
+        claimed=claimed,
+        # A7: the line-keyed primary's own English per segment, which is what
+        # a segment MEANS; `None` for the eleven comedies, whose primary is
+        # itself turn text (the same condition the pairing bridge is off
+        # under).
+        bridge=(
+            {sid: (c.get("text") or "") for sid, c in primary_bridge.items()}
+            if primary_bridge else None
+        ),
     )
 
     out_dir = BUILD_DIR / "stage1"
