@@ -35,6 +35,7 @@ english:
     # Item 6: Greek speeches whose English sits inside the neighbouring
     # speech (the reader shows 'Translated with the speech above').
     covered:
+      - { greek: "271", by: "269" }  # both texts fold 271-272 into 269 (Lane A, 2026-09-17)
       - { greek: "299", by: "300" }
       - { greek: "468", by: "465" }
     pins:
@@ -73,9 +74,7 @@ english:
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
-  gaps:
-    - "275"  # no English for Paphlagonian's shouting boast
-    - "464"  # translator drops First Slave's wainwright line
+  gaps: []  # 275 and 464 were false gaps written over the transposition-blind pairer (removed 2026-09-17)
 
 citation:
   scheme: play-line
