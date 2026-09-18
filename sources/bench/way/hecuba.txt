@@ -107,13 +107,14 @@ And a woe-stricken Trojan maiden’s doom.
 O Gods, I am suppliant before you !—in any wise
 turn, I implore you,
 This fate from the child of my womb:
-I have hasted hitherward ; the pavilions of my lord,
+_Enter CHORUS of captive Trojan women._
+
+CHORUS. I have hasted hitherward ; the pavilions of my lord,
 O my queen, have I forsaken, in the which I
 sojourn here,
 Whom the lot hath doomed to fall unto a king, a thrall
 From Ilium chased, the quarry of Achaean hunters’
 spear,—
-liu
 Not for lightening of thy pain; nay, a burden have
 I ta’en
 Of heavy tidings, herald of sore anguish unto
@@ -205,14 +206,16 @@ What profits my life any more, whom your words
 have undone, have undone ?
 Now unto yonder pavilion, to tell to my child her
 undoing,
-Lead, O yewretchedest feet, lead y~ the eld-stricken one!
+Lead, O ye wretchedest feet, lead ye the eld-stricken one!
 O daughter, O child of a mother most wretched, forth
 faring, forth faring,
 Come from the tent, O hearken the voice of thy mother’s word,
 To the end thou mayst know what a rumour of awful
 despairing, despairing,
 Concerning the life of thee, my belovéd, but now have I heard !
-O mother, my mother, what meaneth thy crying?
+_Enter POLYXENA._
+
+POLYXENA. O mother, my mother, what meaneth thy crying?
 What strange dread thing
 Is this that thou heraldest
 That hath scared me, like to a bird forth-flying
@@ -300,7 +303,8 @@ A spy, in rags vile-vestured ; from thine eyes
 Trickled adown thy cheeks the gouts of gore?
 
 ODYSSEUS. I do, for deep it sank into mine heart.
-And Helen knew thee, and told none save me?
+
+HECUBA. And Helen knew thee, and told none save me?
 
 ODYSSEUS. I call to mind: mid peril grim I fell.
 
@@ -373,9 +377,7 @@ or wrath count foe, who wisely counselleth.,
 Thy life, through whom I found deliverance,
 Ready am I to save; I stand thereto.
 But what to all I said, I unsay not—
-yor
-
-HECUBA. That now, Troy taken, we should yield thy child,
+That now, Troy taken, we should yield thy child,
 At our great champion’s claim, for sacrifice.
 For of this cometh weakness in most states,
 That, though a man be brave and patriot-souled,
@@ -818,7 +820,6 @@ Whom in his halls I deemed the Thracian warded.
 O wretch ! it is my death—I am no more!
 O my child, O my child!
 Mine anguish shall thrill
-goo
 Through a wail shrilling wild
 In the ears of me still,
 Which pealed there but now from the throat of a
@@ -871,7 +872,9 @@ CHORUS. O hapless, how a God, whose hand on thee
 Is heavy, above all mortals heaps thee pain !
 But lo, I see our master towering nigh,
 Agamemnon : friends, henceforth hold we our peace.
-Why stay’st thou, Hecuba, to entomb thy child,
+_Enter AGAMEMNON._
+
+AGAMEMNON. Why stay’st thou, Hecuba, to entomb thy child,
 According to Talthybius’ word to me
 That of the Argives none should touch thy daughter ?
 Wherefore we let her be, and touch her not;
@@ -949,7 +952,6 @@ HECUBA. Of whom save one ?—that Thracian friend slew him.
 AGAMEMNON. O wretch !—for that he lusted for the gold ?
 
 HECUBA. Even so, when Phrygia’s fall was known of him.
-od
 
 AGAMEMNON. Where found’st thou him ?—or who hath brought thy
 dead ?
@@ -981,7 +983,7 @@ Who ofttimes at my table ate and drank,
 For welcome foremost in my count of friends,
 And had all guest-dues. Yet he watched his time,
 Slew him, nor in his thoughts of murder found
-Room for a grave, but cast him mid the 568.
+Room for a grave, but cast him mid the sea.
 And I—a slave I may be, haply weak ;
 Yet are the Gods strong, and their ruler strong,
 Even Law; for by this Law we know Gods are,
@@ -1070,7 +1072,8 @@ What arm shall aid thee? whence wilt win thee
 friends ?
 
 HECUBA. These tents a host of Trojan women hide.
-The captives meanest thou, Greek hunters’ prey?
+
+AGAMEMNON. The captives meanest thou, Greek hunters’ prey?
 
 HECUBA. By these will I avenge me on my slayer.
 
@@ -1150,7 +1153,7 @@ By their bridal had reft me—’twas bridal none, but
 wrack
 Devil-wrought :—to her fatherland home o’er yon sea-track
 Ne’er may she come!
-guard of Thracian spearmen.
+_Enter POLYMESTOR with his two little sons attended by a guard of Thracian spearmen._
 
 POLYMESTOR. Priam of men most dear !—and dearest thou,
 O Hecuba, I weep beholding thee,
@@ -1255,6 +1258,7 @@ HECUBA. Inviolate are the captive women’s tents.
 POLYMESTOR. Within is all safe? Be they void of men?
 
 HECUBA. Within is no Achaean, only we.
+Enter the tents,—for fain the Argives are
 To unmoor the ships for homeward flight from Troy,—
 That, all well done, thou mayst with thy sons fare
 To where thou gav’st a home unto my child.
@@ -1282,13 +1286,15 @@ POLYMESTOR. Ah me, my children !—ah the awful murder !
 
 CHORUS. Friends, strange grim work is wrought in yonder tent.
 
-POLYMESTOR. Surely by snift feet shall ye not escape !
+POLYMESTOR. Surely by swift feet shall ye not escape !
 My blows shall rive this dwelling’s inmost parts !
 
 CHORUS. Lo, crasheth there swift bolt of giant hand.
 Shall we burst in ?—the peril summoneth us
 To help of Hecuba and the Trojan dames.
-Smite on—spare not—ay, batter down the doors!
+_Enter HECUBA._
+
+HECUBA. Smite on—spare not—ay, batter down the doors!
 Ne’er shalt thou set bright vision in thine orbs,
 Nor living see thy sons whom I have slain.
 
@@ -1340,9 +1346,8 @@ CHORUS. Wretch! wreaked on thee are ills intolerable:
 Foul deeds thou didst, and awful penalty
 A God hath laid on thee with heavy hand.
 
-POLYMESTOR. What ho! spear-brandishers, nation arrayed in warrior’s
-weed ! gallant steed !
-Thracians possessed of the War-god, lords of the
+POLYMESTOR. What ho! spear-brandishers, nation arrayed in warrior’s weed !
+Thracians possessed of the War-god, lords of the gallant steed !
 What ho, ye Achaeans !—Atreus’ seed!
 Rescue ! Rescue! I raise the cry.
 O come, in the name of the Gods draw
@@ -1354,8 +1359,8 @@ Horrors are wrought on me—horrors! Woe for the felon deed!
 Whitherward shall I turn me? Whitherward fare?
 Shall I leap as on wings to the height of the heaven, to the mansions of air,
 To Orion or Sirius, fearful-gleaming
-With the burning flames from his eyes outstreaming, (gorge in despair?
-Or plunge to the blackness of darkness, to Hades’
+With the burning flames from his eyes outstreaming,
+Or plunge to the blackness of darkness, to Hades’ gorge in despair?
 
 CHORUS. Small blame, if he which suffereth heavier woes
 Than man may bear, should flee his wretched life.

@@ -110,11 +110,11 @@ Of a bondwoman, though I light on death ?
 
 ANDROMACHE. My lamentations and my moans and tears,
 Wherein I am ever whelmed. [Exit HANDMAID.]
-"Tis in the heart
+’Tis in the heart
 Of woman with a mournful pleasure aye
 To bear on lip and tongue her present ills.
 Not one have I, but many an one to moan—
-- The city of my fathers, Hector slain,
+The city of my fathers, Hector slain,
 The ruthless lot whereunto I am yoked,
 Who fell on thraldom's day unmerited.
 Never mayst thou call any mortal blest,
@@ -122,7 +122,7 @@ Or ever thou hast seen his dying day,
 Seen how he passed therethrough and came on death.
 No bride was the Helen with whom unto steep-built
 Ilium hasted [espousal he passed.
-- Paris ;—nay, bringing a Curse to his bowers of
+Paris ;—nay, bringing a Curse to his bowers of
 O Troy, for her sake, by the thousand galleys of
 Hellas wasted, [battle-spirit thou wast,
 With fire and with sword destroyed by her fierce
@@ -138,7 +138,7 @@ Bore me afar from my town, from my bowers, from
 Woe for mine anguish !—what boots it on light any
 more to be gazing, [and hunted of whom
 Who am yonder Hermione's thrall ?—ever harried
-Suppliant I cling to the Goddess's feet that mune
+Suppliant I cling to the Goddess's feet that mine
 hands are embracing, [rock-riven gloom.
 Wasting in tears as a spring welling forth from the
 
@@ -160,8 +160,9 @@ Thy lady’s rival art thou,—
 An Ilian to rival a child of a lordly Laconian home !
 Forsake thou the temple now
 Wherein sheep to the Sea-queen are burned. What
-boots it with wailing [sion's doom
-And tears to consume thy beauty, aghast at oppresUpon thee by thy lords' hands brought ?
+boots it with wailing
+And tears to consume thy beauty, aghast at oppression's doom
+Upon thee by thy lords' hands brought ?
 The might of the strong overbeareth thee: all
 unavailing
 Is thy struggling—lo, thou art naught.
@@ -177,7 +178,7 @@ halls came ;
 But I feared, for my lords be stern,
 That I held my peace: but thy lot ill-fated
 In silence aye I compassionated, [discern
-Lest the child of the daughter of Zeus[1]! should
+Lest the child of the daughter of Zeus[1] should
 O'er thy woes how I yearn.
 
 HERMIONE. With bravery of gold about mine head,
@@ -355,7 +356,7 @@ They have passed ’neath the leaves of the glen: from
 the plashing [rise.
 Of the mountain-spring radiant in rose-flush they
 To the King's Son they wended, while to and fro
-flashin [eyes.
+flashing [eyes.
 The gibes of their lips matched the scorn of their
 But 'twas Kypris by promise of guile overcame—
 Ah sweet to the ear, but for deathless shame
@@ -497,6 +498,10 @@ Children are life. Who scoffs at joys unproved,
 Though less his grief, a void is in his bliss.
 
 CHORUS. Pitying I hear: for pitiful is woe
+To all men, alien though the afflicted be.
+Thou shouldest, Menelaus, reconcile
+Her and thy child, that she may rest from pain.
+_ANDROMACHE leaves the altar._
 
 MENELAUS. Seize me this woman !—round her coil your arms,
 My thralls! No words of friendship shall she hear.
@@ -542,7 +547,7 @@ Now ruin seize ye!.... Yet to me is death
 Not grievous as thou think’st. That was my death
 When Phrygia’s hapless city was destroyed,
 And my renowned lord, whose spear full oft
-Made thee a seaman, dastard, from a landsman[2].!
+Made thee a seaman, dastard, from a landsman[2].
 Thou meet'st a woman, soul-appalling hero, [fawn
 Now,—and wouldst slay! Slay on! My tongue shall
 In flattery never on thy child or thee.
@@ -575,7 +580,7 @@ And her son, in her hatred’s vengeance-yearning.
 Godless and lawless and heartless it is !—
 Queen, thou shalt yet be requited for this.
 
-CHILD. Lo, these I behold, twain yoked as one
+CHORUS. Lo, these I behold, twain yoked as one
 In love, in sorrow, afront of the hall:
 For the vote is cast and the doom forth gone.
 O woeful mother, O hapless son,
@@ -807,7 +812,7 @@ Turned them to brave deeds: fellowship in fight
 Is the great teacher of all things to men.
 And if I, soon as I beheld my wife,
 Forbore to slay her, wise was I herein.
-’Twere well had Phocus[3] ne'er been slain by thee.!
+’Twere well had Phocus[3] ne'er been slain by thee.
 Thus have I met thee in goodwill, not wrath.
 If thou wax passionate, thou shalt but win
 An aching tongue : my gain in forethought lies.
@@ -1004,7 +1009,7 @@ Shall I dwell never more !
 To the feet of what statue of Gods shall the suppliant
 fly ? [shall I lie?
 Or crouched at the bondwoman's knees like a slave
-O that from Phthia, a bird dark-winged,I were soaring,
+O that from Phthia, a bird dark-winged, I were soaring,
 Or were such as the pine-wrought galley, that flew
 The first of the ships of earth her swift course oaring
 Through the Crags Dark-blue !
@@ -1220,12 +1225,11 @@ God, Phoebus !—ah must I, ah must I believe it?
 And wherever the Hellenes were gathered was
 mourning
 Of wives for their lost ones, the sons unreturning,
-And of brides from their bowers of espousal
-departing
+And of brides from their bowers of espousal departing
 To another lord's couch :—O, not only on thee
 Down swooping fell anguish of misery,
 Nor alone on thy loved ones; but Hellas must be
-Bowed ‘neath the plague, ‘neath the plague; and onsweeping (dripping,
+Bowed ‘neath the plague, ‘neath the plague; and onsweeping [dripping,
 Like a cloud whence the death-rain of Hades was
 Passed the scourge, o’er the Phrygians’ fair harvestfields darting.
 
@@ -1393,7 +1397,7 @@ Woe for me !—whitherward turning
 Shall mine eyes see the gladness of yore?
 O lips, cheek, and hands of my yearning!
 O had a God but o’erthrown thee
-"Neath Ilium on Simois’ shore!
+’Neath Ilium on Simois’ shore!
 
 CHORUS. Yea, he had fallen with honour, had he died
 Thus, ancient, and thy lot were happier so.

@@ -24,7 +24,7 @@ If so thou do, thee shall thine issue slay,
 And all thine house shall wade through seas of
 blood.”
 Yet he, to passion yielding, flushed with wine,
-, Begat a son; and when our babe was born,
+Begat a son; and when our babe was born,
 Ware of his sin, remembering the God’s word,
 He gave the babe to herdmen to cast forth
 In Hera’s Mead upon Cithaeron’s ridge,
@@ -187,8 +187,6 @@ Now may Artemis, over the mountains hasting
 With his mother, smite with her bow, and in death
 lay yon man low,
 Who is hitherward come for my city’s wasting !
-. KS)
-‘ AAD
 
 OLD SERVANT. So be it, child: yet for the right they come ;
 Wherefore I dread lest God defend the right.
@@ -258,7 +256,7 @@ _Exeunt OLD SERVANT and ANTIGONE._
 
 _Enter CHORUS._
 
-Afar from the tides against Tyre’s walls swelling,
+CHORUS. Afar from the tides against Tyre’s walls swelling,
 For Loxias chosen an offering,
 From the Isle of Phoenicia I came, to be thrall
 Unto Phoebus, to serve in his palace-hall,
@@ -287,7 +285,7 @@ From the cloven tongue of thy flame o'er the height
 Of the Bacchie peak Dionysus haunteth !
 Hail, vine that with each morn offerest up
 Thy giant cluster to brim the cup
-That never the mystic ritual wanteth "1
+That never the mystic ritual wanteth[5]
 Hail, cavern revered where the Dragon abode !
 Hail, watchtower scaur of the Archer-god !
 Hail, snow-smitten ridges by mortal untrod !
@@ -306,16 +304,47 @@ Shall condole, a mourning nation.
 One our lineage, one our blood ;
 All be hornéd Io’s brood :
 Mine is all your tribulation.
-Round the town a shield-array (Ani, 2)
+Round the town a shield-array (Ant. 2)
 Cloudlike flashes levin-light—
 Grim presentment of red fight !
 Yet shall Ares rue the day .
 If the Avengers’ curse he bring
 On the sons of that blind king.
-Argos, thy Pelasgian might[5]
+Argos, thy Pelasgian might
+Dread I, and the hand of Heaven !
+For the strife of him who comes
+Mail-clad to the ancient homes
+Will with Justice’ help be striven.
+_Enter POLYNEICES._
+
+POLYNEICES. Lightly, too lightly, have the warders’ bolts
+Made way for me to pass within the walls.
+Wherefore I fear lest, once within their net,
+They shall not let me ’scape but with my blood.
+Needs must I then turn every way mine eye
+Hither and thither, lest some treachery lurk.
+Mine hand with this blade armed shall give to me
+The assurance of a desperate courage born.
+Ha! who goes there ?—or fear I but a sound?
+All perilous seems to them that venture all,
+Soon as their feet are set on hostile soil.
+Yet do I trust my mother—and mistrust,—
+Who drew me to come hither under truce.
+But help is nigh; for lo, the altar-hearth
+At hand; nor void the palace is of folk.
+Into its dark sheath let me plunge my sword,
+And ask these by the palace who they be.
+Ye alien women, say, from what far land
+Unto the homes of Hellas are ye come?
+
+CHORUS. Phoenician was the land that fostered me.
+Agenor’s sons’ sons sent me hitherward
+To Phoebus, firstfruits of their battle-spoil.
+When Oedipus’ famed son would speed me on
+To Loxias’ awful oracle and hearths,
+Even then the Argives marched against the town.
 But thou, make answer, who art thou that com’st
 Into this fortress of seven-gated Thebes ?
-_Enter POLYNEICES._
 
 POLYNEICES. Oedipus, son of Laius, was my sire ;
 Menoeceus’ child Jocasta gave me birth ;
@@ -714,6 +743,34 @@ captain aye. .
 ETEOCLES. Safe behind the truce, from death that screens thee,
 vaunting dost thou stand !
 
+POLYNEICES. Ay, and screens thee !—once again my crown, mine heritage I claim.
+
+ETEOCLES. Naught to me are claims ; for I will dwell in this mine house—mine own.
+
+POLYNEICES. Grasping more than thine is?
+
+ETEOCLES. Ay !—now get thee forth the land—begone!
+
+POLYNEICES. Altars of our Gods ancestral,—
+
+ETEOCLES. Whom to ravage thou art come!
+
+POLYNEICES. Hear ye me !—
+
+ETEOCLES. And who shall hear thee, bringer of war against thine home?
+
+POLYNEICES. And ye temples of the Gods of Stainless Steeds !—
+
+ETEOCLES. Who loathe thy name!
+
+POLYNEICES. I am banished from my country !—
+
+ETEOCLES. He that to destroy it came.
+
+POLYNEICES. Wrongfully, ye Gods!
+
+ETEOCLES. To Gods not here, but at Mycenae, cry.
+
 POLYNEICES. Impious art thou—
 
 ETEOCLES. Yea ?—but not my country's foe, as thou, am I.
@@ -776,10 +833,10 @@ POLYNEICES. The issue’s self shall show.
 
 JOCASTA. Flee, O flee your father’s curses !
 
-ETEOCLES. . All our house let ruin seize!
+ETEOCLES. All our house let ruin seize!
 
 POLYNEICES. Soon my sword, blood-reddened, shall abide no more
-in deedless ease. . [Gods in heaven,
+in deedless ease. [Gods in heaven,
 But I call to witness earth that nursed me, witness
 How with shame and piteous usage from the homeland I am driven, [Oedipus, came.
 Like a bondman, not a son that of one father,
@@ -800,7 +857,7 @@ Named thy father thee, with heavenly prescience of
 
 _Exit POLYNEICES._
 
-CHORUS. To this land from Phoenicia Cadmus speeding (Str)
+CHORUS. To this land from Phoenicia Cadmus speeding (Str.)
 Came, till the heifer unbroken, leading .
 The wanderer, cast her to earthward, telling
 That so was accomplished the oracle spoken
@@ -1280,7 +1337,7 @@ MENOECEUS. . How supply my need ?
 
 CREON. I will find gold.
 
-MENOECEUS. - * Father, thou sayest well :
+MENOECEUS. Father, thou sayest well :
 Haste then. Unto thy sister will I go,—
 Jocasta, on whose bosom first I lay,
 Reft of my mother, left an orphan lone,—
@@ -1363,17 +1420,19 @@ Thou gav’st the thought the heart of Cadmus thrilling
 To dare the deed whence rushed, with ravin filling
 The land, a God’s curse-flood.
 
-MESSENGER. " Ho there! Who standeth at, the palace-gate?
-Open ye, bring Jocasta forth.her bowers...
-Ho there, again! Though late, yet-come thou forth :
+MESSENGER. Ho there! Who standeth at the palace-gate?
+Open ye, bring Jocasta forth her bowers.
+Ho there, again! Though late, yet come thou forth :
 Hearken, renowned wife of Oedipus ;
 Cease from thy wailings and thy tears of grief.
-Friend—friend !—thou ‘com'st not sure with ill news
-fraught.
-Of Eteocles’ death, by: whose shield aye
-. Thou marchedst, warding him from foemen’s darts ?
+_Enter JOCASTA._
+
+JOCASTA. Friend—friend !—thou com'st not sure with ill news
+fraught
+Of Eteocles’ death, by whose shield aye
+Thou marchedst, warding him from foemen’s darts ?
 What word of tidings bringest thou to me?
-Dead is’ my son, or liveth he ?—declare.
+Dead is my son, or liveth he ?—declare.
 
 MESSENGER. He lives. Fear not! I rid thee so of dread.
 
@@ -1754,7 +1813,6 @@ And, like wild boars that whet the tameless tusk,
 Clashed they, foam-flakes beslavering their beards.
 With spears they lunged: yet crouched behind their
 shields,
-»
 That so the steel might bootless glance aside.
 And, if one saw foe's eye peer o'er the targe,
 Aye thrust he, fain to overreach his fence.
@@ -2264,8 +2322,8 @@ Crown, and crown eternally !
 _Exeunt OMNES._
 
 Footnotes:
-[1] “The spell of the steel itself draws men on to fight . xix. 13,
+[1] “The spell of the steel itself draws men on to fight.”—Od. xix. 13.
 [2] Cadmus wedded Harmonia, Ares’ daughter.
 [3] Who slew the husbands whom they wedded perforce.
-[4] Poseidon, the Sea-god, who created the first war-horse, eV
+[4] Poseidon, the Sea-god, who created the first war-horse.
 [5] In the temple of Dionysus on Parnassus was a vine yielding one ripe cluster daily, to furnish the libation for the God.
