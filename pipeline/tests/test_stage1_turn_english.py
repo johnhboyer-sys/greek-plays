@@ -4149,3 +4149,275 @@ def test_a6_both_shares_of_a_line_take_their_own_english(tmp_path):
     assert chunks["1:3"]["text"].startswith("In bitter wise")
     assert "1:4" not in chunks
     assert chunks["1:5"]["text"].startswith("Then lead me")
+
+
+# --- Round 2 of Lane A: the five findings of the Sol review ----------------
+
+
+def _antilabe(sid, ref, start_n, first, second):
+    """A segment the edition cuts at ONE line-start event: two speakers share
+    the printed line, so the segment offers two pairing slots on one ref."""
+    text = "γραμμὴ {0} ἐστίν. καὶ πάλιν {0} ἐστίν.".format(ref)
+    return {
+        "id": sid,
+        "book": 1,
+        "column": ref,
+        "lines": [{"n": start_n, "ref": ref, "text": text}],
+        "speakers": [
+            {"line": start_n, "offset": 0, "label": first},
+            {"line": start_n, "offset": 16, "label": second},
+        ],
+    }
+
+
+def test_a1_an_antilabe_inside_a_window_is_not_read_as_a_repeated_ref(tmp_path):
+    """Finding 1: two speaker SHARES of one physical line are not a doublet.
+
+    The guard that keeps a declared repeated ref (the Septem 803/810 doublet)
+    in its printed seat was keyed on duplicate line keys, and an antilabe
+    line makes two runs with the same key. So a window holding any antilabe
+    was dropped whole and never offered in numeric order -- which is every
+    one of Bacchae's three declared windows (967-970, 1168, 1372, 1379).
+    """
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Β.", 1),
+        _antilabe("1:4", "4", 2, "Α.", "Γ."),
+        _numbered("1:5", ["5"], "Β.", 3),
+        _numbered("1:2", ["2"], "Α.", 4),
+        _numbered("1:3", ["3"], "Β.", 5),
+    )
+    source = (
+        "BETA. Worshipful is she, glorious among men.\n"
+        "ALPHA. Of gods, of men, each maketh still his choice.\n"
+        "BETA. Now prosper thou; be needful wisdom thine.\n"
+        "ALPHA. No god who hath night-homage pleaseth me.\n"
+        "GAMMA. Yet darkness hides the shrine where I would kneel.\n"
+        "BETA. Guerdons of gods, my son, ought men to use."
+    )
+    bridge = {
+        "1:1": "Yet is she an august goddess, far renowned on earth.",
+        "1:2": "Among gods as well as men we have our several preferences.",
+        "1:3": "I wish thee luck, and wisdom too, so far as thou dost need it.",
+        "1:4": (
+            "No god, whose worship craves the night, hath charms for me. "
+            "Yet darkness covers the shrine where I would kneel down."
+        ),
+        "1:5": "My son, we should avail us of the gifts that gods confer.",
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge,
+        [{"start": "2", "end": "3", "before": "5"}],
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert chunks["1:2"].startswith("Of gods, of men")
+    assert chunks["1:3"].startswith("Now prosper thou")
+    assert chunks["1:4"].startswith("No god who hath night-homage")
+    assert "Yet darkness hides the shrine" in chunks["1:4"]
+    assert chunks["1:5"].startswith("Guerdons of gods")
+
+
+def test_a1_a_residual_english_inside_a_window_reaches_its_own_speech(tmp_path):
+    """Finding 2: the residual walk runs in the order the DP chose.
+
+    The residual pass holds `cursor = max(cursor, gi)` and searches forward,
+    so it needs monotone Greek indices. Undoing the chosen order before it
+    runs left a residual inside a crossed window unable to reach the lower
+    PRINTED slot: here the translator divides Greek 4 into two turns, and the
+    second parked on Greek 3 (printed after it) with a speaker mismatch.
+    """
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Β.", 1),
+        _numbered("1:4", ["4"], "Α.", 2),
+        _numbered("1:5", ["5"], "Β.", 3),
+        _numbered("1:2", ["2"], "Α.", 4),
+        _numbered("1:3", ["3"], "Β.", 5),
+    )
+    source = (
+        "BETA. Worshipful is she, glorious among men.\n"
+        "ALPHA. Of gods, of men, each maketh still his choice.\n"
+        "BETA. Now prosper thou; be needful wisdom thine.\n"
+        "ALPHA. No god who hath night-homage pleaseth me.\n"
+        "ALPHA. Their rites are wrought in darkness, and I hate them.\n"
+        "BETA. Guerdons of gods, my son, ought men to use."
+    )
+    bridge = {
+        "1:1": "Yet is she an august goddess, far renowned on earth.",
+        "1:2": "Among gods as well as men we have our several preferences.",
+        "1:3": "I wish thee luck, and wisdom too, so far as thou dost need it.",
+        "1:4": "No god, whose worship craves the night, hath charms for me.",
+        "1:5": "My son, we should avail us of the gifts that gods confer.",
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge,
+        [{"start": "2", "end": "3", "before": "5"}],
+    )
+    chunks = {c["id"]: c for c in english["chunks"]}
+    assert chunks["1:4"]["text"].startswith("No god who hath night-homage")
+    assert "Their rites are wrought in darkness" in chunks["1:4"]["text"]
+    assert "Their rites" not in chunks["1:3"]["text"]
+    assert chunks["1:3"]["text"].startswith("Now prosper thou")
+    assert not any(t.get("speakerMismatch") for t in chunks["1:4"]["turns"])
+
+
+def test_a1_two_pins_inside_a_window_are_kept_for_the_order_choice(tmp_path):
+    """Finding 3: a pin is checked against each candidate order, not printed.
+
+    Two pins a reviewer states for a numeric-order translation cross in the
+    PRINTED order of a transposition, and the later one was dropped as
+    contradictory before the pairer ever saw it.
+    """
+    from drama_pipeline import stage1_turn_english as m
+
+    blocks = [{"start": "2", "end": "3", "before": "5"}]
+    segments = [
+        {"greek": [{"n": 1, "ref": "1"}]},
+        {"greek": [{"n": 2, "ref": "4"}]},
+        {"greek": [{"n": 3, "ref": "5"}]},
+        {"greek": [{"n": 4, "ref": "2"}]},
+        {"greek": [{"n": 5, "ref": "3"}]},
+    ]
+    slots = [
+        {"segment": 0, "line": 1, "offset": 0, "name": "Beta"},
+        {"segment": 1, "line": 2, "offset": 0, "name": "Alpha"},
+        {"segment": 2, "line": 3, "offset": 0, "name": "Beta"},
+        {"segment": 3, "line": 4, "offset": 0, "name": "Alpha"},
+        {"segment": 4, "line": 5, "offset": 0, "name": "Beta"},
+    ]
+    speeches = [
+        {"text": "Worshipful is she, glorious among men.", "canonical": "Beta"},
+        {"text": "Of gods, of men, each maketh still his choice.", "canonical": "Alpha"},
+        {"text": "Now prosper thou; be needful wisdom thine.", "canonical": "Beta"},
+        {"text": "No god who hath night-homage pleaseth me.", "canonical": "Alpha"},
+        {"text": "Guerdons of gods, my son, ought men to use.", "canonical": "Beta"},
+    ]
+    refs = m._slot_refs(segments, slots)
+    pins = [
+        {"greek": "2", "english": "Of gods, of men"},
+        {"greek": "4", "english": "No god who hath night-homage"},
+    ]
+    notes: list[str] = []
+    forced = m._resolve_pins(
+        pins, slots, refs, speeches, "t", notes, transpositions=blocks
+    )
+    assert forced == [(3, 1), (1, 3)]
+    assert not [n for n in notes if "crosses" in n]
+    # Outside a declared window the contradiction stands and the later pin is
+    # still dropped.
+    dropped: list[str] = []
+    assert m._resolve_pins(pins, slots, refs, speeches, "t", dropped) == [(3, 1)]
+    assert [n for n in dropped if "crosses" in n]
+
+    # And the pairer seats both of them.
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Β.", 1),
+        _numbered("1:4", ["4"], "Α.", 2),
+        _numbered("1:5", ["5"], "Β.", 3),
+        _numbered("1:2", ["2"], "Α.", 4),
+        _numbered("1:3", ["3"], "Β.", 5),
+    )
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "TEST PLAY\n"
+        "BETA. Worshipful is she, glorious among men.\n"
+        "ALPHA. Of gods, of men, each maketh still his choice.\n"
+        "BETA. Now prosper thou; be needful wisdom thine.\n"
+        "ALPHA. No god who hath night-homage pleaseth me.\n"
+        "BETA. Guerdons of gods, my son, ought men to use.\n"
+        "FINIS\n",
+        encoding="utf-8",
+    )
+    english, _fn, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="TEST PLAY",
+        sigla=_T_SIGLA, english_aliases=_T_ALIASES, footnotes_enabled=False,
+        pins=pins, transpositions=blocks,
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert chunks["1:2"].startswith("Of gods, of men")
+    assert chunks["1:4"].startswith("No god who hath night-homage")
+
+
+def test_a2_a_short_reply_does_not_claim_a_donor():
+    """Finding 4: a primary reference of two words asserts nothing.
+
+    "Yes." scores 1.0 against any incidental "Yes." nearby, clearing both the
+    floor and the lead, so A2 could name a false donor for the one-line
+    replies that fill a stichomythia. Below the token minimum the DP's own
+    reading stands.
+    """
+    from drama_pipeline import stage1_turn_english as m
+
+    segments = [
+        {"id": "1:1", "speakers": [{"label": "Α."}]},
+        {"id": "1:2", "speakers": [{"label": "Β."}]},
+        {"id": "1:3", "speakers": [{"label": "Α."}]},
+    ]
+    chunks = [
+        {"id": "1:1", "text": "The ship was wrecked upon the reef at dawn."},
+        {"id": "1:3", "text": "Yes. And the sailors swam ashore and lit a beacon."},
+    ]
+    primary = {
+        "1:1": {"text": "The ship was wrecked upon the reef at dawn."},
+        "1:2": {"text": "Yes."},
+        "1:3": {"text": "Yes, and the sailors swam ashore and lit a beacon there."},
+    }
+    out = m._content_covered(segments, chunks, primary, {"1:2": "1:1"})
+    assert out["1:2"] == "1:1"
+
+    # The same segment with words of its own still names its donor.
+    primary["1:2"] = {"text": "The sailors swam ashore and lit a beacon there."}
+    moved = m._content_covered(segments, chunks, primary, {"1:2": "1:1"})
+    assert moved["1:2"] == "1:3"
+
+
+def test_a1_a_near_tie_keeps_the_printed_order():
+    """Finding 5: "strictly cheaper" needs a tolerance.
+
+    The two candidate orders sum the same terms in a different sequence, so
+    mathematically equal totals can differ in the last bits and hand the
+    window to numeric order on rounding noise alone.
+    """
+    from drama_pipeline import stage1_turn_english as m
+
+    assert not m._strictly_cheaper(1000.0, 1000.0)
+    assert not m._strictly_cheaper(1000.0 - 1e-10, 1000.0)
+    assert not m._strictly_cheaper(1000.0 + 1e-10, 1000.0)
+    assert m._strictly_cheaper(999.99, 1000.0)
+    assert m._strictly_cheaper(-1e-6, 0.0)
+
+
+def test_a1_a_reordered_window_is_no_turn_shift(tmp_path):
+    """The drift diagnostic counts in the order the translation follows.
+
+    Same-name ordinal drift compares each side's position among its own
+    speeches. Inside a declared transposition the printed order and the
+    translation's differ BY DECLARATION, so a column paired right through the
+    window read as fresh drift -- four of them at Septem 983/993, enough to
+    fail `turn_text_turn_shift` on the edition's own printed order.
+    """
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Β.", 1),
+        _numbered("1:4", ["4"], "Α.", 2),
+        _numbered("1:5", ["5"], "Β.", 3),
+        _numbered("1:2", ["2"], "Α.", 4),
+        _numbered("1:3", ["3"], "Β.", 5),
+    )
+    source = (
+        "BETA. Worshipful is she, glorious among men.\n"
+        "ALPHA. Of gods, of men, each maketh still his choice.\n"
+        "BETA. Now prosper thou; be needful wisdom thine.\n"
+        "ALPHA. No god who hath night-homage pleaseth me.\n"
+        "BETA. Guerdons of gods, my son, ought men to use."
+    )
+    bridge = {
+        "1:1": "Yet is she an august goddess, far renowned on earth.",
+        "1:2": "Among gods as well as men we have our several preferences.",
+        "1:3": "I wish thee luck, and wisdom too, so far as thou dost need it.",
+        "1:4": "No god, whose worship craves the night, hath charms for me.",
+        "1:5": "My son, we should avail us of the gifts that gods confer.",
+    }
+    _english, _fn, report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge,
+        [{"start": "2", "end": "3", "before": "5"}],
+    )
+    assert report["turn_shift_new_drifts"] == 0
+    assert report["turn_shift_count"] == 0
