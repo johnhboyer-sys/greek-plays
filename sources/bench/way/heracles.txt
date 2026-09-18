@@ -264,7 +264,7 @@ CHORUS. Lo, cannot brave men find occasion still
 For speech, how slow soe’er one be of tongue ?
 
 LYCUS. Rail on at me with words up-piled as towers :
-1 will for words requite on thee ill deeds.
+I will for words requite on thee ill deeds.
 (To attendant) Ho! bid my woodmen go—to Helicon
 these,
 Those to Parnassus’ folds, and hew them logs
@@ -284,7 +284,7 @@ What time he stripped the dragon's ravening jaws,
 Will ye not lift the props of your right hands,
 Your staves, and dash with blood the impious head
 Of yon man, who, though no Cadmeian he,
-Base outland upstart, captains the Young Men[1] ?1
+Base outland upstart, captains the Young Men[1] ?
 Thou shalt not scatheless lord it over me !
 Not that which I have gotten by toil of hand
 Shalt thou have! Hence with curses whence thou
@@ -400,7 +400,7 @@ Oft Phoebus outpealeth a mourning-song,
 O’er the strings of his harp of the voice
 sweet-singing
 Sweeping the plectrum of gold along.
-1 also of him who hath passed to the places
+I also of him who hath passed to the places
 Of underworld gloom—whether Zeus’ Son’s
 story, [praises—
 Or Amphitryon’s scion be theme of my
@@ -507,9 +507,9 @@ We strain our eyes for a vanished hand.
 But if mine were the youth and the might
 Of old—were mine old friends here,
 Might my spear but in battle be shaken,
-Thad championed thy children in fight :-—
+I had championed thy children in fight :-—
 But mid desolate days and drear
-Tam left, of my youth forsaken !
+I am left, of my youth forsaken !
 Lo where they come !—the shrouds of burial
 cover
 Each one,—the children of that Hercules
@@ -525,7 +525,7 @@ MEGARA. Who is the priest, the butcher, of the ill-starred ?
 Or who the murderer of my woeful life ?
 Ready the victims are to lead to death.
 O sons, a shameful chariot-team death-driven
-Together, old men, mothers,*babes, are we.
+Together, old men, mothers, babes, are we.
 O hapless doom of me and these my sons
 Whom for the last time now mine eyes behold !
 I bare you, nursed you—all to be for foes
@@ -543,7 +543,7 @@ And hold the champaigns of mine heritage ;
 Thy prayer won this of him that gave thee life ;
 And to thy right hand would he yield the club,
 A feigned gift, his carven battle-stay.
-To thee[5] 5 the land, by his far-smiting bow
+To thee[5] the land, by his far-smiting bow
 Once wasted, promised he, Oechalia.
 So with three princedoms would your sire exalt
 His three sons, in the pride of his great heart.
@@ -596,7 +596,7 @@ AMPHITRYON. I know not, daughter,—speechless am I struck.
 
 MEGARA. Tis he who lay, we heard, beneath the earth,
 Except in broad day we behold a dream !
-What say 1?—see they dreams, these yearning eyes?
+What say I?—see they dreams, these yearning eyes?
 This is none other, ancient, than thy son.
 Boys, hither !—hang upon your father's cloak.
 Speed ye, unhand him not, for this is he,
@@ -650,7 +650,8 @@ HERCULES. This vesture meet for dead folk, what means it?
 MEGARA. In this attire we shrouded us for death.
 
 HERCULES. And were to die by violence ?—woe is me !
-Forlorn of friends, we heard that thou hadst died.
+
+MEGARA. Forlorn of friends, we heard that thou hadst died.
 
 HERCULES. Wherefore came on you this despair of me?
 
@@ -734,7 +735,7 @@ HERCULES. Yea; the three-headed hound I brought to light.
 
 AMPHITRYON. Vanquished in fight, or by the Goddess given ?
 
-HERCULES. In fight. 1 had seen the Mysteries—well for me .
+HERCULES. In fight. I had seen the Mysteries—well for me .
 
 AMPHITRYON. How? is the monster in Eurystheus’ halls?
 
@@ -861,6 +862,8 @@ LYCUS. Not here is he ; nor shall he ever come.
 
 AMPHITRYON. Never,—except by a God raised from the dead.
 
+LYCUS. Go thou to her, and bring her forth the halls.
+
 AMPHITRYON. So doing were I partaker in her blood!
 
 LYCUS. I then,—since this lies heavy on thy soul,—
@@ -945,7 +948,7 @@ Hurry man to his doom :—
 Law he outpaceth, and Lawlessness lasheth
 To speed ; nor his heart doth incline
 To take heed to the end—lo, his car suddencrasheth
-Shattered in gloom "[7]
+Shattered in gloom[7]
 Deck thee with garlands, Ismenus, and ye
 Break-forth into dancing,
 Streets stately with Thebes’ fair masonry,
@@ -994,7 +997,7 @@ _The forms of IRIS and MADNESS appear above the palace._
 
 IRIS.
 Fear not : this is the child of Night ye see,
-Madness, grey sires : 1, handmaid of the Gods,
+Madness, grey sires : I, handmaid of the Gods,
 Iris. We come not for your city’s hurt ;
 Only on one man’s house do we make war—
 His, whom Zeus’ and Alcemena’s son they call.
@@ -1044,7 +1047,7 @@ But with skirr of rushing footfalls follow you like
 huntsman’s pack, [ruin-wrack,
 On will I; nor sea nor moaning surges hurl such
 No, nor earthquake, no, nor madding thunder’s gasping
-As the fury of m mine onrush to the breast of Hercules.
+As the fury of mine onrush to the breast of Hercules.
 I will rive his roofs, will swoop adown his halls :—his
 children first [his murder-thirst
 I will slay ; nor shall the.murderer know he slakes
@@ -1085,7 +1088,7 @@ clashing,
 Not with the pine-wand uptossed amid loud acclamation,—
 Woe for a hero's -home !—
 But for shedding of blood, not the blood of the grape
-glad-plashing gfphistion.
+glad-plashing oblation,
 As the banqueters pour it forth for the Wine-god’s
 Away, O ye children, in flight, for death,
 Death shrieks through her pipe by the blast of
@@ -1170,7 +1173,7 @@ Were glancing each at other, and one spake :
 Still was he pacing up and down the house ;
 Then, to the men’s hall rushing, cried, “I have
 come
-To Nisus’ town[10] !”!—who stood in his own halls.
+To Nisus’ town[10] !”—who stood in his own halls.
 He casts him on the bare floor, and prepares
 To feast: yet, tarrying there but little space,
 He cried, “I go to Isthmus’ woodland plains!”
@@ -1214,7 +1217,7 @@ And shattered all the bones. This second slain,
 He speeds to add to victims twain a third.
 But first the wretched mother snatched the child,
 And bare within, and barred the chamber-door.
-But he, as though at siege of Cyclop walls[11],!
+But he, as though at siege of Cyclop walls[11],
 Mines, heaves up doors, and hurls the door-posts down,
 And with one arrow laid low wife and child:
 Then charges down to spill his own sire’s blood.
@@ -1230,7 +1233,7 @@ Wrought with the old man, binding him with cords
 Unto the pillar, that, awaked from sleep,
 He might not add ill deeds to ill deeds done.
 There sleeps he, wretched man, a sleep unblest,
-Who hath slaughtered sons and wife. Forme, I know
+Who hath slaughtered sons and wife. For me, I know
 not
 Of mortals any man more fortune-crost.
 
@@ -1348,7 +1351,7 @@ Hard-panted from my lungs, not tempered calm.
 Ha !—wherefore like a ship by hawsers moored,
 Ropes compassing my strong chest and mine arms,
 Bound to half-shattered masonry of stone
-Sit 1?—Io, corpses neighbours to my seat !
+Sit I?—Io, corpses neighbours to my seat !
 Winged shafts and bow are strawn about the floor,
 Which once, like armour-bearers to mine arms,
 Warded my side, were kept of me in ward:
@@ -1368,7 +1371,7 @@ CHORUS. I too with thee, forsaking not thy woe.
 HERCULES. father, why dost thou weep and veil thine eyes,
 shrinking afar from thy beloved son?
 
-AMPHITRYON. 3h my son !—mine, though ne’er so ill thy plight !
+AMPHITRYON. Ah my son !—mine, though ne’er so ill thy plight !
 
 HERCULES. Am I in grievous plight, that thou shouldst weep?
 
@@ -1452,7 +1455,7 @@ Woe! What shall I do?—where find solitude
 In ills?—take wings, or plunge beneath the ground ?
 Oh let me in black darkness pall mine head ;
 For I take shame for evils wrought of me,
-Nor would I taint him with bloodguiltiness[13]—!
+Nor would I taint him with bloodguiltiness[13]—
 Nay, nowise would I harm the innocent.
 _Enter THESEUS, with attendants._
 
@@ -1622,8 +1625,8 @@ What lions, what three-bodied Geryon-fiends,
 Or giants, slew I not ?—or with what host
 Of fourfoot Centaurs fought not out the war?
 The hound o’erswarmed with heads that severed grew,
-The Hydra, killed 1: throngs of toils beside
-Untold I wrought: 1 passed unto the dead
+The Hydra, killed I: throngs of toils beside
+Untold I wrought: I passed unto the dead
 To bring forth at Eurystheus’ hest to light
 The hound three-headed, warder of Hell-gate.
 ‘And this—woe’s me !—my latest desperate deed,
@@ -1778,7 +1781,7 @@ HERCULES. I yearn—and on my father’s breast would fall.
 
 AMPHITRYON. Lo here, my son : mine heart as thine is fain.
 
-THESEUS. Art thou so all-forgetful of thy toils[16] ?1
+THESEUS. Art thou so all-forgetful of thy toils[16] ?
 
 HERCULES. All toils endured of old were light by these.
 
@@ -1804,7 +1807,8 @@ AMPHITRYON. Farewell thou, son.
 HERCULES. Bury the lads.
 
 AMPHITRYON. Who burieth me, my child ?
-ie
+
+HERCULES. I.
 
 AMPHITRYON. When com’st thou?
 

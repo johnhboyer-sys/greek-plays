@@ -24,7 +24,7 @@ Iphigeneia: for, of one year’s fruit,
 Thou vowedst the fairest to the Queen of Light.
 Lo, thy wife Clytemnestra in thine halls
 Bare thee a child "—so naming me most fair, —
-* Whom thou must offer." By Odysseus’ wiles
+“Whom thou must offer.” By Odysseus’ wiles
 From her they drew me, as to wed Achilles.
 I came to Aulis: o'er the pyre,—ah me '—
 High raised was I, the sword in act to slay,—
@@ -55,7 +55,7 @@ earth.
 The central pillar alone, meseemed, was left
 Of my sires' halls ; this from its capital
 Streamed golden hair, and spake with human voice.
-- Then I, my wonted stranger-slaughtering rite
+Then I, my wonted stranger-slaughtering rite
 Observing, sprinkled it, as doomed to death,
 Weeping. Now thus I read this dream of mine:
 Dead is Orestes—him I sacrificed ;—
@@ -304,7 +304,7 @@ With tiptoe stealth his footsteps piloting,
 And spake, “ Do ye not see them ?—yonder sit
 Gods!” One of us, a god-revering man,
 Lifted his hands, and looked on them, and prayed :
-* Guardian of ships, Sea-queen Leucothea's son
+“Guardian of ships, Sea-queen Leucothea's son
 O Lord Palaemon, gracious be to us;
 Or ye, Twin Brethren, if ye yonder sit ;
 Or Nereus' darlings, Pao to him of whom
@@ -320,7 +320,7 @@ Stood forth, and up and down he swayed his head,
 And groaned and groaned again with quivering
 hands,
 Frenzy-distraught, and shouted hunter-like :
-* Pylades, seest thou her ?—dost mark not her,
+“Pylades, seest thou her ?—dost mark not her,
 Yon Hades-dragon, lusting for my death,
 Her hideous vipers gaping upon me ?
 And this, whose robes waft fire and slaughter forth,
@@ -358,7 +358,7 @@ And groaned: but we ceased not from hurling
 stones,
 Hard pressing them from this side and from that.
 Thereat we heard this terrible onset-shout :
-* Pylades, we shall die: see to it we die
+“Pylades, we shall die: see to it we die
 With honour! Draw thy sword, and follow me.”
 But when we saw our two foes’ brandished blades,
 In flight we filled the copses of the cliffs.
@@ -509,7 +509,8 @@ Must I take heed. Unbind the strangers’ hands,
 That, being hallowed, they be chained no more ;
 Then, pass within the temple, and prepare
 What needs for present use, what custom bids.
-Sighs. [Exeunt attendants.]
+_Sighs. Exeunt attendants._
+
 Who was your mother, she which gave you birth ?—
 Your sire ?—your sister who ?—if such there be,
 Of what fair brethren shall she be bereaved,
@@ -613,7 +614,9 @@ ORESTES. Ask on, since this thou cravest. I will speak.
 
 IPHIGENEIA. Calchas, a prophet—came he back from Troy ?
 
-ORESTES. Dead—as the rumour in Mycenae ran. IPHIGENEIA (turning to Artemis’ temple)
+ORESTES. Dead—as the rumour in Mycenae ran.
+
+IPHIGENEIA. (turning to Artemis’ temple)
 O Queen, how justly! And Laertes’ son?
 
 ORESTES. He hath won not home, but liveth, rumour tells.
@@ -666,6 +669,8 @@ her.
 IPHIGENEIA. O house distraught! Slew her !—with what intent ?
 
 ORESTES. To avenge on her his murdered father’s blood.
+
+IPHIGENEIA. Alas!—ill justice, wrought how righteously!
 
 ORESTES. Not blest of heaven is he, how just soe'er.
 
@@ -779,14 +784,14 @@ Tidings unhoped—the friend whom most I love :—
 The letter, telling that she lives whom dead
 He deems, shall seal the happy tidings’ faith. [Exit.]
 
-CHORUS. To ORESTES.
+CHORUS. _(to Orestes)_
 I wail for thee, for whom there wait
 The drops barbaric, on thy brow
 To fall, to doom thee to be slain.
 
 ORESTES. This asks not pity. Stranger maids, farewell.
 
-CHORUS. To PYLADES.
+CHORUS. _(to Pylades)_
 Thee count I blesséd for thy fate,
 Thine happy fate, fair youth, that thou
 Shalt tread thy native shore again.
@@ -948,13 +953,13 @@ Now say to whom this letter I must bear
 To Argos, and from thee what message speak,
 
 IPHIGENEIA. Say to Orestes, Agamemnon's son—
-* This Iphigeneia, slain in Aulis, sends,
+“This Iphigeneia, slain in Aulis, sends,
 Who liveth, yet for those at home lives not—”
 
 ORESTES. Where is she? Hath she risen from the dead ?
 
 IPHIGENEIA. She whom thou seest—confuse me not with speech :—
-* Bear me to Argos, brother, ere I die:
+“Bear me to Argos, brother, ere I die:
 From this wild land, these sacrifices, save,
 Wherein mine office is to slay the stranger ; "—
 
@@ -1023,7 +1028,7 @@ ORESTES. And pictured in thy loom, the sun turned back ?
 
 IPHIGENEIA. This too I wrought with fine-spun broidery-threads.
 
-ORESTES. Bath-water[2] at Aulis hadst thou from thy mother ? Ἱ----
+ORESTES. Bath-water[2] at Aulis hadst thou from thy mother ?
 
 IPHIGENEIA. I know—that bridal’s bliss stole not remembrance.
 
@@ -1047,8 +1052,8 @@ Tears—that are no tears,—ecstasy blent with moan,
 Make happy mist in thine eyes as in mine.
 
 IPHIGENEIA. That day in the arms of thy nurse did I leave thee a
-babe, did I leave thee, [wast thou :
-A little one—ah, such a little one then in our palace
+babe, did I leave thee,
+A little one—ah, such a little one then in our palace wast thou :
 O, a fortune too blissful for words doth receive thee,
 my soul, doth receive thee!
 What can I say?—for, transcending all marvels, of
@@ -1455,8 +1460,8 @@ Hath she begun yon strangers’ sacrifice ?
 Are they ablaze with fire in the holy shrine?
 
 CHORUS. Here is she, king, to tell thee clearly all.
-Enter IPHIGENEIA bearing the image of Artemis in her
-arms.
+
+_Enter IPHIGENEIA bearing the image of Artemis in her arms._
 
 THOAS. Why bear’st thou in thine arms, Agamemnon’s child,
 From its inviolate base the Goddess’ statue ?
@@ -1651,8 +1656,8 @@ Leto in Delos bare,[3][4]
 Mid its valleys of fruitage manifold,
 The babe of the golden hair,—
 Lord of the harp sweet-ringing, king of the bow
-sure-winging [rock by the swell
-The shaft that he loveth well, —and she fled from the
+sure-winging
+The shaft that he loveth well, —and she fled from the rock by the swell
 Of the sea encompassed, bringing
 From the place where her travail befell
 Her babe to the height whence rolled the gushing

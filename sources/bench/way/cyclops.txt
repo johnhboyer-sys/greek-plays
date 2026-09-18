@@ -10,7 +10,7 @@ Of Giant Whatshisname I neatly put
 A yard of spear—what, dreamed all this? ‘Tut, tut!
 Did Bacchus dream I showed the monster's spoils
 To him? Ah, that was play beside these toils !
-For, O my Bacchus, Hera set on yyou
+For, O my Bacchus, Hera set on you
 A gang of thieves, a Tuscan pirate-crew,
 To take you on a very distant trip.
 I heard of it, and promptly manned a ship
@@ -58,26 +58,26 @@ full in view;
 And your little kids are pleading
 “ Come you down ! "—And never heeding
 From the steep you still are hanging, all bedraggled
-with the dew. [rascal! Shoo!
-Here goes a stone to stir you! Shoo, you wilful
+with the dew.
+Here goes a stone to stir you! Shoo, you wilful rascal! Shoo!
 Come you down, and come this minute, you nasty
-hornéd thing ! [underling ?
-Don't you hear your keeper calling, farmer Giant's
+hornéd thing !
+Don't you hear your keeper calling, farmer Giant's underling ?
 
-ANOTHER SATYR (to a she-goat). Come, my pretty, to the milking; then away yyou
+ANOTHER SATYR (to a she-goat). Come, my pretty, to the milking; then away you
 skip, to meet
 Your little babies, hungry to nose the heavy teat ;
 For you left them at the dawning, on the rushes
-where they lay, [the day.
-And they sorely need refreshment, after sleeping all
+where they lay,
+And they sorely need refreshment, after sleeping all the day.
 Don't you see your little sweeting ?
 Can’t you hear his hungry bleating ?
 O leave the grassy pasture, to the folding come away !
 Under Etna, clean and shady :—
 O dear! no sign of Bacchus nor his Bacchanal array!
 There’s no clashing of the cymbals, no dances reel
-and sway, [sweet,
-Nothing trickling from a wine-jar in droppings honey-
+and sway,
+Nothing trickling from a wine-jar in droppings honey-sweet,
 Nor beside the gushing fountains trip the Mountain-
 maidens' feet.
 
@@ -123,7 +123,7 @@ Here's quite a crowd of Satyrs standing round
 A cave! A fatherly old party, too,
 A patriarch quite—good morning, Sir, to you!
 
-SILENUS. Good morning. What's your name and whence d'yyou
+SILENUS. Good morning. What's your name and whence d'you
 come ?
 
 ODYSSEUS. Odysseus—Isle-king—Ithaca’s my home.
@@ -303,7 +303,7 @@ ODYSSEUS. Done for, old man! Where can we run to ?—where ?
 
 SILENUS. Into the cave—good hiding-places there.
 
-ODYSSEUS. Not likely !—to walk straight into the snare[1] |
+ODYSSEUS. Not likely !—to walk straight into the snare[1]
 
 SILENUS. Quite likely. Plenty of rat-holes there, my boy.
 
@@ -322,10 +322,9 @@ Here, how about those kids of mine, those lambs?
 Are they all sucking, nuzzling at their dams?
 What have you done with all the milk you drew
 For cheese? Are those rush-crates brim-full ?—
-speak, you ! [drown
-Why don't you answer? Where's that stick ?—I'll
-Your eyes with tears! Look up, and don't look
-down !
+speak, you !
+Why don't you answer? Where's that stick ?—I'll drown
+Your eyes with tears! Look up, and don't look down !
 
 CHORUS. Oh, please! I’m looking at great Zeus this minute:
 I see Orion’s belt, and seven stars in it.
@@ -353,7 +352,7 @@ And here’s my old man with his bald pate cracked !
 [SILENUS comes out of cave, artistically made up as victim
 of assault and battery.]
 
-SILENUS. Oh! oh! They've pummelled me into a fever! .
+SILENUS. Oh! oh! They've pummelled me into a fever!
 
 CYCLOPS. Who? Who has punched your head, you old deceiver?
 
@@ -474,7 +473,7 @@ Enough has Priam's land bereaved our Hellas
 By drinking blood of thousands slain, as well as
 By widowing wives, and robbing grey-haired mothers
 And fathers of their sons. Now, if the others,
-The few survivors, are to be by yyou
+The few survivors, are to be by you
 Roasted for horrible feastings, whereunto
 Shall one for justice look? Hear reason and right,
 Cyclops; restrain your savage appetite :
@@ -526,7 +525,8 @@ Now, toddle in, and all stand ready near
 The Paunch-god’s altar, and make your host good
 cheer. [Begins to drive the crew in.]
 
-ODYSSEUS. And perils of the sea, only to run
+ODYSSEUS. Alas ! through Trojan conflicts have I won
+And perils of the sea, only to run
 Aground on a godless villain's evil will,
 And on his iron-bound heart my life to spill !
 O Pallas, Child of Zeus, O Heavenly Queen,
@@ -545,8 +545,8 @@ Hot from the coals to make your feast
 Here’s roast, an’ boiled, an’ a’ that.
 For a’ that, an’ a’ that,
 His guid fur-rug, an’ a’ that,
-He's tearin’, champin’ flesh o' guests |
-So nane for me, for a’ that. `
+He's tearin’, champin’ flesh o' guests
+So nane for me, for a’ that.
 Ay, paddle your ain canoe, One-eye,
 Wi’ bluidy oars, an’ a’ that ;
 Your impious hall, I pass it by !
@@ -554,7 +554,7 @@ I cry “avaunt!” for a’ that.
 For a’ that, an’ a’ that,
 Your “ Etna Halls,” an’ a’ that,
 You joy in gorgin’ strangers’ flesh '
-Awa’ wi’ ye, for a’ that |
+Awa’ wi’ ye, for a’ that
 A heartless wretch is he, whoe’er,
 When shipwrecked men, an’ a’ that,
 Draw nigh his hearth wi’ suppliant prayer,
@@ -632,7 +632,7 @@ Cup after cup, till glowed his villain bowels
 With that good liquor. Dissonant rang his howls
 By my men's moans and sobs, and all about
 The cavern echoed. I have stolen out,
-And mean, if you are willing, to rescue yyou
+And mean, if you are willing, to rescue you
 And myself too. Say, what d'you mean to do?
 Do you, or do you not, consent to flee
 From this inhospitable brute, and be
@@ -909,7 +909,7 @@ CHORUS. What?—scorn your lover?—snub him’ cause he's tight?
 SILENUS. This wine is bitter beer !—O curséd spite !
 [CYCLOPS staggers into cave, with SILENUS under his arm.]
 
-ODYSSEUS. Come, Bacchus’ children, brave lads, up, piat doing!
+ODYSSEUS. Come, Bacchus’ children, brave lads, up, be doing!
 Our foe's in there! Right soon will he be spewing
 Gobbets of flesh from a shameless gullet deep,
 Sprawling upon his back in drunken sleep.
@@ -937,8 +937,8 @@ A slaves’ gate, a knave’s gate,
 A “Shipwrecked Sailors’ Grave's" gate,
 I heard a caldron sing—
 “O weel may the fire glow, the reek blow, the
-stake go! [are in!’
-O weel may his throat crow for the eye that flames
+stake go!
+O weel may his throat crow for the eye that flames are in!”
 And it's O for my Lord's shout ringing,
 For the singing, the swinging
 Dance, for the ivy clinging!
@@ -999,8 +999,8 @@ But, as far as a song, sir, can go, old Saucer-eye shall
 frizzle in flames of hell.
 So yeo-heave-ho! and in she'll go!
 Give way, my hearties! Put your backs to it! Stick
-to the work !— [a shirk !
-A brave tar's part is to stick like wax to it—never
+to the work !—
+A brave tar's part is to stick like wax to it—never a shirk !
 Burn out his eye, sir, the gormandizer,
 Who goes and fries, sir, the trustful stranger!
 With a red-hot poker make him a smoker
@@ -1102,7 +1102,7 @@ CYCLOPS. What ?—a new name ?—that doesn’t sound the same!
 ODYSSEUS. My father called me Odysseus: that’s my name.
 And so you thought that you'ld get off scot-free
 For your unhallowed feast! A shame 'twould be
-If, after burning Troy, I took on yyou
+If, after burning Troy, I took on you
 No vengeance for the murder of my crew!
 
 CYCLOPS. Woe's me! the ancient prophecy comes true

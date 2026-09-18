@@ -95,6 +95,8 @@ HELEN. How long hath he so lain upon his couch?
 
 ELECTRA. Even since he spilt the blood of her that bare him.
 
+HELEN. Alas for him, for her !—what death she died !
+
 ELECTRA. Such is his plight that he is crushed of ills.
 
 HELEN. In heaven's name, maiden, do to me a grace.
@@ -140,7 +142,7 @@ Take these drink-offerings, this mine hair, in hand,
 And go thou, and round Clytemnestra’s tomb
 Shed mingled honey, milk, and foam of wine ;
 And, standing on the grave-mound's height, say this :
-« Thy sister Helen these drink-offerings gives,
+“Thy sister Helen these drink-offerings gives,
 Fearing to approach thy tomb, and dreading sore
 The Argive rabble." Bid her bear a mood
 Kindly to me, to thee, and to my lord,
@@ -194,6 +196,9 @@ CHORUS. How say'st thou ?—alas !
 ELECTRA. Thou wilt slay him, if once from his eyes thou
 have driven
 The sweetness of slumber that o'er them flows.
+
+CHORUS. Alas for the deeds of the malice of heaven!
+Alas for his throes!
 
 ELECTRA. Wrongful was he who uttered that wrongful rede
 When Loxias, throned on the tripod of Themis, decreed
@@ -393,7 +398,7 @@ Thee from thy couch, but on thy bed abide.
 For, though thy sickness be but of the brain,
 This is affliction, this despair, to men. [Exit.]
 
-CHORUS. Terrible Ones of the on-rushing feet, (Str)
+CHORUS. Terrible Ones of the on-rushing feet,
 Of the pinions far-sailing,
 Through whose dance-revel, held where no Bacchanals meet,
 Ringeth weeping and wailing,
@@ -414,13 +419,13 @@ Cometh fraught with death-danger,
 Thrusting thee onward, the wretched, on whom
 The Erinnys-avenger
 Heapeth tears upon tears, and the blood hath she brought
-Of thy mother upon thee [traught !
-And thine house, that it driveth thee frenzy-disI bemoan thee, bemoan thee!
+Of thy mother upon thee, and thine house, that it driveth thee frenzy-distraught!
+I bemoan thee, bemoan thee!
 Not among men doth fair fortune abide,
 But, as sail tempest-riven,
 Is it whelmed in affliction’s death-ravening tide
 By the malice of heaven, —
-Nay, abides not, for where shali I find me a line
+Nay, abides not, for where shall I find me a line
 Of more honour in story
 Than Tantalus’ house, from espousals divine
 That traceth its glory?
@@ -461,7 +466,7 @@ Wherefore I should not know him, if I saw.
 ORESTES. I am Orestes! This is he thou seekest.
 Free-willed shall I declare to thee my woes :
 Yet suppliant first for prelude clasp thy knees,
-Linking to thee the leafless prayers[1] of lips.!
+Linking to thee the leafless prayers[1] of lips.
 Save me: thou comest in my sorest need.
 
 MENELAUS. Gods !—what see I? What ghost do I behold?
@@ -554,7 +559,7 @@ ORESTES. I am hated so, that none will speak to me.
 
 MENELAUS. Cleansed are thine hands, as bids the law, from blood ?
 
-ORESTES. Nay: barred are all doors[2] whereto I draw nigh.!
+ORESTES. Nay: barred are all doors[2] whereto I draw nigh.
 
 MENELAUS. Who of the citizens would banish thee?
 
@@ -614,7 +619,8 @@ To them —O wretched heart and soul of mine !-—
 I have rendered foul return! What veil of gloom
 Can I take for my face ?—before me spread
 What cloud, to shun the old man’s searching eye?
-Enter TYNDAREUS.
+
+_Enter TYNDAREUS._
 
 TYNDAREUS. Where, where shall I behold my daughter’s lord
 Menelaus? Upon Clytemnestra’s tomb
@@ -820,7 +826,7 @@ Grant I do wrong: I ought, for a wrong’s sake,
 To win of thee a wrong; for Agamemnon
 Wrongly to Ilium led the hosts of Greece :—
 Not that himself had sinned, but sought to heal
-The sin and the wrong-doing of thy wife. 65C
+The sin and the wrong-doing of thy wife.
 This boon for boon thou oughtest render me.
 He verily sold his life for thee, as friends
 Should do for friends, hard-toiling under shield,
@@ -1158,7 +1164,8 @@ When, over her vesture’s broideries golden,
 The mother’s breast of his eyes was beholden !
 But he slaughtered her like to a beast at the altar,
 For the wrongs of a father had whetted the brand.
-Dames, sure woe-worn Orestes hath not fled
+
+ELECTRA. Dames, sure woe-worn Orestes hath not fled
 These halls o’erborne by madness heaven-sent ?
 
 CHORUS. Nay, nay, to Argos’ people hath he gone
@@ -1257,8 +1264,7 @@ By stayers at home, and couches be defiled.
 To honest men he seemed to speak right well ;
 And none spake after. Then thy brother rose,
 And said, “ Lords of the land of Inachus,—
-Of old Pelasgians, later Danaus’ sons,—
-! One who had obtained the citizenship by means repugnant to decent citizens.
+Of old Pelasgians, later Danaus’ sons,—[5]
 "Twas in your cause, no less than in my sire's,
 I slew my mother ; for, if their lords’ blood
 Shall bring no guilt on wives, make haste to die ;
@@ -1353,7 +1359,8 @@ Yea, also Pylades, above all other
 Truest of friends, close-cleaving as a brother,
 Cometh, Orestes' fainting steps upbearing,
 Ever with heedful feet a yokemate nigh.
-Enter ORESTES and PYLADES.
+
+_Enter ORESTES and PYLADES._
 
 ELECTRA. Woe's me! I mourn to see thee, brother, stand
 Before the tomb, before the pyre of death.
@@ -1411,7 +1418,6 @@ Thou seest are we, who cannot claim one tomb!
 
 ELECTRA. Spake Menelaus not for thee, to plead
 Against thy death—base traitor to my sire ?
-ORESTES Ὁ
 
 ORESTES. His face he showed not—fixed upon the throne
 His hope, with good heed not to save his friends !
@@ -1423,7 +1429,7 @@ Must match with thine the unflinching deed I do.
 Sit thou as umpire, Pylades, to our death.
 Meetly lay out the bodies of the dead :
 Bear to our sire’s grave, and with him entomb.
-Farewell: I go, thou seest, to do the deed. [Going.]
+Farewell: I go, thou seest, to do the deed. _[Going.]_
 
 PYLADES. Tarry :—first, one reproach have I for thee:
 Thou didst expect that I would live, thou dead!
@@ -1652,7 +1658,7 @@ His wife, and slay: be thou our help herein !
 ELECTRA. Come, father, come, if thou in earth’s embrace
 Hearest thy children cry, who die for thee !
 
-PYLADES. My father's kinsman,! to my prayers withal,
+PYLADES. My father's kinsman,[6] to my prayers withal,
 Agamemnon, hearken ; save thy children thou.
 
 ORESTES. I slew my mother—
@@ -1662,7 +1668,6 @@ PYLADES. I too grasped the sword !
 ELECTRA. I cheered thee on, snapped trammels of delay
 
 ORESTES. Sire, for thine help!
-! Pylades’ mother was Agamemnon’s sister.
 
 ELECTRA. Nor I abandoned thee !
 
@@ -1730,8 +1735,10 @@ To us draws nigh no man of Danaus' sons.
 
 SEMICHORUS. Thy tale is one with mine: no stir is here.
 
-ELECTRA. Within, ho onu do ye tarry, and no foe nigh,
-They hear me not !—woe for my: miseries !
+ELECTRA. Go to, through the gates as a shaft let me speed my cry :—
+Within, ho !—why do ye tarry, and no foe nigh,
+Your hands with the slaughter to dye ? . . . . .
+They hear me not !—woe for my miseries !
 Ha, at her beauty are the swords struck dumb?
 Soon will some Argive mailed, with racing feet
 'That rush to rescue, burst into the halls !
@@ -2334,3 +2341,5 @@ Footnotes:
 [2] Purification must be performed in some unpolluted house.
 [3] Tantalus lay in Tartarus beneath a rock, which at every moment seemed about to fall and crush him. Here Euripides seems to identify this rock with the sun, which Anaxagoras described as a red-hot mass of stone hung in heaven.
 [4] The king, as commander-in-chief, sacrificed for the army before battle.
+[5] One who had obtained the citizenship by means repugnant to decent citizens.
+[6] Pylades' mother was Agamemnon's sister.

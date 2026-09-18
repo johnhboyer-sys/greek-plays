@@ -128,7 +128,7 @@ HIPPOLYTUS. Of Gods, of men, each maketh still his choice.
 
 SERVANT. Now prosper thou ;—be needful wisdom thine!
 
-HIPPOLYTUS. - No God who hath night-homage pleaseth me.
+HIPPOLYTUS. No God who hath night-homage pleaseth me.
 
 SERVANT. Guerdons of Gods, my son, ought men to use.
 
@@ -432,7 +432,7 @@ PHAEDRA. O hapless mother!!—what strange love was thine !
 NURSE. Love for the bull[2], my child ?—or what wouldst
 name ?
 
-PHAEDRA. And thou, sad sister, Dionysus’ bride[3]? !
+PHAEDRA. And thou, sad sister, Dionysus’ bride[3]?
 
 NURSE. What ails thee, child ?—dost thou revile thy kin ?
 
@@ -681,7 +681,7 @@ Of her holy of holies, we have not adored,
 Though he marcheth through ruin victory-ward,
 Though he raineth calamity forth of his quiver
 On mortals against his on-coming that stand.
-For I call to remembrance Oechalia’s daughter[4],!
+For I call to remembrance Oechalia’s daughter[4],
 Who, ere Love ‘neath his tyrannous car-yoke had
 brought her, hasted,
 Had been spouseless and free—overseas how she
@@ -927,7 +927,7 @@ Over the swell of the Adrian sea
 I might soar—and soar,—upon poised wings dreaming, o’er the strand where Eridanus’ waters be,
 Where down to the sea-swell purple-gleaming
 The tears of the Sun-god’s daughters are streaming,
-Of the thrice-sad sisters for Phaéthon sighing, "740
+Of the thrice-sad sisters for Phaéthon sighing,
 Star-flashes of strange tears amber-beaming !
 O to win to the strand where the apples are growing
 Of the Hesperid chanters kept in ward,
@@ -964,9 +964,8 @@ And she chose, in its stead, the stainless renown of
 a wife’s fair fame,
 And, for anguish of love, heart-rest.
 _A cry within._
-Run to the rescue, all ye nigh the house !
-In the strangling noose is Theseus wife, our mistress !
-Sung ’
+_Run to the rescue, all ye nigh the house !
+In the strangling noose is Theseus’ wife, our mistress !_
 
 CHORUS. Woe! Woe!. ‘Tis done! No more—no more is she,
 The queen—in yon noose rafter-hung upcaught !
@@ -1021,8 +1020,8 @@ disclosed, with her handmaids grouped round it.
 CHORUS. Woe for thy misery! Woe for thine ills, who hast
 suffered and wrought
 Such a thing as in ruin shall whelm thine home !
-Ah for thy desperate deed, who by violence unhallowed hast sought [wrestler hast caught !
-Death, who with hand despairing the all-quelling
+Ah for thy desperate deed, who by violence unhallowed hast sought
+Death, who with hand despairing the all-quelling wrestler hast caught !
 Who shroudeth thy life, O hapless, in gloom?
 
 THESEUS. (Str.)
@@ -1180,7 +1179,7 @@ Above the old, the Gods must needs create
 A new earth unto this, that room be found
 For the unrighteous and unjust in grain.
 Look on this man, who, though he be my son,
-Hath shamed my.couch, and shall be manifest proved
+Hath shamed my couch, and shall be manifest proved
 Most vile, by testimony of the dead.
 _HIPPOLYTUS covers his face in horror._
 Nay, show thy face—since thou hast come to this,
@@ -1198,7 +1197,9 @@ With canting words, the while they plot foul sin.
 Dead is she: thinkest thou this saveth thee ?
 Hereby thou art most convicted, basest thou !
 What oaths, what protestations shall bear down
-Thrusts tablet into HIPPOLYTUs’ hand.
+
+_Thrusts tablet into HIPPOLYTUS' hand._
+
 Now, what is thy defence ?—“She hated me:
 Bastard and true-born still are natural foes?”
 Fools’ traffic this in life-—to fling away
@@ -1211,7 +1212,7 @@ Yet all the strength of manhood helpeth them.
 But wherefore thus contend against thy pleas,
 When there the corpse lies, witness faithful and
 true?
-Hence from this land, an exile, with all speed. -.
+Hence from this land, an exile, with all speed.
 Never come thou to god-built Athens more,
 Nor any marches where my spear hath sway:
 For if ‘neath thy mishandling I sit still,
@@ -1552,7 +1553,7 @@ Hither ?—or in what wise perform thy pleasure ?
 Bethink thee: if my counsel thou wilt heed,
 Harsh to thy stricken son thou wilt not be.
 
-THESEUS. Bear him, that I may see before mine eyes - .
+THESEUS. Bear him, that I may see before mine eyes
 Him who denied that he had stained my bed,
 By words and heaven’s requital to convict him.
 
@@ -1562,19 +1563,19 @@ through thy portals
 On glory-gleaming pinion, flits Eros to and fro,
 Love, under thy dominion unbending hearts bow low.
 Gold-glittering wings wide-soaring, they rain down
-witchery : [phant sailing,
-O’er maddened hearts prevailing, o'er earth trium-
+witchery :
+O’er maddened hearts prevailing, o'er earth triumphant sailing,
 O’er music of the roaring of spray-bemantled sea,
 Gold-glittering wings wide-soaring, they rain down
 witchery.
-He kindleth with his yearning all things of earthborn race: [he filleth ;
-The mountain's whelps he thrilleth, the ocean’s brood
+He kindleth with his yearning all things of earthborn race:
+The mountain's whelps he thrilleth, the ocean’s brood he filleth ;
 Where’er the sun’s eye burning down looketh on
 earth’s face, (born race.
 He kindleth with his yearning all things of earth-
 They bend— all, all are bending, Love-queen, beneath
-thy hand! [royal
-O crownéd brows, whom loyal vassals acclaim sole-
+thy hand!
+O crownéd brows, whom loyal vassals acclaim sole-royal
 By spells all-comprehending in sky and sea and land ;
 They bend—all, all are bending, Love-queen, beneath
 thy hand!
@@ -1585,8 +1586,8 @@ It is Artemis, Leto’s Daughter, that nameth thy
 "name:
 Why dost thou joy in thy shame,
 Who hast murdered thy son unrighteously, thereto moved
-By the lies of thy wife unproved? —[found.
-Ruin and wrack in the sight of the sun hast thou
+By the lies of thy wife unproved? —
+Ruin and wrack in the sight of the sun hast thou found.
 How wilt thou hide underground
 Thy dishonour in hell, or upsoaring mid clouds, veil
 there
@@ -1822,7 +1823,7 @@ CHORUS. On the city hath lighted a stroke without warning,
 On all hearts desolation.
 Rain down, O ye fast-dropping tears of our mourning!
 When the mighty are fallen, their burial-oblation
-Is the wail of a nation. .[6]
+Is the wail of a nation.[6]
 
 Footnotes:
 [1] “The Worshipful Goddesses” was the peculiar title of the Eumenides, whom it was ill-omened to name.
