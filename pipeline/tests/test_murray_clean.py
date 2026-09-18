@@ -4,7 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from drama_pipeline.murray_clean import PLAYS, convert_gutenberg, convert_play, convert_wikisource, read_text
+from drama_pipeline.murray_clean import (
+    PLAYS,
+    _direction_line_closes,
+    convert_gutenberg,
+    convert_play,
+    convert_wikisource,
+    read_text,
+)
 from drama_pipeline.stage1_turn_english import parse_play_speeches
 
 
@@ -193,6 +200,124 @@ def test_gutenberg_cue_with_lyric_label_bracket_closes_without_a_blank_line():
 # (oedipus-tyrannus) prints a page-boundary marker, "_[Sidenote: vv. N-N]_",
 # that is not verse and not stage business. It must vanish entirely, whether
 # it falls between two speeches or in the middle of one.
+# B round 3 item 1 (trojan-women 852/462/780/1042, rhesus 1:518 etc.,
+# 2026-09-17): a mid-speech aside opens `[` and closes only its own italics
+# ("[_Turning upon the Herald._", two balanced underscores) -- Murray's
+# Gutenberg editions never print a `]` for this shape at all. Only a literal
+# `]` or a blank paragraph line used to close a direction, so this one kept
+# accumulating every following verse line (and, at the paragraph's end, the
+# next cue) as still-open direction text.
+def test_gutenberg_unclosed_bracket_direction_closes_at_its_own_italics():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nCASSANDRA.\n\n\n"
+        "THE PLAY\n\n"
+        "CASSANDRA.\n"
+        "  With flesh still clean I give them back to thee,\n"
+        "[_Turning upon the Herald._\n"
+        "Where lies the galley? Whither shall I tread?\n"
+        "See that your watch be set, your sail be spread.\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    lines = out.text.splitlines()
+    assert "_[Turning upon the Herald._" in lines
+    assert "Where lies the galley? Whither shall I tread?" in lines
+    assert "See that your watch be set, your sail be spread." in lines
+    speeches = _parsed(out.text)
+    assert len(speeches) == 1
+    assert speeches[0]["speaker_printed"] == "CASSANDRA"
+    assert "Where lies the galley" in speeches[0]["text"]
+    assert "See that your watch be set" in speeches[0]["text"]
+    assert "Turning upon the Herald" not in speeches[0]["text"]
+
+
+# Same item, the multi-line genuine direction must still work: its italics
+# stay unbalanced (an odd run of underscores) until its own last line, so it
+# is not cut short by the new rule (rhesus.txt:1317-1319, never touched by
+# this brief but the shape the cap must not break).
+def test_gutenberg_unclosed_bracket_direction_stays_open_while_its_italics_are_unbalanced():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nHECTOR.\nRHESUS.\n\n\n"
+        "THE PLAY\n\n"
+        "HECTOR.\n"
+        "  With word of the Argives' counsel.\n"
+        "[_Exeunt_ HECTOR _and_ RHESUS _and Attendants. The Guards, who\n"
+        "have been below, come forward sleepily from the camp fire,\n"
+        "and sit watching by_ HECTOR's _tent_.\n\n"
+        "CHORUS.\n"
+        "  Say, whose is the watch?\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    lines = out.text.splitlines()
+    assert "_[Exeunt HECTOR and RHESUS and Attendants. The Guards, who have been below, come forward sleepily from the camp fire, and sit watching by HECTOR's tent._" in lines
+    speeches = _parsed(out.text)
+    assert [s["speaker_printed"] for s in speeches] == ["HECTOR", "CHORUS"]
+    assert speeches[1]["text"] == "Say, whose is the watch?"
+
+
+# Same item: a direction whose list of names ends the italics on a plain
+# capitalised word with no sentence-final stop of its own until the NEXT
+# line ("[_They pray to_ ATHENA, ARTEMIS, _and_" / "APOLLO.",
+# oedipus-tyrannus.txt:650-651) must keep that whole list as the direction,
+# even though the final name alone would otherwise look like a cue -- Apollo
+# never speaks in this play, and an earlier version of this rule that closed
+# a direction in front of anything cue-shaped turned "APOLLO." into a
+# spurious, textless cue (caught by the pipeline's own `unaliased English
+# speakers` gate on a full rebuild, not by a unit test).
+def test_gutenberg_unclosed_bracket_direction_list_ending_on_a_name_stays_whole():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nCHORUS.\n\n\n"
+        "THE PLAY\n\n"
+        "CHORUS.\n"
+        "  Unveil thee, thou dread benediction,\n"
+        "[_They pray to_ ATHENA, ARTEMIS, _and_\n"
+        "APOLLO.\n"
+        "  Zeus-Child that knowest not death, to thee I pray,\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    speeches = _parsed(out.text)
+    assert [s["speaker_printed"] for s in speeches] == ["CHORUS"]
+    assert speeches[0]["text"] == (
+        "Unveil thee, thou dread benediction, "
+        "Zeus-Child that knowest not death, to thee I pray,"
+    )
+    assert "They pray to ATHENA, ARTEMIS, and APOLLO." in speeches[0]["shown"]
+
+
+# Same item: with no `]`, no balanced italics, and no cue to stop it, a
+# direction must not exceed four raw lines -- past that it is verse the
+# direction swallowed, not stage business.
+def test_direction_line_closes_caps_at_four_lines_with_no_bracket_or_italics():
+    direction: list[str] = []
+    assert _direction_line_closes(direction, "[Exeunt severally, one two three four") == (False, "")
+    assert _direction_line_closes(direction, "five six seven eight nine ten") == (False, "")
+    assert _direction_line_closes(direction, "eleven twelve thirteen fourteen") == (False, "")
+    closed, tail = _direction_line_closes(direction, "fifteen sixteen seventeen")
+    assert closed and tail == ""
+    assert len(direction) == 4
+
+
+# B round 3 item 2 (rhesus 23-33, 2026-09-17): a cue's parenthetical aside
+# can be followed on the same line by a strophe rubric --
+# "CHORUS (_various voices confusedly_).      [_Strophe._" -- which the cue
+# matcher did not recognise at all, so no turn boundary opened and the whole
+# strophe welded into the previous speech.
+def test_gutenberg_cue_with_parenthetical_and_trailing_strophe_label():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nCHORUS.\n\n\n"
+        "THE PLAY\n\n"
+        "SOME MAN.\n"
+        "  Know nothing?\n\n"
+        "CHORUS (_various voices confusedly_).      [_Strophe._\n"
+        "  To arms! To arms, Lord Hector!\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    speeches = _parsed(out.text)
+    assert [s["speaker_printed"] for s in speeches] == ["SOME MAN", "CHORUS"]
+    assert speeches[1]["text"] == "To arms! To arms, Lord Hector!"
+    assert "Strophe" not in speeches[1]["text"]
+    assert "various voices confusedly" in speeches[1]["shown"]
+
+
 def test_gutenberg_sidenote_marker_is_dropped_between_speeches():
     text = (
         "CHARACTERS IN THE PLAY\n\nOEDIPUS, _King of Thebes_.\n\n\n"

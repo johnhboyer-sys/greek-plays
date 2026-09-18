@@ -66,6 +66,42 @@ _RUNNING_HEADS = frozenset({"AESCHYLUS", "SOPHOCLES", "EURIPIDES"})
 # already drops the plain `[vv. N-N]` form; this is the "Sidenote:"-prefixed
 # one, own-line and underscore-wrapped.
 _SIDENOTE = re.compile(r"^_?\[Sidenote:[^\]]*\]_?\.?$", re.I)
+# A cue's own parenthetical aside can be followed by a metre rubric on the
+# same line ("CHORUS (_various voices confusedly_).      [_Strophe._",
+# rhesus 23-33, B round 3 item 2, 2026-09-17): the rubric belongs to neither
+# the cue nor the verse and is dropped, same as an own-line lyric label (B3).
+_CUE_PAREN_AND_RUBRIC = re.compile(r"^([A-Z][A-Z' ]+)\s*(\(.*\))\.\s{2,}(\[.*)$")
+# Cap on an unclosed `[` direction's length (B round 3, 2026-09-17): Murray's
+# own Gutenberg convention for a short mid-speech aside never prints a `]` at
+# all ("[_Turning upon the Herald._" / "[_Turning furiously upon_ HELEN.") --
+# the direction ends where its own sentence does, at the line that carries
+# its terminal `.`/`!`/`?`, exactly the review's own "split at the first
+# sentence end" rule -- while a real multi-line direction
+# ("[_Exeunt_ HECTOR _and_ RHESUS...tent_.") runs on past a comma or a name
+# in plain capitals until its own sentence actually ends. Four raw lines
+# with no terminal punctuation and no `]` is not a direction; it is verse
+# the direction swallowed (trojan-women, rhesus).
+_DIRECTION_LINE_CAP = 4
+_SENTENCE_END = re.compile(r"[.!?]+['’\"]?_?$")
+
+
+def _direction_line_closes(direction: list[str], line: str) -> tuple[bool, str]:
+    """Add `line` to an open `direction` accumulator; report whether it now
+    closes, and any text trailing a literal `]` on this line. A direction
+    closes at a literal `]` (as before), at a line ending its own sentence
+    with no `]` ever printed, or after `_DIRECTION_LINE_CAP` lines of
+    neither -- never past the next real cue, which the caller checks first."""
+    head_, sep, tail = line.partition("]")
+    direction.append(head_ + sep)
+    if sep:
+        return True, tail
+    if len(direction) == 1 and _LYRIC_LABEL.match(line):
+        return True, ""
+    if _SENTENCE_END.search(line):
+        return True, ""
+    if len(direction) >= _DIRECTION_LINE_CAP:
+        return True, ""
+    return False, ""
 
 
 def _italic_paragraph(lines: list[str]) -> bool:
@@ -207,14 +243,11 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
         if direction is None and line.startswith("["):
             direction = []
         if direction is not None:
-            head_, sep, tail = line.partition("]")
-            direction.append(head_ + sep)
-            if sep:
+            closed, tail = _direction_line_closes(direction, line)
+            if closed:
                 close()
                 if tail.strip():
                     items.append(("line", _plain(tail)))
-            elif len(direction) == 1 and _LYRIC_LABEL.match(line):
-                close()
             continue
         if _ITALIC_LINE.match(line):
             items.append(("dir", _plain(line)))  # "_Some Women._"
@@ -225,6 +258,15 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
             if cue[1]:
                 items.append(("dir", cue[1]))
             continue
+        paren_rubric = _CUE_PAREN_AND_RUBRIC.match(_fold(line))
+        if paren_rubric and _LYRIC_LABEL.match(paren_rubric.group(3)):
+            name = _cue(paren_rubric.group(1).strip())
+            if name and not name[1]:
+                items.append(("cue", name[0]))
+                paren_start = line.find("(")
+                paren_end = line.find(")", paren_start) + 1
+                items.append(("dir", _plain(line[paren_start:paren_end])))
+                continue
         shared = _CUE_AND_VERSE.match(_fold(line))
         if shared and any(ch.islower() for ch in shared.group(2)):
             name = _cue(shared.group(1).strip())
@@ -239,20 +281,12 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
             name = _cue(_fold(cue_bracket.group(1).strip()))
             if name and not name[1]:
                 items.append(("cue", name[0]))
-                head_, sep, tail = cue_bracket.group("rest").partition("]")
-                direction = [f"[{head_}{sep}"]
-                if sep:
+                direction = []
+                closed, tail = _direction_line_closes(direction, "[" + cue_bracket.group("rest"))
+                if closed:
                     close()
                     if tail.strip():
                         items.append(("line", _plain(tail)))
-                elif _LYRIC_LABEL.match(direction[0]):
-                    # A lyric label ("LEADER. [_Strophe._") is a complete,
-                    # one-line direction on its own even unclosed, same as
-                    # the plain `[`-start path just above (G3, Grok's
-                    # round-2 read, 2026-09-17): without this, verse on the
-                    # very next physical line with no blank paragraph break
-                    # would be swallowed into the still-open direction.
-                    close()
                 continue
         items.append(("line", _plain(line)))
     close()

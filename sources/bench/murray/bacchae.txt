@@ -86,7 +86,10 @@ Thebes to your song round Pentheus' royal hall.
 I seek my new-made worshippers, to guide
 Their dances up Kithaeron's pine-clad side.
 
-_[As he departs, there comes stealing in from the left a band of fifteen Eastern Women, the light of the sunrise streaming upon their long white robes and ivy-bound hair. They wear fawn-skins over the robes, and carry some of them timbrels, some pipes and other instruments. Many bear the thyrsus, or sacred Wand, made of reed ringed with ivy. They enter stealthily till they see that the place is empty, and then begin their mystic song of worship._
+_[As he departs, there comes stealing in from the left a band of fifteen Eastern Women, the light of the sunrise streaming upon their long white robes and ivy-bound hair. They wear fawn-skins over the robes, and carry some of them timbrels, some pipes and other instruments._
+Many bear the thyrsus, or sacred Wand, made of reed ringed with ivy.
+They enter stealthily till they see that the place is empty, and
+then begin their mystic song of worship.
 
 CHORUS
 
@@ -492,7 +495,15 @@ Yet let that Naught be Somewhat in thy mouth;
 Lie boldly, and say He Is! So north and south
 Shall marvel, how there sprang a thing divine
 From Semelê's flesh, and honour all our line.
-_[Drawing nearer to PENTHEUS. Is there not blood before thine eyes even now? Our lost Actaeon's blood, whom long ago His own red hounds through yonder forest dim Tore unto death, because he vaunted him Against most holy Artemis? Oh, beware, And let me wreathe thy temples. Make thy prayer With us, and walk thee humbly in God's sight. [He makes as if to set the wreath on PENTHEUS' head._
+_[Drawing nearer to PENTHEUS._
+Is there not blood before thine eyes even now?
+Our lost Actaeon's blood, whom long ago
+His own red hounds through yonder forest dim
+Tore unto death, because he vaunted him
+Against most holy Artemis? Oh, beware,
+And let me wreathe thy temples. Make thy prayer
+With us, and walk thee humbly in God's sight.
+_[He makes as if to set the wreath on PENTHEUS' head._
 
 PENTHEUS
 
@@ -670,7 +681,8 @@ A wrestler!--down both cheeks so softly tossed
 And winsome! And a white skin! It hath cost
 Thee pains, to please thy damsels with this white
 And red of cheeks that never face the light!
-_[DIONYSUS is silent. Speak, sirrah; tell me first thy name and race._
+_[DIONYSUS is silent._
+Speak, sirrah; tell me first thy name and race.
 
 DIONYSUS
 
@@ -1083,7 +1095,8 @@ Cometh against this house! Oh, cast ye down,
 Ye trembling damsels; He, our own adored,
 God's Child hath come, and all is overthrown!
 
-_[The Maidens cast themselves upon the ground, their eyes earthward. DIONYSUS, alone and unbound, enters from the Castle._
+_[The Maidens cast themselves upon the ground, their eyes earthward._
+DIONYSUS, alone and unbound, enters from the Castle.
 
 DIONYSUS
 
@@ -2231,7 +2244,8 @@ But stay, Agâvê cometh! And her eyes
 Make fire around her, reeling! Ho, the prize
 Cometh! All hail, O Rout of Dionyse!
 
-_[Enter from the Mountain AGAVE, mad, and to all seeming wondrously happy, bearing the head of PENTHEUS in her hand. The CHORUS MAIDENS stand horror-struck at the sight; the LEADER, also horror-struck, strives to accept it and rejoice in it as the God's deed._
+_[Enter from the Mountain AGAVE, mad, and to all seeming wondrously happy, bearing the head of PENTHEUS in her hand. The CHORUS MAIDENS stand horror-struck at the sight; the LEADER, also horror-struck, strives to accept it and rejoice in it as the God's_
+deed.
 
 AGAVE
 
@@ -2645,7 +2659,26 @@ And me. Aye, no man-child was ever mine;
 And now this first-fruit of the flesh of thee,
 Sad woman, foully here and frightfully
 Lies murdered! Whom the house looked up unto,
-_[Kneeling by the body. O Child, my daughter's child! who heldest true My castle walls; and to the folk a name Of fear thou wast; and no man sought to shame My grey beard, when they knew that thou wast there, Else had they swift reward!--And now I fare Forth in dishonour, outcast, I, the great Cadmus, who sowed the seed-rows of this state Of Thebes, and reaped the harvest wonderful. O my belovèd, though thy heart is dull In death, O still belovèd, and alway Belovèd! Never more, then, shalt thou lay Thine hand to this white beard, and speak to me Thy "Mother's Father"; ask "Who wrongeth thee? Who stints thine honour, or with malice stirs Thine heart? Speak, and I smite thine injurers!" But now--woe, woe, to me and thee also, Woe to thy mother and her sisters, woe Alway! Oh, whoso walketh not in dread Of Gods, let him but look on this man dead!_
+_[Kneeling by the body._
+O Child, my daughter's child! who heldest true
+My castle walls; and to the folk a name
+Of fear thou wast; and no man sought to shame
+My grey beard, when they knew that thou wast there,
+Else had they swift reward!--And now I fare
+Forth in dishonour, outcast, I, the great
+Cadmus, who sowed the seed-rows of this state
+Of Thebes, and reaped the harvest wonderful.
+O my belovèd, though thy heart is dull
+In death, O still belovèd, and alway
+Belovèd! Never more, then, shalt thou lay
+Thine hand to this white beard, and speak to me
+Thy "Mother's Father"; ask "Who wrongeth thee?
+Who stints thine honour, or with malice stirs
+Thine heart? Speak, and I smite thine injurers!"
+But now--woe, woe, to me and thee also,
+Woe to thy mother and her sisters, woe
+Alway! Oh, whoso walketh not in dread
+Of Gods, let him but look on this man dead!
 
 LEADER
 
@@ -2656,7 +2689,11 @@ AGAVE
 
 My father, thou canst see the change in me,
 
-_[A page or more has here been torn out of the MS. from which all our copies of "The Bacchae" are derived. It evidently contained a speech of Agâvê (followed presumably by some words of the Chorus), and an appearance of DIONYSUS upon a cloud. He must have pronounced judgment upon the Thebans in general, and especially upon the daughters of CADMUS, have justified his own action, and declared his determination to establish his godhead. Where the MS. begins again, we find him addressing CADMUS.]_
+_[A page or more has here been torn out of the MS. from which all our copies of "The Bacchae" are derived. It evidently contained a speech of Agâvê (followed presumably by some words of the Chorus), and an appearance of DIONYSUS upon a cloud. He must have pronounced judgment_
+upon the Thebans in general, and especially upon the daughters of
+CADMUS, have justified his own action, and declared his determination
+to establish his godhead. Where the MS. begins again, we find him
+addressing CADMUS.]
 
 DIONYSUS
 

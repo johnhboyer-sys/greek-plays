@@ -1222,7 +1222,8 @@ CREON
 
 Thebes is my country, not the King's alone.
 
-_[OEDIPUS has drawn his sword; the Chorus show signs of breaking into two parties to fight for OEDIPUS or for CREON, when the door opens and JOCASTA appears on the steps._
+_[OEDIPUS has drawn his sword; the Chorus show signs of breaking into two parties to fight for OEDIPUS or for CREON, when the door opens and JOCASTA appears on the_
+steps.
 
 LEADER
 
@@ -2381,7 +2382,8 @@ LEADER
 I know him well. A shepherd of the fold
 Of Laïus, one he trusted more than all.
 
-_[The SHEPHERD comes in, led by two thralls. He is an old man and seems terrified._
+_[The SHEPHERD comes in, led by two thralls._
+He is an old man and seems terrified.
 
 OEDIPUS
 

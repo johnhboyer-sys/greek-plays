@@ -79,6 +79,13 @@ _LOEB_OFFSTAGE_CUE = re.compile(
 _LOEB_CASE_SLIP_STAGE_CUE = re.compile(
     r"^(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ]*[a-zà-öø-ÿ])\s+(?P<stage>\([^)]*\))\s*$"
 )
+
+# A Loeb cue whose own line ends in a comma instead of the usual period or
+# " :" (B round 3 item 4, suppliants-eur finding 5, 2026-09-17):
+# "SECOND MOTHER,", bare on its own line, its speech starting on the next.
+# Restricted to a BARE cue (nothing else on the line) so it cannot fire on a
+# genuine ALL-CAPS exclamation mid-verse that happens to end in a comma.
+_LOEB_COMMA_CUE = re.compile(r"^(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ0-9'’\- ]*[A-ZÀ-Þ0-9]),\s*$")
 _LINDSAY_SPEAKER = re.compile(
     r"^(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH))"
     r"(?:\s+(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH)))*$"
@@ -657,6 +664,57 @@ _TRAILING_METRICAL_LABEL = re.compile(
     re.IGNORECASE,
 )
 
+# A Loeb ode's own editorial rubric, printed as a line of its own between
+# stanzas: a Roman-numeral list heading ("I. The Nemean Lion" .. "X. The
+# Hydra", Way's Heracles labours catalogue) or a strophe/antistrophe tag in
+# its short parenthetical form ("- (Ant, 3)") -- distinct from
+# `_METRICAL_LABEL`, which only matches a label filling the WHOLE line by
+# itself (B round 3 item 4, heracles finding 6, 2026-09-17: twelve such
+# lines printed as translated verse, corpus-wide in Way). Apparatus, not
+# spoken text: dropped outright, mid-speech, the same way B3 drops an
+# own-line strophe label.
+_LOEB_ODE_RUBRIC = re.compile(r"^-?\s*\(?(?:[IVX]+\.|(?:Str|Ant)[.,])\s")
+
+# A Loeb editorial note citing the lines a cut passage omits, printed as if
+# it were verse (storr/philoctetes.txt:1808 "' The omitted lines are:",
+# followed by the omitted lines themselves; B round 3 item 4, philoctetes
+# finding 5, 2026-09-17). The only instance of this exact shape anywhere in
+# the corpus (checked); its continuation runs until the next blank line or
+# cue, both dropped rather than carried as a direction, since the note is
+# neither.
+_OMITTED_LINES_NOTE = re.compile(r"^['’]\s*The omitted lines are:?\s*$", re.IGNORECASE)
+
+# The same rubric, embedded at the END of an otherwise real verse line
+# instead of alone on its own ("...Cadmus speeding (Str)", "...Cithaeron
+# (Ant.)", "...splendour of light (Mesode)", "...a shield-array (Ani, 2)" --
+# "Ani" the OCR's own slip for "Ant" -- phoenician-women, B round 3 item 4,
+# 2026-09-17). Stripped rather than dropping the whole line, since the line
+# carries real translated text too.
+_TRAILING_ODE_RUBRIC = re.compile(
+    r"\s*\((?:Str|Ant|Ani|Mesode)\.?,?\s*\d*\)\s*$", re.IGNORECASE
+)
+# A lone OCR guillemet, alone on its own line (phoenician-women.txt:1757,
+# way's Loeb scan glitch): not text, not a direction, and, unlike the
+# corpus's other scan-noise (a wrong letter, a glued page number), has no
+# real content to salvage.
+_LONE_GUILLEMET = re.compile(r"^[«»]+$")
+
+# A multi-line bracketed direction whose FIRST line names a speaking
+# character rather than opening with one of `_DIRECTION_CUE`'s stock verbs
+# (cyclops.txt: "[SILENUS comes out of cave, artistically made up as victim
+# / of assault and battery.]", "[ODYSSEUS and his men bring the burning
+# stake, and / plunge it into the CYCLOPS eye.]", B round 3 item 4, finding
+# 4, 2026-09-17). `_UNCLOSED_DIRECTION` only recognises an unclosed `[` when
+# it opens on a stock verb, so a direction shaped like this fell through as
+# two raw verse lines. Gated on the opening word being a name the play
+# already knows (not just any capitalised word) and a real `]` actually
+# closing it within `_MULTILINE_BRACKET_CAP` lines, so an ordinary run-on
+# verse fragment that happens to start with "[" (Way's Cyclops has several,
+# e.g. "[Shows corner of skin.", which never closes) is never mistaken for
+# one.
+_MULTILINE_BRACKET_OPEN = re.compile(r"^\[(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ]+)\b")
+_MULTILINE_BRACKET_CAP = 4
+
 
 def _is_metrical_label(text: str) -> bool:
     return bool(_METRICAL_LABEL.match(text.strip()))
@@ -811,6 +869,16 @@ def _merge_wrap_tail(parts: list[str], tail: str) -> None:
     parts.append(text)
 
 
+# A direction naming a single entrant ("Enter CHORUS.") whose own bench
+# block that follows opens with no cue of its own (B round 3 item 5,
+# phoenician-women finding 1, 2026-09-17): "_Enter CHORUS._" then a whole
+# parodos with no `CHORUS.` cue welded the entire ode into the OLD SERVANT's
+# speech before it. Restricted to a single all-caps name -- "Enter X and Y"
+# names two entrants and cannot say which of them opens the next block, so
+# it is left alone rather than guessed.
+_ENTER_SINGLE_NAME = re.compile(r"^Enters?\s+(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ]*)\.?$", re.IGNORECASE)
+
+
 def _parse_as_speeches(
     lines: list[str],
     start: int,
@@ -834,6 +902,11 @@ def _parse_as_speeches(
     # A `_LOEB_TRAILING_TAIL` fragment carried from the line before, waiting
     # for the line it actually belongs to (B1).
     pending_tail: str | None = None
+    # The single entrant a just-read "Enter NAME." direction names, waiting
+    # to see whether the block that follows opens with its own cue (B round
+    # 3 item 5): if not, that block opens NAME's own turn instead of
+    # welding onto whatever speech was open before the direction.
+    implicit_entrant: str | None = None
     i = start
     end_i = len(lines)
 
@@ -869,11 +942,52 @@ def _parse_as_speeches(
         if _is_play_end(s) or _is_gutenberg_end_line(raw):
             end_i = i
             break
+        if verse and _LONE_GUILLEMET.match(s):
+            # Pure OCR noise, alone on its own line: no text to salvage.
+            i += 1
+            continue
+        if verse and "]" not in s and s.startswith("["):
+            opens = _MULTILINE_BRACKET_OPEN.match(s)
+            if opens and opens.group("name") in known_names:
+                close_at = next(
+                    (j for j in range(i, min(i + _MULTILINE_BRACKET_CAP, len(lines))) if "]" in lines[j]),
+                    None,
+                )
+                if close_at is not None and close_at > i:
+                    joined = " ".join(lines[k].strip() for k in range(i, close_at + 1))
+                    bracket = _BRACKET_DIRECTION.match(joined)
+                    if bracket:
+                        pending.append(bracket.group(1))
+                        i = close_at + 1
+                        continue
         direction = _loeb_direction(s)
         if direction is not None:
             pending.append(direction)
+            enter = _ENTER_SINGLE_NAME.match(direction.strip())
+            implicit_entrant = (
+                enter.group("name").upper() if enter and enter.group("name").upper() in known_names else None
+            )
             i += 1
             continue
+        if verse and speaker and _LOEB_ODE_RUBRIC.match(s):
+            # An ode's own numbered-list or strophe/antistrophe rubric,
+            # mid-speech: apparatus, not verse (B round 3 item 4, heracles
+            # finding 6). Dropped outright rather than kept as a direction --
+            # same posture as B3's own-line strophe label.
+            i += 1
+            continue
+        if verse and speaker and _OMITTED_LINES_NOTE.match(s):
+            i += 1
+            while i < len(lines):
+                nxt_raw = lines[i]
+                nxt = nxt_raw.strip()
+                if not nxt or _SPEAKER_LINE.match(nxt_raw) or _loeb_direction(nxt) is not None:
+                    break
+                i += 1
+            continue
+        if verse and _TRAILING_ODE_RUBRIC.search(raw):
+            raw = _TRAILING_ODE_RUBRIC.sub("", raw)
+            s = raw.strip()
         m = _SPEAKER_LINE.match(raw)
         if m and _ROMAN_NUMERAL.fullmatch(m.group("name").strip()):
             # "I. The Nemean Lion": a numbered heading inside a speech (Way's
@@ -889,7 +1003,13 @@ def _parse_as_speeches(
             if (m or offstage or case_slip)
             else _periodless_speaker(raw, known_names)
         )
-        if m or offstage or case_slip or periodless:
+        comma_cue = (
+            None
+            if (m or offstage or case_slip or periodless)
+            else _LOEB_COMMA_CUE.match(raw.strip())
+        )
+        if m or offstage or case_slip or periodless or comma_cue:
+            implicit_entrant = None
             if pending_tail is not None:
                 _merge_wrap_tail(parts, pending_tail)
                 pending_tail = None
@@ -900,6 +1020,8 @@ def _parse_as_speeches(
                 speaker = offstage.group("name").strip().upper()
             elif case_slip:
                 speaker = case_slip.group("name").strip().upper()
+            elif comma_cue:
+                speaker = comma_cue.group("name").strip()
             else:
                 speaker = periodless[0]
             parts = []
@@ -932,6 +1054,8 @@ def _parse_as_speeches(
                         parts.append(rest)
             elif offstage:
                 pass  # the whole line is the cue; its speech follows below.
+            elif comma_cue:
+                pass  # same: a bare comma-terminated cue, speech follows.
             elif case_slip:
                 # The whole line is the cue and its own stage direction; the
                 # speech follows on the next physical line, so the direction
@@ -939,6 +1063,28 @@ def _parse_as_speeches(
                 _add_direction(inline, 0, case_slip.group("stage")[1:-1])
             else:
                 parts.append(periodless[1])
+        elif implicit_entrant and s:
+            # No cue of its own follows the "Enter NAME." direction: NAME
+            # opens its own turn here rather than welding onto whatever
+            # speech was open before the direction (B round 3 item 5).
+            flush()
+            speaker = implicit_entrant
+            implicit_entrant = None
+            parts = []
+            inline = []
+            directions_before = pending
+            pending = []
+            lead = _split_leading_direction(s)
+            if lead:
+                direction, s = lead
+                _add_direction(inline, len(parts), direction)
+            trail = _split_trailing_direction(s)
+            if trail:
+                s, direction = trail
+                parts.append(s)
+                _add_direction(inline, len(parts), direction)
+            else:
+                parts.append(s)
         elif speaker:
             if s:
                 lead = _split_leading_direction(s)

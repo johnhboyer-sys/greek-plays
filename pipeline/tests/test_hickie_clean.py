@@ -243,6 +243,33 @@ def test_apparatus_paragraph_dropped_from_the_middle_of_a_sentence():
     assert any(line.startswith("dropped\tcritical-apparatus") for line in log)
 
 
+# B round 3 item 3 (Grok's read of Lane B round 2,
+# review-lane-b-r2-grok-findings.md, 2026-09-17): `_is_apparatus_paragraph`
+# required an editor surname AND a citation-shaped fragment, so a note that
+# cites only by bare verse number ("vs. 35"), or one that carries no
+# citation fragment at all but opens the paragraph on the editor's own name,
+# stayed in the bench as if it were spoken (lysistrata bench 57, 457).
+def test_apparatus_paragraph_dropped_for_a_bare_verse_citation_or_an_opening_editor_name():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. Calonice, my heart is on fire.", page=0),
+        _p(
+            "Brunck. “This passage has been misunderstood by Brunck, Dindorf, "
+            "and Bothe, who think this corresponds to that in vs. 35.” Enger.",
+            page=0,
+        ),
+        _p("COM. And so is mine, alas!", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert speeches == 2
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Calonice, my heart is on fire."),
+        ("COMMITTEE-MAN", "And so is mine, alas!"),
+    ]
+    assert "Brunck" not in text and "Enger" not in text
+    assert any(line.startswith("dropped\tcritical-apparatus") for line in log)
+
+
 # H1 (finding 5): Genie's OCR keeps only "CHO. OF" bold/upper and prints the
 # chorus's own tail in ordinary case (`Wom.`/`Men.`); `_CUE_RE` used to read
 # just "CHO" as the cue and leave "OF Wom."/"OF Men." as the speech's first
@@ -282,6 +309,53 @@ def test_lrs_ocr_alias_resolves_to_lysistrata():
     assert _speeches(text) == [
         ("LYSISTRATA", "Come now, since the other matters have been transacted well.")
     ]
+
+
+# B round 3 item 3 (ecclesiazusae finding 2, 2026-09-17): a period between a
+# spelled-out cue and its own parenthetical direction used to satisfy
+# `_CUE_RE`'s looser shape first, leaving the whole "(...)." sitting in the
+# speech text instead of becoming a direction.
+def test_cue_with_period_before_its_parenthetical_direction():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. Onward!", page=0),
+        _p("PRAXAGORA. (coming forward out of her hiding-place). I was lying awake.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert speeches == 2
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Onward!"),
+        ("PRAXAGORA", "I was lying awake."),
+    ]
+    assert "[coming forward out of her hiding-place]" in text
+    assert "(coming forward" not in text
+
+
+# Same item: a numbered or title-case chorus-role cue followed immediately
+# by a parenthetical direction ("1ST WOMAN (entering with a lamp).", "Young
+# Woman (looking out from an opposite window)."). `_MIXED_CUE_RE` needs a
+# bare "." right after the name, so a name followed by "(" instead never
+# matched at all and fell through as a continuation of whatever speech was
+# already open.
+def test_numbered_and_titlecase_cue_with_parenthetical_direction():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. Onward!", page=0),
+        _p("1ST WOMAN (entering with a lamp). It is time to go.", page=0),
+        _p("Young Woman (looking out from an opposite window). I hear you.", page=0),
+        _p("1st Old Woman (pointing to the old man). And so do I.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert speeches == 4
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Onward!"),
+        ("FIRST WOMAN", "It is time to go."),
+        ("YOUNG WOMAN", "I hear you."),
+        ("FIRST OLD WOMAN", "And so do I."),
+    ]
+    assert "[entering with a lamp]" in text
+    assert "[looking out from an opposite window]" in text
+    assert "[pointing to the old man]" in text
 
 
 def test_normalize_dollar_footnote_and_accented_title_and_br():

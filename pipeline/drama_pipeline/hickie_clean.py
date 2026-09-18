@@ -377,11 +377,14 @@ def _is_furniture(text: str, word: str) -> bool:
 # Cues and directions.
 
 _CUE_RE = re.compile(r"^([A-ZÆŒ][A-ZÆŒ .'’\-]{0,30})\.\s+(\S.*)$")
-# "NAME (direction). text" / "NAME (direction) text" -- a first entrance
-# spelled in full with no period between the name and its parenthetical
-# (a mid-speech "NAME. (direction). text" already matches `_CUE_RE` above,
-# since its FIRST period lands right after the name).
-_CUE_PAREN_RE = re.compile(r"^([A-ZÆŒ][A-ZÆŒ .'’\-]{0,30})\s*\(([^)]*)\)\.?\s+(\S.*)$")
+# "NAME (direction). text" / "NAME. (direction). text" -- a first entrance
+# spelled in full, with or without a period between the name and its
+# parenthetical (B round 3 item 3, 2026-09-17: "PRAXAGORA. (coming forward
+# out of her hiding-place). I was lying awake..." used to match `_CUE_RE`
+# first -- checked before this pattern -- leaving the whole parenthetical
+# sitting in the speech text instead of becoming its own direction; this
+# pattern is now tried first).
+_CUE_PAREN_RE = re.compile(r"^([A-ZÆŒ][A-ZÆŒ .'’\-]{0,30})\.?\s*\(([^)]*)\)\.?\s+(\S.*)$")
 # A whole-line direction Genie prints without its outer brackets: this
 # volume's own "SCENE—..." openers and one bare "Enter ..." (2026-09-17
 # check finds both in Wealth).
@@ -398,6 +401,15 @@ _STAGE_VERB_RE = re.compile(r"^(?:SCENE[—:]|Enter\b|Exit\b|Exeunt\b|Re-enters?
 # case -- a real prose sentence never opens with nothing but these words.
 _MIXED_TOKEN = r"(?:[1-9](?:ST|ND|RD|TH)|OLD|YOUNG|WOM(?:AN)?|MAN|CHO(?:RUS)?|INNK(?:EEPER)?|CIT(?:IZEN)?|SEMICHORUS)"
 _MIXED_CUE_RE = re.compile(rf"^((?:{_MIXED_TOKEN})(?:\s+{_MIXED_TOKEN})*)\.\s+(\S.*)$", re.I)
+# The same numbered/mixed-case cue, immediately followed by a parenthetical
+# direction ("1ST WOMAN (entering with a lamp).", "Young Woman (looking out
+# from an opposite window)."): ecclesiazusae findings 2 and 7 (B round 3
+# item 3, 2026-09-17) -- `_MIXED_CUE_RE` needs a bare "." right after the
+# name, so a name followed instead by "(" never matched at all and fell
+# through as a continuation of whatever speech was already open.
+_MIXED_CUE_PAREN_RE = re.compile(
+    rf"^((?:{_MIXED_TOKEN})(?:\s+{_MIXED_TOKEN})*)\.?\s*\(([^)]*)\)\.?\s+(\S.*)$", re.I
+)
 _ORDINAL_WORDS = {
     1: "FIRST", 2: "SECOND", 3: "THIRD", 4: "FOURTH", 5: "FIFTH",
     6: "SIXTH", 7: "SEVENTH", 8: "EIGHTH", 9: "NINTH",
@@ -543,7 +555,12 @@ def _play_bounds(paras: list[gt.Paragraph], work_id: str) -> tuple[int, int]:
 
 
 def _looks_like_cue(text: str) -> bool:
-    return bool(_CUE_RE.match(text) or _CUE_PAREN_RE.match(text) or _MIXED_CUE_RE.match(text))
+    return bool(
+        _CUE_RE.match(text)
+        or _CUE_PAREN_RE.match(text)
+        or _MIXED_CUE_RE.match(text)
+        or _MIXED_CUE_PAREN_RE.match(text)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -564,14 +581,33 @@ _APPARATUS_EDITOR = re.compile(
     r"\b(?:Kr[uü]ger|Hermann|Dindorf|Enger|Meineke|Bekker|Elmsley|Brunck|"
     r"Bergk|Reisig|Fritzsche|Blaydes|Bothe|Dobree|Lobeck|Porson)\b"
 )
+# `vs\.\s*\d` (a bare verse-number citation, "vs. 35") and `Acharn\.` (the
+# one play abbreviation the original list left out) were still missing, so a
+# note that cites only by verse number or only in the Acharnians never had
+# its citation half recognised (Grok's read of Lane B round 2,
+# `review-lane-b-r2-grok-findings.md`, 2026-09-17): lysistrata bench 57
+# ("...Βοιωτίους τε in vs. 35 corresponds..."), 505, 1096; ecclesiazusae
+# 524, 547; thesmophoriazusae 165, 169, 592, 682, 954.
 _APPARATUS_CITATION = re.compile(
     r"\b(?:Gr\.\s*Gr\.|Vig\.\s*n\.|Frag(?:m)?\.|Eccles\.|Aves,|Vesp\.|Nub\.|"
-    r"Equit\.|Thesm\.|Ran\.|Pax,|Av\.|Plut\.|p\.\s*\d|§\s*\d|"
+    r"Equit\.|Thesm\.|Ran\.|Pax,|Av\.|Plut\.|Acharn\.|vs\.\s*\d|p\.\s*\d|§\s*\d|"
     r"\d+,\s*\d+,\s*\d+)"
+)
+# A paragraph that OPENS on a bare editor surname ("Brunck. "This passage
+# has been misunderstood..."") is apparatus even when it carries no
+# citation-shaped fragment of its own -- Aristophanes never opens a speech
+# by naming a 19th-century German philologist. Anchored to the paragraph's
+# own start (after any leading OCR junk) so it cannot fire on an editor's
+# name appearing inside a genuine sentence.
+_APPARATUS_OPENING_EDITOR = re.compile(
+    r"^[\s*'’\"“”.,]*(?:Kr[uü]ger|Hermann|Dindorf|Enger|Meineke|Bekker|Elmsley|"
+    r"Brunck|Bergk|Reisig|Fritzsche|Blaydes|Bothe|Dobree|Lobeck|Porson)\.\s"
 )
 
 
 def _is_apparatus_paragraph(text: str) -> bool:
+    if _APPARATUS_OPENING_EDITOR.match(text):
+        return True
     return bool(_APPARATUS_EDITOR.search(text)) and bool(_APPARATUS_CITATION.search(text))
 
 
@@ -827,21 +863,40 @@ def _convert_body(
                     log.append(f"dropped\tpre-speech text, not dialogue: {piece[:60]!r}")
             continue
 
+        # The paren-direction shapes are tried before their bare-cue
+        # siblings: "PRAXAGORA. (coming forward...)." and "1ST WOMAN
+        # (entering with a lamp)." both also satisfy `_CUE_RE`'s looser
+        # "name, period, rest" shape, which would otherwise swallow the
+        # parenthetical whole as spoken text (B round 3 item 3, 2026-09-17).
+        m = _CUE_PAREN_RE.match(resolved)
+        if m:
+            # `_CUE_PAREN_RE`'s own name charset admits a literal "." (an
+            # abbreviated form's own dot, matched elsewhere), so a name
+            # followed directly by "." then "(" -- "PRAXAGORA. (coming
+            # forward...)" -- captures that period into group(1) itself; it
+            # is not part of the name and must not print as a second period.
+            printed = _ascii_cue(m.group(1).strip().rstrip("."))
+            cue = cfg.abbrev.get(printed, printed)
+            writer.cue(cue)
+            writer.direction(m.group(2))
+            writer.line(m.group(3))
+            continue
+
+        m = _MIXED_CUE_PAREN_RE.match(resolved)
+        if m:
+            printed = _normalize_mixed_cue(m.group(1).strip().rstrip("."))
+            cue = cfg.abbrev.get(printed, printed)
+            writer.cue(cue)
+            writer.direction(m.group(2))
+            writer.line(m.group(3))
+            continue
+
         m = _CUE_RE.match(resolved)
         if m:
             printed = _ascii_cue(m.group(1).strip())
             cue = cfg.abbrev.get(printed, printed)
             writer.cue(cue)
             writer.line(m.group(2))
-            continue
-
-        m = _CUE_PAREN_RE.match(resolved)
-        if m:
-            printed = _ascii_cue(m.group(1).strip())
-            cue = cfg.abbrev.get(printed, printed)
-            writer.cue(cue)
-            writer.direction(m.group(2))
-            writer.line(m.group(3))
             continue
 
         m = _MIXED_CUE_RE.match(resolved)

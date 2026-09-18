@@ -5,10 +5,14 @@ THE ECCLESIAZUSAE
 [coming out of the house dressed in men's clothes]
 PRAXAGORA. O bright eye of the wheel-formed lamp, suspended most commodiously in a situation commanding a wide view, (for I will declare both your parentage and your fortunes: for, having been driven with the wheel by the force of the potter, you possess in your nozzles the bright honours of the sun,) send forth the signal of flame agreed upon! For to you alone we reveal it:—justly; for you also stand close by us in our bed-chambers when we try the various modes of Aphrodite; and no one excludes your eye from the house, the witness of our bending bodies. And you alone cast light into the secret recesses of our persons, when you singe off the hair which flourishes upon them. And you aid us when secretly opening the storehouses filled with fruits and the Bacchic stream. And although you help to do this, you do not babble of it to the neighbours. Wherefore you shall also be privy to our present designs, as many as were determined
 on by my friends at the Scira. But none of them is present, who ought to have come. And yet it is close upon day-break; and the Assembly will take place immediately; and we must take possession of different seats from those which Phyromachus formerly ordered, if you still remember, and sit down without being detected. What then can be the matter? Have they their beards not sewed on, which they were ordered to have? or has it been difficult for them to steal and take their husbands’ clothes? But I see a lamp there approaching. Come, now let me retire back, lest the person who approaches should chance to be a man. [Retires to one side.]
-1ST WOMAN (entering with a lamp). It is time to go; for the herald just now crowed the second time, as we were setting out.
+
+[entering with a lamp]
+FIRST WOMAN. It is time to go; for the herald just now crowed the second time, as we were setting out.
 
 PRAXAGORA. (coming forward out of her hiding-place). I was lying awake the whole night expecting you. But come, let me summon our neighbour here by tapping at her door: for I must escape the notice of her husband. [Taps at the door.]
-2ND WOMAN (coming out of the house). I heard the tapping of your fingers, as I was putting on my shoes, since I was not asleep: for my husband, my dearest, (for he whom I live with is a Salaminian,) was occupying me the whole night
+
+[coming out of the house]
+SECOND WOMAN. I heard the tapping of your fingers, as I was putting on my shoes, since I was not asleep: for my husband, my dearest, (for he whom I live with is a Salaminian,) was occupying me the whole night
 in the bed-clothes, so that it was only just now I could get this garment of his.
 
 FIRST WOMAN. Well now I see Clinarete also, and Sostrate here now approaching, and Philænete. [Enter Clinarete, Sostrate, and Philænete.]
@@ -21,7 +25,8 @@ SECOND WOMAN. And don’t you see Gusistrate, the wife of the innkeeper, with he
 
 PRAXAGORA. I see very many other women also approaching, all that are good for aught in the city.
 
-THIRD WOMAN. (entering, followed by many others). And I, my dearest, escaped and stole away with very great difficulty; for my husband kept coughing the whole night, having been stuffed with anchovies over-night.
+[entering, followed by many others]
+THIRD WOMAN. And I, my dearest, escaped and stole away with very great difficulty; for my husband kept coughing the whole night, having been stuffed with anchovies over-night.
 
 PRAXAGORA. Sit down then, since I see you are assembled, in order that I may ask you about this, if you have done all that was determined on at the Scira.
 
@@ -32,9 +37,11 @@ FIFTH WOMAN. And I. I threw the razor out of the house the first thing, in order
 
 PRAXAGORA. Have you the beards, which we were all ordered to have, whenever we assembled?
 
-FOURTH WOMAN. (holding one up). Yea, by Hecate! see! here's a fine one!
+[holding one up]
+FOURTH WOMAN. Yea, by Hecate! see! here's a fine one!
 
-FIFTH WOMAN. (holding one up). And I one, not a little finer than that of Epicrates.
+[holding one up]
+FIFTH WOMAN. And I one, not a little finer than that of Epicrates.
 
 PRAXAGORA. (turning to the others). But what do you say?
 
@@ -52,7 +59,8 @@ PRAXAGORA. But come! so that we may also transact what is next, whilst the stars
 
 FIRST WOMAN. Yea, by Jove! wherefore you ought to take your seat under the Bema, over against the Prytanes.
 
-SEVENTH WOMAN. (holding up some wool). By Jove, I brought these here, in order that I might card when the Assembly was full.
+[holding up some wool]
+SEVENTH WOMAN. By Jove, I brought these here, in order that I might card when the Assembly was full.
 
 PRAXAGORA. Full, you rogue?
 
@@ -86,7 +94,8 @@ THIRD WOMAN. I do.
 
 PRAXAGORA. Now put on the chaplet, and success to you!
 
-THIRD WOMAN. (putting it on). Very well.
+[putting it on]
+THIRD WOMAN. Very well.
 
 PRAXAGORA. Speak away!
 
@@ -123,7 +132,8 @@ NINTH WOMAN. What’s the matter? for indeed I did not ask you for drink.
 
 PRAXAGORA. No, by Jove; but you swore by the two goddesses, being a man. And yet you spoke the rest most cleverly.
 
-NINTH WOMAN. (correcting herself). Oh!—by Apollo!
+[correcting herself]
+NINTH WOMAN. Oh!—by Apollo!
 
 PRAXAGORA. (snatching the chaplet from her). Have done then! for I would not put forward one foot to hold an assembly, unless this shall be arranged precisely.
 
@@ -544,7 +554,6 @@ PRAXAGORA. Whence then did the lender lend the money, when all things are in com
 BLEPYRUS. By Ceres, you instruct us well! Now let some one tell me this: whence shall those who beat people pay off an action for assault, when they insult people after a banquet? For I fancy you’ll be at a loss about this.
 
 PRAXAGORA. Out of the barley-cake which he eats. For when
-ποιεῖσθαι, δεινὸν λέγεις. See examples ap. Elmsl. Acharn. 323.” Dobree.
 one diminishes this, he will not insult again so readily, after he has been punished in his belly.
 
 BLEPYRUS. And, on the other hand, will there be no thief?
@@ -604,7 +613,8 @@ FIRST CITIZEN. I will make ready and overhaul my substance, in order that I may 
 Where is the Stool-carrier? Pot, come forth hither! By Jove, you are black! nor could you have been blacker,
 if you had boiled the dye with which Lysicrates blackens his hair. Come hither, Tire-woman, stand next her! Water-bearer, here! bring hither this water-pot! And do you, Harper, come forth hither! who have often wakened me in the dead of the night for the Assembly with your early strain. Let him with the hive come forth! Bring the honeycombs! Place the olive-wreaths near! .and bring out the two tripods, and the oil-flask. Now leave the little pots and the lumber.”
 
-SECOND CITIZEN. (grumbling to himself). Shall I pay in my property? Then I shall be a wretched man and possessed of little sense. No, by Neptune, never! but will first scrutinize and examine them frequently. For I will not so foolishly throw away my earnings and savings for nothing, before I learn the whole matter, how it is. Hollo you! what mean these chattels? Have you brought them out because you are flitting, or are you carrying them to put them in pawn?
+[grumbling to himself]
+SECOND CITIZEN. Shall I pay in my property? Then I shall be a wretched man and possessed of little sense. No, by Neptune, never! but will first scrutinize and examine them frequently. For I will not so foolishly throw away my earnings and savings for nothing, before I learn the whole matter, how it is. Hollo you! what mean these chattels? Have you brought them out because you are flitting, or are you carrying them to put them in pawn?
 
 FIRST CITIZEN. By no means.
 
@@ -795,9 +805,13 @@ FIRST CITIZEN. No, by no means! For I am afraid lest you lay claim to my propert
 SECOND CITIZEN. By Jove, of a truth I have need of some contrivance, so that I may retain the property I have, and may somehow partake in common with these of the things which are kneading. It seems to me to be just. I must go to the same place to dine, and must not delay. [Exit.]
 
 FIRST OLD WOMAN. Why in the world are the men not come? it has been time this long while: for I am standing idle, painted over with white lead, and clad in a saffron-coloured robe, and humming a tune to myself, playing amorously, in order that I may catch some of them as he is passing by. Ye Muses, come hither to my mouth, having devised some Ionian ditty.
-Young Woman (looking out from an opposite window). Now you've been beforehand with me in peeping out, you ugly old woman; and you thought you would strip unwatched vines, as I was not present here, and allure some one by singing. But I'll sing against you, if you do this. For even if this be tiresome to the spectators, nevertheless it has something amusing in it and belonging to comedy.
+
+[looking out from an opposite window]
+YOUNG WOMAN. Now you've been beforehand with me in peeping out, you ugly old woman; and you thought you would strip unwatched vines, as I was not present here, and allure some one by singing. But I'll sing against you, if you do this. For even if this be tiresome to the spectators, nevertheless it has something amusing in it and belonging to comedy.
 [An ugly old Man crosses the stage.]
-1st Old Woman (pointing to the old man). Converse
+
+[pointing to the old man]
+FIRST OLD WOMAN. Converse
 with this old man, and retire with him! But do you, my little darling of a flute-player, take your flute and accompany me with a tune worthy of me and of you. [Sings to the flute.] "If any one wishes to experience some good, he should sleep with me. For knowledge is not in young women, but in the ripe ones: nor would any of them be willing to love more than I the friend with whom I had to do; but she would fly off to another."
 
 YOUNG WOMAN. Do not envy the young women. For pleasure is in their tender limbs, and blossoms on their bosoms: while you, old woman, have had your eyebrows polled, and have been painted, an object of love for Orcus.
@@ -806,7 +820,8 @@ FIRST OLD WOMAN. May your teeth drop out, and may you lose your couch when wishi
 
 YOUNG WOMAN. (sings). "Alas! alas! what ever shall I do? my friend is not come, and I am left here alone: for my mother has gone elsewhere; and as for the rest, these I must make of no account. Come, O nurse, I beseech you, summon Orthagoras, that you may enjoy yourself, I entreat you."
 
-FIRST OLD WOMAN. (sings). "Already, you wretch, you are prurient in the Ionian manner, and you appear to me also
+[sings]
+FIRST OLD WOMAN. "Already, you wretch, you are prurient in the Ionian manner, and you appear to me also
 a Labda after the fashion of the Lesbians. But you will never filch away my darling; and you shall not spoil or intercept my hour.”
 
 YOUNG WOMAN. Sing as much as you please, and peep out like a weasel; for no one will sooner come in unto you than me.
@@ -845,19 +860,22 @@ FIRST OLD WOMAN. And I too, that you may know that I am much wiser than you. [Re
 
 YOUNG MAN. Would it were permitted to sleep with the young girl, and one was not obliged first to have to do with a snub-nosed or elderly one. For this is intolerable to a free man.
 
-FIRST OLD WOMAN. (peeping out and talking aside). Then, by Jove, you'll wench to your cost! For these are not the times of Charixene. You are bound to do this in conformity with the law, if we are under a democratic government. But I'll withdraw to watch what in the world he will do. [Retires again.]
+[peeping out and talking aside]
+FIRST OLD WOMAN. Then, by Jove, you'll wench to your cost! For these are not the times of Charixene. You are bound to do this in conformity with the law, if we are under a democratic government. But I'll withdraw to watch what in the world he will do. [Retires again.]
 
 YOUNG MAN. O ye gods, may I find my beautiful one alone, to whom I am coming drunk, desiring her this long while.
 
 YOUNG WOMAN. (cautiously peeping out). I have deceived the accursed old woman; for she is gone, thinking that I would remain within.
 
-FIRST OLD WOMAN. (peeping out). Nay, this is he himself, of whom I made mention. [Sings.] "Come hither, pray! Come hither, pray, my beloved! come hither to me! and see that you be my bedfellow during the night. For love of these
+[peeping out]
+FIRST OLD WOMAN. Nay, this is he himself, of whom I made mention. [Sings.] "Come hither, pray! Come hither, pray, my beloved! come hither to me! and see that you be my bedfellow during the night. For love of these
 curls of yours agitates me exceedingly; and marvellous desire assails me, which has worn me away. Permit me, Love, I beseech thee, and make him come to my bed.”
 
 [standing under the young woman’s window and singing]
 YOUNG MAN. “Come hither, pray! come hither, pray! and do thou run down and open this door; otherwise I will fall down and lie here. My beloved, come, I wish to rest in thy bosom. O Venus, wherefore dost thou make me mad after her? Permit me, Love, I beseech thee, and make her come to my bed. And this has been mentioned sufficiently for my anguish. But do thou, my dearest, oh, I beseech thee, open to me, embrace me! Through thee I suffer pains. O my beloved object decked with gold, child of Venus, the Muse’s honey-bee, nurseling of the Graces, Beauty’s face, open to me, embrace me! Through thee I suffer pains.”
 
-FIRST OLD WOMAN. (suddenly coming out). Ho you! why do you knock? Do you seek me?
+[suddenly coming out]
+FIRST OLD WOMAN. Ho you! why do you knock? Do you seek me?
 
 YOUNG MAN. By no means.
 
@@ -873,7 +891,8 @@ FIRST OLD WOMAN. What man?
 
 YOUNG MAN. Not your Sebinus, whom you perhaps expect.
 
-FIRST OLD WOMAN. (seizing him by the arm). Yes, by Venus! whether you wish it or no.
+[seizing him by the arm]
+FIRST OLD WOMAN. Yes, by Venus! whether you wish it or no.
 
 YOUNG MAN. But we are not now bringing into court those above sixty years old; but have adjourned them to another time. For we are judging those under twenty years.
 
@@ -921,7 +940,8 @@ FIRST OLD WOMAN. By Venus, yet you must ! for I delight in sleeping with men so 
 
 YOUNG MAN. But I abominate sleeping with women so old as you ; and I will never comply.
 
-FIRST OLD WOMAN. (producing a paper). But, by Jove, this, shall compel you !
+[producing a paper]
+FIRST OLD WOMAN. But, by Jove, this, shall compel you !
 
 YOUNG MAN. And what is this ?
 
@@ -959,7 +979,8 @@ FIRST OLD WOMAN. Aye, a Diomedean necessity.
 YOUNG MAN. Then first strew me some origanum under-
 neath, and break off and place under four vine-twigs, and wear a tænia, and place beside you the vases, and set down the earthen vessel of water before your door.
 
-FIRST OLD WOMAN. (sarcastically). Assuredly you will more-over buy me a chaplet too!
+[sarcastically]
+FIRST OLD WOMAN. Assuredly you will more-over buy me a chaplet too!
 
 YOUNG MAN. Yes, by Jove! if it be of the waxen sort; for I fancy you will immediately fall in pieces within.
 
@@ -973,12 +994,16 @@ FIRST OLD WOMAN. O you all-abominable, you devised this argument through envy. B
 
 YOUNG MAN. By Jove the preserver, you have obliged me, my darling, by having removed the old woman from me. Wherefore, in return for these good deeds, I will at night return you a kindness great and thick. [Young woman takes him by the arm.]
 
-SECOND OLD WOMAN. (suddenly coming up). Hollo you! whither are you dragging this man in violation of the law, when the written law orders him first to sleep with me?
+[suddenly coming up]
+SECOND OLD WOMAN. Hollo you! whither are you dragging this man in violation of the law, when the written law orders him first to sleep with me?
 
 YOUNG MAN. Ah me, miserable! Whence did you pop out,—the devil take you! For this pest is more abominable than that.
 
-SECOND OLD WOMAN. (trying to drag him away). Come this way!
-Young Man (to the young woman). By no means suffer me to be dragged away by this old woman, I beseech you!
+[trying to drag him away]
+SECOND OLD WOMAN. Come this way!
+
+[to the young woman]
+YOUNG MAN. By no means suffer me to be dragged away by this old woman, I beseech you!
 
 SECOND OLD WOMAN. Nay, I do not drag you, but the law drags you. [Exit young woman.]
 
@@ -994,7 +1019,8 @@ YOUNG MAN. I fear lest I do even more than I wish. But I will put in two suffici
 
 SECOND OLD WOMAN. Put me in no sureties!
 
-THIRD OLD WOMAN. (running up). Whither, whither are you going with her?
+[running up]
+THIRD OLD WOMAN. Whither, whither are you going with her?
 
 YOUNG MAN. I am not going, but am dragged. But many blessings on you, whoever you are, because you did not suffer me to be destroyed. [Catches sight of her for the first time.] O Hercules! O ye Pans! O ye Corybantes! O ye Dioscuri! this pest, again, is much more abominable than the other. But what in the world is this thing, I beseech you? Are you an ape covered over with white lead, or an old woman sent up from the dead?
 
@@ -1047,7 +1073,8 @@ SECOND OLD WOMAN. Very well, when you shall have eaten a pot of onions.
 
 YOUNG MAN. Ah me, miserable! I am now dragged close to the door. [The 2nd old woman here attempts to drag him into her house and exclude the 3rd old woman.]
 
-THIRD OLD WOMAN. (to the 2nd old woman). But it shall be no advantage to you; for I will rush in along with you.
+[to the 2nd old woman]
+THIRD OLD WOMAN. But it shall be no advantage to you; for I will rush in along with you.
 
 YOUNG MAN. Nay, do not, by the gods! for it is better to be afflicted with one than two evils.
 
