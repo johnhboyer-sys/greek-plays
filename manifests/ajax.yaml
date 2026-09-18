@@ -25,6 +25,16 @@ english:
     source: "perseus/tlg0011.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # Jebb's own <l n="231"> is Tecmessa's entrance ("Ah! Then it was from
+    # there, from there that he came to me with his captive flock!") -- his
+    # n="230" already covers the Chorus's own combined 230/231-232 (Dain &
+    # Mazon print 231-232 as one citation unit): "because the dark sword in
+    # his frenzied hand massacred the herds and the horse-guiding herdsmen."
+    # Tecmessa's actual Greek is 233-234 ("Ὤιμοι· κεῖθεν κεῖθεν ἄρ' ἡμῖν /
+    # δεσμῶτιν ἄγων ἤλυθε ποίμναν·"), a plain mis-numbering, not an
+    # antilabe (round 2 item 10, lane-c-r4-report-2026-09-18.md).
+    line_fixes:
+      "231": "233"
   secondary:
     id: storr
     name: "F. Storr (Loeb, 1913)"

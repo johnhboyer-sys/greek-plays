@@ -44,10 +44,11 @@ english:
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
-  # Measured attachment loss (sweep 2026-09-08): 1 English piece(s) with no
-  # honest owner — attribution_hole 0, nless_slice_unattached 0, unmatched_anchor 1. Mostly stichomythia the translator's base
-  # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
-  max_unresolved_mismatches: 1
+  # Round 2 item 12 (2026-09-18): the sweep-2026-09-08 attachment loss
+  # this ceiling allowed for is gone -- earlier lanes' repairs (C15's
+  # unprinted-ref seat, C17's bracketed-siglum split, and others) have
+  # since attached every one of those pieces. Re-measured at 0.
+  max_unresolved_mismatches: 0
   gaps:
     - "1:766"  # Creusa's "piercing pain" line has no counterpart nearby
     - "1:783"  # Creusa's "unspeakable word" line has no counterpart nearby
