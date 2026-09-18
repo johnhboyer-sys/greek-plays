@@ -38,10 +38,11 @@ english:
     source: bench/way/andromache.txt
     play: ANDROMACHE
     footnotes: true
-  # Measured attachment loss (sweep 2026-09-08): 2 English piece(s) with no
-  # honest owner — attribution_hole 0, nless_slice_unattached 0, unmatched_anchor 2. Mostly stichomythia the translator's base
-  # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
-  max_unresolved_mismatches: 2
+  # Round 2 item 12 (2026-09-18): the sweep-2026-09-08 attachment loss
+  # this ceiling allowed for is gone -- earlier lanes' repairs (C15's
+  # unprinted-ref seat, C17's bracketed-siglum split, and others) have
+  # since attached every one of those pieces. Re-measured at 0.
+  max_unresolved_mismatches: 0
   gaps:
 
 citation:

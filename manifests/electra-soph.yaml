@@ -43,10 +43,11 @@ english:
       # NAME. text rule read as a speaker (P2g finding 7). Line 1706 since
       # the 2026-09-08 correction pass reinstated a dropped Electra line; 1706 since the 2026-09-09 Wikisource pass removed two junk lines above it; 1737 since the 2026-09-15 Genie pass restored 1178-1193 above it; 1734 since the 2026-09-16 hygiene pass deleted three junk lines above it; 1718 since the 2026-09-16 footnote pass moved five page-foot notes (16 lines) out of the verse above it; 1741 since the 2026-09-16b Genie pass restored 23 lines (the kommos stretch 1:221-1:236) above it; 1771 since the 2026-09-18 Storr data pass restored the chariot-crash narrative (723-754, 30 lines) above it.
       1771: ""
-  # Measured attachment loss (sweep 2026-09-08): 7 English piece(s) with no
-  # honest owner — attribution_hole 0, nless_slice_unattached 0, unmatched_anchor 7. Mostly stichomythia the translator's base
-  # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
-  max_unresolved_mismatches: 7
+  # Round 2 item 12 (2026-09-18): the sweep-2026-09-08 attachment loss
+  # this ceiling allowed for is gone -- earlier lanes' repairs (C15's
+  # unprinted-ref seat, C17's bracketed-siglum split, and others) have
+  # since attached every one of those pieces. Re-measured at 0.
+  max_unresolved_mismatches: 0
   gaps:
     # Item 9 (english_dead_gaps, 2026-09-18): 1:856 carries its own English
     # in the built book -- "What do you say?", a real (not snapped) Perseus

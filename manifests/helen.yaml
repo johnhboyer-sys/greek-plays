@@ -25,6 +25,11 @@ english:
     source: "perseus/tlg0006.tlg014.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # A TEI typo: Menelaos's "You seem to me very much like Helen, lady."
+    # is filed under n="5563" (neighbours are 562 and 564) -- the corpus's
+    # last unmatched_anchor (round 2 item 11, lane-c-r4-report-2026-09-18.md).
+    line_fixes:
+      "5563": "563"
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
@@ -62,13 +67,11 @@ english:
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
-  # Measured attachment loss (sweep 2026-09-08): 12 English piece(s) with no
-  # honest owner — attribution_hole 11, nless_slice_unattached 0, unmatched_anchor 1. Mostly stichomythia the translator's base
-  # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
-  max_unresolved_mismatches: 1
+  # Round 2 item 11/12 (2026-09-18): the sweep-2026-09-08 unmatched_anchor
+  # was the "563" typo above; the other 11 attribution_hole pieces were
+  # attached by earlier lanes' repairs. Re-measured at 0.
+  max_unresolved_mismatches: 0
   gaps:
-    - "1:563"  # neither 562's nor 564's English renders "you look very like Helen"
-    - "1:563"  # no covering <l n> in the Perseus TEI
 
 citation:
   scheme: play-line

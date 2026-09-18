@@ -25,6 +25,23 @@ english:
     source: "perseus/tlg0006.tlg009.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # Coleridge's madness amoibaion (Perseus 887-900) is one speech late
+    # against Diggle throughout: every English number names a real Diggle
+    # line, just the wrong one. Verified end to end, item 6/C8 of
+    # lane-c-r4-report-2026-09-18.md (886-905, zero speakerMismatch after).
+    line_fixes:
+      "887": "886"
+      "888": "887"
+      "890": "887"
+      "890a": "888"
+      "891": "889"
+      "893": "891"
+      "894": "892"
+      "895": "892"
+      "896": "894"
+      "896b": "896"
+      "898": "896"
+      "900": "899"
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
