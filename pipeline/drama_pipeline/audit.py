@@ -38,7 +38,12 @@ _FOLD_RE = re.compile(r"[^A-Za-z]")
 _MARKER_RE = re.compile(r"\[\^([^\]\s]+)\]")
 _DIRECTION_RE = re.compile(r"_[^_\n]+_")
 _STAGE_WORD_RE = re.compile(r"^(Enter|Exit|Exeunt|Re-enter|Scene)\b")
-_STRAY_NOTE_LINE_RE = re.compile(r"^[1-9]\d*\s[A-Za-z]")
+# D7 (suppliants-eur review, 2026-09-17): a genuine leftover footnote
+# note-line opens a real sentence, capitalised; Way's own verse regularly
+# opens a line with the pronoun "I" mis-scanned as the digit "1", always
+# followed by a lowercase word ("1 faint", "1 will", "1 had") -- requiring
+# an upper-case letter after the digit tells the two apart.
+_STRAY_NOTE_LINE_RE = re.compile(r"^[1-9]\d*\s[A-Z]")
 _CAPS_RUN_RE = re.compile(r"[A-Z]{3,}")
 _GLUED_DIGIT_RE = re.compile(r"[A-Za-z]\d|\d[A-Za-z]")
 _ALLOWED_NON_ASCII = "’‘“”—–…"
@@ -192,6 +197,66 @@ def _greek_chars(seg: dict) -> int:
 
 # -------------------------------------------------------------- sections --
 
+def _shift_onsets(shifts: list[dict]) -> list[tuple[str, int]]:
+    """Group `turn_shifts` entries by the speaker whose same-name ordinal
+    diverges from the Greek, counting a shift only where THAT SPEAKER's
+    own delta changes from its own last value -- not every time the raw
+    pair sequence happens to repeat a (speaker, delta) key back to back.
+
+    A lost turn permanently offsets a speaker's same-name ordinal count,
+    so every later turn of that speaker keeps appearing in `turn_shifts`
+    even once the pairing itself has resynced content-wise (prometheus-
+    bound review, 2026-09-17: "the offset never returns to zero, so every
+    later Prometheus and Chorus turn is counted as shifted even though
+    the text realigns"). The old grouping walked the raw pair sequence
+    and broke the run the instant a DIFFERENT speaker's shift entry came
+    between two of this speaker's -- so an alternating stichomythia
+    reported one row per turn (59 "runs" for 103 shifted turns) instead
+    of the one incident per speaker it actually is. Tracking each
+    speaker's own last delta, independent of interleaving, collapses
+    that back to one run per speaker per onset.
+
+    A name mismatch (the English speaker recorded on the pair differs
+    from the Greek one) is a different defect, already surfaced by
+    `section_speakers`'s speakerMismatch count -- excluded here so it is
+    not double-counted as an ordinal drift.
+
+    `turn_shifts` itself only ever carries a pair whose delta is non-zero
+    (or whose name disagrees) -- a resync back to delta 0 is invisible to
+    it, so `last_delta[name]` never returns to 0 either (Grok read of Lane
+    D r2, finding 2). Left alone, a speaker who drifts, resyncs, then
+    drifts again by the SAME amount would read as one unbroken run instead
+    of two incidents. `greek_ordinal` is that speaker's own same-name
+    occurrence counter over EVERY turn, flagged or not (P3.4), so a run
+    that never resynced has it advance by exactly 1 between consecutive
+    entries; a gap in it means unflagged (delta-0) turns of that speaker
+    sit in between -- a resync happened, so the next entry opens a new
+    run even when its delta happens to match the previous one's.
+
+    Returns `(first_greek_id, run_length)` pairs in first-seen order.
+    """
+    runs: list[list] = []  # [greek_id, length], mutated in place
+    last_delta: dict[str, int] = {}
+    last_ordinal: dict[str, int] = {}
+    last_run_idx: dict[str, int] = {}
+    for shift in shifts:
+        name = shift.get("greek_speaker")
+        english_speaker = shift.get("english_speaker", name)
+        if name is None or english_speaker != name:
+            continue
+        ordinal = shift.get("greek_ordinal", 0)
+        delta = shift.get("english_ordinal", 0) - ordinal
+        contiguous = last_ordinal.get(name) == ordinal - 1
+        if last_delta.get(name) == delta and contiguous and name in last_run_idx:
+            runs[last_run_idx[name]][1] += 1
+        else:
+            last_run_idx[name] = len(runs)
+            runs.append([shift.get("greek_id"), 1])
+        last_delta[name] = delta
+        last_ordinal[name] = ordinal
+    return [(gid, n) for gid, n in runs]
+
+
 def section_columns(columns: list[dict], reports: dict[str, dict | None]) -> tuple[str, list[str]]:
     headers = ["Column", "Slot", "Form", "Model", "Source", "Footnotes", "Pairing rate", "Shifted turns", "Unpaired Greek"]
     rows = []
@@ -204,7 +269,15 @@ def section_columns(columns: list[dict], reports: dict[str, dict | None]) -> tup
             continue
         pairing_rate = report.get("pairing_rate", report.get("coverage_ratio"))
         pairing_str = f"{pairing_rate:.3f}" if isinstance(pairing_rate, (int, float)) else "-"
-        shift_count = report.get("turn_shift_count")
+        shifts = report.get("turn_shifts")
+        if shifts is not None:
+            # Onset count (D3): how many times a speaker's ordinal offset
+            # actually changed, not how many later turns kept carrying it.
+            runs = _shift_onsets(shifts)
+            shift_count = len(runs)
+        else:
+            runs = []
+            shift_count = report.get("turn_shift_count")
         unpaired = report.get("greek_unpaired")
         if unpaired is None:
             total = report.get("segments_total")
@@ -217,24 +290,11 @@ def section_columns(columns: list[dict], reports: dict[str, dict | None]) -> tup
             shift_count if shift_count is not None else "-",
             unpaired,
         ])
-        # "shifted" counts an ordinal offset per speaker: a run of consecutive
-        # turn_shifts entries sharing the same speaker and the same ordinal
-        # delta is ONE drift marking every later speech of that speaker, so
-        # report where each run starts and how long it runs.
-        shifts = report.get("turn_shifts")
-        if shifts:
-            runs: list[tuple[str, int]] = []
-            run_start, run_len, run_key = None, 0, None
-            for shift in shifts:
-                key = (shift.get("greek_speaker"), shift.get("english_ordinal", 0) - shift.get("greek_ordinal", 0))
-                if key == run_key:
-                    run_len += 1
-                else:
-                    if run_start is not None:
-                        runs.append((run_start, run_len))
-                    run_start, run_len, run_key = shift.get("greek_id"), 1, key
-            if run_start is not None:
-                runs.append((run_start, run_len))
+        # "Shifted turns" counts an onset per speaker (D3): one drift is one
+        # speaker's ordinal offset changing value, not every later speech of
+        # that speaker still carrying it -- report where each onset starts
+        # and how long the offset it opened persists.
+        if runs:
             run_desc = "; ".join(f"{gid} (×{n})" for gid, n in runs[:10])
             more = f" (+{len(runs) - 10} more runs)" if len(runs) > 10 else ""
             notes.append(f"- **{cid}** shift runs: {run_desc}{more}")
@@ -302,8 +362,29 @@ def section_overstuffed(columns: list[dict], segments: list[dict]) -> tuple[str,
     return table, total
 
 
-def section_speakers(columns: list[dict], reports: dict[str, dict | None]) -> tuple[str, int]:
-    headers = ["Column", "Cues with no roster match", "Roster names with no English speech", "speakerMismatch"]
+def _built_speaker_mismatch(segments: list[dict], col: dict) -> tuple[int, int]:
+    """(flagged turns, segments carrying at least one) for `col`, counted
+    from the built `turn.speakerMismatch` objects themselves rather than a
+    stage1-side estimate (wasps review finding 7, 2026-09-17: the report's
+    `speech_mismatch_count` read 6 where the build actually carries 59
+    flagged turns across 53 segments -- the report field is a bench-side
+    guess and the build is the fact)."""
+    turns = 0
+    segs_with = 0
+    for seg in segments:
+        seg_flagged = False
+        for piece in _pieces(seg, col):
+            for turn in piece.get("turns") or []:
+                if turn.get("speakerMismatch"):
+                    turns += 1
+                    seg_flagged = True
+        if seg_flagged:
+            segs_with += 1
+    return turns, segs_with
+
+
+def section_speakers(columns: list[dict], segments: list[dict], reports: dict[str, dict | None]) -> tuple[str, int]:
+    headers = ["Column", "Cues with no roster match", "Roster names with no English speech", "speakerMismatch (segments)"]
     rows = []
     total = 0
     for col in columns:
@@ -313,9 +394,20 @@ def section_speakers(columns: list[dict], reports: dict[str, dict | None]) -> tu
         speakers = report.get("speakers") or {}
         only_english = speakers.get("only_in_english") or []
         only_greek = speakers.get("only_in_greek") or []
-        mismatch = report.get("speech_mismatch_count", report.get("residual_flagged", 0))
-        rows.append([col["id"], ", ".join(only_english) or "-", ", ".join(only_greek) or "-", mismatch])
-        total += len(only_english) + len(only_greek) + (mismatch or 0)
+        # Secondary/third/overlay pieces are `chunks_as_overlay`'s own
+        # output (stage1_turn_english.py:2680-2714) and never carry a
+        # `turns` list at all, so the built json has no speakerMismatch
+        # data for these columns to count -- "0" would misreport an
+        # unmeasured column as a clean one (Grok read of Lane D r2,
+        # finding 3). Only the primary column's pieces keep `turns`.
+        if col["slot"] == "primary":
+            mismatch, mismatch_segs = _built_speaker_mismatch(segments, col)
+            mismatch_str = f"{mismatch} ({mismatch_segs} segs)" if mismatch else 0
+            total += mismatch
+        else:
+            mismatch_str = "n/a"
+        rows.append([col["id"], ", ".join(only_english) or "-", ", ".join(only_greek) or "-", mismatch_str])
+        total += len(only_english) + len(only_greek)
     table, _ = _table(headers, rows)
     return table, total
 
@@ -393,9 +485,60 @@ _BRACKET_TAIL_CUE_RE = re.compile(r"^([A-ZÀ-Þ][A-Za-zÀ-Þ'’]{1,24})\.\s*\[[
 _MIDLINE_NAME_RE = re.compile(r"(?<=[.?!])\s([A-ZÀ-Þ][a-zà-ÿ'’]+)(?=\s[A-ZÀ-Þ])")
 
 
-def section_cues_in_speech(columns: list[dict], roster: list[str]) -> tuple[str, int]:
+def _roster_allcaps_pattern(roster: list[str]) -> re.Pattern | None:
+    names = sorted({name.strip() for name in roster if name and name.strip()}, key=len, reverse=True)
+    if not names:
+        return None
+    alts = "|".join(re.escape(name.upper()) for name in names)
+    return re.compile(rf"(?<![A-Za-z])(?:{alts})(?![A-Za-z])[.:]")
+
+
+def _built_cue_hits(segments: list[dict], columns: list[dict], roster: list[str]) -> list[list]:
+    """A roster name printed in ALL CAPS as its own cue token, buried
+    inside a column's built text rather than sitting at that text's own
+    head, is a cue the pairer never turned into a `turns` entry -- it
+    prints as plain verse or prose instead of opening a new speech (ion
+    review finding 11, 2026-09-17: an antilabe half-line's second speaker
+    prints as a bare cue token mid-block, 58 lines across ~40 segments;
+    libation-bearers finding 11 and IT findings 7/9/15 are the same
+    shape). `section_cues_in_speech`'s scan above reads the raw BENCH
+    source, which cannot see a cue the build itself failed to lift out --
+    this reads the built column text instead, per column per segment.
+
+    Only the PRIMARY column is scanned. `chunks_as_overlay`
+    (stage1_turn_english.py:2680-2714) is what secondary/third/overlay
+    pieces are built from, and it bakes a "NAME. " prefix into the text at
+    EVERY turn while dropping `turns` entirely -- so a normal two-speech
+    piece in one of those columns is textually the same shape as a cue
+    the pairer buried, and the two cannot be told apart from the built
+    text alone. Ion's built-json 157 was mostly that (Grok read of Lane D
+    r2, finding 1). Primary's text is the translator's own, untouched by
+    that synthesis, so a bare roster cue found there is the real thing."""
+    pattern = _roster_allcaps_pattern(roster)
+    if pattern is None:
+        return []
+    rows: list[list] = []
+    for seg in segments:
+        for col in columns:
+            if col["slot"] != "primary":
+                continue
+            text = _col_text(seg, col)
+            if not text:
+                continue
+            for m in pattern.finditer(text):
+                if m.start() == 0:
+                    continue  # the column's own opening cue, not a buried one
+                snippet = text[max(0, m.start() - 20):m.end() + 40].replace("\n", " / ")
+                rows.append([col["id"], seg["id"], snippet.strip()[:80], "roster cue buried in the built text"])
+    return rows
+
+
+def section_cues_in_speech(
+    columns: list[dict], roster: list[str], segments: list[dict] | None = None
+) -> tuple[str, int]:
     headers = ["Column", "Line", "Text", "Reason"]
     rows: list[list] = []
+    rows.extend(_built_cue_hits(segments or [], columns, roster))
     roster_folds = {_fold(name) for name in roster if _fold(name)}
     for col in columns:
         lines = _read_source_lines(col)
@@ -492,7 +635,77 @@ def section_directions(columns: list[dict], segments: list[dict]) -> tuple[str, 
     return table, total
 
 
-def section_scan_noise(columns: list[dict]) -> tuple[str, int]:
+# D6 (2026-09-17): a handful of OCR-fragment shapes the reviews found
+# surviving into the built column text, none of which the checks above
+# catch -- a rubric label left standing alone (phoenician-women's
+# "(Str)"/"(Ant.)"), a torn cue with a leading quote and a space before an
+# all-caps remnant ("' AAD"), a bare quoted word-fragment with nothing
+# else on the line ('"Yee'), and a short line ending in an unmatched
+# closing bracket with no opener anywhere on it ("et)").
+_RUBRIC_RE = re.compile(r"^\(?(?:strophe|antistrophe|str|ant)\.?\s*\d*\.?\)?$", re.IGNORECASE)
+_QUOTE_CAPS_FRAGMENT_RE = re.compile(r"^['\"’]\s+[A-Z]{2,8}$")
+_QUOTE_LEAD_WORD_RE = re.compile(r"^['\"’][A-Z][a-z]{1,6}$")
+_TRAILING_BRACKET_NO_OPEN_RE = re.compile(r"[)\]]$")
+_STRAY_SYMBOL_CHARS = "®†«»~|*"
+
+
+def _scan_noise_reason(s: str) -> str | None:
+    """One reason string for a line of scan noise, or None -- shared by
+    the raw-source scan and the built-column scan below (D6) so both read
+    the same rules."""
+    if not s:
+        return None
+    if (
+        ("[" in s and "]" not in s) or "{" in s or s.startswith(". ")
+        or _QUOTE_CAPS_FRAGMENT_RE.match(s)
+    ):
+        return "bracket-tail turnover"
+    if (
+        len(s) <= 10 and _TRAILING_BRACKET_NO_OPEN_RE.search(s)
+        and "(" not in s and "[" not in s
+    ):
+        return "bracket-tail turnover"
+    if _RUBRIC_RE.match(s):
+        return "strophe/antistrophe rubric"
+    if any(ch in s for ch in _STRAY_SYMBOL_CHARS):
+        return "stray symbol"
+    if _GLUED_DIGIT_RE.search(_strip_markers(s)):
+        return "digit glued to a word"
+    if any(
+        _CAPS_RUN_RE.search(tok) and tok != tok.upper()
+        for tok in re.findall(r"[A-Za-z']+", s)
+    ):
+        return "3+ consecutive capitals inside a word"
+    if any(
+        ch for ch in s
+        if ord(ch) > 127 and ch not in _ALLOWED_NON_ASCII and not _is_accented_latin(ch)
+    ):
+        return "non-Latin glyph"
+    if _QUOTE_LEAD_WORD_RE.match(s):
+        return "OCR quote fragment"
+    return None
+
+
+def _built_scan_noise_hits(segments: list[dict], columns: list[dict]) -> list[list]:
+    """Scan-noise fragments visible only in the BUILT column text, not the
+    raw bench (D6: phoenician-women review, 2026-09-17, "35 survive into
+    the built Way column" against 27 the old bench-only scan listed;
+    rhesus's closing scanner garbage is the same shape). A line the
+    converter reformatted, merged, or (for a multi-play Gutenberg volume)
+    trimmed out of the bench span can still carry noise once it lands in
+    the built json -- this reads what the reader actually shows."""
+    rows: list[list] = []
+    for seg in segments:
+        for col in columns:
+            for line in _col_lines(seg, col):
+                s = line.strip()
+                reason = _scan_noise_reason(s)
+                if reason:
+                    rows.append([col["id"], seg["id"], s[:80], reason])
+    return rows
+
+
+def section_scan_noise(columns: list[dict], segments: list[dict] | None = None) -> tuple[str, int]:
     headers = ["Column", "Line", "Text", "Reason"]
     rows = []
     for col in columns:
@@ -503,27 +716,23 @@ def section_scan_noise(columns: list[dict]) -> tuple[str, int]:
             s = raw.strip()
             if not s:
                 continue
-            reason = None
-            if ("[" in s and "]" not in s) or "{" in s or s.startswith(". "):
-                reason = "bracket-tail turnover"
-            elif "®" in s or "†" in s:
-                reason = "stray symbol"
-            elif _GLUED_DIGIT_RE.search(_strip_markers(s)):
-                reason = "digit glued to a word"
-            elif any(
-                _CAPS_RUN_RE.search(tok) and tok != tok.upper()
-                for tok in re.findall(r"[A-Za-z']+", s)
-            ):
-                reason = "3+ consecutive capitals inside a word"
-            elif any(
-                ch for ch in s
-                if ord(ch) > 127 and ch not in _ALLOWED_NON_ASCII and not _is_accented_latin(ch)
-            ):
-                reason = "non-Latin glyph"
+            reason = _scan_noise_reason(s)
             if reason:
                 rows.append([col["id"], i, s[:80], reason])
+    rows.extend(_built_scan_noise_hits(segments or [], columns))
     table, total = _table(headers, rows)
     return table, total
+
+
+def _empty_columns(segments: list[dict], columns: list[dict]) -> list[str]:
+    """Column ids with zero built pieces across the whole play -- a
+    manifest slot marked `private: true` that some build excludes
+    entirely is the known case (wealth/lysistrata/thesmophoriazusae
+    reviews, 2026-09-17: Rogers absent from every segment while his own
+    footnotes.json entries survive, reading as 92-155 "no matching
+    marker" rows with nothing to tell a reviewer why), but any column
+    that ends up contributing no text qualifies."""
+    return [col["id"] for col in columns if not any(_pieces(seg, col) for seg in segments)]
 
 
 def section_footnotes(columns: list[dict], segments: list[dict], footnotes: dict) -> tuple[str, int]:
@@ -550,7 +759,14 @@ def section_footnotes(columns: list[dict], segments: list[dict], footnotes: dict
                     stray_rows.append([col["id"], seg["id"], line.strip()[:80]])
     table, total = _table(headers, rows)
     stray_table, stray_total = _table(stray_headers, stray_rows)
-    combined = table + "\n\nNote lines still inside verse:\n\n" + stray_table
+    empty_cols = _empty_columns(segments, columns)
+    header = (
+        f"_Column(s) with no built text in this play (a private "
+        f"comparison slot most likely; excluded from the reader): "
+        f"{', '.join(empty_cols)}. An orphan note/marker below may "
+        f"belong to one of them rather than describe a real mismatch._\n\n"
+    ) if empty_cols else ""
+    combined = header + table + "\n\nNote lines still inside verse:\n\n" + stray_table
     return combined, total + stray_total
 
 
@@ -607,10 +823,10 @@ def build_sheet(work_id: str, dist_dir: Path, stage1_dir: Path, manifest: Manife
     columns_table, shift_notes = section_columns(columns, reports)
     bare_table, bare_total = section_bare_greek(columns, segments)
     over_table, over_total = section_overstuffed(columns, segments)
-    speakers_table, speakers_total = section_speakers(columns, reports)
-    cues_table, cues_total = section_cues_in_speech(columns, roster)
+    speakers_table, speakers_total = section_speakers(columns, segments, reports)
+    cues_table, cues_total = section_cues_in_speech(columns, roster, segments)
     dirs_table, dirs_total = section_directions(columns, segments)
-    scan_table, scan_total = section_scan_noise(columns)
+    scan_table, scan_total = section_scan_noise(columns, segments)
     foot_table, foot_total = section_footnotes(columns, segments, footnotes)
     verse_table, verse_total = section_verse_shape(columns, segments)
     line_table = section_line_count(columns, segments)

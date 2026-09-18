@@ -32,13 +32,18 @@ def _manifest(english=None, registry_translations=None):
     return Manifest(data, Path("manifests/testplay.yaml"))
 
 
-def _segment(seg_id, greek_lines, english_text=None, ross_pieces=None, greek_start=1):
+def _segment(seg_id, greek_lines, english_text=None, english_turns=None, ross_pieces=None, greek_start=1):
     greek = [
         {"n": greek_start + i, "text": "x" * 10, "ref": str(greek_start + i)}
         for i in range(greek_lines)
     ]
     seg = {"id": seg_id, "column": "1", "greek": greek}
-    seg["english"] = {"text": english_text} if english_text is not None else None
+    if english_text is not None:
+        seg["english"] = {"text": english_text}
+        if english_turns is not None:
+            seg["english"]["turns"] = english_turns
+    else:
+        seg["english"] = None
     seg["ross"] = ross_pieces if ross_pieces is not None else []
     return seg
 
@@ -88,6 +93,74 @@ def test_columns_section_reports_pairing_rate_and_shift_runs(tmp_path):
     assert "0.500" in sheet  # primary's coverage_ratio stands in for pairing rate
     assert "0.900" in sheet  # secondary's real pairing_rate
     assert "1:1 (×2)" in sheet  # one run of 2 consecutive same-offset shifts
+
+
+# --------------------------------------------- D3: shift counter reset --
+
+def test_shifted_turns_counts_onsets_not_every_turn_after_the_offset_never_resets(tmp_path):
+    """prometheus-bound review, 2026-09-17: Morshead loses two turns at
+    Greek 246; every later Prometheus/Chorus turn keeps the same permanent
+    +2 ordinal offset, and the old counter -- keyed on (speaker, delta)
+    runs of CONSECUTIVE `turn_shifts` entries in raw pair order -- broke
+    a run every time the other speaker took a turn in between, so the
+    sheet read "morshead shifted turns 103, 59 runs" for what the review
+    confirmed is one real incident (the offset "never returns to zero, so
+    every later Prometheus and Chorus turn is counted as shifted"). The
+    fix must count a shift only where a speaker's own delta actually
+    changes -- one onset per speaker here, not one row per alternation."""
+    dist_dir = tmp_path / "dist" / WORK
+    stage1_dir = tmp_path / "stage1"
+    _write_book(dist_dir, [_segment("1:1", 2, english_text="hello")])
+    # Prometheus and Chorus alternate turns, each permanently offset by +2
+    # from Greek 246 onward -- 20 raw `turn_shifts` entries, but only two
+    # real onsets (one per speaker).
+    shifts = []
+    for i in range(10):
+        shifts.append({
+            "greek_id": f"1:{246 + 2 * i}", "greek_speaker": "Prometheus",
+            "english_speaker": "Prometheus", "greek_ordinal": i, "english_ordinal": i + 2,
+        })
+        shifts.append({
+            "greek_id": f"1:{247 + 2 * i}", "greek_speaker": "Chorus",
+            "english_speaker": "Chorus", "greek_ordinal": i, "english_ordinal": i + 2,
+        })
+    _write_report(
+        stage1_dir, "secondary",
+        pairing_rate=0.95, greek_unpaired=0, turn_shift_count=len(shifts),
+        turn_shift_new_drifts=2, turn_shifts=shifts,
+    )
+    manifest = _manifest(english={
+        "secondary": {"id": "sec", "model": "turn-text", "source": "bench/sec/testplay.txt"},
+    }, registry_translations=[{"id": "sec", "form": "verse"}])
+    manifest.data["english"]["secondary"]["id"] = "secondary"
+    manifest.data["registry"]["translations"] = [{"id": "secondary", "form": "verse"}]
+    sheet, totals = audit.build_sheet(WORK, dist_dir, stage1_dir, manifest)
+    section1 = sheet.split("## 1. Columns")[1].split("## 2.")[0]
+    assert "| secondary | secondary | verse | turn-text | bench/sec/testplay.txt | 0 | 0.950 | 2 | 0 |" in section1
+    assert "20" not in section1  # the raw shifted-turn total never surfaces as the headline
+    assert "1:246 (×10)" in sheet
+    assert "1:247 (×10)" in sheet
+
+
+def test_shift_onsets_counts_a_resync_then_the_same_drift_again_as_two_runs():
+    """Grok read of Lane D r2, finding 2: `turn_shifts` only ever carries a
+    pair whose delta is non-zero, so a speaker who drifts +2, resyncs to
+    0 (invisible -- no entry), then drifts +2 again reads as one
+    unbroken run under a check that keys only on "did the delta change".
+    `greek_ordinal` is that speaker's own same-name occurrence count over
+    EVERY turn (flagged or not), so a gap in it (247 -> 250, skipping the
+    resynced 248/249) is the resync's own footprint even though the delta
+    on both sides of the gap happens to be the same +2."""
+    shifts = [
+        {"greek_id": "1:246", "greek_speaker": "Prometheus", "english_speaker": "Prometheus",
+         "greek_ordinal": 0, "english_ordinal": 2},
+        {"greek_id": "1:247", "greek_speaker": "Prometheus", "english_speaker": "Prometheus",
+         "greek_ordinal": 1, "english_ordinal": 3},
+        # ordinals 2, 3 resynced to delta 0 -- not recorded in turn_shifts.
+        {"greek_id": "1:260", "greek_speaker": "Prometheus", "english_speaker": "Prometheus",
+         "greek_ordinal": 4, "english_ordinal": 6},
+    ]
+    assert audit._shift_onsets(shifts) == [("1:246", 2), ("1:260", 1)]
 
 
 def test_bare_greek_flags_short_column_but_not_a_full_one(tmp_path):
@@ -146,6 +219,65 @@ def test_overstuffed_flags_oversized_column_but_not_a_proportionate_one(tmp_path
     assert "1:3" not in section3
 
 
+# --------------------------------------------------- D4: speakerMismatch --
+
+def test_speakers_section_counts_built_speakermismatch_turns_not_the_report(tmp_path):
+    """wasps review finding 7, 2026-09-17: the audit's §4 read a stage1
+    report field (`speech_mismatch_count`/`residual_flagged`) that the
+    build's own `book-01.json` disagrees with by roughly 10x (wasps: 6
+    reported vs 59 actual flagged turns across 53 segments). The count
+    must come from the built `turn.speakerMismatch` objects themselves,
+    and the segment count must ride beside it (finding 7's own ask).
+
+    The fixture puts `turns` on the PRIMARY piece. `chunks_as_overlay`
+    (stage1_turn_english.py:2680-2714), what secondary/third/overlay
+    pieces are actually built from, drops `turns` entirely -- putting them
+    on a `ross` piece (the old fixture) is a shape stage7 never emits
+    (Grok read of Lane D r2, finding 3)."""
+    dist_dir = tmp_path / "dist" / WORK
+    stage1_dir = tmp_path / "stage1"
+    seg1 = _segment("1:1", 2, english_text="a\n\nb", english_turns=[
+        {"speaker": "Sosias", "speakerMismatch": {"english": "Sosias", "greek": "Xanthias"}},
+        {"speaker": "Xanthias", "speakerMismatch": {"english": "Xanthias", "greek": "Sosias"}},
+    ])
+    seg2 = _segment("1:3", 2, english_text="c", english_turns=[
+        {"speaker": "Bdelycleon", "speakerMismatch": {"english": "Bdelycleon", "greek": "Philocleon"}},
+    ], greek_start=3)
+    clean = _segment("1:5", 2, english_text="d", english_turns=[
+        {"speaker": "Chorus"},
+    ], greek_start=5)
+    _write_book(dist_dir, [seg1, seg2, clean])
+    # A stale/wrong stage1-side estimate the built json disagrees with --
+    # must not be what the sheet reports.
+    _write_report(stage1_dir, "english", speech_mismatch_count=1)
+    manifest = _manifest(english={
+        "primary": {"id": "primary", "model": "perseus-play", "source": "perseus/prim.xml"},
+    }, registry_translations=[{"id": "primary", "form": "prose"}])
+    sheet, totals = audit.build_sheet(WORK, dist_dir, stage1_dir, manifest)
+    section4 = sheet.split("## 4. Speakers")[1].split("## 5.")[0]
+    assert "3 (2 segs)" in section4  # 3 flagged turns across 2 segments
+    assert "| 1 |" not in section4  # the stale report count of 1 must not surface
+
+
+def test_speakers_section_labels_a_comparison_column_n_a_for_speakermismatch(tmp_path):
+    """Secondary/third/overlay pieces are `chunks_as_overlay`'s own output
+    (stage1_turn_english.py:2680-2714) and never carry a `turns` list, so
+    the built json has no speakerMismatch data for these columns to count
+    at all -- reading "0" would misreport an unmeasured column as a clean
+    one (Grok read of Lane D r2, finding 3)."""
+    dist_dir = tmp_path / "dist" / WORK
+    stage1_dir = tmp_path / "stage1"
+    seg = _segment("1:1", 2, ross_pieces=[{"text": "ANTIGONE. hi\n\nISMENE. there"}])
+    _write_book(dist_dir, [seg])
+    _write_report(stage1_dir, "secondary")
+    manifest = _manifest(english={
+        "secondary": {"id": "sec", "model": "turn-text", "source": "bench/sec/testplay.txt"},
+    }, registry_translations=[{"id": "sec", "form": "verse"}])
+    sheet, totals = audit.build_sheet(WORK, dist_dir, stage1_dir, manifest)
+    section4 = sheet.split("## 4. Speakers")[1].split("## 5.")[0]
+    assert "n/a" in section4
+
+
 # --------------------------------------------------------------- section 6 --
 
 def test_directions_counts_built_directionsbefore_when_source_has_none(monkeypatch, tmp_path):
@@ -194,6 +326,58 @@ def test_footnotes_section_flags_marker_and_note_without_a_match(tmp_path):
     assert "note 9" in section8
     assert "no matching marker" in section8
     assert "marker [^1]" not in section8  # 1 has a matching note: clean
+
+
+# --------------------------------------------------- D7: footnotes fixes --
+
+def test_footnotes_section_flags_a_column_with_no_built_text_in_its_header(tmp_path):
+    """wealth/lysistrata/thesmophoriazusae reviews, 2026-09-17: Rogers is
+    `private: true` and carries no piece in any segment of some builds,
+    yet its own footnotes.json entries survived as 92-155 "no matching
+    marker" rows with nothing to tell a reviewer why. A column with zero
+    built pieces across the whole play must be named in the section's own
+    header, not left for the reviewer to infer from a wall of orphans."""
+    dist_dir = tmp_path / "dist" / WORK
+    stage1_dir = tmp_path / "stage1"
+    seg = _segment("1:1", 2, english_text="hello", ross_pieces=[])  # rogers-shaped: empty
+    _write_book(dist_dir, [seg])
+    (dist_dir / "footnotes.json").write_text(
+        json.dumps({"1": "an orphan belonging to the empty column"}), encoding="utf-8"
+    )
+    manifest = _manifest(english={
+        "primary": {"id": "prim", "model": "perseus-play", "source": "perseus/prim.xml"},
+        "secondary": {"id": "sec", "model": "turn-text", "source": "bench/sec/testplay.txt"},
+    }, registry_translations=[
+        {"id": "prim", "form": "prose"}, {"id": "sec", "form": "verse"},
+    ])
+    sheet, totals = audit.build_sheet(WORK, dist_dir, stage1_dir, manifest)
+    section8 = sheet.split("## 8. Footnotes")[1].split("## 9.")[0]
+    assert "sec" in section8.split("Note lines still inside verse")[0]
+    assert "no built text" in section8
+
+
+def test_stray_note_line_does_not_flag_an_i_for_1_ocr_slip(monkeypatch):
+    """suppliants-eur review, 2026-09-17: "1 faint for my dear sons
+    slain," is Way's own verse line with a capital `I` OCR'd as the digit
+    `1`, not a leftover footnote note -- audit §8's own note says this is
+    "not a note -- it is `I` mis-read as `1`". A genuine stray footnote
+    note-line opens a real sentence with a capital letter; the OCR slip
+    is always followed by a lowercase word (the pronoun `I` is always
+    followed by a lowercase verb), so requiring an uppercase letter after
+    the digit tells the two apart."""
+    dist_dir_seg = _segment("1:1114", 1, ross_pieces=[
+        {"text": "1 faint for my dear sons slain,"},
+    ])
+    columns = [{"id": "way", "slot": "secondary", "model": "turn-text", "form": "verse"}]
+    _, total = audit.section_footnotes(columns, [dist_dir_seg], {})
+    assert total == 0
+
+
+def test_stray_note_line_still_flags_a_genuine_leftover_note(monkeypatch):
+    seg = _segment("1:1", 1, ross_pieces=[{"text": "3 See the note on this line above."}])
+    columns = [{"id": "way", "slot": "secondary", "model": "turn-text", "form": "verse"}]
+    _, total = audit.section_footnotes(columns, [seg], {})
+    assert total == 1
 
 
 # --------------------------------------------------------------- section 9 --
@@ -305,6 +489,41 @@ def test_scan_noise_still_flags_a_genuine_non_latin_glyph(monkeypatch):
     assert total == 1
 
 
+# --------------------------------- D6: built-column scan-noise fragments --
+
+def test_scan_noise_flags_ocr_fragments_the_old_regex_categories_missed(monkeypatch):
+    """phoenician-women review finding 16, 2026-09-17: a guillemet alone
+    on a line, a strophe/antistrophe rubric, a torn cue ("' AAD"), and a
+    trailing-bracket fragment with no opener ("et)") all survived into
+    the built Way column with none of the five old scan-noise categories
+    (bracket-tail-with-open, stray ® / †, digit-glued, caps-run,
+    non-Latin) catching them."""
+    lines = ["»", "(Str)", "' AAD", "et)", "\"Yee"]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "way", "model": "turn-text", "source": "x"}]
+    table, total = audit.section_scan_noise(columns)
+    assert total == 5
+    assert "stray symbol" in table  # »
+    assert "strophe/antistrophe rubric" in table  # (Str)
+    assert "bracket-tail turnover" in table  # ' AAD, et)
+    assert "OCR quote fragment" in table  # "Yee
+
+
+def test_scan_noise_reads_the_built_column_text_not_only_the_bench(monkeypatch):
+    """rhesus review finding 6, 2026-09-17: the play's last four Way
+    lines are scanner garbage ("et)", '"Yee', "rate Se | :", "~") -- this
+    must be caught by scanning the BUILT segments too, not only whatever
+    `_read_source_lines` returns for the bench file (which may trim,
+    reformat, or omit the very lines the build ends up carrying)."""
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: None)  # bench-scan finds nothing
+    seg = _segment("1:993", 1, ross_pieces=[{"text": "Who fights on our side.\n~"}])
+    columns = [{"id": "way", "slot": "secondary", "model": "turn-text", "source": "x"}]
+    table, total = audit.section_scan_noise(columns, segments=[seg])
+    assert total == 1
+    assert "1:993" in table
+    assert "stray symbol" in table
+
+
 # --------------------------------------------- D1: mid-line/pseudo cues --
 
 def test_cues_in_speech_flags_a_cue_that_repeats_the_previous_cues_name(monkeypatch):
@@ -371,6 +590,55 @@ def test_cues_in_speech_flags_a_cue_with_an_unclosed_bracket_tail(monkeypatch):
     columns = [{"id": "murray-verse", "model": "turn-text", "source": "x"}]
     _, total = audit.section_cues_in_speech(columns, roster=["Chorus"])
     assert total == 1
+
+
+# --------------------------------- D5: cues buried in the built json --
+
+def test_cues_in_speech_flags_a_roster_cue_buried_in_the_built_column_text():
+    """ion review finding 11, 2026-09-17: on a shared (antilabe) Greek
+    line, Way prints the first half-turn, a blank line, then the second
+    speaker's cue as literal verse text -- 58 lines across ~40 segments,
+    all invisible to section 5, which only ever scanned the raw BENCH
+    source, never the built json. A roster name in ALL CAPS followed by
+    `.`/`:` anywhere in a column's built text except its very first
+    character is a cue the pairer never turned into a `turns` entry.
+
+    On the PRIMARY column: its text is the translator's own, never
+    touched by `chunks_as_overlay`'s turn-prefix synthesis, so a bare
+    roster cue found mid-text there is the real, unpaired thing (Grok read
+    of Lane D r2, finding 1 -- see the negative case below for why a
+    comparison column cannot be scanned the same way)."""
+    seg = _segment("1:530", 2, english_text=(
+        "ION. Ay, and what wilt tell?\n\nXUTHUS. Thy father am I, and thou art my son."
+    ))
+    columns = [{"id": "way", "slot": "primary", "model": "perseus-play", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Ion", "Xuthus"], segments=[seg])
+    assert total == 1  # ION. opens the text at index 0 and is not flagged; XUTHUS. is
+
+
+def test_cues_in_speech_does_not_flag_a_comparison_columns_overlay_turn_prefix():
+    """`chunks_as_overlay` (stage1_turn_english.py:2680-2714) is what
+    secondary/third/overlay pieces are built from, and it bakes a
+    "NAME. " prefix into the text at EVERY turn while dropping `turns`
+    entirely -- so this exact two-speech shape is what a normal,
+    correctly-paired overlay piece looks like, indistinguishable from a
+    buried cue in the built text alone. Ion's built-json 157 was mostly
+    this (Grok read of Lane D r2, finding 1): must not be flagged."""
+    seg = _segment("1:530", 2, ross_pieces=[{
+        "text": "ION. Ay, and what wilt tell?\n\nXUTHUS. Thy father am I, and thou art my son.",
+    }])
+    columns = [{"id": "way", "slot": "secondary", "model": "turn-text", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Ion", "Xuthus"], segments=[seg])
+    assert total == 0
+
+
+def test_cues_in_speech_does_not_flag_a_column_that_opens_with_its_own_cue():
+    """A roster cue at the very head of a column's text is the segment's
+    own legitimate opening speaker, not a buried one -- must not count."""
+    seg = _segment("1:1", 1, english_text="ION. Ay, and what wilt tell?")
+    columns = [{"id": "way", "slot": "primary", "model": "perseus-play", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Ion"], segments=[seg])
+    assert total == 0
 
 
 # ---------------------------------- D1: play-scoped raw-source reading --
