@@ -52,6 +52,20 @@ beside the Greek it translates, marked as disputed, beats withholding it
 (orchestrator ruling, 2026-09-08).  A lettered anchor (``1630b``) names its
 share of an antilabe line, so Coleridge's Helen 1630–1640 reads against
 Diggle's ``Θε.β`` instead of the line-start king.
+
+C1 (2026-09-17 fix-mechanisms brief): "translator drift within ±3" is real
+only when there is outside evidence the anchor's own NUMBER, not just its
+speaker, is untrustworthy — see :func:`_repairable_anchors`: a literal
+inversion in the translation's own ``<l n>`` sequence (Agamemnon's real TEI
+prints ``n="1204"`` right before ``n="1203"``), or membership in a run of
+three or more consecutive anchors that each independently disagree with the
+Greek (Seven 998–1026, Smyth's whole stichomythia one line ahead of the
+TLG's).  An anchor that is neither — it keeps its place in the increasing
+sequence and stands alone or paired, not in a run of three — simply
+disagrees with the Greek about who speaks it (Oedipus Tyrannus 625; Electra
+650, 674, 675) and is never moved: it attaches at its own line as an
+``attribution_difference`` instead, the same outcome the ±3 search already
+produces when it finds nothing.
 """
 
 from __future__ import annotations
@@ -728,6 +742,86 @@ def _speakers_row(work_id: str, n: int | None, ref: str, printed: str, speaker: 
     }
 
 
+def _out_of_order_anchors(jobs: list[dict]) -> set[int]:
+    """Raw English line numbers involved in a literal inversion of the
+    translation's OWN ``<l n>`` sequence: two numbered anchors, adjacent in
+    document order, where the later one is a LOWER number than the one
+    before it (Agamemnon's real Perseus TEI prints ``n="1204"`` immediately
+    before ``n="1203"``).  A translation is always typeset in increasing
+    printed order; a drop like this is a transcription/TEI artifact, not an
+    editorial fact (C1 condition A — see :func:`_repairable_anchors`).
+    """
+    broken: set[int] = set()
+    prev: int | None = None
+    for job in jobs:
+        n = job.get("n")
+        if n is None:
+            continue
+        if prev is not None and n < prev:
+            broken.add(n)
+            broken.add(prev)
+        prev = n
+    return broken
+
+
+def _mismatching_anchors(jobs: list[dict], index: _SpeechIndex) -> dict[int, bool]:
+    """Which raw anchors disagree with the Greek about their own speaker,
+    computed independently of repair so :func:`_repairable_anchors` can find
+    a RUN of them.  Only single-speech (not multi-span) digit anchors with an
+    exact Greek ref of their own are checked — the same test
+    :func:`_resolve_slice_anchor` itself applies."""
+    result: dict[int, bool] = {}
+    for job in jobs:
+        n = job.get("n")
+        anchor = job.get("anchor")
+        speaker = job.get("canonical")
+        if n is None or anchor is None or not speaker or job.get("multi_span"):
+            continue
+        hit = index.segment_for_anchor(anchor)
+        if hit is None:
+            continue
+        segment, ref = hit
+        greek_speaker = index.share_speaker(segment, n, anchor, prefer=speaker)
+        result[n] = greek_speaker is not None and speaker != greek_speaker
+    return result
+
+
+def _repairable_anchors(jobs: list[dict], index: _SpeechIndex) -> set[int]:
+    """Anchors :func:`_resolve_slice_anchor` may hand to
+    ``nearest_matching_speech`` (C1): a line carrying its own ``n`` inside
+    the play's numbering is not drift, and repair is only safe when there is
+    outside evidence the NUMBER itself, not just the speaker, is untrustworthy.
+    Two such signs, both drawn from real corpus instances:
+
+    A. a literal inversion in the translation's own ``<l n>`` sequence
+       (:func:`_out_of_order_anchors` — Agamemnon 1203/1204, a scanned TEI
+       with the two lines' numbers swapped).
+    B. membership in a RUN of three or more consecutive anchors that each
+       independently disagree with the Greek about their speaker (Seven
+       998–1026: Smyth's whole stichomythia runs one line ahead of the
+       TLG's, so 999 through 1004 mismatch in a row).
+
+    A run of exactly two (Electra 674/675: two adjacent lines whose speakers
+    the editions simply swap, in perfectly ordinary printed order) is
+    neither of these — two lines can coincidentally look swapped, three
+    cannot — and stays a plain, in-place ``attribution_difference``.
+    """
+    repairable = _out_of_order_anchors(jobs)
+    mismatch = _mismatching_anchors(jobs, index)
+    sequence = [job["n"] for job in jobs if job.get("n") is not None]
+    run: list[int] = []
+    for n in sequence:
+        if mismatch.get(n):
+            run.append(n)
+            continue
+        if len(run) >= 3:
+            repairable.update(run)
+        run = []
+    if len(run) >= 3:
+        repairable.update(run)
+    return repairable
+
+
 def _resolve_slice_anchor(
     n: int,
     *,
@@ -739,9 +833,11 @@ def _resolve_slice_anchor(
     work_id: str,
     printed: str,
     claimed: set[tuple[str, str]] | None = None,
+    repairable_anchors: set[int] | None = None,
 ) -> dict | None:
     """Attach one English line number to a Greek segment, or return None."""
     claimed = claimed or set()
+    repairable_anchors = repairable_anchors or set()
     hit = index.segment_for_anchor(anchor)
     if hit is not None:
         segment, ref = hit
@@ -752,7 +848,13 @@ def _resolve_slice_anchor(
         greek_speaker = index.share_speaker(segment, n, anchor, prefer=speaker)
         if speaker and greek_speaker is not None and speaker != greek_speaker:
             mismatch = _speakers_row(work_id, n, ref, printed, speaker, greek_speaker)
-            if not multi_span:
+            # C1: a line carrying its own n inside the play's numbering is
+            # not drift — only an anchor with outside evidence that its own
+            # NUMBER is untrustworthy (see _repairable_anchors) may be
+            # repaired onto a nearby same-speaker speech.  Everything else
+            # that disagrees with the Greek about its speaker is a real
+            # attribution difference and stays put, flagged, below.
+            if not multi_span and n in repairable_anchors:
                 repaired = index.nearest_matching_speech(n, speaker, claimed=claimed)
                 if repaired is not None:
                     target, tick = repaired
@@ -879,6 +981,53 @@ def _resolve_slice_anchor(
     }
 
 
+def _transposition_anchor_remap(blocks: list[dict]) -> dict[int, int]:
+    """C4: map a printed line's STANDARD ascending position, inside a
+    declared ``citation.transpositions`` block, to the Greek ref that
+    actually occupies that position in the edition's printed order.
+
+    Perseus's own ``<l n>`` always runs in plain ascending numeric order —
+    it is not itself transposed, whichever edition backs the Greek spine.
+    Oedipus at Colonus declares ``{start: "328", end: "328", before:
+    "330"}``: printed order for 328-330 is 329, 330, 328, so Jebb's own
+    328th/329th/330th anchors (numbered 328, 329, 330, in that order) must
+    seat at Greek refs 329, 330, 328 respectively — the ref at the SAME
+    printed position, not the ref with the same digits.
+    """
+    remap: dict[int, int] = {}
+    for block in blocks:
+        try:
+            start = int(block["start"])
+            end = int(block["end"])
+            before = int(block["before"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        printed_order = list(range(end + 1, before + 1)) + list(range(start, end + 1))
+        numeric_order = list(range(start, before + 1))
+        for numeric, printed in zip(numeric_order, printed_order):
+            if numeric != printed:
+                remap[numeric] = printed
+    return remap
+
+
+def _remap_anchor(anchor: str, remap: dict[int, int]) -> str:
+    """Apply :func:`_transposition_anchor_remap` to one raw anchor string,
+    preserving a lettered anchor's own share suffix (``329a`` -> ``330a``
+    when 329 remaps to 330)."""
+    if not remap:
+        return anchor
+    lettered = _LETTERED_ANCHOR.fullmatch(anchor)
+    if lettered:
+        base = int(lettered.group(1))
+        if base not in remap:
+            return anchor
+        return f"{remap[base]}{anchor[len(lettered.group(1)):]}"
+    if anchor.isdigit():
+        base = int(anchor)
+        return str(remap.get(base, base))
+    return anchor
+
+
 def parse_translation(
     xml_path: Path,
     spine: dict,
@@ -888,6 +1037,7 @@ def parse_translation(
     sigla: dict | None = None,
     english_aliases: dict[str, str] | None = None,
     covered_decl: list[dict] | None = None,
+    transpositions: list[dict] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one ``perseus-play`` TEI and cut it on the Greek segments."""
     tree = etree.parse(str(xml_path))
@@ -899,6 +1049,7 @@ def parse_translation(
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
+    anchor_remap = _transposition_anchor_remap(transpositions or [])
     chunks_by_id: dict[str, dict] = {}
     footnotes: dict[str, str] = {}
     snaps: list[dict] = []
@@ -1029,6 +1180,20 @@ def parse_translation(
             sp_index=sp_index,
             printed=printed,
         )
+        if anchor_remap:
+            # C4: re-key every anchor in this speech before anything reads
+            # it — multi-span detection, the job's own tick, and the Greek
+            # lookup all have to agree on the SAME (remapped) ref.
+            for sl in slices:
+                sl.pieces = [
+                    (
+                        _remap_anchor(piece_anchor, anchor_remap)
+                        if piece_anchor is not None
+                        else piece_anchor,
+                        piece_text,
+                    )
+                    for piece_anchor, piece_text in sl.pieces
+                ]
         speech_anchors = [
             anchor
             for sl in slices
@@ -1085,6 +1250,7 @@ def parse_translation(
                     }
                 )
 
+    repairable_anchors = _repairable_anchors(jobs, index)
     prev_assigned: dict[int, str] = {}
     for job in jobs:
         n = job["n"]
@@ -1144,6 +1310,7 @@ def parse_translation(
             work_id=work_id,
             printed=job["printed"],
             claimed=claimed,
+            repairable_anchors=repairable_anchors,
         )
         if result is None:
             anomalies.append(
@@ -1267,6 +1434,7 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         translation_id=cfg["id"],
         sigla=sigla,
         english_aliases=aliases,
+        transpositions=((manifest.data.get("citation") or {}).get("transpositions") or {}).get("1") or [],
     )
     from .stage2_validate import _play_line_english_gap_ids
 

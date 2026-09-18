@@ -73,7 +73,10 @@ def _spine() -> dict:
     }
 
 
-def _parse(tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None, covered=None):
+def _parse(
+    tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None, covered=None,
+    transpositions=None,
+):
     xml_path = tmp_path / "play.xml"
     xml_path.write_text(tei, encoding="utf-8")
     return parse_translation(
@@ -84,6 +87,7 @@ def _parse(tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None, c
         sigla=sigla if sigla is not None else SIGLA,
         english_aliases=aliases if aliases is not None else ALIASES,
         covered_decl=covered,
+        transpositions=transpositions,
     )
 
 
@@ -186,7 +190,15 @@ def test_perseus_play_chunks_ticks_notes_turns_and_report(tmp_path: Path):
     assert report["speakers"]["only_in_english"] == []
 
 
-def test_one_line_drift_binds_to_the_right_speaker(tmp_path: Path):
+def test_isolated_single_line_disagreement_is_not_repaired(tmp_path: Path):
+    """C1: an anchor that keeps its place in the increasing ``<l n>``
+    sequence, and disagrees with the Greek about its speaker only once (not
+    as part of an out-of-order pair, and not part of a run of three or
+    more), has its own line inside the play's numbering.  It is never moved
+    onto a nearby same-speaker speech — it stays put, flagged, exactly like
+    the real Oedipus Tyrannus 625 and Electra 650.  (Superseded
+    ``test_one_line_drift_binds_to_the_right_speaker``, which asserted the
+    pre-C1 behaviour this fixes.)"""
     spine = {
         "work": "test-play",
         "segments": [
@@ -228,22 +240,403 @@ def test_one_line_drift_binds_to_the_right_speaker(tmp_path: Path):
         sigla={"Κα.": "Cassandra", "Χο.": "Chorus"},
     )
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
-    assert "Once more she cries." not in by_id["1:1076"]["text"]
-    assert "Once more she cries." in by_id["1:1078"]["text"]
-    assert any(t["speaker"] == "Chorus" for t in by_id["1:1078"]["turns"])
+    assert "1:1078" not in by_id
+    assert "Once more she cries." in by_id["1:1076"]["text"]
+    chorus_turn = next(
+        t for t in by_id["1:1076"]["turns"] if t["speaker"] == "Chorus"
+    )
+    assert chorus_turn["speakerMismatch"] == {
+        "english": "Chorus",
+        "greek": "Cassandra",
+    }
     assert report["speech_mismatches"]
     mismatch = report["speech_mismatches"][0]
     assert mismatch["english_line"] == 1077
     assert mismatch["english_speaker"] == "Chorus"
     assert mismatch["greek_speaker"] == "Cassandra"
-    assert mismatch["attached_to"] == "1:1078"
-    assert mismatch["kind"] == "speaker_repair"
-    assert "speakerMismatch" not in by_id["1:1078"]
-    assert "speakerMismatch" not in by_id["1:1076"]
+    assert mismatch["attached_to"] == "1:1076"
+    assert mismatch["kind"] == "attribution_difference"
     assert report["speech_mismatch_count"] == 1
     assert report["unresolved_mismatch_count"] == 0
+    assert report["attribution_differences"] == [
+        {
+            "greek_id": "1:1076",
+            "line": 1077,
+            "english_speaker": "Chorus",
+            "greek_speaker": "Cassandra",
+        }
+    ]
+    assert report["attribution_difference_count"] == 1
+
+
+def test_oedipus_tyrannus_625_stays_on_its_own_line(tmp_path: Path):
+    """Real corpus instance (C1, oedipus-tyrannus finding 1): Jebb's English
+    ``<l n="625">`` is Creon's line by his own edition's reckoning, but the
+    spine (Dain–Mazon) gives printed line 625 to Oedipus.  Before C1 this
+    isolated disagreement drift-repaired onto 1:624 (Creon's own,
+    un-anchored line) because Creon also speaks there within ±3 — leaving
+    625 bare and 624 wrongly filled.  It must instead stay at 1:625,
+    flagged."""
+    spine = {
+        "work": "oedipus-tyrannus",
+        "segments": [
+            {
+                "id": "1:623",
+                "book": 1,
+                "column": "623",
+                "lines": [{"n": 623, "ref": "623", "text": "g"}],
+                "speakers": [{"line": 623, "offset": 0, "label": "ΟΙ."}],
+            },
+            {
+                "id": "1:624",
+                "book": 1,
+                "column": "624",
+                "lines": [{"n": 624, "ref": "624", "text": "g"}],
+                "speakers": [{"line": 624, "offset": 0, "label": "ΚΡ."}],
+            },
+            {
+                "id": "1:625",
+                "book": 1,
+                "column": "625",
+                "lines": [{"n": 625, "ref": "625", "text": "g"}],
+                "speakers": [{"line": 625, "offset": 0, "label": "ΟΙ."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Oedipus</speaker><l n="623">Hardly.  I desire your death.</l></sp>
+    <sp><speaker>Creon</speaker><l n="625" part="I">Are you resolved not to yield or believe?</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Oedipus": "Oedipus", "Creon": "Creon"},
+        sigla={"ΟΙ.": "Oedipus", "ΚΡ.": "Creon"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "1:624" not in by_id
+    assert "Are you resolved" in by_id["1:625"]["text"]
+    turn = next(t for t in by_id["1:625"]["turns"] if t["speaker"] == "Creon")
+    assert turn["speakerMismatch"] == {"english": "Creon", "greek": "Oedipus"}
+    mismatch = report["speech_mismatches"][0]
+    assert mismatch["kind"] == "attribution_difference"
+    assert mismatch["attached_to"] == "1:625"
+
+
+def test_stage2_flags_a_dead_primary_covered_declaration(tmp_path: Path):
+    """C1's stage2 check: once 1:625 carries its own chunk, a manifest still
+    declaring ``english.primary.covered: [{greek: "625", by: "624"}]`` (the
+    old oedipus-tyrannus declaration that used to mask the drift-repair bug)
+    is dead.  stage2 names it for the orchestrator without failing or
+    warning the build -- the stale entry is harmless at emission time."""
+    spine = {
+        "work": "oedipus-tyrannus",
+        "segments": [
+            {
+                "id": "1:623",
+                "book": 1,
+                "column": "623",
+                "lines": [{"n": 623, "ref": "623", "text": "g"}],
+                "speakers": [{"line": 623, "offset": 0, "label": "ΟΙ."}],
+            },
+            {
+                "id": "1:624",
+                "book": 1,
+                "column": "624",
+                "lines": [{"n": 624, "ref": "624", "text": "g"}],
+                "speakers": [{"line": 624, "offset": 0, "label": "ΚΡ."}],
+            },
+            {
+                "id": "1:625",
+                "book": 1,
+                "column": "625",
+                "lines": [{"n": 625, "ref": "625", "text": "g"}],
+                "speakers": [{"line": 625, "offset": 0, "label": "ΟΙ."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Oedipus</speaker><l n="623">Hardly.  I desire your death.</l></sp>
+    <sp><speaker>Creon</speaker><l n="625" part="I">Are you resolved not to yield or believe?</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Oedipus": "Oedipus", "Creon": "Creon"},
+        sigla={"ΟΙ.": "Oedipus", "ΚΡ.": "Creon"},
+    )
+    alignment = _alignment_for(spine, english)
+    manifest = _play_manifest(
+        gaps=["1:624"], covered=[{"greek": "625", "by": "624"}]
+    )
+    result = validate(manifest, spine, english, alignment)
+    dead = result["checks"]["primary_dead_covered"]
+    assert dead["ok"] is True
+    assert dead["dead"] == [{"greek": "625", "by": "624", "segment": "1:625"}]
+
+
+def test_electra_650_stays_on_its_own_line_not_the_lacuna(tmp_path: Path):
+    """Real corpus instance (C1 addendum, electra-eur finding 1): Diggle
+    gives 650 to Orestes; Perseus's own transcription gives the English line
+    to the Old Man.  Before C1 this isolated disagreement drift-repaired
+    onto the ``post 651`` lacuna — whose editorial speaker label also reads
+    Old Man — leaving 650 bare and the lacuna row holding a real turn.  A
+    lacuna must never take a turn; 650 keeps its own English, flagged."""
+    spine = {
+        "work": "electra-eur",
+        "segments": [
+            {
+                "id": "1:649",
+                "book": 1,
+                "column": "649",
+                "lines": [{"n": 649, "ref": "649", "text": "g"}],
+                "speakers": [{"line": 649, "offset": 0, "label": "Ηλ."}],
+            },
+            {
+                "id": "1:650",
+                "book": 1,
+                "column": "650",
+                "lines": [{"n": 650, "ref": "650", "text": "g"}],
+                "speakers": [{"line": 650, "offset": 0, "label": "Ορ."}],
+            },
+            {
+                "id": "1:post 651",
+                "book": 1,
+                "column": "post 651",
+                "lines": [{"n": 651, "ref": "post 651", "text": "", "role": "lacuna"}],
+                "speakers": [{"line": 651, "offset": 0, "label": "Πρ."}],
+            },
+            {
+                "id": "1:651",
+                "book": 1,
+                "column": "651",
+                "lines": [{"n": 651, "ref": "651", "text": "g"}],
+                "speakers": [{"line": 651, "offset": 0, "label": "Ηλ."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Electra</speaker><l n="649">Let this man here help us with both.</l></sp>
+    <sp><speaker>Old man</speaker><l n="650">I will; but how will you find a way to kill your mother?</l></sp>
+    <sp><speaker>Electra</speaker><l n="651">Go to Clytemnestra, old man, and say this.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Electra": "Electra", "Old man": "Old Man"},
+        sigla={"Ηλ.": "Electra", "Ορ.": "Orestes", "Πρ.": "Old Man"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "1:post 651" not in by_id
+    assert "how will you find a way" in by_id["1:650"]["text"]
+    turn = next(t for t in by_id["1:650"]["turns"] if t["speaker"] == "Old Man")
+    assert turn["speakerMismatch"] == {"english": "Old Man", "greek": "Orestes"}
+
+
+def test_electra_674_675_swap_is_not_auto_corrected(tmp_path: Path):
+    """Real corpus instance (C1 addendum, electra-eur finding 5): Perseus
+    gives 674 to Electra and 675 to Orestes; Diggle reverses them.  Both
+    anchors keep their own place in the increasing ``<l n>`` sequence (not
+    the Agamemnon 1203/1204 shape, a literal inversion in the TEI itself),
+    and there are only two of them, not the three-or-more of a genuine
+    multi-line drift (Seven 998–1026) — so the repair must not swap the
+    lines, and the ``bekker`` marker on each must keep ITS OWN number so the
+    disagreement stays detectable."""
+    spine = {
+        "work": "electra-eur",
+        "segments": [
+            {
+                "id": "1:673",
+                "book": 1,
+                "column": "673",
+                "lines": [{"n": 673, "ref": "673", "text": "g"}],
+                "speakers": [{"line": 673, "offset": 0, "label": "Ηλ."}],
+            },
+            {
+                "id": "1:674",
+                "book": 1,
+                "column": "674",
+                "lines": [{"n": 674, "ref": "674", "text": "g"}],
+                "speakers": [{"line": 674, "offset": 0, "label": "Ορ."}],
+            },
+            {
+                "id": "1:675",
+                "book": 1,
+                "column": "675",
+                "lines": [{"n": 675, "ref": "675", "text": "g"}],
+                "speakers": [{"line": 675, "offset": 0, "label": "Ηλ."}],
+            },
+            {
+                "id": "1:676",
+                "book": 1,
+                "column": "676",
+                "lines": [{"n": 676, "ref": "676", "text": "g"}],
+                "speakers": [{"line": 676, "offset": 0, "label": "Ορ."}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Electra</speaker><l n="673">Yes, indeed, have pity on your own descendants.</l></sp>
+    <sp><speaker>Electra</speaker><l n="674">And Hera, you who rule Mycenae's altars.</l></sp>
+    <sp><speaker>Orestes</speaker><l n="675">Give us victory, if we are asking for what is right.</l></sp>
+    <sp><speaker>Orestes</speaker><l n="676">Yes, indeed, give them the right of vengeance.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Electra": "Electra", "Orestes": "Orestes"},
+        sigla={"Ηλ.": "Electra", "Ορ.": "Orestes"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "Mycenae's altars" in by_id["1:674"]["text"]
+    assert "Give us victory" in by_id["1:675"]["text"]
+    assert [m["n"] for m in by_id["1:674"]["bekker"]] == [674]
+    assert [m["n"] for m in by_id["1:675"]["bekker"]] == [675]
+    kinds = {row["english_line"]: row["kind"] for row in report["speech_mismatches"]}
+    assert kinds[674] == "attribution_difference"
+    assert kinds[675] == "attribution_difference"
+
+
+def test_stichomythia_with_matching_speakers_never_repairs(tmp_path: Path):
+    """Real corpus instance (C1 addendum, prometheus-bound findings 1/2): a
+    line-by-line alternating stichomythia where a whole run's ``<l n>`` is
+    off by a multiple of the alternation period (Smyth's own source XML
+    prints PV 246-258 two lines late) is INVISIBLE to this file's repair
+    machinery — shifting by two preserves which character's turn it is, so
+    every anchor's own speaker matches its own segment's Greek speaker and
+    ``nearest_matching_speech`` is never even consulted (``speech_mismatches``
+    stays empty).  This is a source-data numbering error (the anchor's
+    CONTENT is wrong, not its speaker), the same shape as Agamemnon's
+    exodos (finding 1, 2026-09-17 fix-mechanisms brief) — a pin, not a
+    mechanism fix; no per-line speaker check can distinguish it from a
+    genuinely correct stichomythia.  This test pins down the surrounding
+    claim: when every line's own speaker DOES match (no drift, no
+    inversion, no disagreement at all), the repair path is never entered
+    and nothing moves."""
+    def stich(n: int, label: str, text: str) -> tuple[dict, str]:
+        seg = {
+            "id": f"1:{n}",
+            "book": 1,
+            "column": str(n),
+            "lines": [{"n": n, "ref": str(n), "text": "g"}],
+            "speakers": [{"line": n, "offset": 0, "label": label}],
+        }
+        return seg, f'<sp><speaker>{"Prometheus" if label == "Π" else "Chorus"}</speaker><l n="{n}">{text}</l></sp>'
+
+    rows = [
+        (246, "Π", "Yes, to my friends indeed I am a spectacle of pity."),
+        (247, "Χ", "Did you perhaps transgress even somewhat beyond this?"),
+        (248, "Π", "I stopped mortals from foreseeing their doom."),
+        (249, "Χ", "What sort of cure did you find for this affliction?"),
+        (250, "Π", "I caused blind hopes to dwell within their breasts."),
+        (251, "Χ", "A great benefit was this you gave to mortals."),
+    ]
+    segments = []
+    speeches = []
+    for n, label, text in rows:
+        seg, sp = stich(n, label, text)
+        segments.append(seg)
+        speeches.append(sp)
+    spine = {"work": "test-play", "segments": segments}
+    tei = (
+        '<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>'
+        f'<div type="translation">{"".join(speeches)}</div></body></text></TEI>'
+    )
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Prometheus": "Prometheus", "Chorus": "Chorus"},
+        sigla={"Π": "Prometheus", "Χ": "Chorus"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    # Every line attaches to its own segment -- nothing moved, nothing
+    # flagged, because nothing ever disagreed.
+    for n, _label, text in rows:
+        assert text in by_id[f"1:{n}"]["text"]
+    assert report["speech_mismatches"] == []
     assert report["attribution_differences"] == []
-    assert report["attribution_difference_count"] == 0
+
+
+def test_transposition_rekeys_the_primary_by_printed_position(tmp_path: Path):
+    """Real corpus instance (C4, oedipus-coloneus finding 1): the spine
+    (Dain-Mazon) prints 328 after 330 (``citation.transpositions``:
+    ``{start: "328", end: "328", before: "330"}``), so its printed order for
+    328-330 is 329, 330, 328.  Jebb's own ``<l n>`` never transposes -- his
+    328th/329th/330th anchors are the plain digits 328/329/330 -- so without
+    a printed-position remap they seat on the WRONG Greek line and the
+    speaker-matching antilabe pattern (Oedipus then Ismene on every one of
+    the three lines) never raises a mismatch to catch it.  Both antilabe
+    halves of each line, including the lettered second share, must land on
+    the Greek line at the SAME PRINTED POSITION as Jebb's own."""
+    def antilabe(ref: str) -> dict:
+        return {
+            "id": f"1:{ref}",
+            "book": 1,
+            "column": ref,
+            "lines": [{"n": int(ref), "ref": ref, "text": "g"}],
+            "speakers": [
+                {"line": int(ref), "offset": 0, "label": "ΟΙ."},
+                {"line": int(ref), "offset": 1, "label": "ΙΣ."},
+            ],
+        }
+
+    # Printed (Dain-Mazon) order: 329, 330, 328.
+    spine = {
+        "work": "oedipus-coloneus",
+        "segments": [antilabe("329"), antilabe("330"), antilabe("328")],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Oedipus</speaker><l n="328" part="I">Are you with us, my child?</l></sp>
+    <sp><speaker>Ismene</speaker><l n="328a" part="F">Not without toil, indeed, for myself.</l></sp>
+    <sp><speaker>Oedipus</speaker><l n="329" part="I">Touch me, my daughter!</l></sp>
+    <sp><speaker>Ismene</speaker><l n="329a" part="F">I give a hand to each at once.</l></sp>
+    <sp><speaker>Oedipus</speaker><l n="330" part="I">Ah my children, my sisters!</l></sp>
+    <sp><speaker>Ismene</speaker><l n="330a" part="F">Alas, twice-wretched life!</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Oedipus": "Oedipus", "Ismene": "Ismene"},
+        sigla={"ΟΙ.": "Oedipus", "ΙΣ.": "Ismene"},
+        transpositions=[{"start": "328", "end": "328", "before": "330"}],
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "Are you with us, my child?" in by_id["1:329"]["text"]
+    assert "Not without toil, indeed, for myself." in by_id["1:329"]["text"]
+    assert "Touch me, my daughter!" in by_id["1:330"]["text"]
+    assert "I give a hand to each at once." in by_id["1:330"]["text"]
+    assert "Ah my children, my sisters!" in by_id["1:328"]["text"]
+    assert "Alas, twice-wretched life!" in by_id["1:328"]["text"]
+    # No mismatch anywhere: the antilabe's speaker pattern (Oedipus, then
+    # Ismene) repeats on every line, so nothing is left to flag once the
+    # anchors are re-keyed to the right printed position.
+    assert report["speech_mismatches"] == []
 
 
 def test_attribution_difference_attaches_to_line_owner_with_flag(tmp_path: Path):
@@ -863,7 +1256,7 @@ def test_hyphenated_note_labels_are_sanitised(tmp_path: Path):
     assert "-" not in next(iter(footnotes))
 
 
-def _play_manifest(gaps=None, *, source=None) -> Manifest:
+def _play_manifest(gaps=None, *, source=None, covered=None) -> Manifest:
     english = {
         "primary": {
             "id": "smyth",
@@ -876,6 +1269,8 @@ def _play_manifest(gaps=None, *, source=None) -> Manifest:
         english["gaps"] = gaps
     if source is not None:
         english["primary"]["source"] = str(source)
+    if covered is not None:
+        english["primary"]["covered"] = covered
     return Manifest(
         {
             "work": {"id": "test-play", "title": "Test", "author": "aeschylus"},
@@ -1365,7 +1760,14 @@ def test_packed_second_speaker_accepts_its_own_english(tmp_path: Path):
 
 def test_repair_tick_names_a_line_the_target_segment_prints(tmp_path: Path):
     """A repaired attachment must tick one of the TARGET's own lines, not the
-    English n of the neighbour that printed it (P2g finding 10)."""
+    English n of the neighbour that printed it (P2g finding 10).
+
+    C1: a lone disagreement no longer reaches the repair path at all (see
+    ``test_isolated_single_line_disagreement_is_not_repaired``) — repair now
+    needs a run of three or more consecutive mismatching anchors
+    (``_repairable_anchors``).  This gives Alpha three in a row; the claims
+    bookkeeping still lets only the first actually move, exactly as before
+    C1, so the tick-naming check survives unchanged in substance."""
     spine = {
         "work": "test-play",
         "segments": [
@@ -1393,24 +1795,40 @@ def test_repair_tick_names_a_line_the_target_segment_prints(tmp_path: Path):
                 "lines": [{"n": 1003, "ref": "1003", "text": "g"}],
                 "speakers": [{"line": 1003, "offset": 0, "label": "G"}],
             },
+            {
+                "id": "1:1004",
+                "book": 1,
+                "column": "1",
+                "lines": [{"n": 1004, "ref": "1004", "text": "g"}],
+                "speakers": [{"line": 1004, "offset": 0, "label": "H"}],
+            },
         ],
     }
     tei = """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
   <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1002">Alpha's first stray line.</l></sp>
     <sp><speaker>Alpha</speaker><l n="1003">Alpha's own line.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="1004">Alpha's third stray line.</l></sp>
   </div>
 </body></text></TEI>
 """
-    english, _footnotes, report = _parse(tmp_path, tei, spine)
+    english, _footnotes, report = _parse(
+        tmp_path, tei, spine, sigla={"A": "Alpha", "B": "Beta", "G": "Gamma", "H": "Delta"}
+    )
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
-    assert set(by_id) == {"1:1000"}
+    assert "Alpha's first stray line." in by_id["1:1000"]["text"]
     ticks = [mark["n"] for mark in by_id["1:1000"]["bekker"]]
     assert ticks == [1001]
-    mismatch = report["speech_mismatches"][0]
-    assert mismatch["kind"] == "speaker_repair"
-    assert mismatch["attached_to"] == "1:1000"
-    assert mismatch["attached_ref"] == "1001"
+    mismatches = {row["english_line"]: row for row in report["speech_mismatches"]}
+    assert mismatches[1002]["kind"] == "speaker_repair"
+    assert mismatches[1002]["attached_to"] == "1:1000"
+    assert mismatches[1002]["attached_ref"] == "1001"
+    # The other two exhaust the claim on 1:1000 and stay put, flagged.
+    assert mismatches[1003]["kind"] == "attribution_difference"
+    assert mismatches[1003]["attached_to"] == "1:1003"
+    assert mismatches[1004]["kind"] == "attribution_difference"
+    assert mismatches[1004]["attached_to"] == "1:1004"
 
 
 def _write_english_report(monkeypatch, tmp_path: Path, data: dict) -> None:
