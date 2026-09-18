@@ -822,6 +822,337 @@ def _repairable_anchors(jobs: list[dict], index: _SpeechIndex) -> set[int]:
     return repairable
 
 
+_REPEAT_MIN_CHARS = 15
+
+
+def _repeat_lettered_positions(jobs: list[dict]) -> set[int]:
+    """C2 (fix-mechanisms brief round 2, eumenides #5): an edition may
+    reprint a refrain verbatim as a lettered "ephymnion" repeat (Murray's
+    Eumenides ``372a``/``375a``, word for word his own ``372``/``375``),
+    with no separate Greek line to hold the second copy.  Attaching it the
+    ordinary way (its base digit IS a real ref) just writes the segment's
+    own sentence a second time.  The signal that distinguishes a repeat
+    from a genuine antilabe answering half (Electra's ``1221a``, which says
+    something NEW) is textual: a repeat's own piece text is the SAME
+    sentence, verbatim, as the base number's earlier, plain occurrence —
+    an antilabe half never is.  Short interjections ("Ah!") are exempted
+    (``_REPEAT_MIN_CHARS``) since two different speeches coincidentally
+    sharing one exclamation is not evidence of a reprint.
+
+    Returns positions into ``jobs`` (by list index) to skip outright: no
+    text, no turn, no tick — exactly as a stage direction contributes
+    nothing to the dialogue it repeats.
+    """
+    plain_text_by_base: dict[int, str] = {}
+    skip: set[int] = set()
+    for pos, job in enumerate(jobs):
+        n = job.get("n")
+        anchor = job.get("anchor")
+        if n is None or anchor is None:
+            continue
+        text = collapse_ws(job.get("text") or "").strip().casefold()
+        if _LETTERED_ANCHOR.fullmatch(anchor) is None:
+            plain_text_by_base.setdefault(n, text)
+            continue
+        prior = plain_text_by_base.get(n)
+        if prior and len(prior) >= _REPEAT_MIN_CHARS and prior == text:
+            skip.add(pos)
+    return skip
+
+
+def _small_piece_runs(jobs: list[dict]) -> list[list[int]]:
+    """Positions into ``jobs`` for each maximal run (length >= 2) of
+    consecutive jobs that are each the ONLY piece of a non-multi-span
+    English speech — candidates for the antilabe share realignment of
+    :func:`_antilabe_reassignments` (C6)."""
+    counts: dict[int, int] = {}
+    for job in jobs:
+        counts[job["sp_index"]] = counts.get(job["sp_index"], 0) + 1
+    runs: list[list[int]] = []
+    current: list[int] = []
+    for pos, job in enumerate(jobs):
+        is_small = counts[job["sp_index"]] == 1 and not job.get("multi_span")
+        if is_small:
+            current.append(pos)
+        else:
+            if len(current) >= 2:
+                runs.append(current)
+            current = []
+    if len(current) >= 2:
+        runs.append(current)
+    return runs
+
+
+def _segment_event_shares(
+    index: _SpeechIndex, segment: dict
+) -> list[tuple[int, str | None]]:
+    """(printed_line, speaker) for each REAL speaker event of a segment, in
+    document order — excludes a printed line that merely inherits the
+    previous event (a continuation), which is not a separate antilabe
+    share."""
+    line_n = index.line_n.get(segment["id"]) or {}
+    internal_to_printed: dict[int, int] = {}
+    for printed, internal in line_n.items():
+        internal_to_printed.setdefault(internal, printed)
+    out: list[tuple[int, str | None]] = []
+    from .stage1_turn_english import _segment_speaker_events
+
+    for internal_line, _offset, name, mapped in _segment_speaker_events(
+        segment, index.sigla
+    ):
+        printed = internal_to_printed.get(internal_line)
+        if printed is None:
+            continue
+        out.append((printed, name if mapped else None))
+    return out
+
+
+def _antilabe_pool(
+    jobs: list[dict], sub: list[int], index: _SpeechIndex
+) -> list[tuple[dict, int, str | None]] | None:
+    """The ordered (segment, printed_line, speaker) shares ``sub``'s own
+    members' raw anchors name, each multi-share segment counted once, in
+    document order.  ``None`` when nothing in ``sub`` names a multi-share
+    segment at all — no antilabe evidence to act on."""
+    seen: dict[str, dict] = {}
+    for pos in sub:
+        anchor = jobs[pos].get("anchor")
+        hit = index.segment_for_anchor(anchor) if anchor is not None else None
+        if hit is None:
+            continue
+        segment, _ref = hit
+        seen.setdefault(segment["id"], segment)
+    ordered = sorted(seen.values(), key=lambda seg: index.order[seg["id"]])
+    pool: list[tuple[dict, int, str | None]] = []
+    has_multi = False
+    for segment in ordered:
+        shares = _segment_event_shares(index, segment)
+        if len(shares) < 2:
+            continue
+        has_multi = True
+        for printed_line, speaker in shares:
+            pool.append((segment, printed_line, speaker))
+    return pool if has_multi else None
+
+
+def _antilabe_walk_matches(
+    jobs: list[dict],
+    sub: list[int],
+    pool: list[tuple[dict, int, str | None]],
+) -> bool:
+    for pos, (_segment, _printed_line, speaker) in zip(sub, pool):
+        if jobs[pos].get("canonical") != speaker:
+            return False
+    return True
+
+
+def _position_is_movable(jobs: list[dict], pos: int, index: _SpeechIndex) -> bool:
+    """Whether ``jobs[pos]`` may ever be reassigned by the antilabe walk at
+    all.  An orphan (no Greek ref of its own) always may — it has nowhere
+    else to go.  A piece whose naive target is a MULTI-share segment also
+    may: which of that segment's shares it really represents is exactly
+    the ambiguity :func:`_SpeechIndex.share_speaker`'s "does this speaker
+    appear ANYWHERE on the line" check can paper over, so an unflagged
+    piece there is not proof of correctness.  A piece whose naive target
+    is a SINGLE-share segment has no such ambiguity — there is only one
+    share to be — so it is movable only when it is actually WRONG there
+    (a real speaker mismatch): Electra's "840" naively lands on Chorus's
+    own single-share continuation while the piece itself is Electra's, a
+    real, flagged mismatch.  Without a mismatch, a single-share target is
+    provably already correct and must never be pulled into a neighbour's
+    antilabe by coincidence of counting (Alcestis 388/389, each its own
+    unambiguous single-share line, dragged toward 390/391's real antilabe;
+    Bacchae 1185/1188, dragged toward 1182's already-complete one)."""
+    job = jobs[pos]
+    anchor = job.get("anchor")
+    if anchor is None:
+        return True
+    hit = index.segment_for_anchor(anchor)
+    if hit is None:
+        return True
+    segment, _ref = hit
+    if len(segment.get("speakers") or []) >= 2:
+        return True
+    n = job.get("n")
+    speaker = job.get("canonical")
+    if not speaker or n is None:
+        return False
+    greek_speaker = index.share_speaker(segment, n, anchor, prefer=speaker)
+    return greek_speaker is not None and speaker != greek_speaker
+
+
+def _antilabe_window_has_cross_segment_evidence(
+    jobs: list[dict], sub: list[int], index: _SpeechIndex
+) -> bool:
+    """Whether ``sub``'s own members' naive anchors, between them, name at
+    least TWO DISTINCT multi-share Greek segments — proof this is a
+    genuine cross-segment antilabe lag (Jebb's numbers running a half-line
+    ahead so the lag visibly crosses from one packed line into the next),
+    not a coincidence.
+
+    A window can satisfy the plain piece-count-equals-pool-size and
+    per-position speaker checks by sheer accident: three speakers who
+    happen to alternate A-B-A across three consecutive, already-correct,
+    single-share one-line exchanges (Electra 1499-1501, each a plain digit
+    with its own unambiguous ref); or a lettered anchor that ALREADY
+    resolves correctly on its own being dragged, along with two unrelated
+    neighbours, into a coincidental rewalk of a segment it already
+    completes by itself (Bacchae 1184b/1185/1188, where 1182/1182b/1184/
+    1184b already exhaust that segment's own three real shares with no
+    defect at all). Neither case moves anything ACROSS a segment boundary
+    — the tell every genuine lagged run shares. A segment named only via
+    an orphan (no anchor of its own at all) does not count toward this
+    total; the orphan is evidence something is missing, not of where it
+    truly measures against.
+    """
+    targets: set[str] = set()
+    for pos in sub:
+        anchor = jobs[pos].get("anchor")
+        if anchor is None:
+            continue
+        hit = index.segment_for_anchor(anchor)
+        if hit is None:
+            continue
+        segment, _ref = hit
+        if len(segment.get("speakers") or []) >= 2:
+            targets.add(segment["id"])
+    return len(targets) >= 2
+
+
+def _antilabe_reassignments(
+    jobs: list[dict], index: _SpeechIndex
+) -> dict[int, tuple[dict, int]]:
+    """C6 (fix-mechanisms brief round 2, electra-soph #2/#3/#12): a run of
+    short antilabe speeches, matched by DOCUMENT POSITION against the
+    Greek's own speaker events — the same order both editions transcribe
+    the exchange in.  An edition may pack two or more speaker "shares" onto
+    ONE printed Greek line while the English translation's own ``<l n>``
+    increments once per SHARE, so the translation's numbers run a
+    half-line ahead of (or behind) the Greek's the moment a line is
+    packed; any English half whose own number then lands on no Greek ref
+    at all is dropped outright by the ordinary per-anchor resolution
+    (Jebb's Electra: 828, 829, 843, 844, 857, 867).  Numbers cannot fix
+    this — position can.
+
+    A broad run often holds more than one antilabe stretch, plus perfectly
+    ordinary dialogue between and around them (Electra's kommos runs
+    827-831, then correct dialogue at 836/840, then another lagged stretch
+    at 841-845; the recognition run holds a whole stichomythia, a broken
+    stretch, and an already-correct antilabe run, all as one chain of
+    single-line speeches).  So every contiguous sub-window of a broad run
+    is a candidate, not just a trim off its two ends: each is checked for
+    the same three things — its own piece count matches the pool of real
+    Greek events its members name, every member's own speaker agrees with
+    the share the walk assigns it, and at least one member's ORDINARY,
+    un-overridden resolution is provably broken (dropped outright, or
+    disagreeing with the Greek about its speaker).  That last check is
+    what keeps three merely-adjacent, already-correct one-line exchanges
+    (Electra 1499-1501) from being "fixed" by sheer coincidence of
+    alternating speakers.  Windows are applied longest first, then
+    earliest, and never overlap one already taken.
+
+    Returns ``{job position: (segment, printed_line)}`` overrides for the
+    positions a matching window resolves; every other job is untouched.
+    """
+    overrides: dict[int, tuple[dict, int]] = {}
+    for run in _small_piece_runs(jobs):
+        total = len(run)
+        candidates: list[list[int]] = []
+        for start in range(total):
+            for end in range(start + 2, total + 1):
+                sub = run[start:end]
+                if not all(_position_is_movable(jobs, pos, index) for pos in sub):
+                    continue
+                pool = _antilabe_pool(jobs, sub, index)
+                if (
+                    pool is not None
+                    and len(pool) == len(sub)
+                    and _antilabe_walk_matches(jobs, sub, pool)
+                    and _antilabe_window_has_cross_segment_evidence(jobs, sub, index)
+                ):
+                    candidates.append(sub)
+        candidates.sort(key=lambda sub: (-len(sub), sub[0]))
+        claimed: set[int] = set()
+        for sub in candidates:
+            if claimed.intersection(sub):
+                continue
+            pool = _antilabe_pool(jobs, sub, index)
+            assert pool is not None
+            for pos, (segment, printed_line, _speaker) in zip(sub, pool):
+                overrides[pos] = (segment, printed_line)
+            claimed.update(sub)
+    return overrides
+
+
+def _multi_span_tail_redirects(
+    jobs: list[dict], index: _SpeechIndex
+) -> set[tuple[int, int]]:
+    """C7 (fix-mechanisms brief round 2, prometheus-bound #4): a multi-span
+    ``<sp>``'s LAST anchored piece sometimes lands, by an exact ref match,
+    on the Greek segment the VERY NEXT ``<sp>`` also owns — the English
+    edition's own line count runs a beat ahead of the Greek's real speech
+    boundary for one line, so the tail of THIS speech and the head of the
+    NEXT one collide on one segment (Prometheus Bound 189–195, 279–330,
+    332–335, 335–340: every case opens the target segment with the
+    outgoing speaker's tail before the incoming speaker's own, correctly
+    anchored, turn).  When that collision holds — the piece disagrees with
+    the segment's Greek speaker, the piece BEFORE it in the same speech
+    agrees with it, and the speech AFTER it starts on that very same
+    segment — the tail piece is not a real turn of its own: it belongs
+    with the rest of its own speech, one segment back, not with the
+    segment its raw number happens to name.
+
+    A genuine multi-span attribution difference (Seven's Herald 1030,
+    landing alone with no following speech on the same segment) has no
+    colliding successor and is untouched: :func:`_resolve_slice_anchor`
+    still flags it in place, as P2j intends.
+
+    Returns ``{(sp_index, n)}`` pairs identifying the tail pieces to
+    redirect onto their own speech's PREVIOUS segment instead of their own
+    anchor's.
+    """
+    by_sp: dict[int, list[dict]] = {}
+    for job in jobs:
+        if job.get("n") is not None:
+            by_sp.setdefault(job["sp_index"], []).append(job)
+    redirects: set[tuple[int, int]] = set()
+    for sp_index, pieces in by_sp.items():
+        if len(pieces) < 2:
+            continue
+        last, prev = pieces[-1], pieces[-2]
+        if not last.get("multi_span"):
+            continue
+        speaker = last.get("canonical")
+        if not speaker or speaker != prev.get("canonical"):
+            continue
+        last_hit = index.segment_for_anchor(last["anchor"])
+        prev_hit = index.segment_for_anchor(prev["anchor"])
+        if last_hit is None or prev_hit is None:
+            continue
+        last_seg, _ = last_hit
+        prev_seg, _ = prev_hit
+        if last_seg["id"] == prev_seg["id"]:
+            continue
+        last_speaker = index.share_speaker(
+            last_seg, last["n"], last["anchor"], prefer=speaker
+        )
+        if last_speaker is None or last_speaker == speaker:
+            continue  # no mismatch -- a legitimate new segment for this speech
+        prev_speaker = index.share_speaker(
+            prev_seg, prev["n"], prev["anchor"], prefer=speaker
+        )
+        if prev_speaker != speaker:
+            continue  # the "established" piece isn't clean either
+        next_pieces = by_sp.get(sp_index + 1)
+        if not next_pieces:
+            continue
+        next_hit = index.segment_for_anchor(next_pieces[0]["anchor"])
+        if next_hit is None or next_hit[0]["id"] != last_seg["id"]:
+            continue
+        redirects.add((sp_index, last["n"]))
+    return redirects
+
+
 def _resolve_slice_anchor(
     n: int,
     *,
@@ -1251,11 +1582,35 @@ def parse_translation(
                 )
 
     repairable_anchors = _repairable_anchors(jobs, index)
+    repeat_positions = _repeat_lettered_positions(jobs)
+    antilabe_overrides = _antilabe_reassignments(jobs, index)
+    tail_redirects = _multi_span_tail_redirects(jobs, index)
     prev_assigned: dict[int, str] = {}
-    for job in jobs:
+    for pos, job in enumerate(jobs):
         n = job["n"]
         if n is not None:
             anchor_count += 1
+        if pos in repeat_positions:
+            # C2: a lettered anchor whose own text is a verbatim printed
+            # repeat of its base's earlier occurrence (Eumenides 372a/375a)
+            # contributes nothing new -- skip it exactly as a stage
+            # direction is skipped, rather than write the sentence twice.
+            continue
+        if pos in antilabe_overrides:
+            # C6: position, not number, decided this piece's home.
+            segment, printed_line = antilabe_overrides[pos]
+            commit_job(job, segment, printed_line)
+            prev_assigned[job["sp_index"]] = job["assigned"]
+            continue
+        if n is not None and (job["sp_index"], n) in tail_redirects:
+            # C7: this piece is the tail of its OWN speech, displaced onto
+            # the next speech's segment by a one-line collision; it belongs
+            # with the rest of its own speech, one segment back.
+            prev_id = prev_assigned.get(job["sp_index"])
+            if prev_id is not None:
+                commit_job(job, index.by_id[prev_id], n, add_turn=False, own_tick=False)
+                prev_assigned[job["sp_index"]] = prev_id
+                continue
         if n is None:
             prev_id = prev_assigned.get(job["sp_index"])
             if prev_id is None:
@@ -1420,8 +1775,9 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         raise ValueError(f"{manifest.work_id}: english.{slot} is required for perseus-play")
     xml_path = SOURCES_DIR / cfg["source"]
     speakers = manifest.data.get("speakers") or {}
-    # Resolve Greek speakers through stage7's own rules (overrides included).
-    sigla = _SiglaResolver(manifest)
+    # Resolve Greek speakers through stage7's own rules (overrides included,
+    # plus C3's numbered-siglum overrides synthesized from this spine).
+    sigla = _SiglaResolver(manifest, spine)
     if slot == "secondary":
         aliases = speakers.get("english_secondary") or speakers.get("english") or {}
     else:

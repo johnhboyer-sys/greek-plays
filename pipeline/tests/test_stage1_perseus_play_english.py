@@ -2657,3 +2657,202 @@ def test_nless_snap_reports_the_speaker_of_the_tick_line(tmp_path: Path):
     assert snap["segment"] == "1:2"
     assert snap["greek_speaker"] == "Ismene"
     assert "/" not in snap["greek_speaker"]
+
+
+# ── C2: a lettered repeat of an earlier plain anchor is skipped, not doubled ──
+
+def test_lettered_repeat_of_earlier_plain_anchor_is_not_duplicated(tmp_path: Path):
+    """C2 (fix-mechanisms brief round 2, eumenides #5): Murray's Eumenides
+    reprints the ephymnion refrain verbatim under a lettered anchor
+    (372a/375a) with no Greek line of its own to hold the second copy.
+    Before the fix this re-attached to the base's own segment and wrote
+    the sentence twice; the fix recognises the piece's own text as a
+    VERBATIM repeat of that base's earlier occurrence and skips it."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:5",
+                "book": 1, "column": "1",
+                "lines": [{"n": 5, "ref": "5", "text": "g5"}],
+                "speakers": [{"line": 5, "offset": 0, "label": "A"}],
+            },
+            {
+                "id": "1:6",
+                "book": 1, "column": "1",
+                "lines": [{"n": 6, "ref": "6", "text": "g6"}],
+                "speakers": [{"line": 6, "offset": 0, "label": "B"}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="5">The refrain returns again in full.</l></sp>
+    <sp><speaker>Beta</speaker><l n="6">A different line entirely.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="5a">The refrain returns again in full.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(tmp_path, tei, spine)
+    by_id = {c["id"]: c for c in english["chunks"]}
+    assert by_id["1:5"]["text"] == "The refrain returns again in full."
+    assert report["anomalies"] == []
+
+
+def test_lettered_answering_half_with_new_text_is_kept_not_treated_as_repeat(tmp_path: Path):
+    """The repeat check must not swallow a genuine antilabe answering half
+    just because it shares a base number with an earlier piece — only an
+    IDENTICAL piece text is a repeat (Electra's `1221a`, a different
+    sentence, must still attach)."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:5",
+                "book": 1, "column": "1",
+                "lines": [{"n": 5, "ref": "5", "text": "g5"}],
+                "speakers": [
+                    {"line": 5, "offset": 0, "label": "A"},
+                    {"line": 5, "offset": 5, "label": "B"},
+                ],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="5">Nothing that is untrue, said plainly.</l></sp>
+    <sp><speaker>Beta</speaker><l n="5a">The man is alive?</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(tmp_path, tei, spine)
+    by_id = {c["id"]: c for c in english["chunks"]}
+    assert "The man is alive?" in by_id["1:5"]["text"]
+
+
+# ── C7: a multi-span speech's tail, displaced onto the next speech's own
+# segment by a one-line collision, redirects back to its own speech ──────
+
+def test_multi_span_tail_colliding_with_the_next_speech_redirects_back(tmp_path: Path):
+    """C7 (fix-mechanisms brief round 2, prometheus-bound #4): Smyth's own
+    line count sometimes runs a beat ahead of the Greek's real speech
+    boundary for exactly one line, so a multi-span speech's LAST piece
+    lands, by an exact ref match, on the segment the VERY NEXT speech also
+    owns (PV 189-195 and others). The tail piece must merge back into its
+    OWN speech's previous segment instead of opening the next speaker's
+    segment with a foreign name."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1",
+                "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "g1"}],
+                "speakers": [{"line": 1, "offset": 0, "label": "A"}],
+            },
+            {
+                "id": "1:2",
+                "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": "g2"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "B"}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker>
+      <l n="1">Alpha's own opening line,</l>
+      <l n="2">as eager as I am to welcome him.</l>
+    </sp>
+    <sp><speaker>Beta</speaker><l n="2">Unfold the whole story.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(tmp_path, tei, spine)
+    by_id = {c["id"]: c for c in english["chunks"]}
+    # The tail merges back into Alpha's own segment 1:1, not 1:2.
+    assert by_id["1:1"]["text"] == (
+        "Alpha's own opening line, as eager as I am to welcome him."
+    )
+    assert by_id["1:1"]["turns"] == [
+        {"offset": 0, "speaker": "Alpha", "display": "Alpha"}
+    ]
+    # Segment 1:2 opens cleanly with Beta's own, correctly-anchored speech.
+    assert by_id["1:2"]["text"] == "Unfold the whole story."
+    assert by_id["1:2"]["turns"] == [
+        {"offset": 0, "speaker": "Beta", "display": "Beta"}
+    ]
+    assert report["speech_mismatch_count"] == 0
+
+
+# ── C6: a two-speaker antilabe fixture (Electra's kommos shape) ─────────────
+
+def test_antilabe_run_resyncs_by_position_not_number(tmp_path: Path):
+    """C6 (fix-mechanisms brief round 2, electra-soph #2/#3/#12): Jebb's own
+    ``<l n>`` increments once per antilabe SHARE, so once an edition packs
+    two shares onto one Greek line his numbers run a half-line ahead of
+    the Greek's; any half whose own number then lands on no Greek ref is
+    dropped outright.  This reproduces electra-soph's own 827-831 shape at
+    the smallest possible scale: two packed Greek lines (1 and 2, each
+    Alpha then Beta), five English speeches numbered 1, 2, 3, 4, 4a — an
+    orphan (2, no Greek ref) and a lettered answering half (4a) among
+    them.  The fix must recover the orphan and place every half under the
+    right speaker, in Greek order, not Jebb's."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            {
+                "id": "1:1",
+                "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": "g1"}],
+                "speakers": [
+                    {"line": 1, "offset": 0, "label": "A"},
+                    {"line": 1, "offset": 5, "label": "B"},
+                ],
+            },
+            {
+                "id": "1:3",
+                "book": 1, "column": "1",
+                "lines": [{"n": 3, "ref": "3", "text": "g3"}],
+                "speakers": [
+                    {"line": 3, "offset": 0, "label": "A"},
+                    {"line": 3, "offset": 5, "label": "B"},
+                ],
+            },
+            {
+                "id": "1:9",
+                "book": 1, "column": "1",
+                "lines": [{"n": 9, "ref": "9", "text": "g9"}],
+                "speakers": [{"line": 9, "offset": 0, "label": "A"}],
+            },
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1">Ah, me, ah, me!</l></sp>
+    <sp><speaker>Beta</speaker><l n="2">My child, why do you weep?</l></sp>
+    <sp><speaker>Alpha</speaker><l n="3" part="I">Give no cry of bad omen!</l></sp>
+    <sp><speaker>Beta</speaker><l n="3a" part="F">You will break my heart!</l></sp>
+    <sp><speaker>Alpha</speaker><l n="9">A long speech resumes here in step.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(tmp_path, tei, spine)
+    by_id = {c["id"]: c for c in english["chunks"]}
+    assert by_id["1:1"]["text"] == "Ah, me, ah, me! My child, why do you weep?"
+    assert by_id["1:1"]["turns"] == [
+        {"offset": 0, "speaker": "Alpha", "display": "Alpha"},
+        {"offset": 16, "speaker": "Beta", "display": "Beta"},
+    ]
+    assert by_id["1:3"]["text"] == "Give no cry of bad omen! You will break my heart!"
+    assert by_id["1:3"]["turns"] == [
+        {"offset": 0, "speaker": "Alpha", "display": "Alpha"},
+        {"offset": 25, "speaker": "Beta", "display": "Beta"},
+    ]
+    assert not any(a["kind"] == "unmatched_anchor" for a in report["anomalies"])
+    # A plain, already-in-step speech elsewhere must not be disturbed.
+    assert by_id["1:9"]["text"] == "A long speech resumes here in step."

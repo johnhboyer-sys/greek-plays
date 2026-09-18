@@ -150,12 +150,15 @@ class _SiglaResolver:
     2026-09-07: `ΟΙ. Αʹ` with U+0374 missed a map key typed with U+02B9 and
     the slaves of Knights fell out of the roster)."""
 
-    def __init__(self, manifest: Manifest):
+    def __init__(self, manifest: Manifest, spine: dict | None = None):
         from . import stage7_emit as s7
         speakers = manifest.data.get("speakers") or {}
         sigla = speakers.get("sigla") or {}
         self.sigla_norm = {s7._norm_siglum(k): v for k, v in sigla.items()}
-        self.overrides = s7._load_speaker_overrides(manifest)
+        # C3: pass the spine so a bare, reused abbreviation (Χρ.) picks up
+        # the numbered-siglum overrides synthesized from `speakers.sigla`
+        # itself, the same as stage7's own roster build.
+        self.overrides = s7._load_speaker_overrides(manifest, spine)
         self._display = s7._play_line_display
 
     @classmethod
@@ -255,6 +258,13 @@ def _speaker_report(
                 greek_roster.append(display)
     eng_set = set(english_canonical)
     greek_set = set(greek_roster)
+    # C3: a bare siglum now resolves to whichever numbered character the
+    # printed text last introduced, so no single event resolves to its own
+    # generic display any more -- but a bench line that genuinely does not
+    # distinguish which one still cues to that generic name, and it is
+    # still a real character this play declares (`speakers.sigla`).
+    if isinstance(sigla, _SiglaResolver):
+        greek_set |= {v for v in sigla.sigla_norm.values() if v}
     return {
         "english_displays": english_printed,
         "english_canonical": english_canonical,
@@ -2741,7 +2751,7 @@ def run(
         raise ValueError(f"{manifest.work_id}: english.{slot} is required for turn-text")
     source_path = SOURCES_DIR / cfg["source"]
     speakers = manifest.data.get("speakers") or {}
-    sigla = _SiglaResolver(manifest)
+    sigla = _SiglaResolver(manifest, spine)
     aliases = _aliases_for_slot(speakers, slot, cfg.get("id"))
     play = cfg.get("play")
     if not play:
