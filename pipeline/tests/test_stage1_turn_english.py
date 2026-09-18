@@ -4931,28 +4931,20 @@ def test_a4_a_later_same_speaker_turn_keeps_its_directions(tmp_path):
 # --- A6: a segment carrying two Greek sigla seats two turns ----------------
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "A6, diagnosed and not fixed. The segment holds two Greek speeches "
-        "and Murray has a speech for each, but skipping the second share is "
-        "priced as a MERGED antilabe (`ext_g_same_line`, 0.60) whether or "
-        "not any English covered the line, so the column buys its own "
-        "displacement: at Bacchae 1372 the slid seating costs 0.60 + 0.55 "
-        "against 1.60 + 0.60 for the two holes Murray really has at "
-        "1379-1380, and wins by 0.023. Conditioning the discount on the "
-        "matched English being long enough to read the whole line fixes "
-        "this play, but `test_pair_dp."
-        "test_pinned_predecessor_keeps_the_same_line_rate_for_the_regions_"
-        "first_share` pins the same rate from the other side with a genuinely "
-        "merged speech only 1.4x its own share, so the two cases are 0.34 and "
-        "0.35 apart on that scale -- the discriminator needs a corpus fit and "
-        "an acceptance run of its own, not a threshold read off three points."
-    ),
-)
 def test_a6_both_shares_of_a_line_take_their_own_english(tmp_path):
     """Bacchae 1372: the segment holds two Greek speeches, and Murray has a
-    speech for each, yet the exodos runs a turn behind from 1374."""
+    speech for each, yet the exodos ran a turn behind from 1374.
+
+    Skipping the second share was priced as a MERGED antilabe
+    (`ext_g_same_line`, 0.60) whether or not any English covered the line, so
+    the column bought its own displacement: the slid seating cost 0.60 + 0.55
+    against 1.60 + 0.60 for the two holes Murray really has at 1379-1380, and
+    won by 0.023. Round 4's discriminator (`pair_dp.merged_into_match`) asks
+    instead whether the English just matched is long enough for its OWN share
+    alone -- and `test_pair_dp.test_pinned_predecessor_keeps_the_same_line_
+    rate_for_the_regions_first_share`, which pins the same rate from the
+    other side, still passes: there the merged speech IS long for its share.
+    """
     spine = _spine_of(
         _numbered("1:0", ["0"], "Γ.", 0),
         {
@@ -5709,6 +5701,270 @@ def test_r9_no_declaration_leaves_the_column_alone(tmp_path):
     chunks = {c["id"]: c["text"] for c in english["chunks"]}
     assert chunks["1:1"].startswith("Hi, friend")
     assert chunks["1:3"].startswith("And now let both")
+
+
+def test_r9a_a_crossing_pin_inside_a_declared_english_window_is_kept():
+    """Grok's read of round 3, finding 1.
+
+    The exemption read a block as the Greek window ``(start, before)``. A
+    CITATION block prints ``start..end`` after ``before``, so ``before`` is
+    the high end and the pair read right; an ENGLISH block prints the English
+    of ``start..end`` BEFORE that of ``before``, so ``before`` is the LOW end
+    and ``(start, before)`` is an empty interval -- the exemption never fired
+    for the column it was extended for, and a pin pair crossing inside the
+    declared window lost its later half.
+    """
+    from drama_pipeline import stage1_turn_english as m
+
+    # The Acharnians shape: the Greek is printed in numeric order and this
+    # COLUMN prints the English of 3-4 before that of 1-2.
+    blocks = [{"start": "3", "end": "4", "before": "1"}]
+    segments = [
+        {"greek": [{"n": 1, "ref": "1"}]},
+        {"greek": [{"n": 2, "ref": "2"}]},
+        {"greek": [{"n": 3, "ref": "3"}]},
+        {"greek": [{"n": 4, "ref": "4"}]},
+    ]
+    slots = [
+        {"segment": 0, "line": 1, "offset": 0, "name": "Alpha"},
+        {"segment": 1, "line": 2, "offset": 0, "name": "Beta"},
+        {"segment": 2, "line": 3, "offset": 0, "name": "Alpha"},
+        {"segment": 3, "line": 4, "offset": 0, "name": "Beta"},
+    ]
+    speeches = [
+        {"text": "Bring me the case for my triple plume.", "canonical": "Alpha"},
+        {"text": "And bring me my dish of hare's meat.", "canonical": "Beta"},
+        {"text": "Hi, friend, try not to scoff at my armour.", "canonical": "Alpha"},
+        {"text": "Hi, fellow, try not to eye my lunch.", "canonical": "Beta"},
+    ]
+    refs = m._slot_refs(segments, slots)
+    pins = [
+        {"greek": "3", "english": "Bring me the case"},
+        {"greek": "1", "english": "Hi, friend, try not"},
+    ]
+    notes: list[str] = []
+    forced = m._resolve_pins(
+        pins, slots, refs, speeches, "t", notes, transpositions=blocks
+    )
+    assert forced == [(2, 0), (0, 2)]
+    assert not [n for n in notes if "crosses" in n]
+    # Outside a declared window the contradiction stands and the later pin is
+    # still dropped.
+    dropped: list[str] = []
+    assert m._resolve_pins(pins, slots, refs, speeches, "t", dropped) == [(2, 0)]
+    assert [n for n in dropped if "crosses" in n]
+
+
+def test_r9b_an_adopted_english_order_is_not_re_chosen_by_a_greek_group():
+    """Grok's read of round 3, finding 2.
+
+    An English transposition is ADOPTED: the reviewer has read the column and
+    is stating what it prints. A1's Greek groups are CHOSEN, by cost. With
+    the English applied first, an overlapping `citation.transpositions` group
+    could replace the same span with the numeric order when that order scored
+    cheaper -- the declaration silently overruled by a guess.
+    """
+    from drama_pipeline import stage1_turn_english as m
+    from drama_pipeline import pair_dp
+
+    # Printed order 5, 2, 3: the edition prints 2-3 after 5, so A1's group
+    # for `{2, 3, before 5}` is the numeric order [2, 3, 5]. This column
+    # prints the English of 3 before that of 2, which is a permutation of
+    # the same three speeches.
+    refs = ["5", "2", "3"]
+    names = ["Alpha", "Beta", "Gamma"]
+    # Lengths that make the numeric order strictly cheaper, so A1 would take
+    # it if it were allowed to choose here: in the numeric order every
+    # English speech stands beside the Greek whose length it matches.
+    gc, ec = [40, 200, 80], [200, 80, 40]
+    greek = [pair_dp.GreekNode(name=n, chars=c) for n, c in zip(names, gc)]
+    english = [pair_dp.EnglishNode(name=n, chars=c) for n, c in zip(names, ec)]
+    spans = [(c, "") for c in gc]
+
+    def align(citation, english_blocks):
+        return m._align_speech_runs(
+            greek, english, list(names), [], None, spans, list(refs),
+            "test-work", "primary",
+            transpositions=list(citation),
+            english_transpositions=list(english_blocks),
+        )
+
+    citation = [{"start": "2", "end": "3", "before": "5"}]
+    english_block = [{"start": "3", "end": "3", "before": "2"}]
+    # A1 alone takes the numeric order: printed 5, 2, 3 read as 2, 3, 5.
+    assert align(citation, []).slot_order == [1, 2, 0]
+    # The declaration alone swaps the two speeches it names.
+    assert align([], english_block).slot_order == [0, 2, 1]
+    # Together, the declaration stands: A1 does not re-choose its span.
+    assert align(citation, english_block).slot_order == [0, 2, 1]
+
+
+def test_r9_a_malformed_declaration_is_loud():
+    """A declaration is a statement about a column, so one that cannot be
+    read is a manifest fault, not a no-op: it fails loud instead of being
+    dropped with a `continue` nobody sees."""
+    from drama_pipeline import stage1_turn_english as m
+
+    keys = [m._play_line_start_key(r) for r in ("1", "2", "3", "4")]
+    good = [{"start": "3", "end": "4", "before": "1"}]
+    assert m._english_transposed_run_groups(keys, good) == [[2, 3, 0, 1]]
+    for bad, why in (
+        ({"start": "3", "end": "4"}, "missing ref"),
+        ({"start": "1", "end": "2", "before": "3"}, "before is not below start"),
+        ({"start": "3", "end": "4", "before": "99"}, "ref not in the play"),
+        ({"start": "1", "end": "4", "before": "1"}, "moves nothing"),
+    ):
+        with pytest.raises(ValueError, match="transposition"):
+            m._english_transposed_run_groups(keys, [bad], work_id="t", slot="third")
+
+
+def test_r2_an_undivided_block_is_anchored_at_the_first_segment_it_claims():
+    """Septem's kommos (round 3, R2): Johnston prints 875-960 as one block and
+    the DP hung it on 1:951 -- the LAST of the segments that claim it, since
+    that is where its one English speech was matched. `_spread_long_speeches`
+    walks strictly forward (`while segments[k]["id"] not in by_id`), so the
+    sixteen segments that named it could never be reached and stood bare with
+    a note pointing at a block below them.
+
+    Two things follow from the claim run, and both are needed: the block is
+    anchored at the FIRST segment of the run it claims, and inside that run
+    the walk does not stop at a change of Greek speaker -- Antigone and
+    Ismene answer the Chorus inside the kommos, and the claim is precisely
+    the statement that the translator did not divide there.
+    """
+    from drama_pipeline.stage1_turn_english import (
+        _claim_anchors, _spread_long_speeches,
+    )
+
+    sigla = {"Χο.": "Chorus", "Αν.": "Antigone", "Ισ.": "Ismene"}
+
+    def seg(sid, label, nlines):
+        return {
+            "id": sid, "column": sid.split(":")[1],
+            "speakers": [{"line": int(sid.split(":")[1]), "offset": 0, "label": label}],
+            "lines": [{} for _ in range(nlines)],
+        }
+
+    segs = [
+        seg("1:822", "Χο.", 4),
+        seg("1:871", "Χο.", 4),
+        seg("1:875", "Χο.", 4),
+        seg("1:879", "Αν.", 4),
+        seg("1:881", "Ισ.", 4),
+        seg("1:951", "Χο.", 4),
+        seg("1:961", "Αν.", 2),
+    ]
+    text = " ".join([
+        "Chorus, on the two men slain, and their bodies dripping blood aa.",
+        "Antigone, for the curse of Oedipus has taken its effect now bb.",
+        "Ismene, and the words the gods once spoke keep their sharp edge cc.",
+        "Chorus, O you who bring us so much sorrow, follow the wind of sighs dd.",
+    ])
+    block = {"id": "1:951", "column": "951", "text": text,
+             "turns": [], "notes": [], "markers": []}
+    head = {"id": "1:822", "column": "822",
+            "text": "Chorus, O almighty Zeus, shall I cry out or mourn our leaders? "
+                    "The curse of Oedipus has fallen on this house.",
+            "turns": [], "notes": [], "markers": []}
+    tail = {"id": "1:961", "column": "961", "text": "I will bury him myself.",
+            "turns": [], "notes": [], "markers": []}
+    # The claim map is coarse: a claim earned at 875 is carried back over the
+    # whole bare run, 1:871 included, and 1:871 is the block at 1:822 going
+    # on -- which the DP said itself (`derived`) and which that block is
+    # already spread across. The aligner's reading bounds the run.
+    claimed = {"1:871": "1:951", "1:875": "1:951", "1:879": "1:951", "1:881": "1:951"}
+    derived = {"1:871": "1:822"}
+
+    assert _claim_anchors([head, block, tail], segs, claimed, derived) == {"1:951": "1:875"}
+    assert _claim_anchors([head, block, tail], segs, claimed) == {"1:951": "1:871"}
+    out = _spread_long_speeches(
+        [head, block, tail], segs, sigla, covered=derived, claimed=claimed,
+    )
+    assert [c["id"] for c in out] == [
+        "1:822", "1:871", "1:875", "1:879", "1:881", "1:951", "1:961",
+    ]
+    assert out[0]["text"].startswith("Chorus, O almighty Zeus")
+    assert out[1]["text"].startswith("The curse of Oedipus")
+    out = out[2:]
+    assert out[0]["text"].startswith("Chorus, on the two men")
+    assert out[1]["text"].startswith("Antigone, for the curse")
+    assert out[2]["text"].startswith("Ismene, and the words")
+    assert out[3]["text"].startswith("Chorus, O you who bring us")
+    # With nothing claimed the block stays whole, on the segment the DP
+    # matched it to: an undivided block is distributed because a claim says
+    # it covers those speeches, never because it is long.
+    assert [c["id"] for c in _spread_long_speeches([block, tail], segs, sigla)] == [
+        "1:951", "1:961",
+    ]
+
+
+def test_a7_a_paragraph_cut_is_chosen_by_the_primary_not_by_proportion():
+    """Agamemnon's parodos in Kosmos (A7): one block over six segments, cut
+    in proportion to the Greek lines -- and a translator's paragraphs are not
+    proportional to them, so 1:160 opened a paragraph early ("And I call upon
+    Paean", Greek 146) and 1:205 two early ("So then the captain of the
+    Achaean ships", Greek 184).
+
+    Round 3 tried a paragraph pool chosen by `where()` and its acceptance run
+    failed: a paragraph chosen by a length estimate inherits the bias it is
+    meant to correct. The primary column is keyed to the Greek LINE, so it is
+    the one thing in the build that knows what a segment says. Heads are
+    compared, not whole passages: a forty-line segment runs over several of
+    the translator's paragraphs, and whole-text cosine answers a different
+    question (which paragraph shares most words with these forty lines).
+    """
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    sigla = {"Χο.": "Chorus"}
+    segs = [
+        {"id": "1:1", "column": "1", "speakers": [{"line": 1, "label": "Χο."}],
+         "lines": [{} for _ in range(2)]},
+        {"id": "1:3", "column": "3", "lines": [{} for _ in range(6)]},
+        {"id": "1:9", "column": "9", "lines": [{} for _ in range(2)]},
+    ]
+    para1 = (
+        "This is now the tenth year since the mighty plaintiff against Priam, "
+        "King Menelaos, and with him King Agamemnon, set forth from this land "
+        "with a fleet of a thousand ships. They cried out the shrill war-cry "
+        "of Ares in their fury, like vultures that wheel over their nest in "
+        "grief for their young. But some one of the gods hears the cry, and "
+        "sends a late-avenging Fury upon the transgressors."
+    )
+    para2 = (
+        "Zeus, whoever he may be, if by this name it pleases him to be "
+        "invoked, by this name I call to him. I have nothing to compare, "
+        "weighing all things in the balance, except Zeus, if I am truly to "
+        "cast aside the vain burden of my thought."
+    )
+    para3 = (
+        "Learning comes by suffering, and the pain of memory drips upon the "
+        "heart in sleep."
+    )
+    block = {"id": "1:1", "column": "1", "text": "\n\n".join([para1, para2, para3]),
+             "turns": [], "notes": [], "markers": []}
+
+    plain = _spread_long_speeches([block], segs, sigla)
+    assert [c["id"] for c in plain] == ["1:1", "1:3", "1:9"]
+    # In proportion the second segment's six lines open two sentences inside
+    # the first paragraph -- the shape the primary is there to correct.
+    assert plain[1]["text"].startswith("They cried out")
+
+    bridge = {
+        "1:3": "Zeus, whoever he may be, if by this name it pleases him to be "
+               "invoked, by this name I call to him, as I weigh all things.",
+        "1:9": "Learning comes by suffering; the pain of memory drips upon the "
+               "heart even in sleep.",
+    }
+    out = _spread_long_speeches([block], segs, sigla, bridge=bridge)
+    assert [c["id"] for c in out] == ["1:1", "1:3", "1:9"]
+    assert out[0]["text"].startswith("This is now the tenth year")
+    assert out[1]["text"].startswith("Zeus, whoever he may be")
+    assert out[2]["text"].startswith("Learning comes by suffering")
+    # A segment the primary cannot speak for is left to the ordinary pool:
+    # no claim, no move.
+    assert _spread_long_speeches(
+        [block], segs, sigla, bridge={"1:3": "Alas."},
+    )[1]["text"] == plain[1]["text"]
 
 
 # --- R5: the reach-back window comes from the windows the DP was given ------

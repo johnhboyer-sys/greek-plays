@@ -253,6 +253,49 @@ def _region_align(
         before = greek[i - 2].line_key if i >= 2 else prev_line_key
         return before is not None and key == before
 
+    def merged_into_match(i: int, j: int) -> bool:
+        """A6. Leaving a MATCH at ``(i - 1, j)`` to skip ``greek[i - 1]``:
+        is the English just matched long enough to be reading the WHOLE
+        physical line, so that this share is merged into it?
+
+        ``ext_g_same_line`` is the price of a merged antilabe -- one English
+        speech for two shares of one line, the reader shown the whole line
+        beside that speech -- but it was charged whenever the geometry held,
+        whether or not any English covered the second share. A column that
+        renders both shares then buys its own displacement: at Bacchae 1372
+        Murray has a speech for each half and the slid seating wins by 0.023.
+
+        The test is not a fitted threshold on a ratio but a change of the
+        quantity: the matched English must be at least as long as its OWN
+        share alone warrants (``rho``, the column's median English chars per
+        Greek char) before the next share may be treated as merged into it.
+        There is no constant here -- the comparison is against what the
+        column's own median says one share should produce.
+
+        It applies ONLY to the transition out of a MATCH: a gap already open
+        (``Ig``) or one resuming after an English gap (``Ie``) has no matched
+        English to measure, and keeps the same-line rate as before. At
+        ``i < 2`` the node before is the region's pin, whose English is not
+        in this slice (and ``M[0][j]`` is unreachable for ``j >= 1``), so
+        there is nothing to measure and the rate stands.
+
+        The four documented inequalities (see ``Weights``) are untouched:
+        this changes no weight, only which of two existing weights an
+        already-priced transition pays. 1. ``open_e < w_spk``: no English
+        term moves. 2. ``w_spk < ext_g + ext_e``: neither extension rate
+        moves, and the substitution is ``open_g`` for ``ext_g_same_line`` on
+        a MATCH-to-gap OPENING, which is the transition ``open_g`` prices
+        everywhere else. 3. ``w_bridge < open_g``: untouched. 4. ``ext_g <
+        w_spk``: untouched -- a one-sided Greek hole still extends at
+        ``ext_g``. What the change costs is bounded by ``open_g -
+        ext_g_same_line`` (1.00) on the first skip of a run, and it is
+        charged only where an English speech shorter than its own share
+        would otherwise have been read as covering two.
+        """
+        if i < 2 or j < 1:
+            return True
+        return english[j - 1].chars >= rho * max(greek[i - 2].chars, 1)
+
     # Round 9, Codex merge-gate finding 1: the band is gone. It pruned cells
     # to a half-width of `max(40, 0.12 * max(G, E))` and retried wider when
     # the returned path touched a band-imposed edge or held ONE gap run
@@ -326,8 +369,17 @@ def _region_align(
                     ie_prev = Ie[i - 1].get(j, INF)
                     ig_prev = Ig[i - 1].get(j, INF)
                     if same_line(i):
+                        # A6: out of a MATCH the discount holds only when the
+                        # English just matched is long enough for its own
+                        # share alone (`merged_into_match`); a gap already
+                        # open keeps the same-line rate either way.
+                        m_rate = (
+                            weights.ext_g_same_line
+                            if merged_into_match(i, j)
+                            else weights.open_g
+                        )
                         best_g = min(
-                            m_prev + weights.ext_g_same_line if m_prev < INF else INF,
+                            m_prev + m_rate if m_prev < INF else INF,
                             ie_prev + weights.ext_g_same_line if ie_prev < INF else INF,
                             ig_prev + weights.ext_g_same_line if ig_prev < INF else INF,
                         )
@@ -403,8 +455,13 @@ def _region_align(
                 ie_prev = Ie[i - 1].get(j, INF)
                 ig_prev = Ig[i - 1].get(j, INF)
                 if same_line(i):
+                    m_rate = (
+                        weights.ext_g_same_line
+                        if merged_into_match(i, j)
+                        else weights.open_g
+                    )
                     cand = {
-                        "M": m_prev + weights.ext_g_same_line if m_prev < INF else INF,
+                        "M": m_prev + m_rate if m_prev < INF else INF,
                         "Ie": ie_prev + weights.ext_g_same_line if ie_prev < INF else INF,
                         "Ig": ig_prev + weights.ext_g_same_line if ig_prev < INF else INF,
                     }
