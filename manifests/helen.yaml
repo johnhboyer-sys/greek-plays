@@ -29,7 +29,6 @@ english:
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
       - { greek: "641", by: "638" }
-      - { greek: "656", by: "654" }
       - { greek: "657", by: "654" }
   secondary:
     id: way

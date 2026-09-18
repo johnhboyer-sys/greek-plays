@@ -92,8 +92,15 @@ def _norm_siglum(label: str) -> str:
 _ORDINALS = ("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth")
 
 
+# How long a numbered character's scene may stay silent and still own the
+# edition's bare abbreviation.  See _synthesized_numbered_overrides.
+_NUMBERED_SCENE_LINES = 100
+
+
 def _synthesized_numbered_overrides(
-    sigla_norm: dict[str, str], spine: dict | None
+    sigla_norm: dict[str, str],
+    spine: dict | None,
+    declared: list[tuple[str, tuple, str]] | None = None,
 ) -> list[tuple[str, tuple, str]]:
     """C3 (fix-mechanisms brief, round 2, clouds #1): a bare abbreviation
     (`Χρ.`) an edition reuses for several numbered characters (`ΧΡΗΣΤΗΣ
@@ -112,7 +119,19 @@ def _synthesized_numbered_overrides(
     `speakers.overrides` already supports by hand, keyed off the numbered
     siglum's own first appearance on the spine, so the existing "last
     matching `from` wins" override resolution does the rest — no manifest
-    change needed."""
+    change needed.
+
+    Round-3 residue (peace 973/1122/1124): the numbered character's scene
+    ENDS when the siglum falls silent.  Peace numbers its two slaves only in
+    the prologue (`ΟΙ. Αʹ`/`ΟΙ. Βʹ`, 1-110) and then prints a bare `ΟΙ.`
+    from 824 to the end for the one slave attending Trygaeus; read literally
+    the rule made all fifty of those the Second Slave, a name no English
+    column has a cue for, and three Greek speeches lost their English.  So a
+    bare occurrence more than `_NUMBERED_SCENE_LINES` after the last
+    numbered speech of its own base gets a further override back to the
+    generic display.  The margin is wide both ways: the corpus's real
+    numbered scenes resume within eight lines (Clouds 1214 -> 1222), and
+    Peace's gap is 714."""
     if not spine:
         return []
     numbered: list[tuple[str, str, str]] = []  # (bare_key, numbered_key, display)
@@ -132,6 +151,7 @@ def _synthesized_numbered_overrides(
         return []
 
     first_ref: dict[str, str] = {}
+    refs_by_key: dict[str, list[str]] = {}
     for seg in spine.get("segments") or []:
         line_refs = {
             ln.get("n"): ln.get("ref")
@@ -140,18 +160,49 @@ def _synthesized_numbered_overrides(
         }
         for event in seg.get("speakers") or []:
             key = _norm_siglum(event.get("label") or "")
-            if key in first_ref:
-                continue
             ref = line_refs.get(event.get("line"))
-            if ref is not None:
-                first_ref[key] = ref
+            if ref is None:
+                continue
+            first_ref.setdefault(key, ref)
+            refs_by_key.setdefault(key, []).append(ref)
 
     out: list[tuple[str, tuple, str]] = []
+    numbered_keys: dict[str, set[str]] = {}
     for bare_key, num_key, display in numbered:
+        numbered_keys.setdefault(bare_key, set()).add(num_key)
         ref = first_ref.get(num_key)
         if ref is None:
             continue
         out.append((bare_key, scheme_mod.play_line_order_key(ref), display))
+
+    # The scene's end: for each bare siglum, the first of its OWN
+    # appearances that comes a scene's length after the last speech of any
+    # numbered form of the same base restores the generic display.
+    for bare_key, keys in numbered_keys.items():
+        last = max(
+            (
+                scheme_mod.play_line_order_key(r)
+                for key in keys
+                for r in refs_by_key.get(key, ())
+            ),
+            default=None,
+        )
+        if last is None:
+            continue
+        if any(
+            siglum == bare_key and from_key > last
+            for siglum, from_key, _display in declared or ()
+        ):
+            # The manifest itself hands this siglum to somebody else later
+            # (Bacchae's `Αγ.` becomes Agave at 1168, having been the Second
+            # Messenger from 1024).  A hand-written override is the editor's
+            # own reading and always outranks a synthesized one.
+            continue
+        for ref in refs_by_key.get(bare_key, ()):
+            key = scheme_mod.play_line_order_key(ref)
+            if key[0] - last[0] > _NUMBERED_SCENE_LINES:
+                out.append((bare_key, key, sigla_norm.get(bare_key) or ""))
+                break
     return out
 
 
@@ -178,7 +229,7 @@ def _load_speaker_overrides(
                 and isinstance(o.get("from"), str) and isinstance(o.get("display"), str)):
             raise RuntimeError(f"{manifest.work_id}: malformed speakers.overrides entry {o!r}")
         out.append((_norm_siglum(o["siglum"]), scheme_mod.play_line_order_key(o["from"]), o["display"]))
-    out.extend(_synthesized_numbered_overrides(sigla_norm, spine))
+    out.extend(_synthesized_numbered_overrides(sigla_norm, spine, out))
     return sorted(out, key=lambda t: t[1])
 
 

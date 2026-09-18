@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -190,15 +191,22 @@ def test_perseus_play_chunks_ticks_notes_turns_and_report(tmp_path: Path):
     assert report["speakers"]["only_in_english"] == []
 
 
-def test_isolated_single_line_disagreement_is_not_repaired(tmp_path: Path):
-    """C1: an anchor that keeps its place in the increasing ``<l n>``
-    sequence, and disagrees with the Greek about its speaker only once (not
-    as part of an out-of-order pair, and not part of a run of three or
-    more), has its own line inside the play's numbering.  It is never moved
-    onto a nearby same-speaker speech — it stays put, flagged, exactly like
-    the real Oedipus Tyrannus 625 and Electra 650.  (Superseded
-    ``test_one_line_drift_binds_to_the_right_speaker``, which asserted the
-    pre-C1 behaviour this fixes.)"""
+def test_one_line_drift_on_a_crowded_seat_binds_to_the_right_speaker(
+    tmp_path: Path,
+):
+    """The Agamemnon 1077 contract, restored (S3, Lane C round 3).  Smyth's
+    ``<l n="1077">`` is the Chorus answering Cassandra, and the Greek seat it
+    lands on ALREADY holds Cassandra's own 1076 — two English lines on one
+    Greek speech — while the Chorus's own speech at 1:1078 stands empty.
+    Round 1's C1 blocked every lone repair and flipped this fixture's
+    assertions; the sweep then found two live corpus instances of the same
+    shape (Hecuba 709, Persians 1076) that the block had broken, so the rule
+    is now "a lone anchor may move when its seat already holds a DIFFERENT
+    line's matching English and the speech it would move to is bare".  The
+    anchor that is genuinely alone on its seat still stays put — see
+    ``test_oedipus_tyrannus_625_stays_on_its_own_line``,
+    ``test_lone_anchor_stays_when_its_only_co_occupant_is_its_own_antilabe_half``
+    and ``test_electra_650_stays_on_its_own_line_not_the_lacuna``."""
     spine = {
         "work": "test-play",
         "segments": [
@@ -240,33 +248,20 @@ def test_isolated_single_line_disagreement_is_not_repaired(tmp_path: Path):
         sigla={"Κα.": "Cassandra", "Χο.": "Chorus"},
     )
     by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
-    assert "1:1078" not in by_id
-    assert "Once more she cries." in by_id["1:1076"]["text"]
-    chorus_turn = next(
-        t for t in by_id["1:1076"]["turns"] if t["speaker"] == "Chorus"
-    )
-    assert chorus_turn["speakerMismatch"] == {
-        "english": "Chorus",
-        "greek": "Cassandra",
-    }
+    assert by_id["1:1076"]["text"] == "Woe."
+    assert by_id["1:1078"]["text"] == "Once more she cries."
     assert report["speech_mismatches"]
     mismatch = report["speech_mismatches"][0]
     assert mismatch["english_line"] == 1077
     assert mismatch["english_speaker"] == "Chorus"
     assert mismatch["greek_speaker"] == "Cassandra"
-    assert mismatch["attached_to"] == "1:1076"
-    assert mismatch["kind"] == "attribution_difference"
+    assert mismatch["attached_to"] == "1:1078"
+    assert mismatch["kind"] == "speaker_repair"
+    # P2g finding 10: the tick names a line the TARGET segment prints.
+    assert mismatch["attached_ref"] == "1078"
     assert report["speech_mismatch_count"] == 1
     assert report["unresolved_mismatch_count"] == 0
-    assert report["attribution_differences"] == [
-        {
-            "greek_id": "1:1076",
-            "line": 1077,
-            "english_speaker": "Chorus",
-            "greek_speaker": "Cassandra",
-        }
-    ]
-    assert report["attribution_difference_count"] == 1
+    assert report["attribution_differences"] == []
 
 
 def test_oedipus_tyrannus_625_stays_on_its_own_line(tmp_path: Path):
@@ -2620,7 +2615,8 @@ def test_a_paragraph_with_no_line_number_of_its_own_gets_no_tick(tmp_path: Path)
 
 def test_nless_snap_reports_the_speaker_of_the_tick_line(tmp_path: Path):
     """P2i finding 6: the snap row names the speaker of the line it ticked,
-    never the segment's joined speaker set."""
+    never the segment's joined speaker set.  (1:2 carries no English anchor
+    of its own, so after C9 the paragraph still walks on to it.)"""
     spine = {
         "work": "test-play",
         "segments": [
@@ -2856,3 +2852,849 @@ def test_antilabe_run_resyncs_by_position_not_number(tmp_path: Path):
     assert not any(a["kind"] == "unmatched_anchor" for a in report["anomalies"])
     # A plain, already-in-step speech elsewhere must not be disturbed.
     assert by_id["1:9"]["text"] == "A long speech resumes here in step."
+
+
+# ---------------------------------------------------------------------------
+# Lane C round 3, item 1: the transposition remap (S1, G3, G4)
+# ---------------------------------------------------------------------------
+
+
+def _line_seg(seg_id: str, refs: list[str], label: str) -> dict:
+    """One Greek speech printing ``refs``, all spoken by ``label``."""
+    first = int(re.match(r"\d+", refs[0]).group(0))
+    return {
+        "id": seg_id,
+        "book": 1,
+        "column": refs[0],
+        "lines": [
+            {"n": int(re.match(r"\d+", ref).group(0)), "ref": ref, "text": f"g{ref}"}
+            for ref in refs
+        ],
+        "speakers": [{"line": first, "offset": 0, "label": label}],
+    }
+
+
+def test_transposition_remap_skipped_when_a_translator_folds_two_lines(
+    tmp_path: Path,
+):
+    """Real corpus instance (S1, andromache; the sweep's root cause A): the
+    spine prints 68, 69, 73, 70, 71, 72, so ``citation.transpositions``
+    declares ``{start: 70, end: 72, before: 73}``.  Coleridge, though, gives
+    the couplet 70+71 ONE ``<l n="70">`` and 72+73 one ``<l n="72">`` — the
+    block's four printed lines carry three anchors, so "the translation's nth
+    line is the edition's nth printed line" is simply false here.  Remapping
+    anyway sends n=70 to ref 73 (the Maid's segment), invents a numeric drop
+    that satisfies Rule A, and the repair cascade empties 1:70.  The anchors
+    must keep their own numbers, and the skip must be reported."""
+    spine = {
+        "work": "andromache",
+        "segments": [
+            _line_seg("1:68", ["68", "69", "73"], "Θε."),
+            _line_seg("1:70", ["70", "71"], "Ανδ."),
+            _line_seg("1:72", ["72"], "Θε."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Maid</speaker><l n="68">Alas! poor lady, they intend to slay thy son.</l></sp>
+    <sp><speaker>Andromache</speaker><l n="70">Ah me! Has she heard that my babe was put out of her reach?</l></sp>
+    <sp><speaker>Maid</speaker><l n="72">I know not; and Menelaus has left the house to fetch him.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Maid": "Maid", "Andromache": "Andromache"},
+        sigla={"Θε.": "Maid", "Ανδ.": "Andromache"},
+        transpositions=[{"start": "70", "end": "72", "before": "73"}],
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "Ah me! Has she heard" in by_id["1:70"]["text"]
+    assert "Alas! poor lady" in by_id["1:68"]["text"]
+    assert "I know not" in by_id["1:72"]["text"]
+    assert report["speech_mismatches"] == []
+    skipped = [
+        a for a in report["anomalies"] if a["kind"] == "transposition_remap_skipped"
+    ]
+    assert len(skipped) == 1
+    assert skipped[0]["reason"] == "anchors_not_one_per_printed_line"
+
+
+def test_transposition_remap_merges_two_rows_over_one_printed_stretch(
+    tmp_path: Path,
+):
+    """G4 (seven-against-thebes): the derived allowlist splits ONE printed
+    rotation — 993, then 984-992, then 983 — into two rows
+    (``{984,992,before:993}`` and ``{983,983,before:993}``).  Folding both
+    rows' arithmetic into a single dict lets the second overwrite the first
+    and every anchor in the stretch lands one line out.  Read the stretch off
+    the spine's own printed order instead: the translation's 1st, 2nd, …
+    line in it seats on the edition's 1st, 2nd, … printed ref."""
+    spine = {
+        "work": "seven-against-thebes",
+        "segments": [
+            _line_seg("1:982", ["982"], "ΧΟ."),
+            _line_seg("1:986", ["986"], "ΑΝ."),   # printed 1st of the stretch
+            _line_seg("1:984", ["984"], "ΙΣ."),   # printed 2nd
+            _line_seg("1:985", ["985"], "ΑΝ."),   # printed 3rd
+            _line_seg("1:983", ["983"], "ΙΣ."),   # printed 4th
+            _line_seg("1:987", ["987"], "ΧΟ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Chorus</speaker><l n="982">Chorus before.</l></sp>
+    <sp><speaker>Antigone</speaker><l n="983">First printed of the four.</l></sp>
+    <sp><speaker>Ismene</speaker><l n="984">Second printed of the four.</l></sp>
+    <sp><speaker>Antigone</speaker><l n="985">Third printed of the four.</l></sp>
+    <sp><speaker>Ismene</speaker><l n="986">Fourth printed of the four.</l></sp>
+    <sp><speaker>Chorus</speaker><l n="987">Chorus after.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={
+            "Chorus": "Chorus",
+            "Antigone": "Antigone",
+            "Ismene": "Ismene",
+        },
+        sigla={"ΧΟ.": "Chorus", "ΑΝ.": "Antigone", "ΙΣ.": "Ismene"},
+        transpositions=[
+            {"start": "984", "end": "985", "before": "986"},
+            {"start": "983", "end": "983", "before": "986"},
+        ],
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:986"]["text"] == "First printed of the four."
+    assert by_id["1:984"]["text"] == "Second printed of the four."
+    assert by_id["1:985"]["text"] == "Third printed of the four."
+    assert by_id["1:983"]["text"] == "Fourth printed of the four."
+    assert by_id["1:982"]["text"] == "Chorus before."
+    assert by_id["1:987"]["text"] == "Chorus after."
+    assert report["speech_mismatches"] == []
+
+
+def test_transposition_row_whose_before_is_off_the_stretch_is_reported(
+    tmp_path: Path,
+):
+    """G4 (bacchae 847-1392 "before" 1448a, orestes 1488b, rhesus 678-679):
+    a derived row whose ``before`` is a lettered ref, or sits nowhere near
+    the run it names, is not a rotation the primary can key against.  The
+    old code int-parsed the bounds and returned silently; it must remap
+    nothing AND say so."""
+    spine = {
+        "work": "bacchae",
+        "segments": [
+            _line_seg("1:146", ["146", "1448a"], "ΧΟ."),
+            _line_seg("1:147", ["147"], "ΧΟ."),
+            _line_seg("1:148", ["148"], "ΧΟ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Chorus</speaker><l n="146">One.</l><l n="147">Two.</l><l n="148">Three.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Chorus": "Chorus"},
+        sigla={"ΧΟ.": "Chorus"},
+        # Bacchae's third derived row: the run 148 sits below a running
+        # maximum set 700 lines earlier by one stray fragment ref, so
+        # `before` names a ref nowhere near the run.
+        transpositions=[{"start": "148", "end": "148", "before": "1448a"}],
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "One." in by_id["1:146"]["text"]
+    assert by_id["1:147"]["text"] == "Two."
+    assert by_id["1:148"]["text"] == "Three."
+    skipped = [
+        a for a in report["anomalies"] if a["kind"] == "transposition_remap_skipped"
+    ]
+    assert len(skipped) == 1
+    assert skipped[0]["reason"] == "before_outside_printed_stretch"
+
+
+def test_rule_a_inversion_reads_the_raw_tei_number_not_the_remapped_one(
+    tmp_path: Path,
+):
+    """G3 (Grok's read of round 1): C4 rewrites a piece's anchor BEFORE the
+    jobs are built, so Rule A — "the translation's own ``<l n>`` runs
+    backwards here, the number cannot be trusted" — was reading the rewritten
+    number.  Every successful rotation ends in a numeric drop, so the remap
+    manufactured its own repair evidence and any speaker disagreement on the
+    wrap pair was moved off its line.  Rule A must read the number the TEI
+    actually printed: 99, 100, 101 ascending is no inversion at all, and
+    Delta's disagreement at the wrap stays where the rotation put it."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            _line_seg("1:100", ["100"], "A"),
+            _line_seg("1:101", ["101"], "B"),
+            _line_seg("1:99", ["99"], "G"),
+            _line_seg("1:102", ["102"], "D"),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="99">First printed.</l></sp>
+    <sp><speaker>Beta</speaker><l n="100">Second printed.</l></sp>
+    <sp><speaker>Delta</speaker><l n="101">Third printed.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Alpha": "Alpha", "Beta": "Beta", "Delta": "Delta"},
+        sigla={"A": "Alpha", "B": "Beta", "G": "Gamma", "D": "Delta"},
+        transpositions=[{"start": "99", "end": "99", "before": "101"}],
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:100"]["text"] == "First printed."
+    assert by_id["1:101"]["text"] == "Second printed."
+    # The rotation's wrap: Delta's line seats on 1:99 and merely disagrees
+    # with the Greek about who speaks it. It must not be dragged to 1:102.
+    assert by_id["1:99"]["text"] == "Third printed."
+    assert "1:102" not in by_id
+    mismatch = report["speech_mismatches"][0]
+    assert mismatch["kind"] == "attribution_difference"
+    assert mismatch["attached_to"] == "1:99"
+
+
+def test_transposition_remap_stands_down_when_the_greek_speakers_contradict_it(
+    tmp_path: Path,
+):
+    """Real corpus instance (hecuba 758/759; the same shape in
+    iphigenia-at-aulis 653-665, iphigenia-in-tauris 1050/1051,
+    phoenician-women 1747-1749, rhesus 334-338): a declared row can mean
+    either of two things.  Either the two editions NUMBER the same verses
+    differently and the translation's nth line in the stretch is the
+    edition's nth printed line (Oedipus at Colonus 328-330, where Jebb
+    renumbers his transposed line and Dain-Mazon keeps the vulgate number),
+    or both editions number the verses alike and only the printed order
+    differs — and then the anchor's own number is right.  Diggle prints
+    Hecuba 759 before 758, but Coleridge's ``n="758"`` is Greek 758 and his
+    ``n="759"`` is Greek 759: re-keying by printed position puts each on the
+    other's line and the Greek's own speaker attributions say so, two
+    disagreements where the numbers give none.  The remap must stand down
+    whenever it scores strictly worse than leaving the anchors alone."""
+    spine = {
+        "work": "hecuba",
+        "segments": [
+            _line_seg("1:757", ["757"], "Αγ."),
+            _line_seg("1:759", ["759"], "Εκ."),
+            _line_seg("1:758", ["758"], "Αγ."),
+            _line_seg("1:760", ["760"], "Εκ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Agamemnon</speaker><l n="757">Before that.</l></sp>
+    <sp><speaker>Agamemnon</speaker><l n="758">Well, but why do you call me to your aid?</l></sp>
+    <sp><speaker>Hecuba</speaker><l n="759">It is a matter you little know of, king.</l></sp>
+    <sp><speaker>Hecuba</speaker><l n="760">Do you see this corpse?</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Agamemnon": "Agamemnon", "Hecuba": "Hecuba"},
+        sigla={"Αγ.": "Agamemnon", "Εκ.": "Hecuba"},
+        transpositions=[{"start": "758", "end": "758", "before": "759"}],
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:758"]["text"] == "Well, but why do you call me to your aid?"
+    assert by_id["1:759"]["text"] == "It is a matter you little know of, king."
+    assert report["speech_mismatches"] == []
+    stood_down = [
+        a
+        for a in report["anomalies"]
+        if a["kind"] == "transposition_remap_skipped"
+        and a["reason"] == "printed_keying_contradicted_by_greek_speakers"
+    ]
+    assert len(stood_down) == 1
+
+
+# ---------------------------------------------------------------------------
+# Lane C round 3, item 3: Rule B refined (S3, G1, G2)
+# ---------------------------------------------------------------------------
+
+
+def test_lone_anchor_moves_when_its_seat_already_holds_another_line_of_english(
+    tmp_path: Path,
+):
+    """Real corpus instances (S3: hecuba anchor 709, persians anchor 1076).
+    Diggle prints Hecuba 709-710 as one ref; Coleridge numbers the Chorus's
+    question 709 and Hecuba's answer 710, so his numbering runs one ahead of
+    the Greek's through here.  Both anchors land on the one Greek seat, 710
+    agreeing with it and 709 not — two English LINES on one Greek verse,
+    which a translation never numbers.  C1 forbade every lone repair and so
+    left the Chorus's question glued to the front of Hecuba's answer with
+    1:708 bare.  A lone anchor may move when its seat already holds the
+    English of a DIFFERENT line number that the Greek agrees with, and when
+    the same-speaker speech it would move to holds no English of its own."""
+    spine = {
+        "work": "hecuba",
+        "segments": [
+            _line_seg("1:708", ["708"], "ΧΟ."),
+            _line_seg("1:709-710", ["709-710", "711"], "ΕΚ."),
+            _line_seg("1:713", ["713"], "ΧΟ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Chorus Leader</speaker><l n="709">Who slew him then?</l></sp>
+    <sp><speaker>Hecuba</speaker><l n="710">It was my own familiar friend, the knight of Thrace.</l></sp>
+    <sp><speaker>Chorus Leader</speaker><l n="713">O horror! what will you say?</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Chorus Leader": "Chorus", "Hecuba": "Hecuba"},
+        sigla={"ΧΟ.": "Chorus", "ΕΚ.": "Hecuba"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:708"]["text"] == "Who slew him then?"
+    assert (
+        by_id["1:709-710"]["text"]
+        == "It was my own familiar friend, the knight of Thrace."
+    )
+    assert report["speech_mismatches"][0]["kind"] == "speaker_repair"
+    assert report["speech_mismatches"][0]["attached_to"] == "1:708"
+
+
+def test_lone_anchor_stays_when_its_only_co_occupant_is_its_own_antilabe_half(
+    tmp_path: Path,
+):
+    """The case C1 was written to protect, in its real shape (oedipus-tyrannus
+    625, which Jebb splits into 625 part=I and 625a part=F).  Both halves sit
+    on Greek 625, and the Ismene-half agrees with the Greek while the
+    Creon-half does not — the same "seat already holds matching English"
+    picture as Hecuba 709, except that the co-occupant is the SECOND HALF OF
+    ITS OWN LINE.  That is what an antilabe is; it implies no slip in the
+    numbering, so 625 keeps its line and stays an attribution difference
+    even though Creon does speak 624 next door."""
+    spine = {
+        "work": "oedipus-tyrannus",
+        "segments": [
+            _line_seg("1:623", ["623"], "ΟΙ."),
+            _line_seg("1:624", ["624"], "ΚΡ."),
+            _line_seg("1:625", ["625"], "ΟΙ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Oedipus</speaker><l n="623">Hardly.  I desire your death.</l></sp>
+    <sp><speaker>Creon</speaker><l n="625" part="I">Are you resolved not to yield or believe?</l></sp>
+    <sp><speaker>Oedipus</speaker><l n="625a" part="F">No, for you persuade me that you are unworthy of trust.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Oedipus": "Oedipus", "Creon": "Creon"},
+        sigla={"ΟΙ.": "Oedipus", "ΚΡ.": "Creon"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "1:624" not in by_id
+    assert by_id["1:625"]["text"].startswith("Are you resolved")
+    assert report["speech_mismatches"][0]["kind"] == "attribution_difference"
+    assert report["speech_mismatches"][0]["attached_to"] == "1:625"
+
+
+def test_a_run_of_three_must_advance_line_by_line(tmp_path: Path):
+    """G1 (Grok's read of round 1): Rule B counted consecutive NUMBERED JOBS,
+    so three disagreements scattered across a speech — 1000, 1010, 1020, with
+    nothing numbered between them — passed as "a run of three consecutive
+    anchors" and every one of them was moved.  A drift is a drift only if it
+    runs line by line; three anchors ten lines apart are three independent
+    attribution differences and each stays on its own line."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            _line_seg("1:1000", ["1000"], "A"),
+            _line_seg("1:1001", ["1001"], "B"),
+            _line_seg("1:1010", ["1010"], "A"),
+            _line_seg("1:1011", ["1011"], "B"),
+            _line_seg("1:1020", ["1020"], "A"),
+            _line_seg("1:1021", ["1021"], "B"),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Beta</speaker><l n="1000">One.</l></sp>
+    <sp><speaker>Beta</speaker><l n="1010">Two.</l></sp>
+    <sp><speaker>Beta</speaker><l n="1020">Three.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Alpha": "Alpha", "Beta": "Beta"},
+        sigla={"A": "Alpha", "B": "Beta"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:1000"]["text"] == "One."
+    assert by_id["1:1010"]["text"] == "Two."
+    assert by_id["1:1020"]["text"] == "Three."
+    assert [m["kind"] for m in report["speech_mismatches"]] == [
+        "attribution_difference"
+    ] * 3
+
+
+def test_antilabe_halves_are_scored_by_their_own_mismatch_not_a_shared_one(
+    tmp_path: Path,
+):
+    """G2 (Grok's read of round 1): the mismatch verdicts were kept in a dict
+    keyed by the integer base, so an antilabe's two halves (``328`` and
+    ``328a``) wrote to one slot and the last one won.  Here the FIRST half of
+    1001 agrees with the Greek and the second does not: under a shared slot
+    the agreeing half inherited the disagreeing one's verdict, 1000, 1001,
+    1001a and 1002 read as four disagreements in a row, and Rule B moved
+    every one of them onto Alpha's neighbouring speeches.  Scored per half,
+    the agreeing half breaks the run and each disagreement stays put."""
+    spine = {
+        "work": "test-play",
+        "segments": [
+            _line_seg("1:999", ["999"], "A"),
+            _line_seg("1:1000", ["1000"], "B"),
+            {
+                "id": "1:1001",
+                "book": 1,
+                "column": "1001",
+                "lines": [{"n": 1001, "ref": "1001", "text": "g"}],
+                "speakers": [
+                    {"line": 1001, "offset": 0, "label": "A"},
+                    {"line": 1001, "offset": 1, "label": "B"},
+                ],
+            },
+            _line_seg("1:1002", ["1002"], "B"),
+            _line_seg("1:1003", ["1003"], "A"),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1000">Disagrees here.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="1001" part="I">First half.</l></sp>
+    <sp><speaker>Gamma</speaker><l n="1001a" part="F">Second half.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="1002">Disagrees here too.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Alpha": "Alpha", "Beta": "Beta", "Gamma": "Gamma"},
+        sigla={"A": "Alpha", "B": "Beta"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:1000"]["text"] == "Disagrees here."
+    assert by_id["1:1001"]["text"] == "First half. Second half."
+    assert by_id["1:1002"]["text"] == "Disagrees here too."
+    assert "1:999" not in by_id
+    assert "1:1003" not in by_id
+    assert {m["kind"] for m in report["speech_mismatches"]} == {
+        "attribution_difference"
+    }
+
+
+def test_a_crowded_seat_seeds_the_whole_run_it_belongs_to(tmp_path: Path):
+    """Real corpus instance (suppliants-eur 1158-1161): Coleridge numbers the
+    close of the kommos one ahead of Diggle, and only TWO of his anchors
+    disagree with the Greek about their speaker — one short of Rule B's run
+    of three — because his 1161 lands on the tail of the same Greek seat as
+    his 1160 and inherits that speech's speaker.  That doubling IS the
+    evidence: two English line numbers on one Greek seat.  It seeds the run,
+    the run shifts back together (each member freeing the seat the next one
+    needs), and 1:1158 stops being bare."""
+    spine = {
+        "work": "suppliants-eur",
+        "segments": [
+            _line_seg("1:1158", ["1158"], "ΠΑ."),
+            _line_seg("1:1159", ["1159"], "ΧΟ."),
+            _line_seg("1:1160", ["1160", "1161"], "ΠΑ."),
+            _line_seg("1:1162", ["1162", "1163"], "ΧΟ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Children</speaker><l n="1159">The weight of grief I have to bear hath crushed me utterly.</l></sp>
+    <sp><speaker>Chorus</speaker><l n="1160">Come, let me clasp the ashes of my son to my bosom.</l></sp>
+    <sp><speaker>Children</speaker><l n="1161">I weep to hear that piteous word.</l></sp>
+    <sp><speaker>Chorus</speaker><l n="1163">My child, thou art undone.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Children": "Children", "Chorus": "Chorus"},
+        sigla={"ΠΑ.": "Children", "ΧΟ.": "Chorus"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert (
+        by_id["1:1158"]["text"]
+        == "The weight of grief I have to bear hath crushed me utterly."
+    )
+    assert (
+        by_id["1:1159"]["text"] == "Come, let me clasp the ashes of my son to my bosom."
+    )
+    assert by_id["1:1160"]["text"] == "I weep to hear that piteous word."
+    assert by_id["1:1162"]["text"] == "My child, thou art undone."
+
+
+# ---------------------------------------------------------------------------
+# Lane C round 3, item 5: C9 — an <l> resolved against its own <sp>
+# ---------------------------------------------------------------------------
+
+
+def test_a_speech_opening_on_the_previous_speakers_line_joins_its_own_speech(
+    tmp_path: Path,
+):
+    """C9 (trachiniae findings 3, 4, 6): Jebb's numbering and Dain-Mazon's part
+    company by one line at a speech boundary, so a speech's FIRST ``<l n>``
+    names a line the previous Greek speech prints while the rest of the same
+    ``<sp>`` sits correctly in the next.  The Old Man's 1017 printed at the
+    end of Heracles's speech and Hyllus's segment then opened mid-sentence
+    ("more than mine."); the Chorus's 881b did the same inside the Nurse's
+    one-line speech, and 879b inside hers again.  A speech's own opening
+    clause belongs with the rest of that speech, at the head of its turn —
+    the mirror of C7's tail redirect."""
+    spine = {
+        "work": "trachiniae",
+        "segments": [
+            _line_seg("1:993", ["1014", "1015", "1016", "1017"], "ΗΡ."),
+            _line_seg("1:1018", ["1018", "1019", "1020"], "ΠΡ."),
+            _line_seg("1:1023", ["1023"], "ΗΡ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Heracles</speaker><l n="1015">Will no one strike the head from this accursed body?</l></sp>
+    <sp><speaker>Old Man</speaker><l n="1017">You are the man’s son, and this task exceeds my strength.</l>
+      <l n="1020a">more than mine.</l></sp>
+    <sp><speaker>Heracles</speaker><l n="1023">Ah me!</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Heracles": "Heracles", "Old Man": "Old Man"},
+        sigla={"ΗΡ.": "Heracles", "ΠΡ.": "Old Man"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert (
+        by_id["1:993"]["text"]
+        == "Will no one strike the head from this accursed body?"
+    )
+    assert by_id["1:1018"]["text"] == (
+        "You are the man’s son, and this task exceeds my strength. more than mine."
+    )
+    assert by_id["1:1018"]["turns"] == [
+        {"offset": 0, "speaker": "Old Man", "display": "Old Man"}
+    ]
+
+
+def test_a_paragraph_stays_put_when_the_next_greek_speech_is_taken(tmp_path: Path):
+    """C9 (trachiniae finding 5): a speakerless ``<sp>`` is split at each
+    ``<milestone unit="para"/>`` so Agamemnon's packed elders (1348-1371)
+    become one slice per utterance, and a slice with no ``<l n>`` of its own
+    then walks on to the NEXT Greek segment.  Heracles's dying speech is one
+    such ``<sp>``, with paragraph breaks inside ``<l n="1080">`` and
+    ``<l n="1105">`` that are not new speakers at all, so two blocks of it
+    were flushed into the Chorus's following couplet and his own speech
+    carried a visible splice.  A paragraph may take the next Greek speech
+    only when that speech has no English of its own; the Chorus's couplet
+    carries its own ``<l n="1112">``, so the paragraphs stay where they are
+    printed."""
+    spine = {
+        "work": "trachiniae",
+        "segments": [
+            _line_seg("1:1046", ["1046", "1080", "1081", "1105"], "ΗΡ."),
+            _line_seg("1:1112", ["1112"], "ΧΟ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp>
+      <l n="1080">see how wretched I am!
+        <milestone unit="para"/>Ah, misery!  The ruinous spasm flames again.
+        <milestone unit="para"/>
+      </l>
+      <l n="1105">—I, who am reputed the seed of Zeus.</l>
+    </sp>
+    <sp><speaker>Chorus</speaker><l n="1112">Ah, unhappy Greece.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Heracles": "Heracles", "Chorus": "Chorus"},
+        sigla={"ΗΡ.": "Heracles", "ΧΟ.": "Chorus"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "Ah, misery!" in by_id["1:1046"]["text"]
+    # And an em-dash reached MID-LINE is punctuation, not a new voice: Jebb's
+    # 1105 carries on the sentence 1100 began, so it keeps its own seat too.
+    assert "seed of Zeus" in by_id["1:1046"]["text"]
+    assert by_id["1:1112"]["text"] == "Ah, unhappy Greece."
+
+
+def test_a_paragraph_takes_the_next_greek_speech_when_it_is_empty(
+    tmp_path: Path,
+):
+    """The other half of the same rule (Agamemnon 1348-1371, and the Eumenides
+    Furies at 255-275, and Seven's sisters' kommos): Smyth packs the elders'
+    one-liners into one speakerless ``<sp>``, several of them inside a single
+    ``<l n="1350">``.  Each of the Greek speeches they render is empty, so
+    each paragraph walks on and takes one."""
+    spine = {
+        "work": "agamemnon",
+        "segments": [
+            _line_seg("1:1348", ["1348", "1349"], "ΧΟ."),
+            _line_seg("1:1350", ["1350"], "ΧΟ."),
+            _line_seg("1:1351", ["1351"], "ΧΟ."),
+            _line_seg("1:1352", ["1352"], "ΧΟ."),
+            _line_seg("1:1360", ["1360"], "ΧΟ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp>
+      <milestone unit="para"/><l n="1348">—I tell you my advice: summon the townsfolk.</l>
+      <milestone unit="para"/><l n="1350">—To my thinking we must burst in.
+        <milestone unit="para"/>—I, too, am for taking part in some such plan.
+        <milestone unit="para"/>—It is plain.</l>
+      <milestone unit="para"/><l n="1360">—I too am of this mind.</l>
+    </sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Chorus": "Chorus"},
+        sigla={"ΧΟ.": "Chorus"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:1348"]["text"] == "—I tell you my advice: summon the townsfolk."
+    assert by_id["1:1350"]["text"] == "—To my thinking we must burst in."
+    assert by_id["1:1351"]["text"] == "—I, too, am for taking part in some such plan."
+    assert by_id["1:1352"]["text"] == "—It is plain."
+    assert by_id["1:1360"]["text"] == "—I too am of this mind."
+
+
+def test_a_speech_head_joins_its_own_speech_after_the_previous_one_was_repaired(
+    tmp_path: Path,
+):
+    """C10 (trojan-women 274/275): Coleridge's whole Talthybius/Hecuba
+    exchange runs a line behind Diggle's, so Talthybius's answer is first
+    moved onto 1:274 by the drift repair; Hecuba's next speech then opens
+    with ``<l n="274">`` — "As for me" — which lands on that very segment and
+    printed inside his answer, leaving her own segment to open mid-sentence
+    ("whose hair is white with age").  The head belongs with the rest of her
+    speech, so the test is against the segment the previous speech ACTUALLY
+    landed on, repair included, not the one its number names."""
+    spine = {
+        "work": "trojan-women",
+        "segments": [
+            _line_seg("1:269", ["269", "270"], "ΕΚ."),
+            _line_seg("1:271", ["271"], "ΤΑ."),
+            _line_seg("1:272", ["272", "273"], "ΕΚ."),
+            _line_seg("1:274", ["274"], "ΤΑ."),
+            _line_seg("1:275", ["275", "276"], "ΕΚ."),
+            _line_seg("1:277", ["277"], "ΤΑ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Hecuba</speaker><l n="269">Alas for me! Is she still alive?</l></sp>
+    <sp><speaker>Talthybius</speaker><l n="270">Her fate sets her free from trouble.</l></sp>
+    <sp><speaker>Hecuba</speaker><l n="271">And what of the wife of Hector, sad Andromache?</l></sp>
+    <sp><speaker>Talthybius</speaker><l n="273">She too was a chosen prize; Achilles’ son took her.</l></sp>
+    <sp><speaker>Hecuba</speaker><l n="274">As for me</l>
+      <l n="275">whose hair is white with age, whose servant am I to be?</l></sp>
+    <sp><speaker>Talthybius</speaker><l n="277">Odysseus has taken you to be his slave.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Talthybius": "Talthybius", "Hecuba": "Hecuba"},
+        sigla={"ΤΑ.": "Talthybius", "ΕΚ.": "Hecuba"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:269"]["text"] == "Alas for me! Is she still alive?"
+    assert by_id["1:271"]["text"] == "Her fate sets her free from trouble."
+    assert by_id["1:272"]["text"] == (
+        "And what of the wife of Hector, sad Andromache?"
+    )
+    assert by_id["1:274"]["text"] == (
+        "She too was a chosen prize; Achilles’ son took her."
+    )
+    assert by_id["1:275"]["text"] == (
+        "As for me whose hair is white with age, whose servant am I to be?"
+    )
+    assert by_id["1:277"]["text"] == "Odysseus has taken you to be his slave."
+
+
+# ---------------------------------------------------------------------------
+# Lane C round 3, item 7: C11 — <note resp="perseus">l. N</note> as the anchor
+# ---------------------------------------------------------------------------
+
+
+def test_a_perseus_line_note_re_anchors_a_contested_line(tmp_path: Path):
+    """C11 (suppliants-aesch 905-910): Smyth's ``<l n>`` follows one edition's
+    numbering of the Herald scene and the spine's another, and the Perseus
+    encoders recorded the answer in the text: ``<note resp="perseus">l.
+    908</note>``.  The converter dropped those notes as non-Smyth, so four
+    consecutive turns held the neighbouring turn's words in every column.
+
+    The note is honoured only where it settles a contest — the spine gives
+    the ``<l>``'s own number to somebody else and gives the note's number to
+    this very speaker.  Three more notes in the same play (207, 209, 210)
+    name lines whose own slots already agree with the speaker, and the build
+    is right there: those are left alone."""
+    spine = {
+        "work": "suppliants-aesch",
+        "segments": [
+            _line_seg("1:903", ["903", "904"], "ΚΗ."),
+            _line_seg("1:905", ["905"], "ΧΟ."),
+            _line_seg("1:906", ["906", "907"], "ΚΗ."),
+            _line_seg("1:908", ["908"], "ΧΟ."),
+            _line_seg("1:909", ["909", "910"], "ΚΗ."),
+            # The uncontested pair: both numbers already agree.
+            _line_seg("1:207", ["207"], "ΔΑ."),
+            _line_seg("1:209", ["209"], "ΔΑ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Herald</speaker><l n="903">Get to the ship.</l></sp>
+    <sp><speaker>Chorus</speaker><l n="904">We are lost!  O King, we suffer violence!<note resp="perseus">l. 908</note></l></sp>
+    <sp><speaker>Herald</speaker><l n="905"><note resp="perseus">l. 906</note>You will soon see many kings.</l></sp>
+    <sp><speaker>Chorus</speaker><l n="907">Listen!  Chiefs and rulers of the city!<note resp="perseus">l. 905</note></l></sp>
+    <sp><speaker>Herald</speaker><l n="908">I will seize you by the hair.<note resp="perseus">l. 909</note></l></sp>
+    <sp><speaker>Danaus</speaker><l n="207">May he behold you with a gracious eye.<note resp="perseus">l. 210</note></l></sp>
+    <sp><speaker>Danaus</speaker><l n="209">Then do not delay.<note resp="perseus">l. 207</note></l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Herald": "Herald", "Chorus": "Chorus", "Danaus": "Danaus"},
+        sigla={"ΚΗ.": "Herald", "ΧΟ.": "Chorus", "ΔΑ.": "Danaus"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:903"]["text"] == "Get to the ship."
+    assert by_id["1:905"]["text"] == "Listen! Chiefs and rulers of the city!"
+    assert by_id["1:906"]["text"] == "You will soon see many kings."
+    assert by_id["1:908"]["text"] == "We are lost! O King, we suffer violence!"
+    assert by_id["1:909"]["text"] == "I will seize you by the hair."
+    # Uncontested: the notes at 207 and 209 change nothing.
+    assert by_id["1:207"]["text"] == "May he behold you with a gracious eye."
+    assert by_id["1:209"]["text"] == "Then do not delay."
+
+
+# ---------------------------------------------------------------------------
+# Lane C round 3, item 8: C12 — Perseus <stage> tags as directions
+# ---------------------------------------------------------------------------
+
+
+def test_perseus_stage_tags_become_directions_before_the_speech(tmp_path: Path):
+    """C12 (hecuba finding 5): every Perseus ``<stage>`` was dropped with the
+    rest of ``_SKIP_TAGS`` — 47 in Hecuba alone, entrances and exits between
+    speeches and asides ("stirring", "rising", "To Talthybius") at the head
+    of one.  A direction that precedes a speech's own words is emitted as
+    that turn's ``directionsBefore``, which the reader already renders.  One
+    reached in the middle of a speech has no turn to hang on and no inline
+    slot in a collapsed prose chunk, so it is counted as an anomaly rather
+    than lost in silence."""
+    spine = {
+        "work": "hecuba",
+        "segments": [
+            _line_seg("1:216", ["216"], "ΧΟ."),
+            _line_seg("1:218", ["218", "219"], "ΟΔ."),
+            _line_seg("1:604", ["604", "605"], "ΕΚ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Chorus Leader</speaker><l n="216">See where Odysseus comes in haste.</l></sp>
+    <stage rend="italic">Odysseus enters with his attendants.</stage>
+    <sp><speaker>Odysseus</speaker><l n="218"><stage rend="italic">rising</stage>Lady, I think you know the army’s will.</l></sp>
+    <sp><speaker>Hecuba</speaker><l n="604">Go and proclaim to the Argives<stage rend="italic">Talthybius goes out.</stage></l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Chorus Leader": "Chorus", "Odysseus": "Odysseus", "Hecuba": "Hecuba"},
+        sigla={"ΧΟ.": "Chorus", "ΟΔ.": "Odysseus", "ΕΚ.": "Hecuba"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:218"]["turns"] == [
+        {
+            "offset": 0,
+            "speaker": "Odysseus",
+            "display": "Odysseus",
+            "directionsBefore": [
+                "Odysseus enters with his attendants.",
+                "rising",
+            ],
+        }
+    ]
+    assert by_id["1:218"]["text"] == "Lady, I think you know the army’s will."
+    assert by_id["1:216"]["turns"][0].get("directionsBefore") is None
+    # The mid-speech one is counted, not silently dropped.
+    mid = [a for a in report["anomalies"] if a["kind"] == "stage_direction_mid_speech"]
+    assert len(mid) == 1
+    assert mid[0]["text"] == "Talthybius goes out."

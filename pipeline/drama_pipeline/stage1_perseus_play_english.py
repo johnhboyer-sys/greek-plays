@@ -619,10 +619,12 @@ def _iter_speech_slices(
     anomalies: list[dict],
     sp_index: int,
     printed: str = "",
+    head_directions: list[str] | None = None,
 ) -> list[_Slice]:
     slices: list[_Slice] = []
     current = _Slice()
     line_n_live = True
+    seen_text = False
 
     def flush() -> None:
         nonlocal current, line_n_live
@@ -636,8 +638,11 @@ def _iter_speech_slices(
         return n if (n is not None and line_n_live) else None
 
     def handle_text(raw: str | None, n: str | None) -> None:
+        nonlocal seen_text
         if not raw:
             return
+        if raw.strip():
+            seen_text = True
         if not split:
             current.add(n, raw)
             return
@@ -660,6 +665,26 @@ def _iter_speech_slices(
             # finding 1, 2026-09-17). Processing instructions stay fully
             # skipped, tail included.
             if node.tag is etree.Comment and node.tail:
+                handle_text(node.tail, current_n)
+            return
+        if tag == "stage":
+            # C12: a Perseus stage direction.  One that precedes the
+            # speech's own words becomes the turn's `directionsBefore`;
+            # one reached in the middle of a speech has no turn to hang on
+            # and is counted so the loss is visible.
+            text = collapse_ws("".join(node.itertext())).strip()
+            if text:
+                if seen_text:
+                    anomalies.append(
+                        {
+                            "kind": "stage_direction_mid_speech",
+                            "sp": sp_index,
+                            "text": text,
+                        }
+                    )
+                elif head_directions is not None:
+                    head_directions.append(text)
+            if node.tail:
                 handle_text(node.tail, current_n)
             return
         if tag in _SKIP_TAGS:
@@ -743,35 +768,49 @@ def _speakers_row(work_id: str, n: int | None, ref: str, printed: str, speaker: 
 
 
 def _out_of_order_anchors(jobs: list[dict]) -> set[int]:
-    """Raw English line numbers involved in a literal inversion of the
-    translation's OWN ``<l n>`` sequence: two numbered anchors, adjacent in
-    document order, where the later one is a LOWER number than the one
-    before it (Agamemnon's real Perseus TEI prints ``n="1204"`` immediately
-    before ``n="1203"``).  A translation is always typeset in increasing
-    printed order; a drop like this is a transcription/TEI artifact, not an
+    """Job POSITIONS involved in a literal inversion of the translation's
+    OWN ``<l n>`` sequence: two numbered anchors, adjacent in document
+    order, where the later one is a LOWER number than the one before it
+    (Agamemnon's real Perseus TEI prints ``n="1204"`` immediately before
+    ``n="1203"``).  A translation is always typeset in increasing printed
+    order; a drop like this is a transcription/TEI artifact, not an
     editorial fact (C1 condition A — see :func:`_repairable_anchors`).
+
+    G3 (Grok's read of round 1): the number read here is the one the TEI
+    PRINTED (``raw_n``), never C4's remapped one.  A declared rotation
+    always ends in a numeric drop once remapped, so reading the remapped
+    number let every successful remap manufacture its own repair evidence
+    and pull the rotation's wrap line off the seat the remap had just given
+    it.
     """
     broken: set[int] = set()
     prev: int | None = None
-    for job in jobs:
-        n = job.get("n")
+    prev_pos: int | None = None
+    for pos, job in enumerate(jobs):
+        n = job.get("raw_n")
         if n is None:
             continue
         if prev is not None and n < prev:
-            broken.add(n)
-            broken.add(prev)
-        prev = n
+            broken.add(pos)
+            broken.add(prev_pos)
+        prev, prev_pos = n, pos
     return broken
 
 
 def _mismatching_anchors(jobs: list[dict], index: _SpeechIndex) -> dict[int, bool]:
-    """Which raw anchors disagree with the Greek about their own speaker,
+    """Which anchors disagree with the Greek about their own speaker,
     computed independently of repair so :func:`_repairable_anchors` can find
     a RUN of them.  Only single-speech (not multi-span) digit anchors with an
     exact Greek ref of their own are checked — the same test
-    :func:`_resolve_slice_anchor` itself applies."""
+    :func:`_resolve_slice_anchor` itself applies.
+
+    G2 (Grok's read of round 1): keyed by JOB POSITION, not by the integer
+    base.  An antilabe's two halves share a base (``328`` and ``328a``), so
+    an int key let the second half's verdict overwrite the first's and the
+    run counter then scored both halves with one bit.
+    """
     result: dict[int, bool] = {}
-    for job in jobs:
+    for pos, job in enumerate(jobs):
         n = job.get("n")
         anchor = job.get("anchor")
         speaker = job.get("canonical")
@@ -782,8 +821,17 @@ def _mismatching_anchors(jobs: list[dict], index: _SpeechIndex) -> dict[int, boo
             continue
         segment, ref = hit
         greek_speaker = index.share_speaker(segment, n, anchor, prefer=speaker)
-        result[n] = greek_speaker is not None and speaker != greek_speaker
+        result[pos] = greek_speaker is not None and speaker != greek_speaker
     return result
+
+
+# Perseus numbers a prose translation every fifth line, so two anchors up to
+# five lines apart are adjacent lines of the translation and a drift running
+# through both is one run (Agamemnon's exodos: Smyth anchors 1660, 1662,
+# 1665, 1666, ...).  A wider gap means the translation has its own text in
+# between that does NOT disagree, and the disagreements on either side are
+# independent (G1).
+_RUN_MAX_LINE_GAP = 5
 
 
 def _repairable_anchors(jobs: list[dict], index: _SpeechIndex) -> set[int]:
@@ -808,18 +856,141 @@ def _repairable_anchors(jobs: list[dict], index: _SpeechIndex) -> set[int]:
     """
     repairable = _out_of_order_anchors(jobs)
     mismatch = _mismatching_anchors(jobs, index)
-    sequence = [job["n"] for job in jobs if job.get("n") is not None]
+    numbered = [pos for pos, job in enumerate(jobs) if job.get("n") is not None]
     run: list[int] = []
-    for n in sequence:
-        if mismatch.get(n):
-            run.append(n)
+    for pos in numbered:
+        # G1: a RUN is successive numbered jobs whose own line numbers
+        # advance by no more than one anchor step, each scored by its OWN
+        # mismatch bit.  Counting bare positions let three disagreements ten
+        # lines apart — three independent attribution differences, with the
+        # translation's own unnumbered text between them — pass as a run.
+        if mismatch.get(pos) and (
+            not run or 0 <= jobs[pos]["n"] - jobs[run[-1]]["n"] <= _RUN_MAX_LINE_GAP
+        ):
+            run.append(pos)
             continue
         if len(run) >= 3:
             repairable.update(run)
-        run = []
+        run = [pos] if mismatch.get(pos) else []
     if len(run) >= 3:
         repairable.update(run)
+    repairable.update(_crowded_seat_anchors(jobs, index, mismatch))
     return repairable
+
+
+def _crowded_seat_anchors(
+    jobs: list[dict], index: _SpeechIndex, mismatch: dict[int, bool]
+) -> set[int]:
+    """S3 (the 2026-09-17 bare-segment sweep): the lone disagreeing anchor
+    that may still be repaired.
+
+    C1's rule — an anchor whose number names a real Greek line is not drift
+    — is right whenever the anchor's number and the Greek's number denote
+    the same verse, and it is what keeps Oedipus Tyrannus 625 on its own
+    line.  It is wrong when the translation's numbering has slipped by a
+    line, and the sweep found two real cases a run of three could never
+    catch: Hecuba's anchor 709 (the Chorus's question, which Coleridge
+    numbers one ahead of Diggle's 708) and Persians' 1076 (the Chorus's
+    closing line, which Smyth numbers one ahead of 1077).
+
+    What tells those apart from OT 625 is not how long the disagreement runs
+    but what else is sitting on the seat.  In each, the Greek segment the
+    anchor's own number resolves to ALREADY holds the English of a different
+    line number that the Greek agrees with: two English LINES have landed on
+    one Greek seat, and a translation does not number two lines for one
+    verse.  OT 625's only co-occupant is 625a — the second half of its own
+    line, which is what an antilabe is and implies no slip at all.  So the
+    co-occupant must carry a different base number.
+
+    And a LONE move must fill a hole: the same-speaker speech the repair
+    would reach must hold no English anchor of its own, so it never
+    displaces a neighbour that is already correct.  (Hecuba 708 and Persians
+    1077 are both bare; Creon's 624, the seat OT 625 used to be dragged to,
+    is bare too — which is exactly why the first clause has to do the work.)
+
+    A crowded seat is also the SEED of a run.  Where the slip lasts several
+    lines every anchor in it is displaced, and each in turn frees the seat
+    the next one needs, so the run is repaired together and the
+    hole-filling test cannot be applied to its members one at a time
+    (Suppliants 1159-1160: Coleridge numbers the whole close of the kommos
+    one ahead, and his 1161 lands on the tail of the same Greek seat as his
+    1160 — the crowding — while 1:1158 stands empty).  The run is the
+    maximal stretch of mismatching anchors around the seed whose own line
+    numbers advance by at most one, the same shape Rule B counts.
+    """
+    def agrees(job: dict) -> bool:
+        # Read per job, not from ``mismatch``: a piece of a multi-span
+        # speech is excluded there (it is never itself repaired) but it is
+        # just as good evidence that the seat is already occupied by its
+        # own, correctly attributed English — Smyth's Persians 1075 shares
+        # a ``<sp>`` with 1074b and so is multi-span.
+        anchor, n, speaker = job.get("anchor"), job.get("n"), job.get("canonical")
+        if anchor is None or n is None or not speaker:
+            return False
+        hit = index.segment_for_anchor(anchor)
+        if hit is None:
+            return False
+        greek = index.share_speaker(hit[0], n, anchor, prefer=speaker)
+        return greek is not None and greek == speaker
+
+    seats: dict[str, list[int]] = {}
+    for pos, job in enumerate(jobs):
+        anchor = job.get("anchor")
+        if anchor is None:
+            continue
+        hit = index.segment_for_anchor(anchor)
+        if hit is not None:
+            seats.setdefault(hit[0]["id"], []).append(pos)
+    anchored = set(seats)
+
+    numbered = [pos for pos, job in enumerate(jobs) if job.get("n") is not None]
+    order = {pos: i for i, pos in enumerate(numbered)}
+
+    def run_around(pos: int) -> list[int]:
+        """The stretch of mismatching anchors around ``pos`` whose own line
+        numbers advance by at most one (Rule B's own shape)."""
+        i = order[pos]
+        lo = i
+        while lo > 0:
+            prev, cur = numbered[lo - 1], numbered[lo]
+            if (
+                not mismatch.get(prev)
+                or not 0 <= jobs[cur]["n"] - jobs[prev]["n"] <= _RUN_MAX_LINE_GAP
+            ):
+                break
+            lo -= 1
+        hi = i
+        while hi + 1 < len(numbered):
+            cur, nxt = numbered[hi], numbered[hi + 1]
+            if (
+                not mismatch.get(nxt)
+                or not 0 <= jobs[nxt]["n"] - jobs[cur]["n"] <= _RUN_MAX_LINE_GAP
+            ):
+                break
+            hi += 1
+        return numbered[lo : hi + 1]
+
+    movable: set[int] = set()
+    for pos, job in enumerate(jobs):
+        if not mismatch.get(pos):
+            continue
+        anchor, n, speaker = job.get("anchor"), job.get("n"), job.get("canonical")
+        hit = index.segment_for_anchor(anchor) if anchor is not None else None
+        if hit is None or n is None or not speaker:
+            continue
+        settled = any(
+            jobs[other].get("n") != n and agrees(jobs[other])
+            for other in seats.get(hit[0]["id"], ())
+        )
+        if not settled:
+            continue
+        run = run_around(pos)
+        if len(run) == 1:
+            repaired = index.nearest_matching_speech(n, speaker)
+            if repaired is None or repaired[0]["id"] in anchored:
+                continue
+        movable.update(run)
+    return movable
 
 
 _REPEAT_MIN_CHARS = 15
@@ -1153,6 +1324,69 @@ def _multi_span_tail_redirects(
     return redirects
 
 
+def _multi_span_head_redirects(
+    jobs: list[dict], index: _SpeechIndex
+) -> dict[tuple[int, int], tuple[str, str]]:
+    """C9 (Lane C round 3; trachiniae findings 3, 4, 6): the mirror of
+    :func:`_multi_span_tail_redirects`.
+
+    Jebb and Dain-Mazon part company by a line at a speech boundary, so a
+    speech's FIRST ``<l n>`` names a line the PREVIOUS Greek speech prints
+    while every later anchor of the same ``<sp>`` sits correctly in the next.
+    The Old Man's 1017 then printed at the end of Heracles's speech and
+    Hyllus's segment opened mid-sentence ("more than mine."); the Chorus's
+    881b did the same inside the Nurse's one-line 881, and 879b inside hers
+    again at 879.  A speech's own opening clause is not a turn in the
+    previous speaker's speech: it belongs at the head of its own turn, with
+    the rest of the ``<sp>``.
+
+    The conditions mirror C7's: the head piece disagrees with the Greek
+    speaker of the segment its number names, and the NEXT piece of the same
+    speech agrees with its own segment.  The third — that the head really is
+    sitting inside the PREVIOUS speech's block rather than opening a Greek
+    speech of its own — is checked at commit time against the segment that
+    speech actually landed on, because the previous speech may itself have
+    been moved there by a drift repair (Trojan Women 274, where Coleridge's
+    whole exchange from 270 runs a line behind and Talthybius's answer is
+    repaired onto 1:274 just before Hecuba's head arrives).
+
+    Returns ``{(sp_index, n): (head segment id, target segment id)}``.
+    """
+    by_sp: dict[int, list[dict]] = {}
+    for job in jobs:
+        if job.get("n") is not None and job.get("anchor") is not None:
+            by_sp.setdefault(job["sp_index"], []).append(job)
+    redirects: dict[tuple[int, int], str] = {}
+    for sp_index, pieces in by_sp.items():
+        if len(pieces) < 2:
+            continue
+        head, nxt = pieces[0], pieces[1]
+        speaker = head.get("canonical")
+        if not speaker or speaker != nxt.get("canonical"):
+            continue
+        head_hit = index.segment_for_anchor(head["anchor"])
+        next_hit = index.segment_for_anchor(nxt["anchor"])
+        if head_hit is None or next_hit is None:
+            continue
+        head_seg, next_seg = head_hit[0], next_hit[0]
+        if head_seg["id"] == next_seg["id"]:
+            continue
+        if index.order[next_seg["id"]] <= index.order[head_seg["id"]]:
+            continue
+        head_speaker = index.share_speaker(
+            head_seg, head["n"], head["anchor"], prefer=speaker
+        )
+        if head_speaker is None or head_speaker == speaker:
+            continue  # the head opens a Greek speech of its own; leave it
+        next_speaker = index.share_speaker(
+            next_seg, nxt["n"], nxt["anchor"], prefer=speaker
+        )
+        if next_speaker != speaker:
+            continue  # the rest of the speech is not cleanly seated either
+        redirects[(sp_index, head["n"])] = (head_seg["id"], next_seg["id"])
+    return redirects
+
+
 def _resolve_slice_anchor(
     n: int,
     *,
@@ -1164,11 +1398,10 @@ def _resolve_slice_anchor(
     work_id: str,
     printed: str,
     claimed: set[tuple[str, str]] | None = None,
-    repairable_anchors: set[int] | None = None,
+    repairable: bool = False,
 ) -> dict | None:
     """Attach one English line number to a Greek segment, or return None."""
     claimed = claimed or set()
-    repairable_anchors = repairable_anchors or set()
     hit = index.segment_for_anchor(anchor)
     if hit is not None:
         segment, ref = hit
@@ -1185,7 +1418,7 @@ def _resolve_slice_anchor(
             # repaired onto a nearby same-speaker speech.  Everything else
             # that disagrees with the Greek about its speaker is a real
             # attribution difference and stays put, flagged, below.
-            if not multi_span and n in repairable_anchors:
+            if not multi_span and repairable:
                 repaired = index.nearest_matching_speech(n, speaker, claimed=claimed)
                 if repaired is not None:
                     target, tick = repaired
@@ -1312,10 +1545,224 @@ def _resolve_slice_anchor(
     }
 
 
-def _transposition_anchor_remap(blocks: list[dict]) -> dict[int, int]:
-    """C4: map a printed line's STANDARD ascending position, inside a
-    declared ``citation.transpositions`` block, to the Greek ref that
-    actually occupies that position in the edition's printed order.
+_PERSEUS_LINE_NOTE = re.compile(r"^l+\.\s*(\d+)$")
+
+
+def _between_speech_directions(translation) -> dict[int, list[str]]:
+    """C12: Perseus ``<stage>`` elements that sit BETWEEN speeches (a direct
+    part of the division rather than of an ``<sp>``) belong before the next
+    speech — "Odysseus enters with his attendants." before his own turn.
+    Returns ``{sp_index: [direction, ...]}`` for the speech each precedes,
+    numbered as :func:`parse_translation` numbers them."""
+    out: dict[int, list[str]] = {}
+    pending: list[str] = []
+    sp_index = 0
+    for el in translation.iter():
+        tag = local_name(el)
+        if tag == "sp":
+            sp_index += 1
+            if pending:
+                out[sp_index] = pending
+                pending = []
+            continue
+        if tag != "stage":
+            continue
+        if any(local_name(a) == "sp" for a in el.iterancestors()):
+            continue
+        text = collapse_ws("".join(el.itertext())).strip()
+        if text:
+            pending.append(text)
+    return out
+
+
+def _perseus_note_anchors(
+    translation, aliases: dict[str, str], index: _SpeechIndex
+) -> dict[tuple[int, str], str]:
+    """C11 (Lane C round 3; suppliants-aesch finding 3): honour a
+    ``<note resp="perseus">l. N</note>`` inside an ``<l>`` as that line's
+    real anchor.
+
+    Smyth's ``<l n>`` follows one edition's numbering of the Herald scene and
+    the spine's another; the Perseus encoders wrote the answer into the text
+    as a note, and the converter dropped it with every other non-Smyth note,
+    so 905-910 held the neighbouring turn's words in all three columns.
+
+    The note is honoured only where it settles a contest: the spine must give
+    the ``<l>``'s OWN number to a different speaker and give the note's
+    number to this very speaker.  Suppliants has seven such notes and the
+    three at 207-210 name lines whose own slots already agree with their
+    speaker — the build is right there — so those are left alone (the
+    review's own "gate on agreement rather than applying blindly").
+
+    Returns ``{(sp_index, raw anchor): note anchor}``.
+    """
+    out: dict[tuple[int, str], str] = {}
+    for sp_index, speech in enumerate(translation.findall(".//{*}sp"), start=1):
+        el = speech.find("./{*}speaker")
+        printed = collapse_ws("".join(el.itertext())).strip() if el is not None else ""
+        speaker = _canonical_english(printed, aliases)
+        if not speaker:
+            continue
+        for line in speech.iter("{*}l"):
+            raw = line.get("n") or ""
+            if not raw.isdigit():
+                continue
+            target: int | None = None
+            for note in line.iter("{*}note"):
+                if note.get("resp") != "perseus":
+                    continue
+                match = _PERSEUS_LINE_NOTE.match(
+                    collapse_ws("".join(note.itertext())).strip()
+                )
+                if match:
+                    target = int(match.group(1))
+            if target is None or target == int(raw):
+                continue
+            own = index.segment_for_line(int(raw))
+            hit = index.segment_for_line(target)
+            if own is None or hit is None:
+                continue
+            if index.speaker_at(own[0], int(raw), prefer=speaker) == speaker:
+                continue  # the line's own number is not contested
+            if index.speaker_at(hit[0], target, prefer=speaker) != speaker:
+                continue  # the note's number does not belong to this speaker
+            out[(sp_index, raw)] = str(target)
+    return out
+
+
+def _ref_order_key(ref: str) -> tuple[int, int, str] | None:
+    from .scheme import play_line_order_key
+
+    try:
+        return play_line_order_key(ref)
+    except (ValueError, TypeError):
+        return None
+
+
+def _transposition_printed_stretches(
+    blocks: list[dict], printed_refs: list[str]
+) -> tuple[list[list[int]], list[dict]]:
+    """The document-position stretches the declared rows disorder.
+
+    A ``citation.transpositions`` row records that the run ``start``-``end``
+    is printed AFTER the higher-numbered ``before`` — the block-derivation
+    in ``stage1_greek._derive_play_line_transposed_blocks`` writes it that
+    way.  The stretch the row disorders therefore begins at the first ref
+    printed out of numeric turn (everything from ``end``+1 through
+    ``before``, which the edition prints early) and ends at ``end``.  That
+    is read off the spine's own printed sequence rather than reconstructed
+    by arithmetic on the bounds, so a lettered or hyphenated bound (Bacchae
+    ``148b``/``1448a``, Orestes ``1488b``, Rhesus ``678-679``) is an
+    ordinary ref like any other instead of an ``int()`` that fails silently
+    (G4).
+
+    Rows whose stretches overlap describe ONE permutation and are merged:
+    Seven's ``{984,992,before:993}`` and ``{983,983,before:993}`` are the
+    single printed rotation 993, 984-992, 983, not two rotations to fold
+    into one dict, last write winning (G4).
+
+    Returns the merged stretches (lists of document positions) and the rows
+    that yielded none, each with its reason.
+    """
+    anomalies: list[dict] = []
+    positions: dict[str, list[int]] = {}
+    for i, ref in enumerate(printed_refs):
+        positions.setdefault(ref, []).append(i)
+
+    stretches: list[list[int]] = []
+    for block in blocks:
+        row = {
+            "start": block.get("start"),
+            "end": block.get("end"),
+            "before": block.get("before"),
+        }
+        starts = positions.get(row["start"] or "")
+        ends = positions.get(row["end"] or "")
+        end_key = _ref_order_key(row["end"]) if isinstance(row["end"], str) else None
+        if not starts or not ends or end_key is None:
+            anomalies.append(
+                {
+                    "kind": "transposition_remap_skipped",
+                    "reason": "bound_off_spine",
+                    "block": row,
+                }
+            )
+            continue
+        first = starts[0]
+        last = next((p for p in ends if p >= first), None)
+        if last is None:
+            anomalies.append(
+                {
+                    "kind": "transposition_remap_skipped",
+                    "reason": "bound_off_spine",
+                    "block": row,
+                }
+            )
+            continue
+        head = first
+        while head > 0:
+            key = _ref_order_key(printed_refs[head - 1])
+            if key is None or key <= end_key:
+                break
+            head -= 1
+        span = list(range(head, last + 1))
+        if not any(printed_refs[p] == row["before"] for p in span):
+            # The row's own "before" anchor is not among the refs printed
+            # early in this stretch, so the row does not describe a simple
+            # rotation of one contiguous printed run (Bacchae's 847-1392
+            # row, whose `before` 1448a sits 700 lines earlier).
+            anomalies.append(
+                {
+                    "kind": "transposition_remap_skipped",
+                    "reason": "before_outside_printed_stretch",
+                    "block": row,
+                }
+            )
+            continue
+        stretches.append(span)
+
+    stretches.sort(key=lambda span: (span[0], span[-1]))
+    merged: list[list[int]] = []
+    for span in stretches:
+        if merged and span[0] <= merged[-1][-1]:
+            merged[-1] = list(range(min(merged[-1][0], span[0]), max(merged[-1][-1], span[-1]) + 1))
+            continue
+        merged.append(span)
+    return merged, anomalies
+
+
+def _printed_keying_disagreements(
+    index: _SpeechIndex,
+    english_speakers: dict[int, str | None],
+    pairs: list[tuple[int, int]],
+) -> int:
+    """How many of ``pairs`` (English base → Greek ref number) put an
+    English speech on a Greek line the edition gives to somebody else."""
+    bad = 0
+    for base, target in pairs:
+        speaker = english_speakers.get(base)
+        if not speaker:
+            continue
+        hit = index.segment_for_anchor(str(target))
+        if hit is None:
+            continue
+        segment, _ref = hit
+        greek = index.share_speaker(segment, target, str(target), prefer=speaker)
+        if greek is not None and greek != speaker:
+            bad += 1
+    return bad
+
+
+def _transposition_anchor_remap(
+    blocks: list[dict],
+    printed_refs: list[str],
+    english_bases: set[int],
+    index: _SpeechIndex | None = None,
+    english_speakers: dict[int, str | None] | None = None,
+) -> tuple[dict[int, int], list[dict]]:
+    """C4/S1: map a translation's own line number, inside a printed stretch
+    a ``citation.transpositions`` row disorders, to the Greek ref that
+    occupies the SAME printed position in the edition.
 
     Perseus's own ``<l n>`` always runs in plain ascending numeric order —
     it is not itself transposed, whichever edition backs the Greek spine.
@@ -1324,21 +1771,91 @@ def _transposition_anchor_remap(blocks: list[dict]) -> dict[int, int]:
     328th/329th/330th anchors (numbered 328, 329, 330, in that order) must
     seat at Greek refs 329, 330, 328 respectively — the ref at the SAME
     printed position, not the ref with the same digits.
+
+    S1 (the bare-segment data sweep, 2026-09-17): that premise holds only
+    when the translation really does print one line per printed Greek line
+    across the stretch.  Coleridge's Andromache gives the couplet 70+71 a
+    single ``<l n="70">``, so the stretch's four printed refs (73, 70, 71,
+    72) carry three anchors; remapping anyway sends ``n="70"`` to ref 73,
+    invents a numeric drop that satisfies Rule A, and the repair cascades
+    onto an already-filled neighbour.  So the map is built only when the
+    distinct base numbers of the translation's anchors inside the stretch's
+    numeric range are EXACTLY the stretch's own refs, one for one.
+    Otherwise the anchors keep their numbers and the skip is reported.
+
+    A declared row means one of two things, and only the Greek's own speaker
+    attributions tell them apart.  Either the two editions NUMBER the same
+    verses differently, and then the translation's nth line in the stretch
+    is the edition's nth printed line (OC 328-330: Jebb renumbers his
+    transposed verse, Dain-Mazon keeps the vulgate's number).  Or both
+    number the verses alike and only the printed ORDER differs, and then the
+    anchor's own number is already right (Hecuba 758/759, Iphigenia at Aulis
+    653-665, Iphigenia in Tauris 1050/1051, Phoenician Women 1747-1749,
+    Rhesus 334-338 — in each, re-keying by printed position moves every line
+    onto a speech the edition gives to the other character).  So the remap
+    stands down whenever it scores STRICTLY MORE speaker disagreements than
+    leaving the anchors alone; where the speakers cannot tell (a stretch
+    whose characters alternate the same way under either keying) the
+    printed-position reading stands, as C4 established.
     """
+    stretches, anomalies = _transposition_printed_stretches(blocks, printed_refs)
     remap: dict[int, int] = {}
-    for block in blocks:
-        try:
-            start = int(block["start"])
-            end = int(block["end"])
-            before = int(block["before"])
-        except (KeyError, TypeError, ValueError):
+    for span in stretches:
+        span_refs = [printed_refs[p] for p in span]
+        printed_bases = [_anchor_base(_ref_root(ref)) for ref in span_refs]
+        detail = {
+            "kind": "transposition_remap_skipped",
+            "printed": span_refs,
+        }
+        if len(set(printed_bases)) != len(printed_bases):
+            anomalies.append({**detail, "reason": "printed_stretch_repeats_a_number"})
             continue
-        printed_order = list(range(end + 1, before + 1)) + list(range(start, end + 1))
-        numeric_order = list(range(start, before + 1))
-        for numeric, printed in zip(numeric_order, printed_order):
-            if numeric != printed:
-                remap[numeric] = printed
-    return remap
+        numeric_bases = sorted(printed_bases)
+        lo, hi = numeric_bases[0], numeric_bases[-1]
+        observed = {base for base in english_bases if lo <= base <= hi}
+        if observed != set(numeric_bases):
+            anomalies.append(
+                {
+                    **detail,
+                    "reason": "anchors_not_one_per_printed_line",
+                    "expected": numeric_bases,
+                    "observed": sorted(observed),
+                }
+            )
+            continue
+        pairs = [
+            (numeric, printed)
+            for numeric, printed in zip(numeric_bases, printed_bases)
+            if numeric != printed
+        ]
+        if index is not None and english_speakers:
+            by_number = _printed_keying_disagreements(
+                index, english_speakers, [(base, base) for base, _ in pairs]
+            )
+            by_printed = _printed_keying_disagreements(index, english_speakers, pairs)
+            if by_printed > by_number:
+                anomalies.append(
+                    {
+                        **detail,
+                        "reason": "printed_keying_contradicted_by_greek_speakers",
+                        "disagreements": {"by_number": by_number, "by_printed": by_printed},
+                    }
+                )
+                continue
+        remap.update(dict(pairs))
+    return remap, anomalies
+
+
+def _ref_root(ref: str) -> str:
+    """The plain number a printed ref is keyed by (``709-710`` → ``709``,
+    ``post 42`` → ``42``, ``148b`` → ``148b``)."""
+    if ref.startswith("post ") and ref[5:].isdigit():
+        return ref[5:]
+    if "-" in ref:
+        head = ref.split("-", 1)[0]
+        if head.isdigit():
+            return head
+    return ref
 
 
 def _remap_anchor(anchor: str, remap: dict[int, int]) -> str:
@@ -1380,12 +1897,42 @@ def parse_translation(
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
-    anchor_remap = _transposition_anchor_remap(transpositions or [])
     chunks_by_id: dict[str, dict] = {}
     footnotes: dict[str, str] = {}
     snaps: list[dict] = []
     mismatches: list[dict] = []
     anomalies: list[dict] = []
+    # S1/G4: the remap is decided against the spine's own printed order and
+    # against every anchor the translation prints, so both have to be in
+    # hand before the first speech is sliced.
+    printed_refs = [
+        line["ref"]
+        for segment in index.segments
+        for line in (segment.get("lines") or [])
+        if isinstance(line.get("ref"), str)
+    ]
+    english_bases: set[int] = set()
+    english_speakers: dict[int, str | None] = {}
+    for speech in translation.findall(".//{*}sp"):
+        el = speech.find("./{*}speaker")
+        name = collapse_ws("".join(el.itertext())).strip() if el is not None else ""
+        canonical_name = _canonical_english(name, aliases)
+        for line in speech.iter("{*}l"):
+            raw = line.get("n") or ""
+            if raw.isdigit() or _LETTERED_ANCHOR.fullmatch(raw):
+                base = _anchor_base(raw)
+                english_bases.add(base)
+                english_speakers.setdefault(base, canonical_name)
+    anchor_remap, remap_anomalies = _transposition_anchor_remap(
+        transpositions or [],
+        printed_refs,
+        english_bases,
+        index,
+        english_speakers,
+    )
+    anomalies.extend(remap_anomalies)
+    note_anchors = _perseus_note_anchors(translation, aliases, index)
+    between_directions = _between_speech_directions(translation)
     text_parser = _LineText(footnotes, anomalies)
     anchor_count = 0
     english_canonical: list[str] = []
@@ -1436,6 +1983,7 @@ def parse_translation(
         return turn
 
     jobs: list[dict] = []
+    directions_pending: dict[int, list[str]] = {}
     claimed: set[tuple[str, str]] = set()
     turns_emitted: dict[tuple[int, str, str], dict | None] = {}
     attribution_differences: list[dict] = []
@@ -1468,6 +2016,9 @@ def parse_translation(
         )
         if job["printed"] and not already:
             turns_emitted[turn_key] = turn
+        # C12: the directions that precede this speech go on its FIRST turn.
+        if turn is not None and directions_pending.get(job["sp_index"]):
+            turn["directionsBefore"] = directions_pending.pop(job["sp_index"])
         if speaker_mismatch:
             # P2h finding 3: the disagreement belongs to the English TURN, not
             # to the whole chunk — a packed chunk's other turns are correctly
@@ -1503,6 +2054,7 @@ def parse_translation(
             if canonical:
                 english_canonical.append(canonical)
         split = (not printed) or _has_para_milestone(speech)
+        head_directions = list(between_directions.get(sp_index) or [])
         slices = _iter_speech_slices(
             speech,
             split=split,
@@ -1510,7 +2062,27 @@ def parse_translation(
             anomalies=anomalies,
             sp_index=sp_index,
             printed=printed,
+            head_directions=head_directions,
         )
+        if head_directions:
+            directions_pending[sp_index] = head_directions
+        # G3: the number the TEI PRINTED, kept per piece before C4 rewrites
+        # it, so Rule A's inversion test reads the translation's own
+        # sequence and not the rotation the remap just performed.
+        raw_anchors = [[anchor for anchor, _part in sl.pieces] for sl in slices]
+        if note_anchors:
+            # C11: a `<note resp="perseus">l. N</note>` that settles a
+            # contested line names this piece's real Greek seat.
+            for sl in slices:
+                sl.pieces = [
+                    (
+                        note_anchors.get((sp_index, piece_anchor), piece_anchor)
+                        if piece_anchor is not None
+                        else piece_anchor,
+                        piece_text,
+                    )
+                    for piece_anchor, piece_text in sl.pieces
+                ]
         if anchor_remap:
             # C4: re-key every anchor in this speech before anything reads
             # it — multi-span detection, the job's own tick, and the Greek
@@ -1537,8 +2109,11 @@ def parse_translation(
             if owned is not None:
                 owner_ids.add(owned[0]["id"])
         multi_span = len(owner_ids) > 1
-        for sl in slices:
+        for slice_index, sl in enumerate(slices):
             anchor = sl.first_anchor()
+            raw_first = next(
+                (raw for raw in raw_anchors[slice_index] if raw is not None), None
+            )
             if anchor is None:
                 text = sl.text()
                 if not text:
@@ -1557,10 +2132,12 @@ def parse_translation(
                     }
                 )
                 continue
-            for piece_n, piece_text in sl.pieces:
+            for piece_index, (piece_n, piece_text) in enumerate(sl.pieces):
                 piece = collapse_ws(piece_text).strip()
                 if not piece:
                     continue
+                raw_piece = raw_anchors[slice_index][piece_index]
+                raw_source = raw_piece if raw_piece is not None else raw_first
                 # A piece before the slice's first <l n> (a paragraph opened
                 # mid-line) takes the next anchor's number to find its
                 # segment, but that number is not where it starts: no tick,
@@ -1569,6 +2146,7 @@ def parse_translation(
                 jobs.append(
                     {
                         "n": _anchor_base(piece_n or anchor),
+                        "raw_n": _anchor_base(raw_source) if raw_source else None,
                         "anchor": piece_n if piece_n is not None else anchor,
                         "own_tick": piece_n is not None,
                         "text": piece,
@@ -1581,11 +2159,22 @@ def parse_translation(
                     }
                 )
 
+    anchored_segments = {
+        hit[0]["id"]
+        for hit in (
+            index.segment_for_anchor(job["anchor"])
+            for job in jobs
+            if job.get("anchor") is not None
+        )
+        if hit is not None
+    }
     repairable_anchors = _repairable_anchors(jobs, index)
     repeat_positions = _repeat_lettered_positions(jobs)
     antilabe_overrides = _antilabe_reassignments(jobs, index)
     tail_redirects = _multi_span_tail_redirects(jobs, index)
+    head_redirects = _multi_span_head_redirects(jobs, index)
     prev_assigned: dict[int, str] = {}
+    last_commit: tuple[int, str] | None = None
     for pos, job in enumerate(jobs):
         n = job["n"]
         if n is not None:
@@ -1602,6 +2191,23 @@ def parse_translation(
             commit_job(job, segment, printed_line)
             prev_assigned[job["sp_index"]] = job["assigned"]
             continue
+        head_redirect = head_redirects.get((job["sp_index"], n)) if n is not None else None
+        if (
+            head_redirect is not None
+            and last_commit is not None
+            and last_commit[0] < job["sp_index"]
+            and last_commit[1] == head_redirect[0]
+        ):
+            # C9/C10: this piece opens its own speech; its number merely
+            # lands inside the block the previous speech has just filled.
+            # Seat it at the head of the segment the rest of the speech
+            # occupies.
+            target = index.by_id[head_redirect[1]]
+            printed = index.printed.get(target["id"]) or []
+            commit_job(job, target, printed[0] if printed else n)
+            prev_assigned[job["sp_index"]] = job["assigned"]
+            last_commit = (job["sp_index"], job["assigned"])
+            continue
         if n is not None and (job["sp_index"], n) in tail_redirects:
             # C7: this piece is the tail of its OWN speech, displaced onto
             # the next speech's segment by a one-line collision; it belongs
@@ -1610,6 +2216,7 @@ def parse_translation(
             if prev_id is not None:
                 commit_job(job, index.by_id[prev_id], n, add_turn=False, own_tick=False)
                 prev_assigned[job["sp_index"]] = prev_id
+                last_commit = (job["sp_index"], job["assigned"])
                 continue
         if n is None:
             prev_id = prev_assigned.get(job["sp_index"])
@@ -1619,7 +2226,23 @@ def parse_translation(
                 )
                 continue
             prev_order = index.order[prev_id]
-            nxt = prev_order + 1 if job["speakerless"] else prev_order
+            nxt = prev_order
+            if job["speakerless"] and prev_order + 1 < len(index.segments):
+                # A speakerless <sp> is split at each para milestone so
+                # Agamemnon's packed elders (1348-1371), the Eumenides
+                # Furies' short strophic units and Seven's sisters' kommos
+                # each take the next Greek speech in turn.  C9 (trachiniae
+                # finding 5): a paragraph may take that next speech only if
+                # the next speech has no English of its own.  Heracles's
+                # dying speech is one speakerless <sp> with paragraph breaks
+                # inside <l n="1080"> and <l n="1105">, and the Chorus's
+                # couplet after it carries its own <l n="1112"> — so those
+                # two blocks were flushed into the Chorus's turn and his own
+                # speech was left spliced.  A paragraph is part of the
+                # speech it is printed in unless there is an empty Greek
+                # speech waiting for it.
+                if index.segments[prev_order + 1]["id"] not in anchored_segments:
+                    nxt = prev_order + 1
             if nxt < 0 or nxt >= len(index.segments):
                 anomalies.append(
                     {"kind": "nless_slice_unattached", "sp": job["sp_index"]}
@@ -1654,6 +2277,7 @@ def parse_translation(
             opens = not (chunks_by_id.get(segment["id"]) or {}).get("text")
             commit_job(job, segment, tick_n, snap=snap, own_tick=opens)
             prev_assigned[job["sp_index"]] = segment["id"]
+            last_commit = (job["sp_index"], job["assigned"])
             continue
         result = _resolve_slice_anchor(
             n,
@@ -1665,7 +2289,7 @@ def parse_translation(
             work_id=work_id,
             printed=job["printed"],
             claimed=claimed,
-            repairable_anchors=repairable_anchors,
+            repairable=pos in repairable_anchors,
         )
         if result is None:
             anomalies.append(
@@ -1689,6 +2313,7 @@ def parse_translation(
             own_tick=job["own_tick"],
         )
         prev_assigned[job["sp_index"]] = job["assigned"]
+        last_commit = (job["sp_index"], job["assigned"])
 
     chunks = [
         chunks_by_id[segment["id"]]

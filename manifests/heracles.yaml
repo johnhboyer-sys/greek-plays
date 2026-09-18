@@ -30,7 +30,6 @@ english:
     covered:
       - { greek: "1061", by: "1060" }
       - { greek: "1064", by: "1065" }
-      - { greek: "886", by: "888" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"

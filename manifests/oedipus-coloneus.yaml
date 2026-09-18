@@ -30,17 +30,7 @@ english:
     covered:
       - { greek: "1666", by: "1626" }
       - { greek: "183", by: "182" }
-      - { greek: "532", by: "531" }
       - { greek: "533", by: "531" }
-      # Same "Jebb runs one line ahead of Dain-Mazon" lyric-numbering drift
-      # as 183/182 and 532/531 (Lane C round 1, 2026-09-17), not a declared
-      # transposition. Perseus's own <l n="198"> ("Father, this is my task:
-      # calmly to--") is Antigone guiding Oedipus into the grove; the Greek
-      # at ref 197 has no separate English of its own. C1 (2026-09-17
-      # Perseus bare-sweep) leaves 198 at its own line (flagged
-      # attribution_difference: English Antigone vs. the Greek's Oedipus)
-      # instead of repairing it back onto 197 as before.
-      - { greek: "197", by: "198" }
   secondary:
     id: storr
     name: "F. Storr (Loeb, 1912)"
@@ -100,7 +90,7 @@ citation:
     - { sha256_16: "3d8b4de6b0f7086f", note: "play title line (l n=\"t\"), 'ΟΙΔΙΠΟΥΣ ΕΠΙ ΚΟΛΩΝΩΙ'" }
 
   lacunae:
-    "1": []
+    "1": ["1718", "1719"]
 
   transpositions:
     "1": 

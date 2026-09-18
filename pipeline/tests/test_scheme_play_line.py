@@ -686,6 +686,37 @@ def test_bare_siglum_resolves_to_the_most_recently_numbered_character():
     ]
 
 
+def test_bare_siglum_returns_to_its_generic_name_after_the_numbered_scene():
+    """Round-3 residue (peace 973/1122/1124): Aristophanes' Peace numbers its
+    two slaves only in the prologue (`ΟΙ. Αʹ`/`ΟΙ. Βʹ`, lines 1-110) and then
+    prints a bare `ΟΙ.` from 824 to the end for the one slave attending
+    Trygaeus.  C3's rule, read literally, made all fifty of those the Second
+    Slave, a name no English column has a cue for, and three Greek speeches
+    lost their English altogether.  The numbered character's scene ends when
+    the siglum falls silent: a bare occurrence that comes a scene's length
+    after the last numbered one is the generic role again."""
+    manifest = _bare_siglum_manifest()
+    spine = {"segments": [
+        _seg("1:1", "1", 1, ["ΧΡΗΣΤΗΣ Αʹ"]),
+        _seg("1:2", "2", 2, ["Χρ."]),
+        _seg("1:4", "4", 4, ["ΧΡΗΣΤΗΣ Βʹ"]),
+        _seg("1:5", "5", 5, ["Χρ."]),
+        _seg("1:900", "900", 900, ["Χρ."]),
+        _seg("1:905", "905", 905, ["Χρ."]),
+    ]}
+    overrides = stage7_emit._load_speaker_overrides(manifest, spine)
+    sigla_norm = {
+        stage7_emit._norm_siglum(k): v
+        for k, v in manifest.data["speakers"]["sigla"].items()
+    }
+    resolve = lambda label, ref: stage7_emit._play_line_display(
+        label, sigla_norm, overrides, ref
+    )
+    assert resolve("Χρ.", "5") == ("Second Creditor", True)
+    assert resolve("Χρ.", "900") == ("Creditor", True)
+    assert resolve("Χρ.", "905") == ("Creditor", True)
+
+
 def test_without_a_spine_bare_siglum_keeps_the_old_generic_display():
     """No spine (a caller that cannot supply one) means no synthesis --
     the generic mapping is unchanged, never a crash."""
