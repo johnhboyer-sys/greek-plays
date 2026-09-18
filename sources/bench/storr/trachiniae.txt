@@ -1119,10 +1119,6 @@ For all too late from those about the queen
 He learned that she in utter innocence
 Had done according to the Centaur’s word.
 Since then, poor boy, his misery has no end :
-Lo a foreign train appear,
-And they move with muffled tread,
-Mute as bearers of a bier.
-Is it sleep, or is he dead?
 
 CHORUS. Which first of woes, which next,
 Wherewith my soul is vext,
@@ -1143,6 +1139,11 @@ Ah, not far off, but nigh,
 The woe that stirred my cry,
 A boding wail
 As of some shrill-voiced nightingale.
+
+Lo a foreign train appear,
+And they move with muffled tread,
+Mute as bearers of a bier.
+Is it sleep, or is he dead?
 
 [Enter HYLLUS, an OLD MAN, and ATTENDANTS bearing HERACLES on a litter.]
 
