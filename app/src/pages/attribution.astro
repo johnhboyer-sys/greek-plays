@@ -102,9 +102,14 @@ const jsonLd = {
       text-transform: uppercase;
       background: #f4e8e8; color: #8a3a3a;
     }
+    /* A translator's own free-use terms: not public domain, not a
+       Creative Commons licence (D2, 2026-09-17: the Johnston column's
+       real basis, distinct from both). */
+    .licence-badge.terms { background: #f4f0e8; color: #6a4a2a; }
     :global(html[data-theme="dark"]) .licence-badge.cc { background: #1f3320; color: #9ed3a0; }
     :global(html[data-theme="dark"]) .licence-badge.pd { background: #1c2a3a; color: #9cc2e6; }
     :global(html[data-theme="dark"]) .licence-badge.mit { background: #33291c; color: #e0b483; }
+    :global(html[data-theme="dark"]) .licence-badge.terms { background: #33291c; color: #e0b483; }
     :global(html[data-theme="dark"]) .licence-badge.local { background: #3a1c1c; color: #e69c9c; }
     .trans-list { list-style: none; padding-left: 0; margin: 0.75rem 0 1rem; }
     .trans-list > li { margin: 0 0 0.9rem; }
@@ -154,8 +159,9 @@ const jsonLd = {
     <h2>Texts &amp; Licences</h2>
     <p>
       This site sets the Greek text of forty-four plays beside English
-      translations that are out of copyright. Every source is named below,
-      with its licence where one applies.
+      translations that are public domain, openly licensed, or published
+      under their translator's own free-use terms. Every source is named
+      below, with its licence where one applies.
     </p>
 
     <h2>The Greek text</h2>
@@ -179,14 +185,12 @@ const jsonLd = {
       files, markup, or apparatus.
     </p>
 
-    <h2>
-      English translations
-      <span class="licence-badge pd">Public Domain (US)</span>
-    </h2>
+    <h2>English translations</h2>
     <p>
-      Every translation here was published before 1931 and is in the public
-      domain in the United States. The list is generated from the corpus
-      registry, so it matches what the reader carries.
+      Each translation below is public domain, carries an open licence, or
+      is used under the translator's own free terms; the paragraph for each
+      one says which, with its own badge. The list itself is generated from
+      the corpus registry, so it matches what the reader carries.
     </p>
     <ul class="trans-list">
       {WORKS.filter((w) => visibleTranslations(w).length > 0).map((w) => (
@@ -204,6 +208,7 @@ const jsonLd = {
       ))}
     </ul>
     <p>
+      <span class="licence-badge pd">Public Domain (US)</span>
       The line-keyed translations come from the
       <a href="https://github.com/PerseusDL/canonical-greekLit">Perseus Digital
       Library</a>'s TEI editions: Herbert Weir Smyth's Loeb Aeschylus (1926),
@@ -217,6 +222,7 @@ const jsonLd = {
       derived data carries that licence and this notice.
     </p>
     <p>
+      <span class="licence-badge pd">Public Domain (US)</span>
       Aristophanes is given complete and unexpurgated in the anonymous
       <em>Eleven Comedies</em> of the Athenian Society (1912), from
       <a href="https://www.gutenberg.org/ebooks/8688">Project Gutenberg #8688</a>
@@ -229,12 +235,15 @@ const jsonLd = {
       Hickie's Bohn Aristophanes (1853), read from the owner's own second
       OCR pass of the same scan on <em>Lysistrata</em>,
       <em>Thesmophoriazusae</em>, <em>Frogs</em>, <em>Ecclesiazusae</em>, and
-      <em>Wealth</em>. Those scans were corrected by hand and by machine;
-      a slip that survives is ours, not the translator's. Hickie's
-      Aristophanes is bowdlerised and rides only as a comparison column.
+      <em>Wealth</em>. All of these were published before 1931 and are
+      public domain in the United States. Those scans were corrected by
+      hand and by machine; a slip that survives is ours, not the
+      translator's. Hickie's Aristophanes is bowdlerised and rides only as
+      a comparison column.
     </p>
     <!-- DRAFT (Morshead credit, 2026-09-15): awaiting John's approval. -->
     <p>
+      <span class="licence-badge cc">CC BY-SA 4.0</span>
       The Morshead column on the seven Aeschylus plays is E. D. A. Morshead's
       English verse, public domain: <em>Persians</em>,
       <em>Prometheus Bound</em>, <em>Seven against Thebes</em>, and
@@ -249,6 +258,7 @@ const jsonLd = {
       CC BY-SA 4.0.
     </p>
     <p>
+      <span class="licence-badge cc">PD Mark</span>
       William Arrowsmith's translations of <em>Birds</em> (1961) and
       <em>Clouds</em> (1962) are from <em>The Complete Greek Comedy</em>
       (Ann Arbor: University of Michigan Press), in the Press's Fulcrum
@@ -262,6 +272,7 @@ const jsonLd = {
     </p>
     <!-- DRAFT (Kosmos Society credit, 2026-09-12): awaiting John's approval. -->
     <p>
+      <span class="licence-badge cc">CC BY-NC-ND 3.0</span>
       The Kosmos column on thirteen tragedies is from the online Sourcebook
       of the <a href="https://kosmossociety.org/text-library/">Kosmos Society</a>
       and the Center for Hellenic Studies, edited by Gregory Nagy. The texts
@@ -294,6 +305,7 @@ const jsonLd = {
     </p>
     <!-- DRAFT (Ian Johnston credit, 2026-09-12): awaiting John's approval. -->
     <p>
+      <span class="licence-badge terms">Free-Use Terms</span>
       The Johnston column on twenty-three plays is the verse translation of
       Ian Johnston of Vancouver Island University, from his
       <a href="https://web.viu.ca/johnstoi/">johnstonia</a> pages. His
@@ -303,6 +315,7 @@ const jsonLd = {
     </p>
     <!-- DRAFT (Gilbert Murray credit, 2026-09-12): awaiting John's approval. -->
     <p>
+      <span class="licence-badge pd">Public Domain (US)</span>
       The Murray column on eleven plays is the rhyming verse of Gilbert
       Murray, published between 1902 and 1920 and now in the public domain:
       ten plays from <a href="https://www.gutenberg.org/">Project Gutenberg</a>,
