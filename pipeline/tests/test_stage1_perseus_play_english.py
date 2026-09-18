@@ -105,6 +105,26 @@ def test_comment_tail_survives_inside_line():
     )
     assert [s.text() for s in slices] == ["before after"]
     assert anomalies == []
+    # The tail stays anchored to its own line (Grok read, 2026-09-17).
+    assert [n for n, _part in slices[0].pieces] == ["1"]
+
+
+def test_comment_first_child_of_line_keeps_that_line():
+    """A comment as the first child of a new <l> must not push its tail
+    back onto the previous line."""
+    speech = etree.fromstring(
+        '<sp><speaker>A</speaker><l n="1">one</l><l n="2"><!-- c -->after</l></sp>'
+    )
+    anomalies: list[dict] = []
+    slices = _iter_speech_slices(
+        speech,
+        split=False,
+        text_parser=_LineText({}, anomalies),
+        anomalies=anomalies,
+        sp_index=1,
+        printed="A",
+    )
+    assert slices[0].pieces == [("1", "one"), ("2", "after")]
 
 
 def test_comment_tail_survives_nested_in_child_element():
