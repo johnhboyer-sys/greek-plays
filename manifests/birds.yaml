@@ -97,8 +97,10 @@ english:
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
   gaps:
-    - "576"  # Euelpides's thunderbolt jab is dropped; Pisthetaerus runs on from 571 
-    - "585"  # Euelpides's joke about selling his oxen first has no English
+    - "576"  # Euelpides's thunderbolt jab is dropped; Pisthetaerus runs on from 571
+    # Item 9 (english_dead_gaps, 2026-09-18): 585 carries its own English in
+    # the built book ("Oh! don't do that! Wait first until I have sold my
+    # two young bullocks."), so the declared gap is false; removed.
 
 citation:
   scheme: play-line

@@ -60,6 +60,12 @@ english:
       - { greek: "1015", english: "A pitiless ruffian has chained up the most unfortunate of mortal maids", run: 1 }
       - { greek: "1059", english: "I am Echo, the nymph who repeats all she hears", run: 1 }
       - { greek: "1064", english: "And you will repeat them?", run: 1 }
+      # Item 9 (english_dead_gaps; play-thesmophoriazusae-findings #3, #14):
+      # the Echo exchange runs one speech behind through 1080-1089. These
+      # two pins hold the primary to its own lines (see the gaps note below
+      # for why no ref in the run ends up bare).
+      - { greek: "1081", english: "Beware of blows!", run: 1 }
+      - { greek: "1089", english: "Are you mocking me?", run: 1 }
       - { greek: "1196", english: "Aye, that I will. Hand over the money.", run: 1 }
       - { greek: "1197", english: "You will bring her back? Follow me, my beautiful child.", run: 1 }
       - { greek: "64", english: "Let him be, friend, and, quick, go and call Agathon", run: 1 }
@@ -108,8 +114,13 @@ english:
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
   gaps:
-    - "1082"  # the duplicated wail exchange has no matching English
-    - "1089"  # the doubled echo breaks off; no English nearby
+    # Item 9 (english_dead_gaps; play-thesmophoriazusae-findings #14): the
+    # 1081/1089 pins above hold the Echo run to its own lines, and each
+    # greek ref in 1080-1089 is itself a doubled echo (two shares on one
+    # printed line), so once anchored, the 1912's own paired sentence
+    # ("Beware of blows!" / "Are you mocking me?") lands on BOTH the ref it
+    # opens and the ref its own echo repeats -- no ref in this run is left
+    # genuinely bare, so neither 1082 nor 1088/1089 is declared here.
 
 citation:
   scheme: play-line
@@ -195,6 +206,17 @@ speakers:
     # letter, so this is a missing roster entry, not a bench OCR error
     # (Genie check, 2026-09-17).
     "EC": "Echo"
+  # Item 5 (play-thesmophoriazusae-findings #1): the Greek roster calls the
+  # whole ode (104-129) "Agathon's Chorus" (siglum "(ὡς Χορός.)"), but
+  # Hickie's own cues there are plain AGATHON/CHORUS, so nothing anchors the
+  # passage -- Hickie runs one speech behind for the whole ode. These switch
+  # Hickie's AGATHON/CHORUS cues to the ode's merged roster name for the
+  # ode's own span, then back to their ordinary names once it ends.
+  english_overrides:
+    - { slot: secondary, cue: "AGATHON", from_text: "Damsels, take the torch sacred to the infernal", display: "Agathon's Chorus" }
+    - { slot: secondary, cue: "CHORUS", from_text: "In honour of which of the gods is the ode?", display: "Agathon's Chorus" }
+    - { slot: secondary, cue: "AGATHON", from_text: "Old man, old man, I heard, indeed, the censure of your envy", display: "Agathon" }
+    - { slot: secondary, cue: "CHORUS", from_text: "We accept the omen, and supplicate the race of the gods", display: "Chorus" }
   sigla:
     "ΚΗ.": "Mnesilochus"
     "ΚΗΔΕΣΤΗΣ": "Mnesilochus"

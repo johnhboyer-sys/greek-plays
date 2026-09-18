@@ -68,6 +68,11 @@ english:
       source: bench/murray/electra-eur.txt
       play: ELECTRA
       footnotes: false
+      # Item 7 (lane-a-report residue, play-electra-eur-findings #2): Murray
+      # runs two turns ahead through the whole mother-murder debate (Greek
+      # 966-984); this pin holds his Orestes turn to its own line.
+      pins:
+        - { greek: "967", english: "What would we with our mother? Didst thou say", run: 1 }
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's

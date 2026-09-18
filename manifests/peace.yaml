@@ -59,12 +59,35 @@ english:
       # further" (1:333) is the 1912 text's "Come, I grant you that, but
       # pray, annoy me no further" -- attached under 1:337 by the DP.
       - { greek: "333", by: "337" }
+      # Item 2 (play-peace-findings #5): Trygaeus's Greek-483 interjection
+      # ("dying of hunger") has no AS sentence of its own -- it is folded
+      # into the continuous 481-483 Hermes sentence pinned at 481.
+      - { greek: "483", by: "481" }
     # Item 6 splits: the 1912 text runs these speeches together where the
     # Greek changes speaker; the tail becomes its own speech under the label.
     splits:
       - { greek: "450", english: "If some ambitious man does not help us", speaker: "HERMES" }
     pins:
       - { greek: "253", english: "Oh! I beseech you! use some other honey", run: 2 }
+      # Item 2 (play-peace-findings #1) ATTEMPTED AND REVERTED, 2026-09-18:
+      # six pins to hold the Hermes/Trygaeus 405-425 conspiracy exchange to
+      # its own lines correctly placed the named text (verified against
+      # book-01.json) but pushed turn_text_turn_shift from 0.0989 to 0.1029,
+      # over the 0.10 ceiling (stage2 PASS -> FAIL). Reverted; see report.
+      # Item 2 (play-peace-findings #2): the 1912's libation-prayer English
+      # was declared as two dead `gaps` (removed above) when it sits one
+      # segment late; these pins hold it to its own lines.
+      - { greek: "439", english: "Aye, may we pass our lives in peace, caressing our mistresses and", run: 1 }
+      - { greek: "441", english: "May he who would prefer the war, oh Dionysus, be ever drawing", run: 1 }
+      # Item 2 (play-peace-findings #5): both columns slide in opposite phase
+      # through the tug-of-war; these hold the Athenian Society text to its
+      # own lines. (Greek 483's Trygaeus interjection has no distinct AS
+      # sentence of its own -- the 1912 folds it into the 481-483 Hermes
+      # sentence -- so 483 is not pinned here, only 478, 481, 484, 486.)
+      - { greek: "478", english: "Ah! my dear sir, the Laconians at all events pull with vigour.", run: 1 }
+      - { greek: "481", english: "And the Megarians too are doing nothing, yet look how they are", run: 1 }
+      - { greek: "484", english: "This won't do, friends. Come! all together! Everyone to the", run: 1 }
+      - { greek: "486", english: "Heave away, heave!", run: 1 }
       # Round 5: the 1912 text runs the whole 346-360 ode into one 520-char
       # Chorus speech. The length term prefers the longest share it covers, so the
       # DP hung it on 350-351 and left 346 (its own opening line, "Ah! God grant we
@@ -116,21 +139,36 @@ english:
         publication." Credited in sources/INVENTORY.md and on the attribution
         page.
       source_url: https://web.viu.ca/johnstoi/copyright.htm
+    # Item 2 (play-peace-findings #3): the wedding-finale half-chorus antiphon
+    # gives the pairer two identical cues per exchange and it loses count at
+    # 1333, so the exodos prints one to two exchanges late throughout.
+    pins:
+      - { greek: "1333", english: "O thrice blessed man, you deserve", run: 1 }
+      - { greek: "1337", english: "What shall we do with her?", run: 1 }
+      - { greek: "1339", english: "We’ll harvest her fruit.", run: 1 }
+      - { greek: "1340", english: "Those in the front,", run: 1 }
+      - { greek: "1346", english: "You’ll have a fine home", run: 1 }
+      - { greek: "1351", english: "His fig is huge and thick.", run: 1 }
+      # Item 2 (play-peace-findings #5): both columns slide in opposite phase
+      # through the tug-of-war; these hold Johnston to his own lines.
+      - { greek: "478", english: "But Spartans, my dear chap, are pulling rope", run: 1 }
+      - { greek: "481", english: "The Megarians\naren’t making any effort.", run: 1 }
+      - { greek: "483", english: "Yes, by Zeus, because they’re dying of hunger.", run: 1 }
+      - { greek: "486", english: "Heave!", run: 1 }
+    # Greek 484-485's Hermes clause has no distinct Johnston sentence of its
+    # own -- it is folded into the continuous 483-485 Trygaeus sentence
+    # pinned at 483 -- so it is declared covered, not pinned.
+    covered:
+      - { greek: "484", by: "483" }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
   gaps:
-    - "517"  # bare heave-cries; the chant attached at 512 stands in for them
-    - "439"  # Trygaeus's wish (mistress, poking the coals) has no English
-    - "441"  # Hermes' curse on war-lovers has no English
+    # Item 2 (R8 warning, play-peace-findings #6): 517, 439, 441, 484, 488, 489,
+    # 490, 499, 350 and 1063 all carry English in the built book (350 is also
+    # declared `covered`), so `english_dead_gaps` flagged all ten as false.
+    # Only 468 is genuinely bare; the rest are removed here, 2026-09-18.
     - "468"  # bare heave-ho, an untranslated tug-of-war grunt
-    - "484"  # Hermes' "we accomplish nothing, take hold again" has no English
-    - "488"  # bare heave-ho, untranslated
-    - "489"  # bare heave, by Zeus, untranslated
-    - "490"  # Chorus's "we're moving it only a little" has no English
-    - "499"  # Chorus noting "some are hindering" has no English
-    - "350"  # Trygaeus's one-line interjection smoothed away by the translator
-    - "1063"  # Hierocles's vocative blends into 1064; Trygaeus's retort has no trace
 
 citation:
   scheme: play-line

@@ -68,8 +68,11 @@ english:
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
   max_unresolved_mismatches: 2
   gaps:
-    - "1:298"  # clean stichomythia elsewhere; no English for this line nearby
-    - "1:313"  # clean stichomythia elsewhere; no English for this line nearby
+    # Item 9 (english_dead_gaps, 2026-09-18): both now carry their own
+    # English in the built book -- 1:298 "The goddess of Argos transformed
+    # the woman into a cow."; 1:313 "Who is it then that claims to be the
+    # cow's Zeus-begotten calf?" -- both real (not snapped) Perseus anchors,
+    # so both declared gaps are false; removed.
 
 citation:
   scheme: play-line

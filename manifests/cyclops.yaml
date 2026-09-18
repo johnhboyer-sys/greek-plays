@@ -76,8 +76,12 @@ speakers:
     "Second Half-Chorus": "Second Semichorus"
   english_secondary:
     "SILENUS": "Silenus"
-    "A SATYR": "First Semichorus"
-    "ANOTHER SATYR": "Second Semichorus"
+    # Item 4 (play-cyclops-findings #1): the Semichoruses exist only at
+    # 635-641; everywhere else A SATYR / ANOTHER SATYR are Way's own cues
+    # for the Chorus, and mapping them to First/Second Semichorus gave the
+    # same speaker two colours three lines apart (findings #9, #10).
+    "A SATYR": "Chorus"
+    "ANOTHER SATYR": "Chorus"
     "CHORUS OF ALL THE SATYRS": "Chorus"
     "CHORUS": "Chorus"
     "ODYSSEUS": "Odysseus"

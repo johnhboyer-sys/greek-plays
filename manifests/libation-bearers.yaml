@@ -40,6 +40,11 @@ english:
     source: bench/morshead/libation-bearers.txt
     play: THE LIBATION-BEARERS
     footnotes: false
+    # Item 7 (play-libation-bearers-findings #2): still slides on this
+    # branch head -- 380 and 386 print bare with no coverage note, and
+    # every later segment shows the previous-but-one speech.
+    pins:
+      - { greek: "380", english: "That hath sped thro' mine ear, like a shaft from a bow!", run: 1 }
   third:
     id: kosmos
     name: "Erdman, rev. Nagy (Kosmos Society)"
