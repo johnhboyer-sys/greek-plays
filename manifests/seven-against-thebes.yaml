@@ -32,6 +32,8 @@ english:
       - { greek: "103", by: "104" }
       - { greek: "1042", by: "1048" }
       - { greek: "1044", by: "1050" }
+      - { greek: "979", by: "982" }  # Smyth renders 979 as his 982 "He showed me when he returned from exile." (the kommos follows a different lineation; Lane C round 3, 2026-09-18)
+      - { greek: "986", by: "991" }  # Smyth's 991 "O Fate, giver of grievous troubles..." renders 986-988
       - { greek: "1046", by: "1051" }
       - { greek: "1047", by: "1052" }
       - { greek: "106", by: "104" }

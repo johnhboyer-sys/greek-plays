@@ -31,6 +31,7 @@ english:
       - { greek: "1666", by: "1626" }
       - { greek: "183", by: "182" }
       - { greek: "533", by: "531" }
+      - { greek: "1726", by: "1728" }  # Jebb's lyric numbering runs one ahead of Dain-Mazon through 1726-1750; his 1726-1727 ("Of whom? Wretched me! Of our father.") sit in 1:1728 (Lane C round 3, 2026-09-18)
   secondary:
     id: storr
     name: "F. Storr (Loeb, 1912)"
