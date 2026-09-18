@@ -149,10 +149,25 @@ _BARE_CUE = re.compile(r"^[A-Z][A-Z '\-]+$")
 # unitalicised -- only the word "To" or nothing at all sits in an `<i>`, so
 # `_ws_text` never sees the whole phrase as a direction (prometheus-bound
 # review finding 5, 2026-09-17: "(To PROMETHEUS)", "(Aside)", an unclosed
-# "[A pause."). Read by shape alone, regardless of markup; the same three
-# shapes the Loeb parser (`stage1_turn_english._DIRECTION_CUE`) already
-# recognises, applied at the whole-line level `<p>` text uses.
-_PLAIN_DIRECTION_LINE = re.compile(r"^\(To [^)]+\)$|^\(Aside\)$|^\[.+", re.I)
+# "[A pause."). Read by shape alone, regardless of markup; the same
+# direction-cue shapes the Loeb parser (`stage1_turn_english._DIRECTION_CUE`)
+# already recognises, plus "A pause" (the corpus's own extra shape,
+# confirmed against every Morshead play, that list does not carry), applied
+# at the whole-line level `<p>` text uses.
+#
+# G4 (Grok's round-2 read, 2026-09-17): the bracketed alternative used to be
+# `^\[.+` -- ANY line opening with "[", not anchored on a direction cue at
+# all -- which happens to steal no verse in this corpus today only because
+# no bracketed editorial supplement exists here, not because the pattern
+# itself is narrow; anchoring it now is what makes that true by
+# construction. Every confirmed corpus instance (persians "[Enter ATOSSA.",
+# prometheus-bound "[A pause.", suppliants-aesch "[Exit DANAUS."/"[Exit
+# HERALD OF AEGYPTUS.") still matches.
+_PLAIN_DIRECTION_LINE = re.compile(
+    r"^\(To [^)]+\)$|^\(Aside\)$"
+    r"|^\[(?:To\s|Aside\b|Apart\b|Enters?\b|Exit\b|Exeunt\b|Begins\b|Re-enters?\b|A pause\b)",
+    re.I,
+)
 _NOISE = "'’ "  # a stray straight/curly quote and space either side of a run
 
 

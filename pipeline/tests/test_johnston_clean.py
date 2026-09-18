@@ -122,6 +122,36 @@ def test_footnote_calls_linking_to_the_page_go_with_their_line_breaks_kept():
     assert _speeches(out.text) == [("EUELPIDES", "I could use cords of linen. No more. Then go.")]
 
 
+# J1 (2026-09-17 round 2 brief): a footnote marker's own `<sup>` (skipped --
+# Johnston's superscript numbering, not text) can carry the SOURCE's own
+# `<br>` line break for the verse line it interrupts. johnston/antigone.htm
+# note 8 sits in a `<sup>` between "...in the city." and "I'd trust...",
+# with the `<br>` INSIDE that skipped `<sup>`; dropping the whole element
+# dropped the break too, welding the two lines with no space between them
+# (johnston/antigone.txt:1126, "city.I'd trust such a man to govern wisely").
+def test_footnote_marker_sup_does_not_swallow_its_own_line_break():
+    out = convert(
+        _page(
+            "<p>CHORUS<br>"
+            "The man who acts well with his household<br>"
+            "will be found a just man in the city.</span>"
+            "<b><sup><span><a href='#n8'>8</a><br>\n</span></sup></b>"
+            "<span>I'd trust such a man to govern wisely<br>"
+            "or to be content with someone ruling him.</p>"
+        ),
+        "PLAY",
+    )
+    assert "city.I'd" not in out.text
+    assert _speeches(out.text) == [
+        (
+            "CHORUS",
+            "The man who acts well with his household will be found a just man "
+            "in the city. I'd trust such a man to govern wisely or to be content "
+            "with someone ruling him.",
+        )
+    ]
+
+
 def test_restored_dialogue_in_plain_brackets_stays_verse_not_a_direction():
     # Johnston brackets dialogue he has himself restored or supplied after a
     # manuscript gap, but -- unlike his stage directions -- prints it in the

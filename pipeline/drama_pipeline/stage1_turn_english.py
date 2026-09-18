@@ -65,6 +65,20 @@ _LOEB_OFFSTAGE_CUE = re.compile(
     r"^(?:\.\s+)?(?P<name>[A-ZÀ-Þ][a-zà-öø-ÿ]+)\s+"
     r"\((?:within|without|from within|off)\)\.?\s*$"
 )
+
+# A Loeb cue whose OCR slipped one letter to lowercase at the very end, with
+# its own stage direction on the SAME line and no terminating period at all
+# -- the speech itself starts on the next physical line (way/helen.txt:
+# 1902-1903, "THEOCLYMENUs (to attendant)" / "Of fifty oars..."; H4,
+# 2026-09-17 round 2 brief). `_SPEAKER_LINE`'s name charclass is ALL-CAPS
+# only and always requires a "."/" :" terminator, so this line matched
+# neither and glued onto the end of the previous speech instead. Kept
+# narrow and separate rather than loosened into `_SPEAKER_LINE` itself,
+# which every loeb-ocr play shares: a name ending in exactly one lowercase
+# letter, followed only by a parenthetical and nothing else on the line.
+_LOEB_CASE_SLIP_STAGE_CUE = re.compile(
+    r"^(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ]*[a-zà-öø-ÿ])\s+(?P<stage>\([^)]*\))\s*$"
+)
 _LINDSAY_SPEAKER = re.compile(
     r"^(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH))"
     r"(?:\s+(?:[A-Z]{2,}[A-Z0-9'’\-]*|[0-9]+(?:ST|ND|RD|TH)))*$"
@@ -350,6 +364,23 @@ _LINDSAY_STAGE = re.compile(r"\s+(\([^)]*\))$")
 _LINDSAY_LINE_MAX = 200
 
 
+# A generic-chorus cue Gutenberg's own typesetting only half-capitalises:
+# `_Chorus of_ WOMEN.` (pg7700.txt:1126, H2, 2026-09-17 round 2 brief;
+# lysistrata finding 2) -- the italic markers wrap "Chorus of" and the group
+# name prints in ordinary ALL CAPS, so the whole line fails
+# `_LINDSAY_SPEAKER`'s ALL-CAPS-only charset and both parodoi read as one
+# 98-line block of body text. Deliberately narrower than "strip every
+# underscore and re-check the whole line": pg7700 also prints a stage
+# direction in this same opening shape, with further italic text after the
+# group name (`_Chorus of_ OLD MEN _enter to attack the captured
+# Acropolis_.`, :1053) that must stay a direction, never a cue -- this
+# pattern only matches when the group name is the last thing on the line.
+# The captured group name alone (not "CHORUS OF WOMEN") is the resolved
+# cue, matching the manifest's own `english_secondary` alias for Lindsay's
+# bare "WOMEN"/"OLD MEN" cues elsewhere -- no manifest change needed.
+_LINDSAY_CHORUS_CUE = re.compile(r"^_Chorus of_\s+([A-Z][A-Z '’\-]*[A-Z])\.$", re.IGNORECASE)
+
+
 def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
     """Own-line Lindsay speaker: NAME, optional ``(_stage_)``, optional period.
 
@@ -362,6 +393,9 @@ def _split_lindsay_speaker_line(line: str) -> tuple[str, str] | None:
         return None
     if s in {"INTRODUCTION", "INDEX", "CONTENTS"} or s.startswith("THE "):
         return None
+    chorus_cue = _LINDSAY_CHORUS_CUE.match(s)
+    if chorus_cue:
+        return chorus_cue.group(1).upper(), ""
     if s.endswith("."):
         s = s[:-1]
     stage = ""
@@ -730,8 +764,15 @@ def _is_loeb_wrap_tail(s: str) -> bool:
     (`_has_full_length_predecessor`) before treating it as one -- a genuinely
     short printed line can be followed by a new, deliberately lowercase verse
     line (Rogers's Genie-checked bench already rejoins its own turnovers and
-    is not this bug; `test_cue_verse_run_direction_and_footnote`)."""
-    return bool(_LOEB_WRAP_TAIL.match(s))
+    is not this bug; `test_cue_verse_run_direction_and_footnote`).
+
+    A candidate must also be at least four characters (G2, Grok's round-2
+    read, 2026-09-17): Rule A also glued a 1-3 letter OCR orphan onto the
+    end of an already-finished sentence -- "one" (storr/antigone.txt:170),
+    "to"/"a" (storr/electra-soph.txt:1211,1331) -- none of them a real
+    turnover. The shortest genuine turnover tail found anywhere in the
+    corpus is four characters ("wan,", "way;", antigone's Ode to Man)."""
+    return bool(_LOEB_WRAP_TAIL.match(s)) and len(s) >= 4
 
 
 _LOEB_WRAP_TAIL = re.compile(r"^\[?[a-zà-öø-ÿ]")
@@ -840,8 +881,15 @@ def _parse_as_speeches(
             # numeral (2026-09-14).
             m = None
         offstage = None if m else _LOEB_OFFSTAGE_CUE.match(raw.strip())
-        periodless = None if (m or offstage) else _periodless_speaker(raw, known_names)
-        if m or offstage or periodless:
+        case_slip = (
+            None if (m or offstage) else _LOEB_CASE_SLIP_STAGE_CUE.match(raw.strip())
+        )
+        periodless = (
+            None
+            if (m or offstage or case_slip)
+            else _periodless_speaker(raw, known_names)
+        )
+        if m or offstage or case_slip or periodless:
             if pending_tail is not None:
                 _merge_wrap_tail(parts, pending_tail)
                 pending_tail = None
@@ -850,6 +898,8 @@ def _parse_as_speeches(
                 speaker = m.group("name").strip()
             elif offstage:
                 speaker = offstage.group("name").strip().upper()
+            elif case_slip:
+                speaker = case_slip.group("name").strip().upper()
             else:
                 speaker = periodless[0]
             parts = []
@@ -882,6 +932,11 @@ def _parse_as_speeches(
                         parts.append(rest)
             elif offstage:
                 pass  # the whole line is the cue; its speech follows below.
+            elif case_slip:
+                # The whole line is the cue and its own stage direction; the
+                # speech follows on the next physical line, so the direction
+                # leads it (same slot a leading bracket direction takes).
+                _add_direction(inline, 0, case_slip.group("stage")[1:-1])
             else:
                 parts.append(periodless[1])
         elif speaker:
@@ -903,7 +958,18 @@ def _parse_as_speeches(
                     and _is_loeb_wrap_tail(s)
                     and _has_full_length_predecessor(parts)
                 ):
-                    _merge_wrap_tail(parts, s)
+                    # A wrap-tail line can itself carry a Rule B trailing
+                    # tail (`_LOEB_TRAILING_TAIL`) meant for the line after
+                    # it: Rule A used to swallow the whole line, including
+                    # the un-peeled `[...` fragment, before Rule B ever saw
+                    # it (way/cyclops.txt:60-62, Grok finding 1, G1
+                    # 2026-09-17). Peel the tail first; merge only the rest.
+                    tail_match = _LOEB_TRAILING_TAIL.match(s)
+                    if tail_match:
+                        _merge_wrap_tail(parts, tail_match.group("rest"))
+                        pending_tail = tail_match.group("tail")
+                    else:
+                        _merge_wrap_tail(parts, s)
                 else:
                     tail_match = _LOEB_TRAILING_TAIL.match(s) if verse else None
                     if tail_match and len(tail_match.group("rest")) >= _LOEB_FULL_LINE_MIN:
