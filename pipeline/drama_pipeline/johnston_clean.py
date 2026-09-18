@@ -94,6 +94,17 @@ def _walk(el, out: list, italic: bool = False, upper: bool = False) -> None:
     """Flatten ``el`` into text / br / open / close tokens."""
     tag = el.tag.lower() if isinstance(el.tag, str) else ""
     if not tag or tag in _SKIP:
+        # A skipped element (a footnote marker's own `<sup>`, most often)
+        # can still carry the SOURCE's own line break for the verse line it
+        # interrupts -- johnston/antigone.htm's note-8 marker sits in a
+        # `<sup>` between "...in the city." and "I'd trust...", with the
+        # `<br>` INSIDE that `<sup>`; dropping the whole element dropped the
+        # break too and welded the two lines with no space between them
+        # (J1, 2026-09-17 round 2 brief: "city.I'd trust...",
+        # johnston/antigone.txt:1126). Keep any nested `<br>`, same as the
+        # footnote-link special case just below; drop everything else.
+        if tag:
+            out.extend(("br",) for _br in el.iter("br"))
         return
     if tag == "a" and "#" in (el.get("href") or ""):
         # A footnote call ("#n1", "birds.htm#note45"): its text goes, a line

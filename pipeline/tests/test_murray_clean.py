@@ -159,6 +159,36 @@ def test_gutenberg_cue_with_bracket_direction_wrapping_a_turnover():
     assert "[By an effort" not in speeches[1]["text"]
 
 
+# G3 (Grok's round-2 read, 2026-09-17): `_CUE_AND_OPEN_BRACKET` did not close
+# a lyric label the way the plain `[`-start path already does -- a cue whose
+# own bracket opens with a strophe/antistrophe label ("LEADER. [_Strophe._")
+# stayed "open" waiting for a closing "]" that never comes; verse on the
+# very next physical line, with no blank paragraph break, was swallowed
+# into the still-open direction instead of becoming its own speech text.
+def test_gutenberg_cue_with_lyric_label_bracket_closes_without_a_blank_line():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nLEADER.\n\n\n"
+        "THE PLAY\n\n"
+        "CHORUS.\n"
+        "  Their end I cannot read!\n\n"
+        "LEADER. [_Strophe._\n"
+        "  What is this that evermore,\n"
+        "  A cold terror at the door.\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    # murray_clean.py's own job: the label is a complete, closed direction
+    # of its own line, not glued onto the verse that follows it.
+    assert "LEADER\n_[Strophe._\nWhat is this that evermore," in out.text
+    speeches = _parsed(out.text)
+    assert speeches[1]["speaker_printed"] == "LEADER"
+    # stage1's own B3 rule (2026-09-17) drops the label entirely once it is
+    # a properly separated direction -- it must not survive as a cue, verse,
+    # or rendered direction in the fully parsed speech.
+    assert speeches[1]["text"] == "What is this that evermore, A cold terror at the door."
+    assert "shown" not in speeches[1]
+    assert "[" not in speeches[1]["text"] and "]" not in speeches[1]["text"]
+
+
 # B4 (fix-mechanisms brief, 2026-09-17): Project Gutenberg's pg27673
 # (oedipus-tyrannus) prints a page-boundary marker, "_[Sidenote: vv. N-N]_",
 # that is not verse and not stage business. It must vanish entirely, whether

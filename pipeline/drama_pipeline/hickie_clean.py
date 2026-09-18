@@ -109,6 +109,7 @@ _LYSISTRATA = _Play(
     bench="lysistrata",
     abbrev={
         "LYS": "LYSISTRATA",
+        "LRS": "LYSISTRATA",  # Genie's OCR of "Lys." (H1, 2026-09-17 round 2)
         "CALON": "CALONICE",
         "MYRRH": "MYRRHINA",  # Hickie's own dramatis-personae spelling
         "CIN": "CINESIAS",
@@ -545,6 +546,108 @@ def _looks_like_cue(text: str) -> bool:
     return bool(_CUE_RE.match(text) or _CUE_PAREN_RE.match(text) or _MIXED_CUE_RE.match(text))
 
 
+# ---------------------------------------------------------------------------
+# H1 (2026-09-17 round 2 brief, lysistrata findings 1, 3, 5, 10): Bohn's
+# critical apparatus, and abbreviated inline cues, both defeat the cue
+# matchers above.
+
+# A page-foot critical-apparatus block Genie kept as running prose -- an
+# editor's own note, quoted or summarised, continuing onto a fresh page with
+# no leading `[N]` of its own to be caught by `_collect_footnotes` (its call
+# was embedded mid-sentence in the SPEECH before it, not at the head of a
+# paragraph): editors' surnames together with a citation-shaped fragment
+# (`Gr. Gr.`, `Vig. n.`, a play abbreviation + line numbers, a page
+# reference, a bare run of comma-separated numbers). A real speech never
+# carries either signal, so both are required (finding 3: nine places in
+# Lysistrata alone, checked by hand against every hit this pair catches).
+_APPARATUS_EDITOR = re.compile(
+    r"\b(?:Kr[uü]ger|Hermann|Dindorf|Enger|Meineke|Bekker|Elmsley|Brunck|"
+    r"Bergk|Reisig|Fritzsche|Blaydes|Bothe|Dobree|Lobeck|Porson)\b"
+)
+_APPARATUS_CITATION = re.compile(
+    r"\b(?:Gr\.\s*Gr\.|Vig\.\s*n\.|Frag(?:m)?\.|Eccles\.|Aves,|Vesp\.|Nub\.|"
+    r"Equit\.|Thesm\.|Ran\.|Pax,|Av\.|Plut\.|p\.\s*\d|§\s*\d|"
+    r"\d+,\s*\d+,\s*\d+)"
+)
+
+
+def _is_apparatus_paragraph(text: str) -> bool:
+    return bool(_APPARATUS_EDITOR.search(text)) and bool(_APPARATUS_CITATION.search(text))
+
+
+# A sentence-final mark: an embedded abbreviated cue only opens a new speech
+# right after one (or at the very start of the paragraph) -- never mid-clause
+# (a footnote's own "Cf. Lys. p. 213" is inside a `[N]`-headed definition
+# already consumed by `_collect_footnotes` before this ever runs, but the
+# guard costs nothing and documents the intent).
+_SENTENCE_END = re.compile(r"[.!?]$")
+
+# OCR furniture Genie sometimes glues onto the very front of a paragraph
+# ahead of its own opening cue: a stray quote or apostrophe carried over
+# from the line above (lysistrata.txt "' LYS.."), or Bohn's own unnumbered
+# footnote asterisk (lysistrata.txt "* CHO. OF WOM.", the Beetle/Eagle
+# taunt -- swallowed whole into the previous speaker's turn before this,
+# 2026-09-17 round 2 rebuild check). None of it is spoken text; a cue
+# right after it is still the paragraph's own opening cue, not a mid-clause
+# one, so it needs no preceding sentence-final punctuation of its own.
+_LEADING_JUNK = re.compile(r"^[\s*'’\"“”.,]+")
+
+
+def _abbrev_cue_pattern(abbrev: dict[str, str]) -> re.Pattern[str]:
+    """A Bohn abbreviated speaker cue in whatever case Genie's OCR kept it.
+
+    Genie only bolds/capitalises a paragraph's OPENING speaker; a quick
+    interjecting cue -- or one whose own paragraph never got the small-caps
+    treatment -- survives as ordinary running-text case (`Lys.`, `Com.`,
+    `Cho. of Wom.`), which `_CUE_RE`'s ALL-CAPS charset cannot match, or
+    (worse) partially matches and mis-splits (finding 5: `_CUE_RE` reads
+    `CHO. OF Wom.` as cue "CHO", leaving "OF Wom." as the first words of the
+    speech). Built from the same `abbrev` map the paragraph-head cue already
+    resolves through, longest key first, so a multi-word key is matched
+    whole before a shorter one inside it gets the chance to.
+    """
+    alts = sorted((re.escape(key) for key in abbrev), key=len, reverse=True)
+    return re.compile(r"(?P<name>" + "|".join(alts) + r")\.(?=\s)", re.IGNORECASE)
+
+
+def _split_abbrev_cues(
+    text: str, abbrev: dict[str, str]
+) -> list[tuple[str | None, str]]:
+    """``[(cue_or_None, piece), ...]``: ``text`` cut at every embedded Bohn
+    abbreviated cue that opens a new sentence, ``cue`` resolved to the full
+    roster name. A piece with ``cue is None`` is text with no cue of its own
+    -- continuation of whatever speech was already open (Bohn never opens a
+    paragraph on plain text before its first embedded cue, but the caller
+    treats this exactly as it always has: appended to the open speech, or
+    logged and dropped if none is open). Returns ``[(None, text)]``
+    unchanged if ``text`` carries no recognised embedded cue at all."""
+    pattern = _abbrev_cue_pattern(abbrev)
+    lead = _LEADING_JUNK.match(text)
+    lead_end = lead.end() if lead else 0
+    cuts: list[tuple[int, int, str]] = []
+    for m in pattern.finditer(text):
+        start = m.start()
+        if start > lead_end:
+            preceding = text[:start].rstrip()
+            if not preceding or not _SENTENCE_END.search(preceding[-1:]):
+                continue
+        key = m.group("name").upper()
+        if key not in abbrev:
+            continue
+        cuts.append((start, m.end(), abbrev[key]))
+    if not cuts:
+        return [(None, text)]
+    pieces: list[tuple[str | None, str]] = []
+    if cuts[0][0] > 0:
+        leading = text[: cuts[0][0]].strip()
+        if leading and re.search(r"\w", leading):
+            pieces.append((None, leading))
+    for idx, (_start, cue_end, cue) in enumerate(cuts):
+        piece_end = cuts[idx + 1][0] if idx + 1 < len(cuts) else len(text)
+        pieces.append((cue, text[cue_end:piece_end].strip()))
+    return [(cue, piece) for cue, piece in pieces if piece]
+
+
 def _collect_footnotes(
     paras: list[gt.Paragraph], start: int, end: int, word: str
 ) -> tuple[dict[int, dict[str, str]], set[int], list[str]]:
@@ -641,26 +744,25 @@ def _convert_body(
                 return page_notes[pg][num]
         return None
 
+    # Every one of these five comedies renders Hickie with `footnotes: false`
+    # (explicit in the manifest for lysistrata, implicit elsewhere -- only
+    # `slot: primary` defaults true, and Hickie never holds that slot): the
+    # reader loads one `footnotes.json` per play, and the primary already
+    # carries its own. A renumbered `[N]` marker written into this bench
+    # text would therefore resolve to no popup at all and print as a dead
+    # bracketed digit in the reader (H1, 2026-09-17 round 2 brief: 465 raw
+    # markers in Lysistrata alone, corpus-wide across the five). `footnotes`
+    # stays empty and unused below on purpose -- kept only so this
+    # function's shape matches the sibling Rogers/Way lanes that DO render a
+    # column's own notes, should this column's footnotes ever be turned on.
     footnotes: list[tuple[int, str]] = []
-    fn_seq = 0
-    fn_seen: dict[tuple[int, str], int] = {}
 
     def _resolve_calls(text: str, page: int) -> str:
-        nonlocal fn_seq
-
         def repl(m: "re.Match[str]") -> str:
-            nonlocal fn_seq
             num = m.group(1)
-            note = _resolve(page, num)
-            if note is None:
+            if _resolve(page, num) is None:
                 log.append(f"uncertain\tfootnote call [{num}] on page {page} has no definition nearby")
-                return ""
-            key = (page, num)
-            if key not in fn_seen:
-                fn_seq += 1
-                fn_seen[key] = fn_seq
-                footnotes.append((fn_seq, note))
-            return f"[{fn_seen[key]}]"
+            return ""
 
         # Genie's own digit-footnote cleaning already prints the call
         # attached tight against its word with no space of its own
@@ -700,6 +802,9 @@ def _convert_body(
         if text in cfg.drop_exact:
             log.append(f"dropped\tHickie's own Latin substitution, not English: {text[:60]!r}")
             continue
+        if _is_apparatus_paragraph(text):
+            log.append(f"dropped\tcritical-apparatus text, not dialogue: {text[:60]!r}")
+            continue
 
         resolved = _resolve_calls(text, p.page)
 
@@ -708,6 +813,18 @@ def _convert_body(
             continue
         if _STAGE_VERB_RE.match(resolved):
             writer.direction(resolved)
+            continue
+
+        abbrev_pieces = _split_abbrev_cues(resolved, cfg.abbrev)
+        if len(abbrev_pieces) > 1 or abbrev_pieces[0][0] is not None:
+            for cue, piece in abbrev_pieces:
+                if cue is not None:
+                    writer.cue(cue)
+                    writer.line(piece)
+                elif writer._pending_cue is not None or writer._open:
+                    writer.line(piece)
+                else:
+                    log.append(f"dropped\tpre-speech text, not dialogue: {piece[:60]!r}")
             continue
 
         m = _CUE_RE.match(resolved)

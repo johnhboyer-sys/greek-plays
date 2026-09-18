@@ -245,6 +245,14 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
                     close()
                     if tail.strip():
                         items.append(("line", _plain(tail)))
+                elif _LYRIC_LABEL.match(direction[0]):
+                    # A lyric label ("LEADER. [_Strophe._") is a complete,
+                    # one-line direction on its own even unclosed, same as
+                    # the plain `[`-start path just above (G3, Grok's
+                    # round-2 read, 2026-09-17): without this, verse on the
+                    # very next physical line with no blank paragraph break
+                    # would be swallowed into the still-open direction.
+                    close()
                 continue
         items.append(("line", _plain(line)))
     close()

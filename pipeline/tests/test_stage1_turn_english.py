@@ -1395,6 +1395,29 @@ def test_lindsay_speaker_line_rejects_long_lines_without_hanging():
     assert _split_lindsay_speaker_line("MYRRHINE (_above_)") == ("MYRRHINE", "(_above_)")
 
 
+# H2 (2026-09-17 round 2 brief, lysistrata finding 2): Lindsay's own generic
+# chorus cue only italicises "Chorus of", leaving the group name in ordinary
+# ALL CAPS -- `_LINDSAY_SPEAKER`'s ALL-CAPS-only charset cannot match the
+# underscores or the lowercase "horus of", so the cue read as body text and
+# both parodoi collapsed into a two-line reply (pg7700.txt:1126).
+def test_lindsay_chorus_of_cue_with_italic_markers_wrapping_part_of_the_name():
+    # The resolved name is the bare group ("WOMEN"/"OLD MEN"), matching the
+    # manifest's existing `english_secondary` alias for Lindsay's other
+    # bare-group cues -- no manifest change needed to recognise it.
+    assert _split_lindsay_speaker_line("_Chorus of_ WOMEN.") == ("WOMEN", "")
+    assert _split_lindsay_speaker_line("_Chorus of_ OLD MEN.") == ("OLD MEN", "")
+
+
+# The SAME opening shape also introduces a stage direction, with more
+# italic text after the group name (pg7700.txt:1053) -- that one must stay
+# a direction, never a speaker cue, so the pattern only fires when the
+# group name is the very last thing on the line.
+def test_lindsay_chorus_of_direction_with_trailing_text_is_not_a_cue():
+    assert _split_lindsay_speaker_line(
+        "_Chorus of_ OLD MEN _enter to attack the captured Acropolis_."
+    ) is None
+
+
 def test_lindsay_speaker_line_rejects_malformed_parens_without_hanging():
     # Codex re-review finding 1 (2026-09-11): moving the length guard AFTER
     # `_LINDSAY_STAGE.search()` left that regex free to backtrack
@@ -1502,13 +1525,17 @@ def test_real_lindsay_lysistrata_speech_count_and_edge_speakers():
     text = (SOURCES_DIR / "gutenberg/pg7700.txt").read_text(encoding="utf-8")
     speeches, notes = parse_play_speeches(text, "LYSISTRATA")
     assert notes == {}
-    assert len(speeches) == 537
+    # H2 (2026-09-17 round 2): `_Chorus of_ WOMEN.` (pg7700.txt:1126) now
+    # opens its own speech instead of reading as the tail of whichever turn
+    # was still open -- one more speech than the pre-fix count encoded.
+    assert len(speeches) == 538
     assert speeches[0]["speaker_printed"] == "LYSISTRATA"
     assert speeches[-1]["speaker_printed"] == "SPARTANS"
     printed = {speech["speaker_printed"] for speech in speeches}
     assert "MYRRHINE" in printed
     assert "STRATYLLIS" in printed
     assert "O" not in printed
+    assert "WOMEN" in printed
     groaning = [
         speech
         for speech in speeches
@@ -1870,6 +1897,31 @@ def test_loeb_ocr_short_capitalised_line_is_not_treated_as_a_turnover():
     ]
 
 
+# G2 (Grok's round-2 read, 2026-09-17): Rule A also glued a 1-3 letter OCR
+# orphan onto the end of an already-complete sentence -- "one"
+# (storr/antigone.txt:170), "to"/"a" (storr/electra-soph.txt:1211,1331) --
+# none of them a genuine turnover. A candidate under four characters is
+# never merged, whatever the length of the line before it.
+def test_loeb_ocr_short_orphan_after_a_finished_sentence_is_not_merged():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. And with a river always at its edge of ample flowing water.\n"
+        "one\n"
+        "More lines follow the orphan.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": (
+                "And with a river always at its edge of ample flowing water.\n"
+                "one\n"
+                "More lines follow the orphan."
+            ),
+        }
+    ]
+
+
 # Bacchae's shape (finding 4, 2026-09-17) is a *different* turnover: the
 # Loeb column set a short line's overflow to the right of the *next*,
 # unrelated line, so the OCR glues an unclosed `[...` tail onto the end of
@@ -1913,6 +1965,33 @@ def test_loeb_ocr_bracket_tail_does_not_swallow_a_real_trailing_direction():
     speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
     assert speeches[0] == {"speaker_printed": "CHORUS", "text": "Ready am I,\nand glad of cheer."}
     assert speeches[1]["directions_before"] == ["Begins to drive the crew in."]
+
+
+# G1 (round 2, Grok finding 1, 2026-09-17): a wrap-tail line (Rule A) can
+# itself carry a Rule B trailing bracket tail meant for the line after it.
+# Rule A used to run first and swallow the whole line -- bracket and all --
+# before Rule B ever peeled the tail off (way/cyclops.txt:60-62: "...
+# bedraggled" / "with the dew. [rascal! Shoo!" / "Here goes a stone ...
+# wilful"). The tail must move to the end of the following line and the
+# raw `[` must not survive into the joined verse.
+def test_loeb_ocr_wrap_tail_line_also_carrying_a_bracket_tail_peels_it_first():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. A bedraggled and drenched and thoroughly dishevelled goat,\n"
+        "with the dew. [rascal! Shoo!\n"
+        "Here goes a stone at the most wilful goat of the herd.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": (
+                "A bedraggled and drenched and thoroughly dishevelled goat, with the dew.\n"
+                "Here goes a stone at the most wilful goat of the herd. rascal! Shoo!"
+            ),
+        }
+    ]
+    assert "[" not in speeches[0]["text"]
 
 
 # Guard against the real false-positive risk (grep of every Way/Storr bench
@@ -2004,6 +2083,31 @@ def test_loeb_ocr_space_colon_cue_second_instance():
     text = "THE PLAY\n\nOEDIPUS. Too true.\nCHORUS :\nOh horror!\n\nOEDIPUS. Horrors from the deep.\n"
     speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
     assert speeches[1] == {"speaker_printed": "CHORUS", "text": "Oh horror!"}
+
+
+# H4 (2026-09-17 round 2 brief, helen finding 5): a Way cue whose OCR
+# slipped one letter to lowercase at the very end, its own stage direction
+# on the SAME line and no terminating period at all -- the speech starts on
+# the next physical line (way/helen.txt:1902-1903). `_SPEAKER_LINE`'s name
+# charset is ALL-CAPS only and always needs a "."/" :" terminator, so this
+# used to glue onto the end of the previous speaker's turn.
+def test_loeb_ocr_case_slip_cue_with_stage_direction_and_no_period():
+    text = (
+        "THE PLAY\n\n"
+        "HELEN. Now bid one give a ship wherein to bear\n"
+        "The gifts, that so thy kindness may be full.\n"
+        "THEOCLYMENUs (to attendant)\n"
+        "Of fifty oars, and rowers therewithal.\n"
+        "\n"
+        "HELEN. The rites who ordereth, shall not he command ?\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[1] == {
+        "speaker_printed": "THEOCLYMENUS",
+        "text": "Of fifty oars, and rowers therewithal.",
+        "shown": "_to attendant_\nOf fifty oars, and rowers therewithal.",
+    }
+    assert speeches[2]["speaker_printed"] == "HELEN"
 
 
 # A stage direction printed on a line of its own with no closing bracket at

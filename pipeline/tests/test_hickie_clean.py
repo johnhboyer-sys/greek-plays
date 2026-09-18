@@ -43,7 +43,11 @@ def _speeches(text: str, title: str = "THE TESTPLAY"):
     return [(s["speaker_printed"], s["text"]) for s in speeches]
 
 
-def test_cue_paren_and_footnote_call_resolved_same_page():
+# H1 (2026-09-17 round 2 brief, finding 6): Hickie is rendered with
+# `footnotes: false` in every one of these five comedies, so a renumbered
+# `[N]` marker written into the bench text would resolve to no popup and
+# print as a dead bracketed digit -- the call is dropped outright instead.
+def test_cue_paren_and_footnote_call_is_stripped_not_renumbered():
     paras = [
         _p("THE TESTPLAY", page=0),
         _p("[SCENE—a house.]", page=0),
@@ -54,13 +58,14 @@ def test_cue_paren_and_footnote_call_resolved_same_page():
     text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
     assert gaps == []
     assert speeches == 2
-    assert footnotes == 1
+    assert footnotes == 0
     assert not [line for line in log if line.startswith("uncertain")]
     parsed = _speeches(text)
     assert parsed == [
-        ("LYSISTRATA", "Well, we have met at last.[1]"),
+        ("LYSISTRATA", "Well, we have met at last."),
         ("PRAXAGORA", "I bring news."),
     ]
+    assert "[1]" not in text
     assert "[coming out of the house]" in text
 
 
@@ -84,9 +89,10 @@ def test_mixed_case_ordinal_cue_and_cyrillic_smallcaps_homoglyphs():
 
 def test_footnote_definition_that_is_mostly_greek_is_still_registered():
     # A genuinely short definition, almost entirely a quoted Greek phrase,
-    # must not be dropped as "just a Greek quote" -- it is still a real
-    # footnote, and dropping it silently also swallows the page's own
-    # numbering for whatever definition comes after it.
+    # must not be dropped as "just a Greek quote" -- registering it (even
+    # though nothing renders it, H1) is what keeps the page's own numbering
+    # working for whatever definition comes after it, and its call must
+    # still resolve (no "uncertain" log line) rather than orphan.
     paras = [
         _p("THE TESTPLAY", page=0),
         _p("LY. A word.[1]", page=0),
@@ -95,7 +101,8 @@ def test_footnote_definition_that_is_mostly_greek_is_still_registered():
         _p("LY. More.[2]", page=0),
     ]
     text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
-    assert footnotes == 2
+    assert footnotes == 0
+    assert "[1]" not in text and "[2]" not in text
     assert not [line for line in log if line.startswith("uncertain")]
 
 
@@ -116,11 +123,11 @@ def test_footnote_overflow_onto_next_page_before_its_own_heading():
     assert not [line for line in log if line.startswith("uncertain")]
     parsed = _speeches(text)
     assert parsed == [
-        ("LYSISTRATA", "Something.[1]"),
+        ("LYSISTRATA", "Something."),
         ("COMMITTEE-MAN", "New speech."),
     ]
     assert "continuing onto the next page" not in parsed[1][1]
-    assert "Part one of a long note continuing onto the next page." in text
+    assert "Part one of a long note continuing onto the next page." not in text
 
 
 def test_pipe_table_running_head_and_reversed_range_recognised():
@@ -154,6 +161,127 @@ def test_dropped_bare_pre_speech_and_drop_exact_latin_substitution():
     assert "Non traducta linea" not in text
     assert any(line.startswith("dropped\tpre-speech") for line in log)
     assert any(line.startswith("dropped\tHickie's own Latin") for line in log)
+
+
+# H1 (2026-09-17 round 2 brief, lysistrata finding 1): a Bohn abbreviated
+# cue printed in ordinary running-text case (`Lys.`, `Com.`) survived as
+# body text of whichever speech was still open instead of opening its own.
+# lysistrata.txt:372/375, in shape: "...for there is not more need of
+# levers, than of sense and judgment. Lys. By Diana, if in truth..." Uses
+# the real corpus abbreviation ("LYS", three letters) rather than
+# `_TEST_PLAY`'s own shorter "LY" fixture key.
+_LYS_COM_PLAY = _Play(
+    title="THE TESTPLAY",
+    word="TESTPLAY",
+    bench="testplay",
+    abbrev={"LYS": "LYSISTRATA", "COM": "COMMITTEE-MAN"},
+)
+
+
+def test_embedded_abbrev_cue_mid_sentence_opens_a_new_speech():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("COM. Do not force with your levers! For there is not more need of levers, than of sense and judgment. Lys. By Diana, if in truth he shall lay the tip of his hand upon me, he shall weep for it.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _LYS_COM_PLAY)
+    assert speeches == 2
+    assert _speeches(text) == [
+        (
+            "COMMITTEE-MAN",
+            "Do not force with your levers! For there is not more need of levers, than of sense and judgment.",
+        ),
+        (
+            "LYSISTRATA",
+            "By Diana, if in truth he shall lay the tip of his hand upon me, he shall weep for it.",
+        ),
+    ]
+
+
+# A stray leading period Genie's OCR glued onto the cue itself
+# (lysistrata.txt:568, `.Lys. If in the first place...`) must not stop the
+# same rule from recognising it as the paragraph's own opening cue.
+def test_embedded_abbrev_cue_with_stray_leading_punctuation():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("COM. Something before.", page=0),
+        _p(".Lys. If in the first place we put a stop to people lounging.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _LYS_COM_PLAY)
+    assert speeches == 2
+    assert _speeches(text)[1] == (
+        "LYSISTRATA",
+        "If in the first place we put a stop to people lounging.",
+    )
+
+
+# H1 (finding 3): a page-foot critical-apparatus block -- editors' surnames
+# plus a citation-shaped fragment -- Genie kept as running prose, with no
+# leading `[N]` of its own (its call was embedded mid-sentence in the speech
+# before it), spliced into the middle of a sentence. It must be dropped
+# whole, and the sentence's own two halves stay joined in the open speech.
+def test_apparatus_paragraph_dropped_from_the_middle_of_a_sentence():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. And I invoke thee as our ally, O goddess, if any man burn them", page=0),
+        _p(
+            "222, 456, 497. Eccles. 295. Cf. Krüger, Gr. Gr. § 54, 8, obs. 7. "
+            "Hermann, Vig. n. 255. Enger reads the adverb. Dindorf doubts it.",
+            page=0,
+        ),
+        _p("from below, to bring water along with us!", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert speeches == 1
+    assert _speeches(text) == [
+        (
+            "LYSISTRATA",
+            "And I invoke thee as our ally, O goddess, if any man burn them "
+            "from below, to bring water along with us!",
+        )
+    ]
+    assert "Krüger" not in text and "Hermann" not in text
+    assert any(line.startswith("dropped\tcritical-apparatus") for line in log)
+
+
+# H1 (finding 5): Genie's OCR keeps only "CHO. OF" bold/upper and prints the
+# chorus's own tail in ordinary case (`Wom.`/`Men.`); `_CUE_RE` used to read
+# just "CHO" as the cue and leave "OF Wom."/"OF Men." as the speech's first
+# words, so the two choruses lost their stable roster colour.
+def test_truncated_chorus_tail_cue_keeps_its_roster_name():
+    cfg = _Play(
+        title="THE TESTPLAY",
+        word="TESTPLAY",
+        bench="testplay",
+        abbrev={"CHO. OF MEN": "CHORUS OF OLD MEN", "CHO. OF WOM": "CHORUS OF OLD WOMEN"},
+    )
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("CHO. OF Wom. If you happen to have any soap, I'll provide a bath.", page=0),
+        _p("CHO. of Men. O Jupiter! what ever shall we make of these monsters?", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), cfg)
+    assert speeches == 2
+    assert _speeches(text) == [
+        ("CHORUS OF OLD WOMEN", "If you happen to have any soap, I'll provide a bath."),
+        ("CHORUS OF OLD MEN", "O Jupiter! what ever shall we make of these monsters?"),
+    ]
+    assert "OF Wom." not in text and "of Men." not in text
+
+
+# H1 addendum: Genie's OCR of "Lys." as "Lrs." (a real corpus instance,
+# lysistrata.txt) resolves through the same abbreviated-cue rule once the
+# alias is declared, exactly like any other abbreviation.
+def test_lrs_ocr_alias_resolves_to_lysistrata():
+    assert PLAYS["lysistrata"].abbrev["LRS"] == "LYSISTRATA"
+    cfg = _Play(title="THE TESTPLAY", word="TESTPLAY", bench="testplay", abbrev={"LRS": "LYSISTRATA"})
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("Lrs. Come now, since the other matters have been transacted well.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), cfg)
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Come now, since the other matters have been transacted well.")
+    ]
 
 
 def test_normalize_dollar_footnote_and_accented_title_and_br():

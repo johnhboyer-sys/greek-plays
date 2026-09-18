@@ -131,6 +131,28 @@ def test_four_plays_p_tag_unclosed_bracket_direction_by_shape_alone():
     assert "_[Enter ATOSSA._" in speeches[0]["shown"]
 
 
+# G4 (Grok's round-2 read, 2026-09-17): the bracketed alternative used to
+# match ANY line opening with "[", not anchored on a direction cue at all.
+# "[A pause." (prometheus-bound's own extra shape, not in the Loeb verb
+# list `_DIRECTION_CUE` carries) must still read as a direction; a
+# bracket-opened line that is NOT one of the recognised direction-cue
+# shapes must stay verse, not be swallowed as a direction.
+def test_four_plays_p_tag_bracket_direction_anchored_on_cue_verbs():
+    html = _four_plays_page(
+        f'<div class="wst-center tiInherit">{SC.format("Chorus")}</div>'
+        "<p>Or hath the lance-point conquered now?<br/>"
+        "[A pause.<br/>"
+        "See, yonder comes the mother-queen,<br/>"
+        "[the reading here is disputed, say some scholars<br/>"
+        "and the verse continues on.</p>"
+        '<div class="wst-right">[Exeunt.</div>'
+    )
+    out = convert_four_plays(html, "PLAY")
+    speeches = _parsed(out.text)
+    assert "_[A pause._" in speeches[0]["shown"]
+    assert "[the reading here is disputed, say some scholars" in speeches[0]["text"]
+
+
 def _poem_page(body: str) -> str:
     return f'<html><body><h2>Drama</h2><div class="poem"><p>{body}</p></div></body></html>'
 
