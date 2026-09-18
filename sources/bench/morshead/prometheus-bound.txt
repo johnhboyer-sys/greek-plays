@@ -20,7 +20,7 @@ But I—I dare not bind to storm-vext cleft
 One of our race, immortal as are we.
 Yet, none the less, necessity constrains,
 For Zeus, defied, is heavy in revenge!
-(To PROMETHEUS)
+_(To PROMETHEUS)_
 O deep-devising child of Themis sage,
 Small will have I to do, or thou to bear,
 What yet we must. Beyond the haunt of man,
@@ -196,7 +196,7 @@ The teacher, proven thus, and arch-resource
 Of every art that aideth mortal men.
 Such was my sin: I earn its recompense,
 Rock-riveted, and chained in height and cold.
-[A pause.
+_[A pause._
 Listen! what breath of sound, what fragrance soft hath risen
 Upward to me? is it some godlike essence,
 Or being half-divine, or mortal presence?
@@ -1017,7 +1017,7 @@ Ye craved to hear, recounted by herself,
 The story of her strivings. Listen now
 To what shall follow, to what woefulness
 The wrath of Hera must compel this maid.
-(To IO)
+_(To IO)_
 And thou, O child of Inachus, within
 Thine inmost heart store up these words of mine,
 That thou may'st learn thy wanderings and their goal.
@@ -1059,12 +1059,12 @@ And Bosporos shall be that channel's name,
 Because the ox-horned thing did pass thereby.
 So, from the wilds of Europe wander'd o'er,
 To Asia's continent thou com'st at last.
-(To the CHORUS)
+_(To the CHORUS)_
 And ye, what think ye? Seems he not, that lord
 And tyrant of the gods, as tyrannous
 Unto all other lives? A high god's lust
 Constrained this mortal maid to roam the world!
-(To IO)
+_(To IO)_
 Poor maid! a brutal wooer sure was thine!
 For know that all which I have told thee now
 Is scarce the prelude of thy woes to come.
@@ -1261,11 +1261,11 @@ All mortal men shall call Ionian,
 In memory that Io fared thereby.
 Take this for proof and witness that my mind
 Hath more in ken than ever sense hath shown.
-(To the CHORUS)
+_(To the CHORUS)_
 That which remains, to you and her alike
 I will relate, and, to my former words
 Reverting, add this final prophecy.
-(To IO)
+_(To IO)_
 There lieth, at the verge of land and sea,
 Where Nilus issues thro' the silted sand,
 A town, Canopus called: and there at length
@@ -1608,7 +1608,7 @@ Such are the counsels, such the strain,
 Heard from wild lips and frenzied brain!
 In word or thought, how fails his fate
 Of madness wild and desperate?
-(To the CHORUS)
+_(To the CHORUS)_
 But ye, who stand compassionate
 Here at his side, depart in haste!
 Lest of his penalty ye taste,

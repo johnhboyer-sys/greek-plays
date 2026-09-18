@@ -126,7 +126,82 @@ def test_gutenberg_wrapped_cue_direction_and_a_cue_sharing_a_verse_line():
         ("LEADER", "O Troy, my Troy!"),
     ]
     assert "_(bending over ANDROMACHE and gradually taking the Child from her)_" in speeches[2]["shown"]
-    assert "_[Antistrophe._" in speeches[3]["shown"]
+    # A strophe/antistrophe label is editorial apparatus, not a stage
+    # direction: it must not survive as a rendered direction either (B3,
+    # fix-mechanisms brief, 2026-09-17).
+    assert "shown" not in speeches[3]
+
+
+# B4 (fix-mechanisms brief, 2026-09-17): a cue's own bracketed direction
+# wraps a turnover onto the next line -- agamemnon.txt:1613-1614,
+# "CASSANDRA. [By an effort she regains mastery of herself, and speaks" /
+# "directly to the Leader.]" -- and the bracket never closed on the cue's own
+# line, so the whole thing fell through as a stray verse line instead of a
+# cue plus its direction.
+def test_gutenberg_cue_with_bracket_direction_wrapping_a_turnover():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nCASSANDRA.\n\n\n"
+        "THE PLAY\n\n"
+        "CHORUS.\n"
+        "  Their end I cannot read!\n\n"
+        "CASSANDRA. [By an effort she regains mastery of herself, and speaks\n"
+        "directly to the Leader.]\n\n"
+        "  'Fore God, mine oracle shall no more hide\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    assert "[By an effort" not in out.text.split("\n")[0]
+    speeches = _parsed(out.text)
+    assert speeches[1]["speaker_printed"] == "CASSANDRA"
+    assert speeches[1]["text"] == "'Fore God, mine oracle shall no more hide"
+    assert speeches[1]["shown"].startswith(
+        "_[By an effort she regains mastery of herself, and speaks directly to the Leader.]_"
+    )
+    assert "[By an effort" not in speeches[1]["text"]
+
+
+# B4 (fix-mechanisms brief, 2026-09-17): Project Gutenberg's pg27673
+# (oedipus-tyrannus) prints a page-boundary marker, "_[Sidenote: vv. N-N]_",
+# that is not verse and not stage business. It must vanish entirely, whether
+# it falls between two speeches or in the middle of one.
+def test_gutenberg_sidenote_marker_is_dropped_between_speeches():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nOEDIPUS, _King of Thebes_.\n\n\n"
+        "THE PLAY\n\n"
+        "OEDIPUS.\n"
+        "  My children, latest born to Cadmus old.\n"
+        "_[Sidenote: vv. 15-39]_\n\n"
+        "CREON.\n"
+        "  Good news, for e'en intolerable ills.\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    assert "Sidenote" not in out.text
+    speeches = _parsed(out.text)
+    assert [(s["speaker_printed"], s["text"]) for s in speeches] == [
+        ("OEDIPUS", "My children, latest born to Cadmus old."),
+        ("CREON", "Good news, for e'en intolerable ills."),
+    ]
+    assert not speeches[0].get("directions_before")
+    assert not speeches[1].get("directions_before")
+
+
+def test_gutenberg_sidenote_marker_is_dropped_inside_a_speech():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nCHORUS.\n\n\n"
+        "THE PLAY\n\n"
+        "CHORUS.\n"
+        "  Yield; consent; think! My Lord, I conjure thee!\n"
+        "_[Sidenote: vv. 649-664]_\n"
+        "  Kneeling I ask it.\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    assert "Sidenote" not in out.text
+    speeches = _parsed(out.text)
+    assert speeches == [
+        {
+            "speaker_printed": "CHORUS",
+            "text": "Yield; consent; think! My Lord, I conjure thee! Kneeling I ask it.",
+        }
+    ]
 
 
 def test_gutenberg_lyric_label_does_not_swallow_the_verse_below_it():
@@ -146,7 +221,10 @@ def test_gutenberg_lyric_label_does_not_swallow_the_verse_below_it():
         ("FIRST WOMAN", "How say'st thou? Whither moves thy cry, Thy bitter cry?"),
     ]
     assert speeches[0]["directions_before"] == ["[The Women steal out severally, startled and afraid."]
-    assert "_[Strophe 1._" in speeches[0]["shown"]
+    # The strophe label is editorial apparatus, not a stage direction: it
+    # must not survive as a rendered direction either (B3, fix-mechanisms
+    # brief, 2026-09-17).
+    assert "shown" not in speeches[0]
 
 
 def test_gutenberg_cast_list_in_capitals_before_the_first_cue():

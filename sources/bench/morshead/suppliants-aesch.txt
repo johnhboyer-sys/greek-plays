@@ -1101,7 +1101,7 @@ Bethink thee therefore, nor in panic leave
 The shrine of gods whose succour thou hast won.
 I go for aid—men shall not blame me long,
 Old, but with youth at heart and on my tongue.
-[Exit DANAUS.
+_[Exit DANAUS._
 
 CHORUS
 O land of hill and dale, O holy land,
@@ -1332,7 +1332,7 @@ Be strength and triumph on the young men's side!
 KING OF ARGOS
 Nay but here also shall ye find young men,
 Unsodden with the juices oozed from grain.
-[Exit HERALD OF AEGYPTUS.
+_[Exit HERALD OF AEGYPTUS._
 But ye, O maids, with your attendants true,
 Pass hence with trust into the fencèd town,
 Ringed with a wide confine of guarding towers.

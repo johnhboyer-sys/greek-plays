@@ -134,7 +134,7 @@ How fareth he, Darius' child,
 The Persian king, from Perseus styled?
 Comes triumph to the eastern bow,
 Or hath the lance-point conquered now?
-[Enter ATOSSA.
+_[Enter ATOSSA._
 See, yonder comes the mother-queen,
 Light of our eyes, in godlike sheen,
 The royal mother of the king!—
@@ -357,7 +357,7 @@ Mute have I been awhile, and overwrought
 At this great sorrow, for it passeth speech,
 And passeth all desire to ask of it.
 Yet if the gods send evils, men must bear.
-(To the MESSENGER)
+_(To the MESSENGER)_
 Unroll the record! stand composed and tell,
 Although thy heart be groaning inwardly,
 Who hath escaped, and, of our leaders, whom
