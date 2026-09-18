@@ -101,9 +101,13 @@ english:
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
   gaps:
-    - "811"  # the bankrupt jab has no English; the neighbour covers the salt joke
-    - "335"  # neighbour's question left untranslated
-    - "336"  # Blepyrus's reply left untranslated
+    # Item 9 (english_dead_gaps, 2026-09-18): all three now carry their own
+    # English in the built book -- 811 "And perhaps Callimachus is going to
+    # take in more money than Callias owns? That man want to ruin himself!";
+    # 335 "And why did you not ask your wife for it?"; 336 "Ah! why indeed!
+    # because she is not in the house; she has run away, and I greatly fear
+    # that she may be doing me an ill turn." -- so all three declared gaps
+    # are false; removed.
 
 citation:
   scheme: play-line

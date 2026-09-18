@@ -51,6 +51,13 @@ english:
       - { greek: "1132", english: "Slave, full war armour.", run: 6 }
       - { greek: "1140", english: "Slave, take up the buckler and let's be off.", run: 1 }
       - { greek: "1142", english: "Take up the basket, 'tis a question of getting to the feast.", run: 1 }
+    # Item 1 (lane-a-r3-report item 6): the 1912 prints the arming-scene
+    # couplets in the opposite order to Coulon (its "case for the crest"
+    # pair before the "moths ate my crest" pair), so the English of
+    # 1109-1112 belongs on 1107-1110 and the English of 1107-1108 on
+    # 1111-1112 -- a crossing the monotone pairer cannot express as pins.
+    transpositions:
+      - { start: "1109", end: "1112", before: "1107" }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

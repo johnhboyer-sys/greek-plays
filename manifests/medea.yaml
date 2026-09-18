@@ -36,6 +36,11 @@ english:
     footnotes: true
     # John 2026-09-11: the dropped head is the cast list
     head_front_matter: 3
+    # Item 6 (play-medea-findings #4): Way is off by one turn across the
+    # children's cries -- his first CHILD turn renders Greek 1271, not the
+    # bare cry ἰώ μοι at 1270a, which Way does not translate separately.
+    pins:
+      - { greek: "1271", english: "What shall I do ?—how flee my mother's", run: 1 }
   third:
     id: kosmos
     name: "Coleridge, rev. Ceragioli, Nagy & Hour 25 Medea team (Kosmos Society)"

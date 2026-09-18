@@ -60,6 +60,11 @@ english:
     source: bench/kosmos/seven-against-thebes.txt
     play: SEVEN AGAINST THEBES
     footnotes: false
+    # Item 7 (play-seven-against-thebes-findings #13): one speech ahead
+    # across the two semichorus lines, so the cue sits on the wrong
+    # speaker's Greek.
+    pins:
+      - { greek: "369", english: "The scout, I believe, is bringing some fresh news of the army", run: 1 }
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
     license:
       status: licensed

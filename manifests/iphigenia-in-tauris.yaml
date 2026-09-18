@@ -44,6 +44,13 @@ english:
     source: bench/way/iphigenia-in-tauris.txt
     play: IPHIGENEIA IN TAURICA
     footnotes: true
+    # Item 7 (play-iphigenia-in-tauris-findings #1): "Keep reverent silence"
+    # already lands correctly at 123 on this branch head; "Lo, I will peal on
+    # high" still sits at 126 (Greek 123-125's content), a whole strophe
+    # ahead of the Greek it actually renders (179ff).
+    pins:
+      - { greek: "123", english: "Keep reverent silence, ye", run: 1 }
+      - { greek: "179", english: "Lo, I will peal on high", run: 1 }
   third:
     id: murray-verse
     name: "Gilbert Murray"

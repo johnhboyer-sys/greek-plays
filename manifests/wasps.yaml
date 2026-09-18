@@ -73,8 +73,11 @@ english:
   strict_coverage: true
   gaps:
     - "313"  # Chorus's retort to the boy has no English
-    - "532"  # Chorus's warning to Philocleon has no English
-    - "1009"  # the parabasis stretch has no English attached nearby
+    # Item 9 (english_dead_gaps, 2026-09-18): 532 and 1009 both now carry
+    # their own English in the built book -- 532 "Your tablets? Ha, ha!
+    # what an importance you would fain assume!"; 1009 opens the parabasis
+    # ("(Parabasis) Go where it pleases you...") -- so both declared gaps
+    # are false; removed.
 
 citation:
   scheme: play-line

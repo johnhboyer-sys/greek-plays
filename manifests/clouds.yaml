@@ -118,8 +118,10 @@ english:
   strict_coverage: true
   gaps:
     - "1505"  # second student's "I too shall be burned" has no English
-    - "932"  # no English in the 1912 text (lane 1)
-    - "933"  # no English in the 1912 text (lane 1)
+    # Item 9 (english_dead_gaps, 2026-09-18): 932 and 933 both carry their
+    # own English in the built book ("(to Phidippides) Come hither and leave
+    # him to beat the air." / "(to Unjust Discourse) Evil be unto you, if
+    # you touch him."), so both declared gaps are false; removed.
 
 citation:
   scheme: play-line

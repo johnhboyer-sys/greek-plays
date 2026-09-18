@@ -97,6 +97,12 @@ speakers:
     "FIFTH MOTHER": "Chorus"
     "SIXTH MOTHER": "Chorus"
     "SEVENTH MOTHER": "Chorus"
+    # Item 3 (lane-b-r2 / way-lyrics-r1 reports, play-suppliants-eur-findings
+    # #5): the children's kommos roster has SECOND-SEVENTH CHILD but no
+    # FIRST CHILD, and the mothers' roster has FIRST/THIRD-SEVENTH MOTHER
+    # but no SECOND MOTHER.
+    "FIRST CHILD": "Children"
+    "SECOND MOTHER": "Chorus"
     "SECOND CHILD": "Children"
     "THIRD CHILD": "Children"
     "FOURTH CHILD": "Children"

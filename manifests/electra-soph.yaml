@@ -48,7 +48,9 @@ english:
   # text structures differently from the TLG edition (REVIEW-CHECKLIST 6).
   max_unresolved_mismatches: 7
   gaps:
-    - "1:856"  # no covering <l n> in the Perseus TEI
+    # Item 9 (english_dead_gaps, 2026-09-18): 1:856 carries its own English
+    # in the built book -- "What do you say?", a real (not snapped) Perseus
+    # anchor at n="856" -- so the declared gap is false; removed.
     - "1:1428"  # no covering <l n> in the Perseus TEI
 
 citation:
