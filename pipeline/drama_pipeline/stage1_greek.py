@@ -1598,6 +1598,21 @@ def _english_line_marks(manifest: Manifest) -> tuple[set[str], set[str]] | None:
     return _speech_start_lines_from_tei(text), _marked_lines_from_tei(text)
 
 
+# C17: the opening bracket of an editor's deletion, and nothing else, before
+# a speaker label on its own line -- the siglum is inside the brackets, as
+# the edition prints it (Orestes 957 `[Χο. ὦ δυστάλαινα`).
+_DELETION_BRACKET_PREFIX = re.compile(r"^[\[\u27e8<\s]*$")
+
+
+def _opens_after_deletion_bracket(text: str, offset: int) -> bool:
+    """Whether a speaker marker at ``offset`` has nothing before it on its
+    line but an opening deletion bracket."""
+    if offset <= 0:
+        return False
+    head = text[:offset]
+    return "[" in head and _DELETION_BRACKET_PREFIX.fullmatch(head) is not None
+
+
 def _segment_play_lines(
     flat: list[dict],
     cut_lines: set[str] | None = None,
@@ -1628,7 +1643,26 @@ def _segment_play_lines(
     segments: list[dict] = []
     cur: dict | None = None
     for i, entry in enumerate(flat, start=1):
-        starts_new_speaker = bool(entry.get("speakers")) and entry["speakers"][0]["offset"] == 0
+        first_event = (entry.get("speakers") or [None])[0]
+        starts_new_speaker = first_event is not None and first_event["offset"] == 0
+        if (
+            not starts_new_speaker
+            and first_event is not None
+            and cur is not None
+            and not cur.get("speakers")
+            and _opens_after_deletion_bracket(entry.get("text") or "", first_event["offset"])
+        ):
+            # C17 (orestes finding 4, 2026-09-17): the edition brackets
+            # 957-959 as the editor's deletion, so the `Χο.` inside the
+            # brackets sits at offset 2 and cuts nothing -- but it was the
+            # only speaker event in the segment the 80-line ceiling had just
+            # opened at 946, so it HEADED it and the Messenger's last eleven
+            # lines were labelled and coloured Chorus.  A bracketed siglum
+            # opens its own segment rather than capturing the speech above
+            # it; where the segment already has a line-start speaker of its
+            # own (Medea 1415, Alcestis 1119, Rhesus 16 -- twenty of the
+            # corpus's twenty-four) it stays an ordinary mid-segment event.
+            starts_new_speaker = True
         over = cur is not None and len(cur["lines"]) >= _SEGMENT_LINE_CAP
         if over and cut_lines is not None:
             # Printed refs compared whole ("85a" is not "85"); a joined

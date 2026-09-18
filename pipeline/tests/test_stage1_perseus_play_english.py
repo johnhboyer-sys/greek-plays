@@ -76,7 +76,7 @@ def _spine() -> dict:
 
 def _parse(
     tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None, covered=None,
-    transpositions=None,
+    transpositions=None, line_fixes=None,
 ):
     xml_path = tmp_path / "play.xml"
     xml_path.write_text(tei, encoding="utf-8")
@@ -89,6 +89,7 @@ def _parse(
         english_aliases=aliases if aliases is not None else ALIASES,
         covered_decl=covered,
         transpositions=transpositions,
+        line_fixes=line_fixes,
     )
 
 
@@ -168,7 +169,9 @@ def test_perseus_play_chunks_ticks_notes_turns_and_report(tmp_path: Path):
 
     assert [chunk["id"] for chunk in english["chunks"]] == ["1:1", "1:5", "1:10"]
     first, second, third = english["chunks"]
-    assert "cut me" not in first["text"]
+    # C13 (round 4): `<del>` is the editor's deletion — printed, bracketed,
+    # never dropped.  This line asserted the drop until 2026-09-18.
+    assert "[cut me]" in first["text"]
     assert [tick["n"] for tick in first["bekker"]] == [1]
     assert [tick["n"] for tick in second["bekker"]] == [5, 8]
     assert [tick["n"] for tick in third["bekker"]] == [10]
@@ -1219,15 +1222,22 @@ def test_cross_speech_snap_is_refused(tmp_path: Path):
     )
     by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
     assert "Prior strophe." in by_id["1:430"]
-    assert "New strophe." not in by_id.get("1:430", "")
+    # The snap across the speech boundary stays refused: 437 never reaches
+    # Cassandra.  C15 (round 4) stopped the piece being DROPPED for it — an
+    # unprinted number seats beside the printed neighbour whose Greek speaker
+    # it shares, which here is the Chorus's own 436.
     assert "New strophe." not in by_id.get("1:438", "")
+    assert by_id["1:430"].endswith("New strophe.")
     assert any(
-        item["kind"] == "unmatched_anchor" and item["n_raw"] == "437"
+        item["kind"] == "unprinted_ref"
+        and item["n_raw"] == "437"
+        and item["attached_to"] == "1:430"
         for item in report["anomalies"]
     )
+    assert not [a for a in report["anomalies"] if a["kind"] == "unmatched_anchor"]
 
 
-def test_stage_and_gap_are_skipped_like_del(tmp_path: Path):
+def test_a_gap_is_skipped_and_a_mid_speech_stage_prints_inline(tmp_path: Path):
     tei = """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
   <div type="translation">
@@ -1252,8 +1262,9 @@ def test_stage_and_gap_are_skipped_like_del(tmp_path: Path):
     }
     english, _footnotes, _report = _parse(tmp_path, tei, spine)
     text = english["chunks"][0]["text"]
-    assert "He descends" not in text
-    assert "Hello" in text and "there" in text and "kept tail." in text
+    # `<gap>` has no text to print.  The direction does, and prints (round 4
+    # item 8); this line asserted its loss until 2026-09-18.
+    assert text == "Hello\n_He descends by an inner stairway_\nthere kept tail."
 
 
 def test_hyphenated_note_labels_are_sanitised(tmp_path: Path):
@@ -4022,7 +4033,184 @@ def test_perseus_stage_tags_become_directions_before_the_speech(tmp_path: Path):
     ]
     assert by_id["1:218"]["text"] == "Lady, I think you know the army’s will."
     assert by_id["1:216"]["turns"][0].get("directionsBefore") is None
-    # The mid-speech one is counted, not silently dropped.
-    mid = [a for a in report["anomalies"] if a["kind"] == "stage_direction_mid_speech"]
+    # Round 4 item 8: the mid-speech one is PRINTED where the edition prints
+    # it, on its own line inside the prose, in the reader's own
+    # `_direction_` convention (shared/lib/speakers.ts markStageDirections).
+    assert by_id["1:604"]["text"] == (
+        "Go and proclaim to the Argives\n_Talthybius goes out._"
+    )
+    mid = [a for a in report["anomalies"] if a["kind"] == "stage_direction_inline"]
     assert len(mid) == 1
     assert mid[0]["text"] == "Talthybius goes out."
+    assert not [
+        a for a in report["anomalies"] if a["kind"] == "stage_direction_mid_speech"
+    ]
+
+
+# ── Lane C, round 4 ───────────────────────────────────────────────────────
+
+
+def test_deleted_text_is_kept_in_square_brackets(tmp_path: Path):
+    """C13 (iphigenia-at-aulis finding 1, 2026-09-17): a Perseus `<del>` is
+    the editor's deletion — text the edition PRINTS and brackets, never text
+    that is absent.  The converter dropped every `<del>` unread, so ten lines
+    of Agamemnon's prologue (IA 105-114) and four more passages vanished from
+    the reader's default column with no trace in the build.  The Greek column
+    prints those lines, so the English must too."""
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker>
+      <l n="1">Kept <del>and cut</del> again.</l>
+      <l n="2"><del rend="merge">Whole line deleted<note n="1" resp="Smyth">A note.</note>.</del></l>
+    </sp>
+    <sp><speaker>Beta</speaker><l n="5">Plain.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, footnotes, report = _parse(tmp_path, tei, _spine())
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:1"]["text"] == "Kept [and cut] again. [Whole line deleted[^1.1].]"
+    assert list(footnotes) == ["1.1"]
+    kept = [a for a in report["anomalies"] if a["kind"] == "deleted_text_kept"]
+    assert [a["text"] for a in kept] == ["and cut", "Whole line deleted."]
+
+
+def test_an_unprinted_english_line_number_attaches_to_its_printed_neighbour(
+    tmp_path: Path,
+):
+    """C15 (andromache finding 5, 2026-09-17): an `<l n>` whose number the
+    Greek edition does not print resolved to no segment at all and its text
+    was dropped (Coleridge's 1203, his rendering of Diggle's 1204; 14 such
+    lines across 11 plays).  It belongs beside the printed line next to it
+    whose Greek speaker it shares, flagged, never nowhere."""
+    spine = _spine()
+    # 1:5 prints 5, 6, 8 — the translation numbers a Beta line 7.
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1">Alpha line.</l></sp>
+    <sp><speaker>Beta</speaker><l n="7">The unprinted line.</l></sp>
+    <sp><speaker>Gamma</speaker><l n="10">Gamma line.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _f, report = _parse(tmp_path, tei, spine)
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:5"]["text"] == "The unprinted line."
+    assert [a["kind"] for a in report["anomalies"]] == ["unprinted_ref"]
+    row = report["anomalies"][0]
+    assert row["n_raw"] == "7" and row["attached_to"] == "1:5" and row["ref"] == "6"
+    assert not [a for a in report["anomalies"] if a["kind"] == "unmatched_anchor"]
+
+
+def test_an_unprinted_line_number_far_from_the_spine_stays_unmatched(
+    tmp_path: Path,
+):
+    """The other half of C15: Helen's TEI numbers one line `5563` (a typo for
+    563).  A number nowhere near a printed line is not a neighbour of
+    anything — it is a typo, and belongs in `english.primary.line_fixes`
+    (C16), not seated by guesswork at the end of the play."""
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1">Alpha line.</l></sp>
+    <sp><speaker>Beta</speaker><l n="5563">A typo for five.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    _english, _f, report = _parse(tmp_path, tei, _spine())
+    assert [a["kind"] for a in report["anomalies"]] == ["unmatched_anchor"]
+
+
+def test_a_declared_line_fix_is_honoured_before_anchoring(tmp_path: Path):
+    """C16 (iphigenia-in-tauris finding 5, 2026-09-17): Perseus files Thoas's
+    1188 under `n="188"`, so it printed a thousand lines early, glued to the
+    end of the Chorus's parodos with a Thoas turn inside it, and the manifest
+    declared `1:1188` a gap to mask it.  A per-play
+    `english.primary.line_fixes` maps the TEI's typo to the number the line
+    really carries, before anything reads the anchor."""
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1">Alpha line.</l></sp>
+    <sp><speaker>Gamma</speaker><l n="3">Filed under the wrong number.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    plain, _f, _r = _parse(tmp_path, tei, _spine())
+    assert "Filed under the wrong number." in {
+        chunk["id"]: chunk["text"] for chunk in plain["chunks"]
+    }["1:1"]
+    fixed, _f, _r = _parse(tmp_path, tei, _spine(), line_fixes={"3": "10"})
+    by_id = {chunk["id"]: chunk["text"] for chunk in fixed["chunks"]}
+    assert by_id["1:1"] == "Alpha line."
+    assert by_id["1:10"] == "Filed under the wrong number."
+
+
+def test_a_line_fix_naming_no_such_anchor_raises(tmp_path: Path):
+    """A fix map that matches no `<l n>`, or more than one, is a typo in the
+    manifest and fails loudly rather than passing unread."""
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1">Alpha line.</l><l n="1">Twice.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    with pytest.raises(ValueError, match="line_fixes"):
+        _parse(tmp_path, tei, _spine(), line_fixes={"999": "10"})
+    with pytest.raises(ValueError, match="line_fixes"):
+        _parse(tmp_path, tei, _spine(), line_fixes={"1": "10"})
+
+
+def test_a_transposition_overlap_refuses_a_mixed_english_keying():
+    """Grok's read of 134dbe0: two overlapping `citation.transpositions` rows
+    merge into one printed stretch, and the merge ORed `english_keyed:
+    printed`, so one declaring row forced printed keying over the whole
+    stretch.  Number keying is the default and printed the exception; a
+    merged stretch whose rows disagree is a manifest the author has to
+    settle, not a silent promotion."""
+    from drama_pipeline.stage1_perseus_play_english import (
+        _transposition_printed_stretches,
+    )
+
+    # Seven's real shape: 993 printed early, then 984-992, then 983.
+    printed = ["980", "993"] + [str(n) for n in range(984, 993)] + ["983", "995"]
+    rows = [
+        {"start": "984", "end": "992", "before": "993"},
+        {"start": "983", "end": "983", "before": "993"},
+    ]
+    merged, skipped = _transposition_printed_stretches(rows, printed)
+    assert skipped == []
+    assert [span for span, _forced in merged] == [list(range(1, 12))]
+    assert [forced for _span, forced in merged] == [False]
+
+    both, _skipped = _transposition_printed_stretches(
+        [dict(row, english_keyed="printed") for row in rows], printed
+    )
+    assert [forced for _span, forced in both] == [True]
+
+    mixed = [dict(rows[0], english_keyed="printed"), dict(rows[1])]
+    with pytest.raises(ValueError, match="english_keyed"):
+        _transposition_printed_stretches(mixed, printed)
+
+
+def test_a_mid_speech_direction_keeps_the_text_around_it_intact(tmp_path: Path):
+    """Round 4 item 8: a `<stage>` reached in the middle of a speech had no
+    turn to hang on, so 375 of them across 33 plays were counted as lost and
+    dropped.  They print inline, on their own line, between the words they
+    interrupt — and the words on both sides stay whole."""
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker>
+      <l n="1">Before the exit.<stage>Exit Alpha.</stage>After the exit.</l>
+    </sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _f, report = _parse(tmp_path, tei, _spine())
+    by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert by_id["1:1"] == "Before the exit.\n_Exit Alpha._\nAfter the exit."
+    assert [a["kind"] for a in report["anomalies"]] == ["stage_direction_inline"]
