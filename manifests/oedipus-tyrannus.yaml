@@ -27,8 +27,17 @@ english:
     footnotes: false
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
+    # Perseus's own English has no separate <l n="624"> at all: Jebb's prose
+    # folds Creon's 624 ("Ὅταν προδείξῃς <γ'> οἷόν ἐστι τὸ φθονεῖν") into the
+    # single <l n="623"> block ("Hardly. I desire your death, not your
+    # exile, so that I might show what a thing envy is."). 625's own line
+    # ("Are you resolved not to yield or believe?") is Perseus's own <l
+    # n="625"> and stays there (flagged attribution_difference: English says
+    # Creon, the Greek says Oedipus) now that C1 (2026-09-17 Perseus
+    # bare-sweep) no longer repairs an isolated disagreement onto a
+    # neighbour -- the old `{625 by: 624}` declaration is stale.
     covered:
-      - { greek: "625", by: "624" }
+      - { greek: "624", by: "623" }
   secondary:
     id: storr
     name: "F. Storr (Loeb, 1912)"
