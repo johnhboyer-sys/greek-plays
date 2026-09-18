@@ -26,6 +26,7 @@ from .stage1_turn_english import (
     _SPEAKER_LINE,
     _is_gutenberg_end_line,
     _is_play_end,
+    _dramatis_index_after,
     _locate_title,
 )
 
@@ -322,13 +323,20 @@ def section_speakers(columns: list[dict], reports: dict[str, dict | None]) -> tu
 def _play_span(lines: list[str], play: str) -> tuple[int, int] | None:
     """The `[start, end)` line range `parse_play_speeches` would read for
     `play` -- so a raw-source scan does not wander into a different play
-    sharing the same Gutenberg file (`gutenberg/pg8688.txt` holds all
-    eleven comedies; clouds review finding, 2026-09-17: untrimmed §7
+    sharing the same Gutenberg volume (`gutenberg/pg8688.txt` and
+    `pg8689.txt` hold the eleven comedies between them; clouds review
+    finding, 2026-09-17: untrimmed §7
     scan-noise rows for the athenian-society primary were another play's
     text, footnote bodies three plays over, or the trailing PG licence)."""
     try:
         start = _locate_title(lines, play)
     except ValueError:
+        return None
+    # Only a dramatis-anchored title marks a play inside a shared volume.
+    # On a verse-own-line bench the title is also a speaker cue (Johnston's
+    # `AJAX` 44 times), and `_locate_title` would take the last hit and
+    # keep only the tail of the file (Grok read, 2026-09-17).
+    if _dramatis_index_after(lines, start) is None:
         return None
     end = len(lines)
     for j in range(start + 1, len(lines)):

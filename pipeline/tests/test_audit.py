@@ -419,3 +419,14 @@ def test_read_source_lines_blanks_out_a_different_play_sharing_the_file(tmp_path
     # index 8 (0-based) was "FINIS OF \"THE WASPS\"" and is now blank,
     # while index 10, "THE CLOUDS" itself, is untouched.
     assert lines[8] == "" and lines[10] == "THE CLOUDS"
+
+
+def test_play_span_leaves_a_verse_own_line_bench_whole_when_the_title_is_a_cue():
+    """Johnston's Ajax names the play `AJAX` and cues the hero `AJAX` 44
+    times; with no dramatis list after the title the file is one play and
+    must be read whole (Grok read of Lane D, 2026-09-17)."""
+    from drama_pipeline.audit import _play_span
+
+    lines = ["AJAX", "", "ATHENA", "I see you, son of Laertes.", "", "AJAX",
+             "Hail, Athena.", "", "AJAX", "Now I go."]
+    assert _play_span(lines, "AJAX") is None
