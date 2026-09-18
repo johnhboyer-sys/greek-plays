@@ -71,36 +71,49 @@ _SIDENOTE = re.compile(r"^_?\[Sidenote:[^\]]*\]_?\.?$", re.I)
 # rhesus 23-33, B round 3 item 2, 2026-09-17): the rubric belongs to neither
 # the cue nor the verse and is dropped, same as an own-line lyric label (B3).
 _CUE_PAREN_AND_RUBRIC = re.compile(r"^([A-Z][A-Z' ]+)\s*(\(.*\))\.\s{2,}(\[.*)$")
-# Cap on an unclosed `[` direction's length (B round 3, 2026-09-17): Murray's
-# own Gutenberg convention for a short mid-speech aside never prints a `]` at
-# all ("[_Turning upon the Herald._" / "[_Turning furiously upon_ HELEN.") --
-# the direction ends where its own sentence does, at the line that carries
-# its terminal `.`/`!`/`?`, exactly the review's own "split at the first
-# sentence end" rule -- while a real multi-line direction
-# ("[_Exeunt_ HECTOR _and_ RHESUS...tent_.") runs on past a comma or a name
-# in plain capitals until its own sentence actually ends. Four raw lines
-# with no terminal punctuation and no `]` is not a direction; it is verse
-# the direction swallowed (trojan-women, rhesus).
-_DIRECTION_LINE_CAP = 4
+# Murray's own Gutenberg convention for a short mid-speech aside never
+# prints a `]` at all ("[_Turning upon the Herald._" / "[_Turning furiously
+# upon_ HELEN.") -- the direction ends where its own sentence does. But a
+# bare sentence-final stop is not enough on its own: a real multi-sentence
+# direction's FIRST wrap line often ends a sentence too ("[_As they cease,_
+# CLYTEMNESTRA _comes from the Palace with Attendants._ She has finished
+# her prayer..." -- agamemnon, B round 3b item 1) while the italics that
+# introduced it are still open, or the sentence that ends there is only the
+# first of several ("[_The huntsmen have gathered about the altar of_
+# ARTEMIS. HIPPOLYTUS _now advances..._]" -- hippolytus, same item). Two
+# checks, not one raw ".!?$":
+#   1. Italics parity: an odd running count of `_` means the line ends
+#      mid-italic-span (the direction's own sentence has not actually
+#      finished, whatever punctuation the line happens to end with).
+#   2. Even so, a genuine complete aside is followed by real verse -- the
+#      next line carries no unclosed `_` of its own. A direction's own
+#      continuation line always reopens italics ("HIPPOLYTUS _now
+#      advances..."); a poet's mid-verse emphasis word closes on the same
+#      line ("_She_ cometh first...") and does not count.
+# No line-count cap: a genuine direction (bacchae's Agave entrance,
+# iphigenia-in-tauris's procession, alcestis's Heracles entrance) runs as
+# many raw lines as it needs and still closes on its own last sentence or
+# `]`; nothing in this corpus runs past that without one.
 _SENTENCE_END = re.compile(r"[.!?]+['’\"]?_?$")
 
 
-def _direction_line_closes(direction: list[str], line: str) -> tuple[bool, str]:
+def _direction_line_closes(direction: list[str], line: str, next_line: str | None) -> tuple[bool, str]:
     """Add `line` to an open `direction` accumulator; report whether it now
     closes, and any text trailing a literal `]` on this line. A direction
-    closes at a literal `]` (as before), at a line ending its own sentence
-    with no `]` ever printed, or after `_DIRECTION_LINE_CAP` lines of
-    neither -- never past the next real cue, which the caller checks first."""
+    closes at a literal `]` (as before), at a lyric label on its own first
+    line, or at a line that ends its own sentence with italics balanced
+    (not reopened) and whose next line -- `None` at a blank line or a
+    paragraph edge -- carries no unclosed italics of its own."""
     head_, sep, tail = line.partition("]")
     direction.append(head_ + sep)
     if sep:
         return True, tail
     if len(direction) == 1 and _LYRIC_LABEL.match(line):
         return True, ""
-    if _SENTENCE_END.search(line):
-        return True, ""
-    if len(direction) >= _DIRECTION_LINE_CAP:
-        return True, ""
+    italics_open = sum(seg.count("_") for seg in direction) % 2 == 1
+    if not italics_open and _SENTENCE_END.search(line):
+        if next_line is None or next_line.count("_") % 2 == 0:
+            return True, ""
     return False, ""
 
 
@@ -243,7 +256,8 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
         if direction is None and line.startswith("["):
             direction = []
         if direction is not None:
-            closed, tail = _direction_line_closes(direction, line)
+            next_line = flat[idx + 1] if idx + 1 < len(flat) else None
+            closed, tail = _direction_line_closes(direction, line, next_line)
             if closed:
                 close()
                 if tail.strip():
@@ -282,7 +296,8 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
             if name and not name[1]:
                 items.append(("cue", name[0]))
                 direction = []
-                closed, tail = _direction_line_closes(direction, "[" + cue_bracket.group("rest"))
+                next_line = flat[idx + 1] if idx + 1 < len(flat) else None
+                closed, tail = _direction_line_closes(direction, "[" + cue_bracket.group("rest"), next_line)
                 if closed:
                     close()
                     if tail.strip():

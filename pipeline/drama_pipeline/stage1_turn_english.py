@@ -907,6 +907,16 @@ def _parse_as_speeches(
     # 3 item 5): if not, that block opens NAME's own turn instead of
     # welding onto whatever speech was open before the direction.
     implicit_entrant: str | None = None
+    # Whether the speech now open was itself opened by `implicit_entrant`
+    # rather than a real cue (B round 3b item 2, 2026-09-18): the parser has
+    # no Greek, so it cannot tell an entrance that truly opens the entrant's
+    # own turn (phoenician-women's cue-less parodos after "Enter CHORUS.")
+    # from one that doesn't (alcestis 41 "Enter DEATH." / medea 1029 "Enter
+    # NURSE.", both still Apollo's and Medea's own words to the newcomer).
+    # Marked on the speech so a later stage that DOES have the Greek --
+    # `parse_translation`, which builds this play's Greek speech sequence a
+    # few hundred lines below -- can accept or reject the split.
+    speech_is_implicit_entrant = False
     i = start
     end_i = len(lines)
 
@@ -919,6 +929,8 @@ def _parse_as_speeches(
         speech = {"speaker_printed": speaker, "text": text}
         if directions_before:
             speech["directions_before"] = list(directions_before)
+        if speech_is_implicit_entrant:
+            speech["implicit_entrant"] = True
         # A direction split off the speech's last line has no more text
         # after it in this speech; it rides forward like a whole-line one.
         inner = [entry for entry in inline if any(parts[entry[0]:])]
@@ -1014,6 +1026,7 @@ def _parse_as_speeches(
                 _merge_wrap_tail(parts, pending_tail)
                 pending_tail = None
             flush()
+            speech_is_implicit_entrant = False  # a real cue, not the implicit rule
             if m:
                 speaker = m.group("name").strip()
             elif offstage:
@@ -1070,6 +1083,7 @@ def _parse_as_speeches(
             flush()
             speaker = implicit_entrant
             implicit_entrant = None
+            speech_is_implicit_entrant = True
             parts = []
             inline = []
             directions_before = pending
@@ -2398,6 +2412,50 @@ def parse_translation(
     # itself turn-text -- `run()` only passes `primary_bridge` when this
     # work's `english.primary.model` is `perseus-play`.
     bridge_texts = _primary_bridge_texts(segments, slots, primary_bridge)
+    # B round 3b item 2 (fix-mechanisms brief, "Lane B, round 3b",
+    # 2026-09-18): `implicit_entrant` (stage1's English-only parser) split a
+    # speech off an "Enter NAME." direction with no cue of its own, a guess
+    # it cannot check -- it has no Greek. The Greek IS in scope here
+    # (`slot_names`), so a trial alignment settles it: the split stands only
+    # if it actually lands on a genuine, non-inherited Greek speaker event
+    # named NAME (phoenician-women's CHORUS parodos). Otherwise (alcestis
+    # 41's DEATH, medea 1029's NURSE -- neither speaks again this soon) the
+    # guess was wrong, and its text folds back onto the speech before it,
+    # where the parser would have left it without the rule at all. Smallest
+    # hook that could do this: correct `english_nodes`, the DP's own input,
+    # before the one alignment the rest of this function uses.
+    implicit_at = [j for j, sp in enumerate(speeches) if sp.get("implicit_entrant")]
+    if implicit_at:
+        trial = _align_speech_runs(
+            greek_nodes, english_nodes, slot_names, forced, bridge_texts, slot_spans,
+            slot_refs, work_id, slot,
+        )
+        accepted = {
+            ej for gi, ej in trial.pairs
+            if ej in implicit_at and slot_names[gi] == e_names[ej]
+        }
+        for j in sorted((j for j in implicit_at if j not in accepted), reverse=True):
+            if j == 0:
+                continue  # no predecessor to fold onto; leave the split rather than drop it
+            prev, cur = speeches[j - 1], speeches[j]
+            prev["shown"] = "\n".join(
+                piece
+                for piece in (
+                    prev.get("shown") or prev["text"],
+                    *(f"_{d}_" for d in cur.get("directions_before", [])),
+                    cur.get("shown") or cur["text"],
+                )
+                if piece
+            )
+            prev["text"] = f"{prev['text']} {cur['text']}".strip()
+            del speeches[j]
+            del e_names[j]
+        english_nodes = [
+            pair_dp.EnglishNode(
+                name=e_names[j], chars=len(speeches[j]["text"]), text=speeches[j]["text"]
+            )
+            for j in range(len(speeches))
+        ]
     dp_result = _align_speech_runs(
         greek_nodes, english_nodes, slot_names, forced, bridge_texts, slot_spans,
         slot_refs, work_id, slot,

@@ -283,17 +283,118 @@ def test_gutenberg_unclosed_bracket_direction_list_ending_on_a_name_stays_whole(
     assert "They pray to ATHENA, ARTEMIS, and APOLLO." in speeches[0]["shown"]
 
 
-# Same item: with no `]`, no balanced italics, and no cue to stop it, a
-# direction must not exceed four raw lines -- past that it is verse the
-# direction swallowed, not stage business.
-def test_direction_line_closes_caps_at_four_lines_with_no_bracket_or_italics():
+# B round 3b item 1 (Grok's read of 5f58b39, build/review/
+# review-lane-b-r3-grok-findings.md finding 1, 2026-09-18): round 3's rule
+# closed a direction at ANY line ending `.`/`!`/`?`, including the first
+# wrap line of a real multi-sentence direction whose italics reopen after a
+# name and run on to a second sentence (agamemnon.txt:934, and the same
+# shape in alcestis, oedipus-tyrannus, hippolytus x10). The first wrap line
+# ends its own clause with a stop, but the reopened italics after
+# CLYTEMNESTRA are still unbalanced there, so the direction must not close
+# until its true end (a literal `]`).
+def test_direction_line_closes_stays_open_past_a_stop_with_reopened_italics():
     direction: list[str] = []
-    assert _direction_line_closes(direction, "[Exeunt severally, one two three four") == (False, "")
-    assert _direction_line_closes(direction, "five six seven eight nine ten") == (False, "")
-    assert _direction_line_closes(direction, "eleven twelve thirteen fourteen") == (False, "")
-    closed, tail = _direction_line_closes(direction, "fifteen sixteen seventeen")
-    assert closed and tail == ""
-    assert len(direction) == 4
+    # "[_As they cease,_ CLYTEMNESTRA _comes...Attendants." -- ends its own
+    # clause with a stop, but the italics after CLYTEMNESTRA are unbalanced.
+    closed, tail = _direction_line_closes(
+        direction,
+        "[_As they cease,_ CLYTEMNESTRA _comes from the Palace with Attendants.",
+        "She has finished her prayer and sacrifice.",
+    )
+    assert (closed, tail) == (False, "")
+    closed, tail = _direction_line_closes(
+        direction,
+        "She has finished her prayer and sacrifice.",
+        "The Leader approaches her_.]",
+    )
+    assert (closed, tail) == (False, "")
+    closed, tail = _direction_line_closes(direction, "The Leader approaches her_.]", None)
+    assert (closed, tail) == (True, "")
+
+
+def test_gutenberg_multi_sentence_direction_survives_a_stop_on_its_first_wrap_line():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nLEADER.\nHERALD.\n\n\n"
+        "THE PLAY\n\n"
+        "LEADER.\n"
+        "  As good hath dawned, may good shine on, we pray!\n"
+        "[_Enter the_ HERALD, _running. His garments are torn and war-stained.\n"
+        "He falls upon his knees and kisses the Earth, and salutes each Altar in\n"
+        "turn._]\n\n"
+        "HERALD.\n"
+        "  Land of my fathers! Argos! Am I here.\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    lines = out.text.splitlines()
+    assert (
+        "_[Enter the HERALD, running. His garments are torn and war-stained. "
+        "He falls upon his knees and kisses the Earth, and salutes each Altar in turn.]_"
+    ) in lines
+    speeches = _parsed(out.text)
+    assert [s["speaker_printed"] for s in speeches] == ["LEADER", "HERALD"]
+    assert speeches[0]["text"] == "As good hath dawned, may good shine on, we pray!"
+    assert speeches[1]["text"] == "Land of my fathers! Argos! Am I here."
+    assert "garments" not in speeches[1]["text"]
+
+
+# Same finding (item 1): round 3's cap on an unclosed direction counted raw
+# Gutenberg wrap lines, not stage-business sentences, so a genuine direction
+# running past four 70-character lines (iphigenia-in-tauris's procession,
+# bacchae's Agave entrance, alcestis's Heracles entrance) was cut and its
+# tail printed as verse. With the cap dropped, a direction runs as many raw
+# lines as it needs and still closes on its own literal `]`.
+def test_gutenberg_direction_runs_past_four_wraps_to_its_own_close():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nCHORUS.\nTHOAS.\n\n\n"
+        "THE PLAY\n\n"
+        "CHORUS.\n"
+        "  thou canst read my prayer.\n"
+        "[The procession passes out, THOAS and the bystanders\n"
+        "veiled; Attendants in front, then\n"
+        "IPHIGENIA with the Image, then veiled Soldiers,\n"
+        "then ORESTES and PYLADES bound,\n"
+        "the bonds held by other veiled Soldiers following\n"
+        "them. THOAS goes into the Temple.]\n\n"
+        "THOAS.\n"
+        "  Farewell.\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    lines = out.text.splitlines()
+    assert (
+        "_[The procession passes out, THOAS and the bystanders veiled; Attendants in "
+        "front, then IPHIGENIA with the Image, then veiled Soldiers, then ORESTES and "
+        "PYLADES bound, the bonds held by other veiled Soldiers following them. "
+        "THOAS goes into the Temple.]_"
+    ) in lines
+    speeches = _parsed(out.text)
+    assert [s["speaker_printed"] for s in speeches] == ["CHORUS", "THOAS"]
+    assert speeches[1]["text"] == "Farewell."
+    assert "Temple" not in speeches[1]["text"]
+
+
+# Same finding: the short mid-speech asides this rule already got right
+# (trojan-women's "Turning upon the Herald", B round 3 item 1) must keep
+# closing at their own single sentence -- the fix for the multi-sentence
+# case must not reopen these into run-ons.
+def test_gutenberg_short_aside_still_closes_on_its_own_sentence():
+    text = (
+        "CHARACTERS IN THE PLAY\n\nCASSANDRA.\n\n\n"
+        "THE PLAY\n\n"
+        "CASSANDRA.\n"
+        "  With flesh still clean I give them back to thee,\n"
+        "[_Turning upon the Herald._\n"
+        "Where lies the galley? Whither shall I tread?\n"
+        "See that your watch be set, your sail be spread.\n"
+    )
+    out = convert_gutenberg(text, "PLAY", start="THE PLAY", end="NOTES")
+    lines = out.text.splitlines()
+    assert "_[Turning upon the Herald._" in lines
+    speeches = _parsed(out.text)
+    assert len(speeches) == 1
+    assert speeches[0]["speaker_printed"] == "CASSANDRA"
+    assert "Where lies the galley" in speeches[0]["text"]
+    assert "See that your watch be set" in speeches[0]["text"]
+    assert "Turning upon the Herald" not in speeches[0]["text"]
 
 
 # B round 3 item 2 (rhesus 23-33, 2026-09-17): a cue's parenthetical aside

@@ -2310,6 +2310,166 @@ def test_loeb_ocr_enter_two_names_is_not_treated_as_an_implicit_cue():
     assert "Afar from the tides" in speeches[0]["text"]
 
 
+# B round 3b item 2 (Grok's read of 5f58b39, review-lane-b-r3-grok-findings.md
+# finding 3, 2026-09-18): the parser has no Greek, so `implicit_entrant`
+# cannot tell an entrance that truly opens the entrant's own turn from one
+# that doesn't -- it just guesses from the English. `parse_translation` DOES
+# have the Greek, and now settles the guess with a trial alignment: the
+# split stands only if the speech it created lands on a genuine Greek
+# speaker event of the same name; otherwise it is folded back onto the
+# speech before it. way/alcestis.txt:41 ("_Enter DEATH._" mid-Apollo's own
+# speech, Death's real cue several lines later) is the shape that must be
+# rejected.
+def test_loeb_ocr_implicit_entrant_stays_with_the_current_speaker_when_the_greek_disagrees(tmp_path):
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "APOLLO. Go forth of yonder hall's beloved roof, I lest pollution taint "
+        "me in their house.\n"
+        "\n"
+        "_Enter DEATH._\n"
+        "\n"
+        "Lo, yonder Death; I see him nigh at hand, priest of the dead, who comes "
+        "to hale her down to Hades halls.\n"
+        "\n"
+        "DEATH. Ha, thou at the palace! Wilt not make room?\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "apollo greek words here about the palace and the woman who "
+                    "must die today for her husband"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Α."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": "death greek words short reply"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θ."}],
+            },
+        ],
+    }
+    english, _footnotes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="THE PLAY",
+        sigla={"Α.": "Apollo", "Θ.": "Death"},
+        english_aliases={"APOLLO": "Apollo", "DEATH": "Death"},
+        footnotes_enabled=False, format="loeb-ocr", verse=True,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert [turn["speaker"] for turn in by_id["1:1"]["turns"]] == ["Apollo"]
+    assert "Lo, yonder Death" in by_id["1:1"]["text"]
+    assert [turn["speaker"] for turn in by_id["1:2"]["turns"]] == ["Death"]
+    assert by_id["1:2"]["text"] == "Ha, thou at the palace! Wilt not make room?"
+
+
+# Same item: medea.txt:1029 ("_Enter NURSE._" mid-Medea's own speech; NURSE
+# never gets a cue of her own again) is the same shape -- NURSE has no
+# genuine Greek speaker event to land on at all, so the whole block stays
+# Medea's.
+def test_loeb_ocr_implicit_entrant_with_no_matching_greek_speaker_at_all(tmp_path):
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "MEDEA. So be it: wasted are all hindering words of mine against my "
+        "husband's cruel and bitter heart.\n"
+        "But ho!\n"
+        "\n"
+        "_Enter NURSE._\n"
+        "\n"
+        "go thou and Jason bring to me, thou whom I use for every deed of "
+        "trust and loyal service.\n"
+        "\n"
+        "CHORUS. O happy the race in the ages olden of Erechtheus, the seed "
+        "of the blest Gods' line.\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "medea greek words about her husband cruel heart and the "
+                    "nurse she will send on an errand"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Μη."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": (
+                    "chorus greek words about erechtheus and the golden race"
+                )}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Χο."}],
+            },
+        ],
+    }
+    english, _footnotes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="THE PLAY",
+        sigla={"Μη.": "Medea", "Χο.": "Chorus"},
+        english_aliases={"MEDEA": "Medea", "CHORUS": "Chorus", "NURSE": "Nurse"},
+        footnotes_enabled=False, format="loeb-ocr", verse=True,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert [turn["speaker"] for turn in by_id["1:1"]["turns"]] == ["Medea"]
+    assert "go thou and Jason bring to me" in by_id["1:1"]["text"]
+    assert [turn["speaker"] for turn in by_id["1:2"]["turns"]] == ["Chorus"]
+
+
+# Same item, the accepting case: phoenician-women's parodos really is
+# CHORUS's own turn -- an "Exeunt" of the previous speakers clears the stage
+# right before "Enter CHORUS.", and the Greek has a genuine CHORUS speaker
+# event waiting for it. The split must stand.
+def test_loeb_ocr_implicit_entrant_accepted_when_the_greek_agrees(tmp_path):
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "OLD SERVANT. Daughter, pass in, and 'neath the roofs abide, for "
+        "scandal-loving still is womankind.\n"
+        "\n"
+        "_Exeunt OLD SERVANT and ANTIGONE._\n"
+        "\n"
+        "_Enter CHORUS._\n"
+        "\n"
+        "Afar from the tides against Tyre's walls swelling, for Loxias "
+        "chosen an offering, from the Isle of Phoenicia I came.\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "old servant greek words about the daughter and the roof "
+                    "and womankind"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Πρ."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": (
+                    "chorus greek parodos about tyre and phoenicia and loxias"
+                )}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Χο."}],
+            },
+        ],
+    }
+    english, _footnotes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="THE PLAY",
+        sigla={"Πρ.": "Old Servant", "Χο.": "Chorus"},
+        english_aliases={"OLD SERVANT": "Old Servant", "CHORUS": "Chorus"},
+        footnotes_enabled=False, format="loeb-ocr", verse=True,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert [turn["speaker"] for turn in by_id["1:1"]["turns"]] == ["Old Servant"]
+    assert [turn["speaker"] for turn in by_id["1:2"]["turns"]] == ["Chorus"]
+    assert by_id["1:2"]["text"].startswith("Afar from the tides")
+
+
 # B round 3 item 4 (philoctetes finding 5, 2026-09-17): a Loeb editorial
 # note citing the lines a cut passage omits, printed as if it were verse
 # ("' The omitted lines are:", storr/philoctetes.txt:1808, followed by the
