@@ -124,6 +124,24 @@ def _anchor_base(ref: str) -> int:
     return int(lettered.group(1) if lettered else ref)
 
 
+def _nearest_piece_anchor(anchors: list, index: int):
+    """A piece with no anchor of its own (a mid-speech `<stage>` sibling of
+    `<l>`, or a paragraph opened before the first line) seats beside its
+    nearest NEIGHBOUR in the slice: the next anchored piece if one follows
+    (so it prints before that line's own text), else the previous one (so it
+    prints after it) — never the slice's first anchor regardless of where in
+    the speech the piece actually sits (Sol's integration review, finding 1,
+    2026-09-18: Orestes' mid-speech `spoken`/`sung` tags before 1288 and 1291
+    both landed on 1286, the speech's first line)."""
+    for j in range(index + 1, len(anchors)):
+        if anchors[j] is not None:
+            return anchors[j]
+    for j in range(index - 1, -1, -1):
+        if anchors[j] is not None:
+            return anchors[j]
+    return None
+
+
 def _nearest_line(valid_sorted: list[int], n: int) -> int:
     """Return the nearest valid line, snapping forward on a tie."""
     if not valid_sorted:
@@ -1594,7 +1612,18 @@ def _unprinted_ref_seat(
     numbers one line ``5563``, a typo for 563, and a typo belongs in
     `english.<slot>.line_fixes` (C16), not seated by guesswork at the end
     of the play.  ``None`` then, and the piece keeps its old
-    ``unmatched_anchor`` report."""
+    ``unmatched_anchor`` report.
+
+    Round 5, Grok's nit on d348247: two candidates that agree with the
+    speaker at the same delta (both one line away, neither preferred by
+    speaker) break the tie toward the LOWER line number — the opposite of
+    ``_nearest_line``'s snap-forward convention.  No corpus instance reaches
+    this exact tie today (every real one is settled by delta or by speaker
+    agreement first); the round-4 acceptance test already pins the lower-line
+    seat (``1:5``'s unprinted ``7`` files under ``6``, not ``8``), so this
+    keeps that verified behaviour rather than flip a convention with no real
+    instance to check the flip against.  A genuine corpus tie should get a
+    philological read (lineation is Opus's call) before this changes."""
     candidates: list[tuple[int, int, int]] = []
     for delta in range(1, _UNPRINTED_REF_WINDOW + 1):
         for line in (n - delta, n + delta):
@@ -2421,9 +2450,6 @@ def parse_translation(
         multi_span = len(owner_ids) > 1
         for slice_index, sl in enumerate(slices):
             anchor = sl.first_anchor()
-            raw_first = next(
-                (raw for raw in raw_anchors[slice_index] if raw is not None), None
-            )
             if anchor is None:
                 text = sl.text()
                 if not text:
@@ -2442,22 +2468,35 @@ def parse_translation(
                     }
                 )
                 continue
+            piece_ns = [pn for pn, _pt in sl.pieces]
             for piece_index, (piece_n, piece_text) in enumerate(sl.pieces):
                 piece = collapse_ws(piece_text).strip()
                 if not piece:
                     continue
                 raw_piece = raw_anchors[slice_index][piece_index]
-                raw_source = raw_piece if raw_piece is not None else raw_first
-                # A piece before the slice's first <l n> (a paragraph opened
-                # mid-line) takes the next anchor's number to find its
-                # segment, but that number is not where it starts: no tick,
-                # so the reader interpolates (Agamemnon 8 sat at 10; John,
-                # 2026-09-12).
+                raw_source = raw_piece if raw_piece is not None else (
+                    _nearest_piece_anchor(raw_anchors[slice_index], piece_index)
+                )
+                # A piece with no anchor of its own seats beside its nearest
+                # NEIGHBOUR in the slice, not the slice's first anchor: one
+                # before the first `<l n>` (a paragraph opened mid-line)
+                # takes the next line's number, no tick, so the reader
+                # interpolates (Agamemnon 8 sat at 10; John, 2026-09-12); a
+                # mid-speech `<stage>` between two `<l>` siblings likewise
+                # takes the FOLLOWING line's number and prints before its
+                # text, and one after the speech's last `<l>` takes the
+                # PRECEDING line's number and prints after it (Sol's
+                # integration review, finding 1, 2026-09-18).
+                resolved_anchor = (
+                    piece_n
+                    if piece_n is not None
+                    else _nearest_piece_anchor(piece_ns, piece_index)
+                )
                 jobs.append(
                     {
-                        "n": _anchor_base(piece_n or anchor),
+                        "n": _anchor_base(resolved_anchor),
                         "raw_n": _anchor_base(raw_source) if raw_source else None,
-                        "anchor": piece_n if piece_n is not None else anchor,
+                        "anchor": resolved_anchor,
                         "own_tick": piece_n is not None,
                         "text": piece,
                         "printed": printed,
@@ -2661,6 +2700,19 @@ def parse_translation(
                 mark["offset"] = min(mark["offset"], len(trimmed))
             for turn in chunk["turns"]:
                 turn["offset"] = min(turn["offset"], len(trimmed))
+        # Round 5 finding 1: a mid-speech `<stage>` between `<l>` siblings now
+        # seats beside the FOLLOWING line and can open its chunk, leaving the
+        # newline that opens the direction's own line with nothing before
+        # it; trim that leading newline the same way the trailing one above
+        # is trimmed, shifting every offset back by what was removed.
+        leading = chunk["text"].lstrip("\n")
+        if leading != chunk["text"]:
+            removed = len(chunk["text"]) - len(leading)
+            chunk["text"] = leading
+            for mark in chunk["bekker"]:
+                mark["offset"] = max(0, mark["offset"] - removed)
+            for turn in chunk["turns"]:
+                turn["offset"] = max(0, turn["offset"] - removed)
         # Compatibility: the chunk-level flag survives only for a chunk whose
         # EVERY turn disagrees (the ordinary one-turn attribution difference).
         turns = chunk.get("turns") or []
