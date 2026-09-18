@@ -30,10 +30,10 @@ Cozening the Fates: the Sisters promised me—
 If he for ransom gives another life.”
 To all he went—all near and dear,—and asked
 Father and grey-haired mother who gave him
-life ; .
+life ;
 But, save his wife, found none that would consent
 For him to die and never more see light.
-Now in his arms upborne within yon home .
+Now in his arms upborne within yon home
 She gaspeth forth her life: for on this day
 Her weird it is to die and fleet from life.
 I, lest pollution taint me in their house,
@@ -453,8 +453,7 @@ What if with ill report she smirched thy name,
 And in thy youth’s flower marred thy marriage hopes ?
 For thee thy mother ne’er shall deck for bridal,
 Nor hearten thee in travail, O my child,
-
-ALCESTIS. There, where naught gentler than the mother is.
+There, where naught gentler than the mother is.
 For I must die; nor shall it be to-morn,
 Nor on the third day comes on me this doom :
 Straightway of them that are not shall I be.
@@ -736,8 +735,7 @@ ADMETUS. Twofold must be mine answer touching her.
 
 HERCULES. Or hath she died, say’st thou, or liveth yet ?
 
-ADMETUS. She is, and she is not : here lies my grief,
-ge
+ADMETUS. She is, and she is not : here lies my grief.
 
 HERCULES. Nothing the more I know: dark sayings thine.
 ADMETUS.
@@ -750,8 +748,8 @@ ADMETUS. How lives she then, if she to this consented ?
 HERCULES. Mourn not thy wife ere dead: abide the hour.
 
 ADMETUS. One doomed is dead; the dead hath ceased to be.
-HERCULES.
-Diverse are these—to be and not. ta μ6.- 7 4 or a> f CHES
+
+HERCULES. Diverse are these—to be and not to be.
 
 ADMETUS. This, Hercules, thy sentence: that is mine.
 
@@ -1211,7 +1209,6 @@ ADMETUS. Woe!
 CHORUS. Bitter it is
 The face of a wife well-belovéd for ever and ever to
 miss.
-avVT.
 
 ADMETUS. Thou hast stricken mine heart
 Where the wound will not heal.
@@ -1272,7 +1269,7 @@ And the ills heaven-sent.
 As a man did he bear,
 Though by this was he bent
 Unto silvered hair,
-Far on in life’s path, without son for his remnant οὗ.
+Far on in life’s path, without son for his remnant of
 weakness to care.
 
 ADMETUS. O, how can I tread
@@ -1380,13 +1377,12 @@ Dear was she in days ere we lost her,
 Dear yet, though she lie with the dead.
 None nobler shall Earth-mother foster
 Than the wife of thy bed.
-(Ant.
 Not as mounds of the dead which have died, so
-, account we the tomb of thy bride ;
+account we the tomb of thy bride ;
 But O, let the worship and honour that we render to
 Gods rest upon her:
 Unto her let the wayfarer pray.
-2 As he treadeth the pathway that trendeth
+As he treadeth the pathway that trendeth
 Aside from the highway, and bendeth
 At her shrine, he shall say :
 ‘‘ Her life for her lord’s was given ;

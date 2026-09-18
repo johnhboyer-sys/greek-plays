@@ -230,7 +230,7 @@ HECTOR. I will deny naught—save their captive chiefs.
 
 DOLON. Slay them: not Menelaus’ life I ask.
 
-HECTOR. Sure, thou wouldst ask not of me Ojileus’ son ?
+HECTOR. Sure, thou wouldst ask not of me Oïleus’ son ?
 
 DOLON. Ill at field-toil be dainty-nurtured hands.
 
@@ -523,7 +523,7 @@ Like thee, with pledge of many a long deep
 draught.
 Thus, that thou may’st know Hector’s plain blunt
 mood,
-1 blame thee and I speak it to thy face.
+I blame thee and I speak it to thy face.
 
 RHESUS. Even such am I: no devious track of words
 I follow : no man I of double tongue.
@@ -679,8 +679,8 @@ SEMICHORUS. High time is it then that we hasted to call
 The Lycians ; to them did the fifth watch fall,
 When the lot to our stations assigned us all.
 
-CHORUS. (Ant.
-I hear, I hear—'tis the nightingale ! The mother ae
+CHORUS.
+I hear, I hear—'tis the nightingale ! The mother that
 slew her child—
 As broodeth her wing o’er the fearful thing, the eternal murder-stain—
 By Simois chanteth her heart-stricken wail ; the voice
@@ -773,7 +773,7 @@ ODYSSEUS. O Queen Athena—for I know the sound
 Of thy familiar voice, since evermore
 Beside me in my toils thou wardest me,—
 Tell to us where this hero sleeping lies,
-Where he 1s stationed in the alien host.
+Where he is stationed in the alien host.
 
 ATHENA. Here is he, nigh, not quartered with the host:
 Hector to him assigned a resting-place
@@ -817,7 +817,7 @@ Hector! Dost sleep? Behoves thee not to watch ?
 Some foe to us is nigh unto the host—
 Marauders they, or peradventure spies.
 
-ATHENA. Fear not. 1, Cypris, ward thee graciously.
+ATHENA. Fear not. I, Cypris, ward thee graciously.
 I take thought for thy warfare, nor forget
 Thine honour done me, and thy service thank.
 And now, when triumpheth the host of Troy,
@@ -837,10 +837,11 @@ Wherefore to Hector’s resting-place I came.
 ATHENA. Fear nothing: in the host no peril is.
 Hector to quarter Thracia’s host is gone.
 
-PARIS. Thou dost assure me: lo, J trust thy words.
+PARIS. Thou dost assure me: lo, I trust thy words.
 And free of fear I go to guard my post.
 
-ATHENA. That so triumphant I may see my friends.
+ATHENA. Go: be thou sure that all thy care is mine,
+That so triumphant I may see my friends.
 Yea, and thou too shalt prove my zeal for thee
 Ho ye! I bid you, over-eager twain—
 Laertes’ son !—let sleep the whetted swords ;
@@ -922,7 +923,7 @@ SEMICHORUS. Yea, if from his past deeds we may divine.
 
 SEMICHORUS. Ha, thinkest thou so ?
 
-SEMICHORUS. Yea, how should J not?
+SEMICHORUS. Yea, how should I not?
 
 SEMICHORUS. A daring foe unto us,
 
@@ -1231,7 +1232,7 @@ I wail' No new sage will I bring to thee.
 CHORUS. Falsely then Thracia’s charioteer reviled
 Us, Hector, as the plotters of his death.
 
-HECTOR. 1 knew it: need was none of seers to tell
+HECTOR. I knew it: need was none of seers to tell
 That this man perished by Odysseus’ craft.
 And how could I, beholding Hellas’ host
 Camped on this soil, but send mine heralds forth
@@ -1281,11 +1282,8 @@ And tell unto them that with Troy be allied
 These things. May the God give triumph to us
 straightway
 Who fights on our side.
-_Exeunt omnes,_
-et)
-"Yee
-rate Se | :
-~
+
+_Exeunt omnes._
 
 Footnotes:
 [1] The dialogue that follows is differently distributed by various editors. Badham’s arrangement, adopted by Paley, is here followed, also his reading of ἱστορῶ for ἴστω of MSS.

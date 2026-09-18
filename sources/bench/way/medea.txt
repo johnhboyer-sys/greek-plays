@@ -191,7 +191,7 @@ ending, an ending,
 The life that I loathe, and behind me might cast
 all its burden of pain !
 
-CHORUS. O Zeus, Earth, Light, did ye hear her, (Str.)
+CHORUS. O Zeus, Earth, Light, did ye hear her,
 How waileth the woe-laden breath
 Of the bride in unhappiest plight ?
 What yearning for vanished delight,
@@ -411,6 +411,8 @@ MEDEA. My country! O, I call thee now to mind!
 
 CREON. Ay, next my children, dear to me is Corinth.
 
+MEDEA. Alas! to mortals what a curse is love!
+
 CREON. Blessing or ‘curse, I trow, as fortune falls.
 
 MEDEA. Zeus, Zeus, forget not him who is cause of this!
@@ -511,7 +513,7 @@ indeed ! _
 Men say we are most helpless for all good,
 But of dark deeds most cunning fashioners.
 
-CHORUS. Upward and back | to their fountains the sacred rivers
+CHORUS. Upward and back to their fountains the sacred rivers
 are stealing ;
 Justice is turned to injustice, the order of old to confusion :
 The thoughts of the hearts of men are treachery
@@ -526,11 +528,11 @@ shame shall falter,
 Which sang evermore of the treason of woman, her faithlessness ever.
 Alas, that our lips are not touched with the fire of
 song from the altar
-Of Phoebus, the Harper-king, of the inspirationiver ! ringing
-Else had I lifted my voice in challenge of song high Unto men: for the roll of the ages shall find for
-the poet-sages | (their singing.
-Proud woman-themes for their pages, heroines worthy
-(Str. 2)
+Of Phoebus, the Harper-king, of the inspiration-giver !
+Else had I lifted my voice in challenge of song high-ringing
+Unto men: for the roll of the ages shall find for
+the poet-sages
+Proud woman-themes for their pages, heroines worthy their singing.
 But thou from the ancient home didst sail over
 leagues of foam,
 On-sped by a frenzied heart, and the sea-gates sawest dispart,
@@ -539,9 +541,8 @@ Of the stranger, thy doom is to waken
 To a widowed couch, and forsaken
 Of thy lord, and woe-overtaken,
 To be cast forth shamed and banned.
-Disannulled is the spell of the oath : no shame for
-the broken troth (flight hath it ta’en.
-In Hellas the wide doth remain, but heavenward its
+Disannulled is the spell of the oath : no shame for the broken troth
+In Hellas the wide doth remain, but heavenward its flight hath it ta’en.
 No home of a father hast thou
 For thine haven when trouble-storms lower.
 Usurped is thy bridal bower
@@ -702,7 +703,6 @@ And crafty-tongued: one word shall overthrow thee :
 Thou shouldst, wert thou not base, have wed this
 bride
 With my consent, not hid it from thy friends.
-' Bea.
 
 JASON. Ay, this my purpose nobly hadst thou helped,
 Had I a marriage named, who even now
@@ -769,8 +769,8 @@ Not upon me, O Queen, do thou aim from thy bow
 all-golden [— not on me!
 The arrow desire-envenomed that none may avoid
 But let Temperance shield me, the fairest of gifts of
-the Gods ever-living : (unforgiving,
-Nor ever with passion of jarring contention, nor feuds
+the Gods ever-living :
+Nor ever with passion of jarring contention, nor feuds unforgiving,
 In her terrors may Love’s Queen visit me, smiting
 with maddened unrest
 For a couch mismated my soul; but the peace of the
@@ -1040,7 +1040,7 @@ Aye quaffing of Wisdom’s glorious wine,
 Ever through air clear-shining brightly
 As on wings uplifted pacing lightly,
 Where Harmonia, they tell, of the tresses golden,
-Bare the Pierid Muses, the stainless Nine[3].!
+Bare the Pierid Muses, the stainless Nine[3].
 ‘And the streams of Cephisus the lovely-flowing
 They tell how the Lady of Cyprus drew,
 And in Zephyr-wafts of the winds sweet-blowing
@@ -1214,8 +1214,7 @@ been turned to despairing.
 No hope any. more! On the slaughterward path
 even now are they faring:
 
-
-MEDEA. The bride shall receive it, the diadem-garland that
+The bride shall receive it, the diadem-garland that
 beareth enfolden
 Doom for the hapless mid glittering sheen :
 And to set the adorning of Hades about her tresses
@@ -1244,15 +1243,19 @@ slaughter
 Thy babes, to avenge thee on him who would
 lawlessly wed with another,
 Would forsake thee to dwell with a
-prince’s daughter,
-Mistress, remission for thy sons of exile !
+prince’s daughter.
+
+_Enter CHILDREN'S GUARDIAN, with CHILDREN._
+
+CHILDREN'S GUARDIAN. Mistress, remission for thy sons of exile !
 Thy gifts the princess-bride with joy received
 In hand ; and there is peace unto thy sons.
 Ha !
 Why dost thou stand confounded mid good hap ?
 Now wherefore turnest thou thy face away,
 And dost not hear with gladness this my speech ?
-Woe's me!
+
+MEDEA. Woe's me!
 
 CHILDREN'S GUARDIAN. This cry is to the tidings not attuned.
 
@@ -1509,9 +1512,9 @@ mourn,
 And of thy part no word be said by me :—
 Thyself from punishment wilt find escape.
 But man’s lot now, as oft, I count a shadow,
-| Nor fear to say that such as seem to be
-' In wit most keen of men, most subtle of speech,
-: Even these pay heaviest penalty of all ;
+Nor fear to say that such as seem to be
+In wit most keen of men, most subtle of speech,
+Even these pay heaviest penalty of all ;
 For among mortals happy man is none.
 ᾿ In fortune’s flood-tide might a man become
 More prosperous than his neighbour: happy?—no!

@@ -184,7 +184,6 @@ Be the ships of the Danaan men.
 For, if thou light on her escort-train,
 Then turn them aback, grasp, shake the rein:
 To the walls Cyclopean speed them again.
-oo oe
 
 OLD SERVANT. Yea, this will I do.
 
@@ -203,7 +202,7 @@ Happy is none:
 For a lot unvexed never man yet won.
 _Exit,_
 
-CHORUS. I have come to the Aulian sea-gulf’s verge, (Sir. 7)
+CHORUS. I have come to the Aulian sea-gulf’s verge,
 To her gleaming sands :
 I have voyaged Euripus’ rushing surge
 From the city that stands
@@ -224,7 +223,7 @@ From beside the river
 Of whispering reeds, his sin-wage due,—
 Aphrodite the giver,—
 Promised, when into the fountain down
-Spray-veiled she descended[1],!
+Spray-veiled she descended[1],
 When with Hera and Pallas for beauty’s crown
 The Cyprian contended.
 And through Artemis’ grove of sacrifice
@@ -373,7 +372,10 @@ MENELAUS. Unhand !—a slave, thou art overfull of words.
 OLD SERVANT. Ho, master ! outrage !—lo, this man hath snatched
 By violence thy letter from mine hand,
 Agamemnon, nor will have regard to right!
-Ha!
+
+_Enter AGAMEMNON._
+
+AGAMEMNON. Ha!
 What this tumult at my doors, and this unseemly
 brawl upstirred ?
 
@@ -542,6 +544,8 @@ after good.
 
 CHORUS. This controverteth that thou saidst before ;
 Yet good is thy resolve, to spare thy child.
+
+MENELAUS. Alas for wretched me! Friends have I none!
 
 AGAMEMNON. Yea—if thou seek not to destroy thy friends.
 
@@ -845,8 +849,9 @@ IPHIGENEIA. This hour be mine—this one! Yield not to care!
 
 AGAMEMNON. Yea, I am all thine now: my thoughts stray not.
 
-IPHIGENEIA. Unknit thy brow then: let love melt thine eye,
-Lo, child, I joy—as I joy, seeing thee.
+IPHIGENEIA. Unknit thy brow then: let love melt thine eye.
+
+AGAMEMNON. Lo, child, I joy—as I joy, seeing thee.
 
 IPHIGENEIA. And yet—and yet—thine eyes are welling tears!
 
@@ -1037,7 +1042,6 @@ Where tosseth Cassandra her tresses golden
 With their garlands of green-leaved bay enfolden,
 As they tell, when by mighty compulsion holden
 Her soul is on storm-winds of prophecy tost.
-Ant.
 On the heights of their towers shall the = ae
 enringing
 The ramparts of Troy, in their harness stand,
@@ -1078,7 +1082,10 @@ decked,
 Or whether in scrolls of minstrelsy
 Such tales unto mortals hath Fable brought,
 Told out of season, and all for nought.”
-Where is Achaea’s battle-chief hereby ?
+
+_Enter ACHILLES._
+
+ACHILLES. Where is Achaea’s battle-chief hereby ?
 What henchman will bear word that Peleus’ son,
 Achilles, at his gates is seeking him?
 This tarrying here falls not alike on all ;
@@ -1090,17 +1097,17 @@ Hath upon Hellas fallen by heaven’s will.
 Mine own, my righteous grievance, must I speak,—
 Let whoso will beside, his own cause plead :—
 Pharsalia’s land and Peleus have I left,
-_ And through these light airs of Euripus wait,
-_ Checking my Myrmidons: yet urgent aye
-_ They ory, “ Why dally, Achilles? How long time
+And through these light airs of Euripus wait,
+Checking my Myrmidons: yet urgent aye
+They cry, “ Why dally, Achilles? How long time
 Yet must the Troyward-bound array wait on?
-_ Act, if thou canst; else lead thy war-host home,
+Act, if thou canst; else lead thy war-host home,
 Waiting no more on Atreus’ sons’ delays.”
 
-CLYTEMNESTRA. ᾿ς Child of the Nereid Goddess, from within
+CLYTEMNESTRA. Child of the Nereïd Goddess, from within
 Thy voice I heard, and come without the tent.
 ACHILLES.
-_ Great Queen of Shamefastness, what lady here
+Great Queen of Shamefastness, what lady here
 Behold I crowned with peerless loveliness ?
 
 CLYTEMNESTRA. _ No marvel thou shouldst know me not, unseen
@@ -1113,7 +1120,7 @@ CLYTEMNESTRA. I am Leda’s daughter ; Clytemnestra named
 Am I: King Agamemnon is my lord.
 
 ACHILLES. Well hast thou said in brief what most imports :—
-+ Yet shame were this, that I with women talk '
+Yet shame were this, that I with women talk '
 
 CLYTEMNESTRA. Stay—wherefore flee? Nay, give me thy right hand
 To clasp, the prelude to espousals blest.
@@ -1332,13 +1339,13 @@ Will I, so far as such young champion can,
 Right ; so shall my compassion buckler thee.
 Ne’er by her father slain shall be thy child,
 Once called my bride. I will not lend myself
-Ὁ be thy lord’s tool in his subtle plots ;
+To be thy lord’s tool in his subtle plots ;
 (Else my mere name, though it have drawn no
 sword,
 Shall slay thy daughter :—and the cause thereof
 /Thy lord! My very blood were murder-tainted,
 ' If this maid, suffering wrongs intolerable,
-\ For my sake and my marriage be destroyed,
+For my sake and my marriage be destroyed,
 ‘With outrage past belief unmerited.
 So were I basest among Argive men,
 A thing of nought,—and Menelaus a man !—
@@ -1349,7 +1356,7 @@ Nereus, the sire of Thetis who bare me,
 gi
 King Agamemnon shall not touch thy child—
 Not on her robe to lay a finger-tip!
-Else half-barbaric Sipylus[4]! were a city,
+Else half-barbaric Sipylus[4] were a city,
 Whence sprang the line of yonder war-chiefs’
 house,
 And Phthia’s name were nowhere named of men.
@@ -1381,7 +1388,7 @@ Of thee, and of the sea-born Goddess dread.
 CLYTEMNESTRA. How can I praise thee, and not overpraise,
 And yet not mar the grace by stint thereof?
 For good men praised do in a manner hate
-The praiser if he praiseth overmuch[5].!
+The praiser if he praiseth overmuch[5].
 I blush to thrust on thee my piteous tale.
 My pain is mine; mine anguish wrings not thee.
 Yet is it nobly done, when from his height
@@ -1390,7 +1397,7 @@ Pity me, for in piteous case am I,
 Who, first, had dreamed that thou shouldst wed my
 child,—
 Vain hope was mine !—next, haply unto thee
-ΠῚ omen for thy bridal yet to come
+Ill omen for thy bridal yet to come
 Should be my child’s death: take thou heed
 thereof.
 Well spakest thou, the first things as the last.
@@ -1452,7 +1459,7 @@ CLYTEMNESTRA. This shall be. Rule thou—I must be thy thrall.
 If there be Gods, thy righteousness shall earn
 Their favour ; if not, wherefore should men toil ?
 
-CHORUS. O what bridal-chant rang with the crying (έγ.)
+CHORUS. O what bridal-chant rang with the crying
 Of the Libyan flute,
 With the footfall of dancers replying
 To the voice of the lute,
@@ -1467,7 +1474,7 @@ Bore Thetis’s fame
 O’er the hills of the Centaurs far-pealing,
 Through the woodlands of Pelion soft-stealing,
 The new-born splendour revealing
-Of the Aeacid’s name ἡ
+Of the Aeacid’s name!
 And Dardanus’ child, whom the pinion
 Of the eagle bore
 From Phrygia, Ganymede, minion
@@ -1521,15 +1528,21 @@ Virtue, and cry “ Give place !”
 When lawlessness hath law down-trod,
 And none will to his brother say
 “ Let us beware the jealousy of God!”
-Forth of the tent to seek my lord I come,
+
+_Enter CLYTEMNESTRA._
+
+CLYTEMNESTRA. Forth of the tent to seek my lord I come,
 Who is from his pavilion absent long ;
 And drowned in tears mine hapless daughter is,
 With wails now ringing high, now moaning low,
 Since she hath heard what death her father plots.
 Lo, of one even now drawn nigh I spake,
-/ Yon Agamemnon, who shall straightway stand
-\ Convict of sin against his very child.
-O Leda’s child, well met without the tent.
+Yon Agamemnon, who shall straightway stand
+Convict of sin against his very child.
+
+_Enter AGAMEMNON._
+
+AGAMEMNON. O Leda’s child, well met without the tent.
 I would speak with thee, ere our daughter come,
 Of that which fits not brides to be should hear.
 
@@ -1600,13 +1613,13 @@ Nor use half-hinting riddles any more.
 First,—that with this I may reproach thee first—
 By force, not of my will, didst thou wed me:
 Thou slewest Tantalus my sometime lord ;
-_ \Didst dash my living babe against the stones,
+Didst dash my living babe against the stones,
 even from my breast with violence tearing him.
 Then did the Sons of Zeus, my brethren twain,
 Flashing on white steeds come to war with thee.
 But mine old father Tyndareus begged thy life,
 Who cam’st his suppliant, and thou keptest me.
-Ὁ reconciled to thee and to thine house,
+So reconciled to thee and to thine house,
 A blameless wife was I,—be witness thou,—
 Chaste in desires, increasing in thine halls
 ‘Thy substance still, so that thine enterings-in
@@ -1616,12 +1629,11 @@ Were joy, and thine outgoings happiness.
 ‘This son, with daughters three, to thee I bare;
 ‘And of one wilt thou rob me ruthlessly !
 ‘Now, if one ask thee wherefore thou wilt slay her,
-‘Speak, what wilt say?—or must I speak for
-ἢ thee ?—
+Speak, what wilt say?—or must I speak for thee?—
 That Helen’s lord may win her! Glorious this,
 ‘To pay a wanton’s price in children’s lives '
-/ So shall we buy things loathed with things most
-/ Come, if thou go to war, and leave me here
+So shall we buy things loathed with things most
+Come, if thou go to war, and leave me here
 At home, and through long absence tarry there,
 With what heart, think’st thou, shall I keep thine halls,
 When vacant of her I behold each chair,
@@ -1707,7 +1719,7 @@ A nestling one, and one a daughter grown.
 In one cry summing all, I must prevail !
 Sweet, passing sweet, is light for men to see,
 Death is but nothingness ! Who prays to die
-Is mad. ΠῚ life o’erpasseth glorious death,
+Is mad. Ill life o’erpasseth glorious death,
 
 CHORUS. O thou wretch Helen! Through thee and thy sin
 Comes agony on the Atreids and their seed.
@@ -1726,7 +1738,7 @@ To sail in all haste to the aliens’ land,
 And put an end to rapes of Hellene wives.
 My daughters will they slay in Argos—you
 And me,—if I annul the Goddess’ hest.
-᾿ς Not Menelaus hath enslaved me, child,
+Not Menelaus hath enslaved me, child,
 Nor yet to serve his pleasure have I come.
 ’Tis Hellas for whom—will I, will I not—
 I must slay thee: this cannot we withstand.
@@ -1747,7 +1759,7 @@ O Phrygian glade
 Overgloomed by the crest
 Of Ida, where laid
 In a snow-heapen nest
-Was "ἘΝ suckling by Priam cast forth, which he
+Was the suckling by Priam cast forth, which he
 tore from the mother’s breast,
 Yea, left him to lie
 Till the death-doom should claim
@@ -1827,7 +1839,10 @@ IPHIGENEIA. With shame the misery of my bridal crusheth me.
 CLYTEMNESTRA. Not in plight for dainty shrinking art thou when ’tis
 thus with thee.
 Tarry then: no time is this for maiden pride, if we but may—
-Hapless woman, child of Leda !—
+
+_Enter ACHILLES._
+
+ACHILLES. Hapless woman, child of Leda !—
 
 CLYTEMNESTRA. Truly “ hapless” named this day!
 
@@ -2003,7 +2018,7 @@ But yet,—for haply yet thy mood may change,—
 That thou mayst know the proffer that I make,
 I go, to place my weapons nigh the altar,
 Ready to suffer not, but bar, thy death.
-_ Thou mayst, even thou, unto mine offer turn,
+Thou mayst, even thou, unto mine offer turn,
 When thou beholdest at thy throat the knife.
 Thou shalt not through a hasty impulse die.
 No, with these arms will I unto the shrine,

@@ -70,11 +70,13 @@ IOLAUS. Never : for the God’s altar shall avail,
 And the free land whereunto we have come.
 
 COPREUS. Ha ! wouldst thou find some work for this mine hand ?
-Nor me nor these by force shalt thou hale hence.
+
+IOLAUS. Nor me nor these by force shalt thou hale hence.
 
 COPREUS. That shalt thou prove : ill seer thou art in this.
 _Seizes CHILDREN._
-. ToLaus resting ing)
+
+IOLAUS (resisting)
 This shall not be! no, never while I live!
 
 COPREUS. Hands off! these ‘will I-hale, though thou say nay,
@@ -114,7 +116,8 @@ Iolaus, for not fameless was my name.
 
 CHORUS. I know ; long since I heard : but whose are they,
 The fosterling lads that thine hand leadeth hitherward ?—say.
-Strangers, the sons they are of Hercules,
+
+IOLAUS. Strangers, the sons they are of Hercules,
 Which have to thee and Athens suppliant come.
 
 CHORUS. Say, what is your need that here ye are?
@@ -353,7 +356,7 @@ But I will hither come with brazen mail
 ‘And spears of Argos’ war: warriors untold
 Await me ; and Eurystheus’ self, our king,
 Their chief, expecting what shall come from hence,
-Waits on the marches of Alcathous[2].!
+Waits on the marches of Alcathous[2].
 He shall flash forth, being told thine insolence,
 On thee, thy folk, this land, and all her fruits.
 For all this warrior youth were ours for naught
@@ -372,8 +375,7 @@ Yea, and after his kind will yon herald be swelling
 His wrongs—such aye double a tale in the telling :—
 In the ears of his lords, think ye, how will he cry
 On the foulness of outrage “ that brought him this day
-Unto death well nigh! iad
-Cah)
+Unto death well nigh ! ”
 
 IOLAUS. No fairer honour-guerdon may sons win
 Than this, to spring from noble sires and good,
@@ -502,9 +504,9 @@ Into old public oracles have searched,
 In one thing glares the sense of all the same :—
 They bid me to Demeter’s Daughter slay
 ‘A maiden of a high-born father sprung.
-Full am I, as thou seest, of
-To you; yet neither will I slay my chil
-Nor force thereto another of my folk
+Full am I, as thou seest, of good will
+To you; yet neither will I slay my child,
+Nor force thereto another of my folk ;
 And of his own will who hath heart so hard
 As from his hands to yield a most dear child ?
 Now gatherings mayst thou see of angry mood,
@@ -584,7 +586,8 @@ Yet in some sort it fits me, for I love
 These brethren more than all: yea, mine own fate
 Fain would I learn,—lest to the former ills
 Some new pang added now torments thy soul.
-Daughter, long since have I had righteous cause
+
+IOLAUS. Daughter, long since have I had righteous cause
 To praise thee chiefliest of Hercules’ seed.
 Our house, that seemed but now to prosper well,
 Once more hath fallen into desperate case.
@@ -672,7 +675,8 @@ Come with me, ancient : in thine arms to die
 I ask. Be near me ; veil my corse with robes,
 Since to the horror of the knife I pass —
 If I be of the sire that I boast mine.
-I cannot stand and look upon thy doom,
+
+IOLAUS. I cannot stand and look upon thy doom,
 
 MACARIA. At least ask thou the king that I may breathe
 My last breath not in men’s but women’s hands.
@@ -777,7 +781,8 @@ IOLAUS.
 Friend, com’st thou our deliverer from bane ?
 
 HENCHMAN. Yea: therewithal thou art fortunate this day.
-Alcmena, mother of a hero-son,
+
+IOLAUS. Alcmena, mother of a hero-son,
 Come forth, give ear to these most welcome words ;
 For travailing long in spirit hast thou fainted
 Lest those which now are come should ne’er return.
@@ -810,7 +815,8 @@ HENCHMAN.
 The host he hath brought he camps, and marshals it.
 
 ALCMENA. Such matter appertaineth not to me.
-It doth—though my part be to inquire thereof.
+
+IOLAUS. It doth—though my part be to inquire thereof.
 
 HENCHMAN. What wouldst thou know concerning things achieved ?
 IOLAUS.
@@ -821,7 +827,8 @@ HENCHMAN. Many : their tale I cannot tell save thus.
 IOLAUS. All this, I trow, the chiefs Athenian know ?
 
 HENCHMAN. They know : yea, on their left he stands arrayed.
-Ha, is the host already armed for fight ?
+
+IOLAUS. Ha, is the host already armed for fight ?
 HENCHMAN.
 
 Yea, and the victims brought without the ranks.
@@ -857,10 +864,12 @@ HENCHMAN. Thou hast not, good my lord, thine olden strength.
 IOLAUS. Yet foes by tale not fewer will I fight.
 
 HENCHMAN. Scant weight into thy friends’ scale wilt thou cast.
-Hinder me not, I am wrought up for the deed.
+
+IOLAUS. Hinder me not, I am wrought up for the deed.
 
 HENCHMAN. For deeds no power thou hast ;—hast will, perchance.
-Talk as-thou wilt, so I bide not behind.
+
+IOLAUS. Talk as-thou wilt, so I bide not behind.
 
 HENCHMAN. With mailed men how shalt thou unarmed appear?
 IOLAUS.
@@ -910,6 +919,7 @@ HENCHMAN. Lo, here thou seest a warrior’s gear complete :
 Make all speed to encase in these thy frame.
 The fight is nigh, and most the War-god loathes
 Loiterers. If thou fear the armour's weight,
+Go mailless now, and lap thee mid the ranks
 In this array: till then will I bear all.
 
 IOLAUS. Well hast thou.said: yet ready to mine hand
@@ -1207,6 +1217,38 @@ ALCMENA. Ay so ?—and this their doom hath Hyllus brooked ?
 CHORUS. Should he, forsooth, defy this nation’s will ?
 
 ALCMENA. He should no more have lived, nor seen the light.
+
+CHORUS. Then was he wronged—to die not at the first. 970
+
+ALCMENA. So then ’twere just he suffered vengeance yet.
+
+CHORUS. None is there, none, would put him now to death.
+
+ALCMENA. That will I—some one I account myself.
+
+CHORUS. Thou shalt have bitter blame, if this thou do.
+
+ALCMENA. I love this city; let no man gainsay :—
+But, since this wretch hath come into mine hands,
+There is of mortals none shall pluck him thence.
+Wherefore who will shall rail on the overbold,
+On her that nursed for woman thoughts too high :
+Yet shall this deed by me be brought to pass. 980
+
+CHORUS. A fearful hatred, yet a righteous, queen,
+Thou hast against this man, I know full well.
+
+EURYSTHEUS. Woman, be sure I will not cringe to thee,
+Nor utter any word beside, to save
+My life, whence cowardice might stain my name.
+Yet of my will this feud I took not up.
+I knew myself born cousin unto thee,
+And kinsman unto Hercules thy son.
+But, would I or no, ’twas Heaven that thrust me on :
+Hera with this affliction burdened me. 990
+But when I had made him once mine enemy,
+And knew that I must wrestle out this strife,
+Deviser I became of many pains,
 Aye scheming—Night sat by, and counselled me—
 How I might scatter and destroy my foes,
 ‘And have thenceforth for housemate fear no more,
@@ -1283,4 +1325,4 @@ _Exeunt OMNES._
 
 Footnotes:
 [1] The belt of Hippolyta, queen of the Amazons, the winning of which cost many lives.
-[2] i.e. in Megara, of which Alcathous had shortly before king.
+[2] i.e. in Megara, of which Alcathous had shortly before been king.

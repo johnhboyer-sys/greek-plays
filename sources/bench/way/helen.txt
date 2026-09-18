@@ -553,7 +553,7 @@ Nought could men aid us, howsoe’er they would.
 _Knocks at gate._
 Ho! what gate-warder forth the halls will come
 To tell within of my calamities?
-Door of palace opens. PoRTREsS appears on threshold.
+_Door of palace opens. PORTRESS appears on threshold._
 
 PORTRESS. Who loitereth at the doors ?—wilt thou not hence?
 Away, stand not before the courtyard gate
@@ -700,7 +700,7 @@ For gladness, when she spake him yet alive.
 And somewhere nigh this land is he, she said,
 From shipwreck cast ashore with friends but few.
 When wilt thou come to me ?—how long-desired!
-MENELAUs advances from back of stage.
+_MENELAUS advances from back of stage._
 Ha! who is this ?—and am I haply snared
 By plots of Proteus’ god-contemning son ?
 Swift as a racing steed or bacchanal
@@ -802,7 +802,10 @@ MENELAUS. My toils at Troy convince me more than thou.
 HELEN. Woe’s me! Who is more sorrow-crushed than I ?
 My best-beloved forsakes me! I shall see
 Never my countrymen nor fatherland.
-Menelaus, at last I find thee, searching long,
+
+_Enter MESSENGER._
+
+MESSENGER. Menelaus, at last I find thee, searching long,
 Through all this land barbaric wandering,
 Being sent of those thy comrades left behind—
 
@@ -812,7 +815,7 @@ MESSENGER. Bearing a tale less marvellous than the truth!
 
 MENELAUS. Speak '—by this eagerness, thou bring’st strange news.
 
-MESSENGER. 1 say thou barest toils untold for nought.
+MESSENGER. I say thou barest toils untold for nought.
 
 MENELAUS. Herein thou mourn’st old woes: what news dost bring?
 
@@ -827,7 +830,7 @@ I, having tarried all the time foredoomed,
 My destiny fulfilled, to heaven return,
 My parent. Tyndarus’ sad daughter bears
 An ill name all for nought, who is innocent.”
-He suddenly perceives HELEN.
+_He suddenly perceives HELEN._
 Hail, child of Leda! So then thou wast here!
 Even now I announced thee passed to viewless heights
 Of star-land, knowing not thou bar’st a form
@@ -1601,7 +1604,7 @@ HELEN. Even she, and he who when he died was there.
 
 THEOCLYMENUS. How, is one here to tell this certainly ?
 
-HELEN. Is here :—would he might come as 7 desire!
+HELEN. Is here :—would he might come as I desire!
 
 THEOCLYMENUS. Who is he ?—where ?— that I be certified.
 
@@ -1651,7 +1654,7 @@ THEOCLYMENUS. For this cause hast thou shorn thy golden hair?
 
 HELEN. Yea, dear he is, whate’er he be—he is here[9].!
 
-THEOCLYMENUS. Is this αὐδεσενανις real, thy tears unfeigned ?
+THEOCLYMENUS. Is this misfortune real, thy tears unfeigned ?
 
 HELEN. O yea, thy sister’s ken were lightly ’scaped !
 
@@ -1757,7 +1760,7 @@ MENELAUS. Yea, piety bids rob not the dead of dues.
 THEOCLYMENUS. Let her go :—best to foster in my wife
 Piety. From mine halls the death-dues take.
 Nor thee will I send empty-handed hence, '
-For this thy kindness shown her. For good news ~
+For this thy kindness shown her. For good news
 Thou hast brought me, raiment in thy bare rags’ stead
 And food shalt thou have, so that thou mayst come
 To Greece, whom now I see in sorriest plight.
@@ -1899,7 +1902,8 @@ As meet is, for thy kindness to my lord
 And me; for these things to fair issue tend.
 Now bid one give a ship wherein to bear
 The gifts, that so thy kindness may be full.
-THEOCLYMENUs (to attendant)
+THEOCLYMENUS. (to attendant)
+Go thou, and give these a Sidonian ship
 Of fifty oars, and rowers therewithal.
 
 HELEN. The rites who ordereth, shall not he command ?
@@ -1979,7 +1983,7 @@ And shalt join in the dances again,
 Or the revels for Hyacinth slain,
 When with rapture night’s pulses shall quiver
 For him whom the overcast quoit
-Of Phoebus in contest did smite,!
+Of Phoebus in contest did smite,[14]
 Whence the God to Laconia’s nation
 Gave charge that they hallow the day
 With slaughter of kine for oblation :—
@@ -1998,8 +2002,6 @@ Yet where vineyards are purple, where harvests are red,
 His clarion is pealing :—
 O winged ones, who, blent with the cloud-spirits’ race,
 With necks far-stretching fly on,
-The festival of the Hyacinthia was held yearly at Amyclae, in memory of Hyacinthus, who was accidentally killed
-by the quoit of Apollo, who loved him,
 "Neath the Pleiades plunge through abysses of space,
 'Neath the night-king Orion:
 Crying the tidings, down heaven’s steep glide,
@@ -2023,7 +2025,6 @@ The reproach of the strife upon Ida, whose guilt
 Unto her was requited,
 Though on Ilium’s towers, of Apollo upbuilt,
 Her feet never lighted.
-harbour,
 
 MESSENGER. King, all unwelcome in thine halls I meet thee,
 Since thou must straightway hear of me ill-news.
@@ -2033,7 +2034,7 @@ THEOCLYMENUS. What now ?
 MESSENGER. The wooing of another bride
 Speed thou, for Helen from the land is gone.
 
-THEOCLYMENUS. On wings upborne, or feet that trod the ground ¢
+THEOCLYMENUS. On wings upborne, or feet that trod the ground?
 
 MESSENGER. Menelaus from the land hath sailed with her,—
 He who with tidings of his own death came.
@@ -2208,10 +2209,10 @@ CHORUS. For righteousness, and not for wrong.
 THEOCLYMENUS. Fain thou art to die, methinks !
 
 CHORUS. Ah slay me: but thy sister ne’er
-Shalt thou kill, with my consent! Slay me! For 16¢0
+Shalt thou kill, with my consent! Slay me! For
 noble slaves that dare
 Death, to shield their lords, the doom of death is glorious past compare.
-The TWIN-BRETHREN appear in air above the stage.
+_The TWIN-BRETHREN appear in air above the stage._
 
 THE TWIN-BRETHREN. Refrain thy wrath whereby thou art folly-driven,
 King of this land, Theoclymenus. Thee we name,
@@ -2254,7 +2255,7 @@ For the Gods hate not princely-hearted men,
 Though more they afflict them than the common
 throng.
 
-THEOCLYMENUS. O Sons of Zeus and Leda, 1 forgo
+THEOCLYMENUS. O Sons of Zeus and Leda, I forgo
 My erstwhile quarrel for your sister’s sake,
 Nor think to slay my sister any more.
 Let Helen, if it please the Gods, speed home.
@@ -2262,7 +2263,7 @@ Know ye yourselves the brethren by one blood
 Of noblest sister and most virtuous.
 All hail ! for Helen’s noble spirit’s sake—
 Which thing is not in many women found !
-a
+
 CHORUS.
 O the works of the Gods—in manifold wise they
 reveal them :
@@ -2287,3 +2288,4 @@ Footnotes:
 [11] Demeter, who is here invested with some of the attributes of Cybele.
 [12] Persephone’s name was not uttered in ritual, for fear of re-awakening Demeter’s grief.
 [13] Galene, named by Hesiod a sea-nymph.
+[14] The festival of the Hyacinthia was held yearly at Amyclae, in memory of Hyacinthus, who was accidentally killed by the quoit of Apollo, who loved him.

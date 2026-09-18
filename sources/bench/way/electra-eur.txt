@@ -225,8 +225,7 @@ Wasting my soul with tears outwelling,
 Mid scaurs of yon wild mountain-side :—
 My mother with her paramour
 In murder-bond the while is dwelling !
-; CHORUS i
-Of many an ill to Hellas and thine house
+CHORUS. Of many an ill to Hellas and thine house
 Was Helen, sister of thy mother, cause.
 [ORESTES and PYLADES approach.]
 
@@ -333,8 +332,8 @@ ORESTES. Why did Aegisthus this despite to thee?
 ELECTRA. That weaklings! of weak sire my sons might prove.
 
 ORESTES. Ay, lest thou bear sons to avenge the wrong?[2]
-at
-So schemed he— God grant I requite him yet!
+
+ELECTRA. So schemed he— God grant I requite him yet!
 
 ORESTES. Knows he, thy mother's spouse, thou art maiden still?
 
@@ -498,11 +497,14 @@ But this of nature's inborn courage springs.
 But—seeing worthy is Agamemnon's son,
 Present or absent, for whose sake we come,—
 Accept we shelter of this roof. Ho, thralls,
+Enter this house. For me the host whose heart
 Leaps out in welcome, rather than the rich !
 Thanks for the welcome into this man’s house ;
-Yet fain would I it were thy brother.now
+Yet fain would I it were thy brother now
 That prospering led me into prosperous halls.
 Yet may he come ; for Loxias’ oracles
+Fail not. Of men’s soothsaying will I none.
+
 [ORESTES and PYLADES enter cottage.]
 
 CHORUS. Now, more than heretofore, Electra, glows
@@ -543,8 +545,8 @@ Can be but filled, when hunger is appeased.
 CHORUS. O galleys renowned, by your myriad-sweeping
 Oars hurled high on the Trojan strand,
 Whom the Sea-maids followed, with dances
-surrounding [ing
-Your dusky prows, when the dolphin was bound—
+surrounding
+Your dusky prows, when the dolphin was bounding
 Around them, bewitched by your music, and leaping
 In sinuous rapture on every hand,
 Escorting Achilles, the fleetfoot son
@@ -580,8 +582,8 @@ On the car after coursers wing-wafted on-racing.
 And therein were the stars in their sky-dance
 gliding,
 The Pleiads and Hyades, evil-betiding
-To Hector, for death in his eyes did they fling. — [ing
-On the golden-forged helmet were Sphinxes, bear-
+To Hector, for death in his eyes did they fling. —
+On the golden-forged helmet were Sphinxes, bearing
 In their talons the victim that minstrels sing.
 On the corslet his bosom encompassing
 The fire-breathing lioness rushed, up-glaring
@@ -957,8 +959,8 @@ O'er the soul of Atreus' bride did he fling ;
 And the marvel so to his halls hath he brought,
 And hath sped to the thronged folk, publishing
 How his palace had gotten that strange horned
-thing, [they hailed him king.
-The golden-fleeced :—and the strife so ceased, and
+thing,
+The golden-fleeced :—and the strife so ceased, and they hailed him king.
 Then, then, in his anger arose Zeus, turning
 The stars’ feet back on the fire-fretted way ;
 Yea, and the Sun's car splendour-burning,
@@ -974,12 +976,13 @@ It is told of the singers—scant credence such story,
 Touching secrets of Gods, of my spirit hath won-—
 That the Sun from that vision turned backward the
 glory
-Of the gold of the face of his flaming throne, [ing
-With the scourge of his wrath in affliction repay mortals for deeds in their mad feuds done.
+Of the gold of the face of his flaming throne,
+With the scourge of his wrath in affliction repaying mortals for deeds in their mad feuds done.
 Yet it may be the tale liveth, soul-affraying,
 To bow us to Godward in lowly obeying.
-O mother of princes, it rose not before thee — [slaying:
-Mid thy lord’s moan, staying thine hand from the
+O mother of princes, it rose not before thee —
+Mid thy lord’s moan, staying thine hand from the slaying:
+
 Ha, friends!
 Heard ye a great voice—or am I beguiled
 Of fancy ?—like earth-muffled thunder of Zeus?
@@ -1424,8 +1427,7 @@ CLYTEMNESTRA. Child, still thy nature bids thee love thy sire.
 "Tis ever thus : some cleave unto their father,
 Some more the mothers than the father love.
 I pardon thee. In sooth, not all so glad a
-
-ELECTRA. Am I, my child, for deeds that I have done.
+Am I, my child, for deeds that I have done.
 But thou, why thus unwashed and meanly clad,
 Seeing thy travail-sickness now is past?
 Woe and alas for my devisings !—more
@@ -1493,8 +1495,8 @@ When shrieked the roof, —yea, topstones of the wall
 Shrieked back his cry, “ Fiend-wife, and art thou tearing
 My life from me, who in the tenth year's earing
 Come to my dear land, mine ancestral hall?"
-Ant.
-The tide of justice whelmeth, refluent-roaring, να,
+
+The tide of justice whelmeth, refluent-roaring,
 The wanton wife who met her hapless lord,
 When to the towers Titanic heavenward-soaring
 He came,—with welcome met him of the sword,
@@ -1745,7 +1747,7 @@ Alone of mortals tastes abiding bliss.
 
 Footnotes:
 [1] Therefore her festival is not lightly to be neglected.
-[2] 46. Politically and socially.
+[2] Politically and socially.
 [3] Bellerophon, mounted on Pegasus, attacking the Chimaera.
 [4] When Atreus and Thyestes both claimed the throne, it was decided that whichever of them should display a divine portent should be king. A lamb with golden fleece appeared amongst the flocks of Atreus; but Aerope, his wife, conveyed it to her paramour Thyestes. Atreus, in revenge, threw Aerope into the sea, murdered Thyestes' sons, and served their flesh up at a feast to their father. Euripides omits the details of this vengeance, and passes on directly to its consequences in the judgment of Heaven.
 [5] A heavy cleaver, better adapted both for his ostensible and for his real purpose.
