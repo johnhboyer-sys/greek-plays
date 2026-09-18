@@ -1714,7 +1714,7 @@ Hath but just doom—yet cruel doom for thee.
 AGAVE. Father, thou seest what change hath passed o'er
 me—
 [A large portion of the play has here been lost, containing
-(1) the lament of Agave over her son; (2) a few lines, probably by the Chorus, announcing the appearance, in his
+(1) the lament of Agave on her son; (2) a few lines, probably by the Chorus, announcing the appearance, in his
 shape as a God, of Dionysus; (3) the commencement of
 Dionysus’ speech, in which he points out how Pentheus’ sin
 has proved his destruction, how Agave and her sisters have,
@@ -1745,7 +1745,7 @@ DIONYSUS. Too late ye know me, who knew not in your hour.
 
 AGAVE. We know it: but thy vengeance passeth bounds.
 
-DIONYSUS. I am a God: ye did despite to me.
+DIONYSUS. lam a God: ye did despite to me.
 
 AGAVE. It fits not that in wrath Gods be as men.
 
@@ -1759,7 +1759,7 @@ _Exit._
 
 CADMUS. Daughter, to what dread misery are we come,—
 Yea, all, thou and thy sisters—woe is thee ?
-And I—ah me !—must visit alien men,
+we I—ah me !—must visit alien men,
 A grey-haired sojourner. I am doomed withal
 One Greeks to lead a mingled alien host ;
 And Ares’ child, Harmonia my wife,
@@ -1824,5 +1824,5 @@ Footnotes:
 [2] i.e. Never, for you shall not escape to rejoin them.
 [3] The river Acheloüs was in legend the Father of all Greek streams, Dirce was the sacred fountain of Thebes,
 [4] Among signs of incipient madness is a failure to discriminate resistance, so that the patient, while raising slight weights (here, the thyrsus), imagines himself to be putting forth strength enough to raise enormous ones.
-[5] For preserved fragments of this lost portion (mostly unreadable in the scan), see the Loeb edition's appendix.
+[5] For preserved fragments of this lost portion, see Appendix.
 [6] From this time Pentheus speaks as one hypnotized.
