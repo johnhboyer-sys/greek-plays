@@ -66,6 +66,55 @@ _RUNNING_HEADS = frozenset({"AESCHYLUS", "SOPHOCLES", "EURIPIDES"})
 # already drops the plain `[vv. N-N]` form; this is the "Sidenote:"-prefixed
 # one, own-line and underscore-wrapped.
 _SIDENOTE = re.compile(r"^_?\[Sidenote:[^\]]*\]_?\.?$", re.I)
+# A cue's own parenthetical aside can be followed by a metre rubric on the
+# same line ("CHORUS (_various voices confusedly_).      [_Strophe._",
+# rhesus 23-33, B round 3 item 2, 2026-09-17): the rubric belongs to neither
+# the cue nor the verse and is dropped, same as an own-line lyric label (B3).
+_CUE_PAREN_AND_RUBRIC = re.compile(r"^([A-Z][A-Z' ]+)\s*(\(.*\))\.\s{2,}(\[.*)$")
+# Murray's own Gutenberg convention for a short mid-speech aside never
+# prints a `]` at all ("[_Turning upon the Herald._" / "[_Turning furiously
+# upon_ HELEN.") -- the direction ends where its own sentence does. But a
+# bare sentence-final stop is not enough on its own: a real multi-sentence
+# direction's FIRST wrap line often ends a sentence too ("[_As they cease,_
+# CLYTEMNESTRA _comes from the Palace with Attendants._ She has finished
+# her prayer..." -- agamemnon, B round 3b item 1) while the italics that
+# introduced it are still open, or the sentence that ends there is only the
+# first of several ("[_The huntsmen have gathered about the altar of_
+# ARTEMIS. HIPPOLYTUS _now advances..._]" -- hippolytus, same item). Two
+# checks, not one raw ".!?$":
+#   1. Italics parity: an odd running count of `_` means the line ends
+#      mid-italic-span (the direction's own sentence has not actually
+#      finished, whatever punctuation the line happens to end with).
+#   2. Even so, a genuine complete aside is followed by real verse -- the
+#      next line carries no unclosed `_` of its own. A direction's own
+#      continuation line always reopens italics ("HIPPOLYTUS _now
+#      advances..."); a poet's mid-verse emphasis word closes on the same
+#      line ("_She_ cometh first...") and does not count.
+# No line-count cap: a genuine direction (bacchae's Agave entrance,
+# iphigenia-in-tauris's procession, alcestis's Heracles entrance) runs as
+# many raw lines as it needs and still closes on its own last sentence or
+# `]`; nothing in this corpus runs past that without one.
+_SENTENCE_END = re.compile(r"[.!?]+['’\"]?_?$")
+
+
+def _direction_line_closes(direction: list[str], line: str, next_line: str | None) -> tuple[bool, str]:
+    """Add `line` to an open `direction` accumulator; report whether it now
+    closes, and any text trailing a literal `]` on this line. A direction
+    closes at a literal `]` (as before), at a lyric label on its own first
+    line, or at a line that ends its own sentence with italics balanced
+    (not reopened) and whose next line -- `None` at a blank line or a
+    paragraph edge -- carries no unclosed italics of its own."""
+    head_, sep, tail = line.partition("]")
+    direction.append(head_ + sep)
+    if sep:
+        return True, tail
+    if len(direction) == 1 and _LYRIC_LABEL.match(line):
+        return True, ""
+    italics_open = sum(seg.count("_") for seg in direction) % 2 == 1
+    if not italics_open and _SENTENCE_END.search(line):
+        if next_line is None or next_line.count("_") % 2 == 0:
+            return True, ""
+    return False, ""
 
 
 def _italic_paragraph(lines: list[str]) -> bool:
@@ -207,14 +256,12 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
         if direction is None and line.startswith("["):
             direction = []
         if direction is not None:
-            head_, sep, tail = line.partition("]")
-            direction.append(head_ + sep)
-            if sep:
+            next_line = flat[idx + 1] if idx + 1 < len(flat) else None
+            closed, tail = _direction_line_closes(direction, line, next_line)
+            if closed:
                 close()
                 if tail.strip():
                     items.append(("line", _plain(tail)))
-            elif len(direction) == 1 and _LYRIC_LABEL.match(line):
-                close()
             continue
         if _ITALIC_LINE.match(line):
             items.append(("dir", _plain(line)))  # "_Some Women._"
@@ -225,6 +272,15 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
             if cue[1]:
                 items.append(("dir", cue[1]))
             continue
+        paren_rubric = _CUE_PAREN_AND_RUBRIC.match(_fold(line))
+        if paren_rubric and _LYRIC_LABEL.match(paren_rubric.group(3)):
+            name = _cue(paren_rubric.group(1).strip())
+            if name and not name[1]:
+                items.append(("cue", name[0]))
+                paren_start = line.find("(")
+                paren_end = line.find(")", paren_start) + 1
+                items.append(("dir", _plain(line[paren_start:paren_end])))
+                continue
         shared = _CUE_AND_VERSE.match(_fold(line))
         if shared and any(ch.islower() for ch in shared.group(2)):
             name = _cue(shared.group(1).strip())
@@ -239,20 +295,13 @@ def convert_gutenberg(text: str, title: str, *, start: str, end: str) -> Convert
             name = _cue(_fold(cue_bracket.group(1).strip()))
             if name and not name[1]:
                 items.append(("cue", name[0]))
-                head_, sep, tail = cue_bracket.group("rest").partition("]")
-                direction = [f"[{head_}{sep}"]
-                if sep:
+                direction = []
+                next_line = flat[idx + 1] if idx + 1 < len(flat) else None
+                closed, tail = _direction_line_closes(direction, "[" + cue_bracket.group("rest"), next_line)
+                if closed:
                     close()
                     if tail.strip():
                         items.append(("line", _plain(tail)))
-                elif _LYRIC_LABEL.match(direction[0]):
-                    # A lyric label ("LEADER. [_Strophe._") is a complete,
-                    # one-line direction on its own even unclosed, same as
-                    # the plain `[`-start path just above (G3, Grok's
-                    # round-2 read, 2026-09-17): without this, verse on the
-                    # very next physical line with no blank paragraph break
-                    # would be swallowed into the still-open direction.
-                    close()
                 continue
         items.append(("line", _plain(line)))
     close()

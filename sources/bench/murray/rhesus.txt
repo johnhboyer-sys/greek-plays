@@ -52,7 +52,8 @@ That lies in harness--do ye all
 Know nothing?--out against the wall
 And gateways of the Greek?
 
-CHORUS (various voices confusedly). [Strophe.
+CHORUS
+_(various voices confusedly)_
 
 To arms! To arms, Lord Hector!--Send
 First where the allied armies lie,
@@ -500,7 +501,9 @@ _[As the song ends DOLON reappears, in the disguise of a wolf. The Guards gather
 SHEPHERD
 
 Ho, Master!
-_[Enter HECTOR from tent. I would it ofttimes were my luck to share As goodly news with thee as now I bear._
+_[Enter HECTOR from tent._
+I would it ofttimes were my luck to share
+As goodly news with thee as now I bear.
 
 HECTOR
 
@@ -525,7 +528,9 @@ _[He turns to go._
 SHEPHERD
 
 Aye; so were mine. That is what brought me here.
-_[HECTOR's manner changes. A chief comes yonder, leading a great band Of spears, with help to thee and all the land._
+_[HECTOR's manner changes._
+A chief comes yonder, leading a great band
+Of spears, with help to thee and all the land.
 
 HECTOR
 
@@ -931,7 +936,11 @@ Of darkness.--I will show the spot that best
 May suit you, somewhat sundered from the rest.
 Should need arise, the password of the night
 Is Phoebus: see your Thracians have it right.
-_[Turning to the Guards before he goes. Advance beyond your stations, men, at some Distance, and stay on watch till Dolon come With word of the Argives' counsel. If his vow Prosper, he should be nearing us by now._
+_[Turning to the Guards before he goes._
+Advance beyond your stations, men, at some
+Distance, and stay on watch till Dolon come
+With word of the Argives' counsel. If his vow
+Prosper, he should be nearing us by now.
 
 _[Exeunt HECTOR and RHESUS and Attendants. The Guards, who have been below, come forward sleepily from the camp fire, and sit watching by HECTOR's tent._
 
@@ -1200,7 +1209,15 @@ Beyond the ordainèd end thou canst not go.
 Fate hath not willed that Paris by thy deed
 Shall die; it is another who must bleed
 To-night. Therefore be swift!
-_[Exeunt ODYSSEUS and DIOMEDE. For me, my guise Shall melt and change in Alexander's eyes, Yea, till he dream 'tis Cypris, his delight And help in need, that meets him in the night, And soft shall be my words to him I hate. So speak I; but on whom my spell is set He hears not, sees not, though so near I stand. [She becomes invisible where she stands._
+_[Exeunt ODYSSEUS and DIOMEDE._
+For me, my guise
+Shall melt and change in Alexander's eyes,
+Yea, till he dream 'tis Cypris, his delight
+And help in need, that meets him in the night,
+And soft shall be my words to him I hate.
+So speak I; but on whom my spell is set
+He hears not, sees not, though so near I stand.
+_[She becomes invisible where she stands._
 
 _Enter PARIS._
 
@@ -1255,7 +1272,13 @@ Go. And remember that thy fortunes still
 Are watched by me, and they who do my will
 Prosper in all their ways. Aye, thou shalt prove
 Ere long, if I can care for those I love.
-_[Exit PARIS. She raises her voice. Back, back, ye twain! Are ye in love with death? Laertes' son, thy sword into the sheath! Our golden Thracian gaspeth in his blood; The steeds are ours; the foe hath understood And crowds against you. Haste ye! haste to fly,-- Ere yet the lightning falleth, and ye die!_
+_[Exit PARIS. She raises her voice._
+Back, back, ye twain! Are ye in love with death?
+Laertes' son, thy sword into the sheath!
+Our golden Thracian gaspeth in his blood;
+The steeds are ours; the foe hath understood
+And crowds against you. Haste ye! haste to fly,--
+Ere yet the lightning falleth, and ye die!
 
 _[ATHENA vanishes; a noise of tumult is heard._
 
@@ -1539,7 +1562,11 @@ Deep through my flank. I felt its passage well,
 So deep, so wide, so spreading . . . then I fell.
 And they, they got the bridles in their hand
 And fled. . . . Ah! Ah! This pain. I cannot stand.
-_[The Guards catch him as he reels, and lay him on the ground. I know, I saw, thus much. But why or how Those dead men went to death I cannot know, Nor by whose work. But this I say; God send 'Tis not foul wrong wrought on us by a friend._
+_[The Guards catch him as he reels, and lay him on the ground._
+I know, I saw, thus much. But why or how
+Those dead men went to death I cannot know,
+Nor by whose work. But this I say; God send
+'Tis not foul wrong wrought on us by a friend.
 
 LEADER
 
@@ -1560,7 +1587,14 @@ Amid the galleys at the news they bring
 Of Trojan sluggards and the fool their king?
 Great God, ye never baulked them as they came,
 Nor smote them as they went!
-_[His eye falls on the CAPTAIN. Who bears the blame Of this but thou? Thou wast the watcher set To guard this host till morn. I tell thee yet For this deed--I have sworn by Zeus our Lord!-- The scourge of torment or the headsman's sword Awaits thee. Else, be Hector in your thought Writ down a babbler and a man of nought._
+_[His eye falls on the CAPTAIN._
+Who bears the blame
+Of this but thou? Thou wast the watcher set
+To guard this host till morn. I tell thee yet
+For this deed--I have sworn by Zeus our Lord!--
+The scourge of torment or the headsman's sword
+Awaits thee. Else, be Hector in your thought
+Writ down a babbler and a man of nought.
 
 LEADER
 _(grovelling before HECTOR)_
@@ -1614,7 +1648,13 @@ Set foot in Troy, and never heard them speak
 Complaint of Hector. Thou wilt be the first.
 I have not, by God's mercy, such a thirst
 For horses as to murder for their sake.
-_[He turns to his own men. Odysseus! Yet again Odysseus! Take All the Greek armies, is there one but he Could have devised, or dared, this devilry? I fear him; yea, fear in mine own despite, Lest Dolon may have crossed him in the night And perished; 'tis so long he cometh not._
+_[He turns to his own men._
+Odysseus! Yet again Odysseus! Take
+All the Greek armies, is there one but he
+Could have devised, or dared, this devilry?
+I fear him; yea, fear in mine own despite,
+Lest Dolon may have crossed him in the night
+And perished; 'tis so long he cometh not.
 
 THRACIAN
 
@@ -1830,7 +1870,9 @@ Then wait with torches burning, till we sound
 The Tuscan trump.--This day we shall confound,
 God tells me, their Greek phalanx, break their high
 Rampart and fire the galleys where they lie.
-_[Pointing to the dawn. Yon first red arrow of the Sun, that brings The dawn to Troy, hath freedom on his wings._
+_[Pointing to the dawn._
+Yon first red arrow of the Sun, that brings
+The dawn to Troy, hath freedom on his wings.
 
 During the following lines HECTOR goes to his tent to get
 his shield, and as he enters sees DOLON's bloody wolf-skin

@@ -2117,6 +2117,388 @@ def test_loeb_ocr_case_slip_cue_with_stage_direction_and_no_period():
     assert speeches[2]["speaker_printed"] == "HELEN"
 
 
+# B round 3 item 4 (suppliants-eur finding 5, 2026-09-17): a Loeb cue whose
+# own line ends in a comma instead of the usual period or " :"
+# ("SECOND MOTHER,", bare on its own line) was not recognised as a cue at
+# all, and its speech welded onto the previous speaker's turn.
+def test_loeb_ocr_comma_terminated_cue_is_recognised():
+    text = (
+        "THE PLAY\n\n"
+        "SECOND CHILD. They are gone! No sons hast thou any more.\n"
+        "SECOND MOTHER,\n"
+        "They crumbled to ashes mid flame as they lay,\n"
+        "And to Hades now have they winged their way.\n"
+        "\n"
+        "THIRD CHILD. O my father.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0]["speaker_printed"] == "SECOND CHILD"
+    assert speeches[1] == {
+        "speaker_printed": "SECOND MOTHER",
+        "text": "They crumbled to ashes mid flame as they lay,\nAnd to Hades now have they winged their way.",
+    }
+    assert speeches[2]["speaker_printed"] == "THIRD CHILD"
+
+
+# B round 3 item 4 (heracles finding 6, 2026-09-17): a Loeb ode's own
+# editorial rubric -- a Roman-numeral list heading ("I. The Nemean Lion")
+# or a short strophe/antistrophe tag ("- (Ant, 3)") -- printed mid-speech,
+# between stanzas, used to survive into the built verse as if it were
+# translated text.
+def test_loeb_ocr_ode_rubric_dropped_between_stanzas():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. The Lay of the Labours of Hercules\n"
+        "Hard on the pean triumphant-ringing.\n"
+        "I. The Nemean Lion\n"
+        "In Zeus' glen first, in the Lion's lair,\n"
+        "II. The Centaurs\n"
+        "Then on the mountain-haunters raining.\n"
+        "- (Ant, 3)\n"
+        "As maids of Delos chant the paean's holy strain.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert len(speeches) == 1
+    assert speeches[0]["speaker_printed"] == "CHORUS"
+    text_out = speeches[0]["text"]
+    assert "Nemean Lion" not in text_out
+    assert "Centaurs" not in text_out
+    assert "(Ant, 3)" not in text_out
+    assert text_out == (
+        "The Lay of the Labours of Hercules\n"
+        "Hard on the pean triumphant-ringing.\n"
+        "In Zeus' glen first, in the Lion's lair,\n"
+        "Then on the mountain-haunters raining.\n"
+        "As maids of Delos chant the paean's holy strain."
+    )
+
+
+# B round 3 item 4 (phoenician-women finding 8, 2026-09-17): the same
+# rubric, embedded at the END of an otherwise real verse line instead of
+# alone on its own -- "...Cadmus speeding (Str)", "...Cithaeron (Ant.)",
+# "...light (Mesode)", "...shield-array (Ani, 2)" ("Ani" the OCR's own slip
+# for "Ant") -- must be stripped, keeping the line's real text.
+def test_loeb_ocr_trailing_ode_rubric_is_stripped_from_a_real_verse_line():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. To this land from Phoenicia Cadmus speeding (Str)\n"
+        "Gorges mysterious of frondage, Cithaeron (Ant.)\n"
+        "Hail, rock that flashest a splendour of light (Mesode)\n"
+        "Round the town a shield-array (Ani, 2)\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert len(speeches) == 1
+    text_out = speeches[0]["text"]
+    assert "(Str)" not in text_out and "(Ant.)" not in text_out
+    assert "(Mesode)" not in text_out and "(Ani, 2)" not in text_out
+    assert text_out == (
+        "To this land from Phoenicia Cadmus speeding\n"
+        "Gorges mysterious of frondage, Cithaeron\n"
+        "Hail, rock that flashest a splendour of light\n"
+        "Round the town a shield-array"
+    )
+
+
+# Same item: a lone OCR guillemet, alone on its own line
+# (phoenician-women.txt:1757), is pure scan noise with no text to salvage.
+def test_loeb_ocr_lone_guillemet_line_is_dropped():
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. With spears they lunged: yet crouched behind their shields,\n"
+        "»\n"
+        "That so the steel might bootless glance aside.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert len(speeches) == 1
+    assert "»" not in speeches[0]["text"]
+    assert speeches[0]["text"] == (
+        "With spears they lunged: yet crouched behind their shields,\n"
+        "That so the steel might bootless glance aside."
+    )
+
+
+# B round 3 item 4 (cyclops finding 4, 2026-09-17): a bracketed stage
+# direction spanning two lines, whose first line names a speaking character
+# rather than opening with one of the stock direction verbs
+# ("[SILENUS comes out of cave, artistically made up as victim /
+# of assault and battery.]") -- `_UNCLOSED_DIRECTION` only recognises an
+# unclosed "[" when it opens on a verb, so this fell through as two raw
+# verse lines instead of becoming a direction.
+def test_loeb_ocr_two_line_bracket_direction_opening_on_a_known_name():
+    text = (
+        "THE PLAY\n\n"
+        "SILENUS. Here in my caves and with plaited withs about.\n"
+        "[SILENUS comes out of cave, artistically made up as victim\n"
+        "of assault and battery.]\n"
+        "\n"
+        "SILENUS. Oh! oh! They've pummelled me into a fever!\n"
+    )
+    speeches, _notes = parse_play_speeches(
+        text, "THE PLAY", format="loeb-ocr", verse=True, known_names={"SILENUS"}
+    )
+    assert len(speeches) == 2
+    assert speeches[0]["text"] == "Here in my caves and with plaited withs about."
+    assert "SILENUS comes out" not in speeches[0]["text"]
+    assert speeches[1]["directions_before"] == [
+        "SILENUS comes out of cave, artistically made up as victim of assault and battery."
+    ]
+    assert speeches[1]["text"] == "Oh! oh! They've pummelled me into a fever!"
+
+
+# Same item: an unclosed "[" that never closes within the line cap (Way's
+# Cyclops has several genuine run-on verse fragments shaped like this) must
+# not be swallowed as a direction just because its first word happens to be
+# a known character's name -- a real "]" must actually turn up nearby.
+def test_loeb_ocr_bracket_opening_on_a_name_but_never_closing_is_left_alone():
+    text = (
+        "THE PLAY\n\n"
+        "SILENUS. Watch well.\n"
+        "[CYCLOPS shows corner of skin, an old wound gapes\n"
+        "beneath the rags he wears, and never a bracket comes\n"
+        "to close it, line after line after line running on\n"
+        "well past the cap this rule allows before it gives up\n"
+        "\n"
+        "CYCLOPS. What ails you now?\n"
+    )
+    speeches, _notes = parse_play_speeches(
+        text, "THE PLAY", format="loeb-ocr", verse=True, known_names={"SILENUS", "CYCLOPS"}
+    )
+    assert speeches[0]["speaker_printed"] == "SILENUS"
+    assert "CYCLOPS shows corner of skin" in speeches[0]["text"]
+    assert not speeches[0].get("directions_before")
+
+
+# B round 3 item 5 (phoenician-women finding 1, 2026-09-17): a cue-less
+# block that follows an "_Enter NAME._" direction used to weld onto the
+# previous speaker's turn instead of opening NAME's own -- the whole
+# parodos glued into the Old Servant's nine-line speech.
+def test_loeb_ocr_cueless_block_after_enter_direction_opens_the_entrants_turn():
+    text = (
+        "THE PLAY\n\n"
+        "OLD SERVANT. Daughter, pass in, and 'neath the roofs abide.\n"
+        "\n"
+        "_Exeunt OLD SERVANT and ANTIGONE._\n"
+        "\n"
+        "_Enter CHORUS._\n"
+        "\n"
+        "Afar from the tides against Tyre's walls swelling,\n"
+        "For Loxias chosen an offering,\n"
+    )
+    speeches, _notes = parse_play_speeches(
+        text, "THE PLAY", format="loeb-ocr", verse=True, known_names={"OLD SERVANT", "CHORUS"}
+    )
+    assert [s["speaker_printed"] for s in speeches] == ["OLD SERVANT", "CHORUS"]
+    assert speeches[1]["text"] == (
+        "Afar from the tides against Tyre's walls swelling,\nFor Loxias chosen an offering,"
+    )
+    assert speeches[1]["directions_before"] == [
+        "Exeunt OLD SERVANT and ANTIGONE.",
+        "Enter CHORUS.",
+    ]
+
+
+# Same item: "Enter X and Y" names two entrants and cannot say which one
+# opens the next cue-less block, so it is left alone (welds as before)
+# rather than guessed.
+def test_loeb_ocr_enter_two_names_is_not_treated_as_an_implicit_cue():
+    text = (
+        "THE PLAY\n\n"
+        "OLD SERVANT. Daughter, pass in, and 'neath the roofs abide.\n"
+        "\n"
+        "_Enter CHORUS and ATTENDANTS._\n"
+        "\n"
+        "Afar from the tides against Tyre's walls swelling,\n"
+    )
+    speeches, _notes = parse_play_speeches(
+        text, "THE PLAY", format="loeb-ocr", verse=True, known_names={"OLD SERVANT", "CHORUS"}
+    )
+    assert len(speeches) == 1
+    assert speeches[0]["speaker_printed"] == "OLD SERVANT"
+    assert "Afar from the tides" in speeches[0]["text"]
+
+
+# B round 3b item 2 (Grok's read of 5f58b39, review-lane-b-r3-grok-findings.md
+# finding 3, 2026-09-18): the parser has no Greek, so `implicit_entrant`
+# cannot tell an entrance that truly opens the entrant's own turn from one
+# that doesn't -- it just guesses from the English. `parse_translation` DOES
+# have the Greek, and now settles the guess with a trial alignment: the
+# split stands only if the speech it created lands on a genuine Greek
+# speaker event of the same name; otherwise it is folded back onto the
+# speech before it. way/alcestis.txt:41 ("_Enter DEATH._" mid-Apollo's own
+# speech, Death's real cue several lines later) is the shape that must be
+# rejected.
+def test_loeb_ocr_implicit_entrant_stays_with_the_current_speaker_when_the_greek_disagrees(tmp_path):
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "APOLLO. Go forth of yonder hall's beloved roof, I lest pollution taint "
+        "me in their house.\n"
+        "\n"
+        "_Enter DEATH._\n"
+        "\n"
+        "Lo, yonder Death; I see him nigh at hand, priest of the dead, who comes "
+        "to hale her down to Hades halls.\n"
+        "\n"
+        "DEATH. Ha, thou at the palace! Wilt not make room?\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "apollo greek words here about the palace and the woman who "
+                    "must die today for her husband"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Α."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": "death greek words short reply"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θ."}],
+            },
+        ],
+    }
+    english, _footnotes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="THE PLAY",
+        sigla={"Α.": "Apollo", "Θ.": "Death"},
+        english_aliases={"APOLLO": "Apollo", "DEATH": "Death"},
+        footnotes_enabled=False, format="loeb-ocr", verse=True,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert [turn["speaker"] for turn in by_id["1:1"]["turns"]] == ["Apollo"]
+    assert "Lo, yonder Death" in by_id["1:1"]["text"]
+    assert [turn["speaker"] for turn in by_id["1:2"]["turns"]] == ["Death"]
+    assert by_id["1:2"]["text"] == "Ha, thou at the palace! Wilt not make room?"
+
+
+# Same item: medea.txt:1029 ("_Enter NURSE._" mid-Medea's own speech; NURSE
+# never gets a cue of her own again) is the same shape -- NURSE has no
+# genuine Greek speaker event to land on at all, so the whole block stays
+# Medea's.
+def test_loeb_ocr_implicit_entrant_with_no_matching_greek_speaker_at_all(tmp_path):
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "MEDEA. So be it: wasted are all hindering words of mine against my "
+        "husband's cruel and bitter heart.\n"
+        "But ho!\n"
+        "\n"
+        "_Enter NURSE._\n"
+        "\n"
+        "go thou and Jason bring to me, thou whom I use for every deed of "
+        "trust and loyal service.\n"
+        "\n"
+        "CHORUS. O happy the race in the ages olden of Erechtheus, the seed "
+        "of the blest Gods' line.\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "medea greek words about her husband cruel heart and the "
+                    "nurse she will send on an errand"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Μη."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": (
+                    "chorus greek words about erechtheus and the golden race"
+                )}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Χο."}],
+            },
+        ],
+    }
+    english, _footnotes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="THE PLAY",
+        sigla={"Μη.": "Medea", "Χο.": "Chorus"},
+        english_aliases={"MEDEA": "Medea", "CHORUS": "Chorus", "NURSE": "Nurse"},
+        footnotes_enabled=False, format="loeb-ocr", verse=True,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert [turn["speaker"] for turn in by_id["1:1"]["turns"]] == ["Medea"]
+    assert "go thou and Jason bring to me" in by_id["1:1"]["text"]
+    assert [turn["speaker"] for turn in by_id["1:2"]["turns"]] == ["Chorus"]
+
+
+# Same item, the accepting case: phoenician-women's parodos really is
+# CHORUS's own turn -- an "Exeunt" of the previous speakers clears the stage
+# right before "Enter CHORUS.", and the Greek has a genuine CHORUS speaker
+# event waiting for it. The split must stand.
+def test_loeb_ocr_implicit_entrant_accepted_when_the_greek_agrees(tmp_path):
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "OLD SERVANT. Daughter, pass in, and 'neath the roofs abide, for "
+        "scandal-loving still is womankind.\n"
+        "\n"
+        "_Exeunt OLD SERVANT and ANTIGONE._\n"
+        "\n"
+        "_Enter CHORUS._\n"
+        "\n"
+        "Afar from the tides against Tyre's walls swelling, for Loxias "
+        "chosen an offering, from the Isle of Phoenicia I came.\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "old servant greek words about the daughter and the roof "
+                    "and womankind"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Πρ."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": (
+                    "chorus greek parodos about tyre and phoenicia and loxias"
+                )}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Χο."}],
+            },
+        ],
+    }
+    english, _footnotes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="THE PLAY",
+        sigla={"Πρ.": "Old Servant", "Χο.": "Chorus"},
+        english_aliases={"OLD SERVANT": "Old Servant", "CHORUS": "Chorus"},
+        footnotes_enabled=False, format="loeb-ocr", verse=True,
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert [turn["speaker"] for turn in by_id["1:1"]["turns"]] == ["Old Servant"]
+    assert [turn["speaker"] for turn in by_id["1:2"]["turns"]] == ["Chorus"]
+    assert by_id["1:2"]["text"].startswith("Afar from the tides")
+
+
+# B round 3 item 4 (philoctetes finding 5, 2026-09-17): a Loeb editorial
+# note citing the lines a cut passage omits, printed as if it were verse
+# ("' The omitted lines are:", storr/philoctetes.txt:1808, followed by the
+# omitted lines themselves) -- the only instance of this exact shape in the
+# corpus. Dropped, continuation and all, up to the next blank line or cue.
+def test_loeb_ocr_omitted_lines_editorial_note_is_dropped():
+    text = (
+        "THE PLAY\n\n"
+        "NEOPTOLEMUS. Why should a man feel fear who helps his friends?\n"
+        "' The omitted lines are:\n"
+        "Who judged Odysseus of thy father's arms\n"
+        "More worthy than the hapless Ajax.\n"
+        "\n"
+        "PHILOCTETES. Help for the sons of Atreus, or for me?\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert [s["speaker_printed"] for s in speeches] == ["NEOPTOLEMUS", "PHILOCTETES"]
+    assert speeches[0]["text"] == "Why should a man feel fear who helps his friends?"
+    assert "omitted" not in speeches[0]["text"].lower()
+    assert "Odysseus" not in speeches[0]["text"]
+
+
 # A stage direction printed on a line of its own with no closing bracket at
 # all -- Way's Andromache 556, `[Exit, led by MENELAUS.` -- still printed as
 # speech: `_loeb_direction` required a closing `]`. Read now as a direction
