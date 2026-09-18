@@ -32,13 +32,18 @@ def _manifest(english=None, registry_translations=None):
     return Manifest(data, Path("manifests/testplay.yaml"))
 
 
-def _segment(seg_id, greek_lines, english_text=None, ross_pieces=None, greek_start=1):
+def _segment(seg_id, greek_lines, english_text=None, english_turns=None, ross_pieces=None, greek_start=1):
     greek = [
         {"n": greek_start + i, "text": "x" * 10, "ref": str(greek_start + i)}
         for i in range(greek_lines)
     ]
     seg = {"id": seg_id, "column": "1", "greek": greek}
-    seg["english"] = {"text": english_text} if english_text is not None else None
+    if english_text is not None:
+        seg["english"] = {"text": english_text}
+        if english_turns is not None:
+            seg["english"]["turns"] = english_turns
+    else:
+        seg["english"] = None
     seg["ross"] = ross_pieces if ross_pieces is not None else []
     return seg
 
@@ -137,6 +142,27 @@ def test_shifted_turns_counts_onsets_not_every_turn_after_the_offset_never_reset
     assert "1:247 (×10)" in sheet
 
 
+def test_shift_onsets_counts_a_resync_then_the_same_drift_again_as_two_runs():
+    """Grok read of Lane D r2, finding 2: `turn_shifts` only ever carries a
+    pair whose delta is non-zero, so a speaker who drifts +2, resyncs to
+    0 (invisible -- no entry), then drifts +2 again reads as one
+    unbroken run under a check that keys only on "did the delta change".
+    `greek_ordinal` is that speaker's own same-name occurrence count over
+    EVERY turn (flagged or not), so a gap in it (247 -> 250, skipping the
+    resynced 248/249) is the resync's own footprint even though the delta
+    on both sides of the gap happens to be the same +2."""
+    shifts = [
+        {"greek_id": "1:246", "greek_speaker": "Prometheus", "english_speaker": "Prometheus",
+         "greek_ordinal": 0, "english_ordinal": 2},
+        {"greek_id": "1:247", "greek_speaker": "Prometheus", "english_speaker": "Prometheus",
+         "greek_ordinal": 1, "english_ordinal": 3},
+        # ordinals 2, 3 resynced to delta 0 -- not recorded in turn_shifts.
+        {"greek_id": "1:260", "greek_speaker": "Prometheus", "english_speaker": "Prometheus",
+         "greek_ordinal": 4, "english_ordinal": 6},
+    ]
+    assert audit._shift_onsets(shifts) == [("1:246", 2), ("1:260", 1)]
+
+
 def test_bare_greek_flags_short_column_but_not_a_full_one(tmp_path):
     dist_dir = tmp_path / "dist" / WORK
     stage1_dir = tmp_path / "stage1"
@@ -201,30 +227,55 @@ def test_speakers_section_counts_built_speakermismatch_turns_not_the_report(tmp_
     build's own `book-01.json` disagrees with by roughly 10x (wasps: 6
     reported vs 59 actual flagged turns across 53 segments). The count
     must come from the built `turn.speakerMismatch` objects themselves,
-    and the segment count must ride beside it (finding 7's own ask)."""
+    and the segment count must ride beside it (finding 7's own ask).
+
+    The fixture puts `turns` on the PRIMARY piece. `chunks_as_overlay`
+    (stage1_turn_english.py:2680-2714), what secondary/third/overlay
+    pieces are actually built from, drops `turns` entirely -- putting them
+    on a `ross` piece (the old fixture) is a shape stage7 never emits
+    (Grok read of Lane D r2, finding 3)."""
     dist_dir = tmp_path / "dist" / WORK
     stage1_dir = tmp_path / "stage1"
-    seg1 = _segment("1:1", 2, ross_pieces=[{"text": "a\n\nb", "turns": [
+    seg1 = _segment("1:1", 2, english_text="a\n\nb", english_turns=[
         {"speaker": "Sosias", "speakerMismatch": {"english": "Sosias", "greek": "Xanthias"}},
         {"speaker": "Xanthias", "speakerMismatch": {"english": "Xanthias", "greek": "Sosias"}},
-    ]}])
-    seg2 = _segment("1:3", 2, ross_pieces=[{"text": "c", "turns": [
+    ])
+    seg2 = _segment("1:3", 2, english_text="c", english_turns=[
         {"speaker": "Bdelycleon", "speakerMismatch": {"english": "Bdelycleon", "greek": "Philocleon"}},
-    ]}], greek_start=3)
-    clean = _segment("1:5", 2, ross_pieces=[{"text": "d", "turns": [
+    ], greek_start=3)
+    clean = _segment("1:5", 2, english_text="d", english_turns=[
         {"speaker": "Chorus"},
-    ]}], greek_start=5)
+    ], greek_start=5)
     _write_book(dist_dir, [seg1, seg2, clean])
     # A stale/wrong stage1-side estimate the built json disagrees with --
     # must not be what the sheet reports.
-    _write_report(stage1_dir, "secondary", speech_mismatch_count=1)
+    _write_report(stage1_dir, "english", speech_mismatch_count=1)
+    manifest = _manifest(english={
+        "primary": {"id": "primary", "model": "perseus-play", "source": "perseus/prim.xml"},
+    }, registry_translations=[{"id": "primary", "form": "prose"}])
+    sheet, totals = audit.build_sheet(WORK, dist_dir, stage1_dir, manifest)
+    section4 = sheet.split("## 4. Speakers")[1].split("## 5.")[0]
+    assert "3 (2 segs)" in section4  # 3 flagged turns across 2 segments
+    assert "| 1 |" not in section4  # the stale report count of 1 must not surface
+
+
+def test_speakers_section_labels_a_comparison_column_n_a_for_speakermismatch(tmp_path):
+    """Secondary/third/overlay pieces are `chunks_as_overlay`'s own output
+    (stage1_turn_english.py:2680-2714) and never carry a `turns` list, so
+    the built json has no speakerMismatch data for these columns to count
+    at all -- reading "0" would misreport an unmeasured column as a clean
+    one (Grok read of Lane D r2, finding 3)."""
+    dist_dir = tmp_path / "dist" / WORK
+    stage1_dir = tmp_path / "stage1"
+    seg = _segment("1:1", 2, ross_pieces=[{"text": "ANTIGONE. hi\n\nISMENE. there"}])
+    _write_book(dist_dir, [seg])
+    _write_report(stage1_dir, "secondary")
     manifest = _manifest(english={
         "secondary": {"id": "sec", "model": "turn-text", "source": "bench/sec/testplay.txt"},
     }, registry_translations=[{"id": "sec", "form": "verse"}])
     sheet, totals = audit.build_sheet(WORK, dist_dir, stage1_dir, manifest)
     section4 = sheet.split("## 4. Speakers")[1].split("## 5.")[0]
-    assert "3 (2 segs)" in section4  # 3 flagged turns across 2 segments
-    assert "| 1 |" not in section4  # the stale report count of 1 must not surface
+    assert "n/a" in section4
 
 
 # --------------------------------------------------------------- section 6 --
@@ -550,20 +601,42 @@ def test_cues_in_speech_flags_a_roster_cue_buried_in_the_built_column_text():
     all invisible to section 5, which only ever scanned the raw BENCH
     source, never the built json. A roster name in ALL CAPS followed by
     `.`/`:` anywhere in a column's built text except its very first
-    character is a cue the pairer never turned into a `turns` entry."""
+    character is a cue the pairer never turned into a `turns` entry.
+
+    On the PRIMARY column: its text is the translator's own, never
+    touched by `chunks_as_overlay`'s turn-prefix synthesis, so a bare
+    roster cue found mid-text there is the real, unpaired thing (Grok read
+    of Lane D r2, finding 1 -- see the negative case below for why a
+    comparison column cannot be scanned the same way)."""
+    seg = _segment("1:530", 2, english_text=(
+        "ION. Ay, and what wilt tell?\n\nXUTHUS. Thy father am I, and thou art my son."
+    ))
+    columns = [{"id": "way", "slot": "primary", "model": "perseus-play", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Ion", "Xuthus"], segments=[seg])
+    assert total == 1  # ION. opens the text at index 0 and is not flagged; XUTHUS. is
+
+
+def test_cues_in_speech_does_not_flag_a_comparison_columns_overlay_turn_prefix():
+    """`chunks_as_overlay` (stage1_turn_english.py:2680-2714) is what
+    secondary/third/overlay pieces are built from, and it bakes a
+    "NAME. " prefix into the text at EVERY turn while dropping `turns`
+    entirely -- so this exact two-speech shape is what a normal,
+    correctly-paired overlay piece looks like, indistinguishable from a
+    buried cue in the built text alone. Ion's built-json 157 was mostly
+    this (Grok read of Lane D r2, finding 1): must not be flagged."""
     seg = _segment("1:530", 2, ross_pieces=[{
         "text": "ION. Ay, and what wilt tell?\n\nXUTHUS. Thy father am I, and thou art my son.",
     }])
     columns = [{"id": "way", "slot": "secondary", "model": "turn-text", "source": "x"}]
     _, total = audit.section_cues_in_speech(columns, roster=["Ion", "Xuthus"], segments=[seg])
-    assert total == 1  # ION. opens the text at index 0 and is not flagged; XUTHUS. is
+    assert total == 0
 
 
 def test_cues_in_speech_does_not_flag_a_column_that_opens_with_its_own_cue():
     """A roster cue at the very head of a column's text is the segment's
     own legitimate opening speaker, not a buried one -- must not count."""
-    seg = _segment("1:1", 1, ross_pieces=[{"text": "ION. Ay, and what wilt tell?"}])
-    columns = [{"id": "way", "slot": "secondary", "model": "turn-text", "source": "x"}]
+    seg = _segment("1:1", 1, english_text="ION. Ay, and what wilt tell?")
+    columns = [{"id": "way", "slot": "primary", "model": "perseus-play", "source": "x"}]
     _, total = audit.section_cues_in_speech(columns, roster=["Ion"], segments=[seg])
     assert total == 0
 

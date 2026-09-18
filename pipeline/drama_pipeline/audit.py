@@ -221,23 +221,39 @@ def _shift_onsets(shifts: list[dict]) -> list[tuple[str, int]]:
     `section_speakers`'s speakerMismatch count -- excluded here so it is
     not double-counted as an ordinal drift.
 
+    `turn_shifts` itself only ever carries a pair whose delta is non-zero
+    (or whose name disagrees) -- a resync back to delta 0 is invisible to
+    it, so `last_delta[name]` never returns to 0 either (Grok read of Lane
+    D r2, finding 2). Left alone, a speaker who drifts, resyncs, then
+    drifts again by the SAME amount would read as one unbroken run instead
+    of two incidents. `greek_ordinal` is that speaker's own same-name
+    occurrence counter over EVERY turn, flagged or not (P3.4), so a run
+    that never resynced has it advance by exactly 1 between consecutive
+    entries; a gap in it means unflagged (delta-0) turns of that speaker
+    sit in between -- a resync happened, so the next entry opens a new
+    run even when its delta happens to match the previous one's.
+
     Returns `(first_greek_id, run_length)` pairs in first-seen order.
     """
     runs: list[list] = []  # [greek_id, length], mutated in place
     last_delta: dict[str, int] = {}
+    last_ordinal: dict[str, int] = {}
     last_run_idx: dict[str, int] = {}
     for shift in shifts:
         name = shift.get("greek_speaker")
         english_speaker = shift.get("english_speaker", name)
         if name is None or english_speaker != name:
             continue
-        delta = shift.get("english_ordinal", 0) - shift.get("greek_ordinal", 0)
-        if last_delta.get(name) == delta and name in last_run_idx:
+        ordinal = shift.get("greek_ordinal", 0)
+        delta = shift.get("english_ordinal", 0) - ordinal
+        contiguous = last_ordinal.get(name) == ordinal - 1
+        if last_delta.get(name) == delta and contiguous and name in last_run_idx:
             runs[last_run_idx[name]][1] += 1
         else:
             last_run_idx[name] = len(runs)
             runs.append([shift.get("greek_id"), 1])
         last_delta[name] = delta
+        last_ordinal[name] = ordinal
     return [(gid, n) for gid, n in runs]
 
 
@@ -378,10 +394,20 @@ def section_speakers(columns: list[dict], segments: list[dict], reports: dict[st
         speakers = report.get("speakers") or {}
         only_english = speakers.get("only_in_english") or []
         only_greek = speakers.get("only_in_greek") or []
-        mismatch, mismatch_segs = _built_speaker_mismatch(segments, col)
-        mismatch_str = f"{mismatch} ({mismatch_segs} segs)" if mismatch else 0
+        # Secondary/third/overlay pieces are `chunks_as_overlay`'s own
+        # output (stage1_turn_english.py:2680-2714) and never carry a
+        # `turns` list at all, so the built json has no speakerMismatch
+        # data for these columns to count -- "0" would misreport an
+        # unmeasured column as a clean one (Grok read of Lane D r2,
+        # finding 3). Only the primary column's pieces keep `turns`.
+        if col["slot"] == "primary":
+            mismatch, mismatch_segs = _built_speaker_mismatch(segments, col)
+            mismatch_str = f"{mismatch} ({mismatch_segs} segs)" if mismatch else 0
+            total += mismatch
+        else:
+            mismatch_str = "n/a"
         rows.append([col["id"], ", ".join(only_english) or "-", ", ".join(only_greek) or "-", mismatch_str])
-        total += len(only_english) + len(only_greek) + mismatch
+        total += len(only_english) + len(only_greek)
     table, _ = _table(headers, rows)
     return table, total
 
@@ -477,13 +503,25 @@ def _built_cue_hits(segments: list[dict], columns: list[dict], roster: list[str]
     libation-bearers finding 11 and IT findings 7/9/15 are the same
     shape). `section_cues_in_speech`'s scan above reads the raw BENCH
     source, which cannot see a cue the build itself failed to lift out --
-    this reads the built column text instead, per column per segment."""
+    this reads the built column text instead, per column per segment.
+
+    Only the PRIMARY column is scanned. `chunks_as_overlay`
+    (stage1_turn_english.py:2680-2714) is what secondary/third/overlay
+    pieces are built from, and it bakes a "NAME. " prefix into the text at
+    EVERY turn while dropping `turns` entirely -- so a normal two-speech
+    piece in one of those columns is textually the same shape as a cue
+    the pairer buried, and the two cannot be told apart from the built
+    text alone. Ion's built-json 157 was mostly that (Grok read of Lane D
+    r2, finding 1). Primary's text is the translator's own, untouched by
+    that synthesis, so a bare roster cue found there is the real thing."""
     pattern = _roster_allcaps_pattern(roster)
     if pattern is None:
         return []
     rows: list[list] = []
     for seg in segments:
         for col in columns:
+            if col["slot"] != "primary":
+                continue
             text = _col_text(seg, col)
             if not text:
                 continue
