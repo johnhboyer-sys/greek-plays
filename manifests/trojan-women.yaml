@@ -27,9 +27,18 @@ english:
     footnotes: false
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
+    # Perseus's own <l n="591"> anchors this whole sentence directly ("Oh,
+    # you, who before made the Achaeans grieve, eldest of the sons I bore to
+    # Priam, take me to your rest in Hades' halls!") -- it is not drift, so
+    # C1 (2026-09-17 Perseus bare-sweep) leaves it at its own line 591
+    # (flagged attribution_difference: English Hecuba vs. the crux-marked
+    # Greek's Andromache) instead of repairing it onto 592 as the pre-C1
+    # rule did. 592-593 and 594 carry no English of their own; their sense
+    # is inside 591's block, not the reverse (was 591 by: 592 / 594 by: 592,
+    # which the fix now finds backwards -- self-referential/cyclic).
     covered:
-      - { greek: "591", by: "592" }
-      - { greek: "594", by: "592" }
+      - { greek: "592", by: "591" }
+      - { greek: "594", by: "591" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
