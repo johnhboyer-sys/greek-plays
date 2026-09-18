@@ -4214,3 +4214,91 @@ def test_a_mid_speech_direction_keeps_the_text_around_it_intact(tmp_path: Path):
     by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
     assert by_id["1:1"] == "Before the exit.\n_Exit Alpha._\nAfter the exit."
     assert [a["kind"] for a in report["anomalies"]] == ["stage_direction_inline"]
+
+
+# ── Lane C, round 5 ─────────────────────────────────────────────────────
+
+
+def test_a_mid_speech_stage_between_l_siblings_seats_beside_its_own_line(
+    tmp_path: Path,
+):
+    """Sol's integration review, finding 1 (2026-09-18): a `<stage>` that is
+    a SIBLING of `<l>` (not nested inside one) carries no anchor of its own,
+    and the converter fell back to the whole slice's FIRST anchor for every
+    such piece, wherever in the speech it actually sat.  Orestes' TEI
+    (tlg0006.tlg016.perseus-eng2.xml:1671) has `spoken` before 1286, `sung`
+    before 1288, and `spoken` before 1291: the head one is a real
+    `directionsBefore`, but the other two both landed on 1286 (the speech's
+    first line), and `1:1288`/`1:1291` got neither.  A mid-speech one must
+    seat beside the NEXT line (printing before its text); one after the
+    speech's last `<l>` seats beside the PREVIOUS line (printing after it)."""
+    spine = {
+        "work": "orestes",
+        "segments": [
+            _line_seg("1:1286", ["1286"], "Ηλ."),
+            _line_seg("1:1288", ["1288", "1289"], "Ηλ."),
+            _line_seg("1:1290", ["1290"], "Ηλ."),
+            _line_seg("1:1291", ["1291"], "Ηλ."),
+        ],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Electra</speaker>
+      <stage resp="perseus">spoken</stage>
+      <l n="1286">They do not hear; alas for my troubles!</l>
+      <stage resp="perseus">sung</stage>
+      <l n="1288">Soon some Argive in full armor, hurrying</l>
+      <l n="1290">to her rescue, will attack the palace.</l>
+      <stage resp="perseus">spoken</stage>
+      <l n="1291">Keep a better look-out.</l>
+    </sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _f, report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Electra": "Electra"},
+        sigla={"Ηλ.": "Electra"},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    # Before: both landed on 1286, and 1286 held both markers.
+    assert by_id["1:1286"]["text"] == "They do not hear; alas for my troubles!"
+    assert by_id["1:1286"]["turns"][0]["directionsBefore"] == ["spoken"]
+    assert by_id["1:1288"]["text"] == (
+        "_sung_\nSoon some Argive in full armor, hurrying"
+    )
+    assert by_id["1:1290"]["text"] == "to her rescue, will attack the palace."
+    assert by_id["1:1291"]["text"] == "_spoken_\nKeep a better look-out."
+    mid = [a for a in report["anomalies"] if a["kind"] == "stage_direction_inline"]
+    assert [a["text"] for a in mid] == ["sung", "spoken"]
+
+
+def test_an_unprinted_ref_tie_breaks_toward_the_earlier_line(tmp_path: Path):
+    """Round 5, Grok's nit on d348247: two candidate seats at the same delta
+    that agree with the speaker equally broke the tie toward the LOWER line
+    number — the opposite of `_nearest_line`'s snap-forward convention used
+    elsewhere in this module.  No real corpus instance reaches this exact
+    tie (see the design paragraph on `_unprinted_ref_seat`), so round 5
+    keeps the already-verified backward seat rather than flip a convention
+    with nothing in the corpus to check the flip against.  This pins the
+    decision itself, including the bekker tick the reader jumps to, which
+    the round-4 test does not check."""
+    spine = _spine()
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1">Alpha line.</l></sp>
+    <sp><speaker>Beta</speaker><l n="7">Equidistant from 6 and 8.</l></sp>
+    <sp><speaker>Gamma</speaker><l n="10">Gamma line.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _f, report = _parse(tmp_path, tei, spine)
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert [a["kind"] for a in report["anomalies"]] == ["unprinted_ref"]
+    row = report["anomalies"][0]
+    assert row["ref"] == "6"
+    assert [tick["n"] for tick in by_id["1:5"]["bekker"]] == [6]

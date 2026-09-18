@@ -1587,7 +1587,16 @@ def _marked_lines_from_tei(text: str) -> set[str]:
 def _english_line_marks(manifest: Manifest) -> tuple[set[str], set[str]] | None:
     """(speech-block starts, every marked line) of the work's primary
     line-keyed English (Smyth, Jebb, Coleridge as Perseus encodes them), or
-    None for a turn-text primary (the comedies), which has no line markers."""
+    None for a turn-text primary (the comedies), which has no line markers.
+
+    Round 5, Grok's nit on d348247: C16's `english.primary.line_fixes`
+    (a TEI `n` typo, e.g. iphigenia-in-tauris's Thoas filed under `n="188"`
+    for 1188) is applied to the translation tree inside
+    `stage1_perseus_play_english.parse_translation`, but this function reads
+    the raw TEI text straight off disk, on a separate parse — so the
+    speech-cap cut here still saw `188` as a mark and never saw `1188`.  The
+    same map, applied to the two sets this function derives, keeps both
+    readers of the one file agreeing on one number."""
     cfg = (manifest.data.get("english") or {}).get("primary") or {}
     if cfg.get("model") != "perseus-play" or not cfg.get("source"):
         return None
@@ -1595,7 +1604,14 @@ def _english_line_marks(manifest: Manifest) -> tuple[set[str], set[str]] | None:
     if not path.exists():
         return None
     text = path.read_text(encoding="utf-8")
-    return _speech_start_lines_from_tei(text), _marked_lines_from_tei(text)
+    starts = _speech_start_lines_from_tei(text)
+    marks = _marked_lines_from_tei(text)
+    line_fixes = cfg.get("line_fixes")
+    if line_fixes:
+        fixes = {str(k): str(v) for k, v in line_fixes.items()}
+        starts = {fixes.get(n, n) for n in starts}
+        marks = {fixes.get(n, n) for n in marks}
+    return starts, marks
 
 
 # C17: the opening bracket of an editor's deletion, and nothing else, before

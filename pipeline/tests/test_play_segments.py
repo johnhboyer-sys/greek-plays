@@ -351,3 +351,44 @@ def test_a_bracketed_siglum_inside_a_headed_segment_still_does_not_cut():
         {"ref": "1416", "text": "τέλος"},
     ]
     assert _starts(_segment_play_lines(flat)) == ["1410"]
+
+
+def test_a_declared_line_fix_is_honoured_by_the_speech_cap_cut(tmp_path, monkeypatch):
+    """Round 5, Grok's nit on d348247: C16's ``english.primary.line_fixes``
+    is applied to the translation tree ``parse_translation`` reads, but this
+    module's speech-cap cut (``_english_line_marks``) reads the raw TEI text
+    off disk on its own, separate parse -- so iphigenia-in-tauris's typo
+    (Thoas's line filed under `n="188"` instead of 1188) still marked 188 a
+    speech start and never marked 1188, even after C16 fixed the seat
+    itself."""
+    from drama_pipeline.config import Manifest
+    from drama_pipeline import stage1_greek as m
+
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    tei = (
+        '<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>'
+        '<div type="translation">'
+        '<sp><speaker>A</speaker><l n="1">one</l></sp>'
+        '<sp><speaker>Thoas</speaker><l n="188">Thoas filed a thousand lines early.</l></sp>'
+        '</div></body></text></TEI>'
+    )
+    (src_dir / "play.xml").write_text(tei, encoding="utf-8")
+    monkeypatch.setattr(m, "SOURCES_DIR", src_dir)
+    manifest = Manifest(
+        {
+            "work": {"id": "iphigenia-in-tauris"},
+            "english": {
+                "primary": {
+                    "model": "perseus-play",
+                    "source": "play.xml",
+                    "line_fixes": {"188": "1188"},
+                }
+            },
+        },
+        tmp_path / "iphigenia-in-tauris.yaml",
+    )
+    starts, marks = m._english_line_marks(manifest)
+    assert starts == {"1", "1188"}
+    assert marks == {"1", "1188"}
+    assert "188" not in starts and "188" not in marks
