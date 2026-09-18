@@ -303,3 +303,119 @@ def test_scan_noise_still_flags_a_genuine_non_latin_glyph(monkeypatch):
     columns = [{"id": "sec", "model": "turn-text", "source": "x"}]
     _, total = audit.section_scan_noise(columns)
     assert total == 1
+
+
+# --------------------------------------------- D1: mid-line/pseudo cues --
+
+def test_cues_in_speech_flags_a_cue_that_repeats_the_previous_cues_name(monkeypatch):
+    """oedipus-tyrannus review finding 2, 2026-09-17: Storr's bench text
+    gives Creon two consecutive cues with nothing but a blank line between
+    ("CREON. My royal cousin..." / "CREON. Good news...") -- the Loeb gives
+    the first speech to Oedipus. Two "CREON." cues in a row with no other
+    speaker's cue between them is the tell, whichever line is the wrong
+    one; both the old whole-line roster check and the all-caps check let
+    it straight through because each line, alone, is a perfectly
+    well-formed cue."""
+    lines = [
+        "CREON. My royal cousin, say, Menoeceus’ child,",
+        "What message hast thou brought us from the god?",
+        "",
+        "CREON. Good news, for e’en intolerable ills,",
+        "Finding right issue, tend to naught but good.",
+    ]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "storr", "model": "turn-text", "source": "x"}]
+    table, total = audit.section_cues_in_speech(columns, roster=["Creon", "Oedipus"])
+    assert total == 2
+    assert "cue repeated at line 4" in table
+    assert "repeats the cue at line 1" in table
+
+
+def test_cues_in_speech_flags_a_roster_name_embedded_mid_line(monkeypatch):
+    """oedipus-tyrannus review finding 5, 2026-09-17: Kosmos's own
+    paragraph break was lost, so Teiresias's reply runs on from Oedipus's
+    speech with no cue period of its own -- "...Teiresias You find fault
+    with my anger..." -- and the old check only ever looked at a whole
+    line for a cue, never inside one."""
+    lines = [
+        "Will you never come to an end [telos]? Teiresias You find fault "
+        "with my anger, but you do not perceive your own that lives with "
+        "you; no, you blame me.",
+    ]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "kosmos", "model": "turn-text", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Oedipus", "Teiresias"])
+    assert total == 1
+
+
+def test_cues_in_speech_does_not_flag_an_ordinary_vocative_address(monkeypatch):
+    """A character addressed by name mid-speech ("O Teiresias, hear me")
+    is not a cue: the comma before the next word is what tells the two
+    apart from finding 5's shape above, and must not itself become noise."""
+    lines = ["O Teiresias, hear me now and heed my prayer."]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "kosmos", "model": "turn-text", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Oedipus", "Teiresias"])
+    assert total == 0
+
+
+def test_cues_in_speech_flags_a_cue_with_an_unclosed_bracket_tail(monkeypatch):
+    """oedipus-tyrannus review finding 6, 2026-09-17: Murray's "LEADER.
+    [Strophe." glues a metrical label onto the cue with no closing
+    bracket; the Chorus's actual line follows on the next source line, so
+    neither the roster-fold check nor the all-caps check ever recognised
+    this as a cue at all (only section 7's generic scan-noise scan caught
+    the line, as a "bracket-tail turnover", not as a cue)."""
+    lines = ["LEADER. [Strophe.", "Yield; consent; think! My Lord, I conjure thee!"]
+    monkeypatch.setattr(audit, "_read_source_lines", lambda col: lines)
+    columns = [{"id": "murray-verse", "model": "turn-text", "source": "x"}]
+    _, total = audit.section_cues_in_speech(columns, roster=["Chorus"])
+    assert total == 1
+
+
+# ---------------------------------- D1: play-scoped raw-source reading --
+
+def test_read_source_lines_blanks_out_a_different_play_sharing_the_file(tmp_path, monkeypatch):
+    """clouds review finding, 2026-09-17: `gutenberg/pg8688.txt` holds all
+    eleven Athenian Society comedies in one file; a raw-source scan of the
+    whole file picks up another play's scan noise (and the trailing
+    Gutenberg licence) and reports it as THIS play's defect. Section 7
+    found athenian-society "bracket-tail turnover" and "non-Latin glyph"
+    rows at lines that were really The Wasps, footnotes several plays
+    over, or the licence -- none of them ever reaches the built columns.
+    `_read_source_lines` must confine a multi-play source to the named
+    play's own span, without shifting any other line's number."""
+    text = "\n".join([
+        "THE WASPS",
+        "",
+        "The Persons of the drama.",
+        "",
+        "BDELYCLEON",
+        "",
+        "Some Wasps speech with a stray Cyrillic д letter in it.",
+        "",
+        "FINIS OF \"THE WASPS\"",
+        "",
+        "THE CLOUDS",
+        "",
+        "The Persons of the drama.",
+        "",
+        "STREPSIADES",
+        "",
+        "An ordinary Clouds line.",
+        "",
+        "FINIS OF \"THE CLOUDS\"",
+    ])
+    source = tmp_path / "pg8688.txt"
+    source.write_text(text, encoding="utf-8")
+    monkeypatch.setattr(audit, "SOURCES_DIR", tmp_path)
+    col = {"model": "turn-text", "source": "pg8688.txt", "play": "THE CLOUDS"}
+    lines = audit._read_source_lines(col)
+    joined = "\n".join(lines)
+    assert "Cyrillic" not in joined
+    assert "An ordinary Clouds line." in joined
+    # Blanked, not sliced: line numbers for the surviving play stay the
+    # file's own, so a reviewer's line reference still greps correctly --
+    # index 8 (0-based) was "FINIS OF \"THE WASPS\"" and is now blank,
+    # while index 10, "THE CLOUDS" itself, is untouched.
+    assert lines[8] == "" and lines[10] == "THE CLOUDS"
