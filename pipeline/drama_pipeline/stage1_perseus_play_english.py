@@ -78,7 +78,12 @@ from pathlib import Path
 from lxml import etree
 
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
-from .stage1_common import collapse_ws, local_name, write_json
+from .stage1_common import (
+    collapse_ws,
+    local_name,
+    text_excluding_subtrees,
+    write_json,
+)
 from .stage1_english import build_alignment
 from .stage1_turn_english import (
     _SiglaResolver,
@@ -89,9 +94,29 @@ from .stage1_turn_english import (
 )
 
 
+# Round 4 item 8: a stage direction reached in the middle of a speech, held
+# in the piece text through `collapse_ws` (which would eat the newlines the
+# reader's own `_direction_` convention needs) and expanded at the moment the
+# text is appended to its chunk.  Two control characters no translation
+# contains, so nothing else can be mistaken for one.
+_DIRECTION_OPEN = "\x02"
+_DIRECTION_CLOSE = "\x03"
+_INLINE_DIRECTION = re.compile(
+    rf"[ \t]*{_DIRECTION_OPEN}([^{_DIRECTION_CLOSE}]*){_DIRECTION_CLOSE}[ \t]*"
+)
+
+
+def _inline_directions(text: str) -> str:
+    """Expand a held mid-speech direction into the reader's own convention:
+    `_direction_` alone on its line, which `markStageDirections`
+    (shared/lib/speakers.ts) already renders as a `.stage-dir` span in every
+    play column, including this one.  DRAFT rendering until John rules."""
+    return _INLINE_DIRECTION.sub(lambda m: f"\n_{m.group(1)}_\n", text)
+
+
 _EM_DASH_SPLIT = re.compile(r"(?:(?<=\s)|^)(?=—)")
 _LETTERED_ANCHOR = re.compile(r"^(\d+)[a-z]+$")
-_SKIP_TAGS = frozenset({"del", "stage", "gap", "speaker"})
+_SKIP_TAGS = frozenset({"gap", "speaker"})
 
 
 def _anchor_base(ref: str) -> int:
@@ -670,20 +695,63 @@ def _iter_speech_slices(
         if tag == "stage":
             # C12: a Perseus stage direction.  One that precedes the
             # speech's own words becomes the turn's `directionsBefore`;
-            # one reached in the middle of a speech has no turn to hang on
-            # and is counted so the loss is visible.
+            # one reached in the middle of a speech prints inline, on its own
+            # line, where the edition prints it (round 4 item 8).
             text = collapse_ws("".join(node.itertext())).strip()
+            text = text.replace("_", "").replace(_DIRECTION_OPEN, "").replace(
+                _DIRECTION_CLOSE, ""
+            )
             if text:
                 if seen_text:
+                    # Round 4 item 8: a direction the speech has already begun
+                    # has no turn to hang `directionsBefore` on, and 375 of
+                    # them across 33 plays were counted as lost.  It prints
+                    # where the edition prints it, inline, on its own line —
+                    # the slot the reader already has for a direction inside a
+                    # speech.
                     anomalies.append(
                         {
-                            "kind": "stage_direction_mid_speech",
+                            "kind": "stage_direction_inline",
                             "sp": sp_index,
                             "text": text,
                         }
                     )
+                    handle_text(
+                        f"{_DIRECTION_OPEN}{text}{_DIRECTION_CLOSE}", current_n
+                    )
                 elif head_directions is not None:
                     head_directions.append(text)
+            if node.tail:
+                handle_text(node.tail, current_n)
+            return
+        if tag == "del":
+            # C13 (iphigenia-at-aulis finding 1, 2026-09-17): `<del>` is the
+            # EDITOR'S deletion -- text the edition prints and brackets, not
+            # text that is absent.  Skipping it dropped ten lines of
+            # Agamemnon's prologue (IA 105-114) and 140 more passages across
+            # the corpus out of the reader's default column, leaving no trace
+            # in the build.  The Greek column prints these lines (the hard
+            # rule: a deleted line stays printed), so the English prints them
+            # too, wrapped in the edition's own mark for deleted text.
+            #
+            # It is never an `<l>` or an `<sp>` in these files, always an
+            # inline run inside one, so there is no turn or chunk to carry a
+            # flag: the mark travels with the words, in the chunk `text` every
+            # consumer already reads (the pairer's primary bridge, the audit,
+            # search, copy-paste).  The square brackets are a DRAFT rendering
+            # until John rules; if he wants the run dimmed instead, the
+            # bracketed spans are exactly the ranges to style.
+            deleted = collapse_ws(text_excluding_subtrees(node)).strip()
+            handle_text("[", current_n)
+            if node.text:
+                handle_text(node.text, current_n)
+            for child in node:
+                walk(child, current_n)
+            handle_text("]", current_n)
+            if deleted:
+                anomalies.append(
+                    {"kind": "deleted_text_kept", "sp": sp_index, "text": deleted}
+                )
             if node.tail:
                 handle_text(node.tail, current_n)
             return
@@ -1501,6 +1569,54 @@ def _multi_span_head_redirects(
     return redirects
 
 
+_UNPRINTED_REF_WINDOW = 3
+
+
+def _unprinted_ref_seat(
+    n: int, speaker: str | None, index: _SpeechIndex
+) -> tuple[dict, int] | None:
+    """C15 (andromache finding 5, 2026-09-17): the seat for an English line
+    whose number the Greek edition does not print.
+
+    Coleridge numbers the Chorus's answer at Andromache 1203; Diggle prints
+    no 1203, so the anchor resolved to nothing and the line was dropped —
+    fourteen lines across eleven plays, each of them translated text the
+    reader never saw.  A number the edition does not print is still a
+    number: the line sits between the printed lines that bracket it, and
+    the translation's own neighbours say which ones.  So the seat is the
+    nearest printed line within a few lines of the number, preferring one
+    the Greek gives to this very speaker — every corpus instance has a
+    printed neighbour one line away, and the speaker preference is what
+    separates the two candidates either side of it (Oedipus Tyrannus 650 is
+    Oedipus's and belongs at 651, not at the Chorus's 649).
+
+    Far outside that window there is no neighbour to speak of: Helen's TEI
+    numbers one line ``5563``, a typo for 563, and a typo belongs in
+    `english.<slot>.line_fixes` (C16), not seated by guesswork at the end
+    of the play.  ``None`` then, and the piece keeps its old
+    ``unmatched_anchor`` report."""
+    candidates: list[tuple[int, int, int]] = []
+    for delta in range(1, _UNPRINTED_REF_WINDOW + 1):
+        for line in (n - delta, n + delta):
+            if not index.on_spine(line):
+                continue
+            hit = index.segment_for_line(line)
+            if hit is None:
+                continue
+            segment, _ref = hit
+            agrees = (
+                speaker is not None
+                and index.speaker_at(segment, line, prefer=speaker) == speaker
+            )
+            candidates.append((0 if agrees else 1, delta, line))
+    if not candidates:
+        return None
+    _agrees, _delta, line = min(candidates)
+    hit = index.segment_for_line(line)
+    assert hit is not None
+    return hit[0], line
+
+
 def _resolve_slice_anchor(
     n: int,
     *,
@@ -1842,9 +1958,21 @@ def _transposition_printed_stretches(
     for span, forced in stretches:
         if merged and span[0] <= merged[-1][0][-1]:
             prev, prev_forced = merged[-1]
+            if prev_forced != forced:
+                # Grok's read of 134dbe0: the merge used to OR the flag, so
+                # one declaring row forced printed keying over rows that never
+                # asked for it.  Number keying is the default and printed the
+                # exception; a merged stretch whose rows disagree is a
+                # manifest the author has to settle, not a silent promotion.
+                raise ValueError(
+                    "citation.transpositions: overlapping rows over one "
+                    f"printed stretch (positions {min(prev[0], span[0])}-"
+                    f"{max(prev[-1], span[-1])}) disagree about english_keyed "
+                    "— declare it on every row of the stretch or on none"
+                )
             merged[-1] = (
                 list(range(min(prev[0], span[0]), max(prev[-1], span[-1]) + 1)),
-                prev_forced or forced,
+                forced,
             )
             continue
         merged.append((span, forced))
@@ -2021,6 +2149,38 @@ def _remap_anchor(anchor: str, remap: dict[int, int]) -> str:
     return anchor
 
 
+def _apply_line_fixes(translation, line_fixes: dict | None, work_id: str) -> None:
+    """C16 (iphigenia-in-tauris finding 5, 2026-09-17): rewrite a TEI line
+    number the translation mistypes, before anything reads it.
+
+    Perseus files Thoas's 1188 under ``n="188"``, and the bare number filed
+    it a thousand lines early, at the end of the Chorus's parodos, with a
+    Thoas turn inside the Chorus's ode; the manifest then declared `1:1188`
+    a gap, recording the bug as a hole.  ``english.<slot>.line_fixes:
+    {"188": "1188"}`` is the per-play declaration that this is a typo, and
+    it is applied to the parsed tree so every later reader — the anchor
+    pre-scan the transposition remap works from, the slices, the Perseus
+    line notes — sees one number.  A key that matches no line, or more than
+    one, is itself a typo and raises."""
+    if not line_fixes:
+        return
+    if not isinstance(line_fixes, dict):
+        raise ValueError(f"{work_id}: english line_fixes must be a map of TEI n -> n")
+    wanted = {str(k): str(v) for k, v in line_fixes.items()}
+    hits: dict[str, int] = {key: 0 for key in wanted}
+    for line in translation.iter("{*}l"):
+        raw = line.get("n")
+        if raw in wanted:
+            hits[raw] += 1
+            line.set("n", wanted[raw])
+    wrong = {key: count for key, count in hits.items() if count != 1}
+    if wrong:
+        raise ValueError(
+            f"{work_id}: english line_fixes {wrong!r} — each key must name "
+            "exactly one <l n> in the translation"
+        )
+
+
 def parse_translation(
     xml_path: Path,
     spine: dict,
@@ -2031,6 +2191,7 @@ def parse_translation(
     english_aliases: dict[str, str] | None = None,
     covered_decl: list[dict] | None = None,
     transpositions: list[dict] | None = None,
+    line_fixes: dict | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one ``perseus-play`` TEI and cut it on the Greek segments."""
     tree = etree.parse(str(xml_path))
@@ -2038,6 +2199,7 @@ def parse_translation(
     if translation is None:
         raise ValueError(f"no div type='translation' in {xml_path}")
 
+    _apply_line_fixes(translation, line_fixes, work_id)
     if not isinstance(sigla, _SiglaResolver):
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
@@ -2111,7 +2273,10 @@ def parse_translation(
         tick: bool = True,
     ) -> dict | None:
         chunk = ensure_chunk(segment)
-        if chunk["text"]:
+        text = _inline_directions(text)
+        if chunk["text"] and not (
+            chunk["text"].endswith("\n") or text.startswith("\n")
+        ):
             chunk["text"] += " "
         offset = len(chunk["text"])
         turn = None
@@ -2437,13 +2602,33 @@ def parse_translation(
             repairable=pos in repairable_anchors,
         )
         if result is None:
+            seat = _unprinted_ref_seat(n, job["canonical"], index)
+            if seat is None:
+                anomalies.append(
+                    {
+                        "kind": "unmatched_anchor",
+                        "sp": job["sp_index"],
+                        "n_raw": job["anchor"],
+                    }
+                )
+                continue
+            # C15: the edition does not print this number, so the piece takes
+            # no tick of its own unless it opens the chunk -- it must not
+            # claim a line the Greek never printed.
+            segment, seat_line = seat
+            opens = not (chunks_by_id.get(segment["id"]) or {}).get("text")
             anomalies.append(
                 {
-                    "kind": "unmatched_anchor",
+                    "kind": "unprinted_ref",
                     "sp": job["sp_index"],
                     "n_raw": job["anchor"],
+                    "attached_to": segment["id"],
+                    "ref": index.closest_ref(segment, seat_line),
                 }
             )
+            commit_job(job, segment, seat_line, own_tick=opens)
+            prev_assigned[job["sp_index"]] = job["assigned"]
+            last_commit = (job["sp_index"], job["assigned"])
             continue
         # P2i finding 2/8: every anchor whose printed line is on the spine
         # now attaches (flagged when the editions disagree), so a resolved
@@ -2466,6 +2651,16 @@ def parse_translation(
         if segment["id"] in chunks_by_id
     ]
     for chunk in chunks:
+        # Item 8: a chunk whose last piece is a stage direction ends on the
+        # newline that closes the direction's own line; trim it, and keep any
+        # offset that pointed past the new end inside the text.
+        trimmed = chunk["text"].rstrip()
+        if trimmed != chunk["text"]:
+            chunk["text"] = trimmed
+            for mark in chunk["bekker"]:
+                mark["offset"] = min(mark["offset"], len(trimmed))
+            for turn in chunk["turns"]:
+                turn["offset"] = min(turn["offset"], len(trimmed))
         # Compatibility: the chunk-level flag survives only for a chunk whose
         # EVERY turn disagrees (the ordinary one-turn attribution difference).
         turns = chunk.get("turns") or []
@@ -2560,6 +2755,7 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         translation_id=cfg["id"],
         sigla=sigla,
         english_aliases=aliases,
+        line_fixes=cfg.get("line_fixes"),
         transpositions=((manifest.data.get("citation") or {}).get("transpositions") or {}).get("1") or [],
     )
     from .stage2_validate import _play_line_english_gap_ids

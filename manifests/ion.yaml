@@ -134,6 +134,17 @@ speakers:
     "ΠΡΟΦΗΤΙΣ": "Pythian Priestess"
     "ΑΘΗΝΑ": "Athena"
     "Αθ.": "Athena"
+  # C14 (ion finding 1, 2026-09-17): Diggle abbreviates ΠΡΟΦΗΤΙΣ exactly as
+  # he abbreviates ΠΡΕΣΒΥΤΗΣ, so the flat map above gave all 77 `Πρ.` events
+  # to the Old Servant -- who leaves the play at 1047 -- and the Pythian
+  # Priestess conducted the whole recognition scene under his name and
+  # colour.  The printed text introduces her in full at 1320 and every `Πρ.`
+  # from 1325 is hers; the 61 earlier ones (742-1039) are his and do not
+  # move.  No rule can read this off the text alone (Iphigenia at Aulis
+  # prints ΑΓΓΕΛΟΣ at 414 and returns to Agamemnon's own `Αγ.` at 440), so
+  # it is declared per play, line-scoped, like Helen's Θε.
+  overrides:
+    - { siglum: "Πρ.", from: "1325", display: "Pythian Priestess" }
 
 books:
   - { n: 1, start: "1", end: "1622" }

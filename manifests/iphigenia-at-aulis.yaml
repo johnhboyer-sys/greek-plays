@@ -104,6 +104,19 @@ speakers:
     "ΑΧΙΛΛΕΥΣ": "Achilles"
     "Αχ.": "Achilles"
     "ΑΓΓΕΛΟΣ Β": "Second Messenger"
+  # C14 (finding 5, 2026-09-17): the edition abbreviates the second messenger
+  # `Αγ.` -- the same abbreviation it uses for Agamemnon -- so his 73-line
+  # report of the sacrifice was attributed and coloured as Agamemnon ("a
+  # speaker cannot be sent by himself", 1526 `πέμπει δ' Ἀγαμέμνων μ'`).  Only
+  # two of the play's 93 `Αγ.` events are his: 1523 and 1526, between his
+  # full introduction `ΑΓΓΕΛΟΣ <Β>` at 1532-in-the-export and Agamemnon's own
+  # return at 1621.  The positional rule that settles Clouds's numbered
+  # creditors cannot settle this one: an unnumbered collision gives no
+  # evidence that the earlier character has left (ΑΓΓΕΛΟΣ at 414 is followed
+  # by Agamemnon's own `Αγ.` at 440), so the scope is declared per play.
+  overrides:
+    - { siglum: "Αγ.", from: "1523", display: "Second Messenger" }
+    - { siglum: "Αγ.", from: "1621", display: "Agamemnon" }
 
 books:
   - { n: 1, start: "1", end: "1629" }

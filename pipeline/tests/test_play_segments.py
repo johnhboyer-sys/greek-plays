@@ -304,3 +304,50 @@ def test_a_declared_line_must_match_exactly():
     segs = [{"id": "1:328", "lines": [{"ref": "328"}, {"ref": "368a"}]}]
     with pytest.raises(ValueError):
         _resolve_covered([{"greek": "368", "by": "328"}], segs, "t")
+
+
+def test_a_bracketed_siglum_does_not_head_a_segment_it_sits_inside():
+    """C17 (orestes finding 4, 2026-09-17): the edition brackets 957-959 as
+    the editor's deletion, and the `Χο.` inside those brackets sits at offset
+    2, so it never cut a segment — but it was the only speaker event in the
+    segment the 80-line ceiling had just opened at 946, and so it HEADED it.
+    The Messenger's last eleven lines were labelled and coloured Chorus, and
+    both bench columns showed the Chorus's 957-959 beside them.
+
+    A speaker label whose only predecessors on its line are the opening
+    deletion bracket opens its own segment when the segment it would
+    otherwise head has no speaker of its own.  The deleted lines keep their
+    printed place and number (the hard rule); they simply stop capturing the
+    speech above them.
+    """
+    flat = [{"ref": str(946 + k), "text": f"line {946 + k}"} for k in range(11)]
+    flat += [
+        {
+            "ref": "957",
+            "text": "[ ὦ δυστάλαινα παρθέν',",
+            "speakers": [{"offset": 2, "label": "Χο."}],
+        },
+        {"ref": "958", "text": "πρόσωπον ἐς γῆν"},
+        {"ref": "959", "text": "ὡς ἐς στεναγμοὺς]"},
+    ]
+    assert _starts(_segment_play_lines(flat)) == ["946", "957"]
+    first, second = _segment_play_lines(flat)
+    assert "speakers" not in first
+    assert [e["label"] for e in second["speakers"]] == ["Χο."]
+
+
+def test_a_bracketed_siglum_inside_a_headed_segment_still_does_not_cut():
+    """The other twenty instances of the same shape: the segment already has
+    its own line-start speaker, so the bracketed siglum is an ordinary
+    mid-segment event (Medea 1415, Alcestis 1119, Rhesus 16) and must not
+    split the speech it sits in."""
+    flat = _flat(1410, 5)
+    flat += [
+        {
+            "ref": "1415",
+            "text": "[ ἀλλὰ",
+            "speakers": [{"offset": 2, "label": "Χο."}],
+        },
+        {"ref": "1416", "text": "τέλος"},
+    ]
+    assert _starts(_segment_play_lines(flat)) == ["1410"]

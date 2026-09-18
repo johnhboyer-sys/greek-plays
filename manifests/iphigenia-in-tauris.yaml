@@ -29,6 +29,12 @@ english:
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
       - { greek: "1474", by: "1435" }
+    # C16 (finding 5, 2026-09-17): the TEI files Thoas's 1188 under
+    # `n="188"`, between n="1187" and n="1189" -- a typo, not a line of the
+    # parodos, and the bare number printed it a thousand lines early with a
+    # Thoas turn inside the Chorus's ode.  Fixed before anchoring.
+    line_fixes:
+      "188": "1188"
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
@@ -47,8 +53,8 @@ english:
     source: bench/murray/iphigenia-in-tauris.txt
     play: IPHIGENIA IN TAURIS
     footnotes: false
-  gaps:
-    - "1:1188"  # no covering <l n> in the Perseus TEI
+  # (`gaps: ["1:1188"]` removed 2026-09-18: the hole was the `n="188"` typo
+  # above, not a gap in the translation.)
 
 citation:
   scheme: play-line
