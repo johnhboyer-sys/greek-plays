@@ -810,3 +810,34 @@ def test_validate_book_section_scheme_orders_dotted_columns_numerically():
     assert report["checks"]["section_spine"]["ok"] is True
     assert report["checks"]["book_partition"]["ok"] is True
     assert report["checks"]["book_partition"]["sections_outside_any_book"] == []
+
+
+# --- A3: a blank turn-text column with no coveredBy note --------------------
+
+
+def test_a3_blank_column_lists_only_the_silent_blanks():
+    """Birds 1:417, 1:907, 1:908, 1:302: a Greek speech beside an empty
+    comparison column and no note at all. A column with text, a column whose
+    blank carries a `coveredBy`, and a Greek segment with no speaker of its
+    own are all correct and must not be listed; an unreadable column file is
+    skipped rather than reported blank everywhere."""
+    from drama_pipeline.stage2_validate import blank_column_segments
+
+    speaking = ["1:1", "1:302", "1:417", "1:907"]
+    columns = [
+        ("third", {"1:1", "1:302"}, {"1:417"}),
+        ("overlay:johnston", {"1:1", "1:417", "1:907"}, set()),
+        ("secondary", None, set()),
+    ]
+    assert blank_column_segments(columns, speaking) == {
+        "third": ["1:907"],
+        "overlay:johnston": ["1:302"],
+    }
+
+
+def test_a3_blank_column_says_nothing_when_every_column_is_answered():
+    from drama_pipeline.stage2_validate import blank_column_segments
+
+    assert blank_column_segments(
+        [("third", {"1:1"}, {"1:2"})], ["1:1", "1:2"]
+    ) == {}

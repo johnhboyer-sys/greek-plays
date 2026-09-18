@@ -697,6 +697,132 @@ def _gap_declared(run: dict, known_gaps: list) -> bool:
     return False
 
 
+# --- A3: a comparison column that is simply blank ---------------------------
+#
+# A turn-text column that has no text for a Greek speech AND no
+# `englishCoveredBy` note prints as a silent blank: the reader cannot tell
+# whether the translator dropped the lines, or the builder lost them. It is
+# how Birds 1:302, 1:907, 1:908 and 1:417 and Clouds 1:1112 reach the page.
+# Nothing else on the sheet sees it -- `turn_text_bare_run` counts EVENTS off
+# the stage-1 report and stops at the primary's own coverage, and
+# `strict_coverage` runs for one slot only.
+#
+# It is a WARNING (John decides whether it fails the build): a comparison
+# bench legitimately omits passages, and until each column's omissions are
+# declared the count is a reading list, not a gate.
+_BLANK_COLUMN_FILES = {
+    "primary": ("english_chunks.json", "alignment.json"),
+    "secondary": ("ross_chunks.json", "secondary_alignment.json"),
+    "third": ("third_chunks.json", "third_alignment.json"),
+}
+
+
+def _column_chunk_ids(path: Path, translation_id: str | None) -> set[str] | None:
+    """The segment ids a stage-1 column file actually carries text for."""
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return None
+    if isinstance(data, dict) and "chunks" in data:
+        rows = {c["id"]: c for c in data["chunks"] if isinstance(c, dict)}
+    else:
+        if translation_id is not None:
+            data = (data or {}).get(translation_id) or {}
+        rows = {
+            sid: (pieces[0] if isinstance(pieces, list) and pieces else {})
+            for sid, pieces in (data or {}).items()
+        }
+    return {sid for sid, row in rows.items() if (row or {}).get("text")}
+
+
+def _turn_text_columns(manifest: Manifest) -> list[tuple[str, Path, Path, str | None]]:
+    """(label, chunk file, alignment file, overlay id) per turn-text column."""
+    stage1 = BUILD_DIR / "stage1"
+    english = manifest.data.get("english") or {}
+    out: list[tuple[str, Path, Path, str | None]] = []
+    primary = english.get("primary") or {}
+    if primary.get("model") == "turn-text":
+        chunks, align = _BLANK_COLUMN_FILES["primary"]
+        out.append(("primary", stage1 / chunks, stage1 / align, None))
+    for slot, entry, _filename in _public_turn_text_comparison_slots(manifest):
+        if slot.startswith("overlay:"):
+            tid = slot.split(":", 1)[1]
+            out.append(
+                (slot, stage1 / "overlays.json",
+                 stage1 / f"overlay_{tid}_alignment.json", tid)
+            )
+            continue
+        chunks, align = _BLANK_COLUMN_FILES[slot]
+        out.append((slot, stage1 / chunks, stage1 / align, None))
+    return out
+
+
+def blank_column_segments(
+    columns: list[tuple[str, set[str] | None, set[str]]],
+    speaking: list[str],
+) -> dict[str, list[str]]:
+    """Per column, the speaking segments it leaves blank with no note.
+
+    ``columns`` is ``(label, ids with text, ids with a coveredBy note)``; a
+    column whose file could not be read (``None``) is skipped rather than
+    reported blank everywhere.
+    """
+    out: dict[str, list[str]] = {}
+    for label, has_text, covered in columns:
+        if has_text is None:
+            continue
+        blanks = [sid for sid in speaking if sid not in has_text and sid not in covered]
+        if blanks:
+            out[label] = blanks
+    return out
+
+
+def _blank_column_check(manifest: Manifest, segments: list[dict]) -> dict:
+    # A lacuna placeholder often carries the speaker the editor conjectures
+    # for the lost lines, but it is not a Greek speech and no column should
+    # hold anything beside it (`stage1_turn_english.is_lacuna_segment`).
+    holes = _play_line_lacuna_segment_ids(segments)
+    speaking = [
+        seg["id"] for seg in segments if seg.get("speakers") and seg["id"] not in holes
+    ]
+    columns = []
+    for label, chunk_path, align_path, tid in _turn_text_columns(manifest):
+        covered: set[str] = set()
+        if align_path.exists():
+            try:
+                covered = set(
+                    (json.loads(align_path.read_text(encoding="utf-8")) or {}).get(
+                        "english_covered_by"
+                    )
+                    or {}
+                )
+            except (ValueError, OSError):
+                covered = set()
+        columns.append((label, _column_chunk_ids(chunk_path, tid), covered))
+    blanks = blank_column_segments(columns, speaking)
+    total = sum(len(v) for v in blanks.values())
+    warning = None
+    if total:
+        listed = "; ".join(
+            f"{label}: {len(ids)} ({', '.join(ids[:12])}{' ...' if len(ids) > 12 else ''})"
+            for label, ids in blanks.items()
+        )
+        warning = (
+            f"{total} Greek speech(es) sit beside a blank turn-text column with no "
+            f"englishCoveredBy note -- {listed}; restore the text, or declare the "
+            "omission so the reader is told"
+        )
+    return {
+        "count": total,
+        "columns": blanks,
+        "error": warning,
+        "warn": warning is not None,
+        "ok": True,
+    }
+
+
 def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) -> dict:
     report: dict = {"checks": {}}
     segments = spine["segments"]
@@ -1050,6 +1176,9 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
                     key_suffix=suffix,
                 )
             )
+        report["checks"]["turn_text_blank_columns"] = _blank_column_check(
+            manifest, segments
+        )
     # A column the manifest's own citation.kind_overrides declares `omit`
     # is ALSO a legitimate unmatched column (see _omit_declared_segment_ids)
     # -- derived from the SAME declaration stage1 already enforces, not a

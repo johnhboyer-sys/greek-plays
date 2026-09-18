@@ -3733,3 +3733,419 @@ def test_p10_index_is_nearest_rank_not_floor_minus_one():
     assert _p10_index(11) == 1
     # n=20: an exact decile boundary, unaffected either way.
     assert _p10_index(20) == 1
+
+
+# --- A1: a declared transposition and the order a translation follows -------
+#
+# `citation.transpositions` says the edition prints lines `start..end` AFTER
+# line `before`, so inside the numeric window `[start, before]` the Greek's
+# printed order and its numeric order differ.  A translation follows one or
+# the other and nothing in the bench text says which: Johnston's Hippolytus
+# prints 106, 107, 104, 105 (Diggle's order), Way's prints 104, 105, 106, 107.
+# The pairer therefore offers the DP both orderings of the speeches inside
+# each declared window and keeps the cheaper one.  Only the ORDER the Greek
+# speeches are offered in changes; the display stays as the edition prints it.
+
+
+def _bridge(chunks: dict[str, str]) -> dict[str, dict]:
+    """A `primary_bridge` map (the line-keyed primary column's own English)."""
+    return {sid: {"id": sid, "text": text, "turns": []} for sid, text in chunks.items()}
+
+
+def _transposed(tmp_path, source, spine, sigla, aliases, bridge, blocks):
+    path = tmp_path / "play.txt"
+    path.write_text(f"TEST PLAY\n{source}\nFINIS\n", encoding="utf-8")
+    return parse_translation(
+        path,
+        spine,
+        work_id="test",
+        translation_id="test",
+        play="TEST PLAY",
+        sigla=sigla,
+        english_aliases=aliases,
+        footnotes_enabled=False,
+        primary_bridge=_bridge(bridge),
+        transpositions=blocks,
+    )
+
+
+_T_SIGLA = {"Α.": "Alpha", "Β.": "Beta", "Γ.": "Gamma"}
+_T_ALIASES = {"ALPHA": "Alpha", "BETA": "Beta", "GAMMA": "Gamma"}
+
+
+def _spine_of(*segments: dict) -> dict:
+    return {"work": "test", "segments": list(segments)}
+
+
+def _numbered(sid, refs, label, start_n):
+    return {
+        "id": sid,
+        "book": 1,
+        "column": refs[0],
+        "lines": [
+            {"n": start_n + i, "ref": ref, "text": f"γραμμὴ {ref} ἐστίν."}
+            for i, ref in enumerate(refs)
+        ],
+        "speakers": [{"line": start_n, "offset": 0, "label": label}],
+    }
+
+
+def test_a1_moved_block_pairs_with_its_own_speech_not_the_one_before(tmp_path):
+    """Eumenides 64-84: the edition prints Apollo's speech after Orestes'.
+
+    The English (Morshead, Kosmos, Johnston) prints it in numeric order, so a
+    pairer walking both in sequence put Apollo's long speech inside the
+    Priestess's segment and gave his six closing lines the whole of `1:64`.
+    """
+    spine = _spine_of(
+        _numbered("1:1", ["1", "2", "3"], "Α.", 1),
+        _numbered("1:5", ["5", "6"], "Β.", 4),
+        _numbered("1:4", ["4", "7"], "Γ.", 6),
+    )
+    source = (
+        "ALPHA. First in my prayer I honour Earth the ancient prophet mother.\n"
+        "GAMMA. I will never abandon you; your guardian to the very end.\n"
+        "BETA. You know what it is to do no wrong; learn also not to fail.\n"
+        "GAMMA. Remember, and let no fear overcome your mind."
+    )
+    bridge = {
+        "1:1": "First in this prayer I give honour to Earth the first prophet mother.",
+        "1:5": "You know what it is to do no wrong; learn now not to fail.",
+        "1:4": (
+            "I will not abandon you; I am your guardian to the end. "
+            "Remember, do not let fear conquer your mind."
+        ),
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge,
+        [{"start": "4", "end": "4", "before": "6"}],
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert chunks["1:4"].startswith("I will never abandon you")
+    assert "Remember, and let no fear" in chunks["1:4"]
+    assert chunks["1:5"].startswith("You know what it is to do no wrong")
+    assert chunks["1:1"].startswith("First in my prayer")
+    assert "abandon" not in chunks["1:1"]
+
+
+def test_a1_a_translation_in_numeric_order_pairs_line_for_line(tmp_path):
+    """Hippolytus 104-105, printed after 107, against Way's numeric order."""
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Β.", 1),
+        _numbered("1:4", ["4"], "Α.", 2),
+        _numbered("1:5", ["5"], "Β.", 3),
+        _numbered("1:2", ["2"], "Α.", 4),
+        _numbered("1:3", ["3"], "Β.", 5),
+    )
+    source = (
+        "BETA. Worshipful is she, glorious among men.\n"
+        "ALPHA. Of gods, of men, each maketh still his choice.\n"
+        "BETA. Now prosper thou; be needful wisdom thine.\n"
+        "ALPHA. No god who hath night-homage pleaseth me.\n"
+        "BETA. Guerdons of gods, my son, ought men to use."
+    )
+    bridge = {
+        "1:1": "Yet is she an august goddess, far renowned on earth.",
+        "1:2": "Among gods as well as men we have our several preferences.",
+        "1:3": "I wish thee luck, and wisdom too, so far as thou dost need it.",
+        "1:4": "No god, whose worship craves the night, hath charms for me.",
+        "1:5": "My son, we should avail us of the gifts that gods confer.",
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge,
+        [{"start": "2", "end": "3", "before": "5"}],
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert chunks["1:4"].startswith("No god who hath night-homage")
+    assert chunks["1:5"].startswith("Guerdons of gods")
+    assert chunks["1:2"].startswith("Of gods, of men")
+    assert chunks["1:3"].startswith("Now prosper thou")
+
+
+def test_a1_a_translation_in_the_editions_order_is_left_alone(tmp_path):
+    """The same Greek, and Johnston's text, which prints 106, 107, 104, 105.
+
+    The fix must not disturb a column that already matches: the printed order
+    is what this translation follows, so it stays.
+    """
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Β.", 1),
+        _numbered("1:4", ["4"], "Α.", 2),
+        _numbered("1:5", ["5"], "Β.", 3),
+        _numbered("1:2", ["2"], "Α.", 4),
+        _numbered("1:3", ["3"], "Β.", 5),
+    )
+    source = (
+        "BETA. But men revere her and celebrate her fame.\n"
+        "ALPHA. I am not fond of gods worshipped at night.\n"
+        "BETA. My son, one must pay tribute to the gods.\n"
+        "ALPHA. But with both gods and men different people have different preferences.\n"
+        "BETA. I wish you luck and all the prudent judgment you may need."
+    )
+    bridge = {
+        "1:1": "Yet is she an august goddess, far renowned on earth.",
+        "1:2": "Among gods as well as men we have our several preferences.",
+        "1:3": "I wish thee luck, and wisdom too, so far as thou dost need it.",
+        "1:4": "No god, whose worship craves the night, hath charms for me.",
+        "1:5": "My son, we should avail us of the gifts that gods confer.",
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge,
+        [{"start": "2", "end": "3", "before": "5"}],
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert chunks["1:4"].startswith("I am not fond of gods")
+    assert chunks["1:5"].startswith("My son, one must pay tribute")
+    assert chunks["1:2"].startswith("But with both gods and men")
+    assert chunks["1:3"].startswith("I wish you luck")
+
+
+def test_a1_a_two_line_block_printed_early_keeps_its_own_english(tmp_path):
+    """Medea 1273-1274, which Diggle prints before 1271-1272."""
+    spine = _spine_of(
+        _numbered("1:1", ["1", "2"], "Α.", 1),
+        _numbered("1:5", ["5", "6"], "Β.", 3),
+        _numbered("1:3", ["3", "4"], "Γ.", 5),
+    )
+    source = (
+        "ALPHA. Woe for the deed I dare, and the ruin I bring on my house.\n"
+        "GAMMA. What shall I do? Whither shall I flee my mother's hands?\n"
+        "BETA. Dost thou hear the cry, the children's cry? Wretched woman!\n"
+    )
+    bridge = {
+        "1:1": "Woe is me for the deed I dare and the ruin I bring upon my house.",
+        "1:3": "Ah me, what shall I do? Whither shall I flee my mother's hands?",
+        "1:5": "Dost thou hear the cry, dost thou hear the children? Wretched woman.",
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge,
+        [{"start": "3", "end": "4", "before": "6"}],
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert chunks["1:3"].startswith("What shall I do?")
+    assert chunks["1:5"].startswith("Dost thou hear the cry")
+
+
+# --- A2: the block a `coveredBy` note names -------------------------------
+
+
+def test_a2_covered_by_names_the_block_that_holds_the_text_not_the_neighbour(tmp_path):
+    """The DP's own rule names the match immediately BEFORE a skipped run.
+
+    Eumenides 117-139: Morshead prints the Ghost's whole scene as one speech
+    with the Furies' mutters as italic directions, so the English that covers
+    Greek 121-122 sits two blocks back, and the note sent the reader to the
+    neighbour instead.  Medea 1273-1274 is the same defect forwards: Way's
+    rendering is in the LATER block.
+    """
+    spine = _spine_of(
+        _numbered("1:1", ["1", "2"], "Α.", 1),
+        _numbered("1:3", ["3"], "Β.", 3),
+        _numbered("1:4", ["4"], "Α.", 4),
+        _numbered("1:5", ["5"], "Β.", 5),
+    )
+    # One long Alpha speech carries both of Alpha's Greek turns; Beta's two
+    # one-liners pair on their own.  1:4 is left empty and its English is in
+    # 1:1 -- two blocks back, not in the neighbour 1:3.
+    source = (
+        "ALPHA. The ship was wrecked upon the reef at dawn.\n"
+        "The sailors swam ashore and lit a beacon there.\n"
+        "BETA. A grievous night.\n"
+        "BETA. And a long morning after it."
+    )
+    bridge = {
+        "1:1": "The ship was wrecked upon the reef at dawn.",
+        "1:3": "A grievous night indeed.",
+        "1:4": "The sailors swam ashore and lit a beacon there.",
+        "1:5": "And a long morning after it.",
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge, [],
+    )
+    assert "1:4" not in {c["id"] for c in english["chunks"]}
+    assert english["english_covered_by"].get("1:4") == "1:1"
+
+
+def test_a2_covered_by_can_name_a_later_block(tmp_path):
+    """Medea 1:1273: Way's rendering of 1273-74 sits two segments ON."""
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Α.", 1),
+        _numbered("1:2", ["2"], "Β.", 2),
+        _numbered("1:3", ["3"], "Α.", 3),
+        _numbered("1:4", ["4"], "Β.", 4),
+    )
+    # Beta's two Greek turns are one undivided block in the translation, and
+    # the DP hangs it on the LATER of them.
+    source = (
+        "ALPHA. A sound of weeping in the inner room.\n"
+        "ALPHA. I know not, dearest brother; death is here.\n"
+        "BETA. Dost thou hear the cry, the children's cry?\n"
+        "Shall I go in and ward the murder off?"
+    )
+    bridge = {
+        "1:1": "A sound of weeping in the inner room.",
+        "1:2": "Dost thou hear the cry, dost thou hear the children?",
+        "1:3": "I know not, sweet brother mine; we are undone.",
+        "1:4": "Shall I enter the house? I am resolved to ward off the murder.",
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge, [],
+    )
+    assert "1:2" not in {c["id"] for c in english["chunks"]}
+    assert english["english_covered_by"].get("1:2") == "1:4"
+
+
+# --- A8: a lacuna row is not a pairing seat --------------------------------
+
+
+def test_a8_a_lacuna_row_never_takes_a_turn(tmp_path):
+    """Electra 650 / `post 651`: Diggle's empty `post N` placeholder carries a
+    conjectured speaker in angle brackets, so it offered the pairer a named
+    seat of zero length. Diggle gives 650 to Orestes and every translator
+    gives it to the Old Man, so the placeholder's `<Pr.` won the speech on
+    the name -- 1:650 went bare in all four columns and the run after it
+    slid. A row with no Greek line is no seat: the speech belongs beside the
+    Greek it translates, flagged where the editions disagree.
+    """
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Α.", 1),
+        _numbered("1:2", ["2"], "Α.", 2),
+        {
+            "id": "1:post 2", "book": 1, "column": "post 2",
+            "lines": [{"n": 3, "ref": "post 2", "text": "", "role": "lacuna"}],
+            "speakers": [{"line": 3, "offset": 0, "label": "<Γ."}],
+        },
+        _numbered("1:3", ["3"], "Β.", 4),
+    )
+    source = (
+        "ALPHA. The first line of the scene.\n"
+        "GAMMA. The second line answers it.\n"
+        "BETA. And the third closes it."
+    )
+    english, _fn, report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES,
+        {
+            "1:1": "The first line of the scene.",
+            "1:2": "The second line answers it.",
+            "1:3": "And the third closes it.",
+        },
+        [],
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert "1:post 2" not in chunks
+    assert chunks["1:2"].startswith("The second line answers it")
+    assert chunks["1:3"].startswith("And the third closes it")
+    # The placeholder is not a Greek speech, so it is out of the pairing
+    # rate's denominator too.
+    assert report["greek_events"] == 3
+
+
+# --- A4: a later turn's stage directions ----------------------------------
+
+
+def test_a4_a_later_same_speaker_turn_keeps_its_directions(tmp_path):
+    """A direction between two speeches of the SAME speaker inside one chunk
+    rides the turn it precedes, not the chunk. (The corpus-wide loss the
+    reviews report is a counting artefact -- a `_..._` sweep over
+    `book-01.json` cannot see `directionsBefore`, which is emitted as plain
+    strings; Agamemnon's benches keep 20/20, 21/21, 42/42 and 51/52 of their
+    directions. This pins the behaviour so the merge cannot quietly drop
+    one.)"""
+    spine = _spine_of(
+        _numbered("1:1", ["1", "2"], "Α.", 1),
+        _numbered("1:3", ["3"], "Β.", 3),
+    )
+    source = (
+        "ALPHA. The first thing I have to say.\n"
+        "_ALPHA turns to the door._\n"
+        "ALPHA. And the second, after a pause.\n"
+        "BETA. My answer to both.\n"
+    )
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES,
+        {"1:1": "The first thing I have to say. And the second, after a pause.",
+         "1:3": "My answer to both."},
+        [],
+    )
+    chunks = {c["id"]: c for c in english["chunks"]}
+    # The direction before the SECOND speech of the same speaker rides that
+    # turn, where the reader puts a row of its own between the two -- it is
+    # not swallowed by the merge into one chunk.
+    assert [t.get("directionsBefore") for t in chunks["1:1"]["turns"]] == [
+        None, ["ALPHA turns to the door."],
+    ]
+    assert len(chunks["1:1"]["turns"]) == 2
+
+
+# --- A6: a segment carrying two Greek sigla seats two turns ----------------
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "A6, diagnosed and not fixed. The segment holds two Greek speeches "
+        "and Murray has a speech for each, but skipping the second share is "
+        "priced as a MERGED antilabe (`ext_g_same_line`, 0.60) whether or "
+        "not any English covered the line, so the column buys its own "
+        "displacement: at Bacchae 1372 the slid seating costs 0.60 + 0.55 "
+        "against 1.60 + 0.60 for the two holes Murray really has at "
+        "1379-1380, and wins by 0.023. Conditioning the discount on the "
+        "matched English being long enough to read the whole line fixes "
+        "this play, but `test_pair_dp."
+        "test_pinned_predecessor_keeps_the_same_line_rate_for_the_regions_"
+        "first_share` pins the same rate from the other side with a genuinely "
+        "merged speech only 1.4x its own share, so the two cases are 0.34 and "
+        "0.35 apart on that scale -- the discriminator needs a corpus fit and "
+        "an acceptance run of its own, not a threshold read off three points."
+    ),
+)
+def test_a6_both_shares_of_a_line_take_their_own_english(tmp_path):
+    """Bacchae 1372: the segment holds two Greek speeches, and Murray has a
+    speech for each, yet the exodos runs a turn behind from 1374."""
+    spine = _spine_of(
+        _numbered("1:0", ["0"], "Γ.", 0),
+        {
+            "id": "1:1", "book": 1, "column": "1",
+            "lines": [{"n": 1, "ref": "1", "text": "στένομαί σε πάτερ· κἀγώ, τέκνον."}],
+            "speakers": [
+                {"line": 1, "offset": 0, "label": "Α."},
+                {"line": 1, "offset": 18, "label": "Β."},
+            ],
+        },
+        _numbered("1:2", ["2"], "Α.", 2),
+        _numbered("1:3", ["3"], "Β.", 3),
+        {
+            "id": "1:4", "book": 1, "column": "4",
+            "lines": [{"n": 4, "ref": "4", "text": "χαῖρε πάτερ μοι· χαῖρ' ὦ θύγατερ."}],
+            "speakers": [
+                {"line": 4, "offset": 0, "label": "Α."},
+                {"line": 4, "offset": 17, "label": "Β."},
+            ],
+        },
+        _numbered("1:5", ["5"], "Α.", 5),
+    )
+    source = (
+        "GAMMA. Behold, the god stands here before the house.\n"
+        "ALPHA. Father, for thee my tears are spent.\n"
+        "BETA. Nay, child, it is I must weep for thee and for thy sisters twain.\n"
+        "ALPHA. On all this house our lord has poured the utter dregs of pain.\n"
+        "GAMMA. In bitter wise, for bitter was the shame ye did me.\n"
+        "ALPHA. Then lead me where my sisters be, that we may go together."
+    )
+    bridge = {
+        "1:0": "Behold, the god stands here before the house.",
+        "1:1": "I grieve for you, father. And I for you, child, and I weep for your sisters.",
+        "1:2": "Terribly indeed has lord Dionysus poured this suffering on your house.",
+        "1:3": "Yes, for I suffered terrible things at your hands, in bitter shame.",
+        "1:4": "Farewell, my father. Farewell, unhappy daughter.",
+        "1:5": "Lead me, escorts, where my sisters are, that we may go together.",
+    }
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES, bridge, [],
+    )
+    chunks = {c["id"]: c for c in english["chunks"]}
+    assert [t["speaker"] for t in chunks["1:1"]["turns"]] == ["Alpha", "Beta"]
+    assert chunks["1:2"]["text"].startswith("On all this house")
+    assert chunks["1:3"]["text"].startswith("In bitter wise")
+    assert "1:4" not in chunks
+    assert chunks["1:5"]["text"].startswith("Then lead me")

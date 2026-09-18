@@ -35,7 +35,9 @@ from statistics import median
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
 from .stage1_common import collapse_ws, write_json
 from .stage1_english import build_alignment
+from .stage1_greek import _play_line_start_key
 from . import pair_dp
+from .align.similarity import banded_cosine
 from . import turns as turns_mod
 
 
@@ -942,6 +944,26 @@ def _greek_segment_name(segment: dict, sigla: dict) -> str | None:
     return speaker_at(segment, int(first), sigla, mapped_only=False)
 
 
+def is_lacuna_segment(segment: dict) -> bool:
+    """A display row made only of empty lacuna placeholders.
+
+    Diggle prints a lost passage as an empty ``post N`` line and often names
+    the speaker he conjectures for it in angle brackets (`<Pr.`), which made
+    it look to the pairer like a Greek speech of zero length -- and a named
+    one, so it could win an English speech on the name alone. It carries no
+    Greek to read, so it is no seat: Electra's `post 651` took Greek 650's
+    English in all four turn columns and `post 965` took a second, sliding
+    Murray's column across nineteen segments.
+    """
+    lines = segment.get("lines") or segment.get("greek") or []
+    return bool(lines) and all(
+        isinstance(line, dict)
+        and line.get("role") == "lacuna"
+        and not str(line.get("text") or "").strip()
+        for line in lines
+    )
+
+
 def _greek_event_slots(segments: list[dict], sigla) -> list[dict]:
     """One pairing slot per Greek speaker SHARE, in document order.
 
@@ -955,13 +977,16 @@ def _greek_event_slots(segments: list[dict], sigla) -> list[dict]:
     one clean pair per share; the slot remembers ``segment`` (and its ``line``
     / ``offset``), so the emitted chunk is still assembled per segment.
 
-    A segment with no speaker event of its own (a lyric continuation, a
-    column break) keeps ONE unnamed slot: pairing treats it as it always did
+    A segment that is only a lacuna placeholder gets NO slot (it carries no
+    Greek to read); a segment with no speaker event of its own (a lyric
+    continuation, a column break) keeps ONE unnamed slot: pairing treats it as it always did
     (a name wildcard the LCS never anchors) and residual English can still
     park on it, so no segment becomes unreachable.
     """
     slots: list[dict] = []
     for gi, segment in enumerate(segments):
+        if is_lacuna_segment(segment):
+            continue
         events = _segment_speaker_events(segment, sigla)
         if not events:
             lines = segment.get("lines") or segment.get("greek") or []
@@ -1006,6 +1031,156 @@ def _speech_runs(slot_names: list[str | None]) -> list[int]:
     return run_of
 
 
+def _transposed_run_groups(
+    run_keys: list[tuple | None], blocks: list[dict]
+) -> list[list[int]]:
+    """The Greek SPEECHES each declared transposition reorders.
+
+    A block ``{start, end, before}`` says the edition prints ``start..end``
+    after the line ``before`` (``stage1_greek._derive_play_line_transposed_
+    blocks``' convention), so every line whose number falls in ``[start,
+    before]`` is printed out of numeric sequence: at Eumenides 64-84 that is
+    85, 86, 87 (printed first) and 64-84 (printed after them).  The speeches
+    those lines open are this block's group, returned in NUMERIC order.
+
+    A speech is placed by the line its own speaker event opens -- the window
+    is read off speech heads, not off every line a speech covers, so a speech
+    that starts outside the window and runs into it stays where it is
+    printed.  A group whose speeches are not a contiguous stretch of the
+    printed order, or whose numeric order is the printed one, is dropped:
+    there is nothing to choose between.
+    """
+    out: list[list[int]] = []
+    for block in blocks or []:
+        start, before = block.get("start"), block.get("before")
+        if not isinstance(start, str) or not isinstance(before, str):
+            continue
+        lo, hi = _play_line_start_key(start), _play_line_start_key(before)
+        idxs = [
+            r for r, key in enumerate(run_keys)
+            if key is not None and lo <= key <= hi
+        ]
+        if len(idxs) < 2 or idxs != list(range(idxs[0], idxs[-1] + 1)):
+            continue
+        keys = [run_keys[r] for r in idxs]
+        if len(set(keys)) != len(keys):
+            # A ref the edition prints twice (the Septem 803/810 doublet,
+            # declared under `citation.repeated_refs`) has no one numeric
+            # position, so there is no numeric order here to offer -- and
+            # sorting on the tie moved three of Morshead's pairs off their
+            # Greek (rate 0.894 -> 0.877 on the corpus scan). Printed order
+            # stands, which is what the hard rule says of a doubled ref
+            # anyway.
+            continue
+        numeric = sorted(idxs, key=lambda r: run_keys[r])
+        if numeric != idxs:
+            out.append(numeric)
+    return out
+
+
+# A2's guards. `_COVER_WINDOW` is how far either way a donor may sit (the
+# Eumenides mutter scene puts it two speeches back, Medea's children's cries
+# two on). A whole block is too coarse to match a two-line segment against --
+# a forty-line prologue shares enough common words to beat the block that
+# really holds the lines -- so a block is scored by its best run of
+# `_COVER_LINES` printed lines (sentences, in a prose column). `_COVER_FLOOR`
+# and `_COVER_MARGIN` are what a claim has to earn: on the two reviewed
+# instances the right donor scores 0.24-0.37 and leads the runner-up by
+# 0.09-0.17, while a segment with no words of its own -- Eumenides' bare
+# `(moan)` -- scores 0.000 against every candidate and makes no claim at all.
+_COVER_WINDOW = 8
+_COVER_LINES = 3
+_COVER_FLOOR = 0.20
+_COVER_MARGIN = 0.08
+_COVER_UNIT = re.compile(r"\n+|(?<=[.!?])\s+")
+
+
+def _content_covered(
+    segments: list[dict],
+    chunks: list[dict],
+    primary_chunks: dict[str, dict] | None,
+    derived: dict[str, str],
+) -> dict[str, str]:
+    """Which block really holds a bare segment's translation.
+
+    The DP's own rule (``pair_dp.align``'s derived-covered) names the match
+    immediately BEFORE a skipped run and nothing else, so it is right only
+    when the translator's block happens to be the neighbour.  It is wrong
+    both ways: Morshead prints the Eumenides mutter scene as one speech and
+    the English covering Greek 121-122 sits two blocks back at 1:94, while
+    the note said 1:120; Way's rendering of Medea 1273-74 sits two segments
+    ON, at 1:1275, and the note said 1:1270a.
+
+    The primary column is keyed to the Greek line, so it says what a segment
+    means; comparing that against the nearby blocks of this column (the
+    TF-IDF cosine the pairing bridge already uses) says which block holds it.
+    A bare segment that earns no claim of its own inherits the last claim
+    made earlier in the same bare RUN -- the mutters inside Eumenides' run
+    are ``(moan)`` and have no words to match, but they sit inside the same
+    absorbed speech as the lines around them.  With no line-keyed primary
+    (the eleven comedies, whose primary is itself turn text) there is
+    nothing to compare against and the DP's reading stands.
+    """
+    if not primary_chunks:
+        return dict(derived)
+    texts = {c["id"]: c.get("text") or "" for c in chunks}
+    out = dict(derived)
+    ids = [seg["id"] for seg in segments]
+    speaks = {seg["id"] for seg in segments if seg.get("speakers")}
+
+    def passages(text: str) -> list[str]:
+        units = [u.strip() for u in _COVER_UNIT.split(text) if u and u.strip()]
+        if len(units) <= _COVER_LINES:
+            return [" ".join(units)] if units else []
+        return [
+            " ".join(units[k : k + _COVER_LINES])
+            for k in range(len(units) - _COVER_LINES + 1)
+        ]
+
+    i, n = 0, len(ids)
+    while i < n:
+        if ids[i] in texts or ids[i] not in speaks:
+            i += 1
+            continue
+        j = i
+        while j + 1 < n and ids[j + 1] not in texts and ids[j + 1] in speaks:
+            j += 1
+        cands = [
+            sid
+            for sid in ids[max(0, i - _COVER_WINDOW) : j + 1 + _COVER_WINDOW]
+            if sid in texts
+        ]
+        owner: list[str] = []
+        docs: list[str] = []
+        for sid in cands:
+            for passage in passages(texts[sid]):
+                owner.append(sid)
+                docs.append(passage)
+        inherited: str | None = None
+        for sid in ids[i : j + 1]:
+            ref = ((primary_chunks.get(sid) or {}).get("text") or "").strip()
+            claim = None
+            if ref and docs:
+                table = banded_cosine([ref], docs)
+                best: dict[str, float] = {}
+                for k, owner_id in enumerate(owner):
+                    score = table.cos(0, k)
+                    if score > best.get(owner_id, 0.0):
+                        best[owner_id] = score
+                ranked = sorted(((v, k) for k, v in best.items()), reverse=True)
+                runner = ranked[1][0] if len(ranked) > 1 else 0.0
+                if ranked and ranked[0][0] >= _COVER_FLOOR and ranked[0][0] - runner >= _COVER_MARGIN:
+                    claim = ranked[0][1]
+            if claim is None:
+                claim = inherited
+            else:
+                inherited = claim
+            if claim is not None:
+                out[sid] = claim
+        i = j + 1
+    return out
+
+
 def _align_speech_runs(
     greek_nodes: list["pair_dp.GreekNode"],
     english_nodes: list["pair_dp.EnglishNode"],
@@ -1016,6 +1191,7 @@ def _align_speech_runs(
     slot_refs: list[str | None],
     work_id: str,
     slot: str,
+    transpositions: list[dict] | None = None,
 ) -> "pair_dp.Alignment":
     """Align over Greek SPEECHES, then report the answer back in slot indices.
 
@@ -1090,26 +1266,105 @@ def _align_speech_runs(
             continue
         pinned_at[r] = gi
         merged_pins.append((r, ej))
-    res = pair_dp.align(
-        merged, english_nodes, pins=merged_pins, bridge=merged_bridge
-    )
+    # A1: the order the speeches are OFFERED in, where the edition's printed
+    # order and the numeric order differ.
+    #
+    # A declared transposition says the Greek is printed out of numeric
+    # sequence, and the display keeps that printed order (the hard rule).  A
+    # translation, though, follows one order or the other and says nothing
+    # about which: Johnston's Hippolytus prints 106, 107, 104, 105 (Diggle's
+    # order), Way's prints 104, 105, 106, 107.  A pairer that walks the
+    # printed order can only ever serve the first kind, and at Eumenides
+    # 64-84 it pushed Apollo's twenty-one lines back into the Priestess's
+    # segment in all three turn columns.
+    #
+    # So each declared block's speeches are offered to the DP in numeric
+    # order as well, and the cost model chooses.  Blocks are tried one at a
+    # time on top of whatever has been adopted, so a column may follow the
+    # edition at one transposition and the numbering at another, and the
+    # numeric order is adopted only when it is STRICTLY cheaper -- a column
+    # that already matches the printed order keeps it.  Nothing else moves:
+    # `order` is undone below, and slots, segments, chunks and every reported
+    # number stay in printed order.
+    #
+    # The comparison is made SPEAKER-BLIND (`w_spk = 0`) and only the
+    # comparison: the alignment that ships is the ordinary one over whichever
+    # order won.  Two orderings offer the SAME Greek speeches to the SAME
+    # English, so the only question between them is which Greek line an
+    # English speech translates.  The speaker term does not answer that one:
+    # across orderings it scores how far the edition's attributions agree
+    # with the translator's, which is a fact about the two editions and not
+    # about the transposition, and at a transposition the two routinely
+    # disagree -- Coulon gives Knights 274 to the First Slave and 275 to the
+    # Paphlagonian where the 1912 text gives both to the Sausage-seller, so
+    # `w_spk` (2.5) outweighed the placement evidence and kept all four cells
+    # wrong.  Measured over the four reviewed transposition findings
+    # (Eumenides 64-84, Hippolytus 104-105, Knights 271-272/464, Medea
+    # 1273-1274), 13 columns in all, the blind comparison picks the
+    # reviewer's reading every time and the full-cost one gets Knights'
+    # four cells wrong.  Placement evidence -- the primary-English bridge,
+    # length and position -- is untouched by it.
+    def _run_align(
+        order: list[int], weights: pair_dp.Weights = pair_dp.DEFAULTS
+    ) -> "pair_dp.Alignment | None":
+        at = {r: p for p, r in enumerate(order)}
+        pins = sorted((at[r], ej) for r, ej in merged_pins)
+        # A permutation that would make two pins cross is not a candidate
+        # (`align` rejects it): the manifest's own statement wins.
+        if any(b[1] <= a[1] for a, b in zip(pins, pins[1:])):
+            return None
+        return pair_dp.align(
+            [merged[r] for r in order],
+            english_nodes,
+            pins=pins,
+            bridge=[merged_bridge[r] for r in order] if merged_bridge else None,
+            weights=weights,
+        )
+
+    order = list(range(len(merged)))
+    run_keys = [
+        _play_line_start_key(slot_refs[h])
+        if h < len(slot_refs) and slot_refs[h] else None
+        for h in heads
+    ]
+    groups = _transposed_run_groups(run_keys, transpositions)
+    if groups:
+        blind = pair_dp.Weights(w_spk=0.0)
+        best = _run_align(order, blind)
+        for group in groups:
+            at = {r: p for p, r in enumerate(order)}
+            positions = sorted(at[r] for r in group)
+            if positions != list(range(positions[0], positions[-1] + 1)):
+                continue
+            candidate = list(order)
+            candidate[positions[0] : positions[-1] + 1] = group
+            alt = _run_align(candidate, blind)
+            if alt is not None and best is not None and alt.cost < best.cost:
+                order, best = candidate, alt
+    res = _run_align(order)
+
     out = pair_dp.Alignment(cost=res.cost, band_widened=res.band_widened)
-    out.pairs = [(heads[r], ej) for r, ej in res.pairs]
+    out.pairs = sorted((heads[order[p]], ej) for p, ej in res.pairs)
     out.english_skips = list(res.english_skips)
-    out.margins = {(heads[r], ej): m for (r, ej), m in res.margins.items()}
+    out.margins = {(heads[order[p]], ej): m for (p, ej), m in res.margins.items()}
     # A matched run's continuations are translated with the speech above:
     # that is the `englishCoveredBy` contract, and it is what keeps them out
     # of `bare_events` when the spread does not reach them.
-    for r, _ej in res.pairs:
-        for k in members[r][1:]:
-            out.derived_covered[k] = heads[r]
+    for p, _ej in res.pairs:
+        for k in members[order[p]][1:]:
+            out.derived_covered[k] = heads[order[p]]
     skips: list[tuple[int, int]] = []
     for lo, hi in res.greek_skips:
-        skips.append((members[lo][0], members[hi - 1][-1] + 1))
+        for p in range(lo, hi):
+            span = (members[order[p]][0], members[order[p]][-1] + 1)
+            if skips and skips[-1][1] == span[0]:
+                skips[-1] = (skips[-1][0], span[1])
+            else:
+                skips.append(span)
     out.greek_skips = skips
-    for r, cover_r in res.derived_covered.items():
-        for k in members[r]:
-            out.derived_covered[k] = heads[cover_r]
+    for p, cover_p in res.derived_covered.items():
+        for k in members[order[p]]:
+            out.derived_covered[k] = heads[order[cover_p]]
     return out
 
 
@@ -1833,6 +2088,7 @@ def parse_translation(
     slot: str = "primary",
     verse: bool = False,
     primary_bridge: dict[str, dict] | None = None,
+    transpositions: list[dict] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
@@ -1978,7 +2234,7 @@ def parse_translation(
     bridge_texts = _primary_bridge_texts(segments, slots, primary_bridge)
     dp_result = _align_speech_runs(
         greek_nodes, english_nodes, slot_names, forced, bridge_texts, slot_spans,
-        slot_refs, work_id, slot,
+        slot_refs, work_id, slot, transpositions=transpositions,
     )
     pairs = dp_result.pairs
     # P4 (turn-pairing-round4-2026-09-15.md): `crossed`'s own membership --
@@ -2224,7 +2480,16 @@ def parse_translation(
             continue
         derived_covered_by_segment.setdefault(seg_id, cover_seg_id)
     manifest_covered = _resolve_covered(covered or [], segments, work_id)
-    merged_covered = {**derived_covered_by_segment, **manifest_covered}
+    # A2: the note names the block that HOLDS the text, forwards or back.
+    # `derived_covered_by_segment` keeps the DP's own reading (it is what
+    # `_spread_long_speeches` distributes); only the reader-facing claim is
+    # corrected.
+    merged_covered = {
+        **_content_covered(
+            segments, chunks, primary_bridge, derived_covered_by_segment
+        ),
+        **manifest_covered,
+    }
 
     stale_covered: list[dict] = []
     english = {
@@ -2788,6 +3053,12 @@ def run(
         slot=slot,
         verse=verse,
         primary_bridge=primary_bridge,
+        # A1: the declared printed order, so the pairer can offer a
+        # transposed block's speeches in numeric order too.
+        transpositions=(
+            ((manifest.data.get("citation") or {}).get("transpositions") or {}).get("1")
+            or []
+        ),
     )
     # A long speech's English reaches the Greek segments that continue it
     # (John, 2026-09-11, Morshead's Agamemnon parodos), cut in printed lines
