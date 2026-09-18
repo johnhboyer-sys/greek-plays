@@ -27,8 +27,7 @@ english:
     footnotes: false
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
-    covered:
-      - { greek: "541", by: "544" }
+    covered: []
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"

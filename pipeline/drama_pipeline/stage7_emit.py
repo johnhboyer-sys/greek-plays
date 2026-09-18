@@ -89,20 +89,147 @@ def _norm_siglum(label: str) -> str:
     return " ".join(_SIGLUM_NOISE.sub("", label).split()).rstrip(".").strip()
 
 
-def _load_speaker_overrides(manifest: Manifest) -> list[tuple[str, tuple, str]]:
+_ORDINALS = ("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth")
+
+
+# How long a numbered character's scene may stay silent and still own the
+# edition's bare abbreviation.  See _synthesized_numbered_overrides.
+_NUMBERED_SCENE_LINES = 100
+
+
+def _synthesized_numbered_overrides(
+    sigla_norm: dict[str, str],
+    spine: dict | None,
+    declared: list[tuple[str, tuple, str]] | None = None,
+) -> list[tuple[str, tuple, str]]:
+    """C3 (fix-mechanisms brief, round 2, clouds #1): a bare abbreviation
+    (`Χρ.`) an edition reuses for several numbered characters (`ΧΡΗΣΤΗΣ
+    Αʹ`/`ΧΡΗΣΤΗΣ Βʹ`) must resolve to whichever one the text most recently
+    named in full, not to one fixed, generic roster entry — otherwise the
+    two characters who share an abbreviation share a colour too, and each
+    one changes colour the moment the OTHER is later named by number
+    (breaking the corpus's stable-colour-per-character rule).
+
+    A play's own `speakers.sigla` already says which siglum is generic
+    (`Χρ.` -> `Creditor`) and which is numbered (`ΧΡΗΣΤΗΣ Αʹ` -> `First
+    Creditor`): when a numbered entry's display is "<ordinal> " + a
+    DIFFERENT entry's own display, the generic siglum is shorthand for
+    whichever numbered character the printed text introduced last.  This
+    synthesizes the same kind of `{siglum, from, display}` entry
+    `speakers.overrides` already supports by hand, keyed off the numbered
+    siglum's own first appearance on the spine, so the existing "last
+    matching `from` wins" override resolution does the rest — no manifest
+    change needed.
+
+    Round-3 residue (peace 973/1122/1124): the numbered character's scene
+    ENDS when the siglum falls silent.  Peace numbers its two slaves only in
+    the prologue (`ΟΙ. Αʹ`/`ΟΙ. Βʹ`, 1-110) and then prints a bare `ΟΙ.`
+    from 824 to the end for the one slave attending Trygaeus; read literally
+    the rule made all fifty of those the Second Slave, a name no English
+    column has a cue for, and three Greek speeches lost their English.  So a
+    bare occurrence more than `_NUMBERED_SCENE_LINES` after the last
+    numbered speech of its own base gets a further override back to the
+    generic display.  The margin is wide both ways: the corpus's real
+    numbered scenes resume within eight lines (Clouds 1214 -> 1222), and
+    Peace's gap is 714."""
+    if not spine:
+        return []
+    numbered: list[tuple[str, str, str]] = []  # (bare_key, numbered_key, display)
+    for num_key, num_display in sigla_norm.items():
+        if not num_display:
+            continue
+        for ordinal in _ORDINALS:
+            prefix = f"{ordinal} "
+            if not num_display.startswith(prefix):
+                continue
+            generic_display = num_display[len(prefix):]
+            for bare_key, bare_display in sigla_norm.items():
+                if bare_key != num_key and bare_display == generic_display:
+                    numbered.append((bare_key, num_key, num_display))
+            break
+    if not numbered:
+        return []
+
+    first_ref: dict[str, str] = {}
+    refs_by_key: dict[str, list[str]] = {}
+    for seg in spine.get("segments") or []:
+        line_refs = {
+            ln.get("n"): ln.get("ref")
+            for ln in (seg.get("greek") or seg.get("lines") or [])
+            if isinstance(ln, dict)
+        }
+        for event in seg.get("speakers") or []:
+            key = _norm_siglum(event.get("label") or "")
+            ref = line_refs.get(event.get("line"))
+            if ref is None:
+                continue
+            first_ref.setdefault(key, ref)
+            refs_by_key.setdefault(key, []).append(ref)
+
+    out: list[tuple[str, tuple, str]] = []
+    numbered_keys: dict[str, set[str]] = {}
+    for bare_key, num_key, display in numbered:
+        numbered_keys.setdefault(bare_key, set()).add(num_key)
+        ref = first_ref.get(num_key)
+        if ref is None:
+            continue
+        out.append((bare_key, scheme_mod.play_line_order_key(ref), display))
+
+    # The scene's end: for each bare siglum, the first of its OWN
+    # appearances that comes a scene's length after the last speech of any
+    # numbered form of the same base restores the generic display.
+    for bare_key, keys in numbered_keys.items():
+        last = max(
+            (
+                scheme_mod.play_line_order_key(r)
+                for key in keys
+                for r in refs_by_key.get(key, ())
+            ),
+            default=None,
+        )
+        if last is None:
+            continue
+        if any(
+            siglum == bare_key and from_key > last
+            for siglum, from_key, _display in declared or ()
+        ):
+            # The manifest itself hands this siglum to somebody else later
+            # (Bacchae's `Αγ.` becomes Agave at 1168, having been the Second
+            # Messenger from 1024).  A hand-written override is the editor's
+            # own reading and always outranks a synthesized one.
+            continue
+        for ref in refs_by_key.get(bare_key, ()):
+            key = scheme_mod.play_line_order_key(ref)
+            if key[0] - last[0] > _NUMBERED_SCENE_LINES:
+                out.append((bare_key, key, sigla_norm.get(bare_key) or ""))
+                break
+    return out
+
+
+def _load_speaker_overrides(
+    manifest: Manifest, spine: dict | None = None
+) -> list[tuple[str, tuple, str]]:
     """`speakers.overrides: [{siglum, from, display}]` — an abbreviation the
     edition reuses for a second character from a given printed ref onward
     (Ajax's ΑΓ. = Messenger until Agamemnon enters at 1226). Sorted by `from`;
-    the LAST override whose `from` <= the event's ref wins."""
+    the LAST override whose `from` <= the event's ref wins.
+
+    ``spine``, when given, also contributes the numbered-siglum overrides
+    :func:`_synthesized_numbered_overrides` derives automatically from
+    `speakers.sigla` (C3) — callers that build a roster or resolve a
+    printed ref should pass it."""
     from . import scheme as scheme_mod
 
     speakers = manifest.data.get("speakers") or {}
+    sigla = speakers.get("sigla") or {}
+    sigla_norm = {_norm_siglum(k): v for k, v in sigla.items()}
     out = []
     for o in speakers.get("overrides", []) or []:
         if not (isinstance(o, dict) and isinstance(o.get("siglum"), str)
                 and isinstance(o.get("from"), str) and isinstance(o.get("display"), str)):
             raise RuntimeError(f"{manifest.work_id}: malformed speakers.overrides entry {o!r}")
         out.append((_norm_siglum(o["siglum"]), scheme_mod.play_line_order_key(o["from"]), o["display"]))
+    out.extend(_synthesized_numbered_overrides(sigla_norm, spine, out))
     return sorted(out, key=lambda t: t[1])
 
 
@@ -166,7 +293,7 @@ def _canonicalize_play_line_speakers(
         )
 
     sigla_norm = {_norm_siglum(k): v for k, v in sigla.items()}
-    overrides = _load_speaker_overrides(manifest)
+    overrides = _load_speaker_overrides(manifest, spine)
     rosters: dict[int, list[str]] = defaultdict(list)
     roster_seen: dict[int, set[str]] = defaultdict(set)
     unmapped: dict[str, int] = {}
@@ -1457,6 +1584,14 @@ def run(manifest: Manifest) -> Path:
             for roster in speaker_rosters.values()
             for display in roster
         }
+        # C3: a bare siglum now resolves to whichever numbered character was
+        # last introduced, so no single event may ever again show its own
+        # generic display (e.g. "Creditor") -- but an English bench line
+        # that genuinely does not distinguish which one still cues to that
+        # generic name via `speakers.english`, and that name is still a real
+        # character this play declares.  Keep it a valid target.
+        raw_sigla = ((manifest.data.get("speakers") or {}).get("sigla") or {})
+        greek_displays |= {v for v in raw_sigla.values() if v}
         if english.get("chunks"):
             speakers_block = manifest.data.get("speakers")
             aliases = (

@@ -421,6 +421,38 @@ def test_per_column_coverage_is_silent_once_the_column_has_its_own_piece(tmp_pat
     assert "coveredBy" not in emitted["1:2"]
 
 
+def test_transposition_row_may_declare_the_english_keying():
+    """Lane C round 3b item 1: the English builder needs to be told, per
+    row, when a translation numbers a transposed stretch by its PRINTED
+    position rather than by the edition's own numbers (oedipus-coloneus
+    328-330).  The declaration rides on the row as ``english_keyed:
+    printed``; it says nothing about the Greek, so the derived-vs-declared
+    gate must compare the derived keys only and still pass.  A typo in the
+    key or its value is a silent fail-open hazard, so it raises."""
+    manifest = _transposition_manifest()
+    sch = scheme_mod.for_manifest(manifest)
+    row = manifest.data["citation"]["transpositions"]["1"][0]
+    row["english_keyed"] = "printed"
+    spine = stage1_greek._parse_spine_play(
+        FIX / "synthetic_transposition.xml", manifest, sch
+    )
+    refs = [line["ref"] for seg in spine["segments"] for line in seg["lines"]]
+    assert refs == ["1283", "1290", "1284", "1285", "1291"]
+
+    row["english_keyed"] = "prined"
+    with pytest.raises(ValueError, match=r"english_keyed"):
+        stage1_greek._parse_spine_play(
+            FIX / "synthetic_transposition.xml", manifest, sch
+        )
+
+    del row["english_keyed"]
+    row["english_keyd"] = "printed"
+    with pytest.raises(ValueError, match=r"unknown key"):
+        stage1_greek._parse_spine_play(
+            FIX / "synthetic_transposition.xml", manifest, sch
+        )
+
+
 def test_transposition_declaration_remains_required():
     manifest = _transposition_manifest(declared=False)
     with pytest.raises(ValueError, match=r"citation\.transpositions\['1'\] is required"):
@@ -545,6 +577,71 @@ def test_repeated_ref_declared_count_mismatch_fails():
         stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
 
 
+# ── Metrical schema glyphs leaking into the Greek text (C5) ──────────────
+
+def test_metrical_schema_stripped_from_trailing_text():
+    """C5 (fix-mechanisms brief round 2, oedipus-coloneus #2): the edition's
+    printed metrical scheme trails the real Greek on the same numbered line
+    (OC 183's own shape: real text, then a run of scheme glyphs, then a
+    second speaker whose own text is scheme only) and must not survive into
+    the built Greek column."""
+    tree = _play_xml([
+        ("1", 'α'),
+        ("183", 'κώλῳ, πάτερ. ⏑⏑⏑ –⏑⏑– ⏑– <label type="speaker">ΟΙ.</label> –– ⏓'),
+        ("184", 'β'),
+    ])
+    m = _M({"title_labels": _title_decl(), "transpositions": {"1": []}})
+    flat = stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
+    line = next(e for e in flat if e["ref"] == "183")
+    assert "⏑" not in line["text"] and "–" not in line["text"] and "⏓" not in line["text"]
+    assert line["text"] == "κώλῳ, πάτερ."
+    assert line.get("role") != "lacuna"
+    # The second speaker's own content was pure scheme -- its marker is
+    # kept (attribution survives) but pulled back to the end of what
+    # remains, since nothing real follows it.
+    assert line["speakers"] == [{"offset": len("κώλῳ, πάτερ."), "label": "ΟΙ."}]
+
+
+def test_metrical_schema_only_line_becomes_a_lacuna():
+    """C5: a numbered line that is nothing BUT scheme (oedipus-coloneus
+    1718/1719) strips to empty and must be emitted as a lacuna, the same
+    way a declared 'post N' line already is -- never a silently dropped
+    numbered line."""
+    tree = _play_xml([
+        ("1", "α"),
+        ("1718", "⏑ – ⏑ – ⏑ – ⏑ – "),
+        ("1719", "β"),
+    ])
+    m = _M({"title_labels": _title_decl(), "transpositions": {"1": []}})
+    flat = stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
+    line = next(e for e in flat if e["ref"] == "1718")
+    assert line["text"] == ""
+    assert line["role"] == "lacuna"
+
+
+def test_ordinary_en_dash_outside_a_schema_run_is_kept():
+    """Sol review of 6e8a9d6, finding 4: this test claimed to cover the lone
+    EN dash and used em dashes (—), which the strip never touched, so it
+    passed with C5 reverted.  With the real character, the strip ate it: a
+    one-character run of ``–`` matched, and an editorial dash among Greek
+    words is punctuation, not a metrical scheme.  A run has to carry a true
+    metrical glyph (``⏑⏓⏔⏕`` or the anceps ``×``) or more than one dash
+    before it is apparatus."""
+    tree = _play_xml([
+        ("1", "καὶ νῦν – ἄφνω – τόδ' εἶπεν."),
+        ("2", "καὶ νῦν — ἄφνω — τόδ' εἶπεν."),
+        # bacchae 757a, as the export prints it: the anceps sits INSIDE the
+        # run, so a class that stops at it left "<×>," in the Greek.
+        ("3", "οὐ χαλκός, οὐ σίδηρος &lt;–×–⏑–&gt;,"),
+    ])
+    m = _M({"title_labels": _title_decl(), "transpositions": {"1": []}})
+    flat = stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
+    by_ref = {e["ref"]: e for e in flat}
+    assert by_ref["1"]["text"] == "καὶ νῦν – ἄφνω – τόδ' εἶπεν."
+    assert by_ref["2"]["text"] == "καὶ νῦν — ἄφνω — τόδ' εἶπεν."
+    assert by_ref["3"]["text"] == "οὐ χαλκός, οὐ σίδηρος <>,"
+
+
 # ── Speaker sigla: normalization + range overrides (stage7) ──────────────
 
 def test_norm_siglum_strips_editorial_noise():
@@ -564,6 +661,118 @@ def test_play_line_display_override_by_ref():
     assert stage7_emit._play_line_display("<ΑΓ.>", sigla, ov, "10") == ("Messenger", True)
     assert stage7_emit._play_line_display("—", sigla, ov, "10") == (None, True)
     assert stage7_emit._play_line_display("ΞΕ.", sigla, ov, "10") == ("ΞΕ.", False)
+
+
+def _bare_siglum_manifest():
+    return Manifest(
+        {
+            "work": {
+                "id": "clouds-fixture", "title": "Test", "author": "nobody",
+                "language": "grc", "tlg_author": "0000", "tlg_work": "000",
+                "greek_edition": "Nobody",
+            },
+            "citation": {"scheme": "play-line"},
+            "speakers": {"sigla": {
+                "Στ.": "Strepsiades",
+                "Χρ.": "Creditor",
+                "ΧΡΗΣΤΗΣ Αʹ": "First Creditor",
+                "ΧΡΗΣΤΗΣ Βʹ": "Second Creditor",
+                "—": None,
+            }},
+        },
+        Path("clouds-fixture.yaml"),
+    )
+
+
+def _seg(sid, ref, n, events):
+    return {
+        "id": sid, "book": 1,
+        "lines": [{"n": n, "ref": ref}],
+        "speakers": [{"line": n, "offset": 0, "label": lbl} for lbl in events],
+    }
+
+
+def test_bare_siglum_resolves_to_the_most_recently_numbered_character():
+    """C3 (fix-mechanisms brief round 2, clouds #1): Dover's bare `Χρ.`
+    after `ΧΡΗΣΤΗΣ Αʹ` must colour as First Creditor, and after `ΧΡΗΣΤΗΣ
+    Βʹ` as Second Creditor -- the two creditors must never share a colour
+    or change colour under each other's introduction."""
+    manifest = _bare_siglum_manifest()
+    spine = {"segments": [
+        _seg("1:1", "1", 1, ["ΧΡΗΣΤΗΣ Αʹ"]),
+        _seg("1:2", "2", 2, ["Χρ."]),
+        _seg("1:3", "3", 3, ["Χρ."]),
+        _seg("1:4", "4", 4, ["ΧΡΗΣΤΗΣ Βʹ"]),
+        _seg("1:5", "5", 5, ["Χρ."]),
+    ]}
+    overrides = stage7_emit._load_speaker_overrides(manifest, spine)
+    sigla_norm = {
+        stage7_emit._norm_siglum(k): v
+        for k, v in manifest.data["speakers"]["sigla"].items()
+    }
+    resolve = lambda label, ref: stage7_emit._play_line_display(
+        label, sigla_norm, overrides, ref
+    )
+    assert resolve("ΧΡΗΣΤΗΣ Αʹ", "1") == ("First Creditor", True)
+    assert resolve("Χρ.", "2") == ("First Creditor", True)
+    assert resolve("Χρ.", "3") == ("First Creditor", True)
+    assert resolve("ΧΡΗΣΤΗΣ Βʹ", "4") == ("Second Creditor", True)
+    assert resolve("Χρ.", "5") == ("Second Creditor", True)
+
+    # Roster build (stage7) and the per-anchor resolver (_SiglaResolver, used
+    # by both the primary and turn-text converters) must agree.
+    rosters = stage7_emit._canonicalize_play_line_speakers(spine, manifest)
+    assert rosters == {1: ["First Creditor", "Second Creditor"]}
+    events = [event for seg in spine["segments"] for event in seg["speakers"]]
+    assert [e["display"] for e in events] == [
+        "First Creditor", "First Creditor", "First Creditor",
+        "Second Creditor", "Second Creditor",
+    ]
+
+
+def test_bare_siglum_returns_to_its_generic_name_after_the_numbered_scene():
+    """Round-3 residue (peace 973/1122/1124): Aristophanes' Peace numbers its
+    two slaves only in the prologue (`ΟΙ. Αʹ`/`ΟΙ. Βʹ`, lines 1-110) and then
+    prints a bare `ΟΙ.` from 824 to the end for the one slave attending
+    Trygaeus.  C3's rule, read literally, made all fifty of those the Second
+    Slave, a name no English column has a cue for, and three Greek speeches
+    lost their English altogether.  The numbered character's scene ends when
+    the siglum falls silent: a bare occurrence that comes a scene's length
+    after the last numbered one is the generic role again."""
+    manifest = _bare_siglum_manifest()
+    spine = {"segments": [
+        _seg("1:1", "1", 1, ["ΧΡΗΣΤΗΣ Αʹ"]),
+        _seg("1:2", "2", 2, ["Χρ."]),
+        _seg("1:4", "4", 4, ["ΧΡΗΣΤΗΣ Βʹ"]),
+        _seg("1:5", "5", 5, ["Χρ."]),
+        _seg("1:900", "900", 900, ["Χρ."]),
+        _seg("1:905", "905", 905, ["Χρ."]),
+    ]}
+    overrides = stage7_emit._load_speaker_overrides(manifest, spine)
+    sigla_norm = {
+        stage7_emit._norm_siglum(k): v
+        for k, v in manifest.data["speakers"]["sigla"].items()
+    }
+    resolve = lambda label, ref: stage7_emit._play_line_display(
+        label, sigla_norm, overrides, ref
+    )
+    assert resolve("Χρ.", "5") == ("Second Creditor", True)
+    assert resolve("Χρ.", "900") == ("Creditor", True)
+    assert resolve("Χρ.", "905") == ("Creditor", True)
+
+
+def test_without_a_spine_bare_siglum_keeps_the_old_generic_display():
+    """No spine (a caller that cannot supply one) means no synthesis --
+    the generic mapping is unchanged, never a crash."""
+    manifest = _bare_siglum_manifest()
+    overrides = stage7_emit._load_speaker_overrides(manifest, None)
+    sigla_norm = {
+        stage7_emit._norm_siglum(k): v
+        for k, v in manifest.data["speakers"]["sigla"].items()
+    }
+    assert stage7_emit._play_line_display("Χρ.", sigla_norm, overrides, "5") == (
+        "Creditor", True,
+    )
 
 
 def test_strophe_regex_epod_form():

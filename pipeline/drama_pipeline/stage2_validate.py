@@ -933,6 +933,41 @@ def _unmapped_speaker_check(manifest: Manifest) -> dict:
     }
 
 
+def _dead_primary_covered_declarations(
+    manifest: Manifest, segments: list[dict], chunk_ids: set[str]
+) -> list[dict]:
+    """A declared ``english.primary.covered`` entry whose Greek segment now
+    carries its OWN English chunk (C1, 2026-09-17 fix-mechanisms brief): the
+    drift-repair fix stops moving a line that names its own ref onto a
+    neighbour, so a ``covered`` entry written to mask that old displacement
+    (oedipus-tyrannus's ``{greek: "625", by: "624"}``, electra-eur's
+    ``{greek: "650", by: "post 651"}``) no longer describes what the build
+    does.  Reported for the orchestrator to drop, or replace with whatever
+    the segment it displaced now needs (oedipus-tyrannus 624 -> 623) --
+    never failed here, since a stale declaration is harmless (stage7 never
+    emits ``englishCoveredBy`` next to a real chunk) and dropping it is a
+    manifest/data change outside this file's blast radius."""
+    declared = ((manifest.data.get("english") or {}).get("primary") or {}).get("covered") or []
+    first_ref: dict[str, str] = {}
+    for seg in segments:
+        lines = seg.get("lines") or seg.get("greek") or []
+        ref = next(
+            (str(l.get("ref")) for l in lines if isinstance(l, dict) and l.get("ref") is not None),
+            None,
+        )
+        if ref is not None:
+            first_ref.setdefault(ref, seg["id"])
+    dead = []
+    for item in declared:
+        if not isinstance(item, dict):
+            continue
+        greek = str(item.get("greek", "")).strip()
+        sid = first_ref.get(greek)
+        if sid and sid in chunk_ids:
+            dead.append({"greek": greek, "by": item.get("by"), "segment": sid})
+    return dead
+
+
 def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) -> dict:
     report: dict = {"checks": {}}
     segments = spine["segments"]
@@ -1211,6 +1246,16 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         allowed.update(_play_line_allowed_twin_ids(manifest, segments))
         allowed.update(covered_ids)
         report["checks"]["attachment_loss"] = _attachment_loss_check(manifest)
+        dead_covered = _dead_primary_covered_declarations(
+            manifest, segments, {c["id"] for c in english.get("chunks") or []}
+        )
+        report["checks"]["primary_dead_covered"] = {
+            "dead": dead_covered,
+            # Informational only (C1): a stale declaration is harmless at
+            # emission time, so this never fails or warns the build -- it
+            # just names what the orchestrator should drop from the manifest.
+            "ok": True,
+        }
     if sch.play_line_scheme and primary_model == "turn-text":
         # turn-text (P3, the 1912 comedies): the English has no line numbers,
         # so speeches pair by speaker turn and residue is grouped onto the

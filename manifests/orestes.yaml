@@ -29,7 +29,6 @@ english:
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
       - { greek: "1292", by: "1288" }
-      - { greek: "412", by: "414" }
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"

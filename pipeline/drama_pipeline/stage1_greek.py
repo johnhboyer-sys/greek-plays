@@ -1151,10 +1151,71 @@ def _normalize_strophe_label(text: str) -> str:
     return text[1:] if text.startswith("[") else text
 
 
-def _line_with_play_labels(el: etree._Element) -> tuple[str, list[dict], str | None]:
+# A printed scheme is written with breve/macron glyphs and the anceps "×";
+# the "macron" itself is typeset as an EN DASH, which is also ordinary
+# editorial punctuation in Greek text (Sol review of 6e8a9d6, finding 4:
+# Cyclops's own dash was being eaten).  So the dash alone never makes a run
+# apparatus: a run must carry one of the unmistakable glyphs, or more than
+# one dash.  "×" counts as a glyph and belongs INSIDE the run — a class that
+# stopped at it split "<–×–⏑–>" into pieces and left "<×>," in Bacchae 757a.
+_METRICAL_SCHEMA_GLYPHS = "⏑⏓⏔⏕×"
+_METRICAL_SCHEMA_DASH = "–"
+_METRICAL_SCHEMA_CHARS = _METRICAL_SCHEMA_GLYPHS + _METRICAL_SCHEMA_DASH
+_METRICAL_SCHEMA_RUN = re.compile(rf"[{_METRICAL_SCHEMA_CHARS}][{_METRICAL_SCHEMA_CHARS} ]*")
+
+
+def _is_metrical_schema(run: str) -> bool:
+    """A matched run that really is printed apparatus rather than a dash."""
+    return any(ch in _METRICAL_SCHEMA_GLYPHS for ch in run) or (
+        run.count(_METRICAL_SCHEMA_DASH) > 1
+    )
+
+
+def _strip_metrical_schema(text: str, markers: list[dict]) -> tuple[str, list[dict], bool]:
+    """C5 (fix-mechanisms brief round 2, oedipus-coloneus #2 / electra-soph
+    #5): an edition's printed metrical scheme (breve/macron glyphs set
+    beneath a lyric line, e.g. ``⏑ – ⏑ –``) is typeset apparatus, not Greek
+    text, and the TLG export carries it straight through as if it were —
+    sometimes trailing real words on the same line, sometimes filling a
+    whole numbered line with nothing else (oedipus-coloneus 1718/1719).
+
+    Strips every maximal run of scheme glyphs (and the plain spaces inside
+    it) that :func:`_is_metrical_schema` recognises — a lone en dash among
+    Greek words is punctuation and stays; a speaker marker that pointed
+    past a stripped run
+    is pulled back by what was removed, clamped to the end of what
+    remains when nothing real follows it (the same convention a declared
+    lacuna's own speaker marker already uses).  Returns ``(text, markers,
+    had_schema)``; ``had_schema`` tells the caller a line reduced to
+    nothing was schema all along, not an empty tag.
+    """
+    runs = [m for m in _METRICAL_SCHEMA_RUN.finditer(text) if _is_metrical_schema(m.group(0))]
+    if not runs:
+        return text, markers, False
+    keep = [True] * len(text)
+    for m in runs:
+        for i in range(m.start(), m.end()):
+            keep[i] = False
+    removed_before: list[int] = [0] * (len(text) + 1)
+    for i in range(len(text)):
+        removed_before[i + 1] = removed_before[i] + (0 if keep[i] else 1)
+    raw_new = "".join(ch for ch, k in zip(text, keep) if k)
+    new_text = re.sub(r"\s+", " ", raw_new).strip()
+    new_markers = []
+    for marker in markers:
+        pos = marker["offset"] - removed_before[min(marker["offset"], len(text))]
+        pos = max(0, min(pos, len(new_text)))
+        new_markers.append({**marker, "offset": pos})
+    return new_text, new_markers, True
+
+
+def _line_with_play_labels(
+    el: etree._Element,
+) -> tuple[str, list[dict], str | None, bool]:
     """Flatten a play <l>: classify each `<label type="speaker">` as a real
     speaker cue or a strophe/antistrophe/epode marker (see the module-doc
-    block above), returning (text, speaker_markers, strophe_label).
+    block above), returning (text, speaker_markers, strophe_label,
+    had_schema) — ``had_schema`` per :func:`_strip_metrical_schema` (C5).
 
     A speaker cue is excluded from the text stream and recorded as an
     `{offset, label}` marker, exactly like `_line_with_speakers` above — the
@@ -1215,7 +1276,10 @@ def _line_with_play_labels(el: etree._Element) -> tuple[str, list[dict], str | N
         else:
             out.append(ch)
             i += 1
-    return "".join(out), markers, strophe_label
+    final_text, final_markers, had_schema = _strip_metrical_schema(
+        "".join(out), markers
+    )
+    return final_text, final_markers, strophe_label, had_schema
 
 
 def _normalize_play_lineref(n: str | None, xml_path=None) -> str:
@@ -1293,6 +1357,49 @@ def _derive_play_line_transposed_blocks(doc_refs: list[str]) -> list[dict]:
         i += 1
     return blocks
 
+
+
+# A `citation.transpositions` row is DERIVED from the export — start, end
+# and before, compared to what the parse observed, verbatim. One optional
+# advisory key rides on the row for the English builders and takes no part
+# in that comparison: `english_keyed: printed` (Lane C round 3b item 1) says
+# the translation numbers this stretch's lines by their PRINTED position
+# rather than by the edition's own numbers, which is a per-play data call
+# stage1_perseus_play_english's transposition remap cannot infer where the
+# Greek's own speaker attributions score the two readings a tie. Absent (or
+# `number`) the anchors keep their numbers. Anything else on a row, or any
+# other value, is a typo and fails loudly rather than passing unread.
+_TRANSPOSITION_DERIVED_KEYS = ("start", "end", "before")
+_TRANSPOSITION_ENGLISH_KEYED = ("printed", "number")
+
+
+def _transposition_derived_rows(declared, work_id: str):
+    """The derived part of each declared `citation.transpositions` row, for
+    comparison against the observed blocks."""
+    if not isinstance(declared, list):
+        return declared
+    rows = []
+    for row in declared:
+        if not isinstance(row, dict):
+            rows.append(row)
+            continue
+        unknown = set(row) - set(_TRANSPOSITION_DERIVED_KEYS) - {"english_keyed"}
+        if unknown:
+            raise ValueError(
+                f"{work_id}: citation.transpositions['1'] row {row!r} has an "
+                f"unknown key {sorted(unknown)!r} — the derived keys are "
+                f"{list(_TRANSPOSITION_DERIVED_KEYS)!r} plus the optional "
+                f"advisory 'english_keyed'"
+            )
+        keyed = row.get("english_keyed")
+        if keyed is not None and keyed not in _TRANSPOSITION_ENGLISH_KEYED:
+            raise ValueError(
+                f"{work_id}: citation.transpositions['1'] row {row!r} declares "
+                f"english_keyed {keyed!r} — expected one of "
+                f"{list(_TRANSPOSITION_ENGLISH_KEYED)!r}"
+            )
+        rows.append({k: row[k] for k in _TRANSPOSITION_DERIVED_KEYS if k in row})
+    return rows
 
 
 def _load_repeated_refs(manifest) -> dict[str, int]:
@@ -1382,7 +1489,7 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
                 f"(declare it in citation.repeated_refs if the edition prints it twice)"
             )
         seen_refs.add(ref)
-        text, markers, label = _line_with_play_labels(l_el)
+        text, markers, label, had_schema = _line_with_play_labels(l_el)
         entry: dict = {"ref": ref, "text": text}
         if markers:
             entry["speakers"] = markers
@@ -1397,6 +1504,12 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
             # pointing past the end of an empty string.
             if "speakers" in entry:
                 entry["speakers"] = [{**m, "offset": 0} for m in entry["speakers"]]
+        elif had_schema and not text:
+            # C5: a numbered line the edition prints as nothing but its own
+            # metrical scheme (oedipus-coloneus 1718/1719) is a real lacuna
+            # once the scheme is stripped, emitted the same way a declared
+            # "post N" one is -- never a silently dropped numbered line.
+            entry["role"] = "lacuna"
         flat.append(entry)
     if not title_seen and declared_titles:
         # The tragedians' exports open with a title line; Dover/Coulon/
@@ -1592,7 +1705,9 @@ def _parse_spine_play(xml_path: Path, manifest: Manifest, sch) -> dict:
             f"state"
         )
     observed_blocks = _derive_play_line_transposed_blocks(doc_refs)
-    declared_blocks = declared_transpositions["1"]
+    declared_blocks = _transposition_derived_rows(
+        declared_transpositions["1"], manifest.work_id
+    )
     if declared_blocks != observed_blocks:
         raise ValueError(
             f"{manifest.work_id}: transposition mismatch against "
