@@ -841,3 +841,48 @@ def test_a3_blank_column_says_nothing_when_every_column_is_answered():
     assert blank_column_segments(
         [("third", {"1:1"}, {"1:2"})], ["1:1", "1:2"]
     ) == {}
+
+
+# --- R8 / R10: declarations the build contradicts ---------------------------
+
+
+def _gap_spine():
+    return [
+        {"id": "1:1", "lines": [{"n": 1, "ref": "1"}], "speakers": [{"line": 1}]},
+        {"id": "1:2", "lines": [{"n": 2, "ref": "2"}], "speakers": [{"line": 2}]},
+        {"id": "1:3", "lines": [{"n": 3, "ref": "3"}], "speakers": [{"line": 3}]},
+        {"id": "1:4", "lines": [{"n": 4, "ref": "4"}], "speakers": [{"line": 4}]},
+    ]
+
+
+class _GapManifest:
+    work_id = "peace"
+    public = False
+
+    def __init__(self, gaps):
+        self.data = {"english": {"gaps": list(gaps)}}
+        self.path = None
+
+
+def test_r8_a_declared_gap_that_has_english_is_reported_dead():
+    """Peace finding 6: nine of eleven `english.gaps` entries have English in
+    the built book, so strict_coverage ran green on a declaration list that
+    was almost entirely false and masked two real displacements."""
+    from drama_pipeline.stage2_validate import _dead_gap_check
+
+    segments = _gap_spine()
+    # "2" is truly bare; "3" has English of its own; "4" is also covered.
+    check = _dead_gap_check(
+        _GapManifest(["2", "3", "4"]), segments,
+        unmatched=["1:2", "1:4"], covered_ids=["1:4"],
+    )
+    assert check["with_english"] == ["1:3"]
+    assert check["also_covered"] == ["1:4"]
+    assert check["count"] == 2
+    assert check["warn"] is True and check["ok"] is True
+    assert "3, 4" in check["error"]
+    # A list the build agrees with says nothing.
+    clean = _dead_gap_check(
+        _GapManifest(["2"]), segments, unmatched=["1:2"], covered_ids=[],
+    )
+    assert clean["count"] == 0 and not clean.get("warn")

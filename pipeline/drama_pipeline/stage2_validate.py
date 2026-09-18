@@ -823,6 +823,116 @@ def _blank_column_check(manifest: Manifest, segments: list[dict]) -> dict:
     }
 
 
+# --- R7: a Greek roster speaker no English cue in a column resolves to ------
+#
+# Suppliants' Greek names Danaids, Egyptians and Handmaidens; Morshead's only
+# chorus cues are CHORUS and SEMI-CHORUS (both `Chorus`) and Johnston's are
+# CHORUS and HANDMAIDENS, so nothing a reader can see says that a whole
+# stretch of the play is being paired with no speaker evidence at all. It is
+# not necessarily a defect -- a translator who prints SEMI-CHORUS where the
+# edition prints ΘΕΡΑΠΑΙΝΑΙ is making his own choice, and an `english_
+# overrides` entry or an alias is the remedy when it matters -- so this lists
+# the names per column and warns. The stage-1 report already computes it
+# (`speakers.only_in_greek`); this is where a reviewer sees it.
+def _slot_report(manifest: Manifest, filename: str) -> list[dict]:
+    """A turn-text slot's ``unenglished_events`` (R10), or ``[]``."""
+    path = BUILD_DIR / "stage1" / filename
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8")) or {}
+    except (ValueError, OSError):
+        return []
+    events = data.get("unenglished_events")
+    return list(events) if isinstance(events, list) else []
+
+
+# --- R8: a declaration the build contradicts -------------------------------
+#
+# `english.gaps` says "the translation omits this line", and `strict_coverage`
+# treats every entry as an allowance. Nine of Peace's eleven entries have
+# English in the built book -- 517, 439, 441, 484, 488, 489, 490, 499 and 1063
+# are all present, and only 468 is truly bare -- so the gate ran green over a
+# declaration list that was almost entirely false, and it masked two real
+# displacements. A dead declaration is worse than none: it is an allowance for
+# damage nobody is looking at. Warned rather than failed, because the remedy is
+# a manifest edit and the list is John's to re-derive.
+def _dead_gap_check(
+    manifest: Manifest, segments: list[dict], unmatched: list[str],
+    covered_ids: list[str],
+) -> dict:
+    declared = _play_line_english_gap_ids(manifest, segments)
+    if not declared:
+        return {"count": 0, "with_english": [], "also_covered": [], "ok": True}
+    first_ref = {
+        seg["id"]: next(
+            (l.get("ref") for l in (seg.get("lines") or []) if l.get("ref")), None
+        )
+        for seg in segments
+    }
+    with_english = sorted(declared - set(unmatched))
+    also_covered = sorted(declared & set(covered_ids))
+    dead = sorted(set(with_english) | set(also_covered))
+    warning = None
+    if dead:
+        named = ", ".join(str(first_ref.get(s) or s) for s in dead[:25])
+        warning = (
+            f"{len(dead)} english.gaps declaration(s) the build contradicts: "
+            f"{named}{' ...' if len(dead) > 25 else ''} -- each has English of "
+            "its own, or is declared covered as well; re-derive the list, "
+            "because strict_coverage is allowing these segments on a false "
+            "declaration"
+        )
+    return {
+        "count": len(dead),
+        "with_english": with_english,
+        "also_covered": also_covered,
+        "error": warning,
+        "warn": warning is not None,
+        "ok": True,
+    }
+
+
+def _unmapped_speaker_check(manifest: Manifest) -> dict:
+    stage1 = BUILD_DIR / "stage1"
+    english = manifest.data.get("english") or {}
+    files: list[tuple[str, str]] = []
+    if (english.get("primary") or {}).get("model") == "turn-text":
+        files.append(("primary", "english_report.json"))
+    for slot, _entry, filename in _public_turn_text_comparison_slots(manifest):
+        files.append((slot, filename))
+    columns: dict[str, list[str]] = {}
+    for label, filename in files:
+        path = stage1 / filename
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8")) or {}
+        except (ValueError, OSError):
+            continue
+        names = ((data.get("speakers") or {}).get("only_in_greek")) or []
+        if names:
+            columns[label] = list(names)
+    total = sum(len(v) for v in columns.values())
+    warning = None
+    if total:
+        listed = "; ".join(
+            f"{label}: {', '.join(names)}" for label, names in columns.items()
+        )
+        warning = (
+            f"{total} Greek roster speaker(s) that no English cue resolves to -- "
+            f"{listed}; their turns are paired with no speaker evidence, so check "
+            "the alias map or english_overrides for each column"
+        )
+    return {
+        "count": total,
+        "columns": columns,
+        "error": warning,
+        "warn": warning is not None,
+        "ok": True,
+    }
+
+
 def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) -> dict:
     report: dict = {"checks": {}}
     segments = spine["segments"]
@@ -1154,10 +1264,36 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
                     "English, or declare each under english.gaps (omitted) or "
                     "english.primary.covered (translated with a neighbour)"
                 )
+            # R10 (acharnians finding 5): the same question asked per Greek
+            # SPEECH. `unmatched` is a segment list, so a packed comedy line
+            # whose two shares the translator renders as one turn leaves the
+            # second share with no English and nothing to declare it -- the
+            # reader gets one English block against a line the Greek divides
+            # between two speakers. Warned, not gated: turning it into a
+            # failure would fail eleven comedies on undeclared shares before
+            # anybody has ruled on them, and the declarations are John's.
+            slot_holes = [
+                event
+                for event in (_slot_report(manifest, "english_report.json") or [])
+                if event.get("segment") not in declared
+            ]
+            slot_warning = None
+            if slot_holes:
+                named = ", ".join(
+                    f"{e.get('ref')} ({e.get('speaker')})" for e in slot_holes[:25]
+                )
+                slot_warning = (
+                    f"{len(slot_holes)} Greek speech(es) inside a segment that HAS "
+                    f"English carry none of their own and are not declared: {named}"
+                    f"{' ...' if len(slot_holes) > 25 else ''}"
+                )
             report["checks"]["turn_text_strict_coverage"] = {
                 "count": len(holes),
                 "holes": holes,
+                "slot_holes": slot_holes,
+                "slot_warning": slot_warning,
                 "error": strict_error,
+                "warn": strict_error is None and slot_warning is not None,
                 "ok": strict_error is None,
             }
     if sch.play_line_scheme:
@@ -1178,6 +1314,12 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
             )
         report["checks"]["turn_text_blank_columns"] = _blank_column_check(
             manifest, segments
+        )
+        report["checks"]["turn_text_unmapped_speakers"] = _unmapped_speaker_check(
+            manifest
+        )
+        report["checks"]["english_dead_gaps"] = _dead_gap_check(
+            manifest, segments, unmatched, covered_ids
         )
     # A column the manifest's own citation.kind_overrides declares `omit`
     # is ALSO a legitimate unmatched column (see _omit_declared_segment_ids)
