@@ -5,7 +5,11 @@ import pytest
 from lxml import etree
 
 from drama_pipeline.config import Manifest
-from drama_pipeline.stage1_perseus_play_english import parse_translation
+from drama_pipeline.stage1_perseus_play_english import (
+    _iter_speech_slices,
+    _LineText,
+    parse_translation,
+)
 from drama_pipeline.stage1_turn_english import _SiglaResolver
 from drama_pipeline.stage2_validate import validate
 from drama_pipeline.stage7_emit import (
@@ -81,6 +85,47 @@ def _parse(tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None, c
         english_aliases=aliases if aliases is not None else ALIASES,
         covered_decl=covered,
     )
+
+
+def test_comment_tail_survives_inside_line():
+    """Hippolytus review finding 1 (2026-09-17): the walk returned as soon as
+    it hit a comment node (no string tag) without reading the comment's
+    tail, so a line with an XML comment lost everything after it."""
+    speech = etree.fromstring(
+        '<sp><speaker>A</speaker><l n="1">before <!-- note --> after</l></sp>'
+    )
+    anomalies: list[dict] = []
+    slices = _iter_speech_slices(
+        speech,
+        split=False,
+        text_parser=_LineText({}, anomalies),
+        anomalies=anomalies,
+        sp_index=1,
+        printed="A",
+    )
+    assert [s.text() for s in slices] == ["before after"]
+    assert anomalies == []
+
+
+def test_comment_tail_survives_nested_in_child_element():
+    """Same bug, one level deeper: the comment sits inside a child element
+    of the <l>, not directly inside it."""
+    speech = etree.fromstring(
+        "<sp><speaker>A</speaker>"
+        "<l n=\"1\">before <foreign>mid <!-- x --> tail</foreign> after</l>"
+        "</sp>"
+    )
+    anomalies: list[dict] = []
+    slices = _iter_speech_slices(
+        speech,
+        split=False,
+        text_parser=_LineText({}, anomalies),
+        anomalies=anomalies,
+        sp_index=1,
+        printed="A",
+    )
+    assert [s.text() for s in slices] == ["before mid tail after"]
+    assert anomalies == []
 
 
 def test_manifest_covered_declarations_join_the_covered_map(tmp_path: Path):

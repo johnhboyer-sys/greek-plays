@@ -639,6 +639,14 @@ def _iter_speech_slices(
         nonlocal line_n_live
         tag = local_name(node)
         if tag is None:
+            # Comment and processing-instruction nodes have a non-string
+            # .tag, so local_name returns None. A comment's own text is
+            # dropped, but its .tail is real line text that follows it in
+            # document order and must not be lost (Hippolytus review
+            # finding 1, 2026-09-17). Processing instructions stay fully
+            # skipped, tail included.
+            if node.tag is etree.Comment and node.tail:
+                handle_text(node.tail, current_n)
             return
         if tag in _SKIP_TAGS:
             if node.tail:
