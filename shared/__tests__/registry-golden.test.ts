@@ -15,6 +15,8 @@ describe('generated registry golden value', () => {
     expect(AUTHORS).toHaveLength(4);
     // After a deliberate registry change, regenerate with this exact command from shared/:
     // node --experimental-strip-types --input-type=module -e "import{createHash}from'node:crypto';import{CORPUS_WORKS as WORKS,CORPUS_AUTHORS as AUTHORS}from'./lib/registry.generated.ts';console.log(createHash('sha256').update(JSON.stringify(WORKS)+JSON.stringify(AUTHORS)).digest('hex'))"
-    expect(hash).toBe('c09211901a88361476a3b1326e1b9280e755bd909c32aefb98bb0d24405fb702');
+    // Regenerated 2026-09-19: publishing Rogers on Lysistrata, Thesmophoriazusae and
+    // Wealth adds those three translations to the registry (John's ruling).
+    expect(hash).toBe('2a22ab18515097370c6b725aa1fa9b2433f1526aeafb599a1c4c17805fa2a66c');
   });
 });
