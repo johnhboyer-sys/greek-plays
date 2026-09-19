@@ -1743,6 +1743,44 @@
     };
   }
 
+  // A direction before the first English turn needs the same blank-Greek row
+  // as one carried by the overlay piece itself. `turnDirections` keeps it on
+  // that turn, so collect both forms for the existing row renderer.
+  function openingDirections(seg: Segment, transId: string): string[] | undefined {
+    const t = transById(transId);
+    const pieces = piecesFor(seg, t);
+    const piece = pieces.find((p) => p.cont) ?? pieces[0];
+    const source = playEnglishSource(seg, transId);
+    const blocks = source ? buildEnglishTurnBlocks(source.text, source.turns) : [];
+    const firstTurn = blocks.find((b) => b.turnIndex >= 0);
+    const directions = [...new Set([...(piece?.directionsBefore ?? []), ...(firstTurn?.directionsBefore ?? [])])];
+    return directions.length ? directions : undefined;
+  }
+
+  // The opening-direction row has taken these directions out of the turn
+  // stack. Later-turn directions remain for splitAtDirections to place.
+  function withoutOpeningDirections(blocks: EnglishTurnBlock[]): EnglishTurnBlock[] {
+    const i = blocks.findIndex((b) => b.turnIndex >= 0);
+    if (i < 0 || !blocks[i]?.directionsBefore?.length) return blocks;
+    const { directionsBefore: _moved, ...first } = blocks[i]!;
+    return [...blocks.slice(0, i), first, ...blocks.slice(i + 1)];
+  }
+
+  // Tick rows rebuild their blocks from slices of the source, so remove the
+  // opening direction after that second build as well. Otherwise it reaches
+  // both the row above the segment and splitAtDirections.
+  function withoutOpeningDirectionsInRows(rows: PlayRow[]): PlayRow[] {
+    for (let i = 0; i < rows.length; i += 1) {
+      const blocks = rows[i]!.blocks;
+      const j = blocks.findIndex((b) => b.turnIndex >= 0);
+      if (j < 0) continue;
+      if (!blocks[j]!.directionsBefore?.length) return rows;
+      const { directionsBefore: _moved, ...first } = blocks[j]!;
+      return [...rows.slice(0, i), { ...rows[i]!, blocks: [...blocks.slice(0, j), first, ...blocks.slice(j + 1)] }, ...rows.slice(i + 1)];
+    }
+    return rows;
+  }
+
   // ── P4 play-line layout (docs/p4-plan.md, docs/mockups/2026-09-08-blend.html) ──
   // The row model: every English turn sits on the row of the Greek line it
   // starts on. Each turn is matched to a Greek speaker EVENT of that segment
@@ -4027,7 +4065,7 @@
          them quarrel with it. `chunkMm` is the pre-P2h chunk-level field,
          used only when no turn in this chunk carries one of its own (data
          built before the per-turn flag existed). -->
-    {@const blocks = buildEnglishTurnBlocks(source.text, source.turns)}
+    {@const blocks = withoutOpeningDirections(buildEnglishTurnBlocks(source.text, source.turns))}
     {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
     {@render playTurnStack(blocks, chunkMm, transId)}
     {:else if coveredByFor(seg, transById(transId))}
@@ -4590,7 +4628,7 @@
                while a column on screen carries one (speakers.ts directionRows). -->
           {@const dirCols = trans === 'compare' ? [compareLeft, compareRight] : [segTransId]}
           {#if playLine && bi === 0}
-            {#each directionRows(dirCols.map((id) => piecesFor(seg, transById(id))[0]?.directionsBefore), view) as dirRow}
+            {#each directionRows(dirCols.map((id) => openingDirections(seg, id)), view) as dirRow}
               <div class="seg-row play-direction-row">
                 <div class="greek-col" aria-hidden="true"></div>
                 {#each dirRow as dir, di}
@@ -4601,8 +4639,9 @@
           {/if}
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
-          {@const plTurnBlocks = plSource ? buildEnglishTurnBlocks(plSource.text, plSource.turns) : []}
-          {@const plRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, verseForm(segTransId))) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          {@const plTurnBlocks = plSource ? withoutOpeningDirections(buildEnglishTurnBlocks(plSource.text, plSource.turns)) : []}
+          {@const rawPlRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, verseForm(segTransId))) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
             <!-- A direction before a later speech of the segment (Clouds
