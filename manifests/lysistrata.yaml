@@ -110,8 +110,6 @@ english:
     # (rate measured 0.7896; floor set just under it)
   overlays:
     - id: rogers
-      # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
-      private: true
       name: "B. B. Rogers (Loeb, 1924)"
       short: Rogers
       model: turn-text
@@ -409,8 +407,6 @@ registry:
       alignment: speech
     - id: rogers
       form: verse
-      # OCR comparison slot pairing under 0.6 (2026-09-08 bench); hidden from the public build until a better source (REVIEW-CHECKLIST 8)
-      private: true
       name: "B. B. Rogers (Loeb, 1924)"
       short: Rogers
       slot: overlay

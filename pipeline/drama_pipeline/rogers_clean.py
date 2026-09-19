@@ -343,6 +343,13 @@ _FN_CALL = re.compile(
 # (`_LATEX_SMALL_CUE`); a bare span left over after call resolution marks a
 # paragraph as apparatus, not dialogue.
 _LATEX_SPAN = re.compile(r"\$[^$]*\$")
+# Rogers ends explanatory notes with an attribution to himself.  That form
+# never occurs in his translated dialogue.  Genie can lose the note call or
+# split the note over several paragraphs, so this is the dependable boundary
+# for an otherwise unattached note body.
+_ROGERS_NOTE_ATTRIBUTION = re.compile(r"[”\"]?\s*:\s*R\.")
+_OUTPUT_NOTE_CALL = re.compile(r"\s*\[\d+\]")
+_GREEK_LETTER = re.compile(r"[Ͱ-Ͽἀ-῿]")
 # A speaker cue Genie boxes as small marginal type during the banquet
 # scene's cross-talk (`$\text{\footnotesize ATH.}$ Well, if...`) instead of
 # printing plainly -- unwrapped back to an ordinary "CUE. text" line before
@@ -415,6 +422,16 @@ class _Writer:
             self.line(text)
             return
         self.out[-1] = f"{self.out[-1]} {text}"
+
+    def retain_calls(self, text: str) -> None:
+        """Keep resolved calls when their page-foot definition is dropped.
+
+        They are project links, not Rogers's note prose; retaining them on
+        the preceding verse line keeps the existing popup contract intact.
+        """
+        calls = "".join(_OUTPUT_NOTE_CALL.findall(text))
+        if calls and self._open and self.out and self.out[-1]:
+            self.out[-1] = f"{self.out[-1]}{calls}"
 
     def direction(self, text: str) -> None:
         if self._pending_cue is not None:
@@ -525,6 +542,20 @@ def _convert_body(
             else:
                 page_notes.setdefault(p.page, {})[letter] = note
 
+        # A page-foot note occasionally wraps after a hyphen.  Its next
+        # physical paragraph has lost the repeated call, but it is still on
+        # this page and belongs to the definition just read (Wealth 583).
+        # Join only an explicit hyphen wrap: broader guesses risk consuming
+        # real verse on the following page.
+        if defs and defs[-1][1].rstrip().endswith("-") and i + 1 < end:
+            following = paras[i + 1]
+            if following.page == p.page and _split_definitions(following.text) is None:
+                tail = following.text.strip()
+                if tail and not _is_furniture(tail, cfg.word):
+                    letter = defs[-1][0]
+                    page_notes[p.page][letter] = f"{page_notes[p.page][letter]} {tail}"
+                    consumed.add(i + 1)
+
     def _resolve(page: int, letter: str) -> tuple[str, str] | None:
         """``("note"|"stage", text)`` for a call, checked on its own page
         first, then outward -- Genie's page break sometimes lands a
@@ -585,13 +616,30 @@ def _convert_body(
     # held and printed first, not where Genie's page-foot placed it.
     title_page = paras[start].page
     opening_directions: list[str] = []
+    # In this OCR a bare *** is the rule before a page-foot apparatus area,
+    # not a textual lacuna.  Keep its scope to one printed page.
+    page_footer_notes = False
+    footer_page: int | None = None
+    apparatus_run = False
+    apparatus_page: int | None = None
 
     for i in range(start, end):
         if i in consumed:
             continue
         p = paras[i]
+        if footer_page is not None and p.page != footer_page:
+            page_footer_notes = False
+            footer_page = None
+        if apparatus_page is not None and p.page != apparatus_page:
+            apparatus_run = False
+            apparatus_page = None
         text = _QUAD_LEFTOVER.sub(" ", p.text).strip()
         if not text:
+            continue
+        if text == "***":
+            page_footer_notes = True
+            footer_page = p.page
+            log.append("dropped\tseparator furniture (***) before page-foot notes")
             continue
         if gt.is_greek_paragraph(text):
             continue
@@ -627,6 +675,15 @@ def _convert_body(
         if small_cue:
             text = f"{small_cue.group(1)} {small_cue.group(2)}".strip()
 
+        # Some page-foot prose is wrongly marked italic, including the
+        # Ecclesiazusae opening gloss.  Do this before treating italics as a
+        # direction, or an editor's note becomes a stage direction.
+        if _ROGERS_NOTE_ATTRIBUTION.search(text):
+            log.append(f"dropped\tnote-body apparatus (R. attribution), unattached: {text[:60]!r}")
+            apparatus_run = True
+            apparatus_page = p.page
+            continue
+
         # Calls are resolved BEFORE cue detection, not after: Genie sometimes
         # prints a call flush against the cue's own period with no space
         # ("LAC.<sup>a</sup> Stir...", "JOINT CH.ᵇ Not to..."), which
@@ -646,6 +703,31 @@ def _convert_body(
             continue
 
         resolved = _resolve_calls(text, p.page)
+
+        # A page-foot note with a lost call is still clearly apparatus when
+        # Rogers signs it ": R.".  Drop its wrapped continuation too, until
+        # the page changes or a recognised cue proves dialogue has resumed.
+        if _ROGERS_NOTE_ATTRIBUTION.search(resolved):
+            apparatus_run = True
+            apparatus_page = p.page
+            writer.retain_calls(resolved)
+            log.append(f"dropped\tnote-body apparatus (R. attribution), unattached: {resolved[:60]!r}")
+            continue
+        if (page_footer_notes or apparatus_run) and not _CUE_RE.match(resolved):
+            writer.retain_calls(resolved)
+            log.append(f"dropped\tnote-body apparatus continuation, unattached: {resolved[:60]!r}")
+            continue
+
+        # A non-cue, non-direction paragraph containing Greek is a gloss in
+        # this English stream, not Rogers's translation.  Whole Greek verse
+        # was already removed by `is_greek_paragraph`; this catches only the
+        # mixed English/Greek apparatus left when Genie lost its note call.
+        # Bracketed material remains untouched because it can be a real
+        # stage direction.
+        if _GREEK_LETTER.search(resolved) and not _CUE_RE.match(resolved) and not resolved.startswith("["):
+            writer.retain_calls(resolved)
+            log.append(f"dropped\tGreek-bearing note-body apparatus, unattached: {resolved[:60]!r}")
+            continue
 
         compound = _COMPOUND_RE.match(resolved)
         if compound and (compound.group(1), compound.group(2)) in cfg.compounds:

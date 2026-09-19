@@ -111,7 +111,6 @@ MNESILOCHUS. (scandalized) [13] No, no !
 SERVANT. What’s that ?
 
 MNESILOCHUS. 'Twas the ETHER, FORGETTING TO BLOW !
-***
 
 SERVANT. (beginning pettishly, but soon falling back into his former tone)
 I was going to say he is going to lay
@@ -153,7 +152,6 @@ out. O Zeus, what do you mean to do to me this day!
 MNESILOCHUS. Yes, by the Gods, that’s what I want to ask, what means this business.”
 | | | |
 | :--- | :--- | :---: |
-***
 
 EURIPIDES. There’s a great danger brewing for my life. [17]
 
@@ -228,7 +226,6 @@ AGATHON. (As actor) Move ye slowly, with the holy
 [Building buildings, long ago.]
 (As Chorus) Raise the music, softly swelling
 [To the fame of Leto’s name,]
-our loveliest hymns, O Phoebus, who awardest the sacred guerdon in our fair musical celebrations. Sing too the Maiden in the oak-bearing mountains, the huntress Artemis. I follow on with songs of praise, blessing the exalted child of Leto, the stainless virgin Artemis. Sing too of Leto, and the smiting of the Asian lyre, keeping time with the dance of the Graces, the whirling dance rhythmical to the Phrygian style. I worship Leto the Queen, and the lyre the mother of hymns, with notable masculine song: by which, and by means of our suddenly raised voices, light flashes from eyes divine. For this cause magnify King Phoebus. Hail to thee, Leto’s blessed son”: R.
 [To the God in song excelling,]
 [Brightest he, of all there be,]
 [Giving gifts of minstrelsy.]
@@ -264,7 +261,6 @@ And sift thee with the words of Aeschylus,
 Whence art thou, what thy country, what thy
 garb ? [29]
 Why all this wondrous medley ? Lyre and silks,
-***
 A minstrel’s lute, a maiden’s netted hair,
 Girdle and wrestler’s oil! a strange conjunction.
 How comes a sword beside a looking-glass?
@@ -299,8 +295,6 @@ Who when they filtered and diluted song,
 Wore soft Ionian manners and attire. [33]
 And Phrynichus, perhaps you have seen him, sir,
 How fair he was, and beautifully dressed;
-Satyrs,’ the Cyclops of Euripides ” : R. κελητίζω is σχῆμα συνουσίας, cf. W. 501.
-462: R.
 Therefore his plays were beautifully fair.
 For as the Worker, so the Work will be.
 
@@ -388,8 +382,6 @@ EURIPIDES. Whatever can I do ?
 
 MNESILOCHUS. Bid him go hang !
 See, here am I ; deal with me as you please.
-***
-The idea of this depilation scene seems to have been borrowed from a play by Cratinus, the Idaeans*, where the 150
 
 EURIPIDES. (_striking while the iron is hot_)
 Well, if you’ll really give yourself to me,
@@ -610,7 +602,6 @@ Help us too :
 And the many-named, the Huntress,
 Gold-fronted Leto’s daughter ;
 And the dread Poseidon ruling
-***
 Over Ocean’s stormy water ;
 Come from the deep where fishes
 Swarm, and the whirlwinds rave ;
@@ -646,7 +637,6 @@ Passages concerning the tyrants and the Medes were part
 of it, with denunciations of those who brought false news,
 or deceived the people. In the parody, men only are de-
 nounced (349), women blessed (350).
-***
 Perish that man, himself and all his house;
 But pray the Gods—and Goddesses—to order
 To all the women always all things well.
@@ -715,7 +705,6 @@ We used to do; he has made the men so silly
 Suppose I’m hard at work upon a chaplet,
 Hey, she’s in love with somebody; suppose
 I chance to drop a pitcher on the floor,
-***
 And straightway 'tis, For whom was that intended?
 [I warrant now, for our Corinthian [64] friend.]
 Is a girl ill? Her brother shakes his head;
@@ -776,11 +765,7 @@ I’ve fed them, weaving chaplets for the Gods. [71]
 But now this fellow writes his plays, and says
 There are no Gods; and so, you may depend,
 My trade is fallen to half; men won’t buy chaplets.
-So then for many reasons he must die;
-***
-* [72] Lit. "he does savage injuries, as one reared amidst his mother's wild potherbs."
-* [73] Lit. "how neatly she has spoken, all to the point, having wit and a subtle mind, nothing foolish, but all persuasive."
-* The motion for putting Euripides to death having, so
+So then for many reasons he must die; [72] [73]
 The man is bitterer than his mother’s potherbs. [74]
 I leave my cause with you, my sisters : I
 Am called away on urgent private business,
@@ -870,11 +855,7 @@ I could never have believed it ;
 such a thing was never known.
 But what may be, no man knoweth,
 And the wise old proverb showeth,
-of the crock,” χύτρας being comically substituted for μήτρας.
-ἦτρον is the membrane of the womb.
 mentula tuae similis, tortuosa, instar nucamenti pinei.
-***
-| γυναικός, with the final words as a surprise.
 That perchance a poisonous sophist
 lurketh under every stone. [85]
 O, nothing, nothing in the world
@@ -1105,7 +1086,6 @@ CLEISTHENES. Stand up and show yourself. See! he's a man!
 FIRST WOMAN. O, this is why you mocked and jeered us so! MN.
 
 FIRST WOMAN. What shall we do with him? CL.
-There was a track (the διολκός) across the Corinthian isthmus, by which ships were hauled to and fro on trolleys (ὁλκοί); hence διέλκεις here.
 
 CHORUS. Light we our torches, my sisters,
 and manfully girding our robes,
@@ -1301,7 +1281,6 @@ MNESILOCHUS. (soliloquizes) O me, what hope of safety still re-
 mains ?
 *care that none shall fall into the bason which the F.W. is hold-
 ing underneath. [105] Another woman, Critylla, now enters.*
-* ἐξεκόρησε, “swept or cleaned out,” with a play on κόρη,
 as if it meant “robbed you of your child.”*
 What plan? what stratagem? My worthy cousin,
 Who first involved me in this dreadful scrape,
@@ -1388,7 +1367,6 @@ whatever we took in the morn. [112]
 But this is a true description of you. [113]
 Are ye not gluttonous, vulgar, perverse,
 Kidnappers, housebreakers, footpads, and worse?
-***
 And we in domestic economy too
 Are thriftier, shiftier, wiser than you. [114]
 For the loom which our mothers
@@ -1422,11 +1400,7 @@ still to take precedence high ?
 Whoso breeds a cowardly soldier,
 or a seaman cold and tame.
 Crop her hair, and seat her lowly ;
-brand her with the marks of shame ;
-***
-* [116] Lamachus, the distinguished soldier who fell before Syracuse.
-* [117] The close of the Parabasis finds the position of Mnesilochus unaltered. The dispatch of the tablets has, so far, produced no result.
-* [118] Lit. "Why are you so restless? Why are you staring about?"
+brand her with the marks of shame ; [116] [117] [118]
 Set the nobler dame above her.
 Can it, all ye Powers, be right
 That Hyperbolus’s mother,
@@ -1458,9 +1432,6 @@ Keep quiet there till the policeman comes.
 
 MNESILOCHUS. [122] (as Helen) These are the fair-nymphed waters
 of the Nile,
-***
-wife, was wafted by Hermes into Egypt and entrusted to the charge of the good king Proteus. After the king's death, his son Theoclymenus sought to make Helen his wife; and in the play she is discovered sitting upon the tomb of Proteus. For a detailed analysis of the allusions in this play the reader is referred to Mr. Rogers's Introduction.
-***
 Whose floods bedew, in place of heavenly showers,
 Egypt's white plains and black-dosed citizens. [123]
 
@@ -1501,7 +1472,6 @@ I knew old Protteas [129]; he's been dead these ten years.
 call a man a Phrynondas was equivalent to calling him a cheat:" R.
 | | | |
 | :--- | :--- | :--- |
-***
 
 EURIPIDES. Then whither, whither have we steered our bark?
 
@@ -1693,7 +1663,6 @@ Thee with music and song
 Ever and ever we praise.
 Thee with thy wood-nymphs delightedly singing,
 Evoi ! Evoi ! Evoi !
-***
 Over the joyous hills
 the sweet strange melody ringing.
 Hark ! Cithaeron resounds,
@@ -1992,7 +1961,6 @@ Graciously, peacefully,
 Come to your glades.
 Man must not gaze on the
 Rites at your shrine,
-***
 
 Torch-glimmer flashing o'er
 Features divine.
