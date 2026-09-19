@@ -398,6 +398,7 @@ describe('Reader.svelte play-line rendering (P1)', () => {
   });
 });
 
+
 describe('Reader.svelte play-line continuation coverage (P2e)', () => {
   beforeEach(() => localStorage.clear());
   it('shows "translated with the speech above" instead of a missing passage when englishCoveredBy is set', async () => {
@@ -796,6 +797,30 @@ describe('Reader.svelte stage directions (Arrowsmith)', () => {
     // It comes before the speech's own Greek and English.
     const line = container.querySelector('#col-56 .greek-line')!;
     expect(row.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('renders a shared piece and first-turn direction once when tick rows rebuild the turn blocks', async () => {
+    const book = dirBook();
+    const opening = 'The herald enters.';
+    const seg = book.segments[1]!;
+    seg.greek = [
+      { n: 2, text: 'λόγος δύο', tokens: [], ref: '56' },
+      { n: 3, text: 'λόγος τρία', tokens: [], ref: '57' },
+      { n: 4, text: 'λόγος τέσσερα', tokens: [], ref: '58' },
+    ];
+    seg.third![0]!.directionsBefore = [opening];
+    seg.third![0]!.turnDirections = [{ turn: 0, directions: [opening] }];
+    seg.third![0]!.bekker = [
+      { n: 56, offset: 0, real: true },
+      { n: 57, offset: 20, real: true },
+    ];
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: book } });
+    await flush();
+    const directions = container.querySelectorAll('#col-56 .stage-dir');
+    expect(directions).toHaveLength(1);
+    expect(directions[0]?.textContent).toBe(opening);
+    expect(container.querySelectorAll('#col-56 .play-direction-row')).toHaveLength(1);
   });
 
   it('prints a direction inside a speech inline, in italics, with no row', async () => {
@@ -2326,4 +2351,3 @@ describe('Reader.svelte repeated printed refs (Astra lane A, F8)', () => {
     window.history.replaceState(null, '', '/');
   }, 10000);
 });
-
