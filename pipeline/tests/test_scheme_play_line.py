@@ -98,6 +98,11 @@ def test_normalize_post_and_slash_range():
     assert stage1_greek._normalize_play_lineref("289/290") == "289-290"
     assert stage1_greek._normalize_play_lineref("47a") == "47a"
     assert stage1_greek._normalize_play_lineref("1234") == "1234"
+    # A source typo remains untouched unless that work declares its own fix.
+    assert stage1_greek._normalize_play_lineref("1448a") == "1448a"
+    assert stage1_greek._normalize_play_lineref(
+        "1448a", ref_fixes={"1448a": "148a"}
+    ) == "148a"
 
 
 def test_normalize_then_grammar_parity():

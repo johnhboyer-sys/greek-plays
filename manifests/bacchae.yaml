@@ -120,13 +120,17 @@ citation:
       - "post 1329"
       - "post 1371"
 
+  # The TLG export mistypes the parodos' 148a as 1448a. This per-work,
+  # source-token fix is checked against exactly one printed <l n>.
+  ref_fixes:
+    "1448a": "148a"
+
   transpositions:
     "1": 
-      - { start: "148b", end: "761", before: "1448a" }
-      - { start: "757a", end: "848", before: "1448a" }
-      - { start: "847", end: "1392", before: "1448a" }
+      - { start: "757a", end: "757a", before: "761" }
+      - { start: "847", end: "847", before: "848" }
 
-  fingerprint: { count: 1388, sha256: "e53768eb1c29d234e851e9db194f5e4c237cecbccd7742613d8aa9efb5ad2fd2" }
+  fingerprint: { count: 1388, sha256: "75e7c6849016841e23b2df40405c09029d271ee4548c704e4c8ebc196f7d3efa" }
 
 speakers:
   english:
