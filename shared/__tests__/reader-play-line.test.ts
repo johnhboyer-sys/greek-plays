@@ -1187,6 +1187,12 @@ const PLAY_CSS = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../
   .replace(/\/\*[\s\S]*?\*\//g, '');
 
 describe('play-line stylesheet (P4 fix, findings 3 and 4)', () => {
+  it('starts a direction row at its speaker-label edge, clearing only the number gutter', () => {
+    expect(PLAY_CSS).toMatch(
+      /\.reader-body\.play-line \.play-direction-row \.turn-eng:not\(\.turn-stack\)\s*\{[^}]*padding-left:\s*var\(--pl-num-w\)/,
+    );
+  });
+
   it('starts the compare Greek heading on the verse, not at the column edge', () => {
     expect(PLAY_CSS).toMatch(
       /\.reader-body\.play-line\.trans-compare \.play-greek-head \{[^}]*padding-left:\s*var\(--pl-num-w\)/,

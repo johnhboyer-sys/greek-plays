@@ -2339,6 +2339,14 @@ body {
 .reader-body.play-line .turn-eng:not(.turn-stack) {
   padding-left: calc(var(--pl-num-w) + var(--pl-spk-w));
 }
+/* A direction between speeches has no speech text to align after the speaker
+   gutter, so it spans the speaker column and the translation column as one
+   measure (John, 2026-09-19). It still clears the line-number gutter: this
+   rule replaces .turn-eng's num+spk padding with the number gutter alone, so
+   the direction begins exactly where the next turn's speaker label begins. */
+.reader-body.play-line .play-direction-row .turn-eng:not(.turn-stack) {
+  padding-left: var(--pl-num-w);
+}
 
 /* Compare: three plain columns, Greek widest (1.5 : 1 : 1). No boxes, no
    panels, no borders. Each column's speaker label is a block ABOVE its
