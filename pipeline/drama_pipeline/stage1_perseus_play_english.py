@@ -756,9 +756,8 @@ def _iter_speech_slices(
             # inline run inside one, so there is no turn or chunk to carry a
             # flag: the mark travels with the words, in the chunk `text` every
             # consumer already reads (the pairer's primary bridge, the audit,
-            # search, copy-paste).  The square brackets are a DRAFT rendering
-            # until John rules; if he wants the run dimmed instead, the
-            # bracketed spans are exactly the ranges to style.
+            # search, copy-paste). Owner ruled 2026-09-19: square brackets
+            # stay; the bracketed spans remain available for styling.
             deleted = collapse_ws(text_excluding_subtrees(node)).strip()
             handle_text("[", current_n)
             if node.text:

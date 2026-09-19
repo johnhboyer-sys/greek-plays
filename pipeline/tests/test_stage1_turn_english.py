@@ -4260,6 +4260,19 @@ requires_bacchae_export = pytest.mark.skipif(
 )
 
 
+@requires_bacchae_export
+def test_bacchae_greek_spine_corrects_the_export_parodos_ref():
+    """The export's lone 1448a typo builds as 148a, in printed order."""
+    from drama_pipeline import stage1_greek
+
+    manifest = Manifest.for_work("bacchae")
+    spine = stage1_greek.parse_spine(stage1_greek.run_export(manifest), manifest)
+    refs = [line["ref"] for segment in spine["segments"] for line in segment["lines"]]
+    parodos = refs[refs.index("147"):refs.index("149") + 1]
+    assert parodos == ["147", "148a", "148b", "149"]
+    assert "1448a" not in refs
+
+
 def _bacchae_murray_chunks(pins: list[dict]) -> dict:
     """The real Murray overlay English, cut on the real Bacchae Greek spine,
     exactly as `stage1_turn_english.run(manifest, spine, slot="overlay",

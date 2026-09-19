@@ -1282,19 +1282,23 @@ def _line_with_play_labels(
     return final_text, final_markers, strophe_label, had_schema
 
 
-def _normalize_play_lineref(n: str | None, xml_path=None) -> str:
+def _normalize_play_lineref(n: str | None, xml_path=None, ref_fixes=None) -> str:
     """Normalize a play `<l n>` token to the play-line grammar (scheme.py's
-    `PLAY_LINE_REF_SOURCE`) — the ONLY two normalizations the P1 probe
-    found necessary, both applied here so every later consumer (the
+    `PLAY_LINE_REF_SOURCE`). The standard normalizations and a narrowly
+    declared per-work export typo fix are applied here so every later consumer (the
     grammar check, the order key, the manifest's declared lacunae/
     transpositions) sees the canonical form:
 
       * Diggle's unspaced lacuna placeholder ("post1226") -> "post 1226".
       * Ecclesiazusae's slash-joined double number ("289/290") -> the
         ordinary range form "289-290" (the SAME editorial phenomenon as an
-        int-int range token, just spelled with a different separator)."""
+        int-int range token, just spelled with a different separator).
+      * A `citation.ref_fixes` mapping, when the source export itself has a
+        one-off wrong ref (Bacchae's "1448a" -> "148a")."""
     if not isinstance(n, str) or not n:
         raise ValueError(f"{xml_path or '<xml>'}: play <l> has no @n")
+    if ref_fixes and n in ref_fixes:
+        n = ref_fixes[n]
     m = re.match(r"^post\s*([0-9]+)$", n)
     if m:
         return f"post {m.group(1)}"
@@ -1302,6 +1306,29 @@ def _normalize_play_lineref(n: str | None, xml_path=None) -> str:
     if m:
         return f"{m.group(1)}-{m.group(2)}"
     return n
+
+
+def _load_play_ref_fixes(manifest: Manifest) -> dict[str, str]:
+    """Load a play's source-export ref corrections from its manifest.
+
+    Like `english.<slot>.line_fixes`, this is a per-work map from the raw
+    TEI `@n` token to its corrected token. `_parse_play` checks that every
+    declared raw token occurs exactly once, so a stale or too-broad fix fails
+    instead of silently changing another export line.
+    """
+    fixes = (manifest.data.get("citation") or {}).get("ref_fixes")
+    if not fixes:
+        return {}
+    if not isinstance(fixes, dict):
+        raise ValueError(f"{manifest.work_id}: citation.ref_fixes must be a map of TEI n -> n")
+    out = {str(raw): str(corrected) for raw, corrected in fixes.items()}
+    for raw, corrected in out.items():
+        if not raw or not corrected:
+            raise ValueError(
+                f"{manifest.work_id}: citation.ref_fixes entries must have non-empty TEI and corrected refs"
+            )
+        scheme_mod.play_line_kind(corrected)
+    return out
 
 
 def _play_line_start_key(ref: str) -> tuple[int, int, str]:
@@ -1460,6 +1487,8 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
     # allowlist: {ref: expected count}; any other repeat, or a declared repeat
     # not observed with exactly that count, fails loudly.
     allowed_repeats = _load_repeated_refs(manifest)
+    ref_fixes = _load_play_ref_fixes(manifest)
+    ref_fix_hits: dict[str, int] = {raw: 0 for raw in ref_fixes}
     ref_counts: dict[str, int] = {}
     body = tree.find(".//{*}body")
     if body is None:
@@ -1480,7 +1509,9 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
                     f"citation.title_labels before this can build"
                 )
             continue
-        ref = _normalize_play_lineref(n, xml_path)
+        if n in ref_fixes:
+            ref_fix_hits[n] += 1
+        ref = _normalize_play_lineref(n, xml_path, ref_fixes)
         kind = scheme_mod.play_line_kind(ref)  # raises loudly on a bad token
         ref_counts[ref] = ref_counts.get(ref, 0) + 1
         if ref in seen_refs and ref not in allowed_repeats:
@@ -1516,6 +1547,12 @@ def _parse_play(tree, sch, manifest, xml_path=None) -> list[dict]:
         # MacDowell/Ussher print none (all eleven comedies, P3 2026-09-07).
         # A title line is required only when the manifest declares one.
         raise ValueError(f"{xml_path or '<xml>'}: play-line export has no <l n=\"t\"> title line")
+    wrong_ref_fixes = {raw: count for raw, count in ref_fix_hits.items() if count != 1}
+    if wrong_ref_fixes:
+        raise ValueError(
+            f"{manifest.work_id}: citation.ref_fixes {wrong_ref_fixes!r} — each key must name "
+            "exactly one <l n> in the export"
+        )
     _check_repeated_refs(allowed_repeats, ref_counts, xml_path)
     stale_titles = set(declared_titles) - observed_titles
     if stale_titles:
