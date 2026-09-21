@@ -356,6 +356,23 @@ _GREEK_LETTER = re.compile(r"[Ͱ-Ͽἀ-῿]")
 # the usual cue grammar ever sees it.
 _LATEX_SMALL_CUE = re.compile(r"^\$\\text\{\\footnotesize\s+([^}]+)\}\$\s*(.*)$")
 _STAGE_NOTE = re.compile(r"^(Exit|Exeunt|Enter|Enters|Re-enters?)\b", re.I)
+# Genie wraps a few Ecclesiazusae cues in a small-caps span ("bl.", "pr.",
+# "chr."). genie_text._clean_line deletes every <span> together with what
+# is inside it, so the cue vanished and the verse stayed in the previous
+# speech. Lift those cues out before paragraphs() runs. A span that is not
+# one of these cues (a footnote letter, a Greek siglum) is left for that
+# strip. Only a span that opens the line is a cue; the same abbrevs inside
+# a footnote stay put.
+_SMALLCAPS_CUE_LINE = re.compile(
+    r"^(?P<indent>\s*)<span[^>]*font-variant:\s*small-caps[^>]*>"
+    r"\s*(?P<cue>bl|pr|chr)\.?\s*</span>(?P<rest>.*)$",
+    re.I,
+)
+# The same scene's next page is a markdown table, one speaker per row
+# ("| BL. | Right. |", "| | But what will you do |"). A Greek table
+# (Thesmophoriazusae's "| MN. | τί δ᾽ ἔστιν |") is not English dialogue.
+_TABLE_ROW = re.compile(r"^\|\s*([^|]*)\|\s*([^|]*)\|")
+_TABLE_RULE_CELL = re.compile(r"^:?-+:?$")
 
 
 def _call_letter(m: "re.Match[str]") -> str:
@@ -479,8 +496,66 @@ def _count_speeches(text: str, title: str) -> int:
     return len(speeches)
 
 
+def _lift_smallcaps_cues(raw: str) -> str:
+    """Turn a leading small-caps cue span into an ordinary ``BL.`` line."""
+    out: list[str] = []
+    for line in raw.splitlines():
+        m = _SMALLCAPS_CUE_LINE.match(line)
+        if m:
+            out.append(f"{m.group('indent')}{m.group('cue').upper()}. {m.group('rest')}")
+        else:
+            out.append(line)
+    if raw.endswith("\n"):
+        return "\n".join(out) + "\n"
+    return "\n".join(out)
+
+
 def _load_genie() -> list[gt.Paragraph]:
-    return gt.paragraphs(GENIE_TEXT)
+    import tempfile
+
+    raw = _lift_smallcaps_cues(GENIE_TEXT.read_text(encoding="utf-8"))
+    # paragraphs() only reads a path, and it strips <span> contents. The
+    # lift has to happen first, on a copy: the Genie export itself is not
+    # ours to rewrite.
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", suffix=".txt", delete=False
+    ) as handle:
+        handle.write(raw)
+        path = handle.name
+    try:
+        return gt.paragraphs(path)
+    finally:
+        Path(path).unlink(missing_ok=True)
+
+
+def _take_table_row(resolved: str, cfg: _Play, writer: "_Writer") -> bool:
+    """A markdown table row that is really a cue. True if the row was ours."""
+    m = _TABLE_ROW.match(resolved.strip())
+    if not m:
+        return False
+    cue_cell = m.group(1).strip().strip("*")
+    body = m.group(2).strip()
+    if (
+        (not cue_cell and not body)
+        or _TABLE_RULE_CELL.match(cue_cell)
+        or _TABLE_RULE_CELL.match(body)
+    ):
+        return True
+    if _GREEK_LETTER.search(cue_cell) or _GREEK_LETTER.search(body):
+        return True
+    body = body.replace("*", "").strip()
+    if cue_cell:
+        printed = cue_cell.rstrip(".").strip()
+        if not re.fullmatch(r"[A-Z][A-Z .'\-]{0,12}", printed):
+            return False
+        cue = cfg.abbrev.get(printed, printed)
+        writer.cue(cue)
+        if body:
+            writer.line(body)
+        return True
+    if body:
+        writer.line(body)
+    return True
 
 
 def _real_start(paras: list[gt.Paragraph], title: str) -> int:
@@ -727,6 +802,9 @@ def _convert_body(
         if _GREEK_LETTER.search(resolved) and not _CUE_RE.match(resolved) and not resolved.startswith("["):
             writer.retain_calls(resolved)
             log.append(f"dropped\tGreek-bearing note-body apparatus, unattached: {resolved[:60]!r}")
+            continue
+
+        if _take_table_row(resolved, cfg, writer):
             continue
 
         compound = _COMPOUND_RE.match(resolved)

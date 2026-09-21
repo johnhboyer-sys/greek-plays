@@ -17,6 +17,7 @@ describe('generated registry golden value', () => {
     // node --experimental-strip-types --input-type=module -e "import{createHash}from'node:crypto';import{CORPUS_WORKS as WORKS,CORPUS_AUTHORS as AUTHORS}from'./lib/registry.generated.ts';console.log(createHash('sha256').update(JSON.stringify(WORKS)+JSON.stringify(AUTHORS)).digest('hex'))"
     // Regenerated 2026-09-19: publishing Rogers on Lysistrata, Thesmophoriazusae and
     // Wealth adds those three translations to the registry (John's ruling).
-    expect(hash).toBe('2a22ab18515097370c6b725aa1fa9b2433f1526aeafb599a1c4c17805fa2a66c');
+    // Regenerated 2026-09-21: Ecclesiazusae's Rogers joins them, its drift fixed.
+    expect(hash).toBe('892ef246c7356b71be80defec92293fb790a97fe4a560372ae434f1d8f16d353');
   });
 });
