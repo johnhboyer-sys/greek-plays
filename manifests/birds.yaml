@@ -35,7 +35,7 @@ english:
       # run about screeching!" (1:307) is folded into 1:306's Euelpides turn
       # ("...how they scold, how they come rushing up! What a noise!...").
       - { greek: "307", by: "306" }
-      - { greek: "878", by: "873" }
+      - { greek: "878", by: "877" }
       - { greek: "290", by: "289" }
       - { greek: "577", by: "571" }
     # Item 6 splits: the 1912 text runs these speeches together where the
@@ -64,6 +64,16 @@ english:
       - { greek: "1581", english: "Mortal! we who greet you are three gods", run: 1 }
       - { greek: "877", english: "Oh! sovereign ostrich, Cybelé, the mother of Cleocritus", run: 1 }
       - { greek: "581", english: "By Zeus, she'll take good care she does not", run: 1 }
+      # Nightingale scene (review B1, 2026-09-21): the 1912 runs one speech
+      # late through 667-674; Coulon's single 667-669 speech (ΠΙ.) becomes
+      # two 1912 turns (Peisthetaerus, then Euelpides's "split her legs"
+      # joke), which pulled everything after it forward by one. Pinning 670
+      # and 672 to their own openings lets "Oh! how I should like to kiss
+      # her!" fall back into 670's block, where it belongs (670-671 is one
+      # Greek speech and the 1912 makes two of it).
+      - { greek: "667", english: "Do you know how dearly I should like to split", run: 1 }
+      - { greek: "670", english: "She is dazzling all over with gold", run: 1 }
+      - { greek: "672", english: "Why, wretched man, she has two little sharp", run: 1 }
   third:
     id: arrowsmith
     name: "William Arrowsmith (Michigan, 1961)"
@@ -73,6 +83,14 @@ english:
     source: bench/arrowsmith/birds.txt
     play: "THE BIRDS"
     footnotes: false
+    # Review A#3/B..., 2026-09-21: the Poet scene runs two speeches late;
+    # 907 and 908 print blank. Arrowsmith's own "who spawned this spook?"
+    # and "one of the tribe... as Homer hath it" translate 907 and 908-910
+    # (his own second "according to Homer" joke, greek 911-914, is dropped
+    # entirely -- 915 was already correctly seated, unaffected).
+    pins:
+      - { greek: "907", english: "Who spawned this spook?", run: 1 }
+      - { greek: "908", english: "One of the tribe of dulcet tongue", run: 1 }
   overlays:
     - id: johnston
       name: "Ian Johnston (VIU)"
@@ -82,6 +100,69 @@ english:
       source: bench/johnston/birds.txt
       play: BIRDS
       footnotes: false
+      # Bird catalogue (review B... / A#1, 2026-09-21): Johnston redistributes
+      # the Hoopoe's one-speech Coulon catalogue (302-304-305) as alternating
+      # Pisthetairos/Euelpides banter running from 297 through 306-309; his
+      # own reattribution is not a defect (each turn keeps its own English
+      # speaker). Pins seat each surviving turn on the Greek it renders.
+      pins:
+        - { greek: "298", english: "What’s the one behind her?", run: 1 }
+        - { greek: "300", english: "Shaver?", run: 1 }
+        - { greek: "301", english: "Well, what about that?", run: 1 }
+        # 302 (the Hoopoe's merged 302-303-304-305 catalogue node) is pinned
+        # to the LAST surviving catalogue turn, not the first: the aligner
+        # otherwise prefers the ΠΙ./ΕΥ. name-match at 306 over the
+        # name-mismatched ΕΠ. node and slides every unpinned catalogue turn
+        # (finch, falcon, cuckoo, fire-crest, porphyrion, woodpecker) forward
+        # to 306. Anchoring both 301 (the turn before the catalogue) and 302
+        # (the catalogue's own close) leaves no other node for the turns
+        # between them to reach, so they seat at 302 as intended.
+        - { greek: "302", english: ". . . woodpecker!!", run: 1 }
+        - { greek: "306", english: "What a crowd of birds!", run: 1 }
+        - { greek: "308", english: "It looks that way to me.", run: 1 }
+        # Anchors the nightingale scene (670-673) back where it already sat
+        # correctly (each turn's own name matches its Greek node here --
+        # unlike the 1912 primary, Johnston needs no reattribution fix): the
+        # catalogue pins above changed the global path's cost and pulled it
+        # one node loose. Same fix as the brief's own worked example.
+        - { greek: "670", english: "How I’d love to help that birdie", run: 1 }
+        - { greek: "672", english: "You idiot—look at that beak", run: 1 }
+        # Same fallout, further downstream: the Callias-bird turn (already
+        # correctly seated before this pass) slid one node late to 285.
+        - { greek: "284", english: "So this bird is Callias.", run: 1 }
+        # Review A#5/#18, 2026-09-21: 517 and 518 print blank. Euelpides's
+        # "That's right, by Demeter!" (Greek 517's own line) sits misplaced
+        # at 521; Pisthetaerus's long entrails speech (which Johnston keeps
+        # as one unbroken turn straight through Coulon's 518-538, folding in
+        # Euelpides's brief 521 "Lampon swears by the goose" aside rather
+        # than breaking it out) sits at 522 instead of opening at 518.
+        - { greek: "517", english: "That’s right,", run: 1 }
+        - { greek: "518", english: "So when someone makes a sacrifice", run: 1 }
+        # Review A#6, 2026-09-21: 826 prints blank; the Cloudcuckooland-naming
+        # exchange runs one speech late from 826 through 832 (Johnston's own
+        # EUELPIDES/PISTHETAIROS cues differ from Coulon's ΧΟ./ΕΥ./ΠΙ. here),
+        # resyncing at 833.
+        - { greek: "826", english: "This fine metropolis!", run: 1 }
+        - { greek: "828", english: "Why not let Athena do the guarding?", run: 1 }
+        - { greek: "829", english: "But how can we have a finely ordered state", run: 1 }
+        - { greek: "832", english: "Well, who will hold our city’s strong Storkade?", run: 1 }
+        # Review A#8/#18, 2026-09-21: 289 prints blank; the Glutton-bird
+        # exchange runs one speech late from 287 through 290, resyncing at
+        # 291 (whose first turn -- "if this bird were like our Cleonymus" --
+        # was sitting one node early).
+        - { greek: "287", english: "By Poseidon,", run: 1 }
+        - { greek: "289", english: "Another glutton?", run: 1 }
+        - { greek: "290", english: "If this bird were like our Cleonymus,", run: 1 }
+      covered:
+        # 307's Greek ("how they chirp and run about screeching") is inside
+        # the same Johnston turn that covers 306 ("What a crowd of birds!
+        # ... their beaks are open!").
+        - { greek: "307", by: "306" }
+        # Euelpides's Lampon-swears-by-the-goose aside (521) and the rest of
+        # Pisthetaerus's speech (522, the merged 522-538 node) are both
+        # inside the one continuous turn now seated at 518.
+        - { greek: "521", by: "518" }
+        - { greek: "522", by: "518" }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed
@@ -122,6 +203,14 @@ speakers:
   # TODO(P3.1) sigla collision — ΠΟ. = Poet (904–957) and Poseidon (1565–1693); ΕΠ. = Hoopoe and, if Coulon uses it, the Inspector (1021–1055)
   overrides:
     - { siglum: "ΠΟ.", from: "1565", display: "Poseidon" }
+  # Review #13, 2026-09-21: the 1912's one plain MESSENGER label covers three
+  # distinct Greek speakers (ΑΓ. Αʹ, ΑΓ. Βʹ, ΑΓΓΕΛΟΣ); Arrowsmith's own
+  # collision is already fixed by bench_clean_verse.GENIE_SPEAKER_RELABELS,
+  # the primary's was not. Retags the first MESSENGER run (from Greek 1122,
+  # the wall-building report) to First Messenger; the later plain MESSENGER
+  # (the unlabelled ΑΓΓΕΛΟΣ at 1706) is untouched.
+  english_overrides:
+    - { slot: primary, cue: "MESSENGER", from_text: "Where, where is he? Where, where, where is he?", display: "First Messenger" }
   english:
     "PISTHETAERUS": "Peisthetaerus"
     "EUELPIDES": "Euelpides"
