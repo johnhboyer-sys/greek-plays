@@ -63,6 +63,11 @@ english:
     source: bench/morshead/seven-against-thebes.txt
     play: THE SEVEN AGAINST THEBES
     footnotes: false
+    # This column prints 808–809 (τίνες; τί δ' εἶπας; / φρονοῦσα νῦν ἄκουσον)
+    # before 805 (οἲ 'γὼ τάλαινα). The window also holds 806 πέπωκεν αἷμα
+    # and 807 ἅνδρες τεθνᾶσιν.
+    transpositions:
+      - { start: "808", end: "809", before: "805" }
     # John 2026-09-11: shift over 0.10 by under a point; let it slide for now
     max_turn_shift_rate: 0.11
   third:
@@ -79,6 +84,11 @@ english:
     # speaker's Greek.
     pins:
       - { greek: "369", english: "The scout, I believe, is bringing some fresh news of the army", run: 1 }
+    # This column prints 808–809 (τίνες; τί δ' εἶπας; / φρονοῦσα νῦν ἄκουσον)
+    # before 805 (οἲ 'γὼ τάλαινα). The window also holds 806 πέπωκεν αἷμα
+    # and 807 ἅνδρες τεθνᾶσιν.
+    transpositions:
+      - { start: "808", end: "809", before: "805" }
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
     license:
       status: licensed
@@ -96,6 +106,11 @@ english:
       source: bench/johnston/seven-against-thebes.txt
       play: SEVEN AGAINST THEBES
       footnotes: false
+      # This column prints 808–809 (τίνες; τί δ' εἶπας; / φρονοῦσα νῦν ἄκουσον)
+      # before 805 (οἲ 'γὼ τάλαινα). The window also holds 806 πέπωκεν αἷμα
+      # and 807 ἅνδρες τεθνᾶσιν.
+      transpositions:
+        - { start: "808", end: "809", before: "805" }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed
