@@ -1289,8 +1289,74 @@ def _antilabe_window_has_cross_segment_evidence(
     return len(targets) >= 2
 
 
+def _one_to_one_transposition_bases(
+    blocks: list[dict] | None,
+    printed_refs: list[str] | None,
+    jobs: list[dict],
+) -> list[set[int]]:
+    """Line numbers of each declared transposition stretch whose English
+    anchors already correspond one-to-one with the stretch's printed lines.
+
+    The same guard :func:`_transposition_anchor_remap` uses before it will
+    re-key: the distinct base numbers of the anchors inside the stretch's
+    numeric range are exactly the stretch's own refs, one for one — none
+    missing, none doubled. A lettered share (``1185`` beside ``1185a``, or
+    two halves both rewritten onto ``1185``) is one base, not a second
+    line. On such a stretch the anchors are already the right refs, and
+    the English (numeric order) and the Greek (printed order) differ in
+    position only because the edition transposed the lines. A
+    document-position walk through that difference swaps lines that were
+    already seated (Heracles 1185–1188: Diggle prints 1187, 1188, 1186,
+    1185, and the walk exchanges 1185 with 1186).
+    """
+    if not blocks or not printed_refs:
+        return []
+    stretches, _anomalies = _transposition_printed_stretches(blocks, printed_refs)
+    english_bases: set[int] = set()
+    for job in jobs:
+        anchor = job.get("anchor")
+        if isinstance(anchor, str) and (
+            anchor.isdigit() or _LETTERED_ANCHOR.fullmatch(anchor)
+        ):
+            english_bases.add(_anchor_base(anchor))
+    settled: list[set[int]] = []
+    for span, _forced in stretches:
+        span_refs = [printed_refs[p] for p in span]
+        printed_bases = [_anchor_base(_ref_root(ref)) for ref in span_refs]
+        if len(set(printed_bases)) != len(printed_bases):
+            continue
+        lo, hi = min(printed_bases), max(printed_bases)
+        observed = {base for base in english_bases if lo <= base <= hi}
+        if observed != set(printed_bases):
+            continue
+        settled.append(set(printed_bases))
+    return settled
+
+
+def _window_overlaps_settled_transposition(
+    jobs: list[dict], sub: list[int], settled: list[set[int]]
+) -> bool:
+    """Whether any piece in ``sub`` carries an anchor whose base is a line
+    of a stretch :func:`_one_to_one_transposition_bases` has settled."""
+    if not settled:
+        return False
+    for pos in sub:
+        anchor = jobs[pos].get("anchor")
+        if not isinstance(anchor, str):
+            continue
+        if not (anchor.isdigit() or _LETTERED_ANCHOR.fullmatch(anchor)):
+            continue
+        base = _anchor_base(anchor)
+        if any(base in bases for bases in settled):
+            return True
+    return False
+
+
 def _antilabe_reassignments(
-    jobs: list[dict], index: _SpeechIndex
+    jobs: list[dict],
+    index: _SpeechIndex,
+    transpositions: list[dict] | None = None,
+    printed_refs: list[str] | None = None,
 ) -> dict[int, tuple[dict, int]]:
     """C6 (fix-mechanisms brief round 2, electra-soph #2/#3/#12): a run of
     short antilabe speeches, matched by DOCUMENT POSITION against the
@@ -1318,13 +1384,23 @@ def _antilabe_reassignments(
     disagreeing with the Greek about its speaker).  That last check is
     what keeps three merely-adjacent, already-correct one-line exchanges
     (Electra 1499-1501) from being "fixed" by sheer coincidence of
-    alternating speakers.  Windows are applied longest first, then
-    earliest, and never overlap one already taken.
+    alternating speakers.  A fourth keeps the walk out of a declared
+    transposition whose anchors are already one-to-one with the stretch's
+    printed lines (:func:`_one_to_one_transposition_bases`): there the
+    position gap is the edition's own order, not a numbering lag, and
+    walking it swaps lines that already name the right ref (Heracles
+    1185/1186).  Windows are applied longest first, then earliest, and
+    never overlap one already taken.
 
     Returns ``{job position: (segment, printed_line)}`` overrides for the
     positions a matching window resolves; every other job is untouched.
+
+    ``transpositions`` and ``printed_refs`` are the citation rows and the
+    spine's printed ref list already in hand at the call. The walk does
+    not read the manifest itself.
     """
     overrides: dict[int, tuple[dict, int]] = {}
+    settled = _one_to_one_transposition_bases(transpositions, printed_refs, jobs)
     for run in _small_piece_runs(jobs):
         total = len(run)
         candidates: list[list[int]] = []
@@ -1339,6 +1415,9 @@ def _antilabe_reassignments(
                     and len(pool) == len(sub)
                     and _antilabe_walk_matches(jobs, sub, pool)
                     and _antilabe_window_has_cross_segment_evidence(jobs, sub, index)
+                    and not _window_overlaps_settled_transposition(
+                        jobs, sub, settled
+                    )
                 ):
                     candidates.append(sub)
         candidates.sort(key=lambda sub: (-len(sub), sub[0]))
@@ -2518,7 +2597,9 @@ def parse_translation(
     }
     repairable_anchors = _repairable_anchors(jobs, index)
     repeat_positions = _repeat_lettered_positions(jobs)
-    antilabe_overrides = _antilabe_reassignments(jobs, index)
+    antilabe_overrides = _antilabe_reassignments(
+        jobs, index, transpositions=transpositions, printed_refs=printed_refs
+    )
     tail_redirects = _multi_span_tail_redirects(jobs, index)
     head_redirects = _multi_span_head_redirects(jobs, index)
     prev_assigned: dict[int, str] = {}
