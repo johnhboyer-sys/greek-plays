@@ -135,6 +135,15 @@ class Weights:
     w_cont: float = 0.80
     covered_length_threshold: float = 0.7  # L at which a SKIP_G run after a
     # MATCH is emitted as derived_covered ("the English is long for its Greek")
+    # A6 round 5: the allowance on the SKIPPED share in `merged_into_match`.
+    # The matched English must reach `rho * merged_share_allowance` times the
+    # skipped share's own size before that share may be read as merged into
+    # it. It is a fraction, not a weight: it prices nothing, it only decides
+    # which of `ext_g_same_line` and `open_g` an already-priced transition
+    # pays, so none of the four inequalities above involves it. Fitted at
+    # 0.80 over the corpus's 133 measurable same-line skip decisions (see the
+    # docstring of `merged_into_match`).
+    merged_share_allowance: float = 0.80
 
 
 DEFAULTS = Weights()
@@ -265,12 +274,27 @@ def _region_align(
         renders both shares then buys its own displacement: at Bacchae 1372
         Murray has a speech for each half and the slid seating wins by 0.023.
 
-        The test is not a fitted threshold on a ratio but a change of the
-        quantity: the matched English must be at least as long as its OWN
-        share alone warrants (``rho``, the column's median English chars per
-        Greek char) before the next share may be treated as merged into it.
-        There is no constant here -- the comparison is against what the
-        column's own median says one share should produce.
+        Round 4 asked only whether the matched English was long enough for
+        its OWN share (``M >= rho * A``). That fires on neither named corpus
+        case, because both matched turns are perfectly reasonable renderings
+        of the share they sit on -- Murray's 36 characters for Agave's 20 at
+        Bacchae 1372, Johnston's 23 for Neoptolemus' 9 at Philoctetes 202.
+        What is absurd in both is the OTHER half of the line: 43 characters
+        of Cadmus and 194 of Chorus lyric, read as already contained in a
+        turn far too short to hold them. Round 5 adds that half. The English
+        just matched must reach what the column's own ``rho`` says the larger
+        of the two shares should produce, with the skipped share discounted
+        by ``merged_share_allowance`` -- translators compress an interjection
+        harder than a speech, and the allowance is what that compression is
+        worth:
+
+            ``M >= rho * max(A, allowance * B)``
+
+        ``A`` is the matched share, ``B`` the one about to be skipped. The
+        round-4 clause is kept as the first argument of the ``max``, so every
+        decision round 4 re-priced is still re-priced: the new clause can
+        only make the test harder to pass, never easier, and the corpus
+        cannot lose a skip that round 4 already turned into a hole.
 
         It applies ONLY to the transition out of a MATCH: a gap already open
         (``Ig``) or one resuming after an English gap (``Ie``) has no matched
@@ -281,7 +305,8 @@ def _region_align(
 
         The four documented inequalities (see ``Weights``) are untouched:
         this changes no weight, only which of two existing weights an
-        already-priced transition pays. 1. ``open_e < w_spk``: no English
+        already-priced transition pays, and ``merged_share_allowance`` is a
+        fraction of a length, not a cost. 1. ``open_e < w_spk``: no English
         term moves. 2. ``w_spk < ext_g + ext_e``: neither extension rate
         moves, and the substitution is ``open_g`` for ``ext_g_same_line`` on
         a MATCH-to-gap OPENING, which is the transition ``open_g`` prices
@@ -294,7 +319,12 @@ def _region_align(
         """
         if i < 2 or j < 1:
             return True
-        return english[j - 1].chars >= rho * max(greek[i - 2].chars, 1)
+        need = max(
+            greek[i - 2].chars,
+            weights.merged_share_allowance * greek[i - 1].chars,
+            1.0,
+        )
+        return english[j - 1].chars >= rho * need
 
     # Round 9, Codex merge-gate finding 1: the band is gone. It pruned cells
     # to a half-width of `max(40, 0.12 * max(G, E))` and retried wider when

@@ -81,6 +81,13 @@ english:
     format: loeb-ocr
     source: "bench/hickie/frogs.txt"
     play: "THE FROGS"
+    # The A6 share-size term (2026-09-21) fixed the antilabe at 795 and 798
+    # but let Aeacus's rulers-and-yard-wands speech slide a row, onto
+    # Xanthias's 803. Both speeches checked against the Greek (kai kanonas
+    # exoisousi; e pou bareos oimai ton Aischylon pherein).
+    pins:
+      - { greek: "799", english: "And they will bring out rulers and yard-wands", run: 1 }
+      - { greek: "803", english: "Of a truth, I suppose", run: 1 }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a

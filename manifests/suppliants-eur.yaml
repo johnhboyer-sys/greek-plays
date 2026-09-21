@@ -39,6 +39,14 @@ english:
     source: bench/way/suppliants-eur.txt
     play: SUPPLIANTS
     footnotes: true
+    # Way prints nothing for the two cries at 805-806 (Genie and the old
+    # scan agree), so his "We suffered- / Deepest anguish!" is 807 and "Ah,
+    # fair town Of Argos" is 808. The A6 share-size term (2026-09-21) reads
+    # 805's short second share as unmerged and slid both up two rows; the
+    # pins hold them. Checked against the Greek (epathomen / o polis Argeia).
+    pins:
+      - { greek: "807", english: "We suffered", run: 1 }
+      - { greek: "808", english: "Ah, fair town", run: 1 }
   # Round 2 item 12 (2026-09-18): the sweep-2026-09-08 attachment loss
   # this ceiling allowed for is gone -- earlier lanes' repairs (C15's
   # unprinted-ref seat, C17's bracketed-siglum split, and others) have
