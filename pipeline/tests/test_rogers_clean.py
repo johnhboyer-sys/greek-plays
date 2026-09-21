@@ -16,6 +16,7 @@ from drama_pipeline.rogers_clean import (
     _Play,
     _convert_body,
     _lift_smallcaps_cues,
+    _load_genie,
     _splice_gaps,
     convert_play,
 )
@@ -202,6 +203,62 @@ def test_smallcaps_span_and_table_row_are_speaker_cues():
         ("PRAXAGORA", "They shall go"),
     ]
     assert speeches == 3
+
+
+def test_wrapped_footnote_continuations_stay_in_the_note(tmp_path, monkeypatch):
+    # A page-foot note wraps onto later physical lines with no repeated call.
+    # One of those lines opens with a small-caps span. The span must not
+    # become a cue, and none of the wrap may land in a speech. The whole
+    # body stays on the call in the Footnotes block.
+    raw = """\
+THE TESTPLAY
+
+LY. How the creditor came by the money to lend?^c
+
+      ^c Lines 657-8: <span style="font-variant:small-caps;">pr.</span> "But there will never be any actions to
+begin with." <span style="font-variant:small-caps;">bl.</span> "But how many will that ruin?" (i.e. by
+<span style="font-variant:small-caps;">chr.</span> depriving them of the dicast's fee). "And I too was thinking
+the same."
+
+LY. All money, I thought, to the stores had been brought.
+"""
+    fragment = tmp_path / "genie.txt"
+    fragment.write_text(raw, encoding="utf-8")
+    monkeypatch.setattr("drama_pipeline.rogers_clean.GENIE_TEXT", fragment)
+    play = _Play(
+        title="THE TESTPLAY",
+        word="TESTPLAY",
+        bench="testplay",
+        abbrev={
+            "LY": "LYSISTRATA",
+            "BL": "BLEPYRUS",
+            "PR": "PRAXAGORA",
+            "CHR": "CHREMES",
+        },
+    )
+    paras = _load_genie()
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), play)
+    assert gaps == []
+    assert footnotes == 1
+    parsed, notes = _parsed(text)
+    spoken = "\n".join(s["text"] for s in parsed)
+    assert "begin with." not in spoken
+    assert "depriving them" not in spoken
+    assert "the same." not in spoken
+    assert [(s["speaker_printed"], s["text"]) for s in parsed] == [
+        ("LYSISTRATA", "How the creditor came by the money to lend? [1]"),
+        ("LYSISTRATA", "All money, I thought, to the stores had been brought."),
+    ]
+    assert speeches == 2
+    note = notes["1"]
+    assert "Lines 657-8:" in note
+    assert "begin with." in note
+    assert "But how many will that ruin?" in note
+    assert "depriving them of the dicast's fee" in note
+    assert "And I too was thinking" in note
+    assert "the same." in note
+    assert "CHREMES" not in {s["speaker_printed"] for s in parsed}
+    assert not any(line.startswith("uncertain") for line in log)
 
 
 SOURCES = SOURCES_DIR
