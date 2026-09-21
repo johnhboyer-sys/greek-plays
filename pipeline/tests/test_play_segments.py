@@ -392,3 +392,41 @@ def test_a_declared_line_fix_is_honoured_by_the_speech_cap_cut(tmp_path, monkeyp
     assert starts == {"1", "1188"}
     assert marks == {"1", "1188"}
     assert "188" not in starts and "188" not in marks
+
+
+def test_a_repeated_seat_line_fix_marks_the_base_ref(tmp_path, monkeypatch):
+    """A line_fixes value ``1188.2`` is the second printing of 1188. The
+    speech-cap cut compares marks to printed refs, so the ``.2`` must become
+    the base ref and must not be stored as its own mark."""
+    from drama_pipeline.config import Manifest
+    from drama_pipeline import stage1_greek as m
+
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    tei = (
+        '<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>'
+        '<div type="translation">'
+        '<sp><speaker>A</speaker><l n="1">one</l></sp>'
+        '<sp><speaker>Thoas</speaker><l n="188">Second printing of 1188.</l></sp>'
+        '</div></body></text></TEI>'
+    )
+    (src_dir / "play.xml").write_text(tei, encoding="utf-8")
+    monkeypatch.setattr(m, "SOURCES_DIR", src_dir)
+    manifest = Manifest(
+        {
+            "work": {"id": "iphigenia-in-tauris"},
+            "english": {
+                "primary": {
+                    "model": "perseus-play",
+                    "source": "play.xml",
+                    "line_fixes": {"188": "1188.2"},
+                }
+            },
+        },
+        tmp_path / "iphigenia-in-tauris.yaml",
+    )
+    starts, marks = m._english_line_marks(manifest)
+    assert starts == {"1", "1188"}
+    assert marks == {"1", "1188"}
+    assert "1188.2" not in starts and "1188.2" not in marks
+    assert "188" not in starts and "188" not in marks

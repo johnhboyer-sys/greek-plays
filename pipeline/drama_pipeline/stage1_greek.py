@@ -1646,8 +1646,17 @@ def _english_line_marks(manifest: Manifest) -> tuple[set[str], set[str]] | None:
     line_fixes = cfg.get("line_fixes")
     if line_fixes:
         fixes = {str(k): str(v) for k, v in line_fixes.items()}
-        starts = {fixes.get(n, n) for n in starts}
-        marks = {fixes.get(n, n) for n in marks}
+
+        def _mark(value: str) -> str:
+            # ``"<ref>.<k>"`` names a printing. The cut matches printed refs,
+            # so the mark is the base ref, never the ``.k`` string itself.
+            head, dot, tail = value.partition(".")
+            if dot and head.isdigit() and tail.isdigit() and int(tail) >= 2:
+                return head
+            return value
+
+        starts = {_mark(fixes.get(n, n)) for n in starts}
+        marks = {_mark(fixes.get(n, n)) for n in marks}
     return starts, marks
 
 
