@@ -305,6 +305,73 @@ def test_two_share_line_whose_english_is_two_turns_gets_both():
     assert result.english_skips == []
 
 
+def test_a6_a_long_second_share_is_not_merged_into_a_short_match():
+    """A6 round 5, the Bacchae 1372 (Murray) shape, in that column's own
+    numbers: ``rho`` 1.2667, Agave's share of the line 20 characters, the
+    English matched to it 36, and Cadmus' share of the SAME line 43.
+
+    Round 4's discriminator measures the MATCHED share (36 >= 1.2667 x 20 =
+    25.3, so the line reads as merged) and the reduced same-line rate stands:
+    Cadmus' share is skipped for 0.60 where the ordinary hole one node later
+    would cost 1.60, and the column buys a one-speech displacement that runs
+    to the end of the exodos. Measuring the SKIPPED share instead --
+    ``36 < 0.8 x 1.2667 x 43 = 43.6`` -- prices that opening at ``open_g``,
+    and the reading that gives each share its own English wins by 0.405.
+
+    Names are ``None`` on both sides because that is what makes the case
+    hard: with a cross-name charge available the DP never wanted the slid
+    seating, and at Bacchae 1372 it won on length and position alone (by
+    0.023 in the real column).
+    """
+    greek = [
+        GreekNode(name=None, chars=20, line_key="L1"),   # Agave's share
+        GreekNode(name=None, chars=43, line_key="L1"),   # Cadmus' share, same line
+        GreekNode(name=None, chars=100, line_key="L2"),  # the hole Murray really has
+        GreekNode(name=None, chars=60, line_key="L3"),
+    ]
+    english = [
+        EnglishNode(name=None, chars=36),
+        EnglishNode(name=None, chars=37),
+        EnglishNode(name=None, chars=76),
+    ]
+
+    result = align(greek, english, pins=[])
+
+    assert _median_ratio(greek, english) == pytest.approx(1.2667, abs=5e-4)
+    assert result.pairs == [(0, 0), (1, 1), (3, 2)]
+    assert result.greek_skips == [(2, 3)]
+
+
+def test_a6_a_lyric_share_is_not_merged_into_a_two_word_reply():
+    """A6 round 5, the Philoctetes 202 (Johnston) shape, in that column's own
+    numbers: ``rho`` 1.42, Neoptolemus' ``Τί τόδε;`` 9 characters, Johnston's
+    "Why, what's the matter?" 23, and the Chorus' share of the same line 194.
+
+    Round 4's discriminator passes this comfortably (23 >= 1.42 x 9 = 12.8),
+    so a 194-character lyric is skipped at the merged-antilabe rate on the
+    strength of a two-word reply, and the eight-line ode it should carry
+    stays welded to the front of the next matched speech. Against the skipped
+    share it is not close: 23 against 0.8 x 1.42 x 194 = 220.
+    """
+    greek = [
+        GreekNode(name=None, chars=9, line_key="L1"),    # Neoptolemus' share
+        GreekNode(name=None, chars=194, line_key="L1"),  # the Chorus' lyric share
+        GreekNode(name=None, chars=40, line_key="L2"),
+        GreekNode(name=None, chars=100, line_key="L3"),
+    ]
+    english = [
+        EnglishNode(name=None, chars=23),
+        EnglishNode(name=None, chars=275),
+        EnglishNode(name=None, chars=142),
+    ]
+
+    result = align(greek, english, pins=[])
+
+    assert _median_ratio(greek, english) == pytest.approx(1.42, abs=5e-4)
+    assert result.pairs == [(0, 0), (1, 1), (3, 2)]
+    assert result.greek_skips == [(2, 3)]
+
+
 def test_one_greek_share_against_two_hundred_english_speeches():
     """Round 6, finding 1 (grok static review 2026-09-16), kept after round 9
     removed the band. When the band's rows were centred on `i*E/G` with no
