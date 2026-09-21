@@ -1036,11 +1036,17 @@ const STAGE_DIRECTION = /^_([^_\n]+)_$/gm;
  *  sentence of stage business takes a line. Verse keeps every direction on
  *  its own line, where Murray's `Others.` and `A Woman.` also sit. */
 export function markStageDirections(html: string, byLength = false): string {
-  return html.replace(/\n?^_([^_\n]+)_$\n?/gm, (_line, dir: string) => {
-    const words = dir.replace(/<[^>]*>/g, '').trim().split(/\s+/).length;
+  return html.replace(/\n?^_([^_\n]+)_$\n?/gm, (line: string, dir: string) => {
+    // A footnote call is markup, not a word of the direction.
+    const plain = dir.replace(/<button\b[^>]*>.*?<\/button>/g, '').replace(/<[^>]*>/g, '');
+    const words = plain.trim().split(/\s+/).length;
     if (!byLength || words > 2) return `<span class="stage-dir">${dir}</span>`;
     const bracketed = /^[([]/.test(dir) ? dir : `(${dir})`;
-    return ` <span class="stage-dir stage-dir-short">${bracketed}</span> `;
+    // A space stands in for each line break taken, so none opens or closes
+    // the speech (on a phone the speaker's name is in the same line).
+    const before = line.startsWith('\n') ? ' ' : '';
+    const after = line.endsWith('\n') ? ' ' : '';
+    return `${before}<span class="stage-dir stage-dir-short">${bracketed}</span>${after}`;
   });
 }
 
