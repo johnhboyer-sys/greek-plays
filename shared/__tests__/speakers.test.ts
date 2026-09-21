@@ -1438,19 +1438,19 @@ describe('stage directions', () => {
   it('prints a direction inside a speech by length (John, 2026-09-21)', async () => {
     const { markStageDirections } = await import('../lib/speakers');
     // A sentence of stage business: its own line, in italics.
-    expect(markStageDirections('Sister.\n_She turns away._\nSee here.'))
+    expect(markStageDirections('Sister.\n_She turns away._\nSee here.', true))
       .toBe('Sister.<span class="stage-dir">She turns away.</span>See here.');
     // A word or two runs in the text, in round brackets (Orestes 1288/1291).
     expect(markStageDirections('_sung_\nSoon some Argive.\n_spoken_\nKeep a better look-out.', true))
-      .toBe(' <span class="stage-dir stage-dir-short">(sung)</span> Soon some Argive. <span class="stage-dir stage-dir-short">(spoken)</span> Keep a better look-out.');
+      .toBe('<span class="stage-dir stage-dir-short">(sung)</span> Soon some Argive. <span class="stage-dir stage-dir-short">(spoken)</span> Keep a better look-out.');
     expect(markStageDirections('Sirrah, begone.\n_Exit Creon._', true))
-      .toBe('Sirrah, begone. <span class="stage-dir stage-dir-short">(Exit Creon.)</span> ');
+      .toBe('Sirrah, begone. <span class="stage-dir stage-dir-short">(Exit Creon.)</span>');
     // One the source already brackets is not bracketed twice; markup inside
     // a direction does not count as words.
     expect(markStageDirections('Help!\n_(within.)_\nAh me.', true))
       .toBe('Help! <span class="stage-dir stage-dir-short">(within.)</span> Ah me.');
-    expect(markStageDirections('Go.\n_aside<sup class="fn">1</sup>_\nStay.', true))
-      .toBe('Go. <span class="stage-dir stage-dir-short">(aside<sup class="fn">1</sup>)</span> Stay.');
+    expect(markStageDirections('Go.\n_Exit Creon. <span class="fn-anchor"><button type="button">1</button></span>_\nStay.', true))
+      .toBe('Go. <span class="stage-dir stage-dir-short">(Exit Creon. <span class="fn-anchor"><button type="button">1</button></span>)</span> Stay.');
     // Verse (no `byLength`) keeps a short direction on its own line.
     expect(markStageDirections('Ah me!\n_Others._\nWoe!'))
       .toBe('Ah me!<span class="stage-dir">Others.</span>Woe!');
