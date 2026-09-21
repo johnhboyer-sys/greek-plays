@@ -25,6 +25,18 @@ english:
     source: "perseus/tlg0085.tlg004.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+    # Smyth's <l n> follows the vulgate order. Murray prints 803 and 810
+    # twice and transposes them (803 after 806, 810 after 812), so those
+    # numbers are not the same verses. "810.2" is the second printing of 810.
+    line_fixes:
+      "805": "808"    # τίνες; τί δ' εἶπας; — Who? What did you say?
+      "806": "809"    # φρονοῦσα νῦν ἄκουσον — Control yourself now and listen
+      "807": "805"    # οἲ 'γὼ τάλαινα — Ah, miserable me, I am prophet
+      "808": "810.2"  # οὐδ' ἀμφιλέκτως μὴν κατεσποδημένοι — beyond all question, struck down
+      "809": "810"    # ἐκεῖθι κἦλθον; — Are they lying out there?
+      "810": "807"    # ἅνδρες τεθνᾶσιν — The men are dead
+      "811": "812"    # οὕτως ἀδελφαῖς χερσὶν — with hands so fraternal
+      "812": "813"    # οὕτως ὁ δαίμων κοινὸς — so all too equal was their destiny
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:

@@ -117,12 +117,49 @@ def _inline_directions(text: str) -> str:
 
 _EM_DASH_SPLIT = re.compile(r"(?:(?<=\s)|^)(?=—)")
 _LETTERED_ANCHOR = re.compile(r"^(\d+)[a-z]+$")
+# A line_fixes VALUE only. ``"<ref>.<k>"`` with k >= 2 names the k-th
+# printing of a ref in citation.repeated_refs (segment id ``1:<ref>.<k>``).
+# A raw TEI ``<l n>`` is never read as this form.
+_REPEATED_SEAT = re.compile(r"^(\d+)\.(\d+)$")
+# On the in-memory TEI element only. lxml hands back a fresh Python wrapper
+# on each walk, so the element's own id cannot carry this mark.
+_LINE_FIX_SEAT = "{http://greek-plays.local/line-fix}seat"
 _SKIP_TAGS = frozenset({"gap", "speaker"})
 
 
+def _repeated_seat(value: str | None) -> tuple[str, int] | None:
+    """``("810", 2)`` for a line_fixes value ``"810.2"``. ``None`` otherwise,
+    including ``"810.1"`` and a lettered anchor."""
+    if not value:
+        return None
+    match = _REPEATED_SEAT.fullmatch(value)
+    if match is None:
+        return None
+    k = int(match.group(2))
+    if k < 2:
+        return None
+    return match.group(1), k
+
+
 def _anchor_base(ref: str) -> int:
+    """Integer line a numbered anchor counts as. ``810.2`` is line 810."""
+    seat = _repeated_seat(ref)
+    if seat is not None:
+        return int(seat[0])
     lettered = _LETTERED_ANCHOR.fullmatch(ref)
     return int(lettered.group(1) if lettered else ref)
+
+
+def _numbered_anchor(anchor: str | None) -> bool:
+    """True when ``anchor`` has an integer base: a digit, a lettered share,
+    or a repeated-ref seat (``810.2``)."""
+    if not isinstance(anchor, str) or not anchor:
+        return False
+    return bool(
+        anchor.isdigit()
+        or _LETTERED_ANCHOR.fullmatch(anchor)
+        or _repeated_seat(anchor)
+    )
 
 
 def _nearest_piece_anchor(anchors: list, index: int):
@@ -382,6 +419,18 @@ class _SpeechIndex:
         return segment, ref
 
     def segment_for_anchor(self, ref: str) -> tuple[dict, str] | None:
+        # A line_fixes seat ``"<ref>.<k>"`` is the k-th printing, in the
+        # document order this list already records. The returned ref stays
+        # the printed line (``810``), so integer callers keep one number
+        # while the segment is the distinct printing.
+        seat = _repeated_seat(ref)
+        if seat is not None:
+            base, k = seat
+            hits = sorted(self.by_ref.get(base) or [], key=lambda item: item[1])
+            if len(hits) < k:
+                return None
+            segment, _order = hits[k - 1]
+            return segment, base
         exact = self.by_ref.get(ref)
         if exact:
             segment, _order = min(exact, key=lambda item: item[1])
@@ -793,6 +842,10 @@ def _iter_speech_slices(
             raw_n = node.get("n")
             content = _line_plain_text(node)
             lettered = _LETTERED_ANCHOR.fullmatch(raw_n or "")
+            # Only an element line_fixes itself rewrote to ``"<ref>.<k>"``.
+            authorized_seat = (
+                _repeated_seat(raw_n) is not None and node.get(_LINE_FIX_SEAT) == "1"
+            )
             # Astra lane C, F8: n="0" is display-only when it repeats the
             # speaker label; any other nonempty n="0" (or n<=0) is loss.
             zero_n = raw_n == "0" or (
@@ -806,7 +859,9 @@ def _iter_speech_slices(
                 if node.tail:
                     handle_text(node.tail, current_n)
                 return
-            if not raw_n or (not raw_n.isdigit() and lettered is None):
+            if not raw_n or (
+                not raw_n.isdigit() and lettered is None and not authorized_seat
+            ):
                 if content:
                     anomalies.append(
                         {"kind": "non_numeric_anchor", "sp": sp_index, "n_raw": raw_n}
@@ -1316,9 +1371,7 @@ def _one_to_one_transposition_bases(
     english_bases: set[int] = set()
     for job in jobs:
         anchor = job.get("anchor")
-        if isinstance(anchor, str) and (
-            anchor.isdigit() or _LETTERED_ANCHOR.fullmatch(anchor)
-        ):
+        if _numbered_anchor(anchor):
             english_bases.add(_anchor_base(anchor))
     settled: list[set[int]] = []
     for span, _forced in stretches:
@@ -1343,9 +1396,7 @@ def _window_overlaps_settled_transposition(
         return False
     for pos in sub:
         anchor = jobs[pos].get("anchor")
-        if not isinstance(anchor, str):
-            continue
-        if not (anchor.isdigit() or _LETTERED_ANCHOR.fullmatch(anchor)):
+        if not _numbered_anchor(anchor):
             continue
         base = _anchor_base(anchor)
         if any(base in bases for bases in settled):
@@ -2242,8 +2293,13 @@ def _ref_root(ref: str) -> str:
 def _remap_anchor(anchor: str, remap: dict[int, int]) -> str:
     """Apply :func:`_transposition_anchor_remap` to one raw anchor string,
     preserving a lettered anchor's own share suffix (``329a`` -> ``330a``
-    when 329 remaps to 330)."""
-    if not remap:
+    when 329 remaps to 330).
+
+    A repeated-ref seat (``810.2``) is left as written. Its base counts as
+    810 wherever a stretch does arithmetic, but the k-th printing is the
+    seat the line_fix named and a rotation must not move it onto another
+    ref's printing."""
+    if not remap or _repeated_seat(anchor) is not None:
         return anchor
     lettered = _LETTERED_ANCHOR.fullmatch(anchor)
     if lettered:
@@ -2257,7 +2313,13 @@ def _remap_anchor(anchor: str, remap: dict[int, int]) -> str:
     return anchor
 
 
-def _apply_line_fixes(translation, line_fixes: dict | None, work_id: str) -> None:
+def _apply_line_fixes(
+    translation,
+    line_fixes: dict | None,
+    work_id: str,
+    index: _SpeechIndex,
+    repeated_refs: dict | None,
+) -> None:
     """C16 (iphigenia-in-tauris finding 5, 2026-09-17): rewrite a TEI line
     number the translation mistypes, before anything reads it.
 
@@ -2269,24 +2331,58 @@ def _apply_line_fixes(translation, line_fixes: dict | None, work_id: str) -> Non
     it is applied to the parsed tree so every later reader — the anchor
     pre-scan the transposition remap works from, the slices, the Perseus
     line notes — sees one number.  A key that matches no line, or more than
-    one, is itself a typo and raises."""
+    one, is itself a typo and raises.
+
+    A value ``"<ref>.<k>"`` (k >= 2) names the k-th printing of a ref in
+    ``citation.repeated_refs``, the segment the build already calls
+    ``1:<ref>.<k>``.  Those elements are marked with a private attribute,
+    because lxml's Python identity is not stable across walks, and the
+    walker accepts the form only on a marked element: a raw TEI ``<l n>``
+    of the same shape stays a non-numeric anchor.  A value whose ref is not
+    declared, or which asks for a printing the spine does not have, raises
+    naming ``line_fixes`` and the value — a stale fix must not drop the
+    sentence."""
     if not line_fixes:
         return
     if not isinstance(line_fixes, dict):
         raise ValueError(f"{work_id}: english line_fixes must be a map of TEI n -> n")
     wanted = {str(k): str(v) for k, v in line_fixes.items()}
     hits: dict[str, int] = {key: 0 for key in wanted}
-    for line in translation.iter("{*}l"):
+    for line in list(translation.iter("{*}l")):
         raw = line.get("n")
         if raw in wanted:
             hits[raw] += 1
             line.set("n", wanted[raw])
+            if _repeated_seat(wanted[raw]) is not None:
+                line.set(_LINE_FIX_SEAT, "1")
     wrong = {key: count for key, count in hits.items() if count != 1}
     if wrong:
         raise ValueError(
             f"{work_id}: english line_fixes {wrong!r} — each key must name "
             "exactly one <l n> in the translation"
         )
+    declared = {str(k): int(v) for k, v in (repeated_refs or {}).items()}
+    for line in list(translation.iter("{*}l")):
+        if line.get(_LINE_FIX_SEAT) != "1":
+            continue
+        raw = line.get("n") or ""
+        seat = _repeated_seat(raw)
+        if seat is None:
+            continue
+        ref, k = seat
+        if ref not in declared:
+            raise ValueError(
+                f"{work_id}: english line_fixes value {raw!r} names printing "
+                f"{k} of ref {ref!r}, which is not declared in "
+                "citation.repeated_refs"
+            )
+        printed = len(index.by_ref.get(ref) or [])
+        have = min(printed, declared[ref])
+        if have < k:
+            raise ValueError(
+                f"{work_id}: english line_fixes value {raw!r} names printing "
+                f"{k} of ref {ref!r}, but only {have} printing(s) exist"
+            )
 
 
 def parse_translation(
@@ -2300,6 +2396,7 @@ def parse_translation(
     covered_decl: list[dict] | None = None,
     transpositions: list[dict] | None = None,
     line_fixes: dict | None = None,
+    repeated_refs: dict | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one ``perseus-play`` TEI and cut it on the Greek segments."""
     tree = etree.parse(str(xml_path))
@@ -2307,11 +2404,11 @@ def parse_translation(
     if translation is None:
         raise ValueError(f"no div type='translation' in {xml_path}")
 
-    _apply_line_fixes(translation, line_fixes, work_id)
     if not isinstance(sigla, _SiglaResolver):
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
+    _apply_line_fixes(translation, line_fixes, work_id, index, repeated_refs)
     chunks_by_id: dict[str, dict] = {}
     footnotes: dict[str, str] = {}
     snaps: list[dict] = []
@@ -2334,7 +2431,10 @@ def parse_translation(
         canonical_name = _canonical_english(name, aliases)
         for line in speech.iter("{*}l"):
             raw = line.get("n") or ""
-            if raw.isdigit() or _LETTERED_ANCHOR.fullmatch(raw):
+            authorized_seat = (
+                line.get(_LINE_FIX_SEAT) == "1" and _repeated_seat(raw) is not None
+            )
+            if raw.isdigit() or _LETTERED_ANCHOR.fullmatch(raw) or authorized_seat:
                 base = _anchor_base(raw)
                 english_bases.add(base)
                 english_speakers.setdefault(base, canonical_name)
@@ -2607,6 +2707,10 @@ def parse_translation(
     last_commit: tuple[int, str] | None = None
     for pos, job in enumerate(jobs):
         n = job["n"]
+        # An explicit ``<ref>.<k>`` seat stays on the printing it names.
+        # Repair, antilabe reassignment, and the head/tail redirects all
+        # move a piece by its integer, which would collapse 810.2 onto 810.
+        explicit_seat = _repeated_seat(job.get("anchor") or "") is not None
         if n is not None:
             anchor_count += 1
         if pos in repeat_positions:
@@ -2615,7 +2719,7 @@ def parse_translation(
             # contributes nothing new -- skip it exactly as a stage
             # direction is skipped, rather than write the sentence twice.
             continue
-        if pos in antilabe_overrides:
+        if pos in antilabe_overrides and not explicit_seat:
             # C6: position, not number, decided this piece's home.
             segment, printed_line = antilabe_overrides[pos]
             commit_job(job, segment, printed_line)
@@ -2624,6 +2728,7 @@ def parse_translation(
         head_redirect = head_redirects.get((job["sp_index"], n)) if n is not None else None
         if (
             head_redirect is not None
+            and not explicit_seat
             and last_commit is not None
             and last_commit[0] < job["sp_index"]
             and last_commit[1] == head_redirect[0]
@@ -2638,7 +2743,11 @@ def parse_translation(
             prev_assigned[job["sp_index"]] = job["assigned"]
             last_commit = (job["sp_index"], job["assigned"])
             continue
-        if n is not None and (job["sp_index"], n) in tail_redirects:
+        if (
+            n is not None
+            and not explicit_seat
+            and (job["sp_index"], n) in tail_redirects
+        ):
             # C7: this piece is the tail of its OWN speech, displaced onto
             # the next speech's segment by a one-line collision; it belongs
             # with the rest of its own speech, one segment back.
@@ -2719,7 +2828,7 @@ def parse_translation(
             work_id=work_id,
             printed=job["printed"],
             claimed=claimed,
-            repairable=pos in repairable_anchors,
+            repairable=pos in repairable_anchors and not explicit_seat,
         )
         if result is None:
             seat = _unprinted_ref_seat(n, job["canonical"], index)
@@ -2867,6 +2976,18 @@ def _chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
     return out
 
 
+def _repeated_ref_counts(manifest: Manifest) -> dict[str, int]:
+    """``citation.repeated_refs`` for book 1, as ``{ref: count}``."""
+    decl = ((manifest.data.get("citation") or {}).get("repeated_refs") or {}).get("1") or []
+    out: dict[str, int] = {}
+    if not isinstance(decl, list):
+        return out
+    for entry in decl:
+        if isinstance(entry, dict) and entry.get("ref") is not None:
+            out[str(entry["ref"])] = int(entry.get("count") or 0)
+    return out
+
+
 def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, Path, Path]:
     cfg = ((manifest.data.get("english") or {}).get(slot) or {})
     if not cfg:
@@ -2890,6 +3011,7 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         english_aliases=aliases,
         line_fixes=cfg.get("line_fixes"),
         transpositions=((manifest.data.get("citation") or {}).get("transpositions") or {}).get("1") or [],
+        repeated_refs=_repeated_ref_counts(manifest),
     )
     from .stage2_validate import _play_line_english_gap_ids
 

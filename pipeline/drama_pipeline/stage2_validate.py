@@ -107,8 +107,10 @@ def _play_line_lacuna_segment_ids(segments: list[dict]) -> set[str]:
 def _play_line_twin_segment_ids(segments: list[dict]) -> set[str]:
     """Repeated-ref second copies (``1:803.2``) and lettered twins
     (Bacchae 843a/843b, Medea 1270a) that share an integer line number with
-    another segment. A Perseus ``<l n>`` can attach to only one owner per
-    integer, so these never need a declared gap."""
+    another segment. Whether a copy may stay unmatched is
+    :func:`_play_line_allowed_twin_ids`: a raw ``<l n>`` still reaches only
+    the first owner of an integer, and a ``line_fixes`` value ``"<ref>.<k>"``
+    is the exception that can own the later printing."""
     from .stage1_perseus_play_english import _ref_line_numbers
 
     ids = {seg["id"] for seg in segments}
@@ -198,10 +200,23 @@ def _play_line_nonempty_translation_ns(source: Path | None) -> set[str] | None:
 def _play_line_allowed_twin_ids(manifest: Manifest, segments: list[dict]) -> set[str]:
     """Twins that may stay unmatched without a declared gap.
 
-    Numeric ``.2`` copies always pass. A lettered twin passes only when the
+    Numeric ``.2`` copies pass, unless ``english.primary.line_fixes`` names
+    that printing (``"<ref>.<k>"``, the segment ``1:<ref>.<k>``). A named
+    printing can own English, so an unmatched copy is a hole; a repeated
+    ref no fix names stays excused. A lettered twin passes only when the
     source TEI has been read and has no nonempty exact ``<l n>`` for that ref.
     """
     twins = _play_line_twin_segment_ids(segments)
+    addressed: set[str] = set()
+    fixes = (
+        ((manifest.data.get("english") or {}).get("primary") or {}).get("line_fixes")
+        or {}
+    )
+    if isinstance(fixes, dict):
+        for value in fixes.values():
+            head, dot, tail = str(value).partition(".")
+            if dot and head.isdigit() and tail.isdigit() and int(tail) >= 2:
+                addressed.add(f"1:{head}.{int(tail)}")
     ids = {seg["id"] for seg in segments}
     by_id = {seg["id"]: seg for seg in segments}
 
@@ -220,7 +235,8 @@ def _play_line_allowed_twin_ids(manifest: Manifest, segments: list[dict]) -> set
     allowed: set[str] = set()
     for sid in twins:
         if is_copy(sid):
-            allowed.add(sid)
+            if sid not in addressed:
+                allowed.add(sid)
             continue
         seg = by_id.get(sid)
         if seg is None:
