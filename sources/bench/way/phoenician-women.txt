@@ -909,7 +909,8 @@ O send them, thy people to screen
 From the evil, the Queens Torch-bearing !—
 Is there aught for the Gods too hard?
 
-ETEOCLES. Who is my mother's, even Jocasta’s brother.
+ETEOCLES (to attendant). Go thou, and Creon bring, Menoeceus’ son,
+Who is my mother's, even Jocasta’s brother.
 This tell him, that I would commune with him
 Touching our own advantage and the land’s,
 Ere we go battleward and range the spears.”
@@ -1363,6 +1364,7 @@ A dastard manifest, where’er I dwell!
 By Zeus star-throned, by Ares, slaughter’s lord,
 Who set on high in kingship over Thebes
 The Dragon-brood that cleft the womb of earth,
+Go will I, on the ramparts' height will stand,
 And o'er the Dragon’s gloomy chasm-cave,
 Whereof the seer spake, will I slay myself,
 And make my country free. The word is said.
@@ -1857,7 +1859,8 @@ Plunged into Eteocles’ heart the blade. ;
 Gnashing in dust their teeth, there side by side :
 They lie, those twain, the victory doubtful still.
 
-CHORUS. Thy malisons, I wot, hath God fulfilled.
+CHORUS. Alas! I wail thy sore griefs, Oedipus!
+Thy malisons, I wot, hath God fulfilled.
 
 MESSENGER. Ah, but hear now what woes remain to tell.
 Even as her fallen sons were leaving life,
