@@ -1945,6 +1945,7 @@ def _content_covered(
     chunks: list[dict],
     primary_chunks: dict[str, dict] | None,
     derived: dict[str, str],
+    tail_claims: set[str] | None = None,
 ) -> dict[str, str]:
     """Which block really holds a bare segment's translation.
 
@@ -1991,7 +1992,7 @@ def _content_covered(
     # own run at 1:351.
     i, n = 0, len(ids)
     while i < n:
-        if ids[i] in texts:
+        if ids[i] in texts or is_lacuna_segment(segments[i]):
             i += 1
             continue
         j = i
@@ -2072,6 +2073,8 @@ def _content_covered(
         if first_claim is None and i == j and i > 0 and ids[i - 1] in texts:
             if lines_of.get(ids[i], 1) == 1:
                 out[ids[i]] = ids[i - 1]
+                if tail_claims is not None:
+                    tail_claims.add(ids[i])
         i = j + 1
     return out
 
@@ -3754,9 +3757,11 @@ def parse_translation(
     # being distributed over Eumenides 143-169 at all -- three lines piled on
     # 1:140 and eight bare rows after it, which is worse than the note it was
     # meant to correct.
+    r6_tail_claims: set[str] = set()
     content_covered = _plausible_covers(
         _content_covered(
-            segments, chunks, primary_bridge, derived_covered_by_segment
+            segments, chunks, primary_bridge, derived_covered_by_segment,
+            tail_claims=r6_tail_claims,
         ),
         chunks, segments,
     )
@@ -3795,12 +3800,14 @@ def parse_translation(
         # manifest's declarations are left out (John's ruling about a
         # translator's block is his to make, round 8 section 1.3) and so are
         # R1's structural repeat claims (one printing's turn must never be
-        # sliced across both seats). `run()` pops it before the file is
-        # written.
+        # sliced across both seats), and R6's one-line tail claims (a note is
+        # not authority to cut the block above). `run()` pops it before the
+        # file is written.
         "content_covered_by": {
             sid: cid
             for sid, cid in content_covered.items()
             if sid not in manifest_covered and sid not in repeat_covered
+            and sid not in r6_tail_claims
         },
     }
 
