@@ -110,7 +110,8 @@ def _inline_directions(text: str) -> str:
     """Expand a held mid-speech direction into the reader's own convention:
     `_direction_` alone on its line, which `markStageDirections`
     (shared/lib/speakers.ts) already renders as a `.stage-dir` span in every
-    play column, including this one.  DRAFT rendering until John rules."""
+    play column, including this one.  Owner ruled 2026-09-21: the reader
+    sets a word or two inline in round brackets, a sentence on its own line."""
     return _INLINE_DIRECTION.sub(lambda m: f"\n_{m.group(1)}_\n", text)
 
 

@@ -1939,6 +1939,13 @@ body {
   font-style: italic;
   margin: 0.35em 0 0.15em;
 }
+/* A word or two inside a speech (`sung`, `aside`) runs in the text, in the
+   brackets markStageDirections gives it (John, 2026-09-21). */
+.stage-dir-short {
+  display: inline;
+  font-size: 0.92em;
+  margin: 0;
+}
 
 /* dk (Diels-Kranz) verse work (Parmenides' Fragmenta): a wrapped hexameter's
    continuation reads as part of the SAME poetic line, not a fresh one — hang
