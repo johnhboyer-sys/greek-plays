@@ -4728,7 +4728,7 @@ def _bridge(chunks: dict[str, str]) -> dict[str, dict]:
     return {sid: {"id": sid, "text": text, "turns": []} for sid, text in chunks.items()}
 
 
-def _transposed(tmp_path, source, spine, sigla, aliases, bridge, blocks):
+def _transposed(tmp_path, source, spine, sigla, aliases, bridge, blocks, *, verse=False):
     path = tmp_path / "play.txt"
     path.write_text(f"TEST PLAY\n{source}\nFINIS\n", encoding="utf-8")
     return parse_translation(
@@ -4742,6 +4742,7 @@ def _transposed(tmp_path, source, spine, sigla, aliases, bridge, blocks):
         footnotes_enabled=False,
         primary_bridge=_bridge(bridge),
         transpositions=blocks,
+        verse=verse,
     )
 
 
@@ -5014,6 +5015,78 @@ def test_a8_a_lacuna_row_never_takes_a_turn(tmp_path):
     # The placeholder is not a Greek speech, so it is out of the pairing
     # rate's denominator too.
     assert report["greek_events"] == 3
+
+
+def test_a8b_a_lacuna_row_takes_no_spread_piece(tmp_path):
+    """A lacuna placeholder cannot claim a share of the speech above it."""
+    spine = _spine_of(
+        _numbered("1:1", ["1", "2"], "Α.", 1),
+        {
+            "id": "1:post 2", "book": 1, "column": "post 2",
+            "lines": [{"n": 3, "ref": "post 2", "text": "", "role": "lacuna"}],
+            "speakers": [
+                {"line": 3, "offset": 0, "label": "<Γ."},
+                {"line": 3, "offset": 0, "label": "<Β."},
+            ],
+        },
+        _numbered("1:3", ["3"], "Β.", 4),
+    )
+    source = (
+        "ALPHA. The first line of the scene.\n"
+        "The second line completes the speech.\n"
+        "BETA. And the third closes it."
+    )
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES,
+        {
+            "1:1": "The first line of the scene. The second line completes the speech.",
+            "1:3": "And the third closes it.",
+        },
+        [],
+        verse=True,
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert "1:post 2" not in chunks
+    assert chunks["1:1"] == "The first line of the scene.\nThe second line completes the speech."
+    assert "1:post 2" not in english["english_covered_by"]
+
+
+def test_r6b_a_one_line_claim_is_a_note_not_a_spread(tmp_path):
+    """R6's one-line claim remains a reader note, not spread authority."""
+    from drama_pipeline.stage1_turn_english import _content_covered, _spread_long_speeches
+
+    spine = _spine_of(
+        _numbered("1:1", ["1", "2"], "Α.", 1),
+        _numbered("1:3", ["3"], "Β.", 3),
+        _numbered("1:4", ["4"], "Γ.", 4),
+    )
+    chunks = [
+        {"id": "1:1", "book": 1, "column": "1",
+         "text": "The first printed line of the speech.\nThe last printed line of the speech.",
+         "turns": [], "notes": [], "markers": [], "bekker": []},
+        {"id": "1:4", "book": 1, "column": "4",
+         "text": "The next speech begins here.",
+         "turns": [], "notes": [], "markers": [], "bekker": []},
+    ]
+    tail_claims: set[str] = set()
+    english_covered_by = _content_covered(
+        spine["segments"], chunks,
+        _bridge({
+            "1:1": "The first printed line of the speech. The last printed line of the speech.",
+            "1:3": "A bare Greek line has no English turn.",
+            "1:4": "The next speech begins here.",
+        }),
+        {}, tail_claims=tail_claims,
+    )
+    assert english_covered_by.get("1:3") == "1:1"
+    assert tail_claims == {"1:3"}
+    out = _spread_long_speeches(
+        chunks, spine["segments"], _T_SIGLA, verse=True,
+        claimed={sid: cid for sid, cid in english_covered_by.items() if sid not in tail_claims},
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in out}
+    assert "1:3" not in by_id
+    assert by_id["1:1"].endswith("The last printed line of the speech.")
 
 
 # --- A4: a later turn's stage directions ----------------------------------
