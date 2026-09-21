@@ -1030,9 +1030,18 @@ export function englishFlow(
 // own, `_..._`; one between speeches rides the piece as `directionsBefore`.
 const STAGE_DIRECTION = /^_([^_\n]+)_$/gm;
 
-/** A direction inside a speech: its own line, in italics. */
-export function markStageDirections(html: string): string {
-  return html.replace(/\n?^_([^_\n]+)_$\n?/gm, '<span class="stage-dir">$1</span>');
+/** A direction inside a speech: its own line, in italics. In running prose
+ *  (`byLength`; John, 2026-09-21) a word or two (`sung`, `aside`,
+ *  `Exit Creon.`) runs in the text in round brackets instead, and only a
+ *  sentence of stage business takes a line. Verse keeps every direction on
+ *  its own line, where Murray's `Others.` and `A Woman.` also sit. */
+export function markStageDirections(html: string, byLength = false): string {
+  return html.replace(/\n?^_([^_\n]+)_$\n?/gm, (_line, dir: string) => {
+    const words = dir.replace(/<[^>]*>/g, '').trim().split(/\s+/).length;
+    if (!byLength || words > 2) return `<span class="stage-dir">${dir}</span>`;
+    const bracketed = /^[([]/.test(dir) ? dir : `(${dir})`;
+    return ` <span class="stage-dir stage-dir-short">${bracketed}</span> `;
+  });
 }
 
 /** The rows a segment's between-speech directions take before it: one per
