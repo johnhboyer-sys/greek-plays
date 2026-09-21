@@ -72,6 +72,8 @@ Menelaus come. Frail anchor of hope is ours
 To ride on, if we be not saved of him.
 In desperate plight is an ill-fated house.
 
+_Enter HELEN._
+
 HELEN. Clytemnestra's daughter, Agamemnon's child,
 Electra, maid a weary while unwed,
 Hapless, how could ye, thou and the stricken one,
@@ -138,6 +140,7 @@ ELECTRA. She should pay nurture's debt unto the dead.
 HELEN. Sooth hast thou said : I hearken to thee, maid.
 Yea, I will send my daughter : thou say'st well.
 Child, come, Hermione, without the doors :
+_Enter HERMIONE._
 Take these drink-offerings, this mine hair, in hand,
 And go thou, and round Clytemnestra’s tomb
 Shed mingled honey, milk, and foam of wine ;
@@ -152,6 +155,8 @@ I render to my sister, promise thou.
 Go, daughter, haste : and, soon as thou hast paid
 The tomb its offerings, with all speed return.
 
+_Exeunt HELEN and HERMIONE._
+
 ELECTRA. Ah inbred Nature, cankering curse to men,
 Yet blessing to thy virtuous heritors !
 Mark, she but trimmed off at the tips her hair,
@@ -162,6 +167,7 @@ Lo, hither come my friends who wail with me
 My dirges! Soon shall they uprouse from sleep
 Him who hath peace now, and shall drown mine eyes
 In tears, when I behold my brother rave.
+_Enter CHORUS._
 Ah friends, dear friends, with soundless footfall tread ;
 Make ye no murmur, neither be there jar.
 Kindly is this your friendship, yet to me,
@@ -437,6 +443,8 @@ Hail, thou who didst sail with a thousand keels
 Unto Asia speeding!
 Hail to thee, dweller with fortune fair,
 Who hast gained of the Gods' grace all thy prayer!
+
+_Enter MENELAUS, with attendants._
 
 MENELAUS. All hail, mine home! I see thee half with joy,
 From Troy returned, and half with grief behold:
@@ -898,7 +906,7 @@ Save thee. Hard were it with my single spear
 To triumph o'er the ills that compass thee ;
 Else not by suasion would I try to move
 Argos to mercy : but of sore need now
-Must prudent men be bondmen unto fate.
+Must prudent men be bondmen unto fate. [Exit.]
 
 ORESTES. O nothing-worth—save in a woman's cause
 To lead a host !—craven in friends’ defence!
@@ -912,6 +920,8 @@ But lo, I see my best-beloved of men,
 Yon Pylades, from Phocis hastening.
 Glad sight! A loyal friend in trouble's hour
 Shows welcomer than calm to mariners.
+
+_Enter PYLADES._
 
 PYLADES. Down the city's streets with haste unwonted unto thee
 I came ;
@@ -1165,6 +1175,8 @@ The mother’s breast of his eyes was beholden !
 But he slaughtered her like to a beast at the altar,
 For the wrongs of a father had whetted the brand.
 
+_Enter ELECTRA._
+
 ELECTRA. Dames, sure woe-worn Orestes hath not fled
 These halls o’erborne by madness heaven-sent ?
 
@@ -1176,6 +1188,8 @@ ELECTRA. Ah me! what hath he done? Who so misled him?
 
 CHORUS. Pylades. Lo, yon messenger full soon
 Shall tell, meseems, how fared thy brother there.
+
+_Enter MESSENGER._
 
 MESSENGER. Child of our war-chief, hapless, woe-worn one,
 Agamemnon's daughter, lady Electra, hear
@@ -1778,6 +1792,7 @@ Back to your stations step with quiet look,
 With hue that gives no token of deeds done:
 And I will wear a trouble-clouded eye,
 As who of deeds accomplished knoweth nought.
+_Enter HERMIONE._
 Maiden, from wreathing Clytemnestra’s grave,
 From pouring offerings to the dead, art come ?
 
@@ -1846,6 +1861,8 @@ Who drew the array of Hellas away unto Ilium's strand.
 But lo, the bars clash of the royal halls!
 Hush ye ;—there comes forth of her Phrygians one
 Of whom we shall learn what befell within.
+
+_Enter PHRYGIAN._
 
 PHRYGIAN. From the death by the Argive swords have I fled !
 In my shoon barbaric I sped ;
@@ -2008,6 +2025,8 @@ CHORUS. But unto strange things, lo, strange things succeed ;
 For sword in hand before the halls I see
 Orestes come with passion-fevered feet.
 
+_Enter ORESTES._
+
 ORESTES. Where is he that fleeing from the palace hath escaped
 my sword ?
 
@@ -2057,7 +2076,7 @@ PHRYGIAN. Kindly dost thou say.
 
 ORESTES. Varlet, mine intent may change !—
 
-PHRYGIAN. Thou utterest now an evil note!
+PHRYGIAN. Thou utterest now an evil note! [Exit.]
 
 ORESTES. Fool! to think that I would brook with blood to
 stain me from thy throat, [men among !
@@ -2099,7 +2118,8 @@ bolted gate! [fortunate
 Haste! oh haste! A formidable foeman is the
 Unto such as be, Orestes, even as thou, in evil
 strait.
-with HERMIONE.
+
+_Enter MENELAUS, below; ORESTES and PYLADES above, with HERMIONE._
 
 MENELAUS. I come at news of strange and violent deeds
 Wrought by two tigers; men I call them not.
@@ -2335,6 +2355,8 @@ Queen of the Sea.
 CHORUS. Hail, reveréd Victory :
 Rest upon my life, and me
 Crown, and crown eternally !
+
+_Exeunt OMNES._
 
 Footnotes:
 [1] Suppliants to a God brought leafy boughs, which they laid on his altar, linking themselves thereto by woollen fillets.

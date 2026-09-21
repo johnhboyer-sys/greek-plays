@@ -1,5 +1,7 @@
 ELECTRA
 
+_Enter PEASANT from the cottage._
+
 PEASANT. Hail, ancient Argos, streams of Inachus,
 Whence, with a thousand galleys battle-bound,
 To Troyland's shore King Agamemnon sailed,
@@ -57,6 +59,8 @@ A young maid to mine home, and touch her not,
 Let him know that he meteth chastity
 By his own soul’s base measure—base as he.
 
+_Enter ELECTRA, with a water-jar upon her head._
+
 ELECTRA. Hail, black-winged Night, nurse of the golden stars,
 Wherein I bear this pitcher on mine head
 Poised, as I fare to river-cradling springs, —
@@ -89,6 +93,10 @@ Will drive my team afield and sow the glebe.
 None idle—though his lips aye prate of Gods—
 Can gather without toil a livelihood.
 
+_Exeunt PEASANT and ELECTRA._
+
+_Enter ORESTES and PYLADES._
+
 ORESTES. Pylades, foremost thee of men I count
 In loyalty, love, and friendship unto me.
 Sole of Orestes' friends, thou hast honoured me
@@ -120,6 +128,8 @@ Bears : crouch we low, then of this bondmaid ask,
 If tidings haply we may win of that
 For which we came to this land, Pylades,
 [ORESTES and PYLADES retire to rear.]
+
+_Re-enter ELECTRA._
 
 ELECTRA. Bestir thou, for time presses, thy foot’s speed;
 Haste onward weeping bitterly.
@@ -177,6 +187,8 @@ With chaplets !—nor with wreaths arrayed
 Wast thou; but with the falchion’s blade
 She made thee Aegisthus’ sport, and won
 That treacherous paramour.
+
+_Enter CHORUS._
 
 CHORUS. Atreides’ child, Electra, I have come
 Unto thy rustic home.
@@ -430,6 +442,8 @@ Young though he be, and of a nobler sire !
 CHORUS. But lo, yon man—thy spouse it is I name—
 Hath ceased from toil, and homeward hasteneth.
 
+_Enter PEASANT._
+
 PEASANT. How now? What strangers these about my doors?
 For what cause unto these my rustic gates
 Come they ?—or seek they me? Beseemeth not
@@ -542,6 +556,8 @@ In sickness ; but for needs of daily food
 Not far it reacheth. Each man, rich and poor,
 Can be but filled, when hunger is appeased.
 
+_Exit PEASANT. ELECTRA enters the cottage._
+
 CHORUS. O galleys renowned, by your myriad-sweeping
 Oars hurled high on the Trojan strand,
 Whom the Sea-maids followed, with dances
@@ -598,12 +614,15 @@ Death unto thee in the on-coming day.
 I shall see it—shall see when the life-blood hath started
 From thy neck at the kiss of the steel that shall slay '
 
+_Enter OLD MAN._
+
 OLD MAN. Where shall the princess, my young mistress, be,
 Child of the great king fostered once of me ?
 How steep ascent hath she to this her home
 For mine eld-wrinkled feet to attain thereto !
 Howbeit to those I love must I drag on
 Mine age-cramped spine, must drag my bowing knees.
+_Enter ELECTRA._
 Daughter,—for now I see thee at thy door,—
 Lo, I am come : I bring thee from my flocks
 A suckling lamb, yea, taken from the ewe,
@@ -671,6 +690,8 @@ OLD MAN. Where be the strangers? I would fain behold
 And of thine absent brother question them.
 
 ELECTRA. Lo, here with light foot step they forth the house,
+
+_Re-enter ORESTES and PYLADES._
 
 OLD MAN. High-born of mien :—yet false the coin may be ;
 For many nobly born be knaves in grain.
@@ -989,6 +1010,8 @@ Of fancy ?—like earth-muffled thunder of Zeus?
 Lo there, the gale is swelling all too plain !
 Princess, come forth thine house !—Electra, come !
 
+_Enter ELECTRA._
+
 ELECTRA. Friends, what befalls? How doth our conflict speed ?
 
 CHORUS. I know but this, I hear a cry of death.
@@ -1008,6 +1031,8 @@ CHORUS. Stay, till in certainty thou learn thy fate.
 ELECTRA. No—vanquished !—where be they, his messengers ?
 
 CHORUS. They yet shall come ; not lightly slain are kings.
+
+_Enter MESSENGER._
 
 MESSENGER. Victory! victory, Mycenaean maids!
 To all friends, tidings of Orestes’ triumph!
@@ -1140,7 +1165,8 @@ Now shall rule o’er our nation
 Her kings well-beloved whom of old she hath known;
 For the right is triumphant, the tyrant o'erthrown.
 Ring, joy's exultation !
-Aegisthus' body.
+
+_Enter ORESTES and PYLADES, with attendants bearing Aegisthus’ body._
 
 ELECTRA. Hail, glorious conqueror, Orestes sprung
 Of father triumph-crowned in Ilium's war !
@@ -1288,8 +1314,9 @@ ELECTRA. Ay! that which trapped and slew the adulterer !
 
 ORESTES. I will go in. A horror I essay!—
 Yea, will achieve! If 'tis Heaven's will, so be it.
-Oh bitter strife, which I must needs hold sweet !
-maids of Troy.
+Oh bitter strife, which I must needs hold sweet ! [Enters hut.]
+
+_Enter CLYTEMNESTRA in chariot, with attendants, captive maids of Troy._
 
 CHORUS. Hail, Queen of the Argive land!
 All hail, O Tyndareus’ daughter !
@@ -1485,7 +1512,7 @@ The maund is dight, and whetted is the knife
 Which slew the bull by whose side thou shalt lie
 Stricken. Thou shalt in Hades be his bride
 Whose love thou wast in life. So great the grace
-I grant thee: thine to me—to avenge my sire!
+I grant thee: thine to me—to avenge my sire! [Enters hut.]
 
 CHORUS. Vengeance for wrong! The stormy winds, long
 lashing
@@ -1521,6 +1548,8 @@ Their feet, besprent with gouts of mother’s blood,
 Trophies that witness to her piteous cries.
 There is no house more whelmed in misery,
 Nor hath been, than the line of Tantalus.
+
+_Enter ORESTES with ELECTRA._
 
 ORESTES. Earth, Zeus, whose all-beholding eye
 Is over men, behold this deed
@@ -1744,6 +1773,8 @@ I am a God: to men I publish this.
 CHORUS. Farewell! Ah, whosoe'er may know this blessing,
 To fare well, never crushed 'neath ills oppressing,
 Alone of mortals tastes abiding bliss.
+
+_Exeunt OMNES._
 
 Footnotes:
 [1] Therefore her festival is not lightly to be neglected.

@@ -1,5 +1,7 @@
 IPHIGENEIA IN TAURICA
 
+_Enter from temple IPHIGENEIA._
+
 IPHIGENEIA. PELOPS, the son of Tantalus, with fleet steeds
 To Pisa came, and won Oenomaus’ child :
 Atreus she bare ; of him Menelaus sprang
@@ -71,6 +73,8 @@ Not yet: within the portals will I pass
 Of this, the Goddess' shrine, wherein I dwell.
 [Re-enters temple.]
 
+_Enter ORESTES and PYLADES._
+
 ORESTES. Look thou—take heed that none be in the path.
 
 PYLADES. I look, I watch, all ways I turn mine eyes.
@@ -137,7 +141,9 @@ ORESTES. Good: I must heed thee. Best withdraw ourselves
 Unto a place where we shall lurk unseen.
 For, if his oracle fall unto the ground,
 The God's fault shall it not be. We must dare,
-Since for young men toil knoweth no excuse.
+Since for young men toil knoweth no excuse. [Exeunt.]
+
+_Enter CHORUS and IPHIGENEIA._
 
 CHORUS. Keep reverent silence, ye
 Beside the Euxine Sea
@@ -256,6 +262,8 @@ Thy babe-face, O my brother !
 
 CHORUS. Lo, yonder from the sea-shore one hath come,
 A herdman bearing tidings unto thee.
+
+_Enter HERDMAN._
 
 HERDSMAN. Agamemnon’s daughter, Clytemnestra’s child,
 Hear the strange story that I bring to thee !
@@ -384,6 +392,7 @@ Whoe'er from Hellas yon drear sea hath reached.
 
 IPHIGENEIA. Enough: go thou, the strangers hither bring :
 I will take thought for all that needeth here.
+[Exit HERDMAN.]
 O stricken heart, to strangers in time past
 Gentle wast thou and ever pitiful,
 To kinship meting out its due of tears,
@@ -435,7 +444,7 @@ The banquet given of Tantalus to the Gods,—
 As though the Gods could savour a child's flesh !
 Even so, this folk, themselves man-murderers,
 Charge on their Goddess their own sin, I ween ;
-For I believe that none of Gods is vile.
+For I believe that none of Gods is vile. [Exit.]
 
 CHORUS. Dark cliffs, dark cliffs of the Twin Seas’ meeting,
 Where the gadfly of Io, from Argos fleeting,
@@ -494,6 +503,7 @@ O but in dreams yet again
 Mid the homes to stand of my fatherland,
 In the bliss of a rapturous strain
 My soul to outpour !
+[Enter attendants with ORESTES and PYLADES.]
 Lo, hither with pinioned arms come twain,
 Victims fresh for the Goddess's fane :--Friends, hold ye your peace.
 No lying message the herdman spoke :
@@ -883,6 +893,8 @@ By fortune's turn, to unfold a sudden dawn.
 
 ORESTES. Peace! Phoebus’ words avail me nothing now ;
 For yonder forth the temple comes the maid.
+
+_Enter IPHIGENEIA._
 
 IPHIGENEIA. Depart ye, and within make ready all
 For them whose office is the sacrifice. [Exeunt attendants.]
@@ -1455,6 +1467,8 @@ For the veil light-tossing, the loose curl
 crossing
 My cheek with its flicker of shade!
 
+_Enter THOAS with attendants._
+
 THOAS. Where is this temple’s warder, Hellas’ daughter?
 Hath she begun yon strangers’ sacrifice ?
 Are they ablaze with fire in the holy shrine?
@@ -1708,6 +1722,8 @@ Loxias’ honours, that all men might
 Trust wholly his word, when the thronging nations
 Bowed at the throne where he sang fate’s doom,
 
+_Enter MESSENGER._
+
 MESSENGER. O temple-warders, altar-ministers,
 Whither hath Thoas gone, this country's king ?
 Fling wide the closely-bolted doors, and call
@@ -1739,6 +1755,8 @@ Whether the land's lord be within or no.
 What ho !—within there !—shoot the door-bolts back,
 And to your master tell that at the gates
 Am I, who bear a burden of ill-news.
+
+_Enter THOAS from the temple._
 
 THOAS. Who makes this outcry at the Goddess' fane,
 Smiting the doors, and hurling noise within ?
@@ -1955,6 +1973,8 @@ Is the glad, glad sound to our ears that is given.
 Hail, reveréd Victory :
 Rest upon my life; and me
 Crown, and crown eternally.
+
+_Exeunt OMNES._
 
 Footnotes:
 [1] See note to Electra, l. 699.
