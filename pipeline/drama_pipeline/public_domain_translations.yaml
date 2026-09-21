@@ -83,7 +83,7 @@ translations:
   - id: storr
     translator: "F. Storr"
     year: 1912
-    note: "Sophocles Loeb (1912); published before 1931."
+    note: "Sophocles Loeb (1912); published before 1931. Lost pages and lines in the vol. 2 benches are restored from the 1919 reprint of the same volume (also before 1931), each logged under build/genie/."
     sources:
       - bench/storr/ajax.txt
       - bench/storr/antigone.txt
