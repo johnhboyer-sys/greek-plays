@@ -45,6 +45,8 @@ english:
     # every later segment shows the previous-but-one speech.
     pins:
       - { greek: "380", english: "That hath sped thro' mine ear, like a shaft from a bow!", run: 1 }
+      # καὶ πότ' ἂν ἀμφιθαλὴς (394): Morshead gives the stanza to Orestes, Murray to Electra, so the pairer seated it two turns on at 405 and left 394 bare. This one pin also reseats the five stanzas after it (400, 405, 410, 418, 423), each read against the Greek 2026-09-21.
+      - { greek: "394", english: "Zeus, thou alone to us art parent now.", run: 1 }
   third:
     id: kosmos
     name: "Erdman, rev. Nagy (Kosmos Society)"
@@ -71,6 +73,9 @@ english:
       source: bench/johnston/libation-bearers.txt
       play: LIBATION BEARERS
       footnotes: false
+      pins:
+        # ἄκου', ὑπὲρ σοῦ τοιάδ' ἔστ' ὀδύρματα (508): Johnston gives the lines to Orestes where Murray has Electra, so "Hear us!" opens 510 beside the Chorus.
+        - { greek: "508", english: "Hear us!", run: 1 }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed
