@@ -1451,6 +1451,11 @@ describe('stage directions', () => {
       .toBe('Help! <span class="stage-dir stage-dir-short">(within.)</span> Ah me.');
     expect(markStageDirections('Go.\n_Exit Creon. <span class="fn-anchor"><button type="button">1</button></span>_\nStay.', true))
       .toBe('Go. <span class="stage-dir stage-dir-short">(Exit Creon. <span class="fn-anchor"><button type="button">1</button></span>)</span> Stay.');
+    // A source's square brackets become round ones (Kosmos `[within]`).
+    expect(markStageDirections('Ah!\n_[within]_\nWoe!', true))
+      .toBe('Ah! <span class="stage-dir stage-dir-short">(within)</span> Woe!');
+    expect(markStageDirections('Go.\n_[Exit_', true))
+      .toBe('Go. <span class="stage-dir stage-dir-short">(Exit)</span>');
     // Verse (no `byLength`) keeps a short direction on its own line.
     expect(markStageDirections('Ah me!\n_Others._\nWoe!'))
       .toBe('Ah me!<span class="stage-dir">Others.</span>Woe!');
