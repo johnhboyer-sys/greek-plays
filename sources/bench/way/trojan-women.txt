@@ -1,5 +1,7 @@
 DAUGHTERS OF TROY
 
+_HECUBA discovered sleeping on the earth in front of a tent. Enter POSEIDON._
+
 POSEIDON. I come, Poseidon I, from briny depths
 Of the Aegean Sea, where Nereids dance
 In lovely-woven pacings of their feet.
@@ -49,6 +51,8 @@ Flouting the God’s decree and righteousness.
 O city prosperous once, O stone-hewn towers,
 Farewell to you! Had Pallas, Zeus’s child,
 Not ruined thee, firm stablished wert thou yet!
+
+_Enter ATHENA._
 
 ATHENA. Is it vouchsafed to bid the old feud truce,
 And speak unto my father’s nearest kin,
@@ -120,7 +124,7 @@ Fool, that in sack of towns lays temples waste,
 And tombs, the sanctuaries of the dead!
 He, sowing desolation, reaps destruction.
 _Exeunt._
-_HECUBA awaking, raises herself on her arm,_
+_HECUBA awaking, raises herself on her arm._
 
 HECUBA. Uplift thou thine head, O fortune-accurst ; from the
 earth upraise thy neck bowed low.
@@ -180,6 +184,8 @@ And watched Troy’s dances around me swing
 As I leaned on the sceptre of Priam my king.
 momen.
 
+_Enter from the tents HALF-CHORUS of captive Trojan women._
+
 HALF-CHORUS 1. Why call’st thou, Hecuba ?— why dost thou cry ?
 What mean thy words? The tents were filled
 With this lament thou wailest woefully,
@@ -211,6 +217,8 @@ ruin
 Thou sinkest !—ah, unhappy they,
 Thy lost !—thy living pass to their undoing,
 Thy dead have passed away.
+
+_Enter SECOND HALF-CHORUS._
 
 HALF-CHORUS. Ah me! from Agamemnon’s tents in dread
 I come, to hearken, queen, to thee,
@@ -281,6 +289,8 @@ With tidings, unto us draws ‘nigh
 A herald speeding hastily.
 What hest brings he ?—henceforth bondmaiden
 Of Dorian land am 1!
+
+_Enter TALTHYBIUS._
 
 TALTHYBIUS. On many journeyings, Hecuba, to and fro
 I have passed, thou knowest, ’twixt the host and
@@ -385,6 +395,8 @@ But to Achaeans hateful, bring me blame.
 
 HECUBA. Now nay, they fire no tent. My Maenad child
 Cassandra cometh rushing hitherward.
+
+_Enter CASSANDRA carrying burning torches._
 
 CASSANDRA. Up with the torch !—give it me—let me render
 Worship to Phoebus !—lo, lo how I fling
@@ -569,6 +581,8 @@ loins I came ;—
 Triumph-crowned from havoc of the Atreid house that
 wrought our doom.
 
+_Exit TALTHYBIUS with CASSANDRA._
+
 CHORUS. Grey Hecuba’s attendants, mark ye not
 Your mistress sinking speechless to the earth?
 Will ye not help her, heartless ones, but leave
@@ -683,7 +697,7 @@ Lo! Andromache, Queen, draweth nigh on
 A wain of the foe borne high ;
 On her breast rocked, Hector’s scion,
 Dear Astyanax, doth lie.
-her child in her arms.
+_Enter ANDROMACHE on a mule-car heaped with armour: her child in her arms._
 
 HECUBA. Whither on yon car’s height dost thou ride.
 O hapless wife, with the arms at thy side
@@ -881,6 +895,8 @@ But—for a new tale followeth on the old—
 What servant of the Achaeans see I stride
 Hitherward, herald of their new resolve?
 
+_Enter TALTHYBIUS._
+
 TALTHYBIUS. O wife of Hector, Phrygia’s mightiest once,
 Abhor not me: sore loth shall I announce
 The Danaans’ hest, the word of Pelops’ sons.
@@ -983,7 +999,7 @@ Lay hold on him :—his should such heralding be
 Who is made without pity, whose breast doth bear
 A spirit more ruthless, that hateth to spare,
 More than the spirit that dwelleth in me!
-with ASTYANAX.
+_Exeunt ANDROMACHE, and TALTHYBIUS with ASTYANAX._
 
 HECUBA. O child, O son of mine ill-starred son,
 Unrighteously reft thy life is gone
@@ -1065,6 +1081,8 @@ Ravished from earth, that this land might joy
 In hope—nay, all lovingkindness is ended
 Of Gods for Troy '
 
+_Enter MENELAUS with attendants._
+
 MENELAUS. Hail, thou fair-shining splendour of yon sun,
 Whereby I shall make capture of my wife
 Helen,—for I am he that travailed sore,
@@ -1090,6 +1108,8 @@ Bring her, and by her murder-reeking hair
 Hale forth to me: then, soon as favouring winds
 Shall blow, to Hellas will we speed her on.
 
+_Exeunt attendants._
+
 HECUBA. O Earth’s Upbearer, thou whose throne is Earth,
 Whoe’er thou be, O past our finding out,
 Zeus, be thou Nature’s Law, or Mind of Man,
@@ -1103,6 +1123,8 @@ Yet, seeing, beware her soul-enthralling spells.
 She snareth men’s eyes, she destroyeth towns,
 She burneth homes, such her enchantments are.
 I and thou know her—all who have suffered know
+
+_Enter HELEN, haled forth by attendants._
 
 HELEN. O Menelaus, terror-fraught to me
 This prelude is; for by thy servants’ hands
@@ -1294,6 +1316,8 @@ All women chastity :—not easy this ;
 Yet her destruction shall with terror smite
 Their folly, viler though they be than she.
 
+_Exit MENELAUS with HELEN._
+
 CHORUS. So then thy temple in Troy fair-gleaming,
 And thine altar of incense heavenward steaming
 Hast thou rendered up to our foes Achaean,
@@ -1354,7 +1378,7 @@ On our land are falling! Behold and see,
 Ye wives of the Trojans, horror-aghast,
 Dead Astyanax, by the Danaans cast
 From the towers, slain pitilessly.
-ASTYANAX On HECTOR’s shield.
+_Enter TALTHYBIUS with attendants bearing corpse of ASTYANAX on HECTOR'S shield._
 
 TALTHYBIUS. One galley’s oars yet linger, Hecuba,
 Ready to waft unto the Phthian shores
@@ -1390,6 +1414,8 @@ I bathed the corpse, and cleansed the wounds thereof.
 Now will I go, and dig for him a grave,
 That, shortened so, thy work and mine withal,
 To one end wrought, may homeward speed the oar.
+
+_Exit TALTHYBIUS._
 
 HECUBA. Set Hector’s shield fair-rounded on the earth,
 A woeful sight unsweet for me to see.
@@ -1516,6 +1542,8 @@ Whom see I on Ilium’s tower-crowned wall,
 And the tossing torches fierily glow
 In the hands of them ?—some new evil, I trow,
 Shall on Troy-town fall.
+
+_Enter TALTHYBIUS above, with soldiers bearing torches._
 
 TALTHYBIUS. Captains, to whom the charge is given to fire
 This city of Priam, idle in your hands
