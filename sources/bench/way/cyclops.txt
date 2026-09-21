@@ -1,5 +1,7 @@
 CYCLOPS
 
+_Enter from the cave SILENUS, dragging after him a rusty iron rake._
+
 SILENUS. O Bacchus !—oh the back-aches that I got
 In your cause, when my youthful blood was hot:
 First, when, with addled brains through Hera’s curses,
@@ -44,6 +46,8 @@ Of dancing feet? It's like old times, when round
 Althaea's house, with Bacchus, to the sound
 Of song and harp, your toes scarce touched the
 ground.
+
+_Enter CHORUS, driving goats and sheep._
 
 A SATYR. O come along, Sir Billy! If your father was a king,
 And your mother queen of Nannies, still you needn’t
@@ -113,6 +117,8 @@ Up to the doors of—Goggle-eyes's jaw,
 For right warm welcome to his cannibal maw !
 Now we shall learn—if you will just keep still—
 Whence come these to Sicilian Etna’s hill.
+
+_Enter ODYSSEUS and crew._
 
 ODYSSEUS. Friends, can you tell us whereabouts to find
 Some running water? If you’d be so kind,
@@ -291,6 +297,8 @@ And leave the best of little chaps all lonely,
 Menelaus! "Tell you what it is—if only
 No woman lived, a good thing would it be—
 Not one on earth—except a few for me.
+
+_Enter SILENUS with SATYRS bringing bowls and lambs._
 
 SILENUS. Here, king Odysseus, here they come, the lambs,
 Warranted tender babes of bleating dams ;
@@ -564,6 +572,8 @@ His stews an' steaks, an' a' that,
 His teeth are foul wi’ flesh o’ man!
 He's damned to hell, for a’ that !
 
+_Enter ODYSSEUS from cave._
+
 ODYSSEUS. Oh God, that cave !—that mine eyes should behold
 Horrors incredible, things that might be told
 In nightmare demon-legends, never found
@@ -716,6 +726,7 @@ Inside! I might escape: I got clear through
 A tunnel in the rock with small ado,
 But—give my friends the slip, with whom I came
 Here, and escape alone '—'twould be a shame!
+[Exit into cave.]
 
 CHORUS. O who, and O who will come and take his stand,
 And grip the shaft and plunge beneath his brow the
@@ -729,6 +740,9 @@ And it’s O, but his music shall turn to wails ere long !
 He comes, O he comes; he has left his cave behind.
 Some revel-song adapted to his thick head let us find.
 And it's O, but for certain he'll very soon be blind.
+
+_Enter CYCLOPS with ODYSSEUS and SILENUS._
+
 O bliss to be chanting the Song of the Wine,
 When the cluster's fountain is flowing,
 When your soul floats forth on the revel divine,
@@ -931,6 +945,7 @@ After those glorious toils in Ilium wrought,
 Through one who gives to God nor man a thought !
 Else must we think that Chance bears rule in heaven,
 That lordship over Gods to her is given.
+[Exit into cave.]
 
 CHORUS. As I cam’ through a cave’s gate,
 A slaves’ gate, a knave’s gate,
@@ -946,6 +961,8 @@ And good-bye to the desolate shore !
 So weel may the wine flow, and lay low our brute
 foe,
 To wake up in mad throe, in darkness evermore !
+
+_Re-enter ODYSSEUS from cave._
 
 ODYSSEUS. Hush, you wild things, for Heaven’s sake '—still as
 death !
@@ -1123,6 +1140,8 @@ My way out through this rifted rock I'll find.
 
 CHORUS. We will sail with Odysseus from this shore,
 And serve Lord Bacchus henceforth evermore.
+
+_Exeunt OMNES, leaving CYCLOPS groping and stumbling amongst the rocks._
 
 Footnotes:
 [1] Here Greek and English slang are identical.
