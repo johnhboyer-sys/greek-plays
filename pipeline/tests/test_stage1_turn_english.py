@@ -6320,3 +6320,161 @@ def test_r5_a_near_tie_keeps_the_printed_order_through_the_aligner(monkeypatch):
     assert len(seen) >= 2  # both candidates really were costed
     assert out.slot_order == [0, 1, 2]
     assert out.reach_spans == []
+
+
+# P1 (andromache review B8, 2026-09-21): a cue's own parenthetical --
+# `MOLOSSUS (kneeling to MENELAUS).` -- is already in `_SPEAKER_LINE`'s
+# stage group, but the ordinary cue branch appends that group to the spoken
+# text, so the direction prints as a verse line. The case-slip cue already
+# drops the brackets and carries the words as a direction of that turn.
+def test_loeb_ocr_cue_parenthetical_is_a_direction_of_that_turn():
+    text = (
+        "THE PLAY\n\n"
+        "ANDROMACHE. Pray, at thy lord's knees suing,\n"
+        "Child !\n"
+        "MOLOSSUS (kneeling to MENELAUS).\n"
+        "Friend, in mercy ruing\n"
+        "My death, of pardon tell!\n"
+        "\n"
+        "ANDROMACHE. My streaming eyelids weep.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert [s["speaker_printed"] for s in speeches] == ["ANDROMACHE", "MOLOSSUS", "ANDROMACHE"]
+    molossus = speeches[1]
+    assert "(kneeling" not in molossus["text"]
+    assert molossus["text"] == "Friend, in mercy ruing\nMy death, of pardon tell!"
+    assert molossus["shown"] == (
+        "_kneeling to MENELAUS_\n"
+        "Friend, in mercy ruing\n"
+        "My death, of pardon tell!"
+    )
+    assert "directions_before" not in molossus
+
+
+# P2 (andromache review B5, 2026-09-21): a 1-3 letter lowercase turn-up is a
+# wrap tail when the line before it does not end a sentence. `.?!;:` and a
+# closing quote end a sentence; a comma does not. A 1-3 letter tail after a
+# finished sentence stays refused (the old G2 guard).
+def test_loeb_ocr_short_lowercase_turnup_joins_an_unfinished_line():
+    text = (
+        "THE PLAY\n\n"
+        "HERMIONE. By Heaven's Queen, were it in mine halls, she should\n"
+        "not\n"
+        "See light and reap the harvest of my bed.\n"
+        "As from this house to help thee, shouldst thou grant\n"
+        "me\n"
+        "Speech of thee, as thou dost.\n"
+        "Whom your own hands had fashioned, dishonoured to\n"
+        "lie\n"
+        "In wretchedness, wretchedness.\n"
+        "At the hands of a wife : and with murder she bought\n"
+        "her\n"
+        "Death, at the hands of her child to receive it.\n"
+        "And still the long unfinished clause runs on,\n"
+        "yet\n"
+        "The sense continues past the comma.\n"
+        "And with a river always at its edge of ample flowing water.\n"
+        "a\n"
+        "More lines follow the orphan.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "HERMIONE",
+            "text": (
+                "By Heaven's Queen, were it in mine halls, she should not\n"
+                "See light and reap the harvest of my bed.\n"
+                "As from this house to help thee, shouldst thou grant me\n"
+                "Speech of thee, as thou dost.\n"
+                "Whom your own hands had fashioned, dishonoured to lie\n"
+                "In wretchedness, wretchedness.\n"
+                "At the hands of a wife : and with murder she bought her\n"
+                "Death, at the hands of her child to receive it.\n"
+                "And still the long unfinished clause runs on, yet\n"
+                "The sense continues past the comma.\n"
+                "And with a river always at its edge of ample flowing water.\n"
+                "a\n"
+                "More lines follow the orphan."
+            ),
+        }
+    ]
+
+
+# P3 (trachiniae review N11, 2026-09-21): an unbracketed `Enter`/`Exit`/
+# `Exeunt` line that ends its speech is a direction of the next speech.
+# The same words in the middle of a speech, or a verse line that merely
+# begins with them, stay verse. Synthetic bench, so the test does not
+# depend on whether a live bench still prints the line unwrapped.
+def test_loeb_ocr_unbracketed_trailing_entrance_is_the_next_speechs_direction():
+    text = (
+        "THE PLAY\n\n"
+        "DEIANIRA. Sudden from her home was torn.\n"
+        "Enter DEIANIRA.\n"
+        "\n"
+        "LICHAS. Lady, what message shall I bear my lord?\n"
+        "Re-enter LICHAS.\n"
+        "\n"
+        "HYLLUS. Mother, I would that one wish were granted me.\n"
+        "Exit HYLLUS.\n"
+        "\n"
+        "CHORUS. The curses work; the buried live again.\n"
+        "Enter the halls and speak.\n"
+        "The rest can wait until the dawn.\n"
+        "Enter this house. For me the host whose heart\n"
+        "Leaps out in welcome, rather than the rich.\n"
+        "\n"
+        "NURSE. I have stolen forth to speak with you alone.\n"
+        "Enter then and tell the king what thou hast seen today across the city.\n"
+        "\n"
+        "MESSENGER. Woe's me, woe's me!\n"
+        "Exeunt.\n"
+        "\n"
+        "PELEUS. O my prophetic soul, what ill it bodes.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0] == {
+        "speaker_printed": "DEIANIRA",
+        "text": "Sudden from her home was torn.",
+    }
+    assert speeches[1] == {
+        "speaker_printed": "LICHAS",
+        "text": "Lady, what message shall I bear my lord?",
+        "directions_before": ["Enter DEIANIRA."],
+    }
+    assert speeches[2] == {
+        "speaker_printed": "HYLLUS",
+        "text": "Mother, I would that one wish were granted me.",
+        "directions_before": ["Re-enter LICHAS."],
+    }
+    assert speeches[3]["speaker_printed"] == "CHORUS"
+    assert speeches[3]["directions_before"] == ["Exit HYLLUS."]
+    assert speeches[3]["text"] == (
+        "The curses work; the buried live again.\n"
+        "Enter the halls and speak.\n"
+        "The rest can wait until the dawn.\n"
+        "Enter this house. For me the host whose heart\n"
+        "Leaps out in welcome, rather than the rich."
+    )
+    assert speeches[4] == {
+        "speaker_printed": "NURSE",
+        "text": (
+            "I have stolen forth to speak with you alone.\n"
+            "Enter then and tell the king what thou hast seen today across the city."
+        ),
+    }
+    assert speeches[5] == {
+        "speaker_printed": "MESSENGER",
+        "text": "Woe's me, woe's me!",
+    }
+    assert speeches[6] == {
+        "speaker_printed": "PELEUS",
+        "text": "O my prophetic soul, what ill it bodes.",
+        "directions_before": ["Exeunt."],
+    }
+    for speech in speeches:
+        assert speech["text"].splitlines()[-1] not in {
+            "Enter DEIANIRA.",
+            "Re-enter LICHAS.",
+            "Exit HYLLUS.",
+            "Exeunt.",
+        }
