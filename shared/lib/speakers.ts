@@ -1041,7 +1041,10 @@ export function markStageDirections(html: string, byLength = false): string {
     const plain = dir.replace(/<button\b[^>]*>.*?<\/button>/g, '').replace(/<[^>]*>/g, '');
     const words = plain.trim().split(/\s+/).length;
     if (!byLength || words > 2) return `<span class="stage-dir">${dir}</span>`;
-    const bracketed = /^[([]/.test(dir) ? dir : `(${dir})`;
+    // Round brackets always: a source's own `(within.)` stays, its square
+    // ones (`[within]`, Murray's unclosed `[Exit`) are replaced.
+    const bare = dir.replace(/^\[/, '').replace(/\]$/, '');
+    const bracketed = bare.startsWith('(') ? bare : `(${bare})`;
     // A space stands in for each line break taken, so none opens or closes
     // the speech (on a phone the speaker's name is in the same line).
     const before = line.startsWith('\n') ? ' ' : '';

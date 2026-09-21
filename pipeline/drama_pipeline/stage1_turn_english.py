@@ -3271,15 +3271,18 @@ def parse_translation(
             prev["text"] = f"{prev['text']} {cur['text']}".strip()
             del speeches[j]
             del e_names[j]
-            # B4: `forced` was resolved against the pre-fold speeches. Drop a
-            # pin of the speech just deleted and shift every later English
-            # index down, or a pin on a speech after this one names the
-            # speech that slid into its old place.
-            forced = [
-                (gi, ej if ej < j else ej - 1)
-                for gi, ej in forced
-                if ej != j
-            ]
+            # B4: `forced` was resolved against the pre-fold speeches. Shift
+            # every later English index down, or a pin on a speech after this
+            # one names the speech that slid into its old place. A pin ON the
+            # folded speech now names nothing: say so, never drop it.
+            if any(ej == j for _gi, ej in forced):
+                raise ValueError(
+                    f"{work_id}: a pin names the block after an Enter direction "
+                    f"that the Greek gives to no such speaker, so it was folded "
+                    f"into {prev.get('name') or 'the speech before it'!r}: "
+                    f"pin that speech instead ({cur['text'][:40]!r})"
+                )
+            forced = [(gi, ej if ej < j else ej - 1) for gi, ej in forced]
         english_nodes = [
             pair_dp.EnglishNode(
                 name=e_names[j], chars=len(speeches[j]["text"]), text=speeches[j]["text"]

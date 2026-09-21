@@ -2544,6 +2544,51 @@ def test_b4_a_pin_after_a_rejected_implicit_entrant_lands_on_its_speech(tmp_path
     assert by_id["1:3"]["text"].startswith("O happy the race")
 
 
+def test_b4_a_pin_on_a_rejected_implicit_entrant_is_loud(tmp_path):
+    """Sol's read of B4 (2026-09-21): the fold used to drop, without a word,
+    a pin whose own speech it deleted. A pin that holds the cue-less block
+    after `_Enter NURSE._` to a line the Greek gives Death is rejected by the
+    Greek and folded into Apollo; the pin then names nothing, and says so."""
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "APOLLO. Go forth of yonder hall's beloved roof, lest pollution taint "
+        "me in their house.\n"
+        "\n"
+        "_Enter NURSE._\n"
+        "\n"
+        "Lo, yonder I see the servant standing by the door.\n"
+        "\n"
+        "DEATH. Ha, thou at the palace! Wilt not make room?\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "apollo greek words here about the palace and the woman"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Α."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": "death greek words short reply"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θ."}],
+            },
+        ],
+    }
+    with pytest.raises(ValueError, match="folded"):
+        parse_translation(
+            path, spine, work_id="test", translation_id="test", play="THE PLAY",
+            sigla={"Α.": "Apollo", "Θ.": "Death"},
+            english_aliases={"APOLLO": "Apollo", "DEATH": "Death", "NURSE": "Nurse"},
+            footnotes_enabled=False, format="loeb-ocr", verse=True,
+            pins=[{"greek": "2", "english": "Lo, yonder I see the servant"}],
+        )
+
+
 # B round 3 item 4 (philoctetes finding 5, 2026-09-17): a Loeb editorial
 # note citing the lines a cut passage omits, printed as if it were verse
 # ("' The omitted lines are:", storr/philoctetes.txt:1808, followed by the
