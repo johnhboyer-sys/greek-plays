@@ -2477,6 +2477,73 @@ def test_loeb_ocr_implicit_entrant_accepted_when_the_greek_agrees(tmp_path):
     assert by_id["1:2"]["text"].startswith("Afar from the tides")
 
 
+def test_b4_a_pin_after_a_rejected_implicit_entrant_lands_on_its_speech(tmp_path):
+    """B4. `forced = _resolve_pins(...)` runs before the implicit-entrant
+    fold. The fold deletes the rejected speech and rebuilds the English
+    nodes, but the real alignment still receives the pre-fold indices, so a
+    pin on a LATER speech names the speech after the one it quoted.
+
+    No loeb-ocr slot in the corpus has `pins:` today. This bench is the
+    alcestis shape (an Enter the Greek rejects) plus a pin on the speech
+    after the folded one, and a further speech so the stale index is a real
+    speech rather than an index past the end.
+    """
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "APOLLO. Go forth of yonder hall's beloved roof, lest pollution taint "
+        "me in their house.\n"
+        "\n"
+        "_Enter NURSE._\n"
+        "\n"
+        "Lo, yonder I see the servant standing by the door.\n"
+        "\n"
+        "DEATH. Ha, thou at the palace! Wilt not make room?\n"
+        "\n"
+        "CHORUS. O happy the race in the ages olden of Erechtheus.\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "apollo greek words here about the palace and the woman"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Α."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": "death greek words short reply"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θ."}],
+            },
+            {
+                "id": "1:3", "book": 1, "column": "1",
+                "lines": [{"n": 3, "ref": "3", "text": (
+                    "chorus greek words about erechtheus and the golden race"
+                )}],
+                "speakers": [{"line": 3, "offset": 0, "label": "Χο."}],
+            },
+        ],
+    }
+    english, _footnotes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="THE PLAY",
+        sigla={"Α.": "Apollo", "Θ.": "Death", "Χο.": "Chorus"},
+        english_aliases={
+            "APOLLO": "Apollo", "DEATH": "Death", "NURSE": "Nurse",
+            "CHORUS": "Chorus",
+        },
+        footnotes_enabled=False, format="loeb-ocr", verse=True,
+        pins=[{"greek": "2", "english": "Ha, thou at the palace"}],
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "Lo, yonder I see the servant" in by_id["1:1"]["text"]
+    assert by_id["1:2"]["text"].startswith("Ha, thou at the palace")
+    assert "O happy the race" not in by_id["1:2"]["text"]
+    assert by_id["1:3"]["text"].startswith("O happy the race")
+
+
 # B round 3 item 4 (philoctetes finding 5, 2026-09-17): a Loeb editorial
 # note citing the lines a cut passage omits, printed as if it were verse
 # ("' The omitted lines are:", storr/philoctetes.txt:1808, followed by the
@@ -5821,14 +5888,21 @@ def test_r9_a_malformed_declaration_is_loud():
     keys = [m._play_line_start_key(r) for r in ("1", "2", "3", "4")]
     good = [{"start": "3", "end": "4", "before": "1"}]
     assert m._english_transposed_run_groups(keys, good) == [[2, 3, 0, 1]]
-    for bad, why in (
-        ({"start": "3", "end": "4"}, "missing ref"),
-        ({"start": "1", "end": "2", "before": "3"}, "before is not below start"),
-        ({"start": "3", "end": "4", "before": "99"}, "ref not in the play"),
-        ({"start": "1", "end": "4", "before": "1"}, "moves nothing"),
+    for bad in (
+        {"start": "3", "end": "4"},
+        {"start": "1", "end": "2", "before": "3"},
+        {"start": "3", "end": "4", "before": "99"},
     ):
         with pytest.raises(ValueError, match="transposition"):
             m._english_transposed_run_groups(keys, [bad], work_id="t", slot="third")
+    # before < start, and no speech lies in [before, start), so the raise is
+    # the empty stayed set ("moves nothing"), not the ordering check.
+    gapped = [m._play_line_start_key(r) for r in ("2", "3", "4")]
+    with pytest.raises(ValueError, match="moves nothing"):
+        m._english_transposed_run_groups(
+            gapped, [{"start": "2", "end": "4", "before": "1"}],
+            work_id="t", slot="third",
+        )
 
 
 def test_r2_an_undivided_block_is_anchored_at_the_first_segment_it_claims():
@@ -5909,6 +5983,76 @@ def test_r2_an_undivided_block_is_anchored_at_the_first_segment_it_claims():
     assert [c["id"] for c in _spread_long_speeches([block, tail], segs, sigla)] == [
         "1:951", "1:961",
     ]
+
+
+def test_a5a_an_inherited_claim_from_another_block_takes_no_spread():
+    """A5a. A bare continuation inherits an A2 claim whose donor is a
+    different block. That claim may still be written as a coveredBy note;
+    it must not lay THIS block's English on the segment. A speakerless
+    segment otherwise continues unconditionally ("bare"), so the foreign
+    donor never gets a look.
+
+    The Septem kommos is the other shape and stays in
+    `test_r2_an_undivided_block_is_anchored_at_the_first_segment_it_claims`:
+    there the claim's donor IS this block and derived names nobody else, so
+    the walk still crosses Antigone and Ismene.
+    """
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    sigla = {"Χο.": "Chorus", "Αγ.": "Messenger", "Φυ.": "Guard"}
+    # 1:5 holds its own chunk, so the messenger's block cannot anchor back
+    # onto 1:3. 1:3 stays bare, and the chorus walk is the thing that reaches it.
+    segs = [
+        {"id": "1:1", "column": "1",
+         "speakers": [{"line": 1, "offset": 0, "label": "Χο."}],
+         "lines": [{} for _ in range(2)]},
+        {"id": "1:3", "column": "3", "lines": [{} for _ in range(2)]},
+        {"id": "1:5", "column": "5",
+         "speakers": [{"line": 5, "offset": 0, "label": "Φυ."}],
+         "lines": [{} for _ in range(2)]},
+        {"id": "1:9", "column": "9",
+         "speakers": [{"line": 9, "offset": 0, "label": "Αγ."}],
+         "lines": [{} for _ in range(2)]},
+    ]
+    chorus = {
+        "id": "1:1", "column": "1",
+        "text": (
+            "Chorus, on the tenth year of the war, and the ships that sailed. "
+            "They cried out the war-cry, and a god heard them."
+        ),
+        "turns": [], "notes": [], "markers": [],
+    }
+    guard = {
+        "id": "1:5", "column": "5", "text": "The guard keeps his watch.",
+        "turns": [], "notes": [], "markers": [],
+    }
+    messenger = {
+        "id": "1:9", "column": "9",
+        "text": "The messenger tells of the beacon.",
+        "turns": [], "notes": [], "markers": [],
+    }
+    out = _spread_long_speeches(
+        [chorus, guard, messenger], segs, sigla, claimed={"1:3": "1:9"},
+    )
+    by_id = {c["id"]: c["text"] for c in out}
+    assert "1:3" not in by_id
+    assert "They cried out" in by_id["1:1"]
+    assert by_id["1:5"] == "The guard keeps his watch."
+    assert by_id["1:9"] == "The messenger tells of the beacon."
+    # The aligner already named the other block. An inherited A2 claim that
+    # still points at the chorus must not cross onto that segment either.
+    segs[1] = {
+        "id": "1:3", "column": "3",
+        "speakers": [{"line": 3, "offset": 0, "label": "Αγ."}],
+        "lines": [{} for _ in range(2)],
+    }
+    out = _spread_long_speeches(
+        [chorus, guard, messenger], segs, sigla,
+        covered={"1:3": "1:9"}, claimed={"1:3": "1:1"},
+    )
+    by_id = {c["id"]: c["text"] for c in out}
+    assert "1:3" not in by_id
+    assert "They cried out" in by_id["1:1"]
 
 
 def test_a7_a_paragraph_cut_is_chosen_by_the_primary_not_by_proportion():
