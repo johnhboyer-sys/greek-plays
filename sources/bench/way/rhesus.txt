@@ -1,5 +1,7 @@
 RHESUS
 
+_Enter CHORUS marching to Hector's tent, before which stand guards._
+
 CHORUS. Ho, pass to the couch of Hector your lord,
 Ye watchful henchmen that guard his sleep,
 If perchance he will hearken our tidings, the word
@@ -10,6 +12,8 @@ Ho! raise thine head on thine arm upstaying ;
 Unseal thine eyes, the battle-dismaying :
 Leap from thine earth-strewn leaf-bed sere,
 Hector: ’tis time to hear.
+
+_Enter HECTOR from the tent._
 
 HECTOR. Who cometh ?— the voice of a friend ?—what wight?
 The watchword give. Speak thou !
@@ -111,6 +115,8 @@ HECTOR. ’Gainst foes one watchword shall suffice—to arm,
 
 CHORUS. Lo, where Aeneas comes in hot-foot haste,
 As one that beareth tidings to his friends.
+
+_Enter AENEAS, DOLON, and others._
 
 AENEAS. Hector, for what cause through the host have come
 Darkling unto thy couch scared sentinels,
@@ -260,6 +266,8 @@ Mid Phrygia’s thousands is my valour’s guerdon.
 Be thou not envious: countless things beside
 Shall make thee glad, the ruler of the land.
 
+_Exit HECTOR._
+
 CHORUS. Great thine emprise is, and great the reward thou dost
 claim ;
 So thou may’st but attain thereunto, high bliss shalt thou know.
@@ -301,6 +309,8 @@ ships,’—
 Or Tydeus’ son’s head. Not with bloodless hand
 Will I win home ere dawn rise o’er the earth.
 
+_Exit._
+
 CHORUS. O King Thymbraean, O Delian Lord, O haunter of
 Lycia’s fane,
 O sunlit brow, with thy bow do thou, Apollo, this
@@ -336,6 +346,8 @@ Yea, bear the head of the war-king dead, and, loud as her shriek outpeals,
 Lay it in Helen’s hands—the head of her kinsman who
 worked us woe, array of a thousand keels.
 Who sailed to the strand of Troy’s fair land with
+
+_Re-enter HECTOR. Enter SHEPHERD as messenger._
 
 SHEPHERD. King, still through days to come be it mine to hear
 Such tidings to my lords as now I bring!
@@ -651,6 +663,8 @@ Watch keenly, and our spy upon the ships,
 Dolon, receive; for, if he be unharmed,
 By this he draweth nigh the camp of Troy.
 
+_Exeunt HECTOR and RHESUS._
+
 CHORUS. Ho, warders, to whom is the next watch given?
 whose warding followeth mine ?
 For the stars that were high in the evening sky are
@@ -705,6 +719,10 @@ Manifest soon shall his fate be made.
 SEMICHORUS. I rede ye then that we haste to call
 The Lycians ; to them did the fifth watch fall,
 When the lot to our stations assigned us all.
+
+_Exeunt._
+
+_Enter ODYSSEUS and DIOMEDES._
 
 ODYSSEUS. Diomedes, heard’st thou not—or through mine cars
 Thrills but an empty sound ?—a clash of arms?
@@ -812,6 +830,10 @@ And with false words will answer him I hate.
 This have I told you : nought the doomed man knows,
 Nor aught hath heard, for all he is so near.
 
+_Exeunt OD. and DIOM._
+
+_Enter PARIS._
+
 PARIS. War-chief and brother, ho, to thee I call,
 Hector! Dost sleep? Behoves thee not to watch ?
 Some foe to us is nigh unto the host—
@@ -842,7 +864,7 @@ And free of fear I go to guard my post.
 
 ATHENA. Go: be thou sure that all thy care is mine,
 That so triumphant I may see my friends.
-Yea, and thou too shalt prove my zeal for thee
+Yea, and thou too shalt prove my zeal for thee [Exit PARIS.]
 Ho ye! I bid you, over-eager twain—
 Laertes’ son !—let sleep the whetted swords ;
 For at our feet dead lies the Thracian chief ;
@@ -850,6 +872,8 @@ Our prize his steeds are. But the foe have heard,
 And close on you. Now must ye with all speed
 To yon ship-channels flee. Why linger ye,
 When bursts the storm of foes, to save your lives?
+
+_Enter ODYSSEUS followed by CHORUS, tumultuously._
 
 CHORUS. Ha, smite !—ha, smite !—ha, smite !—ha, smite!
 Stab thou !—stab thou !—who is this wight ?
@@ -972,6 +996,8 @@ CHARIOTEER. O the sore mischance to Thrace !
 
 CHORUS. "Tis some ally that waileth there.
 
+_Enter CHARIOTEER, wounded._
+
 CHARIOTEER. Woe’s me! O King of Thracians, woe for thee !
 O bitter sight of Troy to thee this day !
 What end of life hath snatched thee hence away !
@@ -1059,6 +1085,8 @@ CHORUS. O charioteer of Thracia’s lord ill-starred,
 Never suspect of this deed thine allies.
 Lo, Hector’s self, who hath heard of your mischance,
 Comes: in thine ills he sorroweth, as beseems.
+
+_Enter HECTOR._
 
 HECTOR. How passed the men who wrought this direst scathe—
 Spies from the foemen—passed unmarked of you,
@@ -1151,11 +1179,12 @@ So tend him that he shall not slander us.
 And ye must go to those upon the wall,
 To Priam and our elders, bidding them
 Bury the slain beside the public way.
+_Exeunt bearers with CHARIOTEER._
 
 CHORUS. Wherefore from heights of victory
 Doth Fortune drag down Troy unto woe—
 Fortune estranged? What purposeth she ?
-(The muse appears above the stage with RuEsUS in her
+(The MUSE appears above the stage with RHESUS in her
 arms.)
 Ho ye !—lo there !—what ho!
 What God overhead, O King, doth appear,
@@ -1168,6 +1197,7 @@ One of the Song-queens, honoured of the wise.
 My dear son I behold in piteous sort
 Slain by his foes. One day shall he who slew,
 Guileful Odysseus, pay fit penalty.
+_Raises the death-dirge._
 In moans that of no strange lips I borrow, (Str)
 O son, my sorrow,
 I wail for thee.
@@ -1265,6 +1295,8 @@ Ah, woes of mothers! Miseries of men !
 Yea, whoso taketh true account of you
 Childless will live, nor bear sons for the grave.
 
+_Exit._
+
 CHORUS. Now are the King’s death-rites his mother’s care.
 But if thou wilt do work that lies to hand,
 Hector, ’tis time ; for yonder dawns the day.
@@ -1283,7 +1315,7 @@ These things. May the God give triumph to us
 straightway
 Who fights on our side.
 
-_Exeunt omnes._
+_Exeunt OMNES._
 
 Footnotes:
 [1] The dialogue that follows is differently distributed by various editors. Badham’s arrangement, adopted by Paley, is here followed, also his reading of ἱστορῶ for ἴστω of MSS.
