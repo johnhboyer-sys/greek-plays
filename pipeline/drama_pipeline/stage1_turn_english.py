@@ -3271,6 +3271,15 @@ def parse_translation(
             prev["text"] = f"{prev['text']} {cur['text']}".strip()
             del speeches[j]
             del e_names[j]
+            # B4: `forced` was resolved against the pre-fold speeches. Drop a
+            # pin of the speech just deleted and shift every later English
+            # index down, or a pin on a speech after this one names the
+            # speech that slid into its old place.
+            forced = [
+                (gi, ej if ej < j else ej - 1)
+                for gi, ej in forced
+                if ej != j
+            ]
         english_nodes = [
             pair_dp.EnglishNode(
                 name=e_names[j], chars=len(speeches[j]["text"]), text=speeches[j]["text"]
@@ -4109,12 +4118,26 @@ def _spread_long_speeches(
         # turns off Suppliants-eur 618-632).
         lines_head = lines_crossed = lines_of(seg)
         while k < len(segments) and segments[k]["id"] not in by_id:
+            # A5a: do not lay this block on a segment a coverage claim gave
+            # to another block. A speakerless segment would otherwise
+            # continue ("bare") and print English beside Greek the claim
+            # named elsewhere. Derived naming THIS block still wins -- the
+            # aligner's own reading, which is what keeps Septem 1:871 with
+            # the block at 1:822. A content claim on this block with no
+            # derived donor still spreads: that is the kommos.
+            sid = segments[k]["id"]
+            content_donor = (claimed or {}).get(sid)
+            derived_donor = (covered or {}).get(sid)
+            if derived_donor not in (None, chunk["id"]) or (
+                content_donor not in (None, chunk["id"]) and derived_donor != chunk["id"]
+            ):
+                break
             per_line = len(text) / column_median if column_median else 0.0
             kind = _continuation_kind(
                 segments[k], own, per_line / lines_head,
                 per_line / (lines_crossed + lines_of(segments[k])), sigla,
-                vouched=(covered or {}).get(segments[k]["id"]) == chunk["id"],
-                claimed=(claimed or {}).get(segments[k]["id"]) == chunk["id"],
+                vouched=derived_donor == chunk["id"],
+                claimed=content_donor == chunk["id"],
             )
             if kind is None:
                 break
