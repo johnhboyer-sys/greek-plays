@@ -15,6 +15,7 @@ from drama_pipeline.rogers_clean import (
     PLAYS,
     _Play,
     _convert_body,
+    _lift_smallcaps_cues,
     _splice_gaps,
     convert_play,
 )
@@ -160,6 +161,47 @@ def test_splice_refuses_a_span_the_old_bench_itself_never_resolved():
         ("LYSISTRATA", "Right after."),
         ("LYSISTRATA", "Well after."),
     ]
+
+
+def test_smallcaps_span_and_table_row_are_speaker_cues():
+    # genie_text deletes a <span> and everything inside it. These cues have
+    # to be lifted first, or the verse stays in the speech before them.
+    raw = (
+        '<span style="font-variant:small-caps;">bl.</span>&nbsp; The prospect.\n'
+        '<span style="font-variant:small-caps;">bl</span> Just one other thing.\n'
+        'A note keeps <span style="font-variant:small-caps;">d</span> the letter.\n'
+    )
+    lifted = _lift_smallcaps_cues(raw)
+    assert lifted.splitlines()[0].startswith("BL. ")
+    assert lifted.splitlines()[1].startswith("BL. ")
+    assert "small-caps" in lifted.splitlines()[2]
+
+    play = _Play(
+        title="THE TESTPLAY",
+        word="TESTPLAY",
+        bench="testplay",
+        abbrev={"LY": "LYSISTRATA", "BL": "BLEPYRUS", "PR": "PRAXAGORA"},
+    )
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. Before."),
+        _p("| | |"),
+        _p("| :--- | :--- |"),
+        _p("| BL. | Right. |"),
+        _p("| | But what will you do with the desk? |"),
+        _p("| PR. | They shall go |"),
+        _p("| MN. | τί δ᾽ ἔστιν; |"),
+    ]
+    text, speeches, _footnotes, _log, gaps = _convert_body(paras, 0, len(paras), play)
+    assert gaps == []
+    assert "τί" not in text
+    assert ":---" not in text
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Before."),
+        ("BLEPYRUS", "Right.\nBut what will you do with the desk?"),
+        ("PRAXAGORA", "They shall go"),
+    ]
+    assert speeches == 3
 
 
 SOURCES = SOURCES_DIR

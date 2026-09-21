@@ -1021,30 +1021,41 @@ CHREMES. I fancy you soon would be smelling of mint. [83]
 PRAXAGORA. But this, sir, is nonsense : it never could be.
 That whelp was begotten before the Decree.
 His kiss, it is plain, you can never obtain.
-The prospect I view with disgust and alarm.
+
+BLEPYRUS. The prospect I view with disgust and alarm.
 But who will attend to the work of the farm?
-All labour and toil to your slaves you will leave;
+
+PRAXAGORA. All labour and toil to your slaves you will leave;
 Your business ’twill be, when the shadows of eve
 Ten feet on the face of the dial are cast, [84]
 To scurry away to your evening repast.
-Our clothes, what of them?
-You have plenty in store,
+
+BLEPYRUS. Our clothes, what of them?
+
+PRAXAGORA. You have plenty in store,
 When these are worn out, we will weave you some
 more.
-Just one other thing. If an action they bring,
+
+BLEPYRUS. Just one other thing. If an action they bring,
 What funds will be mine for discharging the fine?
 You won’t pay it out of the stores, I opine.
-A fine to be paid when an action they bring!
+
+PRAXAGORA. A fine to be paid when an action they bring!
 Why bless you, our people won’t know such a thing
 As an action. [85]
-No actions! I feel a misgiving. [86]
+
+BLEPYRUS. No actions! I feel a misgiving. [86]
 Pray what are “our people” to do for a living?
-You are right: there are many will rue it.
-No doubt.
+
+CHREMES. You are right: there are many will rue it.
+
+PRAXAGORA. No doubt.
 But what can one then bring an action about?
-There are reasons in plenty; I’ll just mention one.
+
+BLEPYRUS. There are reasons in plenty; I’ll just mention one.
 If a debtor won’t pay you, pray what’s to be done?
-If a debtor won’t pay! Nay, but tell me, my friend,
+
+PRAXAGORA. If a debtor won’t pay! Nay, but tell me, my friend,
 How the creditor came by the money to lend?
 begin with.” “But how many will that ruin?” (i.e. by
 depriving them of the dicast’s fee). “And I too was thinking
@@ -1093,37 +1104,43 @@ BLEPYRUS. Then where, may I ask, will our dinners be laid ?
 
 PRAXAGORA. Each court and arcade of the law shall be made
 A banqueting-hall for the citizens.
-| | |
-| :--- | :--- |
-| BL. | Right. |
-| | But what will you do with the desk for the speakers? |
-| PR. | I’ll make it a stand for the cups and the beakers; |
-| | And there shall the striplings be ranged to recite [88] |
-| | The deeds of the brave, and the joys of the fight, |
-| | And the cowards’ disgrace; till out of the place |
-| | Each coward shall slink with a very red face, |
-| | Not stopping to dine. |
-| BL. | O but that will be fine. |
-| | And what of the balloting-booths? [89] |
-| PR. | They shall go |
-| | To the head of the market-place, all in a row, |
-| | And there by Harmodius taking my station, |
-| | I’ll tickets dispense to the whole of the nation, |
-| | Till each one has got his particular lot, |
-| | And manfully bustles along to the sign |
-| | Of the letter whereat he’s empanelled to dine. |
-| | The man who has A shall be ushered away |
-| | To the Royal Arcade; to the next will go B; |
-| | And C to the Cornmarket. |
-| BL. | Merely to see? |
-| PR. | No, fool, but to dine. |
-| BL. | ’Tis an excellent plan. |
-| | Then he who gets never a letter, poor man, |
-| | Gets never a dinner. |
-| PR. | But ’twill not be so. |
-| | There’ll be plenty for all, and to spare. |
-| | No stint and no grudging our system will know, |
-| | But each will away from the revelry go, |
+
+BLEPYRUS. Right.
+But what will you do with the desk for the speakers?
+
+PRAXAGORA. I’ll make it a stand for the cups and the beakers;
+And there shall the striplings be ranged to recite [88]
+The deeds of the brave, and the joys of the fight,
+And the cowards’ disgrace; till out of the place
+Each coward shall slink with a very red face,
+Not stopping to dine.
+
+BLEPYRUS. O but that will be fine.
+And what of the balloting-booths? [89]
+
+PRAXAGORA. They shall go
+To the head of the market-place, all in a row,
+And there by Harmodius taking my station,
+I’ll tickets dispense to the whole of the nation,
+Till each one has got his particular lot,
+And manfully bustles along to the sign
+Of the letter whereat he’s empanelled to dine.
+The man who has A shall be ushered away
+To the Royal Arcade; to the next will go B;
+And C to the Cornmarket.
+
+BLEPYRUS. Merely to see?
+
+PRAXAGORA. No, fool, but to dine.
+
+BLEPYRUS. ’Tis an excellent plan.
+Then he who gets never a letter, poor man,
+Gets never a dinner.
+
+PRAXAGORA. But ’twill not be so.
+There’ll be plenty for all, and to spare.
+No stint and no grudging our system will know,
+But each will away from the revelry go,
 Elated and grand, with a torch in his hand
 And a garland of flowers in his hair.
 And then through the streets as they wander, a lot
