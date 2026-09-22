@@ -175,6 +175,10 @@ english:
       - { greek: "481", english: "The Megarians\naren’t making any effort.", run: 1 }
       - { greek: "483", english: "Yes, by Zeus, because they’re dying of hunger.", run: 1 }
       - { greek: "486", english: "Heave!", run: 1 }
+      # Grok read of the data branch (2026-09-22): the DP seated the First
+      # Servant's "You do it. I'll strip him of those skins" (1122-1126) at
+      # 1124 and pointed 1122 at it, backwards; the speech opens at 1122.
+      - { greek: "1122", english: "You do it. I’ll strip him", run: 1 }
       - { greek: "487", english: "Heave away!", run: 1 }
       - { greek: "488", english: "Heave!", run: 1 }
       - { greek: "489", english: "By Zeus, pull!", run: 1 }
@@ -240,11 +244,10 @@ english:
       - { greek: "350-351", by: "346" }
       - { greek: "541", by: "535" }
       - { greek: "549", by: "548" }
-      # After the 1127 pin (A12) shifts the alignment, the aligner keys this
-      # unbroken FIRST SERVANT speech (1122-1126) to segment 1124, not 1122
-      # -- verified against book-01.json; declared the direction the build
-      # actually produces.
-      - { greek: "1122", by: "1124" }
+      # The unbroken FIRST SERVANT speech (1122-1126) opens at 1122; the
+      # 1122 pin above seats it there (Grok read, 2026-09-22; before that the
+      # aligner keyed it to 1124 and this row pointed the other way).
+      - { greek: "1124", by: "1122" }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

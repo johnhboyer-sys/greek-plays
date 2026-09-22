@@ -97,6 +97,11 @@ english:
     source: "bench/rogers/ecclesiazusae.txt"
     play: "THE ECCLESIAZUSAE"
     footnotes: true
+    # Grok read of the data branch (2026-09-22): Rogers's Praxagora turn "All
+    # labour and toil to your slaves you will leave..." (648-652) sits at 648;
+    # 651 (the slaves farm; the ten-foot shadow) has no cell of its own.
+    covered:
+      - { greek: "651", by: "648" }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
