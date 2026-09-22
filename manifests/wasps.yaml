@@ -68,6 +68,19 @@ english:
       - { greek: "52", english: "Interpreting dreams so aptly certainly deserves two obols.", run: 1 }
       - { greek: "42", english: "Seated on the ground close to it, I saw Theorus", run: 1 }
       - { greek: "46", english: "Ah! 'twas very well lisped indeed!", run: 1 }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/wasps.txt"
+    play: "THE WASPS"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -108,6 +121,17 @@ speakers:
     "BAKER'S WIFE": "Bread-seller"
     "A BAKER'S WIFE": "Bread-seller"
     "A DOG": "Dog"
+    "DOG": "Dog"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_secondary:
+    "PHILOCLEON": "Philocleon"
+    "BDELYCLEON": "Bdelycleon"
+    "XANTHIAS": "Xanthias"
+    "CHORUS": "Chorus"
+    "SOSIAS": "Sosias"
+    "BOY": "Boy"
+    "ACCUSER": "Accuser"
+    "BAKING-WOMAN": "Bread-seller"  # Hickie's own dramatis-personae spelling
     "DOG": "Dog"
   sigla:
     "Φι.": "Philocleon"
@@ -162,6 +186,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
   citation:
     scheme: play-line

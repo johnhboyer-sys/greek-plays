@@ -1,7 +1,9 @@
-"""W. J. Hickie's Bohn Aristophanes vol. II -- History Genie's OCR of the
-vendored scan (``in.ernet.dli.2015.515630``) rebuilt into loeb-ocr turn-text:
-Lysistrata rides the ``third`` slot, Thesmophoriazusae/Frogs/Ecclesiazusae/
-Wealth ride ``secondary``.
+"""W. J. Hickie's Bohn Aristophanes, both volumes -- History Genie's OCR of
+the vendored scans rebuilt into loeb-ocr turn-text. Vol. II
+(``in.ernet.dli.2015.515630``): Lysistrata rides the ``third`` slot,
+Thesmophoriazusae/Frogs/Ecclesiazusae/Wealth ride ``secondary``. Vol. I
+(``in.ernet.dli.2015.515629``): Acharnians/Knights/Wasps/Peace/Birds all
+ride ``secondary``.
 """
 
 from pathlib import Path
@@ -12,6 +14,7 @@ from drama_pipeline import genie_text as gt
 from drama_pipeline.config import SOURCES_DIR
 from drama_pipeline.hickie_clean import (
     GENIE_TEXT,
+    GENIE_TEXT_I,
     PLAYS,
     _Play,
     _convert_body,
@@ -31,6 +34,18 @@ _TEST_PLAY = _Play(
     bench="testplay",
     abbrev={"LY": "LYSISTRATA", "COM": "COMMITTEE-MAN"},
     drop_exact=("Non traducta linea.",),
+)
+
+# A vol. I play fixture (``genie=GENIE_TEXT_I``): vol. I's own first-entrance
+# and cue shapes (H1, 2026-09-22) are gated on this field so that admitting
+# them never changes vol. II's already-shipped bench text.
+_TEST_PLAY_I = _Play(
+    title="THE TESTPLAY",
+    word="TESTPLAY",
+    bench="testplay",
+    genie=GENIE_TEXT_I,
+    abbrev={"S S": "SAUSAGE-SELLER", "DEM": "DEMOSTHENES", "COM": "COMMITTEE-MAN"},
+    split_cues={"DEM": ("DEMOSTHENES", "DEMUS", "DEMUS.")},
 )
 
 
@@ -365,16 +380,100 @@ def test_normalize_dollar_footnote_and_accented_title_and_br():
     assert _normalize("text <br> more") == "text more"
 
 
+# ---------------------------------------------------------------------------
+# Vol. I only (2026-09-22 brief): a first-entrance cue printed on its own
+# paragraph, with the speech itself a SEPARATE paragraph (Acharnians's own
+# "DICÆOPOLIS (solus)."). Gated on `cfg.genie is GENIE_TEXT_I` so it never
+# fires for a vol. II play.
+def test_bare_cue_paren_own_paragraph_is_vol_i_only():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LYSISTRATA (solus).", page=0),
+        _p("Well, we have met at last.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY_I)
+    assert _speeches(text) == [("LYSISTRATA", "Well, we have met at last.")]
+    assert "[solus]" in text
+
+
+def test_bare_cue_paren_own_paragraph_does_not_fire_for_vol_ii():
+    # The SAME shape, on a vol. II (default `genie`) play: falls through to
+    # the pre-existing "pre-speech junk" drop, exactly as it did before this
+    # fallback was added -- regenerating vol. II must stay byte-identical.
+    # (A real cue afterwards keeps `_count_speeches` from choking on a body
+    # with no recognised speech at all -- not what this test is about.)
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LYSISTRATA (solus).", page=0),
+        _p("Well, we have met at last.", page=0),
+        _p("COM. Something.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert speeches == 1
+    assert "Well, we have met at last." not in text
+    assert any(
+        line.startswith("dropped\tpre-speech") and "solus" in line for line in log
+    )
+
+
+# A structural section label Genie reads as a markdown heading (never a
+# speaker) -- vol. I's own "PARABASIS." (Acharnians, Knights, Wasps, Peace,
+# Birds each print one). Dropped as furniture so it can never become a
+# phantom speaker via `_BARE_CUE_RE`.
+def test_parabasis_section_label_is_dropped_not_a_phantom_cue():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("COM. Let us strip and follow with our own Anapaests.", page=0),
+        _p("PARABASIS.", page=0),
+        _p("From the time our instructor first presided.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY_I)
+    assert _speeches(text) == [
+        (
+            "COMMITTEE-MAN",
+            "Let us strip and follow with our own Anapaests. From the time our instructor first presided.",
+        )
+    ]
+    assert "PARABASIS" not in text
+
+
+# Knights's own "Dem." collision (H1, 2026-09-22): Bohn reuses the same
+# abbreviation for Demosthenes before Demus enters and for Demus himself
+# after -- `split_cues` flips the resolution at the marker paragraph.
+def test_split_cues_switches_abbreviation_at_the_marker():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("DEM. Alas for our misfortunes!", page=0),
+        _p("DEMUS.", page=0),
+        _p("DEM. Who are those that are bawling?", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY_I)
+    assert _speeches(text) == [
+        ("DEMOSTHENES", "Alas for our misfortunes!"),
+        ("DEMUS", "Who are those that are bawling?"),
+    ]
+
+
+# A scan without the abbreviation's own internal period ("S S." rather than
+# "S. S."), once in Knights (the Cydathenian dog scene's "S. S." elsewhere
+# keeps its period): both must resolve to the same roster name.
+def test_no_period_variant_of_a_two_letter_abbreviation():
+    paras = [_p("THE TESTPLAY", page=0), _p("S S. How completely you imagine!", page=0)]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY_I)
+    assert _speeches(text) == [("SAUSAGE-SELLER", "How completely you imagine!")]
+
+
 SOURCES = SOURCES_DIR
 
 
-@pytest.mark.skipif(
-    not GENIE_TEXT.exists(),
-    reason="History Genie's OCR text is a machine-local build/ scratch file, not vendored",
-)
 @pytest.mark.parametrize("work_id", sorted(PLAYS))
 def test_vendored_text_is_the_converter_output(work_id):
-    out = convert_play(work_id)
     cfg = PLAYS[work_id]
+    if not cfg.genie.exists():
+        # Both volumes are machine-local build/ scratch files, not vendored --
+        # a play's OWN volume file (not just `GENIE_TEXT`, vol. II's) decides
+        # whether this can run, now that `PLAYS` spans both.
+        pytest.skip("History Genie's OCR text is a machine-local build/ scratch file, not vendored")
+    out = convert_play(work_id)
     assert (SOURCES / "bench" / "hickie" / f"{cfg.bench}.txt").read_text(encoding="utf-8") == out.text
     assert len(_speeches(out.text, cfg.title)) == out.speeches

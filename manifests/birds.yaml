@@ -74,6 +74,19 @@ english:
       - { greek: "667", english: "Do you know how dearly I should like to split", run: 1 }
       - { greek: "670", english: "She is dazzling all over with gold", run: 1 }
       - { greek: "672", english: "Why, wretched man, she has two little sharp", run: 1 }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/birds.txt"
+    play: "THE BIRDS"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
   third:
     id: arrowsmith
     name: "William Arrowsmith (Michigan, 1961)"
@@ -248,6 +261,33 @@ speakers:
     "DEALER IN DECREES": "Decree-seller"
     "A DEALER IN DECREES": "Decree-seller"
     "PHOENICOPTERUS": "Bird"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_secondary:
+    "PISTHETAERUS": "Peisthetaerus"
+    "EUELPIDES": "Euelpides"
+    "EPOPS": "Hoopoe"
+    "CHORUS": "Chorus"
+    "HERACLES": "Heracles"
+    "PROMETHEUS": "Prometheus"
+    "IRIS": "Iris"
+    "INFORMER": "Informer"
+    "NEPTUNE": "Poseidon"  # Hickie's own Latin name for Poseidon
+    "TROCHILUS": "Servant of the Hoopoe"
+    "SERVANT": "Servant of the Hoopoe"
+    "PROPHET": "Oracle-monger"
+    "METON": "Meton"
+    "CINESIAS": "Cinesias"
+    "MESSENGER": "Messenger"
+    "FIRST MESSENGER": "First Messenger"
+    "SECOND MESSENGER": "Second Messenger"
+    "POET": "Poet"
+    "COMMISSIONER": "Inspector"  # Hickie's own dramatis-personae name
+    "PRIEST": "Priest"
+    "TRIBALLUS": "Triballian"
+    "PARRICIDE": "Father-beater"
+    "HERALD": "Herald"
+    "HAWKER OF DECREES": "Decree-seller"  # Hickie's own dramatis-personae name
+    "PHOENICOPTERUS": "Bird"
   # Arrowsmith's printed caps names (bench/arrowsmith/birds.txt). SANDPIPER is
   # his own name for the Hoopoe's servant (Trochilus elsewhere). SENTRY has no
   # Greek siglum of his own; his "a god slipped past the gates" report is the
@@ -389,6 +429,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
     - id: arrowsmith
       form: verse

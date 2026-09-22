@@ -58,6 +58,19 @@ english:
     # 1111-1112 -- a crossing the monotone pairer cannot express as pins.
     transpositions:
       - { start: "1109", end: "1112", before: "1107" }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/acharnians.txt"
+    play: "THE ACHARNIANS"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
@@ -122,6 +135,27 @@ speakers:
     "MESSENGERS": "Messenger"
     "A PRYTANIS": "Herald"
     "PRYTANIS": "Herald"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_secondary:
+    "DICAEOPOLIS": "Dicaeopolis"
+    "LAMACHUS": "Lamachus"
+    "CHORUS": "Chorus"
+    "MEGARIAN": "Megarian"
+    "EURIPIDES": "Euripides"
+    "HERALD": "Herald"
+    "BOEOTIAN": "Boeotian"
+    "AMPHITHEUS": "Amphitheus"
+    "AMBASSADOR": "Ambassador"
+    "HUSBANDMAN": "Farmer"
+    "THEORUS": "Theorus"
+    "NICARCHUS": "Nicarchus"
+    "DAUGHTER OF DICAEOPOLIS": "Daughter"
+    "WIFE OF DICAEOPOLIS": "Daughter"
+    "SERVANT": "Servant"
+    "SERVANT OF LAMACHUS": "Servant"
+    "INFORMER": "Informer"
+    "PARANYMPH": "Bridesmaid"  # Hickie's own name for the groomsman (roster: Bridesmaid)
+    "MESSENGER": "Messenger"
   sigla:
     "ΔΙ.": "Dicaeopolis"
     "ΔΙΚΑΙΟΠΟΛΙΣ": "Dicaeopolis"
@@ -197,6 +231,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
   citation:
     scheme: play-line

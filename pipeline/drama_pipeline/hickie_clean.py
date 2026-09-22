@@ -1,11 +1,21 @@
-r"""W. J. Hickie's Bohn Aristophanes vol. II (1853) -- History Genie's OCR of
-the vendored scan (``in.ernet.dli.2015.515630``), rebuilt as the comparison
-bench for five comedies whose old archive.org/ABBYY-OCR Hickie bench was
-retired 2026-09-14 (commit 46a4bfa, "carried scan junk or leaked footnotes in
-1,095 of 2,912 pieces"): Lysistrata (``third``), Thesmophoriazusae, Frogs,
-Ecclesiazusae and Wealth (``secondary`` on each -- Rogers's own Genie rebuild
-now holds ``third`` on those four). Clouds keeps Hickie from the Perseus TEI
-untouched; this converter never touches it.
+r"""W. J. Hickie's Bohn Aristophanes, both volumes (1853) -- History Genie's
+OCR of the vendored scans, rebuilt as the comparison bench for ten comedies
+whose old archive.org/ABBYY-OCR Hickie bench was retired 2026-09-14 (commit
+46a4bfa, "carried scan junk or leaked footnotes in 1,095 of 2,912 pieces"):
+
+- Vol. II (``in.ernet.dli.2015.515630``, 2026-09-17, commit cdd81e6):
+  Lysistrata (``third``), Thesmophoriazusae, Frogs, Ecclesiazusae and Wealth
+  (``secondary`` on each -- Rogers's own Genie rebuild now holds ``third`` on
+  those four).
+- Vol. I (``in.ernet.dli.2015.515629``, 2026-09-22): Acharnians, Knights,
+  Wasps, Peace and Birds (``secondary`` on each -- none of the five held a
+  ``secondary`` slot before).
+
+Clouds prints in vol. I too, between Knights and Wasps, but keeps Hickie from
+the Perseus TEI untouched; this converter never emits a bench for it (it is
+still needed as a placeholder in vol. I's own print order, ``_VOLUME_I``
+below, so the boundary search for Wasps knows where Clouds's own footnotes
+end).
 
 Genie's own export of this volume is markdown-flavoured prose (see
 ``genie_text.py``): a bold or plain ``NAME.`` cue opens each speech inline
@@ -58,6 +68,36 @@ a jump in the running head's own printed Greek line range (``_extract_range``
 never spliced from anything: only logged, and the stretch is left with no
 Hickie text at all.
 
+Vol. I (2026-09-22) needs three things beyond vol. II's own shapes, all
+gated on ``cfg.genie is GENIE_TEXT_I`` so admitting them can never change
+vol. II's already-shipped bench text (checked directly: regenerating vol.
+II's five benches with this module produces no diff):
+
+- A first entrance printed as a bare cue -- with or without a parenthetical
+  direction -- on its OWN paragraph, the speech itself a separate paragraph
+  right after (Acharnians's own ``DICÆOPOLIS (solus).``; Knights's own
+  ``DEMUS.`` before Demus's first line). ``_BARE_CUE_PAREN_RE``/
+  ``_BARE_CUE_RE`` set the pending cue and let the next paragraph's own
+  ``writer.line`` call attach to it exactly as it would a same-line cue.
+- A paren-wrapped SCENE direction (Knights's own ``(SCENE—the front of a
+  large house.)``, where every vol. II play either brackets it or, once
+  (Wealth), prints it bare) -- ``_PAREN_STAGE_RE``.
+- A "### "-heading structural label Genie reads the same way as any other
+  markdown heading (``genie_text._clean_line`` strips every ``#`` marker
+  regardless of level): vol. I's own ``PARABASIS.`` (one per play, all
+  five). Indistinguishable at the text level from a genuine bare cue once
+  the shape above is admitted, so it is dropped as furniture by name
+  (``_SECTION_LABEL_RE``) rather than risk a phantom "PARABASIS" speaker
+  stealing the parabasis's own opening lines from the CHORUS cue that
+  should get them.
+
+Knights also reuses one abbreviation, "Dem.", for two different characters
+at different points in the same play -- Demosthenes for the cold open,
+before Demus is even named, then Demus himself once he enters (67 lines
+before the switch, 85 after: neither name alone is an acceptable
+approximation). ``_Play.split_cues`` flips the resolution once the
+``DEMUS.`` marker paragraph is reached.
+
     python -m drama_pipeline.hickie_clean   # rewrite sources/bench/hickie/*.txt
 """
 
@@ -72,11 +112,15 @@ from .config import SOURCES_DIR
 from . import genie_text as gt
 from .stage1_turn_english import parse_play_speeches
 
-# History Genie's OCR of the vendored Bohn scan (John's own upload). Lives
+# History Genie's OCR of the vendored Bohn scans (John's own upload). Lives
 # only in the main checkout's build/ scratch, never vendored into sources/,
-# so this is an absolute path rather than SOURCES_DIR/BUILD_DIR -- the same
-# posture as the sibling rogers_clean.py lane's own Genie input.
-GENIE_TEXT = Path("/Users/johnboyer/Developer/greek-plays/build/genie/in.ernet.dli.2015.515630.txt")
+# so these are absolute paths rather than SOURCES_DIR/BUILD_DIR -- the same
+# posture as the sibling rogers_clean.py lane's own Genie input. ``GENIE_TEXT``
+# keeps its original name (vol. II) for backward compatibility -- it is the
+# default a bare `_Play(...)` gets when it does not name a volume.
+GENIE_TEXT_II = Path("/Users/johnboyer/Developer/greek-plays/build/genie/in.ernet.dli.2015.515630.txt")
+GENIE_TEXT_I = Path("/Users/johnboyer/Developer/greek-plays/build/genie/in.ernet.dli.2015.515629.txt")
+GENIE_TEXT = GENIE_TEXT_II
 
 
 class Converted(NamedTuple):
@@ -101,6 +145,19 @@ class _Play:
     # editorial choice not to translate a passage (a Latin citation standing
     # in for lines he declined to render in English), never an OCR gap.
     drop_exact: tuple[str, ...] = field(default_factory=tuple)
+    # Which volume's Genie export this play is printed in. Defaults to vol.
+    # II so the five original records need no change (byte-identical rebuild).
+    genie: Path = GENIE_TEXT_II
+    # An abbreviation Bohn reuses for two different characters at different
+    # points in the SAME play (Knights's own "Dem." -- Demosthenes for the
+    # cold open, before Demus is even named, then Demus himself once he
+    # enters and Demosthenes drops out; 67 lines before the switch, 85
+    # after, 2026-09-22 count, so neither name alone is an acceptable
+    # approximation): {abbrev_key: (name_before, name_after, marker_text)}.
+    # `marker_text` is the exact (normalised) paragraph text that flips the
+    # resolution -- every occurrence of `abbrev_key` up to it resolves to
+    # `name_before`, every one from it on (inclusive) to `name_after`.
+    split_cues: dict[str, tuple[str, str, str]] = field(default_factory=dict)
 
 
 _LYSISTRATA = _Play(
@@ -214,20 +271,203 @@ _WEALTH = _Play(
     },
 )
 
+_ACHARNIANS = _Play(
+    title="THE ACHARNIANS",
+    word="ACHARNIANS",
+    bench="acharnians",
+    genie=GENIE_TEXT_I,
+    abbrev={
+        "DIC": "DICAEOPOLIS",
+        "LAM": "LAMACHUS",
+        "CHO": "CHORUS",
+        "CHOR": "CHORUS",
+        "AMP": "AMPHITHEUS",
+        "HER": "HERALD",
+        "HUSB": "HUSBANDMAN",
+        "SERV. OF EUR": "SERVANT",
+        "MEG": "MEGARIAN",
+        "EUR": "EURIPIDES",
+        "AMB": "AMBASSADOR",
+        "INF": "INFORMER",
+        "BOEOT": "BOEOTIAN",
+        "BAEOT": "BOEOTIAN",  # printed "Bæot." -- Æ->AE, ascii_cue
+        "THEOR": "THEORUS",
+        "NIC": "NICARCHUS",
+        "DAUGH": "DAUGHTER OF DICAEOPOLIS",
+        "WIFE": "WIFE OF DICAEOPOLIS",
+        "PAR": "PARANYMPH",  # the groomsman at the wedding-feast scene
+        "MESS": "MESSENGER",
+    },
+)
+
+_KNIGHTS = _Play(
+    title="THE KNIGHTS",
+    word="KNIGHTS",
+    bench="knights",
+    genie=GENIE_TEXT_I,
+    abbrev={
+        "DEM. AND NIC": "DEMOSTHENES AND NICIAS",
+        "DEM": "DEMOSTHENES",  # `split_cues` below switches this to DEMUS
+        # once Demus himself enters.
+        "NIC": "NICIAS",
+        "CLEON": "PAPHLAGONIAN",
+        "S. S": "SAUSAGE-SELLER",
+        "S S": "SAUSAGE-SELLER",  # a scan without the internal period, once
+        "AGOR": "SAUSAGE-SELLER",
+        "CLE": "PAPHLAGONIAN",
+        "CHO": "CHORUS",
+        "DEMOSTH": "DEMOSTHENES",  # the closing scene's own longer-printed form
+    },
+    split_cues={"DEM": ("DEMOSTHENES", "DEMUS", "DEMUS.")},
+)
+
+_WASPS = _Play(
+    title="THE WASPS",
+    word="WASPS",
+    bench="wasps",
+    genie=GENIE_TEXT_I,
+    abbrev={
+        "PHIL": "PHILOCLEON",
+        "BDEL": "BDELYCLEON",
+        "CHO": "CHORUS",
+        "XAN": "XANTHIAS",
+        "BOY": "BOY",
+        "ACCUS": "ACCUSER",
+        "SOS": "SOSIAS",
+        "PLAIN": "ACCUSER",  # Hickie's own "Plaintiff" for the dog-trial's accuser
+        # -- the same role the roster already calls "Accuser" elsewhere.
+        "CYD. DOG": "DOG",  # "the Cydathenian dog" (Bdel.'s own line just
+        # before it) -- Bohn's printed cue names him by his epithet, not his
+        # role; the roster has no "Cydathenian Dog" character of its own.
+        "B. WOM": "BAKING-WOMAN",  # Hickie's own dramatis-personae name for
+        # the bread-seller (roster: "Bread-seller").
+    },
+)
+
+_PEACE = _Play(
+    title="PEACE",
+    word="PEACE",
+    bench="peace",
+    genie=GENIE_TEXT_I,
+    abbrev={
+        "TRY": "TRYGAEUS",
+        "MER": "MERCURY",  # Hickie's own Latin name for Hermes (as Wealth's
+        # own "MER": "MERCURY" already does in vol. II).
+        "CHO": "CHORUS",
+        "SER": "SERVANT",
+        "1ST SER": "FIRST SERVANT",
+        "2ND SER": "SECOND SERVANT",
+        "1ST SERVANT": "FIRST SERVANT",
+        "2ND SERVANT": "SECOND SERVANT",
+        "HIER": "HIEROCLES",
+        "WAR": "WAR",
+        "TUM": "TUMULT",
+        "DAUGH": "LITTLE DAUGHTER",
+        "SON OF L": "SON OF LAMACHUS",
+        "SON OF CL": "SON OF CLEONYMUS",
+        "BREASTPL": "BREASTPLATE-MAKER",
+        "SICKL": "SICKLE-MAKER",
+        "CREST": "CREST-MAKER",
+        "TRUMP": "TRUMPET-MAKER",
+        "SPEAR": "SPEAR-MAKER",
+        "HELM": "HELMET-MAKER",
+    },
+)
+
+_BIRDS = _Play(
+    title="THE BIRDS",
+    word="BIRDS",
+    bench="birds",
+    genie=GENIE_TEXT_I,
+    abbrev={
+        "PISTH": "PISTHETAERUS",
+        "PEISTH": "PISTHETAERUS",  # scan variants of the same abbreviation
+        "PISHT": "PISTHETAERUS",
+        "PIIS": "PISTHETAERUS",
+        "EUEL": "EUELPIDES",
+        "EP": "EPOPS",
+        "CHO": "CHORUS",
+        "HER": "HERALD",
+        "HERC": "HERACLES",
+        "PROM": "PROMETHEUS",
+        "IR": "IRIS",
+        "INF": "INFORMER",
+        "NEPT": "NEPTUNE",  # Hickie's own Latin name for Poseidon (as
+        # Peace's own "MER": "MERCURY" for Hermes)
+        "TROCH": "TROCHILUS",
+        "PROPH": "PROPHET",
+        "MET": "METON",
+        "CIN": "CINESIAS",
+        "MESS": "MESSENGER",
+        "FIRST MESS": "FIRST MESSENGER",
+        "SECOND MESS": "SECOND MESSENGER",
+        "POET": "POET",
+        "COM": "COMMISSIONER",  # Hickie's own dramatis-personae name for
+        # the Inspector (roster: "Inspector")
+        "PRIEST": "PRIEST",
+        "TRIB": "TRIBALLUS",
+        "PAR": "PARRICIDE",
+        "HAWK": "HAWKER OF DECREES",  # Hickie's own name for the Dealer
+        # in Decrees (roster: "Decree-seller")
+        "PHOE": "PHOENICOPTERUS",  # a non-speaking-role bird in the roster's
+        # own dramatis personae -- folded into the generic "Bird" the roster
+        # already uses for an unnamed bird cue (never a new character).
+    },
+)
+
 PLAYS: dict[str, _Play] = {
     "lysistrata": _LYSISTRATA,
     "thesmophoriazusae": _THESMOPHORIAZUSAE,
     "frogs": _FROGS,
     "ecclesiazusae": _ECCLESIAZUSAE,
     "wealth": _WEALTH,
+    "acharnians": _ACHARNIANS,
+    "knights": _KNIGHTS,
+    "wasps": _WASPS,
+    "peace": _PEACE,
+    "birds": _BIRDS,
 }
-# The order the five plays print in the volume -- how `_play_bounds` finds
-# where one play's own footnotes end and the next's front matter begins.
-_PLAY_ORDER = ["lysistrata", "thesmophoriazusae", "frogs", "ecclesiazusae", "wealth"]
-# Where Wealth's own footnotes/endnotes stop and the volume's cross-play
-# errata appendix begins (references plays in other volumes too -- never
-# Wealth-specific content, never dialogue).
-_END_SENTINEL = "SUPPLEMENTARY EMENDATIONS."
+
+
+@dataclass(frozen=True)
+class _Volume:
+    """One Genie-exported volume's own print order, used only to find where
+    a play's footnotes/endnotes stop and the next play's front matter (or the
+    volume's own back matter) begins (`_play_bounds`). ``order`` names every
+    play printed in the volume in order, including one this converter never
+    emits a bench for (vol. I's own Clouds, kept on the Perseus TEI) -- it
+    still needs a place in the order and a heading word so the boundary
+    search for its neighbours (Knights, Wasps) knows where to stop.
+    """
+
+    order: tuple[str, ...]
+    # work_id -> bare printed heading word, for an `order` entry with no
+    # `_Play` record of its own (only vol. I's "clouds"); a `PLAYS[work_id]`
+    # entry's own `.word` is used instead when one exists.
+    words: dict[str, str]
+    # Where the LAST play's own footnotes/endnotes stop and the volume's own
+    # cross-play back matter begins (an errata appendix, an "END OF VOL." --
+    # never dialogue, never play-specific).
+    end_sentinel: str
+
+
+_VOLUME_II = _Volume(
+    order=("lysistrata", "thesmophoriazusae", "frogs", "ecclesiazusae", "wealth"),
+    words={},
+    # Where Wealth's own footnotes/endnotes stop and the volume's cross-play
+    # errata appendix begins (references plays in other volumes too -- never
+    # Wealth-specific content, never dialogue).
+    end_sentinel="SUPPLEMENTARY EMENDATIONS.",
+)
+_VOLUME_I = _Volume(
+    order=("acharnians", "knights", "clouds", "wasps", "peace", "birds"),
+    words={"clouds": "CLOUDS"},
+    end_sentinel="END OF VOL. I.",
+)
+
+
+def _volume_for(work_id: str) -> _Volume:
+    return _VOLUME_I if work_id in _VOLUME_I.order else _VOLUME_II
 
 
 # ---------------------------------------------------------------------------
@@ -254,12 +494,22 @@ _CYRILLIC_RE = re.compile("|".join(_CYRILLIC_HOMOGLYPHS))
 # brace group before the caret, which genie_text._DOLLAR_FOOTNOTE_RE
 # (`$^N$`/`$^{N}$`) does not match.
 _DOLLAR_FOOTNOTE2_RE = re.compile(r"\$\{\}\^(\d+)\$")
+# A joint cue printed with a lower-case "and" between its two abbreviated
+# names (Knights p. 1, "DEM. and NIC."), where every other joint cue in
+# either volume prints it upper-case ("ÆSCH. AND EUR."). `_CUE_RE`'s all-caps
+# charset cannot match a lower-case "and" mid-name, so the first name alone
+# would be read as the cue and "and NIC. Mumu..." would sit as its spoken
+# text; anchored to the very start of a paragraph, where a cue prints, so it
+# can never fire on a genuine sentence's own "X. and Y." (never seen upper-
+# case in vol. II, so this is a no-op there).
+_LOWER_AND_CUE_RE = re.compile(r"^([A-ZÆŒ]{1,15})\. and ([A-ZÆŒ]{1,15})\.")
 
 
 def _normalize(text: str) -> str:
     text = _SMALLCAPS_RE.sub(lambda m: _SMALLCAPS[m.group(0)], text)
     text = _CYRILLIC_RE.sub(lambda m: _CYRILLIC_HOMOGLYPHS[m.group(0)], text)
     text = _DOLLAR_FOOTNOTE2_RE.sub(lambda m: f"[{m.group(1)}]", text)
+    text = _LOWER_AND_CUE_RE.sub(lambda m: f"{m.group(1)}. AND {m.group(2)}.", text)
     # A stray acute accent OCR reads into a running head's own title word
     # ("THE ECCLÉSIAZUSÆ." for "THE ECCLESIAZUSÆ.", 2026-09-17 check) --
     # `_is_running_head_line`'s exact-substring check would otherwise miss
@@ -305,6 +555,22 @@ _DIVIDER_RE = re.compile(r"^[\-|\s]+$")
 _END_OF_RE = re.compile(r"^END OF (?:THE )?[A-ZÆŒ ]+\.?$")
 _RANGE_RE = re.compile(r"(\d{1,4})\s*[–—\-]{1,4}\s*(\d{1,4})")
 _BARE_RANGE_RE = re.compile(rf"^{_RANGE_RE.pattern}\.?$")
+# A structural section label Genie read as a markdown ``### `` heading, never
+# a speaker -- ``genie_text._clean_line`` strips every ``#`` heading marker
+# regardless of level, so by the time this module sees the text a section
+# label like "### PARABASIS." is indistinguishable from a genuine bare cue's
+# own paragraph (`_BARE_CUE_RE` below, added for vol. I's own first-entrance
+# shape). Confirmed as the only such label vol. I actually uses (five
+# occurrences, one per play: Acharnians, Knights, Wasps, Peace, Birds);
+# dropped as furniture there, rather than risk a phantom "PARABASIS" speaker
+# picking up the parabasis's own opening lines instead of the CHORUS cue
+# that should get them (Acharnians, 2026-09-22 check). Vol. II ALSO prints
+# one (Thesm. p. 161) but is left untouched -- `_BARE_CUE_RE` did not exist
+# when vol. II was built (commit cdd81e6), so it never became a phantom cue
+# there in the first place (the paragraph fell through to a plain
+# `writer.line` append, already in the committed bench, and stays that way:
+# regenerating vol. II must stay byte-identical, so this fix is vol. I only).
+_SECTION_LABEL_RE = re.compile(r"^PARABASIS\.(?:\[\d+\])?$")
 
 
 def _bare_heading_re(word: str) -> re.Pattern[str]:
@@ -385,10 +651,35 @@ _CUE_RE = re.compile(r"^([A-ZÆŒ][A-ZÆŒ .'’\-]{0,30})\.\s+(\S.*)$")
 # sitting in the speech text instead of becoming its own direction; this
 # pattern is now tried first).
 _CUE_PAREN_RE = re.compile(r"^([A-ZÆŒ][A-ZÆŒ .'’\-]{0,30})\.?\s*\(([^)]*)\)\.?\s+(\S.*)$")
+# A cue with no text of its own on the same paragraph -- vol. I's own first
+# entrance shape (Acharnians opens "**DICÆOPOLIS (*solus*).**" as its own
+# printed line, the speech itself a SEPARATE paragraph right after; vol. II
+# never prints a first entrance this way, so this never fires there). Tried
+# only once `_CUE_PAREN_RE`/`_CUE_RE` (which both require trailing text on
+# the SAME line) have already missed -- a cue this shaped just sets the
+# pending cue and/or prints its direction; the next paragraph's `writer.line`
+# call attaches to it exactly as it would a same-line cue.
+_BARE_CUE_PAREN_RE = re.compile(r"^([A-ZÆŒ][A-ZÆŒ .'’\-]{0,30})\.?\s*\(([^)]*)\)\.?$")
+_BARE_CUE_RE = re.compile(r"^([A-ZÆŒ][A-ZÆŒ .'’\-]{0,30})\.$")
+# A "characters present" cast list opening a scene (Birds's own
+# "EUELPIDES, PISTHETAIRUS." -- no SCENE direction of its own precedes it,
+# unlike every other play in either volume): used only by `_real_start`, to
+# recognise the title heading right before it as the play's real start (the
+# main body loop already drops a line shaped like this as pre-speech
+# furniture once it is inside the converted range, via the final
+# `writer._pending_cue is None` check -- this regex is not needed there).
+_CAST_LIST_RE = re.compile(r"^[A-ZÆŒ][A-ZÆŒ, .'’\-]*,[A-ZÆŒ, .'’\-]*\.(?:\[\d+\])?$")
 # A whole-line direction Genie prints without its outer brackets: this
 # volume's own "SCENE—..." openers and one bare "Enter ..." (2026-09-17
 # check finds both in Wealth).
 _STAGE_VERB_RE = re.compile(r"^(?:SCENE[—:]|Enter\b|Exit\b|Exeunt\b|Re-enters?\b|Enters\b)", re.I)
+# The same opening SCENE direction, but paren-wrapped rather than bracketed
+# or bare (Knights's own "(SCENE—the front of a large house.)" -- vol. II
+# always uses brackets or nothing; only Knights, in either volume, wraps it
+# in parens). A whole match (not `_STAGE_VERB_RE` on the inner text alone)
+# so it is never confused with `_CUE_PAREN_RE`'s "NAME (direction). text"
+# shape, which always has a name before the "(".
+_PAREN_STAGE_RE = re.compile(r"^\((SCENE[—:].*)\)$", re.I)
 
 # A numbered or adjective-qualified chorus-member cue ("2nd Wom.", "5TH WOM.",
 # "1ST OLD WOM.", "Young Man.", "1st Innk.", "2nd Cit.", "1st Semichorus."):
@@ -510,16 +801,27 @@ def _count_speeches(text: str, title: str) -> int:
     return len(speeches)
 
 
-def _load_genie() -> list[gt.Paragraph]:
-    return gt.paragraphs(GENIE_TEXT)
+def _load_genie(cfg: _Play) -> list[gt.Paragraph]:
+    return gt.paragraphs(cfg.genie)
 
 
-def _real_start(paras: list[gt.Paragraph], word: str) -> int:
+def _real_start(paras: list[gt.Paragraph], cfg: _Play) -> int:
     """The play's own title page: the LAST heading occurrence immediately
     followed by a real cue+text line, a paren-cue line, or a bracket/SCENE
     direction (the volume's own contents-adjacent running heads and the
-    ARGUMENT's italic-quoted title never precede one of these)."""
+    ARGUMENT's italic-quoted title never precede one of these). Vol. I's own
+    extra first-entrance shapes -- a bare (text-of-its-own-paragraph) cue, a
+    "characters present" cast list, a paren-wrapped SCENE direction -- are
+    checked only for a vol. I play (`cfg.genie is GENIE_TEXT_I`): vol. II's
+    own five plays never need them, and admitting them unconditionally would
+    also let them fire deeper in the main body loop (`_convert_body`) on a
+    vol. II paragraph that already converts correctly a different way,
+    changing its already-shipped bench text (checked 2026-09-22: it did,
+    for Thesm.'s "FEMALE HERALD."/"PARABASIS." lines) -- regenerating vol.
+    II must stay byte-identical."""
+    word = cfg.word
     heading = _bare_heading_re(word)
+    vol_i = cfg.genie is GENIE_TEXT_I
     start: int | None = None
     for i, p in enumerate(paras):
         if not heading.match(p.text.strip()):
@@ -532,6 +834,14 @@ def _real_start(paras: list[gt.Paragraph], word: str) -> int:
             or _STAGE_VERB_RE.match(nxt)
             or _CUE_RE.match(nxt)
             or _CUE_PAREN_RE.match(nxt)
+            or (
+                vol_i
+                and (
+                    _PAREN_STAGE_RE.match(nxt)
+                    or _BARE_CUE_PAREN_RE.match(nxt)
+                    or _CAST_LIST_RE.match(nxt)
+                )
+            )
         ):
             start = i
     if start is None:
@@ -543,14 +853,18 @@ def _play_bounds(paras: list[gt.Paragraph], work_id: str) -> tuple[int, int]:
     """(start, end): `start` is the title page the first speech follows;
     `end` is the NEXT play's own bare-heading front-matter marker (its
     footnotes/endnotes run right up to that point), or the volume's own
-    errata-appendix sentinel for the last play."""
-    i = _PLAY_ORDER.index(work_id)
-    start = _real_start(paras, PLAYS[work_id].word)
-    if i + 1 < len(_PLAY_ORDER):
-        next_heading = _bare_heading_re(PLAYS[_PLAY_ORDER[i + 1]].word)
+    back-matter sentinel for the last play in its volume."""
+    cfg = PLAYS[work_id]
+    volume = _volume_for(work_id)
+    i = volume.order.index(work_id)
+    start = _real_start(paras, cfg)
+    if i + 1 < len(volume.order):
+        next_id = volume.order[i + 1]
+        next_word = PLAYS[next_id].word if next_id in PLAYS else volume.words[next_id]
+        next_heading = _bare_heading_re(next_word)
         end = next(j for j, p in enumerate(paras) if j > start and next_heading.match(p.text.strip()))
     else:
-        end = next(j for j, p in enumerate(paras) if p.text.strip() == _END_SENTINEL and j > start)
+        end = next(j for j, p in enumerate(paras) if p.text.strip() == volume.end_sentinel and j > start)
     return start, end
 
 
@@ -813,7 +1127,20 @@ def _convert_body(
     prev_hi: int | None = None
     gaps: list[tuple[int, int, int]] = []
 
+    # `cfg.split_cues`: a mutable working copy of the abbreviation table,
+    # flipped in place once each marker paragraph is reached (see `_Play`).
+    abbrev = dict(cfg.abbrev)
+    split_markers: dict[int, tuple[str, str]] = {}
+    for key, (_before, after, marker_text) in cfg.split_cues.items():
+        for i in range(start, end):
+            if _normalize(paras[i].text).strip() == marker_text:
+                split_markers[i] = (key, after)
+                break
+
     for i in range(start, end):
+        if i in split_markers:
+            key, after = split_markers[i]
+            abbrev[key] = after
         if i in consumed:
             continue
         p = paras[i]
@@ -835,6 +1162,8 @@ def _convert_body(
             continue
         if _is_furniture(text, cfg.word):
             continue
+        if cfg.genie is GENIE_TEXT_I and _SECTION_LABEL_RE.match(text):
+            continue
         if text in cfg.drop_exact:
             log.append(f"dropped\tHickie's own Latin substitution, not English: {text[:60]!r}")
             continue
@@ -850,8 +1179,18 @@ def _convert_body(
         if _STAGE_VERB_RE.match(resolved):
             writer.direction(resolved)
             continue
+        # Vol. I only (Knights's own paren-wrapped SCENE direction): admitting
+        # this for vol. II too changes nothing there today (vol. II never
+        # prints one), but is gated anyway for the same reason the bare-cue
+        # checks below are -- this module's contract is that regenerating
+        # vol. II stays byte-identical, not just that it happens to today.
+        if cfg.genie is GENIE_TEXT_I:
+            m = _PAREN_STAGE_RE.match(resolved)
+            if m:
+                writer.direction(m.group(1))
+                continue
 
-        abbrev_pieces = _split_abbrev_cues(resolved, cfg.abbrev)
+        abbrev_pieces = _split_abbrev_cues(resolved, abbrev)
         if len(abbrev_pieces) > 1 or abbrev_pieces[0][0] is not None:
             for cue, piece in abbrev_pieces:
                 if cue is not None:
@@ -876,7 +1215,7 @@ def _convert_body(
             # forward...)" -- captures that period into group(1) itself; it
             # is not part of the name and must not print as a second period.
             printed = _ascii_cue(m.group(1).strip().rstrip("."))
-            cue = cfg.abbrev.get(printed, printed)
+            cue = abbrev.get(printed, printed)
             writer.cue(cue)
             writer.direction(m.group(2))
             writer.line(m.group(3))
@@ -885,7 +1224,7 @@ def _convert_body(
         m = _MIXED_CUE_PAREN_RE.match(resolved)
         if m:
             printed = _normalize_mixed_cue(m.group(1).strip().rstrip("."))
-            cue = cfg.abbrev.get(printed, printed)
+            cue = abbrev.get(printed, printed)
             writer.cue(cue)
             writer.direction(m.group(2))
             writer.line(m.group(3))
@@ -894,7 +1233,7 @@ def _convert_body(
         m = _CUE_RE.match(resolved)
         if m:
             printed = _ascii_cue(m.group(1).strip())
-            cue = cfg.abbrev.get(printed, printed)
+            cue = abbrev.get(printed, printed)
             writer.cue(cue)
             writer.line(m.group(2))
             continue
@@ -902,10 +1241,37 @@ def _convert_body(
         m = _MIXED_CUE_RE.match(resolved)
         if m:
             printed = _normalize_mixed_cue(m.group(1).strip())
-            cue = cfg.abbrev.get(printed, printed)
+            cue = abbrev.get(printed, printed)
             writer.cue(cue)
             writer.line(m.group(2))
             continue
+
+        # A cue with no text of its own on this paragraph (`_BARE_CUE_PAREN_RE`
+        # /`_BARE_CUE_RE`): the speech itself is the NEXT paragraph. Vol. I
+        # only (a first entrance printed "NAME (direction)." as its own
+        # line, or a lone "NAME." before Demus's Knights entrance) -- gated
+        # the same way as `_PAREN_STAGE_RE` above: unconditionally admitting
+        # either pattern silently swallows a vol. II structural heading this
+        # module previously left as plain (if stray) text -- e.g. Thesm.'s
+        # "FEMALE HERALD."/"PARABASIS." lines -- changing its already-shipped
+        # bench (checked 2026-09-22). Checked last, since every shape above
+        # needs its own trailing text and would already have matched if this
+        # paragraph had any.
+        if cfg.genie is GENIE_TEXT_I:
+            m = _BARE_CUE_PAREN_RE.match(resolved)
+            if m:
+                printed = _ascii_cue(m.group(1).strip().rstrip("."))
+                cue = abbrev.get(printed, printed)
+                writer.cue(cue)
+                writer.direction(m.group(2))
+                continue
+
+            m = _BARE_CUE_RE.match(resolved)
+            if m:
+                printed = _ascii_cue(m.group(1).strip().rstrip("."))
+                cue = abbrev.get(printed, printed)
+                writer.cue(cue)
+                continue
 
         if writer._pending_cue is None and not writer._open:
             # Pre-speech furniture (a "characters present" list before the
@@ -923,7 +1289,7 @@ def _convert_body(
 
 def convert_play(work_id: str) -> Converted:
     cfg = PLAYS[work_id]
-    paras = _load_genie()
+    paras = _load_genie(cfg)
     start, end = _play_bounds(paras, work_id)
     text, speeches, n_footnotes, log, gaps = _convert_body(paras, start, end, cfg)
     for _idx, lo, hi in gaps:

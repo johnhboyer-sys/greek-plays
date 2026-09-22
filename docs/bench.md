@@ -194,13 +194,17 @@ not already name.
 ### Aristophanes / Hickie prose (Bohn 1853)
 
 W. J. Hickie, English-only prose. The vendored DLI scans
-(`in.ernet.dli.2015.515629.txt`, `in.ernet.dli.2015.515630.txt`) are
-tesseract `-l san` (0 Latin letters) and cannot feed the cleaner. The
-committed `sources/bench/hickie/*.txt` were cleaned from the Google-digitized
-1853 Bohn of the same edition (`comediesaristop01hickgoog` vol. 1,
-`comediesaristop00hickgoog` vol. 2) with `--layout prose-inline`: inline
-`Dic.` / `Dicæopolis (solus).` labels expanded from each play's dramatis
-personae into `NAME. text` for `format: loeb-ocr`.
+(`in.ernet.dli.2015.515629.txt` vol. I, `in.ernet.dli.2015.515630.txt`
+vol. II) are tesseract `-l san` (0 Latin letters) and cannot feed the
+cleaner directly. `sources/bench/hickie/*.txt` is now built by
+`pipeline/drama_pipeline/hickie_clean.py` from History Genie's own,
+separate OCR pass of both volumes (`build/genie/*.txt`, a machine-local
+scratch file, never vendored) -- vol. II first (2026-09-17, commit
+cdd81e6): Lysistrata, Thesmophoriazusae, Frogs, Ecclesiazusae, Wealth; vol.
+I second (2026-09-22): Acharnians, Knights, Wasps, Peace, Birds. The
+Google-digitized-OCR `--layout prose-inline` recipe below built the five
+vol. I benches this replaces (retired 2026-09-14, commit 46a4bfa) and is
+kept only as a historical record of that approach.
 
 Clouds stays on the Perseus TEI (line-keyed). Pairing is stage-1
 `pairing_rate`; coverage is `segments_with_chunk / segments_total`.
@@ -208,20 +212,23 @@ Clouds stays on the Perseus TEI (line-keyed). Pairing is stage-1
 | id | translator | slot | pairing | coverage | residual OCR |
 |---|---|---|---|---|---|
 | `clouds` | Hickie | secondary (Perseus TEI) | line-keyed | — | Perseus `<speaker>` strings |
-| `acharnians` | Hickie | secondary | 0.838 | 0.828 | `asq@int`; `Beeotian sté` |
-| `knights` | Hickie | secondary | 0.764 | 0.757 | `Aras! alas`; `S. S.` sausage-seller |
-| `wasps` | Hickie | secondary | 0.614 | 0.609 | `SOSEAS` for Sosias |
-| `peace` | Hickie | secondary | 0.772 | 0.769 | `TRYGAOUS`; `THEORIA` |
-| `birds` | Hickie | secondary | 0.821 | 0.816 | `PISTHETAIRUS`; `Pistu`/`Pista` |
+| `acharnians` | Hickie | secondary | 0.966 | 0.978 | `Bæot.`/`BOEOT.` for Boeotian; `PAR.` for the Paranymph |
+| `knights` | Hickie | secondary | 0.989 | 0.989 | `S S.` (no period) and `S. S.` both for the Sausage-seller; `Dem.` reused for Demosthenes then Demus |
+| `wasps` | Hickie | secondary | 0.965 | 0.982 | `PLAIN.` for the dog-trial's Plaintiff; `CYD. DOG.` ("the Cydathenian dog") |
+| `peace` | Hickie | secondary | 0.941 | 0.940 | `MER.` (Mercury) for Hermes; `1sT SER.` (small-caps "st" mis-OCR'd) |
+| `birds` | Hickie | secondary | 0.935 | 0.955 | `NEPT.` (Neptune) for Poseidon; `PEISTH.`/`PISHT.`/`PIIS.` for Pisthetaerus |
 | `lysistrata` | Hickie | third | 0.766 | 0.764 | `Caton.`; `Cuo. or Men.` |
 | `thesmophoriazusae` | Hickie | secondary | 0.798 | 0.789 | `CLISTHENES`; `Myes.` for Mnesilochus |
 | `frogs` | Hickie | secondary | 0.783 | 0.780 | `BACCHUS` for Dionysus; `ZBACUS` |
 | `ecclesiazusae` | Hickie | secondary | 0.394 | 0.394 | `Buep`/`Bier`/`Burp` for Blepyrus |
 | `wealth` | Hickie | secondary | 0.587 | 0.586 | `Pov`/`Pru` for Plutus |
 
-`acharnians` stays under 0.85: Hickie never labels Pseudartabas, the
-Megarian's girls, or the numbered semichoruses. Every recovered English
-turn already pairs; aliases cannot invent labels the scan never printed.
+The five vol. I rows above are the 2026-09-22 Genie rebuild; the vol. II
+rows keep their own last-measured numbers (2026-09-17, commit cdd81e6),
+untouched by this brief. Every vol. I play clears the 0.85 floor
+outright -- no floor declarations needed. Every Genie-side gap (a dropped
+physical page) is logged, never spliced: Wasps 1475 (one line), Birds
+474-476, 830-849, 1412-1414.
 
 `ecclesiazusae` and `wealth` stay well under 0.85 because the Google OCR
 of speaker abbreviations is too damaged (Blepyrus, Plutus) to recover the

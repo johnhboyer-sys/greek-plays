@@ -51,6 +51,19 @@ english:
       - { greek: "1198", english: "Bah! What's that to you? Will you not", run: 1 }
       - { greek: "470", english: "Well done! Forge on, if he be a wheelwright.", run: 1 }
       - { greek: "439", english: "Hold! I will give you one; but keep it dark!", run: 1 }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/knights.txt"
+    play: "THE KNIGHTS"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
@@ -109,6 +122,19 @@ speakers:
     "DEMOSTHENES AND NICIAS": "Both Slaves"
     "CHORUS": "Chorus"
     "CHORUS OF KNIGHTS": "Chorus"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the
+  # roster. "Dem." is Bohn's own abbreviation for BOTH Demosthenes (the cold
+  # open, before Demus is even named) and Demus himself once he enters --
+  # the converter's own `split_cues` resolves each occurrence to the right
+  # one (hickie_clean.py, 2026-09-22).
+  english_secondary:
+    "SAUSAGE-SELLER": "Sausage-seller"
+    "PAPHLAGONIAN": "Paphlagonian"
+    "DEMUS": "Demos"  # Hickie's own dramatis-personae spelling
+    "DEMOSTHENES": "First Slave"
+    "NICIAS": "Second Slave"
+    "DEMOSTHENES AND NICIAS": "Both Slaves"
+    "CHORUS": "Chorus"
   # Ian Johnston (VIU) cues -> the roster.
   english_third:
     "DEMOSTHENES": "First Slave"
@@ -172,6 +198,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
   citation:

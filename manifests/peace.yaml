@@ -139,6 +139,19 @@ english:
       - { greek: "1346", english: "You shall have a fine house, no cares and the finest of figs.", run: 1 }
       - { greek: "1351", english: "The bridegroom's fig is great and thick", run: 1 }
       - { greek: "1353", english: "While eating and drinking deep draughts of wine", run: 1 }
+  secondary:
+    id: hickie
+    name: "W. J. Hickie (Bohn, 1853)"
+    short: Hickie
+    model: turn-text
+    format: loeb-ocr
+    source: "bench/hickie/peace.txt"
+    play: "PEACE"
+    # The reader loads only one footnotes.json per play, and the primary
+    # already carries its own (John's own retirement kept Hickie's off in
+    # every play, 2026-09-14); the bench text still keeps every note as a
+    # [n] marker + Footnotes: block.
+    footnotes: false
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
@@ -304,6 +317,26 @@ speakers:
     "A HELMET-MAKER": "Arms-dealer"
     "SICKLE-MAKER": "Sickle-maker"
     "A SICKLE-MAKER": "Sickle-maker"
+  # Hickie's own printed cues (abbreviated per Bohn's typesetting) -> the roster.
+  english_secondary:
+    "TRYGAEUS": "Trygaeus"
+    "MERCURY": "Hermes"  # Hickie's own Latin name for Hermes
+    "CHORUS": "Chorus"
+    "SERVANT": "Slave"
+    "FIRST SERVANT": "First Slave"
+    "SECOND SERVANT": "Second Slave"
+    "HIEROCLES": "Hierocles"
+    "WAR": "War"
+    "TUMULT": "Tumult"
+    "SON OF LAMACHUS": "First Boy"
+    "SON OF CLEONYMUS": "Second Boy"
+    "LITTLE DAUGHTER": "Daughter"
+    "BREASTPLATE-MAKER": "Arms-dealer"
+    "SPEAR-MAKER": "Arms-dealer"
+    "CREST-MAKER": "Arms-dealer"
+    "TRUMPET-MAKER": "Arms-dealer"
+    "HELMET-MAKER": "Arms-dealer"
+    "SICKLE-MAKER": "Sickle-maker"
   # Ian Johnston (VIU) cues -> the roster.
   english_third:
     "FIRST SERVANT": "First Slave"
@@ -390,6 +423,12 @@ registry:
       short: Athenian Society
       slot: english
       footnotes: true
+      alignment: speech
+    - id: hickie
+      form: prose
+      name: "W. J. Hickie (Bohn, 1853)"
+      short: Hickie
+      slot: secondary
       alignment: speech
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
   citation:
