@@ -971,17 +971,24 @@ export function playRepeatedRefs(
   return out;
 }
 
-/** The English speaker gutter's width for a play, from its longest name
- * (SAUSAGE-SELLER overhung the 7.5rem default into the text; John,
- * 2026-09-09). Small caps in Alegreya Sans SC run ~0.56rem a character at
- * the lead-in size; 1rem of air; never narrower than the default. */
+/** The English speaker gutter's width for a play, from the longest WORD any
+ * column prints as a lead-in (SAUSAGE-SELLER overhung the 7.5rem default
+ * into the text; John, 2026-09-09). A phrase ("Chorus Leader", "Son of
+ * Cleonymus") stacks at its spaces inside the gutter and sizes nothing; a
+ * word is never broken (John, 2026-09-22: Johnston's CLYTAEMNESTRA split
+ * "CLYTAEMNEST / RA" in a gutter sized for the roster's Clytaemestra).
+ * Small caps in Alegreya Sans SC run ~0.56rem a character at the lead-in
+ * size; 1rem of air; never narrower than the default. */
 export function playEnglishGutterWidth(names: Iterable<string>): string {
   let longest = 0;
   // A joint or descriptive name ("Sausage-seller and Paphlagonian", "Ghost
   // of Clytaemestra") must not widen the gutter for the whole play: past 16
   // characters a lead-in takes its own line above the text instead
   // (Reader.svelte longLabel / .spk-long).
-  for (const n of names) if (n.length <= 16) longest = Math.max(longest, n.length);
+  for (const n of names) {
+    if (n.length > 16) continue;
+    for (const w of n.split(/\s+/)) longest = Math.max(longest, w.length);
+  }
   return `${Math.max(7.5, longest * 0.56 + 1.0).toFixed(2)}rem`;
 }
 
