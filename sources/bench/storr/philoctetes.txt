@@ -285,7 +285,7 @@ No melody of pastoral pipe I hear ;
 But as he stumbles ’mid the jagged stones
 He rends the air with far resounding groans,
 Or as he eyes the sea without a sail,
-He utters (hear his voice oe a hideous wail.
+He utters (hear his voice!) a hideous wail.
 
 PHILOCTETES. Sirs, who are ye and whence, who have landed here
 Upon this harbourless and desolate shore ?
@@ -1607,7 +1607,7 @@ ODYSSEUS. In Heaven's name, say’st thou this to mock at me "
 
 NEOPTOLEMUS. If it be mockery to speak the truth.
 
-ODYSSEUS. What mow? What meanest thou, Achilles’ son?
+ODYSSEUS. What now? What meanest thou, Achilles’ son?
 
 NEOPTOLEMUS. Must I repeat the same words twice and thrice?
 
@@ -1814,7 +1814,7 @@ PHILOCTETES. What ! to the plains of Troy, to him I loathe,
 The son of Atreus, with this cursèd foot ?
 
 NEOPTOLEMUS. Nay, but to kind physicians who will treat
-Tay ulcered limb and heal thee of thy hurt.
+Thy ulcered limb and heal thee of thy hurt.
 
 PHILOCTETES. O wondrous weird! What means this mystery?
 

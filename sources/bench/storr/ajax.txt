@@ -1,7 +1,7 @@
 AJAX
 
 ATHENA. Son of Laertes, ever on the prowl
-To seize some coign of vantage ’guinst thy foes,
+To seize some coign of vantage ’gainst thy foes,
 Now at the tent of Ajax by the ships,
 Where he is posted on the flank, I see thee
 Following the trail and scanning his fresh tracks,
@@ -120,9 +120,9 @@ ODYSSEUS. Well, when a god works, all is possible.
 
 ATHENA. Peace ! stand thy ground and budge not from the spot.
 
-ODYSSEUS. So will f—yet had liefer been far hence.
+ODYSSEUS. So will I—yet had liefer been far hence.
 
-ATHENA. Ho, Ajax! onee again I summon thee.
+ATHENA. Ho, Ajax! once again I summon thee.
 Say, Why this scant regard for thine ally?
 
 AJAX. Hail O Athena, Zeus-born maiden, hail!
@@ -154,7 +154,7 @@ AJAX. A welcome guest he sits within, fast bound,
 
 ATHENA. What would’st thou first ? what further profit win ?
 
-AJAX. PH bind him to a pillar of my tent.
+AJAX. I'll bind him to a pillar of my tent.
 
 ATHENA. What vengeance wilt thou wreak on the poor wretch ?
 
@@ -175,7 +175,7 @@ ATHENA. Odysseus, see how great the might of gods.
 Couldst thou have found a man more circumspect,
 Or one more prompt for all emergencies ?
 
-ODYSSEUS. I know none such, and though he be my toe,
+ODYSSEUS. I know none such, and though he be my foe,
 I still must pity him in his distress,
 Bound, hand and foot, to fatal destiny;
 And therein mind my case no less than his.
@@ -324,7 +324,7 @@ When lightnings flash, his rage is past.
 But, now he is himself again,
 Reviving memory brings new pain.
 What keener anguish than to know
-Thyself so¥e cause of self-wrought woe?
+Thyself sole cause of self-wrought woe?
 
 CHORUS. Nay, if he have surcease, good hope is mine
 All may be well, for men are less concerned
@@ -407,7 +407,7 @@ Come, friends, and help me, if so be ye can—
 This was my errand—men in case like his
 Are won to reason by the words of friends.
 
-CHORUS. Tecmessa, daughter of Teleutps, dread
+CHORUS. Tecmessa, daughter of Teleutas, dread
 Thy tidings of our master thus distraught.
 
 AJAX. Woe, woe is me!
@@ -611,7 +611,7 @@ I shall be seized and haled away by force,
 I and thy son, prey to the Argive host,
 Our portion, slavery. Then shall I hear
 The flouts and gibes that my new lords let fly.
-“ Took on her,” one will say, “the leman once
+“ Look on her,” one will say, “the leman once
 Of Ajax, mightiest of the Argive chiefs,
 How has she fallen from her “place of pride ! ”
 Thus will they prate, and hard will be my lot,
@@ -661,7 +661,7 @@ TECMESSA. As the case stands, how can I do thy hest?
 
 AJAX. Let me speak to him—see him face to face.
 
-TECMESSA. Good ; he is in our servant?’ charge close by.
+TECMESSA. Good ; he is in our servants’ charge close by.
 
 AJAX. Then wherefore is his coming thus delayed ?
 
@@ -671,7 +671,7 @@ Whoever of you guides his infant steps.
 
 AJAX. Comes he, or has he failed to hear thy call?
 
-TECMESSA. I see one gust approaching with the boy.
+TECMESSA. I see one just approaching with the boy.
 
 AJAX. Lift him, O lift him to my arms; no dread,
 If he be mine, his father’s true-born son,
@@ -721,7 +721,7 @@ TECMESSA. O my lord Ajax, what is in thy heart?
 
 AJAX. Question not, ask not ; be discreet and wise.
 
-TECMESSA. Ah me, I quail, I faint. O hy thy child,
+TECMESSA. Ah me, I quail, I faint. O by thy child,
 By heaven I implore thee, fail us not.
 
 AJAX. Thou art importunate ; know’st not that I
@@ -1092,7 +1092,7 @@ CHORUS. By whose hand did he thus procure his death?
 TECMESSA. By his own hand, ’tis manifest ; the sword
 Set in the ground, on which he fell, is proof.
 
-CHORUS. Out 6n my blindness! All alone
+CHORUS. Out on my blindness! All alone
 Unwatched of friends he bled, to death !
 And I saw naught, heard naught, recked naught of
 thee !
@@ -1327,7 +1327,7 @@ CHORUS. Sage ‘precepts these, my lord, and do not thou
 Thyself become a scoffer of the dead.
 
 TEUCER. Friends, I shall never marvel after this
-If any basebern fellow gives offence,
+If any baseborn fellow gives offence,
 When men who pride them on their lineage
 By their perverted utterance thus offend.
 Repeat thy tale: thou claimest to have brought
@@ -1620,7 +1620,7 @@ AGAMEMNON. Surely. I am not senseless, and I count
 Thee among all the Greeks my chiefest friend.
 
 ODYSSEUS. Then hear me. O for pity’s sake forbear,
--Repentgand let not violence and hate
+Repent, and let not violence and hate
 Blind thee to trample justice under foot.
 I also counted him my deadliest foe
 In all the army, ever since the day
@@ -1652,7 +1652,7 @@ AGAMEMNON. A true man ever heeds authority.
 
 ODYSSEUS. Forbear: thou conquerest, yielding unto friends.
 
-AGAMEMNON. Think fo what kind of man thou showest grace.
+AGAMEMNON. Think to what kind of man thou showest grace.
 
 ODYSSEUS. My foe he was, but still a noble foe.
 
@@ -1683,7 +1683,7 @@ ODYSSEUS. And who deserves my labour more than I?
 
 AGAMEMNON. Well, let it seem thy doing, friend, not mine.
 
-ODYSSEUS. Howe’ar ’tis done, twill prove thee good and kind.
+ODYSSEUS. Howe’er ’tis done, twill prove thee good and kind.
 
 AGAMEMNON. To thee, my friend, of this be well assured,
 I grant a favour greater e’en than this,
