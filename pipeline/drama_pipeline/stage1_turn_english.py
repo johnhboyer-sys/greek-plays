@@ -822,7 +822,7 @@ def _parse_notes(lines: list[str], from_i: int, title: str) -> dict[str, str]:
     return notes
 
 
-def _is_loeb_wrap_tail(s: str) -> bool:
+def _is_loeb_wrap_tail(s: str, prev: str | None = None) -> bool:
     """A Loeb verse line's hanging turnover, printed as its own line: the
     wrapped tail of the line before it.  A Loeb verse line always opens with
     a capital (or an opening quote/bracket ahead of one); a line that opens
@@ -836,16 +836,44 @@ def _is_loeb_wrap_tail(s: str) -> bool:
     line (Rogers's Genie-checked bench already rejoins its own turnovers and
     is not this bug; `test_cue_verse_run_direction_and_footnote`).
 
-    A candidate must also be at least four characters (G2, Grok's round-2
-    read, 2026-09-17): Rule A also glued a 1-3 letter OCR orphan onto the
-    end of an already-finished sentence -- "one" (storr/antigone.txt:170),
-    "to"/"a" (storr/electra-soph.txt:1211,1331) -- none of them a real
-    turnover. The shortest genuine turnover tail found anywhere in the
-    corpus is four characters ("wan,", "way;", antigone's Ode to Man)."""
-    return bool(_LOEB_WRAP_TAIL.match(s)) and len(s) >= 4
+    A candidate of four characters or more is a tail whatever the line
+    before it does (G2's four-character floor, kept for those). A 1-3
+    letter tail is a tail only when it is a lowercase word and the line
+    before it does not end a sentence (andromache B5, 2026-09-21: "she
+    should" / "not", "grant" / "me", "to" / "lie", "bought" / "her").
+    `.?!;:` and a closing quote end a sentence; a comma, a dash, and an
+    ellipsis character do not. The final character decides, so a colon
+    earlier in the line does not. The same 1-3 letter word after a
+    finished sentence stays refused (G2: "one" after a period). ``prev``
+    omitted keeps that refusal."""
+    if not _LOEB_WRAP_TAIL.match(s):
+        return False
+    if len(s) >= 4:
+        return True
+    if prev is None or not _LOEB_SHORT_WRAP_WORD.fullmatch(s):
+        return False
+    return not _loeb_line_ends_sentence(prev)
 
 
 _LOEB_WRAP_TAIL = re.compile(r"^\[?[a-zà-öø-ÿ]")
+# A 1-3 letter turn-up. Punctuation on the tail ("a.", "me,") stays refused:
+# the word itself is the whole line.
+_LOEB_SHORT_WRAP_WORD = re.compile(r"^[a-zà-öø-ÿ]{1,3}$")
+# Final character of the line before a short turn-up. A comma is absent on
+# purpose. Closing quotes count; an em dash and "…" do not.
+_LOEB_TERMINAL_END = frozenset(".?!;:\"“”„‟'‘’»›")
+
+
+def _loeb_line_ends_sentence(line: str) -> bool:
+    text = line.rstrip()
+    return bool(text) and text[-1] in _LOEB_TERMINAL_END
+
+
+def _last_nonempty_part(parts: list[str]) -> str:
+    for idx in range(len(parts) - 1, -1, -1):
+        if parts[idx]:
+            return parts[idx]
+    return ""
 
 # A printed Loeb verse line runs close to the column's full width; a line
 # this short never legitimately triggers the turnover rule below, only a
@@ -890,6 +918,94 @@ def _merge_wrap_tail(parts: list[str], tail: str) -> None:
 # it is left alone rather than guessed.
 _ENTER_SINGLE_NAME = re.compile(r"^Enters?\s+(?P<name>[A-ZÀ-Þ][A-ZÀ-Þ]*)\.?$", re.IGNORECASE)
 
+# An unbracketed whole line that is a stage entrance or exit (trachiniae
+# N11, 2026-09-21). Case-sensitive on Enter/Exit/Exeunt so a lowercase wrap
+# tail is not one; `Re-enter` is spelled out because the bench's own form
+# (`Re-enter LICHAS.`) has a lowercase e, which `Re-` + `Enter` misses.
+# `Eiinter` is a different word and does not match.
+_BARE_ENTRANCE_LINE = re.compile(r"^(?:Re-enter|(?:Re-)?(?:Enter|Exit|Exeunt))\b")
+_ROSTER_WORD = re.compile(r"[A-ZÀ-Þ][A-ZÀ-Þ'’\-]*")
+# "end with a period within ~8 words": the whole line, eight words at most.
+_BARE_ENTRANCE_MAX_WORDS = 8
+
+
+def _is_roster_name_phrase(rest: str) -> bool:
+    """The words after Enter/Exit/Exeunt are roster names: all-caps words
+    joined by spaces, commas, or ``and``, with an optional final period."""
+    text = rest.strip().rstrip(".").strip()
+    if not text:
+        return False
+    words = [w for w in re.split(r"[\s,]+", text) if w and w.lower() != "and"]
+    return bool(words) and all(_ROSTER_WORD.fullmatch(w) for w in words)
+
+
+def _bare_trailing_entrance(s: str) -> str | None:
+    """The direction text if ``s`` is an unbracketed entrance/exit line of
+    the shape the rule accepts, else ``None``.
+
+    `_..._` and `[...]` stay with `_loeb_direction`. Accepted when the rest
+    is a roster-style name phrase (the same single-name shape
+    `_ENTER_SINGLE_NAME` already uses for `implicit_entrant`, plus
+    ``and``/comma lists), or when the whole line ends with a period and is
+    at most eight words. A verse line that merely begins with those words
+    and runs longer, or does not end on a period, is not one.
+    """
+    if not s or s[0] in "_[":
+        return None
+    if not _BARE_ENTRANCE_LINE.match(s):
+        return None
+    rest = _BARE_ENTRANCE_LINE.sub("", s, count=1).strip()
+    enter = _ENTER_SINGLE_NAME.match(s)
+    if enter and enter.group("name") == enter.group("name").upper():
+        return s
+    if _is_roster_name_phrase(rest):
+        return s
+    # A short period-closed line is one only when it names someone in
+    # roster capitals ("Enter ORESTES and PYLADES from the palace.") or is
+    # the bare verb ("Exeunt."). "Enter, friends, and see." is spoken verse
+    # (Grok review, 2026-09-22).
+    if s.rstrip().endswith(".") and 0 < len(s.split()) <= _BARE_ENTRANCE_MAX_WORDS:
+        rest_words = [w for w in re.split(r"[\s,]+", rest.rstrip(".")) if w]
+        if not rest_words or any(_ROSTER_WORD.fullmatch(w) for w in rest_words):
+            return s
+    return None
+
+
+def _loeb_line_is_cue(raw: str, known_names: set[str]) -> bool:
+    """The same cue tests `_parse_as_speeches` applies, in the same order."""
+    m = _SPEAKER_LINE.match(raw)
+    if m and _ROMAN_NUMERAL.fullmatch(m.group("name").strip()):
+        m = None
+    if m:
+        return True
+    stripped = raw.strip()
+    if _LOEB_OFFSTAGE_CUE.match(stripped):
+        return True
+    if _LOEB_CASE_SLIP_STAGE_CUE.match(stripped):
+        return True
+    if _periodless_speaker(raw, known_names):
+        return True
+    if _LOEB_COMMA_CUE.match(stripped):
+        return True
+    return False
+
+
+def _loeb_next_is_cue_or_end(lines: list[str], i: int, known_names: set[str]) -> bool:
+    """True when the next non-blank line is a cue or the text ends."""
+    j = i + 1
+    while j < len(lines):
+        raw = lines[j]
+        s = raw.strip()
+        if not s:
+            j += 1
+            continue
+        if _is_play_end(s) or _is_gutenberg_end_line(raw):
+            return True
+        if _is_star_rule(s):
+            return _star_ends_play(lines, j)
+        return _loeb_line_is_cue(raw, known_names)
+    return True
+
 
 def _parse_as_speeches(
     lines: list[str],
@@ -897,6 +1013,7 @@ def _parse_as_speeches(
     known_names: set[str],
     verse: bool = False,
     pending: list[str] | None = None,
+    loeb: bool = False,
 ) -> tuple[list[dict], int]:
     speeches: list[dict] = []
     parts: list[str] = []
@@ -1058,7 +1175,16 @@ def _parse_as_speeches(
                     if mark:
                         parts.append(f"[{mark}]")
                 if m.group("stage"):
-                    parts.append(m.group("stage"))
+                    if loeb:
+                        # The cue's own parenthetical is a direction of this
+                        # turn, brackets dropped -- the same seat the
+                        # case-slip cue uses just below (andromache B8,
+                        # 2026-09-21). `len(parts)` is 0 unless a footnote
+                        # mark was already appended, which is that slot.
+                        # Gutenberg keeps the parenthetical in the speech.
+                        _add_direction(inline, len(parts), m.group("stage")[1:-1])
+                    else:
+                        parts.append(m.group("stage"))
                 if m.group("rest"):
                     # The cue's own remainder can open (or close) with a
                     # bracketed direction too -- way/heraclidae.txt:348
@@ -1113,6 +1239,24 @@ def _parse_as_speeches(
                 parts.append(s)
         elif speaker:
             if s:
+                # Last line of the speech, and an unbracketed Enter/Exit/
+                # Exeunt: a direction of the next speech, the seat a
+                # `_Enter LICHAS._` line already takes. A copy in the middle
+                # of the speech is left as verse (trachiniae N11).
+                if verse and loeb:
+                    bare = _bare_trailing_entrance(s)
+                    if bare and _loeb_next_is_cue_or_end(lines, i, known_names):
+                        pending.append(bare)
+                        enter = _ENTER_SINGLE_NAME.match(bare)
+                        implicit_entrant = (
+                            enter.group("name").upper()
+                            if enter
+                            and enter.group("name") == enter.group("name").upper()
+                            and enter.group("name").upper() in known_names
+                            else None
+                        )
+                        i += 1
+                        continue
                 lead = _split_leading_direction(s)
                 if lead:
                     direction, s = lead
@@ -1127,7 +1271,9 @@ def _parse_as_speeches(
                     pending_tail = None
                 elif (
                     verse
-                    and _is_loeb_wrap_tail(s)
+                    and _is_loeb_wrap_tail(
+                        s, _last_nonempty_part(parts) if loeb else None
+                    )
                     and _has_full_length_predecessor(parts)
                 ):
                     # A wrap-tail line can itself carry a Rule B trailing
@@ -1307,7 +1453,9 @@ def parse_play_speeches(
             for d in (_loeb_direction(line.strip()) for line in lines[title_i + 1 : start])
             if d is not None
         ]
-        speeches, end_i = _parse_as_speeches(lines, start, known_names, verse, pending=opening)
+        speeches, end_i = _parse_as_speeches(
+            lines, start, known_names, verse, pending=opening, loeb=True
+        )
         notes = _parse_notes(lines, end_i, title)
         return speeches, notes
     if format == "verse-own-line":
@@ -1756,6 +1904,152 @@ def _greek_line_counts(segments: list[dict]) -> dict[str, int]:
     }
 
 
+def _name_pattern(name: str) -> re.Pattern:
+    """A case-insensitive, whole-word pattern for one speaker's display
+    name (multi-word names match across ordinary whitespace)."""
+    body = r"\s+".join(re.escape(w) for w in name.split())
+    return re.compile(rf"(?<!\w){body}(?!\w)", re.IGNORECASE)
+
+
+def _directions_naming(
+    directions: list[str], names: set[str], aliases: dict[str, str]
+) -> list[str]:
+    """The ``directions`` that actually NAME one of ``names`` -- the
+    Greek-resolved speaker(s) of the interjecting line -- either by that
+    display itself or by a printed English cue the manifest's own
+    ``speakers.english`` map (``aliases``: printed cue -> canonical display,
+    the same map `parse_translation` reads speaker labels against) assigns
+    to that character. ATHENA names Athena, not Diomedes (Rhesus 594), and
+    HECUBA names Hecuba, not Chorus (Troades 1231): neither passes this test
+    for the OTHER character's interjecting line, however different that
+    character reads from the block above (2026-09-22 finding)."""
+    if not names:
+        return []
+    candidates = set(names) | {
+        printed for printed, canonical in aliases.items() if canonical in names
+    }
+    patterns = [_name_pattern(c) for c in candidates if c]
+    return [d for d in directions if any(p.search(d) for p in patterns)]
+
+
+def _place_bare_speech_directions(
+    chunks: list[dict],
+    segments: list[dict],
+    sigla=None,
+    aliases: dict[str, str] | None = None,
+) -> list[dict]:
+    """A stage direction the translator prints in place of a Greek speech --
+    no words of his own for it -- belongs beside THAT speech, not the one
+    that follows (John, 2026-09-22, option B).
+
+    `_parse_as_speeches` cannot tell the two apart: it sees only English, and
+    a direction sitting between two speeches with nothing of its own is, to
+    it, simply the opening of the next one (`directions_before` becomes the
+    following chunk's `directionsBefore`). The Greek is in scope here, so
+    where a chunk opens with a direction and the one-line Greek speech(es)
+    between it and the chunk before it name a DIFFERENT character than the
+    block above -- own no chunk of their own -- the direction moves to a
+    bare chunk there instead: empty text, no speaker, so the reader shows it
+    in that speech's own cell rather than lifting it to a row before the
+    speech after (the motivating case, Libation Bearers 869: Johnston prints
+    only "[Aegisthus screams in pain from inside the palace]" between the
+    Chorus's ode and the Chorus's "Listen!", and the Greek has Aegisthus's
+    one-line cry, a different speaker from the Chorus on both sides,
+    between them).
+
+    Run before `_content_covered`: giving 869 a chunk of its own here also
+    keeps R6 from reading it as a one-line hole the block above absorbs --
+    R6 only ever sees a segment with no chunk, and this one has one now, so
+    the block above stops where it is actually printed.
+
+    The "different character" guard is load-bearing, not incidental: without
+    it this rule also fires on an ordinary antilabe continuation -- Libation
+    Bearers 871 is one Greek line of the SAME "Chorus" the block on both
+    sides names (an anonymous `--` share, so it names no one at all), a
+    plain `_spread_long_speeches` continuation of the one undivided
+    "CHORUS MEMBERS" speech at 870-871 -- and grabbing it as if a direction
+    stood in for it left 870 holding all four printed lines and 871 bare.
+    Only a genuinely different, NAMED speaker reads as "a stage direction
+    stood in for this speech"; a same-name or anonymous share is the
+    ordinary continuation `_spread_long_speeches` already distributes.
+
+    A short run of several such speeches between the same two chunks cannot
+    be told apart either; the direction takes the first (least-wrong
+    reading -- nothing else in the bench says more).
+
+    Round 2 (a 44-play build, 2026-09-22): "different NAMED speaker" is
+    necessary but not sufficient. Rhesus 594 (Diomedes, different from the
+    Chorus above) grabbed "ATHENA appears above the stage." -- Way simply
+    has no line for 594, and the direction opens ATHENA's speech at 595.
+    Troades 1231 (Chorus, different from Hecuba above) grabbed a direction
+    naming HECUBA, pre-empting a `_spread_long_speeches` continuation that
+    was already reading 1231 correctly. The direction has to NAME the
+    interjecting speaker -- `_directions_naming`, matched case-insensitively
+    on word boundaries against that speaker's resolved display and any
+    English alias the manifest's own `speakers.english` map gives it -- or
+    the rule leaves it where `_parse_as_speeches` put it. A chunk with
+    several `directionsBefore` moves only the ones that name the speaker;
+    the rest stay put."""
+    if not isinstance(sigla, _SiglaResolver):
+        sigla = _SiglaResolver.from_map(sigla or {})
+    aliases = aliases or {}
+
+    def named(seg: dict) -> list[str]:
+        return [name for _ln, _off, name, _m in _segment_speaker_events(seg, sigla) if name]
+
+    by_id = {c["id"]: c for c in chunks}
+    prior_gi: int | None = None
+    prior_own: set[str] = set()
+    for gi, segment in enumerate(segments):
+        chunk = by_id.get(segment["id"])
+        if chunk is None:
+            continue
+        before = chunk.get("directionsBefore")
+        if before and prior_gi is not None:
+            gap = [
+                k for k in range(prior_gi + 1, gi)
+                if segments[k]["id"] not in by_id
+            ]
+
+            def is_interjection(k: int) -> bool:
+                seg_k = segments[k]
+                lines = seg_k.get("lines") or seg_k.get("greek") or []
+                if len(lines) != 1:
+                    return False
+                names = set(named(seg_k))
+                return bool(names) and not names <= prior_own
+
+            if gap and all(is_interjection(k) for k in gap):
+                target = segments[gap[0]]
+                # Only the speaker the line ADDS can be the one a direction
+                # stands for; a name shared with the block above is its
+                # continuation (Grok review, 2026-09-22).
+                matched = _directions_naming(before, set(named(target)) - prior_own, aliases)
+                if matched:
+                    remaining = [d for d in before if d not in matched]
+                    bare = {
+                        "id": target["id"],
+                        "book": target["book"],
+                        "column": target["column"],
+                        "text": "",
+                        "notes": [],
+                        "markers": [],
+                        "bekker": [],
+                        "turns": [],
+                        "approximate": True,
+                        "directionsBefore": matched,
+                    }
+                    chunks.append(bare)
+                    by_id[target["id"]] = bare
+                    if remaining:
+                        chunk["directionsBefore"] = remaining
+                    else:
+                        del chunk["directionsBefore"]
+        prior_gi = gi
+        prior_own = set(named(segment)[-1:])
+    return chunks
+
+
 def _plausible_covers(
     covered: dict[str, str], chunks: list[dict], segments: list[dict]
 ) -> dict[str, str]:
@@ -1803,6 +2097,7 @@ def _content_covered(
     chunks: list[dict],
     primary_chunks: dict[str, dict] | None,
     derived: dict[str, str],
+    tail_claims: set[str] | None = None,
 ) -> dict[str, str]:
     """Which block really holds a bare segment's translation.
 
@@ -1849,7 +2144,7 @@ def _content_covered(
     # own run at 1:351.
     i, n = 0, len(ids)
     while i < n:
-        if ids[i] in texts:
+        if ids[i] in texts or is_lacuna_segment(segments[i]):
             i += 1
             continue
         j = i
@@ -1930,6 +2225,8 @@ def _content_covered(
         if first_claim is None and i == j and i > 0 and ids[i - 1] in texts:
             if lines_of.get(ids[i], 1) == 1:
                 out[ids[i]] = ids[i - 1]
+                if tail_claims is not None:
+                    tail_claims.add(ids[i])
         i = j + 1
     return out
 
@@ -2220,6 +2517,12 @@ def _align_speech_runs(
         else sorted({(offsets[lo], offsets[hi + 1] - 1) for lo, hi in applied})
     )
     out.pairs = sorted((heads[order[p]], ej) for p, ej in res.pairs)
+    # Only pins that this alignment actually seated are exempt from the onset
+    # metric.  The crossing fallback can drop pins, so `forced` is too broad.
+    seated_pins = keep if res_fallback else merged_pins
+    out.pinned_pairs = set(out.pairs) & {
+        (heads[r], ej) for r, ej in seated_pins
+    }
     out.english_skips = list(res.english_skips)
     out.margins = {(heads[order[p]], ej): m for (p, ej), m in res.margins.items()}
     # A matched run's continuations are translated with the speech above:
@@ -3271,6 +3574,18 @@ def parse_translation(
             prev["text"] = f"{prev['text']} {cur['text']}".strip()
             del speeches[j]
             del e_names[j]
+            # B4: `forced` was resolved against the pre-fold speeches. Shift
+            # every later English index down, or a pin on a speech after this
+            # one names the speech that slid into its old place. A pin ON the
+            # folded speech now names nothing: say so, never drop it.
+            if any(ej == j for _gi, ej in forced):
+                raise ValueError(
+                    f"{work_id}: a pin names the block after an Enter direction "
+                    f"that the Greek gives to no such speaker, so it was folded "
+                    f"into {prev.get('name') or 'the speech before it'!r}: "
+                    f"pin that speech instead ({cur['text'][:40]!r})"
+                )
+            forced = [(gi, ej if ej < j else ej - 1) for gi, ej in forced]
         english_nodes = [
             pair_dp.EnglishNode(
                 name=e_names[j], chars=len(speeches[j]["text"]), text=speeches[j]["text"]
@@ -3455,6 +3770,7 @@ def parse_translation(
     # `new_drifts` is that onset count; the gate is `new_drifts / paired`.
     last_delta: dict[str, int] = {}
     new_drifts = 0
+    pinned_pairs = getattr(dp_result, "pinned_pairs", set())
     # ...and the onset walk runs in reading order too (the same order, since
     # the pairing is monotone in it).
     for k, ej in sorted(pairs, key=lambda pair: dp_at[pair[0]]):
@@ -3468,7 +3784,10 @@ def parse_translation(
             continue
         delta = e_ord[ej] - g_ord[k]
         prev = last_delta.get(name)
-        if (prev is None and delta != 0) or (prev is not None and delta != prev):
+        if (
+            (k, ej) not in pinned_pairs
+            and ((prev is None and delta != 0) or (prev is not None and delta != prev))
+        ):
             new_drifts += 1
         last_delta[name] = delta
     turn_shift_rate = (new_drifts / len(pairs)) if pairs else 0.0
@@ -3536,6 +3855,12 @@ def parse_translation(
             }
         )
 
+    # John, 2026-09-22, option B: a bare stage direction that stands in for a
+    # Greek speech (no words of the translator's own) moves to that speech's
+    # own chunk here, before anything downstream reads which segments are
+    # bare (`_content_covered`'s R6 among them).
+    chunks = _place_bare_speech_directions(chunks, segments, sigla, aliases)
+
     # No chunk-level `speakerMismatch` here (perseus-play keeps one for
     # pre-P2h compatibility): a flagged residual parks on the CURSOR segment,
     # which has already taken an unflagged turn, so a turn-text chunk whose
@@ -3600,9 +3925,11 @@ def parse_translation(
     # being distributed over Eumenides 143-169 at all -- three lines piled on
     # 1:140 and eight bare rows after it, which is worse than the note it was
     # meant to correct.
+    r6_tail_claims: set[str] = set()
     content_covered = _plausible_covers(
         _content_covered(
-            segments, chunks, primary_bridge, derived_covered_by_segment
+            segments, chunks, primary_bridge, derived_covered_by_segment,
+            tail_claims=r6_tail_claims,
         ),
         chunks, segments,
     )
@@ -3641,12 +3968,14 @@ def parse_translation(
         # manifest's declarations are left out (John's ruling about a
         # translator's block is his to make, round 8 section 1.3) and so are
         # R1's structural repeat claims (one printing's turn must never be
-        # sliced across both seats). `run()` pops it before the file is
-        # written.
+        # sliced across both seats), and R6's one-line tail claims (a note is
+        # not authority to cut the block above). `run()` pops it before the
+        # file is written.
         "content_covered_by": {
             sid: cid
             for sid, cid in content_covered.items()
             if sid not in manifest_covered and sid not in repeat_covered
+            and sid not in r6_tail_claims
         },
     }
 
@@ -4109,12 +4438,26 @@ def _spread_long_speeches(
         # turns off Suppliants-eur 618-632).
         lines_head = lines_crossed = lines_of(seg)
         while k < len(segments) and segments[k]["id"] not in by_id:
+            # A5a: do not lay this block on a segment a coverage claim gave
+            # to another block. A speakerless segment would otherwise
+            # continue ("bare") and print English beside Greek the claim
+            # named elsewhere. Derived naming THIS block still wins -- the
+            # aligner's own reading, which is what keeps Septem 1:871 with
+            # the block at 1:822. A content claim on this block with no
+            # derived donor still spreads: that is the kommos.
+            sid = segments[k]["id"]
+            content_donor = (claimed or {}).get(sid)
+            derived_donor = (covered or {}).get(sid)
+            if derived_donor not in (None, chunk["id"]) or (
+                content_donor not in (None, chunk["id"]) and derived_donor != chunk["id"]
+            ):
+                break
             per_line = len(text) / column_median if column_median else 0.0
             kind = _continuation_kind(
                 segments[k], own, per_line / lines_head,
                 per_line / (lines_crossed + lines_of(segments[k])), sigla,
-                vouched=(covered or {}).get(segments[k]["id"]) == chunk["id"],
-                claimed=(claimed or {}).get(segments[k]["id"]) == chunk["id"],
+                vouched=derived_donor == chunk["id"],
+                claimed=content_donor == chunk["id"],
             )
             if kind is None:
                 break

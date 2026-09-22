@@ -25,6 +25,18 @@ english:
     source: "perseus/tlg0085.tlg004.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+    # Smyth's <l n> follows the vulgate order. Murray prints 803 and 810
+    # twice and transposes them (803 after 806, 810 after 812), so those
+    # numbers are not the same verses. "810.2" is the second printing of 810.
+    line_fixes:
+      "805": "808"    # τίνες; τί δ' εἶπας; — Who? What did you say?
+      "806": "809"    # φρονοῦσα νῦν ἄκουσον — Control yourself now and listen
+      "807": "805"    # οἲ 'γὼ τάλαινα — Ah, miserable me, I am prophet
+      "808": "810.2"  # οὐδ' ἀμφιλέκτως μὴν κατεσποδημένοι — beyond all question, struck down
+      "809": "810"    # ἐκεῖθι κἦλθον; — Are they lying out there?
+      "810": "807"    # ἅνδρες τεθνᾶσιν — The men are dead
+      "811": "812"    # οὕτως ἀδελφαῖς χερσὶν — with hands so fraternal
+      "812": "813"    # οὕτως ὁ δαίμων κοινὸς — so all too equal was their destiny
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
@@ -42,6 +54,7 @@ english:
       - { greek: "981", by: "985" }
       - { greek: "992", by: "997" }
       - { greek: "993", by: "998" }
+      - { greek: "806", by: "813" }  # vulgate order: 806 ends inside Smyth's 813 speech (owner ruling 2026-09-22)
   secondary:
     id: morshead
     name: "E. D. A. Morshead (1881–1908)"
@@ -51,8 +64,16 @@ english:
     source: bench/morshead/seven-against-thebes.txt
     play: THE SEVEN AGAINST THEBES
     footnotes: false
+    # This column prints 808–809 (τίνες; τί δ' εἶπας; / φρονοῦσα νῦν ἄκουσον)
+    # before 805 (οἲ 'γὼ τάλαινα). The window also holds 806 πέπωκεν αἷμα
+    # and 807 ἅνδρες τεθνᾶσιν.
+    transpositions:
+      - { start: "808", end: "809", before: "805" }
     # John 2026-09-11: shift over 0.10 by under a point; let it slide for now
     max_turn_shift_rate: 0.11
+    # vulgate order: 806 ends inside Morshead's 813 speech (owner ruling 2026-09-22)
+    covered:
+      - { greek: "806", by: "813" }
   third:
     id: kosmos
     name: "Smyth, rev. Seven Heroization team (Kosmos Society)"
@@ -67,6 +88,14 @@ english:
     # speaker's Greek.
     pins:
       - { greek: "369", english: "The scout, I believe, is bringing some fresh news of the army", run: 1 }
+    # This column prints 808–809 (τίνες; τί δ' εἶπας; / φρονοῦσα νῦν ἄκουσον)
+    # before 805 (οἲ 'γὼ τάλαινα). The window also holds 806 πέπωκεν αἷμα
+    # and 807 ἅνδρες τεθνᾶσιν.
+    transpositions:
+      - { start: "808", end: "809", before: "805" }
+    # vulgate order: 806 ends inside Kosmos's 813 speech (owner ruling 2026-09-22)
+    covered:
+      - { greek: "806", by: "813" }
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
     license:
       status: licensed
@@ -84,6 +113,14 @@ english:
       source: bench/johnston/seven-against-thebes.txt
       play: SEVEN AGAINST THEBES
       footnotes: false
+      # This column prints 808–809 (τίνες; τί δ' εἶπας; / φρονοῦσα νῦν ἄκουσον)
+      # before 805 (οἲ 'γὼ τάλαινα). The window also holds 806 πέπωκεν αἷμα
+      # and 807 ἅνδρες τεθνᾶσιν.
+      transpositions:
+        - { start: "808", end: "809", before: "805" }
+      # vulgate order: 806 ends inside Johnston's 813 speech (owner ruling 2026-09-22)
+      covered:
+        - { greek: "806", by: "813" }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed

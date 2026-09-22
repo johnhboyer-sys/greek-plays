@@ -913,6 +913,63 @@ describe('Reader.svelte stage directions (Arrowsmith)', () => {
     await flush();
     expect(greek.container.querySelector('.play-direction-row')).toBeNull();
   });
+
+  // John, 2026-09-22, option B: a translator who prints only a stage
+  // direction where the Greek has a speech (no words of his own for it) --
+  // Libation Bearers 869, Aegisthus's cry, Johnston prints only "[Aegisthus
+  // screams in pain from inside the palace]" -- gets a piece of its own from
+  // the pipeline (`_place_bare_speech_directions`): empty text, no speaker,
+  // carrying the direction. It stands in the row beside that Greek, in the
+  // English column, not on a full-width row and not inside a neighbour's
+  // cell.
+  it('renders a bare direction (no words) beside its own Greek speech, not lifted to a row', async () => {
+    const CRY = 'A shriek is heard from within the palace.';
+    const bareBook: BookData = {
+      book: 1,
+      speakerRoster: ['Chorus', 'Voice'],
+      segments: [
+        {
+          id: '1:1', column: '1',
+          greek: [{ n: 1, text: 'λόγος ἕν', tokens: [], ref: '1' }],
+          speakers: [{ line: 1, offset: 0, label: 'Χο.', display: 'Chorus' }],
+          english: { text: 'Primary one.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }] },
+          third: [{ chapter: '1', cont: false, text: 'CHORUS. Let him emerge the victor!' }],
+        },
+        {
+          id: '1:2', column: '2',
+          greek: [{ n: 2, text: 'ὀτοτοτοῖ', tokens: [], ref: '2' }],
+          speakers: [{ line: 2, offset: 0, label: 'Φω.', display: 'Voice' }],
+          english: { text: 'Primary two.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Voice', display: 'VOICE' }] },
+          third: [{ chapter: '2', cont: false, text: '', directionsBefore: [CRY] }],
+        },
+        {
+          id: '1:3', column: '3',
+          greek: [{ n: 3, text: 'λόγος τρία', tokens: [], ref: '3' }],
+          speakers: [{ line: 3, offset: 0, label: 'Χο.', display: 'Chorus' }],
+          english: { text: 'Primary three.', notes: [], markers: [], turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }] },
+          third: [{ chapter: '3', cont: false, text: 'CHORUS. Listen! What was that?' }],
+        },
+      ],
+    } as unknown as BookData;
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: bareBook } });
+    await flush();
+    // Not lifted: no full-width direction row anywhere in the segment.
+    expect(container.querySelectorAll('.play-direction-row')).toHaveLength(0);
+    // In the cell, beside its own Greek: a direction paragraph, no speaker,
+    // and no "no aligned passage" placeholder.
+    const seg2 = container.querySelector('#col-2')!;
+    expect(seg2.querySelector('.english-col .stage-dir')?.textContent).toBe(CRY);
+    expect(seg2.querySelector('.eng-missing')).toBeNull();
+    expect(seg2.querySelector('.english-col .speaker')).toBeNull();
+    // The neighbours are unaffected: 1's block keeps its own last line, and
+    // 3 shows its own speech with no direction attached to it at all.
+    const seg1 = container.querySelector('#col-1')!;
+    expect(seg1.textContent).toContain('Let him emerge the victor!');
+    const seg3 = container.querySelector('#col-3')!;
+    expect(seg3.textContent).toContain('Listen! What was that?');
+    expect(seg3.textContent).not.toContain(CRY);
+  });
 });
 
 describe('Reader.svelte play-line compare columns (P4)', () => {

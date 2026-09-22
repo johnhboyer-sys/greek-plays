@@ -38,6 +38,13 @@ PLAYS = {
     "frogs": ("wikisource/frogs-murray-1912.html", "FROGS", "", ""),
 }
 
+# Work id -> (missing raw line, replacement patch under sources/gutenberg/).
+PATCHES = {
+    "iphigenia-in-tauris": [
+        ("Sending Completed Page, Please Wait ...", "patches/pg5063-594-617.txt"),
+    ],
+}
+
 _CHARACTERS = re.compile(r"^\s*(?:CHARACTERS|DRAMATIS PERSONAE)")
 # NAME, an optional (direction), optional stops: "CASSANDRA (_whispering_)."
 _CUE_LINE = re.compile(r"^([A-Z][A-Z0-9 '’\-]*?)\s*(\(.*\))?\s*\.*$")
@@ -391,6 +398,16 @@ def convert_play(work_id: str) -> Converted:
     raw = read_text(SOURCES_DIR / source)
     if source.endswith(".html"):
         return convert_wikisource(raw, title)
+    for missing, patch_path in PATCHES.get(work_id, []):
+        lines = raw.splitlines()
+        matches = [index for index, line in enumerate(lines) if line == missing]
+        if len(matches) != 1:
+            raise ValueError(f"{work_id}: expected one exact {missing!r} line, found {len(matches)}")
+        patch_lines = read_text(SOURCES_DIR / "gutenberg" / patch_path).splitlines()
+        if not patch_lines or not patch_lines[0].startswith("#"):
+            raise ValueError(f"{work_id}: patch {patch_path} must open with a '#' header line")
+        lines[matches[0] : matches[0] + 1] = patch_lines[1:]
+        raw = "\n".join(lines)
     return convert_gutenberg(raw, title, start=start, end=end)
 
 

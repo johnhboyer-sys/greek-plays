@@ -22,6 +22,7 @@ Or by the breeze that through the archway blows
 Invite in summer’s heat to gentle sleep ;
 And lower down, a little to the left,
 A spring, if still it flows, thou art like to find.
+Go warily to work and bring me word,
 Whether he still is there or further gone.
 That done, thy part will be to listen, mine
 To instruct, that both may gain our common end,
@@ -284,7 +285,7 @@ No melody of pastoral pipe I hear ;
 But as he stumbles ’mid the jagged stones
 He rends the air with far resounding groans,
 Or as he eyes the sea without a sail,
-He utters (hear his voice oe a hideous wail.
+He utters (hear his voice!) a hideous wail.
 
 PHILOCTETES. Sirs, who are ye and whence, who have landed here
 Upon this harbourless and desolate shore ?
@@ -957,7 +958,8 @@ My ailment loves to play the truant, stray
 Awhile, and then come home again, belike
 Tired with its holiday.
 
-NEOPTOLEMUS. Wretched indeed in all thy suffering proved.
+NEOPTOLEMUS. Alas! poor wretch,
+Wretched indeed in all thy suffering proved.
 Wilt lean on me? Shall I take hold of thee?
 
 PHILOCTETES. Nay touch me not, I beg, but take this bow
@@ -1098,6 +1100,7 @@ Are his troubles vast and sore.
 The breeze sets fair, sets fair, my son,
 And there outstretched he lies
 As one who hath nor ears nor eyes.
+(How good to sleep i’ the sun !)
 Of hand or foot, no motion has he, none
 More than the dead who in Earth’s bosom rest.
 Then look, my son, look that thou utterest
@@ -1604,7 +1607,7 @@ ODYSSEUS. In Heaven's name, say’st thou this to mock at me "
 
 NEOPTOLEMUS. If it be mockery to speak the truth.
 
-ODYSSEUS. What mow? What meanest thou, Achilles’ son?
+ODYSSEUS. What now? What meanest thou, Achilles’ son?
 
 NEOPTOLEMUS. Must I repeat the same words twice and thrice?
 
@@ -1811,7 +1814,7 @@ PHILOCTETES. What ! to the plains of Troy, to him I loathe,
 The son of Atreus, with this cursèd foot ?
 
 NEOPTOLEMUS. Nay, but to kind physicians who will treat
-Tay ulcered limb and heal thee of thy hurt.
+Thy ulcered limb and heal thee of thy hurt.
 
 PHILOCTETES. O wondrous weird! What means this mystery?
 
@@ -1879,7 +1882,8 @@ PHILOCTETES. Will prevent their landing.
 NEOPTOLEMUS. Kiss the earth and let us go.
 [Apparition of HERACLES behind the stage.]
 
-HERACLES. Son of Poeas, first my word :
+HERACLES. Go not yet till thou hast heard,
+Son of Poeas, first my word :
 Heracles to thee appears,
 His the voice that thrills thine ears,
 ‘Tis for thy sake I have come,
@@ -1892,6 +1896,7 @@ How, having laboured hugely and endured,
 I won immortal glory, as thou seest.
 Know that thy fortune like to mine shall be,
 Through suffering to glorify thy life.
+Go with yon man to Ilium. There first
 Thou shalt be healèd of thy grievous sore ;
 Then, chosen as the champion of the host,
 With these my arrows thou shalt pierce to the heart

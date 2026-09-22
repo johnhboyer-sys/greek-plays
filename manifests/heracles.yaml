@@ -42,6 +42,16 @@ english:
       "896b": "896"
       "898": "896"
       "900": "899"
+      # Coleridge's shares of Diggle's 1185–1188 (printed 1187, 1188,
+      # 1186, 1185). 1184 "Hush!" is Greek 1185; 1187 "Fortune has spread
+      # her wings" is Greek 1186; 1188 "What do you mean?" and 1189
+      # "Slain them in a wild fit of frenzy" are Greek 1187; 1190 "with
+      # arrows dipped" is Greek 1188. Checked against the Greek and Way.
+      "1184": "1185"
+      "1187": "1186"
+      "1188": "1187"
+      "1189": "1187"
+      "1190": "1188"
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
@@ -65,6 +75,15 @@ english:
     source: bench/kosmos/heracles.txt
     play: HERAKLES
     footnotes: false
+    # Kosmos prints the first stasimon (755-814) as one cued block of five
+    # paragraphs, then the Chorus's cry at 815. Two English speeches against
+    # six Greek ones: the aligner's cheapest path put the ode on the two-line
+    # 755 row and the cry on 757 (one gap beats two by 0.75 at any rate), and
+    # left 815-821 blank with no note. The pin seats the cry on its own Greek
+    # (ea ea; ar' es ton auton pitulon hekomen phobou). Pairer design,
+    # build/review/pairer-round6-design-2026-09-21.md, item 4.
+    pins:
+      - { greek: "815", english: "Ah me! Look! Have we come to the same violence of fear", run: 1 }
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
     license:
       status: licensed

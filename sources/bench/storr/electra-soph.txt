@@ -44,6 +44,7 @@ On those that slew him, Phoebus answered thus:
 Trust not to shields or armed hosts, but steal
 The chance thyself the avenging blow to deal.
 Since then the Pythian god hath thus advised,
+Go thou and watch thine opportunity
 To enter in the palace and observe
 What happens there and bring us full report.
 And fear not to be recognised ; long years
@@ -662,6 +663,7 @@ Escaped thy hands, Orestes, wears away
 In weary exile his unhappy days.
 Oft hast thou taxed me that I reared him up
 For vengeance ; so I willed it, had I power.
+Go to, proclaim me out of my own mouth
 A shrew, a scold, a vixen—what thou wilt.
 For if I be accomplished in such arts,
 Methinks I show my breed, a trick o’ the blood.
@@ -1247,7 +1249,8 @@ ELECTRA. My resolution was not born to-day.
 CHRYSOTHEMIS. Then I will go, for thou canst not be brought
 To approve my words, nor I to approve thy ways.
 
-ELECTRA. E’en shouldst thou pray me: ‘tis insane to urge
+ELECTRA. Go in then; I shall never follow thee,
+E’en shouldst thou pray me: ‘tis insane to urge
 An idle suit.
 
 CHRYSOTHEMIS. Well, if thou art wise
@@ -1704,6 +1707,7 @@ But with a troop more numerous and more skilled.
 
 ORESTES. Our business, Pylades, would seem to crave
 No longer parley; let us instantly
+Enter, but ere we enter first adore
 The gods who keep the threshold of the house.
 [ORESTES and PYLADES enter the palace.]
 
@@ -1861,6 +1865,7 @@ ORESTES. Lift it thyself; tis not for me but thee
 To see and kindly greet what lieth here.
 
 AEGISTHUS. Well said, so will I. (To ELECTRA.) If she be within
+Go call me Clytemnestra, I would see her—
 
 ORESTES. She is beside thee ; look not otherwhere.
 
@@ -1908,6 +1913,7 @@ ORESTES. Thine own they shall; thus much I can predict.
 AEGISTHUS. Thy skill as seer derives not from thy sire.
 
 ORESTES. Thou bandiest words ; our going is delayed.
+Go.
 
 AEGISTHUS. Lead the way.
 

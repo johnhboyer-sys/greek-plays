@@ -694,7 +694,6 @@ _Do please reset it, Goldsmith. [60] Or, again,_
 _O Shoemaker, my wife's new sandal pinches_
 Sicily. And he also (chap. xii.) tells us that the orator Demo-
 stratus took a leading part in recommending that fatal measure.
-' because he is engaged in refitting the Navy and his mind is full
 [Her little toe, the tender, delicate child,]
 Make it fit easier, please.—Hence all this nonsense!
 Yea, things have reached a pretty pass, indeed,
@@ -972,7 +971,6 @@ Children of stiff and intractable grandmothers,
 heirs of the stinging viragoes that bore you, [72]
 *woman : just as in the corresponding system, below, they bedeck
 him in the habiliments of a corpse.*
-means "seedling nettles."*
 On, with an eager, unyielding tenacity,
 wind in your sails, and the haven before you.
 
@@ -1086,9 +1084,6 @@ what has a soldier to do with a wife?
 [still in their maiden apartments they stay,]
 [Waiting the husband that never approaches them,]
 [watching the years that are gliding away.]
-| | | |
-|---|---|---|
-| | | |
 
 MAGISTRATE. Men, I suppose, have their youth everlastingly.
 
@@ -1449,10 +1444,6 @@ Never saw his home again,
 Kept aloof from haunts of men:
 Hating men of evil mind,
 Dear to all the womankind.
-| | | |
-| :--- | :--- | :--- |
-| | | |
-| :--- | :--- | :--- |
 
 WOMEN. Shall I give your cheek a blow?
 
@@ -2304,10 +2295,10 @@ Footnotes:
 [54] “The name Achelous was used to denote water generally. The women are deluging their opponents with cold water from their pitchers ”: R.
 [55] At this crisis the tumult is stayed for an instant by the appearance on the stage of a venerable official personage, one of the Magistrates who, after the Sicilian catastrophe, were appointed, under the name of Probuli, to form a Directory or Committee of Public Safety. He is attended by four Scythian archers, part of the ordinary police of the Athenian Republic. The Women retire into the background.
 [56] Plutarch, in his Life of Nicias (chap. xiii.), describes these and similar omens of ill which preceded the Athenian expedition to
-[57] Demostratus was nicknamed $\text{Βουζύγης}$ and A. alters this to
+[57] Demostratus was nicknamed $\text{Βουζύγης}$ and A. alters this to $\text{Χολοζύγης}$ because of his gloomy temper ($\text{διὰ τὸ μελαγχολα̂ν}$) : Schol.
 [58] $\check{\omega}\sigma\pi\epsilon\rho\ \epsilon\nu. = \text{tamquam si in ea minxissemus.}$
-[59] $\tau\text{ὸν\ }\hat{\alpha}\lambda\text{υγόν}$, the sea-god ; the Magistrate emphasizes this
-[60] Here follow ll. 411-13 : " I have to sail to Salamis ; if you
+[59] $\tau\text{ὸν\ }\hat{\alpha}\lambda\text{υγόν}$, the sea-god ; the Magistrate emphasizes this ' because he is engaged in refitting the Navy and his mind is full of ships and seas " : R.
+[60] Here follow ll. 411-13 : " I have to sail to Salamis ; if you have leisure, do not fail to visit her this evening and fit in the peg." A play on the two senses of $\beta\alpha\lambda\alpha\nu\text{ος}$.
 [61] He turns to the Scythians, who, instead of setting to work, are poking idly around them.
 [62] The gates are thrown open, and Lysistrata comes out.
 [63] Pandrosus and Agraulus, sisters of Cecrops. “Since throughout this short altercation the women invoke Artemis in one or other of her characters, I cannot but believe, that in this invocation also, the name of Πάνδροσος, the All-bedewer, is intended to apply to Artemis as identical with Hecate or the moon” : R.
@@ -2319,7 +2310,7 @@ Footnotes:
 [69] A line, to some such effect, has fallen out.
 [70] "Women were in the habit of chewing some eatable as they wove or spun": R.
 [71] During the foregoing lines the Women have been arraying the Magistrate in the garb and with the apparatus of a spinning-54
-[72] *$\mu\eta\tau\rho\iota\delta\iota\omega\nu$ is a diminutive of $\mu\eta\tau\eta\rho$, but $\mu\eta\tau\rho\iota\delta\iota\omega\nu\ \dot\alpha\kappa\alpha\lambda\eta\phi\hat\omega\nu$
+[72] *$\mu\eta\tau\rho\iota\delta\iota\omega\nu$ is a diminutive of $\mu\eta\tau\eta\rho$, but $\mu\eta\tau\rho\iota\delta\iota\omega\nu\ \dot\alpha\kappa\alpha\lambda\eta\phi\hat\omega\nu$ means "seedling nettles."*
 [73] Lysimacha, "she who ends the battle," is an equivalent of Lysistrata, "she who dismisses the army." The chief character's name is chosen, of course, to indicate the aim of the proceedings.
 [74] The crockery and vegetable stalls: Schol.
 [75] Phrygian priests of Cybele, who went armed. The Gorgon head (560) was a device on the shield.
@@ -2370,7 +2361,7 @@ Footnotes:
 [120] As she speaks, she appears on the wall.
 [121] She descends from the wall, and four lines below reappears through the gate. While she is gone Cinesias speaks.
 [122] Lines 904 to 979 were omitted in R.’s translation, 968-978 are taken from his note.
-[123] “Pan’s grotto was to be the nuptial chamber, and she was
+[123] “Pan’s grotto was to be the nuptial chamber, and she was to purify herself in the adjoining spring, the Clepsydra ” : R.
 [124] _i.e._ the Acropolis.
 [125] _Exit M._
 [126] “‘Ηρακλῆς ξενίζεται, is having the entertainment of Heracles, that is, is kept waiting for his supper; cf. W. 60”: R.
@@ -2406,7 +2397,7 @@ Footnotes:
 [156] See Plutarch, Cimon, chap. xvi.; Thuc. i. 102, iii. 54. In 464 B.C. an earthquake devastated Sparta, and the Helots revolted and took refuge in the fortress of Ithome. P. was sent to Athens for help and received it.
 [157] See Hdt. v. 64, 65. They sent help to expel the tyrants from Athens. Under the tyrants, certain returned exiles had been allowed to stay in Attica but not to enter Athens, and compelled to wear the rough dress bordered with sheepskin (κατωνάκη) of slaves or labourers, so as to identify them.
 [158] "The desire of recovering their lost possessions is for the moment merged in their love for Lysistrata, and their reciprocal demands are throughout worded with reference to her dress and
-[159] Cf. nudus ara, sere nudus, Virg. Georg. i. 299, from Hesiod,
+[159] Cf. nudus ara, sere nudus, Virg. Georg. i. 299, from Hesiod, Works and Days, p. 91; there is also a sexual allusion, cf. Soph. Antig. 569 ἀρώσιμοι γύαι.
 [160] Cf. 1058. The people of Carystus in Euboea were supposed
 [161] ὅπῃ σὺ θέλεις.
 [162] Lysistrata and the ambassadors go in.
@@ -2420,4 +2411,4 @@ Footnotes:
 [170] Dance a reel. διποδία, a stately Spartan dance.
 [171] The songs with which the Play concludes are, in the original, representatives of two widely differing styles of minstrelsy: the light and airy measures of the Ionians, and the “Dorian movement, bold or grave.” ὅρμησον τοὺς κυρσανίους, ὦ Μνημοσύνη, τὴν
 [172] "The δαίμονες or "secondary powers, whose especial business it is to witness the conclusion of a treaty and to punish its infraction" : R. See Iliad. iii. 276-80.
-[173] ἐκλιποῦσα, Μοῦσα, κλείουσα, θεόν, χαλκέοικον ᾿Αθηνᾶν, ἀγαθούς,
+[173] ἐκλιποῦσα, Μοῦσα, κλείουσα, θεόν, χαλκέοικον ᾿Αθηνᾶν, ἀγαθούς, παίζουσιν, ὑμνέωμεν, μέλουσι, ἀνακονέουσαι, θυρσαζουσῶν, παιζουσῶν, παραμπύκιζε, πήδα.

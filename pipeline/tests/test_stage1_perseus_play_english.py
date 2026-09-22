@@ -76,7 +76,7 @@ def _spine() -> dict:
 
 def _parse(
     tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None, covered=None,
-    transpositions=None, line_fixes=None,
+    transpositions=None, line_fixes=None, repeated_refs=None,
 ):
     xml_path = tmp_path / "play.xml"
     xml_path.write_text(tei, encoding="utf-8")
@@ -90,6 +90,7 @@ def _parse(
         covered_decl=covered,
         transpositions=transpositions,
         line_fixes=line_fixes,
+        repeated_refs=repeated_refs,
     )
 
 
@@ -4148,6 +4149,111 @@ def test_a_declared_line_fix_is_honoured_before_anchoring(tmp_path: Path):
     assert by_id["1:10"] == "Filed under the wrong number."
 
 
+def _doublet_spine() -> dict:
+    """One ref printed twice, with different text, and a line on either side."""
+    def seg(sid: str, ref: str, text: str, label: str) -> dict:
+        return {
+            "id": sid,
+            "book": 1,
+            "column": ref,
+            "lines": [{"n": 1, "ref": ref, "text": text}],
+            "speakers": [{"line": 1, "offset": 0, "label": label}],
+        }
+
+    return {
+        "work": "test-play",
+        "segments": [
+            seg("1:1", "1", "opening", "A"),
+            seg("1:10", "10", "first printing", "B"),
+            seg("1:11", "11", "between", "A"),
+            seg("1:10.2", "10", "second printing, different words", "B"),
+            seg("1:12", "12", "after", "A"),
+        ],
+    }
+
+
+_DOUBLET_TEI = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1">Alpha stays.</l></sp>
+    <sp><speaker>Beta</speaker><l n="10">First English.</l></sp>
+    <sp><speaker>Beta</speaker><l n="4">Second printing English.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="12">After.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+
+
+def test_a_line_fix_can_name_a_repeated_refs_second_printing(tmp_path: Path):
+    """A line_fixes value ``N.2`` is the second printing of a ref Murray
+    prints twice. The first printing keeps the English anchored ``N``; the
+    rewritten line lands on the ``.2`` segment. A raw ``<l n="N.2">`` is
+    not that form and does not seat there."""
+    english, _f, report = _parse(
+        tmp_path, _DOUBLET_TEI, _doublet_spine(),
+        line_fixes={"4": "10.2"},
+        repeated_refs={"10": 2},
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert by_id["1:10"]["text"] == "First English."
+    assert by_id["1:10.2"]["text"] == "Second printing English."
+    assert [b["n"] for b in by_id["1:10.2"]["bekker"]] == [10]
+    assert not any(a.get("kind") == "non_numeric_anchor" for a in report["anomalies"])
+
+    raw = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Beta</speaker><l n="10">First English.</l></sp>
+    <sp><speaker>Beta</speaker><l n="10.2">Not a line fix.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    dropped, _f, dropped_report = _parse(
+        tmp_path, raw, _doublet_spine(), repeated_refs={"10": 2},
+    )
+    assert "1:10.2" not in {chunk["id"] for chunk in dropped["chunks"]}
+    assert any(a.get("kind") == "non_numeric_anchor" and a.get("n_raw") == "10.2"
+               for a in dropped_report["anomalies"])
+
+
+def test_a_line_fix_second_printing_of_an_undeclared_ref_raises(tmp_path: Path):
+    """``N.2`` on a ref citation.repeated_refs does not declare is a stale
+    fix. It raises, naming the manifest key and the value, rather than
+    dropping the sentence."""
+    with pytest.raises(ValueError, match=r"line_fixes.*10\.2"):
+        _parse(
+            tmp_path, _DOUBLET_TEI, _doublet_spine(),
+            line_fixes={"4": "10.2"},
+            repeated_refs={"11": 2},
+        )
+
+
+def test_a_line_fix_past_the_printing_count_raises(tmp_path: Path):
+    """``N.3`` when the ref is printed only twice raises the same way."""
+    with pytest.raises(ValueError, match=r"line_fixes.*10\.3"):
+        _parse(
+            tmp_path, _DOUBLET_TEI, _doublet_spine(),
+            line_fixes={"4": "10.3"},
+            repeated_refs={"10": 2},
+        )
+
+
+def test_a_line_fix_naming_a_second_printing_is_not_excused_from_alignment(tmp_path: Path):
+    """Stage 2 still excuses a repeated-ref copy that no line_fix names.
+    A value ``803.2`` withdraws that excuse: the second printing can own
+    English, so an unmatched copy is a hole."""
+    from drama_pipeline.stage2_validate import _play_line_allowed_twin_ids
+
+    segs = [
+        {"id": "1:803", "lines": [{"ref": "803", "text": "a"}]},
+        {"id": "1:803.2", "lines": [{"ref": "803", "text": "b"}]},
+    ]
+    assert "1:803.2" in _play_line_allowed_twin_ids(_play_manifest(), segs)
+    addressed = _play_manifest()
+    addressed.data["english"]["primary"]["line_fixes"] = {"8": "803.2"}
+    assert "1:803.2" not in _play_line_allowed_twin_ids(addressed, segs)
+
+
 def test_a_line_fix_naming_no_such_anchor_raises(tmp_path: Path):
     """A fix map that matches no `<l n>`, or more than one, is a typo in the
     manifest and fails loudly rather than passing unread."""
@@ -4302,3 +4408,66 @@ def test_an_unprinted_ref_tie_breaks_toward_the_earlier_line(tmp_path: Path):
     row = report["anomalies"][0]
     assert row["ref"] == "6"
     assert [tick["n"] for tick in by_id["1:5"]["bekker"]] == [6]
+
+
+# ── Lane C round 6: C6 stands down across a settled transposition ────────
+
+
+def test_antilabe_walk_stands_down_across_a_one_to_one_transposition(
+    tmp_path: Path,
+):
+    """Heracles 1185–1188. Diggle prints four antilabe lines out of numeric
+    order (here 3, 4, 2, 1, declared as ``{start 2, before 4}`` and
+    ``{start 1, before 4}``). The translation's own anchors already name
+    those lines one for one — Alpha's ``n="1"`` translates Greek 1 — and
+    the two orders legitimately differ. The walk matches by document
+    position, so today it rotates every share onto the line printed in
+    that slot. It must leave a settled stretch alone."""
+    def antilabe(ref: str) -> dict:
+        n = int(ref)
+        return {
+            "id": f"1:{ref}",
+            "book": 1,
+            "column": ref,
+            "lines": [{"n": n, "ref": ref, "text": f"g{ref}"}],
+            "speakers": [
+                {"line": n, "offset": 0, "label": "Α."},
+                {"line": n, "offset": 1, "label": "Β."},
+            ],
+        }
+
+    # Printed order: 3, 4, 2, 1.
+    spine = {
+        "work": "test-play",
+        "segments": [antilabe("3"), antilabe("4"), antilabe("2"), antilabe("1")],
+    }
+    tei = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Alpha</speaker><l n="1">Alpha on one.</l></sp>
+    <sp><speaker>Beta</speaker><l n="1a">Beta on one.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="2">Alpha on two.</l></sp>
+    <sp><speaker>Beta</speaker><l n="2a">Beta on two.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="3">Alpha on three.</l></sp>
+    <sp><speaker>Beta</speaker><l n="3a">Beta on three.</l></sp>
+    <sp><speaker>Alpha</speaker><l n="4">Alpha on four.</l></sp>
+    <sp><speaker>Beta</speaker><l n="4a">Beta on four.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+    english, _footnotes, _report = _parse(
+        tmp_path,
+        tei,
+        spine,
+        aliases={"Alpha": "Alpha", "Beta": "Beta"},
+        sigla={"Α.": "Alpha", "Β.": "Beta"},
+        transpositions=[
+            {"start": "2", "end": "2", "before": "4"},
+            {"start": "1", "end": "1", "before": "4"},
+        ],
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert by_id["1:1"] == "Alpha on one. Beta on one."
+    assert by_id["1:2"] == "Alpha on two. Beta on two."
+    assert by_id["1:3"] == "Alpha on three. Beta on three."
+    assert by_id["1:4"] == "Alpha on four. Beta on four."

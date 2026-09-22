@@ -2477,6 +2477,118 @@ def test_loeb_ocr_implicit_entrant_accepted_when_the_greek_agrees(tmp_path):
     assert by_id["1:2"]["text"].startswith("Afar from the tides")
 
 
+def test_b4_a_pin_after_a_rejected_implicit_entrant_lands_on_its_speech(tmp_path):
+    """B4. `forced = _resolve_pins(...)` runs before the implicit-entrant
+    fold. The fold deletes the rejected speech and rebuilds the English
+    nodes, but the real alignment still receives the pre-fold indices, so a
+    pin on a LATER speech names the speech after the one it quoted.
+
+    No loeb-ocr slot in the corpus has `pins:` today. This bench is the
+    alcestis shape (an Enter the Greek rejects) plus a pin on the speech
+    after the folded one, and a further speech so the stale index is a real
+    speech rather than an index past the end.
+    """
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "APOLLO. Go forth of yonder hall's beloved roof, lest pollution taint "
+        "me in their house.\n"
+        "\n"
+        "_Enter NURSE._\n"
+        "\n"
+        "Lo, yonder I see the servant standing by the door.\n"
+        "\n"
+        "DEATH. Ha, thou at the palace! Wilt not make room?\n"
+        "\n"
+        "CHORUS. O happy the race in the ages olden of Erechtheus.\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "apollo greek words here about the palace and the woman"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Α."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": "death greek words short reply"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θ."}],
+            },
+            {
+                "id": "1:3", "book": 1, "column": "1",
+                "lines": [{"n": 3, "ref": "3", "text": (
+                    "chorus greek words about erechtheus and the golden race"
+                )}],
+                "speakers": [{"line": 3, "offset": 0, "label": "Χο."}],
+            },
+        ],
+    }
+    english, _footnotes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="THE PLAY",
+        sigla={"Α.": "Apollo", "Θ.": "Death", "Χο.": "Chorus"},
+        english_aliases={
+            "APOLLO": "Apollo", "DEATH": "Death", "NURSE": "Nurse",
+            "CHORUS": "Chorus",
+        },
+        footnotes_enabled=False, format="loeb-ocr", verse=True,
+        pins=[{"greek": "2", "english": "Ha, thou at the palace"}],
+    )
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "Lo, yonder I see the servant" in by_id["1:1"]["text"]
+    assert by_id["1:2"]["text"].startswith("Ha, thou at the palace")
+    assert "O happy the race" not in by_id["1:2"]["text"]
+    assert by_id["1:3"]["text"].startswith("O happy the race")
+
+
+def test_b4_a_pin_on_a_rejected_implicit_entrant_is_loud(tmp_path):
+    """Sol's read of B4 (2026-09-21): the fold used to drop, without a word,
+    a pin whose own speech it deleted. A pin that holds the cue-less block
+    after `_Enter NURSE._` to a line the Greek gives Death is rejected by the
+    Greek and folded into Apollo; the pin then names nothing, and says so."""
+    path = tmp_path / "play.txt"
+    path.write_text(
+        "THE PLAY\n\n"
+        "APOLLO. Go forth of yonder hall's beloved roof, lest pollution taint "
+        "me in their house.\n"
+        "\n"
+        "_Enter NURSE._\n"
+        "\n"
+        "Lo, yonder I see the servant standing by the door.\n"
+        "\n"
+        "DEATH. Ha, thou at the palace! Wilt not make room?\n",
+        encoding="utf-8",
+    )
+    spine = {
+        "work": "test",
+        "segments": [
+            {
+                "id": "1:1", "book": 1, "column": "1",
+                "lines": [{"n": 1, "ref": "1", "text": (
+                    "apollo greek words here about the palace and the woman"
+                )}],
+                "speakers": [{"line": 1, "offset": 0, "label": "Α."}],
+            },
+            {
+                "id": "1:2", "book": 1, "column": "1",
+                "lines": [{"n": 2, "ref": "2", "text": "death greek words short reply"}],
+                "speakers": [{"line": 2, "offset": 0, "label": "Θ."}],
+            },
+        ],
+    }
+    with pytest.raises(ValueError, match="folded"):
+        parse_translation(
+            path, spine, work_id="test", translation_id="test", play="THE PLAY",
+            sigla={"Α.": "Apollo", "Θ.": "Death"},
+            english_aliases={"APOLLO": "Apollo", "DEATH": "Death", "NURSE": "Nurse"},
+            footnotes_enabled=False, format="loeb-ocr", verse=True,
+            pins=[{"greek": "2", "english": "Lo, yonder I see the servant"}],
+        )
+
+
 # B round 3 item 4 (philoctetes finding 5, 2026-09-17): a Loeb editorial
 # note citing the lines a cut passage omits, printed as if it were verse
 # ("' The omitted lines are:", storr/philoctetes.txt:1808, followed by the
@@ -3258,7 +3370,7 @@ def test_speaker_line_accepts_a_digit_led_continuation_word():
 
 @pytest.mark.parametrize(
     "work, line_no, junk",
-    [("oedipus-tyrannus", 951, "WOU. 4, F"), ("electra-soph", 1771, "VQL. I. R")],
+    [("oedipus-tyrannus", 951, "WOU. 4, F"), ("electra-soph", 1775, "VQL. I. R")],
 )
 def test_bench_scanner_junk_lines_are_declared_line_fixes(work, line_no, junk):
     """The two spaced OCR artefacts are real `NAME. text` shapes, so the
@@ -4616,7 +4728,7 @@ def _bridge(chunks: dict[str, str]) -> dict[str, dict]:
     return {sid: {"id": sid, "text": text, "turns": []} for sid, text in chunks.items()}
 
 
-def _transposed(tmp_path, source, spine, sigla, aliases, bridge, blocks):
+def _transposed(tmp_path, source, spine, sigla, aliases, bridge, blocks, *, verse=False):
     path = tmp_path / "play.txt"
     path.write_text(f"TEST PLAY\n{source}\nFINIS\n", encoding="utf-8")
     return parse_translation(
@@ -4630,6 +4742,7 @@ def _transposed(tmp_path, source, spine, sigla, aliases, bridge, blocks):
         footnotes_enabled=False,
         primary_bridge=_bridge(bridge),
         transpositions=blocks,
+        verse=verse,
     )
 
 
@@ -4902,6 +5015,78 @@ def test_a8_a_lacuna_row_never_takes_a_turn(tmp_path):
     # The placeholder is not a Greek speech, so it is out of the pairing
     # rate's denominator too.
     assert report["greek_events"] == 3
+
+
+def test_a8b_a_lacuna_row_takes_no_spread_piece(tmp_path):
+    """A lacuna placeholder cannot claim a share of the speech above it."""
+    spine = _spine_of(
+        _numbered("1:1", ["1", "2"], "Α.", 1),
+        {
+            "id": "1:post 2", "book": 1, "column": "post 2",
+            "lines": [{"n": 3, "ref": "post 2", "text": "", "role": "lacuna"}],
+            "speakers": [
+                {"line": 3, "offset": 0, "label": "<Γ."},
+                {"line": 3, "offset": 0, "label": "<Β."},
+            ],
+        },
+        _numbered("1:3", ["3"], "Β.", 4),
+    )
+    source = (
+        "ALPHA. The first line of the scene.\n"
+        "The second line completes the speech.\n"
+        "BETA. And the third closes it."
+    )
+    english, _fn, _report = _transposed(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES,
+        {
+            "1:1": "The first line of the scene. The second line completes the speech.",
+            "1:3": "And the third closes it.",
+        },
+        [],
+        verse=True,
+    )
+    chunks = {c["id"]: c["text"] for c in english["chunks"]}
+    assert "1:post 2" not in chunks
+    assert chunks["1:1"] == "The first line of the scene.\nThe second line completes the speech."
+    assert "1:post 2" not in english["english_covered_by"]
+
+
+def test_r6b_a_one_line_claim_is_a_note_not_a_spread(tmp_path):
+    """R6's one-line claim remains a reader note, not spread authority."""
+    from drama_pipeline.stage1_turn_english import _content_covered, _spread_long_speeches
+
+    spine = _spine_of(
+        _numbered("1:1", ["1", "2"], "Α.", 1),
+        _numbered("1:3", ["3"], "Β.", 3),
+        _numbered("1:4", ["4"], "Γ.", 4),
+    )
+    chunks = [
+        {"id": "1:1", "book": 1, "column": "1",
+         "text": "The first printed line of the speech.\nThe last printed line of the speech.",
+         "turns": [], "notes": [], "markers": [], "bekker": []},
+        {"id": "1:4", "book": 1, "column": "4",
+         "text": "The next speech begins here.",
+         "turns": [], "notes": [], "markers": [], "bekker": []},
+    ]
+    tail_claims: set[str] = set()
+    english_covered_by = _content_covered(
+        spine["segments"], chunks,
+        _bridge({
+            "1:1": "The first printed line of the speech. The last printed line of the speech.",
+            "1:3": "A bare Greek line has no English turn.",
+            "1:4": "The next speech begins here.",
+        }),
+        {}, tail_claims=tail_claims,
+    )
+    assert english_covered_by.get("1:3") == "1:1"
+    assert tail_claims == {"1:3"}
+    out = _spread_long_speeches(
+        chunks, spine["segments"], _T_SIGLA, verse=True,
+        claimed={sid: cid for sid, cid in english_covered_by.items() if sid not in tail_claims},
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in out}
+    assert "1:3" not in by_id
+    assert by_id["1:1"].endswith("The last printed line of the speech.")
 
 
 # --- A4: a later turn's stage directions ----------------------------------
@@ -5314,6 +5499,63 @@ def _paired(
     )
 
 
+def test_pin_exempts_its_drift_and_sets_the_next_pair_baseline(tmp_path):
+    """A pin fixes a one-speech Beta offset without charging its onset twice."""
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Α.", 1),
+        _numbered("1:2", ["2"], "Β.", 2),
+        _numbered("1:3", ["3"], "Α.", 3),
+        _numbered("1:4", ["4"], "Β.", 4),
+        _numbered("1:5", ["5"], "Β.", 5),
+    )
+    source = (
+        "ALPHA. First.\nALPHA. Second.\n"
+        "BETA. Third.\nBETA. Fourth."
+    )
+    _plain, _fn, without_pin = _paired(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES
+    )
+    _pinned, _fn, with_pin = _paired(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES,
+        pins=[{"greek": "4", "english": "Third."}],
+    )
+    assert without_pin["turn_shift_new_drifts"] == 1
+    assert without_pin["turn_shift_rate"] == 1 / 4
+    assert with_pin["turn_shift_new_drifts"] == 0
+    assert with_pin["turn_shift_rate"] == 0.0
+
+
+def test_crossing_fallback_only_exempts_the_pin_it_kept(tmp_path):
+    """A dropped crossing pin does not mark its replacement pair as pinned."""
+    from drama_pipeline import pair_dp, stage1_turn_english as m
+
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Α.", 1),
+        _numbered("1:2", ["2"], "Β.", 2),
+        _numbered("1:3", ["3"], "Β.", 3),
+    )
+    source = "BETA. First.\nALPHA. Second.\nBETA. Third."
+    blocks = [{"start": "1", "end": "1", "before": "3"}]
+    _english, _fn, report = _paired(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES,
+        blocks=blocks,
+        pins=[
+            {"greek": "1", "english": "Second."},
+            {"greek": "2", "english": "First."},
+        ],
+    )
+    result = m._align_speech_runs(
+        [pair_dp.GreekNode(name=n, chars=20) for n in ["Alpha", "Beta", "Beta"]],
+        [pair_dp.EnglishNode(name=n, chars=20) for n in ["Beta", "Alpha", "Beta"]],
+        ["Alpha", "Beta", "Beta"], [(0, 1), (1, 0)], None,
+        [(20, "g")] * 3, ["1", "2", "3"], "test", "test",
+        transpositions=blocks,
+    )
+    assert result.pinned_pairs == {(0, 1)}
+    assert report["turn_shift_new_drifts"] == 1
+    assert report["turn_shift_rate"] == 1 / 2
+
+
 def test_r1_a_repeated_ref_does_not_seat_a_turn_of_its_own(tmp_path):
     """Septem 803/810: the edition prints the ref twice, the translator once.
 
@@ -5585,6 +5827,204 @@ def test_r6_a_bare_cry_is_covered_by_the_row_above():
     assert out == {"1:1066": "1:1065"}
 
 
+# --- bare stage direction in place of a Greek speech (option B, 2026-09-22) -
+
+
+def _named_seg(sid, ref, label, display):
+    """A one-line Greek segment with its OWN named speaker -- Libation
+    Bearers 869's Aegisthus, mid Chorus ode, not a bare continuation."""
+    return {
+        "id": sid, "book": 1, "column": ref,
+        "lines": [{"n": int(ref), "ref": ref, "text": "x" * 20}],
+        "speakers": [{"line": int(ref), "offset": 0, "label": label, "display": display}],
+    }
+
+
+# Round 2's naming guard compares the direction text against the speaker's
+# RESOLVED display, not the raw Greek label -- these fixtures need a sigla
+# map to resolve "Αι." to "Aegisthus" (a bare, unmapped label would never
+# match an English direction word for word).
+_AEGISTHUS_SIGLA = {"Αι.": "Aegisthus"}
+
+
+def test_bare_direction_moves_to_the_greek_speech_it_stands_for():
+    """Libation Bearers 869: Johnston prints no words for Aegisthus's cry,
+    only "[Aegisthus screams in pain from inside the palace]" between the
+    Chorus's ode (ending "Let him emerge the victor!") and the Chorus's
+    "Listen! What was that?". `_parse_as_speeches` has no Greek to know
+    better, so the direction lands on the FOLLOWING chunk's
+    `directionsBefore`. `_place_bare_speech_directions` gives the one-line,
+    named Aegisthus segment a chunk of its own instead -- empty text, no
+    speaker, carrying the direction -- and the block above keeps its own
+    text unchanged."""
+    from drama_pipeline.stage1_turn_english import _place_bare_speech_directions
+
+    segments = [
+        _seg("1:855", 14, 842),
+        _named_seg("1:869", "869", "Αι.", "Aegisthus"),
+        _seg("1:870", 1, 857),
+    ]
+    chunks = [
+        {"id": "1:855", "text": "...Let him emerge the victor!"},
+        {
+            "id": "1:870",
+            "text": "Listen!\nWhat was that?",
+            "directionsBefore": ["[Aegisthus screams in pain from inside the palace]"],
+        },
+    ]
+    out = _place_bare_speech_directions(chunks, segments, _AEGISTHUS_SIGLA)
+    by_id = {c["id"]: c for c in out}
+    assert by_id["1:855"]["text"] == "...Let him emerge the victor!"
+    assert by_id["1:869"]["text"] == ""
+    assert by_id["1:869"]["directionsBefore"] == [
+        "[Aegisthus screams in pain from inside the palace]"
+    ]
+    assert "turns" in by_id["1:869"] and by_id["1:869"]["turns"] == []
+    assert "directionsBefore" not in by_id["1:870"]
+    assert by_id["1:870"]["text"] == "Listen!\nWhat was that?"
+
+
+def test_bare_direction_keeps_a_dead_end_from_absorbing_the_greek_speech():
+    """The same case, run through `_content_covered` as it actually runs in
+    `parse_translation` -- `_place_bare_speech_directions` first, so that by
+    the time R6 looks for one-line holes, 1:869 already has a chunk of its
+    own and is never read as a hole the block above (1:855) absorbs. Before
+    the fix this was exactly R6's shape (`test_r6_a_bare_cry_is_covered_by_
+    the_row_above`) and 1:869 came back covered by 1:855 -- so the reader's
+    rowspan showed 1:855's last line, "Let him emerge the victor!", at
+    869's row instead of the direction."""
+    from drama_pipeline.stage1_turn_english import (
+        _content_covered,
+        _place_bare_speech_directions,
+    )
+
+    segments = [
+        _seg("1:855", 14, 842),
+        _named_seg("1:869", "869", "Αι.", "Aegisthus"),
+        _seg("1:870", 1, 857),
+    ]
+    chunks = [
+        {"id": "1:855", "text": "...Let him emerge the victor!"},
+        {
+            "id": "1:870",
+            "text": "Listen!\nWhat was that?",
+            "directionsBefore": ["[Aegisthus screams in pain from inside the palace]"],
+        },
+    ]
+    chunks = _place_bare_speech_directions(chunks, segments, _AEGISTHUS_SIGLA)
+    primary = _bridge({"1:855": "Zeus, Zeus, what shall I say.",
+                        "1:869": "Ah, ah, alas!", "1:870": "Ah! Ah! Alas!"})
+    assert _content_covered(segments, chunks, primary, {}) == {}
+
+
+def test_bare_direction_leaves_a_real_continuation_alone():
+    """A run of several bare Greek lines with NO speaker events of their own
+    -- an ordinary continuation `_spread_long_speeches` distributes -- is not
+    mistaken for "a direction stood in for these speeches" just because the
+    chunk after the run happens to open with one: only a run where every
+    segment is a one-line, NAMED speech qualifies (Aegisthus's cry is one
+    Greek line with its own speaker event; a bare continuation has none)."""
+    from drama_pipeline.stage1_turn_english import _place_bare_speech_directions
+
+    segments = [
+        _seg("1:1", 4, 1),
+        _seg("1:2", 1, 5),  # a bare continuation: no "speakers" of its own
+        _seg("1:3", 1, 6),  # likewise bare
+        _seg("1:9", 2, 8),
+    ]
+    for bare in segments[1:3]:
+        bare.pop("speakers", None)
+    chunks = [
+        {"id": "1:1", "text": "The long speech that continues past 1:2 and 1:3."},
+        {"id": "1:9", "text": "The next speech.", "directionsBefore": ["[Exit.]"]},
+    ]
+    out = _place_bare_speech_directions(chunks, segments)
+    by_id = {c["id"]: c for c in out}
+    assert "1:2" not in by_id and "1:3" not in by_id
+    assert by_id["1:9"]["directionsBefore"] == ["[Exit.]"]
+
+
+def test_bare_direction_leaves_a_direction_for_the_speech_after_alone():
+    """Rhesus 594 (round 2, a 44-play build, WRONG case): Way prints no line
+    for 594 at all -- "ATHENA appears above the stage." opens ATHENA's OWN
+    speech at 595, not Diomedes' one Greek line at 594. Diomedes reads
+    different from the Chorus above, so the OLD guard (different named
+    speaker, nothing else) grabbed the direction anyway. The direction
+    names Athena, not Diomedes, so the naming guard refuses it: 594 stays
+    blank, as it was, and 595 keeps its own direction and text."""
+    from drama_pipeline.stage1_turn_english import _place_bare_speech_directions
+
+    sigla = {"Χο.": "Chorus", "Δι.": "Diomedes", "Αθ.": "Athena"}
+    segments = [
+        _named_seg("1:590", "590", "Χο.", "Chorus"),
+        _named_seg("1:594", "594", "Δι.", "Diomedes"),
+        _named_seg("1:595", "595", "Αθ.", "Athena"),
+    ]
+    chunks = [
+        {"id": "1:590", "text": "The Chorus's own line."},
+        {
+            "id": "1:595",
+            "text": "Diomedes, hold! I am no enemy of yours.",
+            "directionsBefore": ["ATHENA appears above the stage."],
+        },
+    ]
+    out = _place_bare_speech_directions(chunks, segments, sigla)
+    by_id = {c["id"]: c for c in out}
+    assert "1:594" not in by_id
+    assert by_id["1:595"]["directionsBefore"] == ["ATHENA appears above the stage."]
+    assert by_id["1:595"]["text"] == "Diomedes, hold! I am no enemy of yours."
+
+
+def test_bare_direction_leaves_the_previous_speakers_claim_for_the_spread():
+    """Troades 1231 (round 2, a 44-play build, WRONG case): "[During these
+    lines HECUBA, kneeling by the body, weeps...]" names HECUBA, the speaker
+    of the block ABOVE (1230) -- not Chorus, the speaker of the interjecting
+    line at 1231 itself. The old guard grabbed it anyway (Chorus differs
+    from Hecuba) and gave 1231 an empty chunk of its own, pre-empting
+    `_spread_long_speeches`'s reading of 1231 as a claimed continuation of
+    Hecuba's turn (an aligner-claimed change of voice, a "dash") and pushing
+    the Chorus's real line up into 1230's row. The naming guard leaves 1231
+    chunkless, so the claimed spread still reaches it."""
+    from drama_pipeline.stage1_turn_english import (
+        _place_bare_speech_directions,
+        _spread_long_speeches,
+    )
+
+    sigla = {"Εκ.": "Hecuba", "Χο.": "Chorus"}
+    segments = [
+        _named_seg("1:1230", "1230", "Εκ.", "Hecuba"),
+        _named_seg("1:1231", "1231", "Χο.", "Chorus"),
+        _named_seg("1:1232", "1232", "Εκ.", "Hecuba"),
+    ]
+    chunks = [
+        {
+            "id": "1:1230",
+            "text": (
+                "Ah, the endless grief of Troy is heavy and long. "
+                "Grief follows grief across these fallen streets forever more."
+            ),
+            "turns": [], "notes": [], "markers": [],
+        },
+        {
+            "id": "1:1232",
+            "text": "And the infinite wrong that has come upon you!",
+            "directionsBefore": [
+                "[During these lines HECUBA, kneeling by the body, weeps.]"
+            ],
+        },
+    ]
+    out = _place_bare_speech_directions(chunks, segments, sigla)
+    by_id = {c["id"]: c for c in out}
+    assert "1:1231" not in by_id
+    assert by_id["1:1232"]["directionsBefore"] == [
+        "[During these lines HECUBA, kneeling by the body, weeps.]"
+    ]
+
+    spread = _spread_long_speeches(out, segments, sigla, claimed={"1:1231": "1:1230"})
+    spread_by_id = {c["id"]: c for c in spread}
+    assert spread_by_id["1:1231"]["text"].strip() != ""
+
+
 def test_r6_a_two_line_hole_still_says_nothing():
     """The other side of R6's line: a hole of more than one Greek line, or one
     whose own row above is bare too, is not "absorbed into the turn above" and
@@ -5821,14 +6261,21 @@ def test_r9_a_malformed_declaration_is_loud():
     keys = [m._play_line_start_key(r) for r in ("1", "2", "3", "4")]
     good = [{"start": "3", "end": "4", "before": "1"}]
     assert m._english_transposed_run_groups(keys, good) == [[2, 3, 0, 1]]
-    for bad, why in (
-        ({"start": "3", "end": "4"}, "missing ref"),
-        ({"start": "1", "end": "2", "before": "3"}, "before is not below start"),
-        ({"start": "3", "end": "4", "before": "99"}, "ref not in the play"),
-        ({"start": "1", "end": "4", "before": "1"}, "moves nothing"),
+    for bad in (
+        {"start": "3", "end": "4"},
+        {"start": "1", "end": "2", "before": "3"},
+        {"start": "3", "end": "4", "before": "99"},
     ):
         with pytest.raises(ValueError, match="transposition"):
             m._english_transposed_run_groups(keys, [bad], work_id="t", slot="third")
+    # before < start, and no speech lies in [before, start), so the raise is
+    # the empty stayed set ("moves nothing"), not the ordering check.
+    gapped = [m._play_line_start_key(r) for r in ("2", "3", "4")]
+    with pytest.raises(ValueError, match="moves nothing"):
+        m._english_transposed_run_groups(
+            gapped, [{"start": "2", "end": "4", "before": "1"}],
+            work_id="t", slot="third",
+        )
 
 
 def test_r2_an_undivided_block_is_anchored_at_the_first_segment_it_claims():
@@ -5909,6 +6356,76 @@ def test_r2_an_undivided_block_is_anchored_at_the_first_segment_it_claims():
     assert [c["id"] for c in _spread_long_speeches([block, tail], segs, sigla)] == [
         "1:951", "1:961",
     ]
+
+
+def test_a5a_an_inherited_claim_from_another_block_takes_no_spread():
+    """A5a. A bare continuation inherits an A2 claim whose donor is a
+    different block. That claim may still be written as a coveredBy note;
+    it must not lay THIS block's English on the segment. A speakerless
+    segment otherwise continues unconditionally ("bare"), so the foreign
+    donor never gets a look.
+
+    The Septem kommos is the other shape and stays in
+    `test_r2_an_undivided_block_is_anchored_at_the_first_segment_it_claims`:
+    there the claim's donor IS this block and derived names nobody else, so
+    the walk still crosses Antigone and Ismene.
+    """
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    sigla = {"Χο.": "Chorus", "Αγ.": "Messenger", "Φυ.": "Guard"}
+    # 1:5 holds its own chunk, so the messenger's block cannot anchor back
+    # onto 1:3. 1:3 stays bare, and the chorus walk is the thing that reaches it.
+    segs = [
+        {"id": "1:1", "column": "1",
+         "speakers": [{"line": 1, "offset": 0, "label": "Χο."}],
+         "lines": [{} for _ in range(2)]},
+        {"id": "1:3", "column": "3", "lines": [{} for _ in range(2)]},
+        {"id": "1:5", "column": "5",
+         "speakers": [{"line": 5, "offset": 0, "label": "Φυ."}],
+         "lines": [{} for _ in range(2)]},
+        {"id": "1:9", "column": "9",
+         "speakers": [{"line": 9, "offset": 0, "label": "Αγ."}],
+         "lines": [{} for _ in range(2)]},
+    ]
+    chorus = {
+        "id": "1:1", "column": "1",
+        "text": (
+            "Chorus, on the tenth year of the war, and the ships that sailed. "
+            "They cried out the war-cry, and a god heard them."
+        ),
+        "turns": [], "notes": [], "markers": [],
+    }
+    guard = {
+        "id": "1:5", "column": "5", "text": "The guard keeps his watch.",
+        "turns": [], "notes": [], "markers": [],
+    }
+    messenger = {
+        "id": "1:9", "column": "9",
+        "text": "The messenger tells of the beacon.",
+        "turns": [], "notes": [], "markers": [],
+    }
+    out = _spread_long_speeches(
+        [chorus, guard, messenger], segs, sigla, claimed={"1:3": "1:9"},
+    )
+    by_id = {c["id"]: c["text"] for c in out}
+    assert "1:3" not in by_id
+    assert "They cried out" in by_id["1:1"]
+    assert by_id["1:5"] == "The guard keeps his watch."
+    assert by_id["1:9"] == "The messenger tells of the beacon."
+    # The aligner already named the other block. An inherited A2 claim that
+    # still points at the chorus must not cross onto that segment either.
+    segs[1] = {
+        "id": "1:3", "column": "3",
+        "speakers": [{"line": 3, "offset": 0, "label": "Αγ."}],
+        "lines": [{} for _ in range(2)],
+    }
+    out = _spread_long_speeches(
+        [chorus, guard, messenger], segs, sigla,
+        covered={"1:3": "1:9"}, claimed={"1:3": "1:1"},
+    )
+    by_id = {c["id"]: c["text"] for c in out}
+    assert "1:3" not in by_id
+    assert "They cried out" in by_id["1:1"]
 
 
 def test_a7_a_paragraph_cut_is_chosen_by_the_primary_not_by_proportion():
@@ -6131,3 +6648,221 @@ def test_r5_a_near_tie_keeps_the_printed_order_through_the_aligner(monkeypatch):
     assert len(seen) >= 2  # both candidates really were costed
     assert out.slot_order == [0, 1, 2]
     assert out.reach_spans == []
+
+
+# P1 (andromache review B8, 2026-09-21): a cue's own parenthetical --
+# `MOLOSSUS (kneeling to MENELAUS).` -- is already in `_SPEAKER_LINE`'s
+# stage group, but the ordinary cue branch appends that group to the spoken
+# text, so the direction prints as a verse line. The case-slip cue already
+# drops the brackets and carries the words as a direction of that turn.
+def test_loeb_ocr_cue_parenthetical_is_a_direction_of_that_turn():
+    text = (
+        "THE PLAY\n\n"
+        "ANDROMACHE. Pray, at thy lord's knees suing,\n"
+        "Child !\n"
+        "MOLOSSUS (kneeling to MENELAUS).\n"
+        "Friend, in mercy ruing\n"
+        "My death, of pardon tell!\n"
+        "\n"
+        "ANDROMACHE. My streaming eyelids weep.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert [s["speaker_printed"] for s in speeches] == ["ANDROMACHE", "MOLOSSUS", "ANDROMACHE"]
+    molossus = speeches[1]
+    assert "(kneeling" not in molossus["text"]
+    assert molossus["text"] == "Friend, in mercy ruing\nMy death, of pardon tell!"
+    assert molossus["shown"] == (
+        "_kneeling to MENELAUS_\n"
+        "Friend, in mercy ruing\n"
+        "My death, of pardon tell!"
+    )
+    assert "directions_before" not in molossus
+
+
+# P2 (andromache review B5, 2026-09-21): a 1-3 letter lowercase turn-up is a
+# wrap tail when the line before it does not end a sentence. `.?!;:` and a
+# closing quote end a sentence; a comma does not. A 1-3 letter tail after a
+# finished sentence stays refused (the old G2 guard).
+def test_loeb_ocr_short_lowercase_turnup_joins_an_unfinished_line():
+    text = (
+        "THE PLAY\n\n"
+        "HERMIONE. By Heaven's Queen, were it in mine halls, she should\n"
+        "not\n"
+        "See light and reap the harvest of my bed.\n"
+        "As from this house to help thee, shouldst thou grant\n"
+        "me\n"
+        "Speech of thee, as thou dost.\n"
+        "Whom your own hands had fashioned, dishonoured to\n"
+        "lie\n"
+        "In wretchedness, wretchedness.\n"
+        "At the hands of a wife : and with murder she bought\n"
+        "her\n"
+        "Death, at the hands of her child to receive it.\n"
+        "And still the long unfinished clause runs on,\n"
+        "yet\n"
+        "The sense continues past the comma.\n"
+        "And with a river always at its edge of ample flowing water.\n"
+        "a\n"
+        "More lines follow the orphan.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches == [
+        {
+            "speaker_printed": "HERMIONE",
+            "text": (
+                "By Heaven's Queen, were it in mine halls, she should not\n"
+                "See light and reap the harvest of my bed.\n"
+                "As from this house to help thee, shouldst thou grant me\n"
+                "Speech of thee, as thou dost.\n"
+                "Whom your own hands had fashioned, dishonoured to lie\n"
+                "In wretchedness, wretchedness.\n"
+                "At the hands of a wife : and with murder she bought her\n"
+                "Death, at the hands of her child to receive it.\n"
+                "And still the long unfinished clause runs on, yet\n"
+                "The sense continues past the comma.\n"
+                "And with a river always at its edge of ample flowing water.\n"
+                "a\n"
+                "More lines follow the orphan."
+            ),
+        }
+    ]
+
+
+# P3 (trachiniae review N11, 2026-09-21): an unbracketed `Enter`/`Exit`/
+# `Exeunt` line that ends its speech is a direction of the next speech.
+# The same words in the middle of a speech, or a verse line that merely
+# begins with them, stay verse. Synthetic bench, so the test does not
+# depend on whether a live bench still prints the line unwrapped.
+def test_loeb_ocr_unbracketed_trailing_entrance_is_the_next_speechs_direction():
+    text = (
+        "THE PLAY\n\n"
+        "DEIANIRA. Sudden from her home was torn.\n"
+        "Enter DEIANIRA.\n"
+        "\n"
+        "LICHAS. Lady, what message shall I bear my lord?\n"
+        "Re-enter LICHAS.\n"
+        "\n"
+        "HYLLUS. Mother, I would that one wish were granted me.\n"
+        "Exit HYLLUS.\n"
+        "\n"
+        "CHORUS. The curses work; the buried live again.\n"
+        "Enter the halls and speak.\n"
+        "The rest can wait until the dawn.\n"
+        "Enter this house. For me the host whose heart\n"
+        "Leaps out in welcome, rather than the rich.\n"
+        "\n"
+        "NURSE. I have stolen forth to speak with you alone.\n"
+        "Enter then and tell the king what thou hast seen today across the city.\n"
+        "\n"
+        "MESSENGER. Woe's me, woe's me!\n"
+        "Exeunt.\n"
+        "\n"
+        "PELEUS. O my prophetic soul, what ill it bodes.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0] == {
+        "speaker_printed": "DEIANIRA",
+        "text": "Sudden from her home was torn.",
+    }
+    assert speeches[1] == {
+        "speaker_printed": "LICHAS",
+        "text": "Lady, what message shall I bear my lord?",
+        "directions_before": ["Enter DEIANIRA."],
+    }
+    assert speeches[2] == {
+        "speaker_printed": "HYLLUS",
+        "text": "Mother, I would that one wish were granted me.",
+        "directions_before": ["Re-enter LICHAS."],
+    }
+    assert speeches[3]["speaker_printed"] == "CHORUS"
+    assert speeches[3]["directions_before"] == ["Exit HYLLUS."]
+    assert speeches[3]["text"] == (
+        "The curses work; the buried live again.\n"
+        "Enter the halls and speak.\n"
+        "The rest can wait until the dawn.\n"
+        "Enter this house. For me the host whose heart\n"
+        "Leaps out in welcome, rather than the rich."
+    )
+    assert speeches[4] == {
+        "speaker_printed": "NURSE",
+        "text": (
+            "I have stolen forth to speak with you alone.\n"
+            "Enter then and tell the king what thou hast seen today across the city."
+        ),
+    }
+    assert speeches[5] == {
+        "speaker_printed": "MESSENGER",
+        "text": "Woe's me, woe's me!",
+    }
+    assert speeches[6] == {
+        "speaker_printed": "PELEUS",
+        "text": "O my prophetic soul, what ill it bodes.",
+        "directions_before": ["Exeunt."],
+    }
+    for speech in speeches:
+        assert speech["text"].splitlines()[-1] not in {
+            "Enter DEIANIRA.",
+            "Re-enter LICHAS.",
+            "Exit HYLLUS.",
+            "Exeunt.",
+        }
+
+
+def test_loeb_ocr_short_spoken_line_beginning_enter_stays_verse():
+    """Grok review, 2026-09-22: the eight-word arm of `_bare_trailing_entrance`
+    accepted any short period-closed line beginning Enter/Exit; a spoken
+    line at the end of a speech ("Enter, friends, and see.") was moved
+    into the next speech's directions. It must name someone in roster
+    capitals, or be the bare verb."""
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. The curses work; the buried live again.\n"
+        "Enter, friends, and see.\n"
+        "\n"
+        "ELECTRA. Lo they come forth with gory hands.\n"
+        "Enter ORESTES and PYLADES from the palace.\n"
+        "\n"
+        "AEGISTHUS. Who knows where the Phocian strangers are?\n"
+        "Exeunt.\n"
+        "\n"
+        "PELEUS. O my prophetic soul, what ill it bodes.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0]["text"] == "The curses work; the buried live again.\nEnter, friends, and see."
+    assert "directions_before" not in speeches[1]
+    assert speeches[1]["text"] == "Lo they come forth with gory hands."
+    assert speeches[2]["directions_before"] == ["Enter ORESTES and PYLADES from the palace."]
+    assert speeches[3]["directions_before"] == ["Exeunt."]
+
+
+def test_bare_direction_ignores_the_name_shared_with_the_block_above():
+    """Grok review, 2026-09-22 (#3): a one-line segment that ADDS a speaker
+    passes the interjection test, but the direction must name the speaker it
+    adds, not the one continuing from the block above. "[The CHORUS looks
+    up]" before the next chunk names the Chorus, who also speaks on the
+    Chorus-and-Aegisthus line; it stays where it was."""
+    from drama_pipeline.stage1_turn_english import _place_bare_speech_directions
+
+    def chorus_seg(sid, ref, nlines):
+        return {
+            "id": sid, "book": 1, "column": ref,
+            "lines": [{"n": int(ref) + i, "ref": str(int(ref) + i), "text": "x" * 40} for i in range(nlines)],
+            "speakers": [{"line": int(ref), "offset": 0, "label": "Χο.", "display": "Chorus"}],
+        }
+    shared = {
+        "id": "1:869", "book": 1, "column": "869",
+        "lines": [{"n": 869, "ref": "869", "text": "x" * 20}],
+        "speakers": [
+            {"line": 869, "offset": 0, "label": "Χο.", "display": "Chorus"},
+            {"line": 869, "offset": 10, "label": "Αι.", "display": "Aegisthus"},
+        ],
+    }
+    segments = [chorus_seg("1:855", "855", 14), shared, chorus_seg("1:870", "870", 1)]
+    chunks = [
+        {"id": "1:855", "text": "...Let him emerge the victor!"},
+        {"id": "1:870", "text": "Listen!", "directionsBefore": ["[The CHORUS looks up]"]},
+    ]
+    out = _place_bare_speech_directions(chunks, segments, {"Χο.": "Chorus", "Αι.": "Aegisthus"})
+    by_id = {c["id"]: c for c in out}
+    assert "1:869" not in by_id
+    assert by_id["1:870"]["directionsBefore"] == ["[The CHORUS looks up]"]

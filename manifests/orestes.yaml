@@ -27,8 +27,13 @@ english:
     footnotes: false
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
-    covered:
-      - { greek: "1292", by: "1288" }
+    # Coleridge's l n="1291" ("Keep a better look-out; it is not a contest of
+    # sitting still...") renders Greek 1292-1293 (σκέψασθέ νυν ἄμεινον· οὐχ
+    # ἕδρας ἀγών), not the lyric 1290-1291; Perseus numbers it a line early.
+    # Seated at 1292 so the spoken sentence stands beside its Greek (John,
+    # 2026-09-22: split the packed 1288 cell).
+    line_fixes:
+      "1291": "1292"
   secondary:
     id: way
     name: "A. S. Way (Loeb, 1912)"
@@ -78,7 +83,12 @@ citation:
       - { start: "546", end: "547", before: "556" }
       - { start: "579", end: "584", before: "587" }
       - { start: "651", end: "651", before: "657" }
-      - { start: "782", end: "782", before: "783" }
+      # Coleridge numbers this couplet in the printed order (his 782 is
+      # Diggle's 783, "You are right"), and both lines are Orestes/Pylades
+      # antilabe, so speakers cannot tell the readings apart. Until C6 stood
+      # down inside settled transpositions (2026-09-21) its position walk hid
+      # this; the declaration now says it.
+      - { start: "782", end: "782", before: "783", english_keyed: printed }
       - { start: "1488b", end: "1488b", before: "1489" }
       - { start: "1600", end: "1607", before: "1612" }
 

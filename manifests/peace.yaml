@@ -36,13 +36,16 @@ english:
       - { greek: "250", by: "252" }
       - { greek: "251", by: "252" }
       - { greek: "258", by: "257" }
-      - { greek: "894", by: "883" }
+      # Item 2 (play-peace-thirdpass-2026-09-21.md, B1): the old
+      # `{ greek: "894", by: "883" }` pointed backward and is gone: since the
+      # `splits` cut at 894 below (2026-09-21), 1:883 holds the 1912's 884b-893
+      # and 1:894 its own 894-908.
       - { greek: "1019", by: "987" }
       - { greek: "1124", by: "1122" }
       - { greek: "350-351", by: "346" }
-      - { greek: "443", by: "449" }
-      - { greek: "444", by: "450" }
-      - { greek: "446", by: "450" }
+      - { greek: "443", by: "441" }
+      - { greek: "444", by: "447" }
+      - { greek: "446", by: "447" }
       # Round 3: the "heave-ho" chant (Chorus/Hermes hauling the statue) --
       # 1:517's chunk ("Come then, come, and all together! Hah! hah! ...")
       # now carries 512-516; the DP moved the anchor from 512 to 517.
@@ -50,10 +53,10 @@ english:
       - { greek: "513", by: "517" }
       - { greek: "514", by: "517" }
       - { greek: "516", by: "517" }
-      - { greek: "541", by: "545" }
+      - { greek: "541", by: "535" }
       - { greek: "449", by: "447" }
-      - { greek: "452", by: "447" }
-      - { greek: "453", by: "447" }
+      - { greek: "452", by: "450" }
+      - { greek: "453", by: "450" }
       - { greek: "549", by: "548" }
       # Round 3: Trygaeus's "I grant you this much, so as not to trouble you
       # further" (1:333) is the 1912 text's "Come, I grant you that, but
@@ -67,13 +70,30 @@ english:
     # Greek changes speaker; the tail becomes its own speech under the label.
     splits:
       - { greek: "450", english: "If some ambitious man does not help us", speaker: "HERMES" }
+      # The 1912 runs Trygaeus's 884b-908 as one paragraph; the edition's
+      # row breaks at 894 (epeit' agona g' euthus), where the 1912 begins
+      # "Now that you have found Theoria again". The head then sits with
+      # 884b-893 in 1:883 and the tail with 894-908.
+      - { greek: "894", english: "Now that you have found Theoria again", speaker: "TRYGAEUS" }
     pins:
       - { greek: "253", english: "Oh! I beseech you! use some other honey", run: 2 }
-      # Item 2 (play-peace-findings #1) ATTEMPTED AND REVERTED, 2026-09-18:
-      # six pins to hold the Hermes/Trygaeus 405-425 conspiracy exchange to
-      # its own lines correctly placed the named text (verified against
-      # book-01.json) but pushed turn_text_turn_shift from 0.0989 to 0.1029,
-      # over the 0.10 ceiling (stage2 PASS -> FAIL). Reverted; see report.
+      # phere de, to dalion tod' embapso: the split at 894 adds a speech, and
+      # without this pin the fire-brand line slid up onto 958.
+      - { greek: "959", english: "Hold! I take this fire-brand first", run: 1 }
+      # edokas ede; -- holds the barley exchange behind the 959 pin.
+      - { greek: "963", english: "You have thrown it?", run: 1 }
+      # Item 4 (fix-peace-data-brief-2026-09-21.md; play-peace-findings #1)
+      # The Moon-and-Sun exchange, 405-425 (play-peace-findings #1): without
+      # these the 1912 column runs a whole speech behind. Each read against
+      # the Greek, 2026-09-18 and again 2026-09-21. Twice reverted because
+      # they pushed turn_text_turn_shift past 0.10 (0.097 to 0.101); the
+      # `splits` cut at 894 made the room.
+      - { greek: "405", english: "Hah! speak and perchance I shall let myself be softened.", run: 1 }
+      - { greek: "406", english: "Know then, that the Moon and that infamous Sun", run: 1 }
+      - { greek: "409", english: "What for?", run: 2 }
+      - { greek: "414", english: "'Tis then for this reason that these untrustworthy charioteers", run: 1 }
+      - { greek: "416", english: "Yes, certainly. So therefore, Hermes, my friend", run: 1 }
+      - { greek: "425", english: "Ah! how golden cups do influence me!", run: 1 }
       # Item 2 (play-peace-findings #2): the 1912's libation-prayer English
       # was declared as two dead `gaps` (removed above) when it sits one
       # segment late; these pins hold it to its own lines.
@@ -155,11 +175,79 @@ english:
       - { greek: "481", english: "The Megarians\naren’t making any effort.", run: 1 }
       - { greek: "483", english: "Yes, by Zeus, because they’re dying of hunger.", run: 1 }
       - { greek: "486", english: "Heave!", run: 1 }
+      # Grok read of the data branch (2026-09-22): the DP seated the First
+      # Servant's "You do it. I'll strip him of those skins" (1122-1126) at
+      # 1124 and pointed 1122 at it, backwards; the speech opens at 1122.
+      - { greek: "1122", english: "You do it. I’ll strip him", run: 1 }
+      - { greek: "487", english: "Heave away!", run: 1 }
+      - { greek: "488", english: "Heave!", run: 1 }
+      - { greek: "489", english: "By Zeus, pull!", run: 1 }
+      # Item 3 (play-peace-thirdpass-2026-09-21.md, A13): the Ionian/Cleon
+      # joke and "I'm going in to give the beast a drink" land one segment
+      # early (at 1:43, printing greek 42's line instead); this holds the
+      # pair to 43-49.
+      - { greek: "43", english: "Well, some youngster", run: 2 }
+      # Item 3 (B2): Trygaeus' "terrible act" reply is stranded one segment
+      # late; this holds it (and the 405/406 pins below) to its own Greek
+      # lines. Johnston's preceding "They're greater robbers than they used
+      # to be." gives Hermes a THIRD retort the edition does not mark (Coulon
+      # has Hermes speak only the single line 405 here; Johnston's extra
+      # interjection has no Greek speaker-change slot at 402 to pin to --
+      # verified: the pipeline fails loud, "the edition has no speaker
+      # change there" -- so it is left where the aligner puts it, the
+      # translator's own attribution, not a defect this lane can place.
+      - { greek: "403", english: "What’s more, I’ll tell you of a terrible act,", run: 1 }
+      - { greek: "405", english: "All right, tell me. You might win me over.", run: 1 }
+      - { greek: "406", english: "For some time the Moon and that rascal Sun", run: 1 }
+      # Item 3 (A4): the heave-cry cluster runs one segment early from 457
+      # on (Trygaeus' "make a real effort" line, printed correctly at 1:458
+      # by the primary, sits at Johnston's 1:457). A single pin with `run`
+      # does not carry across this packed line's several shares (tested:
+      # `run: 9` from here left 458-463 untouched); each cry is pinned to
+      # its own line instead.
+      - { greek: "457", english: "No, no!", run: 1 }
+      - { greek: "458", english: "All right, everyone make a real effort", run: 1 }
+      - { greek: "459", english: "Heave away!", run: 1 }
+      - { greek: "460", english: "Heave ho!", run: 1 }
+      - { greek: "461", english: "Come on, pull!", run: 1 }
+      - { greek: "462", english: "Pull even harder!", run: 1 }
+      - { greek: "463", english: "Heave . . . Come on, heave!", run: 1 }
+      # Item 3 (A8): the audience-faces byplay runs one to two segments
+      # early from 543 on.
+      - { greek: "543", english: "And let’s also take a look at faces", run: 2 }
+      - { greek: "545", english: "Can’t you see that man who makes battle crests?", run: 2 }
+      - { greek: "548", english: "See that one,", run: 1 }
+      # Item 3 (A9): the sacrifice hand-off runs one segment late from 1041.
+      - { greek: "1041", english: "I’ll take care of it.", run: 2 }
+      # Item 3 (A12): the "full of joy" ode opens one segment early, at
+      # 1:1124 instead of 1:1127.
+      - { greek: "1127", english: "I’m full of joy, yes, full of joy,", run: 1 }
+      # Item 3 (A10): Johnston's whole 346-360 speech is one unbroken
+      # paragraph (no internal break the pairer could use); this holds its
+      # true opening to 346, and covered declarations below carry the rest.
+      - { greek: "346", english: "How I wish to see that day at last!", run: 1 }
+      # The 346 pin above shifts the alignment enough that Trygaeus'
+      # "Well, come on" (correctly at 1:361 before this pin) slides back to
+      # 1:350; re-pin it to its own line.
+      - { greek: "361", english: "Well, come on.", run: 1 }
     # Greek 484-485's Hermes clause has no distinct Johnston sentence of its
     # own -- it is folded into the continuous 483-485 Trygaeus sentence
     # pinned at 483 -- so it is declared covered, not pinned.
     covered:
       - { greek: "484", by: "483" }
+      # Item 3 (A14 blanks, B5): 258's English is a genuine merge into 257's
+      # speech (both true); the rest are the same shape as 483/484 -- a
+      # single unbroken Johnston speech that runs past its own segment's
+      # greek span into the next one(s).
+      - { greek: "258", by: "257" }
+      - { greek: "350", by: "346" }
+      - { greek: "350-351", by: "346" }
+      - { greek: "541", by: "535" }
+      - { greek: "549", by: "548" }
+      # The unbroken FIRST SERVANT speech (1122-1126) opens at 1122; the
+      # 1122 pin above seats it there (Grok read, 2026-09-22; before that the
+      # aligner keyed it to 1124 and this row pointed the other way).
+      - { greek: "1124", by: "1122" }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

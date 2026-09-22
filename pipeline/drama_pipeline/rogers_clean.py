@@ -288,6 +288,11 @@ def _is_furniture(text: str, word: str) -> bool:
     )
 
 
+# Compiled once. A note body stops at any play's running head, not only the
+# play currently being converted: the join runs on the whole volume.
+_PAGE_HEADINGS = tuple(_heading_re(cfg.word) for cfg in PLAYS.values())
+
+
 # ---------------------------------------------------------------------------
 # Cues, verse, directions.
 
@@ -356,6 +361,23 @@ _GREEK_LETTER = re.compile(r"[Ͱ-Ͽἀ-῿]")
 # the usual cue grammar ever sees it.
 _LATEX_SMALL_CUE = re.compile(r"^\$\\text\{\\footnotesize\s+([^}]+)\}\$\s*(.*)$")
 _STAGE_NOTE = re.compile(r"^(Exit|Exeunt|Enter|Enters|Re-enters?)\b", re.I)
+# Genie wraps a few Ecclesiazusae cues in a small-caps span ("bl.", "pr.",
+# "chr."). genie_text._clean_line deletes every <span> together with what
+# is inside it, so the cue vanished and the verse stayed in the previous
+# speech. Lift those cues out before paragraphs() runs. A span that is not
+# one of these cues (a footnote letter, a Greek siglum) is left for that
+# strip. Only a span that opens the line is a cue; the same abbrevs inside
+# a footnote stay put.
+_SMALLCAPS_CUE_LINE = re.compile(
+    r"^(?P<indent>\s*)<span[^>]*font-variant:\s*small-caps[^>]*>"
+    r"\s*(?P<cue>bl|pr|chr)\.?\s*</span>(?P<rest>.*)$",
+    re.I,
+)
+# The same scene's next page is a markdown table, one speaker per row
+# ("| BL. | Right. |", "| | But what will you do |"). A Greek table
+# (Thesmophoriazusae's "| MN. | τί δ᾽ ἔστιν |") is not English dialogue.
+_TABLE_ROW = re.compile(r"^\|\s*([^|]*)\|\s*([^|]*)\|")
+_TABLE_RULE_CELL = re.compile(r"^:?-+:?$")
 
 
 def _call_letter(m: "re.Match[str]") -> str:
@@ -479,8 +501,180 @@ def _count_speeches(text: str, title: str) -> int:
     return len(speeches)
 
 
+def _lift_smallcaps_cues(raw: str) -> str:
+    """Turn a leading small-caps cue span into an ordinary ``BL.`` line."""
+    out: list[str] = []
+    for line in raw.splitlines():
+        m = _SMALLCAPS_CUE_LINE.match(line)
+        if m:
+            out.append(f"{m.group('indent')}{m.group('cue').upper()}. {m.group('rest')}")
+        else:
+            out.append(line)
+    if raw.endswith("\n"):
+        return "\n".join(out) + "\n"
+    return "\n".join(out)
+
+
+def _is_page_furniture(text: str) -> bool:
+    """Page number, volume signature, running head, or the index title."""
+    if text in ("INDEX", "***"):
+        return True
+    return bool(
+        _VOL_SIG.match(text)
+        or _PAGE_NUM.match(text)
+        or _ARISTOPHANES_HEAD.match(text)
+        or any(pat.match(text) for pat in _PAGE_HEADINGS)
+    )
+
+
+def _line_stops_note(line: str) -> bool:
+    """A wrapped note ends at a blank, the next call, or page furniture.
+
+    ``paragraphs()`` drops blanks, so the boundary has to be applied to the
+    raw line. A line that cleans to nothing (a run of ``&nbsp;`` only) is a
+    blank. ``---`` is the page marker.
+    """
+    if not line.strip() or line.strip() == "---":
+        return True
+    cleaned, _ = gt._clean_line(line)
+    if not cleaned:
+        return True
+    if _split_definitions(cleaned) is not None:
+        return True
+    return _is_page_furniture(cleaned)
+
+
+def _note_wraps(lines: list[str]) -> tuple[set[int], set[int]]:
+    """``(call lines that wrap, continuation line indexes)``.
+
+    A continuation is every physical line after the call until the next
+    blank, note call, page marker, or running head. Indexes are into
+    ``lines``, which is ``splitlines()`` of the Genie export.
+    """
+    calls: set[int] = set()
+    cont: set[int] = set()
+    i = 0
+    while i < len(lines):
+        cleaned, _ = gt._clean_line(lines[i])
+        if not cleaned or _split_definitions(cleaned) is None:
+            i += 1
+            continue
+        start = i
+        i += 1
+        wrapped = False
+        while i < len(lines) and not _line_stops_note(lines[i]):
+            cont.add(i)
+            wrapped = True
+            i += 1
+        if wrapped:
+            calls.add(start)
+    return calls, cont
+
+
+def _attach_wrapped_notes(
+    paras: list[gt.Paragraph],
+    lines: list[str],
+    calls: set[int],
+    cont: set[int],
+) -> list[gt.Paragraph]:
+    """Fold wrapped note lines into the call's paragraph.
+
+    Each physical line is cleaned on its own, the way ``paragraphs()``
+    already did. Joining the cleaned texts (rather than the raw lines, then
+    cleaning once) keeps a split italic marker from changing what the note
+    is: an ``Exit`` note whose closing ``*`` sits on the next line stays a
+    footnote, which is what a one-line note with that same text already was.
+    """
+    out: list[gt.Paragraph] = []
+    pi = 0
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if line.strip() == "---" or not line.strip():
+            i += 1
+            continue
+        cleaned, _ = gt._clean_line(line)
+        if not cleaned:
+            i += 1
+            continue
+        para = paras[pi]
+        pi += 1
+        i += 1
+        if i - 1 not in calls:
+            out.append(para)
+            continue
+        text = para.text
+        while i < len(lines) and i in cont:
+            text = f"{text} {paras[pi].text}"
+            pi += 1
+            i += 1
+        out.append(gt.Paragraph(text=text, italic=para.italic, page=para.page))
+    if pi != len(paras):
+        raise RuntimeError(
+            f"note-wrap lockstep consumed {pi} paragraphs of {len(paras)}"
+        )
+    return out
+
+
 def _load_genie() -> list[gt.Paragraph]:
-    return gt.paragraphs(GENIE_TEXT)
+    import tempfile
+
+    raw = GENIE_TEXT.read_text(encoding="utf-8")
+    orig_lines = raw.splitlines()
+    calls, cont = _note_wraps(orig_lines)
+    # Lift cues first, then put continuation lines back. A wrap that opens
+    # with a small-caps span must not become a ``CHR.`` cue line; once it
+    # is part of the note paragraph the span is ordinary note text.
+    lifted = _lift_smallcaps_cues(raw)
+    lines = lifted.splitlines()
+    if len(lines) != len(orig_lines):
+        raise RuntimeError("small-caps lift changed the Genie line count")
+    for idx in cont:
+        lines[idx] = orig_lines[idx]
+    # paragraphs() only reads a path, and it strips <span> contents. The
+    # Genie export itself is not ours to rewrite.
+    path: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", suffix=".txt", delete=False
+        ) as handle:
+            path = handle.name
+            handle.write("\n".join(lines) + ("\n" if raw.endswith("\n") else ""))
+        paras = gt.paragraphs(path)
+    finally:
+        if path is not None:
+            Path(path).unlink(missing_ok=True)
+    return _attach_wrapped_notes(paras, lines, calls, cont)
+
+
+def _take_table_row(resolved: str, cfg: _Play, writer: "_Writer") -> bool:
+    """A markdown table row that is really a cue. True if the row was ours."""
+    m = _TABLE_ROW.match(resolved.strip())
+    if not m:
+        return False
+    cue_cell = m.group(1).strip().strip("*")
+    body = m.group(2).strip()
+    if (
+        (not cue_cell and not body)
+        or _TABLE_RULE_CELL.match(cue_cell)
+        or _TABLE_RULE_CELL.match(body)
+    ):
+        return True
+    if _GREEK_LETTER.search(cue_cell) or _GREEK_LETTER.search(body):
+        return True
+    body = body.replace("*", "").strip()
+    if cue_cell:
+        printed = cue_cell.rstrip(".").strip()
+        if not re.fullmatch(r"[A-Z][A-Z .'\-]{0,12}", printed):
+            return False
+        cue = cfg.abbrev.get(printed, printed)
+        writer.cue(cue)
+        if body:
+            writer.line(body)
+        return True
+    if body:
+        writer.line(body)
+    return True
 
 
 def _real_start(paras: list[gt.Paragraph], title: str) -> int:
@@ -727,6 +921,9 @@ def _convert_body(
         if _GREEK_LETTER.search(resolved) and not _CUE_RE.match(resolved) and not resolved.startswith("["):
             writer.retain_calls(resolved)
             log.append(f"dropped\tGreek-bearing note-body apparatus, unattached: {resolved[:60]!r}")
+            continue
+
+        if _take_table_row(resolved, cfg, writer):
             continue
 
         compound = _COMPOUND_RE.match(resolved)

@@ -1,7 +1,7 @@
 AJAX
 
 ATHENA. Son of Laertes, ever on the prowl
-To seize some coign of vantage ’guinst thy foes,
+To seize some coign of vantage ’gainst thy foes,
 Now at the tent of Ajax by the ships,
 Where he is posted on the flank, I see thee
 Following the trail and scanning his fresh tracks,
@@ -120,9 +120,9 @@ ODYSSEUS. Well, when a god works, all is possible.
 
 ATHENA. Peace ! stand thy ground and budge not from the spot.
 
-ODYSSEUS. So will f—yet had liefer been far hence.
+ODYSSEUS. So will I—yet had liefer been far hence.
 
-ATHENA. Ho, Ajax! onee again I summon thee.
+ATHENA. Ho, Ajax! once again I summon thee.
 Say, Why this scant regard for thine ally?
 
 AJAX. Hail O Athena, Zeus-born maiden, hail!
@@ -154,7 +154,7 @@ AJAX. A welcome guest he sits within, fast bound,
 
 ATHENA. What would’st thou first ? what further profit win ?
 
-AJAX. PH bind him to a pillar of my tent.
+AJAX. I'll bind him to a pillar of my tent.
 
 ATHENA. What vengeance wilt thou wreak on the poor wretch ?
 
@@ -175,7 +175,7 @@ ATHENA. Odysseus, see how great the might of gods.
 Couldst thou have found a man more circumspect,
 Or one more prompt for all emergencies ?
 
-ODYSSEUS. I know none such, and though he be my toe,
+ODYSSEUS. I know none such, and though he be my foe,
 I still must pity him in his distress,
 Bound, hand and foot, to fatal destiny;
 And therein mind my case no less than his.
@@ -235,6 +235,7 @@ But if hovering in the sky
 The great vulture should appear,
 Mute they cower in sudden fear.
 Was it the Tauric Artemis, Jove’s daughter, —
+(O dread report, begetter of my shame !)
 Drave thee the flocks, our common stock, to
 slaughter’?
 Didst thou in victory rob her of her claim
@@ -323,7 +324,7 @@ When lightnings flash, his rage is past.
 But, now he is himself again,
 Reviving memory brings new pain.
 What keener anguish than to know
-Thyself so¥e cause of self-wrought woe?
+Thyself sole cause of self-wrought woe?
 
 CHORUS. Nay, if he have surcease, good hope is mine
 All may be well, for men are less concerned
@@ -406,7 +407,7 @@ Come, friends, and help me, if so be ye can—
 This was my errand—men in case like his
 Are won to reason by the words of friends.
 
-CHORUS. Tecmessa, daughter of Teleutps, dread
+CHORUS. Tecmessa, daughter of Teleutas, dread
 Thy tidings of our master thus distraught.
 
 AJAX. Woe, woe is me!
@@ -435,6 +436,7 @@ TECMESSA. I open,
 And thou mayst view his works and his own plight.
 
 AJAX. Mariners, ever leal and true,
+Alas my friends have left me, all but you,
 See how disasters whelmed me like a flood,
 And. now I welter in a surge of blood.
 
@@ -522,6 +524,7 @@ That flow from Ida’s hills,
 Streams to the Greeks so dear,
 Ne’er shall ye look on Ajax more ;
 A paladin whose peer
+(For I will utter a proud boast)
 In all the Grecian host
 That sailed from Hellas’ shore
 Troy ne’er beheld. But now
@@ -608,7 +611,7 @@ I shall be seized and haled away by force,
 I and thy son, prey to the Argive host,
 Our portion, slavery. Then shall I hear
 The flouts and gibes that my new lords let fly.
-“ Took on her,” one will say, “the leman once
+“ Look on her,” one will say, “the leman once
 Of Ajax, mightiest of the Argive chiefs,
 How has she fallen from her “place of pride ! ”
 Thus will they prate, and hard will be my lot,
@@ -658,7 +661,7 @@ TECMESSA. As the case stands, how can I do thy hest?
 
 AJAX. Let me speak to him—see him face to face.
 
-TECMESSA. Good ; he is in our servant?’ charge close by.
+TECMESSA. Good ; he is in our servants’ charge close by.
 
 AJAX. Then wherefore is his coming thus delayed ?
 
@@ -668,7 +671,7 @@ Whoever of you guides his infant steps.
 
 AJAX. Comes he, or has he failed to hear thy call?
 
-TECMESSA. I see one gust approaching with the boy.
+TECMESSA. I see one just approaching with the boy.
 
 AJAX. Lift him, O lift him to my arms; no dread,
 If he be mine, his father’s true-born son,
@@ -718,7 +721,7 @@ TECMESSA. O my lord Ajax, what is in thy heart?
 
 AJAX. Question not, ask not ; be discreet and wise.
 
-TECMESSA. Ah me, I quail, I faint. O hy thy child,
+TECMESSA. Ah me, I quail, I faint. O by thy child,
 By heaven I implore thee, fail us not.
 
 AJAX. Thou art importunate ; know’st not that I
@@ -768,6 +771,7 @@ Ah, when his mother, blanched with age and
 frail
 Hears of his shattered reason, what wild wail
 Will she upraise, a dirge of shrill despair,
+(No plaintive ditty of the nightingale)
 With beating of the breast and rending of white
 hair.
 Better be buried with the dead
@@ -1088,7 +1092,7 @@ CHORUS. By whose hand did he thus procure his death?
 TECMESSA. By his own hand, ’tis manifest ; the sword
 Set in the ground, on which he fell, is proof.
 
-CHORUS. Out 6n my blindness! All alone
+CHORUS. Out on my blindness! All alone
 Unwatched of friends he bled, to death !
 And I saw naught, heard naught, recked naught of
 thee !
@@ -1184,6 +1188,8 @@ TEUCER. Then woe is me for my most grievous loss.
 
 CHORUS. And since ’tis thus—
 
+TEUCER. Alas for me, alas!
+
 CHORUS. The hour for mourning—
 
 TEUCER. O sharp pang of pain !
@@ -1198,6 +1204,7 @@ CHORUS. Alone beside the tent.
 TEUCER. Then bring him quickly,
 Lest of our foemen one should snatch him up,
 As from a lioness forlorn her cub.
+Go quick, bestir thyself. ‘Tis the world’s way
 To flout and triumph o’er the prostrate dead.
 
 CHORUS. Yea, while he yet lived Ajax left to thee,
@@ -1299,12 +1306,28 @@ For in a State that hath no dread of law
 The laws can never prosper and prevail,
 Nor could an armèd force be disciplined
 Lacking the guard of awe and reverence.
+Nay, though a man should tower in thews and might,
+A giant o’er his fellows, let him think
+Some petty stroke of fate may work his ruin.
+Where dread prevails and reverence withal,
+Believe me, there is safety; but the State,
+Where arrogance hath licence and self-will,
+Though for a while she run before the gale,
+Will in the end make shipwreck and be sunk.
+Dread in its proper season and degree
+Must be maintained; let us not fondly dream
+That we can act at will to please ourselves,
+Nor pay the price of pleasure by our pains.
+‘Tis turn and turn; now this man lorded it
+In insolence; ‘tis now my hour of pride.
+So I forewarn thee bury him not, lest thou
+In burying shouldst dig thyself a grave.
 
 CHORUS. Sage ‘precepts these, my lord, and do not thou
 Thyself become a scoffer of the dead.
 
 TEUCER. Friends, I shall never marvel after this
-If any basebern fellow gives offence,
+If any baseborn fellow gives offence,
 When men who pride them on their lineage
 By their perverted utterance thus offend.
 Repeat thy tale: thou claimest to have brought
@@ -1327,6 +1350,7 @@ Thy wife that Ajax joined in the campaign,
 Like thy serf drudges, but to keep the oath
 Whereto he Had bound himself, no whit for thee;
 Of underlings like thee he took no heed.
+Go then and bring more heralds back with thee
 And the commander ; for thy noisy rant,
 Whilst thou art what thou art, I care no straw.
 
@@ -1596,7 +1620,7 @@ AGAMEMNON. Surely. I am not senseless, and I count
 Thee among all the Greeks my chiefest friend.
 
 ODYSSEUS. Then hear me. O for pity’s sake forbear,
--Repentgand let not violence and hate
+Repent, and let not violence and hate
 Blind thee to trample justice under foot.
 I also counted him my deadliest foe
 In all the army, ever since the day
@@ -1628,7 +1652,7 @@ AGAMEMNON. A true man ever heeds authority.
 
 ODYSSEUS. Forbear: thou conquerest, yielding unto friends.
 
-AGAMEMNON. Think fo what kind of man thou showest grace.
+AGAMEMNON. Think to what kind of man thou showest grace.
 
 ODYSSEUS. My foe he was, but still a noble foe.
 
@@ -1659,7 +1683,7 @@ ODYSSEUS. And who deserves my labour more than I?
 
 AGAMEMNON. Well, let it seem thy doing, friend, not mine.
 
-ODYSSEUS. Howe’ar ’tis done, twill prove thee good and kind.
+ODYSSEUS. Howe’er ’tis done, twill prove thee good and kind.
 
 AGAMEMNON. To thee, my friend, of this be well assured,
 I grant a favour greater e’en than this,
@@ -1704,6 +1728,7 @@ ODYSSEUS. Well I was fain to assist, but if your will
 Consents not, I will acquiesce and go.
 
 TEUCER. Enough: too long have we delayed.
+Go some with mattock armed and spade,
 Dig the grave pit speedily ;
 Lustral waters to supply,
 Others set the cauldron high,

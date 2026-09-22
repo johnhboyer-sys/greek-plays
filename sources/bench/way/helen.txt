@@ -1,5 +1,7 @@
 HELEN
 
+_HELEN discovered bowed in prayer at the tomb of Proteus. She rises and advances to the front of the stage._
+
 HELEN. Curse be the Nile’s fair-flowing virgin-streams,
 Who, fed with white snow melting, not with rain
 From heaven, waters Egypt’s lowland fields.
@@ -68,6 +70,8 @@ At Proteus’ tomb I cast me, suppliant
 That he may keep me unsullied for my lord,
 That, though through Hellas evil fame I bear,
 Mine honour here may take no stain of shame.
+
+_Enter TEUCER._
 
 TEUCER. Who hath the lordship of these castle-halls ?
 To Plutus’ palace might one liken them—
@@ -252,6 +256,8 @@ Death-dirges with mine! I would send
 Thank-offering of weeping and singing
 Of chants to her dead, unto those
 On whom Night’s gates close.
+
+_Enter CHORUS_
 
 CHORUS. I was spreading, where grass droops trailing
 In the river-flood’s darkling gleam,
@@ -498,6 +504,7 @@ desire
 Hath enkindled Dardanian Pergamus’ ruin-pyre,
 And hath given the Achaeans to slaughter.
 _They pass into the palace._
+_Enter MENELAUS._
 
 MENELAUS. Ah, Pelops, thou at Pisa victor once
 Over Oenomaus in chariot-strife,
@@ -671,6 +678,7 @@ Of other princes : yet it needs must be.
 Not mine the saying is, but wisdom’s saw—
 “ Stronger is nought than dread Necessity.”
 _Retires to back of stage._
+_Enter CHORUS._
 
 CHORUS. The word which the prophetess said,
 In the king’s halls heard I its sound—
@@ -685,6 +693,8 @@ Wretched, of friends bereft,
 Lighting down upon every shore
 Of earth, since the brine-dipt oar
 Troyland long ago left.”
+
+_Enter HELEN._
 
 HELEN. Lo, to my session at the tomb again
 I come, who have heard Theonoé’s glad words,
@@ -1211,7 +1221,7 @@ Present or absent still she knows of thee,
 How thou art come. O wretched I, undone !
 Thou, saved from Troy and from the alien land,
 Hast come to fall again by alien swords !
-handmaids in solemn procession.
+_Enter THEONOE attired as a priestess, with train of handmaids in solemn procession._
 
 THEONOE. Thou, bearing splendour of torches, pass before ;
 In solemn ritual incense all the air,
@@ -1241,7 +1251,7 @@ As Cypris wills, thy presence, ruining thee,
 Or, standing Hera’s ally, save thy life,
 Hiding it from my brother, who bids that I
 Declare it, when thou comest to our shore.
-_A pause_
+_A pause._
 Go, some one, tell my brother that this man
 Is here, that I of peril clear may stand.
 
@@ -1392,6 +1402,8 @@ Her will for thy deliverance and thy lord’s.
 And thou, dead sire, so far as in me lies,
 Impious for righteous ne’er shalt be misnamed.
 
+_Exit._
+
 CHORUS. None prospered ever by unrighteousness :
 In righteousness all hope of safety dwells.
 
@@ -1497,6 +1509,8 @@ And love-spells dark with blood of families ?
 Wouldst thou in measure come, thou wert to men
 Else kindest of the Gods: I hold this truth.
 
+_Exit._
+
 CHORUS. O thou in thine halls of song abiding,
 Under the greenwood leaves deep-hiding,
 I hail thee, I hail,
@@ -1554,7 +1568,7 @@ Now are her sons in depths of Hades lying ;
 Flame o’er her walls leapt, like Zeus’ levin-glare :
 Woes upon woes, and unto captives sighing
 Sorer afflictions still—thy gifts they were.
-ing weapons, nets, spoils of the chase, etc.
+_Enter THEOCLYMENUS, with hounds, and attendants carrying weapons, nets, spoils of the chase, etc._
 
 THEOCLYMENUS. Hail, my sire’s tomb !—for at my palace-gate,
 Proteus, I buried thee, to greet thee so:
@@ -1562,6 +1576,7 @@ Still as I enter and pass forth mine halls,
 Thee, father, I thy son Theoclymenus hail.
 Ho ye, my men, the hounds and hunting-nets
 Unto the palace-kennels take away.
+_Exeunt attendants._
 Many a time have I reproached myself
 That I have punished not yon knaves with death !
 Lo, now I hear of some Greek openly
@@ -1579,6 +1594,7 @@ That not for pains untried by me the wife
 I long for may escape the land unmarked.
 Nay, hold your hands! I see whom we would chase
 There in the palace standing, nowise fled.
+_Re-enter HELEN._
 Thou, why hast thou attired thee in dark robes,
 Thy white cast off, and from thy queenly head
 Hast thou with sweep of steel thy tresses shorn,
@@ -1783,6 +1799,8 @@ In kindness to thee: thou with more good will
 Shalt pay all dues to my beloved lord,
 Menelaus, if thou have thy due of us.
 
+_Exeunt MENELAUS, HELEN, and THEOCLYMENUS._
+
 CHORUS. The Mountain-goddess[11],! with feet swift-racing, (Str.1)
 Mother of Gods, rushed onward of yore
 By glens of the forest in frenzied chasing,
@@ -1878,7 +1896,9 @@ My marriage in the hollow of his hand :
 I must be silent, and thy loyalty
 I claim, and sealed lips, that we haply may,
 Ourselves delivered, one day save thee too.
-Attendants bearing funeral offerings.
+
+_Enter THEOCLYMENUS and MENELAUS, with train of attendants bearing funeral offerings._
+
 THEOCLYMENUS. Pass on in order, as the stranger bade,
 Thralls, bearing offerings destined to the sea.
 Helen, ‘thou—if thou take not ill my words—
@@ -1948,8 +1968,8 @@ These offerings cast to Helen’s sometime lord,
 Then homeward speed again with this my wife,
 That, having shared with me her spousal-feast,
 Thou mayst fare home, or here abide in bliss.
-_Exit,_
-Attendants pass on with the offerings.
+_Exit._
+_Attendants pass on with the offerings._
 
 MENELAUS. Zeus, Father art thou called, and the Wise God:
 Look upon us, and from our woes redeem ;
@@ -1961,6 +1981,8 @@ Oft have ye been invoked, ye Gods, to hear
 My joys and griefs: not endless ills I merit,
 But in plain paths to tread. Grant this one boon,
 And happy shall ye make me all my days.
+
+_Exeunt MENELAUS and HELEN._
 
 CHORUS. Swift galley Phoenician of Sidon,
 Foam sprang from the travail of thee,
@@ -2025,6 +2047,8 @@ The reproach of the strife upon Ida, whose guilt
 Unto her was requited,
 Though on Ilium’s towers, of Apollo upbuilt,
 Her feet never lighted.
+
+_Enter, meeting, KING from palace and MESSENGER from harbour._
 
 MESSENGER. King, all unwelcome in thine halls I meet thee,
 Since thou must straightway hear of me ill-news.
@@ -2273,6 +2297,7 @@ not to fulfil them ;
 And the paths undiscerned of our eyes, the Gods
 unseal them.
 So fell this marvellous thing.
+_Exeunt OMNES._
 
 Footnotes:
 [1] i.e. The purpose of God.

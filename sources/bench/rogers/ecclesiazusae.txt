@@ -1021,34 +1021,42 @@ CHREMES. I fancy you soon would be smelling of mint. [83]
 PRAXAGORA. But this, sir, is nonsense : it never could be.
 That whelp was begotten before the Decree.
 His kiss, it is plain, you can never obtain.
-The prospect I view with disgust and alarm.
+
+BLEPYRUS. The prospect I view with disgust and alarm.
 But who will attend to the work of the farm?
-All labour and toil to your slaves you will leave;
+
+PRAXAGORA. All labour and toil to your slaves you will leave;
 Your business ’twill be, when the shadows of eve
 Ten feet on the face of the dial are cast, [84]
 To scurry away to your evening repast.
-Our clothes, what of them?
-You have plenty in store,
+
+BLEPYRUS. Our clothes, what of them?
+
+PRAXAGORA. You have plenty in store,
 When these are worn out, we will weave you some
 more.
-Just one other thing. If an action they bring,
+
+BLEPYRUS. Just one other thing. If an action they bring,
 What funds will be mine for discharging the fine?
 You won’t pay it out of the stores, I opine.
-A fine to be paid when an action they bring!
+
+PRAXAGORA. A fine to be paid when an action they bring!
 Why bless you, our people won’t know such a thing
 As an action. [85]
-No actions! I feel a misgiving. [86]
+
+BLEPYRUS. No actions! I feel a misgiving. [86]
 Pray what are “our people” to do for a living?
-You are right: there are many will rue it.
-No doubt.
+
+CHREMES. You are right: there are many will rue it.
+
+PRAXAGORA. No doubt.
 But what can one then bring an action about?
-There are reasons in plenty; I’ll just mention one.
+
+BLEPYRUS. There are reasons in plenty; I’ll just mention one.
 If a debtor won’t pay you, pray what’s to be done?
-If a debtor won’t pay! Nay, but tell me, my friend,
+
+PRAXAGORA. If a debtor won’t pay! Nay, but tell me, my friend,
 How the creditor came by the money to lend?
-begin with.” “But how many will that ruin?” (i.e. by
-depriving them of the dicast’s fee). “And I too was thinking
-the same.”
 All money, I thought, to the stores had been brought.
 I’ve got a suspicion, I say it with grief,
 Your creditor’s surely a bit of a thief.
@@ -1093,37 +1101,43 @@ BLEPYRUS. Then where, may I ask, will our dinners be laid ?
 
 PRAXAGORA. Each court and arcade of the law shall be made
 A banqueting-hall for the citizens.
-| | |
-| :--- | :--- |
-| BL. | Right. |
-| | But what will you do with the desk for the speakers? |
-| PR. | I’ll make it a stand for the cups and the beakers; |
-| | And there shall the striplings be ranged to recite [88] |
-| | The deeds of the brave, and the joys of the fight, |
-| | And the cowards’ disgrace; till out of the place |
-| | Each coward shall slink with a very red face, |
-| | Not stopping to dine. |
-| BL. | O but that will be fine. |
-| | And what of the balloting-booths? [89] |
-| PR. | They shall go |
-| | To the head of the market-place, all in a row, |
-| | And there by Harmodius taking my station, |
-| | I’ll tickets dispense to the whole of the nation, |
-| | Till each one has got his particular lot, |
-| | And manfully bustles along to the sign |
-| | Of the letter whereat he’s empanelled to dine. |
-| | The man who has A shall be ushered away |
-| | To the Royal Arcade; to the next will go B; |
-| | And C to the Cornmarket. |
-| BL. | Merely to see? |
-| PR. | No, fool, but to dine. |
-| BL. | ’Tis an excellent plan. |
-| | Then he who gets never a letter, poor man, |
-| | Gets never a dinner. |
-| PR. | But ’twill not be so. |
-| | There’ll be plenty for all, and to spare. |
-| | No stint and no grudging our system will know, |
-| | But each will away from the revelry go, |
+
+BLEPYRUS. Right.
+But what will you do with the desk for the speakers?
+
+PRAXAGORA. I’ll make it a stand for the cups and the beakers;
+And there shall the striplings be ranged to recite [88]
+The deeds of the brave, and the joys of the fight,
+And the cowards’ disgrace; till out of the place
+Each coward shall slink with a very red face,
+Not stopping to dine.
+
+BLEPYRUS. O but that will be fine.
+And what of the balloting-booths? [89]
+
+PRAXAGORA. They shall go
+To the head of the market-place, all in a row,
+And there by Harmodius taking my station,
+I’ll tickets dispense to the whole of the nation,
+Till each one has got his particular lot,
+And manfully bustles along to the sign
+Of the letter whereat he’s empanelled to dine.
+The man who has A shall be ushered away
+To the Royal Arcade; to the next will go B;
+And C to the Cornmarket.
+
+BLEPYRUS. Merely to see?
+
+PRAXAGORA. No, fool, but to dine.
+
+BLEPYRUS. ’Tis an excellent plan.
+Then he who gets never a letter, poor man,
+Gets never a dinner.
+
+PRAXAGORA. But ’twill not be so.
+There’ll be plenty for all, and to spare.
+No stint and no grudging our system will know,
+But each will away from the revelry go,
 Elated and grand, with a torch in his hand
 And a garland of flowers in his hair.
 And then through the streets as they wander, a lot
@@ -2039,7 +2053,7 @@ Footnotes:
 [42] The Chorus leave the orchestra for a time. Enter Blepyrus in his wife's dress.
 [43] βούλεται εἰπεῖν ὡς ὅτι ἠπειγόμην ἀποπατῆσαι : Schol. He plays on the name of an Attic deme, οἱ Κόπρειοι.
 [44] Women's slippers; C. 151, L. 229, T. 734.
-[45] C. was notorious for having defiled a shrine of Hecate;
+[45] C. was notorious for having defiled a shrine of Hecate; F. 366.
 [46] Funem cacas.
 [47] T. seems to have promised the Spartans to speak on their behalf, probably against the Anti-Spartan league, and to have reconsidered the matter, and excused himself to them; alleging
 [48] That is, the ‘acrid pear’ (ἀχράς) which stopped up the bowels (355), with a play on the name of a deme, ’Αχερδούσιος.
@@ -2048,7 +2062,7 @@ Footnotes:
 [51] The σκωραμίς, a vessel ἐν ᾧ ἀποπατοῦσι (Schol.), doubtless had a plug. Enter Chremes, the other neighbour.
 [52] The ληξίαρχοι, or Registrars, used to send in Scythians with a rope smeared with ruddle, with which they roped into the Assembly those who stood in the agora; cf. A. 21.
 [53] " τονδὶ φέρων. He points to his empty θύλακον. I have substituted these words for the τὸν θύλακον of the mss. and editions, which in my opinion was originally a gloss on τονδί, and
-[54] From Aesch. Myrmidons fragm. :
+[54] From Aesch. Myrmidons fragm. : 'Αντίλοχ', ἀποίμωξόν με τοῦ τεθνηκότος τὸν ζῶντα μᾶλλον. Weep, Antilochus, Rather for me, the living, than for him, The loved and lost Patroclus.
 [55] N. made a fortune from dealing in grain; Xen. Mem. ii. 7.
 [56] “A pauper, whose clothes are so scanty and threadbare that people cannot perceive that he has any on : ” R.
 [57] “ A half-guinea salvation,” here as the price of a new suit of clothes, which he obviously needs.
@@ -2079,9 +2093,9 @@ Footnotes:
 [82] " μὴ τὸν ἐκείνου. Sc. πατέρα, the bystander's father. So I think we should read for the common μὴ αὐτὸν ἐκεῖνον, which does not give the sense required " : R. Plato, Rep. v. 465 B τὸ τῷ πάσχοντι τοὺς ἄλλους βοηθεῖν, τοὺς μὲν ὡς υἱεῖς, τοὺς δὲ ὡς ἀδελφούς, τοὺς δὲ ὡς πατέρας. Bystanders will protect a man assaulted, because he may be their own father, etc.
 [83] A play on μίνθος, dung, with which A.'s face had on some occasion been smeared ; P. 314.
 [84] " 'When the (shadow of the) gnomon is ten feet long,' that is to say, rather more than half an hour before sunset. In the primitive dials of which Aristophanes is speaking the hour was determined not by the direction, but by the length of the shadow. And according to the most careful observation which I have been able to make or procure, an object casts a shadow of " over twenty-two " times its own height at sunset, and a shadow of ten times its own height about thirty-one minutes earlier. It is plain therefore that the gnomon or (as we are accustomed to call it) index of an Athenian dial was one foot in height, rising vertically from the ground ": R.
-[85] οὐδὲ δίκαι. Plato, Rep. v. 464 τί δέ; δίκαι τε καὶ ἐγκλήματα
-[86] Lines 657–8: “But there will never be any actions to
-[87] Plato, Rep. vii. 45-8 c οἰκίας τε καὶ ξυσσίτια κοινὰ ἔχοντες,
+[85] οὐδὲ δίκαι. Plato, Rep. v. 464 τί δέ; δίκαι τε καὶ ἐγκλήματα πρὸς ἀλλήλους οὐκ οἰχήσεται ἐξ αὐτῶν, ὡς ἔπος εἰπεῖν, διὰ τὸ μηδὲν ἴδιον ἐκτῆσθαι πλὴν τὸ σῶμα, τὰ δ’ ἄλλα κοινά.
+[86] Lines 657–8: “But there will never be any actions to begin with.” “But how many will that ruin?” (i.e. by depriving them of the dicast’s fee). “And I too was thinking the same.”
+[87] Plato, Rep. vii. 45-8 c οἰκίας τε καὶ ξυσσίτια κοινὰ ἔχοντες, ἰδίᾳ δὲ οὐδενὸς οὐδὲν τοιοῦτο κεκτημένου.
 [88] Cf. P. 1265-1304.
 [89] See Aristotle, Constitution of Athens, col. 31. 15-18 εἰσὶ δὲ κανονίδες (ticket-grooves) [δέκα ἐ]ν ἑκάστῳ τῶν κληρωτηρίων. It was the custom to affix to each of the halls of justice one of the second ten letters of the alphabet (from Λ onwards): the dicastic sections,
 [90] By folia biferae fici he signifies τὸ αἰδοῖον.
