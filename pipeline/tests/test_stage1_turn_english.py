@@ -6806,3 +6806,63 @@ def test_loeb_ocr_unbracketed_trailing_entrance_is_the_next_speechs_direction():
             "Exit HYLLUS.",
             "Exeunt.",
         }
+
+
+def test_loeb_ocr_short_spoken_line_beginning_enter_stays_verse():
+    """Grok review, 2026-09-22: the eight-word arm of `_bare_trailing_entrance`
+    accepted any short period-closed line beginning Enter/Exit; a spoken
+    line at the end of a speech ("Enter, friends, and see.") was moved
+    into the next speech's directions. It must name someone in roster
+    capitals, or be the bare verb."""
+    text = (
+        "THE PLAY\n\n"
+        "CHORUS. The curses work; the buried live again.\n"
+        "Enter, friends, and see.\n"
+        "\n"
+        "ELECTRA. Lo they come forth with gory hands.\n"
+        "Enter ORESTES and PYLADES from the palace.\n"
+        "\n"
+        "AEGISTHUS. Who knows where the Phocian strangers are?\n"
+        "Exeunt.\n"
+        "\n"
+        "PELEUS. O my prophetic soul, what ill it bodes.\n"
+    )
+    speeches, _notes = parse_play_speeches(text, "THE PLAY", format="loeb-ocr", verse=True)
+    assert speeches[0]["text"] == "The curses work; the buried live again.\nEnter, friends, and see."
+    assert "directions_before" not in speeches[1]
+    assert speeches[1]["text"] == "Lo they come forth with gory hands."
+    assert speeches[2]["directions_before"] == ["Enter ORESTES and PYLADES from the palace."]
+    assert speeches[3]["directions_before"] == ["Exeunt."]
+
+
+def test_bare_direction_ignores_the_name_shared_with_the_block_above():
+    """Grok review, 2026-09-22 (#3): a one-line segment that ADDS a speaker
+    passes the interjection test, but the direction must name the speaker it
+    adds, not the one continuing from the block above. "[The CHORUS looks
+    up]" before the next chunk names the Chorus, who also speaks on the
+    Chorus-and-Aegisthus line; it stays where it was."""
+    from drama_pipeline.stage1_turn_english import _place_bare_speech_directions
+
+    def chorus_seg(sid, ref, nlines):
+        return {
+            "id": sid, "book": 1, "column": ref,
+            "lines": [{"n": int(ref) + i, "ref": str(int(ref) + i), "text": "x" * 40} for i in range(nlines)],
+            "speakers": [{"line": int(ref), "offset": 0, "label": "Χο.", "display": "Chorus"}],
+        }
+    shared = {
+        "id": "1:869", "book": 1, "column": "869",
+        "lines": [{"n": 869, "ref": "869", "text": "x" * 20}],
+        "speakers": [
+            {"line": 869, "offset": 0, "label": "Χο.", "display": "Chorus"},
+            {"line": 869, "offset": 10, "label": "Αι.", "display": "Aegisthus"},
+        ],
+    }
+    segments = [chorus_seg("1:855", "855", 14), shared, chorus_seg("1:870", "870", 1)]
+    chunks = [
+        {"id": "1:855", "text": "...Let him emerge the victor!"},
+        {"id": "1:870", "text": "Listen!", "directionsBefore": ["[The CHORUS looks up]"]},
+    ]
+    out = _place_bare_speech_directions(chunks, segments, {"Χο.": "Chorus", "Αι.": "Aegisthus"})
+    by_id = {c["id"]: c for c in out}
+    assert "1:869" not in by_id
+    assert by_id["1:870"]["directionsBefore"] == ["[The CHORUS looks up]"]

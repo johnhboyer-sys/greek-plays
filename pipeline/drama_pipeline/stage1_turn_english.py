@@ -960,8 +960,14 @@ def _bare_trailing_entrance(s: str) -> str | None:
         return s
     if _is_roster_name_phrase(rest):
         return s
+    # A short period-closed line is one only when it names someone in
+    # roster capitals ("Enter ORESTES and PYLADES from the palace.") or is
+    # the bare verb ("Exeunt."). "Enter, friends, and see." is spoken verse
+    # (Grok review, 2026-09-22).
     if s.rstrip().endswith(".") and 0 < len(s.split()) <= _BARE_ENTRANCE_MAX_WORDS:
-        return s
+        rest_words = [w for w in re.split(r"[\s,]+", rest.rstrip(".")) if w]
+        if not rest_words or any(_ROSTER_WORD.fullmatch(w) for w in rest_words):
+            return s
     return None
 
 
@@ -2015,7 +2021,10 @@ def _place_bare_speech_directions(
 
             if gap and all(is_interjection(k) for k in gap):
                 target = segments[gap[0]]
-                matched = _directions_naming(before, set(named(target)), aliases)
+                # Only the speaker the line ADDS can be the one a direction
+                # stands for; a name shared with the block above is its
+                # continuation (Grok review, 2026-09-22).
+                matched = _directions_naming(before, set(named(target)) - prior_own, aliases)
                 if matched:
                     remaining = [d for d in before if d not in matched]
                     bare = {

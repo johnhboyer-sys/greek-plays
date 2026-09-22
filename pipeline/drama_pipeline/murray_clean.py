@@ -404,6 +404,8 @@ def convert_play(work_id: str) -> Converted:
         if len(matches) != 1:
             raise ValueError(f"{work_id}: expected one exact {missing!r} line, found {len(matches)}")
         patch_lines = read_text(SOURCES_DIR / "gutenberg" / patch_path).splitlines()
+        if not patch_lines or not patch_lines[0].startswith("#"):
+            raise ValueError(f"{work_id}: patch {patch_path} must open with a '#' header line")
         lines[matches[0] : matches[0] + 1] = patch_lines[1:]
         raw = "\n".join(lines)
     return convert_gutenberg(raw, title, start=start, end=end)
