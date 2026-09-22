@@ -598,6 +598,12 @@ def test_vendored_text_is_the_converter_output(work_id):
     assert len(_speeches(out.text, title)) == out.speeches
 
 
+def test_iphigenia_in_tauris_patch_replaces_the_missing_page():
+    out = convert_play("iphigenia-in-tauris")
+    assert "Sending Completed Page" not in out.text
+    assert out.text.count("Where is the priest who does this cruelty?") == 1
+
+
 def test_gutenberg_italic_paragraph_without_brackets_is_a_direction():
     text = """\
 *** START OF THE PROJECT GUTENBERG EBOOK ***
