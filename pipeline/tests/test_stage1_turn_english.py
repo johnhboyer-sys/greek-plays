@@ -5499,6 +5499,63 @@ def _paired(
     )
 
 
+def test_pin_exempts_its_drift_and_sets_the_next_pair_baseline(tmp_path):
+    """A pin fixes a one-speech Beta offset without charging its onset twice."""
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Α.", 1),
+        _numbered("1:2", ["2"], "Β.", 2),
+        _numbered("1:3", ["3"], "Α.", 3),
+        _numbered("1:4", ["4"], "Β.", 4),
+        _numbered("1:5", ["5"], "Β.", 5),
+    )
+    source = (
+        "ALPHA. First.\nALPHA. Second.\n"
+        "BETA. Third.\nBETA. Fourth."
+    )
+    _plain, _fn, without_pin = _paired(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES
+    )
+    _pinned, _fn, with_pin = _paired(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES,
+        pins=[{"greek": "4", "english": "Third."}],
+    )
+    assert without_pin["turn_shift_new_drifts"] == 1
+    assert without_pin["turn_shift_rate"] == 1 / 4
+    assert with_pin["turn_shift_new_drifts"] == 0
+    assert with_pin["turn_shift_rate"] == 0.0
+
+
+def test_crossing_fallback_only_exempts_the_pin_it_kept(tmp_path):
+    """A dropped crossing pin does not mark its replacement pair as pinned."""
+    from drama_pipeline import pair_dp, stage1_turn_english as m
+
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Α.", 1),
+        _numbered("1:2", ["2"], "Β.", 2),
+        _numbered("1:3", ["3"], "Β.", 3),
+    )
+    source = "BETA. First.\nALPHA. Second.\nBETA. Third."
+    blocks = [{"start": "1", "end": "1", "before": "3"}]
+    _english, _fn, report = _paired(
+        tmp_path, source, spine, _T_SIGLA, _T_ALIASES,
+        blocks=blocks,
+        pins=[
+            {"greek": "1", "english": "Second."},
+            {"greek": "2", "english": "First."},
+        ],
+    )
+    result = m._align_speech_runs(
+        [pair_dp.GreekNode(name=n, chars=20) for n in ["Alpha", "Beta", "Beta"]],
+        [pair_dp.EnglishNode(name=n, chars=20) for n in ["Beta", "Alpha", "Beta"]],
+        ["Alpha", "Beta", "Beta"], [(0, 1), (1, 0)], None,
+        [(20, "g")] * 3, ["1", "2", "3"], "test", "test",
+        transpositions=blocks,
+    )
+    assert result.pinned_pairs == {(0, 1)}
+    assert report["turn_shift_new_drifts"] == 1
+    assert report["turn_shift_rate"] == 1 / 2
+
+
 def test_r1_a_repeated_ref_does_not_seat_a_turn_of_its_own(tmp_path):
     """Septem 803/810: the edition prints the ref twice, the translator once.
 
