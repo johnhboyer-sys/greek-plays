@@ -5770,6 +5770,204 @@ def test_r6_a_bare_cry_is_covered_by_the_row_above():
     assert out == {"1:1066": "1:1065"}
 
 
+# --- bare stage direction in place of a Greek speech (option B, 2026-09-22) -
+
+
+def _named_seg(sid, ref, label, display):
+    """A one-line Greek segment with its OWN named speaker -- Libation
+    Bearers 869's Aegisthus, mid Chorus ode, not a bare continuation."""
+    return {
+        "id": sid, "book": 1, "column": ref,
+        "lines": [{"n": int(ref), "ref": ref, "text": "x" * 20}],
+        "speakers": [{"line": int(ref), "offset": 0, "label": label, "display": display}],
+    }
+
+
+# Round 2's naming guard compares the direction text against the speaker's
+# RESOLVED display, not the raw Greek label -- these fixtures need a sigla
+# map to resolve "Αι." to "Aegisthus" (a bare, unmapped label would never
+# match an English direction word for word).
+_AEGISTHUS_SIGLA = {"Αι.": "Aegisthus"}
+
+
+def test_bare_direction_moves_to_the_greek_speech_it_stands_for():
+    """Libation Bearers 869: Johnston prints no words for Aegisthus's cry,
+    only "[Aegisthus screams in pain from inside the palace]" between the
+    Chorus's ode (ending "Let him emerge the victor!") and the Chorus's
+    "Listen! What was that?". `_parse_as_speeches` has no Greek to know
+    better, so the direction lands on the FOLLOWING chunk's
+    `directionsBefore`. `_place_bare_speech_directions` gives the one-line,
+    named Aegisthus segment a chunk of its own instead -- empty text, no
+    speaker, carrying the direction -- and the block above keeps its own
+    text unchanged."""
+    from drama_pipeline.stage1_turn_english import _place_bare_speech_directions
+
+    segments = [
+        _seg("1:855", 14, 842),
+        _named_seg("1:869", "869", "Αι.", "Aegisthus"),
+        _seg("1:870", 1, 857),
+    ]
+    chunks = [
+        {"id": "1:855", "text": "...Let him emerge the victor!"},
+        {
+            "id": "1:870",
+            "text": "Listen!\nWhat was that?",
+            "directionsBefore": ["[Aegisthus screams in pain from inside the palace]"],
+        },
+    ]
+    out = _place_bare_speech_directions(chunks, segments, _AEGISTHUS_SIGLA)
+    by_id = {c["id"]: c for c in out}
+    assert by_id["1:855"]["text"] == "...Let him emerge the victor!"
+    assert by_id["1:869"]["text"] == ""
+    assert by_id["1:869"]["directionsBefore"] == [
+        "[Aegisthus screams in pain from inside the palace]"
+    ]
+    assert "turns" in by_id["1:869"] and by_id["1:869"]["turns"] == []
+    assert "directionsBefore" not in by_id["1:870"]
+    assert by_id["1:870"]["text"] == "Listen!\nWhat was that?"
+
+
+def test_bare_direction_keeps_a_dead_end_from_absorbing_the_greek_speech():
+    """The same case, run through `_content_covered` as it actually runs in
+    `parse_translation` -- `_place_bare_speech_directions` first, so that by
+    the time R6 looks for one-line holes, 1:869 already has a chunk of its
+    own and is never read as a hole the block above (1:855) absorbs. Before
+    the fix this was exactly R6's shape (`test_r6_a_bare_cry_is_covered_by_
+    the_row_above`) and 1:869 came back covered by 1:855 -- so the reader's
+    rowspan showed 1:855's last line, "Let him emerge the victor!", at
+    869's row instead of the direction."""
+    from drama_pipeline.stage1_turn_english import (
+        _content_covered,
+        _place_bare_speech_directions,
+    )
+
+    segments = [
+        _seg("1:855", 14, 842),
+        _named_seg("1:869", "869", "Αι.", "Aegisthus"),
+        _seg("1:870", 1, 857),
+    ]
+    chunks = [
+        {"id": "1:855", "text": "...Let him emerge the victor!"},
+        {
+            "id": "1:870",
+            "text": "Listen!\nWhat was that?",
+            "directionsBefore": ["[Aegisthus screams in pain from inside the palace]"],
+        },
+    ]
+    chunks = _place_bare_speech_directions(chunks, segments, _AEGISTHUS_SIGLA)
+    primary = _bridge({"1:855": "Zeus, Zeus, what shall I say.",
+                        "1:869": "Ah, ah, alas!", "1:870": "Ah! Ah! Alas!"})
+    assert _content_covered(segments, chunks, primary, {}) == {}
+
+
+def test_bare_direction_leaves_a_real_continuation_alone():
+    """A run of several bare Greek lines with NO speaker events of their own
+    -- an ordinary continuation `_spread_long_speeches` distributes -- is not
+    mistaken for "a direction stood in for these speeches" just because the
+    chunk after the run happens to open with one: only a run where every
+    segment is a one-line, NAMED speech qualifies (Aegisthus's cry is one
+    Greek line with its own speaker event; a bare continuation has none)."""
+    from drama_pipeline.stage1_turn_english import _place_bare_speech_directions
+
+    segments = [
+        _seg("1:1", 4, 1),
+        _seg("1:2", 1, 5),  # a bare continuation: no "speakers" of its own
+        _seg("1:3", 1, 6),  # likewise bare
+        _seg("1:9", 2, 8),
+    ]
+    for bare in segments[1:3]:
+        bare.pop("speakers", None)
+    chunks = [
+        {"id": "1:1", "text": "The long speech that continues past 1:2 and 1:3."},
+        {"id": "1:9", "text": "The next speech.", "directionsBefore": ["[Exit.]"]},
+    ]
+    out = _place_bare_speech_directions(chunks, segments)
+    by_id = {c["id"]: c for c in out}
+    assert "1:2" not in by_id and "1:3" not in by_id
+    assert by_id["1:9"]["directionsBefore"] == ["[Exit.]"]
+
+
+def test_bare_direction_leaves_a_direction_for_the_speech_after_alone():
+    """Rhesus 594 (round 2, a 44-play build, WRONG case): Way prints no line
+    for 594 at all -- "ATHENA appears above the stage." opens ATHENA's OWN
+    speech at 595, not Diomedes' one Greek line at 594. Diomedes reads
+    different from the Chorus above, so the OLD guard (different named
+    speaker, nothing else) grabbed the direction anyway. The direction
+    names Athena, not Diomedes, so the naming guard refuses it: 594 stays
+    blank, as it was, and 595 keeps its own direction and text."""
+    from drama_pipeline.stage1_turn_english import _place_bare_speech_directions
+
+    sigla = {"Χο.": "Chorus", "Δι.": "Diomedes", "Αθ.": "Athena"}
+    segments = [
+        _named_seg("1:590", "590", "Χο.", "Chorus"),
+        _named_seg("1:594", "594", "Δι.", "Diomedes"),
+        _named_seg("1:595", "595", "Αθ.", "Athena"),
+    ]
+    chunks = [
+        {"id": "1:590", "text": "The Chorus's own line."},
+        {
+            "id": "1:595",
+            "text": "Diomedes, hold! I am no enemy of yours.",
+            "directionsBefore": ["ATHENA appears above the stage."],
+        },
+    ]
+    out = _place_bare_speech_directions(chunks, segments, sigla)
+    by_id = {c["id"]: c for c in out}
+    assert "1:594" not in by_id
+    assert by_id["1:595"]["directionsBefore"] == ["ATHENA appears above the stage."]
+    assert by_id["1:595"]["text"] == "Diomedes, hold! I am no enemy of yours."
+
+
+def test_bare_direction_leaves_the_previous_speakers_claim_for_the_spread():
+    """Troades 1231 (round 2, a 44-play build, WRONG case): "[During these
+    lines HECUBA, kneeling by the body, weeps...]" names HECUBA, the speaker
+    of the block ABOVE (1230) -- not Chorus, the speaker of the interjecting
+    line at 1231 itself. The old guard grabbed it anyway (Chorus differs
+    from Hecuba) and gave 1231 an empty chunk of its own, pre-empting
+    `_spread_long_speeches`'s reading of 1231 as a claimed continuation of
+    Hecuba's turn (an aligner-claimed change of voice, a "dash") and pushing
+    the Chorus's real line up into 1230's row. The naming guard leaves 1231
+    chunkless, so the claimed spread still reaches it."""
+    from drama_pipeline.stage1_turn_english import (
+        _place_bare_speech_directions,
+        _spread_long_speeches,
+    )
+
+    sigla = {"Εκ.": "Hecuba", "Χο.": "Chorus"}
+    segments = [
+        _named_seg("1:1230", "1230", "Εκ.", "Hecuba"),
+        _named_seg("1:1231", "1231", "Χο.", "Chorus"),
+        _named_seg("1:1232", "1232", "Εκ.", "Hecuba"),
+    ]
+    chunks = [
+        {
+            "id": "1:1230",
+            "text": (
+                "Ah, the endless grief of Troy is heavy and long. "
+                "Grief follows grief across these fallen streets forever more."
+            ),
+            "turns": [], "notes": [], "markers": [],
+        },
+        {
+            "id": "1:1232",
+            "text": "And the infinite wrong that has come upon you!",
+            "directionsBefore": [
+                "[During these lines HECUBA, kneeling by the body, weeps.]"
+            ],
+        },
+    ]
+    out = _place_bare_speech_directions(chunks, segments, sigla)
+    by_id = {c["id"]: c for c in out}
+    assert "1:1231" not in by_id
+    assert by_id["1:1232"]["directionsBefore"] == [
+        "[During these lines HECUBA, kneeling by the body, weeps.]"
+    ]
+
+    spread = _spread_long_speeches(out, segments, sigla, claimed={"1:1231": "1:1230"})
+    spread_by_id = {c["id"]: c for c in spread}
+    assert spread_by_id["1:1231"]["text"].strip() != ""
+
+
 def test_r6_a_two_line_hole_still_says_nothing():
     """The other side of R6's line: a hole of more than one Greek line, or one
     whose own row above is bare too, is not "absorbed into the turn above" and

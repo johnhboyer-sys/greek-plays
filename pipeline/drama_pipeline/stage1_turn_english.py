@@ -1898,6 +1898,149 @@ def _greek_line_counts(segments: list[dict]) -> dict[str, int]:
     }
 
 
+def _name_pattern(name: str) -> re.Pattern:
+    """A case-insensitive, whole-word pattern for one speaker's display
+    name (multi-word names match across ordinary whitespace)."""
+    body = r"\s+".join(re.escape(w) for w in name.split())
+    return re.compile(rf"(?<!\w){body}(?!\w)", re.IGNORECASE)
+
+
+def _directions_naming(
+    directions: list[str], names: set[str], aliases: dict[str, str]
+) -> list[str]:
+    """The ``directions`` that actually NAME one of ``names`` -- the
+    Greek-resolved speaker(s) of the interjecting line -- either by that
+    display itself or by a printed English cue the manifest's own
+    ``speakers.english`` map (``aliases``: printed cue -> canonical display,
+    the same map `parse_translation` reads speaker labels against) assigns
+    to that character. ATHENA names Athena, not Diomedes (Rhesus 594), and
+    HECUBA names Hecuba, not Chorus (Troades 1231): neither passes this test
+    for the OTHER character's interjecting line, however different that
+    character reads from the block above (2026-09-22 finding)."""
+    if not names:
+        return []
+    candidates = set(names) | {
+        printed for printed, canonical in aliases.items() if canonical in names
+    }
+    patterns = [_name_pattern(c) for c in candidates if c]
+    return [d for d in directions if any(p.search(d) for p in patterns)]
+
+
+def _place_bare_speech_directions(
+    chunks: list[dict],
+    segments: list[dict],
+    sigla=None,
+    aliases: dict[str, str] | None = None,
+) -> list[dict]:
+    """A stage direction the translator prints in place of a Greek speech --
+    no words of his own for it -- belongs beside THAT speech, not the one
+    that follows (John, 2026-09-22, option B).
+
+    `_parse_as_speeches` cannot tell the two apart: it sees only English, and
+    a direction sitting between two speeches with nothing of its own is, to
+    it, simply the opening of the next one (`directions_before` becomes the
+    following chunk's `directionsBefore`). The Greek is in scope here, so
+    where a chunk opens with a direction and the one-line Greek speech(es)
+    between it and the chunk before it name a DIFFERENT character than the
+    block above -- own no chunk of their own -- the direction moves to a
+    bare chunk there instead: empty text, no speaker, so the reader shows it
+    in that speech's own cell rather than lifting it to a row before the
+    speech after (the motivating case, Libation Bearers 869: Johnston prints
+    only "[Aegisthus screams in pain from inside the palace]" between the
+    Chorus's ode and the Chorus's "Listen!", and the Greek has Aegisthus's
+    one-line cry, a different speaker from the Chorus on both sides,
+    between them).
+
+    Run before `_content_covered`: giving 869 a chunk of its own here also
+    keeps R6 from reading it as a one-line hole the block above absorbs --
+    R6 only ever sees a segment with no chunk, and this one has one now, so
+    the block above stops where it is actually printed.
+
+    The "different character" guard is load-bearing, not incidental: without
+    it this rule also fires on an ordinary antilabe continuation -- Libation
+    Bearers 871 is one Greek line of the SAME "Chorus" the block on both
+    sides names (an anonymous `--` share, so it names no one at all), a
+    plain `_spread_long_speeches` continuation of the one undivided
+    "CHORUS MEMBERS" speech at 870-871 -- and grabbing it as if a direction
+    stood in for it left 870 holding all four printed lines and 871 bare.
+    Only a genuinely different, NAMED speaker reads as "a stage direction
+    stood in for this speech"; a same-name or anonymous share is the
+    ordinary continuation `_spread_long_speeches` already distributes.
+
+    A short run of several such speeches between the same two chunks cannot
+    be told apart either; the direction takes the first (least-wrong
+    reading -- nothing else in the bench says more).
+
+    Round 2 (a 44-play build, 2026-09-22): "different NAMED speaker" is
+    necessary but not sufficient. Rhesus 594 (Diomedes, different from the
+    Chorus above) grabbed "ATHENA appears above the stage." -- Way simply
+    has no line for 594, and the direction opens ATHENA's speech at 595.
+    Troades 1231 (Chorus, different from Hecuba above) grabbed a direction
+    naming HECUBA, pre-empting a `_spread_long_speeches` continuation that
+    was already reading 1231 correctly. The direction has to NAME the
+    interjecting speaker -- `_directions_naming`, matched case-insensitively
+    on word boundaries against that speaker's resolved display and any
+    English alias the manifest's own `speakers.english` map gives it -- or
+    the rule leaves it where `_parse_as_speeches` put it. A chunk with
+    several `directionsBefore` moves only the ones that name the speaker;
+    the rest stay put."""
+    if not isinstance(sigla, _SiglaResolver):
+        sigla = _SiglaResolver.from_map(sigla or {})
+    aliases = aliases or {}
+
+    def named(seg: dict) -> list[str]:
+        return [name for _ln, _off, name, _m in _segment_speaker_events(seg, sigla) if name]
+
+    by_id = {c["id"]: c for c in chunks}
+    prior_gi: int | None = None
+    prior_own: set[str] = set()
+    for gi, segment in enumerate(segments):
+        chunk = by_id.get(segment["id"])
+        if chunk is None:
+            continue
+        before = chunk.get("directionsBefore")
+        if before and prior_gi is not None:
+            gap = [
+                k for k in range(prior_gi + 1, gi)
+                if segments[k]["id"] not in by_id
+            ]
+
+            def is_interjection(k: int) -> bool:
+                seg_k = segments[k]
+                lines = seg_k.get("lines") or seg_k.get("greek") or []
+                if len(lines) != 1:
+                    return False
+                names = set(named(seg_k))
+                return bool(names) and not names <= prior_own
+
+            if gap and all(is_interjection(k) for k in gap):
+                target = segments[gap[0]]
+                matched = _directions_naming(before, set(named(target)), aliases)
+                if matched:
+                    remaining = [d for d in before if d not in matched]
+                    bare = {
+                        "id": target["id"],
+                        "book": target["book"],
+                        "column": target["column"],
+                        "text": "",
+                        "notes": [],
+                        "markers": [],
+                        "bekker": [],
+                        "turns": [],
+                        "approximate": True,
+                        "directionsBefore": matched,
+                    }
+                    chunks.append(bare)
+                    by_id[target["id"]] = bare
+                    if remaining:
+                        chunk["directionsBefore"] = remaining
+                    else:
+                        del chunk["directionsBefore"]
+        prior_gi = gi
+        prior_own = set(named(segment)[-1:])
+    return chunks
+
+
 def _plausible_covers(
     covered: dict[str, str], chunks: list[dict], segments: list[dict]
 ) -> dict[str, str]:
@@ -3692,6 +3835,12 @@ def parse_translation(
                 **({"directionsBefore": directions_before} if directions_before else {}),
             }
         )
+
+    # John, 2026-09-22, option B: a bare stage direction that stands in for a
+    # Greek speech (no words of the translator's own) moves to that speech's
+    # own chunk here, before anything downstream reads which segments are
+    # bare (`_content_covered`'s R6 among them).
+    chunks = _place_bare_speech_directions(chunks, segments, sigla, aliases)
 
     # No chunk-level `speakerMismatch` here (perseus-play keeps one for
     # pre-P2h compatibility): a flagged residual parks on the CURSOR segment,
