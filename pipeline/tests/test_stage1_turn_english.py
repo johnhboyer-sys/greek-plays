@@ -3370,7 +3370,7 @@ def test_speaker_line_accepts_a_digit_led_continuation_word():
 
 @pytest.mark.parametrize(
     "work, line_no, junk",
-    [("oedipus-tyrannus", 951, "WOU. 4, F"), ("electra-soph", 1775, "VQL. I. R")],
+    [("oedipus-tyrannus", 951, "WOU. 4, F"), ("electra-soph", 1780, "VQL. I. R")],
 )
 def test_bench_scanner_junk_lines_are_declared_line_fixes(work, line_no, junk):
     """The two spaced OCR artefacts are real `NAME. text` shapes, so the
