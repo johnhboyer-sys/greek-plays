@@ -2365,6 +2365,12 @@ def _align_speech_runs(
         else sorted({(offsets[lo], offsets[hi + 1] - 1) for lo, hi in applied})
     )
     out.pairs = sorted((heads[order[p]], ej) for p, ej in res.pairs)
+    # Only pins that this alignment actually seated are exempt from the onset
+    # metric.  The crossing fallback can drop pins, so `forced` is too broad.
+    seated_pins = keep if res_fallback else merged_pins
+    out.pinned_pairs = set(out.pairs) & {
+        (heads[r], ej) for r, ej in seated_pins
+    }
     out.english_skips = list(res.english_skips)
     out.margins = {(heads[order[p]], ej): m for (p, ej), m in res.margins.items()}
     # A matched run's continuations are translated with the speech above:
@@ -3612,6 +3618,7 @@ def parse_translation(
     # `new_drifts` is that onset count; the gate is `new_drifts / paired`.
     last_delta: dict[str, int] = {}
     new_drifts = 0
+    pinned_pairs = getattr(dp_result, "pinned_pairs", set())
     # ...and the onset walk runs in reading order too (the same order, since
     # the pairing is monotone in it).
     for k, ej in sorted(pairs, key=lambda pair: dp_at[pair[0]]):
@@ -3625,7 +3632,10 @@ def parse_translation(
             continue
         delta = e_ord[ej] - g_ord[k]
         prev = last_delta.get(name)
-        if (prev is None and delta != 0) or (prev is not None and delta != prev):
+        if (
+            (k, ej) not in pinned_pairs
+            and ((prev is None and delta != 0) or (prev is not None and delta != prev))
+        ):
             new_drifts += 1
         last_delta[name] = delta
     turn_shift_rate = (new_drifts / len(pairs)) if pairs else 0.0
