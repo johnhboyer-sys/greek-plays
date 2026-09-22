@@ -18,6 +18,7 @@ from drama_pipeline.hickie_clean import (
     PLAYS,
     _Play,
     _convert_body,
+    _is_cast_heading,
     _normalize,
     convert_play,
 )
@@ -174,8 +175,87 @@ def test_dropped_bare_pre_speech_and_drop_exact_latin_substitution():
     text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
     assert "LYSISTRATA, CALONICE" not in text
     assert "Non traducta linea" not in text
-    assert any(line.startswith("dropped\tpre-speech") for line in log)
+    # A cast-list line, even before the play's first cue, is now recognised
+    # and logged by `_is_cast_heading` (H2, 2026-09-22), not the generic
+    # "pre-speech text" bucket -- see
+    # test_cast_heading_mid_speech_is_dropped_not_tailed_on below for the
+    # bug this actually fixes (the SAME shape appearing mid-play, once a
+    # speech is already open).
+    assert any(line.startswith("dropped\tcharacters-present cast heading") for line in log)
     assert any(line.startswith("dropped\tHickie's own Latin") for line in log)
+
+
+def test_cast_heading_mid_speech_is_dropped_not_tailed_on():
+    # H2, 2026-09-22: round 1 only dropped a "characters present" cast
+    # heading when it opened the play, before any speech was open yet
+    # (the test above). Bohn re-announces who is on stage at a scene
+    # change too, mid-play, in the exact same shape -- and THAT occurrence
+    # used to fall through to `writer.line` and tail silently onto
+    # whatever speech was still open (knights.txt's own "SAUSAGE-SELLER,
+    # CLEON, DEMUS."). A single character's name/epithet standing alone,
+    # no comma or "AND" at all (thesmophoriazusae.txt's own "FEMALE
+    # HERALD."), shares the same shape and must drop the same way.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. First speech, still open.", page=0),
+        _p("LYSISTRATA, CALONICE.", page=0),  # comma-joined roster, re-opens the scene
+        _p("COM. New speech.", page=0),
+        _p("CALONICE.", page=0),  # a single name/epithet, no comma or "AND"
+        _p("LY. Final speech.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert "LYSISTRATA, CALONICE" not in text
+    assert "CALONICE." not in text
+    assert speeches == 3
+    assert _speeches(text) == [
+        ("LYSISTRATA", "First speech, still open."),
+        ("COMMITTEE-MAN", "New speech."),
+        ("LYSISTRATA", "Final speech."),
+    ]
+    assert sum(1 for line in log if line.startswith("dropped\tcharacters-present cast heading")) == 2
+    # Bohn's own structural "PARABASIS." heading shares this exact shape
+    # (all caps, ends in a period) but is NOT a character list --
+    # `_is_cast_heading` must not claim it; `_SECTION_LABEL_RE`'s own
+    # vol.-I-only rule owns that question instead.
+    assert not _is_cast_heading("PARABASIS.")
+    assert _is_cast_heading("FEMALE HERALD.")
+    assert _is_cast_heading("SAUSAGE-SELLER, CLEON, DEMUS.")
+
+
+def test_footnote_tail_across_an_intervening_body_page_reattaches_not_leaks():
+    # H2, 2026-09-22: the 2026-09-17 fix (see
+    # test_footnote_overflow_onto_next_page_before_its_own_heading above)
+    # only covers a note running onto the very next page's own running
+    # head/body. Bohn can also carry a too-long note past an ENTIRE
+    # intervening body page -- with its own running head and real
+    # dialogue -- resuming only at the top of THAT page's own footnote
+    # block, ahead of its own fresh definitions (knights.txt: p. 99's
+    # footnote 8, cut off mid-word "insinu-", resumes only after the
+    # whole of p. 100's dialogue, "ate, that he himself is the Pylos...").
+    # A genuine Hickie speech spanning a LATER, unrelated page break also
+    # opens lowercase -- the discriminator is whether a note was actually
+    # left open, not just the lowercase opening, so that speech must stay
+    # exactly where it is.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. Something.[1]", page=1),
+        _p("[1] Part one of a long note, cut off mid-", page=1),
+        _p("THE TESTPLAY.", page=2),  # a whole intervening body page's own running head
+        _p("COM. Real dialogue on the intervening page.", page=2),
+        _p("word, orphaned at the top of the next page.", page=3),  # the note's own tail
+        _p("LY. A genuine speech, running on", page=3),
+        _p("across another, unrelated page break.", page=4),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert speeches == 3
+    assert any(line.startswith("note-tail") for line in log)
+    assert not [line for line in log if line.startswith("uncertain")]
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Something."),
+        ("COMMITTEE-MAN", "Real dialogue on the intervening page."),
+        ("LYSISTRATA", "A genuine speech, running on across another, unrelated page break."),
+    ]
+    assert "orphaned at the top of the next page" not in text
 
 
 # H1 (2026-09-17 round 2 brief, lysistrata finding 1): a Bohn abbreviated

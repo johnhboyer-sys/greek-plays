@@ -98,6 +98,34 @@ before the switch, 85 after: neither name alone is an acceptable
 approximation). ``_Play.split_cues`` flips the resolution once the
 ``DEMUS.`` marker paragraph is reached.
 
+H2 (2026-09-22, both volumes): two more kinds of page furniture were
+leaking into the dialogue stream itself, not just into an unused footnote.
+
+- A "characters present" cast heading RE-opening a scene mid-play (Bohn
+  re-announces who is on stage at a scene change same as at the play's own
+  opening) used to tail silently onto whatever speech was still open --
+  round 1 only dropped one of these when it opened the play, before any
+  speech was open yet. ``_is_cast_heading`` now catches it wherever it
+  falls, in both volumes: this DOES change two already-shipped vol. II
+  lines (Thesm.'s own "FEMALE HERALD." and "CHORUS OF WOMEN KEEPING THE
+  THESMOPHORIA.", both single-name headings sharing the same shape) --
+  the "no diff" claim above is about the vol.-I-only shapes that follow it,
+  not about this fix.
+- A footnote whose text runs over a page break used to leak its second half
+  into the dialogue when the break fell where it does here: the printer
+  sometimes carries a too-long note past an ENTIRE intervening body page,
+  onto the top of THAT page's own footnote block, before its own first
+  definition -- the existing page-local "everything after the first
+  definition is apparatus" switch had no memory of an unclosed note once a
+  running head (correctly) turned it off for the intervening page's real
+  dialogue. ``_collect_footnotes``'s own ``interrupted_key`` now remembers
+  the unclosed note across that reset and reattaches the orphaned tail
+  paragraph to it -- but only when that paragraph opens lowercase/mid-word
+  AND a note was actually left open (Hickie's own prose speeches also run
+  over page breaks and also open lowercase; the discriminator is whether
+  footnote apparatus, not dialogue, was the last thing printed before the
+  page turned).
+
     python -m drama_pipeline.hickie_clean   # rewrite sources/bench/hickie/*.txt
 """
 
@@ -570,6 +598,12 @@ _BARE_RANGE_RE = re.compile(rf"^{_RANGE_RE.pattern}\.?$")
 # there in the first place (the paragraph fell through to a plain
 # `writer.line` append, already in the committed bench, and stays that way:
 # regenerating vol. II must stay byte-identical, so this fix is vol. I only).
+# H2, 2026-09-22: `_is_cast_heading` below explicitly excludes this same
+# label too (it is a structural marker, not a character list) -- Thesm.'s
+# own vol. II "PARABASIS." still tails onto its open speech exactly as
+# before; only its "FEMALE HERALD."/"CHORUS OF WOMEN..." headings, which
+# genuinely list who is present, are newly dropped. Out of this brief's
+# scope; flagged, not fixed, alongside it.
 _SECTION_LABEL_RE = re.compile(r"^PARABASIS\.(?:\[\d+\])?$")
 
 
@@ -665,10 +699,40 @@ _BARE_CUE_RE = re.compile(r"^([A-ZÆŒ][A-ZÆŒ .'’\-]{0,30})\.$")
 # "EUELPIDES, PISTHETAIRUS." -- no SCENE direction of its own precedes it,
 # unlike every other play in either volume): used only by `_real_start`, to
 # recognise the title heading right before it as the play's real start (the
-# main body loop already drops a line shaped like this as pre-speech
-# furniture once it is inside the converted range, via the final
-# `writer._pending_cue is None` check -- this regex is not needed there).
+# main body loop drops a line shaped like this as pre-speech furniture, via
+# the final `writer._pending_cue is None` check, only when it comes BEFORE
+# the play's first cue -- see `_is_cast_heading` below for the general case).
 _CAST_LIST_RE = re.compile(r"^[A-ZÆŒ][A-ZÆŒ, .'’\-]*,[A-ZÆŒ, .'’\-]*\.(?:\[\d+\])?$")
+
+
+def _is_cast_heading(text: str) -> bool:
+    """Bohn's own "characters present" cast heading, opening OR RE-opening a
+    scene: a comma/"AND"-joined roster (Acharnians's own "HERALD,
+    AMPHITHEÜS, DICÆOPOLIS, PRYTANES, AMBASSADORS.", "DICEOPOLIS, HIS
+    DAUGHTER, AND WIFE."; Knights's own "SAUSAGE-SELLER, CLEON, DEMUS.",
+    "CLEON, SAUSAGE-SELLER, DEMUS, CHORUS.") or a single character's own
+    name/epithet standing alone the same way (Thesm.'s own "FEMALE HERALD.",
+    "CHORUS OF WOMEN KEEPING THE THESMOPHORIA.") -- H2, 2026-09-22: round 1
+    dropped one of these only when it opened the play, before any speech was
+    open yet (the pre-speech check below); once a speech WAS already open
+    (every other occurrence -- Bohn re-announces who is on stage at a scene
+    change same as at the play's own opening), it fell through to
+    `writer.line` and tailed silently onto whatever speech was still open.
+
+    Recognised the same way this module already recognises a running head
+    (`_is_running_head_line`): not one lowercase letter anywhere is
+    something a real Hickie sentence, however short, never does -- Bohn's
+    own structural "PARABASIS." heading shares this shape but is not a
+    character list, so it is explicitly excluded here (`_SECTION_LABEL_RE`
+    already owns the question of whether/where to drop it, vol. I only, for
+    its own reason: turning it into a phantom cue would steal the
+    parabasis's opening lines from the CHORUS cue that should get them --
+    this check must not re-decide that)."""
+    if not text or not text[0].isalpha() or not text.endswith("."):
+        return False
+    if any(c.islower() for c in text):
+        return False
+    return not _SECTION_LABEL_RE.match(text)
 # A whole-line direction Genie prints without its outer brackets: this
 # volume's own "SCENE—..." openers and one bare "Enter ..." (2026-09-17
 # check finds both in Wealth).
@@ -817,8 +881,11 @@ def _real_start(paras: list[gt.Paragraph], cfg: _Play) -> int:
     also let them fire deeper in the main body loop (`_convert_body`) on a
     vol. II paragraph that already converts correctly a different way,
     changing its already-shipped bench text (checked 2026-09-22: it did,
-    for Thesm.'s "FEMALE HERALD."/"PARABASIS." lines) -- regenerating vol.
-    II must stay byte-identical."""
+    for Thesm.'s "FEMALE HERALD."/"PARABASIS." lines, by turning either into
+    a spurious pending cue) -- regenerating vol. II must stay byte-identical
+    for THESE vol.-I-only shapes specifically (`_is_cast_heading`, added the
+    same day, is a separate, deliberately both-volume fix and does change
+    "FEMALE HERALD." -- see the module docstring's H2 note)."""
     word = cfg.word
     heading = _bare_heading_re(word)
     vol_i = cfg.genie is GENIE_TEXT_I
@@ -1013,12 +1080,41 @@ def _collect_footnotes(
     grammatical point, sitting as if it were BACCHUS's own next line of
     dialogue). This is what also keeps a footnote's own embedded,
     speaker-shaped abbreviation (a Latin play quoted inside a note) out of
-    the dialogue stream with no dedicated rule for that one line."""
+    the dialogue stream with no dedicated rule for that one line.
+
+    H2, 2026-09-22: the note-too-long-for-its-own-page case above has a
+    second shape the 2026-09-17 fix does not cover -- one where the note's
+    OWN page's footnote block runs past the very next page's real body
+    text entirely (Bohn continues it at the top of THAT next page's OWN
+    footnote block instead, ahead of that page's own fresh definitions:
+    Knights p. 99's footnote 8, cut off mid-word ("...Cleon appears to
+    insinu-"), resumes only after the whole of p. 100's dialogue, at the
+    top of p. 100's own notes, "ate, that he himself is the Pylos..."
+    Walsh.""). The running head that opens the intervening body page
+    correctly turns `footnote_mode` off for that page's own real dialogue
+    (it must: that page is genuine speech) -- so by the time the orphaned
+    tail turns up, ``footnote_mode`` alone no longer remembers the note it
+    belongs to. ``interrupted_key`` is that memory: the note last open when
+    a running head or cue turned footnote apparatus off, kept live across
+    the intervening page of real dialogue and tried, once, against the
+    first apparatus-shaped paragraph after it -- but ONLY when that
+    paragraph opens lowercase or mid-word, since Hickie's own prose
+    speeches also run over a page break and also open lowercase; a page
+    that closed in ordinary dialogue (no note left open) leaves
+    `interrupted_key` `None`, so a genuine speech continuation is never
+    touched."""
     page_notes: dict[int, dict[str, str]] = {}
     consumed: set[int] = set()
     log: list[str] = []
     footnote_mode = False
     current_key: tuple[int, str] | None = None
+    # H2 bookkeeping: the note (if any) left open when a running head/cue
+    # last turned `footnote_mode` off, the genie ``page`` that reset
+    # happened on, and the genie ``page`` of the previously-processed
+    # paragraph (to detect the FIRST paragraph of each later page).
+    interrupted_key: tuple[int, str] | None = None
+    interrupted_at_page: int | None = None
+    prev_page: int | None = None
     for i in range(start, end):
         p = paras[i]
         text = _normalize(p.text)
@@ -1031,12 +1127,55 @@ def _collect_footnotes(
             # prints right before it) would otherwise glue onto the last
             # open note's own text (2026-09-17 check).
             continue
+        is_new_page = prev_page is not None and p.page != prev_page
+        prev_page = p.page
+        if is_new_page and interrupted_key is not None and p.page != interrupted_at_page:
+            # The FIRST paragraph of the FIRST page reached after a note was
+            # left open (`interrupted_at_page` is the running-head page that
+            # did the interrupting -- its own body can span many paragraphs,
+            # all on that SAME page, so this never fires again until a
+            # genuinely later page turns up). Tried exactly once: matched or
+            # not, the chance to reattach this specific note has now passed
+            # (Bohn's own tail, when one exists, is always the very first
+            # thing printed once apparatus resumes -- never buried later),
+            # so `interrupted_key` is cleared either way, never carried
+            # into some UNRELATED later page purely because it went unused
+            # here (H2 regression check, 2026-09-22: an earlier draft of
+            # this fix cleared it only on a subsequent "clean" reset, and
+            # ended up reattaching genuine Hickie prose -- a speech
+            # continuing over a LATER, unrelated page break -- to a stale
+            # note from pages before).
+            if text[0].islower() and _split_definitions(text) is None:
+                pg, num = interrupted_key
+                page_notes[pg][num] = f"{page_notes[pg][num]} {text}".strip()
+                log.append(
+                    f"note-tail\tpage {p.page} opens with the tail of note {num} "
+                    f"(from page {pg}), attached back to it: {text[:60]!r}"
+                )
+                footnote_mode = True
+                current_key = interrupted_key
+                interrupted_key = None
+                consumed.add(i)
+                continue
+            interrupted_key = None
         if footnote_mode and (
             _is_running_head_line(text, word) or _looks_like_cue(text) or _BARE_RANGE_RE.match(text)
         ):
             # Real body content resumes -- the ONLY thing (besides a fresh
             # definition, checked below) allowed to end a run of footnote
-            # apparatus, since a page change alone does not.
+            # apparatus, since a page change alone does not. Only a
+            # genuine running head -- an actual page boundary -- is worth
+            # remembering `current_key` against for the check above: a
+            # bare cue can also end a run of apparatus (a footnote's own
+            # quoted dialogue misread as one, or a short note followed by
+            # more body text before the page even turns), and that is NOT
+            # a page boundary at all, so treating it as one would let the
+            # check above fire again on the NEXT page transition and
+            # reattach an unrelated, genuine speech that simply happens to
+            # run on lowercase across it (H2 regression check).
+            if _is_running_head_line(text, word):
+                interrupted_key = current_key
+                interrupted_at_page = p.page
             footnote_mode = False
             current_key = None
         if _STAR_RE.match(text):
@@ -1251,12 +1390,17 @@ def _convert_body(
         # only (a first entrance printed "NAME (direction)." as its own
         # line, or a lone "NAME." before Demus's Knights entrance) -- gated
         # the same way as `_PAREN_STAGE_RE` above: unconditionally admitting
-        # either pattern silently swallows a vol. II structural heading this
-        # module previously left as plain (if stray) text -- e.g. Thesm.'s
-        # "FEMALE HERALD."/"PARABASIS." lines -- changing its already-shipped
-        # bench (checked 2026-09-22). Checked last, since every shape above
-        # needs its own trailing text and would already have matched if this
-        # paragraph had any.
+        # either pattern would turn a vol. II structural heading this shaped
+        # into a phantom pending cue instead of the plain drop it needs
+        # (`_is_cast_heading` just below). Checked last of the REAL cue
+        # shapes, since every one above needs its own trailing text and
+        # would already have matched if this paragraph had any -- so by
+        # the time a vol. I play reaches this pair, `resolved` is bare
+        # either way, and this is the one place left that still needs to
+        # tell a genuine first-entrance cue (no cue of its own anywhere in
+        # the speech that follows) apart from a "characters present"
+        # heading merely repeating a name the very next paragraph cues
+        # again on its own.
         if cfg.genie is GENIE_TEXT_I:
             m = _BARE_CUE_PAREN_RE.match(resolved)
             if m:
@@ -1272,6 +1416,21 @@ def _convert_body(
                 cue = abbrev.get(printed, printed)
                 writer.cue(cue)
                 continue
+
+        if _is_cast_heading(resolved):
+            # A "characters present" heading re-opening a scene mid-play,
+            # in BOTH volumes (H2, 2026-09-22) -- tried only now, after
+            # every real cue shape AND vol. I's own bare-cue pair have
+            # already had their chance, so a genuine cue this module
+            # already knows how to resolve (a short answer like
+            # Acharnians's own "AMP. I.", or vol. I's own real first-
+            # entrance bare cue) is never mistaken for one of these. A
+            # heading of this shape opening the PLAY ITSELF still falls
+            # through, harmlessly, to the pre-speech drop just below (no
+            # speech is open yet either way; see `_is_cast_heading`'s own
+            # docstring for why "PARABASIS." is excluded on purpose).
+            log.append(f"dropped\tcharacters-present cast heading, not dialogue: {resolved[:60]!r}")
+            continue
 
         if writer._pending_cue is None and not writer._open:
             # Pre-speech furniture (a "characters present" list before the
