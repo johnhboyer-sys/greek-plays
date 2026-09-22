@@ -1746,6 +1746,11 @@
   // A direction before the first English turn needs the same blank-Greek row
   // as one carried by the overlay piece itself. `turnDirections` keeps it on
   // that turn, so collect both forms for the existing row renderer.
+  //
+  // A piece with directions and NO text of its own stands for a Greek speech
+  // that the translator gave no words (John, 2026-09-22, option B): it
+  // renders in THIS segment's own cell (playEngTurns' bareDirectionPiece),
+  // not lifted to a row above it, so its directionsBefore is left out here.
   function openingDirections(seg: Segment, transId: string): string[] | undefined {
     const t = transById(transId);
     const pieces = piecesFor(seg, t);
@@ -1753,8 +1758,22 @@
     const source = playEnglishSource(seg, transId);
     const blocks = source ? buildEnglishTurnBlocks(source.text, source.turns) : [];
     const firstTurn = blocks.find((b) => b.turnIndex >= 0);
-    const directions = [...new Set([...(piece?.directionsBefore ?? []), ...(firstTurn?.directionsBefore ?? [])])];
+    const pieceDirections = piece?.text?.trim() ? (piece?.directionsBefore ?? []) : [];
+    const directions = [...new Set([...pieceDirections, ...(firstTurn?.directionsBefore ?? [])])];
     return directions.length ? directions : undefined;
+  }
+
+  // The bare chunk `_place_bare_speech_directions` emits (John, 2026-09-22,
+  // option B): no text, only the stage direction that stands for this Greek
+  // speech. `playEnglishSource` returns null for it (no text to show), so
+  // `playEngTurns` renders these directions in the cell instead of falling
+  // through to "no aligned passage".
+  function bareDirectionPiece(seg: Segment, transId: string): string[] | undefined {
+    const t = transById(transId);
+    const pieces = piecesFor(seg, t);
+    const piece = pieces.find((p) => p.cont) ?? pieces[0];
+    if (piece?.text?.trim()) return undefined;
+    return piece?.directionsBefore?.length ? piece.directionsBefore : undefined;
   }
 
   // The opening-direction row has taken these directions out of the turn
@@ -4059,6 +4078,7 @@
        on canonical `speaker` (fallback: `display`); footnotes via renderThird. -->
   {#snippet playEngTurns(seg: Segment, transId: string)}
     {@const source = playEnglishSource(seg, transId)}
+    {@const bareDirs = source ? undefined : bareDirectionPiece(seg, transId)}
     {#if source}
     <!-- The edition disagreement belongs to the TURN it was recorded on (P2h):
          a packed Greek speech holds several English turns and only some of
@@ -4068,6 +4088,12 @@
     {@const blocks = withoutOpeningDirections(buildEnglishTurnBlocks(source.text, source.turns))}
     {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
     {@render playTurnStack(blocks, chunkMm, transId)}
+    {:else if bareDirs}
+      <!-- A stage direction standing in for this Greek speech -- the
+           translator gives it no words at all (John, 2026-09-22, option B:
+           Libation Bearers 869, Aegisthus's cry). No speaker, no turn line,
+           just the direction(s) in this cell, level with the Greek. -->
+      <div class="overlay-prose turn-eng">{#each bareDirs as dir}<p class="stage-dir">{dir}</p>{/each}</div>
     {:else if coveredByFor(seg, transById(transId))}
       {@const covBy = coveredByFor(seg, transById(transId))!}
       <!-- P2e, extended per column at round 9 §4 (John's ruling
