@@ -842,7 +842,33 @@
   // The Greek speaker gutter grows to the play's longest siglum (Helen's
   // Θεοκ./Θεον.) instead of wrapping it.
   $: greekGutterWidth = playLine ? playGreekGutterWidth(sigla) : undefined;
-  $: englishGutterWidth = playLine ? playEnglishGutterWidth(bookData?.speakerRoster ?? []) : undefined;
+  // Sized for every lead-in any column prints, not the roster alone: a
+  // translator's own spelling (Johnston's Clytaemnestra beside the roster's
+  // Clytaemestra) is one letter longer and must not break mid-word (John,
+  // 2026-09-22). The comparison columns carry their cues in the text, so
+  // their names come from the same block builder the render uses.
+  function leadNamesInBook(): string[] {
+    const roster = bookData?.speakerRoster ?? [];
+    const names = new Set<string>(roster);
+    for (const seg of bookData?.segments ?? []) {
+      const pieces: { text?: string; turns?: EnglishTurn[] }[] = [];
+      if (seg.english) pieces.push(seg.english);
+      for (const p of seg.ross ?? []) pieces.push(p);
+      for (const p of seg.third ?? []) pieces.push(p);
+      for (const col of Object.values(seg.overlays ?? {})) for (const p of col ?? []) pieces.push(p);
+      for (const p of pieces) {
+        if (!p.text?.trim()) continue;
+        // The same derivation playEnglishSource makes: a piece without its
+        // own turns carries its cues in the text.
+        const source = p.turns?.length
+          ? { text: p.text, turns: p.turns }
+          : extractPrefixedEnglishTurns(p.text, roster, seg.english?.turns ?? []);
+        for (const b of buildEnglishTurnBlocks(source.text, source.turns)) if (b.display) names.add(leadName(b.display));
+      }
+    }
+    return [...names];
+  }
+  $: englishGutterWidth = playLine && bookData ? playEnglishGutterWidth(leadNamesInBook()) : undefined;
   // A lead-in the gutter cannot hold (Frogs' joint "Aeschylus and Euripides",
   // 23 characters) takes its own line above the text instead of overhanging
   // into it (John, 2026-09-09) -- the gutter is sized for the roster's names.

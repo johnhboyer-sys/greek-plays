@@ -1136,6 +1136,12 @@ describe('playEnglishGutterWidth', () => {
     // A joint name past 16 characters wraps instead of widening the gutter.
     expect(playEnglishGutterWidth(['Sausage-seller and Paphlagonian', 'Cleon'])).toBe('7.50rem');
   });
+  it('sizes for the longest word, so a phrase stacks and a word never splits', () => {
+    // Johnston's Clytaemnestra (13) beside the roster's Clytaemestra (12).
+    expect(playEnglishGutterWidth(['Clytaemestra', 'Clytaemnestra'])).toBe('8.28rem');
+    // "Son of Cleonymus" stacks at its spaces; Cleonymus alone sizes nothing past the default.
+    expect(playEnglishGutterWidth(['Son of Cleonymus', 'Chorus Leader'])).toBe('7.50rem');
+  });
 });
 
 describe('leadInCase on mixed case', () => {

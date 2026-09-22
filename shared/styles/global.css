@@ -2202,7 +2202,9 @@ body {
    Chorus"), so the English still starts on its Greek line (John, 2026-09-09:
    a label on its own line pushed the text off the row). */
 .reader-body.play-line .turn-stack .turn-para > .speaker.spk-long:first-child {
-  white-space: normal; overflow-wrap: anywhere;
+  /* At spaces only: a word is never split ("CLYTAEMNEST / RA", John,
+     2026-09-22); the gutter is sized for the longest word any column prints. */
+  white-space: normal; overflow-wrap: normal;
 }
 /* A repeated or transposed line number is a button; its note is a small
    popover on the Bekker-note pattern (REVIEW-CHECKLIST 3, John 2026-09-09). */
