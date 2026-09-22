@@ -54,6 +54,7 @@ english:
       - { greek: "981", by: "985" }
       - { greek: "992", by: "997" }
       - { greek: "993", by: "998" }
+      - { greek: "806", by: "813" }  # vulgate order: 806 ends inside Smyth's 813 speech (owner ruling 2026-09-22)
   secondary:
     id: morshead
     name: "E. D. A. Morshead (1881–1908)"
@@ -70,6 +71,9 @@ english:
       - { start: "808", end: "809", before: "805" }
     # John 2026-09-11: shift over 0.10 by under a point; let it slide for now
     max_turn_shift_rate: 0.11
+    # vulgate order: 806 ends inside Morshead's 813 speech (owner ruling 2026-09-22)
+    covered:
+      - { greek: "806", by: "813" }
   third:
     id: kosmos
     name: "Smyth, rev. Seven Heroization team (Kosmos Society)"
@@ -89,6 +93,9 @@ english:
     # and 807 ἅνδρες τεθνᾶσιν.
     transpositions:
       - { start: "808", end: "809", before: "805" }
+    # vulgate order: 806 ends inside Kosmos's 813 speech (owner ruling 2026-09-22)
+    covered:
+      - { greek: "806", by: "813" }
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
     license:
       status: licensed
@@ -111,6 +118,9 @@ english:
       # and 807 ἅνδρες τεθνᾶσιν.
       transpositions:
         - { start: "808", end: "809", before: "805" }
+      # vulgate order: 806 ends inside Johnston's 813 speech (owner ruling 2026-09-22)
+      covered:
+        - { greek: "806", by: "813" }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed
