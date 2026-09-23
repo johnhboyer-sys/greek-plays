@@ -1,7 +1,9 @@
-"""W. J. Hickie's Bohn Aristophanes vol. II -- History Genie's OCR of the
-vendored scan (``in.ernet.dli.2015.515630``) rebuilt into loeb-ocr turn-text:
-Lysistrata rides the ``third`` slot, Thesmophoriazusae/Frogs/Ecclesiazusae/
-Wealth ride ``secondary``.
+"""W. J. Hickie's Bohn Aristophanes, both volumes -- History Genie's OCR of
+the vendored scans rebuilt into loeb-ocr turn-text. Vol. II
+(``in.ernet.dli.2015.515630``): Lysistrata rides the ``third`` slot,
+Thesmophoriazusae/Frogs/Ecclesiazusae/Wealth ride ``secondary``. Vol. I
+(``in.ernet.dli.2015.515629``): Acharnians/Knights/Wasps/Peace/Birds all
+ride ``secondary``.
 """
 
 from pathlib import Path
@@ -12,9 +14,14 @@ from drama_pipeline import genie_text as gt
 from drama_pipeline.config import SOURCES_DIR
 from drama_pipeline.hickie_clean import (
     GENIE_TEXT,
+    GENIE_TEXT_I,
     PLAYS,
+    _BARE_RANGE_RE,
+    _PAGE_NUM_RE,
     _Play,
+    _collect_footnotes,
     _convert_body,
+    _is_cast_heading,
     _normalize,
     convert_play,
 )
@@ -31,6 +38,18 @@ _TEST_PLAY = _Play(
     bench="testplay",
     abbrev={"LY": "LYSISTRATA", "COM": "COMMITTEE-MAN"},
     drop_exact=("Non traducta linea.",),
+)
+
+# A vol. I play fixture (``genie=GENIE_TEXT_I``): vol. I's own first-entrance
+# and cue shapes (H1, 2026-09-22) are gated on this field so that admitting
+# them never changes vol. II's already-shipped bench text.
+_TEST_PLAY_I = _Play(
+    title="THE TESTPLAY",
+    word="TESTPLAY",
+    bench="testplay",
+    genie=GENIE_TEXT_I,
+    abbrev={"S S": "SAUSAGE-SELLER", "DEM": "DEMOSTHENES", "COM": "COMMITTEE-MAN"},
+    split_cues={"DEM": ("DEMOSTHENES", "DEMUS", "DEMUS.")},
 )
 
 
@@ -159,8 +178,87 @@ def test_dropped_bare_pre_speech_and_drop_exact_latin_substitution():
     text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
     assert "LYSISTRATA, CALONICE" not in text
     assert "Non traducta linea" not in text
-    assert any(line.startswith("dropped\tpre-speech") for line in log)
+    # A cast-list line, even before the play's first cue, is now recognised
+    # and logged by `_is_cast_heading` (H2, 2026-09-22), not the generic
+    # "pre-speech text" bucket -- see
+    # test_cast_heading_mid_speech_is_dropped_not_tailed_on below for the
+    # bug this actually fixes (the SAME shape appearing mid-play, once a
+    # speech is already open).
+    assert any(line.startswith("dropped\tcharacters-present cast heading") for line in log)
     assert any(line.startswith("dropped\tHickie's own Latin") for line in log)
+
+
+def test_cast_heading_mid_speech_is_dropped_not_tailed_on():
+    # H2, 2026-09-22: round 1 only dropped a "characters present" cast
+    # heading when it opened the play, before any speech was open yet
+    # (the test above). Bohn re-announces who is on stage at a scene
+    # change too, mid-play, in the exact same shape -- and THAT occurrence
+    # used to fall through to `writer.line` and tail silently onto
+    # whatever speech was still open (knights.txt's own "SAUSAGE-SELLER,
+    # CLEON, DEMUS."). A single character's name/epithet standing alone,
+    # no comma or "AND" at all (thesmophoriazusae.txt's own "FEMALE
+    # HERALD."), shares the same shape and must drop the same way.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. First speech, still open.", page=0),
+        _p("LYSISTRATA, CALONICE.", page=0),  # comma-joined roster, re-opens the scene
+        _p("COM. New speech.", page=0),
+        _p("CALONICE.", page=0),  # a single name/epithet, no comma or "AND"
+        _p("LY. Final speech.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert "LYSISTRATA, CALONICE" not in text
+    assert "CALONICE." not in text
+    assert speeches == 3
+    assert _speeches(text) == [
+        ("LYSISTRATA", "First speech, still open."),
+        ("COMMITTEE-MAN", "New speech."),
+        ("LYSISTRATA", "Final speech."),
+    ]
+    assert sum(1 for line in log if line.startswith("dropped\tcharacters-present cast heading")) == 2
+    # Bohn's own structural "PARABASIS." heading shares this exact shape
+    # (all caps, ends in a period) but is NOT a character list --
+    # `_is_cast_heading` must not claim it; `_SECTION_LABEL_RE`'s own
+    # vol.-I-only rule owns that question instead.
+    assert not _is_cast_heading("PARABASIS.")
+    assert _is_cast_heading("FEMALE HERALD.")
+    assert _is_cast_heading("SAUSAGE-SELLER, CLEON, DEMUS.")
+
+
+def test_footnote_tail_across_an_intervening_body_page_reattaches_not_leaks():
+    # H2, 2026-09-22: the 2026-09-17 fix (see
+    # test_footnote_overflow_onto_next_page_before_its_own_heading above)
+    # only covers a note running onto the very next page's own running
+    # head/body. Bohn can also carry a too-long note past an ENTIRE
+    # intervening body page -- with its own running head and real
+    # dialogue -- resuming only at the top of THAT page's own footnote
+    # block, ahead of its own fresh definitions (knights.txt: p. 99's
+    # footnote 8, cut off mid-word "insinu-", resumes only after the
+    # whole of p. 100's dialogue, "ate, that he himself is the Pylos...").
+    # A genuine Hickie speech spanning a LATER, unrelated page break also
+    # opens lowercase -- the discriminator is whether a note was actually
+    # left open, not just the lowercase opening, so that speech must stay
+    # exactly where it is.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. Something.[1]", page=1),
+        _p("[1] Part one of a long note, cut off mid-", page=1),
+        _p("THE TESTPLAY.", page=2),  # a whole intervening body page's own running head
+        _p("COM. Real dialogue on the intervening page.", page=2),
+        _p("word, orphaned at the top of the next page.", page=3),  # the note's own tail
+        _p("LY. A genuine speech, running on", page=3),
+        _p("across another, unrelated page break.", page=4),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert speeches == 3
+    assert any(line.startswith("note-tail") for line in log)
+    assert not [line for line in log if line.startswith("uncertain")]
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Something."),
+        ("COMMITTEE-MAN", "Real dialogue on the intervening page."),
+        ("LYSISTRATA", "A genuine speech, running on across another, unrelated page break."),
+    ]
+    assert "orphaned at the top of the next page" not in text
 
 
 # H1 (2026-09-17 round 2 brief, lysistrata finding 1): a Bohn abbreviated
@@ -176,6 +274,68 @@ _LYS_COM_PLAY = _Play(
     bench="testplay",
     abbrev={"LYS": "LYSISTRATA", "COM": "COMMITTEE-MAN"},
 )
+
+
+def test_printers_signature_mark_is_furniture_not_a_dialogue_tail():
+    # Round 2 bug A, 2026-09-22: Bohn prints a quire signature ("2 R") on
+    # its own line at the foot of a sheet's first page. Frogs p. 308 prints
+    # one right after an editor's remark ("VER. 1437—1441, were obelized
+    # ...") whose "VER." reads as a cue, so footnote mode ends early; the
+    # remark itself is then dropped as apparatus, and the signature fell
+    # through the whole cascade onto EURIPIDES's open speech as "2 R".
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. First speech, still open.", page=0),
+        _p("[1] A note.", page=0),
+        _p(
+            "VER. 10—12, were obelized by the Alexandrine critics. In Dindorf's "
+            "edition, they are bracketed as doubtful. See Krüger, Gr. Gr. § 51.",
+            page=0,
+        ),
+        _p("2 R", page=0),
+        _p("2 THE TESTPLAY. 13—20.", page=1),
+        _p("continued over the page.", page=1),
+        _p("COM. New speech.", page=1),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert "2 R" not in text
+    assert speeches == 2
+    assert _speeches(text) == [
+        ("LYSISTRATA", "First speech, still open. continued over the page."),
+        ("COMMITTEE-MAN", "New speech."),
+    ]
+    # Still furniture when it lands INSIDE a footnote block: never glued
+    # onto the open note's own text as a continuation.
+    notes, consumed, _log = _collect_footnotes(
+        [_p("[1] A note.", page=0), _p("3 R2", page=0), _p("more of the note.", page=0)],
+        0,
+        3,
+        "TESTPLAY",
+    )
+    assert notes[0]["1"] == "A note. more of the note."
+
+
+def test_page_number_with_a_stray_trailing_period_is_furniture():
+    # Round 2 bug B, 2026-09-22: Birds p. 501 prints its page number as
+    # "365." (three-physical-line heading: range, title, number), and the
+    # whole-string digits test left it on the page as a bare dialogue line.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. First speech.", page=0),
+        _p("10—12.", page=1),
+        _p("THE TESTPLAY.", page=1),
+        _p("365.", page=1),
+        _p("COM. New speech.", page=1),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert "365" not in text
+    assert speeches == 2
+    assert _speeches(text) == [("LYSISTRATA", "First speech."), ("COMMITTEE-MAN", "New speech.")]
+    # A bare range still belongs to `_BARE_RANGE_RE` alone, and a dotted
+    # page number is not mistaken for one.
+    assert _PAGE_NUM_RE.match("10—12.") is None
+    assert _BARE_RANGE_RE.match("365.") is None
+    assert _PAGE_NUM_RE.match("365..") is None
 
 
 def test_embedded_abbrev_cue_mid_sentence_opens_a_new_speech():
@@ -365,16 +525,100 @@ def test_normalize_dollar_footnote_and_accented_title_and_br():
     assert _normalize("text <br> more") == "text more"
 
 
+# ---------------------------------------------------------------------------
+# Vol. I only (2026-09-22 brief): a first-entrance cue printed on its own
+# paragraph, with the speech itself a SEPARATE paragraph (Acharnians's own
+# "DICÆOPOLIS (solus)."). Gated on `cfg.genie is GENIE_TEXT_I` so it never
+# fires for a vol. II play.
+def test_bare_cue_paren_own_paragraph_is_vol_i_only():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LYSISTRATA (solus).", page=0),
+        _p("Well, we have met at last.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY_I)
+    assert _speeches(text) == [("LYSISTRATA", "Well, we have met at last.")]
+    assert "[solus]" in text
+
+
+def test_bare_cue_paren_own_paragraph_does_not_fire_for_vol_ii():
+    # The SAME shape, on a vol. II (default `genie`) play: falls through to
+    # the pre-existing "pre-speech junk" drop, exactly as it did before this
+    # fallback was added -- regenerating vol. II must stay byte-identical.
+    # (A real cue afterwards keeps `_count_speeches` from choking on a body
+    # with no recognised speech at all -- not what this test is about.)
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LYSISTRATA (solus).", page=0),
+        _p("Well, we have met at last.", page=0),
+        _p("COM. Something.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert speeches == 1
+    assert "Well, we have met at last." not in text
+    assert any(
+        line.startswith("dropped\tpre-speech") and "solus" in line for line in log
+    )
+
+
+# A structural section label Genie reads as a markdown heading (never a
+# speaker) -- vol. I's own "PARABASIS." (Acharnians, Knights, Wasps, Peace,
+# Birds each print one). Dropped as furniture so it can never become a
+# phantom speaker via `_BARE_CUE_RE`.
+def test_parabasis_section_label_is_dropped_not_a_phantom_cue():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("COM. Let us strip and follow with our own Anapaests.", page=0),
+        _p("PARABASIS.", page=0),
+        _p("From the time our instructor first presided.", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY_I)
+    assert _speeches(text) == [
+        (
+            "COMMITTEE-MAN",
+            "Let us strip and follow with our own Anapaests. From the time our instructor first presided.",
+        )
+    ]
+    assert "PARABASIS" not in text
+
+
+# Knights's own "Dem." collision (H1, 2026-09-22): Bohn reuses the same
+# abbreviation for Demosthenes before Demus enters and for Demus himself
+# after -- `split_cues` flips the resolution at the marker paragraph.
+def test_split_cues_switches_abbreviation_at_the_marker():
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("DEM. Alas for our misfortunes!", page=0),
+        _p("DEMUS.", page=0),
+        _p("DEM. Who are those that are bawling?", page=0),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY_I)
+    assert _speeches(text) == [
+        ("DEMOSTHENES", "Alas for our misfortunes!"),
+        ("DEMUS", "Who are those that are bawling?"),
+    ]
+
+
+# A scan without the abbreviation's own internal period ("S S." rather than
+# "S. S."), once in Knights (the Cydathenian dog scene's "S. S." elsewhere
+# keeps its period): both must resolve to the same roster name.
+def test_no_period_variant_of_a_two_letter_abbreviation():
+    paras = [_p("THE TESTPLAY", page=0), _p("S S. How completely you imagine!", page=0)]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY_I)
+    assert _speeches(text) == [("SAUSAGE-SELLER", "How completely you imagine!")]
+
+
 SOURCES = SOURCES_DIR
 
 
-@pytest.mark.skipif(
-    not GENIE_TEXT.exists(),
-    reason="History Genie's OCR text is a machine-local build/ scratch file, not vendored",
-)
 @pytest.mark.parametrize("work_id", sorted(PLAYS))
 def test_vendored_text_is_the_converter_output(work_id):
-    out = convert_play(work_id)
     cfg = PLAYS[work_id]
+    if not cfg.genie.exists():
+        # Both volumes are machine-local build/ scratch files, not vendored --
+        # a play's OWN volume file (not just `GENIE_TEXT`, vol. II's) decides
+        # whether this can run, now that `PLAYS` spans both.
+        pytest.skip("History Genie's OCR text is a machine-local build/ scratch file, not vendored")
+    out = convert_play(work_id)
     assert (SOURCES / "bench" / "hickie" / f"{cfg.bench}.txt").read_text(encoding="utf-8") == out.text
     assert len(_speeches(out.text, cfg.title)) == out.speeches

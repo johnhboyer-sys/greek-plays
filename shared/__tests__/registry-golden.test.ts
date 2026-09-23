@@ -18,6 +18,8 @@ describe('generated registry golden value', () => {
     // Regenerated 2026-09-19: publishing Rogers on Lysistrata, Thesmophoriazusae and
     // Wealth adds those three translations to the registry (John's ruling).
     // Regenerated 2026-09-21: Ecclesiazusae's Rogers joins them, its drift fixed.
-    expect(hash).toBe('892ef246c7356b71be80defec92293fb790a97fe4a560372ae434f1d8f16d353');
+    // Regenerated 2026-09-22: Hickie's Bohn vol. I joins as `secondary` on
+    // Acharnians, Knights, Wasps, Peace and Birds (John's ruling).
+    expect(hash).toBe('388c00bb7759d9e58ee9cee7ff9e410e4b2b625e7353c56cf1307a2043ecffc9');
   });
 });
