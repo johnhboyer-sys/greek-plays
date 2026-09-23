@@ -261,6 +261,63 @@ def test_footnote_tail_across_an_intervening_body_page_reattaches_not_leaks():
     assert "orphaned at the top of the next page" not in text
 
 
+def test_completed_note_does_not_swallow_next_page_dialogue():
+    # R3-1 (round 3 brief, blocker, 2026-09-23): `interrupted_key` used to
+    # be remembered whenever a running head ended footnote mode, EVEN WHEN
+    # the note it interrupted had already finished -- so a lowercase
+    # dialogue continuation opening the page after next (a speech simply
+    # running on, exactly the shape the test above already protects for a
+    # CLEAN reset) could get glued onto an already-complete note purely
+    # because it was the last one touched, silently dropping real dialogue
+    # (COM's speech loses "continues on the next page.").
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. One.[1]", page=1),
+        _p("[1] Complete note.", page=1),
+        _p("THE TESTPLAY. 10—20.", page=2),
+        _p("COM. A long speech starts here and", page=2),
+        _p("continues on the next page.", page=3),
+        _p("LY. End.", page=3),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert not [line for line in log if line.startswith("note-tail")]
+    assert speeches == 3
+    assert _speeches(text) == [
+        ("LYSISTRATA", "One."),
+        ("COMMITTEE-MAN", "A long speech starts here and continues on the next page."),
+        ("LYSISTRATA", "End."),
+    ]
+
+
+def test_bare_range_running_head_also_remembers_interrupted_key():
+    # R3-2 (round 3 brief, should-fix, 2026-09-23): the `_BARE_RANGE_RE`
+    # branch resets footnote mode the same way a genuine running head does
+    # (the three-physical-line heading shape's own range-only paragraph),
+    # but only `_is_running_head_line` used to save `interrupted_key` --
+    # so a note cut off mid-word right before one never got remembered at
+    # all, and its own tail (the SAME shape every real note-tail takes)
+    # leaked onto whatever speech was open on the page it resurfaced on.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. Start.[1]", page=1),
+        _p("[1] Long note cut off mid-", page=1),
+        _p("10—20.", page=2),
+        _p("THE TESTPLAY.", page=2),
+        _p("COM. Real dialogue.", page=2),
+        _p("word, the tail of the note.", page=3),
+        _p("LY. End.", page=3),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert any(line.startswith("note-tail") for line in log)
+    assert speeches == 3
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Start."),
+        ("COMMITTEE-MAN", "Real dialogue."),
+        ("LYSISTRATA", "End."),
+    ]
+    assert "word, the tail of the note" not in text
+
+
 # H1 (2026-09-17 round 2 brief, lysistrata finding 1): a Bohn abbreviated
 # cue printed in ordinary running-text case (`Lys.`, `Com.`) survived as
 # body text of whichever speech was still open instead of opening its own.
@@ -313,6 +370,31 @@ def test_printers_signature_mark_is_furniture_not_a_dialogue_tail():
         "TESTPLAY",
     )
     assert notes[0]["1"] == "A note. more of the note."
+    # R3-3 (round 3 brief, minor, 2026-09-23): vol. I prints the SAME quire
+    # signature letter-first ("B 2", "D 2", ... "R 2") rather than
+    # digit-first -- the same fake-cue path that let "2 R" leak onto open
+    # dialogue above would leak one of these the same way.
+    paras_i = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. First speech, still open.", page=0),
+        _p("[1] A note.", page=0),
+        _p(
+            "VER. 10—12, were obelized by the Alexandrine critics. In Dindorf's "
+            "edition, they are bracketed as doubtful. See Krüger, Gr. Gr. § 51.",
+            page=0,
+        ),
+        _p("H 2", page=0),
+        _p("2 THE TESTPLAY. 13—20.", page=1),
+        _p("continued over the page.", page=1),
+        _p("COM. New speech.", page=1),
+    ]
+    text_i, speeches_i, _footnotes_i, _log_i, _gaps_i = _convert_body(paras_i, 0, len(paras_i), _TEST_PLAY)
+    assert "H 2" not in text_i
+    assert speeches_i == 2
+    assert _speeches(text_i) == [
+        ("LYSISTRATA", "First speech, still open. continued over the page."),
+        ("COMMITTEE-MAN", "New speech."),
+    ]
 
 
 def test_page_number_with_a_stray_trailing_period_is_furniture():
