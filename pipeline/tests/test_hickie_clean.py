@@ -344,6 +344,34 @@ def test_footnote_shaped_lookahead_stops_at_the_page_edge():
     ]
 
 
+def test_closed_looking_note_still_gets_a_tail_that_opens_a_note_block():
+    # Grok's read of round 3b (2026-09-23, finding 3): the positive side of
+    # the R3-1 guard -- a note that reads as complete ("...well explained."
+    # is Knights note 6, p. 90, a real one) still gets its tail when that
+    # tail is followed, on the same page, by a fresh `[N]` definition. The
+    # vendored-bench test locks this only indirectly.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. Start.[1]", page=1),
+        _p("[1] The meaning of the verb is well explained.", page=1),
+        _p("THE TESTPLAY. 10—20.", page=2),
+        _p("COM. Real dialogue.", page=2),
+        _p("by Blomfield in his preface, p. xxv.", page=3),
+        _p("[1] Next note.", page=3),
+        _p("LY. End.", page=3),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert [line for line in log if line.startswith("note-tail")]
+    assert "Blomfield" not in text
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Start."),
+        ("COMMITTEE-MAN", "Real dialogue."),
+        ("LYSISTRATA", "End."),
+    ]
+    notes, consumed, _log = _collect_footnotes(paras, 0, len(paras), "TESTPLAY")
+    assert notes[1]["1"] == "The meaning of the verb is well explained. by Blomfield in his preface, p. xxv."
+
+
 def test_bare_range_running_head_also_remembers_interrupted_key():
     # R3-2 (round 3 brief, should-fix, 2026-09-23): the `_BARE_RANGE_RE`
     # branch resets footnote mode the same way a genuine running head does
