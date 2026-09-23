@@ -602,8 +602,17 @@ _STAR_RE = re.compile(r"^\*+$")
 # sentence-final punctuation, optionally inside closing quotes or brackets
 # ("...(cf. v. 10.)", "...explained."). A comma before the quote (Lysistrata
 # note 9, p. 19: `Tyro,"`) is NOT closed -- that real tail must still
-# reattach (Grok's read of round 3, finding 2, 2026-09-23).
-_NOTE_CLOSED_RE = re.compile(r'[.!?]["”’)\]]*$')
+# reattach (Grok's read of round 3, finding 2, 2026-09-23). A Greek
+# question mark closing a quoted verse counts (Birds, `'θέμην;`), but an
+# English semicolon does not (a note cut off after "he says;" is open),
+# hence the Greek letter required before it (Genie often sets a space
+# between them: `ταώς ;`); a printer's dash rule after the
+# final mark (Ecclesiazusae note 6, `animum." ———`) is ignored, while a
+# note cut off on a hyphen or em dash ("insinu-", "the—") stays open
+# because nothing sentence-final precedes the dash (R3-4, 2026-09-23).
+_NOTE_CLOSED_RE = re.compile(
+    r'(?:[.!?]|[\u0370-\u03ff\u1f00-\u1fff] ?;)["”’)\]]*[\s—–―\-]*$'
+)
 # A markdown table's own separator row, or a run of nothing but dashes: never
 # dialogue, whatever the exact dash/pipe count Genie prints.
 _DIVIDER_RE = re.compile(r"^[\-|\s]+$")
