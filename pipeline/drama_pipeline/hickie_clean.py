@@ -588,8 +588,22 @@ _PAGE_NUM_RE = re.compile(r"^\d{1,4}\.?$")
 # were obelized...") whose "VER." reads as a cue and ends footnote mode
 # early, so the signature fell through to the open speech as dialogue
 # (round 2, 2026-09-22). Furniture in both places, like `_PAGE_NUM_RE`.
-_SIGNATURE_RE = re.compile(r"^\d{1,2} [A-Z]\d?$")
+# Vol. I also prints the LETTER-first shape ("B 2", "D 2", ... "R 2": a
+# dozen standalone lines, eight of them inside a play's bounds; R3-3, round 3
+# brief, 2026-09-23): the digit-first branch above cannot match one. All
+# eight currently land inside a footnote block
+# (one glued into Knights note 8's own tail, "insinu- H 2" -- a footnote
+# continuation either way, so widening this costs no bench diff today), but
+# the same fake-cue path that leaked "2 R" onto open dialogue (Frogs p. 308,
+# above) would leak one of these the same way, so it is furniture here too.
+_SIGNATURE_RE = re.compile(r"^(?:\d{1,2} [A-Z]\d?|[A-Z] \d)$")
 _STAR_RE = re.compile(r"^\*+$")
+# A footnote whose text reads as complete when a running head cut it off:
+# sentence-final punctuation, optionally inside closing quotes or brackets
+# ("...(cf. v. 10.)", "...explained."). A comma before the quote (Lysistrata
+# note 9, p. 19: `Tyro,"`) is NOT closed -- that real tail must still
+# reattach (Grok's read of round 3, finding 2, 2026-09-23).
+_NOTE_CLOSED_RE = re.compile(r'[.!?]["”’)\]]*$')
 # A markdown table's own separator row, or a run of nothing but dashes: never
 # dialogue, whatever the exact dash/pipe count Genie prints.
 _DIVIDER_RE = re.compile(r"^[\-|\s]+$")
@@ -1079,6 +1093,35 @@ def _split_abbrev_cues(
     return [(cue, piece) for cue, piece in pieces if piece]
 
 
+def _next_footnote_shaped(paras: list[gt.Paragraph], i: int, end: int) -> bool:
+    """Whether the first non-furniture paragraph after index ``i`` is itself
+    footnote apparatus (a fresh ``[N]`` definition, or a bare ``*``/``***``
+    divider) rather than dialogue resuming. R3-1's positive-side signal: a
+    note that already read as grammatically complete when a running head cut
+    it off (ends on a period, not mid-word) is still worth reattaching a
+    same-page tail to when that tail turns out to open a genuine footnote
+    block of its own -- exactly the shape all 23 real note-tails take
+    (2026-09-23 measured: every one is immediately followed by a fresh
+    definition)."""
+    for j in range(i + 1, end):
+        if paras[j].page != paras[i].page:
+            # Never vouch for this page's line with the NEXT page's own
+            # first definition (Grok's read of round 3, finding 3).
+            return False
+        nxt = _normalize(paras[j].text)
+        if not nxt:
+            continue
+        if (
+            _DIVIDER_RE.match(nxt)
+            or _END_OF_RE.match(nxt)
+            or _PAGE_NUM_RE.match(nxt)
+            or _SIGNATURE_RE.match(nxt)
+        ):
+            continue
+        return _split_definitions(nxt) is not None or bool(_STAR_RE.match(nxt))
+    return False
+
+
 def _collect_footnotes(
     paras: list[gt.Paragraph], start: int, end: int, word: str
 ) -> tuple[dict[int, dict[str, str]], set[int], list[str]]:
@@ -1166,16 +1209,46 @@ def _collect_footnotes(
             # note from pages before).
             if text[0].islower() and _split_definitions(text) is None:
                 pg, num = interrupted_key
-                page_notes[pg][num] = f"{page_notes[pg][num]} {text}".strip()
-                log.append(
-                    f"note-tail\tpage {p.page} opens with the tail of note {num} "
-                    f"(from page {pg}), attached back to it: {text[:60]!r}"
-                )
-                footnote_mode = True
-                current_key = interrupted_key
-                interrupted_key = None
-                consumed.add(i)
-                continue
+                head_text = page_notes[pg][num]
+                # R3-1 (round 3 brief, blocker, 2026-09-23): `interrupted_key`
+                # above is remembered whenever a running head/bare-range
+                # ends footnote mode, whether or not the note it interrupted
+                # had actually finished -- so a lowercase dialogue
+                # continuation opening the page after next (a speech simply
+                # running on, same as the H2 regression check above already
+                # guards against for a CLEAN reset) could get glued onto an
+                # already-COMPLETE note purely because it was the last one
+                # touched. Only reattach when the note looks left open (its
+                # own text does not end on a sentence-final mark) -- or, for
+                # the rare real note that ends on one anyway (thesm. p. 149
+                # note 6, "...F.", knights p. 90 note 6, "...explained.",
+                # both real, 2026-09-23 measured), when the tail itself
+                # opens a genuine footnote block of its own, a fresh `[N]`
+                # definition (or a bare `*` divider) right after it, exactly
+                # like every one of the 23 real tails does -- rather than
+                # plain dialogue resuming, which is what the repro this
+                # guards against does instead.
+                #
+                # Still latent after Grok's read of round 3 (2026-09-23,
+                # findings 1 and 4; both need a page that opens with
+                # lowercase text and no running head, and today exactly
+                # 23 in-play pages do, all of them these real tails): a
+                # complete note whose next page has a garbled head AND a
+                # single body line before its own notes still loses that
+                # line, and a stray mid-page bare range (not a heading)
+                # now arms the key like a real one does.
+                note_open = _NOTE_CLOSED_RE.search(head_text.rstrip()) is None
+                if note_open or _next_footnote_shaped(paras, i, end):
+                    page_notes[pg][num] = f"{head_text} {text}".strip()
+                    log.append(
+                        f"note-tail\tpage {p.page} opens with the tail of note {num} "
+                        f"(from page {pg}), attached back to it: {text[:60]!r}"
+                    )
+                    footnote_mode = True
+                    current_key = interrupted_key
+                    interrupted_key = None
+                    consumed.add(i)
+                    continue
             interrupted_key = None
         if footnote_mode and (
             _is_running_head_line(text, word) or _looks_like_cue(text) or _BARE_RANGE_RE.match(text)
@@ -1183,7 +1256,9 @@ def _collect_footnotes(
             # Real body content resumes -- the ONLY thing (besides a fresh
             # definition, checked below) allowed to end a run of footnote
             # apparatus, since a page change alone does not. Only a
-            # genuine running head -- an actual page boundary -- is worth
+            # genuine running head OR a bare range fragment of one (the
+            # three-physical-line heading shape's own range-only paragraph,
+            # R3-2, round 3 brief) -- an actual page boundary -- is worth
             # remembering `current_key` against for the check above: a
             # bare cue can also end a run of apparatus (a footnote's own
             # quoted dialogue misread as one, or a short note followed by
@@ -1192,7 +1267,7 @@ def _collect_footnotes(
             # check above fire again on the NEXT page transition and
             # reattach an unrelated, genuine speech that simply happens to
             # run on lowercase across it (H2 regression check).
-            if _is_running_head_line(text, word):
+            if _is_running_head_line(text, word) or _BARE_RANGE_RE.match(text):
                 interrupted_key = current_key
                 interrupted_at_page = p.page
             footnote_mode = False
