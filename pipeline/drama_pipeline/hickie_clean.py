@@ -575,7 +575,20 @@ def _ascii_cue(printed: str) -> str:
 # it (2026-09-17 regression, confirmed against every "gap" this converter
 # first reported; the pipe-table shape alone accounts for most of them).
 
-_PAGE_NUM_RE = re.compile(r"^\d{1,4}$")
+# A bare page number -- with or without the stray trailing period Genie
+# read on Birds p. 501 ("365.", the three-physical-line heading shape:
+# range, title, number each on its own paragraph; round 2, 2026-09-22).
+# `_BARE_RANGE_RE` cannot collide: it needs two numbers and a dash.
+_PAGE_NUM_RE = re.compile(r"^\d{1,4}\.?$")
+# A printer's quire signature at the foot of a sheet's first page ("2 R",
+# "3 A": a small sheet count, a space, one capital, at most one more digit).
+# Bohn prints one every sixteen pages in both volumes; every one but Frogs
+# p. 308's sat inside a footnote block and was swallowed as a note
+# continuation, but that one followed an editor's remark ("VER. 1437--1441,
+# were obelized...") whose "VER." reads as a cue and ends footnote mode
+# early, so the signature fell through to the open speech as dialogue
+# (round 2, 2026-09-22). Furniture in both places, like `_PAGE_NUM_RE`.
+_SIGNATURE_RE = re.compile(r"^\d{1,2} [A-Z]\d?$")
 _STAR_RE = re.compile(r"^\*+$")
 # A markdown table's own separator row, or a run of nothing but dashes: never
 # dialogue, whatever the exact dash/pipe count Genie prints.
@@ -667,6 +680,7 @@ def _is_furniture(text: str, word: str) -> bool:
     return bool(
         _DIVIDER_RE.match(text)
         or _PAGE_NUM_RE.match(text)
+        or _SIGNATURE_RE.match(text)
         or _END_OF_RE.match(text)
         or _is_running_head_line(text, word)
         or _BARE_RANGE_RE.match(text)
@@ -1120,7 +1134,12 @@ def _collect_footnotes(
         text = _normalize(p.text)
         if not text:
             continue
-        if _DIVIDER_RE.match(text) or _END_OF_RE.match(text) or _PAGE_NUM_RE.match(text):
+        if (
+            _DIVIDER_RE.match(text)
+            or _END_OF_RE.match(text)
+            or _PAGE_NUM_RE.match(text)
+            or _SIGNATURE_RE.match(text)
+        ):
             # Furniture, not a definition and not a continuation, however
             # deep into a page's footnote block it turns up -- an "END OF
             # THE X." marker (and the stray "<br>" pair Lysistrata's own

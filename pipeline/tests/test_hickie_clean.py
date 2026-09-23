@@ -16,7 +16,10 @@ from drama_pipeline.hickie_clean import (
     GENIE_TEXT,
     GENIE_TEXT_I,
     PLAYS,
+    _BARE_RANGE_RE,
+    _PAGE_NUM_RE,
     _Play,
+    _collect_footnotes,
     _convert_body,
     _is_cast_heading,
     _normalize,
@@ -271,6 +274,68 @@ _LYS_COM_PLAY = _Play(
     bench="testplay",
     abbrev={"LYS": "LYSISTRATA", "COM": "COMMITTEE-MAN"},
 )
+
+
+def test_printers_signature_mark_is_furniture_not_a_dialogue_tail():
+    # Round 2 bug A, 2026-09-22: Bohn prints a quire signature ("2 R") on
+    # its own line at the foot of a sheet's first page. Frogs p. 308 prints
+    # one right after an editor's remark ("VER. 1437—1441, were obelized
+    # ...") whose "VER." reads as a cue, so footnote mode ends early; the
+    # remark itself is then dropped as apparatus, and the signature fell
+    # through the whole cascade onto EURIPIDES's open speech as "2 R".
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. First speech, still open.", page=0),
+        _p("[1] A note.", page=0),
+        _p(
+            "VER. 10—12, were obelized by the Alexandrine critics. In Dindorf's "
+            "edition, they are bracketed as doubtful. See Krüger, Gr. Gr. § 51.",
+            page=0,
+        ),
+        _p("2 R", page=0),
+        _p("2 THE TESTPLAY. 13—20.", page=1),
+        _p("continued over the page.", page=1),
+        _p("COM. New speech.", page=1),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert "2 R" not in text
+    assert speeches == 2
+    assert _speeches(text) == [
+        ("LYSISTRATA", "First speech, still open. continued over the page."),
+        ("COMMITTEE-MAN", "New speech."),
+    ]
+    # Still furniture when it lands INSIDE a footnote block: never glued
+    # onto the open note's own text as a continuation.
+    notes, consumed, _log = _collect_footnotes(
+        [_p("[1] A note.", page=0), _p("3 R2", page=0), _p("more of the note.", page=0)],
+        0,
+        3,
+        "TESTPLAY",
+    )
+    assert notes[0]["1"] == "A note. more of the note."
+
+
+def test_page_number_with_a_stray_trailing_period_is_furniture():
+    # Round 2 bug B, 2026-09-22: Birds p. 501 prints its page number as
+    # "365." (three-physical-line heading: range, title, number), and the
+    # whole-string digits test left it on the page as a bare dialogue line.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. First speech.", page=0),
+        _p("10—12.", page=1),
+        _p("THE TESTPLAY.", page=1),
+        _p("365.", page=1),
+        _p("COM. New speech.", page=1),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert "365" not in text
+    assert speeches == 2
+    assert _speeches(text) == [("LYSISTRATA", "First speech."), ("COMMITTEE-MAN", "New speech.")]
+    # A bare range still belongs to `_BARE_RANGE_RE` alone, and a dotted
+    # page number is not mistaken for one.
+    assert _PAGE_NUM_RE.match("10—12.") is None
+    assert _BARE_RANGE_RE.match("365.") is None
+    assert _PAGE_NUM_RE.match("365..") is None
 
 
 def test_embedded_abbrev_cue_mid_sentence_opens_a_new_speech():
