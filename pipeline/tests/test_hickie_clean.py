@@ -316,6 +316,16 @@ def test_completed_note_ending_in_a_closer_does_not_swallow_dialogue():
     ]
     assert _NOTE_CLOSED_RE.search('the Sophoclean tragedy of Tyro,"') is None
     assert _NOTE_CLOSED_RE.search("ap. Athen. vi. p. 269, F.") is not None
+    # R3-4 (Grok's read of round 3b, 2026-09-23): a Greek question mark
+    # closing a quoted verse (Birds), and a printer's dash rule after a
+    # closed quotation (Ecclesiazusae note 6), are complete too. An
+    # English semicolon is not (a note cut off after "he says;" is still
+    # open), and neither is a note cut off on a hyphen or an em dash.
+    assert _NOTE_CLOSED_RE.search("νῦν δὴ 'θέμην;") is not None
+    assert _NOTE_CLOSED_RE.search('Promittunt atrocem animum." ———') is not None
+    assert _NOTE_CLOSED_RE.search("as Bentley says;") is None
+    assert _NOTE_CLOSED_RE.search("Cleon appears to insinu-") is None
+    assert _NOTE_CLOSED_RE.search("and then the—") is None
 
 
 def test_footnote_shaped_lookahead_stops_at_the_page_edge():
