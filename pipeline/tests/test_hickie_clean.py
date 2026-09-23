@@ -324,6 +324,9 @@ def test_completed_note_ending_in_a_closer_does_not_swallow_dialogue():
     assert _NOTE_CLOSED_RE.search("νῦν δὴ 'θέμην;") is not None
     assert _NOTE_CLOSED_RE.search('Promittunt atrocem animum." ———') is not None
     assert _NOTE_CLOSED_RE.search("as Bentley says;") is None
+    # Genie often sets a space before the Greek question mark (Wasps note 1,
+    # `πότερον ὄρνις ἢ ταώς ;`; Lysistrata `ἐργάσει ;`): still closed.
+    assert _NOTE_CLOSED_RE.search("πότερον ὄρνις ἢ ταώς ;") is not None
     assert _NOTE_CLOSED_RE.search("Cleon appears to insinu-") is None
     assert _NOTE_CLOSED_RE.search("and then the—") is None
 
