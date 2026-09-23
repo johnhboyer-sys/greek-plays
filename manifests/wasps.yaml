@@ -76,6 +76,24 @@ english:
     format: loeb-ocr
     source: "bench/hickie/wasps.txt"
     play: "THE WASPS"
+    # Grok's spot-read (fix-hickie-pins-brief-2026-09-22) found 1:74 ("By
+    # Jove, he judges of the disease from his own case") swallowing the
+    # NEXT speech too, leaving 77 bare. Pinning 74 alone changed nothing
+    # (that pairing was already the DP's own choice); the fix is anchoring
+    # the swallowed speech, Xanthias's "love is the beginning of the evil"
+    # (matching Greek 77, "phi-lo- is the start of the trouble"), to its
+    # own line so it stops riding along with 74's. That, in turn, left 78
+    # holding both its own rebuttal AND the next guess (Nicostratus,
+    # matching 81); the same fix, one line further on, holds the
+    # Nicostratus guess to 81. And that left 81 holding its own guess AND
+    # the following rebuttal (matching 83); one more anchor holds that
+    # rebuttal to 83, where the run stops sliding for good -- 83's own
+    # Hickie speech ("You talk nonsense...") already carried the long
+    # Xanthias monologue that follows, so nothing downstream moved.
+    pins:
+      - { greek: "77", english: "No; yet \"love\" is the beginning of the evil.", run: 1 }
+      - { greek: "81", english: "Nicostratus, of Scambonis, on the other hand, says that he is fond of sacrificing or fond of hospitality.", run: 1 }
+      - { greek: "83", english: "By the Dog, Nicostratus, not fond of hospitality, since Philoxenus is a blackguard.", run: 1 }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a

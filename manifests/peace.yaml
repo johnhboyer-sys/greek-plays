@@ -147,6 +147,14 @@ english:
     format: loeb-ocr
     source: "bench/hickie/peace.txt"
     play: "PEACE"
+    # Grok's spot-read (fix-hickie-pins-brief-2026-09-22) found 1:18
+    # showing 19's curse ("Aye, by Jupiter, to the deuce, and yourself
+    # into the bargain.") instead of its own line ("Then I'll pick up and
+    # carry the filth itself" -- Hickie folds that into 15-16's sentence,
+    # so 18 itself has no separable Hickie speech). Anchoring the deuce-
+    # curse back on its own line, 19, clears the borrowed row.
+    pins:
+      - { greek: "19", english: "Aye, by Jupiter, to the deuce, and yourself into the bargain.", run: 1 }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a
