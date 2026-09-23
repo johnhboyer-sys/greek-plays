@@ -82,6 +82,24 @@ english:
     format: loeb-ocr
     source: "bench/hickie/birds.txt"
     play: "THE BIRDS"
+    # Grok's spot-read (fix-hickie-pins-brief-2026-09-22) found two stretches
+    # a row late.
+    #   277: the Mede/crested-bird catalogue -- 1:297 showed the earlier
+    #   crest joke instead of "This one is a partridge; that one, by Zeus,
+    #   a francolin." The primary column hit the identical stretch (its own
+    #   277 pin, run: 22, covers the same Greek slots); Hickie's own speeches
+    #   don't split the same way, so anchoring its first displaced line at
+    #   277 with the same run length pulls the whole stretch back.
+    #   826: 1:829 showed the previous line's "Why not let Minerva be
+    #   guardian" instead of Euelpides's "how could a city be well governed
+    #   ... Clisthenes with a shuttle" -- traced back to 826, where Hickie's
+    #   "What a fine city!" (matching 826) was itself missing, bumped one
+    #   row down to 828. The run self-corrects at 833, where Hickie's own
+    #   "chicken of Mars" / "master chicken" pair (two speeches, one Greek
+    #   node) reabsorbs the slack.
+    pins:
+      - { greek: "277", english: "Mede? O king Hercules! Then how, if it be a Mede, has it flown hither without a camel?", run: 22 }
+      - { greek: "826", english: "What a fine city! What deity, then, will be protector of the city? For whom shall we full the peplus?", run: 1 }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a

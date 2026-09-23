@@ -59,6 +59,15 @@ english:
     format: loeb-ocr
     source: "bench/hickie/knights.txt"
     play: "THE KNIGHTS"
+    # Grok's spot-read (fix-hickie-pins-brief-2026-09-22) found the
+    # "I will scream you down" stichomythia running two rows late: 284-285
+    # (kekraxomai/apothaneisthon) print no Hickie at all and 286-296 each
+    # show the PREVIOUS pair's retort. The run self-corrects at 299-300,
+    # where Hickie's own two-line sentences ("Aye, that do I, by Mercury...";
+    # "Then you play the sophist...") each cover two Greek lines. One anchor
+    # at the true first line clears the whole stretch.
+    pins:
+      - { greek: "284", english: "You shall die forthwith.", run: 1 }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a
