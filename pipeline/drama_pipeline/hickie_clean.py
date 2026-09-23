@@ -598,6 +598,12 @@ _PAGE_NUM_RE = re.compile(r"^\d{1,4}\.?$")
 # above) would leak one of these the same way, so it is furniture here too.
 _SIGNATURE_RE = re.compile(r"^(?:\d{1,2} [A-Z]\d?|[A-Z] \d)$")
 _STAR_RE = re.compile(r"^\*+$")
+# A footnote whose text reads as complete when a running head cut it off:
+# sentence-final punctuation, optionally inside closing quotes or brackets
+# ("...(cf. v. 10.)", "...explained."). A comma before the quote (Lysistrata
+# note 9, p. 19: `Tyro,"`) is NOT closed -- that real tail must still
+# reattach (Grok's read of round 3, finding 2, 2026-09-23).
+_NOTE_CLOSED_RE = re.compile(r'[.!?]["”’)\]]*$')
 # A markdown table's own separator row, or a run of nothing but dashes: never
 # dialogue, whatever the exact dash/pipe count Genie prints.
 _DIVIDER_RE = re.compile(r"^[\-|\s]+$")
@@ -1098,6 +1104,10 @@ def _next_footnote_shaped(paras: list[gt.Paragraph], i: int, end: int) -> bool:
     (2026-09-23 measured: every one is immediately followed by a fresh
     definition)."""
     for j in range(i + 1, end):
+        if paras[j].page != paras[i].page:
+            # Never vouch for this page's line with the NEXT page's own
+            # first definition (Grok's read of round 3, finding 3).
+            return False
         nxt = _normalize(paras[j].text)
         if not nxt:
             continue
@@ -1218,7 +1228,16 @@ def _collect_footnotes(
                 # like every one of the 23 real tails does -- rather than
                 # plain dialogue resuming, which is what the repro this
                 # guards against does instead.
-                note_open = not head_text.rstrip().endswith((".", "!", "?"))
+                #
+                # Still latent after Grok's read of round 3 (2026-09-23,
+                # findings 1 and 4; both need a page that opens with
+                # lowercase text and no running head, and today exactly
+                # 23 in-play pages do, all of them these real tails): a
+                # complete note whose next page has a garbled head AND a
+                # single body line before its own notes still loses that
+                # line, and a stray mid-page bare range (not a heading)
+                # now arms the key like a real one does.
+                note_open = _NOTE_CLOSED_RE.search(head_text.rstrip()) is None
                 if note_open or _next_footnote_shaped(paras, i, end):
                     page_notes[pg][num] = f"{head_text} {text}".strip()
                     log.append(

@@ -17,6 +17,7 @@ from drama_pipeline.hickie_clean import (
     GENIE_TEXT_I,
     PLAYS,
     _BARE_RANGE_RE,
+    _NOTE_CLOSED_RE,
     _PAGE_NUM_RE,
     _Play,
     _collect_footnotes,
@@ -282,6 +283,60 @@ def test_completed_note_does_not_swallow_next_page_dialogue():
     text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
     assert not [line for line in log if line.startswith("note-tail")]
     assert speeches == 3
+    assert _speeches(text) == [
+        ("LYSISTRATA", "One."),
+        ("COMMITTEE-MAN", "A long speech starts here and continues on the next page."),
+        ("LYSISTRATA", "End."),
+    ]
+
+
+def test_completed_note_ending_in_a_closer_does_not_swallow_dialogue():
+    # Grok's read of round 3 (2026-09-23, finding 2): a note whose last
+    # sentence ends inside a bracket or quotation mark ("...(cf. v. 10.)")
+    # is just as complete as one ending on the bare period, but a
+    # last-character test read it as still open and the R3-1 swallow
+    # survived for exactly that shape. Lysistrata's own real tail (note 9,
+    # p. 19, head ending `Tyro,"` -- a comma before the quote) must stay
+    # open under the stricter test.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. One.[1]", page=1),
+        _p("[1] He stops there (cf. v. 10.)", page=1),
+        _p("THE TESTPLAY. 10—20.", page=2),
+        _p("COM. A long speech starts here and", page=2),
+        _p("continues on the next page.", page=3),
+        _p("LY. End.", page=3),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert not [line for line in log if line.startswith("note-tail")]
+    assert _speeches(text) == [
+        ("LYSISTRATA", "One."),
+        ("COMMITTEE-MAN", "A long speech starts here and continues on the next page."),
+        ("LYSISTRATA", "End."),
+    ]
+    assert _NOTE_CLOSED_RE.search('the Sophoclean tragedy of Tyro,"') is None
+    assert _NOTE_CLOSED_RE.search("ap. Athen. vi. p. 269, F.") is not None
+
+
+def test_footnote_shaped_lookahead_stops_at_the_page_edge():
+    # Grok's read of round 3 (2026-09-23, finding 3): the lookahead that
+    # rescues a complete-looking note's tail skipped furniture without
+    # checking the page, so a `[N]` definition at the top of the NEXT page
+    # could vouch for a dialogue line on this one.
+    paras = [
+        _p("THE TESTPLAY", page=0),
+        _p("LY. One.[1]", page=1),
+        _p("[1] Complete note.", page=1),
+        _p("THE TESTPLAY. 10—20.", page=2),
+        _p("COM. A long speech starts here and", page=2),
+        _p("continues on the next page.", page=3),
+        _p("308.", page=3),
+        _p("B 2", page=3),
+        _p("[3] A note on the next page.", page=4),
+        _p("LY. End.", page=4),
+    ]
+    text, speeches, footnotes, log, gaps = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert not [line for line in log if line.startswith("note-tail")]
     assert _speeches(text) == [
         ("LYSISTRATA", "One."),
         ("COMMITTEE-MAN", "A long speech starts here and continues on the next page."),
