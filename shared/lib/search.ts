@@ -33,14 +33,42 @@ export interface SegMeta {
   head: string;
   tokens: string;  // space-joined fold token sequence
   english_head: string;
+  english_slots?: Record<string, string>;
 }
 
 type GrkIndex = Record<string, [number, number][]>; // fold → [[seg_idx, pos], ...]
-type EngIndex = Record<string, number[]>;            // word → [seg_idx, ...]
+type EngIndex = Record<string, (number | [number, string])[]>;
 
 // Greek search can match by dictionary headword ('lemma', every inflected form)
 // or by the exact surface form as written ('form').
 export type MatchMode = 'lemma' | 'form';
+
+export const DEFAULT_MATCH_MODE: MatchMode = 'form';
+
+async function lemmaTerms(terms: string[]): Promise<string[][]> {
+  return Promise.all(terms.map(async term => {
+    if (term.includes('*')) return [term];
+    const folded = greekFold(term);
+    if (!folded) return [term];
+    try {
+      const file = `lemma-map/${folded[0]}.json`;
+      let pending = _fileCache.get(file);
+      if (!pending) {
+        pending = fetch(`${ROOT()}/${file}`).then(r => {
+          if (!r.ok) throw new Error(`HTTP ${r.status} for ${file}`);
+          return r.json();
+        });
+        _fileCache.set(file, pending);
+        pending.catch(() => { if (_fileCache.get(file) === pending) _fileCache.delete(file); });
+      }
+      const shard = await pending as Record<string, string[]>;
+      return shard[folded]?.length ? shard[folded] : [folded];
+    } catch {
+      return [folded];
+    }
+  }));
+}
+
 
 // -- Per-work index loading (cached, lazy per file) -----------------------
 //
@@ -101,6 +129,13 @@ const GREEK_BETA: Record<string, string> = {
   λ:'l',μ:'m',ν:'n',ξ:'c',ο:'o',π:'p',ρ:'r',σ:'s',ς:'s',τ:'t',
   υ:'u',φ:'f',χ:'x',ψ:'y',ω:'w',ϝ:'v',
 };
+const BETA_GREEK: Record<string, string> = Object.fromEntries(
+  Object.entries(GREEK_BETA).filter(([g]) => g !== 'ς').map(([g, b]) => [b, g]),
+);
+export function displayLemma(fold: string): string {
+  return [...fold].map((c, i) => c === 's' && i === fold.length - 1
+    ? 'ς' : BETA_GREEK[c] ?? c).join('');
+}
 
 export function greekFold(input: string): string {
   const out: string[] = [];
@@ -167,33 +202,28 @@ function grkPosting(idx: GrkIndex, term: string, lang: SourceLanguage): Set<numb
   return result;
 }
 
-function engPosting(idx: EngIndex, term: string): Set<number> {
+function engPosting(idx: EngIndex, term: string): Set<string> {
+  const keys = (posts: (number | [number, string])[]) => posts.map(p =>
+    typeof p === 'number' ? `${p}\u0000` : `${p[0]}\u0000${p[1]}`);
   const word = term.toLowerCase().replace(/[^a-z'*]/g, '');
-  if (!word || word === '*') return new Set(Object.values(idx).flat());
+  if (!word || word === '*') return new Set(Object.values(idx).flatMap(keys));
   if (word.endsWith('*')) {
     const prefix = word.slice(0, -1);
-    const result = new Set<number>();
+    const result = new Set<string>();
     for (const key of Object.keys(idx)) {
-      if (key.startsWith(prefix)) for (const si of idx[key]) result.add(si);
+      if (key.startsWith(prefix)) for (const pair of keys(idx[key])) result.add(pair);
     }
     return result;
   }
-  return new Set(idx[word] ?? []);
+  return new Set(keys(idx[word] ?? []));
 }
 
-function intersect(a: Set<number>, b: Set<number>): Set<number> {
+function intersect<T>(a: Set<T>, b: Set<T>): Set<T> {
   return new Set([...a].filter(x => b.has(x)));
 }
 
-function union(a: Set<number>, b: Set<number>): Set<number> {
+function union<T>(a: Set<T>, b: Set<T>): Set<T> {
   return new Set([...a, ...b]);
-}
-
-// Phrase check: do all folded terms appear in order (adjacent, space-separated)?
-function phraseMatches(foldTokenSeq: string, foldTerms: string[]): boolean {
-  if (foldTerms.length === 0) return true;
-  const pattern = foldTerms.join(' ');
-  return foldTokenSeq.includes(pattern);
 }
 
 // Char offsets of every English match in a segment's full text, tokenising
@@ -238,6 +268,8 @@ export interface SearchResult {
   engMatch: boolean;
   grkPositions: number[]; // token positions in the segment where a Greek term matched
   engPositions: number[]; // char offsets in the segment's English where a term matched
+  slotId?: string;
+  englishText?: string;
 }
 
 export interface SearchResponse {
@@ -246,6 +278,7 @@ export interface SearchResponse {
   // searched. Astra lane A, F10: returned alongside hits so the UI can name
   // the skipped plays instead of looking complete.
   failed: string[];
+  lemmata?: string[];
 }
 
 // Positions of a single term across segments: seg_idx → [token positions].
@@ -271,29 +304,25 @@ function termPositions(idx: GrkIndex, term: string, lang: SourceLanguage): Map<n
 // For each segment in `hits`, the token positions to highlight in a KWIC snippet.
 function greekPositions(
   idx: GrkIndex,
-  meta: SegMeta[],
-  terms: string[],
+  options: string[][],
   mode: SearchMode,
   hits: Set<number>,
   lang: SourceLanguage,
 ): Map<number, number[]> {
   const out = new Map<number, number[]>();
-  if (mode === 'phrase' && terms.length > 1) {
-    const foldTerms = terms.map(t => sourceFold(t.replace('*', ''), lang));
+  if (mode === 'phrase' && options.length > 1) {
     for (const si of hits) {
-      const toks = meta[si].tokens.split(' ');
+      const at = options.map(group => new Set(group.flatMap(t => termPositions(idx, t, lang).get(si) ?? [])));
       const ps: number[] = [];
-      for (let i = 0; i + foldTerms.length <= toks.length; i++) {
-        let ok = true;
-        for (let j = 0; j < foldTerms.length; j++) {
-          if (toks[i + j] !== foldTerms[j]) { ok = false; break; }
+      for (const start of at[0]) {
+        if (at.every((positions, n) => positions.has(start + n))) {
+          for (let n = 0; n < at.length; n++) ps.push(start + n);
         }
-        if (ok) for (let j = 0; j < foldTerms.length; j++) ps.push(i + j);
       }
       out.set(si, ps);
     }
   } else {
-    for (const t of terms) {
+    for (const t of options.flat()) {
       for (const [si, ps] of termPositions(idx, t, lang)) {
         if (!hits.has(si)) continue;
         const arr = out.get(si);
@@ -320,6 +349,7 @@ async function searchWork(
   langOp: LangOp,
   matchMode: MatchMode,
   lang: SourceLanguage,
+  resolved: string[][],
 ): Promise<SearchResult[]> {
   // Fetch only what this query needs: meta always; the lemma OR form Greek
   // index iff there are Greek terms; the English index iff there are English
@@ -336,19 +366,20 @@ async function searchWork(
   const engIdx = await engP;
 
   let grkHits: Set<number> | null = null;
-  let engHits: Set<number> | null = null;
+  let engHits: Set<string> | null = null;
 
   if (grkTerms.length > 0 && grkIdx) {
-    const postings = grkTerms.map(t => grkPosting(grkIdx, t, lang));
+    const postings = resolved.map(options => options.reduce(
+      (set, t) => union(set, grkPosting(grkIdx, t, lang)), new Set<number>()));
     if (grkMode === 'any') {
       grkHits = postings.reduce(union);
     } else {
       grkHits = postings.reduce(intersect);
       if (grkMode === 'phrase' && grkTerms.length > 1) {
-        const foldTerms = grkTerms.map(t => sourceFold(t.replace('*', ''), lang));
-        grkHits = new Set([...grkHits].filter(si =>
-          phraseMatches(meta[si].tokens, foldTerms)
-        ));
+        grkHits = new Set([...grkHits].filter(si => {
+          const at = resolved.map(options => new Set(options.flatMap(t => termPositions(grkIdx, t, lang).get(si) ?? [])));
+          return [...at[0]].some(start => at.every((positions, n) => positions.has(start + n)));
+        }));
       }
     }
   }
@@ -362,38 +393,42 @@ async function searchWork(
       if (engMode === 'phrase' && engTerms.length > 1) {
         // Token-based phrase check on the FULL text (same routine that counts
         // occurrences), so a segment is a phrase hit iff it will render one.
-        engHits = new Set([...engHits].filter(si =>
-          englishOccurrences(meta[si].english_head, engTerms, 'phrase').length > 0
-        ));
+        engHits = new Set([...engHits].filter(key => {
+          const [raw, slot] = key.split('\u0000');
+          const m = meta[Number(raw)];
+          return englishOccurrences(m.english_slots?.[slot] ?? m.english_head, engTerms, 'phrase').length > 0;
+        }));
       }
     }
   }
 
-  let combined: Set<number>;
-  if (grkHits !== null && engHits !== null) {
-    combined = langOp === 'and' ? intersect(grkHits, engHits) : union(grkHits, engHits);
-  } else {
-    combined = grkHits ?? engHits ?? new Set();
-  }
+  const englishSegments = new Set([...(engHits ?? [])].map(key => Number(key.split('\u0000')[0])));
+  const combined = grkHits !== null && engHits !== null
+    ? langOp === 'and' ? intersect(grkHits, englishSegments) : union(grkHits, englishSegments)
+    : grkHits ?? englishSegments;
 
   const grkPos = grkHits && grkIdx
-    ? greekPositions(grkIdx, meta, grkTerms, grkMode, grkHits, lang)
+    ? greekPositions(grkIdx, resolved, grkMode, grkHits, lang)
     : new Map<number, number[]>();
 
-  return [...combined]
-    .sort((a, b) => a - b)
-    .map(si => ({
-      work,
-      meta: meta[si],
-      grkMatch: grkHits?.has(si) ?? false,
-      engMatch: engHits?.has(si) ?? false,
-      grkPositions: grkPos.get(si) ?? [],
-      // Occurrence offsets in the FULL English text — one rendered instance
-      // each. Empty when this segment matched only on the Greek side.
-      engPositions: engHits?.has(si)
-        ? englishOccurrences(meta[si].english_head, engTerms, engMode)
-        : [],
-    }));
+  return [...combined].sort((a, b) => a - b).flatMap(si => {
+    const slotKeys = [...(engHits ?? [])].filter(k => Number(k.split('\u0000')[0]) === si);
+    const selected = slotKeys.length ? slotKeys : [''];
+    return selected.map((key, index) => {
+      const slotId = key ? key.split('\u0000')[1] || undefined : undefined;
+      const englishText = slotId ? meta[si].english_slots?.[slotId] ?? meta[si].english_head : meta[si].english_head;
+      return {
+        work,
+        meta: meta[si],
+        grkMatch: index === 0 && (grkHits?.has(si) ?? false),
+        engMatch: !!key,
+        grkPositions: grkPos.get(si) ?? [],
+        // Each offset belongs to this translation's full text.
+        engPositions: key ? englishOccurrences(englishText, engTerms, engMode) : [],
+        ...(slotId ? { slotId, englishText } : {}),
+      };
+    });
+  });
 }
 
 // Unified search across one or more works. `matchMode` chooses the Greek index
@@ -405,7 +440,7 @@ export async function search(
   engMode: SearchMode,
   langOp: LangOp,
   works: string[],
-  matchMode: MatchMode = 'lemma',
+  matchMode: MatchMode = DEFAULT_MATCH_MODE,
 ): Promise<SearchResponse> {
   if (!grkQuery.trim() && !engQuery.trim()) return { results: [], failed: [] };
   if (!works.length) return { results: [], failed: [] };
@@ -414,6 +449,7 @@ export async function search(
   // form is caseless, and a leading wildcard would match everything anyway.
   const grkTerms = grkQuery.trim().split(/\s+/).filter(Boolean).map(t => t.replace(/^\*+/, ''));
   const engTerms = engQuery.trim().split(/\s+/).filter(Boolean);
+  const resolved = matchMode === 'lemma' ? await lemmaTerms(grkTerms) : grkTerms.map(t => [t]);
 
   // Bound how many works load at once, and let a single work's failed index
   // load drop just that work (logged) instead of rejecting the whole search.
@@ -428,7 +464,7 @@ export async function search(
       // unconditional behavior, so existing Greek-only callers/tests are
       // unaffected).
       const lang: SourceLanguage = getWork(w)?.language ?? 'grc';
-      return await searchWork(w, grkTerms, engTerms, grkMode, engMode, langOp, matchMode, lang);
+      return await searchWork(w, grkTerms, engTerms, grkMode, engMode, langOp, matchMode, lang, resolved);
     } catch (err) {
       console.warn(`search: skipping ${w} —`, err);
       failedSet.add(w);
@@ -442,5 +478,9 @@ export async function search(
   if (failedSet.size === works.length) {
     throw new Error('Could not load the search index — check your connection and try again.');
   }
-  return { results: perWork.flat(), failed: works.filter((w) => failedSet.has(w)) };
+  return {
+    results: perWork.flat(), failed: works.filter((w) => failedSet.has(w)),
+    ...(matchMode === 'lemma' && grkTerms.length
+      ? { lemmata: [...new Set(resolved.flat().filter(t => !t.includes('*')))] } : {}),
+  };
 }

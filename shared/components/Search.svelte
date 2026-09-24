@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
-  import { search, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
+  import { search, displayLemma, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
   import { fetchBook, fetchChapters, fetchSections, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
   import { highlightPrefixMatches } from '../lib/text';
   import { WORKS, getWork, workPath, WORK_ORDER, WORK_GROUPS } from '../lib/works';
@@ -62,7 +62,8 @@
   let grkMode: SearchMode = 'all';
   let engMode: SearchMode = 'all';
   let langOp: LangOp = 'and';
-  let matchMode: MatchMode = 'lemma';
+  let matchMode: MatchMode = 'form';
+  let searchedLemmata: string[] = [];
   // Which works to search. Default: all. Selected in the collapsible panel below.
   let selectedWorks = new Set<string>(WORKS.map(w => w.id));
   let worksOpen = false;  // is the works "Refine" panel expanded?
@@ -404,8 +405,7 @@
 
   // Approximate Bekker line of an English match at char offset `pos` (for
   // chapter grouping and the jump target), by proportion through the segment.
-  function englishLineAt(seg: Segment, pos: number): GreekLine | null {
-    const text = seg.english?.text ?? '';
+  function englishLineAt(seg: Segment, pos: number, text = seg.english?.text ?? ''): GreekLine | null {
     const lines = seg.greek;
     if (!lines.length) return null;
     if (pos < 0 || !text.length) return lines[0] ?? null;
@@ -477,8 +477,9 @@
     // The `?loc=` value composes through the work's citation scheme:
     // "1094a:15" (bekker — byte-identical), "17a" (stephanus — no :line, since
     // Plato has no user-facing lines). See shared/lib/citation.ts.
-    const jumpFor = (work: string, book: number, column: string, line: number) =>
-      `${root}${workPath(work, book)}?${base}${base ? '&' : ''}loc=${formatLocValue(work, column, line)}`;
+    const jumpFor = (work: string, book: number, column: string, line: number, slotId?: string) =>
+      `${root}${workPath(work, book)}?${base}${base ? '&' : ''}loc=${formatLocValue(work, column, line)}` +
+      (slotId ? `&trans=${encodeURIComponent(slotId)}` : '');
 
     for (const r of results) {
       const seg = segMap.get(`${r.work}:${r.meta.id}`);
@@ -504,10 +505,10 @@
         }
       }
       if (r.engMatch) {
-        // One instance per occurrence (offsets into the segment's full English,
-        // which equals meta.english_head — see search.ts englishOccurrences).
+        // One instance per occurrence in this translation's full text.
         for (const off of r.engPositions) {
-          const sourceLine = englishLineAt(seg, off);
+          const text = r.englishText ?? seg.english?.text ?? '';
+          const sourceLine = englishLineAt(seg, off, text);
           if (!sourceLine) continue;
           const playLine = schemeFor(r.work).id === 'play-line';
           const column = playLine ? sourceLine.ref ?? seg.column : seg.column;
@@ -515,9 +516,12 @@
           add(r.work, r.meta.book, ch, {
             lang: 'eng', column, line: sourceLine.n,
             ref: playLine ? formatCite(r.work, column, sourceLine.n) : seg.column,
-            html: englishKwicAt(seg, off, ctx.engTerms),
-            jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n),
-            credit: seg.english?.credit ? formatSearchCredit(seg.english.credit) : undefined,
+            html: englishKwicAt(text, off, ctx.engTerms),
+            jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, r.slotId),
+            credit: [getWork(r.work)?.translations.find(t => t.id === r.slotId)?.short,
+              (!r.slotId || r.slotId === getWork(r.work)?.translations.find(t => t.slot === 'english')?.id)
+                && seg.english?.credit ? formatSearchCredit(seg.english.credit) : undefined]
+              .filter(Boolean).join(' · ') || undefined,
           });
         }
       }
@@ -623,7 +627,8 @@
           ? grkQuery.trim().split(/\s+/).filter(Boolean).map(accentNorm)
           : [],
       };
-      const { results, failed } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      const { results, failed, lemmata } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      searchedLemmata = lemmata ?? [];
       failedWorks = failed;
       totalInstances = results.reduce((n, r) => n + instCount(r), 0);
       pages = paginate(results);
@@ -665,8 +670,7 @@
   // English keyword-in-context: a character window around the match at char
   // offset `pos` in the full chunk text, with all query terms highlighted.
   const ENG_WINDOW = 140;
-  function englishKwicAt(seg: Segment, pos: number, terms: string[]): string {
-    const text = seg.english?.text ?? '';
+  function englishKwicAt(text: string, pos: number, terms: string[]): string {
     if (!text) return '';
     const earliest = pos >= 0 && pos < text.length ? pos : 0;
     let start = Math.max(0, earliest - ENG_WINDOW);
@@ -839,8 +843,8 @@
       </fieldset>
       <fieldset class="mode-group" title="Lemma matches every inflected form of a headword; Exact form matches the word only as written">
         <legend>Form</legend>
-        <label><input type="radio" name="matchmode" value="lemma" bind:group={matchMode} /> Lemma</label>
         <label><input type="radio" name="matchmode" value="form" bind:group={matchMode} /> Exact form</label>
+        <label><input type="radio" name="matchmode" value="lemma" bind:group={matchMode} /> Lemma</label>
       </fieldset>
       <fieldset class="mode-group" title="Match diacritics exactly: λόγος and λογός become different queries. A query typed without accents then only matches unaccented tokens.">
         <legend>Accents</legend>
@@ -1025,6 +1029,9 @@
             (searchCtx.grkAccentTerms.length ? ' before accent filtering' : '') +
             (pages.length > 1 ? ` · page ${pageIdx + 1} of ${pages.length}` : '')}
       </p>
+      {#if searchedLemmata.length}
+        <p class="lemma-readings">{searchedLemmata.length === 1 ? 'Lemma' : 'Lemmata'}: {searchedLemmata.map(displayLemma).join(', ')}</p>
+      {/if}
       {#if totalInstances > 0}
         <button type="button" class="export-btn" on:click={exportCsv} disabled={csvBusy}>
           {csvBusy ? 'Preparing CSV…' : 'Export results as CSV'}
