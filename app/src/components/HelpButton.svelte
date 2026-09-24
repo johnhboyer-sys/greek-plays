@@ -97,7 +97,7 @@
 
 {#if showTip}
   <div class="reader-tip" role="status">
-    <span class="tip-text">💡 Click on any Greek word to parse it and see its definition(s)!</span>
+    <span class="tip-text">Click a Greek word to see its meaning and grammar.</span>
     <span class="tip-actions">
       <button type="button" class="tip-more" on:click={openHelp}>More tips →</button>
       <button type="button" class="tip-got" on:click={dismissTip}>Got it</button>
@@ -118,48 +118,44 @@
       on:click|stopPropagation
       on:keydown={onKeydown}
     >
+      <!-- DRAFT copy: John approves. -->
       <div class="help-head">
-        <h2>Getting the most out of the reader</h2>
+        <h2>How to use the reader</h2>
         <button type="button" class="help-close" on:click={closeHelp} aria-label="Close">×</button>
       </div>
 
       <p class="help-intro">
-        A parallel-text reader with morphology, dictionary, and Stephanus citation. A few
-        things that aren't obvious:
+        Read Greek plays with English translations, word help, and line citations.
       </p>
 
       <ul class="help-feature">
         <li>
           <span class="feat-name">Look up any word</span>
-          <span class="feat-desc">Click a Greek word for its lemma, gloss, grammatical parse, and full LSJ dictionary entry.</span>
+          <span class="feat-desc">Click a Greek word to see its lemma, meaning, grammar, and LSJ entry.</span>
         </li>
         <li>
-          <span class="feat-name">Cite &amp; share a section</span>
-          <span class="feat-desc">The address bar updates to the Stephanus section as you scroll — copy it to link straight to that place. Use <strong>Go to Stephanus page</strong> in the header to jump to a citation like <span class="feat-grk">17a</span>.</span>
+          <span class="feat-name">Cite and share a line</span>
+          <span class="feat-desc">As you scroll, the address bar shows the current line. Copy the link to share it.</span>
         </li>
         <li>
-          <span class="feat-name">Views &amp; translations</span>
-          <span class="feat-desc">Switch <strong>Greek</strong> / <strong>Both</strong> / <strong>English</strong> with the view buttons, and choose which translation fills the English column — or show <strong>Compare both</strong> side by side — from the picker beside them. On a phone the view, translation, and print controls all live in the <strong>⚙ Settings</strong> menu (along with text size and line spacing). You can also pick a view or translation from the home page.</span>
-        </li>
-        <li>
-          <span class="feat-name">Contents</span>
-          <span class="feat-desc">The <strong>☰ Contents</strong> drawer lists every book and chapter.</span>
+          <span class="feat-name">Views and translations</span>
+          <span class="feat-desc">Choose <strong>Greek</strong>, <strong>Both</strong>, or <strong>English</strong> with the view buttons. Use the translation picker to choose the English text. In <strong>Settings</strong>, choose <strong>Compare two translations</strong> to see two side by side. On a phone, Settings also has the view buttons, translation picker, Print, text size, and line spacing.</span>
         </li>
         <li>
           <span class="feat-name">Search</span>
-          <span class="feat-desc">Open <strong>Search</strong> to find words across the corpus — in Greek (Greek letters or Beta Code) or English.</span>
+          <span class="feat-desc">Open <strong>Search</strong> to find Greek or English words across the plays.</span>
         </li>
         <li>
-          <span class="feat-name">Jump anywhere</span>
-          <span class="feat-desc">Press <strong>⌘K</strong> (or <strong>Ctrl-K</strong>) for a quick launcher: type a Stephanus page like <span class="feat-grk">34b</span> to jump, a dialogue's name to open it, or a Greek word to look it up.</span>
+          <span class="feat-name">Jump to a line or play</span>
+          <span class="feat-desc">Press <strong>⌘K</strong> or <strong>Ctrl-K</strong>. Type a line number to jump within this play, a play title to open it, or a Greek word to find its lexicon entry.</span>
         </li>
         <li>
           <span class="feat-name">Color the speakers</span>
-          <span class="feat-desc">In a dialogue with more than one speaker, <strong>⚙ Settings ▸ Speakers ▸ Color speaker names</strong> tints each speaker's name (just the name, not their words) a distinct hue, so you can follow who is talking at a glance.</span>
+          <span class="feat-desc">Each speaker's name has its own color. To turn this off, clear <strong>Color speaker names</strong> in <strong>Settings</strong>.</span>
         </li>
         <li>
           <span class="feat-name">Night mode</span>
-          <span class="feat-desc">The <strong>☾</strong> button toggles a warm dark theme.</span>
+          <span class="feat-desc">The moon button in the header switches to the dark theme; the sun button switches back.</span>
         </li>
       </ul>
     </div>

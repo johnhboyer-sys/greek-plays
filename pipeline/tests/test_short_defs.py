@@ -164,3 +164,23 @@ def test_resolve_parses_keeps_a_distinct_unresolved_reading():
     kept = resolve_parses(parses, {"a": "take care of"})
 
     assert [p["gloss"] for p in kept] == ["take care of", "wholly other"]
+
+
+def test_resolve_parses_removes_tei_markup_and_decodes_entities_once():
+    parses = [
+        {"lemma": "a", "gloss": "treat by using", "parse": "p", "lsj": ["a"]},
+        {"lemma": "b", "gloss": "plain &amp; simple", "parse": "p", "lsj": []},
+        {"lemma": "c", "gloss": 'to be <foreign lang="greek">ἄδικος</foreign>',
+         "parse": "p", "lsj": []},
+    ]
+    short_defs = {
+        "a": 'treat by using <foreign lang="greek">φάρμακα</foreign>'
+    }
+
+    kept = resolve_parses(parses, short_defs)
+
+    assert [p["gloss"] for p in kept] == [
+        "treat by using φάρμακα",
+        "plain & simple",
+        "to be ἄδικος",
+    ]
