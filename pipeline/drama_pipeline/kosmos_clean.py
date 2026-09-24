@@ -62,6 +62,20 @@ _NAME = re.compile(r"^[A-Z][A-Za-z .'’\-–—]{0,39}$")
 _LABEL_PUNCT = frozenset({"", "[", "]", "–", "—", "-"})
 
 
+def _repair_cp1252(text: str) -> str:
+    """Read stray C1 controls as Windows-1252, dropping undefined bytes."""
+    text = text.replace("\u0097—", "—").replace("—\u0097", "—")
+    out: list[str] = []
+    for char in text:
+        code = ord(char)
+        mapped = (bytes([code]).decode("cp1252", errors="ignore")
+                  if 0x80 <= code <= 0x9f else char)
+        if mapped == "—" and out and out[-1] == "—":
+            continue
+        out.append(mapped)
+    return "".join(out)
+
+
 class Converted(NamedTuple):
     text: str  # verse-own-line turn-text
     markers: int  # Greek line numbers dropped
@@ -242,6 +256,8 @@ def convert(raw_html: str, title: str) -> Converted:
     line_end_numbers = root.tag == "div"  # the CHS verse layout
     tokens: list = []
     _walk(root, tokens)
+    tokens = [(token[0], _repair_cp1252(token[1]), *token[2:])
+              if token[0] == "text" else token for token in tokens]
 
     opening: list[str] = []
     speeches: list[tuple[str, list[tuple[str, str]]]] = []

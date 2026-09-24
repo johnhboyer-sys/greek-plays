@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: jebb
+    text_fixes:
+      - find: "ch you with any any past fault."
+        replace: "ch you with any past fault."
+        note: "sweep 2026-09-24 n=109: sources/perseus/tlg0011.tlg004.perseus-eng2.xml:2432"
     name: "R. C. Jebb (Cambridge, 1883–1900)"
     short: Jebb
     model: perseus-play

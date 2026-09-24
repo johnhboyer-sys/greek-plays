@@ -52,6 +52,10 @@ english:
       - { greek: "1441", by: "1440" }
   secondary:
     id: hickie
+    text_fixes:
+      - find: "ire Thales? Open open quickly the"
+        replace: "ire Thales? Open, open quickly the"
+        note: "sweep 2026-09-24 n=65: build/genie/in.ernet.dli.2015.515629.txt:3560"
     name: "W. J. Hickie (Bohn, 1853)"
     short: Hickie
     model: perseus-play
@@ -95,6 +99,10 @@ english:
       - { greek: "102", english: "Oh lord, I know those filthy charlatans you mean", run: 1 }
   overlays:
     - id: johnston
+      text_fixes:
+        - find: " done for.\n\n{Enter Socrat"
+          replace: " done for.\n\n[Enter Socrat"
+          note: "sweep 2026-09-24 n=24: sources/johnston/clouds.htm"
       name: "Ian Johnston (VIU)"
       short: Johnston
       model: turn-text

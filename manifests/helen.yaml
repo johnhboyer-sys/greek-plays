@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "e, in order to to set up the "
+        replace: "e, in order to set up the "
+        note: "sweep 2026-09-24 n=77: sources/perseus/tlg0006.tlg014.perseus-eng2.xml:1719"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play
@@ -46,6 +50,10 @@ english:
     footnotes: true
   third:
     id: kosmos
+    text_fixes:
+      - find: "e, in order to to set up the "
+        replace: "e, in order to set up the "
+        note: "sweep 2026-09-24 n=78: sources/kosmos/helen.html; identical wording to Perseus n.77"
     name: "Coleridge, rev. Helen Heroization team (Kosmos Society)"
     short: Kosmos
     model: turn-text

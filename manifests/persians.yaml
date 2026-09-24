@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: smyth
+    text_fixes:
+      - find: " But as for the the full extent"
+        replace: " But as for the full extent"
+        note: "sweep 2026-09-24 n=110: sources/perseus/tlg0085.tlg002.perseus-eng2.xml:569"
     name: "H. W. Smyth (Loeb, 1922–26)"
     short: Smyth
     model: perseus-play
@@ -41,6 +45,10 @@ english:
     footnotes: false
   third:
     id: johnston
+    text_fixes:
+      - find: "of Persia.\n\n{Enter Atossa"
+        replace: "of Persia.\n\n[Enter Atossa"
+        note: "sweep 2026-09-24 n=34: sources/johnston/persians.htm"
     name: "Ian Johnston (VIU)"
     short: Johnston
     model: turn-text

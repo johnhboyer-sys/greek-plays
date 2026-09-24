@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: smyth
+    text_fixes:
+      - find: "! Footprints>matching eac"
+        replace: "! Footprints matching eac"
+        note: "sweep 2026-09-24 n=130: sources/perseus/tlg0085.tlg006.perseus-eng2.xml:388"
     name: "H. W. Smyth (Loeb, 1922–26)"
     short: Smyth
     model: perseus-play

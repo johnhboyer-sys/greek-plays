@@ -46,6 +46,10 @@ work:
 english:
   primary:
     id: smyth
+    text_fixes:
+      - find: "Then do not be be ashamed of mortal r"
+        replace: "Then do not be ashamed of mortal r"
+        note: "sweep 2026-09-24 n=42: sources/perseus/tlg0085.tlg005.perseus-eng3.xml:967"
     name: "H. W. Smyth (Loeb, 1926)"
     short: Smyth
     model: perseus-play

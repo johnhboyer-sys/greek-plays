@@ -60,6 +60,16 @@ english:
       - { start: "1109", end: "1112", before: "1107" }
   secondary:
     id: hickie
+    text_fixes:
+      - find: "Barbarians. Aмв. Not so; he "
+        replace: "Barbarians. Amb. Not so; he "
+        note: "sweep 2026-09-24 n=10,12: build/genie/in.ernet.dli.2015.515629.txt:217"
+      - find: "distinctly! Aмв. What, then,"
+        replace: "distinctly! Amb. What, then,"
+        note: "sweep 2026-09-24 n=11: build/genie/in.ernet.dli.2015.515629.txt:231"
+      - find: "r cost. Will<sup>*</sup> you not let"
+        replace: "r cost. Will* you not let"
+        note: "sweep 2026-09-24 n=128: build/genie/in.ernet.dli.2015.515629.txt:929"
     name: "W. J. Hickie (Bohn, 1853)"
     short: Hickie
     model: turn-text

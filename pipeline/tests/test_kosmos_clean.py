@@ -4,7 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from drama_pipeline.kosmos_clean import PLAYS, convert
+from drama_pipeline.kosmos_clean import PLAYS, convert, _repair_cp1252
+
+
+def test_cp1252_map_delete_and_adjacent_dash():
+    assert _repair_cp1252("bull\x92s") == "bull’s"
+    assert _repair_cp1252("vain\x8d—but") == "vain—but"
+    assert _repair_cp1252("shriek\x97—behavior") == "shriek—behavior"
+    assert _repair_cp1252("husband—\x97 they") == "husband— they"
 from drama_pipeline.stage1_turn_english import parse_play_speeches
 
 

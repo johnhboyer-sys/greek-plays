@@ -19,6 +19,13 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "red come to the the tomb; for i"
+        replace: "red come to the tomb; for i"
+        note: "sweep 2026-09-24 n=70: sources/perseus/tlg0006.tlg012.perseus-eng2.xml:610"
+      - find: "the wrong I and and my brother "
+        replace: "the wrong I and my brother "
+        note: "sweep 2026-09-24 n=71: sources/perseus/tlg0006.tlg012.perseus-eng2.xml:1285"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play

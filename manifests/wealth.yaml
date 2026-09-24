@@ -52,6 +52,10 @@ english:
     min_pairing_rate: 0.81
   third:
     id: rogers
+    text_fixes:
+      - find: "’s hornpipe,―so!\nCome up,"
+        replace: "’s hornpipe,—so!\nCome up,"
+        note: "sweep 2026-09-24 n=13: build/p9/aristophanouspl01arisgoog.txt:4957"
     name: "B. B. Rogers (Loeb, 1924)"
     short: Rogers
     model: turn-text

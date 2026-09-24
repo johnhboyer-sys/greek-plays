@@ -2989,6 +2989,7 @@ def _repeated_ref_counts(manifest: Manifest) -> dict[str, int]:
 
 
 def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, Path, Path]:
+    from .text_fixes import apply_text_fixes
     cfg = ((manifest.data.get("english") or {}).get(slot) or {})
     if not cfg:
         raise ValueError(f"{manifest.work_id}: english.{slot} is required for perseus-play")
@@ -3024,6 +3025,8 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         }
         english["english_covered_by"] = covered
         report["covered_by_count"] = len(covered)
+
+    apply_text_fixes(english, footnotes, cfg.get("text_fixes"), manifest.work_id, slot)
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)

@@ -15,6 +15,13 @@ work:
 english:
   primary:
     id: athenian-society
+    text_fixes:
+      - find: "ed him over the the Corybantes;"
+        replace: "ed him over to the Corybantes;"
+        note: "sweep 2026-09-24 n=125: archive.org aristophaneselev0000aris djvu.txt:21172"
+      - find: "ow not what do do. I am detai"
+        replace: "ow not what to do. I am detai"
+        note: "sweep 2026-09-24 n=126: archive.org aristophaneselev0000aris djvu.txt:21754"
     name: "The Eleven Comedies (The Athenian Society, 1912)"
     short: Athenian Society
     model: turn-text
@@ -70,6 +77,10 @@ english:
       - { greek: "46", english: "Ah! 'twas very well lisped indeed!", run: 1 }
   secondary:
     id: hickie
+    text_fixes:
+      - find: "ty manners. ● BDELYCLEON. (from withi"
+        replace: "ty manners. BDELYCLEON. (from withi"
+        note: "sweep 2026-09-24 n=14: build/genie/in.ernet.dli.2015.515629.txt:5409"
     name: "W. J. Hickie (Bohn, 1853)"
     short: Hickie
     model: turn-text

@@ -19,6 +19,13 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: " brought me to to the paterna"
+        replace: " brought me to the paterna"
+        note: "sweep 2026-09-24 n=114: sources/perseus/tlg0006.tlg015.perseus-eng2.xml:369"
+      - find: " father, do you you hear what I"
+        replace: " father, do you hear what I"
+        note: "sweep 2026-09-24 n=115: sources/perseus/tlg0006.tlg015.perseus-eng2.xml:656"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play
@@ -31,6 +38,10 @@ english:
       - { greek: "1336", by: "1337" }
   secondary:
     id: way
+    text_fixes:
+      - find: "lance. 140}"
+        replace: "lance."
+        note: "sweep 2026-09-24 n=35: build/genie/euripidesway03euriuoft.txt:11369; 140 is the scan's margin line number, not text"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

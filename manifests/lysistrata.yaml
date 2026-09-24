@@ -118,6 +118,10 @@ english:
       play: "THE LYSISTRATA"
       footnotes: true
     - id: johnston
+      text_fixes:
+        - find: "fication of the the goddess Rec"
+          replace: "fication of the goddess Rec"
+          note: "sweep 2026-09-24 n=95: sources/johnston/lysistrata.htm"
       name: "Ian Johnston (VIU)"
       short: Johnston
       model: turn-text
