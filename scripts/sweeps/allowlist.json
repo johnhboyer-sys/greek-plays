@@ -1,0 +1,10 @@
+{
+  "s1": [
+    {"file":"index.html","match":"johnhboyer-sys.github.io/plato-reader","why":"Footer sister-site href"},
+    {"file":"index.html","match":"johnhboyer-sys.github.io/aristotle-reader","why":"Footer sister-site href"},
+    {"file":"index.html","match":"Plato","why":"Footer link text: The Plato Reader ↗"},
+    {"file":"index.html","match":"Aristotle","why":"Footer link text: The Aristotle Reader ↗"}
+  ],
+  "s2": [],
+  "s3": []
+}
