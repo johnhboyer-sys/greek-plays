@@ -10,7 +10,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const siteName = SITE_NAME;
 const pageTitle = `Page Not Found — ${siteName}`;
 const metaDescription =
-  'The requested page could not be found. Return to the corpus or search its Greek and Latin texts.';
+  'The requested page could not be found. Return to the corpus or search its Greek and English texts.';
 const canonical = Astro.site ? new URL(`${base}/404/`, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
 const jsonLd = {

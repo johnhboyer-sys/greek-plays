@@ -17,6 +17,7 @@ to build/dist/reports/ for the Milestone 2 review.
 from __future__ import annotations
 
 import copy
+from html.parser import HTMLParser
 import json
 import os
 import re
@@ -617,6 +618,22 @@ def merge_short_def(
     return gloss
 
 
+class _GlossText(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(data)
+
+
+def _plain_gloss(value: str) -> str:
+    parser = _GlossText()
+    parser.feed(value)
+    parser.close()
+    return "".join(parser.parts)
+
+
 def resolve_parses(parses: list[dict], short_defs: dict[str, str]) -> list[dict]:
     """Drop spurious readings, then extend the survivors' truncated glosses.
 
@@ -635,9 +652,9 @@ def resolve_parses(parses: list[dict], short_defs: dict[str, str]) -> list[dict]
         else filter_parses(parses)
     )
     for parse in kept:
-        parse["gloss"] = merge_short_def(
+        parse["gloss"] = _plain_gloss(merge_short_def(
             parse["gloss"], parse["lemma"], parse["lsj"], short_defs
-        )
+        ))
     return kept
 
 

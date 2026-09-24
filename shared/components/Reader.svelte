@@ -219,12 +219,10 @@
   // Diagrams ({N: html}) rendered inline at [[figN]] markers (Tree of Porphyry).
   let figuresData: Record<string, string> = {};
   if (busse) fetchFigures(work).then(d => { figuresData = d; }).catch(() => {});
-  // Freeman Ancilla group-header paratext (design note §1/§3.7) — resolves
-  // to [] for every non-Freeman work (fetchParatext's own 404-is-empty
-  // convention), so this fetch is unconditional rather than gated on a
-  // scheme check.
+  // Freeman Ancilla group-header paratext (design note §1/§3.7).
+  // Play-line works have no paratext file.
   let paratextData: Paratext[] = [];
-  fetchParatext(work).then(d => { paratextData = d; }).catch(() => {});
+  if (!playLine) fetchParatext(work).then(d => { paratextData = d; }).catch(() => {});
   $: paratextByColumn = paratextData.reduce<Record<string, Paratext[]>>((acc, h) => {
     (acc[h.beforeColumn] ??= []).push(h);
     return acc;
