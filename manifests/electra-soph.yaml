@@ -31,6 +31,10 @@ english:
       - { greek: "987", by: "947" }
   secondary:
     id: storr
+    text_fixes:
+      - find: "nd fear not to to\nThat she wil"
+        replace: "nd fear not\nThat she wil"
+        note: "sweep 2026-09-24 n=73: /Users/johnboyer/Downloads/sophocleswitheng02soph.pdf pp.230-232"
     name: "F. Storr (Loeb, 1913)"
     short: Storr
     model: turn-text

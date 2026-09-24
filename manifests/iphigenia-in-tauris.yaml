@@ -19,6 +19,19 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "ill take it to to Argos, for "
+        replace: "ill take it to Argos, for "
+        note: "sweep 2026-09-24 n=87: sources/perseus/tlg0006.tlg013.perseus-eng2.xml:654"
+      - find: "at I myself have have seen and sh"
+        replace: "at I myself have seen and sh"
+        note: "sweep 2026-09-24 n=88: sources/perseus/tlg0006.tlg013.perseus-eng2.xml:1022"
+      - find: "en daughter of of Leto and Ze"
+        replace: "en daughter of Leto and Ze"
+        note: "sweep 2026-09-24 n=89: sources/perseus/tlg0006.tlg013.perseus-eng2.xml:1563"
+      - find: " have to do the the flight of t"
+        replace: " have to do with the flight of t"
+        note: "sweep 2026-09-24 n=90: sources/perseus/tlg0006.tlg013.perseus-eng2.xml:1615"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play

@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "t be slain, as far as that that can help her."
+        replace: "t be slain, as far as that can help her."
+        note: "sweep 2026-09-24 n=85: sources/perseus/tlg0006.tlg018.perseus-eng2.xml:1581"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play

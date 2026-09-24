@@ -21,6 +21,16 @@ english:
     # Perseus's Bacchae English (tlg0006.tlg017.perseus-eng2) is Buckley's
     # Bohn version, not Coleridge's -- the TEI header names him (2026-09-09).
     id: buckley
+    text_fixes:
+      - find: "ek to drive the the Bacchae dow"
+        replace: "ek to drive the Bacchae dow"
+        note: "sweep 2026-09-24 n=53: sources/perseus/tlg0006.tlg017.perseus-eng2.xml:151"
+      - find: "the eyes of the the gods. Our a"
+        replace: "the eyes of the gods. Our a"
+        note: "sweep 2026-09-24 n=55: sources/perseus/tlg0006.tlg017.perseus-eng2.xml:274"
+      - find: "you not see the the fire, do yo"
+        replace: "you not see the fire, do yo"
+        note: "sweep 2026-09-24 n=56: sources/perseus/tlg0006.tlg017.perseus-eng2.xml:687"
     name: "T. A. Buckley (Bohn, 1850)"
     short: Buckley
     model: perseus-play
@@ -35,6 +45,10 @@ english:
       - { greek: "843a", by: "842" }
   secondary:
     id: way
+    text_fixes:
+      - find: "e mountains\nOne one to the eart"
+        replace: "e mountains\nOne sinks to the eart"
+        note: "sweep 2026-09-24 n=54: build/genie/euripidesway03euriuoft.txt:444-445"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

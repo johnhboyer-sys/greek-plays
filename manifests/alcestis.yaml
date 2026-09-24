@@ -19,6 +19,13 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "of day— Ah! then then might she h"
+        replace: "of day— Ah! then might she h"
+        note: "sweep 2026-09-24 n=48: sources/perseus/tlg0006.tlg002.perseus-eng2.xml:292"
+      - find: "hessaly? or in in the homes o"
+        replace: "hessaly? or in the homes o"
+        note: "sweep 2026-09-24 n=51: sources/perseus/tlg0006.tlg002.perseus-eng2.xml:1080"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play

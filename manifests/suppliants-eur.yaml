@@ -32,6 +32,19 @@ english:
       - { greek: "632", by: "628" }
   secondary:
     id: way
+    text_fixes:
+      - find: "rincely son {joy in thee "
+        replace: "rincely son [joy in thee "
+        note: "sweep 2026-09-24 n=36: build/genie/euripidesway03euriuoft.txt:16381"
+      - find: " me, woe !— {in dust lyin"
+        replace: " me, woe !— [in dust lyin"
+        note: "sweep 2026-09-24 n=37: build/genie/euripidesway03euriuoft.txt:17012"
+      - find: "ear me :--- {parley :-—\n‘"
+        replace: "ear me :--- [parley :-—\n‘"
+        note: "sweep 2026-09-24 n=38: build/genie/euripidesway03euriuoft.txt:17464"
+      - find: "y tomb, thy pyre pyre,\nLonging wi"
+        replace: "y tomb, thy pyre,\nLonging wi"
+        note: "sweep 2026-09-24 n=120: build/genie/euripidesway03euriuoft.txt:19039"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

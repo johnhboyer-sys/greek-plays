@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "Zeus defend his his own share i"
+        replace: "Zeus defend his own share i"
+        note: "sweep 2026-09-24 n=80: sources/perseus/tlg0006.tlg009.perseus-eng2.xml:205"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play
@@ -68,6 +72,10 @@ english:
     footnotes: true
   third:
     id: kosmos
+    text_fixes:
+      - find: "nd gnaws at me me."
+        replace: "nd gnaws at me."
+        note: "sweep 2026-09-24 n=79: sources/kosmos/heracles.html"
     name: "Potter, adapted by Ebbott, Dué & Kamil (CHS, Kosmos Society)"
     short: Kosmos
     model: turn-text

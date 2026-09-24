@@ -39,6 +39,7 @@ from .stage1_greek import _play_line_start_key
 from . import pair_dp
 from .align.similarity import banded_cosine
 from . import turns as turns_mod
+from .text_fixes import apply_text_fixes
 
 
 _DRAMATIS_HEADS = ("DRAMATIS PERSONAE", "The Persons of the drama.")
@@ -4791,6 +4792,9 @@ def run(
             if primary_bridge else None
         ),
     )
+
+    apply_text_fixes(english, footnotes, cfg.get("text_fixes"),
+                     manifest.work_id, slot if slot != "overlay" else f"overlays.{cfg['id']}")
 
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)

@@ -27,6 +27,10 @@ english:
     footnotes: false
   secondary:
     id: way
+    text_fixes:
+      - find: "ron-glowing }\nVeil of Ath"
+        replace: "ron-glowing\nVeil of Ath"
+        note: "sweep 2026-09-24 n=33: build/genie/euripidesway01euriuoft.txt:9097"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

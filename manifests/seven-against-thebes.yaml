@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: smyth
+    text_fixes:
+      - find: "ll, he will be be dragged dow"
+        replace: "ll, he will be dragged dow"
+        note: "sweep 2026-09-24 n=117: sources/perseus/tlg0085.tlg004.perseus-eng2.xml:677"
     name: "H. W. Smyth (Loeb, 1922–26)"
     short: Smyth
     model: perseus-play
@@ -76,6 +80,10 @@ english:
       - { greek: "806", by: "813" }
   third:
     id: kosmos
+    text_fixes:
+      - find: "ll, he will be be dragged dow"
+        replace: "ll, he will be dragged dow"
+        note: "sweep 2026-09-24 n=118: sources/kosmos/seven-against-thebes.html"
     name: "Smyth, rev. Seven Heroization team (Kosmos Society)"
     short: Kosmos
     model: turn-text

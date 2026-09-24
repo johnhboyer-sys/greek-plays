@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "he very men who who toiled to t"
+        replace: "he very men who toiled to t"
+        note: "sweep 2026-09-24 n=124: sources/perseus/tlg0006.tlg011.perseus-eng2.xml:823"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play
