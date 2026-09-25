@@ -102,6 +102,13 @@ english:
     source: bench/johnston/frogs.txt
     play: FROGS
     footnotes: false
+    # S11 sweep row 829 (2026-09-25): the Iacchus summons and hymn (394-413,
+    # "Come now, with your singing summon here") hung on 414, twenty lines
+    # late; pinning Dionysus's reply there returns the hymn to its own Greek.
+    # The stray backtick after "penny-pinching mood" (and after "lion skin",
+    # 430) is in Johnston's own HTML (sources/johnston/frogs.htm), so it stays.
+    pins:
+      - { greek: "414", english: "Hey, I’m always keen to enjoy myself.", run: 1 }
     # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
     license:
       status: licensed

@@ -41,6 +41,46 @@ english:
       "810": "807"    # ἅνδρες τεθνᾶσιν — The men are dead
       "811": "812"    # οὕτως ἀδελφαῖς χερσὶν — with hands so fraternal
       "812": "813"    # οὕτως ὁ δαίμων κοινὸς — so all too equal was their destiny
+    # S11 sweep row 853 (2026-09-25): 971-1004. Smyth numbers the dirge by the
+    # vulgate, four lines behind Murray and in the vulgate order; each of his
+    # lines is keyed to the Murray line it renders, read against the Greek.
+    # Murray prints 993 before 984-992 and 983 after 992 (citation
+    # transpositions), and Smyth's English follows that printed order.
+      "972": "971"    # καὶ φίλον ἔκτανες — And you killed your nearest and dearest
+      "973": "972"    # διπλόα λέγειν — Twofold to tell of
+      "974": "972"    # διπλόα δ' ὁρᾶν — Twofold to look upon
+      "975": "973"    # ἀχέων τοίων τάδ' ἐγγύθεν — Are these sorrows so close to those
+      "976": "974"    # πέλας δ' αἵδ' ἀδελφαὶ ἀδελφεῶν — Fraternal sorrows stand close
+      "980": "978"    # ἠέ — Ah, me
+      "980b": "978"   # ἠέ — Ah, me
+      "981": "978"    # δυσθέατα πήματα — Sorrows hard to behold
+      "982": "979"    # ἐδείξατ' ἐκ φυγᾶς ἐμοί — He showed me when he returned from exile
+      "983": "980"    # οὐδ' ἵκεθ' ὡς κατέκτανεν — But he made no return after he had killed
+      "984": "981"    # σωθεὶς δὲ πνεῦμ' ἀπώλεσεν — He was saved, but lost his life
+      "985": "982"    # ὤλεσε δῆθ' — He lost it, all too truly
+      "986": "982"    # καὶ τὸν ἐνόσφισεν — And took this one's life away
+      "987": "983"    # τάλαν γένος — Wretched family!
+      "988": "983"    # τάλανα παθόν — Wretched suffering!
+      "989": "984"    # δύστονα κήδε' ὁμώνυμα — Kindred sorrows full of groans
+      "990": "985"    # δίυγρα τριπάλτων πημάτων — Sorrows steeped in tripled griefs
+      "991": "986"    # ἰὼ Μοῖρα βαρυδότειρα — O Fate, giver of grievous troubles
+      "994": "989"    # σὺ τοί νιν οἶσθα διαπερῶν — Now you know of the Erinys
+      "995": "990"    # σὺ δ' οὐδὲν ὕστερος μαθών — And you are made aware no later
+      "996": "991"    # ἐπεὶ κατῆλθες ἐς πόλιν — When you came back to our city
+      "997": "992"    # δορός γε τῷδ' ἀντηρέτας — Yes, to face him with your spear
+      "998": "993"    # ὀλοὰ λέγειν — A tale of destruction!
+      "999": "993"    # ὀλοὰ δ' ὁρᾶν — Destruction to look upon!
+      "1000": "994"   # ἰὼ πόνος — Oh, the grief
+      "1001": "994"   # ἰὼ κακά — Oh, the evils
+      "1002": "995"   # δώμασι, καὶ χθονί — For home and land
+      "1003": "996"   # πρὸ πάντων δ' ἐμοί — Above all for me
+      "1004": "997"   # καὶ τὸ πρόσω γ' ἐμοί — And more also for me
+      "1005": "998"   # δυστόνων κακῶν ἄναξ — Ah I pity your grievous suffering, my king
+      "1006": "1000"  # πάντων πολυπονωτάτω — Pity for you both, most lamentable
+      "1007": "1001"  # δαιμονῶντ' ἐν ἄτᾳ — You were possessed by delusion
+      "1008": "1002"  # ποῦ σφε θήσομεν χθονός — Where shall we lay them in the earth?
+      "1009": "1003"  # ὅπου τιμιώτατον — Ah, where their honor is greatest
+      "1010": "1004"  # πῆμα πατρὶ πάρευνον — To lie beside their father
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
@@ -48,16 +88,11 @@ english:
       - { greek: "103", by: "104" }
       - { greek: "1042", by: "1048" }
       - { greek: "1044", by: "1050" }
-      - { greek: "979", by: "982" }  # Smyth renders 979 as his 982 "He showed me when he returned from exile." (the kommos follows a different lineation; Lane C round 3, 2026-09-18)
-      - { greek: "986", by: "991" }  # Smyth's 991 "O Fate, giver of grievous troubles..." renders 986-988
       - { greek: "1046", by: "1051" }
       - { greek: "1047", by: "1052" }
       - { greek: "106", by: "104" }
       - { greek: "367", by: "327" }
       - { greek: "97", by: "100" }
-      - { greek: "981", by: "985" }
-      - { greek: "992", by: "997" }
-      - { greek: "993", by: "998" }
       - { greek: "806", by: "813" }  # vulgate order: 806 ends inside Smyth's 813 speech (owner ruling 2026-09-22)
   secondary:
     id: morshead
@@ -78,6 +113,18 @@ english:
     # vulgate order: 806 ends inside Morshead's 813 speech (owner ruling 2026-09-22)
     covered:
       - { greek: "806", by: "813" }
+    # S11 sweep row 49 (2026-09-25): the parodos ran one strophe early from
+    # 89 to 109 (the torrent speech at 85 took "They stream to the walls",
+    # 89-91, and each speech after sat one row up). Read against the Greek:
+    # 89-91 walls, 92-96 what god, 97-98 crouch at the shrines, 98-100 shield
+    # clashes, 101-102 robes, 103 clang, 104-105 Ares, 106-107 look down,
+    # 109-160 the long prayer.
+    pins:
+      - { greek: "89-90", english: "They stream to the walls from without", run: 8 }
+      # The long prayer (109-160) and the closing strophe ("Thou too, O
+      # daughter of Zeus", 161-180) share the 109 row, spread over 109-180;
+      # pinning the second holds both in the ode, off Eteocles' 182.
+      - { greek: "109", english: "Thou too, O daughter of Zeus", run: 1 }
   third:
     id: kosmos
     text_fixes:
@@ -129,6 +176,46 @@ english:
       # vulgate order: 806 ends inside Johnston's 813 speech (owner ruling 2026-09-22)
       covered:
         - { greek: "806", by: "813" }
+      # S11 sweep rows 525, 979, 1384 (2026-09-25): Johnston's second Chorus
+      # speech opens at 845 (ἰὼ πολύστονοι, "O you who bring us so much
+      # sorrow") but was seated at 875, so the first speech spread over
+      # 848-874 and the whole lament ran 14 lines and more late.
+      # Johnston prints 845-960 as one Chorus speech (from 875 the edition
+      # divides it among Antigone, Ismene, and the Chorus), and the spread ran
+      # it five to fourteen lines late. A CHORUS cue (on the source's blank
+      # line before the stanza) opens each stanza that begins a Greek
+      # segment, and the pins seat each on its own Greek, read line by line:
+      # 848 sorrow + messenger, 854 the Acheron ship, 861 the sisters come +
+      # the Furies' hymn, 871 the two sisters, 875 hard-hearted, 879 wretched death, 881 reconciled with swords,
+      # 886 the Fury, 888 left sides, 895 deadly blows, 900 the city grieves,
+      # 906 split their property, 911 struck down by iron, 915 groans,
+      # 923 citizens and foreigners, 926 the mother, 933 one seed, 938
+      # enmity done + the stranger from the sea, 947 allotted shares,
+      # 951 the trophy to Ruin.
+      pins:
+        - { greek: "848", english: "O you who bring us so much sorrow", run: 4 }
+        - { greek: "875", english: "O you hard-hearted, senseless men", run: 8 }
+        - { greek: "911", english: "So here they lie, struck down by iron.", run: 8 }
+      line_fixes:
+        1421: "[CHORUS]"
+        1430: "[CHORUS]"
+        1442: "[CHORUS]"
+        1450: "[CHORUS]"
+        1456: "[CHORUS]"
+        1460: "[CHORUS]"
+        1466: "[CHORUS]"
+        1471: "[CHORUS]"
+        1476: "[CHORUS]"
+        1480: "[CHORUS]"
+        1488: "[CHORUS]"
+        1495: "[CHORUS]"
+        1500: "[CHORUS]"
+        1507: "[CHORUS]"
+        1512: "[CHORUS]"
+        1520: "[CHORUS]"
+        1525: "[CHORUS]"
+        1536: "[CHORUS]"
+        1541: "[CHORUS]"
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed
@@ -187,6 +274,11 @@ citation:
   fingerprint: { count: 1052, sha256: "12177e370cf4daf92d28533096b5f8e6ab52a9047337bb4ea51bce43f0c78a4c" }
 
 speakers:
+  # S11 sweep row 93 (2026-09-25): Morshead's text prints MESSENGER over the
+  # Chorus's question at 811-812 ("Did hands meet hands more close than
+  # brotherly?"), between two SPY speeches; the question is the Chorus's.
+  english_overrides:
+    - { slot: secondary, cue: "MESSENGER", from_text: "Did hands meet hands more close than brotherly?", display: "Chorus", label: "CHORUS" }
   english:
     "Eteocles": "Eteocles"
     "Scout": "Scout"

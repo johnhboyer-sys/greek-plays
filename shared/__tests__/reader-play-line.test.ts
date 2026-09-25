@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
-import type { BookData, EnglishTurn } from '../lib/data';
+import type { BookData, EnglishTurn, OverlayPiece } from '../lib/data';
 import type { Work } from '../lib/works';
 
 // Reader-layer acceptance for P1 (docs/p1-probe.md): a play-line segment's
@@ -1031,6 +1031,29 @@ describe('Reader.svelte stage directions (Arrowsmith)', () => {
 
 describe('Reader.svelte play-line compare columns (P4)', () => {
   beforeEach(() => localStorage.clear());
+
+  it('marks added turn-text cues in both, English-only, and compare views', async () => {
+    const data = compareBook();
+    data.segments[0].secondary = [{ chapter: '40', text: 'CHORUS. Added words.', cont: false, cueAdded: true } as OverlayPiece];
+    localStorage.setItem('reader-trans-PLAYLINE', 'storr');
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const lead = () => container.querySelector('.turn-para .speaker.speaker-added');
+    const englishLead = () => container.querySelector('.english-col .turn-para .speaker');
+    expect(lead()?.textContent).toBe('[Chorus]');
+    await fireEvent.click([...container.querySelectorAll('button')].find(b => b.textContent === 'English')!);
+    await flush();
+    expect(container.querySelector('.reader-body')?.classList.contains('view-english')).toBe(true);
+    expect(lead()?.textContent).toBe('[Chorus]');
+    await fireEvent.click([...container.querySelectorAll('button')].find(b => b.textContent === 'Both')!);
+    const choices = container.querySelectorAll('input[name="trans-mode"]');
+    await fireEvent.change(choices[1] as HTMLInputElement);
+    await flush();
+    expect(lead()?.textContent).toBe('[Chorus]');
+    expect(lead()?.classList.contains('speaker-added')).toBe(true);
+    expect(englishLead()?.textContent).toBe('Chorus');
+    expect(englishLead()?.classList.contains('speaker-added')).toBe(false);
+  });
 
   function compareBook(): BookData {
     return {

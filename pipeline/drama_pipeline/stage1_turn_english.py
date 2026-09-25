@@ -1313,19 +1313,26 @@ def _parse_lindsay_speeches(
     before: list[str] | None = None,
     verse: bool = False,
     known_names: set[str] | None = None,
+    added_cue_lines: set[int] | None = None,
 ) -> tuple[list[dict], int]:
     known_names = known_names or set()
+    added_cue_lines = added_cue_lines or set()
     if known_names:
         # A run-on line gluing several speakers' half-lines together must be
         # split before the main loop ever sees it (B5 addendum, 2026-09-17).
-        lines = lines[:start] + [
-            piece
-            for raw in lines[start:]
-            for piece in _split_embedded_cues(raw, known_names)
-        ]
+        expanded = lines[:start]
+        shifted: set[int] = set()
+        for source_i, raw in enumerate(lines[start:], start):
+            pieces = _split_embedded_cues(raw, known_names)
+            if source_i in added_cue_lines:
+                shifted.add(len(expanded))
+            expanded.extend(pieces)
+        lines = expanded
+        added_cue_lines = shifted
     speeches: list[dict] = []
     parts: list[str] = []
     speaker = ""
+    speech_cue_added = False
     i = start
     end_i = len(lines)
     # `inline`: [index into parts, text] for each stage direction met in the
@@ -1340,6 +1347,8 @@ def _parse_lindsay_speeches(
             before += [d for _at, d in inline]
             return
         speech = {"speaker_printed": speaker, "text": text}
+        if speech_cue_added:
+            speech["cueAdded"] = True
         # A direction after the speech's last line is printed before the
         # next speech; one between its lines stays inside it (`shown`).
         inner = [entry for entry in inline if any(parts[entry[0]:])]
@@ -1374,6 +1383,7 @@ def _parse_lindsay_speeches(
             name, stage = split
             flush()
             speaker = name
+            speech_cue_added = i in added_cue_lines
             parts = [stage] if stage else []
             inline = []
             i += 1
@@ -1382,6 +1392,7 @@ def _parse_lindsay_speeches(
         if mid_cue:
             flush()
             speaker, rest = mid_cue
+            speech_cue_added = False
             parts = [rest]
             inline = []
             i += 1
@@ -1435,12 +1446,16 @@ def parse_play_speeches(
     source has no ``The Persons of the drama.`` line to auto-detect.
     """
     lines = text.splitlines()
+    added_cue_lines: set[int] = set()
     for raw_line_no, replacement in (line_fixes or {}).items():
         line_no = int(raw_line_no)
         if line_no < 1 or line_no > len(lines):
             raise ValueError(
                 f"line fix {line_no} is outside the {len(lines)}-line source"
             )
+        if replacement.startswith("[") and replacement.endswith("]"):
+            added_cue_lines.add(line_no - 1)
+            replacement = replacement[1:-1]
         lines[line_no - 1] = replacement
     known_names = known_names or set()
     title_i = _locate_title(lines, title)
@@ -1483,6 +1498,7 @@ def parse_play_speeches(
             before=[d for _at, d in opening],
             verse=verse,
             known_names=known_names,
+            added_cue_lines=added_cue_lines,
         )
         return speeches, {}
     dp = _dramatis_index_after(lines, title_i)
@@ -1490,7 +1506,7 @@ def parse_play_speeches(
     lindsay = dp_line.startswith("The Persons of the drama")
     start = _body_start(lines, title_i, lindsay, known_names)
     if lindsay:
-        speeches, end_i = _parse_lindsay_speeches(lines, start, verse=verse)
+        speeches, end_i = _parse_lindsay_speeches(lines, start, verse=verse, added_cue_lines=added_cue_lines)
     else:
         speeches, end_i = _parse_as_speeches(lines, start, known_names, verse)
     notes = _parse_notes(lines, end_i, title)
@@ -3922,6 +3938,8 @@ def parse_translation(
                     }
                 if before and texts:
                     turn["directionsBefore"] = list(before)
+                if speech.get("cueAdded"):
+                    turn["cueAdded"] = True
                 turns.append(turn)
             texts.append(piece)
         if not texts:
@@ -3937,6 +3955,7 @@ def parse_translation(
                 "bekker": [],
                 "turns": turns,
                 "approximate": True,
+                **({"cueAdded": True} if any(t.get("cueAdded") for t in turns) else {}),
                 **({"directionsBefore": directions_before} if directions_before else {}),
             }
         )
@@ -4693,12 +4712,16 @@ def _spread_long_speeches(
                 if a <= int(t.get("offset") or 0) < b
             ]
             if idx == 0:
-                out.append({**chunk, "text": body, "turns": turns})
+                first = {**chunk, "text": body, "turns": turns}
+                if not any(t.get("cueAdded") for t in turns):
+                    first.pop("cueAdded", None)
+                out.append(first)
             else:
                 # The directions before the speech belong to its first piece.
-                rest = {key: v for key, v in chunk.items() if key != "directionsBefore"}
+                rest = {key: v for key, v in chunk.items() if key not in ("directionsBefore", "cueAdded")}
                 out.append({**rest, "id": owner["id"], "column": owner["column"],
-                            "text": body, "turns": turns, "notes": [], "markers": []})
+                            "text": body, "turns": turns, "notes": [], "markers": [],
+                            **({"cueAdded": True} if any(t.get("cueAdded") for t in turns) else {})})
         pieces_of[chunk["id"]] = out
     result: list[dict] = []
     for c in chunks:
@@ -4736,6 +4759,8 @@ def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
                 "chapter": str(chunk.get("column") or "1"),
                 "text": text,
                 "cont": False,
+                **({"cueAdded": True} if chunk.get("cueAdded") else {}),
+                **({"cueAddedTurns": [k for k, t in enumerate(named) if t.get("cueAdded")]} if chunk.get("cueAdded") else {}),
                 **({"directionsBefore": chunk["directionsBefore"]} if chunk.get("directionsBefore") else {}),
                 **({"turnDirections": turn_directions} if turn_directions else {}),
             }

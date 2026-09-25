@@ -71,7 +71,7 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
+  import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
   import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
@@ -1745,6 +1745,11 @@
         }));
     const roster = bookSpeakerRoster.length ? bookSpeakerRoster : (speakerRoster ?? []);
     const source = extractPrefixedEnglishTurns(piece.text, roster, fallbackTurns);
+    const addedPiece = piece as OverlayPiece & { cueAdded?: boolean; cueAddedTurns?: number[] };
+    if (addedPiece.cueAdded) {
+      source.turns = source.turns.map((turn, k) =>
+        (addedPiece.cueAddedTurns ?? [0]).includes(k) ? { ...turn, cueAdded: true } : turn);
+    }
     // Arrowsmith's directions before a later speech ride the turn they
     // precede (data.ts OverlayPiece.turnDirections).
     const dirs = piece.turnDirections;
@@ -1756,6 +1761,13 @@
         return d ? { ...tu, directionsBefore: d.directions } : tu;
       }),
     };
+  }
+
+  type AddedBlock = EnglishTurnBlock & { cueAdded?: boolean };
+  function playBlocks(text: string, turns: readonly EnglishTurn[]): AddedBlock[] {
+    return buildEnglishTurnBlocks(text, turns).map((block) =>
+      (turns[block.turnIndex] as EnglishTurn & { cueAdded?: boolean } | undefined)?.cueAdded
+        ? { ...block, cueAdded: true } : block);
   }
 
   // The translator's line numbers in the English margin (John, 2026-09-24,
@@ -2024,7 +2036,7 @@
       const turns = source.turns
         .filter((tu) => tu.offset >= from && tu.offset < to)
         .map((tu) => ({ ...tu, offset: Math.max(0, marked.at(tu.offset) - a - lead) }));
-      return buildEnglishTurnBlocks(text, turns);
+      return playBlocks(text, turns);
     };
     // Lines before the first anchored line, with any text before its tick.
     if (spaced[0]!.i > 0) rows.push({ items: items.slice(0, spaced[0]!.i), blocks: sliceBlocks(0, spaced[0]!.offset) });
@@ -4127,7 +4139,7 @@
         <!-- A direction before this speech that got no row of its own
              (splitAtDirections: compare mode, or a speech sharing its row). -->
         {#if b.directionsBefore}{#each b.directionsBefore as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{(b as AddedBlock).cueAdded ? `[${leadInCase(leadName(b.display))}]` : leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
       {/each}
     </div>
   {/snippet}
@@ -4144,7 +4156,7 @@
          used only when no turn in this chunk carries one of its own (data
          built before the per-turn flag existed). -->
     {@const marked = markedTurns(source)}
-    {@const blocks = withoutOpeningDirections(buildEnglishTurnBlocks(marked.text, marked.turns))}
+    {@const blocks = withoutOpeningDirections(playBlocks(marked.text, marked.turns))}
     {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
     {@render playTurnStack(blocks, chunkMm, transId)}
     {:else if bareDirs}
@@ -4725,7 +4737,7 @@
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plMarked = plSource ? markedTurns(plSource) : null}
-          {@const plTurnBlocks = plMarked ? withoutOpeningDirections(buildEnglishTurnBlocks(plMarked.text, plMarked.turns)) : []}
+          {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns)) : []}
           {@const rawPlRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, verseForm(segTransId))) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows) : null}
           {#if plRows}

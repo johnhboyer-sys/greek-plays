@@ -23,6 +23,16 @@ english:
       - find: "e, in order to to set up the "
         replace: "e, in order to set up the "
         note: "sweep 2026-09-24 n=77: sources/perseus/tlg0006.tlg014.perseus-eng2.xml:1719"
+      # S11 sweep row 692 (2026-09-25): the TEI ends Menelaos's n="652" with
+      # the first half of Helen's sentence at 654-655 (ἐμὰ δὲ χαρμονᾶι δάκρυα
+      # πλέον ἔχει χάριτος ἢ λύπας) and files the rest under n="655"; the
+      # two halves are joined at 654, beside their Greek.
+      - find: " the goddess. My joy is tearful; it has more"
+        replace: " the goddess."
+        note: "S11 row 692: sources/perseus/tlg0006.tlg014.perseus-eng2.xml, n=652/655"
+      - find: "delight than sorrow."
+        replace: "My joy is tearful; it has more delight than sorrow."
+        note: "S11 row 692: sources/perseus/tlg0006.tlg014.perseus-eng2.xml, n=652/655"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play

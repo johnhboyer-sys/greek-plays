@@ -2806,6 +2806,8 @@ body {
 :is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="9"] { color: var(--spk-9); }
 :is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="10"] { color: var(--spk-10); }
 :is(.turn-flow, .reader-body.play-line).spk-color .speaker[data-spk="11"] { color: var(--spk-11); }
+:is(.turn-flow, .reader-body.play-line).spk-color .speaker.speaker-added[data-spk],
+.turn-stack .speaker.speaker-added { color: var(--text-light); }
 /* The Greek siglum (ΣΩ.) is coloured by its turn row's column slot so it
    matches the English name for the same speaker. */
 .turn-flow.spk-color .greek-col[data-spk="0"] .speaker { color: var(--spk-0); }
