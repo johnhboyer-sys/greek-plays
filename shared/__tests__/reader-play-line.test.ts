@@ -2415,3 +2415,45 @@ describe('Reader.svelte repeated printed refs (Astra lane A, F8)', () => {
     window.history.replaceState(null, '', '/');
   }, 10000);
 });
+
+describe('Reader.svelte hashchange on an open play', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    window.history.replaceState(null, '', '/PLAYLINE/book/1#100');
+  });
+  afterEach(() => {
+    window.history.replaceState(null, '', '/');
+  });
+
+  it('scrolls the new line into view when the hash changes', async () => {
+    const data: BookData = {
+      book: 1,
+      speakerRoster: ['Watchman'],
+      segments: [
+        {
+          id: '1:100', column: '100',
+          greek: [{ n: 100, text: 'α', tokens: [], ref: '100' }],
+          speakers: [{ line: 100, offset: 0, label: 'Φυ.', display: 'Watchman' }],
+          english: { text: 'Hundred.', notes: [], markers: [] },
+        },
+        {
+          id: '1:500', column: '500',
+          greek: [{ n: 500, text: 'β', tokens: [], ref: '500' }],
+          speakers: [{ line: 500, offset: 0, label: 'Φυ.', display: 'Watchman' }],
+          english: { text: 'Five hundred.', notes: [], markers: [] },
+        },
+      ],
+    };
+    render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+
+    const next = document.getElementById('L500-500');
+    expect(next).toBeTruthy();
+    (Element.prototype.scrollIntoView as unknown as { mockClear: () => void }).mockClear();
+
+    window.location.hash = '#500';
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+
+    expect((Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.instances).toContain(next);
+  });
+});

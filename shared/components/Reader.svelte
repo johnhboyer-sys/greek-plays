@@ -1187,6 +1187,19 @@
     fallback?.scrollIntoView({ behavior: 'auto', block: 'center' });
   }
 
+  // A same-page #line change fires hashchange. updateHash uses replaceState,
+  // which does not, so this cannot loop with the scroll-spy.
+  function onHashChange() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    if (!playLine) return;
+    const parsed = parseLocation(work, hash);
+    if (!parsed) return;
+    scrollToPlayLineRef(parsed.column);
+    const line = resolvePlayLineRef(parsed.column);
+    if (line) lastCite = formatCite(work, line.ref ?? parsed.column, null);
+  }
+
   // ── The deep-link settle pass (P4 Lane D, build/p4/lane-d-brief.md) ──────
   // A shared `?loc=`/`#` link must LAND, and it did not: on the built site
   // /aeschylus/agamemnon?loc=1203 came to rest on line 1203 on some loads and
@@ -1267,6 +1280,7 @@
       window.removeEventListener('scroll', onScrollArm);
       window.removeEventListener('scroll', onCtxScroll);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('hashchange', onHashChange);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
       document.removeEventListener('mouseup', checkCopyBtn);
@@ -3225,6 +3239,7 @@
         window.addEventListener('scroll', onScrollArm, { passive: true });
         window.addEventListener('scroll', onCtxScroll, { passive: true });
         window.addEventListener('resize', onResize);
+        window.addEventListener('hashchange', onHashChange);
         document.addEventListener('mouseup', checkCopyBtn);
         document.addEventListener('selectionchange', onSelectionChange);
         updateChapterContext();
