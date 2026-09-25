@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
+  import { afterUpdate, onDestroy } from 'svelte';
   import { fetchFootnotes } from '../lib/data';
   import { sanitizeHtml } from '../lib/html';
 
@@ -15,12 +15,15 @@
   // move from the `[^N]` marker into the popup without it disappearing.
   export let onHoverIn: () => void = () => {};
   export let onHoverOut: () => void = () => {};
+  export let takeFocus = false;
+  export let returnFocus: HTMLElement | null = null;
 
   let html = '';
   let loading = true;
   let error = '';
   let dialogEl: HTMLDivElement;
-  let previousFocus: HTMLElement | null = null;
+  let focusedByActivation = false;
+  let focusTimer: ReturnType<typeof setTimeout> | null = null;
 
   // §Phase-3 B5 / Reader.svelte's fnDisplay: the printed number to show in
   // the header — a scoped label's ("2.3.1") trailing component, a star/
@@ -120,13 +123,16 @@
     }
   }
 
-  onMount(() => {
-    previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    setTimeout(() => dialogEl?.focus(), 0);
+  afterUpdate(() => {
+    if (takeFocus && !focusedByActivation) {
+      focusedByActivation = true;
+      focusTimer = setTimeout(() => { dialogEl?.focus(); focusTimer = null; }, 0);
+    }
   });
 
   onDestroy(() => {
-    previousFocus?.focus();
+    if (focusTimer) clearTimeout(focusTimer);
+    if (focusedByActivation) returnFocus?.focus();
   });
 </script>
 
@@ -138,7 +144,7 @@
   style="left:{pos.left};top:{pos.top}"
   role="dialog"
   aria-label="Footnote {display}"
-  aria-modal="true"
+  aria-modal={takeFocus ? 'true' : undefined}
   tabindex="-1"
   on:mouseenter={onHoverIn}
   on:mouseleave={onHoverOut}

@@ -9,6 +9,8 @@ from drama_pipeline.stage1_english import build_alignment
 from drama_pipeline.stage1_turn_english import (
     _assign_speeches,
     _apply_english_overrides,
+    _clean_way_ocr_litter,
+    _is_way_source,
     _split_lindsay_speaker_line,
     parse_play_speeches,
     parse_translation,
@@ -6953,3 +6955,79 @@ def test_bare_direction_ignores_the_name_shared_with_the_block_above():
     by_id = {c["id"]: c for c in out}
     assert "1:869" not in by_id
     assert by_id["1:870"]["directionsBefore"] == ["[The CHORUS looks up]"]
+
+
+# Way-cleanup sweep (2026-09-25, build/sweeps/way-cleanup-2026-09-25.tsv):
+# mechanical OCR litter in A. S. Way's Loeb bench column, confirmed against
+# archive.org's page images. `_is_way_source` scopes every rule to
+# `bench/way/` -- Rogers shares `format: loeb-ocr` and must stay untouched.
+
+def test_is_way_source_scopes_to_bench_way_only(tmp_path):
+    way_file = tmp_path / "bench" / "way" / "medea.txt"
+    rogers_file = tmp_path / "bench" / "rogers" / "wealth.txt"
+    way_file.parent.mkdir(parents=True)
+    rogers_file.parent.mkdir(parents=True)
+    way_file.write_text("x", encoding="utf-8")
+    rogers_file.write_text("x", encoding="utf-8")
+    assert _is_way_source(way_file) is True
+    assert _is_way_source(rogers_file) is False
+
+
+def test_way_ocr_litter_collapses_an_em_dash_glued_to_a_stray_hyphen():
+    # bacchae 1:912 (confirmed against page 77, vol. 3): the page prints a
+    # single em dash; the bench file carries an extra glued hyphen.
+    text = "So !—-like a daughter of Cadmus is thy form."
+    assert _clean_way_ocr_litter(text) == "So !—like a daughter of Cadmus is thy form."
+    # The other glue order also collapses.
+    assert _clean_way_ocr_litter("caught! -—I warn all men") == "caught! —I warn all men"
+    # hippolytus 1:611: a three-character run (hyphen, em dash, hyphen)
+    # collapses the same way, not just a two-character pair.
+    assert _clean_way_ocr_litter("thine oath !-—-dishonour not") == (
+        "thine oath !—dishonour not"
+    )
+
+
+def test_way_ocr_litter_leaves_a_plain_hyphen_run_alone():
+    # suppliants-eur 1:426: "---" is a different, already-decided mark (a
+    # prior sweep's own text_fix depends on it staying put) -- only a run
+    # that contains a real dash character is this class's litter.
+    text = "ear me :--- {parley :—"
+    assert _clean_way_ocr_litter(text) == text
+
+
+def test_way_ocr_litter_leaves_a_line_wrapped_hyphen_alone():
+    # phoenician-women 1:1758: the scan's own line break falls inside
+    # "blood-polluted". Checking it against the page showed this is NOT a
+    # mechanical fix (some are permanent compounds, some a single word split
+    # only for the line's width) -- left to individual text_fixes instead of
+    # a blanket rule (way-cleanup sweep, 2026-09-25).
+    text = "He whose single prowess quelled the Sphinx’s blood-\npolluted might."
+    assert _clean_way_ocr_litter(text) == text
+
+
+def test_parse_translation_applies_way_cleanup_only_under_bench_way(tmp_path):
+    spine = json.loads((FIXTURES / "spine.json").read_text(encoding="utf-8"))
+    way_dir = tmp_path / "bench" / "way"
+    way_dir.mkdir(parents=True)
+    way_file = way_dir / "play.txt"
+    way_file.write_text(
+        "THE ACHARNIANS\n\nDICAEOPOLIS. So !—-like a daughter of Cadmus is thy form.\n",
+        encoding="utf-8",
+    )
+    english, _footnotes, _report = parse_translation(
+        way_file,
+        spine,
+        work_id="test-play",
+        translation_id="way",
+        play="THE ACHARNIANS",
+        sigla=SIGLA,
+        english_aliases=ALIASES,
+        footnotes_enabled=False,
+        format="loeb-ocr",
+        slot="secondary",
+    )
+    chunk_text = " ".join(
+        chunk["text"] for chunk in english["chunks"]
+    )
+    assert "—-" not in chunk_text
+    assert "—like" in chunk_text

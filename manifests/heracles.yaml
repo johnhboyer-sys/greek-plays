@@ -63,6 +63,16 @@ english:
       - { greek: "1064", by: "1065" }
   secondary:
     id: way
+    text_fixes:
+      - find: "Woe worth the day! -\n"
+        replace: "Woe worth the day!\n"
+        note: "way-cleanup 2026-09-25 row 274 (S11 confirmed): stray hyphen at line end, not a broken word"
+      - find: "Shall. trample thy son unto dust"
+        replace: "Shall trample thy son unto dust"
+        note: "way-cleanup r2 2026-09-25 (S11 confirmed, ex-mechanical-rule): build/genie/euripidesway03euriuoft.txt:6500 prints \"Shall trample\" with no stray stop"
+      - find: "Labours of Hercules *\n"
+        replace: "Labours of Hercules\n"
+        note: "way-cleanup r3 2026-09-25 (CHORUS heading): archive.org/genie build/genie/euripidesway03euriuoft.txt:4957 shows the asterisk is the scan's reading of a footnote reference mark after the heading, not a printed character in the heading itself (Grok r2 sample 25 confirmed)"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

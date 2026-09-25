@@ -562,6 +562,105 @@ export interface EnglishTurnSource {
   ticks?: { n: number; offset: number; real: boolean }[];
 }
 
+// ── The translator's line numbers in the English margin (John, 2026-09-24,
+// option C) ──────────────────────────────────────────────────────────────
+// Each real tick gets an anchor in the text flow where its text begins; CSS
+// draws the number (`content: attr(data-n)`) in the margin, on the line the
+// anchor sits on, so it follows the text at any width with no measuring.
+// The anchor travels through the turn slicing, footnote, highlight and
+// direction passes as private-use characters (a start mark, then the
+// number's characters shifted into the private-use block), and becomes the
+// empty span only in the finished HTML. The marks never reach the text the
+// row cuts are computed on: `at` maps an offset in the plain text to the
+// marked one, a mark at that offset falling after it.
+const LNUM_MARK = '\uE000';
+const LNUM_SHIFT = 0xE100;
+// A stage direction on a line of its own, which markStageDirections matches
+// whole from the line start: a mark there would break it.
+const DIRECTION_AT = /^_[^_\n]+_(?=\n|$)/;
+
+export function markLineNumbers(
+  text: string,
+  ticks: readonly { n: number | string; offset: number; real: boolean }[] | undefined,
+): { text: string; at: (offset: number) => number } {
+  const marks: { p: number; s: string }[] = [];
+  const skipSpace = (o: number) => { while (o < text.length && /\s/.test(text[o]!)) o += 1; return o; };
+  // Footnote calls (`[^3.69_71]`, Reader.svelte renderThird): a mark inside
+  // one would break it, and one on its `[` would put the anchor in its button.
+  const calls = [...text.matchAll(/\[\^[\w._*†]+\]/g)].map((c) => [c.index!, c.index! + c[0].length] as const);
+  for (const tk of ticks ?? []) {
+    if (!tk.real || typeof tk.n !== 'number' || !Number.isFinite(tk.n)) continue;
+    let p = skipSpace(tk.offset);
+    // A tick anywhere in a line-start direction moves past the direction.
+    const ls = text.lastIndexOf('\n', p - 1) + 1;
+    if (text[ls] === '_') {
+      const dir = DIRECTION_AT.exec(text.slice(ls));
+      if (dir && p < ls + dir[0].length) p = skipSpace(ls + dir[0].length);
+    }
+    for (const [a, b] of calls) if (p >= a && p < b) p = skipSpace(b);
+    if (p >= text.length) continue;
+    const code = [...String(tk.n)].map((c) => String.fromCharCode(LNUM_SHIFT + (c.charCodeAt(0) & 0x7f))).join('');
+    marks.push({ p, s: LNUM_MARK + code });
+  }
+  if (!marks.length) return { text, at: (o) => o };
+  marks.sort((a, b) => a.p - b.p);
+  let out = '';
+  let cursor = 0;
+  for (const m of marks) { out += text.slice(cursor, m.p) + m.s; cursor = m.p; }
+  out += text.slice(cursor);
+  return {
+    text: out,
+    at: (o) => marks.reduce((acc, m) => (m.p < o ? acc + m.s.length : acc), o),
+  };
+}
+
+/** The marks in finished HTML, as empty anchors. Each anchor goes after
+ *  the first letter of the word it marks, past any opening punctuation
+ *  (dash, quote, bracket, dots), tags, a footnote button, and spaces on the
+ *  same line: an anchor before the word, or after a break-after character
+ *  such as an em dash, could stay at the end of the line above when the
+ *  word wraps, and there is no line break inside a word. With no letter
+ *  before the line ends, it goes after the first character. Where two fall
+ *  on one visual line their numbers stack in the same spot; the first is
+ *  drawn on top (z-index), its background hiding the later one. */
+const LNUM_FALLBACK_RE = /((?:<[^>]*>)*)(&[#\w]+;|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^<&\s\uE000-\uE1FF])?/y;
+const LNUM_SKIP_RE = /<button\b[^>]*>[\s\S]*?<\/button>|<(?!br\b|span class="(?:verse-line|stage-dir))[^>]*>|&[#\w]+;|[^\S\n]+|[^\p{L}\p{N}\s<&\uE000-\uE1FF]/uy;
+const LNUM_LETTER_RE = /[\p{L}\p{N}]\p{M}*/uy;
+function lnumWordEnd(html: string, i: number): number {
+  for (;;) {
+    LNUM_LETTER_RE.lastIndex = i;
+    if (LNUM_LETTER_RE.test(html)) return LNUM_LETTER_RE.lastIndex;
+    LNUM_SKIP_RE.lastIndex = i;
+    if (!LNUM_SKIP_RE.test(html)) return -1;
+    i = LNUM_SKIP_RE.lastIndex;
+  }
+}
+export function lineNumberHtml(html: string): string {
+  const total = html.split(LNUM_MARK).length - 1;
+  if (!total) return html;
+  let out = '';
+  let cursor = 0;
+  for (let k = 0; k < total; k++) {
+    const m = html.indexOf(LNUM_MARK, cursor);
+    let j = m + 1;
+    while (j < html.length && html.charCodeAt(j) >= LNUM_SHIFT && html.charCodeAt(j) < LNUM_SHIFT + 0x80) j += 1;
+    const n = [...html.slice(m + 1, j)].map((c) => String.fromCharCode(c.charCodeAt(0) - LNUM_SHIFT)).join('');
+    const anchor = `<span class="eng-lnum" data-n="${n}" aria-hidden="true" style="z-index:${total - k}"></span>`;
+    out += html.slice(cursor, m);
+    const end = lnumWordEnd(html, j);
+    if (end >= 0) {
+      out += html.slice(j, end) + anchor;
+      cursor = end;
+    } else {
+      LNUM_FALLBACK_RE.lastIndex = j;
+      const [whole, tags, first] = LNUM_FALLBACK_RE.exec(html)!;
+      out += first ? `${tags}${first}${anchor}` : `${anchor}${tags}`;
+      cursor = j + whole.length;
+    }
+  }
+  return out + html.slice(cursor);
+}
+
 // The first play-line comparison data stored speaker lead-ins in overlay text
 // (`CHORUS. ...`) rather than in `turns`. Recover that standoff shape so old
 // data uses the same turn-stack and colour path as newer structured overlays.

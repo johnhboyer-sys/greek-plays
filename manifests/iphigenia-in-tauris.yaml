@@ -50,6 +50,22 @@ english:
       "188": "1188"
   secondary:
     id: way
+    text_fixes:
+      - find: "* For every chance have some de"
+        replace: "“For every chance have some de"
+        note: "way-cleanup r3 2026-09-25 (1:760): genie build/genie/euripideswitheng02euri.txt:14915 prints an opening quote before \"For every chance\""
+      - find: "* Else to thine house will I be"
+        replace: "“Else to thine house will I be"
+        note: "way-cleanup r3 2026-09-25 (1:778): archive.org page prints “Else to thine house will I become a curse, (Grok r2 check confirmed against the page)"
+      - find: "Say—* Artemis in my place laid a hi"
+        replace: "Say—“Artemis in my place laid a hi"
+        note: "way-cleanup r3 2026-09-25 (1:783): genie build/genie/euripideswitheng02euri.txt:15008 prints an opening quote before \"Artemis\""
+      - find: "But he, * Orestes I, her brother, son"
+        replace: "But he, “Orestes I, her brother, son"
+        note: "way-cleanup r3 2026-09-25 (1:1360): genie build/genie/euripideswitheng02euri.txt:17375 prints an opening quote before \"Orestes I\""
+      - find: "A shout—* Ye seamen of this Hellene shi"
+        replace: "A shout—“Ye seamen of this Hellene shi"
+        note: "way-cleanup r3 2026-09-25 (1:1391): genie build/genie/euripideswitheng02euri.txt:17449 prints an opening quote before \"Ye seamen\""
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

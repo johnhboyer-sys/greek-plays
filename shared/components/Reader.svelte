@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { copyButtonPosition } from '../lib/copy-button';
@@ -1187,6 +1187,19 @@
     fallback?.scrollIntoView({ behavior: 'auto', block: 'center' });
   }
 
+  // A same-page #line change fires hashchange. updateHash uses replaceState,
+  // which does not, so this cannot loop with the scroll-spy.
+  function onHashChange() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    if (!playLine) return;
+    const parsed = parseLocation(work, hash);
+    if (!parsed) return;
+    scrollToPlayLineRef(parsed.column);
+    const line = resolvePlayLineRef(parsed.column);
+    if (line) lastCite = formatCite(work, line.ref ?? parsed.column, null);
+  }
+
   // ── The deep-link settle pass (P4 Lane D, build/p4/lane-d-brief.md) ──────
   // A shared `?loc=`/`#` link must LAND, and it did not: on the built site
   // /aeschylus/agamemnon?loc=1203 came to rest on line 1203 on some loads and
@@ -1267,11 +1280,13 @@
       window.removeEventListener('scroll', onScrollArm);
       window.removeEventListener('scroll', onCtxScroll);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('hashchange', onHashChange);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
       document.removeEventListener('mouseup', checkCopyBtn);
       document.removeEventListener('selectionchange', onSelectionChange);
       if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
+      if (copyStatusTimer) clearTimeout(copyStatusTimer);
     }
   });
 
@@ -1755,6 +1770,16 @@
         ? { ...block, cueAdded: true } : block);
   }
 
+  // The translator's line numbers in the English margin (John, 2026-09-24,
+  // option C): the source's text and turns with an anchor mark at each real
+  // tick (speakers.ts markLineNumbers), for building the blocks that render.
+  // Play-line only; row cuts are still computed on the plain text.
+  function markedTurns(source: EnglishTurnSource): { text: string; turns: EnglishTurnSource['turns'] } {
+    const m = markLineNumbers(source.text, playLine ? source.ticks : undefined);
+    if (m.text === source.text) return source;
+    return { text: m.text, turns: source.turns.map((tu) => ({ ...tu, offset: m.at(tu.offset) })) };
+  }
+
   // A direction before the first English turn needs the same blank-Greek row
   // as one carried by the overlay piece itself. `turnDirections` keeps it on
   // that turn, so collect both forms for the existing row renderer.
@@ -1999,13 +2024,18 @@
     const spaced = minSpan > 0 ? spaceTicks(mapped, protectedOffsets, minSpan) : mapped;
     if (spaced.length < 2) return null;
     const rows: PlayRow[] = [];
+    // Sliced from the text with the line-number marks in (markedTurns); the
+    // cut and turn offsets are plain-text offsets, mapped by `at`.
+    const marked = markLineNumbers(source.text, playLine ? source.ticks : undefined);
     const sliceBlocks = (from: number, to: number): EnglishTurnBlock[] => {
-      const text = source.text.slice(from, to).trim();
+      const a = marked.at(from);
+      const raw = marked.text.slice(a, marked.at(to));
+      const text = raw.trim();
       if (!text) return [];
-      const lead = source.text.slice(from, to).length - source.text.slice(from, to).trimStart().length;
+      const lead = raw.length - raw.trimStart().length;
       const turns = source.turns
         .filter((tu) => tu.offset >= from && tu.offset < to)
-        .map((tu) => ({ ...tu, offset: Math.max(0, tu.offset - from - lead) }));
+        .map((tu) => ({ ...tu, offset: Math.max(0, marked.at(tu.offset) - a - lead) }));
       return playBlocks(text, turns);
     };
     // Lines before the first anchored line, with any text before its tick.
@@ -2986,6 +3016,8 @@
   // A click PINS the popup open (it stays until you dismiss it); hover opens it
   // transiently with a short close delay. Pinning makes click-to-read reliable.
   let fnPinned = false;
+  let fnTakeFocus = false;
+  let fnFocusMarker: HTMLElement | null = null;
   let fnCloseTimer: ReturnType<typeof setTimeout> | null = null;
   function cancelFnClose() {
     if (fnCloseTimer) { clearTimeout(fnCloseTimer); fnCloseTimer = null; }
@@ -2997,9 +3029,15 @@
   }
   function showFootnote(marker: Element, pin = false) {
     cancelFnClose();
-    if (pin) fnPinned = true;
     const n = marker.getAttribute('data-fn') ?? '';
     const transId = marker.getAttribute('data-fn-trans') ?? '';
+    if (pin) {
+      fnPinned = true;
+      fnTakeFocus = true;
+      fnFocusMarker = marker as HTMLElement;
+    } else if (footnote?.n !== n || footnote?.transId !== transId) {
+      fnTakeFocus = false;
+    }
     if (footnote?.n === n && footnote?.transId === transId) return;
     const r = marker.getBoundingClientRect();
     footnote = { n, transId, anchor: { x: r.left, y: r.bottom } };
@@ -3011,13 +3049,6 @@
   function onFootnoteOut(e: MouseEvent) {
     if ((e.target as HTMLElement | null)?.closest?.('.fn-marker')) scheduleFnClose();
   }
-  function onFootnoteFocus(e: FocusEvent) {
-    const marker = (e.target as HTMLElement | null)?.closest?.('.fn-marker');
-    if (marker) showFootnote(marker);
-  }
-  function onFootnoteBlur(e: FocusEvent) {
-    if ((e.target as HTMLElement | null)?.closest?.('.fn-marker')) scheduleFnClose();
-  }
   function onFootnoteClick(e: MouseEvent | KeyboardEvent) {
     const marker = (e.target as HTMLElement | null)?.closest?.('.fn-marker');
     if (!marker) return;
@@ -3026,7 +3057,7 @@
     e.stopPropagation();
     showFootnote(marker, true);
   }
-  function closeFootnote() { cancelFnClose(); fnPinned = false; footnote = null; }
+  function closeFootnote() { cancelFnClose(); fnPinned = false; fnTakeFocus = false; footnote = null; }
   // Click anywhere outside the marker/popup dismisses a pinned note; same
   // for the Bekker-numbers info popover.
   function onDocPointerDown(e: MouseEvent) {
@@ -3237,6 +3268,7 @@
         window.addEventListener('scroll', onScrollArm, { passive: true });
         window.addEventListener('scroll', onCtxScroll, { passive: true });
         window.addEventListener('resize', onResize);
+        window.addEventListener('hashchange', onHashChange);
         document.addEventListener('mouseup', checkCopyBtn);
         document.addEventListener('selectionchange', onSelectionChange);
         updateChapterContext();
@@ -3767,10 +3799,15 @@
 
   // ── Floating copy button (appears on Greek text selection) ────────────────
   let copyBtnPos: { x: number; y: number } | null = null;
+  let copyStatus: { message: string; x: number; y: number } | null = null;
+  let copyStatusTimer: ReturnType<typeof setTimeout> | null = null;
   let copyBtnEl: HTMLButtonElement;
   let copyBtnFrame = 0;
 
-  function checkCopyBtn() {
+  function checkCopyBtn(e?: MouseEvent) {
+    // A press on the button itself ends in this mouseup too; clearing the
+    // button here would remove it before its click lands.
+    if ((e?.target as Element | null)?.closest?.('.copy-cite-btn')) return;
     if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
     copyBtnPos = null;
     copyBtnFrame = requestAnimationFrame(async () => {
@@ -3800,9 +3837,13 @@
     }
   }
 
-  function clickCopyBtn() {
+  async function clickCopyBtn(e: MouseEvent) {
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) { copyBtnPos = null; return; }
+    const button = e.currentTarget as HTMLElement;
+    const position = copyBtnPos ?? {
+      x: parseFloat(button.style.left), y: parseFloat(button.style.top),
+    };
     const text = sel.toString().trim();
     const range = sel.getRangeAt(0);
     // Same mixed-range fix as handleCopy (finding 1, Sol xhigh review): a
@@ -3810,8 +3851,16 @@
     // apply, not treated as mutually exclusive.
     const parts = copyParts(range);
     const full = parts.length ? [text, ...parts].join('\n') : text;
-    navigator.clipboard.writeText(full).catch(() => {});
     copyBtnPos = null;
+    if (copyStatusTimer) clearTimeout(copyStatusTimer);
+    copyStatus = null;
+    try {
+      await navigator.clipboard.writeText(full);
+      copyStatus = { ...position, message: 'Copied' };
+    } catch {
+      copyStatus = { ...position, message: "Couldn't copy" };
+    }
+    copyStatusTimer = setTimeout(() => { copyStatus = null; copyStatusTimer = null; }, 1500);
   }
 </script>
 
@@ -4004,14 +4053,11 @@
             {/each}
           {/if}
         {/snippet}
+        <!-- svelte-ignore a11y_mouse_events_have_key_events -->
         <div
           class="overlay-prose"
           on:mouseover={onFootnoteOver}
           on:mouseout={onFootnoteOut}
-          on:focus={onFootnoteFocus}
-          on:blur={onFootnoteBlur}
-          on:focusin={onFootnoteFocus}
-          on:focusout={onFootnoteBlur}
           on:click={onFootnoteClick}
           on:keydown={onFootnoteClick}
           role="presentation"
@@ -4074,14 +4120,11 @@
        row model can render ONE row's slice of the same blocks (each English
        turn beside the Greek line it starts on) with identical markup. -->
   {#snippet playTurnStack(blocks: EnglishTurnBlock[], chunkMm: { english: string; greek: string } | undefined, transId: string)}
+    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
     <div
       class="overlay-prose turn-eng turn-stack"
       on:mouseover={onFootnoteOver}
       on:mouseout={onFootnoteOut}
-      on:focus={onFootnoteFocus}
-      on:blur={onFootnoteBlur}
-      on:focusin={onFootnoteFocus}
-      on:focusout={onFootnoteBlur}
       on:click={onFootnoteClick}
       on:keydown={onFootnoteClick}
       role="presentation"
@@ -4096,7 +4139,7 @@
         <!-- A direction before this speech that got no row of its own
              (splitAtDirections: compare mode, or a speech sharing its row). -->
         {#if b.directionsBefore}{#each b.directionsBefore as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{(b as AddedBlock).cueAdded ? `[${leadInCase(leadName(b.display))}.]` : leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true)}</p>
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{(b as AddedBlock).cueAdded ? `[${leadInCase(leadName(b.display))}.]` : leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
       {/each}
     </div>
   {/snippet}
@@ -4112,7 +4155,8 @@
          them quarrel with it. `chunkMm` is the pre-P2h chunk-level field,
          used only when no turn in this chunk carries one of its own (data
          built before the per-turn flag existed). -->
-    {@const blocks = withoutOpeningDirections(playBlocks(source.text, source.turns))}
+    {@const marked = markedTurns(source)}
+    {@const blocks = withoutOpeningDirections(playBlocks(marked.text, marked.turns))}
     {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
     {@render playTurnStack(blocks, chunkMm, transId)}
     {:else if bareDirs}
@@ -4692,7 +4736,8 @@
           {/if}
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
-          {@const plTurnBlocks = plSource ? withoutOpeningDirections(playBlocks(plSource.text, plSource.turns)) : []}
+          {@const plMarked = plSource ? markedTurns(plSource) : null}
+          {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns)) : []}
           {@const rawPlRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, verseForm(segTransId))) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows) : null}
           {#if plRows}
@@ -5567,9 +5612,15 @@
     onClose={closeFootnote}
     onHoverIn={cancelFnClose}
     onHoverOut={scheduleFnClose}
+    takeFocus={fnTakeFocus}
+    returnFocus={fnFocusMarker}
   />
   {/key}
 {/if}
+<!-- Always in the DOM: a live region inserted at the moment of change is
+     often not announced; only its text changes. -->
+<span class="copy-cite-status" class:sr-only={!copyStatus} role="status" aria-live="polite"
+  style={copyStatus ? `left:${copyStatus.x}px;top:${copyStatus.y}px;transform:none` : ''}>{copyStatus?.message ?? ''}</span>
 
 {#if copyBtnPos}
   <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->

@@ -1469,16 +1469,19 @@ def _merge_shared_lsj(language: str) -> None:
 
 
 def _resolve_footnotes_source(manifest: Manifest, stage1_dir: Path) -> Path | None:
-    """Which stage1 footnotes file (if any) becomes a play's footnotes.json.
+    """Which stage1 footnotes file (if any) is the PRIMARY-vs-SECONDARY pick
+    for a play's footnotes.json. `run` merges this pick with any third/
+    overlay column's own footnotes on top (`_footnotes_overlay_candidates`,
+    `_merge_footnotes`); this function only ever resolves the exclusive
+    primary/secondary half of that.
 
-    Called after the `third_footnotes.json` check (third always wins, kept
-    in `run` itself). The primary wins when it emits footnotes (turn-text
+    The primary wins when it emits footnotes (turn-text
     `english.primary.footnotes: true`, or a static `footnotes.json` beside
     a `dir`-based primary source). Otherwise a secondary flagged
     `footnotes: true` (e.g. Way's Loeb, 2026-09-14) supplies its own
     `secondary_footnotes.json`, when that file exists and is non-empty. A
     play whose primary AND secondary would both emit footnotes is a hard
-    failure: the reader loads only one footnotes.json per play.
+    failure: a play's primary and secondary never both own footnotes.json.
     """
     prim = (manifest.data.get("english") or {}).get("primary") or {}
     primary_src: Path | None = None
@@ -1509,6 +1512,76 @@ def _resolve_footnotes_source(manifest: Manifest, stage1_dir: Path) -> Path | No
             "footnotes.json per play"
         )
     return primary_src or secondary_src
+
+
+def _footnotes_overlay_candidates(
+    manifest: Manifest, stage1_dir: Path
+) -> list[tuple[str, dict]]:
+    """Footnote dicts from a `third` or `overlays` column flagged
+    `footnotes: true` in the manifest (2026-09-24: Rogers's 1924 Loeb
+    Aristophanes, whose `[^n.m]` calls resolved nowhere because
+    `stage1_turn_english.run` computed but never wrote `third_footnotes.json`
+    / `overlay_<id>_footnotes.json`). Additive on top of
+    `_resolve_footnotes_source`'s exclusive primary/secondary pick: each
+    column's calls are numbered by its own `_rewrite_footnotes` sequence
+    (which restarts at 1 per column), so a collision with another source's
+    keys is possible only when both the call position AND the source's own
+    printed note number coincide -- checked by `_merge_footnotes`, not
+    assumed here.
+    """
+    candidates: list[tuple[str, dict]] = []
+    english_block = manifest.data.get("english") or {}
+
+    third_cfg = english_block.get("third") or {}
+    if third_cfg.get("footnotes"):
+        third_path = stage1_dir / "third_footnotes.json"
+        if third_path.exists():
+            data = json.loads(third_path.read_text(encoding="utf-8"))
+            if data:
+                candidates.append(("third", data))
+
+    for entry in english_block.get("overlays") or []:
+        if not isinstance(entry, dict) or not entry.get("footnotes"):
+            continue
+        tid = entry.get("id")
+        overlay_path = stage1_dir / f"overlay_{tid}_footnotes.json"
+        if overlay_path.exists():
+            data = json.loads(overlay_path.read_text(encoding="utf-8"))
+            if data:
+                candidates.append((f"overlay:{tid}", data))
+
+    return candidates
+
+
+def _merge_footnotes(
+    base_src: Path | None, extra: list[tuple[str, dict]], work_id: str
+) -> dict | None:
+    """`base_src` (the primary/secondary pick) plus every `extra` (third/
+    overlay) footnotes dict, merged into the one footnotes.json the reader
+    loads. A key two sources share is a hard failure: the additive merge
+    is safe only because each column's call numbering is independent, and a
+    shared key means that assumption broke for this play and the build
+    must stop rather than silently drop or overwrite a note.
+    """
+    if base_src is None and not extra:
+        return None
+    merged: dict[str, str] = {}
+    sources: list[str] = []
+    if base_src is not None:
+        merged.update(json.loads(base_src.read_text(encoding="utf-8")))
+        sources.append(base_src.stem)
+    for label, data in extra:
+        for key, text in data.items():
+            if key in merged:
+                raise RuntimeError(
+                    f"{work_id}: footnote key {key!r} is emitted by both "
+                    f"{'/'.join(sources)} and {label}; the reader loads "
+                    "only one footnotes.json per play and cannot tell "
+                    "the two notes apart"
+                )
+            merged[key] = text
+        sources.append(label)
+    return merged
 
 
 def run(manifest: Manifest) -> Path:
@@ -1691,13 +1764,24 @@ def run(manifest: Manifest) -> Path:
     if paratext_path.exists():
         shutil.copy(paratext_path, out_dir / "paratext.json")
 
-    footnotes_path = BUILD_DIR / "stage1" / "third_footnotes.json"
-    if footnotes_path.exists():
-        shutil.copy(footnotes_path, out_dir / "footnotes.json")
+    stage1_dir = BUILD_DIR / "stage1"
+    base_footnotes_src = _resolve_footnotes_source(manifest, stage1_dir)
+    extra_footnotes = _footnotes_overlay_candidates(manifest, stage1_dir)
+    if not extra_footnotes:
+        # No third/overlay column wants footnotes.json too: the original,
+        # byte-for-byte copy of whichever single file
+        # _resolve_footnotes_source picked (or nothing).
+        if base_footnotes_src is not None:
+            shutil.copy(base_footnotes_src, out_dir / "footnotes.json")
     else:
-        src = _resolve_footnotes_source(manifest, BUILD_DIR / "stage1")
-        if src is not None:
-            shutil.copy(src, out_dir / "footnotes.json")
+        merged_footnotes = _merge_footnotes(
+            base_footnotes_src, extra_footnotes, manifest.work_id
+        )
+        if merged_footnotes is not None:
+            (out_dir / "footnotes.json").write_text(
+                json.dumps(merged_footnotes, ensure_ascii=False, indent=1),
+                encoding="utf-8",
+            )
     prim = (manifest.data.get("english") or {}).get("primary") or {}
     if prim.get("dir"):
         for source_name, output_name in (
