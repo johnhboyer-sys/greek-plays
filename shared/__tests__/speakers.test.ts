@@ -1543,7 +1543,8 @@ describe('markLineNumbers / lineNumberHtml', () => {
     const m = markLineNumbers('go & <see>', [{ n: 7, offset: 3, real: true }]);
     // markup built after marking: an escaped ampersand, a highlight mark
     const html = m.text.replace('&', '&amp;').replace('<see>', '<mark>see</mark>');
-    expect(lineNumberHtml(html)).toBe('go &amp;<span class="eng-lnum" data-n="7" aria-hidden="true" style="z-index:1"></span> <mark>see</mark>');
+    // the escaped ampersand is punctuation: the anchor rides on the next word (round 2)
+    expect(lineNumberHtml(html)).toBe('go &amp; <mark>s<span class="eng-lnum" data-n="7" aria-hidden="true" style="z-index:1"></span>ee</mark>');
     const w = markLineNumbers('go see', [{ n: 8, offset: 3, real: true }]);
     expect(lineNumberHtml(w.text.replace('see', '<mark>see</mark>'))).toBe('go <mark>s<span class="eng-lnum" data-n="8" aria-hidden="true" style="z-index:1"></span>ee</mark>');
   });
@@ -1551,5 +1552,45 @@ describe('markLineNumbers / lineNumberHtml', () => {
   it('drops a tick that falls on trailing space, so no slice ends on a mark', () => {
     const m = markLineNumbers('Words.  ', [{ n: 9, offset: 6, real: true }]);
     expect(m.text).toBe('Words.  ');
+    // A tick on the space before the next piece: the mark moves to that
+    // piece, so the slice that ends there, cut with `at`, carries none.
+    const w = markLineNumbers('Words.  More words.', [{ n: 9, offset: 6, real: true }]);
+    expect(w.text.slice(w.at(0), w.at(8))).toBe('Words.  ');
+    expect(lineNumberHtml(w.text.slice(w.at(8), w.at(19)))).toMatch(/^M<span class="eng-lnum" data-n="9"[^>]*><\/span>ore words\.$/);
+  });
+
+  // Round 2 (Grok's review, 2026-09-24). The anchor rides after the word's
+  // first letter: after a break-after character (an em dash) an empty span
+  // could keep its static place at the end of the line above.
+  const anchorAt = (text: string, offset: number) => lineNumberHtml(markLineNumbers(text, [{ n: 7, offset, real: true }]).text);
+  const A = '<span class="eng-lnum" data-n="7" aria-hidden="true" style="z-index:1"></span>';
+
+  it('puts the anchor after the first letter when the line starts with an em dash', () => {
+    expect(anchorAt('Lead me.\n—fit step to step', 9)).toBe(`Lead me.\n—f${A}it step to step`);
+  });
+
+  it('puts the anchor after the first letter when the line starts with a curly quote or dots', () => {
+    expect(anchorAt('He said, ‘Hail, my lord.’', 9)).toBe(`He said, ‘H${A}ail, my lord.’`);
+    expect(anchorAt('Wait. . . . changing', 5)).toBe(`Wait. . . . c${A}hanging`);
+    // no letter before the line ends: the old place, after the first character
+    expect(anchorAt('Oh!\n—\nNo.', 4)).toBe(`Oh!\n—${A}\nNo.`);
+  });
+
+  it('keeps the mark out of a footnote call: a tick inside one moves past it', () => {
+    const m = markLineNumbers('the gods[^3.69_71] deliver me', [{ n: 7, offset: 12, real: true }]);
+    expect(m.text.replace(/[\uE000-\uE1FF]/g, '')).toBe('the gods[^3.69_71] deliver me');
+    expect(m.text).toContain('[^3.69_71] ');
+    expect(lineNumberHtml(m.text)).toBe(`the gods[^3.69_71] d${A}eliver me`);
+  });
+
+  it('moves a tick inside a line-start direction past the direction', () => {
+    expect(anchorAt('I rise.\n_He rises._\nOh welcome, blaze!', 12)).toBe(`I rise.\n_He rises._\nO${A}h welcome, blaze!`);
+  });
+
+  it('skips a tick whose number is not a number', () => {
+    const m = markLineNumbers('One. Two.', [{ n: '"><img src=x>', offset: 5, real: true }, { n: 3, offset: 0, real: true }]);
+    const html = lineNumberHtml(m.text);
+    expect(html.match(/data-n="[^"]*"/g)).toEqual(['data-n="3"']);
+    expect(html).not.toContain('<img');
   });
 });

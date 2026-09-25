@@ -585,13 +585,19 @@ export function markLineNumbers(
 ): { text: string; at: (offset: number) => number } {
   const marks: { p: number; s: string }[] = [];
   const skipSpace = (o: number) => { while (o < text.length && /\s/.test(text[o]!)) o += 1; return o; };
+  // Footnote calls (`[^3.69_71]`, Reader.svelte renderThird): a mark inside
+  // one would break it, and one on its `[` would put the anchor in its button.
+  const calls = [...text.matchAll(/\[\^[\w._*†]+\]/g)].map((c) => [c.index!, c.index! + c[0].length] as const);
   for (const tk of ticks ?? []) {
-    if (!tk.real) continue;
+    if (!tk.real || typeof tk.n !== 'number' || !Number.isFinite(tk.n)) continue;
     let p = skipSpace(tk.offset);
-    if (text[p] === '_' && (p === 0 || text[p - 1] === '\n')) {
-      const dir = DIRECTION_AT.exec(text.slice(p));
-      if (dir) p = skipSpace(p + dir[0].length);
+    // A tick anywhere in a line-start direction moves past the direction.
+    const ls = text.lastIndexOf('\n', p - 1) + 1;
+    if (text[ls] === '_') {
+      const dir = DIRECTION_AT.exec(text.slice(ls));
+      if (dir && p < ls + dir[0].length) p = skipSpace(ls + dir[0].length);
     }
+    for (const [a, b] of calls) if (p >= a && p < b) p = skipSpace(b);
     if (p >= text.length) continue;
     const code = [...String(tk.n)].map((c) => String.fromCharCode(LNUM_SHIFT + (c.charCodeAt(0) & 0x7f))).join('');
     marks.push({ p, s: LNUM_MARK + code });
@@ -609,23 +615,50 @@ export function markLineNumbers(
 }
 
 /** The marks in finished HTML, as empty anchors. Each anchor goes after
- *  the first character of the word it marks (past any opening tags): an
- *  anchor before the word could stay at the end of the line above when the
- *  word wraps, and there is no line break inside a word. Where two fall on
- *  one visual line their numbers stack in the same spot; the first is drawn
- *  on top (z-index), its background hiding the later one. */
-const LNUM_HTML_RE = /\uE000([\uE100-\uE17F]+)((?:<[^>]*>)*)(&[#\w]+;|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^<&\s\uE000-\uE1FF])?/g;
+ *  the first letter of the word it marks, past any opening punctuation
+ *  (dash, quote, bracket, dots), tags, a footnote button, and spaces on the
+ *  same line: an anchor before the word, or after a break-after character
+ *  such as an em dash, could stay at the end of the line above when the
+ *  word wraps, and there is no line break inside a word. With no letter
+ *  before the line ends, it goes after the first character. Where two fall
+ *  on one visual line their numbers stack in the same spot; the first is
+ *  drawn on top (z-index), its background hiding the later one. */
+const LNUM_FALLBACK_RE = /((?:<[^>]*>)*)(&[#\w]+;|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^<&\s\uE000-\uE1FF])?/y;
+const LNUM_SKIP_RE = /<button\b[^>]*>[\s\S]*?<\/button>|<(?!br\b|span class="(?:verse-line|stage-dir))[^>]*>|&[#\w]+;|[^\S\n]+|[^\p{L}\p{N}\s<&\uE000-\uE1FF]/uy;
+const LNUM_LETTER_RE = /[\p{L}\p{N}]\p{M}*/uy;
+function lnumWordEnd(html: string, i: number): number {
+  for (;;) {
+    LNUM_LETTER_RE.lastIndex = i;
+    if (LNUM_LETTER_RE.test(html)) return LNUM_LETTER_RE.lastIndex;
+    LNUM_SKIP_RE.lastIndex = i;
+    if (!LNUM_SKIP_RE.test(html)) return -1;
+    i = LNUM_SKIP_RE.lastIndex;
+  }
+}
 export function lineNumberHtml(html: string): string {
   const total = html.split(LNUM_MARK).length - 1;
   if (!total) return html;
-  let k = 0;
-  return html.replace(LNUM_HTML_RE, (_m, code: string, tags: string, first: string | undefined) => {
-    const n = [...code].map((c) => String.fromCharCode(c.charCodeAt(0) - LNUM_SHIFT)).join('');
-    const z = total - k;
-    k += 1;
-    const anchor = `<span class="eng-lnum" data-n="${n}" aria-hidden="true" style="z-index:${z}"></span>`;
-    return first ? `${tags}${first}${anchor}` : `${anchor}${tags}`;
-  });
+  let out = '';
+  let cursor = 0;
+  for (let k = 0; k < total; k++) {
+    const m = html.indexOf(LNUM_MARK, cursor);
+    let j = m + 1;
+    while (j < html.length && html.charCodeAt(j) >= LNUM_SHIFT && html.charCodeAt(j) < LNUM_SHIFT + 0x80) j += 1;
+    const n = [...html.slice(m + 1, j)].map((c) => String.fromCharCode(c.charCodeAt(0) - LNUM_SHIFT)).join('');
+    const anchor = `<span class="eng-lnum" data-n="${n}" aria-hidden="true" style="z-index:${total - k}"></span>`;
+    out += html.slice(cursor, m);
+    const end = lnumWordEnd(html, j);
+    if (end >= 0) {
+      out += html.slice(j, end) + anchor;
+      cursor = end;
+    } else {
+      LNUM_FALLBACK_RE.lastIndex = j;
+      const [whole, tags, first] = LNUM_FALLBACK_RE.exec(html)!;
+      out += first ? `${tags}${first}${anchor}` : `${anchor}${tags}`;
+      cursor = j + whole.length;
+    }
+  }
+  return out + html.slice(cursor);
 }
 
 // The first play-line comparison data stored speaker lead-ins in overlay text

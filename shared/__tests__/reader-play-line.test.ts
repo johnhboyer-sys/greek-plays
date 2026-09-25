@@ -2519,6 +2519,37 @@ describe("the translator's line numbers in the English margin (John, 2026-09-24,
     }
   });
 
+  // Round 2 (Grok's review, 2026-09-24): the anchor never lands inside a
+  // footnote button, whether the tick falls on the call or inside it.
+  async function renderFootnoted(text: string, ticks: { n: number; offset: number; real: boolean }[]) {
+    const data = book();
+    data.segments = [{
+      id: '1:1', column: '1',
+      greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+      speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+      english: { text, notes: [], markers: [], bekker: ticks, turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+    }];
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    return container.querySelector('.english-col .turn-para')!;
+  }
+
+  it('puts the number after a footnote call that opens its line, on the next word', async () => {
+    const para = await renderFootnoted('I pray.\n[^3.69_71] Deliver me.', [{ n: 1, offset: 0, real: true }, { n: 2, offset: 8, real: true }]);
+    expect(para.querySelector('.fn-marker')?.getAttribute('data-fn')).toBe('3.69_71');
+    expect(para.querySelector('.fn-marker .eng-lnum, .fn-anchor .eng-lnum')).toBeNull();
+    const two = para.querySelector('.eng-lnum[data-n="2"]')!;
+    expect(after(two)).toBe('Deliver me.');
+  });
+
+  it('moves a tick that falls inside a footnote call to just after it', async () => {
+    const para = await renderFootnoted('I pray the gods[^3.69_71] deliver me.', [{ n: 1, offset: 0, real: true }, { n: 2, offset: 18, real: true }]);
+    expect(para.querySelector('.fn-marker')?.getAttribute('data-fn')).toBe('3.69_71');
+    expect(para.querySelector('.fn-marker .eng-lnum')).toBeNull();
+    expect(para.textContent).toBe('WatchmanI pray the gods69_71 deliver me.');
+    expect(after(para.querySelector('.eng-lnum[data-n="2"]')!)).toBe('deliver me.');
+  });
+
   it('keeps a stage direction whole when a tick falls on it, the number on the text after it', async () => {
     const data = book();
     data.segments = [{
