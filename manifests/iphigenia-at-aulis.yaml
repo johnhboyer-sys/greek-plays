@@ -35,6 +35,16 @@ english:
       - { greek: "1251", by: "1211" }
   secondary:
     id: way
+    text_fixes:
+      - find: "On life by Fame. _ Ah"
+        replace: "On life by Fame. Ah"
+        note: "sweep 2026-09-24 n=37: build/genie/euripidesway01euriuoft.txt:1711-1713"
+      - find: "_ Who art"
+        replace: "Who art"
+        note: "sweep 2026-09-24 n=36: build/genie/euripidesway01euriuoft.txt:2523-2524"
+      - find: "_ No marvel"
+        replace: "No marvel"
+        note: "sweep 2026-09-24 n=35: build/genie/euripidesway01euriuoft.txt:2520-2521"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

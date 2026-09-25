@@ -20,6 +20,9 @@ english:
   primary:
     id: smyth
     text_fixes:
+      - find: "house. and I am freed"
+        replace: "house. Look, the light has come, and I am freed"
+        note: "sweep 2026-09-24 n=39: sources/perseus/tlg0085.tlg006.perseus-eng2.xml:1445-1449"
       - find: "! Footprints>matching eac"
         replace: "! Footprints matching eac"
         note: "sweep 2026-09-24 n=130: sources/perseus/tlg0085.tlg006.perseus-eng2.xml:388"

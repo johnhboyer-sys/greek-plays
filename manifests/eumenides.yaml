@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: smyth
+    text_fixes:
+      - find: "fresh blood. whenever violence"
+        replace: "fresh blood. For I have chosen the overthrow of houses, whenever violence"
+        note: "sweep 2026-09-24 n=31: sources/perseus/tlg0085.tlg007.perseus-eng2.xml:518-523"
     name: "H. W. Smyth (Loeb, 1922–26)"
     short: Smyth
     model: perseus-play

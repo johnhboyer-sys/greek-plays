@@ -19,6 +19,16 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "Full οft"
+        replace: "Full oft"
+        note: "sweep 2026-09-24 n=69: sources/perseus/tlg0006.tlg008.perseus-eng2.xml:369"
+      - find: "to2 know"
+        replace: "to know"
+        note: "sweep 2026-09-24 n=68: sources/perseus/tlg0006.tlg008.perseus-eng2.xml:370"
+      - find: "that1 good"
+        replace: "that good"
+        note: "sweep 2026-09-24 n=67: sources/perseus/tlg0006.tlg008.perseus-eng2.xml:369"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play
@@ -33,6 +43,18 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "miseries end! _\n"
+        replace: "miseries end!\n"
+        note: "sweep 2026-09-24 n=73: build/genie/euripidesway03euriuoft.txt:17282-17284"
+      - find: "sound —_—\n"
+        replace: "sound\n"
+        note: "sweep 2026-09-24 n=72: build/genie/euripidesway03euriuoft.txt:16456-16458; the scan prints no dash here, only the carried rhyme word [fear"
+      - find: "ghastliest\n7\nAh"
+        replace: "ghastliest misery.\nAh"
+        note: "sweep 2026-09-24 n=71: build/genie/euripidesway03euriuoft.txt:18431-18436"
+      - find: "men said ;\n_ I"
+        replace: "men said ;\nI"
+        note: "sweep 2026-09-24 n=70: build/genie/euripidesway03euriuoft.txt:18090-18092"
       - find: "rincely son {joy in thee "
         replace: "rincely son [joy in thee "
         note: "sweep 2026-09-24 n=36: build/genie/euripidesway03euriuoft.txt:16381"

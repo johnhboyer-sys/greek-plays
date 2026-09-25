@@ -39,6 +39,15 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "ear, _[near.\n"
+        replace: "ear, _[near.]_\n"
+        note: "sweep 2026-09-24 n=66: build/genie/euripidesway03euriuoft.txt:11780"
+      - find: "sister mine,\n_ In"
+        replace: "sister mine,\nIn"
+        note: "sweep 2026-09-24 n=65: build/genie/euripidesway03euriuoft.txt:15277-15279"
+      - find: "within thy land,— _\n"
+        replace: "within thy land,—\n"
+        note: "sweep 2026-09-24 n=64: build/genie/euripidesway03euriuoft.txt:15078-15081"
       - find: "lance. 140}"
         replace: "lance."
         note: "sweep 2026-09-24 n=35: build/genie/euripidesway03euriuoft.txt:11369; 140 is the scan's margin line number, not text"

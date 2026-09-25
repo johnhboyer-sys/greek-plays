@@ -28,6 +28,9 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "_ Mother, farewell"
+        replace: "Mother, farewell"
+        note: "sweep 2026-09-24 n=32: build/genie/euripidesway01euriuoft.txt:8977-8979"
       - find: "ron-glowing }\nVeil of Ath"
         replace: "ron-glowing\nVeil of Ath"
         note: "sweep 2026-09-24 n=33: build/genie/euripidesway01euriuoft.txt:9097"

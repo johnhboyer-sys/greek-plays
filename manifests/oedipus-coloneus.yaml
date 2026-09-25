@@ -43,6 +43,10 @@ english:
     footnotes: true
   third:
     id: kosmos
+    text_fixes:
+      - find: "Αs for the place"
+        replace: "As for the place"
+        note: "sweep 2026-09-24 n=63: sources/kosmos/oedipus-coloneus.html:665 (U+0391 GREEK CAPITAL ALPHA)"
     name: "Jebb, rev. Ceragioli & Nagy (Kosmos Society)"
     short: Kosmos
     model: turn-text
