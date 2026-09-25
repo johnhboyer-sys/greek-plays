@@ -2,7 +2,52 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import Search from '../components/Search.svelte';
 import { invalidateBookCache } from '../lib/data';
-import { englishOccurrences, greekFold, latinFold, search, invalidateSearchIndex } from '../lib/search';
+import { DEFAULT_MATCH_MODE, englishOccurrences, greekFold, latinFold, search, invalidateSearchIndex } from '../lib/search';
+
+describe('search rulings', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('defaults to the folded exact form', async () => {
+    expect(DEFAULT_MATCH_MODE).toBe('form');
+    const files: string[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
+      const path = String(url); files.push(path);
+      if (path.endsWith('/meta.json')) return json([{ id: '1', book: 1, column: '1', head: 'θεούς', tokens: 'qeos', english_head: '' }]);
+      if (path.endsWith('/form.json')) return json({ qeous: [[0, 0]] });
+      return json({});
+    });
+    const out = await search('θεους', '', 'all', 'all', 'and', ['TDefault']);
+    expect(out.results).toHaveLength(1);
+    expect(files.some(path => path.endsWith('/form.json'))).toBe(true);
+  });
+
+  it('resolves an inflected form to all headwords and returns their postings', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
+      const path = String(url);
+      if (path.endsWith('/lemma-map/q.json')) return json({ qeous: [['qeos', 'qeo/s'], ['qea', 'qea/']] });
+      if (path.endsWith('/meta.json')) return json([
+        { id: '1', book: 1, column: '1', head: 'θεός', tokens: 'qeos', english_head: '' },
+        { id: '2', book: 1, column: '2', head: 'θεά', tokens: 'qea', english_head: '' },
+      ]);
+      if (path.endsWith('/lemma.json')) return json({ qeos: [[0, 0]], qea: [[1, 0]] });
+      return json({});
+    });
+    const out = await search('θεους', '', 'all', 'all', 'and', ['TLemma'], 'lemma');
+    expect(out.results).toHaveLength(2);
+    expect(out.lemmata).toEqual(['θεός', 'θεά']);
+  });
+
+  it('keeps English hits tied to the matching translation', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
+      const path = String(url);
+      if (path.endsWith('/meta.json')) return json([{ id: '1', book: 1, column: '1', head: '', tokens: '', english_head: 'plain', english_slots: { other: 'rare word' } }]);
+      if (path.endsWith('/english.json')) return json({ rare: [[0, 'other']] });
+      return json({});
+    });
+    const out = await search('', 'rare', 'all', 'all', 'and', ['TSlots']);
+    expect(out.results[0]).toMatchObject({ slotId: 'other', englishText: 'rare word', engPositions: [0] });
+  });
+});
 
 // Latin-language test work ids (unregistered in the real WORKS registry, so
 // getWork() would otherwise resolve them to 'grc' and mask the Blocker 2
@@ -312,13 +357,37 @@ describe('Search.svelte play-line result routing', () => {
   });
   afterEach(() => vi.restoreAllMocks());
 
+  it('shows the matching translator and opens that slot', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
+      const path = String(url);
+      if (path.endsWith('/agamemnon/search/meta.json')) return json([
+        { id: '1:1', book: 1, column: '1', head: 'θεούς', tokens: 'qeous',
+          english_head: 'plain words', english_slots: { morshead: 'plenteous words' } },
+      ]);
+      if (path.endsWith('/agamemnon/search/english.json')) return json({ plenteous: [[0, 'morshead']] });
+      if (path.endsWith('/agamemnon/chapters.json')) return json({});
+      if (path.endsWith('/agamemnon/book-01.json')) return json({ book: 1, segments: [{
+        id: '1:1', column: '1', english: { text: 'plain words' }, ross: [{ text: 'plenteous words' }],
+        greek: [{ n: 1, ref: '1', text: 'θεούς', tokens: [{ t: 'θεούς', o: 0, k: 'qeous' }] }],
+      }] });
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+    const { getByLabelText, getByRole, container } = render(Search);
+    await fireEvent.input(getByLabelText('English'), { target: { value: 'plenteous' } });
+    await fireEvent.click(getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(container.querySelector('.inst-credit')).toBeTruthy());
+    expect(container.querySelector('.inst-credit')?.textContent).toContain('Morshead');
+    expect(container.querySelector('.inst-ref')?.getAttribute('href')).toContain('trans=morshead');
+    expect(container.querySelector('.inst-snippet')?.textContent).toContain('plenteous');
+  });
+
   it('loads an empty chapter outline and cites the matching printed line ref', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       const path = String(url);
       if (path.endsWith('/agamemnon/search/meta.json')) return json([
         { id: '1:125', book: 1, column: '1', head: 'λόγος', tokens: 'logos', english_head: '' },
       ]);
-      if (path.endsWith('/agamemnon/search/lemma.json')) return json({ logos: [[0, 0]] });
+      if (path.endsWith('/agamemnon/search/form.json')) return json({ logos: [[0, 0]] });
       if (path.endsWith('/agamemnon/chapters.json')) return json({});
       if (path.endsWith('/agamemnon/book-01.json')) return json({
         book: 1,
@@ -350,7 +419,7 @@ describe('Search.svelte play-line result routing', () => {
         { id: '1:1290', book: 1, column: '1290', head: 'λόγος', tokens: 'logos', english_head: '' },
         { id: '1:1284', book: 1, column: '1284', head: 'λόγος', tokens: 'logos', english_head: '' },
       ]);
-      if (path.endsWith('/agamemnon/search/lemma.json')) return json({ logos: [[0, 0], [1, 0]] });
+      if (path.endsWith('/agamemnon/search/form.json')) return json({ logos: [[0, 0], [1, 0]] });
       if (path.endsWith('/agamemnon/chapters.json')) return json({});
       if (path.endsWith('/agamemnon/book-01.json')) return json({
         book: 1,

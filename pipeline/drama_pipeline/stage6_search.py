@@ -15,21 +15,19 @@ english.json" axis, not a Greek-only one):
                  keyed by the SURFACE form as written (the inflected token), so
                  a query can match the exact form rather than the whole lemma.
 
-  english.json — {word: [seg_idx, ...]}
-                 Lowercased, punctuation-stripped English words.
-                 Phrase search is handled at query time via string inclusion
-                 on the (small) English chunk texts in meta.json, so
-                 positions are not stored here.
+  english.json — {word: [[seg_idx, translation_id], ...]}
+                 Every published translation gets its own posting. Phrase
+                 checks use that translation's full text in meta.json.
 
-  meta.json    — [{id, book, column, head, tokens, english_head}]
+  meta.json    — [{id, book, column, head, tokens, english_head, english_slots}]
                  Ordered list of segment metadata, indexed by seg_idx.
                  head: first line of text (for result preview).
                  tokens: space-joined fold token sequence (phrase search).
-                 english_head: the FULL English chunk (name is legacy). Query
-                   time uses it for exact-phrase verification and English
-                   occurrence counting, so it must not be truncated.
+                 english_head: the FULL primary chunk (legacy name).
+                 english_slots: full non-primary texts by translation id.
 
-All four files are copied to build/dist/<work>/search/ by stage7.
+All four files are copied to build/dist/<work>/search/ by stage7. Stage 6 also
+merges shipped analyses into build/dist/lemma-map/<letter>.json shards.
 """
 
 from __future__ import annotations
@@ -39,10 +37,61 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-from .config import BUILD_DIR, Manifest
+from .config import BUILD_DIR, Manifest, private_translation_ids
 
 _FOLD = re.compile(r"[^a-z']")  # keep only base letters and apostrophe
 _EN_WORD = re.compile(r"[a-z']+")
+
+
+def slot_text(chunks: object) -> str:
+    """Use the same ordered text for indexing and client-side snippets."""
+    if isinstance(chunks, dict):
+        return chunks.get("text", "")
+    if isinstance(chunks, list):
+        return "\n".join(c.get("text", "") for c in chunks if isinstance(c, dict))
+    return ""
+
+
+def build_lemma_map(current: dict, work_id: str, build_dir: Path = BUILD_DIR) -> None:
+    """Merge shipped analyses into fold(form) -> [fold, printed headword] shards."""
+    forms: dict[str, dict[str, str]] = defaultdict(dict)
+    paths = (build_dir / "dist").glob("*/analyses.json")
+    for path in paths:
+        if path.parent.name == work_id:
+            continue
+        add_analyses(forms, json.loads(path.read_text(encoding="utf-8")))
+    add_analyses(forms, current)
+    shards: dict[str, dict[str, list[list[str]]]] = defaultdict(dict)
+    for surface, lemmata in forms.items():
+        shards[surface[0] if surface[0].isalpha() else "_"][surface] = sorted(
+            [folded, display] for folded, display in lemmata.items()
+        )
+    out = build_dir / "dist" / "lemma-map"
+    out.mkdir(parents=True, exist_ok=True)
+    for old in out.glob("*.json"):
+        old.unlink()
+    for letter, values in shards.items():
+        (out / f"{letter}.json").write_text(json.dumps(values, ensure_ascii=False), encoding="utf-8")
+
+
+def add_analyses(forms: dict[str, dict[str, str]], analyses: dict) -> None:
+    for surface, parses in analyses.items():
+        key = fold_lemma(surface)
+        if not key:
+            continue
+        for parse in parses:
+            head = parse.get("lemma")
+            if head:
+                folded = fold_lemma(head)
+                if folded:
+                    for surface in (key, folded):
+                        old = forms[surface].get(folded)
+                        # Prefer an accented spelling and make the choice stable
+                        # when works supply more than one spelling of a fold.
+                        forms[surface][folded] = min(
+                            (old, head) if old is not None else (head,),
+                            key=lambda value: (not any(c in value for c in "/\\=()|+"), value),
+                        )
 
 
 def fold_lemma(beta_key: str) -> str:
@@ -87,6 +136,25 @@ def run(manifest: Manifest) -> Path:
     seg_idx = {s["id"]: i for i, s in enumerate(segments)}
 
     eng_by_id = {c["id"]: c for c in english["chunks"]}
+    english_block = manifest.data.get("english") or {}
+    private = private_translation_ids(manifest.data)
+    slot_chunks: dict[str, dict] = {}
+    primary_id = (english_block.get("primary") or {}).get("id")
+    for slot, filename in (("primary", "english_chunks.json"),
+                           ("secondary", "ross_chunks.json"),
+                           ("third", "third_chunks.json")):
+        entry = english_block.get(slot)
+        path = BUILD_DIR / "stage1" / filename
+        if not entry or entry.get("private") or entry.get("id") in private or not path.exists():
+            continue
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        slot_chunks[entry["id"]] = ({c["id"]: c for c in doc["chunks"]}
+                                     if slot == "primary" else doc)
+    overlays_path = BUILD_DIR / "stage1" / "overlays.json"
+    overlays = json.loads(overlays_path.read_text(encoding="utf-8")) if overlays_path.exists() else {}
+    for entry in english_block.get("overlays") or []:
+        if not entry.get("private") and entry.get("id") not in private:
+            slot_chunks[entry["id"]] = overlays.get(entry["id"], {})
 
     # Token fold sequences per segment — needed by the client for phrase search.
     # One space-separated string of fold lemma keys in document order.
@@ -150,16 +218,14 @@ def run(manifest: Manifest) -> Path:
     form_idx = _dedupe(form_posts)
 
     # -- English inverted index -----------------------------------------------
-    # word -> sorted list of unique seg_idxs
+    # word -> [[segment index, translation id], ...]
     eng_posts: dict[str, set] = defaultdict(set)
     for seg in segments:
-        eng = eng_by_id.get(seg["id"])
-        if not eng:
-            continue
         si = seg_idx[seg["id"]]
-        for word in _EN_WORD.findall(eng["text"].lower()):
-            eng_posts[word].add(si)
-    english_idx = {w: sorted(idxs) for w, idxs in eng_posts.items()}
+        for slot_id, chunks in slot_chunks.items():
+            for word in _EN_WORD.findall(slot_text(chunks.get(seg["id"])).lower()):
+                eng_posts[word].add((si, slot_id))
+    english_idx = {w: [list(pair) for pair in sorted(pairs)] for w, pairs in eng_posts.items()}
 
     # -- Segment metadata -----------------------------------------------------
     meta = []
@@ -185,6 +251,9 @@ def run(manifest: Manifest) -> Path:
                 "head": head,
                 "tokens": fold_seq_by_id.get(seg["id"], ""),
                 "english_head": english_head,
+                "english_slots": {sid: text for sid, chunks in slot_chunks.items()
+                                  if sid != primary_id
+                                  if (text := slot_text(chunks.get(seg["id"])))},
             }
         )
 
@@ -209,4 +278,5 @@ def run(manifest: Manifest) -> Path:
         "segments": len(meta),
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=1))
+    build_lemma_map(analyses, manifest.work_id, BUILD_DIR)
     return out_dir

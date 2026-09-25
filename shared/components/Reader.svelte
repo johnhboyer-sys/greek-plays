@@ -76,6 +76,7 @@
   import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
+  import { copyButtonPosition } from '../lib/copy-button';
   import { highlightPrefixMatches } from '../lib/text';
   import { columnLineates, buildProseFlow, isSourceHeadOnlyText, peelSourceHeadPrefix, scanSectionMarkers, singlePureContextRun, type ProseFlowItem } from '../lib/prose-flow';
   import { getWork, visibleTranslations, bookLabel as workBookLabel, languageLabel, freemanApparatusCredit, type TranslationRef } from '../lib/works';
@@ -1270,6 +1271,7 @@
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
       document.removeEventListener('mouseup', checkCopyBtn);
       document.removeEventListener('selectionchange', onSelectionChange);
+      if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
     }
   });
 
@@ -1344,7 +1346,7 @@
     return text
       .split('\n')
       .map((line) => `<span class="verse-line">${markStageDirections(renderThird(line, transId))}</span>`)
-      .join('');
+      .join('\n');
   }
 
   // A segment renders as one or more blocks split at chapter boundaries.
@@ -3753,22 +3755,37 @@
 
   // ── Floating copy button (appears on Greek text selection) ────────────────
   let copyBtnPos: { x: number; y: number } | null = null;
+  let copyBtnEl: HTMLButtonElement;
+  let copyBtnFrame = 0;
 
   function checkCopyBtn() {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed || sel.rangeCount === 0) { copyBtnPos = null; return; }
-    const range = sel.getRangeAt(0);
-    if (!nearestGreekLine(range.startContainer) && !nearestGreekLine(range.endContainer)) {
-      copyBtnPos = null; return;
-    }
-    const rect = range.getBoundingClientRect();
-    if (!rect.width && !rect.height) { copyBtnPos = null; return; }
-    copyBtnPos = { x: rect.right, y: rect.top };
+    if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
+    copyBtnPos = null;
+    copyBtnFrame = requestAnimationFrame(async () => {
+      copyBtnFrame = 0;
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || sel.rangeCount === 0) return;
+      const range = sel.getRangeAt(0);
+      if (!nearestGreekLine(range.startContainer) && !nearestGreekLine(range.endContainer)) return;
+      const rect = range.getBoundingClientRect();
+      const headerHeight = document.querySelector('.page-header')?.getBoundingClientRect().height ?? 0;
+      // Render once to get the button's actual size, then place it before paint.
+      copyBtnPos = { x: rect.right, y: rect.top };
+      await tick();
+      if (!copyBtnEl || !sel.rangeCount || sel.isCollapsed) { copyBtnPos = null; return; }
+      copyBtnPos = copyButtonPosition(rect, copyBtnEl.getBoundingClientRect(), {
+        width: window.innerWidth, height: window.innerHeight, headerHeight,
+      });
+    });
   }
 
   function onSelectionChange() {
     const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) copyBtnPos = null;
+    if (!sel || sel.isCollapsed) {
+      if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
+      copyBtnFrame = 0;
+      copyBtnPos = null;
+    }
   }
 
   function clickCopyBtn() {
@@ -5545,8 +5562,9 @@
 {#if copyBtnPos}
   <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
   <button
+    bind:this={copyBtnEl}
     class="copy-cite-btn"
-    style="left:{copyBtnPos.x}px;top:{copyBtnPos.y}px"
+    style="left:{copyBtnPos.x}px;top:{copyBtnPos.y}px;transform:none"
     on:mousedown|preventDefault
     on:click={clickCopyBtn}
     aria-label="Copy with citation"
