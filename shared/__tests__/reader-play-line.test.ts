@@ -279,26 +279,40 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     expect(marker!.getAttribute('data-fn')).toBe('3.69_71');
   });
 
+  // A popup fetches footnotes.json, and fetchFootnotes caches the promise per
+  // work. These tests only need the popup, not its text, so the fetch answers
+  // 404: a failed fetch is evicted from the cache once it settles, and waiting
+  // for the popup's error lets it settle, so nothing leaks into the next test.
+  function mockFootnotes() {
+    return vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
+      Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response));
+  }
+
   it('leaves a focused footnote marker alone until Enter opens its popup', async () => {
     const data = book();
     data.segments[0]!.english = {
       text: 'A noted line [^1].', notes: [], markers: [],
       turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
     };
-    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
-    await flush();
-    const marker = container.querySelector<HTMLButtonElement>('.fn-marker')!;
-    marker.focus();
-    await flush();
-    expect(document.activeElement).toBe(marker);
-    expect(container.querySelector('.footnote-popup')).toBeNull();
+    const fetchSpy = mockFootnotes();
+    try {
+      const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+      await flush();
+      const marker = container.querySelector<HTMLButtonElement>('.fn-marker')!;
+      marker.focus();
+      await flush();
+      expect(document.activeElement).toBe(marker);
+      expect(container.querySelector('.footnote-popup')).toBeNull();
 
-    await fireEvent.keyDown(marker, { key: 'Enter' });
-    await waitFor(() => expect(container.querySelector('.footnote-popup')).not.toBeNull());
-    await waitFor(() => expect(document.activeElement).toBe(container.querySelector('.footnote-popup')));
-    await fireEvent.keyDown(window, { key: 'Escape' });
-    await waitFor(() => expect(container.querySelector('.footnote-popup')).toBeNull());
-    expect(document.activeElement).toBe(marker);
+      await fireEvent.keyDown(marker, { key: 'Enter' });
+      await waitFor(() => expect(container.querySelector('.footnote-popup')?.textContent).toContain('404'));
+      await waitFor(() => expect(document.activeElement).toBe(container.querySelector('.footnote-popup')));
+      await fireEvent.keyDown(window, { key: 'Escape' });
+      await waitFor(() => expect(container.querySelector('.footnote-popup')).toBeNull());
+      expect(document.activeElement).toBe(marker);
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it('shows a footnote on hover without taking keyboard focus', async () => {
@@ -307,14 +321,19 @@ describe('Reader.svelte play-line rendering (P1)', () => {
       text: 'A noted line [^1].', notes: [], markers: [],
       turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
     };
-    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
-    await flush();
-    const marker = container.querySelector<HTMLButtonElement>('.fn-marker')!;
-    marker.focus();
-    await fireEvent.mouseOver(marker);
-    await waitFor(() => expect(container.querySelector('.footnote-popup')).not.toBeNull());
-    await flush();
-    expect(document.activeElement).toBe(marker);
+    const fetchSpy = mockFootnotes();
+    try {
+      const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+      await flush();
+      const marker = container.querySelector<HTMLButtonElement>('.fn-marker')!;
+      marker.focus();
+      await fireEvent.mouseOver(marker);
+      await waitFor(() => expect(container.querySelector('.footnote-popup')?.textContent).toContain('404'));
+      await flush();
+      expect(document.activeElement).toBe(marker);
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it('replaces the footnote body when moving to another marker (Astra lane A, F5)', async () => {
