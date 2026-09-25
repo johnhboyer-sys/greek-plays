@@ -1,0 +1,128 @@
+{
+  "h)/idh": [
+    {
+      "lemma": "oi)=da",
+      "gloss": "know",
+      "parse": "plup ind act 1st sg",
+      "lsj": [
+        "oi)=da"
+      ]
+    }
+  ],
+  "e)xqarh=|": [
+    {
+      "lemma": "e)xqai/rw",
+      "gloss": "hate",
+      "parse": "fut ind mid 2nd sg",
+      "lsj": [
+        "e)xqai/rw"
+      ]
+    }
+  ],
+  "a)pio/qen": [
+    {
+      "lemma": "*)apio/qen",
+      "gloss": "from Apia (the Peloponnese)",
+      "parse": "indeclform (adverb)",
+      "lsj": []
+    }
+  ],
+  "pa/tas": [
+    {
+      "lemma": "pa=s",
+      "gloss": "all, every (misprint for πάντας)",
+      "parse": "masc acc pl",
+      "lsj": [
+        "pa=s1",
+        "pa=s2",
+        "pa=s3"
+      ]
+    }
+  ],
+  "e)nai/qreia": [
+    {
+      "lemma": "e)nai/qrios",
+      "gloss": "in the open air",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "qrausqe/nta": [
+    {
+      "lemma": "qrau/w",
+      "gloss": "break, shatter",
+      "parse": "aor part pass masc acc sg",
+      "lsj": [
+        "qrau/w"
+      ]
+    },
+    {
+      "lemma": "qrau/w",
+      "gloss": "break, shatter",
+      "parse": "aor part pass neut nom/voc/acc pl",
+      "lsj": [
+        "qrau/w"
+      ]
+    }
+  ],
+  "qrh/|ssh|sin": [
+    {
+      "lemma": "*qra=|ssa",
+      "gloss": "Thracian",
+      "parse": "fem dat pl (epic ionic)",
+      "lsj": [
+        "*qra=|ssa"
+      ]
+    }
+  ],
+  "dirkai=ai": [
+    {
+      "lemma": "*dirkai=os",
+      "gloss": "Dircaean, of Dirce",
+      "parse": "fem nom/voc pl",
+      "lsj": []
+    }
+  ],
+  "ai)ei/frouros": [
+    {
+      "lemma": "a)ei/frouros",
+      "gloss": "ever-watching, everlasting",
+      "parse": "masc/fem nom sg",
+      "lsj": []
+    }
+  ],
+  "finei/dais": [
+    {
+      "lemma": "*finei/dhs",
+      "gloss": "son of Phineus",
+      "parse": "masc dat pl",
+      "lsj": []
+    }
+  ],
+  "borea/s": [
+    {
+      "lemma": "*borea/s",
+      "gloss": "daughter of Boreas",
+      "parse": "fem nom sg",
+      "lsj": []
+    }
+  ],
+  "ai)sxrokerdei/an": [
+    {
+      "lemma": "ai)sxroke/rdeia",
+      "gloss": "sordid love of gain",
+      "parse": "fem acc sg",
+      "lsj": []
+    }
+  ],
+  "sti/xousi": [
+    {
+      "lemma": "stei/xw",
+      "gloss": "go, walk, march",
+      "parse": "pres ind act 3rd pl",
+      "lsj": [
+        "stei/xw"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "ai)dwneu=": [
+    {
+      "lemma": "*)aidwneu/s",
+      "gloss": "Aidoneus (Hades)",
+      "parse": "masc voc sg",
+      "lsj": []
+    }
+  ],
+  "la/ou": [
+    {
+      "lemma": "la=as",
+      "gloss": "stone",
+      "parse": "masc gen sg",
+      "lsj": [
+        "la=as"
+      ]
+    }
+  ],
+  "ka)moi/ge": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ ἐμοί γε)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "e)gw/",
+      "gloss": "I (crasis: καὶ ἐμοί γε)",
+      "parse": "dat 1st sg",
+      "lsj": [
+        "e)gw/"
+      ]
+    },
+    {
+      "lemma": "ge",
+      "gloss": "at least, at any rate (crasis: καὶ ἐμοί γε)",
+      "parse": "enclitic indeclform (particle)",
+      "lsj": [
+        "ge"
+      ]
+    }
+  ],
+  "e)rmh/neue": [
+    {
+      "lemma": "e(rmhneu/w",
+      "gloss": "interpret, explain",
+      "parse": "pres imperat act 2nd sg",
+      "lsj": [
+        "e(rmhneu/w"
+      ]
+    }
+  ],
+  "deinai/noim'": [
+    {
+      "lemma": "deimai/nw",
+      "gloss": "be afraid (misprint for δειμαίνοιμ')",
+      "parse": "pres opt act 1st sg",
+      "lsj": [
+        "deimai/nw"
+      ]
+    }
+  ],
+  "xrh)/stai": [
+    {
+      "lemma": "xrh/",
+      "gloss": "it is necessary (crasis: χρὴ ἔσται)",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "xrh/"
+      ]
+    },
+    {
+      "lemma": "ei)mi/",
+      "gloss": "be (crasis: χρὴ ἔσται)",
+      "parse": "fut ind mid 3rd sg",
+      "lsj": [
+        "ei)mi/"
+      ]
+    }
+  ],
+  "poseida/n": [
+    {
+      "lemma": "*poseidw=n",
+      "gloss": "Poseidon",
+      "parse": "masc voc sg (doric)",
+      "lsj": [
+        "*poseidw=n"
+      ]
+    }
+  ],
+  "h)/idh": [
+    {
+      "lemma": "oi)=da",
+      "gloss": "know",
+      "parse": "plup ind act 1st sg",
+      "lsj": [
+        "oi)=da"
+      ]
+    }
+  ],
+  "r(e/as": [
+    {
+      "lemma": "*(re/a",
+      "gloss": "Rhea",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "qoriki/ou": [
+    {
+      "lemma": "*qori/kios",
+      "gloss": "of Thoricus",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ]
+}

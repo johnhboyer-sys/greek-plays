@@ -1,0 +1,362 @@
+{
+ "'tai=re": [
+  {
+   "lemma": "e(tai=ros",
+   "gloss": "comrade, friend (ἑταῖρε, aphaeresis)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "e(tai=ros"
+   ]
+  }
+ ],
+ "a)pomorxqei/s": [
+  {
+   "lemma": "a)pomo/rgnumi",
+   "gloss": "wipe off",
+   "parse": "aor part pass masc nom sg",
+   "lsj": [
+    "a)pomo/rgnu_mi"
+   ]
+  }
+ ],
+ "ai)cwne/a": [
+  {
+   "lemma": "*ai)cwneu/s",
+   "gloss": "of the deme Aexone",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "ai)swpiko/n": [
+  {
+   "lemma": "*ai)swpiko/s",
+   "gloss": "Aesopic, of Aesop",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": []
+  }
+ ],
+ "e)/kfres": [
+  {
+   "lemma": "e)kfre/w",
+   "gloss": "let out",
+   "parse": "aor imperat act 2nd sg",
+   "lsj": [
+    "e)kfre/w"
+   ]
+  }
+ ],
+ "e)e/": [
+  {
+   "lemma": "e)e/",
+   "gloss": "ah! alas!",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "e)piqh/kisa": [
+  {
+   "lemma": "piqhki/zw",
+   "gloss": "play the ape, play tricks",
+   "parse": "aor ind act 1st sg",
+   "lsj": []
+  }
+ ],
+ "eu)ergi/dhs": [
+  {
+   "lemma": "*eu)ergi/dhs",
+   "gloss": "Euergides",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "flueu/s": [
+  {
+   "lemma": "*flueu/s",
+   "gloss": "of the deme Phlya",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "h)lia/sei": [
+  {
+   "lemma": "h(lia/zomai",
+   "gloss": "sit as a juror in the Heliaea (punning on ἥλιος, sun)",
+   "parse": "fut ind mid 2nd sg",
+   "lsj": [
+    "h(lia/zomai"
+   ]
+  }
+ ],
+ "h)liasth/s": [
+  {
+   "lemma": "h(liasth/s",
+   "gloss": "juror (member of the Heliaea)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "h(liasth/s"
+   ]
+  }
+ ],
+ "h)liastikou=": [
+  {
+   "lemma": "h(liastiko/s",
+   "gloss": "of a juror",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "kai/tou)stin": [
+  {
+   "lemma": "kai/toi",
+   "gloss": "and yet (crasis: καίτοι ἐστίν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "kai/_toi"
+   ]
+  },
+  {
+   "lemma": "ei)mi/",
+   "gloss": "be (crasis: καίτοι ἐστίν)",
+   "parse": "pres ind act 3rd sg",
+   "lsj": [
+    "ei)mi/"
+   ]
+  }
+ ],
+ "karkini/ths": [
+  {
+   "lemma": "*karkini/ths",
+   "gloss": "son of Carcinus; crab-man",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "kata/kleidos": [
+  {
+   "lemma": "kata/kleis",
+   "gloss": "latch, bolt",
+   "parse": "fem gen sg",
+   "lsj": []
+  }
+ ],
+ "kataprou/dote": [
+  {
+   "lemma": "kataprodi/dwmi",
+   "gloss": "betray utterly",
+   "parse": "aor ind act 2nd pl",
+   "lsj": []
+  }
+ ],
+ "kiqaraoido/taton": [
+  {
+   "lemma": "kiqarw|do/s",
+   "gloss": "singer to the cithara (comic superlative)",
+   "parse": "masc acc superl sg",
+   "lsj": [
+    "ki^qa^rw|do/s"
+   ]
+  }
+ ],
+ "konquleu=": [
+  {
+   "lemma": "*konquleu/s",
+   "gloss": "of the deme Conthyle",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "korko/rou": [
+  {
+   "lemma": "ko/rkoros",
+   "gloss": "a wild vegetable (Corchorus)",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "la=sos": [
+  {
+   "lemma": "*la=sos",
+   "gloss": "Lasus (poet of Hermione)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "lesbiei=n": [
+  {
+   "lemma": "lesbia/zw",
+   "gloss": "act like a Lesbian woman (i.e. fellate)",
+   "parse": "fut inf act (attic)",
+   "lsj": []
+  }
+ ],
+ "masunti/a": [
+  {
+   "lemma": "*masunti/as",
+   "gloss": "Masyntias (slave name)",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "megabro/nta": [
+  {
+   "lemma": "megabro/nths",
+   "gloss": "loud-thundering",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "monofagi/staton": [
+  {
+   "lemma": "monofa/gos",
+   "gloss": "eating alone, gluttonous",
+   "parse": "masc acc superl sg",
+   "lsj": []
+  }
+ ],
+ "papi/a": [
+  {
+   "lemma": "pappi/as",
+   "gloss": "daddy, papa",
+   "parse": "masc voc sg",
+   "lsj": [
+    "pappi/as"
+   ]
+  }
+ ],
+ "papi/dion": [
+  {
+   "lemma": "pappi/dion",
+   "gloss": "dear little daddy",
+   "parse": "neut voc sg",
+   "lsj": [
+    "pappi/dion"
+   ]
+  }
+ ],
+ "puria/th|": [
+  {
+   "lemma": "puria/th",
+   "gloss": "beestings pudding",
+   "parse": "fem dat sg",
+   "lsj": []
+  }
+ ],
+ "qe/wlos": [
+  {
+   "lemma": "*qe/wros",
+   "gloss": "Theorus (lisped as Theolus)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "qou/fraston": [
+  {
+   "lemma": "*qeo/frastos",
+   "gloss": "Theophrastus",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "qou/frastos": [
+  {
+   "lemma": "*qeo/frastos",
+   "gloss": "Theophrastus",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "qoufra/stou": [
+  {
+   "lemma": "*qeo/frastos",
+   "gloss": "Theophrastus",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "r(uppapai=": [
+  {
+   "lemma": "r(uppapai=",
+   "gloss": "rowers' cry; (here) the navy crowd",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "skambwni/dhs": [
+  {
+   "lemma": "*skambwni/dhs",
+   "gloss": "of the deme Scambonidae",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "subari=tis": [
+  {
+   "lemma": "*subari=tis",
+   "gloss": "Sybarite woman",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "teqnh/sei": [
+  {
+   "lemma": "qnh/skw",
+   "gloss": "die",
+   "parse": "futperf ind mid 2nd sg",
+   "lsj": [
+    "qnh/|skw"
+   ]
+  }
+ ],
+ "thndi/": [
+  {
+   "lemma": "o(/de",
+   "gloss": "this (with deictic -ί)",
+   "parse": "fem acc sg",
+   "lsj": [
+    "o(/de"
+   ]
+  }
+ ],
+ "th|di/": [
+  {
+   "lemma": "o(/de",
+   "gloss": "this (with deictic -ί)",
+   "parse": "fem dat sg",
+   "lsj": [
+    "o(/de"
+   ]
+  },
+  {
+   "lemma": "th=|de",
+   "gloss": "here, this way (with deictic -ί)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "th=|de"
+   ]
+  }
+ ],
+ "truferanqei/s": [
+  {
+   "lemma": "truferai/nomai",
+   "gloss": "be dainty, give oneself airs",
+   "parse": "aor part pass masc nom sg",
+   "lsj": []
+  }
+ ],
+ "u(/rxas": [
+  {
+   "lemma": "u(/rxh",
+   "gloss": "earthenware jar (for salt fish)",
+   "parse": "fem acc pl",
+   "lsj": []
+  }
+ ],
+ "xoiro/qliy": [
+  {
+   "lemma": "xoiro/qliy",
+   "gloss": "pig-squeezer (obscene)",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ]
+}

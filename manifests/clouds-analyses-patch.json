@@ -1,0 +1,284 @@
+{
+ "ei)=e(n": [
+  {
+   "lemma": "ei)=en",
+   "gloss": "well! well then!",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "pappa/c": [
+  {
+   "lemma": "pappa/c",
+   "gloss": "bang! (imitating thunder and a fart)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "papapappa/c": [
+  {
+   "lemma": "papapappa/c",
+   "gloss": "ba-ba-bang! (imitating thunder and a fart)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "cunwrikeu/etai": [
+  {
+   "lemma": "sunwrikeu/omai",
+   "gloss": "drive a pair of horses",
+   "parse": "pres ind mp 3rd sg",
+   "lsj": []
+  }
+ ],
+ "feidippi/dion": [
+  {
+   "lemma": "*feidippi/dion",
+   "gloss": "little Pheidippides (diminutive)",
+   "parse": "neut voc sg",
+   "lsj": []
+  }
+ ],
+ "toi)ki/dion": [
+  {
+   "lemma": "oi)ki/dion",
+   "gloss": "little house (crasis: τὸ οἰκίδιον)",
+   "parse": "neut acc sg",
+   "lsj": []
+  }
+ ],
+ "tetramai/nw": [
+  {
+   "lemma": "tetremai/nw",
+   "gloss": "tremble",
+   "parse": "pres ind act 1st sg",
+   "lsj": []
+  }
+ ],
+ "mousopoou=sin": [
+  {
+   "lemma": "mousopoie/w",
+   "gloss": "make songs about",
+   "parse": "pres ind act 3rd pl",
+   "lsj": []
+  }
+ ],
+ "kentau/rw|": [
+  {
+   "lemma": "ke/ntauros",
+   "gloss": "centaur",
+   "parse": "masc dat sg",
+   "lsj": [
+    "*ke/ntauros"
+   ]
+  }
+ ],
+ "kentau/rois": [
+  {
+   "lemma": "ke/ntauros",
+   "gloss": "centaur",
+   "parse": "masc dat pl",
+   "lsj": [
+    "*ke/ntauros"
+   ]
+  }
+ ],
+ "ou(lu/mpios": [
+  {
+   "lemma": "*)olu/mpios",
+   "gloss": "Olympian (crasis: ὁ Ὀλύμπιος)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "*)olu/mpios"
+   ]
+  }
+ ],
+ "tetramai/nein": [
+  {
+   "lemma": "tetremai/nw",
+   "gloss": "tremble",
+   "parse": "pres inf act",
+   "lsj": []
+  }
+ ],
+ "tunnoutoui/": [
+  {
+   "lemma": "tunnou=tos",
+   "gloss": "so small, this tiny (with deictic -ί)",
+   "parse": "neut gen sg",
+   "lsj": [
+    "tunnou=tos"
+   ]
+  }
+ ],
+ "pordh/": [
+  {
+   "lemma": "pordh/",
+   "gloss": "fart",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "sugge/nesin": [
+  {
+   "lemma": "suggenh/s",
+   "gloss": "kinsman",
+   "parse": "masc dat pl",
+   "lsj": [
+    "suggenh/s"
+   ]
+  }
+ ],
+ "pohth/s": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "kunqi/an": [
+  {
+   "lemma": "*ku/nqios",
+   "gloss": "of Cynthus (the hill on Delos)",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "h(mie/ktew": [
+  {
+   "lemma": "h(mi/ekton",
+   "gloss": "half-sixth (a dry measure; Attic gen. ἡμιέκτεω)",
+   "parse": "neut gen sg",
+   "lsj": []
+  }
+ ],
+ "h(mie/ktewn": [
+  {
+   "lemma": "h(mi/ekton",
+   "gloss": "half-sixth (a dry measure; Attic ἡμιέκτεων)",
+   "parse": "neut nom sg",
+   "lsj": []
+  }
+ ],
+ "ka/tropton": [
+  {
+   "lemma": "ka/toptron",
+   "gloss": "mirror (the text prints κάτροπτον for κάτοπτρον)",
+   "parse": "neut acc sg",
+   "lsj": [
+    "ka/toptron"
+   ]
+  }
+ ],
+ "a)rxaii+ka/": [
+  {
+   "lemma": "a)rxai+ko/s",
+   "gloss": "old-fashioned",
+   "parse": "neut acc pl",
+   "lsj": []
+  }
+ ],
+ "h)liastiko/n": [
+  {
+   "lemma": "h(liastiko/s",
+   "gloss": "of the jury-courts (the juror's obol)",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "tunnoutoni/": [
+  {
+   "lemma": "tunnou=tos",
+   "gloss": "so small, this tiny (with deictic -ί)",
+   "parse": "neut nom sg",
+   "lsj": [
+    "tunnou=tos"
+   ]
+  }
+ ],
+ "fru=nin": [
+  {
+   "lemma": "*fru=nis",
+   "gloss": "Phrynis (a musician)",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "a)poqrausqh=|s": [
+  {
+   "lemma": "a)poqrau/w",
+   "gloss": "break off; be robbed of",
+   "parse": "aor subj pass 2nd sg",
+   "lsj": [
+    "a)poqrau/w"
+   ]
+  }
+ ],
+ "ka)keinoni/": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἐκεινονί)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "e)kei=nos",
+   "gloss": "that man (with deictic -ί)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "e)kei=nos"
+   ]
+  }
+ ],
+ "'bolosta/tai": [
+  {
+   "lemma": "o)bolosta/ths",
+   "gloss": "usurer (aphaeresis: ὀβολοστάται)",
+   "parse": "masc voc pl",
+   "lsj": []
+  }
+ ],
+ "tlhmpo/lemos": [
+  {
+   "lemma": "*tlhpo/lemos",
+   "gloss": "Tlepolemus",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "oi(/sper": [
+  {
+   "lemma": "o(/sper",
+   "gloss": "who, the very one who (the text accents οἵσπερ for οἷσπερ)",
+   "parse": "masc dat pl",
+   "lsj": [
+    "o(/sper"
+   ]
+  }
+ ],
+ "pohth/n": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "pohtai=s": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc dat pl",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ]
+}

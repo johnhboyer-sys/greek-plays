@@ -1,0 +1,98 @@
+{
+  "w)/imoi": [
+    {
+      "lemma": "w)/moi",
+      "gloss": "ah me! woe is me!",
+      "parse": "indeclform (exclam)",
+      "lsj": [
+        "w)/moi"
+      ]
+    }
+  ],
+  "a)trei=dai": [
+    {
+      "lemma": "*)atrei/dhs",
+      "gloss": "son of Atreus",
+      "parse": "masc nom/voc pl",
+      "lsj": [
+        "*)atrei/dhs"
+      ]
+    }
+  ],
+  "teleu/tantos": [
+    {
+      "lemma": "*teleu/tas",
+      "gloss": "Teleutas",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "turshnikh=s": [
+    {
+      "lemma": "*turshniko/s",
+      "gloss": "Tyrrhenian, Etruscan",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "sisufida=n": [
+    {
+      "lemma": "*sisufi/dhs",
+      "gloss": "son of Sisyphus",
+      "parse": "masc gen pl (doric)",
+      "lsj": []
+    }
+  ],
+  "kullani/as": [
+    {
+      "lemma": "*kullh/nios",
+      "gloss": "of Cyllene",
+      "parse": "fem gen sg (doric)",
+      "lsj": []
+    }
+  ],
+  "knw/si'": [
+    {
+      "lemma": "*knw/sios",
+      "gloss": "Cnossian, of Cnossus",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "qestorei/ou": [
+    {
+      "lemma": "*qestorei=os",
+      "gloss": "son of Thestor",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "lh/": [
+    {
+      "lemma": "lh/gw",
+      "gloss": "stop, cease (first half of λήξει, split across lines)",
+      "parse": "fut ind act 3rd sg",
+      "lsj": [
+        "lh/gw"
+      ]
+    }
+  ],
+  "a)n": [
+    {
+      "lemma": "a)na/",
+      "gloss": "up, upon, throughout",
+      "parse": "poetic indeclform (prep)",
+      "lsj": [
+        "a)na/"
+      ]
+    }
+  ],
+  "a)noimwktei/": [
+    {
+      "lemma": "a)noimwkti/",
+      "gloss": "without wailing, with impunity",
+      "parse": "indeclform (adverb)",
+      "lsj": []
+    }
+  ]
+}

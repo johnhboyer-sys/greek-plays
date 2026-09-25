@@ -1,0 +1,102 @@
+{
+  "ei)=e(n": [
+    {
+      "lemma": "ei)=e(n",
+      "gloss": "well! so be it (transition particle)",
+      "parse": "indeclform (particle)",
+      "lsj": []
+    }
+  ],
+  "traxuth=ta": [
+    {
+      "lemma": "traxu/ths",
+      "gloss": "roughness, harshness",
+      "parse": "fem acc sg",
+      "lsj": []
+    }
+  ],
+  "ai(/dou": [
+    {
+      "lemma": "*(/aidhs",
+      "gloss": "Hades",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "a)xqesqh=|": [
+    {
+      "lemma": "a)/xqomai",
+      "gloss": "be vexed, be grieved",
+      "parse": "aor subj pass 3rd sg",
+      "lsj": [
+        "a)/xqomai"
+      ]
+    }
+  ],
+  "a)kamantode/tois": [
+    {
+      "lemma": "a)kamantode/tos",
+      "gloss": "bound with adamantine bonds",
+      "parse": "masc/fem dat pl",
+      "lsj": []
+    }
+  ],
+  "flu=sai": [
+    {
+      "lemma": "flu/w",
+      "gloss": "babble, talk idly",
+      "parse": "aor inf act",
+      "lsj": [
+        "flu/w"
+      ]
+    }
+  ],
+  "kerxnei/as": [
+    {
+      "lemma": "*kerxnei/a",
+      "gloss": "Cerchneia (a spring)",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "salmudhssi/a": [
+    {
+      "lemma": "*salmudh/ssios",
+      "gloss": "of Salmydessus",
+      "parse": "fem nom sg",
+      "lsj": []
+    }
+  ],
+  "kisqh/nhs": [
+    {
+      "lemma": "*kisqh/nh",
+      "gloss": "Cisthene",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "a)rimaspo/n": [
+    {
+      "lemma": "*)arimaspo/s",
+      "gloss": "Arimaspian",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "neilw=tin": [
+    {
+      "lemma": "*neilw=tis",
+      "gloss": "of the Nile",
+      "parse": "fem acc sg",
+      "lsj": []
+    }
+  ],
+  "r(e/as": [
+    {
+      "lemma": "*(re/a",
+      "gloss": "Rhea",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ]
+}

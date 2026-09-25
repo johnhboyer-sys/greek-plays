@@ -1,0 +1,408 @@
+{
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm, assert",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "r(e/as": [
+    {
+      "lemma": "*(re/a",
+      "gloss": "Rhea",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "r(a/idion": [
+    {
+      "lemma": "r(a/|dios",
+      "gloss": "easy, ready",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "r(a/|dios"
+      ]
+    }
+  ],
+  "ka)=it'": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "i(smhnou=": [
+    {
+      "lemma": "*)ismhno/s",
+      "gloss": "Ismenus (river)",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "xloh/rei": [
+    {
+      "lemma": "xloh/rhs",
+      "gloss": "green",
+      "parse": "masc/fem/neut dat sg",
+      "lsj": []
+    }
+  ],
+  "tragokto/non": [
+    {
+      "lemma": "trago/ktonos",
+      "gloss": "of slaughtered goats",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": []
+    }
+  ],
+  "eu)=oi(": [
+    {
+      "lemma": "eu)oi=",
+      "gloss": "euoi! (Bacchic cry)",
+      "parse": "indeclform (exclam)",
+      "lsj": [
+        "eu)oi="
+      ]
+    }
+  ],
+  "eu)/ia": [
+    {
+      "lemma": "eu)/ios",
+      "gloss": "Bacchic, crying euoi",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "dih/irhx'": [
+    {
+      "lemma": "diaire/w",
+      "gloss": "divide, distinguish",
+      "parse": "perf ind act 3rd sg",
+      "lsj": [
+        "diaire/w"
+      ]
+    }
+  ],
+  "sw/izousi": [
+    {
+      "lemma": "sw/zw",
+      "gloss": "save, keep safe",
+      "parse": "pres ind act 3rd pl",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "a)ktai/onos": [
+    {
+      "lemma": "*)aktai/wn",
+      "gloss": "Actaeon",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "ou)rani/dai": [
+    {
+      "lemma": "*ou)rani/dhs",
+      "gloss": "son of Uranus; (pl.) the gods",
+      "parse": "masc nom/voc pl",
+      "lsj": []
+    }
+  ],
+  "pro/bakx'": [
+    {
+      "lemma": "pro/bakxos",
+      "gloss": "leader of the Bacchants",
+      "parse": "masc voc sg",
+      "lsj": []
+    }
+  ],
+  "klh=ides": [
+    {
+      "lemma": "klei/s",
+      "gloss": "bar, bolt",
+      "parse": "fem nom/voc pl",
+      "lsj": [
+        "klei/s"
+      ]
+    }
+  ],
+  "a)xelw/iou": [
+    {
+      "lemma": "*)axelw=|os",
+      "gloss": "Achelous",
+      "parse": "masc gen sg",
+      "lsj": [
+        "*)axelw|=os"
+      ]
+    }
+  ],
+  "e)/nnosi": [
+    {
+      "lemma": "e)/nnosis",
+      "gloss": "shaking, earthquake",
+      "parse": "fem voc sg",
+      "lsj": [
+        "e)/nosis"
+      ]
+    }
+  ],
+  "o(rkana/s": [
+    {
+      "lemma": "o(rka/nh",
+      "gloss": "enclosure, prison",
+      "parse": "fem acc pl",
+      "lsj": [
+        "o(rka/nh"
+      ]
+    }
+  ],
+  "h)=iss'": [
+    {
+      "lemma": "a)i/ssw",
+      "gloss": "shoot, dart, glance",
+      "parse": "imperf ind act 3rd sg",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    }
+  ],
+  "a)xelw=ion": [
+    {
+      "lemma": "*)axelw=|os",
+      "gloss": "Achelous; (by metonymy) water",
+      "parse": "masc acc sg",
+      "lsj": [
+        "*)axelw|=os"
+      ]
+    }
+  ],
+  "ka)=iq'": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "h)=isse": [
+    {
+      "lemma": "a)i/ssw",
+      "gloss": "shoot, dart, glance",
+      "parse": "imperf ind act 3rd sg",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    }
+  ],
+  "klh/iein": [
+    {
+      "lemma": "klei/w1",
+      "gloss": "shut, close, bar",
+      "parse": "pres inf act",
+      "lsj": [
+        "klei/w1"
+      ]
+    }
+  ],
+  "potnia/das": [
+    {
+      "lemma": "potnia/s",
+      "gloss": "frenzied, raving (of Bacchants)",
+      "parse": "fem acc pl",
+      "lsj": [
+        "*potnia/s"
+      ]
+    }
+  ],
+  "xrh/izwn": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "a)nh=ican": [
+    {
+      "lemma": "a)nai/ssw",
+      "gloss": "start up, spring up",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "a)nai/+ssw"
+      ]
+    }
+  ],
+  "qrw/iskous'": [
+    {
+      "lemma": "qrw/|skw",
+      "gloss": "leap, spring",
+      "parse": "pres part act fem nom sg",
+      "lsj": [
+        "qrw/|skw"
+      ]
+    }
+  ],
+  "e)/qesan": [
+    {
+      "lemma": "ti/qhmi",
+      "gloss": "put, place",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "ti/qhmi"
+      ]
+    }
+  ],
+  "xrh/izw": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres ind act 1st sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "qrw/iskhi": [
+    {
+      "lemma": "qrw/|skw",
+      "gloss": "leap, spring",
+      "parse": "pres subj act 3rd sg",
+      "lsj": [
+        "qrw/|skw"
+      ]
+    }
+  ],
+  "sidwni/ou": [
+    {
+      "lemma": "*sidw/nios",
+      "gloss": "Sidonian",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "qnh/iskei": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "sw/izontes": [
+    {
+      "lemma": "sw/zw",
+      "gloss": "save, keep safe",
+      "parse": "pres part act masc nom/voc pl",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "h)=ican": [
+    {
+      "lemma": "a)i/ssw",
+      "gloss": "shoot, dart, glance",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    }
+  ],
+  "prose/qesan": [
+    {
+      "lemma": "prosti/qhmi",
+      "gloss": "put to, apply",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "prosti/qhmi"
+      ]
+    }
+  ],
+  "parh/idos": [
+    {
+      "lemma": "parhi/s",
+      "gloss": "cheek",
+      "parse": "fem gen sg",
+      "lsj": [
+        "pa^rhi/+s"
+      ]
+    }
+  ],
+  "cugku/nagon": [
+    {
+      "lemma": "sugkunhgo/s",
+      "gloss": "fellow-hunter",
+      "parse": "masc acc sg (doric)",
+      "lsj": [
+        "sugku^nhgo/s"
+      ]
+    }
+  ],
+  "dieipete/steros": [
+    {
+      "lemma": "*dieipeth/s",
+      "gloss": "fallen from Zeus; bright, clear",
+      "parse": "masc nom comp sg",
+      "lsj": []
+    }
+  ],
+  "kate/ktas": [
+    {
+      "lemma": "kataktei/nw",
+      "gloss": "kill, slay",
+      "parse": "aor ind act 2nd sg",
+      "lsj": [
+        "kataktei/nw"
+      ]
+    }
+  ],
+  "h)/idete": [
+    {
+      "lemma": "oi)=da",
+      "gloss": "know",
+      "parse": "plup ind act 2nd pl",
+      "lsj": [
+        "oi)=da"
+      ]
+    }
+  ],
+  "polio/xrwn": [
+    {
+      "lemma": "polio/xrws",
+      "gloss": "white-coloured, grey",
+      "parse": "masc/fem nom sg",
+      "lsj": []
+    }
+  ]
+}

@@ -1,0 +1,418 @@
+{
+ "tiotiotiotigc": [
+  {
+   "lemma": "tiotiotiotigc",
+   "gloss": "bird-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "tiotiotiotiotiotigc": [
+  {
+   "lemma": "tiotiotiotiotiotigc",
+   "gloss": "bird-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "totototototototototigc": [
+  {
+   "lemma": "totototototototototigc",
+   "gloss": "bird-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "tiotiotiotiotiotiotiotio": [
+  {
+   "lemma": "tiotiotiotiotiotiotiotio",
+   "gloss": "bird-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "torotorotorotorotic": [
+  {
+   "lemma": "torotorotorotorotic",
+   "gloss": "bird-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "torotorotorolililic": [
+  {
+   "lemma": "torotorotorolililic",
+   "gloss": "bird-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "e)popopoi=": [
+  {
+   "lemma": "e)popoi=",
+   "gloss": "hoopoe-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "e)popoi="
+   ]
+  }
+ ],
+ "popopopoi=": [
+  {
+   "lemma": "popopopoi=",
+   "gloss": "bird-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "popopopopopo": [
+  {
+   "lemma": "popopopopopo",
+   "gloss": "bird-call (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "tititititititi": [
+  {
+   "lemma": "tititititititi",
+   "gloss": "bird-call (onomatopoeia, playing on τίνα)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "taw(=s": [
+  {
+   "lemma": "taw=s",
+   "gloss": "peacock",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "e)ggeteuqeni/": [
+  {
+   "lemma": "e)nteu=qen",
+   "gloss": "from here (ἐντευθενί with γε inserted)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "e)nteu=qen"
+   ]
+  }
+ ],
+ "'chkesti/dhs": [
+  {
+   "lemma": "*)echkesti/dhs",
+   "gloss": "Execestides (aphaeresis: Ἐξηκεστίδης)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "qarralei/dou": [
+  {
+   "lemma": "*qarralei/dhs",
+   "gloss": "Tharreleides",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "fasianiko/s": [
+  {
+   "lemma": "*fasianiko/s",
+   "gloss": "Phasian, pheasant (pun on συκοφάντης)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "skelli/ou": [
+  {
+   "lemma": "*skelli/as",
+   "gloss": "Scellias",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "stilbwni/dh": [
+  {
+   "lemma": "*stilbwni/dhs",
+   "gloss": "Stilbonides",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "pipi/zousi": [
+  {
+   "lemma": "pipi/zw",
+   "gloss": "chirp, peep",
+   "parse": "pres ind act 3rd pl",
+   "lsj": []
+  }
+ ],
+ "kefalh=sin": [
+  {
+   "lemma": "*kefalai/",
+   "gloss": "at Cephale (Attic deme), with a pun on κεφαλή \"head\"",
+   "parse": "fem dat pl",
+   "lsj": []
+  }
+ ],
+ "h)=sen": [
+  {
+   "lemma": "a)ei/dw",
+   "gloss": "sing, crow",
+   "parse": "aor ind act 3rd sg",
+   "lsj": [
+    "a)ei/dw"
+   ]
+  }
+ ],
+ "a(limounta/de": [
+  {
+   "lemma": "*(alimou=s",
+   "gloss": "to Halimus (Attic deme)",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "za/n": [
+  {
+   "lemma": "*zeu/s",
+   "gloss": "Zeus (lyric Ζάν)",
+   "parse": "masc nom sg (doric)",
+   "lsj": [
+    "*zeu/s"
+   ]
+  }
+ ],
+ "qhsautrou/s": [
+  {
+   "lemma": "qhsauro/s",
+   "gloss": "treasure (the text prints θησαυτρούς for θησαυρούς)",
+   "parse": "masc acc pl",
+   "lsj": [
+    "qhsauro/s"
+   ]
+  }
+ ],
+ "xrusai=si": [
+  {
+   "lemma": "xru/seos",
+   "gloss": "golden",
+   "parse": "fem dat pl",
+   "lsj": [
+    "xru/seos"
+   ]
+  }
+ ],
+ "kriw=qen": [
+  {
+   "lemma": "*kriw=qen",
+   "gloss": "from Crioa (Attic deme)",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "a)gh/rw|s": [
+  {
+   "lemma": "a)gh/raos",
+   "gloss": "ageless (Attic ἀγήρως)",
+   "parse": "masc dat pl",
+   "lsj": [
+    "a)gh/raos"
+   ]
+  }
+ ],
+ "taw(=ni": [
+  {
+   "lemma": "taw=s",
+   "gloss": "peacock",
+   "parse": "masc dat sg",
+   "lsj": []
+  }
+ ],
+ "pohta/": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "pohth=|": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc dat sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "pohth/n": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "la/ios": [
+  {
+   "lemma": "la/ios",
+   "gloss": "a bird, perhaps the blue thrush",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "ta)po/llwnos": [
+  {
+   "lemma": "*)apo/llwn",
+   "gloss": "Apollo (crasis: τοῦ Ἀπόλλωνος)",
+   "parse": "masc gen sg",
+   "lsj": [
+    "*)apo/llwn"
+   ]
+  }
+ ],
+ "h(pi/noia": [
+  {
+   "lemma": "e)pi/noia",
+   "gloss": "purpose, idea (crasis: ἡ ἐπίνοια)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "e)pi/noia"
+   ]
+  }
+ ],
+ "laureiwtikai/": [
+  {
+   "lemma": "*laureiwtiko/s",
+   "gloss": "of Laurium (owls = silver coins from its mines)",
+   "parse": "fem nom pl",
+   "lsj": []
+  }
+ ],
+ "likumni/ais": [
+  {
+   "lemma": "*liku/mnios",
+   "gloss": "of Licymnius (a play of Euripides)",
+   "parse": "fem dat pl",
+   "lsj": []
+  }
+ ],
+ "e)swkra/twn": [
+  {
+   "lemma": "swkrate/w",
+   "gloss": "play the Socrates (comic coinage)",
+   "parse": "imperf ind act 3rd pl",
+   "lsj": []
+  }
+ ],
+ "h)/|kein": [
+  {
+   "lemma": "e)/oika",
+   "gloss": "be like, resemble",
+   "parse": "plup ind act 3rd sg",
+   "lsj": [
+    "e)/oika"
+   ]
+  }
+ ],
+ "h)=idon": [
+  {
+   "lemma": "a)ei/dw",
+   "gloss": "sing",
+   "parse": "imperf ind act 3rd pl",
+   "lsj": [
+    "a)ei/dw"
+   ]
+  }
+ ],
+ "a)ladro/mon": [
+  {
+   "lemma": "a)ladro/mos",
+   "gloss": "wandering course",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "ou(dusseu/s": [
+  {
+   "lemma": "*)odusseu/s",
+   "gloss": "Odysseus (crasis: ὁ Ὀδυσσεύς)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "*)odusseu/s"
+   ]
+  }
+ ],
+ "w)=|zur'": [
+  {
+   "lemma": "o)i+zuro/s",
+   "gloss": "miserable (crasis: ὦ ὀιζυρέ)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "o)i+zu_ro/s"
+   ]
+  }
+ ],
+ "koranau": [
+  {
+   "lemma": "ko/rh",
+   "gloss": "girl (Triballian pidgin for κόρην)",
+   "parse": "fem acc sg",
+   "lsj": [
+    "ko/rh"
+   ]
+  }
+ ],
+ "basilinau": [
+  {
+   "lemma": "*basi/leia",
+   "gloss": "Princess, Basileia (Triballian pidgin)",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "o)rnito": [
+  {
+   "lemma": "o)/rnis",
+   "gloss": "bird (Triballian pidgin for ὄρνισι)",
+   "parse": "masc dat pl",
+   "lsj": [
+    "o)/rnis"
+   ]
+  }
+ ],
+ "kre/s": [
+  {
+   "lemma": "kre/as",
+   "gloss": "meat (the text prints κρές for κρέα)",
+   "parse": "neut acc pl",
+   "lsj": [
+    "kre/as"
+   ]
+  }
+ ],
+ "me/nta)n": [
+  {
+   "lemma": "me/ntoi",
+   "gloss": "yet, however (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "me/ntoi"
+   ]
+  },
+  {
+   "lemma": "a)/n1",
+   "gloss": "modal particle (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "a)/n"
+   ]
+  }
+ ]
+}

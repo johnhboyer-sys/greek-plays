@@ -1,0 +1,268 @@
+{
+  "ka)=it'": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "nhrh=idos": [
+    {
+      "lemma": "*nhrhi/s",
+      "gloss": "daughter of Nereus, sea-nymph",
+      "parse": "fem gen sg",
+      "lsj": [
+        "*nhrhi/+s"
+      ]
+    }
+  ],
+  "ka)=ita": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "o)ttotototoi=": [
+    {
+      "lemma": "o)totoi=",
+      "gloss": "ah! woe! (cry of grief)",
+      "parse": "indeclform (exclam)",
+      "lsj": [
+        "o)totoi="
+      ]
+    }
+  ],
+  "a)=s": [
+    {
+      "lemma": "o(/s",
+      "gloss": "who, which",
+      "parse": "fem gen sg (doric)",
+      "lsj": [
+        "o(/s1",
+        "o(/s2"
+      ]
+    }
+  ],
+  "sune/klhisan": [
+    {
+      "lemma": "sugklei/w",
+      "gloss": "shut in, hem in",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "sugklei/w"
+      ]
+    }
+  ],
+  "a)xelw/iou": [
+    {
+      "lemma": "*)axelw=|os",
+      "gloss": "Achelous",
+      "parse": "masc gen sg",
+      "lsj": [
+        "*)axelw|=os"
+      ]
+    }
+  ],
+  "qrh/ikhn": [
+    {
+      "lemma": "*qra/|kh",
+      "gloss": "Thrace",
+      "parse": "fem acc sg",
+      "lsj": [
+        "*qra/|kh"
+      ]
+    }
+  ],
+  "perga/mois": [
+    {
+      "lemma": "*pe/rgamon",
+      "gloss": "Pergamum, citadel of Troy",
+      "parse": "neut dat pl",
+      "lsj": []
+    }
+  ],
+  "damogero/ntwn": [
+    {
+      "lemma": "dhmoge/rwn",
+      "gloss": "elder of the people",
+      "parse": "masc gen pl (doric)",
+      "lsj": []
+    }
+  ],
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm, assert",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "h(=n": [
+    {
+      "lemma": "ei)mi/",
+      "gloss": "be",
+      "parse": "imperf ind act 3rd sg",
+      "lsj": [
+        "ei)mi/"
+      ]
+    }
+  ],
+  "mene/la": [
+    {
+      "lemma": "*mene/laos",
+      "gloss": "Menelaus",
+      "parse": "masc voc sg (doric)",
+      "lsj": [
+        "*mene/la_os"
+      ]
+    }
+  ],
+  "u(perqnh/iskeis": [
+    {
+      "lemma": "u(perqnh/|skw",
+      "gloss": "die for",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "u(perqnh/skw"
+      ]
+    }
+  ],
+  "qnh/isket'": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres ind act 2nd pl",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    },
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres imperat act 2nd pl",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "a)/klhist'": [
+    {
+      "lemma": "a)/kleistos",
+      "gloss": "not closed",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "mhtrw=i'": [
+    {
+      "lemma": "mhtrw=|os",
+      "gloss": "of a mother",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "mhtrw=|os"
+      ]
+    }
+  ],
+  "lw=ista": [
+    {
+      "lemma": "lw=|stos",
+      "gloss": "best, most desirable",
+      "parse": "neut nom/voc/acc superl pl",
+      "lsj": [
+        "lwi/+wn"
+      ]
+    }
+  ],
+  "a)muna/qoito": [
+    {
+      "lemma": "a)muna/qw",
+      "gloss": "ward off, defend",
+      "parse": "pres opt mp 3rd sg",
+      "lsj": [
+        "a)mu_na/qw"
+      ]
+    }
+  ],
+  "plokamw=n": [
+    {
+      "lemma": "plo/kamos",
+      "gloss": "lock of hair",
+      "parse": "masc gen pl",
+      "lsj": [
+        "plo/ka^mos"
+      ]
+    }
+  ],
+  "xerotektosu/nas": [
+    {
+      "lemma": "xerotektosu/nh",
+      "gloss": "handiwork, craftsmanship",
+      "parse": "fem gen sg (doric)",
+      "lsj": []
+    }
+  ],
+  "xrh/izeis": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "delfou=": [
+    {
+      "lemma": "*delfo/s",
+      "gloss": "Delphian",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "dia/doxa": [
+    {
+      "lemma": "dia/doxos",
+      "gloss": "succeeding, in turn",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "dia/doxos"
+      ]
+    }
+  ],
+  "nhrh/idwn": [
+    {
+      "lemma": "*nhrhi/s",
+      "gloss": "daughter of Nereus, sea-nymph",
+      "parse": "fem gen pl",
+      "lsj": [
+        "*nhrhi/+s"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,460 @@
+{
+  "h)h/": [
+    {
+      "lemma": "h)h/",
+      "gloss": "ah! (cry of grief)",
+      "parse": "indeclform (exclam)",
+      "lsj": []
+    }
+  ],
+  "qa/rubis": [
+    {
+      "lemma": "*qa/rubis",
+      "gloss": "Tharybis",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "a)gbata/nwn": [
+    {
+      "lemma": "*)agba/tana",
+      "gloss": "Agbatana (Ecbatana)",
+      "parse": "neut gen pl",
+      "lsj": []
+    }
+  ],
+  "faranda/khs": [
+    {
+      "lemma": "*faranda/khs",
+      "gloss": "Pharandaces",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "sousiska/nhs": [
+    {
+      "lemma": "*sousiska/nhs",
+      "gloss": "Susiscanes",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "a)rkteu/s": [
+    {
+      "lemma": "*)arkteu/s",
+      "gloss": "Arcteus",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "ma/rdwn": [
+    {
+      "lemma": "*ma/rdwn",
+      "gloss": "Mardon",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "toke/hs": [
+    {
+      "lemma": "tokeu/s",
+      "gloss": "parent",
+      "parse": "masc nom pl (ionic)",
+      "lsj": [
+        "tokeu/s"
+      ]
+    }
+  ],
+  "li/laios": [
+    {
+      "lemma": "*li/laios",
+      "gloss": "Lilaeus",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "e)e(/": [
+    {
+      "lemma": "e)e/",
+      "gloss": "alas! (cry of grief)",
+      "parse": "indeclform (exclam)",
+      "lsj": []
+    }
+  ],
+  "a)mi/strhs": [
+    {
+      "lemma": "*)ami/strhs",
+      "gloss": "Amistres",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "a)sta/sphs": [
+    {
+      "lemma": "*)asta/sphs",
+      "gloss": "Astaspes",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "masi/strhs": [
+    {
+      "lemma": "*masi/strhs",
+      "gloss": "Masistres",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "i)mai=os": [
+    {
+      "lemma": "*)imai=os",
+      "gloss": "Imaeus",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "sosqa/nhs": [
+    {
+      "lemma": "*sosqa/nhs",
+      "gloss": "Sosthanes",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "phgastagw/n": [
+    {
+      "lemma": "*phgastagw/n",
+      "gloss": "Pegastagon",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "mhtrogaqh/s": [
+    {
+      "lemma": "*mhtrogaqh/s",
+      "gloss": "Metrogathes",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "pa/mmeikton": [
+    {
+      "lemma": "pa/mmiktos",
+      "gloss": "of all sorts, mixed",
+      "parse": "masc/fem acc sg",
+      "lsj": []
+    }
+  ],
+  "a)qamanti/dos": [
+    {
+      "lemma": "*)aqamanti/s",
+      "gloss": "daughter of Athamas (Helle)",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "e)/qesan": [
+    {
+      "lemma": "ti/qhmi",
+      "gloss": "put, place",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "ti/qhmi"
+      ]
+    }
+  ],
+  "eu)ni=das": [
+    {
+      "lemma": "eu)=nis",
+      "gloss": "bereft, bereaved",
+      "parse": "fem acc pl",
+      "lsj": [
+        "eu)=nis1"
+      ]
+    }
+  ],
+  "silhniw=n": [
+    {
+      "lemma": "*silhniai/",
+      "gloss": "Silenian (shore of Salamis)",
+      "parse": "fem gen pl",
+      "lsj": []
+    }
+  ],
+  "dada/khs": [
+    {
+      "lemma": "*dada/khs",
+      "gloss": "Dadaces",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "tena/gwn": [
+    {
+      "lemma": "*tena/gwn",
+      "gloss": "Tenagon",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "ka)rgh/sths": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ Ἀργήστης)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "*)argh/sths",
+      "gloss": "Argestes (crasis: καὶ Ἀργήστης)",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "a)deu/hs": [
+    {
+      "lemma": "*)adeu/hs",
+      "gloss": "Adeues",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "xruseu/s": [
+    {
+      "lemma": "*xruseu/s",
+      "gloss": "man of Chrysa",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "ma/tallos": [
+    {
+      "lemma": "*ma/tallos",
+      "gloss": "Matallus",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "a)/mistris": [
+    {
+      "lemma": "*)/amistris",
+      "gloss": "Amistris",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "a)mfistreu/s": [
+    {
+      "lemma": "*)amfistreu/s",
+      "gloss": "Amphistreus",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "seisa/mhs": [
+    {
+      "lemma": "*seisa/mhs",
+      "gloss": "Seisames",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "lurnai=os": [
+    {
+      "lemma": "*lurnai=os",
+      "gloss": "of Lyrnae",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "h)dwni/d'": [
+    {
+      "lemma": "*)hdwni/s",
+      "gloss": "Edonian",
+      "parse": "fem acc sg",
+      "lsj": []
+    }
+  ],
+  "kuxrei/as": [
+    {
+      "lemma": "*kuxrei=os",
+      "gloss": "Cychrean (of Salamis)",
+      "parse": "fem acc pl",
+      "lsj": []
+    }
+  ],
+  "ma/rdos": [
+    {
+      "lemma": "*ma/rdos",
+      "gloss": "Mardus",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "ma/rafis": [
+    {
+      "lemma": "*ma/rafis",
+      "gloss": "Maraphis",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "pammei/ktwn": [
+    {
+      "lemma": "pa/mmiktos",
+      "gloss": "of all sorts, mixed",
+      "parse": "masc/fem/neut gen pl",
+      "lsj": []
+    }
+  ],
+  "zapaqe/a": [
+    {
+      "lemma": "zapaqh/s",
+      "gloss": "sorely suffering",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "dota/mas": [
+    {
+      "lemma": "*dota/mas",
+      "gloss": "Dotamas",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "a)gaba/tas": [
+    {
+      "lemma": "*)agaba/tas",
+      "gloss": "Agabatas",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "a)gaba/tana": [
+    {
+      "lemma": "*)agaba/tana",
+      "gloss": "Agabatana (Ecbatana)",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "seua/lkhs": [
+    {
+      "lemma": "*seua/lkhs",
+      "gloss": "Seualces",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "masi/stras": [
+    {
+      "lemma": "*masi/stras",
+      "gloss": "Masistras",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "u(stai/xmas": [
+    {
+      "lemma": "*(ustai/xmas",
+      "gloss": "Hystaechmas",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "e)pane/romai": [
+    {
+      "lemma": "e)pane/romai",
+      "gloss": "ask again, inquire",
+      "parse": "pres ind mp 1st sg",
+      "lsj": [
+        "e)pane/romai"
+      ]
+    }
+  ],
+  "batanw/xou": [
+    {
+      "lemma": "*batanw/xos",
+      "gloss": "Batanochus",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "a)/lpiston": [
+    {
+      "lemma": "*)/alpistos",
+      "gloss": "Alpistus",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "pa/rqon": [
+    {
+      "lemma": "*pa/rqos",
+      "gloss": "Parthus",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "di/aicin": [
+    {
+      "lemma": "*di/aicis",
+      "gloss": "Diaixis",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "kh)gdada/tan": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ Ἀγδαδάταν)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "*)agdada/tas",
+      "gloss": "Agdadatas (crasis: καὶ Ἀγδαδάταν)",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "luqi/mnan": [
+    {
+      "lemma": "*luqi/mnas",
+      "gloss": "Lythimnas",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "to/lmon": [
+    {
+      "lemma": "*to/lmos",
+      "gloss": "Tolmus",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "mega/late": [
+    {
+      "lemma": "me/gas",
+      "gloss": "great (μεγάλα τε written as one word)",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "me/ga^s"
+      ]
+    },
+    {
+      "lemma": "te",
+      "gloss": "and (μεγάλα τε written as one word)",
+      "parse": "enclitic indeclform (particle)",
+      "lsj": [
+        "te1"
+      ]
+    }
+  ]
+}

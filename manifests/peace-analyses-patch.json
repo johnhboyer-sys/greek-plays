@@ -1,0 +1,598 @@
+{
+ "'keinoui/": [
+  {
+   "lemma": "e)kei=nos",
+   "gloss": "that one there (ἐκεινουί, aphaeresis)",
+   "parse": "masc gen sg",
+   "lsj": [
+    "e)kei=nos"
+   ]
+  }
+ ],
+ "a(qmoneu/s": [
+  {
+   "lemma": "*)aqmoneu/s",
+   "gloss": "of the deme Athmonon",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "a(rgei=oi": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: οἱ Ἀργεῖοι)",
+   "parse": "masc nom pl",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "*)argei=os",
+   "gloss": "Argive (crasis: οἱ Ἀργεῖοι)",
+   "parse": "masc nom pl",
+   "lsj": [
+    "*)argei=os"
+   ]
+  }
+ ],
+ "a(ttikwnikoi/": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: οἱ Ἀττικωνικοί)",
+   "parse": "masc nom pl",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "*)attikwniko/s",
+   "gloss": "Attico-Laconian (comic coinage; crasis: οἱ Ἀττικωνικοί)",
+   "parse": "masc nom/voc pl",
+   "lsj": []
+  }
+ ],
+ "a)=ison": [
+  {
+   "lemma": "a)ei/dw",
+   "gloss": "sing",
+   "parse": "aor imperat act 2nd sg",
+   "lsj": [
+    "a)ei/dw"
+   ]
+  }
+ ],
+ "a)nhrrixa=t'": [
+  {
+   "lemma": "a)narrixa/omai",
+   "gloss": "clamber up",
+   "parse": "imperf ind mp 3rd sg",
+   "lsj": []
+  }
+ ],
+ "a)oi=on": [
+  {
+   "lemma": "a)oi=os",
+   "gloss": "Morning-Star man (nickname of Ion of Chios)",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "a)p": [
+  {
+   "lemma": "a)pwqe/w",
+   "gloss": "thrust away (ἀπ-ωσαμένη, split across lines)",
+   "parse": "aor part mid fem nom sg",
+   "lsj": [
+    "a)pwqe/w"
+   ]
+  }
+ ],
+ "a)poknh/smata": [
+  {
+   "lemma": "a)po/knhsma",
+   "gloss": "scrapings, parings",
+   "parse": "neut nom/voc/acc pl",
+   "lsj": []
+  }
+ ],
+ "a)xqesqei=s'": [
+  {
+   "lemma": "a)/xqomai",
+   "gloss": "be vexed, be angry",
+   "parse": "aor part pass fem nom sg",
+   "lsj": [
+    "a)/xqomai"
+   ]
+  }
+ ],
+ "ai)boiboi=": [
+  {
+   "lemma": "ai)boiboi=",
+   "gloss": "ugh! (intensified αἰβοῖ)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "ai)boi="
+   ]
+  }
+ ],
+ "braurwna/d'": [
+  {
+   "lemma": "*braurw=na/de",
+   "gloss": "to Brauron",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "e)keinoni/": [
+  {
+   "lemma": "e)kei=nos",
+   "gloss": "that one there (with deictic -ί)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "e)kei=nos"
+   ]
+  }
+ ],
+ "e)ndiaeriauronhxe/tous": [
+  {
+   "lemma": "e)ndiaeriauronhxe/ths",
+   "gloss": "air-breeze-swimming (comic coinage)",
+   "parse": "fem acc pl",
+   "lsj": []
+  }
+ ],
+ "ei)=e(n": [
+  {
+   "lemma": "ei)=en",
+   "gloss": "well! well now!",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "guliou=": [
+  {
+   "lemma": "gulio/s",
+   "gloss": "soldier's knapsack",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "h(/codos": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ἡ ἔξοδος)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "e)/codos",
+   "gloss": "marching out (crasis: ἡ ἔξοδος)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "e)/codos1",
+    "e)/codos2"
+   ]
+  }
+ ],
+ "h(pi/noia": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ἡ ἐπίνοια)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "e)pi/noia",
+   "gloss": "thought, plan (crasis: ἡ ἐπίνοια)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "e)pi/noia"
+   ]
+  }
+ ],
+ "i)xquolu=mai": [
+  {
+   "lemma": "i)xquolu/mhs",
+   "gloss": "fish-spoiler (comic coinage)",
+   "parse": "masc nom/voc pl",
+   "lsj": []
+  }
+ ],
+ "kataisxuna/s": [
+  {
+   "lemma": "kataisxu/nw",
+   "gloss": "disgrace, bring shame on",
+   "parse": "aor part act masc nom sg",
+   "lsj": [
+    "kataisxu/nw"
+   ]
+  }
+ ],
+ "killikw=n": [
+  {
+   "lemma": "*killikw=n",
+   "gloss": "Cillicon (a traitor of proverb)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "klau/sa)ra": [
+  {
+   "lemma": "klai/w",
+   "gloss": "weep; (fut.) be sorry for it (κλαύσει + ἄρα)",
+   "parse": "fut ind mid 2nd sg",
+   "lsj": [
+    "klai/w"
+   ]
+  },
+  {
+   "lemma": "a)/ra",
+   "gloss": "then, it seems (κλαύσει + ἄρα)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "a)/ra^"
+   ]
+  }
+ ],
+ "ku=bd'": [
+  {
+   "lemma": "ku=bda",
+   "gloss": "stooping forward, head down",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "kwmw|dopohth/s": [
+  {
+   "lemma": "kwmw|dopoihth/s",
+   "gloss": "comic poet",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "lakh/|sh|s": [
+  {
+   "lemma": "la/skw",
+   "gloss": "shout, blurt out",
+   "parse": "aor subj act 2nd sg",
+   "lsj": [
+    "la/skw"
+   ]
+  }
+ ],
+ "manh=n": [
+  {
+   "lemma": "*manh=s",
+   "gloss": "Manes (slave name)",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "o)i/": [
+  {
+   "lemma": "o)/i+s",
+   "gloss": "sheep (punning on the cry οἴ)",
+   "parse": "masc/fem dat sg",
+   "lsj": [
+    "o)/i+s"
+   ]
+  }
+ ],
+ "ou)de/pot": [
+  {
+   "lemma": "ou)de/pote",
+   "gloss": "never",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "ou)de/pote"
+   ]
+  }
+ ],
+ "pohte/on": [
+  {
+   "lemma": "poihte/os",
+   "gloss": "to be done, one must do",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": [
+    "poihte/os"
+   ]
+  }
+ ],
+ "pohth/n": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet, maker",
+   "parse": "masc acc sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "pohth=|": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet, maker",
+   "parse": "masc dat sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "sai+/wn": [
+  {
+   "lemma": "*sai+/os",
+   "gloss": "Saian (a Thracian tribe)",
+   "parse": "masc gen pl",
+   "lsj": []
+  }
+ ],
+ "skataiba/tou": [
+  {
+   "lemma": "skataiba/ths",
+   "gloss": "Descender-in-dung (parody of Zeus Kataibates)",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "subaria/zein": [
+  {
+   "lemma": "subaria/zw",
+   "gloss": "live like a Sybarite, revel",
+   "parse": "pres inf act",
+   "lsj": []
+  }
+ ],
+ "ta)ttiko/n": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: τὸ Ἀττικόν)",
+   "parse": "neut acc sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "*)attiko/s",
+   "gloss": "Attic (crasis: τὸ Ἀττικόν)",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": [
+    "*)attiko/s"
+   ]
+  }
+ ],
+ "ta)ttikou=": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: τοῦ Ἀττικοῦ)",
+   "parse": "neut gen sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "*)attiko/s",
+   "gloss": "Attic (crasis: τοῦ Ἀττικοῦ)",
+   "parse": "neut gen sg",
+   "lsj": [
+    "*)attiko/s"
+   ]
+  }
+ ],
+ "th|di/": [
+  {
+   "lemma": "o(/de",
+   "gloss": "this (with deictic -ί)",
+   "parse": "fem dat sg",
+   "lsj": [
+    "o(/de"
+   ]
+  },
+  {
+   "lemma": "th=|de",
+   "gloss": "here, this way (with deictic -ί)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "th=|de"
+   ]
+  }
+ ],
+ "to/lmhre": [
+  {
+   "lemma": "tolmhro/s",
+   "gloss": "daring, shameless",
+   "parse": "masc voc sg",
+   "lsj": [
+    "tolmhro/s"
+   ]
+  }
+ ],
+ "toiautasi/": [
+  {
+   "lemma": "toiou=tos",
+   "gloss": "such (with deictic -ί)",
+   "parse": "fem acc pl",
+   "lsj": [
+    "toiou=tos"
+   ]
+  }
+ ],
+ "toutoini/": [
+  {
+   "lemma": "ou(=tos",
+   "gloss": "this (with deictic -ί)",
+   "parse": "masc gen/dat dual",
+   "lsj": [
+    "ou(=tos"
+   ]
+  }
+ ],
+ "triskako/daimon": [
+  {
+   "lemma": "triskakodai/mwn",
+   "gloss": "thrice-unlucky",
+   "parse": "masc voc sg",
+   "lsj": [
+    "triska^kodai/mwn"
+   ]
+  }
+ ],
+ "trisma/kar": [
+  {
+   "lemma": "trisma/kar",
+   "gloss": "thrice-blessed",
+   "parse": "masc voc sg",
+   "lsj": [
+    "tri/sma^kar"
+   ]
+  }
+ ],
+ "u(i/": [
+  {
+   "lemma": "u(=s",
+   "gloss": "pig, swine",
+   "parse": "masc/fem dat sg",
+   "lsj": [
+    "u(=s1",
+    "u(=s2"
+   ]
+  }
+ ],
+ "w(ttiki/wn": [
+  {
+   "lemma": "o(",
+   "gloss": "the (Laconian crasis: ὁ Ἀττικίων)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "*)attiki/wn",
+   "gloss": "little Athenian (Laconian crasis: ὁ Ἀττικίων)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "w)=lazwn": [
+  {
+   "lemma": "w)=",
+   "gloss": "O (crasis: ὦ ἀλαζών)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)="
+   ]
+  },
+  {
+   "lemma": "a)lazw/n",
+   "gloss": "braggart, impostor (crasis: ὦ ἀλαζών)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "a)lazw/n"
+   ]
+  }
+ ],
+ "w)=maqestate": [
+  {
+   "lemma": "w)=",
+   "gloss": "O (crasis: ὦ ἀμαθέστατε)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)="
+   ]
+  },
+  {
+   "lemma": "a)maqh/s",
+   "gloss": "ignorant, stupid (crasis: ὦ ἀμαθέστατε)",
+   "parse": "masc voc superl sg",
+   "lsj": [
+    "a)maqh/s"
+   ]
+  }
+ ],
+ "w)=pitript'": [
+  {
+   "lemma": "w)=",
+   "gloss": "O (crasis: ὦ ἐπίτριπτε)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)="
+   ]
+  },
+  {
+   "lemma": "e)pi/triptos",
+   "gloss": "rogue, knave (crasis: ὦ ἐπίτριπτε)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "e)pi/triptos"
+   ]
+  }
+ ],
+ "w)=rmh|dion": [
+  {
+   "lemma": "w)=",
+   "gloss": "O (crasis: ὦ Ἑρμῄδιον)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)="
+   ]
+  },
+  {
+   "lemma": "*(ermh/|dion",
+   "gloss": "dear little Hermes (crasis: ὦ Ἑρμῄδιον)",
+   "parse": "neut voc sg",
+   "lsj": [
+    "*(ermh/|dion"
+   ]
+  }
+ ],
+ "wsame/nh": [
+  {
+   "lemma": "a)pwqe/w",
+   "gloss": "thrust away (ἀπ-ωσαμένη, split across lines)",
+   "parse": "aor part mid fem nom sg",
+   "lsj": [
+    "a)pwqe/w"
+   ]
+  }
+ ],
+ "xow=s": [
+  {
+   "lemma": "xou=s",
+   "gloss": "jug; liquid measure (the Attic chous)",
+   "parse": "masc gen sg (attic)",
+   "lsj": [
+    "xou=s1"
+   ]
+  }
+ ],
+ "xrh=sqa)terw|": [
+  {
+   "lemma": "xra/omai",
+   "gloss": "use (χρῆσθ' + ἁτέρῳ = τῷ ἑτέρῳ)",
+   "parse": "pres inf mp",
+   "lsj": [
+    "xra/omai"
+   ]
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ἁτέρῳ = τῷ ἑτέρῳ)",
+   "parse": "neut dat sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "e(/teros",
+   "gloss": "the other (crasis: ἁτέρῳ = τῷ ἑτέρῳ)",
+   "parse": "neut dat sg",
+   "lsj": [
+    "e(/teros"
+   ]
+  }
+ ]
+}

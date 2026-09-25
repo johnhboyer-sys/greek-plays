@@ -1,0 +1,108 @@
+{
+  "barupeth=": [
+    {
+      "lemma": "barupeth/s",
+      "gloss": "heavy-falling",
+      "parse": "masc/fem acc sg",
+      "lsj": []
+    }
+  ],
+  "lixh/n": [
+    {
+      "lemma": "leixh/n",
+      "gloss": "lichen; blight, canker",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "mega/latoi": [
+    {
+      "lemma": "me/gas",
+      "gloss": "great; greatly (μεγάλα τοι written as one word)",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "me/ga^s"
+      ]
+    },
+    {
+      "lemma": "toi",
+      "gloss": "let me tell you, surely (μεγάλα τοι written as one word)",
+      "parse": "enclitic indeclform (particle)",
+      "lsj": [
+        "toi"
+      ]
+    }
+  ],
+  "pro/swq'": [
+    {
+      "lemma": "pro/swqen",
+      "gloss": "from afar",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "pro/swqen"
+      ]
+    }
+  ],
+  "ka)kkunhge/sw": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ ἐκκυνηγέσω)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "e)kkunhge/ssw",
+      "gloss": "hunt down, track out (crasis: καὶ ἐκκυνηγέσω)",
+      "parse": "fut ind act 1st sg",
+      "lsj": []
+    }
+  ],
+  "ei)=e(n": [
+    {
+      "lemma": "ei)=e(n",
+      "gloss": "well! so be it (transition particle)",
+      "parse": "indeclform (particle)",
+      "lsj": []
+    }
+  ],
+  "matrofo/ntas": [
+    {
+      "lemma": "mhtrofo/nths",
+      "gloss": "matricide",
+      "parse": "masc acc pl (doric)",
+      "lsj": [
+        "mhtrofo/nths"
+      ]
+    }
+  ],
+  "tai/a": [
+    {
+      "lemma": "diantai=os",
+      "gloss": "piercing, relentless (second half of διανταία, split across lines)",
+      "parse": "fem nom sg (doric)",
+      "lsj": [
+        "diantai=os"
+      ]
+    }
+  ],
+  "swth=ros'": [
+    {
+      "lemma": "swth/r",
+      "gloss": "saviour, deliverer",
+      "parse": "masc gen sg",
+      "lsj": [
+        "swth/r"
+      ]
+    }
+  ],
+  "e)cambro/sai": [
+    {
+      "lemma": "e)canabru/w",
+      "gloss": "make to gush forth",
+      "parse": "aor inf act",
+      "lsj": []
+    }
+  ]
+}

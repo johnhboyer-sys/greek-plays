@@ -1,0 +1,382 @@
+{
+  "r(h=son": [
+    {
+      "lemma": "*r(h=sos",
+      "gloss": "Rhesus",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "qrh/ikios": [
+    {
+      "lemma": "*qrh/|kios",
+      "gloss": "Thracian",
+      "parse": "masc nom sg",
+      "lsj": [
+        "*qra/|kios"
+      ]
+    }
+  ],
+  "qrhiki/": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "a Thracian",
+      "parse": "masc dat sg",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "qrh/ikion": [
+    {
+      "lemma": "*qrh/|kios",
+      "gloss": "Thracian",
+      "parse": "masc acc sg",
+      "lsj": [
+        "*qra/|kios"
+      ]
+    }
+  ],
+  "qrh/ikhs": [
+    {
+      "lemma": "*qra/|kh",
+      "gloss": "Thrace",
+      "parse": "fem gen sg",
+      "lsj": [
+        "*qra/|kh"
+      ]
+    }
+  ],
+  "r(h=sos": [
+    {
+      "lemma": "*r(h=sos",
+      "gloss": "Rhesus",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "qrhiko/s": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "a Thracian",
+      "parse": "masc gen sg",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "qrh=ika": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "a Thracian",
+      "parse": "masc acc sg",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "sw/izei": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "dieipeth=": [
+    {
+      "lemma": "dii+peth/s",
+      "gloss": "fallen from Zeus; bright",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "ou)/ta)n": [
+    {
+      "lemma": "ou)",
+      "gloss": "not (crasis: οὔ τοι ἄν)",
+      "parse": "proclitic indeclform (adverb)",
+      "lsj": [
+        "ou)"
+      ]
+    },
+    {
+      "lemma": "toi",
+      "gloss": "let me tell you, surely (crasis: οὔ τοι ἄν)",
+      "parse": "enclitic indeclform (particle)",
+      "lsj": [
+        "toi"
+      ]
+    },
+    {
+      "lemma": "a)/n",
+      "gloss": "modal particle (crasis: οὔ τοι ἄν)",
+      "parse": "indeclform (particle)",
+      "lsj": [
+        "a)/n"
+      ]
+    }
+  ],
+  "qrw/iskwn": [
+    {
+      "lemma": "qrw/|skw",
+      "gloss": "leap, spring",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "qrw/|skw"
+      ]
+    }
+  ],
+  "ka)piqrw/iskontas": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ ἐπιθρῴσκοντας)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "e)piqrw/|skw",
+      "gloss": "leap upon (crasis: καὶ ἐπιθρῴσκοντας)",
+      "parse": "pres part act masc acc pl",
+      "lsj": []
+    }
+  ],
+  "a)nti/prwira": [
+    {
+      "lemma": "a)nti/prw|ros",
+      "gloss": "with the prow towards, facing",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "a)nti/prw|ros"
+      ]
+    }
+  ],
+  "xrh/izeis": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "e)/klhie": [
+    {
+      "lemma": "klh/|w",
+      "gloss": "shut, bar (Attic for klei/w)",
+      "parse": "imperf ind act 3rd sg",
+      "lsj": [
+        "klei/w1"
+      ]
+    }
+  ],
+  "sw/izontes": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres part act masc nom pl",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "panamereu/sei": [
+    {
+      "lemma": "panhmereu/w",
+      "gloss": "spend the whole day",
+      "parse": "fut ind act 3rd sg (doric)",
+      "lsj": []
+    }
+  ],
+  "kapfqi/menon": [
+    {
+      "lemma": "katafqi/nw",
+      "gloss": "perish, die",
+      "parse": "aor part mid masc acc sg",
+      "lsj": [
+        "katafqi/nw"
+      ]
+    }
+  ],
+  "qrh/ikh": [
+    {
+      "lemma": "*qra/|kh",
+      "gloss": "Thrace",
+      "parse": "fem voc sg",
+      "lsj": [
+        "*qra/|kh"
+      ]
+    }
+  ],
+  "qrh/ic": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "a Thracian",
+      "parse": "masc nom sg",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "r(a/idi'": [
+    {
+      "lemma": "r(a/|dios",
+      "gloss": "easy",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "r(a/|dios"
+      ]
+    }
+  ],
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "sw/izomen": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres ind act 1st pl",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "h)=stai": [
+    {
+      "lemma": "h(=mai",
+      "gloss": "sit",
+      "parse": "pres ind mp 3rd sg",
+      "lsj": [
+        "h(=mai"
+      ]
+    }
+  ],
+  "kate/ktas": [
+    {
+      "lemma": "katakte/inw",
+      "gloss": "kill, slay",
+      "parse": "aor ind act 2nd sg (epic)",
+      "lsj": []
+    }
+  ],
+  "qrhici/n": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "a Thracian",
+      "parse": "masc dat pl",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "r(h/swi": [
+    {
+      "lemma": "*r(h=sos",
+      "gloss": "Rhesus",
+      "parse": "masc dat sg",
+      "lsj": []
+    }
+  ],
+  "dusqnh/iskontos": [
+    {
+      "lemma": "dusqnh/|skw",
+      "gloss": "die hard",
+      "parse": "pres part act neut gen sg",
+      "lsj": []
+    }
+  ],
+  "a)na/issw": [
+    {
+      "lemma": "a)nai/+ssw",
+      "gloss": "start up",
+      "parse": "pres ind act 1st sg",
+      "lsj": [
+        "a)nai/+ssw"
+      ]
+    }
+  ],
+  "simoentia/das": [
+    {
+      "lemma": "*simoentia/s",
+      "gloss": "of the Simois",
+      "parse": "fem acc pl",
+      "lsj": []
+    }
+  ],
+  "r(h/sou": [
+    {
+      "lemma": "*r(h=sos",
+      "gloss": "Rhesus",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "o(so/nper": [
+    {
+      "lemma": "o(/sosper",
+      "gloss": "as much as, as long as",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "o(/sos"
+      ]
+    }
+  ],
+  "qnh=isx'": [
+    {
+      "lemma": "qnh/|skw",
+      "gloss": "die",
+      "parse": "pres imperat act 2nd sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "lartia/das": [
+    {
+      "lemma": "*laertia/dhs",
+      "gloss": "son of Laertes",
+      "parse": "masc nom sg (doric)",
+      "lsj": []
+    }
+  ],
+  "fila/mmonos": [
+    {
+      "lemma": "*fila/mmwn",
+      "gloss": "Philammon",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "h)/idh": [
+    {
+      "lemma": "oi)=da",
+      "gloss": "know",
+      "parse": "plup ind act 1st sg",
+      "lsj": [
+        "oi)=da"
+      ]
+    }
+  ],
+  "r(a=ion": [
+    {
+      "lemma": "r(a/|dios",
+      "gloss": "easy",
+      "parse": "neut nom/voc/acc comp sg",
+      "lsj": [
+        "r(a/|dios"
+      ]
+    }
+  ]
+}

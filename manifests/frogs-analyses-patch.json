@@ -1,0 +1,612 @@
+{
+ "toflattoqrat": [
+  {
+   "lemma": "toflattoqrat",
+   "gloss": "twang of the lyre (onomatopoeia)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "pohth/n": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "w)opo/p": [
+  {
+   "lemma": "w)o/p",
+   "gloss": "rowers' cry",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)o/p"
+   ]
+  }
+ ],
+ "dh/mhter": [
+  {
+   "lemma": "*dhmh/thr",
+   "gloss": "Demeter",
+   "parse": "fem voc sg",
+   "lsj": [
+    "*dhmh/thr"
+   ]
+  }
+ ],
+ "a(lkmh/nhs": [
+  {
+   "lemma": "*)alkmh/nh",
+   "gloss": "Alcmene",
+   "parse": "fem gen sg",
+   "lsj": []
+  }
+ ],
+ "pohtw=n": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc gen pl",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "po/hsin": [
+  {
+   "lemma": "poi/hsis",
+   "gloss": "poetry (Aristophanes spells πόησις)",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "kentaurikw=s": [
+  {
+   "lemma": "kentauriko/s",
+   "gloss": "like a centaur",
+   "parse": "adverbial",
+   "lsj": []
+  }
+ ],
+ "w)=delfidion": [
+  {
+   "lemma": "a)delfi/dion",
+   "gloss": "little brother (crasis: ὦ ἀδελφίδιον)",
+   "parse": "neut voc sg",
+   "lsj": []
+  }
+ ],
+ "pohtou=": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc gen sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "pohth/s": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "mousei=a": [
+  {
+   "lemma": "mousei=on",
+   "gloss": "hall of the Muses, music school",
+   "parse": "neut nom pl",
+   "lsj": []
+  }
+ ],
+ "tunnoutw|i/": [
+  {
+   "lemma": "tunnou=tos",
+   "gloss": "so small, this tiny (with deictic -ί)",
+   "parse": "neut dat sg",
+   "lsj": [
+    "tunnou=tos"
+   ]
+  }
+ ],
+ "a)ei/nwn": [
+  {
+   "lemma": "a)ei/nws",
+   "gloss": "ever-flowing",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": []
+  }
+ ],
+ "murrinw=nas": [
+  {
+   "lemma": "murrinw/n",
+   "gloss": "myrtle grove",
+   "parse": "masc acc pl",
+   "lsj": []
+  }
+ ],
+ "mhu(/rw": [
+  {
+   "lemma": "mh/",
+   "gloss": "not (crasis: μὴ εὕρω)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "mh/"
+   ]
+  },
+  {
+   "lemma": "eu(ri/skw",
+   "gloss": "find (crasis: μὴ εὕρω)",
+   "parse": "aor subj act 1st sg",
+   "lsj": [
+    "eu(ri/skw"
+   ]
+  }
+ ],
+ "o)noupo/kas": [
+  {
+   "lemma": "*)onou/pokai",
+   "gloss": "Donkey-shearings (comic place name, from ὄνου πόκαι)",
+   "parse": "fem acc pl",
+   "lsj": []
+  }
+ ],
+ "h(/mpousa": [
+  {
+   "lemma": "*)/empousa",
+   "gloss": "Empusa (crasis: ἡ Ἔμπουσα)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "*)/empousa"
+   ]
+  }
+ ],
+ "h)remei/": [
+  {
+   "lemma": "h)remei/",
+   "gloss": "quietly",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "a)/dousi": [
+  {
+   "lemma": "a)ei/dw",
+   "gloss": "sing",
+   "parse": "pres ind act 3rd pl",
+   "lsj": [
+    "a)ei/dw"
+   ]
+  }
+ ],
+ "e(katei/wn": [
+  {
+   "lemma": "*(eka/teion",
+   "gloss": "shrine of Hecate",
+   "parse": "neut gen pl",
+   "lsj": []
+  }
+ ],
+ "a(naflu/stios": [
+  {
+   "lemma": "*)anaflu/stios",
+   "gloss": "of the deme Anaphlystus (crasis: ὁ Ἀναφλύστιος)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "i(ppoki/nou": [
+  {
+   "lemma": "*(ippo/kinos",
+   "gloss": "Hippocinus",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "h(rakleiocanqi/an": [
+  {
+   "lemma": "*(hrakleiocanqi/as",
+   "gloss": "Heracleoxanthias (comic compound: Heracles + Xanthias)",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "perio/yoma)pelqont'": [
+  {
+   "lemma": "periora/w",
+   "gloss": "overlook, allow (crasis: περιόψομαι ἀπελθόντα)",
+   "parse": "fut ind mid 1st sg",
+   "lsj": [
+    "periora/w"
+   ]
+  },
+  {
+   "lemma": "a)pe/rxomai",
+   "gloss": "go away (crasis: περιόψομαι ἀπελθόντα)",
+   "parse": "aor part act masc acc sg",
+   "lsj": [
+    "a)pe/rxomai"
+   ]
+  }
+ ],
+ "kw)=|non": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ οἶνον)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "oi)=nos",
+   "gloss": "wine (crasis: καὶ οἶνον)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "oi)=nos"
+   ]
+  }
+ ],
+ "a)nhmiwboliai=a": [
+  {
+   "lemma": "a)na/",
+   "gloss": "at the rate of (crasis: ἀνὰ ἡμιωβολιαῖα)",
+   "parse": "indeclform (prep)",
+   "lsj": [
+    "a)na/"
+   ]
+  },
+  {
+   "lemma": "h(miwboliai=os",
+   "gloss": "worth half an obol (crasis: ἀνὰ ἡμιωβολιαῖα)",
+   "parse": "neut acc pl",
+   "lsj": []
+  }
+ ],
+ "canqi/dion": [
+  {
+   "lemma": "*canqi/dion",
+   "gloss": "little Xanthias (diminutive)",
+   "parse": "neut voc sg",
+   "lsj": []
+  }
+ ],
+ "ei)=e(n": [
+  {
+   "lemma": "ei)=en",
+   "gloss": "well! well then!",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "skeblu/as": [
+  {
+   "lemma": "*skeblu/as",
+   "gloss": "Sceblyas",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "diomei/ois": [
+  {
+   "lemma": "*dio/meia",
+   "gloss": "the Diomeia (festival of Heracles)",
+   "parse": "neut dat pl",
+   "lsj": []
+  }
+ ],
+ "w)=nohtoi": [
+  {
+   "lemma": "a)no/htos",
+   "gloss": "foolish (crasis: ὦ ἀνόητοι)",
+   "parse": "masc voc pl",
+   "lsj": [
+    "a)no/htos"
+   ]
+  }
+ ],
+ "me/nta)n": [
+  {
+   "lemma": "me/ntoi",
+   "gloss": "yet, however (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "me/ntoi"
+   ]
+  },
+  {
+   "lemma": "a)/n1",
+   "gloss": "modal particle (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "a)/n"
+   ]
+  }
+ ],
+ "kleidhmi/dhs": [
+  {
+   "lemma": "*kleidhmi/dhs",
+   "gloss": "Cleidemides",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "o)cu/lalon": [
+  {
+   "lemma": "o)cu/lalos",
+   "gloss": "sharp-talking",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "smileumatoergou=": [
+  {
+   "lemma": "smileumatoergo/s",
+   "gloss": "chisel-working (comic coinage)",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "pohta/s": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc acc pl",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "po/hsis": [
+  {
+   "lemma": "poi/hsis",
+   "gloss": "poetry (Aristophanes spells πόησις)",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "kaqh=|to": [
+  {
+   "lemma": "ka/qhmai",
+   "gloss": "sit",
+   "parse": "pres opt mp 3rd sg",
+   "lsj": [
+    "ka/qhmai"
+   ]
+  }
+ ],
+ "grupaie/tous": [
+  {
+   "lemma": "grupai/etos",
+   "gloss": "griffin-eagle",
+   "parse": "masc acc pl",
+   "lsj": []
+  }
+ ],
+ "w)=maqestat'": [
+  {
+   "lemma": "a)maqh/s",
+   "gloss": "ignorant (crasis: ὦ ἀμαθέστατε)",
+   "parse": "masc voc superl sg",
+   "lsj": [
+    "a)maqh/s"
+   ]
+  }
+ ],
+ "toutoumeni/": [
+  {
+   "lemma": "ou(=tos",
+   "gloss": "this man (τουτουί with μέν inserted: τουτουμενί)",
+   "parse": "masc gen sg",
+   "lsj": [
+    "ou(=tos"
+   ]
+  },
+  {
+   "lemma": "me/n",
+   "gloss": "on the one hand (inserted in τουτουμενί)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "me/n"
+   ]
+  }
+ ],
+ "megai/netos": [
+  {
+   "lemma": "*megai/netos",
+   "gloss": "Megaenetus",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "xei=os": [
+  {
+   "lemma": "*xi=os",
+   "gloss": "Chian (the worst throw at dice; the text prints χεῖος)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "*xi=os"
+   ]
+  }
+ ],
+ "me/ntou)gw": [
+  {
+   "lemma": "me/ntoi",
+   "gloss": "yet, however (crasis: μέντοι ἐγώ)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "me/ntoi"
+   ]
+  },
+  {
+   "lemma": "e)gw/",
+   "gloss": "I (crasis: μέντοι ἐγώ)",
+   "parse": "masc/fem nom 1st sg",
+   "lsj": [
+    "e)gw/"
+   ]
+  }
+ ],
+ "mamma/kuqoi": [
+  {
+   "lemma": "mamma/kuqos",
+   "gloss": "booby, simpleton",
+   "parse": "masc nom pl",
+   "lsj": []
+  }
+ ],
+ "meliti/dai": [
+  {
+   "lemma": "*meliti/dhs",
+   "gloss": "Melitides (a proverbial fool)",
+   "parse": "masc nom pl",
+   "lsj": []
+  }
+ ],
+ "au)qa/dws": [
+  {
+   "lemma": "au)qa/dhs",
+   "gloss": "stubbornly, arrogantly",
+   "parse": "adverbial",
+   "lsj": [
+    "au)qa/dhs"
+   ]
+  }
+ ],
+ "pohtai/": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc nom pl",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "lukabhttou/s": [
+  {
+   "lemma": "*lukabhtto/s",
+   "gloss": "Lycabettus (the hill at Athens)",
+   "parse": "masc acc pl",
+   "lsj": []
+  }
+ ],
+ "a)mpisxw/n": [
+  {
+   "lemma": "a)mpe/xw",
+   "gloss": "clothe",
+   "parse": "aor part act masc nom sg",
+   "lsj": [
+    "a)mpe/xw"
+   ]
+  }
+ ],
+ "r(uppapai=": [
+  {
+   "lemma": "r(uppapai=",
+   "gloss": "rowers' cry",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "e)ce/qesan": [
+  {
+   "lemma": "e)kti/qhmi",
+   "gloss": "set out, expose (a child)",
+   "parse": "aor ind act 3rd pl",
+   "lsj": [
+    "e)kti/qhmi"
+   ]
+  }
+ ],
+ "pneusei=tai": [
+  {
+   "lemma": "pne/w",
+   "gloss": "blow, breathe (Doric future)",
+   "parse": "fut ind mid 3rd sg (doric)",
+   "lsj": [
+    "pne/w"
+   ]
+  }
+ ],
+ "dusameria=n": [
+  {
+   "lemma": "dushmeri/a",
+   "gloss": "evil days, misfortune",
+   "parse": "fem gen pl (doric)",
+   "lsj": []
+  }
+ ],
+ "pornw|diw=n": [
+  {
+   "lemma": "pornw|di/a",
+   "gloss": "harlots' songs",
+   "parse": "fem gen pl",
+   "lsj": []
+  }
+ ],
+ "e)lesbi/azen": [
+  {
+   "lemma": "lesbia/zw",
+   "gloss": "act like a Lesbian woman (obscene)",
+   "parse": "imperf ind act 3rd sg",
+   "lsj": []
+  }
+ ],
+ "ei)eieieieieili/ssete": [
+  {
+   "lemma": "ei(li/ssw",
+   "gloss": "wind, twirl (sung with the syllable ει drawn out)",
+   "parse": "pres ind act 2nd pl",
+   "lsj": [
+    "ei(li/ssw"
+   ]
+  }
+ ],
+ "melanonekuei/mona": [
+  {
+   "lemma": "melanonekuei/mwn",
+   "gloss": "clad in the black of the dead",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "ei)eieili/ssousa": [
+  {
+   "lemma": "ei(li/ssw",
+   "gloss": "wind, twirl (sung with the syllable ει drawn out)",
+   "parse": "pres part act fem nom sg",
+   "lsj": [
+    "ei(li/ssw"
+   ]
+  }
+ ],
+ "tai)/tion": [
+  {
+   "lemma": "ai)/tios",
+   "gloss": "the cause (crasis: τὸ αἴτιον)",
+   "parse": "neut nom sg",
+   "lsj": [
+    "ai)/tios"
+   ]
+  }
+ ],
+ "pohth=|": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc dat sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ]
+}

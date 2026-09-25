@@ -1,0 +1,102 @@
+{
+  "ei)=e(n": [
+    {
+      "lemma": "ei)=e(n",
+      "gloss": "well! so be it (transition particle)",
+      "parse": "indeclform (particle)",
+      "lsj": []
+    }
+  ],
+  "a(plwsti/": [
+    {
+      "lemma": "a(plwsti/",
+      "gloss": "simply, plainly",
+      "parse": "indeclform (adverb)",
+      "lsj": []
+    }
+  ],
+  "pipa/llwn": [
+    {
+      "lemma": "pa/llw",
+      "gloss": "brandish (reduplicated πιπάλλω)",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "pa/llw"
+      ]
+    }
+  ],
+  "lixh=nas": [
+    {
+      "lemma": "leixh/n",
+      "gloss": "lichen; blight, canker",
+      "parse": "masc acc pl",
+      "lsj": []
+    }
+  ],
+  "puka/": [
+    {
+      "lemma": "peukh/eis",
+      "gloss": "sharp, piercing (first half of πυκάεντ', split across lines)",
+      "parse": "masc acc sg (doric)",
+      "lsj": [
+        "peukh/eis"
+      ]
+    }
+  ],
+  "a)prikto/plhkta": [
+    {
+      "lemma": "a)prikto/plhktos",
+      "gloss": "struck unceasingly",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "polupa/lakta": [
+    {
+      "lemma": "polupa/laktos",
+      "gloss": "much-spattered",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": []
+    }
+  ],
+  "ke/klagen": [
+    {
+      "lemma": "kla/zw",
+      "gloss": "scream, shriek",
+      "parse": "perf ind act 3rd sg",
+      "lsj": [
+        "kla/zw"
+      ]
+    }
+  ],
+  "tuxa/s": [
+    {
+      "lemma": "tu/xh",
+      "gloss": "fortune, luck",
+      "parse": "fem acc pl",
+      "lsj": [
+        "tu/xh"
+      ]
+    }
+  ],
+  "te/knon'": [
+    {
+      "lemma": "te/knon",
+      "gloss": "child",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "te/knon"
+      ]
+    }
+  ],
+  "patro/s'": [
+    {
+      "lemma": "path/r",
+      "gloss": "father",
+      "parse": "masc gen sg",
+      "lsj": [
+        "pa^th/r"
+      ]
+    }
+  ]
+}

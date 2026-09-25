@@ -1,0 +1,850 @@
+{
+ "me/nta)n": [
+  {
+   "lemma": "me/ntoi",
+   "gloss": "yet, however (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "me/ntoi"
+   ]
+  },
+  {
+   "lemma": "a)/n",
+   "gloss": "modal particle (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "a)/n"
+   ]
+  }
+ ],
+ "w)=gaqoi": [
+  {
+   "lemma": "a)gaqo/s",
+   "gloss": "good (crasis: ὦ ἀγαθοί)",
+   "parse": "masc voc pl",
+   "lsj": [
+    "a)ga^qo/s"
+   ]
+  }
+ ],
+ "kompolaku/qou": [
+  {
+   "lemma": "kompola/kuqos",
+   "gloss": "Braggart-bird (comic coinage)",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "potta/n": [
+  {
+   "lemma": "poti/",
+   "gloss": "to, towards (Doric = πρός; crasis: ποτὶ τάν)",
+   "parse": "indeclform (prep) (doric)",
+   "lsj": []
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ποτὶ τάν)",
+   "parse": "fem acc sg (doric)",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "ma=ddan": [
+  {
+   "lemma": "ma=za",
+   "gloss": "barley-cake (Megarian μᾶδδα = μᾶζα)",
+   "parse": "fem acc sg (doric)",
+   "lsj": [
+    "ma=za"
+   ]
+  }
+ ],
+ "e)gw/nga": [
+  {
+   "lemma": "e)gw/",
+   "gloss": "I at least (Doric ἐγώνγα = ἔγωγε)",
+   "parse": "masc/fem nom 1st sg (doric)",
+   "lsj": [
+    "e)gw/"
+   ]
+  }
+ ],
+ "xu/rre": [
+  {
+   "lemma": "xoi=ros",
+   "gloss": "pig, piglet (Megarian χύρρε = χοῖρε)",
+   "parse": "masc voc sg (doric)",
+   "lsj": [
+    "xoi=ros"
+   ]
+  }
+ ],
+ "nei/": [
+  {
+   "lemma": "nai/",
+   "gloss": "yea, verily (Boeotian νεί = ναί)",
+   "parse": "indeclform (adverb) (aeolic)",
+   "lsj": [
+    "nai/"
+   ]
+  }
+ ],
+ "gulio/n": [
+  {
+   "lemma": "gulio/s",
+   "gloss": "soldier's knapsack",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "taw(=si": [
+  {
+   "lemma": "taw=s",
+   "gloss": "peacock",
+   "parse": "masc dat pl",
+   "lsj": []
+  }
+ ],
+ "w)=kbatana": [
+  {
+   "lemma": "*)ekba/tana",
+   "gloss": "Ecbatana (crasis: ὦ Ἐκβάτανα)",
+   "parse": "neut voc pl",
+   "lsj": []
+  }
+ ],
+ "lhyi": [
+  {
+   "lemma": "lamba/nw",
+   "gloss": "take, get (pidgin Greek ληψι = λήψῃ)",
+   "parse": "fut ind mid 2nd sg",
+   "lsj": [
+    "lamba/nw"
+   ]
+  }
+ ],
+ "xruso": [
+  {
+   "lemma": "xruso/s",
+   "gloss": "gold (pidgin Greek χρυσο = χρυσόν)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "xru_so/s"
+   ]
+  }
+ ],
+ "i)aonau": [
+  {
+   "lemma": "*)ia/wn",
+   "gloss": "Ionian (pidgin Greek Ἰαοναυ = Ἰάων)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "*)ia/wn"
+   ]
+  }
+ ],
+ "ballh/nade": [
+  {
+   "lemma": "*ballh/nade",
+   "gloss": "to Ballene (pun on Pallene and βάλλω, \"stone\")",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "w)=xarnewn": [
+  {
+   "lemma": "*)axarneu/s",
+   "gloss": "Acharnian (crasis: ὦ Ἀχαρνέων)",
+   "parse": "masc gen pl",
+   "lsj": []
+  }
+ ],
+ "w)=xarnhidai": [
+  {
+   "lemma": "*)axarnhi/+dhs",
+   "gloss": "men of Acharnae (crasis: ὦ Ἀχαρνηίδαι)",
+   "parse": "masc voc pl",
+   "lsj": []
+  }
+ ],
+ "w)=xarnikoi": [
+  {
+   "lemma": "*)axarniko/s",
+   "gloss": "Acharnian (crasis: ὦ Ἀχαρνικοί)",
+   "parse": "masc voc pl",
+   "lsj": []
+  }
+ ],
+ "dh/coma)r'": [
+  {
+   "lemma": "da/knw",
+   "gloss": "bite (crasis: δήξομαι ἄρα)",
+   "parse": "fut ind mid 1st sg",
+   "lsj": [
+    "da/knw"
+   ]
+  },
+  {
+   "lemma": "a)/ra",
+   "gloss": "then, so (crasis: δήξομαι ἄρα)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "a)/ra^"
+   ]
+  }
+ ],
+ "parnh/ssioi": [
+  {
+   "lemma": "*parnh/sios",
+   "gloss": "of Mount Parnes",
+   "parse": "masc nom pl",
+   "lsj": []
+  }
+ ],
+ "yhfhdakei=n": [
+  {
+   "lemma": "yhfhdake/w",
+   "gloss": "bite with the voting pebble (comic coinage)",
+   "parse": "pres inf act",
+   "lsj": []
+  }
+ ],
+ "ka)kuklobo/rei": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἐκυκλοβόρει)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "kuklobore/w",
+   "gloss": "roar like the torrent Cycloborus",
+   "parse": "imperf ind act 3rd sg",
+   "lsj": []
+  }
+ ],
+ "xollh/|dhs": [
+  {
+   "lemma": "*xollh/|dhs",
+   "gloss": "of the deme Cholleidae",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "simai/qan": [
+  {
+   "lemma": "*simai/qa",
+   "gloss": "Simaetha",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "megara/de": [
+  {
+   "lemma": "*mega/rade",
+   "gloss": "to Megara",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "ou(lu/mpios": [
+  {
+   "lemma": "*)olu/mpios",
+   "gloss": "Olympian (crasis: ὁ Ὀλύμπιος)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "*)olu/mpios"
+   ]
+  }
+ ],
+ "w)=pitripte": [
+  {
+   "lemma": "e)pi/triptos",
+   "gloss": "accursed rogue (crasis: ὦ ἐπίτριπτε)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "e)pi/triptos"
+   ]
+  }
+ ],
+ "gorgolo/fa": [
+  {
+   "lemma": "gorgolo/fas",
+   "gloss": "Gorgon-crested",
+   "parse": "masc voc sg (doric)",
+   "lsj": []
+  }
+ ],
+ "stratwni/dhs": [
+  {
+   "lemma": "stratwni/dhs",
+   "gloss": "son of Campaign (comic patronymic)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "teisamenofaini/ppous": [
+  {
+   "lemma": "*teisamenofai/nippos",
+   "gloss": "Tisamenus-Phaenippuses (comic compound of two names)",
+   "parse": "masc acc pl",
+   "lsj": []
+  }
+ ],
+ "gerhtoqeodw/rous": [
+  {
+   "lemma": "*gerhtoqeo/dwros",
+   "gloss": "Geres-Theodoruses (comic compound of two names)",
+   "parse": "masc acc pl",
+   "lsj": []
+  }
+ ],
+ "a(mh|ge/ph|": [
+  {
+   "lemma": "a(mh|ge/ph|",
+   "gloss": "somehow or other",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "a)nqra/kullos": [
+  {
+   "lemma": "*)anqra/kullos",
+   "gloss": "Anthracyllus",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "eu)fori/dhs": [
+  {
+   "lemma": "*eu)fori/dhs",
+   "gloss": "Euphorides",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "prini/dhs": [
+  {
+   "lemma": "*prini/dhs",
+   "gloss": "Prinides",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "ta)kba/tan'": [
+  {
+   "lemma": "*)ekba/tana",
+   "gloss": "Ecbatana (crasis: τὰ Ἐκβάτανα)",
+   "parse": "neut acc pl",
+   "lsj": []
+  }
+ ],
+ "pohth/s": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "a)groiko/tonon": [
+  {
+   "lemma": "a)groiko/tonos",
+   "gloss": "in rustic tones",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": []
+  }
+ ],
+ "ka)pemorca/mhn": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἀπεμορξάμην)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "a)pomo/rgnumi",
+   "gloss": "wipe away (tears)",
+   "parse": "aor ind mid 1st sg",
+   "lsj": [
+    "a)pomo/rgnu_mi"
+   ]
+  }
+ ],
+ "docei=t'": [
+  {
+   "lemma": "doke/w",
+   "gloss": "seem (Doric future δοξεῖτε = δόξετε)",
+   "parse": "fut ind act 2nd pl (doric)",
+   "lsj": [
+    "doke/w"
+   ]
+  }
+ ],
+ "ei(cei=t'": [
+  {
+   "lemma": "h(/kw",
+   "gloss": "come, arrive (Doric future εἱξεῖτε = ἥξετε)",
+   "parse": "fut ind act 2nd pl (doric)",
+   "lsj": [
+    "h(/kw"
+   ]
+  }
+ ],
+ "peirasei=sqe": [
+  {
+   "lemma": "peira/w",
+   "gloss": "try, get a taste of (Doric future)",
+   "parse": "fut ind mid 2nd pl (doric)",
+   "lsj": [
+    "peira/w"
+   ]
+  }
+ ],
+ "grullicei=te": [
+  {
+   "lemma": "grulli/zw",
+   "gloss": "grunt (Doric future)",
+   "parse": "fut ind act 2nd pl (doric)",
+   "lsj": [
+    "gru_li/zw"
+   ]
+  }
+ ],
+ "xh)sei=te": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἡσεῖτε)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "i(/hmi",
+   "gloss": "send forth, utter (Doric future ἡσεῖτε = ἥσετε)",
+   "parse": "fut ind act 2nd pl (doric)",
+   "lsj": [
+    "i(/hmi"
+   ]
+  }
+ ],
+ "potto/": [
+  {
+   "lemma": "poti/",
+   "gloss": "to, towards (Doric = πρός; crasis: ποτὶ τό)",
+   "parse": "indeclform (prep) (doric)",
+   "lsj": []
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ποτὶ τό)",
+   "parse": "neut acc sg (doric)",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "o(/ka": [
+  {
+   "lemma": "o(/ka",
+   "gloss": "when (Doric = ὅτε)",
+   "parse": "indeclform (conj) (doric)",
+   "lsj": []
+  }
+ ],
+ "poluti/matos": [
+  {
+   "lemma": "poluti/mhtos",
+   "gloss": "highly prized",
+   "parse": "masc nom sg (doric)",
+   "lsj": [
+    "polu^ti_/mhtos"
+   ]
+  }
+ ],
+ "o(/kk'": [
+  {
+   "lemma": "o(/kka",
+   "gloss": "whenever (Doric = ὅταν)",
+   "parse": "indeclform (conj) (doric)",
+   "lsj": []
+  }
+ ],
+ "a)rwrai=oi": [
+  {
+   "lemma": "a)rourai=os",
+   "gloss": "of the field (Megarian ἀρωραῖος = ἀρουραῖος)",
+   "parse": "masc nom pl (doric)",
+   "lsj": [
+    "a)rourai=os"
+   ]
+  }
+ ],
+ "qumitida=n": [
+  {
+   "lemma": "qumiti/s",
+   "gloss": "flavoured with thyme (of salt)",
+   "parse": "fem gen pl (doric)",
+   "lsj": []
+  }
+ ],
+ "au(/ta": [
+  {
+   "lemma": "ou(=tos",
+   "gloss": "this (Doric αὕτα = αὕτη)",
+   "parse": "fem nom sg (doric)",
+   "lsj": [
+    "ou(=tos"
+   ]
+  }
+ ],
+ "twu)tw=": [
+  {
+   "lemma": "au)to/s",
+   "gloss": "the same (crasis: τοῦ αὐτοῦ)",
+   "parse": "masc gen sg (doric)",
+   "lsj": [
+    "au)to/s"
+   ]
+  }
+ ],
+ "ka)naxnoianqh=|": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἀναχνοιανθῇ)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "a)naxnoai/nomai",
+   "gloss": "grow downy hair",
+   "parse": "aor subj pass 3rd sg (doric)",
+   "lsj": []
+  }
+ ],
+ "o)delo/n": [
+  {
+   "lemma": "o)belo/s",
+   "gloss": "spit (Megarian ὀδελός = ὀβελός)",
+   "parse": "masc acc sg (doric)",
+   "lsj": [
+    "o)belo/s"
+   ]
+  }
+ ],
+ "potida=": [
+  {
+   "lemma": "*poseidw=n",
+   "gloss": "Poseidon (Megarian Ποτιδᾶς)",
+   "parse": "masc acc sg (doric)",
+   "lsj": [
+    "*poseidw=n"
+   ]
+  }
+ ],
+ "a)/nis": [
+  {
+   "lemma": "a)/neu",
+   "gloss": "without (Megarian ἄνις = ἄνευ)",
+   "parse": "indeclform (prep) (doric)",
+   "lsj": [
+    "a)/neu"
+   ]
+  }
+ ],
+ "tropali/dos": [
+  {
+   "lemma": "tropali/s",
+   "gloss": "bunch (of garlic)",
+   "parse": "fem gen sg",
+   "lsj": []
+  }
+ ],
+ "e)mwutw=": [
+  {
+   "lemma": "e)mautou=",
+   "gloss": "of myself (Doric ἐμωυτῶ = ἐμαυτοῦ)",
+   "parse": "masc gen sg (doric)",
+   "lsj": [
+    "e)mautou="
+   ]
+  }
+ ],
+ "megariei=s": [
+  {
+   "lemma": "megari/zw",
+   "gloss": "act the Megarian",
+   "parse": "fut ind act 2nd sg",
+   "lsj": []
+  }
+ ],
+ "fanta/ddomai": [
+  {
+   "lemma": "fanta/zw",
+   "gloss": "make visible; (here) I am being denounced (Megarian δδ = ζ)",
+   "parse": "pres ind mp 1st sg (doric)",
+   "lsj": [
+    "fanta/zw"
+   ]
+  }
+ ],
+ "'te/rwse": [
+  {
+   "lemma": "e(te/rwse",
+   "gloss": "to the other side (aphaeresis: ἑτέρωσε)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "e(te/rwse"
+   ]
+  }
+ ],
+ "ka)/nis": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἄνις)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "a)/neu",
+   "gloss": "without (crasis: καὶ ἄνις; Megarian ἄνις = ἄνευ)",
+   "parse": "indeclform (prep) (doric)",
+   "lsj": [
+    "a)/neu"
+   ]
+  }
+ ],
+ "h(raklei=s": [
+  {
+   "lemma": "*(hrakle/hs",
+   "gloss": "Heracles (Boeotian Ἡρακλεῖς)",
+   "parse": "masc nom sg (aeolic)",
+   "lsj": [
+    "*(hrakle/hs"
+   ]
+  }
+ ],
+ "i)smeini/a": [
+  {
+   "lemma": "*)ismhni/as",
+   "gloss": "Ismenias (Boeotian spelling)",
+   "parse": "masc voc sg (aeolic)",
+   "lsj": []
+  }
+ ],
+ "au)leitai/": [
+  {
+   "lemma": "au)lhth/s",
+   "gloss": "piper (Boeotian αὐλειταί = αὐληταί)",
+   "parse": "masc nom pl (aeolic)",
+   "lsj": [
+    "au)lhth/s1"
+   ]
+  }
+ ],
+ "xairidh=s": [
+  {
+   "lemma": "*xairideu/s",
+   "gloss": "sons of Chaeris (comic patronymic for pipers)",
+   "parse": "masc nom pl",
+   "lsj": []
+  }
+ ],
+ "qei/baqe": [
+  {
+   "lemma": "*qei/baqen",
+   "gloss": "from Thebes (Boeotian)",
+   "parse": "indeclform (adverb) (aeolic)",
+   "lsj": [
+    "*qei/ba_qen"
+   ]
+  }
+ ],
+ "fusa/ntes": [
+  {
+   "lemma": "fusa/w",
+   "gloss": "blow (Boeotian = φυσῶντες)",
+   "parse": "pres part act masc nom pl (aeolic)",
+   "lsj": [
+    "fu_sa/w"
+   ]
+  }
+ ],
+ "glaxw/": [
+  {
+   "lemma": "glhxw/",
+   "gloss": "pennyroyal (Boeotian γλαχώ)",
+   "parse": "fem acc sg (aeolic)",
+   "lsj": []
+  }
+ ],
+ "ai)elw/rws": [
+  {
+   "lemma": "ai)/louros",
+   "gloss": "cat (Boeotian αἰελώρως = αἰελούρους)",
+   "parse": "masc acc pl (aeolic)",
+   "lsj": []
+  }
+ ],
+ "pikti/das": [
+  {
+   "lemma": "pikti/s",
+   "gloss": "a small animal (unidentified)",
+   "parse": "fem acc pl",
+   "lsj": []
+  }
+ ],
+ "i)kti/das": [
+  {
+   "lemma": "i)kti/s",
+   "gloss": "marten, weasel",
+   "parse": "fem acc pl",
+   "lsj": []
+  }
+ ],
+ "e)gxe/lias": [
+  {
+   "lemma": "e)/gxelus",
+   "gloss": "eel (Boeotian ἐγχέλιας = ἐγχέλεις)",
+   "parse": "fem acc pl (aeolic)",
+   "lsj": [
+    "e)/gxelus"
+   ]
+  }
+ ],
+ "e)nteteutliwme/nhs": [
+  {
+   "lemma": "e)nteutlio/w",
+   "gloss": "stew in beet leaves",
+   "parse": "perf part mp fem gen sg",
+   "lsj": []
+  }
+ ],
+ "genei/setai": [
+  {
+   "lemma": "gi/gnomai",
+   "gloss": "become, be (Boeotian γενείσεται = γενήσεται)",
+   "parse": "fut ind mid 3rd sg (aeolic)",
+   "lsj": [
+    "gi/gnomai"
+   ]
+  }
+ ],
+ "a)qa/nas'": [
+  {
+   "lemma": "*)aqh=nai",
+   "gloss": "at Athens (Boeotian Ἀθάνασι = Ἀθήνησι)",
+   "parse": "fem dat pl (doric aeolic)",
+   "lsj": [
+    "*)aqh=nai"
+   ]
+  }
+ ],
+ "mei/": [
+  {
+   "lemma": "mh/",
+   "gloss": "not (Boeotian μεί = μή)",
+   "parse": "indeclform (particle) (aeolic)",
+   "lsj": [
+    "mh/"
+   ]
+  }
+ ],
+ "ta=de": [
+  {
+   "lemma": "o(/de",
+   "gloss": "here, in this way (τᾶδε = τῇδε)",
+   "parse": "fem dat sg (doric aeolic)",
+   "lsj": [
+    "o(/de"
+   ]
+  }
+ ],
+ "deu/s": [
+  {
+   "lemma": "*zeu/s",
+   "gloss": "Zeus (Boeotian Δεύς)",
+   "parse": "masc nom sg (aeolic)",
+   "lsj": [
+    "*zeu/s"
+   ]
+  }
+ ],
+ "bore/an": [
+  {
+   "lemma": "*bore/as",
+   "gloss": "north wind",
+   "parse": "masc acc sg",
+   "lsj": [
+    "*bore/as"
+   ]
+  }
+ ],
+ "i)smei/nixe": [
+  {
+   "lemma": "*)ismh/nixos",
+   "gloss": "Ismenichus (Boeotian spelling)",
+   "parse": "masc voc sg (aeolic)",
+   "lsj": []
+  }
+ ],
+ "triskako/daimon": [
+  {
+   "lemma": "triskakodai/mwn",
+   "gloss": "thrice-unlucky",
+   "parse": "masc voc sg",
+   "lsj": [
+    "triska^kodai/mwn"
+   ]
+  }
+ ],
+ "shsamou=ntes": [
+  {
+   "lemma": "shsamou=s",
+   "gloss": "sesame cake",
+   "parse": "masc nom pl",
+   "lsj": []
+  }
+ ],
+ "gorgo/nwton": [
+  {
+   "lemma": "gorgo/nwtos",
+   "gloss": "with a Gorgon on its back",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "kata/gelws": [
+  {
+   "lemma": "kata/gelws",
+   "gloss": "derision, a mockery",
+   "parse": "masc nom sg",
+   "lsj": [
+    "kata/gelws"
+   ]
+  }
+ ],
+ "pohth/n": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ]
+}

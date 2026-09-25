@@ -1,0 +1,20 @@
+{
+  "qessala/s": [
+    {
+      "lemma": "*qessalo/s",
+      "gloss": "Thessalian",
+      "parse": "fem acc pl",
+      "lsj": [
+        "*qessalo/s"
+      ]
+    }
+  ],
+  "barkai/ois": [
+    {
+      "lemma": "*barkai=os",
+      "gloss": "of Barca (in Libya)",
+      "parse": "masc/neut dat pl",
+      "lsj": []
+    }
+  ]
+}
