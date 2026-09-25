@@ -562,6 +562,72 @@ export interface EnglishTurnSource {
   ticks?: { n: number; offset: number; real: boolean }[];
 }
 
+// ── The translator's line numbers in the English margin (John, 2026-09-24,
+// option C) ──────────────────────────────────────────────────────────────
+// Each real tick gets an anchor in the text flow where its text begins; CSS
+// draws the number (`content: attr(data-n)`) in the margin, on the line the
+// anchor sits on, so it follows the text at any width with no measuring.
+// The anchor travels through the turn slicing, footnote, highlight and
+// direction passes as private-use characters (a start mark, then the
+// number's characters shifted into the private-use block), and becomes the
+// empty span only in the finished HTML. The marks never reach the text the
+// row cuts are computed on: `at` maps an offset in the plain text to the
+// marked one, a mark at that offset falling after it.
+const LNUM_MARK = '\uE000';
+const LNUM_SHIFT = 0xE100;
+// A stage direction on a line of its own, which markStageDirections matches
+// whole from the line start: a mark there would break it.
+const DIRECTION_AT = /^_[^_\n]+_(?=\n|$)/;
+
+export function markLineNumbers(
+  text: string,
+  ticks: readonly { n: number | string; offset: number; real: boolean }[] | undefined,
+): { text: string; at: (offset: number) => number } {
+  const marks: { p: number; s: string }[] = [];
+  const skipSpace = (o: number) => { while (o < text.length && /\s/.test(text[o]!)) o += 1; return o; };
+  for (const tk of ticks ?? []) {
+    if (!tk.real) continue;
+    let p = skipSpace(tk.offset);
+    if (text[p] === '_' && (p === 0 || text[p - 1] === '\n')) {
+      const dir = DIRECTION_AT.exec(text.slice(p));
+      if (dir) p = skipSpace(p + dir[0].length);
+    }
+    if (p >= text.length) continue;
+    const code = [...String(tk.n)].map((c) => String.fromCharCode(LNUM_SHIFT + (c.charCodeAt(0) & 0x7f))).join('');
+    marks.push({ p, s: LNUM_MARK + code });
+  }
+  if (!marks.length) return { text, at: (o) => o };
+  marks.sort((a, b) => a.p - b.p);
+  let out = '';
+  let cursor = 0;
+  for (const m of marks) { out += text.slice(cursor, m.p) + m.s; cursor = m.p; }
+  out += text.slice(cursor);
+  return {
+    text: out,
+    at: (o) => marks.reduce((acc, m) => (m.p < o ? acc + m.s.length : acc), o),
+  };
+}
+
+/** The marks in finished HTML, as empty anchors. Each anchor goes after
+ *  the first character of the word it marks (past any opening tags): an
+ *  anchor before the word could stay at the end of the line above when the
+ *  word wraps, and there is no line break inside a word. Where two fall on
+ *  one visual line their numbers stack in the same spot; the first is drawn
+ *  on top (z-index), its background hiding the later one. */
+const LNUM_HTML_RE = /\uE000([\uE100-\uE17F]+)((?:<[^>]*>)*)(&[#\w]+;|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^<&\s\uE000-\uE1FF])?/g;
+export function lineNumberHtml(html: string): string {
+  const total = html.split(LNUM_MARK).length - 1;
+  if (!total) return html;
+  let k = 0;
+  return html.replace(LNUM_HTML_RE, (_m, code: string, tags: string, first: string | undefined) => {
+    const n = [...code].map((c) => String.fromCharCode(c.charCodeAt(0) - LNUM_SHIFT)).join('');
+    const z = total - k;
+    k += 1;
+    const anchor = `<span class="eng-lnum" data-n="${n}" aria-hidden="true" style="z-index:${z}"></span>`;
+    return first ? `${tags}${first}${anchor}` : `${anchor}${tags}`;
+  });
+}
+
 // The first play-line comparison data stored speaker lead-ins in overlay text
 // (`CHORUS. ...`) rather than in `turns`. Recover that standoff shape so old
 // data uses the same turn-stack and colour path as newer structured overlays.

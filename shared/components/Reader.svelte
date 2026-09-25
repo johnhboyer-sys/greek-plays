@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { copyButtonPosition } from '../lib/copy-button';
@@ -1743,6 +1743,16 @@
     };
   }
 
+  // The translator's line numbers in the English margin (John, 2026-09-24,
+  // option C): the source's text and turns with an anchor mark at each real
+  // tick (speakers.ts markLineNumbers), for building the blocks that render.
+  // Play-line only; row cuts are still computed on the plain text.
+  function markedTurns(source: EnglishTurnSource): { text: string; turns: EnglishTurnSource['turns'] } {
+    const m = markLineNumbers(source.text, playLine ? source.ticks : undefined);
+    if (m.text === source.text) return source;
+    return { text: m.text, turns: source.turns.map((tu) => ({ ...tu, offset: m.at(tu.offset) })) };
+  }
+
   // A direction before the first English turn needs the same blank-Greek row
   // as one carried by the overlay piece itself. `turnDirections` keeps it on
   // that turn, so collect both forms for the existing row renderer.
@@ -1987,13 +1997,18 @@
     const spaced = minSpan > 0 ? spaceTicks(mapped, protectedOffsets, minSpan) : mapped;
     if (spaced.length < 2) return null;
     const rows: PlayRow[] = [];
+    // Sliced from the text with the line-number marks in (markedTurns); the
+    // cut and turn offsets are plain-text offsets, mapped by `at`.
+    const marked = markLineNumbers(source.text, playLine ? source.ticks : undefined);
     const sliceBlocks = (from: number, to: number): EnglishTurnBlock[] => {
-      const text = source.text.slice(from, to).trim();
+      const a = marked.at(from);
+      const raw = marked.text.slice(a, marked.at(to));
+      const text = raw.trim();
       if (!text) return [];
-      const lead = source.text.slice(from, to).length - source.text.slice(from, to).trimStart().length;
+      const lead = raw.length - raw.trimStart().length;
       const turns = source.turns
         .filter((tu) => tu.offset >= from && tu.offset < to)
-        .map((tu) => ({ ...tu, offset: Math.max(0, tu.offset - from - lead) }));
+        .map((tu) => ({ ...tu, offset: Math.max(0, marked.at(tu.offset) - a - lead) }));
       return buildEnglishTurnBlocks(text, turns);
     };
     // Lines before the first anchored line, with any text before its tick.
@@ -4084,7 +4099,7 @@
         <!-- A direction before this speech that got no row of its own
              (splitAtDirections: compare mode, or a speech sharing its row). -->
         {#if b.directionsBefore}{#each b.directionsBefore as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true)}</p>
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
       {/each}
     </div>
   {/snippet}
@@ -4100,7 +4115,8 @@
          them quarrel with it. `chunkMm` is the pre-P2h chunk-level field,
          used only when no turn in this chunk carries one of its own (data
          built before the per-turn flag existed). -->
-    {@const blocks = withoutOpeningDirections(buildEnglishTurnBlocks(source.text, source.turns))}
+    {@const marked = markedTurns(source)}
+    {@const blocks = withoutOpeningDirections(buildEnglishTurnBlocks(marked.text, marked.turns))}
     {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
     {@render playTurnStack(blocks, chunkMm, transId)}
     {:else if bareDirs}
@@ -4680,7 +4696,8 @@
           {/if}
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
-          {@const plTurnBlocks = plSource ? withoutOpeningDirections(buildEnglishTurnBlocks(plSource.text, plSource.turns)) : []}
+          {@const plMarked = plSource ? markedTurns(plSource) : null}
+          {@const plTurnBlocks = plMarked ? withoutOpeningDirections(buildEnglishTurnBlocks(plMarked.text, plMarked.turns)) : []}
           {@const rawPlRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, verseForm(segTransId))) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows) : null}
           {#if plRows}

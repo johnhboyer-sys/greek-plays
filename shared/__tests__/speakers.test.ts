@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1501,5 +1501,55 @@ describe('verseLineTicks: a markerless verse speech goes line for line', () => {
   it('stays one to one when there are fewer English lines than Greek, leaving the rest bare', () => {
     // Way's Alcestis 152-198: the scan dropped a page, so 24 verses face 47 Greek lines.
     expect(verseLineTicks('A\nB\nC', 152, 198).map((t) => t.n)).toEqual([152, 153, 154]);
+  });
+});
+
+// The translator's line numbers in the English margin (John, 2026-09-24,
+// option C): an anchor in the text flow at each real tick's offset.
+describe('markLineNumbers / lineNumberHtml', () => {
+  const text = 'Release me. So now I watch.\n_He rises._\nOh welcome, blaze!';
+  const ticks = [
+    { n: 1, offset: 0, real: true },
+    { n: 3, offset: 11, real: true }, // the space before "So": moves to "So"
+    { n: 4, offset: 20, real: false }, // interpolated: never shown
+    { n: 5, offset: 28, real: true }, // on a direction line: moves past it
+  ];
+
+  it('marks each real tick where its text begins, and maps offsets past the marks', () => {
+    const m = markLineNumbers(text, ticks);
+    const html = lineNumberHtml(m.text);
+    expect(html.match(/data-n="\d+"/g)).toEqual(['data-n="1"', 'data-n="3"', 'data-n="5"']);
+    expect(html.replace(/<span class="eng-lnum"[^>]*><\/span>/g, '')).toBe(text);
+    // Each anchor sits after its word's first letter, where no line can break.
+    expect(html).toContain('R<span class="eng-lnum" data-n="1" aria-hidden="true" style="z-index:3"></span>elease');
+    expect(html).toContain('S<span class="eng-lnum" data-n="3" aria-hidden="true" style="z-index:2"></span>o now');
+    expect(html).toContain('_He rises._\nO<span class="eng-lnum" data-n="5" aria-hidden="true" style="z-index:1"></span>h welcome');
+    // An offset maps to the same character in the marked text; a mark at
+    // that offset falls after it, so a slice from it starts with the mark.
+    for (const o of [0, 5, 12, 27, text.length]) expect(m.text.slice(m.at(o)).replace(/[\uE000-\uE1FF]/g, '')).toBe(text.slice(o));
+    expect(lineNumberHtml(m.text.slice(m.at(12)))).toMatch(/^S<span class="eng-lnum" data-n="3"[^>]*><\/span>o now/);
+    expect(m.text.slice(m.at(11), m.at(12))).toBe(' ');
+  });
+
+  it('leaves text with no real ticks untouched', () => {
+    const m = markLineNumbers(text, ticks.map((t) => ({ ...t, real: false })));
+    expect(m.text).toBe(text);
+    expect(m.at(7)).toBe(7);
+    expect(markLineNumbers(text, undefined).text).toBe(text);
+    expect(lineNumberHtml('plain <b>html</b>')).toBe('plain <b>html</b>');
+  });
+
+  it('puts the anchor past opening tags and an entity, inside the word', () => {
+    const m = markLineNumbers('go & <see>', [{ n: 7, offset: 3, real: true }]);
+    // markup built after marking: an escaped ampersand, a highlight mark
+    const html = m.text.replace('&', '&amp;').replace('<see>', '<mark>see</mark>');
+    expect(lineNumberHtml(html)).toBe('go &amp;<span class="eng-lnum" data-n="7" aria-hidden="true" style="z-index:1"></span> <mark>see</mark>');
+    const w = markLineNumbers('go see', [{ n: 8, offset: 3, real: true }]);
+    expect(lineNumberHtml(w.text.replace('see', '<mark>see</mark>'))).toBe('go <mark>s<span class="eng-lnum" data-n="8" aria-hidden="true" style="z-index:1"></span>ee</mark>');
+  });
+
+  it('drops a tick that falls on trailing space, so no slice ends on a mark', () => {
+    const m = markLineNumbers('Words.  ', [{ n: 9, offset: 6, real: true }]);
+    expect(m.text).toBe('Words.  ');
   });
 });

@@ -2341,6 +2341,60 @@ body {
   line-height: inherit;
   overflow: visible;
 }
+/* The translator's own line numbers (John, 2026-09-24, option C): an empty
+   anchor in the text where each printed number falls (speakers.ts
+   markLineNumbers). Absolute with only `left` set, it keeps its static
+   vertical place, the line it sits on, and moves into the number gutter
+   left of the lead-in. It keeps the prose's font and line-height, so the
+   small numeral sits on that line's baseline. Two on one line stack in one
+   spot: the first is on top (inline z-index) and its background hides the
+   rest; `isolation` keeps those z-indexes inside the paragraph. */
+.reader-body.play-line .turn-stack .turn-para { isolation: isolate; }
+.eng-lnum {
+  position: absolute;
+  left: 0;
+  width: var(--pl-num-w);
+  box-sizing: border-box;
+  padding-right: 0.6rem;
+  text-align: right;
+  text-indent: 0;
+  white-space: nowrap;
+  font-style: normal;
+  background: var(--page-bg);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.eng-lnum::before {
+  content: attr(data-n);
+  font-family: var(--font-ui);
+  font-size: var(--fs-linenum);
+  font-weight: 400;
+  color: var(--text-light);
+  letter-spacing: normal;
+  font-variant-numeric: tabular-nums;
+  /* Adds nothing to the line box, so the anchor's box is exactly one line
+     of the prose and numbers on neighbouring lines never overlap. */
+  line-height: 0;
+}
+/* Compare has no number gutter (each column's text starts at its edge, the
+   lead-in above it), and the gap to the Greek is too narrow for a
+   four-digit number. The numbers go in each column's outer margin instead:
+   right of the column, where a prose column leaves a tenth of its track
+   empty and the last column meets the page margin. In English-only compare
+   the first column's outer margin is on its left. */
+@media (min-width: 681px) {
+  .reader-body.play-line.trans-compare .eng-lnum {
+    left: 100%;
+    width: auto;
+    padding: 0 0 0 0.6rem;
+    text-align: left;
+  }
+  .reader-body.play-line.trans-compare.view-english .english-col .eng-lnum {
+    left: auto;
+    right: 100%;
+    padding: 0 0.6rem 0 0;
+  }
+}
 /* The "translated with the speech above" jump and the missing-passage dash
    are not turns, but they belong on the same text edge. */
 .reader-body.play-line .turn-eng:not(.turn-stack) {
@@ -3876,6 +3930,11 @@ body {
   .reader-body.play-line .line-num,
   .reader-body.play-line.view-both .line-num,
   .reader-body.play-line.trans-compare .line-num { min-width: var(--pl-num-w); }
+  /* The translator's numbers keep the Greek gutter's phone size, in the
+     same number gutter. Compare stacks its columns full width with no
+     gutter, so it shows none. */
+  .reader-body.view-both .eng-lnum::before { font-size: 0.6rem; }
+  .reader-body.play-line.trans-compare .eng-lnum { display: none; }
   .reader-body.trans-compare .english-col,
   .reader-body.trans-compare .overlay-col {
     font-size: var(--fs-english);
@@ -4669,7 +4728,7 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
      hardcoded "EB Garamond" was never loaded), on plain white stock. */
 
   /* Line numbers (all views) in the design's muted ink, the reading face. */
-  .line-num { font-family: var(--font-english); color: #7a7264; }
+  .line-num, .eng-lnum::before { font-family: var(--font-english); color: #7a7264; }
   .bk-num { color: #7a7264; }
 
   /* Chapter opener: oxblood small-caps "Book N, Chapter M" + italic range +
