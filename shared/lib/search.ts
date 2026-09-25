@@ -10,6 +10,7 @@
 // Cross-language: AND (intersection) or OR (union) the two result sets.
 
 import { getWork } from './works';
+import { betaToGreek } from './betacode';
 
 // Honour Astro's base path. BASE_URL may lack a trailing slash, so strip + join.
 // Same root precedence as data.ts (see its longer doc comment): a build-time
@@ -45,11 +46,11 @@ export type MatchMode = 'lemma' | 'form';
 
 export const DEFAULT_MATCH_MODE: MatchMode = 'form';
 
-async function lemmaTerms(terms: string[]): Promise<string[][]> {
+async function lemmaTerms(terms: string[]): Promise<[string, string][][]> {
   return Promise.all(terms.map(async term => {
-    if (term.includes('*')) return [term];
+    if (term.includes('*')) return [[term, term]] as [string, string][];
     const folded = greekFold(term);
-    if (!folded) return [term];
+    if (!folded) return [[term, term]] as [string, string][];
     try {
       const file = `lemma-map/${folded[0]}.json`;
       let pending = _fileCache.get(file);
@@ -61,10 +62,14 @@ async function lemmaTerms(terms: string[]): Promise<string[][]> {
         _fileCache.set(file, pending);
         pending.catch(() => { if (_fileCache.get(file) === pending) _fileCache.delete(file); });
       }
-      const shard = await pending as Record<string, string[]>;
-      return shard[folded]?.length ? shard[folded] : [folded];
+      const shard = await pending as Record<string, (string | [string, string])[]>;
+      return shard[folded]?.length
+        ? shard[folded].map(entry => typeof entry === 'string'
+          ? [entry, displayLemma(entry)] as [string, string]
+          : [entry[0], betaToGreek(entry[1])] as [string, string])
+        : [[folded, displayLemma(folded)]] as [string, string][];
     } catch {
-      return [folded];
+      return [[folded, displayLemma(folded)]] as [string, string][];
     }
   }));
 }
@@ -449,7 +454,8 @@ export async function search(
   // form is caseless, and a leading wildcard would match everything anyway.
   const grkTerms = grkQuery.trim().split(/\s+/).filter(Boolean).map(t => t.replace(/^\*+/, ''));
   const engTerms = engQuery.trim().split(/\s+/).filter(Boolean);
-  const resolved = matchMode === 'lemma' ? await lemmaTerms(grkTerms) : grkTerms.map(t => [t]);
+  const resolvedPairs = matchMode === 'lemma' ? await lemmaTerms(grkTerms) : [];
+  const resolved = matchMode === 'lemma' ? resolvedPairs.map(group => group.map(([fold]) => fold)) : grkTerms.map(t => [t]);
 
   // Bound how many works load at once, and let a single work's failed index
   // load drop just that work (logged) instead of rejecting the whole search.
@@ -481,6 +487,6 @@ export async function search(
   return {
     results: perWork.flat(), failed: works.filter((w) => failedSet.has(w)),
     ...(matchMode === 'lemma' && grkTerms.length
-      ? { lemmata: [...new Set(resolved.flat().filter(t => !t.includes('*')))] } : {}),
+      ? { lemmata: [...new Set(resolvedPairs.flat().filter(([fold]) => !fold.includes('*')).map(([, display]) => display))] } : {}),
   };
 }

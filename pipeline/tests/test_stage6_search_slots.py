@@ -32,5 +32,5 @@ def test_published_slots_and_lemma_map(tmp_path, monkeypatch):
     meta = json.loads((out / "meta.json").read_text())
     assert set(meta[0]["english_slots"]) == {"second", "fourth"}
     shard = json.loads((tmp_path / "dist/lemma-map/q.json").read_text())
-    assert shard["qeous"] == ["qea", "qeos"]
-    assert shard["qeos"] == ["qeos"]
+    assert shard["qeous"] == [["qea", "qea/"], ["qeos", "qeo/s"]]
+    assert shard["qeos"] == [["qeos", "qeo/s"]]

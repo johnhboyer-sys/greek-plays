@@ -53,17 +53,19 @@ def slot_text(chunks: object) -> str:
 
 
 def build_lemma_map(current: dict, work_id: str, build_dir: Path = BUILD_DIR) -> None:
-    """Merge shipped analyses across works into fold(form) -> headword shards."""
-    forms: dict[str, set[str]] = defaultdict(set)
+    """Merge shipped analyses into fold(form) -> [fold, printed headword] shards."""
+    forms: dict[str, dict[str, str]] = defaultdict(dict)
     paths = (build_dir / "dist").glob("*/analyses.json")
     for path in paths:
         if path.parent.name == work_id:
             continue
         add_analyses(forms, json.loads(path.read_text(encoding="utf-8")))
     add_analyses(forms, current)
-    shards: dict[str, dict[str, list[str]]] = defaultdict(dict)
+    shards: dict[str, dict[str, list[list[str]]]] = defaultdict(dict)
     for surface, lemmata in forms.items():
-        shards[surface[0] if surface[0].isalpha() else "_"][surface] = sorted(lemmata)
+        shards[surface[0] if surface[0].isalpha() else "_"][surface] = sorted(
+            [folded, display] for folded, display in lemmata.items()
+        )
     out = build_dir / "dist" / "lemma-map"
     out.mkdir(parents=True, exist_ok=True)
     for old in out.glob("*.json"):
@@ -72,7 +74,7 @@ def build_lemma_map(current: dict, work_id: str, build_dir: Path = BUILD_DIR) ->
         (out / f"{letter}.json").write_text(json.dumps(values, ensure_ascii=False), encoding="utf-8")
 
 
-def add_analyses(forms: dict[str, set[str]], analyses: dict) -> None:
+def add_analyses(forms: dict[str, dict[str, str]], analyses: dict) -> None:
     for surface, parses in analyses.items():
         key = fold_lemma(surface)
         if not key:
@@ -82,8 +84,14 @@ def add_analyses(forms: dict[str, set[str]], analyses: dict) -> None:
             if head:
                 folded = fold_lemma(head)
                 if folded:
-                    forms[key].add(folded)
-                    forms[folded].add(folded)
+                    for surface in (key, folded):
+                        old = forms[surface].get(folded)
+                        # Prefer an accented spelling and make the choice stable
+                        # when works supply more than one spelling of a fold.
+                        forms[surface][folded] = min(
+                            (old, head) if old is not None else (head,),
+                            key=lambda value: (not any(c in value for c in "/\\=()|+"), value),
+                        )
 
 
 def fold_lemma(beta_key: str) -> str:

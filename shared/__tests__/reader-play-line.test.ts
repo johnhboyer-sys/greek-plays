@@ -1949,6 +1949,7 @@ describe('verse form: a verse translation renders each source line as its own bl
     await flush();
     const lines = [...container.querySelectorAll('.turn-para .verse-line')];
     expect(lines.map((l) => l.textContent)).toEqual(['Line one', 'Line two', 'Line three']);
+    expect(container.querySelector('.turn-para')?.textContent).toMatch(/Line one\s+Line two\s+Line three/);
     // One lead-in for the whole speech, not one per line.
     expect(container.querySelectorAll('.turn-para .speaker').length).toBe(1);
     expect(container.querySelector('.turn-para .speaker')?.textContent).toBe('Watchman');

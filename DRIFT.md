@@ -838,3 +838,7 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `pipeline/drama_pipeline/text_fixes.py`, the two play-English builders, `kosmos_clean.py`, `pipeline/tests/`, and affected play manifests — 2026-09-24: checked final English text fixes per slot and Windows-1252 repair in Kosmos extraction.
 - `shared/lib/search.ts` — 2026-09-24: exact Greek form is the default; lemma queries resolve typed forms through shared shards; English hits carry translation ids and use each translation's text.
 - `shared/components/Search.svelte` — 2026-09-24: exact form appears first, lemma readings appear with results, and English hits show the translator and open its reader slot.
+- `shared/components/Reader.svelte` — 2026-09-24: the copy button waits for layout and stays in view; verse line blocks carry text separators.
+- `shared/components/Search.svelte` — 2026-09-24: lemma labels show the resolved printed headword.
+- `shared/lib/search.ts` — 2026-09-24: lemma resolution carries printed headwords beside folded keys.
+- `shared/lib/copy-button.ts` — 2026-09-24: clamp the copy button's visible box below the header and within the viewport.

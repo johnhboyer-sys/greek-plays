@@ -24,7 +24,7 @@ describe('search rulings', () => {
   it('resolves an inflected form to all headwords and returns their postings', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(url => {
       const path = String(url);
-      if (path.endsWith('/lemma-map/q.json')) return json({ qeous: ['qeos', 'qea'] });
+      if (path.endsWith('/lemma-map/q.json')) return json({ qeous: [['qeos', 'qeo/s'], ['qea', 'qea/']] });
       if (path.endsWith('/meta.json')) return json([
         { id: '1', book: 1, column: '1', head: 'θεός', tokens: 'qeos', english_head: '' },
         { id: '2', book: 1, column: '2', head: 'θεά', tokens: 'qea', english_head: '' },
@@ -34,7 +34,7 @@ describe('search rulings', () => {
     });
     const out = await search('θεους', '', 'all', 'all', 'and', ['TLemma'], 'lemma');
     expect(out.results).toHaveLength(2);
-    expect(out.lemmata).toEqual(['qeos', 'qea']);
+    expect(out.lemmata).toEqual(['θεός', 'θεά']);
   });
 
   it('keeps English hits tied to the matching translation', async () => {

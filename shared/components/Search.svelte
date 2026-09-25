@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
-  import { search, displayLemma, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
+  import { search, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
   import { fetchBook, fetchChapters, fetchSections, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
   import { highlightPrefixMatches } from '../lib/text';
   import { WORKS, getWork, workPath, WORK_ORDER, WORK_GROUPS } from '../lib/works';
@@ -1030,7 +1030,7 @@
             (pages.length > 1 ? ` · page ${pageIdx + 1} of ${pages.length}` : '')}
       </p>
       {#if searchedLemmata.length}
-        <p class="lemma-readings">{searchedLemmata.length === 1 ? 'Lemma' : 'Lemmata'}: {searchedLemmata.map(displayLemma).join(', ')}</p>
+        <p class="lemma-readings">{searchedLemmata.length === 1 ? 'Lemma' : 'Lemmata'}: {searchedLemmata.join(', ')}</p>
       {/if}
       {#if totalInstances > 0}
         <button type="button" class="export-btn" on:click={exportCsv} disabled={csvBusy}>
