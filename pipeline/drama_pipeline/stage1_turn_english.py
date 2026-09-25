@@ -3254,23 +3254,36 @@ def _pin_norm(t: str) -> str:
 def _apply_english_overrides(
     speeches: list[dict], overrides: list[dict], work_id: str, slot: str
 ) -> None:
-    """Apply source-order canonical-name switches for repeated printed cues."""
+    """Apply source-order canonical-name switches for repeated printed cues.
+
+    ``display`` retags the speech's canonical name (coloring, roster) --
+    despite the name, it does NOT change the label shown to the reader,
+    which stays the translation's own printed cue. An optional ``label``
+    sets that shown label too, for the rare case (John, 2026-09-24) where
+    two different canonical speakers print the identical cue and the
+    printed word itself must be told apart on the page."""
     for override in overrides:
         if not isinstance(override, dict):
             raise RuntimeError(f"{work_id}: english override cue '' text '': malformed {override!r}")
         cue = override.get("cue")
         text = override.get("from_text")
         display = override.get("display")
+        label = override.get("label")
         entry_slot = override.get("slot")
         if not all(isinstance(v, str) and v.strip() for v in (cue, text, display)):
             raise RuntimeError(
                 f"{work_id}: english override cue {cue!r} text {text!r}: needs cue, from_text, and display"
+            )
+        if label is not None and not (isinstance(label, str) and label.strip()):
+            raise RuntimeError(
+                f"{work_id}: english override cue {cue!r} text {text!r}: label must be a non-empty string"
             )
         if entry_slot not in {"primary", "secondary", "third", "overlay"}:
             raise RuntimeError(
                 f"{work_id}: english override cue {cue!r} text {text!r}: unknown slot {entry_slot!r}"
             )
     active: dict[str, str] = {}
+    active_label: dict[str, str | None] = {}
     pending = [dict(override) for override in overrides if override["slot"] == slot]
     for speech in speeches:
         printed = speech["speaker_printed"]
@@ -3283,10 +3296,13 @@ def _apply_english_overrides(
                 and _pin_norm(speech["text"]).startswith(_pin_norm(override["from_text"]))
             ):
                 active[printed] = override["display"]
+                active_label[printed] = override.get("label")
                 pending.remove(override)
                 break
         if printed in active:
             speech["canonical"] = active[printed]
+            if active_label.get(printed):
+                speech["displayLabel"] = active_label[printed]
     for override in pending:
         raise RuntimeError(
             f"{work_id}: english override cue {override['cue']!r} text {override['from_text']!r}: no matching speech"
@@ -3823,7 +3839,7 @@ def parse_translation(
                 turn = {
                     "offset": offset,
                     "speaker": speech["canonical"] or printed,
-                    "display": printed,
+                    "display": speech.get("displayLabel") or printed,
                 }
                 if ej in residual_flags or ej in crossed:
                     # P3.3: this speech is shown here because it had to be
