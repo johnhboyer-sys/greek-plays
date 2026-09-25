@@ -47,11 +47,14 @@ english:
     id: way
     text_fixes:
       - find: "heap _—"
-        replace: "heap (Ant. 3)"
-        note: "sweep 2026-09-24 n=84: build/genie/euripidesway01euriuoft.txt:13014"
+        replace: "heap"
+        note: "sweep 2026-09-24 n=84: build/genie/euripidesway01euriuoft.txt:13014; John 2026-09-25: Way's strophe markers hidden, all of them (the restored (Ant. 3) is dropped)"
       - find: "my _ bridegroom’s"
         replace: "my bridegroom’s"
         note: "sweep 2026-09-24 n=83: build/genie/euripidesway01euriuoft.txt:12605-12607"
+      - find: "chalices shine (Sir. 2)"
+        replace: "chalices shine"
+        note: "John 2026-09-25: Way's strophe markers hidden, all of them; way-markers n=4: archive.org euripidesway01euriuoft page 423 (bench/way/trojan-women.txt:1046); OCR misread Str. as Sir."
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

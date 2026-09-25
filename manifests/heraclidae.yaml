@@ -30,6 +30,10 @@ english:
     covered: []
   secondary:
     id: way
+    text_fixes:
+      - find: "infamous thing ? 370\n\n(Epode)\n"
+        replace: "infamous thing ?\n\n"
+        note: "John 2026-09-25: Way's strophe markers hidden, all of them; also drops the page's margin line number 370"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

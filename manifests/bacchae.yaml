@@ -55,6 +55,9 @@ english:
       - find: "e mountains\nOne one to the eart"
         replace: "e mountains\nOne sinks to the eart"
         note: "sweep 2026-09-24 n=54: build/genie/euripidesway03euriuoft.txt:444-445"
+      - find: "gleam —(Sir.)"
+        replace: "gleam"
+        note: "John 2026-09-25: Way's strophe markers hidden, all of them; way-markers n=1: archive.org euripidesway03euriuoft page 75 (bench/way/bacchae.txt:1089); OCR misread Str. as Sir., and prints no dash before the marker"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

@@ -39,6 +39,9 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "rest me: (Epode)\n"
+        replace: "rest me:\n"
+        note: "John 2026-09-25: Way's strophe markers hidden, all of them"
       - find: "word ἢ δ᾿"
         replace: "word?"
         note: "sweep 2026-09-24 n=2,3,4: build/genie/euripidesway04euriuoft.txt:15078-15080"

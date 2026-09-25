@@ -33,6 +33,16 @@ english:
       - { greek: "81", by: "41" }
   secondary:
     id: way
+    text_fixes:
+      - find: "abiding, (Epode)\n"
+        replace: "abiding,\n"
+        note: "John 2026-09-25: Way's strophe markers hidden, all of them"
+      - find: "oft-chanted! (Ant. 2)"
+        replace: "oft-chanted!"
+        note: "John 2026-09-25: Way's strophe markers hidden, all of them"
+      - find: "heart-burning —(Sér.)"
+        replace: "heart-burning"
+        note: "John 2026-09-25: Way's strophe markers hidden, all of them; way-markers n=3: archive.org euripidesway04euriuoft page 71 (bench/way/ion.txt:1003); OCR misread Str. as Sér. and prints no dash before the marker"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text
