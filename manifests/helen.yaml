@@ -45,6 +45,9 @@ english:
       - find: "tarrying here! _\n"
         replace: "tarrying here!\n"
         note: "sweep 2026-09-24 n=33: build/genie/euripidesway01euriuoft.txt:17778-17779"
+      - find: "spoken. (Sér.)"
+        replace: "spoken. (Str.)"
+        note: "sweep 2026-09-24 way-markers n=2: archive.org euripidesway01euriuoft page 495 (bench/way/helen.txt:434); OCR misread Str. as Sér."
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

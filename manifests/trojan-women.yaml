@@ -52,6 +52,9 @@ english:
       - find: "my _ bridegroom’s"
         replace: "my bridegroom’s"
         note: "sweep 2026-09-24 n=83: build/genie/euripidesway01euriuoft.txt:12605-12607"
+      - find: "chalices shine (Sir. 2)"
+        replace: "chalices shine (Str. 2)"
+        note: "sweep 2026-09-24 way-markers n=4: archive.org euripidesway01euriuoft page 423 (bench/way/trojan-women.txt:1046); OCR misread Str. as Sir."
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

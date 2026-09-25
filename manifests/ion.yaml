@@ -33,6 +33,10 @@ english:
       - { greek: "81", by: "41" }
   secondary:
     id: way
+    text_fixes:
+      - find: "heart-burning —(Sér.)"
+        replace: "heart-burning (Str.)"
+        note: "sweep 2026-09-24 way-markers n=3: archive.org euripidesway04euriuoft page 71 (bench/way/ion.txt:1003); OCR misread Str. as Sér. and prints no dash before the marker"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text
