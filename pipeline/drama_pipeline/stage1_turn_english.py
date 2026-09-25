@@ -4830,6 +4830,7 @@ def run(
         write_json(english_path, chunks_as_overlay(english))
         write_json(alignment_path, _alignment_with_covered(spine, english))
         write_json(report_path, report)
+        write_json(out_dir / "third_footnotes.json", footnotes)
         return english_path, alignment_path, report_path
     if slot == "overlay":
         overlays_path = out_dir / "overlays.json"
@@ -4845,6 +4846,7 @@ def run(
         report_path = out_dir / f"overlay_{tid}_report.json"
         write_json(alignment_path, _alignment_with_covered(spine, english))
         write_json(report_path, report)
+        write_json(out_dir / f"overlay_{tid}_footnotes.json", footnotes)
         return overlays_path, alignment_path, report_path
     english_path = out_dir / "english_chunks.json"
     alignment_path = out_dir / "alignment.json"

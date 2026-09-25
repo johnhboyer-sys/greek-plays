@@ -51,6 +51,8 @@ def _stage1(manifest):
         stale.unlink(missing_ok=True)
     for stale in (BUILD_DIR / "stage1").glob("overlay_*_alignment.json"):
         stale.unlink(missing_ok=True)
+    for stale in (BUILD_DIR / "stage1").glob("overlay_*_footnotes.json"):
+        stale.unlink(missing_ok=True)
 
     # Section-scheme works can opt into a parallel Perseus Stephanus TEI pass.
     # Others remain Greek-only, with stale English scratch removed.
