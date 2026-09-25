@@ -3762,7 +3762,10 @@
   let copyBtnEl: HTMLButtonElement;
   let copyBtnFrame = 0;
 
-  function checkCopyBtn() {
+  function checkCopyBtn(e?: MouseEvent) {
+    // A press on the button itself ends in this mouseup too; clearing the
+    // button here would remove it before its click lands.
+    if ((e?.target as Element | null)?.closest?.('.copy-cite-btn')) return;
     if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
     copyBtnPos = null;
     copyBtnFrame = requestAnimationFrame(async () => {
