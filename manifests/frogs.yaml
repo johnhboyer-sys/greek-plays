@@ -109,6 +109,11 @@ english:
     # 430) is in Johnston's own HTML (sources/johnston/frogs.htm), so it stays.
     pins:
       - { greek: "414", english: "Hey, I’m always keen to enjoy myself.", run: 1 }
+    # Cuts sweep (2026-09-25): the 383 row opened at "Move on, now" (377-381,
+    # the Saviour goddess and Thorycion), six lines before its Greek. 383
+    # opens mid-sentence on Demeter (Δήμητρα θεάν), and so does its English.
+    cuts:
+      - { greek: "383", english: "for goddess Demeter, our harvest queen" }
     # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
     license:
       status: licensed
