@@ -430,3 +430,38 @@ def test_a_repeated_seat_line_fix_marks_the_base_ref(tmp_path, monkeypatch):
     assert marks == {"1", "1188"}
     assert "1188.2" not in starts and "1188.2" not in marks
     assert "188" not in starts and "188" not in marks
+
+
+def test_a_declared_cut_opens_a_continuation_where_the_manifest_says():
+    # Peace 1167 in Hickie (S11 sweep, 2026-09-25): Hickie's prose runs the
+    # Chorus's 1127-1190 as one paragraph, and the Greek's 1167 opens
+    # mid-sentence ("and then, when it is ripe, / I eat it"), so no
+    # sentence start stands at the boundary and the proportional cut took
+    # the next one, twelve lines late. A manifest `cuts` entry names the
+    # words the continuation opens with.
+    import pytest
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    segs = [
+        {"id": "1:1127", "column": "1127", "speakers": [{"line": 1}],
+         "lines": [{"ref": str(n)} for n in range(1127, 1137)]},
+        {"id": "1:1167", "column": "1167",
+         "lines": [{"ref": str(n)} for n in range(1167, 1173)]},
+    ]
+    text = ("One two three. Four five six, and then, when it is ripe, "
+            "I eat it and taste it. But at home they do bad things. They run away.")
+    chunk = {"id": "1:1127", "column": "1127", "text": text, "turns": [],
+             "notes": [], "markers": []}
+    plain = _spread_long_speeches([chunk], segs)
+    assert plain[1]["text"].startswith("But at home")
+    out = _spread_long_speeches([chunk], segs, declared_cuts={"1167": "I eat it"})
+    assert [(c["id"], c["text"]) for c in out] == [
+        ("1:1127", "One two three. Four five six, and then, when it is ripe,"),
+        ("1:1167", "I eat it and taste it. But at home they do bad things. They run away."),
+    ]
+    # A cut whose words are not in the block, or whose line opens no
+    # continuation of a spread block, is stale and fails loud.
+    with pytest.raises(ValueError, match="cut"):
+        _spread_long_speeches([chunk], segs, declared_cuts={"1167": "I drink it"})
+    with pytest.raises(ValueError, match="cut"):
+        _spread_long_speeches([chunk], segs, declared_cuts={"1168": "I eat it"})

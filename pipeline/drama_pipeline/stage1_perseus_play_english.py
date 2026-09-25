@@ -2319,7 +2319,7 @@ def _apply_line_fixes(
     work_id: str,
     index: _SpeechIndex,
     repeated_refs: dict | None,
-) -> None:
+) -> set[str]:
     """C16 (iphigenia-in-tauris finding 5, 2026-09-17): rewrite a TEI line
     number the translation mistypes, before anything reads it.
 
@@ -2341,13 +2341,18 @@ def _apply_line_fixes(
     of the same shape stays a non-numeric anchor.  A value whose ref is not
     declared, or which asks for a printing the spine does not have, raises
     naming ``line_fixes`` and the value — a stale fix must not drop the
-    sentence."""
+    sentence.
+
+    Returns the anchors a fix set, less any the translation also prints
+    unfixed: the placement of those lines is the manifest's own reading of
+    the Greek, which no speaker heuristic may move (Seven 996-1004)."""
     if not line_fixes:
-        return
+        return set()
     if not isinstance(line_fixes, dict):
         raise ValueError(f"{work_id}: english line_fixes must be a map of TEI n -> n")
     wanted = {str(k): str(v) for k, v in line_fixes.items()}
     hits: dict[str, int] = {key: 0 for key in wanted}
+    unfixed: set[str] = set()
     for line in list(translation.iter("{*}l")):
         raw = line.get("n")
         if raw in wanted:
@@ -2355,6 +2360,8 @@ def _apply_line_fixes(
             line.set("n", wanted[raw])
             if _repeated_seat(wanted[raw]) is not None:
                 line.set(_LINE_FIX_SEAT, "1")
+        elif raw:
+            unfixed.add(raw)
     wrong = {key: count for key, count in hits.items() if count != 1}
     if wrong:
         raise ValueError(
@@ -2383,6 +2390,7 @@ def _apply_line_fixes(
                 f"{work_id}: english line_fixes value {raw!r} names printing "
                 f"{k} of ref {ref!r}, but only {have} printing(s) exist"
             )
+    return set(wanted.values()) - unfixed
 
 
 def parse_translation(
@@ -2408,7 +2416,9 @@ def parse_translation(
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
-    _apply_line_fixes(translation, line_fixes, work_id, index, repeated_refs)
+    fixed_anchors = _apply_line_fixes(
+        translation, line_fixes, work_id, index, repeated_refs
+    )
     chunks_by_id: dict[str, dict] = {}
     footnotes: dict[str, str] = {}
     snaps: list[dict] = []
@@ -2675,6 +2685,8 @@ def parse_translation(
                     {
                         "n": _anchor_base(resolved_anchor),
                         "raw_n": _anchor_base(raw_source) if raw_source else None,
+                        "line_fixed": raw_piece is not None
+                        and raw_piece in fixed_anchors,
                         "anchor": resolved_anchor,
                         "own_tick": piece_n is not None,
                         "text": piece,
@@ -2711,6 +2723,11 @@ def parse_translation(
         # Repair, antilabe reassignment, and the head/tail redirects all
         # move a piece by its integer, which would collapse 810.2 onto 810.
         explicit_seat = _repeated_seat(job.get("anchor") or "") is not None
+        # A line a line_fixes entry seats stays there too: the speaker
+        # repair and the antilabe walk would move it by speaker, and the fix
+        # already read the Greek (Seven 996-1004, where Smyth gives each line
+        # to the other sister).
+        fixed_seat = explicit_seat or job.get("line_fixed", False)
         if n is not None:
             anchor_count += 1
         if pos in repeat_positions:
@@ -2719,7 +2736,7 @@ def parse_translation(
             # contributes nothing new -- skip it exactly as a stage
             # direction is skipped, rather than write the sentence twice.
             continue
-        if pos in antilabe_overrides and not explicit_seat:
+        if pos in antilabe_overrides and not fixed_seat:
             # C6: position, not number, decided this piece's home.
             segment, printed_line = antilabe_overrides[pos]
             commit_job(job, segment, printed_line)
@@ -2828,7 +2845,7 @@ def parse_translation(
             work_id=work_id,
             printed=job["printed"],
             claimed=claimed,
-            repairable=pos in repairable_anchors and not explicit_seat,
+            repairable=pos in repairable_anchors and not fixed_seat,
         )
         if result is None:
             seat = _unprinted_ref_seat(n, job["canonical"], index)

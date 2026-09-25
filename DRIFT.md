@@ -857,3 +857,8 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `pipeline/drama_pipeline/stage1_turn_english.py` — 2026-09-25: bracketed cue line fixes keep their speaker matching and pins while marking the affected turn and chunk `cueAdded`; plain cues keep their prior output.
 - `shared/components/Reader.svelte` — 2026-09-25: added turn-text cues reach the turn stack from chunk data and print as bracketed speaker lead-ins in each play-line view.
 - `shared/styles/global.css` — 2026-09-25: editorial speaker lead-ins use the muted text colour in both themes, including when speaker colours are on.
+- `pipeline/drama_pipeline/stage1_perseus_play_english.py` — 2026-09-25: a line a `line_fixes` entry seats is exempt from the speaker repair and the antilabe walk (Seven 996-1004, Smyth).
+- `pipeline/drama_pipeline/stage1_turn_english.py` — 2026-09-25: `english.<slot>.cuts` names the words a spread continuation opens with; stale cuts raise (Peace 1167, Hickie).
+- `pipeline/tests/test_stage1_perseus_play_english.py` — 2026-09-25: tests for the line-fixed seat exemption.
+- `pipeline/tests/test_play_segments.py` — 2026-09-25: test for a declared spread cut.
+- `manifests/peace.yaml` — 2026-09-25: Hickie `cuts` entry at 1167.
