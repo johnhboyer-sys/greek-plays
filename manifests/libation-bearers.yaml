@@ -83,6 +83,11 @@ english:
       pins:
         # ἄκου', ὑπὲρ σοῦ τοιάδ' ἔστ' ὀδύρματα (508): Johnston gives the lines to Orestes where Murray has Electra, so "Hear us!" opens 510 beside the Chorus.
         - { greek: "508", english: "Hear us!", run: 1 }
+        # Drift sweep 2 (2026-09-25): Johnston gives the corks simile (505-507)
+        # to Electra where Murray runs Orestes' speech on from 503, so it sat
+        # beside 508-509 with "Hear us!". Pinned, it follows 503-504 inside
+        # Murray's 503-507.
+        - { greek: "503", english: "For to a man that’s dead his children", run: 1 }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed

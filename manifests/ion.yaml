@@ -49,6 +49,9 @@ english:
       - find: "Should snatch us from men’s sight.\na.\nfs\nO hapless queen"
         replace: "Should snatch us from men’s sight.\nO hapless queen"
         note: "way-cleanup r2 2026-09-25 (round-1 check item 48 wrong): junk lines \"a.\" and \"fs\" dropped entirely rather than merged into the sentence; build/genie/euripidesway04euriuoft.txt:4050-4085 (pages 117-118) prints nothing between \"men’s sight.\" and \"O hapless queen\""
+      - find: "if ill befall,\n\n‘Tis sweet to gaze"
+        replace: "if ill befall,\n‘Tis sweet to gaze"
+        note: "drift sweep 2 2026-09-25: the blank line is the page break before page 74 (build/genie/euripidesway04euriuoft.txt:2515-2518); Way prints 731-732 as one sentence, and the page's running head ION is dropped by line_fixes below"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text
@@ -56,6 +59,14 @@ english:
     source: bench/way/ion.txt
     play: ION
     footnotes: true
+    # Drift sweep 2 (2026-09-25): the "ION" that opened 732-734 ("'Tis sweet
+    # to gaze in eyes of sympathy") is the running head of page 74 of
+    # euripidesway04euriuoft, not a cue: Way prints the lines inside
+    # Creusa's speech, across the page break (the text_fixes entry above
+    # closes the gap the break left). Without it they stay hers, beside
+    # 725-734.
+    line_fixes:
+      1060: "‘Tis sweet to gaze in eyes of sympathy."
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
