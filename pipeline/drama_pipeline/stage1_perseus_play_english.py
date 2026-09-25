@@ -838,7 +838,8 @@ def _iter_speech_slices(
         if tag == "note":
             marker = text_parser.consume_note(node)
             if marker:
-                current.add(slice_n(current_n), marker)
+                # The marker belongs to the line it sits in, fixed or not.
+                current.add(slice_n(current_n), marker, in_fixed)
             if node.tail:
                 handle_text(node.tail, current_n)
             return

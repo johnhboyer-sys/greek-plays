@@ -4605,3 +4605,29 @@ def test_a_line_fix_onto_a_number_the_translation_also_prints_is_exempt(
     assert by_id["1:997"] == "And more also for me."
     assert by_id["1:998"] == "Ah I pity your suffering."
     assert not [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]
+
+
+def test_a_note_inside_a_fixed_line_keeps_the_fixed_mark(tmp_path: Path):
+    """Codex review of ab7cdc4: a note marker inside a line-fixed <l> was
+    added without the fixed mark, so the mark-aware merge split the line
+    into separate pieces ("Above all [^1.1] for me," with extra ticks) and
+    the marker's piece lost its seat exemption."""
+    fixes = {
+        "1000": "994", "1001": "994", "1002": "995", "1003": "996",
+        "1004": "997", "1005": "998", "1006": "1000", "1007": "1001",
+    }
+    tei = _KOMMOS_TEI.replace(
+        '<l n="1003">Above all for me,</l>',
+        '<l n="1003">Above all<note n="1" resp="Smyth">A note.</note> for me,</l>',
+    )
+    english, _f, report = _parse(
+        tmp_path,
+        tei,
+        _kommos_spine(),
+        aliases={"Antigone": "Antigone", "Ismene": "Ismene"},
+        sigla={"Αν.": "Antigone", "Ισ.": "Ismene"},
+        line_fixes=fixes,
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert by_id["1:996"] == "Above all[^1.1] for me,"
+    assert not [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]
