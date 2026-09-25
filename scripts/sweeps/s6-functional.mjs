@@ -92,6 +92,8 @@ export async function run(options = parseArgs(process.argv.slice(2))) {
             await first.scrollIntoViewIfNeeded();
             await first.evaluate(el => { const range=document.createRange(); range.selectNodeContents(el); const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range); el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true})); });
             const button = page.locator('.copy-cite-btn');
+            // The reader places the button one animation frame after mouseup.
+            await button.first().waitFor({ state: 'visible', timeout: 2000 }).catch(() => {});
             if (!await button.count()) add('cite-copy','skip','copy citation control did not appear');
             else {
               await button.click(); const clip = await page.evaluate(() => navigator.clipboard.readText());
