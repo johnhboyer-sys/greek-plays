@@ -124,6 +124,9 @@ _REPEATED_SEAT = re.compile(r"^(\d+)\.(\d+)$")
 # On the in-memory TEI element only. lxml hands back a fresh Python wrapper
 # on each walk, so the element's own id cannot carry this mark.
 _LINE_FIX_SEAT = "{http://greek-plays.local/line-fix}seat"
+# Every ``<l>`` a line_fixes entry rewrote, whatever number it now carries:
+# the translation may print the same number unfixed elsewhere (Seven 971).
+_LINE_FIXED = "{http://greek-plays.local/line-fix}fixed"
 _SKIP_TAGS = frozenset({"gap", "speaker"})
 
 
@@ -664,19 +667,24 @@ def _has_para_milestone(speech) -> bool:
 
 
 class _Slice:
-    __slots__ = ("pieces",)
+    __slots__ = ("pieces", "fixed")
 
     def __init__(self) -> None:
         self.pieces: list[tuple[str | None, str]] = []
+        # Parallel to ``pieces``: the piece's text came from an ``<l>`` a
+        # line_fixes entry rewrote.
+        self.fixed: list[bool] = []
 
-    def add(self, n: str | None, text: str) -> None:
+    def add(self, n: str | None, text: str, fixed: bool = False) -> None:
         if not text:
             return
-        if self.pieces and self.pieces[-1][0] == n:
+        fixed = fixed and n is not None
+        if self.pieces and self.pieces[-1][0] == n and self.fixed[-1] == fixed:
             prev_n, prev = self.pieces[-1]
             self.pieces[-1] = (prev_n, prev + text)
             return
         self.pieces.append((n, text))
+        self.fixed.append(fixed)
 
     @property
     def has_content(self) -> bool:
@@ -718,6 +726,7 @@ def _iter_speech_slices(
     current = _Slice()
     line_n_live = True
     seen_text = False
+    in_fixed = False
 
     def flush() -> None:
         nonlocal current, line_n_live
@@ -737,7 +746,7 @@ def _iter_speech_slices(
         if raw.strip():
             seen_text = True
         if not split:
-            current.add(n, raw)
+            current.add(n, raw, in_fixed)
             return
         parts = _EM_DASH_SPLIT.split(raw)
         for i, part in enumerate(parts):
@@ -745,10 +754,10 @@ def _iter_speech_slices(
                 continue
             if i > 0 and current.has_content:
                 flush()
-            current.add(slice_n(n), part)
+            current.add(slice_n(n), part, in_fixed)
 
     def walk(node, current_n: str | None = None) -> None:
-        nonlocal line_n_live
+        nonlocal line_n_live, in_fixed
         tag = local_name(node)
         if tag is None:
             # Comment and processing-instruction nodes have a non-string
@@ -879,10 +888,12 @@ def _iter_speech_slices(
                     handle_text(node.tail, current_n)
                 return
             line_n_live = True
+            outer_fixed, in_fixed = in_fixed, node.get(_LINE_FIXED) == "1"
             if node.text:
                 handle_text(node.text, raw_n)
             for child in node:
                 walk(child, raw_n)
+            in_fixed = outer_fixed
             if node.tail:
                 handle_text(node.tail, current_n)
             return
@@ -2319,7 +2330,7 @@ def _apply_line_fixes(
     work_id: str,
     index: _SpeechIndex,
     repeated_refs: dict | None,
-) -> set[str]:
+) -> None:
     """C16 (iphigenia-in-tauris finding 5, 2026-09-17): rewrite a TEI line
     number the translation mistypes, before anything reads it.
 
@@ -2343,25 +2354,23 @@ def _apply_line_fixes(
     naming ``line_fixes`` and the value — a stale fix must not drop the
     sentence.
 
-    Returns the anchors a fix set, less any the translation also prints
-    unfixed: the placement of those lines is the manifest's own reading of
-    the Greek, which no speaker heuristic may move (Seven 996-1004)."""
+    Each rewritten element is marked ``_LINE_FIXED``: the placement of that
+    line is the manifest's own reading of the Greek, which no speaker
+    heuristic may move (Seven 996-1004)."""
     if not line_fixes:
-        return set()
+        return
     if not isinstance(line_fixes, dict):
         raise ValueError(f"{work_id}: english line_fixes must be a map of TEI n -> n")
     wanted = {str(k): str(v) for k, v in line_fixes.items()}
     hits: dict[str, int] = {key: 0 for key in wanted}
-    unfixed: set[str] = set()
     for line in list(translation.iter("{*}l")):
         raw = line.get("n")
         if raw in wanted:
             hits[raw] += 1
             line.set("n", wanted[raw])
+            line.set(_LINE_FIXED, "1")
             if _repeated_seat(wanted[raw]) is not None:
                 line.set(_LINE_FIX_SEAT, "1")
-        elif raw:
-            unfixed.add(raw)
     wrong = {key: count for key, count in hits.items() if count != 1}
     if wrong:
         raise ValueError(
@@ -2390,7 +2399,6 @@ def _apply_line_fixes(
                 f"{work_id}: english line_fixes value {raw!r} names printing "
                 f"{k} of ref {ref!r}, but only {have} printing(s) exist"
             )
-    return set(wanted.values()) - unfixed
 
 
 def parse_translation(
@@ -2416,9 +2424,7 @@ def parse_translation(
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
-    fixed_anchors = _apply_line_fixes(
-        translation, line_fixes, work_id, index, repeated_refs
-    )
+    _apply_line_fixes(translation, line_fixes, work_id, index, repeated_refs)
     chunks_by_id: dict[str, dict] = {}
     footnotes: dict[str, str] = {}
     snaps: list[dict] = []
@@ -2685,8 +2691,7 @@ def parse_translation(
                     {
                         "n": _anchor_base(resolved_anchor),
                         "raw_n": _anchor_base(raw_source) if raw_source else None,
-                        "line_fixed": raw_piece is not None
-                        and raw_piece in fixed_anchors,
+                        "line_fixed": sl.fixed[piece_index],
                         "anchor": resolved_anchor,
                         "own_tick": piece_n is not None,
                         "text": piece,

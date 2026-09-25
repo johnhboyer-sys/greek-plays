@@ -4650,9 +4650,35 @@ def _spread_long_speeches(
             # review of 05e6855: Suppliants-eur 600-619).
             dashes_left = sum(1 for kd in kinds[i - 1:] if kd == "dash")
             turns_left = sum(1 for p in turn_starts if p > prev)
+            # A declared cut is searched first, whatever the automatic pools
+            # hold: a block with no sentence start left still has the words
+            # (Codex review of 5c9b7c4, finding 2).
+            opening = str(((cont.get("lines") or [{}])[0]).get("ref") or "")
+            if opening in declared:
+                words = str(declared[opening]).split()
+                # A real separator between words, a footnote mark alone is
+                # not one: "Ieat" is not "I eat" (finding 3).
+                sep = r"(?:\[\^[^\]]*\])*\W(?:\[\^[^\]]*\]|\W)*"
+                inner = sep.join(re.escape(w) for w in words)
+                hits = [
+                    m.start()
+                    for m in re.finditer(rf"(?<!\w){inner}(?!\w)", text)
+                    if m.start() > prev
+                ]
+                if len(hits) != 1:
+                    raise ValueError(
+                        f"cut {opening}: {declared[opening]!r} matches {len(hits)} "
+                        "places in the block (need exactly 1)"
+                    )
+                used_cuts.add(opening)
+                cuts.append((cont, hits[0]))
+                prev = hits[0]
+                continue
             cand = [p for p in starts if p > prev]
             if not cand:
-                break
+                # Nothing automatic remains for any later segment either,
+                # but a later declared cut may still stand.
+                continue
             best = min(cand, key=lambda p: abs(where(p) - aim(firsts[i])))
             # A7: where the block is printed in paragraphs and the primary
             # column has words for this segment, the paragraph the primary
@@ -4705,22 +4731,6 @@ def _spread_long_speeches(
                             key=lambda p: abs(where(p) - firsts[i]), default=None)
                 if tbest is not None and abs(where(tbest) - firsts[i]) <= reach:
                     best = tbest
-            opening = str(((cont.get("lines") or [{}])[0]).get("ref") or "")
-            if opening in declared:
-                words = str(declared[opening]).split()
-                inner = r"(?:\[\^[^\]]*\]|\W)*".join(re.escape(w) for w in words)
-                hits = [
-                    m.start()
-                    for m in re.finditer(rf"(?<![\w]){inner}(?![\w])", text)
-                    if m.start() > prev
-                ]
-                if len(hits) != 1:
-                    raise ValueError(
-                        f"cut {opening}: {declared[opening]!r} matches {len(hits)} "
-                        "places in the block (need exactly 1)"
-                    )
-                best = hits[0]
-                used_cuts.add(opening)
             cuts.append((cont, best))
             prev = best
         bounds = [0, *[p for _, p in cuts], len(text)]

@@ -860,5 +860,5 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `pipeline/drama_pipeline/stage1_perseus_play_english.py` — 2026-09-25: a line a `line_fixes` entry seats is exempt from the speaker repair and the antilabe walk (Seven 996-1004, Smyth).
 - `pipeline/drama_pipeline/stage1_turn_english.py` — 2026-09-25: `english.<slot>.cuts` names the words a spread continuation opens with; stale cuts raise (Peace 1167, Hickie).
 - `pipeline/tests/test_stage1_perseus_play_english.py` — 2026-09-25: tests for the line-fixed seat exemption.
-- `pipeline/tests/test_play_segments.py` — 2026-09-25: test for a declared spread cut.
+- `pipeline/tests/test_play_segments.py` — 2026-09-25: tests for a declared spread cut.
 - `manifests/peace.yaml` — 2026-09-25: Hickie `cuts` entry at 1167.

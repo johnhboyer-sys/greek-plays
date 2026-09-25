@@ -465,3 +465,52 @@ def test_a_declared_cut_opens_a_continuation_where_the_manifest_says():
         _spread_long_speeches([chunk], segs, declared_cuts={"1167": "I drink it"})
     with pytest.raises(ValueError, match="cut"):
         _spread_long_speeches([chunk], segs, declared_cuts={"1168": "I eat it"})
+
+
+def _peace_cut_fixture(text: str):
+    segs = [
+        {"id": "1:1127", "column": "1127", "speakers": [{"line": 1}],
+         "lines": [{"ref": str(n)} for n in range(1127, 1137)]},
+        {"id": "1:1167", "column": "1167",
+         "lines": [{"ref": str(n)} for n in range(1167, 1173)]},
+    ]
+    chunk = {"id": "1:1127", "column": "1127", "text": text, "turns": [],
+             "notes": [], "markers": []}
+    return chunk, segs
+
+
+def test_a_declared_cut_is_searched_when_no_automatic_start_remains():
+    # Codex review of 5c9b7c4, finding 2: a block with no sentence start
+    # after its head left the automatic pool empty, and the loop broke out
+    # before the declared words were searched, so a good cut raised as stale.
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    chunk, segs = _peace_cut_fixture("First portion, I eat it and taste it")
+    out = _spread_long_speeches([chunk], segs, declared_cuts={"1167": "I eat it"})
+    assert [(c["id"], c["text"]) for c in out] == [
+        ("1:1127", "First portion,"),
+        ("1:1167", "I eat it and taste it"),
+    ]
+    # The same holds for a declared cut behind a segment the automatic pool
+    # cannot place.
+    segs = [segs[0], {"id": "1:1150", "column": "1150",
+                      "lines": [{"ref": str(n)} for n in range(1150, 1155)]}, segs[1]]
+    out = _spread_long_speeches([chunk], segs, declared_cuts={"1167": "I eat it"})
+    assert [(c["id"], c["text"]) for c in out] == [
+        ("1:1127", "First portion,"),
+        ("1:1167", "I eat it and taste it"),
+    ]
+
+
+def test_a_declared_cut_needs_a_real_separator_between_its_words():
+    # Codex review of 5c9b7c4, finding 3: the words were joined by `\W*`, so
+    # "I eat it" matched "Ieat it".
+    import pytest
+    from drama_pipeline.stage1_turn_english import _spread_long_speeches
+
+    chunk, segs = _peace_cut_fixture("One two three. Four, Ieat it. Five six. Seven eight.")
+    with pytest.raises(ValueError, match="matches 0 places"):
+        _spread_long_speeches([chunk], segs, declared_cuts={"1167": "I eat it"})
+    chunk, segs = _peace_cut_fixture("One two, Ieat it. Three, I eat it. Four five.")
+    out = _spread_long_speeches([chunk], segs, declared_cuts={"1167": "I eat it"})
+    assert out[1]["text"] == "I eat it. Four five."

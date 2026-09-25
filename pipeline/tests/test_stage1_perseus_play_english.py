@@ -4570,3 +4570,38 @@ def test_an_unfixed_run_of_speaker_mismatches_is_still_repaired(tmp_path: Path):
         sigla={"Αν.": "Antigone", "Ισ.": "Ismene"},
     )
     assert [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]
+
+
+def test_a_line_fix_onto_a_number_the_translation_also_prints_is_exempt(
+    tmp_path: Path,
+):
+    """Codex review of 5c9b7c4, finding 1: the exemption was inferred from
+    the number a fix produced, less every number the translation prints
+    unfixed.  Seven prints ``<l n="971">`` unfixed while the manifest maps
+    ``972: "971"``, so the fixed line lost its exemption.  The exemption now
+    follows the ``<l>`` element a fix rewrote: here Ismene's line fixed onto
+    996 shares the number with Antigone's unfixed 996, and the speaker repair
+    must still leave it on 996."""
+    fixes = {
+        "1000": "994", "1001": "994", "1002": "995", "1003": "996",
+        "1004": "997", "1005": "998", "1006": "1000", "1007": "1001",
+    }
+    tei = _KOMMOS_TEI.replace(
+        '<sp><speaker>Ismene</speaker><l n="1003">',
+        '<sp><speaker>Antigone</speaker><l n="996">Unfixed.</l></sp>\n'
+        '    <sp><speaker>Ismene</speaker><l n="1003">',
+    )
+    english, _f, report = _parse(
+        tmp_path,
+        tei,
+        _kommos_spine(),
+        aliases={"Antigone": "Antigone", "Ismene": "Ismene"},
+        sigla={"Αν.": "Antigone", "Ισ.": "Ismene"},
+        line_fixes=fixes,
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert by_id["1:995"] == "For home and land."
+    assert by_id["1:996"] == "Unfixed. Above all for me,"
+    assert by_id["1:997"] == "And more also for me."
+    assert by_id["1:998"] == "Ah I pity your suffering."
+    assert not [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]
