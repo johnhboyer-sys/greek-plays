@@ -842,3 +842,4 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/components/Search.svelte` — 2026-09-24: lemma labels show the resolved printed headword.
 - `shared/lib/search.ts` — 2026-09-24: lemma resolution carries printed headwords beside folded keys.
 - `shared/lib/copy-button.ts` — 2026-09-24: clamp the copy button's visible box below the header and within the viewport.
+- `pipeline/drama_pipeline/hickie_clean.py`, Hickie benches, tests, `manifests/acharnians.yaml`, `manifests/birds.yaml`, and `manifests/frogs.yaml` — 2026-09-24: moved page-foot note tails and credited quotations out of speeches, split roster-backed title-case cues, pinned two Acharnians turns, and removed three obsolete Hickie note text fixes.

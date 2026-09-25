@@ -881,6 +881,31 @@ class _Writer:
 
 _FN_DEF = re.compile(r"^\[(\d{1,3})\]\s*(.*)$")
 _EMBEDDED_FN = re.compile(r"\[(\d{1,3})\]")
+_UNNUMBERED_NOTE = re.compile(
+    r"\b(?:Felton|Droysen|Fritzsche|Bergk|Brunck|Dindorf|Porson|Schäfer|"
+    r"Blomf\.|Scholiast)\b.*\b(?:cf\.|vs\.|p\.|See note|Comp\.)",
+    re.I,
+)
+_BARE_SCHOLARLY_CITATION = re.compile(
+    r"^(?:See (?:also )?(?:note|vs\.)|Cf\.|Comp\.|The allusion\b|"
+    r"\d+(?:[.;,]|[—-]\d+)|"
+    r"[Α-Ωἀ-῾].*\b(?:Cf\.|See note)|[A-Z][a-zæœ]+[.,]?\s+\d+.*\bvs\.)",
+    re.I,
+)
+_GREEK_QUOTE_COMMENT = re.compile(r'^["“]\$.*\b(?:Euripides|Æschylus)\b')
+_INLINE_ATTRIBUTED_NOTE = re.compile(
+    r"[\"”]\s*(?:_)?(?:Droysen|Felton|Brunck|Smith|Frere)\.(?:_)?\s+"
+)
+_SCHOLARLY_TAIL = re.compile(
+    r"\b(?:Cf\.|See\b|According to|Scholiast|Droysen|Frere|Fritzsche|"
+    r"Athenæus|Shakspeare|allusion|sophist|pun|Plut\.|Acharn\.|Pax,|"
+    r"Euripides|Æschylus)\b|[Α-ω]"
+)
+_TRANSLATOR_CREDIT = re.compile(
+    r"\b(?:Droysen|Felton|Frere|Walsh|Carey|Smith|Mitchell|Süvern|Brunck|"
+    r"Fritzsche|Enger|Porson|Dindorf)\.?[\s\"'”’]*$"
+)
+_PRINTED_SHORT_CUE = re.compile(r"^[A-Z][a-z]{1,12}\.(?:\s|$)")
 
 
 def _split_definitions(text: str) -> list[tuple[str, str]] | None:
@@ -1065,7 +1090,7 @@ def _abbrev_cue_pattern(abbrev: dict[str, str]) -> re.Pattern[str]:
 
 
 def _split_abbrev_cues(
-    text: str, abbrev: dict[str, str]
+    text: str, abbrev: dict[str, str], titlecase_names: set[str] | None = None,
 ) -> list[tuple[str | None, str]]:
     """``[(cue_or_None, piece), ...]``: ``text`` cut at every embedded Bohn
     abbreviated cue that opens a new sentence, ``cue`` resolved to the full
@@ -1089,6 +1114,22 @@ def _split_abbrev_cues(
         if key not in abbrev:
             continue
         cuts.append((start, m.end(), abbrev[key]))
+    # Genie sometimes keeps a full printed name in title case inside a
+    # paragraph (Birds: "Epops." and "Iris."). Admit only names supplied by
+    # this play's cue map, at the same sentence boundary as short cues.
+    if titlecase_names:
+        names = sorted(titlecase_names, key=len, reverse=True)
+        title_only = re.compile(r"(?<!\w)(?:" + "|".join(map(re.escape, names)) + r")\.(?=\s+\S)")
+        forms = names + ([name.upper() for name in names] if title_only.search(text) else [])
+        title_pattern = re.compile(r"(?<!\w)(?P<name>" + "|".join(map(re.escape, forms)) + r")\.(?=\s+\S)")
+        for m in title_pattern.finditer(text):
+            start = m.start()
+            if any(a <= start < b for a, b, _cue in cuts):
+                continue
+            if start > lead_end and not _SENTENCE_END.search(text[:start].rstrip()[-1:]):
+                continue
+            cuts.append((start, m.end(), m.group("name").upper()))
+    cuts.sort()
     if not cuts:
         return [(None, text)]
     pieces: list[tuple[str | None, str]] = []
@@ -1127,12 +1168,17 @@ def _next_footnote_shaped(paras: list[gt.Paragraph], i: int, end: int) -> bool:
             or _SIGNATURE_RE.match(nxt)
         ):
             continue
+        if gt.is_greek_paragraph(nxt):
+            continue
+        if nxt.lstrip().startswith(('"', '“')) and _TRANSLATOR_CREDIT.search(nxt):
+            continue
         return _split_definitions(nxt) is not None or bool(_STAR_RE.match(nxt))
     return False
 
 
 def _collect_footnotes(
-    paras: list[gt.Paragraph], start: int, end: int, word: str
+    paras: list[gt.Paragraph], start: int, end: int, word: str,
+    moved: list[str] | None = None,
 ) -> tuple[dict[int, dict[str, str]], set[int], list[str]]:
     """Page-local footnote definitions and the set of paragraph indices they
     (and their continuations) consume. Once a page prints its first
@@ -1181,10 +1227,67 @@ def _collect_footnotes(
     interrupted_key: tuple[int, str] | None = None
     interrupted_at_page: int | None = None
     prev_page: int | None = None
+    # A translated quotation can occupy several OCR paragraphs before the
+    # first numbered note on its page. Its named credit identifies the end;
+    # the opening quotation mark identifies the start (Birds p. 424).
+    credited: dict[int, list[int]] = {}
+    by_page: dict[int, list[int]] = {}
+    for j in range(start, end):
+        by_page.setdefault(paras[j].page, []).append(j)
+    for pg, ids in by_page.items():
+        first_def = next((j for j in ids if _split_definitions(_normalize(paras[j].text))), None)
+        if first_def is None:
+            continue
+        for pos, j in enumerate(ids):
+            line = _normalize(paras[j].text)
+            if not _TRANSLATOR_CREDIT.search(line):
+                continue
+            block = [j]
+            if not line.lstrip().startswith(('"', '“')):
+                prior_block: list[int] = []
+                found_quote_start = False
+                for k in reversed(ids[max(0, pos - 6):pos]):
+                    prior = _normalize(paras[k].text)
+                    if (_split_definitions(prior)
+                            or _is_running_head_line(prior, word)
+                            or len(prior) > 120 or _EMBEDDED_FN.search(prior)
+                            or (j < first_def and (_looks_like_cue(prior)
+                                                       or _PRINTED_SHORT_CUE.match(prior)))):
+                        break
+                    prior_block.insert(0, k)
+                    if prior.lstrip().startswith(('"', '“')):
+                        block = prior_block + block
+                        found_quote_start = True
+                        break
+                # A page break can leave the opening quote on the previous
+                # page; the short verse lines still form the same credited
+                # note (Frogs p. 252).
+                if not found_quote_start and j < first_def:
+                    block = prior_block + block
+            first_content = next((k for k in ids if not _is_furniture(_normalize(paras[k].text), word)), ids[0])
+            if j == first_content and j < first_def:
+                continue  # the older page-opening tail rule owns this case
+            if j < first_def or any(_looks_like_cue(_normalize(paras[k].text)) for k in block):
+                credited[j] = block
     for i in range(start, end):
         p = paras[i]
         text = _normalize(p.text)
         if not text:
+            continue
+        if i in consumed:
+            continue
+        if i in credited:
+            rescued: list[str] = []
+            for j in credited[i]:
+                if j in consumed:
+                    continue
+                quoted = _normalize(paras[j].text)
+                consumed.add(j)
+                if moved is not None and not gt.is_greek_paragraph(quoted) and not _is_apparatus_paragraph(quoted):
+                    rescued.append(quoted)
+            if moved is not None and rescued:
+                moved.append(" ".join(rescued))
+            log.append(f"note-credited\tpage {p.page}: {text[:60]!r}")
             continue
         if (
             _DIVIDER_RE.match(text)
@@ -1260,7 +1363,9 @@ def _collect_footnotes(
                     continue
             interrupted_key = None
         if footnote_mode and (
-            _is_running_head_line(text, word) or _looks_like_cue(text) or _BARE_RANGE_RE.match(text)
+            _is_running_head_line(text, word)
+            or (_looks_like_cue(text) and not _TRANSLATOR_CREDIT.search(text))
+            or _BARE_RANGE_RE.match(text)
         ):
             # Real body content resumes -- the ONLY thing (besides a fresh
             # definition, checked below) allowed to end a run of footnote
@@ -1303,6 +1408,58 @@ def _collect_footnotes(
                     current_key = (p.page, num)
             consumed.add(i)
             continue
+        # The first definition on a page can follow an unnumbered piece of
+        # the preceding page's note. The page has already printed its body,
+        # so the next definition is a layout check on this paragraph. The
+        # earlier page's last note must still be open; otherwise a lowercase
+        # continuation here can be a real speech.
+        if not footnote_mode and _next_footnote_shaped(paras, i, end):
+            previous = page_notes.get(p.page - 1, {})
+            if previous:
+                num = next(reversed(previous))
+                head = previous[num]
+                scholarly = bool(_SCHOLARLY_TAIL.search(text))
+                short_join = (len(text) < 160 and bool(
+                    re.search(r"(?:\b(?:the|of|a|an|and)|[,;:—])\s*$", head)
+                ))
+                if (_NOTE_CLOSED_RE.search(head.rstrip()) is None
+                        and _EMBEDDED_FN.search(text) is None
+                        and not _looks_like_cue(text)
+                        and (scholarly or short_join or (text[0].islower() and len(text) < 180))):
+                    pieces = [i]
+                    if text.rstrip().endswith(('"', '”', "'")):
+                        for j in range(i - 1, max(start - 1, i - 5), -1):
+                            prior = _normalize(paras[j].text)
+                            if (paras[j].page != p.page or j in consumed or len(prior) > 120
+                                    or _EMBEDDED_FN.search(prior) or _looks_like_cue(prior)
+                                    or _split_definitions(prior)):
+                                break
+                            pieces.insert(0, j)
+                            if prior.lstrip().startswith(('"', '“')):
+                                break
+                    previous[num] = f"{head} {' '.join(_normalize(paras[j].text) for j in pieces)}"
+                    rescued: list[str] = []
+                    for j in pieces:
+                        part = _normalize(paras[j].text)
+                        consumed.add(j)
+                        if moved is not None and not gt.is_greek_paragraph(part) and not _is_apparatus_paragraph(part):
+                            rescued.append(part)
+                    if moved is not None and rescued:
+                        moved.append(" ".join(rescued))
+                    log.append(f"note-tail\tpage {p.page}, note {num} from page {p.page - 1}: {text[:60]!r}")
+                    continue
+            # Some page-foot notes lose their opening number in the OCR. A
+            # citation and an editor's credit identify a complete note just
+            # before the page's first numbered definition (Birds p. 424).
+            if (_UNNUMBERED_NOTE.search(text) or _BARE_SCHOLARLY_CITATION.search(text)
+                    or (_INLINE_ATTRIBUTED_NOTE.search(text) and not _looks_like_cue(text))
+                    or _GREEK_QUOTE_COMMENT.search(text)):
+                page_notes.setdefault(p.page, {})["0"] = text
+                consumed.add(i)
+                if moved is not None and not gt.is_greek_paragraph(text) and not _is_apparatus_paragraph(text):
+                    moved.append(text)
+                log.append(f"note-unnumbered\tpage {p.page}: {text[:60]!r}")
+                continue
         if footnote_mode:
             # A continuation is swallowed regardless of Greek content too
             # (the same short-note shape above can run its Greek quote onto
@@ -1328,7 +1485,8 @@ def _collect_footnotes(
 def _convert_body(
     paras: list[gt.Paragraph], start: int, end: int, cfg: _Play
 ) -> tuple[str, int, int, list[str], list[tuple[int, int, int]]]:
-    page_notes, consumed, log = _collect_footnotes(paras, start, end, cfg.word)
+    moved: list[str] = []
+    page_notes, consumed, log = _collect_footnotes(paras, start, end, cfg.word, moved)
 
     def _resolve(page: int, num: str) -> str | None:
         for pg in (page, page - 1, page + 1, page - 2, page + 2):
@@ -1336,18 +1494,10 @@ def _convert_body(
                 return page_notes[pg][num]
         return None
 
-    # Every one of these five comedies renders Hickie with `footnotes: false`
-    # (explicit in the manifest for lysistrata, implicit elsewhere -- only
-    # `slot: primary` defaults true, and Hickie never holds that slot): the
-    # reader loads one `footnotes.json` per play, and the primary already
-    # carries its own. A renumbered `[N]` marker written into this bench
-    # text would therefore resolve to no popup at all and print as a dead
-    # bracketed digit in the reader (H1, 2026-09-17 round 2 brief: 465 raw
-    # markers in Lysistrata alone, corpus-wide across the five). `footnotes`
-    # stays empty and unused below on purpose -- kept only so this
-    # function's shape matches the sibling Rogers/Way lanes that DO render a
-    # column's own notes, should this column's footnotes ever be turned on.
-    footnotes: list[tuple[int, str]] = []
+    # Hickie's reader slot has footnotes disabled, so calls still disappear
+    # from speeches. Keep fragments rescued from the old speech stream in a
+    # bench Footnotes block. Their local labels do not become reader calls.
+    footnotes: list[tuple[int, str]] = [(i, note) for i, note in enumerate(moved, 1)]
 
     def _resolve_calls(text: str, page: int) -> str:
         def repl(m: "re.Match[str]") -> str:
@@ -1372,6 +1522,10 @@ def _convert_body(
     # `cfg.split_cues`: a mutable working copy of the abbreviation table,
     # flipped in place once each marker paragraph is reached (see `_Play`).
     abbrev = dict(cfg.abbrev)
+    titlecase_names = {
+        name.title() for name in cfg.abbrev.values()
+        if re.fullmatch(r"[A-Z][A-Z]+", name)
+    }
     split_markers: dict[int, tuple[str, str]] = {}
     for key, (_before, after, marker_text) in cfg.split_cues.items():
         for i in range(start, end):
@@ -1413,6 +1567,15 @@ def _convert_body(
             log.append(f"dropped\tcritical-apparatus text, not dialogue: {text[:60]!r}")
             continue
 
+        # A credited English translation can share an OCR paragraph with its
+        # printed speaker. Keep the quoted speech, and move only the credit
+        # and ensuing editorial comment (Ecclesiazusae p. 334).
+        if _looks_like_cue(text):
+            credit = _INLINE_ATTRIBUTED_NOTE.search(text)
+            if credit:
+                footnotes.append((len(footnotes) + 1, text[credit.start() + 1:].strip()))
+                text = text[:credit.start() + 1].rstrip()
+
         resolved = _resolve_calls(text, p.page)
 
         if resolved.startswith("[") and resolved.endswith("]"):
@@ -1432,7 +1595,7 @@ def _convert_body(
                 writer.direction(m.group(1))
                 continue
 
-        abbrev_pieces = _split_abbrev_cues(resolved, abbrev)
+        abbrev_pieces = _split_abbrev_cues(resolved, abbrev, titlecase_names)
         if len(abbrev_pieces) > 1 or abbrev_pieces[0][0] is not None:
             for cue, piece in abbrev_pieces:
                 if cue is not None:

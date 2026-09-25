@@ -76,10 +76,6 @@ english:
       - { greek: "672", english: "Why, wretched man, she has two little sharp", run: 1 }
   secondary:
     id: hickie
-    text_fixes:
-      - find: "Felton. For $\\dot{\\omega}\\varsigma=$ $\\tilde{o}\\tau\\iota$ $\\text{o}\\ddot{v}\\tau\\omega\\varsigma$, cf. Plato,"
-        replace: "Felton. For ὥς = ὅτι οὕτως, cf. Plato,"
-        note: "sweep 2026-09-24 n=15,16,17,18,19,20,21,22: build/genie/in.ernet.dli.2015.515629.txt:8730"
     name: "W. J. Hickie (Bohn, 1853)"
     short: Hickie
     model: turn-text

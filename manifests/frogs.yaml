@@ -75,13 +75,6 @@ english:
       - { greek: "804", english: "With lowered head he glares fiercely like a bull", run: 1 }
   secondary:
     id: hickie
-    text_fixes:
-      - find: "$\\delta\\alpha\\delta o\\tilde{v}\\chi o\\varsigma$: hence Iphicrates nicknamed him $\\mu\\eta\\tau\\rho\\alpha\\gamma\\hat{\\upsilon}\\rho\\tau\\eta\\varsigma$"
-        replace: "δαδοῦχος: hence Iphicrates nicknamed him μητραγύρτης"
-        note: "sweep 2026-09-24 n=25,26,27,28: build/genie/in.ernet.dli.2015.515630.txt:4625"
-      - find: "$\\text{Ελλην' ἔτικτε}$"
-        replace: "Ελλην' ἔτικτε"
-        note: "sweep 2026-09-24 n=31,32: build/genie/in.ernet.dli.2015.515630.txt:6059"
     name: "W. J. Hickie (Bohn, 1853)"
     short: Hickie
     model: turn-text
