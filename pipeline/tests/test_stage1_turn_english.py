@@ -40,6 +40,41 @@ def test_english_override_can_switch_the_same_cue_again():
     assert [speech["canonical"] for speech in speeches] == ["Two", "Three", "Three", "Three"]
 
 
+def test_english_override_label_sets_display_alongside_canonical():
+    """``display`` retags the canonical name only; an override that also
+    carries ``label`` must additionally set a separate, retrievable shown
+    label -- and only on the speeches the entry actually switches."""
+    speeches = [
+        {"speaker_printed": "MESSENGER", "text": "Earlier words.", "canonical": "Servant"},
+        {"speaker_printed": "MESSENGER", "text": "Go to work on the courtship of another woman.", "canonical": "Servant"},
+        {"speaker_printed": "MESSENGER", "text": "Later words.", "canonical": "Servant"},
+    ]
+    _apply_english_overrides(speeches, [{
+        "slot": "third", "cue": "MESSENGER",
+        "from_text": "Go to work on the courtship of another woman",
+        "display": "Messenger", "label": "SECOND MESSENGER",
+    }], "test-play", "third")
+    assert [speech["canonical"] for speech in speeches] == ["Servant", "Messenger", "Messenger"]
+    assert speeches[0].get("displayLabel") is None
+    assert speeches[1]["displayLabel"] == "SECOND MESSENGER"
+    assert speeches[2]["displayLabel"] == "SECOND MESSENGER"
+
+
+def test_english_override_without_label_leaves_display_unset():
+    """No ``label`` key: the canonical name switches (as before) but no
+    ``displayLabel`` is added, so emission keeps showing the printed cue."""
+    speeches = [
+        {"speaker_printed": "MESSENGER", "text": "Go to work on the courtship of another woman.", "canonical": "Servant"},
+    ]
+    _apply_english_overrides(speeches, [{
+        "slot": "third", "cue": "MESSENGER",
+        "from_text": "Go to work on the courtship of another woman",
+        "display": "Messenger",
+    }], "test-play", "third")
+    assert speeches[0]["canonical"] == "Messenger"
+    assert "displayLabel" not in speeches[0]
+
+
 def test_english_canonical_names_keeps_both_names_of_a_switched_cue():
     from drama_pipeline.stage1_turn_english import _english_canonical_names
     speeches = [
@@ -135,7 +170,7 @@ def _antigone_spine() -> dict:
     }
 
 
-def _parse():
+def _parse(english_overrides=None):
     spine = json.loads((FIXTURES / "spine.json").read_text(encoding="utf-8"))
     return parse_translation(
         FIXTURES / "play.txt",
@@ -146,6 +181,8 @@ def _parse():
         sigla=SIGLA,
         english_aliases=ALIASES,
         footnotes_enabled=True,
+        english_overrides=english_overrides,
+        slot="primary",
     )
 
 
@@ -208,6 +245,34 @@ def test_a_foreign_residual_is_shown_flagged_not_dropped():
         "1:30",
         "1:50",
     ]
+
+
+def test_english_override_with_label_changes_emitted_display_and_nothing_else():
+    """End to end (Birds/John, 2026-09-24 fix): a retag whose override also
+    carries ``label`` changes only the one switched turn's emitted
+    ``display`` -- every other turn, including the other DICAEOPOLIS turn
+    and the CHORUS turn sharing its chunk, keeps its printed cue."""
+    baseline, _footnotes, _report = _parse()
+    english, _footnotes, _report = _parse(english_overrides=[{
+        "slot": "primary", "cue": "DICAEOPOLIS",
+        "from_text": "An extra speech the Greek does not split",
+        "display": "Dicaeopolis", "label": "DICAEOPOLIS ASIDE",
+    }])
+    by_id = {chunk["id"]: chunk for chunk in english["chunks"]}
+    baseline_by_id = {chunk["id"]: chunk for chunk in baseline["chunks"]}
+    switched = by_id["1:30"]["turns"][0]
+    # The retag's canonical target is the same name the speech already had
+    # -- isolating the effect under test to the display label alone.
+    assert switched["speaker"] == baseline_by_id["1:30"]["turns"][0]["speaker"] == "Dicaeopolis"
+    assert switched["display"] == "DICAEOPOLIS ASIDE"
+    assert baseline_by_id["1:30"]["turns"][0]["display"] == "DICAEOPOLIS"
+    # Nothing else about the chunk shifted.
+    assert by_id["1:30"]["turns"][1] == baseline_by_id["1:30"]["turns"][1]
+    assert by_id["1:30"]["text"] == baseline_by_id["1:30"]["text"]
+    # Every other chunk's turns are untouched, including the OTHER
+    # DICAEOPOLIS speech (same printed cue, not the one the override names).
+    for cid in ("1:1", "1:10", "1:20", "1:50"):
+        assert by_id[cid]["turns"] == baseline_by_id[cid]["turns"]
 
 
 def test_unmatched_greek_is_unmatched_in_alignment():

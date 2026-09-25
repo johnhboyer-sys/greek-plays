@@ -247,9 +247,12 @@ speakers:
   # collision is already fixed by bench_clean_verse.GENIE_SPEAKER_RELABELS,
   # the primary's was not. Retags the first MESSENGER run (from Greek 1122,
   # the wall-building report) to First Messenger; the later plain MESSENGER
-  # (the unlabelled ΑΓΓΕΛΟΣ at 1706) is untouched.
+  # (the unlabelled ΑΓΓΕΛΟΣ at 1706) is untouched. John, 2026-09-24: this
+  # printed cue also collides on the page with the unnumbered Messenger's
+  # own "Messenger" label in the Plate, so (exception to the printed-label
+  # rule) `label` retags the shown English cue too, not just the colour.
   english_overrides:
-    - { slot: primary, cue: "MESSENGER", from_text: "Where, where is he? Where, where, where is he?", display: "First Messenger" }
+    - { slot: primary, cue: "MESSENGER", from_text: "Where, where is he? Where, where, where is he?", display: "First Messenger", label: "FIRST MESSENGER" }
   english:
     "PISTHETAERUS": "Peisthetaerus"
     "EUELPIDES": "Euelpides"
@@ -271,6 +274,10 @@ speakers:
     "MESSENGER": "Messenger"
     "A MESSENGER": "Messenger"
     "MESSENGERS": "Messenger"
+    # Not printed by the 1912 text itself -- the english_overrides `label`
+    # above synthesizes this as the shown cue for the retagged run, and the
+    # roster gate (stage7_emit) requires every emitted display to resolve here.
+    "FIRST MESSENGER": "First Messenger"
     "SECOND MESSENGER": "Second Messenger"
     "POET": "Poet"
     "A POET": "Poet"
