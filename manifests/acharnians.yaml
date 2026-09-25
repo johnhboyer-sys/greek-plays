@@ -81,6 +81,13 @@ english:
     # every play, 2026-09-14); the bench text still keeps every note as a
     # [n] marker + Footnotes: block.
     footnotes: false
+    # Removing Frere's page-foot quotation after the fig question shortened
+    # its neighbouring speech; anchor Dicaeopolis's Greek 804 reply. The
+    # downstream arming exchange has near-identical alternating speeches,
+    # so anchor Lamachus's opening there to prevent a new turn shift.
+    pins:
+      - { greek: "804", english: "How sharply you squeak at the figs!", run: 1 }
+      - { greek: "1118", english: "Slave! slave! take down my spear", run: 1 }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

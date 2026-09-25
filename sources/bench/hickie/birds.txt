@@ -30,8 +30,6 @@ PISTHETAERUS. By Jove! she does not croak now the same as before.
 
 EUELPIDES. What, pray, does she say about the way?
 
-PISTHETAERUS. Then go that way, can't ye; 'the Road to Ruin.'" Frere.
-
 PISTHETAERUS. What else but say she will gnaw off my fingers with biting !
 
 EUELPIDES. Is it not strange then, pray, that we, who wish to go to the crows, and are ready prepared, should yet not be able to find the way? [To the spectators.] For, my friends who are present at our tale, we are ill of a disease the opposite to Sacas; for he, though he is no citizen, forces his way in, while we, honoured in tribe and birth, citizens with citizens, have flown away from our country with both feet, without any one scaring us away; not hating that city itself, so as not to consider it to be naturally great and wealthy, and common to all to spend their property in litigation in. For the Cicadæ, indeed, sing one month or two upon the branches, while the Athenians are always singing during their whole life upon lawsuits: For this reason we are journeying on this path, and wandering with basket, and pot, and myrtle-branches, in search of a place free from trouble, where we may settle and live. Now our journey is to Tereus the Epops, wishing to learn from him, if any where, where he has flown, he has seen such a city.
@@ -55,7 +53,8 @@ EUELPIDES. Certainly, if you think fit. [Knocking.] Boy! boy!
 PISTHETAERUS. Hollo you! what are you saying? Do you call the Epops “Boy?” Ought you not have cried “Epops” in- stead of “Boy?”
 
 EUELPIDES. Epops! will you make me to knock again and again? Epops!
-Trochilus. (from within). Who are these? Who is he that calls my master? [Trochilus comes out dressed as a bird, with a long beak.]
+
+TROCHILUS. (from within). Who are these? Who is he that calls my master? [Trochilus comes out dressed as a bird, with a long beak.]
 
 EUELPIDES. (Both parties start at the sight of each other.) Apollo, averter of ill! What a mouth! [The jackdaw and raven fly away.]
 
@@ -133,9 +132,6 @@ EPOPS. At what then?
 EUELPIDES. Your beak appears to us ridiculous.
 
 EPOPS. In such a manner, however, does Sophocles in his tragedies outrage me, Tereus.
-"Dass dich der Henker, wie du mit Angst mich todt gemacht!"
-Droysen.
-"The fear, in this and in the reply of Euelpides, is caused by the tremendous opening of the beak of Trochilus." Felton. For $\dot{\omega}\varsigma=$ $\tilde{o}\tau\iota$ $\text{o}\ddot{v}\tau\omega\varsigma$, cf. Plato, Phædon, p. 48, E.; Eur. Iph. T. 1118; Tro. 895.
 
 EUELPIDES. Why, are you Tereus? whether are you a bird or a peacock?
 
@@ -170,7 +166,6 @@ EUELPIDES. Wishing to advise with you.
 EPOPS. What about?
 
 EUELPIDES. Because, in the first place, you were once a man,
-brought him on the stage metamorphosed into a Hoopoe, whose form is here parodied." Droysen. See note on Vesp. 316. Pax, 697.
 as we; and once owed money, as we; and once took pleasure in not paying it, as we. In the second place, again, having taken in exchange the nature of birds, you have flown over both land and sea round about, and know all things, as many as man, as many as bird can know. On this account, therefore, we have come hither to you as suppliants, if you would point out to us any city of good wool, soft as a blanket to lie down in.
 
 EPOPS. Then, do you seek a greater city than Athens?
@@ -219,25 +214,32 @@ EPOPS. In what shall we obey you?
 
 PISTHETAERUS. In what shall you obey me? In the first place, do not fly about every where with open mouth; for this act is undignified. For example, if any one there among us should inquire about the flutterers, “What sort of a bird is this?” Teleas will say as follows: “A man-bird, unstable, flutter-
 ing, inconsistent, never at any time abiding in the same place.”
-Epops. By Bacchus, you rightly find fault with this. What then can we do?
+
+EPOPS. By Bacchus, you rightly find fault with this. What then can we do?
 
 PISTHETAERUS. Found one city.
-Epops. But what sort of a city could we birds found?
+
+EPOPS. But what sort of a city could we birds found?
 
 PISTHETAERUS. What, really? O you who have uttered a most stupid expression! look down.
-Epops. Well now, I am looking.
+
+EPOPS. Well now, I am looking.
 
 PISTHETAERUS. Now look upwards!
-Epops. I am looking.
+
+EPOPS. I am looking.
 
 PISTHETAERUS. Turn your neck round.
-Epops. By Jove, I shall come finely off, if I shall get my neck twisted.
+
+EPOPS. By Jove, I shall come finely off, if I shall get my neck twisted.
 
 PISTHETAERUS. Did you see any thing?
-Epops. Aye, the clouds and the heavens.
+
+EPOPS. Aye, the clouds and the heavens.
 
 PISTHETAERUS. Is not this then, I ween, the pole of the birds?
-Epops. Pole? In what way?
+
+EPOPS. Pole? In what way?
 
 PISTHETAERUS. Just as if one were to say “place.” And because this turns round, and passes through all things, for
 this reason it is now called “pole.” If you found this and once fortify it, it shall be called “Polis” from this “pole.” So that you shall rule over men like locusts, but the gods, on the other hand, you shall destroy with a Melian famine.
@@ -492,9 +494,6 @@ CHORUS. I’ll make the covenant.
 PISTHETAERUS. Swear, then, to this!
 
 CHORUS. I swear, on these conditions, that I be victorious in the opinion of all the judges, and of all the spectators.
-“O der ist feiner wie Zwirn;
-Ganz Kopf, ganz Umsicht, ganz Project, ganz Speculation.”
-Droysen.
 
 PISTHETAERUS. Be it so.
 
@@ -524,7 +523,8 @@ CHORUS. This, by Jove, I had not heard.
 PISTHETAERUS. Very likely, for you are unlearned and not curious after knowledge, nor even are you familiar with Æsop, who in his fables asserted that the lark came into being the first of all, prior to the earth; and then that her father died of illness; but that there was no earth; and that he lay out five days! and that she, being at a loss, buried her father in her own head, by reason of her perplexity.
 
 EUELPIDES. The father, then, of the lark now lies dead at Cephalæ.
-Epops. Is not, then, the kingdom rightly theirs, pray, if they had an existence prior to the earth, and prior to the gods, inasmuch as they are the oldest?
+
+EPOPS. Is not, then, the kingdom rightly theirs, pray, if they had an existence prior to the earth, and prior to the gods, inasmuch as they are the oldest?
 
 EUELPIDES. Aye, by Apollo! therefore, it behoves you very much henceforth to cherish your beak; Jove will not quickly restore the sceptre to the wood-pecker.
 
@@ -564,7 +564,8 @@ mad; and every bird-catcher sets snares, traps, limed-twigs, springes, meshes, n
 CHORUS. O man, you have brought words by far, indeed, by far, indeed, most grievous! How I deplore the baseness of my fathers, who, when their forefathers had transmitted these honours to them, annulled them to my injury! But you have come to me at the intervention of some deity, and by some happy chance as my preserver. For I shall dwell in safety if I intrust to you my nestlings and myself. But do you, being present, inform us what we ought to do; since it is not worth our while to live, if we shall not by all means recover our kingdom.
 
 PISTHETAERUS. Well now, then, in the first place I admonish you that there should be one city of the birds; and then to wall up the whole air round about, and all this here that lies between, with great baked bricks, like Babylon.
-Epops. O Cebriones and Porphyrion! How terrible the city!
+
+EPOPS. O Cebriones and Porphyrion! How terrible the city!
 Pistr. And then, if this wall be raised, that you demand back the empire from Jove; and if he refuses, and be not willing, and do not immediately confess himself in the wrong, that you declare a sacred war against him, and forbid the gods to pass through your district, when lecherous, as formerly they were accustomed to go down to debauch their Alcmenas, and their Alopes, and their Semeles. But if they should go to them, that you put a seal upon their breeches, in order that they may not any longer meddle with them. And I advise you to send another bird as herald to men, henceforth to sacrifice to the birds, since the birds have the rule. And then, after this again, to the gods: and assign to the gods, individually, in a suitable manner, some one of the birds, which accords with that god. If any one sacrifice to Venus, let him offer wheat to the coot; and if any one sacrifice a sheep to Neptune, let him dedicate wheat to the duck; and if any one sacrifice to Hercules, let him offer honied cakes to the gull; and if any one sacrifice a ram to king Jove, the wren is the
 king, to whom he ought to slay a male ant before Jove himself.
 
@@ -621,25 +622,27 @@ EUELPIDES. Oh my! how much better are these than Jove to reign over us!
 PISTHETAERUS. Are they not by much? And in the first place, it is not requisite that we build them stone temples, or furnish those with golden gates, but they will dwell under thickets and little holm-oaks. An olive-tree, again, will be the temple of the august birds; and we shall not go to Delphi or to Ammon, and sacrifice there, but we will stand amid the arbutus and the wild olives with barley and wheat, and pray to them, holding up our two hands, to grant us some share of blessings. And these shall immediately be ours, when we have thrown to them a little wheat.
 
 CHORUS. O you who turn out far the dearest of old men to
-Und ein kleine$z$ Vogellin ;—
-Tandaradei—daz mak wol getriuwen sin.'" Droysen.
 me, from the most hateful! it is not possible that I can ever willingly dissent from your judgment any more. Elated at your words, I vow and swear, if you make a unanimous compact with me, just, guileless, and sacred, and go against the gods, entertaining views, in harmony with me, that the gods shall not henceforth for a long time use my sceptré. But whatever it is requisite to effect by strength, for this we will take our post; whatever, on the other hand, it is requisite to plan with judgment, all these depend on you.
-Epops. And in truth, by Jove, it is no longer time for us to slumber or to loiter like Nicias, but we must do something as quick as possible. In the first place come into my nest, and my dry twigs, and the sticks which are here, and tell us your name.
+
+EPOPS. And in truth, by Jove, it is no longer time for us to slumber or to loiter like Nicias, but we must do something as quick as possible. In the first place come into my nest, and my dry twigs, and the sticks which are here, and tell us your name.
 
 PISTHETAERUS. Well, 'tis easy; my name is Pisthetairus.
-Epops. And his?
+
+EPOPS. And his?
 
 PISTHETAERUS. Euelpides from Crius.
-Epops. Well, welcome, both of you!
+
+EPOPS. Well, welcome, both of you!
 
 PISTHETAERUS. We accept it.
-Epops. Then come in hither!
+
+EPOPS. Then come in hither!
 
 PISTHETAERUS. Let us go! do you take and lead us in!
-Epops. Come!
+
+EPOPS. Come!
 
 PISTHETAERUS. (starting back). But, bless my soul! retire back again hither! Come, let me see; tell us, how shall I, and this man here, who don't fly, consort with you who do?
-ἀλίπλαγκτος φάνηθι. See Seidler, Eur. Tro. 1229. Schäfer, ad Apoll. R. p. 193. Herm. Soph. Aj. 680. Class. Journ. xvi. p. 358 Mus. Crit. ii. p. 47.
 
 EPOPS. Very well.
 
@@ -708,7 +711,6 @@ EUELPIDES. I think so too.
 EPOPS. Come, let me see, what shall the name of our city be?
 
 PISTHETAERUS. Would you have us call it by this illustrious name taken from Lacedæmon, Sparta?
-root (vs. 654) are already seen in a pair of very promising wings. The two old men cannot refrain from laughing at each other’s comical appearance.
 
 EUELPIDES. O Hercules! Should I give the name of Sparta to my city? Assuredly I would not even give it to a bedstead, if I had a girth.
 
@@ -822,7 +824,6 @@ PROPHET. The god hindered me.
 PISTHETAERUS. Well, there's nothing like hearing the verses.
 
 PROPHET. (reads). "But when wolves and hoary crows dwell in the same place between Corinth and Sicyon" ---
-"Und kehr' Ich in meine Stadt zurück, so dicht' Ich so." Droysen.
 
 PISTHETAERUS. What then, pray, have I to do with Corinthians?
 
@@ -962,7 +963,6 @@ COMMISSIONER. (returning). I’ll ruin you; and I’ll lay the damages at ten th
 PISTHETAERUS. And I’ll smash your two ballot-boxes.
 
 COMMISSIONER. Do you remember when at eve you dunged against the column? [Runs off.]
-181. Cf. vss. 93, 155, 280, 1207. Vesp. 1374. Nub. 1286. Ach. 155. Ran. 1209.
 
 PISTHETAERUS. Bah! Let some one seize him. [To the priest.] Hollo, you! Will you not stop?
 
@@ -985,7 +985,6 @@ FIRST MESSENGER. The wall is finished building.
 PISTHETAERUS. You say well.
 
 FIRST MESSENGER. It is a most beautiful and most magnificent work; so that, by reason of the width, Proxenides the Bragsman and Theogenes might drive two chariots on the top of it past each other in opposite directions, with horses yoked to them, in size as large as the wooden one.
-Λαυρείου.—Cf. Thucyd. lib. ii. 55; vi. 91. Cramer’s Greece, vol. ii. 375, and Böckh’s Dissertation on the Silver Mines of Laurium, printed with the translation of his Public Economy of Athens. Attic coins are meant, stamped with the figure of an owl.
 
 PISTHETAERUS. O Hercules!
 
@@ -1004,9 +1003,6 @@ PISTHETAERUS. And how did they throw the mortar in?
 FIRST MESSENGER. This, good sir, was contrived even most cleverly. The geese dipping into it with their feet, as if with shovels, threw it into the hods.
 
 PISTHETAERUS. What, then, could not feet do?
-"Nec clam durateus Trojanis Pergama partu
-Inflammâsset equus nocturno Grajugenarum."
-"Either the Trojan horse, which Duris built, is meant; or a gift of Charidemus of Coile, which stood upon the Acropolis. Pausan. i. 23." Droysen. "The allusion was the more amusing to the audience, from the circumstance that a brazen statue of the Trojan horse stood on the Acropolis, perhaps in full sight of the theatre." Felton.
 
 FIRST MESSENGER. And, by Jove, the ducks, with their aprons on, carried bricks; and aloft flew the swallows with the trowel behind them, like little boys, and the mortar in their mouths.
 
@@ -1067,8 +1063,6 @@ IRIS. What's the mischief?
 
 PISTHETAERUS. Did you not receive one?
 
-IRIS. Gates!—I know nothing about your gates, not I." Frere.
-
 IRIS. Are you in your right senses?
 
 PISTHETAERUS. And did no bird-commander being present affix his seal to you?
@@ -1092,10 +1086,12 @@ PISTHETAERUS. What do you say? To what gods?
 IRIS. To what? to us, the gods in heaven.
 
 PISTHETAERUS. Why, are you gods?
-Iris. Why, who else is god ?
+
+IRIS. Why, who else is god ?
 
 PISTHETAERUS. Birds are gods to men now, to whom they must sacrifice, but, by Jove, not to Jove !
-Iris. O fool ! fool ! Do not rouse the dreadful wrath of the gods, so that justice may not with the mattock of Jove overthrow your whole race with utter destruction, and a smoky flame reduce to ashes your body and the circuit of your house with Lycymnian bolts.
+
+IRIS. O fool ! fool ! Do not rouse the dreadful wrath of the gods, so that justice may not with the mattock of Jove overthrow your whole race with utter destruction, and a smoky flame reduce to ashes your body and the circuit of your house with Lycymnian bolts.
 
 PISTHETAERUS. Hear, you there ! Cease from your bombast ! Be quiet ! Come, let me see ! Do you fancy you are scaring some Lydian or Phrygian by saying this? Do you know, that if Jove shall annoy me further, I will reduce to ashes his palace and the mansion of Amphion with fire-bearing eagles, and will send Porphyrions to heaven against him, clad in leopard-skins, more than six hundred in number? And verily once upon a time a single Porphyrion gave him trouble ! And if you shall annoy me in any way, I will turn up the legs of the messenger first and ravish Iris herself, so that you wonder how I, old man as I am, have such vigour, like three ships’ beaks.
 
@@ -1505,3 +1501,22 @@ CHORUS. O thou mighty golden blaze of lightning! O thou immortal fiery weapon of
 PISTHETAERUS. Follow now the marriage-train, O all ye winged tribes of associates! come to the region of Jove and to the nuptial couch. Stretch forth thy hand, O thou blessed one, and having taken hold of my wings, dance with me; and I will raise and lift thee up. [Exeunt dancing.]
 
 CHORUS. Alala! Io Pæan! Huzza! victorious! thou highest of the gods! [Exeunt omnes.]
+
+Footnotes:
+[1] That finds himself a native every where." Frere.
+[2] " Non sane, sed ne Execestides quidem hinc inveniat." Enger.
+[3] PIIS. Then go that way, can't ye; 'the Road to Ruin.'" Frere.
+[4] "Dass dich der Henker, wie du mit Angst mich todt gemacht!" Droysen.
+[5] "The fear, in this and in the reply of Euelpides, is caused by the tremendous opening of the beak of Trochilus." Felton. For $\dot{\omega}\varsigma=$ $\tilde{o}\tau\iota$ $\text{o}\ddot{v}\tau\omega\varsigma$, cf. Plato, Phædon, p. 48, E.; Eur. Iph. T. 1118; Tro. 895.
+[6] brought him on the stage metamorphosed into a Hoopoe, whose form is here parodied." Droysen. See note on Vesp. 316. Pax, 697.
+[7] “O der ist feiner wie Zwirn; Ganz Kopf, ganz Umsicht, ganz Project, ganz Speculation.” Droysen.
+[8] Und ein kleine$z$ Vogellin ;— Tandaradei—daz mak wol getriuwen sin.'" Droysen.
+[9] ἀλίπλαγκτος φάνηθι. See Seidler, Eur. Tro. 1229. Schäfer, ad Apoll. R. p. 193. Herm. Soph. Aj. 680. Class. Journ. xvi. p. 358 Mus. Crit. ii. p. 47.
+[10] root (vs. 654) are already seen in a pair of very promising wings. The two old men cannot refrain from laughing at each other’s comical appearance.
+[11] "Und kehr' Ich in meine Stadt zurück, so dicht' Ich so." Droysen.
+[12] 181. Cf. vss. 93, 155, 280, 1207. Vesp. 1374. Nub. 1286. Ach. 155. Ran. 1209.
+[13] Λαυρείου.—Cf. Thucyd. lib. ii. 55; vi. 91. Cramer’s Greece, vol. ii. 375, and Böckh’s Dissertation on the Silver Mines of Laurium, printed with the translation of his Public Economy of Athens. Attic coins are meant, stamped with the figure of an owl.
+[14] "Nec clam durateus Trojanis Pergama partu Inflammâsset equus nocturno Grajugenarum."
+[15] "Either the Trojan horse, which Duris built, is meant; or a gift of Charidemus of Coile, which stood upon the Acropolis. Pausan. i. 23." Droysen. "The allusion was the more amusing to the audience, from the circumstance that a brazen statue of the Trojan horse stood on the Acropolis, perhaps in full sight of the theatre." Felton.
+[16] IRIS. Gates!—I know nothing about your gates, not I." Frere.
+[17] ing!" Carey. "Oh! do for shame, do bid me have done!" Frere. "Oh, let me recover my breath." Droysen.

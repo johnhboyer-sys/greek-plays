@@ -150,6 +150,77 @@ def test_footnote_overflow_onto_next_page_before_its_own_heading():
     assert "Part one of a long note continuing onto the next page." not in text
 
 
+def test_knights_page_97_note_tail_after_dialogue_reattaches():
+    paras = [
+        _p("THE TESTPLAY", page=96),
+        _p("LY. The note is called here.[7]", page=96),
+        _p("[7] He owned mills, which en-", page=96),
+        _p("64 THE TESTPLAY. 255-272.", page=97),
+        _p("COM. If he dodge this way, my leg shall strike him.", page=97),
+        _p("abled him not only to grind and deal in bran, but also to fatten pigs. Aristophanes (vs. 129) calls him a flax merchant.", page=97),
+        _p("[1] A new note on this page.", page=97),
+    ]
+    notes, consumed, _log = _collect_footnotes(paras, 0, len(paras), "TESTPLAY")
+    assert 5 in consumed
+    assert notes[96]["7"].endswith("Aristophanes (vs. 129) calls him a flax merchant.")
+    text, *_ = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert _speeches(text)[1] == ("COMMITTEE-MAN", "If he dodge this way, my leg shall strike him.")
+
+
+def test_birds_page_424_unnumbered_note_before_first_definition():
+    paras = [
+        _p("THE TESTPLAY", page=424),
+        _p("LY. Your beak appears ridiculous.[3]", page=424),
+        _p("COM. Do not mock me.", page=424),
+        _p('"The fear is caused by the tremendous opening of the beak of Trochilus." Felton. For the Greek, cf. Plato, Phædon, p. 48.', page=424),
+        _p('[1] "The voice of Epops is heard." Felton.', page=424),
+    ]
+    notes, consumed, _log = _collect_footnotes(paras, 0, len(paras), "TESTPLAY")
+    assert 3 in consumed
+    assert any("Trochilus" in note for note in notes[424].values())
+    text, *_ = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert _speeches(text) == [
+        ("LYSISTRATA", "Your beak appears ridiculous."),
+        ("COMMITTEE-MAN", "Do not mock me."),
+    ]
+
+
+def test_birds_titlecase_roster_cues_split_inline_without_splitting_prose():
+    cfg = next(play for play in PLAYS.values() if play.bench == "birds")
+    paras = [
+        _p("THE BIRDS", page=1),
+        _p("PISTHETAERUS. Well, 'tis easy; my name is Pisthetairus. Epops. And his? PISTHETAERUS. Euelpides from Crius. Epops. Well, welcome, both of you!", page=1),
+        _p("PISTHETAERUS. Why, are you gods? Iris. Why, who else is god?", page=1),
+        _p("PISTHETAERUS. I called to Iris. She heard me.", page=1),
+    ]
+    text, *_ = _convert_body(paras, 0, len(paras), cfg)
+    assert _speeches(text, "THE BIRDS") == [
+        ("PISTHETAERUS", "Well, 'tis easy; my name is Pisthetairus."),
+        ("EPOPS", "And his?"),
+        ("PISTHETAERUS", "Euelpides from Crius."),
+        ("EPOPS", "Well, welcome, both of you!"),
+        ("PISTHETAERUS", "Why, are you gods?"),
+        ("IRIS", "Why, who else is god?"),
+        ("PISTHETAERUS", "I called to Iris. She heard me."),
+    ]
+
+
+def test_attributed_comment_after_speaker_stays_out_of_dialogue():
+    paras = [
+        _p("THE TESTPLAY", page=334),
+        _p("COM. Well done! Say on!", page=334),
+        _p('LY. "But that they are superior I will demonstrate." Droysen. Few persons approve this view.', page=334),
+        _p('"Him why not call to the helm?" Smith.', page=334),
+        _p("[1] The first numbered note on this page.", page=334),
+    ]
+    text, *_ = _convert_body(paras, 0, len(paras), _TEST_PLAY)
+    assert _speeches(text) == [
+        ("COMMITTEE-MAN", "Well done! Say on!"),
+        ("LYSISTRATA", '"But that they are superior I will demonstrate."'),
+    ]
+    assert "Few persons approve this view" in text.split("Footnotes:", 1)[1]
+
+
 def test_pipe_table_running_head_and_reversed_range_recognised():
     paras = [
         _p("THE TESTPLAY", page=0),
