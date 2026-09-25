@@ -3370,6 +3370,73 @@ def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> lis
     return pins
 
 
+# Way-cleanup sweep (2026-09-25, build/sweeps/way-cleanup-2026-09-25.tsv;
+# round 2 build/sweeps/brief-way-cleanup-r2.md): mechanical OCR/scan litter
+# confirmed against archive.org's page images for A. S. Way's Loeb Euripides
+# (euripidesway0{1..4}euriuoft). Scoped to `bench/way/` sources only
+# (`_is_way_source` below) -- Rogers shares `format: loeb-ocr` and must not
+# be touched (brief Do:4).
+_WAY_DASH_GLUE = re.compile(r"[-—–]{2,}")
+
+
+def _is_way_source(path: Path) -> bool:
+    return path.parent.name == "way" and path.parent.parent.name == "bench"
+
+
+def _collapse_way_dash_run(m: re.Match) -> str:
+    """A run of 2+ hyphen/dash characters collapses to one em dash only when
+    it contains a real dash (an em dash the scan glued a stray hyphen to,
+    either order or doubled, e.g. ``!-—-dishonour``, hippolytus 1:611).
+    A run of PLAIN hyphens only (``---``) is a different, already-decided
+    mark (suppliants-eur 1:426) and is left alone."""
+    run = m.group(0)
+    if "—" in run or "–" in run:
+        return "—"
+    return run
+
+
+def _clean_way_ocr_litter(text: str) -> str:
+    """Strip mechanical scan/build litter from Way's bench text.
+
+    A scan line-wrap that splits a hyphenated word (``blood-\\npolluted``,
+    ``out-\\npealing``) is NOT handled here: checking it against the page
+    showed the fix is not mechanical -- some are permanent compounds that
+    keep the hyphen (``blood-polluted``, confirmed against genie elsewhere
+    unwrapped), some are a single word broken only for the line's width
+    (``in-stantly`` -> ``instantly``, no hyphen), and at least one is two
+    plain words (``imminent- death``). Each needs its own check; see
+    build/sweeps/way-cleanup-2026-09-25.tsv class ``stray-hyphen`` for the
+    ones checked so far (manifest text_fixes) and the ones left for a
+    follow-up sweep.
+
+    1. An em dash the scan glued to a stray extra hyphen (either order,
+       ``"—-"``/``"-—"``) collapses to the single em dash the page
+       prints (confirmed: bacchae 1:912, page 77 of vol. 3, and 7 more --
+       TSV class ``dash-glue``).
+
+    An asterisk in Way's column is NOT handled here (round 3,
+    build/sweeps/brief-way-cleanup-r3.md): a blanket rule that guessed
+    elision-apostrophe-or-bare-insertion from a word list, without reading
+    what the page actually prints at each spot, got 3 of 4 sampled instances
+    wrong on a second check (an opening quote read as a bare insertion in
+    iphigenia-at-aulis 1:414, suppliants-eur 1:650, iphigenia-in-tauris
+    1:778). Every asterisk is now an individual manifest ``text_fixes``
+    entry, each checked against its own page image.
+
+    A stray full stop mid-sentence is NOT handled here (round 2,
+    build/sweeps/brief-way-cleanup-r2.md): a blanket regex rule was removed
+    after an independent check of 50 sampled edits found the stop was real
+    on the page in 6 of about 30 (a sentence end before a word the OCR
+    lower-cased, or an abbreviation like ``_To Or. and Pyl._``). Eight page
+    checks was not enough to show the class is mechanical. The handful
+    confirmed against the page (or genie's cleaner OCR) are individual
+    manifest ``text_fixes`` instead; every other stop is left as the OCR
+    has it.
+    """
+    text = _WAY_DASH_GLUE.sub(_collapse_way_dash_run, text)
+    return text
+
+
 def parse_translation(
     path: Path,
     spine: dict,
@@ -3395,6 +3462,8 @@ def parse_translation(
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
+    if _is_way_source(path):
+        text = _clean_way_ocr_litter(text)
     if not isinstance(sigla, _SiglaResolver):
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}

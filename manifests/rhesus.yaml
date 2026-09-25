@@ -36,6 +36,13 @@ english:
       - { greek: "946", by: "906" }
   secondary:
     id: way
+    text_fixes:
+      - find: "through mine cars"
+        replace: "through mine ears"
+        note: "way-cleanup 2026-09-25 row 337 (S11 confirmed): OCR cars for ears"
+      - find: "gory wound’ Would God"
+        replace: "gory wound. Would God"
+        note: "way-cleanup 2026-09-25 row 573 (S11 confirmed): apostrophe where the sentence break belongs"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

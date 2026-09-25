@@ -43,6 +43,12 @@ english:
       - find: "heart-burning —(Sér.)"
         replace: "heart-burning"
         note: "John 2026-09-25: Way's strophe markers hidden, all of them; way-markers n=3: archive.org euripidesway04euriuoft page 71 (bench/way/ion.txt:1003); OCR misread Str. as Sér. and prints no dash before the marker"
+      - find: "render back to thee.\n? By perpetuating the race of true-born Erechtheids, v"
+        replace: "render back to thee."
+        note: "way-cleanup 2026-09-25 row 1169 (S11 confirmed; brief Do:3): footnote fragment dumped in the text. The ION/Creusa mislabeling this row also names is NOT fixed here -- an english_overrides relabel (display+label: Creusa) was tried and reverted: it pushed turn_text_turn_shift_secondary from new_drifts=15 (PASS) to new_drifts=63 (FAIL), a cascade through the surrounding Ion/Creusa/Old-Servant turns too deep to resolve inside this sweep. Left for a dedicated follow-up."
+      - find: "Should snatch us from men’s sight.\na.\nfs\nO hapless queen"
+        replace: "Should snatch us from men’s sight.\nO hapless queen"
+        note: "way-cleanup r2 2026-09-25 (round-1 check item 48 wrong): junk lines \"a.\" and \"fs\" dropped entirely rather than merged into the sentence; build/genie/euripidesway04euriuoft.txt:4050-4085 (pages 117-118) prints nothing between \"men’s sight.\" and \"O hapless queen\""
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

@@ -30,6 +30,10 @@ english:
     covered: []
   secondary:
     id: way
+    text_fixes:
+      - find: "we came from yonder ship.\nto\nAnd this fat rogue was ready"
+        replace: "we came from yonder ship.\nAnd this fat rogue was ready"
+        note: "way-cleanup r2 2026-09-25 (round-1 check item 49 wrong): the bilingual scan underlying this bench file (docs/bench.md, vol. 2 euripides0002arth_djvu.txt:28820-28895) ends the English page (545) at \"yonder ship.\" and opens the facing page (546, heading CYCLOPS) clean at \"And this fat rogue\"; the one-word \"to\" sits with the Greek-side page number/catchword between them and is not part of either sentence"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text
