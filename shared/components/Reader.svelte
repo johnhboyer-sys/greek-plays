@@ -1286,6 +1286,7 @@
       document.removeEventListener('mouseup', checkCopyBtn);
       document.removeEventListener('selectionchange', onSelectionChange);
       if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
+      if (copyStatusTimer) clearTimeout(copyStatusTimer);
     }
   });
 
@@ -3003,6 +3004,8 @@
   // A click PINS the popup open (it stays until you dismiss it); hover opens it
   // transiently with a short close delay. Pinning makes click-to-read reliable.
   let fnPinned = false;
+  let fnTakeFocus = false;
+  let fnFocusMarker: HTMLElement | null = null;
   let fnCloseTimer: ReturnType<typeof setTimeout> | null = null;
   function cancelFnClose() {
     if (fnCloseTimer) { clearTimeout(fnCloseTimer); fnCloseTimer = null; }
@@ -3014,9 +3017,15 @@
   }
   function showFootnote(marker: Element, pin = false) {
     cancelFnClose();
-    if (pin) fnPinned = true;
     const n = marker.getAttribute('data-fn') ?? '';
     const transId = marker.getAttribute('data-fn-trans') ?? '';
+    if (pin) {
+      fnPinned = true;
+      fnTakeFocus = true;
+      fnFocusMarker = marker as HTMLElement;
+    } else if (footnote?.n !== n || footnote?.transId !== transId) {
+      fnTakeFocus = false;
+    }
     if (footnote?.n === n && footnote?.transId === transId) return;
     const r = marker.getBoundingClientRect();
     footnote = { n, transId, anchor: { x: r.left, y: r.bottom } };
@@ -3028,13 +3037,6 @@
   function onFootnoteOut(e: MouseEvent) {
     if ((e.target as HTMLElement | null)?.closest?.('.fn-marker')) scheduleFnClose();
   }
-  function onFootnoteFocus(e: FocusEvent) {
-    const marker = (e.target as HTMLElement | null)?.closest?.('.fn-marker');
-    if (marker) showFootnote(marker);
-  }
-  function onFootnoteBlur(e: FocusEvent) {
-    if ((e.target as HTMLElement | null)?.closest?.('.fn-marker')) scheduleFnClose();
-  }
   function onFootnoteClick(e: MouseEvent | KeyboardEvent) {
     const marker = (e.target as HTMLElement | null)?.closest?.('.fn-marker');
     if (!marker) return;
@@ -3043,7 +3045,7 @@
     e.stopPropagation();
     showFootnote(marker, true);
   }
-  function closeFootnote() { cancelFnClose(); fnPinned = false; footnote = null; }
+  function closeFootnote() { cancelFnClose(); fnPinned = false; fnTakeFocus = false; footnote = null; }
   // Click anywhere outside the marker/popup dismisses a pinned note; same
   // for the Bekker-numbers info popover.
   function onDocPointerDown(e: MouseEvent) {
@@ -3785,10 +3787,15 @@
 
   // ── Floating copy button (appears on Greek text selection) ────────────────
   let copyBtnPos: { x: number; y: number } | null = null;
+  let copyStatus: { message: string; x: number; y: number } | null = null;
+  let copyStatusTimer: ReturnType<typeof setTimeout> | null = null;
   let copyBtnEl: HTMLButtonElement;
   let copyBtnFrame = 0;
 
-  function checkCopyBtn() {
+  function checkCopyBtn(e?: MouseEvent) {
+    // A press on the button itself ends in this mouseup too; clearing the
+    // button here would remove it before its click lands.
+    if ((e?.target as Element | null)?.closest?.('.copy-cite-btn')) return;
     if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
     copyBtnPos = null;
     copyBtnFrame = requestAnimationFrame(async () => {
@@ -3818,9 +3825,13 @@
     }
   }
 
-  function clickCopyBtn() {
+  async function clickCopyBtn(e: MouseEvent) {
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) { copyBtnPos = null; return; }
+    const button = e.currentTarget as HTMLElement;
+    const position = copyBtnPos ?? {
+      x: parseFloat(button.style.left), y: parseFloat(button.style.top),
+    };
     const text = sel.toString().trim();
     const range = sel.getRangeAt(0);
     // Same mixed-range fix as handleCopy (finding 1, Sol xhigh review): a
@@ -3828,8 +3839,16 @@
     // apply, not treated as mutually exclusive.
     const parts = copyParts(range);
     const full = parts.length ? [text, ...parts].join('\n') : text;
-    navigator.clipboard.writeText(full).catch(() => {});
     copyBtnPos = null;
+    if (copyStatusTimer) clearTimeout(copyStatusTimer);
+    copyStatus = null;
+    try {
+      await navigator.clipboard.writeText(full);
+      copyStatus = { ...position, message: 'Copied' };
+    } catch {
+      copyStatus = { ...position, message: "Couldn't copy" };
+    }
+    copyStatusTimer = setTimeout(() => { copyStatus = null; copyStatusTimer = null; }, 1500);
   }
 </script>
 
@@ -4022,14 +4041,11 @@
             {/each}
           {/if}
         {/snippet}
+        <!-- svelte-ignore a11y_mouse_events_have_key_events -->
         <div
           class="overlay-prose"
           on:mouseover={onFootnoteOver}
           on:mouseout={onFootnoteOut}
-          on:focus={onFootnoteFocus}
-          on:blur={onFootnoteBlur}
-          on:focusin={onFootnoteFocus}
-          on:focusout={onFootnoteBlur}
           on:click={onFootnoteClick}
           on:keydown={onFootnoteClick}
           role="presentation"
@@ -4092,14 +4108,11 @@
        row model can render ONE row's slice of the same blocks (each English
        turn beside the Greek line it starts on) with identical markup. -->
   {#snippet playTurnStack(blocks: EnglishTurnBlock[], chunkMm: { english: string; greek: string } | undefined, transId: string)}
+    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
     <div
       class="overlay-prose turn-eng turn-stack"
       on:mouseover={onFootnoteOver}
       on:mouseout={onFootnoteOut}
-      on:focus={onFootnoteFocus}
-      on:blur={onFootnoteBlur}
-      on:focusin={onFootnoteFocus}
-      on:focusout={onFootnoteBlur}
       on:click={onFootnoteClick}
       on:keydown={onFootnoteClick}
       role="presentation"
@@ -5587,9 +5600,15 @@
     onClose={closeFootnote}
     onHoverIn={cancelFnClose}
     onHoverOut={scheduleFnClose}
+    takeFocus={fnTakeFocus}
+    returnFocus={fnFocusMarker}
   />
   {/key}
 {/if}
+<!-- Always in the DOM: a live region inserted at the moment of change is
+     often not announced; only its text changes. -->
+<span class="copy-cite-status" class:sr-only={!copyStatus} role="status" aria-live="polite"
+  style={copyStatus ? `left:${copyStatus.x}px;top:${copyStatus.y}px;transform:none` : ''}>{copyStatus?.message ?? ''}</span>
 
 {#if copyBtnPos}
   <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->

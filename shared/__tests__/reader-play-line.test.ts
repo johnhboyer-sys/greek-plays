@@ -279,6 +279,44 @@ describe('Reader.svelte play-line rendering (P1)', () => {
     expect(marker!.getAttribute('data-fn')).toBe('3.69_71');
   });
 
+  it('leaves a focused footnote marker alone until Enter opens its popup', async () => {
+    const data = book();
+    data.segments[0]!.english = {
+      text: 'A noted line [^1].', notes: [], markers: [],
+      turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const marker = container.querySelector<HTMLButtonElement>('.fn-marker')!;
+    marker.focus();
+    await flush();
+    expect(document.activeElement).toBe(marker);
+    expect(container.querySelector('.footnote-popup')).toBeNull();
+
+    await fireEvent.keyDown(marker, { key: 'Enter' });
+    await waitFor(() => expect(container.querySelector('.footnote-popup')).not.toBeNull());
+    await waitFor(() => expect(document.activeElement).toBe(container.querySelector('.footnote-popup')));
+    await fireEvent.keyDown(window, { key: 'Escape' });
+    await waitFor(() => expect(container.querySelector('.footnote-popup')).toBeNull());
+    expect(document.activeElement).toBe(marker);
+  });
+
+  it('shows a footnote on hover without taking keyboard focus', async () => {
+    const data = book();
+    data.segments[0]!.english = {
+      text: 'A noted line [^1].', notes: [], markers: [],
+      turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+    };
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const marker = container.querySelector<HTMLButtonElement>('.fn-marker')!;
+    marker.focus();
+    await fireEvent.mouseOver(marker);
+    await waitFor(() => expect(container.querySelector('.footnote-popup')).not.toBeNull());
+    await flush();
+    expect(document.activeElement).toBe(marker);
+  });
+
   it('replaces the footnote body when moving to another marker (Astra lane A, F5)', async () => {
     const data = book();
     data.segments = [{
@@ -2244,6 +2282,27 @@ describe('Reader.svelte English copy citation (Astra lane A, F6)', () => {
       }],
     };
   }
+
+  it.each([
+    ['success', false, 'Copied'],
+    ['failure', true, "Couldn't copy"],
+  ])('reports clipboard %s beside the selection', async (_case, rejects, message) => {
+    const writeText = vi.fn().mockImplementation(() => rejects ? Promise.reject(new Error('denied')) : Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: engBook() } });
+    await flush();
+    selectNode(container.querySelector('#L1-1 .line-text')!);
+    await fireEvent.mouseUp(document);
+    const button = await waitFor(() => {
+      const el = container.querySelector<HTMLButtonElement>('.copy-cite-btn');
+      expect(el).not.toBeNull();
+      return el!;
+    });
+    await fireEvent.click(button);
+    expect(writeText).toHaveBeenCalledOnce();
+    await waitFor(() => expect(container.querySelector('[role="status"]')?.textContent).toBe(message));
+    expect(container.querySelector('[role="status"]')).toHaveAttribute('aria-live', 'polite');
+  });
 
   it('appends a play-line citation and tr. credit when copying ordinary English', async () => {
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: engBook() } });

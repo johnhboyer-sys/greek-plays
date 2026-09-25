@@ -849,3 +849,7 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/lib/speakers.ts` — 2026-09-24 (John, option C): `markLineNumbers` / `lineNumberHtml` carry each real translator tick through the turn slicing as a private-use mark and turn it into an empty `.eng-lnum` anchor after the word's first letter.
 - `shared/components/Reader.svelte` — 2026-09-24 (John, option C): play-line turn blocks are built from the marked text (`markedTurns`, `playTickRows`' `sliceBlocks`), and `playTurnStack` renders the anchors.
 - `shared/styles/global.css` — 2026-09-24 (John, option C): `.eng-lnum` draws the translator's line number from `data-n` in the English number gutter (compare: the column's outer margin, not drawn in English-only compare where the page margin is too narrow for it; phone compare: none), in the Greek gutter's face, size, and ink.
+- `shared/components/Reader.svelte` — 2026-09-25: show brief clipboard success or failure by the copy button; tab focus on a footnote marker stays on the marker, while activation opens and focuses its note.
+- `shared/components/FootnotePopup.svelte` — 2026-09-25: take and restore focus only when a marker opens the note by click or keyboard.
+- `shared/components/CommandPalette.svelte` — 2026-09-25: name plays and line numbers in the palette input and help text.
+- `shared/styles/global.css` — 2026-09-25: style clipboard feedback like the copy button.
