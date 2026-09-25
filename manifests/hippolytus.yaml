@@ -19,6 +19,10 @@ work:
 english:
   primary:
     id: coleridge
+    text_fixes:
+      - find: "drive1 thy petty"
+        replace: "drive thy petty"
+        note: "sweep 2026-09-24 n=34: sources/perseus/tlg0006.tlg005.perseus-eng2.xml:1031"
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play

@@ -62,6 +62,10 @@ english:
       - { greek: "1670", by: "1668" }
   secondary:
     id: morshead
+    text_fixes:
+      - find: "Curelessabhorred, that"
+        replace: "Cureless, abhorred, that"
+        note: "sweep 2026-09-24 n=86: sources/archive-org/houseofatreusbei00aesc.txt:4089 (1904 ed. scan); cf. sources/wikisource/morshead/agamemnon.html"
     name: "E. D. A. Morshead (1881–1908)"
     short: Morshead
     model: turn-text

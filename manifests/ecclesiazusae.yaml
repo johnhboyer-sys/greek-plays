@@ -90,6 +90,16 @@ english:
     footnotes: false
   third:
     id: rogers
+    text_fixes:
+      - find: "gain alone.\n___\n"
+        replace: "gain alone.\n"
+        note: "sweep 2026-09-24 n=29: build/p9/aristophaneswith03arisuoft.txt:16560-16652"
+      - find: "children (παιδί, 1138)"
+        replace: "children (τασδί, 1138)"
+        note: "sweep 2026-09-24 n=24,25,26,27,28: build/p9/aristophaneswith03arisuoft.txt:22383"
+      - find: "THIS will compel you.\n___\n"
+        replace: "THIS will compel you.\n"
+        note: "sweep 2026-09-24 n=23: build/p9/aristophaneswith03arisuoft.txt:21618-21625 (Loeb, Rogers, 1924/1946)"
     name: "B. B. Rogers (Loeb, 1924)"
     short: Rogers
     model: turn-text

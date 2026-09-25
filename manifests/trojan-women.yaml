@@ -45,6 +45,13 @@ english:
       - { greek: "594", by: "591" }
   secondary:
     id: way
+    text_fixes:
+      - find: "heap _—"
+        replace: "heap (Ant. 3)"
+        note: "sweep 2026-09-24 n=84: build/genie/euripidesway01euriuoft.txt:13014"
+      - find: "my _ bridegroom’s"
+        replace: "my bridegroom’s"
+        note: "sweep 2026-09-24 n=83: build/genie/euripidesway01euriuoft.txt:12605-12607"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

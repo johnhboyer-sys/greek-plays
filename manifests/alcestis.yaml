@@ -38,6 +38,10 @@ english:
       - { greek: "368", by: "328" }
   secondary:
     id: way
+    text_fixes:
+      - find: "word ἢ δ᾿"
+        replace: "word?"
+        note: "sweep 2026-09-24 n=2,3,4: build/genie/euripidesway04euriuoft.txt:15078-15080"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

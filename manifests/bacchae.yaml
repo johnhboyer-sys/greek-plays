@@ -46,6 +46,12 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "gleam —_(Sir.)"
+        replace: "gleam —(Sir.)"
+        note: "sweep 2026-09-24 n=6: build/genie/euripidesway03euriuoft.txt:2479"
+      - find: "wine_—a bitter"
+        replace: "wine—a bitter"
+        note: "sweep 2026-09-24 n=5: build/genie/euripidesway03euriuoft.txt:2284"
       - find: "e mountains\nOne one to the eart"
         replace: "e mountains\nOne sinks to the eart"
         note: "sweep 2026-09-24 n=54: build/genie/euripidesway03euriuoft.txt:444-445"
