@@ -82,6 +82,23 @@ english:
     format: loeb-ocr
     source: "bench/hickie/birds.txt"
     play: "THE BIRDS"
+    # S11 sweep rows 113, 1459, 1464 (2026-09-25): Bohn prints eleven of
+    # Pisthetaerus's cues abbreviated, "Pist." (10) and "Pistr." (569, at
+    # 554ff), and the cue rule reads only capitals, so his lines ran on inside
+    # the Poet's, Epops's, and the Informer's speeches. Each is spelled out as
+    # the column's own PISTHETAERUS cue; the text after it is unchanged.
+    line_fixes:
+      569: "PISTHETAERUS. And then, if this wall be raised, that you demand back the empire from Jove; and if he refuses, and be not willing, and do not immediately confess himself in the wrong, that you declare a sacred war against him, and forbid the gods to pass through your district, when lecherous, as formerly they were accustomed to go down to debauch their Alcmenas, and their Alopes, and their Semeles. But if they should go to them, that you put a seal upon their breeches, in order that they may not any longer meddle with them. And I advise you to send another bird as herald to men, henceforth to sacrifice to the birds, since the birds have the rule. And then, after this again, to the gods: and assign to the gods, individually, in a suitable manner, some one of the birds, which accords with that god. If any one sacrifice to Venus, let him offer wheat to the coot; and if any one sacrifice a sheep to Neptune, let him dedicate wheat to the duck; and if any one sacrifice to Hercules, let him offer honied cakes to the gull; and if any one sacrifice a ram to king Jove, the wren is the"
+      773: "PISTHETAERUS. Let us sacrifice and pray to the winged gods. [Enter a poet reciting his poems.]"
+      776: "PISTHETAERUS. From what country is this article? Tell me, who are you?"
+      779: "PISTHETAERUS. Do you wear long hair, then, pray, you slave?"
+      782: "PISTHETAERUS. No wonder you have your coat also holy. But, poet, what the devil’s brought you here?"
+      785: "PISTHETAERUS. When, and how long ago, did you compose these?"
+      788: "PISTHETAERUS. Am I not even now celebrating with sacrifices its tenth day, and have just now given it its name, like a child?"
+      1262: "PISTHETAERUS. And then he sails hither, while you, again, fly yonder to seize his goods."
+      1265: "PISTHETAERUS. I understand a top. Well now, by Jove, I have such a capital set of Corcyræan wings. [Produces the horsewhip.]"
+      1268: "PISTHETAERUS. Nay, a pair of wings, with which I will make you to-day spin like a top. [Beats him.]"
+      1271: "PISTHETAERUS. Will you not fly away from hence? Will you not vanish, the devil take you? You shall soon have a bitter view of your justice-twisting rascality! [Flogs him off the stage.] Let us collect the wings and depart."
     # Grok's spot-read (fix-hickie-pins-brief-2026-09-22) found two stretches
     # a row late.
     #   277: the Mede/crested-bird catalogue -- 1:297 showed the earlier

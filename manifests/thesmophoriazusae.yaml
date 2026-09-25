@@ -100,6 +100,26 @@ english:
     source: "bench/rogers/thesmophoriazusae.txt"
     play: "THE THESMOPHORIAZUSAE"
     footnotes: true
+    # S11 sweep row 96 (2026-09-25): 631-654, pages 185-187 of the Loeb
+    # (build/genie/aristophanes0003benj_r6k0.txt:6975-7047, the ABBYY text
+    # agrees). The converter dropped every indented half-line on this page:
+    # Mnesilochus's "Second? Drank again." (631, where the tail of note 94
+    # stood in its place, ending on a bare "MN."), the First Woman's "This
+    # is the MAN for certain." and Cleisthenes's "Bring him up." (635, a bare
+    # "CL." in its place), "Upon my word, she has no breasts like ours."
+    # (640), and 648-654 (Mnesilochus's "Miserable me!", Cleisthenes's orders
+    # and exit). Each line is restored as printed; note 94's tail goes back
+    # to the note.
+    line_fixes:
+      1055: "MNESILOCHUS. Second? Drank again."
+      1061: "FIRST WOMAN. Ah, that won't do. Here, Cleisthenes, approach. This is the MAN for certain."
+      1062: "CLEISTHENES. Bring him up."
+      1069: "FIRST WOMAN. She does appear a stout and sturdy one: Upon my word, she has no breasts like ours."
+      1077: "FIRST WOMAN. O, this is why you mocked and jeered us so! And dared defend Euripides like that! O, villain, villain."
+      1078: "MNESILOCHUS. Miserable me! I've put my foot in it, and no mistake."
+      1079: "FIRST WOMAN. What shall we do with him?"
+      1080: "CLEISTHENES. Surround him here, And watch him shrewdly that he 'scape you not. I'll go at once and summon the police. (Cleisthenes goes out.)"
+      2170: "[94] 611 Sine me mingere.—Impudens es tu quidem : tu autem rem tuam age, ego hic opperiar . . . 615 Heus tu, diu mingis.—At enim stranguria laboro: heri edi medicinam. —Quid de medicina garris?"
   # Measured 0.855 (432 of 505 Greek speaker events pair, sweep 2026-09-08):
   # the lowest of the eleven comedies and three lost pairs from the 0.85
   # default. 129 of its segments pack two or more speakers into one line, and

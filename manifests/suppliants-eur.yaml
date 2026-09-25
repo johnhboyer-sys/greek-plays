@@ -20,6 +20,13 @@ english:
   primary:
     id: coleridge
     text_fixes:
+      # S11 sweep row 1097 (2026-09-25): the TEI drops Theseus's first word
+      # at 129; Coleridge's 1891 print (archive.org playseuripides01colegoog,
+      # page 190, leaf n214, build/sweeps/scans/coleridge-1891-v1-n214.jpg)
+      # reads "Is this thy own private resolve".
+      - find: "this thy own private resolve"
+        replace: "Is this thy own private resolve"
+        note: "S11 row 1097: sources/perseus/tlg0006.tlg008.perseus-eng2.xml:252; archive.org playseuripides01colegoog p. 190"
       - find: "Full οft"
         replace: "Full oft"
         note: "sweep 2026-09-24 n=69: sources/perseus/tlg0006.tlg008.perseus-eng2.xml:369"

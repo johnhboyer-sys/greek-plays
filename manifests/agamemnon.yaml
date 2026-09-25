@@ -73,6 +73,11 @@ english:
     source: bench/morshead/agamemnon.txt
     play: AGAMEMNON
     footnotes: false
+    # S11 sweep row 1331 (2026-09-25): Agamemnon's entrance speech (810-854,
+    # printed as two AGAMEMNON speeches, "First, as is meet" and "I speak not
+    # idly" at 838) sat 28 lines early at 782, beside the Chorus's greeting.
+    pins:
+      - { greek: "810", english: "First, as is meet, a king's All-hail be said", run: 1 }
   third:
     id: kosmos
     name: "Smyth, rev. Crane, Bird & Nagy (Kosmos Society)"
@@ -145,6 +150,12 @@ citation:
   fingerprint: { count: 1637, sha256: "69cbf5bd2cc7784b2e9a019867ed18617dff70c68b3a986c6bfa697a33df6f5e" }
 
 speakers:
+  # John, 2026-09-25: correct Morshead's "CLYMEMNESTRA" to "CLYTEMNESTRA" in
+  # every Agamemnon cue, whether or not the printed book has it (S11 sweep
+  # rows 1046, 1230, 1391). The entry fires at her first speech and holds
+  # for all 35 of hers.
+  english_overrides:
+    - { slot: secondary, cue: "CLYMEMNESTRA", from_text: "As saith the adage", display: "Clytaemestra", label: "CLYTEMNESTRA" }
   # Murray's Greek sigla -> one canonical English display per character.
   sigla:
     "ΦΥΛΑΞ": "Watchman"

@@ -29,6 +29,11 @@ english:
     source: "perseus/tlg0006.tlg018.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # S11 sweep row 407 (2026-09-25): Clytemnestra's "No, by the goddess-queen
+    # of Argos!" (μὰ τὴν ἄνασσαν Ἀργείαν θεάν, the second half of 739) is
+    # filed under n="730b", a TEI typo for 739b; it printed beside 730.
+    line_fixes:
+      "730b": "739"
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:

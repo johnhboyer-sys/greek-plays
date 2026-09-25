@@ -46,6 +46,24 @@ english:
     source: bench/morshead/eumenides.txt
     play: THE FURIES
     footnotes: false
+    # S11 sweep row 752 (2026-09-25): 117-177. Morshead prints the Ghost's
+    # rousing (94-128) as one speech with the Furies' cries as directions,
+    # and the spread ran it one segment late through 117-128; a GHOST cue
+    # (on the source's blank line after each direction) opens each of her
+    # replies so it sits on its own Greek: 118 flown afar, 121 drowsed in
+    # sleep, 124 yelping, 127 sleep and toil. The Chorus's ode (143-177,
+    # "Alack, alack, O sisters") hung at 174 with 149-173 bare; it opens at 143.
+    line_fixes:
+      175: "GHOST"
+      180: "GHOST"
+      185: "GHOST"
+      190: "GHOST"
+    pins:
+      - { greek: "118", english: "Mutter and murmur! He hath flownafar", run: 1 }
+      - { greek: "121", english: "O drowsed in sleep too deep to heed my pain!", run: 1 }
+      - { greek: "124", english: "Yelping, and drowsed again?", run: 1 }
+      - { greek: "127", english: "Lo, sleep and toil, the sworn confederates", run: 1 }
+      - { greek: "140", english: "Alack, alack, O sisters, we have toiled", run: 1 }
   third:
     id: kosmos
     name: "Smyth, rev. Bannon & Nagy (Kosmos Society)"
@@ -55,6 +73,14 @@ english:
     source: bench/kosmos/eumenides.txt
     play: EUMENIDES
     footnotes: false
+    # S11 sweep row 520 (2026-09-25): the sentence cut ran the parodos one
+    # segment early from 153 (the dream-reproach strophe, 155-161, sat at
+    # 154). A CHORUS cue on the blank line before that strophe, pinned to
+    # 155, holds it and the strophes after it to their own Greek.
+    line_fixes:
+      74: "CHORUS"
+    pins:
+      - { greek: "155", english: "Reproach comes to me in a dream", run: 1 }
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
     license:
       status: licensed
@@ -72,6 +98,37 @@ english:
       source: bench/johnston/eumenides.txt
       play: EUMENIDES
       footnotes: false
+      # S11 sweep row 81 (2026-09-25): 307-396. Johnston prints the binding
+      # song as one Chorus speech, and the spread ran it a strophe out of
+      # step (the Mother Night strophe sat in 307, 354-396 bare). A CHORUS
+      # cue (on the source's blank line before the stanza) opens each stanza
+      # that begins a Greek segment, and the pins seat each on its own Greek,
+      # read line by line: 307 anapaests, 321 Mother Night, 328 refrain,
+      # 334 Fate's lot, 341 refrain, 347 our rights, 354 refrain, 360 Zeus
+      # despises us, 367 refrain, 368 proud opinions, 372 leaping, 377 his
+      # mind confused, 381 leaping, 383 so things remain (to 396).
+      line_fixes:
+        # S11 sweep row 784: the source drops the CHORUS LEADER cue before
+        # "Lord Apollo, you have your own domain" (574-575, the Chorus's
+        # challenge to Apollo), so it read as Athena's; the cue goes on the
+        # blank line after the stage direction.
+        967: "CHORUS LEADER"
+        536: "CHORUS"
+        547: "CHORUS"
+        557: "CHORUS"
+        567: "CHORUS"
+        577: "CHORUS"
+        584: "CHORUS"
+        592: "CHORUS"
+        603: "CHORUS"
+        611: "CHORUS"
+        620: "CHORUS"
+        626: "CHORUS"
+        635: "CHORUS"
+        641: "CHORUS"
+      pins:
+        - { greek: "307", english: "Come, let’s link our arms and dance", run: 8 }
+        - { greek: "367", english: "The task I take upon myself is mine, to overthrow whole families, when strife inside the home kills someone near and dear. We chase that murderer down, the one who’s spilled fresh blood. For all his strength, we wear him down. Those proud", run: 6 }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed
