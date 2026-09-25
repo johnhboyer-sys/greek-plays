@@ -6983,28 +6983,6 @@ def test_way_ocr_litter_leaves_a_line_wrapped_hyphen_alone():
     assert _clean_way_ocr_litter(text) == text
 
 
-def test_way_ocr_litter_restores_an_elision_apostrophe_misread_as_asterisk():
-    # iphigenia-at-aulis 1:839 (confirmed against genie vol. 1: the scan
-    # prints the elision "'Tis", not an asterisk).
-    assert _clean_way_ocr_litter("CLYTEMNESTRA. *Tis all men’s nature") == (
-        "CLYTEMNESTRA. 'Tis all men’s nature"
-    )
-    assert _clean_way_ocr_litter("*Twas I first called thee father") == (
-        "'Twas I first called thee father"
-    )
-
-
-def test_way_ocr_litter_drops_a_bare_asterisk_insertion():
-    # bacchae 1:677 and phoenician-women 1:834 (confirmed against genie
-    # vol. 3): the scan prints no mark there at all, elided or otherwise.
-    assert _clean_way_ocr_litter("* More swiftly was the flesh") == "More swiftly was the flesh"
-    assert _clean_way_ocr_litter("*Thou child Menoeceus") == "Thou child Menoeceus"
-    # A trailing asterisk before a line-wrap keeps the line break.
-    assert _clean_way_ocr_litter("or where begin *\nInto what bonds") == (
-        "or where begin \nInto what bonds"
-    )
-
-
 def test_parse_translation_applies_way_cleanup_only_under_bench_way(tmp_path):
     spine = json.loads((FIXTURES / "spine.json").read_text(encoding="utf-8"))
     way_dir = tmp_path / "bench" / "way"

@@ -40,6 +40,15 @@ english:
       - find: "her favour won But on mine ears"
         replace: "her favour won. But on mine ears"
         note: "way-cleanup 2026-09-25 row 489 (S11 confirmed): full stop missing between sentences"
+      - find: "cried to me:\n* Thy brother, Menelaus, lieth dead,"
+        replace: "cried to me:\n“Thy brother, Menelaus, lieth dead,"
+        note: "way-cleanup r3 2026-09-25 (1:367): genie build/genie/euripideswitheng02euri.txt:6663 prints an opening quote before \"Thy brother\""
+      - find: "* Gods tarry long! \"—not long"
+        replace: "“Gods tarry long! \"—not long"
+        note: "way-cleanup r3 2026-09-25 (1:490): genie build/genie/euripideswitheng02euri.txt:6979 prints an opening quote before \"Gods tarry long\""
+      - find: "their path—\n* By exile justify, not blood for blood.\""
+        replace: "their path—\nBy exile justify, not blood for blood.\""
+        note: "way-cleanup r3 2026-09-25 (1:512): genie build/genie/euripideswitheng02euri.txt:7353 shows this whole maxim already inside a quote pair Way's own OCR opened on the line above; the asterisk marks only where the page's italic type begins, no extra character"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

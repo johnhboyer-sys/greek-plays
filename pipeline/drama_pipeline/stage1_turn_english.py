@@ -3376,12 +3376,7 @@ def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> lis
 # (euripidesway0{1..4}euriuoft). Scoped to `bench/way/` sources only
 # (`_is_way_source` below) -- Rogers shares `format: loeb-ocr` and must not
 # be touched (brief Do:4).
-_WAY_ELISIONS = {
-    "tis", "twas", "twere", "twill", "tween", "twixt",
-    "neath", "gainst", "mongst", "scaped", "gan", "fore",
-}
 _WAY_DASH_GLUE = re.compile(r"[-—–]{2,}")
-_WAY_ASTERISK = re.compile(r"\*(\s?)([A-Z][a-z]+)")
 
 
 def _is_way_source(path: Path) -> bool:
@@ -3418,12 +3413,15 @@ def _clean_way_ocr_litter(text: str) -> str:
        ``"—-"``/``"-—"``) collapses to the single em dash the page
        prints (confirmed: bacchae 1:912, page 77 of vol. 3, and 7 more --
        TSV class ``dash-glue``).
-    2. A line-initial elision apostrophe (``'Tis``, ``'Twas``...) the scan
-       misreads as an asterisk: restored. Any other asterisk in Way's column
-       is a bare insertion -- the page prints nothing there -- and is
-       dropped, keeping whatever whitespace followed it (confirmed:
-       iphigenia-at-aulis 1:839, bacchae 1:677, 3 more -- TSV class
-       ``asterisk``).
+
+    An asterisk in Way's column is NOT handled here (round 3,
+    build/sweeps/brief-way-cleanup-r3.md): a blanket rule that guessed
+    elision-apostrophe-or-bare-insertion from a word list, without reading
+    what the page actually prints at each spot, got 3 of 4 sampled instances
+    wrong on a second check (an opening quote read as a bare insertion in
+    iphigenia-at-aulis 1:414, suppliants-eur 1:650, iphigenia-in-tauris
+    1:778). Every asterisk is now an individual manifest ``text_fixes``
+    entry, each checked against its own page image.
 
     A stray full stop mid-sentence is NOT handled here (round 2,
     build/sweeps/brief-way-cleanup-r2.md): a blanket regex rule was removed
@@ -3436,17 +3434,6 @@ def _clean_way_ocr_litter(text: str) -> str:
     has it.
     """
     text = _WAY_DASH_GLUE.sub(_collapse_way_dash_run, text)
-
-    def _asterisk(m: re.Match) -> str:
-        ws, word = m.group(1), m.group(2)
-        if word.lower() in _WAY_ELISIONS:
-            return "'" + word
-        # A plain space before the next word is dropped with the asterisk; a
-        # newline is kept -- it is the verse line break, not part of the
-        # litter.
-        return (ws if "\n" in ws else "") + word
-
-    text = _WAY_ASTERISK.sub(_asterisk, text)
     return text
 
 

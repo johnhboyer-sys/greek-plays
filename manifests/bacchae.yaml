@@ -46,6 +46,12 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "* More swiftly was the flesh"
+        replace: "More swiftly was the flesh"
+        note: "way-cleanup r3 2026-09-25 (1:1133): genie build/genie/euripidesway03euriuoft.txt:2084 prints no mark before \"More\""
+      - find: "singeth me—* Happy Agave!”"
+        replace: "singeth me—“Happy Agave!”"
+        note: "way-cleanup r3 2026-09-25 (1:1180): genie build/genie/euripidesway03euriuoft.txt:3353 prints an opening quote before \"Happy Agave!\""
       - find: "First.darted forth his rays"
         replace: "First darted forth his rays"
         note: "way-cleanup 2026-09-25 row 73 (S11 confirmed): build/genie/euripidesway03euriuoft.txt:305-306"
