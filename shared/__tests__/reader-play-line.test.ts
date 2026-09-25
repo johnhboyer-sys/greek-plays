@@ -2457,3 +2457,183 @@ describe('Reader.svelte hashchange on an open play', () => {
     expect((Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.instances).toContain(next);
   });
 });
+
+describe("the translator's line numbers in the English margin (John, 2026-09-24, option C)", () => {
+  beforeEach(() => localStorage.clear());
+
+  const ODE = 'Zeus, whoever he may be, if this name pleases him. I cannot compare him to anything but Zeus. Zeus, who sets mortals on the path.';
+  function tickedBook(ticks: { n: number; offset: number; real: boolean }[]): BookData {
+    return {
+      book: 1,
+      speakerRoster: ['Chorus'],
+      segments: [{
+        id: '1:175',
+        column: '175',
+        greek: [
+          { n: 1, text: 'Ζεύς, ὅστις ποτ᾽ ἐστίν', tokens: [], ref: '175' },
+          { n: 2, text: 'εἰ τόδ᾽ αὐτῷ φίλον κεκλημένῳ', tokens: [], ref: '176' },
+          { n: 3, text: 'οὐκ ἔχω προσεικάσαι', tokens: [], ref: '180' },
+          { n: 4, text: 'πλὴν Διός', tokens: [], ref: '182' },
+          { n: 5, text: 'τὸν φρονεῖν βροτοὺς ὁδώσαντα', tokens: [], ref: '184' },
+        ],
+        speakers: [{ line: 1, offset: 0, label: 'Χο.', display: 'Chorus' }],
+        english: { text: ODE, notes: [], markers: [], bekker: ticks, turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }] },
+        secondary: [{ chapter: '175', text: 'CHORUS. Zeus, whoever he is, turn-text words.', cont: false }],
+      }],
+    } as unknown as BookData;
+  }
+  // The word an anchor marks: it sits after the word's first letter, where
+  // the line cannot break.
+  const after = (el: Element) => ((el.previousSibling?.textContent ?? '').slice(-1) + (el.nextSibling?.textContent ?? '')).slice(0, 20);
+
+  it('renders one anchor per real tick, where its text begins, and none for an interpolated tick', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: tickedBook([
+      { n: 175, offset: 0, real: true },
+      { n: 177, offset: 25, real: false },
+      { n: 180, offset: 51, real: true },
+      { n: 184, offset: 94, real: true },
+    ]) } });
+    await flush();
+    const nums = [...container.querySelectorAll('.english-col .eng-lnum')];
+    expect(nums.map((n) => n.getAttribute('data-n'))).toEqual(['175', '180', '184']);
+    expect(nums.map(after)).toEqual(['Zeus, whoever he may', 'I cannot compare him', 'Zeus, who sets morta']);
+    for (const n of nums) {
+      expect(n.textContent).toBe('');
+      expect(n.getAttribute('aria-hidden')).toBe('true');
+    }
+    // The rows and the lead-in are what they were without the numbers.
+    const rows = [...container.querySelectorAll('.play-row')];
+    expect(rows).toHaveLength(3);
+    expect(rows[0].querySelector('.english-col .speaker')?.textContent).toBe('Chorus');
+    expect(rows[1].querySelector('.english-col .speaker')).toBeNull();
+    // No digit enters the text: copy, find and screen readers see the prose.
+    const english = [...container.querySelectorAll('.english-col .turn-para')].map((p) => p.textContent).join(' ');
+    expect(english).not.toMatch(/\d/);
+    expect(english.replace(/^Chorus/, '').replace(/\s+/g, ' ').trim()).toBe(ODE);
+  });
+
+  it('renders no anchor when every tick is interpolated', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: tickedBook([
+      { n: 175, offset: 0, real: false },
+      { n: 180, offset: 51, real: false },
+    ]) } });
+    await flush();
+    expect(container.querySelector('.eng-lnum')).toBeNull();
+    expect(container.querySelector('.english-col')?.textContent).toContain('Zeus, whoever he may be');
+  });
+
+  it('keeps footnote calls, the lead-in and the search highlight intact in a ticked one-row speech', async () => {
+    window.history.replaceState(null, '', '/?hle=deliver');
+    try {
+      const data = book();
+      data.segments = [{
+        id: '1:1', column: '1',
+        greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+        speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+        english: {
+          text: 'I pray the gods[^3.69_71] deliver me. Oh, the light!',
+          notes: [], markers: [],
+          bekker: [{ n: 1, offset: 0, real: true }, { n: 2, offset: 11, real: true }, { n: 3, offset: 25, real: true }],
+          turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+        },
+      }];
+      const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+      await flush();
+      // The search terms are read on mount; a column change re-renders with them.
+      const picker = container.querySelector('.rc-trans-select') as HTMLSelectElement;
+      await fireEvent.change(picker, { target: { value: 'storr' } });
+      await flush();
+      await fireEvent.change(picker, { target: { value: 'smyth' } });
+      await flush();
+      const para = container.querySelector('.english-col .turn-para')!;
+      expect(para.querySelector('.speaker')?.textContent).toBe('Watchman');
+      expect([...para.querySelectorAll('.eng-lnum')].map((n) => n.getAttribute('data-n'))).toEqual(['1', '2', '3']);
+      const fn = para.querySelector('.fn-marker');
+      expect(fn?.getAttribute('data-fn')).toBe('3.69_71');
+      // The anchor at "gods" rides inside the footnote's no-wrap word.
+      expect(fn?.closest('.fn-anchor')?.querySelector('.eng-lnum')?.getAttribute('data-n')).toBe('2');
+      expect(fn?.closest('.fn-anchor')?.textContent).toBe('gods69_71');
+      // The anchor before "deliver" does not stop the search term matching.
+      expect(para.querySelector('mark')?.textContent).toBe('deliver');
+      expect(para.textContent).toBe('WatchmanI pray the gods69_71 deliver me. Oh, the light!');
+    } finally {
+      window.history.replaceState(null, '', '/');
+    }
+  });
+
+  // Round 2 (Grok's review, 2026-09-24): the anchor never lands inside a
+  // footnote button, whether the tick falls on the call or inside it.
+  async function renderFootnoted(text: string, ticks: { n: number; offset: number; real: boolean }[]) {
+    const data = book();
+    data.segments = [{
+      id: '1:1', column: '1',
+      greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+      speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+      english: { text, notes: [], markers: [], bekker: ticks, turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }] },
+    }];
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    return container.querySelector('.english-col .turn-para')!;
+  }
+
+  it('puts the number after a footnote call that opens its line, on the next word', async () => {
+    const para = await renderFootnoted('I pray.\n[^3.69_71] Deliver me.', [{ n: 1, offset: 0, real: true }, { n: 2, offset: 8, real: true }]);
+    expect(para.querySelector('.fn-marker')?.getAttribute('data-fn')).toBe('3.69_71');
+    expect(para.querySelector('.fn-marker .eng-lnum, .fn-anchor .eng-lnum')).toBeNull();
+    const two = para.querySelector('.eng-lnum[data-n="2"]')!;
+    expect(after(two)).toBe('Deliver me.');
+  });
+
+  it('moves a tick that falls inside a footnote call to just after it', async () => {
+    const para = await renderFootnoted('I pray the gods[^3.69_71] deliver me.', [{ n: 1, offset: 0, real: true }, { n: 2, offset: 18, real: true }]);
+    expect(para.querySelector('.fn-marker')?.getAttribute('data-fn')).toBe('3.69_71');
+    expect(para.querySelector('.fn-marker .eng-lnum')).toBeNull();
+    expect(para.textContent).toBe('WatchmanI pray the gods69_71 deliver me.');
+    expect(after(para.querySelector('.eng-lnum[data-n="2"]')!)).toBe('deliver me.');
+  });
+
+  it('keeps a stage direction whole when a tick falls on it, the number on the text after it', async () => {
+    const data = book();
+    data.segments = [{
+      id: '1:1', column: '1',
+      greek: [{ n: 1, text: 'πρῶτος λόγος', tokens: [], ref: '1' }],
+      speakers: [{ line: 1, offset: 0, label: 'ΦΥΛΑΞ', display: 'Watchman' }],
+      english: {
+        text: 'I rise.\n_To a servant, pointing at the door._\nGo and call them.',
+        notes: [], markers: [],
+        bekker: [{ n: 1, offset: 0, real: true }, { n: 2, offset: 8, real: true }],
+        turns: [{ offset: 0, speaker: 'Watchman', display: 'WATCHMAN' }],
+      },
+    }];
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: data } });
+    await flush();
+    const para = container.querySelector('.english-col .turn-para')!;
+    expect(para.querySelector('.stage-dir')?.textContent).toBe('To a servant, pointing at the door.');
+    expect(para.textContent).not.toContain('_');
+    const two = para.querySelector('.eng-lnum[data-n="2"]')!;
+    expect(after(two)).toBe('Go and call them.');
+  });
+
+  it('numbers each compare column from its own ticks: a turn-text column shows none', async () => {
+    const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: tickedBook([
+      { n: 175, offset: 0, real: true },
+      { n: 180, offset: 51, real: true },
+    ]) } });
+    await flush();
+    const compare = container.querySelectorAll('input[name="trans-mode"]')[1] as HTMLInputElement;
+    await fireEvent.change(compare);
+    await flush();
+    expect([...container.querySelectorAll('.english-col .eng-lnum')].map((n) => n.getAttribute('data-n'))).toEqual(['175', '180']);
+    expect(container.querySelector('.overlay-col')?.textContent).toContain('turn-text words');
+    expect(container.querySelector('.overlay-col .eng-lnum')).toBeNull();
+  });
+
+  it('draws the number from data-n in the English margin, the Greek gutter\'s face and ink (global.css)', () => {
+    const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../styles/global.css'), 'utf8');
+    expect(css).toMatch(/\.eng-lnum::before\s*\{[^}]*content:\s*attr\(data-n\)/);
+    const rule = /\.eng-lnum::before\s*\{([^}]*)\}/.exec(css)![1]!;
+    expect(rule).toContain('font-family: var(--font-ui)');
+    expect(rule).toContain('font-size: var(--fs-linenum)');
+    expect(rule).toContain('color: var(--text-light)');
+  });
+});
