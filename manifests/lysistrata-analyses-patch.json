@@ -1,0 +1,1236 @@
+{
+ "a(me/s": [
+  {
+   "lemma": "e)gw/",
+   "gloss": "we (Laconian ἁμές = ἡμεῖς)",
+   "parse": "nom 1st pl (doric)",
+   "lsj": [
+    "e)gw/"
+   ]
+  }
+ ],
+ "grau=": [
+  {
+   "lemma": "grau=s",
+   "gloss": "old woman",
+   "parse": "fem voc sg",
+   "lsj": [
+    "grau=s"
+   ]
+  }
+ ],
+ "toutongi/": [
+  {
+   "lemma": "ou(=tos",
+   "gloss": "this (τουτονί with γε inserted)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "ou(=tos"
+   ]
+  }
+ ],
+ "e)/gwnga": [
+  {
+   "lemma": "e)gw/",
+   "gloss": "I at least (Laconian ἔγωνγα = ἔγωγε)",
+   "parse": "masc/fem nom 1st sg (doric)",
+   "lsj": [
+    "e)gw/"
+   ]
+  }
+ ],
+ "poluxarei/da": [
+  {
+   "lemma": "*poluxarei/das",
+   "gloss": "Polycharidas (Laconian name, used in address)",
+   "parse": "masc voc sg (doric)",
+   "lsj": []
+  }
+ ],
+ "a)sanai/ws": [
+  {
+   "lemma": "*)aqhnai=os",
+   "gloss": "Athenian (Laconian Ἀσαναίως = Ἀθηναίους)",
+   "parse": "masc acc pl (doric)",
+   "lsj": [
+    "*)aqhnai=os"
+   ]
+  }
+ ],
+ "eu)ai=": [
+  {
+   "lemma": "eu)ai=",
+   "gloss": "Bacchic cry (= εὐοῖ)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "kimberi/k'": [
+  {
+   "lemma": "*kimberiko/s",
+   "gloss": "Cimberic (a fine, sheer dress)",
+   "parse": "neut acc pl",
+   "lsj": []
+  }
+ ],
+ "xh)/gxousa": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἡ ἄγχουσα)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "a)/gxousa",
+   "gloss": "alkanet, rouge (crasis: καὶ ἡ ἄγχουσα)",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "kimberiko/n": [
+  {
+   "lemma": "*kimberiko/s",
+   "gloss": "Cimberic (a fine, sheer dress)",
+   "parse": "neut acc sg",
+   "lsj": []
+  }
+ ],
+ "a)nagurounto/qen": [
+  {
+   "lemma": "*)anagurounto/qen",
+   "gloss": "from Anagyrus (Attic deme)",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "gumna/ddomai": [
+  {
+   "lemma": "gumna/zw",
+   "gloss": "train, exercise (Laconian δδ = ζ)",
+   "parse": "pres ind mp 1st sg (doric)",
+   "lsj": [
+    "gumna/zw"
+   ]
+  }
+ ],
+ "i(arei=on": [
+  {
+   "lemma": "i(erei=on",
+   "gloss": "sacrificial victim (Laconian ἱαρεῖον = ἱερεῖον)",
+   "parse": "neut acc sg (doric)",
+   "lsj": [
+    "i(erei=on"
+   ]
+  }
+ ],
+ "xai(/a": [
+  {
+   "lemma": "xa/i+os",
+   "gloss": "noble, good (Laconian)",
+   "parse": "fem nom sg (doric)",
+   "lsj": [
+    "xa/i+os"
+   ]
+  }
+ ],
+ "mu/sidde": [
+  {
+   "lemma": "muqi/zw",
+   "gloss": "speak (Laconian μύσιδδε = μυθίζε)",
+   "parse": "pres imperat act 2nd sg (doric)",
+   "lsj": []
+  }
+ ],
+ "e)/lsh|": [
+  {
+   "lemma": "e)/rxomai",
+   "gloss": "come, go (Laconian ἔλσῃ = ἔλθῃ)",
+   "parse": "aor subj act 3rd sg (doric)",
+   "lsj": [
+    "e)/rxomai"
+   ]
+  }
+ ],
+ "o)ktwda/ktulon": [
+  {
+   "lemma": "o)ktwda/ktulos",
+   "gloss": "eight fingers long",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "potto/": [
+  {
+   "lemma": "poti/",
+   "gloss": "to, towards (Doric = πρός; crasis: ποτὶ τό)",
+   "parse": "indeclform (prep) (doric)",
+   "lsj": []
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ποτὶ τό)",
+   "parse": "neut acc sg (doric)",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "e)/lsoim'": [
+  {
+   "lemma": "e)/rxomai",
+   "gloss": "come, go (Laconian ἔλσοιμι = ἔλθοιμι)",
+   "parse": "aor opt act 1st sg (doric)",
+   "lsj": [
+    "e)/rxomai"
+   ]
+  }
+ ],
+ "kaqh/|meq'": [
+  {
+   "lemma": "ka/qhmai",
+   "gloss": "sit",
+   "parse": "pres opt mp 1st pl",
+   "lsj": [
+    "ka/qhmai"
+   ]
+  }
+ ],
+ "a)morgi/onis": [
+  {
+   "lemma": "a)mo/rginos",
+   "gloss": "of Amorgos flax (the text prints Ἀμοργίονις for Ἀμοργίνοις)",
+   "parse": "neut dat pl",
+   "lsj": []
+  }
+ ],
+ "a)sanai/wn": [
+  {
+   "lemma": "*)aqhnai=os",
+   "gloss": "Athenian (Laconian Ἀσαναίων = Ἀθηναίων)",
+   "parse": "masc gen pl (doric)",
+   "lsj": [
+    "*)aqhnai=os"
+   ]
+  }
+ ],
+ "r(ua(/xeton": [
+  {
+   "lemma": "r(ua/xetos",
+   "gloss": "rabble (Laconian)",
+   "parse": "masc acc sg (doric)",
+   "lsj": []
+  }
+ ],
+ "ta=de": [
+  {
+   "lemma": "o(/de",
+   "gloss": "in this way (Doric τᾶδε = τῇδε)",
+   "parse": "fem dat sg (doric)",
+   "lsj": [
+    "o(/de"
+   ]
+  }
+ ],
+ "qai)=ma": [
+  {
+   "lemma": "ai(=ma",
+   "gloss": "blood (crasis: τὸ αἷμα)",
+   "parse": "neut nom sg",
+   "lsj": [
+    "ai(=ma"
+   ]
+  }
+ ],
+ "poto/ddei": [
+  {
+   "lemma": "proso/zw",
+   "gloss": "smell of (Laconian ποτόδδει = προσόζει)",
+   "parse": "pres ind act 3rd sg (doric)",
+   "lsj": []
+  }
+ ],
+ "w(loluga/": [
+  {
+   "lemma": "o)lolugh/",
+   "gloss": "cry of joy (crasis: ἁ ὀλολυγά = ἡ ὀλολυγή)",
+   "parse": "fem nom sg (doric)",
+   "lsj": [
+    "o)lolu_gh/"
+   ]
+  }
+ ],
+ "filou=rge": [
+  {
+   "lemma": "*filou=rgos",
+   "gloss": "Philurgus",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "fushte/on": [
+  {
+   "lemma": "fushte/os",
+   "gloss": "one must blow (verbal adjective of φυσάω)",
+   "parse": "neut nom sg",
+   "lsj": []
+  }
+ ],
+ "xu/rta": [
+  {
+   "lemma": "xu/tra",
+   "gloss": "pot (the text prints χύρτα for χύτρα)",
+   "parse": "fem voc sg",
+   "lsj": [
+    "xu/tra"
+   ]
+  }
+ ],
+ "nikodi/kh": [
+  {
+   "lemma": "*nikodi/kh",
+   "gloss": "Nicodice",
+   "parse": "fem voc sg",
+   "lsj": []
+  }
+ ],
+ "kri/tullan": [
+  {
+   "lemma": "*kri/tulla",
+   "gloss": "Critylla",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "xrusolo/fa": [
+  {
+   "lemma": "xruso/lofos",
+   "gloss": "golden-crested",
+   "parse": "fem voc sg (doric)",
+   "lsj": []
+  }
+ ],
+ "ponwponhroi/": [
+  {
+   "lemma": "ponwpo/nhros",
+   "gloss": "toil-and-trouble villains (comic coinage)",
+   "parse": "masc nom pl",
+   "lsj": []
+  }
+ ],
+ "tosauti/": [
+  {
+   "lemma": "tosou=tos",
+   "gloss": "so much (with deictic -ί)",
+   "parse": "neut acc pl",
+   "lsj": [
+    "tosou=tos"
+   ]
+  }
+ ],
+ "stratulli/dos": [
+  {
+   "lemma": "*stratulli/s",
+   "gloss": "Stratyllis",
+   "parse": "fem gen sg",
+   "lsj": []
+  }
+ ],
+ "pohth/s": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "r(odi/pph": [
+  {
+   "lemma": "*(rodi/pph",
+   "gloss": "Rhodippe",
+   "parse": "fem voc sg",
+   "lsj": []
+  }
+ ],
+ "w)=xelw|e": [
+  {
+   "lemma": "*)axelw|=os",
+   "gloss": "Achelous, i.e. water (crasis: ὦ Ἀχελῷε)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "*)axelw|=os"
+   ]
+  }
+ ],
+ "a)dwniasmo/s": [
+  {
+   "lemma": "*)adwniasmo/s",
+   "gloss": "the Adonia (mourning for Adonis)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "xolozu/ghs": [
+  {
+   "lemma": "*xolozu/ghs",
+   "gloss": "Cholozyges, \"Lame-yoke\" (nickname of Demostratus)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "e)neourhko/tas": [
+  {
+   "lemma": "e)noure/w",
+   "gloss": "piss in",
+   "parse": "perf part act masc acc pl",
+   "lsj": []
+  }
+ ],
+ "e)nqendi/": [
+  {
+   "lemma": "e)nqe/nde",
+   "gloss": "from here (with deictic -ί)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "e)nqe/nde"
+   ]
+  }
+ ],
+ "xa)nu/sante": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἀνύσαντε)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "a)nu/w",
+   "gloss": "accomplish; (with a verb) quickly (crasis: καὶ ἀνύσαντε)",
+   "parse": "aor part act masc nom dual",
+   "lsj": [
+    "a)nu/w"
+   ]
+  }
+ ],
+ "spermagoraiolekiqolaxanopw/lides": [
+  {
+   "lemma": "spermagoraiolekiqolaxanopw/lis",
+   "gloss": "seed-market-porridge-vegetable-sellers (comic coinage)",
+   "parse": "fem voc pl",
+   "lsj": []
+  }
+ ],
+ "pohte/a": [
+  {
+   "lemma": "poihte/os",
+   "gloss": "to be done (verbal adjective of ποιέω)",
+   "parse": "neut nom pl",
+   "lsj": [
+    "poihte/os"
+   ]
+  }
+ ],
+ "krw/cais": [
+  {
+   "lemma": "krw/zw",
+   "gloss": "caw, croak",
+   "parse": "aor opt act 2nd sg",
+   "lsj": [
+    "krw/zw"
+   ]
+  }
+ ],
+ "kai/tou)k": [
+  {
+   "lemma": "kai/toi",
+   "gloss": "and yet (crasis: καίτοι οὐκ)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "kai/_toi"
+   ]
+  },
+  {
+   "lemma": "ou)",
+   "gloss": "not (crasis: καίτοι οὐκ)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "ou)"
+   ]
+  }
+ ],
+ "toiga/rtou)gwg'": [
+  {
+   "lemma": "toiga/rtoi",
+   "gloss": "therefore (crasis: τοιγάρτοι ἔγωγε)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "toiga/r"
+   ]
+  },
+  {
+   "lemma": "e)gw/",
+   "gloss": "I at least (crasis: τοιγάρτοι ἔγωγε)",
+   "parse": "masc/fem nom 1st sg",
+   "lsj": [
+    "e)gw/"
+   ]
+  }
+ ],
+ "kamath/rios": [
+  {
+   "lemma": "kamath/rios",
+   "gloss": "wearisome",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "ka=|t'": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ εἶτα)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "ei)=ta",
+   "gloss": "then, next (crasis: καὶ εἶτα)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "ei)=ta"
+   ]
+  }
+ ],
+ "xa)/ndres": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ οἱ ἄνδρες)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "a)nh/r",
+   "gloss": "man, husband (crasis: καὶ οἱ ἄνδρες)",
+   "parse": "masc nom pl",
+   "lsj": [
+    "a)nh/r"
+   ]
+  }
+ ],
+ "stu=sai": [
+  {
+   "lemma": "stu/w",
+   "gloss": "have an erection",
+   "parse": "aor inf act",
+   "lsj": [
+    "stu/w"
+   ]
+  }
+ ],
+ "e)nteqriw=sqai": [
+  {
+   "lemma": "e)nqrio/w",
+   "gloss": "wrap in fig-leaves",
+   "parse": "perf inf mp",
+   "lsj": []
+  }
+ ],
+ "qh)ka/th|": [
+  {
+   "lemma": "*(eka/th",
+   "gloss": "Hecate (crasis: τῇ Ἑκάτῃ)",
+   "parse": "fem dat sg",
+   "lsj": []
+  }
+ ],
+ "a)mo/rgidos": [
+  {
+   "lemma": "a)morgi/s",
+   "gloss": "fine flax of Amorgos",
+   "parse": "fem gen sg",
+   "lsj": []
+  }
+ ],
+ "'te/ra": [
+  {
+   "lemma": "e(/teros",
+   "gloss": "another (aphaeresis: ἑτέρα)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "e(/teros"
+   ]
+  }
+ ],
+ "i(lei/qu'": [
+  {
+   "lemma": "*ei)lei/quia",
+   "gloss": "Eileithyia (goddess of childbirth)",
+   "parse": "fem voc sg",
+   "lsj": [
+    "*ei)lei/quia"
+   ]
+  }
+ ],
+ "w)=gaqai": [
+  {
+   "lemma": "a)gaqo/s",
+   "gloss": "good (crasis: ὦ ἀγαθαί)",
+   "parse": "fem voc pl",
+   "lsj": [
+    "a)ga^qo/s"
+   ]
+  }
+ ],
+ "katapugwne/steron": [
+  {
+   "lemma": "katapu/gwn",
+   "gloss": "lewd, debauched",
+   "parse": "neut acc comp sg",
+   "lsj": [
+    "katapu_/gwn"
+   ]
+  }
+ ],
+ "h(kba/llousa": [
+  {
+   "lemma": "e)kba/llw",
+   "gloss": "throw out (crasis: ἡ ἐκβάλλουσα)",
+   "parse": "pres part act fem nom sg",
+   "lsj": [
+    "e)kba/llw"
+   ]
+  }
+ ],
+ "murrini/dion": [
+  {
+   "lemma": "*murrini/dion",
+   "gloss": "little Myrrhine (diminutive)",
+   "parse": "neut voc sg",
+   "lsj": []
+  }
+ ],
+ "mu/rrion": [
+  {
+   "lemma": "*mu/rrion",
+   "gloss": "Myrrhine (pet name)",
+   "parse": "neut voc sg",
+   "lsj": []
+  }
+ ],
+ "manh=": [
+  {
+   "lemma": "*manh=s",
+   "gloss": "Manes (a slave name)",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "r(o/dion": [
+  {
+   "lemma": "*(ro/dios",
+   "gloss": "Rhodian (perfume)",
+   "parse": "neut acc sg",
+   "lsj": []
+  }
+ ],
+ "w)=|zura": [
+  {
+   "lemma": "o)i+zuro/s",
+   "gloss": "miserable (crasis: ὦ ὀιζυρά)",
+   "parse": "fem voc sg",
+   "lsj": [
+    "o)i+zu_ro/s"
+   ]
+  }
+ ],
+ "ne/fros": [
+  {
+   "lemma": "nefro/s",
+   "gloss": "kidneys, loins",
+   "parse": "masc nom sg",
+   "lsj": [
+    "nefro/s"
+   ]
+  }
+ ],
+ "pambdelu/ra": [
+  {
+   "lemma": "pambdeluro/s",
+   "gloss": "utterly loathsome",
+   "parse": "fem nom sg",
+   "lsj": [
+    "pambdelu^ro/s"
+   ]
+  }
+ ],
+ "pammusa/ra": [
+  {
+   "lemma": "pammusaro/s",
+   "gloss": "utterly foul",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "paggluke/ra": [
+  {
+   "lemma": "pagglukero/s",
+   "gloss": "all-sweet",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "tufw=|": [
+  {
+   "lemma": "tufw/s",
+   "gloss": "whirlwind",
+   "parse": "masc dat sg",
+   "lsj": []
+  }
+ ],
+ "cuggoggu/las": [
+  {
+   "lemma": "suggoggu/llw",
+   "gloss": "roll up together",
+   "parse": "aor part act masc nom sg",
+   "lsj": []
+  }
+ ],
+ "a)sana=n": [
+  {
+   "lemma": "*)aqh=nai",
+   "gloss": "Athens (Laconian Ἀσανᾶν = Ἀθηνῶν)",
+   "parse": "fem gen pl (doric)",
+   "lsj": [
+    "*)aqh=nai"
+   ]
+  }
+ ],
+ "gerwxi/a": [
+  {
+   "lemma": "gerwxi/a",
+   "gloss": "council of elders (Laconian)",
+   "parse": "fem nom sg (doric)",
+   "lsj": []
+  }
+ ],
+ "musi/cai": [
+  {
+   "lemma": "muqi/zw",
+   "gloss": "speak, tell (Laconian μυσίξαι = μυθίξαι)",
+   "parse": "aor inf act (doric)",
+   "lsj": []
+  }
+ ],
+ "o)rsa/": [
+  {
+   "lemma": "o)rqo/s",
+   "gloss": "upright, erect (Laconian ὀρσά = ὀρθή)",
+   "parse": "fem nom sg (doric)",
+   "lsj": [
+    "o)rqo/s"
+   ]
+  }
+ ],
+ "pa=a(": [
+  {
+   "lemma": "pa=s",
+   "gloss": "all, the whole (Laconian πᾶἁ = πᾶσα)",
+   "parse": "fem nom sg (doric)",
+   "lsj": [
+    "pa=s1"
+   ]
+  }
+ ],
+ "a)ph/laa(n": [
+  {
+   "lemma": "a)pelau/nw",
+   "gloss": "drive away (Laconian ἀπήλαἁν = ἀπήλασαν)",
+   "parse": "aor ind act 3rd pl (doric)",
+   "lsj": [
+    "a)pelau/nw"
+   ]
+  }
+ ],
+ "u(ssa/kwn": [
+  {
+   "lemma": "u(/ssakos",
+   "gloss": "woman's parts (Laconian slang)",
+   "parse": "masc gen pl (doric)",
+   "lsj": []
+  }
+ ],
+ "u(pokeku/fames": [
+  {
+   "lemma": "u(poku/ptw",
+   "gloss": "stoop, bend down",
+   "parse": "perf ind act 1st pl (doric)",
+   "lsj": [
+    "u(poku/ptw"
+   ]
+  }
+ ],
+ "poihw(/mesqa": [
+  {
+   "lemma": "poie/w",
+   "gloss": "make (Laconian ποιηὥμεσθα = ποιησώμεθα)",
+   "parse": "aor subj mid 1st pl (doric)",
+   "lsj": [
+    "poie/w"
+   ]
+  }
+ ],
+ "pota/o(mai": [
+  {
+   "lemma": "pota/omai",
+   "gloss": "fly",
+   "parse": "pres ind mp 1st sg (doric)",
+   "lsj": [
+    "pota/omai"
+   ]
+  }
+ ],
+ "po/rdalis": [
+  {
+   "lemma": "pa/rdalis",
+   "gloss": "leopard (πόρδαλις)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "pa/rda^lis"
+   ]
+  }
+ ],
+ "trikorusi/a": [
+  {
+   "lemma": "*trikorusi/os",
+   "gloss": "of Tricorythus (Attic deme)",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "i)/koisq'": [
+  {
+   "lemma": "i(kne/omai",
+   "gloss": "come, reach",
+   "parse": "aor opt mid 2nd pl",
+   "lsj": [
+    "i(kne/omai"
+   ]
+  }
+ ],
+ "musi/ddhn": [
+  {
+   "lemma": "muqi/zw",
+   "gloss": "speak (Laconian μυσίδδην = μυθίζειν)",
+   "parse": "pres inf act (doric)",
+   "lsj": []
+  }
+ ],
+ "e)lsw/n": [
+  {
+   "lemma": "e)/rxomai",
+   "gloss": "come, go (Laconian ἐλσών = ἐλθών)",
+   "parse": "aor part act masc nom sg (doric)",
+   "lsj": [
+    "e)/rxomai"
+   ]
+  }
+ ],
+ "se/tw": [
+  {
+   "lemma": "ti/qhmi",
+   "gloss": "put, make (Laconian σέτω = θέτω)",
+   "parse": "aor imperat act 3rd sg (doric)",
+   "lsj": [
+    "ti/qhmi"
+   ]
+  }
+ ],
+ "toioutoii/": [
+  {
+   "lemma": "toiou=tos",
+   "gloss": "such as this (with deictic -ί)",
+   "parse": "masc nom pl",
+   "lsj": [
+    "toiou=tos"
+   ]
+  }
+ ],
+ "pepo/nqames": [
+  {
+   "lemma": "pa/sxw",
+   "gloss": "suffer",
+   "parse": "perf ind act 1st pl (doric)",
+   "lsj": [
+    "pa/sxw"
+   ]
+  }
+ ],
+ "ai)k": [
+  {
+   "lemma": "ei)",
+   "gloss": "if (Laconian αἰ = εἰ; crasis: αἰ κα)",
+   "parse": "indeclform (conj) (doric)",
+   "lsj": [
+    "ei)"
+   ]
+  },
+  {
+   "lemma": "a)/n1",
+   "gloss": "modal particle (Doric κα = ἄν; crasis: αἰ κα)",
+   "parse": "indeclform (particle) (doric)",
+   "lsj": [
+    "a)/n"
+   ]
+  }
+ ],
+ "a)mpeflasme/nws": [
+  {
+   "lemma": "a)nafla/w",
+   "gloss": "in a state of arousal (from the perfect participle of ἀναφλάω)",
+   "parse": "adverbial",
+   "lsj": []
+  }
+ ],
+ "lui(/straton": [
+  {
+   "lemma": "*lusi/stratos",
+   "gloss": "Lysistratus (a man; pun on Lysistrata)",
+   "parse": "masc acc sg (doric)",
+   "lsj": []
+  }
+ ],
+ "h)mpe/sxon": [
+  {
+   "lemma": "a)mpe/xw",
+   "gloss": "clothe",
+   "parse": "aor ind act 3rd pl",
+   "lsj": [
+    "a)mpe/xw"
+   ]
+  }
+ ],
+ "ou)/pa": [
+  {
+   "lemma": "ou)/pw",
+   "gloss": "never yet (Laconian οὔπα = οὔπω)",
+   "parse": "indeclform (adverb) (doric)",
+   "lsj": [
+    "ou)/pw"
+   ]
+  }
+ ],
+ "xai(wte/ran": [
+  {
+   "lemma": "xa/i+os",
+   "gloss": "nobler, better (Laconian)",
+   "parse": "fem acc comp sg (doric)",
+   "lsj": [
+    "xa/i+os"
+   ]
+  }
+ ],
+ "blima/ddomes": [
+  {
+   "lemma": "blima/zw",
+   "gloss": "feel, fondle (Laconian δδ = ζ)",
+   "parse": "pres ind act 1st pl (doric)",
+   "lsj": [
+    "bli_ma/zw"
+   ]
+  }
+ ],
+ "e)xinou=nta": [
+  {
+   "lemma": "*)exinou=s",
+   "gloss": "Echinus (a town; with a sexual pun)",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "mequo/ntes": [
+  {
+   "lemma": "mequ/w",
+   "gloss": "be drunk",
+   "parse": "pres part act masc nom pl",
+   "lsj": [
+    "mequ/w"
+   ]
+  }
+ ],
+ "fua(th/ria": [
+  {
+   "lemma": "fushth/rion",
+   "gloss": "bellows, pipes (Laconian φυἁτήρια = φυσητήρια)",
+   "parse": "neut acc pl (doric)",
+   "lsj": []
+  }
+ ],
+ "ka)ei/w(": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἀείσω)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "a)ei/dw",
+   "gloss": "sing (Laconian ἀείὡ = ἀείσω)",
+   "parse": "aor subj act 1st sg (doric)",
+   "lsj": [
+    "a)ei/dw"
+   ]
+  }
+ ],
+ "o(/rmao(n": [
+  {
+   "lemma": "o(rma/w",
+   "gloss": "set in motion, send (Laconian ὅρμαὁν = ὅρμασον)",
+   "parse": "aor imperat act 2nd sg (doric)",
+   "lsj": [
+    "o(rma/w"
+   ]
+  }
+ ],
+ "mnamo/na": [
+  {
+   "lemma": "*mnamo/na",
+   "gloss": "Memory, Mnemosyne (Laconian)",
+   "parse": "fem voc sg (doric)",
+   "lsj": []
+  }
+ ],
+ "mw=a(n": [
+  {
+   "lemma": "*mou=sa",
+   "gloss": "Muse (Laconian Μῶἁ = Μοῦσα)",
+   "parse": "fem acc sg (doric)",
+   "lsj": [
+    "*mou=sa"
+   ]
+  }
+ ],
+ "o(/ka": [
+  {
+   "lemma": "o(/ka",
+   "gloss": "when (Doric = ὅτε)",
+   "parse": "indeclform (conj) (doric)",
+   "lsj": []
+  }
+ ],
+ "a)rtamiti/w|": [
+  {
+   "lemma": "*)artemi/sion",
+   "gloss": "Artemisium (Laconian Ἀρταμίτιον)",
+   "parse": "neut dat sg (doric)",
+   "lsj": []
+  }
+ ],
+ "prw/kroon": [
+  {
+   "lemma": "prokrou/w",
+   "gloss": "charge forward (Laconian πρώκροον = προὔκρουον)",
+   "parse": "imperf ind act 3rd pl (doric)",
+   "lsj": [
+    "prokrou/w"
+   ]
+  }
+ ],
+ "suei/keloi": [
+  {
+   "lemma": "suei/kelos",
+   "gloss": "like boars",
+   "parse": "masc nom pl",
+   "lsj": []
+  }
+ ],
+ "potta/": [
+  {
+   "lemma": "poti/",
+   "gloss": "to, towards (Doric = πρός; crasis: ποτὶ τά)",
+   "parse": "indeclform (prep) (doric)",
+   "lsj": []
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ποτὶ τά)",
+   "parse": "neut acc pl (doric)",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "sa/gontas": [
+  {
+   "lemma": "qh/gw",
+   "gloss": "whet, sharpen (Laconian σάγοντας = θήγοντας)",
+   "parse": "pres part act masc acc pl (doric)",
+   "lsj": [
+    "qh/gw"
+   ]
+  }
+ ],
+ "sia/": [
+  {
+   "lemma": "qea/",
+   "gloss": "goddess (Laconian σιά = θεά)",
+   "parse": "fem voc sg (doric)",
+   "lsj": [
+    "qea/"
+   ]
+  }
+ ],
+ "potta/s": [
+  {
+   "lemma": "poti/",
+   "gloss": "to, towards (Doric = πρός; crasis: ποτὶ τάς)",
+   "parse": "indeclform (prep) (doric)",
+   "lsj": []
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ποτὶ τάς)",
+   "parse": "fem acc pl (doric)",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "a)e/s": [
+  {
+   "lemma": "a)ei/",
+   "gloss": "always (Laconian ἀές = ἀεί)",
+   "parse": "indeclform (adverb) (doric)",
+   "lsj": [
+    "a)ei/"
+   ]
+  }
+ ],
+ "pauai(/meqa": [
+  {
+   "lemma": "pau/w",
+   "gloss": "stop, cease (Laconian παυαἵμεθα = παυσαίμεθα)",
+   "parse": "aor opt mid 1st pl (doric)",
+   "lsj": [
+    "pau/w"
+   ]
+  }
+ ],
+ "tasdedi/": [
+  {
+   "lemma": "o(/de",
+   "gloss": "these (with deictic -ί)",
+   "parse": "fem acc pl",
+   "lsj": [
+    "o(/de"
+   ]
+  }
+ ],
+ "a)ge/xoron": [
+  {
+   "lemma": "a)ge/xoros",
+   "gloss": "leader of the dance",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "e)pima/rtusi": [
+  {
+   "lemma": "e)pi/martus",
+   "gloss": "witness",
+   "parse": "masc dat pl",
+   "lsj": []
+  }
+ ],
+ "e)klipw=a(": [
+  {
+   "lemma": "e)klei/pw",
+   "gloss": "leave (Laconian ἐκλιπῶἁ = ἐκλιποῦσα)",
+   "parse": "aor part act fem nom sg (doric)",
+   "lsj": [
+    "e)klei/pw"
+   ]
+  }
+ ],
+ "mw=a(": [
+  {
+   "lemma": "*mou=sa",
+   "gloss": "Muse (Laconian Μῶἁ = Μοῦσα)",
+   "parse": "fem voc sg (doric)",
+   "lsj": [
+    "*mou=sa"
+   ]
+  }
+ ],
+ "kle/wa(": [
+  {
+   "lemma": "kle/w",
+   "gloss": "celebrate (Laconian κλέωἁ = κλέουσα)",
+   "parse": "pres part act fem nom sg (doric)",
+   "lsj": [
+    "kle/w1"
+   ]
+  }
+ ],
+ "a)gasw/s": [
+  {
+   "lemma": "a)gaqo/s",
+   "gloss": "good (Laconian ἀγασώς = ἀγαθούς)",
+   "parse": "masc acc pl (doric)",
+   "lsj": [
+    "a)ga^qo/s"
+   ]
+  }
+ ],
+ "yia/ddonti": [
+  {
+   "lemma": "yia/zw",
+   "gloss": "sport, dance (Laconian ψιάδδοντι = ψιάζουσι)",
+   "parse": "pres ind act 3rd pl (doric)",
+   "lsj": []
+  }
+ ],
+ "a)gkoni/wai(": [
+  {
+   "lemma": "a)nakoni/w",
+   "gloss": "raise the dust (Laconian ἀγκονίωἁι = ἀνακονίουσαι)",
+   "parse": "pres part act fem nom pl (doric)",
+   "lsj": []
+  }
+ ],
+ "qursaddwa(=n": [
+  {
+   "lemma": "qursa/zw",
+   "gloss": "wield the thyrsus (Laconian θυρσαδδωἇν = θυρσαζουσῶν)",
+   "parse": "pres part act fem gen pl (doric)",
+   "lsj": []
+  }
+ ],
+ "paiddwa(=n": [
+  {
+   "lemma": "pai/zw",
+   "gloss": "play, sport (Laconian παιδδωἇν = παιζουσῶν)",
+   "parse": "pres part act fem gen pl (doric)",
+   "lsj": [
+    "pai/zw"
+   ]
+  }
+ ],
+ "xorwfelh/tan": [
+  {
+   "lemma": "xorwfelh/ths",
+   "gloss": "helpful to the dance",
+   "parse": "masc acc sg (doric)",
+   "lsj": []
+  }
+ ]
+}

@@ -1,0 +1,265 @@
+{
+  "ou)=tos": [
+    {
+      "lemma": "ou(=tos",
+      "gloss": "this",
+      "parse": "masc nom sg",
+      "lsj": [
+        "ou(=tos"
+      ]
+    }
+  ],
+  "oi(=nos": [
+    {
+      "lemma": "oi)=nos",
+      "gloss": "wine",
+      "parse": "masc nom sg",
+      "lsj": [
+        "oi)=nos"
+      ]
+    }
+  ],
+  "yu/tt'": [
+    {
+      "lemma": "yu/tta",
+      "gloss": "shoo! (cry to drive animals)",
+      "parse": "indeclform (exclam)",
+      "lsj": []
+    }
+  ],
+  "a)groba/ta": [
+    {
+      "lemma": "a)groba/ths",
+      "gloss": "haunting the fields",
+      "parse": "masc gen sg (doric)",
+      "lsj": []
+    }
+  ],
+  "skopelw=n": [
+    {
+      "lemma": "sko/pelos",
+      "gloss": "rock, crag",
+      "parse": "masc gen pl",
+      "lsj": [
+        "sko/pelos"
+      ]
+    }
+  ],
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm, assert",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "lw=iston": [
+    {
+      "lemma": "lw=|stos",
+      "gloss": "best, most desirable",
+      "parse": "masc acc superl sg",
+      "lsj": [
+        "lwi/+wn"
+      ]
+    },
+    {
+      "lemma": "lw=|stos",
+      "gloss": "best, most desirable",
+      "parse": "neut nom/voc/acc superl sg",
+      "lsj": [
+        "lwi/+wn"
+      ]
+    }
+  ],
+  "e)chmelgme/non": [
+    {
+      "lemma": "e)came/lgw",
+      "gloss": "milk out, press out",
+      "parse": "perf part mp neut nom/voc/acc sg",
+      "lsj": [
+        "e)ca^me/lgw"
+      ]
+    }
+  ],
+  "xrh/izontes": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres part act masc nom/voc pl",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "r(adama/nquos": [
+    {
+      "lemma": "*(radama/nqus",
+      "gloss": "Rhadamanthys",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "gerai/stioi": [
+    {
+      "lemma": "*gerai/stios",
+      "gloss": "of Geraestus",
+      "parse": "masc/fem nom/voc pl",
+      "lsj": []
+    }
+  ],
+  "qrh/ikios": [
+    {
+      "lemma": "*qra/|kios",
+      "gloss": "Thracian",
+      "parse": "masc nom sg",
+      "lsj": [
+        "*qra/|kios"
+      ]
+    }
+  ],
+  "ai)tnai=a": [
+    {
+      "lemma": "*ai)tnai=os",
+      "gloss": "of Etna",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "*ai)tnai=os"
+      ]
+    }
+  ],
+  "a)/idei": [
+    {
+      "lemma": "a)ei/dw",
+      "gloss": "sing",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "a)ei/dw"
+      ]
+    }
+  ],
+  "xrh/izet'": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres ind act 2nd pl",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "xrh/izete": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres ind act 2nd pl",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "ka)=iq'": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "e)kqu/yomen": [
+    {
+      "lemma": "e)ktu/fw",
+      "gloss": "smoke out",
+      "parse": "fut ind act 1st pl",
+      "lsj": []
+    }
+  ],
+  "papapai=": [
+    {
+      "lemma": "papai=",
+      "gloss": "ah! (cry of pain or surprise)",
+      "parse": "indeclform (exclam)",
+      "lsj": [
+        "pa^pai="
+      ]
+    }
+  ],
+  "xw(s": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ ὡς)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "w(s",
+      "gloss": "as, like (crasis: καὶ ὡς)",
+      "parse": "proclitic indeclform (conj)",
+      "lsj": [
+        "w(s"
+      ]
+    }
+  ],
+  "oi(noxo/os": [
+    {
+      "lemma": "oi)noxo/os",
+      "gloss": "cupbearer",
+      "parse": "masc nom sg",
+      "lsj": [
+        "oi)noxo/os"
+      ]
+    }
+  ],
+  "ka)=it'": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "cenodaitumo/nos": [
+    {
+      "lemma": "cenodaitumw/n",
+      "gloss": "feaster on guests",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "h)/idh": [
+    {
+      "lemma": "oi)=da",
+      "gloss": "know",
+      "parse": "plup ind act 1st sg",
+      "lsj": [
+        "oi)=da"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1220 @@
+{
+ "'knuen": [
+  {
+   "lemma": "knu/w",
+   "gloss": "scratch (ἔκνυεν, aphaeresis)",
+   "parse": "imperf ind act 3rd sg",
+   "lsj": []
+  }
+ ],
+ "a(lime/don": [
+  {
+   "lemma": "a(lime/dwn",
+   "gloss": "ruler of the sea",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "a)fhu=sen": [
+  {
+   "lemma": "a)feu/w",
+   "gloss": "singe off",
+   "parse": "aor ind act 3rd sg",
+   "lsj": [
+    "a)feu/w"
+   ]
+  }
+ ],
+ "a)martwlh/": [
+  {
+   "lemma": "a(martwlo/s",
+   "gloss": "rogue, sinner (Scythian ἀμαρτωλή)",
+   "parse": "masc nom sg (Scythian)",
+   "lsj": []
+  }
+ ],
+ "a)negei=ri": [
+  {
+   "lemma": "a)negei/rw",
+   "gloss": "wake up (Scythian ἀνεγεῖρι)",
+   "parse": "pres ind act 3rd sg (Scythian)",
+   "lsj": [
+    "a)negei/rw"
+   ]
+  }
+ ],
+ "a)po/lwlo": [
+  {
+   "lemma": "a)po/llumi",
+   "gloss": "destroy; (perf.) be undone (Scythian ἀπόλωλο)",
+   "parse": "perf ind act 1st sg (Scythian)",
+   "lsj": [
+    "a)po/llu_mi"
+   ]
+  }
+ ],
+ "a)po/trek'": [
+  {
+   "lemma": "a)potre/xw",
+   "gloss": "run off (Scythian ἀπότρεκε)",
+   "parse": "pres imperat act 2nd sg",
+   "lsj": [
+    "a)potre/xw"
+   ]
+  }
+ ],
+ "a)potanoume/nh": [
+  {
+   "lemma": "a)poqnh/|skw",
+   "gloss": "die (Scythian ἀποτανουμένη)",
+   "parse": "fut part mid fem nom sg",
+   "lsj": [
+    "a)poqnh/skw"
+   ]
+  }
+ ],
+ "a)rtamouci/a": [
+  {
+   "lemma": "*)artemisi/a",
+   "gloss": "Artemisia (the Scythian's mangling)",
+   "parse": "fem nom sg (Scythian)",
+   "lsj": []
+  }
+ ],
+ "ai)tri/an": [
+  {
+   "lemma": "ai)qri/a",
+   "gloss": "open air (Scythian αἰτρία)",
+   "parse": "fem acc sg",
+   "lsj": [
+    "ai)qri/a"
+   ]
+  }
+ ],
+ "ba/uze": [
+  {
+   "lemma": "bau+/zw",
+   "gloss": "bark, yelp at",
+   "parse": "pres imperat act 2nd sg",
+   "lsj": [
+    "ba^u/+zw"
+   ]
+  }
+ ],
+ "bo/mbo": [
+  {
+   "lemma": "bo/mbos",
+   "gloss": "buzzing, din (Scythian βόμβο)",
+   "parse": "masc nom sg (Scythian)",
+   "lsj": []
+  }
+ ],
+ "bomba/c": [
+  {
+   "lemma": "bomba/c",
+   "gloss": "wow! (exclamation of wonder)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "bombalobomba/c": [
+  {
+   "lemma": "bombalobomba/c",
+   "gloss": "wow-wow! (intensified βομβάξ)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "bou=lis": [
+  {
+   "lemma": "bou/lomai",
+   "gloss": "want, wish (Scythian βοῦλις)",
+   "parse": "pres ind mp 2nd sg (Scythian)",
+   "lsj": [
+    "bou/lomai"
+   ]
+  }
+ ],
+ "ce/null'": [
+  {
+   "lemma": "*ce/nulla",
+   "gloss": "Xenylla",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "cipoma/kairan": [
+  {
+   "lemma": "cifoma/xaira",
+   "gloss": "sword-knife (Scythian ξιπομάκαιρα)",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "dh/mhter": [
+  {
+   "lemma": "*dhmh/thr",
+   "gloss": "Demeter",
+   "parse": "fem voc sg",
+   "lsj": [
+    "*dhmh/thr"
+   ]
+  }
+ ],
+ "dianeu/mata": [
+  {
+   "lemma": "dia/neuma",
+   "gloss": "nod, glance",
+   "parse": "neut nom/voc/acc pl",
+   "lsj": []
+  }
+ ],
+ "e)/konto": [
+  {
+   "lemma": "e)/xw",
+   "gloss": "have (Scythian ἔκοντο)",
+   "parse": "pres part act masc acc sg (Scythian)",
+   "lsj": [
+    "e)/xw1",
+    "e)/xw2"
+   ]
+  }
+ ],
+ "e)/kw)den": [
+  {
+   "lemma": "e)/xw",
+   "gloss": "have (crasis: ἔχω οὐδέν)",
+   "parse": "pres ind act 1st sg",
+   "lsj": [
+    "e)/xw1",
+    "e)/xw2"
+   ]
+  },
+  {
+   "lemma": "ou)dei/s",
+   "gloss": "nothing (crasis: ἔχω οὐδέν)",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": [
+    "ou)dei/s"
+   ]
+  }
+ ],
+ "e)co/pisto": [
+  {
+   "lemma": "e)co/pisqen",
+   "gloss": "from behind (Scythian ἐξόπιστο)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "e)co/pisqen"
+   ]
+  }
+ ],
+ "e)ggetauqi/": [
+  {
+   "lemma": "e)ntau=qa",
+   "gloss": "here (ἐνταυθί with γε inserted)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "e)ntau=qa"
+   ]
+  },
+  {
+   "lemma": "ge",
+   "gloss": "at least, indeed (ἐνταυθί with γε inserted)",
+   "parse": "enclitic indeclform (particle)",
+   "lsj": [
+    "ge"
+   ]
+  }
+ ],
+ "e)ntau=ta": [
+  {
+   "lemma": "e)ntau=qa",
+   "gloss": "here, there (Scythian ἐνταῦτα)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "e)ntau=qa"
+   ]
+  }
+ ],
+ "e)nteuteni/": [
+  {
+   "lemma": "e)nteu=qen",
+   "gloss": "from here (Scythian ἐντευθενί)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "e)nteu=qen"
+   ]
+  }
+ ],
+ "e)pith/kize": [
+  {
+   "lemma": "piqhki/zw",
+   "gloss": "play the ape, play tricks (Scythian ἐπιτήκιζε)",
+   "parse": "imperf ind act 3rd sg",
+   "lsj": []
+  }
+ ],
+ "e)pitumei=s": [
+  {
+   "lemma": "e)piqume/w",
+   "gloss": "desire, long for (Scythian ἐπιτυμεῖς)",
+   "parse": "pres ind act 2nd sg",
+   "lsj": [
+    "e)piqu_me/w"
+   ]
+  }
+ ],
+ "e)pto/nhsa": [
+  {
+   "lemma": "fqone/w",
+   "gloss": "begrudge (Scythian ἐπτόνησα)",
+   "parse": "aor ind act 1st sg",
+   "lsj": [
+    "fqone/w"
+   ]
+  }
+ ],
+ "ei)=e(n": [
+  {
+   "lemma": "ei)=en",
+   "gloss": "well! well now!",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "eu)/xoiron": [
+  {
+   "lemma": "eu)/xoiros",
+   "gloss": "rich in pigs; (here) with a fine 'piggy' (obscene pun)",
+   "parse": "masc/fem acc sg",
+   "lsj": []
+  }
+ ],
+ "garghtto/qen": [
+  {
+   "lemma": "*garghtto/qen",
+   "gloss": "from Gargettus",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "ge/ronto": [
+  {
+   "lemma": "ge/rwn",
+   "gloss": "old man (Scythian γέροντο)",
+   "parse": "masc acc sg (Scythian)",
+   "lsj": [
+    "ge/rwn"
+   ]
+  }
+ ],
+ "glukero/": [
+  {
+   "lemma": "glukero/s",
+   "gloss": "sweet (Scythian γλυκερό)",
+   "parse": "fem nom sg (Scythian)",
+   "lsj": [
+    "glu^kero/s"
+   ]
+  }
+ ],
+ "go/rgo": [
+  {
+   "lemma": "*gorgw/",
+   "gloss": "Gorgon (Scythian Γόργο)",
+   "parse": "fem acc sg (Scythian)",
+   "lsj": [
+    "*gorgw/"
+   ]
+  }
+ ],
+ "goggu/llei": [
+  {
+   "lemma": "goggu/llw",
+   "gloss": "round off",
+   "parse": "pres ind act 3rd sg",
+   "lsj": []
+  }
+ ],
+ "gra/|dio": [
+  {
+   "lemma": "grai/dion",
+   "gloss": "little old woman (Scythian γρᾴδιο)",
+   "parse": "neut voc sg (Scythian)",
+   "lsj": [
+    "gra_i/+dion"
+   ]
+  }
+ ],
+ "gra=o": [
+  {
+   "lemma": "grau=s",
+   "gloss": "old woman (Scythian γρᾶο)",
+   "parse": "fem voc sg (Scythian)",
+   "lsj": [
+    "grau=s"
+   ]
+  }
+ ],
+ "grammate/o": [
+  {
+   "lemma": "grammateu/s",
+   "gloss": "clerk, scribe (Scythian γραμματέο)",
+   "parse": "masc nom sg (Scythian)",
+   "lsj": [
+    "gramma^teu/s"
+   ]
+  }
+ ],
+ "grau=": [
+  {
+   "lemma": "grau=s",
+   "gloss": "old woman",
+   "parse": "fem voc sg",
+   "lsj": [
+    "grau=s"
+   ]
+  }
+ ],
+ "gu/naiko": [
+  {
+   "lemma": "gunh/",
+   "gloss": "woman (Scythian γύναικο)",
+   "parse": "fem voc sg (Scythian)",
+   "lsj": [
+    "gu^nh/"
+   ]
+  }
+ ],
+ "h)": [
+  {
+   "lemma": "o(",
+   "gloss": "the (Scythian, unaspirated ἠ)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "ka)gka/ski": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἐγχάσκεις)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "e)gxa/skw",
+   "gloss": "grin at, mock (Scythian ἐγκάσκι)",
+   "parse": "pres ind act 2nd sg (Scythian)",
+   "lsj": [
+    "e)gxa/skw"
+   ]
+  }
+ ],
+ "ka/riso": [
+  {
+   "lemma": "xari/zw",
+   "gloss": "do a favour, grant (Scythian κάρισο)",
+   "parse": "aor imperat mid 2nd sg",
+   "lsj": [
+    "xa^ri/zw"
+   ]
+  }
+ ],
+ "kairh/seis": [
+  {
+   "lemma": "xai/rw",
+   "gloss": "rejoice; (with οὐ) get away with it (Scythian καιρήσεις)",
+   "parse": "fut ind act 2nd sg",
+   "lsj": [
+    "xai/rw"
+   ]
+  }
+ ],
+ "kalo/": [
+  {
+   "lemma": "kalo/s",
+   "gloss": "beautiful (Scythian καλό)",
+   "parse": "fem nom sg (Scythian)",
+   "lsj": [
+    "kalo/s"
+   ]
+  }
+ ],
+ "kari/ento": [
+  {
+   "lemma": "xari/eis",
+   "gloss": "graceful, charming (Scythian καρίεντο)",
+   "parse": "neut nom sg (Scythian)",
+   "lsj": [
+    "xa^ri/eis"
+   ]
+  }
+ ],
+ "kepalh/": [
+  {
+   "lemma": "kefalh/",
+   "gloss": "head (Scythian κεπαλή)",
+   "parse": "fem acc sg (Scythian)",
+   "lsj": [
+    "kefa^lh/"
+   ]
+  }
+ ],
+ "kle/pto": [
+  {
+   "lemma": "kle/pths",
+   "gloss": "thief (Scythian κλέπτο)",
+   "parse": "masc nom sg (Scythian)",
+   "lsj": [
+    "kle/pths"
+   ]
+  }
+ ],
+ "koiku/lleis": [
+  {
+   "lemma": "koiku/llw",
+   "gloss": "gape about, stare idly",
+   "parse": "pres ind act 2nd sg",
+   "lsj": []
+  }
+ ],
+ "kri/tulla": [
+  {
+   "lemma": "*kri/tulla",
+   "gloss": "Critylla",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "ku/sto": [
+  {
+   "lemma": "ku/sqos",
+   "gloss": "cunt (Scythian κύστο)",
+   "parse": "masc acc sg (Scythian)",
+   "lsj": [
+    "ku/sqos"
+   ]
+  }
+ ],
+ "ku=bd'": [
+  {
+   "lemma": "ku=bda",
+   "gloss": "stooping forward, head down",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "kw)|ki/an": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ οἰκίαν)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "oi)ki/a",
+   "gloss": "house, household (crasis: καὶ οἰκίαν)",
+   "parse": "fem acc sg",
+   "lsj": [
+    "oi)ki/a"
+   ]
+  }
+ ],
+ "kw/|dio": [
+  {
+   "lemma": "kw/|dion",
+   "gloss": "fleece (Scythian κῴδιο)",
+   "parse": "neut acc sg (Scythian)",
+   "lsj": [
+    "kw/|dion"
+   ]
+  }
+ ],
+ "kw=mo": [
+  {
+   "lemma": "kw=mos",
+   "gloss": "revel, band of revellers (Scythian κῶμο)",
+   "parse": "masc nom sg (Scythian)",
+   "lsj": [
+    "kw=mos"
+   ]
+  }
+ ],
+ "la/lo": [
+  {
+   "lemma": "la/los",
+   "gloss": "chattering (Scythian λάλο)",
+   "parse": "fem voc sg (Scythian)",
+   "lsj": [
+    "la/los"
+   ]
+  }
+ ],
+ "le/gi": [
+  {
+   "lemma": "le/gw",
+   "gloss": "say (Scythian λέγι)",
+   "parse": "pres ind act 3rd sg (Scythian)",
+   "lsj": [
+    "le/gw"
+   ]
+  },
+  {
+   "lemma": "le/gw",
+   "gloss": "say (Scythian λέγι)",
+   "parse": "pres ind act 1st sg (Scythian)",
+   "lsj": [
+    "le/gw"
+   ]
+  }
+ ],
+ "ma/stigan": [
+  {
+   "lemma": "ma/stic",
+   "gloss": "whip (Scythian μάστιγαν)",
+   "parse": "fem acc sg (Scythian)",
+   "lsj": [
+    "ma/stic"
+   ]
+  }
+ ],
+ "ma=llo": [
+  {
+   "lemma": "ma=llon",
+   "gloss": "more (Scythian μᾶλλο)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "ma=llon"
+   ]
+  }
+ ],
+ "me/lis": [
+  {
+   "lemma": "me/li",
+   "gloss": "honey (Scythian μέλις)",
+   "parse": "neut nom sg (Scythian)",
+   "lsj": [
+    "me/li^"
+   ]
+  }
+ ],
+ "melopoei=n": [
+  {
+   "lemma": "melopoie/w",
+   "gloss": "compose lyric poetry",
+   "parse": "pres inf act",
+   "lsj": [
+    "melopoie/w"
+   ]
+  }
+ ],
+ "menele/w|": [
+  {
+   "lemma": "*mene/laos",
+   "gloss": "Menelaus",
+   "parse": "masc dat sg",
+   "lsj": [
+    "*mene/la_os"
+   ]
+  }
+ ],
+ "mi/ka": [
+  {
+   "lemma": "*mi/ka",
+   "gloss": "Mica",
+   "parse": "fem voc sg",
+   "lsj": []
+  }
+ ],
+ "miaro/": [
+  {
+   "lemma": "miaro/s",
+   "gloss": "wretched, foul (Scythian μιαρό)",
+   "parse": "fem voc sg (Scythian)",
+   "lsj": [
+    "mi^a^ro/s"
+   ]
+  }
+ ],
+ "mou)": [
+  {
+   "lemma": "e)gw/",
+   "gloss": "me (crasis: μ' ὁ)",
+   "parse": "masc/fem acc 1st sg",
+   "lsj": [
+    "e)gw/"
+   ]
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: μ' ὁ; Scythian, unaspirated)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "nai/ki": [
+  {
+   "lemma": "nai/xi",
+   "gloss": "yes indeed (Scythian ναίκι)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "nai/xi^"
+   ]
+  }
+ ],
+ "o(se/th": [
+  {
+   "lemma": "o(/sos",
+   "gloss": "as many as (crasis: ὅσα ἔτη, every year)",
+   "parse": "neut acc pl",
+   "lsj": [
+    "o(/sos"
+   ]
+  },
+  {
+   "lemma": "e)/tos",
+   "gloss": "year (crasis: ὅσα ἔτη, every year)",
+   "parse": "neut acc pl",
+   "lsj": [
+    "e)/tos"
+   ]
+  }
+ ],
+ "o)/": [
+  {
+   "lemma": "o)/",
+   "gloss": "oh! (exclamation)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "o)do/": [
+  {
+   "lemma": "o(do/s",
+   "gloss": "road, way (Scythian ὀδό)",
+   "parse": "fem acc sg (Scythian)",
+   "lsj": [
+    "o(do/s"
+   ]
+  }
+ ],
+ "o)rtw=s": [
+  {
+   "lemma": "o)rqo/s",
+   "gloss": "rightly (Scythian ὀρτῶς)",
+   "parse": "adverbial",
+   "lsj": [
+    "o)rqo/s"
+   ]
+  }
+ ],
+ "oi)mw=ci": [
+  {
+   "lemma": "oi)mw/zw",
+   "gloss": "wail (Scythian οἰμῶξι)",
+   "parse": "fut ind mid 2nd sg (Scythian)",
+   "lsj": [
+    "oi)mw/zw"
+   ]
+  }
+ ],
+ "ou)=tos": [
+  {
+   "lemma": "ou(=tos",
+   "gloss": "this; you there! (Scythian, unaspirated)",
+   "parse": "masc nom/voc sg",
+   "lsj": [
+    "ou(=tos"
+   ]
+  }
+ ],
+ "pai/netai": [
+  {
+   "lemma": "fai/nw",
+   "gloss": "show; (mid.) appear (Scythian παίνεται)",
+   "parse": "pres ind mp 3rd sg",
+   "lsj": [
+    "fai/nw"
+   ]
+  }
+ ],
+ "panou=rgo": [
+  {
+   "lemma": "panou=rgos",
+   "gloss": "villain (Scythian πανοῦργο)",
+   "parse": "masc nom sg (Scythian)",
+   "lsj": [
+    "pa^nou=rgos"
+   ]
+  }
+ ],
+ "papapapai=": [
+  {
+   "lemma": "papai=",
+   "gloss": "oh! (extended παπαῖ)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "pa^pai="
+   ]
+  }
+ ],
+ "para/ruqm'": [
+  {
+   "lemma": "para/ruqmos",
+   "gloss": "out of rhythm",
+   "parse": "neut nom/voc/acc pl",
+   "lsj": []
+  }
+ ],
+ "parte/n'": [
+  {
+   "lemma": "parqe/nos",
+   "gloss": "maiden (Scythian παρτένο)",
+   "parse": "fem nom sg (Scythian)",
+   "lsj": [
+    "parqe/nos"
+   ]
+  }
+ ],
+ "peu/geis": [
+  {
+   "lemma": "feu/gw",
+   "gloss": "flee (Scythian πεύγεις)",
+   "parse": "pres ind act 2nd sg",
+   "lsj": [
+    "feu/gw"
+   ]
+  }
+ ],
+ "po/tero": [
+  {
+   "lemma": "po/teros",
+   "gloss": "which of the two (Scythian πότερο)",
+   "parse": "fem acc sg (Scythian)",
+   "lsj": [
+    "po/teros"
+   ]
+  }
+ ],
+ "poh/sews": [
+  {
+   "lemma": "poi/hsis",
+   "gloss": "poetry, poetic art",
+   "parse": "fem gen sg",
+   "lsj": [
+    "poi/hsis"
+   ]
+  }
+ ],
+ "pohth/n": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet, maker",
+   "parse": "masc acc sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "pohtou=": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet, maker",
+   "parse": "masc gen sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "pormo/s": [
+  {
+   "lemma": "formo/s",
+   "gloss": "mat (Scythian πορμός)",
+   "parse": "masc nom sg (Scythian)",
+   "lsj": [
+    "formo/s"
+   ]
+  }
+ ],
+ "pra=o": [
+  {
+   "lemma": "pra=|os",
+   "gloss": "gentle, mild (Scythian πρᾶο)",
+   "parse": "neut nom sg (Scythian)",
+   "lsj": [
+    "pra=os"
+   ]
+  }
+ ],
+ "prwkto/": [
+  {
+   "lemma": "prwkto/s",
+   "gloss": "arse (Scythian πρωκτό)",
+   "parse": "masc acc sg (Scythian)",
+   "lsj": [
+    "prwkto/s"
+   ]
+  }
+ ],
+ "pugi/so": [
+  {
+   "lemma": "pugi/zw",
+   "gloss": "bugger (Scythian πυγίσο)",
+   "parse": "aor inf act (Scythian)",
+   "lsj": [
+    "pu_gi/zw"
+   ]
+  }
+ ],
+ "pula/ci": [
+  {
+   "lemma": "fula/ssw",
+   "gloss": "guard (Scythian πυλάξι)",
+   "parse": "aor subj act 1st sg (Scythian)",
+   "lsj": [
+    "fu^la/ssw"
+   ]
+  }
+ ],
+ "pwnh/": [
+  {
+   "lemma": "fwnh/",
+   "gloss": "voice (Scythian πωνή)",
+   "parse": "fem nom sg (Scythian)",
+   "lsj": [
+    "fwnh/"
+   ]
+  }
+ ],
+ "qesmoforei/w|": [
+  {
+   "lemma": "*qesmofo/reion",
+   "gloss": "the Thesmophorion (temple of the Two Goddesses)",
+   "parse": "neut dat sg",
+   "lsj": []
+  }
+ ],
+ "qesmoforei=on": [
+  {
+   "lemma": "*qesmofo/reion",
+   "gloss": "the Thesmophorion (temple of the Two Goddesses)",
+   "parse": "neut nom sg",
+   "lsj": []
+  }
+ ],
+ "sani/do": [
+  {
+   "lemma": "sani/s",
+   "gloss": "plank (Scythian σανίδο)",
+   "parse": "fem acc sg (Scythian)",
+   "lsj": [
+    "sa^ni/s"
+   ]
+  }
+ ],
+ "saqi/skon": [
+  {
+   "lemma": "saqi/skos",
+   "gloss": "little penis",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "shsamou=nq'": [
+  {
+   "lemma": "shsamou=s",
+   "gloss": "sesame cake",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "simounti/di": [
+  {
+   "lemma": "*simounti/s",
+   "gloss": "of the Simois",
+   "parse": "fem dat sg",
+   "lsj": []
+  }
+ ],
+ "skh=ma": [
+  {
+   "lemma": "sxh=ma",
+   "gloss": "form, figure (Scythian σκῆμα)",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": [
+    "sxh=ma"
+   ]
+  }
+ ],
+ "spo/dr'": [
+  {
+   "lemma": "sfo/dra",
+   "gloss": "very much (Scythian σπόδρα)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "sfo/dra^"
+   ]
+  }
+ ],
+ "ste/ripo": [
+  {
+   "lemma": "ste/rifos",
+   "gloss": "firm, solid (Scythian στέριπο)",
+   "parse": "neut nom pl (Scythian)",
+   "lsj": [
+    "ste/ri^fos"
+   ]
+  }
+ ],
+ "subi/nh": [
+  {
+   "lemma": "sibu/nh",
+   "gloss": "hunting spear (Scythian συβίνη, punning on βινέω)",
+   "parse": "fem acc sg (Scythian)",
+   "lsj": []
+  }
+ ],
+ "suggoggu/las": [
+  {
+   "lemma": "suggoggu/llw",
+   "gloss": "round off together, roll up",
+   "parse": "aor part act masc nom sg",
+   "lsj": []
+  }
+ ],
+ "ta/kista": [
+  {
+   "lemma": "taxu/s",
+   "gloss": "swift; ὡς τάχιστα, as fast as possible (Scythian τάκιστα)",
+   "parse": "adverbial superl",
+   "lsj": [
+    "ta^xu/s"
+   ]
+  }
+ ],
+ "tai)/tion": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: τὸ αἴτιον)",
+   "parse": "neut acc sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "ai)/tios",
+   "gloss": "cause, reason (crasis: τὸ αἴτιον)",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": [
+    "ai)/tios"
+   ]
+  }
+ ],
+ "th/": [
+  {
+   "lemma": "o(",
+   "gloss": "the (Scythian τὴ, for τόν/τήν)",
+   "parse": "acc sg (Scythian)",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "th|di/": [
+  {
+   "lemma": "o(/de",
+   "gloss": "this (with deictic -ί)",
+   "parse": "fem dat sg",
+   "lsj": [
+    "o(/de"
+   ]
+  },
+  {
+   "lemma": "th=|de",
+   "gloss": "here, this way (with deictic -ί)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "th=|de"
+   ]
+  }
+ ],
+ "titti/'": [
+  {
+   "lemma": "titqi/on",
+   "gloss": "teat, breast (Scythian τιττία)",
+   "parse": "neut nom/voc/acc pl",
+   "lsj": [
+    "titqi/on"
+   ]
+  }
+ ],
+ "tra/min": [
+  {
+   "lemma": "tra/mis",
+   "gloss": "perineum",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "triskako/daimon": [
+  {
+   "lemma": "triskakodai/mwn",
+   "gloss": "thrice-unlucky",
+   "parse": "masc voc sg",
+   "lsj": [
+    "triska^kodai/mwn"
+   ]
+  }
+ ],
+ "tuga/trion": [
+  {
+   "lemma": "quga/trion",
+   "gloss": "little daughter (Scythian τυγάτριον)",
+   "parse": "neut voc sg",
+   "lsj": [
+    "qu^ga/trion"
+   ]
+  }
+ ],
+ "w(|ko/triy": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ὁ οἰκότριψ)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "oi)ko/triy",
+   "gloss": "house-bred slave (crasis: ὁ οἰκότριψ)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "w)/sper": [
+  {
+   "lemma": "w(/sper",
+   "gloss": "just like (Scythian ὤσπερ)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "w(/sper"
+   ]
+  }
+ ],
+ "w)=lafion": [
+  {
+   "lemma": "w)=",
+   "gloss": "O (crasis: ὦ ἐλάφιον)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)="
+   ]
+  },
+  {
+   "lemma": "e)la/fion",
+   "gloss": "little fawn (crasis: ὦ ἐλάφιον)",
+   "parse": "neut voc sg",
+   "lsj": []
+  }
+ ],
+ "w)=nai/sxunte": [
+  {
+   "lemma": "w)=",
+   "gloss": "O (crasis: ὦ ἀναίσχυντε)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)="
+   ]
+  },
+  {
+   "lemma": "a)nai/sxuntos",
+   "gloss": "shameless (crasis: ὦ ἀναίσχυντε)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "a)nai/sxuntos"
+   ]
+  }
+ ],
+ "w)=naisxunte": [
+  {
+   "lemma": "w)=",
+   "gloss": "O (crasis: ὦ ἀναίσχυντε)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)="
+   ]
+  },
+  {
+   "lemma": "a)nai/sxuntos",
+   "gloss": "shameless (crasis: ὦ ἀναίσχυντε)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "a)nai/sxuntos"
+   ]
+  }
+ ],
+ "w)s": [
+  {
+   "lemma": "w(s",
+   "gloss": "how!, as (Scythian ὠς for ὡς)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "w(s"
+   ]
+  }
+ ],
+ "wu)=ripidh": [
+  {
+   "lemma": "w)=",
+   "gloss": "O (crasis: ὦ Εὐριπίδη)",
+   "parse": "indeclform (exclam)",
+   "lsj": [
+    "w)="
+   ]
+  },
+  {
+   "lemma": "*eu)ripi/dhs",
+   "gloss": "Euripides (crasis: ὦ Εὐριπίδη)",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "xoa/nhn": [
+  {
+   "lemma": "xoa/nh",
+   "gloss": "funnel",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "xow=s": [
+  {
+   "lemma": "xou=s",
+   "gloss": "jug; liquid measure (the Attic chous)",
+   "parse": "masc gen sg (attic)",
+   "lsj": [
+    "xou=s1"
+   ]
+  }
+ ],
+ "yu/llo": [
+  {
+   "lemma": "yu/lla",
+   "gloss": "flea (Scythian ψύλλο)",
+   "parse": "fem nom sg (Scythian)",
+   "lsj": [
+    "yu/lla"
+   ]
+  }
+ ]
+}

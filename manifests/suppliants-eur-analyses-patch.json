@@ -1,0 +1,340 @@
+{
+  "xrh/izw": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres ind act 1st sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "sw/izwn": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "sw/izein": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres inf act",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "dh/mhter": [
+    {
+      "lemma": "*dhmh/thr",
+      "gloss": "Demeter",
+      "parse": "fem voc sg",
+      "lsj": [
+        "*dhmh/thr"
+      ]
+    }
+  ],
+  "proqe/man": [
+    {
+      "lemma": "proti/qhmi",
+      "gloss": "set out, lay out (a corpse)",
+      "parse": "aor ind mid 1st sg (doric)",
+      "lsj": [
+        "proti/qhmi"
+      ]
+    }
+  ],
+  "parh=idos": [
+    {
+      "lemma": "parhi/+s",
+      "gloss": "cheek",
+      "parse": "fem gen sg",
+      "lsj": [
+        "pa^rhi/+s"
+      ]
+    }
+  ],
+  "a(liblh/tou": [
+    {
+      "lemma": "a(li/blhtos",
+      "gloss": "sea-beaten",
+      "parse": "masc/fem gen sg",
+      "lsj": []
+    }
+  ],
+  "xrh/izontos": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres part act masc gen sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "sw/izei": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "sw/izhi": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres subj act 3rd sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "gapo/nos": [
+    {
+      "lemma": "ghpo/nos",
+      "gloss": "tilling the earth; farmer",
+      "parse": "masc nom sg (doric)",
+      "lsj": []
+    }
+  ],
+  "xrh/izwn": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "zw/ihn": [
+    {
+      "lemma": "za/w",
+      "gloss": "live",
+      "parse": "pres opt act 1st sg",
+      "lsj": [
+        "za/w"
+      ]
+    }
+  ],
+  "xrh/izont'": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres part act masc acc sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "dirkai=on": [
+    {
+      "lemma": "*dirkai=os",
+      "gloss": "of Dirce",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": []
+    }
+  ],
+  "sw/izontes": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres part act masc nom pl",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "qrausqe/ntwn": [
+    {
+      "lemma": "qrau/w",
+      "gloss": "break in pieces, shatter",
+      "parse": "aor part pass masc gen pl",
+      "lsj": [
+        "qrau/w"
+      ]
+    }
+  ],
+  "kranai+dw=n": [
+    {
+      "lemma": "*kranai+/dhs",
+      "gloss": "Athenian (descendant of Cranaus)",
+      "parse": "masc gen pl",
+      "lsj": []
+    }
+  ],
+  "tou)pidau/rion": [
+    {
+      "lemma": "o(",
+      "gloss": "the (crasis: τὸ Ἐπιδαύριον)",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "o(1"
+      ]
+    },
+    {
+      "lemma": "*)epidau/rios",
+      "gloss": "Epidaurian (crasis: τὸ Ἐπιδαύριον)",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": []
+    }
+  ],
+  "e)xrh/izomen": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "imperf ind act 1st pl",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "e)leuqeri/s": [
+    {
+      "lemma": "*)eleuqeri/s",
+      "gloss": "of Eleutherae",
+      "parse": "fem nom sg",
+      "lsj": []
+    }
+  ],
+  "ka)isxu/nhn": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ αἰσχύνην)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ai)sxu/nh",
+      "gloss": "shame, disgrace (crasis: καὶ αἰσχύνην)",
+      "parse": "fem acc sg",
+      "lsj": [
+        "ai)sxu/nh"
+      ]
+    }
+  ],
+  "sw/izesqai": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres inf mp",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "oi)kle/ous": [
+    {
+      "lemma": "*oi)klh=s",
+      "gloss": "Oecles",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "r(a=ista": [
+    {
+      "lemma": "r(a/|dios",
+      "gloss": "easy",
+      "parse": "neut nom/voc/acc superl pl",
+      "lsj": [
+        "r(a/|dios"
+      ]
+    }
+  ],
+  "kapfqime/nou": [
+    {
+      "lemma": "katafqi/nw",
+      "gloss": "perish, die",
+      "parse": "aor part mid masc gen sg",
+      "lsj": [
+        "katafqi/nw"
+      ]
+    }
+  ],
+  "sunqnh/iskein": [
+    {
+      "lemma": "sunqnh/|skw",
+      "gloss": "die with",
+      "parse": "pres inf act",
+      "lsj": [
+        "sunqnh/|skw"
+      ]
+    }
+  ],
+  "qnh/iskousi": [
+    {
+      "lemma": "qnh/|skw",
+      "gloss": "die",
+      "parse": "pres part act masc dat pl",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "a)/issw": [
+    {
+      "lemma": "a)i/+ssw",
+      "gloss": "rush, dart",
+      "parse": "pres ind act 1st sg",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    }
+  ],
+  "ei)=e(n": [
+    {
+      "lemma": "ei)=en",
+      "gloss": "well! well then! (interjection)",
+      "parse": "indeclform (exclam)",
+      "lsj": []
+    }
+  ],
+  "ka)=it'": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "xrh/izousin": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres ind act 3rd pl",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ]
+}

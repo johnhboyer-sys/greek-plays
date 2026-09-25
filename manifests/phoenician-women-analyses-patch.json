@@ -1,0 +1,540 @@
+{
+  "i(smhnou=": [
+    {
+      "lemma": "*(ismhno/s",
+      "gloss": "Ismenus (river)",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "ka)=ita": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "xrh/izw": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres ind act 1st sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "xrh/izwn": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "e)teo/klees": [
+    {
+      "lemma": "*)eteoklh=s",
+      "gloss": "Eteocles",
+      "parse": "masc voc sg",
+      "lsj": []
+    }
+  ],
+  "qnh/iskein": [
+    {
+      "lemma": "qnh/|skw",
+      "gloss": "die",
+      "parse": "pres inf act",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "ei)=e(n": [
+    {
+      "lemma": "ei)=en",
+      "gloss": "well! well then! (interjection)",
+      "parse": "indeclform (exclam)",
+      "lsj": []
+    }
+  ],
+  "xrh/izeis": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "perga/mwn": [
+    {
+      "lemma": "pe/rgamon",
+      "gloss": "citadel (of Troy); pl. pe/rgama",
+      "parse": "neut gen pl",
+      "lsj": [
+        "*pe/rga^mos"
+      ]
+    }
+  ],
+  "h)=isson": [
+    {
+      "lemma": "a)i/+ssw",
+      "gloss": "rush, dart",
+      "parse": "imperf ind act 3rd pl",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    }
+  ],
+  "klh/izomai": [
+    {
+      "lemma": "klh/|zw",
+      "gloss": "call, name; celebrate",
+      "parse": "pres ind mp 1st sg",
+      "lsj": [
+        "klh/|zw1"
+      ]
+    }
+  ],
+  "i(smh/nhn": [
+    {
+      "lemma": "*(ismh/nh",
+      "gloss": "Ismene",
+      "parse": "fem acc sg",
+      "lsj": []
+    }
+  ],
+  "mhtrw/iwn": [
+    {
+      "lemma": "mhtrw=|os",
+      "gloss": "of a mother",
+      "parse": "masc gen pl",
+      "lsj": [
+        "mhtrw=|os"
+      ]
+    }
+  ],
+  "megalagori/an": [
+    {
+      "lemma": "megalhgori/a",
+      "gloss": "boastful talk",
+      "parse": "fem acc sg (doric)",
+      "lsj": [
+        "mega^lhgori/a"
+      ]
+    }
+  ],
+  "a)mumwni/ois": [
+    {
+      "lemma": "*)amumw/nios",
+      "gloss": "of Amymone",
+      "parse": "neut dat pl",
+      "lsj": []
+    }
+  ],
+  "e)/xrhizes": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "imperf ind act 2nd sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "parnassou=": [
+    {
+      "lemma": "*parnasso/s",
+      "gloss": "Parnassus",
+      "parse": "masc gen sg",
+      "lsj": [
+        "*parna_so/s"
+      ]
+    }
+  ],
+  "a(pa/ntai": [
+    {
+      "lemma": "a(pa/nth|",
+      "gloss": "everywhere, in every way",
+      "parse": "indeclform (adverb) (doric)",
+      "lsj": []
+    }
+  ],
+  "a)nh=icen": [
+    {
+      "lemma": "a)nai/+ssw",
+      "gloss": "start up, rush up",
+      "parse": "aor ind act 3rd sg",
+      "lsj": [
+        "a)nai/+ssw"
+      ]
+    }
+  ],
+  "i(smhno/s": [
+    {
+      "lemma": "*(ismhno/s",
+      "gloss": "Ismenus (river)",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "tudei=": [
+    {
+      "lemma": "*tudeu/s",
+      "gloss": "Tydeus",
+      "parse": "masc dat sg",
+      "lsj": []
+    }
+  ],
+  "sw/izein": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres inf act",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "xrh/izei": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "h(mpeiri/a": [
+    {
+      "lemma": "o(",
+      "gloss": "the (crasis: ἡ ἐμπειρία)",
+      "parse": "fem nom sg",
+      "lsj": [
+        "o(1"
+      ]
+    },
+    {
+      "lemma": "e)mpeiri/a",
+      "gloss": "experience (crasis: ἡ ἐμπειρία)",
+      "parse": "fem nom sg",
+      "lsj": [
+        "e)mpeiri/a"
+      ]
+    }
+  ],
+  "xrh/izws'": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres subj act 3rd pl",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "sw/izousin": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres ind act 3rd pl",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "a)ma/toros": [
+    {
+      "lemma": "a)mh/twr",
+      "gloss": "motherless",
+      "parse": "masc/fem gen sg (doric)",
+      "lsj": [
+        "a)mh/twr"
+      ]
+    }
+  ],
+  "gapetei=s": [
+    {
+      "lemma": "ghpeth/s",
+      "gloss": "fallen to the ground",
+      "parse": "masc/fem acc pl (doric)",
+      "lsj": []
+    }
+  ],
+  "sidaro/frwn": [
+    {
+      "lemma": "sidhro/frwn",
+      "gloss": "iron-hearted",
+      "parse": "masc/fem nom sg (doric)",
+      "lsj": [
+        "si^dhro/frwn"
+      ]
+    }
+  ],
+  "dama/thr": [
+    {
+      "lemma": "*dhmh/thr",
+      "gloss": "Demeter",
+      "parse": "fem nom sg (doric)",
+      "lsj": [
+        "*dhmh/thr"
+      ]
+    }
+  ],
+  "e)/xrhizon": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "imperf ind act 1st sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "dirkai=os": [
+    {
+      "lemma": "*dirkai=os",
+      "gloss": "of Dirce",
+      "parse": "masc nom sg",
+      "lsj": []
+    }
+  ],
+  "labdaki/dais": [
+    {
+      "lemma": "*labdaki/dhs",
+      "gloss": "descendant of Labdacus",
+      "parse": "masc dat pl",
+      "lsj": []
+    }
+  ],
+  "xalai=s": [
+    {
+      "lemma": "xhlh/",
+      "gloss": "claw, talon",
+      "parse": "fem dat pl (doric)",
+      "lsj": [
+        "xhlh/"
+      ]
+    }
+  ],
+  "ou)rani/dai": [
+    {
+      "lemma": "ou)rani/dhs",
+      "gloss": "heavenly one, god",
+      "parse": "masc nom/voc pl",
+      "lsj": []
+    }
+  ],
+  "a)mfioni/as": [
+    {
+      "lemma": "*)amfi/onios",
+      "gloss": "of Amphion",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "xrh/izontes": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres part act masc nom pl",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "h)/iqeos": [
+    {
+      "lemma": "h)i/qeos",
+      "gloss": "unmarried youth",
+      "parse": "masc nom sg",
+      "lsj": [
+        "h)i/qeos"
+      ]
+    }
+  ],
+  "meicopa/rqenos": [
+    {
+      "lemma": "meicopa/rqenos",
+      "gloss": "half-maiden",
+      "parse": "masc/fem nom sg",
+      "lsj": []
+    }
+  ],
+  "xalai=si": [
+    {
+      "lemma": "xhlh/",
+      "gloss": "claw, talon",
+      "parse": "fem dat pl (doric)",
+      "lsj": [
+        "xhlh/"
+      ]
+    }
+  ],
+  "e)pe/suto": [
+    {
+      "lemma": "e)piseu/w",
+      "gloss": "rush upon",
+      "parse": "aor ind mid 3rd sg",
+      "lsj": [
+        "e)piseu/w"
+      ]
+    }
+  ],
+  "teumhsso/n": [
+    {
+      "lemma": "*teumhsso/s",
+      "gloss": "Teumessus",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "h)le/ktrais": [
+    {
+      "lemma": "*)hle/ktrai",
+      "gloss": "Electran (gates)",
+      "parse": "fem dat pl",
+      "lsj": []
+    }
+  ],
+  "e)/qrwiskon": [
+    {
+      "lemma": "qrw/|skw",
+      "gloss": "leap, spring",
+      "parse": "imperf ind act 3rd pl",
+      "lsj": [
+        "qrw/|skw"
+      ]
+    }
+  ],
+  "barupotmwta/tas": [
+    {
+      "lemma": "baru/potmos",
+      "gloss": "ill-fated",
+      "parse": "fem gen superl sg (doric)",
+      "lsj": [
+        "ba^ru/potmos"
+      ]
+    }
+  ],
+  "duspotmw/tera": [
+    {
+      "lemma": "du/spotmos",
+      "gloss": "ill-fated",
+      "parse": "neut nom/voc/acc comp pl",
+      "lsj": [
+        "du/spotmos"
+      ]
+    }
+  ],
+  "h)=ican": [
+    {
+      "lemma": "a)i/+ssw",
+      "gloss": "rush, dart",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    }
+  ],
+  "sw/izwn": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "a)nh=ice": [
+    {
+      "lemma": "a)nai/+ssw",
+      "gloss": "start up, rush up",
+      "parse": "aor ind act 3rd sg",
+      "lsj": [
+        "a)nai/+ssw"
+      ]
+    }
+  ],
+  "parh=idos": [
+    {
+      "lemma": "parhi/+s",
+      "gloss": "cheek",
+      "parse": "fem gen sg",
+      "lsj": [
+        "pa^rhi/+s"
+      ]
+    }
+  ],
+  "a)iki/smata": [
+    {
+      "lemma": "ai)/kisma",
+      "gloss": "outrage, torture",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "ai)/kisma"
+      ]
+    }
+  ],
+  "ai)qerofae/s": [
+    {
+      "lemma": "ai)qerofah/s",
+      "gloss": "shining in the air",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": []
+    }
+  ],
+  "h)le/ktraisi": [
+    {
+      "lemma": "*)hle/ktrai",
+      "gloss": "Electran (gates)",
+      "parse": "fem dat pl",
+      "lsj": []
+    }
+  ],
+  "xrw/izein": [
+    {
+      "lemma": "xrw/|zw",
+      "gloss": "touch",
+      "parse": "pres inf act",
+      "lsj": [
+        "xrw/|zw"
+      ]
+    }
+  ],
+  "nausipompo/n": [
+    {
+      "lemma": "nausipompo/s",
+      "gloss": "speeding ships",
+      "parse": "masc/fem acc sg",
+      "lsj": []
+    }
+  ]
+}

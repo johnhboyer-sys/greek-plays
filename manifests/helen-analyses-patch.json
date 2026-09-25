@@ -1,0 +1,432 @@
+{
+ "a)nh=ican": [
+  {
+   "lemma": "a)nai/ssw",
+   "gloss": "start up, spring up",
+   "parse": "aor ind act 3rd pl",
+   "lsj": [
+    "a)nai/+ssw"
+   ]
+  }
+ ],
+ "au)tosi/daron": [
+  {
+   "lemma": "au)tosi/dhros",
+   "gloss": "of bare iron, with the very steel",
+   "parse": "fem acc sg (doric)",
+   "lsj": []
+  }
+ ],
+ "e)/suto": [
+  {
+   "lemma": "seu/w",
+   "gloss": "set in motion; (mid.) rush, dart",
+   "parse": "aor ind mid 3rd sg",
+   "lsj": [
+    "seu/w"
+   ]
+  }
+ ],
+ "e)/swizon": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "imperf ind act 3rd pl",
+   "lsj": [
+    "sw/|zw"
+   ]
+  },
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "imperf ind act 1st sg",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "e)dnw/somai": [
+  {
+   "lemma": "e(dno/w",
+   "gloss": "betroth, give in marriage",
+   "parse": "fut ind mid 1st sg",
+   "lsj": [
+    "e(dno/w"
+   ]
+  }
+ ],
+ "e)pe/suto": [
+  {
+   "lemma": "e)piseu/w",
+   "gloss": "rush upon",
+   "parse": "aor ind mid 3rd sg",
+   "lsj": [
+    "e)piseu/w"
+   ]
+  }
+ ],
+ "e)qnh/iskete": [
+  {
+   "lemma": "qnh/skw",
+   "gloss": "die",
+   "parse": "imperf ind act 2nd pl",
+   "lsj": [
+    "qnh/|skw"
+   ]
+  }
+ ],
+ "e)sw/izomen": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "imperf ind act 1st pl",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "e)t'": [
+  {
+   "lemma": "e)/ti",
+   "gloss": "still, yet",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "e)/ti"
+   ]
+  }
+ ],
+ "ei)=e(n": [
+  {
+   "lemma": "ei)=en",
+   "gloss": "well! well now!",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "ei)dw/": [
+  {
+   "lemma": "*ei)dw/",
+   "gloss": "Eido (Theonoe's childhood name)",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "fh/is": [
+  {
+   "lemma": "fhmi/",
+   "gloss": "say, affirm",
+   "parse": "pres ind act 2nd sg",
+   "lsj": [
+    "fhmi/"
+   ]
+  }
+ ],
+ "ka)=it'": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ εἶτα)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "ei)=ta",
+   "gloss": "then, next (crasis: καὶ εἶτα)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "ei)=ta"
+   ]
+  }
+ ],
+ "keklh/imeq'": [
+  {
+   "lemma": "klei/w1",
+   "gloss": "shut, bind",
+   "parse": "perf ind mp 1st pl",
+   "lsj": [
+    "klei/w1"
+   ]
+  }
+ ],
+ "klh/izetai": [
+  {
+   "lemma": "klh/|zw1",
+   "gloss": "call, name; celebrate",
+   "parse": "pres ind mp 3rd sg",
+   "lsj": [
+    "klh/|zw1"
+   ]
+  }
+ ],
+ "klh/izhi": [
+  {
+   "lemma": "klh/|zw1",
+   "gloss": "call, name; celebrate",
+   "parse": "pres ind mp 2nd sg",
+   "lsj": [
+    "klh/|zw1"
+   ]
+  }
+ ],
+ "klh/izomai": [
+  {
+   "lemma": "klh/|zw1",
+   "gloss": "call, name; celebrate",
+   "parse": "pres ind mp 1st sg",
+   "lsj": [
+    "klh/|zw1"
+   ]
+  }
+ ],
+ "lelh/ismeq'": [
+  {
+   "lemma": "lh/|zomai",
+   "gloss": "plunder, carry off as booty",
+   "parse": "perf ind mp 1st pl",
+   "lsj": []
+  }
+ ],
+ "mene/las": [
+  {
+   "lemma": "*mene/laos",
+   "gloss": "Menelaus",
+   "parse": "masc nom sg (doric)",
+   "lsj": [
+    "*mene/la_os"
+   ]
+  }
+ ],
+ "mousei=a": [
+  {
+   "lemma": "*mou/seios",
+   "gloss": "of the Muses, musical",
+   "parse": "neut nom/voc/acc pl",
+   "lsj": [
+    "*mou/seios"
+   ]
+  }
+ ],
+ "nhrh=idos": [
+  {
+   "lemma": "*nhrhi/s",
+   "gloss": "Nereid, daughter of Nereus",
+   "parse": "fem gen sg",
+   "lsj": [
+    "*nhrhi/+s"
+   ]
+  }
+ ],
+ "parh=idi": [
+  {
+   "lemma": "parhi+/s",
+   "gloss": "cheek",
+   "parse": "fem dat sg",
+   "lsj": [
+    "pa^rhi/+s"
+   ]
+  }
+ ],
+ "qnh/iskoimen": [
+  {
+   "lemma": "qnh/skw",
+   "gloss": "die",
+   "parse": "pres opt act 1st pl",
+   "lsj": [
+    "qnh/|skw"
+   ]
+  }
+ ],
+ "r(a=ista": [
+  {
+   "lemma": "r(a/|dios",
+   "gloss": "easy; ῥᾷστα, most easily",
+   "parse": "neut nom/voc/acc superl pl",
+   "lsj": [
+    "r(a/|dios"
+   ]
+  }
+ ],
+ "stugi/ous": [
+  {
+   "lemma": "stu/gios",
+   "gloss": "hateful, gloomy",
+   "parse": "fem acc pl",
+   "lsj": []
+  }
+ ],
+ "sw/izein": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres inf act",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "sw/izetai": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres ind mp 3rd sg",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "sw/izontes": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres part act masc nom pl",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "sw/izousi": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres ind act 3rd pl",
+   "lsj": [
+    "sw/|zw"
+   ]
+  },
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres part act masc/neut dat pl",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "u(perqnh/iskontas": [
+  {
+   "lemma": "u(perqnh/|skw",
+   "gloss": "die for",
+   "parse": "pres part act masc acc pl",
+   "lsj": [
+    "u(perqnh/skw"
+   ]
+  }
+ ],
+ "xi)/lews": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἵλεως)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "i(/laos",
+   "gloss": "gracious, favourable (Attic ἵλεως; crasis: καὶ ἵλεως)",
+   "parse": "masc nom sg (attic)",
+   "lsj": [
+    "i(/laos"
+   ]
+  }
+ ],
+ "xi)keteu/ete": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ἱκετεύετε)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "i(keteu/w",
+   "gloss": "supplicate, beg (crasis: καὶ ἱκετεύετε)",
+   "parse": "pres imperat act 2nd pl",
+   "lsj": [
+    "i(keteu/w"
+   ]
+  }
+ ],
+ "xiono/xrwi": [
+  {
+   "lemma": "xiono/xrws",
+   "gloss": "snow-white",
+   "parse": "neut dat sg",
+   "lsj": []
+  }
+ ],
+ "xrh/izeis": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres ind act 2nd sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ],
+ "xrh/izous'": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres part act fem nom sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ],
+ "xrh/izousa": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres part act fem nom sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ],
+ "xrh/izw": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres ind act 1st sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  },
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres subj act 1st sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ],
+ "xrh/izwn": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres part act masc nom sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ],
+ "xrusoke/rat'": [
+  {
+   "lemma": "xruso/kerws",
+   "gloss": "golden-horned",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ]
+}

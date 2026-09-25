@@ -1,0 +1,324 @@
+{
+ "eu)ai/": [
+  {
+   "lemma": "eu)ai/",
+   "gloss": "Bacchic cry (= εὐοῖ)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "h(kklhsi/a": [
+  {
+   "lemma": "e)kklhsi/a",
+   "gloss": "assembly (crasis: ἡ ἐκκλησία)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "e)kklhsi/a"
+   ]
+  }
+ ],
+ "qruganw=sa": [
+  {
+   "lemma": "qrugana/w",
+   "gloss": "scratch (at a door)",
+   "parse": "pres part act fem nom sg",
+   "lsj": []
+  }
+ ],
+ "melisti/xhn": [
+  {
+   "lemma": "*melisti/xh",
+   "gloss": "Melistiche",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "a(rgei=os": [
+  {
+   "lemma": "*)argei=os",
+   "gloss": "Argive (crasis: ὁ Ἀργεῖος)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "*)argei=os"
+   ]
+  }
+ ],
+ "a(xradou/sios": [
+  {
+   "lemma": "*)axradou/sios",
+   "gloss": "of Achradus (the deme Acherdus, with a pun on ἀχράς \"wild pear\"; crasis: ὁ Ἀχραδούσιος)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "pa/resxen": [
+  {
+   "lemma": "pare/xw",
+   "gloss": "furnish, provide",
+   "parse": "aor ind act 3rd sg",
+   "lsj": [
+    "pare/xw"
+   ]
+  }
+ ],
+ "me/ntou)fasken": [
+  {
+   "lemma": "me/ntoi",
+   "gloss": "yet, however (crasis: μέντοι ἔφασκεν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "me/ntoi"
+   ]
+  },
+  {
+   "lemma": "fa/skw",
+   "gloss": "say, assert (crasis: μέντοι ἔφασκεν)",
+   "parse": "imperf ind act 3rd sg",
+   "lsj": [
+    "fa/skw"
+   ]
+  }
+ ],
+ "a)neborbo/rucan": [
+  {
+   "lemma": "a)naborboru/zw",
+   "gloss": "rumble, grumble aloud",
+   "parse": "aor ind act 3rd pl",
+   "lsj": []
+  }
+ ],
+ "gnaqoi=n": [
+  {
+   "lemma": "gna/qos",
+   "gloss": "jaw",
+   "parse": "fem gen/dat dual",
+   "lsj": [
+    "gna/qos"
+   ]
+  }
+ ],
+ "e)gw)|xo/mhn": [
+  {
+   "lemma": "e)gw/",
+   "gloss": "I (crasis: ἐγὼ ᾠχόμην)",
+   "parse": "masc/fem nom 1st sg",
+   "lsj": [
+    "e)gw/"
+   ]
+  },
+  {
+   "lemma": "oi)/xomai",
+   "gloss": "be gone, go (crasis: ἐγὼ ᾠχόμην)",
+   "parse": "imperf ind mp 1st sg",
+   "lsj": [
+    "oi)/xomai"
+   ]
+  }
+ ],
+ "w)=tair'": [
+  {
+   "lemma": "e(tai=ros",
+   "gloss": "comrade, friend (crasis: ὦ ἑταῖρε)",
+   "parse": "masc voc sg",
+   "lsj": [
+    "e(tai=ros"
+   ]
+  }
+ ],
+ "skalaqu=rai": [
+  {
+   "lemma": "skalaqu/rw",
+   "gloss": "poke, stir (obscene)",
+   "parse": "aor inf act",
+   "lsj": []
+  }
+ ],
+ "me/nta)n": [
+  {
+   "lemma": "me/ntoi",
+   "gloss": "yet, however (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "me/ntoi"
+   ]
+  },
+  {
+   "lemma": "a)/n1",
+   "gloss": "modal particle (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "a)/n"
+   ]
+  }
+ ],
+ "a)lfito/pwlin": [
+  {
+   "lemma": "a)lfito/pwlis",
+   "gloss": "where barley-meal is sold",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "twdi/": [
+  {
+   "lemma": "o(/de",
+   "gloss": "this (with deictic -ί)",
+   "parse": "masc nom/voc/acc dual",
+   "lsj": [
+    "o(/de"
+   ]
+  }
+ ],
+ "w)=mbronthte": [
+  {
+   "lemma": "e)mbro/nthtos",
+   "gloss": "thunderstruck, stupid (crasis: ὦ ἐμβρόντητε)",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "koni/poda": [
+  {
+   "lemma": "koni/pous",
+   "gloss": "a kind of shoe (\"dust-foot\")",
+   "parse": "masc acc sg",
+   "lsj": []
+  }
+ ],
+ "e(/stws": [
+  {
+   "lemma": "i(/sthmi",
+   "gloss": "stand (ἑστώς)",
+   "parse": "perf part act masc nom sg",
+   "lsj": [
+    "i(/sthmi"
+   ]
+  }
+ ],
+ "grau=": [
+  {
+   "lemma": "grau=s",
+   "gloss": "old woman",
+   "parse": "fem voc sg",
+   "lsj": [
+    "grau=s"
+   ]
+  }
+ ],
+ "mou)tai=ros": [
+  {
+   "lemma": "e)gw/",
+   "gloss": "me, my (crasis: μοι ὁ ἑταῖρος)",
+   "parse": "masc/fem dat 1st sg",
+   "lsj": [
+    "e)gw/"
+   ]
+  },
+  {
+   "lemma": "e(tai=ros",
+   "gloss": "comrade, lover (crasis: μοι ὁ ἑταῖρος)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "e(tai=ros"
+   ]
+  }
+ ],
+ "para/kufq'": [
+  {
+   "lemma": "paraku/ptw",
+   "gloss": "peep out (παράκυπτε, elided and aspirated)",
+   "parse": "pres imperat act 2nd sg",
+   "lsj": [
+    "paraku/ptw"
+   ]
+  }
+ ],
+ "h(/gxousa": [
+  {
+   "lemma": "a)/gxousa",
+   "gloss": "alkanet, rouge (crasis: ἡ ἄγχουσα)",
+   "parse": "fem nom sg",
+   "lsj": []
+  }
+ ],
+ "e)kmai/neis": [
+  {
+   "lemma": "e)kmai/nw",
+   "gloss": "drive mad",
+   "parse": "pres ind act 2nd sg",
+   "lsj": [
+    "e)kmai/nw"
+   ]
+  }
+ ],
+ "u(perechkonte/teis": [
+  {
+   "lemma": "u(perechkonte/ths",
+   "gloss": "over sixty years old",
+   "parse": "fem acc pl",
+   "lsj": []
+  }
+ ],
+ "pa=nes": [
+  {
+   "lemma": "*pa/n",
+   "gloss": "Pan",
+   "parse": "masc voc pl",
+   "lsj": [
+    "*pa/n"
+   ]
+  }
+ ],
+ "o(lh/n": [
+  {
+   "lemma": "o(/los",
+   "gloss": "whole, entire",
+   "parse": "fem acc sg",
+   "lsj": [
+    "o(/los"
+   ]
+  }
+ ],
+ "a(pa=si": [
+  {
+   "lemma": "a(/pas",
+   "gloss": "all, the whole",
+   "parse": "masc/neut dat pl",
+   "lsj": [
+    "a(/pa_s"
+   ]
+  }
+ ],
+ "lopadotemaxoselaxogaleokranioleiyanodrimupotrimmato": [
+  {
+   "lemma": "lopadotemaxoselaxogaleokranioleiyanodrimupotrimmatosilfioliparomelitokatakexumenokixlepikossufofattoperisteralektruonoptopifallidokigklopeleiolagw|osiraiobafhtraganopterugw/n",
+   "gloss": "a dish of every delicacy (comic coinage)",
+   "parse": "compound noun (one word split over lines 1169-1175)",
+   "lsj": []
+  }
+ ],
+ "silfioliparomelitokatakexumenokixlepikossufofattoperistera": [
+  {
+   "lemma": "lopadotemaxoselaxogaleokranioleiyanodrimupotrimmatosilfioliparomelitokatakexumenokixlepikossufofattoperisteralektruonoptopifallidokigklopeleiolagw|osiraiobafhtraganopterugw/n",
+   "gloss": "a dish of every delicacy (comic coinage)",
+   "parse": "compound noun (one word split over lines 1169-1175)",
+   "lsj": []
+  }
+ ],
+ "lektruonoptopifallidokigklopeleiolagw|osiraiobafhtraga": [
+  {
+   "lemma": "lopadotemaxoselaxogaleokranioleiyanodrimupotrimmatosilfioliparomelitokatakexumenokixlepikossufofattoperisteralektruonoptopifallidokigklopeleiolagw|osiraiobafhtraganopterugw/n",
+   "gloss": "a dish of every delicacy (comic coinage)",
+   "parse": "compound noun (one word split over lines 1169-1175)",
+   "lsj": []
+  }
+ ],
+ "nopterugw/n": [
+  {
+   "lemma": "lopadotemaxoselaxogaleokranioleiyanodrimupotrimmatosilfioliparomelitokatakexumenokixlepikossufofattoperisteralektruonoptopifallidokigklopeleiolagw|osiraiobafhtraganopterugw/n",
+   "gloss": "a dish of every delicacy (comic coinage)",
+   "parse": "compound noun (one word split over lines 1169-1175)",
+   "lsj": []
+  }
+ ]
+}

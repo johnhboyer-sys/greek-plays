@@ -1,0 +1,62 @@
+{
+  "eu)rutei/an": [
+    {
+      "lemma": "*eu)rutei=os",
+      "gloss": "of Eurytus",
+      "parse": "fem acc sg",
+      "lsj": []
+    }
+  ],
+  "eu)boi=da": [
+    {
+      "lemma": "*eu)boi/s",
+      "gloss": "Euboean",
+      "parse": "fem acc sg",
+      "lsj": []
+    }
+  ],
+  "h)=ke": [
+    {
+      "lemma": "i(/hmi",
+      "gloss": "throw, hurl",
+      "parse": "aor ind act 3rd sg",
+      "lsj": [
+        "i(/hmi"
+      ]
+    }
+  ],
+  "h(raklh=": [
+    {
+      "lemma": "*(hraklh=s",
+      "gloss": "Heracles",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "profa/nsei": [
+    {
+      "lemma": "pro/fansis",
+      "gloss": "declaration, pronouncement",
+      "parse": "fem dat sg",
+      "lsj": []
+    }
+  ],
+  "khnai/a": [
+    {
+      "lemma": "*khnai=os",
+      "gloss": "Cenaean, of Cenaeum",
+      "parse": "fem nom/voc sg",
+      "lsj": []
+    }
+  ],
+  "ei)ka/qonta": [
+    {
+      "lemma": "ei)/kw",
+      "gloss": "yield, give way",
+      "parse": "aor part act masc acc sg",
+      "lsj": [
+        "ei)/kw"
+      ]
+    }
+  ]
+}

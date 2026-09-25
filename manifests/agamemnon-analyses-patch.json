@@ -1,0 +1,176 @@
+{
+  "ai(/linon": [
+    {
+      "lemma": "ai)/linos",
+      "gloss": "cry of anguish, dirge",
+      "parse": "masc acc sg",
+      "lsj": [
+        "ai)/li^nos"
+      ]
+    },
+    {
+      "lemma": "ai)/linos",
+      "gloss": "cry of anguish, dirge",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "ai)/li^nos"
+      ]
+    }
+  ],
+  "w)=pollon": [
+    {
+      "lemma": "w)=",
+      "gloss": "O! oh! (crasis: ὦ Ἄπολλον)",
+      "parse": "indeclform (exclam)",
+      "lsj": [
+        "w)="
+      ]
+    },
+    {
+      "lemma": "*)apo/llwn",
+      "gloss": "Apollo (crasis: ὦ Ἄπολλον)",
+      "parse": "masc voc sg",
+      "lsj": [
+        "*)apo/llwn"
+      ]
+    }
+  ],
+  "a)gna/": [
+    {
+      "lemma": "a(gno/s",
+      "gloss": "pure, chaste, holy",
+      "parse": "fem nom/voc sg (doric)",
+      "lsj": [
+        "a(gno/s"
+      ]
+    }
+  ],
+  "e(/llados": [
+    {
+      "lemma": "*(ella/s",
+      "gloss": "Hellas, Greece",
+      "parse": "fem gen sg",
+      "lsj": [
+        "*(ella/s"
+      ]
+    }
+  ],
+  "gunaiko/s'": [
+    {
+      "lemma": "gunh/",
+      "gloss": "woman",
+      "parse": "fem gen sg",
+      "lsj": [
+        "gu^nh/"
+      ]
+    }
+  ],
+  "dhmokra/tou": [
+    {
+      "lemma": "dhmo/krantos",
+      "gloss": "ratified by the people",
+      "parse": "masc/fem/neut gen sg",
+      "lsj": []
+    }
+  ],
+  "teqna=nai": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "perf inf act",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "eu)maqei=n": [
+    {
+      "lemma": "eu)=",
+      "gloss": "well (εὖ μαθεῖν written as one word)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "eu)="
+      ]
+    },
+    {
+      "lemma": "manqa/nw",
+      "gloss": "learn (εὖ μαθεῖν written as one word)",
+      "parse": "aor inf act",
+      "lsj": [
+        "manqa/nw"
+      ]
+    }
+  ],
+  "sesw|me/nos": [
+    {
+      "lemma": "sw/zw",
+      "gloss": "save, keep safe",
+      "parse": "perf part mp masc nom sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "proseqre/fqh": [
+    {
+      "lemma": "prostre/fw",
+      "gloss": "rear, bring up in",
+      "parse": "aor ind pass 3rd sg",
+      "lsj": []
+    }
+  ],
+  "prose/bato": [
+    {
+      "lemma": "prosbai/nw",
+      "gloss": "approach, go to",
+      "parse": "aor ind mid 3rd sg",
+      "lsj": [
+        "prosbai/nw"
+      ]
+    }
+  ],
+  "i)liofqo/rous": [
+    {
+      "lemma": "*)iliofqo/ros",
+      "gloss": "destroying Ilium",
+      "parse": "masc/fem acc pl",
+      "lsj": []
+    }
+  ],
+  "karta/nai": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ ἀρτάναι)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "a)rta/nh",
+      "gloss": "rope, noose, halter (crasis: καὶ ἀρτάναι)",
+      "parse": "fem nom/voc pl",
+      "lsj": [
+        "a)rta/nh"
+      ]
+    }
+  ],
+  "a)sfa/da|stos": [
+    {
+      "lemma": "a)sfa/dastos",
+      "gloss": "without convulsion or struggle",
+      "parse": "masc/fem nom sg",
+      "lsj": [
+        "a)sfa/dastos"
+      ]
+    }
+  ],
+  "fo/neusin": [
+    {
+      "lemma": "fo/neusis",
+      "gloss": "murder, slaying",
+      "parse": "fem acc sg",
+      "lsj": []
+    }
+  ]
+}

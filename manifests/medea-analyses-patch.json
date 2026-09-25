@@ -1,0 +1,296 @@
+{
+  "lw=ista": [
+    {
+      "lemma": "lw=|stos",
+      "gloss": "best, most desirable",
+      "parse": "neut nom/voc/acc superl pl",
+      "lsj": [
+        "lwi/+wn"
+      ]
+    }
+  ],
+  "i)a=son": [
+    {
+      "lemma": "*)ia/swn",
+      "gloss": "Jason",
+      "parse": "masc voc sg",
+      "lsj": []
+    }
+  ],
+  "i)wlki/as": [
+    {
+      "lemma": "*)iw/lkios",
+      "gloss": "of Iolcus",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "pelia/das": [
+    {
+      "lemma": "*pelia/s",
+      "gloss": "daughter of Pelias",
+      "parse": "fem acc pl",
+      "lsj": []
+    }
+  ],
+  "xrh/izw": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres ind act 1st sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "xrh/izwn": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "a)/isetai": [
+    {
+      "lemma": "a)ei/dw",
+      "gloss": "sing",
+      "parse": "fut ind mid 3rd sg (attic)",
+      "lsj": [
+        "a)ei/dw"
+      ]
+    }
+  ],
+  "au)qadou=s": [
+    {
+      "lemma": "au)qa/dhs",
+      "gloss": "self-willed, stubborn",
+      "parse": "fem gen sg",
+      "lsj": [
+        "au)qa/dhs"
+      ]
+    }
+  ],
+  "stugi/ous": [
+    {
+      "lemma": "*stu/gios",
+      "gloss": "hateful, gloomy",
+      "parse": "fem acc pl",
+      "lsj": [
+        "*stu/gios"
+      ]
+    }
+  ],
+  "klh=id'": [
+    {
+      "lemma": "klei/s",
+      "gloss": "bar, bolt; key",
+      "parse": "fem acc sg (attic)",
+      "lsj": [
+        "klei/s"
+      ]
+    }
+  ],
+  "au)qadh/s": [
+    {
+      "lemma": "au)qa/dhs",
+      "gloss": "self-willed, stubborn",
+      "parse": "masc/fem nom sg",
+      "lsj": [
+        "au)qa/dhs"
+      ]
+    }
+  ],
+  "r(a/iwn": [
+    {
+      "lemma": "r(a/|dios",
+      "gloss": "easy",
+      "parse": "masc/fem nom comp sg",
+      "lsj": [
+        "r(a/|dios"
+      ]
+    }
+  ],
+  "ei)=e(n": [
+    {
+      "lemma": "ei)=en",
+      "gloss": "well! well then! (interjection)",
+      "parse": "indeclform (exclam)",
+      "lsj": []
+    }
+  ],
+  "a(gh/twr": [
+    {
+      "lemma": "h(gh/twr",
+      "gloss": "leader, chief",
+      "parse": "masc nom sg (doric)",
+      "lsj": []
+    }
+  ],
+  "e)/swize": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "imperf ind act 3rd sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "kexrw/ismeqa": [
+    {
+      "lemma": "xrw/|zw",
+      "gloss": "touch; stain",
+      "parse": "perf ind mp 1st pl",
+      "lsj": [
+        "xrw/|zw"
+      ]
+    }
+  ],
+  "oi)ktirei=": [
+    {
+      "lemma": "oi)kti/rw",
+      "gloss": "pity",
+      "parse": "fut ind act 3rd sg",
+      "lsj": []
+    }
+  ],
+  "klh=ida": [
+    {
+      "lemma": "klei/s",
+      "gloss": "bar, bolt; key",
+      "parse": "fem acc sg (attic)",
+      "lsj": [
+        "klei/s"
+      ]
+    }
+  ],
+  "trozhni/as": [
+    {
+      "lemma": "*troizh/nios",
+      "gloss": "of Troezen",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "xrh/izhi": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, need, desire",
+      "parse": "pres subj act 3rd sg",
+      "lsj": [
+        "xrh/|zw1"
+      ]
+    }
+  ],
+  "klh/izousin": [
+    {
+      "lemma": "klh/|zw",
+      "gloss": "call, name; celebrate",
+      "parse": "pres ind act 3rd pl",
+      "lsj": [
+        "klh/|zw1"
+      ]
+    }
+  ],
+  "sw=ize": [
+    {
+      "lemma": "sw/|zw",
+      "gloss": "save, keep safe",
+      "parse": "pres imperat act 2nd sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "o)na/sqai": [
+    {
+      "lemma": "o)ni/nhmi",
+      "gloss": "profit, have joy of",
+      "parse": "aor inf mid",
+      "lsj": [
+        "o)ni/nhmi"
+      ]
+    }
+  ],
+  "eu)daimonoi=ton": [
+    {
+      "lemma": "eu)daimone/w",
+      "gloss": "be happy, prosper",
+      "parse": "pres opt act 2nd dual",
+      "lsj": [
+        "eu)daimone/w"
+      ]
+    }
+  ],
+  "frenobarh/s": [
+    {
+      "lemma": "frenobarh/s",
+      "gloss": "heavy on the mind",
+      "parse": "masc/fem nom sg",
+      "lsj": []
+    }
+  ],
+  "mhtrw=ion": [
+    {
+      "lemma": "mhtrw=|os",
+      "gloss": "of a mother",
+      "parse": "masc acc sg",
+      "lsj": [
+        "mhtrw=|os"
+      ]
+    }
+  ],
+  "klh=idas": [
+    {
+      "lemma": "klei/s",
+      "gloss": "bar, bolt; key",
+      "parse": "fem acc pl (attic)",
+      "lsj": [
+        "klei/s"
+      ]
+    }
+  ],
+  "kalli/prwiron": [
+    {
+      "lemma": "kalli/prw|ros",
+      "gloss": "with beautiful prow",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "kalli^/prw|ros"
+      ]
+    }
+  ],
+  "r(a/idioi": [
+    {
+      "lemma": "r(a/|dios",
+      "gloss": "easy",
+      "parse": "fem nom/voc pl",
+      "lsj": [
+        "r(a/|dios"
+      ]
+    }
+  ],
+  "tumbou/s": [
+    {
+      "lemma": "tu/mbos",
+      "gloss": "tomb, grave",
+      "parse": "masc acc pl",
+      "lsj": [
+        "tu/mbos"
+      ]
+    }
+  ]
+}

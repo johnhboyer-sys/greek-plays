@@ -1,0 +1,341 @@
+{
+  "ei)=e(n": [
+    {
+      "lemma": "ei)=e(n",
+      "gloss": "well! so be it (transition particle)",
+      "parse": "indeclform (particle)",
+      "lsj": []
+    }
+  ],
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm, assert",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "xrh/izeis": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "qnh/iskei": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "r(a=ion": [
+    {
+      "lemma": "r(a/|dios",
+      "gloss": "easy, ready",
+      "parse": "neut nom/voc/acc comp sg",
+      "lsj": [
+        "r(a/|dios"
+      ]
+    }
+  ],
+  "ai)=ma": [
+    {
+      "lemma": "ai(=ma",
+      "gloss": "blood",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "ai(=ma"
+      ]
+    }
+  ],
+  "a)lateu/eis": [
+    {
+      "lemma": "a)lhteu/w",
+      "gloss": "wander, roam",
+      "parse": "pres ind act 2nd sg (doric)",
+      "lsj": [
+        "a)lhteu/w"
+      ]
+    }
+  ],
+  "dh=qe": [
+    {
+      "lemma": "dh=qen",
+      "gloss": "forsooth, of course",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "dh=qen"
+      ]
+    }
+  ],
+  "e)nqrw/iskei": [
+    {
+      "lemma": "e)nqrw/|skw",
+      "gloss": "leap upon",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "e)nqrw/|skw"
+      ]
+    }
+  ],
+  "e)sdoxa/s": [
+    {
+      "lemma": "ei)sdoxh/",
+      "gloss": "reception",
+      "parse": "fem acc pl",
+      "lsj": []
+    }
+  ],
+  "e)ksw/izei": [
+    {
+      "lemma": "e)ksw/|zw",
+      "gloss": "preserve from danger, keep safe",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "e)ksw/|zw"
+      ]
+    }
+  ],
+  "xrh/izous'": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres part act fem nom sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "nhrh/idwn": [
+    {
+      "lemma": "*nhrhi/s",
+      "gloss": "daughter of Nereus, sea-nymph",
+      "parse": "fem gen pl",
+      "lsj": [
+        "*nhrhi/+s"
+      ]
+    }
+  ],
+  "simounti/das": [
+    {
+      "lemma": "*simounti/s",
+      "gloss": "of the Simois",
+      "parse": "fem acc pl",
+      "lsj": []
+    }
+  ],
+  "nhrh=ides": [
+    {
+      "lemma": "*nhrhi/s",
+      "gloss": "daughter of Nereus, sea-nymph",
+      "parse": "fem nom/voc pl",
+      "lsj": [
+        "*nhrhi/+s"
+      ]
+    }
+  ],
+  "eu)boi=das": [
+    {
+      "lemma": "*eu)boi/s",
+      "gloss": "Euboean",
+      "parse": "fem acc pl",
+      "lsj": []
+    }
+  ],
+  "laimoto/man": [
+    {
+      "lemma": "laimoto/mas",
+      "gloss": "throat-cutter",
+      "parse": "masc acc sg (doric)",
+      "lsj": []
+    }
+  ],
+  "xalai=s": [
+    {
+      "lemma": "xhlh/",
+      "gloss": "hoof, claw",
+      "parse": "fem dat pl (doric)",
+      "lsj": [
+        "xhlh/"
+      ]
+    }
+  ],
+  "peirhnai=on": [
+    {
+      "lemma": "*peirhnai=os",
+      "gloss": "of Peirene",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "ou)rani/dai": [
+    {
+      "lemma": "*ou)rani/dhs",
+      "gloss": "son of Uranus; (pl.) the gods",
+      "parse": "masc nom/voc pl",
+      "lsj": []
+    }
+  ],
+  "a)nh/irhsai": [
+    {
+      "lemma": "a)naire/w",
+      "gloss": "take up; destroy",
+      "parse": "perf ind mp 2nd sg",
+      "lsj": [
+        "a)naire/w"
+      ]
+    }
+  ],
+  "qnh/iskontos": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres part act masc gen sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "kalli/pokon": [
+    {
+      "lemma": "kalli/pokos",
+      "gloss": "fair-fleeced",
+      "parse": "masc/fem acc sg",
+      "lsj": []
+    }
+  ],
+  "dusqnh/iskwn": [
+    {
+      "lemma": "dusqnh/|skw",
+      "gloss": "die hard",
+      "parse": "pres part act masc nom sg",
+      "lsj": []
+    }
+  ],
+  "h)=ican": [
+    {
+      "lemma": "a)i/ssw",
+      "gloss": "shoot, dart, glance",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    }
+  ],
+  "a)nti/prwira": [
+    {
+      "lemma": "a)nti/prw|ros",
+      "gloss": "with the prow towards, facing",
+      "parse": "neut nom/voc/acc pl",
+      "lsj": [
+        "a)nti/prw|ros"
+      ]
+    }
+  ],
+  "stefanafo/ra": [
+    {
+      "lemma": "stefanh/foros",
+      "gloss": "crowned, bringing a crown",
+      "parse": "neut nom/voc/acc pl (doric)",
+      "lsj": [
+        "stefa^nh/foros"
+      ]
+    }
+  ],
+  "qnh/iskein": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres inf act",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "i)figo/nhs": [
+    {
+      "lemma": "*)ifigo/nh",
+      "gloss": "Iphigone (Iphigenia)",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "e)ksw/izwn": [
+    {
+      "lemma": "e)ksw/|zw",
+      "gloss": "preserve from danger, keep safe",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "e)ksw/|zw"
+      ]
+    }
+  ],
+  "sunne/fousan": [
+    {
+      "lemma": "sunne/fw",
+      "gloss": "cloud over; look gloomy",
+      "parse": "pres part act fem acc sg",
+      "lsj": []
+    }
+  ],
+  "xrh/izousan": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres part act fem acc sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "parh/idwn": [
+    {
+      "lemma": "parhi/s",
+      "gloss": "cheek",
+      "parse": "fem gen pl",
+      "lsj": [
+        "pa^rhi/+s"
+      ]
+    }
+  ],
+  "kapfqime/nhs": [
+    {
+      "lemma": "katafqi/nw",
+      "gloss": "perish, die",
+      "parse": "aor part mid fem gen sg",
+      "lsj": [
+        "katafqi/nw"
+      ]
+    }
+  ],
+  "ou)rani/dais": [
+    {
+      "lemma": "*ou)rani/dhs",
+      "gloss": "son of Uranus; (pl.) the gods",
+      "parse": "masc dat pl",
+      "lsj": []
+    }
+  ],
+  "sw/izomen": [
+    {
+      "lemma": "sw/zw",
+      "gloss": "save, keep safe",
+      "parse": "pres ind act 1st pl",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ]
+}

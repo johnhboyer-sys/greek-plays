@@ -1,0 +1,100 @@
+{
+  "a)trei=dai": [
+    {
+      "lemma": "*)atrei/dhs",
+      "gloss": "son of Atreus",
+      "parse": "masc nom/voc pl",
+      "lsj": [
+        "*)atrei/dhs"
+      ]
+    }
+  ],
+  "a)groba/tas": [
+    {
+      "lemma": "a)groba/ths",
+      "gloss": "haunting the fields",
+      "parse": "masc nom sg (doric)",
+      "lsj": []
+    }
+  ],
+  "e)co/tou": [
+    {
+      "lemma": "e)co/tou",
+      "gloss": "since when, ever since (ἐξ ὅτου)",
+      "parse": "indeclform (adverb)",
+      "lsj": []
+    }
+  ],
+  "ou(dusseu/s": [
+    {
+      "lemma": "o(",
+      "gloss": "the (crasis: ὁ Ὀδυσσεύς)",
+      "parse": "masc nom sg",
+      "lsj": [
+        "o(1"
+      ]
+    },
+    {
+      "lemma": "*)odusseu/s",
+      "gloss": "Odysseus (crasis: ὁ Ὀδυσσεύς)",
+      "parse": "masc nom sg",
+      "lsj": [
+        "*)odusseu/s"
+      ]
+    }
+  ],
+  "malia/dwn": [
+    {
+      "lemma": "*malia/s",
+      "gloss": "Malian",
+      "parse": "fem gen pl",
+      "lsj": []
+    }
+  ],
+  "a)pappapappai=": [
+    {
+      "lemma": "a)pappapai=",
+      "gloss": "ah! (cry of pain)",
+      "parse": "indeclform (exclam)",
+      "lsj": []
+    }
+  ],
+  "pappapappapappapai=": [
+    {
+      "lemma": "papai=",
+      "gloss": "ah! (cry of pain)",
+      "parse": "indeclform (exclam)",
+      "lsj": [
+        "pa^pai="
+      ]
+    }
+  ],
+  "tolmh/state": [
+    {
+      "lemma": "tolmh/eis",
+      "gloss": "daring, bold",
+      "parse": "masc voc superl sg",
+      "lsj": []
+    }
+  ],
+  "'rph|s": [
+    {
+      "lemma": "e(/rpw",
+      "gloss": "creep, go, move",
+      "parse": "pres subj act 2nd sg",
+      "lsj": [
+        "e(/rpw"
+      ]
+    }
+  ],
+  "e)poiktirei=te": [
+    {
+      "lemma": "e)poiktei/rw",
+      "gloss": "have compassion on, pity",
+      "parse": "fut ind act 2nd pl",
+      "lsj": [
+        "e)poiktei/rw"
+      ]
+    }
+  ]
+}

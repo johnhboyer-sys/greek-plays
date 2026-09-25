@@ -1,0 +1,180 @@
+{
+  "poseida/n": [
+    {
+      "lemma": "*poseidw=n",
+      "gloss": "Poseidon",
+      "parse": "masc voc sg (doric)",
+      "lsj": [
+        "*poseidw=n"
+      ]
+    }
+  ],
+  "e)teo/klees": [
+    {
+      "lemma": "*)eteoklh=s",
+      "gloss": "Eteocles",
+      "parse": "masc voc sg",
+      "lsj": []
+    }
+  ],
+  "a)rge/i+oi": [
+    {
+      "lemma": "*)argei=os",
+      "gloss": "Argive",
+      "parse": "masc nom pl (epic)",
+      "lsj": [
+        "*)argei=os"
+      ]
+    }
+  ],
+  "a)/lcate": [
+    {
+      "lemma": "a)le/cw",
+      "gloss": "ward off, defend",
+      "parse": "aor imperat act 2nd pl",
+      "lsj": [
+        "a)le/cw"
+      ]
+    }
+  ],
+  "e(liko/troxoi": [
+    {
+      "lemma": "e(liko/troxos",
+      "gloss": "whirling-wheeled",
+      "parse": "masc/fem nom/voc pl",
+      "lsj": []
+    }
+  ],
+  "dirkai=on": [
+    {
+      "lemma": "*dirkai=os",
+      "gloss": "Dircaean, of Dirce",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": []
+    }
+  ],
+  "meicoqro/ou": [
+    {
+      "lemma": "mico/qroos",
+      "gloss": "with mingled cries",
+      "parse": "masc/fem/neut gen sg",
+      "lsj": []
+    }
+  ],
+  "qalamopo/lwn": [
+    {
+      "lemma": "qalamhpo/los",
+      "gloss": "chamber-maid, attendant",
+      "parse": "masc/fem gen pl",
+      "lsj": [
+        "qa^la^mhpo/los"
+      ]
+    }
+  ],
+  "oi)klei/dhn": [
+    {
+      "lemma": "*oi)klei/dhs",
+      "gloss": "son of Oecles (Amphiaraus)",
+      "parse": "masc acc sg",
+      "lsj": []
+    }
+  ],
+  "h)le/ktraisin": [
+    {
+      "lemma": "*)hle/ktrai",
+      "gloss": "Electran (a gate of Thebes)",
+      "parse": "fem dat pl (epic)",
+      "lsj": []
+    }
+  ],
+  "oi)kle/ous": [
+    {
+      "lemma": "*oi)klh=s",
+      "gloss": "Oecles",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "lasqe/nous": [
+    {
+      "lemma": "*lasqe/nhs",
+      "gloss": "Lasthenes",
+      "parse": "masc gen sg",
+      "lsj": []
+    }
+  ],
+  "basile/w|n": [
+    {
+      "lemma": "basileu/s",
+      "gloss": "king",
+      "parse": "masc gen/dat dual",
+      "lsj": [
+        "ba^si^leu/s"
+      ]
+    }
+  ],
+  "kh)=lqon": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ ἦλθον)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "e)/rxomai",
+      "gloss": "come, go (crasis: καὶ ἦλθον)",
+      "parse": "aor ind act 3rd pl",
+      "lsj": [
+        "e)/rxomai"
+      ]
+    }
+  ],
+  "'po/llwni": [
+    {
+      "lemma": "*)apo/llwn",
+      "gloss": "Apollo",
+      "parse": "masc dat sg",
+      "lsj": [
+        "*)apo/llwn"
+      ]
+    }
+  ],
+  "a)xa/essa": [
+    {
+      "lemma": "h)xh/eis",
+      "gloss": "sounding, echoing",
+      "parse": "fem nom sg (doric)",
+      "lsj": []
+    }
+  ],
+  "paiqei/s": [
+    {
+      "lemma": "pai/w",
+      "gloss": "strike, smite (misprint for παισθείς)",
+      "parse": "aor part pass masc nom sg",
+      "lsj": [
+        "pai/w"
+      ]
+    }
+  ],
+  "i)wiw/": [
+    {
+      "lemma": "i)w/",
+      "gloss": "oh! (cry)",
+      "parse": "indeclform (exclam)",
+      "lsj": [
+        "i)w/"
+      ]
+    }
+  ],
+  "e)teo/kleis": [
+    {
+      "lemma": "*)eteoklh=s",
+      "gloss": "Eteocles",
+      "parse": "masc voc sg",
+      "lsj": []
+    }
+  ]
+}

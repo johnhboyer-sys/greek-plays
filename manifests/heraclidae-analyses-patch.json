@@ -1,0 +1,260 @@
+{
+ "a)=s": [
+  {
+   "lemma": "o(/s",
+   "gloss": "who, which (Doric ἇς = ἧς)",
+   "parse": "fem gen sg (doric)",
+   "lsj": [
+    "o(/s1"
+   ]
+  }
+ ],
+ "e)/pou": [
+  {
+   "lemma": "e(/pomai",
+   "gloss": "follow",
+   "parse": "pres imperat mp 2nd sg",
+   "lsj": [
+    "e(/pomai"
+   ]
+  }
+ ],
+ "e)/xrhizon": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "imperf ind act 1st sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ],
+ "eu)boi=d'": [
+  {
+   "lemma": "*eu)boi+/s",
+   "gloss": "Euboean",
+   "parse": "fem acc sg",
+   "lsj": []
+  }
+ ],
+ "h)/idh": [
+  {
+   "lemma": "oi)=da",
+   "gloss": "know",
+   "parse": "plup ind act 1st sg",
+   "lsj": [
+    "oi)=da"
+   ]
+  }
+ ],
+ "ka)=iq'": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ εἶτα)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "ei)=ta",
+   "gloss": "then, next (crasis: καὶ εἶτα)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "ei)=ta"
+   ]
+  }
+ ],
+ "ka)=it'": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ εἶτα)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "ei)=ta",
+   "gloss": "then, next (crasis: καὶ εἶτα)",
+   "parse": "indeclform (adverb)",
+   "lsj": [
+    "ei)=ta"
+   ]
+  }
+ ],
+ "kekth/imeqa": [
+  {
+   "lemma": "kta/omai",
+   "gloss": "acquire; (perf.) possess",
+   "parse": "perf opt mp 1st pl",
+   "lsj": [
+    "kta/omai"
+   ]
+  }
+ ],
+ "lw=ist'": [
+  {
+   "lemma": "lwi/wn",
+   "gloss": "best, most desirable",
+   "parse": "neut nom/voc/acc superl pl",
+   "lsj": [
+    "lwi/+wn"
+   ]
+  }
+ ],
+ "lw=iston": [
+  {
+   "lemma": "lwi/wn",
+   "gloss": "best, most desirable",
+   "parse": "neut nom/voc/acc superl sg",
+   "lsj": [
+    "lwi/+wn"
+   ]
+  }
+ ],
+ "qnh/iskein": [
+  {
+   "lemma": "qnh/skw",
+   "gloss": "die",
+   "parse": "pres inf act",
+   "lsj": [
+    "qnh/|skw"
+   ]
+  }
+ ],
+ "sw/izei": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres ind act 3rd sg",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "sw/izein": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres inf act",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "sw/izeis": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres ind act 2nd sg",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "sw/izw": [
+  {
+   "lemma": "sw/zw",
+   "gloss": "save, keep safe",
+   "parse": "pres ind act 1st sg",
+   "lsj": [
+    "sw/|zw"
+   ]
+  }
+ ],
+ "tetra/ptolin": [
+  {
+   "lemma": "tetra/ptolis",
+   "gloss": "of four cities",
+   "parse": "masc/fem acc sg",
+   "lsj": []
+  }
+ ],
+ "xalubdikou=": [
+  {
+   "lemma": "xalubdiko/s",
+   "gloss": "of steel",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "xou)n": [
+  {
+   "lemma": "kai/",
+   "gloss": "and (crasis: καὶ ὁ ἐν)",
+   "parse": "indeclform (conj)",
+   "lsj": [
+    "kai/1"
+   ]
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: καὶ ὁ ἐν)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "e)n",
+   "gloss": "in (crasis: καὶ ὁ ἐν)",
+   "parse": "proclitic indeclform (prep)",
+   "lsj": [
+    "e)n"
+   ]
+  }
+ ],
+ "xrh/izousin": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres part act masc/neut dat pl",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  },
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres ind act 3rd pl",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ],
+ "xrh/izw": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres ind act 1st sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  },
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres subj act 1st sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ],
+ "xrh=ize": [
+  {
+   "lemma": "xrh/|zw",
+   "gloss": "want, need, desire",
+   "parse": "pres imperat act 2nd sg",
+   "lsj": [
+    "xrh/|zw1",
+    "xrh/|zw2"
+   ]
+  }
+ ]
+}

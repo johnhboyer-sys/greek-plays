@@ -1,0 +1,240 @@
+{
+ "au)to": [
+  {
+   "lemma": "au)tomole/w",
+   "gloss": "desert (first syllables of αὐτομολῶμεν, spelled out)",
+   "parse": "aor subj act 1st pl",
+   "lsj": [
+    "au)tomole/w"
+   ]
+  }
+ ],
+ "ei)=e(n": [
+  {
+   "lemma": "ei)=en",
+   "gloss": "well! well then!",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ],
+ "mo": [
+  {
+   "lemma": "blw/skw",
+   "gloss": "go, come (first syllable of μόλωμεν, spelled out)",
+   "parse": "aor subj act 1st pl",
+   "lsj": [
+    "blw/skw"
+   ]
+  }
+ ],
+ "au)": [
+  {
+   "lemma": "au)tomole/w",
+   "gloss": "desert (first syllable of αὐτομολῶμεν, spelled out)",
+   "parse": "aor subj act 1st pl",
+   "lsj": [
+    "au)tomole/w"
+   ]
+  }
+ ],
+ "a)/idei": [
+  {
+   "lemma": "a)ei/dw",
+   "gloss": "sing, chant",
+   "parse": "pres ind act 3rd sg",
+   "lsj": [
+    "a)ei/dw"
+   ]
+  }
+ ],
+ "krounoxutrolhrai=os": [
+  {
+   "lemma": "krounoxutrolhrai=os",
+   "gloss": "gush-pot-babbler (comic coinage)",
+   "parse": "masc nom sg",
+   "lsj": []
+  }
+ ],
+ "kra=kta": [
+  {
+   "lemma": "kra/kths",
+   "gloss": "bawler",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "ku=bda": [
+  {
+   "lemma": "ku/bda",
+   "gloss": "bent forward",
+   "parse": "indeclform (adverb)",
+   "lsj": []
+  }
+ ],
+ "a)/isaimi": [
+  {
+   "lemma": "a)ei/dw",
+   "gloss": "sing",
+   "parse": "aor opt act 1st sg",
+   "lsj": [
+    "a)ei/dw"
+   ]
+  }
+ ],
+ "pohth/s": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "batraxeioi=s": [
+  {
+   "lemma": "batra/xeios",
+   "gloss": "frog-green (dye)",
+   "parse": "neut dat pl",
+   "lsj": []
+  }
+ ],
+ "gerai/stie": [
+  {
+   "lemma": "*gerai/stios",
+   "gloss": "god of Geraestus (Poseidon)",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "a)muni/as": [
+  {
+   "lemma": "*)amuni/as",
+   "gloss": "Amynias, \"Defender\" (pun on ἀμύνω)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "*)amuni/as"
+   ]
+  }
+ ],
+ "pohtai=s": [
+  {
+   "lemma": "poihth/s",
+   "gloss": "poet (Aristophanes spells ποητής)",
+   "parse": "masc dat pl",
+   "lsj": [
+    "poihth/s"
+   ]
+  }
+ ],
+ "o)lolu=cai": [
+  {
+   "lemma": "o)lolu/zw",
+   "gloss": "cry aloud in joy",
+   "parse": "aor inf act",
+   "lsj": [
+    "o)lolu/zw"
+   ]
+  }
+ ],
+ "ballan": [
+  {
+   "lemma": "balla/ntion",
+   "gloss": "purse (first part of βαλλαντίῳ, split in the text)",
+   "parse": "neut dat sg",
+   "lsj": [
+    "balla/ntion"
+   ]
+  }
+ ],
+ "w)=gaqoi": [
+  {
+   "lemma": "a)gaqo/s",
+   "gloss": "good (crasis: ὦ ἀγαθοί)",
+   "parse": "masc voc pl",
+   "lsj": [
+    "a)ga^qo/s"
+   ]
+  }
+ ],
+ "perih/mpesx'": [
+  {
+   "lemma": "periampe/xw",
+   "gloss": "wrap around",
+   "parse": "aor ind act 3rd sg",
+   "lsj": []
+  }
+ ],
+ "si=zon": [
+  {
+   "lemma": "si/zw",
+   "gloss": "hiss, sizzle",
+   "parse": "pres part act neut nom/voc/acc sg",
+   "lsj": [
+    "si/zw"
+   ]
+  }
+ ],
+ "qoufa/nous": [
+  {
+   "lemma": "*qoufa/nhs",
+   "gloss": "Thuphanes",
+   "parse": "masc gen sg",
+   "lsj": []
+  }
+ ],
+ "tunnoutoni/": [
+  {
+   "lemma": "tunnou=tos",
+   "gloss": "so small, this tiny (with deictic -ί)",
+   "parse": "masc acc sg",
+   "lsj": [
+    "tunnou=tos"
+   ]
+  },
+  {
+   "lemma": "tunnou=tos",
+   "gloss": "so small, this tiny (with deictic -ί)",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": [
+    "tunnou=tos"
+   ]
+  }
+ ],
+ "mou)": [
+  {
+   "lemma": "e)gw/",
+   "gloss": "me, my (crasis: μοι ὁ)",
+   "parse": "masc/fem dat 1st sg",
+   "lsj": [
+    "e)gw/"
+   ]
+  },
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: μοι ὁ)",
+   "parse": "masc nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  }
+ ],
+ "oi)wni/xw|": [
+  {
+   "lemma": "*oi)w/nixos",
+   "gloss": "Oeonichus",
+   "parse": "masc dat sg",
+   "lsj": []
+  }
+ ],
+ "legoi/thn": [
+  {
+   "lemma": "le/gw",
+   "gloss": "speak",
+   "parse": "pres opt act 3rd dual",
+   "lsj": [
+    "le/gw"
+   ]
+  }
+ ]
+}

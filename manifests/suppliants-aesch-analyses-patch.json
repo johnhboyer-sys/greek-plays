@@ -1,0 +1,84 @@
+{
+  "o/": [
+    {
+      "lemma": "o)/",
+      "gloss": "oh! (cry of terror)",
+      "parse": "indeclform (exclam)",
+      "lsj": []
+    }
+  ],
+  "a/": [
+    {
+      "lemma": "a)=",
+      "gloss": "ah! (cry of terror)",
+      "parse": "indeclform (exclam)",
+      "lsj": [
+        "a)="
+      ]
+    }
+  ],
+  "zh/n": [
+    {
+      "lemma": "*zeu/s",
+      "gloss": "Zeus",
+      "parse": "masc nom/voc sg",
+      "lsj": [
+        "*zeu/s"
+      ]
+    }
+  ],
+  "ei(loqerh=": [
+    {
+      "lemma": "ei(loqerh/s",
+      "gloss": "sun-warmed",
+      "parse": "masc/fem acc sg",
+      "lsj": []
+    }
+  ],
+  "basile/w|n": [
+    {
+      "lemma": "basileu/s",
+      "gloss": "king",
+      "parse": "masc gen/dat dual",
+      "lsj": [
+        "ba^si^leu/s"
+      ]
+    }
+  ],
+  "po/lin'": [
+    {
+      "lemma": "po/lis",
+      "gloss": "city",
+      "parse": "fem acc sg",
+      "lsj": [
+        "po/lis"
+      ]
+    }
+  ],
+  "i(ppado/n": [
+    {
+      "lemma": "i(pphdo/n",
+      "gloss": "like a horse",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "i(pphdo/n"
+      ]
+    }
+  ],
+  "polumnh/stwr": [
+    {
+      "lemma": "polumnh/stwr",
+      "gloss": "mindful, remembering",
+      "parse": "masc/fem nom sg",
+      "lsj": []
+    }
+  ],
+  "a)/frikton": [
+    {
+      "lemma": "a)/friktos",
+      "gloss": "not shuddering",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": []
+    }
+  ]
+}

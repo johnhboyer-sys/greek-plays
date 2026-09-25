@@ -1,0 +1,451 @@
+{
+  "fh/is": [
+    {
+      "lemma": "fhmi/",
+      "gloss": "say, affirm, assert",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "fhmi/"
+      ]
+    }
+  ],
+  "qrh/ikhs": [
+    {
+      "lemma": "*qra/|kh",
+      "gloss": "Thrace",
+      "parse": "fem gen sg",
+      "lsj": [
+        "*qra/|kh"
+      ]
+    }
+  ],
+  "qrhiki/": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "Thracian",
+      "parse": "masc dat sg",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "r(a/idion": [
+    {
+      "lemma": "r(a/|dios",
+      "gloss": "easy, ready",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "r(a/|dios"
+      ]
+    }
+  ],
+  "polumh=stor": [
+    {
+      "lemma": "*polumh/stwr",
+      "gloss": "Polymestor",
+      "parse": "masc voc sg",
+      "lsj": []
+    }
+  ],
+  "qrh/ikhn": [
+    {
+      "lemma": "*qra/|kh",
+      "gloss": "Thrace",
+      "parse": "fem acc sg",
+      "lsj": [
+        "*qra/|kh"
+      ]
+    }
+  ],
+  "qrhici/": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "Thracian",
+      "parse": "masc dat pl",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "a)trei=dai": [
+    {
+      "lemma": "*)atrei/dhs",
+      "gloss": "son of Atreus",
+      "parse": "masc nom/voc pl",
+      "lsj": [
+        "*)atrei/dhs"
+      ]
+    }
+  ],
+  "xrh/izeis": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "qrh/ic": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "Thracian",
+      "parse": "masc nom sg",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "qrhiko/s": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "Thracian",
+      "parse": "masc gen sg",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "xrh/izwn": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres part act masc nom sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "w)/ikistai": [
+    {
+      "lemma": "oi)ki/zw",
+      "gloss": "settle, found; (pass.) dwell",
+      "parse": "perf ind mp 3rd sg",
+      "lsj": [
+        "oi)ki/zw"
+      ]
+    }
+  ],
+  "h(=lq'": [
+    {
+      "lemma": "e)/rxomai",
+      "gloss": "come, go",
+      "parse": "aor ind act 3rd sg",
+      "lsj": [
+        "e)/rxomai"
+      ]
+    }
+  ],
+  "a)xilei/as": [
+    {
+      "lemma": "*)axi/lleios",
+      "gloss": "of Achilles",
+      "parse": "fem gen sg",
+      "lsj": [
+        "*)axi/lleios"
+      ]
+    }
+  ],
+  "e)/qnhiskon": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "imperf ind act 1st sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "sw/izein": [
+    {
+      "lemma": "sw/zw",
+      "gloss": "save, keep safe",
+      "parse": "pres inf act",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "ei)=e(n": [
+    {
+      "lemma": "ei)=e(n",
+      "gloss": "well! so be it (transition particle)",
+      "parse": "indeclform (particle)",
+      "lsj": []
+    }
+  ],
+  "xrh/izous'": [
+    {
+      "lemma": "xrh/|zw",
+      "gloss": "want, lack, have need of",
+      "parse": "pres part act fem nom sg",
+      "lsj": [
+        "xrh/|zw1",
+        "xrh/|zw2"
+      ]
+    }
+  ],
+  "e)qre/fqhn": [
+    {
+      "lemma": "tre/fw",
+      "gloss": "rear, bring up",
+      "parse": "aor ind pass 1st sg",
+      "lsj": [
+        "tre/fw"
+      ]
+    }
+  ],
+  "sugklh/isei": [
+    {
+      "lemma": "sugklei/w",
+      "gloss": "shut, close",
+      "parse": "fut ind act 3rd sg",
+      "lsj": [
+        "sugklei/w"
+      ]
+    }
+  ],
+  "ai)=m'": [
+    {
+      "lemma": "ai(=ma",
+      "gloss": "blood",
+      "parse": "neut nom/voc/acc sg",
+      "lsj": [
+        "ai(=ma"
+      ]
+    }
+  ],
+  "qnh/iskw": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres ind act 1st sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "qnh/iskous'": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres part act fem nom sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "eu)teknwta/thn": [
+    {
+      "lemma": "eu)/teknos",
+      "gloss": "blessed with children",
+      "parse": "fem acc superl sg",
+      "lsj": [
+        "eu)/teknos"
+      ]
+    }
+  ],
+  "qrefqh=nai": [
+    {
+      "lemma": "tre/fw",
+      "gloss": "rear, bring up",
+      "parse": "aor inf pass",
+      "lsj": [
+        "tre/fw"
+      ]
+    }
+  ],
+  "eu)teknw/tate": [
+    {
+      "lemma": "eu)/teknos",
+      "gloss": "blessed with children",
+      "parse": "masc voc superl sg",
+      "lsj": [
+        "eu)/teknos"
+      ]
+    }
+  ],
+  "simounti/di": [
+    {
+      "lemma": "*simounti/s",
+      "gloss": "of the Simois",
+      "parse": "fem dat sg",
+      "lsj": []
+    }
+  ],
+  "e)/swiz'": [
+    {
+      "lemma": "sw/zw",
+      "gloss": "save, keep safe",
+      "parse": "imperf ind act 3rd sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "qnh/iskeis": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres ind act 2nd sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "qrh/ikios": [
+    {
+      "lemma": "*qra/|kios",
+      "gloss": "Thracian",
+      "parse": "masc nom sg",
+      "lsj": [
+        "*qra/|kios"
+      ]
+    }
+  ],
+  "qnh/iskei": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die",
+      "parse": "pres ind act 3rd sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "w)=de": [
+    {
+      "lemma": "w(=de",
+      "gloss": "thus, in this way",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "w(=de"
+      ]
+    }
+  ],
+  "u(perqrw/iskonq'": [
+    {
+      "lemma": "u(perqrw/|skw",
+      "gloss": "leap over, rise above",
+      "parse": "pres part act masc acc sg",
+      "lsj": [
+        "u(perqrw/|skw"
+      ]
+    }
+  ],
+  "w)llu/man": [
+    {
+      "lemma": "o)/llumi",
+      "gloss": "destroy; (mid.) perish",
+      "parse": "imperf ind mp 1st sg (doric)",
+      "lsj": [
+        "o)/llu_mi"
+      ]
+    }
+  ],
+  "dioskou/roin": [
+    {
+      "lemma": "*dio/skouroi",
+      "gloss": "the Dioscuri",
+      "parse": "masc gen/dat dual",
+      "lsj": []
+    }
+  ],
+  "sw/izetai": [
+    {
+      "lemma": "sw/zw",
+      "gloss": "save, keep safe",
+      "parse": "pres ind mp 3rd sg",
+      "lsj": [
+        "sw/|zw"
+      ]
+    }
+  ],
+  "qrh=ika": [
+    {
+      "lemma": "*qra=|c",
+      "gloss": "Thracian",
+      "parse": "masc acc sg",
+      "lsj": [
+        "*qra=|c"
+      ]
+    }
+  ],
+  "w)ari/wn": [
+    {
+      "lemma": "*)wari/wn",
+      "gloss": "Orion",
+      "parse": "masc nom sg",
+      "lsj": [
+        "*)wri/wn"
+      ]
+    }
+  ],
+  "a)/icw": [
+    {
+      "lemma": "a)i/ssw",
+      "gloss": "shoot, dart",
+      "parse": "fut ind act 1st sg",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    },
+    {
+      "lemma": "a)i/ssw",
+      "gloss": "shoot, dart",
+      "parse": "aor subj act 1st sg",
+      "lsj": [
+        "a)i/+ssw"
+      ]
+    }
+  ],
+  "h)dwnh=s": [
+    {
+      "lemma": "*)hdwno/s",
+      "gloss": "Edonian",
+      "parse": "fem gen sg",
+      "lsj": []
+    }
+  ],
+  "ka)=it'": [
+    {
+      "lemma": "kai/",
+      "gloss": "and (crasis: καὶ εἶτα)",
+      "parse": "indeclform (conj)",
+      "lsj": [
+        "kai/1"
+      ]
+    },
+    {
+      "lemma": "ei)=ta",
+      "gloss": "then, next (crasis: καὶ εἶτα)",
+      "parse": "indeclform (adverb)",
+      "lsj": [
+        "ei)=ta"
+      ]
+    }
+  ],
+  "kate/ktas": [
+    {
+      "lemma": "kataktei/nw",
+      "gloss": "kill, slay",
+      "parse": "aor ind act 2nd sg",
+      "lsj": [
+        "kataktei/nw"
+      ]
+    }
+  ],
+  "e)gklh/iet'": [
+    {
+      "lemma": "e)gklei/w",
+      "gloss": "shut in",
+      "parse": "pres imperat act 2nd pl",
+      "lsj": [
+        "e)gklei/w"
+      ]
+    }
+  ]
+}

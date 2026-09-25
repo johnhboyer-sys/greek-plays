@@ -1,0 +1,92 @@
+{
+  "xw=ras": [
+    {
+      "lemma": "xw/ra",
+      "gloss": "land, country",
+      "parse": "fem gen sg",
+      "lsj": [
+        "xw/ra"
+      ]
+    }
+  ],
+  "qano/tos": [
+    {
+      "lemma": "qnh/skw",
+      "gloss": "die (misprint for θανόντος)",
+      "parse": "aor part act masc gen sg",
+      "lsj": [
+        "qnh/|skw"
+      ]
+    }
+  ],
+  "labdakei/w|": [
+    {
+      "lemma": "*labdakei=os",
+      "gloss": "of Labdacus",
+      "parse": "masc dat sg",
+      "lsj": []
+    }
+  ],
+  "kreontei/ois": [
+    {
+      "lemma": "*kreontei=os",
+      "gloss": "of Creon",
+      "parse": "masc/neut dat pl",
+      "lsj": []
+    }
+  ],
+  "o(mospo/ros": [
+    {
+      "lemma": "o(mo/sporos",
+      "gloss": "sown together; sharing the same wife",
+      "parse": "masc/fem nom sg",
+      "lsj": [
+        "o(mo/sporos"
+      ]
+    }
+  ],
+  "a)ti/ws": [
+    {
+      "lemma": "a)rti/ws",
+      "gloss": "just now (misprint for ἀρτίως)",
+      "parse": "indeclform (adverb)",
+      "lsj": []
+    }
+  ],
+  "mi": [
+    {
+      "lemma": "ei)=mi",
+      "gloss": "go (second half of εἶμι, split across lines)",
+      "parse": "pres ind act 1st sg",
+      "lsj": [
+        "ei)=mi"
+      ]
+    }
+  ],
+  "a)bai=si": [
+    {
+      "lemma": "*)/abai",
+      "gloss": "Abae",
+      "parse": "fem dat pl",
+      "lsj": []
+    }
+  ],
+  "kulla/nas": [
+    {
+      "lemma": "*kullh/nh",
+      "gloss": "Cyllene",
+      "parse": "fem gen sg (doric)",
+      "lsj": [
+        "*kullh/nh"
+      ]
+    }
+  ],
+  "labdakei/wn": [
+    {
+      "lemma": "*labdakei=os",
+      "gloss": "of Labdacus",
+      "parse": "masc/fem/neut gen pl",
+      "lsj": []
+    }
+  ]
+}

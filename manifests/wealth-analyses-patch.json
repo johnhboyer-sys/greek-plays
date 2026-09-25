@@ -1,0 +1,162 @@
+{
+ "au)to/tatos": [
+  {
+   "lemma": "au)to/s",
+   "gloss": "(he) himself; his very self (comic superlative)",
+   "parse": "masc nom superl sg",
+   "lsj": [
+    "au)to/s"
+   ]
+  }
+ ],
+ "da/mater": [
+  {
+   "lemma": "*dhmh/thr",
+   "gloss": "Demeter",
+   "parse": "fem voc sg (doric)",
+   "lsj": [
+    "*dhmh/thr"
+   ]
+  }
+ ],
+ "fa/bion": [
+  {
+   "lemma": "fa/bion",
+   "gloss": "little dove (pet name)",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": []
+  }
+ ],
+ "fw/|dwn": [
+  {
+   "lemma": "fw/|des",
+   "gloss": "blisters (from sitting too near the bath-furnace)",
+   "parse": "fem gen pl",
+   "lsj": []
+  }
+ ],
+ "h(=|men": [
+  {
+   "lemma": "ei)=mi",
+   "gloss": "go",
+   "parse": "imperf ind act 1st pl",
+   "lsj": [
+    "ei)=mi"
+   ]
+  }
+ ],
+ "h(k": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ἡ ἐκ)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "e)k",
+   "gloss": "from, out of (crasis: ἡ ἐκ)",
+   "parse": "proclitic indeclform (prep)",
+   "lsj": [
+    "e)k"
+   ]
+  }
+ ],
+ "h(pi/triptos": [
+  {
+   "lemma": "o(",
+   "gloss": "the (crasis: ἡ ἐπίτριπτος)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "o(1"
+   ]
+  },
+  {
+   "lemma": "e)pi/triptos",
+   "gloss": "rogue, damned creature (crasis: ἡ ἐπίτριπτος)",
+   "parse": "fem nom sg",
+   "lsj": [
+    "e)pi/triptos"
+   ]
+  }
+ ],
+ "kata/plaston": [
+  {
+   "lemma": "kata/plastos",
+   "gloss": "plaster, poultice",
+   "parse": "neut nom/voc/acc sg",
+   "lsj": []
+  }
+ ],
+ "me/nta)n": [
+  {
+   "lemma": "me/ntoi",
+   "gloss": "certainly, however (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "me/ntoi"
+   ]
+  },
+  {
+   "lemma": "a)/n",
+   "gloss": "modal particle (crasis: μέντοι ἄν)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "a)/n"
+   ]
+  }
+ ],
+ "oi)mw/ca)ra": [
+  {
+   "lemma": "oi)mw/zw",
+   "gloss": "wail; (fut.) be sorry for it (οἰμώξει + ἄρα)",
+   "parse": "fut ind mid 2nd sg",
+   "lsj": [
+    "oi)mw/zw"
+   ]
+  },
+  {
+   "lemma": "a)/ra",
+   "gloss": "then, it seems (οἰμώξει + ἄρα)",
+   "parse": "indeclform (particle)",
+   "lsj": [
+    "a)/ra^"
+   ]
+  }
+ ],
+ "pontopo/seidon": [
+  {
+   "lemma": "*pontopo/seidwn",
+   "gloss": "Sea-Poseidon",
+   "parse": "masc voc sg",
+   "lsj": []
+  }
+ ],
+ "sumparameignu/wn": [
+  {
+   "lemma": "sumparamei/gnumi",
+   "gloss": "mix in along with",
+   "parse": "pres part act masc nom sg",
+   "lsj": []
+  }
+ ],
+ "thndi/": [
+  {
+   "lemma": "o(/de",
+   "gloss": "this (with deictic -ί)",
+   "parse": "fem acc sg",
+   "lsj": [
+    "o(/de"
+   ]
+  }
+ ],
+ "uu": [
+  {
+   "lemma": "u)=",
+   "gloss": "sniff! (sound of sniffing)",
+   "parse": "indeclform (exclam)",
+   "lsj": []
+  }
+ ]
+}
