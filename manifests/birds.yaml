@@ -114,8 +114,31 @@ english:
     #   row down to 828. The run self-corrects at 833, where Hickie's own
     #   "chicken of Mars" / "master chicken" pair (two speeches, one Greek
     #   node) reabsorbs the slack.
+    # Drift sweep 2 (2026-09-25): the 277 pin described above seated "Mede?"
+    # on the Hoopoe's share of 277 (Hickie's Pisthetaerus has no share on
+    # that line), and a run is capped at 8, so every reply from 279 to 301
+    # sat one share early and the catalogue (302-305) at 307. Pinned from the Epops's "His name is
+    # the Mede", each reply sits on its own Greek, read line by line: 277
+    # Mede, 279 crest, 280 prodigy, 281 son of Philocles, 284 Callias, 285
+    # plucked, 287 bright-coloured, 288 Glutton, 289 Cleonymus, 290 crest,
+    # 291 Double Course, 292 Carians, 294 plague of birds, 295 cloud, 297
+    # partridge to kingfisher (297-298), 299 who is behind her, 299 kingfisher,
+    # 300 a bird, 300 Sporgilus and the owl, 301 who brought an owl, 302 the
+    # catalogue, 306 the birds (306-309), 309 I think so too.
+    #   517: the Euelpides's "By Ceres" (517) sat at 521 and the
+    # Pisthetaerus's 518-538 at 522, with 517-520 bare. Hickie gives Lampon
+    # (521) to Pisthetaerus, inside that one speech, so it sits whole at 518,
+    # translated with 521 and 522.
     pins:
-      - { greek: "277", english: "Mede? O king Hercules! Then how, if it be a Mede, has it flown hither without a camel?", run: 22 }
+      - { greek: "277", english: "His name is the Mede.", run: 8 }
+      - { greek: "288", english: "This here is the Glutton.", run: 8 }
+      - { greek: "298", english: "Why, who is the one behind her?", run: 4 }
+      - { greek: "301", english: "What say you? Who ever brought an owl to Athens?", run: 2 }
+      - { greek: "306", english: "Oh! oh! the birds!", run: 1 }
+      - { greek: "309", english: "I think so too.", run: 1 }
+      - { greek: "517", english: "By Ceres, you say this well.", run: 2 }
+      # Holds 672 as it stood: the pins above moved the beak line (672) to 673.
+      - { greek: "672", english: "Nay, you unlucky fellow, she has a beak", run: 1 }
       - { greek: "826", english: "What a fine city! What deity, then, will be protector of the city? For whom shall we full the peplus?", run: 1 }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in

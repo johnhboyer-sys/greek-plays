@@ -104,6 +104,17 @@ english:
       source: bench/johnston/agamemnon.txt
       play: AGAMEMNON
       footnotes: false
+      # Drift sweep 2 (2026-09-25): the Chorus's anapaests (355-366, "O Zeus,
+      # my king, and friendly Night") sat at 367, and the Chorus Leader's
+      # 351-354 was cut in two across 351 and 355. A CHORUS cue (on the
+      # source's blank line before the stanza) parts the anapaests from the
+      # ode, and the pin seats each on its own Greek, read line by line:
+      # 351-354 whole at 351, 355 the anapaests, 367 a blow from Zeus (to
+      # 419, no beauty in statues), 420 in his dreams (to 474).
+      line_fixes:
+        534: "[CHORUS]"
+      pins:
+        - { greek: "355", english: "O Zeus, my king, and friendly Night", run: 2 }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed

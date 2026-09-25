@@ -39,6 +39,30 @@ english:
     source: bench/morshead/suppliants-aesch.txt
     play: THE SUPPLIANT MAIDENS
     footnotes: false
+    # Drift sweep 2 (2026-09-25): 293-308. Morshead gives the King both 293
+    # and the question at 295 (Zeus and a mortal), where Murray gives the
+    # question to the Chorus and swaps the speakers of the stichomythia to
+    # 308, so every reply from 296 to 307 sat a line late. Pinned, each sits
+    # on the Greek it renders, read line by line: 296 Hera surmised, 298 how
+    # issued the strife, 299 a heifer, 300 held Zeus aloof, 301 a bull, 302
+    # his consort, 303 a guard, 304 the herdsman, 305 Argus, 306 still vex,
+    # 307 a gadfly (with 308, which names it). 295's question stays in the
+    # King's 293.
+    pins:
+      # Holds 211-213 as it stood: the two pins below moved Morshead's extra
+      # pair ("Lo, on this shrine", "Zeus' bird of dawn", both 212) off 211.
+      - { greek: "213", english: "Thus I invoke the saving rays of morn.", run: 1 }
+      - { greek: "296", english: "Ay, and that Hera that embrace surmised.", run: 8 }
+      - { greek: "305", english: "Argus, the child of Earth, whom Hermes slew.", run: 3 }
+    covered:
+      - { greek: "295", by: "293" }
+      - { greek: "308", by: "307" }
+    # Morshead prints 909-910 (by the hair) and 908 (undone, O king) before
+    # 906-907 (kings enow), where Murray prints 905-910 in numeric order; the
+    # two blocks offer the Greek in Morshead's order, 905, 909, 908, 906.
+    transpositions:
+      - { start: "909", end: "910", before: "906" }
+      - { start: "908", end: "908", before: "906" }
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
@@ -48,6 +72,12 @@ english:
     source: bench/johnston/suppliants-aesch.txt
     play: SUPPLIANT WOMEN
     footnotes: false
+    # Drift sweep 2 (2026-09-25): Johnston prints 908 (we are lost) and
+    # 909-910 (by the hair) before 905 (chiefs of the city) and 906-907 (many
+    # lords), where Murray prints 905-910 in numeric order; the block offers
+    # the Greek in Johnston's order.
+    transpositions:
+      - { start: "908", end: "910", before: "905" }
     # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
     license:
       status: licensed

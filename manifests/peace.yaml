@@ -155,6 +155,42 @@ english:
     # curse back on its own line, 19, clears the borrowed row.
     pins:
       - { greek: "19", english: "Aye, by Jupiter, to the deuce, and yourself into the bargain.", run: 1 }
+      # Drift sweep 2 (2026-09-25): 400-453. Hickie gives Hermes a line of
+      # Trygaeus's speech (402, "more thievish than before"), which ran every
+      # reply from 405 to 428 one or two speeches late; from 433 he gives
+      # Hermes's libation (433-438) to Trygaeus and the Chorus the curses
+      # Coulon gives to Trygaeus, which ran 439-453 a speech early. Read
+      # line by line: 400-404 whole at 400, 405 tell it, 406 the moon and
+      # sun, 409 wherefore, 409 we sacrifice to you, 414 filching from the
+      # days, 416 the festivals and the cup, 425 golden cups (with 426-427,
+      # the task is yours), 428 this we will do, 431 the libation (433-438),
+      # 439 spend his life in peace, 441 arrows from his elbows (443), 444
+      # the taxiarch (446), 447 the spear-maker (449), 450 the general and
+      # the paean (452-453).
+      - { greek: "405", english: "Come now, tell it; for you may perchance prevail upon me.", run: 7 }
+      - { greek: "428", english: "This we will do: but do you, O wisest of the gods", run: 2 }
+      - { greek: "439", english: "No, by Jupiter! but may spend his life in peace", run: 2 }
+      - { greek: "444", english: "And if any one, desiring to be a Taxiarch", run: 1 }
+      - { greek: "447", english: "And if any spear-maker, or retailer of shields", run: 1 }
+      - { greek: "450", english: "And if any one, wishing to be general", run: 1 }
+      # Holds 454-458 as they stood: the pins above pulled them to 452.
+      - { greek: "454", english: "Take away the “beating,”", run: 8 }
+      # 535-549: the smells, the cities, and the craftsmen's faces sat one to
+      # three speeches early, with 543-549 bare. Read line by line: 535 ivy
+      # (to 538), 538 the cities (to 542), 543 the spectators' faces, 544
+      # the crest-maker and the mattock-maker (to 547), 548 the sickle-maker
+      # (with 549).
+      - { greek: "535", english: "Of ivy, of the straining-cloth", run: 2 }
+      - { greek: "543", english: "And further, observe the countenances of these spectators", run: 2 }
+      - { greek: "548", english: "And don't you see how the sickle-maker is rejoicing", run: 1 }
+    # Drift sweep 2: the line Coulon prints after each of Hickie's curses
+    # finishes that curse's sentence.
+    covered:
+      - { greek: "443", by: "441" }
+      - { greek: "446", by: "444" }
+      - { greek: "449", by: "447" }
+      - { greek: "452", by: "450" }
+      - { greek: "453", by: "450" }
     # S11 sweep (2026-09-25): Hickie prints the Chorus's 1127-1190 as one
     # paragraph, and 1167 (ἐσθίω κἀπέχω) opens mid-sentence, so the cut by
     # sentence fell at "But when they are at home" (1179), twelve lines late.

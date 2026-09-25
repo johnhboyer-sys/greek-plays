@@ -41,6 +41,11 @@ english:
       "810": "807"    # ἅνδρες τεθνᾶσιν — The men are dead
       "811": "812"    # οὕτως ἀδελφαῖς χερσὶν — with hands so fraternal
       "812": "813"    # οὕτως ὁ δαίμων κοινὸς — so all too equal was their destiny
+    # Drift sweep 2 (2026-09-25): 947-956. Smyth's vulgate numbers run two
+    # lines behind Murray here, and the bare numbers put each strophe a
+    # segment early (947-950 in 938, 951-956 in 947).
+      "945": "947"    # ἔχουσι μοῖραν — They hold in misery their allotted portion
+      "950": "951"    # ἰὼ πολλοῖς ἐπανθίσαντες — your race with many troubles
     # S11 sweep row 853 (2026-09-25): 971-1004. Smyth numbers the dirge by the
     # vulgate, four lines behind Murray and in the vulgate order; each of his
     # lines is keyed to the Murray line it renders, read against the Greek.
@@ -176,6 +181,9 @@ english:
       # vulgate order: 806 ends inside Johnston's 813 speech (owner ruling 2026-09-22)
       covered:
         - { greek: "806", by: "813" }
+        # Drift sweep 2: Johnston gives Eris (1051) to Antigone, in the
+        # sentence that opens her 1052.
+        - { greek: "1051", by: "1052" }
       # S11 sweep rows 525, 979, 1384 (2026-09-25): Johnston's second Chorus
       # speech opens at 845 (ἰὼ πολύστονοι, "O you who bring us so much
       # sorrow") but was seated at 875, so the first speech spread over
@@ -193,10 +201,33 @@ english:
       # enmity done + the stranger from the sea, 947 allotted shares,
       # 951 the trophy to Ruin.
       pins:
+        # Drift sweep 2 (2026-09-25): the parodos ran a segment late from 100
+        # to 106 (the robes and garlands, 101-102, sat at 103; the clash of
+        # more than one spear, 103, at 104). Each of these Greek segments is
+        # its own speech (a dash siglum), so a CHORUS cue on the source's
+        # blank line opens each stanza, and the pin seats each on its own
+        # Greek, read line by line: 100 useless wailing and the din of
+        # shields (99-100), 101 robes and garlands, 103 no single spear, 104
+        # Ares, 106 the golden helmet, 109 all you gods who guard our state.
+        - { greek: "100", english: "Why waste our time in useless wailing?", run: 6 }
         - { greek: "848", english: "O you who bring us so much sorrow", run: 4 }
+        # Drift sweep 2 (2026-09-25): the Herald's stichomythia ran two lines
+        # late from 1043 to 1051 (1043-1044 bare, "And I am saying" at 1045).
+        # Read line by line: 1043 futile proclamations, 1044 the people may
+        # be harsh, 1045 let them be harsh, 1046 the city hates this man,
+        # 1047 no honour from the gods, 1048 until he put the land in danger,
+        # 1049 paying back the harm, 1050 hurt all the citizens, 1052 Eris
+        # and I will bury him (1051-1052).
+        - { greek: "1043", english: "And I am saying you should not bother me", run: 8 }
         - { greek: "875", english: "O you hard-hearted, senseless men", run: 8 }
         - { greek: "911", english: "So here they lie, struck down by iron.", run: 8 }
       line_fixes:
+        165: "[CHORUS]"
+        170: "[CHORUS]"
+        173: "[CHORUS]"
+        176: "[CHORUS]"
+        180: "[CHORUS]"
+        184: "[CHORUS]"
         1421: "[CHORUS]"
         1430: "[CHORUS]"
         1442: "[CHORUS]"

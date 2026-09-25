@@ -56,6 +56,20 @@ english:
     source: bench/johnston/persians.txt
     play: PERSIANS
     footnotes: false
+    # Drift sweep 2 (2026-09-25): the parodos ran a segment or two late
+    # from 65 to 158. The opening anapaests (1-64) spread over 1-139, the
+    # sung ode ("Obliterating cities", 65-139) sat at 140, and the closing
+    # anapaests (140-158) at 155, with 150 bare. Read against the Greek:
+    # 65 the army has crossed (to 110, "leap above that snare"), 111 fair
+    # Delusion (to 139), 140 let us take our seats, 150 the queen
+    # approaches, 155 hail, O queen. A CHORUS LEADER cue on the source's
+    # blank line after each stage direction opens 150 and 155.
+    line_fixes:
+      153: "[CHORUS LEADER]"
+      161: "[CHORUS LEADER]"
+    pins:
+      - { greek: "65", english: "Obliterating cities as it moves", run: 1 }
+      - { greek: "140", english: "Come now, Persians, let us take our seats", run: 3 }
     # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
     license:
       status: licensed

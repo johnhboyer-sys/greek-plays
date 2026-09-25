@@ -25,12 +25,31 @@ english:
     source: "perseus/tlg0085.tlg003.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: true
+    # Drift sweep 2 (2026-09-25): 377-393. Smyth numbers the Oceanus
+    # stichomythia two lines ahead of Murray, and the bare numbers ran it a
+    # line late from 381 to 392 (383 bare, "Do you not know" cut from its
+    # "words are the physicians"). Each of his lines is keyed to the Murray
+    # line it renders, read against the Greek.
+    line_fixes:
+      "379": "377"    # οὔκουν, Προμηθεῦ — Do you not know then, Prometheus
+      "380": "378"    # ὀργῆς νοσούσης — words are the physicians
+      "381": "379"    # ἐάν τις ἐν καιρῷ — If one softens the soul in season
+      "383": "381"    # ἐν τῷ προθυμεῖσθαι — What lurking mischief
+      "385": "383"    # μόχθον περισσὸν — Lost labor
+      "386": "384"    # ἔα με τῇδε τῇ νόσῳ — Leave me to be affected
+      "388": "386"    # ἐμὸν δοκήσει — This fault will be seen to be my own
+      "389": "387"    # σαφῶς μ' ἐς οἶκον — Clearly the manner of your speech
+      "390": "388"    # μὴ γάρ σε θρῆνος — So that you won't win enmity
+      "391": "389"    # ἦ τῷ νέον θακοῦντι — In the eyes of the one newly seated
+      "392": "390"    # τούτου φυλάσσου — Beware lest the time come
+      "393": "391"    # ἡ σή, Προμηθεῦ — Your plight, Prometheus
+      "394": "392"    # στέλλου, κομίζου — Go away, depart
+      "395": "393"    # ὁρμωμένῳ μοι — Your urging meets my eagerness
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
       - { greek: "246", by: "248" }
       - { greek: "247", by: "249" }
-      - { greek: "383", by: "386" }
   secondary:
     id: morshead
     name: "E. D. A. Morshead (1881–1908)"
