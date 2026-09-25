@@ -33,6 +33,10 @@ english:
       - { greek: "81", by: "41" }
   secondary:
     id: way
+    text_fixes:
+      - find: "render back to thee.\n? By perpetuating the race of true-born Erechtheids, v"
+        replace: "render back to thee."
+        note: "way-cleanup 2026-09-25 row 1169 (S11 confirmed; brief Do:3): footnote fragment dumped in the text. The ION/Creusa mislabeling this row also names is NOT fixed here -- an english_overrides relabel (display+label: Creusa) was tried and reverted: it pushed turn_text_turn_shift_secondary from new_drifts=15 (PASS) to new_drifts=63 (FAIL), a cascade through the surrounding Ion/Creusa/Old-Servant turns too deep to resolve inside this sweep. Left for a dedicated follow-up."
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

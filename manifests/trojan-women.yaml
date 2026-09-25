@@ -46,6 +46,9 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "Asia’s loveliest, 1220)"
+        replace: "Asia’s loveliest,"
+        note: "way-cleanup 2026-09-25 row 547 (S11 confirmed): printed line number left in the verse"
       - find: "heap _—"
         replace: "heap (Ant. 3)"
         note: "sweep 2026-09-24 n=84: build/genie/euripidesway01euriuoft.txt:13014"

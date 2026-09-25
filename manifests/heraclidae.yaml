@@ -30,6 +30,16 @@ english:
     covered: []
   secondary:
     id: way
+    text_fixes:
+      - find: "the lot’s doom, 1;"
+        replace: "the lot’s doom, I;"
+        note: "way-cleanup 2026-09-25 row 145 (S11 confirmed): OCR digit 1 for the pronoun I"
+      - find: "upon me, . won me\n"
+        replace: "upon me,\n"
+        note: "way-cleanup 2026-09-25 row 141 (S11 confirmed): mid-line OCR junk"
+      - find: "cast out pity ! .\n"
+        replace: "cast out pity !\n"
+        note: "way-cleanup 2026-09-25 row 141 (S11 confirmed): stray full stop after pity !"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

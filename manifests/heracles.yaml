@@ -63,6 +63,10 @@ english:
       - { greek: "1064", by: "1065" }
   secondary:
     id: way
+    text_fixes:
+      - find: "Woe worth the day! -\n"
+        replace: "Woe worth the day!\n"
+        note: "way-cleanup 2026-09-25 row 274 (S11 confirmed): stray hyphen at line end, not a broken word"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

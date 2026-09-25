@@ -36,6 +36,15 @@ english:
   secondary:
     id: way
     text_fixes:
+      - find: "cause thereof\n/Thy lord! My very b"
+        replace: "cause thereof\nThy lord! My very b"
+        note: "way-cleanup 2026-09-25 row 342 (S11 confirmed): stray slash"
+      - find: "thy dauntless mood °"
+        replace: "thy dauntless mood"
+        note: "way-cleanup 2026-09-25: stray degree sign, same artifact as row 1002 (medea 1:824)"
+      - find: "they ask—* or what is tow"
+        replace: "they ask—or what is tow"
+        note: "way-cleanup 2026-09-25: bare asterisk insertion, same artifact as row 73 (bacchae 1:677)"
       - find: "On life by Fame. _ Ah"
         replace: "On life by Fame. Ah"
         note: "sweep 2026-09-24 n=37: build/genie/euripidesway01euriuoft.txt:1711-1713"

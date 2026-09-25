@@ -36,6 +36,10 @@ english:
       "1291": "1292"
   secondary:
     id: way
+    text_fixes:
+      - find: "her favour won But on mine ears"
+        replace: "her favour won. But on mine ears"
+        note: "way-cleanup 2026-09-25 row 489 (S11 confirmed): full stop missing between sentences"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

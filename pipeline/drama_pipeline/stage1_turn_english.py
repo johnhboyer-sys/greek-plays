@@ -3370,6 +3370,82 @@ def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> lis
     return pins
 
 
+# Way-cleanup sweep (2026-09-25, build/sweeps/way-cleanup-2026-09-25.tsv):
+# mechanical OCR/scan litter confirmed against archive.org's page images for
+# A. S. Way's Loeb Euripides (euripidesway0{1..4}euriuoft). Scoped to
+# `bench/way/` sources only (`_is_way_source` below) -- Rogers shares
+# `format: loeb-ocr` and must not be touched (brief Do:4).
+_WAY_ELISIONS = {
+    "tis", "twas", "twere", "twill", "tween", "twixt",
+    "neath", "gainst", "mongst", "scaped", "gan", "fore",
+}
+_WAY_DASH_GLUE = re.compile(r"[-—–]{2,}")
+_WAY_STRAY_STOP = re.compile(r"([A-Za-z]*[a-z])\.(\s+)(?=[a-z])")
+_WAY_ASTERISK = re.compile(r"\*(\s?)([A-Z][a-z]+)")
+
+
+def _is_way_source(path: Path) -> bool:
+    return path.parent.name == "way" and path.parent.parent.name == "bench"
+
+
+def _collapse_way_dash_run(m: re.Match) -> str:
+    """A run of 2+ hyphen/dash characters collapses to one em dash only when
+    it contains a real dash (an em dash the scan glued a stray hyphen to,
+    either order or doubled, e.g. ``!-—-dishonour``, hippolytus 1:611).
+    A run of PLAIN hyphens only (``---``) is a different, already-decided
+    mark (suppliants-eur 1:426) and is left alone."""
+    run = m.group(0)
+    if "—" in run or "–" in run:
+        return "—"
+    return run
+
+
+def _clean_way_ocr_litter(text: str) -> str:
+    """Strip mechanical scan/build litter from Way's bench text.
+
+    A scan line-wrap that splits a hyphenated word (``blood-\\npolluted``,
+    ``out-\\npealing``) is NOT handled here: checking it against the page
+    showed the fix is not mechanical -- some are permanent compounds that
+    keep the hyphen (``blood-polluted``, confirmed against genie elsewhere
+    unwrapped), some are a single word broken only for the line's width
+    (``in-stantly`` -> ``instantly``, no hyphen), and at least one is two
+    plain words (``imminent- death``). Each needs its own check; see
+    build/sweeps/way-cleanup-2026-09-25.tsv class ``stray-hyphen`` for the
+    ones checked so far (manifest text_fixes) and the ones left for a
+    follow-up sweep.
+
+    1. An em dash the scan glued to a stray extra hyphen (either order,
+       ``"—-"``/``"-—"``) collapses to the single em dash the page
+       prints (confirmed: bacchae 1:912, page 77 of vol. 3, and 7 more --
+       TSV class ``dash-glue``).
+    2. A stray full stop the scan drops mid-sentence, glued to the word
+       before it with nothing on the page: dropped. The word before it must
+       end lowercase, so a real speaker cue (``IOLAUS.``) never matches
+       (confirmed: heraclidae 1:711, page 309 of vol. 3, trojan-women 1:1,
+       page 357 of vol. 1, and 6 more -- TSV class ``stray-stop``).
+    3. A line-initial elision apostrophe (``'Tis``, ``'Twas``...) the scan
+       misreads as an asterisk: restored. Any other asterisk in Way's column
+       is a bare insertion -- the page prints nothing there -- and is
+       dropped, keeping whatever whitespace followed it (confirmed:
+       iphigenia-at-aulis 1:839, bacchae 1:677, 3 more -- TSV class
+       ``asterisk``).
+    """
+    text = _WAY_DASH_GLUE.sub(_collapse_way_dash_run, text)
+    text = _WAY_STRAY_STOP.sub(r"\1\2", text)
+
+    def _asterisk(m: re.Match) -> str:
+        ws, word = m.group(1), m.group(2)
+        if word.lower() in _WAY_ELISIONS:
+            return "'" + word
+        # A plain space before the next word is dropped with the asterisk; a
+        # newline is kept -- it is the verse line break, not part of the
+        # litter.
+        return (ws if "\n" in ws else "") + word
+
+    text = _WAY_ASTERISK.sub(_asterisk, text)
+    return text
+
+
 def parse_translation(
     path: Path,
     spine: dict,
@@ -3395,6 +3471,8 @@ def parse_translation(
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one turn-text source and cut it on the Greek segments."""
     text = path.read_text(encoding="utf-8")
+    if _is_way_source(path):
+        text = _clean_way_ocr_litter(text)
     if not isinstance(sigla, _SiglaResolver):
         sigla = _SiglaResolver.from_map(sigla or {})
     aliases = english_aliases or {}
