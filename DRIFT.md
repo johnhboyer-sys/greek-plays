@@ -844,3 +844,7 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/lib/copy-button.ts` — 2026-09-24: clamp the copy button's visible box below the header and within the viewport.
 - `pipeline/drama_pipeline/hickie_clean.py`, Hickie benches, tests, `manifests/acharnians.yaml`, `manifests/birds.yaml`, and `manifests/frogs.yaml` — 2026-09-24: moved page-foot note tails and credited quotations out of speeches, split roster-backed title-case cues, pinned two Acharnians turns, and removed three obsolete Hickie note text fixes.
 - `pipeline/drama_pipeline/stage1_turn_english.py` (`_apply_english_overrides` gains an optional `label`), `pipeline/tests/test_stage1_turn_english.py`, `manifests/birds.yaml` — 2026-09-24 (John): an `english_overrides` entry's `display` retags only the canonical name; `label`, new, also retags the shown English cue, for Birds' First Messenger, whose 1912 primary prints plain "MESSENGER" and collides on the page with the unnumbered Messenger's own "Messenger" label.
+- `shared/components/Reader.svelte` — 2026-09-25: show brief clipboard success or failure by the copy button; tab focus on a footnote marker stays on the marker, while activation opens and focuses its note.
+- `shared/components/FootnotePopup.svelte` — 2026-09-25: take and restore focus only when a marker opens the note by click or keyboard.
+- `shared/components/CommandPalette.svelte` — 2026-09-25: name plays and line numbers in the palette input and help text.
+- `shared/styles/global.css` — 2026-09-25: style clipboard feedback like the copy button.

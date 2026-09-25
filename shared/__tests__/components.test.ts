@@ -704,6 +704,14 @@ describe('Search.svelte — per-passage credit on English hits (finding 1)', () 
 });
 
 describe('CommandPalette.svelte — citation jump', () => {
+  it('offers a play or line number in its search hint', async () => {
+    render(CommandPalette, { props: { work: 'PlayLine', onNavigate: vi.fn() } });
+    await fireEvent.keyDown(window, { key: 'k', metaKey: true });
+    const input = screen.getByRole('combobox');
+    expect(input).toHaveAttribute('placeholder', 'Play, line number, or Greek word…');
+    expect(input.getAttribute('placeholder')).not.toContain('Stephanus');
+    expect(input.getAttribute('aria-label')).not.toContain('Stephanus');
+  });
   // Regression test for the deferred adversarial-review finding: a
   // book-section work's citation ("4.23") used to resolve its book only via
   // fetchColumns + resolveBekker (a columns.json/Bekker path), so the "Go

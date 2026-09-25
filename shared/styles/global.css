@@ -4456,7 +4456,7 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   height: 4px;
 }
 
-.copy-cite-btn {
+.copy-cite-btn, .copy-cite-status {
   position: fixed;
   z-index: 300;
   background: var(--accent);
@@ -4478,6 +4478,7 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   pointer-events: auto;
 }
 .copy-cite-btn:hover { opacity: 0.88; }
+.copy-cite-status { pointer-events: none; cursor: default; }
 
 .settings-check-row {
   display: flex;

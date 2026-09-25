@@ -219,8 +219,8 @@
         bind:this={inputEl}
         bind:value={query}
         on:keydown={onInputKey}
-        placeholder="Work, Stephanus page, or Greek word…"
-        aria-label="Jump to a work, Stephanus page, or Greek word"
+        placeholder="Play, line number, or Greek word…"
+        aria-label="Jump to a play, line number, or Greek word"
         role="combobox"
         aria-expanded={items.length > 0}
         aria-controls="cp-list"
@@ -248,10 +248,9 @@
           {/each}
         </ul>
       {:else if query.trim()}
-        <p class="cp-empty">Keep typing — a work name, “34b”, or a Greek word.</p>
+        <p class="cp-empty">Keep typing — a play, line number, or Greek word.</p>
       {/if}
       <p class="cp-hint"><kbd>↑↓</kbd> select · <kbd>⏎</kbd> open · <kbd>esc</kbd> close</p>
     </div>
   </div>
 {/if}
-
