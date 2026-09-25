@@ -4447,6 +4447,7 @@ def _spread_long_speeches(
     covered: dict[str, str] | None = None, verse: bool = False,
     claimed: dict[str, str] | None = None,
     bridge: dict[str, str] | None = None,
+    declared_cuts: dict[str, str] | None = None,
 ) -> list[dict]:
     """A speech-aligned translation's English for a long Greek speech lands on
     the speech's first segment; the Greek segments that continue it (no
@@ -4490,7 +4491,16 @@ def _spread_long_speeches(
     and it failed its acceptance run, for the reason the design gives: a
     paragraph chosen by a length estimate inherits the bias it is meant to
     correct. The primary is keyed to the Greek line, so it is the one thing
-    in the build that knows what this segment SAYS."""
+    in the build that knows what this segment SAYS.
+
+    ``declared_cuts`` is the manifest's ``english.<slot>.cuts``, Greek ref -> the
+    words the continuation opening on that ref begins with. It overrides
+    every rule above, for a boundary no rule can find: Hickie's Peace 1167
+    opens mid-sentence ("and then, when it is ripe, / I eat it"), so the
+    sentence pool has no start there. A cut whose words are not in the
+    block, or whose ref opens no continuation, is stale and raises."""
+    declared = dict(declared_cuts or {})
+    used_cuts: set[str] = set()
     anchors = _claim_anchors(chunks, segments, claimed, covered)
     if anchors:
         # R2: the block moves to the head of the run it claims, and the
@@ -4640,9 +4650,35 @@ def _spread_long_speeches(
             # review of 05e6855: Suppliants-eur 600-619).
             dashes_left = sum(1 for kd in kinds[i - 1:] if kd == "dash")
             turns_left = sum(1 for p in turn_starts if p > prev)
+            # A declared cut is searched first, whatever the automatic pools
+            # hold: a block with no sentence start left still has the words
+            # (Codex review of 5c9b7c4, finding 2).
+            opening = str(((cont.get("lines") or [{}])[0]).get("ref") or "")
+            if opening in declared:
+                words = str(declared[opening]).split()
+                # A real separator between words, a footnote mark alone is
+                # not one: "Ieat" is not "I eat" (finding 3).
+                sep = r"(?:\[\^[^\]]*\])*\W(?:\[\^[^\]]*\]|\W)*"
+                inner = sep.join(re.escape(w) for w in words)
+                hits = [
+                    m.start()
+                    for m in re.finditer(rf"(?<!\w){inner}(?!\w)", text)
+                    if m.start() > prev
+                ]
+                if len(hits) != 1:
+                    raise ValueError(
+                        f"cut {opening}: {declared[opening]!r} matches {len(hits)} "
+                        "places in the block (need exactly 1)"
+                    )
+                used_cuts.add(opening)
+                cuts.append((cont, hits[0]))
+                prev = hits[0]
+                continue
             cand = [p for p in starts if p > prev]
             if not cand:
-                break
+                # Nothing automatic remains for any later segment either,
+                # but a later declared cut may still stand.
+                continue
             best = min(cand, key=lambda p: abs(where(p) - aim(firsts[i])))
             # A7: where the block is printed in paragraphs and the primary
             # column has words for this segment, the paragraph the primary
@@ -4723,6 +4759,9 @@ def _spread_long_speeches(
                             "text": body, "turns": turns, "notes": [], "markers": [],
                             **({"cueAdded": True} if any(t.get("cueAdded") for t in turns) else {})})
         pieces_of[chunk["id"]] = out
+    stale = sorted(set(declared) - used_cuts)
+    if stale:
+        raise ValueError(f"cut {stale}: no spread block continues onto these lines")
     result: list[dict] = []
     for c in chunks:
         result.extend(pieces_of.get(c["id"], [c]))
@@ -4901,6 +4940,11 @@ def run(
             {sid: (c.get("text") or "") for sid, c in primary_bridge.items()}
             if primary_bridge else None
         ),
+        declared_cuts={
+            str(c["greek"]): str(c["english"])
+            for c in (cfg.get("cuts") or [])
+            if isinstance(c, dict)
+        },
     )
 
     apply_text_fixes(english, footnotes, cfg.get("text_fixes"),

@@ -4471,3 +4471,163 @@ def test_antilabe_walk_stands_down_across_a_one_to_one_transposition(
     assert by_id["1:2"] == "Alpha on two. Beta on two."
     assert by_id["1:3"] == "Alpha on three. Beta on three."
     assert by_id["1:4"] == "Alpha on four. Beta on four."
+
+
+def _kommos_spine() -> dict:
+    """Seven 994-1001 in Murray: two antilabe lines, then one line each,
+    alternating Antigone and Ismene."""
+    def seg(ref: str, *labels: str) -> dict:
+        return {
+            "id": f"1:{ref}",
+            "book": 1,
+            "column": "1",
+            "lines": [{"n": int(ref), "ref": ref, "text": f"g{ref}"}],
+            "speakers": [
+                {"line": int(ref), "offset": i, "label": label}
+                for i, label in enumerate(labels)
+            ],
+        }
+
+    return {
+        "work": "test-play",
+        "segments": [
+            seg("994", "Αν.", "Ισ."),
+            seg("995", "Αν.", "Ισ."),
+            seg("996", "Αν."),
+            seg("997", "Ισ."),
+            seg("998", "Αν."),
+            seg("1000", "Ισ."),
+            seg("1001", "Αν."),
+        ],
+    }
+
+
+_KOMMOS_TEI = """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body>
+  <div type="translation">
+    <sp><speaker>Antigone</speaker><l n="1000">Oh, the grief—</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1001">Oh, the evils—</l></sp>
+    <sp><speaker>Antigone</speaker><l n="1002">For home and land.</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1003">Above all for me,</l></sp>
+    <sp><speaker>Antigone</speaker><l n="1004">And more also for me.</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1005">Ah I pity your suffering.</l></sp>
+    <sp><speaker>Antigone</speaker><l n="1006">Pity for you both.</l></sp>
+    <sp><speaker>Ismene</speaker><l n="1007">You were possessed.</l></sp>
+  </div>
+</body></text></TEI>
+"""
+
+
+def test_a_line_fixed_anchor_is_not_moved_by_speaker(tmp_path: Path):
+    """Seven 996-1004 (S11 sweep row 853, 2026-09-25): Smyth numbers the
+    dirge by the vulgate and gives each line from 1003 on to the other
+    sister, so every line disagrees with Murray about its speaker.  The
+    manifest's ``line_fixes`` keys each Smyth line to the Murray line it
+    renders.  That placement is the manifest's own reading of the Greek:
+    neither the speaker repair (a run of three mismatches) nor the antilabe
+    walk may move the line off it by speaker.  The speaker difference stays
+    as a flagged attribution difference on the line's own seat."""
+    fixes = {
+        "1000": "994", "1001": "994", "1002": "995", "1003": "996",
+        "1004": "997", "1005": "998", "1006": "1000", "1007": "1001",
+    }
+    english, _f, report = _parse(
+        tmp_path,
+        _KOMMOS_TEI,
+        _kommos_spine(),
+        aliases={"Antigone": "Antigone", "Ismene": "Ismene"},
+        sigla={"Αν.": "Antigone", "Ισ.": "Ismene"},
+        line_fixes=fixes,
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert by_id["1:994"] == "Oh, the grief— Oh, the evils—"
+    assert by_id["1:995"] == "For home and land."
+    assert by_id["1:996"] == "Above all for me,"
+    assert by_id["1:997"] == "And more also for me."
+    assert by_id["1:998"] == "Ah I pity your suffering."
+    assert by_id["1:1000"] == "Pity for you both."
+    assert by_id["1:1001"] == "You were possessed."
+    assert not [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]
+    flagged = {m["english_line"] for m in report["speech_mismatches"]}
+    assert flagged == {996, 997, 998, 1000, 1001}
+
+
+def test_an_unfixed_run_of_speaker_mismatches_is_still_repaired(tmp_path: Path):
+    """The other half: with no ``line_fixes``, a run of three or more
+    mismatching anchors is still evidence the numbers slipped (Rule B), and
+    the repair still moves them."""
+    tei = _KOMMOS_TEI
+    for old, new in (("1000", "994"), ("1002", "995"), ("1003", "996"),
+                     ("1004", "997"), ("1005", "998"), ("1006", "1000"),
+                     ("1007", "1001")):
+        tei = tei.replace(f'n="{old}"', f'n="{new}"')
+    tei = tei.replace('<l n="1001">Oh, the evils', '<l n="994">Oh, the evils')
+    _english, _f, report = _parse(
+        tmp_path,
+        tei,
+        _kommos_spine(),
+        aliases={"Antigone": "Antigone", "Ismene": "Ismene"},
+        sigla={"Αν.": "Antigone", "Ισ.": "Ismene"},
+    )
+    assert [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]
+
+
+def test_a_line_fix_onto_a_number_the_translation_also_prints_is_exempt(
+    tmp_path: Path,
+):
+    """Codex review of 5c9b7c4, finding 1: the exemption was inferred from
+    the number a fix produced, less every number the translation prints
+    unfixed.  Seven prints ``<l n="971">`` unfixed while the manifest maps
+    ``972: "971"``, so the fixed line lost its exemption.  The exemption now
+    follows the ``<l>`` element a fix rewrote: here Ismene's line fixed onto
+    996 shares the number with Antigone's unfixed 996, and the speaker repair
+    must still leave it on 996."""
+    fixes = {
+        "1000": "994", "1001": "994", "1002": "995", "1003": "996",
+        "1004": "997", "1005": "998", "1006": "1000", "1007": "1001",
+    }
+    tei = _KOMMOS_TEI.replace(
+        '<sp><speaker>Ismene</speaker><l n="1003">',
+        '<sp><speaker>Antigone</speaker><l n="996">Unfixed.</l></sp>\n'
+        '    <sp><speaker>Ismene</speaker><l n="1003">',
+    )
+    english, _f, report = _parse(
+        tmp_path,
+        tei,
+        _kommos_spine(),
+        aliases={"Antigone": "Antigone", "Ismene": "Ismene"},
+        sigla={"Αν.": "Antigone", "Ισ.": "Ismene"},
+        line_fixes=fixes,
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert by_id["1:995"] == "For home and land."
+    assert by_id["1:996"] == "Unfixed. Above all for me,"
+    assert by_id["1:997"] == "And more also for me."
+    assert by_id["1:998"] == "Ah I pity your suffering."
+    assert not [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]
+
+
+def test_a_note_inside_a_fixed_line_keeps_the_fixed_mark(tmp_path: Path):
+    """Codex review of ab7cdc4: a note marker inside a line-fixed <l> was
+    added without the fixed mark, so the mark-aware merge split the line
+    into separate pieces ("Above all [^1.1] for me," with extra ticks) and
+    the marker's piece lost its seat exemption."""
+    fixes = {
+        "1000": "994", "1001": "994", "1002": "995", "1003": "996",
+        "1004": "997", "1005": "998", "1006": "1000", "1007": "1001",
+    }
+    tei = _KOMMOS_TEI.replace(
+        '<l n="1003">Above all for me,</l>',
+        '<l n="1003">Above all<note n="1" resp="Smyth">A note.</note> for me,</l>',
+    )
+    english, _f, report = _parse(
+        tmp_path,
+        tei,
+        _kommos_spine(),
+        aliases={"Antigone": "Antigone", "Ismene": "Ismene"},
+        sigla={"Αν.": "Antigone", "Ισ.": "Ismene"},
+        line_fixes=fixes,
+    )
+    by_id = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert by_id["1:996"] == "Above all[^1.1] for me,"
+    assert not [m for m in report["speech_mismatches"] if m["kind"] == "speaker_repair"]

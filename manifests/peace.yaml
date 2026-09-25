@@ -155,6 +155,11 @@ english:
     # curse back on its own line, 19, clears the borrowed row.
     pins:
       - { greek: "19", english: "Aye, by Jupiter, to the deuce, and yourself into the bargain.", run: 1 }
+    # S11 sweep (2026-09-25): Hickie prints the Chorus's 1127-1190 as one
+    # paragraph, and 1167 (ἐσθίω κἀπέχω) opens mid-sentence, so the cut by
+    # sentence fell at "But when they are at home" (1179), twelve lines late.
+    cuts:
+      - { greek: "1167", english: "I eat it, and taste it" }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a

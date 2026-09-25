@@ -124,6 +124,9 @@ _REPEATED_SEAT = re.compile(r"^(\d+)\.(\d+)$")
 # On the in-memory TEI element only. lxml hands back a fresh Python wrapper
 # on each walk, so the element's own id cannot carry this mark.
 _LINE_FIX_SEAT = "{http://greek-plays.local/line-fix}seat"
+# Every ``<l>`` a line_fixes entry rewrote, whatever number it now carries:
+# the translation may print the same number unfixed elsewhere (Seven 971).
+_LINE_FIXED = "{http://greek-plays.local/line-fix}fixed"
 _SKIP_TAGS = frozenset({"gap", "speaker"})
 
 
@@ -664,19 +667,24 @@ def _has_para_milestone(speech) -> bool:
 
 
 class _Slice:
-    __slots__ = ("pieces",)
+    __slots__ = ("pieces", "fixed")
 
     def __init__(self) -> None:
         self.pieces: list[tuple[str | None, str]] = []
+        # Parallel to ``pieces``: the piece's text came from an ``<l>`` a
+        # line_fixes entry rewrote.
+        self.fixed: list[bool] = []
 
-    def add(self, n: str | None, text: str) -> None:
+    def add(self, n: str | None, text: str, fixed: bool = False) -> None:
         if not text:
             return
-        if self.pieces and self.pieces[-1][0] == n:
+        fixed = fixed and n is not None
+        if self.pieces and self.pieces[-1][0] == n and self.fixed[-1] == fixed:
             prev_n, prev = self.pieces[-1]
             self.pieces[-1] = (prev_n, prev + text)
             return
         self.pieces.append((n, text))
+        self.fixed.append(fixed)
 
     @property
     def has_content(self) -> bool:
@@ -718,6 +726,7 @@ def _iter_speech_slices(
     current = _Slice()
     line_n_live = True
     seen_text = False
+    in_fixed = False
 
     def flush() -> None:
         nonlocal current, line_n_live
@@ -737,7 +746,7 @@ def _iter_speech_slices(
         if raw.strip():
             seen_text = True
         if not split:
-            current.add(n, raw)
+            current.add(n, raw, in_fixed)
             return
         parts = _EM_DASH_SPLIT.split(raw)
         for i, part in enumerate(parts):
@@ -745,10 +754,10 @@ def _iter_speech_slices(
                 continue
             if i > 0 and current.has_content:
                 flush()
-            current.add(slice_n(n), part)
+            current.add(slice_n(n), part, in_fixed)
 
     def walk(node, current_n: str | None = None) -> None:
-        nonlocal line_n_live
+        nonlocal line_n_live, in_fixed
         tag = local_name(node)
         if tag is None:
             # Comment and processing-instruction nodes have a non-string
@@ -829,7 +838,8 @@ def _iter_speech_slices(
         if tag == "note":
             marker = text_parser.consume_note(node)
             if marker:
-                current.add(slice_n(current_n), marker)
+                # The marker belongs to the line it sits in, fixed or not.
+                current.add(slice_n(current_n), marker, in_fixed)
             if node.tail:
                 handle_text(node.tail, current_n)
             return
@@ -879,10 +889,12 @@ def _iter_speech_slices(
                     handle_text(node.tail, current_n)
                 return
             line_n_live = True
+            outer_fixed, in_fixed = in_fixed, node.get(_LINE_FIXED) == "1"
             if node.text:
                 handle_text(node.text, raw_n)
             for child in node:
                 walk(child, raw_n)
+            in_fixed = outer_fixed
             if node.tail:
                 handle_text(node.tail, current_n)
             return
@@ -2341,7 +2353,11 @@ def _apply_line_fixes(
     of the same shape stays a non-numeric anchor.  A value whose ref is not
     declared, or which asks for a printing the spine does not have, raises
     naming ``line_fixes`` and the value — a stale fix must not drop the
-    sentence."""
+    sentence.
+
+    Each rewritten element is marked ``_LINE_FIXED``: the placement of that
+    line is the manifest's own reading of the Greek, which no speaker
+    heuristic may move (Seven 996-1004)."""
     if not line_fixes:
         return
     if not isinstance(line_fixes, dict):
@@ -2353,6 +2369,7 @@ def _apply_line_fixes(
         if raw in wanted:
             hits[raw] += 1
             line.set("n", wanted[raw])
+            line.set(_LINE_FIXED, "1")
             if _repeated_seat(wanted[raw]) is not None:
                 line.set(_LINE_FIX_SEAT, "1")
     wrong = {key: count for key, count in hits.items() if count != 1}
@@ -2675,6 +2692,7 @@ def parse_translation(
                     {
                         "n": _anchor_base(resolved_anchor),
                         "raw_n": _anchor_base(raw_source) if raw_source else None,
+                        "line_fixed": sl.fixed[piece_index],
                         "anchor": resolved_anchor,
                         "own_tick": piece_n is not None,
                         "text": piece,
@@ -2711,6 +2729,11 @@ def parse_translation(
         # Repair, antilabe reassignment, and the head/tail redirects all
         # move a piece by its integer, which would collapse 810.2 onto 810.
         explicit_seat = _repeated_seat(job.get("anchor") or "") is not None
+        # A line a line_fixes entry seats stays there too: the speaker
+        # repair and the antilabe walk would move it by speaker, and the fix
+        # already read the Greek (Seven 996-1004, where Smyth gives each line
+        # to the other sister).
+        fixed_seat = explicit_seat or job.get("line_fixed", False)
         if n is not None:
             anchor_count += 1
         if pos in repeat_positions:
@@ -2719,7 +2742,7 @@ def parse_translation(
             # contributes nothing new -- skip it exactly as a stage
             # direction is skipped, rather than write the sentence twice.
             continue
-        if pos in antilabe_overrides and not explicit_seat:
+        if pos in antilabe_overrides and not fixed_seat:
             # C6: position, not number, decided this piece's home.
             segment, printed_line = antilabe_overrides[pos]
             commit_job(job, segment, printed_line)
@@ -2828,7 +2851,7 @@ def parse_translation(
             work_id=work_id,
             printed=job["printed"],
             claimed=claimed,
-            repairable=pos in repairable_anchors and not explicit_seat,
+            repairable=pos in repairable_anchors and not fixed_seat,
         )
         if result is None:
             seat = _unprinted_ref_seat(n, job["canonical"], index)
