@@ -5564,6 +5564,28 @@ def _paired(
     )
 
 
+@pytest.mark.parametrize("cue,added", [("[CHORUS]", True), ("CHORUS", False)])
+def test_line_fix_cue_cuts_and_pins_with_editorial_flag(tmp_path, cue, added):
+    path = tmp_path / "play.txt"
+    path.write_text("TEST PLAY\nALPHA\nFirst words.\n\nSecond words.\nFINIS\n", encoding="utf-8")
+    spine = _spine_of(
+        _numbered("1:1", ["1"], "Α.", 1),
+        _numbered("1:2", ["2"], "Γ.", 2),
+    )
+    english, _notes, _report = parse_translation(
+        path, spine, work_id="test", translation_id="test", play="TEST PLAY",
+        sigla={"Α.": "Alpha", "Γ.": "Chorus"},
+        english_aliases={"ALPHA": "Alpha", "CHORUS": "Chorus"},
+        format="verse-own-line", footnotes_enabled=False,
+        line_fixes={4: cue}, pins=[{"greek": "2", "english": "Second words."}],
+    )
+    chunks = {chunk["id"]: chunk for chunk in english["chunks"]}
+    assert "First words." in chunks["1:1"]["text"]
+    assert chunks["1:2"]["text"] == "Second words."
+    assert chunks["1:2"]["turns"][0]["speaker"] == "Chorus"
+    assert chunks["1:2"].get("cueAdded") is (True if added else None)
+
+
 def test_pin_exempts_its_drift_and_sets_the_next_pair_baseline(tmp_path):
     """A pin fixes a one-speech Beta offset without charging its onset twice."""
     spine = _spine_of(

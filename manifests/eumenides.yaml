@@ -54,10 +54,10 @@ english:
     # sleep, 124 yelping, 127 sleep and toil. The Chorus's ode (143-177,
     # "Alack, alack, O sisters") hung at 174 with 149-173 bare; it opens at 143.
     line_fixes:
-      175: "GHOST"
-      180: "GHOST"
-      185: "GHOST"
-      190: "GHOST"
+      175: "[GHOST]"
+      180: "[GHOST]"
+      185: "[GHOST]"
+      190: "[GHOST]"
     pins:
       - { greek: "118", english: "Mutter and murmur! He hath flownafar", run: 1 }
       - { greek: "121", english: "O drowsed in sleep too deep to heed my pain!", run: 1 }
@@ -78,7 +78,7 @@ english:
     # 154). A CHORUS cue on the blank line before that strophe, pinned to
     # 155, holds it and the strophes after it to their own Greek.
     line_fixes:
-      74: "CHORUS"
+      74: "[CHORUS]"
     pins:
       - { greek: "155", english: "Reproach comes to me in a dream", run: 1 }
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
@@ -112,20 +112,20 @@ english:
         # "Lord Apollo, you have your own domain" (574-575, the Chorus's
         # challenge to Apollo), so it read as Athena's; the cue goes on the
         # blank line after the stage direction.
-        967: "CHORUS LEADER"
-        536: "CHORUS"
-        547: "CHORUS"
-        557: "CHORUS"
-        567: "CHORUS"
-        577: "CHORUS"
-        584: "CHORUS"
-        592: "CHORUS"
-        603: "CHORUS"
-        611: "CHORUS"
-        620: "CHORUS"
-        626: "CHORUS"
-        635: "CHORUS"
-        641: "CHORUS"
+        967: "[CHORUS LEADER]"
+        536: "[CHORUS]"
+        547: "[CHORUS]"
+        557: "[CHORUS]"
+        567: "[CHORUS]"
+        577: "[CHORUS]"
+        584: "[CHORUS]"
+        592: "[CHORUS]"
+        603: "[CHORUS]"
+        611: "[CHORUS]"
+        620: "[CHORUS]"
+        626: "[CHORUS]"
+        635: "[CHORUS]"
+        641: "[CHORUS]"
       pins:
         - { greek: "307", english: "Come, let’s link our arms and dance", run: 8 }
         - { greek: "367", english: "The task I take upon myself is mine, to overthrow whole families, when strife inside the home kills someone near and dear. We chase that murderer down, the one who’s spilled fresh blood. For all his strength, we wear him down. Those proud", run: 6 }
