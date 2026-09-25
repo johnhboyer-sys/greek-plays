@@ -39,10 +39,6 @@ english:
       - { greek: "966", by: "965" }
   secondary:
     id: way
-    text_fixes:
-      - find: "'There is no man can blame thee"
-        replace: "There is no man can blame thee"
-        note: "way-cleanup 2026-09-25 row 1386 (S11 confirmed): stray opening quote after the cue"
     name: "A. S. Way (Loeb, 1912)"
     short: Way
     model: turn-text

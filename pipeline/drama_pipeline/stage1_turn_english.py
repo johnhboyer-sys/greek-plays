@@ -3370,17 +3370,17 @@ def _apply_splits(speeches: list[dict], splits: list[dict], work_id: str) -> lis
     return pins
 
 
-# Way-cleanup sweep (2026-09-25, build/sweeps/way-cleanup-2026-09-25.tsv):
-# mechanical OCR/scan litter confirmed against archive.org's page images for
-# A. S. Way's Loeb Euripides (euripidesway0{1..4}euriuoft). Scoped to
-# `bench/way/` sources only (`_is_way_source` below) -- Rogers shares
-# `format: loeb-ocr` and must not be touched (brief Do:4).
+# Way-cleanup sweep (2026-09-25, build/sweeps/way-cleanup-2026-09-25.tsv;
+# round 2 build/sweeps/brief-way-cleanup-r2.md): mechanical OCR/scan litter
+# confirmed against archive.org's page images for A. S. Way's Loeb Euripides
+# (euripidesway0{1..4}euriuoft). Scoped to `bench/way/` sources only
+# (`_is_way_source` below) -- Rogers shares `format: loeb-ocr` and must not
+# be touched (brief Do:4).
 _WAY_ELISIONS = {
     "tis", "twas", "twere", "twill", "tween", "twixt",
     "neath", "gainst", "mongst", "scaped", "gan", "fore",
 }
 _WAY_DASH_GLUE = re.compile(r"[-—–]{2,}")
-_WAY_STRAY_STOP = re.compile(r"([A-Za-z]*[a-z])\.(\s+)(?=[a-z])")
 _WAY_ASTERISK = re.compile(r"\*(\s?)([A-Z][a-z]+)")
 
 
@@ -3418,20 +3418,24 @@ def _clean_way_ocr_litter(text: str) -> str:
        ``"—-"``/``"-—"``) collapses to the single em dash the page
        prints (confirmed: bacchae 1:912, page 77 of vol. 3, and 7 more --
        TSV class ``dash-glue``).
-    2. A stray full stop the scan drops mid-sentence, glued to the word
-       before it with nothing on the page: dropped. The word before it must
-       end lowercase, so a real speaker cue (``IOLAUS.``) never matches
-       (confirmed: heraclidae 1:711, page 309 of vol. 3, trojan-women 1:1,
-       page 357 of vol. 1, and 6 more -- TSV class ``stray-stop``).
-    3. A line-initial elision apostrophe (``'Tis``, ``'Twas``...) the scan
+    2. A line-initial elision apostrophe (``'Tis``, ``'Twas``...) the scan
        misreads as an asterisk: restored. Any other asterisk in Way's column
        is a bare insertion -- the page prints nothing there -- and is
        dropped, keeping whatever whitespace followed it (confirmed:
        iphigenia-at-aulis 1:839, bacchae 1:677, 3 more -- TSV class
        ``asterisk``).
+
+    A stray full stop mid-sentence is NOT handled here (round 2,
+    build/sweeps/brief-way-cleanup-r2.md): a blanket regex rule was removed
+    after an independent check of 50 sampled edits found the stop was real
+    on the page in 6 of about 30 (a sentence end before a word the OCR
+    lower-cased, or an abbreviation like ``_To Or. and Pyl._``). Eight page
+    checks was not enough to show the class is mechanical. The handful
+    confirmed against the page (or genie's cleaner OCR) are individual
+    manifest ``text_fixes`` instead; every other stop is left as the OCR
+    has it.
     """
     text = _WAY_DASH_GLUE.sub(_collapse_way_dash_run, text)
-    text = _WAY_STRAY_STOP.sub(r"\1\2", text)
 
     def _asterisk(m: re.Match) -> str:
         ws, word = m.group(1), m.group(2)

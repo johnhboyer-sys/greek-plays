@@ -6973,20 +6973,6 @@ def test_way_ocr_litter_leaves_a_plain_hyphen_run_alone():
     assert _clean_way_ocr_litter(text) == text
 
 
-def test_way_ocr_litter_drops_a_stray_full_stop_mid_sentence():
-    # heraclidae 1:711 (confirmed against page 309, vol. 3): the page prints
-    # "For these", not "For. these".
-    text = "Yea, men must fight. For. these must thou take\nthought."
-    assert _clean_way_ocr_litter(text) == "Yea, men must fight. For these must thou take\nthought."
-
-
-def test_way_ocr_litter_stray_stop_leaves_a_real_speaker_cue_alone():
-    # A cue's own period ("IOLAUS.") must never be read as the stray-stop
-    # artifact just because the line below happens to open lowercase.
-    text = "IOLAUS.\nyet unfinished line continues"
-    assert _clean_way_ocr_litter(text) == text
-
-
 def test_way_ocr_litter_leaves_a_line_wrapped_hyphen_alone():
     # phoenician-women 1:1758: the scan's own line break falls inside
     # "blood-polluted". Checking it against the page showed this is NOT a
