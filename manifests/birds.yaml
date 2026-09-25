@@ -140,6 +140,11 @@ english:
       # Holds 672 as it stood: the pins above moved the beak line (672) to 673.
       - { greek: "672", english: "Nay, you unlucky fellow, she has a beak", run: 1 }
       - { greek: "826", english: "What a fine city! What deity, then, will be protector of the city? For whom shall we full the peplus?", run: 1 }
+    # Cuts sweep (2026-09-25): that speech's spread fell one sentence early,
+    # so 520 (all swore by birds) sat at 521 and Lampon (521) opened 522.
+    cuts:
+      - { greek: "521", english: "And still even now Lampon swears" }
+      - { greek: "522", english: "So great and holy did they all think you" }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a

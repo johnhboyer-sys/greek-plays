@@ -64,6 +64,20 @@ english:
       - { greek: "124", english: "Yelping, and drowsed again?", run: 1 }
       - { greek: "127", english: "Lo, sleep and toil, the sworn confederates", run: 1 }
       - { greek: "140", english: "Alack, alack, O sisters, we have toiled", run: 1 }
+    # Cuts sweep (2026-09-25): Morshead prints the ode (143-177) as 39 lines
+    # with no blank line, and the proportional split fell up to one short
+    # segment off at each boundary (153 showed 154's English, 154 showed
+    # 155's). Each segment's English, read against its Greek, opens here.
+    cuts:
+      - { greek: "147", english: "He hath slipped from the net" }
+      - { greek: "148", english: "O'ermastered by slumber we sank" }
+      - { greek: "149", english: "Thou, child of the high God Zeus" }
+      - { greek: "153", english: "A god, thou hast stolen from us" }
+      - { greek: "154", english: "And who shall consider thy deed" }
+      - { greek: "155", english: "The sound of chiding scorn" }
+      - { greek: "162", english: "Shame on the younger gods" }
+      - { greek: "169", english: "Woe upon thee, Apollo" }
+      - { greek: "174", english: "Scornful to me thou art" }
   third:
     id: kosmos
     name: "Smyth, rev. Bannon & Nagy (Kosmos Society)"
@@ -81,6 +95,12 @@ english:
       74: "[CHORUS]"
     pins:
       - { greek: "155", english: "Reproach comes to me in a dream", run: 1 }
+    # Cuts sweep (2026-09-25): the paragraph for 149-154 is one printed
+    # line, so 153 (the stolen matricide) sat in 149 and 154's question
+    # ("Who will say...") sat at 153, with 154 bare.
+    cuts:
+      - { greek: "153", english: "though you are a god" }
+      - { greek: "154", english: "Who will say that any of this" }
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
     license:
       status: licensed
