@@ -76,7 +76,7 @@ def _spine() -> dict:
 
 def _parse(
     tmp_path: Path, tei: str, spine: dict, *, aliases=None, sigla=None, covered=None,
-    transpositions=None, line_fixes=None, repeated_refs=None,
+    transpositions=None, line_fixes=None, repeated_refs=None, cuts=None,
 ):
     xml_path = tmp_path / "play.xml"
     xml_path.write_text(tei, encoding="utf-8")
@@ -90,8 +90,33 @@ def _parse(
         covered_decl=covered,
         transpositions=transpositions,
         line_fixes=line_fixes,
+        cuts=cuts,
         repeated_refs=repeated_refs,
     )
+
+
+def test_primary_cut_moves_numbered_line_tail_to_greek_ref(tmp_path: Path):
+    tei = '<TEI><div type="translation"><sp><speaker>Alpha</speaker><l n="1">First words. New speech starts here.</l></sp></div></TEI>'
+    english, _notes, _report = _parse(
+        tmp_path, tei, _spine(), cuts=[{"greek": "5", "english": "New speech"}],
+    )
+    chunks = {chunk["id"]: chunk["text"] for chunk in english["chunks"]}
+    assert chunks["1:1"] == "First words."
+    assert chunks["1:5"] == "New speech starts here."
+
+
+def test_primary_cut_rejects_stale_words_or_ref(tmp_path: Path):
+    tei = '<TEI><div type="translation"><sp><speaker>Alpha</speaker><l n="1">First words. New speech starts here.</l></sp></div></TEI>'
+    for ref, words in [("5", "Absent words"), ("999", "New speech")]:
+        with pytest.raises(ValueError, match="test-play: stale english.primary.cuts") as error:
+            _parse(tmp_path, tei, _spine(), cuts=[{"greek": ref, "english": words}])
+        assert ref in str(error.value) and words in str(error.value)
+
+
+def test_primary_cut_refuses_line_with_markup(tmp_path: Path):
+    tei = '<TEI><div type="translation"><sp><speaker>Alpha</speaker><l n="1">First words.<note>n</note> New speech starts here.</l></sp></div></TEI>'
+    with pytest.raises(ValueError, match="carries markup"):
+        _parse(tmp_path, tei, _spine(), cuts=[{"greek": "5", "english": "New speech"}])
 
 
 def test_comment_tail_survives_inside_line():

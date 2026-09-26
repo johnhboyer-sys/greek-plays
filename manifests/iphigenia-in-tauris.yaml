@@ -37,6 +37,9 @@ english:
     model: perseus-play
     source: "perseus/tlg0006.tlg013.perseus-eng2.xml"
     anchor_model: sp-line
+    cuts:
+      # 2026-09-26: 118 opens mid-line in coleridge's <l n=116>; cut seats it (s15 triage).
+      - { greek: "118", english: "but you have spoken wel" }
     footnotes: false
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').

@@ -28,11 +28,15 @@ english:
     model: perseus-play
     source: "perseus/tlg0085.tlg002.perseus-eng2.xml"
     anchor_model: sp-line
+    cuts:
+      # 2026-09-26: 956 opens mid-line in smyth's <l n=955>; cut seats it (s15 triage).
+      - { greek: "956", english: "Where is the rest" }
+      # 2026-09-26: 957 opens mid-line in smyth's <l n=955>; cut seats it (s15 triage).
+      - { greek: "957", english: "Where are those who stood" }
     footnotes: true
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
-      - { greek: "956", by: "955" }
       - { greek: "968", by: "967" }
   secondary:
     id: morshead
