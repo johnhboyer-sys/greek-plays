@@ -24,6 +24,11 @@ english:
     model: perseus-play
     source: "perseus/tlg0085.tlg001.perseus-eng2.xml"
     anchor_model: sp-line
+    cuts:
+      # 2026-09-26: 1038 opens mid-line in smyth's <l n=1035>; cut seats it (s15 triage).
+      - { greek: "1038", english: "And in the train" }
+      # 2026-09-26: 1041 opens mid-line in smyth's <l n=1040>; cut seats it (s15 triage).
+      - { greek: "1041", english: "and to Harmonia" }
     footnotes: true
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').

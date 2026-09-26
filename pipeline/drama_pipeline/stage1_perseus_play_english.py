@@ -72,6 +72,7 @@ from __future__ import annotations
 
 import bisect
 import html
+import json
 import re
 from pathlib import Path
 
@@ -127,6 +128,7 @@ _LINE_FIX_SEAT = "{http://greek-plays.local/line-fix}seat"
 # Every ``<l>`` a line_fixes entry rewrote, whatever number it now carries:
 # the translation may print the same number unfixed elsewhere (Seven 971).
 _LINE_FIXED = "{http://greek-plays.local/line-fix}fixed"
+_LINE_CUTS = "{http://greek-plays.local/line-fix}cuts"
 _SKIP_TAGS = frozenset({"gap", "speaker"})
 
 
@@ -890,6 +892,19 @@ def _iter_speech_slices(
                 return
             line_n_live = True
             outer_fixed, in_fixed = in_fixed, node.get(_LINE_FIXED) == "1"
+            if node.get(_LINE_CUTS):
+                # The declaration names words in this one numbered line.
+                # Keep the source line's head and give each tail its Greek ref.
+                start = 0
+                in_fixed = True
+                for position, ref in json.loads(node.get(_LINE_CUTS)):
+                    handle_text(content[start:position], raw_n if start == 0 else previous_ref)
+                    start, previous_ref = position, ref
+                handle_text(content[start:], previous_ref)
+                in_fixed = outer_fixed
+                if node.tail:
+                    handle_text(node.tail, current_n)
+                return
             if node.text:
                 handle_text(node.text, raw_n)
             for child in node:
@@ -2402,6 +2417,38 @@ def _apply_line_fixes(
             )
 
 
+def _apply_cuts(translation, cuts: list[dict] | None, work_id: str, index: _SpeechIndex) -> None:
+    """Mark exact, unique words within one numbered TEI line for a new Greek seat."""
+    if not cuts:
+        return
+    if not isinstance(cuts, list):
+        raise ValueError(f"{work_id}: english.primary.cuts must be a list")
+    lines = list(translation.iter("{*}l"))
+    by_line: dict[int, list[tuple[int, str]]] = {}
+    for cut in cuts:
+        ref = str(cut.get("greek", "")) if isinstance(cut, dict) else ""
+        words = str(cut.get("english", "")) if isinstance(cut, dict) else ""
+        hits = [
+            (i, _line_plain_text(line).find(words))
+            for i, line in enumerate(lines)
+            if words and line.get("n") and _line_plain_text(line).count(words)
+        ]
+        if (not _numbered_anchor(ref) or index.segment_for_anchor(ref) is None
+                or sum(_line_plain_text(lines[i]).count(words) for i, _ in hits) != 1):
+            raise ValueError(f"{work_id}: stale english.primary.cuts ref {ref!r}, words {words!r}: expected exactly one match in a numbered <l> and a usable Greek ref")
+        i, position = hits[0]
+        # The cut path slices the line's plain text; a note or milestone
+        # inside it would be dropped, so a marked-up line is refused.
+        if any(isinstance(child.tag, str) for child in lines[i]):
+            raise ValueError(f"{work_id}: english.primary.cuts ref {ref!r}: <l n={lines[i].get('n')!r}> carries markup, which a cut would drop")
+        by_line.setdefault(i, []).append((position, ref))
+    for i, entries in by_line.items():
+        entries.sort()
+        if len({position for position, _ in entries}) != len(entries):
+            raise ValueError(f"{work_id}: overlapping english.primary.cuts in <l n={lines[i].get('n')!r}>")
+        lines[i].set(_LINE_CUTS, json.dumps(entries))
+
+
 def parse_translation(
     xml_path: Path,
     spine: dict,
@@ -2413,6 +2460,7 @@ def parse_translation(
     covered_decl: list[dict] | None = None,
     transpositions: list[dict] | None = None,
     line_fixes: dict | None = None,
+    cuts: list[dict] | None = None,
     repeated_refs: dict | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one ``perseus-play`` TEI and cut it on the Greek segments."""
@@ -2426,6 +2474,11 @@ def parse_translation(
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
     _apply_line_fixes(translation, line_fixes, work_id, index, repeated_refs)
+    _apply_cuts(translation, cuts, work_id, index)
+    cut_refs = {str(c["greek"]) for c in (cuts or [])}
+    cut_refs.update(
+        line.get("n") for line in translation.iter("{*}l") if line.get(_LINE_CUTS)
+    )
     chunks_by_id: dict[str, dict] = {}
     footnotes: dict[str, str] = {}
     snaps: list[dict] = []
@@ -2752,6 +2805,7 @@ def parse_translation(
         if (
             head_redirect is not None
             and not explicit_seat
+            and not (job.get("line_fixed") and job["anchor"] in cut_refs)
             and last_commit is not None
             and last_commit[0] < job["sp_index"]
             and last_commit[1] == head_redirect[0]
@@ -2769,6 +2823,7 @@ def parse_translation(
         if (
             n is not None
             and not explicit_seat
+            and not (job.get("line_fixed") and job["anchor"] in cut_refs)
             and (job["sp_index"], n) in tail_redirects
         ):
             # C7: this piece is the tail of its OWN speech, displaced onto
@@ -3034,6 +3089,7 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         sigla=sigla,
         english_aliases=aliases,
         line_fixes=cfg.get("line_fixes"),
+        cuts=cfg.get("cuts"),
         transpositions=((manifest.data.get("citation") or {}).get("transpositions") or {}).get("1") or [],
         repeated_refs=_repeated_ref_counts(manifest),
     )

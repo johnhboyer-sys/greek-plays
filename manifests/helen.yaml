@@ -38,6 +38,9 @@ english:
     model: perseus-play
     source: "perseus/tlg0006.tlg014.perseus-eng2.xml"
     anchor_model: sp-line
+    cuts:
+      # 2026-09-26: 692 opens mid-line in coleridge's <l n=691>; cut seats it (s15 triage).
+      - { greek: "692", english: "these things ruined you also" }
     footnotes: false
     # A TEI typo: Menelaos's "You seem to me very much like Helen, lady."
     # is filed under n="5563" (neighbours are 562 and 564) -- the corpus's
