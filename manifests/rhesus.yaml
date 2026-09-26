@@ -24,6 +24,9 @@ english:
     model: perseus-play
     source: "perseus/tlg0006.tlg019.perseus-eng3.xml"
     anchor_model: sp-line
+    cuts:
+      # 2026-09-26: 543 opens mid-line in coleridge's <l n=540>; cut seats it (s15 triage).
+      - { greek: "543", english: "Is it not then high time" }
     footnotes: false
     # Turn-starts triage (2026-09-26): the lettered antilabe shares belong to
     # the line they split, not the next one.
