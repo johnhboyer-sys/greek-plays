@@ -1133,8 +1133,22 @@ describe('playEnglishGutterWidth', () => {
   it('widens for a long name and never drops below the default', () => {
     expect(playEnglishGutterWidth(['Chorus', 'Cleon'])).toBe('7.50rem');
     expect(playEnglishGutterWidth(['Sausage-Seller'])).toBe('8.84rem');
-    // A joint name past 16 characters wraps instead of widening the gutter.
-    expect(playEnglishGutterWidth(['Sausage-seller and Paphlagonian', 'Cleon'])).toBe('7.50rem');
+    // A joint name past 16 characters counts its words, not its whole length.
+    expect(playEnglishGutterWidth(['Sausage-seller and Paphlagonian', 'Cleon'])).toBe('8.84rem');
+  });
+  it('sizes for the longest word, so a phrase stacks and a word never splits', () => {
+    // Johnston's Clytaemnestra (13) beside the roster's Clytaemestra (12).
+    expect(playEnglishGutterWidth(['Clytaemestra', 'Clytaemnestra'])).toBe('8.28rem');
+    expect(playEnglishGutterWidth(['Ghost of Clytaemnestra'])).toBe('8.28rem');
+  });
+  it('never narrows below main\'s whole-name floor, even when no single word is that long (Helen regression, John 2026-09-26)', () => {
+    // "Son of Cleonymus" is 16 whole characters but its longest WORD
+    // ("Cleonymus", 9) alone would size to only 7.50rem -- the whole-name
+    // floor still asks for room for all 16.
+    expect(playEnglishGutterWidth(['Son of Cleonymus', 'Chorus Leader'])).toBe('9.96rem');
+    // A single short word still sizes nothing past the default when no name
+    // (whole or by word) is long enough to ask for more.
+    expect(playEnglishGutterWidth(['Old Woman', 'Servant'])).toBe('7.50rem');
   });
 });
 

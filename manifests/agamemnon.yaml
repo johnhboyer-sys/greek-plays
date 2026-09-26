@@ -97,6 +97,10 @@ english:
       source_url: https://kosmossociety.org/agamemnon-aeschylus/
   overlays:
     - id: johnston
+      text_fixes:
+        - find: "CLYTAEMNESTR"
+          replace: "CLYTAEMNESTRA"
+          note: "2026-09-26: truncated cue; the owner's 2026-09-24 ruling corrects web-text typos"
       name: "Ian Johnston (VIU)"
       short: Johnston
       model: turn-text

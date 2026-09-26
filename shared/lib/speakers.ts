@@ -1070,17 +1070,33 @@ export function playRepeatedRefs(
   return out;
 }
 
-/** The English speaker gutter's width for a play, from its longest name
- * (SAUSAGE-SELLER overhung the 7.5rem default into the text; John,
- * 2026-09-09). Small caps in Alegreya Sans SC run ~0.56rem a character at
- * the lead-in size; 1rem of air; never narrower than the default. */
+/** The English speaker gutter's width for a play: never narrower than the
+ * gutter main sizes for the longest WHOLE name of 16 characters or fewer
+ * (SAUSAGE-SELLER overhung the
+ * 7.5rem default into the text; John, 2026-09-09), and never narrower than
+ * the longest WORD in any lead-in, even a name longer than 16 characters
+ * (John, 2026-09-22:
+ * Johnston's CLYTAEMNESTRA split "CLYTAEMNEST / RA" in a gutter sized only
+ * for the roster's Clytaemestra). Sizing by the word alone (2026-09-22)
+ * narrowed Helen's gutter (8.28rem on main -> 7.72rem) because its longest
+ * lead-in is a multi-word name whose WHOLE length beats any of its words --
+ * a phrase can still need the room its full length asks for even though no
+ * single word in it is that long (John, 2026-09-26). The two floors are
+ * combined, not chosen between: whichever rule wants more room wins. A
+ * phrase ("Chorus Leader", "Son of Cleonymus") still stacks at its spaces
+ * inside the gutter rather than running past it; a word is never broken.
+ * Small caps in Alegreya Sans SC run ~0.56rem a character at the lead-in
+ * size; 1rem of air; never narrower than the default. */
 export function playEnglishGutterWidth(names: Iterable<string>): string {
   let longest = 0;
   // A joint or descriptive name ("Sausage-seller and Paphlagonian", "Ghost
   // of Clytaemestra") must not widen the gutter for the whole play: past 16
   // characters a lead-in takes its own line above the text instead
-  // (Reader.svelte longLabel / .spk-long).
-  for (const n of names) if (n.length <= 16) longest = Math.max(longest, n.length);
+  // (Reader.svelte longLabel / .spk-long). Count its words for the word floor.
+  for (const n of names) {
+    if (n.length <= 16) longest = Math.max(longest, n.length); // main's whole-name floor
+    for (const w of n.split(/\s+/)) longest = Math.max(longest, w.length); // longest word
+  }
   return `${Math.max(7.5, longest * 0.56 + 1.0).toFixed(2)}rem`;
 }
 
