@@ -25,6 +25,11 @@ english:
     source: "perseus/tlg0011.tlg006.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # Turn-starts triage (2026-09-26): Perseus letters the antilabe of 201-202
+    # as 201a and 201b; both halves are 202.
+    line_fixes:
+      "201a": "202"  # Τί τόδε; — What is it?
+      "201b": "202"  # Προὐφάνη κτύπος — I heard a sudden thud
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:

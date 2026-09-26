@@ -41,6 +41,8 @@ english:
       "810": "807"    # ἅνδρες τεθνᾶσιν — The men are dead
       "811": "812"    # οὕτως ἀδελφαῖς χερσὶν — with hands so fraternal
       "812": "813"    # οὕτως ὁ δαίμων κοινὸς — so all too equal was their destiny
+    # Turn-starts triage (2026-09-26): 923.
+      "922": "923"    # πάρεστι δ' εἰπεῖν ... πολίτας — Over these poor men it can be said
     # Drift sweep 2 (2026-09-25): 947-956. Smyth's vulgate numbers run two
     # lines behind Murray here, and the bare numbers put each strophe a
     # segment early (947-950 in 938, 951-956 in 947).
@@ -86,15 +88,43 @@ english:
       "1008": "1002"  # ποῦ σφε θήσομεν χθονός — Where shall we lay them in the earth?
       "1009": "1003"  # ὅπου τιμιώτατον — Ah, where their honor is greatest
       "1010": "1004"  # πῆμα πατρὶ πάρευνον — To lie beside their father
+    # Turn-starts triage (2026-09-26): 1005-1078. From the Herald on, Smyth's
+    # numbers run six ahead of Murray; 1057 renders 1051-52, so 1058-1059
+    # are five ahead.
+      "1011": "1005"  # δοκοῦντα καὶ δόξαντ' — It is my duty to announce
+      "1015": "1009"  # στέγων γὰρ ἐχθροὺς — for hating the enemy
+      "1020": "1014"  # ἔξω βαλεῖν ἄθαπτον — is to be cast out of the city unburied
+      "1025": "1019"  # στράτευμ' ἐπακτὸν — when he launched a foreign army
+      "1030": "1024"  # ἄτιμον εἶναι δ' ἐκφορᾶς — He is to be refused the honor
+      "1032": "1026"  # ἐγὼ δὲ Καδμείων — I at least will say something
+      "1035": "1029"  # θάψασ' ἀδελφὸν — of burying my own brother
+      "1040": "1034"  # ψυχή, θανόντι ζῶσα — and live in kindred spirit with the dead
+      "1045": "1039"  # κόλπῳ φέρουσα βυσσίνου — carrying the earth in the fold
+      "1048": "1042"  # αὐδῶ πόλιν σε μὴ βιάζεσθαι — I forbid you to act thus
+      "1049": "1043"  # αὐδῶ σε μὴ περισσὰ — I forbid you to make useless proclamations
+      "1050": "1044"  # τραχύς γε μέντοι δῆμος — a citizenry ... can be harsh
+      "1051": "1045"  # τράχυν'· ἄθαπτος — Let it be harsh!
+      "1052": "1046"  # ὃν πόλις στυγεῖ — a man whom the city detests
+      "1053": "1047"  # ἤδη τὰ τοῦδ' — For a long time now the gods
+      "1054": "1048"  # οὔ, πρίν γε χώραν — No, he was honored until
+      "1055": "1049"  # παθὼν κακῶς κακοῖσιν — He suffered evil
+      "1056": "1050"  # ἀλλ' εἰς ἅπαντας — But this act was against all the citizens
+      "1057": "1051"  # Ἔρις περαίνει μῦθον — Discord is the last of the gods
+      "1058": "1053"  # ἀλλ' αὐτόβουλος ἴσθ' — Well then, follow your own rash plan
+      "1059": "1054"  # φεῦ φεῦ — Ah, misery!
+      "1060": "1054"  # ὦ μεγάλαυχοι — O Erinyes, far-famed destroyers
+      "1065": "1059"  # μήτε προπέμπειν ἐπὶ τύμβῳ — nor escort you to your tomb
+      "1070": "1064"  # μονόκλαυτον ... ἀδελφῆς — has a dirge sung only by one sister
+      "1072": "1066"  # δράτω τι πόλις — Let the city take action
+      "1075": "1069"  # αἵδε προπομποί — following the funeral procession
+      "1078": "1072"  # ἡμεῖς δ' ἅμα τῷδ' — We will go with this other corpse
+      "1080": "1074"  # μετὰ γὰρ μάκαρας — For after the blessed gods
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
       - { greek: "101", by: "100" }
       - { greek: "103", by: "104" }
-      - { greek: "1042", by: "1048" }
-      - { greek: "1044", by: "1050" }
-      - { greek: "1046", by: "1051" }
-      - { greek: "1047", by: "1052" }
+      - { greek: "1052", by: "1051" }  # Smyth's 1057 renders 1051-52 (2026-09-26)
       - { greek: "106", by: "104" }
       - { greek: "367", by: "327" }
       - { greek: "97", by: "100" }

@@ -29,6 +29,10 @@ english:
     source: "perseus/tlg0006.tlg005.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # Turn-starts triage (2026-09-26): identity fix, so the speaker heuristic
+    # keeps 850 in the 848 block instead of moving it to the Chorus's 852.
+    line_fixes:
+      "850": "850"  # φέγγος θ' ἁλίοιο — 'neath the sun's bright eye
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:

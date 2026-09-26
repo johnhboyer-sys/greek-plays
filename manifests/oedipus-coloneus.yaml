@@ -25,6 +25,10 @@ english:
     source: "perseus/tlg0011.tlg007.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # Turn-starts triage (2026-09-26).
+    line_fixes:
+      "1009a": "1099"  # Ὦ πάτερ, πάτερ — Father, father (Perseus typo for 1099)
+      "1747": "1748"   # φεῦ φεῦ, ποῖ μόλωμεν, ὦ Ζεῦ — Alas, alas! Zeus, where shall we turn?
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
@@ -87,6 +91,7 @@ english:
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
   # anchoring, not a builder failure.
   gaps:
+    - "1:1747"  # Ναὶ ναί. Ξύμφημι καὐτός: Jebb has no words for it (2026-09-26)
 
 citation:
   scheme: play-line

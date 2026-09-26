@@ -25,6 +25,13 @@ english:
     source: "perseus/tlg0006.tlg019.perseus-eng3.xml"
     anchor_model: sp-line
     footnotes: false
+    # Turn-starts triage (2026-09-26): the lettered antilabe shares belong to
+    # the line they split, not the next one.
+    line_fixes:
+      "687b": "687"  # οὐ μὲν οὖν — No, no, lay on!
+      "687c": "687"  # ἆ· φίλιον ἄνδρα μὴ θένηις — Ah! do not slay a friend!
+      "688b": "688"  # Φοῖβος — Phoebus
+      "688c": "688"  # ἔμαθον· ἴσχε πᾶς δόρυ — Right! every man hold back his spear!
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
