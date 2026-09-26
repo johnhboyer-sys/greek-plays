@@ -3970,6 +3970,12 @@ body {
     padding-left: 0;
     padding-right: 2rem;
   }
+  /* Directions between speeches, the "translated with the speech above"
+     jump and the missing-passage dash share that edge. */
+  .reader-body.play-line:not(.view-both):not(.trans-compare) .turn-eng:not(.turn-stack),
+  .reader-body.play-line:not(.view-both):not(.trans-compare) .play-direction-row .turn-eng:not(.turn-stack) {
+    padding-left: 0;
+  }
   .reader-body.play-line:not(.view-both):not(.trans-compare) .eng-lnum {
     left: auto;
     right: 0;
