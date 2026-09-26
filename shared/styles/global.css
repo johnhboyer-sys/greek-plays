@@ -3925,16 +3925,60 @@ body {
     white-space: normal; line-height: 1.15; overflow-wrap: anywhere;
   }
   /* A phone stacks each play-line row: a speech's Greek, then its English
-     under it, the prose starting at the Greek text's own left edge with
-     the speaker's name run in before it (John, 2026-09-09: two columns at
-     375px left four words to a line). */
+     under it, the prose starting at the Greek text's own left edge (John,
+     2026-09-09: two columns at 375px left four words to a line). */
   .reader-body.play-line.view-both .seg-row { grid-template-columns: 1fr; gap: 0; }
   .reader-body.play-line.view-both .english-col { margin-top: 0.45rem; }
   .reader-body.play-line.view-both .turn-stack .turn-para {
     padding-left: calc(var(--pl-num-w) + var(--pl-spk-w-greek));
   }
-  .reader-body.play-line.view-both .turn-stack .turn-para > .speaker:first-child {
-    position: static; width: auto; margin-right: 0.5em; white-space: nowrap;
+  /* John's ruling, 2026-09-26: the two phone gutters above (the number box
+     and the FIXED 6rem speaker box, unlike the desktop gutter which grows
+     per play) took over a third of a 375px screen and squeezed the English
+     to a few words a line. On a phone the name comes OUT of the gutter and
+     goes on its own line above the speech, in the speaker's own colour (the
+     `data-spk`/`.spk-color` rules above already key on the element, not its
+     position); the speech itself then starts at whatever the paragraph's own
+     left edge is -- the column edge in the plain layout below, or the
+     Greek's own indent in Both (the padding-left just above, unchanged).
+     trans-compare already stacks this way at every width via its own more
+     specific rule higher up this file; `:not(.trans-compare)` here is only
+     so this and that rule never fight over the same element. */
+  .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker:first-child {
+    position: static;
+    display: block;
+    width: auto;
+    text-align: left;
+    padding-right: 0;
+    margin-bottom: 0.3em;
+  }
+  /* A turn with no name -- a continuation (no .speaker element at all) or
+     the "--" dash for an unattributed line -- has no name to put above the
+     text; the dash was only ever a gutter filler and would otherwise read
+     as a stray mark stacked on its own line (John, 2026-09-26). */
+  .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker.speaker-dash:first-child {
+    display: none;
+  }
+  /* Plain English-only layout: with no lead-in run-in left to align past,
+     the number+speaker gutters are gone and the speech starts at the
+     column's own left edge. The translator's own line numbers (`.eng-lnum`)
+     move out of that now-gone left gutter to a slim margin at the right
+     instead -- reserved unconditionally (not only on a paragraph that
+     happens to carry one), the simpler of the two options John's ruling
+     left open, so the text edge never shifts speech to speech. */
+  .reader-body.play-line:not(.view-both):not(.trans-compare) .turn-stack .turn-para {
+    padding-left: 0;
+    padding-right: 2rem;
+  }
+  .reader-body.play-line:not(.view-both):not(.trans-compare) .eng-lnum {
+    left: auto;
+    right: 0;
+    width: 2rem;
+    padding-left: 0;
+    padding-right: 0.2rem;
+  }
+  .reader-body.play-line:not(.view-both):not(.trans-compare) .eng-lnum::before {
+    font-size: 0.62rem;
   }
   .reader-body.play-line .greek-line,
   .reader-body.play-line.view-both .greek-line,
@@ -3942,9 +3986,11 @@ body {
   .reader-body.play-line .line-num,
   .reader-body.play-line.view-both .line-num,
   .reader-body.play-line.trans-compare .line-num { min-width: var(--pl-num-w); }
-  /* The translator's numbers keep the Greek gutter's phone size, in the
-     same number gutter. Compare stacks its columns full width with no
-     gutter, so it shows none. */
+  /* Both view: the translator's numbers keep the Greek gutter's phone size,
+     in the same number gutter (unchanged by the ruling above -- Both never
+     squeezed the number, only the name did, and that moved to its own line
+     above instead). Compare stacks its columns full width with no gutter,
+     so it shows none. */
   .reader-body.view-both .eng-lnum::before { font-size: 0.6rem; }
   .reader-body.play-line.trans-compare .eng-lnum { display: none; }
   .reader-body.trans-compare .english-col,

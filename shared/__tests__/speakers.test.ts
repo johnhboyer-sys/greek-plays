@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, abbreviateLeadInWord, resolveLeadInAbbreviations, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1149,45 +1149,6 @@ describe('playEnglishGutterWidth', () => {
     // A single short word still sizes nothing past the default when no name
     // (whole or by word) is long enough to ask for more.
     expect(playEnglishGutterWidth(['Old Woman', 'Servant'])).toBe('7.50rem');
-  });
-});
-
-describe('abbreviateLeadInWord', () => {
-  it('cuts after the first consonant group that follows a vowel, keeping at least three letters', () => {
-    expect(abbreviateLeadInWord('Agamemnon')).toBe('Agam.');
-    expect(abbreviateLeadInWord('Cassandra')).toBe('Cass.');
-    expect(abbreviateLeadInWord('Messenger')).toBe('Mess.');
-    expect(abbreviateLeadInWord('Clytaemnestra')).toBe('Clyt.');
-    expect(abbreviateLeadInWord('Hephaestus')).toBe('Heph.');
-    expect(abbreviateLeadInWord('Prometheus')).toBe('Prom.');
-    expect(abbreviateLeadInWord('Theoklymenos')).toBe('Theokl.');
-    expect(abbreviateLeadInWord('Andromache')).toBe('Andr.');
-    expect(abbreviateLeadInWord('Iphigenia')).toBe('Iph.');
-    expect(abbreviateLeadInWord('Magistrate')).toBe('Mag.');
-    expect(abbreviateLeadInWord('Attendants')).toBe('Att.');
-    expect(abbreviateLeadInWord('Ambassador')).toBe('Amb.');
-  });
-  it('leaves a word with no cut whole, without a period', () => {
-    expect(abbreviateLeadInWord('Iao')).toBe('Iao');
-    expect(abbreviateLeadInWord('Aeiobrst')).toBe('Aeiobrst');
-  });
-  it('cuts a hyphenated word as one string', () => {
-    expect(abbreviateLeadInWord('Breastplate-Maker')).toBe('Breastpl.');
-    expect(abbreviateLeadInWord('Woman-D')).toBe('Wom.');
-  });
-});
-
-describe('resolveLeadInAbbreviations', () => {
-  it('abbreviates each word by the cut rule', () => {
-    const m = resolveLeadInAbbreviations(['Agamemnon', 'Cassandra']);
-    expect(m.get('Agamemnon')).toBe('Agam.');
-    expect(m.get('Cassandra')).toBe('Cass.');
-  });
-  it('lets two words that cut alike share the form (John, 2026-09-26)', () => {
-    const m = resolveLeadInAbbreviations(['Attendant', 'Attendants', 'Handmaiden', 'Handmaidens']);
-    expect(m.get('Attendant')).toBe('Att.');
-    expect(m.get('Attendants')).toBe('Att.');
-    expect(m.get('Handmaiden')).toBe(m.get('Handmaidens'));
   });
 });
 
