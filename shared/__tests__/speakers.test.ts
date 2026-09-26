@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, abbreviateLeadInWord, resolveLeadInAbbreviations, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1139,8 +1139,56 @@ describe('playEnglishGutterWidth', () => {
   it('sizes for the longest word, so a phrase stacks and a word never splits', () => {
     // Johnston's Clytaemnestra (13) beside the roster's Clytaemestra (12).
     expect(playEnglishGutterWidth(['Clytaemestra', 'Clytaemnestra'])).toBe('8.28rem');
-    // "Son of Cleonymus" stacks at its spaces; Cleonymus alone sizes nothing past the default.
-    expect(playEnglishGutterWidth(['Son of Cleonymus', 'Chorus Leader'])).toBe('7.50rem');
+  });
+  it('never narrows below main\'s whole-name floor, even when no single word is that long (Helen regression, John 2026-09-26)', () => {
+    // "Son of Cleonymus" is 16 whole characters but its longest WORD
+    // ("Cleonymus", 9) alone would size to only 7.50rem -- the whole-name
+    // floor still asks for room for all 16.
+    expect(playEnglishGutterWidth(['Son of Cleonymus', 'Chorus Leader'])).toBe('9.96rem');
+    // A single short word still sizes nothing past the default when no name
+    // (whole or by word) is long enough to ask for more.
+    expect(playEnglishGutterWidth(['Old Woman', 'Servant'])).toBe('7.50rem');
+  });
+});
+
+describe('abbreviateLeadInWord', () => {
+  it('cuts after the first consonant, at or past the 4th letter, that a vowel follows', () => {
+    expect(abbreviateLeadInWord('Agamemnon')).toBe('Agam.');
+    expect(abbreviateLeadInWord('Cassandra')).toBe('Cass.');
+    expect(abbreviateLeadInWord('Messenger')).toBe('Mess.');
+    expect(abbreviateLeadInWord('Clytaemnestra')).toBe('Clyt.');
+    expect(abbreviateLeadInWord('Hephaestus')).toBe('Heph.');
+    expect(abbreviateLeadInWord('Prometheus')).toBe('Prom.');
+    expect(abbreviateLeadInWord('Theoklymenos')).toBe('Theokl.');
+    expect(abbreviateLeadInWord('Andromache')).toBe('Andr.');
+    expect(abbreviateLeadInWord('Watchman')).toBe('Watchm.');
+  });
+  it('keeps every letter of a word under four letters, with a period added', () => {
+    expect(abbreviateLeadInWord('Iao')).toBe('Iao.');
+  });
+  it('falls back to the first four letters when no consonant past the 3rd is followed by a vowel', () => {
+    expect(abbreviateLeadInWord('Aeiobrst')).toBe('Aeio.');
+  });
+  it('abbreviates a hyphenated word as one string, never splitting at the hyphen', () => {
+    expect(abbreviateLeadInWord('Breastplate-Maker')).toBe('Breastpl.');
+  });
+});
+
+describe('resolveLeadInAbbreviations', () => {
+  it('leaves non-colliding words at their natural cut', () => {
+    const m = resolveLeadInAbbreviations(['Agamemnon', 'Cassandra']);
+    expect(m.get('Agamemnon')).toBe('Agam.');
+    expect(m.get('Cassandra')).toBe('Cass.');
+  });
+  it('extends colliding abbreviations letter by letter until they differ', () => {
+    // Both cut to "Clyt." on their own -- the two spellings of the same
+    // queen, in different columns, must still read apart.
+    const m = resolveLeadInAbbreviations(['Clytemnestra', 'Clytaemnestra']);
+    expect(abbreviateLeadInWord('Clytemnestra')).toBe('Clyt.');
+    expect(abbreviateLeadInWord('Clytaemnestra')).toBe('Clyt.');
+    expect(m.get('Clytemnestra')).not.toBe(m.get('Clytaemnestra'));
+    expect(m.get('Clytemnestra')).toBe('Clyte.');
+    expect(m.get('Clytaemnestra')).toBe('Clyta.');
   });
 });
 

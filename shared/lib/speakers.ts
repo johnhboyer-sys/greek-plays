@@ -1070,12 +1070,19 @@ export function playRepeatedRefs(
   return out;
 }
 
-/** The English speaker gutter's width for a play, from the longest WORD any
- * column prints as a lead-in (SAUSAGE-SELLER overhung the 7.5rem default
- * into the text; John, 2026-09-09). A phrase ("Chorus Leader", "Son of
- * Cleonymus") stacks at its spaces inside the gutter and sizes nothing; a
- * word is never broken (John, 2026-09-22: Johnston's CLYTAEMNESTRA split
- * "CLYTAEMNEST / RA" in a gutter sized for the roster's Clytaemestra).
+/** The English speaker gutter's width for a play: never narrower than the
+ * gutter main sizes for the longest WHOLE name (SAUSAGE-SELLER overhung the
+ * 7.5rem default into the text; John, 2026-09-09), and never narrower than
+ * the longest WORD any column prints as a lead-in (John, 2026-09-22:
+ * Johnston's CLYTAEMNESTRA split "CLYTAEMNEST / RA" in a gutter sized only
+ * for the roster's Clytaemestra). Sizing by the word alone (2026-09-22)
+ * narrowed Helen's gutter (8.28rem on main -> 7.72rem) because its longest
+ * lead-in is a multi-word name whose WHOLE length beats any of its words --
+ * a phrase can still need the room its full length asks for even though no
+ * single word in it is that long (John, 2026-09-26). The two floors are
+ * combined, not chosen between: whichever rule wants more room wins. A
+ * phrase ("Chorus Leader", "Son of Cleonymus") still stacks at its spaces
+ * inside the gutter rather than running past it; a word is never broken.
  * Small caps in Alegreya Sans SC run ~0.56rem a character at the lead-in
  * size; 1rem of air; never narrower than the default. */
 export function playEnglishGutterWidth(names: Iterable<string>): string {
@@ -1083,12 +1090,109 @@ export function playEnglishGutterWidth(names: Iterable<string>): string {
   // A joint or descriptive name ("Sausage-seller and Paphlagonian", "Ghost
   // of Clytaemestra") must not widen the gutter for the whole play: past 16
   // characters a lead-in takes its own line above the text instead
-  // (Reader.svelte longLabel / .spk-long).
+  // (Reader.svelte longLabel / .spk-long). The skip covers both floors --
+  // main never counted such a name's whole length either.
   for (const n of names) {
     if (n.length > 16) continue;
-    for (const w of n.split(/\s+/)) longest = Math.max(longest, w.length);
+    longest = Math.max(longest, n.length); // main's whole-name floor
+    for (const w of n.split(/\s+/)) longest = Math.max(longest, w.length); // longest word
   }
   return `${Math.max(7.5, longest * 0.56 + 1.0).toFixed(2)}rem`;
+}
+
+// ── Phone lead-in abbreviation (John, 2026-09-26: "On mobile, abbreviate
+// long names") ───────────────────────────────────────────────────────────
+// The phone play-line gutter is a fixed box (global.css, --pl-spk-w: 6rem
+// under the 680px media query) -- unlike the desktop gutter above, it does
+// not grow per play, so a lead-in word wider than the box used to run into
+// the speech text (CLYTAEMNESTRA over "It's", Johnston's Agamemnon). John's
+// ruling: shrink the WORD instead of the box. Reader.svelte measures each
+// lead-in word against the live box width in the browser and abbreviates
+// only the ones that do not fit; this module only owns the abbreviation
+// FORM, not the fits-or-not decision.
+
+const LEAD_IN_VOWELS = new Set(['a', 'e', 'i', 'o', 'u', 'y']);
+
+function isLeadInLetter(ch: string): boolean {
+  return /\p{L}/u.test(ch);
+}
+
+// Strips a combining accent (é -> e) so an accented vowel still counts as a
+// vowel for the cut rule.
+function leadInBaseLetter(ch: string): string {
+  return ch.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+}
+
+function isLeadInVowel(ch: string): boolean {
+  return LEAD_IN_VOWELS.has(leadInBaseLetter(ch));
+}
+
+// How many characters of `word` an abbreviation keeps, before the period:
+// the first consonant, at or past the 4th LETTER, that a vowel immediately
+// follows (skipping over any punctuation in between, e.g. a hyphen) --
+// Agamemnon cuts after the "m" of "Agam" because "e" follows it. A
+// hyphenated word is one string here, cut wherever the rule lands, never
+// split at the hyphen. With no such consonant, the first four letters (or
+// the whole word, if it has fewer) stand.
+function abbreviationCutLength(word: string): number {
+  let letterCount = 0;
+  for (let i = 0; i < word.length; i++) {
+    if (!isLeadInLetter(word[i])) continue;
+    letterCount += 1;
+    if (letterCount < 4 || isLeadInVowel(word[i])) continue;
+    let j = i + 1;
+    while (j < word.length && !isLeadInLetter(word[j])) j += 1;
+    if (j < word.length && isLeadInVowel(word[j])) return i + 1;
+  }
+  let count = 0;
+  for (let i = 0; i < word.length; i++) {
+    if (!isLeadInLetter(word[i])) continue;
+    count += 1;
+    if (count === 4) return i + 1;
+  }
+  return word.length;
+}
+
+/** Abbreviate one lead-in WORD for the phone gutter: Agamemnon -> Agam.,
+ * Cassandra -> Cass., Clytaemnestra -> Clyt., Theoklymenos -> Theokl. See
+ * `abbreviationCutLength` for the cut rule. Two different words can cut to
+ * the same abbreviation (Clytemnestra and Clytaemnestra both -> "Clyt.");
+ * this function does not resolve that -- `resolveLeadInAbbreviations` does,
+ * for a whole play's set of words at once. */
+export function abbreviateLeadInWord(word: string): string {
+  return `${word.slice(0, abbreviationCutLength(word))}.`;
+}
+
+/** Abbreviate a play's whole set of overflowing lead-in words, so no two
+ * DIFFERENT words share a result (John, 2026-09-26: two spellings of the
+ * same queen, Clytemnestra and Clytaemnestra, both cut to "Clyt." by the
+ * rule above -- acceptable only once they are told apart). A colliding
+ * group is grown one letter past its cut, together, pass by pass, until
+ * every member reads differently or has no letters left to add; this
+ * compares strings only, never who the words name. */
+export function resolveLeadInAbbreviations(words: Iterable<string>): Map<string, string> {
+  const list = [...new Set(words)];
+  const cutLen = new Map<string, number>(list.map((w) => [w, abbreviationCutLength(w)]));
+  const abbrevOf = (w: string) => `${w.slice(0, cutLen.get(w)!)}.`;
+  const maxLen = list.reduce((m, w) => Math.max(m, w.length), 0);
+  for (let pass = 0; pass <= maxLen; pass++) {
+    const groups = new Map<string, string[]>();
+    for (const w of list) {
+      const a = abbrevOf(w);
+      const g = groups.get(a);
+      if (g) g.push(w); else groups.set(a, [w]);
+    }
+    let grew = false;
+    for (const group of groups.values()) {
+      if (group.length < 2) continue;
+      for (const w of group) {
+        const len = cutLen.get(w)!;
+        if (len < w.length) { cutLen.set(w, len + 1); grew = true; }
+      }
+    }
+    if (!grew) break;
+  }
+  return new Map(list.map((w) => [w, abbrevOf(w)]));
 }
 
 /** The Greek speaker gutter's width for a play, from its longest siglum

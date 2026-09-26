@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, resolveLeadInAbbreviations, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { copyButtonPosition } from '../lib/copy-button';
@@ -884,6 +884,108 @@
   function longLabel(display: string): boolean {
     if (!playLine || !englishGutterWidth) return false;
     return display.length * 0.56 + 0.6 > parseFloat(englishGutterWidth);
+  }
+
+  // ── Phone lead-in abbreviation (John, 2026-09-26: "On mobile, abbreviate
+  // long names") ────────────────────────────────────────────────────────
+  // The phone play-line gutter is a FIXED box (global.css, --pl-spk-w: 6rem
+  // under the 680px media query) -- unlike englishGutterWidth above, it
+  // never grows per play, so a word wider than the box used to run into the
+  // speech text (CLYTAEMNESTRA over "It's"). Decided by measurement, not by
+  // letter count: a hidden clone of the actual `.speaker` label, inside the
+  // real reader body so it inherits the live CSS (font, --pl-spk-w-play,
+  // theme), tells us the box's real width and each word's real width.
+  // `wideWords` is the set that needs abbreviating; `abbrevMap` (speakers.ts
+  // resolveLeadInAbbreviations) gives each of them a form no other lead-in
+  // word in the book collides with. Desktop is never gated into this (the
+  // gutter there is sized to fit, playEnglishGutterWidth above).
+  let wideWords = new Set<string>();
+  let abbrevMap = new Map<string, string>();
+
+  function bookLeadInWords(): string[] {
+    const words = new Set<string>();
+    for (const n of leadNamesInBook(segments, bookSpeakerRoster, speakerRoster)) {
+      for (const w of leadInCase(leadName(n)).split(/\s+/)) if (w) words.add(w);
+    }
+    return [...words];
+  }
+
+  function measurePhoneAbbreviations() {
+    if (!playLine || !phoneLayout || !readerBodyEl || typeof document === 'undefined') {
+      wideWords = new Set();
+      abbrevMap = new Map();
+      return;
+    }
+    const words = bookLeadInWords();
+    if (!words.length) { wideWords = new Set(); abbrevMap = new Map(); return; }
+    // A detached-looking but still-mounted-under-readerBodyEl clone, so it
+    // inherits every ancestor class (.reader-body.play-line…) and CSS custom
+    // property the real labels do, without affecting layout or being seen.
+    const holder = document.createElement('div');
+    holder.className = 'turn-stack';
+    holder.setAttribute('aria-hidden', 'true');
+    holder.style.cssText = 'position:absolute; visibility:hidden; height:0; overflow:hidden; pointer-events:none; top:-9999px; left:-9999px; white-space:nowrap;';
+    const para = document.createElement('p');
+    para.className = 'turn-para';
+    // The box: the play-line gutter's own formula, `calc(var(--pl-spk-w) -
+    // 0.6em)`, resolved against the LIVE `--pl-spk-w` (so the phone media
+    // query's forced value, not the per-play desktop one, wins). Set
+    // inline rather than left to the `.speaker:first-child` selector this
+    // page's OWN markup uses: view-both and trans-compare both override
+    // that selector to a plain run-in (`position: static; width: auto`,
+    // global.css) for their own layouts, and this clone is a descendant of
+    // the REAL .reader-body, so it would inherit whichever of those happens
+    // to be active when the measurement runs -- a page that loads straight
+    // into view-both (a returning reader's saved preference) measured a
+    // one-character run-in box instead of the gutter, and abbreviated
+    // words that already fit ("Chorus" -> "Chor."). The inline style beats
+    // every one of those class-scoped rules, so the box is always the
+    // gutter's, regardless of which view happens to be on screen.
+    const boxSpan = document.createElement('span');
+    boxSpan.className = 'speaker';
+    boxSpan.style.cssText = 'position:absolute; width:calc(var(--pl-spk-w) - 0.6em);';
+    boxSpan.textContent = 'X';
+    para.appendChild(boxSpan);
+    // The word probe: NOT :first-child, so the box's absolute/width rule
+    // does not apply to it -- it keeps `.speaker`'s font (small-caps,
+    // weight, letter-spacing) but sizes to its own text.
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'speaker';
+    wordSpan.style.cssText = 'position:static; display:inline-block; width:auto; white-space:nowrap;';
+    para.appendChild(wordSpan);
+    holder.appendChild(para);
+    readerBodyEl.appendChild(holder);
+    const boxWidth = boxSpan.getBoundingClientRect().width;
+    const wide = new Set<string>();
+    for (const w of words) {
+      wordSpan.textContent = w;
+      if (wordSpan.getBoundingClientRect().width > boxWidth) wide.add(w);
+    }
+    readerBodyEl.removeChild(holder);
+    wideWords = wide;
+    abbrevMap = wide.size ? resolveLeadInAbbreviations(wide) : new Map();
+  }
+
+  // The full lead-in stays available: an abbreviated word's rendered form,
+  // and whether any word in `display` was actually shortened (drives the
+  // title/aria-label so a screen reader still reads the full name).
+  //
+  // `phone`/`map` are `phoneLayout`/`abbrevMap` (and `set`/`wideWords`
+  // below), passed in explicitly rather than closed over: they are named
+  // directly in the template's call site, not just inside this function
+  // body, so Svelte's reactivity actually reruns the label when they change
+  // (a call site that only names `b.display` does not pick up a change to
+  // state its callee merely reads -- measurePhoneAbbreviations updating
+  // `abbrevMap` after mount silently left stale, un-abbreviated labels on
+  // screen until this was made explicit, John's ruling notwithstanding).
+  function renderedLeadIn(display: string, phone: boolean, map: Map<string, string>): string {
+    const cased = leadInCase(leadName(display));
+    if (!phone || !map.size) return cased;
+    return cased.replace(/\S+/g, (w) => map.get(w) ?? w);
+  }
+  function leadInAbbreviated(display: string, phone: boolean, set: Set<string>): boolean {
+    if (!phone || !set.size) return false;
+    return leadInCase(leadName(display)).split(/\s+/).some((w) => set.has(w));
   }
 
   // Ordered list of distinct chapter identifiers present in the loaded book.
@@ -3108,7 +3210,13 @@
     reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const phoneMq = window.matchMedia('(max-width: 680px)');
     phoneLayout = phoneMq.matches;
-    phoneMq.addEventListener?.('change', (e) => { phoneLayout = e.matches; });
+    phoneMq.addEventListener?.('change', (e) => { phoneLayout = e.matches; measurePhoneAbbreviations(); });
+    // Recompute once now (segments are usually already here, from the
+    // build-time prop) and again once the lead-in font has actually
+    // loaded -- a measurement against the fallback font's metrics would
+    // abbreviate the wrong words.
+    measurePhoneAbbreviations();
+    document.fonts?.ready?.then(() => measurePhoneAbbreviations());
     // Remember which book of this work was last open, for the work switcher —
     // and stamp the work's recency so hosts can offer "continue reading".
     try { localStorage.setItem(`reader-book-${work}`, String(bookNum)); } catch {}
@@ -3193,6 +3301,10 @@
         turnFlow = data.turnFlow ?? null;
         bookSpeakerRoster = data.speakerRoster ?? [];
         displayOrder = data.displayOrder ?? null;
+        // The fetch-mounted path has no segments yet at the "on mount" call
+        // above -- redo the measurement now that they've arrived.
+        await tick();
+        measurePhoneAbbreviations();
       }
     } catch (e) {
       error = String(e);
@@ -4169,7 +4281,9 @@
         <!-- A direction before this speech that got no row of its own
              (splitAtDirections: compare mode, or a speech sharing its row). -->
         {#if b.directionsBefore}{#each b.directionsBefore as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{(b as AddedBlock).cueAdded ? `[${leadInCase(leadName(b.display))}]` : leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
+        {@const fullLead = b.display ? leadInCase(leadName(b.display)) : ''}
+        {@const abbreviated = b.display ? leadInAbbreviated(b.display, phoneLayout, wideWords) : false}
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : (abbreviated ? fullLead : undefined)} aria-label={abbreviated ? fullLead : undefined}>{(b as AddedBlock).cueAdded ? `[${renderedLeadIn(b.display, phoneLayout, abbrevMap)}]` : renderedLeadIn(b.display, phoneLayout, abbrevMap)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
       {/each}
     </div>
   {/snippet}
