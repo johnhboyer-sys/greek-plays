@@ -34,6 +34,13 @@ english:
     # 2026-09-22: split the packed 1288 cell).
     line_fixes:
       "1291": "1292"
+      # Drift sweep 4 (2026-09-26): identity fixes (the Hippolytus 850
+      # precedent). Coleridge gives 1297-1298 to the Chorus and 1299 to
+      # Electra, the edition the reverse, and the speaker heuristic had moved
+      # each line to the speaker it matched: "Did you hear?" sat at 1299.
+      "1297": "1297"  # ἠκούσαθ'; ἅνδρες χεῖρ' ἔχουσιν ἐν φόνωι — Did you hear?
+      "1298": "1298"  # Ἑλένης τὸ κώκυμ' ἐστίν — It is Helen screaming
+      "1299": "1299"  # ὦ Διὸς ὦ Διὸς ἀέναον κράτος — O eternal might of Zeus
   secondary:
     id: way
     text_fixes:
@@ -56,6 +63,13 @@ english:
     source: bench/way/orestes.txt
     play: ORESTES
     footnotes: true
+    # Drift sweep 4 (2026-09-26): Way prints 1297 and 1298 as two
+    # Semichorus speeches for the edition's one, so from "Helen's the wild
+    # shriek" (1298) each speech sat one slot late and Electra's "O power of
+    # Zeus" (1299) shared the 1301 row with Helen. The pin seats it on
+    # ὦ Διὸς ὦ Διὸς (1299) and Helen's cry on 1301.
+    pins:
+      - { greek: "1299", english: "O power of Zeus, of Zeus", run: 2 }
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
@@ -65,6 +79,13 @@ english:
     source: bench/johnston/orestes.txt
     play: ORESTES
     footnotes: false
+    # Drift sweep 4 (2026-09-26): with Coleridge's 1297-1299 seated on
+    # their own Greek (line_fixes above), the pairer moved Electra's "O Zeus"
+    # (1299) to 1301 and spread the Chorus's 1297-1298 onto 1299. The pin
+    # holds her prayer on ὦ Διὸς ὦ Διὸς (1299) and Helen's cry on 1301, where
+    # they stood before.
+    pins:
+      - { greek: "1299", english: "O Zeus, O eternal power of Zeus", run: 2 }
     # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
     license:
       status: licensed

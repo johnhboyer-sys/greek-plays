@@ -148,7 +148,31 @@ english:
         641: "[CHORUS]"
       pins:
         - { greek: "307", english: "Come, let’s link our arms and dance", run: 8 }
+        # Drift sweep 4 (2026-09-26): the Leader's 244-256 was spread one
+        # line a row down to 269 ("I smell human blood", 253, at 264), and
+        # the Chorus's cries (257-275) all sat at 273. The pin opens the
+        # Chorus's speech on ὅδ' αὐτός (257, "He's over there!"). It stays
+        # whole there, 261-273 "translated with the speech above": its head
+        # segment carries only an unnamed dash, so the spread cannot walk on.
+        - { greek: "257", english: "-He’s over there! Claiming sanctuary", run: 1 }
         - { greek: "367", english: "The task I take upon myself is mine, to overthrow whole families, when strife inside the home kills someone near and dear. We chase that murderer down, the one who’s spilled fresh blood. For all his strength, we wear him down. Those proud", run: 6 }
+      # Drift sweep 4 (2026-09-26): the Furies' waking cries (143-177) are
+      # one Johnston speech parted by "-" dashes, and from 147 each cry sat
+      # one or two segments early (Hermes the thief, 149, at 147; the dream
+      # of 155 at 153). Each cut opens its cry on its own Greek.
+      cuts:
+        - { greek: "147", english: "-Our quarry’s slipped our nets" }       # ἐξ ἀρκύων πέπτωκεν
+        - { greek: "148", english: "Once sleep came over us" }              # ὕπνῳ κρατηθεῖσ'
+        - { greek: "149", english: "-You’re disgraceful, Hermes" }          # ἰὼ παῖ Διός
+        - { greek: "153", english: "-You may be a god, but you’re a thief" } # ἐξέκλεψας ὢν θεός
+        - { greek: "154", english: "-Who can say there’s justice" }         # τί τῶνδ' ἐρεῖ τις δικαίως
+        - { greek: "155", english: "-In my dreams shame struck" }           # ἐμοὶ δ' ὄνειδος ἐξ ὀνειράτων
+        - { greek: "162", english: "-Younger gods are doing this" }         # οἱ νεώτεροι θεοί
+        - { greek: "169", english: "-The prophet soils the hearth" }        # ἐφεστίῳ δὲ μάντις
+        - { greek: "174", english: "-Though he inflict his pain on me" }    # κἀμοί γε λυπρός
+        # Drift sweep 4: the Leader's speech now ends at 256; 254 opens on
+        # ὅρα ὅρα μάλ' αὖ.
+        - { greek: "254", english: "Start looking for him!" }               # ὅρα ὅρα μάλ' αὖ
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed

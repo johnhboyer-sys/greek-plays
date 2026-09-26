@@ -45,11 +45,28 @@ english:
       "393": "391"    # ἡ σή, Προμηθεῦ — Your plight, Prometheus
       "394": "392"    # στέλλου, κομίζου — Go away, depart
       "395": "393"    # ὁρμωμένῳ μοι — Your urging meets my eagerness
+      # Drift sweep 4 (2026-09-26): 246-259, the stichomythia after the
+      # Chorus's pity. Smyth numbers it two lines ahead of Murray, so each
+      # line sat two rows late (246-247 bare, "Yes, to my friends" at 248).
+      # Each line is keyed to the Murray line it renders, read against the
+      # Greek; this replaces the covered entries 246 by 248 and 247 by 249.
+      "248": "246"    # καὶ μὴν φίλοις ἐλεινὸς — Yes, to my friends
+      "249": "247"    # μή πού τι προύβης — Did you perhaps transgress
+      "250": "248"    # θνητούς γ' ἔπαυσα — I caused mortals to cease foreseeing
+      "251": "249"    # τὸ ποῖον εὑρὼν — Of what sort was the cure
+      "252": "250"    # τυφλὰς ἐν αὐτοῖς ἐλπίδας — blind hopes
+      "253": "251"    # μέγ' ὠφέλημα — A great benefit
+      "254": "252"    # πρὸς τοῖσδε μέντοι πῦρ — In addition, I gave them fire
+      "255": "253"    # καὶ νῦν φλογωπὸν πῦρ — Do creatures of a day now have fire
+      "256": "254"    # ἀφ' οὗ γε πολλὰς ἐκμαθήσονται τέχνας — learn many arts
+      "257": "255"    # τοιοῖσδε δή σε Ζεὺς — on a charge like this that Zeus
+      "258": "256"    # αἰκίζεταί γε — Torments me
+      "259": "257"    # οὐδ' ἔστιν ἄθλου τέρμα — And is there no end
+      "260": "258"    # οὐκ ἄλλο γ' οὐδέν — No, none except
+      "261": "259"    # δόξει δὲ πῶς; — But how will it seem good to him
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
-    covered:
-      - { greek: "246", by: "248" }
-      - { greek: "247", by: "249" }
+    covered: []
   secondary:
     id: morshead
     name: "E. D. A. Morshead (1881–1908)"
@@ -59,6 +76,20 @@ english:
     source: bench/morshead/prometheus-bound.txt
     play: PROMETHEUS BOUND
     footnotes: false
+    # Drift sweep 4 (2026-09-26): with Smyth's 246-259 keyed to the Greek,
+    # Morshead's stichomythia follows onto its own rows. His Chorus asks
+    # 255-257 in one speech ("Then, upon imputation of such guilt, / Doth
+    # Zeus without surcease torment thee thus? / Is there no limit"), so it
+    # opens on τοιοῖσδε δή σε Ζεὺς (255), and Prometheus's "None, till his
+    # own will" keeps οὐκ ἄλλο γ' οὐδέν (258). The cuts give each of the
+    # Chorus's three lines its Greek: 256 αἰκίζεταί (torment), 257 οὐδ'
+    # ἔστιν ἄθλου τέρμα (no limit).
+    pins:
+      - { greek: "255", english: "Then, upon imputation of such guilt", run: 1 }
+      - { greek: "258", english: "None, till his own will shall decree an end", run: 1 }
+    cuts:
+      - { greek: "256", english: "Doth Zeus without surcease" }
+      - { greek: "257", english: "Is there no limit" }
   third:
     id: johnston
     name: "Ian Johnston (VIU)"

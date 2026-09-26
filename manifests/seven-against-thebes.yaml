@@ -178,6 +178,39 @@ english:
     # speaker's Greek.
     pins:
       - { greek: "369", english: "The scout, I believe, is bringing some fresh news of the army", run: 1 }
+      # Drift sweep 4 (2026-09-26): 995-1004 sat one speech early (Ismene's
+      # "Above all for me", 996, closed the 995 row; "To lie beside their
+      # father", 1004, sat at 1003). Kosmos alternates the sisters' cues one
+      # line off the edition's, so each cue stays as printed; the pin seats
+      # "Above all for me" on πρὸ πάντων δ' ἐμοί (996) and the next seven
+      # speeches on 997-1004 (1004 πάρευνον, "To lie beside their father").
+      - { greek: "996", english: "Above all for me", run: 8 }
+    # Drift sweep 4 (2026-09-26): Kosmos prints the lament 822-960 as one
+    # Chorus speech of paragraphs, and from 845 the spread ran one or two
+    # segments late ("Ah, sisters most unfortunate", 871, sat at 879; 903-905,
+    # the property, at 906; Ares the divider, 945-946, at 947). Each cut
+    # opens a segment at the English for its first Greek line.
+    cuts:
+      - { greek: "848", english: "The events are self-evident" }      # τάδ' αὐτόδηλα
+      - { greek: "854", english: "But sail upon the wind" }           # ἀλλὰ γόων, ὦ φίλαι
+      - { greek: "861", english: "But here come Antigone" }           # ἀλλὰ γὰρ ἥκουσ' αἵδ'
+      - { greek: "871", english: "Ah, sisters most unfortunate" }     # ἰώ. δυσαδελφόταται
+      - { greek: "875", english: "Ah, pity you men" }                 # ἰὼ ἰὼ δύσφρονες
+      - { greek: "879", english: "To their misery, indeed" }          # μέλεοι δῆθ'
+      - { greek: "881", english: "Ah, you brothers" }                 # ἰὼ ἰὼ δωμάτων ἐρειψίτοιχοι
+      - { greek: "886", english: "The great Erinys" }                 # κάρτα δ' ἀληθῆ ... Ἐρινὺς
+      - { greek: "888", english: "Pierced through your left sides" }  # δι' εὐωνύμων τετυμμένοι
+      - { greek: "895", english: "Right through, as you say" }        # διανταίαν λέγεις
+      - { greek: "900", english: "Groaning spreads" }                 # διήκει δὲ καὶ πόλιν στόνος
+      - { greek: "906", english: "In their haste to anger" }          # ἐμοιράσαντο δ' ὀξυκάρδιοι
+      - { greek: "911", english: "Under strokes of iron" }            # σιδηρόπληκτοι
+      - { greek: "915", english: "Our shrill, heart-rending wail" }   # δόμων μάλ' ἀχάεσσα
+      - { greek: "923", english: "Over these competing" }             # πάρεστι δ' εἰπεῖν ἐπ' ἀθλίοισιν
+      - { greek: "926", english: "Ill-fated" }                        # δυσδαίμων σφιν ἁ τεκοῦσα
+      - { greek: "933", english: "Of the same seed" }                 # ὁμόσποροι δῆτα
+      - { greek: "938", english: "Their enmity" }                     # πέπαυται δ' ἔχθος
+      - { greek: "947", english: "They hold in misery" }              # ἔχουσι μοῖραν λαχόντες
+      - { greek: "951", english: "Ah, you have wreathed" }            # ἰὼ πολλοῖς ἐπανθίσαντες
     # This column prints 808–809 (τίνες; τί δ' εἶπας; / φρονοῦσα νῦν ἄκουσον)
     # before 805 (οἲ 'γὼ τάλαινα). The window also holds 806 πέπωκεν αἷμα
     # and 807 ἅνδρες τεθνᾶσιν.

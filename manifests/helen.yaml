@@ -68,6 +68,24 @@ english:
     source: bench/way/helen.txt
     play: HELEN
     footnotes: true
+    # Drift sweep 4 (2026-09-26): from 638 the duet sat two slots early
+    # ("And the evil made good", 644, at 638; "Blessing on thee", 646, at
+    # 641; "And I thee, who to Ida's town", 658, at 652). Way gives Menelaus
+    # all of 636-643, so that speech holds 636 and covers 638 and 641; the
+    # pins seat the rest on their Greek: 644 τὸ κακὸν δ' ἀγαθὸν, 646 ὄναιο
+    # δῆτα, 648 φίλαι φίλαι, 652 ἔχεις, ἔχω τε σ', 656 τί φῶ;, 658 κἀγὼ σέ,
+    # 661 ἒ ἔ· πικρὰς (Helen's second cry, 662), 663 λέγ', ὡς ἀκουστά. Way
+    # puts 660 ("'Fore heaven, how wast thou ravished") between Helen's two
+    # cries (661, 662), so it stays in the 661 row, a line after its Greek.
+    pins:
+      - { greek: "644", english: "And the evil made good hath united us", run: 4 }
+      - { greek: "656", english: "What can I say", run: 1 }
+      - { greek: "658", english: "And I thee, who to Ida’s town", run: 1 }
+      - { greek: "661", english: "Woe’s me for the bitter tale", run: 2 }
+    # Menelaus's 636-643 spreads over 638 and 641; the cut opens 641 at
+    # τὸ πρόσθεν ("Erstwhile"), so the torch and the white steeds stay on 638.
+    cuts:
+      - { greek: "641", english: "Erstwhile" }
   third:
     id: kosmos
     text_fixes:
