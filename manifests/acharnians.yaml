@@ -70,6 +70,11 @@ english:
       - find: "r cost. Will<sup>*</sup> you not let"
         replace: "r cost. Will* you not let"
         note: "sweep 2026-09-24 n=128: build/genie/in.ernet.dli.2015.515629.txt:929"
+      # S16 drift (2026-09-26): Bohn's entrance heading "Theorus." (a
+      # centred small-caps heading, not a cue) tailed onto the Herald's 134.
+      - find: "from Sitalces. THEORUs."
+        replace: "from Sitalces."
+        note: "S16 2026-09-26: build/genie/in.ernet.dli.2015.515629.txt:258 prints it as the heading '### Tʜᴇᴏʀᴜs.'"
     name: "W. J. Hickie (Bohn, 1853)"
     short: Hickie
     model: turn-text
@@ -88,6 +93,16 @@ english:
     pins:
       - { greek: "804", english: "How sharply you squeak at the figs!", run: 1 }
       - { greek: "1118", english: "Slave! slave! take down my spear", run: 1 }
+      # S16 drift (2026-09-26): 134-140 sat two rows late ("Here am I!" at
+      # 136). Held to their Greek: Ὁδί (134b), Ἕτερος ἀλαζὼν (135), Χρόνον
+      # μὲν οὐκ ἂν ἦμεν ἐν Θρᾴκῃ (136), Μὰ Δί' οὐκ ἄν (137), εἰ μὴ
+      # κατένειψε χιόνι (138), Κάκιστ' ἀπολοίμην (151). Hickie's 138 speech
+      # runs on through 141-150; the cut opens 141 at Τοῦτον μετὰ Σιτάλκους
+      # ἔπινον ("During this time I was drinking with Sitalces").
+      - { greek: "134", english: "Here am I!", run: 5 }
+      - { greek: "151", english: "May I die the worst of deaths", run: 1 }
+    cuts:
+      - { greek: "141", english: "During this time I was drinking with Sitalces" }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true

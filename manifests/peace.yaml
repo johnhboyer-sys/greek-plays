@@ -175,6 +175,20 @@ english:
       - { greek: "450", english: "And if any one, wishing to be general", run: 1 }
       # Holds 454-458 as they stood: the pins above pulled them to 452.
       - { greek: "454", english: "Take away the “beating,”", run: 8 }
+      # S16 drift (2026-09-26): the heave cries sat one row early from 459
+      # (Hickie swaps Hermes and the Chorus here, as in 433-453). Held to
+      # Ὢ εἶα (459), Εἶα μάλα (460), Ὢ εἶα (461), Εἶα ἔτι μάλα (462), Ὢ
+      # εἶα, ὢ εἶα (463); the quote runs across the turns to name the first.
+      - { greek: "459", english: "Heave, ho! Heave, ho, again! Heave, ho! Come, again!", run: 5 }
+      # S16 drift (2026-09-26), with the line_fixes below: the wedding
+      # finale held to its Greek. Ἀλλ', ὦ πρὸ τοῦ πεινῶντες (1312, in the
+      # 1311 row), Εὐφημεῖν χρὴ (1316; Hickie gives it to the Chorus, and
+      # Δεῦρ', ὦ γύναι, 1329, follows in that row), Ὦ τρισμάκαρ (1333; the
+      # one Chorus speech runs through 1345), Οἰκήσετε γοῦν καλῶς (1346).
+      - { greek: "1311", english: "Come ye, who before were starving", run: 1 }
+      - { greek: "1316", english: "It behoves every one to use words of good omen", run: 1 }
+      - { greek: "1333", english: "O thrice happy! How justly now you enjoy", run: 1 }
+      - { greek: "1346", english: "At any rate you shall dwell happily", run: 1 }
       # 535-549: the smells, the cities, and the craftsmen's faces sat one to
       # three speeches early, with 543-549 bare. Read line by line: 535 ivy
       # (to 538), 538 the cities (to 542), 543 the spectators' faces, 544
@@ -191,11 +205,25 @@ english:
       - { greek: "449", by: "447" }
       - { greek: "452", by: "450" }
       - { greek: "453", by: "450" }
+      # S16 drift (2026-09-26): Hickie's 1333 speech runs through 1345
+      # (Τί δράσομεν αὐτήν; Τρυγήσομεν αὐτήν. Ἀλλ' ἀράμενοι φέρωμεν).
+      - { greek: "1337", by: "1333" }
+      - { greek: "1338", by: "1333" }
+      - { greek: "1339", by: "1333" }
+      - { greek: "1340", by: "1333" }
     # S11 sweep (2026-09-25): Hickie prints the Chorus's 1127-1190 as one
     # paragraph, and 1167 (ἐσθίω κἀπέχω) opens mid-sentence, so the cut by
     # sentence fell at "But when they are at home" (1179), twelve lines late.
     cuts:
       - { greek: "1167", english: "I eat it, and taste it" }
+    # S16 drift (2026-09-26): the tail of a footnote (Droysen's German for
+    # the θωρήσσεσθαι pun, note 5 on p. 296 of the scan) ran over the page
+    # into the text, and its "TRY. Lustig mit Wein! brav!" read as a
+    # Trygaeus speech, pushing 1316-1345 down a speech. Both lines blanked
+    # (build/genie/in.ernet.dli.2015.515629.txt:8460-8461).
+    line_fixes:
+      1085: ""
+      1087: ""
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a

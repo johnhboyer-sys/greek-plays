@@ -44,7 +44,12 @@ english:
       - { greek: "877", english: "Oh! sovereign ostrich, Cybelé, the mother of Cleocritus", speaker: "CHORUS" }
     pins:
       - { greek: "223", english: "Oh! by Zeus! what a throat", run: 6 }
-      - { greek: "277", english: "The Mede! But, by Heracles! how,", run: 22 }
+      # S16 drift (2026-09-26): this pin named the second speech of 277
+      # (Μῆδος; Ὦναξ Ἡράκλεις), which took the line's first share, so 279-288
+      # sat one speech early ("Here's another bird with a crest", Ἕτερος αὖ
+      # λόφον 279, ended the 277 row). It now names the first, Ὄνομα τούτῳ
+      # Μῆδός ἐστι, and the run seats 277-287 in order.
+      - { greek: "277", english: "He is called the Mede.", run: 8 }
       - { greek: "500", english: "And when he was king, 'twas", run: 9 }
       - { greek: "553", english: "Oh, Cebriones! oh, Porphyrion! what a terribly", run: 1 }
       - { greek: "554", english: "This, this being well done and completed", run: 4 }
@@ -170,6 +175,10 @@ english:
     # entirely -- 915 was already correctly seated, unaffected).
     pins:
       - { greek: "907", english: "Who spawned this spook?", run: 1 }
+      # S16 drift (2026-09-26): the Bedouin-camel line (277b-278 Μῆδος; ...
+      # ἄνευ καμήλου) sat at 279 and the crest (279 Ἕτερος αὖ λόφον) at 280.
+      - { greek: "277", english: "You don’t say? The Bedouin Bird!", run: 1 }
+      - { greek: "279", english: "And look there! There comes another Bird", run: 1 }
       - { greek: "908", english: "One of the tribe of dulcet tongue", run: 1 }
   overlays:
     - id: johnston
@@ -214,6 +223,10 @@ english:
         # Same fallout, further downstream: the Callias-bird turn (already
         # correctly seated before this pass) slid one node late to 285.
         - { greek: "284", english: "So this bird is Callias.", run: 1 }
+        # S16 drift (2026-09-26): the Mede-camel line (277b-278 Μῆδος; ...
+        # ἄνευ καμήλου) sat at 279 and the crest (279 Ἕτερος αὖ λόφον) at 280.
+        - { greek: "277", english: "He’s a Mede? By lord Hercules", run: 1 }
+        - { greek: "279", english: "Here’s another one", run: 1 }
         # Review A#5/#18, 2026-09-21: 517 and 518 print blank. Euelpides's
         # "That's right, by Demeter!" (Greek 517's own line) sits misplaced
         # at 521; Pisthetaerus's long entrails speech (which Johnston keeps

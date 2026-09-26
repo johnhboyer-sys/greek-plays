@@ -41,9 +41,15 @@ english:
       - { greek: "59", english: "Take care of yourself and of your sweet-voiced poet!", run: 1 }
       - { greek: "63", english: "Old man, you must have been a very insolent fellow in your youth!", run: 1 }
       - { greek: "66", english: "(to the servant) Let him be, friend, and, quick, go and call Agathon to me.", run: 1 }
-      - { greek: "104", english: "To what divinity is your homage addressed?", run: 1 }
-      - { greek: "111", english: "To thee, oh Phoebus, I dedicate my most beauteous songs", run: 1 }
-      - { greek: "116", english: "I, in my turn, celebrate the everlasting happiness of the chaste Artemis", run: 1 }
+      # S16 drift (2026-09-26): each Agathon strophe sat in the next row.
+      # The Greek has no speaker event at 107, 114, or 120 (only the ode's
+      # dashes), so Agathon's own strophe is pinned to the row it ends:
+      # Ἄγετ' ὦ κλῄζετε, Μοῦσαι (107) to 104, Τάν τ' ἐν ὄρεσι δρυογόνοισιν
+      # ... Ἄρτεμιν (114) to 111, Λατώ τε κρούματά τ' Ἀσιάδος (120) to 116.
+      # The Chorus's replies (104, 111, 117) then open those rows unpinned.
+      - { greek: "104", english: "Oh! Muse! glorify Phoebus with his golden bow", run: 1 }
+      - { greek: "111", english: "And praise Artemis too, the maiden huntress", run: 1 }
+      - { greek: "116", english: "... and Latona and the tones of the Asiatic lyre", run: 1 }
       - { greek: "123", english: "I do honour to the divine Latona and to the lyre", run: 1 }
       - { greek: "129", english: "Hail! thou blessed son of Latona!", run: 1 }
       - { greek: "381", english: "Silence! let all be quiet! Pay attention! for here she is spitting", run: 1 }
@@ -66,6 +72,13 @@ english:
       # for why no ref in the run ends up bare).
       - { greek: "1081", english: "Beware of blows!", run: 1 }
       - { greek: "1089", english: "Are you mocking me?", run: 1 }
+      # S16 drift (2026-09-26): Euripides' echo "Whence comes this voice."
+      # repeats Πότε τὸ πωνή (1086) and sat at 1087 Σὺ λαλεῖς;, which the
+      # 1912 never renders (gap below). The quote runs into the next turn so
+      # it names the echo, not the Scythian's own line; "Ah! beware!" is
+      # held to Κλαῦσ' ἄρα (1088).
+      - { greek: "1086", english: "Whence comes this voice. Ah! beware!", run: 1 }
+      - { greek: "1088", english: "Ah! beware! Ah! beware!", run: 1 }
       - { greek: "1196", english: "Aye, that I will. Hand over the money.", run: 1 }
       - { greek: "1197", english: "You will bring her back? Follow me, my beautiful child.", run: 1 }
       - { greek: "64", english: "Let him be, friend, and, quick, go and call Agathon", run: 1 }
@@ -91,6 +104,20 @@ english:
     # every play, 2026-09-14); the bench text still keeps every note as a
     # [n] marker + Footnotes: block.
     footnotes: false
+    # S16 drift (2026-09-26): in the ode each Agathon strophe sat one row
+    # late and 116-128 piled at 129. Each Chorus reply is pinned to its row
+    # and Agathon's strophe parks on the row it ends (the overrides below
+    # give both cues the ode's roster name): In honour of which of the gods
+    # (104 Τίνι δαιμόνων), Deign to accept (111 Χαῖρε καλλίσταις ἀοιδαῖς),
+    # I follow (117 Ἕπομαι κλῄζουσα), I honour queen Latona (122 Σέβομαι
+    # Λατώ). That last speech ends on 129's Χαῖρ', ὄλβιε παῖ Λατοῦς.
+    pins:
+      - { greek: "104", english: "In honour of which of the gods is the ode?", run: 1 }
+      - { greek: "111", english: "Deign to accept our most noble strains", run: 1 }
+      - { greek: "116", english: "I follow, celebrating and glorifying", run: 1 }
+      - { greek: "123", english: "I honour queen Latona", run: 1 }
+    covered:
+      - { greek: "129", by: "123" }
   third:
     id: rogers
     name: "B. B. Rogers (Loeb, 1924)"
@@ -120,6 +147,16 @@ english:
       1079: "FIRST WOMAN. What shall we do with him?"
       1080: "CLEISTHENES. Surround him here, And watch him shrewdly that he 'scape you not. I'll go at once and summon the police. (Cleisthenes goes out.)"
       2170: "[94] 611 Sine me mingere.—Impudens es tu quidem : tu autem rem tuam age, ego hic opperiar . . . 615 Heus tu, diu mingis.—At enim stranguria laboro: heri edi medicinam. —Quid de medicina garris?"
+    # S16 drift (2026-09-26): Rogers leaves out 611-612 and 615-616 (the
+    # urination lines, given in Latin in note 94), and his neighbours slid
+    # into the empty rows. Held to their Greek: Διοίχομαι (609), Αὕτη σύ,
+    # ποῖ στρέφει; (610), Οὐ βαδιεῖ δεῦρ' ὡς ἐμέ; (617), Τί δῆτά μ' ἕλκεις
+    # ἀσθενοῦσαν; (618). The cut rows stay empty.
+    pins:
+      - { greek: "609", english: "Here he comes; I’m done for", run: 1 }
+      - { greek: "610", english: "Hey! where's she off to?", run: 1 }
+      - { greek: "617", english: "Come, come, no shuffling, madam", run: 1 }
+      - { greek: "618", english: "Don't pull me, sir, I'm poorly", run: 1 }
   # Measured 0.855 (432 of 505 Greek speaker events pair, sweep 2026-09-08):
   # the lowest of the eleven comedies and three lost pairs from the 0.85
   # default. 129 of its segments pack two or more speakers into one line, and
@@ -141,6 +178,7 @@ english:
     # ("Beware of blows!" / "Are you mocking me?") lands on BOTH the ref it
     # opens and the ref its own echo repeats -- no ref in this run is left
     # genuinely bare, so neither 1082 nor 1088/1089 is declared here.
+    - "1:1087"  # Σὺ λαλεῖς; Σὺ λαλεῖς;: the 1912 has no words for it (2026-09-26)
 
 citation:
   scheme: play-line
