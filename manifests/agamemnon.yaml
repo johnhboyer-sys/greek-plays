@@ -99,6 +99,35 @@ english:
     source: bench/kosmos/agamemnon.txt
     play: AGAMEMNON
     footnotes: false
+    # Drift sweep 4 (2026-09-26): the whole first stasimon (355-487) sat in
+    # the 351 row, and Clytemnestra's 489-500 (Kosmos gives it to her; the
+    # edition to the Chorus) was spread over 355-475. The pin seats "We shall
+    # soon know" on τάχ' εἰσόμεσθα (489); each cut opens a stanza on its Greek.
+    pins:
+      - { greek: "489", english: "We shall soon know about this passing on", run: 1 }
+    cuts:
+      - { greek: "355", english: "Hail, sovereign Zeus" }           # ὦ Ζεῦ βασιλεῦ
+      - { greek: "367", english: "“The stroke of Zeus" }            # Διὸς πλαγὰν
+      - { greek: "420", english: "Apparitions causing sorrow" }     # ὀνειρόφαντοι δὲ πειθήμονες
+      - { greek: "475", english: "– Heralded by a beacon" }         # πυρὸς δ' ὑπ' εὐαγγέλου
+      - { greek: "479", english: "—Who is so childish" }            # τίς ὧδε παιδνὸς
+      - { greek: "483", english: "—It is just like a woman" }       # γυναικὸς αἰχμᾷ πρέπει
+      # Drift sweep 4 (2026-09-26): the Chorus's votes after the murder
+      # (1346-1371) are one Kosmos turn parted by "–" dashes, and every vote
+      # sat one to three rows early (the tyranny, 1354-1355, at 1352). A cut
+      # at each dash seats each vote on its Greek, as the Smyth column has it.
+      - { greek: "1348", english: "– I tell you my advice" }        # ἐγὼ μὲν ὑμῖν τὴν ἐμὴν γνώμην
+      - { greek: "1350", english: "– To my thinking we must burst in" }  # ἐμοὶ δ' ὅπως τάχιστα
+      - { greek: "1352", english: "– I, too, am for taking part" }  # κἀγὼ τοιούτου γνώματος
+      - { greek: "1354", english: "– It is plain" }                 # ὁρᾶν πάρεστι
+      - { greek: "1356", english: "– Yes, because we are wasting time" }  # χρονίζομεν γάρ
+      - { greek: "1358", english: "– I know not what plan" }        # οὐκ οἶδα βουλῆς
+      - { greek: "1360", english: "– I too am of this mind" }       # κἀγὼ τοιοῦτός εἰμ'
+      - { greek: "1362", english: "– What?" }                       # ἦ καὶ βίον τείνοντες
+      - { greek: "1364", english: "– No, it is not to be endured" } # ἀλλ' οὐκ ἀνεκτόν
+      - { greek: "1366", english: "– And shall we, upon the evidence" }  # ἦ γὰρ τεκμηρίοισιν
+      - { greek: "1368", english: "– We should be sure of the facts" }  # σάφ' εἰδότας χρὴ
+      - { greek: "1370", english: "– I am supported on all sides" } # ταύτην ἐπαινεῖν πάντοθεν
     # Not public domain: the Sourcebook's own licence (owner ruling 2026-09-12).
     license:
       status: licensed

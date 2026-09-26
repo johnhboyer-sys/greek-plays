@@ -46,6 +46,19 @@ english:
     source: bench/way/electra-eur.txt
     play: ELECTRA
     footnotes: true
+    # Drift sweep 4 (2026-09-26): from 674 the prayer (674-684) sat two
+    # speeches to a row ("Grant for their father vengeance", 676, at 675;
+    # Electra's "Our sire hears all", 684, at 681). The pins seat each speech
+    # on its own Greek slot in printed order: 674 Ἥρα, 675 νίκην δὸς, 676
+    # δὸς δῆτα πατρὸς, 679 ἄμυν' ἄμυνε, 680 νῦν πάντα νεκρὸν, 681 οἵπερ γε
+    # σὺν σοὶ Φρύγας, 683 χὤσοι στυγοῦσιν, 682 ἤκουσας, 684 πάντ', οἶδ',
+    # ἀκούει. Way prints Electra's "O Earth" (678) before Orestes' "Father,
+    # by foul wrong" (677), so those two stand a row apart from their Greek,
+    # swapped; and his 684 runs on through 685-692 (Aegisthus must die),
+    # which the edition prints after 693, so that stays in the 684 row.
+    pins:
+      - { greek: "674", english: "Queen of Mycenae's altars, Hera, help!", run: 8 }
+      - { greek: "683", english: "Yea, all which hate defilers impious", run: 3 }
   third:
     id: johnston
     name: "Ian Johnston (VIU)"
@@ -80,6 +93,18 @@ english:
       # 966-984); this pin holds his Orestes turn to its own line.
       pins:
         - { greek: "967", english: "What would we with our mother? Didst thou say", run: 1 }
+        # Drift sweep 4 (2026-09-26): from 674 the prayer sat two speeches
+        # to a row ("Child, we stay too long", 684, at 683; "Aegisthus dies",
+        # 685, at 682). The pins seat each speech on its Greek slot in
+        # printed order (674 Ἥρα ... 681 οἵπερ γε σὺν σοὶ Φρύγας, then 683
+        # χὤσοι στυγοῦσιν, 682 ἤκουσας, 684 πάντ', οἶδ', ἀκούει, 693 πάντ',
+        # οἶδα "I know all, all"). Electra's "And while he hears" (685-692)
+        # joins the 693 row, where the edition prints 685-692 after 693.
+        # Murray prints "O Earth" (678) before "And deeper thou, O father"
+        # (677), so those two stand a row apart from their Greek, swapped.
+        - { greek: "674", english: "O Queen o'er Argive altars, Hera high", run: 8 }
+        - { greek: "683", english: "And hate earth's dark defilers", run: 3 }
+        - { greek: "693", english: "I know all, all", run: 1 }
   # gaps: Greek speeches with no English anchor of their own, no same-speaker
   # repair within 3 lines and no same-speaker covering block (residual after
   # P2d–P2g, sweep of 2026-09-08). Each is a real hole in the translator's
