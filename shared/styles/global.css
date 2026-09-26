@@ -3952,12 +3952,12 @@ body {
     padding-right: 0;
     margin-bottom: 0.3em;
   }
-  /* A turn with no name -- a continuation (no .speaker element at all) or
-     the "--" dash for an unattributed line -- has no name to put above the
-     text; the dash was only ever a gutter filler and would otherwise read
-     as a stray mark stacked on its own line (John, 2026-09-26). */
+  /* The "--" of a speaker change the translation leaves unnamed still marks
+     the change; with no name to stack above the text, it runs in before
+     the speech instead of standing on a line of its own. */
   .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker.speaker-dash:first-child {
-    display: none;
+    display: inline;
+    margin: 0 0.4em 0 0;
   }
   /* Plain English-only layout: with no lead-in run-in left to align past,
      the number+speaker gutters are gone and the speech starts at the
