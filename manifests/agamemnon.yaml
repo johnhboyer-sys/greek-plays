@@ -56,10 +56,22 @@ english:
     source: "perseus/tlg0085.tlg005.perseus-eng3.xml"
     anchor_model: sp-line
     footnotes: true
+    # Turn-starts triage (2026-09-26): 1662-1672. Smyth numbers Aegisthus's
+    # reply 1655 and every later line one or more low, so each speech sat
+    # one turn early. Each line is keyed to the Greek it renders.
+    line_fixes:
+      "1655": "1662"  # ἀλλὰ τούσδε μοι ματαίαν γλῶσσαν — But to think that these men
+      "1662": "1665"  # οὐκ ἂν Ἀργείων τόδ' εἴη — It would not be like men of Argos
+      "1665": "1666"  # ἀλλ' ἐγώ σ' ... μέτειμ' ἔτι — Ha! I will visit you with vengeance
+      "1666": "1667"  # οὔκ, ἐὰν δαίμων Ὀρέστην — Not if fate shall guide Orestes
+      "1667": "1668"  # φεύγοντας ἄνδρας ἐλπίδας — exiles feed on hope
+      "1668": "1669"  # πρᾶσσε, πιαίνου — Keep on, grow fat
+      "1669": "1670"  # δώσων ἄποινα — Know that you shall atone
+      "1670": "1671"  # κόμπασον θαρσῶν — Brag in your bravery
+      "1671": "1672"  # μὴ προτιμήσῃς — Do no care for their idle yelpings
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
-    covered:
-      - { greek: "1670", by: "1668" }
+    covered: []
   secondary:
     id: morshead
     text_fixes:

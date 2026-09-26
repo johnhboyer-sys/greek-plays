@@ -32,10 +32,15 @@ english:
     source: "perseus/tlg0006.tlg015.perseus-eng2.xml"
     anchor_model: sp-line
     footnotes: false
+    # Turn-starts triage (2026-09-26): Coleridge's 1740 renders 1740-1744 and
+    # folds Oedipus's 1740 into Antigone's speech; seat it with her 1741.
+    line_fixes:
+      "1740": "1741"  # ἐς πατρός γε συμφορὰς εὐκλεᾶ — will make me famous
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
       - { greek: "1336", by: "1337" }
+      - { greek: "1740", by: "1741" }
   secondary:
     id: way
     text_fixes:
