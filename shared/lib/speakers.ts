@@ -1128,102 +1128,42 @@ function isLeadInVowel(ch: string): boolean {
 }
 
 // How many characters of `word` an abbreviation keeps, before the period:
-// the first consonant, at or past the 4th LETTER, that a vowel immediately
-// follows (skipping over any punctuation in between, e.g. a hyphen) --
-// Agamemnon cuts after the "m" of "Agam" because "e" follows it. A
-// hyphenated word is one string here, cut wherever the rule lands, never
-// split at the hyphen. With no such consonant, the first four letters (or
-// the whole word, if it has fewer) stand.
+// the usual editor's cut, after the first consonant group that follows a
+// vowel, once at least three letters stand (Agam., Cass., Clyt., Heph.,
+// Theokl., Watch., Mag., Att.). Punctuation inside the word (a hyphen)
+// counts as neither vowel nor consonant. With no such cut, the whole word.
 function abbreviationCutLength(word: string): number {
-  let letterCount = 0;
+  let letters = 0;
+  let seenVowel = false;
   for (let i = 0; i < word.length; i++) {
     if (!isLeadInLetter(word[i])) continue;
-    letterCount += 1;
-    if (letterCount < 4 || isLeadInVowel(word[i])) continue;
+    letters += 1;
+    if (isLeadInVowel(word[i])) { seenVowel = true; continue; }
+    if (!seenVowel || letters < 3) continue;
+    // A consonant after a vowel: the cut falls after its whole group.
     let j = i + 1;
-    while (j < word.length && !isLeadInLetter(word[j])) j += 1;
-    if (j < word.length && isLeadInVowel(word[j])) return i + 1;
-  }
-  let count = 0;
-  for (let i = 0; i < word.length; i++) {
-    if (!isLeadInLetter(word[i])) continue;
-    count += 1;
-    if (count === 4) return i + 1;
+    while (j < word.length && isLeadInLetter(word[j]) && !isLeadInVowel(word[j])) j += 1;
+    if (j < word.length && isLeadInLetter(word[j])) return j;
+    return word.length;
   }
   return word.length;
 }
 
 /** Abbreviate one lead-in WORD for the phone gutter: Agamemnon -> Agam.,
- * Cassandra -> Cass., Clytaemnestra -> Clyt., Theoklymenos -> Theokl. See
- * `abbreviationCutLength` for the cut rule. Two different words can cut to
- * the same abbreviation (Clytemnestra and Clytaemnestra both -> "Clyt.");
- * this function does not resolve that -- `resolveLeadInAbbreviations` does,
- * for one translation column's set of words at once. */
+ * Cassandra -> Cass., Clytaemnestra -> Clyt., Watchman -> Watch. See
+ * `abbreviationCutLength` for the cut. A word with no cut stays whole. */
 export function abbreviateLeadInWord(word: string): string {
-  return `${word.slice(0, abbreviationCutLength(word))}.`;
+  const cut = abbreviationCutLength(word);
+  return cut >= word.length ? word : `${word.slice(0, cut)}.`;
 }
 
-/** Abbreviate one translation column's whole set of overflowing lead-in
- * words, so no two DIFFERENT words share a result where that can be
- * helped (John, 2026-09-26: two spellings of the same queen, Clytemnestra
- * and Clytaemnestra, both cut to "Clyt." by the rule above -- acceptable
- * only once they are told apart). Scoped to ONE column: Reader.svelte calls
- * this once per translation actually on screen, over that column's own
- * lead-in words only, so a name spelled differently by another translator
- * never pulls on this column's abbreviations (each column is measured and
- * resolved independently, even when several show at once in compare mode).
- *
- * A colliding group is grown one letter past its cut, together, pass by
- * pass, until every member reads differently -- but the group is NEVER
- * grown as far as reaching a member's own full length: a word that is a
- * strict prefix of another in the same column (Attendant/Attendants,
- * Handmaiden/Handmaidens, Ambassador/Ambassadors) can only ever separate
- * from it there, one word fully spelled out and the other one letter
- * behind, which overhangs almost exactly as much as not abbreviating at
- * all (John's ruling: never as far as the full word). As soon as growing
- * further would require ANY member to reach that length, the WHOLE group
- * stops together and shares the shorter abbreviation it already has
- * (speaker colour and the full name in title/aria-label still tell the
- * speakers apart) -- rather than let the other members keep growing past
- * that point into something that LOOKS like the stuck word's full name
- * (Attendants -> "Attendant.", indistinguishable at a glance from the
- * singular Attendant). Every pair that was going to separate anyway
- * (different spellings of one name, say) does so well before either one
- * nears its own length, so this only changes the strict-prefix case. This
- * compares strings only, never who the words name. */
+/** One translation column's overflowing lead-in words, abbreviated. Two
+ * words that cut alike share the form (Attendant and Attendants -> Att.):
+ * the speaker colour and the full name in title/aria-label tell them apart
+ * (John, 2026-09-26). Reader.svelte calls this per column, so another
+ * translator's spelling never pulls on this one's. */
 export function resolveLeadInAbbreviations(words: Iterable<string>): Map<string, string> {
-  const list = [...new Set(words)];
-  const cutLen = new Map<string, number>(list.map((w) => [w, abbreviationCutLength(w)]));
-  const abbrevOf = (w: string) => `${w.slice(0, cutLen.get(w)!)}.`;
-  const maxLen = list.reduce((m, w) => Math.max(m, w.length), 0);
-  // Groups that gave up (see below) are left alone on every later pass --
-  // once stuck, always stuck, sharing whatever they last agreed on.
-  const stuck = new Set<string>();
-  for (let pass = 0; pass <= maxLen; pass++) {
-    const groups = new Map<string, string[]>();
-    for (const w of list) {
-      const a = abbrevOf(w);
-      const g = groups.get(a);
-      if (g) g.push(w); else groups.set(a, [w]);
-    }
-    let grew = false;
-    for (const group of groups.values()) {
-      if (group.length < 2 || group.some((w) => stuck.has(w))) continue;
-      // Growing this group one more letter would take some member to its
-      // own full length (cutLen === w.length - 1 is the last letter short
-      // of it) -- never do that. The group gives up TOGETHER, right here,
-      // rather than let an unstuck member keep growing alone into a form
-      // that reads as the stuck member's whole name.
-      if (group.some((w) => cutLen.get(w)! >= w.length - 1)) {
-        for (const w of group) stuck.add(w);
-        continue;
-      }
-      for (const w of group) cutLen.set(w, cutLen.get(w)! + 1);
-      grew = true;
-    }
-    if (!grew) break;
-  }
-  return new Map(list.map((w) => [w, abbrevOf(w)]));
+  return new Map([...new Set(words)].map((w) => [w, abbreviateLeadInWord(w)]));
 }
 
 /** The Greek speaker gutter's width for a play, from its longest siglum
