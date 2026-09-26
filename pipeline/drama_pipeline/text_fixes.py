@@ -12,7 +12,15 @@ def apply_text_fixes(english: dict, footnotes: dict, fixes: list | None,
     def strings(value):
         if isinstance(value, dict):
             for key, item in value.items():
-                if key == "text" and isinstance(item, str):
+                # `display` is a turn's own printed cue (e.g. the raw
+                # "CLYTAEMNESTR" line Johnston's scan prints) -- reader-facing
+                # printed text exactly like `text`, so a manifest fix reaches
+                # a truncated or misspelled cue the same way it reaches a
+                # typo in the speech itself. It carries no offset (turns,
+                # notes, markers, and bekker ticks are keyed off `text`'s own
+                # offsets, never a turn's `display`), so no offset bookkeeping
+                # applies when this branch fires.
+                if key in ("text", "display") and isinstance(item, str):
                     yield value, key
                 elif key in ("directions", "directionsBefore") and isinstance(item, list):
                     for index, direction in enumerate(item):
@@ -29,18 +37,30 @@ def apply_text_fixes(english: dict, footnotes: dict, fixes: list | None,
     targets = list(strings(english))
     targets += [(footnotes, key) for key, value in footnotes.items()
                 if isinstance(value, str)]
+    def hits_in(obj, key, find):
+        # `display` is a whole discrete cue value, not running prose: a
+        # truncated cue (Johnston's "CLYTAEMNESTR") is a literal PREFIX of
+        # the correctly spelled one printed everywhere else
+        # ("CLYTAEMNESTRA"), so substring counting would also count every
+        # correct occurrence as a hit. Exact-value match instead, same as
+        # picking out one specific speaker's cue rather than a run of text.
+        if key == "display":
+            return 1 if obj[key] == find else 0
+        return obj[key].count(find)
+
     for fix in fixes:
         find, replace = fix["find"], fix["replace"]
         if not find or find == replace:
             raise ValueError(f"{manifest}: english.{slot} text_fixes invalid find {find!r}")
-        hits = sum(obj[key].count(find) for obj, key in targets)
+        hits = sum(hits_in(obj, key, find) for obj, key in targets)
         if hits != 1:
             raise ValueError(
                 f"{manifest}: english.{slot} text_fixes find {find!r} "
                 f"occurred {hits} times (expected once)"
             )
         for obj, key in targets:
-            if find in obj[key]:
+            matched = (obj[key] == find) if key == "display" else (find in obj[key])
+            if matched:
                 old = obj[key]
                 start = old.index(find)
                 # The context in `find` is unchanged on either side of the

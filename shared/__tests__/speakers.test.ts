@@ -1180,15 +1180,30 @@ describe('resolveLeadInAbbreviations', () => {
     expect(m.get('Agamemnon')).toBe('Agam.');
     expect(m.get('Cassandra')).toBe('Cass.');
   });
-  it('extends colliding abbreviations letter by letter until they differ', () => {
-    // Both cut to "Clyt." on their own -- the two spellings of the same
-    // queen, in different columns, must still read apart.
+  it('extends colliding abbreviations letter by letter until they differ (a separable pair)', () => {
+    // Both cut to "Clyt." on their own -- two spellings of the same queen
+    // (in different columns in practice, but the function itself only sees
+    // a set of words) -- and they diverge well short of either one's own
+    // full length, so they separate cleanly.
     const m = resolveLeadInAbbreviations(['Clytemnestra', 'Clytaemnestra']);
     expect(abbreviateLeadInWord('Clytemnestra')).toBe('Clyt.');
     expect(abbreviateLeadInWord('Clytaemnestra')).toBe('Clyt.');
     expect(m.get('Clytemnestra')).not.toBe(m.get('Clytaemnestra'));
     expect(m.get('Clytemnestra')).toBe('Clyte.');
     expect(m.get('Clytaemnestra')).toBe('Clyta.');
+  });
+  it('shares the shorter abbreviation for a strict-prefix pair, never growing to a full word', () => {
+    // "Attendant" is a strict prefix of "Attendants" -- they can only ever
+    // separate at Attendant's own full length (Attendants -> "Attendant.",
+    // literally the singular's whole name), so both give up together and
+    // print the same shorter abbreviation instead of overhanging as before.
+    const base = abbreviateLeadInWord('Attendant');
+    expect(abbreviateLeadInWord('Attendants')).toBe(base);
+    const m = resolveLeadInAbbreviations(['Attendant', 'Attendants']);
+    expect(m.get('Attendant')).toBe(m.get('Attendants'));
+    // Never the full, unabbreviated word -- shorter than the word itself.
+    expect(m.get('Attendant')!.length).toBeLessThan('Attendant.'.length);
+    expect(m.get('Attendants')!.length).toBeLessThan('Attendants.'.length);
   });
 });
 

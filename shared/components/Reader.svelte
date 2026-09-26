@@ -887,7 +887,7 @@
   }
 
   // ── Phone lead-in abbreviation (John, 2026-09-26: "On mobile, abbreviate
-  // long names") ────────────────────────────────────────────────────────
+  // long names"; per-column scoping, 2026-09-26 follow-up) ─────────────────
   // The phone play-line gutter is a FIXED box (global.css, --pl-spk-w: 6rem
   // under the 680px media query) -- unlike englishGutterWidth above, it
   // never grows per play, so a word wider than the box used to run into the
@@ -895,16 +895,58 @@
   // letter count: a hidden clone of the actual `.speaker` label, inside the
   // real reader body so it inherits the live CSS (font, --pl-spk-w-play,
   // theme), tells us the box's real width and each word's real width.
-  // `wideWords` is the set that needs abbreviating; `abbrevMap` (speakers.ts
-  // resolveLeadInAbbreviations) gives each of them a form no other lead-in
-  // word in the book collides with. Desktop is never gated into this (the
-  // gutter there is sized to fit, playEnglishGutterWidth above).
-  let wideWords = new Set<string>();
-  let abbrevMap = new Map<string, string>();
+  //
+  // Scoped PER TRANSLATION COLUMN, never pooled across the whole book: two
+  // spellings of the same queen (Smyth's Clytaemestra, Johnston's
+  // Clytaemnestra) are printed by DIFFERENT columns and never appear
+  // together on one label, so they must not be made to collide with each
+  // other -- each column's overflowing words are measured and resolved
+  // (speakers.ts resolveLeadInAbbreviations) on their own, keyed by
+  // translation id, so a compare-mode pair on screen at once still gets two
+  // independent maps. `wideWords`/`abbrevMap` are empty (not merely absent)
+  // for a column with nothing to abbreviate. Desktop is never gated into
+  // this (the gutter there is sized to fit, playEnglishGutterWidth above).
+  let wideWords = new Map<string, Set<string>>();
+  let abbrevMap = new Map<string, Map<string, string>>();
+  const EMPTY_LEAD_WORDS = new Set<string>();
+  const EMPTY_LEAD_MAP = new Map<string, string>();
 
-  function bookLeadInWords(): string[] {
+  // One column's own lead-in NAMES (before splitting into words): the
+  // primary `english` slot also seeds the book roster, the same fallback
+  // `leadNamesInBook` above draws on for its (whole-book, desktop-only)
+  // gutter-width measurement -- every other column's pool is exactly what
+  // THAT column prints, nothing pooled in from elsewhere.
+  function leadNamesInColumn(transId: string): string[] {
+    const t = transById(transId);
+    const isPrimary = transId === engSlot?.id;
+    const roster = bookSpeakerRoster.length ? bookSpeakerRoster : (speakerRoster ?? []);
+    const names = new Set<string>(isPrimary ? roster : []);
+    for (const seg of segments) {
+      const pieces: { text?: string; turns?: EnglishTurn[] }[] = isPrimary
+        ? (seg.english ? [seg.english] : [])
+        : piecesFor(seg, t);
+      if (!pieces.length) continue;
+      const fallbackTurns = seg.english?.turns?.length
+        ? seg.english.turns
+        : (seg.speakers ?? []).map((event) => ({ offset: 0, speaker: event.display ?? null, display: event.display ?? null }));
+      for (const p of pieces) {
+        if (!p.text?.trim()) continue;
+        // A piece without its own turns carries its cues in the text. The
+        // book-wide roster still drives CUE RECOGNITION here (an overlay's
+        // "CHORUS." is only a cue if some known name matches it) -- only the
+        // WORD POOL below is scoped to this column.
+        const source = p.turns?.length
+          ? { text: p.text, turns: p.turns }
+          : extractPrefixedEnglishTurns(p.text, roster, fallbackTurns);
+        for (const b of buildEnglishTurnBlocks(source.text, source.turns)) if (b.display) names.add(leadName(b.display));
+      }
+    }
+    return [...names];
+  }
+
+  function bookLeadInWordsForColumn(transId: string): string[] {
     const words = new Set<string>();
-    for (const n of leadNamesInBook(segments, bookSpeakerRoster, speakerRoster)) {
+    for (const n of leadNamesInColumn(transId)) {
       for (const w of leadInCase(leadName(n)).split(/\s+/)) if (w) words.add(w);
     }
     return [...words];
@@ -912,12 +954,14 @@
 
   function measurePhoneAbbreviations() {
     if (!playLine || !phoneLayout || !readerBodyEl || typeof document === 'undefined') {
-      wideWords = new Set();
+      wideWords = new Map();
       abbrevMap = new Map();
       return;
     }
-    const words = bookLeadInWords();
-    if (!words.length) { wideWords = new Set(); abbrevMap = new Map(); return; }
+    const perColumn = translations
+      .map((t) => ({ id: t.id, words: bookLeadInWordsForColumn(t.id) }))
+      .filter((c) => c.words.length);
+    if (!perColumn.length) { wideWords = new Map(); abbrevMap = new Map(); return; }
     // A detached-looking but still-mounted-under-readerBodyEl clone, so it
     // inherits every ancestor class (.reader-body.play-line…) and CSS custom
     // property the real labels do, without affecting layout or being seen.
@@ -956,28 +1000,37 @@
     holder.appendChild(para);
     readerBodyEl.appendChild(holder);
     const boxWidth = boxSpan.getBoundingClientRect().width;
-    const wide = new Set<string>();
-    for (const w of words) {
-      wordSpan.textContent = w;
-      if (wordSpan.getBoundingClientRect().width > boxWidth) wide.add(w);
+    const newWide = new Map<string, Set<string>>();
+    const newAbbrev = new Map<string, Map<string, string>>();
+    for (const { id, words } of perColumn) {
+      const wide = new Set<string>();
+      for (const w of words) {
+        wordSpan.textContent = w;
+        if (wordSpan.getBoundingClientRect().width > boxWidth) wide.add(w);
+      }
+      if (wide.size) {
+        newWide.set(id, wide);
+        newAbbrev.set(id, resolveLeadInAbbreviations(wide));
+      }
     }
     readerBodyEl.removeChild(holder);
-    wideWords = wide;
-    abbrevMap = wide.size ? resolveLeadInAbbreviations(wide) : new Map();
+    wideWords = newWide;
+    abbrevMap = newAbbrev;
   }
 
   // The full lead-in stays available: an abbreviated word's rendered form,
   // and whether any word in `display` was actually shortened (drives the
   // title/aria-label so a screen reader still reads the full name).
   //
-  // `phone`/`map` are `phoneLayout`/`abbrevMap` (and `set`/`wideWords`
-  // below), passed in explicitly rather than closed over: they are named
-  // directly in the template's call site, not just inside this function
-  // body, so Svelte's reactivity actually reruns the label when they change
-  // (a call site that only names `b.display` does not pick up a change to
-  // state its callee merely reads -- measurePhoneAbbreviations updating
-  // `abbrevMap` after mount silently left stale, un-abbreviated labels on
-  // screen until this was made explicit, John's ruling notwithstanding).
+  // `phone`/`map` are `phoneLayout`/this COLUMN's own slice of `abbrevMap`
+  // (and `set`/the matching slice of `wideWords` below), passed in
+  // explicitly rather than closed over: they are named directly in the
+  // template's call site, not just inside this function body, so Svelte's
+  // reactivity actually reruns the label when they change (a call site that
+  // only names `b.display` does not pick up a change to state its callee
+  // merely reads -- measurePhoneAbbreviations updating `abbrevMap` after
+  // mount silently left stale, un-abbreviated labels on screen until this
+  // was made explicit, John's ruling notwithstanding).
   function renderedLeadIn(display: string, phone: boolean, map: Map<string, string>): string {
     const cased = leadInCase(leadName(display));
     if (!phone || !map.size) return cased;
@@ -4282,8 +4335,10 @@
              (splitAtDirections: compare mode, or a speech sharing its row). -->
         {#if b.directionsBefore}{#each b.directionsBefore as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
         {@const fullLead = b.display ? leadInCase(leadName(b.display)) : ''}
-        {@const abbreviated = b.display ? leadInAbbreviated(b.display, phoneLayout, wideWords) : false}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : (abbreviated ? fullLead : undefined)} aria-label={abbreviated ? fullLead : undefined}>{(b as AddedBlock).cueAdded ? `[${renderedLeadIn(b.display, phoneLayout, abbrevMap)}]` : renderedLeadIn(b.display, phoneLayout, abbrevMap)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
+        {@const columnWideWords = wideWords.get(transId) ?? EMPTY_LEAD_WORDS}
+        {@const columnAbbrevMap = abbrevMap.get(transId) ?? EMPTY_LEAD_MAP}
+        {@const abbreviated = b.display ? leadInAbbreviated(b.display, phoneLayout, columnWideWords) : false}
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : (abbreviated ? fullLead : undefined)} aria-label={abbreviated ? fullLead : undefined}>{(b as AddedBlock).cueAdded ? `[${renderedLeadIn(b.display, phoneLayout, columnAbbrevMap)}]` : renderedLeadIn(b.display, phoneLayout, columnAbbrevMap)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
       {/each}
     </div>
   {/snippet}
