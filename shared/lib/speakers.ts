@@ -1071,9 +1071,11 @@ export function playRepeatedRefs(
 }
 
 /** The English speaker gutter's width for a play: never narrower than the
- * gutter main sizes for the longest WHOLE name (SAUSAGE-SELLER overhung the
+ * gutter main sizes for the longest WHOLE name of 16 characters or fewer
+ * (SAUSAGE-SELLER overhung the
  * 7.5rem default into the text; John, 2026-09-09), and never narrower than
- * the longest WORD any column prints as a lead-in (John, 2026-09-22:
+ * the longest WORD in any lead-in, even a name longer than 16 characters
+ * (John, 2026-09-22:
  * Johnston's CLYTAEMNESTRA split "CLYTAEMNEST / RA" in a gutter sized only
  * for the roster's Clytaemestra). Sizing by the word alone (2026-09-22)
  * narrowed Helen's gutter (8.28rem on main -> 7.72rem) because its longest
@@ -1090,11 +1092,9 @@ export function playEnglishGutterWidth(names: Iterable<string>): string {
   // A joint or descriptive name ("Sausage-seller and Paphlagonian", "Ghost
   // of Clytaemestra") must not widen the gutter for the whole play: past 16
   // characters a lead-in takes its own line above the text instead
-  // (Reader.svelte longLabel / .spk-long). The skip covers both floors --
-  // main never counted such a name's whole length either.
+  // (Reader.svelte longLabel / .spk-long). Count its words for the word floor.
   for (const n of names) {
-    if (n.length > 16) continue;
-    longest = Math.max(longest, n.length); // main's whole-name floor
+    if (n.length <= 16) longest = Math.max(longest, n.length); // main's whole-name floor
     for (const w of n.split(/\s+/)) longest = Math.max(longest, w.length); // longest word
   }
   return `${Math.max(7.5, longest * 0.56 + 1.0).toFixed(2)}rem`;

@@ -1457,6 +1457,8 @@
 
   let _onToggleSettings: () => void;
   let _onCloseSettings: () => void;
+  let _phoneMq: MediaQueryList;
+  let _onPhoneMqChange: (e: MediaQueryListEvent) => void;
 
   onDestroy(() => {
     spyObserver?.disconnect();
@@ -1468,6 +1470,7 @@
       window.removeEventListener('hashchange', onHashChange);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
+      if (_phoneMq && _onPhoneMqChange) _phoneMq.removeEventListener?.('change', _onPhoneMqChange);
       document.removeEventListener('mouseup', checkCopyBtn);
       document.removeEventListener('selectionchange', onSelectionChange);
       if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
@@ -3261,9 +3264,10 @@
 
   onMount(async () => {
     reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const phoneMq = window.matchMedia('(max-width: 680px)');
-    phoneLayout = phoneMq.matches;
-    phoneMq.addEventListener?.('change', (e) => { phoneLayout = e.matches; measurePhoneAbbreviations(); });
+    _phoneMq = window.matchMedia('(max-width: 680px)');
+    phoneLayout = _phoneMq.matches;
+    _onPhoneMqChange = (e) => { phoneLayout = e.matches; measurePhoneAbbreviations(); };
+    _phoneMq.addEventListener?.('change', _onPhoneMqChange);
     // Recompute once now (segments are usually already here, from the
     // build-time prop) and again once the lead-in font has actually
     // loaded -- a measurement against the fallback font's metrics would
@@ -4338,7 +4342,7 @@
         {@const columnWideWords = wideWords.get(transId) ?? EMPTY_LEAD_WORDS}
         {@const columnAbbrevMap = abbrevMap.get(transId) ?? EMPTY_LEAD_MAP}
         {@const abbreviated = b.display ? leadInAbbreviated(b.display, phoneLayout, columnWideWords) : false}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : (abbreviated ? fullLead : undefined)} aria-label={abbreviated ? fullLead : undefined}>{(b as AddedBlock).cueAdded ? `[${renderedLeadIn(b.display, phoneLayout, columnAbbrevMap)}]` : renderedLeadIn(b.display, phoneLayout, columnAbbrevMap)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `${abbreviated ? `${fullLead} — ` : ''}This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : (abbreviated ? fullLead : undefined)} aria-label={abbreviated ? fullLead : undefined}>{(b as AddedBlock).cueAdded ? `[${renderedLeadIn(b.display, phoneLayout, columnAbbrevMap)}]` : renderedLeadIn(b.display, phoneLayout, columnAbbrevMap)}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
       {/each}
     </div>
   {/snippet}
