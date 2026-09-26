@@ -85,6 +85,20 @@ english:
     source: "gutenberg/pg7700.txt"
     play: LYSISTRATA
     footnotes: false
+    # S16 drift (2026-09-26): 207-220 sat one to five rows late (207 bare).
+    # Lindsay swaps the speakers of 207-208, and his rhymed oath leaves out
+    # 221-224 (ὅπως ἂν ἁνὴρ ἐπιτυφῇ, κοὐδέποθ' ἑκοῦσα), so those rows stay
+    # empty. Held to their Greek: Ἐᾶτε πρώτην μ' (207), Μὰ τὴν Ἀφροδίτην
+    # οὔκ (208; his "grasp the brim" and first oath line follow in that
+    # row, 209-212), Calonice's echo οὔτε μοιχὸς οὔτ' ἀνήρ (213) and the
+    # pairs after it through κροκωτοφοροῦσα (220), ἐὰν δέ μ' ἄκουσαν
+    # βιάζηται (225). The quotes run into the next turn where Calonice
+    # repeats Lysistrata's words.
+    pins:
+      - { greek: "207", english: "Now, dears, if you will let me, I'll speak first.", run: 1 }
+      - { greek: "208", english: "Only if you draw the lot, by Aphrodite!", run: 1 }
+      - { greek: "213", english: "To husband or lover I'll not open arms Though love and denial", run: 7 }
+      - { greek: "225", english: "If then he seizes me by dint of force, If then he seizes", run: 1 }
   third:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -108,6 +122,15 @@ english:
     min_pairing_rate: 0.789
     max_turn_shift_rate: 0.135
     # (rate measured 0.7896; floor set just under it)
+    # S16 drift (2026-09-26): 69-77 sat one row early (Myrrhina's girdle,
+    # 72, at 69). Held to their Greek as the primary is: Ἀναγυρουντόθεν
+    # (67), Μῶν ὕστεραι πάρεσμεν (69), Μόλις γὰρ ηὗρον ἐν σκότῳ τὸ ζώνιον
+    # (72), Μὰ Δί' ἀλλ' ἐπαναμείνωμεν (74).
+    pins:
+      - { greek: "67", english: "From Anagyrus.", run: 2 }
+      - { greek: "69", english: "Surely we have not come too late, Lysistrata?", run: 2 }
+      - { greek: "72", english: "I had great difficulty in finding my girdle", run: 1 }
+      - { greek: "74", english: "No, by Jove; but let us wait", run: 2 }
   overlays:
     - id: rogers
       name: "B. B. Rogers (Loeb, 1924)"
@@ -117,6 +140,15 @@ english:
       source: "bench/rogers/lysistrata.txt"
       play: "THE LYSISTRATA"
       footnotes: true
+      # S16 drift (2026-09-26): 69-77 sat one row early, as in Hickie; the
+      # same four anchors (67, 69, 72 ζώνιον, 74). Left as printed: Rogers
+      # gives the prayer Ὦ πότνια, Κύπρου (833-834) to the First Woman, in
+      # one speech with her Ποῦ δ' ἐστίν (835), so it opens the 835 row.
+      pins:
+        - { greek: "67", english: "From Anagyre.", run: 2 }
+        - { greek: "69", english: "Are we too late, Lysistrata ?", run: 2 }
+        - { greek: "72", english: "I scarce could find my girdle in the dark.", run: 1 }
+        - { greek: "74", english: "No, no, let's wait a little", run: 2 }
     - id: johnston
       text_fixes:
         - find: "fication of the the goddess Rec"
@@ -129,6 +161,13 @@ english:
       source: bench/johnston/lysistrata.txt
       play: LYSISTRATA
       footnotes: false
+      # S16 drift (2026-09-26): 69-77 sat one row early, as in Hickie and
+      # Rogers; the same four anchors (67, 69, 72 ἐν σκότῳ, 74).
+      pins:
+        - { greek: "67", english: "Those? From Anagyrus.", run: 2 }
+        - { greek: "69", english: "Hey, Lysistrata, did we get here late?", run: 2 }
+        - { greek: "72", english: "It was dark. I had trouble tracking down", run: 1 }
+        - { greek: "74", english: "No, let’s wait a while until the women", run: 2 }
       # Not public domain: Johnston's own free-use terms (owner ruling 2026-09-12).
       license:
         status: licensed

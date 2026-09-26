@@ -31,6 +31,22 @@ english:
       - { greek: "896", english: "Can you smell anything, rascal", run: 1 }
       - { greek: "926", english: "Come, quick, off with your cloak", run: 1 }
       - { greek: "955", english: "Ah! the bath-man would grip you by the testicles", run: 1 }
+      # S16 drift (2026-09-26): in the list of trades (160-174) the 1912
+      # swaps the two speakers, leaves out 165 (λωποδυτεῖ, τοιχωρυχεῖ: gap
+      # below), and each line sat one row off. Held to the rows of their
+      # Greek (the unpinned lines park beside them): ὁ δὲ τεκταίνεται and
+      # χρυσοχοεῖ (163-164, in 160), κναφεύει (166), βυρσοδεψεῖ (167), ὁ δ'
+      # ἁλοὺς γε μοιχὸς (168), Ἐκκλησία (171, in 170), τὰς τριήρεις (172),
+      # τὸ δ' ἐν Κορίνθῳ ξενικὸν (173). Left one share late: "That t'other
+      # washes wool" (166b πλύνει κῴδια) opens the 167 row, since with the
+      # speakers swapped no pin can seat both halves of 166 in order.
+      - { greek: "160", english: "That yet another chases the gold", run: 1 }
+      - { greek: "166", english: "That one is a fuller.", run: 1 }
+      - { greek: "167", english: "That this one is a tanner.", run: 1 }
+      - { greek: "168", english: "And if the adulterer, caught red-handed", run: 1 }
+      - { greek: "170", english: "Is it not he who draws the citizens to the Assembly?", run: 1 }
+      - { greek: "172", english: "And tell me, is it not you who equip the triremes?", run: 1 }
+      - { greek: "173", english: "And who feed our mercenaries at Corinth?", run: 1 }
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -50,6 +66,13 @@ english:
     # purpose, same as Rogers's own floor elsewhere: the gap is on record
     # here, and a regression that loses more pairs still fails the build.
     min_pairing_rate: 0.81
+    # S16 drift (2026-09-26): Cario's one speech for 170-180 was cut a
+    # sentence early from 175 (Agyrrhius at 175). Each cut opens its row
+    # at its Greek: Ὁ βελονοπώλης (175), Ἀγύρριος (176), Φιλέψιος (177).
+    cuts:
+      - { greek: "175", english: "And will not the “Needle-seller”" }
+      - { greek: "176", english: "And does not Agyrrhius" }
+      - { greek: "177", english: "And [to Plutus] does not Philepsius" }
   third:
     id: rogers
     text_fixes:
@@ -63,10 +86,31 @@ english:
     source: "bench/rogers/wealth.txt"
     play: "THE PLUTUS"
     footnotes: true
+    # S16 drift (2026-09-26): Rogers's source text jumps from 822 to 844, so
+    # 844-847 slid up to 823-827. Held to their Greek: Καὶ τοῦτ' ἀναθήσων
+    # (844), Μῶν οὖν ἐμυήθης (845), ἐνερρίγωσ' ἔτη τριακαίδεκα (846), Τὰ δ'
+    # ἐμβάδια (847). The missing 823-843 is a source gap, left empty.
+    pins:
+      - { greek: "844", english: "This too I bring, an offering to the God.", run: 1 }
+      - { greek: "845", english: "That’s not the robe you were initiate in?", run: 1 }
+      - { greek: "846", english: "No, but I shivered thirteen years therein.", run: 1 }
+      - { greek: "847", english: "Those shoes?", run: 1 }
+      # S16 drift (2026-09-26): Chremylus's 170-174 block sat at 175 and
+      # Cario's 175-176 at 176. Held to Μέγας δὲ βασιλεὺς (170) and Ὁ
+      # βελονοπώλης (175), with cuts at τὰς τριήρεις (172) and Κορίνθῳ
+      # (173). Cario's couplet runs on to Ἀγύρριος (176).
+      - { greek: "170", english: "Aye, ’tis on him the Great King", run: 1 }
+      - { greek: "175", english: "Won't Pamphilus and the needle-seller", run: 1 }
+    cuts:
+      - { greek: "172", english: "Dost thou not man our triremes?" }
+      - { greek: "173", english: "Does he not feed the foreign troop" }
+    covered:
+      - { greek: "176", by: "175" }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
-  gaps: []
+  gaps:
+    - "1:165"  # ὁ δὲ λωποδυτεῖ ... ὁ δὲ τοιχωρυχεῖ: the 1912 has no words for it (2026-09-26)
 
 citation:
   scheme: play-line

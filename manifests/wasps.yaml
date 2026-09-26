@@ -42,9 +42,19 @@ english:
       - { greek: "822", by: "821" }
       - { greek: "834", by: "832" }
       - { greek: "152", by: "146" }
+      # S16 drift (2026-09-26): the riddle speech (20) runs on through 21-23.
+      - { greek: "21", by: "20" }
       - { greek: "1153", by: "1152" }
     pins:
-      - { greek: "9", english: "No! 'Tis Bacchus who lulls me off.", run: 30 }
+      # S16 drift (2026-09-26): run 30 (capped at 8) held 20-38 one speech
+      # early, because the 1912's riddle speech (20) also renders 21-23 (πῶς
+      # δή; ... τὴν ἀσπίδα). The run now stops at 20; from 24 on each speech
+      # is held to its Greek: οἴμοι, τί δῆτά μοι κακὸν (24), μὴ φροντίσῃς
+      # (25), δεινόν γέ πού 'στ' (27), ἀλλ' ἔστιν μέγα (28), λέγε νυν ἁνύσας
+      # (30), ἔδοξέ μοι περὶ πρῶτον ὕπνον (31), αἰβοῖ. τί ἐστι; παῦε (37).
+      - { greek: "9", english: "No! 'Tis Bacchus who lulls me off.", run: 5 }
+      - { greek: "24", english: "Alas! what ill does such a dream portend for me?", run: 8 }
+      - { greek: "37", english: "Enough, enough, spare me.", run: 1 }  # παῦε παῦε, μὴ λέγε
       - { greek: "156", english: "What are you dong, you wretches?", run: 13 }
       - { greek: "204", english: "Perhaps a rat loosened it.", run: 3 }
       - { greek: "314", english: "Oh! my little wallet! you seem like", run: 1 }
@@ -52,7 +62,16 @@ english:
       - { greek: "458", english: "You will not go? The plague seize", run: 1 }
       - { greek: "524", english: "As for you, tell me whether you", run: 2 }
       - { greek: "823", english: "That is why, hero though he be,", run: 6 }
-      - { greek: "936", english: "(Thesmothetes) Take it yourself. I go to call", run: 35 }
+      # S16 drift (2026-09-26): run 35 (capped at 8) held 944-955 one speech
+      # late, because the 1912 gives ἀνάβαιν', ἀπολογοῦ (944, the end of
+      # Bdelycleon's 942-944) a speech of its own. The run now stops at 941;
+      # "Come forward and defend yourself" joins 942, and from 945 each
+      # speech is held to its Greek: ἀλλ' οὐκ ἔχειν οὗτός γ' (945), οὔκ,
+      # ἀλλ' ἐκεῖνό ... Θουκυδίδης (946), κλέπτης μὲν οὖν (953), μὰ Δί',
+      # ἀλλ' ἄριστός (954), τί οὖν ὄφελος (956).
+      - { greek: "936", english: "(Thesmothetes) Take it yourself. I go to call", run: 2 }
+      - { greek: "942", english: "Come forward and defend yourself.", run: 1 }
+      - { greek: "945", english: "No doubt he has nothing to say.", run: 5 }
       - { greek: "1154", english: "Come! I will put it round you.", run: 54 }
       - { greek: "78", english: "Not at all! The love of wine is the complaint of good men.", run: 1 }
       - { greek: "81", english: "Well then, says Nicostratus of the Scambonian deme, he either", run: 1 }
@@ -105,6 +124,14 @@ english:
       - { greek: "77", english: "No; yet \"love\" is the beginning of the evil.", run: 1 }
       - { greek: "81", english: "Nicostratus, of Scambonis, on the other hand, says that he is fond of sacrificing or fond of hospitality.", run: 1 }
       - { greek: "83", english: "By the Dog, Nicostratus, not fond of hospitality, since Philoxenus is a blackguard.", run: 1 }
+      # S16 drift (2026-09-26): 156-161 sat one speech early (the Delphi
+      # oracle at 156). Each is held to its Greek: τί δράσετ'; οὐκ ἐκφρήσετ'
+      # (156), σὺ δὲ τοῦτο βαρέως ἂν φέροις; (158), ὁ γὰρ θεὸς μαντευομένῳ
+      # (158b), Ἄπολλον ἀποτρόπαιε (161).
+      - { greek: "156", english: "What are you going to do? Will you not let me out", run: 1 }
+      - { greek: "158", english: "Would you be vexed at this?", run: 1 }
+      - { greek: "158", english: "Yes, for the god at Delphi", run: 1 }
+      - { greek: "161", english: "O Apollo, averter of ill", run: 1 }
     # The reader loads only one footnotes.json per play, and the primary
     # already carries its own (John's own retirement kept Hickie's off in
     # every play, 2026-09-14); the bench text still keeps every note as a

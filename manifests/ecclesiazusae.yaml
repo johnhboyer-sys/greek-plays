@@ -32,6 +32,9 @@ english:
     # speech (the reader shows 'Translated with the speech above').
     covered:
       - { greek: "1144", by: "1151" }
+      # S16 drift (2026-09-26): the Callimachus speech (809b) runs on to
+      # ἅνθρωπος οὗτος ἀποβαλεῖ τὴν οὐσίαν ("That man want to ruin himself!").
+      - { greek: "811", by: "809" }
     pins:
       - { greek: "49", english: "And can't you see Gusistraté, the tavern-keeper's", run: 1 }
       - { greek: "51", english: "I can see many others too, indeed the whole", run: 1 }
@@ -75,6 +78,18 @@ english:
       - { greek: "937", english: "And I likewise. You will see I am not far", run: 1 }
       - { greek: "43", english: "Hurry yourselves then, for Glycé has sworn", run: 1 }
       - { greek: "815", english: "Ah! that cursed money did me enough harm", run: 1 }
+      # S16 drift (2026-09-26): 804b-810 sat one speech late. Each speech is
+      # held to its Greek: σὺ δ' ἐπιθυμήσεις φέρειν; (804b), ἔγωγε· καὶ γὰρ
+      # τοὺς ἐμαυτοῦ γείτονας (805), πάνυ γ' ἂν οὖν Ἀντισθένης (806), οἴμωζε
+      # (809), Καλλίμαχος δ' ὁ χοροδιδάσκαλος (809b), δεινά γε λέγεις (812).
+      # The 1912 folds 810-811
+      # (πλείω Καλλίου; ἅνθρωπος οὗτος ἀποβαλεῖ) into its Callimachus speech.
+      - { greek: "804", english: "You are bent on contributing then?", run: 1 }
+      - { greek: "805", english: "'Pon my soul, yes! Look, there are all my neighbours", run: 1 }
+      - { greek: "806", english: "Ha, ha! 'Tis no doubt Antisthenes", run: 1 }
+      - { greek: "809", english: "The pest seize you!", run: 1 }
+      - { greek: "809", english: "And perhaps Callimachus", run: 1 }
+      - { greek: "812", english: "How you weary me!", run: 1 }  # δεινά γε λέγεις
   secondary:
     id: hickie
     name: "W. J. Hickie (Bohn, 1853)"
@@ -88,6 +103,16 @@ english:
     # every play, 2026-09-14); the bench text still keeps every note as a
     # [n] marker + Footnotes: block.
     footnotes: false
+    # S16 drift (2026-09-26): 43-56 sat one speech early (Melistice at 43).
+    # Hickie gives 43 (οὔκουν ἐπείξεσθ') and 51 (καὶ τὴν Φιλοδωρήτου) to
+    # Praxagora; each speech is held to its Greek: Μελιστίχην (46),
+    # Γευσιστράτην (49), χἀτέρας πολλὰς (51-53), ἔβηττε τριχίδων (54-56).
+    pins:
+      - { greek: "43", english: "Will you not hasten then?", run: 1 }
+      - { greek: "46", english: "Don’t you see Melistice", run: 1 }
+      - { greek: "49", english: "And don’t you see Gusistrate", run: 1 }
+      - { greek: "51", english: "I see very many other women", run: 1 }
+      - { greek: "54", english: "And I, my dearest, escaped", run: 1 }
   third:
     id: rogers
     text_fixes:
@@ -112,6 +137,12 @@ english:
     # 651 (the slaves farm; the ten-foot shadow) has no cell of its own.
     covered:
       - { greek: "651", by: "648" }
+    # S16 drift (2026-09-26): 41-45 sat one speech late. Cleinarete and
+    # Sostrata (41-42 Κλειναρέτην καὶ Σωστράτην) and Glyce's vow (43 ὡς
+    # Γλύκη κατώμοσεν) each go to their own Greek.
+    pins:
+      - { greek: "41", english: "O now they are coming! Here's Cleinarete", run: 1 }
+      - { greek: "43", english: "Come, hurry up: for Glyce vowed a vow", run: 1 }
   # Item 6 (John, 2026-09-09): every Greek speech carries English, or is
   # declared below (gaps) or under primary.covered.
   strict_coverage: true
