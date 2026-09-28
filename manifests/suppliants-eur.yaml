@@ -36,6 +36,13 @@ english:
       - find: "that1 good"
         replace: "that good"
         note: "sweep 2026-09-24 n=67: sources/perseus/tlg0006.tlg008.perseus-eng2.xml:369"
+    line_fixes:
+      # Speaker-repair sweep (2026-09-28; Grok agreed; John: "do it"):
+      # Coleridge numbers this lament one line late. His 1152 translates 1151
+      # and his 1154 translates 1153; left alone, the speaker heuristic moved
+      # each a further line away.
+      "1152": "1151"  # τοῦ φθιμένου πατρὸς ἐκδικαστάν — To avenge thy fallen sire
+      "1154": "1153"  # φίλαν φίλημα παρὰ γένυν τιθέντα σοί — Printing a loving kiss upon thy cheek
     name: "E. P. Coleridge (London, 1891)"
     short: Coleridge
     model: perseus-play
