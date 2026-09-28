@@ -1635,5 +1635,6 @@ describe('splitShortDirections', () => {
     expect(splitShortDirections(['sung', herald])).toEqual({ short: [], long: ['sung', herald] });
     expect(splitShortDirections(['within', herald, 'sung', 'aside'])).toEqual({ short: ['sung', 'aside'], long: ['within', herald] });
     expect(splitShortDirections(['sung', 'aside'])).toEqual({ short: ['sung', 'aside'], long: [] });
+    expect(splitShortDirections([herald, 'The guards follow him inside.'])).toEqual({ short: [], long: [herald, 'The guards follow him inside.'] });
   });
 });
