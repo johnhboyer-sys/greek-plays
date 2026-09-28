@@ -1184,15 +1184,15 @@ export function directionBracket(dir: string): string {
  *  Put them in the speaker's speech/turn at the start"). Unlike the
  *  in-speech gate this applies in every form, verse included -- a
  *  between-speech direction never sits inside a printed verse line, so
- *  there is no line for it to break. */
+ *  there is no line for it to break. Only the short ones AFTER the last
+ *  long one run in; a short one printed before a long one stays with it in
+ *  the row, so the printed order holds (Codex review of 4de42ee). */
 export function splitShortDirections(directions: readonly string[]): { short: string[]; long: string[] } {
-  const short: string[] = [];
-  const long: string[] = [];
-  for (const dir of directions) {
-    const plain = dir.replace(/<button\b[^>]*>.*?<\/button>/g, '').replace(/<[^>]*>/g, '');
-    (plain.trim().split(/\s+/).length <= 2 ? short : long).push(dir);
-  }
-  return { short, long };
+  const isShort = (dir: string) =>
+    dir.replace(/<button\b[^>]*>.*?<\/button>/g, '').replace(/<[^>]*>/g, '').trim().split(/\s+/).length <= 2;
+  let cut = directions.length;
+  while (cut > 0 && isShort(directions[cut - 1])) cut--;
+  return { short: directions.slice(cut), long: directions.slice(0, cut) };
 }
 
 /** The rows a segment's between-speech directions take before it: one per
