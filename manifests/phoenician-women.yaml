@@ -36,10 +36,13 @@ english:
     # folds Oedipus's 1740 into Antigone's speech; seat it with her 1741.
     line_fixes:
       "1740": "1741"  # ἐς πατρός γε συμφορὰς εὐκλεᾶ — will make me famous
+      # Speaker-repair sweep (2026-09-28): Coleridge gives 1336 to Creon, the
+      # edition to the Chorus; the heuristic had moved it to Creon's 1338,
+      # leaving its own Greek bare (the old covered entry below).
+      "1336": "1336"  # οἰχόμεσθ'· οὐκ εὐπροσώποις φροιμίοις — We are lost; your opening words
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
-      - { greek: "1336", by: "1337" }
       - { greek: "1740", by: "1741" }
   secondary:
     id: way

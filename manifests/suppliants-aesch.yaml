@@ -30,6 +30,14 @@ english:
       # 2026-09-26: 1041 opens mid-line in smyth's <l n=1040>; cut seats it (s15 triage).
       - { greek: "1041", english: "and to Harmonia" }
     footnotes: true
+    # Speaker-repair sweep (2026-09-28): Smyth divides 1054-1061 between a
+    # Danaid and a Handmaiden a line off from the edition; his numbers match
+    # the Greek, and the heuristic had shifted each line one speech later.
+    line_fixes:
+      "1055": "1055"  # σὺ δὲ θέλγοις ἂν ἄθελκτον — But you would move the immovable
+      "1056": "1056"  # σὺ δέ γ' οὐκ οἶσθα τὸ μέλλον — you do not know what the future has in store
+      "1057": "1057"  # τί δὲ μέλλω φρένα Δίαν — How should I scan the mind of Zeus
+      "1059": "1059"  # μέτριον νῦν ἔπος εὔχου — Let the words of your prayer be moderate
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
