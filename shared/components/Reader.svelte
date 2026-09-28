@@ -1344,6 +1344,12 @@
   // without threading an extra value through the marker string itself.
   function fnDisplay(label: string): string {
     if (label === '*' || label === '†') return label;
+    // "<running>.<printed>" (every drama translation's notes): the running
+    // number, 1, 2, 3 through the play. The printed part is a line number in
+    // Smyth ("4.107") and the edition's own count elsewhere, which read as a
+    // jumbled sequence beside the margin numbers (John, 2026-09-28).
+    const run = /^(\d+)\.\S/.exec(label); // also Smyth's "12.437ff."
+    if (run) return run[1];
     const i = label.lastIndexOf('.');
     return i === -1 ? label : label.slice(i + 1);
   }
@@ -3309,14 +3315,24 @@
   // Opening/closing the word sidebar changes the reader body's width (it gains
   // padding-right to clear the panel), which reflows the text and shifts every
   // line vertically — so the passage the reader was looking at jumps. Pin a
-  // given element to its current screen position by compensating scroll on each
-  // frame for the duration of the width transition. MUST be called BEFORE the
+  // given element to its current screen position by compensating scroll on
+  // each frame for a short window after the reflow. MUST be called BEFORE the
   // `popup` state change so startTop is captured in the pre-reflow layout.
+  // global.css deliberately does NOT animate the width change: for a long play
+  // the reflow below the fold can shift the true document position by
+  // thousands of pixels, and chasing that per-frame while the width is ALSO
+  // still animating let the two fight — the tracked element's reported
+  // position could lurch through incoherent mid-transition states, and this
+  // loop would overshoot wildly trying to follow it (John, 2026-09-28: a
+  // blanked, jumping reading area). An instant width change reflows once, so
+  // the first frame's correction already lands on the true final position;
+  // the loop keeps running a little longer only to catch playFlow's own
+  // (async, ResizeObserver-driven) re-measure of the English columns.
   function pinAcrossReflow(el: HTMLElement | null) {
     if (!el || typeof window === 'undefined') return;
     const startTop = el.getBoundingClientRect().top;
     suppressArmUntil = Date.now() + 500;   // don't let our scrolls arm the spy
-    const until = Date.now() + 360;        // padding-right transition is 0.22s
+    const until = Date.now() + 360;        // covers playFlow's delayed re-measure
     const step = () => {
       const delta = el.getBoundingClientRect().top - startTop;
       if (Math.abs(delta) >= 0.5) window.scrollBy(0, delta);
@@ -4768,7 +4784,8 @@
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plMarked = plSource ? markedTurns(plSource) : null}
           {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns)) : []}
-          {@const rawPlRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, verseForm(segTransId))) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          <!-- A prose translation keeps each speech whole beside the start of its Greek; only verse is cut to its lines (John, 2026-09-28: "the gaps mid speech are awkward"). -->
+          {@const rawPlRows = plSource ? ((phoneLayout || !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}

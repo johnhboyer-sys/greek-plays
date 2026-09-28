@@ -219,11 +219,17 @@ describe('data-genre picks the accent and the band', () => {
     expect(rule).toMatch(/text-indent:\s*0/);
   });
 
-  it('an English lead-in takes the prose line-height, so its baseline is the speech\'s first baseline', () => {
-    // John, 2026-09-10: a 1.15 line box set every name 4.5px above its text.
+  it('an English lead-in sets its lines close but drops to its speech\'s first baseline', () => {
+    // John, 2026-09-10: a plain 1.15 line box set every name 4.5px above its
+    // text; John, 2026-09-28: at the prose line-height a stacked name's second
+    // line sat on the next speaker. So 1.15, dropped by half the difference
+    // from the paragraph's own line box (--para-lh, registered as a length).
     const at = GLOBAL_CSS.indexOf('.reader-body.play-line .turn-stack .turn-para > .speaker:first-child {');
     const rule = GLOBAL_CSS.slice(at, GLOBAL_CSS.indexOf('}', at));
-    expect(rule).toMatch(/line-height:\s*inherit/);
+    expect(rule).toMatch(/line-height:\s*1\.15/);
+    expect(rule).toMatch(/top:\s*max\(0px, calc\(\(var\(--para-lh\) - 1\.15em\) \/ 2\)\)/);
+    expect(GLOBAL_CSS).toMatch(/@property --para-lh \{ syntax: '<length>'; inherits: true;/);
+    expect(GLOBAL_CSS).toMatch(/--para-lh:\s*1lh/);
     expect(rule).toMatch(/text-align:\s*right/);
     const long = GLOBAL_CSS.indexOf('.reader-body.play-line .turn-stack .turn-para > .speaker.spk-long:first-child {');
     expect(GLOBAL_CSS.slice(long, GLOBAL_CSS.indexOf('}', long))).not.toMatch(/line-height/);

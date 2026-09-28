@@ -1213,6 +1213,25 @@ describe('sentenceTicks: line-keyed English cut at sentence starts (John, 2026-0
     expect(out.some((t) => t.offset === at('from the'))).toBe(false);
   });
 
+  it('never snaps an estimated start onto the line a later marker claims (Orestes 1369-1375)', async () => {
+    const { sentenceTicks } = await import('../lib/speakers');
+    // Coleridge as Perseus encodes him: markers at 1369, 1370 and 1375; "O
+    // Earth, Earth!" (Γᾶ Γᾶ, 1373) has no number. The Greek sentence break at
+    // 1375 (1374 ends in a stop) pulled it onto 1375, which the marker at
+    // "Alas!" claims, and the row opened two lines early (John, 2026-09-28).
+    const text = 'I have escaped from death by Argive sword, in my Asian slippers, by clambering over the cedar-beams '
+      + 'that roof the porch and the Doric triglyphs, away, away! O Earth, Earth! in barbaric flight! Alas! You '
+      + 'foreign women, where can I escape?';
+    const at = (s: string) => text.indexOf(s);
+    const greek = [1369, 1370, 1371, 1372, 1373, 1374, 1375, 1376].map((n) => ({
+      n, text: n === 1374 ? 'βαρβάροισι δρασμοῖς.' : 'x',
+    }));
+    const out = sentenceTicks(text, [{ n: 1369, offset: 0 }, { n: 1370, offset: at('in my') }, { n: 1375, offset: at('Alas!') }], [], 1380, greek);
+    const earth = out.find((t) => t.offset === at('O Earth'));
+    expect(earth && earth.n).toBeLessThan(1375);
+    expect(out).toContainEqual({ n: 1375, offset: at('Alas!') });
+  });
+
   it('never cuts at a marker inside a sentence (Persians 135, "husbands; ‖ each")', async () => {
     const { sentenceTicks } = await import('../lib/speakers');
     const text = 'And marriage-beds are filled with tears through longing for husbands; each Persian woman has sent her consort.';
