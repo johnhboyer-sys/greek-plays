@@ -1626,7 +1626,7 @@
   // Split a line into clickable words, the verbatim text between them, and (for
   // Stephanus dialogues) speaker lead-in labels spliced in at each turn offset.
   // The tokens hold bare words (for the popup lookup); the line `text` keeps the
-  // original punctuation AND the OCT editorial sigla ( ) [ ] < > † " — so the
+  // original punctuation AND the OCT editorial sigla ( ) [ ] < > ⟨ ⟩ † " — so the
   // gaps render as plain, non-clickable text, preserving the critical edition.
   // The position math lives in shared/lib/speakers.ts (see lineRenderParts):
   // with no speaker events it is byte-identical to the old token/gap split.
@@ -4739,7 +4739,7 @@
                          print edition carries -- the line's own `text`/
                          `tokens` are always empty (see GreekLine.role's
                          doc comment), so there is nothing to click. -->
-                    <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'<' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>\s]/g, '')) + '>'}</span>{/each}{/if}⁂ lacuna ⁂</span>
+                    <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'⟨' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>⟨⟩\s]/g, '')) + '⟩'}</span>{/each}{/if}⁂ lacuna ⁂</span>
                   {:else}
                     <!-- Lined-source only (Q2; wrapO deviation 2026-08-29,
                          §3): `item.leadFragment` (set when the PREVIOUS line
@@ -5117,7 +5117,7 @@
                            print edition carries -- the line's own `text`/
                            `tokens` are always empty (see GreekLine.role's
                            doc comment), so there is nothing to click. -->
-                      <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'<' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>\s]/g, '')) + '>'}</span>{/each}{/if}⁂ lacuna ⁂</span>
+                      <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'⟨' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>⟨⟩\s]/g, '')) + '⟩'}</span>{/each}{/if}⁂ lacuna ⁂</span>
                     {:else}
                       <!-- Lined-source only (Q2; wrapO deviation 2026-08-29,
                            §3): `item.leadFragment` (set when the PREVIOUS

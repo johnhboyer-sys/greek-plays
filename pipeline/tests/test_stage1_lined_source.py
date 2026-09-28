@@ -368,6 +368,7 @@ def test_apply_lined_wraps_keeps_an_opening_siglum_in_the_wrap_count():
 
 def test_fold_hyphen_final_sigma_converts_final_to_medial():
     assert _fold_hyphen_final_sigma("ς") == "σ"
+    assert _fold_hyphen_final_sigma("⟨ς⟩") == "⟨σ⟩"
 
 
 def test_fold_hyphen_final_sigma_leaves_medial_sigma_unchanged():

@@ -80,6 +80,12 @@ describe('lineRenderParts — token/gap split (no speakers)', () => {
     expect(texts(parts)).toEqual(['ἔπει<τα>', ' ', 'δέ', '.']);
   });
 
+  it('keeps Unicode angle brackets with a clicked supplement', () => {
+    const text = 'ἔπει⟨τα⟩ δέ.';
+    const parts = lineRenderParts(text, [tok('ἔπειτα', 0), tok('δέ', 9)]);
+    expect(texts(parts)).toEqual(['ἔπει⟨τα⟩', ' ', 'δέ', '.']);
+  });
+
   it('prints a word once when a deletion is set inside it', () => {
     const text = '[προς]θῶμεν νῦν.';
     const tokens = [tok('προςθῶμεν', 0), tok('νῦν', 11)];
@@ -975,6 +981,12 @@ describe('splitWrapLine — lined-source hyphen-split repaint (Discourses)', () 
     expect(last.t).toBe('προ<σ>θέσει');
   });
 
+  it('folds a trailing σ through a Unicode closing siglum', () => {
+    const last = tok('προ⟨σ⟩θέσει', 0);
+    const { head } = splitWrapLine(lineRenderParts(last.t, [last]), 0, 6);
+    expect(head).toEqual([{ kind: 'token', text: 'προ⟨ς⟩-', tok: last }]);
+  });
+
   it('sigma-fold leaves a head NOT ending in σ unchanged (only a trailing σ is ever folded)', () => {
     const last = tok('αὑτῆς', 0);
     const parts = lineRenderParts('αὑτῆς', [last]);
@@ -1013,6 +1025,10 @@ describe('playSigla — the Greek gutter siglum of each speaker', () => {
     expect(sigla.get('Boy')).toBe('Παις');       // four characters: as printed
     expect(sigla.get('Euripides')).toBe('Ευ.');  // the note is not part of the label
     expect(sigla.get('Chorus')).toBe('Χο.');     // first word of the full label
+  });
+
+  it('strips Unicode angle brackets from a supplied speaker label', () => {
+    expect(playSigla([{ label: '⟨ΠΑΙΣ⟩', display: 'Boy' }]).get('Boy')).toBe('Παις');
   });
 
   it('lengthens two colliding sigla until they are distinct', () => {

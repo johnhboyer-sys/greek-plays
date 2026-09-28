@@ -43,9 +43,9 @@ const DASH = '—';
 // shared machinery serves plato-reader and aristotle-reader, where 20 and 23
 // lines respectively printed the word twice, and because the next edition
 // ingested could bring one in.
-const SIGLUM = /[<>[\]]/;
-const OPENER = /[<[]/;
-const CLOSER = /[>\]]/;
+const SIGLUM = /[<>⟨⟩[\]]/;
+const OPENER = /[<⟨[]/;
+const CLOSER = /[>⟩\]]/;
 
 // Locate `t` in `text` at or after `from`, tolerating sigla printed inside the
 // word, and return its VERBATIM span (sigla included) so the rendered line
@@ -196,7 +196,7 @@ export function lineRenderParts(
 // printed: a trailing σ in the head fragment becomes ς before the hyphen is
 // appended, looking back through any trailing `>`/`]` closing sigla.
 function foldTrailingSigmaForDisplay(fragment: string): string {
-  return fragment.replace(/σ(?=[>\]]*$)/u, 'ς');
+  return fragment.replace(/σ(?=[>⟩\]]*$)/u, 'ς');
 }
 
 export function splitWrapLine(
@@ -808,7 +808,7 @@ const SIGLUM_MAX = 4;
 // note removed. "<ΠΑΙΣ> (ἔσωθεν)" → "ΠΑΙΣ"; "(ὡς Χορός.)" → "" (a bare note
 // names nobody, so callers skip it).
 function cleanSpeakerLabel(label: string): string {
-  return label.replace(/\([^)]*\)/g, '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim();
+  return label.replace(/\([^)]*\)/g, '').replace(/[<>⟨⟩]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 // A trailing enumerator: the Greek numeral (Αʹ, Βʹ) or bare letter (α, β, Β)
@@ -1387,4 +1387,3 @@ export function spaceTicks<T extends { n: number; offset: number }>(
   }
   return kept;
 }
-
