@@ -115,3 +115,25 @@ def test_restored_default_still_lets_numbered_synthesis_run():
     assert d["1:150"] == "Other"
     assert d["1:250"] == "Messenger"
     assert d["1:301"] == "Second Messenger"
+
+
+def test_equal_from_takes_the_last_declared_entry():
+    """Codex re-check of 16af394: with two declared entries at the same
+    `from`, the one declared last is in force (as the display code has it)."""
+    data = {
+        "work": {"id": "t", "author": "euripides"},
+        "speakers": {
+            "sigla": {"—": None, "Αγ.": "Messenger", "Αγ.β": "Second Messenger"},
+            "overrides": [
+                {"siglum": "Αγ.", "from": "100", "display": "Messenger"},
+                {"siglum": "Αγ.", "from": "100", "display": "Other"},
+            ],
+        },
+    }
+    spine = {"segments": [
+        {"id": f"1:{r}", "book": 1, "lines": [{"n": i, "ref": r}],
+         "speakers": [{"line": i, "offset": 0, "label": lab}]}
+        for i, (r, lab) in enumerate([("100", "Αγ.β"), ("101", "Αγ.")], 1)
+    ]}
+    _canonicalize_play_line_speakers(spine, Manifest(data, ROOT / "manifests" / "t.yaml"))
+    assert spine["segments"][1]["speakers"][0]["display"] == "Other"
