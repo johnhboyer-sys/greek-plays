@@ -2117,16 +2117,14 @@ body {
    docs/mockups/2026-09-08-blend.html. Every rule here is scoped to
    .reader-body.play-line; no other scheme is touched. */
 .reader-body.play-line {
-  /* ONE left structure for both columns: [line-number gutter][speaker
-     gutter][text]. The speaker label of each column hangs at --pl-num-w,
-     so the Greek siglum and the English lead-in sit at the SAME indent.
-     rem units (never em), so the two columns resolve the gutters
-     identically despite their different font sizes. The Greek gutter is
-     sized for sigla (Χο., Κλ.), the English one for names
+  /* Greek keeps [line-number gutter][speaker gutter][text]. English keeps
+     its speaker gutter but puts the translator's numbers to the right.
+     rem units (never em), so the widths stay steady across font sizes.
+     The Greek gutter is sized for sigla (Χο., Κλ.), the English one for names
      (CLYTAEMESTRA) -- the mockup's --spkw-g / --spkw. Two widths is
      John's ruling (2026-09-08 14:47, "too much space between gutter and
-     the greek"): the labels start level, the Greek verse starts 4.1rem
-     left of the English prose. The English gutter is widened per play
+     the greek"): the Greek verse starts 4.1rem left of the English prose.
+     The English gutter is widened per play
      for its longest name (playEnglishGutterWidth) and the centre gap
      narrowed to 1.25rem to pay for it (John, 2026-09-09). */
   --pl-num-w: 2.6rem;
@@ -2317,8 +2315,7 @@ body {
 .reader-body.play-line.view-english .english-col { width: 100%; }
 .reader-body.play-line.view-greek .greek-line .line-text > .speaker { padding-right: 0.4em; }
 
-/* English: the same left structure, so each lead-in hangs level with the
-   Greek siglum of the line it translates and the prose starts past it. */
+/* English: each lead-in hangs beside its speech; the prose starts past it. */
 .reader-body.play-line .turn-stack { padding-left: 0; }
 .reader-body.play-line .turn-stack .turn-para {
   position: relative;
@@ -2343,14 +2340,14 @@ body {
   line-height: inherit;
   overflow: visible;
 }
-/* The translator's own line numbers (John, 2026-09-24, option C): an empty
-   anchor in the text where each printed number falls (speakers.ts
-   markLineNumbers). Absolute with only `left` set, it keeps its static
-   vertical place, the line it sits on, and moves into the number gutter
-   left of the lead-in. It keeps the prose's font and line-height, so the
-   small numeral sits on that line's baseline. Two on one line stack in one
-   spot: the first is on top (inline z-index) and its background hides the
-   rest; `isolation` keeps those z-indexes inside the paragraph. */
+/* The translator's own line numbers (speakers.ts markLineNumbers) sit in
+   empty anchors where each printed number falls. John ruled on 2026-09-28
+   that they belong to the right of the English, away from the Greek gutter.
+   The desktop single-translation and phone rules below place them there.
+   Absolute positioning keeps each anchor's static vertical place and the
+   prose's line-height keeps its numeral on that line's baseline. Two on one
+   line stack in one spot: the first is on top (inline z-index) and its
+   background hides the rest; `isolation` keeps them inside the paragraph. */
 .reader-body.play-line .turn-stack .turn-para { isolation: isolate; }
 .eng-lnum {
   position: absolute;
@@ -2412,11 +2409,33 @@ body {
 }
 /* A direction between speeches has no speech text to align after the speaker
    gutter, so it spans the speaker column and the translation column as one
-   measure (John, 2026-09-19). It still clears the line-number gutter: this
-   rule replaces .turn-eng's num+spk padding with the number gutter alone, so
-   the direction begins exactly where the next turn's speaker label begins. */
+   measure (John, 2026-09-19). It begins where the next speaker label begins. */
 .reader-body.play-line .play-direction-row .turn-eng:not(.turn-stack) {
   padding-left: var(--pl-num-w);
+}
+/* Single translation on desktop: reserve the right edge for printed English
+   numbers, while the speaker and other text edges lose the left number gutter. */
+@media (min-width: 681px) {
+  .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para {
+    padding-left: var(--pl-spk-w);
+    padding-right: 2.4rem;
+  }
+  .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker:first-child {
+    left: 0;
+  }
+  .reader-body.play-line:not(.trans-compare) .eng-lnum {
+    left: auto;
+    right: 0;
+    width: 2.4rem;
+    padding: 0 0 0 0.6rem;
+    text-align: left;
+  }
+  .reader-body.play-line:not(.trans-compare) .turn-eng:not(.turn-stack) {
+    padding-left: var(--pl-spk-w);
+  }
+  .reader-body.play-line:not(.trans-compare) .play-direction-row .turn-eng:not(.turn-stack) {
+    padding-left: 0;
+  }
 }
 
 /* Compare: three plain columns, Greek widest (1.5 : 1 : 1). No boxes, no
@@ -3932,6 +3951,9 @@ body {
   .reader-body.play-line.view-both .turn-stack .turn-para {
     padding-left: calc(var(--pl-num-w) + var(--pl-spk-w-greek));
   }
+  .reader-body.play-line.view-both:not(.trans-compare) .turn-stack .turn-para {
+    padding-right: 2rem;
+  }
   /* John's ruling, 2026-09-26: the two phone gutters above (the number box
      and the FIXED 6rem speaker box, unlike the desktop gutter which grows
      per play) took over a third of a 375px screen and squeezed the English
@@ -3976,7 +3998,7 @@ body {
   .reader-body.play-line:not(.view-both):not(.trans-compare) .play-direction-row .turn-eng:not(.turn-stack) {
     padding-left: 0;
   }
-  .reader-body.play-line:not(.view-both):not(.trans-compare) .eng-lnum {
+  .reader-body.play-line:not(.trans-compare) .eng-lnum {
     left: auto;
     right: 0;
     width: 2rem;
@@ -3992,11 +4014,8 @@ body {
   .reader-body.play-line .line-num,
   .reader-body.play-line.view-both .line-num,
   .reader-body.play-line.trans-compare .line-num { min-width: var(--pl-num-w); }
-  /* Both view: the translator's numbers keep the Greek gutter's phone size,
-     in the same number gutter (unchanged by the ruling above -- Both never
-     squeezed the number, only the name did, and that moved to its own line
-     above instead). Compare stacks its columns full width with no gutter,
-     so it shows none. */
+  /* Both view: English numbers sit at the right, at the Greek gutter's phone
+     font size. Compare stacks its columns full width and shows none. */
   .reader-body.view-both .eng-lnum::before { font-size: 0.6rem; }
   .reader-body.play-line.trans-compare .eng-lnum { display: none; }
   .reader-body.trans-compare .english-col,

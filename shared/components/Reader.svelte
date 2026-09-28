@@ -1344,6 +1344,12 @@
   // without threading an extra value through the marker string itself.
   function fnDisplay(label: string): string {
     if (label === '*' || label === '†') return label;
+    // "<running>.<printed>" (every drama translation's notes): the running
+    // number, 1, 2, 3 through the play. The printed part is a line number in
+    // Smyth ("4.107") and the edition's own count elsewhere, which read as a
+    // jumbled sequence beside the margin numbers (John, 2026-09-28).
+    const run = /^(\d+)\.[^.]+$/.exec(label);
+    if (run) return run[1];
     const i = label.lastIndexOf('.');
     return i === -1 ? label : label.slice(i + 1);
   }

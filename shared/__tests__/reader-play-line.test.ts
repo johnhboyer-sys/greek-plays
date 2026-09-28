@@ -2653,10 +2653,10 @@ describe("the translator's line numbers in the English margin (John, 2026-09-24,
       expect(fn?.getAttribute('data-fn')).toBe('3.69_71');
       // The anchor at "gods" rides inside the footnote's no-wrap word.
       expect(fn?.closest('.fn-anchor')?.querySelector('.eng-lnum')?.getAttribute('data-n')).toBe('2');
-      expect(fn?.closest('.fn-anchor')?.textContent).toBe('gods69_71');
+      expect(fn?.closest('.fn-anchor')?.textContent).toBe('gods3');
       // The anchor before "deliver" does not stop the search term matching.
       expect(para.querySelector('mark')?.textContent).toBe('deliver');
-      expect(para.textContent).toBe('WatchmanI pray the gods69_71 deliver me. Oh, the light!');
+      expect(para.textContent).toBe('WatchmanI pray the gods3 deliver me. Oh, the light!');
     } finally {
       window.history.replaceState(null, '', '/');
     }
@@ -2689,7 +2689,7 @@ describe("the translator's line numbers in the English margin (John, 2026-09-24,
     const para = await renderFootnoted('I pray the gods[^3.69_71] deliver me.', [{ n: 1, offset: 0, real: true }, { n: 2, offset: 18, real: true }]);
     expect(para.querySelector('.fn-marker')?.getAttribute('data-fn')).toBe('3.69_71');
     expect(para.querySelector('.fn-marker .eng-lnum')).toBeNull();
-    expect(para.textContent).toBe('WatchmanI pray the gods69_71 deliver me.');
+    expect(para.textContent).toBe('WatchmanI pray the gods3 deliver me.');
     expect(after(para.querySelector('.eng-lnum[data-n="2"]')!)).toBe('deliver me.');
   });
 
