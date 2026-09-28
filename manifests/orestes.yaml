@@ -47,6 +47,10 @@ english:
       "1299": "1299"  # ὦ Διὸς ὦ Διὸς ἀέναον κράτος — O eternal might of Zeus
       # Perseus numbers the Chorus's question and the Phrygian's cry by an
       # older lineation; Diggle's are 1453 and 1454a (John, 2026-09-28).
+      # Coleridge ends Electra's 1302 speech with 1310 ("all round the eddies
+      # of Scamander"); Diggle gives 1303-1310 to the Chorus, and the speaker
+      # heuristic moved the line to her next speech at 1313 (John, 2026-09-28).
+      "1310": "1310"  # βέλεσιν ἀμφὶ τὰς Σκαμάνδρου δίνας — all round the eddies of Scamander
       "1452": "1453"   # τί τοὐπὶ τῶιδε συμφορᾶς ἐγίγνετο; — What happened next?
       "1453": "1454a"  # Ἰδαία μᾶτερ μᾶτερ — Mother of Ida, great, great mother!
   secondary:
