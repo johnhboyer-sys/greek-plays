@@ -3315,14 +3315,24 @@
   // Opening/closing the word sidebar changes the reader body's width (it gains
   // padding-right to clear the panel), which reflows the text and shifts every
   // line vertically — so the passage the reader was looking at jumps. Pin a
-  // given element to its current screen position by compensating scroll on each
-  // frame for the duration of the width transition. MUST be called BEFORE the
+  // given element to its current screen position by compensating scroll on
+  // each frame for a short window after the reflow. MUST be called BEFORE the
   // `popup` state change so startTop is captured in the pre-reflow layout.
+  // global.css deliberately does NOT animate the width change: for a long play
+  // the reflow below the fold can shift the true document position by
+  // thousands of pixels, and chasing that per-frame while the width is ALSO
+  // still animating let the two fight — the tracked element's reported
+  // position could lurch through incoherent mid-transition states, and this
+  // loop would overshoot wildly trying to follow it (John, 2026-09-28: a
+  // blanked, jumping reading area). An instant width change reflows once, so
+  // the first frame's correction already lands on the true final position;
+  // the loop keeps running a little longer only to catch playFlow's own
+  // (async, ResizeObserver-driven) re-measure of the English columns.
   function pinAcrossReflow(el: HTMLElement | null) {
     if (!el || typeof window === 'undefined') return;
     const startTop = el.getBoundingClientRect().top;
     suppressArmUntil = Date.now() + 500;   // don't let our scrolls arm the spy
-    const until = Date.now() + 360;        // padding-right transition is 0.22s
+    const until = Date.now() + 360;        // covers playFlow's delayed re-measure
     const step = () => {
       const delta = el.getBoundingClientRect().top - startTop;
       if (Math.abs(delta) >= 0.5) window.scrollBy(0, delta);
