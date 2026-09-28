@@ -1348,7 +1348,7 @@
     // number, 1, 2, 3 through the play. The printed part is a line number in
     // Smyth ("4.107") and the edition's own count elsewhere, which read as a
     // jumbled sequence beside the margin numbers (John, 2026-09-28).
-    const run = /^(\d+)\.[^.]+$/.exec(label);
+    const run = /^(\d+)\.\S/.exec(label); // also Smyth's "12.437ff."
     if (run) return run[1];
     const i = label.lastIndexOf('.');
     return i === -1 ? label : label.slice(i + 1);
