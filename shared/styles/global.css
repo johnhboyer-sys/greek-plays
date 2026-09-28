@@ -2317,7 +2317,10 @@ body {
 
 /* English: each lead-in hangs beside its speech; the prose starts past it. */
 .reader-body.play-line .turn-stack { padding-left: 0; }
+/* The paragraph's own line box, as a length its lead-in can use. */
+@property --para-lh { syntax: '<length>'; inherits: true; initial-value: 0px; }
 .reader-body.play-line .turn-stack .turn-para {
+  --para-lh: 1lh;
   position: relative;
   padding-left: calc(var(--pl-num-w) + var(--pl-spk-w));
 }
@@ -2334,10 +2337,13 @@ body {
      Discourse"), never over the prose (John, 2026-09-09, corpus-wide). A
      single word longer than the gutter is not broken; it overhangs. */
   white-space: normal;
-  /* The prose's own line-height, so the name's baseline is its speech's
-     first baseline, and a stacked name ("Chorus / Leader") sits on the
-     prose lines (John, 2026-09-10: a 1.15 line box set it 4.5px high). */
-  line-height: inherit;
+  /* A stacked name ("Chorus / Leader") sets its lines close (John,
+     2026-09-28: at the prose's line-height "Leader" sat right on top of the
+     next speaker). The first line still shares its speech's baseline: the
+     box drops by half the difference between the prose's line box and its
+     own (John, 2026-09-10: a plain 1.15 line box set it 4.5px high). */
+  line-height: 1.15;
+  top: calc((var(--para-lh) - 1.15em) / 2);
   overflow: visible;
 }
 /* The translator's own line numbers (speakers.ts markLineNumbers) sit in

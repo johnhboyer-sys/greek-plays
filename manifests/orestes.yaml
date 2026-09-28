@@ -32,6 +32,10 @@ english:
     # ἕδρας ἀγών), not the lyric 1290-1291; Perseus numbers it a line early.
     # Seated at 1292 so the spoken sentence stands beside its Greek (John,
     # 2026-09-22: split the packed 1288 cell).
+    # Γᾶ Γᾶ (1373) opens mid-line in Perseus's <l n=1370>; the cut gives
+    # "O Earth, Earth!" its own line (John, 2026-09-28).
+    cuts:
+      - { greek: "1373", english: "O Earth, Earth!" }
     line_fixes:
       "1291": "1292"
       # Drift sweep 4 (2026-09-26): identity fixes (the Hippolytus 850
@@ -41,6 +45,10 @@ english:
       "1297": "1297"  # ἠκούσαθ'; ἅνδρες χεῖρ' ἔχουσιν ἐν φόνωι — Did you hear?
       "1298": "1298"  # Ἑλένης τὸ κώκυμ' ἐστίν — It is Helen screaming
       "1299": "1299"  # ὦ Διὸς ὦ Διὸς ἀέναον κράτος — O eternal might of Zeus
+      # Perseus numbers the Chorus's question and the Phrygian's cry by an
+      # older lineation; Diggle's are 1453 and 1454a (John, 2026-09-28).
+      "1452": "1453"   # τί τοὐπὶ τῶιδε συμφορᾶς ἐγίγνετο; — What happened next?
+      "1453": "1454a"  # Ἰδαία μᾶτερ μᾶτερ — Mother of Ida, great, great mother!
   secondary:
     id: way
     text_fixes:
