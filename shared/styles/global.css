@@ -3216,11 +3216,24 @@ body {
    translation compare — because the reserve is on .reader-body, the shared box
    that caps ALL column layouts at the same measure; narrowing/sliding it moves
    the whole grid together, so the rightmost compare column clears the panel too.
-   (The panel only opens from a Greek token, so English-only views never raise it.) */
+   (The panel only opens from a Greek token, so English-only views never raise it.)
+   No transition on margin-right: in a narrowing band (below ~1131px, where the
+   panel's reserve genuinely eats into the 1080px measure) an ANIMATED width
+   change re-wraps the whole play's text on every frame of the transition, not
+   just once — and for a long play the cumulative reflow of hundreds of rows
+   below the fold moves the scroll position by thousands of pixels, not the few
+   the eye expects. Reader.svelte's pinAcrossReflow chases that per-frame, and
+   with the target itself lurching between incoherent mid-transition layouts it
+   can overshoot wildly (a reported case scrolled ~11,000px off target) — the
+   blank/jump John reported (2026-09-28). An instant width change reflows once;
+   pinAcrossReflow's single correction (plus its follow-up frames, which still
+   catch playFlow's own delayed re-measure) lands the clicked word back within
+   a pixel, even when the underlying scroll shift is itself large. The panel's
+   own slide-in (WordPopup's `fly` transition) still animates — only the
+   reading column's own width change is instant. */
 @media (min-width: 681px) and (max-width: 1800px) {
   .reader-body.word-open {
     margin-right: calc(min(22rem, 86vw) + 1rem);
-    transition: margin-right 0.22s ease;
   }
 }
 
