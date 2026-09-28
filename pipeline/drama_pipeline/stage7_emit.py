@@ -174,7 +174,20 @@ def _synthesized_numbered_overrides(
         ref = first_ref.get(num_key)
         if ref is None:
             continue
-        out.append((bare_key, scheme_mod.play_line_order_key(ref), display))
+        rk = scheme_mod.play_line_order_key(ref)
+        if any(
+            siglum == bare_key and frm <= rk
+            for siglum, frm, _display in declared or ()
+        ):
+            # The manifest already hands this bare siglum to somebody else
+            # by the time the numbered sibling first speaks (Helen's `Θε.`
+            # becomes Theoclymenus at 1165, well before `Θε.β`, the Second
+            # Servant, enters at 1628 -- a same-prefixed but unrelated
+            # character). A hand-written override is the editor's own
+            # reading and always outranks a synthesized one, same as the
+            # scene-end restoration below.
+            continue
+        out.append((bare_key, rk, display))
 
     # The scene's end: for each bare siglum, the first of its OWN
     # appearances that comes a scene's length after the last speech of any
