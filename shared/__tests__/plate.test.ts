@@ -227,7 +227,7 @@ describe('data-genre picks the accent and the band', () => {
     const at = GLOBAL_CSS.indexOf('.reader-body.play-line .turn-stack .turn-para > .speaker:first-child {');
     const rule = GLOBAL_CSS.slice(at, GLOBAL_CSS.indexOf('}', at));
     expect(rule).toMatch(/line-height:\s*1\.15/);
-    expect(rule).toMatch(/top:\s*calc\(\(var\(--para-lh\) - 1\.15em\) \/ 2\)/);
+    expect(rule).toMatch(/top:\s*max\(0px, calc\(\(var\(--para-lh\) - 1\.15em\) \/ 2\)\)/);
     expect(GLOBAL_CSS).toMatch(/@property --para-lh \{ syntax: '<length>'; inherits: true;/);
     expect(GLOBAL_CSS).toMatch(/--para-lh:\s*1lh/);
     expect(rule).toMatch(/text-align:\s*right/);

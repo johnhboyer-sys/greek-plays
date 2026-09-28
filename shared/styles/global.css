@@ -2343,7 +2343,7 @@ body {
      box drops by half the difference between the prose's line box and its
      own (John, 2026-09-10: a plain 1.15 line box set it 4.5px high). */
   line-height: 1.15;
-  top: calc((var(--para-lh) - 1.15em) / 2);
+  top: max(0px, calc((var(--para-lh) - 1.15em) / 2));
   overflow: visible;
 }
 /* The translator's own line numbers (speakers.ts markLineNumbers) sit in

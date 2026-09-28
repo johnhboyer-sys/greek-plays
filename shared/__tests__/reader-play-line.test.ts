@@ -645,7 +645,7 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     expect(rows[2].querySelector('.english-col')?.textContent).toContain('Only what?');
   });
 
-  it('keeps a prose speech whole beside its Greek, with or without a mid-segment speaker (John, 2026-09-28)', async () => {
+  it('never cuts a prose speech into line pieces, whether its Greek speaker opens the segment or comes in mid-segment (John, 2026-09-28)', async () => {
     const greek = Array.from({ length: 12 }, (_, i) => ({ n: i + 1, text: `στίχος ${i + 1} ἐστίν.`, tokens: [], ref: String(200 + i) }));
     const english = {
       text: 'First sentence here. Second sentence here. Third sentence here. Fourth sentence here.',
