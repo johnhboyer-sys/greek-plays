@@ -1294,11 +1294,15 @@ export function sentenceTicks(
     let n = a.n;
     if (b.n >= a.n) {
       const x = a.n + ((s - a.off) / (b.off - a.off)) * (b.n - a.n);
-      const top = b.n === endN ? endN - 1 : b.n;
+      // Short of the next marker's line: that line belongs to the marker, and
+      // a start before it that took it too would open the row early (Orestes
+      // 1373 "O Earth, Earth!" snapped to 1375, the line "Alas!" is printed
+      // at; John, 2026-09-28).
+      const top = Math.max(a.n, b.n - 1);
       const near = breaks
         .filter((g) => Math.abs(g.at - x) <= SNAP && g.n >= a.n && g.n <= top)
         .sort((p, q) => Math.abs(p.at - x) - Math.abs(q.at - x))[0];
-      n = near ? near.n : Math.round(x);
+      n = near ? near.n : Math.min(Math.round(x), top);
     }
     out.push({ n: Math.min(n, Math.max(a.n, endN - 1)), offset: s });
   });
