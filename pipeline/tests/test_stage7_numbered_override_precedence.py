@@ -88,3 +88,30 @@ def test_declared_override_outranks_synthesized_numbered_override():
     # siglum later showed up.
     assert displays["1:1628"] == "Theoclymenus"
     assert displays["1:1630"] == "Theoclymenus"
+
+
+def test_restored_default_still_lets_numbered_synthesis_run():
+    """Codex review of 5947ab5: only the LATEST declared entry at the
+    numbered sibling's entry counts. Here `Αγ.` goes to Other from 100 and
+    back to Messenger from 200, so when the Second Messenger enters at 300
+    a bare `Αγ.` after it is still shorthand for him."""
+    data = {
+        "work": {"id": "t", "author": "euripides"},
+        "speakers": {
+            "sigla": {"—": None, "Αγ.": "Messenger", "Αγ.β": "Second Messenger"},
+            "overrides": [
+                {"siglum": "Αγ.", "from": "100", "display": "Other"},
+                {"siglum": "Αγ.", "from": "200", "display": "Messenger"},
+            ],
+        },
+    }
+    spine = {"segments": [
+        {"id": f"1:{r}", "book": 1, "lines": [{"n": i, "ref": r}],
+         "speakers": [{"line": i, "offset": 0, "label": lab}]}
+        for i, (r, lab) in enumerate([("150", "Αγ."), ("250", "Αγ."), ("300", "Αγ.β"), ("301", "Αγ.")], 1)
+    ]}
+    _canonicalize_play_line_speakers(spine, Manifest(data, ROOT / "manifests" / "t.yaml"))
+    d = {s["id"]: s["speakers"][0]["display"] for s in spine["segments"]}
+    assert d["1:150"] == "Other"
+    assert d["1:250"] == "Messenger"
+    assert d["1:301"] == "Second Messenger"

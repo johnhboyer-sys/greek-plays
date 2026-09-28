@@ -175,10 +175,16 @@ def _synthesized_numbered_overrides(
         if ref is None:
             continue
         rk = scheme_mod.play_line_order_key(ref)
-        if any(
-            siglum == bare_key and frm <= rk
-            for siglum, frm, _display in declared or ()
-        ):
+        in_force = max(
+            (
+                (frm, d)
+                for siglum, frm, d in declared or ()
+                if siglum == bare_key and frm <= rk
+            ),
+            default=None,
+            key=lambda e: e[0],
+        )
+        if in_force is not None and in_force[1] != sigla_norm.get(bare_key):
             # The manifest already hands this bare siglum to somebody else
             # by the time the numbered sibling first speaks (Helen's `Θε.`
             # becomes Theoclymenus at 1165, well before `Θε.β`, the Second
