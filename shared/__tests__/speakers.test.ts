@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, splitShortDirections, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, splitShortDirections, markLineNumbers, lineNumberHtml, speakerDisagrees, computeSpeakerMismatch, dedupeSpeakerDisplays, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1158,6 +1158,94 @@ describe('leadInCase on mixed case', () => {
     expect(leadInCase('Servant Of The Hoopoe')).toBe('Servant of the Hoopoe');
     expect(leadInCase('Sausage-Seller')).toBe('Sausage-Seller');
     expect(leadInCase('A Fourth Elder')).toBe('A Fourth Elder');
+  });
+});
+
+describe('speakerDisagrees — every English column, not just the primary (John, 2026-09-28)', () => {
+  it('agrees when the canonical names match', () => {
+    expect(speakerDisagrees('Electra', ['Electra'])).toBe(false);
+  });
+
+  it('flags a real disagreement', () => {
+    expect(speakerDisagrees('Chorus', ['Electra'])).toBe(true);
+  });
+
+  it('is not fooled by Chorus variants that the roster ALREADY collapsed to one canonical name', () => {
+    // The pipeline resolves "Chorus Leader"/"Leader"/"Coryphaeus" and the
+    // Greek Χο. siglum to the same roster name ("Chorus") before either
+    // reaches the reader (manifests/orestes.yaml's `speakers:` block) — so
+    // by the time this function sees them, both sides already read
+    // "Chorus" and a plain string compare is correct, never a false flag.
+    expect(speakerDisagrees('Chorus', ['Chorus'])).toBe(false);
+  });
+
+  it('agrees (never flags) when there is no canonical English speaker — an unattributed dash turn', () => {
+    expect(speakerDisagrees(null, ['Electra'])).toBe(false);
+    expect(speakerDisagrees(undefined, ['Electra'])).toBe(false);
+  });
+
+  it('agrees (never flags) when the Greek side has no recorded speaker — a gap in the data is not a disagreement', () => {
+    expect(speakerDisagrees('Electra', [])).toBe(false);
+    expect(speakerDisagrees('Electra', [null, undefined])).toBe(false);
+  });
+
+  it('agrees when the English speaker is ANY of a multi-speaker segment\'s Greek speakers (antilabe, packed comedy)', () => {
+    expect(speakerDisagrees('Orestes', ['Electra', 'Orestes', 'Chorus'])).toBe(false);
+    expect(speakerDisagrees('Pylades', ['Electra', 'Orestes', 'Chorus'])).toBe(true);
+  });
+
+  it('ignores nulls mixed into a multi-speaker Greek list', () => {
+    expect(speakerDisagrees('Chorus', ['Electra', null, 'Chorus'])).toBe(false);
+  });
+});
+
+describe('computeSpeakerMismatch — {english, greek} shaped like the pipeline\'s own speakerMismatch', () => {
+  it('returns undefined when there is no disagreement', () => {
+    expect(computeSpeakerMismatch('Electra', ['Electra'])).toBeUndefined();
+    expect(computeSpeakerMismatch(null, ['Electra'])).toBeUndefined();
+    expect(computeSpeakerMismatch('Electra', [])).toBeUndefined();
+  });
+
+  it('names the single Greek speaker on a real disagreement', () => {
+    expect(computeSpeakerMismatch('Chorus', ['Electra'])).toEqual({ english: 'Chorus', greek: 'Electra' });
+  });
+
+  it('joins several distinct Greek speakers with " / ", in order of first appearance, deduped', () => {
+    expect(computeSpeakerMismatch('Pylades', ['Electra', 'Orestes', 'Electra'])).toEqual({
+      english: 'Pylades',
+      greek: 'Electra / Orestes',
+    });
+  });
+});
+
+describe('dedupeSpeakerDisplays — the Greek this speech sits beside', () => {
+  it('collects the distinct canonical speakers, in order of first appearance', () => {
+    const events: Pick<SpeakerEvent, 'display'>[] = [
+      { display: 'Chorus' },
+      { display: 'Chorus' },
+      { display: 'Electra' },
+    ];
+    expect(dedupeSpeakerDisplays(events)).toEqual(['Chorus', 'Electra']);
+  });
+
+  it('returns several names for a multi-speaker row (antilabe)', () => {
+    expect(dedupeSpeakerDisplays([{ display: 'Chorus' }, { display: 'Electra' }])).toEqual(['Chorus', 'Electra']);
+  });
+
+  it('drops an unattributed (dash) event', () => {
+    expect(dedupeSpeakerDisplays([{ display: null }])).toEqual([]);
+    expect(dedupeSpeakerDisplays([])).toEqual([]);
+  });
+
+  it('takes only the events it is given -- callers scope it to a row, or (splitAntilabe) to one share of a split line, not the whole segment', () => {
+    // Simulates Reader.svelte's own row-scoping: two antilabe shares of ONE
+    // Greek line, each with its own speaker, must never be merged into one
+    // row's comparison set -- the caller passes only the current row/share's
+    // events, not the line's combined events.
+    const shareA: Pick<SpeakerEvent, 'display'>[] = [{ display: 'Orestes' }];
+    const shareB: Pick<SpeakerEvent, 'display'>[] = [{ display: 'Pylades' }];
+    expect(dedupeSpeakerDisplays(shareA)).toEqual(['Orestes']);
+    expect(dedupeSpeakerDisplays(shareB)).toEqual(['Pylades']);
   });
 });
 

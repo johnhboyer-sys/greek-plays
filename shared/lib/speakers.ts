@@ -981,6 +981,72 @@ export function leadInCase(display: string): string {
   });
 }
 
+// ── Speaker-disagreement marker, every English column (John, 2026-09-28) ────
+// P2h/P3.3 above compute `speakerMismatch` in the PIPELINE, for the primary
+// column only, by comparing each turn's canonical speaker against the Greek
+// line owner while both are still in Python. A secondary/third/overlay
+// column (Way, Johnston, Hickie, Rogers, …) gets no such comparison done for
+// it, so Reader.svelte never has a pipeline value to show for one. Both
+// sides of the comparison are ALREADY canonical by the time either reaches
+// the reader — a work's manifest `speakers:` block resolves every printed
+// cue ("Chorus Leader", "Leader", "Coryphaeus") and every Greek siglum
+// ("Χο.") to the same roster name ("Chorus") before stage1 emits EITHER an
+// EnglishTurn.speaker or a SpeakerEvent.display — so the frontend needs no
+// roster of its own: a plain string comparison between `EnglishTurnBlock.
+// speaker` and the `SpeakerEvent.display`s of the Greek this speech sits
+// beside is the same test the pipeline itself runs, one column late.
+
+/** True when an English column's lead-in names someone the Greek edition,
+ *  at the same spot, does not — false whenever there is nothing to compare
+ *  (no canonical English speaker, or no canonical Greek speaker recorded
+ *  there), so a gap in the data reads as agreement, never as a false
+ *  disagreement. `greekSpeakers` may repeat or carry nulls (a raw map over
+ *  a row's SpeakerEvent.display values) — both are ignored. */
+export function speakerDisagrees(
+  englishSpeaker: string | null | undefined,
+  greekSpeakers: readonly (string | null | undefined)[],
+): boolean {
+  if (!englishSpeaker) return false;
+  const greek = greekSpeakers.filter((s): s is string => !!s);
+  if (!greek.length) return false;
+  return !greek.includes(englishSpeaker);
+}
+
+/** `speakerDisagrees`, shaped like the pipeline's own `speakerMismatch`
+ *  ({english, greek}) so Reader.svelte's existing `mm.english`/`mm.greek`
+ *  title text needs no branching by source. Several Greek speakers (a row
+ *  spanning more than one Greek line, e.g. an antilabe) join with " / ",
+ *  in the order they occur; undefined when there is no disagreement to
+ *  report. */
+export function computeSpeakerMismatch(
+  englishSpeaker: string | null | undefined,
+  greekSpeakers: readonly (string | null | undefined)[],
+): { english: string; greek: string } | undefined {
+  if (!speakerDisagrees(englishSpeaker, greekSpeakers)) return undefined;
+  const greek: string[] = [];
+  for (const s of greekSpeakers) if (s && !greek.includes(s)) greek.push(s);
+  return { english: englishSpeaker as string, greek: greek.join(' / ') };
+}
+
+/** The distinct canonical Greek speakers among `events` — the Greek this
+ *  speech sits beside: every event in the segment for a segment rendered as
+ *  a single row, or (Reader.svelte's own `item.events ?? speakerEvents(seg,
+ *  item.line)` pattern, line 1674) just a P4 row's own share of an antilabe
+ *  line's events, never its OTHER share's — two characters splitting one
+ *  Greek line must not be merged into one row's comparison set. Order of
+ *  first appearance; a dash/unattributed event (`display` null) is dropped,
+ *  matching `speakerDisagrees`'s own treatment of "nothing recorded here". */
+export function dedupeSpeakerDisplays(
+  events: readonly Pick<SpeakerEvent, 'display'>[],
+): string[] {
+  const out: string[] = [];
+  for (const ev of events) {
+    if (!ev.display) continue;
+    if (!out.includes(ev.display)) out.push(ev.display);
+  }
+  return out;
+}
+
 /** The `n` of every play-line Greek line whose printed ref breaks the ascending
  *  sequence — a transposed line (Ag. 1290 printed before 1284) and the line
  *  that resumes after it (1284) — so the gutter can print its number where

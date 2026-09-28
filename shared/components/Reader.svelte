@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, computeSpeakerMismatch, dedupeSpeakerDisplays, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { copyButtonPosition } from '../lib/copy-button';
@@ -4186,7 +4186,7 @@
   <!-- The turn stack itself, factored out of playEngTurns so the P4 per-line
        row model can render ONE row's slice of the same blocks (each English
        turn beside the Greek line it starts on) with identical markup. -->
-  {#snippet playTurnStack(blocks: EnglishTurnBlock[], chunkMm: { english: string; greek: string } | undefined, transId: string)}
+  {#snippet playTurnStack(blocks: EnglishTurnBlock[], chunkMm: { english: string; greek: string } | undefined, transId: string, rowGreekSpeakers: readonly string[] = [])}
     <!-- svelte-ignore a11y_mouse_events_have_key_events -->
     <div
       class="overlay-prose turn-eng turn-stack"
@@ -4197,7 +4197,14 @@
       role="presentation"
     >
       {#each blocks as b, bi}
-        {@const mm = b.speakerMismatch ?? chunkMm}
+        <!-- `b.speakerMismatch`/`chunkMm` are the PIPELINE's own comparison
+             (primary column only, P2h/P3.3). Every other column gets no such
+             comparison done for it in Python, so it falls to
+             computeSpeakerMismatch here -- the same canonical-name test, one
+             column late (John, 2026-09-28: extend the marker to every
+             English column; see speakers.ts's "Speaker-disagreement marker"
+             section for why a plain string compare is safe). -->
+        {@const mm = b.speakerMismatch ?? chunkMm ?? computeSpeakerMismatch(b.speaker, rowGreekSpeakers)}
         <!-- A translation's TEI can split one speech into several <sp> blocks
              (Jebb's parodos: strophe, system, antistrophe, each headed
              "Chorus"); the printed page names the speaker once, so a lead-in
@@ -4231,7 +4238,10 @@
     {@const marked = markedTurns(source)}
     {@const blocks = withoutOpeningDirections(playBlocks(marked.text, marked.turns), openingRunIn(seg, transId))}
     {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
-    {@render playTurnStack(blocks, chunkMm, transId)}
+    <!-- No P4 row split here (one chunk, one row): the Greek this whole
+         stack sits beside is every speaker event in the segment. -->
+    {@const segGreekSpeakers = dedupeSpeakerDisplays(seg.speakers ?? [])}
+    {@render playTurnStack(blocks, chunkMm, transId, segGreekSpeakers)}
     {:else if bareDirs}
       <!-- A stage direction standing in for this Greek speech -- the
            translator gives it no words at all (John, 2026-09-22, option B:
@@ -4832,6 +4842,14 @@
             {:else}
             <div class="seg-row play-row-split" data-chapter={block.currentChapter} use:playFlow={{ plRows: run.rows, view }}>
               {#each run.rows as row}
+                <!-- P4 split (antilabe, a packed comedy speech handed across
+                     several Greek lines): the Greek this ROW sits beside is
+                     only ITS OWN lines -- and, for an antilabe share, only
+                     ITS OWN half of a shared line (`item.events`, same as
+                     the Greek column's own speakerEvents(seg, item.line)
+                     fallback at line ~1674) -- never a later row's or the
+                     other share's. -->
+                {@const rowGreekSpeakers = dedupeSpeakerDisplays(row.items.filter((it): it is Extract<GreekItem, { kind: 'line' }> => it.kind === 'line').flatMap((it) => it.events ?? speakerEvents(seg, it.line)))}
                 <div class="play-row">
                   <!-- No explicit grid placement: the two cells of every row
                        are consecutive children of the one grid (`.play-row` is
@@ -4849,7 +4867,7 @@
                     data-trans={segTransId}
                     data-eng-credit={engCreditFor(segTransId, seg)}
                   >
-                    {#if row.blocks.length}{@render playTurnStack(row.blocks, plMm, segTransId)}{/if}
+                    {#if row.blocks.length}{@render playTurnStack(row.blocks, plMm, segTransId, rowGreekSpeakers)}{/if}
                   </div>
                 </div>
               {/each}
