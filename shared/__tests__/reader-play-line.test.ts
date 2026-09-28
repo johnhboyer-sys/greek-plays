@@ -645,7 +645,7 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
     expect(rows[2].querySelector('.english-col')?.textContent).toContain('Only what?');
   });
 
-  it('runs a marker-less single speech down its Greek, but leaves a mid-segment speaker to the dialogue rows (Grok review of 5748b3f)', async () => {
+  it('keeps a prose speech whole beside its Greek, with or without a mid-segment speaker (John, 2026-09-28)', async () => {
     const greek = Array.from({ length: 12 }, (_, i) => ({ n: i + 1, text: `στίχος ${i + 1} ἐστίν.`, tokens: [], ref: String(200 + i) }));
     const english = {
       text: 'First sentence here. Second sentence here. Third sentence here. Fourth sentence here.',
@@ -655,17 +655,16 @@ describe('Reader.svelte play-line per-line turn rows (P4)', () => {
       book: 1, speakerRoster: ['Chorus'],
       segments: [{ id: '1:200', column: '200', greek, speakers, english }],
     });
-    const rowOf = (c: HTMLElement, s: string) =>
-      [...c.querySelectorAll('.play-row')].findIndex((r) => r.querySelector('.english-col')?.textContent?.includes(s));
-    // One speech opening the segment: its sentences run down the lines.
-    const one = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book([{ line: 1, offset: 0, label: 'ΧΟ.', display: 'Chorus' }]) } });
-    await flush();
-    expect(rowOf(one.container, 'Fourth')).toBeGreaterThan(rowOf(one.container, 'First'));
-    one.unmount();
-    // A lone speaker event further in (an antilabe) is dialogue: not spread.
-    const mid = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book([{ line: 6, offset: 4, label: 'ΧΟ.', display: 'Chorus' }]) } });
-    await flush();
-    expect(rowOf(mid.container, 'Fourth')).toBe(rowOf(mid.container, 'First'));
+    const paraOf = (c: HTMLElement, s: string) =>
+      [...c.querySelectorAll('.english-col .turn-para')].find((p) => p.textContent?.includes(s));
+    // "The gaps mid speech are awkward": prose is never cut into line pieces.
+    for (const speakers of [[{ line: 1, offset: 0, label: 'ΧΟ.', display: 'Chorus' }], [{ line: 6, offset: 4, label: 'ΧΟ.', display: 'Chorus' }]]) {
+      const r = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: book(speakers) } });
+      await flush();
+      expect(paraOf(r.container, 'First')).toBeDefined();
+      expect(paraOf(r.container, 'Fourth')).toBe(paraOf(r.container, 'First'));
+      r.unmount();
+    }
   });
 
   it('keeps an editor\'s bracket with the share it opens, never on a line of its own (Rhesus 16)', async () => {
@@ -1841,92 +1840,17 @@ describe('line-keyed rows: a translation paragraph sits beside the Greek line it
     };
   }
 
-  it('cuts the segment into one row per real tick, each with the English keyed to it', async () => {
+  it('keeps a keyed prose paragraph whole beside its first line, its numbers in the margin (John, 2026-09-28, over REVIEW-CHECKLIST 15)', async () => {
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: odeBook() } });
     await flush();
-    const rows = [...container.querySelectorAll('.play-row')];
-    expect(rows).toHaveLength(3);
-    expect(rows.map((r) => [...r.querySelectorAll('.greek-line')].map((l) => l.id))).toEqual([
-      ['L175-1', 'L176-2'], ['L180-3', 'L182-4'], ['L184-5'],
-    ]);
-    const eng = rows.map((r) => r.querySelector('.english-col')?.textContent?.trim() ?? '');
-    expect(eng[0]).toContain('Zeus, whoever he may be');
-    expect(eng[0]).not.toContain('I cannot compare');
-    expect(eng[1]).toContain('I cannot compare him to anything but Zeus.');
-    expect(eng[2]).toContain('Zeus, who sets mortals on the path.');
-    // The turn lead-in rides in the first row only.
-    expect(rows[0].querySelector('.english-col .speaker')?.textContent).toBe('Chorus');
-    expect(rows[1].querySelector('.english-col .speaker')).toBeNull();
-  });
-
-  it('a real line marker keeps its own row even within minSpan of the piece before it (Codex review of gap-layout: 184 must not merge into 180)', async () => {
-    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: odeBook() } });
-    await flush();
-    const rows = [...container.querySelectorAll('.play-row')];
-    // 184 is 4 lines after 180 -- inside the 5-line minSpan window -- but it
-    // is the translator's OWN printed marker, not an interpolated sentence
-    // start, so minSpan thinning must never drop it (defect 1, review-
-    // gap-layout-findings.md #1: englishFlow can't restore a dropped anchor).
-    expect(rows).toHaveLength(3);
-    expect(rows.map((r) => [...r.querySelectorAll('.greek-line')].map((l) => l.id))).toEqual([
-      ['L175-1', 'L176-2'], ['L180-3', 'L182-4'], ['L184-5'],
-    ]);
-    const eng = rows.map((r) => r.querySelector('.english-col')?.textContent?.trim() ?? '');
-    expect(eng[1]).toContain('I cannot compare him to anything but Zeus.');
-    expect(eng[1]).not.toContain('Zeus, who sets mortals');
-    expect(eng[2]).toContain('Zeus, who sets mortals on the path.');
-  });
-
-  // A prose speech with no line markers at all (Morshead, Storr, Way): one
-  // synthetic tick at the segment's first line, sentence starts interpolated
-  // by proportion (John, 2026-09-11, Agamemnon 140-159). The segment's own
-  // printed refs skip "6" (an editorial numbering gap, same shape as the ode
-  // above skipping 177-179 and 181/183): the 2nd sentence interpolates to
-  // that missing number and the 3rd to line 8 -- verified directly against
-  // sentenceTicks before wiring this fixture. The unmapped candidate must
-  // never survive to consume minSpan's budget against the real candidate
-  // after it (defect 2, review-gap-layout-findings.md #2: spacing must run
-  // only over cuts that map to a line the segment actually prints).
-  function gapNumberedSpeech() {
-    const bank = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'india', 'juliet', 'kilo', 'lima', 'mike', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango'];
-    const words = (len: number) => { let out = ''; let i = 0; while (out.length < len) out += (out ? ' ' : '') + bank[i++ % bank.length]; return out.slice(0, len).trim(); };
-    const sentence = (len: number) => { const w = words(len - 1); return `${w[0]!.toUpperCase()}${w.slice(1)}.`; };
-    const s1 = sentence(149);
-    const s2 = sentence(59);
-    const s3 = sentence(30);
-    const text = `${s1} ${s2} ${s3}`;
-    const book: BookData = {
-      book: 1,
-      speakerRoster: ['Chorus'],
-      segments: [{
-        id: '1:1',
-        column: '1',
-        greek: [1, 2, 3, 4, 5, 7, 8].map((ref, i) => ({ n: i + 1, text: 'λόγος ἄλλος', tokens: [], ref: String(ref) })),
-        speakers: [{ line: 1, offset: 0, label: 'Χο.', display: 'Chorus' }],
-        english: { text, notes: [], markers: [], turns: [{ offset: 0, speaker: 'Chorus', display: 'CHORUS' }] },
-      }],
-    };
-    return { book, s1, s2, s3 };
-  }
-
-  it('a candidate on a line the segment does not print does not suppress the valid cut after it', async () => {
-    const { book, s1, s2, s3 } = gapNumberedSpeech();
-    const { container } = render(Reader, { props: { work: 'PLAYPROSE', bookNum: 1, bookData: book } });
-    await flush();
-    const rows = [...container.querySelectorAll('.play-row')];
-    // The unmapped candidate at line 6 must be dropped from consideration
-    // before minSpan is judged, so the valid candidate at line 8 (7 lines
-    // after the piece at line 1) keeps its own row: two rows, not the
-    // fewer-than-two-cuts fallback (speech-by-speech via playRows). Line 7
-    // (ref "7") has no cut before it, so it stays in the first row along
-    // with the merged-up 2nd sentence (its own candidate never mapped).
-    expect(rows).toHaveLength(2);
-    expect(rows.map((r) => [...r.querySelectorAll('.greek-line')].map((l) => l.id))).toEqual([
-      ['L1-1', 'L2-2', 'L3-3', 'L4-4', 'L5-5', 'L7-6'], ['L8-7'],
-    ]);
-    const eng = rows.map((r) => r.querySelector('.english-col')?.textContent?.trim() ?? '');
-    expect(eng[0]).toContain(`${s1} ${s2}`);
-    expect(eng[1]).toBe(s3);
+    const paras = [...container.querySelectorAll('.english-col .turn-para')];
+    expect(paras).toHaveLength(1);
+    const text = paras[0]!.textContent ?? '';
+    expect(text).toContain('Zeus, whoever he may be');
+    expect(text).toContain('I cannot compare him to anything but Zeus.');
+    expect(text).toContain('Zeus, who sets mortals on the path.');
+    expect([...paras[0]!.querySelectorAll('.eng-lnum')].map((n) => n.getAttribute('data-n'))).toEqual(['175', '180', '184']);
+    expect(container.querySelectorAll('.english-col .speaker')).toHaveLength(1);
   });
 });
 
@@ -2602,11 +2526,9 @@ describe("the translator's line numbers in the English margin (John, 2026-09-24,
       expect(n.textContent).toBe('');
       expect(n.getAttribute('aria-hidden')).toBe('true');
     }
-    // The rows and the lead-in are what they were without the numbers.
-    const rows = [...container.querySelectorAll('.play-row')];
-    expect(rows).toHaveLength(3);
-    expect(rows[0].querySelector('.english-col .speaker')?.textContent).toBe('Chorus');
-    expect(rows[1].querySelector('.english-col .speaker')).toBeNull();
+    // One speech, one lead-in: the numbers add no row and no name.
+    const leads = [...container.querySelectorAll('.english-col .speaker')];
+    expect(leads.map((l) => l.textContent)).toEqual(['Chorus']);
     // No digit enters the text: copy, find and screen readers see the prose.
     const english = [...container.querySelectorAll('.english-col .turn-para')].map((p) => p.textContent).join(' ');
     expect(english).not.toMatch(/\d/);

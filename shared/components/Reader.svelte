@@ -4774,7 +4774,8 @@
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plMarked = plSource ? markedTurns(plSource) : null}
           {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns)) : []}
-          {@const rawPlRows = plSource ? ((phoneLayout ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, verseForm(segTransId))) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          <!-- A prose translation keeps each speech whole beside the start of its Greek; only verse is cut to its lines (John, 2026-09-28: "the gaps mid speech are awkward"). -->
+          {@const rawPlRows = plSource ? ((phoneLayout || !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
