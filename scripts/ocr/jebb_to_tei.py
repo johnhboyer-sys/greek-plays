@@ -957,6 +957,7 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
         long_verse = len(key(line["text"])) >= 30 and line.get("colon") is None and line.get("strophe") is None \
             and not line.get("turnovers") and len(line.get("shares") or []) < 3
         opts["X"] = ("", 45.0 if long_verse else 3.0)
+        line["whole"] = long_verse
         options.append(opts)
         checks.append(cks)
 
@@ -1107,7 +1108,14 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
         # its turn-over 'δέξατ’ ἔκ του' is 1108)
         pn = max([pn] + (jebb[k_prev].get("held") or [] if k_prev is not None else []))
         cand_n = str(pn + 1)
-        if (nxt is None or _num(nxt)[0] > pn + 1) and cand_n not in used:
+        free = (nxt is None or _num(nxt)[0] > pn + 1) and cand_n not in used
+        if free and line.get("whole"):
+            # A whole verse takes the next integer only where that leaves
+            # its own checkpoints no worse off than unnumbered.
+            nxt_t = _num(nxt) if nxt is not None else None
+            before = (pn, "")
+            free = len(unmet(i, cand_n, before, nxt_t, unproven=True)) <= len(unmet(i, None, before, nxt_t, unproven=True))
+        if free:
             line["n"], line["n_how"] = cand_n, "next free number"
         else:
             letter = "a"
@@ -1127,6 +1135,40 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
         found = unmet(i, None if line["n_how"] == "lettered" else line["n"], before, after, unproven=True)
         line["unmet"] = [(n, kind) for n, _, kind in found if " inside" not in kind]
         line["inside_unproven"] = [n for n, _, kind in found if kind.endswith(" inside unproven")]
+        if line["n_how"] == "lettered" and line.get("whole"):
+            # A whole verse is never lettered: no integer was free (or the
+            # free one broke a checkpoint), so Jebb's numbers and his line
+            # count disagree here. Reported, not left quiet.
+            line["unmet"].append((line["n"], "whole line, no free number"))
+    find_gaps(jebb, refs)
+
+
+def find_gaps(jebb: list[dict], refs: dict[str, list[dict]]) -> None:
+    """Every number the final numbering skips is backed or reported.
+
+    A skipped number is backed by a printed margin number, a commentary
+    note, or a number a line holds (Jebb's own evidence), by Storr and the
+    TLG both lacking it (a lacuna, or a line the editors delete), or by a
+    hand fix on either side of it (its reason is on record).
+    Otherwise line['gaps'] on the line after it holds
+    {'after', 'before', 'missing', 'why'}."""
+    named = set()
+    for x in jebb:
+        for n in ([x["printed"]] if x.get("printed") is not None else []) + (x.get("printed_more") or []) \
+                + (x.get("detached") or []) + (x.get("lemmas") or []) + (x.get("held") or []):
+            named.add(n)
+    has = {name: {_num(r["n"])[0] for r in refs[key_]} for key_, name in (("S", "Storr"), ("T", "TLG"))}
+    for i in range(1, len(jebb)):
+        a, b = jebb[i - 1]["n"], jebb[i]["n"]
+        (na, _), (nb, _) = _num(a), _num(b)
+        if any(str(jebb[k].get("n_how", "")).startswith("fix") for k in (i - 1, i)):
+            continue   # a hand fix (NUMBER_FIXES) carries its own reason
+        missing = [m for m in range(na + 1, nb) if m not in named and any(m in v for v in has.values())]
+        if missing:
+            who = " and ".join(name for name, v in has.items() if any(m in v for m in missing))
+            jebb[i].setdefault("gaps", []).append({
+                "after": a, "before": b, "missing": missing,
+                "why": f"{who} number it; no printed number or note of Jebb's does, and no line of his holds it"})
 
 
 def check_margins(slug: str, jebb: list[dict]) -> list[dict]:
@@ -1418,6 +1460,9 @@ def convert(slug: str, qa: bool = False) -> dict:
                                  for x in jebb for n in x.get("inside_unproven") or []]
     report["unmet_checkpoints"] = [{"src": x["src"], "page": x["page"], "n": x["n"], "checkpoint": n, "kind": kind,
                                     "text": x["text"][:40]} for x in jebb for n, kind in x.get("unmet") or []]
+    report["gaps"] = [{"src": x["src"], "page": x["page"], "after": g["after"], "before": g["before"],
+                       "missing": g["missing"], "why": g["why"], "text": x["text"][:40]}
+                      for x in jebb for g in x.get("gaps") or []]
     if qa:
         report["bad_chars"] = char_check(tei)
         present, total, missing = english_anchor_check(tlg, jebb)

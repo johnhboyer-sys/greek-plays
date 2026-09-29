@@ -129,12 +129,17 @@ def test_the_normal_report_counts_lemma_disagreements_and_fix_conflicts(tmp_path
     monkeypatch.setitem(J.NUMBER_FIXES, "antigone", {5: ("9", "hand fix")})
     report = J.convert("antigone")            # no qa
     assert report["commentary_lemmas"]["disagree"] == 1
+    assert report["gaps"] == []
     assert [(c["src"], c["fix"], c["checkpoint"]) for c in report["fix_conflicts"]] == [(5, "9", 3)]
     assert [(s["src"], s["reason"]) for s in report["stops"]] == [(7, "apparatus marker")]
 
 
 # John, 2026-09-29: Jebb's own numbers govern his edition.
 def _count_case(monkeypatch, lemmas, printed=None):
+    return [x["n"] for x in _count_lines(monkeypatch, lemmas, printed)]
+
+
+def _count_lines(monkeypatch, lemmas, printed=None):
     ref = [{"n": str(k), "text": t, "parts": []} for k, t in zip((156, 157, 158, 160), VERSE[:4])]
     refs = {"S": ref, "T": ref}
     covers = {"S": [[0], [1], [2], [3]], "T": [[0], [1], [2], [3]]}
@@ -144,7 +149,7 @@ def _count_case(monkeypatch, lemmas, printed=None):
             jebb[i]["printed"] = p
     monkeypatch.setattr(J, "lemma_checkpoints", lambda slug, jebb: lemmas)
     J.number_lines("t", jebb, refs, covers)
-    return [x["n"] for x in jebb]
+    return jebb
 
 
 def test_a_lemma_that_opens_a_line_numbers_it_over_the_reference(monkeypatch):
@@ -153,7 +158,78 @@ def test_a_lemma_that_opens_a_line_numbers_it_over_the_reference(monkeypatch):
 
 
 def test_without_jebb_numbers_the_reference_count_stands(monkeypatch):
-    assert _count_case(monkeypatch, {}) == ["156", "157", "158", "160"]
+    # No printed number or note names 159, but Storr and the TLG (one list in
+    # this fixture) both skip it: that is the evidence, so no gap is reported.
+    lines = _count_lines(monkeypatch, {})
+    assert [x["n"] for x in lines] == ["156", "157", "158", "160"]
+    assert not any(x.get("gaps") for x in lines)
+
+
+def _gap_case(monkeypatch, printed=None, lemmas=None, t_extra=None):
+    """Jebb lines 100, 102, 103 by the references; the TLG (t_extra) may
+    number a line 101 that no Jebb line covers."""
+    texts = [VERSE[0], VERSE[2], VERSE[3]]
+    s_ref = [{"n": n, "text": t, "parts": []} for n, t in zip(("100", "102", "103"), texts)]
+    t_ref = list(s_ref)
+    if t_extra:
+        t_ref = [s_ref[0], {"n": "101", "text": VERSE[1], "parts": []}, *s_ref[1:]]
+    covers = {"S": [[0], [1], [2]], "T": [[0], [2], [3]] if t_extra else [[0], [1], [2]]}
+    jebb = [{"text": t, "src": 10 + k, "page": 7, "printed": None} for k, t in enumerate(texts)]
+    for i, p in (printed or {}).items():
+        jebb[i]["printed"] = p
+    monkeypatch.setattr(J, "lemma_checkpoints", lambda slug, jebb: lemmas or {})
+    J.number_lines("t", jebb, {"S": s_ref, "T": t_ref}, covers)
+    return jebb
+
+
+def test_a_skipped_number_the_references_number_is_reported(monkeypatch):
+    jebb = _gap_case(monkeypatch, t_extra=True)
+    assert [x["n"] for x in jebb] == ["100", "102", "103"]
+    (gap,) = jebb[1]["gaps"]
+    assert (gap["after"], gap["missing"]) == ("100", [101]) and "TLG" in gap["why"]
+    assert not jebb[0].get("gaps") and not jebb[2].get("gaps")
+
+
+def test_a_skipped_number_both_references_skip_is_evidence_enough(monkeypatch):
+    jebb = _gap_case(monkeypatch)
+    assert [x["n"] for x in jebb] == ["100", "102", "103"]
+    assert not any(x.get("gaps") for x in jebb)
+
+
+def test_a_skipped_number_a_printed_number_or_a_note_names_is_not_a_gap(monkeypatch):
+    # 101 is the number of a printed margin on a later line, or of a note
+    # (a lyric line holding it): Jebb's own evidence.
+    jebb = _gap_case(monkeypatch, printed={1: 102}, lemmas={0: [(101, 0, 0)]}, t_extra=True)
+    assert not any(x.get("gaps") for x in jebb)
+
+
+def _whole_case(printed_after):
+    whole = "ἀρχὴ λόγου πολλὴ καλή δεύτερον ἔπος ἐστὶν τόδε"
+    assert len(J.key(whole)) > 30
+    texts = [VERSE[0], whole, VERSE[2]]
+    ref = [{"n": n, "text": t, "parts": []} for n, t in (("100", texts[0]), ("101", texts[2]))]
+    covers = {"S": [[0], [], [1]], "T": [[0], [], [1]]}
+    jebb = [{"text": t, "src": 10 + k, "page": 7, "printed": None} for k, t in enumerate(texts)]
+    jebb[0]["printed"], jebb[2]["printed"] = 100, printed_after
+    return jebb, {"S": ref, "T": ref}, covers
+
+
+def test_a_whole_line_is_never_lettered_silently(monkeypatch):
+    # 100, a whole spoken line, 101: no number is free between the printed
+    # ones, so the line is reported, not left as a quiet '100a'.
+    monkeypatch.setattr(J, "lemma_checkpoints", lambda slug, jebb: {})
+    jebb, refs, covers = _whole_case(101)
+    J.number_lines("t", jebb, refs, covers)
+    assert [x["unmet"] for x in jebb[:1] + jebb[2:]] == [[], []]
+    assert jebb[1]["unmet"] and "whole line" in jebb[1]["unmet"][0][1]
+
+
+def test_a_whole_line_takes_the_next_integer_when_one_is_free(monkeypatch):
+    monkeypatch.setattr(J, "lemma_checkpoints", lambda slug, jebb: {})
+    jebb, refs, covers = _whole_case(102)
+    J.number_lines("t", jebb, refs, covers)
+    assert [x["n"] for x in jebb] == ["100", "101", "102"]
+    assert not jebb[1]["unmet"]
 
 
 def test_a_late_lemma_is_a_number_the_line_holds(monkeypatch):
