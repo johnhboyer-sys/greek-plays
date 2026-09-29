@@ -7,6 +7,7 @@ play's declared fingerprint, its lacunae, and its Perseus-to-reference speaker
 map.
 """
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -91,6 +92,10 @@ def test_pairless_edition_builds_end_to_end_into_a_greek_only_book():
     import subprocess
     import sys
 
+    # It writes build/dist/knights/ed/ in the checkout, so it runs only when
+    # asked for (DRAMA_E2E=1), never as a side effect of a plain pytest.
+    if os.environ.get('DRAMA_E2E') != '1':
+        pytest.skip('set DRAMA_E2E=1 to run (writes into build/dist)')
     dist = REPO_ROOT / 'build' / 'dist' / 'knights'
     if not (dist / 'book-01.json').exists():
         pytest.skip('build the reference (`all --work knights`) first')
