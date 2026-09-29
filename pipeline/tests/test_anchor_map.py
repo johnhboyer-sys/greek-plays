@@ -152,7 +152,7 @@ def test_a_map_must_name_another_declared_edition():
 
 # --- Seating: the speaker in force, strict order, shared seats ---------------
 
-def _seat(speeches, events, mapping, *, inferred=frozenset(), lines=8, one_segment_per_line=False):
+def _seat(speeches, events, mapping, *, inferred=frozenset(), lines=8, one_segment_per_line=False, order_breaks=()):
     """Seat English anchors on a spine of ``lines`` lines; return (n per anchor, report block).
 
     ``speeches`` is ``[(speaker, [anchor, ...]), ...]`` in document order,
@@ -186,7 +186,8 @@ def _seat(speeches, events, mapping, *, inferred=frozenset(), lines=8, one_segme
     for line in tree.iter("l"):
         if line.attrib.pop("fixed") == "1":
             line.set(_LINE_FIXED, "1")
-    block = _apply_anchor_map(tree, dict(mapping), set(inferred), refs, "src", index, {n: n for n in names.values()})
+    block = _apply_anchor_map(tree, dict(mapping), set(inferred), refs, "src", index, {n: n for n in names.values()},
+                              declared_breaks=order_breaks)
     return [l.get("n") for l in tree.iter("l")], block
 
 
@@ -288,7 +289,22 @@ def test_the_concordance_names_the_lines_it_joined():
     assert joined_targets(mapping, inferred) == {"1": {"1", "2"}}
 
 
-def test_where_no_seat_keeps_the_order_the_anchor_stays_on_its_line_and_the_report_says_so():
+def test_an_order_break_nothing_declares_fails_the_build():
     # The text maps the second anchor eight lines before the first: no seat within 3 lines is in order.
-    ns, block = _seat([("Alpha", ["1", "2"])], [(1, 0, "A")], {"1": "8", "2": "2"})
+    with pytest.raises(ValueError, match=r"order break.*'2'.*order_breaks"):
+        _seat([("Alpha", ["1", "2"])], [(1, 0, "A")], {"1": "8", "2": "2"})
+
+
+def test_a_line_fix_seat_that_breaks_the_order_fails_the_build_too():
+    with pytest.raises(ValueError, match=r"order break.*'2'"):
+        _seat([("Alpha", ["!6", "2"])], [(1, 0, "A")], {"2": "2"})
+
+
+def test_a_declared_order_break_stays_on_its_line_and_the_report_says_so():
+    ns, block = _seat([("Alpha", ["1", "2"])], [(1, 0, "A")], {"1": "8", "2": "2"}, order_breaks=["2"])
     assert ns[1] == "2" and block["order_breaks"] == ["2"]
+
+
+def test_a_declared_order_break_that_does_not_occur_fails_the_build():
+    with pytest.raises(ValueError, match=r"stale.*order_breaks.*'2'"):
+        _seat([("Alpha", ["1", "2"])], [(1, 0, "A")], {"1": "1", "2": "2"}, order_breaks=["2"])

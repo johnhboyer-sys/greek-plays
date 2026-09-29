@@ -2443,6 +2443,7 @@ def _apply_anchor_map(
     source_id: str,
     index: "_SpeechIndex",
     aliases: dict[str, str],
+    declared_breaks: list[str] | tuple[str, ...] = (),
 ) -> dict:
     """Rewrite each ``<l n>`` from the count of ``source_id``'s Greek to this
     spine's count (``english.<slot>.anchor_map``; see ``anchor_map.py``).
@@ -2466,7 +2467,10 @@ def _apply_anchor_map(
     increase. Two anchors take one seat only where both sit on their mapped
     line and the concordance joined the source lines they map from
     (``anchor_map.joined_targets``). Where no seat can keep the order, the
-    anchor stays on its mapped line and is listed under ``order_breaks``.
+    anchor stays on its mapped line and is listed under ``order_breaks``;
+    that fails the build unless the edition's alignment block declares it
+    (``order_breaks: [<English anchor>]``, with its evidence), and a declared
+    break that does not occur fails as stale.
     A Greek speech left with no anchor is not weighed here; the manifest's
     edition alignment fixes it.
 
@@ -2598,6 +2602,21 @@ def _apply_anchor_map(
             row[base] = (options[base] + total + _ANCHOR_BREAK_COST, before)
             order_breaks.append(seat["raw"])
         table.append(row)
+    declared = [str(ref) for ref in declared_breaks or ()]
+    undeclared = [ref for ref in order_breaks if ref not in declared]
+    if undeclared:
+        raise ValueError(
+            f"{source_id} anchor_map: order break at English anchor(s) {', '.join(repr(r) for r in undeclared)}: "
+            "no seat keeps the document order, so the anchor would sit out of order. Fix it with a "
+            "line_fixes entry, or, where the English really runs in another order than the Greek, declare it "
+            "in the edition's alignment order_breaks with its evidence"
+        )
+    stale = [ref for ref in declared if ref not in order_breaks]
+    if stale:
+        raise ValueError(
+            f"{source_id} anchor_map: stale alignment order_breaks {', '.join(repr(r) for r in stale)}: "
+            "no such order break occurs"
+        )
     chosen: list[int] = []
     if table:
         at = min(table[-1], key=lambda k: (table[-1][k][0], abs(k - position[seats[-1]["mapped"]])))
@@ -2750,6 +2769,7 @@ def parse_translation(
     cuts: list[dict] | None = None,
     repeated_refs: dict | None = None,
     anchor_map: tuple[dict, set, list, str] | None = None,
+    order_breaks: list[str] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one ``perseus-play`` TEI and cut it on the Greek segments."""
     tree = etree.parse(str(xml_path))
@@ -2762,7 +2782,7 @@ def parse_translation(
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
     _apply_line_fixes(translation, line_fixes, work_id, index, repeated_refs)
-    anchor_map_report = _apply_anchor_map(translation, *anchor_map, index, aliases) if anchor_map else None
+    anchor_map_report = _apply_anchor_map(translation, *anchor_map, index, aliases, order_breaks or ()) if anchor_map else None
     _apply_cuts(translation, cuts, work_id, index)
     cut_refs = {str(c["greek"]) for c in (cuts or [])}
     cut_refs.update(
@@ -3385,6 +3405,7 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         transpositions=((manifest.data.get("citation") or {}).get("transpositions") or {}).get("1") or [],
         repeated_refs=_repeated_ref_counts(manifest),
         anchor_map=anchor_map,
+        order_breaks=cfg.get("order_breaks"),
     )
     from .stage2_validate import _play_line_english_gap_ids
 
