@@ -826,3 +826,44 @@ def test_ocr_edition_source_lies_under_ocr_and_matches_its_sums(tmp_path):
     assert _ocr_source_problem('ocr/jebb/play.xml', tmp_path) is None
     src.write_text('<TEI></TEI>')
     assert 'does not match' in _ocr_source_problem('ocr/jebb/play.xml', tmp_path)
+
+
+def test_absent_ocr_source_fails_only_when_editions_are_built(tmp_path):
+    from drama_pipeline.preflight import _ocr_source_problem
+    # Local dev: whether OCR'd TEI is committed is the owner's call.
+    assert _ocr_source_problem('ocr/jebb/play.xml', tmp_path) is None
+    # Building editions: a declared source that is absent fails.
+    assert 'absent' in _ocr_source_problem('ocr/jebb/play.xml', tmp_path, required=True)
+
+
+def _ot_manifest():
+    path = ROOT / 'manifests' / 'oedipus-tyrannus.yaml'
+    return WorkManifest('oedipus-tyrannus', path, yaml.safe_load(path.read_text()))
+
+
+def test_declared_edition_dir_must_exist_in_a_public_build_of_editions(tmp_path):
+    def messages(**kw):
+        problems = []
+        _validate_greek_editions(_ot_manifest(), tmp_path, problems, **kw)
+        return ' '.join(m for _, _, m in problems)
+    assert 'not built' not in messages()
+    assert 'not built' not in messages(editions_built=True)   # not a public build
+    assert "Greek edition 'jebb' not built" in messages(editions_built=True, public=True)
+    for edition in _ot_manifest().data['greek_editions']:
+        made = tmp_path / 'oedipus-tyrannus' / 'ed' / edition['id']
+        made.mkdir(parents=True)
+        (made / 'concordance.json').write_text('{}')
+    assert 'not built' not in messages(editions_built=True, public=True)
+
+
+def test_validate_reads_the_editions_switch(tmp_path, monkeypatch):
+    from drama_pipeline.preflight import validate
+    def ot_messages(**kw):
+        return ' '.join(m for w, _, m in validate(tmp_path, ROOT / 'manifests', public=True, **kw)
+                        if w == 'oedipus-tyrannus')
+    monkeypatch.delenv('DRAMA_EDITIONS', raising=False)
+    assert "'jebb' not built" not in ot_messages()
+    assert "'jebb' not built" in ot_messages(editions=True)
+    monkeypatch.setenv('DRAMA_EDITIONS', '1')
+    assert "'jebb' not built" in ot_messages()
+    assert "'jebb' not built" not in ot_messages(editions=False)

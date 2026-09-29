@@ -290,3 +290,29 @@ def test_number_printed_apart_checks_against_its_page(tmp_path):
     xml2, manifest2 = _ocr_setup(tmp_path / 'b', lines.replace('margin-apart-2', 'margin-apart-7'), books_end='3')
     with pytest.raises(ValueError, match='printed apart 7'):
         parse_spine(xml2, manifest2, check_fingerprint=False)
+
+
+def test_printed_margin_number_on_a_joined_part_is_checked(tmp_path):
+    # An antilabe line: <l n="3"> plus its final share <l n="3b" part="F">.
+    # The share's printed number was never recorded, so a wrong one passed.
+    def lines(part_rend):
+        return ('<sp><speaker>Α</speaker><l n="1">ἀρχή</l><l n="2">δεύτερον</l>'
+                '<l n="3" part="I">τρίτον</l></sp><sp><speaker>Β</speaker>'
+                f'<l n="3b" part="F"{part_rend}>ναί</l><l n="4">τέταρτον</l><l n="5">πέμπτον</l></sp>')
+    xml, manifest = _ocr_setup(tmp_path / 'a', lines(' rend="margin-3"'))
+    assert parse_spine(xml, manifest, check_fingerprint=False)      # 3b is line 3: agrees
+    xml2, manifest2 = _ocr_setup(tmp_path / 'b', lines(' rend="margin-4"'))
+    with pytest.raises(ValueError, match='printed margin numbers disagree'):
+        parse_spine(xml2, manifest2, check_fingerprint=False)
+
+
+def test_a_joined_turn_over_line_may_carry_two_printed_numbers(tmp_path):
+    # The converter keeps the target's number and the turn-over's: both are checked.
+    def lines(second):
+        return ('<sp><speaker>Α</speaker><l n="1">ἀρχή</l>'
+                f'<l n="2" rend="margin-2 {second} turn">δεύτερον βροτῶν</l><l n="4">τέταρτον</l></sp>')
+    xml, manifest = _ocr_setup(tmp_path / 'a', lines('margin-3'), books_end='4')
+    assert parse_spine(xml, manifest, check_fingerprint=False)
+    xml2, manifest2 = _ocr_setup(tmp_path / 'b', lines('margin-9'), books_end='4')
+    with pytest.raises(ValueError, match='printed margin numbers disagree'):
+        parse_spine(xml2, manifest2, check_fingerprint=False)

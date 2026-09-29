@@ -92,7 +92,7 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
     # before it, so an A, unlabelled, A run gives the last A no event.
     current_label = None
     merge_same_speaker = marks is None
-    margins: list[tuple[int, int, bool]] = []   # (index in flat, printed number, may hold several)
+    margins: list[tuple[int, int, bool, str, bool]] = []   # (index in flat, printed number, may hold several, ref, joined part)
     apart: list[tuple[int, str | None, int]] = []   # (index in flat, page, number printed apart)
     page = None
     for el in body.iter():
@@ -115,6 +115,18 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         speaker = sp.find('{*}speaker') if sp is not None else None
         label = ' '.join(''.join(speaker.itertext()).split()) if speaker is not None else None
         text = _text(el)
+        # A joined share (part F/M) folds into the line before it, but its
+        # printed number is still a checkpoint, against the share's own ref.
+        joined = el.get('part') in {'F', 'M'}
+        at = len(flat) - 1 if joined else len(flat)
+        for token in rend:
+            if re.fullmatch(r'margin-apart-\d+', token):
+                apart.append((at, page, int(token[13:])))
+            elif re.fullmatch(r'margin-\d+', token):
+                # A lyric line (a colon number, a strophe) or a line with a
+                # turn-over may hold several numbers of the traditional count.
+                several = any(t.startswith('colon-') or t == 'turn' for t in rend) or _in_strophe(el)
+                margins.append((at, int(token[7:]), several, ref, joined))
         part = el.get('part')
         if part in {'F', 'M'}:
             if not flat:
@@ -128,14 +140,6 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
                 previous.setdefault('speakers', []).append({'offset': offset, 'label': label})
                 current_label = label
             continue
-        for token in rend:
-            if re.fullmatch(r'margin-apart-\d+', token):
-                apart.append((len(flat), page, int(token[13:])))
-            elif re.fullmatch(r'margin-\d+', token):
-                # A lyric line (a colon number, a strophe) or a line with a
-                # turn-over may hold several numbers of the traditional count.
-                several = any(t.startswith('colon-') or t == 'turn' for t in rend) or _in_strophe(el)
-                margins.append((len(flat), int(token[7:]), several))
         counts[ref] += 1
         if counts[ref] > 1 and ref not in repeats:
             raise ValueError(f'{xml_path}: undeclared repeated ref {ref}')
@@ -203,12 +207,12 @@ def _check_margin_numbers(flat: list[dict], margins: list, apart: list, xml_path
     printed apart from its lines must fall within its page's numbers."""
     nums = [_line_number(e['ref']) for e in flat]
     bad = []
-    for i, printed, several in margins:
-        n = flat[i]['ref']
-        nxt = next((v for v in nums[i + 1:] if v > nums[i]), None)
-        if printed == nums[i] and n.isdigit():
+    for i, printed, several, n, joined in margins:
+        here = _line_number(n)
+        nxt = next((v for v in nums[i + 1:] if v > here), None)
+        if printed == here and (n.isdigit() or joined):
             continue
-        if several and nxt is not None and nums[i] < printed <= nxt:
+        if several and nxt is not None and here < printed <= nxt:
             continue
         bad.append(f'{n} (printed {printed})')
     for i, page, printed in apart:

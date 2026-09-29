@@ -172,7 +172,9 @@ run('node', [join(ROOT, 'scripts', 'build-registry.mjs')]);
 run('node', [join(ROOT, 'scripts', 'build-route-registry.mjs')]);
 
 console.log('\nRunning corpus preflight validation');
-run(PY, ['-m', 'drama_pipeline.preflight', '--public', dataDir, MANIFESTS], {
+// With DRAMA_EDITIONS=1 the editions were built above: preflight then also
+// requires every declared edition's source and emitted dir.
+run(PY, ['-m', 'drama_pipeline.preflight', '--public', ...(process.env.DRAMA_EDITIONS === '1' ? ['--editions'] : []), dataDir, MANIFESTS], {
   cwd: join(ROOT, 'pipeline'),
 });
 

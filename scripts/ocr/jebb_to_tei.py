@@ -17,7 +17,9 @@ in build/sweeps/jebb-ocr/.
    The verse block runs from after the head to the first apparatus line
    (**<digit>, **<Latin>, '<digit> <Latin word>', a Latin word, or a lemma
    bracket), a line longer than 90 characters once markup is removed, or a
-   line of mostly Latin letters.
+   line of mostly Latin letters. One OCR slip can be such a row, so the scan
+   goes on: a later row within reach of a reference line (Storr, TLG)
+   resumes the block. The report lists every stop (page_rows).
 2. Inside the block: '#' headings and all-caps names are speakers; a
    leading ΟΙ.-style abbreviation opens a speech, one inside a line an
    antilabe share; a leading strophe mark opens a strophe div; a leading
@@ -239,12 +241,117 @@ def is_verse_like(s: str) -> bool:
     return 0 < len(c) <= 75 and greek_share(c) >= 0.9 and not APP.match(s)
 
 
-def extract(slug: str) -> tuple[list[dict], list[str]]:
-    """Raw rows of the Greek text: {kind: verse|name|turn, src, page, ...}."""
+def stop_reason(s: str, p: str) -> str | None:
+    """Why a row ends the verse block (None: it is verse). s is the row, p
+    its plain text."""
+    if APP.match(s):
+        return "apparatus marker"
+    if len(p) > 90:
+        return "row over 90 characters"
+    letters = [c for c in p if c.isalpha()]
+    if len(letters) >= 10 and greek_share(p) < 0.5:
+        return "mostly Latin letters"
+    if is_apparatus(p):
+        return "apparatus text"
+    return None
+
+
+def _grams(a: str) -> Counter:
+    return Counter(a[k:k + 2] for k in range(len(a) - 1)) if len(a) > 1 else Counter([a])
+
+
+def ref_index(ref_keys: list[str] | None) -> list[tuple[Counter, int]]:
+    return [(g, sum(g.values())) for g in map(_grams, sorted({k for k in ref_keys or [] if k}))]
+
+
+def ref_score(text: str, index: list[tuple[Counter, int]]) -> float:
+    """The best Dice coefficient (letter bigrams) of the row against a
+    reference line; 0.0 for a row too short to tell."""
+    k = key(text)
+    if len(k) < 12 or not index:
+        return 0.0
+    g = _grams(k)
+    n = sum(g.values())
+    best = 0.0
+    for rg, rn in index:
+        if 0.6 * n <= rn <= 1.7 * n:
+            best = max(best, 2.0 * sum((g & rg).values()) / (n + rn))
+    return best
+
+
+RESUME_SCORE = 0.8    # a row this close to a reference line is verse
+SUSPECT_SCORE = 0.6   # a dropped row this close is reported as verse-like
+
+
+def page_rows(ne: list[tuple[int, str]], number: int | None, ref_keys: list[str] | None = None) -> tuple[list[dict], list[dict]]:
+    """The verse rows of one Greek-text page (ne: its rows after the head)
+    and every stop.
+
+    The block ends at the first row that stop_reason names. One OCR slip (a
+    verse word read in Latin letters) can be such a row, so with reference
+    keys the scan goes on: the first later row that is verse by the tests
+    and lies within RESUME_SCORE of a reference line resumes the block (with
+    the speaker-name rows just before it). Every stop is reported: page,
+    row, reason, the rows dropped (the stop row included), where the block
+    resumed, and the dropped rows that look like verse (no reference: verse
+    by shape; with one, within SUSPECT_SCORE of a reference line). A stop
+    row stays dropped even where the block resumes after it (Ant. 920
+    'κατασκαφάς·]', a verse with a stray bracket); a stop that resumed is
+    always worth a look."""
+    index = ref_index(ref_keys)
+    rows: list[dict] = []
+    stops: list[dict] = []
+    stop = None
+    pending: list[tuple[int, dict]] = []   # name and label rows seen while stopped
+
+    def parsed(i: int, s: str):
+        row = parse_row(s)
+        if row is not None:
+            row.update(src=i, page=number)
+        return row
+
+    for i, s in ne:
+        s = latex_greek(s)
+        p = plain(table_text(s)).replace("⁂LACUNA", "")
+        reason = stop_reason(s, p)
+        if stop is None:
+            if reason is not None:
+                stop = {"page": number, "src": i, "reason": reason, "text": p[:40], "dropped": [i],
+                        "resumed_at": None, "suspect": []}
+                stops.append(stop)
+                pending = []
+                continue
+            row = parsed(i, s)
+            if row is not None:
+                rows.append(row)
+            continue
+        row = parsed(i, s) if reason is None else None
+        if row is not None and row["kind"] in ("name", "label"):
+            pending.append((i, row))
+            stop["dropped"].append(i)
+        elif row is not None and row["kind"] == "verse" and index and ref_score(row["text"], index) >= RESUME_SCORE:
+            rows.extend(r for _, r in pending)
+            rows.append(row)
+            stop["resumed_at"] = i
+            stop["dropped"] = [d for d in stop["dropped"] if d not in {k for k, _ in pending}]
+            stop = None
+            pending = []
+        else:
+            pending = []
+            stop["dropped"].append(i)
+            if row is not None and row["kind"] == "verse" and is_verse_like(s) and (not index or ref_score(row["text"], index) >= SUSPECT_SCORE):
+                stop["suspect"].append((i, row["text"][:40]))
+    return rows, stops
+
+
+def extract(slug: str, ref_keys: list[str] | None = None) -> tuple[list[dict], list[str], list[dict]]:
+    """Raw rows of the Greek text: {kind: verse|name|turn, src, page, ...},
+    the page log, and every stop of a page's verse block (page_rows)."""
     fname, _, _, first, last = PLAYS[slug]
     lines = (GENIE / fname).read_text(encoding="utf-8").split("\n")
     rows: list[dict] = []
     log: list[str] = []
+    stops: list[dict] = []
     last_page = None
     for pg in pages_of(lines, first, last or len(lines)):
         ne = [(i, s) for i, s in pg if s.strip()]
@@ -265,22 +372,10 @@ def extract(slug: str) -> tuple[list[dict], list[str]]:
         elif last_page and number != last_page + 2:
             log.append(f"page at .txt {ne[0][0]}: page {number} follows {last_page}")
         last_page = number
-        for i, s in ne[used:]:
-            s = latex_greek(s)
-            p = plain(table_text(s)).replace("⁂LACUNA", "")
-            if APP.match(s) or len(p) > 90:
-                break
-            letters = [c for c in p if c.isalpha()]
-            if len(letters) >= 10 and greek_share(p) < 0.5:
-                break
-            if is_apparatus(p):
-                break
-            row = parse_row(s)
-            if row is None:
-                continue
-            row.update(src=i, page=number)
-            rows.append(row)
-    return rows, log
+        page, page_stops = page_rows(ne[used:], number, ref_keys)
+        rows.extend(page)
+        stops.extend(page_stops)
+    return rows, log, stops
 
 
 HEADINGS = {"κομμός", "κομμὸς"}
@@ -455,6 +550,10 @@ def join_turnovers(rows: list[dict], ref_keys: list[str]) -> list[dict]:
             # starts the next traditional line, OT 1195 'βροτῶν') the next.
             target["printed"] = r["printed"]
             target["printed_from_turn"] = True
+        elif r["printed"] is not None:
+            # Both rows print a number: the line keeps both (TEI: one
+            # margin-N token each), and check_margins checks both.
+            target.setdefault("printed_more", []).append(r["printed"])
     return out
 
 
@@ -634,12 +733,16 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
         cks = []
         if line.get("printed") is not None:
             cks.append((line["printed"], PRINTED_WEIGHT, "turn" if line.get("printed_from_turn") else "printed"))
+        for n in line.get("printed_more") or []:
+            cks.append((n, PRINTED_WEIGHT, "turn"))
         for n in lemmas.get(i, []):
             cks.append((n, LEMMA_WEIGHT, "lemma"))
         line["lemmas"] = lemmas.get(i, [])
         if line["src"] in fixes:
+            # A hand fix keeps its checkpoints: an unmet one costs, and is
+            # reported below (fix_conflicts).
             options.append({"F": (fixes[line["src"]][0], 0.0)})
-            checks.append([])
+            checks.append(cks)
             continue
         opts: dict[str, tuple[str, float]] = {}
         for x in ("S", "T"):
@@ -655,10 +758,10 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
     # turn-over can hold several numbers of the traditional count.
     multi = [x.get("colon") is not None or x.get("strophe") is not None or bool(x.get("turnovers")) for x in jebb]
 
-    def check_cost(i: int, st: str, before: tuple[int, str], nxt: tuple[int, str] | None) -> float:
-        """Cost of line i's unmet checkpoints, given its state, the number
-        before it, and the next line's number."""
-        cost = 0.0
+    def unmet(i: int, st: str, before: tuple[int, str], nxt: tuple[int, str] | None) -> list[tuple[int, float, str]]:
+        """Line i's unmet checkpoints, given its state, the number before
+        it, and the next line's number."""
+        out = []
         for n, w, kind in checks[i]:
             if st == "X":
                 met = kind == "lemma" and before[0] == n
@@ -668,8 +771,11 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
                 inside = multi[i] and v < n < upper
                 met = (v == n and not suffix) or inside or (kind == "turn" and nxt == (n, ""))
             if not met:
-                cost += w
-        return cost
+                out.append((n, w, kind))
+        return out
+
+    def check_cost(i: int, st: str, before: tuple[int, str], nxt: tuple[int, str] | None) -> float:
+        return sum(w for _, w, _ in unmet(i, st, before, nxt))
 
     INF = float("inf")
     # best[i][state] = (cost, previous state, last real number, number before line i)
@@ -699,6 +805,11 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
         st = best[i][st][1]
         path.append(st)
     path.reverse()
+    # A fixed line's checkpoints the fix leaves unmet.
+    for i, (line, st) in enumerate(zip(jebb, path)):
+        if st == "F":
+            after = _num(options[i + 1][path[i + 1]][0]) if i + 1 < len(jebb) and path[i + 1] != "X" else None
+            line["fix_conflicts"] = [(n, kind) for n, _, kind in unmet(i, st, best[i][st][3], after)]
     for i, (line, st) in enumerate(zip(jebb, path)):
         if st == "X":
             line["n"] = None
@@ -729,27 +840,34 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
 
 
 def check_margins(slug: str, jebb: list[dict]) -> list[dict]:
-    """Every printed number is a checkpoint; returns the disagreements."""
+    """Every printed number is a checkpoint; returns the disagreements. A
+    line holds its own printed number and, when a joined turn-over row printed
+    one too, that as well (printed_more)."""
     notes = MARGIN_NOTES.get(slug, {})
     bad = []
     for i, line in enumerate(jebb):
-        p = line.get("printed")
-        if p is None:
+        numbers = ([] if line.get("printed") is None else [(line["printed"], bool(line.get("printed_from_turn")))]) \
+            + [(p, True) for p in line.get("printed_more") or []]
+        if not numbers:
             continue
         n, _ = _num(line["n"])
         nxt = next((_num(jebb[k]["n"])[0] for k in range(i + 1, len(jebb)) if _num(jebb[k]["n"])[0] > n), None)
-        if n == p and not _num(line["n"])[1]:
-            line["margin_ok"] = "equal"
-        elif n < p and nxt is not None and p < nxt and (line.get("colon") is not None or line.get("strophe") is not None or line.get("turnovers")):
-            line["margin_ok"] = "inside"   # a lyric line carrying several traditional numbers
-        elif line.get("printed_from_turn") and i + 1 < len(jebb) and jebb[i + 1]["n"] == str(p):
-            line["margin_ok"] = "turn"     # printed on a turn-over row where the next line's number begins
-        elif line["src"] in notes:
-            line["margin_ok"] = "noted: " + notes[line["src"]]
-        else:
-            line["margin_ok"] = None
-            bad.append({"src": line["src"], "page": line["page"], "n": line["n"], "printed": p,
-                        "text": line["text"][:60], "how": line.get("n_how")})
+        statuses = []
+        for p, from_turn in numbers:
+            if n == p and not _num(line["n"])[1]:
+                ok = "equal"
+            elif n < p and nxt is not None and p < nxt and (line.get("colon") is not None or line.get("strophe") is not None or line.get("turnovers")):
+                ok = "inside"   # a lyric line carrying several traditional numbers
+            elif from_turn and i + 1 < len(jebb) and jebb[i + 1]["n"] == str(p):
+                ok = "turn"     # printed on a turn-over row where the next line's number begins
+            elif line["src"] in notes:
+                ok = "noted: " + notes[line["src"]]
+            else:
+                ok = None
+                bad.append({"src": line["src"], "page": line["page"], "n": line["n"], "printed": p,
+                            "text": line["text"][:60], "how": line.get("n_how")})
+            statuses.append(ok)
+        line["margin_ok"] = statuses[0] if all(statuses) else None
     # Numbers printed apart from their lines check against the page: each
     # must fall within the numbers the page's lines carry.
     for i, line in enumerate(jebb):
@@ -827,6 +945,8 @@ def write_tei(slug: str, jebb: list[dict]) -> str:
                 rend.append(f"colon-{line['colon']}")
             if k == 0 and line.get("printed") is not None:
                 rend.append(f"margin-{line['printed']}")
+            if k == 0:
+                rend.extend(f"margin-{p}" for p in line.get("printed_more") or [])
             if k == 0:
                 rend.extend(f"margin-apart-{p}" for p in line.get("detached") or [])
             if k == 0 and line.get("turnovers"):
@@ -943,10 +1063,11 @@ def convert(slug: str, qa: bool = False) -> dict:
     fname, tlg, ident, first, last = PLAYS[slug]
     if first is None:
         raise SystemExit(f"{slug}: set the play's .txt line range in PLAYS")
-    rows, log = extract(slug)
     ref = storr_lines(tlg)
     ref_t = tlg_lines(slug)
-    rows = join_turnovers(rows, [key(r["text"]) for r in ref + ref_t if r["text"]])
+    ref_keys = [key(r["text"]) for r in ref + ref_t if r["text"]]
+    rows, log, stops = extract(slug, ref_keys)
+    rows = join_turnovers(rows, ref_keys)
     jebb = build_lines(rows)
     refs = {"S": ref, "T": ref_t}
     covers = {"S": align(jebb, ref), "T": align(jebb, ref_t)}
@@ -963,7 +1084,7 @@ def convert(slug: str, qa: bool = False) -> dict:
     (OUT / f"{slug}.xml").write_text(tei, encoding="utf-8")
     _write_sums()
     report = {"slug": slug, "lines": len(jebb), "ref_lines": len(ref), "log": log,
-              "margin_checkpoints": sum(1 for x in jebb if x.get("printed") is not None),
+              "margin_checkpoints": sum((x.get("printed") is not None) + len(x.get("printed_more") or []) for x in jebb),
               "margin_equal": sum(1 for x in jebb if x.get("margin_ok") == "equal"),
               "margin_inside": sum(1 for x in jebb if x.get("margin_ok") == "inside"),
               "margin_turn": sum(1 for x in jebb if x.get("margin_ok") == "turn"),
@@ -972,11 +1093,20 @@ def convert(slug: str, qa: bool = False) -> dict:
               "numbered_by": {h: sum(1 for x in jebb if x.get("n_how") == h) for h in ("storr", "tlg", "checkpoint", "next free number", "lettered")},
               "not_storr": [(x["src"], x["n"], x["n_how"], x["cand"]["S"], x["text"][:40]) for x in jebb if x.get("n_how") != "storr"],
               "turnovers": sum(len(x.get("turnovers") or []) for x in jebb)}
+    # Every stop of a page's verse block; 'stops_suspect' are those that
+    # resumed or dropped rows that look like verse (a slip to look at).
+    report["stops"] = [{**st, "dropped": [st["dropped"][0], st["dropped"][-1], len(st["dropped"])]} for st in stops]
+    report["stops_suspect"] = [st for st in stops if st["resumed_at"] is not None or st["suspect"]]
+    # A hand fix (NUMBER_FIXES) that leaves a printed number or commentary
+    # lemma unmet, and the lemma checks of the whole numbering.
+    report["fix_conflicts"] = [{"src": x["src"], "page": x["page"], "fix": x["n"], "checkpoint": n, "kind": kind,
+                                "text": x["text"][:40]}
+                               for x in jebb for n, kind in x.get("fix_conflicts") or []]
+    report["commentary_lemmas"] = lemma_check(slug, jebb)
     if qa:
         report["bad_chars"] = char_check(tei)
         present, total, missing = english_anchor_check(tlg, jebb)
         report["english_anchors"] = {"present": present, "total": total, "missing": missing}
-        report["commentary_lemmas"] = lemma_check(slug, jebb)
     dump = ROOT / "build/sweeps/jebb-ocr" / f"{slug}-lines.json"
     dump.parent.mkdir(parents=True, exist_ok=True)
     dump.write_text(json.dumps([{k: v for k, v in x.items()} for x in jebb], ensure_ascii=False, indent=0), encoding="utf-8")

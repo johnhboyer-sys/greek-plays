@@ -118,12 +118,17 @@ class WorkManifest:
     private_data: dict[str, Any] | None = None
 
 
-def validate(data_dir: Path, manifests_dir: Path, public: bool = False) -> list[Problem]:
+def validate(data_dir: Path, manifests_dir: Path, public: bool = False, editions: bool | None = None) -> list[Problem]:
+    """`editions`: whether this build emits the Greek editions (build-public's
+    DRAMA_EDITIONS=1; None reads that variable). A build of editions needs
+    every declared OCR source, and a public one every declared edition's dir."""
+    if editions is None:
+        editions = os.environ.get("DRAMA_EDITIONS") == "1"
     problems: list[Problem] = []
     manifests = _load_manifests(manifests_dir, problems)
     for manifest in manifests:
         _validate_manifest_schema(manifest, problems)
-        _validate_greek_editions(manifest, data_dir, problems)
+        _validate_greek_editions(manifest, data_dir, problems, editions_built=editions, public=public)
         _validate_public_domain_allowlist(manifest, problems)
         _validate_work_data(data_dir, manifest, problems, public_build=public)
     return problems
@@ -135,16 +140,20 @@ def main(argv: list[str] | None = None) -> int:
     if "--public" in argv:
         public = True
         argv = [a for a in argv if a != "--public"]
+    editions = None
+    if "--editions" in argv:
+        editions = True
+        argv = [a for a in argv if a != "--editions"]
     if len(argv) != 2:
         print(
-            "usage: python3 -m drama_pipeline.preflight [--public] <data-dir> <manifests-dir>",
+            "usage: python3 -m drama_pipeline.preflight [--public] [--editions] <data-dir> <manifests-dir>",
             file=sys.stderr,
         )
         return 2
 
     data_dir = Path(argv[0])
     manifests_dir = Path(argv[1])
-    problems = validate(data_dir, manifests_dir, public=public)
+    problems = validate(data_dir, manifests_dir, public=public, editions=editions)
     if problems:
         for work, file_name, problem in problems:
             print(f"{work}: {file_name}: {problem}")
@@ -2815,16 +2824,17 @@ def _lsj_shard(key: str) -> str:
     return "_"
 
 
-def _ocr_source_problem(path: str, sources_dir: Path | None = None) -> str | None:
+def _ocr_source_problem(path: str, sources_dir: Path | None = None, required: bool = False) -> str | None:
     """An OCR'd edition's TEI lives under sources/ocr/, and its own
-    directory's SHA256SUMS names it. The file itself may be absent (whether
-    OCR'd TEI is committed is the owner's call); stage 1 then fails on it.
-    Present, it must match the listed hash."""
+    directory's SHA256SUMS names it. The file itself may be absent in local
+    dev (whether OCR'd TEI is committed is the owner's call); `required`, a
+    build of editions, makes that a problem. Present, it must match the
+    listed hash."""
     if not path.startswith("ocr/") or ".." in Path(path).parts:
         return "OCR source must lie under sources/ocr/"
     src = (sources_dir or SOURCES_DIR) / path
     if not src.is_file():
-        return None
+        return f"OCR source {path} is absent" if required else None
     sums = src.parent / "SHA256SUMS"
     rows = sums.read_text(encoding="utf-8").splitlines() if sums.is_file() else []
     listed = next((row.split()[0] for row in rows if row.split() and row.split()[-1] == src.name), None)
@@ -2835,7 +2845,8 @@ def _ocr_source_problem(path: str, sources_dir: Path | None = None) -> str | Non
     return None
 
 
-def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: list[Problem]) -> None:
+def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: list[Problem],
+                             editions_built: bool = False, public: bool = False) -> None:
     editions = manifest.data.get("greek_editions") or []
     if not isinstance(editions, list):
         problems.append((manifest.work_id, manifest.path.name, "greek_editions must be a list"))
@@ -2883,7 +2894,7 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
         if source.get("kind") not in {"perseus-tei", "ocr-tei"} or not source.get("expect"):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} needs a TEI source and header gate"))
         if source.get("kind") == "ocr-tei":
-            problem = _ocr_source_problem(source.get("path") or "")
+            problem = _ocr_source_problem(source.get("path") or "", required=editions_built)
             if problem:
                 problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} {problem}"))
         if not isinstance(edition.get("citation"), dict) or not isinstance((edition.get("citation") or {}).get("fingerprint"), dict):
@@ -2900,6 +2911,10 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
                 problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} has undeclared or duplicate pair {pair!r}"))
             seen_pairs.add(pair)
     ed_dir = data_dir / manifest.work_id / "ed"
+    if editions_built and public:
+        for eid in sorted(seen_ids):
+            if not (ed_dir / eid).is_dir():
+                problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} not built: {ed_dir / eid} is missing"))
     if ed_dir.is_dir():
         for child in ed_dir.iterdir():
             if child.is_dir() and child.name not in seen_ids:
