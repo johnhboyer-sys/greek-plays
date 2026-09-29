@@ -141,6 +141,15 @@ def test_tokenize_keeps_an_interior_siglum_verbatim_in_t_but_keys_the_cleaned_fo
     assert key_failures == []
 
 
+def test_tokenize_unicode_angle_brackets_keep_surface_and_clean_key():
+    tokens, sigla_log, key_failures = tokenize(_spine_with_lines("⟨ὁμολογεῖν⟩"))
+    assert tokens["segments"][0]["lines"][0]["tokens"] == [
+        {"t": "⟨ὁμολογεῖν⟩", "o": 0, "k": "o(mologei=n"}
+    ]
+    assert sigla_log == [{"ref": "1094a1", "raw": "⟨ὁμολογεῖν⟩", "kept": "ὁμολογεῖν"}]
+    assert key_failures == []
+
+
 def test_tokenize_keeps_an_interior_paren_siglum_verbatim_in_t_but_keys_the_cleaned_form():
     # The parenthesis analogue of the angle-bracket case above (`_SIGLA`'s
     # '()' widening, stage3_tokenize.py, Wave 1b Parmenides pilot): a DK6

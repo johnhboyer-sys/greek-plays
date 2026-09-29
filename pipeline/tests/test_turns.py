@@ -25,6 +25,7 @@ def test_base_siglum_strips_dash_and_bracket():
     assert turns.base_siglum("— ΣΩ.") == "ΣΩ."
     assert turns.base_siglum("—ΣΩ.") == "ΣΩ."
     assert turns.base_siglum("—<ΙΠ.") == "ΙΠ."
+    assert turns.base_siglum("—⟨ΙΠ.") == "ΙΠ."
     assert turns.base_siglum("—") == ""
 
 

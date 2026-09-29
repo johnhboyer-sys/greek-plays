@@ -73,7 +73,7 @@
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { copyButtonPosition } from '../lib/copy-button';
@@ -1626,7 +1626,7 @@
   // Split a line into clickable words, the verbatim text between them, and (for
   // Stephanus dialogues) speaker lead-in labels spliced in at each turn offset.
   // The tokens hold bare words (for the popup lookup); the line `text` keeps the
-  // original punctuation AND the OCT editorial sigla ( ) [ ] < > † " — so the
+  // original punctuation AND the OCT editorial sigla ( ) [ ] < > ⟨ ⟩ † " — so the
   // gaps render as plain, non-clickable text, preserving the critical edition.
   // The position math lives in shared/lib/speakers.ts (see lineRenderParts):
   // with no speaker events it is byte-identical to the old token/gap split.
@@ -1824,7 +1824,12 @@
   // that the translator gave no words (John, 2026-09-22, option B): it
   // renders in THIS segment's own cell (playEngTurns' bareDirectionPiece),
   // not lifted to a row above it, so its directionsBefore is left out here.
-  function openingDirections(seg: Segment, transId: string): string[] | undefined {
+  //
+  // Only a LONG direction (splitShortDirections, John, 2026-09-28) takes this
+  // row; a short one ("sung", "within") runs in at the head of the first
+  // speech instead -- see openingRunIn below, and playTurnStack's rendering
+  // of a block's own directionsBefore.
+  function firstTurnDirections(seg: Segment, transId: string): { short: string[]; long: string[] } {
     const t = transById(transId);
     const pieces = piecesFor(seg, t);
     const piece = pieces.find((p) => p.cont) ?? pieces[0];
@@ -1833,7 +1838,17 @@
     const firstTurn = blocks.find((b) => b.turnIndex >= 0);
     const pieceDirections = piece?.text?.trim() ? (piece?.directionsBefore ?? []) : [];
     const directions = [...new Set([...pieceDirections, ...(firstTurn?.directionsBefore ?? [])])];
-    return directions.length ? directions : undefined;
+    return splitShortDirections(directions);
+  }
+  function openingDirections(seg: Segment, transId: string): string[] | undefined {
+    const { long } = firstTurnDirections(seg, transId);
+    return long.length ? long : undefined;
+  }
+  // The short subset of the same directions, for the first speech's block to
+  // run in at its head.
+  function openingRunIn(seg: Segment, transId: string): string[] | undefined {
+    const { short } = firstTurnDirections(seg, transId);
+    return short.length ? short : undefined;
   }
 
   // The bare chunk `_place_bare_speech_directions` emits (John, 2026-09-22,
@@ -1849,25 +1864,31 @@
     return piece?.directionsBefore?.length ? piece.directionsBefore : undefined;
   }
 
-  // The opening-direction row has taken these directions out of the turn
-  // stack. Later-turn directions remain for splitAtDirections to place.
-  function withoutOpeningDirections(blocks: EnglishTurnBlock[]): EnglishTurnBlock[] {
+  // The opening-direction row has taken the LONG directions out of the turn
+  // stack; `shortOpening` (openingRunIn) replaces whatever was there with
+  // just the short ones, piece-level directions included, so the first
+  // block's own text carries exactly what playTurnStack should run in at its
+  // head (John, 2026-09-28). Later-turn directions remain for
+  // splitAtDirections to place.
+  function withoutOpeningDirections(blocks: EnglishTurnBlock[], shortOpening: string[] | undefined): EnglishTurnBlock[] {
     const i = blocks.findIndex((b) => b.turnIndex >= 0);
-    if (i < 0 || !blocks[i]?.directionsBefore?.length) return blocks;
-    const { directionsBefore: _moved, ...first } = blocks[i]!;
+    if (i < 0 || !(blocks[i]?.directionsBefore?.length || shortOpening?.length)) return blocks;
+    const { directionsBefore: _moved, ...rest } = blocks[i]!;
+    const first = shortOpening?.length ? { ...rest, directionsBefore: shortOpening } : rest;
     return [...blocks.slice(0, i), first, ...blocks.slice(i + 1)];
   }
 
-  // Tick rows rebuild their blocks from slices of the source, so remove the
-  // opening direction after that second build as well. Otherwise it reaches
-  // both the row above the segment and splitAtDirections.
-  function withoutOpeningDirectionsInRows(rows: PlayRow[]): PlayRow[] {
+  // Tick rows rebuild their blocks from slices of the source, so redo the
+  // same opening-direction swap after that second build. Otherwise the long
+  // directions reach both the row above the segment and splitAtDirections.
+  function withoutOpeningDirectionsInRows(rows: PlayRow[], shortOpening: string[] | undefined): PlayRow[] {
     for (let i = 0; i < rows.length; i += 1) {
       const blocks = rows[i]!.blocks;
       const j = blocks.findIndex((b) => b.turnIndex >= 0);
       if (j < 0) continue;
-      if (!blocks[j]!.directionsBefore?.length) return rows;
-      const { directionsBefore: _moved, ...first } = blocks[j]!;
+      if (!(blocks[j]!.directionsBefore?.length || shortOpening?.length)) return rows;
+      const { directionsBefore: _moved, ...rest } = blocks[j]!;
+      const first = shortOpening?.length ? { ...rest, directionsBefore: shortOpening } : rest;
       return [...rows.slice(0, i), { ...rows[i]!, blocks: [...blocks.slice(0, j), first, ...blocks.slice(j + 1)] }, ...rows.slice(i + 1)];
     }
     return rows;
@@ -4183,9 +4204,15 @@
              that repeats the block before it is not shown (John, 2026-09-09). -->
         {@const repeatLead = bi > 0 && !!b.display && (blocks[bi - 1].speaker ?? blocks[bi - 1].display) === (b.speaker ?? b.display) && !blocks[bi - 1].lead}
         <!-- A direction before this speech that got no row of its own
-             (splitAtDirections: compare mode, or a speech sharing its row). -->
-        {#if b.directionsBefore}{#each b.directionsBefore as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
-        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{(b as AddedBlock).cueAdded ? `[${leadInCase(leadName(b.display))}]` : leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
+             (splitAtDirections: compare mode, or a speech sharing its row).
+             Long (a sentence of stage business) still prints on its own
+             line; short ("sung", "within") runs in at the head of the
+             speech below, after the speaker's name, bracketed like an
+             in-speech one (John, 2026-09-28: "put them in the speaker's
+             speech/turn at the start"). -->
+        {@const dirSplit = b.directionsBefore?.length ? splitShortDirections(b.directionsBefore) : undefined}
+        {#if dirSplit?.long.length}{#each dirSplit.long as dir}<p class="stage-dir">{dir}</p>{/each}{/if}
+        <p class="turn-para">{#if !b.lead && !repeatLead}{#if b.display}<span class="speaker" class:speaker-added={(b as AddedBlock).cueAdded} class:spk-long={longLabel(leadName(b.display))} data-spk={spkSlots.get(b.speaker ?? b.display)} data-mismatch={mm ? '' : undefined} title={mm ? `This translation gives the line to ${mm.english}; the Greek edition gives it to ${mm.greek}.` : undefined}>{(b as AddedBlock).cueAdded ? `[${leadInCase(leadName(b.display))}]` : leadInCase(leadName(b.display))}</span>{:else}<span class="speaker speaker-dash">—</span>{/if}{/if}{#if dirSplit?.short.length}{#each dirSplit.short as dir}<span class="stage-dir stage-dir-short">{directionBracket(dir)}</span>{' '}{/each}{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html lineNumberHtml(verseForm(transId) ? renderVerseTurn(b.text, transId) : markStageDirections(renderThird(b.text, transId), true))}</p>
       {/each}
     </div>
   {/snippet}
@@ -4202,7 +4229,7 @@
          used only when no turn in this chunk carries one of its own (data
          built before the per-turn flag existed). -->
     {@const marked = markedTurns(source)}
-    {@const blocks = withoutOpeningDirections(playBlocks(marked.text, marked.turns))}
+    {@const blocks = withoutOpeningDirections(playBlocks(marked.text, marked.turns), openingRunIn(seg, transId))}
     {@const chunkMm = seg.english && source.text === seg.english.text && !blocks.some(b => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
     {@render playTurnStack(blocks, chunkMm, transId)}
     {:else if bareDirs}
@@ -4739,7 +4766,7 @@
                          print edition carries -- the line's own `text`/
                          `tokens` are always empty (see GreekLine.role's
                          doc comment), so there is nothing to click. -->
-                    <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'<' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>\s]/g, '')) + '>'}</span>{/each}{/if}⁂ lacuna ⁂</span>
+                    <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'⟨' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>⟨⟩\s]/g, '')) + '⟩'}</span>{/each}{/if}⁂ lacuna ⁂</span>
                   {:else}
                     <!-- Lined-source only (Q2; wrapO deviation 2026-08-29,
                          §3): `item.leadFragment` (set when the PREVIOUS line
@@ -4783,10 +4810,10 @@
           {@const plSource = playLine && trans !== 'compare' ? playEnglishSource(seg, segTransId) : null}
           {@const plItems = plSource ? splitAntilabe(greekItems(block.lines, seg.column, contextSectionMarkerNumbers(seg), seg.sectionParagraphSplit, seg.wholeColumnVerbatim ? undefined : seg.witnesses), seg) : []}
           {@const plMarked = plSource ? markedTurns(plSource) : null}
-          {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns)) : []}
+          {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns), openingRunIn(seg, segTransId)) : []}
           <!-- A prose translation keeps each speech whole beside the start of its Greek; only verse is cut to its lines (John, 2026-09-28: "the gaps mid speech are awkward"). -->
           {@const rawPlRows = plSource ? ((phoneLayout || !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
-          {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows) : null}
+          {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows, openingRunIn(seg, segTransId)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
             <!-- A direction before a later speech of the segment (Clouds
@@ -5117,7 +5144,7 @@
                            print edition carries -- the line's own `text`/
                            `tokens` are always empty (see GreekLine.role's
                            doc comment), so there is nothing to click. -->
-                      <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'<' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>\s]/g, '')) + '>'}</span>{/each}{/if}⁂ lacuna ⁂</span>
+                      <span class="line-text lacuna-gap" lang={sourceLang} aria-label="editorial gap in the text" style:text-indent={item.vIndent == null ? linedIndent(item.line.indent) : undefined} style:--v-inset={item.vIndent != null ? verseInset(item.vIndent) : undefined}>{#if playLine}{#each speakerEvents(seg, item.line) as ev}<span class="speaker" data-spk={ev.display ? spkSlots.get(ev.display) : undefined} lang={sourceLang} title={ev.label}>{'⟨' + ((ev.display && sigla.get(ev.display)) || ev.label.replace(/[<>⟨⟩\s]/g, '')) + '⟩'}</span>{/each}{/if}⁂ lacuna ⁂</span>
                     {:else}
                       <!-- Lined-source only (Q2; wrapO deviation 2026-08-29,
                            §3): `item.leadFragment` (set when the PREVIOUS

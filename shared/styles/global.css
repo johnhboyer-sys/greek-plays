@@ -1654,6 +1654,7 @@ body {
 .reader-body.view-both .overlay-col {
   line-height: calc(var(--fs-greek) * var(--lh-greek));
 }
+.reader-body.play-line.view-both .turn-stack .turn-para { --para-lh: calc(var(--fs-greek) * var(--lh-greek)); }
 
 /* ── Greek lines ──────────────────────────────────────────────────── */
 
@@ -2317,10 +2318,14 @@ body {
 
 /* English: each lead-in hangs beside its speech; the prose starts past it. */
 .reader-body.play-line .turn-stack { padding-left: 0; }
-/* The paragraph's own line box, as a length its lead-in can use. */
-@property --para-lh { syntax: '<length>'; inherits: true; initial-value: 0px; }
+/* The paragraph's own line box, as a length its lead-in can use: the same
+   expressions that set it (.english-col, and the Both-view strut below the
+   .english-col rule). Not `1lh` in a registered property: Safari resolved
+   that too large and set every name low, worse when zoomed (John,
+   2026-09-28). The lead-in has the paragraph's font size, so its 1em is the
+   paragraph's. */
 .reader-body.play-line .turn-stack .turn-para {
-  --para-lh: 1lh;
+  --para-lh: calc(var(--lh-english) * 1em);
   position: relative;
   padding-left: calc(var(--pl-num-w) + var(--pl-spk-w));
 }

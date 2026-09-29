@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, splitShortDirections, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -78,6 +78,12 @@ describe('lineRenderParts — token/gap split (no speakers)', () => {
     // its ">" belongs to the word and must be pulled in.
     const parts = lineRenderParts('ἔπει<τα> δέ.', [tok('ἔπειτα', 0), tok('δέ', 9)]);
     expect(texts(parts)).toEqual(['ἔπει<τα>', ' ', 'δέ', '.']);
+  });
+
+  it('keeps Unicode angle brackets with a clicked supplement', () => {
+    const text = 'ἔπει⟨τα⟩ δέ.';
+    const parts = lineRenderParts(text, [tok('ἔπειτα', 0), tok('δέ', 9)]);
+    expect(texts(parts)).toEqual(['ἔπει⟨τα⟩', ' ', 'δέ', '.']);
   });
 
   it('prints a word once when a deletion is set inside it', () => {
@@ -975,6 +981,12 @@ describe('splitWrapLine — lined-source hyphen-split repaint (Discourses)', () 
     expect(last.t).toBe('προ<σ>θέσει');
   });
 
+  it('folds a trailing σ through a Unicode closing siglum', () => {
+    const last = tok('προ⟨σ⟩θέσει', 0);
+    const { head } = splitWrapLine(lineRenderParts(last.t, [last]), 0, 6);
+    expect(head).toEqual([{ kind: 'token', text: 'προ⟨ς⟩-', tok: last }]);
+  });
+
   it('sigma-fold leaves a head NOT ending in σ unchanged (only a trailing σ is ever folded)', () => {
     const last = tok('αὑτῆς', 0);
     const parts = lineRenderParts('αὑτῆς', [last]);
@@ -1013,6 +1025,10 @@ describe('playSigla — the Greek gutter siglum of each speaker', () => {
     expect(sigla.get('Boy')).toBe('Παις');       // four characters: as printed
     expect(sigla.get('Euripides')).toBe('Ευ.');  // the note is not part of the label
     expect(sigla.get('Chorus')).toBe('Χο.');     // first word of the full label
+  });
+
+  it('strips Unicode angle brackets from a supplied speaker label', () => {
+    expect(playSigla([{ label: '⟨ΠΑΙΣ⟩', display: 'Boy' }]).get('Boy')).toBe('Παις');
   });
 
   it('lengthens two colliding sigla until they are distinct', () => {
@@ -1625,5 +1641,16 @@ describe('markLineNumbers / lineNumberHtml', () => {
     const html = lineNumberHtml(m.text);
     expect(html.match(/data-n="[^"]*"/g)).toEqual(['data-n="3"']);
     expect(html).not.toContain('<img');
+  });
+});
+
+describe('splitShortDirections', () => {
+  it('runs in only the short directions after the last long one, so printed order holds (Codex review of 4de42ee)', () => {
+    const herald = 'The herald enters from the gate.';
+    expect(splitShortDirections([herald, 'sung'])).toEqual({ short: ['sung'], long: [herald] });
+    expect(splitShortDirections(['sung', herald])).toEqual({ short: [], long: ['sung', herald] });
+    expect(splitShortDirections(['within', herald, 'sung', 'aside'])).toEqual({ short: ['sung', 'aside'], long: ['within', herald] });
+    expect(splitShortDirections(['sung', 'aside'])).toEqual({ short: ['sung', 'aside'], long: [] });
+    expect(splitShortDirections([herald, 'The guards follow him inside.'])).toEqual({ short: [], long: [herald, 'The guards follow him inside.'] });
   });
 });

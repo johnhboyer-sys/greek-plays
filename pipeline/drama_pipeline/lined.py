@@ -125,7 +125,7 @@ def _is_wrap_letter(ch: str) -> bool:
 # same fold, and the identity behavior on pure Latin text means this is a
 # no-op for ordinary Latin wraps.
 def _fold_hyphen_final_sigma(fragment: str) -> str:
-    return re.sub(r"ς(?=[>\]]*$)", "σ", fragment)
+    return re.sub(r"ς(?=[>⟩\]]*$)", "σ", fragment)
 
 
 def _word_start(text: str, pos: int, *, alphabet: LinedAlphabet) -> int:
@@ -180,7 +180,7 @@ def _is_wrap_candidate(text: str, *, alphabet: LinedAlphabet) -> bool:
         return False
     if _is_wrap_letter(text[-2]):
         return True
-    if text[-2] not in ">]":
+    if text[-2] not in ">⟩]":
         return False
     start = _word_start(text, len(text) - 1, alphabet=alphabet)
     return any(_is_wrap_letter(ch) for ch in text[start:-1])
@@ -353,7 +353,8 @@ def _apply_lined_wraps(
         # other word-external punctuation are excluded from the token
         # surface, but Schenkl's editorial sigla are PART of it (verified:
         # the emitted token for 2.9 §12's supplement is "<ἀναισχυντία>",
-        # brackets included; 4 wrapped words in the corpus open with "<").
+        # brackets included; 4 wrapped words in the corpus open with "<";
+        # Greek play output uses the Unicode form "⟨".)
         # So skip glued non-letters EXCEPT an opening siglum, and EXCEPT a
         # character this alphabet's own surface keeps (`frag_start_glued_
         # chars` -- Latin's leading ASCII apostrophe, `'moriatur`: stage3's
@@ -363,7 +364,7 @@ def _apply_lined_wraps(
         while (
             frag_start < len(text) - 1
             and not _is_wrap_letter(text[frag_start])
-            and text[frag_start] not in "<["
+            and text[frag_start] not in "<⟨["
             and text[frag_start] not in alphabet.frag_start_glued_chars
         ):
             frag_start += 1

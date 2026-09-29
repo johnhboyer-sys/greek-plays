@@ -889,6 +889,53 @@ describe('Reader.svelte stage directions (Arrowsmith)', () => {
     expect(container.querySelector('#col-57 .play-direction-row')).toBeNull();
   });
 
+  // John, 2026-09-28: "these single word directions being way out doesn't
+  // work. Put them in the speaker's speech/turn at the start." Same
+  // word-count test as an in-speech direction (byLength): two words or
+  // fewer runs in, bracketed, after the speaker's name -- no row at all.
+  it('runs a short direction before a speech in after the speaker\'s name, no row', async () => {
+    const book = dirBook();
+    book.segments[1]!.third![0]!.directionsBefore = ['within'];
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: book } });
+    await flush();
+    expect(container.querySelectorAll('.play-direction-row')).toHaveLength(0);
+    // No block-level "own line" direction either -- only the inline form.
+    expect(container.querySelector('#col-56 .turn-stack > p.stage-dir')).toBeNull();
+    const para = container.querySelector('#col-56 .english-col .turn-para')!;
+    const speaker = para.querySelector('.speaker')!;
+    const dir = para.querySelector('.stage-dir-short')!;
+    expect(dir.textContent).toBe('(within)');
+    expect(speaker.compareDocumentPosition(dir) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  // A direction long enough to be a sentence of stage business keeps its
+  // own row, unchanged (John, 2026-09-28).
+  it('keeps a long direction before a speech on its own row, not run in', async () => {
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: dirBook() } });
+    await flush();
+    const rows = container.querySelectorAll('.play-direction-row');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.querySelector('.stage-dir')?.textContent).toBe(LAMP);
+    const para = container.querySelector('#col-56 .english-col .turn-para')!;
+    expect(para.querySelector('.stage-dir-short')).toBeNull();
+  });
+
+  // "If a speech has several short directions before it, run them all in,
+  // in order" (John, 2026-09-28).
+  it('runs two short directions before a speech in together, in order', async () => {
+    const book = dirBook();
+    book.segments[1]!.third![0]!.directionsBefore = ['sung', 'aside'];
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: book } });
+    await flush();
+    expect(container.querySelectorAll('.play-direction-row')).toHaveLength(0);
+    const para = container.querySelector('#col-56 .english-col .turn-para')!;
+    const dirs = [...para.querySelectorAll('.stage-dir-short')].map((el) => el.textContent);
+    expect(dirs).toEqual(['(sung)', '(aside)']);
+  });
+
   // Clouds 1:866 (Codex review of 7a9a16d): two speeches in one Greek
   // segment, a direction between them.
   const ENTER = 'Enter Sokrates from the Thinkery.';
@@ -1683,7 +1730,7 @@ describe('Reader.svelte play-line gutter after John\'s review (2026-09-09)', () 
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: transposedBook() } });
     await flush();
     const gaps = [...container.querySelectorAll('.greek-line.lacuna .lacuna-gap')];
-    expect(gaps.map((g) => g.querySelector('.speaker')?.textContent)).toEqual(['<Ελ.>', '<Θε.>']);
+    expect(gaps.map((g) => g.querySelector('.speaker')?.textContent)).toEqual(['⟨Ελ.⟩', '⟨Θε.⟩']);
     expect(gaps[0]!.querySelector('.speaker')?.getAttribute('title')).toBe('<Ελ. >');
   });
 });

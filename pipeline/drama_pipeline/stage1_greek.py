@@ -1209,6 +1209,9 @@ def _strip_metrical_schema(text: str, markers: list[dict]) -> tuple[str, list[di
     return new_text, new_markers, True
 
 
+_PLAY_ANGLE_BRACKETS = str.maketrans("<>", "⟨⟩")
+
+
 def _line_with_play_labels(
     el: etree._Element,
 ) -> tuple[str, list[dict], str | None, bool]:
@@ -1279,6 +1282,11 @@ def _line_with_play_labels(
     final_text, final_markers, had_schema = _strip_metrical_schema(
         "".join(out), markers
     )
+    # Diogenes exports editorial angle brackets as ASCII. Keep this change
+    # within the Greek play reader so English and XML markup stay untouched.
+    final_text = final_text.translate(_PLAY_ANGLE_BRACKETS)
+    for marker in final_markers:
+        marker["label"] = marker["label"].translate(_PLAY_ANGLE_BRACKETS)
     return final_text, final_markers, strophe_label, had_schema
 
 
