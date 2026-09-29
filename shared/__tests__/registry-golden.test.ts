@@ -22,6 +22,7 @@ describe('generated registry golden value', () => {
     // Acharnians, Knights, Wasps, Peace and Birds (John's ruling).
     // Regenerated 2026-09-29: edition picker P1-P2 adds greekEditions and each
     // paired translation's `edition` (Smyth, Storr, Murray OCT; John's go).
-    expect(hash).toBe('140b560d8c92f3f04fe7d311f3c3c42fda7bbf4e9483153801aa06e3945b81d8');
+    // Regenerated 2026-09-29: P3 adds Hall & Geldart's OCT to the 11 comedies.
+    expect(hash).toBe('20eec24b12232100bc478faa0b03044041e1da2e83c0c6b6e9fee7a776875916');
   });
 });
