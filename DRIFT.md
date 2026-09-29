@@ -899,3 +899,11 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/stage7_emit.py` — 2026-09-29: writes each edition's `concordance.json` (new `concordance.py` matches edition lines to reference lines, joining adjacent lines where lyric colometry differs).
 - `schemas/concordance.v1.json` — 2026-09-29: new schema for the edition concordance; a value is one ref or an "a-b" range.
 - `pipeline/drama_pipeline/concordance.py` — 2026-09-29: a joined span may start at the last line of the ±50 window, as a single line can (bound was `high - m + 1`).
+- `shared/lib/data.ts` — 2026-09-29: `fetchConcordance(work, ed)` (edition ref to TLG ref, cached through the data root).
+- `shared/lib/edition-place.ts`, `shared/lib/edition-citation.ts` — 2026-09-29: new; keep the reader's place across an edition switch (same ref, else concordance, else nearest lower) and build the edition-aware copy citation.
+- `shared/lib/resume.ts` — 2026-09-29: saves the edition beside the cite and `resumeHref` adds `?ed=` when editions are on.
+- `shared/components/CommandPalette.svelte` — 2026-09-29: resume links go through `resumeHref`.
+- `shared/components/Reader.svelte` — 2026-09-29: copy citation names the editor and appends an `ed=` link in a non-reference edition; saves `reader-loc-ed-<work>`.
+- `shared/components/ReaderHost.svelte` — 2026-09-29: remounts the reader on an edition change only, placing the reader through the concordance.
+- `shared/components/ReaderHost.svelte`, `shared/lib/edition-place.ts` — 2026-09-29: `?ed=` stays beside a `?loc=` or hash in a non-TLG edition; an edition switch rewrites `?loc=` to the mapped ref; a concordance range tries each ref in order.
+- `shared/lib/data.ts` (`readerHref`) — 2026-09-29: beside a `loc`, keeps `ed` unless it is `tlg` (a bare `loc` reads in TLG numbering); without one, omits `ed` when it is the pair's own (Codex re-check).

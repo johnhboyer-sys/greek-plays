@@ -72,7 +72,8 @@
   import { onMount, onDestroy, afterUpdate, tick, createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
-  import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
+  import { schemeFor, formatCite, lastPrintedRef, unitNounFor } from '../lib/citation';
+  import { editionCopyCitation } from '../lib/edition-citation';
   import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
@@ -983,7 +984,10 @@
       history.replaceState(history.state, '', `${u.pathname}${u.search}${u.hash}`);
     } catch {}
     // Remember the last position per work so the work-switcher can resume here.
-    try { localStorage.setItem(`reader-loc-${work}`, cite); } catch {}
+    try {
+      localStorage.setItem(`reader-loc-${work}`, cite);
+      if (edition) localStorage.setItem(`reader-loc-ed-${work}`, edition);
+    } catch {}
   }
 
   // ── Live book/chapter context in the sticky controls strip ───────────────
@@ -3664,7 +3668,7 @@
     if (!startLine && !endLine) return null;
     const s = startLine ? citeForGreekLine(startLine) : null;
     const f = endLine   ? citeForGreekLine(endLine)   : null;
-    return formatCopyCitationRange(work, s, f);
+    return editionCopyCitation(work, edition, s, f, bookNum, trans)?.text ?? null;
   }
 
   // Plain-text twin of the translationCredit snippet above (same wording as
@@ -3822,11 +3826,12 @@
     }
     const startRef = segs[0] ? firstPrintedRef(segs[0]) : null;
     const endRef = segs.length ? lastPrintedRef([segs[segs.length - 1]!]) : null;
-    const cite = formatCopyCitationRange(
-      work,
+    const cite = editionCopyCitation(
+      work, edition,
       startRef ? { column: startRef, line: null } : null,
       endRef ? { column: endRef, line: null } : null,
-    );
+      bookNum, trans,
+    )?.text ?? null;
     const credits: string[] = [];
     const seenTrans = new Set<string>();
     for (const el of touched) {
@@ -3859,7 +3864,16 @@
     const engCredit = englishCiteForRange(range);
     const extra = englishRangeCiteAndCredits(range);
     const cite = greekCite ?? extra.cite;
-    return [cite, engCredit, ...extra.credits].filter((p): p is string => !!p);
+    const parts = [cite, engCredit, ...extra.credits].filter((p): p is string => !!p);
+    if (cite && edition && edition !== 'tlg') {
+      const selected = nearestGreekLine(range.startContainer) ?? nearestGreekLine(range.endContainer);
+      const ref = selected ? citeForGreekLine(selected)?.column : segmentFromEl(range.startContainer.parentElement ?? document.body)?.column;
+      if (ref) {
+        const link = editionCopyCitation(work, edition, { column: ref }, null, bookNum, trans);
+        if (link) parts.push(new URL(link.url, location.origin).href);
+      }
+    }
+    return parts;
   }
 
   function handleCopy(e: ClipboardEvent) {
