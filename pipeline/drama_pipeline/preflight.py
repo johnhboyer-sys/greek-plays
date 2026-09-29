@@ -2882,7 +2882,7 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
                     continue
                 if not isinstance(mapping, dict) or any(
                     not isinstance(key, str) or not re.fullmatch(r"[0-9]+[a-z]?(?:\.[0-9]+)?", key)
-                    or not isinstance(value, str) or not re.fullmatch(r"[0-9]+[a-z]?(?:\.[0-9]+)?", value)
+                    or not isinstance(value, str) or not re.fullmatch(r"[0-9]+[a-z]?(?:\.[0-9]+)?(?:-[0-9]+[a-z]?(?:\.[0-9]+)?)?", value)
                     for key, value in mapping.items()
                 ):
                     problems.append((manifest.work_id, str(concordance_path), "concordance must map printed refs to printed refs"))

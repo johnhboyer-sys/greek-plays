@@ -29,6 +29,39 @@ def test_matches_stay_monotonic():
     assert match_lines(edition, reference) == {"e1": "r1", "e2": "r2"}
 
 
+def test_edition_splits_one_reference_line():
+    # Agamemnon 49-51: the edition breaks where the reference does not.
+    edition = [line("e1", "τρόπον αἰγυπιῶν, οἵτʼ ἐκπατίοις"),
+               line("e2", "ἄλγεσι παίδων ὕπατοι λεχέων"),
+               line("e3", "στροφοδινοῦνται"),
+               line("e4", "πτερύγων ἐρετμοῖσιν ἐρεσσόμενοι,")]
+    reference = [line("r1", "τρόπον αἰγυπιῶν,"),
+                 line("r2", "οἵτ' ἐκπατίοις ἄλγεσι παίδων"),
+                 line("r3", "ὕπατοι λεχέων στροφοδινοῦνται"),
+                 line("r4", "πτερύγων ἐρετμοῖσιν ἐρεσσόμενοι,")]
+    result = match_lines(edition, reference)
+    assert result["e4"] == "r4"
+    assert result["e1"] == "r1"
+    assert result["e2"] == "r2"
+    assert result["e3"] == "r3"
+
+
+def test_edition_joins_two_reference_lines_and_keeps_range_ref():
+    # Ag. 108-109: one reference line printed as two edition lines.
+    edition = [line("e1", "ὅπως Ἀχαιῶν"),
+               line("e2", "δίθρονον κράτος, Ἑλλάδος ἥβας"),
+               line("e3", "ξύμφρονα ταγάν,")]
+    reference = [line("108-109", "ὅπως Ἀχαιῶν δίθρονον κράτος, Ἑλλάδος ἥβας"),
+                 line("110", "ξύμφρονα ταγάν,")]
+    assert match_lines(edition, reference) == {"e2": "108-109", "e3": "110"}
+
+
+def test_joined_lines_below_threshold_stay_unmapped():
+    edition = [line("e1", "alpha beta gamma"), line("e2", "delta epsilon zeta")]
+    reference = [line("r1", "kappa lambda mu"), line("r2", "nu xi omicron pi")]
+    assert match_lines(edition, reference) == {}
+
+
 def test_below_threshold_stays_unmapped():
     edition = [line("e1", "alpha beta gamma delta")]
     reference = [line("r1", "zeta theta kappa mu nu")]
