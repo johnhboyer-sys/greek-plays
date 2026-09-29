@@ -643,7 +643,9 @@ export function readerHref(work: string, options: { book?: number; loc?: string;
   if (options.view) url.searchParams.set('view', options.view);
   const defaultTrans = meta?.defaultTranslation ?? meta?.translations.find(t => t.slot === 'english')?.id;
   const own = meta?.translations.find(t => t.id === (options.trans ?? defaultTrans))?.edition ?? 'tlg';
-  if (options.ed && options.ed !== own) url.searchParams.set('ed', options.ed);
+  // A loc without ed reads in TLG numbering (plan 4.1 rule 4), so beside a loc
+  // ed is dropped only when it is tlg; without one, when it is the pair's own.
+  if (options.ed && (options.loc ? options.ed !== 'tlg' : options.ed !== own)) url.searchParams.set('ed', options.ed);
   return url.pathname + url.search;
 }
 

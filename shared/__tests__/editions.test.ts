@@ -47,13 +47,18 @@ describe('edition data', () => {
     await fetchConcordance('agamemnon', 'smyth-loeb');
     expect(urls).toEqual(['https://data.test/agamemnon/ed/smyth-loeb/concordance.json']);
   });
-  it('builds a link with ed only when it differs from the translation default', () => {
+  it('keeps ed beside a loc unless it is tlg, since a bare loc reads in TLG numbering (plan 4.1 rule 4)', () => {
     expect(readerHref('agamemnon', { loc: '1203', ed: 'smyth-loeb', trans: 'smyth' }))
-      .toBe('/aeschylus/agamemnon?loc=1203&trans=smyth');
+      .toBe('/aeschylus/agamemnon?loc=1203&trans=smyth&ed=smyth-loeb');
     expect(readerHref('agamemnon', { loc: '1203', ed: 'tlg', trans: 'smyth' }))
-      .toBe('/aeschylus/agamemnon?loc=1203&trans=smyth&ed=tlg');
+      .toBe('/aeschylus/agamemnon?loc=1203&trans=smyth');
     expect(readerHref('agamemnon', { loc: '1203', ed: 'smyth-loeb' }))
-      .toBe('/aeschylus/agamemnon?loc=1203');
+      .toBe('/aeschylus/agamemnon?loc=1203&ed=smyth-loeb');
+  });
+
+  it('without a loc, omits ed when it is the translation\'s own edition', () => {
+    expect(readerHref('agamemnon', { ed: 'smyth-loeb', trans: 'smyth' })).toBe('/aeschylus/agamemnon?trans=smyth');
+    expect(readerHref('agamemnon', { ed: 'tlg', trans: 'smyth' })).toBe('/aeschylus/agamemnon?trans=smyth&ed=tlg');
   });
 });
 
