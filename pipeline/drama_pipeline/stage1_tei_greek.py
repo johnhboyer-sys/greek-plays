@@ -65,9 +65,12 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         nodes = tree.xpath(f'//*[local-name()="teiHeader"]//*[local-name()="{field}"]')
         if expected not in [' '.join(''.join(n.itertext()).split()) for n in nodes]:
             raise ValueError(f'{xml_path}: TEI header {field} does not match {expected!r}')
-    if xml_path.parent.name == 'perseus':
+    # A Perseus file is checked against sources/perseus/SHA256SUMS; an OCR'd
+    # edition always against the SHA256SUMS of its own directory.
+    if xml_path.parent.name == 'perseus' or source.get('kind') == 'ocr-tei':
         sums = xml_path.parent / 'SHA256SUMS'
-        expected = next((row.split()[0] for row in sums.read_text().splitlines() if row.split()[-1] == xml_path.name), None)
+        rows = sums.read_text().splitlines() if sums.is_file() else []
+        expected = next((row.split()[0] for row in rows if row.split() and row.split()[-1] == xml_path.name), None)
         if not expected or hashlib.sha256(xml_path.read_bytes()).hexdigest() != expected:
             raise ValueError(f'{xml_path}: source SHA256SUMS mismatch')
     body = tree.find('.//{*}body')
@@ -90,7 +93,13 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
     # before it, so an A, unlabelled, A run gives the last A no event.
     current_label = None
     merge_same_speaker = marks is None
+    margins: list[tuple[int, int, bool, str, bool]] = []   # (index in flat, printed number, may hold several, ref, joined part)
+    apart: list[tuple[int, str | None, int]] = []   # (index in flat, page, number printed apart)
+    page = None
     for el in body.iter():
+        if isinstance(el.tag, str) and etree.QName(el).localname == 'pb':
+            page = el.get('n')
+            continue
         if not isinstance(el.tag, str) or etree.QName(el).localname != 'l':
             continue
         if el.get('style') == 'hidden' or el.get('n') == '0':
@@ -98,9 +107,7 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         raw = el.get('n')
         if not raw:
             raise ValueError(f'{xml_path}: visible play <l> has no @n')
-        margin = el.get('rend') or ''
-        if margin.startswith('margin-') and margin[7:] != raw:
-            raise ValueError(f'{xml_path}: margin number {margin[7:]!r} differs from line {raw!r}')
+        rend = (el.get('rend') or '').split()
         if raw in fixes:
             fix_hits[raw] += 1
         ref = _normalize_play_lineref(raw, xml_path, fixes)
@@ -109,6 +116,18 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         speaker = sp.find('{*}speaker') if sp is not None else None
         label = ' '.join(''.join(speaker.itertext()).split()) if speaker is not None else None
         text = _text(el)
+        # A joined share (part F/M) folds into the line before it, but its
+        # printed number is still a checkpoint, against the share's own ref.
+        joined = el.get('part') in {'F', 'M'}
+        at = len(flat) - 1 if joined else len(flat)
+        for token in rend:
+            if re.fullmatch(r'margin-apart-\d+', token):
+                apart.append((at, page, int(token[13:])))
+            elif re.fullmatch(r'margin-\d+', token):
+                # A lyric line (a colon number, a strophe) or a line with a
+                # turn-over may hold several numbers of the traditional count.
+                several = any(t.startswith('colon-') or t == 'turn' for t in rend) or _in_strophe(el)
+                margins.append((at, int(token[7:]), several, ref, joined))
         part = el.get('part')
         if part in {'F', 'M'}:
             if not flat:
@@ -125,7 +144,7 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         counts[ref] += 1
         if counts[ref] > 1 and ref not in repeats:
             raise ValueError(f'{xml_path}: undeclared repeated ref {ref}')
-        entry = {'ref': ref, 'text': text, '_sp': sp}
+        entry = {'ref': ref, 'text': text, '_sp': sp, '_page': page}
         if label and (not flat or flat[-1].get('_sp') is not sp) and (label != current_label or not merge_same_speaker):
             entry['speakers'] = [{'offset': 0, 'label': label}]
             current_label = label
@@ -139,6 +158,7 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         flat.append(entry)
     if {k: fix_hits[k] for k in fixes if fix_hits[k] != 1}:
         raise ValueError(f'{xml_path}: stale citation.ref_fixes')
+    _check_margin_numbers(flat, margins, apart, xml_path)
     _check_repeated_refs(repeats, counts, xml_path)
     lacunae = {e['ref'] for e in flat if e.get('role') == 'lacuna'}
     if lacunae != set((citation.get('lacunae') or {}).get('1') or []):
@@ -155,6 +175,7 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         raise ValueError(f'{xml_path}: citation.fingerprint mismatch: observed {fingerprint!r}')
     for e in flat:
         e.pop('_sp', None)
+        e.pop('_page', None)
     _apply_greek_text_fixes(flat, getattr(manifest, 'edition', None), xml_path)
     _rejoin_play_line_hyphens(flat)
     segments = _segment_play_lines(flat, *(marks or (None, None)))
@@ -166,6 +187,42 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
                 line['parts'] = part_map[line['ref']]
     return {'work': manifest.work_id, 'edition': manifest.data['work']['greek_edition'],
             'segments': segments, 'headings': [], 'unassigned_lines': []}
+
+
+def _in_strophe(line: etree._Element) -> bool:
+    return any(isinstance(a.tag, str) and etree.QName(a).localname == 'div' and a.get('subtype') in
+               {'strophe', 'antistrophe', 'epode', 'ephymn', 'mesode'} for a in line.iterancestors())
+
+
+def _line_number(ref: str) -> int:
+    m = re.match(r'\d+', ref)
+    return int(m.group(0)) if m else 0
+
+
+def _check_margin_numbers(flat: list[dict], margins: list, apart: list, xml_path: Path) -> None:
+    """The OCR profile's checkpoint gate: every number the page prints must
+    agree with the counted ``n``. A printed number P on a line numbered n
+    agrees when P = n; on a line that may hold several numbers of the
+    traditional count, also when n < P <= the next line's number (P inside
+    the line, or on a turn-over row where the next line begins). A number
+    printed apart from its lines must fall within its page's numbers."""
+    nums = [_line_number(e['ref']) for e in flat]
+    bad = []
+    for i, printed, several, n, joined in margins:
+        here = _line_number(n)
+        nxt = next((v for v in nums[i + 1:] if v > here), None)
+        if printed == here and (n.isdigit() or joined):
+            continue
+        if several and nxt is not None and here < printed <= nxt:
+            continue
+        bad.append(f'{n} (printed {printed})')
+    for i, page, printed in apart:
+        on_page = [nums[k] for k in range(len(flat)) if flat[k].get('_page') == page]
+        after = next((nums[k] for k in range(i + 1, len(flat)) if flat[k].get('_page') != page), None)
+        if not on_page or not (min(on_page) <= printed and (printed <= max(on_page) or (after is not None and printed < after))):
+            bad.append(f'page {page} (printed apart {printed})')
+    if bad:
+        raise ValueError(f'{xml_path}: printed margin numbers disagree with the line numbers: {", ".join(bad[:10])}')
 
 
 def _apply_greek_text_fixes(flat: list[dict], edition: dict | None, xml_path: Path) -> None:

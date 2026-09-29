@@ -234,3 +234,112 @@ def test_ref_fix_renames_a_printed_number_that_is_not_a_ref(tmp_path):
     manifest.data['citation']['ref_fixes'] = {'NaN': '128', 'gone': '5'}
     with pytest.raises(ValueError, match='stale citation.ref_fixes'):
         parse_spine(xml, manifest, check_fingerprint=False)
+# --- OCR'd editions (source.kind: ocr-tei, edition-picker plan §3.1, P4) ---
+
+def _ocr_setup(tmp_path, lines, *, sums=True, books_end='5'):
+    """An OCR'd TEI in its own directory, with (or without) its SHA256SUMS."""
+    import hashlib
+    ocr = tmp_path / 'ocr' / 'ed'
+    ocr.mkdir(parents=True)
+    xml = ocr / 'play.xml'
+    xml.write_text('<TEI><teiHeader><editor>Editor</editor></teiHeader><text><body>' + lines + '</body></text></TEI>',
+                   encoding='utf-8')
+    if sums:
+        (ocr / 'SHA256SUMS').write_text(f'{hashlib.sha256(xml.read_bytes()).hexdigest()}  play.xml\n')
+    data = {'work': {'id': 'test', 'greek_edition': 'Test',
+                     'greek_source': {'kind': 'ocr-tei', 'expect': {'editor': 'Editor'}}},
+            'citation': {'scheme': 'play-line', 'lacunae': {'1': []}, 'transpositions': {'1': []},
+                         'repeated_refs': {}, 'ref_fixes': {}, 'title_labels': [], 'fingerprint': {}},
+            'english': {}, 'books': [{'n': 1, 'start': '1', 'end': books_end}]}
+    return xml, Manifest(data, tmp_path / 'test.yaml')
+
+
+_OCR_DIALOGUE = ('<sp><speaker>Α</speaker><pb n="10"/><l n="1">ἀρχή</l><l n="2">δεύτερον</l>'
+                 '<l n="3">τρίτον</l><l n="4">τέταρτον</l><l n="5" rend="margin-5">πέμπτον</l></sp>')
+
+
+def test_ocr_edition_needs_its_own_sha256sums(tmp_path):
+    xml, manifest = _ocr_setup(tmp_path, _OCR_DIALOGUE)
+    lines = [l for s in parse_spine(xml, manifest, check_fingerprint=False)['segments'] for l in s['lines']]
+    assert [l['ref'] for l in lines] == ['1', '2', '3', '4', '5']
+    xml.write_text(xml.read_text(encoding='utf-8').replace('τρίτον', 'τρίτος'), encoding='utf-8')
+    with pytest.raises(ValueError, match='SHA256SUMS'):
+        parse_spine(xml, manifest, check_fingerprint=False)
+
+
+def test_ocr_edition_without_sha256sums_fails(tmp_path):
+    xml, manifest = _ocr_setup(tmp_path, _OCR_DIALOGUE, sums=False)
+    with pytest.raises(ValueError, match='SHA256SUMS'):
+        parse_spine(xml, manifest, check_fingerprint=False)
+
+
+def test_printed_margin_number_must_equal_a_dialogue_line(tmp_path):
+    # A trimeter holds one number: a printed 5 on the line counted 4 fails.
+    xml, manifest = _ocr_setup(tmp_path, _OCR_DIALOGUE.replace('<l n="4">', '<l n="4" rend="margin-5">')
+                               .replace(' rend="margin-5">πέμπτον', '>πέμπτον'))
+    with pytest.raises(ValueError, match='printed margin numbers disagree'):
+        parse_spine(xml, manifest, check_fingerprint=False)
+
+
+def test_printed_margin_number_may_fall_inside_a_lyric_line(tmp_path):
+    # Jebb's long lyric lines hold several numbers of the traditional count:
+    # colon 12 of OT 1342 prints 1345, the next line being 1346.
+    lines = ('<div type="textpart" subtype="strophe" n="2"><sp><speaker>Α</speaker>'
+             '<l n="1" rend="colon-1">ἀρχή</l><l n="2" rend="colon-2 margin-4">δεύτερον τρίτον τέταρτον</l>'
+             '<l n="5" rend="colon-3">πέμπτον</l></sp></div>')
+    xml, manifest = _ocr_setup(tmp_path, lines)
+    spine = parse_spine(xml, manifest, check_fingerprint=False)
+    got = [l for s in spine['segments'] for l in s['lines']]
+    assert [l['ref'] for l in got] == ['1', '2', '5']
+    assert got[1]['text'] == 'δεύτερον τρίτον τέταρτον'  # the colon number is not text
+    bad = lines.replace('margin-4', 'margin-6')
+    xml.parent.joinpath('SHA256SUMS').unlink()
+    xml2, manifest2 = _ocr_setup(tmp_path / 'b', bad)
+    with pytest.raises(ValueError, match='printed margin numbers disagree'):
+        parse_spine(xml2, manifest2, check_fingerprint=False)
+
+
+def test_turn_over_row_number_may_mark_the_next_line(tmp_path):
+    # OT 1194–1195: the turn-over 'βροτῶν' prints 1195 on its own row; 1195
+    # (οὐδὲν μακαρίζω) begins there. The joined line carries the 'turn' mark.
+    lines = ('<sp><speaker>Α</speaker><l n="1">ἀρχή</l>'
+             '<l n="2" rend="margin-3 turn">δεύτερον βροτῶν</l><l n="3">τρίτον</l></sp>')
+    xml, manifest = _ocr_setup(tmp_path, lines, books_end='3')
+    assert parse_spine(xml, manifest, check_fingerprint=False)
+
+
+def test_number_printed_apart_checks_against_its_page(tmp_path):
+    # OT p. 18 prints '140 145' below its block: each must fall within the page.
+    lines = ('<sp><speaker>Α</speaker><pb n="18"/><l n="1">ἀρχή</l><l n="2" rend="margin-apart-2">δεύτερον</l>'
+             '<pb n="20"/><l n="3">τρίτον</l></sp>')
+    xml, manifest = _ocr_setup(tmp_path, lines, books_end='3')
+    assert parse_spine(xml, manifest, check_fingerprint=False)
+    xml2, manifest2 = _ocr_setup(tmp_path / 'b', lines.replace('margin-apart-2', 'margin-apart-7'), books_end='3')
+    with pytest.raises(ValueError, match='printed apart 7'):
+        parse_spine(xml2, manifest2, check_fingerprint=False)
+
+
+def test_printed_margin_number_on_a_joined_part_is_checked(tmp_path):
+    # An antilabe line: <l n="3"> plus its final share <l n="3b" part="F">.
+    # The share's printed number was never recorded, so a wrong one passed.
+    def lines(part_rend):
+        return ('<sp><speaker>Α</speaker><l n="1">ἀρχή</l><l n="2">δεύτερον</l>'
+                '<l n="3" part="I">τρίτον</l></sp><sp><speaker>Β</speaker>'
+                f'<l n="3b" part="F"{part_rend}>ναί</l><l n="4">τέταρτον</l><l n="5">πέμπτον</l></sp>')
+    xml, manifest = _ocr_setup(tmp_path / 'a', lines(' rend="margin-3"'))
+    assert parse_spine(xml, manifest, check_fingerprint=False)      # 3b is line 3: agrees
+    xml2, manifest2 = _ocr_setup(tmp_path / 'b', lines(' rend="margin-4"'))
+    with pytest.raises(ValueError, match='printed margin numbers disagree'):
+        parse_spine(xml2, manifest2, check_fingerprint=False)
+
+
+def test_a_joined_turn_over_line_may_carry_two_printed_numbers(tmp_path):
+    # The converter keeps the target's number and the turn-over's: both are checked.
+    def lines(second):
+        return ('<sp><speaker>Α</speaker><l n="1">ἀρχή</l>'
+                f'<l n="2" rend="margin-2 {second} turn">δεύτερον βροτῶν</l><l n="4">τέταρτον</l></sp>')
+    xml, manifest = _ocr_setup(tmp_path / 'a', lines('margin-3'), books_end='4')
+    assert parse_spine(xml, manifest, check_fingerprint=False)
+    xml2, manifest2 = _ocr_setup(tmp_path / 'b', lines('margin-9'), books_end='4')
+    with pytest.raises(ValueError, match='printed margin numbers disagree'):
+        parse_spine(xml2, manifest2, check_fingerprint=False)

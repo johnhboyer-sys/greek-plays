@@ -257,6 +257,12 @@ greek_editions:
       - perseus/tlg0011.tlg003.perseus-grc2.xml
       - perseus/tlg0011.tlg005.perseus-grc2.xml
       - perseus/tlg0011.tlg006.perseus-grc2.xml
+  - id: jebb
+    editor: "R. C. Jebb"
+    year: 1893
+    status: public-domain-us
+    note: "Cambridge, 3rd ed. 1893 (scan: 1902 printing, archive.org playsfragmentspa0000unse_i8p4); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/jebb/oedipus-tyrannus.xml]
   - id: smyth-loeb
     editor: "H. W. Smyth"
     year: 1926

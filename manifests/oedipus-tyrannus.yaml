@@ -237,12 +237,14 @@ registry:
   greekEditions:
     - { id: tlg, short: "Dain & Mazon (1958)", full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)", editor: "Dain & Mazon", year: 1958, kind: tlg, licence: public-domain-us }
     - { id: storr-loeb, short: "Storr (1912)", full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)", editor: "F. Storr", year: 1912, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
+    - { id: jebb, short: "Jebb (1893)", full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 1, The Oedipus Tyrannus (Cambridge, 3rd ed., 1893)", editor: "R. C. Jebb", year: 1893, kind: ocr-tei, licence: public-domain-us, pairs: [jebb] }
   translations:
     - id: jebb
       form: prose
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+      edition: jebb
       alignment: line
     - id: storr
       form: verse
@@ -308,3 +310,76 @@ greek_editions:
     alignment: { storr: { covered: [], cuts: [] } }
     gaps: []
     text_fixes: []
+  # Jebb's own Greek, from John's Genie OCR of the scanned volume (the 1902
+  # printing of the third, stereotyped edition of 1893; the second edition's
+  # text of 1887). The TEI is sources/ocr/jebb/oedipus-tyrannus.xml, made by
+  # scripts/ocr/jebb_to_tei.py; whether it is committed is John's call.
+  - id: jebb
+    label:
+      short: "Jebb (1893)"
+      full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 1, The Oedipus Tyrannus (Cambridge, 3rd ed., 1893)"
+    editor: "R. C. Jebb"
+    year: 1893
+    source:
+      kind: ocr-tei
+      path: ocr/jebb/oedipus-tyrannus.xml
+      expect: { title: "Οἰδίπους Τύραννος", editor: "R. C. Jebb" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      # DRAFT wording, for John to approve.
+      credit: "Greek text from John Boyer's OCR of the Internet Archive scan"
+      source_url: https://archive.org/details/playsfragmentspa0000unse_i8p4
+    pairs: [jebb]
+    citation:
+      title_labels: []
+      lacunae: { "1": ["625a"] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1467, sha256: "a01842e61f53cb8ee6acbde9e793d9ba22cdf6897f02a816191fd000fbc82f85" }
+    speakers:
+      sigla:
+        "—": null
+        "ΟΙΔΙΠΟΥΣ": Oedipus
+        "ΟΙ.": Oedipus
+        "ΙΕΡΕΥΣ": Priest
+        "ΙΕ.": Priest
+        "ΚΡΕΩΝ": Creon
+        "ΚΡ.": Creon
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΤΕΙΡΕΣΙΑΣ": Teiresias
+        "ΤΕ.": Teiresias
+        "ΙΟΚΑΣΤΗ": Jocasta
+        "ΙΟ.": Jocasta
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΑΓ.": Messenger
+        "ΘΕΡΑΠΩΝ": Servant
+        "ΘΕ.": Servant
+        "ΕΞΑΓΓΕΛΟΣ": Second Messenger
+        "ΕΞ.": Second Messenger
+      overrides: []
+    edition_only: []
+    alignment: { jebb: { covered: [] } }
+    gaps: []
+    # OCR misreads corrected under John's grammar rule (2026-09-19): each one
+    # the scan prints (archive.org playsfragmentspa0000unse_i8p4, page as printed)
+    # where the OCR's reading breaks grammar or sense. Readings the scan prints
+    # differently but that are Greek as they stand (χοἰ 275 for Jebb's χοἱ) stay.
+    text_fixes:
+      - { ref: "207", find: "’Αρτέμιδος", replace: "Ἀρτέμιδος", note: "scan p. 38 prints Ἀρτέμιδος; the OCR read the breathing as an apostrophe, leaving the vowel with none" }
+      - { ref: "208", find: "διάσσει", replace: "διᾴσσει", note: "scan p. 38 prints διᾴσσει; the OCR lost the iota subscript of the contracted stem" }
+      - { ref: "232", find: "χὴ χάρις", replace: "χἡ χάρις", note: "scan p. 42 prints χἡ (καὶ ἡ); χὴ is no word" }
+      - { ref: "282", find: "ἀμοὶ", replace: "ἁμοὶ", note: "scan p. 48 prints ἁμοὶ (ἃ ἐμοὶ), which the sense needs" }
+      - { ref: "401", find: "χώ συνθεὶς", replace: "χὡ συνθεὶς", note: "scan p. 64 prints χὡ (καὶ ὁ); χώ is no word" }
+      - { ref: "586", find: "ἀτρεστὸν", replace: "ἄτρεστον", note: "scan p. 84 prints ἄτρεστον; the OCR's accent is on the wrong syllable" }
+      - { ref: "586", find: "αὐθ’", replace: "αὔθ’", note: "scan p. 84 prints αὔθ’; an elided word needs its accent" }
+      - { ref: "669", find: "κεί χρή", replace: "κεἰ χρή", note: "scan p. 94 prints κεἰ (καὶ εἰ); κεί is no word" }
+      - { ref: "698", find: "μήνιν", replace: "μῆνιν", note: "scan p. 98 prints μῆνιν; μήνιν is a misplaced accent" }
+      - { ref: "775", find: "ἡγόμην", replace: "ἠγόμην", note: "scan p. 106 prints ἠγόμην (imperfect passive of ἄγω, 'I was held'); ἡγόμην is no form of ἡγέομαι" }
+      - { ref: "824", find: "μήστι", replace: "μἤστι", note: "scan p. 112 prints μἤστι (μὴ ἐστι); without the crasis mark the word is not Greek" }
+      - { ref: "855", find: "κείνός", replace: "κεῖνός", note: "scan p. 114 prints κεῖνός; the OCR read the circumflex as an acute" }
+      - { ref: "1170", find: "κἀγωγ’", replace: "κἄγωγ’", note: "scan p. 154 prints κἄγωγ’; the OCR lost the accent" }
+      - { ref: "1299", find: "τλήμον", replace: "τλῆμον", note: "scan p. 170 prints τλῆμον (the apparatus to 1299 names it); τλήμον is a misplaced accent" }
+      - { ref: "1384", find: "τοίανδ’", replace: "τοιάνδ’", note: "scan p. 180 prints τοιάνδ’; the OCR's accent is on the wrong syllable" }
