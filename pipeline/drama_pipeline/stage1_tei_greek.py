@@ -21,7 +21,9 @@ from .stage1_greek import (
 
 def _text(el: etree._Element) -> str:
     def walk(node: etree._Element) -> str:
-        tag = etree.QName(node).localname if isinstance(node.tag, str) else ''
+        if not isinstance(node.tag, str):  # an XML comment or PI: its text is not the line's
+            return node.tail or ''
+        tag = etree.QName(node).localname
         if tag in {'note', 'milestone', 'pb'}:
             return node.tail or ''
         inner = (node.text or '') + ''.join(walk(child) for child in node)
@@ -116,7 +118,8 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         mark = _strophe_label(el)
         if mark:
             entry['label'] = mark
-        if len(el) == 1 and etree.QName(el[0]).localname == 'gap' and el[0].get('reason') == 'lost' and not (el.text or '').strip() and not (el[0].tail or '').strip():
+        kids = [c for c in el if isinstance(c.tag, str)]  # comments and PIs are not content
+        if len(kids) == 1 and etree.QName(kids[0]).localname == 'gap' and kids[0].get('reason') == 'lost' and not (el.text or '').strip() and not any((c.tail or '').strip() for c in el):
             entry['role'] = 'lacuna'
             entry['text'] = ''
         flat.append(entry)
@@ -138,6 +141,7 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         raise ValueError(f'{xml_path}: citation.fingerprint mismatch: observed {fingerprint!r}')
     for e in flat:
         e.pop('_sp', None)
+    _apply_greek_text_fixes(flat, getattr(manifest, 'edition', None), xml_path)
     _rejoin_play_line_hyphens(flat)
     marks = _english_line_marks(manifest)
     segments = _segment_play_lines(flat, *(marks or (None, None)))
@@ -149,6 +153,22 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
                 line['parts'] = part_map[line['ref']]
     return {'work': manifest.work_id, 'edition': manifest.data['work']['greek_edition'],
             'segments': segments, 'headings': [], 'unassigned_lines': []}
+
+
+def _apply_greek_text_fixes(flat: list[dict], edition: dict | None, xml_path: Path) -> None:
+    """Apply the edition's ``text_fixes`` (find/replace, each hits one line once).
+
+    A stale or ambiguous fix fails the build; a line that carries joined-part
+    or speaker offsets is refused, since an edit there would shift them."""
+    for fix in (edition or {}).get('text_fixes') or []:
+        find, replace = fix['find'], fix['replace']
+        hits = [e for e in flat if find in e['text']]
+        if len(hits) != 1 or hits[0]['text'].count(find) != 1:
+            raise ValueError(f'{xml_path}: text_fixes find {find!r} must hit exactly one line once')
+        line = hits[0]
+        if line.get('parts') or len(line.get('speakers') or []) > 1:
+            raise ValueError(f'{xml_path}: text_fixes find {find!r} sits on a joined line')
+        line['text'] = line['text'].replace(find, replace)
 
 
 def run(manifest: Manifest) -> Path:

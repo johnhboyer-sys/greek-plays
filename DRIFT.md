@@ -907,3 +907,5 @@ existing reference edition contract.
 - `shared/components/ReaderHost.svelte` — 2026-09-29: remounts the reader on an edition change only, placing the reader through the concordance.
 - `shared/components/ReaderHost.svelte`, `shared/lib/edition-place.ts` — 2026-09-29: `?ed=` stays beside a `?loc=` or hash in a non-TLG edition; an edition switch rewrites `?loc=` to the mapped ref; a concordance range tries each ref in order.
 - `shared/lib/data.ts` (`readerHref`) — 2026-09-29: beside a `loc`, keeps `ed` unless it is `tlg` (a bare `loc` reads in TLG numbering); without one, omits `ed` when it is the pair's own (Codex re-check).
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: skips XML comments inside `<l>` (Hecuba 387 crashed and leaked the comment into the Greek) and applies an edition's `text_fixes` (find/replace, one hit, fail-closed).
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: the lacuna test ignores XML comments and processing instructions, so `<l><gap reason="lost"/><!-- note --></l>` stays a declared lacuna.
