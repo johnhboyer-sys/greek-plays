@@ -223,13 +223,16 @@ describe('data-genre picks the accent and the band', () => {
     // John, 2026-09-10: a plain 1.15 line box set every name 4.5px above its
     // text; John, 2026-09-28: at the prose line-height a stacked name's second
     // line sat on the next speaker. So 1.15, dropped by half the difference
-    // from the paragraph's own line box (--para-lh, registered as a length).
+    // from the paragraph's own line box (--para-lh).
     const at = GLOBAL_CSS.indexOf('.reader-body.play-line .turn-stack .turn-para > .speaker:first-child {');
     const rule = GLOBAL_CSS.slice(at, GLOBAL_CSS.indexOf('}', at));
     expect(rule).toMatch(/line-height:\s*1\.15/);
     expect(rule).toMatch(/top:\s*max\(0px, calc\(\(var\(--para-lh\) - 1\.15em\) \/ 2\)\)/);
-    expect(GLOBAL_CSS).toMatch(/@property --para-lh \{ syntax: '<length>'; inherits: true;/);
-    expect(GLOBAL_CSS).toMatch(/--para-lh:\s*1lh/);
+    // Set from the line-height's own expressions, never `1lh` (Safari set the
+    // names low with it, worse when zoomed; John, 2026-09-28).
+    expect(GLOBAL_CSS).toMatch(/--para-lh:\s*calc\(var\(--lh-english\) \* 1em\)/);
+    expect(GLOBAL_CSS).toMatch(/view-both \.turn-stack \.turn-para \{ --para-lh: calc\(var\(--fs-greek\) \* var\(--lh-greek\)\); \}/);
+    expect(GLOBAL_CSS).not.toMatch(/--para-lh:\s*1lh/);
     expect(rule).toMatch(/text-align:\s*right/);
     const long = GLOBAL_CSS.indexOf('.reader-body.play-line .turn-stack .turn-para > .speaker.spk-long:first-child {');
     expect(GLOBAL_CSS.slice(long, GLOBAL_CSS.indexOf('}', long))).not.toMatch(/line-height/);

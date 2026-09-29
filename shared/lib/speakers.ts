@@ -1168,10 +1168,40 @@ export function markStageDirections(html: string, byLength = false): string {
   });
 }
 
+/** The bracketed italic form a run-in direction takes (same normalization as
+ *  markStageDirections' byLength branch): round brackets always, a source's
+ *  own square ones replaced. */
+export function directionBracket(dir: string): string {
+  const bare = dir.replace(/^\[/, '').replace(/\]$/, '');
+  return bare.startsWith('(') ? bare : `(${bare})`;
+}
+
+/** A direction BETWEEN speeches (`directionsBefore`), split by the same
+ *  word-count test as an in-speech one (`byLength` above): two words or
+ *  fewer runs in at the head of the next speech, bracketed, after the
+ *  speaker's name; longer keeps a row/paragraph of its own (John,
+ *  2026-09-28: "these single word directions being way out doesn't work.
+ *  Put them in the speaker's speech/turn at the start"). Unlike the
+ *  in-speech gate this applies in every form, verse included -- a
+ *  between-speech direction never sits inside a printed verse line, so
+ *  there is no line for it to break. Only the short ones AFTER the last
+ *  long one run in; a short one printed before a long one stays with it in
+ *  the row, so the printed order holds (Codex review of 4de42ee). */
+export function splitShortDirections(directions: readonly string[]): { short: string[]; long: string[] } {
+  const isShort = (dir: string) =>
+    dir.replace(/<button\b[^>]*>.*?<\/button>/g, '').replace(/<[^>]*>/g, '').trim().split(/\s+/).length <= 2;
+  let cut = directions.length;
+  while (cut > 0 && isShort(directions[cut - 1])) cut--;
+  return { short: directions.slice(cut), long: directions.slice(0, cut) };
+}
+
 /** The rows a segment's between-speech directions take before it: one per
  *  direction, one cell per English column on screen (null where that
  *  column's translation has none), and an empty Greek cell. None in the
- *  Greek-only view, or when no column on screen carries a direction. */
+ *  Greek-only view, or when no column on screen carries a direction. Callers
+ *  pass only the directions long enough to keep a row of their own
+ *  (`splitShortDirections`); a short one runs in at the next speech instead
+ *  (John, 2026-09-28). */
 export function directionRows(
   columns: readonly (readonly string[] | undefined)[],
   view: 'both' | 'greek' | 'english',
@@ -1182,13 +1212,15 @@ export function directionRows(
 }
 
 /** A direction before a later speech of a segment split into play rows
- *  (Clouds 1:866; Codex review of 7a9a16d): the rows are cut where that
- *  speech's row starts, and the direction becomes a run of its own between
- *  the two, rendered as a row with an empty Greek cell, so the speech after
- *  it starts level with its Greek. The block that gave its directions to a
- *  row no longer carries them. A speech that shares a row with the one
- *  before it keeps its directions and prints them inline. None in the
- *  Greek-only view. */
+ *  (Clouds 1:866; Codex review of 7a9a16d): only a LONG one
+ *  (`splitShortDirections`, John, 2026-09-28) cuts the rows where that
+ *  speech's row starts and takes a run of its own between the two, an empty
+ *  Greek cell, so the speech after it starts level with its Greek. The block
+ *  that gave its long directions to a row no longer carries them; a short
+ *  one stays on the block for playTurnStack to run in at the speech's head.
+ *  A speech that shares a row with the one before it (no cut at all, or
+ *  view === 'greek') keeps ALL its directions and prints them inline. None
+ *  in the Greek-only view. */
 export function splitAtDirections<R extends { blocks: EnglishTurnBlock[] }>(
   rows: readonly R[],
   view: 'both' | 'greek' | 'english',
@@ -1197,11 +1229,12 @@ export function splitAtDirections<R extends { blocks: EnglishTurnBlock[] }>(
   let run: R[] = [];
   for (const row of rows) {
     const first = row.blocks[0];
-    if (view !== 'greek' && first && first.turnIndex >= 0 && first.directionsBefore?.length) {
+    const { short, long } = first?.directionsBefore?.length ? splitShortDirections(first.directionsBefore) : { short: [], long: [] };
+    if (view !== 'greek' && first && first.turnIndex >= 0 && long.length) {
       if (run.length) out.push({ rows: run });
-      out.push({ directions: first.directionsBefore });
+      out.push({ directions: long });
       const { directionsBefore: _moved, ...rest } = first;
-      run = [{ ...row, blocks: [rest, ...row.blocks.slice(1)] }];
+      run = [{ ...row, blocks: [short.length ? { ...rest, directionsBefore: short } : rest, ...row.blocks.slice(1)] }];
     } else {
       run.push(row);
     }

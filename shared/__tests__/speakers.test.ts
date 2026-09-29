@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, splitShortDirections, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -1625,5 +1625,16 @@ describe('markLineNumbers / lineNumberHtml', () => {
     const html = lineNumberHtml(m.text);
     expect(html.match(/data-n="[^"]*"/g)).toEqual(['data-n="3"']);
     expect(html).not.toContain('<img');
+  });
+});
+
+describe('splitShortDirections', () => {
+  it('runs in only the short directions after the last long one, so printed order holds (Codex review of 4de42ee)', () => {
+    const herald = 'The herald enters from the gate.';
+    expect(splitShortDirections([herald, 'sung'])).toEqual({ short: ['sung'], long: [herald] });
+    expect(splitShortDirections(['sung', herald])).toEqual({ short: [], long: ['sung', herald] });
+    expect(splitShortDirections(['within', herald, 'sung', 'aside'])).toEqual({ short: ['sung', 'aside'], long: ['within', herald] });
+    expect(splitShortDirections(['sung', 'aside'])).toEqual({ short: ['sung', 'aside'], long: [] });
+    expect(splitShortDirections([herald, 'The guards follow him inside.'])).toEqual({ short: [], long: [herald, 'The guards follow him inside.'] });
   });
 });
