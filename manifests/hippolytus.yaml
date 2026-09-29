@@ -33,6 +33,10 @@ english:
     # keeps 850 in the 848 block instead of moving it to the Chorus's 852.
     line_fixes:
       "850": "850"  # φέγγος θ' ἁλίοιο — 'neath the sun's bright eye
+      # Speaker-repair sweep (2026-09-28): Coleridge ends the Chorus's 1120
+      # strophe with 1130; the edition gives 1120-1130 to the huntsmen
+      # (Θε.), and the heuristic had moved the line into the Chorus's 1131.
+      "1130": "1130"  # Δίκτυνναν ἀμφὶ σεμνάν — attending on Dictynna, awful queen
     # REVIEW-CHECKLIST 7 (2026-09-09): Greek speeches whose English sits in the
     # neighbouring block (the reader shows 'Translated with the speech above').
     covered:
