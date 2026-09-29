@@ -104,3 +104,39 @@ it('rewrites ?loc= (and drops a stale hash) to the mapped ref after an edition s
   // The TLG reference edition needs no ?ed= beside a ?loc=: a bare ?loc= reads in TLG numbering.
   expect(url.searchParams.get('ed')).toBeNull();
 });
+
+// Both books print 1203, but the concordance says the edition's 1203 is the reference's 1202:
+// the concordance wins over the same printed ref (edition-place.ts), so the host must load it
+// even when the new book has the ref.
+const both = (...refs: string[]) => ({ book: 1, segments: [{ id: refs[0], column: refs[0],
+  greek: refs.map((ref, i) => ({ n: i + 1, ref, text: 'λόγος', tokens: [] })), english: null,
+}] }) as BookData;
+
+it('lands on the concordance target when the new edition also prints the same ref', async () => {
+  history.replaceState({}, '', '/aeschylus/agamemnon');
+  (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ = 'https://d5.test';
+  vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+    const u = String(url);
+    return { ok: true, json: async () => u.endsWith('concordance.json') ? { '1203': '1202' } : both('1202', '1203') } as Response;
+  });
+  const page = render(ReaderHost, { work: 'agamemnon', bookNum: 5, bookData: both('1202', '1203'),
+    serverEdition: 'smyth-loeb', speakerRoster: [], authorName: 'Aeschylus' });
+  await waitFor(() => expect((globalThis as any).__readerProbeMounts__).toBe(1));
+  await fireEvent.click(page.getByText('new edition'));
+  await waitFor(() => expect((globalThis as any).__readerProbeMounts__).toBe(2));
+  expect(page.getByTestId('reader-probe').getAttribute('data-anchor')).toBe('1202');
+});
+
+it('keeps the same ref when the concordance fails to load and the new edition prints it', async () => {
+  history.replaceState({}, '', '/aeschylus/agamemnon');
+  (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ = 'https://d6.test';
+  vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => String(url).endsWith('concordance.json')
+    ? { ok: false, status: 500 } as Response
+    : { ok: true, json: async () => both('1202', '1203') } as Response);
+  const page = render(ReaderHost, { work: 'agamemnon', bookNum: 6, bookData: both('1202', '1203'),
+    serverEdition: 'smyth-loeb', speakerRoster: [], authorName: 'Aeschylus' });
+  await waitFor(() => expect((globalThis as any).__readerProbeMounts__).toBe(1));
+  await fireEvent.click(page.getByText('new edition'));
+  await waitFor(() => expect((globalThis as any).__readerProbeMounts__).toBe(2));
+  expect(page.getByTestId('reader-probe').getAttribute('data-anchor')).toBe('1203');
+});

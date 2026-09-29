@@ -921,3 +921,4 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/public_domain_translations.yaml` — 2026-09-29: `greek_editions` gains `hall-geldart-oct`, one entry per volume year (1906: Acharnians to Birds; 1907: Lysistrata to Wealth).
 - `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: the raised-dot spacing covers U+0387 (ano teleia) as well as U+00B7 (Codex review).
 - `app/src/components/ReaderShell.astro` — 2026-09-29: with `PUBLIC_EDITIONS=1` and a non-reference default edition, the meta description and the hidden intro sentence name that edition's `short` (`shownGreek`) instead of `greekSource.short`; flag off is byte-identical.
+- `shared/components/ReaderHost.svelte` — 2026-09-29: an edition switch loads the concordance(s) the place rule needs even when the new book prints the same ref (the concordance outranks the same number); a failed load falls back to same ref, then nearest lower.

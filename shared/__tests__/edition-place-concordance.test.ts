@@ -13,7 +13,8 @@
 // The counts print as one line per play and direction; the shifted subset is every
 // ref whose concordance target differs from the ref (the only cases where
 // place-keeping has work to do). The concordance wins over the same printed ref,
-// so at least 95% of the shifted refs must land within one line of the target.
+// so all 50 sampled refs must land within one line of the target, and at least 95%
+// of the shifted refs.
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -82,7 +83,7 @@ const line = (label: string, cases: Case[]) => {
 };
 
 for (const { author, play, ed } of PLAYS) {
-  const have = existsSync(`${dist}/${play}/ed/${ed}/concordance.json`) && existsSync(`${dist}/${play}/book-01.json`);
+  const have = [`${dist}/${play}/ed/${ed}/concordance.json`, `${dist}/${play}/ed/${ed}/book-01.json`, `${dist}/${play}/book-01.json`].every(existsSync);
   describe.skipIf(!have)(`P2.6 place-keeping, ${author}: ${play} / ${ed} (skipped when build/dist lacks ${play}/ed/${ed})`, () => {
     const conc = have ? read<Concordance>(`${dist}/${play}/ed/${ed}/concordance.json`) : {};
     const tlgBook = have ? read<BookData>(`${dist}/${play}/book-01.json`) : ({ segments: [] } as unknown as BookData);
@@ -110,7 +111,7 @@ for (const { author, play, ed } of PLAYS) {
       const shifted = edRefs.filter(r => conc[r] !== r).map(toTlg);
       report('edition->tlg', cases, shifted, edLines, tlgLines);
       expect(cases).toHaveLength(SAMPLE);
-      expect(tally(cases).exact + tally(cases).one).toBeGreaterThanOrEqual(SAMPLE * 0.9); // measured floor, see the printed counts
+      expect(tally(cases).further.length, `${tally(cases).further.length} of ${SAMPLE} sampled refs miss by 2 or more`).toBe(0);
       expect(shifted.length).toBeGreaterThan(0);
       expect(tally(shifted).exact + tally(shifted).one, `${tally(shifted).further.length} of ${shifted.length} shifted refs miss by 2 or more`)
         .toBeGreaterThanOrEqual(Math.ceil(shifted.length * SHIFTED_FLOOR));
@@ -121,7 +122,7 @@ for (const { author, play, ed } of PLAYS) {
       const shifted = tlgRefs.filter(r => inverse.get(r) !== r).map(toEd);
       report('tlg->edition', cases, shifted, tlgLines, edLines);
       expect(cases).toHaveLength(SAMPLE);
-      expect(tally(cases).exact + tally(cases).one).toBeGreaterThanOrEqual(SAMPLE * 0.9); // measured floor, see the printed counts
+      expect(tally(cases).further.length, `${tally(cases).further.length} of ${SAMPLE} sampled refs miss by 2 or more`).toBe(0);
       expect(shifted.length).toBeGreaterThan(0);
       expect(tally(shifted).exact + tally(shifted).one, `${tally(shifted).further.length} of ${shifted.length} shifted refs miss by 2 or more`)
         .toBeGreaterThanOrEqual(Math.ceil(shifted.length * SHIFTED_FLOOR));
