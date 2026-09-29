@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { lastRead, resumeFor, touchRecent } from '../lib/resume';
+import { lastRead, resumeFor, resumeHref, touchRecent } from '../lib/resume';
 
 beforeEach(() => {
   localStorage.clear();
@@ -50,6 +50,16 @@ describe('resumeFor', () => {
   it('tolerates a garbage book value', () => {
     localStorage.setItem('reader-book-EN', 'lambda');
     expect(resumeFor('EN')).toEqual({ book: 1, cite: null });
+  });
+  it('keeps the edition beside the saved cite and adds it only when editions are on', () => {
+    localStorage.setItem('reader-book-agamemnon', '1');
+    localStorage.setItem('reader-loc-agamemnon', '1203');
+    localStorage.setItem('reader-loc-ed-agamemnon', 'smyth-loeb');
+    const point = resumeFor('agamemnon')!;
+    expect(point).toEqual({ book: 1, cite: '1203', ed: 'smyth-loeb' });
+    expect(resumeHref('agamemnon', point, '', true)).toBe('/aeschylus/agamemnon?ed=smyth-loeb#1203');
+    expect(resumeHref('agamemnon', point, '', false)).toBe('/aeschylus/agamemnon#1203');
+    expect(resumeHref('agamemnon', { book: 1, cite: '1203' }, '', true)).toBe('/aeschylus/agamemnon#1203');
   });
 });
 

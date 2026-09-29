@@ -651,6 +651,7 @@ export function readerHref(work: string, options: { book?: number; loc?: string;
 // search) never collide.
 const _analysesCache = new Map<string, Promise<Record<string, Analysis[]>>>();
 const _bookCache = new Map<string, Promise<BookData>>();
+const _concordanceCache = new Map<string, Promise<Record<string, string>>>();
 const _chaptersCache = new Map<string, Promise<Record<string, ChapterRef[]>>>();
 const _columnsCache = new Map<string, Promise<Record<string, ColumnRef[]>>>();
 const _footnotesCache = new Map<string, Promise<Record<string, string>>>();
@@ -674,6 +675,20 @@ export function fetchBook(work: string, n: number, ed?: string): Promise<BookDat
   // Evict a rejected fetch so it can be retried (don't cache the failure).
   p.catch(() => { if (_bookCache.get(key) === p) _bookCache.delete(key); });
   _bookCache.set(key, p);
+  return p;
+}
+
+export function fetchConcordance(work: string, ed: string): Promise<Record<string, string>> {
+  if (ed === 'tlg') return Promise.resolve({});
+  const key = `${ROOT()}:${work}:${ed}`;
+  const cached = _concordanceCache.get(key);
+  if (cached) return cached;
+  const p = fetch(`${editionBase(work, ed)}/concordance.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} ${ed} concordance: ${r.status}`);
+    return r.json() as Promise<Record<string, string>>;
+  });
+  p.catch(() => { if (_concordanceCache.get(key) === p) _concordanceCache.delete(key); });
+  _concordanceCache.set(key, p);
   return p;
 }
 

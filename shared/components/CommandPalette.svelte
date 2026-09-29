@@ -3,7 +3,7 @@
   import { fetchColumns, fetchLemmata, lemmaEntryHref, resolveBekker, type LemmaRef } from '../lib/data';
   import { workPath, getWork } from '../lib/works';
   import { schemeFor, formatLocValue, parseDkFullCitation } from '../lib/citation';
-  import { resumeFor } from '../lib/resume';
+  import { resumeFor, resumeHref } from '../lib/resume';
   import { hasGreek, rankLemmata, rankWorks } from '../lib/palette';
 
   // The work currently open in the reader (enables citation jumps); null on
@@ -152,7 +152,7 @@
         kind: 'work',
         label: w.title,
         detail: displayCite ? `resumes at ${displayCite}` : w.blurb,
-        href: `${base}${workPath(w.id, book)}${pos?.cite ? `#${pos.cite}` : ''}`,
+        href: pos ? resumeHref(w.id, { ...pos, book }, base) : `${base}${workPath(w.id, book)}`,
       });
     }
 

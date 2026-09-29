@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getWork } from '../lib/works';
 import { changeEdition, loadEdition, type EditionState } from '../lib/edition-state';
-import { editionBase, fetchBook, readerHref } from '../lib/data';
+import { editionBase, fetchBook, fetchConcordance, readerHref } from '../lib/data';
+import { editionPlace } from '../lib/edition-place';
+import { editionCopyCitation } from '../lib/edition-citation';
+import type { BookData } from '../lib/data';
 import { assignSpeakerSlots } from '../lib/speaker-colors';
 
 const work = getWork('agamemnon')!;
@@ -27,7 +30,20 @@ describe('edition data', () => {
       return { ok: true, json: async () => ({}) } as Response;
     });
     await fetchBook('flag-off-fixture', 1);
+    await fetchConcordance('flag-off-fixture', 'tlg');
     expect(urls.filter(url => url.includes('/ed/'))).toHaveLength(0);
+    expect(urls.filter(url => url.includes('concordance'))).toHaveLength(0);
+  });
+  it('loads the concordance through the data root and caches it', async () => {
+    (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ = 'https://data.test';
+    const urls: string[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async url => {
+      urls.push(String(url));
+      return { ok: true, json: async () => ({ '1203': '1202' }) } as Response;
+    });
+    expect(await fetchConcordance('agamemnon', 'smyth-loeb')).toEqual({ '1203': '1202' });
+    await fetchConcordance('agamemnon', 'smyth-loeb');
+    expect(urls).toEqual(['https://data.test/agamemnon/ed/smyth-loeb/concordance.json']);
   });
   it('builds a link with ed only when it differs from the translation default', () => {
     expect(readerHref('agamemnon', { loc: '1203', ed: 'smyth-loeb', trans: 'smyth' }))
@@ -36,6 +52,39 @@ describe('edition data', () => {
       .toBe('/aeschylus/agamemnon?loc=1203&trans=smyth&ed=tlg');
     expect(readerHref('agamemnon', { loc: '1203', ed: 'smyth-loeb' }))
       .toBe('/aeschylus/agamemnon?loc=1203');
+  });
+});
+
+describe('edition place', () => {
+  const book = (...refs: string[]) => ({ segments: refs.map(ref => ({
+    id: ref, column: ref, greek: [{ n: Number(ref.replace(/\D/g, '')), ref, text: 'λόγος', tokens: [] }], english: null,
+  })) }) as BookData;
+  it('keeps a printed ref present in both editions', () => {
+    expect(editionPlace('1203', 'smyth-loeb', 'tlg', book('1202', '1203'), { '1203': '1202' })).toBe('1203');
+  });
+  it('maps an edition ref to TLG when the printed ref is absent', () => {
+    expect(editionPlace('1203', 'smyth-loeb', 'tlg', book('1202', '1204'), { '1203': '1202' })).toBe('1202');
+  });
+  it('inverts the concordance from TLG to an edition', () => {
+    expect(editionPlace('1202', 'tlg', 'smyth-loeb', book('1201', '1203'), {}, { '1203': '1202' })).toBe('1203');
+  });
+  it('uses the nearest lower ref when neither direct nor mapped ref exists', () => {
+    expect(editionPlace('1203', 'smyth-loeb', 'tlg', book('1199', '1201', '1205'))).toBe('1201');
+    expect(editionPlace('1203', 'tlg', 'smyth-loeb', book('1199', '1201', '1205'))).toBe('1201');
+  });
+});
+
+describe('edition copy citation', () => {
+  const start = { column: '1203', line: null };
+  it('leaves reference text as it was', () => {
+    const copy = editionCopyCitation('agamemnon', 'tlg', start, start, 1, 'morshead');
+    expect(copy?.text).toBe('(Aesch. Ag. 1203)');
+    expect(copy?.url).toBe('/aeschylus/agamemnon?loc=1203&trans=morshead');
+  });
+  it('names the editor and includes ed in a non-reference URL', () => {
+    const copy = editionCopyCitation('agamemnon', 'smyth-loeb', start, start, 1, 'smyth');
+    expect(copy?.text).toBe('(Aesch. Ag. 1203 (Smyth))');
+    expect(copy?.url).toBe('/aeschylus/agamemnon?loc=1203&trans=smyth&ed=smyth-loeb');
   });
 });
 

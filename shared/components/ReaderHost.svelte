@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import Reader from './Reader.svelte';
   import Plate from './Plate.svelte';
-  import { fetchBook, type BookData } from '../lib/data';
+  import { fetchBook, fetchConcordance, type BookData } from '../lib/data';
+  import { editionPlace } from '../lib/edition-place';
   import { getWork } from '../lib/works';
   import { assignSpeakerSlots } from '../lib/speaker-colors';
   import { playSigla } from '../lib/speakers';
@@ -37,7 +38,18 @@
       const id = ++generation;
       try {
         const data = await fetchBook(work, bookNum, next.ed);
-        if (id === generation) { shownBook = data; anchor = loc; state = next; }
+        let oldMap: Record<string, string> = {};
+        let newMap: Record<string, string> = {};
+        const hasRef = data.segments.some(seg => seg.greek.some(line => line.ref === loc));
+        if (loc && !hasRef) {
+          if (old !== 'tlg') oldMap = await fetchConcordance(work, old);
+          if (next.ed !== 'tlg') newMap = await fetchConcordance(work, next.ed);
+        }
+        if (id === generation) {
+          anchor = editionPlace(loc, old, next.ed, data, oldMap, newMap);
+          shownBook = data;
+          state = next;
+        }
       } finally { if (id === generation) pending = false; }
     } else state = next;
     document.documentElement.removeAttribute('data-ed-pending');
@@ -78,7 +90,7 @@
     {persons} startHref={`#col-${shownBook.segments?.[0]?.column ?? '1'}`} />
 {/if}
 {#if pending}<div class="ed-pending" role="status" aria-label="Loading text">◌</div>{/if}
-{#key `${state.ed}:${state.trans}:${state.view}`}
+{#key state.ed}
   <div style:visibility={pending ? 'hidden' : 'visible'}>
     <Reader {work} {bookNum} bookData={shownBook} {chapterTitles} {speakerRoster}
       edition={state.ed} initialLocation={anchor} initialTranslation={state.trans} initialView={state.view}

@@ -25,6 +25,7 @@ export default defineConfig({
     ...(siteOrigin ? [sitemap()] : []),
   ],
   vite: {
+    cacheDir: '.vite-local',
     server: {
       fs: { allow: ['..'] },
     },

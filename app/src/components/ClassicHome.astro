@@ -709,8 +709,7 @@ const structuredData = Astro.site
     // "Continue reading" card: shown only when the reader has saved a recent
     // position (localStorage — see shared/lib/resume.ts), pointing back into
     // the reader at the remembered book + citation.
-    import { lastRead } from '@shared/lib/resume';
-    import { workPath } from '@shared/lib/works';
+    import { lastRead, resumeHref } from '@shared/lib/resume';
 
     const card = document.getElementById('resume-card') as HTMLAnchorElement | null;
     if (card) {
@@ -728,7 +727,7 @@ const structuredData = Astro.site
         const citeBit = displayCite ? ` · ${displayCite}` : '';
         card.querySelector('#resume-meta')!.textContent = `${w.title}${bookBit}${citeBit}`;
         const base = (import.meta.env.BASE_URL as string).replace(/\/$/, '');
-        card.href = `${base}${workPath(last.work, book)}${last.cite ? `#${last.cite}` : ''}`;
+        card.href = resumeHref(last.work, { ...last, book }, base);
         card.hidden = false;
       }
     }
