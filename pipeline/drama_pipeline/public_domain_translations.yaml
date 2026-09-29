@@ -238,3 +238,10 @@ translations:
 # when a translation id is on the positive list above.
 denied:
   - { pattern: "o'?neill", note: "Eugene O'Neill Jr. 1938, not PD" }
+
+greek_editions:
+  - id: smyth-loeb
+    editor: "H. W. Smyth"
+    year: 1926
+    status: public-domain-us
+    sources: [perseus/tlg0085.tlg005.perseus-grc2.xml]

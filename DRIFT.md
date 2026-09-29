@@ -867,3 +867,10 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `manifests/agamemnon.yaml` — 2026-09-26: Johnston `text_fixes` corrects the truncated cue `CLYTAEMNESTR` (line 1476 of `sources/bench/johnston/agamemnon.txt`) to `CLYTAEMNESTRA`; the pre-existing alias mapping it to the right speaker is unchanged.
 - `shared/styles/global.css` — 2026-09-28 (John): English line numbers sit right of the text in single-translation play-line views on desktop and phone; desktop English loses its left number gutter, phone Both keeps its Greek text indent, and compare keeps its own layout.
 - `shared/styles/global.css`, `shared/components/Reader.svelte` — 2026-09-28 (John's word-panel blank/jump report): `.reader-body.word-open`'s `margin-right` (681-1800px band) no longer animates. A long play's whole text sits in one DOM tree, so narrowing the reading column to clear the panel can shift a click deep in the play by thousands of document pixels; an animated width change re-wraps that text every frame of the transition instead of once, and `pinAcrossReflow` (unchanged) chasing a still-moving target could overshoot. An instant width change reflows once and pinAcrossReflow's existing correction lands in the same frame.
+
+## Greek edition data (2026-09-29)
+
+`manifest.v1.json` now has an optional `greekEditions` list. The reference
+`editions` array still has one entry. `edition.v1.json` describes each
+`ed/<id>/edition.json` file. These fields add data without changing the
+existing reference edition contract.

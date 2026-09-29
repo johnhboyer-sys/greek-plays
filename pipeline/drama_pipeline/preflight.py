@@ -123,6 +123,7 @@ def validate(data_dir: Path, manifests_dir: Path, public: bool = False) -> list[
     manifests = _load_manifests(manifests_dir, problems)
     for manifest in manifests:
         _validate_manifest_schema(manifest, problems)
+        _validate_greek_editions(manifest, data_dir, problems)
         _validate_public_domain_allowlist(manifest, problems)
         _validate_work_data(data_dir, manifest, problems, public_build=public)
     return problems
@@ -2816,3 +2817,46 @@ def _lsj_shard(key: str) -> str:
 
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(main())
+
+
+def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: list[Problem]) -> None:
+    editions = manifest.data.get("greek_editions") or []
+    if not isinstance(editions, list):
+        problems.append((manifest.work_id, manifest.path.name, "greek_editions must be a list"))
+        return
+    try:
+        raw = yaml.safe_load(PUBLIC_DOMAIN_ALLOWLIST_PATH.read_text(encoding="utf-8"))
+        allowed = {e["id"]: e for e in raw.get("greek_editions") or []}
+    except (OSError, KeyError, TypeError, yaml.YAMLError) as exc:
+        allowed = {}
+        if editions:
+            problems.append((manifest.work_id, manifest.path.name, f"Greek edition allowlist unreadable: {exc}"))
+    english_ids = {tid for _, tid in manifest_translation_ids(manifest.data)}
+    seen_ids: set[str] = set()
+    seen_pairs: set[str] = set()
+    for edition in editions:
+        if not isinstance(edition, dict):
+            problems.append((manifest.work_id, manifest.path.name, "Greek edition entry must be an object"))
+            continue
+        eid = edition.get("id")
+        if not isinstance(eid, str) or not eid or eid == "tlg" or eid in seen_ids:
+            problems.append((manifest.work_id, manifest.path.name, f"invalid or duplicate Greek edition id {eid!r}"))
+            continue
+        seen_ids.add(eid)
+        source = edition.get("source") or {}
+        allowed_entry = allowed.get(eid)
+        if not allowed_entry or edition.get("editor") != allowed_entry.get("editor") or edition.get("year") != allowed_entry.get("year") or not _source_matches(source.get("path") or "", allowed_entry.get("sources") or []):
+            problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} is absent from or differs from the allowlist"))
+        if source.get("kind") not in {"perseus-tei", "ocr-tei"} or not source.get("expect"):
+            problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} needs a TEI source and header gate"))
+        if not isinstance(edition.get("citation"), dict) or not isinstance((edition.get("citation") or {}).get("fingerprint"), dict):
+            problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} needs citation fingerprint"))
+        for pair in edition.get("pairs") or []:
+            if pair not in english_ids or pair in seen_pairs:
+                problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} has undeclared or duplicate pair {pair!r}"))
+            seen_pairs.add(pair)
+    ed_dir = data_dir / manifest.work_id / "ed"
+    if ed_dir.is_dir():
+        for child in ed_dir.iterdir():
+            if child.is_dir() and child.name not in seen_ids:
+                problems.append((manifest.work_id, manifest.path.name, f"undeclared emitted Greek edition {child.name!r}"))

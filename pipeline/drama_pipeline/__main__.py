@@ -5,6 +5,15 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import os
+from pathlib import Path
+
+# Each stage imports BUILD_DIR at module load, so set it before config loads.
+if "--edition" in sys.argv:
+    _i = sys.argv.index("--edition")
+    if _i + 1 < len(sys.argv) and "--work" in sys.argv:
+        _w = sys.argv[sys.argv.index("--work") + 1]
+        os.environ["DRAMA_BUILD_DIR"] = str(Path(__file__).resolve().parents[2] / "build" / "editions" / _w / sys.argv[_i + 1])
 
 from .config import BUILD_DIR, Manifest
 
@@ -21,7 +30,10 @@ def _stage1(manifest):
             "the drama fork; only 'grc' is supported) — this should have "
             "been caught by preflight"
         )
-    from . import stage1_greek as stage1_producer
+    if manifest.data["work"].get("greek_source", {}).get("kind") in {"perseus-tei", "ocr-tei"}:
+        from . import stage1_tei_greek as stage1_producer
+    else:
+        from . import stage1_greek as stage1_producer
 
     spine_path = stage1_producer.run(manifest)
     spine = json.loads(spine_path.read_text(encoding="utf-8"))
@@ -352,8 +364,11 @@ def main(argv=None):
         action="store_true",
         help="use manifests/<work>-public.yaml when present",
     )
+    parser.add_argument("--edition", help="Greek edition id")
     args = parser.parse_args(argv)
     manifest = Manifest.for_work(args.work, public=args.public)
+    if args.edition:
+        manifest = manifest.for_edition(args.edition)
     if args.public:
         print(f"manifest: {manifest.path.relative_to(manifest.path.parents[1])}")
     if args.stage == "all":
@@ -361,6 +376,9 @@ def main(argv=None):
             fn(manifest)
     else:
         _STAGES[args.stage](manifest)
+    if args.edition and args.stage in {"all", "stage7"}:
+        from .stage7_emit import assemble_edition
+        assemble_edition(manifest)
 
 
 if __name__ == "__main__":

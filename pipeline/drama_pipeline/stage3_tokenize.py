@@ -150,7 +150,7 @@ _PUNCT = ".,·;—()|\"‘«»„“-:?" + "·;"  # real Greek ano teleia + Gre
 # the paragraphos/dotted-obelos/floor-bracket precedents above, so it
 # joins the corpus-wide `_SIGLA` set (kept verbatim in surface `t`,
 # stripped from the lexicon key `k`) rather than staying manifest-scoped.
-_SIGLA = "†*<>()[]⎪⟦⟧⌜⌞⌝⌟⸏⸓Ͻ⌊⌋→←"
+_SIGLA = "†*<>⟨⟩()[]⎪⟦⟧⌜⌞⌝⌟⸏⸓Ͻ⌊⌋→←"
 
 _LANGUAGE_PUNCT = {
     "grc": (_PUNCT, _PUNCT),

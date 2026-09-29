@@ -35,6 +35,23 @@
       "minItems": 1,
       "items": { "$ref": "#/$defs/edition" }
     },
+    "greekEditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "editor", "year", "kind", "licence", "pairs", "path"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "label": { "type": "object", "required": ["short", "full"], "properties": { "short": { "type": "string" }, "full": { "type": "string" } } },
+          "editor": { "type": "string" }, "year": { "type": "integer" },
+          "kind": { "enum": ["perseus-tei", "ocr-tei"] },
+          "licence": { "type": "object" },
+          "pairs": { "type": "array", "items": { "type": "string" } },
+          "path": { "type": "string" }
+        }
+      }
+    },
     "translations": {
       "type": "array",
       "items": { "$ref": "#/$defs/translation" },

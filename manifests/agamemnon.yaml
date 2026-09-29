@@ -372,3 +372,57 @@ registry:
   production: "Oresteia, first play · City Dionysia, 458 BC · first prize"
   argument: "Agamemnon comes home from Troy after ten years. Clytaemestra kills him in his bath."
   synopsis: "A watchman on the palace roof at Argos sees the beacon that means Troy has fallen. Clytaemestra has ruled ten years in her husband's absence and has not forgotten that Agamemnon sacrificed their daughter Iphigenia to get the fleet to Troy. Agamemnon comes home with the captive prophetess Cassandra. His wife spreads crimson cloth for him to walk on into the house, and kills him there, in his bath, with Cassandra after him. She and her lover Aegisthus face down the elders and take the city."
+
+greek_editions:
+  - id: smyth-loeb
+    label:
+      short: "Smyth (1926)"
+      full: "H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)"
+    editor: "H. W. Smyth"
+    year: 1926
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0085.tlg005.perseus-grc2.xml
+      expect: { editor: "Herbert Weir Smyth" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: "Perseus Digital Library, Tufts University"
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [smyth]
+    citation:
+      title_labels: []
+      lacunae: { "1": ["806", "1006", "1595a"] }
+      transpositions:
+        "1": [{ start: "1203", end: "1203", before: "1204" }]
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1648, sha256: "8cfb08d86fad3bdd0a2761e7e358ff72a72bd2962182eaf1737729fb8d3d2d79" }
+    speakers:
+      sigla:
+        "Φύλαξ": Watchman
+        "Χορός": Chorus
+        "Κλυταιμήστρα": Clytaemestra
+        "Κῆρυξ": Herald
+        "Ἀγαμέμνων": Agamemnon
+        "Κασάνδρα": Cassandra
+        "Αἴγισθος": Aegisthus
+        "—": null
+      overrides: []
+    edition_only: []
+    alignment:
+      smyth:
+        line_fixes:
+          "1655": "1662"
+          "1662": "1665"
+          "1665": "1666"
+          "1666": "1667"
+          "1667": "1668"
+          "1668": "1669"
+          "1669": "1670"
+          "1670": "1671"
+          "1671": "1672"
+        covered: []
+        cuts: []
+    gaps: []
+    text_fixes: []

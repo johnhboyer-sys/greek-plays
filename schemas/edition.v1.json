@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lyceum-reader.org/schemas/edition.v1.json",
+  "title": "Greek edition data",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "label", "editor", "year", "source", "licence", "pairs", "fingerprint", "lineCount"],
+  "properties": {
+    "schema_version": { "const": "edition.v1" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "label": { "type": "object", "required": ["short", "full"], "properties": { "short": { "type": "string" }, "full": { "type": "string" } } },
+    "editor": { "type": "string", "minLength": 1 },
+    "year": { "type": "integer" },
+    "source": { "type": "object", "required": ["kind", "path"] },
+    "licence": { "type": "object", "required": ["text", "encoding", "credit", "source_url"] },
+    "pairs": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "object", "required": ["count", "sha256"], "properties": { "count": { "type": "integer" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } } },
+    "lineCount": { "type": "integer", "minimum": 1 }
+  }
+}
