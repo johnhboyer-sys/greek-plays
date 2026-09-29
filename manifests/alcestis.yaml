@@ -182,21 +182,26 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
       footnotes: true
       alignment: speech
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse, edition: murray-oct }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Alc."
@@ -204,3 +209,77 @@ registry:
   production: "City Dionysia, 438 BC · second prize, behind Sophocles · fourth play of its group, in place of a satyr play"
   argument: "Alcestis dies in her husband’s place. Heracles brings her back."
   synopsis: "Apollo won Admetus, king of Pherae, a bargain with the Fates: he may escape his appointed death if someone else will die for him. His parents refused. His wife Alcestis agreed. The play opens on the day of her death. While the house mourns, Heracles arrives on his way to a labour, and Admetus, unwilling to turn a guest away, hides the death from him and takes him in. Heracles finds out, goes to the tomb, wrestles Death for her, and brings her back veiled and silent to a husband who does not at first know her."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1902)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
+    editor: Gilbert Murray
+    year: 1902
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg002.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way, murray-verse]
+    citation:
+      title_labels: []
+      lacunae: {'1': [96a, 204a, 468a]}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1160, sha256: 108a8ec9fb2c2c25b966bddb0e3292b6cdf5cc31924dfdfac19587f8b11fd252}
+    speakers:
+      sigla:
+        Ἀπόλλων: Apollo
+        Θάνατος: Death
+        Χορός: Chorus
+        Θεράπαινα: Maid
+        Ἄλκηστις: Alcestis
+        Ἄδμητος: Admetus
+        Παῖς: Eumelus
+        Ἡρακλῆς: Heracles
+        Φέρης: Pheres
+        Θεράπων: Attendant
+        —: null
+      overrides: []
+    edition_only: []
+    alignment:
+      # Edition-keyed (2026-09-29). Murray's TEI opens a new <sp> for each
+      # stanza of the parodos (77-135) and of the stasimon 962-1005, where
+      # the TLG text runs each as one Chorus speech.
+      murray-verse:
+        # bench/murray/alcestis.txt: LEADER and SECOND ELDER speak 77-78;
+        # THIRD ELDER (79-85) runs on through DIVERS CITIZENS (no cue of the
+        # roster, line 175) to 111, one English speech over the Greek
+        # stanzas 86-111; CHORUS (line 1633) is 962-1005.
+        pins:
+          - { greek: "77", english: "Quiet, quiet, above, beneath", run: 1 }
+          - { greek: "86", english: "And never a King's friend near", run: 1 }
+          - { greek: "962", english: "I have sojourned in the Muse's land", run: 1 }
+        covered:
+          - { greek: "93", by: "86" }
+          - { greek: "98", by: "86" }
+          - { greek: "105", by: "86" }
+          - { greek: "973", by: "962" }
+          - { greek: "984", by: "962" }
+          - { greek: "995", by: "962" }
+    gaps: []
+    text_fixes:
+      # OCR check 2026-09-29 (whole play read against the scan, archive.org euripidisfabulae01euriuoft
+      # pages _0057-_0101). Each fix restores what the page prints where the
+      # OCR reading is no Greek word or loses a word the sentence needs.
+      - { ref: "262", find: "αἵδας", replace: "αἴδας", note: "scan _0067: Murray prints αἴδας (smooth breathing; obelized, app. 261 'αἴδας corruptum'); OCR rough breathing turns it into Hades" }
+      - { ref: "403", find: "στόμασιν", replace: "νων στόμασιν", note: "scan _0072: 402-403 print πίτ-/νων στόμασιν; OCR dropped νων, so the hyphen rejoin made πίτστόμασιν (no word)" }
+      - { ref: "740", find: "ὡς ἂν ἐν πυρᾷ", replace: "στείχωμεν, ὡς ἂν ἐν πυρᾷ", note: "scan _0085: line prints στείχωμεν, ὡς ἂν ...; OCR dropped the verb of ἡμεῖς δέ (739) and two feet of the trimeter" }
+      - { ref: "877", find: "πρόσωπόν ἄντα", replace: "πρόσωπον ἄντα", note: "scan _0090: prints πρόσωπον (one accent); the OCR's second accent stands only before an enclitic" }
+      - { ref: "1024", find: "τήνδε σοῖσι", replace: "δίδωμι τήνδε σοῖσι", note: "scan _0095: line prints δίδωμι τήνδε ...; OCR dropped the main verb of 1023-24 and two feet of the trimeter" }
+      # Not an OCR error: Murray prints the psili-oxia sign in μὴ ῎λαβές (scan
+      # _0098); stage 3 cannot key U+1FCE, so it becomes the file's usual
+      # elision mark U+02BC, as Hecuba 387.
+      - { ref: "1102a", find: "῎λαβές", replace: "ʼλαβές", note: "scan _0098 prints μὴ ῎λαβές; U+1FCE breaks the key (stage 3); elision mark as Hecuba 387" }

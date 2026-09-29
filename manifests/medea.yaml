@@ -302,14 +302,19 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -323,7 +328,7 @@ registry:
       alignment: speech
       form: prose
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse, edition: murray-oct }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Med."
@@ -331,3 +336,70 @@ registry:
   production: "City Dionysia, 431 BC · third prize, behind Euphorion and Sophocles"
   argument: "Jason has left Medea for a Corinthian princess. Medea kills the bride, and then her own two sons."
   synopsis: "Jason has left Medea, who gave up her home and her family for him, to marry the daughter of Creon, king of Corinth. Creon orders Medea and her two sons into exile that day. She begs for and gets one day's grace. Aegeus of Athens passes through and promises her refuge. With the escape secured, Medea sends the bride a poisoned robe and crown, which kill her and Creon, then kills her own two sons so that Jason will have nothing. She escapes in the Sun's chariot with their bodies, to bury them where he cannot reach them, and goes on to Athens."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1902)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
+    editor: Gilbert Murray
+    year: 1902
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg003.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way, murray-verse]
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': [{start: '1271', end: '1272', before: '1274'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1403, sha256: 3d936e49179cb6cc218c76b6799ad661e840ba46287292d5de7c3ae2f8d94512}
+    speakers:
+      sigla:
+        Τροφός: Nurse
+        Παιδαγωγός: Attendant
+        Μήδεια: Medea
+        Χορός: Chorus
+        Κρέων: Creon
+        Ἰάσων: Jason
+        Αἰγεύς: Aegeus
+        Ἄγγελος: Messenger
+        Παῖδες: Son
+        —: null
+      overrides: []
+    edition_only: []
+    alignment:
+      # Edition-keyed (2026-09-29). Murray's TEI opens a new <sp> for each
+      # stanza of the stasimon 627-662, where the TLG text runs one Chorus
+      # speech; Murray's single CHORUS speech covers them, and without the
+      # pin his Aegeus scene sat two lines late (AEGEUS "Have joy" at 667).
+      murray-verse:
+        pins:
+          - { greek: "627", english: "Alas, the Love that falleth like a flood", run: 1 }
+          - { greek: "663", english: "Have joy, Medea!", run: 1 }
+        covered:
+          - { greek: "635", by: "627" }
+          - { greek: "643", by: "627" }
+          - { greek: "652", by: "627" }
+      way:
+        # The reference pin, re-derived: Murray prints 1270a, 1273-1274,
+        # 1271-1272 (citation.transpositions); Way's first CHILD speech is
+        # the Greek 1271 (bench/way/medea.txt, "What shall I do").
+        pins:
+          - { greek: "1271", english: "What shall I do ?—how flee my mother's", run: 1 }
+    gaps: []
+    text_fixes:
+      # OCR check 2026-09-29 (archive.org euripidisfabulae01euriuoft pages _0105-_0134 read whole, then every
+      # flagged line on _0135-_0159). Each fix restores what the page prints
+      # where the OCR reading is no Greek word.
+      - { ref: "19", find: "αἰσύμνᾷ", replace: "αἰσυμνᾷ", note: "scan _0105: prints αἰσυμνᾷ; the OCR's extra acute makes a double-accented non-form" }
+      - { ref: "379", find: "ἥπάτος", replace: "ἥπατος", note: "scan _0120: prints ἥπατος; the OCR's extra acute makes a double-accented non-form" }
+      - { ref: "386", find: "εἶἑν", replace: "εἶεν", note: "scan _0120: prints εἶεν; OCR stray rough breathing on the second vowel" }
+      - { ref: "683", find: "Tροζηνίας", replace: "Τροζηνίας", note: "scan _0132: prints Τροζηνίας; OCR read the capital as Latin T, which breaks the word" }
