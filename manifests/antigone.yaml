@@ -192,6 +192,9 @@ registry:
   greekSource:
     short: Dain & Mazon (1955)
     full: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Dain & Mazon (1955)", full: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)", editor: "Dain & Mazon", year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: storr-loeb, short: "Storr (1912)", full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)", editor: "F. Storr", year: 1912, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
   translations:
     - id: jebb
       form: prose
@@ -204,6 +207,7 @@ registry:
       name: "F. Storr (Loeb, 1912)"
       short: Storr
       slot: secondary
+      edition: storr-loeb
       alignment: speech
     - id: kosmos
       name: "Jebb, rev. Habel, Nagy & Hour 25 Antigone team (Kosmos Society)"
@@ -219,3 +223,46 @@ registry:
   production: "Traditionally c. 441 BC, on a doubted anecdote"
   argument: "Antigone buries her brother against Creon’s order and is walled up alive. Creon loses his son and his wife for it."
   synopsis: "Oedipus's sons have killed each other at the gates of Thebes. Creon, now king, gives Eteocles a soldier's funeral and orders that Polynices lie unburied. Antigone buries her brother anyway and is caught. Creon will not bend, not for his son Haemon, who is to marry her, and has her walled up alive. Tiresias frightens him into relenting, too late: Antigone has hanged herself, Haemon kills himself over her body, and Creon's wife Eurydice kills herself at the news."
+
+greek_editions:
+  - id: storr-loeb
+    label:
+      short: "Storr (1912)"
+      full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)"
+    editor: "F. Storr"
+    year: 1912
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0011.tlg002.perseus-grc2.xml
+      expect: { title: "Ἀντιγόνη", editor: "Francis Storr" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: "Perseus Digital Library, Tufts University"
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [storr]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1257, sha256: "467a469b17208819ef3fc544011735c3750352701c05d173047b1087f3d1f77f" }
+    speakers:
+      sigla:
+        "—": null
+        "Ἀντιγόνη": Antigone
+        "Ἰσμήνη": Ismene
+        "Χορός": Chorus
+        "Κρέων": Creon
+        "Φύλαξ": Guard
+        "Αἵμων": Haemon
+        "Τειρεσίας": Teiresias
+        "Ἄγγελος": Messenger
+        "Εὐρυδίκη": Eurydice
+        "Ἐξάγγελος": Second Messenger
+      overrides: []
+    edition_only: []
+    alignment: { storr: { covered: [], cuts: [] } }
+    gaps: []
+    text_fixes: []

@@ -68,7 +68,7 @@ from .config import BUILD_DIR, Manifest
 # reading) -- edge punctuation, distinct from the Greek question mark
 # (U+037E, already handled via NFD decomposition below), safe to strip
 # unconditionally.
-_PUNCT = ".,·;—()|\"‘«»„“-:?" + "·;"  # real Greek ano teleia + Greek question mark -- distinct codepoints
+_PUNCT = ".,·;—()|\"‘ʽ«»„“-:?" + "·;"  # real Greek ano teleia + Greek question mark -- distinct codepoints
 # from the look-alike ASCII . and ; just above; the TLG export uses
 # these Greek-specific forms, which NFD-decompose to the ASCII ones
 # (so both must be listed here, since _clean() strips the RAW token

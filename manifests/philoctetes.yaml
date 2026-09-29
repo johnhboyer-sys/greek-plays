@@ -145,6 +145,9 @@ registry:
   greekSource:
     short: Dain & Mazon (1960)
     full: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)"
+  greekEditions:
+    - { id: tlg, short: "Dain & Mazon (1960)", full: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)", editor: "Dain & Mazon", year: 1960, kind: tlg, licence: public-domain-us }
+    - { id: storr-loeb, short: "Storr (1913)", full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)", editor: "F. Storr", year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
   translations:
     - id: jebb
       form: prose
@@ -157,6 +160,7 @@ registry:
       name: "F. Storr (Loeb, 1913)"
       short: Storr
       slot: secondary
+      edition: storr-loeb
       alignment: speech
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
   citation:
@@ -166,3 +170,42 @@ registry:
   production: "City Dionysia, 409 BC · first prize"
   argument: "Odysseus sends Neoptolemus to trick the wounded Philoctetes into coming to Troy with his bow."
   synopsis: "Nine years ago the Greeks abandoned Philoctetes on Lemnos with a festering wound in his foot. Now a prophecy says Troy cannot fall without him and his bow, the bow of Heracles. Odysseus brings the young Neoptolemus, Achilles' son, to trick him into sailing. Neoptolemus wins the sick man's trust, gets the bow, and cannot go through with it: he confesses, gives the bow back, and agrees to take Philoctetes home instead. Heracles appears from the sky and sends them both to Troy, where Philoctetes will be healed and kill Paris."
+
+greek_editions:
+  - id: storr-loeb
+    label:
+      short: "Storr (1913)"
+      full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)"
+    editor: "F. Storr"
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0011.tlg006.perseus-grc2.xml
+      expect: { title: "Φιλοκτήτης", editor: "Francis Storr" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: "Perseus Digital Library, Tufts University"
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [storr]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1423, sha256: "156e0dd54b25935677d3c27dc540364dfe4bafccf1aea1ef3f5382edd54c9958" }
+    speakers:
+      sigla:
+        "—": null
+        "Νεοπτόλεμος": Neoptolemus
+        "Φιλοκτήτης": Philoctetes
+        "Ὀδυσσεύς": Odysseus
+        "Χορός": Chorus
+        "Ἔμπορος": Merchant
+        "Ἡρακλῆς": Heracles
+      overrides: []
+    edition_only: []
+    alignment: { storr: { covered: [], cuts: [] } }
+    gaps: []
+    text_fixes: []
