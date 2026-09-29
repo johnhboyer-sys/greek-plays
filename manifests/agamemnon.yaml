@@ -413,6 +413,7 @@ greek_editions:
     alignment:
       smyth:
         line_fixes:
+          "1077": "1078"
           "1655": "1662"
           "1662": "1665"
           "1665": "1666"

@@ -2815,10 +2815,6 @@ def _lsj_shard(key: str) -> str:
     return "_"
 
 
-if __name__ == "__main__":  # pragma: no cover
-    raise SystemExit(main())
-
-
 def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: list[Problem]) -> None:
     editions = manifest.data.get("greek_editions") or []
     if not isinstance(editions, list):
@@ -2860,3 +2856,7 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
         for child in ed_dir.iterdir():
             if child.is_dir() and child.name not in seen_ids:
                 problems.append((manifest.work_id, manifest.path.name, f"undeclared emitted Greek edition {child.name!r}"))
+
+
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(main())
