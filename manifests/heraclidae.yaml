@@ -163,14 +163,19 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -184,3 +189,45 @@ registry:
   production: "Date unknown, c. 430 BC"
   argument: "The children of Heracles, hunted by Eurystheus, take refuge at Marathon, and Athens defends them."
   synopsis: "After Heracles' death his children and his old companion Iolaus are hunted from city to city by Eurystheus, king of Argos. They reach the altar at Marathon, and Demophon, king of Athens, agrees to defend them though it means war. An oracle demands that a girl of noble birth be sacrificed for the victory, and a daughter of Heracles offers herself. Athens wins; old Iolaus, made young for a day, captures Eurystheus. Heracles' mother Alcmene has him killed, against Athenian custom, and he promises that his grave will protect Attica."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1902)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
+    editor: Gilbert Murray
+    year: 1902
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg004.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': [76a, 110a, 311a, '629', 629a, 629b, 629c, 805a, 805b, 1017a, 1017b, 1017c, 1052a, 1052b, 1052c, 1052d, 1052e]}
+      transpositions: {'1': [{start: '401', end: '401', before: '402'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1072, sha256: 0e07e57efef825805c737ac0af3bd0bab2325e332d7214c3aa11bdddc44e28f7}
+    speakers:
+      sigla:
+        Ἰόλαος: Iolaus
+        Χορός: Chorus
+        Θεράπων: Servant
+        Ἀλκμήνη: Alcmene
+        Κῆρυξ: Copreus
+        Δημοφῶν: Demophon
+        Μακαρία: Macaria
+        Ἐυρυσθεύς: Eurystheus
+        Ἡμιχόριον: Chorus
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

@@ -234,14 +234,19 @@ registry:
   greekSource:
     short: Diggle (OCT, 1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (OCT, 1994)", full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)", editor: Diggle, year: 1994, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -261,3 +266,46 @@ registry:
   production: "City Dionysia, 412 BC · produced with Andromeda"
   argument: "Helen never went to Troy. She has been in Egypt all along, and Menelaus finds her there."
   synopsis: "Helen never went to Troy. Hera sent a phantom in her place, and the real Helen has spent the war in Egypt, where the king, Theoclymenus, now means to marry her. Menelaus, shipwrecked on the coast with the phantom, arrives and meets a woman who says she is his wife; the phantom dissolves and he believes her. Helen tells the king her husband is dead and asks for a ship to hold his funeral at sea. Theoclymenus gives her one, and the two of them sail off in it, killing the Egyptian crew. The king turns on his sister Theonoe, who knew the truth, until the Dioscuri, Helen's brothers, stop him."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg014.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': [{start: '1292', end: '1292', before: '1293'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1714, sha256: dee526e933167fb60301e5a096198b4ea4f65758f897d51a0418bcf54f5f919f}
+    speakers:
+      sigla:
+        Ἑλένη: Helen
+        Μενελέως: Menelaus
+        Θεοκλύμενος: Theoclymenus
+        Χορός: Chorus
+        Τεῦκρος: Teucer
+        Γραῦς: Old Woman
+        Ἄγγελος: Messenger
+        Θεράπων: Servant
+        Θεονόη: Theonoe
+        Διόσκοροι: Castor
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []
