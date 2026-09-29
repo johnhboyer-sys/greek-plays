@@ -223,6 +223,7 @@ registry:
       slot: english
       footnotes: true
       alignment: line
+      edition: smyth-loeb
     - id: morshead
       form: verse
       name: "E. D. A. Morshead (1881–1908)"
@@ -237,3 +238,65 @@ registry:
   production: "City Dionysia, c. 463 BC · first prize"
   argument: "The fifty daughters of Danaus reach Argos, fleeing marriage with their cousins, and ask the city for protection."
   synopsis: "The fifty daughters of Danaus have fled Egypt to escape marriage with their fifty cousins, the sons of Aegyptus. They land at Argos, the home of their ancestor Io, and take refuge at the altars. King Pelasgus must choose between the suppliants' claim on the gods and a war with Egypt, and puts the question to the Argive people. Argos votes to protect them. The Egyptian fleet lands, a herald tries to drag the women off, and Pelasgus drives him away. The war is left for the lost sequels."
+
+greek_editions:
+- id: smyth-loeb
+  label:
+    short: Smyth (1922)
+    full: H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)
+  editor: H. W. Smyth
+  year: 1922
+  source:
+    kind: perseus-tei
+    path: perseus/tlg0085.tlg001.perseus-grc2.xml
+    expect:
+      editor: Herbert Weir Smyth
+  licence:
+    text: public-domain-us
+    encoding: cc-by-sa-4.0
+    credit: Perseus Digital Library, Tufts University
+    source_url: https://github.com/PerseusDL/canonical-greekLit
+  pairs:
+  - smyth
+  citation:
+    title_labels: []
+    lacunae:
+      '1':
+      - 211b
+      - 315b
+      - 317b
+      - 317c
+      - '774'
+      - 895b
+      - 976b
+    transpositions:
+      '1':
+      - start: 162a
+        end: 167a
+        before: '175'
+    repeated_refs: {}
+    ref_fixes: {}
+    fingerprint:
+      count: 1079
+      sha256: 51a4c7ae7294dc2eacdf147c920832ad12d3331fe7e6e27c6f2728f3ed73f100
+  speakers:
+    sigla:
+      "—": null
+      Βασιλεύς: Pelasgus
+      βασιλεύς: Pelasgus
+      Δαναΐς: Danaids
+      Δαναός: Danaus
+      Θεράπαινα: Handmaidens
+      Κῆρυξ: Herald
+      Χορός: Chorus
+      Χορός Δαναΐδων: Chorus
+      Χορὸς Θεραπαινῶν: Handmaidens
+    overrides: []
+  edition_only: []
+  alignment:
+    smyth:
+      line_fixes: {}
+      covered: []
+      cuts: []
+  gaps: []
+  text_fixes: []

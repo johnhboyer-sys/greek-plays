@@ -467,6 +467,7 @@ registry:
       slot: english
       footnotes: true
       alignment: line
+      edition: smyth-loeb
     - id: morshead
       form: verse
       name: "E. D. A. Morshead (1881–1908)"
@@ -478,6 +479,7 @@ registry:
       short: Kosmos
       slot: third
       alignment: speech
+      edition: smyth-loeb
       form: prose
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
   citation:
@@ -487,3 +489,60 @@ registry:
   production: "City Dionysia, 467 BC · first prize"
   argument: "Eteocles defends Thebes against his brother Polynices. The brothers kill each other at the seventh gate."
   synopsis: "Thebes is under siege. Polynices, son of Oedipus, has brought an Argive army against the city his brother Eteocles rules. Eteocles steadies the terrified women of the chorus, then hears a scout describe the seven champions posted at the seven gates and names a defender for each. The seventh gate is Polynices', and Eteocles takes it himself. The city is saved; the brothers kill each other, and their sisters mourn them."
+
+greek_editions:
+- id: smyth-loeb
+  label:
+    short: Smyth (1922)
+    full: H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)
+  editor: H. W. Smyth
+  year: 1922
+  source:
+    kind: perseus-tei
+    path: perseus/tlg0085.tlg004.perseus-grc2.xml
+    expect:
+      editor: Herbert Weir Smyth
+  licence:
+    text: public-domain-us
+    encoding: cc-by-sa-4.0
+    credit: Perseus Digital Library, Tufts University
+    source_url: https://github.com/PerseusDL/canonical-greekLit
+  pairs:
+  - smyth
+  - kosmos
+  citation:
+    title_labels: []
+    lacunae:
+      '1':
+      - '126'
+      - '891'
+    transpositions:
+      '1':
+      - start: '518'
+        end: '518'
+        before: '519'
+    repeated_refs: {}
+    ref_fixes: {}
+    fingerprint:
+      count: 1071
+      sha256: 1bd5b1d0110b7f752f77297fdc41c8bb079fd92c4cc4e9705f33417c7e960613
+  speakers:
+    sigla:
+      "—": null
+      Κῆρυξ: Herald
+      Χορός: Chorus
+      Ἀντιγόνη: Antigone
+      Ἄγγελος: Scout
+      Ἐτεοκλής: Eteocles
+      Ἡμιχόριον Α: Semichorus
+      Ἡμιχόριον Β: Semichorus
+      Ἰσμήνη: Ismene
+    overrides: []
+  edition_only: []
+  alignment:
+    smyth:
+      line_fixes: {}
+      covered: []
+      cuts: []
+  gaps: []
+  text_fixes: []
