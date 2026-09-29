@@ -2420,7 +2420,7 @@ def _apply_line_fixes(
 _ANCHOR_WINDOW = 3          # lines either side of the mapped line an anchor may move
 _ANCHOR_SPEAKER_COST = 10.0  # the speaker in force on a seat is not the English speaker
 _ANCHOR_MOVE_COST = 1.0
-_ANCHOR_GAP_COST = 4.0       # a Greek speech the text gave an anchor is left with none
+_ANCHOR_PIN_COST = 100.0     # an anchor whose mapped line already has its speaker leaves it (order forces it)
 _ANCHOR_BREAK_COST = 1000.0  # no seat keeps the order: the anchor stays on its mapped line
 
 
@@ -2458,19 +2458,22 @@ def _apply_anchor_map(
     the line where some speech starts. Each line moved costs a little. An
     anchor leaves its mapped line only where the speaker in force there
     disagrees and a seat within the window agrees, or where the order below
-    pushes it.
+    pushes it. An anchor whose mapped line already has its speaker is pinned
+    there: leaving costs ``_ANCHOR_PIN_COST``, far above any speaker or move
+    cost, so it leaves only when no seating keeps the order otherwise.
 
     Order is fixed. The seats of the anchors, in document order, strictly
     increase. Two anchors take one seat only where both sit on their mapped
     line and the concordance joined the source lines they map from
     (``anchor_map.joined_targets``). Where no seat can keep the order, the
     anchor stays on its mapped line and is listed under ``order_breaks``.
-    Leaving a Greek speech (segment) empty that some anchor's text sits in
-    costs ``_ANCHOR_GAP_COST``, so a run of anchors does not shift past it.
+    A Greek speech left with no anchor is not weighed here; the manifest's
+    edition alignment fixes it.
 
     An anchor the text gives no line for keeps its own number, is listed
     under ``unmatched``, and takes no part in the seating. A line
-    ``line_fixes`` already rewrote stays as the manifest put it. Every anchor
+    ``line_fixes`` already rewrote stays as the manifest put it, and its seat
+    bounds the seats of the anchors around it. Every anchor
     that leaves its mapped line is listed (``speaker_moves`` where the
     speaker forced it, ``order_moves`` where the order did), and so is every
     seat more than one anchor holds (``shared_seats``, with its kind).
@@ -2528,9 +2531,13 @@ def _apply_anchor_map(
         canonical = _canonical_english(name, aliases)
         for line in speech.iter("{*}l"):
             raw = line.get("n") or ""
-            if not (raw.isdigit() or _LETTERED_ANCHOR.fullmatch(raw)) or line.get(_LINE_FIXED) == "1":
+            if not (raw.isdigit() or _LETTERED_ANCHOR.fullmatch(raw)):
                 continue
             if raw.isdigit() and int(raw) == 0:
+                continue
+            if line.get(_LINE_FIXED) == "1":     # the manifest seated it; it still bounds its neighbours
+                if raw in position:
+                    seats.append({"line": line, "raw": raw, "mapped": raw, "speaker": canonical, "fixed": True})
                 continue
             counts["anchors"] += 1
             counts["present_before"] += raw in target_refs
@@ -2547,25 +2554,18 @@ def _apply_anchor_map(
     def agrees(seat: dict, ref: str) -> bool:
         return not seat["speaker"] or speaker(ref, seat["speaker"]) == seat["speaker"]
 
+    def pinned(seat: dict) -> bool:
+        """The speaker in force on the anchor's mapped line is its English speaker."""
+        return agrees(seat, seat["mapped"])
+
     def may_share(before: dict, seat: dict, at: int) -> bool:
         """Two anchors on the one line ``at``."""
         ref = target_order[at]
         if before["mapped"] != ref or seat["mapped"] != ref:
             return False
+        if before.get("fixed") or seat.get("fixed"):
+            return bool(before.get("fixed") and seat.get("fixed"))
         return {before["raw"], seat["raw"]} <= joined.get(ref, set())
-
-    # A Greek speech (segment) some anchor's text sits in should keep an anchor,
-    # so a run of anchors does not shift past it.
-    def segment_at(ref: str) -> int:
-        found = index.segment_for_anchor(ref)
-        return index.order[found[0]["id"]] if found else -1
-
-    order_of = [segment_at(ref) for ref in target_order]
-    wanted = sorted({order_of[position[seat["mapped"]]] for seat in seats} - {-1})
-
-    def skipped(before: int, at: int) -> int:
-        """Wanted segments strictly between the segments of two seats."""
-        return max(0, bisect.bisect_left(wanted, order_of[at]) - bisect.bisect_right(wanted, order_of[before]))
 
     # Least-cost seating, anchors in document order, seats in strict order.
     last = len(target_order) - 1
@@ -2573,10 +2573,12 @@ def _apply_anchor_map(
     for at_seat, seat in enumerate(seats):
         base = position[seat["mapped"]]
         options: dict[int, float] = {}
-        for at in range(max(0, base - _ANCHOR_WINDOW), min(last, base + _ANCHOR_WINDOW) + 1):
+        for at in [base] if seat.get("fixed") else range(max(0, base - _ANCHOR_WINDOW), min(last, base + _ANCHOR_WINDOW) + 1):
             cost = 0.0 if at == base else _ANCHOR_MOVE_COST + 0.5 * abs(at - base)
             if not agrees(seat, target_order[at]):
                 cost += _ANCHOR_SPEAKER_COST
+            if at != base and pinned(seat):
+                cost += _ANCHOR_PIN_COST
             options[at] = cost
         row: dict[int, tuple[float, int | None]] = {}
         previous = table[-1] if table else None
@@ -2585,7 +2587,7 @@ def _apply_anchor_map(
                 row[at] = (cost, None)
                 continue
             fits = [
-                (total + _ANCHOR_GAP_COST * skipped(before, at), before) for before, (total, _) in previous.items()
+                (total, before) for before, (total, _) in previous.items()
                 if before < at or (before == at and may_share(seats[at_seat - 1], seat, at))
             ]
             if fits:
@@ -2605,7 +2607,25 @@ def _apply_anchor_map(
             chosen.append(at)
         chosen.reverse()
     for seat, at in zip(seats, chosen):
-        seat["seat"] = new = target_order[at]
+        seat["seat"] = target_order[at]
+        seat["at"] = at
+
+    def order_blocker(number: int) -> str | None:
+        """The neighbouring anchor whose seat keeps ``seats[number]`` off its
+        mapped line, or None where the mapped line would keep the order."""
+        seat, base = seats[number], position[seats[number]["mapped"]]
+        if number > 0 and (seats[number - 1]["at"] > base or (
+                seats[number - 1]["at"] == base and not may_share(seats[number - 1], seat, base))):
+            return f"the anchor before it ({seats[number - 1]['raw']}) holds {seats[number - 1]['seat']}"
+        if number + 1 < len(seats) and (seats[number + 1]["at"] < base or (
+                seats[number + 1]["at"] == base and not may_share(seat, seats[number + 1], base))):
+            return f"the anchor after it ({seats[number + 1]['raw']}) holds {seats[number + 1]['seat']}"
+        return None
+
+    for number, seat in enumerate(seats):
+        new = seat["seat"]
+        if seat.get("fixed"):
+            continue
         counts["off_mapped_line"] += new != seat["mapped"]
         counts["present_after"] += new in target_refs
         if new != seat["mapped"]:
@@ -2619,7 +2639,10 @@ def _apply_anchor_map(
                 )
                 speaker_moves.append(entry)
             else:
-                entry["reason"] = "order: an earlier or later anchor holds the mapped line or a line beyond it"
+                blocker = order_blocker(number)
+                if blocker is None:
+                    raise ValueError(f"anchor {seat['raw']} left {seat['mapped']} for {new} with neither speaker nor order forcing it")
+                entry["reason"] = f"order: {blocker}, so keeping {seat['mapped']} would break the order"
                 order_moves.append(entry)
         if new == seat["raw"]:
             counts["kept"] += 1

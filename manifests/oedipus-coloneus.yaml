@@ -362,6 +362,15 @@ greek_editions:
         # metrical schemes (lacunae); his English has no words for them, and
         # 181 (πόρσω· σὺ γὰρ ἀΐεις) and 533 (ὦ Ζεῦ) and 534a fall inside the
         # English of the speech before.
+        # Perseus's English runs a line off the text map at 844-847. English
+        # 844, Antigone's "I am being dragged away in misery. Strangers,
+        # strangers!", is Jebb's 844 (ἀφέλκομαι δύστηνος, ὦ ξένοι ξένοι), and
+        # English 845, Oedipus's "My child, where are you?", is Jebb's 845
+        # (ποῦ, τέκνον, εἶ μοι;); the text map put both a line late, so the
+        # Greek speech 1:844 had no English.
+        line_fixes:
+          "844": "844"
+          "845": "845"
         covered:
           - { greek: "181", by: "180" }
           - { greek: "181a", by: "180" }

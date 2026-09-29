@@ -15,7 +15,7 @@ from lxml import etree
 
 from drama_pipeline.anchor_map import build_anchor_map, joined_targets, remap_anchor
 from drama_pipeline.config import Manifest
-from drama_pipeline.stage1_perseus_play_english import _SpeechIndex, _apply_anchor_map, parse_translation
+from drama_pipeline.stage1_perseus_play_english import _LINE_FIXED, _SpeechIndex, _apply_anchor_map, parse_translation
 from drama_pipeline.stage1_turn_english import _SiglaResolver
 
 STORR = [
@@ -156,6 +156,7 @@ def _seat(speeches, events, mapping, *, inferred=frozenset(), lines=8, one_segme
     """Seat English anchors on a spine of ``lines`` lines; return (n per anchor, report block).
 
     ``speeches`` is ``[(speaker, [anchor, ...]), ...]`` in document order,
+    an anchor written ``"!4"`` is one the manifest's ``line_fixes`` seated on 4,
     ``events`` is ``[(line, offset, siglum), ...]`` (A is Alpha, B is Beta,
     C is Gamma), ``mapping`` the text map from anchor to spine line.
     """
@@ -176,10 +177,15 @@ def _seat(speeches, events, mapping, *, inferred=frozenset(), lines=8, one_segme
     names = {"A": "Alpha", "B": "Beta", "C": "Gamma"}
     index = _SpeechIndex(spine, names)
     xml = "<TEI>" + "".join(
-        f"<sp><speaker>{who}</speaker>" + "".join(f'<l n="{a}">x</l>' for a in anchors) + "</sp>"
+        f"<sp><speaker>{who}</speaker>" + "".join(
+            f'<l n="{a.lstrip("!")}" fixed="{int(a.startswith("!"))}">x</l>' for a in anchors
+        ) + "</sp>"
         for who, anchors in speeches
     ) + "</TEI>"
     tree = etree.fromstring(xml)
+    for line in tree.iter("l"):
+        if line.attrib.pop("fixed") == "1":
+            line.set(_LINE_FIXED, "1")
     block = _apply_anchor_map(tree, dict(mapping), set(inferred), refs, "src", index, {n: n for n in names.values()})
     return [l.get("n") for l in tree.iter("l")], block
 
@@ -235,17 +241,40 @@ def test_shares_of_one_divided_line_do_not_share_a_seat_unless_the_concordance_j
     assert int(ns[0]) < int(ns[1]) and block["shared_seats"] == []
 
 
-def test_an_anchor_takes_a_speech_the_text_gave_an_anchor_instead_of_skipping_it(monkeypatch):
-    from drama_pipeline import stage1_perseus_play_english as stage1
+def test_a_correct_text_match_is_not_moved_to_fill_a_speech_that_would_be_left_without_an_anchor():
+    # Seven lines, one Greek speech apiece.  Alpha speaks 1-5 and 7, Beta 6.
+    # Three anchors map to 1, 2, 3 for Alpha, Alpha, Beta.  Alpha's two match
+    # their lines and stay; only Beta, whom line 3 does not suit, moves (to 6).
+    events = [(1, 0, "A"), (6, 0, "B"), (7, 0, "A")]
+    speeches = [("Alpha", ["1"]), ("Alpha", ["2"]), ("Beta", ["3"])]
+    ns, block = _seat(speeches, events, {"1": "1", "2": "2", "3": "3"}, lines=7, one_segment_per_line=True)
+    assert ns == ["1", "2", "6"]
+    assert block["order_moves"] == []
+    assert [(m["anchor"], m["seat"]) for m in block["speaker_moves"]] == [("3", "6")]
 
-    events = [(1, 0, "B"), (2, 0, "A"), (3, 0, "A"), (4, 0, "B"), (5, 0, "B"), (6, 0, "B"), (7, 0, "B")]
-    speeches = [("Beta", ["1"]), ("Alpha", ["2"]), ("Beta", ["3"])]
-    mapping = {"1": "2", "2": "5", "3": "6"}          # one speech (line) apiece
-    ns, _ = _seat(speeches, events, mapping, lines=7, one_segment_per_line=True)
-    assert ns == ["1", "2", "5"]                       # seats 2 and 5 keep their speech
-    monkeypatch.setattr(stage1, "_ANCHOR_GAP_COST", 0.0)
-    ns, _ = _seat(speeches, events, mapping, lines=7, one_segment_per_line=True)
-    assert ns == ["1", "3", "6"]                       # without the cost, 2 and 5 go empty
+
+def test_an_order_forced_move_is_labelled_an_order_move_and_says_why():
+    # Both anchors are Alpha's and both text-map to 3; Alpha speaks every line.
+    # Not joined, so they cannot share 3: one leaves it, for order alone.
+    ns, block = _seat([("Alpha", ["2", "3"])], [(1, 0, "A")], {"2": "3", "3": "3"}, inferred={"3"})
+    assert int(ns[0]) < int(ns[1])
+    assert block["speaker_moves"] == []
+    (move,) = block["order_moves"]
+    assert move["mapped"] == "3" and move["seat"] != "3" and "order" in move["reason"]
+
+
+def test_a_speaker_move_is_labelled_a_speaker_move_and_not_an_order_move():
+    ns, block = _seat([("Alpha", ["2"])], [(1, 0, "B"), (3, 0, "A")], {"2": "2"})
+    assert ns == ["3"] and block["order_moves"] == []
+    assert [m["anchor"] for m in block["speaker_moves"]] == ["2"]
+
+
+def test_an_anchor_a_line_fix_seated_bounds_the_anchors_around_it():
+    # "!4" is fixed on 4; the anchor after it maps to 3, so the order moves it past 4.
+    ns, block = _seat([("Alpha", ["1", "!4", "3"])], [(1, 0, "A")], {"1": "1", "3": "3"})
+    assert ns == ["1", "4", "5"]
+    assert [m["anchor"] for m in block["order_moves"]] == ["3"] and block["speaker_moves"] == []
+    assert block["anchors"] == 2                    # the fixed one is not re-keyed, so not counted
 
 
 def test_the_concordance_names_the_lines_it_joined():
