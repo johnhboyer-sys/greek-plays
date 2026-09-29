@@ -85,6 +85,8 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
     # pair the same speaker straight on opens no new speaker event. A
     # line-anchored pair (Smyth's) anchors its English to each <sp>, so it
     # keeps them apart.
+    # An unlabelled <sp> leaves current_label alone: it continues the speech
+    # before it, so an A, unlabelled, A run gives the last A no event.
     current_label = None
     merge_same_speaker = marks is None
     for el in body.iter():
@@ -166,16 +168,23 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
 
 
 def _apply_greek_text_fixes(flat: list[dict], edition: dict | None, xml_path: Path) -> None:
-    """Apply the edition's ``text_fixes`` (find/replace, each hits one line once).
+    """Apply the edition's ``text_fixes`` (``ref`` + find/replace).
 
-    A stale or ambiguous fix fails the build; a line that carries joined-part
-    or speaker offsets is refused, since an edit there would shift them."""
+    Each fix names its line by ``ref`` and touches only that line, where
+    ``find`` must occur exactly once. A missing ref, an absent or repeated
+    ref, or a ``find`` that is not there once fails the build; a line that
+    carries joined-part or speaker offsets is refused, since an edit there
+    would shift them."""
     for fix in (edition or {}).get('text_fixes') or []:
-        find, replace = fix['find'], fix['replace']
-        hits = [e for e in flat if find in e['text']]
-        if len(hits) != 1 or hits[0]['text'].count(find) != 1:
-            raise ValueError(f'{xml_path}: text_fixes find {find!r} must hit exactly one line once')
-        line = hits[0]
+        find, replace, ref = fix['find'], fix['replace'], fix.get('ref')
+        if not isinstance(ref, str) or not ref:
+            raise ValueError(f'{xml_path}: text_fixes find {find!r} needs a ref')
+        lines = [e for e in flat if e['ref'] == ref]
+        if len(lines) != 1:
+            raise ValueError(f'{xml_path}: text_fixes ref {ref!r} must name exactly one line, found {len(lines)}')
+        line = lines[0]
+        if line['text'].count(find) != 1:
+            raise ValueError(f'{xml_path}: text_fixes find {find!r} must occur exactly once on line {ref}')
         if line.get('parts') or len(line.get('speakers') or []) > 1:
             raise ValueError(f'{xml_path}: text_fixes find {find!r} sits on a joined line')
         line['text'] = line['text'].replace(find, replace)

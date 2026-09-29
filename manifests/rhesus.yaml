@@ -292,4 +292,4 @@ greek_editions:
       # (ἔ)δρασαν needs an apostrophe; the file's own comment on the line
       # reads "prodelision, accent and breathing left behind". The mark breaks
       # the key (stage 3 cannot transliterate it); the TLG text prints ʼδρασαν.
-      - { find: "῎δρασαν", replace: "ʼδρασαν", note: "sources/perseus/tlg0006.tlg019.perseus-grc2.xml:1434 (n=805)" }
+      - { ref: "805", find: "῎δρασαν", replace: "ʼδρασαν", note: "sources/perseus/tlg0006.tlg019.perseus-grc2.xml:1434 (n=805)" }

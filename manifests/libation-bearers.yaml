@@ -373,4 +373,4 @@ greek_editions:
   # Line 76 opens ἐκ with U+02BD (a rough-breathing mark on a word that takes none);
   # the sense and grammar want plain ἐκ γὰρ οἴκων. Perseus's own typo, tlg0085.tlg006 l. 76.
   text_fixes:
-    - { find: "ʽἐκ", replace: "ἐκ", note: "Perseus tlg0085.tlg006.perseus-grc2.xml l.76: stray U+02BD before ἐκ" }
+    - { ref: "76", find: "ʽἐκ", replace: "ἐκ", note: "Perseus tlg0085.tlg006.perseus-grc2.xml l.76: stray U+02BD before ἐκ" }

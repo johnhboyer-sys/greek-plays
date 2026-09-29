@@ -98,13 +98,48 @@ def test_lacuna_line_ignores_xml_comment(tmp_path):
     assert line['text'] == ''
 
 
-def test_greek_text_fix_hits_once(tmp_path):
-    xml = _one_line_xml(tmp_path, '<l n="1">ἐγὼ ῎τεκον</l>')
-    fix = {'find': '῎τεκον', 'replace': 'ʼτεκον', 'note': 'test'}
-    spine = parse_spine(xml, _one_line_manifest(tmp_path, {'text_fixes': [fix]}), check_fingerprint=False)
-    assert spine['segments'][0]['lines'][0]['text'] == 'ἐγὼ ʼτεκον'
+def _two_line_xml(tmp_path):
+    xml = tmp_path / 'play.xml'
+    xml.write_text('<TEI><teiHeader><editor>Editor</editor></teiHeader><text><body><sp><speaker>Α</speaker>'
+                   '<l n="1">ἐγὼ ῎τεκον</l><l n="2">ἄλλος ῎τεκον</l></sp></body></text></TEI>')
+    manifest = _one_line_manifest(tmp_path)
+    manifest.data['books'] = [{'n': 1, 'start': '1', 'end': '2'}]
+    return xml, manifest
+
+
+def _spine_with_fix(tmp_path, fix):
+    xml, manifest = _two_line_xml(tmp_path)
+    manifest.edition = {'text_fixes': [fix]}
+    return parse_spine(xml, manifest, check_fingerprint=False)
+
+
+def test_greek_text_fix_hits_its_own_line_once(tmp_path):
+    fix = {'ref': '2', 'find': '῎τεκον', 'replace': 'ʼτεκον', 'note': 'test'}
+    lines = [l for s in _spine_with_fix(tmp_path, fix)['segments'] for l in s['lines']]
+    assert [l['text'] for l in lines] == ['ἐγὼ ῎τεκον', 'ἄλλος ʼτεκον']
+
+
+def test_greek_text_fix_needs_a_ref(tmp_path):
+    with pytest.raises(ValueError, match='text_fixes.*ref'):
+        _spine_with_fix(tmp_path, {'find': 'ἄλλος', 'replace': 'ἄλλως', 'note': 'test'})
+
+
+def test_greek_text_fix_on_a_line_without_the_text_fails(tmp_path):
+    # `find` occurs once in the file, but on line 2; naming line 1 must not apply it.
     with pytest.raises(ValueError, match='text_fixes'):
-        parse_spine(xml, _one_line_manifest(tmp_path, {'text_fixes': [{**fix, 'find': 'ζζζ'}]}), check_fingerprint=False)
+        _spine_with_fix(tmp_path, {'ref': '1', 'find': 'ἄλλος', 'replace': 'ἄλλως', 'note': 'test'})
+
+
+def test_greek_text_fix_ref_absent_from_the_edition_fails(tmp_path):
+    with pytest.raises(ValueError, match='text_fixes'):
+        _spine_with_fix(tmp_path, {'ref': '99', 'find': 'ἄλλος', 'replace': 'ἄλλως', 'note': 'test'})
+
+
+def test_greek_text_fix_find_twice_on_its_line_fails(tmp_path):
+    xml = _one_line_xml(tmp_path, '<l n="1">῎τεκον ῎τεκον</l>')
+    fix = {'ref': '1', 'find': '῎τεκον', 'replace': 'ʼτεκον', 'note': 'test'}
+    with pytest.raises(ValueError, match='text_fixes'):
+        parse_spine(xml, _one_line_manifest(tmp_path, {'text_fixes': [fix]}), check_fingerprint=False)
 
 
 def _speaker_labels(spine):
@@ -138,6 +173,19 @@ def test_same_speaker_blocks_are_one_speech_without_a_line_anchored_pair(tmp_pat
     xml, manifest = _split_speech_setup(tmp_path)
     spine = parse_spine(xml, manifest, check_fingerprint=False)
     assert _speaker_labels(spine) == ['Α', 'Β', 'Α']
+
+
+def test_unlabelled_block_between_same_speaker_blocks_opens_no_event(tmp_path):
+    # A, an <sp> with no <speaker>, A: with no line-anchored pair the unlabelled
+    # block continues A's speech, so the last A opens no speaker event either.
+    xml, manifest = _split_speech_setup(tmp_path)
+    xml.write_text('<TEI><teiHeader><editor>Editor</editor></teiHeader><text><body>'
+                   '<sp><speaker>Α</speaker><l n="1">ἀρχή</l></sp>'
+                   '<sp><l n="2">μέσον</l></sp>'
+                   '<sp><speaker>Α</speaker><l n="3">τέλος</l></sp></body></text></TEI>')
+    manifest.data['books'] = [{'n': 1, 'start': '1', 'end': '3'}]
+    spine = parse_spine(xml, manifest, check_fingerprint=False)
+    assert _speaker_labels(spine) == ['Α']
 
 
 def test_same_speaker_blocks_stay_apart_with_a_line_anchored_pair(tmp_path, monkeypatch):

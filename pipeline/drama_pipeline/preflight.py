@@ -2849,12 +2849,15 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
         if not isinstance(licence, dict):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} licence must be an object"))
             continue
-        if not any(
-            edition.get("editor") == entry.get("editor")
-            and edition.get("year") == entry.get("year")
-            and licence.get("text") == entry.get("status")
-            and _source_matches(source.get("path") or "", entry.get("sources") or [])
-            for entry in allowed.get(eid, [])
+        # One entry must own this id and source; it must then match the manifest's
+        # editor, year, and status whole. Two entries naming one source are ambiguous.
+        owners = [entry for entry in allowed.get(eid, [])
+                  if _source_matches(source.get("path") or "", entry.get("sources") or [])]
+        if not (
+            len(owners) == 1
+            and edition.get("editor") == owners[0].get("editor")
+            and edition.get("year") == owners[0].get("year")
+            and licence.get("text") == owners[0].get("status")
         ):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} is absent from or differs from the allowlist"))
         if source.get("kind") not in {"perseus-tei", "ocr-tei"} or not source.get("expect"):

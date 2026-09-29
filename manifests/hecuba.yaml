@@ -210,4 +210,4 @@ greek_editions:
       # line reads "very odd crasis mark here". The mark breaks the key
       # (stage 3 cannot transliterate it); every other elision in the file is
       # U+02BC.
-      - { find: "῎τεκον", replace: "ʼτεκον", note: "sources/perseus/tlg0006.tlg007.perseus-grc2.xml:613 (n=387)" }
+      - { ref: "387", find: "῎τεκον", replace: "ʼτεκον", note: "sources/perseus/tlg0006.tlg007.perseus-grc2.xml:613 (n=387)" }

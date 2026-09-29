@@ -341,4 +341,4 @@ greek_editions:
       # ἑ + U+0313 + U+0301 (rough and smooth breathing together, which no
       # Greek word carries) for ἔ; TLG 204 prints ἔρροι. Stage 3 cannot
       # transliterate U+02BD. Opening quote to U+2018, ἔρροι as TLG has it.
-      - { find: "ʽἑ̓́ρροι", replace: "‘ἔρροι", note: "sources/perseus/tlg0006.tlg011.perseus-grc2.xml:429 (n=204)" }
+      - { ref: "204", find: "ʽἑ̓́ρροι", replace: "‘ἔρροι", note: "sources/perseus/tlg0006.tlg011.perseus-grc2.xml:429 (n=204)" }

@@ -314,4 +314,4 @@ greek_editions:
       # Perseus 458 prints U+1FCE (a free psili-and-oxia) where prodelision
       # (ἔ)πεμψεν needs an apostrophe; stage 3 cannot transliterate it. The
       # TLG text prints ʼπεμψεν.
-      - { find: "\u1fceπεμψεν", replace: "\u02bcπεμψεν", note: "sources/perseus/tlg0006.tlg008.perseus-grc2.xml:834 (n=458)" }
+      - { ref: "458", find: "\u1fceπεμψεν", replace: "\u02bcπεμψεν", note: "sources/perseus/tlg0006.tlg008.perseus-grc2.xml:834 (n=458)" }
