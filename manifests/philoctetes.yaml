@@ -258,7 +258,12 @@ greek_editions:
         "ΗΡ.": Heracles
       overrides: []
     edition_only: []
-    alignment: { jebb: { covered: [] } }
+    alignment:
+      jebb:
+        # The English's line numbers are Storr's (Perseus's Greek); the matcher
+        # re-keys them onto Jebb's lines by text (pipeline/drama_pipeline/anchor_map.py).
+        anchor_map: storr-loeb
+        covered: []
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org sophoclesplaysfr04soph, page as printed)
