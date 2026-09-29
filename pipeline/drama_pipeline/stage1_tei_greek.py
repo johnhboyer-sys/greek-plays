@@ -118,7 +118,8 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         mark = _strophe_label(el)
         if mark:
             entry['label'] = mark
-        if len(el) == 1 and isinstance(el[0].tag, str) and etree.QName(el[0]).localname == 'gap' and el[0].get('reason') == 'lost' and not (el.text or '').strip() and not (el[0].tail or '').strip():
+        kids = [c for c in el if isinstance(c.tag, str)]  # comments and PIs are not content
+        if len(kids) == 1 and etree.QName(kids[0]).localname == 'gap' and kids[0].get('reason') == 'lost' and not (el.text or '').strip() and not any((c.tail or '').strip() for c in el):
             entry['role'] = 'lacuna'
             entry['text'] = ''
         flat.append(entry)

@@ -87,6 +87,17 @@ def test_xml_comment_in_line_is_not_text(tmp_path):
     assert spine['segments'][0]['lines'][0]['text'] == 'ἐγὼ τεκον'
 
 
+def test_lacuna_line_ignores_xml_comment(tmp_path):
+    xml = _one_line_xml(tmp_path, '<l n="5"><gap reason="lost"/><!-- note --></l>')
+    manifest = _one_line_manifest(tmp_path)
+    manifest.data['citation']['lacunae'] = {'1': ['5']}
+    manifest.data['books'] = [{'n': 1, 'start': '5', 'end': '5'}]
+    spine = parse_spine(xml, manifest, check_fingerprint=False)
+    line = spine['segments'][0]['lines'][0]
+    assert line['role'] == 'lacuna'
+    assert line['text'] == ''
+
+
 def test_greek_text_fix_hits_once(tmp_path):
     xml = _one_line_xml(tmp_path, '<l n="1">ἐγὼ ῎τεκον</l>')
     fix = {'find': '῎τεκον', 'replace': 'ʼτεκον', 'note': 'test'}

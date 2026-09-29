@@ -896,3 +896,4 @@ existing reference edition contract.
 - `shared/components/ReaderHost.svelte` — 2026-09-29: loads the chosen edition and remounts the reader when its book changes.
 - `shared/lib/edition-state.ts` — 2026-09-29: applies the edition load and change rules for paired views and deep links.
 - `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: skips XML comments inside `<l>` (Hecuba 387 crashed and leaked the comment into the Greek) and applies an edition's `text_fixes` (find/replace, one hit, fail-closed).
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: the lacuna test ignores XML comments and processing instructions, so `<l><gap reason="lost"/><!-- note --></l>` stays a declared lacuna.
