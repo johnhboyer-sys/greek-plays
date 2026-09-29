@@ -69,8 +69,15 @@ describe('edition place', () => {
   // The fixture edition's concordance: edition ref -> TLG ref or range, a lettered ref included.
   const fixture: Record<string, string> = JSON.parse(readFileSync(
     resolve(process.cwd(), '../fixtures/data/sample-work/ed/mini/concordance.json'), 'utf8'));
-  it('keeps a printed ref present in both editions, whatever the concordance says', () => {
-    expect(editionPlace('1203', 'smyth-loeb', 'tlg', book('1202', '1203'), { '1203': '1202' })).toBe('1203');
+  it('lets the concordance win over the same printed ref: a shifted number is different text', () => {
+    // Smyth 1203 is TLG 1202, and TLG also prints 1203 (other text): the concordance decides.
+    expect(editionPlace('1203', 'smyth-loeb', 'tlg', book('1202', '1203'), { '1203': '1202' })).toBe('1202');
+    expect(editionPlace('1202', 'tlg', 'smyth-loeb', book('1202', '1203'), {}, { '1203': '1202' })).toBe('1203');
+    // A range value: the first ref the destination prints wins.
+    expect(editionPlace('112', 'ed', 'tlg', book('111', '112', '113'), { '112': '111-112' })).toBe('111');
+  });
+  it('keeps a printed ref the concordance does not map', () => {
+    expect(editionPlace('1203', 'smyth-loeb', 'tlg', book('1202', '1203'), { '1300': '1299' })).toBe('1203');
     expect(editionPlace('1203--2', 'tlg', 'smyth-loeb', book('1203'))).toBe('1203');
   });
   it('goes edition -> TLG through the concordance when the printed ref is absent', () => {

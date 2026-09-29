@@ -11,8 +11,9 @@
 //   ... all --work <play> --edition <ed>
 // Each play skips itself, by name, when its build is absent (build/ is git-ignored).
 // The counts print as one line per play and direction; the shifted subset is every
-// ref whose target number differs from the ref (the only cases where place-keeping
-// has work to do).
+// ref whose concordance target differs from the ref (the only cases where
+// place-keeping has work to do). The concordance wins over the same printed ref,
+// so at least 95% of the shifted refs must land within one line of the target.
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -27,6 +28,7 @@ const PLAYS = [
   { author: 'Aristophanes', play: 'frogs', ed: 'hall-geldart-oct' },
 ];
 const SAMPLE = 50;
+const SHIFTED_FLOOR = 0.95;
 
 const num = (ref: string) => Number(ref.match(/\d+/)?.[0]);
 const read = <T>(file: string): T => JSON.parse(readFileSync(file, 'utf-8')) as T;
@@ -105,18 +107,24 @@ for (const { author, play, ed } of PLAYS) {
 
     it(`edition -> tlg: ${SAMPLE} sampled refs land within one line of the concordance target`, () => {
       const cases = sample(edRefs, SAMPLE, 6).map(toTlg);
-      const shifted = edRefs.filter(r => span(conc[r]!)[0] !== num(r)).map(toTlg);
+      const shifted = edRefs.filter(r => conc[r] !== r).map(toTlg);
       report('edition->tlg', cases, shifted, edLines, tlgLines);
       expect(cases).toHaveLength(SAMPLE);
       expect(tally(cases).exact + tally(cases).one).toBeGreaterThanOrEqual(SAMPLE * 0.9); // measured floor, see the printed counts
+      expect(shifted.length).toBeGreaterThan(0);
+      expect(tally(shifted).exact + tally(shifted).one, `${tally(shifted).further.length} of ${shifted.length} shifted refs miss by 2 or more`)
+        .toBeGreaterThanOrEqual(Math.ceil(shifted.length * SHIFTED_FLOOR));
     });
 
     it(`tlg -> edition: ${SAMPLE} sampled refs land within one line of the concordance target`, () => {
       const cases = sample(tlgRefs, SAMPLE, 7).map(toEd);
-      const shifted = tlgRefs.filter(r => num(inverse.get(r)!) !== num(r)).map(toEd);
+      const shifted = tlgRefs.filter(r => inverse.get(r) !== r).map(toEd);
       report('tlg->edition', cases, shifted, tlgLines, edLines);
       expect(cases).toHaveLength(SAMPLE);
       expect(tally(cases).exact + tally(cases).one).toBeGreaterThanOrEqual(SAMPLE * 0.9); // measured floor, see the printed counts
+      expect(shifted.length).toBeGreaterThan(0);
+      expect(tally(shifted).exact + tally(shifted).one, `${tally(shifted).further.length} of ${shifted.length} shifted refs miss by 2 or more`)
+        .toBeGreaterThanOrEqual(Math.ceil(shifted.length * SHIFTED_FLOOR));
     });
   });
 }

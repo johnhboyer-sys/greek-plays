@@ -900,7 +900,7 @@ existing reference edition contract.
 - `schemas/concordance.v1.json` — 2026-09-29: new schema for the edition concordance; a value is one ref or an "a-b" range.
 - `pipeline/drama_pipeline/concordance.py` — 2026-09-29: a joined span may start at the last line of the ±50 window, as a single line can (bound was `high - m + 1`).
 - `shared/lib/data.ts` — 2026-09-29: `fetchConcordance(work, ed)` (edition ref to TLG ref, cached through the data root).
-- `shared/lib/edition-place.ts`, `shared/lib/edition-citation.ts` — 2026-09-29: new; keep the reader's place across an edition switch (same ref, else concordance, else nearest lower) and build the edition-aware copy citation.
+- `shared/lib/edition-place.ts`, `shared/lib/edition-citation.ts` — 2026-09-29: new; keep the reader's place across an edition switch (concordance first, else same ref, else nearest lower; 2026-09-29 reordered: the same number is different text where numbering drifts) and build the edition-aware copy citation.
 - `shared/lib/resume.ts` — 2026-09-29: saves the edition beside the cite and `resumeHref` adds `?ed=` when editions are on.
 - `shared/components/CommandPalette.svelte` — 2026-09-29: resume links go through `resumeHref`.
 - `shared/components/Reader.svelte` — 2026-09-29: copy citation names the editor and appends an `ed=` link in a non-reference edition; saves `reader-loc-ed-<work>`.
