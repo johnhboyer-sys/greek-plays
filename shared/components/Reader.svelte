@@ -866,7 +866,7 @@
         // A piece without its own turns carries its cues in the text.
         const source = p.turns?.length
           ? { text: p.text, turns: p.turns }
-          : extractPrefixedEnglishTurns(p.text, roster, fallbackTurns);
+          : extractPrefixedEnglishTurns(p.text, roster, fallbackTurns, (p as OverlayPiece).cueSpeakers ?? []);
         for (const b of buildEnglishTurnBlocks(source.text, source.turns)) if (b.display) names.add(leadName(b.display));
       }
     }
@@ -1780,7 +1780,7 @@
           display: event.display ?? null,
         }));
     const roster = bookSpeakerRoster.length ? bookSpeakerRoster : (speakerRoster ?? []);
-    const source = extractPrefixedEnglishTurns(piece.text, roster, fallbackTurns);
+    const source = extractPrefixedEnglishTurns(piece.text, roster, fallbackTurns, piece.cueSpeakers ?? []);
     const addedPiece = piece as OverlayPiece & { cueAdded?: boolean; cueAddedTurns?: number[] };
     if (addedPiece.cueAdded) {
       source.turns = source.turns.map((turn, k) =>

@@ -668,6 +668,7 @@ export function extractPrefixedEnglishTurns(
   text: string,
   roster: readonly string[],
   fallbackTurns: readonly EnglishTurn[] = [],
+  cueSpeakers: readonly string[] = [],
 ): EnglishTurnSource {
   const known = [...roster];
   for (const turn of fallbackTurns) {
@@ -685,10 +686,16 @@ export function extractPrefixedEnglishTurns(
   }
   const candidates = [...text.matchAll(/(^|\n{2,})([^.\n]{1,80})\.\s+/g)].filter((match) => {
     const label = match[2].trim();
+    // An unknown cue is an all-caps name of two letters or more, as stage 1
+    // reads it: a lone capital (Murray's lettered parts of the chorus, "B.")
+    // stays inside the speech.
     return knownByNorm.has(norm(label))
-      || (/\p{L}/u.test(label) && label === label.toLocaleUpperCase());
+      || ((label.match(/\p{L}/gu)?.length ?? 0) >= 2 && label === label.toLocaleUpperCase());
   });
   if (!candidates.length) return { text, turns: [] };
+  // Stage 1's names are cue-aligned only when both found the same cues; a
+  // count mismatch (Murray's lettered part-chorus cues) would shift them.
+  const emitted = cueSpeakers.length === candidates.length ? cueSpeakers : [];
 
   let clean = '';
   let cursor = 0;
@@ -700,7 +707,7 @@ export function extractPrefixedEnglishTurns(
     const fallback = fallbackTurns[index];
     turns.push({
       offset: clean.length,
-      speaker: knownByNorm.get(norm(label)) ?? fallback?.speaker ?? fallback?.display ?? label,
+      speaker: emitted[index] || knownByNorm.get(norm(label)) || fallback?.speaker || fallback?.display || label,
       display: label,
     });
     cursor = start + match[0].length;

@@ -357,6 +357,9 @@ export interface OverlayPiece {
   chapter: string;
   text: string;
   cont: boolean;
+  // Play-line comparison cues stay printed in text. One resolved speaker per
+  // prefixed cue, in reading order; absent in older books and other schemes.
+  cueSpeakers?: string[];
   // Play-line turn-text overlays may keep the same standoff speaker data as
   // the primary English chunk. Older overlays instead prefix the printed
   // lead-ins into `text`; Reader.svelte supports both shapes.

@@ -4771,8 +4771,8 @@ def _spread_long_speeches(
 def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
     """Turn-text chunks → the overlay dict stage7 reads from ``ross_chunks.json``.
 
-    OverlayPiece has no ``turns``; speaker names are prefixed into ``text``
-    so compare mode still shows who is speaking.
+    Printed names stay prefixed in ``text``. ``cueSpeakers`` keeps the resolved
+    speaker for each prefixed cue in that same order.
     """
     out: dict[str, list[dict]] = {}
     for chunk in english.get("chunks") or []:
@@ -4798,6 +4798,7 @@ def chunks_as_overlay(english: dict) -> dict[str, list[dict]]:
                 "chapter": str(chunk.get("column") or "1"),
                 "text": text,
                 "cont": False,
+                **({"cueSpeakers": [t.get("speaker") or t.get("display") for t in named]} if named else {}),
                 **({"cueAdded": True} if chunk.get("cueAdded") else {}),
                 **({"cueAddedTurns": [k for k, t in enumerate(named) if t.get("cueAdded")]} if chunk.get("cueAdded") else {}),
                 **({"directionsBefore": chunk["directionsBefore"]} if chunk.get("directionsBefore") else {}),

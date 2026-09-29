@@ -2803,7 +2803,39 @@ def test_chunks_as_overlay_prefixes_speakers():
     assert piece["cont"] is False
     assert piece["chapter"] == "1"
     assert piece["text"].startswith("ANTIGONE. Ismene, sister.")
+    assert piece["cueSpeakers"] == ["Antigone", "Ismene"]
     assert "ISMENE. To me, Antigone." in piece["text"]
+
+
+def test_secondary_alias_and_override_reach_emitted_cues(tmp_path):
+    from drama_pipeline.stage1_turn_english import _aliases_for_slot, chunks_as_overlay
+
+    spine = {
+        "work": "test",
+        "segments": [
+            {"id": f"1:{n}", "book": 1, "column": "1",
+             "lines": [{"n": n, "ref": str(n), "text": "Greek words"}],
+             "speakers": [{"line": n, "offset": 0, "label": label}]}
+            for n, label in [(1, "Α."), (2, "Β.")]
+        ],
+    }
+    source = tmp_path / "secondary.txt"
+    source.write_text("TEST PLAY\nSLAVE. First report.\nSLAVE. Second report.\nFINIS\n", encoding="utf-8")
+    aliases = _aliases_for_slot({"english": {"SLAVE": "Wrong"},
+                                 "english_secondary": {"SLAVE": "First Slave"}}, "secondary")
+    english, _, _ = parse_translation(
+        source, spine, work_id="test", translation_id="secondary", play="TEST PLAY",
+        sigla={"Α.": "First Slave", "Β.": "Second Slave"},
+        english_aliases=aliases, footnotes_enabled=False, slot="secondary",
+        english_overrides=[{"slot": "secondary", "cue": "SLAVE",
+                            "from_text": "Second report", "display": "Second Slave"}],
+    )
+    pieces = chunks_as_overlay(english)
+    cues = [(piece["text"], speaker) for group in pieces.values()
+            for piece in group for speaker in piece["cueSpeakers"]]
+    assert len(cues) == 2
+    assert [speaker for _, speaker in cues] == ["First Slave", "Second Slave"]
+    assert all(text.startswith("SLAVE. ") for text, _ in cues)
 
 
 # Arrowsmith's stage directions (John, 2026-09-12): the cleaner writes each

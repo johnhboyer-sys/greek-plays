@@ -1,5 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, playSigla, splitGreekSections, splitWrapLine, splitShortDirections, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineStartTicks, verseLineTicks, lineRenderParts, leadInCase, playRepeatedRefs, playTransposed, playEnglishGutterWidth, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, splitGreekSections, splitWrapLine, splitShortDirections, markLineNumbers, lineNumberHtml, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+
+describe('comparison cue speakers', () => {
+  it('uses the emitted speaker even when the printed cue matches the roster', () => {
+    const source = extractPrefixedEnglishTurns('SLAVE. First.\n\nSLAVE. Second.', ['Slave'], [], ['First Slave', 'Second Slave']);
+    expect(source.turns.map((turn) => turn.speaker)).toEqual(['First Slave', 'Second Slave']);
+    expect(source.turns.map((turn) => turn.display)).toEqual(['SLAVE', 'SLAVE']);
+  });
+
+  it('ignores emitted speakers whose count disagrees with the cues found', () => {
+    // Wealth, Lindsay 187: stage 1 found three cues; the reader also reads "CL." as one.
+    const source = extractPrefixedEnglishTurns('CHREMYLUS. One.\n\nCL. Two.\n\nCHREMYLUS. Three.\n\nCARIO. Four.', ['Chremylus', 'Cario'], [], ['Cario', 'Chremylus', 'Cario']);
+    expect(source.turns.map((turn) => turn.speaker)).toEqual(['Chremylus', 'CL', 'Chremylus', 'Cario']);
+  });
+
+  it('keeps a lone capital letter inside the speech, as stage 1 does', () => {
+    // Medea, Murray: A-D letter the parts of the chorus (John, 2026-09-29).
+    const source = extractPrefixedEnglishTurns('CHORUS. One.\n\nB. Two.\n\nC. Three.', ['Chorus', 'Nurse'], [], ['Chorus']);
+    expect(source.turns.map((turn) => turn.speaker)).toEqual(['Chorus']);
+    expect(source.text).toBe('One.\n\nB. Two.\n\nC. Three.');
+  });
+
+  it('keeps roster and fallback matching for older pieces', () => {
+    expect(extractPrefixedEnglishTurns('SLAVE. Words.', ['Slave']).turns[0].speaker).toBe('Slave');
+    expect(extractPrefixedEnglishTurns('STRANGER. Words.', [], [{ offset: 0, speaker: 'Guest', display: 'Guest' }]).turns[0].speaker).toBe('Guest');
+  });
+});
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
