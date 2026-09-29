@@ -148,12 +148,14 @@ registry:
   greekEditions:
     - { id: tlg, short: "Dain & Mazon (1960)", full: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)", editor: "Dain & Mazon", year: 1960, kind: tlg, licence: public-domain-us }
     - { id: storr-loeb, short: "Storr (1913)", full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)", editor: "F. Storr", year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
+    - { id: jebb, short: "Jebb (1898)", full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 4, The Philoctetes (Cambridge, 2nd ed., 1898)", editor: "R. C. Jebb", year: 1898, kind: ocr-tei, licence: public-domain-us, pairs: [jebb] }
   translations:
     - id: jebb
       form: prose
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+      edition: jebb
       alignment: line
     - id: storr
       form: verse
@@ -209,3 +211,87 @@ greek_editions:
     alignment: { storr: { covered: [], cuts: [] } }
     gaps: []
     text_fixes: []
+  # Jebb's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org sophoclesplaysfr04soph: the title page (n8) is dated 1932, its verso (n9) reads
+  # '1st Edition 1890, 2nd Edition 1898, Reprinted 1908, 1932'; so the edition of 1898). The TEI is
+  # sources/ocr/jebb/philoctetes.xml, made by scripts/ocr/jebb_to_tei.py and numbered by Jebb's own
+  # printed numbers and commentary notes (John, 2026-09-29); pp. 44 and 142, which the OCR lost,
+  # come from sources/ocr/jebb/lost-pages.yaml, transcribed from the scan.
+  - id: jebb
+    label:
+      short: "Jebb (1898)"
+      full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 4, The Philoctetes (Cambridge, 2nd ed., 1898)"
+    editor: "R. C. Jebb"
+    year: 1898
+    source:
+      kind: ocr-tei
+      path: ocr/jebb/philoctetes.xml
+      expect: { title: "Φιλοκτήτης", editor: "R. C. Jebb" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      # Approved by John, 2026-09-29 (the same on every Jebb play).
+      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
+      source_url: https://archive.org/details/sophoclesplaysfr04soph
+    pairs: [jebb]
+    citation:
+      title_labels: []
+      lacunae: { "1": ["1251a"] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1417, sha256: "f6a8ed6d80303d7618cede179ab7d0512d8e8193deac69006736af7c6c714530" }
+    speakers:
+      sigla:
+        "—": null
+        "ΝΕΟΠΤΟΛΕΜΟΣ": Neoptolemus
+        "ΝΕ.": Neoptolemus
+        "ΦΙΛΟΚΤΗΤΗΣ": Philoctetes
+        "ΦΙ.": Philoctetes
+        "ΟΔΥΣΣΕΥΣ": Odysseus
+        "ΟΔ.": Odysseus
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΕΜΠΟΡΟΣ": Merchant
+        "ΕΜ.": Merchant
+        "ΗΡΑΚΛΗΣ": Heracles
+        "ΗΡ.": Heracles
+      overrides: []
+    edition_only: []
+    alignment: { jebb: { covered: [] } }
+    gaps: []
+    # OCR misreads corrected under John's grammar rule (2026-09-19): each one
+    # the scan prints (archive.org sophoclesplaysfr04soph, page as printed)
+    # where the OCR's reading breaks grammar or sense. Readings the scan prints
+    # differently but that are Greek as they stand (ἡμῖν 8 for Jebb's ἡμὶν,
+    # εἶμ’ 90 for his εἴμ’, λώω 1079 for his λῴω) stay.
+    text_fixes:
+      - { ref: "1", find: "’ΑΚΤΗ", replace: "ἈΚΤΗ", note: "scan p. 6 prints ἈΚΤΗ; the OCR read the breathing as an elision mark" }
+      - { ref: "4", find: "’Αχιλλέως", replace: "Ἀχιλλέως", note: "scan p. 6 prints Ἀχιλλέως; the OCR read the breathing as an elision mark" }
+      - { ref: "26", find: "τοὖργον", replace: "τοὔργον", note: "scan p. 10 prints τοὔργον (τὸ ἔργον); τοὖργον is no word" }
+      - { ref: "96", find: "κἀὐτὸς", replace: "καὐτὸς", note: "scan p. 22 prints καὐτὸς (καὶ αὐτός); κἀὐτὸς is no word" }
+      - { ref: "147", find: "*οὐκ", replace: "*οὑκ", note: "scan p. 32 prints οὑκ (ὁ ἐκ); οὐκ 'not' makes no sense before μελάθρων" }
+      - { ref: "256", find: "‘Ελλάδος", replace: "Ἑλλάδος", note: "scan p. 50 prints Ἑλλάδος; the OCR read the breathing as an opening quote" }
+      - { ref: "264", find: "χώ", replace: "χὡ", note: "scan p. 52 prints χὡ (καὶ ὁ); χώ is no word" }
+      - { ref: "315", find: "οἵ’", replace: "οἷ’", note: "scan p. 60 prints οἷ’ (οἷα elided; apparatus '315 f. οἷ’ Porson'); οἵ’ is no form" }
+      - { ref: "323", find: "παθώ", replace: "παθών", note: "scan p. 60 prints παθών; the OCR lost the final ν" }
+      - { ref: "326", find: "χή", replace: "χἠ", note: "scan p. 60 prints χἠ (καὶ ἡ); χή is no word" }
+      - { ref: "378", find: "ἀξήκουσεν", replace: "ἁξήκουσεν", note: "scan p. 68 prints ἁξήκουσεν (ἃ ἐξήκουσεν); ἀξήκουσεν is no word" }
+      - { ref: "405", find: "προσάδεθ’", replace: "προσᾴδεθ’", note: "scan p. 72 prints προσᾴδεθ’; the OCR lost the iota subscript and the circumflex" }
+      - { ref: "417", find: "οὐμπολητὸς", replace: "οὑμπολητὸς", note: "scan p. 74 prints οὑμπολητὸς (ὁ ἐμπολητός); οὐμπολητὸς is no word" }
+      - { ref: "435", find: "χοὗτος", replace: "χοὖτος", note: "scan p. 78 prints χοὖτος (καὶ οὗτος); the crasis takes the coronis, and χοὗτος is no word" }
+      - { ref: "457", find: "χώ", replace: "χὡ", note: "scan p. 80 prints χὡ (καὶ ὁ); χώ is no word" }
+      - { ref: "572", find: "Οὐδυσσεὺς", replace: "οὑδυσσεὺς", note: "scan p. 98 prints οὑδυσσεὺς (ὁ Ὀδυσσεύς); Οὐδυσσεὺς is no word" }
+      - { ref: "587", find: "προσφιλή", replace: "προσφιλῆ", note: "scan p. 100 prints προσφιλῆ; the OCR read the circumflex as an acute" }
+      - { ref: "591", find: "ὧπερ", replace: "ὥπερ", note: "scan p. 100 prints ὥπερ ('as'); ὧπερ is no word" }
+      - { ref: "598", find: "Ἀτρείδαι", replace: "Ἀτρεῖδαι", note: "scan p. 100 prints Ἀτρεῖδαι; the OCR read the circumflex as an acute" }
+      - { ref: "627", find: "σφῶν", replace: "σφῷν", note: "scan p. 104 prints σφῷν (dative dual, with συμφέροι); the genitive σφῶν breaks the sentence" }
+      - { ref: "631", find: "πλείστον", replace: "πλεῖστον", note: "scan p. 104 prints πλεῖστον; the OCR read the circumflex as an acute" }
+      - { ref: "768", find: "ἐὰν", replace: "ἐᾶν", note: "scan p. 126 prints ἐᾶν ('to let', with χρεὼν); ἐὰν 'if' breaks the sentence" }
+      - { ref: "781", find: "χώ", replace: "χὡ", note: "scan p. 128 prints χὡ (καὶ ὁ); χώ is no word" }
+      - { ref: "782", find: "εὐχὴ", replace: "εὔχῃ", note: "scan p. 128 prints εὔχῃ (the verb, after μὴ); the noun εὐχὴ breaks the sentence" }
+      - { ref: "798", find: "δύνα", replace: "δύνᾳ", note: "scan p. 130 prints δύνᾳ; the OCR lost the iota subscript, and δύνα is no form" }
+      - { ref: "849", find: "δύνα", replace: "δύνᾳ", note: "scan p. 138 prints δύνᾳ; the OCR lost the iota subscript, and δύνα is no form" }
+      - { ref: "903", find: "προσρικότα", replace: "προσεικότα", note: "scan p. 146 prints προσεικότα; the OCR read ε as ρ" }
+      - { ref: "1022", find: "αὐθ’", replace: "αὔθ’", note: "scan p. 162 prints αὔθ’ (αὐτό elided); the OCR lost the accent" }
+      - { ref: "1371", find: "κοὺ κακοὺς", replace: "κοὐ κακοὺς", note: "scan p. 210 prints κοὐ (καὶ οὐ); κοὺ is no word" }

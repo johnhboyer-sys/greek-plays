@@ -309,3 +309,18 @@ def test_a_long_turn_over_joins_only_where_the_join_is_in_the_reference():
     out = J.join_turnovers(rows, refs)
     assert [r["text"] for r in out][0] == "χρῆναί σ’· ἀνάλγητα γὰρ οὐδ’ ὁ πάντα κραίνων βασιλεὺς ἐπέβαλε θνατοῖς Κρονίδας·"
     assert len(out) == 2
+
+
+def test_a_last_share_turned_over_onto_its_own_row_joins_its_line():
+    # Ph. 753 (scan p. 124): 'ΦΙ. οἶσθ’, ὦ τέκνον. ΝΕ. τί <δ’> ἔστιν; ΦΙ.
+    # οἶσθ’, ὦ παῖ.' with 'ΝΕ. τί σοί;' turned over. Left apart, the share
+    # became a line lettered 753a beside the share 753a.
+    base = {"kind": "verse", "colon": None, "strophe": None, "page": 124, "printed": None, "turn": False}
+    rows = [{**base, "speaker": "ΦΙ.", "text": "οἶσθ’, ὦ τέκνον. ΝΕ. τί <δ’> ἔστιν; ΦΙ. οἶσθ’, ὦ παῖ.", "src": 1},
+            {**base, "speaker": "ΝΕ.", "text": "τί σοί;", "src": 2},
+            {**base, "speaker": None, "text": "οὐκ οἶδα. ΦΙ. πῶς οὐκ οἶσθα; παππαπαππαπαῖ.", "src": 3}]
+    refs = [J.key("Οἶσθ', ὦ τέκνον. Τί δ' ἔστιν; Οἶσθ', ὦ παῖ. Τί σοι;"),
+            J.key("Οὐκ οἶδα. Πῶς οὐκ οἶσθα; παππαπαππαπαῖ.")]
+    out = J.merge_antilabe(rows, refs)
+    assert [r["text"] for r in out] == ["οἶσθ’, ὦ τέκνον. ΝΕ. τί <δ’> ἔστιν; ΦΙ. οἶσθ’, ὦ παῖ. ΝΕ. τί σοί;",
+                                        "οὐκ οἶδα. ΦΙ. πῶς οὐκ οἶσθα; παππαπαππαπαῖ."]

@@ -133,12 +133,14 @@ registry:
   greekEditions:
     - { id: tlg, short: "Dain & Mazon (1955)", full: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)", editor: "Dain & Mazon", year: 1955, kind: tlg, licence: public-domain-us }
     - { id: storr-loeb, short: "Storr (1913)", full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)", editor: "F. Storr", year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
+    - { id: jebb, short: "Jebb (1892)", full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 5, The Trachiniae (Cambridge, 1892)", editor: "R. C. Jebb", year: 1892, kind: ocr-tei, licence: public-domain-us, pairs: [jebb] }
   translations:
     - id: jebb
       form: prose
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+      edition: jebb
       alignment: line
     - id: storr
       form: verse
@@ -199,3 +201,83 @@ greek_editions:
     alignment: { storr: { covered: [], cuts: [] } }
     gaps: []
     text_fixes: []
+  # Jebb's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org trachiniaeofsoph0000unse: the title page (n6) is dated 1892; its verso (n7) names
+  # only the printer, so the first edition, 1892). The TEI is sources/ocr/jebb/trachiniae.xml, made by
+  # scripts/ocr/jebb_to_tei.py and numbered by Jebb's own printed numbers and commentary notes
+  # (John, 2026-09-29); p. 134, which the OCR lost, comes from sources/ocr/jebb/lost-pages.yaml,
+  # transcribed from the scan.
+  - id: jebb
+    label:
+      short: "Jebb (1892)"
+      full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 5, The Trachiniae (Cambridge, 1892)"
+    editor: "R. C. Jebb"
+    year: 1892
+    source:
+      kind: ocr-tei
+      path: ocr/jebb/trachiniae.xml
+      expect: { title: "Τραχίνιαι", editor: "R. C. Jebb" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      # Approved by John, 2026-09-29 (the same on every Jebb play).
+      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
+      source_url: https://archive.org/details/trachiniaeofsoph0000unse
+    pairs: [jebb]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1233, sha256: "44ef3b82e69b33332f00a9e3c81ff998988f78ba31c8e79927c2a281c4daa78c" }
+    speakers:
+      sigla:
+        "—": null
+        "ΔΗΙΑΝΕΙΡΑ": Deianeira
+        "ΔΗ.": Deianeira
+        "ΥΛΛΟΣ": Hyllus
+        "ΥΛ.": Hyllus
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΗΡΑΚΛΗΣ": Heracles
+        "ΗΡ.": Heracles
+        "ΛΙΧΑΣ": Lichas
+        "ΛΙ.": Lichas
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΑΓ.": Messenger
+        "ΤΡΟΦΟΣ": Nurse
+        "ΤΡ.": Nurse
+        "ΠΡΕΣΒΥΣ": Old Man
+        "ΠΡ.": Old Man
+        "ΗΜ. Α.": First Semichorus
+        "ΗΜ. Β.": Second Semichorus
+      overrides: []
+    edition_only: []
+    alignment: { jebb: { covered: [] } }
+    gaps: []
+    # OCR misreads corrected under John's grammar rule (2026-09-19): each one
+    # the scan prints (archive.org trachiniaeofsoph0000unse, page as printed)
+    # where the OCR's reading breaks grammar or sense. Readings the scan prints
+    # differently but that are Greek as they stand (ἤμην 24 for Jebb's ἥμην,
+    # ὥραν 57 for his ὤραν, πρὼ 631 for his πρῲ) stay; καληται 551 is as the scan prints it.
+    text_fixes:
+      - { ref: "18", find: "ἀσμένη", replace: "ἀσμένῃ", note: "scan p. 8 prints ἀσμένῃ (dative, with μοι); the OCR lost the iota subscript" }
+      - { ref: "97", find: "καρύξαι", replace: "καρῦξαι", note: "scan p. 18 prints καρῦξαι; the OCR read the circumflex as an acute" }
+      - { ref: "237", find: "Εὐβουίς", replace: "Εὐβοιίς", note: "scan p. 38 prints Εὐβοιίς; the OCR read ι as υ" }
+      - { ref: "324", find: "μεῖζον’", replace: "μείζον’", note: "scan p. 52 prints μείζον’ (μείζονα elided); μεῖζον’ is no form" }
+      - { ref: "353", find: "ἔκατι", replace: "ἕκατι", note: "scan p. 56 prints ἕκατι; with the smooth breathing it is no word" }
+      - { ref: "356", find: "’Ομφάλῃ", replace: "Ὀμφάλῃ", note: "scan p. 58 prints Ὀμφάλῃ; the OCR read the breathing as an elision mark" }
+      - { ref: "534", find: "ἀτεχνησάμην", replace: "ἁτεχνησάμην", note: "scan p. 82 prints ἁτεχνησάμην (ἃ ἐτεχνησάμην); ἀτεχνησάμην is no word" }
+      - { ref: "566", find: "χὼ", replace: "χὡ", note: "scan p. 88 prints χὡ (καὶ ὁ); χὼ is no word" }
+      - { ref: "618", find: "ἐπείθ’", replace: "ἔπειθ’", note: "scan p. 96 prints ἔπειθ’ ('then', after πρῶτα μὲν in 616); ἐπείθ’ breaks the sentence" }
+      - { ref: "639", find: "*κλεόνται", replace: "*κλέονται", note: "scan p. 98 prints κλέονται; the OCR's accent is on the wrong syllable" }
+      - { ref: "661", find: "τὰς", replace: "τᾶς", note: "scan p. 102 prints τᾶς (genitive, with πειθοῦς); τὰς breaks the sentence" }
+      - { ref: "715", find: "χὤνπερ", replace: "*χὦνπερ", note: "scan p. 108 prints *χὦνπερ (καὶ ὧνπερ) with Jebb's asterisk; χὤνπερ is no word" }
+      - { ref: "767", find: "ἀνήει", replace: "ἀνῄει", note: "scan p. 116 prints ἀνῄει (imperfect of ἄνειμι); ἀνήει is no form" }
+      - { ref: "812", find: "κτείνας’", replace: "κτείνασ’", note: "scan p. 122 prints κτείνασ’ (κτείνασα elided); κτείνας’ is no form" }
+      - { ref: "870", find: "σημανουσά", replace: "σημανοῦσά", note: "scan p. 130 prints σημανοῦσά; the OCR lost the circumflex" }
+      - { ref: "930", find: "ἀμφιπλήγι", replace: "ἀμφιπλῆγι", note: "scan p. 136 prints ἀμφιπλῆγι; the OCR read the circumflex as an acute" }
+      - { ref: "1014a", find: "ἐ ἔ,", replace: "ἒ ἔ,", note: "scan p. 148 prints ἒ ἔ; the OCR lost the first accent, and ἐ is no word" }
+      - { ref: "1151", find: "ἐπακτία", replace: "ἐπακτίᾳ", note: "scan p. 166 prints ἐπακτίᾳ (dative, with Τίρυνθι); the OCR lost the iota subscript" }
+      - { ref: "1205", find: "τὸυ", replace: "του", note: "scan p. 174 prints του (enclitic); τὸυ is no word" }

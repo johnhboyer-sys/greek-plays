@@ -138,6 +138,9 @@ NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
         7611: ("1409", "scan p. 216: apparatus '1409 μήπω γε, πρὶν ἂν]', note '1409 μήπω γε κ.τ.λ.' (the converter's lemma test misses the κ.τ.λ.); 1410 printed on the next line"),
         7410: ("1365a", "scan p. 210: inside Jebb's bracket (apparatus '1365 ff.'); no number of its own"),
         7411: ("1365b", "scan p. 210: the bracket closes; εἶτα τοῖσδε σὺ ends 1365; apparatus '1366 κἄμ’' on the next row"),
+        4657: ("704", "scan p. 116: the turned-over end of colon 10, a row of its own here; apparatus '704 πόρον' on it, 705 printed at its end; '703 ὑπάρχοι' ends the row above"),
+        4712: ("718", "scan p. 118: note '718 f. ἀνδρῶν ἀγ.' and apparatus '719 παιδὸς ὑπαντήσας' both in this colon; 720 printed on the next"),
+        6303: ("1104", "scan p. 174: apparatus '1104 f.' on colon 3, which prints 1105 at its end; note '1103 ff. ἤδη...ὕστερον' is colon 2"),
     },
     "trachiniae": {
         # Lyric cola that hold two traditional numbers, as in Philoctetes.
@@ -151,6 +154,11 @@ NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
         4494: ("644", "scan p. 100: apparatus '644 Ἀλκμήνας κόρος', note '644 ὁ Διὸς … Ἀλκμήνας κόρος'"),
         5413: ("854", "scan p. 128: apparatus '853 f. οἷον ἀναρσίων | οὔπω ἀγακλειτὸν' puts 853 in the line before, 854 here"),
         5924: ("979", "scan p. 144: apparatus '979 κἀκκινήσεις'; 980 printed at the row's end (note '980 φοιτάδα')"),
+        2041: ("118", "scan p. 22: the turned-over end of colon 3 (apparatus '117 στρέφει' is the colon's first row), a row of its own here; apparatus '118 ὥσπερ'"),
+        2042: ("119", "scan p. 22: note '119 ff. ἀλλά' and apparatus '120 ἀναμπλάκητον' in colon 4; 120 printed on its turn-over"),
+        2459: ("213", "scan p. 36: note '213 ff. Ἄρτεμιν Ὀρτυγίαν'; apparatus '214 After Ὀρτυγίαν' in the same row; 215 printed on the next"),
+        5292: ("828", "scan p. 124: note '826 f. αὐτόπαιδι ... ὀρθῶς' spans colon 6; note '829 f. ὁ μὴ λεύσσων' falls in this colon 7; 830 printed on colon 8"),
+        5344: ("839", "scan p. 126: note '839 f. Νέσσου ὑποφόνια δολιόμυθα'; 840 printed at the colon's end; '838 ἄμμιγα' is colon 7"),
     },
 }
 # OCR rows mended before parsing, as the scan prints them: {slug: {ocr .txt
@@ -158,8 +166,13 @@ NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
 ROW_FIXES: dict[str, dict[int, tuple[str, str, str]]] = {
     "trachiniae": {
         2048: ("σιλεὺς", "[σιλεὺς", "scan p. 22: the turn-over of colon 3 (βα-|σιλεὺς); '[' marks it so"),
+        4560: ("*πανίμερος,*", "*πανίμερος,", "scan p. 102 prints Jebb's asterisk before πανίμερος only; the closing '*' is the OCR's italic mark"),
+        4562: ("*φάρους.*", "*φάρους.", "scan p. 102 prints Jebb's asterisk before φάρους only; the closing '*' is the OCR's italic mark"),
     },
     "philoctetes": {
+        5113: ("ΦΙ. *μέθες μέθες με.* ΝΕ. ποῖ μεθῶ; ΦΙ. *μέθες ποτέ.*", "ΦΙ. μέθες μέθες με. ΝΕ. ποῖ μεθῶ; ΦΙ. μέθες ποτέ.",
+               "scan p. 132 prints no asterisks in 816; the OCR's italic marks glued ΝΕ. to the share before it, so the shares did not split"),
+        5229: ("μεσ. ΝΕ.", "μεσῳδ. ΝΕ.", "scan p. 136: 'μεσ.' is Jebb's margin label for the mesode (839-842), not text"),
         6538: ("ἀνομοι- ΦΙ.", "ΦΙ.", "scan p. 182: 'ἀνομοι-' is the margin label ἀνομοι|όστρ., not text"),
         6539: ("όστρ. λῷστε", "λῷστε", "scan p. 182: 'όστρ.' is the rest of the margin label ἀνομοι|όστρ."),
     },
@@ -197,7 +210,11 @@ PRINTED_FIXES: dict[str, dict[int, tuple[int | None, str]]] = {
 # Printed margin numbers that disagree with the numbering for a stated
 # reason: {ocr .txt line: reason}. Every other disagreement fails. (None
 # needed for OT.)
-MARGIN_NOTES: dict[str, dict[int, str]] = {}
+MARGIN_NOTES: dict[str, dict[int, str]] = {
+    "philoctetes": {
+        4657: "scan p. 116: 705 is printed at the end of colon 10's turn-over, which holds 704-705 (apparatus '704 πόρον')",
+    },
+}
 
 GREEK_RE = re.compile(r"[Ͱ-Ͽἀ-῿]")
 LAT2GRK = str.maketrans({"A": "Α", "B": "Β", "E": "Ε", "Z": "Ζ", "H": "Η", "I": "Ι",
@@ -808,7 +825,10 @@ def merge_antilabe(rows: list[dict], ref_keys: list[str]) -> list[dict]:
     row that opens with a speaker joins the next such row when both are
     short (under 30 letters) and together they match a reference line
     (RESUME_SCORE) better than either alone; a third share may join the
-    same way. The later speaker stays in the text, so the shares split."""
+    same way. The later speaker stays in the text, so the shares split.
+    A last share turned over onto a row of its own ('ΝΕ. τί σοί;', Ph. 753,
+    scan p. 124) joins too when the shares together, speaker marks aside,
+    are a reference line (0.95) and closer to it than the row above."""
     index = ref_index(ref_keys)
     out: list[dict] = []
     for r in rows:
@@ -820,13 +840,20 @@ def merge_antilabe(rows: list[dict], ref_keys: list[str]) -> list[dict]:
                 and len(key(r["text"])) < 30 and len(key(prev["text"])) < 60):
             joined = prev["text"] + " " + r["speaker"] + " " + r["text"]
             score = ref_score(joined, index)
-            if score >= RESUME_SCORE and score >= max(ref_score(prev["text"], index), ref_score(r["text"], index)) + 0.1:
+            whole = ref_score(_bare(joined), index)
+            if ((score >= RESUME_SCORE and score >= max(ref_score(prev["text"], index), ref_score(r["text"], index)) + 0.1)
+                    or (whole >= 0.95 and whole > ref_score(_bare(prev["text"]), index))):
                 prev["text"] = joined
                 prev["printed"] = r["printed"]
                 prev.setdefault("antilabe_rows", []).append(r["src"])
                 continue
         out.append(r)
     return out
+
+
+def _bare(text: str) -> str:
+    """The line without the speaker abbreviations inside it."""
+    return " ".join(t for _, t in split_shares(text, None))
 
 
 def _verse_key(text: str) -> str:
@@ -1542,9 +1569,12 @@ def convert(slug: str, qa: bool = False) -> dict:
     seen: dict[str, int] = {}
     dups = []
     for line in jebb:
-        if line["n"] in seen:
-            dups.append((line["n"], seen[line["n"]], line["src"]))
-        seen[line["n"]] = line["src"]
+        # Every ref the TEI carries, the shares' lettered refs included (Ph.
+        # 753: a share's 753a and a whole line's 753a once collided).
+        for n in [line["n"]] + _share_refs(line, len(line["shares"]) - 1):
+            if n in seen:
+                dups.append((n, seen[n], line["src"]))
+            seen[n] = line["src"]
     tei = write_tei(slug, jebb)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{slug}.xml").write_text(tei, encoding="utf-8")

@@ -287,6 +287,18 @@ greek_editions:
     status: public-domain-us
     note: "Cambridge, 1st ed. 1896 (scan: 1907 printing, archive.org ajaxsoph00soph, verso n7); published before 1931. Text from John's Genie OCR."
     sources: [ocr/jebb/ajax.xml]
+  - id: jebb
+    editor: "R. C. Jebb"
+    year: 1898
+    status: public-domain-us
+    note: "Cambridge, 2nd ed. 1898 (scan: 1932 printing, archive.org sophoclesplaysfr04soph, verso n9); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/jebb/philoctetes.xml]
+  - id: jebb
+    editor: "R. C. Jebb"
+    year: 1892
+    status: public-domain-us
+    note: "Cambridge, 1st ed. 1892 (archive.org trachiniaeofsoph0000unse, title page n6); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/jebb/trachiniae.xml]
   - id: smyth-loeb
     editor: "H. W. Smyth"
     year: 1926
