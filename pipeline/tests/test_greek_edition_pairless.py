@@ -81,6 +81,8 @@ def test_pairless_edition_passes_stage_two_with_no_english(play, tmp_path, monke
     stage2_validate.run(view)
     report = json.loads((tmp_path / 'stage2' / 'validation_report.json').read_text(encoding='utf-8'))
     assert report['ok'], {k: v for k, v in report['checks'].items() if not v['ok']}
+    # The Greek-side checks ran; an empty or skipped report must not pass (Codex review).
+    assert {'columns', 'line_gaps', 'alignment', 'sigla'} <= set(report['checks'])
     assert not [k for k in report['checks'] if k.startswith('turn_text_') and 'unmapped' not in k and 'blank' not in k]
 
 

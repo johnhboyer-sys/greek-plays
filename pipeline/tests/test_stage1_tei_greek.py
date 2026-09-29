@@ -215,6 +215,14 @@ def test_ano_teleia_glued_to_the_next_word_gets_its_space(tmp_path):
     assert spine['segments'][0]['lines'][0]['text'] == 'ἐκεῖνον· ὦ τί σʼ εἴπω;'
 
 
+def test_greek_ano_teleia_glued_to_a_word_gets_a_space(tmp_path):
+    # U+0387 GREEK ANO TELEIA, the other code point for the raised dot
+    # (Codex review): spaced like U+00B7.
+    xml = _one_line_xml(tmp_path, '<l n="1">ἐκεῖνον\u0387ὦ τί σʼ εἴπω;</l>')
+    spine = parse_spine(xml, _one_line_manifest(tmp_path), check_fingerprint=False)
+    assert spine['segments'][0]['lines'][0]['text'] == 'ἐκεῖνον\u0387 ὦ τί σʼ εἴπω;'
+
+
 def test_ref_fix_renames_a_printed_number_that_is_not_a_ref(tmp_path):
     # Wealth 128 is printed n="NaN" between 127b (part F) and 129.
     xml = _one_line_xml(tmp_path, '<l n="127">α</l><l n="NaN">β</l><l n="129">γ</l>')

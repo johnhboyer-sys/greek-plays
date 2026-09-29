@@ -533,7 +533,7 @@ greek_editions:
         "Ἀθηναῖος": "Athenian Envoy"  # 1086- (33 lines): the reference's Athenian Envoy on all 33
         "Ἀθηναῖος Α": "Athenian Envoy"  # 1216-: the reference's Athenian Envoy on all 21
         "Ἀθηναῖος Β": "Athenian"  # 1221-: the reference's ΑΘ. on all 5
-        "Χορὸς Λακεδαιμονίων": "Chorus"  # 1247-: the edition prints a chorus of Spartans; the reference shows Spartan (a single singer) on the 32 matched lines
+        "Χορὸς Λακεδαιμονίων": "Spartan"  # 1247-: the edition prints a chorus of Spartans; the reference shows Spartan on the 32 matched lines, and the colour follows it (John, 2026-09-29)
         "Χορὸς Ἀθηναίων": "Chorus"
         "—": null
       overrides:
