@@ -24,6 +24,7 @@ describe('generated registry golden value', () => {
     // paired translation's `edition` (Smyth, Storr, Murray OCT; John's go).
     // Regenerated 2026-09-29: P3 adds Hall & Geldart's OCT to the 11 comedies.
     // Regenerated 2026-09-29: Jebb's OT pilot; Murray's OCT for Alcestis and Medea.
-    expect(hash).toBe('00f6809f6d64c952fa087790f9a4bdc56231b9605be6cdcac05f2a112aa8816d');
+    // Regenerated 2026-09-29: Jebb's Greek for OC, Antigone, Electra, and Ajax.
+    expect(hash).toBe('ad125e12febb37d2af7b6bd2baefd6a05efeac104fb5eec8de28391ccf3ca751');
   });
 });

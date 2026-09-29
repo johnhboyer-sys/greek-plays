@@ -319,7 +319,7 @@ greek_editions:
     licence:
       text: public-domain-us
       encoding: none
-      # DRAFT wording, for John to approve (the same on every Jebb play).
+      # Approved by John, 2026-09-29 (the same on every Jebb play).
       credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
       source_url: https://archive.org/details/sophoclesplaysfr0000unse_k8j6
     pairs: [jebb]
