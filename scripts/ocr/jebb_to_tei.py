@@ -547,6 +547,7 @@ def extract(slug: str, ref_keys: list[str] | None = None) -> tuple[list[dict], l
     stops: list[dict] = []
     last_page = None
     lost = sorted(lost_pages(slug), key=lambda x: x["page"])
+    lost_all = {lp["page"] for lp in lost}
 
     def add_lost(before: int | None) -> None:
         nonlocal last_page
@@ -577,6 +578,9 @@ def extract(slug: str, ref_keys: list[str] | None = None) -> tuple[list[dict], l
         if number is None:
             number = last_page + 2 if last_page else None
             log.append(f"page at .txt {ne[0][0]}: no page number read, inferred {number}")
+        if number in lost_all:
+            raise SystemExit(f"{slug}: the OCR has page {number}, and so does {LOST_PAGES.name}; "
+                             "remove the supplement's page or drop the OCR page")
         elif last_page and number != last_page + 2:
             log.append(f"page at .txt {ne[0][0]}: page {number} follows {last_page}")
         last_page = number
@@ -828,7 +832,10 @@ def merge_antilabe(rows: list[dict], ref_keys: list[str]) -> list[dict]:
     same way. The later speaker stays in the text, so the shares split.
     A last share turned over onto a row of its own ('ΝΕ. τί σοί;', Ph. 753,
     scan p. 124) joins too when the shares together, speaker marks aside,
-    are a reference line (0.95) and closer to it than the row above."""
+    are a reference line (0.95) and closer to it than the row above.
+    Rows on different pages join only at a page break: the later row is its
+    page's first, the earlier a share that ends its page, and the shares
+    together are a reference line (0.95 either way)."""
     index = ref_index(ref_keys)
     out: list[dict] = []
     for r in rows:
@@ -841,6 +848,11 @@ def merge_antilabe(rows: list[dict], ref_keys: list[str]) -> list[dict]:
             joined = prev["text"] + " " + r["speaker"] + " " + r["text"]
             score = ref_score(joined, index)
             whole = ref_score(_bare(joined), index)
+            if prev["page"] != r["page"]:
+                # r opens its page (rows run in page order) and prev closes
+                # the one before; the match must be a line's, not near one.
+                score = score if score >= 0.95 else 0.0
+                whole = whole if whole >= 0.95 else 0.0
             if ((score >= RESUME_SCORE and score >= max(ref_score(prev["text"], index), ref_score(r["text"], index)) + 0.1)
                     or (whole >= 0.95 and whole > ref_score(_bare(prev["text"]), index))):
                 prev["text"] = joined
@@ -1289,8 +1301,9 @@ def find_gaps(jebb: list[dict], refs: dict[str, list[dict]]) -> None:
 
     A skipped number is backed by a printed margin number, a commentary
     note, or a number a line holds (Jebb's own evidence), by Storr and the
-    TLG both lacking it (a lacuna, or a line the editors delete), or by a
-    hand fix on either side of it (its reason is on record).
+    TLG both lacking it (a lacuna, or a line the editors delete). A hand
+    fix (NUMBER_FIXES, a supplement's 'n') excuses nothing by itself: a wrong
+    fixed number would hide the gap it makes.
     Otherwise line['gaps'] on the line after it holds
     {'after', 'before', 'missing', 'why'}."""
     named = set()
@@ -1302,8 +1315,6 @@ def find_gaps(jebb: list[dict], refs: dict[str, list[dict]]) -> None:
     for i in range(1, len(jebb)):
         a, b = jebb[i - 1]["n"], jebb[i]["n"]
         (na, _), (nb, _) = _num(a), _num(b)
-        if any(str(jebb[k].get("n_how", "")).startswith("fix") for k in (i - 1, i)):
-            continue   # a hand fix (NUMBER_FIXES) carries its own reason
         missing = [m for m in range(na + 1, nb) if m not in named and any(m in v for v in has.values())]
         if missing:
             who = " and ".join(name for name, v in has.items() if any(m in v for m in missing))

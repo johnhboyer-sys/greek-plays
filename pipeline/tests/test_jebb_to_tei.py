@@ -129,7 +129,8 @@ def test_the_normal_report_counts_lemma_disagreements_and_fix_conflicts(tmp_path
     monkeypatch.setitem(J.NUMBER_FIXES, "antigone", {5: ("9", "hand fix")})
     report = J.convert("antigone")            # no qa
     assert report["commentary_lemmas"]["disagree"] == 1
-    assert report["gaps"] == []
+    # The wrong fix (9) hides nothing: the numbers it skips are reported.
+    assert [(g["after"], g["before"], g["missing"]) for g in report["gaps"]] == [("1", "9", [2])]
     assert [(c["src"], c["fix"], c["checkpoint"]) for c in report["fix_conflicts"]] == [(5, "9", 3)]
     assert [(s["src"], s["reason"]) for s in report["stops"]] == [(7, "apparatus marker")]
 
@@ -324,3 +325,66 @@ def test_a_last_share_turned_over_onto_its_own_row_joins_its_line():
     out = J.merge_antilabe(rows, refs)
     assert [r["text"] for r in out] == ["οἶσθ’, ὦ τέκνον. ΝΕ. τί <δ’> ἔστιν; ΦΙ. οἶσθ’, ὦ παῖ. ΝΕ. τί σοί;",
                                         "οὐκ οἶδα. ΦΙ. πῶς οὐκ οἶσθα; παππαπαππαπαῖ."]
+
+
+def _antilabe_rows(second, page2):
+    base = {"kind": "verse", "colon": None, "strophe": None, "printed": None, "turn": False}
+    return [{**base, "speaker": "ΝΕ.", "text": "τί σοί;", "src": 1, "page": 10},
+            {**base, "speaker": "ΦΙ.", "text": second, "src": 2, "page": page2}]
+
+
+ANTILABE_REF = [J.key("τί σοί; οὐκ οἶδα ἐγώ τοῦτο.")]
+
+
+def test_antilabe_shares_on_one_page_join_on_a_close_match():
+    out = J.merge_antilabe(_antilabe_rows("οὐκ οἶδα ἐγώ.", 10), ANTILABE_REF)   # 0.8: enough on one page
+    assert [r["text"] for r in out] == ["τί σοί; ΦΙ. οὐκ οἶδα ἐγώ."]
+
+
+def test_antilabe_shares_across_a_page_break_join_only_on_an_exact_match():
+    close = J.merge_antilabe(_antilabe_rows("οὐκ οἶδα ἐγώ.", 12), ANTILABE_REF)
+    assert len(close) == 2
+    exact = J.merge_antilabe(_antilabe_rows("οὐκ οἶδα ἐγώ τοῦτο.", 12), ANTILABE_REF)
+    assert [r["text"] for r in exact] == ["τί σοί; ΦΙ. οὐκ οἶδα ἐγώ τοῦτο."]
+
+
+def test_a_lost_page_the_ocr_now_has_is_an_error(tmp_path, monkeypatch):
+    # The OCR reads page 12 as well as the supplement: both would be emitted.
+    text = ["---", "10 ΣΟΦΟΚΛΕΟΥΣ", VERSE[0], "---", "12 ΣΟΦΟΚΛΕΟΥΣ", VERSE[1], "---", "14 ΣΟΦΟΚΛΕΟΥΣ", VERSE[4], "---"]
+    (tmp_path / "t.txt").write_text("\n".join(text) + "\n", encoding="utf-8")
+    monkeypatch.setattr(J, "GENIE", tmp_path)
+    monkeypatch.setitem(J.PLAYS, "t", ("t.txt", "004", "x", 1, len(text)))
+    sup = tmp_path / "lost.yaml"
+    sup.write_text(f"t:\n  - page: 12\n    rows:\n      - {{ row: '{VERSE[2]}', note: scan }}\n", encoding="utf-8")
+    monkeypatch.setattr(J, "LOST_PAGES", sup)
+    with pytest.raises(SystemExit, match=r"t: .*page 12"):
+        J.extract("t", ref_keys())
+
+
+def _gap_fix_case(monkeypatch, refs_number):
+    """Jebb lines 100 and a hand-fixed 103; the references number 101 and
+    102 (refs_number) between them, which no line of Jebb's holds."""
+    nums = (100, 101, 102, 103) if refs_number else (100, 103)
+    texts = {100: VERSE[0], 101: VERSE[1], 102: VERSE[2], 103: VERSE[3]}
+    ref = [{"n": str(n), "text": texts[n], "parts": []} for n in nums]
+    last = len(ref) - 1
+    covers = {"S": [[0], [last]], "T": [[0], [last]]}
+    jebb = [{"text": VERSE[0], "src": 10, "page": 7, "printed": None},
+            {"text": VERSE[3], "src": 11, "page": 7, "printed": None}]
+    monkeypatch.setattr(J, "lemma_checkpoints", lambda slug, jebb: {})
+    monkeypatch.setitem(J.NUMBER_FIXES, "t", {11: ("103", "hand fix")})
+    J.number_lines("t", jebb, {"S": ref, "T": ref}, covers)
+    return jebb
+
+
+def test_a_hand_fix_does_not_hide_a_gap_the_references_number(monkeypatch):
+    jebb = _gap_fix_case(monkeypatch, True)
+    assert [x["n"] for x in jebb] == ["100", "103"]
+    (gap,) = jebb[1]["gaps"]
+    assert gap["missing"] == [101, 102]
+
+
+def test_a_hand_fix_excuses_a_gap_both_references_skip(monkeypatch):
+    jebb = _gap_fix_case(monkeypatch, False)
+    assert [x["n"] for x in jebb] == ["100", "103"]
+    assert not any(x.get("gaps") for x in jebb)
