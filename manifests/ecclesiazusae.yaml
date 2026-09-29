@@ -308,6 +308,9 @@ registry:
   greekSource:
     short: "Ussher (1973)"
     full: "Ussher, Aristophanes: Ecclesiazusae (Oxford, 1973)"
+  greekEditions:
+    - { id: tlg, short: "Ussher (1973)", full: "Ussher, Aristophanes: Ecclesiazusae (Oxford, 1973)", editor: "Ussher", year: 1973, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1907)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)", editor: "F. W. Hall and W. M. Geldart", year: 1907, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -335,3 +338,60 @@ registry:
   production: "c. 392 BC · festival and result unknown"
   argument: "The women of Athens, disguised as men, pack the assembly and vote themselves the government. Their new law makes property and sex common to all."
   synopsis: "Before dawn the women of Athens gather in their husbands' cloaks and false beards, having practised speaking in the assembly. Praxagora leads them. They pack the meeting and vote the government over to the women. Her programme: all property in common, all sex in common, with the old and ugly served first. One citizen hands in his goods; another waits to see. A young man on his way to his girl is claimed by three old women in turn, under the new law. Everyone goes off to the communal dinner."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1907)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1907
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg010.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes:
+        # Perseus n="919aa" is not a printed number: it follows 919a (a dotted gap line) and precedes 920b.
+        # 919b keeps the run in order (919, 919a, 919b, 920b) and fits the play-line grammar.
+        "919aa": "919b"
+      fingerprint: {count: 1218, sha256: 6848ad6bd4a42ffee740b2f419d6742ba5bf827eafa6d02e6b72d134c9d6cbd0}
+    speakers:
+      sigla:
+        "Πραξάγορα": "Praxagora"
+        "Γυνὴ Α": "First Woman"
+        "Γυνὴ Β": "Second Woman"
+        "Γυνὴ Γ": "Third Woman"  # 54-56: a third woman. The reference has two women and gives these lines to the chorus
+        "Χορός": "Chorus"
+        "Βλέπυρος": "Blepyrus"
+        "Ἀνήρ": "Neighbour"  # 327-: the reference's ΑΝΗΡ (15 of 19 lines)
+        "Χρέμης": "Chremes"
+        "Ἀνὴρ Α": "Chremes"  # 728-: the reference shows Chremes on all 63 lines
+        "Ἀνὴρ Β": "Neighbour"  # 746-: the reference shows Neighbour on all 67 lines
+        "Κηρύκαινα": "Herald"  # 834-: the woman herald; the reference's ΚΗΡΥΞ on all 19
+        "Γραῦς Α": "First Old Woman"
+        "Νεᾶνις": "Girl"
+        "Νεανίας": "Young Man"
+        "Γραῦς Β": "Second Old Woman"
+        "Γραῦς Γ": "Third Old Woman"
+        "Θεραπαίνα": "Maid"
+        "—": null
+      overrides: []
+    edition_only: ["Third Woman"]
+    alignment: {}
+    gaps: []
+    text_fixes: []

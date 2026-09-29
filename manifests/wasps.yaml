@@ -235,6 +235,9 @@ registry:
   greekSource:
     short: "MacDowell (1971)"
     full: "MacDowell, Aristophanes: Wasps (Oxford, 1971)"
+  greekEditions:
+    - { id: tlg, short: "MacDowell (1971)", full: "MacDowell, Aristophanes: Wasps (Oxford, 1971)", editor: "MacDowell", year: 1971, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1906)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)", editor: "F. W. Hall and W. M. Geldart", year: 1906, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -256,3 +259,50 @@ registry:
   production: "Lenaia, 422 BC · second prize"
   argument: "Philocleon is addicted to jury service. His son locks him in the house."
   synopsis: "Philocleon is addicted to sitting on juries. His son Bdelycleon has netted the house to keep him from the courts and has a guard on every door. The old man tries the chimney, the roof, the underside of a donkey. His fellow jurors, the wasps of the chorus, come to spring him. The son wins the argument and sets up a court at home, where the dog is tried for stealing cheese and Philocleon is tricked into acquitting, the first acquittal of his life. Taken out to a dinner party, he comes home drunk with a flute-girl and a trail of lawsuits."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1906)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1906
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg004.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': ["1283a"]}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1556, sha256: adc539a5cf35720ef7bd4b0ce8d58f1ba604a6aaeb338941b7bdc8d3842a305f}
+    speakers:
+      sigla:
+        "Σωσίας": "Sosias"
+        "Ξανθίας": "Xanthias"
+        "Βδελυκλέων": "Bdelycleon"
+        "Φιλοκλέων": "Philocleon"
+        "Χορός": "Chorus"
+        "Παίς": "Boy"
+        "Κύων": "Dog"
+        "Ξυμότης τις": "Man"  # a fellow-guest (1332-, 3 lines): the reference's ΑΝΗΡ, all 3 agree
+        "Αρτόπωλις": "Bread-seller"
+        "Κατήγορος": "Accuser"
+        "—": null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

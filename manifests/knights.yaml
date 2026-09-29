@@ -200,6 +200,9 @@ registry:
   greekSource:
     short: "Coulon (1923)"
     full: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
+  greekEditions:
+    - { id: tlg, short: "Coulon (1923)", full: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)", editor: "Coulon & van Daele", year: 1923, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1906)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)", editor: "F. W. Hall and W. M. Geldart", year: 1906, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -222,3 +225,49 @@ registry:
   production: "Lenaia, 424 BC · first prize"
   argument: "Two slaves of Demos find a sausage-seller vulgar enough to out-demagogue the Paphlagonian."
   synopsis: "Demos, the Athenian people, has a new slave, the Paphlagonian, who flatters him and bullies the household. Two other slaves find an oracle: the Paphlagonian is to be overthrown by a sausage-seller. They find one and set him on. The contest, before the Council and then before Demos himself, is in shamelessness, bribery, and oracle-mongering, and the sausage-seller wins it. He boils Demos young again, and the Paphlagonian is sent to sell tripe at the gates."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1906)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1906
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg002.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': ["1409"]}
+      transpositions: {'1': [{start: "15", end: "15", before: "16"}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1393, sha256: 5ecd81c79b38d6ba672f04546021e035e2efc55e9358ff9c34cf46ff6e57969f}
+    speakers:
+      sigla:
+        "Δημοσθένης": "First Slave"  # the edition names the slaves; the reference's ΟΙ. Αʹ (First Slave) sits on all 186 lines from 1
+        "Νικίας": "Second Slave"  # the reference's ΟΙ. Βʹ (Second Slave) sits on 52 of the 53 lines from 6
+        "Δημοσθένης καὶ Νικίας": "Both Slaves"  # line 10: the reference's both-slaves display
+        "Ἀλλαντοπώλης": "Sausage-seller"
+        "Κλέων": "Paphlagonian"  # the edition names Cleon, the reference the Paphlagonian mask: 232 of 234 lines from 235 agree
+        "Χορὸς Ἱππεῶν": "Chorus"
+        "Χορός": "Chorus"
+        "Δῆμος": "Demos"
+        "Κλέων καὶ Ἀλλαντοπώλης": "Sausage-seller and Paphlagonian"  # 1161b: one joined half-line for both; the reference's ΑΛ. ΠΑ. display
+        "—": null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

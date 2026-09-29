@@ -338,6 +338,9 @@ registry:
   greekSource:
     short: "Coulon (1928)"
     full: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
+  greekEditions:
+    - { id: tlg, short: "Coulon (1928)", full: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)", editor: "Coulon & van Daele", year: 1928, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1907)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)", editor: "F. W. Hall and W. M. Geldart", year: 1907, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [murray-verse] }
   translations:
     - id: athenian-society
       form: prose
@@ -353,7 +356,7 @@ registry:
       slot: secondary
       alignment: speech
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse, edition: hall-geldart-oct }
   citation:
     scheme: play-line
     copyAbbr: "Ar. Ran."
@@ -361,3 +364,76 @@ registry:
   production: "Lenaia, 405 BC · first prize · restaged, the hypothesis says, for its parabasis"
   argument: "Dionysus goes down to Hades for Euripides and comes back with Aeschylus."
   synopsis: "Athens has no good tragic poets left; Euripides and Sophocles have both died within the year. Dionysus, patron of the theatre, sets out for Hades to bring Euripides back, dressed as Heracles, with his slave Xanthias and a donkey. Getting there takes the first half. In Hades he finds Euripides and Aeschylus disputing the throne of tragedy and is made the judge. They weigh lines on a scale and are asked for advice on saving the city. Dionysus chooses Aeschylus and takes him back to Athens."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1907)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1907
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg009.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [murray-verse]
+    citation:
+      title_labels: []
+      lacunae: {'1': ["1373a"]}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1546, sha256: 7663b5d7148fd235d36e297248f428acc3a31f1115e126b8248ad9f69101e14d}
+    speakers:
+      sigla:
+        "Ξανθίας": "Xanthias"
+        "Διόνυσος": "Dionysus"
+        "Ἡρακλῆς": "Heracles"
+        "Νέκρος": "Corpse"
+        "Χάρων": "Charon"
+        "Βάτραχοι": "Frogs"
+        "Χορός": "Chorus"
+        "Ἄιακος": "Aeacus"  # 465- and 738-813: the edition names Aeacus throughout; the reference shows Slave (ΟΙ.) on 50 of its 93 lines and Aeacus on 42
+        "Θεράπαινα": "Maid"
+        "Πανδοκευτρία": "First Innkeeper"  # 549-: the reference's ΠΑΝΔΟΚΕΥΤΡΙΑ Αʹ (16 of 18 lines)
+        "Πλαθάνη": "Second Innkeeper"  # 552-: the reference's ΠΑΝΔΟΚΕΥΤΡΙΑ Βʹ (5 of 9 lines; the edition and the reference distribute 574-577 differently, see the Murray note in the reference block)
+        "Εὐριπίδης": "Euripides"
+        "Αἰσχύλος": "Aeschylus"
+        "Αἰσχύλος καὶ Εὐριπίδης": "Aeschylus and Euripides"
+        "Πλούτων": "Pluto"
+        "—": null
+      overrides: []
+    edition_only: []
+    alignment:
+      murray-verse:
+        covered:
+          # 934-935: Murray prints Euripides' 935 inside Dionysus' 934 turn, as a bracketed cue
+          # ("[EURIPIDES. You like then, in a tragic play, a cock? ..."; sources/wikisource/frogs-murray-1912.html).
+          - { greek: "935", by: "934" }
+          # 1018-1019: Murray gives 1018 to Euripides (an aside) and runs it into 1019 in one turn
+          # ("Oh, now he's begun ... Stop! How was it due in especial to you ..."); this edition gives 1018
+          # to Dionysus and 1019 to Euripides. The pin below seats that turn on 1019.
+          - { greek: "1018", by: "1019" }
+        pins:
+          # From 1019 the aligner ran one turn early to 1021 ("By a tragedy 'brimming with Ares!'" sat on
+          # 1019, "A what?" on 1020, "The 'Seven against Thebes.'" on 1021). In the Greek Euripides asks at
+          # 1019, Dionysus urges at 1020, Aeschylus answers at 1021 (δρᾶμα ποιήσας Ἄρεως μεστόν).
+          - { greek: "1019", english: "Oh, now he's begun and will probably run", run: 4 }
+          # Murray has no rendering of 1437-1441 (Cleocritus and the vinegar jokes). His "I know and am
+          # prepared to say!" / "Say on." render 1442 (ἐγὼ μὲν οἶδα καὶ θέλω φράζειν. λέγε.), and "Where
+          # Mistrust now has sway" renders 1443-1444. Unpinned, every turn from 1437 to 1446 sat one segment early.
+          - { greek: "1440", english: "I know and am prepared to say!", run: 5 }
+          # No rendering of 1451-1453 (the Palamedes / Cephisophon exchange), as in the reference block;
+          # "And what say you?" renders Dionysus' 1454, which opens inside the 1453 segment here.
+          - { greek: "1453", english: "And what say you?", run: 1 }
+    gaps: []
+    text_fixes: []

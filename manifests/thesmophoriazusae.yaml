@@ -330,6 +330,9 @@ registry:
   greekSource:
     short: "Coulon (1928)"
     full: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)"
+  greekEditions:
+    - { id: tlg, short: "Coulon (1928)", full: "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)", editor: "Coulon & van Daele", year: 1928, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1907)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)", editor: "F. W. Hall and W. M. Geldart", year: 1907, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -357,3 +360,53 @@ registry:
   production: "411 BC, probably at the City Dionysia · result unknown"
   argument: "The women at their festival plan to punish Euripides. His kinsman goes in disguise to defend him."
   synopsis: "The women of Athens, gathered for the Thesmophoria, are going to vote on what to do about Euripides, who has told the whole city what women are like. Euripides asks Agathon to infiltrate the festival for him in women's clothes; Agathon declines; Euripides' elderly kinsman goes instead, shaved and singed. He speaks in Euripides' defence and is found out. Euripides tries to rescue him with scenes from his own plays, the Helen and the Andromeda, and fails; then he makes peace with the women and lures the Scythian guard away with a dancing girl."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1907)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1907
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg008.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1231, sha256: f76a1b28aa2f3d163158c6559c15e46cd676c224f4007a2eb16fa819b9b64e6f}
+    speakers:
+      sigla:
+        "Μνησίλοχος": "Mnesilochus"
+        "Εὐριπίδης": "Euripides"
+        "Θεράπων": "Servant"
+        "Ἀγάθων": "Agathon"
+        "Χορὸς Ἀγάθωνος": "Agathon's Chorus"
+        "Κηρύκαινα": "Woman"  # 295-: the woman herald; the reference's ΓΥ. (Woman) sits on all 30 matched lines
+        "Χορός": "Chorus"
+        "Γυνὴ Α": "First Woman"
+        "Γυνὴ Β": "Second Woman"
+        "Κλεισθένης": "Cleisthenes"
+        "Γυνὴ Γ": "Third Woman"  # 760-: a third anonymous woman (the edition prints Α, Β, Γ). The reference has two and shows Second Woman on all 28 lines
+        "Πρύτανις": "Prytanis"
+        "Τοξότης": "Scythian"  # the archer (1001-): the reference shows Scythian on 53 of the 54 matched lines
+        "—": null
+      overrides: []
+    edition_only: ["Third Woman"]
+    alignment: {}
+    gaps: []
+    text_fixes: []

@@ -513,6 +513,9 @@ registry:
   greekSource:
     short: "Coulon (1928)"
     full: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
+  greekEditions:
+    - { id: tlg, short: "Coulon (1928)", full: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)", editor: "Coulon & van Daele", year: 1928, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1906)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)", editor: "F. W. Hall and W. M. Geldart", year: 1906, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -541,3 +544,64 @@ registry:
   production: "City Dionysia, 414 BC · second prize"
   argument: "Two Athenians persuade the birds to build a city in the sky and cut the gods off from their sacrifices."
   synopsis: "Two Athenians, Peisthetaerus and Euelpides, have left Athens to be rid of lawsuits and are looking for Tereus, the king who became a hoopoe, to ask where to live. Peisthetaerus has a better idea: the birds should build a city in the air between men and gods and cut off the smoke of sacrifice. Cloudcuckooland is founded, the gods starve, and an embassy of Poseidon, Heracles, and a Triballian god comes to terms. Peisthetaerus gets Zeus's sceptre and marries Basileia, Sovereignty herself."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1906)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1906
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg006.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1728, sha256: 8edae0371a3ee684e007d99ce8df5d4a0be1665d33b5d3805d349e9c3a9cc64c}
+    speakers:
+      sigla:
+        "Ἐυελπίδης": "Euelpides"
+        "Πισθέταιρος": "Peisthetaerus"
+        "Θεράπων Ἔποπος": "Servant of the Hoopoe"
+        "Ἔποψ": "Hoopoe"
+        "Χορός": "Chorus"
+        "Ὄρνις Τις": "Bird"
+        "Κῆρυξ": "Herald"
+        "Ἱερεύς": "Priest"
+        "Ποιητής": "Poet"
+        "Χρησμολόγος": "Oracle-monger"
+        "Μέτων": "Meton"
+        "Ἐπίσκοπος": "Inspector"
+        "Ψηφισματοπώλης": "Decree-seller"
+        "Ἄγγελος Α": "First Messenger"
+        "Ἄγγελος Β": "Second Messenger"
+        "Ἶρις": "Iris"
+        "Πατραλοίας": "Father-beater"
+        "Κινησίας": "Cinesias"
+        "Συκοφάντης": "Informer"
+        "Προμηθεύς": "Prometheus"
+        "Ποσειδῶν": "Poseidon"
+        "Τριβαλλός": "Triballian"
+        "Ἡρακλῆς": "Heracles"
+        "Ἄγγελος": "Messenger"
+        "—": null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

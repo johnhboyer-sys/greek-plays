@@ -273,6 +273,9 @@ registry:
   greekSource:
     short: "Dover (1968)"
     full: "Dover, Aristophanes: Clouds (Oxford, 1968)"
+  greekEditions:
+    - { id: tlg, short: "Dover (1968)", full: "Dover, Aristophanes: Clouds (Oxford, 1968)", editor: "Dover", year: 1968, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1906)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)", editor: "F. W. Hall and W. M. Geldart", year: 1906, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -301,3 +304,56 @@ registry:
   production: "City Dionysia, 423 BC · third prize · the surviving text is a later revision, never staged"
   argument: "Strepsiades enrols at Socrates’ Thinkery to learn how to argue his way out of his debts, and ends by burning it down."
   synopsis: "Strepsiades cannot sleep for his debts, which his horse-mad son Pheidippides has run up. He has heard that Socrates' school next door teaches an argument that wins any case, the Worse over the Better. He enrols himself, proves too slow, and sends the boy instead. Pheidippides comes home able to argue anything. The creditors are beaten off with the new logic; then the son beats his father and proves he was right to. Strepsiades sets fire to the school with Socrates inside."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1906)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1906
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg003.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': ["706", "888a"]}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1486, sha256: 2bf0ddb3283fa8fcdd362043317472c26366d7e41ce62398acab46c503435eed}
+    speakers:
+      sigla:
+        "Στρεψιάδης": "Strepsiades"
+        "Φειδιππίδης": "Pheidippides"
+        "Θεράπων": "Slave"
+        "Μαθητής": "Student"
+        "Σωκράτης": "Socrates"
+        "Χορός": "Chorus"
+        "Δίκαιος Λόγος": "Better Argument"
+        "Ἄδικος Λόγος": "Worse Argument"
+        "Πασίας": "First Creditor"  # the reference's ΧΡΗΣΤΗΣ Αʹ: all 26 lines from 1214 agree
+        "Αμυνίας": "Second Creditor"  # the reference's ΧΡΗΣΤΗΣ Βʹ: all 20 lines from 1259 agree
+        "Μαθητὴς Α": "First Student"
+        "Μαθητὴς Β": "Second Student"
+        "Μαθητὴς Γ": "Third Student"  # 1499 only: a third student. The reference has two and gives this line to the second
+        "Χαιρεφῶν": "Chaerephon"  # 1505 only: the edition names Chaerephon; the reference shows the line as the second student's
+        "Μάρτυς": "Witness"  # 1246b only: a witness speaks. The reference gives the whole of 1246 to the first creditor
+        "Ερμῆς": "Hermes"  # 1508-1509: the edition gives the two lines to Hermes; the reference gives them to Strepsiades
+        "—": null
+      overrides: []
+    edition_only: ["Chaerephon", "Hermes", "Third Student", "Witness"]
+    alignment: {}
+    gaps: []
+    text_fixes: []
