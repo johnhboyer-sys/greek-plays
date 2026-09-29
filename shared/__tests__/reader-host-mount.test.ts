@@ -18,7 +18,7 @@ afterEach(() => {
 });
 
 it('keeps the mounted reader and anchor for a same-edition translation change, then remounts once for a new edition', async () => {
-  history.replaceState({}, '', '/aeschylus/agamemnon?view=greek');
+  history.replaceState({}, '', '/aeschylus/agamemnon');
   vi.spyOn(globalThis, 'fetch').mockImplementation(async () => ({ ok: true, json: async () => book('1203') }) as Response);
   const page = render(ReaderHost, { work: 'agamemnon', bookNum: 1, bookData: book('1203'),
     serverEdition: 'smyth-loeb', speakerRoster: [], authorName: 'Aeschylus' });
@@ -35,7 +35,7 @@ it('keeps the mounted reader and anchor for a same-edition translation change, t
 });
 
 it('places the anchor through the concordance when the new edition lacks the ref, and asks only for what it needs', async () => {
-  history.replaceState({}, '', '/aeschylus/agamemnon?view=greek');
+  history.replaceState({}, '', '/aeschylus/agamemnon');
   (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ = 'https://d2.test'; // caches are keyed per root/book, so each test uses its own
   const urls: string[] = [];
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
@@ -56,7 +56,7 @@ it('places the anchor through the concordance when the new edition lacks the ref
 });
 
 it('falls back to the nearest lower ref when the concordance is missing', async () => {
-  history.replaceState({}, '', '/aeschylus/agamemnon?view=greek');
+  history.replaceState({}, '', '/aeschylus/agamemnon');
   (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ = 'https://d3.test'; // caches are keyed per root/book, so each test uses its own
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => String(url).endsWith('concordance.json')
     ? { ok: false, status: 404 } as Response

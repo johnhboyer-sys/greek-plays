@@ -20,9 +20,10 @@ export function loadEdition(work: Work, input: { trans: string; view: ReaderView
 export function changeEdition(work: Work, state: EditionState, change: { trans?: string; view?: ReaderView; ed?: string }): EditionState {
   const trans = change.trans ?? state.trans;
   const view = change.view ?? state.view;
-  if (trans === 'compare') return { ed: 'tlg', trans, view };
   if (change.ed && view === 'greek') return { ed: change.ed, trans, view };
-  if (change.trans && view !== 'greek') return { ed: ownEdition(work, trans), trans, view };
+  if (trans === 'compare') return { ed: 'tlg', trans, view };
+  // Reader always sends its translation, so only a different one is a translation change.
+  if (change.trans && change.trans !== state.trans && view !== 'greek') return { ed: ownEdition(work, trans), trans, view };
   if (state.view === 'greek' && view !== 'greek' && !aligned(work, trans, state.ed))
     return { ed: ownEdition(work, trans), trans, view };
   return { ed: state.ed, trans, view };

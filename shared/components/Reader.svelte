@@ -83,6 +83,7 @@
   import { getWork, visibleTranslations, bookLabel as workBookLabel, languageLabel, freemanApparatusCredit, type TranslationRef } from '../lib/works';
   import { getAuthor } from '../lib/authors';
   import { touchRecent } from '../lib/resume';
+  import { editionPicker } from '../lib/edition-picker';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
 
@@ -105,7 +106,7 @@
   export let initialLocation: string | null = null;
   export let initialTranslation: string | null = null;
   export let initialView: 'both' | 'english' | 'greek' | null = null;
-  const dispatch = createEventDispatcher<{ editionChange: { trans: string; view: 'both' | 'english' | 'greek'; loc: string | null } }>();
+  const dispatch = createEventDispatcher<{ editionChange: { trans: string; view: 'both' | 'english' | 'greek'; loc: string | null; ed?: string } }>();
   const workMeta = getWork(work);
   // `workMeta.author` is an author-registry slug, not a display name — see
   // shared/lib/works.ts's doc comment on the field.
@@ -548,6 +549,15 @@
   function onPick(e: Event) {
     setTrans((e.currentTarget as HTMLSelectElement).value);
   }
+  // The Greek-only edition picker (plan 4.7): every edition the registry lists
+  // for this play, reference first. It changes the text of the play already open.
+  $: editionChoices = edition && view === 'greek' && (workMeta?.greekEditions?.length ?? 0) > 1 ? workMeta!.greekEditions! : [];
+  // Built after mount by the editionPicker action (lib/edition-picker.ts), not in the template.
+  const pickerParams = (variant: 'header' | 'sidebar') => ({
+    variant, label: 'Greek text', value: edition ?? '',
+    choices: editionChoices.map(e => ({ id: e.id, label: e.short })),
+    onpick: (ed: string) => { if (ed !== edition) dispatch('editionChange', { trans, view, loc: lastCite, ed }); },
+  });
 
   // ── Settings sidebar ──────────────────────────────────────────────────────
   let settingsOpen = false;
@@ -4482,7 +4492,7 @@
         {/if}
       </div>
       {#if freemanCredit}<div class="rc-freeman-credit">{freemanCredit}</div>{/if}
-      <div class="rc-controls">
+      <div class="rc-controls" use:editionPicker={pickerParams("header")}>
         {#if !hasEnglish}
           <!-- design pin (task #4): PD translations often exist but aren't
                wired yet — never imply none exists. -->
@@ -5539,7 +5549,7 @@
     <span class="settings-title">Settings</span>
     <button type="button" class="settings-close" on:click={closeSettings} aria-label="Close settings">×</button>
   </div>
-  <div class="settings-body">
+  <div class="settings-body" use:editionPicker={pickerParams("sidebar")}>
     <!-- Mobile-only: on desktop the view toggle and print control live in the
          reader header (see .settings-mobile-only in global.css). -->
     <div class="settings-section settings-mobile-only">
