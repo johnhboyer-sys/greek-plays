@@ -25,6 +25,7 @@ describe('generated registry golden value', () => {
     // Regenerated 2026-09-29: P3 adds Hall & Geldart's OCT to the 11 comedies.
     // Regenerated 2026-09-29: Jebb's OT pilot; Murray's OCT for Alcestis and Medea.
     // Regenerated 2026-09-29: Jebb's Greek for OC, Antigone, Electra, and Ajax.
-    expect(hash).toBe('ad125e12febb37d2af7b6bd2baefd6a05efeac104fb5eec8de28391ccf3ca751');
+    // Regenerated 2026-09-29: Jebb's Greek for Philoctetes and Trachiniae.
+    expect(hash).toBe('c0c68263caa0d79da2148e632b31ea08b33ebaa375b7a6d949cd6664c77cb799');
   });
 });
