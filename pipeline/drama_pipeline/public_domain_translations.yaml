@@ -250,6 +250,36 @@ greek_editions:
     year: 1926
     status: public-domain-us
     sources: [perseus/tlg0085.tlg005.perseus-grc2.xml]
+  - id: smyth-loeb
+    editor: "H. W. Smyth"
+    year: 1922
+    status: public-domain-us
+    sources: [perseus/tlg0085.tlg002.perseus-grc2.xml]
+  - id: smyth-loeb
+    editor: "H. W. Smyth"
+    year: 1922
+    status: public-domain-us
+    sources: [perseus/tlg0085.tlg004.perseus-grc2.xml]
+  - id: smyth-loeb
+    editor: "H. W. Smyth"
+    year: 1922
+    status: public-domain-us
+    sources: [perseus/tlg0085.tlg001.perseus-grc2.xml]
+  - id: smyth-loeb
+    editor: "H. W. Smyth"
+    year: 1922
+    status: public-domain-us
+    sources: [perseus/tlg0085.tlg003.perseus-grc2.xml]
+  - id: smyth-loeb
+    editor: "H. W. Smyth"
+    year: 1926
+    status: public-domain-us
+    sources: [perseus/tlg0085.tlg006.perseus-grc2.xml]
+  - id: smyth-loeb
+    editor: "H. W. Smyth"
+    year: 1926
+    status: public-domain-us
+    sources: [perseus/tlg0085.tlg007.perseus-grc2.xml]
   - id: murray-oct
     editor: Gilbert Murray
     year: 1902

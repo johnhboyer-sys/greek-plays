@@ -171,6 +171,9 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Murray (1955)", full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)", editor: Murray, year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: smyth-loeb, short: "Smyth (1922)", full: "H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)", editor: "H. W. Smyth", year: 1922, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["smyth"] }
   translations:
     - id: smyth
       form: prose
@@ -179,6 +182,7 @@ registry:
       slot: english
       footnotes: true
       alignment: line
+      edition: smyth-loeb
     - id: morshead
       form: verse
       name: "E. D. A. Morshead (1881–1908)"
@@ -193,3 +197,56 @@ registry:
   production: "City Dionysia, 472 BC · first prize"
   argument: "At Susa the Persian court waits for news from Greece. A messenger brings the news: the fleet is destroyed at Salamis."
   synopsis: "At Susa the elders of the Persian council wait for word from Xerxes' expedition against Greece. Atossa, the queen mother, comes out troubled by a dream. A messenger arrives with the news of Salamis: the fleet destroyed, the army in retreat over a starving country. Atossa and the elders call up the ghost of Darius, who blames his son's pride and foretells the defeat at Plataea. Xerxes himself comes home in torn robes, and the play ends in lament."
+
+greek_editions:
+- id: smyth-loeb
+  label:
+    short: Smyth (1922)
+    full: H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)
+  editor: H. W. Smyth
+  year: 1922
+  source:
+    kind: perseus-tei
+    path: perseus/tlg0085.tlg002.perseus-grc2.xml
+    expect:
+      editor: Herbert Weir Smyth
+  licence:
+    text: public-domain-us
+    encoding: cc-by-sa-4.0
+    credit: Perseus Digital Library, Tufts University
+    source_url: https://github.com/PerseusDL/canonical-greekLit
+  pairs:
+  - smyth
+  citation:
+    title_labels: []
+    lacunae:
+      '1':
+      - 981b
+    transpositions:
+      '1':
+      - start: '1011'
+        end: '1011'
+        before: '1012'
+    repeated_refs: {}
+    ref_fixes: {}
+    fingerprint:
+      count: 1065
+      sha256: 617294e56a2d0921de2c58f700f69f02120eda4cfc7aa24c33cf6e87bbdca4ee
+  speakers:
+    sigla:
+      "—": null
+      Δαρεῖος: Ghost of Darius
+      Εἴδωλον Δαρείου: Ghost of Darius
+      Ξέρξης: Xerxes
+      Χορός: Chorus
+      Ἄγγελος: Messenger
+      Ἄτοσσα: Atossa
+    overrides: []
+  edition_only: []
+  alignment:
+    smyth:
+      line_fixes: {}
+      covered: []
+      cuts: []
+  gaps: []
+  text_fixes: []
