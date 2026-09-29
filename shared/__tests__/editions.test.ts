@@ -114,12 +114,12 @@ describe('edition copy citation', () => {
   });
   it('names the editor and puts ed in the URL for a non-reference edition', () => {
     const copy = editionCopyCitation('agamemnon', 'smyth-loeb', start, start, 1, 'smyth');
-    expect(copy?.text).toBe('(Aesch. Ag. 1203, Smyth)');
+    expect(copy?.text).toBe('(Aesch. Ag. 1203, Smyth 1926)');
     expect(copy?.url).toBe('/aeschylus/agamemnon?loc=1203&trans=smyth&ed=smyth-loeb');
   });
   it('names the editor for a range too', () => {
     const copy = editionCopyCitation('agamemnon', 'smyth-loeb', start, { column: '1210' }, 1, 'smyth');
-    expect(copy?.text).toBe('(Aesch. Ag. 1203–1210, Smyth)');
+    expect(copy?.text).toBe('(Aesch. Ag. 1203–1210, Smyth 1926)');
   });
 });
 

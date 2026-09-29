@@ -21,9 +21,11 @@ export function editionCopyCitation(
   catch { return { text, url: '' }; }
   if (!ed || ed === 'tlg') return { text, url: url.pathname + url.search };
   url.searchParams.set('ed', ed);
-  const editor = getWork(work)?.greekEditions?.find(item => item.id === ed)?.editor;
+  // "(Aesch. Ag. 1203, Smyth 1926)": editor and year (John, 2026-09-29).
+  const edition = getWork(work)?.greekEditions?.find(item => item.id === ed);
+  const name = edition?.editor ? [surname(edition.editor), edition.year].filter(Boolean).join(' ') : '';
   return {
-    text: editor ? text.replace(/\)$/, `, ${surname(editor)})`) : text,
+    text: name ? text.replace(/\)$/, `, ${name})`) : text,
     url: url.pathname + url.search,
   };
 }
