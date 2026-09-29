@@ -129,7 +129,8 @@ def test_the_normal_report_counts_lemma_disagreements_and_fix_conflicts(tmp_path
     monkeypatch.setitem(J.NUMBER_FIXES, "antigone", {5: ("9", "hand fix")})
     report = J.convert("antigone")            # no qa
     assert report["commentary_lemmas"]["disagree"] == 1
-    assert report["gaps"] == []
+    # The wrong fix (9) hides nothing: the numbers it skips are reported.
+    assert [(g["after"], g["before"], g["missing"]) for g in report["gaps"]] == [("1", "9", [2])]
     assert [(c["src"], c["fix"], c["checkpoint"]) for c in report["fix_conflicts"]] == [(5, "9", 3)]
     assert [(s["src"], s["reason"]) for s in report["stops"]] == [(7, "apparatus marker")]
 
@@ -254,3 +255,136 @@ def test_row_cleaning_and_word_joins():
             {**base, "colon": None, "text": "κλαύτοις", "printed": 830, "src": 2}]
     (joined,) = J.join_turnovers(rows, [J.key("τέγγει δ’ ὑπ’ ὀφρύσι παγκλαύτοις")])
     assert joined["text"] == "τέγγει δ’ ὑπ’ ὀφρύσι παγκλαύτοις"
+
+
+def test_a_turn_over_after_a_later_speakers_share_joins_its_line():
+    # Ph. 201-202 (scan p. 42): 'ΧΟ. εὔστομ’ ἔχε, παῖ. ΝΕ. τί τόδε; ΧΟ.
+    # προὐφάνη' with 'κτύπος,' turned over. The speaker abbreviations inside
+    # the line are not text: the turn-over still joins.
+    base = {"kind": "verse", "colon": None, "strophe": None, "page": 42, "printed": None, "turn": False}
+    rows = [{**base, "speaker": "ΧΟ.", "text": "εὔστομ’ ἔχε, παῖ. ΝΕ. τί τόδε; ΧΟ. προὐφάνη", "src": 1},
+            {**base, "speaker": None, "text": "κτύπος,", "src": 2}]
+    refs = [J.key(t) for t in ("εὔστομ’ ἔχε, παῖ.", "τί τόδε;", "προὐφάνη κτύπος,")]
+    (joined,) = J.join_turnovers(rows, refs)
+    assert joined["text"].endswith("ΧΟ. προὐφάνη κτύπος,")
+
+
+def test_a_row_closing_a_bracket_jebb_opened_is_verse(play):
+    # Ph. 1365 (scan p. 210): Jebb brackets 'οἳ τὸν ἄθλιον | Αἴανθ’ ... |
+    # Ὀδυσσέως ἔκριναν·]', which no reference prints; the closing row is
+    # verse, not an apparatus lemma.
+    play([VERSE[0], "πατρὸς γέρας συλῶντες· [οἳ τὸν ἄθλιον", "Αἴανθ’ ὅπλων σοῦ πατρὸς ὕστερον δίκῃ",
+          "Ὀδυσσέως ἔκριναν·] εἶτα τοῖσδε σὺ", VERSE[1]])
+    rows, log, stops = J.extract("t", ref_keys())
+    assert [r["text"] for r in rows][-2:] == ["Ὀδυσσέως ἔκριναν·] εἶτα τοῖσδε σὺ", VERSE[1]]
+    assert stops == []
+
+
+def test_a_lost_page_comes_from_the_supplement_in_page_order(tmp_path, monkeypatch):
+    text = ["---", "10 ΣΟΦΟΚΛΕΟΥΣ", VERSE[0], VERSE[1], "---", "14 ΣΟΦΟΚΛΕΟΥΣ", VERSE[4], VERSE[5], "---"]
+    (tmp_path / "t.txt").write_text("\n".join(text) + "\n", encoding="utf-8")
+    monkeypatch.setattr(J, "GENIE", tmp_path)
+    monkeypatch.setitem(J.PLAYS, "t", ("t.txt", "004", "x", 1, len(text)))
+    sup = tmp_path / "lost.yaml"
+    sup.write_text("t:\n  - page: 12\n    rows:\n"
+                   f"      - {{ row: '{VERSE[2]}', note: scan }}\n"
+                   f"      - {{ row: '{VERSE[3]} 12', note: scan }}\n", encoding="utf-8")
+    monkeypatch.setattr(J, "LOST_PAGES", sup)
+    rows, log, stops = J.extract("t", ref_keys())
+    assert [r["text"] for r in rows] == [VERSE[0], VERSE[1], VERSE[2], VERSE[3], VERSE[4], VERSE[5]]
+    assert [r["page"] for r in rows] == [10, 10, 12, 12, 14, 14]
+    assert rows[3]["printed"] == 12 and rows[2]["src"] == J.LOST_SRC + 1200
+    assert not any("follows" in x for x in log)
+
+
+def test_a_long_turn_over_joins_only_where_the_join_is_in_the_reference():
+    # Tr. 126-128 (scan p. 22): 'βα-|σιλεὺς ἐπέβαλε θνατοῖς Κρονίδας·'. The
+    # fragment's own letters are in the reference whichever neighbour it
+    # joins; the letters before it decide.
+    base = {"kind": "verse", "strophe": None, "speaker": None, "page": 22, "printed": None}
+    rows = [{**base, "colon": 3, "text": "χρῆναί σ’· ἀνάλγητα γὰρ οὐδ’ ὁ πάντα κραίνων βα-", "turn": False, "src": 1},
+            {**base, "colon": None, "text": "σιλεὺς ἐπέβαλε θνατοῖς Κρονίδας·", "turn": True, "src": 2},
+            {**base, "colon": 4, "text": "ἀλλ’ ἐπὶ πῆμα καὶ χαρὰ πᾶσι κυκλοῦσιν, οἷον ἄρκτου", "turn": False, "src": 3}]
+    refs = [J.key("χρῆναί σ’· ἀνάλγητα γὰρ οὐδ’ ὁ πάντα κραίνων βασιλεὺς ἐπέβαλε θνατοῖς Κρονίδας·"),
+            J.key("ἐπέβαλε θνατοῖς Κρονίδας·")]
+    out = J.join_turnovers(rows, refs)
+    assert [r["text"] for r in out][0] == "χρῆναί σ’· ἀνάλγητα γὰρ οὐδ’ ὁ πάντα κραίνων βασιλεὺς ἐπέβαλε θνατοῖς Κρονίδας·"
+    assert len(out) == 2
+
+
+def test_a_last_share_turned_over_onto_its_own_row_joins_its_line():
+    # Ph. 753 (scan p. 124): 'ΦΙ. οἶσθ’, ὦ τέκνον. ΝΕ. τί <δ’> ἔστιν; ΦΙ.
+    # οἶσθ’, ὦ παῖ.' with 'ΝΕ. τί σοί;' turned over. Left apart, the share
+    # became a line lettered 753a beside the share 753a.
+    base = {"kind": "verse", "colon": None, "strophe": None, "page": 124, "printed": None, "turn": False}
+    rows = [{**base, "speaker": "ΦΙ.", "text": "οἶσθ’, ὦ τέκνον. ΝΕ. τί <δ’> ἔστιν; ΦΙ. οἶσθ’, ὦ παῖ.", "src": 1},
+            {**base, "speaker": "ΝΕ.", "text": "τί σοί;", "src": 2},
+            {**base, "speaker": None, "text": "οὐκ οἶδα. ΦΙ. πῶς οὐκ οἶσθα; παππαπαππαπαῖ.", "src": 3}]
+    refs = [J.key("Οἶσθ', ὦ τέκνον. Τί δ' ἔστιν; Οἶσθ', ὦ παῖ. Τί σοι;"),
+            J.key("Οὐκ οἶδα. Πῶς οὐκ οἶσθα; παππαπαππαπαῖ.")]
+    out = J.merge_antilabe(rows, refs)
+    assert [r["text"] for r in out] == ["οἶσθ’, ὦ τέκνον. ΝΕ. τί <δ’> ἔστιν; ΦΙ. οἶσθ’, ὦ παῖ. ΝΕ. τί σοί;",
+                                        "οὐκ οἶδα. ΦΙ. πῶς οὐκ οἶσθα; παππαπαππαπαῖ."]
+
+
+def _antilabe_rows(second, page2):
+    base = {"kind": "verse", "colon": None, "strophe": None, "printed": None, "turn": False}
+    return [{**base, "speaker": "ΝΕ.", "text": "τί σοί;", "src": 1, "page": 10},
+            {**base, "speaker": "ΦΙ.", "text": second, "src": 2, "page": page2}]
+
+
+ANTILABE_REF = [J.key("τί σοί; οὐκ οἶδα ἐγώ τοῦτο.")]
+
+
+def test_antilabe_shares_on_one_page_join_on_a_close_match():
+    out = J.merge_antilabe(_antilabe_rows("οὐκ οἶδα ἐγώ.", 10), ANTILABE_REF)   # 0.8: enough on one page
+    assert [r["text"] for r in out] == ["τί σοί; ΦΙ. οὐκ οἶδα ἐγώ."]
+
+
+def test_antilabe_shares_across_a_page_break_join_only_on_an_exact_match():
+    close = J.merge_antilabe(_antilabe_rows("οὐκ οἶδα ἐγώ.", 12), ANTILABE_REF)
+    assert len(close) == 2
+    exact = J.merge_antilabe(_antilabe_rows("οὐκ οἶδα ἐγώ τοῦτο.", 12), ANTILABE_REF)
+    assert [r["text"] for r in exact] == ["τί σοί; ΦΙ. οὐκ οἶδα ἐγώ τοῦτο."]
+
+
+def test_a_lost_page_the_ocr_now_has_is_an_error(tmp_path, monkeypatch):
+    # The OCR reads page 12 as well as the supplement: both would be emitted.
+    text = ["---", "10 ΣΟΦΟΚΛΕΟΥΣ", VERSE[0], "---", "12 ΣΟΦΟΚΛΕΟΥΣ", VERSE[1], "---", "14 ΣΟΦΟΚΛΕΟΥΣ", VERSE[4], "---"]
+    (tmp_path / "t.txt").write_text("\n".join(text) + "\n", encoding="utf-8")
+    monkeypatch.setattr(J, "GENIE", tmp_path)
+    monkeypatch.setitem(J.PLAYS, "t", ("t.txt", "004", "x", 1, len(text)))
+    sup = tmp_path / "lost.yaml"
+    sup.write_text(f"t:\n  - page: 12\n    rows:\n      - {{ row: '{VERSE[2]}', note: scan }}\n", encoding="utf-8")
+    monkeypatch.setattr(J, "LOST_PAGES", sup)
+    with pytest.raises(SystemExit, match=r"t: .*page 12"):
+        J.extract("t", ref_keys())
+
+
+def _gap_fix_case(monkeypatch, refs_number):
+    """Jebb lines 100 and a hand-fixed 103; the references number 101 and
+    102 (refs_number) between them, which no line of Jebb's holds."""
+    nums = (100, 101, 102, 103) if refs_number else (100, 103)
+    texts = {100: VERSE[0], 101: VERSE[1], 102: VERSE[2], 103: VERSE[3]}
+    ref = [{"n": str(n), "text": texts[n], "parts": []} for n in nums]
+    last = len(ref) - 1
+    covers = {"S": [[0], [last]], "T": [[0], [last]]}
+    jebb = [{"text": VERSE[0], "src": 10, "page": 7, "printed": None},
+            {"text": VERSE[3], "src": 11, "page": 7, "printed": None}]
+    monkeypatch.setattr(J, "lemma_checkpoints", lambda slug, jebb: {})
+    monkeypatch.setitem(J.NUMBER_FIXES, "t", {11: ("103", "hand fix")})
+    J.number_lines("t", jebb, {"S": ref, "T": ref}, covers)
+    return jebb
+
+
+def test_a_hand_fix_does_not_hide_a_gap_the_references_number(monkeypatch):
+    jebb = _gap_fix_case(monkeypatch, True)
+    assert [x["n"] for x in jebb] == ["100", "103"]
+    (gap,) = jebb[1]["gaps"]
+    assert gap["missing"] == [101, 102]
+
+
+def test_a_hand_fix_excuses_a_gap_both_references_skip(monkeypatch):
+    jebb = _gap_fix_case(monkeypatch, False)
+    assert [x["n"] for x in jebb] == ["100", "103"]
+    assert not any(x.get("gaps") for x in jebb)

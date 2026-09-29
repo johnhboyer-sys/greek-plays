@@ -355,10 +355,29 @@ greek_editions:
     edition_only: []
     alignment:
       jebb:
+        # The English's line numbers are Storr's (Perseus's Greek); the matcher
+        # re-keys them onto Jebb's lines by text (pipeline/drama_pipeline/anchor_map.py).
+        anchor_map: storr-loeb
         # Jebb prints the three verses lost after 181 and the one at 183 as
         # metrical schemes (lacunae); his English has no words for them, and
         # 181 (πόρσω· σὺ γὰρ ἀΐεις) and 533 (ὦ Ζεῦ) and 534a fall inside the
         # English of the speech before.
+        # Perseus's English runs a line off the text map at 844-847. English
+        # 844, Antigone's "I am being dragged away in misery. Strangers,
+        # strangers!", is Jebb's 844 (ἀφέλκομαι δύστηνος, ὦ ξένοι ξένοι), and
+        # English 845, Oedipus's "My child, where are you?", is Jebb's 845
+        # (ποῦ, τέκνον, εἶ μοι;); the text map put both a line late, so the
+        # Greek speech 1:844 had no English.
+        # Perseus prints Antigone's "Father, father," as n="1009a", a typo for
+        # 1099 (the reference edition fixes it above). Jebb's Greek has it at
+        # the end of his line 1099 ("ποῦ ποῦ; τί φής; πῶς εἶπας; ὦ πάτερ
+        # πάτερ,"), where Antigone takes up at offset 28: his ref 1099a. The
+        # next English line, n="1100", is Jebb's 1100. Not an order difference:
+        # left alone the anchor sat 90 lines before its neighbours.
+        line_fixes:
+          "844": "844"
+          "845": "845"
+          "1009a": "1099a"
         covered:
           - { greek: "181", by: "180" }
           - { greek: "181a", by: "180" }

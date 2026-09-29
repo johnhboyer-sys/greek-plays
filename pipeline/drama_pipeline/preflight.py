@@ -2906,6 +2906,11 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
         alignment = edition.get("alignment") or {}
         if not isinstance(alignment, dict) or set(alignment) - set(pairs):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} alignment names an unpaired translation"))
+        else:
+            for pair, block in alignment.items():
+                source_id = (block or {}).get("anchor_map")
+                if source_id is not None and (source_id == eid or source_id not in {e.get("id") for e in editions if isinstance(e, dict)}):
+                    problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} alignment {pair!r} anchor_map {source_id!r} must name another declared edition"))
         for pair in pairs:
             if pair not in english_ids or pair in seen_pairs:
                 problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} has undeclared or duplicate pair {pair!r}"))

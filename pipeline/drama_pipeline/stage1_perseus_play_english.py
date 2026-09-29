@@ -2417,6 +2417,312 @@ def _apply_line_fixes(
             )
 
 
+_ANCHOR_WINDOW = 3          # lines either side of the mapped line an anchor may move
+_ANCHOR_SPEAKER_COST = 10.0  # the speaker in force on a seat is not the English speaker
+_ANCHOR_MOVE_COST = 1.0
+_ANCHOR_PIN_COST = 100.0     # an anchor whose mapped line already has its speaker leaves it (order forces it)
+_ANCHOR_BREAK_COST = 1000.0  # no seat keeps the order: the anchor stays on its mapped line
+
+
+def _speaker_at_offset(segment: dict, line: int, offset: int, sigla) -> str | None:
+    """The resolved speaker at character ``offset`` of internal line ``line``:
+    the last speaker event at or before that point."""
+    who = None
+    for ln, off, name, mapped in _segment_speaker_events(segment, sigla):
+        if (ln, off) > (line, offset):
+            break
+        who = name if mapped else None
+    return who
+
+
+def _apply_anchor_map(
+    translation,
+    mapping: dict[str, str],
+    inferred: set[str],
+    target_order: list[str],
+    source_id: str,
+    index: "_SpeechIndex",
+    aliases: dict[str, str],
+    declared_breaks: list[str] | tuple[str, ...] = (),
+) -> dict:
+    """Rewrite each ``<l n>`` from the count of ``source_id``'s Greek to this
+    spine's count (``english.<slot>.anchor_map``; see ``anchor_map.py``).
+
+    The text gives each anchor a line (its ``mapped`` line). Perseus numbers
+    its English by its own lines, though, which agree with the source Greek's
+    count in some stretches and drift from it in others (an English speech of
+    two lines over one Greek line shifts every number after it). So an anchor
+    may sit up to ``_ANCHOR_WINDOW`` lines from its mapped line, but only for
+    its speaker. A seat costs much where the speaker in force on it is not the
+    English speaker: the speech the line belongs to (its opening speaker; a
+    part ref such as ``1477a`` belongs to the speaker at its offset), never
+    the line where some speech starts. Each line moved costs a little. An
+    anchor leaves its mapped line only where the speaker in force there
+    disagrees and a seat within the window agrees, or where the order below
+    pushes it. An anchor whose mapped line already has its speaker is pinned
+    there: leaving costs ``_ANCHOR_PIN_COST``, far above any speaker or move
+    cost, so it leaves only when no seating keeps the order otherwise.
+
+    Order is fixed. The seats of the anchors, in document order, strictly
+    increase. Two anchors take one seat only where both sit on their mapped
+    line and the concordance joined the source lines they map from
+    (``anchor_map.joined_targets``). Where no seat can keep the order, the
+    anchor stays on its mapped line and is listed under ``order_breaks``;
+    that fails the build unless the edition's alignment block declares it
+    (``order_breaks: [<English anchor>]``, with its evidence), and a declared
+    break that does not occur fails as stale.
+    A Greek speech left with no anchor is not weighed here; the manifest's
+    edition alignment fixes it.
+
+    An anchor the text gives no line for keeps its own number, is listed
+    under ``unmatched``, and takes no part in the seating. A line
+    ``line_fixes`` already rewrote stays as the manifest put it, and its seat
+    bounds the seats of the anchors around it. Every anchor
+    that leaves its mapped line is listed (``speaker_moves`` where the
+    speaker forced it, ``order_moves`` where the order did), and so is every
+    seat more than one anchor holds (``shared_seats``, with its kind).
+    Returns the report block."""
+    from .anchor_map import joined_targets, remap_anchor
+
+    target_refs = set(target_order)
+    position = {ref: i for i, ref in reversed(list(enumerate(target_order)))}
+    joined = joined_targets(mapping, inferred)
+    counts = {"anchors": 0, "direct": 0, "inferred": 0, "moved": 0, "kept": 0,
+              "off_mapped_line": 0, "present_before": 0, "present_after": 0}
+    unmatched: list[str] = []
+    moved: list[dict] = []
+    speaker_moves: list[dict] = []
+    order_moves: list[dict] = []
+    order_breaks: list[str] = []
+    speaker_cache: dict[tuple[str, str | None], str | None] = {}
+
+    def speaker(ref: str, prefer: str | None) -> str | None:
+        """The speaker in force on seat ``ref``: the speaker whose speech the
+        line belongs to (the last event at or before its start), or, for a
+        part ref (``1477a``, the share that opens at an offset), the last
+        speaker at that offset. A divided line whose later speaker has no part
+        ref of its own counts for ``prefer`` when it speaks there."""
+        key = (ref, prefer)
+        if key not in speaker_cache:
+            found = index.segment_for_anchor(ref)
+            who = None
+            if found is not None:
+                segment, printed = found
+                number = _anchor_base(printed)
+                rows = [row for row in segment.get("lines") or [] if row.get("ref") == printed]
+                part = next((p for row in rows for p in row.get("parts") or [] if p.get("ref") == ref), None)
+                line = (index.line_n.get(segment["id"]) or {}).get(number)
+                if part is not None and line is not None:
+                    who = _speaker_at_offset(segment, line, int(part.get("offset") or 0), index.sigla)
+                else:
+                    who = index.speaker_at(segment, number, prefer=None if any(row.get("parts") for row in rows) else prefer)
+                # A segment with no speaker event goes on with the speech before it.
+                at = index.order[segment["id"]]
+                while who is None and at > 0:
+                    at -= 1
+                    before = index.segments[at]
+                    printed_lines = index.printed.get(before["id"]) or []
+                    if printed_lines:
+                        who = index.speaker_at(before, printed_lines[-1], prefer=prefer)
+            speaker_cache[key] = who
+        return speaker_cache[key]
+
+    seats: list[dict] = []
+    anchors: list[dict] = []        # every re-keyable anchor, in document order
+    for speech in translation.iter("{*}sp"):
+        label = speech.find("./{*}speaker")
+        name = collapse_ws("".join(label.itertext())).strip() if label is not None else ""
+        canonical = _canonical_english(name, aliases)
+        for line in speech.iter("{*}l"):
+            raw = line.get("n") or ""
+            if not (raw.isdigit() or _LETTERED_ANCHOR.fullmatch(raw)):
+                continue
+            if raw.isdigit() and int(raw) == 0:
+                continue
+            if line.get(_LINE_FIXED) == "1":     # the manifest seated it; it still bounds its neighbours
+                if raw in position:
+                    seats.append({"line": line, "raw": raw, "mapped": raw, "speaker": canonical, "fixed": True})
+                continue
+            counts["anchors"] += 1
+            counts["present_before"] += raw in target_refs
+            mapped = remap_anchor(raw, mapping, target_refs)
+            entry = {"line": line, "raw": raw, "mapped": mapped, "speaker": canonical}
+            anchors.append(entry)
+            if mapped is None or mapped not in position:
+                unmatched.append(raw)
+                counts["present_after"] += raw in target_refs
+                continue
+            counts["inferred" if raw in inferred else "direct"] += 1
+            seats.append(entry)
+
+    def agrees(seat: dict, ref: str) -> bool:
+        return not seat["speaker"] or speaker(ref, seat["speaker"]) == seat["speaker"]
+
+    def pinned(seat: dict) -> bool:
+        """The speaker in force on the anchor's mapped line is its English speaker."""
+        return agrees(seat, seat["mapped"])
+
+    def may_share(before: dict, seat: dict, at: int) -> bool:
+        """Two anchors on the one line ``at``."""
+        ref = target_order[at]
+        if before["mapped"] != ref or seat["mapped"] != ref:
+            return False
+        if before.get("fixed") or seat.get("fixed"):
+            return bool(before.get("fixed") and seat.get("fixed"))
+        return {before["raw"], seat["raw"]} <= joined.get(ref, set())
+
+    # Least-cost seating, anchors in document order, seats in strict order.
+    last = len(target_order) - 1
+    table: list[dict[int, tuple[float, int | None]]] = []
+    for at_seat, seat in enumerate(seats):
+        base = position[seat["mapped"]]
+        options: dict[int, float] = {}
+        for at in [base] if seat.get("fixed") else range(max(0, base - _ANCHOR_WINDOW), min(last, base + _ANCHOR_WINDOW) + 1):
+            cost = 0.0 if at == base else _ANCHOR_MOVE_COST + 0.5 * abs(at - base)
+            if not agrees(seat, target_order[at]):
+                cost += _ANCHOR_SPEAKER_COST
+            if at != base and pinned(seat):
+                cost += _ANCHOR_PIN_COST
+            options[at] = cost
+        row: dict[int, tuple[float, int | None]] = {}
+        previous = table[-1] if table else None
+        for at, cost in options.items():
+            if previous is None:
+                row[at] = (cost, None)
+                continue
+            fits = [
+                (total, before) for before, (total, _) in previous.items()
+                if before < at or (before == at and may_share(seats[at_seat - 1], seat, at))
+            ]
+            if fits:
+                best = min(fits, key=lambda item: (item[0], -item[1]))
+                row[at] = (cost + best[0], best[1])
+        if not row:     # no seat keeps the order: stay on the mapped line
+            total, before = min(((t, b) for b, (t, _) in previous.items()), key=lambda item: (item[0], -item[1]))
+            row[base] = (options[base] + total + _ANCHOR_BREAK_COST, before)
+            order_breaks.append(seat["raw"])
+        table.append(row)
+    declared = [str(ref) for ref in declared_breaks or ()]
+    undeclared = [ref for ref in order_breaks if ref not in declared]
+    if undeclared:
+        raise ValueError(
+            f"{source_id} anchor_map: order break at English anchor(s) {', '.join(repr(r) for r in undeclared)}: "
+            "no seat keeps the document order, so the anchor would sit out of order. Fix it with a "
+            "line_fixes entry, or, where the English really runs in another order than the Greek, declare it "
+            "in the edition's alignment order_breaks with its evidence"
+        )
+    stale = [ref for ref in declared if ref not in order_breaks]
+    if stale:
+        raise ValueError(
+            f"{source_id} anchor_map: stale alignment order_breaks {', '.join(repr(r) for r in stale)}: "
+            "no such order break occurs"
+        )
+    chosen: list[int] = []
+    if table:
+        at = min(table[-1], key=lambda k: (table[-1][k][0], abs(k - position[seats[-1]["mapped"]])))
+        chosen.append(at)
+        for row in reversed(table[1:]):
+            at = row[at][1]
+            chosen.append(at)
+        chosen.reverse()
+    for seat, at in zip(seats, chosen):
+        seat["seat"] = target_order[at]
+        seat["at"] = at
+
+    def order_blocker(number: int) -> str | None:
+        """The neighbouring anchor whose seat keeps ``seats[number]`` off its
+        mapped line, or None where the mapped line would keep the order."""
+        seat, base = seats[number], position[seats[number]["mapped"]]
+        if number > 0 and (seats[number - 1]["at"] > base or (
+                seats[number - 1]["at"] == base and not may_share(seats[number - 1], seat, base))):
+            return f"the anchor before it ({seats[number - 1]['raw']}) holds {seats[number - 1]['seat']}"
+        if number + 1 < len(seats) and (seats[number + 1]["at"] < base or (
+                seats[number + 1]["at"] == base and not may_share(seat, seats[number + 1], base))):
+            return f"the anchor after it ({seats[number + 1]['raw']}) holds {seats[number + 1]['seat']}"
+        return None
+
+    for number, seat in enumerate(seats):
+        new = seat["seat"]
+        if seat.get("fixed"):
+            continue
+        counts["off_mapped_line"] += new != seat["mapped"]
+        counts["present_after"] += new in target_refs
+        if new != seat["mapped"]:
+            who = speaker(seat["mapped"], seat["speaker"]) if seat["speaker"] else None
+            forced = bool(seat["speaker"]) and who != seat["speaker"] and agrees(seat, new)
+            entry = {"anchor": seat["raw"], "mapped": seat["mapped"], "seat": new}
+            if forced:
+                entry["reason"] = (
+                    f"the speaker in force on {seat['mapped']} is {who or 'no one'}, "
+                    f"not {seat['speaker']}, who speaks {new}"
+                )
+                speaker_moves.append(entry)
+            else:
+                blocker = order_blocker(number)
+                if blocker is None:
+                    raise ValueError(f"anchor {seat['raw']} left {seat['mapped']} for {new} with neither speaker nor order forcing it")
+                entry["reason"] = f"order: {blocker}, so keeping {seat['mapped']} would break the order"
+                order_moves.append(entry)
+        if new == seat["raw"]:
+            counts["kept"] += 1
+            continue
+        counts["moved"] += 1
+        moved.append({"from": seat["raw"], "to": new})
+        seat["line"].set("n", new)
+
+    # Every seat more than one anchor holds, wherever it came from.
+    holders: dict[str, list[dict]] = {}
+    for entry in anchors:
+        holders.setdefault(entry["line"].get("n"), []).append(entry)
+    shared: list[dict] = []
+    for seat_ref, group in holders.items():
+        if len(group) < 2:
+            continue
+        if any("seat" not in entry for entry in group):
+            kind = "unmatched anchor keeps its number"
+        elif {entry["raw"] for entry in group} <= joined.get(seat_ref, set()):
+            kind = "joined"
+        else:
+            kind = "order break"
+        shared.append({"seat": seat_ref, "anchors": [entry["raw"] for entry in group], "kind": kind})
+    return {
+        "source_edition": source_id,
+        **counts,
+        "unmatched": unmatched,
+        "moved_anchors": moved,
+        "speaker_moves": speaker_moves,
+        "order_moves": order_moves,
+        "order_breaks": order_breaks,
+        "shared_seats": shared,
+    }
+
+
+def _anchor_map_from(manifest: Manifest, cfg: dict, spine: dict) -> tuple[dict, set, list, str]:
+    """The map ``cfg["anchor_map"]`` declares, built from the named edition's
+    Greek against this edition's spine."""
+    from . import stage1_tei_greek
+    from .anchor_map import build_anchor_map
+
+    source_id = cfg["anchor_map"]
+    view = (getattr(manifest, "anchor_editions", None) or {}).get(source_id)
+    if view is None:
+        raise ValueError(f"{manifest.work_id}: anchor_map {source_id!r} names no declared Greek edition")
+    source_spine = stage1_tei_greek.parse_spine(
+        SOURCES_DIR / view.data["work"]["greek_source"]["path"], view
+    )
+
+    def lines(sp: dict) -> list[dict]:
+        return [line for seg in sp["segments"] for line in seg["lines"]]
+
+    target = lines(spine)
+    mapping, inferred = build_anchor_map(lines(source_spine), target)
+    order = []
+    for line in target:
+        order.append(line["ref"])
+        order += [part["ref"] for part in line.get("parts") or []]
+    return mapping, inferred, order, source_id
+
+
 def _apply_cuts(translation, cuts: list[dict] | None, work_id: str, index: _SpeechIndex) -> None:
     """Mark exact, unique words within one numbered TEI line for a new Greek seat."""
     if not cuts:
@@ -2462,6 +2768,8 @@ def parse_translation(
     line_fixes: dict | None = None,
     cuts: list[dict] | None = None,
     repeated_refs: dict | None = None,
+    anchor_map: tuple[dict, set, list, str] | None = None,
+    order_breaks: list[str] | None = None,
 ) -> tuple[dict, dict[str, str], dict]:
     """Parse one ``perseus-play`` TEI and cut it on the Greek segments."""
     tree = etree.parse(str(xml_path))
@@ -2474,6 +2782,7 @@ def parse_translation(
     aliases = english_aliases or {}
     index = _SpeechIndex(spine, sigla)
     _apply_line_fixes(translation, line_fixes, work_id, index, repeated_refs)
+    anchor_map_report = _apply_anchor_map(translation, *anchor_map, index, aliases, order_breaks or ()) if anchor_map else None
     _apply_cuts(translation, cuts, work_id, index)
     cut_refs = {str(c["greek"]) for c in (cuts or [])}
     cut_refs.update(
@@ -3028,6 +3337,8 @@ def parse_translation(
             spine, sigla, english_canonical, english_printed
         ),
     }
+    if anchor_map_report is not None:
+        report["anchor_map"] = anchor_map_report
     return english, footnotes, report
 
 
@@ -3080,6 +3391,7 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         aliases = speakers.get("english_secondary") or speakers.get("english") or {}
     else:
         aliases = speakers.get("english") or {}
+    anchor_map = _anchor_map_from(manifest, cfg, spine) if cfg.get("anchor_map") else None
     english, footnotes, report = parse_translation(
         xml_path,
         spine,
@@ -3092,6 +3404,8 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
         cuts=cfg.get("cuts"),
         transpositions=((manifest.data.get("citation") or {}).get("transpositions") or {}).get("1") or [],
         repeated_refs=_repeated_ref_counts(manifest),
+        anchor_map=anchor_map,
+        order_breaks=cfg.get("order_breaks"),
     )
     from .stage2_validate import _play_line_english_gap_ids
 
@@ -3125,4 +3439,6 @@ def run(manifest: Manifest, spine: dict, slot: str = "primary") -> tuple[Path, P
     write_json(alignment_path, alignment)
     write_json(report_path, report)
     write_json(out_dir / "english_footnotes.json", footnotes)
+    if anchor_map:
+        write_json(out_dir / "anchor_map.json", anchor_map[0])
     return english_path, alignment_path, report_path

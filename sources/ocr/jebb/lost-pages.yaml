@@ -1,0 +1,105 @@
+# Jebb's Greek on the pages John's Genie OCR lost entirely
+# (build/sweeps/jebb-redo-pages.md), for scripts/ocr/jebb_to_tei.py.
+#
+# Each row is transcribed from the scan image (the archive.org page below),
+# every line checked against it, with a local Tesseract reading of the same
+# page as a guide only. Rows are written as the OCR writes them: a leading
+# colon number, a speaker's name or abbreviation, a turned-over line end on a
+# row of its own, and Jebb's printed margin number at the row's end. Elision
+# mark ’ throughout, as the converter reads it.
+#
+# Each note gives the line number Jebb's own apparatus or notes on the page
+# give it, and where his text differs from Storr's (Perseus) or the TLG's. A
+# row's 'n' sets that number where the converter's count would miss it (a
+# hand fix, as NUMBER_FIXES).
+
+philoctetes:
+  - page: 44
+    leaf: 116
+    scan: https://archive.org/details/sophoclesplaysfr04soph/page/n115/mode/1up
+    rows:
+      - row: "3 οὐ μολπὰν σύριγγος ἔχων,"
+        n: 213
+        note: "213 (apparatus '213 μολπὰν]'); Storr numbers it 214. Third antistrophe, colon 3."
+      - row: "4 ὡς ποιμὰν ἀγροβότας, ἀλλ’ ἤ που πταίων ὑπ’ ἀνάγ-"
+        n: 214
+        note: "214 (apparatus '214 ποιμὴν L.'); Jebb prints ποιμὰν (his note: 'ποιμὰν, not ποιμὴν, is surely required'), Storr ποιμὴν; TLG ἀγροβάτας."
+      - row: "κας 215"
+        note: "the turned-over end of colon 4, with 215 printed beside it"
+      - row: "5 βοᾷ τηλωπὸν ἰωάν,"
+        n: 216
+        note: "216 (apparatus '216 ἰωάν]')"
+      - row: "6 ἢ ναὸς ἄξενον αὐγάζων ὅρμον· προβοᾷ τι γὰρ δεινόν."
+        note: "217-218 (apparatus '217 f. ναὸς]'); Jebb prints Wunder's τι γὰρ δεινόν, as Storr; TLG γὰρ αἴλινον."
+      - row: "ΦΙΛΟΚΤΗΤΗΣ."
+        note: "speaker's name, printed centred"
+      - row: "ἰὼ ξένοι·"
+        note: "219 (Jebb's note '219 ἰὼ ξένοι'); Storr ends it with a comma, Jebb with a colon (ano teleia)"
+      - row: "τίνες ποτ’ ἐς γῆν τήνδε κἀκ ποίας πάτρας 220"
+        note: "220, printed; Jebb prints κἀκ ποίας πάτρας, as Storr; TLG ναυτίλῳ πλάτῃ"
+  - page: 142
+    leaf: 214
+    scan: https://archive.org/details/sophoclesplaysfr04soph/page/n213/mode/1up
+    rows:
+      - row: "ΦΙ. ὦ φέγγος ὕπνου διάδοχον, τό τ’ ἐλπίδων"
+        note: "867 (apparatus '867 τό τ’ ἐλπίδων'); Storr has no comma after διάδοχον"
+      - row: "ἄπιστον οἰκούρημα τῶνδε τῶν ξένων."
+        note: "868"
+      - row: "οὐ γάρ ποτ’, ὦ παῖ, τοῦτ’ ἂν ἐξηύχησ’ ἐγώ,"
+        note: "869 (Jebb's note '869 ff.')"
+      - row: "τλῆναί σ’ ἐλεινῶς ὧδε τἀμὰ πήματα 870"
+        note: "870, printed"
+      - row: "μεῖναι παρόντα καὶ ξυνωφελοῦντά μοι."
+        note: "871 (apparatus '871 μεῖναι]')"
+      - row: "οὔκουν Ἀτρεῖδαι τοῦτ’ ἔτλησαν εὐφόρως"
+        note: "872 (apparatus '872 οὔκουν]'); the scan sets the breathing of Ἀτρεῖδαι before the capital"
+      - row: "οὕτως ἐνεγκεῖν, ἁγαθοὶ στρατηλάται."
+        note: "873 (apparatus '873 ἁγαθοὶ] αγαθοὶ L.')"
+      - row: "ἀλλ’ εὐγενὴς γὰρ ἡ φύσις κἀξ εὐγενῶν,"
+        note: "874 (Jebb's note '874 ff.')"
+      - row: "ὦ τέκνον, ἡ σή, πάντα ταῦτ’ ἐν εὐχερεῖ 875"
+        note: "875, printed"
+      - row: "ἔθου, βοῆς τε καὶ δυσοσμίας γέμων."
+        note: "876 (apparatus '876 γέμων]')"
+      - row: "καὶ νῦν ἐπειδὴ τοῦδε τοῦ κακοῦ δοκεῖ"
+        note: "877"
+      - row: "λήθη τις εἶναι κἀνάπαυλα δή, τέκνον,"
+        note: "878 (apparatus '878 Tournier ...')"
+      - row: "σύ μ’ αὐτὸς ἆρον, σύ με κατάστησον, τέκνον,"
+        note: "879"
+      - row: "ἵν’, ἡνίκ’ ἂν κόπος μ’ ἀπαλλάξῃ ποτέ, 880"
+        note: "880, printed"
+      - row: "ὁρμώμεθ’ ἐς ναῦν μηδ’ ἐπίσχωμεν τὸ πλεῖν."
+        note: "881 (Jebb's note '881 ἐπίσχωμεν')"
+
+trachiniae:
+  - page: 134
+    leaf: 204
+    scan: https://archive.org/details/trachiniaeofsoph0000unse/page/n203/mode/1up
+    rows:
+      - row: "καὶ παῖδ’ ἐν αὐλαῖς εἶδε κοῖλα δέμνια"
+        note: "901 (apparatus '901 κοῖλα]'); the Nurse's speech goes on from p. 132"
+      - row: "στορνύνθ’, ὅπως ἄψορρον ἀντῴη πατρί,"
+        note: "902 (apparatus '902 στορνύνθ’ L, A ... ἀντῴη Triclinius')"
+      - row: "κρύψασ’ ἑαυτὴν ἔνθα μή τις εἰσίδοι,"
+        note: "903 (apparatus '903 ἑαυτὴν]')"
+      - row: "βρυχᾶτο μὲν βωμοῖσι προσπίπτουσ’ ὅτι"
+        note: "904 (apparatus '904 προσπίπτουσ’]')"
+      - row: "\\*γένοιντ’ ἔρημοι, κλαῖε δ’ ὀργάνων ὅτου 905"
+        note: "905, printed; Jebb's asterisk marks Nauck's γένοιντ’ ἔρημοι (apparatus '905 γένοιντ’ ἔρημοι Nauck : γένοιτ’ ἐρήμη MSS.'), as Storr; TLG γένοιτ’ ἐρήμη; Storr prints ’κλαιε, Jebb κλαῖε"
+      - row: "ψαύσειεν οἷς ἐχρῆτο δειλαία πάρος·"
+        note: "906 (apparatus '906 δειλαία r')"
+      - row: "ἄλλῃ δὲ κἄλλῃ δωμάτων στρωφωμένη,"
+        note: "907 (apparatus '907-911')"
+      - row: "εἴ του φίλων βλέψειεν οἰκετῶν δέμας,"
+        note: "908 (apparatus '908 εἴ του L')"
+      - row: "ἔκλαιεν ἡ δύστηνος εἰσορωμένη,"
+        note: "909"
+      - row: "αὐτὴ τὸν αὑτῆς δαίμον’ ἀνακαλουμένη 910"
+        note: "910, printed (apparatus '910 αὑτῆς A: αὐτῆς L')"
+      - row: "καὶ †τὰς ἄπαιδας† ἐς τὸ λοιπὸν οὐσίας."
+        note: "911 (apparatus '911 ... MSS. See comment'); Jebb obelizes τὰς ἄπαιδας, Storr does not; TLG οἰκίας"
+      - row: "ἐπεὶ δὲ τῶνδ’ ἔληξεν, ἐξαίφνης σφ’ ὁρῶ"
+        note: "912"
+      - row: "τὸν Ἡράκλειον θάλαμον εἰσορμωμένην."
+        note: "913 (apparatus '913 εἰσορμωμένην]')"

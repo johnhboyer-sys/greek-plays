@@ -56,6 +56,12 @@ ROOT = Path(__file__).resolve().parents[2]
 GENIE = ROOT / "build/genie/editions"
 PERSEUS = ROOT / "sources/perseus"
 OUT = ROOT / "sources/ocr/jebb"
+# Pages whose Greek the OCR lost entirely, transcribed from the scan: {slug:
+# [{page, leaf, scan, rows: [{row, note}]}]}. Each row is read as an OCR row
+# is (speaker, colon number, printed number), in page order; its src is
+# LOST_SRC + page * 100 + its index.
+LOST_PAGES = OUT / "lost-pages.yaml"
+LOST_SRC = 1_000_000
 
 # slug: (OCR file, TLG work, archive.org id, first and last .txt line of the
 # play text, edition statement read from the OCR's title pages)
@@ -101,10 +107,75 @@ NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
         3055: ("207", "scan p. 42: the line opens 207 and holds 208-209 (209 printed on its turn-over); TLG 207"),
         3057: ("210", "scan p. 42: Jebb's note '210 μή, μή μ’ ἀνέρῃ'; TLG 210"),
     },
+    "philoctetes": {
+        # Scan p. 42: colon 4 of the third strophe opens 205 (apparatus '205
+        # ἐτύμα'); 206 is printed on its turn-over ἀνάγκαν. TLG 205-206.
+        2588: ("205", "scan p. 42: apparatus '205 ἐτύμα' on colon 4; 206 printed on its turn-over; TLG 205"),
+        # Scan p. 42: colon 2 of the antistrophe opens 211 (note '211 ff. οὐκ
+        # ἔξεδρος') and holds 212 (apparatus '212 ἀνήρ]'); TLG 211. Storr 213.
+        2595: ("211", "scan p. 42: Jebb's note '211 ff. οὐκ ἔξεδρος', apparatus '212 ἀνήρ]'; TLG 211"),
+        # Scan p. 210: Jebb brackets οἳ τὸν ἄθλιον | Αἴανθ’ … | Ὀδυσσέως
+        # ἔκριναν· (apparatus '1365 ff. … Brunck was the first to reject these
+        # words'), which no reference prints; his count runs 1365 πατρὸς
+        # γέρας, 1366 εἶ ξυμμαχήσων (apparatus '1366 κἄμ’'), 1370 χοὔτω.
+        # Lyric cola that hold two traditional numbers: Jebb prints the later
+        # one at the colon's end (or on its turn-over), and his apparatus and
+        # notes name the first; the colon takes the first.
+        3335: ("393", "scan p. 70: apparatus '393 ἃ τὸν μέγαν]'; note '391 f. ὀρεστέρα' puts 392 in colon 1 (his note '392 Πακτωλὸν' counts otherwise); 395 printed on colon 3"),
+        3821: ("509", "scan p. 88: apparatus '509 οἷα]' on colon 2; note '507 f. πόνων ἆθλα' puts 508 in colon 1"),
+        4533: ("679", "scan p. 112: apparatus '679 f.' (L's κατ’ ἄμπυκα … παῖς); 680 printed on its turn-over Κρόνου παῖς·; apparatus '678 ποτὲ τῶν Διὸς' in colon 2"),
+        4536: ("683", "scan p. 112: apparatus '682 ἐσιδὼν]' falls in colon 4, '684 ὃς οὔτ’ ἔρξας' in colon 6"),
+        4598: ("693", "scan p. 114: note '693 f. παρ’ ᾧ'; 694 printed on its turn-over αἱματηρόν·"),
+        4650: ("695", "scan p. 116: apparatus '695 οὐδ’ ὃς τὰν', '696 αἱμάδα]' inside; '698 ἐνθήρου]' is colon 5"),
+        4659: ("706", "scan p. 116: note '706 ff. ἱερᾶς'; apparatus on 711 cites 'φορβὰν … γᾶς σπόρον in 706'"),
+        4715: ("724", "scan p. 118: apparatus '724 πατρίαν', '725 Μαλιάδων' in this colon (725 printed on its turn-over νυμφᾶν); note '722 ποντοπόρῳ' is colon 3"),
+        6239: ("1084", "scan p. 172: apparatus '1084 οὐδέποτ’]' opens colon 3 and '1085 συνείσει' ends it (1085 printed); '1083 ὦ τάλας' ends colon 2"),
+        6299: ("1100", "scan p. 174: 1101 printed at the end of colon 18, which holds 1100-1101; colon 17 is 1099 (apparatus '1099 ff.')"),
+        6427: ("1138", "scan p. 178: apparatus '1138 f. μυρί’ ἀπ’ αἰσχρῶν'; '1137 στυγνόν τε' is in colon 14"),
+        6527: ("1159", "scan p. 182: colon 13 is 1158 (note '1158 ἀπὸ … λείψω'); note '1160 ἐν αὔραις τρέφεται' falls in this colon's second half"),
+        6538: ("1169", "scan p. 182: apparatus '1169 ff. L divides thus: πάλιν … ὑπέμνασας'; 1170 printed at the row's end (note '1170 f. παλαιὸν ἄλγημ’')"),
+        6702: ("1209", "scan p. 188: apparatus '1209 νόος', note '1209 f. φονᾷ'; '1207 f.' is the line before"),
+        7611: ("1409", "scan p. 216: apparatus '1409 μήπω γε, πρὶν ἂν]', note '1409 μήπω γε κ.τ.λ.' (the converter's lemma test misses the κ.τ.λ.); 1410 printed on the next line"),
+        7410: ("1365a", "scan p. 210: inside Jebb's bracket (apparatus '1365 ff.'); no number of its own"),
+        7411: ("1365b", "scan p. 210: the bracket closes; εἶτα τοῖσδε σὺ ends 1365; apparatus '1366 κἄμ’' on the next row"),
+        4657: ("704", "scan p. 116: the turned-over end of colon 10, a row of its own here; apparatus '704 πόρον' on it, 705 printed at its end; '703 ὑπάρχοι' ends the row above"),
+        4712: ("718", "scan p. 118: note '718 f. ἀνδρῶν ἀγ.' and apparatus '719 παιδὸς ὑπαντήσας' both in this colon; 720 printed on the next"),
+        6303: ("1104", "scan p. 174: apparatus '1104 f.' on colon 3, which prints 1105 at its end; note '1103 ff. ἤδη...ὕστερον' is colon 2"),
+    },
+    "trachiniae": {
+        # Lyric cola that hold two traditional numbers, as in Philoctetes.
+        2039: ("114", "scan p. 22: apparatus '114 κύματ’ ἂν εὐρέϊ', '115 ἐπιόντα τ’ ἴδοι' (115 printed at the colon's end)"),
+        2045: ("122", "scan p. 22: apparatus '122 f. ἐπιμεμφομένα σ’'; the colon holds 122-123"),
+        2046: ("124", "scan p. 22: note '124 f. γάρ'; 125 printed at the colon's end"),
+        2101: ("138", "scan p. 24: apparatus '139 τάδ’ αἰὲν' on the next row, 140 printed on the row after (his note '137 ff. ἅ' counts otherwise)"),
+        3785: ("504", "scan p. 78: apparatus '504 τίνες ἀμφίγυοι'; 505 printed at the colon's end; '506 παγκόνιτά' is colon 8"),
+        3848: ("517", "scan p. 80: note '517 τότ’ ἦν χερός κ.τ.λ.' (the converter's lemma test misses the κ.τ.λ.); '515 f. μόνα δ’' is the colon before, 516 printed on it"),
+        4438: ("637", "scan p. 98: 635 printed on colon 3, which holds 636 (apparatus '636 πὰρ'); note '638 ff. ἔνθ’' is colon 5, apparatus '639 κλέονται' colon 6"),
+        4494: ("644", "scan p. 100: apparatus '644 Ἀλκμήνας κόρος', note '644 ὁ Διὸς … Ἀλκμήνας κόρος'"),
+        5413: ("854", "scan p. 128: apparatus '853 f. οἷον ἀναρσίων | οὔπω ἀγακλειτὸν' puts 853 in the line before, 854 here"),
+        5924: ("979", "scan p. 144: apparatus '979 κἀκκινήσεις'; 980 printed at the row's end (note '980 φοιτάδα')"),
+        2041: ("118", "scan p. 22: the turned-over end of colon 3 (apparatus '117 στρέφει' is the colon's first row), a row of its own here; apparatus '118 ὥσπερ'"),
+        2042: ("119", "scan p. 22: note '119 ff. ἀλλά' and apparatus '120 ἀναμπλάκητον' in colon 4; 120 printed on its turn-over"),
+        2459: ("213", "scan p. 36: note '213 ff. Ἄρτεμιν Ὀρτυγίαν'; apparatus '214 After Ὀρτυγίαν' in the same row; 215 printed on the next"),
+        5292: ("828", "scan p. 124: note '826 f. αὐτόπαιδι ... ὀρθῶς' spans colon 6; note '829 f. ὁ μὴ λεύσσων' falls in this colon 7; 830 printed on colon 8"),
+        5344: ("839", "scan p. 126: note '839 f. Νέσσου ὑποφόνια δολιόμυθα'; 840 printed at the colon's end; '838 ἄμμιγα' is colon 7"),
+    },
 }
 # OCR rows mended before parsing, as the scan prints them: {slug: {ocr .txt
 # line: (find, replace, reason)}}.
 ROW_FIXES: dict[str, dict[int, tuple[str, str, str]]] = {
+    "trachiniae": {
+        2048: ("σιλεὺς", "[σιλεὺς", "scan p. 22: the turn-over of colon 3 (βα-|σιλεὺς); '[' marks it so"),
+        4560: ("*πανίμερος,*", "*πανίμερος,", "scan p. 102 prints Jebb's asterisk before πανίμερος only; the closing '*' is the OCR's italic mark"),
+        4562: ("*φάρους.*", "*φάρους.", "scan p. 102 prints Jebb's asterisk before φάρους only; the closing '*' is the OCR's italic mark"),
+    },
+    "philoctetes": {
+        5113: ("ΦΙ. *μέθες μέθες με.* ΝΕ. ποῖ μεθῶ; ΦΙ. *μέθες ποτέ.*", "ΦΙ. μέθες μέθες με. ΝΕ. ποῖ μεθῶ; ΦΙ. μέθες ποτέ.",
+               "scan p. 132 prints no asterisks in 816; the OCR's italic marks glued ΝΕ. to the share before it, so the shares did not split"),
+        5229: ("μεσ. ΝΕ.", "μεσῳδ. ΝΕ.", "scan p. 136: 'μεσ.' is Jebb's margin label for the mesode (839-842), not text"),
+        6538: ("ἀνομοι- ΦΙ.", "ΦΙ.", "scan p. 182: 'ἀνομοι-' is the margin label ἀνομοι|όστρ., not text"),
+        6539: ("όστρ. λῷστε", "λῷστε", "scan p. 182: 'όστρ.' is the rest of the margin label ἀνομοι|όστρ."),
+    },
     "oedipus-coloneus": {
         3056: ("στρ. γέρον;", "γέρον;", "scan p. 42: 'στρ.' is the OCR's reading of the margin label ἀνομοιό|στροφα, not a strophe mark"),
     },
@@ -113,6 +184,14 @@ ROW_FIXES_ACTIVE: dict[int, tuple[str, str, str]] = {}
 # Printed margin numbers the OCR set on the wrong row, as the scan prints
 # them: {slug: {ocr .txt line: (printed number or None, reason)}}.
 PRINTED_FIXES: dict[str, dict[int, tuple[int | None, str]]] = {
+    "trachiniae": {
+        2042: (120, "scan p. 22 prints 120 on the turn-over σφε δόμων ἐρύκει, the end of colon 4 (119-120, note '119 ff.'); the turn-over is its own line 121 (apparatus '121 ἐρύκει')"),
+        2043: (None, "scan p. 22: 120 belongs to colon 4 (see its row)"),
+        3130: (None, "scan p. 58: no number on ἀλλ’ ἡνίκ’ (the OCR moved 360 here)"),
+        3131: (360, "scan p. 58 prints 360 against τὴν παῖδα δοῦναι"),
+        7112: (1255, "scan p. 180 prints 1255 against ἄγ’ ἐγκονεῖτ’"),
+        7113: (None, "scan p. 180: no number on αὕτη, τελευτὴ (the OCR moved 1255 here)"),
+    },
     "antigone": {
         2913: (235, "scan p. 54 prints 235 against τῆς ἐλπίδος (Jebb's note '235 f. τῆς ἐλπίδος')"),
         2914: (None, "scan p. 54: no number on τὸ μὴ παθεῖν (the OCR moved 235 here)"),
@@ -131,7 +210,11 @@ PRINTED_FIXES: dict[str, dict[int, tuple[int | None, str]]] = {
 # Printed margin numbers that disagree with the numbering for a stated
 # reason: {ocr .txt line: reason}. Every other disagreement fails. (None
 # needed for OT.)
-MARGIN_NOTES: dict[str, dict[int, str]] = {}
+MARGIN_NOTES: dict[str, dict[int, str]] = {
+    "philoctetes": {
+        4657: "scan p. 116: 705 is printed at the end of colon 10's turn-over, which holds 704-705 (apparatus '704 πόρον')",
+    },
+}
 
 GREEK_RE = re.compile(r"[Ͱ-Ͽἀ-῿]")
 LAT2GRK = str.maketrans({"A": "Α", "B": "Β", "E": "Ε", "Z": "Ζ", "H": "Η", "I": "Ι",
@@ -400,6 +483,7 @@ def page_rows(ne: list[tuple[int, str]], number: int | None, ref_keys: list[str]
     stops: list[dict] = []
     stop = None
     pending: list[tuple[int, dict]] = []   # name and label rows seen while stopped
+    bracket_open = 0   # Jebb's '[' on this page's verse still unclosed
 
     def parsed(i: int, s: str):
         row = parse_row(s)
@@ -416,9 +500,10 @@ def page_rows(ne: list[tuple[int, str]], number: int | None, ref_keys: list[str]
         p = plain(table_text(s)).replace("⁂LACUNA", "")
         reason = stop_reason(s, p)
         if (reason == "apparatus text" and index and not re.search(r"[A-Za-z]{2,}", p)
-                and ref_score(p, index) >= RESUME_SCORE):
+                and (ref_score(p, index) >= RESUME_SCORE or bracket_open)):
             # A verse closing Jebb's bracket round lines he deletes (Ant.
-            # 920 'κατασκαφάς·]', closing 904-920): the lone ']' is his.
+            # 920 'κατασκαφάς·]', closing 904-920; Ph. 1365-1367, where the
+            # bracketed words are in no reference): the lone ']' is his.
             reason = None
         if stop is None:
             if reason is not None:
@@ -430,6 +515,8 @@ def page_rows(ne: list[tuple[int, str]], number: int | None, ref_keys: list[str]
             row = parsed(i, s)
             if row is not None:
                 rows.append(row)
+                if row["kind"] == "verse":
+                    bracket_open += row["text"].count("[") - row["text"].count("]")
             continue
         row = parsed(i, s) if reason is None else None
         if row is not None and row["kind"] in ("name", "label"):
@@ -459,6 +546,20 @@ def extract(slug: str, ref_keys: list[str] | None = None) -> tuple[list[dict], l
     log: list[str] = []
     stops: list[dict] = []
     last_page = None
+    lost = sorted(lost_pages(slug), key=lambda x: x["page"])
+    lost_all = {lp["page"] for lp in lost}
+
+    def add_lost(before: int | None) -> None:
+        nonlocal last_page
+        while lost and (before is None or lost[0]["page"] < before):
+            lp = lost.pop(0)
+            log.append(f"page {lp['page']} from {LOST_PAGES.name} (transcribed from the scan)")
+            ne = [(LOST_SRC + lp["page"] * 100 + k, r["row"]) for k, r in enumerate(lp["rows"])]
+            page, page_stops = page_rows(ne, lp["page"], ref_keys)
+            rows.extend(page)
+            stops.extend(page_stops)
+            last_page = lp["page"]
+
     for pg in pages_of(lines, first, last or len(lines)):
         ne = [(i, s) for i, s in pg if s.strip()]
         if not ne:
@@ -472,16 +573,37 @@ def extract(slug: str, ref_keys: list[str] | None = None) -> tuple[list[dict], l
                 log.append(f"page at .txt {ne[0][0]} taken by the verse test (head {ne[0][1][:30]!r})")
         if not greek:
             continue
+        if number is not None:
+            add_lost(number)
         if number is None:
             number = last_page + 2 if last_page else None
             log.append(f"page at .txt {ne[0][0]}: no page number read, inferred {number}")
+        if number in lost_all:
+            raise SystemExit(f"{slug}: the OCR has page {number}, and so does {LOST_PAGES.name}; "
+                             "remove the supplement's page or drop the OCR page")
         elif last_page and number != last_page + 2:
             log.append(f"page at .txt {ne[0][0]}: page {number} follows {last_page}")
         last_page = number
         page, page_stops = page_rows(ne[used:], number, ref_keys)
         rows.extend(page)
         stops.extend(page_stops)
+    add_lost(None)
     return rows, log, stops
+
+
+def lost_fixes(slug: str) -> dict[int, tuple[str, str]]:
+    """A LOST_PAGES row's 'n' (Jebb's number where the cheapest path would
+    miss it) as a hand fix, its note the reason."""
+    return {LOST_SRC + lp["page"] * 100 + k: (str(r["n"]), f"scan p. {lp['page']}: {r['note']}")
+            for lp in lost_pages(slug) for k, r in enumerate(lp["rows"]) if r.get("n") is not None}
+
+
+def lost_pages(slug: str) -> list[dict]:
+    """The play's pages from LOST_PAGES (none when the file or play is absent)."""
+    if not LOST_PAGES.exists():
+        return []
+    import yaml
+    return (yaml.safe_load(LOST_PAGES.read_text(encoding="utf-8")) or {}).get(slug) or []
 
 
 HEADINGS = {"κομμός", "κομμὸς"}
@@ -662,8 +784,13 @@ def join_turnovers(rows: list[dict], ref_keys: list[str]) -> list[dict]:
         target = None
         if cand:
             frag = key(r["text"])
-            up = prev is not None and _in_ref(key(prev["text"]) + frag, ref_keys)
-            down = nxt is not None and _in_ref(key(nxt["text"]) + frag, ref_keys)
+            # A fragment of 12 letters or more is tested with the 4 letters
+            # before it, so the join itself is in the reference line (Tr. 126
+            # βα-|σιλεὺς ἐπέβαλε θνατοῖς Κρονίδας, whose own letters would
+            # match wherever they were joined).
+            span = max(16, len(frag) + 4)
+            up = prev is not None and _in_ref(_verse_key(prev["text"]) + frag, ref_keys, span)
+            down = nxt is not None and _in_ref(_verse_key(nxt["text"]) + frag, ref_keys, span)
             alone = _in_ref_whole(frag, ref_keys)
             if up and not down and not alone:
                 target = prev
@@ -702,7 +829,13 @@ def merge_antilabe(rows: list[dict], ref_keys: list[str]) -> list[dict]:
     row that opens with a speaker joins the next such row when both are
     short (under 30 letters) and together they match a reference line
     (RESUME_SCORE) better than either alone; a third share may join the
-    same way. The later speaker stays in the text, so the shares split."""
+    same way. The later speaker stays in the text, so the shares split.
+    A last share turned over onto a row of its own ('ΝΕ. τί σοί;', Ph. 753,
+    scan p. 124) joins too when the shares together, speaker marks aside,
+    are a reference line (0.95) and closer to it than the row above.
+    Rows on different pages join only at a page break: the later row is its
+    page's first, the earlier a share that ends its page, and the shares
+    together are a reference line (0.95 either way)."""
     index = ref_index(ref_keys)
     out: list[dict] = []
     for r in rows:
@@ -714,7 +847,14 @@ def merge_antilabe(rows: list[dict], ref_keys: list[str]) -> list[dict]:
                 and len(key(r["text"])) < 30 and len(key(prev["text"])) < 60):
             joined = prev["text"] + " " + r["speaker"] + " " + r["text"]
             score = ref_score(joined, index)
-            if score >= RESUME_SCORE and score >= max(ref_score(prev["text"], index), ref_score(r["text"], index)) + 0.1:
+            whole = ref_score(_bare(joined), index)
+            if prev["page"] != r["page"]:
+                # r opens its page (rows run in page order) and prev closes
+                # the one before; the match must be a line's, not near one.
+                score = score if score >= 0.95 else 0.0
+                whole = whole if whole >= 0.95 else 0.0
+            if ((score >= RESUME_SCORE and score >= max(ref_score(prev["text"], index), ref_score(r["text"], index)) + 0.1)
+                    or (whole >= 0.95 and whole > ref_score(_bare(prev["text"]), index))):
                 prev["text"] = joined
                 prev["printed"] = r["printed"]
                 prev.setdefault("antilabe_rows", []).append(r["src"])
@@ -723,10 +863,23 @@ def merge_antilabe(rows: list[dict], ref_keys: list[str]) -> list[dict]:
     return out
 
 
-def _in_ref(k: str, ref_keys: list[str]) -> bool:
-    """The joined key's last 16 letters (the fragment and the words before
+def _bare(text: str) -> str:
+    """The line without the speaker abbreviations inside it."""
+    return " ".join(t for _, t in split_shares(text, None))
+
+
+def _verse_key(text: str) -> str:
+    """The letter key of a line's last share: the words after the last
+    speaker abbreviation inside it (Ph. 201 'ΝΕ. τί τόδε; ΧΟ. προὐφάνη',
+    turned over 'κτύπος,'), or of the whole line."""
+    spk = list(MID_SPK.finditer(text.translate(LAT2GRK)))
+    return key(text[spk[-1].end():] if spk else text)
+
+
+def _in_ref(k: str, ref_keys: list[str], span: int = 16) -> bool:
+    """The joined key's last span letters (the fragment and the words before
     it) lie within one reference line."""
-    tail = k[-16:]
+    tail = k[-span:]
     return any(tail in rk for rk in ref_keys)
 
 
@@ -910,7 +1063,7 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
     TLG number 0.01 (Storr's hold wherever Jebb's numbers allow, so the
     Perseus English anchors land), an unnumbered line 3 (45 for a whole spoken verse); numbers must
     rise."""
-    fixes = NUMBER_FIXES.get(slug, {})
+    fixes = {**NUMBER_FIXES.get(slug, {}), **lost_fixes(slug)}
 
     def cand(x: str, i: int):
         cov = covers[x][i]
@@ -1148,8 +1301,9 @@ def find_gaps(jebb: list[dict], refs: dict[str, list[dict]]) -> None:
 
     A skipped number is backed by a printed margin number, a commentary
     note, or a number a line holds (Jebb's own evidence), by Storr and the
-    TLG both lacking it (a lacuna, or a line the editors delete), or by a
-    hand fix on either side of it (its reason is on record).
+    TLG both lacking it (a lacuna, or a line the editors delete). A hand
+    fix (NUMBER_FIXES, a supplement's 'n') excuses nothing by itself: a wrong
+    fixed number would hide the gap it makes.
     Otherwise line['gaps'] on the line after it holds
     {'after', 'before', 'missing', 'why'}."""
     named = set()
@@ -1161,8 +1315,6 @@ def find_gaps(jebb: list[dict], refs: dict[str, list[dict]]) -> None:
     for i in range(1, len(jebb)):
         a, b = jebb[i - 1]["n"], jebb[i]["n"]
         (na, _), (nb, _) = _num(a), _num(b)
-        if any(str(jebb[k].get("n_how", "")).startswith("fix") for k in (i - 1, i)):
-            continue   # a hand fix (NUMBER_FIXES) carries its own reason
         missing = [m for m in range(na + 1, nb) if m not in named and any(m in v for v in has.values())]
         if missing:
             who = " and ".join(name for name, v in has.items() if any(m in v for m in missing))
@@ -1428,9 +1580,12 @@ def convert(slug: str, qa: bool = False) -> dict:
     seen: dict[str, int] = {}
     dups = []
     for line in jebb:
-        if line["n"] in seen:
-            dups.append((line["n"], seen[line["n"]], line["src"]))
-        seen[line["n"]] = line["src"]
+        # Every ref the TEI carries, the shares' lettered refs included (Ph.
+        # 753: a share's 753a and a whole line's 753a once collided).
+        for n in [line["n"]] + _share_refs(line, len(line["shares"]) - 1):
+            if n in seen:
+                dups.append((n, seen[n], line["src"]))
+            seen[n] = line["src"]
     tei = write_tei(slug, jebb)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{slug}.xml").write_text(tei, encoding="utf-8")

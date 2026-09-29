@@ -157,6 +157,16 @@ class Manifest:
             data["registry"]["translations"] = [t for t in data["registry"].get("translations") or [] if t.get("id") in pairs]
         view = Manifest(data, self.path, self.public)
         view.edition = edition
+        # alignment.<pair>.anchor_map names another declared edition whose
+        # Greek count the pair's English anchors are printed in.
+        view.anchor_editions = {}
+        for entry in [*(english.get(slot) for slot in ("primary", "secondary", "third")), *english["overlays"]]:
+            source_id = (entry or {}).get("anchor_map")
+            if source_id is None:
+                continue
+            if source_id == edition_id or source_id not in {e.get("id") for e in self.data.get("greek_editions") or []}:
+                raise ValueError(f"{self.work_id}: edition {edition_id!r} anchor_map {source_id!r} must name another declared Greek edition")
+            view.anchor_editions[source_id] = self.for_edition(source_id)
         return view
 
     @property

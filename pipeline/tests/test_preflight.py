@@ -39,6 +39,17 @@ def test_greek_editions_reject_bad_pairs_and_undeclared_dir(tmp_path):
     assert 'undeclared emitted Greek edition' in messages
 
 
+def test_anchor_map_must_name_another_declared_edition(tmp_path):
+    path = ROOT / 'manifests' / 'ajax.yaml'
+    for source_id, bad in (('storr-loeb', False), ('jebb', True), ('nowhere', True)):
+        data = yaml.safe_load(path.read_text())
+        jebb = next(e for e in data['greek_editions'] if e['id'] == 'jebb')
+        jebb['alignment']['jebb']['anchor_map'] = source_id
+        problems = []
+        _validate_greek_editions(WorkManifest('ajax', path, data), tmp_path, problems)
+        assert any('anchor_map' in message for _, _, message in problems) is bad
+
+
 def test_greek_editions_reject_allowlist_status(tmp_path):
     data = yaml.safe_load((ROOT / 'manifests' / 'agamemnon.yaml').read_text())
     data['greek_editions'][0]['licence']['text'] = 'unverified'
