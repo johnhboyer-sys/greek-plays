@@ -3,7 +3,8 @@
 // edition's book) holds the token searched. Needs a built Agamemnon:
 //   cd pipeline && .venv/bin/python -m drama_pipeline all --work agamemnon
 //   ... all --work agamemnon --edition smyth-loeb
-// It skips itself when the build is absent (build/ is git-ignored).
+// The built-data block skips itself when the build is absent (build/ is git-ignored);
+// the fixture block after it always runs.
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
@@ -17,7 +18,7 @@ afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); history.replaceState
 
 const QUERIES = ['καὶ', 'δὲ', 'γὰρ', 'θεοὺς', 'Ἄργος', 'πόλις', 'φρήν', 'ἄναξ', 'τέκνον', 'δόμος', 'χθονὸς', 'ἔπος'];
 
-describe.skipIf(!built)('search hits from an edition index', () => {
+describe.skipIf(!built)('search hits from a BUILT edition index (skipped when build/dist lacks Smyth)', () => {
   it('link to ?ed= and land on a line holding the token (100 sampled hits)', async () => {
     vi.stubEnv('PUBLIC_EDITIONS', '1');
     vi.spyOn(console, 'warn').mockImplementation(() => {}); // the other 43 plays are not built here
@@ -56,6 +57,7 @@ describe.skipIf(!built)('search hits from an edition index', () => {
     for (const { query, href } of sample) {
       const url = new URL(href, 'https://x.test');
       expect(url.searchParams.get('ed'), href).toBe('smyth-loeb');
+      expect(url.searchParams.get('view'), href).toBe('greek');
       const line = lines.get(url.searchParams.get('loc')!);
       expect(line, `no line ${url.searchParams.get('loc')} in the Smyth book: ${href}`).toBeDefined();
       expect(line!.tokens.some(t => greekFold(t.t) === greekFold(query)), `${href} lacks ${query}`).toBe(true);

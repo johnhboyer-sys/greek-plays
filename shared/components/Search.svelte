@@ -492,7 +492,9 @@
       if (ed) {
         // An edition hit's column is in that edition's numbering: readerHref
         // keeps `ed=` beside `loc=` so the reader lands on the line searched.
-        const url = new URL(readerHref(work, { book, loc: formatLocValue(work, column, line), ed, trans: slotId }), 'https://reader.invalid');
+        // `view=greek` shows the Greek column (a saved English-only view would
+        // hide the line) and is the view that carries the edition picker.
+        const url = new URL(readerHref(work, { book, loc: formatLocValue(work, column, line), ed, trans: slotId, view: 'greek' }), 'https://reader.invalid');
         for (const [key, value] of qs) url.searchParams.append(key, value);
         return `${root}${url.pathname}${url.search}`;
       }

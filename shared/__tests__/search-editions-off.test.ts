@@ -42,12 +42,14 @@ describe('search page without an edition choice', () => {
     expect(urls.some(u => u.endsWith('/agamemnon/search/form.json'))).toBe(true);
     expect(hrefs).toHaveLength(1);
     expect(hrefs[0]).not.toContain('ed=');
+    expect(hrefs[0]).toBe('/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=1');
   });
   it('flag on, reference chosen (the default): the control shows, and still no /ed/ request or ed=', async () => {
     const { page, urls, hrefs } = await searchOnce(true);
     expect((page.getByLabelText('Greek text to search') as HTMLSelectElement).value).toBe('tlg');
     expect(urls.filter(u => u.includes('/ed/'))).toEqual([]);
     expect(hrefs[0]).not.toContain('ed=');
+    expect(hrefs[0]).toBe('/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=1');
   });
 });
 
