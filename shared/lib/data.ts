@@ -643,7 +643,9 @@ export function readerHref(work: string, options: { book?: number; loc?: string;
   if (options.view) url.searchParams.set('view', options.view);
   const defaultTrans = meta?.defaultTranslation ?? meta?.translations.find(t => t.slot === 'english')?.id;
   const own = meta?.translations.find(t => t.id === (options.trans ?? defaultTrans))?.edition ?? 'tlg';
-  if (options.ed && options.ed !== own) url.searchParams.set('ed', options.ed);
+  // A loc without ed reads in TLG numbering (plan 4.1 rule 4), so beside a loc
+  // ed is dropped only when it is tlg; without one, when it is the pair's own.
+  if (options.ed && (options.loc ? options.ed !== 'tlg' : options.ed !== own)) url.searchParams.set('ed', options.ed);
   return url.pathname + url.search;
 }
 
@@ -651,6 +653,7 @@ export function readerHref(work: string, options: { book?: number; loc?: string;
 // search) never collide.
 const _analysesCache = new Map<string, Promise<Record<string, Analysis[]>>>();
 const _bookCache = new Map<string, Promise<BookData>>();
+const _concordanceCache = new Map<string, Promise<Record<string, string>>>();
 const _chaptersCache = new Map<string, Promise<Record<string, ChapterRef[]>>>();
 const _columnsCache = new Map<string, Promise<Record<string, ColumnRef[]>>>();
 const _footnotesCache = new Map<string, Promise<Record<string, string>>>();
@@ -674,6 +677,20 @@ export function fetchBook(work: string, n: number, ed?: string): Promise<BookDat
   // Evict a rejected fetch so it can be retried (don't cache the failure).
   p.catch(() => { if (_bookCache.get(key) === p) _bookCache.delete(key); });
   _bookCache.set(key, p);
+  return p;
+}
+
+export function fetchConcordance(work: string, ed: string): Promise<Record<string, string>> {
+  if (ed === 'tlg') return Promise.resolve({});
+  const key = `${ROOT()}:${work}:${ed}`;
+  const cached = _concordanceCache.get(key);
+  if (cached) return cached;
+  const p = fetch(`${editionBase(work, ed)}/concordance.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} ${ed} concordance: ${r.status}`);
+    return r.json() as Promise<Record<string, string>>;
+  });
+  p.catch(() => { if (_concordanceCache.get(key) === p) _concordanceCache.delete(key); });
+  _concordanceCache.set(key, p);
   return p;
 }
 

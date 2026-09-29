@@ -2822,7 +2822,9 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
         return
     try:
         raw = yaml.safe_load(PUBLIC_DOMAIN_ALLOWLIST_PATH.read_text(encoding="utf-8"))
-        allowed = {e["id"]: e for e in raw.get("greek_editions") or []}
+        allowed: dict[str, list[dict]] = {}
+        for entry in raw.get("greek_editions") or []:
+            allowed.setdefault(entry["id"], []).append(entry)
     except (OSError, KeyError, TypeError, yaml.YAMLError) as exc:
         allowed = {}
         if editions:
@@ -2847,8 +2849,16 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
         if not isinstance(licence, dict):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} licence must be an object"))
             continue
-        allowed_entry = allowed.get(eid)
-        if not allowed_entry or edition.get("editor") != allowed_entry.get("editor") or edition.get("year") != allowed_entry.get("year") or licence.get("text") != allowed_entry.get("status") or not _source_matches(source.get("path") or "", allowed_entry.get("sources") or []):
+        # One entry must own this id and source; it must then match the manifest's
+        # editor, year, and status whole. Two entries naming one source are ambiguous.
+        owners = [entry for entry in allowed.get(eid, [])
+                  if _source_matches(source.get("path") or "", entry.get("sources") or [])]
+        if not (
+            len(owners) == 1
+            and edition.get("editor") == owners[0].get("editor")
+            and edition.get("year") == owners[0].get("year")
+            and licence.get("text") == owners[0].get("status")
+        ):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} is absent from or differs from the allowlist"))
         if source.get("kind") not in {"perseus-tei", "ocr-tei"} or not source.get("expect"):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} needs a TEI source and header gate"))
@@ -2870,6 +2880,22 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
         for child in ed_dir.iterdir():
             if child.is_dir() and child.name not in seen_ids:
                 problems.append((manifest.work_id, manifest.path.name, f"undeclared emitted Greek edition {child.name!r}"))
+            if child.is_dir() and child.name in seen_ids:
+                concordance_path = child / "concordance.json"
+                if not concordance_path.is_file():
+                    problems.append((manifest.work_id, str(concordance_path), "missing edition concordance"))
+                    continue
+                try:
+                    mapping = json.loads(concordance_path.read_text(encoding="utf-8"))
+                except (OSError, ValueError) as exc:
+                    problems.append((manifest.work_id, str(concordance_path), f"invalid edition concordance: {exc}"))
+                    continue
+                if not isinstance(mapping, dict) or any(
+                    not isinstance(key, str) or not re.fullmatch(r"[0-9]+[a-z]?(?:\.[0-9]+)?", key)
+                    or not isinstance(value, str) or not re.fullmatch(r"[0-9]+[a-z]?(?:\.[0-9]+)?(?:-[0-9]+[a-z]?(?:\.[0-9]+)?)?", value)
+                    for key, value in mapping.items()
+                ):
+                    problems.append((manifest.work_id, str(concordance_path), "concordance must map printed refs to printed refs"))
 
 
 if __name__ == "__main__":  # pragma: no cover

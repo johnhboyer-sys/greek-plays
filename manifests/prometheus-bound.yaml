@@ -199,6 +199,9 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Murray (1955)", full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)", editor: Murray, year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: smyth-loeb, short: "Smyth (1922)", full: "H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)", editor: "H. W. Smyth", year: 1922, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["smyth"] }
   translations:
     - id: smyth
       form: prose
@@ -207,6 +210,7 @@ registry:
       slot: english
       footnotes: true
       alignment: line
+      edition: smyth-loeb
     - id: morshead
       form: verse
       name: "E. D. A. Morshead (1881–1908)"
@@ -221,3 +225,66 @@ registry:
   production: "Date unknown · authorship disputed"
   argument: "Zeus has Prometheus chained to a rock at the edge of the world for giving fire to men."
   synopsis: "For giving fire to men, Prometheus is nailed to a rock at the edge of the world on Zeus's orders. Visitors come to the crag: the daughters of Ocean, Ocean himself, and Io, the girl Zeus loved, now horned and driven over the earth by Hera's gadfly. To her Prometheus tells the future, and that Zeus will one day fall to a son of his own; he knows how, and will not say. Hermes comes to demand the secret. Prometheus refuses, and Zeus sinks him, rock and all, into the earth."
+
+greek_editions:
+- id: smyth-loeb
+  label:
+    short: Smyth (1922)
+    full: H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)
+  editor: H. W. Smyth
+  year: 1922
+  source:
+    kind: perseus-tei
+    path: perseus/tlg0085.tlg003.perseus-grc2.xml
+    expect:
+      editor: Herbert Weir Smyth
+  licence:
+    text: public-domain-us
+    encoding: cc-by-sa-4.0
+    credit: Perseus Digital Library, Tufts University
+    source_url: https://github.com/PerseusDL/canonical-greekLit
+  pairs:
+  - smyth
+  citation:
+    title_labels: []
+    lacunae:
+      '1':
+      - '792'
+    transpositions:
+      '1':
+      - start: 130b
+        end: 130b
+        before: '133'
+      - start: 150a
+        end: 150a
+        before: '151'
+      - start: 585a
+        end: 585a
+        before: '586'
+    repeated_refs: {}
+    ref_fixes: {}
+    fingerprint:
+      count: 1097
+      sha256: 67b4c9258b77b5c371fbcbed54136079e931fc3ea4af2bc048f313fab290e0fe
+  speakers:
+    sigla:
+      "—": null
+      Κράτος: Power
+      Προμηθεύς: Prometheus
+      Χορός: Chorus
+      Ἑρμῆς: Hermes
+      Ἥφαιστος: Hephaestus
+      Ἰώ: Io
+      Ὠκεανός: Oceanus
+    overrides: []
+  edition_only: []
+  alignment:
+    smyth:
+      # Smyth's English numbers Hermes's reply 980b; his own Greek numbers it 980a
+      # (sources/perseus/tlg0085.tlg003.perseus-eng2.xml:1385 vs -grc2.xml <l n="980a">).
+      line_fixes:
+        "980b": "980a"
+      covered: []
+      cuts: []
+  gaps: []
+  text_fixes: []

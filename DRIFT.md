@@ -882,7 +882,7 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 existing reference edition contract.
 - `pipeline/drama_pipeline/config.py` — 2026-09-29: builds an edition-scoped manifest and reads `DRAMA_BUILD_DIR` for isolated scratch data.
 - `pipeline/drama_pipeline/__main__.py` — 2026-09-29: accepts `--edition`, selects the TEI Greek reader, and assembles the edition output.
-- `pipeline/drama_pipeline/preflight.py` — 2026-09-29: checks Greek edition declarations, pair ownership, allowlist entries, and stray edition dirs.
+- `pipeline/drama_pipeline/preflight.py` — 2026-09-29: checks Greek edition declarations, pair ownership, allowlist entries (one id may carry several allowlist entries, one per source volume: Smyth's 1922 and 1926 Loeb volumes), and stray edition dirs.
 - `pipeline/drama_pipeline/stage3_tokenize.py` — 2026-09-29: strips printed angle brackets from lexical keys so a fresh reference build still keys those words.
 - `pipeline/drama_pipeline/stage6_search.py` — 2026-09-29: emits Greek-only edition search and skips the shared lemma map.
 - `pipeline/drama_pipeline/stage7_emit.py` — 2026-09-29: keeps installed editions, checks their roster against the reference, skips the shared LSJ merge, and writes edition data.
@@ -895,3 +895,22 @@ existing reference edition contract.
 - `shared/components/WordPopup.svelte` — 2026-09-29: reads parses from the Greek edition on screen.
 - `shared/components/ReaderHost.svelte` — 2026-09-29: loads the chosen edition and remounts the reader when its book changes.
 - `shared/lib/edition-state.ts` — 2026-09-29: applies the edition load and change rules for paired views and deep links.
+- `pipeline/drama_pipeline/preflight.py` — 2026-09-29: the edition concordance check accepts a range value ("112-113") where the reference prints one line under two numbers.
+- `pipeline/drama_pipeline/stage7_emit.py` — 2026-09-29: writes each edition's `concordance.json` (new `concordance.py` matches edition lines to reference lines, joining adjacent lines where lyric colometry differs).
+- `schemas/concordance.v1.json` — 2026-09-29: new schema for the edition concordance; a value is one ref or an "a-b" range.
+- `pipeline/drama_pipeline/concordance.py` — 2026-09-29: a joined span may start at the last line of the ±50 window, as a single line can (bound was `high - m + 1`).
+- `shared/lib/data.ts` — 2026-09-29: `fetchConcordance(work, ed)` (edition ref to TLG ref, cached through the data root).
+- `shared/lib/edition-place.ts`, `shared/lib/edition-citation.ts` — 2026-09-29: new; keep the reader's place across an edition switch (same ref, else concordance, else nearest lower) and build the edition-aware copy citation.
+- `shared/lib/resume.ts` — 2026-09-29: saves the edition beside the cite and `resumeHref` adds `?ed=` when editions are on.
+- `shared/components/CommandPalette.svelte` — 2026-09-29: resume links go through `resumeHref`.
+- `shared/components/Reader.svelte` — 2026-09-29: copy citation names the editor and appends an `ed=` link in a non-reference edition; saves `reader-loc-ed-<work>`.
+- `shared/components/ReaderHost.svelte` — 2026-09-29: remounts the reader on an edition change only, placing the reader through the concordance.
+- `shared/components/ReaderHost.svelte`, `shared/lib/edition-place.ts` — 2026-09-29: `?ed=` stays beside a `?loc=` or hash in a non-TLG edition; an edition switch rewrites `?loc=` to the mapped ref; a concordance range tries each ref in order.
+- `shared/lib/data.ts` (`readerHref`) — 2026-09-29: beside a `loc`, keeps `ed` unless it is `tlg` (a bare `loc` reads in TLG numbering); without one, omits `ed` when it is the pair's own (Codex re-check).
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: skips XML comments inside `<l>` (Hecuba 387 crashed and leaked the comment into the Greek) and applies an edition's `text_fixes` (find/replace, one hit, fail-closed).
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: the lacuna test ignores XML comments and processing instructions, so `<l><gap reason="lost"/><!-- note --></l>` stays a declared lacuna.
+- `pipeline/drama_pipeline/stage3_tokenize.py` — 2026-09-29: strips U+02BD, an opening quote in Perseus's Greek (Phil. 858), as edge punctuation.
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: skips XML comments inside `<l>` (Hecuba 387 crashed and leaked the comment into the Greek); applies an edition's `text_fixes` (find/replace, one hit, fail-closed); an edition with no line-anchored pair reads one speaker's consecutive `<sp>` blocks as one speech (the TLG's shape; Storr's turn-text pairing needs it).
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: an edition's `text_fixes` entry needs a `ref` and touches only that line (`find` once on it; absent or repeated ref fails); comment pins that an unlabelled `<sp>` continues the speech before it.
+- `pipeline/drama_pipeline/preflight.py` — 2026-09-29: a Greek edition needs exactly one allowlist entry listing its source, and that entry must match editor, year, and status whole.
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — 2026-09-29: `storr-loeb` and `murray-oct` split by volume year (Storr 1912/1913; Murray 1902 Hecuba, 1913 the rest), like `smyth-loeb`.

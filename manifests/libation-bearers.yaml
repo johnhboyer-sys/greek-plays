@@ -214,6 +214,9 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Murray (1955)", full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)", editor: Murray, year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: smyth-loeb, short: "Smyth (1926)", full: "H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)", editor: "H. W. Smyth", year: 1926, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["smyth", "kosmos"] }
   translations:
     - id: smyth
       form: prose
@@ -222,6 +225,7 @@ registry:
       slot: english
       footnotes: true
       alignment: line
+      edition: smyth-loeb
     - id: morshead
       form: verse
       name: "E. D. A. Morshead (1881–1908)"
@@ -233,6 +237,7 @@ registry:
       short: Kosmos
       slot: third
       alignment: speech
+      edition: smyth-loeb
       form: prose
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
   citation:
@@ -242,3 +247,130 @@ registry:
   production: "Oresteia, second play · City Dionysia, 458 BC · first prize"
   argument: "Orestes comes home to avenge his father and kills his mother."
   synopsis: "Years later Orestes, grown up in exile, comes back to Argos with Pylades and meets his sister Electra at their father's grave, where Clytaemestra has sent her with offerings to quiet a bad dream. Apollo has ordered Orestes to avenge Agamemnon. Brother and sister plan the killing, and Orestes goes to the palace door as a stranger bringing news of his own death. He kills Aegisthus, then his mother. The Furies appear to him alone, and he runs."
+
+greek_editions:
+- id: smyth-loeb
+  label:
+    short: Smyth (1926)
+    full: H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)
+  editor: H. W. Smyth
+  year: 1926
+  source:
+    kind: perseus-tei
+    path: perseus/tlg0085.tlg006.perseus-grc2.xml
+    expect:
+      editor: Herbert Weir Smyth
+  licence:
+    text: public-domain-us
+    encoding: cc-by-sa-4.0
+    credit: Perseus Digital Library, Tufts University
+    source_url: https://github.com/PerseusDL/canonical-greekLit
+  pairs:
+  - smyth
+  - kosmos
+  citation:
+    title_labels: []
+    lacunae:
+      '1':
+      - 9b
+    transpositions:
+      '1':
+      - start: '227'
+        end: '227'
+        before: '228'
+      - start: '229'
+        end: '229'
+        before: '230'
+      - start: 942a
+        end: 945a
+        before: '951'
+      - start: 962a
+        end: 964a
+        before: '972'
+      - start: '1040'
+        end: '1040'
+        before: '1041'
+    repeated_refs: {}
+    ref_fixes: {}
+    fingerprint:
+      count: 1078
+      sha256: 41098b305ffe58867b9535c9a2ef598d440cfae0437a16e77388f01b39f821e8
+  speakers:
+    sigla:
+      "—": null
+      Αἴγισθος: Aegisthus
+      Κλυταιμνήστρα: Clytaemestra
+      Οἰκέτης: Servant
+      Πυλάδης: Pylades
+      Τροφός: Nurse
+      Χορός: Chorus
+      Ἠλέκτρα: Electra
+      Ὀρέστης: Orestes
+    overrides: []
+  edition_only: []
+  alignment:
+    smyth:
+      # The first TLG-block repair (Look, the light has come) has no target here: the edition seats
+      # that English at 961 from its own anchors. The second is a typo in the shared English source.
+      text_fixes:
+        - find: "! Footprints>matching eac"
+          replace: "! Footprints matching eac"
+          note: "sweep 2026-09-24 n=130: sources/perseus/tlg0085.tlg006.perseus-eng2.xml:388"
+      line_fixes: {}
+      # Smyth's Greek supplies a bracketed repeat of the ephymnion at 942a (<add>, grc2 l.1956);
+      # his English (eng2:1413) repeats the same sentence, and the build seats it once at 942.
+      # Without this entry stage 2 fails (alignment: unexpected unmatched 1:942a).
+      covered:
+        - { greek: "942a", by: "942" }
+      cuts: []
+    kosmos:
+      # Edition-keyed (P2): Smyth's TEI opens a new <sp> for each strophe, so the
+      # edition has more named events than Kosmos has turns. Each cue sits on the
+      # blank line before a Kosmos stanza that opens a Smyth <sp>.
+      line_fixes:
+        18: "[CHORUS]"
+        20: "[CHORUS]"
+        22: "[CHORUS]"
+        24: "[CHORUS]"
+        26: "[CHORUS]"
+        28: "[CHORUS]"
+        153: "[ELECTRA]"
+        298: "[CHORUS]"
+        300: "[CHORUS]"
+        302: "[CHORUS]"
+        405: "[CHORUS]"
+        407: "[CHORUS]"
+        409: "[CHORUS]"
+        411: "[CHORUS]"
+        413: "[CHORUS]"
+        415: "[CHORUS]"
+        417: "[CHORUS]"
+        456: "[CHORUS]"
+        460: "[CHORUS]"
+        506: "[CHORUS]"
+        508: "[CHORUS]"
+        510: "[CHORUS]"
+        512: "[CHORUS]"
+        514: "[CHORUS]"
+        516: "[CHORUS]"
+        518: "[CHORUS]"
+        520: "[CHORUS]"
+        664: "[CHORUS]"
+        666: "[CHORUS]"
+        668: "[CHORUS]"
+        670: "[CHORUS]"
+        672: "[CHORUS]"
+        674: "[CHORUS]"
+        736: "[CHORUS]"
+      pins: []
+      cuts: []
+      # Kosmos prints neither the bracketed repeat 942a nor the refrain at 972
+      # (πάρα τε φῶς ἰδεῖν, as at 961).
+      covered:
+        - { greek: "942a", by: "942" }
+        - { greek: "972", by: "961" }
+  gaps: []
+  # Line 76 opens ἐκ with U+02BD (a rough-breathing mark on a word that takes none);
+  # the sense and grammar want plain ἐκ γὰρ οἴκων. Perseus's own typo, tlg0085.tlg006 l. 76.
+  text_fixes:
+    - { ref: "76", find: "ʽἐκ", replace: "ἐκ", note: "Perseus tlg0085.tlg006.perseus-grc2.xml l.76: stray U+02BD before ἐκ" }

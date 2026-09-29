@@ -21,7 +21,9 @@ from .stage1_greek import (
 
 def _text(el: etree._Element) -> str:
     def walk(node: etree._Element) -> str:
-        tag = etree.QName(node).localname if isinstance(node.tag, str) else ''
+        if not isinstance(node.tag, str):  # an XML comment or PI: its text is not the line's
+            return node.tail or ''
+        tag = etree.QName(node).localname
         if tag in {'note', 'milestone', 'pb'}:
             return node.tail or ''
         inner = (node.text or '') + ''.join(walk(child) for child in node)
@@ -76,6 +78,17 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
     repeats = _load_repeated_refs(manifest)
     counts = Counter()
     flat = []
+    marks = _english_line_marks(manifest)
+    # Perseus splits one speech into several <sp> (a chorus per strophe, a
+    # messenger per paragraph). The TLG text runs it as one speech, and a
+    # turn-text pair (Storr's) has one turn for it, so with no line-anchored
+    # pair the same speaker straight on opens no new speaker event. A
+    # line-anchored pair (Smyth's) anchors its English to each <sp>, so it
+    # keeps them apart.
+    # An unlabelled <sp> leaves current_label alone: it continues the speech
+    # before it, so an A, unlabelled, A run gives the last A no event.
+    current_label = None
+    merge_same_speaker = marks is None
     for el in body.iter():
         if not isinstance(el.tag, str) or etree.QName(el).localname != 'l':
             continue
@@ -104,19 +117,22 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
             previous['text'] += (' ' if previous['text'] and text else '') + text
             previous['joined'] = True
             previous.setdefault('parts', []).append({'ref': ref, 'offset': offset})
-            if label and (not previous.get('_sp') is sp):
+            if label and (not previous.get('_sp') is sp) and (label != current_label or not merge_same_speaker):
                 previous.setdefault('speakers', []).append({'offset': offset, 'label': label})
+                current_label = label
             continue
         counts[ref] += 1
         if counts[ref] > 1 and ref not in repeats:
             raise ValueError(f'{xml_path}: undeclared repeated ref {ref}')
         entry = {'ref': ref, 'text': text, '_sp': sp}
-        if label and (not flat or flat[-1].get('_sp') is not sp):
+        if label and (not flat or flat[-1].get('_sp') is not sp) and (label != current_label or not merge_same_speaker):
             entry['speakers'] = [{'offset': 0, 'label': label}]
+            current_label = label
         mark = _strophe_label(el)
         if mark:
             entry['label'] = mark
-        if len(el) == 1 and etree.QName(el[0]).localname == 'gap' and el[0].get('reason') == 'lost' and not (el.text or '').strip() and not (el[0].tail or '').strip():
+        kids = [c for c in el if isinstance(c.tag, str)]  # comments and PIs are not content
+        if len(kids) == 1 and etree.QName(kids[0]).localname == 'gap' and kids[0].get('reason') == 'lost' and not (el.text or '').strip() and not any((c.tail or '').strip() for c in el):
             entry['role'] = 'lacuna'
             entry['text'] = ''
         flat.append(entry)
@@ -138,8 +154,8 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         raise ValueError(f'{xml_path}: citation.fingerprint mismatch: observed {fingerprint!r}')
     for e in flat:
         e.pop('_sp', None)
+    _apply_greek_text_fixes(flat, getattr(manifest, 'edition', None), xml_path)
     _rejoin_play_line_hyphens(flat)
-    marks = _english_line_marks(manifest)
     segments = _segment_play_lines(flat, *(marks or (None, None)))
     # Keep lettered part anchors on the joined line for later alignment.
     part_map = {e['ref']: e['parts'] for e in flat if e.get('parts')}
@@ -149,6 +165,29 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
                 line['parts'] = part_map[line['ref']]
     return {'work': manifest.work_id, 'edition': manifest.data['work']['greek_edition'],
             'segments': segments, 'headings': [], 'unassigned_lines': []}
+
+
+def _apply_greek_text_fixes(flat: list[dict], edition: dict | None, xml_path: Path) -> None:
+    """Apply the edition's ``text_fixes`` (``ref`` + find/replace).
+
+    Each fix names its line by ``ref`` and touches only that line, where
+    ``find`` must occur exactly once. A missing ref, an absent or repeated
+    ref, or a ``find`` that is not there once fails the build; a line that
+    carries joined-part or speaker offsets is refused, since an edit there
+    would shift them."""
+    for fix in (edition or {}).get('text_fixes') or []:
+        find, replace, ref = fix['find'], fix['replace'], fix.get('ref')
+        if not isinstance(ref, str) or not ref:
+            raise ValueError(f'{xml_path}: text_fixes find {find!r} needs a ref')
+        lines = [e for e in flat if e['ref'] == ref]
+        if len(lines) != 1:
+            raise ValueError(f'{xml_path}: text_fixes ref {ref!r} must name exactly one line, found {len(lines)}')
+        line = lines[0]
+        if line['text'].count(find) != 1:
+            raise ValueError(f'{xml_path}: text_fixes find {find!r} must occur exactly once on line {ref}')
+        if line.get('parts') or len(line.get('speakers') or []) > 1:
+            raise ValueError(f'{xml_path}: text_fixes find {find!r} sits on a joined line')
+        line['text'] = line['text'].replace(find, replace)
 
 
 def run(manifest: Manifest) -> Path:

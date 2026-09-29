@@ -182,14 +182,19 @@ registry:
   greekSource:
     short: Diggle (1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1994)", full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)", editor: Diggle, year: 1994, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -203,3 +208,65 @@ registry:
   production: "Produced posthumously at the City Dionysia, 405 BC, by Euripides the younger · first prize"
   argument: "The fleet is becalmed at Aulis. Agamemnon summons his daughter to be sacrificed. She goes to the altar of her own will."
   synopsis: "The Greek fleet is becalmed at Aulis, and the prophet Calchas has said Artemis demands Agamemnon's daughter Iphigenia. Agamemnon has sent for her on the pretext of marriage to Achilles, then written a second letter to stop her. Menelaus intercepts it. Clytemnestra arrives with the bride, and Achilles learns of the marriage from her. Iphigenia learns what she has been brought for, begs for her life, and then chooses to go to the altar for Greece. A messenger reports that a deer was found in her place."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg018.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': [{start: '1', end: '48', before: '114'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1627, sha256: a28c0e75f56faac02779e0f40172ca725e636efe99ddbd769cdb2dd9359212a9}
+    speakers:
+      sigla:
+        Ἀγαμέμνων: Agamemnon
+        Πρεσβύτης: Old Man
+        Χορός: Chorus
+        Μενέλαος: Menelaus
+        'Αγγελος Α': Messenger
+        'Χορὸς ἀνδρῶν Ἀργείων': Chorus
+        Κλυταιμήστρα: Clytemnestra
+        Ἰφιγένεια: Iphigenia
+        Ἀχιλλεύς: Achilles
+        Ἄγγελος: Second Messenger
+        —: null
+      overrides: []
+    edition_only: []
+    alignment:
+      coleridge:
+        # Coleridge's block at 1534 holds both speakers: Clytemnestra's "I
+        # heard your voice ..." and the Messenger's "No, rather I want to
+        # unfold to you a strange and marvellous story" (Greek 1538).
+        covered:
+          - { greek: "1538", by: "1534" }
+      way:
+        # Murray prints the iambic prologue 49-114 before the anapaests 1-48
+        # (citation.transpositions); Way follows the numeric order, so the
+        # aligner seated Way's cast list on 49 and the speech "Three
+        # daughters" on 115. The pin seats the speech on 49 and lets the cast
+        # list drop as head front matter, as in the TLG build.
+        # 115-116 (Agamemnon opening the letter, "I send thee, Leda's child, in
+        # addition to the earlier letters") sit in Way's next Agamemnon block
+        # at 119, "(Reads)--This add I to my letter writ before".
+        covered:
+          - { greek: "115", by: "119" }
+        pins:
+          - { greek: "49", english: "Three daughters Leda, child of Thestius", run: 1 }
+    gaps: []
+    text_fixes: []

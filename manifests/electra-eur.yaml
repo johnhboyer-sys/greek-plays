@@ -232,14 +232,19 @@ registry:
   greekSource:
     short: Diggle (1981)
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1981)", full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)", editor: Diggle, year: 1981, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -247,7 +252,7 @@ registry:
       footnotes: true
       alignment: speech
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse, edition: murray-oct }
   citation:
     scheme: play-line
     copyAbbr: "Eur. El."
@@ -255,3 +260,44 @@ registry:
   production: "Date disputed, c. 420–413 BC"
   argument: "Electra, married off to a peasant, is found by Orestes. He kills Aegisthus, and together they kill their mother."
   synopsis: "Aegisthus has married Electra to a poor farmer so that her children will be nobodies. She lives in his hut outside Argos, hauling water, nursing her grievance. Orestes and Pylades come unannounced, and an old man who once smuggled Orestes to safety as a child knows him by a scar. Orestes kills Aegisthus at a sacrifice in the country. Clytemnestra is lured to the hut with news that her daughter has given birth, and the two of them kill her there. Both are sick with what they have done. The Dioscuri, Clytemnestra's brothers, appear to send Orestes to Athens for trial and Electra to marry Pylades."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg012.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way, murray-verse]
+    citation:
+      title_labels: []
+      lacunae: {'1': [538a, '1153', '1154', 1181b]}
+      transpositions: {'1': [{start: '682', end: '682', before: '683'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1369, sha256: 67dae52e171ff0e00e3b4ea4721629587aa965b92772cb91e2d2e62b76325d95}
+    speakers:
+      sigla:
+        Ἠλέκτρα: Electra
+        Ὀρέστης: Orestes
+        Πρέσβυς: Old Man
+        Χορός: Chorus
+        Κλυταιμήστρα: Clytemnestra
+        Αὐτουργός: Peasant
+        Διόσκουροι: Castor
+        Ἄγγελος: Messenger
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

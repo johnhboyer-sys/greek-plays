@@ -584,8 +584,7 @@ const breadcrumbLd = Astro.site
   // "Resume" CTA: appears when the reader has a saved position for this work
   // (localStorage — see shared/lib/resume.ts), linking to the remembered
   // book + Bekker citation.
-  import { resumeFor } from '@shared/lib/resume';
-  import { workPath } from '@shared/lib/works';
+  import { resumeFor, resumeHref } from '@shared/lib/resume';
   import { tocGroupNoun } from '../lib/citation-copy';
 
   const btn = document.getElementById('lp-resume') as HTMLAnchorElement | null;
@@ -595,7 +594,7 @@ const breadcrumbLd = Astro.site
       const books = Number(btn.dataset.books) || 1;
       const book = Math.min(Math.max(1, pos.book), books);
       const base = (import.meta.env.BASE_URL as string).replace(/\/$/, '');
-      btn.href = `${base}${workPath(btn.dataset.work!, book)}${pos.cite ? `#${pos.cite}` : ''}`;
+      btn.href = resumeHref(btn.dataset.work!, { ...pos, book }, base);
       // "Resume Book N" hardcoded "Book" for every scheme (finding 2, Sol
       // review) — Seneca's Epistle 47 showed "Resume Book 47".
       const bookNoun = tocGroupNoun(btn.dataset.work!);

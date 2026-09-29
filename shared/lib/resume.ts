@@ -11,6 +11,8 @@
 // written is exactly what's read back. Storage failures (private mode, SSR)
 // degrade to "no resume", never throw.
 
+import { workPath } from './works';
+
 const RECENT_KEY = 'reader-recent';
 const MAX_RECENT = 50;
 
@@ -18,6 +20,7 @@ export interface ResumePoint {
   work: string;
   book: number;
   cite: string | null; // scheme-formatted citation ("1103a14" or "17a") or null if never scrolled
+  ed?: string;
   at: number;          // epoch ms of the last visit
 }
 
@@ -56,18 +59,32 @@ export function touchRecent(work: string): void {
 }
 
 // The saved position within one work, if any: {book, cite}.
-export function resumeFor(work: string): { book: number; cite: string | null } | null {
+export function resumeFor(work: string): { book: number; cite: string | null; ed?: string } | null {
   const s = store();
   if (!s) return null;
   let book: string | null = null;
   let cite: string | null = null;
+  let ed: string | null = null;
   try {
     book = s.getItem(`reader-book-${work}`);
     cite = s.getItem(`reader-loc-${work}`);
+    ed = s.getItem(`reader-loc-ed-${work}`);
   } catch { return null; }
   if (book == null && cite == null) return null;
   const n = Number(book);
-  return { book: Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1, cite: cite || null };
+  return { book: Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1, cite: cite || null,
+    ...(ed && cite ? { ed } : {}) };
+}
+
+export function resumeHref(
+  work: string, point: { book: number; cite: string | null; ed?: string }, base = '',
+  editionsOn = import.meta.env.PUBLIC_EDITIONS === '1',
+): string {
+  const hash = point.cite ? `#${point.cite}` : '';
+  // Always explicit: the saved cite is in that edition's numbering, and a bare
+  // link would load the translation's own edition instead.
+  const ed = editionsOn && point.ed ? `?ed=${encodeURIComponent(point.ed)}` : '';
+  return `${base}${workPath(work, point.book)}${ed}${hash}`;
 }
 
 // The most recently read work across the corpus, joined with its position —

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lyceum-reader.org/schemas/concordance.v1.json",
+  "title": "Edition to reference line concordance",
+  "description": "Maps each printed line ref of a Greek edition to the reference (TLG) text's ref. A key is one edition ref. A value is one reference ref, or a range \"a-b\" when the reference prints one line under two numbers (\"112-113\"). Only edition lines of 12 or more letters are mapped.",
+  "type": "object",
+  "propertyNames": { "pattern": "^[0-9]+[a-z]?(?:\\.[0-9]+)?$" },
+  "additionalProperties": {
+    "type": "string",
+    "pattern": "^[0-9]+[a-z]?(?:\\.[0-9]+)?(?:-[0-9]+[a-z]?(?:\\.[0-9]+)?)?$"
+  }
+}

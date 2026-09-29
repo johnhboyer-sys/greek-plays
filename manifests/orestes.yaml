@@ -242,14 +242,19 @@ registry:
   greekSource:
     short: Diggle (1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1994)", full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)", editor: Diggle, year: 1994, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -264,3 +269,49 @@ registry:
   production: "City Dionysia, 408 BC"
   argument: "Six days after killing his mother, Orestes waits for the Argive assembly’s verdict. It is death, and he turns on Helen."
   synopsis: "Six days after killing his mother, Orestes lies sick and half mad in Argos, nursed by Electra, while the city prepares to vote on whether to stone them both. Helen, who came ahead by night, is in the palace; Menelaus arrives and will not risk helping. The assembly votes for death. Orestes, Electra, and Pylades, with nothing to lose, try to kill Helen, who vanishes, and take her daughter Hermione hostage on the roof with the palace ready to burn. Apollo appears, marries Orestes to Hermione and Electra to Pylades, and sends Helen to the stars."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg016.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': [{start: '339', end: '339', before: '340'}, {start: '782', end: '782', before: '783'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1706, sha256: 7032b94749ff5558bafe048b1394a040436a183e6619a5aa87e2be37f99063e5}
+    speakers:
+      sigla:
+        Ἠλέκτρα: Electra
+        Ἑλένη: Helen
+        Χορός: Chorus
+        Ὀρέστης: Orestes
+        Μενέλαος: Menelaus
+        Τυνδάρεως: Tyndareus
+        Πυλάδης: Pylades
+        Ἄγγελος: Messenger
+        'Ἡμίχορος Α': Chorus
+        'Ἡμίχορος Β': Chorus
+        Ἑρμιόνη: Hermione
+        Φρύξ: Phrygian
+        Ἀπόλλων: Apollo
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

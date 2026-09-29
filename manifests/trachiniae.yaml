@@ -130,6 +130,9 @@ registry:
   greekSource:
     short: Dain & Mazon (1955)
     full: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Dain & Mazon (1955)", full: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)", editor: "Dain & Mazon", year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: storr-loeb, short: "Storr (1913)", full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)", editor: "F. Storr", year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
   translations:
     - id: jebb
       form: prose
@@ -142,6 +145,7 @@ registry:
       name: "F. Storr (Loeb, 1913)"
       short: Storr
       slot: secondary
+      edition: storr-loeb
       alignment: speech
   citation:
     scheme: play-line
@@ -150,3 +154,48 @@ registry:
   production: "Date unknown"
   argument: "Deianeira sends Heracles a robe soaked in what she believes is a love charm. It is poison, and it eats his flesh."
   synopsis: "Deianeira waits at Trachis for Heracles, gone fifteen months. News comes that he is on his way home victorious, and among the captives he sends ahead is a girl, Iole, whom he has taken as a lover. Deianeira has kept a charm the centaur Nessus gave her as he died: his blood, he said, would win back a straying husband. She smears it on a robe and sends it to Heracles. It is poison; it eats into him. She kills herself when she learns what she has done. Heracles, dying, orders his son Hyllus to burn him alive on Mount Oeta and to marry Iole."
+
+greek_editions:
+  - id: storr-loeb
+    label:
+      short: "Storr (1913)"
+      full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)"
+    editor: "F. Storr"
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0011.tlg001.perseus-grc2.xml
+      expect: { title: "Τραχίνιαι", editor: "Francis Storr" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: "Perseus Digital Library, Tufts University"
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [storr]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1242, sha256: "9995033dba5875f23c9cbf0f68f1961d82c395c2da5931096a6913f368d0047c" }
+    speakers:
+      sigla:
+        "—": null
+        "Δηιάνειρα": Deianeira
+        "Ὕλλος": Hyllus
+        "Χορός": Chorus
+        "Ἡρακλῆς": Heracles
+        "Λίχας": Lichas
+        "Ἄγγελος": Messenger
+        "Τροφός": Nurse
+        "Θεράπαινα": Nurse
+        "Πρέσβυς": Old Man
+        "Ἡμιχόριον 1": First Semichorus
+        "Ἡμιχόριον 2": Second Semichorus
+        "Ἡμιχόριον": Chorus
+      overrides: []
+    edition_only: []
+    alignment: { storr: { covered: [], cuts: [] } }
+    gaps: []
+    text_fixes: []

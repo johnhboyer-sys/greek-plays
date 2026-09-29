@@ -48,6 +48,64 @@ def test_greek_editions_reject_allowlist_status(tmp_path):
     assert any('allowlist' in message for _, _, message in problems)
 
 
+def _allowlist_problems(name: str, mutate=None) -> list[str]:
+    path = ROOT / 'manifests' / f'{name}.yaml'
+    data = yaml.safe_load(path.read_text())
+    if mutate:
+        mutate(data['greek_editions'][0])
+    problems = []
+    _validate_greek_editions(WorkManifest(name, path, data), ROOT / 'build' / 'no-such-dir', problems)
+    return [message for _, _, message in problems if 'allowlist' in message]
+
+
+def test_one_edition_id_matches_its_own_allowlist_entry_per_volume():
+    # smyth-loeb has one allowlist entry per Perseus file, because Smyth's two Loeb
+    # volumes carry different years (1922 Persians, 1926 Libation Bearers).
+    assert _allowlist_problems('persians') == []
+    assert _allowlist_problems('libation-bearers') == []
+    assert _allowlist_problems('persians', lambda e: e.update(year=1926))
+    assert _allowlist_problems('libation-bearers', lambda e: e.update(year=1922))
+
+
+def test_every_manifest_greek_edition_is_on_the_allowlist():
+    # murray-oct and storr-loeb cover volumes of different years; each manifest
+    # names its own volume's year, so each needs its own allowlist entry.
+    bad = {}
+    for path in sorted((ROOT / 'manifests').glob('*.yaml')):
+        data = yaml.safe_load(path.read_text())
+        if not isinstance(data, dict) or not data.get('greek_editions'):
+            continue
+        problems = []
+        _validate_greek_editions(WorkManifest(path.stem, path, data), ROOT / 'build' / 'no-such-dir', problems)
+        found = [m for _, _, m in problems if 'allowlist' in m]
+        if found:
+            bad[path.stem] = found
+    assert bad == {}
+
+
+def test_allowlist_entry_must_match_whole(tmp_path, monkeypatch):
+    # Two entries for one id and one source, different editors: the source has no
+    # single answer, so even a manifest that matches one entry whole must fail;
+    # one that mixes fields across the two fails as well.
+    import drama_pipeline.preflight as pf
+    src = 'perseus/tlg0085.tlg002.perseus-grc2.xml'
+    allow = tmp_path / 'allow.yaml'
+    allow.write_text(yaml.safe_dump({'greek_editions': [
+        {'id': 'smyth-loeb', 'editor': 'H. W. Smyth', 'year': 1922, 'status': 'public-domain-us', 'sources': [src]},
+        {'id': 'smyth-loeb', 'editor': 'Someone Else', 'year': 1926, 'status': 'public-domain-us', 'sources': [src]},
+    ]}))
+    monkeypatch.setattr(pf, 'PUBLIC_DOMAIN_ALLOWLIST_PATH', allow)
+    assert _allowlist_problems('persians')  # matches entry 1 whole, but the source is ambiguous
+    assert _allowlist_problems('persians', lambda e: e.update(year=1926))  # Smyth + 1926 spans both
+    allow.write_text(yaml.safe_dump({'greek_editions': [
+        {'id': 'smyth-loeb', 'editor': 'H. W. Smyth', 'year': 1922, 'status': 'public-domain-us', 'sources': [src]},
+        {'id': 'smyth-loeb', 'editor': 'Someone Else', 'year': 1926, 'status': 'public-domain-us',
+         'sources': ['perseus/tlg0085.tlg006.perseus-grc2.xml']},
+    ]}))
+    assert _allowlist_problems('persians') == []
+    assert _allowlist_problems('persians', lambda e: e.update(year=1926))
+
+
 def _load_manifest(name: str) -> dict:
     return yaml.safe_load((MANIFESTS / name).read_text(encoding="utf-8"))
 

@@ -204,14 +204,19 @@ registry:
   greekSource:
     short: Diggle (1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1994)", full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)", editor: Diggle, year: 1994, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -225,3 +230,48 @@ registry:
   production: "c. 409 BC"
   argument: "Polynices marches on Thebes. Jocasta tries to reconcile her sons and fails; they kill each other, and she kills herself over them."
   synopsis: "Polynices' Argive army is at the walls of Thebes to claim the year of kingship his brother Eteocles refused to hand over. Jocasta, alive in this version, arranges a truce so the brothers can meet, and argues for peace. They will not yield. The assault comes; Tiresias names the price of the city's survival, and Creon's son Menoeceus kills himself to pay it. The brothers kill each other in single combat, and Jocasta kills herself over the bodies. Creon banishes the blind Oedipus, and Antigone goes with him."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg015.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': ['817a']}
+      transpositions: {'1': [{start: '668', end: '668', before: '669'}, {start: '667', end: '667', before: '669'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1769, sha256: d50fe5574e44e14cfa0b44632f808d186dfb88225dfe5481b40fdd869eb597ce}
+    speakers:
+      sigla:
+        Ἰοκάστη: Jocasta
+        Παιδαγωγός: Old Servant
+        Ἀντιγόνη: Antigone
+        Χορός: Chorus
+        Πολυνείκης: Polyneices
+        Ἐτεοκλῆς: Eteocles
+        Κρέων: Creon
+        Τειρεσίας: Teiresias
+        Μενοικεύς: Menoeceus
+        Ἄγγελος: Messenger
+        Οἰδίπους: Oedipus
+        —: null
+      overrides:
+        - { siglum: Ἄγγελος, from: "1335", display: Second Messenger }
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

@@ -2045,4 +2045,15 @@ def assemble_edition(manifest: Manifest) -> Path:
         "lineCount": len(refs),
     }
     (target / "edition.json").write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding="utf-8")
+    from .concordance import match_lines
+
+    def book_lines(path: Path) -> list[dict]:
+        return [line for book in sorted(path.glob("book-*.json"))
+                for segment in json.loads(book.read_text(encoding="utf-8"))["segments"]
+                for line in segment["greek"]]
+
+    concordance = match_lines(book_lines(target), book_lines(target.parent.parent))
+    (target / "concordance.json").write_text(
+        json.dumps(concordance, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
     return target

@@ -213,6 +213,9 @@ registry:
   greekSource:
     short: Dain & Mazon (1960)
     full: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)"
+  greekEditions:
+    - { id: tlg, short: "Dain & Mazon (1960)", full: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)", editor: "Dain & Mazon", year: 1960, kind: tlg, licence: public-domain-us }
+    - { id: storr-loeb, short: "Storr (1912)", full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)", editor: "F. Storr", year: 1912, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
   translations:
     - id: jebb
       form: prose
@@ -225,6 +228,7 @@ registry:
       name: "F. Storr (Loeb, 1912)"
       short: Storr
       slot: secondary
+      edition: storr-loeb
       alignment: speech
     - id: kosmos
       name: "Jebb, rev. Ceragioli & Nagy (Kosmos Society)"
@@ -240,3 +244,58 @@ registry:
   production: "Produced posthumously at the City Dionysia, 401 BC, by his grandson Sophocles"
   argument: "The blind Oedipus reaches Colonus, near Athens, and dies there under Theseus’ protection."
   synopsis: "Blind, old, and exiled from Thebes, Oedipus arrives with Antigone at Colonus, a village near Athens, and knows the grove of the Furies where an oracle said his life would end. Theseus takes him under the city's protection. Then Thebes wants him: an oracle says his grave will bring power, and Creon comes to seize him and keep him on the border, kidnapping his daughters until Theseus gets them back. His son Polynices comes to beg his blessing for the march on Thebes and gets a curse instead. Thunder calls Oedipus; he walks into the grove with Theseus alone and vanishes, and his grave becomes Athens's."
+
+greek_editions:
+  - id: storr-loeb
+    label:
+      short: "Storr (1912)"
+      full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)"
+    editor: "F. Storr"
+    year: 1912
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0011.tlg007.perseus-grc2.xml
+      expect: { title: "Οἰδίπους ἐπὶ Κολωνῷ", editor: "Francis Storr" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: "Perseus Digital Library, Tufts University"
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [storr]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1731, sha256: "ac6008446247ceed2702816450cb6f7704c5fe8f1e5c7c4f328868a6b55032b8" }
+    speakers:
+      sigla:
+        "—": null
+        "Οἰδίπους": Oedipus
+        "Χορός": Chorus
+        "Ἀντιγόνη": Antigone
+        "Θησεύς": Theseus
+        "Ἰσμήνη": Ismene
+        "Κρέων": Creon
+        "Πολυνείκης": Polyneices
+        "Ξένος": Stranger
+        "Ἄγγελος": Messenger
+      overrides: []
+    edition_only: []
+    alignment:
+      storr:
+        # Perseus prints Storr's kommos 181a-183 with the lyric lines lost
+        # (`< … >`): 181a, 181b, 181c and 183 hold no Greek but 182. Storr's
+        # English has no words for them either, only Antigone's "Follow with
+        # blind steps" for 182. Pin that to 181c (the segment with 182) and
+        # declare the three empty ones covered by the neighbouring speech.
+        pins:
+          - { greek: "181c", english: "Follow with blind steps", run: 1 }
+        covered:
+          - { greek: "181a", by: "180" }
+          - { greek: "181b", by: "180" }
+          - { greek: "183", by: "181c" }
+        cuts: []
+    gaps: []
+    text_fixes: []
