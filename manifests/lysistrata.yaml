@@ -206,6 +206,23 @@ speakers:
   # TODO(P3.1) sigla collision — ΛΑ. = Lampito (81–244) and the Spartan envoy (1076–1188)
   overrides:
     - { siglum: "ΛΑ.", from: "1076", display: "Spartan" }
+    # Coulon numbers each deserter every time she speaks (ΓΥ. Γʹ, ΓΥ. Δʹ),
+    # so his bare ΓΥ. is someone else: at 798-825 the women's leader
+    # answering ΓΕ., at 830-836 an unnumbered woman on the wall. Without
+    # these the numbered-siglum rule made her the Fourth Woman (Opus check,
+    # build/sweeps/speaker-identity-clouds-lysistrata-2026-09-29.md).
+    - { siglum: "ΓΥ.", from: "798", display: "Chorus of Women" }
+    - { siglum: "ΓΥ.", from: "830", display: "Woman" }
+  # A generic WOMAN cue takes the character the Greek gives those lines to;
+  # a translator's own named or numbered woman keeps her colour (John,
+  # 2026-09-29: colour follows the translation).
+  english_overrides:
+    - { slot: primary, cue: "A WOMAN", from_text: "I will set you crying without onions", display: "Chorus of Women" }
+    - { slot: secondary, cue: "WOMAN", from_text: "And all those dreadful owls", display: "Fourth Woman" }
+    - { slot: secondary, cue: "WOMAN", from_text: "It's obvious what it means", display: "Third Woman" }
+    - { slot: secondary, cue: "WOMAN", from_text: "Onions you won't need", display: "Chorus of Women" }
+    - { slot: secondary, cue: "WOMAN", from_text: "What is this? Why the noise?", display: "Woman" }
+    - { slot: third, cue: "WOMAN", from_text: "Then you shall not eat an onion", display: "Chorus of Women" }
   english:
     "CALONICÉ": "Calonice"
     "MYRRHINÉ": "Myrrhine"
@@ -238,9 +255,9 @@ speakers:
     "SECOND WOMAN": "Second Woman"
     "THIRD WOMAN": "Third Woman"
     "FOURTH WOMAN": "Fourth Woman"
-    "A WOMAN": "Woman"
-    "WOMAN": "Woman"
-    "OLD WOMAN": "Woman"
+    "A WOMAN": "Calonice"  # 505-561 (Coulon ΚΛ.); the women's leader from 798 (english_overrides)
+    "WOMAN": "Chorus of Women"  # 825
+    "OLD WOMAN": "Chorus of Women"  # 800
     "OLD MAN": "Old Man"
     "AN OLD MAN": "Old Man"
     "SLAVE": "Athenian"
@@ -263,7 +280,7 @@ speakers:
     "OLD MEN": "Chorus of Old Men"
     "WOMEN": "Chorus of Women"
     "STRATYLLIS": "Chorus of Women"
-    "WOMAN": "Woman"
+    "WOMAN": "Third Woman"  # 758 first; later switches in english_overrides
     "1ST WOMAN": "First Woman"
     "2ND WOMAN": "Second Woman"
     "3RD WOMAN": "Third Woman"
@@ -293,7 +310,7 @@ speakers:
     "MARKET-LOUNGER": "Athenian"
     "SERVANT": "Athenian"
     "CHORUS": "Chorus"
-    "WOMAN": "Woman"
+    "WOMAN": "Calonice"  # 515-561 (Coulon ΚΛ.); the women's leader from 798 (english_overrides)
     "OLD MAN": "Old Man"
     "CHORUS OF SPARTANS": "Spartan"
     "CHILD": "Child"
@@ -324,9 +341,8 @@ speakers:
     "THIRD W": "Third Woman"
     "FOURTH W": "Fourth Woman"
     # Rogers's busybody-women scene runs to a fifth interrupter the Greek
-    # roster does not itself distinguish (only First-Fourth Woman have their
-    # own sigla); folded into the generic "Woman" the Greek's bare ΓΥ. also
-    # gets (Genie check, 2026-09-17).
+    # does not have; folded into the generic "Woman" (an English-only name
+    # leaves the pairer no speaker to match and loses the cue; 2026-09-29).
     "FIFTH W": "Woman"
     "MEN": "Chorus of Old Men"
     "WOMEN": "Chorus of Women"
@@ -350,7 +366,7 @@ speakers:
     "OLD WOMAN-A": "First Woman"
     "OLD WOMAN-B": "Second Woman"
     "OLD WOMEN-C": "Third Woman"
-    "OLD WOMAN": "Woman"
+    "OLD WOMAN": "Calonice"  # 515 only (Coulon ΚΛ.)
     "WOMAN-A": "First Woman"
     "WOMAN-B": "Second Woman"
     "WOMAN-C": "Third Woman"

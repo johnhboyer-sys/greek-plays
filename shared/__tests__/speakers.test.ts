@@ -8,6 +8,19 @@ describe('comparison cue speakers', () => {
     expect(source.turns.map((turn) => turn.display)).toEqual(['SLAVE', 'SLAVE']);
   });
 
+  it('ignores emitted speakers whose count disagrees with the cues found', () => {
+    // Wealth, Lindsay 187: stage 1 found three cues; the reader also reads "CL." as one.
+    const source = extractPrefixedEnglishTurns('CHREMYLUS. One.\n\nCL. Two.\n\nCHREMYLUS. Three.\n\nCARIO. Four.', ['Chremylus', 'Cario'], [], ['Cario', 'Chremylus', 'Cario']);
+    expect(source.turns.map((turn) => turn.speaker)).toEqual(['Chremylus', 'CL', 'Chremylus', 'Cario']);
+  });
+
+  it('keeps a lone capital letter inside the speech, as stage 1 does', () => {
+    // Medea, Murray: A-D letter the parts of the chorus (John, 2026-09-29).
+    const source = extractPrefixedEnglishTurns('CHORUS. One.\n\nB. Two.\n\nC. Three.', ['Chorus', 'Nurse'], [], ['Chorus']);
+    expect(source.turns.map((turn) => turn.speaker)).toEqual(['Chorus']);
+    expect(source.text).toBe('One.\n\nB. Two.\n\nC. Three.');
+  });
+
   it('keeps roster and fallback matching for older pieces', () => {
     expect(extractPrefixedEnglishTurns('SLAVE. Words.', ['Slave']).turns[0].speaker).toBe('Slave');
     expect(extractPrefixedEnglishTurns('STRANGER. Words.', [], [{ offset: 0, speaker: 'Guest', display: 'Guest' }]).turns[0].speaker).toBe('Guest');

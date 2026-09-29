@@ -871,3 +871,5 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/lib/data.ts` — 2026-09-29: document the optional, cue-aligned `OverlayPiece.cueSpeakers` field.
 - `shared/lib/speakers.ts` — 2026-09-29: prefer emitted comparison cue speakers over roster name matching, with the old fallback for older books.
 - `shared/components/Reader.svelte` — 2026-09-29: pass comparison pieces' resolved cue speakers to both lead sizing and turn rendering.
+- `shared/lib/speakers.ts` — 2026-09-29: `extractPrefixedEnglishTurns` uses `cueSpeakers` only when its count equals the cues found (else the old matching), and, as stage 1 does, takes no lone capital as a cue (Murray's lettered parts of the chorus stay inside the Chorus speech; John).
+- `manifests/clouds.yaml`, `manifests/lysistrata.yaml` — 2026-09-29 (John; Opus identity check): Pasias/Amynias → First/Second Creditor; Coulon's bare ΓΥ. is the women's leader from 798 and an unnumbered Woman from 830; generic WOMAN cues take the Greek speaker of their lines.
