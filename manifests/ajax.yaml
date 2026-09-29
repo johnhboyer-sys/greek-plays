@@ -308,6 +308,9 @@ greek_editions:
     edition_only: []
     alignment:
       jebb:
+        # The English's line numbers are Storr's (Perseus's Greek); the matcher
+        # re-keys them onto Jebb's lines by text (pipeline/drama_pipeline/anchor_map.py).
+        anchor_map: storr-loeb
         # Teucer's reply opens inside 985 (οὐχ ὅσον τάχος), where Jebb's
         # English begins it; 986-989 fall inside that piece.
         covered:

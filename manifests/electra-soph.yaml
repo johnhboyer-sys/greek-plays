@@ -247,7 +247,16 @@ greek_editions:
         "ΑΙ.": Aegisthus
       overrides: []
     edition_only: []
-    alignment: { jebb: { covered: [] } }
+    alignment:
+      jebb:
+        covered: []
+        anchor_map: storr-loeb
+        # English 827, Electra's "Ah, me, ah, me!", is Jebb's 827 (ἔ ἔ, αἰαῖ).
+        # The text map has no words to match and put it on 828 (the Chorus's
+        # ὦ παῖ), whence it moved to 830, leaving the Greek speech 1:827 with
+        # no English.
+        line_fixes:
+          "827": "827"
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org, page as printed) where the OCR's reading

@@ -364,7 +364,16 @@ greek_editions:
         "ΕΞ.": Second Messenger
       overrides: []
     edition_only: []
-    alignment: { jebb: { covered: [] } }
+    alignment:
+      jebb:
+        covered: []
+        anchor_map: storr-loeb
+        # Perseus's English numbers 999-1004 a line off Jebb's Greek. The
+        # text map cannot seat Oedipus's "And indeed you will have worthy
+        # thanks from me" (English 1002) on its Greek, ΟΙ. 1004 (καὶ μὴν χάριν
+        # γ' ἂν ἀξίαν λάβοις ἐμοῦ), so that Greek speech (1:1004) had no English.
+        line_fixes:
+          "1002": "1004"
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org playsfragmentspa0000unse_i8p4, page as printed)
