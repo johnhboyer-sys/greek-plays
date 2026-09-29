@@ -311,9 +311,15 @@ const ogImage = Astro.site
 // work regardless of scheme, so a dk/letter/verse-line/book-section work's
 // meta description falsely advertised Stephanus citation).
 const citeWord = citeDescriptorFor(workId);
+// With editions on, the page shows the default translation's own Greek edition
+// (defaultEdition above), so the meta description and the intro name that
+// edition, not the reference.
+const shownGreek = defaultEdition === 'tlg'
+  ? work.greekSource.short
+  : (work.greekEditions?.find((e) => e.id === defaultEdition)?.short ?? work.greekSource.short);
 const metaDescription =
   `Read ${authorName}'s ${work.title}${bookSuffix} — the original ${langLabel}` +
-  ` (${work.greekSource.short}) side by side with` +
+  ` (${shownGreek}) side by side with` +
   (translatorName ? ` ${translatorName}'s` : ' an') +
   ` English translation, with click-to-parse morphology, dictionary entries,` +
   ` and ${citeWord} citation.`;
@@ -357,7 +363,7 @@ const h1Text =
 // snippets and screen readers, distinct from the dense parallel-text body.
 const intro =
   `${work.title}${bookSuffix} by ${authorName}, in the original ${langLabel}` +
-  ` (${work.greekSource.short})` +
+  ` (${shownGreek})` +
   (translatorName ? `, with the English translation of ${translatorName}` : '') +
   `. ${work.blurb}`;
 ---
