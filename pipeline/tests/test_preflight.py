@@ -14,6 +14,7 @@ from drama_pipeline.preflight import (
     _validate_greek_sections,
     _validate_lsj_keys,
     _validate_manifest_schema,
+    _validate_greek_editions,
 )
 
 
@@ -22,6 +23,29 @@ FIXTURES = ROOT / "pipeline" / "tests" / "fixtures" / "preflight"
 # Self-contained schema-only manifest fixtures (tests/fixtures/preflight/manifests/),
 # not the repo-root manifests/ dir (which this repo does not populate/commit).
 MANIFESTS = FIXTURES / "manifests"
+
+
+def test_greek_editions_reject_bad_pairs_and_undeclared_dir(tmp_path):
+    data = yaml.safe_load((ROOT / 'manifests' / 'agamemnon.yaml').read_text())
+    data['greek_editions'][0]['pairs'] = ['missing']
+    data['greek_editions'][0]['alignment'] = {'smyth': {}}
+    manifest = WorkManifest('agamemnon', ROOT / 'manifests' / 'agamemnon.yaml', data)
+    (tmp_path / 'agamemnon' / 'ed' / 'stray').mkdir(parents=True)
+    problems = []
+    _validate_greek_editions(manifest, tmp_path, problems)
+    messages = ' '.join(message for _, _, message in problems)
+    assert 'undeclared or duplicate pair' in messages
+    assert 'unpaired translation' in messages
+    assert 'undeclared emitted Greek edition' in messages
+
+
+def test_greek_editions_reject_allowlist_status(tmp_path):
+    data = yaml.safe_load((ROOT / 'manifests' / 'agamemnon.yaml').read_text())
+    data['greek_editions'][0]['licence']['text'] = 'unverified'
+    manifest = WorkManifest('agamemnon', ROOT / 'manifests' / 'agamemnon.yaml', data)
+    problems = []
+    _validate_greek_editions(manifest, tmp_path, problems)
+    assert any('allowlist' in message for _, _, message in problems)
 
 
 def _load_manifest(name: str) -> dict:

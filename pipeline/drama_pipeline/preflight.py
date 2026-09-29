@@ -2835,19 +2835,33 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
             problems.append((manifest.work_id, manifest.path.name, "Greek edition entry must be an object"))
             continue
         eid = edition.get("id")
-        if not isinstance(eid, str) or not eid or eid == "tlg" or eid in seen_ids:
+        if not isinstance(eid, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", eid) or eid == "tlg" or eid in seen_ids:
             problems.append((manifest.work_id, manifest.path.name, f"invalid or duplicate Greek edition id {eid!r}"))
             continue
         seen_ids.add(eid)
         source = edition.get("source") or {}
+        if not isinstance(source, dict):
+            problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} source must be an object"))
+            continue
+        licence = edition.get("licence") or {}
+        if not isinstance(licence, dict):
+            problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} licence must be an object"))
+            continue
         allowed_entry = allowed.get(eid)
-        if not allowed_entry or edition.get("editor") != allowed_entry.get("editor") or edition.get("year") != allowed_entry.get("year") or not _source_matches(source.get("path") or "", allowed_entry.get("sources") or []):
+        if not allowed_entry or edition.get("editor") != allowed_entry.get("editor") or edition.get("year") != allowed_entry.get("year") or licence.get("text") != allowed_entry.get("status") or not _source_matches(source.get("path") or "", allowed_entry.get("sources") or []):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} is absent from or differs from the allowlist"))
         if source.get("kind") not in {"perseus-tei", "ocr-tei"} or not source.get("expect"):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} needs a TEI source and header gate"))
         if not isinstance(edition.get("citation"), dict) or not isinstance((edition.get("citation") or {}).get("fingerprint"), dict):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} needs citation fingerprint"))
-        for pair in edition.get("pairs") or []:
+        pairs = edition.get("pairs") or []
+        if not isinstance(pairs, list):
+            problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} pairs must be a list"))
+            continue
+        alignment = edition.get("alignment") or {}
+        if not isinstance(alignment, dict) or set(alignment) - set(pairs):
+            problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} alignment names an unpaired translation"))
+        for pair in pairs:
             if pair not in english_ids or pair in seen_pairs:
                 problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} has undeclared or duplicate pair {pair!r}"))
             seen_pairs.add(pair)

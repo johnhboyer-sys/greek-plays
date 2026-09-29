@@ -1678,10 +1678,15 @@ def run(manifest: Manifest) -> Path:
         speaker_rosters = _canonicalize_play_line_speakers(spine, manifest)
         if manifest.data["work"].get("edition_id"):
             reference_book = Path(__file__).resolve().parents[2] / "build" / "dist" / manifest.work_id / "book-01.json"
-            if reference_book.exists():
-                reference_roster = json.loads(reference_book.read_text(encoding="utf-8")).get("speakerRoster") or []
-                for book, roster in speaker_rosters.items():
-                    speaker_rosters[book] = list(reference_roster) + [name for name in roster if name not in reference_roster]
+            if not reference_book.exists():
+                raise RuntimeError(f"{manifest.work_id}: build the reference before its Greek edition")
+            reference_roster = json.loads(reference_book.read_text(encoding="utf-8")).get("speakerRoster") or []
+            edition_only = set(manifest.edition.get("edition_only") or [])
+            for book, roster in speaker_rosters.items():
+                unexpected = set(roster) - set(reference_roster) - edition_only
+                if unexpected:
+                    raise RuntimeError(f"{manifest.work_id}: undeclared edition-only speakers: {sorted(unexpected)}")
+                speaker_rosters[book] = list(reference_roster) + [name for name in roster if name not in reference_roster]
         greek_displays = {
             display
             for roster in speaker_rosters.values()
@@ -1696,7 +1701,6 @@ def run(manifest: Manifest) -> Path:
         raw_sigla = ((manifest.data.get("speakers") or {}).get("sigla") or {})
         greek_displays |= {v for v in raw_sigla.values() if v}
         greek_displays |= set((manifest.edition.get("edition_only") or []) if hasattr(manifest, "edition") else [])
-        greek_displays |= {name for roster in speaker_rosters.values() for name in roster}
         if english.get("chunks"):
             speakers_block = manifest.data.get("speakers")
             aliases = (
@@ -1985,6 +1989,13 @@ def assemble_edition(manifest: Manifest) -> Path:
     edition = manifest.edition
     source = BUILD_DIR / "dist" / manifest.work_id
     target = Path(__file__).resolve().parents[2] / "build" / "dist" / manifest.work_id / "ed" / edition["id"]
+    reference_footnotes = target.parent.parent / "footnotes.json"
+    labels = set()
+    for book_path in source.glob("book-*.json"):
+        labels.update(re.findall(r"\[\^([^\]]+)\]", book_path.read_text(encoding="utf-8")))
+    available = set(json.loads(reference_footnotes.read_text(encoding="utf-8"))) if reference_footnotes.exists() else set()
+    if labels - available:
+        raise RuntimeError(f"{manifest.work_id}: edition footnotes missing from reference: {sorted(labels - available)}")
     if target.exists():
         shutil.rmtree(target)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -1992,6 +2003,7 @@ def assemble_edition(manifest: Manifest) -> Path:
     # The edition has no independent English search or footnote store.
     (target / "manifest.json").unlink(missing_ok=True)
     (target / "footnotes.json").unlink(missing_ok=True)
+    (target / "chapters.json").unlink(missing_ok=True)
     for sub in ("lsj", "ls"):
         if (target / sub).exists():
             shutil.rmtree(target / sub)

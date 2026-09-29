@@ -28,7 +28,7 @@ def _text(el: etree._Element) -> str:
         if tag == 'del':
             inner = f'[{inner}]'
         elif tag == 'add':
-            inner = f'⟨{inner}⟩'
+            inner = f'<{inner}>'
         elif tag == 'gap':
             inner = node.get('rend') or '…'
         return inner + (node.tail or '')
@@ -84,6 +84,9 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         raw = el.get('n')
         if not raw:
             raise ValueError(f'{xml_path}: visible play <l> has no @n')
+        margin = el.get('rend') or ''
+        if margin.startswith('margin-') and margin[7:] != raw:
+            raise ValueError(f'{xml_path}: margin number {margin[7:]!r} differs from line {raw!r}')
         if raw in fixes:
             fix_hits[raw] += 1
         ref = _normalize_play_lineref(raw, xml_path, fixes)

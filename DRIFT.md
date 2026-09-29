@@ -874,3 +874,11 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 `editions` array still has one entry. `edition.v1.json` describes each
 `ed/<id>/edition.json` file. These fields add data without changing the
 existing reference edition contract.
+- `pipeline/drama_pipeline/config.py` — 2026-09-29: builds an edition-scoped manifest and reads `DRAMA_BUILD_DIR` for isolated scratch data.
+- `pipeline/drama_pipeline/__main__.py` — 2026-09-29: accepts `--edition`, selects the TEI Greek reader, and assembles the edition output.
+- `pipeline/drama_pipeline/preflight.py` — 2026-09-29: checks Greek edition declarations, pair ownership, allowlist entries, and stray edition dirs.
+- `pipeline/drama_pipeline/stage3_tokenize.py` — 2026-09-29: strips printed angle brackets from lexical keys so a fresh reference build still keys those words.
+- `pipeline/drama_pipeline/stage6_search.py` — 2026-09-29: emits Greek-only edition search and skips the shared lemma map.
+- `pipeline/drama_pipeline/stage7_emit.py` — 2026-09-29: keeps installed editions, checks their roster against the reference, skips the shared LSJ merge, and writes edition data.
+- `schemas/manifest.v1.json` — 2026-09-29: declares optional `greekEditions` metadata.
+- `scripts/emit-lyceum-manifest.mjs` — 2026-09-29: maps declared Greek editions into the Lyceum edition list.
