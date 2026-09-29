@@ -898,5 +898,5 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/preflight.py` — 2026-09-29: the edition concordance check accepts a range value ("112-113") where the reference prints one line under two numbers.
 - `pipeline/drama_pipeline/stage7_emit.py` — 2026-09-29: writes each edition's `concordance.json` (new `concordance.py` matches edition lines to reference lines, joining adjacent lines where lyric colometry differs).
 - `schemas/concordance.v1.json` — 2026-09-29: new schema for the edition concordance; a value is one ref or an "a-b" range.
-- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: an edition with no line-anchored pair reads one speaker's consecutive `<sp>` blocks as one speech (the TLG's shape; Storr's turn-text pairing needs it).
 - `pipeline/drama_pipeline/stage3_tokenize.py` — 2026-09-29: strips U+02BD, an opening quote in Perseus's Greek (Phil. 858), as edge punctuation.
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: skips XML comments inside `<l>` (Hecuba 387 crashed and leaked the comment into the Greek); applies an edition's `text_fixes` (find/replace, one hit, fail-closed); an edition with no line-anchored pair reads one speaker's consecutive `<sp>` blocks as one speech (the TLG's shape; Storr's turn-text pairing needs it).

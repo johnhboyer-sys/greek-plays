@@ -283,6 +283,19 @@ greek_editions:
         "Ἄγγελος": Messenger
       overrides: []
     edition_only: []
-    alignment: { storr: { covered: [], cuts: [] } }
+    alignment:
+      storr:
+        # Perseus prints Storr's kommos 181a-183 with the lyric lines lost
+        # (`< … >`): 181a, 181b, 181c and 183 hold no Greek but 182. Storr's
+        # English has no words for them either, only Antigone's "Follow with
+        # blind steps" for 182. Pin that to 181c (the segment with 182) and
+        # declare the three empty ones covered by the neighbouring speech.
+        pins:
+          - { greek: "181c", english: "Follow with blind steps", run: 1 }
+        covered:
+          - { greek: "181a", by: "180" }
+          - { greek: "181b", by: "180" }
+          - { greek: "183", by: "181c" }
+        cuts: []
     gaps: []
     text_fixes: []
