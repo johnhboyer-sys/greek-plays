@@ -11,6 +11,7 @@
 
 import { getWork } from './works';
 import { betaToGreek } from './betacode';
+import { editionBase } from './data';
 
 // Honour Astro's base path. BASE_URL may lack a trailing slash, so strip + join.
 // Same root precedence as data.ts (see its longer doc comment): a build-time
@@ -23,7 +24,7 @@ const DEFAULT_ROOT = import.meta.env.PUBLIC_DATA_ROOT
   : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/data`;
 const ROOT = () =>
   (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ ?? DEFAULT_ROOT;
-const searchBase = (work: string) => `${ROOT()}/${work}/search`;
+const searchBase = (work: string, ed?: string) => `${editionBase(work, ed)}/search`;
 
 // -- Data types -----------------------------------------------------------
 
@@ -86,11 +87,12 @@ async function lemmaTerms(terms: string[]): Promise<[string, string][][]> {
 
 const _fileCache = new Map<string, Promise<unknown>>();
 
-function loadIndex<T>(work: string, file: string): Promise<T> {
-  const key = `${work}/${file}`;
+function loadIndex<T>(work: string, file: string, ed?: string): Promise<T> {
+  const useEd = file === 'english.json' ? 'tlg' : ed;
+  const key = `${work}/${useEd ?? 'tlg'}/${file}`;
   const cached = _fileCache.get(key);
   if (cached) return cached as Promise<T>;
-  const p = fetch(`${searchBase(work)}/${file}`).then(r => {
+  const p = fetch(`${searchBase(work, useEd)}/${file}`).then(r => {
     if (!r.ok) throw new Error(`HTTP ${r.status} for ${key}`);
     return r.json();
   });

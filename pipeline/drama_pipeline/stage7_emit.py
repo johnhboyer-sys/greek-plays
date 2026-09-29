@@ -594,6 +594,13 @@ def _manifest_v1_fields(manifest: Manifest, out_dir: Path) -> dict:
             },
             "license": source_license,
         }],
+        **({"greekEditions": [{
+            "id": e["id"], "label": e["label"], "editor": e["editor"],
+            "year": e["year"], "kind": e["source"]["kind"],
+            "licence": e["licence"], "pairs": e.get("pairs") or [],
+            "path": f"ed/{e['id']}/",
+        } for e in manifest.data.get("greek_editions") or []]}
+           if manifest.data.get("greek_editions") and not work.get("edition_id") else {}),
         "translations": translations,
         **({"presentation": presentation} if presentation is not None else {}),
         "apparatus": {
@@ -1697,6 +1704,17 @@ def run(manifest: Manifest) -> Path:
     sch = scheme_mod.for_manifest(manifest)
     if sch.play_line_scheme:
         speaker_rosters = _canonicalize_play_line_speakers(spine, manifest)
+        if manifest.data["work"].get("edition_id"):
+            reference_book = Path(__file__).resolve().parents[2] / "build" / "dist" / manifest.work_id / "book-01.json"
+            if not reference_book.exists():
+                raise RuntimeError(f"{manifest.work_id}: build the reference before its Greek edition")
+            reference_roster = json.loads(reference_book.read_text(encoding="utf-8")).get("speakerRoster") or []
+            edition_only = set(manifest.edition.get("edition_only") or [])
+            for book, roster in speaker_rosters.items():
+                unexpected = set(roster) - set(reference_roster) - edition_only
+                if unexpected:
+                    raise RuntimeError(f"{manifest.work_id}: undeclared edition-only speakers: {sorted(unexpected)}")
+                speaker_rosters[book] = list(reference_roster) + [name for name in roster if name not in reference_roster]
         greek_displays = {
             display
             for roster in speaker_rosters.values()
@@ -1710,6 +1728,7 @@ def run(manifest: Manifest) -> Path:
         # character this play declares.  Keep it a valid target.
         raw_sigla = ((manifest.data.get("speakers") or {}).get("sigla") or {})
         greek_displays |= {v for v in raw_sigla.values() if v}
+        greek_displays |= set((manifest.edition.get("edition_only") or []) if hasattr(manifest, "edition") else [])
         if english.get("chunks"):
             speakers_block = manifest.data.get("speakers")
             aliases = (
@@ -1778,9 +1797,17 @@ def run(manifest: Manifest) -> Path:
     # Do not touch the destination until turn reconciliation has passed: an
     # incomplete speaker roster must leave any previous emitted work intact.
     out_dir = BUILD_DIR / "dist" / manifest.work_id
+    preserved_ed = out_dir / "ed"
+    temp_ed = BUILD_DIR / "_preserved_ed"
+    if not manifest.data["work"].get("edition_id") and preserved_ed.exists():
+        if temp_ed.exists():
+            shutil.rmtree(temp_ed)
+        shutil.move(preserved_ed, temp_ed)
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
+    if temp_ed.exists() and not manifest.data["work"].get("edition_id"):
+        shutil.move(temp_ed, preserved_ed)
 
     # Translation footnotes and related ancillary files are emitted only after
     # the hard-failure checks above.
@@ -1925,10 +1952,14 @@ def run(manifest: Manifest) -> Path:
         json.dumps(columns_out, ensure_ascii=False, indent=1), encoding="utf-8"
     )
 
-    _merge_shared_lsj(manifest.language)
+    if not manifest.data["work"].get("edition_id"):
+        _merge_shared_lsj(manifest.language)
 
     (out_dir / "search").mkdir(exist_ok=True)
-    for f in ["lemma.json", "form.json", "english.json", "meta.json"]:
+    search_files = ["lemma.json", "form.json", "meta.json"]
+    if not manifest.data["work"].get("edition_id"):
+        search_files.insert(2, "english.json")
+    for f in search_files:
         shutil.copy(BUILD_DIR / "stage6" / f, out_dir / "search" / f)
 
     work = manifest.data["work"]
@@ -1979,3 +2010,39 @@ def run(manifest: Manifest) -> Path:
     ]:
         shutil.copy(BUILD_DIR / rel, reports / Path(rel).name)
     return out_dir
+
+
+def assemble_edition(manifest: Manifest) -> Path:
+    """Install one finished edition under the reference work's ed directory."""
+    edition = manifest.edition
+    source = BUILD_DIR / "dist" / manifest.work_id
+    target = Path(__file__).resolve().parents[2] / "build" / "dist" / manifest.work_id / "ed" / edition["id"]
+    reference_footnotes = target.parent.parent / "footnotes.json"
+    labels = set()
+    for book_path in source.glob("book-*.json"):
+        labels.update(re.findall(r"\[\^([^\]]+)\]", book_path.read_text(encoding="utf-8")))
+    available = set(json.loads(reference_footnotes.read_text(encoding="utf-8"))) if reference_footnotes.exists() else set()
+    if labels - available:
+        raise RuntimeError(f"{manifest.work_id}: edition footnotes missing from reference: {sorted(labels - available)}")
+    if target.exists():
+        shutil.rmtree(target)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source, target)
+    # The edition has no independent English search or footnote store.
+    (target / "manifest.json").unlink(missing_ok=True)
+    (target / "footnotes.json").unlink(missing_ok=True)
+    (target / "chapters.json").unlink(missing_ok=True)
+    for sub in ("lsj", "ls"):
+        if (target / sub).exists():
+            shutil.rmtree(target / sub)
+    citation = manifest.data["citation"]
+    refs = [line["ref"] for seg in json.loads((BUILD_DIR / "stage1" / "greek_spine.json").read_text())["segments"] for line in seg["lines"]]
+    record = {
+        "schema_version": "edition.v1", "id": edition["id"],
+        "label": edition["label"], "editor": edition["editor"], "year": edition["year"],
+        "source": edition["source"], "licence": edition["licence"],
+        "pairs": edition.get("pairs") or [], "fingerprint": citation["fingerprint"],
+        "lineCount": len(refs),
+    }
+    (target / "edition.json").write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding="utf-8")
+    return target

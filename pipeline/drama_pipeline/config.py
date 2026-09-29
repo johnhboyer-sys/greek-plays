@@ -20,7 +20,7 @@ from . import scheme as scheme_mod
 from .refs import line_key
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-BUILD_DIR = REPO_ROOT / "build"
+BUILD_DIR = Path(os.environ.get("DRAMA_BUILD_DIR", REPO_ROOT / "build"))
 SOURCES_DIR = REPO_ROOT / "sources"
 
 
@@ -118,6 +118,46 @@ class Manifest:
             loaded.excluded_private_slots = excluded
             return loaded
         return cls.load(manifests_dir / f"{work}.yaml")
+
+    def for_edition(self, edition_id: str) -> "Manifest":
+        """Make a one-edition view without changing the reference manifest."""
+        matches = [e for e in self.data.get("greek_editions") or [] if e.get("id") == edition_id]
+        if len(matches) != 1:
+            raise ValueError(f"{self.work_id}: unknown Greek edition {edition_id!r}")
+        edition = matches[0]
+        data = copy.deepcopy(self.data)
+        data["work"]["greek_edition"] = edition["label"]["full"]
+        data["work"]["edition_id"] = edition_id
+        data["work"]["greek_source"] = copy.deepcopy(edition["source"])
+        data["citation"] = {"scheme": "play-line", **copy.deepcopy(edition["citation"])}
+        old_speakers = data.get("speakers") or {}
+        data["speakers"] = {k: v for k, v in old_speakers.items() if k.startswith("english")}
+        data["speakers"].update(copy.deepcopy(edition.get("speakers") or {}))
+        pairs = set(edition.get("pairs") or [])
+        old_english = data.get("english") or {}
+        english = {"gaps": copy.deepcopy(edition.get("gaps") or [])}
+        for slot in ("primary", "secondary", "third"):
+            entry = old_english.get(slot)
+            if entry and entry.get("id") in pairs:
+                entry = copy.deepcopy(entry)
+                for key in ("line_fixes", "pins", "cuts", "covered"):
+                    entry.pop(key, None)
+                entry.update(copy.deepcopy((edition.get("alignment") or {}).get(entry["id"]) or {}))
+                english[slot] = entry
+        english["overlays"] = []
+        for entry in old_english.get("overlays") or []:
+            if entry.get("id") in pairs:
+                entry = copy.deepcopy(entry)
+                for key in ("line_fixes", "pins", "cuts", "covered"):
+                    entry.pop(key, None)
+                entry.update(copy.deepcopy((edition.get("alignment") or {}).get(entry["id"]) or {}))
+                english["overlays"].append(entry)
+        data["english"] = english
+        if isinstance(data.get("registry"), dict):
+            data["registry"]["translations"] = [t for t in data["registry"].get("translations") or [] if t.get("id") in pairs]
+        view = Manifest(data, self.path, self.public)
+        view.edition = edition
+        return view
 
     @property
     def work_id(self) -> str:

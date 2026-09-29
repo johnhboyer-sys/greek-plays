@@ -15,6 +15,7 @@
   import { getWork } from '../lib/works';
 
   export let work: string = 'EN';
+  export let edition: string | null = null;
   // The drama corpus is Greek, but retaining the existing Latin labels costs
   // no extra data path and keeps this shared component safe for a Latin host.
   const isLat = getWork(work)?.language === 'lat';
@@ -40,8 +41,8 @@
   // Reader swaps the token without remounting this component. The request id
   // stops a slow prior lookup from replacing the current word.
   let reqId = 0;
-  $: loadWord(work, token.k);
-  function loadWord(w: string, k: string | undefined) {
+  $: loadWord(work, token.k, edition);
+  function loadWord(w: string, k: string | undefined, ed: string | null) {
     const id = ++reqId;
     lexId++;
     if (!k) {
@@ -53,7 +54,7 @@
     loading = true;
     error = '';
     analyses = [];
-    lookupWord(w, k)
+    (ed ? lookupWord(w, k, ed) : lookupWord(w, k))
       .then((result) => { if (id === reqId) analyses = result.analyses; })
       .catch((cause) => { if (id === reqId) error = String(cause); })
       .finally(() => { if (id === reqId) loading = false; });
@@ -246,4 +247,3 @@
     {/if}
   </div>
 </div>
-

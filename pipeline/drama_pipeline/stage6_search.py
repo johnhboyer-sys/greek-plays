@@ -229,6 +229,7 @@ def run(manifest: Manifest) -> Path:
 
     # -- Segment metadata -----------------------------------------------------
     meta = []
+    greek_only = bool(manifest.data["work"].get("edition_id"))
     for seg in segments:
         # head: join first two lines of surface text
         lines = seg["lines"]
@@ -242,7 +243,7 @@ def run(manifest: Manifest) -> Path:
         # cap (formerly [:500]) silently dropped matches and undercounted
         # repeats past the cut. It equals the emitted segment's english.text, so
         # char offsets found here map straight onto the rendered passage.
-        english_head = eng["text"] if eng else ""
+        english_head = eng["text"] if eng and not greek_only else ""
         meta.append(
             {
                 "id": seg["id"],
@@ -252,7 +253,7 @@ def run(manifest: Manifest) -> Path:
                 "tokens": fold_seq_by_id.get(seg["id"], ""),
                 "english_head": english_head,
                 "english_slots": {sid: text for sid, chunks in slot_chunks.items()
-                                  if sid != primary_id
+                                  if sid != primary_id and not greek_only
                                   if (text := slot_text(chunks.get(seg["id"])))},
             }
         )
@@ -265,9 +266,10 @@ def run(manifest: Manifest) -> Path:
     (out_dir / "form.json").write_text(
         json.dumps(form_idx, ensure_ascii=False), encoding="utf-8"
     )
-    (out_dir / "english.json").write_text(
-        json.dumps(english_idx, ensure_ascii=False), encoding="utf-8"
-    )
+    if not manifest.data["work"].get("edition_id"):
+        (out_dir / "english.json").write_text(
+            json.dumps(english_idx, ensure_ascii=False), encoding="utf-8"
+        )
     (out_dir / "meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8"
     )
@@ -278,5 +280,6 @@ def run(manifest: Manifest) -> Path:
         "segments": len(meta),
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=1))
-    build_lemma_map(analyses, manifest.work_id, BUILD_DIR)
+    if not manifest.data["work"].get("edition_id"):
+        build_lemma_map(analyses, manifest.work_id, BUILD_DIR)
     return out_dir

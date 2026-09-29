@@ -335,7 +335,20 @@ export function toLyceumManifest(ourManifest, work, author) {
       extent: citationExtent(topLevelBooks(ourManifest)),
     },
     editions: Array.isArray(ourManifest.editions)
-      ? ourManifest.editions.map(editionView)
+      ? [
+          ...ourManifest.editions.map((entry) => ({ ...editionView(entry), reference: true })),
+          ...(ourManifest.greekEditions ?? []).map((entry) => ({
+            id: `${entry.id}-${ourManifest.editions[0]?.source?.author}-${ourManifest.editions[0]?.source?.work}`,
+            source: entry.label?.full ?? null,
+            license: entry.licence?.text ?? null,
+            verified: entry.licence?.text === 'public-domain-us',
+            label: entry.label,
+            kind: entry.kind,
+            pairs: entry.pairs,
+            path: entry.path,
+            reference: false,
+          })),
+        ]
       : [],
     translations: Array.isArray(ourManifest.translations)
       ? ourManifest.translations.map((entry) => translationView(entry, work, scheme))

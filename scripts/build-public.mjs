@@ -1,4 +1,5 @@
-import { existsSync, lstatSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readdirSync, rmSync, readFileSync } from 'node:fs';
+import { loadYaml } from './lib/load-yaml.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -106,6 +107,17 @@ if (works.length === 0) {
       cwd: join(ROOT, 'pipeline'),
       env: { CORPUS_VERSION },
     });
+    if (process.env.DRAMA_EDITIONS === '1') {
+      // The public manifest declares exactly which editions may be built.
+      const jsYaml = await loadYaml();
+      const declaration = jsYaml.load(readFileSync(join(MANIFESTS, manifest), 'utf8'));
+      for (const edition of declaration.greek_editions ?? []) {
+        console.log(`Building ${work} edition ${edition.id}`);
+        run(PY, ['-m', 'drama_pipeline', 'all', '--work', work, '--edition', edition.id, '--public'], {
+          cwd: join(ROOT, 'pipeline'), env: { CORPUS_VERSION },
+        });
+      }
+    }
   }
 }
 

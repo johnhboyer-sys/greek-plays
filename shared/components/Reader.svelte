@@ -69,7 +69,7 @@
 </script>
 
 <script lang="ts">
-  import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
+  import { onMount, onDestroy, afterUpdate, tick, createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, formatCopyCitationRange, lastPrintedRef, unitNounFor } from '../lib/citation';
@@ -100,6 +100,11 @@
   // speaker-name colours are stable across books and match the landing cast
   // list. Null on hosts that mount a single book without it (desktop).
   export let speakerRoster: string[] | null = null;
+  export let edition: string | null = null;
+  export let initialLocation: string | null = null;
+  export let initialTranslation: string | null = null;
+  export let initialView: 'both' | 'english' | 'greek' | null = null;
+  const dispatch = createEventDispatcher<{ editionChange: { trans: string; view: 'both' | 'english' | 'greek'; loc: string | null } }>();
   const workMeta = getWork(work);
   // `workMeta.author` is an author-registry slug, not a display name — see
   // shared/lib/works.ts's doc comment on the field.
@@ -521,7 +526,7 @@
   // shell, which mounts a single book).
   $: spkSlots = assignSpeakerSlots(
     playLine && bookSpeakerRoster.length
-      ? bookSpeakerRoster
+      ? (speakerRoster?.length ? speakerRoster : bookSpeakerRoster)
       : speakerRoster && speakerRoster.length
         ? speakerRoster
         : collectDisplayOrder([turnFlow]),
@@ -533,6 +538,7 @@
     trans = t;
     if (t !== 'compare') lastSingle = t;
     try { localStorage.setItem(TRANS_KEY, t); } catch {}
+    if (edition) dispatch('editionChange', { trans: t, view, loc: lastCite });
   }
   // The dropdowns select WHICH translation; mode (single vs compare) is chosen
   // in the settings sidebar. Picking a translation always means "show me this
@@ -616,7 +622,11 @@
   // translation citation from the currently-selected translation. `short` forms
   // ("Ross (1908)") sit beside the controls in bilingual view; the full forms
   // fill the otherwise-empty bar in Greek-only / English-only.
-  const greekSrc = workMeta?.greekSource;
+  $: greekSrc = (() => {
+    const source = edition && edition !== 'tlg' ? workMeta?.greekEditions?.find(e => e.id === edition) : null;
+    if (!source) return workMeta?.greekSource;
+    return { short: source.short, full: source.full + (source.licence === 'cc-by-sa-4.0' ? ' · Perseus Digital Library, CC BY-SA 4.0' : '') };
+  })();
   // Freeman Ancilla wave apparatus credit (design note §3.8): a quiet
   // credit line beside the edition citation, present only for a
   // Freeman-wired work. null for every other work.
@@ -636,7 +646,9 @@
   type View = 'both' | 'greek' | 'english';
   let view: View = 'both';
   async function setView(v: View) {
+    const old = view;
     view = v;
+    if (edition && old !== v) dispatch('editionChange', { trans, view: v, loc: lastCite });
     try { localStorage.setItem('reader-view', v); } catch {}
     // The tracked anchors differ by view (Greek lines vs. whole columns), so
     // rebuild the scroll-spy once the DOM reflects the new view.
@@ -3162,7 +3174,7 @@
     hlGrkFolds = (params.get('hlg') ?? '').trim().split(/\s+/).filter(Boolean)
       .map(t => greekFold(t.replace(/\*/g, ''))).filter(Boolean);
     hlEngTerms = (params.get('hle') ?? '').trim().split(/\s+/).filter(Boolean);
-    const loc = params.get('loc');
+    const loc = initialLocation ?? params.get('loc');
     let locCol = '';
     let locLine: number | null = null;
     if (loc) {
@@ -3182,7 +3194,7 @@
     }
     // Restore saved view, but a jump-in (loc/highlight) forces bilingual so the
     // target Greek line is on screen.
-    if (loc || hlGrkFolds.length) {
+    if (!edition && (loc || hlGrkFolds.length)) {
       view = 'both';
     } else {
       const saved = (() => { try { return localStorage.getItem('reader-view'); } catch { return null; } })();
@@ -3210,7 +3222,11 @@
     const qView = params.get('view');
     if (qView === 'greek' || qView === 'both' || qView === 'english') view = qView;
     const qTrans = params.get('trans');
-    if (qTrans && validTrans.has(qTrans)) { trans = qTrans; if (view === 'greek') view = 'both'; }
+    if (!edition && qTrans && validTrans.has(qTrans)) { trans = qTrans; if (view === 'greek') view = 'both'; }
+    if (edition) {
+      if (initialTranslation && validTrans.has(initialTranslation)) trans = initialTranslation;
+      if (initialView) view = initialView;
+    }
     try {
       // Already seeded from the build-time prop in the normal (SSR) path; only
       // fetch when the reader was mounted without it.
@@ -5665,6 +5681,7 @@
 {#if popup}
   <WordPopup
     {work}
+    {edition}
     token={popup.token}
     anchor={popup.anchor}
     asSheet={trans === 'compare'}

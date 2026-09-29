@@ -369,6 +369,7 @@ describe('toLyceumManifest', () => {
     expect(out.editions).toEqual([
       {
         id: 'tlg-0557-002',
+        reference: true,
         source:
           'Schenkl, H. (ed.), Epicteti dissertationes ab Arriano digestae (Leipzig: Teubner, 1916, repr. 1965) (TLG 0557.002)',
         license: 'unverified',
@@ -458,6 +459,7 @@ describe('toLyceumManifest', () => {
     expect(out.citation.extent).toBe('12 books · 488 sections');
     expect(out.editions[0]).toEqual({
       id: 'tlg-0562-001',
+      reference: true,
       source:
         'Farquharson, A. S. L. (ed.), The Meditations of the Emperor Marcus Aurelius, vol. 1 (Oxford: Clarendon Press, 1944, repr. 1968) (TLG 0562.001)',
       license: 'unverified',

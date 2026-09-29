@@ -20,6 +20,6 @@ describe('generated registry golden value', () => {
     // Regenerated 2026-09-21: Ecclesiazusae's Rogers joins them, its drift fixed.
     // Regenerated 2026-09-22: Hickie's Bohn vol. I joins as `secondary` on
     // Acharnians, Knights, Wasps, Peace and Birds (John's ruling).
-    expect(hash).toBe('0a42ab3d6349f5382ab232912158f6fcc57c2fadb31b980dcfddb758c1288029');
+    expect(hash).toBe('62c81c01f71d836c6f39bd97efa5fe33884cbc8bf412f118ae779a20c30cbdcb');
   });
 });

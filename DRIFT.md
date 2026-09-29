@@ -873,3 +873,25 @@ from aristotle-reader per its `HANDOFF-LSJ.md` §0–1)
 - `shared/components/Reader.svelte` — 2026-09-29: pass comparison pieces' resolved cue speakers to both lead sizing and turn rendering.
 - `shared/lib/speakers.ts` — 2026-09-29: `extractPrefixedEnglishTurns` uses `cueSpeakers` only when its count equals the cues found (else the old matching), and, as stage 1 does, takes no lone capital as a cue (Murray's lettered parts of the chorus stay inside the Chorus speech; John).
 - `manifests/clouds.yaml`, `manifests/lysistrata.yaml` — 2026-09-29 (John; Opus identity check): Pasias/Amynias → First/Second Creditor; Coulon's bare ΓΥ. is the women's leader from 798 and an unnumbered Woman from 830; generic WOMAN cues take the Greek speaker of their lines.
+
+## Greek edition data (2026-09-29)
+
+`manifest.v1.json` now has an optional `greekEditions` list. The reference
+`editions` array still has one entry. `edition.v1.json` describes each
+`ed/<id>/edition.json` file. These fields add data without changing the
+existing reference edition contract.
+- `pipeline/drama_pipeline/config.py` — 2026-09-29: builds an edition-scoped manifest and reads `DRAMA_BUILD_DIR` for isolated scratch data.
+- `pipeline/drama_pipeline/__main__.py` — 2026-09-29: accepts `--edition`, selects the TEI Greek reader, and assembles the edition output.
+- `pipeline/drama_pipeline/preflight.py` — 2026-09-29: checks Greek edition declarations, pair ownership, allowlist entries, and stray edition dirs.
+- `pipeline/drama_pipeline/stage3_tokenize.py` — 2026-09-29: strips printed angle brackets from lexical keys so a fresh reference build still keys those words.
+- `pipeline/drama_pipeline/stage6_search.py` — 2026-09-29: emits Greek-only edition search and skips the shared lemma map.
+- `pipeline/drama_pipeline/stage7_emit.py` — 2026-09-29: keeps installed editions, checks their roster against the reference, skips the shared LSJ merge, and writes edition data.
+- `schemas/manifest.v1.json` — 2026-09-29: declares optional `greekEditions` metadata.
+- `scripts/emit-lyceum-manifest.mjs` — 2026-09-29: maps declared Greek editions into the Lyceum edition list.
+- `shared/lib/works.ts` — 2026-09-29: exposes optional Greek editions and each translation's own edition.
+- `shared/lib/data.ts` — 2026-09-29: routes edition books, columns, and analyses through the data-root override with separate caches.
+- `shared/lib/search.ts` — 2026-09-29: routes Greek index loads through an edition base while English stays on the reference.
+- `shared/components/Reader.svelte` — 2026-09-29: accepts edition state from a host, reports translation and view changes, and uses the play roster for speaker colours.
+- `shared/components/WordPopup.svelte` — 2026-09-29: reads parses from the Greek edition on screen.
+- `shared/components/ReaderHost.svelte` — 2026-09-29: loads the chosen edition and remounts the reader when its book changes.
+- `shared/lib/edition-state.ts` — 2026-09-29: applies the edition load and change rules for paired views and deep links.

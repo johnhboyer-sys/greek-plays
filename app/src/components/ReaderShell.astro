@@ -7,6 +7,7 @@
 // row, the per-book TOC grouping) is dropped.
 import { readFileSync } from 'node:fs';
 import Reader from '@shared/components/Reader.svelte';
+import ReaderHost from '@shared/components/ReaderHost.svelte';
 import BekkerJump from '@shared/components/BekkerJump.svelte';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
 import Pwa from './Pwa.astro';
@@ -197,8 +198,11 @@ const pagesNavAria = bookless ? pagesNavWord : `Book ${label} ${pagesNavWord.toL
 // The book's reading data, read at build time and handed to the Reader island so
 // the Greek + English text is server-rendered into the static HTML (crawlable +
 // instant paint) instead of fetched client-side. Same shape fetchBook returns.
+const editionsOn = import.meta.env.PUBLIC_EDITIONS === '1' && !!work.greekEditions?.length;
+const defaultTransId = work.defaultTranslation ?? visibleTranslations(work).find(t => t.slot === 'english')?.id;
+const defaultEdition = editionsOn ? (work.translations.find(t => t.id === defaultTransId)?.edition ?? 'tlg') : 'tlg';
 const bookData = JSON.parse(
-  readFileSync(`public/data/${workId}/book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
+  readFileSync(`public/data/${workId}/${defaultEdition === 'tlg' ? '' : `ed/${defaultEdition}/`}book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
 );
 
 // Whole-work speaker-display roster (memoized), so speaker-name colours are
@@ -852,7 +856,7 @@ const intro =
     }
   </script>
 
-  {isPlayLine && (
+  {isPlayLine && !editionsOn && (
     <Plate
       greekTitle={work.greekTitle ?? null}
       title={work.title}
@@ -868,7 +872,20 @@ const intro =
       startHref={plateStartHref}
     />
   )}
-  <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />
+  {editionsOn && <script is:inline define:vars={{ workId, defaultEdition, translationEditions: Object.fromEntries(work.translations.map(t => [t.id, t.edition ?? 'tlg'])) }}>
+    try {
+      const saved = localStorage.getItem(`reader-trans-${workId}`);
+      const params = new URLSearchParams(location.search);
+      const selected = params.get('trans') ?? saved;
+      const own = translationEditions[selected] ?? defaultEdition;
+      if ((params.get('ed') ?? own) !== defaultEdition || params.has('loc'))
+        document.documentElement.setAttribute('data-ed-pending', '');
+    } catch {}
+  </script>}
+  {editionsOn && <style is:global>html[data-ed-pending] #edition-reader { visibility: hidden; } html[data-ed-pending] #edition-reader::before { content: '◌'; visibility: visible; display: block; text-align: center; padding: 3rem; }</style>}
+  {editionsOn
+    ? <div id="edition-reader"><ReaderHost work={workId} bookNum={n} bookData={bookData} serverEdition={defaultEdition} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} authorName={authorName} client:load /></div>
+    : <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />}
   <CommandPalette work={workId} client:load />
 </body>
 </html>
