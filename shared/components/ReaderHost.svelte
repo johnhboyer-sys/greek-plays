@@ -3,7 +3,7 @@
   import Reader from './Reader.svelte';
   import Plate from './Plate.svelte';
   import { fetchBook, fetchConcordance, type BookData } from '../lib/data';
-  import { editionPlace } from '../lib/edition-place';
+  import { editionPlace, hasRef, type Concordance } from '../lib/edition-place';
   import { getWork } from '../lib/works';
   import { assignSpeakerSlots } from '../lib/speaker-colors';
   import { playSigla } from '../lib/speakers';
@@ -31,22 +31,25 @@
     else url.searchParams.set('ed', state.ed);
     history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
   }
-  async function show(next: EditionState, loc: string | null = null) {
-    const old = state.ed;
-    if (old !== next.ed) {
+  // `from`: the edition `loc` is printed in. On load it is the shown edition's own
+  // numbering (?loc= reads in the numbering of ?ed=), so `from` is null: no mapping.
+  async function show(next: EditionState, loc: string | null = null, from: string | null = state.ed) {
+    const old = from ?? next.ed;
+    if (state.ed !== next.ed) {
       pending = true;
       const id = ++generation;
       try {
         const data = await fetchBook(work, bookNum, next.ed);
-        let oldMap: Record<string, string> = {};
-        let newMap: Record<string, string> = {};
-        const hasRef = data.segments.some(seg => seg.greek.some(line => line.ref === loc));
-        if (loc && !hasRef) {
-          if (old !== 'tlg') oldMap = await fetchConcordance(work, old);
-          if (next.ed !== 'tlg') newMap = await fetchConcordance(work, next.ed);
+        let oldMap: Concordance = {};
+        let newMap: Concordance = {};
+        // A concordance is only worth a fetch when the new edition lacks the ref,
+        // and a missing one means "nearest lower", never a failed switch.
+        if (loc && old !== next.ed && !hasRef(loc, data)) {
+          const load = (ed: string) => ed === 'tlg' ? Promise.resolve({}) : fetchConcordance(work, ed).catch(() => ({}));
+          [oldMap, newMap] = await Promise.all([load(old), load(next.ed)]);
         }
         if (id === generation) {
-          anchor = editionPlace(loc, old, next.ed, data, oldMap, newMap);
+          anchor = old === next.ed ? loc : editionPlace(loc, old, next.ed, data, oldMap, newMap);
           shownBook = data;
           state = next;
         }
@@ -64,11 +67,11 @@
     if (!['both', 'english', 'greek'].includes(view)) view = 'both';
     const next = loadEdition(meta, { trans, view: view as ReaderView, ed: params.get('ed'), loc: params.get('loc') });
     anchor = params.get('loc');
-    void show(next, anchor);
+    void show(next, anchor, null);
   });
   function changed(event: CustomEvent<{ trans: string; view: ReaderView; loc: string | null }>) {
     const next = changeEdition(meta, state, event.detail);
-    void show(next, event.detail.loc);
+    void show(next, event.detail.loc ?? anchor);
   }
   $: castRoster = shownBook.speakerRoster?.length ? shownBook.speakerRoster : speakerRoster;
   $: slots = assignSpeakerSlots(speakerRoster.length ? speakerRoster : castRoster);

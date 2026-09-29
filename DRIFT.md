@@ -895,3 +895,9 @@ existing reference edition contract.
 - `shared/components/WordPopup.svelte` — 2026-09-29: reads parses from the Greek edition on screen.
 - `shared/components/ReaderHost.svelte` — 2026-09-29: loads the chosen edition and remounts the reader when its book changes.
 - `shared/lib/edition-state.ts` — 2026-09-29: applies the edition load and change rules for paired views and deep links.
+- `shared/lib/data.ts` — 2026-09-29: `fetchConcordance(work, ed)` (edition ref to TLG ref, cached through the data root).
+- `shared/lib/edition-place.ts`, `shared/lib/edition-citation.ts` — 2026-09-29: new; keep the reader's place across an edition switch (same ref, else concordance, else nearest lower) and build the edition-aware copy citation.
+- `shared/lib/resume.ts` — 2026-09-29: saves the edition beside the cite and `resumeHref` adds `?ed=` when editions are on.
+- `shared/components/CommandPalette.svelte` — 2026-09-29: resume links go through `resumeHref`.
+- `shared/components/Reader.svelte` — 2026-09-29: copy citation names the editor and appends an `ed=` link in a non-reference edition; saves `reader-loc-ed-<work>`.
+- `shared/components/ReaderHost.svelte` — 2026-09-29: remounts the reader on an edition change only, placing the reader through the concordance.

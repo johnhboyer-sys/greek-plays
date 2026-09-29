@@ -1,20 +1,29 @@
+// Copy-citation for a play read in a non-reference Greek edition (plan §4.5):
+// the text names the editor, and the URL carries `ed=` (a `?loc=` without `?ed=`
+// means the TLG numbering). The reference edition ('tlg') stays as it was.
 import { formatCopyCitationRange } from './citation';
 import { readerHref } from './data';
 import { getWork } from './works';
 
 type Cite = { column: string; line?: number | null } | null;
 
+// "H. W. Smyth" -> "Smyth"; "Denniston and Page" stays whole.
+const surname = (editor: string) => editor.replace(/^(?:[A-Z]\.\s*)+/, '').trim();
+
 export function editionCopyCitation(
   work: string, ed: string | null, start: Cite, end: Cite, book = 1, trans?: string,
 ): { text: string; url: string } | null {
   const text = formatCopyCitationRange(work, start, end);
   if (!text) return null;
-  const loc = start?.column ?? end?.column;
-  const url = new URL(readerHref(work, { book, loc, ed: ed ?? 'tlg', trans }), 'https://reader.invalid');
-  if (ed && ed !== 'tlg') {
-    url.searchParams.set('ed', ed);
-    const editor = getWork(work)?.greekEditions?.find(item => item.id === ed)?.editor;
-    return { text: editor ? `${text.slice(0, -1)} (${editor.trim().split(/\s+/).at(-1)}))` : text, url: url.pathname + url.search };
-  }
-  return { text, url: url.pathname + url.search };
+  // readerHref throws for a work the registry lacks; the copy text must not.
+  let url: URL;
+  try { url = new URL(readerHref(work, { book, loc: start?.column ?? end?.column, trans }), 'https://reader.invalid'); }
+  catch { return { text, url: '' }; }
+  if (!ed || ed === 'tlg') return { text, url: url.pathname + url.search };
+  url.searchParams.set('ed', ed);
+  const editor = getWork(work)?.greekEditions?.find(item => item.id === ed)?.editor;
+  return {
+    text: editor ? text.replace(/\)$/, `, ${surname(editor)})`) : text,
+    url: url.pathname + url.search,
+  };
 }

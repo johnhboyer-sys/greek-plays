@@ -11,7 +11,6 @@
 // written is exactly what's read back. Storage failures (private mode, SSR)
 // degrade to "no resume", never throw.
 
-import { readerHref } from './data';
 import { workPath } from './works';
 
 const RECENT_KEY = 'reader-recent';
@@ -82,8 +81,10 @@ export function resumeHref(
   editionsOn = import.meta.env.PUBLIC_EDITIONS === '1',
 ): string {
   const hash = point.cite ? `#${point.cite}` : '';
-  if (!editionsOn || !point.ed) return `${base}${workPath(work, point.book)}${hash}`;
-  return `${base}${readerHref(work, { book: point.book, ed: point.ed })}${hash}`;
+  // Always explicit: the saved cite is in that edition's numbering, and a bare
+  // link would load the translation's own edition instead.
+  const ed = editionsOn && point.ed ? `?ed=${encodeURIComponent(point.ed)}` : '';
+  return `${base}${workPath(work, point.book)}${ed}${hash}`;
 }
 
 // The most recently read work across the corpus, joined with its position —
