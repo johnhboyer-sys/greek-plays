@@ -307,10 +307,66 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
-      # The edition seats the complete TEI ephymnion at its printed ref; the TLG-only repair has no target.
-      text_fixes: []
+      # The first TLG-block repair (Look, the light has come) has no target here: the edition seats
+      # that English at 961 from its own anchors. The second is a typo in the shared English source.
+      text_fixes:
+        - find: "! Footprints>matching eac"
+          replace: "! Footprints matching eac"
+          note: "sweep 2026-09-24 n=130: sources/perseus/tlg0085.tlg006.perseus-eng2.xml:388"
       line_fixes: {}
-      covered: []
+      # Smyth's edition brackets a supplied repeat at 942a (<ἐπολολύξατʼ ...>); the
+      # Perseus English (eng2) has no 942a anchor.
+      covered:
+        - { greek: "942a", by: "942" }
       cuts: []
+    kosmos:
+      # Edition-keyed (P2): Smyth's TEI opens a new <sp> for each strophe, so the
+      # edition has more named events than Kosmos has turns. Each cue sits on the
+      # blank line before a Kosmos stanza that opens a Smyth <sp>.
+      line_fixes:
+        18: "[CHORUS]"
+        20: "[CHORUS]"
+        22: "[CHORUS]"
+        24: "[CHORUS]"
+        26: "[CHORUS]"
+        28: "[CHORUS]"
+        153: "[ELECTRA]"
+        298: "[CHORUS]"
+        300: "[CHORUS]"
+        302: "[CHORUS]"
+        405: "[CHORUS]"
+        407: "[CHORUS]"
+        409: "[CHORUS]"
+        411: "[CHORUS]"
+        413: "[CHORUS]"
+        415: "[CHORUS]"
+        417: "[CHORUS]"
+        456: "[CHORUS]"
+        460: "[CHORUS]"
+        506: "[CHORUS]"
+        508: "[CHORUS]"
+        510: "[CHORUS]"
+        512: "[CHORUS]"
+        514: "[CHORUS]"
+        516: "[CHORUS]"
+        518: "[CHORUS]"
+        520: "[CHORUS]"
+        664: "[CHORUS]"
+        666: "[CHORUS]"
+        668: "[CHORUS]"
+        670: "[CHORUS]"
+        672: "[CHORUS]"
+        674: "[CHORUS]"
+        736: "[CHORUS]"
+      pins: []
+      cuts: []
+      # Kosmos prints neither the bracketed repeat 942a nor the refrain at 972
+      # (πάρα τε φῶς ἰδεῖν, as at 961).
+      covered:
+        - { greek: "942a", by: "942" }
+        - { greek: "972", by: "961" }
   gaps: []
-  text_fixes: []
+  # Line 76 opens ἐκ with U+02BD (a rough-breathing mark on a word that takes none);
+  # the sense and grammar want plain ἐκ γὰρ οἴκων. Perseus's own typo, tlg0085.tlg006 l. 76.
+  text_fixes:
+    - { ref: "76", find: "ʽἐκ", replace: "ἐκ", note: "Perseus tlg0085.tlg006.perseus-grc2.xml l.76: stray U+02BD before ἐκ" }

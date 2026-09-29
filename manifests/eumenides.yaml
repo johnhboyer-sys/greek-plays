@@ -367,10 +367,58 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
-      # The edition seats the complete TEI ephymnion at its printed ref; the TLG-only repair has no target.
+      # The TLG-block repair (adds "For I have chosen the overthrow of houses") has no target here:
+      # the edition's own <l n="354a"> carries that sentence.
       text_fixes: []
       line_fixes: {}
-      covered: []
+      # Smyth's edition brackets a supplied repeat of the strophe at 372a
+      # (<μάλα γὰρ οὖν ἁλομένα>); the Perseus English (eng2) has no 372a anchor.
+      covered:
+        - { greek: "372a", by: "372" }
       cuts: []
+    kosmos:
+      # Edition-keyed (P2): Smyth's TEI opens a new <sp> for each strophe, so the
+      # edition has 188 named events against Kosmos's 155 turns. Each cue sits on
+      # the blank line before a Kosmos stanza that opens a Smyth <sp>.
+      line_fixes:
+        9: "[PYTHIA]"
+        70: "[CHORUS]"
+        72: "[CHORUS]"
+        74: "[CHORUS]"
+        76: "[CHORUS]"
+        78: "[CHORUS]"
+        80: "[CHORUS]"
+        159: "[CHORUS]"
+        179: "[CHORUS]"
+        181: "[CHORUS]"
+        183: "[CHORUS]"
+        185: "[CHORUS]"
+        187: "[CHORUS]"
+        189: "[CHORUS]"
+        191: "[CHORUS]"
+        193: "[CHORUS]"
+        195: "[CHORUS]"
+        197: "[CHORUS]"
+        199: "[CHORUS]"
+        201: "[CHORUS]"
+        607: "[CHORUS OF THE PROCESSIONAL ESCORT]"
+        609: "[CHORUS OF THE PROCESSIONAL ESCORT]"
+        611: "[CHORUS OF THE PROCESSIONAL ESCORT]"
+        281: "[CHORUS]"
+        283: "[CHORUS]"
+        285: "[CHORUS]"
+        287: "[CHORUS]"
+        289: "[CHORUS]"
+        291: "[CHORUS]"
+        293: "[CHORUS]"
+      pins: []
+      # Kosmos prints 349-353 and 354-355 as one paragraph (bench/kosmos/eumenides.txt:190,
+      # "...where domestic violence [Arēs]"); Smyth's edition gives 354 its own <sp>.
+      cuts:
+        - { greek: "354", english: "For we undertake" }
+      # Kosmos omits the bracketed repeats 354a and 372a (Smyth's supplied refrain).
+      covered:
+        - { greek: "354a", by: "354" }
+        - { greek: "372a", by: "372" }
   gaps: []
   text_fixes: []

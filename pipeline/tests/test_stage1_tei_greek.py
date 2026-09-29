@@ -60,3 +60,34 @@ def test_perseus_elision_and_iota_subscript_keys():
     tokens, _, failures = tokenize(spine)
     assert not failures
     assert [t['k'] for t in tokens['segments'][0]['lines'][0]['tokens']] == ["a)p'", 'au)tw=|']
+
+
+def _fix_manifest(tmp_path, fixes):
+    data = {'work': {'id': 'test', 'greek_edition': 'Test', 'greek_source': {'expect': {'editor': 'Editor'}}},
+            'citation': {'scheme': 'play-line', 'lacunae': {'1': []}, 'transpositions': {'1': []},
+                         'repeated_refs': {}, 'ref_fixes': {}, 'title_labels': [], 'fingerprint': {}},
+            'english': {}, 'books': [{'n': 1, 'start': '1', 'end': '2'}]}
+    manifest = Manifest(data, tmp_path / 'test.yaml')
+    manifest.edition = {'text_fixes': fixes}
+    return manifest
+
+
+def _fix_xml(tmp_path):
+    xml = tmp_path / 'play.xml'
+    xml.write_text('<TEI><teiHeader><editor>Editor</editor></teiHeader><text><body><sp><speaker>Α</speaker>'
+                   '<l n="1">θεοὶ· ʽἐκ γὰρ</l><l n="2">ʽἐκ</l></sp></body></text></TEI>')
+    return xml
+
+
+def test_edition_text_fix_hits_one_ref_once(tmp_path):
+    fixes = [{'ref': '1', 'find': 'ʽἐκ', 'replace': 'ἐκ', 'note': 'test'}]
+    spine = parse_spine(_fix_xml(tmp_path), _fix_manifest(tmp_path, fixes), check_fingerprint=False)
+    lines = [line for segment in spine['segments'] for line in segment['lines']]
+    assert lines[0]['text'] == 'θεοὶ· ἐκ γὰρ'
+    assert lines[1]['text'] == 'ʽἐκ'  # a fix names its ref; line 2 keeps its text
+
+
+def test_edition_text_fix_that_misses_fails(tmp_path):
+    fixes = [{'ref': '1', 'find': 'ξ', 'replace': 'ἐκ', 'note': 'test'}]
+    with pytest.raises(ValueError, match='stale edition text_fixes'):
+        parse_spine(_fix_xml(tmp_path), _fix_manifest(tmp_path, fixes), check_fingerprint=False)

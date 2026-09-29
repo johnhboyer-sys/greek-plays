@@ -544,5 +544,47 @@ greek_editions:
       line_fixes: {}
       covered: []
       cuts: []
+    kosmos:
+      line_fixes:
+        34: "[CHORUS]"
+        36: "[CHORUS]"
+        38: "[CHORUS]"
+        40: "[CHORUS]"
+        42: "[CHORUS]"
+        44: "[CHORUS]"
+        156: "[CHORUS]"
+        158: "[CHORUS]"
+        160: "[CHORUS]"
+        164: "[CHORUS]"
+        311: "[CHORUS]"
+        313: "[CHORUS]"
+        315: "[CHORUS]"
+        317: "[CHORUS]"
+        319: "[CHORUS]"
+        321: "[CHORUS]"
+        323: "[CHORUS]"
+        325: "[CHORUS]"
+        367: "[CHORUS]"
+        369: "[CHORUS]"
+        371: "[CHORUS]"
+        373: "[CHORUS]"
+        375: "[CHORUS]"
+        377: "[CHORUS]"
+        379: "[CHORUS]"
+        381: "[CHORUS]"
+        383: "[CHORUS]"
+        385: "[CHORUS]"
+        387: "[CHORUS]"
+        389: "[CHORUS]"
+        391: "[CHORUS]"
+        393: "[CHORUS]"
+        395: "[CHORUS]"
+        397: "[CHORUS]"
+        399: "[CHORUS]"
+        401: "[CHORUS]"
+        403: "[CHORUS]"
+        405: "[CHORUS]"
+      pins: []
+      cuts: []
   gaps: []
   text_fixes: []

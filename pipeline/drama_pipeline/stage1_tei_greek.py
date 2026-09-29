@@ -75,6 +75,10 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
     fix_hits = Counter()
     repeats = _load_repeated_refs(manifest)
     counts = Counter()
+    # Greek corrections declared on the edition: {ref, find, replace, note},
+    # each must hit exactly once (a stray Perseus character the grammar rejects).
+    text_fixes = list((getattr(manifest, 'edition', None) or {}).get('text_fixes') or [])
+    text_fix_hits = Counter()
     flat = []
     for el in body.iter():
         if not isinstance(el.tag, str) or etree.QName(el).localname != 'l':
@@ -95,6 +99,10 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         speaker = sp.find('{*}speaker') if sp is not None else None
         label = ' '.join(''.join(speaker.itertext()).split()) if speaker is not None else None
         text = _text(el)
+        for i, fix in enumerate(text_fixes):
+            if fix['ref'] == ref and fix['find'] in text:
+                text_fix_hits[i] += text.count(fix['find'])
+                text = text.replace(fix['find'], fix['replace'])
         part = el.get('part')
         if part in {'F', 'M'}:
             if not flat:
@@ -123,6 +131,9 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
     if {k: fix_hits[k] for k in fixes if fix_hits[k] != 1}:
         raise ValueError(f'{xml_path}: stale citation.ref_fixes')
     _check_repeated_refs(repeats, counts, xml_path)
+    stale_text_fixes = [f for i, f in enumerate(text_fixes) if text_fix_hits[i] != 1]
+    if stale_text_fixes:
+        raise ValueError(f'{xml_path}: stale edition text_fixes {stale_text_fixes!r}')
     lacunae = {e['ref'] for e in flat if e.get('role') == 'lacuna'}
     if lacunae != set((citation.get('lacunae') or {}).get('1') or []):
         raise ValueError(f'{xml_path}: citation.lacunae mismatch: observed {sorted(lacunae)}')
