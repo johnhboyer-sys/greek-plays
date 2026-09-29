@@ -50,9 +50,13 @@ describe.skipIf(!built)('search hits from a BUILT edition index (skipped when bu
       for (const a of Array.from(page.container.querySelectorAll('a.inst-ref')))
         hits.push({ query, href: a.getAttribute('href')! });
     }
+    // Only Agamemnon's Smyth text is under test: any other built play links by TLG numbering (no ?ed=).
+    const others = hits.filter(h => !h.href.startsWith('/aeschylus/agamemnon?'));
+    for (const { href } of others) expect(new URL(href, 'https://x.test').searchParams.get('ed'), href).not.toBe('smyth-loeb');
+    const own = hits.filter(h => h.href.startsWith('/aeschylus/agamemnon?'));
     // One in n hits, spread across every query, so 100 is a sample and not a prefix.
-    const sample = hits.filter((_, i) => i % Math.max(1, Math.floor(hits.length / 100)) === 0).slice(0, 100);
-    expect(hits.length, `${hits.length} hits`).toBeGreaterThanOrEqual(100);
+    const sample = own.filter((_, i) => i % Math.max(1, Math.floor(own.length / 100)) === 0).slice(0, 100);
+    expect(own.length, `${own.length} Agamemnon hits of ${hits.length}`).toBeGreaterThanOrEqual(100);
     expect(sample).toHaveLength(100);
     for (const { query, href } of sample) {
       const url = new URL(href, 'https://x.test');

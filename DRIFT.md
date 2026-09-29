@@ -900,7 +900,7 @@ existing reference edition contract.
 - `schemas/concordance.v1.json` — 2026-09-29: new schema for the edition concordance; a value is one ref or an "a-b" range.
 - `pipeline/drama_pipeline/concordance.py` — 2026-09-29: a joined span may start at the last line of the ±50 window, as a single line can (bound was `high - m + 1`).
 - `shared/lib/data.ts` — 2026-09-29: `fetchConcordance(work, ed)` (edition ref to TLG ref, cached through the data root).
-- `shared/lib/edition-place.ts`, `shared/lib/edition-citation.ts` — 2026-09-29: new; keep the reader's place across an edition switch (same ref, else concordance, else nearest lower) and build the edition-aware copy citation.
+- `shared/lib/edition-place.ts`, `shared/lib/edition-citation.ts` — 2026-09-29: new; keep the reader's place across an edition switch (concordance first, else same ref, else nearest lower; 2026-09-29 reordered: the same number is different text where numbering drifts) and build the edition-aware copy citation.
 - `shared/lib/resume.ts` — 2026-09-29: saves the edition beside the cite and `resumeHref` adds `?ed=` when editions are on.
 - `shared/components/CommandPalette.svelte` — 2026-09-29: resume links go through `resumeHref`.
 - `shared/components/Reader.svelte` — 2026-09-29: copy citation names the editor and appends an `ed=` link in a non-reference edition; saves `reader-loc-ed-<work>`.
@@ -920,3 +920,5 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: an ano teleia glued to the next Greek word gets a space, as the comma and semicolon do (Clouds 1379 "ἐκεῖνον·ὦ" could not be keyed); no other Perseus Greek file read here has one.
 - `pipeline/drama_pipeline/public_domain_translations.yaml` — 2026-09-29: `greek_editions` gains `hall-geldart-oct`, one entry per volume year (1906: Acharnians to Birds; 1907: Lysistrata to Wealth).
 - `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: the raised-dot spacing covers U+0387 (ano teleia) as well as U+00B7 (Codex review).
+- `app/src/components/ReaderShell.astro` — 2026-09-29: with `PUBLIC_EDITIONS=1` and a non-reference default edition, the meta description and the hidden intro sentence name that edition's `short` (`shownGreek`) instead of `greekSource.short`; flag off is byte-identical.
+- `shared/components/ReaderHost.svelte` — 2026-09-29: an edition switch loads the concordance(s) the place rule needs even when the new book prints the same ref (the concordance outranks the same number); a failed load falls back to same ref, then nearest lower.

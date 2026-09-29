@@ -3,7 +3,7 @@
   import Reader from './Reader.svelte';
   import Plate from './Plate.svelte';
   import { fetchBook, fetchConcordance, type BookData } from '../lib/data';
-  import { editionPlace, hasRef, type Concordance } from '../lib/edition-place';
+  import { editionPlace, type Concordance } from '../lib/edition-place';
   import { getWork } from '../lib/works';
   import { assignSpeakerSlots } from '../lib/speaker-colors';
   import { playSigla } from '../lib/speakers';
@@ -56,9 +56,12 @@
         const data = await fetchBook(work, bookNum, next.ed);
         let oldMap: Concordance = {};
         let newMap: Concordance = {};
-        // A concordance is only worth a fetch when the new edition lacks the ref,
-        // and a missing one means "nearest lower", never a failed switch.
-        if (loc && old !== next.ed && !hasRef(loc, data)) {
+        // The concordance outranks the same printed ref (edition-place.ts), so load what
+        // the rule needs whether or not the new book has the ref: edition -> tlg the
+        // source edition's, tlg -> edition the target's, edition -> edition both (tlg's
+        // is empty; fetchConcordance caches). A failed load means "same ref, else
+        // nearest lower", never a failed switch.
+        if (loc && old !== next.ed) {
           const load = (ed: string) => ed === 'tlg' ? Promise.resolve({}) : fetchConcordance(work, ed).catch(() => ({}));
           [oldMap, newMap] = await Promise.all([load(old), load(next.ed)]);
         }

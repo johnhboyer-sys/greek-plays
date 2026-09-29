@@ -1,6 +1,7 @@
-// Keeping the reader's place across an edition switch (plan §4.2): the same
-// printed ref if the new edition has it; else through the two concordances
-// (edition ref -> TLG ref, either a single ref or a range "112-113"); else the
+// Keeping the reader's place across an edition switch (plan §4.2): the
+// concordance first (edition ref -> TLG ref, a single ref or a range "112-113";
+// TLG -> edition by inversion), since where numbering drifts the same number is
+// different text; else the same printed ref if the new edition has it; else the
 // nearest lower number.
 import type { BookData } from './data';
 
@@ -78,15 +79,13 @@ export function editionPlace(
   if (!ref) return null;
   const wanted = bare(ref);
   const available = refs(nextBook);
-  const same = present(wanted, available);
-  if (same) return same;
   // A range ("112-113") answers to any of its refs: try each in order.
   const mapped = oldEd === 'tlg' ? [wanted] : oldConcordance[wanted] ? expand(oldConcordance[wanted]!) : [];
   const inverse = newEd === 'tlg' ? null : invertConcordance(newConcordance);
-  for (const ref of mapped) {
-    const target = inverse ? inverse.get(ref) : ref;
+  for (const tlgRef of mapped) {
+    const target = inverse ? inverse.get(tlgRef) : tlgRef;
     const found = target ? present(target, available) : null;
     if (found) return found;
   }
-  return lower(wanted, available);
+  return present(wanted, available) ?? lower(wanted, available);
 }
