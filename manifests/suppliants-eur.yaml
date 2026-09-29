@@ -69,15 +69,21 @@ english:
       - find: "“Smite !”—* Drive the spear against E"
         replace: "“Smite !”—“Drive the spear against E"
         note: "way-cleanup r3 2026-09-25 (1:706): archive.org page prints “Smite!”—“Drive the spear against Erechtheus' (Grok r2 check confirmed against the page)"
-      - find: "miseries end! _\n"
-        replace: "miseries end!\n"
-        note: "sweep 2026-09-24 n=73: build/genie/euripidesway03euriuoft.txt:17282-17284"
+      - find: "miseries end! _"
+        replace: "miseries end!"
+        note: "sweep 2026-09-24 n=73: build/genie/euripidesway03euriuoft.txt:17282-17284; find stops before the line end (P2: Murray's Greek ends a segment there, so the chunk has no newline to match; the TLG result is unchanged)"
       - find: "sound —_—\n"
         replace: "sound\n"
         note: "sweep 2026-09-24 n=72: build/genie/euripidesway03euriuoft.txt:16456-16458; the scan prints no dash here, only the carried rhyme word [fear"
-      - find: "ghastliest\n7\nAh"
-        replace: "ghastliest misery.\nAh"
-        note: "sweep 2026-09-24 n=71: build/genie/euripidesway03euriuoft.txt:18431-18436"
+      # n=71 in two finds (P2): Murray's Greek ends a segment between
+      # "ghastliest" and the stray "7", so no one chunk holds both. The pair
+      # gives the TLG build the same text as the single find did.
+      - find: "ghastliest"
+        replace: "ghastliest misery."
+        note: "sweep 2026-09-24 n=71: build/genie/euripidesway03euriuoft.txt:18431-18436 (scan prints \"misery.\" where the OCR has \"7\")"
+      - find: "7\nAh"
+        replace: "Ah"
+        note: "sweep 2026-09-24 n=71: same scan lines; the stray \"7\" is the OCR of \"misery.\""
       - find: "men said ;\n_ I"
         replace: "men said ;\nI"
         note: "sweep 2026-09-24 n=70: build/genie/euripidesway03euriuoft.txt:18090-18092"
@@ -229,14 +235,19 @@ registry:
   greekSource:
     short: Diggle (1981)
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1981)", full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)", editor: Diggle, year: 1981, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -250,3 +261,57 @@ registry:
   production: "c. 423 BC"
   argument: "The mothers of the Seven ask Theseus to recover their sons’ bodies from Thebes."
   synopsis: "The Seven who marched against Thebes lie dead outside its walls, and Thebes will not give up the bodies. Their mothers come to Eleusis as suppliants, with Adrastus, the king of Argos who led the failed expedition, and ask Theseus to make Thebes yield the dead. Theseus refuses, then listens to his mother Aethra and changes his mind. A Theban herald warns Athens off; Theseus marches, wins, and brings the bodies back for burial. Evadne, wife of one of the Seven, throws herself onto her husband's pyre. Athena binds Argos to Athens by oath."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg008.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': ['179a', '262a', '763a']}
+      transpositions: {'1': [{start: '589', end: '589', before: '590'}, {start: '659', end: '661', before: '662'}, {start: '663', end: '663', before: '665'}, {start: '697', end: '698', before: '702'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1241, sha256: b87dbc8c4702a72f94ae49b72858f0e3efb4162c877d9c528854ba18b230a7e4}
+    speakers:
+      sigla:
+        Αἴθρα: Aethra
+        Χορός: Chorus
+        Θησεύς: Theseus
+        Ἄδραστος: Adrastus
+        Κῆρυξ: Herald
+        Ἄγγελος: Messenger
+        Εὐάδνη: Evadne
+        Ἶφις: Iphis
+        Παῖδες: Children
+        Ἀθήνα: Athena
+        —: null
+      overrides: []
+    edition_only: []
+    alignment:
+      coleridge:
+        # Coleridge's block at 513 opens with the chorus's 511-512 ("The
+        # punishment Zeus hath inflicted was surely enough; there was no need
+        # to heap this wanton insult on us"), which Perseus's Greek prints
+        # under its own 511 opening; the block at 513 holds all three lines.
+        covered:
+          - { greek: "511", by: "513" }
+    gaps: []
+    text_fixes:
+      # Perseus 458 prints U+1FCE (a free psili-and-oxia) where prodelision
+      # (ἔ)πεμψεν needs an apostrophe; stage 3 cannot transliterate it. The
+      # TLG text prints ʼπεμψεν.
+      - { find: "\u1fceπεμψεν", replace: "\u02bcπεμψεν", note: "sources/perseus/tlg0006.tlg008.perseus-grc2.xml:834 (n=458)" }

@@ -254,4 +254,4 @@ greek_editions:
     editor: Gilbert Murray
     year: 1902
     status: public-domain-us
-    sources: [perseus/tlg0006.tlg017.perseus-grc2.xml, perseus/tlg0006.tlg012.perseus-grc2.xml, perseus/tlg0006.tlg007.perseus-grc2.xml, perseus/tlg0006.tlg014.perseus-grc2.xml, perseus/tlg0006.tlg009.perseus-grc2.xml]
+    sources: [perseus/tlg0006.tlg017.perseus-grc2.xml, perseus/tlg0006.tlg012.perseus-grc2.xml, perseus/tlg0006.tlg007.perseus-grc2.xml, perseus/tlg0006.tlg014.perseus-grc2.xml, perseus/tlg0006.tlg009.perseus-grc2.xml, perseus/tlg0006.tlg010.perseus-grc2.xml, perseus/tlg0006.tlg018.perseus-grc2.xml, perseus/tlg0006.tlg013.perseus-grc2.xml, perseus/tlg0006.tlg016.perseus-grc2.xml, perseus/tlg0006.tlg015.perseus-grc2.xml, perseus/tlg0006.tlg019.perseus-grc2.xml, perseus/tlg0006.tlg008.perseus-grc2.xml, perseus/tlg0006.tlg011.perseus-grc2.xml]

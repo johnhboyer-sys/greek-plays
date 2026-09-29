@@ -201,21 +201,26 @@ registry:
   greekSource:
     short: Diggle (1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1994)", full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)", editor: Diggle, year: 1994, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
       footnotes: true
       alignment: speech
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse, edition: murray-oct }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Rh."
@@ -223,3 +228,68 @@ registry:
   production: "Date unknown · authorship disputed"
   argument: "Rhesus the Thracian arrives to help Troy and is killed in his sleep by Odysseus and Diomedes."
   synopsis: "Night in the Trojan camp. Hector, alarmed by the Greek watchfires, sends Dolon to spy. Rhesus, king of Thrace, arrives with his army, late and boastful, and Hector gives him a place to camp. Odysseus and Diomedes are inside the Trojan lines the same night, having caught and killed Dolon, and Athena points them to the Thracian's tent. They kill Rhesus in his sleep and take his horses. His mother, a Muse, comes for the body and blames Odysseus and Athena."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg019.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way, murray-verse]
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': [{start: '334', end: '335', before: '338'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 993, sha256: 6c7337843dd10ad8e983ee4b01523f955dc8a81cec9af559c4d8d100fba5f5d8}
+    speakers:
+      sigla:
+        Χορός: Chorus
+        Ἕκτωρ: Hector
+        Αἰνείας: Aeneas
+        Δόλων: Dolon
+        'Ἄγγελος Ποιμήν': Messenger
+        Ἄγγελος: Messenger
+        Ῥῆσος: Rhesus
+        Ὀδυσσεύς: Odysseus
+        Διομήδης: Diomedes
+        Ἀθήνα: Athena
+        Ἀλέξανδρος: Paris
+        Ἡνίοχος: Charioteer
+        Μοῦσα: Muse
+        —: null
+      overrides: []
+    edition_only: []
+    alignment:
+      # Perseus opens a new speech at each strophe; Way and Murray print the
+      # speech once, under its first cue, and the aligner seats that text on
+      # the last piece. Each entry names the segment whose block opens with
+      # the English of the first piece (build/editions/rhesus stage 1, the
+      # chunk text at the "by" segment).
+      way:
+        covered:
+          - { greek: "906", by: "915" }   # "MUSE. Curse ye, Odysseus and Oineus' scion" opens the block at 915
+      murray-verse:
+        covered:
+          - { greek: "342", by: "360" }   # "CHORUS. Now Adrasteia be near and guard" opens the block at 360
+          - { greek: "351", by: "360" }
+          - { greek: "890", by: "895" }   # "MUSE. Nay, look your fill, ye Trojans" opens the block at 895
+          - { greek: "906", by: "915" }
+    gaps: []
+    text_fixes:
+      # Perseus 805 prints U+1FCE (a free psili-and-oxia) where prodelision
+      # (ἔ)δρασαν needs an apostrophe; the file's own comment on the line
+      # reads "prodelision, accent and breathing left behind". The mark breaks
+      # the key (stage 3 cannot transliterate it); the TLG text prints ʼδρασαν.
+      - { find: "῎δρασαν", replace: "ʼδρασαν", note: "sources/perseus/tlg0006.tlg019.perseus-grc2.xml:1434 (n=805)" }
