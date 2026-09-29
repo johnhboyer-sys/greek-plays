@@ -243,6 +243,9 @@ registry:
   greekSource:
     short: "Coulon (1930)"
     full: "Coulon & van Daele, Aristophane, vol. 5 (Budé, 1930)"
+  greekEditions:
+    - { id: tlg, short: "Coulon (1930)", full: "Coulon & van Daele, Aristophane, vol. 5 (Budé, 1930)", editor: "Coulon & van Daele", year: 1930, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1907)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)", editor: "F. W. Hall and W. M. Geldart", year: 1907, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -270,3 +273,57 @@ registry:
   production: "388 BC · festival and result unknown"
   argument: "Chremylus cures the blind god Wealth so that money can at last go to the honest."
   synopsis: "Chremylus, an honest poor man, asks the oracle how his son should live and is told to follow the first man he meets. The man is a blind beggar who turns out to be Wealth himself, blinded by Zeus so that he cannot find the good. Chremylus means to take him to the temple of Asclepius to be cured. The goddess Poverty comes first to argue that it is a mistake, and loses. Wealth's sight is restored and the honest grow rich. An informer complains that his trade is ruined, and the priest of Zeus and Hermes himself, with no one left sacrificing, come asking to serve the new master."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1907)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1907
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg011.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes:
+        # Perseus n="NaN" (a digitisation slip) sits between 127b (part F) and 129 (part I); no 128 exists in the file.
+        "NaN": "128"
+      fingerprint: {count: 1211, sha256: 57d91db1e21558704bc678630f60335a20a35332a2ef87626d9fe00cb0fe22b3}
+    speakers:
+      sigla:
+        "Καρίων": "Cario"
+        "Χρεμύλος": "Chremylus"
+        "Πλοῦτος": "Wealth"
+        "Χορός": "Chorus"
+        "Βλεψίδημος": "Blepsidemus"
+        "Πενία": "Poverty"
+        "Γυνή": "Wife"  # 641-: Chremylus' wife; the reference shows Wife on all 30 lines
+        "Δίκαιος": "Just Man"
+        "Συκοφάντης": "Informer"
+        "Γραῦς": "Old Woman"
+        "Νεανίας": "Young Man"
+        "Ἑρμῆς": "Hermes"
+        "Ἱερεύς": "Priest"
+        "—": null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes:
+      # sources/perseus/tlg0019.tlg011.perseus-grc2.xml n=536 prints γραι·δίων, a mark inside the word where the diaeresis belongs (γραΐδιον); stage 1 spaces the mark, and the TLG text reads γραϊδίων
+      - { ref: "536", find: "γραι· δίων", replace: "γραϊδίων" }

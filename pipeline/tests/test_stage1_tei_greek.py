@@ -205,3 +205,24 @@ def test_modifier_turned_comma_is_edge_punctuation():
     tokens, _, failures = tokenize(spine)
     assert not failures
     assert [t['k'] for t in tokens['segments'][0]['lines'][0]['tokens']] == [to_beta_key('ἄλλος'), to_beta_key('ὕπνος')]
+
+
+def test_ano_teleia_glued_to_the_next_word_gets_its_space(tmp_path):
+    # Perseus prints Clouds 1379 as "ἐκεῖνον·ὦ": the mark is punctuation, the
+    # missing space is the file's. One token "ἐκεῖνον·ὦ" cannot be keyed.
+    xml = _one_line_xml(tmp_path, '<l n="1">ἐκεῖνον·ὦ τί σʼ εἴπω;</l>')
+    spine = parse_spine(xml, _one_line_manifest(tmp_path), check_fingerprint=False)
+    assert spine['segments'][0]['lines'][0]['text'] == 'ἐκεῖνον· ὦ τί σʼ εἴπω;'
+
+
+def test_ref_fix_renames_a_printed_number_that_is_not_a_ref(tmp_path):
+    # Wealth 128 is printed n="NaN" between 127b (part F) and 129.
+    xml = _one_line_xml(tmp_path, '<l n="127">α</l><l n="NaN">β</l><l n="129">γ</l>')
+    manifest = _one_line_manifest(tmp_path)
+    manifest.data['books'] = [{'n': 1, 'start': '127', 'end': '129'}]
+    manifest.data['citation']['ref_fixes'] = {'NaN': '128'}
+    spine = parse_spine(xml, manifest, check_fingerprint=False)
+    assert [l['ref'] for s in spine['segments'] for l in s['lines']] == ['127', '128', '129']
+    manifest.data['citation']['ref_fixes'] = {'NaN': '128', 'gone': '5'}
+    with pytest.raises(ValueError, match='stale citation.ref_fixes'):
+        parse_spine(xml, manifest, check_fingerprint=False)

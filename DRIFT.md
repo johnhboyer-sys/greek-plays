@@ -914,3 +914,5 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: an edition's `text_fixes` entry needs a `ref` and touches only that line (`find` once on it; absent or repeated ref fails); comment pins that an unlabelled `<sp>` continues the speech before it.
 - `pipeline/drama_pipeline/preflight.py` — 2026-09-29: a Greek edition needs exactly one allowlist entry listing its source, and that entry must match editor, year, and status whole.
 - `pipeline/drama_pipeline/public_domain_translations.yaml` — 2026-09-29: `storr-loeb` and `murray-oct` split by volume year (Storr 1912/1913; Murray 1902 Hecuba, 1913 the rest), like `smyth-loeb`.
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: an ano teleia glued to the next Greek word gets a space, as the comma and semicolon do (Clouds 1379 "ἐκεῖνον·ὦ" could not be keyed); no other Perseus Greek file read here has one.
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — 2026-09-29: `greek_editions` gains `hall-geldart-oct`, one entry per volume year (1906: Acharnians to Birds; 1907: Lysistrata to Wealth).

@@ -36,7 +36,7 @@ def _text(el: etree._Element) -> str:
         return inner + (node.tail or '')
     raw = (el.text or '') + ''.join(walk(child) for child in el)
     raw = re.sub(r'(?<=[\u0370-\u03ff\u1f00-\u1fff])\.(?=[\u0370-\u03ff\u1f00-\u1fff])', '. ', raw)
-    raw = re.sub(r'([,;])(?=[\u0370-\u03ff\u1f00-\u1fff])', r'\1 ', raw)
+    raw = re.sub(r'([,;\u00b7])(?=[\u0370-\u03ff\u1f00-\u1fff])', r'\1 ', raw)
     raw = raw.replace('…', ' … ')
     return re.sub(r'\s+', ' ', raw).strip()
 

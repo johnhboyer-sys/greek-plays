@@ -493,6 +493,9 @@ registry:
   greekSource:
     short: "Coulon (1924)"
     full: "Coulon & van Daele, Aristophane, vol. 2 (Budé, 1924)"
+  greekEditions:
+    - { id: tlg, short: "Coulon (1924)", full: "Coulon & van Daele, Aristophane, vol. 2 (Budé, 1924)", editor: "Coulon & van Daele", year: 1924, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1906)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)", editor: "F. W. Hall and W. M. Geldart", year: 1906, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -515,3 +518,60 @@ registry:
   production: "City Dionysia, 421 BC · second prize"
   argument: "Trygaeus flies to heaven on a dung-beetle to bring back Peace."
   synopsis: "Trygaeus, a vine-grower sick of the war, fattens a dung-beetle and flies to heaven on it to see Zeus. The gods have moved out; War is in residence and has buried Peace in a pit. Trygaeus calls up the farmers of all Greece to haul her out, and they do. He comes home with Peace's two companions, Harvest and Festival, hands Festival to the Council, and marries Harvest. The play ends with the wedding, arms-dealers ruined and farmers feasting."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1906)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1906
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg005.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': ["586"]}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1336, sha256: 811fd3312b29f702c47b3047fd4c60d9f014a1ae63d1039d5ab1747f5533b0cb}
+    speakers:
+      sigla:
+        "Οἰκέτης Α": "First Slave"  # the reference's ΟΙ. Αʹ (1-)
+        "Οἰκέτης Β": "Second Slave"  # the reference's ΟΙ. Βʹ (2-)
+        "Τρυγαῖος": "Trygaeus"
+        "Παιδίον": "Daughter"  # Trygaeus' daughter (114-): all 19 lines agree with the reference's ΠΑΙΔΙΟΝ
+        "Ἑρμῆς": "Hermes"
+        "Πόλεμος": "War"
+        "Κύδοιμος": "Tumult"
+        "Χορός": "Chorus"
+        "Οἰκέτης": "Slave"  # the bare slave from 824, as in the reference
+        "Ἱεροκλῆς": "Hierocles"
+        "Δρεπανουργός": "Sickle-maker"
+        "Λοφοποιός": "Arms-dealer"  # the five arms-makers (1210-1259) are one Arms-dealer in the reference, on every line: 6, 6, 3, 4, 4 agree
+        "Θωρακοπώλης": "Arms-dealer"  # as Λοφοποιός
+        "Σαλπιγγοποιός": "Arms-dealer"  # as Λοφοποιός
+        "Κρανοποιός": "Arms-dealer"  # as Λοφοποιός
+        "Δορυξός": "Arms-dealer"  # as Λοφοποιός
+        "Παῖς Λαμάχου": "First Boy"  # the reference's ΠΑΙΔΙΟΝ Αʹ (1270-): all 10 lines agree
+        "Παῖς Κλεωνύμου": "Second Boy"  # the reference's ΠΑΙΔΙΟΝ Βʹ (1298-): all 3 lines agree
+        "Ἡμιχόριον Β": "Chorus"  # 1333-1356: the reference has no semichorus here and shows Chorus (or Trygaeus)
+        "Ἡμιχόριον Α": "Chorus"  # as Ἡμιχόριον Β
+        "—": null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

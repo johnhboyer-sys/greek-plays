@@ -444,6 +444,9 @@ registry:
   greekSource:
     short: "Coulon (1928)"
     full: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)"
+  greekEditions:
+    - { id: tlg, short: "Coulon (1928)", full: "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)", editor: "Coulon & van Daele", year: 1928, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1907)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)", editor: "F. W. Hall and W. M. Geldart", year: 1907, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -478,3 +481,64 @@ registry:
   production: "411 BC, probably at the Lenaia · result unknown"
   argument: "The women of Greece refuse sex until the men make peace."
   synopsis: "Lysistrata has called the women of Greece to Athens with a plan to end the war: no sex until the men make peace. Getting them to agree is the first battle. The older women seize the Acropolis and the treasury. The men lay siege, the women hold out, and the strike begins to tell on both sides; a Spartan herald arrives in visible distress. Spartan and Athenian envoys come to Lysistrata, who divides Greece up between them on the body of a girl called Reconciliation, and both sides go off to a feast and their wives."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1907)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1907
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg007.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': ["330a", "813"]}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1287, sha256: 596a8d246c7890da40448345c9eebfcc86e56ebe28e512850ecf1c5800ed7ee3}
+    speakers:
+      sigla:
+        "Λυσιστράτη": "Lysistrata"
+        "Καλονίκη": "Calonice"
+        "Μυρρίνη": "Myrrhine"
+        "Λαμπιτώ": "Lampito"
+        "Χορὸς γερόντων": "Chorus of Old Men"
+        "Χορὸς Γυναικῶν": "Chorus of Women"
+        "Ἄλλη": "Woman"  # 136b only: another woman answers Lysistrata. The reference gives the words to Myrrhine
+        "Πρόβουλος": "Magistrate"
+        "Γυνὴ Α": "First Woman"  # 439-: the edition prints three anonymous women (Α, Β, Γ) where the reference names Calonice, Myrrhine, and Lysistrata
+        "Γυνὴ Β": "Second Woman"  # 443-: as Γυνὴ Α
+        "Γυνὴ Γ": "Third Woman"  # 447-: as Γυνὴ Α
+        "γέρων": "Old Man"
+        "Γυνή": "Chorus of Women"  # 798-800: a chorus woman answers the old man (the reference's ΓΥ. from 798); from 830 the same label is a single woman (override below, the reference's own)
+        "Κινησίας": "Cinesias"
+        "Παῖς Κινησίου": "Child"
+        "Κῆρυξ Λακεδαιμονίων": "Spartan Herald"
+        "Χορός": "Chorus"
+        "Λάκων": "Spartan"
+        "Ἀθηναῖος": "Athenian Envoy"  # 1086- (33 lines): the reference's Athenian Envoy on all 33
+        "Ἀθηναῖος Α": "Athenian Envoy"  # 1216-: the reference's Athenian Envoy on all 21
+        "Ἀθηναῖος Β": "Athenian"  # 1221-: the reference's ΑΘ. on all 5
+        "Χορὸς Λακεδαιμονίων": "Chorus"  # 1247-: the edition prints a chorus of Spartans; the reference shows Spartan (a single singer) on the 32 matched lines
+        "Χορὸς Ἀθηναίων": "Chorus"
+        "—": null
+      overrides:
+        - { siglum: "Γυνή", from: "830", display: "Woman" }
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

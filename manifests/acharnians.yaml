@@ -256,6 +256,9 @@ registry:
   greekSource:
     short: "Coulon (1923)"
     full: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)"
+  greekEditions:
+    - { id: tlg, short: "Coulon (1923)", full: "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)", editor: "Coulon & van Daele", year: 1923, kind: tlg, licence: public-domain-us }
+    - { id: hall-geldart-oct, short: "Hall & Geldart (1906)", full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)", editor: "F. W. Hall and W. M. Geldart", year: 1906, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [] }
   translations:
     - id: athenian-society
       form: prose
@@ -277,3 +280,65 @@ registry:
   production: "Lenaia, 425 BC · first prize"
   argument: "Dicaeopolis, sick of the war, makes a private peace with Sparta for himself and his family."
   synopsis: "Dicaeopolis, a farmer driven into the city by the war, sits in the empty assembly waiting for someone to propose peace. No one does. He gets a private treaty with Sparta for himself and his household. The chorus of Acharnian charcoal-burners, whose vines the Spartans have burned, come after him with stones, and he argues for his life with his head over a chopping block, in rags borrowed from Euripides. He wins them over, opens a market to all comers, and ends at a feast, while the general Lamachus comes back from the front on a stretcher."
+
+# Hall & Geldart (OCT) Greek, read from Perseus TEI (Editions P3). Greek-only except where
+# `pairs` names a translation made from this text. Speaker labels differ from the TLG text on
+# many lines: `sigla` maps each Perseus <speaker> to the reference display; a comment gives the
+# evidence wherever the match is not the same name.
+greek_editions:
+  - id: hall-geldart-oct
+    label:
+      short: "Hall & Geldart (1906)"
+      full: "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)"
+    editor: "F. W. Hall and W. M. Geldart"
+    year: 1906
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0019.tlg001.perseus-grc2.xml
+      expect: { editor: "F. W. Hall" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: []
+    citation:
+      title_labels: []
+      lacunae: {'1': ["1202", "1206"]}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1192, sha256: 82c0852a6f0a986c3d2d3c79a1cb63a1811c524891b60e5f641a29aa44b67d11}
+    speakers:
+      sigla:
+        "Δικαιόπολις": "Dicaeopolis"
+        "Κῆρυξ": "Herald"
+        "Ἀμφίθεος": "Amphitheus"
+        "Κῆρυξ ἕτερος": "Herald"  # a second herald (59-): the reference has one Herald, and its display sits on all 4 lines
+        "Πρέσβυς": "Ambassador"
+        "Ψευδαρτάβας": "Pseudartabas"
+        "Θέωρος": "Theorus"
+        "Χορός": "Chorus"
+        "Θυγάτηρ": "Daughter"
+        "Κηφισόφων": "Servant"  # Euripides' servant, named Cephisophon here (396-): the reference shows Servant on all 4 lines
+        "Εὐριπίδης": "Euripides"
+        "Ἡμιχόριον Α": "Semichorus A"
+        "Ἡμιχόριον Β": "Semichorus B"
+        "Λάμαχος": "Lamachus"
+        "Μεγαρεύς": "Megarian"
+        "Κόρα": "Girls"  # one line, 735: the reference shows Girls (both daughters) there
+        "Κόρη": "Girl"  # one line, 780: the reference shows Girl there
+        "Συκοφάντης": "Informer"
+        "Βοιωτός": "Boeotian"
+        "Νίκαρχος": "Nicarchus"
+        "Θεράπων Λαμάχου": "Messenger"  # Lamachus' servant (959-, 22 lines): the reference shows Messenger on all 22
+        "Γεωργός": "Farmer"
+        "Παράνυμφος": "Bridesmaid"
+        "Ἄγγελος Α": "Herald"  # first messenger (1071-, 6 lines): the reference shows Herald on all 6
+        "Ἄγγελος Β": "Messenger"  # second messenger (1085-, 10 lines): the reference shows Messenger on all 10
+        "—": null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []
