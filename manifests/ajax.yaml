@@ -183,12 +183,14 @@ registry:
   greekEditions:
     - { id: tlg, short: "Dain & Mazon (1958)", full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)", editor: "Dain & Mazon", year: 1958, kind: tlg, licence: public-domain-us }
     - { id: storr-loeb, short: "Storr (1913)", full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)", editor: "F. Storr", year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
+    - { id: jebb, short: "Jebb (1896)", full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 7, The Ajax (Cambridge, 1896)", editor: "R. C. Jebb", year: 1896, kind: ocr-tei, licence: public-domain-us, pairs: [jebb] }
   translations:
     - id: jebb
       form: prose
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+      edition: jebb
       alignment: line
     - id: storr
       form: verse
@@ -249,3 +251,82 @@ greek_editions:
     alignment: { storr: { covered: [], cuts: [] } }
     gaps: []
     text_fixes: []
+  # Jebb's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org ajaxsoph00soph: the title page (n6) is dated 1907, its verso (n7) reads 'First Edition 1896, Reprinted 1907';
+  # so the edition of 1896). The TEI is sources/ocr/jebb/ajax.xml, made by
+  # scripts/ocr/jebb_to_tei.py and numbered by Jebb's own printed numbers
+  # and commentary notes (John, 2026-09-29); whether it is committed is John's call.
+  - id: jebb
+    label:
+      short: "Jebb (1896)"
+      full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 7, The Ajax (Cambridge, 1896)"
+    editor: "R. C. Jebb"
+    year: 1896
+    source:
+      kind: ocr-tei
+      path: ocr/jebb/ajax.xml
+      expect: { title: "Αἴας", editor: "R. C. Jebb" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      # DRAFT wording, for John to approve (the same on every Jebb play).
+      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
+      source_url: https://archive.org/details/ajaxsoph00soph
+    pairs: [jebb]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1360, sha256: "3f46a14eca923c083754fabda27e4f08115001f3b7bdbf1d9e8055a65fdcc5b2" }
+    speakers:
+      sigla:
+        "—": null
+        "ΑΘΗΝΑ": Athena
+        "ΑΘ.": Athena
+        "ΟΔΥΣΣΕΥΣ": Odysseus
+        "ΟΔ.": Odysseus
+        "ΑΙΑΣ": Ajax
+        "ΑΙ.": Ajax
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΤΕΚΜΗΣΣΑ": Tecmessa
+        "ΤΕ.": Tecmessa
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΑΓ.": Messenger
+        "ΗΜΙΧΟΡΙΟΝ Α": First Semichorus
+        "ΗΜ. Α.": First Semichorus
+        "ΗΜ. Β.": Second Semichorus
+        "ΤΕΥΚΡΟΣ": Teucer
+        "ΤΕΥ.": Teucer
+        "ΜΕΝΕΛΑΟΣ": Menelaus
+        "ΜΕ.": Menelaus
+        "ΑΓΑΜΕΜΝΩΝ": Agamemnon
+        "ΑΓΑ.": Agamemnon
+      overrides: []
+    edition_only: []
+    alignment:
+      jebb:
+        # Teucer's reply opens inside 985 (οὐχ ὅσον τάχος), where Jebb's
+        # English begins it; 986-989 fall inside that piece.
+        covered:
+          - { greek: "986", by: "985" }
+    gaps: []
+    # OCR misreads corrected under John's grammar rule (2026-09-19): each one
+    # the scan prints (archive.org, page as printed) where the OCR's reading
+    # breaks grammar or sense.
+    text_fixes:
+      - { ref: "245", find: "κάλυμμασι", replace: "καλύμμασι", note: "scan p. 48 prints καλύμμασι; the OCR's accent is on the wrong syllable" }
+      - { ref: "285", find: "ἔσπεροι", replace: "ἕσπεροι", note: "scan p. 52 prints ἕσπεροι; ἑσπέρος has the rough breathing" }
+      - { ref: "372", find: "ὤ δύσμορος", replace: "ὦ δύσμορος", note: "scan p. 66 prints ὦ; ὤ is no form of the interjection" }
+      - { ref: "381", find: "ἄλλημα", replace: "ἄλημα", note: "scan p. 66 prints ἄλημα; the OCR doubled the λ, making another word" }
+      - { ref: "536", find: "ἐπήνεσ’", replace: "ἐπῄνεσ’", note: "scan p. 86 prints ἐπῄνεσ’ (augment of ἐπαινέω); the OCR lost the iota subscript" }
+      - { ref: "634", find: "ἀμύγμα", replace: "ἄμυγμα", note: "scan p. 100 prints ἄμυγμα; the OCR's accent is on the wrong syllable" }
+      - { ref: "750", find: "’Ατρειδῶν", replace: "Ἀτρειδῶν", note: "scan p. 116 prints Ἀτρειδῶν; the OCR read the breathing as an elision mark" }
+      - { ref: "938", find: "ἦπαρ", replace: "ἧπαρ", note: "scan p. 144 prints ἧπαρ; ἦπαρ with the smooth breathing is no word" }
+      - { ref: "945", find: "ἐφεστάσι", replace: "ἐφεστᾶσι", note: "scan p. 144 prints ἐφεστᾶσι; the OCR read the circumflex as an acute" }
+      - { ref: "948", find: "’Ατρειδᾶν", replace: "Ἀτρειδᾶν", note: "scan p. 144 prints Ἀτρειδᾶν; the OCR read the breathing as an elision mark" }
+      - { ref: "953", find: "’Οδυσσέως", replace: "Ὀδυσσέως", note: "scan p. 144 prints Ὀδυσσέως; the OCR read the breathing as an elision mark" }
+      - { ref: "993", find: "προσείδον", replace: "προσεῖδον", note: "scan p. 150 prints προσεῖδον; the OCR read the circumflex as an acute" }
+      - { ref: "997", find: "κἀξιχνσκοπούμενος", replace: "κἀξιχνοσκοπούμενος", note: "scan p. 152 prints κἀξιχνοσκοπούμενος; the OCR lost a letter" }

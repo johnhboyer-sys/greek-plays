@@ -72,12 +72,60 @@ PLAYS = {
 # Per-play numbering exceptions: {ocr .txt line: n}, each with its reason.
 NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
     "oedipus-tyrannus": {
-        # Scan p. 174: colon 12 prints 1345 (it holds 1342 and the start of
-        # 1345); colon 13 is then 1346, and the Chorus's two trimeters 1347
-        # and 1348 (Jebb's note '1348 ἂν'; the TLG count agrees).
+        # Scan p. 174: colon 12 prints 1345 (Jebb's count goes 1341 to
+        # 1345 here); colon 13 is then 1346, and the Chorus's two trimeters
+        # 1347 and 1348 (Jebb's notes '1347', '1348 ἂν'; the TLG count agrees).
+        # Scan p. 72: 475 is printed on φάμα Παρνασοῦ …, which holds 476 too
+        # (Jebb's note '476 Join τὸν ἄδηλον ἄνδρα'); φοιτᾷ is 477 and colons
+        # 4-5 one verse, 478 (note '478 πέτρας ἰσόταυρος'; TLG 477-478).
+        4313: ("477", "scan p. 72: note '476 Join τὸν ἄδηλον ἄνδρα' falls in φάμα's line; TLG 477"),
+        4314: ("478", "scan p. 72: colon 4 opens 478; TLG 478"),
+        4315: ("478a", "scan p. 72: colon 5, the rest of 478 (note '478 πέτρας ἰσόταυρος')"),
         7616: ("1346", "scan p. 174: the colon after printed 1345"),
         7617: ("1347", "scan p. 174; TLG 1347"),
         7618: ("1348", "Jebb's note '1348 ἂν'; TLG 1348"),
+    },
+    "oedipus-coloneus": {
+        # Scans pp. 34-36: 152 is printed on colon 3; colons 4-5 (ἀλλ’ οὐ μὰν
+        # ἔν γ’ ἐμοὶ | προσθήσει τάσδ’ ἀράς) are one verse, 153 (apparatus
+        # '153 … προσθήσει'); note '154 περᾷς' is colon 6, περᾷς γάρ, which
+        # no reference aligns (the lemma matched colon 7's περᾷς instead);
+        # apparatus '155 ἵνα'.
+        2791: ("153", "scan p. 34: colon 4 opens 153 (apparatus '153 … προσθήσει' on colon 5)"),
+        2849: ("153a", "scan p. 36: colon 5, the rest of 153 (apparatus '153 … προσθήσει')"),
+        2850: ("154", "scan p. 36: note '154 περᾷς' on colon 6"),
+        2851: ("155", "scan p. 36: apparatus '155 ἵνα', '156 προπέσῃς' on this colon"),
+        # Scan p. 42: ὦ ξένοι … ΧΟ. τί τόδ’ ἀπεννέπεις, | γέρον; is one line
+        # with a turn-over; 209 is printed on the turn-over, and the next
+        # line is 210 (Jebb's note '210 μή, μή μ’ ἀνέρῃ'); TLG 207, 210.
+        3055: ("207", "scan p. 42: the line opens 207 and holds 208-209 (209 printed on its turn-over); TLG 207"),
+        3057: ("210", "scan p. 42: Jebb's note '210 μή, μή μ’ ἀνέρῃ'; TLG 210"),
+    },
+}
+# OCR rows mended before parsing, as the scan prints them: {slug: {ocr .txt
+# line: (find, replace, reason)}}.
+ROW_FIXES: dict[str, dict[int, tuple[str, str, str]]] = {
+    "oedipus-coloneus": {
+        3056: ("στρ. γέρον;", "γέρον;", "scan p. 42: 'στρ.' is the OCR's reading of the margin label ἀνομοιό|στροφα, not a strophe mark"),
+    },
+}
+ROW_FIXES_ACTIVE: dict[int, tuple[str, str, str]] = {}
+# Printed margin numbers the OCR set on the wrong row, as the scan prints
+# them: {slug: {ocr .txt line: (printed number or None, reason)}}.
+PRINTED_FIXES: dict[str, dict[int, tuple[int | None, str]]] = {
+    "antigone": {
+        2913: (235, "scan p. 54 prints 235 against τῆς ἐλπίδος (Jebb's note '235 f. τῆς ἐλπίδος')"),
+        2914: (None, "scan p. 54: no number on τὸ μὴ παθεῖν (the OCR moved 235 here)"),
+    },
+    "electra-soph": {
+        5641: (None, "scan p. 108: no number on ἠλαυνέτην (the OCR moved 740 here)"),
+        5642: (740, "scan p. 108 prints 740 against κάρα προβάλλων"),
+    },
+    "oedipus-coloneus": {
+        5172: (665, "scan p. 112 prints 665 against γνώμης ἐπαινῶ"),
+        5174: (None, "scan p. 112: no number on τοὐμὸν φυλάξει (the OCR moved 665 here)"),
+        5178: (670, "scan p. 112 prints 670 against colon 3 τὸν ἀργῆτα Κολωνόν"),
+        5179: (None, "scan p. 112: no number on colon 4 (the OCR moved 670 here)"),
     },
 }
 # Printed margin numbers that disagree with the numbering for a stated
@@ -92,15 +140,16 @@ LAT2GRK = str.maketrans({"A": "Α", "B": "Β", "E": "Ε", "Z": "Ζ", "H": "Η", 
 CAPS = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 SPACE_ENT = re.compile(r"(&nbsp;|&emsp;|&ensp;| | | | )+")
 APP = re.compile(r"^\s*(\*\*\s*\d|\*\*\s*[A-Za-z]|\d{1,4}\s*(f\.|ff\.)?\s+[A-Za-z(\[])")
-TRAIL_NUM = re.compile(r"\s+(?:\*\*)?\$?\[?\s*(\d{1,4})\s*\]?\$?(?:\*\*)?\s*$")
+TRAIL_NUM = re.compile(r"\s+(?:\*\*|\*|\()?\$?\[?\s*(\d{1,4})\s*\]?\$?(?:\*\*|\*|\))?\s*$")
 SPK_ABBR = r"[%s]{2,3}\." % CAPS
 LEAD_SPK = re.compile(r"^(%s)\s+" % SPK_ABBR)
 MID_SPK = re.compile(r"(?<=[\s])(%s)\s+(?=\S)" % SPK_ABBR)
-STROPHE = re.compile(r"^\*?((στρ|ἀντ|ἐπῳδ|ἐπωδ|μεσῳδ)(?:οφή|ιστροφή|ός)?\.?)\s*(?:([α-θ])\s*[΄'ʹ’`´]?\s*\.?)?\*?(?:\s+|$)")
+STROPHE = re.compile(r"^\*?((στρ|ἀντισύστ|σύστ|συστ|ἀντ|ἐπῳδ|ἐπωδ|μεσῳδ|ἐπ(?=\.))(?:οφή|ιστροφή|ός|ημα)?\.?)\s*(?:([α-θ])\s*[΄'ʹ’`´]?\s*\.?)?(?:\*\s*|\s+|$)")
 COLON = re.compile(r"^(\d{1,2})\s+(?=[^\s\d])")
 NAME_LINE = re.compile(r"^[%s][%s\s]{2,}\.?$" % (CAPS, CAPS))
 NUMERAL = {c: i for i, c in enumerate("αβγδεζηθ", 1)}
-SUBTYPE = {"στρ": "strophe", "ἀντ": "antistrophe", "ἐπῳδ": "epode", "ἐπωδ": "epode", "μεσῳδ": "mesode"}
+SUBTYPE = {"στρ": "strophe", "ἀντ": "antistrophe", "ἐπῳδ": "epode", "ἐπωδ": "epode", "μεσῳδ": "mesode",
+           "σύστ": "systema", "συστ": "systema", "ἀντισύστ": "antisystema", "ἐπ": "epode"}
 APOS = "'’᾽ʼ᾿`"
 COMB = {"̀", "́", "͂", "̓", "̔", "ͅ", "̈", "̄", "̆"}
 
@@ -153,10 +202,17 @@ def _page_no(g: str) -> int:
 def read_head(ne: list[tuple[int, str]]):
     """(is a Greek-text page, printed page number, head lines used)."""
     used, number, greek = 0, None, False
-    for _, s in ne[:3]:
-        c = SPACE_ENT.sub(" ", s).strip().strip("#").strip()
+    seen = 0
+    for _, s in ne[:6]:
+        c = re.sub(r"</?[A-Za-z][^>]*>", "", SPACE_ENT.sub(" ", s)).strip().strip("#").strip()
+        if not c:   # a bare '<br/>' row (El. p. 134)
+            used += 1
+            continue
+        seen += 1
+        if seen > 3:
+            break
         c = re.sub(r"\$\s*(\d+)\s*\$", r"\1", c).replace("*", "").replace("\\", "").strip()
-        if re.fullmatch(PAGE_NO, c) and re.search(r"\d", c):
+        if re.fullmatch(PAGE_NO, c) and (re.search(r"\d", c) or len(c) >= 2):   # 'ΙΟ' for 10 (El.)
             number, used = _page_no(c), used + 1
             continue
         m = re.fullmatch(r"(%s)?\s*(ΣΟΦΟΚΛΕΟΥΣ|ΣΟΦΟΚΛΕΟΥΣ\.|SOPH\w*|ΣOΦOKΛEOYΣ|\S*ΟΦΟΚΛ\S*)\s*(%s)?" % (PAGE_NO, PAGE_NO),
@@ -192,6 +248,9 @@ def latex_greek(s: str) -> str | None:
         body = m.group(1).strip()
         if re.fullmatch(r"\d{1,4}", body):
             return " " + body
+        if re.fullmatch(r"[-–—\s|]+", body):   # a scheme of long syllables (OC 181ff.)
+            bad = True
+            return ""
         out = re.sub(r"\\([a-z]+)\s*", lambda t: GREEK_TEX.get(t.group(1), "\x00"), body)
         if "\x00" in out or "\\" in out or re.search(r"[A-Za-z|<>]", out):
             bad = True
@@ -200,6 +259,8 @@ def latex_greek(s: str) -> str | None:
         body = body.strip()
         if re.fullmatch(r"\d{1,4}", body):
             return False
+        if re.fullmatch(r"[-–—\s|]+", body):
+            return True
         t = re.sub(r"\\([a-z]+)\s*", lambda x: GREEK_TEX.get(x.group(1), "\x00"), body)
         return "\x00" in t or "\\" in t or bool(re.search(r"[A-Za-z|<>]", t))
 
@@ -209,12 +270,48 @@ def latex_greek(s: str) -> str | None:
         if re.search(r"[\u0370-\u03ff\u1f00-\u1fff]{3}", rest.translate(LAT2GRK).replace("ΟΙ.", "")) is None:
             # Only a metrical scheme: Jebb marks a lost verse this way (OC
             # 181ff.). Keep the row's speaker and colon number; the verse is
-            # a lacuna.
+            # a lacuna. The scheme's bar lines and brackets go; a printed
+            # number at the row's end stays there.
+            rest = re.sub(r"[|\[\]\-–—_]+", " ", rest)
+            m = re.search(r"\s(\d{3,4})\s*$", rest)
+            if m:
+                return rest[:m.start()].rstrip() + " ⁂LACUNA " + m.group(1)
             return rest.rstrip() + " ⁂LACUNA"
         # Greek with a metrical sign set in LaTeX inside it: the sign marks
         # lost syllables, so it becomes an ellipsis.
         return re.sub(r"\$([^$]*)\$", lambda m: repl(m) if not bad_span(m.group(1)) else " … ", s)
     return out
+
+
+METRICAL = re.compile(r"<[uU\s]*[-–—][uU\s\-–—]*>|(?:[—–-]\s*)?[◡‿](?:\s*[◡‿—–-])*")
+
+
+def clean_row(s: str) -> str:
+    """OCR markup that is not Jebb's: a blockquote '>' at the row's start, a
+    markdown line break '\\' at its end, <br/>, <center> and <u> tags,
+    strike tildes, LaTeX subscripts on colon numbers ('_{10}'), a colon
+    number run into its speaker ('ΑΝ.10'); other glyphs for Jebb's own
+    brackets and asterisk (〈 〉 ‹ › -> < >, ∗ -> *); and metrical signs for
+    lost syllables inside a verse ('— ◡ —', '<u u - u ->'), which become an
+    ellipsis as the LaTeX ones do."""
+    s = METRICAL.sub(" … ", s)
+    # Jebb's margin label ἀνομοιό-|στροφα (OC 207-209), split over two rows.
+    s = re.sub(r"^(\s*)(?:ἀνομοιό-|στροφα\.?)\s+", r"\1", s)
+    s = s.replace("$$", "$")   # display LaTeX: a metrical scheme for a lost verse (El. 1264)
+    s = re.sub(r"\$_\{?(\d{1,2})\}?\$", r"\1", s)
+    s = re.sub(r"^(\s*)συ\.(?=\s*[α-θ]\s*[\u0374\u02b9\u0384΄'’]?\.)", r"\1στρ.", s)   # OCR 'συ. β΄.' for 'στρ. β΄.' (Ant. 834)   # '$_{10}$': a colon number set as a subscript
+    # A verse row set in bold ('**6 δῶρον, ὃ μήποτ’ …** 540', OC 539): the
+    # bold would read as an apparatus note ('**613** ἕρπει …').
+    m = re.fullmatch(r"\s*\*\*(\d{1,2}\s+[^*]+)\*\*(\s+\d{1,4})?\s*", s)
+    if m and greek_share(m.group(1)) >= 0.9:
+        s = m.group(1) + (m.group(2) or "")
+    s = re.sub(r"^\s*>(?=\s|&|$)", "", s)
+    s = re.sub(r"\\\s*$", "", s)
+    s = re.sub(r"</?(?:br|center|u)\b[^>]*>", " ", s)
+    s = re.sub(r"~{2,}", "", s)
+    s = re.sub(r"(^|\s)_\{?(\d{1,2})\}?(?=\s)", r"\1\2", s)
+    s = re.sub(r"(^|;|\s)([%s]{2,3}\.)(\d)" % (CAPS + "AEHIKMNOPTXY"), r"\1\2 \3", s)
+    return s.translate({0x3008: "<", 0x3009: ">", 0x2039: "<", 0x203A: ">", 0x2217: "*"})
 
 
 def is_apparatus(p: str) -> bool:
@@ -311,9 +408,18 @@ def page_rows(ne: list[tuple[int, str]], number: int | None, ref_keys: list[str]
         return row
 
     for i, s in ne:
-        s = latex_greek(s)
+        if i in ROW_FIXES_ACTIVE:
+            find, replace, _ = ROW_FIXES_ACTIVE[i]
+            assert find in s, (i, find)
+            s = s.replace(find, replace, 1)
+        s = latex_greek(clean_row(s))
         p = plain(table_text(s)).replace("⁂LACUNA", "")
         reason = stop_reason(s, p)
+        if (reason == "apparatus text" and index and not re.search(r"[A-Za-z]{2,}", p)
+                and ref_score(p, index) >= RESUME_SCORE):
+            # A verse closing Jebb's bracket round lines he deletes (Ant.
+            # 920 'κατασκαφάς·]', closing 904-920): the lone ']' is his.
+            reason = None
         if stop is None:
             if reason is not None:
                 stop = {"page": number, "src": i, "reason": reason, "text": p[:40], "dropped": [i],
@@ -381,10 +487,19 @@ def extract(slug: str, ref_keys: list[str] | None = None) -> tuple[list[dict], l
 HEADINGS = {"κομμός", "κομμὸς"}
 
 
+LOOKALIKE = str.maketrans({"v": "ν", "o": "ο", "a": "α", "i": "ι", "k": "κ", "x": "χ", "u": "υ"})
+
+
+def _greek_lookalikes(tok: str) -> str:
+    tok = tok.translate(LOOKALIKE)
+    return re.sub(r"s(?=[^\w]*$)", "ς", tok).replace("s", "σ")
+
+
 def parse_row(s: str) -> dict | None:
     s = table_text(nfc(s))
     if not s.strip():
         return None
+    s = s.replace("⁂LACUNA", "⁂")   # a lost verse (latex_greek); '⁂' stands for it below
     s = s.replace("\\*", "⁑")  # Jebb's asterisk, kept through markup removal
     s = SPACE_ENT.sub(" ", s)
     s = re.sub(r"</?(small|sup|sub|span|i|b|em|strong)\b[^>]*>", "", s)
@@ -392,7 +507,8 @@ def parse_row(s: str) -> dict | None:
     s = s.replace("**", "").replace("__", "")
     s = s.strip()
     head = s.lstrip("#").strip().replace("*", "")
-    if head and NAME_LINE.fullmatch(head.translate(LAT2GRK)) and len(head) < 40:
+    if head and NAME_LINE.fullmatch(head.translate(LAT2GRK)) and len(head) < 40 \
+            and "ΟΦΟΚΛ" not in head.translate(LAT2GRK):   # a running head (El. p. 134) is no speaker
         return {"kind": "name", "text": head.translate(LAT2GRK).rstrip(".").strip()}
     if re.fullmatch(r"\d{1,4}(\s+\d{1,4})*", head):
         return {"kind": "num", "numbers": [int(x) for x in head.split()]}
@@ -401,16 +517,21 @@ def parse_row(s: str) -> dict | None:
     s = s.lstrip("#").strip()
     printed = None
     m = TRAIL_NUM.search(s)
-    if m and GREEK_RE.search(s[:m.start()] or ""):
+    if m and (GREEK_RE.search(s[:m.start()] or "") or "⁂" in s[:m.start()]):
         printed, s = int(m.group(1)), s[:m.start()].rstrip()
     colon = strophe = None
     speaker = None
     for _ in range(4):
         s = s.lstrip()
+        if speaker is None and re.match(r"⁑\s*%s\s" % SPK_ABBR, s.translate(LAT2GRK)):
+            s = s.lstrip("⁑ ")   # Jebb's asterisk on a speaker he assigns anew (Ant. 574 *ΧΟ.)
         m = LEAD_SPK.match(s.translate(LAT2GRK)[:6] + s[6:]) if s[:1].isupper() else None
         if m and speaker is None:
             speaker = m.group(1).translate(LAT2GRK)
             s = s[m.end():]
+            h = re.match(r"([ΑΒ])\.\s+", s) if speaker == "ΗΜ." else None
+            if h:   # a half-chorus's leader, 'ΗΜ. Β.' (Ai. 872)
+                speaker, s = f"ΗΜ. {h.group(1)}.", s[h.end():]
             continue
         m = STROPHE.match(s)
         if m and strophe is None:
@@ -431,11 +552,20 @@ def parse_row(s: str) -> dict | None:
     # not, is Jebb's asterisk before an emended word.
     s = s.replace("⁑", "*")
     s = s.replace("\u02d9", "\u00b7")  # OCR's dot above for the ano teleia
+    s = s.replace("ϐ", "β")   # the medial beta glyph (Ant. 1019 ἄϐουλος)
+    # A spacing breathing (and accent) set before a capital: '῞Αιδης' ->
+    # 'Ἅιδης' (El. 542).
+    s = re.sub(r"([\u1fbf\u1ffe\u1fcd-\u1fcf\u1fdd-\u1fdf][\u0300\u0301\u0342]?)([ΑΕΗΙΟΥΩ])",
+               lambda m: nfc(m.group(2) + unicodedata.normalize("NFD", m.group(1))
+                             .replace("\u1fbf", "\u0313").replace("\u1ffe", "\u0314")), s)
     # One elision mark: the OCR mixes psili (U+1FBF), koronis (U+1FBD), the
     # modifier apostrophe and the ASCII one; the tokenizer reads U+2019.
     s = re.sub("[\u1fbf\u1fbd\u02bc']", "\u2019", s)
     s = re.sub(r"\*\s+(?=\S)", "*", s)
-    if s.strip() == "⁂LACUNA":
+    # A Latin lookalike inside a Greek word ('ἐκτρέπειs', El. 350; 'σοφόv',
+    # Ph. 1244) is the Greek letter.
+    s = re.sub(r"\S+", lambda t: _greek_lookalikes(t.group(0)) if GREEK_RE.search(t.group(0)) else t.group(0), s)
+    if s.strip() == "⁂":
         s = "* * *"
     if re.fullmatch(r"[*\s]+", s):
         return {"kind": "verse", "text": "", "lacuna": s.strip(), "printed": printed, "colon": colon,
@@ -540,10 +670,17 @@ def join_turnovers(rows: list[dict], ref_keys: list[str]) -> list[dict]:
             elif down and not up and not alone:
                 target = nxt
         if target is None:
+            if r["turn"] and len(key(r["text"])) >= 25:
+                # A whole verse, not a turn-over: its '[' is Jebb's bracket
+                # opening lines he deletes (Ant. 904 '[καίτοι σ’ ἐγὼ').
+                r["text"] = "[" + r["text"]
             out.append(r)
             continue
         target.setdefault("turnovers", []).append({"text": r["text"], "src": r["src"], "printed": r["printed"]})
-        target["text"] = (target["text"] + " " + r["text"]).strip()
+        if target["text"].endswith("-"):   # a word divided at the turn ('παγ-|κλαύτοις', Ant. 830)
+            target["text"] = target["text"][:-1] + r["text"]
+        else:
+            target["text"] = (target["text"] + " " + r["text"]).strip()
         if r["printed"] is not None and target.get("printed") is None:
             # A number on the turn-over's own row marks the traditional line
             # that begins there: the joined line's, or (a turn-down that
@@ -554,6 +691,35 @@ def join_turnovers(rows: list[dict], ref_keys: list[str]) -> list[dict]:
             # Both rows print a number: the line keeps both (TEI: one
             # margin-N token each), and check_margins checks both.
             target.setdefault("printed_more", []).append(r["printed"])
+    return out
+
+
+def merge_antilabe(rows: list[dict], ref_keys: list[str]) -> list[dict]:
+    """Join the shares of one verse that the OCR set on rows of their own.
+
+    Jebb prints an antilabe on one line ('ΤΕ. εὔφημα φώνει. ΑΙ. τοῖς
+    ἀκούουσιν λέγε.', Ai. 591); the OCR sometimes gives each share a row. A
+    row that opens with a speaker joins the next such row when both are
+    short (under 30 letters) and together they match a reference line
+    (RESUME_SCORE) better than either alone; a third share may join the
+    same way. The later speaker stays in the text, so the shares split."""
+    index = ref_index(ref_keys)
+    out: list[dict] = []
+    for r in rows:
+        prev = out[-1] if out else None
+        if (prev is not None and prev["kind"] == "verse" and r["kind"] == "verse"
+                and prev.get("lacuna") is None and r.get("lacuna") is None
+                and prev["speaker"] and r["speaker"] and prev["colon"] is None and r["colon"] is None
+                and prev["strophe"] is None and r["strophe"] is None and prev["printed"] is None
+                and len(key(r["text"])) < 30 and len(key(prev["text"])) < 60):
+            joined = prev["text"] + " " + r["speaker"] + " " + r["text"]
+            score = ref_score(joined, index)
+            if score >= RESUME_SCORE and score >= max(ref_score(prev["text"], index), ref_score(r["text"], index)) + 0.1:
+                prev["text"] = joined
+                prev["printed"] = r["printed"]
+                prev.setdefault("antilabe_rows", []).append(r["src"])
+                continue
+        out.append(r)
     return out
 
 
@@ -670,14 +836,28 @@ def _num(ref: str) -> tuple[int, str]:
 
 
 PRINTED_WEIGHT = 50.0   # a printed margin number left unmet
-LEMMA_WEIGHT = 5.0      # a commentary lemma's number left unmet
+LEMMA_WEIGHT = 40.0     # a commentary lemma's number left unmet (John,
+                        # 2026-09-29: Jebb's own numbers govern his edition)
+RANGE_LEMMA_WEIGHT = 10.0  # a note on 'N f.' met by neither N nor N + 1
+COUNT_COST = 0.3        # a line numbered by Jebb's running count (the number
+                        # before it + 1) where neither reference gives it
+INSIDE_UNPROVEN = 10.0  # a checkpoint met only by lying inside a lyric line
+                        # where no reference line starts
+INSIDE_PROVEN = 0.6     # a checkpoint met inside a line where a reference
+                        # line starts: allowed, but Jebb's number on the
+                        # line itself is the plainer reading
 
 
 def lemma_checkpoints(slug: str, jebb: list[dict]) -> dict[int, list[int]]:
-    """{line index: [N, ...]} from Jebb's commentary notes ('**N lemma**').
+    """{line index: [(N, pos, span), ...]} from Jebb's commentary notes
+    ('**N lemma**'; span 1 for a note on 'N f.', whose lemma may stand in
+    N + 1: OC '214 f. τίνος εἶ σπέρματος', printed 215; notes on 'N ff.'
+    are left out).
 
     A note checks the line that holds its lemma's first words, when exactly
-    one line within six numbers of N (by either reference) holds them."""
+    one line within six numbers of N (by either reference) holds them. pos
+    is where the lemma starts in the line's letter key: a lemma before the
+    point where a second number begins belongs to the line's first number."""
     fname, _, _, first, last = PLAYS[slug]
     text = (GENIE / fname).read_text(encoding="utf-8").split("\n")[first - 1:last]
     keyed = []
@@ -688,36 +868,48 @@ def lemma_checkpoints(slug: str, jebb: list[dict]) -> dict[int, list[int]]:
     seen = set()
     for row in text:
         for m in LEMMA.finditer(nfc(row)):
-            n, lemma = int(m.group(1)), re.split(r"\.\.\.|…|—|:|,|\(|\]", m.group(2))[0]
+            if m.group(2) and "ff" in m.group(2):
+                continue
+            span = 1 if m.group(2) else 0
+            n, lemma = int(m.group(1)), re.split(r"\.\.\.|…|—|:|,|\(|\]", m.group(3))[0]
             k = key(lemma)
             if greek_share(lemma) < 0.9 or len(k) < 5 or (n, k) in seen:
                 continue
             seen.add((n, k))
             hits = [i for i, nums, lk in keyed if k in lk and any(abs(v - n) <= 6 for v in nums)]
             if len(hits) == 1:
-                out.setdefault(hits[0], []).append(n)
+                out.setdefault(hits[0], []).append((n, keyed[hits[0]][2].find(k), span))
     return out
 
 
 def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], covers: dict[str, list[list[int]]]) -> None:
-    """Give every Jebb line its n.
+    """Give every Jebb line its n, by Jebb's own count (John, 2026-09-29).
 
-    Two references: 'S' (Storr's Perseus Greek, whose numbers the Perseus
-    English of Jebb uses) and 'T' (the TLG text, the traditional count). A
-    line may take the number of the reference line it starts with, from
-    either reference, or the number of a checkpoint on it. Checkpoints are
-    Jebb's own numbers: the printed margin numbers, and the numbers of his
-    commentary notes whose lemma the line holds. A line numbered n meets a
-    checkpoint N when n = N, or n < N < the next line's number (the line
-    holds several numbers of the traditional count, as Jebb's long lyric
-    lines do); a lemma on a continuation line (no number of its own) meets
-    N when the line before is N.
+    Jebb's numbers govern: the printed margin numbers and the numbers of his
+    commentary notes whose lemma the line holds (checkpoints). Between them
+    the references fill in: 'S' (Storr's Perseus Greek, whose numbers the
+    Perseus English of Jebb uses) and 'T' (the TLG text). Where neither
+    reference gives a number that fits Jebb's, the line takes Jebb's running
+    count, the number before it + 1 ('J'): his lyric cola, one number each,
+    where his count runs apart from Storr's and the TLG's (OT 159 πρῶτά σε,
+    TLG 158), or the number after one the line before holds. A line numbered n meets a checkpoint N when n = N, or when
+    n < N < the next line's number and the line holds the start of a
+    reference line numbered N (a long line holding several numbers, as
+    Jebb's lyric lines do), with a lemma lying at or past that start. A
+    lyric line (a colon number, strophe mark, or turn-over) may also hold N
+    where no reference line starts, at a cost (OT 1209 παιδὶ καὶ πατρὶ,
+    printed 1210 at its end, where his note '1210 πεσεῖν' falls); a lemma on
+    a continuation line (no number of its own) meets N when the line before
+    is N. A line gets a lettered number only where Jebb's count leaves it
+    none.
 
     The numbering is the cheapest path over the lines: an unmet printed
-    number costs 50, an unmet lemma 5, taking a printed number 0.5 and a
-    lemma's 1, a switch between references 1, a TLG number 0.01 (Storr's
-    hold wherever Jebb's numbers allow, so the Perseus English anchors land),
-    an unnumbered line 3; numbers must rise."""
+    number costs 50, an unmet lemma 40, one met inside a lyric line where no
+    reference line starts 10, one met inside a line where one does 0.6, taking a printed number 0.5 and a lemma's 1,
+    Jebb's running count 0.3, a switch between references 1, a
+    TLG number 0.01 (Storr's hold wherever Jebb's numbers allow, so the
+    Perseus English anchors land), an unnumbered line 3 (45 for a whole spoken verse); numbers must
+    rise."""
     fixes = NUMBER_FIXES.get(slug, {})
 
     def cand(x: str, i: int):
@@ -727,17 +919,18 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
     for i, line in enumerate(jebb):
         line["cand"] = {x: cand(x, i) for x in ("S", "T")}
     lemmas = lemma_checkpoints(slug, jebb)
-    options: list[dict[str, tuple[str, float]]] = []   # state -> (n, cost)
-    checks: list[list[tuple[int, float, str]]] = []
+    options: list[dict[str, tuple[str, float]]] = []   # state -> (n, cost); 'J' has n ''
+    checks: list[list[tuple]] = []   # (N, weight, kind, lemma position, span)
     for i, line in enumerate(jebb):
         cks = []
         if line.get("printed") is not None:
-            cks.append((line["printed"], PRINTED_WEIGHT, "turn" if line.get("printed_from_turn") else "printed"))
+            cks.append((line["printed"], PRINTED_WEIGHT, "turn" if line.get("printed_from_turn") else "printed", None, 0))
         for n in line.get("printed_more") or []:
-            cks.append((n, PRINTED_WEIGHT, "turn"))
-        for n in lemmas.get(i, []):
-            cks.append((n, LEMMA_WEIGHT, "lemma"))
-        line["lemmas"] = lemmas.get(i, [])
+            cks.append((n, PRINTED_WEIGHT, "turn", None, 0))
+        lem = [(x, None, 0) if isinstance(x, int) else (tuple(x) + (0,))[:3] for x in lemmas.get(i, [])]
+        for n, pos, span in lem:
+            cks.append((n, RANGE_LEMMA_WEIGHT if span else LEMMA_WEIGHT, "lemma", pos, span))
+        line["lemmas"] = [n for n, _, _ in lem]
         if line["src"] in fixes:
             # A hand fix keeps its checkpoints: an unmet one costs, and is
             # reported below (fix_conflicts).
@@ -748,74 +941,155 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
         for x in ("S", "T"):
             if line["cand"][x] is not None:
                 opts[x] = (line["cand"][x], 0.01 if x == "T" else 0.0)
-        for n, _, kind in cks:
+        for n, _, kind, _, _ in cks:
             opts.setdefault(f"C{n}", (str(n), 1.0 if kind == "lemma" else 0.5))
-        opts["X"] = ("", 3.0)
+        if i > 0:
+            opts["J"] = ("", COUNT_COST)
+            # Jebb's count past a number the line before holds (OT 693
+            # πεφάνθαι after 690 ἴσθι δὲ …, which holds '692 ἐπὶ φρόνιμα').
+            for n, _, _, _, _ in checks[i - 1]:
+                opts.setdefault(f"H{n}", (str(n + 1), COUNT_COST))
+        # An unnumbered line is a split colon or an extra-metrical cry
+        # ('φεῦ.'), or an anapaest Jebb counts with the one before (OT 1304
+        # πόλλ’ ἀνερέσθαι); a whole trimeter (30 letters or more) never is,
+        # so leaving one unnumbered costs more than an unmet lemma (Ai. 654
+        # 'ἀλλ’ εἶμι', where the apparatus note '654 παῖδά τ’]' sits on 653).
+        long_verse = len(key(line["text"])) >= 30 and line.get("colon") is None and line.get("strophe") is None \
+            and not line.get("turnovers") and len(line.get("shares") or []) < 3
+        opts["X"] = ("", 45.0 if long_verse else 3.0)
         options.append(opts)
         checks.append(cks)
 
-    # Only a lyric line (a colon number or strophe mark) or a line with a
-    # turn-over can hold several numbers of the traditional count.
-    multi = [x.get("colon") is not None or x.get("strophe") is not None or bool(x.get("turnovers")) for x in jebb]
+    # A line holds a second number N when a reference line numbered N
+    # starts inside it (its first letters found past the line's start).
+    ref_keys = {x: {} for x in ("S", "T")}
+    for x in ("S", "T"):
+        for r in refs[x]:
+            ref_keys[x].setdefault(str(r["n"]), key(r["text"]))
+    line_keys = [key(x["text"]) for x in jebb]
+    # Where each line's sentence stops fall, in its letter key: a lemma after
+    # one (OT 1219 ἐκ στομάτων. '1221 τὸ δ’ ὀρθὸν εἰπεῖν') begins a later
+    # number than the line's first.
+    stops_at = [[len(key(x["text"][:m.start()])) for m in re.finditer(r"[.·;]", x["text"])] for x in jebb]
 
-    def unmet(i: int, st: str, before: tuple[int, str], nxt: tuple[int, str] | None) -> list[tuple[int, float, str]]:
-        """Line i's unmet checkpoints, given its state, the number before
-        it, and the next line's number."""
+    def holds(i: int, n: int) -> int | None:
+        """Where the reference line numbered n starts inside line i, or None."""
+        found = []
+        for x in ("S", "T"):
+            rk = ref_keys[x].get(str(n)) or ""
+            for a in (0, 2):
+                probe = rk[a:a + 6]
+                if len(probe) == 6:
+                    at = line_keys[i].find(probe, 3)
+                    if at >= 0:
+                        found.append(at - a)
+        return min(found) if found else None
+
+    # Only a lyric line (a colon number or strophe mark), a line with a
+    # turn-over, or a line of three shares or more (OC 212 ΧΟ. τί τόδ’; ΟΙ.
+    # … ΧΟ. … ΟΙ. … τί γεγώνω; a printed line with a turn-over the OCR ran
+    # into one row, holding 212-214) holds a number where no reference line
+    # starts.
+    multi = [x.get("colon") is not None or x.get("strophe") is not None or bool(x.get("turnovers"))
+             or len(x.get("shares") or []) >= 3 for x in jebb]
+
+    def unmet(i: int, n_i: str | None, before: tuple[int, str], nxt: tuple[int, str] | None,
+              unproven: bool = False) -> list[tuple[int, float, str]]:
+        """Line i's unmet checkpoints, given its number (None: unnumbered),
+        the number before it, and the next line's number; with unproven,
+        the checkpoints met only inside a lyric line where no reference line
+        starts (weighted INSIDE_UNPROVEN)."""
         out = []
-        for n, w, kind in checks[i]:
-            if st == "X":
+        for n, w, kind, pos, span in checks[i]:
+            if n_i is None:
                 met = kind == "lemma" and before[0] == n
             else:
-                v, suffix = _num(options[i][st][0])
+                v, suffix = _num(n_i)
                 upper = nxt[0] if nxt is not None else 10 ** 6
-                inside = multi[i] and v < n < upper
-                met = (v == n and not suffix) or inside or (kind == "turn" and nxt == (n, ""))
+                inside = False
+                # A lemma in the second half of a lyric line, or after a
+                # sentence stop in it, most likely names a later number the
+                # line holds (OT 690 ἴσθι δὲ … '692 ἐπὶ φρόνιμα'): inside is
+                # the plain reading, and equal the costly one where it would
+                # leave numbers before the line unheld and no reference
+                # numbers the line so.
+                late = kind == "lemma" and pos is not None and multi[i] and (
+                    pos > len(line_keys[i]) / 2 or any(0 < k <= pos for k in stops_at[i]))
+                if v < n < upper:
+                    at = holds(i, n)
+                    inside = at is not None and (pos is None or pos >= at - 2)
+                    if unproven and (inside or multi[i]):
+                        out.append((n, INSIDE_PROVEN if inside or late else INSIDE_UNPROVEN,
+                                    kind + (" inside" if inside or late else " inside unproven")))
+                        continue
+                if (unproven and late and v == n and not suffix and n - before[0] >= 3
+                        and str(n) not in jebb[i]["cand"].values()):
+                    out.append((n, INSIDE_UNPROVEN, kind + " late, inside unproven"))
+                    continue
+                met = (v in (n, n + span) and not suffix) or inside or (kind == "turn" and nxt == (n, ""))
             if not met:
                 out.append((n, w, kind))
         return out
 
-    def check_cost(i: int, st: str, before: tuple[int, str], nxt: tuple[int, str] | None) -> float:
-        return sum(w for _, w, _ in unmet(i, st, before, nxt))
+    def check_cost(i: int, n_i: str | None, before: tuple[int, str], nxt: tuple[int, str] | None) -> float:
+        return sum(w for _, w, _ in unmet(i, n_i, before, nxt, unproven=True))
 
     INF = float("inf")
-    # best[i][state] = (cost, previous state, last real number, number before line i)
-    best: list[dict[str, tuple[float, str | None, tuple[int, str], tuple[int, str]]]] = []
+    # best[i][state] = (cost, previous state, last real number, number before
+    # line i, line i's number or None)
+    best: list[dict[str, tuple]] = []
     for i, opts in enumerate(options):
         row = {}
         for st, (n, cost) in opts.items():
-            here = _num(n) if st != "X" else None
+            fixed = _num(n) if st not in ("X", "J") else None
             if i == 0:
-                row[st] = (cost, None, here or (0, ""), (0, ""))
+                row[st] = (cost, None, fixed or (0, ""), (0, ""), n if st != "X" else None)
                 continue
-            choice = (INF, None, (0, ""), (0, ""))
-            for pst, (pc, _, plast, pbefore) in best[i - 1].items():
+            # Jebb's running count takes its number from the line before, so
+            # its states are kept apart by that number ('J1021', 'J1022').
+            choices: dict[str, tuple] = {}
+            for pst, (pc, _, plast, pbefore, pn) in best[i - 1].items():
+                here = (plast[0] + 1, "") if st == "J" else fixed
                 c = pc + cost + (1.0 if st[0] != pst[0] and st[0] in "ST" and pst[0] in "ST" else 0.0)
                 if here is not None and not (here > plast):
                     c += 100.0  # numbers must rise
-                c += check_cost(i - 1, pst, pbefore, here)
+                c += check_cost(i - 1, pn, pbefore, here)
                 last = here if here is not None else plast
-                if c < choice[0]:
-                    choice = (c, pst, last, plast)
-            row[st] = choice
+                name = f"J{here[0]}" if st == "J" else st
+                if c < choices.get(name, (INF,))[0]:
+                    choices[name] = (c, pst, last, plast, None if here is None else str(here[0]) + here[1])
+            row.update(choices)
         best.append(row)
     last_i = len(jebb) - 1
-    st = min(best[-1], key=lambda k: best[-1][k][0] + check_cost(last_i, k, best[-1][k][3], None))
+    st = min(best[-1], key=lambda k: best[-1][k][0] + check_cost(last_i, best[-1][k][4], best[-1][k][3], None))
     path = [st]
     for i in range(len(jebb) - 1, 0, -1):
         st = best[i][st][1]
         path.append(st)
     path.reverse()
+    numbers = [best[i][st][4] for i, st in enumerate(path)]
     # A fixed line's checkpoints the fix leaves unmet.
     for i, (line, st) in enumerate(zip(jebb, path)):
         if st == "F":
-            after = _num(options[i + 1][path[i + 1]][0]) if i + 1 < len(jebb) and path[i + 1] != "X" else None
-            line["fix_conflicts"] = [(n, kind) for n, _, kind in unmet(i, st, best[i][st][3], after)]
+            after = _num(numbers[i + 1]) if i + 1 < len(jebb) and numbers[i + 1] is not None else None
+            # A lettered fix ('478a') continues the line before.
+            own = None if _num(numbers[i])[1] else numbers[i]
+            line["fix_conflicts"] = [(n, kind) for n, _, kind in unmet(i, own, best[i][st][3], after)]
+    # Every checkpoint the numbering leaves unmet (reported).
+    for i, line in enumerate(jebb):
+        after = next((_num(numbers[k]) for k in range(i + 1, len(jebb)) if numbers[k] is not None), None)
+        before = best[i][path[i]][3]
+        found = unmet(i, None if numbers[i] and _num(numbers[i])[1] else numbers[i], before, after, unproven=True)
+        line["unmet"] = [(n, kind) for n, _, kind in found if " inside" not in kind]
+        line["inside_unproven"] = [n for n, _, kind in found if kind.endswith(" inside unproven")]
+        line["held"] = [n for n, _, kind in found if kind.endswith(" inside") or kind.endswith(" inside unproven")
+                        and "late" not in kind]
     for i, (line, st) in enumerate(zip(jebb, path)):
         if st == "X":
             line["n"] = None
             continue
-        line["n"] = options[i][st][0]
-        line["n_how"] = {"S": "storr", "T": "tlg", "F": "fix", "C": "checkpoint"}[st[0]]
+        line["n"] = numbers[i]
+        line["n_how"] = {"S": "storr", "T": "tlg", "F": "fix", "C": "checkpoint", "J": "jebb count", "H": "jebb count"}[st[0]]
         if st == "F":
             line["n_how"] = "fix: " + fixes[line["src"]][1]
         if st == "S":
@@ -825,9 +1099,13 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
     for i, line in enumerate(jebb):
         if line["n"] is not None:
             continue
-        prev = next((jebb[k]["n"] for k in range(i - 1, -1, -1) if jebb[k]["n"]), "0")
+        k_prev = next((k for k in range(i - 1, -1, -1) if jebb[k]["n"]), None)
+        prev = jebb[k_prev]["n"] if k_prev is not None else "0"
         nxt = next((jebb[k]["n"] for k in range(i + 1, len(jebb)) if jebb[k]["n"]), None)
         pn, _ = _num(prev)
+        # past the numbers the line before holds (OT 1105 holds 1107, so
+        # its turn-over 'δέξατ’ ἔκ του' is 1108)
+        pn = max([pn] + (jebb[k_prev].get("held") or [] if k_prev is not None else []))
         cand_n = str(pn + 1)
         if (nxt is None or _num(nxt)[0] > pn + 1) and cand_n not in used:
             line["n"], line["n_how"] = cand_n, "next free number"
@@ -837,6 +1115,18 @@ def number_lines(slug: str, jebb: list[dict], refs: dict[str, list[dict]], cover
                 letter = chr(ord(letter) + 1)
             line["n"], line["n_how"] = f"{pn}{letter}", "lettered"
         used.add(line["n"])
+    # The report's unmet checkpoints, on the final numbers (a line left
+    # unnumbered by the path has one now).
+    for i, line in enumerate(jebb):
+        if path[i] != "X":
+            continue
+        before = next((_num(jebb[k]["n"]) for k in range(i - 1, -1, -1)), (0, ""))
+        after = next((_num(jebb[k]["n"]) for k in range(i + 1, len(jebb))), None)
+        # A lettered line continues the one before (a lemma on it meets N
+        # when the line before is N).
+        found = unmet(i, None if line["n_how"] == "lettered" else line["n"], before, after, unproven=True)
+        line["unmet"] = [(n, kind) for n, _, kind in found if " inside" not in kind]
+        line["inside_unproven"] = [n for n, _, kind in found if kind.endswith(" inside unproven")]
 
 
 def check_margins(slug: str, jebb: list[dict]) -> list[dict]:
@@ -858,6 +1148,8 @@ def check_margins(slug: str, jebb: list[dict]) -> list[dict]:
                 ok = "equal"
             elif n < p and nxt is not None and p < nxt and (line.get("colon") is not None or line.get("strophe") is not None or line.get("turnovers")):
                 ok = "inside"   # a lyric line carrying several traditional numbers
+            elif p in (line.get("held") or []):
+                ok = "inside"   # a number the line holds by the numbering's own test (number_lines)
             elif from_turn and i + 1 < len(jebb) and jebb[i + 1]["n"] == str(p):
                 ok = "turn"     # printed on a turn-over row where the next line's number begins
             elif line["src"] in notes:
@@ -1010,7 +1302,8 @@ def char_check(tei: str) -> dict:
     return bad
 
 
-LEMMA = re.compile(r"\*\*(\d{1,4})(?:\s*ff?\.)?\s+([^*\d][^*]*?)\*\*")
+# '**N lemma**', '**N f. lemma**' (group 2: a note on a range).
+LEMMA = re.compile(r"\*\*(\d{1,4})(\s*ff?\.)?\s+([^*\d][^*]*?)\*\*")
 
 
 def lemma_check(slug: str, jebb: list[dict]) -> dict:
@@ -1025,7 +1318,9 @@ def lemma_check(slug: str, jebb: list[dict]) -> dict:
     seen = set()
     for row in lines:
         for m in LEMMA.finditer(nfc(row)):
-            n, lemma = int(m.group(1)), m.group(2)
+            if m.group(2):
+                continue
+            n, lemma = int(m.group(1)), m.group(3)
             lemma = re.split(r"\.\.\.|…|—|:|,|\(", lemma)[0]
             if greek_share(lemma) < 0.9 or (n, lemma) in seen:
                 continue
@@ -1058,6 +1353,14 @@ def english_anchor_check(tlg_work: str, jebb: list[dict]) -> tuple[int, int, lis
     return len(anchors) - len(missing), len(anchors), missing
 
 
+def english_anchor_bases(missing: list[str], jebb: list[dict]) -> list[str]:
+    """The missing anchors whose number, less a share letter, is not a
+    line of the text either: the pipeline resolves a lettered anchor
+    ('591a') by its number (stage1_perseus_play_english)."""
+    have = {x["n"] for x in jebb}
+    return [a for a in missing if re.sub(r"[a-z]+$", "", a) not in have]
+
+
 # ------------------------------------------------------------------ main
 def convert(slug: str, qa: bool = False) -> dict:
     fname, tlg, ident, first, last = PLAYS[slug]
@@ -1066,7 +1369,14 @@ def convert(slug: str, qa: bool = False) -> dict:
     ref = storr_lines(tlg)
     ref_t = tlg_lines(slug)
     ref_keys = [key(r["text"]) for r in ref + ref_t if r["text"]]
+    ROW_FIXES_ACTIVE.clear()
+    ROW_FIXES_ACTIVE.update(ROW_FIXES.get(slug, {}))
     rows, log, stops = extract(slug, ref_keys)
+    for r in rows:
+        fix = PRINTED_FIXES.get(slug, {}).get(r.get("src"))
+        if fix is not None and r["kind"] == "verse":
+            r["printed"], r["printed_fix"] = fix
+    rows = merge_antilabe(rows, ref_keys)
     rows = join_turnovers(rows, ref_keys)
     jebb = build_lines(rows)
     refs = {"S": ref, "T": ref_t}
@@ -1090,7 +1400,7 @@ def convert(slug: str, qa: bool = False) -> dict:
               "margin_turn": sum(1 for x in jebb if x.get("margin_ok") == "turn"),
               "margin_noted": sum(1 for x in jebb if (x.get("margin_ok") or "").startswith("noted")),
               "margin_bad": bad, "duplicate_refs": dups,
-              "numbered_by": {h: sum(1 for x in jebb if x.get("n_how") == h) for h in ("storr", "tlg", "checkpoint", "next free number", "lettered")},
+              "numbered_by": {h: sum(1 for x in jebb if x.get("n_how") == h) for h in ("storr", "tlg", "checkpoint", "jebb count", "next free number", "lettered")},
               "not_storr": [(x["src"], x["n"], x["n_how"], x["cand"]["S"], x["text"][:40]) for x in jebb if x.get("n_how") != "storr"],
               "turnovers": sum(len(x.get("turnovers") or []) for x in jebb)}
     # Every stop of a page's verse block; 'stops_suspect' are those that
@@ -1103,10 +1413,17 @@ def convert(slug: str, qa: bool = False) -> dict:
                                 "text": x["text"][:40]}
                                for x in jebb for n, kind in x.get("fix_conflicts") or []]
     report["commentary_lemmas"] = lemma_check(slug, jebb)
+    # Jebb's checkpoints (printed numbers, lemmas) the numbering leaves unmet.
+    report["inside_unproven"] = [{"src": x["src"], "page": x["page"], "n": x["n"], "checkpoint": n, "text": x["text"][:40]}
+                                 for x in jebb for n in x.get("inside_unproven") or []]
+    report["unmet_checkpoints"] = [{"src": x["src"], "page": x["page"], "n": x["n"], "checkpoint": n, "kind": kind,
+                                    "text": x["text"][:40]} for x in jebb for n, kind in x.get("unmet") or []]
     if qa:
         report["bad_chars"] = char_check(tei)
         present, total, missing = english_anchor_check(tlg, jebb)
-        report["english_anchors"] = {"present": present, "total": total, "missing": missing}
+        unresolved = english_anchor_bases(missing, jebb)
+        report["english_anchors"] = {"present": present, "total": total, "missing": missing,
+                                     "present_by_number": total - len(unresolved), "missing_by_number": unresolved}
     dump = ROOT / "build/sweeps/jebb-ocr" / f"{slug}-lines.json"
     dump.parent.mkdir(parents=True, exist_ok=True)
     dump.write_text(json.dumps([{k: v for k, v in x.items()} for x in jebb], ensure_ascii=False, indent=0), encoding="utf-8")

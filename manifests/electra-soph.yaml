@@ -136,12 +136,14 @@ registry:
   greekEditions:
     - { id: tlg, short: "Dain & Mazon (1958)", full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)", editor: "Dain & Mazon", year: 1958, kind: tlg, licence: public-domain-us }
     - { id: storr-loeb, short: "Storr (1913)", full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)", editor: "F. Storr", year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
+    - { id: jebb, short: "Jebb (1894)", full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 6, The Electra (Cambridge, 1894)", editor: "R. C. Jebb", year: 1894, kind: ocr-tei, licence: public-domain-us, pairs: [jebb] }
   translations:
     - id: jebb
       form: prose
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+      edition: jebb
       alignment: line
     - id: storr
       form: verse
@@ -197,3 +199,72 @@ greek_editions:
     alignment: { storr: { covered: [], cuts: [] } }
     gaps: []
     text_fixes: []
+  # Jebb's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org sophoclesplaysfr06soph: the title page (n6) is dated 1924, its verso (n7) reads 'First Edition 1894, Reprinted 1907, 1924';
+  # so the edition of 1894). The TEI is sources/ocr/jebb/electra-soph.xml, made by
+  # scripts/ocr/jebb_to_tei.py and numbered by Jebb's own printed numbers
+  # and commentary notes (John, 2026-09-29); whether it is committed is John's call.
+  - id: jebb
+    label:
+      short: "Jebb (1894)"
+      full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 6, The Electra (Cambridge, 1894)"
+    editor: "R. C. Jebb"
+    year: 1894
+    source:
+      kind: ocr-tei
+      path: ocr/jebb/electra-soph.xml
+      expect: { title: "Ἠλέκτρα", editor: "R. C. Jebb" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      # DRAFT wording, for John to approve (the same on every Jebb play).
+      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
+      source_url: https://archive.org/details/sophoclesplaysfr06soph
+    pairs: [jebb]
+    citation:
+      title_labels: []
+      lacunae: { "1": ["1264a"] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1454, sha256: "07e86359898d7857c3f7f49ea119183b12b1ce90c72be0c5f5575b8414c13b86" }
+    speakers:
+      sigla:
+        "—": null
+        "ΗΛΕΚΤΡΑ": Electra
+        "ΗΛ.": Electra
+        "ΟΡΕΣΤΗΣ": Orestes
+        "ΟΡ.": Orestes
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΧΡΥΣΟΘΕΜΙΣ": Chrysothemis
+        "ΧΡ.": Chrysothemis
+        "ΚΛΥΤΑΙΜΝΗΣΤΡΑ": Clytemnestra
+        "ΚΛ.": Clytemnestra
+        "ΠΑΙΔΑΓΩΓΟΣ": Paedagogus
+        "ΠΑ.": Paedagogus
+        "ΑΙΓΙΣΘΟΣ": Aegisthus
+        "ΑΙ.": Aegisthus
+      overrides: []
+    edition_only: []
+    alignment: { jebb: { covered: [] } }
+    gaps: []
+    # OCR misreads corrected under John's grammar rule (2026-09-19): each one
+    # the scan prints (archive.org, page as printed) where the OCR's reading
+    # breaks grammar or sense.
+    text_fixes:
+      - { ref: "5", find: "οἰστροπλήγος", replace: "οἰστροπλῆγος", note: "scan p. 6 prints οἰστροπλῆγος; the OCR read the circumflex as an acute" }
+      - { ref: "8", find: "οἳ δ’", replace: "οἷ δ’", note: "scan p. 6 prints οἷ ('whither'); the relative οἳ has nothing to refer to" }
+      - { ref: "46", find: "δορύξενων", replace: "δορυξένων", note: "scan p. 12 prints δορυξένων; the OCR's accent is on the wrong syllable" }
+      - { ref: "83", find: "ἀρχηγετειν", replace: "ἀρχηγετεῖν", note: "scan p. 18 prints ἀρχηγετεῖν; the OCR lost the accent" }
+      - { ref: "187", find: "ἄτις", replace: "ἅτις", note: "scan p. 32 prints ἅτις (relative); with the smooth breathing it is no word" }
+      - { ref: "342", find: "λελήσθαι", replace: "λελῆσθαι", note: "scan p. 52 prints λελῆσθαι; the OCR read the circumflex as an acute" }
+      - { ref: "393", find: "οὐμὸς", replace: "οὑμὸς", note: "scan p. 58 prints οὑμὸς (ὁ ἐμὸς); with the smooth breathing it reads as a negative" }
+      - { ref: "424", find: "Ἠλίῳ", replace: "Ἡλίῳ", note: "scan p. 62 prints Ἡλίῳ; the OCR gave the smooth breathing" }
+      - { ref: "604", find: "ἐπητιάσω", replace: "ἐπῃτιάσω", note: "scan p. 88 prints ἐπῃτιάσω (augment of ἐπαιτιάομαι); the OCR lost the iota subscript" }
+      - { ref: "739", find: "ἤλαυνέτην", replace: "ἠλαυνέτην", note: "scan p. 108 prints ἠλαυνέτην; the OCR added a second accent" }
+      - { ref: "943", find: "δρώσαν", replace: "δρῶσαν", note: "scan p. 132 prints δρῶσαν; the OCR read the circumflex as an acute" }
+      - { ref: "1018", find: "ἀπηγγελλομην", replace: "ἀπηγγελλόμην", note: "scan p. 140 prints ἀπηγγελλόμην; the OCR lost the accent" }
+      - { ref: "1024", find: "τοιαύτην", replace: "τοιαύτη", note: "scan p. 140 prints τοιαύτη (agreeing with the subject); the accusative has nothing to agree with" }
+      - { ref: "1181", find: "καθέως", replace: "κἀθέως", note: "scan p. 160 prints κἀθέως (καὶ ἀθέως); καθέως is no word" }
+      - { ref: "808", find: "’Ορέστα", replace: "Ὀρέστα", note: "scan p. 116 prints Ὀρέστα; the OCR read the breathing as an elision mark, leaving the vowel with none" }

@@ -131,3 +131,50 @@ def test_the_normal_report_counts_lemma_disagreements_and_fix_conflicts(tmp_path
     assert report["commentary_lemmas"]["disagree"] == 1
     assert [(c["src"], c["fix"], c["checkpoint"]) for c in report["fix_conflicts"]] == [(5, "9", 3)]
     assert [(s["src"], s["reason"]) for s in report["stops"]] == [(7, "apparatus marker")]
+
+
+# John, 2026-09-29: Jebb's own numbers govern his edition.
+def _count_case(monkeypatch, lemmas, printed=None):
+    ref = [{"n": str(k), "text": t, "parts": []} for k, t in zip((156, 157, 158, 160), VERSE[:4])]
+    refs = {"S": ref, "T": ref}
+    covers = {"S": [[0], [1], [2], [3]], "T": [[0], [1], [2], [3]]}
+    jebb = [{"text": t, "src": 10 + k, "page": 1, "printed": None, "colon": k + 1} for k, t in enumerate(VERSE[:4])]
+    if printed:
+        for i, p in printed.items():
+            jebb[i]["printed"] = p
+    monkeypatch.setattr(J, "lemma_checkpoints", lambda slug, jebb: lemmas)
+    J.number_lines("t", jebb, refs, covers)
+    return [x["n"] for x in jebb]
+
+
+def test_a_lemma_that_opens_a_line_numbers_it_over_the_reference(monkeypatch):
+    # OT 159 πρῶτά σε: the TLG says 158, Jebb's note says 159.
+    assert _count_case(monkeypatch, {2: [(159, 0, 0)]}, {3: 160}) == ["156", "157", "159", "160"]
+
+
+def test_without_jebb_numbers_the_reference_count_stands(monkeypatch):
+    assert _count_case(monkeypatch, {}) == ["156", "157", "158", "160"]
+
+
+def test_a_late_lemma_is_a_number_the_line_holds(monkeypatch):
+    # OT 690 ἴσθι δὲ … '692 ἐπὶ φρόνιμα': the line is 690 and holds 692, so
+    # the next colon is 693 by Jebb's count, not the reference's 691.
+    ref = [{"n": str(k), "text": t, "parts": []} for k, t in zip((689, 690, 691, 695), VERSE[:4])]
+    covers = {x: [[0], [1], [2], [3]] for x in "ST"}
+    jebb = [{"text": t, "src": 10 + k, "page": 1, "printed": None, "colon": k + 1} for k, t in enumerate(VERSE[:4])]
+    jebb[0]["printed"], jebb[3]["printed"] = 689, 695
+    pos = len(J.key(VERSE[1])) - 3
+    monkeypatch.setattr(J, "lemma_checkpoints", lambda slug, jebb: {1: [(692, pos, 0)]})
+    J.number_lines("t", jebb, {"S": ref, "T": ref}, covers)
+    assert [x["n"] for x in jebb] == ["689", "690", "693", "695"]
+
+
+def test_row_cleaning_and_word_joins():
+    assert J.clean_row("> &nbsp;7 νόμος ὅδ’\\") .strip().endswith("νόμος ὅδ’")
+    assert J.clean_row("καίτοι 〈καὶ〉 γενεᾷ") == "καίτοι <καὶ> γενεᾷ"
+    assert "…" in J.clean_row("ἀκταὶ Βοσπόριαι — ◡ —")
+    base = {"kind": "verse", "colon": 5, "strophe": None, "speaker": None, "page": 1, "turn": False}
+    rows = [{**base, "text": "τέγγει δ’ ὑπ’ ὀφρύσι παγ-", "printed": None, "src": 1},
+            {**base, "colon": None, "text": "κλαύτοις", "printed": 830, "src": 2}]
+    (joined,) = J.join_turnovers(rows, [J.key("τέγγει δ’ ὑπ’ ὀφρύσι παγκλαύτοις")])
+    assert joined["text"] == "τέγγει δ’ ὑπ’ ὀφρύσι παγκλαύτοις"
