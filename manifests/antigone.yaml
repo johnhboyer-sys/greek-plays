@@ -195,12 +195,14 @@ registry:
   greekEditions:
     - { id: tlg, short: "Dain & Mazon (1955)", full: "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)", editor: "Dain & Mazon", year: 1955, kind: tlg, licence: public-domain-us }
     - { id: storr-loeb, short: "Storr (1912)", full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)", editor: "F. Storr", year: 1912, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
+    - { id: jebb, short: "Jebb (1891)", full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 3, The Antigone (Cambridge, 2nd ed., 1891)", editor: "R. C. Jebb", year: 1891, kind: ocr-tei, licence: public-domain-us, pairs: [jebb] }
   translations:
     - id: jebb
       form: prose
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+      edition: jebb
       alignment: line
     - id: storr
       form: verse
@@ -266,3 +268,75 @@ greek_editions:
     alignment: { storr: { covered: [], cuts: [] } }
     gaps: []
     text_fixes: []
+  # Jebb's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org sophoclesplaysfr03soph: the title page (n6) reads 'Second edition … 1891', the preface (n9) is dated December 1890;
+  # so the edition of 1891). The TEI is sources/ocr/jebb/antigone.xml, made by
+  # scripts/ocr/jebb_to_tei.py and numbered by Jebb's own printed numbers
+  # and commentary notes (John, 2026-09-29); whether it is committed is John's call.
+  - id: jebb
+    label:
+      short: "Jebb (1891)"
+      full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 3, The Antigone (Cambridge, 2nd ed., 1891)"
+    editor: "R. C. Jebb"
+    year: 1891
+    source:
+      kind: ocr-tei
+      path: ocr/jebb/antigone.xml
+      expect: { title: "Ἀντιγόνη", editor: "R. C. Jebb" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      # DRAFT wording, for John to approve (the same on every Jebb play).
+      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
+      source_url: https://archive.org/details/sophoclesplaysfr03soph
+    pairs: [jebb]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1256, sha256: "8638846a833d1fca49346e59c8eaa77a1f42b30cf07a61b6b527618fcd9cb76b" }
+    speakers:
+      sigla:
+        "—": null
+        "ΑΝΤΙΓΟΝΗ": Antigone
+        "ΑΝ.": Antigone
+        "ΙΣΜΗΝΗ": Ismene
+        "ΙΣ.": Ismene
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΚΡΕΩΝ": Creon
+        "ΚΡ.": Creon
+        "ΦΥΛΑΞ": Guard
+        "ΦΥ.": Guard
+        "ΑΙΜΩΝ": Haemon
+        "ΑΙ.": Haemon
+        "ΤΕΙΡΕΣΙΑΣ": Teiresias
+        "ΤΕ.": Teiresias
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΑΓ.": Messenger
+        "ΕΥΡΥΔΙΚΗ": Eurydice
+        "ΕΥ.": Eurydice
+        "ΕΞΑΓΓΕΛΟΣ": Second Messenger
+        "ΕΞ.": Second Messenger
+      overrides: []
+    edition_only: []
+    alignment: { jebb: { covered: [] } }
+    gaps: []
+    # OCR misreads corrected under John's grammar rule (2026-09-19): each one
+    # the scan prints (archive.org, page as printed) where the OCR's reading
+    # breaks grammar or sense.
+    text_fixes:
+      - { ref: "5", find: "ἀτιμόν", replace: "ἄτιμόν", note: "scan p. 8 prints ἄτιμόν; ἀτιμόν is a misplaced accent" }
+      - { ref: "9", find: "κεισήκουσας", replace: "κεἰσήκουσας", note: "scan p. 10 prints κεἰσήκουσας (καὶ εἰσήκουσας); without the crasis mark the word is not Greek" }
+      - { ref: "203", find: "τούτον", replace: "τοῦτον", note: "scan p. 48 prints τοῦτον; τούτον is a misplaced accent" }
+      - { ref: "229", find: "κεὶ", replace: "κεἰ", note: "scan p. 52 prints κεἰ (καὶ εἰ); κεὶ is no word" }
+      - { ref: "230", find: "δὴτ’", replace: "δῆτ’", note: "scan p. 52 prints δῆτ’; the OCR read the circumflex as a grave" }
+      - { ref: "279", find: "τούργον", replace: "τοὔργον", note: "scan p. 62 prints τοὔργον (τὸ ἔργον); τούργον is no word" }
+      - { ref: "352", find: "οὐρειόν", replace: "οὔρειόν", note: "scan p. 72 prints οὔρειόν; with the breathing and accent on the wrong letters it reads as a negative" }
+      - { ref: "432", find: "χήμεῖς", replace: "χἠμεῖς", note: "scan p. 86 prints χἠμεῖς (καὶ ἡμεῖς); χήμεῖς is no word" }
+      - { ref: "512", find: "χώ", replace: "χὡ", note: "scan p. 100 prints χὡ (καὶ ὁ); χώ is no word" }
+      - { ref: "832", find: "ᾧ", replace: "ᾇ", note: "scan p. 152 prints ᾇ ('where'); ᾧ has no antecedent here" }
+      - { ref: "880", find: "ταλαίνα·", replace: "ταλαίνᾳ·", note: "scan p. 160 prints ταλαίνᾳ (dative with μοι); the OCR lost the iota subscript" }
+      - { ref: "1202", find: "συγκάτῃθομεν", replace: "συγκατῄθομεν", note: "scan p. 212 prints συγκατῄθομεν; the OCR's accent is on the wrong syllable" }

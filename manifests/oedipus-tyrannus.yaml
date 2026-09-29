@@ -310,10 +310,13 @@ greek_editions:
     alignment: { storr: { covered: [], cuts: [] } }
     gaps: []
     text_fixes: []
-  # Jebb's own Greek, from John's Genie OCR of the scanned volume (the 1902
-  # printing of the third, stereotyped edition of 1893; the second edition's
-  # text of 1887). The TEI is sources/ocr/jebb/oedipus-tyrannus.xml, made by
-  # scripts/ocr/jebb_to_tei.py; whether it is committed is John's call.
+  # Jebb's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org playsfragmentspa0000unse_i8p4: the title page (n6) is dated
+  # 1902, its verso (n7) reads 'Third Edition (stereotyped) 1893, Reprinted
+  # 1902'; so the edition of 1893). The TEI is sources/ocr/jebb/oedipus-tyrannus.xml,
+  # made by scripts/ocr/jebb_to_tei.py and numbered by Jebb's own printed
+  # numbers and commentary notes (John, 2026-09-29); whether it is committed
+  # is John's call.
   - id: jebb
     label:
       short: "Jebb (1893)"
@@ -327,8 +330,8 @@ greek_editions:
     licence:
       text: public-domain-us
       encoding: none
-      # DRAFT wording, for John to approve.
-      credit: "Greek text from John Boyer's OCR of the Internet Archive scan"
+      # DRAFT wording, for John to approve (the same on every Jebb play).
+      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
       source_url: https://archive.org/details/playsfragmentspa0000unse_i8p4
     pairs: [jebb]
     citation:
@@ -337,7 +340,7 @@ greek_editions:
       transpositions: { "1": [] }
       repeated_refs: {}
       ref_fixes: {}
-      fingerprint: { count: 1467, sha256: "a01842e61f53cb8ee6acbde9e793d9ba22cdf6897f02a816191fd000fbc82f85" }
+      fingerprint: { count: 1467, sha256: "c366ea75a11ce98fc50f26865bd70ddd6ff9a8876cc65d8fe620ca0de8406dc5" }
     speakers:
       sigla:
         "—": null

@@ -216,12 +216,14 @@ registry:
   greekEditions:
     - { id: tlg, short: "Dain & Mazon (1960)", full: "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)", editor: "Dain & Mazon", year: 1960, kind: tlg, licence: public-domain-us }
     - { id: storr-loeb, short: "Storr (1912)", full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)", editor: "F. Storr", year: 1912, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
+    - { id: jebb, short: "Jebb (1889)", full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 2, The Oedipus Coloneus (Cambridge, 2nd ed., 1889)", editor: "R. C. Jebb", year: 1889, kind: ocr-tei, licence: public-domain-us, pairs: [jebb] }
   translations:
     - id: jebb
       form: prose
       name: "R. C. Jebb (Cambridge, 1883–1900)"
       short: Jebb
       slot: english
+      edition: jebb
       alignment: line
     - id: storr
       form: verse
@@ -299,3 +301,93 @@ greek_editions:
         cuts: []
     gaps: []
     text_fixes: []
+  # Jebb's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org sophoclesplaysfr0000unse_k8j6: the title page (n8) reads 'Second edition … 1889', the preface (n11) is dated September 1889;
+  # so the edition of 1889). The TEI is sources/ocr/jebb/oedipus-coloneus.xml, made by
+  # scripts/ocr/jebb_to_tei.py and numbered by Jebb's own printed numbers
+  # and commentary notes (John, 2026-09-29); whether it is committed is John's call.
+  - id: jebb
+    label:
+      short: "Jebb (1889)"
+      full: "R. C. Jebb, Sophocles: The Plays and Fragments, part 2, The Oedipus Coloneus (Cambridge, 2nd ed., 1889)"
+    editor: "R. C. Jebb"
+    year: 1889
+    source:
+      kind: ocr-tei
+      path: ocr/jebb/oedipus-coloneus.xml
+      expect: { title: "Οἰδίπους ἐπὶ Κολωνῷ", editor: "R. C. Jebb" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      # DRAFT wording, for John to approve (the same on every Jebb play).
+      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
+      source_url: https://archive.org/details/sophoclesplaysfr0000unse_k8j6
+    pairs: [jebb]
+    citation:
+      title_labels: []
+      lacunae: { "1": ["181a", "181b", "181c", "183", "1716"] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1712, sha256: "a571aadd9e11a905ca01f7657a49cc68683014bfd77a6f973c768d29dff54112" }
+    speakers:
+      sigla:
+        "—": null
+        "ΟΙΔΙΠΟΥΣ": Oedipus
+        "ΟΙ.": Oedipus
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΑΝΤΙΓΟΝΗ": Antigone
+        "ΑΝ.": Antigone
+        "ΘΗΣΕΥΣ": Theseus
+        "ΘΗ.": Theseus
+        "ΙΣΜΗΝΗ": Ismene
+        "ΙΣ.": Ismene
+        "ΚΡΕΩΝ": Creon
+        "ΚΡ.": Creon
+        "ΠΟΛΥΝΕΙΚΗΣ": Polyneices
+        "ΠΟ.": Polyneices
+        "ΞΕΝΟΣ": Stranger
+        "ΞΕ.": Stranger
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΑΓ.": Messenger
+      overrides: []
+    edition_only: []
+    alignment:
+      jebb:
+        # Jebb prints the three verses lost after 181 and the one at 183 as
+        # metrical schemes (lacunae); his English has no words for them, and
+        # 181 (πόρσω· σὺ γὰρ ἀΐεις) and 533 (ὦ Ζεῦ) and 534a fall inside the
+        # English of the speech before.
+        covered:
+          - { greek: "181", by: "180" }
+          - { greek: "181a", by: "180" }
+          - { greek: "181b", by: "180" }
+          - { greek: "183", by: "181c" }
+          - { greek: "533", by: "532" }
+          - { greek: "534a", by: "534" }
+    gaps: []
+    # OCR misreads corrected under John's grammar rule (2026-09-19): each one
+    # the scan prints (archive.org, page as printed) where the OCR's reading
+    # breaks grammar or sense.
+    text_fixes:
+      - { ref: "36", find: "πλείοιν’", replace: "πλείον’", note: "scan p. 16 prints πλείον’; πλείοιν’ is no form here" }
+      - { ref: "155", find: "περᾶς·", replace: "περᾷς·", note: "scan p. 36 prints περᾷς (subjunctive, as in the colon before); the OCR lost the iota subscript" }
+      - { ref: "199", find: "ἄρμοσαι", replace: "ἅρμοσαι", note: "scan p. 42 prints ἅρμοσαι (ἁρμόζω has the rough breathing)" }
+      - { ref: "306", find: "κεὶ", replace: "κεἰ", note: "scan p. 56 prints κεἰ (καὶ εἰ); κεὶ is no word" }
+      - { ref: "348", find: "γερονταγωγεί", replace: "γερονταγωγεῖ", note: "scan p. 62 prints γερονταγωγεῖ; the OCR read the circumflex as an acute" }
+      - { ref: "379", find: "κηδός", replace: "κῆδός", note: "scan p. 68 prints κῆδός; the OCR lost the circumflex" }
+      - { ref: "419", find: "τούμοῦ", replace: "τοὐμοῦ", note: "scan p. 72 prints τοὐμοῦ (τοῦ ἐμοῦ); τούμοῦ is no word" }
+      - { ref: "426", find: "οὐξεληλυθὼς", replace: "οὑξεληλυθὼς", note: "scan p. 74 prints οὑξεληλυθὼς (ὁ ἐξεληλυθώς); with the smooth breathing it reads as a negative" }
+      - { ref: "432", find: "κατήνεσεν", replace: "κατῄνεσεν", note: "scan p. 74 prints κατῄνεσεν (augment of αἰνέω); the OCR lost the iota subscript" }
+      - { ref: "819", find: "ξύναρπάσας", replace: "ξυναρπάσας", note: "scan p. 136 prints ξυναρπάσας; the OCR's accent is on the wrong syllable" }
+      - { ref: "865", find: "θείέν", replace: "θεῖέν", note: "scan p. 142 prints θεῖέν; θείέν is no form" }
+      - { ref: "870", find: "τοιτοῦτον", replace: "τοιοῦτον", note: "scan p. 142 prints τοιοῦτον; τοιτοῦτον is no word" }
+      - { ref: "874", find: "καθεξω", replace: "καθέξω", note: "scan p. 144 prints καθέξω; the OCR lost the accent" }
+      - { ref: "978", find: "τλήμον", replace: "τλῆμον", note: "scan p. 156 prints τλῆμον; τλήμον is a misplaced accent" }
+      - { ref: "1329", find: "κασιγήτου", replace: "κασιγνήτου", note: "scan p. 206 prints κασιγνήτου; the OCR lost a letter" }
+      - { ref: "1335", find: "πτώχοι", replace: "πτωχοὶ", note: "scan p. 208 prints πτωχοὶ; πτώχοι is a misplaced accent" }
+      - { ref: "1423", find: "γελάσθαι", replace: "γελᾶσθαι", note: "scan p. 220 prints γελᾶσθαι; the OCR read the circumflex as an acute" }
+      - { ref: "1432", find: "ἡδ’", replace: "ἥδ’", note: "scan p. 220 prints ἥδ’ (ἥδε ὁδὸς, 'this road'); ἡδ’ is no word" }
+      - { ref: "1444", find: "χἀτέρα.", replace: "χἀτέρᾳ.", note: "scan p. 222 prints χἀτέρᾳ (dative with τῇδε); the OCR lost the iota subscript" }
+      - { ref: "1590", find: "ἀφίκτο", replace: "ἀφῖκτο", note: "scan p. 244 prints ἀφῖκτο; the OCR read the circumflex as an acute" }

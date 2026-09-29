@@ -263,6 +263,30 @@ greek_editions:
     status: public-domain-us
     note: "Cambridge, 3rd ed. 1893 (scan: 1902 printing, archive.org playsfragmentspa0000unse_i8p4); published before 1931. Text from John's Genie OCR."
     sources: [ocr/jebb/oedipus-tyrannus.xml]
+  - id: jebb
+    editor: "R. C. Jebb"
+    year: 1889
+    status: public-domain-us
+    note: "Cambridge, 2nd ed. 1889 (archive.org sophoclesplaysfr0000unse_k8j6, title page n8); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/jebb/oedipus-coloneus.xml]
+  - id: jebb
+    editor: "R. C. Jebb"
+    year: 1891
+    status: public-domain-us
+    note: "Cambridge, 2nd ed. 1891 (archive.org sophoclesplaysfr03soph, title page n6); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/jebb/antigone.xml]
+  - id: jebb
+    editor: "R. C. Jebb"
+    year: 1894
+    status: public-domain-us
+    note: "Cambridge, 1st ed. 1894 (scan: 1924 printing, archive.org sophoclesplaysfr06soph, verso n7); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/jebb/electra-soph.xml]
+  - id: jebb
+    editor: "R. C. Jebb"
+    year: 1896
+    status: public-domain-us
+    note: "Cambridge, 1st ed. 1896 (scan: 1907 printing, archive.org ajaxsoph00soph, verso n7); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/jebb/ajax.xml]
   - id: smyth-loeb
     editor: "H. W. Smyth"
     year: 1926
