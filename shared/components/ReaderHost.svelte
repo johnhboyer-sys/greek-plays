@@ -25,9 +25,17 @@
   let pending = false;
   let generation = 0;
 
-  function syncUrl() {
+  // `place`: the ref to write as ?loc= (after an edition switch); the URL's own
+  // ?loc= and hash read in the numbering of ?ed=, and a bare ?loc= reads as TLG
+  // (plan 4.1 rule 4), so ?ed= stays wherever a place is in the URL and the
+  // edition is not one that reading gives back.
+  function syncUrl(place: string | null = null) {
     const url = new URL(location.href);
-    if (state.ed === ownEdition(meta, state.trans)) url.searchParams.delete('ed');
+    if (place) { url.searchParams.set('loc', place); url.hash = ''; }
+    const own = ownEdition(meta, state.trans);
+    const loc = url.searchParams.has('loc');
+    const omit = loc ? state.ed === 'tlg' : url.hash ? state.ed === 'tlg' && own === 'tlg' : state.ed === own;
+    if (omit) url.searchParams.delete('ed');
     else url.searchParams.set('ed', state.ed);
     history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
   }
@@ -35,6 +43,7 @@
   // numbering (?loc= reads in the numbering of ?ed=), so `from` is null: no mapping.
   async function show(next: EditionState, loc: string | null = null, from: string | null = state.ed) {
     const old = from ?? next.ed;
+    let placed: string | null = null;
     if (state.ed !== next.ed) {
       pending = true;
       const id = ++generation;
@@ -52,11 +61,12 @@
           anchor = old === next.ed ? loc : editionPlace(loc, old, next.ed, data, oldMap, newMap);
           shownBook = data;
           state = next;
+          if (old !== next.ed) placed = anchor;
         }
       } finally { if (id === generation) pending = false; }
     } else state = next;
     document.documentElement.removeAttribute('data-ed-pending');
-    syncUrl();
+    syncUrl(placed);
   }
   onMount(() => {
     const params = new URLSearchParams(location.search);

@@ -148,3 +148,15 @@ describe('edition state', () => {
     for (const name of edition) expect(expanded.get(name)).toBe(slots.get(name));
   });
 });
+
+describe('edition place, concordance ranges', () => {
+  const book = (...refs: string[]) => ({ segments: refs.map(ref => ({
+    id: ref, column: ref, greek: [{ n: Number(ref), ref, text: 'λόγος', tokens: [] }], english: null,
+  })) }) as BookData;
+  it('tries each ref of a range before falling back to the nearest lower', () => {
+    // Edition line 20 answers TLG 112-113; the TLG book prints 113 but not 112.
+    expect(editionPlace('20', 'mini', 'tlg', book('105', '113'), { '20': '112-113' })).toBe('113');
+    // The target edition maps 113 (not 112) to its line 30.
+    expect(editionPlace('20', 'mini', 'other', book('25', '30'), { '20': '112-113' }, { '30': '113' })).toBe('30');
+  });
+});

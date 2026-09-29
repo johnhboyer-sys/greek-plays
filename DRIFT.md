@@ -901,3 +901,4 @@ existing reference edition contract.
 - `shared/components/CommandPalette.svelte` — 2026-09-29: resume links go through `resumeHref`.
 - `shared/components/Reader.svelte` — 2026-09-29: copy citation names the editor and appends an `ed=` link in a non-reference edition; saves `reader-loc-ed-<work>`.
 - `shared/components/ReaderHost.svelte` — 2026-09-29: remounts the reader on an edition change only, placing the reader through the concordance.
+- `shared/components/ReaderHost.svelte`, `shared/lib/edition-place.ts` — 2026-09-29: `?ed=` stays beside a `?loc=` or hash in a non-TLG edition; an edition switch rewrites `?loc=` to the mapped ref; a concordance range tries each ref in order.
