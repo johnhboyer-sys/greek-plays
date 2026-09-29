@@ -271,6 +271,25 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      # Perseus opens a new speech at each strophe; Way and Murray print the
+      # speech once, under its first cue, and the aligner seats that text on
+      # the last piece. Each entry names the segment whose block opens with
+      # the English of the first piece (build/editions/rhesus stage 1, the
+      # chunk text at the "by" segment).
+      way:
+        covered:
+          - { greek: "906", by: "915" }   # "MUSE. Curse ye, Odysseus and Oineus' scion" opens the block at 915
+      murray-verse:
+        covered:
+          - { greek: "342", by: "360" }   # "CHORUS. Now Adrasteia be near and guard" opens the block at 360
+          - { greek: "351", by: "360" }
+          - { greek: "890", by: "895" }   # "MUSE. Nay, look your fill, ye Trojans" opens the block at 895
+          - { greek: "906", by: "915" }
     gaps: []
-    text_fixes: []
+    text_fixes:
+      # Perseus 805 prints U+1FCE (a free psili-and-oxia) where prodelision
+      # (ἔ)δρασαν needs an apostrophe; the file's own comment on the line
+      # reads "prodelision, accent and breathing left behind". The mark breaks
+      # the key (stage 3 cannot transliterate it); the TLG text prints ʼδρασαν.
+      - { find: "῎δρασαν", replace: "ʼδρασαν", note: "sources/perseus/tlg0006.tlg019.perseus-grc2.xml:1434 (n=805)" }

@@ -303,6 +303,42 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      # Perseus opens a new speech at each strophe or turn; Way and Murray
+      # print the speech once, under its first cue, and the aligner seats it
+      # on the last piece. Each "by" segment holds the block that opens with
+      # the English of the first piece (stage 1 chunk text at "by").
+      way:
+        covered:
+          - { greek: "98", by: "122" }    # "HECUBA. Uplift thou thine head, O fortune-accurst" (98 is ἄνα, δύσδαιμον, πεδόθεν κεφαλή) opens the block at 122
+          - { greek: "1302", by: "1303a" } # Way's one Hecuba speech "Hear, children, O hearken your mother's crying" spans 1302 and 1303a; the chorus's ἓ ἕ (1303) between them has no English in Way
+      murray-verse:
+        covered:
+          - { greek: "568", by: "552" }   # the block at 552 holds the Leader's whole speech, "Lo, yonder on the heaped crest ... Andromache ... the mountain shrines of Thessaly", for 552-567 and 568-576
+          - { greek: "424", by: "444" }   # "CASSANDRA. (seeing for the first time the Herald" opens the block at 444
+          - { greek: "1060", by: "1100" } # "CHORUS. Some Women. And hast thou turned from the Altar of frankincense" opens the block at 1100
+          - { greek: "1071", by: "1100" }
+          - { greek: "1081", by: "1100" }
+        # The kommos 1287-1332: Perseus opens a Hecuba or Chorus speech at
+        # every cry, Murray prints "Divers Women ... Others" as one speech
+        # and then a speech per turn, so the speeches sat four slots early
+        # from 1291 on. The pins seat each English speech on the Greek turn
+        # the TLG build gives it (numbering agrees over 1302-1320); the
+        # parenthetical "(Pain; O pain!)" and "(Go, and come not again!)"
+        # fall on the chorus shares of 1310-1311 between them.
+        pins:
+          # From 577 the kommos sat one turn late (578 held "Forth to the
+          # Greek I go", which the TLG build seats on 577).
+          - { greek: "577", english: "Forth to the Greek I go", run: 1 }
+          - { greek: "1302", english: "O Earth, Earth of my children", run: 1 }
+          - { greek: "1304", english: "Now hast thou found thy prayer", run: 1 }
+          - { greek: "1305", english: "Surely my knees are weary", run: 1 }
+          - { greek: "1307", english: "I, I am near thee", run: 1 }
+          - { greek: "1310", english: "Even as the beasts they drive", run: 1 }
     gaps: []
-    text_fixes: []
+    text_fixes:
+      # Perseus 204 prints U+02BD (a reversed comma) for the opening quote and
+      # ἑ + U+0313 + U+0301 (rough and smooth breathing together, which no
+      # Greek word carries) for ἔ; TLG 204 prints ἔρροι. Stage 3 cannot
+      # transliterate U+02BD. Opening quote to U+2018, ἔρροι as TLG has it.
+      - { find: "ʽἑ̓́ρροι", replace: "‘ἔρροι", note: "sources/perseus/tlg0006.tlg011.perseus-grc2.xml:429 (n=204)" }

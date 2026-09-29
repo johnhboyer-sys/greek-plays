@@ -265,6 +265,14 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      coleridge:
+        # Perseus's English files Thoas's "Tell me, what shall we do with the
+        # strangers?" under n="188", a numbering typo for 1188 (sweep
+        # 2026-09-28, older-editions-fit: IT 188). Without the fix the block
+        # sits inside 178's and 1188 reads "translated with" it. Same typo
+        # the reference block fixes.
+        line_fixes:
+          "188": "1188"
     gaps: []
     text_fixes: []

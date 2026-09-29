@@ -69,15 +69,21 @@ english:
       - find: "“Smite !”—* Drive the spear against E"
         replace: "“Smite !”—“Drive the spear against E"
         note: "way-cleanup r3 2026-09-25 (1:706): archive.org page prints “Smite!”—“Drive the spear against Erechtheus' (Grok r2 check confirmed against the page)"
-      - find: "miseries end! _\n"
-        replace: "miseries end!\n"
-        note: "sweep 2026-09-24 n=73: build/genie/euripidesway03euriuoft.txt:17282-17284"
+      - find: "miseries end! _"
+        replace: "miseries end!"
+        note: "sweep 2026-09-24 n=73: build/genie/euripidesway03euriuoft.txt:17282-17284; find stops before the line end (P2: Murray's Greek ends a segment there, so the chunk has no newline to match; the TLG result is unchanged)"
       - find: "sound —_—\n"
         replace: "sound\n"
         note: "sweep 2026-09-24 n=72: build/genie/euripidesway03euriuoft.txt:16456-16458; the scan prints no dash here, only the carried rhyme word [fear"
-      - find: "ghastliest\n7\nAh"
-        replace: "ghastliest misery.\nAh"
-        note: "sweep 2026-09-24 n=71: build/genie/euripidesway03euriuoft.txt:18431-18436"
+      # n=71 in two finds (P2): Murray's Greek ends a segment between
+      # "ghastliest" and the stray "7", so no one chunk holds both. The pair
+      # gives the TLG build the same text as the single find did.
+      - find: "ghastliest"
+        replace: "ghastliest misery."
+        note: "sweep 2026-09-24 n=71: build/genie/euripidesway03euriuoft.txt:18431-18436 (scan prints \"misery.\" where the OCR has \"7\")"
+      - find: "7\nAh"
+        replace: "Ah"
+        note: "sweep 2026-09-24 n=71: same scan lines; the stray \"7\" is the OCR of \"misery.\""
       - find: "men said ;\n_ I"
         replace: "men said ;\nI"
         note: "sweep 2026-09-24 n=70: build/genie/euripidesway03euriuoft.txt:18090-18092"
@@ -295,6 +301,17 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      coleridge:
+        # Coleridge's block at 513 opens with the chorus's 511-512 ("The
+        # punishment Zeus hath inflicted was surely enough; there was no need
+        # to heap this wanton insult on us"), which Perseus's Greek prints
+        # under its own 511 opening; the block at 513 holds all three lines.
+        covered:
+          - { greek: "511", by: "513" }
     gaps: []
-    text_fixes: []
+    text_fixes:
+      # Perseus 458 prints U+1FCE (a free psili-and-oxia) where prodelision
+      # (ἔ)πεμψεν needs an apostrophe; stage 3 cannot transliterate it. The
+      # TLG text prints ʼπεμψεν.
+      - { find: "\u1fceπεμψεν", replace: "\u02bcπεμψεν", note: "sources/perseus/tlg0006.tlg008.perseus-grc2.xml:834 (n=458)" }

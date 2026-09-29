@@ -248,6 +248,25 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      coleridge:
+        # Coleridge's block at 1534 holds both speakers: Clytemnestra's "I
+        # heard your voice ..." and the Messenger's "No, rather I want to
+        # unfold to you a strange and marvellous story" (Greek 1538).
+        covered:
+          - { greek: "1538", by: "1534" }
+      way:
+        # Murray prints the iambic prologue 49-114 before the anapaests 1-48
+        # (citation.transpositions); Way follows the numeric order, so the
+        # aligner seated Way's cast list on 49 and the speech "Three
+        # daughters" on 115. The pin seats the speech on 49 and lets the cast
+        # list drop as head front matter, as in the TLG build.
+        # 115-116 (Agamemnon opening the letter, "I send thee, Leda's child, in
+        # addition to the earlier letters") sit in Way's next Agamemnon block
+        # at 119, "(Reads)--This add I to my letter writ before".
+        covered:
+          - { greek: "115", by: "119" }
+        pins:
+          - { greek: "49", english: "Three daughters Leda, child of Thestius", run: 1 }
     gaps: []
     text_fixes: []

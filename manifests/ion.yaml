@@ -263,6 +263,17 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      way:
+        # Way prints the chorus 1229-1250 as one speech; Perseus opens a second
+        # speech at 1244 (the same chorus), so the aligner leaves it unpaired.
+        covered:
+          - { greek: "1244", by: "1229" }
+        # English-side fix, source-line keyed, so the edition needs it too: the
+        # "ION" that opened 732-734 is the running head of Way's page 74
+        # (euripidesway04euriuoft), not a cue. Without it the text_fixes entry
+        # that closes the page-break gap has no single chunk to hit.
+        line_fixes:
+          1060: "‘Tis sweet to gaze in eyes of sympathy."
     gaps: []
     text_fixes: []
