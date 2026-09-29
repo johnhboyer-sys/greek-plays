@@ -45,8 +45,16 @@ english:
       "1297": "1297"  # ἠκούσαθ'; ἅνδρες χεῖρ' ἔχουσιν ἐν φόνωι — Did you hear?
       "1298": "1298"  # Ἑλένης τὸ κώκυμ' ἐστίν — It is Helen screaming
       "1299": "1299"  # ὦ Διὸς ὦ Διὸς ἀέναον κράτος — O eternal might of Zeus
+      # Speaker-repair sweep (2026-09-28): Coleridge gives 960-981 to Electra,
+      # Diggle to the Chorus; the heuristic moved 980, mid-sentence, into her
+      # 982 lament.
+      "980": "980"  # πήματ' ἐν χρόνωι μακρῶι — troubles in length of time
       # Perseus numbers the Chorus's question and the Phrygian's cry by an
       # older lineation; Diggle's are 1453 and 1454a (John, 2026-09-28).
+      # Coleridge ends Electra's 1302 speech with 1310 ("all round the eddies
+      # of Scamander"); Diggle gives 1303-1310 to the Chorus, and the speaker
+      # heuristic moved the line to her next speech at 1313 (John, 2026-09-28).
+      "1310": "1310"  # βέλεσιν ἀμφὶ τὰς Σκαμάνδρου δίνας — all round the eddies of Scamander
       "1452": "1453"   # τί τοὐπὶ τῶιδε συμφορᾶς ἐγίγνετο; — What happened next?
       "1453": "1454a"  # Ἰδαία μᾶτερ μᾶτερ — Mother of Ida, great, great mother!
   secondary:
