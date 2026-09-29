@@ -182,14 +182,19 @@ registry:
   greekSource:
     short: Diggle (1994)
     full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1994)", full: "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)", editor: Diggle, year: 1994, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -203,3 +208,46 @@ registry:
   production: "Produced posthumously at the City Dionysia, 405 BC, by Euripides the younger · first prize"
   argument: "The fleet is becalmed at Aulis. Agamemnon summons his daughter to be sacrificed. She goes to the altar of her own will."
   synopsis: "The Greek fleet is becalmed at Aulis, and the prophet Calchas has said Artemis demands Agamemnon's daughter Iphigenia. Agamemnon has sent for her on the pretext of marriage to Achilles, then written a second letter to stop her. Menelaus intercepts it. Clytemnestra arrives with the bride, and Achilles learns of the marriage from her. Iphigenia learns what she has been brought for, begs for her life, and then chooses to go to the altar for Greece. A messenger reports that a deer was found in her place."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg018.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': [{start: '1', end: '48', before: '114'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1627, sha256: a28c0e75f56faac02779e0f40172ca725e636efe99ddbd769cdb2dd9359212a9}
+    speakers:
+      sigla:
+        Ἀγαμέμνων: Agamemnon
+        Πρεσβύτης: Old Man
+        Χορός: Chorus
+        Μενέλαος: Menelaus
+        'Αγγελος Α': Messenger
+        'Χορὸς ἀνδρῶν Ἀργείων': Chorus
+        Κλυταιμήστρα: Clytemnestra
+        Ἰφιγένεια: Iphigenia
+        Ἀχιλλεύς: Achilles
+        Ἄγγελος: Second Messenger
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

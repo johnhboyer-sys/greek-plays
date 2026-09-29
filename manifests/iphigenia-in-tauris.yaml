@@ -200,21 +200,26 @@ registry:
   greekSource:
     short: Diggle (1981)
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1981)", full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)", editor: Diggle, year: 1981, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
       footnotes: true
       alignment: speech
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse, edition: murray-oct }
   citation:
     scheme: play-line
     copyAbbr: "Eur. IT"
@@ -222,3 +227,44 @@ registry:
   production: "c. 414 BC"
   argument: "Iphigenia, a priestess among the Taurians, is about to sacrifice a Greek stranger who turns out to be her brother. Together they steal the goddess's image and escape."
   synopsis: "Iphigenia was not killed at Aulis: Artemis carried her off to the Taurians on the Black Sea, where she serves as priestess and any Greek who lands is sacrificed. Orestes and Pylades land, sent by Apollo to steal the goddess's image, and are captured. Iphigenia questions the prisoners about Argos and decides to spare one to carry a letter home. The letter is addressed to Orestes, and brother and sister know each other. They trick King Thoas with a purification rite, escape with the image, and Athena stops the pursuit."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg013.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way, murray-verse]
+    citation:
+      title_labels: []
+      lacunae: {'1': ['1214']}
+      transpositions: {'1': [{start: '866', end: '866', before: '867'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1481, sha256: e92aad0f606a1a9bbfb51df84df2fa3647abf53d8fa1527d8d0669a1f8a94aa5}
+    speakers:
+      sigla:
+        Ἰφιγένεια: Iphigenia
+        Ὀρέστης: Orestes
+        Πυλάδης: Pylades
+        Χορός: Chorus
+        Βουκόλος: Herdsman
+        Θόας: Thoas
+        Ἄγγελος: Messenger
+        Ἀθήνα: Athena
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

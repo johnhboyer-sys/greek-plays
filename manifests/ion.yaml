@@ -198,14 +198,19 @@ registry:
   greekSource:
     short: Diggle (1981)
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1981)", full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)", editor: Diggle, year: 1981, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -219,3 +224,45 @@ registry:
   production: "Date disputed, c. 418–410 BC"
   argument: "Creusa and Xuthus come to Delphi to ask for a child, and meet the temple servant Ion, the boy she once abandoned."
   synopsis: "Creusa, queen of Athens, once bore Apollo a son and abandoned him. He was carried to Delphi and raised in the temple, and is now its young servant, Ion. Creusa and her husband Xuthus come to Delphi to ask for a child. The oracle gives Xuthus Ion. Creusa, told nothing of her own son and sure she has been supplanted, tries to poison the boy; the plot is found out and Ion comes to kill her at the altar. The Pythia produces the cradle he was found in, Creusa knows the tokens in it, and Athena confirms whose son he is."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg010.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': ['722a']}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1639, sha256: 0ed25e3da0ec460141b52571e8fd3b06e6e0efa688bf5b10b5c35ac03f20edda}
+    speakers:
+      sigla:
+        Ἑρμῆς: Hermes
+        Ἴων: Ion
+        Χορός: Chorus
+        Κρέουσα: Creusa
+        Ξοῦθος: Xuthus
+        Πρεσβύτης: Old Servant
+        Θεράπων: Servant
+        Προφῆτις: Pythian Priestess
+        Ἀθήνα: Athena
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []
