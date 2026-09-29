@@ -145,7 +145,9 @@ function checkManifest(doc, manifestFile) {
   equal('registry.greekEditions', JSON.stringify(registryEditions.map(({ licence, ...ed }) => ed)), JSON.stringify(expectedEditions));
   for (const entry of registryEditions) {
     const declared = declaredEditions.find((ed) => ed.id === entry.id);
-    equal(`registry.greekEditions.${entry.id}.licence`, entry.licence, declared?.licence?.encoding ?? declared?.licence?.text);
+    // An OCR'd edition's encoding licence is 'none': the registry names the text's own.
+    const encoding = declared?.licence?.encoding === 'none' ? undefined : declared?.licence?.encoding;
+    equal(`registry.greekEditions.${entry.id}.licence`, entry.licence, encoding ?? declared?.licence?.text);
   }
   for (const entry of registryTranslations) {
     const own = declaredEditions.find((ed) => (ed.pairs ?? []).includes(entry.id))?.id;

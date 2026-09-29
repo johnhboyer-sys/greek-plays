@@ -809,3 +809,20 @@ def test_validate_lsj_keys_grc_default_still_works(tmp_path):
     problems: list = []
     _validate_lsj_keys(manifest, tmp_path, {"lo/gos"}, problems)
     assert problems == []
+
+
+def test_ocr_edition_source_lies_under_ocr_and_matches_its_sums(tmp_path):
+    import hashlib
+    from drama_pipeline.preflight import _ocr_source_problem
+    assert 'under sources/ocr/' in _ocr_source_problem('perseus/x.xml', tmp_path)
+    assert 'under sources/ocr/' in _ocr_source_problem('ocr/../perseus/x.xml', tmp_path)
+    # Absent: whether OCR'd TEI is committed is the owner's call; stage 1 fails on it.
+    assert _ocr_source_problem('ocr/jebb/play.xml', tmp_path) is None
+    src = tmp_path / 'ocr' / 'jebb' / 'play.xml'
+    src.parent.mkdir(parents=True)
+    src.write_text('<TEI/>')
+    assert 'not listed' in _ocr_source_problem('ocr/jebb/play.xml', tmp_path)
+    (src.parent / 'SHA256SUMS').write_text(f'{hashlib.sha256(b"<TEI/>").hexdigest()}  play.xml\n')
+    assert _ocr_source_problem('ocr/jebb/play.xml', tmp_path) is None
+    src.write_text('<TEI></TEI>')
+    assert 'does not match' in _ocr_source_problem('ocr/jebb/play.xml', tmp_path)

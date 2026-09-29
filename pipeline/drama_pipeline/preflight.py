@@ -2815,6 +2815,26 @@ def _lsj_shard(key: str) -> str:
     return "_"
 
 
+def _ocr_source_problem(path: str, sources_dir: Path | None = None) -> str | None:
+    """An OCR'd edition's TEI lives under sources/ocr/, and its own
+    directory's SHA256SUMS names it. The file itself may be absent (whether
+    OCR'd TEI is committed is the owner's call); stage 1 then fails on it.
+    Present, it must match the listed hash."""
+    if not path.startswith("ocr/") or ".." in Path(path).parts:
+        return "OCR source must lie under sources/ocr/"
+    src = (sources_dir or SOURCES_DIR) / path
+    if not src.is_file():
+        return None
+    sums = src.parent / "SHA256SUMS"
+    rows = sums.read_text(encoding="utf-8").splitlines() if sums.is_file() else []
+    listed = next((row.split()[0] for row in rows if row.split() and row.split()[-1] == src.name), None)
+    if listed is None:
+        return f"OCR source {path} is not listed in its SHA256SUMS"
+    if hashlib.sha256(src.read_bytes()).hexdigest() != listed:
+        return f"OCR source {path} does not match its SHA256SUMS"
+    return None
+
+
 def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: list[Problem]) -> None:
     editions = manifest.data.get("greek_editions") or []
     if not isinstance(editions, list):
@@ -2862,6 +2882,10 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} is absent from or differs from the allowlist"))
         if source.get("kind") not in {"perseus-tei", "ocr-tei"} or not source.get("expect"):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} needs a TEI source and header gate"))
+        if source.get("kind") == "ocr-tei":
+            problem = _ocr_source_problem(source.get("path") or "")
+            if problem:
+                problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} {problem}"))
         if not isinstance(edition.get("citation"), dict) or not isinstance((edition.get("citation") or {}).get("fingerprint"), dict):
             problems.append((manifest.work_id, manifest.path.name, f"Greek edition {eid!r} needs citation fingerprint"))
         pairs = edition.get("pairs") or []

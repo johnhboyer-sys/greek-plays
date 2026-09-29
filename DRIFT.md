@@ -914,3 +914,7 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29: an edition's `text_fixes` entry needs a `ref` and touches only that line (`find` once on it; absent or repeated ref fails); comment pins that an unlabelled `<sp>` continues the speech before it.
 - `pipeline/drama_pipeline/preflight.py` — 2026-09-29: a Greek edition needs exactly one allowlist entry listing its source, and that entry must match editor, year, and status whole.
 - `pipeline/drama_pipeline/public_domain_translations.yaml` — 2026-09-29: `storr-loeb` and `murray-oct` split by volume year (Storr 1912/1913; Murray 1902 Hecuba, 1913 the rest), like `smyth-loeb`.
+- `pipeline/drama_pipeline/stage1_tei_greek.py` — 2026-09-29 (P4): an `ocr-tei` source is checked against its own directory's SHA256SUMS; every printed margin number (`rend="margin-N"`, `margin-apart-N`) must agree with the counted `n` (equal; inside a lyric or turn-over line; within its page), and `colon-N` tokens stay out of the text.
+- `pipeline/drama_pipeline/preflight.py` — 2026-09-29 (P4): an `ocr-tei` edition's source must lie under `sources/ocr/` and, when present, match its directory's SHA256SUMS.
+- `pipeline/drama_pipeline/public_domain_translations.yaml` — 2026-09-29 (P4): `jebb` Greek edition (Cambridge 1893) for OT's OCR'd TEI.
+- `scripts/check-registry-agreement.mjs` — 2026-09-29 (P4): an edition whose encoding licence is `none` (OCR'd TEI) names its text licence in the registry.
