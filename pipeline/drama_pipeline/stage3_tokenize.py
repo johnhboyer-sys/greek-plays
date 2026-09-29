@@ -4,12 +4,12 @@ Splits each line on whitespace and emits, per token, two independent views:
 
   * `t` (surface): the LITERAL substring of the line's `text` the token
     occupies — only ordinary punctuation (`_PUNCT`) is trimmed from its
-    edges; editorial sigla (`_SIGLA`: †*<>[]⎪⟦⟧⌜⌞⌝⌟) are NEVER removed, at
+    edges; editorial sigla (`_SIGLA`: †*<>⟨⟩[]⎪⟦⟧⌜⌞⌝⌟) are NEVER removed, at
     either edge or inside. This is a hard contract: the reader's
     `lineRenderParts` (shared/lib/speakers.ts) walks each line with
     `text.indexOf(tok.t, ptr)` in strict token order, so `t` must always be
     findable as a contiguous run inside `text`. Deleting an interior mark
-    (e.g. the Schenkl supplement `ὁμολογεῖ<ν>`, whose `<`/`>` sit BETWEEN two
+    (e.g. the Schenkl supplement `ὁμολογεῖ<ν>`, whose brackets sit BETWEEN two
     letters of one word) breaks that contiguity and desyncs every later
     token's offset walk for the rest of the line (measured: a >15,000-char
     leapfrog in the Discourses build) — this was CLAUDE.md defect B.
@@ -102,7 +102,7 @@ _PUNCT = ".,·;—()|\"‘«»„“-:?" + "·;"  # real Greek ano teleia + Gre
 # here, was previously left in the cleaned lookup key with no transliteration
 # (a `to_beta_key` hard failure -- key_failures.json). Adding them to
 # `_SIGLA` fixes the key (interior sigla are stripped from `k`). INTERIOR
-# parens stay visible in surface `t` like `<>`, but a TRAILING `)` is still
+# parens stay visible in surface `t` like `<>` and `⟨⟩`, but a TRAILING `)` is still
 # edge-trimmed by `_surface()` because `()` are also in `_PUNCT` (unlike
 # pure `_SIGLA` marks such as `<>`).
 #
@@ -113,7 +113,7 @@ _PUNCT = ".,·;—()|\"‘«»„“-:?" + "·;"  # real Greek ano teleia + Gre
 # word with no separating space -- both leading-edge and INTERIOR
 # (mid-word, where a hyphen-wrap rejoin pulled the two halves together).
 # A real papyrological siglum, the same
-# semantic category as `<>`/`()`/`[]` above (editorial/scribal apparatus
+# semantic category as `<>`/`⟨⟩`/`()`/`[]` above (editorial/scribal apparatus
 # marking a real manuscript feature, not part of the word) -- corpus-wide,
 # not manifest-scoped, on the same reasoning already established for `()`:
 # any future DK papyrus fragment quoted with its own paragraphoi needs the
@@ -150,7 +150,7 @@ _PUNCT = ".,·;—()|\"‘«»„“-:?" + "·;"  # real Greek ano teleia + Gre
 # the paragraphos/dotted-obelos/floor-bracket precedents above, so it
 # joins the corpus-wide `_SIGLA` set (kept verbatim in surface `t`,
 # stripped from the lexicon key `k`) rather than staying manifest-scoped.
-_SIGLA = "†*<>()[]⎪⟦⟧⌜⌞⌝⌟⸏⸓Ͻ⌊⌋→←"
+_SIGLA = "†*<>⟨⟩()[]⎪⟦⟧⌜⌞⌝⌟⸏⸓Ͻ⌊⌋→←"
 
 _LANGUAGE_PUNCT = {
     "grc": (_PUNCT, _PUNCT),
@@ -328,7 +328,7 @@ def _clean(raw: str, punctuation: str) -> tuple[str, bool]:
     had_sigla = any(ch in _SIGLA for ch in raw)
     strip = punctuation + _SIGLA
     token = raw.strip(strip)
-    # Inner sigla (rare: † within a corrupt word, <> around a supplement
+    # Inner sigla (rare: † within a corrupt word, <> or ⟨⟩ around a supplement
     # inside a word) are removed too; the surface form keeps only letters
     # and apostrophes.
     token = "".join(ch for ch in token if ch not in _SIGLA)

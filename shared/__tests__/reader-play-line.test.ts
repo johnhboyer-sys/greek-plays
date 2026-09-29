@@ -1730,7 +1730,7 @@ describe('Reader.svelte play-line gutter after John\'s review (2026-09-09)', () 
     const { container } = render(Reader, { props: { work: 'PLAYLINE', bookNum: 1, bookData: transposedBook() } });
     await flush();
     const gaps = [...container.querySelectorAll('.greek-line.lacuna .lacuna-gap')];
-    expect(gaps.map((g) => g.querySelector('.speaker')?.textContent)).toEqual(['<Ελ.>', '<Θε.>']);
+    expect(gaps.map((g) => g.querySelector('.speaker')?.textContent)).toEqual(['⟨Ελ.⟩', '⟨Θε.⟩']);
     expect(gaps[0]!.querySelector('.speaker')?.getAttribute('title')).toBe('<Ελ. >');
   });
 });

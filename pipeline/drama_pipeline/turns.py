@@ -38,7 +38,7 @@ import bisect
 import re
 from collections import defaultdict
 
-_DASH_PREFIX = re.compile(r"^[—\-\s<]+")
+_DASH_PREFIX = re.compile(r"^[—\-\s<⟨]+")
 
 
 def _column_key(col: str, scheme=None) -> tuple[int, str] | tuple[int, int] | None:

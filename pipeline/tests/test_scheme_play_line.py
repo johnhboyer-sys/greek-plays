@@ -559,6 +559,19 @@ def _title_decl():
     return [{"sha256_16": h, "note": "t"}]
 
 
+def test_play_angle_brackets_in_line_and_speaker():
+    tree = _play_xml([
+        ("1", '&lt;andres&gt;<label type="speaker">&lt;Cho.&gt;</label>'),
+        ("2", '&lt;'),
+        ("3", '&gt;'),
+    ])
+    m = _M({"title_labels": _title_decl(), "transpositions": {"1": []}})
+    flat = stage1_greek._parse_play(tree, scheme_mod.get("play-line"), m)
+    assert flat[0]["text"] == "⟨andres⟩ "
+    assert flat[0]["speakers"] == [{"offset": len("⟨andres⟩ "), "label": "⟨Cho.⟩"}]
+    assert [line["text"] for line in flat[1:]] == ["⟨", "⟩"]
+
+
 def test_repeated_ref_fails_undeclared():
     tree = _play_xml([("1", "α"), ("2", "β"), ("2", "γ")])
     m = _M({"title_labels": _title_decl(), "transpositions": {"1": []}})
@@ -644,13 +657,14 @@ def test_ordinary_en_dash_outside_a_schema_run_is_kept():
     by_ref = {e["ref"]: e for e in flat}
     assert by_ref["1"]["text"] == "καὶ νῦν – ἄφνω – τόδ' εἶπεν."
     assert by_ref["2"]["text"] == "καὶ νῦν — ἄφνω — τόδ' εἶπεν."
-    assert by_ref["3"]["text"] == "οὐ χαλκός, οὐ σίδηρος <>,"
+    assert by_ref["3"]["text"] == "οὐ χαλκός, οὐ σίδηρος ⟨⟩,"
 
 
 # ── Speaker sigla: normalization + range overrides (stage7) ──────────────
 
 def test_norm_siglum_strips_editorial_noise():
     assert stage7_emit._norm_siglum("<Ηρ.>") == "Ηρ"
+    assert stage7_emit._norm_siglum("⟨Ηρ.⟩") == "Ηρ"
     assert stage7_emit._norm_siglum("[Αμ.") == "Αμ"
     assert stage7_emit._norm_siglum("(Ηλ.)") == "Ηλ"
     assert stage7_emit._norm_siglum("Ιων") == stage7_emit._norm_siglum("Ιων.")

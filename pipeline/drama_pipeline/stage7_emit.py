@@ -76,7 +76,7 @@ def _raise_unmapped_speaker_sigla(
 
 
 
-_SIGLUM_NOISE = re.compile(r"[<>\[\]()]")
+_SIGLUM_NOISE = re.compile(r"[<>⟨⟩\[\]()]")
 
 
 def _norm_siglum(label: str) -> str:

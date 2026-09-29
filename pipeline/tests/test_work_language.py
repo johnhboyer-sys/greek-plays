@@ -243,6 +243,7 @@ def test_stage6_fold_rejects_unknown_language():
 
 def test_stage6_fold_dispatches_grc():
     assert stage6_search.fold("lo/gos", "grc") == "logos"
+    assert stage6_search.fold("⟨lo/gos⟩", "grc") == "logos"
 
 
 # --- stage4 integration: whole-form-first vs enclitic-host resolution -----
