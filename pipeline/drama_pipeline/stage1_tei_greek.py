@@ -78,6 +78,15 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
     repeats = _load_repeated_refs(manifest)
     counts = Counter()
     flat = []
+    marks = _english_line_marks(manifest)
+    # Perseus splits one speech into several <sp> (a chorus per strophe, a
+    # messenger per paragraph). The TLG text runs it as one speech, and a
+    # turn-text pair (Storr's) has one turn for it, so with no line-anchored
+    # pair the same speaker straight on opens no new speaker event. A
+    # line-anchored pair (Smyth's) anchors its English to each <sp>, so it
+    # keeps them apart.
+    current_label = None
+    merge_same_speaker = marks is None
     for el in body.iter():
         if not isinstance(el.tag, str) or etree.QName(el).localname != 'l':
             continue
@@ -106,15 +115,17 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
             previous['text'] += (' ' if previous['text'] and text else '') + text
             previous['joined'] = True
             previous.setdefault('parts', []).append({'ref': ref, 'offset': offset})
-            if label and (not previous.get('_sp') is sp):
+            if label and (not previous.get('_sp') is sp) and (label != current_label or not merge_same_speaker):
                 previous.setdefault('speakers', []).append({'offset': offset, 'label': label})
+                current_label = label
             continue
         counts[ref] += 1
         if counts[ref] > 1 and ref not in repeats:
             raise ValueError(f'{xml_path}: undeclared repeated ref {ref}')
         entry = {'ref': ref, 'text': text, '_sp': sp}
-        if label and (not flat or flat[-1].get('_sp') is not sp):
+        if label and (not flat or flat[-1].get('_sp') is not sp) and (label != current_label or not merge_same_speaker):
             entry['speakers'] = [{'offset': 0, 'label': label}]
+            current_label = label
         mark = _strophe_label(el)
         if mark:
             entry['label'] = mark
@@ -143,7 +154,6 @@ def parse_spine(xml_path: Path, manifest: Manifest, *, check_fingerprint: bool =
         e.pop('_sp', None)
     _apply_greek_text_fixes(flat, getattr(manifest, 'edition', None), xml_path)
     _rejoin_play_line_hyphens(flat)
-    marks = _english_line_marks(manifest)
     segments = _segment_play_lines(flat, *(marks or (None, None)))
     # Keep lettered part anchors on the joined line for later alignment.
     part_map = {e['ref']: e['parts'] for e in flat if e.get('parts')}

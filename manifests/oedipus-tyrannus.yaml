@@ -234,6 +234,9 @@ registry:
   greekSource:
     short: Dain & Mazon (1958)
     full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
+  greekEditions:
+    - { id: tlg, short: "Dain & Mazon (1958)", full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)", editor: "Dain & Mazon", year: 1958, kind: tlg, licence: public-domain-us }
+    - { id: storr-loeb, short: "Storr (1912)", full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)", editor: "F. Storr", year: 1912, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
   translations:
     - id: jebb
       form: prose
@@ -246,6 +249,7 @@ registry:
       name: "F. Storr (Loeb, 1912)"
       short: Storr
       slot: secondary
+      edition: storr-loeb
       alignment: speech
     - id: kosmos
       name: "Jebb, rev. Sens & Nagy (Kosmos Society)"
@@ -262,3 +266,45 @@ registry:
   production: "Date unknown, perhaps the 430s or 420s BC · second prize, behind Philocles"
   argument: "Oedipus sets out to find the killer of Laius and finds it was himself: he killed his father and married his mother."
   synopsis: "Thebes is dying of plague. The oracle says the killer of the old king Laius is in the city and must be found. Oedipus, who answered the Sphinx and took the throne and the widowed queen Jocasta, undertakes the search himself. Tiresias will not speak, then does. A messenger from Corinth and an old shepherd, put together, prove it: Oedipus killed Laius, his father, and Jocasta is his mother. She hangs herself; he puts out his eyes with the pins of her dress and asks to be sent into exile."
+
+greek_editions:
+  - id: storr-loeb
+    label:
+      short: "Storr (1912)"
+      full: "F. Storr, Sophocles, vol. 1 (Loeb, 1912)"
+    editor: "F. Storr"
+    year: 1912
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0011.tlg004.perseus-grc2.xml
+      expect: { title: "Οἰδίπους Τύραννος", editor: "Francis Storr" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: "Perseus Digital Library, Tufts University"
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [storr]
+    citation:
+      title_labels: []
+      lacunae: { "1": ["625a"] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1467, sha256: "f8fc7d83102be85d8d800b6715bebc437dba3ea1ecbee430aef75a00fe7fe11c" }
+    speakers:
+      sigla:
+        "—": null
+        "Οἰδίπους": Oedipus
+        "Χορός": Chorus
+        "Κρέων": Creon
+        "Ἰοκάστη": Jocasta
+        "Ἄγγελος": Messenger
+        "Τειρεσίας": Teiresias
+        "Θεράπων": Servant
+        "Ἱερεύς": Priest
+        "Ἐξάγγελος": Second Messenger
+      overrides: []
+    edition_only: []
+    alignment: { storr: { covered: [], cuts: [] } }
+    gaps: []
+    text_fixes: []

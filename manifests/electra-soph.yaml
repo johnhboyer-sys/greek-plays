@@ -133,6 +133,9 @@ registry:
   greekSource:
     short: Dain & Mazon (1958)
     full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
+  greekEditions:
+    - { id: tlg, short: "Dain & Mazon (1958)", full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)", editor: "Dain & Mazon", year: 1958, kind: tlg, licence: public-domain-us }
+    - { id: storr-loeb, short: "Storr (1913)", full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)", editor: "F. Storr", year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
   translations:
     - id: jebb
       form: prose
@@ -145,6 +148,7 @@ registry:
       name: "F. Storr (Loeb, 1913)"
       short: Storr
       slot: secondary
+      edition: storr-loeb
       alignment: speech
   citation:
     scheme: play-line
@@ -153,3 +157,43 @@ registry:
   production: "Date unknown, probably c. 420–410 BC"
   argument: "Electra waits for Orestes to come home and avenge their father. He comes, and they kill their mother."
   synopsis: "Since Agamemnon's murder Electra has lived in the palace at Mycenae as her mother's enemy, unmarried, in mourning, waiting for her brother. Orestes arrives with a plan: an old servant will report to Clytemnestra that he is dead, killed in a chariot race at Delphi. Electra hears the story too and believes it, and is holding what she thinks is the urn with his ashes when the stranger beside her tells her who he is. Orestes kills Clytemnestra inside the house while Electra urges him on from the door, then leads Aegisthus in to his death."
+
+greek_editions:
+  - id: storr-loeb
+    label:
+      short: "Storr (1913)"
+      full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)"
+    editor: "F. Storr"
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0011.tlg005.perseus-grc2.xml
+      expect: { title: "Ἠλέκτρα", editor: "Francis Storr" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: "Perseus Digital Library, Tufts University"
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [storr]
+    citation:
+      title_labels: []
+      lacunae: { "1": ["1265"] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1470, sha256: "60765ceb6f189ba214c897270353fe66ae1a3fa5c6040c2cd757b0025a507c4b" }
+    speakers:
+      sigla:
+        "—": null
+        "Ἠλέκτρα": Electra
+        "Ὀρέστης": Orestes
+        "Χορός": Chorus
+        "Χρυσόθεμις": Chrysothemis
+        "Κλυταιμνήστρα": Clytemnestra
+        "Παιδαγωγός": Paedagogus
+        "Αἴγισθος": Aegisthus
+      overrides: []
+    edition_only: []
+    alignment: { storr: { covered: [], cuts: [] } }
+    gaps: []
+    text_fixes: []

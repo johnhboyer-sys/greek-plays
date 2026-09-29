@@ -105,3 +105,55 @@ def test_greek_text_fix_hits_once(tmp_path):
     assert spine['segments'][0]['lines'][0]['text'] == 'ἐγὼ ʼτεκον'
     with pytest.raises(ValueError, match='text_fixes'):
         parse_spine(xml, _one_line_manifest(tmp_path, {'text_fixes': [{**fix, 'find': 'ζζζ'}]}), check_fingerprint=False)
+
+
+def _speaker_labels(spine):
+    """(line ref, speaker label) for every speaker event, in order."""
+    out = []
+    for segment in spine['segments']:
+        for event in segment.get('speakers') or []:
+            out.append(event['label'])
+    return out
+
+
+_SPLIT_SPEECH = ('<sp><speaker>Α</speaker><l n="1">ἀρχή</l></sp>'
+                 '<sp><speaker>Α</speaker><l n="2">μέσον</l></sp>'
+                 '<sp><speaker>Β</speaker><l n="3">τέλος</l></sp>'
+                 '<sp><speaker>Α</speaker><l n="4">πάλιν</l></sp>')
+
+
+def _split_speech_setup(tmp_path):
+    xml = tmp_path / 'play.xml'
+    xml.write_text('<TEI><teiHeader><editor>Editor</editor></teiHeader><text><body>' + _SPLIT_SPEECH + '</body></text></TEI>')
+    data = {'work': {'id': 'test', 'greek_edition': 'Test', 'greek_source': {'expect': {'editor': 'Editor'}}},
+            'citation': {'scheme': 'play-line', 'lacunae': {'1': []}, 'transpositions': {'1': []},
+                         'repeated_refs': {}, 'ref_fixes': {}, 'title_labels': [], 'fingerprint': {}},
+            'english': {}, 'books': [{'n': 1, 'start': '1', 'end': '4'}]}
+    return xml, Manifest(data, tmp_path / 'test.yaml')
+
+
+def test_same_speaker_blocks_are_one_speech_without_a_line_anchored_pair(tmp_path):
+    # Perseus splits one speech into several <sp>; with no line-anchored pair
+    # the same speaker straight on opens no new speaker event.
+    xml, manifest = _split_speech_setup(tmp_path)
+    spine = parse_spine(xml, manifest, check_fingerprint=False)
+    assert _speaker_labels(spine) == ['Α', 'Β', 'Α']
+
+
+def test_same_speaker_blocks_stay_apart_with_a_line_anchored_pair(tmp_path, monkeypatch):
+    # A line-anchored pair (Smyth's) anchors its English to each <sp>: keep them.
+    import drama_pipeline.stage1_tei_greek as mod
+    monkeypatch.setattr(mod, '_english_line_marks', lambda manifest: (set(), set()))
+    xml, manifest = _split_speech_setup(tmp_path)
+    spine = parse_spine(xml, manifest, check_fingerprint=False)
+    assert _speaker_labels(spine) == ['Α', 'Α', 'Β', 'Α']
+
+
+def test_modifier_turned_comma_is_edge_punctuation():
+    # Perseus opens a quotation with U+02BD (Philoctetes 858); the key must be
+    # the word's own. Every other builds' Greek has no U+02BD at a token edge.
+    spine = {'work': 'test', 'segments': [{'id': '1:1', 'book': 1, 'column': '1',
+                           'lines': [{'n': 1, 'text': 'ʽἄλλος ὕπνος'}]}]}
+    tokens, _, failures = tokenize(spine)
+    assert not failures
+    assert [t['k'] for t in tokens['segments'][0]['lines'][0]['tokens']] == [to_beta_key('ἄλλος'), to_beta_key('ὕπνος')]
