@@ -50,8 +50,8 @@ describe('the Greek-only edition picker', () => {
     const eng = { book: 1, segments: [{ id: '1:1', column: '1', greek: [line(1, '1', 'λόγος')], english: null }] } as BookData;
     const off = render(Reader, { props: { work: 'agamemnon', bookNum: 1, bookData: eng, initialView: 'greek' } });
     expect(pickers(off.container)).toHaveLength(0);
-    expect(getWork('alcestis')!.greekEditions).toBeUndefined();
-    const single = render(Reader, { props: { work: 'alcestis', bookNum: 1, bookData: eng, edition: 'tlg', initialView: 'greek' } });
+    expect(getWork('andromache')!.greekEditions).toBeUndefined();
+    const single = render(Reader, { props: { work: 'andromache', bookNum: 1, bookData: eng, edition: 'tlg', initialView: 'greek' } });
     expect(pickers(single.container)).toHaveLength(0);
   });
 
