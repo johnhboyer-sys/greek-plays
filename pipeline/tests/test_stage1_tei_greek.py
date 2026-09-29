@@ -62,32 +62,35 @@ def test_perseus_elision_and_iota_subscript_keys():
     assert [t['k'] for t in tokens['segments'][0]['lines'][0]['tokens']] == ["a)p'", 'au)tw=|']
 
 
-def _fix_manifest(tmp_path, fixes):
+def _one_line_manifest(tmp_path, edition=None):
     data = {'work': {'id': 'test', 'greek_edition': 'Test', 'greek_source': {'expect': {'editor': 'Editor'}}},
             'citation': {'scheme': 'play-line', 'lacunae': {'1': []}, 'transpositions': {'1': []},
                          'repeated_refs': {}, 'ref_fixes': {}, 'title_labels': [], 'fingerprint': {}},
-            'english': {}, 'books': [{'n': 1, 'start': '1', 'end': '2'}]}
+            'english': {}, 'books': [{'n': 1, 'start': '1', 'end': '1'}]}
     manifest = Manifest(data, tmp_path / 'test.yaml')
-    manifest.edition = {'text_fixes': fixes}
+    if edition is not None:
+        manifest.edition = edition
     return manifest
 
 
-def _fix_xml(tmp_path):
+def _one_line_xml(tmp_path, line):
     xml = tmp_path / 'play.xml'
     xml.write_text('<TEI><teiHeader><editor>Editor</editor></teiHeader><text><body><sp><speaker>Α</speaker>'
-                   '<l n="1">θεοὶ· ʽἐκ γὰρ</l><l n="2">ʽἐκ</l></sp></body></text></TEI>')
+                   + line + '</sp></body></text></TEI>')
     return xml
 
 
-def test_edition_text_fix_hits_one_ref_once(tmp_path):
-    fixes = [{'ref': '1', 'find': 'ʽἐκ', 'replace': 'ἐκ', 'note': 'test'}]
-    spine = parse_spine(_fix_xml(tmp_path), _fix_manifest(tmp_path, fixes), check_fingerprint=False)
-    lines = [line for segment in spine['segments'] for line in segment['lines']]
-    assert lines[0]['text'] == 'θεοὶ· ἐκ γὰρ'
-    assert lines[1]['text'] == 'ʽἐκ'  # a fix names its ref; line 2 keeps its text
+def test_xml_comment_in_line_is_not_text(tmp_path):
+    # Hecuba 387 carries `<!-- very odd crasis mark here -->` inside its <l>.
+    xml = _one_line_xml(tmp_path, '<l n="1">ἐγὼ τεκον <!-- editor note --></l>')
+    spine = parse_spine(xml, _one_line_manifest(tmp_path), check_fingerprint=False)
+    assert spine['segments'][0]['lines'][0]['text'] == 'ἐγὼ τεκον'
 
 
-def test_edition_text_fix_that_misses_fails(tmp_path):
-    fixes = [{'ref': '1', 'find': 'ξ', 'replace': 'ἐκ', 'note': 'test'}]
-    with pytest.raises(ValueError, match='stale edition text_fixes'):
-        parse_spine(_fix_xml(tmp_path), _fix_manifest(tmp_path, fixes), check_fingerprint=False)
+def test_greek_text_fix_hits_once(tmp_path):
+    xml = _one_line_xml(tmp_path, '<l n="1">ἐγὼ ῎τεκον</l>')
+    fix = {'find': '῎τεκον', 'replace': 'ʼτεκον', 'note': 'test'}
+    spine = parse_spine(xml, _one_line_manifest(tmp_path, {'text_fixes': [fix]}), check_fingerprint=False)
+    assert spine['segments'][0]['lines'][0]['text'] == 'ἐγὼ ʼτεκον'
+    with pytest.raises(ValueError, match='text_fixes'):
+        parse_spine(xml, _one_line_manifest(tmp_path, {'text_fixes': [{**fix, 'find': 'ζζζ'}]}), check_fingerprint=False)

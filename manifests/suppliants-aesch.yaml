@@ -215,6 +215,9 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Murray (1955)", full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)", editor: Murray, year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: smyth-loeb, short: "Smyth (1922)", full: "H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)", editor: "H. W. Smyth", year: 1922, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["smyth"] }
   translations:
     - id: smyth
       form: prose

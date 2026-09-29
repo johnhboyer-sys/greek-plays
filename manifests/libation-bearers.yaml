@@ -214,6 +214,9 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Murray (1955)", full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)", editor: Murray, year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: smyth-loeb, short: "Smyth (1926)", full: "H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)", editor: "H. W. Smyth", year: 1926, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["smyth", "kosmos"] }
   translations:
     - id: smyth
       form: prose
@@ -314,8 +317,9 @@ greek_editions:
           replace: "! Footprints matching eac"
           note: "sweep 2026-09-24 n=130: sources/perseus/tlg0085.tlg006.perseus-eng2.xml:388"
       line_fixes: {}
-      # Smyth's edition brackets a supplied repeat at 942a (<ἐπολολύξατʼ ...>); the
-      # Perseus English (eng2) has no 942a anchor.
+      # Smyth's Greek supplies a bracketed repeat of the ephymnion at 942a (<add>, grc2 l.1956);
+      # his English (eng2:1413) repeats the same sentence, and the build seats it once at 942.
+      # Without this entry stage 2 fails (alignment: unexpected unmatched 1:942a).
       covered:
         - { greek: "942a", by: "942" }
       cuts: []
@@ -369,4 +373,4 @@ greek_editions:
   # Line 76 opens ἐκ with U+02BD (a rough-breathing mark on a word that takes none);
   # the sense and grammar want plain ἐκ γὰρ οἴκων. Perseus's own typo, tlg0085.tlg006 l. 76.
   text_fixes:
-    - { ref: "76", find: "ʽἐκ", replace: "ἐκ", note: "Perseus tlg0085.tlg006.perseus-grc2.xml l.76: stray U+02BD before ἐκ" }
+    - { find: "ʽἐκ", replace: "ἐκ", note: "Perseus tlg0085.tlg006.perseus-grc2.xml l.76: stray U+02BD before ἐκ" }

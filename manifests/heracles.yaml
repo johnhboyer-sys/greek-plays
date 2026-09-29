@@ -222,14 +222,19 @@ registry:
   greekSource:
     short: Diggle (1981)
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1981)", full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)", editor: Diggle, year: 1981, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -249,3 +254,45 @@ registry:
   production: "c. 416 BC"
   argument: "Heracles returns from the underworld in time to save his family, then is driven mad by Hera and kills them himself."
   synopsis: "While Heracles is in the underworld on his last labour, the usurper Lycus has seized Thebes and is about to kill Heracles' wife Megara, his three sons, and his father Amphitryon. Heracles returns in time and kills Lycus. Then Iris and Madness appear above the house, sent by Hera, and in the fit he kills his wife and children, taking them for Eurystheus's. When he wakes, Amphitryon has to tell him what he has done. He means to kill himself; Theseus, whom he freed from Hades, talks him into living and takes him to Athens."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1913)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)
+    editor: Gilbert Murray
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg009.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': [853a, '1313']}
+      transpositions: {'1': [{start: '87', end: '87', before: '89'}, {start: '126', end: '126', before: '127'}, {start: '1009', end: '1009', before: '1010'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1429, sha256: 8f9c49f9c992a9a2b38ef91f149bb83ee24f7c95ad0c472939485f5e029f2aa4}
+    speakers:
+      sigla:
+        Ἀμφιτρύων: Amphitryon
+        Ἡρακλῆς: Heracles
+        Χορός: Chorus
+        Θησεύς: Theseus
+        Μεγάρα: Megara
+        Λύκος: Lycus
+        Ἄγγελος: Messenger
+        Ἶρις: Iris
+        Λύσσα: Madness
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes: []

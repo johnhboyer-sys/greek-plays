@@ -285,6 +285,9 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Murray (1955)", full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)", editor: Murray, year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: smyth-loeb, short: "Smyth (1926)", full: "H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)", editor: "H. W. Smyth", year: 1926, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["smyth", "kosmos"] }
   translations:
     - id: smyth
       form: prose
@@ -371,8 +374,8 @@ greek_editions:
       # the edition's own <l n="354a"> carries that sentence.
       text_fixes: []
       line_fixes: {}
-      # Smyth's edition brackets a supplied repeat of the strophe at 372a
-      # (<μάλα γὰρ οὖν ἁλομένα>); the Perseus English (eng2) has no 372a anchor.
+      # Smyth's Greek supplies a bracketed repeat of the ephymnion at 372a (<add>); his English
+      # (eng2:556) repeats the same sentence, and the build seats it once at 372.
       covered:
         - { greek: "372a", by: "372" }
       cuts: []

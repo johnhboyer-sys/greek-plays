@@ -199,6 +199,9 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Murray (1955)", full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)", editor: Murray, year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: smyth-loeb, short: "Smyth (1922)", full: "H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)", editor: "H. W. Smyth", year: 1922, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["smyth"] }
   translations:
     - id: smyth
       form: prose
@@ -277,7 +280,10 @@ greek_editions:
   edition_only: []
   alignment:
     smyth:
-      line_fixes: {}
+      # Smyth's English numbers Hermes's reply 980b; his own Greek numbers it 980a
+      # (sources/perseus/tlg0085.tlg003.perseus-eng2.xml:1385 vs -grc2.xml <l n="980a">).
+      line_fixes:
+        "980b": "980a"
       covered: []
       cuts: []
   gaps: []

@@ -137,14 +137,19 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -158,3 +163,51 @@ registry:
   production: "c. 424 BC"
   argument: "After the fall of Troy, Hecuba loses her daughter Polyxena and her son Polydorus, and blinds the man who killed him."
   synopsis: "Troy has fallen and the Greek fleet is held on the coast of Thrace. The ghost of Hecuba's youngest son Polydorus opens the play: sent to Thrace for safety with a store of gold, he has been murdered by his host Polymestor. First the Greeks demand Hecuba's daughter Polyxena as a sacrifice to Achilles' ghost, and she goes bravely. Then a servant sent for water finds Polydorus's body on the shore. Hecuba lures Polymestor and his sons into the women's tents, kills the boys, and blinds him. Agamemnon judges the case and finds for her."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1902)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
+    editor: Gilbert Murray
+    year: 1902
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg007.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way]
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': []}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1275, sha256: e4a022993c55007e9d1b320ebccd28ef1f5cf85474c267c6acbf03338547dc49}
+    speakers:
+      sigla:
+        Ἑκάβη: Hecuba
+        Πολυμήστωρ: Polymestor
+        Χορός: Chorus
+        Ἀγαμέμνων: Agamemnon
+        Πολυξένη: Polyxena
+        Ὀδυσσεύς: Odysseus
+        Θεράπαινα: Maid
+        Ταλθύβιος: Talthybius
+        Πολυδώρου εἴδωλον: Ghost of Polydorus
+        —: null
+      overrides: []
+    edition_only: []
+    alignment: {}
+    gaps: []
+    text_fixes:
+      # Perseus 387 prints U+1FCE (a free psili-and-oxia) where prodelision
+      # ἐγὼ 'τεκον (ἔτεκον) needs an apostrophe; the file's own comment on the
+      # line reads "very odd crasis mark here". The mark breaks the key
+      # (stage 3 cannot transliterate it); every other elision in the file is
+      # U+02BC.
+      - { find: "῎τεκον", replace: "ʼτεκον", note: "sources/perseus/tlg0006.tlg007.perseus-grc2.xml:613 (n=387)" }
