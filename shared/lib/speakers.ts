@@ -668,6 +668,7 @@ export function extractPrefixedEnglishTurns(
   text: string,
   roster: readonly string[],
   fallbackTurns: readonly EnglishTurn[] = [],
+  cueSpeakers: readonly string[] = [],
 ): EnglishTurnSource {
   const known = [...roster];
   for (const turn of fallbackTurns) {
@@ -700,7 +701,7 @@ export function extractPrefixedEnglishTurns(
     const fallback = fallbackTurns[index];
     turns.push({
       offset: clean.length,
-      speaker: knownByNorm.get(norm(label)) ?? fallback?.speaker ?? fallback?.display ?? label,
+      speaker: cueSpeakers[index] || knownByNorm.get(norm(label)) || fallback?.speaker || fallback?.display || label,
       display: label,
     });
     cursor = start + match[0].length;

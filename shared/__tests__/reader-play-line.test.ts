@@ -840,6 +840,20 @@ describe('Reader.svelte stage directions (Arrowsmith)', () => {
     } as unknown as BookData;
   }
 
+  it('colors a comparison cue with its emitted speaker', async () => {
+    const book = dirBook();
+    book.segments[1]!.third![0]!.text = 'SLAVE. Words.';
+    book.segments[1]!.third![0]!.cueSpeakers = ['Strepsiades'];
+    localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
+    const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: book } });
+    await flush();
+    const cue = container.querySelector('#col-56 .english-col .speaker');
+    expect(cue?.textContent).toBe('Slave');
+    expect(cue?.getAttribute('data-spk')).toBe(
+      container.querySelector('#col-55 .english-col .speaker')?.getAttribute('data-spk'),
+    );
+  });
+
   it('gives a direction between speeches a row of its own, the Greek cell empty', async () => {
     localStorage.setItem('reader-trans-PLAYDIR', 'arrowsmith');
     const { container } = render(Reader, { props: { work: 'PLAYDIR', bookNum: 1, bookData: dirBook() } });
