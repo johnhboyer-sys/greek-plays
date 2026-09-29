@@ -22,6 +22,6 @@ describe('generated registry golden value', () => {
     // Acharnians, Knights, Wasps, Peace and Birds (John's ruling).
     // Regenerated 2026-09-29: edition picker P1-P2 adds greekEditions and each
     // paired translation's `edition` (Smyth, Storr, Murray OCT; John's go).
-    expect(hash).toBe('2903195bd1d9e16131346447ace028034ca3a8160692c47f22067d5a2270a806');
+    expect(hash).toBe('140b560d8c92f3f04fe7d311f3c3c42fda7bbf4e9483153801aa06e3945b81d8');
   });
 });
