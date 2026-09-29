@@ -364,7 +364,7 @@ greek_editions:
         "ΕΞ.": Second Messenger
       overrides: []
     edition_only: []
-    alignment: { jebb: { covered: [] } }
+    alignment: { jebb: { covered: [], anchor_map: storr-loeb } }
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org playsfragmentspa0000unse_i8p4, page as printed)

@@ -355,6 +355,9 @@ greek_editions:
     edition_only: []
     alignment:
       jebb:
+        # The English's line numbers are Storr's (Perseus's Greek); the matcher
+        # re-keys them onto Jebb's lines by text (pipeline/drama_pipeline/anchor_map.py).
+        anchor_map: storr-loeb
         # Jebb prints the three verses lost after 181 and the one at 183 as
         # metrical schemes (lacunae); his English has no words for them, and
         # 181 (πόρσω· σὺ γὰρ ἀΐεις) and 533 (ὦ Ζεῦ) and 534a fall inside the

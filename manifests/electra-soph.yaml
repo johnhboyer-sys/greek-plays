@@ -247,7 +247,7 @@ greek_editions:
         "ΑΙ.": Aegisthus
       overrides: []
     edition_only: []
-    alignment: { jebb: { covered: [] } }
+    alignment: { jebb: { covered: [], anchor_map: storr-loeb } }
     gaps: []
     # OCR misreads corrected under John's grammar rule (2026-09-19): each one
     # the scan prints (archive.org, page as printed) where the OCR's reading
