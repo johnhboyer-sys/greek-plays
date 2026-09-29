@@ -302,7 +302,7 @@ greek_editions:
     editor: Gilbert Murray
     year: 1902
     status: public-domain-us
-    sources: [perseus/tlg0006.tlg007.perseus-grc2.xml]
+    sources: [perseus/tlg0006.tlg002.perseus-grc2.xml, perseus/tlg0006.tlg003.perseus-grc2.xml, perseus/tlg0006.tlg007.perseus-grc2.xml]
   - id: murray-oct
     editor: Gilbert Murray
     year: 1913
