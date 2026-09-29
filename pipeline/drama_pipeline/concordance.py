@@ -136,7 +136,7 @@ def _match_span(ed_keys, ref_keys, index, low, high, expected):
         for m in range(1, MAX_JOIN + 1):
             if k == 1 and m == 1:
                 continue
-            for j in range(low, high - m + 1):
+            for j in range(low, min(high, len(ref_keys) - m + 1)):
                 target = "".join(ref_keys[j:j + m])
                 if not target:
                     continue

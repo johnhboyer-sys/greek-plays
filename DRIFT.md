@@ -898,3 +898,4 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/preflight.py` — 2026-09-29: the edition concordance check accepts a range value ("112-113") where the reference prints one line under two numbers.
 - `pipeline/drama_pipeline/stage7_emit.py` — 2026-09-29: writes each edition's `concordance.json` (new `concordance.py` matches edition lines to reference lines, joining adjacent lines where lyric colometry differs).
 - `schemas/concordance.v1.json` — 2026-09-29: new schema for the edition concordance; a value is one ref or an "a-b" range.
+- `pipeline/drama_pipeline/concordance.py` — 2026-09-29: a joined span may start at the last line of the ±50 window, as a single line can (bound was `high - m + 1`).
