@@ -20,6 +20,8 @@ describe('generated registry golden value', () => {
     // Regenerated 2026-09-21: Ecclesiazusae's Rogers joins them, its drift fixed.
     // Regenerated 2026-09-22: Hickie's Bohn vol. I joins as `secondary` on
     // Acharnians, Knights, Wasps, Peace and Birds (John's ruling).
-    expect(hash).toBe('62c81c01f71d836c6f39bd97efa5fe33884cbc8bf412f118ae779a20c30cbdcb');
+    // Regenerated 2026-09-29: edition picker P1-P2 adds greekEditions and each
+    // paired translation's `edition` (Smyth, Storr, Murray OCT; John's go).
+    expect(hash).toBe('2903195bd1d9e16131346447ace028034ca3a8160692c47f22067d5a2270a806');
   });
 });
