@@ -268,19 +268,14 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
-  greekEditions:
-    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
   translations:
     - id: coleridge
-      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
-      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -294,7 +289,7 @@ registry:
       alignment: speech
       form: prose
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse, edition: murray-oct }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Hipp."
@@ -302,46 +297,3 @@ registry:
   production: "City Dionysia, 428 BC · first prize"
   argument: "Aphrodite makes Phaedra fall in love with her stepson Hippolytus. Her suicide note accuses him, and his father's curse kills him."
   synopsis: "Aphrodite, slighted by Theseus's son Hippolytus, who worships only Artemis and wants nothing to do with love, has made his stepmother Phaedra fall in love with him. Phaedra is starving herself rather than speak. Her nurse gets the secret out of her and, meaning to help, tells Hippolytus. He is disgusted. Phaedra, exposed, hangs herself and leaves a tablet accusing him of rape. Theseus believes it, banishes his son, and curses him with one of the three curses Poseidon owes him. A bull from the sea wrecks Hippolytus's chariot. Artemis tells Theseus the truth over the dying boy, who forgives him."
-
-greek_editions:
-  - id: murray-oct
-    label:
-      short: Murray (1902)
-      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
-    editor: Gilbert Murray
-    year: 1902
-    source:
-      kind: perseus-tei
-      path: perseus/tlg0006.tlg005.perseus-grc2.xml
-      expect: { editor: Gilbert Murray }
-    licence:
-      text: public-domain-us
-      encoding: cc-by-sa-4.0
-      credit: Perseus Digital Library, Tufts University
-      source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [coleridge, way, murray-verse]
-    citation:
-      title_labels: []
-      lacunae: {'1': []}
-      transpositions: {'1': [{start: '193', end: '193', before: '194'}, {start: '810', end: '824', before: '825'}, {start: '1046', end: '1046', before: '1048'}, {start: '1454', end: '1454', before: '1455'}, {start: '1453', end: '1453', before: '1455'}]}
-      repeated_refs: {}
-      ref_fixes: {}
-      fingerprint: {count: 1453, sha256: f216ccf276a05f4e464c7b1c73c8f4f3d2d2b6fd4898708b8da553e6bd225935}
-    speakers:
-      sigla:
-        Χορός: Chorus
-        Ἱππόλυτος: Hippolytus
-        Τροφός: Nurse
-        Φαίδρα: Phaedra
-        Θησεύς: Theseus
-        Ἄρτεμις: Artemis
-        Θεράπων: Attendant
-        Ἄγγελος: Messenger
-        Χορὸς Κυνηγῶν: Attendants
-        Ἀφροδίτη: Aphrodite
-        —: null
-      overrides: []
-    edition_only: []
-    alignment: {}
-    gaps: []
-    text_fixes: []

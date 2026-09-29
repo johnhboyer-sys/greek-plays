@@ -140,19 +140,14 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
-  greekEditions:
-    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
-      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
-      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -166,48 +161,3 @@ registry:
   production: "Date unknown, c. 425 BC · the scholia say it was not produced at Athens"
   argument: "Andromache, now Neoptolemus’ slave, is threatened by his wife Hermione and her father Menelaus."
   synopsis: "Andromache, Hector's widow, was given to Neoptolemus as a prize of war and has borne him a son. His wife Hermione, Menelaus's daughter, is childless and blames her. Andromache has taken refuge at the altar of Thetis and hidden the boy. With Neoptolemus away at Delphi, Hermione and Menelaus move to kill them both, and Menelaus gets her off the altar by producing the child. Old Peleus arrives in time and faces Menelaus down. Hermione, terrified of her husband's return, runs off with Orestes, who wanted her himself and has arranged for Neoptolemus to be murdered at Delphi. The body is brought home; Thetis appears to settle everyone's future."
-
-greek_editions:
-  - id: murray-oct
-    label:
-      short: Murray (1902)
-      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
-    editor: Gilbert Murray
-    year: 1902
-    source:
-      kind: perseus-tei
-      path: perseus/tlg0006.tlg006.perseus-grc2.xml
-      expect: { editor: Gilbert Murray }
-    licence:
-      text: public-domain-us
-      encoding: cc-by-sa-4.0
-      credit: Perseus Digital Library, Tufts University
-      source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [coleridge, way]
-    citation:
-      title_labels: []
-      lacunae: {'1': [146b, 146c, 1219b]}
-      transpositions: {'1': []}
-      repeated_refs: {}
-      ref_fixes: {}
-      fingerprint: {count: 1284, sha256: dde9f2f12c701d71f9c98f44b5a08651dcfe226bc55c8e5d720ed748bdccd324}
-    speakers:
-      sigla:
-        Χορός: Chorus
-        Ἀνδρομάχη: Andromache
-        Ἑρμιόνη: Hermione
-        Πηλεύς: Peleus
-        Μενέλαος: Menelaus
-        Ὀρέστης: Orestes
-        Θεράπαινα: Maid
-        Τροφός: Nurse
-        Παῖς: Molossus
-        Ἄγγελος: Messenger
-        θεράπαινα: Maid
-        Θέτις: Thetis
-        —: null
-      overrides: []
-    edition_only: []
-    alignment: {}
-    gaps: []
-    text_fixes: []

@@ -204,4 +204,10 @@ greek_editions:
     edition_only: []
     alignment: {}
     gaps: []
-    text_fixes: []
+    text_fixes:
+      # Perseus 387 prints U+1FCE (a free psili-and-oxia) where prodelision
+      # ἐγὼ 'τεκον (ἔτεκον) needs an apostrophe; the file's own comment on the
+      # line reads "very odd crasis mark here". The mark breaks the key
+      # (stage 3 cannot transliterate it); every other elision in the file is
+      # U+02BC.
+      - { find: "῎τεκον", replace: "ʼτεκον", note: "sources/perseus/tlg0006.tlg007.perseus-grc2.xml:613 (n=387)" }

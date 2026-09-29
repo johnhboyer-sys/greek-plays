@@ -182,26 +182,21 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
-  greekEditions:
-    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
   translations:
     - id: coleridge
-      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
-      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
       slot: secondary
       footnotes: true
       alignment: speech
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse, edition: murray-oct }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: third, alignment: speech, form: verse }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Alc."
@@ -209,46 +204,3 @@ registry:
   production: "City Dionysia, 438 BC · second prize, behind Sophocles · fourth play of its group, in place of a satyr play"
   argument: "Alcestis dies in her husband’s place. Heracles brings her back."
   synopsis: "Apollo won Admetus, king of Pherae, a bargain with the Fates: he may escape his appointed death if someone else will die for him. His parents refused. His wife Alcestis agreed. The play opens on the day of her death. While the house mourns, Heracles arrives on his way to a labour, and Admetus, unwilling to turn a guest away, hides the death from him and takes him in. Heracles finds out, goes to the tomb, wrestles Death for her, and brings her back veiled and silent to a husband who does not at first know her."
-
-greek_editions:
-  - id: murray-oct
-    label:
-      short: Murray (1902)
-      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
-    editor: Gilbert Murray
-    year: 1902
-    source:
-      kind: perseus-tei
-      path: perseus/tlg0006.tlg002.perseus-grc2.xml
-      expect: { editor: Gilbert Murray }
-    licence:
-      text: public-domain-us
-      encoding: cc-by-sa-4.0
-      credit: Perseus Digital Library, Tufts University
-      source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [coleridge, way, murray-verse]
-    citation:
-      title_labels: []
-      lacunae: {'1': [96a, 204a, 468a]}
-      transpositions: {'1': []}
-      repeated_refs: {}
-      ref_fixes: {}
-      fingerprint: {count: 1160, sha256: 108a8ec9fb2c2c25b966bddb0e3292b6cdf5cc31924dfdfac19587f8b11fd252}
-    speakers:
-      sigla:
-        Ἄδμητος: Admetus
-        Ἡρακλῆς: Heracles
-        Χορός: Chorus
-        Ἄλκηστις: Alcestis
-        Ἀπόλλων: Apollo
-        Θάνατος: Death
-        Φέρης: Pheres
-        Θεράπων: Attendant
-        Θεράπαινα: Maid
-        Παῖς: Eumelus
-        —: null
-      overrides: []
-    edition_only: []
-    alignment: {}
-    gaps: []
-    text_fixes: []

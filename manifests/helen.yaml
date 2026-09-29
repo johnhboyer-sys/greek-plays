@@ -306,6 +306,13 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      coleridge:
+        # Perseus's English files Menelaus's line under n="5563" (neighbours
+        # 562 and 564); the same typo the reference block fixes. A Perseus
+        # numbering typo, so the edition needs it too (sweep 2026-09-28,
+        # older-editions-fit: Helen 5563).
+        line_fixes:
+          "5563": "563"
     gaps: []
     text_fixes: []

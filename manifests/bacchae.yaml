@@ -377,6 +377,14 @@ greek_editions:
         —: null
       overrides: []
     edition_only: []
-    alignment: {}
+    alignment:
+      buckley:
+        # Murray prints Agave's half-lines as their own lines (1182a, 1198a);
+        # Buckley's block for 1182 and 1198 holds both speakers' halves, so
+        # 1182a and 1198a paired to nothing (stage 2 unmatched, ratio 5.6 and
+        # 6.7). The cut seats Agave's half beside her Greek.
+        cuts:
+          - { greek: "1182a", english: "His other offspring took hold" }
+          - { greek: "1198a", english: "I am delighted, for I have" }
     gaps: []
     text_fixes: []

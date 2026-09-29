@@ -132,19 +132,14 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
-  greekEditions:
-    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
   translations:
     - id: coleridge
-      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
-      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -158,45 +153,3 @@ registry:
   production: "Satyr play · date unknown, perhaps c. 408 BC"
   argument: "Odysseus and his men, blown to Sicily, meet Polyphemus and the satyrs he keeps as slaves, and put out his eye."
   synopsis: "Odysseus and his crew land in Sicily looking for water and find the satyrs and old Silenus, enslaved by the Cyclops Polyphemus and set to herding his flocks. Silenus trades the Cyclops's food for Odysseus's wine, then blames the strangers when the master returns. Polyphemus eats two of the crew. Odysseus gets him drunk, and with a heated stake, and no help from the satyrs, puts out his eye. The Greeks and the satyrs sail off together."
-
-greek_editions:
-  - id: murray-oct
-    label:
-      short: Murray (1902)
-      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
-    editor: Gilbert Murray
-    year: 1902
-    source:
-      kind: perseus-tei
-      path: perseus/tlg0006.tlg001.perseus-grc2.xml
-      expect: { editor: Gilbert Murray }
-    licence:
-      text: public-domain-us
-      encoding: cc-by-sa-4.0
-      credit: Perseus Digital Library, Tufts University
-      source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [coleridge, way]
-    citation:
-      title_labels: []
-      lacunae: {'1': [235a, 374a]}
-      transpositions: {'1': [{start: '372', end: '372', before: '373'}]}
-      repeated_refs: {}
-      ref_fixes: {}
-      fingerprint: {count: 723, sha256: 26b3073cb67e965f8cd443031a72ed9ecc1a6110142e2dbf814af53fa995fc9f}
-    speakers:
-      sigla:
-        Ὀδυσσεύς: Odysseus
-        Κύκλωψ: Cyclops
-        Σιληνός: Silenus
-        Χορός: Chorus
-        Ημιχ. Χορός: Chorus
-        Χορὸς α: Chorus
-        Χορὸς β: Chorus
-        Χορὸς γ: Chorus
-        Χορὸς δ: Chorus
-        —: null
-      overrides: []
-    edition_only: []
-    alignment: {}
-    gaps: []
-    text_fixes: []
