@@ -277,6 +277,9 @@ export interface SearchResult {
   engPositions: number[]; // char offsets in the segment's English where a term matched
   slotId?: string;
   englishText?: string;
+  // The Greek edition whose indexes this hit came from; absent for the
+  // reference (TLG) text. Its meta.column is in that edition's numbering.
+  ed?: string;
 }
 
 export interface SearchResponse {
@@ -357,13 +360,14 @@ async function searchWork(
   matchMode: MatchMode,
   lang: SourceLanguage,
   resolved: string[][],
+  ed?: string,
 ): Promise<SearchResult[]> {
   // Fetch only what this query needs: meta always; the lemma OR form Greek
   // index iff there are Greek terms; the English index iff there are English
   // terms. Kick them off together, then await.
-  const metaP = loadIndex<SegMeta[]>(work, 'meta.json');
+  const metaP = loadIndex<SegMeta[]>(work, 'meta.json', ed);
   const grkP: Promise<GrkIndex | null> = grkTerms.length
-    ? loadIndex<GrkIndex>(work, matchMode === 'form' ? 'form.json' : 'lemma.json')
+    ? loadIndex<GrkIndex>(work, matchMode === 'form' ? 'form.json' : 'lemma.json', ed)
     : Promise.resolve(null);
   const engP: Promise<EngIndex | null> = engTerms.length
     ? loadIndex<EngIndex>(work, 'english.json')
@@ -433,6 +437,7 @@ async function searchWork(
         // Each offset belongs to this translation's full text.
         engPositions: key ? englishOccurrences(englishText, engTerms, engMode) : [],
         ...(slotId ? { slotId, englishText } : {}),
+        ...(ed ? { ed } : {}),
       };
     });
   });
@@ -448,6 +453,7 @@ export async function search(
   langOp: LangOp,
   works: string[],
   matchMode: MatchMode = DEFAULT_MATCH_MODE,
+  ed?: string,
 ): Promise<SearchResponse> {
   if (!grkQuery.trim() && !engQuery.trim()) return { results: [], failed: [] };
   if (!works.length) return { results: [], failed: [] };
@@ -472,7 +478,12 @@ export async function search(
       // unconditional behavior, so existing Greek-only callers/tests are
       // unaffected).
       const lang: SourceLanguage = getWork(w)?.language ?? 'grc';
-      return await searchWork(w, grkTerms, engTerms, grkMode, engMode, langOp, matchMode, lang, resolved);
+      // A Greek edition applies to a Greek-only query, and only to a play that
+      // holds it. English search stays on the reference index, whose segments
+      // differ from an edition's, so any query with English terms, and any play
+      // without that edition, searches the reference as before.
+      const useEd = ed && ed !== 'tlg' && !engTerms.length && getWork(w)?.greekEditions?.some(e => e.id === ed) ? ed : undefined;
+      return await searchWork(w, grkTerms, engTerms, grkMode, engMode, langOp, matchMode, lang, resolved, useEd);
     } catch (err) {
       console.warn(`search: skipping ${w} —`, err);
       failedSet.add(w);

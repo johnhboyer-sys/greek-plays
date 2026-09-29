@@ -1,8 +1,9 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
   import { search, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
-  import { fetchBook, fetchChapters, fetchSections, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
+  import { fetchBook, fetchChapters, fetchSections, readerHref, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
   import { highlightPrefixMatches } from '../lib/text';
+  import { editionPicker } from '../lib/edition-picker';
   import { WORKS, getWork, workPath, WORK_ORDER, WORK_GROUPS } from '../lib/works';
   import { getAuthor } from '../lib/authors';
   import { formatCite, formatLocValue, schemeFor, groupUnitNoun } from '../lib/citation';
@@ -63,6 +64,14 @@
   let engMode: SearchMode = 'all';
   let langOp: LangOp = 'and';
   let matchMode: MatchMode = 'form';
+  // Greek text to search (plan 4.5): the reference, or one of the editions the
+  // registry lists, behind PUBLIC_EDITIONS=1. One choice per distinct edition id;
+  // a play that lacks the chosen edition searches the reference.
+  let greekEd = 'tlg';
+  const editionChoices = import.meta.env.PUBLIC_EDITIONS === '1'
+    ? [...new Map(WORKS.flatMap(w => (w.greekEditions ?? []).filter(e => e.id !== 'tlg')
+        .map(e => [e.id, { id: e.id, label: e.short.replace(/\s*\(\d{4}\)$/, '') }] as const))).values()]
+    : [];
   let searchedLemmata: string[] = [];
   // Which works to search. Default: all. Selected in the collapsible panel below.
   let selectedWorks = new Set<string>(WORKS.map(w => w.id));
@@ -427,7 +436,9 @@
   // `failed` — NOT swallowed as a successful empty result — so the caller can
   // show an incomplete-results notice and offer a retry.
   async function buildGroups(results: SearchResult[], ctx: SearchCtx): Promise<{ groups: ChapterGroup[]; failed: string[] }> {
-    const wbPairs = [...new Set(results.map(r => `${r.work}:${r.meta.book}`))];
+    // An edition hit's book (and its segment ids) come from that edition's data.
+    const pairKey = (r: SearchResult) => `${r.work}:${r.meta.book}${r.ed ? `:${r.ed}` : ''}`;
+    const wbPairs = [...new Set(results.map(pairKey))];
     const workSet = [...new Set(results.map(r => r.work))];
     const failed: string[] = [];
 
@@ -439,7 +450,7 @@
     const segMap = new Map<string, Segment>();             // key: work:segId
     const lookups = new Map<string, ReturnType<typeof chapterLookup>>(); // key: work:book
     await pool(wbPairs, 8, async pair => {
-      const [w, bStr] = pair.split(':');
+      const [w, bStr, pairEd] = pair.split(':');
       const b = Number(bStr);
       // If the work's chapters never loaded we can't group its hits — mark the
       // pair failed and skip (don't feed an empty list into chapterLookup),
@@ -452,8 +463,8 @@
         && schemeFor(w).id === 'play-line') chapters = [];
       if (!chapters) { failed.push(pair); return; }
       try {
-        const data = await fetchBook(w, b);
-        for (const s of data.segments) segMap.set(`${w}:${s.id}`, s);
+        const data = await fetchBook(w, b, pairEd);
+        for (const s of data.segments) segMap.set(`${w}:${pairEd ?? ''}:${s.id}`, s);
         lookups.set(pair, chapterLookup(data, chapters));
       } catch (err) { console.warn(`search: book failed for ${pair} —`, err); failed.push(pair); }
     });
@@ -477,13 +488,23 @@
     // The `?loc=` value composes through the work's citation scheme:
     // "1094a:15" (bekker — byte-identical), "17a" (stephanus — no :line, since
     // Plato has no user-facing lines). See shared/lib/citation.ts.
-    const jumpFor = (work: string, book: number, column: string, line: number, slotId?: string) =>
-      `${root}${workPath(work, book)}?${base}${base ? '&' : ''}loc=${formatLocValue(work, column, line)}` +
-      (slotId ? `&trans=${encodeURIComponent(slotId)}` : '');
+    const jumpFor = (work: string, book: number, column: string, line: number, slotId?: string, ed?: string) => {
+      if (ed) {
+        // An edition hit's column is in that edition's numbering: readerHref
+        // keeps `ed=` beside `loc=` so the reader lands on the line searched.
+        // `view=greek` shows the Greek column (a saved English-only view would
+        // hide the line) and is the view that carries the edition picker.
+        const url = new URL(readerHref(work, { book, loc: formatLocValue(work, column, line), ed, trans: slotId, view: 'greek' }), 'https://reader.invalid');
+        for (const [key, value] of qs) url.searchParams.append(key, value);
+        return `${root}${url.pathname}${url.search}`;
+      }
+      return `${root}${workPath(work, book)}?${base}${base ? '&' : ''}loc=${formatLocValue(work, column, line)}` +
+        (slotId ? `&trans=${encodeURIComponent(slotId)}` : '');
+    };
 
     for (const r of results) {
-      const seg = segMap.get(`${r.work}:${r.meta.id}`);
-      const lookup = lookups.get(`${r.work}:${r.meta.book}`);
+      const seg = segMap.get(`${r.work}:${r.ed ?? ''}:${r.meta.id}`);
+      const lookup = lookups.get(pairKey(r));
       if (!seg || !lookup) continue;
       if (r.grkMatch) {
         // Flattened surface tokens, for the accent post-filter (positions are
@@ -501,7 +522,7 @@
             ? sourceLine.ref ?? seg.column
             : seg.column;
           const ch = lookup(seg.column, sourceLine.n);
-          add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: greekKwic(seg, [pos]), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n) });
+          add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: greekKwic(seg, [pos]), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, undefined, r.ed) });
         }
       }
       if (r.engMatch) {
@@ -627,7 +648,7 @@
           ? grkQuery.trim().split(/\s+/).filter(Boolean).map(accentNorm)
           : [],
       };
-      const { results, failed, lemmata } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      const { results, failed, lemmata } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode, greekEd);
       searchedLemmata = lemmata ?? [];
       failedWorks = failed;
       totalInstances = results.reduce((n, r) => n + instCount(r), 0);
@@ -834,7 +855,7 @@
       </button>
     </div>
 
-    <div class="below-query">
+    <div class="below-query" use:editionPicker={{ variant: 'search', label: 'Greek text to search', value: greekEd, choices: editionChoices.length ? [{ id: 'tlg', label: 'Reference text' }, ...editionChoices] : [], onpick: id => (greekEd = id) }}>
       <fieldset class="mode-group">
         <legend>Greek match</legend>
         {#each MODE_OPTS as opt}

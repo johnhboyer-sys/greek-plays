@@ -24,6 +24,11 @@
   let anchor: string | null = null;
   let pending = false;
   let generation = 0;
+  // Reader reads initialView/initialTranslation once, at mount. It first mounts
+  // with the defaults (the server-rendered pair), so when the reader's own
+  // ?view=/?trans=/saved choice resolves to something else on the same edition,
+  // remount once with the resolved values (a changed edition remounts anyway).
+  let epoch = 0;
 
   // `place`: the ref to write as ?loc= (after an edition switch); the URL's own
   // ?loc= and hash read in the numbering of ?ed=, and a bare ?loc= reads as TLG
@@ -41,7 +46,7 @@
   }
   // `from`: the edition `loc` is printed in. On load it is the shown edition's own
   // numbering (?loc= reads in the numbering of ?ed=), so `from` is null: no mapping.
-  async function show(next: EditionState, loc: string | null = null, from: string | null = state.ed) {
+  async function show(next: EditionState, loc: string | null = null, from: string | null = state.ed, first = false) {
     const old = from ?? next.ed;
     let placed: string | null = null;
     if (state.ed !== next.ed) {
@@ -64,7 +69,11 @@
           if (old !== next.ed) placed = anchor;
         }
       } finally { if (id === generation) pending = false; }
-    } else state = next;
+    } else {
+      const differs = first && (next.view !== state.view || next.trans !== state.trans);
+      state = next;
+      if (differs) epoch++;
+    }
     document.documentElement.removeAttribute('data-ed-pending');
     syncUrl(placed);
   }
@@ -77,9 +86,9 @@
     if (!['both', 'english', 'greek'].includes(view)) view = 'both';
     const next = loadEdition(meta, { trans, view: view as ReaderView, ed: params.get('ed'), loc: params.get('loc') });
     anchor = params.get('loc');
-    void show(next, anchor, null);
+    void show(next, anchor, null, true);
   });
-  function changed(event: CustomEvent<{ trans: string; view: ReaderView; loc: string | null }>) {
+  function changed(event: CustomEvent<{ trans: string; view: ReaderView; loc: string | null; ed?: string }>) {
     const next = changeEdition(meta, state, event.detail);
     void show(next, event.detail.loc ?? anchor);
   }
@@ -103,7 +112,7 @@
     {persons} startHref={`#col-${shownBook.segments?.[0]?.column ?? '1'}`} />
 {/if}
 {#if pending}<div class="ed-pending" role="status" aria-label="Loading text">◌</div>{/if}
-{#key state.ed}
+{#key `${state.ed}:${epoch}`}
   <div style:visibility={pending ? 'hidden' : 'visible'}>
     <Reader {work} {bookNum} bookData={shownBook} {chapterTitles} {speakerRoster}
       edition={state.ed} initialLocation={anchor} initialTranslation={state.trans} initialView={state.view}

@@ -27,6 +27,9 @@ import { jsonLdSafe } from '../../lib/jsonld';
 import { isBuilt, builtAuthors } from '../../lib/built-works';
 import '@shared/styles/global.css';
 
+// The Greek editions list is part of the edition picker (plan 4.6), behind the flag.
+const editionsOn = import.meta.env.PUBLIC_EDITIONS === '1';
+
 // Author pages only for authors with ≥1 built work. The registry may list
 // works whose data isn't built in this checkout (see built-works.ts).
 export function getStaticPaths() {
@@ -374,7 +377,24 @@ const breadcrumbLd = Astro.site
       </ul>
     )}
 
-    {works.length > 0 && (
+    {editionsOn && works.some((w) => (w.greekEditions?.length ?? 0) > 1) && (
+      <>
+        <h2 class="au-h">Greek editions</h2>
+        <ul class="read-list">
+          {works.filter((w) => (w.greekEditions?.length ?? 0) > 1).map((w) => (
+            <li>
+              {w.title}:{' '}
+              {w.greekEditions!.map((e, i) => (
+                <>
+                  {i > 0 && ' · '}
+                  <a href={`${base}${workLanding(w.id)}?view=greek&ed=${encodeURIComponent(e.id)}`}>{e.short}</a>
+                </>
+              ))}
+            </li>
+          ))}
+        </ul>
+      </>
+    )}{works.length > 0 && (
       <>
         <h2 class="au-h">Citation conventions</h2>
         <ul class="read-list">
