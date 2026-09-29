@@ -240,6 +240,11 @@ denied:
   - { pattern: "o'?neill", note: "Eugene O'Neill Jr. 1938, not PD" }
 
 greek_editions:
+  - id: storr-loeb
+    editor: "F. Storr"
+    year: 1913
+    status: public-domain-us
+    sources: [perseus/tlg0011.tlg003.perseus-grc2.xml]
   - id: smyth-loeb
     editor: "H. W. Smyth"
     year: 1926

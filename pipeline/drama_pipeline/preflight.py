@@ -2870,6 +2870,22 @@ def _validate_greek_editions(manifest: WorkManifest, data_dir: Path, problems: l
         for child in ed_dir.iterdir():
             if child.is_dir() and child.name not in seen_ids:
                 problems.append((manifest.work_id, manifest.path.name, f"undeclared emitted Greek edition {child.name!r}"))
+            if child.is_dir() and child.name in seen_ids:
+                concordance_path = child / "concordance.json"
+                if not concordance_path.is_file():
+                    problems.append((manifest.work_id, str(concordance_path), "missing edition concordance"))
+                    continue
+                try:
+                    mapping = json.loads(concordance_path.read_text(encoding="utf-8"))
+                except (OSError, ValueError) as exc:
+                    problems.append((manifest.work_id, str(concordance_path), f"invalid edition concordance: {exc}"))
+                    continue
+                if not isinstance(mapping, dict) or any(
+                    not isinstance(key, str) or not re.fullmatch(r"[0-9]+[a-z]?(?:\.[0-9]+)?", key)
+                    or not isinstance(value, str) or not re.fullmatch(r"[0-9]+[a-z]?(?:\.[0-9]+)?", value)
+                    for key, value in mapping.items()
+                ):
+                    problems.append((manifest.work_id, str(concordance_path), "concordance must map printed refs to printed refs"))
 
 
 if __name__ == "__main__":  # pragma: no cover

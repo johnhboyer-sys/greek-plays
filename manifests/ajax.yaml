@@ -180,6 +180,9 @@ registry:
   greekSource:
     short: Dain & Mazon (1958)
     full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)"
+  greekEditions:
+    - { id: tlg, short: "Dain & Mazon (1958)", full: "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)", editor: "Dain & Mazon", year: 1958, kind: tlg, licence: public-domain-us }
+    - { id: storr-loeb, short: "Storr (1913)", full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)", editor: "F. Storr", year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [storr] }
   translations:
     - id: jebb
       form: prose
@@ -192,6 +195,7 @@ registry:
       name: "F. Storr (Loeb, 1913)"
       short: Storr
       slot: secondary
+      edition: storr-loeb
       alignment: speech
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: third, alignment: speech, form: verse }
   citation:
@@ -201,3 +205,47 @@ registry:
   production: "Date unknown, probably the 440s BC"
   argument: "Cheated of Achilles’ arms, Ajax slaughters the army’s cattle in a madness sent by Athena, and kills himself."
   synopsis: "The arms of the dead Achilles were awarded to Odysseus, not Ajax. In the night Ajax set out to kill the Greek commanders; Athena turned his mind, and he butchered the army's sheep and cattle instead. The play opens with Athena showing Odysseus the madman still exulting. When the fit lifts, Ajax faces what he has done, talks his wife Tecmessa and his sailors into leaving him alone, and falls on his sword. The second half is the fight over his body: Menelaus and Agamemnon forbid burial; Teucer defies them; Odysseus, his enemy, settles it."
+
+greek_editions:
+  - id: storr-loeb
+    label:
+      short: "Storr (1913)"
+      full: "F. Storr, Sophocles, vol. 2 (Loeb, 1913)"
+    editor: "F. Storr"
+    year: 1913
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0011.tlg003.perseus-grc2.xml
+      expect: { title: "Αἴας", editor: "Francis Storr" }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: "Perseus Digital Library, Tufts University"
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [storr]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1368, sha256: "4b68c42b039a973f28e4dc3c7c16a321e856e3de42310f2c55f005be6f3d2362" }
+    speakers:
+      sigla:
+        "—": null
+        "Ἀθήνα": Athena
+        "Ὀδυσσεύς": Odysseus
+        "Αἴας": Ajax
+        "Χορός": Chorus
+        "Τέκμησσα": Tecmessa
+        "Ἄγγελος": Messenger
+        "Ἡμιχόριον 1": First Semichorus
+        "Ἡμιχόριον 2": Second Semichorus
+        "Τεῦκρος": Teucer
+        "Μενέλαος": Menelaus
+        "Ἀγαμέμνων": Agamemnon
+      overrides: []
+    edition_only: []
+    alignment: { storr: { covered: [], cuts: [] } }
+    gaps: []
+    text_fixes: []

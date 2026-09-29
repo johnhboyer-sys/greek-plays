@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lyceum-reader.org/schemas/concordance.v1.json",
+  "title": "Edition to reference line concordance",
+  "type": "object",
+  "propertyNames": { "pattern": "^[0-9]+[a-z]?(?:\\.[0-9]+)?$" },
+  "additionalProperties": { "type": "string", "pattern": "^[0-9]+[a-z]?(?:\\.[0-9]+)?$" }
+}
