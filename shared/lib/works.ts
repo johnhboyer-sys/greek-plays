@@ -28,6 +28,7 @@ import {
 
 export interface TranslationRef {
   id: string;
+  edition?: string;
   name: string;     // full citation, for the picker + attribution
   short: string;    // chip label
   slot: 'english' | 'secondary' | 'third' | 'overlay';
@@ -99,6 +100,7 @@ export interface Work {
   bookLabels: string[];   // per-book display labels (Arabic for a bookless work)
   missingBooks?: MissingBooks;  // annotate a gap in the book sequence
   greekEdition: string;
+  greekEditions?: { id: string; short: string; full: string; editor: string; year: number; kind: string; licence: unknown; pairs?: string[] }[];
   // The print edition the TLG text was digitised from, in two lengths: `short`
   // for the reader's bilingual strip, `full` for the Greek-only strip and the
   // Texts & Licences page (both driven off this one field so they can't drift).

@@ -882,3 +882,10 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/stage7_emit.py` — 2026-09-29: keeps installed editions, checks their roster against the reference, skips the shared LSJ merge, and writes edition data.
 - `schemas/manifest.v1.json` — 2026-09-29: declares optional `greekEditions` metadata.
 - `scripts/emit-lyceum-manifest.mjs` — 2026-09-29: maps declared Greek editions into the Lyceum edition list.
+- `shared/lib/works.ts` — 2026-09-29: exposes optional Greek editions and each translation's own edition.
+- `shared/lib/data.ts` — 2026-09-29: routes edition books, columns, and analyses through the data-root override with separate caches.
+- `shared/lib/search.ts` — 2026-09-29: routes Greek index loads through an edition base while English stays on the reference.
+- `shared/components/Reader.svelte` — 2026-09-29: accepts edition state from a host, reports translation and view changes, and uses the play roster for speaker colours.
+- `shared/components/WordPopup.svelte` — 2026-09-29: reads parses from the Greek edition on screen.
+- `shared/components/ReaderHost.svelte` — 2026-09-29: loads the chosen edition and remounts the reader when its book changes.
+- `shared/lib/edition-state.ts` — 2026-09-29: applies the edition load and change rules for paired views and deep links.

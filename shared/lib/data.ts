@@ -4,7 +4,7 @@
 import { linkifyGlossaryRefs } from './glossary';
 import { sanitizeHtml } from './html';
 import { scheme, schemeFor } from './citation';
-import { getWork } from './works';
+import { getWork, workPath } from './works';
 
 export interface Token {
   t: string;   // surface form (Unicode Greek)
@@ -629,6 +629,20 @@ export const dataRoot = () =>
   (globalThis as { __READER_DATA_ROOT__?: string }).__READER_DATA_ROOT__ ?? DEFAULT_ROOT;
 const ROOT = dataRoot;
 const workBase = (work: string) => `${ROOT()}/${work}`;
+export const editionBase = (work: string, ed?: string) =>
+  !ed || ed === 'tlg' ? workBase(work) : `${workBase(work)}/ed/${encodeURIComponent(ed)}`;
+
+export function readerHref(work: string, options: { book?: number; loc?: string; ed?: string; trans?: string; view?: string } = {}): string {
+  const meta = getWork(work);
+  const url = new URL(meta ? workPath(work, options.book ?? 1) : `/${work}`, 'https://reader.invalid');
+  if (options.loc) url.searchParams.set('loc', options.loc);
+  if (options.trans) url.searchParams.set('trans', options.trans);
+  if (options.view) url.searchParams.set('view', options.view);
+  const defaultTrans = meta?.defaultTranslation ?? meta?.translations.find(t => t.slot === 'english')?.id;
+  const own = meta?.translations.find(t => t.id === (options.trans ?? defaultTrans))?.edition ?? 'tlg';
+  if (options.ed && options.ed !== own) url.searchParams.set('ed', options.ed);
+  return url.pathname + url.search;
+}
 
 // All caches are keyed by work so two works loaded in one session (e.g. unified
 // search) never collide.
@@ -638,11 +652,11 @@ const _chaptersCache = new Map<string, Promise<Record<string, ChapterRef[]>>>();
 const _columnsCache = new Map<string, Promise<Record<string, ColumnRef[]>>>();
 const _footnotesCache = new Map<string, Promise<Record<string, string>>>();
 
-export function fetchBook(work: string, n: number): Promise<BookData> {
-  const key = `${work}:${n}`;
+export function fetchBook(work: string, n: number, ed?: string): Promise<BookData> {
+  const key = `${work}:${n}:${ed ?? 'tlg'}`;
   const cached = _bookCache.get(key);
   if (cached) return cached;
-  const p = fetch(`${workBase(work)}/book-${String(n).padStart(2, '0')}.json`).then(r => {
+  const p = fetch(`${editionBase(work, ed)}/book-${String(n).padStart(2, '0')}.json`).then(r => {
     if (!r.ok) throw new Error(`${work} book ${n}: ${r.status}`);
     return r.json();
   }).then((d: BookData) => {
@@ -671,7 +685,7 @@ export function fetchBook(work: string, n: number): Promise<BookData> {
  */
 export function invalidateBookCache(work: string, n?: number): void {
   if (n !== undefined) {
-    _bookCache.delete(`${work}:${n}`);
+    for (const key of [..._bookCache.keys()]) if (key.startsWith(`${work}:${n}:`)) _bookCache.delete(key);
     return;
   }
   for (const key of [..._bookCache.keys()]) {
@@ -809,15 +823,16 @@ export function fetchFigures(work: string): Promise<Record<string, string>> {
 // Bekker column -> owning book(s) with each book's line span in that column.
 export interface ColumnRef { book: number; lo: number; hi: number; }
 
-export function fetchColumns(work: string): Promise<Record<string, ColumnRef[]>> {
-  const cached = _columnsCache.get(work);
+export function fetchColumns(work: string, ed?: string): Promise<Record<string, ColumnRef[]>> {
+  const key = `${work}:${ed ?? 'tlg'}`;
+  const cached = _columnsCache.get(key);
   if (cached) return cached;
-  const p = fetch(`${workBase(work)}/columns.json`).then(r => {
+  const p = fetch(`${editionBase(work, ed)}/columns.json`).then(r => {
     if (!r.ok) throw new Error(`${work} columns: ${r.status}`);
     return r.json();
   });
-  p.catch(() => { if (_columnsCache.get(work) === p) _columnsCache.delete(work); });
-  _columnsCache.set(work, p);
+  p.catch(() => { if (_columnsCache.get(key) === p) _columnsCache.delete(key); });
+  _columnsCache.set(key, p);
   return p;
 }
 
@@ -866,15 +881,16 @@ export function resolveBekker(
   return best.book;
 }
 
-export function fetchAnalyses(work: string): Promise<Record<string, Analysis[]>> {
-  const cached = _analysesCache.get(work);
+export function fetchAnalyses(work: string, ed?: string): Promise<Record<string, Analysis[]>> {
+  const key = `${work}:${ed ?? 'tlg'}`;
+  const cached = _analysesCache.get(key);
   if (cached) return cached;
-  const p = fetch(`${workBase(work)}/analyses.json`).then(r => {
+  const p = fetch(`${editionBase(work, ed)}/analyses.json`).then(r => {
     if (!r.ok) throw new Error(`${work} analyses: ${r.status}`);
     return r.json();
   });
-  p.catch(() => { if (_analysesCache.get(work) === p) _analysesCache.delete(work); });
-  _analysesCache.set(work, p);
+  p.catch(() => { if (_analysesCache.get(key) === p) _analysesCache.delete(key); });
+  _analysesCache.set(key, p);
   return p;
 }
 
@@ -955,8 +971,9 @@ export function fetchLsjHeads(): Promise<Record<string, LsjHead>> {
 
 export async function lookupWord(
   work: string,
-  key: string
+  key: string,
+  ed?: string,
 ): Promise<{ analyses: Analysis[] }> {
-  const allAnalyses = await fetchAnalyses(work);
+  const allAnalyses = await fetchAnalyses(work, ed);
   return { analyses: allAnalyses[key] ?? [] };
 }

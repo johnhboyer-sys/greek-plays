@@ -136,6 +136,22 @@ function checkManifest(doc, manifestFile) {
     }
   }
 
+  const declaredEditions = Array.isArray(doc?.greek_editions) ? doc.greek_editions : [];
+  const expectedEditions = declaredEditions.map((ed) => ({
+    id: ed.id, short: ed.label?.short, full: ed.label?.full, editor: ed.editor,
+    year: ed.year, kind: ed.source?.kind, pairs: ed.pairs ?? [],
+  }));
+  const registryEditions = (registry.greekEditions ?? []).filter((ed) => ed.id !== 'tlg');
+  equal('registry.greekEditions', JSON.stringify(registryEditions.map(({ licence, ...ed }) => ed)), JSON.stringify(expectedEditions));
+  for (const entry of registryEditions) {
+    const declared = declaredEditions.find((ed) => ed.id === entry.id);
+    equal(`registry.greekEditions.${entry.id}.licence`, entry.licence, declared?.licence?.encoding ?? declared?.licence?.text);
+  }
+  for (const entry of registryTranslations) {
+    const own = declaredEditions.find((ed) => (ed.pairs ?? []).includes(entry.id))?.id;
+    equal(`registry translation ${entry.id}.edition`, entry.edition, own);
+  }
+
   return problems;
 }
 

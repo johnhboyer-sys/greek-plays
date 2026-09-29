@@ -13,6 +13,9 @@ registry:
   greekSource:
     short: Fixture
     full: Fixture edition, full citation.
+  greekEditions:
+    - { id: tlg, short: Fixture, full: "Fixture edition, full citation.", editor: Fixture, year: 2026, kind: tlg, licence: public-domain-us }
+    - { id: mini, short: "Mini (2026)", full: "Mini fixture edition (2026)", editor: Fixture, year: 2026, kind: fixture, licence: public-domain-us, pairs: [] }
   translations: []
   citation:
     scheme: book-section

@@ -359,8 +359,11 @@ registry:
   greekSource:
     short: Murray (1955)
     full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)"
+  greekEditions:
+    - { id: tlg, short: "Murray (1955)", full: "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)", editor: Murray, year: 1955, kind: tlg, licence: public-domain-us }
+    - { id: smyth-loeb, short: "Smyth (1926)", full: "H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)", editor: "H. W. Smyth", year: 1926, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: [smyth] }
   translations:
-    - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, footnotes: true, alignment: line, form: prose }
+    - { id: smyth, name: "H. W. Smyth (Loeb, 1926)", short: Smyth, slot: english, edition: smyth-loeb, footnotes: true, alignment: line, form: prose }
     - { id: morshead, name: "E. D. A. Morshead (1881–1908)", short: Morshead, slot: secondary, alignment: speech, form: verse }
     - { id: kosmos, name: "Smyth, rev. Crane, Bird & Nagy (Kosmos Society)", short: Kosmos, slot: third, alignment: speech, form: prose }
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
