@@ -66,6 +66,22 @@ def build_anchor_map(
     return mapping, inferred
 
 
+def joined_targets(mapping: dict[str, str], inferred: set[str]) -> dict[str, set[str]]:
+    """The target lines the concordance joined: target ref -> the source refs
+    that map to it, for each target two or more source lines share.
+
+    The matcher gives two source lines one target line only when it matched
+    them, joined, against that line, so a shared target is the concordance
+    saying the source printed one line as two. A ref the shared-offset rule
+    inferred says nothing of the kind and takes no part.
+    """
+    claimed: dict[str, set[str]] = {}
+    for ref, target in mapping.items():
+        if ref not in inferred:
+            claimed.setdefault(target, set()).add(ref)
+    return {target: refs for target, refs in claimed.items() if len(refs) > 1}
+
+
 def remap_anchor(anchor: str, mapping: dict[str, str], target_refs: set[str]) -> str | None:
     """The target's number for one printed anchor, or None when the text gives none.
 
