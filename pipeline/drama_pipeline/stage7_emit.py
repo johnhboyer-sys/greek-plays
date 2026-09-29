@@ -167,16 +167,10 @@ def _synthesized_numbered_overrides(
             first_ref.setdefault(key, ref)
             refs_by_key.setdefault(key, []).append(ref)
 
-    out: list[tuple[str, tuple, str]] = []
-    numbered_keys: dict[str, set[str]] = {}
-    for bare_key, num_key, display in numbered:
-        numbered_keys.setdefault(bare_key, set()).add(num_key)
-        ref = first_ref.get(num_key)
-        if ref is None:
-            continue
-        rk = scheme_mod.play_line_order_key(ref)
-        # The declared entry in force: latest `from`, and on a tie the one
-        # declared last, as the display resolution reads them.
+    def declared_elsewhere(bare_key: str, rk: tuple) -> bool:
+        # Whether the declared entry in force at `rk` (latest `from`, and on
+        # a tie the one declared last, as the display resolution reads them)
+        # hands the bare siglum to somebody other than its roster default.
         in_force = max(
             (
                 (frm, i, d)
@@ -186,7 +180,17 @@ def _synthesized_numbered_overrides(
             default=None,
             key=lambda e: (e[0], e[1]),
         )
-        if in_force is not None and in_force[2] != sigla_norm.get(bare_key):
+        return in_force is not None and in_force[2] != sigla_norm.get(bare_key)
+
+    out: list[tuple[str, tuple, str]] = []
+    numbered_keys: dict[str, set[str]] = {}
+    for bare_key, num_key, display in numbered:
+        numbered_keys.setdefault(bare_key, set()).add(num_key)
+        ref = first_ref.get(num_key)
+        if ref is None:
+            continue
+        rk = scheme_mod.play_line_order_key(ref)
+        if declared_elsewhere(bare_key, rk):
             # The manifest already hands this bare siglum to somebody else
             # by the time the numbered sibling first speaks (Helen's `Θε.`
             # becomes Theoclymenus at 1165, well before `Θε.β`, the Second
@@ -223,7 +227,10 @@ def _synthesized_numbered_overrides(
         for ref in refs_by_key.get(bare_key, ()):
             key = scheme_mod.play_line_order_key(ref)
             if key[0] - last[0] > _NUMBERED_SCENE_LINES:
-                out.append((bare_key, key, sigla_norm.get(bare_key) or ""))
+                # Nor does it restore the default over a declaration still
+                # in force there (Codex review, 2026-09-29).
+                if not declared_elsewhere(bare_key, key):
+                    out.append((bare_key, key, sigla_norm.get(bare_key) or ""))
                 break
     return out
 

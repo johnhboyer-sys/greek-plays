@@ -137,3 +137,29 @@ def test_equal_from_takes_the_last_declared_entry():
     ]}
     _canonicalize_play_line_speakers(spine, Manifest(data, ROOT / "manifests" / "t.yaml"))
     assert spine["segments"][1]["speakers"][0]["display"] == "Other"
+
+
+def test_scene_end_reset_does_not_undo_a_declared_override():
+    """Codex review of the whole branch (2026-09-29): the numbered sibling
+    enters while a declared override is in force, so its synthesized entry
+    is skipped; the scene-end reset must not then restore the roster
+    default over the declaration either."""
+    data = {
+        "work": {"id": "t", "author": "euripides"},
+        "speakers": {
+            "sigla": {"—": None, "Αγ.": "Messenger", "Αγ.β": "Second Messenger"},
+            "overrides": [
+                {"siglum": "Αγ.", "from": "100", "display": "Other"},
+            ],
+        },
+    }
+    spine = {"segments": [
+        {"id": f"1:{r}", "book": 1, "lines": [{"n": i, "ref": r}],
+         "speakers": [{"line": i, "offset": 0, "label": lab}]}
+        for i, (r, lab) in enumerate([("150", "Αγ."), ("200", "Αγ.β"), ("250", "Αγ."), ("301", "Αγ.")], 1)
+    ]}
+    _canonicalize_play_line_speakers(spine, Manifest(data, ROOT / "manifests" / "t.yaml"))
+    d = {s["id"]: s["speakers"][0]["display"] for s in spine["segments"]}
+    assert d["1:150"] == "Other"
+    assert d["1:250"] == "Other"
+    assert d["1:301"] == "Other"
