@@ -129,6 +129,11 @@ describe('edition copy citation', () => {
     expect(copy?.text).toBe('(Aesch. Ag. 1203, Smyth 1926)');
     expect(copy?.url).toBe('/aeschylus/agamemnon?loc=1203&trans=smyth&ed=smyth-loeb');
   });
+
+  it('names a two-editor edition by its short label, not a mangled surname', () => {
+    const copy = editionCopyCitation('birds', 'hall-geldart-oct', { column: '100', line: null }, null);
+    expect(copy?.text).toMatch(/, Hall & Geldart 1906\)$/);
+  });
   it('names the editor for a range too', () => {
     const copy = editionCopyCitation('agamemnon', 'smyth-loeb', start, { column: '1210' }, 1, 'smyth');
     expect(copy?.text).toBe('(Aesch. Ag. 1203–1210, Smyth 1926)');

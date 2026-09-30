@@ -23,7 +23,10 @@ export function editionCopyCitation(
   url.searchParams.set('ed', ed);
   // "(Aesch. Ag. 1203, Smyth 1926)": editor and year (John, 2026-09-29).
   const edition = getWork(work)?.greekEditions?.find(item => item.id === ed);
-  const name = edition?.editor ? [surname(edition.editor), edition.year].filter(Boolean).join(' ') : '';
+  // The edition's short label without its year ("Smyth (1926)" -> "Smyth",
+  // "Hall & Geldart (1906)" -> "Hall & Geldart"), then the year.
+  const label = edition?.short?.replace(/\s*\(\d{4}\)\s*$/, '').trim() || (edition?.editor ? surname(edition.editor) : '');
+  const name = label ? [label, edition?.year].filter(Boolean).join(' ') : '';
   return {
     text: name ? text.replace(/\)$/, `, ${name})`) : text,
     url: url.pathname + url.search,
