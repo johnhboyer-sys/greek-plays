@@ -1,3 +1,4 @@
+import { getWork } from '../lib/works';
 // Plan 4.5 / P3 success 5: a search of an edition's Greek index links to
 // `?ed=<edition>&loc=<ref>`, and the line the reader lands on (that ref, in that
 // edition's book) holds the token searched. Needs a built Agamemnon:
@@ -36,9 +37,18 @@ describe.skipIf(!built)('search hits from a BUILT edition index (skipped when bu
     const picker = page.getByLabelText('Greek text to search') as HTMLSelectElement;
     expect(Array.from(picker.options).map(o => o.value)).toContain('smyth-loeb');
     await fireEvent.change(picker, { target: { value: 'smyth-loeb' } });
-    const book: { segments: { greek: { ref?: string; tokens: { t: string }[] }[] }[] } =
-      JSON.parse(readFileSync(`${dist}/agamemnon/ed/smyth-loeb/book-01.json`, 'utf8'));
-    const lines = new Map(book.segments.flatMap(s => s.greek).map(l => [l.ref, l] as const));
+    // Each play's Smyth book, loaded on demand; a hit is checked against its own play's book.
+    type Line = { ref?: string; tokens: { t: string }[] };
+    const books = new Map<string, Map<string | undefined, Line> | null>();
+    const linesOf = (play: string) => {
+      if (!books.has(play)) {
+        const f = `${dist}/${play}/ed/smyth-loeb/book-01.json`;
+        books.set(play, existsSync(f)
+          ? new Map((JSON.parse(readFileSync(f, 'utf8')).segments as { greek: Line[] }[]).flatMap(s => s.greek).map(l => [l.ref, l] as const))
+          : null);
+      }
+      return books.get(play)!;
+    };
     const input = page.container.querySelector('#grk-input') as HTMLInputElement;
     const form = page.container.querySelector('form.search-form') as HTMLFormElement;
     const hits: { query: string; href: string }[] = [];
@@ -50,19 +60,23 @@ describe.skipIf(!built)('search hits from a BUILT edition index (skipped when bu
       for (const a of Array.from(page.container.querySelectorAll('a.inst-ref')))
         hits.push({ query, href: a.getAttribute('href')! });
     }
-    // Only Agamemnon's Smyth text is under test: any other built play links by TLG numbering (no ?ed=).
-    const others = hits.filter(h => !h.href.startsWith('/aeschylus/agamemnon?'));
-    for (const { href } of others) expect(new URL(href, 'https://x.test').searchParams.get('ed'), href).not.toBe('smyth-loeb');
-    const own = hits.filter(h => h.href.startsWith('/aeschylus/agamemnon?'));
-    // One in n hits, spread across every query, so 100 is a sample and not a prefix.
+    // A hit carries ed=smyth-loeb exactly when its play has Smyth's edition
+    // (all seven Aeschylus plays do); any other play's hit carries none.
+    const playOf = (href: string) => new URL(href, 'https://x.test').pathname.split('/').filter(Boolean)[1];
+    for (const { href } of hits) {
+      const hasSmyth = !!getWork(playOf(href))?.greekEditions?.some((e) => e.id === 'smyth-loeb');
+      expect(new URL(href, 'https://x.test').searchParams.get('ed'), href).toBe(hasSmyth ? 'smyth-loeb' : null);
+    }
+    // Hits in plays whose Smyth book is built here; one in n, spread across every query and play.
+    const own = hits.filter(h => linesOf(playOf(h.href)));
     const sample = own.filter((_, i) => i % Math.max(1, Math.floor(own.length / 100)) === 0).slice(0, 100);
-    expect(own.length, `${own.length} Agamemnon hits of ${hits.length}`).toBeGreaterThanOrEqual(100);
+    expect(own.length, `${own.length} Smyth hits of ${hits.length}`).toBeGreaterThanOrEqual(100);
     expect(sample).toHaveLength(100);
     for (const { query, href } of sample) {
       const url = new URL(href, 'https://x.test');
       expect(url.searchParams.get('ed'), href).toBe('smyth-loeb');
       expect(url.searchParams.get('view'), href).toBe('greek');
-      const line = lines.get(url.searchParams.get('loc')!);
+      const line = linesOf(playOf(href))!.get(url.searchParams.get('loc')!);
       expect(line, `no line ${url.searchParams.get('loc')} in the Smyth book: ${href}`).toBeDefined();
       expect(line!.tokens.some(t => greekFold(t.t) === greekFold(query)), `${href} lacks ${query}`).toBe(true);
     }
