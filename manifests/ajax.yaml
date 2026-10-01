@@ -270,7 +270,7 @@ greek_editions:
       text: public-domain-us
       encoding: none
       # Approved by John, 2026-09-29 (the same on every Jebb play).
-      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
+      credit: "Greek text: R. C. Jebb, Cambridge University Press, 1896"
       source_url: https://archive.org/details/ajaxsoph00soph
     pairs: [jebb]
     citation:

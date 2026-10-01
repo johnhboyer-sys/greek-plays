@@ -231,7 +231,7 @@ greek_editions:
       text: public-domain-us
       encoding: none
       # Approved by John, 2026-09-29 (the same on every Jebb play).
-      credit: "Greek text: R. C. Jebb's edition, from John Boyer's OCR of the Internet Archive scan"
+      credit: "Greek text: R. C. Jebb, Cambridge University Press, 1898"
       source_url: https://archive.org/details/sophoclesplaysfr04soph
     pairs: [jebb]
     citation:
