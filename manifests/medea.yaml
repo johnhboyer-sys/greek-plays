@@ -402,3 +402,4 @@ greek_editions:
       - { ref: "19", find: "αἰσύμνᾷ", replace: "αἰσυμνᾷ", note: "scan _0105: prints αἰσυμνᾷ; the OCR's extra acute makes a double-accented non-form" }
       - { ref: "379", find: "ἥπάτος", replace: "ἥπατος", note: "scan _0120: prints ἥπατος; the OCR's extra acute makes a double-accented non-form" }
       - { ref: "683", find: "Tροζηνίας", replace: "Τροζηνίας", note: "scan _0132: prints Τροζηνίας; OCR read the capital as Latin T, which breaks the word" }
+      - { ref: "812", find: "τ’’", replace: "τ’", note: "scan _0137: prints σέ τ’ ὠφελεῖν with one apostrophe; Perseus doubles it (John, 2026-10-01, review page)" }

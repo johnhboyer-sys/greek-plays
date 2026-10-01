@@ -274,7 +274,7 @@ greek_editions:
       # OCR check 2026-09-29 (whole play read against the scan, archive.org euripidisfabulae01euriuoft
       # pages _0057-_0101). Each fix restores what the page prints where the
       # OCR reading is no Greek word or loses a word the sentence needs.
-      - { ref: "262", find: "αἵδας", replace: "αἴδας", note: "scan _0067: Murray prints αἴδας (smooth breathing; obelized, app. 261 'αἴδας corruptum'); OCR rough breathing turns it into Hades" }
+      # 262 αἵδας is not fixed: John (2026-10-01, review page) left Perseus's reading.
       - { ref: "403", find: "στόμασιν", replace: "νων στόμασιν", note: "scan _0072: 402-403 print πίτ-/νων στόμασιν; OCR dropped νων, so the hyphen rejoin made πίτστόμασιν (no word)" }
       - { ref: "740", find: "ὡς ἂν ἐν πυρᾷ", replace: "στείχωμεν, ὡς ἂν ἐν πυρᾷ", note: "scan _0085: line prints στείχωμεν, ὡς ἂν ...; OCR dropped the verb of ἡμεῖς δέ (739) and two feet of the trimeter" }
       - { ref: "877", find: "πρόσωπόν ἄντα", replace: "πρόσωπον ἄντα", note: "scan _0090: prints πρόσωπον (one accent); the OCR's second accent stands only before an enclitic" }
