@@ -26,6 +26,8 @@ describe('generated registry golden value', () => {
     // Regenerated 2026-09-29: Jebb's OT pilot; Murray's OCT for Alcestis and Medea.
     // Regenerated 2026-09-29: Jebb's Greek for OC, Antigone, Electra, and Ajax.
     // Regenerated 2026-09-29: Jebb's Greek for Philoctetes and Trachiniae.
-    expect(hash).toBe('20d6f0ab1974f04043cedfc73ad42f75a99d8537b2976d981e1e07ebf3ecd212');
+    // Regenerated 2026-10-01: P4 pilot adds Paley's and Way's Greek to Medea
+    // (coleridge → paley, way → way-loeb).
+    expect(hash).toBe('75906e2a2a3601b51e88c92abf280c54517c3b99df19a9352051f7bee6ecf708');
   });
 });

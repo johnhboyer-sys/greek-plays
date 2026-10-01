@@ -304,17 +304,19 @@ registry:
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
   greekEditions:
     - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
+    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["murray-verse"] }
+    - { id: paley, short: "Paley (1878)", full: "F. A. Paley, Euripides, vol. 1 (New York: Harper & Brothers, 1878)", editor: "F. A. Paley", year: 1878, kind: ocr-tei, licence: public-domain-us, pairs: [coleridge] }
+    - { id: way-loeb, short: "Way (1912)", full: "A. S. Way, Euripides, vol. 4 (Loeb Classical Library, Heinemann, 1912)", editor: "A. S. Way", year: 1912, kind: ocr-tei, licence: public-domain-us, pairs: [way] }
   translations:
     - id: coleridge
-      edition: murray-oct
+      edition: paley
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
-      edition: murray-oct
+      edition: way-loeb
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -353,7 +355,7 @@ greek_editions:
       encoding: cc-by-sa-4.0
       credit: Perseus Digital Library, Tufts University
       source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [coleridge, way, murray-verse]
+    pairs: [murray-verse]
     citation:
       title_labels: []
       lacunae: {'1': []}
@@ -388,12 +390,6 @@ greek_editions:
           - { greek: "635", by: "627" }
           - { greek: "643", by: "627" }
           - { greek: "652", by: "627" }
-      way:
-        # The reference pin, re-derived: Murray prints 1270a, 1273-1274,
-        # 1271-1272 (citation.transpositions); Way's first CHILD speech is
-        # the Greek 1271 (bench/way/medea.txt, "What shall I do").
-        pins:
-          - { greek: "1271", english: "What shall I do ?—how flee my mother's", run: 1 }
     gaps: []
     text_fixes:
       # OCR check 2026-09-29 (archive.org euripidisfabulae01euriuoft pages _0105-_0134 read whole, then every
@@ -403,3 +399,170 @@ greek_editions:
       - { ref: "379", find: "ἥπάτος", replace: "ἥπατος", note: "scan _0120: prints ἥπατος; the OCR's extra acute makes a double-accented non-form" }
       - { ref: "683", find: "Tροζηνίας", replace: "Τροζηνίας", note: "scan _0132: prints Τροζηνίας; OCR read the capital as Latin T, which breaks the word" }
       - { ref: "812", find: "τ’’", replace: "τ’", note: "scan _0137: prints σέ τ’ ὠφελεῖν with one apostrophe; Perseus doubles it (John, 2026-10-01, review page)" }
+  # Paley's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org euripidesexrecen01euri). Title page, leaf 9: "EURIPIDES | EX
+  # RECENSIONE | FREDERICI A. PALEY. | ... | VOL. I. | NOVI EBORACI: | APUD
+  # HARPEROS FRATRES. | MDCCCLXXVIII."; its verso, leaf 10, has no reprint
+  # statement. The TEI is sources/ocr/paley/medea.xml, made by
+  # scripts/ocr/paley_to_tei.py and numbered by Paley's own printed numbers
+  # (John, 2026-09-30: the Jebb ruling). Coleridge's Perseus anchors are
+  # Murray's numbers, so they are re-keyed onto Paley's by text match
+  # (alignment.coleridge.anchor_map).
+  - id: paley
+    label:
+      short: "Paley (1878)"
+      # Approved by John, 2026-10-01.
+      full: "F. A. Paley, Euripides, vol. 1 (New York: Harper & Brothers, 1878)"
+    editor: "F. A. Paley"
+    year: 1878
+    source:
+      kind: ocr-tei
+      path: ocr/paley/medea.xml
+      expect: { title: "Μήδεια", editor: "F. A. Paley" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      # Approved by John, 2026-10-01 (a plain citation: editor, publisher, year).
+      credit: "Greek text: F. A. Paley, Harper & Brothers, 1878"
+      source_url: https://archive.org/details/euripidesexrecen01euri
+    pairs: [coleridge]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1392, sha256: "cc03193a03de41891415a65acd67d06a092946596c64a324ba5aa1f0e9507606" }
+    speakers:
+      sigla:
+        "—": null
+        "ΤΡΟΦΟΣ": Nurse
+        "ΤΡ.": Nurse
+        "ΠΑΙΔΑΓΩΓΟΣ": Attendant
+        "ΠΑ.": Attendant
+        "ΜΗΔΕΙΑ": Medea
+        "ΜΗ.": Medea
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΚΡΕΩΝ": Creon
+        "ΚΡ.": Creon
+        "ΙΑΣΩΝ": Jason
+        "ΙΑ.": Jason
+        "ΑΙΓΕΥΣ": Aegeus
+        "ΑΙ.": Aegeus
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΑΓ.": Messenger
+        # Paley numbers the sons (ΠΑ. α΄., ΠΑ. β΄.), as Coleridge does.
+        "ΠΑ. αʹ.": First Son
+        "ΠΑ. βʹ.": Second Son
+      overrides: []
+    edition_only: []
+    alignment: { coleridge: { anchor_map: murray-oct } }
+    gaps: []
+    # OCR misreads corrected to what the scan prints (archive.org
+    # euripidesexrecen01euri, page as printed, leaf = page + 12): Greek
+    # editions match the scan (John, 2026-10-01).
+    text_fixes:
+      - { ref: "30", find: "ἣν", replace: "ἢν", note: "scan p. 40 prints ἢν (ἐάν) with the subjunctive ἀποιμώζῃ; the relative ἣν has no antecedent" }
+      - { ref: "123", find: "ἐμοίγ’", replace: "ἔμοιγ’", note: "scan p. 42 prints ἔμοιγ’; ἐμοίγ’ is a misplaced accent" }
+      - { ref: "229", find: "ἐκβέβηκ’", replace: "ἐκβέβηχ’", note: "scan p. 45 prints ἐκβέβηχ’; before the rough breathing of οὑμὸς the elided κ must be χ" }
+      - { ref: "304", find: "ἡσυχαίο", replace: "ἡσυχαία", note: "scan p. 48 prints ἡσυχαία; ἡσυχαίο is no word" }
+      - { ref: "577", find: "κεὶ", replace: "κεἰ", note: "scan p. 55 prints κεἰ (καὶ εἰ); κεὶ is no word" }
+      - { ref: "601", find: "φαίνεσθώ", replace: "φαινέσθω", note: "scan p. 56 prints φαινέσθω; the OCR's two accents make no word" }
+      - { ref: "768", find: "ἀνὴρ", replace: "ἁνὴρ", note: "scan p. 60 prints ἁνὴρ (ὁ ἀνήρ); the trimeter needs its long first syllable" }
+      - { ref: "791", find: "ὤμῳξα", replace: "ᾤμωξα", note: "scan p. 61 prints ᾤμωξα; the OCR set the iota subscript on the wrong vowel" }
+      - { ref: "819", find: "οὖν", replace: "οὑν", note: "scan p. 61 prints οὑν (οἱ ἐν); with οὖν, μέσῳ has no preposition" }
+      - { ref: "876", find: "συμφερώτατα", replace: "συμφορώτατα", note: "scan p. 63 prints συμφορώτατα" }
+      - { ref: "976", find: "ζώας", replace: "ζόας", note: "scan p. 66 prints ζόας; ζώας is no form, and the metre needs the short ο" }
+      - { ref: "1003", find: "νύμφῃ", replace: "νύμφη", note: "scan p. 66 prints νύμφη" }
+      - { ref: "1010", find: "ἐσφάλιν", replace: "ἐσφάλην", note: "scan p. 67 prints ἐσφάλην; ἐσφάλιν is no word" }
+      - { ref: "1120", find: "ἀγγελεί", replace: "ἀγγελεῖ", note: "scan p. 70 prints ἀγγελεῖ; the OCR read the circumflex as an acute" }
+      - { ref: "1121", find: "παρανόμον", replace: "παράνομόν", note: "scan p. 70 prints παράνομόν; παρανόμον is a misplaced accent" }
+      - { ref: "1168", find: "χροίαν", replace: "χροιὰν", note: "scan p. 71 prints χροιὰν; χροίαν is a misplaced accent" }
+      - { ref: "1234", find: "Ἄιδου", replace: "Ἅιδου", note: "scan p. 73 prints Ἅιδου; the OCR read the rough breathing as smooth" }
+      - { ref: "1269", find: "ἔπε-", replace: "ξυνῳ-", note: "scan p. 74 prints ξυνῳ-|δὰ; the OCR's ἔπε-|δὰ is no word" }
+      - { ref: "1271", find: "πᾷ", replace: "ποῖ", note: "scan p. 74 prints ποῖ" }
+      - { ref: "1331", find: "ἡγόμην", replace: "ἠγόμην", note: "scan p. 76 prints ἠγόμην; ἡγόμην is no form" }
+      - { ref: "1396", find: "γήρας", replace: "γῆρας", note: "scan p. 77 prints γῆρας; γήρας is no form" }
+  # Way's own Greek, from John's Genie OCR of the Loeb volume (archive.org
+  # euripidesway04euriuoft, vol. 4: Ion, Hippolytus, Medea, Alcestis). The
+  # copy scanned is the 1946 printing: title page (leaf 9) "CAMBRIDGE,
+  # MASSACHUSETTS / HARVARD UNIVERSITY PRESS / LONDON / WILLIAM HEINEMANN LTD /
+  # MCMXLVI"; verso (leaf 10) "First printed 1912 / Reprinted 1919, 1922,
+  # 1928, 1935, 1946". The TEI is sources/ocr/way-loeb/medea.xml, made by
+  # scripts/ocr/way_to_tei.py and numbered by Way's printed margin numbers,
+  # Murray and the TLG filling between them (the Jebb ruling).
+  # Credit and label approved by John, 2026-10-01.
+  - id: way-loeb
+    label:
+      short: "Way (1912)"
+      full: "A. S. Way, Euripides, vol. 4 (Loeb Classical Library, Heinemann, 1912)"
+    editor: "A. S. Way"
+    year: 1912
+    source:
+      kind: ocr-tei
+      path: ocr/way-loeb/medea.xml
+      expect: { title: "Μήδεια", editor: "A. S. Way" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      credit: "Greek text: A. S. Way, Heinemann, 1912"
+      source_url: https://archive.org/details/euripidesway04euriuoft
+    pairs: [way]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1409, sha256: "61077f3830bad33547383bbc11c2eca1ecf59678cf6f24ed38ca541b4bf2676f" }
+    speakers:
+      sigla:
+        "—": null
+        "ΤΡΟΦΟΣ": Nurse
+        "ΠΑΙΔΑΓΩΓΟΣ": Attendant
+        "ΜΗΔΕΙΑ": Medea
+        "ΧΟΡΟΣ": Chorus
+        "ΚΡΕΩΝ": Creon
+        "ΙΑΣΩΝ": Jason
+        "ΑΙΓΕΥΣ": Aegeus
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΠΑΙΣ αʹ": First Son
+        "ΠΑΙΣ βʹ": Second Son
+      overrides: []
+      # Way's English prints CHILD for both boys; his Greek tells them apart
+      # (ΠΑΙΣ αʹ, ΠΑΙΣ βʹ, scan p. 382). The cue shown stays CHILD.
+      english_overrides:
+        - { slot: secondary, cue: CHILD, from_text: "What shall I do", display: First Son }
+        - { slot: secondary, cue: CHILD, from_text: "I know not, dearest brother", display: Second Son }
+        - { slot: secondary, cue: CHILD, from_text: "Help", display: First Son }
+        - { slot: secondary, cue: CHILD, from_text: "The sword", display: Second Son }
+    edition_only: []
+    alignment: { way: { covered: [] } }
+    gaps: []
+    # OCR misreads corrected to what the scan prints (archive.org
+    # euripidesway04euriuoft, page as printed, leaf = page + 12): Greek
+    # editions match the scan (John, 2026-10-01), lost iota subscripts included.
+    text_fixes:
+      - { ref: "252", find: "αὐτὸς", replace: "αὑτὸς", note: "scan p. 304 prints αὑτὸς (ὁ αὐτός); 'the same argument' for you and me needs the crasis, αὐτὸς breaks the sense" }
+      - { ref: "256", find: "λελησμένη", replace: "λελῃσμένη", note: "scan p. 304 prints λελῃσμένη (from λῄζομαι, carried off as plunder); the OCR lost the iota subscript" }
+      - { ref: "393", find: "κεί", replace: "κεἰ", note: "scan p. 314 prints κεἰ (καὶ εἰ); κεί is no word" }
+      - { ref: "482", find: "κτείνας’", replace: "κτείνασ’", note: "scan p. 320 prints κτείνασ’ (κτείνασα elided); the masculine κτείνας does not agree with Medea" }
+      - { ref: "577", find: "κεί", replace: "κεἰ", note: "scan p. 326 prints κεἰ (καὶ εἰ); κεί is no word" }
+      - { ref: "682", find: "χρήζων", replace: "χρῄζων", note: "scan p. 336 prints χρῄζων; the OCR lost the iota subscript" }
+      - { ref: "707", find: "ἐπήνεσα", replace: "ἐπῄνεσα", note: "scan p. 338 prints ἐπῄνεσα; the OCR lost the iota subscript" }
+      - { ref: "638", find: "γὰρ", replace: "γὰς", note: "scan p. 332 prints ὀρ-|γὰς; the OCR's γὰρ makes the divided word ὀργὰρ, no word" }
+      - { ref: "794", find: "συγχέας’", replace: "συγχέασ’", note: "scan p. 346 prints συγχέασ’ (συγχέασα elided); the masculine συγχέας does not agree with Medea" }
+      - { ref: "819", find: "οὖν", replace: "οὑν", note: "scan p. 348 prints οὑν (οἱ ἐν); with οὖν, μέσῳ has no preposition and the sense breaks" }
+      - { ref: "824", find: "Ἐρεχθεῖδαι", replace: "Ἐρεχθεΐδαι", note: "scan p. 348 prints Ἐρεχθεΐδαι; the OCR's circumflex drops the diaeresis and a syllable of the metre" }
+      - { ref: "876", find: "συμφωρώτατα", replace: "συμφορώτατα", note: "scan p. 352 prints συμφορώτατα; συμφωρώτατα is no word" }
+      - { ref: "983", find: "πέπλων", replace: "πέπλον", note: "scan p. 360 prints πέπλον, object of περιθέσθαι with στέφανον; with the genitive the τε has nothing to join (way-loeb-ocr-quality-2026-10-01)" }
+      - { ref: "1001", find: "συνευνῳ", replace: "συνεύνῳ", note: "scan p. 360 prints συνεύνῳ; the unaccented form is no word (way-loeb-ocr-quality-2026-10-01)" }
+      - { ref: "1086", find: "ἢ", replace: "ἣ", note: "scan p. 368 prints ἣ, the relative (the Muse 'who consorts with us'); 'or' breaks the sense" }
+      - { ref: "1098", find: "οἶσι", replace: "οἷσι", note: "scan p. 368 prints οἷσι, the relative ('those to whom'); οἶσι breaks the sense" }
+      - { ref: "1109", find: "ἐγένουντ’", replace: "ἐγένοντ’", note: "scan p. 370 prints ἐγένοντ’; ἐγένουντ’ is no word" }
+      - { ref: "1168", find: "χροἰὰν", replace: "χροιὰν", note: "scan p. 374 prints χροιὰν; a breathing inside the word makes no word" }
+      - { ref: "1269", find: "αὐτοφύνταις", replace: "αὐτοφόνταις", note: "scan p. 380 prints αὐτοφόνταις; αὐτοφύνταις is no word (way-loeb-ocr-quality-2026-10-01)" }
+      - { ref: "1283", find: "γυναικ’", replace: "γυναῖκ’", note: "scan p. 382 prints γυναῖκ’; the unaccented elided form is no word" }
+      - { ref: "1314", find: "χαλάτε", replace: "χαλᾶτε", note: "scan p. 386 prints χαλᾶτε; χαλάτε is no word" }
+      - { ref: "1399", find: "χρήζω", replace: "χρῄζω", note: "scan p. 394 prints χρῄζω; the OCR lost the iota subscript" }

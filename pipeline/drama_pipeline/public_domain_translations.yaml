@@ -299,6 +299,18 @@ greek_editions:
     status: public-domain-us
     note: "Cambridge, 1st ed. 1892 (archive.org trachiniaeofsoph0000unse, title page n6); published before 1931. Text from John's Genie OCR."
     sources: [ocr/jebb/trachiniae.xml]
+  - id: paley
+    editor: "F. A. Paley"
+    year: 1878
+    status: public-domain-us
+    note: "Harper & Brothers, New York, 1878 (archive.org euripidesexrecen01euri, title page leaf 9; no reprint statement on its verso); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/paley/medea.xml]
+  - id: way-loeb
+    editor: "A. S. Way"
+    year: 1912
+    status: public-domain-us
+    note: "Loeb, Heinemann, 1st printing 1912 (scan: 1946 printing, archive.org euripidesway04euriuoft, title page leaf 9, verso leaf 10 'First printed 1912'); published before 1931. Text from John's Genie OCR."
+    sources: [ocr/way-loeb/medea.xml]
   - id: smyth-loeb
     editor: "H. W. Smyth"
     year: 1926
