@@ -411,7 +411,7 @@ greek_editions:
   - id: paley
     label:
       short: "Paley (1878)"
-      # DRAFT until John approves it.
+      # Approved by John, 2026-10-01.
       full: "F. A. Paley, Euripides, vol. 1 (New York: Harper & Brothers, 1878)"
     editor: "F. A. Paley"
     year: 1878
@@ -422,8 +422,7 @@ greek_editions:
     licence:
       text: public-domain-us
       encoding: none
-      # DRAFT until John approves the exact string (ruling 2026-09-30: a plain
-      # citation, editor, publisher, year, as read from the title page above).
+      # Approved by John, 2026-10-01 (a plain citation: editor, publisher, year).
       credit: "Greek text: F. A. Paley, Harper & Brothers, 1878"
       source_url: https://archive.org/details/euripidesexrecen01euri
     pairs: [coleridge]
@@ -493,7 +492,7 @@ greek_editions:
   # 1928, 1935, 1946". The TEI is sources/ocr/way-loeb/medea.xml, made by
   # scripts/ocr/way_to_tei.py and numbered by Way's printed margin numbers,
   # Murray and the TLG filling between them (the Jebb ruling).
-  # DRAFT: the credit and label wait for John's approval of the exact strings.
+  # Credit and label approved by John, 2026-10-01.
   - id: way-loeb
     label:
       short: "Way (1912)"
