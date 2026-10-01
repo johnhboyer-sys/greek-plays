@@ -550,19 +550,21 @@ greek_editions:
       - { ref: "482", find: "κτείνας’", replace: "κτείνασ’", note: "scan p. 320 prints κτείνασ’ (κτείνασα elided); the masculine κτείνας does not agree with Medea" }
       - { ref: "577", find: "κεί", replace: "κεἰ", note: "scan p. 326 prints κεἰ (καὶ εἰ); κεί is no word" }
       - { ref: "682", find: "χρήζων", replace: "χρῄζων", note: "scan p. 336 prints χρῄζων; the OCR lost the iota subscript" }
+      - { ref: "686", find: "ἀνὴρ", replace: "ἁνὴρ", note: "scan p. 336 prints ἁνὴρ; John ruled from the crop, 2026-10-01" }
       - { ref: "707", find: "ἐπήνεσα", replace: "ἐπῄνεσα", note: "scan p. 338 prints ἐπῄνεσα; the OCR lost the iota subscript" }
+      - { ref: "768", find: "ἀνὴρ", replace: "ἁνὴρ", note: "scan p. 344 prints ἁνὴρ; John ruled from the crop, 2026-10-01" }
       - { ref: "638", find: "γὰρ", replace: "γὰς", note: "scan p. 332 prints ὀρ-|γὰς; the OCR's γὰρ makes the divided word ὀργὰρ, no word" }
       - { ref: "794", find: "συγχέας’", replace: "συγχέασ’", note: "scan p. 346 prints συγχέασ’ (συγχέασα elided); the masculine συγχέας does not agree with Medea" }
       - { ref: "819", find: "οὖν", replace: "οὑν", note: "scan p. 348 prints οὑν (οἱ ἐν); with οὖν, μέσῳ has no preposition and the sense breaks" }
       - { ref: "824", find: "Ἐρεχθεῖδαι", replace: "Ἐρεχθεΐδαι", note: "scan p. 348 prints Ἐρεχθεΐδαι; the OCR's circumflex drops the diaeresis and a syllable of the metre" }
       - { ref: "876", find: "συμφωρώτατα", replace: "συμφορώτατα", note: "scan p. 352 prints συμφορώτατα; συμφωρώτατα is no word" }
       - { ref: "983", find: "πέπλων", replace: "πέπλον", note: "scan p. 360 prints πέπλον, object of περιθέσθαι with στέφανον; with the genitive the τε has nothing to join (way-loeb-ocr-quality-2026-10-01)" }
+      - { ref: "988", find: "ὑπερφεύξεται", replace: "ὑπεκφεύξεται", note: "scan p. 360 prints ὑπεκφεύξεται; John ruled from the crop, 2026-10-01" }
       - { ref: "1001", find: "συνευνῳ", replace: "συνεύνῳ", note: "scan p. 360 prints συνεύνῳ; the unaccented form is no word (way-loeb-ocr-quality-2026-10-01)" }
       - { ref: "1086", find: "ἢ", replace: "ἣ", note: "scan p. 368 prints ἣ, the relative (the Muse 'who consorts with us'); 'or' breaks the sense" }
       - { ref: "1098", find: "οἶσι", replace: "οἷσι", note: "scan p. 368 prints οἷσι, the relative ('those to whom'); οἶσι breaks the sense" }
       - { ref: "1109", find: "ἐγένουντ’", replace: "ἐγένοντ’", note: "scan p. 370 prints ἐγένοντ’; ἐγένουντ’ is no word" }
       - { ref: "1168", find: "χροἰὰν", replace: "χροιὰν", note: "scan p. 374 prints χροιὰν; a breathing inside the word makes no word" }
-      - { ref: "1269", find: "αὐτοφύνταις", replace: "αὐτοφόνταις", note: "scan p. 380 prints αὐτοφόνταις; αὐτοφύνταις is no word (way-loeb-ocr-quality-2026-10-01)" }
       - { ref: "1283", find: "γυναικ’", replace: "γυναῖκ’", note: "scan p. 382 prints γυναῖκ’; the unaccented elided form is no word" }
       - { ref: "1314", find: "χαλάτε", replace: "χαλᾶτε", note: "scan p. 386 prints χαλᾶτε; χαλάτε is no word" }
       - { ref: "1399", find: "χρήζω", replace: "χρῄζω", note: "scan p. 394 prints χρῄζω; the OCR lost the iota subscript" }
