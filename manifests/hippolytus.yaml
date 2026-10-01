@@ -387,7 +387,11 @@ greek_editions:
     gaps: []
     text_fixes:
       # OCR check 2026-09-30 (whole play read against the scan, archive.org euripidisfabulae01euriuoft
-      # pages _0209-_0267). Each fix restores what the page prints where the
-      # OCR reading is no Greek word.
+      # pages _0209-_0267). The first two restore what the page prints where the
+      # OCR reading is no Greek word; the last three are John's rulings of
+      # 2026-10-01: Murray's printed reading, point and word, over Perseus's.
       - { ref: "163", find: "ὠδινῶν", replace: "ὠδίνων", note: "scan _0216: prints ὠδίνων (gen. pl. of ὠδίς); the OCR's circumflex makes a non-form" }
       - { ref: "297", find: "εἶἑν", replace: "εἶεν", note: "scan _0221: prints εἶεν; OCR stray rough breathing on the second vowel (as Medea 386)" }
+      - { ref: "657", find: "ἄφαρκτος", replace: "ἄφρακτος", note: "scan _0235: the text prints ἄφρακτος; ἄφαρκτος is Dindorf's variant in the apparatus at 657, which Perseus has put in the text (John, 2026-10-01)" }
+      - { ref: "1212", find: "ἀκτὰς οὗ", replace: "ἀκτάς, οὗ", note: "scan _0257: prints ἀκτάς, οὗ with a comma; Perseus drops it (John, 2026-10-01)" }
+      - { ref: "1385", find: "— τί φῶ;", replace: "τί φῶ;", note: "scan _0264: no dash before τί φῶ;; Perseus's dash marks a speaker change, which the site shows with labels (John, 2026-10-01)" }
