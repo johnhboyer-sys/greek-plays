@@ -268,14 +268,19 @@ registry:
   greekSource:
     short: Diggle (1984)
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
+  greekEditions:
+    - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
+    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
   translations:
     - id: coleridge
+      edition: murray-oct
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
       slot: english
       alignment: line
     - id: way
+      edition: murray-oct
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -289,7 +294,7 @@ registry:
       alignment: speech
       form: prose
     - { id: johnston, name: "Ian Johnston (VIU)", short: Johnston, slot: overlay, alignment: speech, form: verse }
-    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse }
+    - { id: murray-verse, name: "Gilbert Murray", short: Murray, slot: overlay, alignment: speech, form: verse, edition: murray-oct }
   citation:
     scheme: play-line
     copyAbbr: "Eur. Hipp."
@@ -297,3 +302,97 @@ registry:
   production: "City Dionysia, 428 BC · first prize"
   argument: "Aphrodite makes Phaedra fall in love with her stepson Hippolytus. Her suicide note accuses him, and his father's curse kills him."
   synopsis: "Aphrodite, slighted by Theseus's son Hippolytus, who worships only Artemis and wants nothing to do with love, has made his stepmother Phaedra fall in love with him. Phaedra is starving herself rather than speak. Her nurse gets the secret out of her and, meaning to help, tells Hippolytus. He is disgusted. Phaedra, exposed, hangs herself and leaves a tablet accusing him of rape. Theseus believes it, banishes his son, and curses him with one of the three curses Poseidon owes him. A bull from the sea wrecks Hippolytus's chariot. Artemis tells Theseus the truth over the dying boy, who forgives him."
+
+greek_editions:
+  - id: murray-oct
+    label:
+      short: Murray (1902)
+      full: Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)
+    editor: Gilbert Murray
+    year: 1902
+    source:
+      kind: perseus-tei
+      path: perseus/tlg0006.tlg005.perseus-grc2.xml
+      expect: { editor: Gilbert Murray }
+    licence:
+      text: public-domain-us
+      encoding: cc-by-sa-4.0
+      credit: Perseus Digital Library, Tufts University
+      source_url: https://github.com/PerseusDL/canonical-greekLit
+    pairs: [coleridge, way, murray-verse]
+    citation:
+      title_labels: []
+      lacunae: {'1': []}
+      transpositions: {'1': [{start: '193', end: '193', before: '194'}, {start: '810', end: '824', before: '825'}, {start: '1046', end: '1046', before: '1048'}, {start: '1454', end: '1454', before: '1455'}, {start: '1453', end: '1453', before: '1455'}]}
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: {count: 1453, sha256: f216ccf276a05f4e464c7b1c73c8f4f3d2d2b6fd4898708b8da553e6bd225935}
+    speakers:
+      sigla:
+        Ἀφροδίτη: Aphrodite
+        Ἱππόλυτος: Hippolytus
+        Χορὸς Κυνηγῶν: Attendants
+        Θεράπων: Attendant
+        Χορός: Chorus
+        Τροφός: Nurse
+        Φαίδρα: Phaedra
+        Θησεύς: Theseus
+        Ἄγγελος: Messenger
+        Ἄρτεμις: Artemis
+        —: null
+      overrides: []
+    edition_only: []
+    alignment:
+      # Edition-keyed (2026-09-29). Murray's TEI opens a new <sp> for each
+      # stanza of a choral ode (parodos 121-169, stasima 732-775 and
+      # 1102-1150), and for the huntsmen's stanzas of 1102-1150; the TLG text
+      # runs each ode as one Chorus speech. Way and Murray each give an ode
+      # one English speech, so the later stanzas are covered by the first,
+      # and the speech that follows is pinned past them.
+      way:
+        covered:
+          - { greek: "742", by: "732" }
+          - { greek: "752", by: "732" }
+          - { greek: "764", by: "732" }
+          # Murray's TEI opens a new <sp> at the lyric 1370 inside
+          # Hippolytus's monody 1347-1388 (one speech in the TLG text).
+          - { greek: "1370", by: "1347" }
+        pins:
+          # bench/way/hippolytus.txt: "CHORUS. Woe! Woe!" answers the Nurse's
+          # cry at 776-777; the Semichorus speeches are 782 and 784.
+          - { greek: "778", english: "Woe! Woe!", run: 1 }
+          - { greek: "782", english: "What shall we do, friends", run: 1 }
+          - { greek: "784", english: "Wherefore? Are no young handmaids", run: 1 }
+      murray-verse:
+        covered:
+          - { greek: "131", by: "121" }
+          - { greek: "141", by: "121" }
+          - { greek: "151", by: "121" }
+          - { greek: "161", by: "121" }
+          # Murray's LEADER speech at 591 runs through 595 (bench/murray/
+          # hippolytus.txt:964-968); Phaedra's cry at 594 has no English.
+          - { greek: "594", by: "591" }
+          - { greek: "595", by: "591" }
+          - { greek: "1111", by: "1102" }
+          - { greek: "1120", by: "1102" }
+          - { greek: "1131", by: "1102" }
+          - { greek: "1142", by: "1102" }
+          - { greek: "1370", by: "1347" }
+        pins:
+          # bench/murray/hippolytus.txt:199, 257, 1747 and 1815.
+          - { greek: "121", english: "There riseth a rock-born river", run: 1 }
+          - { greek: "170", english: "But see, the Queen's grey nurse", run: 1 }
+          - { greek: "1102", english: "Surely the thought of the Gods", run: 1 }
+          - { greek: "1151", english: "Look yonder!", run: 1 }
+    gaps: []
+    text_fixes:
+      # OCR check 2026-09-30 (whole play read against the scan, archive.org euripidisfabulae01euriuoft
+      # pages _0209-_0267). The first restores what the page prints where the
+      # OCR reading is no Greek word; the last three are John's rulings of
+      # 2026-10-01: Murray's printed reading, point and word, over Perseus's.
+      # Not fixed: 297 εἶἑν. The scan prints a rough breathing on the second ε
+      # (John, 2026-10-01, looking at the leaf _0221 crop), so Perseus matches the book.
+      - { ref: "163", find: "ὠδινῶν", replace: "ὠδίνων", note: "scan _0216: prints ὠδίνων (gen. pl. of ὠδίς); the OCR's circumflex makes a non-form" }
+      - { ref: "657", find: "ἄφαρκτος", replace: "ἄφρακτος", note: "scan _0235: the text prints ἄφρακτος; ἄφαρκτος is Dindorf's variant in the apparatus at 657, which Perseus has put in the text (John, 2026-10-01)" }
+      - { ref: "1212", find: "ἀκτὰς οὗ", replace: "ἀκτάς, οὗ", note: "scan _0257: prints ἀκτάς, οὗ with a comma; Perseus drops it (John, 2026-10-01)" }
+      - { ref: "1385", find: "— τί φῶ;", replace: "τί φῶ;", note: "scan _0264: no dash before τί φῶ;; Perseus's dash marks a speaker change, which the site shows with labels (John, 2026-10-01)" }
