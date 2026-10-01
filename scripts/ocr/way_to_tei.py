@@ -51,13 +51,13 @@ import json
 import re
 import sys
 import unicodedata
-import xml.etree.ElementTree as ET
 from contextlib import contextmanager
 from pathlib import Path
 from xml.sax.saxutils import escape
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import jebb_to_tei as J  # noqa: E402
+import stanza_scope  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 GENIE = ROOT / "build/genie"
@@ -431,37 +431,19 @@ def murray_lines(slug: str) -> list[dict]:
 
 # ------------------------------------------------------------------- TEI
 def murray_stanzas(slug: str) -> dict[str, str]:
-    """{Murray's ref: the lyric stanza of his Perseus TEI that holds it}
-    (a strophe, antistrophe, epode, mesode, or astrophic lyric div)."""
+    """stanza_scope.murray_stanzas over Murray's Perseus TEI, as the
+    manifest names it."""
     sys.path.insert(0, str(ROOT / "pipeline"))
     from drama_pipeline.config import Manifest, SOURCES_DIR
     view = Manifest.load(ROOT / "manifests" / f"{slug}.yaml").for_edition(PLAYS[slug]["murray"])
-    root = ET.parse(SOURCES_DIR / view.data["work"]["greek_source"]["path"]).getroot()
-    out = {}
-    for k, div in enumerate(root.iter(f"{J.TEI_NS}div")):
-        if div.get("subtype") in LYRIC:
-            for el in div.iter(f"{J.TEI_NS}l"):
-                out[el.get("n")] = f"{div.get('subtype')} {div.get('n') or ''} #{k}"
-    return out
-
-
-LYRIC = {"strophe", "antistrophe", "epode", "mesode", "ephymn", "lyric"}
+    return stanza_scope.murray_stanzas(SOURCES_DIR / view.data["work"]["greek_source"]["path"])
 
 
 def write_tei(slug: str, lines: list[dict]) -> str:
     """jebb_to_tei.write_tei's body, with Way's header and leaf links (the
     OCR page index is the leaf; archive.org's page_numbers.json is off for
     these items, so it is not used), and a strophe div closed where the
-    lyric ends.
-
-    Jebb's writer leaves a div open to the next strophe mark, so the last
-    stanza of an ode takes in the dialogue after it. Here a stanza closes at
-    the next mark, or at a change of voice (the speaker named last, carried
-    into an unlabelled stanza) whose new speech is not in the stanza of
-    Murray's text that the stanza's first line aligns with ('stanza', from
-    murray_stanzas): the Paedagogus at 1002 is spoken, so the antistrophe
-    at 996 closes before him, while the sons' cries inside a strophe that
-    Murray prints as one stanza (1271-1278) stay in it."""
+    lyric ends (stanza_scope.lyric_ends; 'stanza' from murray_stanzas)."""
     play = PLAYS[slug]
     ident = play["ident"]
     out = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -497,8 +479,8 @@ def write_tei(slug: str, lines: list[dict]) -> str:
                 if sp_open:
                     out.append("</sp>")
                     sp_open = False
-                if (div_open and voice is not None and spk != voice and not (opens and k == 0)
-                        and (div_stanza is None or line.get("stanza") != div_stanza)):
+                if div_open and stanza_scope.lyric_ends(voice, spk, opens and k == 0,
+                                                        div_stanza, line.get("stanza")):
                     # The lyric has ended: a new voice, outside the stanza.
                     out.append("</div>")
                     div_open = False

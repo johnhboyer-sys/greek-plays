@@ -54,6 +54,7 @@ from xml.sax.saxutils import escape
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import jebb_to_tei as J  # noqa: E402
+import stanza_scope  # noqa: E402
 
 ROOT = J.ROOT
 GENIE = J.GENIE
@@ -99,6 +100,7 @@ PRINTED_FIXES: dict[str, dict[int, tuple[int | None, str]]] = {
         1944: (None, "scan p. 50: no number on τοῖς Σισυφείοις (the OCR moved 405 here)"),
         1945: (405, "scan p. 50 prints 405 against γεγῶσαν"),
         1964: (424, "scan p. 51 prints 424 against ὤπασε θέσπιν ἀοιδὰν (the OCR read 421)"),
+        2608: (989, "scan p. 66 prints 989 against οὐχ ὑπεκδραμεῖται (the OCR read 990)"),
         # Scan p. 69 (leaf 81): after the short row εἴτ’ ἐπὶ χρηστοῖς the OCR
         # set each number one row early, as on p. 50.
         2743: (None, "scan p. 69: no number on μοχθοῦσι (the OCR moved 1105 here)"),
@@ -534,7 +536,11 @@ def number(slug: str, lines: list[dict], refs: dict, covers: dict) -> list[dict]
 # ------------------------------------------------------------------- TEI
 def write_tei(slug: str, lines: list[dict]) -> str:
     """The §3.1 TEI. Copied from jebb_to_tei.write_tei, whose header and
-    titles are Jebb's; the body is the same."""
+    titles are Jebb's; the body is the same but for a strophe div closed
+    where the lyric ends (stanza_scope.lyric_ends; 'stanza' is the stanza of
+    Murray's text that holds the line, from stanza_scope.murray_stanzas),
+    not left open to the next mark: the Creon scene after the parodos'
+    antistrophe (Murray's 173-183a) is dialogue."""
     fname, _, ident, offset, _, _, _, title = PLAYS[slug]
     vol, year = VOLUME[ident]
     out = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -548,12 +554,13 @@ def write_tei(slug: str, lines: list[dict]) -> str:
            '</fileDesc></teiHeader>', '<text><body>']
     page = None
     div_open = sp_open = False
-    cur_speaker = None
+    cur_speaker = voice = div_stanza = None
     for line in lines:
         if line["page"] != page:
             page = line["page"]
             out.append(f'<pb n="{page}" facs="https://archive.org/details/{ident}/page/n{page + offset - 1}"/>')
-        if line.get("strophe"):
+        opens = bool(line.get("strophe"))
+        if opens:
             if sp_open:
                 out.append("</sp>")
                 sp_open = False
@@ -563,15 +570,23 @@ def write_tei(slug: str, lines: list[dict]) -> str:
             out.append(f'<div type="textpart" subtype="{subtype}"' + (f' n="{num}"' if num else "") + ">")
             div_open = True
             cur_speaker = None
+            div_stanza = line.get("stanza")
         shares = line["shares"]
         parts = [line["n"]] + J._share_refs(line, len(shares) - 1)
         for k, (spk, text) in enumerate(shares):
             if spk is not None and (spk != cur_speaker or k > 0 or not sp_open):
                 if sp_open:
                     out.append("</sp>")
+                    sp_open = False
+                if div_open and stanza_scope.lyric_ends(voice, spk, opens and k == 0,
+                                                        div_stanza, line.get("stanza")):
+                    out.append("</div>")
+                    div_open = False
                 out.append(f"<sp><speaker>{escape(spk)}</speaker>")
                 sp_open, cur_speaker = True, spk
-            elif not sp_open:
+            if spk is not None:
+                voice = spk
+            if not sp_open:
                 out.append("<sp>")
                 sp_open = True
             attrs = [f'n="{parts[k]}"']
@@ -625,6 +640,9 @@ def convert(slug: str, qa: bool = False) -> dict:
     attached = attach_runs(lines, runs, refs, covers)
     breaks = count_breaks(lines)
     bad = number(slug, lines, refs, covers)
+    stanzas = stanza_scope.murray_stanzas(PERSEUS / f"tlg0006.tlg{perseus_work}.perseus-grc2.xml")
+    for x in lines:
+        x["stanza"] = stanzas.get(x["cand"]["S"])
     seen: dict[str, int] = {}
     dups = []
     for line in lines:

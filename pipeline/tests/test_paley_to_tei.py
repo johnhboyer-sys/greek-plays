@@ -249,6 +249,40 @@ def test_a_joined_turn_over_is_marked_in_the_tei(monkeypatch):
     assert '<l n="1275" rend="margin-1275 turn">παρέλθω δόμους; ἀρῆξαι φόνον δοκεῖ μοι τέκνοις.</l>' in tei
 
 
+
+def _divs(tei):
+    """[(subtype, [n, ...])] for each strophe div of the TEI."""
+    import xml.etree.ElementTree as ET
+    ns = "{http://www.tei-c.org/ns/1.0}"
+    body = ET.fromstring(tei).find(f".//{ns}body")
+    return [(d.get("subtype"), [l.get("n") for l in d.iter(f"{ns}l")]) for d in body.iter(f"{ns}div")]
+
+
+def test_the_parodos_antistrophe_closes_before_the_dialogue_after_it(monkeypatch):
+    # Medea 173-214 (p. 44): Paley marks no stanza between the antistrophe
+    # and the first strophe of the next ode (409), so a div left open to the
+    # next mark held the Nurse's anapaests and the whole Creon scene. The
+    # Nurse's 184 is outside Murray's antistrophe (173-183a): it closes there.
+    monkeypatch.setitem(P.PLAYS, "t", ("t.txt", "003", "x", 12, 1, 2, "ΜΗΔΕΙΑ", "Μήδεια"))
+    monkeypatch.setitem(P.VOLUME, "x", ("I", "1878"))
+    base = {"page": 44, "printed": None}
+    specs = [("173", "ΧΟ.", "πῶς ἂν ἐς ὄψιν τὰν ἁμετέραν", ("antistrophe", None), "antistrophe 1 #11"),
+             ("183b", None, "πένθος γὰρ μεγάλως τόδ’ ὁρμᾶται.", None, None),
+             ("184", "ΤΡ.", "δράσω τάδ’· ἀτὰρ φόβος εἰ πείσω", None, None),
+             ("271", "ΚΡΕΩΝ", "σὲ τὴν σκυθρωπὸν καὶ πόσει θυμουμένην", None, None),
+             ("272", "ΜΗ.", "Μήδει’, ἀνεῖπον τῆσδε γῆς ἔξω περᾶν", None, None)]
+    lines = [{**base, "n": n, "shares": [(spk, text)], "strophe": strophe, "stanza": stanza}
+             for n, spk, text, strophe, stanza in specs]
+    assert _divs(P.write_tei("t", lines)) == [("antistrophe", ["173", "183b"])]
+
+
+def test_murrays_stanzas_are_read_from_his_tei():
+    st = P.stanza_scope.murray_stanzas(P.PERSEUS / "tlg0006.tlg003.perseus-grc2.xml")
+    assert st["173"] == st["183a"] and st["173"].startswith("antistrophe")
+    assert "184" not in st and "271" not in st      # the Nurse's anapaests, Creon's iambics
+    assert st["1273"] == st["1277"] and st["1273"].startswith("strophe 2")
+
+
 JEBB_GLOBALS = ("PLAYS", "NUMBER_FIXES", "MARGIN_NOTES", "ROW_FIXES", "ROW_FIXES_ACTIVE", "PRINTED_FIXES")
 
 
