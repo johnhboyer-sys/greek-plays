@@ -234,10 +234,11 @@ registry:
     full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)"
   greekEditions:
     - { id: tlg, short: "Diggle (1981)", full: "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)", editor: Diggle, year: 1981, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way", "murray-verse"] }
+    - { id: murray-oct, short: "Murray (1913)", full: "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)", editor: Gilbert Murray, year: 1913, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["way", "murray-verse"] }
+    - { id: paley, short: "Paley (1876)", full: "F. A. Paley, Euripides, vol. 2 (New York: Harper & Brothers, 1876)", editor: "F. A. Paley", year: 1876, kind: ocr-tei, licence: public-domain-us, pairs: [coleridge] }
   translations:
     - id: coleridge
-      edition: murray-oct
+      edition: paley
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
@@ -277,7 +278,7 @@ greek_editions:
       encoding: cc-by-sa-4.0
       credit: Perseus Digital Library, Tufts University
       source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [coleridge, way, murray-verse]
+    pairs: [way, murray-verse]
     citation:
       title_labels: []
       lacunae: {'1': [538a, '1153', '1154', 1181b]}
@@ -301,3 +302,127 @@ greek_editions:
     alignment: {}
     gaps: []
     text_fixes: []
+  # Paley's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org euripidesexrecen02euri, vol. 2: Electra is pp. 151-188).
+  # Title page, leaf 9: "NEW YORK: HARPER AND BROTHERS, FRANKLIN SQUARE.
+  # M.DCCC.LXXVI." The TEI is sources/ocr/paley/electra-eur.xml, made by
+  # scripts/ocr/paley_to_tei.py and numbered by Paley's own printed numbers
+  # (John, 2026-09-30: the Jebb ruling). Paley prints 545-546 after 531
+  # (scan p. 166), kept in his order and numbered as printed. Coleridge's
+  # Perseus anchors are Murray's numbers, so they are re-keyed onto Paley's
+  # by text match (alignment.coleridge.anchor_map). Credit and label
+  # approved by John, 2026-10-01.
+  - id: paley
+    label:
+      short: "Paley (1876)"
+      full: "F. A. Paley, Euripides, vol. 2 (New York: Harper & Brothers, 1876)"
+    editor: "F. A. Paley"
+    year: 1876
+    source:
+      kind: ocr-tei
+      path: ocr/paley/electra-eur.xml
+      expect: { title: "Ἠλέκτρα", editor: "F. A. Paley" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      credit: "Greek text: F. A. Paley, Harper & Brothers, 1876"
+      source_url: https://archive.org/details/euripidesexrecen02euri
+    pairs: [coleridge]
+    citation:
+      title_labels: []
+      lacunae: { "1": ["538a", "1180a"] }
+      # Paley's 545-546 printed after 531 (scan p. 166); the validator
+      # names the same order break as 532-544 standing before 546.
+      transpositions: { "1": [{ start: "532", end: "544", before: "546" }] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1348, sha256: "e2c927653416ebe34da04c266b4bca2f3edc6666e0208ff01757cddd3ba4f6db" }
+    speakers:
+      sigla:
+        "—": null
+        "ΑΥΤΟΥΡΓΟΣ": Peasant
+        "ΑΥ.": Peasant
+        "ΗΛΕΚΤΡΑ": Electra
+        "ΗΛ.": Electra
+        "ΟΡΕΣΤΗΣ": Orestes
+        "ΟΡ.": Orestes
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΠΡΕΣΒΥΣ": Old Man
+        "ΠΡ.": Old Man
+        "ΑΓΓΕΛΟΣ": Messenger
+        "ΑΓ.": Messenger
+        "ΚΛΥΤΑΙΜΝΗΣΤΡΑ": Clytemnestra
+        "ΚΛ.": Clytemnestra
+        "ΔΙΟΣΚΟΡΟΙ": Castor
+        "ΔΙ.": Castor
+      overrides: []
+    edition_only: []
+    alignment:
+      coleridge:
+        anchor_map: murray-oct
+        # Paley gives 771 (ὦ θεοί, Δίκη τε) to the Chorus (scan p. 172);
+        # Murray and Coleridge give it to Electra, with 772-773. Her English
+        # for 771 opens the chunk of her speech at 772.
+        covered:
+          - { greek: "771", by: "772" }
+    gaps: []
+    # OCR misreads corrected to what the scan prints (archive.org
+    # euripidesexrecen02euri, page as printed, leaf = page + 18): Greek
+    # editions match the scan (John, 2026-10-01). Kept as printed, a
+    # printer's slip: 1171 άλαιν’ (scan p. 183, τάλαιν’ with its τ and
+    # breathing lost).
+    text_fixes:
+      - { ref: "4", find: "Ἰλίῳ", replace: "Ἰλίᾳ", note: "scan p. 151 prints Ἰλίᾳ χθονὶ (feminine, with χθονί); the OCR read Ἰλίῳ" }
+      - { ref: "21", find: "ᾔτουν", replace: "ἤτουν", note: "scan p. 151 prints ἤτουν with no iota subscript" }
+      - { ref: "38", find: "ηὐγένει’", replace: "ηὑγένει’", note: "scan p. 152 prints ηὑγένει’ (ἡ εὐγένεια) with the rough breathing; the OCR read it smooth" }
+      - { ref: "43", find: "ἀνὴρ", replace: "ἁνὴρ", note: "scan p. 152 prints ἁνὴρ (ὁ ἀνήρ); the OCR read the breathing smooth" }
+      - { ref: "74", find: "τἀν", replace: "τἂν", note: "scan p. 153 prints τἂν (coronis and grave); the OCR dropped the accent" }
+      - { ref: "88", find: "οἶδας", replace: "οὖδας", note: "scan p. 153 prints οὖδας (the ground); οἶδας is another word" }
+      - { ref: "119", find: "πολῖται", replace: "πολιῆται", note: "scan p. 154 prints πολιῆται; πολῖται breaks the metre" }
+      - { ref: "140", find: "κρατὸς ἔ-", replace: "κρατὸς ἑ-", note: "scan p. 155 prints ἑ-|λοῦσ’ (ἑλοῦσα) with the rough breathing; the OCR read it smooth" }
+      - { ref: "143", find: "ἰακχάν;", replace: "ἰακχὰν,", note: "scan p. 155 prints ἰακχὰν, (grave, then a comma); the OCR read an acute and a question mark" }
+      - { ref: "298", find: "τὰν", replace: "τἂν", note: "scan p. 159 prints τἂν (τὰ ἐν) with the coronis; the OCR lost it" }
+      - { ref: "349", find: "ἀνὴρ", replace: "ἁνὴρ", note: "scan p. 161 prints ἁνὴρ (ὁ ἀνήρ, the man spoken of); the OCR read the breathing smooth" }
+      - { ref: "364", find: "ἀνήρ", replace: "ἁνὴρ", note: "scan p. 161 prints ἁνὴρ (ὁ ἀνήρ) with a grave; the OCR read a smooth breathing and an acute" }
+      - { ref: "378", find: "ἀγαθός", replace: "ἁγαθός", note: "scan p. 161 prints ἁγαθός (ὁ ἀγαθός); the OCR read the breathing smooth" }
+      - { ref: "403", find: "προβαινουσ’", replace: "προβαίνουσ’", note: "scan p. 162 prints προβαίνουσ’; the OCR lost the accent" }
+      - { ref: "418", find: "ἀγγελίαμεν", replace: "ἀγγείλαιμεν", note: "scan p. 163 prints ἀγγείλαιμεν; ἀγγελίαμεν is no word" }
+      - { ref: "425", find: "τοῖσδε", replace: "τοῦσδε", note: "scan p. 163 prints τοῦσδε, object of πληρῶσαι" }
+      - { ref: "476", find: "ἔπαλλοι", replace: "ἔπαλλον", note: "scan p. 164 prints ἔπαλλον; ἔπαλλοι is no form" }
+      - { ref: "644", find: "ξυνηκ’", replace: "ξυνῆχ’", note: "scan p. 169 prints ξυνῆχ’ (ξυνῆκα elided before the rough breathing of ὕποπτος); ξυνηκ’ is no form" }
+      - { ref: "652", find: "λεχώ", replace: "λεχῶ", note: "scan p. 169 prints λεχῶ (accusative of λεχώ)" }
+      - { ref: "674", find: "βωμῶν ἢ", replace: "βωμῶν ἣ", note: "scan p. 170 prints ἣ (the relative, Hera who rules the altars); ἢ (or) breaks the sense" }
+      - { ref: "691", find: "θνῄσκοντος", replace: "θνήσκοντος", note: "scan p. 170 prints θνήσκοντος with no iota subscript" }
+      - { ref: "692", find: "τῷδε", replace: "τῶνδε", note: "scan p. 170 prints τῶνδε" }
+      - { ref: "700", find: "κλῃδὼν", replace: "κληδὼν", note: "scan p. 170 prints κληδὼν with no iota subscript" }
+      - { ref: "758", find: "ἐπισχε", replace: "ἔπισχε", note: "scan p. 172 prints ἔπισχε; the OCR lost the breathing and accent" }
+      - { ref: "761", find: "Μυκηινίδες", replace: "Μυκηνίδες", note: "scan p. 172 prints Μυκηνίδες; Μυκηινίδες is no word" }
+      - { ref: "775", find: "ᾖμεν", replace: "ἦμεν", note: "scan p. 172 prints ἦμεν with no iota subscript" }
+      - { ref: "791", find: "αἱρέτω", replace: "αἰρέτω", note: "scan p. 173 prints αἰρέτω (smooth breathing: lift, ἀείρω); the OCR read it rough" }
+      - { ref: "800", find: "ᾖρον", replace: "ἦρον", note: "scan p. 173 prints ἦρον with no iota subscript" }
+      - { ref: "835", find: "πευστήριαν", replace: "πευστηρίαν", note: "scan p. 174 prints πευστηρίαν; πευστήριαν is a misplaced accent" }
+      - { ref: "844", find: "ᾖξαν", replace: "ἦξαν", note: "scan p. 174 prints ἦξαν with no iota subscript" }
+      - { ref: "846", find: "ἀντίπρωρα", replace: "ἀντίπρῳρα", note: "scan p. 174 prints ἀντίπρῳρα; the OCR lost the iota subscript" }
+      - { ref: "890", find: "Ηλέκτρα", replace: "Ἠλέκτρα", note: "scan p. 176 prints Ἠλέκτρα; the OCR lost the breathing" }
+      - { ref: "898", find: "πήξας’", replace: "πήξασ’", note: "scan p. 176 prints πήξασ’ (πήξασα elided); the masculine πήξας does not agree with Electra" }
+      - { ref: "967", find: "ἢ φονεύσομεν", replace: "ἦ φονεύσομεν", note: "scan p. 178 prints ἦ (question particle); ἢ (or) breaks the sense" }
+      - { ref: "983", find: "ἀλλ’ ἢ", replace: "ἀλλ’ ἦ", note: "scan p. 178 prints ἦ (question particle); ἢ (or) breaks the sense" }
+      - { ref: "994", find: "ἶσα", replace: "ἴσα", note: "scan p. 179 prints ἴσα; the OCR read the acute as a circumflex" }
+      - { ref: "1009", find: "ᾑρημένων", replace: "ἡρημένων", note: "scan p. 179 prints ἡρημένων with no iota subscript" }
+      - { ref: "1009", find: "ᾑρήμεθα", replace: "ἡρήμεθα", note: "scan p. 179 prints ἡρήμεθα with no iota subscript" }
+      - { ref: "1025", find: "ἣ δῶμ’", replace: "ἢ δῶμ’", note: "scan p. 180 prints ἢ (or), answering κεἰ μὲν; the relative ἣ breaks the sense" }
+      - { ref: "1025", find: "ἐκσῴζων", replace: "ἐκσώζων", note: "scan p. 180 prints ἐκσώζων with no iota subscript" }
+      - { ref: "1029", find: "ἔκατι", replace: "ἕκατι", note: "scan p. 180 prints ἕκατι with the rough breathing; the OCR read it smooth" }
+      - { ref: "1058", find: "ἆρ’ οὖν", replace: "ἆρ’ *οὖν", note: "scan p. 180 prints Paley's asterisk before οὖν; the OCR lost it" }
+      - { ref: "1067", find: "σκήψιν", replace: "σκῆψιν", note: "scan p. 181 prints σκῆψιν; the OCR read the circumflex as an acute" }
+      - { ref: "1078", find: "ἧσσον’", replace: "ἥσσον’", note: "scan p. 181 prints ἥσσον’ with the acute (elided ἥσσονα); the OCR read a circumflex" }
+      - { ref: "1098", find: "μωρός", replace: "μῶρός", note: "scan p. 182 prints μῶρός (circumflex, and the acute of the enclitic ἐστι); the OCR lost the circumflex" }
+      - { ref: "1168", find: "ὤμωξα", replace: "ᾤμωξα", note: "scan p. 183 prints ᾤμωξα; the OCR lost the iota subscript" }
+      - { ref: "1216", find: "παρήδων", replace: "παρῄδων", note: "scan p. 185 prints παρῄδων; the OCR lost the iota subscript" }
+      - { ref: "1227", find: "λαβοῦ λαβοῦ", replace: "λαβοῦ *λαβοῦ", note: "scan p. 185 prints Paley's asterisk before the second λαβοῦ; the OCR lost it" }
+      - { ref: "1240", find: "κασίγντητός", replace: "κασίγνητός", note: "scan p. 185 prints κασίγνητός; κασίγντητός is no word" }
+      - { ref: "1241", find: "†ναὺς", replace: "†ναὸς", note: "scan p. 185 prints †ναὸς" }
+      - { ref: "1257", find: "κάρα", replace: "κάρᾳ", note: "scan p. 186 prints κάρᾳ; the OCR lost the iota subscript" }
+      - { ref: "1341", find: "Ηλέκτρας", replace: "Ἠλέκτρας", note: "scan p. 188 prints Ἠλέκτρας; the OCR lost the breathing" }
+      - { ref: "1348", find: "πρώρας", replace: "πρῴρας", note: "scan p. 188 prints πρῴρας; the OCR lost the iota subscript" }

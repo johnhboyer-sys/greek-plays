@@ -139,10 +139,11 @@ registry:
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
   greekEditions:
     - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
+    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["way"] }
+    - { id: paley, short: "Paley (1876)", full: "F. A. Paley, Euripides, vol. 2 (New York: Harper & Brothers, 1876)", editor: "F. A. Paley", year: 1876, kind: ocr-tei, licence: public-domain-us, pairs: [coleridge] }
   translations:
     - id: coleridge
-      edition: murray-oct
+      edition: paley
       form: prose
       name: "E. P. Coleridge (London, 1891)"
       short: Coleridge
@@ -180,7 +181,7 @@ greek_editions:
       encoding: cc-by-sa-4.0
       credit: Perseus Digital Library, Tufts University
       source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [coleridge, way]
+    pairs: [way]
     citation:
       title_labels: []
       lacunae: {'1': []}
@@ -211,3 +212,139 @@ greek_editions:
       # (stage 3 cannot transliterate it); every other elision in the file is
       # U+02BC.
       - { ref: "387", find: "῎τεκον", replace: "ʼτεκον", note: "sources/perseus/tlg0006.tlg007.perseus-grc2.xml:613 (n=387)" }
+  # Paley's own Greek, from John's Genie OCR of the scanned volume
+  # (archive.org euripidesexrecen02euri, vol. 2: Hecuba is pp. 237-272).
+  # Title page, leaf 9: "NEW YORK: HARPER AND BROTHERS, FRANKLIN SQUARE.
+  # M.DCCC.LXXVI." The TEI is sources/ocr/paley/hecuba.xml, made by
+  # scripts/ocr/paley_to_tei.py and numbered by Paley's own printed numbers
+  # (John, 2026-09-30: the Jebb ruling). Coleridge's Perseus anchors are
+  # Murray's numbers, so they are re-keyed onto Paley's by text match
+  # (alignment.coleridge.anchor_map). Credit and label approved by John,
+  # 2026-10-01.
+  - id: paley
+    label:
+      short: "Paley (1876)"
+      full: "F. A. Paley, Euripides, vol. 2 (New York: Harper & Brothers, 1876)"
+    editor: "F. A. Paley"
+    year: 1876
+    source:
+      kind: ocr-tei
+      path: ocr/paley/hecuba.xml
+      expect: { title: "Ἑκάβη", editor: "F. A. Paley" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      credit: "Greek text: F. A. Paley, Harper & Brothers, 1876"
+      source_url: https://archive.org/details/euripidesexrecen02euri
+    pairs: [coleridge]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1254, sha256: "117947416eb01a0011abfe416bf429edf3d944845fefb4d0fb0d45a48662292c" }
+    speakers:
+      sigla:
+        "—": null
+        "ΠΟΛΥΔΩΡΟΥ ΕΙΔΩΛΟΝ": Ghost of Polydorus
+        "ΕΚΑΒΗ": Hecuba
+        "ΕΚ.": Hecuba
+        "ΧΟΡΟΣ": Chorus
+        "ΧΟ.": Chorus
+        "ΠΟΛΥΞΕΝΗ": Polyxena
+        "ΠΟΛΥΞ.": Polyxena
+        "ΟΔΥΣΣΕΥΣ": Odysseus
+        "ΟΔ.": Odysseus
+        "ΤΑΛΘΥΒΙΟΣ": Talthybius
+        "ΤΑ.": Talthybius
+        "ΘΕΡΑΠΑΙΝΑ": Maid
+        "ΘΕ.": Maid
+        "ΑΓΑΜΕΜΝΩΝ": Agamemnon
+        "ΑΓ.": Agamemnon
+        "ΠΟΛΥΜΗΣΤΩΡ": Polymestor
+        "ΠΟΛΥΜ.": Polymestor
+      overrides: []
+    edition_only: []
+    alignment:
+      coleridge:
+        anchor_map: murray-oct
+        # Paley prints 247-250 in the older order (scan p. 244: τί δῆτ’
+        # ἔλεξας 247, πολλῶν λόγων 248, ἔσωσα 249, ὥστ’ εἰσορᾶν 250); Murray
+        # and Coleridge print ἔσωσα first. The text map seats Coleridge's
+        # 247-248 on Paley's 249-250 but cannot carry 249-250 back across
+        # them, so they are set by hand, and the English runs out of the
+        # Greek order there.
+        line_fixes:
+          "249": "247"
+          "250": "248"
+        order_breaks: ["247"]
+        # Coleridge opens Hecuba's speech at Murray's 154, which the speech
+        # cut (stage1_greek._english_line_marks, Murray's count) takes as
+        # Paley's 154, ἐκ χρυσοφόρου: the Chorus's last two lines open a
+        # segment of their own. Their English ends the Chorus's chunk.
+        covered:
+          - { greek: "154", by: "100" }
+    gaps: []
+    # OCR misreads corrected to what the scan prints (archive.org
+    # euripidesexrecen02euri, page as printed, leaf = page + 18): Greek
+    # editions match the scan (John, 2026-10-01). Three entries keep a
+    # printer's slip as printed (352 νάμων, 1155 αλλαι, 1238 φεῖ).
+    text_fixes:
+      - { ref: "3", find: "γεγονὼς", replace: "γεγὼς", note: "scan p. 237 prints γεγὼς; γεγονὼς breaks the trimeter" }
+      - { ref: "73", find: "σῳζομένου", replace: "σωζομένου", note: "scan p. 239 prints σωζομένου, no iota subscript" }
+      - { ref: "91", find: "ἀνάγκῃ", replace: "ἀνάγκᾳ", note: "scan p. 239 prints ἀνάγκᾳ (Doric, as the lyric's σφαζομέναν)" }
+      - { ref: "97", find: "Τρῳάδων", replace: "Τρωιάδων", note: "scan p. 239 prints Τρωιάδων" }
+      - { ref: "105", find: "δοριθύρατος", replace: "δοριθήρατος", note: "scan p. 240 prints δοριθήρατος (spear-hunted); δοριθύρατος is no word" }
+      - { ref: "115", find: "θωύσσων", replace: "θωΰσσων", note: "scan p. 240 prints θωΰσσων with the diaeresis" }
+      - { ref: "170", find: "ἄγησαί", replace: "ἅγησαί", note: "scan p. 241 prints ἅγησαί with the rough breathing (Doric ἁγέομαι); the OCR read it smooth" }
+      - { ref: "171", find: "ἄγησαι", replace: "ἅγησαι", note: "scan p. 241 prints ἅγησαι with the rough breathing; the OCR read it smooth" }
+      - { ref: "217", find: "σημαίνων", replace: "σημανῶν", note: "scan p. 243 prints σημανῶν (future participle, purpose); σημαίνων breaks the trimeter" }
+      - { ref: "243", find: "μόνη", replace: "μόνῃ", note: "scan p. 244 prints μόνῃ; the OCR lost the iota subscript" }
+      - { ref: "252", find: "οὓς", replace: "ὃς", note: "scan p. 244 prints ὃς; the plural οὓς has no antecedent" }
+      - { ref: "273", find: "φῂς", replace: "φὴς", note: "scan p. 244 prints φὴς, no iota subscript" }
+      - { ref: "280", find: "παράψυχη", replace: "παραψυχὴ", note: "scan p. 245 prints παραψυχὴ; παράψυχη is a misplaced accent" }
+      - { ref: "295", find: "ταὐτὸν", replace: "ταυτὸν", note: "scan p. 245 prints ταυτὸν with no coronis (Paley's spelling, as at 748 and 966)" }
+      - { ref: "321", find: "φῄς", replace: "φὴς", note: "scan p. 246 prints φὴς, no iota subscript" }
+      - { ref: "347", find: "χρήζουσ’", replace: "χρῄζουσ’", note: "scan p. 247 prints χρῄζουσ’; the OCR lost the iota subscript" }
+      - { ref: "352", find: "γάμων", replace: "νάμων", note: "scan p. 247 prints νάμων, a printer's slip for γάμων kept as printed (Greek editions match the scan)" }
+      - { ref: "441", find: "[ὡς", replace: "[ὣς", note: "scan p. 249 prints ὣς (thus), with its grave accent" }
+      - { ref: "448", find: "δουλύσυνος", replace: "δουλόσυνος", note: "scan p. 249 prints δουλόσυνος; δουλύσυνος is no word" }
+      - { ref: "460", find: "φίλα", replace: "φίλᾳ", note: "scan p. 250 prints φίλᾳ (dative with Λατοῖ); the OCR lost the iota subscript" }
+      - { ref: "491", find: "τὰν", replace: "τἀν", note: "scan p. 250 prints τἀν (τὰ ἐν) with the coronis; the article τὰν breaks the sense" }
+      - { ref: "518", find: "χρήζεις", replace: "χρῄζεις", note: "scan p. 251 prints χρῄζεις; the OCR lost the iota subscript" }
+      - { ref: "546", find: "τόϊδ’", replace: "τόνδ’", note: "scan p. 252 prints τόνδ’; τόϊδ’ is no word" }
+      - { ref: "565", find: "χρήζεις", replace: "χρῄζεις", note: "scan p. 252 prints χρῄζεις; the OCR lost the iota subscript" }
+      - { ref: "579", find: "περισσ’", replace: "περίσσ’", note: "scan p. 253 prints περίσσ’; the OCR dropped the accent" }
+      - { ref: "584", find: "τὴμῇ", replace: "τἠμῇ", note: "scan p. 253 prints τἠμῇ (τῇ ἐμῇ) with the coronis; τὴμῇ is no word" }
+      - { ref: "605", find: "μοῦ", replace: "μοὺ", note: "scan p. 254 prints μοὺ (the enclitic, accented before μηδέν’); the OCR read a circumflex" }
+      - { ref: "644", find: "ἂν", replace: "ἃν", note: "scan p. 255 prints ἃν (Doric relative, ἣν) with the rough breathing; the OCR read it smooth" }
+      - { ref: "662", find: "λυπά", replace: "λυπρά", note: "scan p. 255 prints λυπρά; λυπά is no word" }
+      - { ref: "682", find: "Θρῇξ", replace: "Θρῂξ", note: "scan p. 256 prints Θρῂξ (grave); the OCR read a circumflex, which Θρᾷξ never takes" }
+      - { ref: "731", find: "τὰκεῖθεν", replace: "τἀκεῖθεν", note: "scan p. 257 prints τἀκεῖθεν with the coronis; τὰκεῖθεν is no word" }
+      - { ref: "752", find: "γονάτων", replace: "γουνάτων", note: "scan p. 257 prints γουνάτων; γονάτων breaks the trimeter" }
+      - { ref: "780", find: "Πολυξένη", replace: "Πολυξένῃ", note: "scan p. 258 prints Πολυξένῃ (dative: water for Polyxena); the OCR lost the iota subscript" }
+      - { ref: "860", find: "κοὺ", replace: "κοὐ", note: "scan p. 260 prints κοὐ (καὶ οὐ) with the coronis; κοὺ is no word" }
+      - { ref: "880", find: "Τρωάδων", replace: "Τρῳάδων", note: "scan p. 261 prints Τρῳάδων; the OCR lost the iota subscript" }
+      - { ref: "894", find: "νεοσφάγους", replace: "νεοσφαγοῦς", note: "scan p. 261 prints νεοσφαγοῦς; the OCR misplaced the accent" }
+      - { ref: "918", find: "θυσίαν", replace: "θυσιᾶν", note: "scan p. 262 prints θυσιᾶν (genitive plural with μολπᾶν); the OCR read θυσίαν" }
+      - { ref: "948", find: "ἀλά-", replace: "ἀλάσ-", note: "scan p. 263 prints ἀλάσ-|τορός, divided after the σ" }
+      - { ref: "950", find: "στορός", replace: "τορός", note: "scan p. 263 prints τορός (the word divided ἀλάσ-|τορός)" }
+      - { ref: "966", find: "ταὐτὸν", replace: "ταυτὸν", note: "scan p. 263 prints ταυτὸν with no coronis (Paley's spelling, as at 295 and 748)" }
+      - { ref: "996", find: "νιν", replace: "νυν", note: "scan p. 264 prints νυν" }
+      - { ref: "1004", find: "εἰ γὰρ", replace: "εἶ γὰρ", note: "scan p. 264 prints εἶ (you are); εἰ (if) breaks the sense" }
+      - { ref: "1014", find: "σῴζεται", replace: "σώζεται", note: "scan p. 265 prints σώζεται, no iota subscript" }
+      - { ref: "1030", find: "δίκα", replace: "δίκᾳ", note: "scan p. 265 prints δίκᾳ; the OCR lost the iota subscript" }
+      - { ref: "1065", find: "ὢ κατάρατοι", replace: "ὦ κατάρατοι", note: "scan p. 266 prints ὦ (vocative); the OCR read ὢ" }
+      - { ref: "1067", find: "Ἥλιε", replace: "Ἅλιε", note: "scan p. 266 prints Ἅλιε (Doric, as the lyric); the OCR read Ἥλιε" }
+      - { ref: "1070", find: "ἐπάξας", replace: "ἐπᾴξας", note: "scan p. 266 prints ἐπᾴξας (from ἐπαΐσσω); ἐπάξας is another verb" }
+      - { ref: "1090", find: "εὔιππον", replace: "εὔιππόν", note: "scan p. 266 prints εὔιππόν, accented before the enclitic τ’" }
+      - { ref: "1112", find: "ᾔσμεν", replace: "ᾖσμεν", note: "scan p. 267 prints ᾖσμεν (circumflex); ᾔσμεν is a misplaced accent" }
+      - { ref: "1122", find: "φῄς", replace: "φής", note: "scan p. 267 prints φής, no iota subscript" }
+      - { ref: "1124", find: "ἢ γὰρ", replace: "ἦ γὰρ", note: "scan p. 267 prints ἦ (question particle); ἢ (or) breaks the sense" }
+      - { ref: "1155", find: "ἄλλαι", replace: "αλλαι", note: "scan p. 268 prints αλλαι with no breathing or accent, a printer's slip kept as printed (Greek editions match the scan)" }
+      - { ref: "1194", find: "ὑπώλοντ’", replace: "ἀπώλοντ’", note: "scan p. 269 prints ἀπώλοντ’; ὑπώλοντ’ is no word" }
+      - { ref: "1219", find: "φῂς", replace: "φὴς", note: "scan p. 270 prints φὴς, no iota subscript" }
+      - { ref: "1221", find: "πατρώας", replace: "πατρῴας", note: "scan p. 270 prints πατρῴας; the OCR lost the iota subscript" }
+      - { ref: "1226", find: "ἀγαθοὶ", replace: "ἁγαθοὶ", note: "scan p. 270 prints ἁγαθοὶ (οἱ ἀγαθοί) with the rough breathing; the OCR read it smooth" }
+      - { ref: "1238", find: "φεῦ φεῦ", replace: "φεῖ φεῦ", note: "scan p. 271 prints φεῖ φεῦ, a printer's slip kept as printed (Greek editions match the scan)" }

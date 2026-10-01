@@ -67,8 +67,10 @@ DUMP = ROOT / "build/sweeps/paley-ocr"
 # of the play text, the running head's play name, the TEI title)
 PLAYS = {
     "medea": ("Paley Euripides Text 01.txt", "003", "euripidesexrecen01euri", 12, 1454, 3110, "ΜΗΔΕΙΑ", "Μήδεια"),
+    "hecuba": ("Paley Euripides Text 02.txt", "007", "euripidesexrecen02euri", 18, 9134, 10627, "ΕΚΑΒΗ", "Ἑκάβη"),
+    "electra-eur": ("Paley Euripides Text 02.txt", "012", "euripidesexrecen02euri", 18, 5860, 7443, "ΗΛΕΚΤΡΑ", "Ἠλέκτρα"),
 }
-VOLUME = {"euripidesexrecen01euri": ("I", "1878")}
+VOLUME = {"euripidesexrecen01euri": ("I", "1878"), "euripidesexrecen02euri": ("II", "1876")}
 
 # OCR rows mended before parsing, as the scan prints them: {slug: {ocr .txt
 # line: (find, replace, reason)}}.
@@ -82,6 +84,38 @@ ROW_FIXES: dict[str, dict[int, tuple[str, str, str]]] = {
         2611: ("[στρ. β΄.", "", "scan p. 66: the mark belongs to the row above"),
         2616: ("τάλαινα παίδων", "τάλαινα παίδων ἀντ. β΄.", "scan p. 66: the antistrophe opens with μεταστένομαι; ἀντ. β΄. stands on the next row"),
         2617: ("[ἀντ. β΄.", "", "scan p. 66: the mark belongs to the row above"),
+    },
+    "electra-eur": {
+        6394: ("64", "164", "scan p. 164: the head's 1 failed to print ('64'); the page is 164"),
+        # The epode opens with ἐν δὲ δόρει (Murray's 476); Paley sets ἐπῳδ.
+        # on its second row, the first being full (as Medea p. 57).
+        6417: ("ἵπποι ἔπαλλοι,", "ἵπποι ἔπαλλοι, ἐπῳδ.", "scan p. 164: the epode opens with ἐν δὲ δόρει; [ἐπῳδ. stands on the next row"),
+        6418: ("\t[ἐπῳδ.", "", "scan p. 164: the mark belongs to the row above"),
+        # Paley sets the strophe mark at the end of the row before the
+        # stanza, the stanza's own first row being full (scan p. 183).
+        7206: (" [στρ.", "", "scan p. 183: [στρ. ends δώσω χάριν σοι, but the strophe opens with ΧΟ. ἀμοιβαὶ κακῶν on the next row"),
+        7207: ("αὖραι δόμων.", "αὖραι δόμων. στρ.", "scan p. 183: the strophe opens here; its mark stands on the row above"),
+        7212: (" [ἀντ.", "", "scan p. 183: [ἀντ. ends πατρίδα δεκέτεσιν, but the antistrophe opens with παλίρρους on the next row"),
+        7213: ("διαδρόμου λέχους,", "διαδρόμου λέχους, ἀντ.", "scan p. 183: the antistrophe opens here; its mark stands on the row above"),
+        # Two rows of asterisks print one lacuna (scan p. 184).
+        7245: ("\\* \\* \\*", "", "scan p. 184: the lacuna after 1180 is one, printed as two rows of asterisks"),
+        7372: ("ΧΟ πῶς", "ΧΟ. πῶς", "scan p. 187: the Chorus's label, printed without its period, opens πῶς ὄντε θεὼ"),
+    },
+    "hecuba": {
+        # Running heads the OCR misread (the head is read before the body).
+        9882: ("EKABH. 253", "EKABH. 255", "scan p. 255: the head prints 255 (the OCR read 253)"),
+        10018: ("253 ETPIΠIΔOT", "258 ΕΥΡΙΠΙΔΟΥ", "scan p. 258: the head is 258 ΕΥΡΙΠΙΔΟΥ"),
+        # The epode opens with τὰν τοῖν (Murray's 943); Paley sets ἐπῳδ. on
+        # its turned-over βούταν.
+        10228: ("Ἰδαῖόν τε", "Ἰδαῖόν τε ἐπῳδ.", "scan p. 263: the epode opens with τὰν τοῖν; ἐπῳδ. stands on its turn-over βούταν"),
+        10229: ("βούταν ἐπῳδ.", "βούταν", "scan p. 263: the mark belongs to the row above"),
+        # Stepped half-lines (antilabe) whose indent the OCR lost: one verse.
+        10431: ("ΑΓ. οὗτος, τί πάσχεις;", "ΑΓ. οὗτος, τί πάσχεις; ΠΟΛΥΜ. πρὸς θεῶν σε λίσσομαι,",
+                "scan p. 267: ΠΟΛΥΜ.'s πρὸς θεῶν σε λίσσομαι is stepped under οὗτος, τί πάσχεις;, one trimeter"),
+        10432: ("ΠΟΛΥΜ. πρὸς θεῶν σε λίσσομαι,", "", "scan p. 267: joined to the row above"),
+        10615: ("ΠΟΛΥΜ. ἐγκλείετ’· εἴρηται γάρ.", "ΠΟΛΥΜ. ἐγκλείετ’· εἴρηται γάρ. ΑΓ. οὐχ ὅσον τάχος",
+                "scan p. 272: ΑΓ.'s οὐχ ὅσον τάχος is stepped under ἐγκλείετ’· εἴρηται γάρ., one trimeter"),
+        10616: ("ΑΓ. οὐχ ὅσον τάχος", "", "scan p. 272: joined to the row above"),
     },
 }
 # Printed numbers the OCR set on the wrong row or misread, as the scan
@@ -111,6 +145,46 @@ PRINTED_FIXES: dict[str, dict[int, tuple[int | None, str]]] = {
         2119: (560, "scan p. 55 prints 560 against καὶ μὴ σπανιζοίμεσθα (its 0 broken; the OCR read 561)"),
         2125: (565, "scan p. 55 prints 565 against εὐδαιμονοίην (the OCR read 535)"),
     },
+    "hecuba": {
+        # Scan p. 244 prints 240 and 245 with the 4 broken (it reads as 1).
+        9424: (240, "scan p. 244 prints 240 against δυσχλαινίᾳ, its 4 broken (the OCR read 210)"),
+        9429: (245, "scan p. 244 prints 245 against ἥψω δὲ γονάτων, its 4 broken (the OCR read 215)"),
+        # Scan p. 247 (leaf 265): from 350 on, the OCR set each number one
+        # row early, as on Medea p. 50.
+        9553: (None, "scan p. 247: no number on τί γάρ με δεῖ ζῆν (the OCR moved 350 here)"),
+        9554: (350, "scan p. 247 prints 350 against Φρυγῶν ἁπάντων"),
+        9558: (None, "scan p. 247: no number on δέσποινα δ’ (the OCR moved 355 here)"),
+        9559: (355, "scan p. 247 prints 355 against γυναιξὶ, παρθένοις"),
+        9563: (None, "scan p. 247: no number on ἔπειτ’ ἴσως (the OCR moved 360 here)"),
+        9564: (360, "scan p. 247 prints 360 against τύχοιμ’ ἂν"),
+        9568: (None, "scan p. 247: no number on λυπρὰν ἄγουσαν (the OCR moved 365 here)"),
+        9569: (365, "scan p. 247 prints 365 against λέχη δὲ τἀμὰ"),
+        9573: (None, "scan p. 247: no number on ἄγ’ οὖν μ’ (the OCR moved 370 here)"),
+        9574: (370, "scan p. 247 prints 370 against οὔτ’ ἐλπίδος"),
+        9578: (None, "scan p. 247: no number on θανεῖν, πρὶν αἰσχρῶν (the OCR moved 375 here)"),
+        9579: (375, "scan p. 247 prints 375 against ὅστις γὰρ οὐκ εἴωθε"),
+        9583: (None, "scan p. 247: no number on δεινὸς χαρακτὴρ (the OCR moved 380 here)"),
+        9584: (380, "scan p. 247 prints 380 against ἐσθλῶν γενέσθαι"),
+        10158: (880, "scan p. 261 prints 880 against στέγαι κεκεύθασ’ (the OCR read 830)"),
+    },
+    "electra-eur": {
+        6038: (145, "scan p. 155 prints 145 against οἷς ἀεὶ τὸ κατ’ ἦμαρ (the OCR read 140)"),
+        # Scan p. 166 prints 545 and 546, bracketed and their 4s broken,
+        # against the two lines Paley moves up after 531 (the OCR read 515
+        # and 516).
+        6484: (545, "scan p. 166 prints [545] against ἀλλ’ ἤ τις αὐτοῦ, set after 531 (the OCR read 515)"),
+        6485: (546, "scan p. 166 prints [546] against ἐκείρατ’ (the OCR read 516)"),
+        6732: (745, "scan p. 172 prints 745 against ὧν οὐ μνασθεῖσα, its 4 broken (the OCR read 715)"),
+        # Scan p. 176 prints its numbers; the OCR lost every one.
+        6902: (885, "scan p. 176 prints 885 against Αἴγισθον, ὃς σὸν πατέρα (the OCR lost it)"),
+        6908: (890, "scan p. 176 prints 890 against θεοὺς μὲν ἡγοῦ (the OCR lost it)"),
+        6913: (895, "scan p. 176 prints 895 against προσθῶμεν (the OCR lost it)"),
+        6919: (900, "scan p. 176 prints 900 against αἰσχύνομαι μὲν (the OCR lost it)"),
+        6924: (905, "scan p. 176 prints 905 against λέγ’, εἴ τι χρήζεις (the OCR lost it)"),
+        6930: (910, "scan p. 176 prints 910 against θρυλοῦσ’ (the OCR lost it)"),
+        6935: (915, "scan p. 176 prints 915 against καὶ τόνδ’ ἔθηκας (the OCR lost it)"),
+        7091: (1046, "scan p. 180 prints 1046 against ἔκτειν’, ἐτρέφθην (the OCR read 1045)"),
+    },
 }
 # Hand numbering: {slug: {ocr .txt line: (n, reason)}} (jebb_to_tei.number_lines).
 NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
@@ -132,6 +206,41 @@ NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
         # cola, μηδέ 638, θυμὸν 640) a fraction cheaper than by Murray's.
         2213: ("641", "scan p. 57: 641 printed at the line's end (its turn-over σεβίζουσ’); the line holds Murray's 640-641, and the lines before keep Murray's numbers"),
     },
+    "hecuba": {
+        # Paley's count runs one line short of his rows in three lyric
+        # stretches; the row his count leaves unnumbered takes a letter.
+        # Scan p. 241: 150 ἢ γάρ σε … 155 οἴ ’γὼ, six rows; ἐκ χρυσοφόρου |
+        # δειρῆς νασμῷ is one line in the older count.
+        9314: ("154a", "scan p. 241: 150 and 155 printed six rows apart; δειρῆς νασμῷ, the end of ἐκ χρυσοφόρου's line in the older count, takes the letter"),
+        # Scan pp. 242-243: 200 οἵαν οἵαν … 205 μόσχον, seven rows; the two
+        # short rows take letters (ἐχθίσταν, ξυνδουλεύσω).
+        9370: ("200a", "scan p. 242: 200 and 205 (p. 243) printed seven rows apart; ἐχθίσταν ἀρρήταν τ’ takes a letter"),
+        9379: ("203a", "scan p. 243: ξυνδουλεύσω., the second row Paley's count leaves unnumbered"),
+        # Scan p. 266: 1065 πτώσσουσι μυχῶν … 1070 τάνδε γυναικῶν; the cry
+        # ἀᾶ. on a row of its own takes the letter.
+        10368: ("1066", "scan p. 266: εἴθε μοι, the line after 1065"),
+        10371: ("1068a", "scan p. 266: ἀᾶ., extra-metrical, between 1068 φέγγος ἀπαλλάξας and 1069 σίγα"),
+    },
+    "electra-eur": {
+        # Scan p. 166: Paley moves 545-546 up after 531 and prints them
+        # there, numbered [545] [546]; the lines after them resume at 532.
+        # Printed order kept (John, 2026-09-05: transposed lines).
+        6484: ("545", "scan p. 166: [545] printed after 531 (Paley's transposition)"),
+        6485: ("546", "scan p. 166: [546] printed after 545"),
+        6486: ("532", "scan p. 166: σὺ δ’ εἰς ἴχνος, 532 after the transposed 545-546 (535 printed three lines on)"),
+        # Scan p. 166: a lacuna (a row of asterisks) after 538, which Paley
+        # does not count: κερκίδος is his 539, 540 printed after it.
+        6494: ("538a", "scan p. 166: the lacuna after 538, uncounted"),
+        6496: ("539", "scan p. 166: κερκίδος ὅτῳ, 539 (540 printed on the next line)"),
+        6502: ("547", "scan p. 166: οἱ δὲ ξένοι, 547 after 544 (545-546 printed above; 550 printed three lines on)"),
+        # Scan p. 184: Paley prints 1180 against χερὸς ὑπ’ ἐμᾶς and 1185
+        # against ἄλαστα; the lacuna between them is uncounted.
+        7244: ("1180a", "scan p. 184: the lacuna after 1180, uncounted"),
+        7246: ("1181", "scan p. 184: δακρύτ’ ἄγαν, 1181 by Paley's count (1185 printed four lines on)"),
+        7247: ("1182", "scan p. 184: διὰ πυρὸς, 1182"),
+        7248: ("1183", "scan p. 184: ἅ μ’ ἔτικτε κούραν, 1183"),
+        7249: ("1184", "scan p. 184: ἰὼ τύχας, 1184"),
+    },
 }
 # Printed numbers that disagree with the numbering for a stated reason.
 MARGIN_NOTES: dict[str, dict[int, str]] = {}
@@ -145,6 +254,11 @@ MEMBER = re.compile(r"([α-θι][α-θ]?)\s*[%s]\s*\.?(?:\s+|$)" % MARKS)
 END_STROPHE = re.compile(
     r"(?:^|\s)[\[|*]?\s*(στρ|ἀντισύστ|σύστ|ἀντ|ἐπῳδ|ἐπωδ|μεσῳδ)(?:οφή|ιστροφή|ός|ημα)?\.?\s*"
     r"(?:([α-θ])\s*[%s]?\s*\.?)?\s*\**\s*$" % MARKS)
+# Speaker abbreviations: Jebb's two or three capitals, and Paley's longer
+# ΠΟΛΥΜ. and ΠΟΛΥΞ. (Hecuba: Polymestor and Polyxena share ΠΟ-).
+SPK_ABBR = r"[%s]{2,5}\." % J.CAPS
+LEAD_SPK = re.compile(r"^(%s)\s+" % SPK_ABBR)
+MID_SPK = re.compile(r"(?<=[\s])(%s)\s+(?=\S)" % SPK_ABBR)
 TAGS = re.compile(r"</?(?:small|sup|sub|span|i|b|em|strong|br|center|u)\b[^>]*>")
 
 
@@ -154,6 +268,10 @@ def head_key(s: str) -> str:
     s = TAGS.sub(" ", s).replace("|", " ").replace("*", "").replace("#", "")
     s = s.translate(LAT2GRK)
     s = re.sub(r"\s+\.", ".", s)
+    # Specks the OCR read before a head or after a bare page number
+    # ('-ΗΛΕΚΤΡΑ. 153', '· ΗΛΕΚΤΡΑ. 183', '160.': Electra pp. 153, 183, 160).
+    s = re.sub(r"^[-.·\s]+", "", s)
+    s = re.sub(r"^(\d{1,3})\.$", r"\1", s.strip())
     return " ".join(s.split())
 
 
@@ -198,6 +316,12 @@ def parse_row(s: str) -> dict | None:
     s = TAGS.sub(" ", s)
     s = re.sub(r"\\\s*$", "", s)        # a markdown line break
     s = re.sub(r"^\s*>(?=\s|$)", "", s)  # a blockquote mark
+    # Paley's own asterisk before an emended word ('\\*τ’', Hecuba 1090, scan
+    # p. 266) is kept; every other asterisk is the OCR's emphasis ...
+    s = re.sub(r"\\\*(?=[Ͱ-Ͽἀ-῿])", "\x00", s)
+    # ... and set apart from its word ('* Ἀΐδα', Electra 144, scan p. 155):
+    # an asterisk after a space and before one is no emphasis mark.
+    s = re.sub(r"(^|\s)\*\s+(?=[Ͱ-Ͽἀ-῿])", "\\1\x00", s)
     s = s.replace("\\*", "*").replace("**", "").replace("__", "").strip()
     head = s.lstrip("#").strip().replace("*", "").strip()
     g = head.translate(LAT2GRK)
@@ -221,7 +345,7 @@ def parse_row(s: str) -> dict | None:
     speaker = None
     for _ in range(3):
         s = s.lstrip()
-        m = J.LEAD_SPK.match(s.translate(LAT2GRK)[:6] + s[6:]) if s[:1].isupper() else None
+        m = LEAD_SPK.match(s.translate(LAT2GRK)[:6] + s[6:]) if s[:1].isupper() else None
         if m and speaker is None:
             speaker = m.group(1).translate(LAT2GRK)
             s = s[m.end():]
@@ -242,12 +366,16 @@ def parse_row(s: str) -> dict | None:
     if re.fullmatch(r"[*\s]+", s) and "*" in s:
         return {"kind": "verse", "text": "", "lacuna": "* * *", "printed": printed, "colon": None,
                 "strophe": strophe, "speaker": speaker, "turn": False}
-    s = s.replace("*", "")   # the OCR's italic marks; Paley prints no asterisk
+    s = s.replace("*", "").replace("\x00", "*")   # the OCR's italic marks; Paley's own asterisk kept
     s = s.replace("˙", "·").replace("ϐ", "β")
     s = re.sub(r"([᾿῾῍-῏῝-῟][̀́͂]?)([ΑΕΗΙΟΥΩ])",
                lambda m: J.nfc(m.group(2) + J.unicodedata.normalize("NFD", m.group(1))
                                .replace("᾿", "̓").replace("῾", "̔")), s)
     s = re.sub("[᾿᾽ʼ'‘]", "’", s)
+    # A smooth breathing the OCR set apart before a capital (’Αρτέμιδος,
+    # Hecuba p. 250): the capital takes it.
+    s = re.sub(r"(^|\s)’([ΑΕΗΙΟΥΩ])(?=[α-ωά-ώἀ-ῷ])",
+               lambda m: m.group(1) + J.nfc(m.group(2) + "\u0313"), s)
     s = re.sub(r"\S+", lambda t: J._greek_lookalikes(t.group(0)) if GREEK_RE.search(t.group(0)) else t.group(0), s)
     s = re.sub(r"\s+", " ", s).strip()
     if not s and strophe and not speaker:
@@ -256,6 +384,21 @@ def parse_row(s: str) -> dict | None:
         return {"kind": "name", "text": speaker}
     return {"kind": "verse", "text": s, "printed": printed, "colon": None, "strophe": strophe,
             "speaker": speaker, "turn": False}
+
+
+# The sheet's signature at a page's foot, 'II.—20' (Latin or Greek
+# capitals; 'Π.—15' where the OCR read II as one letter, Electra p. 171).
+SIGNATURE = re.compile(r"(?:Π|[IΙlV]{1,3})\s*\.\s*[—–-]\s*\d{1,2}")
+
+
+def _row_fix(fixes: dict, i: int, s: str) -> str:
+    """Row i mended by ROW_FIXES, a running head included (read before the
+    body: 'EKABH. 253' on p. 255)."""
+    if i in fixes:
+        find, replace, _ = fixes[i]
+        assert find in s, (i, find)
+        s = s.replace(find, replace, 1)
+    return s
 
 
 def stop_reason(row: str) -> str | None:
@@ -280,7 +423,7 @@ def extract(slug: str) -> tuple[list[dict], list[str], list[dict]]:
     dropped: list[dict] = []
     pages = []
     for pg in J.pages_of(lines, first, last):
-        ne = [(i, s) for i, s in pg if s.strip()]
+        ne = [(i, _row_fix(fixes, i, s)) for i, s in pg if s.strip()]
         if ne:
             pages.append(ne)
     last_page = None
@@ -301,10 +444,10 @@ def extract(slug: str) -> tuple[list[dict], list[str], list[dict]]:
         last_page = number
         body = ne[used:]
         for j, (i, s) in enumerate(body):
-            if i in fixes:
-                find, replace, _ = fixes[i]
-                assert find in s, (i, find)
-                s = s.replace(find, replace, 1)
+            if j == len(body) - 1 and SIGNATURE.fullmatch(J.plain(s).strip()):
+                dropped.append({"src": i, "page": number, "reason": "signature mark at the page's foot",
+                                "text": J.plain(s).strip()})
+                continue
             reason = stop_reason(s)
             if reason:
                 dropped.append({"src": i, "page": number, "reason": reason, "text": J.plain(s)[:40]})
@@ -381,6 +524,20 @@ def join_turnovers(rows: list[dict], murray_keys: list[str]) -> list[dict]:
     return out
 
 
+def split_shares(text: str, speaker: str | None) -> list[tuple[str | None, str]]:
+    """A line with speaker abbreviations inside it -> [(speaker, share)].
+    Copied from jebb_to_tei.split_shares, with this module's MID_SPK (labels
+    of up to five capitals)."""
+    shares: list[tuple[str | None, str]] = []
+    pos, cur = 0, speaker
+    probe = text.translate(LAT2GRK)
+    for m in MID_SPK.finditer(probe):
+        shares.append((cur, text[pos:m.start()].strip()))
+        cur, pos = m.group(1), m.end()
+    shares.append((cur, text[pos:].strip()))
+    return [(sp, t) for sp, t in shares if t or sp]
+
+
 def build_lines(rows: list[dict]) -> tuple[list[dict], list[dict]]:
     """Rows -> logical lines (speakers, strophe labels, antilabe shares), and
     the numbers printed on rows of their own: [{at, numbers, src, page}],
@@ -411,7 +568,7 @@ def build_lines(rows: list[dict]) -> tuple[list[dict], list[dict]]:
         pending_strophe = None
         spk = r["speaker"] or pending_name
         pending_name = None
-        shares = J.split_shares(r["text"], spk) if r.get("lacuna") is None else [(spk, "")]
+        shares = split_shares(r["text"], spk) if r.get("lacuna") is None else [(spk, "")]
         lines.append({**r, "shares": shares or [(spk, "")]})
     return lines, runs
 
