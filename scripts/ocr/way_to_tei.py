@@ -20,7 +20,9 @@ for Way (build/sweeps/way-loeb-ocr-quality-2026-10-01.md):
    the archive.org leaf. The head and the folio at the foot are dropped; from
    the first footnote-marker row ('$^1$', '¹', '<sup>1</sup>', '1 Latin') to
    the foot is apparatus and is dropped. A row of mostly Latin letters stops
-   the page's verse too; every stop is reported.
+   the page's verse too; every stop is reported. A page without the head is
+   skipped and its leaf logged; one whose rows are Greek verse all the same
+   (a misread head) is a stop that fails the run.
 2. Rows. A row of Greek capitals is a speaker (a numeral may follow, 'ΠΑΙΣ
    αʹ'); a row of digits is Way's margin number for the next verse row; a
    strophe mark on a row of its own labels the verse row above it when that
@@ -49,6 +51,8 @@ import json
 import re
 import sys
 import unicodedata
+import xml.etree.ElementTree as ET
+from contextlib import contextmanager
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -204,8 +208,19 @@ def extract(slug: str, counts: dict) -> tuple[list[dict], list[str], list[dict]]
     log: list[str] = []
     stops: list[dict] = []
     last_page = None
+    skipped = []
     for leaf, ne in pages(slug):
         if not is_head(ne[0][1], play["head"]):
+            # Not Greek by its head (the English facing page, the argument,
+            # the cast list). A page whose rows are Greek verse all the same
+            # has a misread head: it is a stop, and fails the conversion.
+            skipped.append(leaf)
+            verse = [i for i, s in ne[1:] if is_verse_row(s)]
+            if len(verse) >= 3:
+                stops.append({"leaf": leaf, "page": None, "src": ne[0][0],
+                              "reason": "no running head read; the page holds Greek verse",
+                              "text": J.plain(ne[0][1])[:50], "verse_rows": len(verse),
+                              "dropped": [x for x, _ in ne]})
             continue
         body = ne[1:]
         folio = strip_markup(body[-1][1]) if body else ""
@@ -234,19 +249,32 @@ def extract(slug: str, counts: dict) -> tuple[list[dict], list[str], list[dict]]
             if row is not None:
                 row.update(src=i, page=page, leaf=leaf)
                 rows.append(row)
+    if skipped:
+        log.append(f"{len(skipped)} pages without the Greek running head skipped: leaves {', '.join(map(str, skipped))}")
     return rows, log, stops
+
+
+def is_verse_row(s: str) -> bool:
+    """A row of Greek verse: mostly Greek, with ten lower-case Greek letters
+    or more (a cast list's names are capitals)."""
+    p = strip_markup(s)
+    return J.greek_share(p) >= 0.8 and sum(1 for c in p if J.GREEK_RE.match(c) and c.islower()) >= 10
 
 
 def place_numbers_and_labels(rows: list[dict]) -> list[dict]:
     """Way's own-row margin numbers go to the next verse row; own-row strophe
     marks to the verse row above (when it does not end a sentence and no
-    speaker name stands between) or else the row below."""
+    speaker name stands between) or else the row below. Where two numbers
+    stand on rows of their own before one verse row, the last goes to it as
+    before and the earlier cannot be placed by the rows: it stays a
+    checkpoint apart (rend margin-apart-N, checked against its page), and so
+    does a number left after the last verse row."""
     out: list[dict] = []
-    pending_num = None
+    pending: list[dict] = []
     pending_label = None
     for r in rows:
         if r["kind"] == "num":
-            pending_num = r
+            pending.append(r)
             continue
         if r["kind"] == "label":
             prev = out[-1] if out else None
@@ -257,17 +285,24 @@ def place_numbers_and_labels(rows: list[dict]) -> list[dict]:
                 pending_label = r["strophe"]
             continue
         if r["kind"] == "verse":
-            if pending_num is not None:
+            if pending:
                 # Set on the row below for now; resolve_apart may move it
                 # to the row above.
                 above = next((x for x in reversed(out) if x["kind"] == "verse"), None)
-                r["apart"] = {"number": pending_num["number"], "src": pending_num["src"],
+                r["apart"] = {"number": pending[-1]["number"], "src": pending[-1]["src"],
                               "above": above["src"] if above is not None and above["page"] == r["page"] else None}
-                pending_num = None
+                if len(pending) > 1:
+                    r["unplaced"] = [{"number": x["number"], "src": x["src"]} for x in pending[:-1]]
+                pending = []
             if pending_label is not None and not r["strophe"]:
                 r["strophe"] = pending_label
             pending_label = None
         out.append(r)
+    if pending:
+        last = next((x for x in reversed(out) if x["kind"] == "verse"), None)
+        if last is None:
+            raise SystemExit(f"margin numbers {[x['number'] for x in pending]} with no verse row to stand beside")
+        last.setdefault("unplaced", []).extend({"number": x["number"], "src": x["src"]} for x in pending)
     return out
 
 
@@ -326,6 +361,10 @@ def merge_antilabe(lines: list[dict], ref_keys: list[str]) -> list[dict]:
                 prev.setdefault("antilabe_rows", []).append(x["src"])
                 if x["printed"] is not None:
                     prev.setdefault("printed_more", []).append(x["printed"])
+                # A number on a row of its own before the share has no row
+                # of its own left to go to: a checkpoint apart.
+                for u in ([x["apart"]] if x.get("apart") else []) + (x.get("unplaced") or []):
+                    prev.setdefault("unplaced", []).append({"number": u["number"], "src": u["src"]})
                 continue
         out.append(x)
     return out
@@ -339,6 +378,8 @@ def resolve_apart(lines: list[dict], refs: dict, covers: dict) -> None:
         return {refs[x][covers[x][i][0]]["n"] for x in ("S", "T") if covers[x][i]}
 
     for i, line in enumerate(lines):
+        for x in line.get("unplaced") or []:
+            line.setdefault("detached", []).append(x["number"])
         apart = line.pop("apart", None)
         if apart is None:
             continue
@@ -389,11 +430,38 @@ def murray_lines(slug: str) -> list[dict]:
 
 
 # ------------------------------------------------------------------- TEI
+def murray_stanzas(slug: str) -> dict[str, str]:
+    """{Murray's ref: the lyric stanza of his Perseus TEI that holds it}
+    (a strophe, antistrophe, epode, mesode, or astrophic lyric div)."""
+    sys.path.insert(0, str(ROOT / "pipeline"))
+    from drama_pipeline.config import Manifest, SOURCES_DIR
+    view = Manifest.load(ROOT / "manifests" / f"{slug}.yaml").for_edition(PLAYS[slug]["murray"])
+    root = ET.parse(SOURCES_DIR / view.data["work"]["greek_source"]["path"]).getroot()
+    out = {}
+    for k, div in enumerate(root.iter(f"{J.TEI_NS}div")):
+        if div.get("subtype") in LYRIC:
+            for el in div.iter(f"{J.TEI_NS}l"):
+                out[el.get("n")] = f"{div.get('subtype')} {div.get('n') or ''} #{k}"
+    return out
+
+
+LYRIC = {"strophe", "antistrophe", "epode", "mesode", "ephymn", "lyric"}
+
+
 def write_tei(slug: str, lines: list[dict]) -> str:
     """jebb_to_tei.write_tei's body, with Way's header and leaf links (the
     OCR page index is the leaf; archive.org's page_numbers.json is off for
-    these items, so it is not used), and a strophe div closed at the next
-    change of speaker."""
+    these items, so it is not used), and a strophe div closed where the
+    lyric ends.
+
+    Jebb's writer leaves a div open to the next strophe mark, so the last
+    stanza of an ode takes in the dialogue after it. Here a stanza closes at
+    the next mark, or at a change of voice (the speaker named last, carried
+    into an unlabelled stanza) whose new speech is not in the stanza of
+    Murray's text that the stanza's first line aligns with ('stanza', from
+    murray_stanzas): the Paedagogus at 1002 is spoken, so the antistrophe
+    at 996 closes before him, while the sons' cries inside a strophe that
+    Murray prints as one stanza (1271-1278) stay in it."""
     play = PLAYS[slug]
     ident = play["ident"]
     out = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -405,12 +473,13 @@ def write_tei(slug: str, lines: list[dict]) -> str:
            '</fileDesc></teiHeader>', '<text><body>']
     page = None
     div_open = sp_open = False
-    cur_speaker = None
+    cur_speaker = voice = div_stanza = None
     for line in lines:
         if line["page"] != page:
             page = line["page"]
             out.append(f'<pb n="{page}" facs="https://archive.org/details/{ident}/page/n{line["leaf"] - 1}"/>')
-        if line.get("strophe"):
+        opens = bool(line.get("strophe"))
+        if opens:
             if sp_open:
                 out.append("</sp>")
                 sp_open = False
@@ -420,6 +489,7 @@ def write_tei(slug: str, lines: list[dict]) -> str:
             out.append(f'<div type="textpart" subtype="{subtype}"' + (f' n="{num}"' if num else "") + ">")
             div_open = True
             cur_speaker = None
+            div_stanza = line.get("stanza")
         shares = line["shares"]
         parts = [line["n"]] + J._share_refs(line, len(shares) - 1)
         for k, (spk, text) in enumerate(shares):
@@ -427,14 +497,16 @@ def write_tei(slug: str, lines: list[dict]) -> str:
                 if sp_open:
                     out.append("</sp>")
                     sp_open = False
-                if div_open and cur_speaker is not None and spk != cur_speaker:
-                    # A new speaker ends the stanza (jebb_to_tei's writer
-                    # leaves it open to the next strophe mark).
+                if (div_open and voice is not None and spk != voice and not (opens and k == 0)
+                        and (div_stanza is None or line.get("stanza") != div_stanza)):
+                    # The lyric has ended: a new voice, outside the stanza.
                     out.append("</div>")
                     div_open = False
                 out.append(f"<sp><speaker>{escape(spk)}</speaker>")
                 sp_open, cur_speaker = True, spk
-            elif not sp_open:
+            if spk is not None:
+                voice = spk
+            if not sp_open:
                 out.append("<sp>")
                 sp_open = True
             attrs = [f'n="{parts[k]}"']
@@ -445,6 +517,7 @@ def write_tei(slug: str, lines: list[dict]) -> str:
                 rend.append(f"margin-{line['printed']}")
             if k == 0:
                 rend.extend(f"margin-{p}" for p in line.get("printed_more") or [])
+                rend.extend(f"margin-apart-{p}" for p in line.get("detached") or [])
             if k == 0 and line.get("turnovers"):
                 rend.append("turn")
             if rend:
@@ -479,6 +552,32 @@ def english_anchor_check(slug: str, lines: list[dict]) -> dict:
 
 
 # ------------------------------------------------------------------ main
+_ABSENT = object()
+
+
+@contextmanager
+def lent_to_jebb(slug: str):
+    """For the length of the block, jebb_to_tei reads this module's hand
+    fixes and margin notes for slug, and no commentary lemmas (Way prints
+    none). Every global it borrows is put back exactly as it was, an entry
+    jebb_to_tei already had for slug included, on an exception too."""
+    tables = [(J.NUMBER_FIXES, NUMBER_FIXES), (J.MARGIN_NOTES, MARGIN_NOTES)]
+    saved = [(theirs, theirs.get(slug, _ABSENT)) for theirs, _ in tables]
+    saved_lemmas = J.lemma_checkpoints
+    try:
+        for theirs, ours in tables:
+            theirs[slug] = ours.get(slug, {})
+        J.lemma_checkpoints = lambda _slug, _lines: {}
+        yield
+    finally:
+        J.lemma_checkpoints = saved_lemmas
+        for theirs, old in saved:
+            if old is _ABSENT:
+                theirs.pop(slug, None)
+            else:
+                theirs[slug] = old
+
+
 def convert(slug: str, qa: bool = False) -> dict:
     counts: dict[str, int] = {}
     ref_s = murray_lines(slug)
@@ -495,18 +594,18 @@ def convert(slug: str, qa: bool = False) -> dict:
     for x in lines:
         x["shares"] = [(spk, t) for spk, t in x["shares"]]
     lines = merge_antilabe(lines, ref_keys)
-    # jebb_to_tei's numbering reads its hand fixes, margin notes, and
-    # commentary lemmas by play slug; Way has no commentary, so his play
-    # entry points at the OCR with an empty span.
-    J.NUMBER_FIXES[slug] = NUMBER_FIXES.get(slug, {})
-    J.MARGIN_NOTES[slug] = MARGIN_NOTES.get(slug, {})
-    J.PLAYS[slug] = (str(GENIE / PLAYS[slug]["ocr"]), None, PLAYS[slug]["ident"], 1, 0)
     refs = {"S": ref_s, "T": ref_t}
     covers = {"S": J.align(lines, ref_s), "T": J.align(lines, ref_t)}
     resolve_apart(lines, refs, covers)
-    J.number_lines(slug, lines, refs, covers)
-    cries = follow_murray_cries(lines, ref_s)
-    bad = J.check_margins(slug, lines)
+    # jebb_to_tei's numbering reads its hand fixes, margin notes, and
+    # commentary lemmas by play slug: this module's are lent for the call.
+    with lent_to_jebb(slug):
+        J.number_lines(slug, lines, refs, covers)
+        cries = follow_murray_cries(lines, ref_s)
+        bad = J.check_margins(slug, lines)
+    stanzas = murray_stanzas(slug)
+    for x in lines:
+        x["stanza"] = stanzas.get(x["cand"]["S"])
     seen: dict[str, int] = {}
     dups = []
     for line in lines:
@@ -524,6 +623,8 @@ def convert(slug: str, qa: bool = False) -> dict:
         "slug": slug, "lines": len(lines), "murray_lines": len(ref_s), "tlg_lines": len(ref_t), "log": log,
         "normalised": counts,
         "margin_checkpoints": sum((x.get("printed") is not None) + len(x.get("printed_more") or []) for x in lines),
+        "unplaced_numbers": [(x["n"], u["number"], u["src"]) for x in lines for u in x.get("unplaced") or []],
+        "unheaded_greek_pages": [st for st in stops if st["reason"].startswith("no running head")],
         "margin_equal": sum(1 for x in lines if x.get("margin_ok") == "equal"),
         "margin_inside": sum(1 for x in lines if x.get("margin_ok") == "inside"),
         "margin_bad": bad, "duplicate_refs": dups,
@@ -564,7 +665,7 @@ def main(argv: list[str] | None = None) -> int:
     for slug in list(PLAYS) if args.play == "all" else [args.play]:
         rep = convert(slug, args.qa)
         print(json.dumps(rep, ensure_ascii=False, indent=1))
-        failed |= bool(rep["margin_bad"] or rep["duplicate_refs"])
+        failed |= bool(rep["margin_bad"] or rep["duplicate_refs"] or rep["unheaded_greek_pages"])
     return 1 if failed else 0
 
 

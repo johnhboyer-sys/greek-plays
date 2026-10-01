@@ -1,4 +1,5 @@
 """Way's Loeb OCR -> TEI converter (scripts/ocr/way_to_tei.py)."""
+import copy
 import importlib.util
 from pathlib import Path
 
@@ -138,3 +139,129 @@ def test_tei_parts_and_a_stanza_closed_by_the_next_speaker(monkeypatch):
     assert body.index("</div>") < body.index("<speaker>ΜΗΔΕΙΑ</speaker>")
     assert '<l n="148" rend="margin-148">ἄιες</l>' in body
     assert '<l n="160" part="I">ὦ μεγάλα</l>' in body and '<l n="160b" part="F">τί φής</l>' in body
+
+
+def _tei_lines(*specs):
+    """Line records for write_tei: (n, speaker or None, text, strophe or None, Murray stanza or None)."""
+    base = {"page": 2, "leaf": 14, "printed": None, "printed_more": [], "ref_parts": []}
+    return [{**base, "n": n, "shares": [(spk, text)], "strophe": strophe, "stanza": stanza}
+            for n, spk, text, strophe, stanza in specs]
+
+
+def _divs(tei):
+    """[(subtype, [n, ...])] for each strophe div of the TEI."""
+    import xml.etree.ElementTree as ET
+    ns = "{http://www.tei-c.org/ns/1.0}"
+    body = ET.fromstring(tei).find(f".//{ns}body")
+    return [(d.get("subtype"), [l.get("n") for l in d.iter(f"{ns}l")]) for d in body.iter(f"{ns}div")]
+
+
+def test_an_unlabelled_stanza_closes_before_the_spoken_speech_after_it(monkeypatch):
+    # Medea 996-1002: the antistrophe carries no speaker (the chorus sings
+    # on); the Paedagogus' 1002 is spoken, outside Murray's stanza.
+    monkeypatch.setitem(W.PLAYS, "t", {"ocr": "t.txt", "ident": "x", "title": "Μήδεια"})
+    lines = _tei_lines(("990", "ΧΟΡΟΣ", "σὺ δ’, ὦ τάλαν", ("strophe", 2), "s2"),
+                       ("996", None, "μεταστένομαι δὲ σὸν ἄλγος", ("antistrophe", 2), "a2"),
+                       ("1001", None, "ἄλλᾳ ξυνοικεῖ πόσις συνεύνῳ.", None, "a2"),
+                       ("1002", "ΠΑΙΔΑΓΩΓΟΣ", "δέσποιν’, ἀφεῖνται παῖδες", None, None),
+                       ("1003", None, "καὶ δῶρα νύμφη βασιλὶς", None, None))
+    assert _divs(W.write_tei("t", lines)) == [("strophe", ["990"]), ("antistrophe", ["996", "1001"])]
+
+
+def test_an_exchange_inside_one_stanza_stays_one_stanza(monkeypatch):
+    # Medea 1273-1281 (Murray's second strophe): the sons' cries are sung
+    # inside the strophe, so their speeches do not close it; Jason's
+    # spoken 1293 does.
+    monkeypatch.setitem(W.PLAYS, "t", {"ocr": "t.txt", "ident": "x", "title": "Μήδεια"})
+    lines = _tei_lines(("1273", "ΧΟΡΟΣ", "ἀκούεις βοὰν", ("strophe", 2), "s2"),
+                       ("1277", "ΠΑΙΣ αʹ", "ναί, πρὸς θεῶν", None, "s2"),
+                       ("1278", "ΠΑΙΣ βʹ", "ὡς ἐγγὺς ἤδη", None, "s2"),
+                       ("1279", "ΧΟΡΟΣ", "τάλαιν’, ὡς ἄρ’ ἦσθα", None, "s2"),
+                       ("1293", "ΙΑΣΩΝ", "γυναῖκες αἳ τῆσδ’", None, None))
+    assert _divs(W.write_tei("t", lines)) == [("strophe", ["1273", "1277", "1278", "1279"])]
+
+
+JEBB_GLOBALS = ("PLAYS", "NUMBER_FIXES", "MARGIN_NOTES", "ROW_FIXES", "ROW_FIXES_ACTIVE", "PRINTED_FIXES")
+
+
+def _jebb_state():
+    return {name: copy.deepcopy(getattr(J, name)) for name in JEBB_GLOBALS}, J.lemma_checkpoints
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_converting_leaves_jebbs_globals_exactly_as_they_were(monkeypatch, tmp_path, fail):
+    # Way's conversion lends Jebb's module its tables for the call only: no
+    # play entry is added to Jebb's PLAYS, and an entry Jebb's module already
+    # holds for the slug is put back as it was; on an exception too.
+    monkeypatch.setitem(J.NUMBER_FIXES, "t", {7: ("7", "Jebb's own")})
+    monkeypatch.setitem(J.MARGIN_NOTES, "t", {7: "Jebb's own"})
+    monkeypatch.setitem(W.NUMBER_FIXES, "t", {3: ("4", "a hand fix")})
+    ref = [{"n": "1", "text": VERSE[0], "parts": []}]
+    monkeypatch.setattr(W, "murray_lines", lambda slug: ref)
+    monkeypatch.setattr(W, "murray_stanzas", lambda slug: {}, raising=False)
+    monkeypatch.setattr(J, "tlg_lines", lambda slug: ref)
+    monkeypatch.setattr(W, "extract", lambda slug, counts: ([{**_verse(VERSE[0], src=1), "leaf": 3}], [], []))
+    monkeypatch.setitem(W.PLAYS, "t", {"ocr": "t.txt", "ident": "x", "title": "Μήδεια"})
+    monkeypatch.setattr(W, "OUT", tmp_path)
+    monkeypatch.setattr(W, "DUMP", tmp_path)
+    seen = {}
+
+    def number_lines(slug, lines, refs, covers):
+        seen["fixes"] = J.NUMBER_FIXES[slug]
+        if fail:
+            raise RuntimeError("numbering failed")
+        for x in lines:
+            x["n"], x["n_how"], x["cand"] = "1", "storr", {"S": "1", "T": "1"}
+
+    monkeypatch.setattr(J, "number_lines", number_lines)
+    before = _jebb_state()
+    if fail:
+        with pytest.raises(RuntimeError):
+            W.convert("t")
+    else:
+        W.convert("t")
+    assert seen["fixes"] == {3: ("4", "a hand fix")}   # lent for the call
+    assert _jebb_state() == before
+
+
+def test_a_greek_page_with_a_misread_head_is_reported_not_dropped(play):
+    play(["ΜΗΔΕΙΑ", VERSE[0], VERSE[1], "284"],
+         ["MEDEA", "Would God that Argo's hull", "285"],
+         ["ΜΗΔΑΙΑ ΚΑΙ", "5 " + VERSE[2], VERSE[3], VERSE[4], "286"],   # the head misread past the match
+         ["ΤΑ ΤΟΥ ΔΡΑΜΑΤΟΣ ΠΡΟΣΩΠΑ", "ΤΡΟΦΟΣ", "ΧΟΡΟΣ"])                # a cast list: no verse
+    rows, log, stops, _ = rows_of()
+    assert [r["text"] for r in rows] == [VERSE[0], VERSE[1]]
+    (stop,) = stops
+    assert stop["reason"].startswith("no running head") and stop["leaf"] == 4 and stop["verse_rows"] == 3
+    assert log == ["3 pages without the Greek running head skipped: leaves 3, 4, 5"]
+
+
+def test_two_own_row_numbers_before_one_verse_keep_both():
+    n1 = {"kind": "num", "number": 100, "page": 1, "src": 2}
+    n2 = {"kind": "num", "number": 105, "page": 1, "src": 3}
+    rows = W.place_numbers_and_labels([_verse(VERSE[0], src=1), n1, n2, _verse(VERSE[1], src=4)])
+    lines = J.build_lines(rows)
+    refs = {"S": [{"n": "104", "text": "x"}, {"n": "105", "text": "y"}], "T": []}
+    W.resolve_apart(lines, refs, {"S": [[0], [1]], "T": [[], []]})
+    assert lines[1]["printed"] == 105
+    # The earlier number cannot be placed by the rows: a checkpoint apart.
+    assert lines[1]["detached"] == [100] and lines[1]["unplaced"] == [{"number": 100, "src": 2}]
+
+
+def test_a_number_after_the_last_verse_row_is_kept():
+    rows = W.place_numbers_and_labels([_verse(VERSE[0], src=1), _verse(VERSE[1], src=2),
+                                       {"kind": "num", "number": 1419, "page": 1, "src": 3}])
+    lines = J.build_lines(rows)
+    W.resolve_apart(lines, {"S": [], "T": []}, {"S": [[], []], "T": [[], []]})
+    assert lines[1]["detached"] == [1419]
+
+
+def test_a_number_apart_is_written_and_checked_against_its_page(monkeypatch):
+    monkeypatch.setitem(W.PLAYS, "t", {"ocr": "t.txt", "ident": "x", "title": "Μήδεια"})
+    lines = _tei_lines(("104", None, VERSE[0], None, None), ("105", None, VERSE[1], None, None))
+    lines[1]["printed"], lines[1]["detached"] = 105, [100]
+    assert '<l n="105" rend="margin-105 margin-apart-100">' in W.write_tei("t", lines)
+    for x in lines:
+        x["src"], x["text"] = 0, x["shares"][0][1]
+    bad = J.check_margins("t", lines)
+    assert [b["printed"] for b in bad] == [100]   # 100 is no number of its page

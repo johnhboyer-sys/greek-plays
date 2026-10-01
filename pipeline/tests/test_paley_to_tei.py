@@ -1,4 +1,5 @@
 """The Paley OCR -> TEI converter (scripts/ocr/paley_to_tei.py)."""
+import copy
 import importlib.util
 import sys
 from pathlib import Path
@@ -199,3 +200,91 @@ def test_numbering_lends_jebbs_tables_and_takes_them_back(monkeypatch):
     assert [x["n"] for x in lines] == ["1", "2", "3", "4", "5", "6"]
     assert lines[3]["n_how"] == "fix: a hand fix"
     assert J.lemma_checkpoints is saved and "t" not in J.NUMBER_FIXES and "t" not in J.MARGIN_NOTES
+
+
+def _row(text, src, printed=None, page=74, speaker=None, strophe=None):
+    return {"kind": "verse", "text": text, "printed": printed, "colon": None, "strophe": strophe,
+            "speaker": speaker, "turn": False, "src": src, "page": page}
+
+
+MURRAY_1274 = [J.key(t) for t in ("ἰὼ τλᾶμον, ὦ κακοτυχὲς γύναι.", "παρέλθω δόμους; ἀρῆξαι φόνον",
+                                   "δοκεῖ μοι τέκνοις.", "ναί, πρὸς θεῶν, ἀρήξατ’· ἐν δέοντι γάρ.")]
+
+
+def test_a_turn_over_joins_the_line_it_ends_without_its_hyphen():
+    # Medea p. 74: 'παρέλθω … δοκεῖ μοι τέ-' / 'κνοις. | 1275'. The break
+    # falls inside Murray's colon δοκεῖ μοι τέκνοις, so it is the printer's.
+    rows = [_row("ἰὼ τλᾶμον, ὦ κακοτυχὲς γύναι.", 1),
+            _row("παρέλθω δόμους; ἀρῆξαι φόνον δοκεῖ μοι τέ-", 2),
+            _row("κνοις.", 3, printed=1275),
+            _row("ναί, πρὸς θεῶν, ἀρήξατ’· ἐν δέοντι γάρ.", 4, speaker="ΠΑ. αʹ.")]
+    out = P.join_turnovers(rows, MURRAY_1274)
+    assert [r["src"] for r in out] == [1, 2, 4]
+    assert out[1]["text"] == "παρέλθω δόμους; ἀρῆξαι φόνον δοκεῖ μοι τέκνοις."
+    # Paley prints a line's number at its end: the number is the joined line's.
+    assert out[1]["printed"] == 1275 and not out[1].get("printed_from_turn")
+    assert out[1]["turnovers"] == [{"text": "κνοις.", "src": 3, "printed": 1275}]
+
+
+def test_a_short_row_paley_counts_or_murray_prints_alone_keeps_its_line():
+    # p. 43: 'μὴ λίαν' ends Murray's 157, but Paley's 155 and 160 count it
+    # as a line of his own.
+    murray = [J.key(t) for t in ("Ζεύς σοι τάδε συνδικήσει· μὴ λίαν", "τάκου δυρομένα σὸν εὐνέταν.")]
+    rows = [_row("καινὰ λέχη σεβίζει,", 1, printed=155, page=43), _row("κείνῳ τόδε μὴ χαράσσου·", 2, page=43),
+            _row("Ζεύς σοι τάδε συνδικήσει.", 3, page=43), _row("μὴ λίαν", 4, page=43),
+            _row("τάκου δυρομένα σὸν εὐνέταν.", 5, page=43),
+            _row("ὦ μεγάλα Θέμι καὶ πότνι’ Ἄρτεμι,", 6, printed=160, page=43, speaker="ΜΗ.")]
+    assert len(P.join_turnovers(rows, murray)) == 6
+    # A row that is a Murray line by itself stays one.
+    rows = [_row("ὄλεθρον βιοτᾷ προσάγεις ἀλόχῳ τε", 1, page=66), _row("σᾷ στυγερὸν θάνατον.", 2, page=66)]
+    assert len(P.join_turnovers(rows, [J.key(r["text"]) for r in rows])) == 2
+
+
+def test_a_joined_turn_over_is_marked_in_the_tei(monkeypatch):
+    monkeypatch.setitem(P.PLAYS, "t", ("t.txt", "003", "x", 12, 1, 2, "ΜΗΔΕΙΑ", "Μήδεια"))
+    monkeypatch.setitem(P.VOLUME, "x", ("I", "1878"))
+    line = {"n": "1275", "page": 74, "printed": 1275, "turnovers": [{"text": "κνοις.", "src": 3, "printed": 1275}],
+            "strophe": None, "shares": [("ΧΟ.", "παρέλθω δόμους; ἀρῆξαι φόνον δοκεῖ μοι τέκνοις.")]}
+    tei = P.write_tei("t", [line])
+    assert '<l n="1275" rend="margin-1275 turn">παρέλθω δόμους; ἀρῆξαι φόνον δοκεῖ μοι τέκνοις.</l>' in tei
+
+
+JEBB_GLOBALS = ("PLAYS", "NUMBER_FIXES", "MARGIN_NOTES", "ROW_FIXES", "ROW_FIXES_ACTIVE", "PRINTED_FIXES")
+
+
+def _jebb_state():
+    return {name: copy.deepcopy(getattr(J, name)) for name in JEBB_GLOBALS}, J.lemma_checkpoints
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_converting_leaves_jebbs_globals_exactly_as_they_were(monkeypatch, tmp_path, fail):
+    # An entry Jebb's module already holds for the slug is put back as it
+    # was, not removed; on an exception too.
+    monkeypatch.setitem(J.NUMBER_FIXES, "t", {7: ("7", "Jebb's own")})
+    monkeypatch.setitem(J.MARGIN_NOTES, "t", {7: "Jebb's own"})
+    monkeypatch.setitem(P.PLAYS, "t", ("t.txt", "003", "x", 12, 1, 2, "ΜΗΔΕΙΑ", "Μήδεια"))
+    monkeypatch.setitem(P.VOLUME, "x", ("I", "1878"))
+    monkeypatch.setitem(P.NUMBER_FIXES, "t", {3: ("4", "a hand fix")})
+    monkeypatch.setattr(P, "perseus_lines", lambda path: [{"n": "1", "text": V[0], "parts": []}])
+    monkeypatch.setattr(J, "tlg_lines", lambda slug: [{"n": "1", "text": V[0], "parts": []}])
+    monkeypatch.setattr(P, "extract", lambda slug: ([_row(V[0], 1, page=1)], [], []))
+    monkeypatch.setattr(P, "OUT", tmp_path)
+    monkeypatch.setattr(P, "DUMP", tmp_path)
+    seen = {}
+
+    def number_lines(slug, lines, refs, covers):
+        seen["fixes"] = J.NUMBER_FIXES[slug]
+        if fail:
+            raise RuntimeError("numbering failed")
+        for x in lines:
+            x["n"], x["n_how"], x["cand"] = "1", "storr", {"S": "1", "T": "1"}
+
+    monkeypatch.setattr(J, "number_lines", number_lines)
+    before = _jebb_state()
+    if fail:
+        with pytest.raises(RuntimeError):
+            P.convert("t")
+    else:
+        P.convert("t")
+    assert seen["fixes"] == {3: ("4", "a hand fix")}   # lent for the call
+    assert _jebb_state() == before

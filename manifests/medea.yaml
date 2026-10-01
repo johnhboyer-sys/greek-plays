@@ -432,7 +432,7 @@ greek_editions:
       transpositions: { "1": [] }
       repeated_refs: {}
       ref_fixes: {}
-      fingerprint: { count: 1398, sha256: "9b8e47a9d3d74cee58ba539d266f96afe9df8fed9c6732ab501b586d7ceeec58" }
+      fingerprint: { count: 1393, sha256: "935341f1c06051b338fd5bf0ff17557793bf2a4d3e8cdb6f9ebceebe8ce12418" }
     speakers:
       sigla:
         "—": null

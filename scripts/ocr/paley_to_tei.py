@@ -24,6 +24,8 @@ numbering, the margin check, the character check); what differs is here:
    (στρ. α΄., *στρ. α'.*, [στρ. β΄., | ἀντ.). His printed line numbers come in
    five forms: after the row (space or tab), in <span style="float:right">,
    in [465] brackets, in a table's last column, and on rows of their own.
+   A line too long for the page ends on a row of its own under it
+   ('τέ-' / 'κνοις. 1275'): that turn-over joins its line (join_turnovers).
 3. Numbers on rows of their own. A single number sits next to the line it
    numbers, before or after it; it goes to the neighbour the count from the
    last printed number puts it on (dialogue counts exactly), else to the
@@ -41,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from contextlib import contextmanager
 import hashlib
 import json
 import re
@@ -120,6 +123,12 @@ NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
         1686: ("183a", "scan p. 44: τοὺς ἔσω·, a row of its own, ends Murray's 183"),
         1687: ("183b", "scan p. 44: Murray's 183a, after Paley's extra row"),
         1929: ("389a","scan p. 50: Paley's printed 385 and 390 leave four numbers for six rows; ἢν μέν τις, the row before his 390, takes the letter"),
+        # Scan p. 57: Paley prints 641 at the end of προσβάλοι … σεβίζουσ’
+        # (on its turn-over row), a line that holds Murray's 640 and 641, as
+        # his 630 ends οὐδ’ ἀρετὰν … ἔλθοι (Murray's 629-630). Left to
+        # itself, the numbering reaches 641 by the TLG's count (Diggle's
+        # cola, μηδέ 638, θυμὸν 640) a fraction cheaper than by Murray's.
+        2213: ("641", "scan p. 57: 641 printed at the line's end (its turn-over σεβίζουσ’); the line holds Murray's 640-641, and the lines before keep Murray's numbers"),
     },
 }
 # Printed numbers that disagree with the numbering for a stated reason.
@@ -317,6 +326,59 @@ def extract(slug: str) -> tuple[list[dict], list[str], list[dict]]:
     return rows, log, dropped
 
 
+def join_turnovers(rows: list[dict], murray_keys: list[str]) -> list[dict]:
+    """Join each turn-over row to the line it ends, as jebb_to_tei does.
+
+    A turn-over is the end of a line too long for the page, printed on a row
+    of its own under it ('τέ-' / 'κνοις. 1275', p. 74). A candidate is a
+    short row (20 characters at most) with no speaker or strophe mark under a
+    verse row of the same page. It joins that row when the break between them
+    falls inside one of Murray's lines (his colometry is the one Paley's
+    numbers follow: 'δοκεῖ μοι τέκνοις' is one colon, so 'τέ-|κνοις' is the
+    printer's) and the row is no line of Murray's by itself; but a row that
+    Paley's own printed numbers count as a line (the numbers on either side,
+    with no number on the row, are exactly as many apart as the rows between
+    them: 'μὴ λίαν', p. 43, counted between 155 and 160) keeps its number.
+    A word divided at the turn joins without its hyphen. Paley prints a
+    line's number at its end, which is the turn-over's row ('φᾶμαι. 415',
+    'κνοις. 1275': Murray's 415 and 1275 are the joined lines): a number there
+    is the joined line's, or one it holds ('ἀνόμως 1000', inside Murray's
+    998-1000), never the next line's as Jebb's can be (so printed_from_turn
+    is not set); a second number goes to printed_more, as in
+    jebb_to_tei.join_turnovers."""
+    verse = [k for k, r in enumerate(rows) if r["kind"] == "verse"]
+    rank = {k: j for j, k in enumerate(verse)}
+
+    def counted(k: int) -> bool:
+        j = rank[k]
+        before = next((i for i in range(j - 1, -1, -1) if rows[verse[i]].get("printed") is not None), None)
+        after = next((i for i in range(j + 1, len(verse)) if rows[verse[i]].get("printed") is not None), None)
+        return (before is not None and after is not None
+                and rows[verse[after]]["printed"] - rows[verse[before]]["printed"] == after - before)
+
+    out: list[dict] = []
+    for k, r in enumerate(rows):
+        prev = out[-1] if out and out[-1]["kind"] == "verse" and out[-1].get("lacuna") is None else None
+        if (r["kind"] == "verse" and r.get("lacuna") is None and prev is not None and prev["page"] == r["page"]
+                and r["speaker"] is None and r["strophe"] is None and len(r["text"]) <= 20):
+            frag = J.key(r["text"])
+            joint = J.key(prev["text"])[-6:] + frag
+            if (frag and J._in_ref(joint, murray_keys, len(joint)) and not J._in_ref_whole(frag, murray_keys)
+                    and not (r.get("printed") is None and counted(k))):
+                prev.setdefault("turnovers", []).append({"text": r["text"], "src": r["src"], "printed": r["printed"]})
+                if prev["text"].endswith("-"):
+                    prev["text"] = prev["text"][:-1] + r["text"]
+                else:
+                    prev["text"] = prev["text"] + " " + r["text"]
+                if r["printed"] is not None and prev.get("printed") is None:
+                    prev["printed"] = r["printed"]
+                elif r["printed"] is not None:
+                    prev.setdefault("printed_more", []).append(r["printed"])
+                continue
+        out.append(r)
+    return out
+
+
 def build_lines(rows: list[dict]) -> tuple[list[dict], list[dict]]:
     """Rows -> logical lines (speakers, strophe labels, antilabe shares), and
     the numbers printed on rows of their own: [{at, numbers, src, page}],
@@ -434,24 +496,39 @@ def perseus_lines(path: Path) -> list[dict]:
     return out
 
 
-def number(slug: str, lines: list[dict], refs: dict, covers: dict) -> list[dict]:
-    """jebb_to_tei.number_lines and check_margins over Paley's lines.
+_ABSENT = object()
 
-    Those read their hand fixes from jebb_to_tei's own tables, keyed by
-    slug, and Jebb's commentary lemmas from his OCR. Paley's volumes print
-    no commentary, so the lemma checkpoints are none; the fixes are this
-    module's. Both are lent for the call and taken back after it."""
-    saved = J.lemma_checkpoints
-    J.NUMBER_FIXES[slug] = NUMBER_FIXES.get(slug, {})
-    J.MARGIN_NOTES[slug] = MARGIN_NOTES.get(slug, {})
-    J.lemma_checkpoints = lambda _slug, _lines: {}
+
+@contextmanager
+def lent_to_jebb(slug: str):
+    """For the length of the block, jebb_to_tei reads this module's hand
+    fixes and margin notes for slug, and no commentary lemmas (Paley's
+    volumes print none). Every global it borrows is put back exactly as it
+    was, an entry jebb_to_tei already had for slug included, on an exception
+    too."""
+    tables = [(J.NUMBER_FIXES, NUMBER_FIXES), (J.MARGIN_NOTES, MARGIN_NOTES)]
+    saved = [(theirs, theirs.get(slug, _ABSENT)) for theirs, _ in tables]
+    saved_lemmas = J.lemma_checkpoints
     try:
+        for theirs, ours in tables:
+            theirs[slug] = ours.get(slug, {})
+        J.lemma_checkpoints = lambda _slug, _lines: {}
+        yield
+    finally:
+        J.lemma_checkpoints = saved_lemmas
+        for theirs, old in saved:
+            if old is _ABSENT:
+                theirs.pop(slug, None)
+            else:
+                theirs[slug] = old
+
+
+def number(slug: str, lines: list[dict], refs: dict, covers: dict) -> list[dict]:
+    """jebb_to_tei.number_lines and check_margins over Paley's lines, with
+    this module's tables lent (lent_to_jebb)."""
+    with lent_to_jebb(slug):
         J.number_lines(slug, lines, refs, covers)
         return J.check_margins(slug, lines)
-    finally:
-        J.lemma_checkpoints = saved
-        J.NUMBER_FIXES.pop(slug, None)
-        J.MARGIN_NOTES.pop(slug, None)
 
 
 # ------------------------------------------------------------------- TEI
@@ -504,7 +581,10 @@ def write_tei(slug: str, lines: list[dict]) -> str:
             if k == 0 and line.get("printed") is not None:
                 rend.append(f"margin-{line['printed']}")
             if k == 0:
+                rend.extend(f"margin-{p}" for p in line.get("printed_more") or [])
                 rend.extend(f"margin-apart-{p}" for p in line.get("detached") or [])
+            if k == 0 and line.get("turnovers"):
+                rend.append("turn")
             if rend:
                 attrs.append('rend="%s"' % " ".join(rend))
             if line.get("lacuna") is not None:
@@ -538,6 +618,7 @@ def convert(slug: str, qa: bool = False) -> dict:
     murray = perseus_lines(PERSEUS / f"tlg0006.tlg{perseus_work}.perseus-grc2.xml")
     tlg = J.tlg_lines(slug)
     rows, log, dropped = extract(slug)
+    rows = join_turnovers(rows, [J.key(r["text"]) for r in murray if r["text"]])
     lines, runs = build_lines(rows)
     refs = {"S": murray, "T": tlg}
     covers = {"S": J.align(lines, murray), "T": J.align(lines, tlg)}
@@ -558,7 +639,8 @@ def convert(slug: str, qa: bool = False) -> dict:
     how = Counter("fix" if x["n_how"].startswith("fix") else x["n_how"] for x in lines)
     report = {
         "slug": slug, "lines": len(lines), "murray_lines": len(murray), "log": log, "dropped": dropped,
-        "margin_checkpoints": sum(x.get("printed") is not None for x in lines),
+        "margin_checkpoints": sum((x.get("printed") is not None) + len(x.get("printed_more") or []) for x in lines),
+        "margin_turn": sum(1 for x in lines if x.get("margin_ok") == "turn"),
         "margin_equal": sum(1 for x in lines if x.get("margin_ok") == "equal"),
         "margin_inside": sum(1 for x in lines if x.get("margin_ok") == "inside"),
         "margin_noted": sum(1 for x in lines if (x.get("margin_ok") or "").startswith("noted")),
@@ -569,6 +651,8 @@ def convert(slug: str, qa: bool = False) -> dict:
         "not_murray": [(x["src"], x["n"], x.get("n_how"), x["cand"]["S"], x["text"][:40])
                        for x in lines if x.get("n_how") != "storr"],
         "runs": attached, "count_breaks": breaks,
+        "turnovers": [(x["n"], x["src"], [(t["src"], t["text"], t["printed"]) for t in x["turnovers"]])
+                      for x in lines if x.get("turnovers")],
         "unmet_checkpoints": [{"src": x["src"], "page": x["page"], "n": x["n"], "checkpoint": n, "kind": kind,
                                "text": x["text"][:40]} for x in lines for n, kind in x.get("unmet") or []],
         "gaps": [{"src": x["src"], "page": x["page"], "after": g["after"], "before": g["before"],
