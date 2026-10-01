@@ -558,7 +558,7 @@ greek_editions:
       - { ref: "819", find: "οὖν", replace: "οὑν", note: "scan p. 348 prints οὑν (οἱ ἐν); with οὖν, μέσῳ has no preposition and the sense breaks" }
       - { ref: "824", find: "Ἐρεχθεῖδαι", replace: "Ἐρεχθεΐδαι", note: "scan p. 348 prints Ἐρεχθεΐδαι; the OCR's circumflex drops the diaeresis and a syllable of the metre" }
       - { ref: "876", find: "συμφωρώτατα", replace: "συμφορώτατα", note: "scan p. 352 prints συμφορώτατα; συμφωρώτατα is no word" }
-      - { ref: "983", find: "πέπλων", replace: "πέπλον", note: "scan p. 360 prints πέπλον, object of περιθέσθαι with στέφανον; with the genitive the τε has nothing to join (way-loeb-ocr-quality-2026-10-01)" }
+      - { ref: "983", find: "πέπλων", replace: "πέπλον", note: "scan p. 360 prints πέπλον, object of περιθέσθαι with στέφανον; with the genitive the τε has nothing to join (way-loeb-ocr-quality-2026-10-01); kept by John from the crop, 2026-10-01" }
       - { ref: "988", find: "ὑπερφεύξεται", replace: "ὑπεκφεύξεται", note: "scan p. 360 prints ὑπεκφεύξεται; John ruled from the crop, 2026-10-01" }
       - { ref: "1001", find: "συνευνῳ", replace: "συνεύνῳ", note: "scan p. 360 prints συνεύνῳ; the unaccented form is no word (way-loeb-ocr-quality-2026-10-01)" }
       - { ref: "1086", find: "ἢ", replace: "ἣ", note: "scan p. 368 prints ἣ, the relative (the Muse 'who consorts with us'); 'or' breaks the sense" }
