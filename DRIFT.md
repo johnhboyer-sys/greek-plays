@@ -936,3 +936,4 @@ existing reference edition contract.
 - `pipeline/drama_pipeline/config.py` — 2026-09-29 (P4 Jebb re-key): `Manifest.for_edition` records `anchor_editions` (the view of each edition an `anchor_map` names) and refuses a map to itself or an undeclared edition.
 - `pipeline/drama_pipeline/preflight.py` — 2026-09-29 (P4 Jebb re-key): an edition's `alignment.<pair>.anchor_map` must name another declared edition.
 - `shared/lib/edition-citation.ts` — 2026-09-29: a copied citation names the edition by its short label without the year, then the year ("Hall & Geldart 1906", not "Hall and W. M. Geldart 1906").
+- `scripts/check-links.mjs` — 2026-09-30: with editions on, a bare `?loc=N` (or `ed=tlg`) also passes when the work's TLG `book-*.json` prints ref N, since the reader reads a bare `loc` in TLG numbering; `?ed=<other>&loc=N` still needs the page's own id. Was 3 broken on `/sophocles/antigone/800`; now 0.

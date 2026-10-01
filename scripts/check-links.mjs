@@ -72,6 +72,10 @@ async function existsFile(file) {
   try { return (await fs.stat(file)).isFile(); } catch { return false; }
 }
 
+async function existsDirectory(dir) {
+  try { return (await fs.stat(dir)).isDirectory(); } catch { return false; }
+}
+
 async function* htmlFiles(dir) {
   let entries;
   try { entries = await fs.readdir(dir, { withFileTypes: true }); } catch { return; }
@@ -166,6 +170,23 @@ async function main() {
     return null;
   }
 
+  // With editions on, a page is baked in one edition's numbering, but a bare
+  // `?loc=` reads in TLG numbering (readerHref drops `ed` beside it), so the
+  // reader loads the TLG text and lands there. Such a ref is valid when the
+  // work's TLG book data prints it, whether or not the page's edition does.
+  async function tlgRefExists(target, query, value) {
+    if (/(?:^|&)ed=(?!tlg(?:&|$))/i.test(query)) return false;
+    const work = path.relative(dist, target).split(path.sep)[1];
+    const dataDir = path.join(dist, 'data', work ?? '');
+    if (!await existsDirectory(path.join(dataDir, 'ed'))) return false;
+    const needle = new RegExp(`"ref"\\s*:\\s*"${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`);
+    for (const name of await fs.readdir(dataDir)) {
+      if (!/^book-\d+\.json$/.test(name)) continue;
+      if (needle.test(await fs.readFile(path.join(dataDir, name), 'utf8'))) return true;
+    }
+    return false;
+  }
+
   async function checkReference(source, raw, kind) {
     const href = decodeEntities(raw.trim());
     if (!href || href.startsWith('#')) {
@@ -219,7 +240,7 @@ async function main() {
           return !!m && num != null && Number(m[1]) <= num && num <= Number(m[2]);
         };
         const hasLine = ids ? [...ids].some((id) => id.startsWith(linePrefix) || inRange(id)) : false;
-        if (!ids?.has(`col-${value}`) && !hasLine) {
+        if (!ids?.has(`col-${value}`) && !hasLine && !await tlgRefExists(target, parts.query, value)) {
           report(source, raw, `citation target col-${value} not found`);
         }
       }
