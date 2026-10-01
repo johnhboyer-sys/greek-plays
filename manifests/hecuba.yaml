@@ -139,7 +139,8 @@ registry:
     full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)"
   greekEditions:
     - { id: tlg, short: "Diggle (1984)", full: "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)", editor: Diggle, year: 1984, kind: tlg, licence: public-domain-us }
-    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge", "way"] }
+    - { id: murray-oct, short: "Murray (1902)", full: "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)", editor: Gilbert Murray, year: 1902, kind: perseus-tei, licence: cc-by-sa-4.0, pairs: ["coleridge"] }
+    - { id: way-loeb, short: "Way (1912)", full: "A. S. Way, Euripides, vol. 1 (Loeb Classical Library, Heinemann, 1912)", editor: "A. S. Way", year: 1912, kind: ocr-tei, licence: public-domain-us, pairs: [way] }
   translations:
     - id: coleridge
       edition: murray-oct
@@ -149,7 +150,7 @@ registry:
       slot: english
       alignment: line
     - id: way
-      edition: murray-oct
+      edition: way-loeb
       form: verse
       name: "A. S. Way (Loeb, 1912)"
       short: Way
@@ -180,7 +181,7 @@ greek_editions:
       encoding: cc-by-sa-4.0
       credit: Perseus Digital Library, Tufts University
       source_url: https://github.com/PerseusDL/canonical-greekLit
-    pairs: [coleridge, way]
+    pairs: [coleridge]
     citation:
       title_labels: []
       lacunae: {'1': []}
@@ -211,3 +212,71 @@ greek_editions:
       # (stage 3 cannot transliterate it); every other elision in the file is
       # U+02BC.
       - { ref: "387", find: "῎τεκον", replace: "ʼτεκον", note: "sources/perseus/tlg0006.tlg007.perseus-grc2.xml:613 (n=387)" }
+  # Way's own Greek, from John's Genie OCR of the Loeb volume (archive.org
+  # euripidesway01euriuoft, vol. 1: Iphigeneia at Aulis, Rhesus, Hecuba,
+  # Daughters of Troy, Helen). The copy scanned is the 1925 printing: title
+  # page (leaf 9) "LONDON : WILLIAM HEINEMANN / NEW YORK : G. P. PUTNAM'S
+  # SONS / MCMXXV"; leaf 6 "First printed 1912. / Reprinted 1916, 1920,
+  # 1925." The TEI is sources/ocr/way-loeb/hecuba.xml, made by
+  # scripts/ocr/way_to_tei.py and numbered by Way's printed margin numbers,
+  # Murray and the TLG filling between them (the Jebb ruling).
+  # Credit and label approved by John, 2026-10-01.
+  - id: way-loeb
+    label:
+      short: "Way (1912)"
+      full: "A. S. Way, Euripides, vol. 1 (Loeb Classical Library, Heinemann, 1912)"
+    editor: "A. S. Way"
+    year: 1912
+    source:
+      kind: ocr-tei
+      path: ocr/way-loeb/hecuba.xml
+      expect: { title: "Ἑκάβη", editor: "A. S. Way" }
+    licence:
+      text: public-domain-us
+      encoding: none
+      credit: "Greek text: A. S. Way, Heinemann, 1912"
+      source_url: https://archive.org/details/euripidesway01euriuoft
+    pairs: [way]
+    citation:
+      title_labels: []
+      lacunae: { "1": [] }
+      transpositions: { "1": [] }
+      repeated_refs: {}
+      ref_fixes: {}
+      fingerprint: { count: 1277, sha256: "43a22ced20572a1e8546c9c05a44cd20ecb392db50bb526fb0bfc67abf497c89" }
+    speakers:
+      sigla:
+        "—": null
+        "ΠΟΛΥΔΩΡΟΥ ΕΙΔΩΛΟΝ": Ghost of Polydorus
+        "ΕΚΑΒΗ": Hecuba
+        "ΧΟΡΟΣ": Chorus
+        "ΠΟΛΥΞΕΝΗ": Polyxena
+        "ΟΔΥΣΣΕΥΣ": Odysseus
+        "ΤΑΛΘΥΒΙΟΣ": Talthybius
+        "ΘΕΡΑΠΑΙΝΑ": Maid
+        "ΑΓΑΜΕΜΝΩΝ": Agamemnon
+        "ΠΟΛΥΜΗΣΤΩΡ": Polymestor
+      overrides: []
+    edition_only: []
+    alignment: { way: { covered: [] } }
+    gaps: []
+    # OCR misreads corrected to what the scan prints (archive.org
+    # euripidesway01euriuoft, page as printed, leaf = page + 22): Greek
+    # editions match the scan (John, 2026-10-01), lost iota subscripts included.
+    text_fixes:
+      - { ref: "53", find: "Ἑκάβη·", replace: "Ἑκάβῃ·", note: "scan p. 252 prints Ἑκάβῃ, dative after χωρήσομαι; the OCR lost the iota subscript" }
+      - { ref: "73", find: "Θρήκην", replace: "Θρῄκην", note: "scan p. 252 prints Θρῄκην; the OCR lost the iota subscript" }
+      - { ref: "347", find: "χρήζουσ’", replace: "χρῄζουσ’", note: "scan p. 274 prints χρῄζουσ’; the OCR lost the iota subscript" }
+      - { ref: "418", find: "\"Αιδου", replace: "Ἅιδου", note: "scan p. 280 prints Ἅιδου (rough breathing and acute before the capital); the OCR read the marks as a double quote" }
+      - { ref: "430", find: "συγκλήσει", replace: "συγκλῄσει", note: "scan p. 282 prints συγκλῄσει; the OCR lost the iota subscript" }
+      - { ref: "487", find: "ξυγκεκλημένη", replace: "ξυγκεκλῃμένη", note: "scan p. 286 prints ξυγκεκλῃμένη; the OCR lost the iota subscript" }
+      - { ref: "516", find: "ἦλθεθ’", replace: "ἤλθεθ’", note: "scan p. 288 prints ἤλθεθ’; the OCR read the acute as a circumflex" }
+      - { ref: "548", find: "θνήσκω", replace: "θνῄσκω", note: "scan p. 290 prints θνῄσκω; the OCR lost the iota subscript" }
+      - { ref: "568", find: "θνήσκουσ’", replace: "θνῄσκουσ’", note: "scan p. 290 prints θνῄσκουσ’; the OCR lost the iota subscript" }
+      - { ref: "773", find: "θνήσκει", replace: "θνῄσκει", note: "scan p. 306 prints θνῄσκει; the OCR lost the iota subscript" }
+      - { ref: "823", find: "ὑπερθρώσκονθ’", replace: "ὑπερθρῴσκονθ’", note: "scan p. 310 prints ὑπερθρῴσκονθ’; the OCR lost the iota subscript" }
+      - { ref: "963", find: "Θρήκης", replace: "Θρῄκης", note: "scan p. 322 prints Θρῄκης; the OCR lost the iota subscript" }
+      - { ref: "1071", find: "ἐπάξας", replace: "ἐπᾴξας", note: "scan p. 330 prints ἐπᾴξας (from ἐπᾴσσω); the OCR lost the iota subscript" }
+      - { ref: "1106", find: "μελανύχρωτα", replace: "μελανόχρωτα", note: "scan p. 332 prints μελανόχρωτα; μελανύχρωτα is no word" }
+      - { ref: "1154", find: "ἤνουν", replace: "ᾔνουν", note: "scan p. 336 prints ᾔνουν (imperfect of αἰνέω); the OCR lost the iota subscript" }
+      - { ref: "1164", find: "χρήζων", replace: "χρῄζων", note: "scan p. 338 prints χρῄζων; the OCR lost the iota subscript" }

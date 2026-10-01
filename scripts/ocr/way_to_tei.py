@@ -71,10 +71,38 @@ PLAYS = {
     "medea": {"ocr": "euripidesway04euriuoft.txt", "ident": "euripidesway04euriuoft",
               "first": 9331, "last": 13336, "head": "ΜΗΔΕΙΑ", "title": "Μήδεια",
               "murray": "murray-oct"},
+    "hecuba": {"ocr": "euripidesway01euriuoft.txt", "ident": "euripidesway01euriuoft",
+               "first": 7781, "last": 11324, "head": "ΕΚΑΒΗ", "title": "Ἑκάβη",
+               "murray": "murray-oct"},
+    "electra-eur": {"ocr": "euripideswitheng02euri.txt", "ident": "euripideswitheng02euri",
+                    "first": 209, "last": 5291, "head": "ΗΛΕΚΤΡΑ", "title": "Ἠλέκτρα",
+                    "murray": "murray-oct", "index_ahead": 1},
 }
 
 # Per-play numbering exceptions: {ocr .txt line: (n, reason)} (jebb_to_tei's form).
-NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {}
+NUMBER_FIXES: dict[str, dict[int, tuple[str, str]]] = {
+    "hecuba": {
+        # The alignment takes Murray's φεῦ (54b) for the trimeter after it.
+        7934: ("54b", "Murray 54b φεῦ, printed on a row of its own as Way prints it (scan p. 252)"),
+        7935: ("55", "Murray and the TLG 55 ὦ μῆτερ"),
+        # Murray's stage note <ἔσωθεν> holds 1034; the cry is 1035.
+        10580: ("1035", "Murray and the TLG 1035 ὤμοι, τυφλοῦμαι"),
+        # Way prints Murray's 951-952 as one line (951) and counts on with
+        # Murray: 960 is σέβωμεν (scan p. 320), so Polymestor's first line
+        # is 953, not the next number after 951.
+        10308: ("951", "Murray 951-952 (μήτε πατρῷον | ἵκοιτ’ ἐς οἶκον), printed as one line; it opens at 951"),
+        10310: ("953", "Murray and the TLG 953; Way's 960 (scan p. 320) counts with Murray"),
+        10311: ("954", "Murray and the TLG 954"),
+        10312: ("955", "Murray and the TLG 955"),
+        10313: ("956", "Murray 956 φεῦ"),
+        10314: ("956a", "Murray 956a οὐκ ἔστιν"),
+    },
+    "electra-eur": {
+        # Murray's 1181a-b (a lacuna) lead the alignment astray: the
+        # trimeter after Way's 1180 is Murray's and the TLG's 1182.
+        4656: ("1182", "Murray and the TLG 1182 δακρύτ’ ἄγαν"),
+    },
+}
 # Printed numbers that disagree with the numbering for a stated reason.
 MARGIN_NOTES: dict[str, dict[int, str]] = {}
 # Printed margin numbers the OCR set on the wrong row, as the scan prints
@@ -86,13 +114,53 @@ PRINTED_FIXES: dict[str, dict[int, tuple[int | None, str]]] = {
         12994: (1320, "scan p. 386 (leaf 398) prints 1320 against λέγ’ εἴ τι βούλει"),
         12995: (None, "scan p. 386 (leaf 398): no number on τοιόνδ’ ὄχημα (the OCR moved 1320 here)"),
     },
+    "hecuba": {
+        8601: (310, "scan p. 272 (leaf 294) prints 310 against θανὼν ὑπὲρ γῆς"),
+        8602: (None, "scan p. 272 (leaf 294): no number on οὔκουν τόδ’ αἰσχρόν (the OCR moved 310 here)"),
+        9396: (None, "scan p. 294 (leaf 316): no number on ἆρ’ οἱ τεκόντες (the OCR moved 600 here)"),
+        9397: (600, "scan p. 294 (leaf 316) prints 600 against ἔχει γε μέντοι"),
+        # Scan p. 340 (leaf 362): the margin numbers stand high of their rows
+        # and the OCR set each on the row above; Way's count from 1180 (p.
+        # 338) to 1220 (p. 342) runs line for line with Murray's.
+        10998: (None, "scan p. 340 (leaf 362): 1190 stands between ἀλλ’ εἴτε and εἴτ’ αὖ, high of its row; the count from 1180 makes εἴτ’ αὖ 1190"),
+        10999: (1190, "scan p. 340 (leaf 362): 1190 is εἴτ’ αὖ by Way's count (1180 on p. 338, 1210 level with ἔζη)"),
+        11008: (None, "scan p. 340 (leaf 362): 1200 stands between ἀλλ’, ὦ κάκιστε and τὸ βάρβαρον; the count makes τὸ βάρβαρον 1200"),
+        11009: (1200, "scan p. 340 (leaf 362): 1200 is τὸ βάρβαρον by Way's count"),
+        11018: (None, "scan p. 340 (leaf 362): no number on Τροία, πέριξ (the OCR moved 1210 here)"),
+        11019: (1210, "scan p. 340 (leaf 362) prints 1210 against ἔζη τε Πρίαμος"),
+        11288: (1290, "scan p. 348 (leaf 370) prints 1290 against πρὸς οἶκον ἤδη"),
+        11291: (None, "scan p. 348 (leaf 370): the OCR set 1290 on a row of its own at the foot"),
+    },
+    "electra-eur": {
+        # Scan p. 76 (leaf 96) and p. 116 (leaf 136): the OCR set the
+        # page's margin numbers on rows of their own at the foot.
+        3420: (830, "scan p. 76 (leaf 96) prints 830 against χὼ μὲν σκυθράζει"),
+        3430: (840, "scan p. 76 (leaf 96) prints 840 against ὄνυχας ἐπ’ ἄκρους"),
+        3440: (850, "scan p. 76 (leaf 96) prints 850 against τλήμων Ὀρέστης"),
+        3445: (None, "scan p. 76 (leaf 96): 830 stands against its verse (the OCR set it at the foot)"),
+        3447: (None, "scan p. 76 (leaf 96): 840 stands against its verse (the OCR set it at the foot)"),
+        3449: (None, "scan p. 76 (leaf 96): 850 stands against its verse (the OCR set it at the foot)"),
+        5192: (1340, "scan p. 116 (leaf 136) prints 1340 against Πυλάδη, χαίρων"),
+        5204: (1350, "scan p. 116 (leaf 136) prints 1350 against τοῖς μὲν μυσαροῖς"),
+        5210: (None, "scan p. 116 (leaf 136): 1340 stands against its verse (the OCR set it at the foot)"),
+        5212: (None, "scan p. 116 (leaf 136): 1350 stands against its verse (the OCR set it at the foot)"),
+    },
+}
+
+# Folios the OCR misread, as the scan prints them: {slug: {leaf: (page, reason)}}.
+FOLIO_FIXES: dict[str, dict[int, tuple[int, str]]] = {
+    "hecuba": {
+        284: (262, "scan leaf 284 prints 262; the OCR read 252"),
+    },
 }
 
 CAPS = J.CAPS
 NAME = re.compile(r"^([%s][%s ]{2,}?)(?:\s+([α-ι]{1,2})\s*[ʹ΄'’])?(\s*\([^)]*\))?\.?$" % (CAPS, CAPS))
-STROPHE_ONLY = re.compile(r"^(στρ|ἀντ|ἐπῳδ|ἐπωδ|μεσῳδ)\.?\s*(?:([α-θ])\s*[΄'ʹ’`´᾽᾿]?)?\.?$")
-STROPHE_END = re.compile(r"\s+(στρ|ἀντ|ἐπῳδ|ἐπωδ|μεσῳδ)\.?\s*(?:([α-θ])\s*[΄'ʹ’`´᾽᾿]?)?\.?$")
-SUBTYPE = {"στρ": "strophe", "ἀντ": "antistrophe", "ἐπῳδ": "epode", "ἐπωδ": "epode", "μεσῳδ": "mesode"}
+# 'αντ' is ἀντ. with its breathing lost (El. 737, 'αντ. β’').
+STROPHE_ONLY = re.compile(r"^(στρ|ἀντ|αντ|ἐπῳδ|ἐπωδ|μεσῳδ)\.?\s*(?:([α-θ])\s*[΄'ʹ’`´᾽᾿]?)?\.?$")
+STROPHE_END = re.compile(r"\s+(στρ|ἀντ|αντ|ἐπῳδ|ἐπωδ|μεσῳδ)\.?\s*(?:([α-θ])\s*[΄'ʹ’`´᾽᾿]?)?\.?$")
+SUBTYPE = {"στρ": "strophe", "ἀντ": "antistrophe", "αντ": "antistrophe", "ἐπῳδ": "epode", "ἐπωδ": "epode",
+           "μεσῳδ": "mesode"}
 NUMERAL = {c: i for i, c in enumerate("αβγδεζηθ", 1)}
 FOOTNOTE_ROW = re.compile(r"^\s*(\$\^\{?\d+\}?\$|[¹²³⁴⁵]|<sup>\s*\d+\s*</sup>|\d\s+[A-Z][a-z])")
 FOOTNOTE_MARK = re.compile(r"\s*(\$\^\{?\d+\}?\$|<sup>\s*\d+\s*</sup>|[¹²³⁴⁵])")
@@ -145,6 +213,9 @@ def normalise(s: str, counts: dict) -> str:
 
     s = SPACING_BREATHING.sub(spacing, s)
     s = s.replace("˙", "·")
+    # A word divided at the row's end: the OCR reads Way's hyphen as a dash
+    # ('ἁ–' for ἁ-|μέρα, Hec. 691).
+    s = re.sub(r"(?<=[\u0370-\u03ff\u1f00-\u1fff])[–‐‑]\s*$", "-", s)
     s = s.replace("ϐ", "β")
     s = re.sub("[᾿᾽ʼ']", "’", s)
     s = re.sub(r"\S+", lambda t: J._greek_lookalikes(t.group(0)) if J.GREEK_RE.search(t.group(0)) else t.group(0), s)
@@ -186,19 +257,23 @@ def parse_row(raw: str, counts: dict) -> dict | None:
 # ------------------------------------------------------------------ pages
 def pages(slug: str) -> list[tuple[int, list[tuple[int, str]]]]:
     """(leaf, rows) for every OCR page of the play's span: the OCR page index
-    (pages between '---' lines, counted from the file's start) is the leaf."""
+    (pages between '---' lines, counted from the file's start) is the leaf,
+    less the play's 'index_ahead'."""
     play = PLAYS[slug]
     lines = (GENIE / play["ocr"]).read_text(encoding="utf-8").split("\n")
+    # Vol. 2's OCR split a few pages in two, so in a play's span its page
+    # index can run ahead of the leaf by a fixed count ('index_ahead').
+    ahead = play.get("index_ahead", 0)
     out, cur, leaf = [], [], 1
     for i, s in enumerate(lines, 1):
         if s.strip() == "---":
             if cur and play["first"] <= cur[0][0] <= play["last"]:
-                out.append((leaf, cur))
+                out.append((leaf - ahead, cur))
             cur, leaf = [], leaf + 1
         elif s.strip():
             cur.append((i, s))
     if cur and play["first"] <= cur[0][0] <= play["last"]:
-        out.append((leaf, cur))
+        out.append((leaf - ahead, cur))
     return out
 
 
@@ -225,13 +300,44 @@ def extract(slug: str, counts: dict) -> tuple[list[dict], list[str], list[dict]]
                               "dropped": [x for x, _ in ne]})
             continue
         body = ne[1:]
-        folio = strip_markup(body[-1][1]) if body else ""
-        page = int(folio) if re.fullmatch(r"\d{1,4}", folio) else None
-        if page is not None:
-            body = body[:-1]
+        page = None
+        fix = FOLIO_FIXES.get(slug, {}).get(leaf)
+        # The folio is the page's last row, or (vol. 2, El. p. 76) one of a
+        # run of bare numbers at the foot, Way's margin numbers set after
+        # it. Past the first page it must be the next page: another number
+        # there is a margin number and stays a row.
+        tail = []
+        for k in range(len(body) - 1, -1, -1):
+            t = strip_markup(body[k][1])
+            if t and not re.fullmatch(r"\d{1,4}", t):
+                break
+            if t:
+                tail.append(k)
+        expected = last_page + 2 if last_page else None
+        if tail and (fix is not None or expected is None):
+            k = tail[0]
         else:
-            page = last_page + 2 if last_page else None
-            log.append(f"leaf {leaf}: no folio read, page {page} inferred")
+            k = next((k for k in tail if int(strip_markup(body[k][1])) == expected), None)
+        if k is not None:
+            page = int(strip_markup(body[k][1]))
+            body = body[:k] + body[k + 1:]
+        else:
+            # The folio shares the foot's row with the first footnote, and
+            # the OCR sets it on a row of its own just before the note: a
+            # bare number there that is the next page is the folio, not a
+            # margin number.
+            k = next((k for k, (_, s) in enumerate(body) if FOOTNOTE_ROW.match(J.SPACE_ENT.sub(" ", s))), None)
+            before = strip_markup(body[k - 1][1]) if k else ""
+            if last_page and re.fullmatch(r"\d{1,4}", before) and int(before) == last_page + 2:
+                page = int(before)
+                body = body[:k - 1] + body[k:]
+                log.append(f"leaf {leaf}: folio {page} read before the footnotes")
+            else:
+                page = last_page + 2 if last_page else None
+                log.append(f"leaf {leaf}: no folio read, page {page} inferred")
+        if fix is not None:
+            log.append(f"leaf {leaf}: folio {page} read, page {fix[0]} by hand ({fix[1]})")
+            page = fix[0]
         if last_page and page != last_page + 2:
             log.append(f"leaf {leaf}: page {page} follows {last_page}")
         last_page = page
@@ -526,7 +632,7 @@ def english_anchor_check(slug: str, lines: list[dict]) -> dict:
     title) prints line numbers in the margin; each must be a line of his
     Greek."""
     play = PLAYS[slug]
-    title = {"medea": "MEDEA"}[slug]
+    title = {"medea": "MEDEA", "hecuba": "HECUBA", "electra-eur": "ELECTRA"}[slug]
     have = {x["n"] for x in lines}
     printed = []
     for leaf, ne in pages(slug):
@@ -573,10 +679,18 @@ def convert(slug: str, qa: bool = False) -> dict:
     ref_t = J.tlg_lines(slug)
     ref_keys = [J.key(r["text"]) for r in ref_s + ref_t if r["text"]]
     rows, log, stops = extract(slug, counts)
+    dropped_numbers = []
     for r in rows:
         fix = PRINTED_FIXES.get(slug, {}).get(r["src"])
         if fix is not None and r["kind"] == "verse":
             r["printed"], r["printed_fix"] = fix
+        elif fix is not None and r["kind"] == "num":
+            # A number the OCR set on a row of its own, away from the verse
+            # it numbers: the fix names the verse row; this row goes.
+            if fix[0] is not None:
+                raise SystemExit(f"PRINTED_FIXES {slug} {r['src']}: a number row can only be dropped (None)")
+            dropped_numbers.append((r["src"], r["number"], fix[1]))
+    rows = [r for r in rows if not (r["kind"] == "num" and r["src"] in PRINTED_FIXES.get(slug, {}))]
     rows = place_numbers_and_labels(rows)
     rows = join_turnovers(rows, ref_keys)
     lines = J.build_lines(rows)
@@ -623,6 +737,7 @@ def convert(slug: str, qa: bool = False) -> dict:
         "printed_apart": [(x["n"], x["printed"], x["printed_apart"]["src"], x["printed_apart"]["placed"])
                           for x in lines if x.get("printed_apart")],
         "printed_fixes": [(x["n"], x["src"], x["printed_fix"]) for x in lines if x.get("printed_fix")],
+        "dropped_numbers": dropped_numbers,
         "cries": cries,
         "antilabe": [(x["n"], x["src"], x["antilabe_rows"]) for x in lines if x.get("antilabe_rows")],
         "turnovers": [(x["n"], x["src"], [t["src"] for t in x["turnovers"]]) for x in lines if x.get("turnovers")],
