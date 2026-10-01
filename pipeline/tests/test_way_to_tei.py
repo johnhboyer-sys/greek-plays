@@ -265,3 +265,63 @@ def test_a_number_apart_is_written_and_checked_against_its_page(monkeypatch):
         x["src"], x["text"] = 0, x["shares"][0][1]
     bad = J.check_margins("t", lines)
     assert [b["printed"] for b in bad] == [100]   # 100 is no number of its page
+
+
+def test_a_number_after_the_last_verse_row_survives_a_turn_over_join():
+    # A long verse, its turn-over, then an own-row number with no verse row
+    # after it: the number stands on the turn-over, which the line takes in.
+    long_row = "ἐννέπων, ἅπας δ’ ἐν ἔργῳ δοῦλος ἦν, μάτην"
+    ref = [J.key(long_row + " πονῶν.")]
+    rows = W.place_numbers_and_labels([_verse(long_row, src=1), _verse("πονῶν.", src=2),
+                                       {"kind": "num", "number": 1419, "page": 1, "src": 3}])
+    rows = W.join_turnovers(rows, ref)
+    lines = J.build_lines(rows)
+    W.resolve_apart(lines, {"S": [], "T": []}, {"S": [[]], "T": [[]]})
+    assert len(lines) == 1 and lines[0]["turnovers"][0]["src"] == 2
+    assert lines[0]["unplaced"] == [{"number": 1419, "src": 3}] and lines[0]["detached"] == [1419]
+
+
+@pytest.mark.parametrize("headless,code", [(None, 0),
+                                           ([VERSE[2], VERSE[3], VERSE[4], "286"], 1),   # its first row is verse
+                                           (["ΜΗΔ", VERSE[2], "286"], 1)])              # one verse row
+def test_a_headless_page_of_greek_verse_fails_the_run(play, monkeypatch, tmp_path, headless, code):
+    pages = [["ΜΗΔΕΙΑ", VERSE[0], VERSE[1], "284"], ["MEDEA", "Would God that Argo's hull", "285"]]
+    play(*(pages + [headless] if headless else pages))
+    ref = [{"n": str(k), "text": VERSE[k - 1], "parts": []} for k in (1, 2)]
+    monkeypatch.setattr(W, "murray_lines", lambda slug: ref)
+    monkeypatch.setattr(J, "tlg_lines", lambda slug: ref)
+    monkeypatch.setattr(W, "murray_stanzas", lambda slug: {})
+    monkeypatch.setattr(W, "OUT", tmp_path / "out")
+    monkeypatch.setattr(W, "DUMP", tmp_path / "dump")
+    assert W.main(["t"]) == code
+    _, _, stops, _ = rows_of()
+    assert [s["leaf"] for s in stops] == ([4] if headless else [])
+
+
+def test_a_line_no_murray_line_aligns_with_does_not_close_the_stanza(monkeypatch):
+    # A cry Murray's TEI lacks, by a new voice inside a strophe: it has no
+    # stanza to compare, so the strophe stays open over it and the chorus
+    # line after it; the spoken line after that, outside, closes it.
+    monkeypatch.setitem(W.PLAYS, "t", {"ocr": "t.txt", "ident": "x", "title": "Μήδεια"})
+    stanzas = {"1273": "s2", "1279": "s2"}
+    lines = _tei_lines(("1273", "ΧΟΡΟΣ", "ἀκούεις βοὰν", ("strophe", 2), None),
+                       ("1277", "ΠΑΙΣ αʹ", "ἰώ μοι", None, None),
+                       ("1279", "ΧΟΡΟΣ", "τάλαιν’, ὡς ἄρ’ ἦσθα", None, None),
+                       ("1293", "ΙΑΣΩΝ", "γυναῖκες αἳ τῆσδ’", None, None))
+    for x, cand in zip(lines, ("1273", None, "1279", "1293")):
+        x["stanza"] = W.stanza_scope.stanza_of(stanzas, cand)
+    assert _divs(W.write_tei("t", lines)) == [("strophe", ["1273", "1277", "1279"])]
+
+
+def test_a_stanza_sung_before_any_speaker_is_named_closes_at_the_first_named_outside_it(monkeypatch):
+    monkeypatch.setitem(W.PLAYS, "t", {"ocr": "t.txt", "ident": "x", "title": "Μήδεια"})
+    lines = _tei_lines(("1", None, VERSE[0], ("strophe", 1), "s1"),
+                       ("2", "ΧΟΡΟΣ", VERSE[1], None, "s1"),     # named inside the stanza: it stays
+                       ("3", None, VERSE[2], ("antistrophe", 1), "a1"),
+                       ("4", None, VERSE[3], None, "a1"),
+                       ("5", "ΧΟΡΟΣ", VERSE[4], None, None))    # the voice named last, spoken: stays (as before)
+    assert _divs(W.write_tei("t", lines)) == [("strophe", ["1", "2"]), ("antistrophe", ["3", "4", "5"])]
+    lines = _tei_lines(("1", None, VERSE[0], ("strophe", 1), "s1"),
+                       ("2", None, VERSE[1], None, "s1"),
+                       ("3", "ΜΗΔΕΙΑ", VERSE[2], None, None))
+    assert _divs(W.write_tei("t", lines)) == [("strophe", ["1", "2"])]

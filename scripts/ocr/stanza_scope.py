@@ -7,7 +7,10 @@ carried into an unlabelled stanza) whose new speech is not in the stanza of
 Murray's text that the stanza's first line aligns with: the Paedagogus at
 Medea 1002 is spoken, so the antistrophe at 996 closes before him, while the
 sons' cries inside a strophe that Murray prints as one stanza (1271-1278)
-stay in it.
+stay in it. A line the alignment gives no line of Murray's (a cry his TEI
+lacks) has no stanza to compare: it never closes one by itself. A stanza
+sung before any speaker is named closes at the first named speaker whose
+line is outside it.
 """
 from __future__ import annotations
 
@@ -30,11 +33,23 @@ def murray_stanzas(path: Path) -> dict[str, str]:
     return out
 
 
+# The stanza of a line the alignment gives no Murray line: unknown, unlike
+# None (a line of Murray's outside his lyric stanzas).
+UNALIGNED = "unaligned"
+
+
+def stanza_of(stanzas: dict[str, str], murray_ref: str | None) -> str | None:
+    """A line's Murray stanza (murray_stanzas), None for a line of his
+    outside them, UNALIGNED when no line of his aligns with it."""
+    return UNALIGNED if murray_ref is None else stanzas.get(murray_ref)
+
+
 def lyric_ends(voice: str | None, speaker: str, opens_here: bool,
                div_stanza: str | None, line_stanza: str | None) -> bool:
     """Whether an open stanza closes before a speech by speaker: a new voice
-    (not the one named last), on a line that does not itself open the
-    stanza, whose line is outside the Murray stanza the div began in (any
-    new voice closes a div that began outside Murray's stanzas)."""
-    return (voice is not None and speaker != voice and not opens_here
+    (not the one named last, or the first one named), on a line that does
+    not itself open the stanza, whose line is outside the Murray stanza the
+    div began in (any new voice closes a div that began outside Murray's
+    stanzas). An UNALIGNED line closes nothing."""
+    return ((voice is None or speaker != voice) and not opens_here and line_stanza != UNALIGNED
             and (div_stanza is None or line_stanza != div_stanza))

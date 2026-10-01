@@ -21,8 +21,9 @@ for Way (build/sweeps/way-loeb-ocr-quality-2026-10-01.md):
    the first footnote-marker row ('$^1$', '¹', '<sup>1</sup>', '1 Latin') to
    the foot is apparatus and is dropped. A row of mostly Latin letters stops
    the page's verse too; every stop is reported. A page without the head is
-   skipped and its leaf logged; one whose rows are Greek verse all the same
-   (a misread head) is a stop that fails the run.
+   skipped and its leaf logged; one with a row of Greek verse all the same
+   (its first row included: a misread or lost head) is a stop that fails
+   the run.
 2. Rows. A row of Greek capitals is a speaker (a numeral may follow, 'ΠΑΙΣ
    αʹ'); a row of digits is Way's margin number for the next verse row; a
    strophe mark on a row of its own labels the verse row above it when that
@@ -212,11 +213,12 @@ def extract(slug: str, counts: dict) -> tuple[list[dict], list[str], list[dict]]
     for leaf, ne in pages(slug):
         if not is_head(ne[0][1], play["head"]):
             # Not Greek by its head (the English facing page, the argument,
-            # the cast list). A page whose rows are Greek verse all the same
-            # has a misread head: it is a stop, and fails the conversion.
+            # the cast list). A page with any row of Greek verse, its first
+            # row included, has a misread or lost head: it is a stop, and
+            # fails the conversion.
             skipped.append(leaf)
-            verse = [i for i, s in ne[1:] if is_verse_row(s)]
-            if len(verse) >= 3:
+            verse = [i for i, s in ne if is_verse_row(s)]
+            if verse:
                 stops.append({"leaf": leaf, "page": None, "src": ne[0][0],
                               "reason": "no running head read; the page holds Greek verse",
                               "text": J.plain(ne[0][1])[:50], "verse_rows": len(verse),
@@ -326,6 +328,11 @@ def join_turnovers(rows: list[dict], ref_keys: list[str]) -> list[dict]:
             if frag and J._in_ref(J.key(prev["text"]) + frag, ref_keys, span) and not J._in_ref_whole(frag, ref_keys):
                 prev.setdefault("turnovers", []).append({"text": r["text"], "src": r["src"], "printed": None})
                 prev["text"] = (prev["text"][:-1] + r["text"]) if prev["text"].endswith("-") else (prev["text"] + " " + r["text"])
+                # A number left after the last verse row stands on the
+                # turn-over (place_numbers_and_labels): the joined line keeps
+                # it, as merge_antilabe keeps a share's.
+                if r.get("unplaced"):
+                    prev.setdefault("unplaced", []).extend(r["unplaced"])
                 continue
         out.append(r)
     return out
@@ -587,7 +594,7 @@ def convert(slug: str, qa: bool = False) -> dict:
         bad = J.check_margins(slug, lines)
     stanzas = murray_stanzas(slug)
     for x in lines:
-        x["stanza"] = stanzas.get(x["cand"]["S"])
+        x["stanza"] = stanza_scope.stanza_of(stanzas, x["cand"]["S"])
     seen: dict[str, int] = {}
     dups = []
     for line in lines:

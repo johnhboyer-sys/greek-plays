@@ -527,10 +527,26 @@ def lent_to_jebb(slug: str):
 
 def number(slug: str, lines: list[dict], refs: dict, covers: dict) -> list[dict]:
     """jebb_to_tei.number_lines and check_margins over Paley's lines, with
-    this module's tables lent (lent_to_jebb)."""
+    this module's tables lent (lent_to_jebb).
+
+    check_margins takes every printed_more number as a Jebb turn-over's,
+    which may be the next line's number. Paley's never is (join_turnovers):
+    each is checked again as a number printed on its line, with the lines
+    after it bare of numbers so their own checks are not repeated."""
     with lent_to_jebb(slug):
         J.number_lines(slug, lines, refs, covers)
-        return J.check_margins(slug, lines)
+        bad = J.check_margins(slug, lines)
+        for i, line in enumerate(lines):
+            for p in line.get("printed_more") or []:
+                if any(b["src"] == line["src"] and b["printed"] == p for b in bad):
+                    continue
+                alone = [{**line, "printed": p, "printed_from_turn": False, "printed_more": [], "detached": []}]
+                alone += [{**x, "printed": None, "printed_more": [], "detached": []} for x in lines[i + 1:]]
+                more = J.check_margins(slug, alone)
+                if more:
+                    bad += more
+                    line["margin_ok"] = None
+        return bad
 
 
 # ------------------------------------------------------------------- TEI
@@ -642,7 +658,7 @@ def convert(slug: str, qa: bool = False) -> dict:
     bad = number(slug, lines, refs, covers)
     stanzas = stanza_scope.murray_stanzas(PERSEUS / f"tlg0006.tlg{perseus_work}.perseus-grc2.xml")
     for x in lines:
-        x["stanza"] = stanzas.get(x["cand"]["S"])
+        x["stanza"] = stanza_scope.stanza_of(stanzas, x["cand"]["S"])
     seen: dict[str, int] = {}
     dups = []
     for line in lines:

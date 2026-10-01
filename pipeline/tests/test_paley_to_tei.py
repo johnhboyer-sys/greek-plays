@@ -227,17 +227,48 @@ def test_a_turn_over_joins_the_line_it_ends_without_its_hyphen():
 
 
 def test_a_short_row_paley_counts_or_murray_prints_alone_keeps_its_line():
-    # p. 43: 'μὴ λίαν' ends Murray's 157, but Paley's 155 and 160 count it
-    # as a line of his own.
-    murray = [J.key(t) for t in ("Ζεύς σοι τάδε συνδικήσει· μὴ λίαν", "τάκου δυρομένα σὸν εὐνέταν.")]
-    rows = [_row("καινὰ λέχη σεβίζει,", 1, printed=155, page=43), _row("κείνῳ τόδε μὴ χαράσσου·", 2, page=43),
-            _row("Ζεύς σοι τάδε συνδικήσει.", 3, page=43), _row("μὴ λίαν", 4, page=43),
-            _row("τάκου δυρομένα σὸν εὐνέταν.", 5, page=43),
-            _row("ὦ μεγάλα Θέμι καὶ πότνι’ Ἄρτεμι,", 6, printed=160, page=43, speaker="ΜΗ.")]
-    assert len(P.join_turnovers(rows, murray)) == 6
+    # p. 43 (.txt 1648-1654): 'μὴ λίαν' ends Murray's 157, but Paley's 155
+    # and 160 count it as a line of his own. On p. 74 'κνοις.' is a real
+    # turn-over, and joins its line.
+    murray = [J.key(t) for t in ("Ζεύς σοι τάδε συνδικήσει· μὴ λίαν", "τάκου δυρομένα σὸν εὐνέταν.")] + MURRAY_1274
+    def rows(first=155):
+        return [_row("καινὰ λέχη σεβίζει,", 1, printed=first, page=43), _row("κείνῳ τόδε μὴ χαράσσου·", 2, page=43),
+                _row("Ζεύς σοι τάδε συνδικήσει.", 3, page=43), _row("μὴ λίαν", 4, page=43),
+                _row("τάκου δυρομένα σὸν εὐνέταν.", 5, page=43),
+                _row("ὦ μεγάλα Θέμι καὶ πότνι’ Ἄρτεμι,", 6, printed=160, page=43, speaker="ΜΗ."),
+                _row("ἰὼ τλᾶμον, ὦ κακοτυχὲς γύναι.", 7),
+                _row("παρέλθω δόμους; ἀρῆξαι φόνον δοκεῖ μοι τέ-", 8),
+                _row("κνοις.", 9, printed=1275)]
+    out = P.join_turnovers(rows(), murray)
+    assert [r["src"] for r in out] == [1, 2, 3, 4, 5, 6, 7, 8]
+    assert out[-1]["text"].endswith("τέκνοις.")
+    # Without Paley's count, 'μὴ λίαν' would join: the break is inside
+    # Murray's line.
+    assert [r["src"] for r in P.join_turnovers(rows(first=None), murray)] == [1, 2, 3, 5, 6, 7, 8]
     # A row that is a Murray line by itself stays one.
-    rows = [_row("ὄλεθρον βιοτᾷ προσάγεις ἀλόχῳ τε", 1, page=66), _row("σᾷ στυγερὸν θάνατον.", 2, page=66)]
-    assert len(P.join_turnovers(rows, [J.key(r["text"]) for r in rows])) == 2
+    pair = [_row("ὄλεθρον βιοτᾷ προσάγεις ἀλόχῳ τε", 1, page=66), _row("σᾷ στυγερὸν θάνατον.", 2, page=66)]
+    assert len(P.join_turnovers(pair, [J.key(r["text"]) for r in pair])) == 2
+
+
+def test_a_second_number_on_a_joined_line_is_checked_as_its_own_not_the_next_lines(monkeypatch):
+    # Paley's turn-over number is the joined line's, or one it holds, never
+    # the next line's (join_turnovers): a second number equal to the next
+    # line's is reported, where Jebb's check would take it as a turn.
+    def numbered(slug, lines, refs, covers):
+        for x, n in zip(lines, ("1274", "1275", "998", "1001")):
+            x["n"], x["n_how"], x["cand"] = n, "storr", {"S": n, "T": n}
+
+    monkeypatch.setattr(J, "number_lines", numbered)
+    base = {"page": 74, "colon": None, "strophe": None, "printed_more": []}
+    lines = [{**base, "src": 1, "text": "a", "printed": 1274, "printed_more": [1275], "turnovers": [{"src": 2}]},
+             {**base, "src": 3, "text": "b", "printed": None},
+             # a lyric line holding 1000 inside it ('ἀνόμως 1000'): good
+             {**base, "src": 4, "text": "c", "printed": 998, "printed_more": [1000], "strophe": ("strophe", 1),
+              "turnovers": [{"src": 5}]},
+             {**base, "src": 6, "text": "d", "printed": None}]
+    bad = P.number("t", lines, {}, {})
+    assert [(b["src"], b["printed"]) for b in bad] == [(1, 1275)]
+    assert lines[0]["margin_ok"] is None and lines[2]["margin_ok"] == "equal"
 
 
 def test_a_joined_turn_over_is_marked_in_the_tei(monkeypatch):
