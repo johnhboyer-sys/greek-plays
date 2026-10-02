@@ -71,6 +71,9 @@ def main(src: str) -> None:
         desc="Line drawing after the Attic red-figure pelike by the Achilles Painter, c. 445-440 BCE, "
              "Berlin F 2355, where he faces the Sphinx; traced from Gary Todd's CC0 photograph.")
     print(OUT, info)
+    if len(sys.argv) > 2:  # optional: the drawing over its source, and as the dark theme shows it
+        lw.qa_overlay(L, OUT, info["box"], Path(sys.argv[2]))
+        lw.qa_dark(OUT, info["box"], Path(sys.argv[2]).with_suffix(".dark.png"))
 
 
 if __name__ == "__main__":

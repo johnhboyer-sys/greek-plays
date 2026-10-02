@@ -207,12 +207,12 @@
       "final_image": "docs/redesign/drawings/medea.svg",
       "credit": "After the Lucanian red-figure calyx-krater near the Policoro Painter, c. 400 BCE, Cleveland Museum of Art 1991.1, Leonard C. Hanna Jr. Fund; drawn from the museum's detail photograph.",
       "license": "CC0 (Cleveland Open Access record: share_license_status CC0, checked 2026-10-02)",
-      "crop": "Medea in the serpent chariot, cut out of the sun disk along the disk's own border. Left out: the Furies, Jason, the nurse, the tutor and the children's bodies on the altar below. Her right sleeve is outlined by hand: its dark net pattern drops out of the automatic mask and left her hand floating.",
+      "crop": "Medea in the serpent chariot, cut out of the sun disk along the disk's own border. Kept: both netted sleeves (the left one's net pattern was first dropped as a hole). Left out: the Furies, Jason, the nurse, the tutor and the children's bodies on the altar below.",
       "alt_text": "Medea in a chariot drawn by two serpents",
       "source_file": "https://openaccess-cdn.clevelandart.org/1991.1/1991.1_alt3_full.tif",
       "shows": "The play itself: the museum ties the scene to Euripides' Medea. It shows the ending (her escape); the dead children are left out.",
       "method": "Red-figure photo: clay found by brightness on a print-size copy, the disk border cut away per degree around its centre, the sleeve outlined by hand; inner lines from the full-resolution TIFF by local contrast with hysteresis; house line weight; potrace. tools/medea.py.",
-      "result": "Usable. Revised 2026-10-02: with lines from the full-resolution TIFF the face shows eyelids, pupils, brows, nose and lips, and the diadem shows its dots. Still the busiest drawing; the serpents' painted spots come through."
+      "result": "Usable. Revised twice on 2026-10-02: the face shows eyelids, pupils, brows, nose and lips; the netted left sleeve is drawn; in dark mode the goad and the gaps inside the figure carry the clay. Still the busiest drawing; the serpents' painted spots come through."
     },
     {
       "author": "euripides",
@@ -594,7 +594,7 @@
       "final_image": "docs/redesign/drawings/aeschylus-pythia.svg",
       "credit": "After Carl Bötticher's drawing of an Apulian red-figure krater by the Black Fury Painter (Naples, Museo Archeologico Nazionale): Orestes at Delphi. C. Bötticher, Der Omphalos des Zeus zu Delphi (Berlin, 1859), plate, fig. 1. Scan: Heidelberg University Library.",
       "license": "Public domain (published 1859). Heidelberg labels the scan with the Public Domain Mark 1.0 (IIIF manifest, checked 2026-10-02).",
-      "crop": "The Pythia only, cut along her own lines, with straight cuts where the outline crosses blank paper (between her hands and her head, under the lowest ruffles of her hem). Kept: both ends of her starred shawl, its lower edge and its black folds. Left out: Apollo, his N-patterned cloak, the laver behind her, the black Fury above. Apollo's raised back foot lies across her hem: its lines are erased and the hem is left blank there.",
+      "crop": "The Pythia only, cut along her own lines, with straight cuts across blank paper (between her hands and her head, above the fingertips of her raised left hand, under the lowest ruffles of her hem). Kept: both ends of her starred shawl, its lower edge and its black folds. Left out: Apollo, his N-patterned cloak, the laver behind her, the black Fury above. Apollo's raised back foot lies across her hem: its lines are erased, and her dress's black stripe is drawn on across the gap to the hem (45px at the scan's size, a straight continuation of the stripe; the rest of the hem there is left plain). That one line is a reconstruction, not in the engraving.",
       "alt_text": "The Pythia, Apollo's priestess, fleeing in terror with her hands raised",
       "shows": "Related to the play: Orestes at Delphi, the setting of the Eumenides' opening, where the Pythia comes out of the temple in terror (34 ff.). A painting of the myth, not a record of a performance.",
       "method": "Engraved plate: ink by threshold with the paper tone divided out; cut by a least-cost path through hand-placed points; house line weight; potrace. tools/pythia.py.",
@@ -626,11 +626,11 @@
       "final_image": "docs/redesign/drawings/euripides-iphigenia.svg",
       "credit": "After R. Jaene's lithograph of the Duke of Buckingham's vase, Archäologische Zeitung 7 (1849), Denkmäler und Forschungen, Taf. XII ('Iphigenia in Tauris'). Scan: Internet Archive.",
       "license": "Public domain (published 1849). The Internet Archive item page carries no rights statement.",
-      "crop": "Iphigenia with the temple key, its chain and knob, and her whole right forearm down its outer edge. Left out: Pylades, the temple door and steps behind her (the cut follows her veil's curve, not the door's straight edge), Artemis' foot, the attendant and her tray. The tablet she and Pylades both hold is cut at its middle.",
+      "crop": "Iphigenia with the whole tablet, the temple key, its chain and knob, and her right forearm down its outer edge. Left out: Pylades, the temple door and steps behind her (the cut follows her veil's curve, not the door's straight edge), Artemis' foot, the attendant and her tray. At this scan's size Pylades' fingertips on the tablet's far edge cannot be told apart from it, so a few strokes there may be his.",
       "alt_text": "Iphigenia, priestess of Artemis, holding out a letter tablet and the temple key",
       "shows": "The play itself, as the 1849 publication identifies it: Iphigenia giving her letter to Pylades (Iphigenia in Tauris 727 ff.). The vase's present location was not checked.",
       "method": "Lithograph: fine grey lines found by local contrast with hysteresis (ink_lines); least-cost cut; house line weight; potrace. tools/iphigenia_tauris.py.",
-      "result": "Clean. Revised 2026-10-02: her right forearm and key hand are whole and the stray door line is gone. The hand on the tablet stays coarse: the scan shows it about 50px wide. A larger engraving of the same vase (Monumenti inediti IV, pl. 51; Overbeck, Gallerie, pl. 30.7) would fix it; not yet found online."
+      "result": "Clean. Revised twice on 2026-10-02 after John's review: her right forearm, key hand, chain, sandals, veil edge and the whole tablet are in."
     },
     {
       "author": "aristophanes",
@@ -649,5 +649,5 @@
       "result": "Clean. Revised 2026-10-02: the drapery folds run their full length. John judged the first version not detailed enough; the Schiller Painter's own drawing is sparer than the engravings."
     }
   ],
-  "drawing_format": "Each SVG is 1000 units tall with two paths: 'lines' (fill currentColor) and 'body', the figure's area under the lines, filled with var(--drawing-body, none). Light pages leave the body transparent; the contact sheet's dark boards fill it with clay and keep the lines dark, as on a red-figure vase (proposed 2026-10-02, after John found the inverted dark mode too much like a photo negative)."
+  "drawing_format": "Each SVG is 1000 units tall with two paths: 'lines' (fill currentColor) and 'body', the figure's area under the lines, filled with var(--drawing-body, none). The body has no holes, and lines too thin to hold clay on either side (a goad, a spear) get a narrow clay rim, so the figure reads whole on a dark page. Light pages leave the body transparent; the contact sheet's dark boards fill it with clay and keep the lines dark, as on a red-figure vase (proposed 2026-10-02, after John found the inverted dark mode too much like a photo negative)."
 }

@@ -175,7 +175,9 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     lines are filled with currentColor. `body`, a mask of the figure's area
     (same shape as ink), becomes a second path under the lines, filled with
     var(--drawing-body, none): transparent unless a page colours it, as the
-    dark theme does. Returns the crop box in ink's pixels, for qa_overlay."""
+    dark theme does. The body has no holes, and lines too thin to hold clay
+    get a narrow clay rim. Returns the crop box in ink's pixels, for
+    qa_overlay."""
     ys, xs = np.nonzero(ink)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
     x0, x1 = max(xs.min() - pad, 0), min(xs.max() + pad + 1, ink.shape[1])
@@ -190,7 +192,20 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     body_path = ""
     if body is not None:
         b = resample_ink(body[y0:y1, x0:x1] | ink, TRACE_H)
+        hh, ww = min(b.shape[0], h), min(b.shape[1], w)
+        b, lines = b[:hh, :ww], crop[:hh, :ww]
+        # no holes inside the figure: the dark theme then shows the same drawing
+        # as the light one, on clay instead of paper (gaps open to the outside,
+        # like those between fingers, stay open)
+        b = ndi.binary_fill_holes(b)
         b = ndi.binary_opening(b, structure=morphology.disk(2))
+        # a line with no clay on either side of it (a goad, a chain link) would
+        # vanish on a dark page: give it a narrow clay rim
+        lw_px = HOUSE_WEIGHT * max(lines.shape)
+        clay = b & ~lines
+        orphan = lines & ~(ndi.distance_transform_edt(~clay) <= 1.5 * lw_px)
+        if orphan.any():
+            b |= ndi.distance_transform_edt(~orphan) <= 0.8 * lw_px
         bd, _ = potrace_d(b, turdsize=200, alphamax=1.2)
         body_path = f'<path class="body" stroke="none" style="fill:var(--drawing-body,none)" d="{bd}"/>'
     k = 1000.0 / h
@@ -203,6 +218,21 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     out.write_text(svg)
     return {"bytes": out.stat().st_size, "viewBox": (W, 1000), "box": (int(x0), int(y0), int(x1), int(y1)),
             "weight_before": round(before * 100, 3), "weight_after": round(line_width(weighted) / max(weighted.shape) * 100, 3)}
+
+
+def qa_dark(svg: Path, box: tuple, out: Path, clay: str = "#c4b294", line: str = "#1b1c1f",
+            ground: str = "#131414") -> None:
+    """The drawing as the dark theme shows it (lines dark on a clay-filled
+    figure, on a dark ground), rendered at the size of the crop box so it
+    lines up pixel for pixel with qa_overlay."""
+    x0, y0, x1, y1 = box
+    s = svg.read_text().replace('style="fill:var(--drawing-body,none)"', f'fill="{clay}"')
+    s = s.replace('fill="currentColor"', f'fill="{line}"')
+    with tempfile.TemporaryDirectory() as td:
+        f = Path(td) / "d.svg"
+        f.write_text(s)
+        subprocess.run(["rsvg-convert", "-w", str(x1 - x0), "-h", str(y1 - y0), "-b", ground, str(f),
+                        "-o", str(out)], check=True)
 
 
 def qa_overlay(gray: np.ndarray, svg: Path, box: tuple, out: Path) -> None:

@@ -60,6 +60,9 @@ def main(src: str) -> None:
              "a scene from Aristophanes' Women at the Thesmophoria; traced from a photograph by "
              "ArchaiOptix (CC BY-SA 4.0), changed. This drawing is CC BY-SA 4.0.")
     print(OUT, info)
+    if len(sys.argv) > 2:  # optional: the drawing over its source, and as the dark theme shows it
+        lw.qa_overlay(L, OUT, info["box"], Path(sys.argv[2]))
+        lw.qa_dark(OUT, info["box"], Path(sys.argv[2]).with_suffix(".dark.png"))
 
 
 if __name__ == "__main__":

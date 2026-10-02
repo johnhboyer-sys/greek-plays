@@ -83,6 +83,10 @@ def main(src: str) -> None:
     hs = np.bincount(hl.ravel())
     hs[0] = 0
     sil |= np.isin(hl, np.nonzero((hs > 0) & (hs < 1500))[0])
+    # a hole that is not plain glaze is patterned cloth (the net on her left
+    # sleeve): part of the figure, so its lines are drawn
+    mean_l = ndi.mean(L, hl, index=np.arange(hl.max() + 1))
+    sil |= np.isin(hl, np.nonzero((hs > 0) & (mean_l > 70))[0])
     lab3, _ = ndi.label(sil, structure=np.ones((3, 3)))
     s3 = np.bincount(lab3.ravel())
     s3[0] = 0
@@ -97,9 +101,9 @@ def main(src: str) -> None:
     silf = ndi.gaussian_filter(silf, k) > 0.5
 
     # inner lines: dark detail on the clay, by local contrast
-    inner = lw.ink_lines(Lf, size=25, low=30, high=60, sigma=1.2)
+    inner = lw.ink_lines(Lf, size=25, low=20, high=45, sigma=1.2)
     inner &= ndi.binary_erosion(silf, structure=morphology.disk(9))
-    inner = morphology.remove_small_objects(inner, max_size=120)
+    inner = morphology.remove_small_objects(inner, max_size=200)
     edge = silf & ~ndi.binary_erosion(silf, structure=morphology.disk(7))
     ink = edge | inner
     sil = silf
@@ -109,6 +113,9 @@ def main(src: str) -> None:
         desc="Line drawing after the Lucanian calyx-krater near the Policoro Painter, "
              "c. 400 BCE, Cleveland Museum of Art 1991.1 (CC0); traced from the museum's photograph.")
     print(OUT, info)
+    if len(sys.argv) > 2:  # optional: the drawing over its source, and as the dark theme shows it
+        lw.qa_overlay(Lf, OUT, info["box"], Path(sys.argv[2]))
+        lw.qa_dark(OUT, info["box"], Path(sys.argv[2]).with_suffix(".dark.png"))
 
 
 if __name__ == "__main__":

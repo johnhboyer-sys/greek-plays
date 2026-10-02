@@ -25,7 +25,8 @@ Each SVG is 1000 units tall, on a transparent ground, with two paths:
   same line.
 - `body`: the figure's whole area, under the lines, filled with
   `var(--drawing-body, none)`, so it is transparent unless a page sets the
-  property. The contact sheet's dark boards set it to a clay colour and keep
+  property. It has no holes, and lines too thin to hold clay on either side
+  (a goad, a spear) get a narrow clay rim. The contact sheet's dark boards set it to a clay colour and keep
   the lines dark, so a drawing reads as a red-figure vase instead of a photo
   negative. At 400px the lines
 hold; at 120px they go faint unless CSS adds `stroke: currentColor;
@@ -55,5 +56,6 @@ cut through hand-placed points (`livewire`, with `STRAIGHT` for crossings over
 blank paper), the figure's area for the body path (`body_from_cut`), the
 house line weight (`set_line_width`), potrace (`trace_svg`), and a check
 image of the drawing over its source (`qa_overlay`: any grey line left
-showing is a line the drawing missed). Each figure's script holds its own
+showing is a line the drawing missed), and the drawing as the dark theme
+shows it, at the same size (`qa_dark`). Each figure's script holds its own
 crop, cut points and hand fixes, with the reason for each.

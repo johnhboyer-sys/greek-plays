@@ -8,7 +8,7 @@
       "alt": "The Pythia, Apollo's priestess, fleeing in terror with her hands raised",
       "source": "Bötticher's 1859 drawing of an Apulian krater, Orestes at Delphi (Heidelberg scan, public domain)",
       "method": "Engraved plate: cut along her own lines, with straight cuts across blank paper; Apollo's overlapping foot erased; potrace",
-      "verdict": "Clean. Revised: her right arm, the curl on top of her head, her left index finger and the whole shawl (both ends and the black folds) are now in."
+      "verdict": "Clean. Revised twice: arm, head curl, fingers, knee edge and the whole shawl are in. One line is drawn in: her dress's black stripe, continued 45px across the gap where Apollo's foot was erased."
     },
     {
       "slug": "sophocles",
@@ -26,7 +26,7 @@
       "alt": "Iphigenia, priestess of Artemis, holding out a letter tablet and the temple key",
       "source": "1849 lithograph of the Buckingham vase, Archäologische Zeitung Taf. XII (public domain)",
       "method": "Lithograph: lines by local contrast, cut along her own lines, potrace",
-      "verdict": "Clean. Revised: her right forearm and key hand are whole. The hand on the tablet stays coarse: this scan shows it about 50px wide."
+      "verdict": "Clean. Revised twice: forearm, key hand, chain, sandals, veil edge and the whole tablet are in. Pylades' fingertips on the tablet's far edge cannot be told apart at this scan's size."
     },
     {
       "slug": "aristophanes",
@@ -43,8 +43,8 @@
       "name": "Medea · in the serpent chariot",
       "alt": "Medea in a chariot drawn by two serpents",
       "source": "Cleveland Museum of Art 1991.1, museum photograph, full-resolution TIFF (CC0)",
-      "method": "Red-figure photo: clay mask, disk border cut away, sleeve outlined by hand; lines from the full-resolution TIFF; potrace",
-      "verdict": "Usable. Revised: the face (eyelids, pupils, brows, nose, lips, chin) and the diadem now show. Still the busiest drawing."
+      "method": "Red-figure photo: clay mask, disk border cut away, netted sleeves kept; lines from the full-resolution TIFF; potrace",
+      "verdict": "Usable. Revised twice: the face and the netted left sleeve now show, and in dark mode the goad and the gaps inside the figure carry the clay. Still the busiest drawing."
     }
   ]
 }
