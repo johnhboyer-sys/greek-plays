@@ -1,0 +1,59 @@
+{
+  "note": "Phase 1 drawing test (2026-10-02). Read by tools/contact_sheet.py. Credits and licences are in ../research/play-image-plan.json.",
+  "drawings": [
+    {
+      "slug": "aeschylus",
+      "file": "aeschylus-pythia.svg",
+      "name": "Aeschylus · the Pythia (Eumenides)",
+      "alt": "The Pythia, Apollo's priestess, fleeing in terror with her hands raised",
+      "source": "Bötticher's 1859 drawing of an Apulian krater, Orestes at Delphi (Heidelberg scan, public domain)",
+      "method": "Engraved plate: ink threshold, cut along her own lines, Apollo's overlapping foot erased, potrace",
+      "verdict": "Clean."
+    },
+    {
+      "slug": "sophocles",
+      "file": "sophocles-oedipus.svg",
+      "name": "Sophocles · Oedipus (before the Sphinx)",
+      "alt": "Oedipus, a young traveller in cloak and short tunic, standing with a spear",
+      "source": "Achilles Painter pelike, Berlin F 2355, photograph by Gary Todd (CC0)",
+      "method": "Red-figure photo: clay found by colour (shiny glaze), hair outlined by hand, potrace",
+      "verdict": "Usable. The lower cloak is ragged where the vase is restored."
+    },
+    {
+      "slug": "euripides",
+      "file": "euripides-iphigenia.svg",
+      "name": "Euripides · Iphigenia (Iphigenia in Tauris)",
+      "alt": "Iphigenia, priestess of Artemis, holding out a letter tablet and the temple key",
+      "source": "1849 lithograph of the Buckingham vase, Archäologische Zeitung Taf. XII (public domain)",
+      "method": "Lithograph: hairlines found by local contrast, cut along her own lines, potrace",
+      "verdict": "Clean. The tablet she shares with Pylades is cut at its middle."
+    },
+    {
+      "slug": "aristophanes",
+      "file": "aristophanes-mika.svg",
+      "name": "Aristophanes · Mika (Women at the Thesmophoria)",
+      "alt": "Mika, in a comic old woman's mask, holding out a bowl",
+      "source": "Würzburg krater H 5697, photograph by ArchaiOptix (CC BY-SA 4.0)",
+      "method": "Red-figure photo: clay mask, relief lines, Mnesilochus' knife cut away, potrace",
+      "verdict": "Clean."
+    },
+    {
+      "slug": "medea",
+      "file": "medea.svg",
+      "name": "Medea · in the serpent chariot",
+      "alt": "Medea in a chariot drawn by two serpents",
+      "source": "Cleveland Museum of Art 1991.1, museum photograph (CC0)",
+      "method": "Red-figure photo: clay mask, disk border cut away, sleeve outlined by hand, potrace",
+      "verdict": "Usable; busier than the others (speckle in the serpents' spots)."
+    },
+    {
+      "slug": "iphigenia",
+      "file": "rejected/iphigenia-at-aulis.svg",
+      "name": "Iphigenia at Aulis · FAILED (not for use)",
+      "alt": "Failed test: hand outline of the letter scene on the Met relief bowl",
+      "source": "Met 31.11.2, museum photograph (CC0)",
+      "method": "Worn low relief: automatic tracing found no lines; hand outline only",
+      "verdict": "Failed. Needs a draughtsman, or better raking-light photographs."
+    }
+  ]
+}
