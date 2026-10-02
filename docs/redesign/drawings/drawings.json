@@ -45,6 +45,15 @@
       "source": "Cleveland Museum of Art 1991.1, museum photograph, full-resolution TIFF (CC0)",
       "method": "Red-figure photo: clay mask, disk border cut away, netted sleeves kept; lines from the full-resolution TIFF; potrace",
       "verdict": "Usable. Revised twice: the face and the netted left sleeve now show, and in dark mode the goad and the gaps inside the figure carry the clay. Still the busiest drawing."
+    },
+    {
+      "slug": "oedipus-tyrannus",
+      "file": "oedipus-tyrannus.svg",
+      "name": "Oedipus Tyrannus · Oedipus at the messenger's news",
+      "alt": "Oedipus, bearded, in a long embroidered robe, his hand at his beard, holding a staff",
+      "source": "Sicilian calyx-krater, Syracuse, Museo Paolo Orsi 66557, photograph by Dan Diffendale (CC BY-NC-SA 2.0)",
+      "method": "Red-figure photo: loose cut through the glaze, hand-drawn zones for floor, plaster, hair and shoes; cracks erased and lines rejoined; staff redrawn as a straight rod; potrace",
+      "verdict": "Usable. Face, beard, curls and robe folds are sharp; the hem and shoes are worn on the vase and stay rough."
     }
   ]
 }

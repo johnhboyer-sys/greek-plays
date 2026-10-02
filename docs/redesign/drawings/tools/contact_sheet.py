@@ -114,7 +114,7 @@ figcaption{{font-size:13px;line-height:1.35;margin-top:6px;opacity:.8;height:2.7
 @media (max-width:440px){{.row.big .slot{{height:auto!important;aspect-ratio:1}}}}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">{"".join(syms)}</svg>
-<header><h1>Drawing test: five drawings, revised</h1>
+<header><h1>Drawing test: {len(syms)} drawings</h1>
 <p>Each drawing is fitted into a 400px and a 120px square slot, in light and dark, on the warm paper and on each author tint. The line under each slot is the ground line. The dark grounds are provisional: DESIGN.md says the dark tints are still to be made.</p>
 <p>The drawings are filled shapes traced by potrace, with fill currentColor, and one line weight: 0.225% of the drawing's longer side, so drawings in the same slot show the same line. In the 120px slots the page adds a 0.5px stroke in currentColor so the lines stay visible; the 400px slots have none.</p>
 <p>Dark mode: the lines stay dark and the figure is filled with clay ({CLAY}), as on a red-figure vase, rather than turning the lines light. Each SVG carries the figure's area as a second path (class "body", fill none); this page fills it with CSS on the dark boards.</p>
