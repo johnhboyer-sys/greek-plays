@@ -12,8 +12,10 @@ Red-figure photo -> drawing. Black glaze surrounds most of the figure, so
 the cut is loose there: inside OUTLINE, wide areas of glaze that reach the
 background are left out and the clay figure, with its painted lines, stays.
 Hand-drawn shapes do the rest: the stage floor and the girl (FLOOR, below
-the hem), the modern plaster fill by his elbow (PLASTER), the curls of his
-hair and beard (HAIR), and his two black shoes on the floor (SHOES).
+the hem), the modern plaster fill by his elbow (PLASTER), his hair (HAIR,
+drawn solid), and his two black shoes on the floor (SHOES). His beard's
+strokes are redrawn as separate even hatching (BEARD), and his face lines
+as even lines along their centres (FACE).
 Three cracks cross the figure; their lines are erased (CRACKS) and painted
 lines broken by them are joined across the gap. Below his sleeve the staff
 is redrawn as a straight rod on its painted centre line (STAFF): flaking
@@ -36,7 +38,7 @@ OUT = Path(__file__).resolve().parent.parent / "oedipus-tyrannus.svg"
 BOX = (1382, 922, 2962, 3917)  # photo crop around him; all points below are crop (x, y)
 CLAY_L, WIDE = 75, 10           # clay is brighter than CLAY_L; glaze wider than 2*WIDE px is ground
 SHOE_L = 105                    # the shoes are greyer than the floor
-HAIR_REACH = 14                 # curls: glaze this close to the clay between them
+HAIR_REACH = 10                 # curls: glaze this close to the clay between them
 
 # Loose cut through the glaze around him (the curls and the shoes included;
 # the staff below his sleeve is drawn as a rod, STAFF); tight only where
@@ -54,10 +56,20 @@ FLOOR = [(0, 2780), (380, 2780), (430, 2815), (560, 2818), (700, 2815), (800, 28
          (965, 2760), (985, 2690), (998, 2630), (1040, 2595), (1580, 2595), (1580, 2995), (0, 2995)]
 PLASTER = [(0, 995), (110, 1012), (250, 1052), (262, 1100), (230, 1250), (170, 1400),
            (110, 1500), (0, 1520)]
-HAIR = [(300, 255), (296, 205), (312, 150), (350, 110), (405, 82), (470, 68), (550, 62), (635, 80),
-        (700, 108), (765, 150), (830, 205), (875, 262), (900, 335), (908, 420), (895, 520),
-        (800, 600), (700, 645), (620, 695), (520, 695), (430, 645), (395, 560), (380, 470),
-        (365, 395), (330, 330)]  # hair and beard
+# The head, in three zones. His hair is a mass of tiny curls that traces as
+# speckle, so it is drawn solid, as hair often is on red-figure vases, with
+# its curly outline (HAIR). The beard is hatched (BEARD): its strokes are
+# redrawn as separate even lines. The face (FACE) has its own finer lines.
+# The face's top edge runs just inside the forehead, below the hairline.
+HAIRLINE = [(302, 258), (320, 240), (340, 228), (360, 222), (380, 224), (400, 236), (420, 250),
+            (445, 264), (468, 290)]
+HAIR = [(290, 262), (294, 205), (312, 150), (350, 110), (405, 82), (470, 68), (550, 62), (635, 80),
+        (700, 108), (765, 150), (830, 205), (875, 262), (900, 335), (905, 420), (870, 462), (800, 482),
+        (745, 492), (712, 540), (700, 600), (660, 630), (610, 615), (600, 560), (585, 480), (560, 420),
+        (520, 380), (470, 360)] + HAIRLINE[::-1]
+FACE = HAIRLINE + [(466, 345), (440, 372), (410, 392), (392, 428), (372, 424), (345, 370), (318, 300)]
+BEARD = [(372, 424), (392, 428), (410, 392), (440, 372), (470, 360), (520, 380), (560, 420), (585, 480),
+         (600, 560), (560, 600), (480, 600), (420, 560), (395, 500)]
 POCKET = [(303, 1300), (290, 1400), (285, 1500)]  # points in the glaze between staff and robe
 # Below his sleeve the staff runs over glaze so flaked that its edges are
 # lost in flecks; it is drawn as the straight rod it is, on its painted
@@ -114,12 +126,48 @@ def staff_masks(shape):
     return rod, beside
 
 
+PEN, BEARD_PEN = 5, 8  # px, the width of redrawn face lines and of beard strokes
+
+
+def centre_lines(m, spur=6, min_len=14):
+    """Centre lines of a stroke mask, with side spurs under `spur` px pruned
+    (the line ends are kept) and pieces under `min_len` px dropped."""
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    sk = morphology.skeletonize(m)
+    s = sk.copy()
+    for _ in range(spur):  # peel the ends...
+        s &= ~((ndi.convolve(s.astype(int), k, mode="constant") == 1) & s)
+    front = (ndi.convolve(s.astype(int), k, mode="constant") == 1) & s
+    for _ in range(spur):  # ...and grow the surviving ends back
+        front = ndi.binary_dilation(front, structure=np.ones((3, 3))) & sk & ~s
+        s |= front
+    return morphology.remove_small_objects(s, max_size=min_len, connectivity=2), k
+
+
+def pen(m, w):
+    """Strokes redrawn as even lines w px wide along their centre lines."""
+    s, _ = centre_lines(m)
+    return ndi.distance_transform_edt(~s) <= w / 2
+
+
+def hatch(m, w):
+    """Like pen, but a web of crossing strokes is cut at its crossings into
+    separate strokes, as a beard is hatched."""
+    s, k = centre_lines(m)
+    s &= ~((ndi.convolve(s.astype(int), k, mode="constant") > 2) & s)
+    s = morphology.remove_small_objects(s, max_size=10, connectivity=2)
+    return ndi.distance_transform_edt(~s) <= w / 2
+
+
 def main(src: str) -> None:
     a = np.asarray(Image.open(src).convert("RGB").crop(BOX), dtype=np.float32)
     L = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]
     shape = L.shape
     inside = poly(shape, OUTLINE) & ~poly(shape, FLOOR) & ~poly(shape, PLASTER)
-    hair_zone = poly(shape, HAIR)
+    face_zone, beard_zone = poly(shape, FACE), poly(shape, BEARD)
+    hair_zone = poly(shape, HAIR) & ~face_zone & ~beard_zone
+    head = hair_zone | face_zone | beard_zone
     shoe_zone = np.zeros(shape, bool)
     for s in SHOES:
         shoe_zone |= poly(shape, s)
@@ -132,7 +180,9 @@ def main(src: str) -> None:
     # ...his curls: glaze within reach of the clay showing between them...
     gaps = clay & hair_zone
     hair = hair_zone & dark & (ndi.distance_transform_edt(~gaps) <= HAIR_REACH)
-    hair = ndi.binary_closing(hair, structure=morphology.disk(3)) & hair_zone
+    hair = ndi.binary_closing(hair, structure=morphology.disk(5)) & hair_zone
+    hair = ndi.gaussian_filter(ndi.binary_fill_holes(hair).astype(float), 2.0) > 0.5
+    hair = morphology.remove_small_objects(hair, max_size=400)
     # ...and his shoes, solid
     shoes = shoe_zone & (L < SHOE_L) & ~cracks
     shoes = ndi.binary_closing(ndi.binary_opening(shoes, structure=morphology.disk(3)), structure=morphology.disk(10))
@@ -156,8 +206,13 @@ def main(src: str) -> None:
     # painted lines and dots by local contrast; wide strokes by a wider window
     lines = lw.ink_lines(L, size=21, low=13, high=32, sigma=1.2) | lw.ink_lines(L, size=45, low=40, high=70, sigma=1.5)
     lines &= ndi.binary_erosion(sil, structure=morphology.disk(4))
-    lines &= ~(beside | rod)
-    lines |= hair | shoes
+    lines &= ~(beside | rod | head)
+    beard = hatch(lw.ink_lines(L, size=15, low=14, high=30, sigma=1.0) & beard_zone, BEARD_PEN)
+    face = lw.ink_lines(L, size=15, low=16, high=38, sigma=1.0) & ndi.binary_erosion(face_zone, iterations=3)
+    face &= ~ndi.binary_dilation(ndi.binary_opening(dark, structure=morphology.disk(8)), iterations=3)  # the ground
+    dots = ndi.binary_opening(face, structure=morphology.disk(3))  # the pupil, kept solid
+    face = pen(face & ~ndi.binary_dilation(dots, iterations=2), PEN) | dots
+    lines |= hair | beard | face | shoes
     broken = lines & ~cracks  # the cracks erased...
     lines = broken | (ndi.binary_closing(broken, structure=morphology.disk(6)) & cracks)  # ...lines rejoined
     lines = morphology.remove_small_objects(lines, max_size=120)  # specks of wear

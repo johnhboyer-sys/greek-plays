@@ -140,14 +140,14 @@
       "status": "Drawn 2026-10-02: usable",
       "source_candidate": "https://www.flickr.com/photos/dandiffendale/53976554822/",
       "final_image": "docs/redesign/drawings/oedipus-tyrannus.svg",
-      "credit": "After the Sicilian red-figure calyx-krater attributed to the Capodarso Painter, c. 330-320 BCE, Syracuse, Museo Archeologico Regionale \"Paolo Orsi\" 66557 (excavated at Syracuse, 1968-69); drawn from Dan Diffendale's photograph (Rome, Ara Pacis exhibition, 2024) and changed: cut out, cracks removed, staff redrawn as a straight rod, redrawn as line.",
+      "credit": "After the Sicilian red-figure calyx-krater attributed to the Capodarso Painter, c. 330-320 BCE, Syracuse, Museo Archeologico Regionale \"Paolo Orsi\" 66557 (excavated at Syracuse, 1968-69); drawn from Dan Diffendale's photograph (Rome, Ara Pacis exhibition, 2024) and changed: cut out, cracks removed, staff redrawn as a straight rod, hair drawn solid, redrawn as line.",
       "license": "CC BY-NC-SA 2.0 (Flickr licence of the exact file, checked 2026-10-02); the drawing is CC BY-NC-SA 2.0. Non-commercial allowed for this drawing by John, 2026-10-02.",
       "crop": "Oedipus alone, cut out of the scene. Left out: the old messenger and the boy at left, the girl and the column at right, Jocasta, the stage floor, and the modern plaster fill by his elbow.",
       "alt_text": "Oedipus, bearded, in a long embroidered robe, his hand at his beard, holding a staff",
       "source_file": "https://live.staticflickr.com/65535/53976554822_177bacc236_o.jpg",
       "shows": "The play itself, as usually read (Taplin, Pots and Plays no. 22): the moment the Corinthian messenger's news lands, with Jocasta and the daughters beside him.",
-      "method": "Red-figure photo: a loose cut through the glaze (wide glaze joined to the background is left out), hand-drawn zones for the stage floor, the plaster fill, his hair and beard, and his shoes; three cracks erased and the lines they broke rejoined; below his sleeve the flaked staff redrawn as a straight rod on its painted centre line; lines by local contrast; house line weight; potrace. tools/oedipus_syracuse.py.",
-      "result": "Usable. Face, beard, curls and robe folds are sharp. The hem and the shoes are worn on the vase and stay rough; the shoes are drawn as solid black shapes."
+      "method": "Red-figure photo: a loose cut through the glaze (wide glaze joined to the background is left out), hand-drawn zones for the stage floor, the plaster fill, his shoes, and his head; three cracks erased and the lines they broke rejoined; below his sleeve the flaked staff redrawn as a straight rod on its painted centre line. Head revised after John's review (2026-10-02, 'crude and not refined'): the hair, a mass of tiny curls, drawn solid with its curly outline; the beard's strokes redrawn as separate even hatching; the face lines redrawn as even lines along their centres. Lines by local contrast; house line weight; potrace. tools/oedipus_syracuse.py.",
+      "result": "Usable. Revised: hair solid, beard hatched, face lines even. The robe folds are sharp; the hem and the shoes are worn on the vase and stay rough; the shoes are drawn as solid black shapes."
     },
     {
       "author": "sophocles",
