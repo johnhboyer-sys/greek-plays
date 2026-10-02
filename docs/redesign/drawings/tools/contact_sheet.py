@@ -17,8 +17,9 @@ HERE = Path(__file__).resolve().parent.parent  # docs/redesign/drawings
 
 # Light values are DESIGN.md's. Dark values are provisional: DESIGN.md says the
 # dark tints are still to be made. Paper and ink follow the app's dark tokens.
-# In dark mode the drawings keep dark lines and fill the figure with clay
-# (--drawing-body), as on a red-figure vase, instead of turning the lines light.
+# In dark mode the drawings keep dark lines and fill the figure (each SVG's
+# "body" path) with clay, as on a red-figure vase, instead of turning the
+# lines light.
 LINE = "#1b1c1f"
 CLAY = "#c4b294"
 GROUNDS = [
@@ -95,7 +96,8 @@ header p,.notes p{{margin:4px 0;max-width:80ch;color:var(--mid)}}
 nav{{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;font-size:15px}}
 nav a{{color:var(--ink)}}
 table{{border-collapse:collapse;margin:10px 0 0;font-size:14px;max-width:1320px}}
-td{{padding:6px 12px 6px 0;vertical-align:top}}
+td,th{{padding:6px 12px 6px 0;vertical-align:top;text-align:left}}
+th{{font-weight:500;color:var(--mid)}}
 .board{{background:var(--bg);color:var(--fg);padding:24px 16px 32px}}
 .board h2{{max-width:1320px;margin:0 auto 18px;font:400 22px/1.2 Cardo,Georgia,serif}}
 .board h2 code{{font:14px ui-monospace,monospace;opacity:.7;margin-left:6px}}
@@ -103,7 +105,8 @@ td{{padding:6px 12px 6px 0;vertical-align:top}}
 .row.small{{margin-top:36px;gap:28px 32px}}
 figure{{margin:0;max-width:100%}}
 .slot{{display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid currentColor;max-width:100%}}
-.dr{{display:block;color:{LINE};--drawing-body:var(--body);overflow:visible;max-width:100%;height:auto}}
+.dr{{display:block;color:{LINE};overflow:visible;max-width:100%;height:auto}}
+.body{{fill:var(--body,none)}}
 figcaption{{font-size:13px;line-height:1.35;margin-top:6px;opacity:.8;height:2.7em;overflow:hidden}}
 .small figcaption{{font-size:11px;height:4.05em}}
 .small .dr{{stroke:currentColor;stroke-width:.5px}}
@@ -114,9 +117,9 @@ figcaption{{font-size:13px;line-height:1.35;margin-top:6px;opacity:.8;height:2.7
 <header><h1>Drawing test: five drawings, revised</h1>
 <p>Each drawing is fitted into a 400px and a 120px square slot, in light and dark, on the warm paper and on each author tint. The line under each slot is the ground line. The dark grounds are provisional: DESIGN.md says the dark tints are still to be made.</p>
 <p>The drawings are filled shapes traced by potrace, with fill currentColor, and one line weight: 0.225% of the drawing's longer side, so drawings in the same slot show the same line. In the 120px slots the page adds a 0.5px stroke in currentColor so the lines stay visible; the 400px slots have none.</p>
-<p>Dark mode: the lines stay dark and the figure is filled with clay ({CLAY}), as on a red-figure vase, rather than turning the lines light. Each SVG carries the figure's area as a second path, filled with var(--drawing-body, none): transparent unless the page sets it.</p>
+<p>Dark mode: the lines stay dark and the figure is filled with clay ({CLAY}), as on a red-figure vase, rather than turning the lines light. Each SVG carries the figure's area as a second path (class "body", fill none); this page fills it with CSS on the dark boards.</p>
 <nav>{nav}</nav>
-<table><tbody>{rows}</tbody></table></header>
+<table><thead><tr><th scope="col">Drawing</th><th scope="col">Source</th><th scope="col">Method</th><th scope="col">Result</th></tr></thead><tbody>{rows}</tbody></table></header>
 {"".join(boards)}
 </body></html>
 """

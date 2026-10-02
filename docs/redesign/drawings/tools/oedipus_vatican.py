@@ -56,7 +56,7 @@ def main(src: str) -> None:
     inner = morphology.remove_small_objects(inner, max_size=60)
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(6))
     info = lw.trace_svg(
-        edge | inner, OUT,
+        edge | inner, OUT, body=sil,
         title="Oedipus seated before the Sphinx, who sits on a column",
         desc="Line drawing after Juan José Moral's public-domain redrawing (2009) of the "
              "Attic red-figure cup by the Oedipus Painter, c. 470 BCE, Vatican 16541.")

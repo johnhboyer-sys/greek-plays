@@ -23,10 +23,11 @@ Each SVG is 1000 units tall, on a transparent ground, with two paths:
   traced by potrace, not strokes. Every drawing has the same line weight:
   0.225% of its longer side, so drawings fitted into the same box show the
   same line.
-- `body`: the figure's whole area, under the lines, filled with
-  `var(--drawing-body, none)`, so it is transparent unless a page sets the
-  property. It has no holes, and lines too thin to hold clay on either side
-  (a goad, a spear) get a narrow clay rim. The contact sheet's dark boards set it to a clay colour and keep
+- `body`: the figure's whole area, under the lines, `class="body"
+  fill="none"`, so it is transparent unless a page fills it with CSS
+  (`.body { fill: <clay> }` in the dark theme). It has no holes, and lines
+  too thin to hold clay on either side (a goad, a spear) get a narrow clay
+  rim. The contact sheet's dark boards set it to a clay colour and keep
   the lines dark, so a drawing reads as a red-figure vase instead of a photo
   negative. At 400px the lines
 hold; at 120px they go faint unless CSS adds `stroke: currentColor;
@@ -37,14 +38,17 @@ a layout decision.
 ## Rerunning
 
 Sources are not committed. Download each source file named at the top of its
-tool, then:
+tool, then, from this folder (`docs/redesign/drawings`):
 
 ```
-brew install potrace
+brew install potrace librsvg
 python3 -m venv .venv && .venv/bin/pip install numpy scipy scikit-image pillow
 .venv/bin/python tools/pythia.py bwpr1859_010a.jpg qa.png   # qa.png optional
 .venv/bin/python tools/contact_sheet.py
 ```
+
+The optional second argument writes two check images, `qa.png` and
+`qa.dark.png`; they need `rsvg-convert` (librsvg).
 
 The Oedipus alternate starts from the Commons SVG rendered to PNG
 (`rsvg-convert -w 4000 -b '#000000'`).

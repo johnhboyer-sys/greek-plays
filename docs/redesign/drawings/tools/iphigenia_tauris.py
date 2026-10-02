@@ -28,7 +28,8 @@ OUT = Path(__file__).resolve().parent.parent / "euripides-iphigenia.svg"
 # Points on her outline in px of the plate scan, clockwise from the veil's top
 # left corner; the guided path snaps them onto her own lines. On her right the
 # cut runs down the outer edge of her forearm, below the attendant's tray, to
-# the hand on the key, and takes in the key's chain and knob. The tablet she and Pylades both hold is cut at its
+# the hand on the key, down the hanging end of her stole to its tip and straight
+# across to her skirt (the gable of the altar behind her stays out), and takes in the key's chain and knob. The tablet she and Pylades both hold is cut at its
 # middle: this scan is too coarse to show where her fingers end and his begin.
 OUTLINE = [
     (1208, 976), (1219, 966), (1234, 956), (1290, 948), (1346, 952), (1370, 972), (1376, 1000), (1385, 1025), (1395, 1050),
@@ -36,7 +37,7 @@ OUTLINE = [
     (1490, 1314), (1501, 1334), (1510, 1352), (1517, 1370), (1516, 1392), (1530, 1402), (1545, 1400), (1558, 1410),
     (1557, 1430), (1540, 1435), (1527, 1428), (1527, 1440), lw.STRAIGHT, (1528, 1628), (1518, 1640), (1516, 1690),
     (1505, 1698), (1488, 1690), (1486, 1650), (1490, 1632), (1494, 1628), lw.STRAIGHT, (1497, 1440), lw.STRAIGHT,
-    (1505, 1416), (1426, 1380), (1430, 1460), (1418, 1492), (1402, 1508), (1406, 1588), (1414, 1660), (1434, 1684),
+    (1505, 1416), (1426, 1380), (1430, 1460), (1412, 1474), (1398, 1488), (1394, 1500), lw.STRAIGHT, (1352, 1510), (1362, 1530), (1372, 1546), (1381, 1563), (1389, 1583), (1396, 1602), (1402, 1621), (1414, 1660), (1434, 1684),
     (1438, 1700), (1402, 1704), (1386, 1688), (1314, 1668), (1294, 1672), (1297, 1686), (1285, 1697), (1240, 1701),
     (1200, 1700), (1189, 1693), (1186, 1668), (1170, 1652), (1197, 1578), (1190, 1508), (1166, 1440), (1183, 1462),
     (1154, 1348), (1178, 1316), (1210, 1236), (1170, 1252), (1138, 1252), (1118, 1262), (1095, 1258), (1070, 1251),
