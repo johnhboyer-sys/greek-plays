@@ -65,7 +65,7 @@ POCKET = [(303, 1300), (290, 1400), (285, 1500)]  # points in the glaze between 
 STAFF, STAFF_W = ((338, 1000), (192, 1696)), 22
 SHOES = [[(385, 2818), (755, 2818), (765, 2870), (700, 2918), (400, 2925), (378, 2870)],
          [(950, 2650), (1132, 2650), (1136, 2720), (1112, 2842), (990, 2852), (945, 2795)]]
-# rough paths of the cracks; each is snapped to the darkest line within CORRIDOR px
+# rough paths of the cracks; each is snapped to the line within CORRIDOR px
 CRACKS = [[(0, 1005), (250, 1062), (450, 1100), (690, 1140), (970, 1112), (1290, 1000), (1580, 810)],
           [(125, 1465), (250, 1610), (340, 1720), (465, 1895), (665, 2165), (840, 2390), (955, 2500),
            (1065, 2600), (1200, 2740)],
@@ -80,9 +80,11 @@ CORRIDOR = 14
 
 
 def crack_bands(L, shape, width=5):
-    """Each crack snapped to the darkest path near its rough points, widened."""
+    """Each crack snapped to the line nearest its rough points, widened."""
     from skimage.draw import line
     band = np.zeros(shape, bool)
+    # a crack is darker than the clay it crosses but lighter than the glaze
+    contrast = np.abs(L - ndi.uniform_filter(L, 25))
     for pts in CRACKS:
         pts = [(min(x, shape[1] - 1), min(y, shape[0] - 1)) for x, y in pts]
         rough = np.zeros(shape, bool)
@@ -90,7 +92,7 @@ def crack_bands(L, shape, width=5):
             rr, cc = line(ya, xa, yb, xb)
             rough[rr, cc] = True
         near = ndi.distance_transform_edt(~rough) <= CORRIDOR
-        cost = np.where(near, 1.0 + np.clip(L, 0, 255) / 8.0, 1e4)
+        cost = np.where(near, 1.0 + 40.0 / (1.0 + contrast), 1e4)
         xy = lw.livewire(cost, pts)
         yx = (xy[:, ::-1] - 0.5).astype(int)
         band[yx[:, 0], yx[:, 1]] = True
@@ -126,7 +128,7 @@ def main(src: str) -> None:
     clay = ndi.binary_opening(L > CLAY_L, structure=morphology.disk(2))  # drops hairline cracks and specks
     dark = L <= CLAY_L
     # the figure: its large areas of clay (flecks of clay in the glaze are small)...
-    body = morphology.remove_small_objects(clay & inside, max_size=4000)
+    body = morphology.remove_small_objects(clay & inside & ~cracks, max_size=4000)
     # ...his curls: glaze within reach of the clay showing between them...
     gaps = clay & hair_zone
     hair = hair_zone & dark & (ndi.distance_transform_edt(~gaps) <= HAIR_REACH)
@@ -139,6 +141,10 @@ def main(src: str) -> None:
     # painted lines inside the clay close up; glaze at the outline, and the
     # glaze between his staff and his robe (POCKET), stay out
     sil = ndi.binary_closing(body | hair | shoes, structure=morphology.disk(4))
+    # whole again across the cracks, but not where a crack runs along his
+    # outline: there the crack is the glaze's, not his
+    glaze = ndi.binary_dilation(ndi.binary_opening(dark, structure=morphology.disk(WIDE)), structure=morphology.disk(12))
+    sil |= ndi.binary_closing(sil, structure=morphology.disk(9)) & cracks & ~glaze
     holes, _ = ndi.label(ndi.binary_fill_holes(sil) & ~sil)
     open_ = [holes[y, x] for x, y in POCKET if holes[y, x]]
     sil |= (holes > 0) & ~np.isin(holes, open_)
