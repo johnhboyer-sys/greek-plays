@@ -1,6 +1,6 @@
-# Drawings: phase 1 test (2026-10-02)
+# Drawings: phase 1 test (2026-10-02, revised the same day)
 
-Six test drawings for the redesign (DESIGN.md, Drawings). Records with credits
+Test drawings for the redesign (DESIGN.md, Drawings). Records with credits
 and licences: `../research/play-image-plan.json` (the `playwrights` list and
 the Medea and Iphigenia at Aulis entries). Open `contact-sheet.html` to see
 them on every ground, light and dark.
@@ -17,10 +17,17 @@ them on every ground, light and dark.
 
 ## The files
 
-Each SVG is one filled path with `fill="currentColor"`, on a transparent
-ground, 1000 units tall. Lines are filled outlines traced by potrace, not
-strokes. Every drawing has the same line weight: 0.225% of its longer side,
-so drawings fitted into the same box show the same line. At 400px the lines
+Each SVG is 1000 units tall, on a transparent ground, with two paths:
+
+- `lines`: the drawing, `fill="currentColor"`. Lines are filled outlines
+  traced by potrace, not strokes. Every drawing has the same line weight:
+  0.225% of its longer side, so drawings fitted into the same box show the
+  same line.
+- `body`: the figure's whole area, under the lines, filled with
+  `var(--drawing-body, none)`, so it is transparent unless a page sets the
+  property. The contact sheet's dark boards set it to a clay colour and keep
+  the lines dark, so a drawing reads as a red-figure vase instead of a photo
+  negative. At 400px the lines
 hold; at 120px they go faint unless CSS adds `stroke: currentColor;
 stroke-width: .5px` (the path has `vector-effect="non-scaling-stroke"`, so
 the stroke stays .5px at any size). Where between the two to switch it on is
@@ -34,7 +41,7 @@ tool, then:
 ```
 brew install potrace
 python3 -m venv .venv && .venv/bin/pip install numpy scipy scikit-image pillow
-.venv/bin/python tools/pythia.py bwpr1859_010a.jpg
+.venv/bin/python tools/pythia.py bwpr1859_010a.jpg qa.png   # qa.png optional
 .venv/bin/python tools/contact_sheet.py
 ```
 
@@ -42,7 +49,11 @@ The Oedipus alternate starts from the Commons SVG rendered to PNG
 (`rsvg-convert -w 4000 -b '#000000'`).
 
 `tools/linework.py` holds the shared steps: ink from a scan (`ink_from_scan`
-for engravings, `ink_hairlines` for fine lithograph lines), a least-cost cut
-through hand-placed points (`livewire`), the house line weight
-(`set_line_width`), and potrace (`trace_svg`). Each figure's script holds its
-own crop, cut points and hand fixes, with the reason for each.
+for engravings; `ink_lines`, local contrast with hysteresis, for fine
+lithograph lines and the relief lines of red-figure photos), a least-cost
+cut through hand-placed points (`livewire`, with `STRAIGHT` for crossings over
+blank paper), the figure's area for the body path (`body_from_cut`), the
+house line weight (`set_line_width`), potrace (`trace_svg`), and a check
+image of the drawing over its source (`qa_overlay`: any grey line left
+showing is a line the drawing missed). Each figure's script holds its own
+crop, cut points and hand fixes, with the reason for each.
