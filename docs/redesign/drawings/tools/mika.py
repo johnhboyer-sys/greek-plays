@@ -48,13 +48,13 @@ def main(src: str) -> None:
     sil |= np.isin(hl, np.nonzero((hs > 0) & (hs < 3000))[0])
     sil = ndi.gaussian_filter(sil.astype(float), 2.5) > 0.5
 
-    Ls = ndi.gaussian_filter(L, 1.0)
-    tophat = ndi.grey_closing(Ls, footprint=morphology.disk(9)) - Ls
-    inner = (tophat > 45) & ndi.binary_erosion(sil, structure=morphology.disk(7))
+    # inner lines by local contrast; hysteresis keeps each fold line whole
+    inner = lw.ink_lines(L, size=21, low=12, high=30, sigma=1.2)
+    inner &= ndi.binary_erosion(sil, structure=morphology.disk(7))
     inner = morphology.remove_small_objects(inner, max_size=120)
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(6))
     info = lw.trace_svg(
-        edge | inner, OUT,
+        edge | inner, OUT, body=sil,
         title="Mika, in a comic old woman's mask, holding out a bowl",
         desc="Line drawing after the Apulian red-figure krater Würzburg H 5697, c. 370 BCE, "
              "a scene from Aristophanes' Women at the Thesmophoria; traced from a photograph by "
