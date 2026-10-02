@@ -649,5 +649,5 @@
       "result": "Clean. Revised 2026-10-02: the drapery folds run their full length. John judged the first version not detailed enough; the Schiller Painter's own drawing is sparer than the engravings."
     }
   ],
-  "drawing_format": "Each SVG is 1000 units tall with two paths: 'lines' (fill currentColor) and 'body', the figure's area under the lines, filled with var(--drawing-body, none). The body has no holes, and lines too thin to hold clay on either side (a goad, a spear) get a narrow clay rim, so the figure reads whole on a dark page. Light pages leave the body transparent; the contact sheet's dark boards fill it with clay and keep the lines dark, as on a red-figure vase (approved by John 2026-10-02; the inverted dark mode looked like a photo negative)."
+  "drawing_format": "Each SVG is 1000 units tall with two paths: 'lines' (fill currentColor) and 'body', the figure's area under the lines, class \"body\" with fill=\"none\", which a page fills with CSS. The body has no holes, and lines too thin to hold clay on either side (a goad, a spear) get a narrow clay rim, so the figure reads whole on a dark page. Light pages leave the body transparent; the contact sheet's dark boards fill it with clay and keep the lines dark, as on a red-figure vase (approved by John 2026-10-02; the inverted dark mode looked like a photo negative)."
 }
