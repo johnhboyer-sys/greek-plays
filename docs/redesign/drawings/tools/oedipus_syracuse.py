@@ -16,7 +16,7 @@ Hand-drawn shapes do the rest: the stage floor and the girl (FLOOR, below
 the hem), the modern plaster fill by his elbow (PLASTER), his hair (HAIR,
 drawn solid), and his two black shoes on the floor (SHOES). His beard is
 drawn solid too, with its long clay strands as light lines (BEARD), and his
-face lines as even lines along their centres (FACE).
+face and finger lines as even lines along their centres (FACE, HAND).
 Three cracks cross the figure; their lines are erased (CRACKS) and painted
 lines broken by them are joined across the gap. Below his sleeve the staff
 is redrawn as a straight rod on its painted centre line (STAFF): flaking
@@ -71,6 +71,10 @@ HAIR = [(290, 262), (294, 205), (312, 150), (350, 110), (405, 82), (470, 68), (5
         (745, 492), (712, 540), (700, 600), (660, 630), (610, 615), (600, 560), (585, 480), (560, 420),
         (520, 380), (470, 360)] + HAIRLINE[::-1]
 FACE = HAIRLINE + [(466, 345), (440, 372), (410, 392), (392, 428), (372, 424), (345, 370), (318, 300)]
+# His hand at his beard: its fingers get the face's fine lines, and the
+# solid beard stops at it.
+HAND = [(352, 462), (420, 462), (470, 478), (500, 500), (512, 530), (516, 565), (510, 600), (496, 630),
+        (470, 650), (352, 650)]
 BEARD = [(372, 424), (392, 428), (410, 392), (440, 372), (470, 360), (520, 380), (560, 420), (585, 480),
          (600, 560), (560, 600), (480, 600), (420, 560), (395, 500)]
 POCKET = [(303, 1300), (290, 1400), (285, 1500)]  # points in the glaze between staff and robe
@@ -176,9 +180,10 @@ def main(src: str) -> None:
     L = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]
     shape = L.shape
     inside = poly(shape, OUTLINE) & ~poly(shape, FLOOR) & ~poly(shape, PLASTER)
-    face_zone, beard_zone = poly(shape, FACE), poly(shape, BEARD)
+    hand_zone = poly(shape, HAND)
+    face_zone, beard_zone = poly(shape, FACE), poly(shape, BEARD) & ~hand_zone
     hair_zone = poly(shape, HAIR) & ~face_zone & ~beard_zone
-    head = hair_zone | face_zone | beard_zone
+    head = hair_zone | face_zone | beard_zone | hand_zone
     shoe_zone = np.zeros(shape, bool)
     for s in SHOES:
         shoe_zone |= poly(shape, s)
@@ -219,7 +224,8 @@ def main(src: str) -> None:
     lines &= ndi.binary_erosion(sil, structure=morphology.disk(4))
     lines &= ~(beside | rod | head)
     beard = solid_beard(dark, beard_zone)
-    face = lw.ink_lines(L, size=15, low=16, high=38, sigma=1.0) & ndi.binary_erosion(face_zone, iterations=3)
+    fine_zone = ndi.binary_erosion(face_zone, iterations=3) | (hand_zone & sil)
+    face = lw.ink_lines(L, size=15, low=16, high=38, sigma=1.0) & fine_zone
     face &= ~ndi.binary_dilation(ndi.binary_opening(dark, structure=morphology.disk(8)), iterations=3)  # the ground
     dots = ndi.binary_opening(face, structure=morphology.disk(3))  # the pupil, kept solid
     face = pen(face & ~ndi.binary_dilation(dots, iterations=2), PEN) | dots
