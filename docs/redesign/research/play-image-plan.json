@@ -209,10 +209,10 @@
       "license": "CC0 (Cleveland Open Access record: share_license_status CC0, checked 2026-10-02)",
       "crop": "Medea in the serpent chariot, cut out of the sun disk along the disk's own border. Left out: the Furies, Jason, the nurse, the tutor and the children's bodies on the altar below. Her right sleeve is outlined by hand: its dark net pattern drops out of the automatic mask and left her hand floating.",
       "alt_text": "Medea in a chariot drawn by two serpents",
-      "source_file": "https://openaccess-cdn.clevelandart.org/1991.1/1991.1_alt3_print.jpg",
+      "source_file": "https://openaccess-cdn.clevelandart.org/1991.1/1991.1_alt3_full.tif",
       "shows": "The play itself: the museum ties the scene to Euripides' Medea. It shows the ending (her escape); the dead children are left out.",
-      "method": "Red-figure photo: clay found by brightness, the disk border cut away per degree around its centre, silhouette edge plus relief lines (black top-hat), house line weight, potrace. tools/medea.py.",
-      "result": "Usable. Busier than the others: the serpents' painted spots come through as speckle."
+      "method": "Red-figure photo: clay found by brightness on a print-size copy, the disk border cut away per degree around its centre, the sleeve outlined by hand; inner lines from the full-resolution TIFF by local contrast with hysteresis; house line weight; potrace. tools/medea.py.",
+      "result": "Usable. Revised 2026-10-02: with lines from the full-resolution TIFF the face shows eyelids, pupils, brows, nose and lips, and the diadem shows its dots. Still the busiest drawing; the serpents' painted spots come through."
     },
     {
       "author": "euripides",
@@ -594,11 +594,11 @@
       "final_image": "docs/redesign/drawings/aeschylus-pythia.svg",
       "credit": "After Carl Bötticher's drawing of an Apulian red-figure krater by the Black Fury Painter (Naples, Museo Archeologico Nazionale): Orestes at Delphi. C. Bötticher, Der Omphalos des Zeus zu Delphi (Berlin, 1859), plate, fig. 1. Scan: Heidelberg University Library.",
       "license": "Public domain (published 1859). Heidelberg labels the scan with the Public Domain Mark 1.0 (IIIF manifest, checked 2026-10-02).",
-      "crop": "The Pythia only, cut along her own lines. Left out: Apollo's black cloak, leg and boot beside her, the laver behind her, the black Fury above. Apollo's raised back foot lies across her hem: its lines are erased and the hem is left blank there, with nothing drawn in.",
+      "crop": "The Pythia only, cut along her own lines, with straight cuts where the outline crosses blank paper (between her hands and her head, under the lowest ruffles of her hem). Kept: both ends of her starred shawl, its lower edge and its black folds. Left out: Apollo, his N-patterned cloak, the laver behind her, the black Fury above. Apollo's raised back foot lies across her hem: its lines are erased and the hem is left blank there.",
       "alt_text": "The Pythia, Apollo's priestess, fleeing in terror with her hands raised",
       "shows": "Related to the play: Orestes at Delphi, the setting of the Eumenides' opening, where the Pythia comes out of the temple in terror (34 ff.). A painting of the myth, not a record of a performance.",
       "method": "Engraved plate: ink by threshold with the paper tone divided out; cut by a least-cost path through hand-placed points; house line weight; potrace. tools/pythia.py.",
-      "result": "Clean. The Commons copy of this plate is a blurred 1.5x upscale of the same scan and traced badly; use the Heidelberg file."
+      "result": "Clean. Revised 2026-10-02 after John's review: her right arm, the curl on top of her head, her left index finger and the whole shawl were added. The Commons copy of this plate is a blurred 1.5x upscale of the same scan; use the Heidelberg file."
     },
     {
       "author": "sophocles",
@@ -613,8 +613,8 @@
       "crop": "Oedipus only; the Sphinx on her rock is a separate figure and is left out. His feet and spear butt are cut along the top of the meander band they stand on. His hair, glaze-dark like the ground, is outlined by hand from the photo.",
       "alt_text": "Oedipus, a young traveller in cloak and short tunic, standing with a spear",
       "shows": "Related subject: Oedipus before the Sphinx, the myth before Oedipus Tyrannus begins.",
-      "method": "Red-figure photo: clay found by colour (red minus blue), because the shiny glaze is as bright as the clay; silhouette edge plus relief lines; hair outlined by hand; house line weight; potrace. tools/oedipus_berlin.py.",
-      "result": "Usable. The lower cloak edge is ragged where the vase is restored, and his hand on the spear is rough. Alternate: a public-domain 2009 vector redrawing of Vatican 16541 (seated Oedipus with the Sphinx) traced cleanly (docs/redesign/drawings/alternates/), but it is a modern redrawing, neither an old plate nor a photograph."
+      "method": "Red-figure photo: clay found by colour (red minus blue), because the shiny glaze is as bright as the clay; fold lines by local contrast with hysteresis (ink_lines); hair outlined by hand and filled; house line weight; potrace. tools/oedipus_berlin.py.",
+      "result": "Usable. Revised 2026-10-02: every cloak fold and the hat on his back now show. John judged the first version not detailed enough; the Achilles Painter's own drawing is sparer than the engravings. The lower cloak edge is ragged where the vase is restored. Alternate: the public-domain 2009 redrawing of Vatican 16541 (docs/redesign/drawings/alternates/)."
     },
     {
       "author": "euripides",
@@ -626,11 +626,11 @@
       "final_image": "docs/redesign/drawings/euripides-iphigenia.svg",
       "credit": "After R. Jaene's lithograph of the Duke of Buckingham's vase, Archäologische Zeitung 7 (1849), Denkmäler und Forschungen, Taf. XII ('Iphigenia in Tauris'). Scan: Internet Archive.",
       "license": "Public domain (published 1849). The Internet Archive item page carries no rights statement.",
-      "crop": "Iphigenia with the temple key, its chain and knob. Left out: Pylades, the temple door and steps behind her, Artemis' foot, the attendant's tray. The tablet she and Pylades both hold is cut at its middle: the scan is too coarse to show where her fingers end and his begin.",
+      "crop": "Iphigenia with the temple key, its chain and knob, and her whole right forearm down its outer edge. Left out: Pylades, the temple door and steps behind her (the cut follows her veil's curve, not the door's straight edge), Artemis' foot, the attendant and her tray. The tablet she and Pylades both hold is cut at its middle.",
       "alt_text": "Iphigenia, priestess of Artemis, holding out a letter tablet and the temple key",
       "shows": "The play itself, as the 1849 publication identifies it: Iphigenia giving her letter to Pylades (Iphigenia in Tauris 727 ff.). The vase's present location was not checked.",
-      "method": "Lithograph: fine grey lines found by local contrast (black top-hat; one global threshold broke them up); least-cost cut; house line weight; potrace. tools/iphigenia_tauris.py.",
-      "result": "Clean. Face and dress patterns survive; she is about 750px tall in the scan. Phase 2: give Iphigenia in Tauris itself a different scene."
+      "method": "Lithograph: fine grey lines found by local contrast with hysteresis (ink_lines); least-cost cut; house line weight; potrace. tools/iphigenia_tauris.py.",
+      "result": "Clean. Revised 2026-10-02: her right forearm and key hand are whole and the stray door line is gone. The hand on the tablet stays coarse: the scan shows it about 50px wide. A larger engraving of the same vase (Monumenti inediti IV, pl. 51; Overbeck, Gallerie, pl. 30.7) would fix it; not yet found online."
     },
     {
       "author": "aristophanes",
@@ -645,8 +645,9 @@
       "crop": "Mika only. The blade of Mnesilochus' knife, which touches her bowl's rim, is cut away along the blade's edge; Mnesilochus, on the altar, is left out.",
       "alt_text": "Mika, in a comic old woman's mask, holding out a bowl",
       "shows": "The play itself, as the vase is read: the mock sacrifice of the wineskin 'baby' in Women at the Thesmophoria, staged as a phlyax play. Mika asks for a bowl to catch its blood at 754-755 (the repo's Hall-Geldart text, where she is the First Woman, called Mikka at 760).",
-      "method": "Red-figure photo: clay found by brightness; silhouette edge plus relief lines; knife cut; house line weight; potrace. tools/mika.py.",
-      "result": "Clean."
+      "method": "Red-figure photo: clay found by brightness; fold lines by local contrast with hysteresis (ink_lines); knife cut; house line weight; potrace. tools/mika.py.",
+      "result": "Clean. Revised 2026-10-02: the drapery folds run their full length. John judged the first version not detailed enough; the Schiller Painter's own drawing is sparer than the engravings."
     }
-  ]
+  ],
+  "drawing_format": "Each SVG is 1000 units tall with two paths: 'lines' (fill currentColor) and 'body', the figure's area under the lines, filled with var(--drawing-body, none). Light pages leave the body transparent; the contact sheet's dark boards fill it with clay and keep the lines dark, as on a red-figure vase (proposed 2026-10-02, after John found the inverted dark mode too much like a photo negative)."
 }

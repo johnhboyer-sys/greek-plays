@@ -1,0 +1,793 @@
+{
+  "lane": "A",
+  "plays": [
+    {
+      "work_id": "persians",
+      "title": "Persians",
+      "status": "found",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Naples National Archaeological Museum",
+            "inventory": "81947",
+            "shape": "Apulian volute krater",
+            "painter": "Darius Painter",
+            "date": "late 4th century BCE"
+          },
+          "scene": "Darius enthroned receiving a letter, with Persian nobles and gods",
+          "figure": "Seated Darius with sword; keep his chair if needed",
+          "link_to_play": "thematic",
+          "identification": "Commons description: Darius is named on the vase by inscription",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Darius_Painter_-_RVAp_18-138_-_Dareios_-_Bellerophon_and_the_Chimaira_-_Napoli_MAN_3253_-_10.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Darius_Painter_-_RVAp_18-138_-_Dareios_-_Bellerophon_and_the_Chimaira_-_Napoli_MAN_3253_-_10.jpg",
+          "file_url": "",
+          "pixel_size": "3648x5472",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Darius_Painter_-_RVAp_18-138_-_Dareios_-_Bellerophon_and_the_Chimaira_-_Napoli_MAN_3253_-_10.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "high: rich South Italian dress and face lines",
+          "risks": "No nudity on Darius; attendants may touch his chair. This is a mythic or historic scene, not a stage record.",
+          "notes": "Darius is central to the play, though this vase shows another episode."
+        }
+      ]
+    },
+    {
+      "work_id": "seven-against-thebes",
+      "title": "Seven Against Thebes",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Metropolitan Museum of Art",
+            "inventory": "07.286.44",
+            "shape": "white-ground lekythos",
+            "painter": "Painter of the Yale Lekythos",
+            "date": "ca. 470–460 BCE"
+          },
+          "scene": "Young warrior cuts his hair before battle",
+          "figure": "The single young warrior; check that feet and sword remain whole",
+          "link_to_play": "thematic",
+          "identification": "Met says this may reflect Seven Against Thebes; no hero named",
+          "identification_url": "https://www.metmuseum.org/art/collection/search/247924",
+          "publication": "",
+          "file_page_url": "https://www.metmuseum.org/art/collection/search/247924",
+          "file_url": "",
+          "pixel_size": null,
+          "figure_height_px": null,
+          "licence": "public domain",
+          "licence_verified": true,
+          "licence_evidence_url": "https://www.metmuseum.org/art/collection/search/247924",
+          "licence_evidence_quote": "Public Domain",
+          "detail": "medium: fine Attic drawing, image size unconfirmed",
+          "risks": "No nudity reported; figure completeness and height unconfirmed.",
+          "notes": "Met's play link is explicitly tentative."
+        }
+      ]
+    },
+    {
+      "work_id": "suppliants-aesch",
+      "title": "Suppliant Women",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Museo Nazionale Etrusco di Villa Giulia",
+            "inventory": "63545",
+            "shape": "Attic red-figure kylix",
+            "painter": "Sabouroff Painter",
+            "date": "ca. 470 BCE"
+          },
+          "scene": "Women carry phialai, a sprig, a jug and a torch at an altar",
+          "figure": "One fully draped woman holding a sprig, subject to outline check",
+          "link_to_play": "thematic",
+          "identification": "Commons file description, citing Beazley Archive 212195",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Sabouroff_Painter_-_ARV_838_16_-_cult_of_Athena_Polias_-_Roma_MNEVG_63545_-_03.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Sabouroff_Painter_-_ARV_838_16_-_cult_of_Athena_Polias_-_Roma_MNEVG_63545_-_03.jpg",
+          "file_url": "",
+          "pixel_size": "5472x3648",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Sabouroff_Painter_-_ARV_838_16_-_cult_of_Athena_Polias_-_Roma_MNEVG_63545_-_03.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: red-figure interior lines require review",
+          "risks": "No nudity reported; figure height unconfirmed. Women are not identified as Danaids.",
+          "notes": "Fallback only; no usable Danaid supplication file found."
+        }
+      ]
+    },
+    {
+      "work_id": "prometheus-bound",
+      "title": "Prometheus Bound",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "National Archaeological Museum, Athens",
+            "inventory": "16384",
+            "shape": "Attic skyphos-krater",
+            "painter": "Nessos Painter",
+            "date": "ca. 620 BCE"
+          },
+          "scene": "Prometheus chained to a post while Heracles aims at the eagle",
+          "figure": "Bound Prometheus; outline and painted height require review",
+          "link_to_play": "myth",
+          "identification": "Commons file description identifies Prometheus, Heracles and eagle",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Attic_skyphos-krater_(NAMA_16384)_2017.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Attic_skyphos-krater_(NAMA_16384)_2017.jpg",
+          "file_url": "",
+          "pixel_size": "2987x3887",
+          "figure_height_px": null,
+          "licence": "CC BY-SA",
+          "licence_verified": false,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Attic_skyphos-krater_(NAMA_16384)_2017.jpg",
+          "licence_evidence_quote": "",
+          "detail": "low to medium: early black figure has limited inner detail",
+          "risks": "No exposed genitals reported. The rescue belongs to the wider myth, not the action of this play.",
+          "notes": "Photo size is high; figure size is unconfirmed."
+        }
+      ]
+    },
+    {
+      "work_id": "agamemnon",
+      "title": "Agamemnon",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Museo Archeologico Nazionale, Taranto",
+            "inventory": "",
+            "shape": "Attic red-figure lekanis lid fragment",
+            "painter": "circle of the Meidias Painter",
+            "date": "410–400 BCE"
+          },
+          "scene": "Agamemnon seated on a rock with a sceptre",
+          "figure": "Inscribed Agamemnon; fragment may cut the body",
+          "link_to_play": "myth",
+          "identification": "Commons description says the inscription names Agamemnon",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Lekanis_Agamemnon_MNA_Taranto.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Lekanis_Agamemnon_MNA_Taranto.jpg",
+          "file_url": "",
+          "pixel_size": "1300x1725",
+          "figure_height_px": null,
+          "licence": "public domain",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Lekanis_Agamemnon_MNA_Taranto.jpg",
+          "licence_evidence_quote": "I, the copyright holder of this work, release this work into the public domain. This applies worldwide.",
+          "detail": "medium: late Attic lines",
+          "risks": "No nudity reported. The broken edge may breach the whole-figure rule; verify before use.",
+          "notes": "Research lead only; no approved whole figure yet."
+        }
+      ]
+    },
+    {
+      "work_id": "libation-bearers",
+      "title": "Libation Bearers",
+      "status": "found",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Staatliche Antikensammlungen, Munich",
+            "inventory": "3266",
+            "shape": "Lucanian red-figure hydria",
+            "painter": "Choephoroi Painter",
+            "date": "ca. 340 BCE"
+          },
+          "scene": "Orestes, Electra and Hermes at Agamemnon's tomb",
+          "figure": "Seated, draped Electra; separate her from tomb base",
+          "link_to_play": "myth",
+          "identification": "Commons description cites Trendall LCS I 602 and Beazley Archive 9057405",
+          "identification_url": "https://www.carc.ox.ac.uk/record/F0A19C12-B81D-4E99-9918-194A97DEACBC",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Choephoroi_Painter_-_LCS_I_602_-_victorious_warrior_-_Orestes_and_Elektra_with_Hermes_at_the_tomb_of_Agamemnon_-_M%C3%BCnchen_AS_3266_-_01.jpg",
+          "file_url": "",
+          "pixel_size": "3577x4640",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Choephoroi_Painter_-_LCS_I_602_-_victorious_warrior_-_Orestes_and_Elektra_with_Hermes_at_the_tomb_of_Agamemnon_-_M%C3%BCnchen_AS_3266_-_01.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "high: late Lucanian dress and accessories",
+          "risks": "No nudity on Electra; her seat touches the tomb. Not a stage record.",
+          "notes": "Use a different vase for Sophocles' Electra."
+        }
+      ]
+    },
+    {
+      "work_id": "eumenides",
+      "title": "Eumenides",
+      "status": "found",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "British Museum",
+            "inventory": "1772,0320.96 / F166",
+            "shape": "Apulian red-figure bell krater",
+            "painter": "Eumenides Painter",
+            "date": "ca. 380–360 BCE"
+          },
+          "scene": "Orestes kneels at the omphalos as Apollo purifies him",
+          "figure": "Apollo with laurel and phiale, or kneeling Orestes; choose after outline check",
+          "link_to_play": "play itself",
+          "identification": "Commons description says the scene is inspired by Aeschylus's Eumenides and cites RVAp 4/232",
+          "identification_url": "https://www.britishmuseum.org/collection/object/G_1772-0320-96",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Eumenides_Painter_-_RVAp_4-232_-_Orestes_at_Delphi_-_draped_youths_-_London_BM_1772-0320-96_-_02.jpg",
+          "file_url": "",
+          "pixel_size": "3402x4858",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Eumenides_Painter_-_RVAp_4-232_-_Orestes_at_Delphi_-_draped_youths_-_London_BM_1772-0320-96_-_02.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "high: late Apulian dress and faces",
+          "risks": "No nudity reported; Orestes may touch the omphalos. This scene precedes the trial.",
+          "notes": "A different object and scene from the Naples Black Fury Painter krater."
+        }
+      ]
+    },
+    {
+      "work_id": "ajax",
+      "title": "Ajax",
+      "status": "found",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Château-musée de Boulogne-sur-Mer",
+            "inventory": "",
+            "shape": "Attic black-figure amphora",
+            "painter": "Exekias",
+            "date": "ca. 530–525 BCE"
+          },
+          "scene": "Ajax plants his sword before suicide",
+          "figure": "Crouching Ajax; confirm full outline and height",
+          "link_to_play": "myth",
+          "identification": "Commons file identifies the Exekias vase",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Exekias_Suicide_d_Ajax_01.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Exekias_Suicide_d_Ajax_01.jpg",
+          "file_url": "",
+          "pixel_size": "2228x1780",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 3.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Exekias_Suicide_d_Ajax_01.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license.",
+          "detail": "high: crisp incised lines",
+          "risks": "No nudity reported. The scene reveals the play's outcome.",
+          "notes": "Consider another Ajax myth if spoilers outweigh the direct subject."
+        }
+      ]
+    },
+    {
+      "work_id": "antigone",
+      "title": "Antigone",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Walters Art Museum",
+            "inventory": "48.2012",
+            "shape": "white-ground lekythos",
+            "painter": "Thanatos Painter",
+            "date": "440–430 BCE"
+          },
+          "scene": "Woman mourns beside a tomb",
+          "figure": "Mourning woman; check full outline",
+          "link_to_play": "thematic",
+          "identification": "Walters description of grave tending on the Commons page",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Thanatos_Painter_-_White-Ground_Lekythos_-_Walters_482012.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Thanatos_Painter_-_White-Ground_Lekythos_-_Walters_482012.jpg",
+          "file_url": "",
+          "pixel_size": "1126x1800",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 3.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Thanatos_Painter_-_White-Ground_Lekythos_-_Walters_482012.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license.",
+          "detail": "low: pigment has flaked",
+          "risks": "No nudity reported; flaking weakens lines. Not Antigone.",
+          "notes": "Thematic burial scene."
+        }
+      ]
+    },
+    {
+      "work_id": "trachiniae",
+      "title": "Women of Trachis",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Staatliche Antikensammlungen, Munich",
+            "inventory": "1905 / J772",
+            "shape": "Attic white-ground lekythos",
+            "painter": "Edinburgh Painter",
+            "date": "ca. 500 BCE"
+          },
+          "scene": "Heracles shoots Nessos as Deianira escapes",
+          "figure": "Running Deianira, if the full body is visible",
+          "link_to_play": "myth",
+          "identification": "Commons description and LIMC, Nessos 81",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Nessos_Staatliche_Antikensammlungen_1905.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Nessos_Staatliche_Antikensammlungen_1905.jpg",
+          "file_url": "",
+          "pixel_size": "1616x2216",
+          "figure_height_px": null,
+          "licence": "public domain",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Nessos_Staatliche_Antikensammlungen_1905.jpg",
+          "licence_evidence_quote": "I, the copyright holder of this work, release this work into the public domain.",
+          "detail": "low to medium: worn white-ground lines",
+          "risks": "No nudity reported for Deianira. Nessos's death is backstory.",
+          "notes": "Different from the Heracles landing image."
+        }
+      ]
+    },
+    {
+      "work_id": "oedipus-tyrannus",
+      "title": "Oedipus Tyrannus",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "British Museum",
+            "inventory": "1887,0801.46 / E696",
+            "shape": "Attic red-figure lekythos",
+            "painter": "manner of the Meidias Painter",
+            "date": "420–400 BCE"
+          },
+          "scene": "Oedipus confronts the Sphinx",
+          "figure": "Oedipus; outline and scale need check",
+          "link_to_play": "myth",
+          "identification": "Commons and British Museum descriptions identify the scene",
+          "identification_url": "https://www.britishmuseum.org/collection/object/G_1887-0801-46",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Oedipus_Sphinx_BM_Vase_E696.jpg",
+          "file_url": "",
+          "pixel_size": "2127x2736",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 3.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Oedipus_Sphinx_BM_Vase_E696.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license.",
+          "detail": "medium: inner lines visible, file modest",
+          "risks": "No nudity reported. Myth precedes the play; Sphinx may be dying.",
+          "notes": "Different object from Berlin F2355."
+        }
+      ]
+    },
+    {
+      "work_id": "electra-soph",
+      "title": "Electra",
+      "status": "found",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Museo Archeologico Nazionale Domenico Ridola, Matera",
+            "inventory": "",
+            "shape": "Apulian red-figure amphora",
+            "painter": "Graz Painter",
+            "date": "ca. 360–340 BCE, disputed"
+          },
+          "scene": "Electra mourns at Agamemnon's tomb; Orestes stands nearby",
+          "figure": "Seated, draped Electra; tomb may touch her",
+          "link_to_play": "myth",
+          "identification": "Commons description cites CVA and RVAp",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Graz_Painter_-_RVAp_6-extra_-_Elektra_and_Orestes_at_the_tomb_of_Agamemnon_-_draped_youths_-_Matera_MANDR_-_02.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Graz_Painter_-_RVAp_6-extra_-_Elektra_and_Orestes_at_the_tomb_of_Agamemnon_-_draped_youths_-_Matera_MANDR_-_02.jpg",
+          "file_url": "",
+          "pixel_size": "3321x4974",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Graz_Painter_-_RVAp_6-extra_-_Elektra_and_Orestes_at_the_tomb_of_Agamemnon_-_draped_youths_-_Matera_MANDR_-_02.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "high: late Apulian drapery",
+          "risks": "No nudity reported. Need full figure and size check.",
+          "notes": "Distinct from Munich 3266 chosen for Libation Bearers."
+        }
+      ]
+    },
+    {
+      "work_id": "philoctetes",
+      "title": "Philoctetes",
+      "status": "found",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Metropolitan Museum of Art",
+            "inventory": "56.171.58",
+            "shape": "Attic red-figure squat lekythos",
+            "painter": "",
+            "date": "ca. 420 BCE"
+          },
+          "scene": "Philoctetes alone on Lemnos",
+          "figure": "Philoctetes; full silhouette needs check",
+          "link_to_play": "myth",
+          "identification": "Commons caption and Met record 130015419",
+          "identification_url": "https://www.metmuseum.org/art/collection/search/130015419",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Philoktetes_Lemnos_Met_56.171.58.jpg",
+          "file_url": "",
+          "pixel_size": "2150x2425",
+          "figure_height_px": null,
+          "licence": "CC BY 2.5",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Philoktetes_Lemnos_Met_56.171.58.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution 2.5 Generic license.",
+          "detail": "medium: Attic red-figure lines",
+          "risks": "No nudity stated; wound and bow need visual check.",
+          "notes": "Credit Marie-Lan Nguyen."
+        }
+      ]
+    },
+    {
+      "work_id": "oedipus-coloneus",
+      "title": "Oedipus at Colonus",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "British Museum",
+            "inventory": "1863,0728.1 / E310",
+            "shape": "Attic red-figure neck amphora",
+            "painter": "Berlin Painter",
+            "date": "ca. 490 BCE"
+          },
+          "scene": "Old bearded man stands with staff",
+          "figure": "Draped old man and staff; not identified as Oedipus",
+          "link_to_play": "thematic",
+          "identification": "Commons cites Beazley ARV 202.84 and BAPD 201892",
+          "identification_url": "https://www.britishmuseum.org/collection/object/G_1863-0728-1",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Painter_-_ARV_202_84_-_warrior_pursuing_woman_-_old_man_-_London_BM_1863-0728-1_-_05.jpg",
+          "file_url": "",
+          "pixel_size": "3494x4938",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": false,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Berlin_Painter_-_ARV_202_84_-_warrior_pursuing_woman_-_old_man_-_London_BM_1863-0728-1_-_05.jpg",
+          "licence_evidence_quote": "",
+          "detail": "medium: crisp outline, spare inner lines",
+          "risks": "No nudity on old man. Blindness is not shown or confirmed.",
+          "notes": "Hamburg 1984.502 has a possible Oedipus but image rights unconfirmed."
+        }
+      ]
+    },
+    {
+      "work_id": "acharnians",
+      "title": "Acharnians",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "J. Paul Getty Museum",
+            "inventory": "96.AE.96",
+            "shape": "Attic black-figure kylix",
+            "painter": "near the Theseus Painter",
+            "date": "ca. 525–500 BCE"
+          },
+          "scene": "A fish market",
+          "figure": "Fish seller; check full outline and height",
+          "link_to_play": "thematic",
+          "identification": "Getty / Google Arts & Culture identifies the fish market",
+          "identification_url": "https://artsandculture.google.com/asset/attic-black-figure-kylix-theseus-painter/KAE_KoKw9ECuig?hl=en",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Greek_Kylix_Wine_Cup_with_a_Fishmonger%2C_Athens_(10465553394).jpg",
+          "file_url": "",
+          "pixel_size": "4752x3168",
+          "figure_height_px": null,
+          "licence": "CC0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Greek_Kylix_Wine_Cup_with_a_Fishmonger%2C_Athens_(10465553394).jpg",
+          "licence_evidence_quote": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication.",
+          "detail": "medium: incised black-figure details",
+          "risks": "No nudity reported; figure height and overlaps unconfirmed. It is not Dicaeopolis' market.",
+          "notes": "Thematic market, not a scene of the play."
+        }
+      ]
+    },
+    {
+      "work_id": "knights",
+      "title": "Knights",
+      "status": "none",
+      "candidates": []
+    },
+    {
+      "work_id": "clouds",
+      "title": "Clouds",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Antikensammlungen, Berlin",
+            "inventory": "F2285",
+            "shape": "Attic red-figure kylix",
+            "painter": "Douris",
+            "date": "ca. 485–480 BCE"
+          },
+          "scene": "School lessons in reading, writing and music",
+          "figure": "Draped teacher or student with scroll; inspect full outline",
+          "link_to_play": "thematic",
+          "identification": "Commons file description cites Beazley ARV 431.48",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Douris_ARV_431_48_athlete_-_school_scenes_(05).jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Douris_ARV_431_48_athlete_-_school_scenes_(05).jpg",
+          "file_url": "",
+          "pixel_size": "3648x3580",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Douris_ARV_431_48_athlete_-_school_scenes_(05).jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: Douris gives fine faces and clothing",
+          "risks": "No nudity in selected school figure; figure height unconfirmed. This is not Socrates' Thinkery.",
+          "notes": "The school motif is a loose play link."
+        }
+      ]
+    },
+    {
+      "work_id": "wasps",
+      "title": "Wasps",
+      "status": "none",
+      "candidates": []
+    },
+    {
+      "work_id": "peace",
+      "title": "Peace",
+      "status": "none",
+      "candidates": []
+    },
+    {
+      "work_id": "birds",
+      "title": "Birds",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Museo Civico Archeologico, Bologna",
+            "inventory": "P506",
+            "shape": "Attic red-figure skyphos",
+            "painter": "",
+            "date": "ca. 450–430 BCE"
+          },
+          "scene": "An owl stands between olive twigs on each side",
+          "figure": "One complete owl; height of painted bird unconfirmed",
+          "link_to_play": "thematic",
+          "identification": "Commons object description citing BAPD 15326",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Early_classical_Attic_red_figure_owl-skyphos_-_ARV_extra_-_owl_-_owl_-_Bologna_MCA_P_506.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Early_classical_Attic_red_figure_owl-skyphos_-_ARV_extra_-_owl_-_owl_-_Bologna_MCA_P_506.jpg",
+          "file_url": "",
+          "pixel_size": "6438x3845",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Early_classical_Attic_red_figure_owl-skyphos_-_ARV_extra_-_owl_-_owl_-_Bologna_MCA_P_506.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "low: simple bird with few inner lines",
+          "risks": "No nudity. Bird is likely much less than 800 px tall and does not show the play.",
+          "notes": "Bird actor pelike at Emory has a costume phallus and its photo has reserved rights; excluded."
+        }
+      ]
+    },
+    {
+      "work_id": "lysistrata",
+      "title": "Lysistrata",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Metropolitan Museum of Art",
+            "inventory": "96.18.29",
+            "shape": "Attic red-figure pelike",
+            "painter": "Argos Painter",
+            "date": "ca. 480–470 BCE"
+          },
+          "scene": "Woman with mirror and wool basket",
+          "figure": "Single draped woman; check file size and outline",
+          "link_to_play": "thematic",
+          "identification": "Met notes that weaving Athena's peplos was a major task and this woman could have taken part",
+          "identification_url": "https://www.metmuseum.org/art/collection/search/246557",
+          "publication": "",
+          "file_page_url": "https://www.metmuseum.org/art/collection/search/246557",
+          "file_url": "",
+          "pixel_size": null,
+          "figure_height_px": null,
+          "licence": "public domain",
+          "licence_verified": true,
+          "licence_evidence_url": "https://www.metmuseum.org/art/collection/search/246557",
+          "licence_evidence_quote": "Public Domain",
+          "detail": "medium: Attic dress lines",
+          "risks": "No nudity reported. The Athena link is suggested, not a scene of Acropolis occupation.",
+          "notes": "Use only as a women-and-Athena thematic source."
+        }
+      ]
+    },
+    {
+      "work_id": "thesmophoriazusae",
+      "title": "Women at the Thesmophoria",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Walters Art Museum",
+            "inventory": "48.192",
+            "shape": "Corinthian bottle",
+            "painter": "Skating Painter",
+            "date": "ca. 600–570 BCE"
+          },
+          "scene": "Women dance with wreaths; one carries a ritual basket",
+          "figure": "Draped basket carrier; check that whole body appears in profile file",
+          "link_to_play": "thematic",
+          "identification": "Walters description on Commons identifies a festival dance and ritual basket",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Skating_Painter_-_Bottle_Depicting_Women_in_a_Ritual_Dance_-_Walters_48192_-_Profile.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Skating_Painter_-_Bottle_Depicting_Women_in_a_Ritual_Dance_-_Walters_48192_-_Profile.jpg",
+          "file_url": "",
+          "pixel_size": "1799x1350",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 3.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Skating_Painter_-_Bottle_Depicting_Women_in_a_Ritual_Dance_-_Walters_48192_-_Profile.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license.",
+          "detail": "medium: black figure incisions may be clear",
+          "risks": "No nudity described; full figure and pixel height unconfirmed. Festival is not identified as Thesmophoria.",
+          "notes": "Different object from Würzburg H5697."
+        }
+      ]
+    },
+    {
+      "work_id": "frogs",
+      "title": "Frogs",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "British Museum",
+            "inventory": "1865,0103.29 / F233",
+            "shape": "Campanian red-figure oinochoe",
+            "painter": "Seated Nike Painter",
+            "date": "ca. 350–340 BCE"
+          },
+          "scene": "Masked comic actor beside a small Heracles statue",
+          "figure": "The costumed actor; check full feet and size",
+          "link_to_play": "thematic",
+          "identification": "Commons labels actor Xanthias; scholarship disputes whether this is the play's Xanthias",
+          "identification_url": "https://www.britishmuseum.org/collection/object/G_1865-0103-29",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Xanthias_Heracles_BM_VaseF233.jpg",
+          "file_url": "",
+          "pixel_size": "2125x2833",
+          "figure_height_px": null,
+          "licence": "CC BY 2.5",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Xanthias_Heracles_BM_VaseF233.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution 2.5 Generic license.",
+          "detail": "medium: Campanian costume lines",
+          "risks": "Hamburg study reports no costume phallus. No nudity apparent from descriptions; full outline needs inspection.",
+          "notes": "Do not claim this shows a performance of Frogs. Credit Marie-Lan Nguyen."
+        }
+      ]
+    },
+    {
+      "work_id": "ecclesiazusae",
+      "title": "Assemblywomen",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Metropolitan Museum of Art",
+            "inventory": "06.1117a,b",
+            "shape": "Attic red-figure pyxis",
+            "painter": "Painter of Philadelphia 2449",
+            "date": "ca. 460 BCE"
+          },
+          "scene": "Six women converse and work wool",
+          "figure": "A draped woman standing with a distaff; check image and scale",
+          "link_to_play": "thematic",
+          "identification": "Met object record identifies six women and their tasks",
+          "identification_url": "https://www.metmuseum.org/art/collection/search/247535",
+          "publication": "",
+          "file_page_url": "https://www.metmuseum.org/art/collection/search/247535",
+          "file_url": "",
+          "pixel_size": null,
+          "figure_height_px": null,
+          "licence": "public domain",
+          "licence_verified": true,
+          "licence_evidence_url": "https://www.metmuseum.org/art/collection/search/247535",
+          "licence_evidence_quote": "Public Domain",
+          "detail": "medium: Attic interior lines, size unknown",
+          "risks": "No nudity on selected standing woman reported; no disguise or assembly is depicted.",
+          "notes": "Women conversing is a loose link, not a play scene."
+        }
+      ]
+    },
+    {
+      "work_id": "wealth",
+      "title": "Wealth",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "National Archaeological Museum, Athens",
+            "inventory": "16346",
+            "shape": "Attic red-figure pelike",
+            "painter": "Orestes Painter",
+            "date": "ca. 450–440 BCE"
+          },
+          "scene": "Ploutos holds cornucopia beside Demeter",
+          "figure": "Ploutos with horn; inspect overlap with Demeter and painted height",
+          "link_to_play": "myth",
+          "identification": "Commons description cites Beazley ARV 1113.11 and BAPD 214719",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Orestes_Painter_-_ARV_1113_11_-_Ploutos_and_Demeter_-_draped_youths_-_Athens_NAM_16346_-_04.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Orestes_Painter_-_ARV_1113_11_-_Ploutos_and_Demeter_-_draped_youths_-_Athens_NAM_16346_-_04.jpg",
+          "file_url": "",
+          "pixel_size": "3450x4528",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Orestes_Painter_-_ARV_1113_11_-_Ploutos_and_Demeter_-_draped_youths_-_Athens_NAM_16346_-_04.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: distinct lines but modest detail",
+          "risks": "No nudity reported. Ploutos is not shown blind, and the scene predates the play.",
+          "notes": "Strong figure identification but no specific play link."
+        }
+      ]
+    }
+  ]
+}

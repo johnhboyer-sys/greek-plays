@@ -1,0 +1,641 @@
+{
+  "lane": "B",
+  "plays": [
+    {
+      "work_id": "alcestis",
+      "title": "Alcestis",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Fiesole, Museo Civico Archeologico",
+            "inventory": "",
+            "shape": "Apulian red-figure oinochoe",
+            "painter": "Group of BM F 308",
+            "date": "ca. 340–330 BCE"
+          },
+          "scene": "Heracles returns Alcestis to Admetus; children and other figures surround them.",
+          "figure": "Alcestis, between two children in the lower register.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Group_of_BM_F_308_-_RVAp_16-68_-_return_of_Alkestis_from_the_underworld-_Fiesole_MCA_-_11.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Group_of_BM_F_308_-_RVAp_16-68_-_return_of_Alkestis_from_the_underworld-_Fiesole_MCA_-_11.jpg",
+          "file_url": "",
+          "pixel_size": "3648x5472",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Group_of_BM_F_308_-_RVAp_16-68_-_return_of_Alkestis_from_the_underworld-_Fiesole_MCA_-_11.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Return from death gives away the ending. Figures crowd the scene; whole outline, figure height, and any nudity need visual check.",
+          "notes": "The file cites Trendall and Cambitoglou, RVAp 16/68."
+        }
+      ]
+    },
+    {
+      "work_id": "medea",
+      "title": "Medea",
+      "status": "none",
+      "candidates": []
+    },
+    {
+      "work_id": "heraclidae",
+      "title": "Children of Heracles",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Policoro, Museo Nazionale della Siritide",
+            "inventory": "35302",
+            "shape": "Lucanian red-figure pelike",
+            "painter": "associated with Karneia Painter / Policoro Painter",
+            "date": "ca. 400 BCE"
+          },
+          "scene": "Five sons of Heracles seek refuge with Iolaus at a sanctuary.",
+          "figure": "One clothed son at the refuge column, pending full-size inspection.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Associated_with_the_Karneia_Painter_-_LCS_I_283_-_the_Heraklides_in_the_sanctuary_of_Marathon_-_youths_-_Policoro_MNdS_35302_-_03.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Associated_with_the_Karneia_Painter_-_LCS_I_283_-_the_Heraklides_in_the_sanctuary_of_Marathon_-_youths_-_Policoro_MNdS_35302_-_03.jpg",
+          "file_url": "",
+          "pixel_size": "3648x5472",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Associated_with_the_Karneia_Painter_-_LCS_I_283_-_the_Heraklides_in_the_sanctuary_of_Marathon_-_youths_-_Policoro_MNdS_35302_-_03.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Several figures meet or overlap; which son has a whole outline and reaches 800 px is unverified. Nudity needs check.",
+          "notes": "Caption cites Trendall, LCS I 283."
+        }
+      ]
+    },
+    {
+      "work_id": "hippolytus",
+      "title": "Hippolytus",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Paphos Archaeological Park",
+            "inventory": "",
+            "shape": "floor mosaic",
+            "painter": "",
+            "date": "Roman"
+          },
+          "scene": "Hippolytus rejects Phaedra, with Eros nearby.",
+          "figure": "Hippolytus; Commons annotation marks a 544 × 781 px area.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Paphos_Haus_des_Dionysos_-_Phaedra_1.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Paphos_Haus_des_Dionysos_-_Phaedra_1.jpg",
+          "file_url": "",
+          "pixel_size": "2560x1712",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 3.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Paphos_Haus_des_Dionysos_-_Phaedra_1.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported, 2.5 Generic, 2.0 Generic and 1.0 Generic license.",
+          "detail": "low: mosaic pieces do not give dense, crisp interior lines",
+          "risks": "The annotated Hippolytus is only 781 px tall, below the brief’s 800 px minimum. Whole outline and nudity need visual check.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "andromache",
+      "title": "Andromache",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Ferrara, Museo Archeologico Nazionale",
+            "inventory": "5081",
+            "shape": "red-figure volute krater",
+            "painter": "unattributed",
+            "date": "classical"
+          },
+          "scene": "Sack of Troy, with Andromache holding baby Astyanax among violent scenes.",
+          "figure": "Andromache with the child; crop this pair alone.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Probably_Attic_red-figure_volute-krater_-_ARV_extra_-_Dionysos_with_maenads_and_satyrs_-_Caledonian_boar_hunt_-_Ilioupersis_-_Centauromachy_-_Ferrara_MAN_5081_-_12.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Probably_Attic_red-figure_volute-krater_-_ARV_extra_-_Dionysos_with_maenads_and_satyrs_-_Caledonian_boar_hunt_-_Ilioupersis_-_Centauromachy_-_Ferrara_MAN_5081_-_12.jpg",
+          "file_url": "",
+          "pixel_size": "5285x7924",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Probably_Attic_red-figure_volute-krater_-_ARV_extra_-_Dionysos_with_maenads_and_satyrs_-_Caledonian_boar_hunt_-_Ilioupersis_-_Centauromachy_-_Ferrara_MAN_5081_-_12.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "The wider scene contains killing and assault; crop only Andromache and child. This depicts Troy, not Euripides’ later plot. Whole outline, size, and nudity need visual check.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "hecuba",
+      "title": "Hecuba",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "British Museum",
+            "inventory": "1900,0519.1",
+            "shape": "Apulian red-figure loutrophoros",
+            "painter": "Darius Painter",
+            "date": "ca. 340–320 BCE"
+          },
+          "scene": "Blinded Polymestor stands with Agamemnon, Hecuba, and attendants above mourners at a tomb.",
+          "figure": "Hecuba in upper scene, away from the lower mourning group.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Darius_Painter_-_RVAp_18-19_-_Polymestor_-_women_and_youths_at_stele_-_women_and_youths_at_laver_-_London_BM_1900-0519-1_-_02.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Darius_Painter_-_RVAp_18-19_-_Polymestor_-_women_and_youths_at_stele_-_women_and_youths_at_laver_-_London_BM_1900-0519-1_-_02.jpg",
+          "file_url": "",
+          "pixel_size": "3648x5472",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Darius_Painter_-_RVAp_18-19_-_Polymestor_-_women_and_youths_at_stele_-_women_and_youths_at_laver_-_London_BM_1900-0519-1_-_02.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Polymestor’s blinding gives away a late event. Dense composition; outline and height need check. Nudity needs check.",
+          "notes": "Caption cites Trendall and Cambitoglou, RVAp 18/19."
+        }
+      ]
+    },
+    {
+      "work_id": "suppliants-eur",
+      "title": "Suppliant Women",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Walters Art Museum",
+            "inventory": "48.2012",
+            "shape": "white-ground lekythos",
+            "painter": "Thanatos Painter",
+            "date": "440–430 BCE"
+          },
+          "scene": "A woman mourns at a tomb as the deceased youth approaches.",
+          "figure": "The mourning woman bending toward the grave.",
+          "link_to_play": "thematic",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Thanatos_Painter_-_White-Ground_Lekythos_-_Walters_482012.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Thanatos_Painter_-_White-Ground_Lekythos_-_Walters_482012.jpg",
+          "file_url": "",
+          "pixel_size": "1126x1800",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 3.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Thanatos_Painter_-_White-Ground_Lekythos_-_Walters_482012.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license.",
+          "detail": "low: the museum text says pigments have flaked off, leaving preliminary dress lines",
+          "risks": "Anonymous mourner, not one of the Argive mothers. No firm tie to this play; figure height and outline need visual check. No nudity reported.",
+          "notes": "The play link is to mourning and burial only, not Danaid supplication."
+        }
+      ]
+    },
+    {
+      "work_id": "electra-eur",
+      "title": "Electra",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Louvre",
+            "inventory": "K 428",
+            "shape": "Campanian red-figure hydria",
+            "painter": "Painter of Louvre K 428",
+            "date": "ca. 330 BCE"
+          },
+          "scene": "Orestes, Electra, and Pylades at Agamemnon’s tomb.",
+          "figure": "Electra at the tomb, if her outline is free.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Orestes_Elektra_Pylades_Louvre_K428.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Orestes_Elektra_Pylades_Louvre_K428.jpg",
+          "file_url": "",
+          "pixel_size": "2072x1864",
+          "figure_height_px": null,
+          "licence": "public domain",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Orestes_Elektra_Pylades_Louvre_K428.jpg",
+          "licence_evidence_quote": "I, the copyright holder of this work, release this work into the public domain. This applies worldwide.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Tomb setting fits other Electra plays better than Euripides’ rural setting; keep separate from other Electra drawings. Outline, height, and nudity need check.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "heracles",
+      "title": "Heracles",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "National Archaeology Museum, Lisbon",
+            "inventory": "",
+            "shape": "Roman mosaic",
+            "painter": "",
+            "date": "3rd–4th century CE"
+          },
+          "scene": "The madness of Heracles, tied in the file to his killing of Megara and children.",
+          "figure": "Heracles figure, if a whole outline can be isolated.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Mosaic_panel_depicting_the_madness_of_Heracles_(Hercules_furens),_from_the_Villa_Torre_de_Palma_near_Monforte,_3rd-4th_century_AD,_National_Archaeology_Museum_of_Lisbon,_Portugal_(12973814465).jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Mosaic_panel_depicting_the_madness_of_Heracles_(Hercules_furens),_from_the_Villa_Torre_de_Palma_near_Monforte,_3rd-4th_century_AD,_National_Archaeology_Museum_of_Lisbon,_Portugal_(12973814465).jpg",
+          "file_url": "",
+          "pixel_size": "4567x3264",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 2.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Mosaic_panel_depicting_the_madness_of_Heracles_(Hercules_furens),_from_the_Villa_Torre_de_Palma_near_Monforte,_3rd-4th_century_AD,_National_Archaeology_Museum_of_Lisbon,_Portugal_(12973814465).jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 2.0 Generic license.",
+          "detail": "low: mosaic pieces give coarse interior lines",
+          "risks": "Killing of family is the play’s main violent turn and a spoiler; image may be unfit for tracing. Figure size, outline, and nudity need check.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "trojan-women",
+      "title": "Trojan Women",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Naples National Archaeological Museum",
+            "inventory": "2422",
+            "shape": "Attic red-figure hydria",
+            "painter": "Kleophrades Painter",
+            "date": "ca. 490–480 BCE"
+          },
+          "scene": "Sack of Troy with two seated mourning women amid other episodes.",
+          "figure": "One seated, unnamed mourner; do not label her Hecuba.",
+          "link_to_play": "thematic",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Kleophrades_Painter_-_ARV_189_74_-_Ilioupersis_-_Napoli_MAN_2422_-_03.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Kleophrades_Painter_-_ARV_189_74_-_Ilioupersis_-_Napoli_MAN_2422_-_03.jpg",
+          "file_url": "",
+          "pixel_size": "5149x2972",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Kleophrades_Painter_-_ARV_189_74_-_Ilioupersis_-_Napoli_MAN_2422_-_03.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Surrounding scene includes assault and killing; crop mourner only. Figure size, outline, and nudity need check. This is distinct from the named Hecuba on the Darius Painter vase.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "iphigenia-in-tauris",
+      "title": "Iphigenia in Tauris",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Basel, Antikenmuseum und Sammlung Ludwig",
+            "inventory": "BS 1469",
+            "shape": "Apulian red-figure calyx krater",
+            "painter": "Hippolyte Painter",
+            "date": "ca. 350–340 BCE"
+          },
+          "scene": "Iphigenia, Orestes, and Pylades in Artemis’s sanctuary; names inscribed.",
+          "figure": "Clothed Iphigenia by the altar or cult image.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Hippolyte_Painter_-_RVAp_18-extra_-_Iphigenia_in_Tauris_-_youth_with_maenad_and_satyr_-_Basel_ASuSL_BS_1469_-_01.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Hippolyte_Painter_-_RVAp_18-extra_-_Iphigenia_in_Tauris_-_youth_with_maenad_and_satyr_-_Basel_ASuSL_BS_1469_-_01.jpg",
+          "file_url": "",
+          "pixel_size": "3410x4506",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Hippolyte_Painter_-_RVAp_18-extra_-_Iphigenia_in_Tauris_-_youth_with_maenad_and_satyr_-_Basel_ASuSL_BS_1469_-_01.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Check whole outline and height. Nude youth and satyr are on side B; do not include them. No hiding is expected for Iphigenia.",
+          "notes": "The named sanctuary scene differs from the Buckingham letter scene and from the Aulis sacrifice."
+        }
+      ]
+    },
+    {
+      "work_id": "ion",
+      "title": "Ion",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Archaeological Museum of Agrigento",
+            "inventory": "AG 4688",
+            "shape": "red-figure bell krater",
+            "painter": "Kleophon Painter",
+            "date": "ca. 420 BCE"
+          },
+          "scene": "Sacrifice at Apollo’s sanctuary in Delphi, with a young servant carrying a large plate.",
+          "figure": "The young servant with the plate; not identified as Ion.",
+          "link_to_play": "thematic",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Red_figure_bell_crater,_sacrificial_scene_at_Delphi,_420_BC,_AM_Agrigento,_120968.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Red_figure_bell_crater,_sacrificial_scene_at_Delphi,_420_BC,_AM_Agrigento,_120968.jpg",
+          "file_url": "",
+          "pixel_size": "3406x2271",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Red_figure_bell_crater,_sacrificial_scene_at_Delphi,_420_BC,_AM_Agrigento,_120968.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Generic servant, no known link to Ion himself. Whole outline, height, and nudity need check.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "helen",
+      "title": "Helen",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Louvre",
+            "inventory": "G 424",
+            "shape": "Attic red-figure krater",
+            "painter": "Menelaus Painter",
+            "date": "ca. 450–440 BCE"
+          },
+          "scene": "Menelaus drops his sword on seeing Helen; Aphrodite and Eros look on.",
+          "figure": "Helen, if the outline permits a clean cut.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Helen_Menelaus_Louvre_G424_full.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Helen_Menelaus_Louvre_G424_full.jpg",
+          "file_url": "",
+          "pixel_size": "1800x1900",
+          "figure_height_px": null,
+          "licence": "public domain",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Helen_Menelaus_Louvre_G424_full.jpg",
+          "licence_evidence_quote": "I, the copyright holder of this work, release this work into the public domain. This applies worldwide.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "The vase shows the postwar recovery tale, while Euripides’ Helen is set in Egypt. No Egyptian cue. Sword signals danger but no killing shown; outline, size, and nudity need check.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "phoenician-women",
+      "title": "Phoenician Women",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Museu Nacional, Rio de Janeiro",
+            "inventory": "",
+            "shape": "red-figure calyx krater",
+            "painter": "unattributed",
+            "date": "late 4th century BCE"
+          },
+          "scene": "The brothers Eteocles and Polynices fight.",
+          "figure": "One warrior, if isolated cleanly.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Cratera_em_cálice_de_figuras_vermelhas_MN_(séc._IV_a.C.)_01.).jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Cratera_em_cálice_de_figuras_vermelhas_MN_(séc._IV_a.C.)_01.).jpg",
+          "file_url": "",
+          "pixel_size": "1663x2374",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Cratera_em_cálice_de_figuras_vermelhas_MN_(séc._IV_a.C.)_01.).jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Combat is the fatal family conflict and spoils the ending. The photo is only 1663 px wide; figure may be under 800 px. Outline and nudity need check.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "orestes",
+      "title": "Orestes",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Kerameikos Archaeological Museum",
+            "inventory": "2712",
+            "shape": "Attic red-figure vessel",
+            "painter": "Meidias Painter",
+            "date": "ca. 430–420 BCE"
+          },
+          "scene": "Clytemnestra suckles infant Orestes on the shoulder; another register shows maenads killing Pentheus.",
+          "figure": "Clytemnestra holding the infant, only as a last-resort thematic pair.",
+          "link_to_play": "thematic",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Meidias_Painter_ARV_1313_6_Helena_and_her_sisters_-_maenads_killing_Pentheus_(02).jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Meidias_Painter_ARV_1313_6_Helena_and_her_sisters_-_maenads_killing_Pentheus_(02).jpg",
+          "file_url": "",
+          "pixel_size": "3648x4609",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Meidias_Painter_ARV_1313_6_Helena_and_her_sisters_-_maenads_killing_Pentheus_(02).jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Infant Orestes is far from the play’s adult crisis; likely too small for an 800 px trace. Crop away the Pentheus killing. Whole outline and nudity need check.",
+          "notes": "No identified vase tied to Euripides’ Orestes was confirmed; this records only a very weak name-linked fallback."
+        }
+      ]
+    },
+    {
+      "work_id": "bacchae",
+      "title": "Bacchae",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Munich, Staatliche Antikensammlungen",
+            "inventory": "2645",
+            "shape": "white-ground and red-figure kylix",
+            "painter": "Brygos Painter",
+            "date": "late archaic / early classical"
+          },
+          "scene": "A maenad moves with a thyrsus and baby panther in the cup’s center.",
+          "figure": "The central maenad, not a named character from the play.",
+          "link_to_play": "thematic",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Brygos_Painter_-_ARV_371_15_-_maenad_-_Dionysos_with_satyrs_and_maenads_-_München_AS_2645_-_08.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Brygos_Painter_-_ARV_371_15_-_maenad_-_Dionysos_with_satyrs_and_maenads_-_München_AS_2645_-_08.jpg",
+          "file_url": "",
+          "pixel_size": "5472x3648",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Brygos_Painter_-_ARV_371_15_-_maenad_-_Dionysos_with_satyrs_and_maenads_-_München_AS_2645_-_08.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "A dark firing mark crosses the cup center; inspect whether it spoils the figure. Figure height, outline, and nudity need check. No killing in chosen scene.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "iphigenia-at-aulis",
+      "title": "Iphigenia at Aulis",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "British Museum",
+            "inventory": "1865,0103.21",
+            "shape": "Apulian red-figure volute krater",
+            "painter": "Ilioupersis Painter",
+            "date": "ca. 360–350 BCE"
+          },
+          "scene": "The sacrifice of Iphigenia.",
+          "figure": "Iphigenia, pending full-size inspection of the figure and its edges.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Sacrificio_de_Ifigenia,_British_Museum.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Sacrificio_de_Ifigenia,_British_Museum.jpg",
+          "file_url": "",
+          "pixel_size": "3030x4040",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Sacrificio_de_Ifigenia,_British_Museum.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Shows the climactic sacrifice, so it gives away the ending. Whole figure, size, and nudity need visual check. This is a painted vase, unlike failed Met relief bowl 31.11.2.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "rhesus",
+      "title": "Rhesus",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "Naples National Archaeological Museum",
+            "inventory": "",
+            "shape": "Apulian red-figure situla",
+            "painter": "Lycurgus Painter",
+            "date": "ca. 360 BCE"
+          },
+          "scene": "Odysseus and Diomedes steal Rhesus’s horses after killing him.",
+          "figure": "Odysseus in pilos or one horse-handler, if whole.",
+          "link_to_play": "myth",
+          "identification": "Wikimedia Commons file description",
+          "identification_url": "https://commons.wikimedia.org/wiki/File:Rhesos_MNA_Naples.jpg",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Rhesos_MNA_Naples.jpg",
+          "file_url": "",
+          "pixel_size": "1800x2140",
+          "figure_height_px": null,
+          "licence": "public domain",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Rhesos_MNA_Naples.jpg",
+          "licence_evidence_quote": "I, the copyright holder of this work, release this work into the public domain. This applies worldwide.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "The theft follows Rhesus’s death and spoils the ending. Whole figure, height, and nudity need check.",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "work_id": "cyclops",
+      "title": "Cyclops",
+      "status": "weak",
+      "candidates": [
+        {
+          "rank": 1,
+          "kind": "photo",
+          "object": {
+            "museum": "British Museum",
+            "inventory": "1947,0714.18",
+            "shape": "Lucanian red-figure calyx krater",
+            "painter": "Cyclops Painter",
+            "date": "ca. 420–410 BCE"
+          },
+          "scene": "Odysseus and comrades ready the stake to blind Polyphemus; two satyrs stand at right.",
+          "figure": "A clothed Odysseus or comrade, avoiding any satyr phallus.",
+          "link_to_play": "play itself",
+          "identification": "British Museum Greek theatre guide says the satyrs suggest a link to Euripides’ Cyclops; it does not prove a stage record.",
+          "identification_url": "https://www.britishmuseum.org/sites/default/files/2019-10/british_museum_greek_theatre.pdf",
+          "publication": "",
+          "file_page_url": "https://commons.wikimedia.org/wiki/File:Cyclops_Painter_-_LCS_I_85_-_Odysseus_blinding_Polyphemos_-_draped_youths_-_London_BM_1947-0714-18_-_03.jpg",
+          "file_url": "",
+          "pixel_size": "3383x4595",
+          "figure_height_px": null,
+          "licence": "CC BY-SA 4.0",
+          "licence_verified": true,
+          "licence_evidence_url": "https://commons.wikimedia.org/wiki/File:Cyclops_Painter_-_LCS_I_85_-_Odysseus_blinding_Polyphemos_-_draped_youths_-_London_BM_1947-0714-18_-_03.jpg",
+          "licence_evidence_quote": "This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.",
+          "detail": "medium: painted interior lines; trace quality needs visual check",
+          "risks": "Blinding is the violent climax. Satyrs may show exposed genitals or costume phalluses; exclude them. Whole outline and height of chosen clothed man need check.",
+          "notes": "The guide and Commons identify the vase; the file is the photographer’s CC BY-SA copy, not the museum image."
+        }
+      ]
+    }
+  ]
+}
