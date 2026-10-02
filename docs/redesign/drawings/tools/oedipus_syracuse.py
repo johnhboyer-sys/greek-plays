@@ -14,9 +14,9 @@ the cut is loose there: inside OUTLINE, wide areas of glaze that reach the
 background are left out and the clay figure, with its painted lines, stays.
 Hand-drawn shapes do the rest: the stage floor and the girl (FLOOR, below
 the hem), the modern plaster fill by his elbow (PLASTER), his hair (HAIR,
-drawn solid), and his two black shoes on the floor (SHOES). His beard's
-strokes are redrawn as separate even hatching (BEARD), and his face lines
-as even lines along their centres (FACE).
+drawn solid), and his two black shoes on the floor (SHOES). His beard is
+drawn solid too, with its long clay strands as light lines (BEARD), and his
+face lines as even lines along their centres (FACE).
 Three cracks cross the figure; their lines are erased (CRACKS) and painted
 lines broken by them are joined across the gap. Below his sleeve the staff
 is redrawn as a straight rod on its painted centre line (STAFF): flaking
@@ -59,8 +59,10 @@ PLASTER = [(0, 995), (110, 1012), (250, 1052), (262, 1100), (230, 1250), (170, 1
            (110, 1500), (0, 1520)]
 # The head, in three zones. His hair is a mass of tiny curls that traces as
 # speckle, so it is drawn solid, as hair often is on red-figure vases, with
-# its curly outline (HAIR). The beard is hatched (BEARD): its strokes are
-# redrawn as separate even lines. The face (FACE) has its own finer lines.
+# its curly outline (HAIR). His beard (BEARD) is a fan of strokes too dense to
+# hold apart at the house line weight, so it is drawn solid too, with its
+# longest clay strands kept as light lines. The face (FACE) has its own
+# finer lines.
 # The face's top edge runs just inside the forehead, below the hairline.
 HAIRLINE = [(302, 258), (320, 240), (340, 228), (360, 222), (380, 224), (400, 236), (420, 250),
             (445, 264), (468, 290)]
@@ -127,7 +129,7 @@ def staff_masks(shape):
     return rod, beside
 
 
-PEN, BEARD_PEN = 5, 8  # px, the width of redrawn face lines and of beard strokes
+PEN = 5  # px, the width of redrawn face lines
 
 
 def centre_lines(m, spur=6, min_len=14):
@@ -152,13 +154,21 @@ def pen(m, w):
     return ndi.distance_transform_edt(~s) <= w / 2
 
 
-def hatch(m, w):
-    """Like pen, but a web of crossing strokes is cut at its crossings into
-    separate strokes, as a beard is hatched."""
-    s, k = centre_lines(m)
-    s &= ~((ndi.convolve(s.astype(int), k, mode="constant") > 2) & s)
-    s = morphology.remove_small_objects(s, max_size=10, connectivity=2)
-    return ndi.distance_transform_edt(~s) <= w / 2
+def solid_beard(dark, zone):
+    """The beard's strokes closed up into one mass, with the long clay strands
+    between them carved back in as light lines."""
+    from skimage.measure import regionprops
+    bd = zone & dark
+    mass = ndi.binary_closing(bd, structure=morphology.disk(6)) & zone
+    holes = ndi.binary_fill_holes(mass) & ~mass
+    mass |= holes & ~morphology.remove_small_objects(holes, max_size=400)
+    mass = morphology.remove_small_objects(ndi.gaussian_filter(mass.astype(float), 2.0) > 0.5, max_size=200)
+    gaps, _ = ndi.label(mass & ~ndi.binary_dilation(bd), structure=np.ones((3, 3)))
+    strands = np.zeros_like(mass)
+    for r in regionprops(gaps):
+        if r.axis_major_length >= 14 and r.eccentricity > 0.85:
+            strands[gaps == r.label] = True
+    return mass & ~(ndi.distance_transform_edt(~morphology.skeletonize(strands)) <= 2.0)
 
 
 def main(src: str) -> None:
@@ -208,7 +218,7 @@ def main(src: str) -> None:
     lines = lw.ink_lines(L, size=21, low=13, high=32, sigma=1.2) | lw.ink_lines(L, size=45, low=40, high=70, sigma=1.5)
     lines &= ndi.binary_erosion(sil, structure=morphology.disk(4))
     lines &= ~(beside | rod | head)
-    beard = hatch(lw.ink_lines(L, size=15, low=14, high=30, sigma=1.0) & beard_zone, BEARD_PEN)
+    beard = solid_beard(dark, beard_zone)
     face = lw.ink_lines(L, size=15, low=16, high=38, sigma=1.0) & ndi.binary_erosion(face_zone, iterations=3)
     face &= ~ndi.binary_dilation(ndi.binary_opening(dark, structure=morphology.disk(8)), iterations=3)  # the ground
     dots = ndi.binary_opening(face, structure=morphology.disk(3))  # the pupil, kept solid
