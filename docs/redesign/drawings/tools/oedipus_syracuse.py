@@ -3,8 +3,9 @@ Sicilian red-figure calyx-krater attributed to the Capodarso Painter,
 c. 330-320 BCE, Syracuse, Museo Archeologico Regionale "Paolo Orsi" 66557,
 excavated at Syracuse in 1968-69. The scene is usually read as one from the play:
 the old Corinthian messenger, Oedipus, Jocasta, and their two daughters.
-Photo: Dan Diffendale, 2024, CC BY-NC-SA 2.0 (the drawing carries the same
-licence; allowed by John for this drawing, 2026-10-02):
+Photo: Dan Diffendale, 2024, CC BY-NC-SA 2.0. The drawing traces only the
+ancient painting, which is public domain, so it does not carry the photo's
+licence (John, 2026-10-02); the photo is credited:
 https://www.flickr.com/photos/dandiffendale/53976554822/
 original file: https://live.staticflickr.com/65535/53976554822_177bacc236_o.jpg
 
@@ -235,8 +236,8 @@ def main(src: str) -> None:
         title="Oedipus, bearded, in a long embroidered robe, his hand at his beard, holding a staff",
         desc="Line drawing after the Sicilian red-figure calyx-krater attributed to the Capodarso Painter, "
              "c. 330-320 BCE, Syracuse, Museo Archeologico Regionale Paolo Orsi 66557, read as a scene from "
-             "Sophocles' Oedipus Tyrannus; traced from Dan Diffendale's photograph (CC BY-NC-SA 2.0) and "
-             "changed: cut out, cracks removed, redrawn as line. This drawing is CC BY-NC-SA 2.0.")
+             "Sophocles' Oedipus Tyrannus; traced from Dan Diffendale's photograph: cut out, cracks removed, "
+             "redrawn as line.")
     print(OUT, info)
     if len(sys.argv) > 2:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(L, OUT, info["box"], Path(sys.argv[2]))
