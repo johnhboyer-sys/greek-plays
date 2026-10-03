@@ -607,18 +607,24 @@
     {
       "author": "sophocles",
       "title": "Sophocles",
-      "proposed_subject": "Oedipus and the Sphinx",
-      "status": "Drawn in the phase 1 test, 2026-10-02: usable",
-      "source_candidate": "https://commons.wikimedia.org/wiki/File:Attic_Red-figure_Ceramic_Pelike_Oedipus_in_front_of_the_Sphinx;_painted_by_Achilles_Painter,_c._445-440_BC_(28737512175).jpg",
-      "source_file": "https://upload.wikimedia.org/wikipedia/commons/6/62/Attic_Red-figure_Ceramic_Pelike_Oedipus_in_front_of_the_Sphinx%3B_painted_by_Achilles_Painter%2C_c._445-440_BC_%2828737512175%29.jpg",
-      "final_image": "docs/redesign/drawings/sophocles-oedipus.svg",
-      "credit": "After the Attic red-figure pelike by the Achilles Painter, Berlin, Antikensammlung F 2355 (ARV² 990.49), dated c. 445-440 BCE on the photograph's file page and c. 450/445-440 BCE in ArchaiOptix's Commons record of the same vase. Photograph: Gary Todd.",
-      "license": "CC0 (Commons file page, checked 2026-10-02).",
-      "crop": "Oedipus only; the Sphinx on her rock is a separate figure and is left out. His feet and spear butt are cut along the top of the meander band they stand on. His hair, glaze-dark like the ground, is outlined by hand from the photo.",
-      "alt_text": "Oedipus, a young traveller in cloak and short tunic, standing with a spear",
-      "shows": "Related subject: Oedipus before the Sphinx, the myth before Oedipus Tyrannus begins.",
-      "method": "Red-figure photo: clay found by colour (red minus blue), because the shiny glaze is as bright as the clay; fold lines by local contrast with hysteresis (ink_lines); hair outlined by hand and filled; house line weight; potrace. tools/oedipus_berlin.py.",
-      "result": "Usable. Revised 2026-10-02: every cloak fold and the hat on his back now show. John judged the first version not detailed enough; the Achilles Painter's own drawing is sparer than the engravings. The lower cloak edge is ragged where the vase is restored. Alternate: the public-domain 2009 redrawing of Vatican 16541 (docs/redesign/drawings/alternates/)."
+      "proposed_subject": "The shepherd Euphorbos carrying the infant Oedipus (John, 2026-10-02)",
+      "status": "Drawn 2026-10-02 (second session), unrolled off the vase after John's review: for review",
+      "source_candidate": "https://commons.wikimedia.org/wiki/File:Achilles_Painter_-_ARV_987_4_-_Euphorbos_with_the_infant_Oidipous_-_man_-_Paris_BnF_CabMed_372_-_02.jpg",
+      "source_file": [
+        "https://upload.wikimedia.org/wikipedia/commons/e/eb/Achilles_Painter_-_ARV_987_4_-_Euphorbos_with_the_infant_Oidipous_-_man_-_Paris_BnF_CabMed_372_-_02.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/7/70/Achilles_Painter_-_ARV_987_4_-_Euphorbos_with_the_infant_Oidipous_-_man_-_Paris_BnF_CabMed_372_-_03.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/e/ed/Achilles_Painter_-_ARV_987_4_-_Euphorbos_with_the_infant_Oidipous_-_man_-_Paris_BnF_CabMed_372_-_01.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/6/62/Achilles_Painter_-_ARV_987_4_-_Euphorbos_with_the_infant_Oidipous_-_man_-_Paris_BnF_CabMed_372_-_04.jpg"
+      ],
+      "final_image": "docs/redesign/drawings/sophocles-euphorbos.svg",
+      "credit": "After the Attic red-figure neck-amphora by the Achilles Painter, c. 450-445 BCE, from Vulci, Paris, Bibliothèque nationale de France, Cabinet des médailles 372 (ARV² 987.4; BAPD 213824), side A: Euphorbos carrying the infant Oedipus, both named on the vase (ΕΥΦΟΡΒΟΣ, ΟΙΔΙΠΟΔΑΣ). Photographs: ArchaiOptix, 2023 (Commons files _01 to _04). Drawing traced from the photographs and changed.",
+      "license": "CC BY-SA 4.0 (all four photos by ArchaiOptix; Commons file pages checked 2026-10-02). The drawing is a derivative and is released under CC BY-SA 4.0 with this credit. The file pages add that some museums permit photography for non-commercial use only; that is a note, not a licence term.",
+      "crop": "Euphorbos with the child, his spear at full length (John, 2026-10-02: first shortened, then 'longer spear please', then full length). The meander band he stands on is cut away along his soles; the inscriptions are left out. The figure follows photo 02, which faces him; above his belt, photo 03, a closer view from above, registered onto 02. Past his outline the spear is drawn straight, on one line fitted to the painted shaft on both sides of him, out to its butt spike (from photo 01) and blade (from photo 04), at the lengths the vase model gives.",
+      "alt_text": "The shepherd Euphorbos carrying the infant Oedipus on his shoulder, a long spear in his hand",
+      "shows": "Backstory the play turns on: a shepherd, named Euphorbos on the vase, carrying the infant Oedipus, the rescue that the play's last revelation brings to light. Not a scene staged in the play. Chosen by John, 2026-10-02, as Sophocles' home-page figure.",
+      "method": "Four photographs, one drawing. Photo 03 registered onto 02 above the belt (SIFT, then patch matching). The vase and the four cameras fitted together (tools/vase_unroll.py: a surface of revolution and pinhole cameras, from the silhouettes, the meander's lower edge, the ring at the base of the neck, and points matched between the photos; photo 03's lens fixed from its EXIF), and the photo unrolled off the vase, around it by arc length and up it along the profile: against the photo, his head and shoulders come out 15-20% taller, his knees 17%, his feet 42%. The ground line levelled. Clay found by colour; painted lines by local contrast, redrawn as even lines at the house weight; the hand, the two faces and the left sandal drawn as hand-placed strokes snapped to the painted lines, the faces at a finer pen so their lines stay apart; hair and the cord on his back solid. tools/euphorbos.py.",
+      "result": "For review. The first version, not unrolled, John found distorted ('like you didn't adjust for curvature of the vase'), with the top of the body and the head 'smooshed'; this version is unrolled. Open: unrolled, the painted spear runs level past his cloak where the drawn line still rises (the photos cannot settle it to better than a few degrees); the drawing keeps the spear straight through his fist. A faint clay fringe along long straight edges in dark mode comes from the shared tracer and is flagged separately.",
+      "superseded": "docs/redesign/drawings/sophocles-oedipus.svg (Oedipus before the Sphinx, Berlin F 2355, photo by Gary Todd, CC0): the phase 1 test. John found it too sparse, and the Sphinx scene misleading about the plot."
     },
     {
       "author": "euripides",

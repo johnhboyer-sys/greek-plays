@@ -12,12 +12,12 @@
     },
     {
       "slug": "sophocles",
-      "file": "sophocles-oedipus.svg",
-      "name": "Sophocles · Oedipus (before the Sphinx)",
-      "alt": "Oedipus, a young traveller in cloak and short tunic, standing with a spear",
-      "source": "Achilles Painter pelike, Berlin F 2355, photograph by Gary Todd (CC0)",
-      "method": "Red-figure photo: clay found by colour (shiny glaze), fold lines by local contrast, hair outlined by hand, potrace",
-      "verdict": "Usable. Revised: every cloak fold and the hat on his back now show. The painter's own drawing is sparer than the engravings; the lower cloak is ragged where the vase is restored."
+      "file": "sophocles-euphorbos.svg",
+      "name": "Sophocles · Euphorbos carrying the infant Oedipus",
+      "alt": "The shepherd Euphorbos carrying the infant Oedipus on his shoulder, a long spear in his hand",
+      "source": "Achilles Painter neck-amphora, Cabinet des médailles 372, four photographs by ArchaiOptix (CC BY-SA 4.0)",
+      "method": "Red-figure photos unrolled off the vase (a fitted model of the vase and cameras); views joined; clay mask, lines by local contrast redrawn even; hand, faces and sandal drawn as snapped strokes; spear straightened to full length; potrace",
+      "verdict": "For review: unrolled after John found the first version distorted and the head and upper body squashed."
     },
     {
       "slug": "euripides",

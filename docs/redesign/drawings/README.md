@@ -8,7 +8,8 @@ them on every ground, light and dark.
 | File | Figure | Source |
 |---|---|---|
 | `aeschylus-pythia.svg` | the Pythia | Bötticher 1859 plate, Heidelberg scan (public domain) |
-| `sophocles-oedipus.svg` | Oedipus | Berlin F 2355, photo by Gary Todd (CC0) |
+| `sophocles-euphorbos.svg` | Euphorbos carrying the infant Oedipus (Sophocles' home-page figure) | Cabinet des médailles 372, four photos by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0); unrolled off the vase with `tools/vase_unroll.py` |
+| `sophocles-oedipus.svg` | Oedipus (superseded by the Euphorbos drawing) | Berlin F 2355, photo by Gary Todd (CC0) |
 | `euripides-iphigenia.svg` | Iphigenia | Archäologische Zeitung 1849 Taf. XII (public domain) |
 | `aristophanes-mika.svg` | Mika | Würzburg H 5697, photo by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0) |
 | `medea.svg` | Medea | Cleveland 1991.1, museum photo (CC0) |
@@ -64,3 +65,15 @@ image of the drawing over its source (`qa_overlay`: any grey line left
 showing is a line the drawing missed), and the drawing as the dark theme
 shows it, at the same size (`qa_dark`). Each figure's script holds its own
 crop, cut points and hand fixes, with the reason for each.
+
+`tools/vase_unroll.py` takes a painting off the curve of its vase. A photo
+of a vase foreshortens the painting toward the sides and wherever the
+profile slopes (a figure on the shoulder comes out squashed, a long spear
+bent, a ground band sagging). The tool fits the vase as a surface of
+revolution, and a pinhole camera for each photo, to the silhouettes, a
+painted band (level, being painted on the wheel), the ring at the base of
+the neck and points matched between photos, then maps a photo onto the
+flat (around the vase by arc length, up it along the profile). Give it the
+focal length where a photo's EXIF fixes it (an uncropped frame); fitted
+free, focal length trades against distance. `tools/euphorbos.py` uses it;
+its docstring says what was fitted and how well.
