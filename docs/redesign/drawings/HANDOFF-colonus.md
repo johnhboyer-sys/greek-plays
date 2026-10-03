@@ -1,5 +1,69 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
+## Status, 2026-10-03: on hold
+
+John put the drawing on hold (11:29) until he can get a higher-resolution
+print scan of the vase. The work is on `claude/redesign-colonus`, pushed and
+not merged.
+
+**Done.** John chose the three on the altar: Oedipus, Ismene, and Antigone,
+with the columns and tripods left out (2026-10-02). `tools/oedipus_colonus.py`
+traces the *Pots & Plays* plate at 4x. The records (image plan, `drawings.json`,
+README, contact sheet) are filled in and marked on hold. John's review notes
+are all applied:
+- Oedipus's nose.
+- The daughters' faces after his trace, registered from his screenshot by SIFT.
+- Oedipus's mouth and beard curls.
+- Antigone's eyes and smile, then her far eye.
+
+A second photo, Digital LIMC 8569X101 (whole vase, black and white,
+credit "Graham Geddes Collection (once)", CC BY-NC 4.0 on the LIMC site), was
+downloaded with John's OK. It was used to read shapes the plate blurs and is
+credited.
+
+**Open.**
+- John has not yet confirmed the faces after the last round.
+- The cross-family review (Grok or Codex, routed by the budget board: QA
+  tiles, records, credit) has not been run.
+- Weak spots: Ismene's raised hand, and the zigzag ends of the two mantles.
+- A separate session is changing the body step of `linework.py` `trace_svg`
+  (the dark-mode clay fringe) on its own branch. Rerun this drawing once that
+  merges.
+
+**Scans John may bring, best first:**
+1. The printed *Pots & Plays*, p. 101. The Getty PDF cut the plate to 150 dpi.
+   A 600 dpi scan of the page makes Oedipus about 1,440 px tall instead of 360.
+2. J. R. Green, *Ancient Voices, Modern Echoes* (2003), p. 4 and cat. 1,
+   pp. 27–29. This is Taplin's own source.
+3. Others, mostly black and white: *LIMC* V "Ismene I" 2; *RVAp* Suppl. 2
+   pl. 33.4; *RVSIS* fig. 200; Aellen 1994 pl. 29; *CFST* Ap131; Taplin 1997,
+   fig. 15.
+4. Sotheby's London, 9 December 1985, lot 173.
+5. The Trendall Research Centre at La Trobe University (unconfirmed).
+
+**To resume with a new scan:**
+- Keep every hand-placed point in the tool. They are all in px of the 942x641
+  Getty plate: OUTLINE, the zones, FACE_LINES, HAND_LINES, John's trace
+  (JOHN_*), and the rest.
+- Register the scan to the plate (SIFT and a RANSAC homography, then ECC per
+  region: the LIMC photo's homography was off by up to 8 plate px at
+  Ismene's hand, where SIFT found few matches, and by 1–2 px elsewhere). Change
+  `load()` to warp the scan into the same working frame (BOX at F = 4) instead
+  of enlarging the plate. Every constant then still applies, and the 4x frame
+  holds real detail.
+- Re-check the thresholds tuned on the plate's colours: BLACK_L, WHITE_B,
+  HAIR_GR, SOLID_L, PEEL_L, CURL_LOC, STROKE_T, and RIDGE_T.
+- A sharp scan may show the painted face lines well enough to trace directly.
+  Show John both versions.
+- The local helper scripts are in
+  `/Users/johnboyer/Developer/greek-plays/.remember/colonus/scripts/`
+  (gitignored): `local_limc.py` (homography and ECC per region), `round4.py`
+  (photo, LIMC, before, and now sheets), and `slot.py` (400 and 120 px slots,
+  light and dark). The plate, the LIMC photo, John's trace screenshot, every
+  review image sent to John, and `sources.md` are in `.remember/colonus/`.
+
+## The original brief (2026-10-02)
+
 Make the line drawing for *Oedipus at Colonus* from Taplin's vase. John
 wants it, and he will review it closely. This file is all you need; the
 session that wrote it is gone.
