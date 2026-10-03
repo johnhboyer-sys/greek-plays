@@ -8,6 +8,10 @@ ancient painting, which is public domain, so it does not carry the photo's
 licence (John, 2026-10-02); the photo is credited:
 https://www.flickr.com/photos/dandiffendale/53976554822/
 original file: https://live.staticflickr.com/65535/53976554822_177bacc236_o.jpg
+His curled fingers are traced from Diffendale's second photo of the krater
+(same licence), which shows the hand more sharply:
+https://www.flickr.com/photos/dandiffendale/53977685498/
+original file: https://live.staticflickr.com/65535/53977685498_cc1e7cba54_o.jpg
 
 Red-figure photo -> drawing. Black glaze surrounds most of the figure, so
 the cut is loose there: inside OUTLINE, wide areas of glaze that reach the
@@ -17,7 +21,9 @@ the hem), the modern plaster fill by his elbow (PLASTER), his hair (HAIR,
 drawn solid), and his two black shoes on the floor (SHOES). His beard is
 drawn solid too, with its long clay strands as light lines (BEARD), and his
 face lines as even lines along their centres (FACE). His hand at his beard
-is redrawn stroke by stroke after John's trace of it (HAND, HAND_LINES).
+is redrawn stroke by stroke after John's trace of it (HAND, HAND_LINES); in
+his curled fingers the painter's own marks, from the second photo, are
+redrawn as smooth strokes at their own width (FINGERS).
 Three cracks cross the figure; their lines are erased (CRACKS) and painted
 lines broken by them are joined across the gap. A fourth, mended with grey
 plaster beside his hand, is erased whole along John's outline of it (BREAK),
@@ -27,7 +33,7 @@ Below his sleeve the staff
 is redrawn as a straight rod on its painted centre line (STAFF): flaking
 has left its edges ragged.
 
-    python3 docs/redesign/drawings/tools/oedipus_syracuse.py path/to/photo.jpg [qa.png]
+    python3 docs/redesign/drawings/tools/oedipus_syracuse.py photo1.jpg photo2.jpg [qa.png]
 """
 import sys
 from pathlib import Path
@@ -117,6 +123,17 @@ HAND_LINES = [
     [(433, 637), (437, 647), (440, 657), (441, 667)],
 ]
 HAND_W = 7  # px, about the median width of his painted lines
+# His curled fingers (FINGERS, a box in px) are drawn from the second photo,
+# mapped onto this one's crop by P2_TO_CROP: a projective transform found by
+# matching SIFT features (about 1,000 matches, median error 1.5 px). There
+# the painter's marks are darker than PAINT_L (the clay is about 125), and
+# the restored patches are orange. The strokes of HAND_LINES fill in only
+# where the paint is worn.
+P2_TO_CROP = [[0.6302374057925334, 0.10097169356846322, -1884.0599535012873],
+              [-0.07144390343807488, 0.6432373553438575, -539.0796767202853],
+              [-7.310139708453747e-05, 1.784351723673508e-05, 1.0]]
+FINGERS = (403, 546, 506, 693)  # x0, y0, x1, y1
+PAINT_L = 80
 # A crack runs down beside his hand, from the black ground above it, through
 # the top of his sleeve, to the long crack below his chest, mended with grey
 # plaster. BREAK is John's outline of it (2026-10-02, "The red outline is the
@@ -287,7 +304,71 @@ def carry_across(lines, zone, w, reach=90):
     return ndi.distance_transform_edt(~path) <= w / 2
 
 
-def main(src: str) -> None:
+def brushed(m, lo=1.6, hi=6.0):
+    """Painted marks redrawn as smooth strokes: each centre line, cut at its
+    junctions and smoothed, drawn at the mark's own width, tapering at its
+    free ends. Dots and junctions are kept as painted."""
+    from skimage.draw import disk
+    dist = ndi.distance_transform_edt(m)
+    s, k = centre_lines(m, spur=4, min_len=6)
+    junc = s & (ndi.convolve(s.astype(int), k, mode="constant") > 2)
+    lab, _ = ndi.label(s & ~ndi.binary_dilation(junc, structure=np.ones((3, 3))), structure=np.ones((3, 3)))
+    near_junc = lambda p: junc[max(0, p[0] - 2):p[0] + 3, max(0, p[1] - 2):p[1] + 3].any()
+    out = np.zeros(m.shape, bool)
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        ys, xs = np.nonzero(lab[sl] == i)
+        pts = set(zip((ys + sl[0].start).tolist(), (xs + sl[1].start).tolist()))
+        nb = lambda p: [(p[0] + dy, p[1] + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                        if (dy or dx) and (p[0] + dy, p[1] + dx) in pts]
+        path, seen, cur = [], set(), ([p for p in pts if len(nb(p)) == 1] or [next(iter(pts))])[0]
+        while cur is not None:  # the centre line, end to end
+            path.append(cur)
+            seen.add(cur)
+            cur = next((q for q in nb(cur) if q not in seen), None)
+        P = np.array(path, float)
+        r = np.array([dist[y, x] for y, x in path])
+        if len(P) >= 5:
+            P = ndi.gaussian_filter1d(P, 1.5, axis=0, mode="nearest")
+            r = ndi.gaussian_filter1d(r, 2.0, mode="nearest")
+        free = (not near_junc(path[0]), not near_junc(path[-1]))
+        n = len(P)
+        for j, ((y, x), rr) in enumerate(zip(P, r)):
+            for e, is_free in ((j, free[0]), (n - 1 - j, free[1])):
+                if is_free and e < 4:  # taper
+                    rr *= 0.55 + 0.15 * e
+            yy, xx = disk((y, x), float(np.clip(rr, lo, hi)), shape=m.shape)
+            out[yy, xx] = True
+    out |= ndi.binary_dilation(junc, iterations=2) & m
+    out |= m & ~ndi.binary_dilation(out, iterations=2) & (dist >= 1.5)
+    return out
+
+
+def finger_marks(src2, shape, zone):
+    """The painter's marks in his curled fingers, from the second photo: its
+    dark paint inside FINGERS and zone, off the restored patches, cleaned, and
+    brushed."""
+    from skimage.transform import ProjectiveTransform, warp
+    x0, y0, x1, y1 = FINGERS
+    m = 12  # margin, so that marks and patches at the box's edge are judged whole
+    T = ProjectiveTransform(matrix=np.array(P2_TO_CROP))
+    p2 = np.asarray(Image.open(src2).convert("RGB"), dtype=np.float32)
+    inv = lambda xy: T.inverse(np.stack([x0 - m + xy[:, 0], y0 - m + xy[:, 1]], 1))
+    a = np.stack([warp(p2[..., c], inv, output_shape=(y1 - y0 + 2 * m, x1 - x0 + 2 * m), order=3,
+                       preserve_range=True) for c in range(3)], -1)
+    L = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]
+    sat = (a.max(-1) - a.min(-1)) / np.maximum(a.max(-1), 1)
+    patch = ndi.binary_dilation((sat > 0.45) & (L > 110) & (a[..., 0] - a[..., 2] > 70), iterations=3)
+    patch = morphology.remove_small_objects(patch, max_size=60)
+    paint = (ndi.gaussian_filter(L, 1.0) < PAINT_L) & ~patch
+    out = np.zeros(shape, bool)
+    out[y0:y1, x0:x1] = paint[m:-m, m:-m]
+    out = morphology.remove_small_objects(out & zone, max_size=15)
+    holes = ndi.binary_fill_holes(out) & ~out
+    out |= holes & ~morphology.remove_small_objects(holes, max_size=20)
+    return brushed(ndi.gaussian_filter(out.astype(float), 1.2) > 0.5)
+
+
+def main(src: str, src2: str, qa: str | None) -> None:
     a = np.asarray(Image.open(src).convert("RGB").crop(BOX), dtype=np.float32)
     L = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]
     shape = L.shape
@@ -349,7 +430,11 @@ def main(src: str) -> None:
     brk_rim = ndi.binary_dilation(brk, iterations=3)  # the plaster's grey bleeds past the outline
     carried = carry_across(lines & ~hand_zone, brk_rim, HAND_W)
     lines = morphology.remove_small_objects(lines & ~brk_rim, max_size=120)  # bits the erasing cut off
-    lines |= carried | drawn(shape, HAND_LINES, HAND_W)
+    marks = finger_marks(src2, shape, hand_zone & ~brk_rim)
+    fingers = np.zeros(shape, bool)
+    fingers[FINGERS[1]:FINGERS[3], FINGERS[0]:FINGERS[2]] = True
+    hand = drawn(shape, HAND_LINES, HAND_W) & ~(fingers & ndi.binary_dilation(marks, iterations=4))
+    lines |= carried | marks | hand
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(4))
 
     if "--masks" in sys.argv:  # diagnostic: the masks over the photo
@@ -361,7 +446,7 @@ def main(src: str) -> None:
                      (poly(shape, PLASTER), (60, 255, 60)), (hair_zone, (255, 0, 255)), (shoe_zone, (255, 160, 0))):
             rim = m & ~ndi.binary_erosion(m, iterations=3)
             rgb[rim] = c
-        Image.fromarray(rgb.astype(np.uint8)).save(sys.argv[2])
+        Image.fromarray(rgb.astype(np.uint8)).save(qa)
         return
 
     info = lw.trace_svg(
@@ -372,10 +457,11 @@ def main(src: str) -> None:
              "Sophocles' Oedipus Tyrannus; traced from Dan Diffendale's photograph: cut out, cracks removed, "
              "redrawn as line.")
     print(OUT, info)
-    if len(sys.argv) > 2:  # optional: the drawing over its source, and as the dark theme shows it
-        lw.qa_overlay(L, OUT, info["box"], Path(sys.argv[2]))
-        lw.qa_dark(OUT, info["box"], Path(sys.argv[2]).with_suffix(".dark.png"))
+    if qa:  # optional: the drawing over its source, and as the dark theme shows it
+        lw.qa_overlay(L, OUT, info["box"], Path(qa))
+        lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    main(args[0], args[1], args[2] if len(args) > 2 else None)
