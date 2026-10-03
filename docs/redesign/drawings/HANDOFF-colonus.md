@@ -1,6 +1,27 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
-## Status, 2026-10-03 16:30: awaiting John's review
+## Status, 2026-10-03 17:40: paused (John closed the laptop)
+
+Branch head after this commit; everything pushed.
+- Oedipus (redrawn on p. 29) and Antigone (John's traces on p. 26) are in.
+  John on Antigone: "could be crisper, but it's probably fine for the
+  resolution we will use for the site". No verdict yet on Oedipus.
+- Ismene: John traced her on p. 4 (17:00); first the face from it read badly
+  ("oh god her face looks awful now"), then the clothing folds ("the new
+  folds suck, just go back to what you had before for her garment"). She is
+  back exactly as at 5532460. John: "we'd need higher res of her. this is
+  the best we can get right now." His p. 4 trace is kept locally
+  (`.remember/colonus/john_ismene_trace_1700.png`), not used. Idea to put to
+  him: Green's catalogue entry runs pp. 27-29; we have pp. 26 and 29, so if
+  p. 27 or 28 (HathiTrust seq 29, 30) shows the left half of the scene, that
+  would give Ismene Antigone's sharpness.
+- Cross-family review not run: Codex failed at 16:47 with "workspace is out
+  of credits" (its rolling 5-hour window). Rerun it once the drawing is
+  settled, on GPT-6-Sol at medium effort; the brief is saved in
+  `.remember/colonus/codex_review_brief.md`, and the review images in
+  `.remember/colonus/review/` need regenerating first.
+
+## Earlier status, 2026-10-03 16:30
 
 Done since 14:05 (heads dd8f476, 46fd033, pushed):
 - Oedipus redrawn on p. 29: face lines on the painted marks (FACE_LINES,
