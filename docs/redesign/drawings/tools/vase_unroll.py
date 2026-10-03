@@ -163,12 +163,15 @@ def fit(views: dict, knots: np.ndarray, ring: dict | None = None, matches: dict 
         outlier: float = 25.0, h0: float = 0.4, nfev: int = 300, x_start: np.ndarray | None = None):
     """Fit the profile and one camera per view. views: {name: dict(size=(W, H),
     sil=[(side, u, v), ...] (side 0 left, 1 right), band=[(u, v), ...])}; the
-    first view's D is fixed at d0. ring: {view name: [(u, v), ...]} or None; the
+    first view's D is fixed at d0. A view's dict may also give its focal length
+    `f` (px) and `crop: True` for a photo cropped from its frame, whose principal
+    point is then fitted too. ring: {view name: [(u, v), ...]} or None; the
     profile is held to meet the ring (R at the ring's height = its radius).
     matches: {view name: array of (u, v) in the first view, (u, v) in that view}.
     Each round drops points more than `outlier` px from the model and refits.
     Returns (cams, R, (ring y, ring radius) or None, {view: phi}, report lines, x)."""
     names = list(views)
+    NP = 8  # per camera: D, H, pitch, yaw, roll, f, principal point offset (x, y)
     yg = np.arange(knots[0], knots[-1] + 1, 2.0)
     th = np.linspace(-1.55, 1.55, 1200)
     obs = {n: dict(sil=np.asarray(v["sil"], float).reshape(-1, 3), band=np.asarray(v["band"], float).reshape(-1, 2))
@@ -180,11 +183,12 @@ def fit(views: dict, knots: np.ndarray, ring: dict | None = None, matches: dict 
     def unpack(x):
         cams = {}
         for i, n in enumerate(names):
-            D, H, b, p, g, f = x[6 * i:6 * i + 6]
+            D, H, b, p, g, f, dcx, dcy = x[NP * i:NP * i + NP]
             W, Hh = views[n]["size"]
+            crop = views[n].get("crop", False)
             cams[n] = dict(D=d0 if i == 0 else D, H=H, b=b, p=p, g=g, f=views[n].get("f") or f_px or f,
-                           cx=W / 2, cy=Hh / 2)
-        o = 6 * len(names)
+                           cx=W / 2 + (dcx if crop else 0.0), cy=Hh / 2 + (dcy if crop else 0.0))
+        o = NP * len(names)
         phis = dict(zip(mt, x[o + len(knots) + 2:]))
         return cams, CubicSpline(knots, x[o:o + len(knots)]), x[o + len(knots):o + len(knots) + 2], phis
 
@@ -215,14 +219,14 @@ def fit(views: dict, knots: np.ndarray, ring: dict | None = None, matches: dict 
             d = project(cams[n], surface(R, ty[:, 1], ty[:, 0] + phis[n])) - m[:, 2:]
             parts["match " + n] = np.hypot(*d.T)
             out += [d[:, 0], d[:, 1]]
-        o = 6 * len(names)
+        o = NP * len(names)
         out.append(smooth * np.diff(x[o:o + len(knots)], 2))
         return (np.concatenate(out), parts) if detail else np.concatenate(out)
 
     # a start: every camera alike, the profile from the first view's silhouette
     x0 = []
     for n in names:
-        x0 += [d0, h0 * d0, np.radians(16.0), 0.0, 0.0, f_px or d0]
+        x0 += [d0, h0 * d0, np.radians(16.0), 0.0, 0.0, f_px or d0, 0.0, 0.0]
     s = np.asarray(views[names[0]]["sil"], float)
     band_v = np.median(np.asarray(views[names[0]]["band"])[:, 1])
     half = {}
@@ -238,7 +242,8 @@ def fit(views: dict, knots: np.ndarray, ring: dict | None = None, matches: dict 
         x0 = np.array(x_start, float)
     lo, hi = np.full(len(x0), -np.inf), np.full(len(x0), np.inf)
     for i in range(len(names)):
-        lo[6 * i], hi[6 * i], lo[6 * i + 5], hi[6 * i + 5] = 0.1 * d0, 6 * d0, 0.2 * d0, 8 * d0
+        lo[NP * i], hi[NP * i], lo[NP * i + 5], hi[NP * i + 5] = 0.1 * d0, 6 * d0, 0.2 * d0, 8 * d0
+        lo[NP * i + 6:NP * i + 8], hi[NP * i + 6:NP * i + 8] = -3000.0, 3000.0
     report = []
     for k in range(rounds):
         res = least_squares(resid, x0, bounds=(lo, hi), loss="soft_l1", f_scale=3.0, max_nfev=nfev, x_scale="jac")
@@ -314,3 +319,103 @@ def photo_to_flat(c: dict, R, table, uv: np.ndarray, theta0: float = 0.0) -> np.
     th_y = photo_to_surface(c, R, np.asarray(uv, float), (table[0][0], table[0][-1]))
     y = th_y[:, 1]
     return np.stack([R(y) * (th_y[:, 0] - theta0), np.interp(y, table[0], table[1])], -1)
+
+
+# ---------------------------------------------------------------- flattening without shear
+
+
+def flatten(R, theta: np.ndarray, y: np.ndarray, keep=None, iters: int = 40, centre: float = 0.0):
+    """As-rigid-as-possible flattening (Liu et al. 2008) of the grid theta x y on
+    the surface of revolution R. The plain unrolling (s = R theta, t = arc length
+    up the profile) keeps lengths around and up the vase, but where the profile
+    slopes it shears everything off the centre line, by R'(t) theta: on a shoulder
+    curving in to the neck, a face a fifth of a radian off centre leans about 8
+    degrees. This keeps every small triangle of the surface as near its true shape
+    as the surface allows. keep(theta, y) -> bool limits the patch (cells kept
+    where all four corners are kept). The result is turned so the meridian at
+    `centre` runs straight up, with y = 0 on it at the origin. Returns XY, the
+    flat (x, y) of every grid vertex (array ny x nx x 2, NaN where not kept), in
+    world units."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.linalg import splu
+    TH, Y = np.meshgrid(theta, y)
+    ny, nx = TH.shape
+    P = surface(R, Y, TH)
+    ok = np.ones_like(TH, bool) if keep is None else keep(TH, Y)
+    idx = np.arange(ny * nx).reshape(ny, nx)
+    a, b, c, d = idx[:-1, :-1], idx[:-1, 1:], idx[1:, :-1], idx[1:, 1:]
+    cell = ok[:-1, :-1] & ok[:-1, 1:] & ok[1:, :-1] & ok[1:, 1:]
+    tri = np.concatenate([np.stack([a[cell], b[cell], d[cell]], -1), np.stack([a[cell], d[cell], c[cell]], -1)])
+    used = np.unique(tri)
+    remap = -np.ones(ny * nx, int)
+    remap[used] = np.arange(len(used))
+    T = remap[tri]
+    V = P.reshape(-1, 3)[used]
+    # each triangle's true shape, in its own plane
+    e1, e2 = V[T[:, 1]] - V[T[:, 0]], V[T[:, 2]] - V[T[:, 0]]
+    l1 = np.linalg.norm(e1, axis=1)
+    u = e1 / l1[:, None]
+    px = np.einsum("ij,ij->i", e2, u)
+    py = np.linalg.norm(e2 - px[:, None] * u, axis=1)
+    X = np.zeros((len(T), 3, 2))
+    X[:, 1, 0], X[:, 2, 0], X[:, 2, 1] = l1, px, py
+    # cotangent weights, per edge opposite each corner
+    def cot(p, q, r):  # cotangent of the angle at p
+        v1, v2 = q - p, r - p
+        return np.einsum("ij,ij->i", v1, v2) / np.abs(v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0])
+    W = np.stack([cot(X[:, 0], X[:, 1], X[:, 2]), cot(X[:, 1], X[:, 2], X[:, 0]), cot(X[:, 2], X[:, 0], X[:, 1])], -1) / 2
+    W = np.clip(W, 1e-3, None)
+    edges = [(1, 2, 0), (2, 0, 1), (0, 1, 2)]  # (i, j, opposite corner)
+    n = len(used)
+    rows, cols, vals = [], [], []
+    for i, j, k in edges:
+        w = W[:, k]
+        rows += [T[:, i], T[:, j], T[:, i], T[:, j]]
+        cols += [T[:, i], T[:, j], T[:, j], T[:, i]]
+        vals += [w, w, -w, -w]
+    L = coo_matrix((np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))), shape=(n, n)).tocsc()
+    # start from the plain unrolling; pin one vertex (translation)
+    yt, tt = arc_table(R, float(y.min()) - 5, float(y.max()) + 5)
+    U = np.stack([R(V[:, 1]) * np.arctan2(V[:, 0], V[:, 2]), np.interp(V[:, 1], yt, tt)], -1)
+    pin = int(np.argmin(np.hypot(np.arctan2(V[:, 0], V[:, 2]) - centre, V[:, 1] - np.median(y))))
+    free = np.ones(n, bool)
+    free[pin] = False
+    lu = splu(L[free][:, free].tocsc())
+    for _ in range(iters):
+        # local: the best rotation for each triangle
+        S = np.zeros((len(T), 2, 2))
+        for i, j, k in edges:
+            S += W[:, k, None, None] * np.einsum("ti,tj->tij", X[:, i] - X[:, j], U[T[:, i]] - U[T[:, j]])
+        Us, _, Vt = np.linalg.svd(S)
+        Rot = np.einsum("tji,tkj->tik", Vt, Us)  # V U^T
+        neg = np.linalg.det(Rot) < 0
+        if neg.any():
+            Vt[neg, 1] *= -1
+            Rot = np.einsum("tji,tkj->tik", Vt, Us)
+        # global: the positions that best fit the rotated triangles
+        B = np.zeros((n, 2))
+        for i, j, k in edges:
+            r = W[:, k, None] * np.einsum("tij,tj->ti", Rot, X[:, i] - X[:, j])
+            np.add.at(B, T[:, i], r)
+            np.add.at(B, T[:, j], -r)
+        rhs = B[free] - L[free][:, [pin]].toarray() * U[pin]
+        U[free] = np.stack([lu.solve(rhs[:, 0]), lu.solve(rhs[:, 1])], -1)
+    # turn so the centre meridian runs straight up, y = 0 on it at the origin
+    th_all = np.arctan2(V[:, 0], V[:, 2])
+    on = np.abs(th_all - centre) < (theta[1] - theta[0]) / 2
+    m = U[on][np.argsort(V[on, 1])]
+    k = np.polyfit(m[:, 1], m[:, 0], 1)[0]  # dx/dy along the meridian
+    ang = np.arctan(k)
+    Rm = np.array([[np.cos(ang), -np.sin(ang)], [np.sin(ang), np.cos(ang)]])
+    U = U @ Rm.T
+    o = U[on][np.argmin(np.abs(V[on, 1]))]
+    U -= o
+    XY = np.full((ny * nx, 2), np.nan)
+    XY[used] = U
+    stretch = []  # report: how far each triangle's edges differ from the true lengths
+    for i, j, k in edges:
+        stretch.append(np.linalg.norm(U[T[:, i]] - U[T[:, j]], axis=1) / np.linalg.norm(X[:, i] - X[:, j], axis=1))
+    stretch = np.concatenate(stretch)
+    print(f"  flattened {len(used)} points, {len(T)} triangles: edge lengths within "
+          f"{np.percentile(np.abs(stretch - 1), 50) * 100:.2f}% (median), {np.percentile(np.abs(stretch - 1), 99) * 100:.2f}% (99%)")
+    return XY.reshape(ny, nx, 2)

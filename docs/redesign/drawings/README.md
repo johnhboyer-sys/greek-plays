@@ -72,8 +72,11 @@ profile slopes (a figure on the shoulder comes out squashed, a long spear
 bent, a ground band sagging). The tool fits the vase as a surface of
 revolution, and a pinhole camera for each photo, to the silhouettes, a
 painted band (level, being painted on the wheel), the ring at the base of
-the neck and points matched between photos, then maps a photo onto the
-flat (around the vase by arc length, up it along the profile). Give it the
-focal length where a photo's EXIF fixes it (an uncropped frame); fitted
-free, focal length trades against distance. `tools/euphorbos.py` uses it;
+the neck and points matched between photos, then lays a photo onto the
+flat. `flatten` flattens the vase as rigidly as it allows (every small patch
+keeps its shape); plain unrolling, around by arc length and up the profile,
+shears whatever lies off its centre line where the profile slopes. Give it every photo's
+focal length from its EXIF, and mark cropped photos (`crop: True`) so their
+centres are fitted; fitted free, focal length trades against distance and
+the perspective comes out wrong. `tools/euphorbos.py` uses it;
 its docstring says what was fitted and how well.

@@ -7,38 +7,37 @@ drawing is CC BY-SA 4.0. Four views of the same side, files _01 to _04 of
 https://commons.wikimedia.org/wiki/File:Achilles_Painter_-_ARV_987_4_-_Euphorbos_with_the_infant_Oidipous_-_man_-_Paris_BnF_CabMed_372_-_02.jpg
 
 Four photos -> one drawing:
-  - 02 faces him squarely and is sharp from head to foot. Its crop BOX02,
-    scaled by F, is the 02 frame; above SEAM it shows 03 instead, a close
-    view from above where his head is 3.6x larger, registered onto 02 (SIFT
-    matches for a first warp, then patch matching, to within 2 px).
-  - The 02 frame is then unrolled off the vase (vase_unroll.py), because a
-    photo foreshortens the painting: his head and shoulders lie on the
-    shoulder, which curves up and in to the neck, and his legs on the lower
-    body, which curves in to the foot, and the camera looked down on both
-    from close by (John, 2026-10-02: the first drawing's head and upper body
-    were "smooshed", the spear bent, the ground line sagging). The vase's
-    profile and the four cameras were fitted together (MODEL, below): to the
-    silhouettes in 01, 02 and 04, the meander's lower edge (painted on the
-    wheel, so level), the ring at the base of the neck, and points of the
-    painting matched between 02 and the other three. Photo 03 is the camera's
-    uncropped frame, so its focal length is known (EXIF: EF 40mm on an EOS 6D,
-    6080 px); its matches hold the shoulder, where his head is, to 4 px. The
-    corrections, at the front: his feet x1.42, knees x1.17, waist x1.00,
-    shoulders x1.15, head x1.19, taller.
-  - On the flat, the meander under his feet still rises by up to 16 units
-    toward the right, beyond what the model can resolve; the band is level on
-    the vase, so the drawing levels it (LEVEL), fading the correction out
-    above his knees.
+  - The painting is taken off the vase (vase_unroll.py). A photo foreshortens
+    it: his head and shoulders lie on the shoulder, which curves up and in to
+    the neck, and his legs on the lower body, which curves in to the foot.
+    The vase's profile and the four cameras were fitted together (MODEL,
+    below) to the silhouettes in 01, 02 and 04, the meander's lower edge
+    (painted on the wheel, so a circle), the ring at the base of the neck,
+    and points of the painting matched between 02 and the other three. All
+    four photos were taken with an EF 40mm on an EOS 6D, so the focal length
+    is fixed from the EXIF; 01, 02 and 04 are crops, whose centres are fitted.
+  - The vase is then flattened as rigidly as it allows (vase_unroll.flatten):
+    every small patch keeps its shape. A plain unrolling (around by arc
+    length, up the profile) shears whatever lies off its centre line where
+    the profile slopes; on the first version that tilted his face back and
+    pushed his jaw forward, and swelled the hat on his back out of his neck
+    (John, 2026-10-02: "smooshed like a Neanderthal", "an insane tumor").
+  - Above his belt the drawing comes from 03, a close view that looks almost
+    straight at the shoulder (2-12 degrees off the surface at his head), so
+    its head is the truest; below, from 02, which faces him and is sharp to
+    his feet. Each is laid onto the flat through its own camera.
   - His spear, trailed at the hip, is about 1.2x his height and wraps a
     third of the way round the vase, so 02 shows only the stretch near him.
     It is drawn at its full length (John, 2026-10-02), straight: one line
-    fitted to the painted shaft on both sides of him (unrolled, the painted
-    shaft bends by a few degrees at his fist, at the limit of what the photos
-    can tell), out to its own butt spike (from 01, which sees it nearly
-    face-on) and blade (from 04), placed where the model puts their tips.
-  - The points below (cuts, zones and hand-drawn lines) were measured in the
-    02 frame, with a margin of X02 px on its left; they are carried onto the
-    flat through the same model when the tool runs.
+    fitted to the painted shaft on both sides of him, out to its own butt
+    spike (from 01) and blade (from 04), placed where the model puts their
+    tips.
+  - The back of his neck is drawn in, where the vase has no line (NECK_BACK).
+  - The points below (cuts, zones and hand-drawn lines) were measured on a
+    first composite of 02 and 03 in 02's frame, with a margin of X02 px on its
+    left; when the tool runs they are carried back to their photo (03 above
+    SEAM, by the registration that made that composite; 02 below) and laid
+    onto the flat with it.
 
     python3 docs/redesign/drawings/tools/euphorbos.py 01.jpg 02.jpg 03.jpg 04.jpg [qa.png]
     python3 docs/redesign/drawings/tools/euphorbos.py 01.jpg 02.jpg 03.jpg 04.jpg --refit
@@ -142,29 +141,17 @@ def register(Lf, L03, rows):
     return MX[PAD:], MY[PAD:]
 
 
-def composite(p02, p03):
-    """Photo 02's crop scaled by F, with registered 03 above SEAM, colour-matched to 02."""
+def map_02_to_03(p02, p03):
+    """Photo 03 coordinates of the 02 frame's pixels above SEAM (and 440 rows
+    more): the registration that first joined the two views. The points above
+    SEAM were measured on 03's pixels shown in the 02 frame; this carries them
+    back to photo 03."""
     a02 = np.asarray(Image.open(p02).convert("RGB").crop(BOX02), dtype=np.float32)
     a03 = np.asarray(Image.open(p03).convert("RGB").crop(BOX03), dtype=np.float32)
     H, W = round(a02.shape[0] * F), round(a02.shape[1] * F)
     frame = np.stack([ndi.zoom(a02[..., c], F, order=3)[:H, :W] for c in range(3)], -1).clip(0, 255)
-    rows = SEAM + FEATHER + 400  # registered a little past the seam, so the warp holds at it
-    MX, MY = register(lum(frame), lum(a03), rows)
-    top = np.stack([ndi.map_coordinates(a03[..., c], [MY, MX], order=1, cval=0) for c in range(3)], -1)
-    # colour: map 03's glaze and clay onto 02's, channel by channel, from
-    # their levels along the seam
-    near = np.zeros((rows, W), bool)
-    near[SEAM - 200:SEAM + 200] = True
-    Lt, Lf = lum(top), lum(frame[:rows])
-    clay = near & ndi.binary_erosion(Lf > 110, iterations=6) & ndi.binary_erosion(Lt > 110, iterations=6)
-    glaze = near & ndi.binary_erosion((Lf < 50) & (Lt < 50), iterations=6)
-    for c in range(3):
-        t0, t1 = np.median(top[..., c][glaze]), np.median(top[..., c][clay])
-        f0, f1 = np.median(frame[:rows, :, c][glaze]), np.median(frame[:rows, :, c][clay])
-        top[..., c] = f0 + (top[..., c] - t0) * (f1 - f0) / (t1 - t0)
-    w = np.clip((SEAM + FEATHER - np.arange(rows, dtype=np.float32)) / (2 * FEATHER), 0, 1)[:, None, None]
-    frame[:rows] = w * top + (1 - w) * frame[:rows]
-    return frame.clip(0, 255)
+    MX, MY = register(lum(frame), lum(a03), SEAM + FEATHER + 400)
+    return MX + BOX03[0], MY + BOX03[1]
 
 
 # ---------------------------------------------------------------- the vase
@@ -173,15 +160,20 @@ def composite(p02, p03):
 # again; it prints these numbers). World units are arbitrary (camera 02's D
 # fixes them); y = 0 at the meander's lower edge.
 CAMERAS = {
-    "02": dict(D=11000.0, H=4087.1, b=0.275769, p=0.000569, g=0.014358, f=12127.2, cx=1730.0, cy=2174.0),
-    "01": dict(D=10921.2, H=4506.3, b=0.312300, p=0.014298, g=0.013486, f=12518.7, cx=1497.0, cy=2238.5),
-    "04": dict(D=10291.7, H=4714.4, b=0.357981, p=0.003167, g=-0.004418, f=11407.3, cx=1534.5, cy=2127.0),
-    "03": dict(D=2351.7, H=2567.0, b=0.702367, p=-0.055607, g=-0.038784, f=6080.0, cx=1824.0, cy=2736.0),
+    "02": dict(D=5500.0, H=2455.73, b=0.26492, p=0.00081, g=0.01297, f=6080.0, cx=1728.68, cy=2124.43),
+    "01": dict(D=5418.98, H=2806.75, b=0.21429, p=0.1684, g=0.04342, f=6080.0, cx=2369.74, cy=1483.08),
+    "04": dict(D=5440.76, H=3003.57, b=0.29651, p=0.09598, g=0.02437, f=6080.0, cx=2072.22, cy=1570.24),
+    "03": dict(D=2212.98, H=2386.69, b=0.70237, p=-0.0556, g=-0.03919, f=6080.0, cx=1824.0, cy=2736.0),
 }
 PROFILE_Y = [-350, -150, 50, 250, 450, 650, 850, 1050, 1250, 1450, 1650, 1850]
-PROFILE_R = [497.2, 634.1, 721.5, 795.4, 835.6, 875.3, 903.1, 914.8, 888.6, 806.8, 623.5, 440.3]
-TURNS = {"01": 32.29, "04": -29.832, "03": -6.347}  # degrees each photo is turned from 02
-F03 = 40.0 / (10.0 / 1520.0)  # 03's focal length, px: 40 mm over the 6D's pixel pitch (EXIF 1520 px/cm)
+PROFILE_R = [547.3, 671.5, 744.1, 806.7, 841.3, 874.2, 897.2, 896.2, 855.6, 746.7, 637.3, 527.9]
+TURNS = {"01": 28.531, "04": -28.34, "03": -5.882}  # degrees each photo is turned from 02
+# All four photos: an EF 40mm on an EOS 6D (EXIF), so the focal length is
+# 6080 px (40 mm over the pixel pitch, 1520 px/cm). 01, 02 and 04 are crops,
+# so their principal points are fitted; 03 is the whole frame. Fitted free,
+# the focal length traded against the distance: it came out twice as long,
+# with half the perspective, and the head stayed squashed.
+F6D = 40.0 / (10.0 / 1520.0)
 # The data for fit_model: silhouette rows clear of handles and foot (side,
 # v from, v to), the box searched for the meander's lower edge, and the neck
 # ring's rough ellipse (centre u, half-width, sides' v, sag).
@@ -196,24 +188,19 @@ FIT_MATCH = {"01": [((1250, 1550, 2300, 3350), (1350, 1600, 2400, 3550), True),
              "04": [((1250, 1550, 2300, 3350), (650, 1550, 1700, 3350), True),
                     ((1450, 1580, 2150, 2150), (750, 1580, 1500, 2150), False)],
              "03": [((1300, 1600, 2100, 3320), (700, 1150, 2850, 4900), False)]}
-# The flat: s across (G px per unit), t up; the figure's frame, then the
-# drawing's, wide enough for the spear.
-FIG_S, FIG_T = (-430.0, 580.0), (-40.0, 1800.0)
-ALL_S = (-725.0, 1185.0)
-# Levelling: the meander's lower edge, measured on the flat across LEVEL_S,
-# is made level; the correction fades out between t = 0 and LEVEL_FADE.
-LEVEL_S, LEVEL_FADE = (-420.0, 520.0), 600.0
+# The flat: the vase flattened without shear (vase_unroll.flatten) over a
+# grid of FLAT_THETA x FLAT_Y (start, stop, step); kept: the figure's sector
+# FIG_THETA all the way up, and the band SPEAR_Y all round for the spear. The
+# meridian CENTRE, through his body, runs straight up. G px per world unit.
+FLAT_THETA, FLAT_Y = (-1.15, 1.4501, 0.01), (-80.0, 1820.1, 10.0)
+FIG_THETA, SPEAR_Y, CENTRE, G = (-0.75, 0.95), (650.0, 1250.0), 0.07, 2.75
 
 
 def vase():
-    """The model: cameras (theta turned to 02's), the profile, its arc table, G."""
+    """The model: the cameras and the profile."""
     cams = {n: dict(c) for n, c in CAMERAS.items()}
     R = CubicSpline(PROFILE_Y, PROFILE_R)
-    tab = vu.arc_table(R, PROFILE_Y[0], PROFILE_Y[-1] - 20)
-    c = cams["02"]
-    P0 = np.array([[0.0, 900.0, float(R(900.0))]])
-    G = F * np.hypot(*(vu.project(c, P0 + [[1.0, 0, 0]]) - vu.project(c, P0))[0])  # the 02 frame's scale at his waist
-    return cams, R, tab, G
+    return cams, R
 
 
 def fit_model(photos: dict) -> None:
@@ -225,11 +212,11 @@ def fit_model(photos: dict) -> None:
     views, rings = {}, {}
     for n in ("02", "01", "04"):
         sil = vu.silhouette(rgb[n], 1300, 3900)
-        views[n] = dict(size=rgb[n].shape[1::-1], band=vu.band_edge(rgb[n], FIT_BAND[n]),
+        views[n] = dict(size=rgb[n].shape[1::-1], band=vu.band_edge(rgb[n], FIT_BAND[n]), f=F6D, crop=True,
                         sil=[(side, r[1 + side], r[0]) for r in sil for side, v0, v1 in FIT_ROWS[n]
                              if v0 <= r[0] <= v1 and np.isfinite(r[1 + side])])
         rings[n] = vu.ring_edge(rgb[n].mean(2), *FIT_RING[n])
-    views["03"] = dict(size=rgb["03"].shape[1::-1], sil=[], band=[], f=F03)
+    views["03"] = dict(size=rgb["03"].shape[1::-1], sil=[], band=[], f=F6D)
 
     def feats(a, box, half):
         g = Image.fromarray(lum(a).clip(0, 255).astype(np.uint8)).crop(box)
@@ -250,7 +237,7 @@ def fit_model(photos: dict) -> None:
                             residual_threshold=40 if half else 25, max_trials=5000, rng=0)
             found.append(np.hstack([k2[m[inl, 0]], kn[m[inl, 1]]]))
         matches[n] = np.vstack(found)
-    cams, R, ring, turns, report, x = vu.fit(views, np.array(PROFILE_Y, float), ring=rings, matches=matches)
+    cams, R, ring, turns, report, x = vu.fit(views, np.array(PROFILE_Y, float), ring=rings, matches=matches, d0=5500.0)
     print("\n".join(report))
     print("CAMERAS = {")
     for n, c in cams.items():
@@ -393,6 +380,12 @@ FACE_LINES = [
     [(2478, 469), (2485, 463), (2496, 461), (2506, 463), (2514, 469), (2518, 477), (2518, 484)],
     [(2498, 479.5), (2503, 479), (2508, 480), (2511, 482.5)],
 ]
+# The back of his neck: the vase paints no line there, so his neck runs on into
+# the hat hanging behind him, and in a drawing the two read as one swelling.
+# Drawn in (John, 2026-10-02): from the lowest locks at the back of his head,
+# bowing in at the nape, down to the beaded seam on top of his shoulder; the
+# neck is then about half as deep as the head, throat to nape. Photo 03 px.
+NECK_BACK = [(1708, 1752), (1712, 1785), (1706, 1812), (1694, 1838), (1676, 1860), (1652, 1878), (1630, 1890)]
 FACE_DOTS = [(2477.5, 314, 4), (2424, 528, 4), (2385, 565, 2.5), (2468, 587, 2),  # pupils, nostril
              (2443, 459, 2.5), (2494, 496, 3), (2536, 480, 3), (2512, 491.5, 2)]  # curls
 HAIRLINE = [(2345, 528), (2355, 512), (2365, 497), (2382, 488), (2405, 486), (2425, 489), (2445, 490),
@@ -492,91 +485,132 @@ def segment(shape, ends, w):
 
 
 class Flat:
-    """The flat frames and the maps between them and the photos. A flat point
-    (s, t) is at x = (s - s0) * G, y = (t1 - t) * G in a frame whose s runs
-    from s0 and whose t runs down from t1; `fig` is the figure's frame (the
-    02 frame unrolled), `all` the drawing's (wide enough for the spear)."""
+    """The flat, in px: x right, y down, G px per world unit. The drawing's frame
+    holds the figure and the spear; the figure's frame is its part from x = dx,
+    as wide as the figure's sector."""
 
-    def __init__(self, p02: str):
-        self.cams, self.R, self.tab, self.G = vase()
-        self.c = self.cams["02"]
-        self.level = self._level(np.asarray(Image.open(p02).convert("RGB"), dtype=np.float32))
-        G = self.G
-        self.fig_shape = (int((FIG_T[1] - FIG_T[0]) * G), int((FIG_S[1] - FIG_S[0]) * G))
-        self.all_shape = (self.fig_shape[0], int((ALL_S[1] - ALL_S[0]) * G))
-        self.dx = int(round((FIG_S[0] - ALL_S[0]) * G))  # the figure's frame inside the drawing's
+    def __init__(self, p02, p03):
+        from scipy.interpolate import LinearNDInterpolator, RegularGridInterpolator
+        self.cams, self.R = vase()
+        th, yy = np.arange(*FLAT_THETA), np.arange(*FLAT_Y)
+        XY = vu.flatten(self.R, th, yy, centre=CENTRE,
+                        keep=lambda T, Y: ((T >= FIG_THETA[0]) & (T <= FIG_THETA[1])) | ((Y >= SPEAR_Y[0]) & (Y <= SPEAR_Y[1])))
+        TH, Y = np.meshgrid(th, yy)
+        ok = np.isfinite(XY[..., 0])
+        self._fwd = [RegularGridInterpolator((yy, th), XY[..., k], bounds_error=False) for k in (0, 1)]
+        self._inv = LinearNDInterpolator(XY[ok], np.stack([TH[ok], Y[ok]], -1))
+        self.m03 = map_02_to_03(p02, p03)
+        # the frame: the figure's sector, widened to the spear's tips
+        fig = ok & (TH >= FIG_THETA[0]) & (TH <= FIG_THETA[1])
+        tips = np.array([self._unit(e["photo"], [e["tip"]])[0] for e in SPEAR_ENDS.values()])
+        x0, x1 = min(XY[fig][:, 0].min(), tips[:, 0].min() - 25), max(XY[fig][:, 0].max(), tips[:, 0].max() + 25)
+        self.ax0, self.ay1 = x0, XY[fig][:, 1].max()
+        H = int((self.ay1 - XY[fig][:, 1].min()) * G)
+        self.all_shape = (H, int((x1 - x0) * G))
+        self.dx = int(round((XY[fig][:, 0].min() - x0) * G))
+        self.fig_shape = (H, int((XY[fig][:, 0].max() - XY[fig][:, 0].min()) * G))
+        self._crop(p02)
 
-    def _level(self, a):
-        """Coefficients of d(s), the meander's lower edge's departure from level (units of t)."""
-        R0 = float(self.R(0.0))
-        s = np.arange(LEVEL_S[0], LEVEL_S[1], 10.0)
-        t = np.arange(-40.0, 60.0, 0.5)
-        S, T = np.meshgrid(s, t)
-        uv = vu.flat_to_photo(self.c, self.R, self.tab, S.ravel(), T.ravel()).reshape(len(t), len(s), 2)
-        RB = ndi.map_coordinates(ndi.gaussian_filter(a[..., 0] - a[..., 2], 1.0), [uv[..., 1], uv[..., 0]], order=1)
-        edge = np.array([t[np.nonzero(RB[:, j] > 90)[0].min()] for j in range(len(s))])
-        d = np.polyfit(s, edge, 2)
-        print(f"  meander's lower edge on the flat: {edge.min():+.1f} to {edge.max():+.1f} units across "
-              f"s {LEVEL_S[0]:.0f}..{LEVEL_S[1]:.0f} (R0 {R0:.0f}); levelled")
-        return d
-
-    def _shift(self, s, t):
-        """Levelling: the flat point (s, t) shows what lay at (s, t + shift)."""
-        d = np.polyval(self.level, np.clip(s, *LEVEL_S)) - np.polyval(self.level, 0.0)
-        return d * np.clip(1 - t / LEVEL_FADE, 0, 1)
-
-    def fig_to_02(self, X, Y):
-        """Figure-frame pixels -> 02-frame pixels (no margin)."""
-        s = FIG_S[0] + X / self.G
-        t = FIG_T[1] - Y / self.G
-        uv = vu.flat_to_photo(self.c, self.R, self.tab, s, t + self._shift(s, t))
-        return F * (uv[..., 0] - BOX02[0]), F * (uv[..., 1] - BOX02[1])
-
-    def unroll(self, frame02):
-        """The 02 frame (photo, H x W x 3) unrolled into the figure's frame;
-        outside the photo, glaze. Also the mask of rows above the 03/02 seam."""
+    def _crop(self, p02, step=8, margin=150):
+        """Shrink both frames to the figure (the clay joined to SEED, found on a
+        coarse unrolling of photo 02, less the thin spear; and his dark hair) and
+        the spear's tips, with a margin."""
+        a = np.asarray(Image.open(p02).convert("RGB"), dtype=np.float32)
         H, W = self.fig_shape
-        out = np.empty((H, W, 3), np.float32)
-        above = np.zeros((H, W), bool)
-        glaze = np.median(frame02[lum(frame02) < 50], axis=0)
-        for y0 in range(0, H, 512):  # in strips, to keep memory down
-            Y, X = np.mgrid[y0:min(H, y0 + 512), 0:W].astype(np.float64)
-            Xc, Yc = self.fig_to_02(X.ravel(), Y.ravel())
-            Xc, Yc = Xc.reshape(X.shape), Yc.reshape(X.shape)
-            inside = (Xc >= 0) & (Xc <= frame02.shape[1] - 1) & (Yc >= 0) & (Yc <= frame02.shape[0] - 1)
-            for k in range(3):
-                out[y0:y0 + len(Y), :, k] = np.where(inside, ndi.map_coordinates(frame02[..., k], [Yc, Xc], order=1),
-                                                     glaze[k])
-            above[y0:y0 + len(Y)] = Yc < SEAM
-        return out, above
+        ys, xs = np.arange(0, H, step), np.arange(0, W, step)
+        X, Y = np.meshgrid(xs + self.dx, ys)
+        uv = self.all_to_photo("02", X, Y)
+        rb = ndi.map_coordinates(a[..., 0] - a[..., 2], [np.nan_to_num(uv[:, 1], nan=-1), np.nan_to_num(uv[:, 0], nan=-1)],
+                                 order=1, cval=0).reshape(X.shape)
+        fl = self.to_fig([q for q in FLOOR_CUT if q != lw.STRAIGHT]) / step  # the band he stands on: cut away
+        o = np.argsort(fl[:, 0])
+        rb[ys[:, None] / step > np.interp(xs[None, :] / step, fl[o, 0], fl[o, 1]) - 2] = 0
+        lab, _ = ndi.label(ndi.binary_opening(ndi.binary_closing(rb > CLAY_RB, iterations=2), structure=morphology.disk(4)))
+        sx, sy = self.to_fig([SEED])[0] / step
+        k = lab[int(round(sy)), int(round(sx))]
+        yy, xx = np.nonzero(lab == k)
+        hair = self.to_fig(HAIR)
+        fy0, fy1 = min(yy.min() * step, hair[:, 1].min()) - margin, (yy.max() + 1) * step + margin
+        fx0, fx1 = xx.min() * step - margin + self.dx, (xx.max() + 1) * step + margin + self.dx
+        tips = np.array([self.photo_to_all(e["photo"], [e["tip"]])[0] for e in SPEAR_ENDS.values()])
+        ax0, ax1 = min(fx0, tips[:, 0].min() - 25 * G), max(fx1, tips[:, 0].max() + 25 * G)
+        self.ax0 += ax0 / G
+        self.ay1 -= fy0 / G
+        self.all_shape = (int(fy1 - fy0), int(ax1 - ax0))
+        self.dx = int(round(fx0 - ax0))
+        self.fig_shape = (int(fy1 - fy0), int(fx1 - fx0))
 
-    def to_fig(self, pts):
-        """02-frame points (measured with the X02 margin) -> figure-frame pixels."""
-        P = np.asarray(pts, float).reshape(-1, 2)
-        uv = np.stack([BOX02[0] + (P[:, 0] - X02) / F, BOX02[1] + P[:, 1] / F], -1)
-        st = vu.photo_to_flat(self.c, self.R, self.tab, uv)
-        s, t = st[:, 0], st[:, 1]
-        for _ in range(3):  # undo the levelling: find t_c with t_c + shift(s, t_c) = t
-            tc = t - self._shift(s, t if _ == 0 else tc)
-        return np.stack([(s - FIG_S[0]) * self.G, (FIG_T[1] - tc) * self.G], -1)
+    def _unit(self, name, uv):
+        """Photo points -> flat world units."""
+        ty = vu.photo_to_surface(self.cams[name], self.R, np.asarray(uv, float).reshape(-1, 2), (FLAT_Y[0], FLAT_Y[1] - 1))
+        th = ty[:, 0] - (np.radians(TURNS[name]) if name != "02" else 0.0)
+        q = np.c_[ty[:, 1], th]
+        return np.stack([self._fwd[0](q), self._fwd[1](q)], -1)
 
     def photo_to_all(self, name, uv):
-        """Points of photo `name` -> the drawing's frame, through its camera and turn."""
-        ty = vu.photo_to_surface(self.cams[name], self.R, np.asarray(uv, float).reshape(-1, 2),
-                                 (PROFILE_Y[0], PROFILE_Y[-1] - 20))
-        th = ty[:, 0] - (np.radians(TURNS[name]) if name != "02" else 0.0)
-        s, t = self.R(ty[:, 1]) * th, np.interp(ty[:, 1], *self.tab)
-        tc = t - self._shift(s, t)
-        return np.stack([(s - ALL_S[0]) * self.G, (FIG_T[1] - tc) * self.G], -1)
+        """Points of photo `name` -> the drawing's frame (px)."""
+        f = self._unit(name, uv)
+        return np.stack([(f[:, 0] - self.ax0) * G, (self.ay1 - f[:, 1]) * G], -1)
 
     def all_to_photo(self, name, X, Y):
-        """Drawing-frame pixels -> photo `name` (u, v)."""
-        s = ALL_S[0] + X / self.G
-        t = FIG_T[1] - Y / self.G
-        t = t + self._shift(s, t)
-        y = np.interp(t, self.tab[1], self.tab[0])
-        th = s / self.R(y) + (np.radians(TURNS[name]) if name != "02" else 0.0)
-        return vu.project(self.cams[name], vu.surface(self.R, y, th))
+        """Drawing-frame px -> photo `name` (u, v); NaN outside the flattened patch."""
+        ty = self._inv(np.stack([self.ax0 + np.ravel(X) / G, self.ay1 - np.ravel(Y) / G], -1))
+        th = ty[:, 0] + (np.radians(TURNS[name]) if name != "02" else 0.0)
+        return vu.project(self.cams[name], vu.surface(self.R, ty[:, 1], th))
+
+    def unroll(self, name, path, step=4):
+        """Photo `name` laid onto the figure's frame (H x W x 3) and where it was
+        seen (inside the photo)."""
+        a = np.asarray(Image.open(path).convert("RGB"), dtype=np.float32)
+        H, W = self.fig_shape
+        ys, xs = np.arange(0, H + step, step), np.arange(0, W + step, step)
+        X, Y = np.meshgrid(xs + self.dx, ys)
+        uv = self.all_to_photo(name, X, Y).reshape(len(ys), len(xs), 2)
+        full = [ndi.zoom(np.nan_to_num(uv[..., k], nan=-1e4), step, order=1)[:H, :W] for k in (0, 1)]
+        u, v = full
+        seen = (u > 2) & (v > 2) & (u < a.shape[1] - 3) & (v < a.shape[0] - 3)
+        out = np.stack([ndi.map_coordinates(a[..., k], [v, u], order=1, cval=0) for k in range(3)], -1)
+        return out, seen
+
+    def image(self, p02, p03):
+        """The figure's frame as one photo: 03 above the belt, where it is sharp
+        and looks straight at the shoulder; 02 below; blended across 2 x FEATHER
+        px at the flat row of the 02 frame's SEAM, 03's colours matched to 02's.
+        Also the mask of what came from 03."""
+        a2, seen2 = self.unroll("02", p02)
+        a3, seen3 = self.unroll("03", p03)
+        ys = self.to_fig([(X02 + 1164, SEAM)])[0][1]  # the seam at his belt
+        Y = np.arange(a2.shape[0], dtype=np.float32)[:, None]
+        w = np.clip((ys + FEATHER - Y) / (2 * FEATHER), 0, 1) * seen3
+        near = (np.abs(Y - ys) < 200) & seen2 & seen3
+        L2, L3 = lum(a2), lum(a3)
+        clay = near & ndi.binary_erosion((L2 > 110) & (L3 > 110), iterations=6)
+        glaze = near & ndi.binary_erosion((L2 < 50) & (L3 < 50), iterations=6)
+        for c in range(3):
+            t0, t1 = np.median(a3[..., c][glaze]), np.median(a3[..., c][clay])
+            f0, f1 = np.median(a2[..., c][glaze]), np.median(a2[..., c][clay])
+            a3[..., c] = f0 + (a3[..., c] - t0) * (f1 - f0) / (t1 - t0)
+        glaze_rgb = np.median(a2[seen2 & (L2 < 50)], axis=0)
+        a2[~seen2] = glaze_rgb
+        out = w[..., None] * a3 + (1 - w[..., None]) * a2
+        return out.clip(0, 255), w > 0.5
+
+    def to_fig(self, pts):
+        """02-frame points (measured with the X02 margin) -> figure-frame px.
+        Points above SEAM are carried back to photo 03 and laid down through its
+        camera, the others through 02's."""
+        P = np.asarray(pts, float).reshape(-1, 2)
+        out = np.empty_like(P)
+        up = P[:, 1] < SEAM
+        if (~up).any():
+            uv = np.stack([BOX02[0] + (P[~up, 0] - X02) / F, BOX02[1] + P[~up, 1] / F], -1)
+            out[~up] = self.photo_to_all("02", uv)
+        if up.any():
+            q = [P[up, 1], P[up, 0] - X02]
+            uv = np.stack([ndi.map_coordinates(m, q, order=1) for m in self.m03], -1)
+            out[up] = self.photo_to_all("03", uv)
+        out[:, 0] -= self.dx
+        return out
 
 
 def converted(fl: Flat):
@@ -604,14 +638,16 @@ def converted(fl: Flat):
         return out
 
     floor = path(FLOOR_CUT)
-    W = fl.fig_shape[1]
-    floor = [(0.0, floor[0][1])] + floor + [(W - 1.0, floor[-1][1])]  # out to the frame's sides
+    H, W = fl.fig_shape
+    floor = [(0.0, floor[0][1])] + floor + [(W - 1.0, floor[-1][1])]  # out to the frame's sides...
+    floor = [q if q == lw.STRAIGHT else (min(max(q[0], 0.0), W - 1.0), min(max(q[1], 0.0), H - 1.0)) for q in floor]  # ...and in it
     return types.SimpleNamespace(
         seed=pts([SEED])[0], floor=floor, open=pts(OPEN), hair=pts(HAIR), stain=pts(STAIN),
         wrap_edge=tuple(pts(WRAP_EDGE)), hand=pts(HAND), hand_lines=[pts(q) for q in HAND_LINES],
         feet=[pts(q) for q in FEET], feet_lines=[pts(q) for q in FEET_LINES], faces=[pts(q) for q in FACES],
         face_lines=[pts(q) for q in FACE_LINES], face_dots=dots(FACE_DOTS), hairline=pts(HAIRLINE),
-        outline=[pts([q])[0] for q in SPEAR_OUTLINE], shaft_x=[pts(q) for q in SPEAR_SHAFT_X])
+        outline=[pts([q])[0] for q in SPEAR_OUTLINE], shaft_x=[pts(q) for q in SPEAR_SHAFT_X],
+        neck_back=[tuple(q) for q in fl.photo_to_all("03", NECK_BACK) - [fl.dx, 0]])
 
 
 def shaft_line(RB, xs_pairs):
@@ -799,6 +835,7 @@ def drawing(rgb, P, above, w):
         lines |= (X - x) ** 2 + (Y - y) ** 2 <= r * r
     lines |= strokes(L, P.face_lines, FACE_PEN) | strokes(L, [P.hairline], FACE_PEN, snap=0)
     lines |= segment(shape, P.wrap_edge, w) | strokes(L, P.hand_lines, w) | strokes(L, P.feet_lines, w, snap=8)
+    lines |= strokes(L, [P.neck_back], w, snap=0)
     # the right sandal's straps, solid
     sm = ndi.gaussian_filter(L, 2.0)
     clay = ndi.gaussian_filter(ndi.grey_closing(sm, size=(41, 41)), 8)
@@ -816,9 +853,9 @@ def main(p01: str, p02: str, p03: str, p04: str) -> None:
     if "--refit" in sys.argv:
         fit_model(photos)
         return
-    fl = Flat(p02)
+    fl = Flat(p02, p03)
     P = converted(fl)
-    rgb, above = fl.unroll(composite(p02, p03))
+    rgb, above = fl.image(p02, p03)
     if "--composite" in sys.argv:  # diagnostic: the figure's frame as one photo, before the spear
         Image.fromarray(rgb.clip(0, 255).astype(np.uint8)).save(sys.argv[sys.argv.index("--composite") + 1])
         return
