@@ -867,12 +867,7 @@ def main(p01: str, p02: str, p03: str, p04: str) -> None:
         title="The shepherd Euphorbos carrying the infant Oedipus on his shoulder, a long spear in his hand",
         desc="Line drawing after the Attic red-figure neck-amphora by the Achilles Painter, c. 450-445 BCE, "
              "Paris, Bibliothèque nationale de France, Cabinet des médailles 372; traced from photographs by "
-             "ArchaiOptix (CC BY-SA 4.0), changed: taken off the vase's curve; views joined; the spear "
-             "straightened to its full length; a line added at the back of his neck; the lines of his hand, "
-             "both faces, and his left sandal redrawn. This drawing is CC BY-SA 4.0 "
-             "(https://creativecommons.org/licenses/by-sa/4.0/). Photographs: " + " ".join(
-                 "https://commons.wikimedia.org/wiki/File:Achilles_Painter_-_ARV_987_4_-_Euphorbos_with_the_"
-                 f"infant_Oidipous_-_man_-_Paris_BnF_CabMed_372_-_0{n}.jpg" for n in "1234"))
+             "ArchaiOptix (CC BY-SA 4.0), changed. This drawing is CC BY-SA 4.0.")
     print(OUT, info)
     qa = [a for a in sys.argv[5:] if not a.startswith("--")]
     if qa:  # optional: the drawing over its source (the figure's frame), and as the dark theme shows it
