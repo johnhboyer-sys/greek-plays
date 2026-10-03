@@ -16,9 +16,13 @@ Hand-drawn shapes do the rest: the stage floor and the girl (FLOOR, below
 the hem), the modern plaster fill by his elbow (PLASTER), his hair (HAIR,
 drawn solid), and his two black shoes on the floor (SHOES). His beard is
 drawn solid too, with its long clay strands as light lines (BEARD), and his
-face and finger lines as even lines along their centres (FACE, HAND).
+face lines as even lines along their centres (FACE). His hand at his beard
+is redrawn stroke by stroke after John's trace of it (HAND, HAND_LINES).
 Three cracks cross the figure; their lines are erased (CRACKS) and painted
-lines broken by them are joined across the gap. Below his sleeve the staff
+lines broken by them are joined across the gap. A fourth, a wide break
+mended with grey plaster beside his hand, is erased whole (BREAK): the edge
+of his sleeve is drawn through it and his robe's folds carried across it.
+Below his sleeve the staff
 is redrawn as a straight rod on its painted centre line (STAFF): flaking
 has left its edges ragged.
 
@@ -71,10 +75,60 @@ HAIR = [(290, 262), (294, 205), (312, 150), (350, 110), (405, 82), (470, 68), (5
         (745, 492), (712, 540), (700, 600), (660, 630), (610, 615), (600, 560), (585, 480), (560, 420),
         (520, 380), (470, 360)] + HAIRLINE[::-1]
 FACE = HAIRLINE + [(466, 345), (440, 372), (410, 392), (392, 428), (372, 424), (345, 370), (318, 300)]
-# His hand at his beard: its fingers get the face's fine lines, and the
-# solid beard stops at it.
-HAND = [(352, 462), (420, 462), (470, 478), (500, 500), (512, 530), (516, 565), (510, 600), (496, 630),
-        (470, 650), (352, 650)]
+# His hand at his beard is redrawn stroke by stroke (HAND_LINES), after John's
+# trace of it (2026-10-02). Each stroke follows a painted line, read from
+# Diffendale's second photo of the krater, which shows the hand more sharply
+# (https://www.flickr.com/photos/dandiffendale/53977685498/); where the paint
+# is worn, or hidden under the two restored patches, it follows John's trace.
+# The thumb stands between the yellow flap of his sleeve and the V of its web;
+# the index finger runs along the top, under his beard; three fingers curl
+# below it. Inside HAND only these strokes are drawn, and the solid beard
+# stops at it.
+HAND = [(341, 480), (372, 481), (384, 482), (393, 479), (401, 476), (413, 474), (426, 472), (440, 471),
+        (452, 473), (461, 477), (468, 486), (477, 490), (488, 486), (500, 486), (512, 487), (521, 488),
+        (528, 492), (530, 499), (526, 507), (512, 509), (498, 510), (486, 511), (484, 520), (481, 532),
+        (480, 543), (485, 549), (489, 558), (492, 570), (494, 584), (496, 597), (497, 609), (496, 619),
+        (491, 626), (482, 627), (474, 627), (471, 634), (464, 643), (463, 655), (462, 667), (458, 678),
+        (448, 690), (438, 704), (428, 719), (419, 734), (410, 748), (404, 757), (396, 762), (393, 750),
+        (391, 725), (388, 700), (383, 675), (378, 650), (372, 625), (367, 600), (363, 578), (359, 560),
+        (355, 540), (350, 520), (345, 500)]
+HAND_LINES = [
+    [(365, 553), (367, 540), (369, 524), (370, 508), (371, 497), (374, 490), (379, 490), (384, 497),
+     (389, 510), (394, 524), (399, 537)],  # the thumb, round its tip to the web
+    [(426, 502), (416, 516), (409, 526), (403, 535), (399, 537)],  # the web's other side
+    [(399, 538), (395, 544), (389, 551), (385, 560), (381, 572), (377, 588), (368, 603), (357, 614)],  # the hand's back
+    [(381, 482), (395, 484), (410, 486), (425, 488), (438, 490), (446, 491)],  # the line above the index finger
+    [(382, 494), (392, 494), (405, 496), (417, 498), (430, 499), (442, 500), (455, 499), (466, 497),
+     (476, 493), (487, 489), (500, 489), (512, 490), (521, 491), (526, 495), (526, 501), (520, 506),
+     (509, 507), (497, 507), (487, 508), (476, 510), (465, 514), (455, 518), (447, 524), (438, 531),
+     (431, 537), (427, 541)],  # the index finger, out to its tip and back
+    [(481, 508), (480, 520), (478, 532), (476, 544)],  # the hand's edge against the beard
+    [(427, 541), (440, 540), (455, 539), (467, 540), (475, 544), (481, 551), (485, 560), (488, 572),
+     (490, 585), (492, 598), (493, 610), (490, 618), (484, 622), (477, 621), (474, 613)],  # second finger
+    [(484, 600), (485, 606), (486, 612)],  # its nail
+    [(427, 565), (440, 564), (455, 564), (463, 566), (468, 571), (471, 579), (473, 590), (473, 603),
+     (472, 616), (469, 627), (463, 635), (457, 639)],  # third finger
+    [(422, 598), (435, 598), (448, 600)], [(424, 601), (433, 606), (442, 612)],  # a crease
+    [(412, 621), (424, 617), (437, 618), (444, 624), (447, 634), (449, 645), (452, 656), (451, 666),
+     (446, 676), (439, 687), (431, 699), (422, 714), (413, 729), (405, 743), (399, 752), (391, 750),
+     (380, 743), (367, 734)],  # fourth finger, to his wrist
+    [(433, 637), (437, 647), (440, 657), (441, 667)],
+]
+HAND_W = 7  # px, about the median width of his painted lines
+# A break runs down beside his hand, from the top of his sleeve to the long
+# crack below his chest, mended with grey plaster (John, 2026-10-02: "it looks
+# like damage to the vase"). Inside BREAK nothing is traced. The edge of his
+# sleeve is drawn where its yellow ends, on the break's left (SLEEVE_EDGE;
+# above the break, the edge of the yellow flap beside his thumb), and the
+# lines of his hand and robe that run into the break are carried on across
+# it to that edge.
+SLEEVE_EDGE = [(372, 492), (369, 520), (366, 545), (359, 570), (354, 600), (357, 650), (362, 700),
+               (368, 750), (373, 800), (375, 850), (375, 900), (371, 950), (365, 1000), (358, 1050),
+               (355, 1085)]
+BREAK = [(341, 482), (343, 500), (344, 530), (340, 560), (350, 600), (356, 650), (358, 700), (362, 750),
+         (368, 800), (362, 850), (368, 900), (362, 950), (350, 1000), (348, 1050), (352, 1095),
+         (424, 1095), (426, 1050), (428, 1000), (428, 950), (426, 900), (424, 850), (422, 800), (416, 750),
+         (406, 700), (394, 650), (392, 600), (390, 560), (366, 530), (360, 500), (358, 482)]
 BEARD = [(372, 424), (392, 428), (410, 392), (440, 372), (470, 360), (520, 380), (560, 420), (585, 480),
          (600, 560), (560, 600), (480, 600), (420, 560), (395, 500)]
 POCKET = [(303, 1300), (290, 1400), (285, 1500)]  # points in the glaze between staff and robe
@@ -175,6 +229,50 @@ def solid_beard(dark, zone):
     return mass & ~(ndi.distance_transform_edt(~morphology.skeletonize(strands)) <= 2.0)
 
 
+def drawn(shape, strokes, w):
+    """Strokes drawn by hand: each a smooth curve through its points, w px
+    wide, with round ends."""
+    from scipy.interpolate import splprep, splev
+    m = np.zeros(shape, bool)
+    for pts in strokes:
+        p = np.array(pts, float).T
+        tck, _ = splprep(p, k=min(3, p.shape[1] - 1), s=len(pts))
+        x, y = splev(np.linspace(0, 1, 40 * len(pts)), tck)
+        m[np.round(y).astype(int), np.round(x).astype(int)] = True
+    return ndi.distance_transform_edt(~m) <= w / 2
+
+
+def carry_across(lines, zone, stop, w, reach=90):
+    """Folds that run into zone from the right are carried on across it in a
+    straight line, the way their last 30 px run, until they meet stop. Only
+    long, nearly level lines count as folds; the zone's own ragged edges,
+    which run along it, are left out."""
+    sk = morphology.skeletonize(lines & ~zone)
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    around = ndi.binary_dilation(zone, iterations=6)
+    ends = sk & (ndi.convolve(sk.astype(int), k, mode="constant") == 1) & around
+    lab, _ = ndi.label(sk, structure=np.ones((3, 3)))
+    path = np.zeros_like(lines)
+    for y, x in zip(*np.nonzero(ends)):
+        ys, xs = np.nonzero(lab == lab[y, x])
+        if (lab == lab[y, x]).sum() < 40:  # a fleck, not a fold
+            continue
+        near = np.hypot(ys - y, xs - x) <= 30
+        ys, xs = ys[near], xs[near]
+        if xs.max() - x < 20 or xs.min() < x:  # it must run off to the right of its end
+            continue
+        b, c = np.polyfit(xs, ys, 1)
+        if abs(b) > 0.7:  # too steep for a fold
+            continue
+        for xx in range(x - 1, x - reach, -1):
+            yy = int(round(b * xx + c))
+            if not (0 <= yy < lines.shape[0]) or stop[yy, xx] or not around[yy, xx]:
+                break
+            path[yy, xx] = True
+    return ndi.distance_transform_edt(~path) <= w / 2
+
+
 def main(src: str) -> None:
     a = np.asarray(Image.open(src).convert("RGB").crop(BOX), dtype=np.float32)
     L = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]
@@ -215,7 +313,8 @@ def main(src: str) -> None:
     open_ = [holes[y, x] for x, y in POCKET if holes[y, x]]
     sil |= (holes > 0) & ~np.isin(holes, open_)
     rod, beside = staff_masks(shape)
-    sil = (sil & ~beside) | rod
+    brk = poly(shape, BREAK)
+    sil = (sil & ~beside) | rod | brk
     sil = morphology.remove_small_objects(sil, max_size=4000)
     sil = ndi.gaussian_filter(sil.astype(float), 1.5) > 0.5
 
@@ -224,8 +323,7 @@ def main(src: str) -> None:
     lines &= ndi.binary_erosion(sil, structure=morphology.disk(4))
     lines &= ~(beside | rod | head)
     beard = solid_beard(dark, beard_zone)
-    fine_zone = ndi.binary_erosion(face_zone, iterations=3) | (hand_zone & sil)
-    face = lw.ink_lines(L, size=15, low=16, high=38, sigma=1.0) & fine_zone
+    face = lw.ink_lines(L, size=15, low=16, high=38, sigma=1.0) & ndi.binary_erosion(face_zone, iterations=3)
     face &= ~ndi.binary_dilation(ndi.binary_opening(dark, structure=morphology.disk(8)), iterations=3)  # the ground
     dots = ndi.binary_opening(face, structure=morphology.disk(3))  # the pupil, kept solid
     face = pen(face & ~ndi.binary_dilation(dots, iterations=2), PEN) | dots
@@ -233,6 +331,9 @@ def main(src: str) -> None:
     broken = lines & ~cracks  # the cracks erased...
     lines = broken | (ndi.binary_closing(broken, structure=morphology.disk(6)) & cracks)  # ...lines rejoined
     lines = morphology.remove_small_objects(lines, max_size=120)  # specks of wear
+    sleeve = drawn(shape, [SLEEVE_EDGE], HAND_W)
+    lines = (lines & ~brk) | carry_across(lines & ~hand_zone, brk, sleeve, HAND_W) | sleeve \
+        | drawn(shape, HAND_LINES, HAND_W)
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(4))
 
     if "--masks" in sys.argv:  # diagnostic: the masks over the photo
