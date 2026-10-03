@@ -174,14 +174,22 @@
       "author": "sophocles",
       "work_id": "philoctetes",
       "title": "Philoctetes",
-      "proposed_subject": "Philoctetes with his bow, wound, or cave; verify the identification.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case at his feet (John, 2026-10-03: the Met lekythos is 'for philoctetes').",
+      "status": "Drawn 2026-10-03 (first pass); the head and hands are to follow John's traces",
+      "source_candidate": "https://commons.wikimedia.org/wiki/File:Philoktetes_Lemnos_Met_56.171.58.jpg",
+      "final_image": "docs/redesign/drawings/philoctetes.svg",
+      "credit": "After the Attic red-figure squat lekythos in the manner of the Eretria Painter (Bothmer; BAPD 10931), c. 420 BCE, New York, Metropolitan Museum of Art 56.171.58 (Fletcher Fund, 1956): Philoctetes seated on a rock under a tree. Photographs: Marie-Lan Nguyen, 2011 (Commons), and the Metropolitan Museum of Art (Open Access, DP165159 and DP165160). Drawing traced from the photographs and changed.",
+      "license": "Nguyen's photo CC BY 2.5 (Commons file page, checked 2026-10-03); the Met's photos CC0 (Open Access; the object record says isPublicDomain: true). The drawing traces only the ancient painting, which is public domain, so it carries no licence (John's ruling on Oedipus Tyrannus, 2026-10-02; on this drawing, 2026-10-03: 'Don't care about license'); the photographers are credited.",
+      "crop": "Philoctetes with the rock he sits on and his bow case (John, 2026-10-03: 'include quiver and bow and the rock'), cut out as one. The tree is cut off where its trunk meets the rock, along the rock's top line and the top of his right hand. The black ground seen through the scene (between his arms and his body, under his raised leg and foot, between his hanging leg and the rock) stays open. The rock is its outline and its black lines only; its brown washes are left out.",
+      "alt_text": "Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case beside him",
+      "source_file": [
+        "https://upload.wikimedia.org/wikipedia/commons/d/d7/Philoktetes_Lemnos_Met_56.171.58.jpg",
+        "https://images.metmuseum.org/CRDImages/gr/original/DP165159.jpg",
+        "https://images.metmuseum.org/CRDImages/gr/original/DP165160.jpg"
+      ],
+      "shows": "The play itself: Philoctetes alone on Lemnos with his wound and the bow, where the Greeks left him, the situation the play opens on. Not a myth the play only mentions.",
+      "method": "The vase's profile and the cameras of the three photos fitted together (tools/vase_unroll.py: the vase's outline in the Met's two views, the line under the scene in all three, points matched between the photos; Nguyen's focal length from EXIF, the Met's fitted: fixed anywhere from 9,000 to 34,000 px it moves the flat figure by 2-3 px). The vase flattened without shear over the scene alone (it wraps 150 degrees round the vase), which keeps every part within 3% of the vase's own lengths; the photos laid onto it, Nguyen's in the middle and the Met's DP165159 toward the sides, where it is sharper. Him, the rock and the bow case found by colour as one cut-out, the tree cut off at the rock; painted lines found by their narrowness, so the broad brown washes drop out, and redrawn as even lines at the house weight; on the rock only black lines. Hair and beard as the curls the brush laid; the top of his head, the bow case's black and the dark strokes outlining his feet drawn solid. A scratch and an abraded patch in the glaze by his arm, and chips along the rock's left side, left out of the outline. tools/philoctetes.py.",
+      "result": "First pass, 2026-10-03, not yet reviewed by John. His head and hands are to be redrawn from his traces."
     },
     {
       "author": "sophocles",
@@ -667,5 +675,5 @@
       "result": "Clean. Revised 2026-10-02: the drapery folds run their full length. John judged the first version not detailed enough; the Schiller Painter's own drawing is sparer than the engravings."
     }
   ],
-  "drawing_format": "Each SVG is 1000 units tall with two paths: 'lines' (fill currentColor) and 'body', the figure's area under the lines, class \"body\" with fill=\"none\", which a page fills with CSS. The body has no holes, and lines too thin to hold clay on either side (a goad, a spear) get a narrow clay rim, so the figure reads whole on a dark page. Light pages leave the body transparent; the contact sheet's dark boards fill it with clay and keep the lines dark, as on a red-figure vase (approved by John 2026-10-02; the inverted dark mode looked like a photo negative)."
+  "drawing_format": "Each SVG is 1000 units tall with two paths: 'lines' (fill currentColor) and 'body', the figure's area under the lines, class \"body\" with fill=\"none\", which a page fills with CSS. The body has no holes, except where a scene shows the black ground through it (Philoctetes: between his arms and his body), and lines too thin to hold clay on either side (a goad, a spear) get a narrow clay rim, so the figure reads whole on a dark page. Light pages leave the body transparent; the contact sheet's dark boards fill it with clay and keep the lines dark, as on a red-figure vase (approved by John 2026-10-02; the inverted dark mode looked like a photo negative)."
 }

@@ -1,7 +1,8 @@
 """Philoctetes: Philoctetes alone on Lemnos, seated on a rock under a tree, his
 bandaged leg drawn up, his bow case at his feet, from the Attic red-figure
-squat lekythos, c. 420 BCE, New York, Metropolitan Museum of Art 56.171.58
-(Fletcher Fund, 1956). Photos: Marie-Lan Nguyen, 2011, CC BY 2.5 ("C", the
+squat lekythos in the manner of the Eretria Painter (Bothmer; BAPD 10931),
+c. 420 BCE, New York, Metropolitan Museum of Art 56.171.58 (Fletcher Fund,
+1956). Photos: Marie-Lan Nguyen, 2011, CC BY 2.5 ("C", the
 closest, the drawing's main source), and the Met's two Open Access photos,
 CC0 ("A", DP165159, and "B", DP165160):
 https://commons.wikimedia.org/wiki/File:Philoktetes_Lemnos_Met_56.171.58.jpg
@@ -9,7 +10,8 @@ https://images.metmuseum.org/CRDImages/gr/original/DP165159.jpg
 https://images.metmuseum.org/CRDImages/gr/original/DP165160.jpg
 The drawing traces only the ancient painting, which is public domain, so it
 does not carry the photos' licences (John's ruling on Oedipus Tyrannus,
-2026-10-02); the photographers are credited.
+2026-10-02; on this drawing: "Don't care about license"); the photographers
+are credited.
 
 Photo -> drawing:
   - The vase is taken off its curve (vase_unroll.py, as for Euphorbos and
@@ -543,8 +545,9 @@ def main(pC: str, pA: str, pB: str) -> None:
     info = lw.trace_svg(
         ink, OUT, body=area, open_holes=windows,
         title="Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case beside him",
-        desc="Line drawing after the Attic red-figure squat lekythos, c. 420 BCE, New York, Metropolitan Museum of "
-             "Art 56.171.58; traced from photographs by Marie-Lan Nguyen and the Metropolitan Museum of Art, changed.")
+        desc="Line drawing after the Attic red-figure squat lekythos in the manner of the Eretria Painter, c. 420 BCE, "
+             "New York, Metropolitan Museum of Art 56.171.58; traced from photographs by Marie-Lan Nguyen (CC BY 2.5) "
+             "and the Metropolitan Museum of Art (CC0), changed.")
     print(OUT, info)
     qa = [a for a in sys.argv[4:] if not a.startswith("--")]
     if qa:  # optional: the drawing over its source, and as the dark theme shows it

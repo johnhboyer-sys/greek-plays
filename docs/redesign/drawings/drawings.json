@@ -63,6 +63,15 @@
       "source": "Darius Painter amphora, Berlin F 3240, photograph by ArchaiOptix (CC BY-SA 4.0)",
       "method": "Red-figure photo taken off the vase (a fitted model, flattened without shear); clay mask; lines by local contrast redrawn even; hands and face from John's traces; eye from the paint; mends erased, folds joined; potrace",
       "verdict": "John, 2026-10-03: 'Antigone looking pretty good.' Clothes approved on the second pass; hands and face from his traces. Open: a dark spot on her upper arm, and the double jaw line in dark mode."
+    },
+    {
+      "slug": "philoctetes",
+      "file": "philoctetes.svg",
+      "name": "Philoctetes · Philoctetes on Lemnos",
+      "alt": "Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case beside him",
+      "source": "Squat lekythos in the manner of the Eretria Painter, Met 56.171.58, photographs by Marie-Lan Nguyen (CC BY 2.5) and the Met (CC0)",
+      "method": "Red-figure photos taken off the vase (a fitted model, flattened over the scene only); him, the rock and the bow case cut out as one, the tree cut off; lines found by their narrowness, washes left out, only black lines on the rock; hair and beard as curls; potrace",
+      "verdict": "First pass, 2026-10-03; the head and hands are to follow John's traces."
     }
   ]
 }

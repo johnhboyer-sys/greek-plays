@@ -15,6 +15,7 @@ them on every ground, light and dark.
 | `medea.svg` | Medea | Cleveland 1991.1, museum photo (CC0) |
 | `oedipus-tyrannus.svg` | Oedipus (Oedipus Tyrannus) | Syracuse 66557, photo by Dan Diffendale (CC BY-NC-SA 2.0); the drawing traces only the painting, so it does not carry that licence (John, 2026-10-02) |
 | `antigone.svg` | Antigone, bound, before Creon (Antigone) | Berlin F 3240, photo by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0); flattened off the vase with `tools/vase_unroll.py` |
+| `philoctetes.svg` | Philoctetes alone on Lemnos, with the rock he sits on and his bow case (Philoctetes) | Met 56.171.58, photos by Marie-Lan Nguyen (CC BY 2.5) and the Met (CC0); the drawing traces only the painting, so it carries no licence (John, 2026-10-03); flattened off the vase with `tools/vase_unroll.py` |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -28,7 +29,8 @@ Each SVG is 1000 units tall, on a transparent ground, with two paths:
   same line.
 - `body`: the figure's whole area, under the lines, `class="body"
   fill="none"`, so it is transparent unless a page fills it with CSS
-  (`.body { fill: <clay> }` in the dark theme). It has no holes, and lines
+  (`.body { fill: <clay> }` in the dark theme). It has no holes, except where a
+  scene shows the black ground through it (`open_holes`), and lines
   too thin to hold clay on either side (a goad, a spear) get a narrow clay
   rim. The contact sheet's dark boards set it to a clay colour and keep
   the lines dark, so a drawing reads as a red-figure vase instead of a photo
@@ -79,5 +81,5 @@ keeps its shape); plain unrolling, around by arc length and up the profile,
 shears whatever lies off its centre line where the profile slopes. Give it every photo's
 focal length from its EXIF, and mark cropped photos (`crop: True`) so their
 centres are fitted; fitted free, focal length trades against distance and
-the perspective comes out wrong. `tools/euphorbos.py` and `tools/antigone.py`
-use it; their docstrings say what was fitted.
+the perspective comes out wrong. `tools/euphorbos.py`, `tools/antigone.py` and
+`tools/philoctetes.py` use it; their docstrings say what was fitted.
