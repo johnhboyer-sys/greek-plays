@@ -1,6 +1,25 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
-## Status, 2026-10-03 17:40: paused (John closed the laptop)
+## Status, 2026-10-03 18:30: Ismene's folds from a found photo; review running
+
+- John found a clean photo of the scene online (547x560; probably from a
+  Facebook post, source unknown; "don't worry about the credit"). Kept as
+  `.remember/colonus/found.png`; the tool takes it as a fifth photo file.
+  It is registered to the plate at run time (error 0.42 of its px; misfit
+  over Ismene 0.1 plate px) and used only to find painted lines
+  (LINES_ONLY): its glaze has sheen, so ground, outline, solid black and
+  white still come from the plate. Ismene's garment now carries its folds
+  (e34a3a2); her face stays from John's first trace. Awaiting John's verdict.
+- The fringe fix (claude/redesign-drawings 6e7e3d3) is merged in (580a29e):
+  lines byte-identical, body path changed, test_linework.py passes.
+- Quick runs: `run_cached.py` now reads two cached frames,
+  scratchpad `hathi/a_green.npy` (base) and `hathi/a_lines.npy` (lines);
+  `.remember/colonus/scripts/build_frames.py` rebuilds both (4 min).
+- Codex review (GPT-6-Sol, medium) dispatched 18:28 with
+  `.remember/colonus/codex_review_brief.md`; images in
+  `.remember/colonus/review/`.
+
+## Earlier status, 2026-10-03 17:40: paused
 
 Branch head after this commit; everything pushed.
 - Oedipus (redrawn on p. 29) and Antigone (John's traces on p. 26) are in.
