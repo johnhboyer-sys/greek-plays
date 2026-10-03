@@ -284,12 +284,14 @@ TREE_CUT = [(790, 1584), lw.STRAIGHT, (828, 1575), (845, 1545), (852, 1520), (87
             (1147, 1260), (1170, 1240), (1193, 1232), (1220, 1223), (1253, 1220), lw.STRAIGHT, (1275, 1195)]
 TREE_CORRIDOR = 8
 # The black ground seen through the scene (a point in each): between his
-# right arm, his body and the rock; between his left arm and his body; under
-# his raised thigh (two pieces, parted by a line of the bandage); between his
-# hanging leg and the rock; under his raised foot; and a sliver where the
-# rock's left end meets the ground line. These stay open; every other black
-# area inside the scene is paint (the top of his head, the bow case's black).
-WINDOWS = [(1635, 1256), (2213, 1024), (2550, 1431), (2699, 1675), (2490, 1804), (2857, 1902), (147, 2399)]
+# right arm, his body and the rock; between his left arm and his body;
+# between his hanging leg and the rock; under his raised foot; and a sliver
+# where the rock's left end meets the ground line. These stay open; every
+# other black area inside the scene is paint (the top of his head, the bow
+# case's black, the broad stroke down the back of his raised calf, which is
+# browner than the ground and shows the brush: in A L 21, red minus blue 23,
+# against 14 and 6; John, 2026-10-03, marked it black).
+WINDOWS = [(1635, 1256), (2213, 1024), (2490, 1804), (2857, 1902), (147, 2399)]
 # Along the figure's edge the glaze is a little browner and lighter than the
 # rest (the painter's contour stripe, 3-15 px wide; A shows it at L 25-50, red
 # minus blue 25-55), and the colour test leaves it to the figure, whose edge
@@ -517,8 +519,10 @@ GEAR_MIN = 40  # the gear's lines are long: pieces shorter than this there are w
 # usual 25 px window, that window finds only black.)
 # Along BLACK_BANDS (the broad dark strokes that outline his feet against the
 # rock: heel and sole of his hanging foot, its instep, and the sole of his
-# raised foot; points along each, and a half-width in px), paint darker than
-# BLACK_K joined by paint darker than BAND_LOW.
+# raised foot to its end under the toes; and the stroke down the back of his
+# raised calf, its broad top and its narrower lower part; points along each,
+# and a half-width in px), paint darker than BLACK_K joined by paint darker
+# than BAND_LOW.
 QUIVER = [(1685, 1773), (1752, 1665), (1900, 1660), (1945, 1700), (1950, 1790), (2027, 1915), (2077, 1990),
           (2093, 2107), (2043, 2157), (2127, 2190), (2143, 2307), (1977, 2323), (1918, 2223), (1835, 2107),
           (1752, 1995), (1650, 1985), (1645, 1915), (1685, 1857)]
@@ -542,7 +546,9 @@ BLACK_BANDS = [
     ([(2700, 2040), (2745, 2075), (2765, 2105), (2750, 2140), (2735, 2180), (2727, 2212), (2735, 2235), (2770, 2248),
       (2820, 2258), (2870, 2275), (2930, 2300), (3000, 2322), (3035, 2332)], 16),
     ([(2846, 1980), (2902, 2061), (2965, 2167), (3015, 2230), (3077, 2292), (3115, 2330)], 14),
-    ([(2900, 1812), (2960, 1804), (2995, 1798), (3040, 1803), (3080, 1808), (3100, 1810)], 10),
+    ([(2900, 1812), (2960, 1804), (2995, 1798), (3040, 1803), (3080, 1808), (3100, 1810), (3115, 1811)], 10),
+    ([(2512, 1270), (2500, 1320), (2505, 1370), (2540, 1420), (2585, 1465)], 32),
+    ([(2585, 1465), (2620, 1505), (2648, 1550), (2668, 1590), (2690, 1640), (2705, 1680), (2718, 1712)], 22),
 ]
 # Paint at least 2 * THICK px wide and as dark as the glaze stays solid: the
 # top of his head, a thick stroke at his heel.
@@ -579,6 +585,23 @@ DASH_GAP, DASH_TURN, DASH_BEND = 80, 12.0, 18.0
 TRACES = {k: v for k, v in json.loads((Path(__file__).parent / "philoctetes_traces.json").read_text()).items()
           if k != "note"}
 TRACE_PEN, TRACE_NEAR, TRACE_EDGE, TRACE_BLACK_MIN, TRACE_HOLE_MAX = 4.0, 20, 6, 3000, 4000
+# The feet (2026-10-03) are drawn from his trace the same way, except that
+# his outline sets the figure's area, and replaces the black paint found
+# there, round the head alone (AREA_PARTS). Round the feet his lines run
+# along the rock's brown washes, which the clean-clay rule would cut out of
+# the figure, and his toes close pockets of ground under them: there the
+# scene's own edge stands, and the black paint found (the bands, the broad
+# stroke down his calf) stays under his lines. Where two of his lines, or
+# one of his lines and the figure's edge, run within 2 * BAND_R px of each
+# other, the paint between them darker than BAND_LOW times the clay is drawn
+# solid too (BAND_PARTS): the dark bands outlining his feet, whose edges he
+# traced. His ink ends a pen's half-width past the figure (his toes reach
+# over the ground line; where his line runs further out, the found outline
+# stands), and the ground within BAND_R px of his lines is left open
+# (lw.trace_svg open_holes): a dark band at the figure's edge lies far from
+# clay on its outer side, and would get the clay rim that keeps a lone line
+# visible on the dark theme.
+AREA_PARTS, BAND_PARTS, BAND_R = ("head",), ("feet",), 18
 # His hair and beard get a half tone where the vase has its brown wash (John,
 # 2026-10-03: "can you do a half-dark tone for the beard to mimic the tone of
 # the original on the beard?", "same for hair"): paint darker than TONE_K
@@ -723,22 +746,24 @@ def traced(shape):
 
 
 def traced_area(area, windows, rgbA, parts):
-    """The scene's area with each traced part's own outline: inside it is the
-    figure; within TRACE_NEAR px outside it only clean clay stays."""
+    """The scene's area with the outline of each part in AREA_PARTS: inside
+    it is the figure; within TRACE_NEAR px outside it only clean clay stays."""
     _, clay = classes(rgbA)
     clay = ndi.binary_opening(clay, structure=morphology.disk(2))
-    for t in parts.values():
-        near = ndi.binary_dilation(t["walls"], iterations=TRACE_NEAR)
-        area = (area & ~(near & ~t["inside"] & ~clay)) | t["inside"]
+    for name, t in parts.items():
+        if name in AREA_PARTS:
+            near = ndi.binary_dilation(t["walls"], iterations=TRACE_NEAR)
+            area = (area & ~(near & ~t["inside"] & ~clay)) | t["inside"]
     lab, n = ndi.label(area)
     area = lab == 1 + int(np.argmax(ndi.sum(np.ones(area.shape), lab, np.arange(1, n + 1))))
     return ndi.binary_fill_holes(area | windows) & ~windows
 
 
-def traced_ink(parts, rgbA, g):
+def traced_ink(parts, rgbA, g, area):
     """The traced parts' ink (his strokes, his filled marks, the black glaze
-    inside his outline, his strokes inside it light) and the half tone (g:
-    the frame's luminance)."""
+    inside his outline, his strokes inside it light, the dark bands between
+    his lines) and the half tone (g: the frame's luminance; area: the figure,
+    windows excluded)."""
     glaze, _ = classes(rgbA)
     glaze = ndi.binary_closing(ndi.binary_opening(glaze, structure=morphology.disk(2)), structure=morphology.disk(3))
     rw = g / np.maximum(ndi.gaussian_filter(ndi.grey_closing(g, size=(TONE_CLAY, TONE_CLAY)), 10), 1.0)
@@ -746,7 +771,7 @@ def traced_ink(parts, rgbA, g):
     tone = np.zeros(g.shape, bool)
     for name, t in parts.items():
         walls, inside, centre = t["walls"], t["inside"], t["centre"]
-        black = glaze & inside & ~walls
+        black = glaze & inside & ~walls & area
         black = ndi.binary_closing(black | (walls & ndi.binary_dilation(black, iterations=3)),
                                    structure=morphology.disk(4)) & inside
         lab, n = ndi.label(ndi.binary_fill_holes(black) & ~black)
@@ -759,6 +784,10 @@ def traced_ink(parts, rgbA, g):
         light = ndi.binary_fill_holes(ndi.distance_transform_edt(~(centre & light_piece[lab])) <= TRACE_PEN / 2)
         black &= ~light
         ink |= ((ndi.distance_transform_edt(~centre) <= TRACE_PEN / 2) & ~light) | t["solids"] | black
+        if name in BAND_PARTS:
+            band = ndi.binary_closing(walls | ~area, structure=morphology.disk(BAND_R)) & ~walls & area
+            band &= (rw < BAND_LOW) & (ndi.distance_transform_edt(~walls) <= BAND_R)
+            ink |= ndi.binary_opening(band, structure=morphology.disk(2))
         if name in TONE_PARTS:
             paint = ndi.binary_opening((rw < TONE_K) & inside, structure=morphology.disk(1))
             paint = ndi.gaussian_filter(paint.astype(np.float32), 2.0) > 0.5
@@ -798,8 +827,11 @@ def drawing(rgbC, rgbA, area, painted, w, parts):
         rock |= poly(shape, p)
     inner = ndi.binary_erosion(area, structure=morphology.disk(4))
     zone = np.zeros(shape, bool)
-    for t in parts.values():
+    paint_zone = np.zeros(shape, bool)  # where his trace replaces the found black paint too
+    for name, t in parts.items():
         zone |= t["zone"]
+        if name in AREA_PARTS:
+            paint_zone |= t["zone"]
     LA = ndi.gaussian_filter(lum(rgbA), 1.0)
     rA = LA / np.maximum(ndi.gaussian_filter(ndi.grey_closing(LA, size=(QUIVER_CLAY, QUIVER_CLAY)), 10), 1.0)
     quiver = (poly(shape, QUIVER) | poly(shape, ARROWHEAD)) & area
@@ -845,13 +877,17 @@ def drawing(rgbC, rgbA, area, painted, w, parts):
     short[1:] = ndi.sum(np.ones(shape), lab, np.arange(1, n + 1)) < GEAR_MIN
     cl &= ~(short[lab] & gear)
     bow = strokes(g, [BOW_LINE, STRAP_LINE], w, snap=BOW_SNAP)
-    lines = (ndi.distance_transform_edt(~cl) <= w / 2) | solid | bow
-    t_ink, tone = traced_ink(parts, rgbA, g)
+    lines = (ndi.distance_transform_edt(~cl) <= w / 2) | bow
+    t_ink, tone = traced_ink(parts, rgbA, g, area)
+    reach = ndi.distance_transform_edt(~area) <= TRACE_PEN / 2  # his ink ends a pen's half-width past the figure
     centre = np.zeros(shape, bool)
     for t in parts.values():
         centre |= t["centre"]
-    edge = outline(area, w) & ~(ndi.distance_transform_edt(~centre) <= TRACE_EDGE)  # there his line is the edge
-    ink = (lines & ~zone) | t_ink | edge
+    edge = outline(area, w) & ~(ndi.distance_transform_edt(~(centre & reach)) <= TRACE_EDGE)  # there his line is the edge
+    # inside his zone the black paint is drawn as found, narrow parts too (a
+    # window's narrow end), not thinned to a line his own lines replace
+    paint = solid | (painted & zone)
+    ink = (lines & ~zone) | (paint & ~paint_zone) | (t_ink & reach) | edge
     return morphology.remove_small_objects(ink, max_size=60), tone
 
 
@@ -884,8 +920,12 @@ def main(pC: str, pA: str, pB: str) -> None:
     ys, xs = np.nonzero(area)
     w = lw.HOUSE_WEIGHT * max(np.ptp(ys), np.ptp(xs))  # the house weight, in frame px
     ink, tone = drawing(rgbC, rgbA, area, painted, w, parts)
+    held = windows.copy()  # ground left open: the windows, and the ground by his lines round the feet
+    for name, t in parts.items():
+        if name in BAND_PARTS:
+            held |= ~area & (ndi.distance_transform_edt(~t["walls"]) <= BAND_R)
     info = lw.trace_svg(
-        ink, OUT, body=area, open_holes=windows,
+        ink, OUT, body=area, open_holes=held,
         title="Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case beside him",
         desc="Line drawing after the Attic red-figure squat lekythos in the manner of the Eretria Painter, c. 420 BCE, "
              "New York, Metropolitan Museum of Art 56.171.58; traced from photographs by Marie-Lan Nguyen (CC BY 2.5) "

@@ -177,9 +177,10 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     fill="none": transparent unless a page colours it with CSS, as the dark
     theme does (`.body { fill: <clay> }`). The body has no holes, except
     where `open_holes` (same shape) marks ground seen through a scene (the
-    space between an arm and the body, closed off by a rock), and lines too
-    thin to hold clay get a narrow clay rim. Returns the crop box in ink's
-    pixels, for qa_overlay."""
+    space between an arm and the body, closed off by a rock) or otherwise
+    left open, and lines too thin to hold clay get a narrow clay rim (never
+    in ground left open). Returns the crop box in ink's pixels, for
+    qa_overlay."""
     ys, xs = np.nonzero(ink)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
     x0, x1 = max(xs.min() - pad, 0), min(xs.max() + pad + 1, ink.shape[1])
@@ -200,8 +201,8 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         # as the light one, on clay instead of paper (gaps open to the outside,
         # like those between fingers, stay open)
         b = ndi.binary_fill_holes(b)
-        if open_holes is not None:
-            b &= ~resample_ink(open_holes[y0:y1, x0:x1], TRACE_H)[:hh, :ww]
+        held = np.zeros_like(b) if open_holes is None else resample_ink(open_holes[y0:y1, x0:x1], TRACE_H)[:hh, :ww]
+        b &= ~held
         b = ndi.binary_opening(b, structure=morphology.disk(2))
         # a line with no clay on either side of it (a goad, a chain link) would
         # vanish on a dark page: give it a narrow clay rim
@@ -216,6 +217,7 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         b &= (np.bincount(lab.ravel()) > 200)[lab]
         lab = ndi.label(np.pad(~b, 1, constant_values=True))[0]  # the margin joins all ground at the edge
         b |= (np.bincount(lab.ravel()) <= 200)[lab[1:-1, 1:-1]]
+        b &= ~held  # nor does a rim or a filled speck cover ground left open
         # Where lines bound the body, its edge must lie under them, or a dark page
         # shows a thin clay line outside the outline. The body comes from the ink
         # before the house weight thinned it, and a cut can run just outside a

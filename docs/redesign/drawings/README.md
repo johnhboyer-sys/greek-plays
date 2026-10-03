@@ -30,7 +30,8 @@ Each SVG is 1000 units tall, on a transparent ground, with two paths:
 - `body`: the figure's whole area, under the lines, `class="body"
   fill="none"`, so it is transparent unless a page fills it with CSS
   (`.body { fill: <clay> }` in the dark theme). It has no holes, except where a
-  scene shows the black ground through it (`open_holes`), and lines
+  scene shows the black ground through it or leaves ground open
+  (`open_holes`, where no clay rim goes either), and lines
   too thin to hold clay on either side (a goad, a spear) get a narrow clay
   rim. The contact sheet's dark boards set it to a clay colour and keep
   the lines dark, so a drawing reads as a red-figure vase instead of a photo
