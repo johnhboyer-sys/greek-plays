@@ -1,6 +1,42 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
-## Status, 2026-10-03: on hold
+## Status, 2026-10-03 14:05: resumed on Green's pages (work in progress)
+
+John found the sharper source: J. R. Green, *Ancient Voices, Modern Echoes*
+(2003), in full view on HathiTrust (mdp.39015060089391, CC BY-NC-ND 4.0). He
+downloaded three pages, kept in `.remember/colonus/`:
+- seq 6 (p. 4): the whole vase, 1.8x the plate's scale; Taplin's plate is a
+  copy of this photo.
+- seq 28 (p. 26): the right half of the scene, 6.4x.
+- seq 31 (p. 29): Oedipus's head and hand, 12.8x.
+
+The tool now registers them to the plate when it runs (`load_green`: SIFT, a
+RANSAC homography, and a thin-plate spline; plate→p4→p26→p29, errors 0.3,
+0.2, and 0.1 plate px). It colour-matches them to the plate and lays p. 29
+over p. 26 over the plate. Ismene and the altar's left end stay drawn from
+the plate, because p. 4's print noise traced as wiggles. Every plate-px
+constant still applies. A run takes about a minute; for quick iteration,
+`.remember/colonus/scripts/run_cached.py` runs the tool on a cached frame
+(`a_green.npy`).
+
+**Next.** Re-place the hand-placed parts on the sharp photo, since the plate
+blurred them:
+- Oedipus's face: trace the painted dark lines (brows, closed lids, nose and
+  nostril, moustache, mouth). John's red marks on p. 29
+  (`john_marks_p29_seq31.tif`, carried into the frame as
+  `john_guide_frame.npy`) are a rough guide to what he sees, not a trace.
+- His hair and beard: draw the dark curl lines, as John marked them in the
+  beard, plus the outline of the white mass.
+- The staff: it now comes out as a heavy bar, because the rod no longer sits
+  on the painted staff and the staff's sharp edges trace beside it.
+- His chest: a row of tooth-like shapes; check what the paint shows there.
+- His hand strokes.
+- Antigone's face: the paint now shows it clearly, so trace it and show John
+  both versions (his trace, and the paint).
+
+Then show John the photo, before, and now at each place, plus the slots.
+
+## Earlier status, 2026-10-03 11:30: on hold
 
 John put the drawing on hold (11:29) until he can get a higher-resolution
 print scan of the vase. The work is on `claude/redesign-colonus`, pushed and

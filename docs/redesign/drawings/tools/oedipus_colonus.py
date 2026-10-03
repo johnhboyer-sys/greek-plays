@@ -32,7 +32,8 @@ painted lines on the clay, found by local contrast. His hair and beard are
 outlined, not filled. The staff is added yellow, drawn as a straight rod
 (STAFF). Faces and hands are drawn stroke by stroke on their painted lines.
 
-    python3 docs/redesign/drawings/tools/oedipus_colonus.py plate-001.jpg [qa.png]
+    python3 docs/redesign/drawings/tools/oedipus_colonus.py plate-001.jpg \
+        mdp.39015060089391-seq_6.tif mdp.39015060089391-seq_28.tif mdp.39015060089391-seq_31.tif [qa.png]
 """
 import sys
 from pathlib import Path
@@ -296,12 +297,141 @@ def smooth_poly(shape, pts):
 
 
 def load(src):
-    """The crop, cleaned of JPEG noise and enlarged F times."""
+    """The plate's crop, cleaned of JPEG noise and enlarged F times: the frame
+    every point in this file is placed in, and the colours every threshold
+    was set on."""
     a = np.asarray(Image.open(src).convert("RGB"))
     a = cv2.fastNlMeansDenoisingColored(a[:, :, ::-1].copy(), None, 3, 3, 5, 15)[:, :, ::-1]
     c = Image.fromarray(a).crop(BOX)
     c = c.resize((c.width * F, c.height * F), Image.LANCZOS)
     return np.asarray(c, dtype=np.float32)
+
+
+# ---------------------------------------------------------------- Green's pages
+# The photos drawn from are three pages of Green 2003 (HathiTrust
+# mdp.39015060089391, seq 6, 28 and 31), downloaded by John (2026-10-03):
+# p. 4, the whole vase (1.8x the plate's scale); p. 26, the right half of the
+# scene (6.4x); p. 29, Oedipus's head and hand (12.8x). The two details are
+# registered to the plate, warped into the working frame, colour-matched to
+# the plate (so the thresholds above still hold), and laid over it: p. 29 over
+# p. 26, feathered at the seams. p. 4 serves only to register p. 26: as
+# pixels it gave Ismene no more than the plate, and its print noise traced as
+# wiggles, so she and the altar's left end stay drawn from the plate. The
+# plate stays the frame: every hand-placed point, John's traces included, is
+# in its px. Per detail page: the photo's area in page px (the rest is paper,
+# text or the scanner's watermark) and the blur against the print's dots.
+PAGES = [("p26", (0, 0, 2410, 3290), 1.5), ("p29", (128, 1, 1761, 1962), 1.8)]
+PAGE_FILES = ["p4", "p26", "p29"]  # the order of the page files on the command line
+# Each link of the chain: (from, to, scale of from, scale of to, RANSAC px in
+# the target page, spline smoothing). p. 26 is matched to p. 4 and p. 29 to
+# p. 26, sharper partners than the plate.
+CHAIN = [("plate", "p4", 2.0, 1.0, 3.0, 2000.0), ("p4", "p26", 2.0, 0.55, 6.0, 4000.0),
+         ("p26", "p29", 0.55, 0.35, 8.0, 4000.0)]
+SEAM = 24  # working px over which a sharper page fades in
+
+
+def sift_matches(A, B, sa, sb, ratio=0.8):
+    """SIFT matches between greyscale A and B, found at scales sa and sb;
+    returned in each image's own px."""
+    cv2.setRNGSeed(0)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    rs = lambda im, s: cv2.resize(im, None, fx=s, fy=s, interpolation=cv2.INTER_AREA if s < 1 else cv2.INTER_LANCZOS4)
+    sift = cv2.SIFT_create(nfeatures=40000, contrastThreshold=0.015)
+    ka, da = sift.detectAndCompute(clahe.apply(rs(A, sa)), None)
+    kb, db = sift.detectAndCompute(clahe.apply(rs(B, sb)), None)
+    good = [m for m, n in cv2.BFMatcher(cv2.NORM_L2).knnMatch(da, db, k=2) if m.distance < ratio * n.distance]
+    pa = np.float64([ka[g.queryIdx].pt for g in good]) / sa
+    pb = np.float64([kb[g.trainIdx].pt for g in good]) / sb
+    return pa, pb
+
+
+class Mapping:
+    """Points of one image to another: a RANSAC homography, with what it
+    leaves taken up by a smooth thin-plate spline fitted on the matches (a
+    page's photo is not the plate's: the vase is curved, the camera moved).
+    Matches far off their neighbours' residual are dropped first."""
+
+    def __init__(self, pa, pb, ransac_px, smoothing):
+        from scipy.interpolate import RBFInterpolator
+        from scipy.spatial import cKDTree
+        cv2.setRNGSeed(0)
+        H, inl = cv2.findHomography(pa.astype(np.float32), pb.astype(np.float32), cv2.RANSAC, ransac_px,
+                                    maxIters=50000)
+        inl = inl.ravel().astype(bool)
+        self.H, P, Q = H, pa[inl], pb[inl]
+        R = Q - self._h(P)
+        tree, keep = cKDTree(P), np.ones(len(P), bool)
+        for i, p in enumerate(P):
+            idx = tree.query_ball_point(p, max(30.0, 0.05 * np.ptp(P[:, 0])))
+            if len(idx) >= 5:
+                med = np.median(R[idx], axis=0)
+                spread = np.median(np.hypot(*(R[idx] - med).T))
+                keep[i] = np.hypot(*(R[i] - med)) < 2.5 * max(1.0, spread)
+        self.P, self.Q = P[keep], Q[keep]
+        self.tps = RBFInterpolator(self.P, R[keep], kernel="thin_plate_spline", smoothing=smoothing, degree=1)
+        self.error = float(np.median(np.hypot(*(self.Q - self(self.P)).T)))
+
+    def _h(self, P):
+        return cv2.perspectiveTransform(np.asarray(P, np.float64).reshape(1, -1, 2), self.H)[0]
+
+    def __call__(self, P):
+        P = np.asarray(P, np.float64).reshape(-1, 2)
+        return self._h(P) + self.tps(P)
+
+
+def warp_into_frame(img, mapping, shape, grid=8):
+    """img sampled at the plate px of each working px (the mapping taken on a
+    grid every `grid` px, interpolated between); and where it covers."""
+    h, w = shape
+    gx, gy = np.arange(0, w + grid, grid), np.arange(0, h + grid, grid)
+    GX, GY = np.meshgrid(gx, gy)
+    Q = mapping(np.c_[BOX[0] + GX.ravel() / F, BOX[1] + GY.ravel() / F])
+    full = (gx[-1] + 1, gy[-1] + 1)
+    mx = cv2.resize(Q[:, 0].reshape(GX.shape).astype(np.float32), full, interpolation=cv2.INTER_LINEAR)[:h, :w]
+    my = cv2.resize(Q[:, 1].reshape(GX.shape).astype(np.float32), full, interpolation=cv2.INTER_LINEAR)[:h, :w]
+    out = cv2.remap(img, mx, my, cv2.INTER_LANCZOS4, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+    return out
+
+
+def colour_match(src, ref, valid, s=6.0, n=300000):
+    """src's colours mapped to ref's by a cubic in R, G, B, fitted on blurred
+    pixel pairs (the blur hides detail the plate lacks and small misfits)."""
+    def feats(x):
+        r, g, b = x[..., 0] / 255, x[..., 1] / 255, x[..., 2] / 255
+        return np.stack([np.ones_like(r), r, g, b, r * r, g * g, b * b, r * g, r * b, g * b, r ** 3, g ** 3, b ** 3], -1)
+    A = np.stack([ndi.gaussian_filter(src[..., c], s) for c in range(3)], -1)
+    B = np.stack([ndi.gaussian_filter(ref[..., c], s) for c in range(3)], -1)
+    ys, xs = np.nonzero(ndi.binary_erosion(valid, iterations=int(3 * s)))
+    i = np.random.default_rng(0).choice(len(ys), min(n, len(ys)), replace=False)
+    coef, *_ = np.linalg.lstsq(feats(A[ys[i], xs[i]]), B[ys[i], xs[i]], rcond=None)
+    return np.clip(feats(src) @ coef, 0, 255).astype(np.float32)
+
+
+def load_green(plate_src, page_srcs):
+    """The working frame drawn from Green's pages (see PAGES)."""
+    ref = load(plate_src)
+    shape = ref.shape[:2]
+    grey = {"plate": np.asarray(Image.open(plate_src).convert("L"))}
+    rgb = {}
+    for name, src in zip(PAGE_FILES, page_srcs):
+        rgb[name] = np.asarray(Image.open(src).convert("RGB"))
+        grey[name] = cv2.cvtColor(rgb[name], cv2.COLOR_RGB2GRAY)
+    maps, chain = {}, {"plate": lambda P: np.asarray(P, np.float64).reshape(-1, 2)}
+    for a, b, sa, sb, rpx, smooth in CHAIN:
+        m = Mapping(*sift_matches(grey[a], grey[b], sa, sb), rpx, smooth)
+        print(f"  {a} -> {b}: {len(m.P)} matches, error {m.error:.2f} px of {b}")
+        chain[b] = (lambda f, g: (lambda P: g(f(P))))(chain[a], m)
+    out = ref.copy()
+    for name, (x0, y0, x1, y1), blur in PAGES:
+        im = cv2.GaussianBlur(rgb[name], (0, 0), blur)
+        photo = np.zeros(im.shape[:2], np.float32)
+        photo[y0:y1, x0:x1] = 1
+        warped = warp_into_frame(np.dstack([im.astype(np.float32), photo]), chain[name], shape)
+        valid = warped[..., 3] > 0.99
+        page = colour_match(warped[..., :3], ref, valid)
+        wgt = np.clip(ndi.distance_transform_edt(valid) / SEAM, 0, 1)[..., None]
+        out = out * (1 - wgt) + page * wgt
+    return out.astype(np.float32)
 
 
 def rod(shape, ends, w):
@@ -395,8 +525,8 @@ def centre_strokes(gL, zone, w, thresholds=STROKE_T, min_len=14):
     return ndi.distance_transform_edt(~sk) <= w / 2
 
 
-def main(src: str) -> None:
-    a = load(src)
+def main(plate_src: str, page_srcs: list) -> None:
+    a = load_green(plate_src, page_srcs)
     R, G, B = a[..., 0], a[..., 1], a[..., 2]
     L = 0.2126 * R + 0.7152 * G + 0.0722 * B
     shape = L.shape
@@ -537,7 +667,7 @@ def main(src: str) -> None:
         rgb[solid] = (40, 40, 255)
         rim = inside & ~ndi.binary_erosion(inside, iterations=2)
         rgb[rim] = (255, 255, 0)
-        Image.fromarray(rgb.astype(np.uint8)).save(sys.argv[2])
+        Image.fromarray(rgb.astype(np.uint8)).save(sys.argv[5])
         return
 
     info = lw.trace_svg(
@@ -548,10 +678,10 @@ def main(src: str) -> None:
              "Colonus (Taplin, Pots & Plays no. 27); traced from the plate in Pots & Plays: cut out, "
              "columns left out, redrawn as line.")
     print(OUT, info)
-    if len(sys.argv) > 2:  # optional: the drawing over its source, and as the dark theme shows it
-        lw.qa_overlay(L, OUT, info["box"], Path(sys.argv[2]))
-        lw.qa_dark(OUT, info["box"], Path(sys.argv[2]).with_suffix(".dark.png"))
+    if len(sys.argv) > 5:  # optional: the drawing over its source, and as the dark theme shows it
+        lw.qa_overlay(L, OUT, info["box"], Path(sys.argv[5]))
+        lw.qa_dark(OUT, info["box"], Path(sys.argv[5]).with_suffix(".dark.png"))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2:5])
