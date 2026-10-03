@@ -17,22 +17,29 @@ Photo -> drawing:
     EOS 6D, 04 and 05 at 50 mm, 06 at 40 mm (EXIF), so the focal lengths are
     fixed; 04 and 05 are uncropped. The vase is then flattened without shear
     (vase_unroll.flatten) about her axis, and 04 laid onto it at 04's own
-    scale at her waist. Unflattened, the photo shortens her skirt and feet,
-    which lie where the vase curves in toward its foot.
+    scale at her waist. Unflattened, the photo shortens her feet and lower
+    skirt by up to 13%: the camera looked down on them where the vase stands
+    upright. Her head, on the shoulder, which leans back toward the camera,
+    hardly changes.
   - She is the clay joined to SEED; the guard and the boy are separate
-    figures on the glaze. Her front foot is paler than the rest of her, so
-    the clay test misses it; it is added inside FOOT.
-  - The guard's cord, in added white, survives in his hand and wound round
-    her forearms; between them it has flaked off the glaze. On her it is
-    drawn as two bands along the surviving white (CORD).
-  - Two mended breaks cross her: one over her upper arm and back, one
-    diagonally across her skirt, where the painted folds stop at its edges.
-    Each is erased whole and nothing is drawn along it (John's rule for
-    cracks); the folds that cross it are joined across (MENDS).
+    figures on the glaze, and the guard's cord, which only touches her
+    wrists, is left out with him. Both feet are paler than the rest of her,
+    the back one half hidden under her hem; inside FEET anything lighter
+    than the glaze is her (John, 2026-10-02: "Don't leave out the other
+    foot").
+  - Two mended breaks cross her: one over her upper arm, one diagonally
+    across her skirt. Each is erased whole and nothing is drawn along it;
+    the folds it broke are joined across (John: "connect the lines broken
+    up by that slash on the vase"). Across the arm mend the lines are John's
+    own trace (ARM_LINES).
   - Painted lines are found by local contrast and redrawn as even lines
-    along their centres at the house weight. Her hands are drawn by hand:
-    each finger a closed outline (HAND_LINES), the lines that divide the
-    fingers carried out to the notches between their tips.
+    along their centres at the house weight. In her head and hands, where
+    the lines crowd and carry white highlights, they are the paint itself
+    thinned to its centres (HEAD, HAND, paint()); beside her hands only the
+    darkest strokes count, not the brushy shading (WASH). Her face and ear
+    are drawn by hand on the painted lines (FACE_LINES), at a finer pen.
+    Wide dark paint (the band binding her wrists, the hem's edge over her
+    back foot) stays solid.
 
     python3 docs/redesign/drawings/tools/antigone.py 04.jpg 05.jpg 06.jpg [qa.png]
     python3 docs/redesign/drawings/tools/antigone.py 04.jpg 05.jpg 06.jpg --refit
@@ -185,6 +192,25 @@ FOOT_L = 90
 # sole: light areas in FEET within FOOT_GAP px of her join her, and the gaps
 # close up (FOOT_CLOSE).
 FOOT_GAP, FOOT_CLOSE = 20, 20
+# Her hands: the fingers of both hands point left, tips against the glaze,
+# some painted so thinly that the clay test misses them. Inside HAND the clay
+# test is looser (HAND_RB), and painted lines shorter than HAND_MIN px or
+# with side spurs under HAND_SPUR px are dropped, so each finger keeps its
+# own clean outline and the lines between them.
+HAND = [(445, 1880), (600, 1840), (650, 1880), (650, 2000), (610, 2110), (445, 2110)]
+HAND_RB = 55
+# In her head (HEAD: veil and hair) and her hands the painted lines lie close
+# together and each carries a white highlight, and the contrast finder joins
+# neighbours into ladders. There the lines are the paint itself: darker than
+# PAINT_K times the clay around it (the highlights, pale and grey on dark
+# paint, counted as paint), thinned to their centres.
+HEAD = [(860, 280), (1340, 280), (1340, 860), (1100, 860), (900, 760), (860, 600)]
+PAINT_K = 0.65
+# Right of her fingers the painter shaded the drapery with brushy dilute
+# glaze over a few crisp strokes; inside WASH only paint darker than WASH_K
+# times the clay counts, so the crisp strokes stay and the shading goes.
+WASH = [(600, 1870), (765, 1860), (775, 2140), (590, 2140)]
+WASH_K = 0.45
 # Two mended breaks, each a band given by points along its two edges (upper,
 # then lower, left to right). The plaster bleeds, so a band is erased
 # MEND_PAD px wider. Folds that cross a band are joined across it: a line
@@ -210,6 +236,27 @@ MEND_PAD, MEND_NEAR, MEND_GAP, MEND_LAT, MEND_MIN = 4, 24, 110, 6, 40
 # at its edges) they replace the found lines, drawn even and snapped to the
 # paint within ARM_SNAP px.
 ARM_ZONE, ARM_INSET, ARM_SNAP = (562, 1303, 843, 1430), 6, 3
+# Her face and ear: the found lines run together there, so inside FACE and
+# EAR they are drawn by hand on the painted lines (snapped within FACE_SNAP
+# px), with a finer pen, FACE_PEN px: her head is about 350 px tall, and
+# lines 1.2-1.4% of the head's height match the faces John approved
+# (Oedipus Tyrannus, Euphorbos). The profile itself is her outline.
+FACE = [(1140, 545), (1275, 545), (1300, 580), (1300, 700), (1260, 760), (1230, 790), (1150, 790), (1120, 760),
+        (1110, 700), (1120, 620), (1140, 590)]
+EAR = [(1015, 555), (1085, 555), (1090, 625), (1020, 632)]
+FACE_PEN, FACE_SNAP = 5, 3
+FACE_LINES = [
+    [(1152.3, 558.5), (1175.4, 555.4), (1198.5, 553.8), (1229.2, 554.6), (1252.3, 557.7), (1267.7, 563.1)],  # brow
+    [(1160.0, 569.2), (1190.8, 566.9), (1225.4, 569.2)],  # crease
+    [(1158.1, 589.2), (1175.4, 586.2), (1198.5, 584.6), (1221.5, 585.4), (1238.8, 588.5)],  # upper lid
+    [(1175.4, 591.5), (1186.9, 600.0), (1195.4, 605.4), (1208.1, 598.8), (1225.4, 591.5)],  # lower lid
+    [(1231.2, 664.2), (1219.6, 669.2), (1213.8, 675.8), (1216.9, 684.6), (1229.2, 689.2)],  # nostril
+    [(1235.0, 679.6), (1252.3, 680.0), (1271.5, 680.8)],  # nose base
+    [(1183.8, 703.8), (1194.6, 700.8), (1206.2, 699.2), (1217.7, 700.8), (1225.4, 703.1)],  # mouth
+    [(1208.1, 721.9), (1211.9, 732.3), (1213.8, 743.1), (1210.0, 752.7), (1200.4, 761.5), (1183.1, 769.2), (1160.0, 773.8), (1140.8, 773.1), (1121.5, 768.1), (1108.1, 757.7)],  # chin
+    [(1075.4, 577.7), (1060.0, 568.1), (1042.7, 566.9), (1027.3, 573.8), (1021.5, 587.3), (1027.3, 602.7), (1042.7, 611.5), (1058.1, 612.3)],  # ear
+    [(1030, 583), (1038, 587), (1045, 591), (1051, 595)],  # the ear's inner curl
+]
 ARM_LINES = [
     [(658.3, 1412.6), (656.8, 1416.6), (656.8, 1420.6), (656.8, 1424.6), (656.3, 1425.1)],
     [(778.8, 1377.4), (782.8, 1379.4), (786.8, 1380.4), (788.8, 1379.9)],
@@ -289,6 +336,7 @@ def silhouette(rgb):
     for f in FEET:
         feet |= poly(L.shape, f)
     clay |= feet & ndi.binary_opening(L > FOOT_L, structure=morphology.disk(2))
+    clay |= poly(L.shape, HAND) & ndi.binary_opening(RB > HAND_RB, structure=morphology.disk(1))
     lab, _ = ndi.label(ndi.binary_closing(clay, structure=morphology.disk(3)))
     fig = lab == lab[SEED[1], SEED[0]]
     # the back foot: light parts of the feet's zones close to her join her...
@@ -409,6 +457,19 @@ def join_across(cl, name):
     return joins, n
 
 
+def paint(rgb, k=PAINT_K):
+    """Painted lines as the paint itself: darker than k times the clay
+    around it, with the white highlights on dark paint counted as paint."""
+    L = lum(rgb)
+    mx, mn = rgb.max(2), rgb.min(2)
+    hl = ((mx - mn) / np.maximum(mx, 1) < 0.5) & (mx > 70) & ndi.binary_dilation(ndi.gaussian_filter(L, 1.0) < 70, iterations=3)
+    L = np.where(ndi.binary_dilation(hl, iterations=1), np.minimum(L, 15), L)
+    sm = ndi.gaussian_filter(L, 1.0)
+    clay = ndi.gaussian_filter(ndi.grey_closing(sm, size=(25, 25)), 4)
+    m = ndi.binary_opening(sm < k * clay, structure=morphology.disk(1))
+    return morphology.remove_small_holes(morphology.remove_small_objects(m, max_size=40), max_size=60)
+
+
 def centre_lines(m, spur=6, min_len=14):
     """Centre lines of a stroke mask, with side spurs under `spur` px pruned
     (the line ends are kept) and pieces under `min_len` px dropped. (As in
@@ -438,6 +499,11 @@ def drawing(rgb, w):
     thin = found & ~ndi.binary_dilation(solid, iterations=2)
     thin = ndi.gaussian_filter(ndi.binary_closing(thin, structure=morphology.disk(1)).astype(np.float32), 1.0) > 0.5
     cl = centre_lines(thin)
+    keep_out = ~ndi.binary_dilation(solid, iterations=2)
+    zone = poly(L.shape, HAND) | poly(L.shape, HEAD)
+    cl = (cl & ~zone) | centre_lines(paint(rgb) & inner & zone & keep_out, spur=10, min_len=25)
+    wash = poly(L.shape, WASH)
+    cl = (cl & ~wash) | centre_lines(paint(rgb, WASH_K) & inner & wash & keep_out, spur=12, min_len=30)
     # the mends: erased whole, nothing drawn along them; the folds they broke joined across
     for name, band in mend_bands(L.shape).items():
         cl &= ~band
@@ -452,7 +518,11 @@ def drawing(rgb, w):
     zone[y0 + ARM_INSET:y1 - ARM_INSET, x0 + ARM_INSET:x1 - ARM_INSET] = True
     cl &= ~zone
     solid &= ~zone
+    face = poly(L.shape, FACE) | poly(L.shape, EAR)
+    cl &= ~face
+    solid &= ~face
     lines = (ndi.distance_transform_edt(~cl) <= w / 2) | solid | strokes(L, ARM_LINES, w, snap=ARM_SNAP)
+    lines |= strokes(L, FACE_LINES, FACE_PEN, snap=FACE_SNAP)
     lines = morphology.remove_small_objects(lines, max_size=60)  # specks of wear
     # the outline, w wide, straddling her edge (a quarter outside)
     edge = (sil & (ndi.distance_transform_edt(sil) <= 0.75 * w)) | (~sil & (ndi.distance_transform_edt(~sil) <= 0.25 * w))
