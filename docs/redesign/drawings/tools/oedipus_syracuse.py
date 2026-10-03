@@ -19,9 +19,10 @@ drawn solid too, with its long clay strands as light lines (BEARD), and his
 face lines as even lines along their centres (FACE). His hand at his beard
 is redrawn stroke by stroke after John's trace of it (HAND, HAND_LINES).
 Three cracks cross the figure; their lines are erased (CRACKS) and painted
-lines broken by them are joined across the gap. A fourth, a wide break
-mended with grey plaster beside his hand, is erased whole (BREAK): the edge
-of his sleeve is drawn through it and his robe's folds carried across it.
+lines broken by them are joined across the gap. A fourth, mended with grey
+plaster beside his hand, is erased whole along John's outline of it (BREAK),
+with nothing drawn along it: his hand's edges are drawn across it after
+John's trace, and his robe's folds are carried across it to his sleeve.
 Below his sleeve the staff
 is redrawn as a straight rod on its painted centre line (STAFF): flaking
 has left its edges ragged.
@@ -84,19 +85,20 @@ FACE = HAIRLINE + [(466, 345), (440, 372), (410, 392), (392, 428), (372, 424), (
 # the index finger runs along the top, under his beard; three fingers curl
 # below it. Inside HAND only these strokes are drawn, and the solid beard
 # stops at it.
-HAND = [(341, 480), (372, 481), (384, 482), (393, 479), (401, 476), (413, 474), (426, 472), (440, 471),
-        (452, 473), (461, 477), (468, 486), (477, 490), (488, 486), (500, 486), (512, 487), (521, 488),
-        (528, 492), (530, 499), (526, 507), (512, 509), (498, 510), (486, 511), (484, 520), (481, 532),
-        (480, 543), (485, 549), (489, 558), (492, 570), (494, 584), (496, 597), (497, 609), (496, 619),
-        (491, 626), (482, 627), (474, 627), (471, 634), (464, 643), (463, 655), (462, 667), (458, 678),
-        (448, 690), (438, 704), (428, 719), (419, 734), (410, 748), (404, 757), (396, 762), (393, 750),
-        (391, 725), (388, 700), (383, 675), (378, 650), (372, 625), (367, 600), (363, 578), (359, 560),
-        (355, 540), (350, 520), (345, 500)]
+HAND = [(369, 481), (384, 482), (393, 479), (401, 476), (413, 474), (426, 472), (440, 471), (452, 473),
+        (461, 477), (468, 486), (477, 490), (488, 486), (500, 486), (512, 487), (521, 488), (528, 492),
+        (530, 499), (526, 507), (512, 509), (498, 510), (486, 511), (484, 520), (481, 532), (480, 543),
+        (485, 549), (489, 558), (492, 570), (494, 584), (496, 597), (497, 609), (496, 619), (491, 626),
+        (482, 627), (474, 627), (471, 634), (464, 643), (463, 655), (462, 667), (458, 678), (448, 690),
+        (438, 704), (428, 719), (419, 734), (410, 748), (404, 757), (396, 762), (386, 756), (373, 745),
+        (367, 720), (359, 680), (354, 640), (353, 600), (355, 570), (360, 545), (366, 520), (369, 492)]
 HAND_LINES = [
-    [(365, 553), (367, 540), (369, 524), (370, 508), (371, 497), (374, 490), (379, 490), (384, 497),
-     (389, 510), (394, 524), (399, 537)],  # the thumb, round its tip to the web
+    [(371, 501), (371, 496), (374, 490), (379, 490), (384, 497), (389, 510), (394, 524), (399, 537)],
+    # the thumb: round its tip, from the hand's outer edge to the web
+    [(372, 492), (369, 520), (364, 545), (360, 570), (357, 595), (354, 618), (350, 641), (342, 660),
+     (333, 678), (325, 695), (317, 712)],  # the outer edge of thumb and hand, across the crack, to the wrist
     [(426, 502), (416, 516), (409, 526), (403, 535), (399, 537)],  # the web's other side
-    [(399, 538), (395, 544), (389, 551), (385, 560), (381, 572), (377, 588), (368, 603), (357, 614)],  # the hand's back
+    [(399, 538), (392, 549), (386, 561), (380, 575), (372, 591), (363, 606), (355, 618)],  # the hand's back
     [(381, 482), (395, 484), (410, 486), (425, 488), (438, 490), (446, 491)],  # the line above the index finger
     [(382, 494), (392, 494), (405, 496), (417, 498), (430, 499), (442, 500), (455, 499), (466, 497),
      (476, 493), (487, 489), (500, 489), (512, 490), (521, 491), (526, 495), (526, 501), (520, 506),
@@ -111,24 +113,32 @@ HAND_LINES = [
     [(422, 598), (435, 598), (448, 600)], [(424, 601), (433, 606), (442, 612)],  # a crease
     [(412, 621), (424, 617), (437, 618), (444, 624), (447, 634), (449, 645), (452, 656), (451, 666),
      (446, 676), (439, 687), (431, 699), (422, 714), (413, 729), (405, 743), (399, 752), (391, 750),
-     (380, 743), (367, 734)],  # fourth finger, to his wrist
+     (379, 742), (368, 735), (360, 731)],  # fourth finger, and across the crack to the line of his wrist
     [(433, 637), (437, 647), (440, 657), (441, 667)],
 ]
 HAND_W = 7  # px, about the median width of his painted lines
-# A break runs down beside his hand, from the top of his sleeve to the long
-# crack below his chest, mended with grey plaster (John, 2026-10-02: "it looks
-# like damage to the vase"). Inside BREAK nothing is traced. The edge of his
-# sleeve is drawn where its yellow ends, on the break's left (SLEEVE_EDGE;
-# above the break, the edge of the yellow flap beside his thumb), and the
-# lines of his hand and robe that run into the break are carried on across
-# it to that edge.
-SLEEVE_EDGE = [(372, 492), (369, 520), (366, 545), (359, 570), (354, 600), (357, 650), (362, 700),
-               (368, 750), (373, 800), (375, 850), (375, 900), (371, 950), (365, 1000), (358, 1050),
-               (355, 1085)]
-BREAK = [(341, 482), (343, 500), (344, 530), (340, 560), (350, 600), (356, 650), (358, 700), (362, 750),
-         (368, 800), (362, 850), (368, 900), (362, 950), (350, 1000), (348, 1050), (352, 1095),
-         (424, 1095), (426, 1050), (428, 1000), (428, 950), (426, 900), (424, 850), (422, 800), (416, 750),
-         (406, 700), (394, 650), (392, 600), (390, 560), (366, 530), (360, 500), (358, 482)]
+# A crack runs down beside his hand, from the black ground above it, through
+# the top of his sleeve, to the long crack below his chest, mended with grey
+# plaster. BREAK is John's outline of it (2026-10-02, "The red outline is the
+# crack"; "The outlines of the crack need to be gone"; "Draw the lines so as
+# to fill in the parts missing due to the crack"). Inside it nothing is
+# traced, and nothing is drawn along it: the lines it broke are carried
+# across it instead. His hand's lines are drawn across it by hand
+# (HAND_LINES, after John's trace), and the folds of his robe that run into it
+# from the right are carried on to its far side, where his sleeve begins.
+# At its foot, where it meets the long crack below his chest, the same grey
+# plaster spreads left of John's outline in a small triangle (same colour and
+# grain); it is erased with the crack.
+BREAK_FOOT = [(382, 1012), (352, 1046), (337, 1048), (322, 1058), (320, 1066), (322, 1074), (331, 1074),
+              (338, 1082), (349, 1078), (354, 1088), (378, 1094), (392, 1090), (390, 1050)]
+BREAK_TOP = 480  # px: the top of his sleeve where the crack meets it
+BREAK = [(402, 1090), (393, 1088), (390, 1085), (390, 1065), (380, 1020), (380, 991), (374, 981), (374, 944),
+         (378, 932), (380, 909), (382, 849), (378, 819), (378, 763), (374, 749), (366, 741), (372, 735),
+         (372, 732), (368, 723), (356, 655), (354, 576), (352, 573), (354, 570), (354, 547), (350, 496),
+         (348, 469), (340, 444), (349, 428), (356, 431), (354, 451), (356, 476), (362, 497), (368, 531),
+         (380, 571), (384, 595), (392, 617), (394, 650), (402, 676), (408, 713), (406, 727), (412, 754),
+         (416, 786), (424, 793), (428, 824), (428, 884), (430, 887), (430, 914), (434, 935), (430, 943),
+         (426, 969), (426, 995), (422, 1033), (422, 1053), (418, 1063), (406, 1077), (406, 1084)]
 BEARD = [(372, 424), (392, 428), (410, 392), (440, 372), (470, 360), (520, 380), (560, 420), (585, 480),
          (600, 560), (560, 600), (480, 600), (420, 560), (395, 500)]
 POCKET = [(303, 1300), (290, 1400), (285, 1500)]  # points in the glaze between staff and robe
@@ -242,21 +252,20 @@ def drawn(shape, strokes, w):
     return ndi.distance_transform_edt(~m) <= w / 2
 
 
-def carry_across(lines, zone, stop, w, reach=90):
+def carry_across(lines, zone, w, reach=90):
     """Folds that run into zone from the right are carried on across it in a
-    straight line, the way their last 30 px run, until they meet stop. Only
-    long, nearly level lines count as folds; the zone's own ragged edges,
-    which run along it, are left out."""
+    straight line, the way their last 30 px run, to its far side. Only long,
+    nearly level lines count as folds."""
     sk = morphology.skeletonize(lines & ~zone)
     k = np.ones((3, 3), int)
     k[1, 1] = 0
-    around = ndi.binary_dilation(zone, iterations=6)
-    ends = sk & (ndi.convolve(sk.astype(int), k, mode="constant") == 1) & around
+    near_zone = ndi.binary_dilation(zone, iterations=6)
+    ends = sk & (ndi.convolve(sk.astype(int), k, mode="constant") == 1) & near_zone
     lab, _ = ndi.label(sk, structure=np.ones((3, 3)))
     path = np.zeros_like(lines)
     for y, x in zip(*np.nonzero(ends)):
         ys, xs = np.nonzero(lab == lab[y, x])
-        if (lab == lab[y, x]).sum() < 40:  # a fleck, not a fold
+        if len(ys) < 40:  # a fleck, not a fold
             continue
         near = np.hypot(ys - y, xs - x) <= 30
         ys, xs = ys[near], xs[near]
@@ -265,9 +274,14 @@ def carry_across(lines, zone, stop, w, reach=90):
         b, c = np.polyfit(xs, ys, 1)
         if abs(b) > 0.7:  # too steep for a fold
             continue
+        entered = False
         for xx in range(x - 1, x - reach, -1):
             yy = int(round(b * xx + c))
-            if not (0 <= yy < lines.shape[0]) or stop[yy, xx] or not around[yy, xx]:
+            if not (0 <= yy < lines.shape[0]):
+                break
+            if zone[yy, xx]:
+                entered = True
+            elif entered:  # out the far side
                 break
             path[yy, xx] = True
     return ndi.distance_transform_edt(~path) <= w / 2
@@ -313,8 +327,9 @@ def main(src: str) -> None:
     open_ = [holes[y, x] for x, y in POCKET if holes[y, x]]
     sil |= (holes > 0) & ~np.isin(holes, open_)
     rod, beside = staff_masks(shape)
-    brk = poly(shape, BREAK)
-    sil = (sil & ~beside) | rod | brk
+    brk = poly(shape, BREAK) | poly(shape, BREAK_FOOT)
+    above = np.arange(shape[0])[:, None] < BREAK_TOP  # the crack in the black ground, above his sleeve
+    sil = (((sil | brk) & ~(brk & above)) & ~beside) | rod  # the gap beside the staff stays open
     sil = morphology.remove_small_objects(sil, max_size=4000)
     sil = ndi.gaussian_filter(sil.astype(float), 1.5) > 0.5
 
@@ -331,9 +346,10 @@ def main(src: str) -> None:
     broken = lines & ~cracks  # the cracks erased...
     lines = broken | (ndi.binary_closing(broken, structure=morphology.disk(6)) & cracks)  # ...lines rejoined
     lines = morphology.remove_small_objects(lines, max_size=120)  # specks of wear
-    sleeve = drawn(shape, [SLEEVE_EDGE], HAND_W)
-    lines = (lines & ~brk) | carry_across(lines & ~hand_zone, brk, sleeve, HAND_W) | sleeve \
-        | drawn(shape, HAND_LINES, HAND_W)
+    brk_rim = ndi.binary_dilation(brk, iterations=3)  # the plaster's grey bleeds past the outline
+    carried = carry_across(lines & ~hand_zone, brk_rim, HAND_W)
+    lines = morphology.remove_small_objects(lines & ~brk_rim, max_size=120)  # bits the erasing cut off
+    lines |= carried | drawn(shape, HAND_LINES, HAND_W)
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(4))
 
     if "--masks" in sys.argv:  # diagnostic: the masks over the photo
