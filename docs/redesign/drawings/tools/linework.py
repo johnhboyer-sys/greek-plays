@@ -206,7 +206,46 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         orphan = lines & ~(ndi.distance_transform_edt(~clay) <= 1.5 * lw_px)
         if orphan.any():
             b |= ndi.distance_transform_edt(~orphan) <= 0.8 * lw_px
-        bd, _ = potrace_d(b, turdsize=200, alphamax=1.2)
+        # potrace's speck filter (turdsize 200), run here on the body as cut:
+        # pulling its edge in below would shrink small parts under the limit
+        lab, _ = ndi.label(b)
+        b &= (np.bincount(lab.ravel()) > 200)[lab]
+        lab = ndi.label(np.pad(~b, 1, constant_values=True))[0]  # the margin joins all ground at the edge
+        b |= (np.bincount(lab.ravel()) <= 200)[lab[1:-1, 1:-1]]
+        # Where lines bound the body, its edge must lie under them, or a dark page
+        # shows a thin clay line outside the outline. The body comes from the ink
+        # before the house weight thinned it, and a cut can run just outside a
+        # line, so first the clay past a line goes: clay between a line and the
+        # outside, no wider than a line. Its width is measured through the clay,
+        # so clay that lines close in stays; and the outside must lie across from
+        # the line, not beside it, so clay where a line ends at an edge it does
+        # not draw stays. (Rims are not clay here: they stay.)
+        from skimage.graph import MCP_Geometric
+        ring = ~b & ndi.binary_dilation(b, structure=np.ones((3, 3)))
+        if ring.any():  # else the body is empty or fills the crop: no edge to move
+            part = ndi.label(b)[0]
+            d_out, d_line = ndi.distance_transform_edt(b), ndi.distance_transform_edt(~lines)
+            near = clay & (d_out <= lw_px + 1)
+            g, _ = MCP_Geometric(np.where(near | ring, 1.0, np.inf),  # no diagonal steps between line pixels
+                                 fully_connected=False).find_costs(np.argwhere(ring))
+            (oy, ox), (ly, lx) = np.gradient(d_out), np.gradient(d_line)
+            across = oy * ly + ox * lx < -0.5 * np.hypot(oy, ox) * np.hypot(ly, lx)
+            b &= ~(near & across & (g + d_line <= lw_px + 1))
+            # then the edge goes half a line under the lines: the two paths are
+            # smoothed differently, and an edge they share lets clay show
+            # through the anti-aliasing
+            b &= ~(lines & (ndi.distance_transform_edt(b) <= lw_px / 2))
+            # and specks these steps split off go: small pieces with less clay
+            # than a line's square. The largest piece of each part stays, so a
+            # small figure (a ring with clay inside) shrunk by the step stays.
+            lab, n = ndi.label(b)
+            size, of = np.bincount(lab.ravel()), np.zeros(n + 1, int)
+            of[lab[b]] = part[b]
+            most = np.zeros(part.max() + 1, int)
+            np.maximum.at(most, of, size)
+            b &= ((size > 200) | (size == most[of]) |
+                  (np.bincount(lab[b & ~lines], minlength=n + 1) >= lw_px ** 2))[lab]
+        bd, _ = potrace_d(b, turdsize=0, alphamax=1.2)
         body_path = f'<path class="body" fill="none" stroke="none" d="{bd}"/>'
     k = 1000.0 / h
     W = round(w * k, 1)
