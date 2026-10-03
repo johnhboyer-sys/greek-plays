@@ -2,7 +2,7 @@
 Ismene (left) and Antigone (right), from the Apulian red-figure calyx-krater
 close to the De Schulthess Painter, 340s BCE, Melbourne, Graham Geddes
 collection A 5:8: Taplin, Pots & Plays (Getty, 2007) no. 27, plate p. 101.
-The plate is the only photo there is: a 942x641 JPEG, page 112 of the Getty
+The plate is the sharpest photo found: a 942x641 JPEG, page 112 of the Getty
 PDF, credited there "From Green 2003, p. 4" (J. R. Green, Ancient Voices,
 Modern Echoes, Nicholson Museum, Sydney, 2003). The drawing traces only the
 ancient painting, which is public domain (John, 2026-10-02); the photo is
