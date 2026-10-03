@@ -17,7 +17,10 @@ the hem), the modern plaster fill by his elbow (PLASTER), his hair (HAIR,
 drawn solid), and his two black shoes on the floor (SHOES). His beard is
 drawn solid too, with its long clay strands as light lines (BEARD), and his
 face lines as even lines along their centres (FACE). His hand at his beard
-is redrawn stroke by stroke after John's trace of it (HAND, HAND_LINES).
+is redrawn stroke by stroke after John's trace of it (HAND, HAND_LINES),
+each finger a closed outline, and the black ground showing between two
+fingertips is filled (FINGER_GAP). Painted lines broken by wear are joined
+across their gaps where two line ends face each other (join_gaps).
 Three cracks cross the figure; their lines are erased (CRACKS) and painted
 lines broken by them are joined across the gap. A fourth, mended with grey
 plaster beside his hand, is erased whole along John's outline of it (BREAK),
@@ -109,14 +112,19 @@ HAND_LINES = [
      (490, 585), (492, 598), (493, 610), (490, 618), (484, 622), (477, 621), (474, 613)],  # second finger
     [(484, 600), (485, 606), (486, 612)],  # its nail
     [(427, 565), (440, 564), (455, 564), (463, 566), (468, 571), (471, 579), (473, 590), (473, 603),
-     (472, 616), (469, 627), (463, 635), (457, 639)],  # third finger
+     (472, 616), (469, 627), (463, 635), (457, 639), (452, 636), (449, 628), (448, 618), (450, 608),
+     (451, 600)],  # third finger, round its tip and up its inner edge to the crease
     [(422, 598), (435, 598), (448, 600)], [(424, 601), (433, 606), (442, 612)],  # a crease
-    [(412, 621), (424, 617), (437, 618), (444, 624), (447, 634), (449, 645), (452, 656), (451, 666),
-     (446, 676), (439, 687), (431, 699), (422, 714), (413, 729), (405, 743), (399, 752), (391, 750),
-     (379, 742), (368, 735), (360, 731)],  # fourth finger, and across the crack to the line of his wrist
-    [(433, 637), (437, 647), (440, 657), (441, 667)],
+    [(412, 621), (424, 617), (437, 618), (444, 624), (448, 633), (451, 643), (454, 655), (457, 666),
+     (459, 675), (457, 681), (452, 680), (447, 673), (443, 664), (438, 652), (434, 642), (432, 636)],
+    # the little finger: its outer edge, round its tip, and back up its inner edge
+    [(443, 664), (439, 672), (435, 683), (431, 699), (422, 714), (413, 729), (405, 743), (399, 752),
+     (391, 750), (379, 742), (368, 735), (360, 731)],  # the hand's lower edge, across the crack to his wrist
 ]
 HAND_W = 7  # px, about the median width of his painted lines
+# Between the tips of his third and little fingers the black ground shows, as
+# the painter left it.
+FINGER_GAP = [(459, 641), (472, 641), (464, 650)]
 # A crack runs down beside his hand, from the black ground above it, through
 # the top of his sleeve, to the long crack below his chest, mended with grey
 # plaster. BREAK is John's outline of it (2026-10-02, "The red outline is the
@@ -287,6 +295,73 @@ def carry_across(lines, zone, w, reach=90):
     return ndi.distance_transform_edt(~path) <= w / 2
 
 
+def join_gaps(lines, keep_out, max_gap=40, max_turn=32.0, max_bend=50.0, min_len=12):
+    """Lines broken by wear joined across their gaps: two line ends are joined
+    by a smooth curve when they are at most max_gap px apart, each points at
+    the other within max_turn degrees, the two lines run the same way within
+    max_bend degrees, both run at least min_len px, and the curve crosses no
+    other line and stays out of keep_out (the cracks). Returns the curves."""
+    from scipy.spatial import cKDTree
+    sk, k = centre_lines(lines, spur=5, min_len=min_len)
+    dist = ndi.distance_transform_edt(lines)
+    lab, _ = ndi.label(sk, structure=np.ones((3, 3)))
+    ends = np.argwhere(sk & (ndi.convolve(sk.astype(int), k, mode="constant") == 1))
+    if len(ends) < 2:
+        return np.zeros_like(lines)
+    heads, widths = [], []
+    for y, x in ends:  # each end's outward direction, from the last 12 px of its line
+        path, seen, cur = [(y, x)], {(y, x)}, (y, x)
+        for _ in range(12):
+            nxt = [(cur[0] + dy, cur[1] + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if (dy or dx) and 0 <= cur[0] + dy < sk.shape[0] and 0 <= cur[1] + dx < sk.shape[1]
+                   and sk[cur[0] + dy, cur[1] + dx] and (cur[0] + dy, cur[1] + dx) not in seen]
+            if not nxt:
+                break
+            cur = nxt[0]
+            seen.add(cur)
+            path.append(cur)
+        P = np.array(path, float)
+        d = P[0] - P[len(P) // 2:].mean(0) if len(P) >= 6 else np.zeros(2)
+        n = np.hypot(*d)
+        heads.append(d / n if n else d)
+        widths.append(2 * max(dist[int(py), int(px)] for py, px in path[2:8]) if len(path) > 2 else 4)
+    heads = np.array(heads)
+    cos_max, cos_bend = np.cos(np.radians(max_turn)), np.cos(np.radians(max_bend))
+    pairs = []
+    for i, j in cKDTree(ends).query_pairs(max_gap):
+        if lab[tuple(ends[i])] == lab[tuple(ends[j])]:
+            continue
+        v = (ends[j] - ends[i]).astype(float)
+        g = np.hypot(*v)
+        if g < 2:
+            continue
+        v /= g
+        a, b = heads[i] @ v, heads[j] @ -v
+        if a >= cos_max and b >= cos_max and heads[i] @ -heads[j] >= cos_bend:
+            pairs.append((g * (3 - a - b), i, j, g))
+    out = np.zeros_like(lines)
+    used = set()
+    for _, i, j, g in sorted(pairs):
+        if i in used or j in used:
+            continue
+        p0, p3 = ends[i].astype(float), ends[j].astype(float)
+        p1, p2 = p0 + heads[i] * g / 3, p3 + heads[j] * g / 3
+        tt = np.linspace(0, 1, int(g * 2) + 2)[:, None]
+        curve = (1 - tt) ** 3 * p0 + 3 * (1 - tt) ** 2 * tt * p1 + 3 * (1 - tt) * tt ** 2 * p2 + tt ** 3 * p3
+        cy = np.clip(np.round(curve[:, 0]).astype(int), 0, lines.shape[0] - 1)
+        cx = np.clip(np.round(curve[:, 1]).astype(int), 0, lines.shape[1] - 1)
+        # the curve may touch ink only near its two ends, inside the lines it joins
+        off = (np.hypot(*(curve - p0).T) > widths[i] / 2 + 2) & (np.hypot(*(curve - p3).T) > widths[j] / 2 + 2)
+        if lines[cy[off], cx[off]].any() or keep_out[cy, cx].any():
+            continue
+        used |= {i, j}
+        r = max(1.5, min(5.0, (widths[i] + widths[j]) / 4))
+        m = np.zeros_like(lines)
+        m[cy, cx] = True
+        out |= ndi.distance_transform_edt(~m) <= r
+    return out
+
+
 def main(src: str) -> None:
     a = np.asarray(Image.open(src).convert("RGB").crop(BOX), dtype=np.float32)
     L = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]
@@ -349,7 +424,11 @@ def main(src: str) -> None:
     brk_rim = ndi.binary_dilation(brk, iterations=3)  # the plaster's grey bleeds past the outline
     carried = carry_across(lines & ~hand_zone, brk_rim, HAND_W)
     lines = morphology.remove_small_objects(lines & ~brk_rim, max_size=120)  # bits the erasing cut off
-    lines |= carried | drawn(shape, HAND_LINES, HAND_W)
+    joins = join_gaps(lines & ~head, cracks | brk_rim)  # lines broken by wear, joined across their gaps
+    if "--joins" in sys.argv:
+        np.save(sys.argv[-1], joins)
+    lines |= joins
+    lines |= carried | drawn(shape, HAND_LINES, HAND_W) | poly(shape, FINGER_GAP)
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(4))
 
     if "--masks" in sys.argv:  # diagnostic: the masks over the photo
