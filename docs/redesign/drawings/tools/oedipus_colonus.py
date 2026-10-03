@@ -2,34 +2,38 @@
 Ismene (left) and Antigone (right), from the Apulian red-figure calyx-krater
 close to the De Schulthess Painter, 340s BCE, Melbourne, Graham Geddes
 collection A 5:8: Taplin, Pots & Plays (Getty, 2007) no. 27, plate p. 101.
-The plate is the sharpest photo found: a 942x641 JPEG, page 112 of the Getty
-PDF, credited there "From Green 2003, p. 4" (J. R. Green, Ancient Voices,
-Modern Echoes, Nicholson Museum, Sydney, 2003). The drawing traces only the
-ancient painting, which is public domain (John, 2026-10-02); the photo is
-credited. John chose the three on the altar (2026-10-02); the columns and
-tripods behind them are left out.
+The drawing traces only the ancient painting, which is public domain (John,
+2026-10-02); the photos are credited. John chose the three on the altar
+(2026-10-02); the columns and tripods behind them are left out.
+
+The photos. Taplin's plate, a 942x641 JPEG on page 112 of the Getty PDF,
+credited there "From Green 2003, p. 4", is the frame: every point in this
+file is placed in its px. The lines are drawn from Green's own pages (J. R.
+Green, Ancient Voices, Modern Echoes, Nicholson Museum, Sydney, 2003),
+HathiTrust mdp.39015060089391, seq 6, 28 and 31: p. 4, the whole vase; p.
+26, the right half of the scene, 6.4 times the plate's scale; p. 29,
+Oedipus' head and hand, 12.8 times (see PAGES). A further photo, the whole
+vase in black and white (Digital LIMC, monument 8378, photo 8569X101, credit
+"Graham Geddes Collection (once)"), was aligned to the plate and used to
+read shapes the plate blurs (the arm border, the mantle ends); the tool does
+not read it.
 https://media.getty.edu/Text/6f3674dd-413a-56da-bec2-9da5564907df.pdf
+https://babel.hathitrust.org/cgi/pt?id=mdp.39015060089391
+https://iiif.dasch.swiss/080E/39p0GV9AZiB-7HG3RtcJ3N4.jpx/full/max/0/default.png
 
     pdfimages -j -f 112 -l 112 6f3674dd-413a-56da-bec2-9da5564907df.pdf plate
 
-A second photo, the whole vase in black and white (Digital LIMC, monument
-8378, photo 8569X101, credit "Graham Geddes Collection (once)", CC BY-NC 4.0
-on the LIMC site), was aligned to the plate and used to read shapes the plate
-blurs (the arm border, the mantle ends); it is credited too. The tool itself
-reads only the plate:
-https://iiif.dasch.swiss/080E/39p0GV9AZiB-7HG3RtcJ3N4.jpx/full/max/0/default.png
-
-Red-figure photo -> drawing, at 4x. The figures are small (Oedipus is about
-360 px tall in the plate), so the crop is cleaned of JPEG noise and enlarged
-4x (Lanczos) before anything is traced, as for the Pythia. The group is clay
-and added white (the altar, his hair) on black glaze. Inside a loose cut
-(OUTLINE) the ground is the glaze that reaches the cut, with the two white
-columns (COLUMNS) counted as ground; black inside the figures (the
-daughters' hair, the borders of Ismene's mantle) stays, drawn solid. Lines:
-the group's outline; the edges between clay, white and black inside it
-(figures against the altar, the altar's bands, hair, borders); and the
-painted lines on the clay, found by local contrast. His hair and beard are
-outlined, not filled. The staff is added yellow, drawn as a straight rod
+Red-figure photo -> drawing, at 4x the plate. The plate's crop is cleaned of
+JPEG noise and enlarged 4x (Lanczos); Green's detail pages are registered to
+it and laid over it. The group is clay and added white (the altar, his hair)
+on black glaze. Inside a loose cut (OUTLINE) the ground is the glaze that
+reaches the cut, with the two white columns (COLUMNS) counted as ground;
+black inside the figures (the daughters' hair, the borders of Ismene's
+mantle) stays, drawn solid. Lines: the group's outline; the edges between
+clay, white and black inside it (figures against the altar, the altar's
+bands, hair, borders); and the painted lines on the clay, found by local
+contrast. His hair and beard are outlined, with the dark marks between the
+curls drawn solid. The staff is added yellow, drawn in its two visible parts
 (STAFF). Faces and hands are drawn stroke by stroke on their painted lines.
 
     python3 docs/redesign/drawings/tools/oedipus_colonus.py plate-001.jpg \
@@ -42,7 +46,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
-from skimage import morphology
+from skimage import filters, morphology
 
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
@@ -58,8 +62,7 @@ BLACK_L, WHITE_B = 60, 110  # glaze is darker than BLACK_L; the added white blue
 # lines as dark, which stay lines.
 SOLID_L = 120
 PEEL_L, PEEL_R = 88, 16  # the brown band at an outline: darker than PEEL_L, within PEEL_R working px of the ground
-FACE_BAND = 10           # working px: how far inside FACE the hairline's curls may reach
-EDGE_W = 4               # working px: the outline, as heavy as the painted lines inside it
+EDGE_W = 4              # working px: the outline, as heavy as the painted lines inside it
 JOHN_NEAR = 5            # working px: within this of the outline, John's strokes give way to it
 BORDERS = [(222, 268), (388, 268), (388, 495), (222, 495)]
 
@@ -87,18 +90,34 @@ OUTLINE = [(202.5, 568.5), (202, 560), (203, 549), (204.5, 547), (226.5, 545), (
 COLUMNS = [[(325, 188), (361, 188), (361, 296), (355.5, 313), (350, 319), (342, 320.5), (334, 319), (329.5, 313),
             (326, 300)],
            [(526, 188), (567, 188), (567, 414), (526, 414)]]
-# The staff: a straight rod on the line of the painted yellow (measured at y
-# 290 and 520), from below his cloaked hand at the top to the altar's foot;
-# his other hand covers it between HAND_TOP and HAND_FOOT.
-STAFF, STAFF_W = ((513.9, 272.0), (520.6, 553.0)), 3.0
+# The staff, added yellow over his robe, shows in two parts: from under his
+# cloaked hand to the back of his open hand, which covers its end, and from
+# under the cloth hanging from his arm down to the altar's step. Each part is
+# a straight strip, its edges measured row by row on p. 29 and p. 26 where
+# the yellow meets the clay or the altar's white (2026-10-03); the lower part
+# leans the other way in both photos and in the plate, so the two are not one
+# rod. STAFF holds each part's area, STAFF_EDGES its drawn sides and ends; the
+# ends under the hand and the cloth are left to their lines.
+STAFF = [[(511.25, 274.5), (511.6, 273.4), (512.4, 272.9), (513.3, 272.7), (514.3, 272.9), (515.0, 273.4),
+          (515.34, 274.3), (517.76, 330.3), (513.16, 334.0)],
+         [(516.5, 436.0), (520.9, 436.0), (517.7, 551.0), (512.2, 551.0)]]
+STAFF_EDGES = [[(513.16, 334.0), (512.55, 315.0), (511.91, 295.0), (511.25, 274.5), (511.6, 273.4), (512.4, 272.9),
+                (513.3, 272.7), (514.3, 272.9), (515.0, 273.4), (515.34, 274.3), (516.23, 295.0), (517.1, 315.0),
+                (517.76, 330.3)],
+               [(516.5, 436.5), (515.04, 475.0), (513.55, 515.0), (512.2, 551.0)],
+               [(520.9, 436.5), (519.81, 475.0), (518.7, 515.0), (517.7, 551.0)],
+               [(512.2, 551.0), (515.0, 551.0), (517.7, 551.0)]]
 
-# The head. Hair and beard are one mass of added-white curls round the face
-# (HEAD_ZONE holds it), told from the clay by colour: the white is yellower
-# (green over red above HAIR_GR). It is outlined, not filled. The face is
-# drawn by hand: its edge (FACE, along the hairline, the cheeks and the
-# moustache, which runs along the base of the nose) and its lines
-# (FACE_LINES), each placed on a painted mark measured in the plate by local
-# contrast (2026-10-02).
+# The head, drawn from p. 29. The face is the clay inside the hair, found by
+# colour (brighter than FACE_L) within FACE and flooded from OED_FACE_SEEDS
+# (the nose line closes off the far cheek, so it has a seed of its own), then
+# closed by its own lines; FAR_WRINKLE adds the far forehead wrinkle, whose
+# white runs into the hair. The face's edge is drawn where none of its lines
+# runs along it. Its lines are drawn by hand on the centre lines of the
+# painted marks, measured on p. 29 (2026-10-03), with John's rough marks on
+# that page as a guide: FACE_LINES at FACE_W, the faint line beside the nose
+# and the two wrinkles (in added white) at FINE_W, and the closed eyes
+# (CLOSED_EYES) tapered, as heavy as the painted lashes (EYE_W: middle, ends).
 HEAD_ZONE = [(404, 276), (408, 262), (416, 246), (424, 232), (434, 222), (448, 215), (464, 213), (480, 216),
              (492, 225), (498, 236), (497, 250), (492, 262), (489, 275), (486, 286), (478, 295), (466, 299),
              (450, 299), (436, 293), (424, 289), (412, 287), (404, 284)]
@@ -107,44 +126,97 @@ FACE = [(442.5, 247.5), (444.5, 246), (450, 245.3), (456, 244.9), (462, 244.9), 
         (476.5, 247.2), (476.8, 250), (476, 254.5), (475, 258.5), (474, 262), (472.5, 265.5), (470.8, 268.5),
         (469.3, 270.9), (466.5, 271.5), (464.4, 271.4), (462, 270.6), (457, 269.6), (452, 269), (447.5, 268),
         (444.5, 266.5), (442.6, 263.5), (442, 258), (442, 252)]
+FACE_L = 95
+OED_FACE_SEEDS = [(460, 262), (468.5, 266.5)]
+FAR_WRINKLE = [(466.5, 249.8), (471, 251.6), (474.6, 253.4), (474.4, 255.4), (471, 254.4), (466.5, 252.0)]
 FACE_LINES = [
-    [(446.2, 249.9), (452.5, 249.8), (459.3, 249.8)],  # a wrinkle across the forehead, in added white
-    [(448.2, 255.0), (449.5, 254.6), (452, 254.0), (455, 254.1), (456.5, 254.7), (457.2, 255.4)],  # near brow
-    [(448.3, 259.0), (450, 258.4), (453, 258.2), (455, 258.4), (456.0, 258.9)],  # near eye, closed
-    [(465.5, 259.2), (467, 258.2), (469, 257.9), (471, 258.5), (472, 259.5), (472.3, 260.2)],  # far brow
-    [(465.5, 261.3), (467.5, 261.4), (469, 261.9), (470.5, 262.3), (471.8, 262.9), (472.5, 263.8)],  # far eye, closed
-    [(464.6, 261.6), (464.5, 264.0), (464.5, 267.0), (464.6, 269.5), (464.6, 271.2)],  # nose, near side
-    [(468.6, 271.2), (468.9, 269.6), (469.6, 267.6), (470.6, 266.5), (471.8, 266.9), (472.6, 267.6)],
-    # the tip of the nose, and the far nostril
-    [(465.7, 273.3), (465.8, 275.3)],  # the parting of the moustache, between the nose and the mouth
+    [(448.2, 255.45), (449.2, 255.0), (450.5, 254.6), (452.0, 254.45), (453.5, 254.3), (455.0, 254.2), (456.2, 254.6),
+     (457.2, 255.1), (457.9, 255.75)],  # near brow
+    [(472.3, 260.6), (471.75, 259.69), (470.75, 258.62), (469.75, 258.19), (468.75, 258.1), (467.75, 258.12),
+     (466.75, 258.62), (466.1, 259.4), (465.9, 260.3), (465.94, 261.3)],  # far brow
+    [(465.94, 261.3), (465.5, 262.4), (465.25, 263.4), (465.06, 264.4), (464.94, 265.4), (464.69, 266.4),
+     (464.69, 267.4), (464.45, 268.4), (464.1, 269.2), (463.5, 269.95), (462.6, 270.3), (461.6, 270.56),
+     (460.6, 270.62), (459.6, 270.4), (458.6, 270.25), (458.05, 269.8), (457.6, 269.2), (457.3, 268.7)],
+    # the nose, its tip and base
+    [(455.6, 265.7), (455.19, 265.88), (454.44, 266.19), (453.75, 266.69), (453.56, 267.44), (453.75, 268.3),
+     (454.3, 268.95), (455.0, 269.31), (455.88, 269.56), (456.6, 269.9)],  # the near nostril
+    [(474.2, 255.9), (474.0, 256.8), (473.8, 257.6), (473.4, 258.4), (473.1, 259.2), (472.8, 259.9), (472.3, 260.5),
+     (472.2, 261.5), (472.1, 262.4), (471.9, 263.5), (471.44, 264.25), (471.0, 264.94), (470.7, 265.7),
+     (470.5, 266.5), (470.2, 267.3), (469.6, 267.7), (469.2, 268.3), (468.9, 269.0), (468.7, 269.7),
+     (468.62, 270.5), (468.6, 271.1), (468.06, 271.5), (467.4, 271.75), (467.0, 272.19), (466.3, 272.5)],
+    # the far cheek
+    [(453.3, 272.6), (454.12, 272.69), (455.12, 272.81), (456.12, 273.0), (457.06, 273.38), (458.06, 273.44),
+     (459.06, 273.62), (460.06, 273.62), (460.81, 274.0), (461.25, 274.5), (461.5, 275.0)],  # the upper lip
+    [(453.7, 274.6), (454.5, 275.06), (455.5, 275.31), (456.44, 275.31), (457.31, 275.62), (458.31, 275.81),
+     (459.5, 275.81), (459.9, 275.75)],  # the mouth
+    [(463.7, 271.7), (464.56, 271.81), (465.31, 272.06), (466.3, 272.5), (466.19, 273.19), (466.19, 273.94),
+     (466.12, 274.69), (466.15, 275.5)],  # the moustache's edge, on the far side
 ]
-# His mouth, under the moustache (John, 2026-10-03: "the mouth and beard need
-# more detail"): both photos show this dark line at y 277. Drawn at full line
-# weight, with no curl stroke touching it.
-MOUTH = [(459.8, 277.2), (462.0, 277.3), (464.0, 277.0), (466.3, 276.4), (467.2, 276.0)]
-# His right hand, across the staff and over the column: index and middle
-# fingers raised, thumb out below them. Drawn stroke by stroke on its painted
-# lines (measured by local contrast), each finger a closed outline; inside
-# HAND only these strokes are drawn. The staff runs behind it (HAND_COVER).
+FACE_FINE = [
+    [(458.5, 257.4), (458.3, 258.4), (458.1, 259.4), (457.9, 260.4), (457.6, 261.3)],  # the near side of the nose
+    [(447.5, 249.45), (450.0, 249.45), (452.5, 249.8), (455.0, 249.8), (457.5, 249.62), (460.2, 249.5)],
+    # a wrinkle across the forehead, and the far one, sloping with the brow
+    [(467.1, 250.7), (468.6, 251.7), (470.0, 252.4), (471.8, 253.2), (473.4, 253.9), (474.4, 254.4)],
+]
+CLOSED_EYES = [
+    [(448.9, 259.1), (450.0, 258.88), (451.0, 258.7), (452.0, 258.56), (453.0, 258.4), (454.0, 258.5),
+     (455.0, 258.75), (456.2, 259.1)],
+    [(465.9, 261.45), (467.0, 261.44), (467.75, 261.44), (468.5, 261.94), (469.25, 262.12), (470.0, 262.25),
+     (470.75, 262.31), (471.69, 262.31), (472.1, 262.35)],
+]
+FACE_W, EYE_W = 4, (6.0, 1.5)
+# Hair and beard are the rest of HEAD_ZONE: one mass of added-white curls,
+# told from the clay by colour (the white is yellower: green over red above
+# HAIR_GR), outlined where it meets the robe. Inside it, the dark marks the
+# painter left between the curls (local contrast, HAIR_MARK_T) are drawn
+# solid, as John marked them in the beard (2026-10-03: "the mouth and beard
+# need more detail").
+HAIR_MARK_T = (22, 34)
+# His right hand, raised over the column: index and middle fingers up, the
+# ring and little fingers out below them (John, 2026-10-03). Its outline is
+# the edge of the clay against the column's white on p. 29 (an iso-line of
+# the blue channel, smoothed), from where the back of the hand crosses the
+# end of the staff, round each finger, to the hand's lower edge; the gap
+# between the two raised fingers is kept open to their base. Inside it, the
+# painted lines: the line from the fingers' base across the knuckles, the
+# line between the ring and little fingers, and the wrist's edge below the
+# staff (2026-10-03). The line between the lower two stops where the little
+# finger ends, short of the ring finger's tip (John: "the ring finger here
+# should be longer than the pinky"); the paint runs it on to the tip's
+# corner. Inside HAND only these strokes are drawn.
 HAND_LINES = [
-    [(511.8, 334.5), (514.5, 331.8), (518.5, 327.8), (522.5, 323.8), (526.5, 320.0), (530.5, 316.3),
-     (534.5, 312.2), (537.5, 309.0), (538.8, 307.6), (539.7, 307.9), (539.7, 308.8), (537.5, 311.3),
-     (535.0, 314.0), (532.5, 317.0), (531.0, 319.2)],  # back of the hand, the index finger out and back
-    [(531.0, 319.2), (534.0, 318.0), (537.5, 316.0), (541.0, 313.6), (543.0, 312.4), (543.9, 312.6),
-     (544.2, 313.6), (541.5, 315.8), (538.0, 318.6), (535.0, 321.2), (532.5, 323.4), (531.5, 324.5)],
-    # the middle finger
-    [(531.5, 324.5), (533.5, 327.5), (536.0, 331.0), (538.5, 334.5), (540.6, 337.4), (543.2, 339.8),
-     (546.2, 341.2), (547.0, 341.9), (545.8, 342.8), (542.5, 342.5), (539.0, 341.6), (536.0, 340.4),
-     (534.0, 338.8), (532.4, 337.6)],  # the thumb
-    [(532.4, 337.6), (530.5, 337.3), (528.6, 338.8), (526.2, 341.6), (522.5, 344.6), (518.5, 347.4),
-     (514.5, 350.2), (511.8, 351.8)],  # the hand's lower edge
+    [(513.16, 334.0), (515.4, 332.9), (517.4, 330.3), (520.2, 327.6), (523.1, 324.9), (525.3, 322.5), (527.5, 320.0),
+     (529.6, 317.6), (531.3, 315.7), (532.26, 314.78), (532.83, 313.99), (533.34, 313.12), (534.02, 312.4),
+     (534.54, 311.55), (535.08, 310.71), (535.68, 309.91), (536.3, 309.13), (536.86, 308.32), (537.65, 307.73),
+     (538.63, 307.86), (539.35, 308.48), (539.7, 309.41), (539.54, 310.38), (539.11, 311.28), (538.53, 312.09),
+     (537.94, 312.9), (537.43, 313.75), (536.88, 314.56), (536.24, 315.31), (535.76, 316.18), (535.5, 317.1),
+     (535.0, 318.0), (534.4, 318.9), (533.7, 319.6), (533.2, 320.2), (533.05, 320.74)],
+    # the back of the hand and the index finger, to the foot of the gap between the fingers
+    [(533.05, 320.74), (533.35, 320.64), (533.75, 320.34), (534.06, 319.95), (534.42, 319.61), (534.82, 319.3),
+     (535.04, 318.88), (535.42, 317.89), (536.24, 317.71), (536.92, 316.98), (537.7, 316.36), (538.46, 315.71),
+     (539.29, 315.15), (540.04, 314.49), (540.75, 313.79), (541.49, 313.12), (542.41, 312.78), (543.22, 313.24),
+     (543.37, 314.22), (543.31, 315.22), (543.22, 316.21), (542.64, 317.02), (542.09, 317.83), (541.67, 318.73),
+     (540.84, 319.26), (540.15, 319.98), (539.29, 320.48), (538.45, 321.01), (537.74, 321.72), (537.15, 322.5),
+     (536.25, 322.84), (535.44, 323.4), (535.08, 324.33), (534.55, 325.17), (533.9, 325.7), (533.57, 326.2)],
+    # the middle finger, to the notch above the ring finger
+    [(533.57, 326.2), (534.51, 326.69), (535.3, 327.4), (535.83, 328.46), (536.35, 329.3), (537.0, 329.9),
+     (537.4, 330.7), (538.0, 331.36), (538.3, 332.27), (538.95, 333.01), (539.31, 333.94), (539.77, 334.83),
+     (540.0, 335.77), (540.49, 336.64), (541.13, 337.41), (541.64, 338.25), (542.26, 339.03), (542.93, 339.76),
+     (543.4, 340.5), (543.5, 341.5), (543.49, 342.32), (543.3, 343.2), (542.81, 343.65), (541.89, 343.45),
+     (541.09, 342.95), (540.12, 342.7), (539.13, 342.7), (538.17, 342.9), (537.3, 343.4), (536.39, 343.3),
+     (535.7, 342.8), (535.0, 341.8), (533.6, 340.5), (532.1, 339.4), (530.7, 338.7), (529.7, 338.9), (528.6, 340.1),
+     (527.5, 341.8), (526.1, 343.4), (524.2, 344.8), (522.2, 346.3), (520.5, 347.3), (518.6, 348.2)],
+    # the ring finger, the little finger's lower edge, and the hand's lower edge
+    [(533.0, 321.2), (531.64, 321.71), (530.4, 322.7), (529.1, 324.0), (527.86, 325.29)],  # across the knuckles
+    [(532.07, 332.29), (534.0, 334.5), (536.0, 336.8), (538.0, 339.1), (539.6, 340.9), (540.2, 341.8), (540.4, 342.7)],
+    # between the ring and little fingers, closing the little finger's tip
+    [(517.7, 330.5), (517.75, 335.0), (517.8, 340.0), (517.85, 344.0), (518.4, 347.7)],  # the wrist's edge
 ]
-HAND = [(509, 334), (514, 329), (522, 321), (530, 313), (536, 306), (540, 304.5), (542, 307), (541.5, 310.5),
-        (544.5, 310.5), (546.5, 313.5), (544, 317.5), (536, 324.5), (541, 333), (545, 338.5), (549, 340.5),
-        (548.5, 344), (543, 345), (535, 343), (531, 340.5), (524, 347), (518, 351), (511, 354), (509, 352)]
-HAND_COVER = [(511.8, 334.5), (514.5, 331.8), (518.5, 327.8), (522.5, 323.8), (526.5, 320.0), (530.0, 317.0),
-              (533.0, 324.0), (531.0, 335.0), (528.6, 338.8), (526.2, 341.6), (522.5, 344.6), (518.5, 347.4),
-              (514.5, 350.2), (511.8, 351.8)]
+HAND = [(516.6, 330.4), (520.0, 327.0), (524.6, 322.4), (527.5, 319.4), (530.6, 315.6), (531.2, 313.2), (533.4, 311.0),
+        (535.6, 308.2), (537.4, 306.6), (539.2, 306.7), (540.6, 308.4), (540.5, 311.2), (541.6, 311.7), (543.0, 311.6),
+        (544.3, 312.8), (544.4, 316.4), (542.2, 319.8), (538.0, 323.4), (536.0, 325.6), (538.5, 329.3), (541.3, 333.6),
+        (543.6, 337.6), (544.6, 340.0), (544.6, 343.6), (543.0, 344.8), (537.2, 344.8), (534.3, 343.0), (531.0, 340.2),
+        (527.8, 343.6), (523.2, 346.9), (519.3, 349.2), (517.0, 349.0), (517.0, 340.0)]
 
 # The daughters' faces follow John's trace of them (2026-10-03), drawn over
 # the plate in a review sheet and mapped back onto it: his screenshot was
@@ -242,6 +314,14 @@ ANTIGONE_HAND_LINES = [
 # painted lines (STROKE_T: local-contrast hysteresis).
 VEIL_END = [(567.5, 358), (588, 360), (595, 376), (596, 396), (567.5, 396)]
 STROKE_T = (16, 32)
+# On p. 29 two places hold painted lines closer than the line weight, which
+# traced as blobs with slits between them: the fine pleats of his tunic at the
+# neckline (CHEST), and two folds of his mantle beside his hand (MANTLE_FOLDS).
+# There the lines are redrawn along their centres at FINE_W.
+CHEST = [(447.5, 297.8), (459.0, 297.4), (469.5, 298.6), (470.6, 306.0), (470.0, 313.5), (466.0, 319.0), (455.0, 319.0),
+         (450.5, 314.0), (448.0, 306.0)]
+MANTLE_FOLDS = [(518.2, 318.0), (526.0, 305.0), (530.0, 302.5), (533.2, 303.0), (532.4, 312.4), (530.6, 315.6),
+                (524.6, 322.4), (520.0, 327.0), (518.2, 328.8)]
 # The dark border along Ismene's arm, under the left column, measured in both
 # photos: its centre runs from (332, 326) to (363, 314.5), about 5 px wide.
 ARM_BAND = [(326, 321), (336, 321.5), (344, 319.3), (352, 316.5), (360, 311.5), (364, 309.5),
@@ -267,11 +347,6 @@ HAIRS = [ISMENE_HAIR, ANTIGONE_HAIR]
 HAIR_DARK_L, GROUND_L = (100, 115), 40  # hair darker than HAIR_DARK_L (Ismene's, Antigone's) is solid
 LINE_W = 5  # working px: strokes drawn by hand, as wide as the painted lines found (their median)
 FINE_W = 3  # faces and fingers, whose marks lie closer together
-# Curls of his hair and beard: strokes of the white brighter than their
-# surroundings by CURL_LOC (blue channel), each drawn as one stroke at least
-# CURL_MIN px long. A fixed threshold found too few in the beard, whose white
-# is dimmer (John, 2026-10-03: the beard needs more detail).
-CURL_LOC, CURL_MIN = 7, 12
 RIDGE_T, RIDGE_MIN = (3.0, 6.0), 24  # faint folds: Sato ridge hysteresis thresholds, and least length in px
 # A thin grey line across the black ground between his beard and his raised
 # hand, probably a scratch: left out with the ground.
@@ -294,6 +369,22 @@ def smooth_poly(shape, pts):
     tck, _ = splprep(q, k=3, s=0, per=1)
     x, y = splev(np.linspace(0, 1, 40 * len(pts)), tck)
     return lw.polygon_mask(shape, np.stack([x, y], 1))
+
+
+def tapered(shape, pts, w_mid, w_end):
+    """A smooth stroke through the points (working px), w_mid px wide in the
+    middle and w_end at its ends, as a brush leaves a lash line."""
+    from scipy.interpolate import splprep, splev
+    p = np.array(pts, float).T
+    tck, _ = splprep(p, k=min(3, p.shape[1] - 1), s=len(pts))
+    t = np.linspace(0, 1, 200)
+    m = np.zeros(shape, bool)
+    for x, y, ti in zip(*splev(t, tck), t):
+        r = (w_end + (w_mid - w_end) * np.sin(np.pi * ti) ** 0.7) / 2
+        y0, x0 = int(y - r - 2), int(x - r - 2)
+        Y, X = np.ogrid[y0:int(y + r + 3), x0:int(x + r + 3)]
+        m[y0:int(y + r + 3), x0:int(x + r + 3)] |= (X - x) ** 2 + (Y - y) ** 2 <= r * r
+    return m
 
 
 def load(src):
@@ -434,27 +525,6 @@ def load_green(plate_src, page_srcs):
     return out.astype(np.float32)
 
 
-def rod(shape, ends, w):
-    """A straight rod w plate px wide between two plate points: (mask, along, off),
-    with t along it (0-1) and the signed distance off its centre line, in working px."""
-    (xa, ya), (xb, yb) = P(ends)
-    Y, X = np.mgrid[0:shape[0], 0:shape[1]].astype(np.float32)
-    d = np.array([xb - xa, yb - ya], np.float32)
-    t = ((X - xa) * d[0] + (Y - ya) * d[1]) / float(d @ d)
-    off = ((X - xa) * d[1] - (Y - ya) * d[0]) / float(np.hypot(*d))
-    return (np.abs(off) <= w * F / 2) & (t >= 0) & (t <= 1), t, off
-
-
-def staff_lines(shape):
-    """The staff as a rod: its two edges and its two ends, LINE_W wide, with
-    the stretch behind his hand left out."""
-    _, t, off = rod(shape, STAFF, STAFF_W)
-    r, lo = STAFF_W * F / 2, (np.hypot(STAFF[1][0] - STAFF[0][0], STAFF[1][1] - STAFF[0][1]) * F)
-    sides = (np.abs(off) <= r) & (np.abs(off) > r - LINE_W) & (t >= 0) & (t <= 1)
-    ends = (np.abs(off) <= r) & ((np.abs(t * lo) <= LINE_W / 2) | (np.abs((t - 1) * lo) <= LINE_W / 2))
-    return (sides | ends) & ~poly(shape, HAND_COVER)
-
-
 def curl_strokes(core, min_len):
     """Each stroke of the white as one smooth line: the longest path through its
     centre line, kept if it runs at least min_len px. Returns lists of (x, y)."""
@@ -537,7 +607,7 @@ def main(plate_src: str, page_srcs: list) -> None:
     black = np.where(hair_zones, gL < GROUND_L, gL < BLACK_L)
     white = ndi.gaussian_filter(B, 1.0) > WHITE_B
     columns = poly(shape, COLUMNS[0]) | poly(shape, COLUMNS[1])
-    staff, _, _ = rod(shape, STAFF, STAFF_W)
+    staff = poly(shape, STAFF[0]) | poly(shape, STAFF[1])
 
     # the ground: the glaze and the columns' white wherever they reach the
     # cut; everything else inside the cut is the group. The dark border along
@@ -558,6 +628,7 @@ def main(plate_src: str, page_srcs: list) -> None:
     # glaze). Not in the daughters' hair, which is as dark, nor in the
     # zigzag ends of the two mantles, whose folds run along the outline.
     ends = poly(shape, VEIL_END) | poly(shape, ISMENE_END)
+    fine_ends = poly(shape, CHEST) | poly(shape, MANTLE_FOLDS)
     band = inside & (gL < PEEL_L) & (ndi.distance_transform_edt(~glaze) <= PEEL_R) & ~hair_zones & ~ends
     lab, _ = ndi.label(ground0 | band)
     reach = np.unique(lab[ground0])
@@ -567,16 +638,26 @@ def main(plate_src: str, page_srcs: list) -> None:
     sil = ndi.gaussian_filter(sil.astype(float), 1.0) > 0.5
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(EDGE_W))
 
-    # Oedipus' hair and beard: the yellower white inside HEAD_ZONE, one smooth mass
+    # Oedipus' head: his face, the clay inside the hair, closed by its lines;
+    # hair and beard the yellower white inside HEAD_ZONE, one mass
     head_zone = poly(shape, HEAD_ZONE)
+    face_lines = drawn(shape, [P(s_) for s_ in FACE_LINES], FACE_W) | drawn(shape, [P(s_) for s_ in FACE_FINE], FINE_W)
+    for s_ in CLOSED_EYES:
+        face_lines |= tapered(shape, P(s_), *EYE_W)
+    ratio = ndi.gaussian_filter(G, 1.0) / np.maximum(ndi.gaussian_filter(R, 1.0), 1)
+    face = (gL > FACE_L) & ~white & (ratio < HAIR_GR) & ndi.binary_dilation(smooth_poly(shape, FACE), iterations=12)
+    lab, _ = ndi.label(face)
+    seeds = [lab[int(round(y)), int(round(x))] for x, y in P(OED_FACE_SEEDS)]
+    face = np.isin(lab, [k for k in seeds if k]) | poly(shape, FAR_WRINKLE)
+    face = ndi.binary_fill_holes(ndi.binary_closing(face | face_lines, structure=morphology.disk(3)))
+    face = ndi.gaussian_filter(ndi.binary_opening(face, structure=morphology.disk(3)).astype(float), 2.0) > 0.5
+    face_edge = face & ~ndi.binary_erosion(face, structure=morphology.disk(3))
+    face_edge &= ~ndi.binary_dilation(face_lines, iterations=3)
     ratio = ndi.gaussian_filter(G, 1.5) / np.maximum(ndi.gaussian_filter(R, 1.5), 1)
     hair = (ratio > HAIR_GR) & ~black & head_zone
     hair = ndi.binary_closing(ndi.binary_opening(hair, structure=morphology.disk(2)), structure=morphology.disk(4))
-    hair = morphology.remove_small_holes(morphology.remove_small_objects(hair, max_size=300), max_size=150)
-    # the face is cut out of it, but its edge follows the curls of the
-    # hairline within a band FACE_BAND px inside FACE
-    face_core = ndi.binary_erosion(smooth_poly(shape, FACE), structure=morphology.disk(FACE_BAND))
-    hair = (ndi.gaussian_filter(hair.astype(float), 2.0) > 0.5) & ~face_core
+    hair = ndi.binary_fill_holes(morphology.remove_small_objects(hair, max_size=300))
+    hair = (ndi.gaussian_filter(hair.astype(float), 2.0) > 0.5) & ~face
 
     # inside the group: clay, white and black. Black (hair, borders) is drawn
     # solid; where white meets a broad area of clay (a figure on the altar) the
@@ -589,7 +670,7 @@ def main(plate_src: str, page_srcs: list) -> None:
     seeds = [regions[int(round(y))][int(round(x))] for x, y in P(FACE_SEEDS)]
     face_zones = ndi.binary_dilation(np.isin(regions, [k for k in seeds if k]), iterations=2) & ~john
     ant_hand_zone = poly(shape, ANTIGONE_HAND)
-    drawn_zone = head_zone | hand_zone | face_zones | ant_hand_zone | hair_zones | ends
+    drawn_zone = head_zone | hand_zone | face_zones | ant_hand_zone | hair_zones | ends | fine_ends
     core = ndi.binary_erosion(sil, structure=morphology.disk(5))
     solid = ndi.binary_opening(black & core, structure=morphology.disk(2))
     solid |= ndi.binary_opening((gL < SOLID_L) & core & poly(shape, BORDERS) & ~ends, structure=morphology.disk(3))
@@ -612,17 +693,15 @@ def main(plate_src: str, page_srcs: list) -> None:
     lines &= ~(drawn_zone | ndi.binary_dilation(staff, iterations=2))
     lines = morphology.remove_small_objects(lines, max_size=30)
 
-    # the head: the mass outlined, curls as single strokes along the brightest white
+    # the head: the hair's edge where it meets the robe (its outer edge is the
+    # outline, its inner one the face's), and the dark marks inside it, solid
     hair_edge = hair & ~ndi.binary_erosion(hair, structure=morphology.disk(2))
-    hair_edge &= ndi.binary_erosion(sil, structure=morphology.disk(5))  # its outer edge is the outline
-    gB = ndi.gaussian_filter(B, 1.2)
-    core = (gB - ndi.gaussian_filter(gB, 6) > CURL_LOC) & ndi.binary_erosion(hair, iterations=2) & (gB > 70)
-    core = ndi.binary_opening(core, structure=morphology.disk(1))
-    curls = drawn(shape, curl_strokes(core, CURL_MIN), FINE_W)
-    mouth = drawn(shape, [P(MOUTH)], LINE_W)
-    lab, n = ndi.label(curls)
-    near_mouth = np.unique(lab[ndi.binary_dilation(mouth, iterations=2) & curls])
-    curls &= ~np.isin(lab, near_mouth[near_mouth > 0])
+    hair_edge &= ndi.binary_erosion(sil, structure=morphology.disk(5)) & ~ndi.binary_dilation(face, iterations=4)
+    th = ndi.grey_closing(gL, size=(13, 13)) - gL
+    hair_marks = filters.apply_hysteresis_threshold(th, *HAIR_MARK_T) & head_zone & sil
+    hair_marks &= ~ndi.binary_erosion(face, iterations=3)
+    hair_marks = morphology.remove_small_objects(ndi.binary_opening(hair_marks, structure=morphology.disk(1)), max_size=24)
+    hair_marks = ndi.gaussian_filter(hair_marks.astype(float), 1.0) > 0.5
 
     # the hand: only its strokes; the clay under them fills the closed fingers
     hand = drawn(shape, [P(s_) for s_ in HAND_LINES], FINE_W)
@@ -651,10 +730,10 @@ def main(plate_src: str, page_srcs: list) -> None:
     marks |= john & ~ndi.binary_dilation(edge, iterations=JOHN_NEAR)
     lines &= ~ndi.binary_dilation(john, iterations=JOHN_NEAR)
 
-    lines |= edge | solid | meet | hair_edge | curls | mouth | hand | dark_hair | bun | marks
+    lines |= edge | solid | meet | hair_edge | hair_marks | face_edge | face_lines | hand | dark_hair | bun | marks
     lines |= centre_strokes(gL, ends & ndi.binary_erosion(sil, structure=morphology.disk(3)), LINE_W)
-    lines |= drawn(shape, [P(s_) for s_ in FACE_LINES], FINE_W)
-    lines |= staff_lines(shape)
+    lines |= centre_strokes(gL, fine_ends & ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~hand_zone, FINE_W)
+    lines |= drawn(shape, [P(s_) for s_ in STAFF_EDGES], LINE_W)
     # faint folds, then lines broken into dashes by wear joined where two ends face each other
     keep_out = ~ndi.binary_erosion(sil, structure=morphology.disk(6)) | drawn_zone | ndi.binary_dilation(staff, iterations=3)
     lines |= ridge_lines(L, ~keep_out, ndi.binary_dilation(lines, iterations=4), FINE_W)
