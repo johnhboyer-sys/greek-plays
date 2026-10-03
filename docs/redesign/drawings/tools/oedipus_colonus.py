@@ -194,17 +194,20 @@ JOHN_ISMENE = [
 # (2026-10-03: "her eyes need adjusted", "I think she's smiling"), each placed
 # on the marks the plate and the LIMC photo share: both eyes almonds with
 # solid pupils (the near one a dark oval in both photos, the far one at the
-# cheek's edge), and the mouth a short line whose ends rise a little.
+# cheek's edge, moved in off her hair), and the mouth a short line whose ends
+# rise a little.
 ANTIGONE_FEATURES = [
     [(594.2, 248.9), (595.6, 248.1), (597.3, 247.7), (599.0, 247.9), (600.5, 248.6)],  # near eye, upper lid
     [(594.6, 249.3), (595.9, 250.3), (597.4, 250.8), (598.9, 250.4), (600.1, 249.2)],  # lower lid
-    [(583.6, 249.5), (584.5, 248.8), (585.4, 248.6), (586.3, 248.9), (586.9, 249.5)],
-    # far eye: its upper lid only (with the lower lid too, an eye this small fills solid)
+    [(584.05, 248.85), (584.98, 248.15), (586.03, 247.95), (587.09, 248.35), (587.95, 249.15)],  # far eye, upper lid
+    [(584.3, 249.45), (585.04, 250.65), (585.97, 251.05), (586.9, 250.55), (587.71, 249.55)],  # lower lid
+    # (the near eye mirrored and narrowed to 0.62, as a farther eye is foreshortened, so that it fits the
+    # 6.75 px between her hair and the nose line of John's trace without touching either; the paint puts
+    # it about 1.5 px further left, against the hair, where it read as a dash; John, 2026-10-03: "Other
+    # eye too")
     [(589.9, 262.3), (591.6, 263.1), (593.5, 263.4), (595.4, 263.1), (597.1, 262.2)],  # mouth, smiling
 ]
-JOHN_EYES = [(585.3, 249.9, 0.75), (597.4, 249.3, 1.05)]  # Antigone's pupils: solid dots, (x, y, radius) in plate px
-# (the far eye sits about 1 px in from where the paint puts it, off her dark
-# hair, which would otherwise swallow it)
+JOHN_EYES = [(586.0, 249.6, 0.6), (597.4, 249.3, 1.05)]  # Antigone's pupils: solid dots, (x, y, radius) in plate px
 FACE_SEEDS = [(596, 252), (596, 277), (289, 251)]  # Antigone's face and neck; Ismene's face and neck
 # Ismene's face marks, which his trace leaves to the painting: each stroke on
 # a painted mark measured by local contrast.
