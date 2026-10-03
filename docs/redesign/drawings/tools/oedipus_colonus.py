@@ -38,12 +38,22 @@ from skimage import morphology
 
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
-from oedipus_syracuse import centre_lines, drawn, pen  # noqa: E402  (shared helpers; that file is not changed)
+from oedipus_syracuse import centre_lines, drawn, join_gaps, pen  # noqa: E402  (shared helpers; that file is not changed)
 
 OUT = Path(__file__).resolve().parent.parent / "oedipus-coloneus.svg"
 BOX = (196, 150, 734, 584)  # plate crop around the group; points below are plate (x, y)
 F = 4                       # enlargement
 BLACK_L, WHITE_B = 60, 110  # glaze is darker than BLACK_L; the added white bluer than WHITE_B
+# The borders of Ismene's mantle are dark brown bands, some with dots or
+# crenellations: inside BORDERS (her mantle, below her hair) brown darker than
+# SOLID_L and wider than 1.5 px is drawn solid. Antigone's veil has brown fold
+# lines as dark, which stay lines.
+SOLID_L = 95
+PEEL_L, PEEL_R = 88, 16  # the brown band at an outline: darker than PEEL_L, within PEEL_R working px of the ground
+FACE_BAND = 10           # working px: how far inside FACE the hairline's curls may reach
+EDGE_W = 4               # working px: the outline, as heavy as the painted lines inside it
+JOHN_NEAR = 5            # working px: within this of the outline, John's strokes give way to it
+BORDERS = [(222, 268), (388, 268), (388, 495), (222, 495)]
 
 # The cut, clockwise from the foot of the altar's left end. Loose through the
 # glaze (it drops out by colour) round Ismene, her two head ribbons, the three
@@ -122,9 +132,102 @@ HAND = [(509, 334), (514, 329), (522, 321), (530, 313), (536, 306), (540, 304.5)
 HAND_COVER = [(511.8, 334.5), (514.5, 331.8), (518.5, 327.8), (522.5, 323.8), (526.5, 320.0), (530.0, 317.0),
               (533.0, 324.0), (531.0, 335.0), (528.6, 338.8), (526.2, 341.6), (522.5, 344.6), (518.5, 347.4),
               (514.5, 350.2), (511.8, 351.8)]
+
+# The daughters' faces follow John's trace of them (2026-10-03), drawn over
+# the plate in a review sheet and mapped back onto it: his screenshot was
+# matched to the sheet by SIFT features (556 matches, mean error 0.05 plate
+# px), and each stroke carried to plate px through the sheet's crop origins.
+# Antigone faces front: the face a long oval down to the chin, the neck below
+# it to the necklace; brows, eyes, nose with its nostril, mouth, chin. Ismene
+# is in profile: the band of her hair over the brow (with its white ribs), the
+# lock in front of her ear, the face and neck, the neckline of her dress. The
+# areas his lines close in round each face and neck (FACE_SEEDS) are skin:
+# no hair or other marks are drawn there. Where a stroke runs along the
+# outline, the outline stands for it. A 2-px tick above Antigone's hairline
+# is left out as a slip of the pen.
+JOHN_ANTIGONE = [
+    [(598.7, 230.3), (597.6, 230.7), (596.4, 231.4), (595.2, 232.3), (593.9, 233), (592.6, 233.2), (591.3, 232.9), (590, 232.5), (588.8, 232.5), (587.5, 232.7), (586.3, 233.3), (585.1, 233.9), (583.9, 234.8), (582.8, 235.7), (581.8, 236.8), (580.9, 238), (580.4, 239.2), (580.4, 240.5), (580.9, 241.7), (581.5, 243.1), (581.8, 244.5), (582.1, 245.9), (582.2, 247.3), (582.2, 248.8), (582.3, 250.2), (582.4, 251.7), (582.7, 253), (583.1, 254.3), (583.7, 255.6), (584.3, 256.8), (585, 258), (585.6, 259.3), (586.1, 260.6), (586.4, 261.9), (586.7, 263.3), (587.1, 264.6), (587.2, 265.3)],  # outline: the hairline, the left cheek, to the jaw
+    [(598.7, 230.3), (599.2, 231.4), (599.6, 232.8), (600.1, 234.2), (600.9, 235.3), (602.1, 236), (603.6, 236.4), (605.1, 236.7), (606.6, 237.1), (607.7, 237.7), (608.5, 238.6), (609.2, 239.8), (609.6, 241.1), (609.8, 242.5), (610, 243.9), (610, 245.4), (610, 246.9), (610, 248.4), (609.9, 249.8), (609.8, 251.3), (609.7, 252.7), (609.6, 254.2), (609.5, 255.6), (609.3, 257.1), (609.3, 258.6), (609.3, 260.1), (609.6, 261.5), (610.1, 262.8), (610.9, 264), (611.7, 265.1), (612.2, 266.4), (612.3, 267.8), (612.3, 269.3), (612.2, 270.8), (612.3, 272.4), (612.2, 273.9), (612.1, 275.4), (611.7, 276.7), (611.1, 277.9), (610.3, 279), (609.3, 280), (608.2, 280.8), (607, 281.6), (605.7, 282.2), (604.3, 282.6), (602.9, 283), (601.5, 283.3), (600.1, 283.4), (598.7, 283.4), (597.2, 283.3), (595.8, 283.1), (594.4, 282.7), (593.1, 282.3), (591.8, 281.7), (590.6, 280.9), (589.6, 279.9), (588.8, 278.8), (588, 277.6), (587.1, 276.8), (585.8, 276.5)],  # outline: the hairline, the right cheek and the neck, to the necklace
+    [(585.6, 276.4), (585.2, 275), (585, 273.6), (584.9, 272.1), (585.1, 270.6), (585.4, 269.2), (585.8, 267.8), (586.4, 266.6), (587.1, 265.4)],  # the neck's left edge
+    [(587.2, 244.6), (585.7, 244.6), (584.1, 244.7), (583.4, 244.9)],  # left brow
+    [(593.8, 245.4), (595.2, 245.3), (596.5, 245.3), (597.9, 245.4), (598.5, 245.6)],  # right brow
+    [(590.1, 247), (589.8, 248.3), (589.5, 249.6), (589.2, 251), (589, 252.5), (588.8, 254.1), (588.7, 255.6), (588.8, 257), (589.3, 258.1), (590.4, 258.6), (592.1, 258.5)],  # nose, and its base
+    [(597.1, 249.5), (598.3, 248.9)],  # right eye, lid
+    [(595.6, 249.1), (597, 249.4)],  # right eye, lid
+    [(592, 255.5), (592.3, 257), (592.8, 257.6)],  # nostril
+    [(589.8, 263.3), (591.1, 263.5), (592.6, 263.5), (594.1, 263.5), (595.7, 263.5), (597.1, 263.7)],  # mouth
+    [(600.6, 270.2), (599.3, 270.2), (597.8, 270.3), (596.3, 270.5), (594.8, 270.5), (593.3, 270.4), (592, 270.1), (590.8, 269.6), (589.7, 268.8), (588.9, 267.7), (588.2, 266.4), (587.6, 265)],  # chin
+]
+JOHN_ISMENE = [
+    [(297.2, 238.8), (297.7, 237.6), (298.6, 236.5), (299.6, 235.6), (300.7, 234.6), (301.5, 233.5), (302.1, 232.2), (302.4, 230.8), (302.5, 229.2), (302.4, 227.7), (302.3, 226.2), (301.9, 225), (301, 224), (299.9, 223.3), (298.6, 222.5), (297.4, 221.8), (296.4, 220.9), (295.5, 219.9), (295, 218.6), (294.8, 217.2), (294.5, 215.7), (293.9, 214.4), (292.9, 213.5), (291.8, 213.3), (290.6, 213.5), (289.4, 214.3), (288.2, 215.2), (287.1, 216.3), (285.9, 217.4), (284.8, 218.4), (283.8, 219.4), (282.7, 220.2), (281.6, 221), (280.4, 221.7), (279.2, 222.4), (278, 222.9), (276.6, 223.4), (275.1, 223.8)],
+    [(278.8, 258.9), (279, 257.6), (279.2, 256.2), (279.3, 254.8), (279.3, 253.3), (279.1, 251.8), (279, 250.4), (279, 249), (279.4, 247.7), (280.2, 246.6), (281.1, 245.4), (282.1, 244.3), (282.9, 243.2), (283.5, 241.9), (284, 240.6), (284.4, 239.2), (284.8, 237.9), (285.2, 236.6), (285.8, 235.4), (286.5, 234.1), (287.4, 232.9), (288.3, 231.8), (289.4, 230.7), (290.5, 230), (291.8, 229.7), (293.1, 229.9), (294.1, 230.7), (294.6, 232), (294.5, 233.4), (294.2, 234.9), (293.9, 236.4), (294, 237.9), (294.3, 238.6)],
+    [(297.4, 238.9), (295.8, 238.6), (295, 238.8)],
+    [(279.8, 259.1), (280, 257.7), (280.5, 256.4), (281.2, 255.2), (282.1, 254), (282.9, 252.9), (283.7, 251.8), (284.5, 250.6), (285.2, 249.4), (285.8, 248.2), (286.3, 246.9), (286.8, 245.5), (287.3, 244.2), (287.9, 242.9), (288.6, 241.8), (289.4, 240.7), (290.4, 239.9), (291.7, 239.2), (293.4, 238.9), (294.3, 238.8)],
+    [(299, 240.2), (298.2, 239.2), (297.5, 239)],
+    [(297, 238.9), (297, 240.3), (297, 241.7), (296.9, 243.2), (296.9, 244.6), (296.9, 246.1), (296.9, 247.5), (296.9, 249), (297.1, 250.4), (297.3, 251.8), (297.6, 253.1), (298.1, 254.4), (298.6, 255.7), (299.3, 256.9), (300.2, 258)],
+    [(290, 271.9), (291.3, 271.9), (292.8, 272), (294.4, 271.9), (295.8, 271.6), (296.9, 270.9), (297.7, 270), (298, 268.8), (297.8, 267.5), (297.2, 266.1), (296.8, 264.7), (296.7, 263.3), (297.1, 262), (297.9, 260.8), (298.9, 259.7), (300, 258.8), (300.5, 258.3)],
+    [(279.2, 267.9), (279.2, 266.4), (279.2, 264.9), (279.2, 263.4), (279.2, 261.9), (279.3, 260.4), (279.3, 259)],
+    [(279.2, 267.9), (278.4, 268.7), (278.4, 269.3)],
+    [(277.4, 279.9), (277.2, 278.3), (277.2, 276.8), (277.5, 275.4), (278, 274), (278.5, 272.7), (279, 271.4), (279.4, 270), (279.6, 268.6), (279.6, 267.8)],
+    [(290, 272.2), (290.1, 273.7), (290.1, 275.2), (290.5, 276.7), (290.9, 277.3)],
+    [(290.9, 277.4), (292.4, 277.5), (293.7, 278.1), (294.9, 278.9), (296.1, 279.9), (297.2, 280.7)],
+    [(290.8, 277.4), (290.4, 278.7), (290, 280), (289.5, 281.3), (288.9, 282.6), (288.3, 283.8), (287.5, 285), (286.7, 286.1), (285.6, 287.1), (284.4, 288), (283.1, 288.7), (281.7, 289.1), (280.3, 289.2), (278.9, 289), (277.9, 288.3), (277.6, 286.9)],
+    [(277.3, 279.8), (276.8, 281.3), (276.9, 282.6), (277.4, 283.9), (277.6, 285.2), (277.6, 285.8)],
+    [(297.2, 280.8), (298.5, 281.1), (299.8, 281.6), (301.1, 282.1), (302.4, 282.6), (303.6, 283), (304.9, 283.4), (305.5, 283.6)],
+    [(277.1, 296), (278.4, 295.7), (279.9, 295.5), (281.3, 295.4), (282.8, 295.3), (284.3, 295.3), (285.8, 295.1), (287, 294.6), (288, 293.8), (289, 292.8), (289.9, 291.7), (290.8, 290.6), (291.7, 289.5), (292.7, 288.4), (293.7, 287.4), (294.7, 286.4), (295.6, 285.4), (296.3, 284.3), (296.7, 282.9), (296.8, 281.4), (296.9, 280.7)],
+    [(299.2, 283.3), (299.4, 284.8), (299.5, 286.2), (299.4, 287.7), (299.3, 289.2), (299, 290.6), (298.7, 292), (298.3, 293.4), (297.7, 294.7), (297.1, 296), (296.4, 297.2), (295.6, 298.3), (294.7, 299.4), (293.7, 300.4), (292.6, 301.3), (291.4, 302), (290.2, 302.7), (288.9, 303.3), (287.5, 303.7), (286, 304), (284.6, 304.2), (283.1, 304.3), (281.6, 304.3), (280.1, 304.2), (278.8, 303.9), (277.7, 303.2), (277.1, 301.9), (276.8, 300.4), (276.8, 298.9), (276.9, 297.4), (276.8, 295.9)],
+    [(276.8, 286.4), (277.5, 285.9)],
+    [(277.8, 286.7), (277.5, 285.9)],
+    [(276.8, 295.8), (276.9, 294.3), (276.7, 292.9), (276.4, 291.4), (276.2, 290), (276.1, 288.5), (276.4, 287), (276.8, 286.3)],
+    [(276.8, 286.4), (277.7, 286.8)],
+]
+JOHN_EYES = [(584.2, 250.3, 0.8), (597.1, 249.5, 1.1)]  # Antigone's eyes: solid dots, (x, y, radius) in plate px
+FACE_SEEDS = [(596, 252), (596, 277), (289, 251)]  # Antigone's face and neck; Ismene's face and neck
+# Ismene's face marks, which his trace leaves to the painting: each stroke on
+# a painted mark measured by local contrast.
+FACE_MARKS = [
+    [(287.0, 247.3), (289.0, 246.8), (291.6, 247.0)],  # brow
+    [(287.8, 251.3), (289.5, 251.0), (291.8, 251.1)],  # eye
+    [(293.6, 258.5), (295.0, 259.0), (296.2, 259.3)],  # nostril
+    [(291.6, 262.3), (293.4, 263.2), (295.6, 264.8)],  # mouth
+]
+PUPILS = [(289.4, 251.1)]  # Ismene's pupil, a solid dot 1.6 plate px across
+# Antigone's right hand at her chin, the fingers curled up towards it: the
+# painted lines between the fingers, each finger closed at its tip.
+ANTIGONE_HAND = [(577, 280), (600, 279), (602, 296), (594, 313), (588, 313), (577, 303)]
+ANTIGONE_HAND_LINES = [
+    [(580.6, 282.8), (580.3, 287.0), (579.6, 291.0), (579.0, 294.5), (578.5, 298.0), (578.2, 302.0)],  # outer edge
+    [(584.4, 282.6), (584.1, 286.0), (583.4, 289.0), (583.1, 292.0), (583.0, 294.5)],
+    [(587.4, 283.4), (587.1, 287.0), (586.8, 290.0), (586.3, 292.5), (586.0, 295.0)],
+    [(591.6, 283.6), (591.2, 285.5), (590.6, 287.2)],
+    [(596.0, 282.8), (594.3, 287.2), (592.5, 289.6), (590.6, 292.3), (589.3, 294.8)],
+    [(580.6, 282.8), (581.8, 281.6), (583.3, 281.7), (584.4, 282.6)],  # the fingertips
+    [(584.4, 282.6), (585.6, 281.9), (586.8, 282.3), (587.4, 283.4)],
+    [(587.4, 283.4), (589.0, 282.2), (590.7, 282.6), (591.6, 283.6)],
+    [(591.6, 283.6), (593.3, 281.9), (595.0, 281.9), (596.0, 282.8)],
+    [(592.3, 296.0), (591.8, 300.0), (591.6, 304.0), (591.3, 308.0), (590.6, 312.0)],  # the wrist's inner edge
+    [(600.2, 288.0), (599.2, 290.5), (598.2, 293.0)],  # the thumb
+]
+# The daughters' hair is dark brown, a shade between the clay and the black
+# ground, so inside HAIRS the ground is only the true black (below GROUND_L).
+# Antigone's curls, and Ismene's crown and long lock, are drawn solid (as the
+# Syracuse hair was), with the white beads and the larger clay curls in them
+# left as holes. Ismene's is lighter, brown with pale curls, so its threshold
+# is lower and fewer gaps are closed, which keeps the curls of her bun.
+ISMENE_HAIR = [(242, 228), (256, 222), (268, 222), (280, 218), (292, 213), (302, 216), (304, 224), (302, 234),
+               (299, 240), (294, 243), (289, 249), (286, 255), (284, 262), (283.5, 268), (283, 275),
+               (282, 290), (281, 304), (270, 304), (266, 290), (262, 275), (254, 270), (245, 266), (240, 255),
+               (240, 240)]
+ANTIGONE_HAIR = [(572, 232), (576, 224), (586, 219), (600, 217), (612, 220), (620, 228), (623, 240), (622, 255),
+                 (618, 270), (617, 288), (609, 288), (608, 270), (608, 255), (607, 245), (604, 237), (597, 234.5),
+                 (590, 235), (585, 238), (583, 246), (582.5, 255), (583, 270), (583, 288), (576, 288), (575, 270),
+                 (572, 258), (570, 245)]
+HAIRS = [ISMENE_HAIR, ANTIGONE_HAIR]
+HAIR_DARK_L, GROUND_L = (100, 115), 40  # hair darker than HAIR_DARK_L (Ismene's, Antigone's) is solid
 LINE_W = 5  # working px: strokes drawn by hand, as wide as the painted lines found (their median)
 FINE_W = 3  # faces and fingers, whose marks lie closer together
 CURL_B, CURL_MIN = 115, 16  # curls: the brightest strokes of the white (bluer than CURL_B), at least CURL_MIN px long
+RIDGE_T, RIDGE_MIN = (3.0, 6.0), 24  # faint folds: Sato ridge hysteresis thresholds, and least length in px
 # A thin grey line across the black ground between his beard and his raised
 # hand, probably a scratch: left out with the ground.
 SCRATCH = [(486, 270.5), (505.5, 271), (506, 275.5), (486, 275)]
@@ -137,6 +240,15 @@ def P(pts):
 
 def poly(shape, pts):
     return lw.polygon_mask(shape, np.array(P(pts), float))
+
+
+def smooth_poly(shape, pts):
+    """A closed shape through the points as a smooth curve, not a polygon."""
+    from scipy.interpolate import splprep, splev
+    q = np.array(P(pts) + P(pts[:1]), float).T
+    tck, _ = splprep(q, k=3, s=0, per=1)
+    x, y = splev(np.linspace(0, 1, 40 * len(pts)), tck)
+    return lw.polygon_mask(shape, np.stack([x, y], 1))
 
 
 def load(src):
@@ -205,13 +317,37 @@ def curl_strokes(core, min_len):
     return strokes
 
 
+def ridge_lines(L, inside, avoid, w, min_len=RIDGE_MIN):
+    """Faint folds the local-contrast pass misses, found as dark ridges (a Sato
+    filter, sigmas 1.5-3.5): inside `inside`, away from `avoid`, at least
+    min_len px long, each drawn as a smooth stroke along its centre."""
+    from scipy.interpolate import splprep, splev
+    from skimage import filters
+    r = filters.sato(ndi.gaussian_filter(L, 0.8), sigmas=[1.5, 2.5, 3.5], black_ridges=True)
+    cand = filters.apply_hysteresis_threshold(r, *RIDGE_T) & inside & ~avoid
+    sk = morphology.skeletonize(cand)
+    out = np.zeros(L.shape, bool)
+    for path in curl_strokes(sk, min_len):
+        q = np.array(path, float)
+        q = q[np.r_[True, np.any(np.diff(q, axis=0) != 0, axis=1)]]
+        if len(q) < 2:
+            continue
+        tck, _ = splprep(q.T, k=min(3, len(q) - 1), s=0.6 * len(q))
+        x, y = splev(np.linspace(0, 1, 9 * len(q)), tck)
+        out[np.clip(np.round(y).astype(int), 0, L.shape[0] - 1), np.clip(np.round(x).astype(int), 0, L.shape[1] - 1)] = True
+    return ndi.distance_transform_edt(~out) <= w / 2
+
+
 def main(src: str) -> None:
     a = load(src)
     R, G, B = a[..., 0], a[..., 1], a[..., 2]
     L = 0.2126 * R + 0.7152 * G + 0.0722 * B
     shape = L.shape
     inside = poly(shape, OUTLINE)
-    black = ndi.gaussian_filter(L, 1.0) < BLACK_L
+    gL = ndi.gaussian_filter(L, 1.0)
+    hair_zones = poly(shape, HAIRS[0]) | poly(shape, HAIRS[1])
+    # the dark brown of the daughters' hair is not ground: there only the true black is
+    black = np.where(hair_zones, gL < GROUND_L, gL < BLACK_L)
     white = ndi.gaussian_filter(B, 1.0) > WHITE_B
     columns = poly(shape, COLUMNS[0]) | poly(shape, COLUMNS[1])
     staff, _, _ = rod(shape, STAFF, STAFF_W)
@@ -224,10 +360,19 @@ def main(src: str) -> None:
     rim = inside & ~ndi.binary_erosion(inside, iterations=2)
     reach = np.unique(lab[rim & bg])
     ground = np.isin(lab, reach[reach > 0])
+    # The plate's blur leaves a brown band between a figure and the ground,
+    # which would trace as a second line just inside the outline: dark pixels
+    # within PEEL_R px of the ground, and joined to it, are ground too, so the
+    # outline falls where the clay begins (about halfway between clay and
+    # glaze). Not in the daughters' hair, which is as dark.
+    band = inside & (gL < PEEL_L) & (ndi.distance_transform_edt(~ground) <= PEEL_R) & ~hair_zones
+    lab, _ = ndi.label(ground | band)
+    reach = np.unique(lab[ground])
+    ground = np.isin(lab, reach[reach > 0])
     sil = ndi.binary_opening(inside & ~ground, structure=morphology.disk(2)) | staff
     sil = ndi.binary_fill_holes(morphology.remove_small_objects(sil, max_size=4000))
     sil = ndi.gaussian_filter(sil.astype(float), 1.0) > 0.5
-    edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(2))
+    edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(EDGE_W))
 
     # Oedipus' hair and beard: the yellower white inside HEAD_ZONE, one smooth mass
     head_zone = poly(shape, HEAD_ZONE)
@@ -235,16 +380,28 @@ def main(src: str) -> None:
     hair = (ratio > HAIR_GR) & ~black & head_zone
     hair = ndi.binary_closing(ndi.binary_opening(hair, structure=morphology.disk(2)), structure=morphology.disk(4))
     hair = morphology.remove_small_holes(morphology.remove_small_objects(hair, max_size=300), max_size=150)
-    hair = (ndi.gaussian_filter(hair.astype(float), 2.0) > 0.5) & ~poly(shape, FACE)
+    # the face is cut out of it, but its edge follows the curls of the
+    # hairline within a band FACE_BAND px inside FACE
+    face_core = ndi.binary_erosion(smooth_poly(shape, FACE), structure=morphology.disk(FACE_BAND))
+    hair = (ndi.gaussian_filter(hair.astype(float), 2.0) > 0.5) & ~face_core
 
     # inside the group: clay, white and black. Black (hair, borders) is drawn
     # solid; where white meets a broad area of clay (a figure on the altar) the
     # edge is drawn; thin clay on the white (the altar's bands) is a painted
     # line, found below with the rest
     hand_zone = poly(shape, HAND)
-    drawn_zone = head_zone | hand_zone
-    solid = ndi.binary_opening(black & ndi.binary_erosion(sil, structure=morphology.disk(5)), structure=morphology.disk(2))
+    # John's strokes, and the skin they close in round each face
+    john = drawn(shape, [P(s_) for s_ in JOHN_ANTIGONE + JOHN_ISMENE], FINE_W)
+    regions, _ = ndi.label(ndi.binary_fill_holes(john) & ~john)
+    seeds = [regions[int(round(y))][int(round(x))] for x, y in P(FACE_SEEDS)]
+    face_zones = ndi.binary_dilation(np.isin(regions, [k for k in seeds if k]), iterations=2) & ~john
+    ant_hand_zone = poly(shape, ANTIGONE_HAND)
+    drawn_zone = head_zone | hand_zone | face_zones | ant_hand_zone | hair_zones
+    core = ndi.binary_erosion(sil, structure=morphology.disk(5))
+    solid = ndi.binary_opening(black & core, structure=morphology.disk(2))
+    solid |= ndi.binary_opening((gL < SOLID_L) & core & poly(shape, BORDERS), structure=morphology.disk(3))
     solid = morphology.remove_small_objects(solid & ~drawn_zone, max_size=60)
+    solid = ndi.gaussian_filter(solid.astype(float), 1.0) > 0.5
     clay = sil & ~white & ~black
     broad = ndi.binary_opening(clay, structure=morphology.disk(6))
     whites = ndi.binary_opening(white & sil, structure=morphology.disk(1))
@@ -258,12 +415,13 @@ def main(src: str) -> None:
     # and the staff are drawn below
     lines = lw.ink_lines(L, size=15, low=10, high=22, sigma=1.0)
     lines = ndi.binary_erosion(lines) | morphology.skeletonize(lines)
-    lines &= ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~ndi.binary_dilation(solid, iterations=2)
+    lines &= ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~solid
     lines &= ~(drawn_zone | ndi.binary_dilation(staff, iterations=2))
     lines = morphology.remove_small_objects(lines, max_size=30)
 
     # the head: the mass outlined, curls as single strokes along the brightest white
     hair_edge = hair & ~ndi.binary_erosion(hair, structure=morphology.disk(2))
+    hair_edge &= ndi.binary_erosion(sil, structure=morphology.disk(5))  # its outer edge is the outline
     core = (ndi.gaussian_filter(B, 1.0) > CURL_B) & ndi.binary_erosion(hair, iterations=2)
     curls = drawn(shape, curl_strokes(core, CURL_MIN), LINE_W)
 
@@ -272,9 +430,35 @@ def main(src: str) -> None:
     edge &= ~hand_zone
     sil = (sil & ~hand_zone) | (ndi.binary_fill_holes(hand | (sil & ~hand_zone)) & hand_zone)
 
-    lines |= edge | solid | meet | hair_edge | curls | hand
+    # the daughters' hair: solid where it is dark, with beads and clay curls as
+    # holes; Ismene's lighter bun keeps the painted lines found in it
+    dark_hair = np.zeros(shape, bool)
+    for zone_pts, thr, close, holes in ((ISMENE_HAIR, HAIR_DARK_L[0], 1, 12), (ANTIGONE_HAIR, HAIR_DARK_L[1], 2, 40)):
+        zone = poly(shape, zone_pts)
+        m = zone & sil & (gL < thr) & ~face_zones
+        m = ndi.binary_closing(m, structure=morphology.disk(close)) & zone
+        dark_hair |= morphology.remove_small_objects(morphology.remove_small_holes(m, max_size=holes), max_size=30)
+    dark_hair = ndi.gaussian_filter(dark_hair.astype(float), 1.0) > 0.5
+    bun = lw.ink_lines(L, size=15, low=10, high=22, sigma=1.0) & hair_zones & ~dark_hair & ~face_zones
+    bun = morphology.remove_small_objects(ndi.binary_erosion(bun) | morphology.skeletonize(bun), max_size=30)
+
+    marks = drawn(shape, [P(s_) for s_ in FACE_MARKS + ANTIGONE_HAND_LINES], FINE_W)
+    Y, X = np.ogrid[0:shape[0], 0:shape[1]]
+    for x, y, r in [(x, y, 0.8) for x, y in PUPILS] + JOHN_EYES:
+        (px, py), = P([(x, y)])
+        marks |= (X - px) ** 2 + (Y - py) ** 2 <= (r * F) ** 2
+    # his strokes, except where the outline already runs; painted marks right
+    # beside them give way
+    marks |= john & ~ndi.binary_dilation(edge, iterations=JOHN_NEAR)
+    lines &= ~ndi.binary_dilation(john, iterations=JOHN_NEAR)
+
+    lines |= edge | solid | meet | hair_edge | curls | hand | dark_hair | bun | marks
     lines |= drawn(shape, [P(s_) for s_ in FACE_LINES], FINE_W)
     lines |= staff_lines(shape)
+    # faint folds, then lines broken into dashes by wear joined where two ends face each other
+    keep_out = ~ndi.binary_erosion(sil, structure=morphology.disk(6)) | drawn_zone | ndi.binary_dilation(staff, iterations=3)
+    lines |= ridge_lines(L, ~keep_out, ndi.binary_dilation(lines, iterations=4), FINE_W)
+    lines |= join_gaps(lines & ~keep_out & ~solid, keep_out | solid, max_gap=24)
 
     if "--masks" in sys.argv:  # diagnostic: the masks over the photo
         g = L * 0.55
