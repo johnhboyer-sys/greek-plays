@@ -13,7 +13,7 @@ them on every ground, light and dark.
 | `aristophanes-mika.svg` | Mika | Würzburg H 5697, photo by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0) |
 | `medea.svg` | Medea | Cleveland 1991.1, museum photo (CC0) |
 | `oedipus-tyrannus.svg` | Oedipus (Oedipus Tyrannus) | Syracuse 66557, photo by Dan Diffendale (CC BY-NC-SA 2.0); the drawing traces only the painting, so it does not carry that licence (John, 2026-10-02) |
-| `oedipus-coloneus.svg` | Oedipus with Ismene and Antigone (Oedipus at Colonus) | Geddes A 5:8, the photos in Green 2003 (pp. 4, 26 and 29, HathiTrust), placed on their reprint in Taplin, *Pots & Plays* no. 27, checked against Digital LIMC photo 8569X101 (all in copyright); the drawing traces only the painting, so it does not carry the photos' rights (John, 2026-10-02) |
+| `oedipus-coloneus.svg` | Oedipus with Ismene and Antigone (Oedipus at Colonus) | Geddes A 5:8, the photos in Green 2003 (pp. 4, 26 and 29, HathiTrust), placed on their reprint in Taplin, *Pots & Plays* no. 27, with Ismene's lines from a photo found online (source unknown), checked against Digital LIMC photo 8569X101; the drawing traces only the painting, so it does not carry the photos' rights (John, 2026-10-02) |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -58,7 +58,9 @@ The Oedipus alternate starts from the Commons SVG rendered to PNG
 `tools/oedipus_colonus.py` starts from the plate on page 112 of the Getty
 PDF of *Pots & Plays* (`pdfimages -j -f 112 -l 112`), which sets the frame,
 and three page images of Green 2003 from HathiTrust (mdp.39015060089391,
-seq 6, 28 and 31, as TIFF), which it registers to the plate and draws from.
+seq 6, 28 and 31, as TIFF), which it registers to the plate and draws from,
+and a photo of the scene John found online (`found.png`, 547x560, source
+unknown), which gives Ismene's painted lines.
 It also needs `opencv-python-headless`: non-local means clears the plate's
 JPEG noise before the 4x enlargement, and SIFT matches the pages. The LIMC
 photo it was checked against is Digital LIMC 8569X101

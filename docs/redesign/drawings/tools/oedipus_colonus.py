@@ -12,7 +12,9 @@ file is placed in its px. The lines are drawn from Green's own pages (J. R.
 Green, Ancient Voices, Modern Echoes, Nicholson Museum, Sydney, 2003),
 HathiTrust mdp.39015060089391, seq 6, 28 and 31: p. 4, the whole vase; p.
 26, the right half of the scene, 6.4 times the plate's scale; p. 29,
-Oedipus' head and hand, 12.8 times (see PAGES). A further photo, the whole
+Oedipus' head and hand, 12.8 times (see PAGES). Ismene's painted lines come
+from a clean photo of the scene John found online (2026-10-03; 547x560,
+source unknown: found.png on the command line). A further photo, the whole
 vase in black and white (Digital LIMC, monument 8378, photo 8569X101, credit
 "Graham Geddes Collection (once)"), was aligned to the plate and used to
 read shapes the plate blurs (the arm border, the mantle ends); the tool does
@@ -37,7 +39,8 @@ curls drawn solid. The staff is added yellow, drawn in its two visible parts
 (STAFF). Faces and hands are drawn stroke by stroke on their painted lines.
 
     python3 docs/redesign/drawings/tools/oedipus_colonus.py plate-001.jpg \
-        mdp.39015060089391-seq_6.tif mdp.39015060089391-seq_28.tif mdp.39015060089391-seq_31.tif [qa.png]
+        mdp.39015060089391-seq_6.tif mdp.39015060089391-seq_28.tif mdp.39015060089391-seq_31.tif \
+        found.png [qa.png]
 """
 import sys
 from pathlib import Path
@@ -512,15 +515,24 @@ def load(src):
 # pixels it gave Ismene no more than the plate, and its print noise traced as
 # wiggles, so she and the altar's left end stay drawn from the plate. The
 # plate stays the frame: every hand-placed point, John's traces included, is
-# in its px. Per detail page: the photo's area in page px (the rest is paper,
-# text or the scanner's watermark) and the blur against the print's dots.
-PAGES = [("p26", (0, 0, 2410, 3290), 1.5), ("p29", (128, 1, 1761, 1962), 1.8)]
-PAGE_FILES = ["p4", "p26", "p29"]  # the order of the page files on the command line
+# in its px. A further photo of the scene, which John found (2026-10-03), is
+# a clean photograph rather than a printed page: little larger than the plate
+# (1.3 times), but its painted lines are crisp where the plate's and p. 4's
+# are mush, so Ismene's folds and the rest outside p. 26 are found on it. Its
+# black glaze carries sheen and texture that no colour match turns into the
+# plate's flat black, so it serves only to find painted lines (LINES_ONLY):
+# the ground, the outline, the solid black and the white still come from the
+# plate there. Per photo: its area in its own px (the rest is paper, text or
+# the scanner's watermark; None for the whole image) and the blur against
+# the print's dots or the JPEG's blocks.
+PAGES = [("found", None, 0.5), ("p26", (0, 0, 2410, 3290), 1.5), ("p29", (128, 1, 1761, 1962), 1.8)]
+PAGE_FILES = ["p4", "p26", "p29", "found"]  # the order of the photo files on the command line
+LINES_ONLY = {"found"}
 # Each link of the chain: (from, to, scale of from, scale of to, RANSAC px in
 # the target page, spline smoothing). p. 26 is matched to p. 4 and p. 29 to
 # p. 26, sharper partners than the plate.
 CHAIN = [("plate", "p4", 2.0, 1.0, 3.0, 2000.0), ("p4", "p26", 2.0, 0.55, 6.0, 4000.0),
-         ("p26", "p29", 0.55, 0.35, 8.0, 4000.0)]
+         ("p26", "p29", 0.55, 0.35, 8.0, 4000.0), ("plate", "found", 2.0, 1.5, 3.0, 1000.0)]
 SEAM = 24  # working px over which a sharper page fades in
 
 
@@ -602,7 +614,8 @@ def colour_match(src, ref, valid, s=6.0, n=300000):
 
 
 def load_green(plate_src, page_srcs):
-    """The working frame drawn from Green's pages (see PAGES)."""
+    """The working frame drawn from Green's pages (see PAGES), and the frame
+    painted lines are found on, which adds the LINES_ONLY photos."""
     ref = load(plate_src)
     shape = ref.shape[:2]
     grey = {"plate": np.asarray(Image.open(plate_src).convert("L"))}
@@ -615,17 +628,20 @@ def load_green(plate_src, page_srcs):
         m = Mapping(*sift_matches(grey[a], grey[b], sa, sb), rpx, smooth)
         print(f"  {a} -> {b}: {len(m.P)} matches, error {m.error:.2f} px of {b}")
         chain[b] = (lambda f, g: (lambda P: g(f(P))))(chain[a], m)
-    out = ref.copy()
-    for name, (x0, y0, x1, y1), blur in PAGES:
+    out, out_lines = ref.copy(), ref.copy()
+    for name, area, blur in PAGES:
         im = cv2.GaussianBlur(rgb[name], (0, 0), blur)
         photo = np.zeros(im.shape[:2], np.float32)
+        x0, y0, x1, y1 = area or (0, 0, im.shape[1], im.shape[0])
         photo[y0:y1, x0:x1] = 1
         warped = warp_into_frame(np.dstack([im.astype(np.float32), photo]), chain[name], shape)
         valid = warped[..., 3] > 0.99
         page = colour_match(warped[..., :3], ref, valid)
         wgt = np.clip(ndi.distance_transform_edt(valid) / SEAM, 0, 1)[..., None]
-        out = out * (1 - wgt) + page * wgt
-    return out.astype(np.float32)
+        if name not in LINES_ONLY:
+            out = out * (1 - wgt) + page * wgt
+        out_lines = out_lines * (1 - wgt) + page * wgt
+    return out.astype(np.float32), out_lines.astype(np.float32)
 
 
 def curl_strokes(core, min_len):
@@ -699,9 +715,10 @@ def centre_strokes(gL, zone, w, thresholds=STROKE_T, min_len=14):
 
 
 def main(plate_src: str, page_srcs: list) -> None:
-    a = load_green(plate_src, page_srcs)
+    a, a_lines = load_green(plate_src, page_srcs)
     R, G, B = a[..., 0], a[..., 1], a[..., 2]
     L = 0.2126 * R + 0.7152 * G + 0.0722 * B
+    L_lines = 0.2126 * a_lines[..., 0] + 0.7152 * a_lines[..., 1] + 0.0722 * a_lines[..., 2]  # painted lines are found on this
     shape = L.shape
     inside = poly(shape, OUTLINE)
     gL = ndi.gaussian_filter(L, 1.0)
@@ -791,7 +808,7 @@ def main(plate_src: str, page_srcs: list) -> None:
     # them (a bead stays a dot); thinned by the blur the enlargement adds, with
     # their centre lines kept so faint stretches stay joined. The head, the hand
     # and the staff are drawn below
-    lines = lw.ink_lines(L, size=15, low=10, high=22, sigma=1.0)
+    lines = lw.ink_lines(L_lines, size=15, low=10, high=22, sigma=1.0)
     lines = ndi.binary_erosion(lines) | morphology.skeletonize(lines)
     lines &= ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~solid
     lines &= ~(drawn_zone | ndi.binary_dilation(staff, iterations=2))
@@ -824,7 +841,7 @@ def main(plate_src: str, page_srcs: list) -> None:
     # her left eye sits at the edge of her face, its iris against her hair: a
     # thin rim of clay keeps the two apart, so the eye reads
     dark_hair &= ~(ndi.distance_transform_edt(~poly(shape, JOHN_ANTIGONE_FILLS[1])) <= EYE_RIM)
-    bun = lw.ink_lines(L, size=15, low=10, high=22, sigma=1.0) & hair_zones & ~dark_hair & ~face_zones
+    bun = lw.ink_lines(L_lines, size=15, low=10, high=22, sigma=1.0) & hair_zones & ~dark_hair & ~face_zones
     bun = morphology.remove_small_objects(ndi.binary_erosion(bun) | morphology.skeletonize(bun), max_size=30)
 
     marks = drawn(shape, [P(s_) for s_ in FACE_MARKS], FINE_W)
@@ -838,12 +855,12 @@ def main(plate_src: str, page_srcs: list) -> None:
     lines &= ~ndi.binary_dilation(john, iterations=JOHN_NEAR)
 
     lines |= edge | solid | meet | hair_edge | hair_marks | face_edge | face_lines | hand | dark_hair | bun | marks
-    lines |= centre_strokes(gL, ends & ndi.binary_erosion(sil, structure=morphology.disk(3)), LINE_W)
+    lines |= centre_strokes(ndi.gaussian_filter(L_lines, 1.0), ends & ndi.binary_erosion(sil, structure=morphology.disk(3)), LINE_W)
     lines |= centre_strokes(gL, fine_ends & ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~hand_zone, FINE_W)
     lines |= drawn(shape, [P(s_) for s_ in STAFF_EDGES], LINE_W)
     # faint folds, then lines broken into dashes by wear joined where two ends face each other
     keep_out = ~ndi.binary_erosion(sil, structure=morphology.disk(6)) | drawn_zone | ndi.binary_dilation(staff, iterations=3)
-    lines |= ridge_lines(L, ~keep_out, ndi.binary_dilation(lines, iterations=4), FINE_W)
+    lines |= ridge_lines(L_lines, ~keep_out, ndi.binary_dilation(lines, iterations=4), FINE_W)
     lines |= join_gaps(lines & ~keep_out & ~solid, keep_out | solid, max_gap=24)
 
     if "--masks" in sys.argv:  # diagnostic: the masks over the photo
@@ -853,7 +870,7 @@ def main(plate_src: str, page_srcs: list) -> None:
         rgb[solid] = (40, 40, 255)
         rim = inside & ~ndi.binary_erosion(inside, iterations=2)
         rgb[rim] = (255, 255, 0)
-        Image.fromarray(rgb.astype(np.uint8)).save(sys.argv[5])
+        Image.fromarray(rgb.astype(np.uint8)).save(sys.argv[6])
         return
 
     info = lw.trace_svg(
@@ -861,13 +878,13 @@ def main(plate_src: str, page_srcs: list) -> None:
         title="Blind Oedipus seated at an altar between his daughters, Ismene and Antigone",
         desc="Line drawing after the Apulian red-figure calyx-krater close to the De Schulthess Painter, "
              "340s BCE, formerly Melbourne, Geddes collection A 5:8, read as a scene from Sophocles' Oedipus at "
-             "Colonus (Taplin, Pots & Plays no. 27); traced from the photographs in J. R. Green, Ancient "
-             "Voices, Modern Echoes (2003): cut out, columns left out, redrawn as line.")
+             "Colonus (Taplin, Pots & Plays no. 27); traced from photographs, chiefly those in J. R. Green, "
+             "Ancient Voices, Modern Echoes (2003): cut out, columns left out, redrawn as line.")
     print(OUT, info)
-    if len(sys.argv) > 5:  # optional: the drawing over its source, and as the dark theme shows it
-        lw.qa_overlay(L, OUT, info["box"], Path(sys.argv[5]))
-        lw.qa_dark(OUT, info["box"], Path(sys.argv[5]).with_suffix(".dark.png"))
+    if len(sys.argv) > 6:  # optional: the drawing over its source, and as the dark theme shows it
+        lw.qa_overlay(L_lines, OUT, info["box"], Path(sys.argv[6]))
+        lw.qa_dark(OUT, info["box"], Path(sys.argv[6]).with_suffix(".dark.png"))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2:5])
+    main(sys.argv[1], sys.argv[2:6])
