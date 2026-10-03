@@ -59,7 +59,8 @@ Photo -> drawing:
   - Faint lines that the line test breaks up (worn stretches, a dry brush)
     are joined across their gaps (join_gaps); the bow's outer top curve,
     fainter than any test passes, is placed by hand and snapped to the paint
-    (BOW_LINE). (John, 2026-10-03, on the first pass: "Not all the dark ink
+    (BOW_LINE), as is the outer line round the end of the strap's loop
+    (STRAP_LINE). (John, 2026-10-03, on the first pass: "Not all the dark ink
     on the quiver and arrow are captured"; "part of the top outside curve of
     the bow isn't drawn".)
   - Damage: a scratch and an abraded patch in the glaze by his right arm, and
@@ -528,6 +529,12 @@ BLACK_K, BAND_LOW = 0.3, 0.45
 BOW_LINE = [(1655, 1402), (1664, 1420), (1684, 1444), (1700, 1465), (1708, 1480), (1713, 1500), (1716, 1540),
             (1715, 1560), (1713, 1580), (1710, 1600), (1705, 1620), (1699, 1640), (1692, 1660), (1685, 1680),
             (1677, 1700), (1668, 1720)]
+# The outer line round the right end of the strap's loop thins out there,
+# just past GEAR, and the rock test drops it (John, 2026-10-03: "you also
+# missed part of the strap ... for the quiver"): placed by hand the same way
+# (STRAP_LINE), between the ends of the found line.
+STRAP_LINE = [(2345, 1822), (2357, 1833), (2366, 1847), (2372, 1862), (2376, 1880), (2376, 1895), (2374, 1910),
+              (2368, 1924)]
 BOW_SNAP = 4
 BLACK_BANDS = [
     ([(2700, 2040), (2745, 2075), (2765, 2105), (2750, 2140), (2735, 2180), (2727, 2212), (2735, 2235), (2770, 2248),
@@ -576,8 +583,9 @@ TRACE_PEN, TRACE_NEAR, TRACE_EDGE, TRACE_BLACK_MIN, TRACE_HOLE_MAX = 4.0, 20, 6,
 # times the clay within TONE_CLAY px, inside his outline of the head, drawn
 # as a third path in the line colour at TONE opacity, under the lines. On a
 # light page it shows grey, on the dark theme's clay a darker clay, as the
-# thinned glaze does on the vase.
-TONE_PARTS, TONE, TONE_K, TONE_CLAY = ("head",), 0.45, 0.72, 81
+# thinned glaze does on the vase. (0.45 at first; John: "the original wasn't
+# just a different tone but also somewhat less opaque".)
+TONE_PARTS, TONE, TONE_K, TONE_CLAY = ("head",), 0.3, 0.72, 81
 
 
 def poly(shape, pts):
@@ -834,7 +842,7 @@ def drawing(rgbC, rgbA, area, painted, w, parts):
     short = np.zeros(n + 1, bool)
     short[1:] = ndi.sum(np.ones(shape), lab, np.arange(1, n + 1)) < GEAR_MIN
     cl &= ~(short[lab] & gear)
-    bow = strokes(g, [BOW_LINE], w, snap=BOW_SNAP)
+    bow = strokes(g, [BOW_LINE, STRAP_LINE], w, snap=BOW_SNAP)
     lines = (ndi.distance_transform_edt(~cl) <= w / 2) | solid | bow
     t_ink, tone = traced_ink(parts, rgbA, g)
     centre = np.zeros(shape, bool)
