@@ -457,6 +457,13 @@ RIDGE_T, RIDGE_MIN = (3.0, 6.0), 24  # faint folds: Sato ridge hysteresis thresh
 # A thin grey line across the black ground between his beard and his raised
 # hand, probably a scratch: left out with the ground.
 SCRATCH = [(486, 270.5), (505.5, 271), (506, 275.5), (486, 275)]
+# A speck of brown in the glaze where the corner of Antigone's veil meets the
+# altar, which made a tiny loop of outline (in dark mode a clay hook; found
+# by the Codex review, 2026-10-03): ground too.
+VEIL_CORNER = [(564.2, 395.8), (567.4, 395.8), (567.4, 399.0), (564.2, 399.0)]
+# A faint brown speck on the altar's white below Oedipus' hanging cloth,
+# which traced as a dot: no line is drawn inside it.
+SPECKS = [[(522.2, 491.6), (525.6, 491.6), (525.6, 495.4), (522.2, 495.4)]]
 
 
 def P(pts):
@@ -518,11 +525,11 @@ def load(src):
 # in its px. A further photo of the scene, which John found (2026-10-03), is
 # a clean photograph rather than a printed page: little larger than the plate
 # (1.3 times), but its painted lines are crisp where the plate's and p. 4's
-# are mush, so Ismene's folds and the rest outside p. 26 are found on it. Its
-# black glaze carries sheen and texture that no colour match turns into the
-# plate's flat black, so it serves only to find painted lines (LINES_ONLY):
-# the ground, the outline, the solid black and the white still come from the
-# plate there. Per photo: its area in its own px (the rest is paper, text or
+# are mush, so Ismene's folds and borders and the rest outside p. 26 are found
+# on it. Its black glaze carries sheen and texture that no colour match turns
+# into the plate's flat black, so it serves only to find painted lines and the
+# borders of Ismene's mantle (LINES_ONLY): the ground, the outline, the black
+# and the white still come from the plate there. Per photo: its area in its own px (the rest is paper, text or
 # the scanner's watermark; None for the whole image) and the blur against
 # the print's dots or the JPEG's blocks.
 PAGES = [("found", None, 0.5), ("p26", (0, 0, 2410, 3290), 1.5), ("p29", (128, 1, 1761, 1962), 1.8)]
@@ -739,7 +746,8 @@ def main(plate_src: str, page_srcs: list) -> None:
         lab, _ = ndi.label(m)
         reach = np.unique(lab[rim & m])
         return np.isin(lab, reach[reach > 0])
-    ground0 = reaching(inside & (black | (columns & ~orange) | poly(shape, SCRATCH)) & ~poly(shape, ARM_BAND))
+    ground0 = reaching(inside & (black | (columns & ~orange) | poly(shape, SCRATCH) | poly(shape, VEIL_CORNER))
+                       & ~poly(shape, ARM_BAND))
     glaze = ground0 & black
     # The plate's blur leaves a brown band between a figure and the glaze,
     # which would trace as a second line just inside the outline: dark pixels
@@ -794,7 +802,9 @@ def main(plate_src: str, page_srcs: list) -> None:
     drawn_zone = head_zone | hand_zone | face_zones | hair_zones | ends | fine_ends
     core = ndi.binary_erosion(sil, structure=morphology.disk(5))
     solid = ndi.binary_opening(black & core, structure=morphology.disk(2))
-    solid |= ndi.binary_opening((gL < SOLID_L) & core & poly(shape, BORDERS) & ~ends, structure=morphology.disk(3))
+    # the borders are found on the lines frame: the found photo shows them as unbroken bands where the plate breaks them up
+    solid |= ndi.binary_opening((ndi.gaussian_filter(L_lines, 1.0) < SOLID_L) & core & poly(shape, BORDERS) & ~ends,
+                                structure=morphology.disk(3))
     solid = morphology.remove_small_objects(solid & ~drawn_zone, max_size=60)
     solid = ndi.gaussian_filter(solid.astype(float), 1.0) > 0.5
     clay = sil & ~white & ~black
@@ -862,6 +872,8 @@ def main(plate_src: str, page_srcs: list) -> None:
     keep_out = ~ndi.binary_erosion(sil, structure=morphology.disk(6)) | drawn_zone | ndi.binary_dilation(staff, iterations=3)
     lines |= ridge_lines(L_lines, ~keep_out, ndi.binary_dilation(lines, iterations=4), FINE_W)
     lines |= join_gaps(lines & ~keep_out & ~solid, keep_out | solid, max_gap=24)
+    for q in SPECKS:
+        lines &= ~poly(shape, q)
 
     if "--masks" in sys.argv:  # diagnostic: the masks over the photo
         g = L * 0.55
