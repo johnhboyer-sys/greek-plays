@@ -47,6 +47,16 @@ Photo -> drawing:
     hair try the curls"). The top of his head is black glaze inside a
     reserved clay rim and is drawn solid, as are the bow case's black and the
     broad dark strokes outlining his feet (QUIVER, BLACK_BANDS).
+  - The outline follows the clay's own edge, not the browner stripe of glaze
+    the painter laid along it (STRIPE_L, SOFT_L), and is smoothed along its
+    length (EDGE_SIGMA): the photo's grain and the brush's ragged outer edge
+    made it wobble. His head keeps its edge as found.
+  - Faint lines that the line test breaks up (worn stretches, a dry brush)
+    are joined across their gaps (join_gaps); the bow's outer top curve,
+    fainter than any test passes, is placed by hand and snapped to the paint
+    (BOW_LINE). (John, 2026-10-03, on the first pass: "Not all the dark ink
+    on the quiver and arrow are captured"; "part of the top outside curve of
+    the bow isn't drawn".)
   - Damage: a scratch and an abraded patch in the glaze by his right arm, and
     chips where the glaze meets the rock's left side, are left out of his
     outline (GLAZE_DAMAGE, WORN).
@@ -254,12 +264,14 @@ SEED = (2000, 900)  # on his chiton (frame px): the scene is the clay joined to 
 # The tree: its trunk widens into the rock where his right hand rests. A
 # thin painted line marks the rock's top under it: the washes that model the
 # rock start below that line, and the clay above it is the trunk. The tree is
-# cut off by TREE_CUT (frame px): from the black ground along the rock's top
-# line (a least-cost path held near the points) to his fingertips, straight
+# cut off by TREE_CUT (frame px): from the black ground (straight, a little
+# above where the rock's top line meets the trunk's edge, so the two lines
+# do not run together into a blot) along the rock's top line (a least-cost
+# path held near the points) to his fingertips, straight
 # across the open tips of his middle and index fingers (nothing is painted
 # there), then along the top of his hand (the painted line) to his wrist and
 # into the black between the trunk and his arm.
-TREE_CUT = [(780, 1612), lw.STRAIGHT, (812, 1597), lw.STRAIGHT, (838, 1550), (852, 1520), (875, 1490), (900, 1460), (933, 1428),
+TREE_CUT = [(790, 1584), lw.STRAIGHT, (828, 1575), (845, 1545), (852, 1520), (875, 1490), (900, 1460), (933, 1428),
             (975, 1396), (1025, 1374), (1062, 1368), lw.STRAIGHT, (1083, 1343), lw.STRAIGHT, (1127, 1283),
             (1147, 1260), (1170, 1240), (1193, 1232), (1220, 1223), (1253, 1220), lw.STRAIGHT, (1275, 1195)]
 TREE_CORRIDOR = 8
@@ -270,14 +282,28 @@ TREE_CORRIDOR = 8
 # rock's left end meets the ground line. These stay open; every other black
 # area inside the scene is paint (the top of his head, the bow case's black).
 WINDOWS = [(1635, 1256), (2213, 1024), (2550, 1431), (2699, 1675), (2490, 1804), (2857, 1902), (147, 2399)]
-# Round the windows the glaze is a little browner and lighter than the rest
-# (the painter's contour stripe; A shows it at L 25-50, red minus blue 25-55),
-# and the colour test leaves it to the figure. Each window takes in paint
-# darker than STRIPE_L within STRIPE_REACH px of it (an opening of STRIPE_OPEN
-# px keeps out painted lines that touch it). Where a window narrows to less
-# than 2 * WINDOW_OPEN px (down along his heel), it is drawn as black paint, a
-# line or a solid shape, not as two outlines with a sliver between.
+# Along the figure's edge the glaze is a little browner and lighter than the
+# rest (the painter's contour stripe, 3-15 px wide; A shows it at L 25-50, red
+# minus blue 25-55), and the colour test leaves it to the figure, whose edge
+# then follows the stripe's ragged outer side instead of the clay's crisp one.
+# The ground takes in paint darker than STRIPE_L within STRIPE_REACH px of it
+# (an opening of STRIPE_OPEN px keeps out painted lines that touch it), except
+# in his head (HEAD), where the curls of his hair and beard reach the edge,
+# and along the black strokes that outline his feet (BLACK_BANDS), which are
+# paint, not stripe.
+# Where a window narrows to less than 2 * WINDOW_OPEN px (down along his heel),
+# it is drawn as black paint, a line or a solid shape, not as two outlines
+# with a sliver between.
 STRIPE_L, STRIPE_REACH, STRIPE_OPEN, WINDOW_OPEN = 55, 40, 4, 6
+# Where the stripe is too narrow for that opening, or the photo soft (A sees
+# the right end of the rock at 60 degrees), the edge is drawn in to the
+# midpoint between clay and glaze: paint darker than SOFT_L within SOFT_REACH
+# px of the ground (painted lines that end at the edge lose that much; not
+# along the ground line, where his toes stand on it).
+SOFT_L, SOFT_REACH = 75, 10
+HEAD = [(1800, 470), (1815, 380), (1850, 300), (1930, 240), (2000, 160), (2150, 140), (2330, 190), (2400, 330),
+        (2380, 450), (2300, 520), (2280, 640), (2200, 700), (2070, 700), (2010, 690), (1960, 645), (1920, 595),
+        (1870, 550), (1820, 520)]
 # Damage in the glaze, counted as ground (GLAZE_DAMAGE): a patch abraded
 # against his right arm, where pale clay shows through in flecks (its right
 # side along the arm's own edge, measured on A, 3 px out); and a scratch in
@@ -291,10 +317,16 @@ GLAZE_DAMAGE = [
      (1638, 1110), (1632, 1095)],
 ]
 LEFT_X = 98
-EDGE_R = 4  # the scene's edges are smoothed by an opening and a closing this many px
-# Where the glaze meets the rock's left side it is chipped, and the edge
-# bites in and out by 10-20 px; inside WORN the edge is smoothed harder.
-WORN, WORN_SIGMA = [(560, 1700), (830, 1700), (830, 2000), (560, 2120), (360, 2120), (360, 1960)], 12.0
+# The scene's edges: specks under EDGE_R px are opened and closed away, and
+# each outline (the scene's and each window's) is smoothed along its own
+# length (EDGE_SIGMA px of arc), which evens out the ragged brushwork and the
+# photo's grain without thinning narrow parts, as a blur of the whole area
+# would. Where the glaze meets the rock's left side it is chipped and the
+# edge bites in and out by 10-20 px: inside WORN it is smoothed over
+# WORN_SIGMA px. His head (HEAD) keeps its edge as found (the curls, the
+# profile of his face).
+EDGE_R, EDGE_SIGMA = 4, 9.0
+WORN, WORN_SIGMA = [(560, 1700), (830, 1700), (830, 2000), (560, 2120), (360, 2120), (360, 1960)], 15.0
 
 
 def classes(rgb):
@@ -331,6 +363,30 @@ def ground_line(fr, W):
     return np.interp(np.arange(W), xy[ok, 0], xy[ok, 1])
 
 
+def smooth_outline(mask, keep, worn):
+    """The mask with every outline (outer and holes) smoothed along its own
+    length: EDGE_SIGMA px of arc, WORN_SIGMA inside worn, none inside keep
+    (blended over the same length), and filled again (even-odd)."""
+    from PIL import ImageDraw
+    from skimage import measure
+    out = np.zeros(mask.shape, bool)
+    H, W = mask.shape
+    for c in measure.find_contours(np.pad(mask, 1).astype(np.float32), 0.5):
+        c = c[:-1] - 1.0  # closed: the last point repeats the first
+        if len(c) < 8:
+            continue
+        iy, ix = np.clip(np.round(c[:, 0]).astype(int), 0, H - 1), np.clip(np.round(c[:, 1]).astype(int), 0, W - 1)
+        s1 = ndi.gaussian_filter1d(c, EDGE_SIGMA, axis=0, mode="wrap")
+        s2 = ndi.gaussian_filter1d(c, WORN_SIGMA, axis=0, mode="wrap")
+        ww = ndi.gaussian_filter1d(worn[iy, ix].astype(float), EDGE_SIGMA, mode="wrap")[:, None]
+        wk = ndi.gaussian_filter1d(keep[iy, ix].astype(float), EDGE_SIGMA, mode="wrap")[:, None]
+        sm = (1 - wk) * ((1 - ww) * s1 + ww * s2) + wk * c
+        im = Image.new("1", (W, H), 0)
+        ImageDraw.Draw(im).polygon([(float(x), float(y)) for y, x in sm], fill=1)
+        out ^= np.asarray(im, dtype=bool)  # even-odd: holes inside the outer outline open again
+    return out
+
+
 def scene(rgbA, L, ground_row):
     """The scene's area (him, the rock and the bow case), its windows (the
     black ground seen through it), and the painted black inside it."""
@@ -345,19 +401,32 @@ def scene(rgbA, L, ground_row):
     cut[xy[:, 1], xy[:, 0]] = True
     cut = ndi.binary_dilation(cut, iterations=1)
     ground = ndi.binary_opening(glaze, structure=morphology.disk(2))
+    # the ground takes in the contour stripe along its edge
+    keep_paint = lw.polygon_mask(shape, np.array(HEAD, float))
+    for pts, half in BLACK_BANDS:
+        keep_paint |= ndi.distance_transform_edt(~trace_line(shape, pts)) <= half
+    stripe = (ndi.gaussian_filter(lum(rgbA), 1.0) < STRIPE_L) & ~ground & ~keep_paint
+    stripe &= ndi.distance_transform_edt(~ground) <= STRIPE_REACH
+    stripe = ndi.binary_opening(stripe, structure=morphology.disk(STRIPE_OPEN))
+    # (only the ground round him and the windows: not the specks of glaze in a
+    # wash stroke, which the stripe would swell into black blots)
+    glab, _ = ndi.label(ground)
+    outer = np.unique(np.r_[glab[0], glab[-1], glab[:, 0], glab[:, -1], [glab[y, x] for x, y in WINDOWS]])
+    lab, _ = ndi.label(ground | stripe)
+    ground |= stripe & np.isin(lab, np.unique(lab[np.isin(glab, outer[outer > 0])]))
+    glab, _ = ndi.label(ground)
+    outer = np.unique(np.r_[glab[0], glab[-1], glab[:, 0], glab[:, -1], [glab[y, x] for x, y in WINDOWS]])
+    outer_ground = np.isin(glab, outer[outer > 0])
+    above_line = np.arange(shape[0])[:, None] >= ground_row[None, :] - 2 * SOFT_REACH
+    soft = (ndi.gaussian_filter(lum(rgbA), 1.0) < SOFT_L) & ~ground & ~keep_paint & ~above_line
+    soft &= ndi.distance_transform_edt(~outer_ground) <= SOFT_REACH
+    lab, _ = ndi.label(outer_ground | soft)
+    ground |= soft & np.isin(lab, np.unique(lab[outer_ground]))
     lab, _ = ndi.label(~ground & ~cut)
     area = lab == lab[SEED[1], SEED[0]]
     area = ndi.binary_fill_holes(area | (cut & ndi.binary_dilation(area, iterations=2)))
     glab, _ = ndi.label(ground)
     windows = np.isin(glab, [glab[y, x] for x, y in WINDOWS]) & area
-    # each window takes in its contour stripe
-    stripe = (ndi.gaussian_filter(lum(rgbA), 1.0) < STRIPE_L) & area & ~windows
-    stripe &= ndi.distance_transform_edt(~windows) <= STRIPE_REACH
-    stripe = ndi.binary_opening(stripe, structure=morphology.disk(STRIPE_OPEN))
-    lab, _ = ndi.label(windows | stripe)
-    grown = stripe & np.isin(lab, np.unique(lab[windows]))
-    windows |= grown
-    ground |= grown
     # a window's narrow parts are black paint, not ground
     lab, _ = ndi.label(ndi.binary_opening(windows, structure=morphology.disk(WINDOW_OPEN)))
     keep = [lab[y, x] for x, y in WINDOWS]
@@ -365,9 +434,9 @@ def scene(rgbA, L, ground_row):
     area &= ~windows
     # smooth edges: flecks of clay in the glaze along an edge leave no notches
     area = ndi.binary_closing(ndi.binary_opening(area, structure=morphology.disk(EDGE_R)), structure=morphology.disk(EDGE_R))
-    worn = lw.polygon_mask(shape, np.array(WORN, float))
-    area = np.where(worn, ndi.gaussian_filter(area.astype(np.float32), WORN_SIGMA),
-                    ndi.gaussian_filter(area.astype(np.float32), 2.0)) > 0.5
+    lab, n = ndi.label(area)
+    area = lab == 1 + int(np.argmax(ndi.sum(np.ones(shape), lab, np.arange(1, n + 1))))
+    area = smooth_outline(area, lw.polygon_mask(shape, np.array(HEAD, float)), lw.polygon_mask(shape, np.array(WORN, float)))
     lab, n = ndi.label(area)  # one piece: flecks of clay inside a window are not the scene
     area = lab == 1 + int(np.argmax(ndi.sum(np.ones(shape), lab, np.arange(1, n + 1))))
     # the windows are exactly the holes left in the smoothed area (no sliver
