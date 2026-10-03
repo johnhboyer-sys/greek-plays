@@ -1,23 +1,29 @@
-"""Oedipus at Colonus: blind Oedipus, seated at the altar with his staff, from
-the Apulian red-figure calyx-krater close to the De Schulthess Painter,
-340s BCE, Melbourne, Graham Geddes collection A 5:8: Taplin, Pots & Plays
-(Getty, 2007) no. 27, plate p. 101. The plate is the only photo there is:
-a 942x641 JPEG, page 112 of the Getty PDF, credited there "From Green
-2003, p. 4" (J. R. Green, Ancient Voices, Modern Echoes, Nicholson Museum,
-Sydney, 2003). The drawing traces only the ancient painting, which is public
-domain (John, 2026-10-02); the photo is credited.
+"""Oedipus at Colonus: blind Oedipus at the altar between his daughters,
+Ismene (left) and Antigone (right), from the Apulian red-figure calyx-krater
+close to the De Schulthess Painter, 340s BCE, Melbourne, Graham Geddes
+collection A 5:8: Taplin, Pots & Plays (Getty, 2007) no. 27, plate p. 101.
+The plate is the only photo there is: a 942x641 JPEG, page 112 of the Getty
+PDF, credited there "From Green 2003, p. 4" (J. R. Green, Ancient Voices,
+Modern Echoes, Nicholson Museum, Sydney, 2003). The drawing traces only the
+ancient painting, which is public domain (John, 2026-10-02); the photo is
+credited. John chose the three on the altar (2026-10-02); the columns and
+tripods behind them are left out.
 https://media.getty.edu/Text/6f3674dd-413a-56da-bec2-9da5564907df.pdf
 
     pdfimages -j -f 112 -l 112 6f3674dd-413a-56da-bec2-9da5564907df.pdf plate
 
-Red-figure photo -> drawing, at 4x. Oedipus is about 360 px tall in the
-plate, so the crop is cleaned of JPEG noise and enlarged 4x (Lanczos)
-before anything is traced, as for the Pythia. He is clay on three grounds:
-black glaze, the white altar and the white column. Inside a loose cut
-(OUTLINE) the figure is what is neither glaze nor white; below the altar's
-top the cut runs tight along his legs, so the altar's orange bands stay out.
-His hair and beard are added white, so they are outlined, not filled. The
-staff is added yellow, drawn as a straight rod (STAFF).
+Red-figure photo -> drawing, at 4x. The figures are small (Oedipus is about
+360 px tall in the plate), so the crop is cleaned of JPEG noise and enlarged
+4x (Lanczos) before anything is traced, as for the Pythia. The group is clay
+and added white (the altar, his hair) on black glaze. Inside a loose cut
+(OUTLINE) the ground is the glaze that reaches the cut, with the two white
+columns (COLUMNS) counted as ground; black inside the figures (the
+daughters' hair, the borders of Ismene's mantle) stays, drawn solid. Lines:
+the group's outline; the edges between clay, white and black inside it
+(figures against the altar, the altar's bands, hair, borders); and the
+painted lines on the clay, found by local contrast. His hair and beard are
+outlined, not filled. The staff is added yellow, drawn as a straight rod
+(STAFF). Faces and hands are drawn stroke by stroke on their painted lines.
 
     python3 docs/redesign/drawings/tools/oedipus_colonus.py plate-001.jpg [qa.png]
 """
@@ -35,25 +41,34 @@ import linework as lw  # noqa: E402
 from oedipus_syracuse import centre_lines, drawn, pen  # noqa: E402  (shared helpers; that file is not changed)
 
 OUT = Path(__file__).resolve().parent.parent / "oedipus-coloneus.svg"
-BOX = (395, 205, 560, 590)  # plate crop around him; points below are plate (x, y)
+BOX = (196, 150, 734, 584)  # plate crop around the group; points below are plate (x, y)
 F = 4                       # enlargement
-BLACK_L, WHITE_B = 60, 110  # glaze is darker than BLACK_L; the white altar and column bluer than WHITE_B
+BLACK_L, WHITE_B = 60, 110  # glaze is darker than BLACK_L; the added white bluer than WHITE_B
 
-# The cut, clockwise from the back of his head. Loose through the glaze and
-# over the column (both drop out by colour); tight below the altar's top,
-# along the hem of his cloak, the chiton over his knee and shin, the staff,
-# his feet and the chiton's left edge, crossing the altar's bands at his edge.
-OUTLINE = [(426, 228), (440, 216), (452, 213), (466, 212), (480, 215), (491, 222), (499, 234), (502, 240),
-           (510, 236), (520, 238), (528, 246), (534, 258), (540, 270), (552, 300), (552, 345), (545, 362),
-           (538, 375), (536, 400), (538, 408), (541.5, 414), (542, 418.5), (537, 422), (529.5, 423.5),
-           (529, 430), (532.5, 437), (535.5, 446), (536.5, 457), (535, 468), (531, 478), (526.5, 487),
-           (522, 496), (523, 503), (523.3, 552), (522, 554.5), (516, 554.5), (515.5, 506), (513.5, 511),
-           (510.5, 520), (508, 530), (505.5, 539), (505, 547), (509, 553), (513.5, 560), (516.5, 568),
-           (515.5, 573.5), (509, 573.5), (502, 569), (496, 565), (488, 564), (474, 562), (458, 560),
-           (444, 557), (435, 556), (428, 552), (427.5, 545), (432, 542), (437.5, 537), (443.5, 526),
-           (449.5, 511), (455.5, 494), (461.5, 476), (465.5, 460), (467.5, 450), (468.5, 444), (464, 439),
-           (454, 429), (446, 421), (439, 414.5), (428, 410), (420, 400), (417, 380), (415, 362), (409, 346),
-           (403, 326), (402, 300), (402, 285), (401, 272), (409, 258), (417, 244)]
+# The cut, clockwise from the foot of the altar's left end. Loose through the
+# glaze (it drops out by colour) round Ismene, her two head ribbons, the three
+# heads and Antigone's veil; tight where something else is clay or white:
+# Polynices' cloak against Antigone's hem and the altar's corner (x 705), the
+# white dots of the platter beside the altar's left end (x 231), and the
+# orange ground line under the altar's foot (measured column by column).
+OUTLINE = [(202.5, 568.5), (202, 560), (203, 549), (204.5, 547), (226.5, 545), (226.5, 541), (229.5, 530),
+           (231.5, 520), (233, 510), (234.5, 500), (235.5, 485), (235.5, 470), (234.5, 455), (233, 449),
+           (228, 422), (221, 411.5), (219, 405), (221, 390), (223, 370), (225, 340), (228, 315), (233, 295),
+           (238, 280), (241, 262), (242, 245), (246, 228), (254, 205), (257, 175), (262, 159), (281, 156),
+           (299, 159), (304, 172), (303, 190), (330, 194), (370, 194), (400, 198), (430, 205), (452, 205),
+           (470, 204), (490, 209), (500, 222), (506, 230), (520, 230), (530, 210), (540, 200), (565, 200),
+           (585, 203), (600, 202), (616, 204), (630, 211), (640, 228), (646, 250), (651, 280), (657, 315),
+           (666, 345), (676, 365), (689, 380), (700, 389), (704.5, 395), (705.5, 400), (705.5, 410),
+           (705, 420), (705, 432), (709, 440), (710, 470), (710, 500), (709, 530), (709, 539), (712, 541),
+           (726, 541.5), (728, 545), (728.5, 560), (727.5, 571.5), (724, 571.8), (700, 572.1), (680, 572.1),
+           (660, 575.1), (640, 577.1), (600, 577.1), (560, 578.1), (520, 577.1), (480, 577.1), (440, 578.1),
+           (400, 578.7), (364, 578.1), (344, 578.7), (324, 577.1), (304, 575.7), (284, 573.1), (264, 570.1),
+           (244, 568.1), (224, 567.1), (206, 569)]
+# The columns behind the group, from the cut down to the altar's top (y 414)
+# or, on the left, to the border of Ismene's mantle: their white is ground.
+COLUMNS = [[(325, 188), (361, 188), (361, 296), (355.5, 313), (350, 319), (342, 320.5), (334, 319), (329.5, 313),
+            (326, 300)],
+           [(526, 188), (567, 188), (567, 414), (526, 414)]]
 # The staff: a straight rod on the line of the painted yellow (measured at y
 # 290 and 520), from below his cloaked hand at the top to the altar's foot;
 # his other hand covers it between HAND_TOP and HAND_FOOT.
@@ -107,7 +122,8 @@ HAND = [(509, 334), (514, 329), (522, 321), (530, 313), (536, 306), (540, 304.5)
 HAND_COVER = [(511.8, 334.5), (514.5, 331.8), (518.5, 327.8), (522.5, 323.8), (526.5, 320.0), (530.0, 317.0),
               (533.0, 324.0), (531.0, 335.0), (528.6, 338.8), (526.2, 341.6), (522.5, 344.6), (518.5, 347.4),
               (514.5, 350.2), (511.8, 351.8)]
-LINE_W = 3  # working px, the width of strokes drawn by hand
+LINE_W = 5  # working px: strokes drawn by hand, as wide as the painted lines found (their median)
+FINE_W = 3  # faces and fingers, whose marks lie closer together
 CURL_B, CURL_MIN = 115, 16  # curls: the brightest strokes of the white (bluer than CURL_B), at least CURL_MIN px long
 # A thin grey line across the black ground between his beard and his raised
 # hand, probably a scratch: left out with the ground.
@@ -194,56 +210,77 @@ def main(src: str) -> None:
     R, G, B = a[..., 0], a[..., 1], a[..., 2]
     L = 0.2126 * R + 0.7152 * G + 0.0722 * B
     shape = L.shape
-    inside = poly(shape, OUTLINE) & ~poly(shape, SCRATCH)
-    black, white = L < BLACK_L, B > WHITE_B
+    inside = poly(shape, OUTLINE)
+    black = ndi.gaussian_filter(L, 1.0) < BLACK_L
+    white = ndi.gaussian_filter(B, 1.0) > WHITE_B
+    columns = poly(shape, COLUMNS[0]) | poly(shape, COLUMNS[1])
     staff, _, _ = rod(shape, STAFF, STAFF_W)
 
-    # hair and beard: the yellower white inside HEAD_ZONE, as one smooth mass
-    head_zone = poly(shape, HEAD_ZONE)
-    ratio = ndi.gaussian_filter(G, 1.5) / np.maximum(ndi.gaussian_filter(R, 1.5), 1)
-    hair = (ratio > HAIR_GR) & (ndi.gaussian_filter(L, 1.0) >= BLACK_L) & head_zone
-    hair = ndi.binary_closing(ndi.binary_opening(hair, structure=morphology.disk(2)), structure=morphology.disk(4))
-    hair = morphology.remove_small_holes(morphology.remove_small_objects(hair, max_size=300), max_size=150)
-    hair = ndi.gaussian_filter(hair.astype(float), 2.0) > 0.5
-    face = poly(shape, FACE)
-    hair &= ~face
-
-    # the figure: clay inside the cut, his hair, and the staff
-    clay = inside & ~black & ~white
-    sil = ndi.binary_opening(clay, structure=morphology.disk(2)) | hair | staff
-    sil = ndi.binary_fill_holes(morphology.remove_small_objects(sil, max_size=2000))
+    # the ground: glaze, the columns' white and the scratch, wherever they
+    # reach the cut; everything else inside the cut is the group
+    orange = (ndi.gaussian_filter(G, 1.0) < 0.75 * ndi.gaussian_filter(R, 1.0)) & ~black & ~white
+    bg = inside & (black | (columns & ~orange) | poly(shape, SCRATCH))
+    lab, _ = ndi.label(bg)
+    rim = inside & ~ndi.binary_erosion(inside, iterations=2)
+    reach = np.unique(lab[rim & bg])
+    ground = np.isin(lab, reach[reach > 0])
+    sil = ndi.binary_opening(inside & ~ground, structure=morphology.disk(2)) | staff
+    sil = ndi.binary_fill_holes(morphology.remove_small_objects(sil, max_size=4000))
     sil = ndi.gaussian_filter(sil.astype(float), 1.0) > 0.5
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(2))
 
-    # painted lines inside him, by local contrast; the head, the hand and the
-    # staff are drawn below instead
-    hand_zone = poly(shape, HAND)
-    lines = lw.ink_lines(L, size=15, low=10, high=24, sigma=1.0)
-    lines &= ndi.binary_erosion(sil, structure=morphology.disk(3))
-    lines &= ~(head_zone | hand_zone | ndi.binary_dilation(staff, iterations=2))
-    lines = morphology.remove_small_objects(lines, max_size=40)
-    lines = pen(lines, LINE_W)  # the enlarged photo blurs them: redrawn even, along their centres
+    # Oedipus' hair and beard: the yellower white inside HEAD_ZONE, one smooth mass
+    head_zone = poly(shape, HEAD_ZONE)
+    ratio = ndi.gaussian_filter(G, 1.5) / np.maximum(ndi.gaussian_filter(R, 1.5), 1)
+    hair = (ratio > HAIR_GR) & ~black & head_zone
+    hair = ndi.binary_closing(ndi.binary_opening(hair, structure=morphology.disk(2)), structure=morphology.disk(4))
+    hair = morphology.remove_small_holes(morphology.remove_small_objects(hair, max_size=300), max_size=150)
+    hair = (ndi.gaussian_filter(hair.astype(float), 2.0) > 0.5) & ~poly(shape, FACE)
 
-    # the head: the mass outlined, curls as centre lines of the brightest
-    # strokes, the face by hand
+    # inside the group: clay, white and black. Black (hair, borders) is drawn
+    # solid; where white meets a broad area of clay (a figure on the altar) the
+    # edge is drawn; thin clay on the white (the altar's bands) is a painted
+    # line, found below with the rest
+    hand_zone = poly(shape, HAND)
+    drawn_zone = head_zone | hand_zone
+    solid = ndi.binary_opening(black & ndi.binary_erosion(sil, structure=morphology.disk(5)), structure=morphology.disk(2))
+    solid = morphology.remove_small_objects(solid & ~drawn_zone, max_size=60)
+    clay = sil & ~white & ~black
+    broad = ndi.binary_opening(clay, structure=morphology.disk(6))
+    whites = ndi.binary_opening(white & sil, structure=morphology.disk(1))
+    meet = whites & ndi.binary_dilation(broad, iterations=2) | broad & ndi.binary_dilation(whites, iterations=2)
+    meet &= ~drawn_zone & ~ndi.binary_dilation(staff, iterations=2)
+    meet = pen(meet, LINE_W)
+
+    # painted lines, dots and bands by local contrast, kept as the painter made
+    # them (a bead stays a dot); thinned by the blur the enlargement adds, with
+    # their centre lines kept so faint stretches stay joined. The head, the hand
+    # and the staff are drawn below
+    lines = lw.ink_lines(L, size=15, low=10, high=22, sigma=1.0)
+    lines = ndi.binary_erosion(lines) | morphology.skeletonize(lines)
+    lines &= ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~ndi.binary_dilation(solid, iterations=2)
+    lines &= ~(drawn_zone | ndi.binary_dilation(staff, iterations=2))
+    lines = morphology.remove_small_objects(lines, max_size=30)
+
+    # the head: the mass outlined, curls as single strokes along the brightest white
     hair_edge = hair & ~ndi.binary_erosion(hair, structure=morphology.disk(2))
     core = (ndi.gaussian_filter(B, 1.0) > CURL_B) & ndi.binary_erosion(hair, iterations=2)
     curls = drawn(shape, curl_strokes(core, CURL_MIN), LINE_W)
 
     # the hand: only its strokes; the clay under them fills the closed fingers
-    hand = drawn(shape, [P(s_) for s_ in HAND_LINES], LINE_W)
+    hand = drawn(shape, [P(s_) for s_ in HAND_LINES], FINE_W)
     edge &= ~hand_zone
     sil = (sil & ~hand_zone) | (ndi.binary_fill_holes(hand | (sil & ~hand_zone)) & hand_zone)
 
-    lines |= edge | hair_edge | curls | hand
-    lines |= drawn(shape, [P(s_) for s_ in FACE_LINES], LINE_W)
+    lines |= edge | solid | meet | hair_edge | curls | hand
+    lines |= drawn(shape, [P(s_) for s_ in FACE_LINES], FINE_W)
     lines |= staff_lines(shape)
 
     if "--masks" in sys.argv:  # diagnostic: the masks over the photo
         g = L * 0.55
         rgb = np.stack([g, g, g], -1)
         rgb[sil] = rgb[sil] * 0.5 + np.array([255, 60, 60]) * 0.5
-        rgb[staff] = rgb[staff] * 0.4 + np.array([60, 255, 60]) * 0.6
+        rgb[solid] = (40, 40, 255)
         rim = inside & ~ndi.binary_erosion(inside, iterations=2)
         rgb[rim] = (255, 255, 0)
         Image.fromarray(rgb.astype(np.uint8)).save(sys.argv[2])
@@ -251,11 +288,11 @@ def main(src: str) -> None:
 
     info = lw.trace_svg(
         lines, OUT, body=sil,
-        title="Oedipus, old and blind, seated, wrapped in his cloak, holding a staff, one hand raised",
+        title="Blind Oedipus seated at an altar between his daughters, Ismene and Antigone",
         desc="Line drawing after the Apulian red-figure calyx-krater close to the De Schulthess Painter, "
              "340s BCE, Melbourne, Geddes collection A 5:8, read as a scene from Sophocles' Oedipus at "
              "Colonus (Taplin, Pots & Plays no. 27); traced from the plate in Pots & Plays: cut out, "
-             "redrawn as line.")
+             "columns left out, redrawn as line.")
     print(OUT, info)
     if len(sys.argv) > 2:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(L, OUT, info["box"], Path(sys.argv[2]))
