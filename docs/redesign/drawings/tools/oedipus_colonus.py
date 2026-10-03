@@ -860,7 +860,7 @@ def main(plate_src: str, page_srcs: list) -> None:
         lines, OUT, body=sil,
         title="Blind Oedipus seated at an altar between his daughters, Ismene and Antigone",
         desc="Line drawing after the Apulian red-figure calyx-krater close to the De Schulthess Painter, "
-             "340s BCE, Melbourne, Geddes collection A 5:8, read as a scene from Sophocles' Oedipus at "
+             "340s BCE, formerly Melbourne, Geddes collection A 5:8, read as a scene from Sophocles' Oedipus at "
              "Colonus (Taplin, Pots & Plays no. 27); traced from the photographs in J. R. Green, Ancient "
              "Voices, Modern Echoes (2003): cut out, columns left out, redrawn as line.")
     print(OUT, info)
