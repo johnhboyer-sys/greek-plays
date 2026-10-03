@@ -111,7 +111,7 @@
       "work_id": "antigone",
       "title": "Antigone",
       "proposed_subject": "Antigone with her hands bound, brought before Creon (John, 2026-10-02)",
-      "status": "Drawn 2026-10-02 (second session): for review",
+      "status": "Drawn 2026-10-02/03 (second session), redrawn from John's traces: for review",
       "source_candidate": "https://commons.wikimedia.org/wiki/File:Darius_Painter_-_RVAp_18-23_-_Antigone_-_judgement_of_Paris_-_Eros_with_youths_and_women_-_Berlin_AS_F_3240_-_04.jpg",
       "final_image": "docs/redesign/drawings/antigone.svg",
       "credit": "After the Apulian red-figure amphora of Panathenaic shape by the Darius Painter, c. 350-320 BCE, from Ceglie del Campo, Berlin, Antikensammlung F 3240 (RVAp 18/23), body A, upper frieze: Antigone with her hands bound, led by a guard, before Heracles and Creon. Photograph: ArchaiOptix (Commons file _04; files _05 and _06 used only to fit the vase's shape). Drawing traced from the photograph and changed.",
@@ -120,8 +120,8 @@
       "alt_text": "Antigone, veiled, her hands bound behind her back, her head bowed",
       "source_file": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Darius_Painter_-_RVAp_18-23_-_Antigone_-_judgement_of_Paris_-_Eros_with_youths_and_women_-_Berlin_AS_F_3240_-_04.jpg",
       "shows": "The play itself: Antigone brought before Creon after burying Polynices (Antigone 384 ff.), as the vase is usually read. Some scholars connect the vase with a lost Euripidean Antigone, in which Heracles intercedes for her; John ruled (2026-10-02) that the image goes to Sophocles' Antigone whatever play the vase was painted for.",
-      "method": "The vase's profile and the cameras of photos 04, 05 and 06 fitted together (tools/vase_unroll.py: the animal frieze's upper border in three photos, 06's outline, points matched between the photos; focal lengths from EXIF), the vase flattened without shear, and photo 04 laid onto it: her feet and lower skirt come out up to 13% taller than in the photo. Clay found by colour; painted lines by local contrast, redrawn as even lines at the house weight; in her head and hands the lines are the paint itself thinned to its centres (the contrast finder joined the crowded, highlighted lines into ladders there); her face and ear drawn as hand-placed strokes on the painted lines; the mends erased and their folds joined. tools/antigone.py.",
-      "result": "For review. Open: her fingers are found lines, readable but not each a clean closed outline (John was asked whether he wants to trace them, as he did across the arm mend); a small dark spot on her upper arm is drawn as painted."
+      "method": "The vase's profile and the cameras of photos 04, 05 and 06 fitted together (tools/vase_unroll.py: the animal frieze's upper border in three photos, 06's outline, points matched between the photos; focal lengths from EXIF), the vase flattened without shear, and photo 04 laid onto it: her feet and lower skirt come out up to 13% taller than in the photo. Clay found by colour; painted lines by local contrast, redrawn as even lines at the house weight; in her head the lines are the paint itself thinned to its centres. Her hands and face from John's own traces (the hands once, the face three times, each closer), registered onto the frame by SIFT to within half a pixel; where his outline encloses paint, the paint is drawn filled; her eye is the paint itself, its strokes too close for outlines. The mends erased and their folds joined (the arm's from John's trace). tools/antigone.py.",
+      "result": "For review. John on the second pass: 'The clothes are good. But hands need more work as do the face'; he then traced the hands and the face himself, and the drawing follows his traces. The reddish streak across her cheek, which he marked, is not drawn ('the orange strokes don't translate to two tone')."
     },
     {
       "author": "sophocles",
