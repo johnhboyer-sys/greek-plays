@@ -1,6 +1,6 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
-## Status, 2026-10-03 18:30: Ismene's folds from a found photo; review running
+## Status, 2026-10-03 18:45: Ismene's folds from a found photo; Codex review done
 
 - John found a clean photo of the scene online (547x560; probably from a
   Facebook post, source unknown; "don't worry about the credit"). Kept as
@@ -15,9 +15,11 @@
 - Quick runs: `run_cached.py` now reads two cached frames,
   scratchpad `hathi/a_green.npy` (base) and `hathi/a_lines.npy` (lines);
   `.remember/colonus/scripts/build_frames.py` rebuilds both (4 min).
-- Codex review (GPT-6-Sol, medium) dispatched 18:28 with
-  `.remember/colonus/codex_review_brief.md`; images in
-  `.remember/colonus/review/`.
+- Codex review (GPT-6-Sol, medium; brief `.remember/colonus/codex_review_brief.md`)
+  done 18:32: a veil-corner loop, an altar speck, Ismene's broken borders,
+  and one records mismatch, all fixed (bfe0b71); its question whether
+  Oedipus' raised fingers read as one mass at display size is John's.
+  Left: John's verdict (Ismene's new folds, Oedipus, the hand question).
 
 ## Earlier status, 2026-10-03 17:40: paused
 
