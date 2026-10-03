@@ -49,7 +49,7 @@ Photo -> drawing:
     broad dark strokes outlining his feet (BLACK_AREAS, BLACK_BANDS).
   - Damage: a scratch and an abraded patch in the glaze by his right arm, and
     chips where the glaze meets the rock's left side, are left out of his
-    outline (ABRASION, WORN).
+    outline (GLAZE_DAMAGE, WORN).
 
     python3 docs/redesign/drawings/tools/philoctetes.py C.jpg A.jpg B.jpg [qa.png]
     python3 docs/redesign/drawings/tools/philoctetes.py C.jpg A.jpg B.jpg --refit
@@ -266,12 +266,18 @@ TREE_CUT = [(975, 1318), lw.STRAIGHT, (1003, 1312), lw.STRAIGHT, (1050, 1301), l
 # rock's left end meets the ground line. These stay open; every other black
 # area inside the scene is paint (the top of his head, the bow case's black).
 WINDOWS = [(1635, 1256), (2213, 1024), (2550, 1431), (2699, 1675), (2490, 1804), (2857, 1902), (147, 2399)]
-# The glaze is abraded in a patch against his right arm, where pale clay
-# shows through in flecks; inside ABRASION (its right side along the arm's
-# own edge, measured on A, 3 px out) it counts as ground. Left of LEFT_X, past
-# the rock's left end, A sees the vase edge-on and blurred; that is ground too.
-ABRASION = [(1380, 820), (1535, 820), (1523, 840), (1528, 860), (1529, 880), (1529, 900), (1522, 920), (1500, 940),
-            (1475, 960), (1461, 980), (1447, 1000), (1430, 1020), (1424, 1040), (1380, 1040)]
+# Damage in the glaze, counted as ground (GLAZE_DAMAGE): a patch abraded
+# against his right arm, where pale clay shows through in flecks (its right
+# side along the arm's own edge, measured on A, 3 px out); and a scratch in
+# the black between his arm and his body, whose brownish halo in A would
+# join the arm. Left of LEFT_X, past the rock's left end, A sees the vase
+# edge-on and blurred; that is ground too.
+GLAZE_DAMAGE = [
+    [(1380, 820), (1535, 820), (1523, 840), (1528, 860), (1529, 880), (1529, 900), (1522, 920), (1500, 940),
+     (1475, 960), (1461, 980), (1447, 1000), (1430, 1020), (1424, 1040), (1380, 1040)],
+    [(1632, 1070), (1650, 1062), (1675, 1075), (1700, 1092), (1722, 1112), (1722, 1145), (1690, 1150), (1660, 1130),
+     (1638, 1110), (1632, 1095)],
+]
 LEFT_X = 98
 EDGE_R = 4  # the scene's edges are smoothed by an opening and a closing this many px
 # Where the glaze meets the rock's left side it is chipped, and the edge
@@ -319,7 +325,8 @@ def scene(rgbA, L, ground_row):
     glaze, _ = classes(rgbA)
     shape = glaze.shape
     glaze |= np.arange(shape[0])[:, None] >= ground_row[None, :]  # below the ground line
-    glaze |= lw.polygon_mask(shape, np.array(ABRASION, float))
+    for p in GLAZE_DAMAGE:
+        glaze |= lw.polygon_mask(shape, np.array(p, float))
     glaze[:, :LEFT_X] = True
     cut = np.zeros(shape, bool)
     xy = cut_path(L, TREE_CUT).astype(int)
