@@ -115,7 +115,12 @@ FACE_LINES = [
     [(464.6, 261.6), (464.5, 264.0), (464.5, 267.0), (464.6, 269.5), (464.6, 271.2)],  # nose, near side
     [(468.6, 271.2), (468.9, 269.6), (469.6, 267.6), (470.6, 266.5), (471.8, 266.9), (472.6, 267.6)],
     # the tip of the nose, and the far nostril
+    [(465.7, 273.3), (465.8, 275.3)],  # the parting of the moustache, between the nose and the mouth
 ]
+# His mouth, under the moustache (John, 2026-10-03: "the mouth and beard need
+# more detail"): both photos show this dark line at y 277. Drawn at full line
+# weight, with no curl stroke touching it.
+MOUTH = [(459.8, 277.2), (462.0, 277.3), (464.0, 277.0), (466.3, 276.4), (467.2, 276.0)]
 # His right hand, across the staff and over the column: index and middle
 # fingers raised, thumb out below them. Drawn stroke by stroke on its painted
 # lines (measured by local contrast), each finger a closed outline; inside
@@ -159,10 +164,7 @@ JOHN_ANTIGONE = [
     [(587.2, 244.6), (585.7, 244.6), (584.1, 244.7), (583.4, 244.9)],  # left brow
     [(593.8, 245.4), (595.2, 245.3), (596.5, 245.3), (597.9, 245.4), (598.5, 245.6)],  # right brow
     [(590.1, 247), (589.8, 248.3), (589.5, 249.6), (589.2, 251), (589, 252.5), (588.8, 254.1), (588.7, 255.6), (588.8, 257), (589.3, 258.1), (590.4, 258.6), (592.1, 258.5)],  # nose, and its base
-    [(597.1, 249.5), (598.3, 248.9)],  # right eye, lid
-    [(595.6, 249.1), (597, 249.4)],  # right eye, lid
     [(592, 255.5), (592.3, 257), (592.8, 257.6)],  # nostril
-    [(589.8, 263.3), (591.1, 263.5), (592.6, 263.5), (594.1, 263.5), (595.7, 263.5), (597.1, 263.7)],  # mouth
     [(600.6, 270.2), (599.3, 270.2), (597.8, 270.3), (596.3, 270.5), (594.8, 270.5), (593.3, 270.4), (592, 270.1), (590.8, 269.6), (589.7, 268.8), (588.9, 267.7), (588.2, 266.4), (587.6, 265)],  # chin
 ]
 JOHN_ISMENE = [
@@ -188,7 +190,21 @@ JOHN_ISMENE = [
     [(276.8, 295.8), (276.9, 294.3), (276.7, 292.9), (276.4, 291.4), (276.2, 290), (276.1, 288.5), (276.4, 287), (276.8, 286.3)],
     [(276.8, 286.4), (277.7, 286.8)],
 ]
-JOHN_EYES = [(584.2, 250.3, 0.8), (597.1, 249.5, 1.1)]  # Antigone's eyes: solid dots, (x, y, radius) in plate px
+# Antigone's eyes and mouth, redrawn after John's review of his trace
+# (2026-10-03: "her eyes need adjusted", "I think she's smiling"), each placed
+# on the marks the plate and the LIMC photo share: both eyes almonds with
+# solid pupils (the near one a dark oval in both photos, the far one at the
+# cheek's edge), and the mouth a short line whose ends rise a little.
+ANTIGONE_FEATURES = [
+    [(594.2, 248.9), (595.6, 248.1), (597.3, 247.7), (599.0, 247.9), (600.5, 248.6)],  # near eye, upper lid
+    [(594.6, 249.3), (595.9, 250.3), (597.4, 250.8), (598.9, 250.4), (600.1, 249.2)],  # lower lid
+    [(583.6, 249.5), (584.5, 248.8), (585.4, 248.6), (586.3, 248.9), (586.9, 249.5)],
+    # far eye: its upper lid only (with the lower lid too, an eye this small fills solid)
+    [(589.9, 262.3), (591.6, 263.1), (593.5, 263.4), (595.4, 263.1), (597.1, 262.2)],  # mouth, smiling
+]
+JOHN_EYES = [(585.3, 249.9, 0.75), (597.4, 249.3, 1.05)]  # Antigone's pupils: solid dots, (x, y, radius) in plate px
+# (the far eye sits about 1 px in from where the paint puts it, off her dark
+# hair, which would otherwise swallow it)
 FACE_SEEDS = [(596, 252), (596, 277), (289, 251)]  # Antigone's face and neck; Ismene's face and neck
 # Ismene's face marks, which his trace leaves to the painting: each stroke on
 # a painted mark measured by local contrast.
@@ -247,7 +263,11 @@ HAIRS = [ISMENE_HAIR, ANTIGONE_HAIR]
 HAIR_DARK_L, GROUND_L = (100, 115), 40  # hair darker than HAIR_DARK_L (Ismene's, Antigone's) is solid
 LINE_W = 5  # working px: strokes drawn by hand, as wide as the painted lines found (their median)
 FINE_W = 3  # faces and fingers, whose marks lie closer together
-CURL_B, CURL_MIN = 115, 16  # curls: the brightest strokes of the white (bluer than CURL_B), at least CURL_MIN px long
+# Curls of his hair and beard: strokes of the white brighter than their
+# surroundings by CURL_LOC (blue channel), each drawn as one stroke at least
+# CURL_MIN px long. A fixed threshold found too few in the beard, whose white
+# is dimmer (John, 2026-10-03: the beard needs more detail).
+CURL_LOC, CURL_MIN = 7, 12
 RIDGE_T, RIDGE_MIN = (3.0, 6.0), 24  # faint folds: Sato ridge hysteresis thresholds, and least length in px
 # A thin grey line across the black ground between his beard and his raised
 # hand, probably a scratch: left out with the ground.
@@ -462,8 +482,14 @@ def main(src: str) -> None:
     # the head: the mass outlined, curls as single strokes along the brightest white
     hair_edge = hair & ~ndi.binary_erosion(hair, structure=morphology.disk(2))
     hair_edge &= ndi.binary_erosion(sil, structure=morphology.disk(5))  # its outer edge is the outline
-    core = (ndi.gaussian_filter(B, 1.0) > CURL_B) & ndi.binary_erosion(hair, iterations=2)
-    curls = drawn(shape, curl_strokes(core, CURL_MIN), LINE_W)
+    gB = ndi.gaussian_filter(B, 1.2)
+    core = (gB - ndi.gaussian_filter(gB, 6) > CURL_LOC) & ndi.binary_erosion(hair, iterations=2) & (gB > 70)
+    core = ndi.binary_opening(core, structure=morphology.disk(1))
+    curls = drawn(shape, curl_strokes(core, CURL_MIN), FINE_W)
+    mouth = drawn(shape, [P(MOUTH)], LINE_W)
+    lab, n = ndi.label(curls)
+    near_mouth = np.unique(lab[ndi.binary_dilation(mouth, iterations=2) & curls])
+    curls &= ~np.isin(lab, near_mouth[near_mouth > 0])
 
     # the hand: only its strokes; the clay under them fills the closed fingers
     hand = drawn(shape, [P(s_) for s_ in HAND_LINES], FINE_W)
@@ -482,7 +508,7 @@ def main(src: str) -> None:
     bun = lw.ink_lines(L, size=15, low=10, high=22, sigma=1.0) & hair_zones & ~dark_hair & ~face_zones
     bun = morphology.remove_small_objects(ndi.binary_erosion(bun) | morphology.skeletonize(bun), max_size=30)
 
-    marks = drawn(shape, [P(s_) for s_ in FACE_MARKS + ANTIGONE_HAND_LINES], FINE_W)
+    marks = drawn(shape, [P(s_) for s_ in FACE_MARKS + ANTIGONE_FEATURES + ANTIGONE_HAND_LINES], FINE_W)
     Y, X = np.ogrid[0:shape[0], 0:shape[1]]
     for x, y, r in [(x, y, 0.8) for x, y in PUPILS] + JOHN_EYES:
         (px, py), = P([(x, y)])
@@ -492,7 +518,7 @@ def main(src: str) -> None:
     marks |= john & ~ndi.binary_dilation(edge, iterations=JOHN_NEAR)
     lines &= ~ndi.binary_dilation(john, iterations=JOHN_NEAR)
 
-    lines |= edge | solid | meet | hair_edge | curls | hand | dark_hair | bun | marks
+    lines |= edge | solid | meet | hair_edge | curls | mouth | hand | dark_hair | bun | marks
     lines |= centre_strokes(gL, ends & ndi.binary_erosion(sil, structure=morphology.disk(3)), LINE_W)
     lines |= drawn(shape, [P(s_) for s_ in FACE_LINES], FINE_W)
     lines |= staff_lines(shape)
