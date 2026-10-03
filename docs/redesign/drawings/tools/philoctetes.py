@@ -31,8 +31,9 @@ Photo -> drawing:
     his right hand by about 20% and his raised leg and feet up to 1.8x.
   - C is the sharpest photo in the middle of the scene; A is sharper toward
     the sides (C is out of focus there and does not reach the rock's left
-    end). Each part is taken from the sharper photo (SEAMS), and the two
-    agree on the flat to about a pixel.
+    end). Each part is taken from the sharper photo (SEAMS). On the flat the
+    two agree to 1-2 px in the middle; toward the rock's left end C drifts
+    off A, 3-5 px across the seam and 6-7 px past it.
   - The scene is him, the rock he sits on and his bow case: one clay area.
     The tree is cut off where its trunk meets the rock (TREE_CUT, along the
     rock's own top line and the top of his hand). The black ground seen
@@ -160,7 +161,7 @@ def fit_model(photos: dict) -> None:
     views = {"C": dict(size=rgb["C"].shape[1::-1], f=FC, crop=True, sil=[],
                        band=band_top(rgb["C"], FIT_BAND["C"], FIT_SPAN["C"]))}
     for n in "AB":
-        img = rgb[n][:-2, :-2]  # B's last row and column are a dark border
+        img = rgb[n][:-2, :-2]  # the photos' last rows and columns are a border (B's dark, A's light)
         s = vu.silhouette(img, *FIT_ROWS[n], step=8)
         views[n] = dict(size=rgb[n].shape[1::-1], band=band_top(rgb[n], FIT_BAND[n], FIT_SPAN[n]),
                         sil=[(side, r[1 + side], r[0]) for r in s for side in (0, 1) if np.isfinite(r[1 + side])])
@@ -396,7 +397,8 @@ def smooth_outline(mask, keep, worn):
 
 def scene(rgbA, L, ground_row):
     """The scene's area (him, the rock and the bow case), its windows (the
-    black ground seen through it), and the painted black inside it."""
+    black ground seen through it), and the painted black inside it. The tree
+    cut follows L, the luminance the lines are found on."""
     glaze, _ = classes(rgbA)
     shape = glaze.shape
     glaze |= np.arange(shape[0])[:, None] >= ground_row[None, :]  # below the ground line
@@ -424,8 +426,8 @@ def scene(rgbA, L, ground_row):
     glab, _ = ndi.label(ground)
     outer = np.unique(np.r_[glab[0], glab[-1], glab[:, 0], glab[:, -1], [glab[y, x] for x, y in WINDOWS]])
     outer_ground = np.isin(glab, outer[outer > 0])
-    above_line = np.arange(shape[0])[:, None] >= ground_row[None, :] - 2 * SOFT_REACH
-    soft = (ndi.gaussian_filter(lum(rgbA), 1.0) < SOFT_L) & ~ground & ~keep_paint & ~above_line
+    near_ground = np.arange(shape[0])[:, None] >= ground_row[None, :] - 2 * SOFT_REACH
+    soft = (ndi.gaussian_filter(lum(rgbA), 1.0) < SOFT_L) & ~ground & ~keep_paint & ~near_ground
     soft &= ndi.distance_transform_edt(~outer_ground) <= SOFT_REACH
     lab, _ = ndi.label(outer_ground | soft)
     ground |= soft & np.isin(lab, np.unique(lab[outer_ground]))
@@ -564,16 +566,16 @@ DASH_GAP, DASH_TURN, DASH_BEND = 80, 12.0, 18.0
 # their centres, and the marks he filled in, registered onto this frame by
 # SIFT). The head (2026-10-03): inside the region his outline encloses, and
 # within a few px of his marks (the zone), his trace replaces the found
-# drawing. His strokes are drawn at TRACE_PEN px (about 1.2% of the head's
-# height, as on the faces John approved), his filled marks solid. Black glaze
-# inside his outline (the top of the head; the brushy brown patches of
-# thinner glaze inside it, holes up to TRACE_HOLE_MAX px, filled) is drawn
-# solid where it spreads over TRACE_BLACK_MIN px; his strokes lying inside
-# it are drawn light (the fillet he outlined round the head). The figure's
-# area follows his outline: inside it is the head; within TRACE_NEAR px
-# outside it only clean clay stays (the reserved rim round the top of the
-# head); and where his line runs within TRACE_EDGE px of the area's edge,
-# his line stands for the outline.
+# drawing. His strokes are drawn at TRACE_PEN px, the width of his own (6-9
+# px on the crop he traced, at twice this scale), his filled marks solid.
+# Black glaze inside his outline (the top of the head; the brushy brown
+# patches of thinner glaze inside it, holes up to TRACE_HOLE_MAX px, filled)
+# is drawn solid where it spreads over TRACE_BLACK_MIN px; his strokes lying
+# inside it are drawn light (the fillet he outlined round the head). The
+# figure's area follows his outline: inside it is the head; within
+# TRACE_NEAR px outside it only clean clay stays (the reserved rim round the
+# top of the head); and where his line runs within TRACE_EDGE px of the
+# area's edge, his line stands for the outline.
 TRACES = {k: v for k, v in json.loads((Path(__file__).parent / "philoctetes_traces.json").read_text()).items()
           if k != "note"}
 TRACE_PEN, TRACE_NEAR, TRACE_EDGE, TRACE_BLACK_MIN, TRACE_HOLE_MAX = 4.0, 20, 6, 3000, 4000
@@ -865,8 +867,10 @@ def main(pC: str, pA: str, pB: str) -> None:
             Image.fromarray(flat_image(p, name, R, fr).clip(0, 255).astype(np.uint8)).save(f"{stem}_{name}.png")
         return
     rgbC, rgbA = flat_image(pC, "C", R, fr), flat_image(pA, "A", R, fr)
+    wC = seam_weight(rgbC)[..., None]
+    L = lum(wC * rgbC + (1 - wC) * rgbA)  # each part from its sharper photo, as the lines are found
     if "--masks" in sys.argv:  # diagnostic: the scene over the frame
-        area, windows, painted = scene(rgbA, lum(rgbC), ground_line(fr, rgbA.shape[1]))
+        area, windows, painted = scene(rgbA, L, ground_line(fr, rgbA.shape[1]))
         g = np.clip(lum(rgbA), 0, 255) * 0.55
         m = np.stack([g, g, g], -1)
         m[area] = m[area] * 0.55 + np.array([255, 60, 60]) * 0.45
@@ -874,7 +878,7 @@ def main(pC: str, pA: str, pB: str) -> None:
         m[painted] = m[painted] * 0.4 + np.array([60, 255, 60]) * 0.6
         Image.fromarray(m.astype(np.uint8)).save(sys.argv[sys.argv.index("--masks") + 1])
         return
-    area, windows, painted = scene(rgbA, lum(rgbC), ground_line(fr, rgbA.shape[1]))
+    area, windows, painted = scene(rgbA, L, ground_line(fr, rgbA.shape[1]))
     parts = traced(area.shape)
     area = traced_area(area, windows, rgbA, parts)
     ys, xs = np.nonzero(area)
@@ -890,9 +894,7 @@ def main(pC: str, pA: str, pB: str) -> None:
     print(OUT, info)
     qa = [a for a in sys.argv[4:] if not a.startswith("--")]
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
-        wC = seam_weight(rgbC)[..., None]
-        src = lum(wC * rgbC + (1 - wC) * rgbA)
-        lw.qa_overlay(src, OUT, info["box"], Path(qa[0]))
+        lw.qa_overlay(L, OUT, info["box"], Path(qa[0]))
         lw.qa_dark(OUT, info["box"], Path(qa[0]).with_suffix(".dark.png"))
 
 
