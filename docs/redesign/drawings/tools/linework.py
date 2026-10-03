@@ -211,13 +211,13 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         orphan = lines & ~(ndi.distance_transform_edt(~clay) <= 1.5 * lw_px)
         if orphan.any():
             b |= ndi.distance_transform_edt(~orphan) <= 0.8 * lw_px
+        b &= ~held  # but never in ground left open (cut before the speck filter, so crumbs go too)
         # potrace's speck filter (turdsize 200), run here on the body as cut:
         # pulling its edge in below would shrink small parts under the limit
         lab, _ = ndi.label(b)
         b &= (np.bincount(lab.ravel()) > 200)[lab]
         lab = ndi.label(np.pad(~b, 1, constant_values=True))[0]  # the margin joins all ground at the edge
-        b |= (np.bincount(lab.ravel()) <= 200)[lab[1:-1, 1:-1]]
-        b &= ~held  # nor does a rim or a filled speck cover ground left open
+        b |= (np.bincount(lab.ravel()) <= 200)[lab[1:-1, 1:-1]] & ~held
         # Where lines bound the body, its edge must lie under them, or a dark page
         # shows a thin clay line outside the outline. The body comes from the ink
         # before the house weight thinned it, and a cut can run just outside a
