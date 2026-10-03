@@ -120,11 +120,50 @@ HAND_LINES = [
     # the little finger: its outer edge, round its tip, and back up its inner edge
     [(443, 664), (439, 672), (435, 683), (431, 699), (422, 714), (413, 729), (405, 743), (399, 752),
      (391, 750), (379, 742), (368, 735), (360, 731)],  # the hand's lower edge, across the crack to his wrist
+    [(405, 745), (402, 752), (395, 761), (388, 769), (381, 778), (375, 786), (370, 795), (367, 803),
+     (365, 812), (364, 820), (363, 828), (361, 837), (358, 845), (357, 854), (355, 862), (352, 871),
+     (350, 879), (349, 888), (349, 896), (350, 905), (351, 912)],
+    # the edge of his forearm, down from the wrist across the crack (John's trace, 2026-10-02)
 ]
 HAND_W = 7  # px, about the median width of his painted lines
 # Between the tips of his third and little fingers the black ground shows, as
 # the painter left it.
 FINGER_GAP = [(459, 641), (472, 641), (464, 650)]
+# Folds of his robe worn into dashes that join_gaps leaves open, where a fold
+# bends at a gap or a dash is too short for it (John, 2026-10-02: "Do the
+# folds but not hem and shoes"). Each is drawn through its gaps along its
+# painted line, snapped to the darkest path within FOLD_SNAP px of these
+# points, as wide as the line around it.
+FOLD_LINES = [
+    [(465, 689), (472, 693), (480, 698), (487, 703), (497, 706), (510, 708), (525, 709)],
+    [(545, 766), (556, 765), (566, 763), (575, 761), (585, 758), (595, 755), (603, 753), (612, 750),
+     (625, 746)],
+    [(1013, 682), (1013, 692), (1013, 701), (1013, 711)],
+    [(720, 1347), (715, 1356), (701, 1384), (697, 1393)],
+    [(755, 1393), (753, 1403), (751, 1414), (749, 1424)],
+    [(803, 1435), (801, 1445), (798, 1457), (796, 1467)],
+    [(837, 1576), (836, 1586), (835, 1597), (834, 1607)],
+]
+FOLD_SNAP = 4
+# More gaps worn into his robe's folds, too wide or too bent for join_gaps:
+# pairs of line ends, each joined where the photo still shows the fold
+# running between them, faintly, or where the gap is short and the fold runs
+# straight on (checked one by one against the photo, 2026-10-02).
+FOLD_JOINS = [
+    ((312, 594), (311, 614)), ((696, 617), (687, 624)), ((929, 669), (927, 697)),
+    ((750, 671), (753, 685)), ((780, 672), (782, 680)), ((909, 689), (905, 694)),
+    ((485, 723), (493, 727)), ((753, 787), (755, 806)), ((527, 906), (518, 911)),
+    ((924, 919), (913, 924)), ((1004, 1175), (1006, 1185)), ((811, 1235), (807, 1246)),
+    ((410, 1257), (432, 1275)), ((787, 1298), (782, 1320)), ((896, 1321), (897, 1329)),
+    ((869, 1324), (869, 1330)), ((608, 1343), (602, 1353)), ((584, 1371), (577, 1381)),
+    ((761, 1372), (761, 1378)), ((736, 1442), (736, 1449)), ((666, 1456), (646, 1489)),
+    ((771, 1465), (766, 1473)), ((731, 1469), (716, 1512)), ((905, 1477), (905, 1487)),
+    ((468, 1484), (469, 1493)), ((480, 1511), (481, 1516)), ((776, 1524), (770, 1544)),
+    ((709, 1533), (703, 1542)), ((745, 1533), (741, 1540)), ((924, 1540), (924, 1553)),
+    ((994, 1545), (995, 1558)), ((911, 1547), (914, 1555)), ((690, 1574), (670, 1627)),
+    ((616, 1626), (606, 1651)), ((925, 1734), (927, 1748)), ((335, 1775), (336, 1814)),
+    ((550, 1779), (549, 1787)), ((502, 1874), (502, 1880)), ((426, 1926), (421, 1933)),
+]
 # A crack runs down beside his hand, from the black ground above it, through
 # the top of his sleeve, to the long crack below his chest, mended with grey
 # plaster. BREAK is John's outline of it (2026-10-02, "The red outline is the
@@ -362,6 +401,77 @@ def join_gaps(lines, keep_out, max_gap=40, max_turn=32.0, max_bend=50.0, min_len
     return out
 
 
+def fold_lines(L, lines):
+    """FOLD_LINES snapped to their painted lines, smoothed, and drawn as wide as
+    the line around them."""
+    from skimage.draw import line
+    out = np.zeros(lines.shape, bool)
+    for pts in FOLD_LINES:
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        x0, y0 = min(xs) - 12, min(ys) - 12
+        x1, y1 = max(xs) + 13, max(ys) + 13
+        sub = [(x - x0, y - y0) for x, y in pts]
+        rough = np.zeros((y1 - y0, x1 - x0), bool)
+        for (xa, ya), (xb, yb) in zip(sub[:-1], sub[1:]):
+            rr, cc = line(ya, xa, yb, xb)
+            rough[rr, cc] = True
+        near = ndi.distance_transform_edt(~rough) <= FOLD_SNAP
+        xy = lw.livewire(np.where(near, 1.0 + np.clip(L[y0:y1, x0:x1], 0, 255) / 8.0, 1e4), sub)
+        xy = ndi.gaussian_filter1d(xy, 2.0, axis=0, mode="nearest")
+        yx = np.clip((xy[:, ::-1] - 0.5).round().astype(int), 0, [y1 - y0 - 1, x1 - x0 - 1])
+        dist = ndi.distance_transform_edt(lines[y0:y1, x0:x1])[yx[:, 0], yx[:, 1]]
+        w = 2 * np.median(dist[dist > 1]) if (dist > 1).any() else HAND_W
+        centre = np.zeros(rough.shape, bool)
+        centre[yx[:, 0], yx[:, 1]] = True
+        out[y0:y1, x0:x1] |= ndi.distance_transform_edt(~centre) <= w / 2
+    return out
+
+
+def join_pairs(lines, pairs, near=4):
+    """FOLD_JOINS: each pair of line ends joined by a smooth curve that leaves
+    each line the way it runs, as wide as the two lines. An end already joined
+    (no line end within `near` px) is skipped."""
+    sk, k = centre_lines(lines, spur=5, min_len=10)
+    dist = ndi.distance_transform_edt(lines)
+    ends = np.argwhere(sk & (ndi.convolve(sk.astype(int), k, mode="constant") == 1))
+    out = np.zeros_like(lines)
+    if len(ends) == 0:
+        return out
+
+    def end_at(x, y):
+        d = np.hypot(ends[:, 0] - y, ends[:, 1] - x)
+        i = int(np.argmin(d))
+        if d[i] > near:
+            return None
+        path, seen, cur = [tuple(ends[i])], {tuple(ends[i])}, tuple(ends[i])
+        for _ in range(16):  # back along the line, for its direction and width
+            nxt = [(cur[0] + dy, cur[1] + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if (dy or dx) and sk[cur[0] + dy, cur[1] + dx] and (cur[0] + dy, cur[1] + dx) not in seen]
+            if not nxt:
+                break
+            cur = nxt[0]
+            seen.add(cur)
+            path.append(cur)
+        P = np.array(path, float)
+        h = P[0] - P[len(P) // 2:].mean(0)
+        w = 2 * max(dist[py, px] for py, px in path[2:8]) if len(path) > 2 else 4
+        return P[0], h / max(np.hypot(*h), 1e-6), w
+
+    for a, b in pairs:
+        ea, eb = end_at(*a), end_at(*b)
+        if ea is None or eb is None:
+            continue
+        (p0, h0, w0), (p3, h3, w3) = ea, eb
+        g = np.hypot(*(p3 - p0))
+        tt = np.linspace(0, 1, int(g * 2) + 2)[:, None]
+        p1, p2 = p0 + h0 * g / 3, p3 + h3 * g / 3
+        curve = (1 - tt) ** 3 * p0 + 3 * (1 - tt) ** 2 * tt * p1 + 3 * (1 - tt) * tt ** 2 * p2 + tt ** 3 * p3
+        m = np.zeros_like(lines)
+        m[np.round(curve[:, 0]).astype(int), np.round(curve[:, 1]).astype(int)] = True
+        out |= ndi.distance_transform_edt(~m) <= max(1.5, min(5.0, (w0 + w3) / 4))
+    return out
+
+
 def main(src: str) -> None:
     a = np.asarray(Image.open(src).convert("RGB").crop(BOX), dtype=np.float32)
     L = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]
@@ -427,7 +537,8 @@ def main(src: str) -> None:
     joins = join_gaps(lines & ~head, cracks | brk_rim)  # lines broken by wear, joined across their gaps
     if "--joins" in sys.argv:
         np.save(sys.argv[-1], joins)
-    lines |= joins
+    lines |= joins | fold_lines(L, lines)
+    lines |= join_pairs(lines, FOLD_JOINS)
     lines |= carried | drawn(shape, HAND_LINES, HAND_W) | poly(shape, FINGER_GAP)
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(4))
 
