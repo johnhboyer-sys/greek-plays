@@ -169,15 +169,17 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 
 
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
-              pad: int = 4, turdsize: int = 10, alphamax: float = 1.0) -> dict:
+              open_holes: np.ndarray | None = None, pad: int = 4, turdsize: int = 10, alphamax: float = 1.0) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
     weight, and potrace it into a theme-following SVG 1000 units tall: the
     lines are filled with currentColor. `body`, a mask of the figure's area
     (same shape as ink), becomes a second path under the lines, class "body",
     fill="none": transparent unless a page colours it with CSS, as the dark
-    theme does (`.body { fill: <clay> }`). The body has no holes, and lines
-    too thin to hold clay get a narrow clay rim. Returns the crop box in
-    ink's pixels, for qa_overlay."""
+    theme does (`.body { fill: <clay> }`). The body has no holes, except
+    where `open_holes` (same shape) marks ground seen through a scene (the
+    space between an arm and the body, closed off by a rock), and lines too
+    thin to hold clay get a narrow clay rim. Returns the crop box in ink's
+    pixels, for qa_overlay."""
     ys, xs = np.nonzero(ink)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
     x0, x1 = max(xs.min() - pad, 0), min(xs.max() + pad + 1, ink.shape[1])
@@ -198,6 +200,8 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         # as the light one, on clay instead of paper (gaps open to the outside,
         # like those between fingers, stay open)
         b = ndi.binary_fill_holes(b)
+        if open_holes is not None:
+            b &= ~resample_ink(open_holes[y0:y1, x0:x1], TRACE_H)[:hh, :ww]
         b = ndi.binary_opening(b, structure=morphology.disk(2))
         # a line with no clay on either side of it (a goad, a chain link) would
         # vanish on a dark page: give it a narrow clay rim
