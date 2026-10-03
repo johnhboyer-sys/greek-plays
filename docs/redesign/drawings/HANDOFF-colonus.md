@@ -26,9 +26,14 @@ credited.
 - The cross-family review (Grok or Codex, routed by the budget board: QA
   tiles, records, credit) has not been run.
 - Weak spots: Ismene's raised hand, and the zigzag ends of the two mantles.
-- A separate session is changing the body step of `linework.py` `trace_svg`
-  (the dark-mode clay fringe) on its own branch. Rerun this drawing once that
-  merges.
+- The dark-mode clay fringe fix is on `claude/redesign-fringe` (bf63143
+  changes `linework.py` `trace_svg` and adds `tools/test_linework.py`). It
+  merges with this branch except `contact-sheet.html`, which both branches
+  regenerated: rerun `tools/contact_sheet.py` after merging, then rerun this
+  drawing. Checked 2026-10-03 with a scratch copy of the tool: the lines are
+  byte-identical; only the body changes. The clay sliver outside the outer
+  outline is gone, and the clay within 1.5 px of the background drops from
+  1,609 to 761 px at 1400 px wide.
 
 **Scans John may bring, best first:**
 1. The printed *Pots & Plays*, p. 101. The Getty PDF cut the plate to 150 dpi.
