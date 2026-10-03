@@ -92,6 +92,29 @@ def band_edge(rgb: np.ndarray, box: tuple, clay_rb: float = 90) -> np.ndarray:
     return np.array(pts)
 
 
+def band_line(rgb: np.ndarray, rough, half: int = 50, step: int = 6, clay_rb: float = 120,
+              widths: tuple = (20, 75)) -> np.ndarray:
+    """(u, v) along the centre of a thin painted clay line (a frieze's border,
+    painted on the wheel, so a circle on the vase): per column, the clay run
+    `widths` px thick nearest the rough polyline (u, v points), kept where
+    the points lie on one smooth curve. Give the rough line where the line
+    shows; figures standing on it would be taken for it."""
+    rough = np.asarray(rough, float)
+    RB = ndi.gaussian_filter(rgb[..., 0] - rgb[..., 2], 1.0)
+    out = []
+    for u in range(int(rough[:, 0].min()), int(rough[:, 0].max()), step):
+        vg = np.interp(u, rough[:, 0], rough[:, 1])
+        v0 = max(int(vg) - half, 0)
+        k = np.nonzero(RB[v0:v0 + 2 * half, u] > clay_rb)[0]
+        runs = [r for r in np.split(k, np.nonzero(np.diff(k) > 1)[0] + 1) if widths[0] <= len(r) <= widths[1]] if len(k) else []
+        if runs:
+            r = min(runs, key=lambda r: abs(v0 + (r[0] + r[-1]) / 2 - vg))
+            out.append((u, v0 + (r[0] + r[-1]) / 2))
+    out = np.array(out)
+    res = out[:, 1] - np.polyval(np.polyfit(out[:, 0], out[:, 1], 4), out[:, 0])
+    return out[np.abs(res) < 3 * np.median(np.abs(res)) + 3]
+
+
 def ring_edge(gray: np.ndarray, uc: float, half: float, v_side: float, sag: float) -> np.ndarray:
     """(u, v) along a ring's lower bright edge (the neck's base), searched within
     25 px of a rough ellipse (centre uc, half-width half, sides at v_side, front
@@ -198,10 +221,7 @@ def fit(views: dict, knots: np.ndarray, ring: dict | None = None, matches: dict 
         for n in names:
             c = cams[n]
             left, right = contour(c, R, yg)
-            s = obs[n]["sil"]
-            if not len(s):  # a close view of the painting: matches only
-                parts[n] = (np.zeros(0), np.zeros(0))
-                continue
+            s = obs[n]["sil"]  # empty for a close view of the painting
             rs = np.full(len(s), 1e3)
             for side, line in ((0, left), (1, right)):
                 m = s[:, 0] == side
@@ -224,22 +244,23 @@ def fit(views: dict, knots: np.ndarray, ring: dict | None = None, matches: dict 
         return (np.concatenate(out), parts) if detail else np.concatenate(out)
 
     # a start: every camera alike, the profile from the first view's silhouette
-    x0 = []
-    for n in names:
-        x0 += [d0, h0 * d0, np.radians(16.0), 0.0, 0.0, f_px or d0, 0.0, 0.0]
-    s = np.asarray(views[names[0]]["sil"], float)
-    band_v = np.median(np.asarray(views[names[0]]["band"])[:, 1])
-    half = {}
-    for side, u, v in s:
-        half.setdefault(round(v), []).append(u)
-    rows = sorted(v for v, us in half.items() if len(us) == 2)
-    hv = np.array([abs(half[v][1] - half[v][0]) / 2 for v in rows])
-    k = d0 / (f_px + hv.max()) if f_px else 1.0  # world units per px at the vase, roughly
-    yy, hv = k * (band_v - np.array(rows)) / 0.96, k * hv
-    Rk = np.interp(knots, yy[::-1], hv[::-1])
-    x0 = np.array(x0 + list(Rk) + ([knots[-1] - 100.0, 0.5 * Rk.max()] if ring else [0.0, 0.0]) + [0.0] * len(mt))
     if x_start is not None:
         x0 = np.array(x_start, float)
+    else:
+        x0 = []
+        for n in names:
+            x0 += [d0, h0 * d0, np.radians(16.0), 0.0, 0.0, f_px or d0, 0.0, 0.0]
+        s = np.asarray(views[names[0]]["sil"], float)
+        band_v = np.median(np.asarray(views[names[0]]["band"])[:, 1])
+        half = {}
+        for side, u, v in s:
+            half.setdefault(round(v), []).append(u)
+        rows = sorted(v for v, us in half.items() if len(us) == 2)
+        hv = np.array([abs(half[v][1] - half[v][0]) / 2 for v in rows])
+        k = d0 / (f_px + hv.max()) if f_px else 1.0  # world units per px at the vase, roughly
+        yy, hv = k * (band_v - np.array(rows)) / 0.96, k * hv
+        Rk = np.interp(knots, yy[::-1], hv[::-1])
+        x0 = np.array(x0 + list(Rk) + ([knots[-1] - 100.0, 0.5 * Rk.max()] if ring else [0.0, 0.0]) + [0.0] * len(mt))
     lo, hi = np.full(len(x0), -np.inf), np.full(len(x0), np.inf)
     for i in range(len(names)):
         lo[NP * i], hi[NP * i], lo[NP * i + 5], hi[NP * i + 5] = 0.1 * d0, 6 * d0, 0.2 * d0, 8 * d0
@@ -252,13 +273,13 @@ def fit(views: dict, knots: np.ndarray, ring: dict | None = None, matches: dict 
         report.append(f"round {k}: cost {res.cost:.0f}, {res.nfev} evaluations, {res.message}")
         for n in names:
             c, (rs, rb) = cams[n], parts[n]
-            if not len(rs):
+            if not len(rs) and not len(rb):
                 report.append(f"  {n}: D {c['D']:.0f} H {c['H']:.0f} pitch {np.degrees(c['b']):.2f} f {c['f']:.0f} (matches only)")
                 continue
             band = f"; band median {np.median(rb):.1f}, 90% {np.percentile(rb, 90):.1f}" if len(rb) else ""
+            sil = f"silhouette median {np.median(rs):.1f} px, 90% {np.percentile(rs, 90):.1f}" if len(rs) else "no silhouette"
             report.append(f"  {n}: D {c['D']:.0f} H {c['H']:.0f} pitch {np.degrees(c['b']):.2f} yaw {np.degrees(c['p']):.2f} "
-                          f"roll {np.degrees(c['g']):.2f} f {c['f']:.0f} | silhouette median {np.median(rs):.1f} px, "
-                          f"90% {np.percentile(rs, 90):.1f}{band}")
+                          f"roll {np.degrees(c['g']):.2f} f {c['f']:.0f} | {sil}{band}")
             obs[n]["sil"], obs[n]["band"] = obs[n]["sil"][rs < outlier], obs[n]["band"][rb < outlier]
         if ringpts is not None:
             report.append(f"  ring at y {ringyr[0]:.0f}, radius {ringyr[1]:.0f}: median {np.median(parts['ring']):.1f} px")
