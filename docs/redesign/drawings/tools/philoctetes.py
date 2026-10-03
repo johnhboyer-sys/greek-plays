@@ -42,15 +42,20 @@ Photo -> drawing:
     a few px of them), which passes over the broad brown washes, and redrawn
     as even lines along their centres. The washes are not drawn ("the orange
     strokes don't translate to two tone"); on the rock, where the brush also
-    left narrow strokes of wash, only black lines are drawn (ROCK). His hair
-    and beard are drawn as the curls the brush laid (John, 2026-10-03: "For
-    hair try the curls"). The top of his head is black glaze inside a
-    reserved clay rim and is drawn solid, as are the bow case's black and the
-    broad dark strokes outlining his feet (QUIVER, BLACK_BANDS).
+    left narrow strokes of wash, only black lines are drawn (ROCK). The bow
+    case's black and the broad dark strokes outlining his feet are drawn solid
+    (QUIVER, BLACK_BANDS).
+  - His head is drawn from John's own trace (2026-10-03; TRACES): his strokes
+    as lines, his filled marks (eye, brow, the marks at his neck) solid, the
+    black top of his head solid with the fillet he outlined left light, and
+    the area's edge following his outline. His hair and beard carry a half
+    tone where the vase has its brown wash (TONE: "can you do a half-dark
+    tone for the beard to mimic the tone of the original on the beard?",
+    "same for hair"), a third path under the lines.
   - The outline follows the clay's own edge, not the browner stripe of glaze
     the painter laid along it (STRIPE_L, SOFT_L), and is smoothed along its
     length (EDGE_SIGMA): the photo's grain and the brush's ragged outer edge
-    made it wobble. His head keeps its edge as found.
+    made it wobble. His head keeps its edge as found, and then John's.
   - Faint lines that the line test breaks up (worn stretches, a dry brush)
     are joined across their gaps (join_gaps); the bow's outer top curve,
     fainter than any test passes, is placed by hand and snapped to the paint
@@ -65,6 +70,7 @@ Photo -> drawing:
     python3 docs/redesign/drawings/tools/philoctetes.py C.jpg A.jpg B.jpg --refit
 """
 import io
+import json
 import sys
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -547,15 +553,31 @@ JOIN_GAP, JOIN_TURN, JOIN_BEND = 35, 30.0, 45.0
 # dashes (the upper strap's top edge, the case's right side): ends up to
 # DASH_GAP px apart, pointing at each other within DASH_TURN degrees.
 DASH_GAP, DASH_TURN, DASH_BEND = 80, 12.0, 18.0
-# His hair and beard (HAIR): the curls the brush laid, drawn as their filled
-# shapes (paint darker than CURL_K times the clay; specks under CURL_MIN px
-# dropped). His eye (EYE): the paint itself, its strokes too close for lines.
-HAIR = [(1800, 470), (1815, 380), (1850, 300), (1930, 240), (2000, 160), (2150, 140), (2330, 190), (2370, 330),
-        (2360, 430), (2300, 445), (2250, 432), (2200, 428), (2150, 430), (2120, 450), (2110, 500), (2125, 545),
-        (2165, 565), (2185, 600), (2165, 640), (2130, 668), (2070, 685), (2010, 680), (1960, 640), (1920, 590),
-        (1870, 545), (1820, 515)]
-EYE = (2140, 445, 2215, 505)
-CURL_K, CURL_MIN = 0.8, 40
+# John's own traces (philoctetes_traces.json: his strokes as polylines along
+# their centres, and the marks he filled in, registered onto this frame by
+# SIFT). The head (2026-10-03): inside the region his outline encloses, and
+# within a few px of his marks (the zone), his trace replaces the found
+# drawing. His strokes are drawn at TRACE_PEN px (about 1.2% of the head's
+# height, as on the faces John approved), his filled marks solid. Black glaze
+# inside his outline (the top of the head; the brushy brown patches of
+# thinner glaze inside it, holes up to TRACE_HOLE_MAX px, filled) is drawn
+# solid where it spreads over TRACE_BLACK_MIN px; his strokes lying inside
+# it are drawn light (the fillet he outlined round the head). The figure's
+# area follows his outline: inside it is the head; within TRACE_NEAR px
+# outside it only clean clay stays (the reserved rim round the top of the
+# head); and where his line runs within TRACE_EDGE px of the area's edge,
+# his line stands for the outline.
+TRACES = {k: v for k, v in json.loads((Path(__file__).parent / "philoctetes_traces.json").read_text()).items()
+          if k != "note"}
+TRACE_PEN, TRACE_NEAR, TRACE_EDGE, TRACE_BLACK_MIN, TRACE_HOLE_MAX = 4.0, 20, 6, 3000, 4000
+# His hair and beard get a half tone where the vase has its brown wash (John,
+# 2026-10-03: "can you do a half-dark tone for the beard to mimic the tone of
+# the original on the beard?", "same for hair"): paint darker than TONE_K
+# times the clay within TONE_CLAY px, inside his outline of the head, drawn
+# as a third path in the line colour at TONE opacity, under the lines. On a
+# light page it shows grey, on the dark theme's clay a darker clay, as the
+# thinned glaze does on the vase.
+TONE_PARTS, TONE, TONE_K, TONE_CLAY = ("head",), 0.45, 0.72, 81
 
 
 def poly(shape, pts):
@@ -671,13 +693,89 @@ def join_gaps(cl, keep_in, max_gap=JOIN_GAP, max_turn=JOIN_TURN, max_bend=JOIN_B
     return out
 
 
+def traced(shape):
+    """John's traces on the frame, per part: his strokes' centre lines, the
+    marks he filled, the walls they make, the region his outline encloses,
+    and the zone where his trace replaces the found drawing."""
+    parts = {}
+    for name, t in TRACES.items():
+        centre = np.zeros(shape, bool)
+        for pts in t["lines"]:
+            centre |= trace_line(shape, pts)
+        solids = np.zeros(shape, bool)
+        for pts in t["solids"]:
+            solids |= poly(shape, pts)
+        walls = ndi.binary_dilation(centre, iterations=1) | solids
+        inside = ndi.binary_fill_holes(ndi.binary_closing(walls, structure=morphology.disk(2)))
+        parts[name] = dict(centre=centre, solids=solids, walls=walls, inside=inside,
+                           zone=inside | ndi.binary_dilation(walls, iterations=6))
+    return parts
+
+
+def traced_area(area, windows, rgbA, parts):
+    """The scene's area with each traced part's own outline: inside it is the
+    figure; within TRACE_NEAR px outside it only clean clay stays."""
+    _, clay = classes(rgbA)
+    clay = ndi.binary_opening(clay, structure=morphology.disk(2))
+    for t in parts.values():
+        near = ndi.binary_dilation(t["walls"], iterations=TRACE_NEAR)
+        area = (area & ~(near & ~t["inside"] & ~clay)) | t["inside"]
+    lab, n = ndi.label(area)
+    area = lab == 1 + int(np.argmax(ndi.sum(np.ones(area.shape), lab, np.arange(1, n + 1))))
+    return ndi.binary_fill_holes(area | windows) & ~windows
+
+
+def traced_ink(parts, rgbA, g):
+    """The traced parts' ink (his strokes, his filled marks, the black glaze
+    inside his outline, his strokes inside it light) and the half tone (g:
+    the frame's luminance)."""
+    glaze, _ = classes(rgbA)
+    glaze = ndi.binary_closing(ndi.binary_opening(glaze, structure=morphology.disk(2)), structure=morphology.disk(3))
+    rw = g / np.maximum(ndi.gaussian_filter(ndi.grey_closing(g, size=(TONE_CLAY, TONE_CLAY)), 10), 1.0)
+    ink = np.zeros(g.shape, bool)
+    tone = np.zeros(g.shape, bool)
+    for name, t in parts.items():
+        walls, inside, centre = t["walls"], t["inside"], t["centre"]
+        black = glaze & inside & ~walls
+        black = ndi.binary_closing(black | (walls & ndi.binary_dilation(black, iterations=3)),
+                                   structure=morphology.disk(4)) & inside
+        lab, n = ndi.label(ndi.binary_fill_holes(black) & ~black)
+        small = np.zeros(n + 1, bool)
+        small[1:] = ndi.sum(np.ones(g.shape), lab, np.arange(1, n + 1)) < TRACE_HOLE_MAX
+        black = morphology.remove_small_objects(black | small[lab], max_size=TRACE_BLACK_MIN)
+        lab, n = ndi.label(centre, structure=np.ones((3, 3)))
+        light_piece = np.zeros(n + 1, bool)
+        light_piece[1:] = ndi.mean(ndi.binary_erosion(black, iterations=2).astype(float), lab, np.arange(1, n + 1)) > 0.8
+        light = ndi.binary_fill_holes(ndi.distance_transform_edt(~(centre & light_piece[lab])) <= TRACE_PEN / 2)
+        black &= ~light
+        ink |= ((ndi.distance_transform_edt(~centre) <= TRACE_PEN / 2) & ~light) | t["solids"] | black
+        if name in TONE_PARTS:
+            paint = ndi.binary_opening((rw < TONE_K) & inside, structure=morphology.disk(1))
+            paint = ndi.gaussian_filter(paint.astype(np.float32), 2.0) > 0.5
+            paint = morphology.remove_small_holes(morphology.remove_small_objects(paint, max_size=80), max_size=80)
+            tone |= paint & ~walls & ~black
+    return ink, tone
+
+
+def add_tone(svg, tone, box):
+    """Add the half tone to a drawing written by lw.trace_svg (box: the crop
+    box it returned) as a third path, class "tone", in the line colour at TONE
+    opacity, between the body and the lines."""
+    x0, y0, x1, y1 = box
+    d, _ = lw.potrace_d(lw.resample_ink(tone[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
+    s = svg.read_text().replace('<path class="lines"', f'<path class="tone" fill="currentColor" fill-opacity="{TONE}" '
+                                f'stroke="none" d="{d}"/><path class="lines"', 1)
+    svg.write_text(s)
+
+
 def outline(area, w):
     """The scene's edge, w wide, straddling it (a quarter outside)."""
     return (area & (ndi.distance_transform_edt(area) <= 0.75 * w)) | (~area & (ndi.distance_transform_edt(~area) <= 0.25 * w))
 
 
-def drawing(rgbC, rgbA, area, painted, w):
-    """The ink: outline, painted lines, black paint, curls and eye."""
+def drawing(rgbC, rgbA, area, painted, w, parts):
+    """The ink (outline, painted lines, black paint, John's traces) and the
+    half tone."""
     from skimage.filters import apply_hysteresis_threshold
     shape = area.shape
     wC = seam_weight(rgbC)
@@ -689,9 +787,9 @@ def drawing(rgbC, rgbA, area, painted, w):
     for p in ROCK:
         rock |= poly(shape, p)
     inner = ndi.binary_erosion(area, structure=morphology.disk(4))
-    hair, (x0, y0, x1, y1) = poly(shape, HAIR) & area, EYE
-    eye = np.zeros(shape, bool)
-    eye[y0:y1, x0:x1] = True
+    zone = np.zeros(shape, bool)
+    for t in parts.values():
+        zone |= t["zone"]
     LA = ndi.gaussian_filter(lum(rgbA), 1.0)
     rA = LA / np.maximum(ndi.gaussian_filter(ndi.grey_closing(LA, size=(QUIVER_CLAY, QUIVER_CLAY)), 10), 1.0)
     quiver = (poly(shape, QUIVER) | poly(shape, ARROWHEAD)) & area
@@ -710,9 +808,6 @@ def drawing(rgbC, rgbA, area, painted, w):
     black = ndi.binary_opening(black & area, structure=morphology.disk(1))
     black = morphology.remove_small_objects(ndi.gaussian_filter(black.astype(np.float32), 1.0) > 0.5, max_size=30)
     solid = ndi.binary_fill_holes(ndi.binary_opening(painted, structure=morphology.disk(THICK))) | black
-    curls = hair & (r < CURL_K) & ~eye
-    curls = ndi.gaussian_filter(ndi.binary_opening(curls, structure=morphology.disk(1)).astype(np.float32), 1.0) > 0.5
-    curls = morphology.remove_small_objects(curls, max_size=CURL_MIN)
     rock &= ~poly(shape, GEAR)
     found = np.where(rock, apply_hysteresis_threshold(depth, ROCK_LOW, ROCK_HIGH),
                      apply_hysteresis_threshold(depth, LINE_LOW, LINE_HIGH))
@@ -720,7 +815,7 @@ def drawing(rgbC, rgbA, area, painted, w):
     for p in FINE:
         fine |= poly(shape, p)
     found = np.where(fine, r < PAINT_K, found)
-    lines = (found | painted) & inner & ~hair & ~eye & ~ndi.binary_dilation(solid, iterations=2)
+    lines = (found | painted) & inner & ~zone & ~ndi.binary_dilation(solid, iterations=2)
     lines = morphology.remove_small_objects(ndi.binary_opening(lines, structure=morphology.disk(1)), max_size=40)
     lines = morphology.remove_small_holes(lines, max_size=40)  # pinholes in a line thin to loops
     cl = centre_lines(lines)
@@ -732,17 +827,22 @@ def drawing(rgbC, rgbA, area, painted, w):
         dark = np.array([np.percentile(r[lab == i], 10) for i in idx])
         drop[1:] = (ndi.sum(np.ones(shape), lab, idx) < ROCK_MIN) | (dark > ROCK_DARK)
     cl &= ~drop[lab]
-    cl |= join_gaps(cl, inner & ~hair & ~eye & ~solid)
-    cl |= join_gaps(cl, inner & ~hair & ~eye & ~solid, DASH_GAP, DASH_TURN, DASH_BEND)
+    cl |= join_gaps(cl, inner & ~zone & ~solid)
+    cl |= join_gaps(cl, inner & ~zone & ~solid, DASH_GAP, DASH_TURN, DASH_BEND)
     gear = poly(shape, GEAR)
     lab, n = ndi.label(cl, structure=np.ones((3, 3)))
     short = np.zeros(n + 1, bool)
     short[1:] = ndi.sum(np.ones(shape), lab, np.arange(1, n + 1)) < GEAR_MIN
     cl &= ~(short[lab] & gear)
-    eye_paint = ndi.binary_opening((r < PAINT_K) & eye, structure=morphology.disk(1))
     bow = strokes(g, [BOW_LINE], w, snap=BOW_SNAP)
-    ink = (ndi.distance_transform_edt(~cl) <= w / 2) | solid | curls | eye_paint | bow | outline(area, w)
-    return morphology.remove_small_objects(ink, max_size=60)
+    lines = (ndi.distance_transform_edt(~cl) <= w / 2) | solid | bow
+    t_ink, tone = traced_ink(parts, rgbA, g)
+    centre = np.zeros(shape, bool)
+    for t in parts.values():
+        centre |= t["centre"]
+    edge = outline(area, w) & ~(ndi.distance_transform_edt(~centre) <= TRACE_EDGE)  # there his line is the edge
+    ink = (lines & ~zone) | t_ink | edge
+    return morphology.remove_small_objects(ink, max_size=60), tone
 
 
 def main(pC: str, pA: str, pB: str) -> None:
@@ -767,15 +867,18 @@ def main(pC: str, pA: str, pB: str) -> None:
         Image.fromarray(m.astype(np.uint8)).save(sys.argv[sys.argv.index("--masks") + 1])
         return
     area, windows, painted = scene(rgbA, lum(rgbC), ground_line(fr, rgbA.shape[1]))
+    parts = traced(area.shape)
+    area = traced_area(area, windows, rgbA, parts)
     ys, xs = np.nonzero(area)
     w = lw.HOUSE_WEIGHT * max(np.ptp(ys), np.ptp(xs))  # the house weight, in frame px
-    ink = drawing(rgbC, rgbA, area, painted, w)
+    ink, tone = drawing(rgbC, rgbA, area, painted, w, parts)
     info = lw.trace_svg(
         ink, OUT, body=area, open_holes=windows,
         title="Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case beside him",
         desc="Line drawing after the Attic red-figure squat lekythos in the manner of the Eretria Painter, c. 420 BCE, "
              "New York, Metropolitan Museum of Art 56.171.58; traced from photographs by Marie-Lan Nguyen (CC BY 2.5) "
              "and the Metropolitan Museum of Art (CC0), changed.")
+    add_tone(OUT, tone, info["box"])
     print(OUT, info)
     qa = [a for a in sys.argv[4:] if not a.startswith("--")]
     if qa:  # optional: the drawing over its source, and as the dark theme shows it

@@ -40,6 +40,14 @@ stroke-width: .5px` (the path has `vector-effect="non-scaling-stroke"`, so
 the stroke stays .5px at any size). Where between the two to switch it on is
 a layout decision.
 
+A drawing may carry a third path between the two: `tone` (only
+`philoctetes.svg` so far), `fill="currentColor"` at partial opacity
+(`fill-opacity`) and `stroke="none"`, for the brown wash of hair and beard,
+which on the vase is thinned glaze over the clay. On a light page it shows
+grey; on the dark theme's clay, a darker clay. It needs no CSS (John,
+2026-10-03: "can you do a half-dark tone for the beard to mimic the tone of
+the original on the beard?", "same for hair").
+
 ## Rerunning
 
 Sources are not committed. Download each source file named at the top of its
