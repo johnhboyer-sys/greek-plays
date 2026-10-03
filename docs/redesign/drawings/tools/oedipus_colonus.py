@@ -12,6 +12,13 @@ https://media.getty.edu/Text/6f3674dd-413a-56da-bec2-9da5564907df.pdf
 
     pdfimages -j -f 112 -l 112 6f3674dd-413a-56da-bec2-9da5564907df.pdf plate
 
+A second photo, the whole vase in black and white (Digital LIMC, monument
+8378, photo 8569X101, credit "Graham Geddes Collection (once)", CC BY-NC 4.0
+on the LIMC site), was aligned to the plate and used to read shapes the plate
+blurs (the arm border, the mantle ends); it is credited too. The tool itself
+reads only the plate:
+https://iiif.dasch.swiss/080E/39p0GV9AZiB-7HG3RtcJ3N4.jpx/full/max/0/default.png
+
 Red-figure photo -> drawing, at 4x. The figures are small (Oedipus is about
 360 px tall in the plate), so the crop is cleaned of JPEG noise and enlarged
 4x (Lanczos) before anything is traced, as for the Pythia. The group is clay
@@ -48,7 +55,7 @@ BLACK_L, WHITE_B = 60, 110  # glaze is darker than BLACK_L; the added white blue
 # crenellations: inside BORDERS (her mantle, below her hair) brown darker than
 # SOLID_L and wider than 1.5 px is drawn solid. Antigone's veil has brown fold
 # lines as dark, which stay lines.
-SOLID_L = 95
+SOLID_L = 120
 PEEL_L, PEEL_R = 88, 16  # the brown band at an outline: darker than PEEL_L, within PEEL_R working px of the ground
 FACE_BAND = 10           # working px: how far inside FACE the hairline's curls may reach
 EDGE_W = 4               # working px: the outline, as heavy as the painted lines inside it
@@ -208,6 +215,20 @@ ANTIGONE_HAND_LINES = [
     [(592.3, 296.0), (591.8, 300.0), (591.6, 304.0), (591.3, 308.0), (590.6, 312.0)],  # the wrist's inner edge
     [(600.2, 288.0), (599.2, 290.5), (598.2, 293.0)],  # the thumb
 ]
+# The end of Antigone's veil hangs below her left arm in a column of S-shaped
+# folds (both photos agree; LIMC's photo, aligned to the plate by ECC, shows
+# them cleaner). Their lines are dark enough to fill solid and close enough
+# to merge, so inside VEIL_END they are redrawn along the centres of the
+# painted lines (STROKE_T: local-contrast hysteresis).
+VEIL_END = [(567.5, 358), (588, 360), (595, 376), (596, 396), (567.5, 396)]
+STROKE_T = (16, 32)
+# The dark border along Ismene's arm, under the left column, measured in both
+# photos: its centre runs from (332, 326) to (363, 314.5), about 5 px wide.
+ARM_BAND = [(326, 321), (336, 321.5), (344, 319.3), (352, 316.5), (360, 311.5), (364, 309.5),
+            (364, 319.5), (360, 320.5), (352, 325.5), (344, 328.3), (336, 330.5), (326, 331)]
+# The hanging end of Ismene's mantle, by her raised hand, is a stack of the
+# same folds; drawn the same way.
+ISMENE_END = [(344, 334), (369, 334), (371, 360), (369, 395), (367, 412), (344, 412)]
 # The daughters' hair is dark brown, a shade between the clay and the black
 # ground, so inside HAIRS the ground is only the true black (below GROUND_L).
 # Antigone's curls, and Ismene's crown and long lock, are drawn solid (as the
@@ -338,6 +359,19 @@ def ridge_lines(L, inside, avoid, w, min_len=RIDGE_MIN):
     return ndi.distance_transform_edt(~out) <= w / 2
 
 
+def centre_strokes(gL, zone, w, thresholds=STROKE_T, min_len=14):
+    """The painted lines inside zone redrawn w px wide along their centres,
+    every branch kept (local contrast, hysteresis; spurs under 6 px and
+    pieces under min_len px dropped; pixel steps softened)."""
+    from skimage.filters import apply_hysteresis_threshold
+    th = ndi.grey_closing(gL, size=(13, 13)) - gL
+    m = apply_hysteresis_threshold(th, *thresholds) & zone
+    m = ndi.binary_closing(m, structure=morphology.disk(2)) & zone
+    sk, _ = centre_lines(m, spur=6, min_len=min_len)
+    sk = morphology.skeletonize(ndi.gaussian_filter(sk.astype(float), 1.5) > 0.12)
+    return ndi.distance_transform_edt(~sk) <= w / 2
+
+
 def main(src: str) -> None:
     a = load(src)
     R, G, B = a[..., 0], a[..., 1], a[..., 2]
@@ -352,22 +386,28 @@ def main(src: str) -> None:
     columns = poly(shape, COLUMNS[0]) | poly(shape, COLUMNS[1])
     staff, _, _ = rod(shape, STAFF, STAFF_W)
 
-    # the ground: glaze, the columns' white and the scratch, wherever they
-    # reach the cut; everything else inside the cut is the group
+    # the ground: the glaze and the columns' white wherever they reach the
+    # cut; everything else inside the cut is the group. The dark border along
+    # Ismene's arm touches the left column; inside ARM_BAND it stays hers.
     orange = (ndi.gaussian_filter(G, 1.0) < 0.75 * ndi.gaussian_filter(R, 1.0)) & ~black & ~white
-    bg = inside & (black | (columns & ~orange) | poly(shape, SCRATCH))
-    lab, _ = ndi.label(bg)
     rim = inside & ~ndi.binary_erosion(inside, iterations=2)
-    reach = np.unique(lab[rim & bg])
-    ground = np.isin(lab, reach[reach > 0])
-    # The plate's blur leaves a brown band between a figure and the ground,
+
+    def reaching(m):
+        lab, _ = ndi.label(m)
+        reach = np.unique(lab[rim & m])
+        return np.isin(lab, reach[reach > 0])
+    ground0 = reaching(inside & (black | (columns & ~orange) | poly(shape, SCRATCH)) & ~poly(shape, ARM_BAND))
+    glaze = ground0 & black
+    # The plate's blur leaves a brown band between a figure and the glaze,
     # which would trace as a second line just inside the outline: dark pixels
-    # within PEEL_R px of the ground, and joined to it, are ground too, so the
+    # within PEEL_R px of the glaze, and joined to it, are ground too, so the
     # outline falls where the clay begins (about halfway between clay and
-    # glaze). Not in the daughters' hair, which is as dark.
-    band = inside & (gL < PEEL_L) & (ndi.distance_transform_edt(~ground) <= PEEL_R) & ~hair_zones
-    lab, _ = ndi.label(ground | band)
-    reach = np.unique(lab[ground])
+    # glaze). Not in the daughters' hair, which is as dark, nor in the
+    # zigzag ends of the two mantles, whose folds run along the outline.
+    ends = poly(shape, VEIL_END) | poly(shape, ISMENE_END)
+    band = inside & (gL < PEEL_L) & (ndi.distance_transform_edt(~glaze) <= PEEL_R) & ~hair_zones & ~ends
+    lab, _ = ndi.label(ground0 | band)
+    reach = np.unique(lab[ground0])
     ground = np.isin(lab, reach[reach > 0])
     sil = ndi.binary_opening(inside & ~ground, structure=morphology.disk(2)) | staff
     sil = ndi.binary_fill_holes(morphology.remove_small_objects(sil, max_size=4000))
@@ -396,10 +436,10 @@ def main(src: str) -> None:
     seeds = [regions[int(round(y))][int(round(x))] for x, y in P(FACE_SEEDS)]
     face_zones = ndi.binary_dilation(np.isin(regions, [k for k in seeds if k]), iterations=2) & ~john
     ant_hand_zone = poly(shape, ANTIGONE_HAND)
-    drawn_zone = head_zone | hand_zone | face_zones | ant_hand_zone | hair_zones
+    drawn_zone = head_zone | hand_zone | face_zones | ant_hand_zone | hair_zones | ends
     core = ndi.binary_erosion(sil, structure=morphology.disk(5))
     solid = ndi.binary_opening(black & core, structure=morphology.disk(2))
-    solid |= ndi.binary_opening((gL < SOLID_L) & core & poly(shape, BORDERS), structure=morphology.disk(3))
+    solid |= ndi.binary_opening((gL < SOLID_L) & core & poly(shape, BORDERS) & ~ends, structure=morphology.disk(3))
     solid = morphology.remove_small_objects(solid & ~drawn_zone, max_size=60)
     solid = ndi.gaussian_filter(solid.astype(float), 1.0) > 0.5
     clay = sil & ~white & ~black
@@ -453,6 +493,7 @@ def main(src: str) -> None:
     lines &= ~ndi.binary_dilation(john, iterations=JOHN_NEAR)
 
     lines |= edge | solid | meet | hair_edge | curls | hand | dark_hair | bun | marks
+    lines |= centre_strokes(gL, ends & ndi.binary_erosion(sil, structure=morphology.disk(3)), LINE_W)
     lines |= drawn(shape, [P(s_) for s_ in FACE_LINES], FINE_W)
     lines |= staff_lines(shape)
     # faint folds, then lines broken into dashes by wear joined where two ends face each other
