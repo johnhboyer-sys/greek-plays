@@ -1,6 +1,41 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
-## Status, 2026-10-03 14:05: resumed on Green's pages (work in progress)
+## Status, 2026-10-03 16:30: awaiting John's review
+
+Done since 14:05 (heads dd8f476, 46fd033, pushed):
+- Oedipus redrawn on p. 29: face lines on the painted marks (FACE_LINES,
+  FACE_FINE, CLOSED_EYES), the face found by colour and closed by its lines;
+  the dark marks between the curls of his hair and beard drawn solid
+  (HAIR_MARK_T); the staff in its two visible parts (STAFF, STAFF_EDGES:
+  the lower part leans the other way, so it is not one rod); the hand's
+  outline from the column's edge on p. 29, with the ring finger reaching past
+  the pinky (John's note); the neckline pleats and two folds by the hand
+  along their centres (CHEST, MANTLE_FOLDS).
+- Antigone's face, hand and forearm from John's own traces on p. 26
+  (`.remember/colonus/john_antigone_trace_1602.png`,
+  `john_antigone_arm_trace_1611.png`), mapped with
+  `.remember/colonus/scripts/map_john_trace.py` (SIFT to the page at 1:1,
+  then the page's registration); his filled areas stay solid
+  (JOHN_ANTIGONE_FILLS).
+- Records, README, and the SVG's credit now name Green's pages; contact
+  sheet rebuilt. A full run from the page files gives the same SVG as the
+  cached frame.
+- John's red guide marks on p. 29: he re-saved the page clean, so the marks
+  survive only in a crop; `.remember/colonus/john_marks_p29_recovered.png`
+  rebuilds the marked page from it.
+
+**Next.** John's verdict on Oedipus (sent 15:30) and Antigone (sent 16:25).
+Then the cross-family review (Codex or Grok, per the budget board): QA
+tiles, records, credit. Ismene is still drawn from the plate; p. 4 is too
+noisy to help her, so ask John whether to leave her or have him trace her.
+
+Tools in `.remember/colonus/scripts/`: `zoom_page.py` (a plate-px box
+straight off p. 26 or p. 29, with rulers, the drawing, or strokes over it),
+`page_lines.py` (centre lines of painted marks off a page), `review.py`
+(photo | before | now), `display_crop.py` (a figure at display size, light
+and dark), `slot.py`, `run_cached.py`.
+
+## Earlier status, 2026-10-03 14:05: resumed on Green's pages
 
 John found the sharper source: J. R. Green, *Ancient Voices, Modern Echoes*
 (2003), in full view on HathiTrust (mdp.39015060089391, CC BY-NC-ND 4.0). He
