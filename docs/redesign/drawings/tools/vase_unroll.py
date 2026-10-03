@@ -1,6 +1,6 @@
-"""Unroll a painting off a vase: fit the vase and the cameras of photos of it, then
-map a photo onto the flat, where s = R(y) * theta runs around the vase and t is the
-arc length up its profile.
+"""Take a painting off a vase: fit the vase and the cameras of photos of it, then
+flatten the vase without shear (`flatten`), so that a photo can be laid onto the
+flat through its own camera.
 
 A photo foreshortens a vase painting twice over: toward the sides, where the
 surface turns away, and up and down wherever the profile slopes (the shoulder
@@ -301,15 +301,6 @@ def arc_table(R, y0: float, y1: float, step: float = 0.5):
     return y, t - np.interp(0.0, y, t)
 
 
-def flat_to_photo(c: dict, R, table, s: np.ndarray, t: np.ndarray, theta0: float = 0.0) -> np.ndarray:
-    """Flat (s, t) -> image (u, v) of camera c; theta0 is the flat's centre
-    line, as an angle in c's frame."""
-    y = np.interp(t, table[1], table[0])
-    r = R(y)
-    th = theta0 + s / r
-    return project(c, np.stack([r * np.sin(th), y, r * np.cos(th)], -1))
-
-
 def photo_to_surface(c: dict, R, uv: np.ndarray, y_range: tuple, steps: int = 400) -> np.ndarray:
     """Image points -> (theta, y) where their lines of sight first meet the vase."""
     rt, up, fw = axes(c)
@@ -333,13 +324,6 @@ def photo_to_surface(c: dict, R, uv: np.ndarray, y_range: tuple, steps: int = 40
         a, b = np.where(out, m, a), np.where(out, b, m)
     P = C + ((a + b) / 2)[:, None] * d
     return np.stack([np.arctan2(P[:, 0], P[:, 2]), P[:, 1]], -1)
-
-
-def photo_to_flat(c: dict, R, table, uv: np.ndarray, theta0: float = 0.0) -> np.ndarray:
-    """Image points -> flat (s, t)."""
-    th_y = photo_to_surface(c, R, np.asarray(uv, float), (table[0][0], table[0][-1]))
-    y = th_y[:, 1]
-    return np.stack([R(y) * (th_y[:, 0] - theta0), np.interp(y, table[0], table[1])], -1)
 
 
 # ---------------------------------------------------------------- flattening without shear

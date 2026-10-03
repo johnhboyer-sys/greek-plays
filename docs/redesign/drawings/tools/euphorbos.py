@@ -433,11 +433,6 @@ def centre_lines(m, spur=6, min_len=14):
     return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
 
 
-def pen(m, w):
-    """Strokes redrawn as even lines w px wide along their centre lines."""
-    return ndi.distance_transform_edt(~centre_lines(m)) <= w / 2
-
-
 def strokes(L, paths, w, snap=SNAP):
     """Hand-placed strokes, each snapped to the darkest line within `snap` px
     of its points, smoothed, and drawn as an even line w px wide."""
@@ -869,11 +864,15 @@ def main(p01: str, p02: str, p03: str, p04: str) -> None:
     sil_all[:H, fl.dx:fl.dx + W] |= sil
     info = lw.trace_svg(
         ink_all, OUT, body=sil_all,
-        title="The shepherd Euphorbos carrying the infant Oedipus, a spear at his hip",
+        title="The shepherd Euphorbos carrying the infant Oedipus on his shoulder, a long spear in his hand",
         desc="Line drawing after the Attic red-figure neck-amphora by the Achilles Painter, c. 450-445 BCE, "
-             "Paris, Bibliotheque nationale de France, Cabinet des Medailles 372; traced from photographs by "
-             "ArchaiOptix (CC BY-SA 4.0), changed: unrolled off the vase, views joined, the spear straightened "
-             "to its full length, hand, face and sandal lines redrawn. This drawing is CC BY-SA 4.0.")
+             "Paris, Bibliothèque nationale de France, Cabinet des médailles 372; traced from photographs by "
+             "ArchaiOptix (CC BY-SA 4.0), changed: taken off the vase's curve; views joined; the spear "
+             "straightened to its full length; a line added at the back of his neck; the lines of his hand, "
+             "both faces, and his left sandal redrawn. This drawing is CC BY-SA 4.0 "
+             "(https://creativecommons.org/licenses/by-sa/4.0/). Photographs: " + " ".join(
+                 "https://commons.wikimedia.org/wiki/File:Achilles_Painter_-_ARV_987_4_-_Euphorbos_with_the_"
+                 f"infant_Oidipous_-_man_-_Paris_BnF_CabMed_372_-_0{n}.jpg" for n in "1234"))
     print(OUT, info)
     qa = [a for a in sys.argv[5:] if not a.startswith("--")]
     if qa:  # optional: the drawing over its source (the figure's frame), and as the dark theme shows it

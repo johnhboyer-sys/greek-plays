@@ -984,10 +984,13 @@ def main(p04: str, p05: str, p06: str) -> None:
     ink, sil, L = drawing(rgb, w)
     info = lw.trace_svg(
         ink, OUT, body=sil,
-        title="Antigone, veiled, her hands bound behind her back",
+        title="Antigone, veiled, her hands bound behind her back, her head bowed",
         desc="Line drawing after the Apulian red-figure amphora by the Darius Painter, c. 350-320 BCE, Berlin, "
              "Antikensammlung F 3240; traced from a photograph by ArchaiOptix (CC BY-SA 4.0), changed: taken off "
-             "the vase's curve, mended breaks erased, hand and cord lines redrawn. This drawing is CC BY-SA 4.0.")
+             "the vase's curve, mended breaks erased, and her hands and face redrawn. This drawing is CC BY-SA 4.0 "
+             "(https://creativecommons.org/licenses/by-sa/4.0/). Photograph: https://commons.wikimedia.org/wiki/"
+             "File:Darius_Painter_-_RVAp_18-23_-_Antigone_-_judgement_of_Paris_-_Eros_with_youths_and_women_-_"
+             "Berlin_AS_F_3240_-_04.jpg")
     print(OUT, info)
     qa = [a for a in sys.argv[4:] if not a.startswith("--")]
     if qa:  # optional: the drawing over its source, and as the dark theme shows it

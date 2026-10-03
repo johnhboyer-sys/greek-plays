@@ -1,14 +1,14 @@
 # Drawings: phase 1 test (2026-10-02, revised the same day)
 
 Test drawings for the redesign (DESIGN.md, Drawings). Records with credits
-and licences: `../research/play-image-plan.json` (the `playwrights` list and
-the Medea and Iphigenia at Aulis entries). Open `contact-sheet.html` to see
+and licences: `../research/play-image-plan.json` (the `playwrights` list, and
+the `plays` entry of each play drawn). Open `contact-sheet.html` to see
 them on every ground, light and dark.
 
 | File | Figure | Source |
 |---|---|---|
 | `aeschylus-pythia.svg` | the Pythia | Bötticher 1859 plate, Heidelberg scan (public domain) |
-| `sophocles-euphorbos.svg` | Euphorbos carrying the infant Oedipus (Sophocles' home-page figure) | Cabinet des médailles 372, four photos by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0); unrolled off the vase with `tools/vase_unroll.py` |
+| `sophocles-euphorbos.svg` | Euphorbos carrying the infant Oedipus (Sophocles' home-page figure) | Cabinet des médailles 372, four photos by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0); flattened off the vase with `tools/vase_unroll.py` |
 | `sophocles-oedipus.svg` | Oedipus (superseded by the Euphorbos drawing) | Berlin F 2355, photo by Gary Todd (CC0) |
 | `euripides-iphigenia.svg` | Iphigenia | Archäologische Zeitung 1849 Taf. XII (public domain) |
 | `aristophanes-mika.svg` | Mika | Würzburg H 5697, photo by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0) |
@@ -79,5 +79,5 @@ keeps its shape); plain unrolling, around by arc length and up the profile,
 shears whatever lies off its centre line where the profile slopes. Give it every photo's
 focal length from its EXIF, and mark cropped photos (`crop: True`) so their
 centres are fitted; fitted free, focal length trades against distance and
-the perspective comes out wrong. `tools/euphorbos.py` uses it;
-its docstring says what was fitted and how well.
+the perspective comes out wrong. `tools/euphorbos.py` and `tools/antigone.py`
+use it; their docstrings say what was fitted.
