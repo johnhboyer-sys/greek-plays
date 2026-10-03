@@ -54,6 +54,15 @@
       "source": "Sicilian calyx-krater, Syracuse, Museo Paolo Orsi 66557, photograph by Dan Diffendale (CC BY-NC-SA 2.0)",
       "method": "Red-figure photo: loose cut through the glaze, hand-drawn zones for floor, plaster, shoes and head; cracks erased and the lines they broke joined across them; lines broken by wear joined; staff redrawn as a straight rod; hair and beard drawn solid, face lines evened; hand redrawn after John's trace, every finger outlined; potrace",
       "verdict": "Usable. Revised after John's review: the hair and a fuller beard are solid, the face lines even, and the hand is redrawn after his trace with every finger outlined; the mended crack beside it is gone and lines broken by wear are joined. The hem and shoes are worn on the vase and stay rough."
+    },
+    {
+      "slug": "oedipus-coloneus",
+      "file": "oedipus-coloneus.svg",
+      "name": "Oedipus at Colonus · Oedipus at the altar between his daughters",
+      "alt": "Blind Oedipus, white-haired and bearded, seated at an altar with his staff, one hand raised, between his daughters Ismene and Antigone",
+      "source": "Apulian calyx-krater close to the De Schulthess Painter, formerly Melbourne, Geddes collection A 5:8; the plate in Taplin, Pots & Plays (2007) no. 27, from Green 2003 (in copyright)",
+      "method": "Red-figure photo of a small plate, cleaned and enlarged 4x: cut round the group and the altar, columns left out; one outline where the blur left a brown band; painted marks at their own widths, faint folds by a ridge filter, worn dashes joined; dark hair and Ismene's borders solid; Oedipus' face, hand and staff placed by hand; the daughters' faces after John's trace; potrace",
+      "verdict": "First full pass (2026-10-03), awaiting John's review. The plate is small and lossy: the faces follow John's trace; Ismene's raised hand and the dark lumps under Antigone's left arm stay rough."
     }
   ]
 }

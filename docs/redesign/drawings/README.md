@@ -13,6 +13,7 @@ them on every ground, light and dark.
 | `aristophanes-mika.svg` | Mika | Würzburg H 5697, photo by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0) |
 | `medea.svg` | Medea | Cleveland 1991.1, museum photo (CC0) |
 | `oedipus-tyrannus.svg` | Oedipus (Oedipus Tyrannus) | Syracuse 66557, photo by Dan Diffendale (CC BY-NC-SA 2.0); the drawing traces only the painting, so it does not carry that licence (John, 2026-10-02) |
+| `oedipus-coloneus.svg` | Oedipus with Ismene and Antigone (Oedipus at Colonus) | Geddes A 5:8, the plate in Taplin, *Pots & Plays* no. 27, from Green 2003 (in copyright); the drawing traces only the painting, so it does not carry the photo's rights (John, 2026-10-02) |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -53,6 +54,11 @@ The optional second argument writes two check images, `qa.png` and
 
 The Oedipus alternate starts from the Commons SVG rendered to PNG
 (`rsvg-convert -w 4000 -b '#000000'`).
+
+`tools/oedipus_colonus.py` starts from the plate on page 112 of the Getty
+PDF of *Pots & Plays* (`pdfimages -j -f 112 -l 112`), and also needs
+`opencv-python-headless`: its non-local-means filter clears the plate's JPEG
+noise before the 4x enlargement.
 
 `tools/linework.py` holds the shared steps: ink from a scan (`ink_from_scan`
 for engravings; `ink_lines`, local contrast with hysteresis, for fine
