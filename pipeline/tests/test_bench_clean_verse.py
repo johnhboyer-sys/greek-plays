@@ -1,3 +1,5 @@
+import pytest
+
 from drama_pipeline.bench_clean_verse import (
     clean_genie_html,
     clean_play,
@@ -935,6 +937,11 @@ def test_real_arrowsmith_files_keep_every_stage_direction():
     from drama_pipeline.config import REPO_ROOT
     import drama_pipeline.bench_clean_verse as bcv
 
+    if not all(
+        (REPO_ROOT / "build" / "arrowsmith" / f"genie-{play}.html").exists()
+        for play in ("clouds", "birds")
+    ):
+        pytest.skip("Arrowsmith's Genie HTML is a machine-local build/ scratch file, not vendored")
     for play, title in (("clouds", "THE CLOUDS"), ("birds", "THE BIRDS")):
         html = (REPO_ROOT / "build" / "arrowsmith" / f"genie-{play}.html").read_text(
             encoding="utf-8", errors="replace"
@@ -965,6 +972,8 @@ def test_clean_genie_html_real_clouds_keeps_the_mocking_songs_2814_line():
     import drama_pipeline.bench_clean_verse as bcv
 
     html_path = REPO_ROOT / "build" / "arrowsmith" / "genie-clouds.html"
+    if not html_path.exists():
+        pytest.skip("Arrowsmith's Genie HTML is a machine-local build/ scratch file, not vendored")
     html_text = html_path.read_text(encoding="utf-8")
     cleaned, _report = clean_genie_html(
         html_text,

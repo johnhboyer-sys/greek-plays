@@ -296,7 +296,6 @@ describe('WordPopup — all-caps accent fallback', () => {
         { lemma: 'a)rxh/', gloss: 'rule', parse: 'genitive plural', lsj: [], foldedAccent: true },
         { lemma: 'a)/rxwn', gloss: 'ruler', parse: 'nominative singular', lsj: [], foldedAccent: true },
       ],
-      lsj: [],
     });
 
     render(WordPopup, {

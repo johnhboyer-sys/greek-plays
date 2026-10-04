@@ -1945,7 +1945,8 @@
   // measures each row and pushes an English paragraph down only as far as
   // the paragraph above it overruns (speakers.ts englishFlow). Re-run on any
   // resize of the grid; on a phone (stacked rows) it clears its work.
-  function playFlow(node: HTMLElement, params: { view?: View } = {}) {
+  // `plRows` is never read: passing the rows makes a change of rows re-run it.
+  function playFlow(node: HTMLElement, params: { view?: View; plRows?: PlayRow[] } = {}) {
     let timer: ReturnType<typeof setTimeout> | 0 = 0;
     let currentView = params.view;
     const phone = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 680px)').matches;
@@ -2006,7 +2007,7 @@
     if (typeof window !== 'undefined') window.addEventListener('load', schedule, { once: true });
     if (typeof document !== 'undefined' && (document as any).fonts?.ready) (document as any).fonts.ready.then(schedule);
     return {
-      update(next: { view?: View } = {}) { currentView = next.view; schedule(); },
+      update(next: { view?: View; plRows?: PlayRow[] } = {}) { currentView = next.view; schedule(); },
       destroy() { ro?.disconnect(); if (timer) clearTimeout(timer); },
     };
   }

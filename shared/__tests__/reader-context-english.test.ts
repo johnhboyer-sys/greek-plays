@@ -34,7 +34,7 @@ vi.mock('../lib/works', async (importOriginal) => {
   // shaped), NOT dk -- .frag-eng-card must never attach here.
   const bookSectionFixture: Work = {
     id: 'BOOKSECCTXFIX', title: 'Fixture Book-Section Work', abbr: 'Fix. BS', author: 'Test',
-    language: 'lat', workType: 'treatise', books: 1, bookLabels: ['1'],
+    language: 'lat', workType: 'continuous', books: 1, bookLabels: ['1'],
     greekEdition: 'Test edition', greekSource: { short: 'Test', full: 'Test edition, full citation.' },
     citation: { scheme: 'book-section', hideLineNumbers: true, copyAbbr: 'Fix. BS' },
     translations: [{ id: 'test', name: 'Test Translator (Test, 1900)', short: 'Test', slot: 'english' as const }],

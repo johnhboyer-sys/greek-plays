@@ -35,8 +35,9 @@ function bookWith(): BookData {
       {
         id: 'seg-B1',
         column: 'B1',
+        kind: 'embedded',
         greek: [{ n: 1, text: 'Greek text', tokens: [] }],
-        english: { text, notes: [], markers: [], kind: 'embedded', frames: [[0, 22]] },
+        english: { text, notes: [], markers: [], frames: [[0, 22]] },
       },
     ],
   };

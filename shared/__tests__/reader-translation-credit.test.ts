@@ -38,7 +38,7 @@ vi.mock('../lib/works', async (importOriginal) => {
     id: 'CREDCMPFIX', title: 'Fixture Compare Credit Work', abbr: 'Fix. F', author: 'Test',
     language: 'grc', workType: 'fragments', books: 1, bookLabels: ['1'],
     greekEdition: 'Test edition', greekSource: { short: 'Test', full: 'Test edition, full citation.' },
-    citation: { scheme: 'dk', copyAbbr: 'Fix. F', dkChapter: 1, series: 'F' },
+    citation: { scheme: 'dk', copyAbbr: 'Fix. F', dkChapter: 1, series: 'B' },
     translations: [
       { id: 'primary', name: 'Primary Translator (Press, 1900)', short: 'Primary', slot: 'english' as const },
       { id: 'secondary', name: 'Secondary Translator (Press, 1910)', short: 'Secondary', slot: 'secondary' as const },
