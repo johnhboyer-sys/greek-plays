@@ -347,10 +347,9 @@ JOHN_ISMENE = [
      (298.5, 247.4), (298.8, 247.8), (298.9, 248.3), (298.9, 248.8), (299, 249.2), (299, 249.7), (299, 250.2),
      (299.1, 250.7), (299.1, 251.2), (299.2, 251.7), (299.2, 252.2), (299.3, 252.7), (299.3, 253.2), (299.3, 253.7),
      (299.3, 254.2), (299.3, 254.7), (299.3, 255.2), (299.3, 255.7), (299.4, 256.2), (299.5, 256.6), (299.6, 257.1),
-     (299.7, 257.6), (299.8, 258), (299.8, 258.5), (300, 258.9), (300, 259.5), (300.1, 259.9), (300, 260.4)],
-    [(300, 260.4), (299.6, 260.6), (299.1, 260.7), (298.6, 260.6), (298.1, 260.6), (297.6, 260.6), (297.1, 260.6),
-     (296.6, 260.6), (296.1, 260.7)],
-    [(296.1, 260.7), (295.8, 261), (295.8, 261.5), (295.8, 262), (295.8, 262.5)],
+     (299.7, 257.6), (299.8, 258), (299.8, 258.5), (300, 258.9), (300, 259.5), (300.05, 260.5)],
+    [(300.05, 260.5), (296.05, 260.5)],  # the underside of the nose, straight and level (John, 21:53)
+    [(296.05, 260.5), (295.8, 261), (295.8, 261.5), (295.8, 262), (295.8, 262.5)],
     [(295.9, 262.7), (295.9, 263.2), (295.9, 263.7), (296.1, 264.1), (296.2, 264.6), (296.4, 265), (296.7, 265.4),
      (297, 265.8), (297.1, 266.2), (297.1, 266.7), (297.1, 267.2), (297, 267.7), (296.8, 268.2), (296.6, 268.6),
      (296.4, 269), (296.2, 269.4), (296, 269.9), (295.9, 270.3), (295.6, 270.7), (295.4, 271.1), (295.2, 271.5),
@@ -474,6 +473,15 @@ ARM_BAND = [(326, 321), (336, 321.5), (344, 319.3), (352, 316.5), (360, 311.5), 
 # The hanging end of Ismene's mantle, by her raised hand, is a stack of the
 # same folds; drawn the same way.
 ISMENE_END = [(344, 334), (369, 334), (371, 360), (369, 395), (367, 412), (344, 412)]
+# Ismene's nose comes to a sharp angle, its underside a straight level line
+# (John, 2026-10-03: "Ismene's nose should be a sharp angle with the bottom
+# of nose as straight horizontal line"). The photo's edge rounds the tip and
+# slants the underside, so the cut is set here, on his marked profile: the
+# nose (NOSE_SKIN) is figure, the space under it in front of the upper lip
+# (NOSE_GROUND) is ground.
+NOSE_SKIN = [(297.0, 253.5), (299.3, 253.5), (299.4, 256.2), (299.6, 257.1), (299.8, 258.0), (300.0, 258.9),
+             (300.05, 260.5), (296.05, 260.5)]
+NOSE_GROUND = [(296.05, 260.5), (303.5, 260.5), (303.5, 262.5), (295.8, 262.5)]
 # The daughters' hair is dark brown, a shade between the clay and the black
 # ground, so inside HAIRS the ground is only the true black (below GROUND_L).
 # Antigone's curls, and Ismene's crown and long lock, are drawn solid (as the
@@ -815,6 +823,7 @@ def main(plate_src: str, page_srcs: list) -> None:
     sil = ndi.binary_opening(inside & ~ground, structure=morphology.disk(2)) | staff
     sil = ndi.binary_fill_holes(morphology.remove_small_objects(sil, max_size=4000))
     sil = ndi.gaussian_filter(sil.astype(float), 1.0) > 0.5
+    sil = (sil | poly(shape, NOSE_SKIN)) & ~poly(shape, NOSE_GROUND)  # Ismene's nose, sharp
     edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(EDGE_W))
 
     # Oedipus' head: his face, the clay inside the hair, closed by its lines;
