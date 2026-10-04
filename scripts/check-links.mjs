@@ -7,10 +7,13 @@ import { fileURLToPath } from 'node:url';
 const BASE = process.env.READER_BASE_PATH || '';
 const MAX_ID_CACHE = 6000;
 const MAX_REPORTS = 200;
+// A fixture build (CI) runs no partner-manifest emitter; build-public.mjs does,
+// and leaves this off, so a public dist with none still fails.
+const ALLOW_NO_PARTNER_MANIFESTS = '--allow-no-partner-manifests';
 
 function usage(message) {
   if (message) console.error(message);
-  console.error('Usage: node scripts/check-links.mjs [DIST_DIR | --dist=DIST_DIR]');
+  console.error(`Usage: node scripts/check-links.mjs [DIST_DIR | --dist=DIST_DIR] [${ALLOW_NO_PARTNER_MANIFESTS}]`);
   process.exit(2);
 }
 
@@ -18,7 +21,9 @@ function getDist() {
   const args = process.argv.slice(2);
   let dist;
   for (const arg of args) {
-    if (arg.startsWith('--dist=')) {
+    if (arg === ALLOW_NO_PARTNER_MANIFESTS) {
+      continue;
+    } else if (arg.startsWith('--dist=')) {
       if (dist) usage('Specify the dist directory only once.');
       dist = arg.slice(7);
     } else if (arg.startsWith('-')) {
@@ -322,8 +327,12 @@ async function main() {
     readingRouteChecks++;
     readingRoutes.push({ source: manifestPath, readingRoute: manifest.reading_route ?? null });
   }
-  for (const { source, readingRoute, reason } of checkReadingRoutes(readingRoutes, pageDirs)) {
-    report(source, readingRoute, reason ?? 'reading_route has no page');
+  if (!readingRoutes.length && process.argv.includes(ALLOW_NO_PARTNER_MANIFESTS)) {
+    console.log('Note: no data/*/manifest.lyceum.json; skipping the reading_route check.');
+  } else {
+    for (const { source, readingRoute, reason } of checkReadingRoutes(readingRoutes, pageDirs)) {
+      report(source, readingRoute, reason ?? 'reading_route has no page');
+    }
   }
 
   // A dist with no pages (or no homepage) is a failed build, not a clean one —

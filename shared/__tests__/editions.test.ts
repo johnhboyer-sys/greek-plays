@@ -63,7 +63,7 @@ describe('edition data', () => {
 });
 
 describe('edition place', () => {
-  const book = (...refs: string[]) => ({ segments: refs.map(ref => ({
+  const book = (...refs: string[]) => ({ book: 1, segments: refs.map(ref => ({
     id: ref, column: ref, greek: [{ n: Number(ref.replace(/\D/g, '')), ref, text: 'λόγος', tokens: [] }], english: null,
   })) }) as BookData;
   // The fixture edition's concordance: edition ref -> TLG ref or range, a lettered ref included.
@@ -167,7 +167,7 @@ describe('edition state', () => {
 });
 
 describe('edition place, concordance ranges', () => {
-  const book = (...refs: string[]) => ({ segments: refs.map(ref => ({
+  const book = (...refs: string[]) => ({ book: 1, segments: refs.map(ref => ({
     id: ref, column: ref, greek: [{ n: Number(ref), ref, text: 'λόγος', tokens: [] }], english: null,
   })) }) as BookData;
   it('tries each ref of a range before falling back to the nearest lower', () => {

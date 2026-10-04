@@ -89,8 +89,11 @@ jobs:
             exit 1
           fi
 
+      # No partner manifests here: only build-public.mjs emits them, and only
+      # for registry corpus works, so the reading_route check has nothing to
+      # read and is told so (it fails on a dist without them otherwise).
       - name: Check links (fixture build)
-        run: node scripts/check-links.mjs app/dist
+        run: node scripts/check-links.mjs app/dist --allow-no-partner-manifests
 
       - name: Verify fixture build
         run: node scripts/verify-fixture-build.mjs app/dist
@@ -150,6 +153,11 @@ jobs:
         run: cd pipeline && uv sync
 
       - name: Run corpus preflight fixture
+        # The fixture's synthetic `fixture` translation is on the fixture
+        # allowlist, not the real one (which must refuse it), as in
+        # tests/test_preflight.py's _run_preflight.
+        env:
+          DRAMA_PUBLIC_DOMAIN_ALLOWLIST: tests/fixtures/preflight/public_domain_translations.yaml
         run: |
           cd pipeline
           uv run python -m drama_pipeline.preflight \

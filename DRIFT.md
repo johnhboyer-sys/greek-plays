@@ -941,3 +941,16 @@ existing reference edition contract.
 - `scripts/ocr/paley_to_tei.py` (new) — 2026-10-01 (P4 Paley pilot): Paley's Genie OCR to the §3.1 TEI; imports `jebb_to_tei`'s alignment, numbering, margin and character checks (lending `number_lines` its hand-fix tables and no commentary lemmas for the call), with its own page heads, row parser (five number forms, strophe marks at the row's end, numbered sons), number runs placed by count, and `write_tei` (copied for Paley's header).
 - `pipeline/drama_pipeline/public_domain_translations.yaml` — 2026-10-01 (P4 Way pilot): `way-loeb` Greek edition (Loeb, Heinemann, first printed 1912; scan the 1946 printing) for Medea's OCR'd TEI.
 - `shared/__tests__/setup.ts` — 2026-10-04: same-origin fetches (happy-dom's `http://localhost:3000`, where nothing listens) reject at once with a `TypeError` instead of reaching the network; the unmocked `/data/<work>/paratext.json`, `lsj-heads.json` and like fetches take the same rejection path as before, without ~170 ECONNREFUSED `AggregateError` blocks in the vitest output. A rejection, not a 404, because data.ts caches a 404's `[]`/`{}` (paratext, lemmata) but evicts a rejection. Tests that spy on or stub fetch are unaffected.
+
+## CI repair (2026-10-04)
+
+CI had failed on every run since the first push (2026-09-09). The fixes:
+
+- `.github/workflows/ci.yml` — 2026-10-04: the preflight fixture step sets `DRAMA_PUBLIC_DOMAIN_ALLOWLIST` to the fixture allowlist, as `test_preflight.py` does; the fixture build's link check passes `--allow-no-partner-manifests`.
+- `scripts/check-links.mjs` — 2026-10-04: `--allow-no-partner-manifests` skips the reading_route check when no `manifest.lyceum.json` was read (a fixture build has none); without it, none is still a failure.
+- `scripts/__tests__/check-links.test.mjs` — 2026-10-04: CLI test of a dist with no partner manifests, with and without the flag.
+- `shared/components/Reader.svelte` — 2026-10-04: `playFlow`'s parameter type declares the `plRows` the call site passes (svelte-check error since 91d022b).
+- `shared/__tests__/editions.test.ts` — 2026-10-04: the book fixtures carry `book: 1`, which `BookData` requires.
+- `shared/__tests__/reader-context-english.test.ts`, `reader-freeman-source-frame.test.ts`, `reader-translation-credit.test.ts` — 2026-10-04: CPR c366c21's fixture type fixes, ported (`workType: 'continuous'`, `kind` on the segment, `series: 'B'`).
+- `shared/__tests__/word-popup.test.ts` — 2026-10-04: the mocked `lookupWord` result drops the top-level `lsj`, which it lost at 3c76b5b.
+- `pipeline/tests/test_bench_clean_verse.py` — 2026-10-04: the two tests that read `build/arrowsmith/genie-*.html` skip when it is absent, as the Hickie and Rogers tests do.
