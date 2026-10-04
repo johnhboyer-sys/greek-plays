@@ -1,7 +1,8 @@
 """Oedipus at Colonus: blind Oedipus at the altar between his daughters,
 Ismene (left) and Antigone (right), from the Apulian red-figure calyx-krater
-close to the De Schulthess Painter, 340s BCE, Melbourne, Graham Geddes
-collection A 5:8: Taplin, Pots & Plays (Getty, 2007) no. 27, plate p. 101.
+close to the De Schulthess Painter, 340s BCE, formerly Melbourne, Graham
+Geddes collection A 5:8: Taplin, Pots & Plays (Getty, 2007) no. 27, plate
+p. 101.
 The drawing traces only the ancient painting, which is public domain (John,
 2026-10-02); the photos are credited. John chose the three on the altar
 (2026-10-02); the columns and tripods behind them are left out.
@@ -579,17 +580,17 @@ def load(src):
 # the plate (so the thresholds above still hold), and laid over it: p. 29 over
 # p. 26, feathered at the seams. p. 4 serves only to register p. 26: as
 # pixels it gave Ismene no more than the plate, and its print noise traced as
-# wiggles, so she and the altar's left end stay drawn from the plate. The
-# plate stays the frame: every hand-placed point, John's traces included, is
-# in its px. A further photo of the scene, which John found (2026-10-03), is
+# wiggles. The plate stays the frame: every hand-placed point, John's traces
+# included, is in its px. A further photo of the scene, which John found (2026-10-03), is
 # a clean photograph rather than a printed page: little larger than the plate
 # (1.3 times), but its painted lines are crisp where the plate's and p. 4's
 # are mush, so Ismene's folds and borders and the rest outside p. 26 are found
 # on it. Its black glaze carries sheen and texture that no colour match turns
 # into the plate's flat black, so it serves only to find painted lines and the
 # borders of Ismene's mantle (LINES_ONLY): the ground, the outline, the black
-# and the white still come from the plate there. Per photo: its area in its own px (the rest is paper, text or
-# the scanner's watermark; None for the whole image) and the blur against
+# and the white still come from the plate there. Per photo: its area in its
+# own px (the rest is paper, text or the scanner's watermark; None for the
+# whole image) and the blur against
 # the print's dots or the JPEG's blocks.
 PAGES = [("found", None, 0.5), ("p26", (0, 0, 2410, 3290), 1.5), ("p29", (128, 1, 1761, 1962), 1.8)]
 PAGE_FILES = ["p4", "p26", "p29", "found"]  # the order of the photo files on the command line
