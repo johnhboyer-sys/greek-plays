@@ -1,6 +1,17 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
-## Status, 2026-10-03 21:45: John's marks applied; awaiting his verdict
+## Status, 2026-10-03 22:25: reviewed; awaiting John's sign-off
+
+- John since 21:45: "Oedipus fingers are ok now"; Ismene's nose cut to a
+  sharp tip with a level underside ("Better"; NOSE_SKIN, NOSE_GROUND).
+- Final Codex review (GPT-6-Sol, medium; a retry after the 5-hour window
+  reset at 22:11): three record errors and a docstring nit, fixed in
+  7dd8f9a; a clay speck at Oedipus' shoulder in dark mode left as a nit;
+  its question on faint folds on Ismene's chest is John's.
+- Grok is capped (100%) and John said no Grok until Tuesday 2026-10-06.
+- Merging claude/redesign-colonus is John's call.
+
+## Earlier status, 2026-10-03 21:45
 
 Since 18:45 (heads 11c63e5, f1e0a6e, pushed), all from John's marks:
 - Ismene: brow and eye (19:01) and the profile from the nose down with a
