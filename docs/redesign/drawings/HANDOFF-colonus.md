@@ -1,6 +1,23 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
-## Status, 2026-10-03 18:45: Ismene's folds from a found photo; Codex review done
+## Status, 2026-10-03 21:45: John's marks applied; awaiting his verdict
+
+Since 18:45 (heads 11c63e5, f1e0a6e, pushed), all from John's marks:
+- Ismene: brow and eye (19:01) and the profile from the nose down with a
+  level mouth (21:32), all on screenshots of the found photo matched to the
+  lines frame by SIFT. "She's not smiling": the mouth is level now.
+- Oedipus' hand: it "read as lump" at display size, so the two raised
+  fingers are each turned a little about their base (FINGER_SPREAD, 12 and
+  7 degrees; HAND_LINES keep the measured outline). The two lower fingers
+  follow his marks on p. 29 (21:31).
+- Pieces of his strokes left just outside the outline are dropped (they
+  showed as clay rings in dark mode).
+- `.remember/colonus/scripts/marks_to_plate.py` carries red marks to plate px
+  through a page's registration (or the lines frame).
+- John: no Grok until Tuesday 2026-10-06. The Codex review ran at 18:28;
+  rerun it (GPT-6-Sol, medium) once John signs off.
+
+## Earlier status, 2026-10-03 18:45
 
 - John found a clean photo of the scene online (547x560; probably from a
   Facebook post, source unknown; "don't worry about the credit"). Kept as
