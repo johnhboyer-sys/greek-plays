@@ -593,8 +593,9 @@ TRACES = {k: v for k, v in json.loads((Path(__file__).parent / "philoctetes_trac
 TRACE_PEN, TRACE_NEAR, TRACE_EDGE, TRACE_BLACK_MIN, TRACE_HOLE_MAX = 4.0, 20, 6, 3000, 4000
 # The feet and hands (2026-10-03) are drawn from his traces the same way,
 # except that his outline sets the figure's area round the head alone
-# (AREA_PARTS), and his trace replaces the black paint found under it round
-# the head and the hands (PAINT_PARTS), where he drew the painted strokes as
+# (AREA_PARTS; round the hands the area only reaches out to his contour,
+# HAND_GROW below), and his trace replaces the black paint found under it
+# round the head and the hands (PAINT_PARTS), where he drew the painted strokes as
 # single lines, often along one edge of a stroke. Round the feet his lines run
 # along the rock's brown washes, which the clean-clay rule would cut out of
 # the figure, and his toes close pockets of ground under them: there the
@@ -614,10 +615,18 @@ AREA_PARTS, PAINT_PARTS, BAND_PARTS, BAND_R = ("head",), ("head", "right_hand", 
 # often by one edge of a stroke 10-15 px wide, so his trace replaces the
 # lines found within HAND_ZONE px of his (the centre lines of those
 # strokes); and where his contour runs up to HAND_GROW px outside the edge
-# the colours give (and the scene's own edge: not up his strokes along the
-# tree trunk, which is cut off), the figure's area reaches out to it, as
-# round the head, a window giving way.
-HAND_PARTS, HAND_ZONE, HAND_GROW = ("right_hand", "left_hand"), 16, 8
+# the colours give, the figure's area reaches out to it, as round the head,
+# a window giving way: 16 px round the left hand (his line over the knee
+# runs up to 15 px outside, past the browner stripe along the edge), 10
+# round the right, whose wrist meets his strokes up the cut-off tree trunk
+# (9-29 px out), which stay out.
+HAND_PARTS, HAND_ZONE, HAND_GROW = ("right_hand", "left_hand"), 16, {"right_hand": 10, "left_hand": 16}
+# Where his line ends beside the found outline, a few px to one side, so
+# that join_gaps (below) cannot pair the two ends (by the right thumb, along
+# the window there; twice along the left arm's edge, once where his crop
+# ends), a short stroke joins them (HAND_JOINS; John, 2026-10-03: "Something
+# like this just to connect the lines").
+HAND_JOINS = [[(1385, 1293), (1392, 1302)], [(2345, 857), (2354, 862)], [(2243, 977), (2251, 982)]]
 # His hair and beard get a half tone where the vase has its brown wash (John,
 # 2026-10-03: "can you do a half-dark tone for the beard to mimic the tone of
 # the original on the beard?", "same for hair"): paint darker than TONE_K
@@ -774,8 +783,8 @@ def traced_area(area, windows, rgbA, parts):
             near = ndi.binary_dilation(t["walls"], iterations=TRACE_NEAR)
             area = (area & ~(near & ~t["inside"] & ~clay)) | t["inside"]
         if name in HAND_PARTS:  # out to his contour where it runs just outside the edge
-            grown = ndi.binary_closing(area | t["walls"], structure=morphology.disk(HAND_GROW // 2))
-            grown &= (ndi.distance_transform_edt(~t["walls"]) <= HAND_GROW) & (out <= HAND_GROW)
+            grown = ndi.binary_closing(area | t["walls"], structure=morphology.disk(HAND_GROW[name] // 2))
+            grown &= (ndi.distance_transform_edt(~t["walls"]) <= HAND_GROW[name]) & (out <= HAND_GROW[name])
             area, windows = area | grown, windows & ~grown
     lab, n = ndi.label(area)
     area = lab == 1 + int(np.argmax(ndi.sum(np.ones(area.shape), lab, np.arange(1, n + 1))))
@@ -907,10 +916,25 @@ def drawing(rgbC, rgbA, area, painted, w, parts):
     for t in parts.values():
         centre |= t["centre"]
     edge = outline(area, w) & ~(ndi.distance_transform_edt(~(centre & reach)) <= TRACE_EDGE)  # there his line is the edge
-    # inside his zone the black paint is drawn as found, narrow parts too (a
-    # window's narrow end), not thinned to a line his own lines replace
+    # inside his zone round the feet the black paint is drawn as found, narrow
+    # parts too (a window's narrow end), not thinned to a line his own lines
+    # replace; round the head and the hands (PAINT_PARTS) his trace replaces it
     paint = solid | (painted & zone)
     ink = (lines & ~zone) | (paint & ~paint_zone) | (t_ink & reach) | edge
+    # round the hands, where his line ends a few px off the found outline that
+    # takes over from it, the two are joined (John, 2026-10-03: "Something
+    # like this just to connect the lines"): join_gaps on the drawing's centre
+    # lines there, as for the found lines
+    near = np.zeros(shape, bool)
+    for name, t in parts.items():
+        if name in HAND_PARTS:
+            near |= ndi.distance_transform_edt(~t["walls"]) <= HAND_ZONE
+    if near.any():
+        sk = morphology.skeletonize(ink & ndi.binary_dilation(near, iterations=12))
+        joins = join_gaps(sk, near) | join_gaps(sk, near, DASH_GAP, DASH_TURN, DASH_BEND)
+        ink |= ndi.distance_transform_edt(~joins) <= TRACE_PEN / 2
+        for pts in HAND_JOINS:
+            ink |= ndi.distance_transform_edt(~trace_line(shape, pts)) <= w / 2
     return morphology.remove_small_objects(ink, max_size=60), tone
 
 
