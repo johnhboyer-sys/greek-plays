@@ -295,7 +295,8 @@ TREE_CORRIDOR = 8
 WINDOWS = [(1635, 1256), (2213, 1024), (2490, 1804), (2857, 1902), (147, 2399)]
 # The two between his legs (between his hanging leg and the rock, under his
 # raised foot) are drawn black, on the light page too (John, 2026-10-03:
-# "Fill those in with black. They look weird not black in day mode.").
+# "Fill those in with black. They look weird not black in day mode."); the
+# two by his arms stay open there (he chose that over drawing them black).
 BLACK_WINDOWS = [(2490, 1804), (2857, 1902)]
 # Along the figure's edge the glaze is a little browner and lighter than the
 # rest (the painter's contour stripe, 3-15 px wide; A shows it at L 25-50, red
