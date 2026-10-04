@@ -1,6 +1,15 @@
 # Handoff: the Oedipus at Colonus drawing (2026-10-02)
 
-## Status, 2026-10-03 22:25: reviewed; awaiting John's sign-off
+## Status, 2026-10-03 22:35: done: approved and merged
+
+John approved the drawing ("Merge.") and claude/redesign-colonus is merged
+(fast-forward) into claude/redesign-drawings. A full run from the five photo
+files reproduces the committed SVG byte for byte. Main is untouched. When
+claude/redesign-drawings-2 or claude/redesign-philoctetes take in
+claude/redesign-drawings, contact-sheet.html will conflict: rerun
+tools/contact_sheet.py.
+
+## Earlier status, 2026-10-03 22:25
 
 - John since 21:45: "Oedipus fingers are ok now"; Ismene's nose cut to a
   sharp tip with a level underside ("Better"; NOSE_SKIN, NOSE_GROUND).
