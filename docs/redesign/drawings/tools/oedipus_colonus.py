@@ -215,6 +215,14 @@ HAND_LINES = [
     # between the ring and little fingers, closing the little finger's tip
     [(517.7, 330.5), (517.75, 335.0), (517.8, 340.0), (517.85, 344.0), (518.4, 347.7)],  # the wrist's edge
 ]
+# At the site's sizes the two raised fingers, about one plate px apart as
+# painted, closed up into one lump (John, 2026-10-03: "Oedipus's hand does read
+# as lump"), so each is turned a little about its base, away from the other
+# (FINGER_SPREAD: the stroke in HAND_LINES, the point where the finger begins
+# in it, the pivot, and degrees, + towards the top of the image; points within
+# 3 plate px of the pivot stay put and the turn ramps up over the next 4).
+# HAND_LINES keep the outline as measured.
+FINGER_SPREAD = [(0, 9, (532.3, 318.1), 12.0), (1, 0, (533.3, 323.5), -7.0)]  # the index finger, the middle finger
 HAND = [(516.6, 330.4), (520.0, 327.0), (524.6, 322.4), (527.5, 319.4), (530.6, 315.6), (531.2, 313.2), (533.4, 311.0),
         (535.6, 308.2), (537.4, 306.6), (539.2, 306.7), (540.6, 308.4), (540.5, 311.2), (541.6, 311.7), (543.0, 311.6),
         (544.3, 312.8), (544.4, 316.4), (542.2, 319.8), (538.0, 323.4), (536.0, 325.6), (538.5, 329.3), (541.3, 333.6),
@@ -404,15 +412,19 @@ JOHN_ANTIGONE_FILLS = [
     [(570.9, 335.2), (570.5, 335.2), (570.2, 335), (569.9, 334.8), (569.6, 334.5), (569.3, 334.3), (569, 334), (568.7, 333.7), (568.5, 333.4), (568.3, 333.1), (568, 332.8), (567.9, 332.4), (567.7, 332.1), (567.6, 331.8), (567.4, 331.4), (567.2, 331.1), (567.2, 330.7), (567.1, 330.3), (567, 330), (567, 329.6), (566.8, 329.2), (566.7, 328.9), (566.6, 328.5), (566.5, 328.1), (566.5, 327.8), (566.4, 327.4), (566.3, 327.1), (566.3, 326.7), (566.3, 326.2), (566.1, 325.9), (566.1, 325.5), (566.2, 325.1), (566.2, 324.7), (566.2, 324.3), (566.2, 323.9), (566.2, 323.5), (566.2, 323.1), (566.2, 322.7), (566.3, 322.3), (566.4, 321.9), (566.6, 321.6), (566.9, 321.4), (567.3, 321.4), (567.7, 321.6), (567.8, 321.9), (568.1, 322.2), (568.4, 322.5), (568.6, 322.8), (568.9, 323.1), (568.8, 323.5), (568.5, 323.8), (568.4, 324), (568.5, 324.4), (568.5, 324.8), (568.5, 325.2), (568.6, 325.5), (568.6, 325.9), (568.6, 326.3), (568.7, 326.7), (568.7, 327.1), (568.7, 327.5), (568.8, 327.8), (568.8, 328.2), (568.8, 328.6), (569, 329), (568.9, 329.4), (569, 329.8), (569.1, 330.1), (569.2, 330.5), (569.4, 330.8), (569.5, 331.2), (569.7, 331.5), (569.8, 331.9), (570, 332.2), (570, 332.6), (570.2, 332.9), (570.3, 333.2), (570.6, 333.6), (570.8, 333.9), (570.9, 334.2), (571.2, 334.5), (571.1, 334.9)],  # the heavy line at the elbow
 ]
 FACE_SEEDS = [(596, 252), (596, 277), (289, 251)]  # Antigone's face and neck; Ismene's face and neck
-# Ismene's face marks, which his trace leaves to the painting: each stroke on
-# a painted mark measured by local contrast.
-FACE_MARKS = [
-    [(287.0, 247.3), (289.0, 246.8), (291.6, 247.0)],  # brow
-    [(287.8, 251.3), (289.5, 251.0), (291.8, 251.1)],  # eye
-    [(293.6, 258.5), (295.0, 259.0), (296.2, 259.3)],  # nostril
-    [(291.6, 262.3), (293.4, 263.2), (295.6, 264.8)],  # mouth
+# Ismene's brow, eye and mouth, as John marked them on the found photo
+# (2026-10-03: "Face could be better", "She's not smiling"): the screenshot
+# matched to the lines frame by SIFT (182 matches, 0.2 plate px), each mark
+# carried to plate px. The eye is in profile: the upper lid arching to the
+# front, the lower lid, and the iris as an upright stroke at the front; the
+# mouth's corner is lower than the lips.
+ISMENE_FEATURES = [
+    [(292, 246.4), (291.6, 246.3), (291.1, 246.3), (290.5, 246.3), (290, 246.3), (289.5, 246.3), (289, 246.4), (288.6, 246.6), (288.1, 246.6), (287.6, 246.7), (287.1, 246.9), (286.8, 247.2)],  # brow
+    [(291.2, 249), (290.7, 249), (290.2, 249.1), (289.8, 249.4)],  # eye: the top of the iris
+    [(289.8, 249.4), (289.3, 249.5), (288.9, 249.6), (288.4, 249.8), (288.1, 250.1), (287.8, 250.4), (287.5, 250.8), (287.3, 251.2), (287.1, 251.6), (286.9, 252), (286.9, 252.5)],  # eye: the upper lid
+    [(288.1, 252.2), (288.6, 252.2), (289.1, 252.2), (289.5, 252.2), (289.8, 251.8), (289.8, 251.4), (289.8, 250.9), (289.8, 250.4), (289.8, 249.9), (289.8, 249.5)],  # eye: the iris and the lower lid
+    [(296.1, 262), (295.7, 262.1), (295.2, 262.2), (294.8, 262.2), (294.3, 262.3), (293.9, 262.4), (293.4, 262.5), (293.1, 262.7), (292.6, 262.9), (292.2, 263.1)],  # mouth
 ]
-PUPILS = [(289.4, 251.1)]  # Ismene's pupil, a solid dot 1.6 plate px across
 # The end of Antigone's veil hangs below her left arm in a column of S-shaped
 # folds (both photos agree; LIMC's photo, aligned to the plate by ECC, shows
 # them cleaner). Their lines are dark enough to fill solid and close enough
@@ -464,6 +476,18 @@ VEIL_CORNER = [(564.2, 395.8), (567.4, 395.8), (567.4, 399.0), (564.2, 399.0)]
 # A faint brown speck on the altar's white below Oedipus' hanging cloth,
 # which traced as a dot: no line is drawn inside it.
 SPECKS = [[(522.2, 491.6), (525.6, 491.6), (525.6, 495.4), (522.2, 495.4)]]
+
+
+def spread(pts, pivot, deg, r0=3.0, ramp=4.0):
+    """Points turned by deg about pivot (plate px; + turns towards the top of
+    the image), the turn ramping up from 0 at r0 px from the pivot to all of
+    it at r0 + ramp px."""
+    out, th = [], np.radians(deg)
+    for x, y in pts:
+        dx, dy = x - pivot[0], y - pivot[1]
+        a = th * np.clip((np.hypot(dx, dy) - r0) / ramp, 0, 1)
+        out.append((pivot[0] + dx * np.cos(a) + dy * np.sin(a), pivot[1] - dx * np.sin(a) + dy * np.cos(a)))
+    return out
 
 
 def P(pts):
@@ -791,7 +815,11 @@ def main(plate_src: str, page_srcs: list) -> None:
     # solid; where white meets a broad area of clay (a figure on the altar) the
     # edge is drawn; thin clay on the white (the altar's bands) is a painted
     # line, found below with the rest
-    hand_zone = poly(shape, HAND)
+    hand_lines = [list(s_) for s_ in HAND_LINES]
+    for k, first, pivot, deg in FINGER_SPREAD:
+        hand_lines[k][first:] = spread(hand_lines[k][first:], pivot, deg)
+    hand_zone = poly(shape, HAND) | ndi.binary_dilation(ndi.binary_fill_holes(drawn(shape, [P(s_) for s_ in hand_lines], FINE_W)),
+                                                        iterations=6)
     # John's strokes, and the skin they close in round each face
     john = drawn(shape, [P(s_) for s_ in JOHN_ANTIGONE + JOHN_ANTIGONE_ARM + JOHN_ISMENE], FINE_W)
     for q in JOHN_ANTIGONE_FILLS:
@@ -835,7 +863,7 @@ def main(plate_src: str, page_srcs: list) -> None:
     hair_marks = ndi.gaussian_filter(hair_marks.astype(float), 1.0) > 0.5
 
     # the hand: only its strokes; the clay under them fills the closed fingers
-    hand = drawn(shape, [P(s_) for s_ in HAND_LINES], FINE_W)
+    hand = drawn(shape, [P(s_) for s_ in hand_lines], FINE_W)
     edge &= ~hand_zone
     sil = (sil & ~hand_zone) | (ndi.binary_fill_holes(hand | (sil & ~hand_zone)) & hand_zone)
 
@@ -854,11 +882,7 @@ def main(plate_src: str, page_srcs: list) -> None:
     bun = lw.ink_lines(L_lines, size=15, low=10, high=22, sigma=1.0) & hair_zones & ~dark_hair & ~face_zones
     bun = morphology.remove_small_objects(ndi.binary_erosion(bun) | morphology.skeletonize(bun), max_size=30)
 
-    marks = drawn(shape, [P(s_) for s_ in FACE_MARKS], FINE_W)
-    Y, X = np.ogrid[0:shape[0], 0:shape[1]]
-    for x, y, r in [(x, y, 0.8) for x, y in PUPILS]:
-        (px, py), = P([(x, y)])
-        marks |= (X - px) ** 2 + (Y - py) ** 2 <= (r * F) ** 2
+    marks = drawn(shape, [P(s_) for s_ in ISMENE_FEATURES], FINE_W)
     # his strokes, except where the outline already runs; painted marks right
     # beside them give way
     marks |= john & ~ndi.binary_dilation(edge, iterations=JOHN_NEAR)
