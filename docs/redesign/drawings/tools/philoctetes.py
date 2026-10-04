@@ -293,6 +293,10 @@ TREE_CORRIDOR = 8
 # browner than the ground and shows the brush: in A L 21, red minus blue 23,
 # against 14 and 6; John, 2026-10-03, marked it black).
 WINDOWS = [(1635, 1256), (2213, 1024), (2490, 1804), (2857, 1902), (147, 2399)]
+# The two between his legs (between his hanging leg and the rock, under his
+# raised foot) are drawn black, on the light page too (John, 2026-10-03:
+# "Fill those in with black. They look weird not black in day mode.").
+BLACK_WINDOWS = [(2490, 1804), (2857, 1902)]
 # Along the figure's edge the glaze is a little browner and lighter than the
 # rest (the painter's contour stripe, 3-15 px wide; A shows it at L 25-50, red
 # minus blue 25-55), and the colour test leaves it to the figure, whose edge
@@ -921,6 +925,8 @@ def main(pC: str, pA: str, pB: str) -> None:
     ys, xs = np.nonzero(area)
     w = lw.HOUSE_WEIGHT * max(np.ptp(ys), np.ptp(xs))  # the house weight, in frame px
     ink, tone = drawing(rgbC, rgbA, area, painted, w, parts)
+    lab, _ = ndi.label(windows)
+    ink |= np.isin(lab, [k for k in (lab[y, x] for x, y in BLACK_WINDOWS) if k > 0])
     held = windows.copy()  # ground left open: the windows, and the ground by his lines round the feet
     for name, t in parts.items():
         if name in BAND_PARTS:
