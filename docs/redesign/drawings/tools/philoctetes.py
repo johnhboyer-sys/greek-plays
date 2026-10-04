@@ -37,8 +37,9 @@ Photo -> drawing:
   - The scene is him, the rock he sits on and his bow case: one clay area.
     The tree is cut off where its trunk meets the rock (TREE_CUT, along the
     rock's own top line and the top of his hand). The black ground seen
-    through the scene (WINDOWS: between his arms and his body, under his
-    raised leg, under his raised foot) stays open in the dark theme too.
+    through the scene (WINDOWS: between his arms and his body, between his
+    hanging leg and the rock, under his raised foot) stays open in the dark
+    theme too.
   - Painted lines are found by their narrowness (darker than the clay within
     a few px of them), which passes over the broad brown washes, and redrawn
     as even lines along their centres. The washes are not drawn ("the orange
@@ -786,7 +787,7 @@ def traced_ink(parts, rgbA, g, area):
         ink |= ((ndi.distance_transform_edt(~centre) <= TRACE_PEN / 2) & ~light) | t["solids"] | black
         if name in BAND_PARTS:
             band = ndi.binary_closing(walls | ~area, structure=morphology.disk(BAND_R)) & ~walls & area
-            band &= (rw < BAND_LOW) & (ndi.distance_transform_edt(~walls) <= BAND_R)
+            band &= (rw < BAND_LOW) & (ndi.distance_transform_edt(~walls) <= 2 * BAND_R)
             ink |= ndi.binary_opening(band, structure=morphology.disk(2))
         if name in TONE_PARTS:
             paint = ndi.binary_opening((rw < TONE_K) & inside, structure=morphology.disk(1))
