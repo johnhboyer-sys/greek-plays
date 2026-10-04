@@ -591,9 +591,11 @@ DASH_GAP, DASH_TURN, DASH_BEND = 80, 12.0, 18.0
 TRACES = {k: v for k, v in json.loads((Path(__file__).parent / "philoctetes_traces.json").read_text()).items()
           if k != "note"}
 TRACE_PEN, TRACE_NEAR, TRACE_EDGE, TRACE_BLACK_MIN, TRACE_HOLE_MAX = 4.0, 20, 6, 3000, 4000
-# The feet (2026-10-03) are drawn from his trace the same way, except that
-# his outline sets the figure's area, and replaces the black paint found
-# there, round the head alone (AREA_PARTS). Round the feet his lines run
+# The feet and hands (2026-10-03) are drawn from his traces the same way,
+# except that his outline sets the figure's area round the head alone
+# (AREA_PARTS), and his trace replaces the black paint found under it round
+# the head and the hands (PAINT_PARTS), where he drew the painted strokes as
+# single lines, often along one edge of a stroke. Round the feet his lines run
 # along the rock's brown washes, which the clean-clay rule would cut out of
 # the figure, and his toes close pockets of ground under them: there the
 # scene's own edge stands, and the black paint found (the bands, the broad
@@ -607,7 +609,15 @@ TRACE_PEN, TRACE_NEAR, TRACE_EDGE, TRACE_BLACK_MIN, TRACE_HOLE_MAX = 4.0, 20, 6,
 # (lw.trace_svg open_holes): a dark band at the figure's edge lies far from
 # clay on its outer side, and would get the clay rim that keeps a lone line
 # visible on the dark theme.
-AREA_PARTS, BAND_PARTS, BAND_R = ("head",), ("feet",), 18
+AREA_PARTS, PAINT_PARTS, BAND_PARTS, BAND_R = ("head",), ("head", "right_hand", "left_hand"), ("feet",), 18
+# The hands (2026-10-03): his single lines run along the painted strokes,
+# often by one edge of a stroke 10-15 px wide, so his trace replaces the
+# lines found within HAND_ZONE px of his (the centre lines of those
+# strokes); and where his contour runs up to HAND_GROW px outside the edge
+# the colours give (and the scene's own edge: not up his strokes along the
+# tree trunk, which is cut off), the figure's area reaches out to it, as
+# round the head, a window giving way.
+HAND_PARTS, HAND_ZONE, HAND_GROW = ("right_hand", "left_hand"), 16, 8
 # His hair and beard get a half tone where the vase has its brown wash (John,
 # 2026-10-03: "can you do a half-dark tone for the beard to mimic the tone of
 # the original on the beard?", "same for hair"): paint darker than TONE_K
@@ -747,22 +757,29 @@ def traced(shape):
         walls = ndi.binary_dilation(centre, iterations=1) | solids
         inside = ndi.binary_fill_holes(ndi.binary_closing(walls, structure=morphology.disk(2)))
         parts[name] = dict(centre=centre, solids=solids, walls=walls, inside=inside,
-                           zone=inside | ndi.binary_dilation(walls, iterations=6))
+                           zone=inside | ndi.binary_dilation(walls, iterations=HAND_ZONE if name in HAND_PARTS else 6))
     return parts
 
 
 def traced_area(area, windows, rgbA, parts):
-    """The scene's area with the outline of each part in AREA_PARTS: inside
-    it is the figure; within TRACE_NEAR px outside it only clean clay stays."""
+    """The scene's area and windows with the outline of each part in
+    AREA_PARTS: inside it is the figure; within TRACE_NEAR px outside it only
+    clean clay stays. Round the hands (HAND_PARTS) the area reaches out to his
+    contour, a window giving way to it, up to HAND_GROW px past the edge."""
     _, clay = classes(rgbA)
     clay = ndi.binary_opening(clay, structure=morphology.disk(2))
+    out = ndi.distance_transform_edt(~area)  # px outside the scene's own edge
     for name, t in parts.items():
         if name in AREA_PARTS:
             near = ndi.binary_dilation(t["walls"], iterations=TRACE_NEAR)
             area = (area & ~(near & ~t["inside"] & ~clay)) | t["inside"]
+        if name in HAND_PARTS:  # out to his contour where it runs just outside the edge
+            grown = ndi.binary_closing(area | t["walls"], structure=morphology.disk(HAND_GROW // 2))
+            grown &= (ndi.distance_transform_edt(~t["walls"]) <= HAND_GROW) & (out <= HAND_GROW)
+            area, windows = area | grown, windows & ~grown
     lab, n = ndi.label(area)
     area = lab == 1 + int(np.argmax(ndi.sum(np.ones(area.shape), lab, np.arange(1, n + 1))))
-    return ndi.binary_fill_holes(area | windows) & ~windows
+    return ndi.binary_fill_holes(area | windows) & ~windows, windows
 
 
 def traced_ink(parts, rgbA, g, area):
@@ -836,7 +853,7 @@ def drawing(rgbC, rgbA, area, painted, w, parts):
     paint_zone = np.zeros(shape, bool)  # where his trace replaces the found black paint too
     for name, t in parts.items():
         zone |= t["zone"]
-        if name in AREA_PARTS:
+        if name in PAINT_PARTS:
             paint_zone |= t["zone"]
     LA = ndi.gaussian_filter(lum(rgbA), 1.0)
     rA = LA / np.maximum(ndi.gaussian_filter(ndi.grey_closing(LA, size=(QUIVER_CLAY, QUIVER_CLAY)), 10), 1.0)
@@ -922,7 +939,7 @@ def main(pC: str, pA: str, pB: str) -> None:
         return
     area, windows, painted = scene(rgbA, L, ground_line(fr, rgbA.shape[1]))
     parts = traced(area.shape)
-    area = traced_area(area, windows, rgbA, parts)
+    area, windows = traced_area(area, windows, rgbA, parts)
     ys, xs = np.nonzero(area)
     w = lw.HOUSE_WEIGHT * max(np.ptp(ys), np.ptp(xs))  # the house weight, in frame px
     ink, tone = drawing(rgbC, rgbA, area, painted, w, parts)
