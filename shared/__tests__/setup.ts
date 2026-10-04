@@ -56,3 +56,24 @@ Element.prototype.animate = vi.fn(() => ({
   addEventListener() {},
   removeEventListener() {},
 })) as unknown as Element['animate'];
+
+// happy-dom's page origin is http://localhost:3000, where nothing listens:
+// components that mount in these tests fetch /data/... for files no test
+// mocks, and each attempt printed an ECONNREFUSED AggregateError that reads
+// like a failure. Fail same-origin fetches at once with the TypeError a dead
+// network gives, so components take the same path as before (a rejection,
+// which data.ts evicts from its caches; a 404 would cache [] or {} instead).
+// Tests that spy on or stub fetch replace this as before.
+{
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+    const raw = input instanceof Request ? input.url : String(input);
+    // Some tests leave location.href unparseable as a base, so test a
+    // relative URL by its missing scheme rather than by resolving it.
+    const relative = !/^[a-z][a-z\d+.-]*:/i.test(raw);
+    if (relative || new URL(raw).origin === window.location.origin) {
+      return Promise.reject(new TypeError(`fetch failed: no test server for ${raw}`));
+    }
+    return realFetch(input, init);
+  }) as typeof fetch;
+}
