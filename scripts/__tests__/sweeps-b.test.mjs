@@ -8,18 +8,30 @@ import { codepointsFromFont, readFontCmap } from '../sweeps/font-cmap.mjs';
 import { collectJson, collectText, visibleText, parseRanges, faceCovers, parseFaces } from '../sweeps/s4-glyphs.mjs';
 import { parseArgs, resolveStaticPath, contentType, listPages } from '../sweeps/s5-crawl.mjs';
 
+// macOS font folders, then Linux's (CI runs on Ubuntu, where fonts sit in
+// subfolders of /usr/share/fonts). Null when none has an A.
 async function findFont() {
-  for (const root of ['/System/Library/Fonts', '/Library/Fonts']) {
-    const names = await readdir(root).catch(() => []);
-    for (const name of names.filter(n => /\.(ttf|otf)$/i.test(n))) {
-      const file = path.join(root, name);
-      try { if ((await readFontCmap(file)).has(0x41)) return file; } catch {}
+  async function search(dir, depth) {
+    for (const e of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
+      const file = path.join(dir, e.name);
+      if (e.isFile() && /\.(ttf|otf)$/i.test(e.name)) {
+        try { if ((await readFontCmap(file)).has(0x41)) return file; } catch {}
+      } else if (e.isDirectory() && depth < 3) {
+        const found = await search(file, depth + 1);
+        if (found) return found;
+      }
     }
+    return null;
   }
-  throw new Error('No system font with A');
+  for (const root of ['/System/Library/Fonts', '/Library/Fonts', '/usr/share/fonts']) {
+    const found = await search(root, 0);
+    if (found) return found;
+  }
+  return null;
 }
-test('reads a real system TTF or OTF cmap', async () => {
+test('reads a real system TTF or OTF cmap', async t => {
   const file = await findFont();
+  if (!file) { t.skip('No system TTF or OTF font with A'); return; }
   assert.ok((await readFontCmap(file)).has(0x41), file);
 });
 test('reads a real WOFF2 from node_modules when installed', async t => {
@@ -36,8 +48,10 @@ test('reads a real WOFF2 from node_modules when installed', async t => {
   if (!file) { t.skip('No WOFF2 in app/node_modules'); return; }
   assert.ok((await readFontCmap(file)).has(0x41), file);
 });
-test('reads synthetic WOFF2 and WOFF wrappers around a real cmap', async () => {
-  const font = await readFile(await findFont());
+test('reads synthetic WOFF2 and WOFF wrappers around a real cmap', async t => {
+  const file = await findFont();
+  if (!file) { t.skip('No system TTF or OTF font with A'); return; }
+  const font = await readFile(file);
   const n = font.readUInt16BE(4);
   let cmap;
   for (let i = 0; i < n; i++) {

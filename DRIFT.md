@@ -955,3 +955,4 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `shared/__tests__/word-popup.test.ts` — 2026-10-04: the mocked `lookupWord` result drops the top-level `lsj`, which it lost at 3c76b5b.
 - `pipeline/tests/test_bench_clean_verse.py` — 2026-10-04: the two tests that read `build/arrowsmith/genie-*.html` skip when it is absent, as the Hickie and Rogers tests do.
 - `.github/workflows/ci.yml` — 2026-10-05: the app job runs `scripts/__tests__` (`node --test`), which no gate ran before.
+- `scripts/__tests__/sweeps-b.test.mjs` — 2026-10-05: `findFont` also searches `/usr/share/fonts` (CI is Ubuntu; it looked only in macOS folders) and the two tests that need a font skip when there is none (Codex review).
