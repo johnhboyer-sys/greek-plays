@@ -61,8 +61,23 @@ STRING = [(826.5, 1452), (829.6, 1480), (836.5, 1510), (842.8, 1540), (849.9, 15
           (865.9, 1630), (873.9, 1660), (880.9, 1690), (886.9, 1710), (888, 1720), (897, 1750),
           (905, 1785), (915, 1806), (925, 1838), (941, 1880), (949, 1900), (957, 1920), (966, 1940),
           (974, 1960)]
-STRING_W = 2.2                            # plate px, its width on the ground
-LOOP = (745, 2385, 812, 2426)             # box round the strap looped at her ankle (x0, y0, x1, y1)
+STRING_W = 2.2                            # plate px, its width on the ground (and the strap's)
+# the strap looped at her ankle, a thin clay line on the ground, through its centre (every 5 px,
+# from where it leaves her foot round to its knot); its light ridge breaks up in two places
+STRAP = [(799.8, 2418.7), (794.9, 2418.9), (789.9, 2418.6), (784.9, 2418.2), (779.9, 2417.9),
+         (774.9, 2417.8), (769.9, 2417.2), (765.1, 2416.0), (760.6, 2414.2), (756.6, 2410.9),
+         (755.1, 2406.4), (757.1, 2401.9), (759.9, 2397.9), (764.3, 2396.1), (769.1, 2395.4),
+         (774.1, 2394.5), (779.1, 2394.6), (783.9, 2395.2), (788.9, 2396.5), (793.4, 2398.2),
+         (797.9, 2400.2), (802.4, 2402.6), (806.6, 2405.4), (811.8, 2409.0)]
+# the faces, boxes in plate px: their lines are fine and close together (the stubble on his cheek
+# is a row of short strokes, her eye an open outline), and the local-contrast finder merges them,
+# so here the lines are the plate's dark paint itself, at its own width
+FACES = [(560, 1486, 672, 1585), (945, 1505, 1015, 1650)]
+FACE_DARK = 105
+# faint lines the finder breaks up and a tint patch beside them would join wrongly, traced along
+# the plate's own line between hand-placed ends (plate px): the thin line down his neck
+TRACED = [[(536, 1524), (556.5, 1562)]]
+TRACED_W = 1.5                            # plate px
 # the panel's left border (centre of its line; it slants) and lower border, plate px
 LEFT = [(184, 1243), (183, 1460), (180, 1660), (176, 1860), (174, 1960), (172, 2060), (169, 2160),
         (168, 2260), (165, 2360), (163, 2460), (162, 2500)]
@@ -74,6 +89,80 @@ OTHER_SPEAR = [(1040, 1882), (1195, 1882), (1195, 1902), (1046, 1902), (1039, 18
 
 def up(pts):
     return np.array([((x - X0) * UP, (y - Y0) * UP) for x, y in pts], float)
+
+
+def polyline(shape, pts, width):
+    """A line `width` plate px wide through pts (plate px), at UP."""
+    m = np.zeros(shape, bool)
+    P = up(pts)
+    for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
+        for t in np.linspace(0, 1, int(np.hypot(xb - xa, yb - ya)) + 1):
+            m[int(round(ya + t * (yb - ya))), int(round(xa + t * (xb - xa)))] = True
+    return ndi.distance_transform_edt(~m) <= width * UP / 2
+
+
+def traced(g, pts, width):
+    """The plate's own dark line between hand-placed points (plate px), followed by a least-cost
+    path along its darkest ridge, `width` plate px wide, at UP."""
+    P = up(pts)
+    pad = 10 * UP
+    x0, y0 = int(P[:, 0].min()) - pad, int(P[:, 1].min()) - pad
+    x1, y1 = int(P[:, 0].max()) + pad, int(P[:, 1].max()) + pad
+    w = ndi.gaussian_filter(g[y0:y1, x0:x1], 0.7 * UP)
+    cost = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(w, size=(5 * UP, 5 * UP)) - w, 0, None) / 12)
+    path = lw.livewire(cost, [(x - x0, y - y0) for x, y in P])
+    m = np.zeros(g.shape, bool)
+    m[(path[:, 1] - 0.5).astype(int) + y0, (path[:, 0] - 0.5).astype(int) + x0] = True
+    return ndi.distance_transform_edt(~m) <= width * UP / 2
+
+
+def faint_stretches(firm, loose):
+    """The faint stretches of the plate's thin lines, from the looser threshold, where they are
+    lines. Away from the firm lines, a stretch long enough to stand alone must be line-shaped
+    (3 times as long as wide; a patch of the print's tint is rounder). A short one, or a piece of
+    the looser lines' centre line between firm lines (which finds gaps under 2 px, lying wholly
+    in the firm lines' fringe), must bridge two firm lines and run along at least one of them: a
+    gap in a line, or a line meeting another. One that crosses between two lines side by side
+    is a bridge of grain or tint."""
+    def axis(p):  # unit vector (y, x) along the longer axis of points p, and how much longer it is
+        if len(p) < 3:
+            return np.zeros(2), 0.0
+        w, v = np.linalg.eigh(np.cov(p.T.astype(float)))
+        return v[:, 1], float(np.sqrt(max(w[1], 1e-9) / max(w[0], 0.25)))
+
+    firm_lab = ndi.label(firm)[0]
+    box = np.ones((2 * UP + 3, 2 * UP + 3), bool)
+
+    def bridges(lab, small):
+        keep = np.zeros(lab.max() + 1, bool)
+        for k, sl in enumerate(ndi.find_objects(lab), 1):
+            pad = 8 * UP
+            ys = slice(max(sl[0].start - pad, 0), sl[0].stop + pad)
+            xs = slice(max(sl[1].start - pad, 0), sl[1].stop + pad)
+            mine = lab[ys, xs] == k
+            if mine.sum() > small:
+                continue
+            fl = firm_lab[ys, xs]
+            reach = ndi.binary_dilation(mine, structure=box)
+            touched = [f for f in np.unique(fl[reach]) if f]
+            near = ndi.distance_transform_edt(~mine) <= 6 * UP
+            meets = [np.argwhere(reach & (fl == f)).mean(0) for f in touched]    # where it meets each
+            runs = [axis(np.argwhere(near & (fl == f)))[0] for f in touched]      # each one's way there
+            for i in range(len(touched)):
+                for j in range(i + 1, len(touched)):
+                    d = meets[j] - meets[i]
+                    if np.hypot(*d) >= 1:
+                        d /= np.hypot(*d)
+                        keep[k] |= max(abs(d @ runs[i]), abs(d @ runs[j])) > np.cos(np.radians(30))
+        return keep[lab]
+
+    flab, n = ndi.label(loose & ~ndi.binary_dilation(firm, iterations=UP))
+    alone = np.zeros(n + 1, bool)
+    for k, sl in enumerate(ndi.find_objects(flab), 1):
+        mine = flab[sl] == k
+        alone[k] = mine.sum() > 12 * UP * UP and axis(np.argwhere(mine))[1] >= 3
+    centre = ndi.label(morphology.skeletonize(loose) & ~firm, structure=np.ones((3, 3)))[0]
+    return alone[flab] | bridges(flab, 12 * UP * UP) | bridges(centre, np.inf)
 
 
 def main(src, qa=None):
@@ -109,52 +198,43 @@ def main(src, qa=None):
     assert 0 not in keep
     fig = np.isin(lab, list(keep))
     fig = ndi.binary_fill_holes(fig) & ~ground   # paint stays hers; pockets of ground do not
-    # smooth the edge, but keep the thin clay lines on the ground (the strap looped at her
-    # ankle): light ridges narrower than 5 plate px
+    # smooth the edge, but keep the thin clay on the ground (the bow's tips, the axe blade's
+    # point): light ridges narrower than 5 plate px. The strap is drawn from its trace instead.
+    string, strap = polyline(g.shape, STRING, STRING_W), polyline(g.shape, STRAP, STRING_W)
     ridge = (g - ndi.grey_opening(g, size=(5 * UP, 5 * UP))) > 50
+    ridge &= ~ndi.binary_dilation(strap, iterations=3 * UP)
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP)) | (fig & ridge)
-    string = np.zeros_like(fig)
-    pts = up(STRING)
-    for (xa, ya), (xb, yb) in zip(pts[:-1], pts[1:]):
-        for t in np.linspace(0, 1, int(np.hypot(xb - xa, yb - ya)) + 1):
-            string[int(round(ya + t * (yb - ya))), int(round(xa + t * (xb - xa)))] = True
-    string = ndi.distance_transform_edt(~string) <= STRING_W * UP / 2
 
     # lines: the plate's dark lines inside the figures, the outline, the bowstring, and the solid
     # paint. The thin brown lines (his knee and shin, folds of his chiton) fade in places: a
-    # looser threshold finds the faint stretches. A stretch is added where it joins two firm
-    # lines (a gap in one line, or a faint line between two), or is long enough to be a line of
-    # its own; one that touches a single firm line is a spur of grain beside it.
+    # looser threshold finds the faint stretches (faint_stretches says which are lines).
     # Every line is then at least 2 plate px wide, or the thin ones break up when the line
     # weight is evened out (it moves every line by the same amount)
     firm = lw.ink_lines(g, size=9 * UP, low=22, high=34, sigma=0.8 * UP)
     loose = lw.ink_lines(g, size=9 * UP, low=14, high=34, sigma=0.8 * UP)
-    faint = loose & ~ndi.binary_dilation(firm, iterations=UP)
-    flab, n = ndi.label(faint)
-    reach = ndi.grey_dilation(flab, size=(2 * UP + 3, 2 * UP + 3))   # each stretch, a little grown
-    firm_lab = ndi.label(firm)[0]
-    pairs = np.unique(np.stack([reach[firm], firm_lab[firm]]), axis=1)
-    joins = np.bincount(pairs[0][pairs[0] > 0], minlength=n + 1)    # firm lines each one meets
-    keep = (joins >= 2) | (np.bincount(flab.ravel(), minlength=n + 1) > 12 * UP * UP)
-    keep[0] = False
-    faint = keep[flab]
+    faint = faint_stretches(firm, loose)
     lines = (firm | (loose & ndi.binary_dilation(faint, iterations=UP + 1))) & fig
+    for pts in TRACED:
+        lines |= traced(g, pts, TRACED_W) & fig
     lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= UP) & fig
+    face = np.zeros_like(fig)
+    for box in FACES:
+        fx0, fy0, fx1, fy1 = [(v - o) * UP for v, o in zip(box, (X0, Y0, X0, Y0))]
+        face[fy0:fy1, fx0:fx1] = True
+    lines = np.where(face, (ndi.gaussian_filter(g, 0.5 * UP) < FACE_DARK) & fig, lines)
     solid = paint & fig
     lab, _ = ndi.label(solid)
     solid &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
     edge = fig & ~ndi.binary_erosion(fig, iterations=int(2.5 * UP))
     ink = lines | solid | edge
     lab, _ = ndi.label(ink)
-    ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
-    ink |= string
+    size = np.bincount(lab.ravel())
+    ink &= np.where(face, (size > 3 * UP * UP)[lab], (size > 12 * UP * UP)[lab])   # a stroke of stubble stays
+    ink |= string | strap
 
-    # the pockets stay open in the dark theme; the string and the strap, thin clay lines that
-    # cross them, keep their clay rim there
+    # the pockets stay open in the dark theme; the string and the strap, thin clay lines on
+    # the ground, keep a clay rim there
     held = ndi.binary_fill_holes(fig | string) & ground
-    strap = np.zeros_like(fig)
-    lx0, ly0, lx1, ly1 = [(v - o) * UP for v, o in zip(LOOP, (X0, Y0, X0, Y0))]
-    strap[ly0:ly1, lx0:lx1] = (fig & ridge)[ly0:ly1, lx0:lx1]
     rims = ndi.binary_dilation(string | strap, iterations=2 * UP)
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=held, rim_lines=rims,
