@@ -170,9 +170,13 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
               open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None, pad: int = 4,
-              turdsize: int = 10, alphamax: float = 1.0) -> dict:
+              turdsize: int = 10, alphamax: float = 1.0, weight: float | str | None = None) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
-    weight, and potrace it into a theme-following SVG 1000 units tall: the
+    weight (or `weight`, as a fraction of the longer side; "own" keeps the
+    widths the ink has, for ink whose lines are already drawn at their width,
+    as Andromache's: there the plate's lines are finer than the house weight,
+    and thickening them to it ran close lines together, John, 2026-10-06),
+    and potrace it into a theme-following SVG 1000 units tall: the
     lines are filled with currentColor. `body`, a mask of the figure's area
     (same shape as ink), becomes a second path under the lines, class "body",
     fill="none": transparent unless a page colours it with CSS, as the dark
@@ -189,8 +193,9 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     x0, x1 = max(xs.min() - pad, 0), min(xs.max() + pad + 1, ink.shape[1])
     ink = ink[y0:y1, x0:x1]
     before = line_width(ink) / max(ink.shape)
+    weight = HOUSE_WEIGHT if weight is None else before if weight == "own" else weight
     crop = resample_ink(ink, WORK_H)
-    crop = set_line_width(crop, HOUSE_WEIGHT * max(crop.shape))
+    crop = set_line_width(crop, weight * max(crop.shape))
     weighted = crop
     crop = resample_ink(crop, TRACE_H)  # trace smaller: fewer, smoother curves
     h, w = crop.shape
@@ -209,7 +214,7 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         b = ndi.binary_opening(b, structure=morphology.disk(2))
         # a line with no clay on either side of it (a goad, a chain link) would
         # vanish on a dark page: give it a narrow clay rim
-        lw_px = HOUSE_WEIGHT * max(lines.shape)
+        lw_px = weight * max(lines.shape)
         clay = b & ~lines
         orphan = lines & ~(ndi.distance_transform_edt(~clay) <= 1.5 * lw_px)
         if orphan.any():
