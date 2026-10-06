@@ -169,7 +169,8 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 
 
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
-              open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None, pad: int = 4,
+              open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None,
+              dots: np.ndarray | None = None, pad: int = 4,
               turdsize: int = 10, alphamax: float = 1.0, weight: float | str | None = None,
               trace_h: int = TRACE_H) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
@@ -190,6 +191,9 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     between two pockets). `trace_h`: the height it is traced at (TRACE_H;
     a drawing whose plate holds gaps finer than a px of TRACE_H, as
     Andromache's, is traced at WORK_H; the speck limits scale with it).
+    `dots` (same shape): marks to keep however small, which potrace's speck
+    filter would drop (a stipple a line wide, at a weight finer than the
+    house's): traced on their own, at their own size, and added to the lines.
     Returns the crop box in ink's pixels, for qa_overlay."""
     ys, xs = np.nonzero(ink)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
@@ -204,6 +208,11 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     h, w = crop.shape
     q = trace_h / TRACE_H                 # the speck limits below are set for TRACE_H
     d, tr = potrace_d(crop, turdsize=round(turdsize * q * q), alphamax=alphamax)
+    if dots is not None and dots[y0:y1, x0:x1].any():
+        r = resample_ink(dots[y0:y1, x0:x1], trace_h)[:h, :w]
+        dd = np.zeros_like(crop)
+        dd[:r.shape[0], :r.shape[1]] = r
+        d += " " + potrace_d(dd, turdsize=0, alphamax=alphamax)[0]
     body_path = ""
     if body is not None:
         b = resample_ink(body[y0:y1, x0:x1] | ink, trace_h)

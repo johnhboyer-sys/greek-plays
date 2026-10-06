@@ -3,6 +3,7 @@ the outline along a straight edge, and none lost inside it. A rod drawn with
 lines twice the house weight (trace_svg thins them by half, as on the
 Pythia's plate) and a ring small enough that the body's edge, pulled under
 its line, would leave less than potrace's speck limit, rendered at 1400px.
+And a dot under that limit, kept only when passed as `dots`.
 
     python3 docs/redesign/drawings/tools/test_linework.py
 """
@@ -22,6 +23,7 @@ H, W = 1000, 300
 ROD = (60, 940, 40, 80)       # y0, y1, x0, x1: the rod's outer edge
 LINE = 4                      # px, raw: the house weight here is about 2
 RING = (500, 200, 4, 2)       # centre y, x, outer radius, line width
+DOT = (300, 150, 2)           # centre y, x, radius: under the speck limit at turdsize 100
 
 
 def drawing():
@@ -71,7 +73,26 @@ def main() -> None:
     assert past.sum() == 0, "clay shows past the outline"
     assert inside > 0.9, "clay lost inside the rod"
     assert (ring > 0.5).mean() > 0.5, "clay lost inside the ring"
+    dots_check()
     print("ok")
+
+
+def dots_check() -> None:
+    """A dot under potrace's speck limit: dropped from the ink, kept when passed as `dots`."""
+    ink, _ = drawing()
+    yy, xx = np.mgrid[0:H, 0:W]
+    dot = np.hypot(yy - DOT[0], xx - DOT[1]) <= DOT[2]
+    shown = []
+    for kw in ({}, {"dots": dot}):
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "t.svg"
+            bx0, by0, bx1, _ = lw.trace_svg(ink | dot, out, title="t", desc="t", turdsize=100, **kw)["box"]
+            lines = render(out.read_text().replace("currentColor", "#000"), 1400)
+        k = 1400 / (bx1 - bx0)
+        shown.append(lines[int((DOT[0] - by0) * k), int((DOT[1] - bx0) * k)])
+    print(f"a dot under the speck limit: {shown[0]:.0%} drawn from the ink alone, {shown[1]:.0%} passed as dots")
+    assert shown[0] < 0.5, "the dot was not under the speck limit: the check examined nothing"
+    assert shown[1] > 0.5, "a dot passed as dots was dropped"
 
 
 if __name__ == "__main__":
