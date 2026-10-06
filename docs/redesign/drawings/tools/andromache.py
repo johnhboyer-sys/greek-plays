@@ -33,6 +33,7 @@ plate's own lines where they touch:
 
     python3 docs/redesign/drawings/tools/andromache.py furtwaengler1904bd1_061_Tafel_34.jpg [qa.png]
 """
+import json
 import sys
 from pathlib import Path
 
@@ -40,7 +41,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
-from skimage import morphology
+from skimage import draw, morphology
 
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
@@ -90,6 +91,13 @@ LINE_T, LINE_GROW, LINE_MIN = 16, 2, 40   # the walls for the leg fill (1x px): 
 # height), not the house weight (0.225%): at that weight the close lines (eyelids, lips, curls) ran
 # together. John, 2026-10-06, shown both: "Plate's own weight"
 WEIGHT = 0.00155
+# John's own traces (andromache_traces.json: his strokes as polylines along their centres, the
+# marks he filled in as polygons; plate px), where the faces and hands did not come clean: his
+# strokes are drawn WEIGHT wide and his marks solid; the plate's lines within TRACE_NEAR plate px
+# of them give way, and where his stroke runs within TRACE_EDGE px of the outline it is the outline
+TRACES_FILE = Path(__file__).parent / "andromache_traces.json"
+TRACES = {k: v for k, v in json.loads(TRACES_FILE.read_text()).items() if k != 'note'} if TRACES_FILE.exists() else {}
+TRACE_NEAR, TRACE_EDGE = 6, 3
 FAINT = (3.0, 6.0)                        # ridge filter thresholds (hysteresis low, high)
 FAINT_MIN = 60                            # plate px: shorter faint pieces are grain
 DENOISE = 12                              # non-local means strength (grey levels)
@@ -248,6 +256,21 @@ def main(src, qa=None, diag=None):
     ink = even_lines(black, t, 3 * UP) | even_lines(faint, t, 3 * UP) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * UP * UP)[lab]   # specks of grain; a small curl stays
+    for part in TRACES.values():
+        strokes, solids = np.zeros_like(fig), np.zeros_like(fig)
+        for line in part['lines']:
+            P = up(line)
+            for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
+                rr, cc = draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
+                ok = (rr >= 0) & (rr < H) & (cc >= 0) & (cc < W)
+                strokes[rr[ok], cc[ok]] = True
+        for poly in part['solids']:
+            solids |= lw.polygon_mask(fig.shape, np.array(up(poly), float))
+        to_his = ndi.distance_transform_edt(~(strokes | solids))
+        his = (ndi.distance_transform_edt(~strokes) <= t / 2) | solids
+        edge_kept = edge & ~(ndi.distance_transform_edt(~strokes) <= TRACE_EDGE * UP)
+        near = to_his <= TRACE_NEAR * UP
+        ink = (ink & ~near) | (edge_kept & near) | his
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=held, weight="own",   # drawn at WEIGHT already (even_lines)
         title='Neoptolemos killing Priam, who sits on the altar with the dead Astyanax across his knees',
