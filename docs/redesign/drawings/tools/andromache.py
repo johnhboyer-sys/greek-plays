@@ -57,8 +57,10 @@ AUTO_GROUND = 3000                        # plate px: dark areas this large are 
 # ... but for these, paint: the helmet's two black parts, Astyanax's hair, the blood on Priam's
 # back and on the altar (the --diag run lists every dark area the group closes in)
 PAINT = [(3720, 2725), (3853, 2755), (3636, 3578), (3317, 3190), (2902, 3865)]
-# and smaller dark areas are paint but for these, ground: between the sword's hilt and his knuckles
-GROUND = [(3918, 2430)]
+# and smaller dark areas are paint but for these, ground: between the sword's hilt and his knuckles;
+# under his jaw, between his chin and his arm; under his outstretched arm, between the folds of
+# the cloak hanging from it, and between it and Priam's beard
+GROUND = [(3918, 2430), (3742, 2904), (3538, 3096), (3458, 3116)]
 # solid paint: dark on the plate lightly smoothed, and wider than a line (5 plate px): heavier
 # smoothing ran close lines together (the altar's egg-and-dart, the hems) into blots
 PAINT_T, PAINT_W = 130, 5
@@ -78,8 +80,9 @@ PALM_ZONE = [(2650, 2450), S, (3260, 2450), S, (3260, 2880), S, (3180, 3000), S,
              (2826, 3680), S, (2790, 3720), S, (2758, 4000), S, (2745, 4052), S, (2650, 4300), S]
 FLOOR_ZONE = [(2745, 4052), (2765, 4057), (2950, 4080), (3112, 4103), (3300, 4122), (3490, 4141), S,
               (3530, 4170), S, (3530, 4300), S, (2700, 4300), S]
-FALLEN_ZONE = [(3745, 3545), S, (3748, 3700), S, (3752, 3880), S, (3758, 3920), (3772, 3975), (3790, 4030),
-               (3795, 4060), (3740, 4078), (3660, 4085), (3580, 4082), (3500, 4080), S, (3480, 4300), S,
+FALLEN_ZONE = [(3745, 3545), S, (3748, 3700), S, (3750, 3880), S, (3746, 3923), (3748, 3950), (3752, 3972),
+               (3764, 3986), (3760, 4007), (3742, 4012), S, (3736, 4078), (3660, 4085), (3580, 4082), (3500, 4080), S,
+               (3480, 4300), S,
                (4300, 4300), S, (4700, 4000), S, (4700, 3480), S, (4560, 3410), S, (4300, 3435), S,
                (4110, 3455), S, (3960, 3480), S, (3850, 3500), S]
 # a point in each part of the legs: front leg, its foot; back thigh, calf with foot, greave's front
@@ -92,12 +95,18 @@ LINE_T, LINE_GROW, LINE_MIN = 16, 2, 40   # the walls for the leg fill (1x px): 
 # together. John, 2026-10-06, shown both: "Plate's own weight"
 WEIGHT = 0.00155
 # John's own traces (andromache_traces.json: his strokes as polylines along their centres, the
-# marks he filled in as polygons; plate px), where the faces and hands did not come clean: his
-# strokes are drawn WEIGHT wide and his marks solid; the plate's lines within TRACE_NEAR plate px
-# of them give way, and where his stroke runs within TRACE_EDGE px of the outline it is the outline
+# marks he filled in as polygons; plate px), where the faces and hands did not come clean
+# (apply_trace): Neoptolemos' face (2026-10-06, on a 3x crop of the plate)
 TRACES_FILE = Path(__file__).parent / "andromache_traces.json"
 TRACES = {k: v for k, v in json.loads(TRACES_FILE.read_text()).items() if k != 'note'} if TRACES_FILE.exists() else {}
-TRACE_NEAR, TRACE_EDGE = 6, 3
+TRACE_NEAR, TRACE_EDGE, TRACE_GAP = 6, 6, 1.5   # plate px
+# A shape he closed off is filled where the plate's mean tone there (denoised) is under FILL_T:
+# the long locks and the black band inside the visor (73-97), not the strap between the locks
+# (134-154) or the face (179). The curls at the temple lie over a grey wash (91-167): every small
+# shape he closed inside HAIR (x0, y0, x1, y1, plate px) is a curl and is filled ("obviously, the
+# hair curls are filled in black"); the ear's inside, larger than HAIR_MAX plate px, is not
+FILL_T, HAIR_MAX = 130, 200
+HAIR = [(3700, 2791, 3758, 2845)]   # below the gap between the hair and the ear
 FAINT = (3.0, 6.0)                        # ridge filter thresholds (hysteresis low, high)
 FAINT_MIN = 60                            # plate px: shorter faint pieces are grain
 DENOISE = 12                              # non-local means strength (grey levels)
@@ -117,6 +126,74 @@ def even_lines(mask, t, min_len):
     lab, _ = ndi.label(sk, structure=np.ones((3, 3)))
     sk &= (np.bincount(lab.ravel()) > min_len)[lab]
     return wide | (ndi.distance_transform_edt(~sk) <= t / 2)
+
+
+def apply_trace(part, ink, edge, fig, tone, wide, t):
+    """One of John's traces laid into the drawing. His strokes are drawn t px wide, as every line
+    of the drawing, and his filled marks solid; where he left a gap between strokes narrower than
+    that widening would close (between the curls at the temple, the lines of the strap), a channel
+    TRACE_GAP plate px wide stays open along its middle. The shapes his marks close off inside the
+    crop he traced are his: one the plate paints dark there (FILL_T, HAIR), inside the figure, is
+    filled (the curls, the black inside the visor); in the others the plate's lines go. Within TRACE_NEAR plate px of his marks the
+    plate's lines go too, but for its wide black that lies mostly outside all that (the helmet's
+    bowl along his visor line), and where his stroke runs within TRACE_EDGE px of the outline it is
+    the outline (he traced the face's outline on the plate's black line, a px or two outside the
+    clay's edge, where the drawing's own outline runs). Returns the ink and his own ink (his
+    strokes and the shapes filled)."""
+    H, W = fig.shape
+    strokes, solids = np.zeros_like(fig), np.zeros_like(fig)
+    for line in part['lines']:
+        P = up(line)
+        for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
+            rr, cc = draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
+            ok = (rr >= 0) & (rr < H) & (cc >= 0) & (cc < W)
+            strokes[rr[ok], cc[ok]] = True
+    for poly in part['solids']:
+        solids |= lw.polygon_mask(fig.shape, np.array(up(poly), float))
+    bx0, by0, bx1, by1 = [(v - o) * UP for v, o in zip(part['box'], (X0, Y0, X0, Y0))]
+    inbox = np.zeros_like(fig)
+    inbox[by0:by1, bx0:bx1] = True
+    to_stroke = ndi.distance_transform_edt(~strokes)
+    pen = part['pen'] * UP
+    # the shapes he closed off, as he drew them (at his own pen width)
+    lab, n = ndi.label(inbox & ~((to_stroke <= pen / 2) | solids))
+    rim = np.concatenate([lab[by0, bx0:bx1], lab[by1 - 1, bx0:bx1], lab[by0:by1, bx0], lab[by0:by1, bx1 - 1]])
+    size = np.bincount(lab.ravel(), minlength=n + 1)
+    is_closed = np.ones(n + 1, bool)
+    is_closed[0] = False
+    is_closed[np.unique(rim)] = False
+    mean = np.bincount(lab.ravel(), weights=tone.ravel(), minlength=n + 1) / np.maximum(size, 1)
+    cy, cx = [np.bincount(lab.ravel(), weights=c.ravel(), minlength=n + 1) / np.maximum(size, 1)
+              for c in np.mgrid[0:H, 0:W]]
+    curl = np.zeros(n + 1, bool)
+    for hx0, hy0, hx1, hy1 in HAIR:
+        curl |= (cx >= (hx0 - X0) * UP) & (cx < (hx1 - X0) * UP) & (cy >= (hy0 - Y0) * UP) & (cy < (hy1 - Y0) * UP)
+    curl &= size < HAIR_MAX * UP * UP
+    is_dark = ((mean < FILL_T) | curl) & (np.bincount(lab.ravel(), weights=fig.ravel(), minlength=n + 1) > 0.5 * size)
+    closed, filled = is_closed[lab], (is_closed & is_dark)[lab]
+    # a filled shape is the black he outlined, its edge where he drew it: the strokes round it stay
+    # at his pen width. His other strokes are widened to t, but for a channel along the middle of
+    # each gap the widening would close
+    rims = strokes & (ndi.distance_transform_edt(~filled) <= pen / 2 + 1.5)
+    free = ndi.distance_transform_edt(~(strokes & ~rims)) <= t / 2
+    white = inbox & ~((to_stroke <= pen / 2) | solids | filled)
+    axis = morphology.skeletonize(white) & (ndi.distance_transform_edt(white) <= (t - pen) / 2 + 1)
+    his = (free & ~(ndi.distance_transform_edt(~axis) <= TRACE_GAP * UP / 2)) | \
+        (ndi.distance_transform_edt(~rims) <= pen / 2) | solids
+    zone = closed | (ndi.distance_transform_edt(~(strokes | solids)) <= TRACE_NEAR * UP)
+    # the plate's wide black outside the zone grows back into it, through wide black and outside
+    # the closed shapes, as far as TRACE_NEAR px: up to his line, not into what he drew
+    cy0, cy1 = max(by0 - (TRACE_NEAR + 1) * UP, 0), min(by1 + (TRACE_NEAR + 1) * UP, H)
+    cx0, cx1 = max(bx0 - (TRACE_NEAR + 1) * UP, 0), min(bx1 + (TRACE_NEAR + 1) * UP, W)
+    room = (wide & ~closed)[cy0:cy1, cx0:cx1]
+    grown = (wide & ~zone)[cy0:cy1, cx0:cx1]
+    for _ in range(TRACE_NEAR * UP):
+        grown = ndi.binary_dilation(grown) & room
+    stays = np.zeros_like(fig)
+    stays[cy0:cy1, cx0:cx1] = grown
+    edge_kept = edge & ~(to_stroke <= TRACE_EDGE * UP)
+    ink = (ink & ~zone) | ((edge_kept | stays) & zone) | his | filled
+    return ink, his | filled
 
 
 def faint_lines(g):
@@ -256,23 +333,17 @@ def main(src, qa=None, diag=None):
     ink = even_lines(black, t, 3 * UP) | even_lines(faint, t, 3 * UP) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * UP * UP)[lab]   # specks of grain; a small curl stays
-    for part in TRACES.values():
-        strokes, solids = np.zeros_like(fig), np.zeros_like(fig)
-        for line in part['lines']:
-            P = up(line)
-            for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
-                rr, cc = draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
-                ok = (rr >= 0) & (rr < H) & (cc >= 0) & (cc < W)
-                strokes[rr[ok], cc[ok]] = True
-        for poly in part['solids']:
-            solids |= lw.polygon_mask(fig.shape, np.array(up(poly), float))
-        to_his = ndi.distance_transform_edt(~(strokes | solids))
-        his = (ndi.distance_transform_edt(~strokes) <= t / 2) | solids
-        edge_kept = edge & ~(ndi.distance_transform_edt(~strokes) <= TRACE_EDGE * UP)
-        near = to_his <= TRACE_NEAR * UP
-        ink = (ink & ~near) | (edge_kept & near) | his
+    body = fig
+    if TRACES:
+        tone = np.asarray(Image.fromarray(den).resize((W, H), Image.BICUBIC), np.float32)
+        wide = black & ndi.binary_dilation(ndi.binary_opening(black, structure=morphology.disk(int(np.ceil(t / 2)))),
+                                           iterations=2)
+        for part in TRACES.values():
+            ink, his = apply_trace(part, ink, edge, fig, tone, wide, t)
+            body = body | (his & ndi.binary_dilation(fig, iterations=TRACE_EDGE * UP))   # clay under his outline
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=held, weight="own",   # drawn at WEIGHT already (even_lines)
+        ink, OUT, body=body, open_holes=held, weight="own",   # drawn at WEIGHT already (even_lines)
+        trace_h=lw.WORK_H,   # at TRACE_H a px is 1.1 plate px: the gaps between close lines closed
         title='Neoptolemos killing Priam, who sits on the altar with the dead Astyanax across his knees',
         desc='Line drawing after Karl Reichhold\'s drawing of the Vivenzio hydria by the Kleophrades Painter '
              '(Naples), in Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 34; '

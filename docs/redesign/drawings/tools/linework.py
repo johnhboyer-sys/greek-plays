@@ -170,7 +170,8 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
               open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None, pad: int = 4,
-              turdsize: int = 10, alphamax: float = 1.0, weight: float | str | None = None) -> dict:
+              turdsize: int = 10, alphamax: float = 1.0, weight: float | str | None = None,
+              trace_h: int = TRACE_H) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
     weight (or `weight`, as a fraction of the longer side; "own" keeps the
     widths the ink has, for ink whose lines are already drawn at their width,
@@ -186,8 +187,10 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     left open, and lines too thin to hold clay get a narrow clay rim (never
     in ground left open, except along the lines `rim_lines` (same shape)
     covers: thin clay things that cross open ground, like a bowstring
-    between two pockets). Returns the crop box in ink's pixels, for
-    qa_overlay."""
+    between two pockets). `trace_h`: the height it is traced at (TRACE_H;
+    a drawing whose plate holds gaps finer than a px of TRACE_H, as
+    Andromache's, is traced at WORK_H; the speck limits scale with it).
+    Returns the crop box in ink's pixels, for qa_overlay."""
     ys, xs = np.nonzero(ink)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
     x0, x1 = max(xs.min() - pad, 0), min(xs.max() + pad + 1, ink.shape[1])
@@ -197,21 +200,22 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     crop = resample_ink(ink, WORK_H)
     crop = set_line_width(crop, weight * max(crop.shape))
     weighted = crop
-    crop = resample_ink(crop, TRACE_H)  # trace smaller: fewer, smoother curves
+    crop = resample_ink(crop, trace_h)  # trace smaller: fewer, smoother curves
     h, w = crop.shape
-    d, tr = potrace_d(crop, turdsize=turdsize, alphamax=alphamax)
+    q = trace_h / TRACE_H                 # the speck limits below are set for TRACE_H
+    d, tr = potrace_d(crop, turdsize=round(turdsize * q * q), alphamax=alphamax)
     body_path = ""
     if body is not None:
-        b = resample_ink(body[y0:y1, x0:x1] | ink, TRACE_H)
+        b = resample_ink(body[y0:y1, x0:x1] | ink, trace_h)
         hh, ww = min(b.shape[0], h), min(b.shape[1], w)
         b, lines = b[:hh, :ww], crop[:hh, :ww]
         # no holes inside the figure: the dark theme then shows the same drawing
         # as the light one, on clay instead of paper (gaps open to the outside,
         # like those between fingers, stay open)
         b = ndi.binary_fill_holes(b)
-        held = np.zeros_like(b) if open_holes is None else resample_ink(open_holes[y0:y1, x0:x1], TRACE_H)[:hh, :ww]
+        held = np.zeros_like(b) if open_holes is None else resample_ink(open_holes[y0:y1, x0:x1], trace_h)[:hh, :ww]
         b &= ~held
-        b = ndi.binary_opening(b, structure=morphology.disk(2))
+        b = ndi.binary_opening(b, structure=morphology.disk(round(2 * q)))
         # a line with no clay on either side of it (a goad, a chain link) would
         # vanish on a dark page: give it a narrow clay rim
         lw_px = weight * max(lines.shape)
@@ -221,15 +225,15 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
             b |= ndi.distance_transform_edt(~orphan) <= 0.8 * lw_px
         b &= ~held  # but never in ground left open (cut before the speck filter, so crumbs go too)
         if rim_lines is not None:  # unless the line is a thin clay thing crossing it
-            r = lines & resample_ink(rim_lines[y0:y1, x0:x1], TRACE_H)[:hh, :ww]
+            r = lines & resample_ink(rim_lines[y0:y1, x0:x1], trace_h)[:hh, :ww]
             if r.any():
                 b |= ndi.distance_transform_edt(~r) <= 0.8 * lw_px
         # potrace's speck filter (turdsize 200), run here on the body as cut:
         # pulling its edge in below would shrink small parts under the limit
         lab, _ = ndi.label(b)
-        b &= (np.bincount(lab.ravel()) > 200)[lab]
+        b &= (np.bincount(lab.ravel()) > 200 * q * q)[lab]
         lab = ndi.label(np.pad(~b, 1, constant_values=True))[0]  # the margin joins all ground at the edge
-        b |= (np.bincount(lab.ravel()) <= 200)[lab[1:-1, 1:-1]] & ~held
+        b |= (np.bincount(lab.ravel()) <= 200 * q * q)[lab[1:-1, 1:-1]] & ~held
         # Where lines bound the body, its edge must lie under them, or a dark page
         # shows a thin clay line outside the outline. The body comes from the ink
         # before the house weight thinned it, and a cut can run just outside a
@@ -261,7 +265,7 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
             of[lab[b]] = part[b]
             most = np.zeros(part.max() + 1, int)
             np.maximum.at(most, of, size)
-            b &= ((size > 200) | (size == most[of]) |
+            b &= ((size > 200 * q * q) | (size == most[of]) |
                   (np.bincount(lab[b & ~lines], minlength=n + 1) >= lw_px ** 2))[lab]
         bd, _ = potrace_d(b, turdsize=0, alphamax=1.2)
         body_path = f'<path class="body" fill="none" stroke="none" d="{bd}"/>'
