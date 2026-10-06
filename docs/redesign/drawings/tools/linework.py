@@ -169,7 +169,8 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 
 
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
-              open_holes: np.ndarray | None = None, pad: int = 4, turdsize: int = 10, alphamax: float = 1.0) -> dict:
+              open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None, pad: int = 4,
+              turdsize: int = 10, alphamax: float = 1.0) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
     weight, and potrace it into a theme-following SVG 1000 units tall: the
     lines are filled with currentColor. `body`, a mask of the figure's area
@@ -179,7 +180,9 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     where `open_holes` (same shape) marks ground seen through a scene (the
     space between an arm and the body, closed off by a rock) or otherwise
     left open, and lines too thin to hold clay get a narrow clay rim (never
-    in ground left open). Returns the crop box in ink's pixels, for
+    in ground left open, except along the lines `rim_lines` (same shape)
+    covers: thin clay things that cross open ground, like a bowstring
+    between two pockets). Returns the crop box in ink's pixels, for
     qa_overlay."""
     ys, xs = np.nonzero(ink)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
@@ -212,6 +215,10 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         if orphan.any():
             b |= ndi.distance_transform_edt(~orphan) <= 0.8 * lw_px
         b &= ~held  # but never in ground left open (cut before the speck filter, so crumbs go too)
+        if rim_lines is not None:  # unless the line is a thin clay thing crossing it
+            r = lines & resample_ink(rim_lines[y0:y1, x0:x1], TRACE_H)[:hh, :ww]
+            if r.any():
+                b |= ndi.distance_transform_edt(~r) <= 0.8 * lw_px
         # potrace's speck filter (turdsize 200), run here on the body as cut:
         # pulling its edge in below would shrink small parts under the limit
         lab, _ = ndi.label(b)
