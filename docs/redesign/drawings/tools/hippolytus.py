@@ -1,9 +1,13 @@
 """Hippolytus: an Amazon, with bow and axe, fighting a hoplite, from the lower
-panel of Gerhard, Auserlesene griechische Vasenbilder III (1847), Taf. CLXV,
-titled there "Theseus und Antiope" (Hippolytus' mother is the Amazon Theseus
-took), as scanned by Heidelberg University Library (public domain):
+panel (fig. 4) of Gerhard, Auserlesene griechische Vasenbilder III (1847),
+Taf. CLXV, titled there "Theseus und Antiope" (Hippolytus' mother is the
+Amazon Theseus took), as scanned by Heidelberg University Library (Public
+Domain Mark):
 https://digi.ub.uni-heidelberg.de/iiif/2/gerhard1847bd3%3A190a_Tafel_ROEM_165.jpg/full/full/0/default.jpg
 (2078 x 2869; page https://digi.ub.uni-heidelberg.de/diglit/gerhard1847bd3/0212)
+The vase, as Gerhard gives it (text pp. 47-48): a red-figure amphora with
+twisted handles (its shape is fig. 3), formerly in the Pizzati collection,
+Florence; the second hoplite, at the right, is his Peirithoos.
 
 Plate -> drawing, as for the maenad test from Furtwängler-Reichhold Taf. 44
 (2026-10-04): the plate prints the black ground black, so the figures'
@@ -239,8 +243,9 @@ def main(src, qa=None):
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=held, rim_lines=rims,
         title='An Amazon with bow and axe fighting a Greek hoplite',
-        desc='Line drawing after the lower panel of Gerhard, Auserlesene griechische Vasenbilder III '
-             '(1847), Taf. CLXV ("Theseus und Antiope").')
+        desc='Line drawing after the 1847 plate of a red-figure amphora formerly in the Pizzati collection, '
+             'Florence (Gerhard, Auserlesene griechische Vasenbilder III, Taf. CLXV, 4, "Theseus und '
+             'Antiope"); cut out and retraced.')
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info['box'], Path(qa))

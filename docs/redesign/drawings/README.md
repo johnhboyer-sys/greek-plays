@@ -17,6 +17,7 @@ them on every ground, light and dark.
 | `antigone.svg` | Antigone, bound, before Creon (Antigone) | Berlin F 3240, photo by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0); flattened off the vase with `tools/vase_unroll.py` |
 | `philoctetes.svg` | Philoctetes alone on Lemnos, with the rock he sits on and his bow case (Philoctetes) | Met 56.171.58, photos by Marie-Lan Nguyen (CC BY 2.5) and the Met (CC0); the drawing traces only the painting, so it carries no licence (John, 2026-10-03); flattened off the vase with `tools/vase_unroll.py` |
 | `oedipus-coloneus.svg` | Oedipus with Ismene and Antigone (Oedipus at Colonus) | Geddes A 5:8, the photos in Green 2003 (pp. 4, 26 and 29, HathiTrust), placed on their reprint in Taplin, *Pots & Plays* no. 27, with Ismene's lines and borders, and those outside p. 26, from a photo found online (source unknown), checked against Digital LIMC photo 8569X101; the drawing traces only the painting, so it does not carry the photos' rights (John, 2026-10-02) |
+| `hippolytus.svg` | an Amazon fighting a hoplite, Gerhard's "Theseus und Antiope" (Hippolytus) | Gerhard, *Auserlesene griechische Vasenbilder* III (1847), Taf. CLXV, 4, Heidelberg scan (public domain) |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -32,7 +33,8 @@ Each SVG is 1000 units tall, on a transparent ground, with two paths:
   fill="none"`, so it is transparent unless a page fills it with CSS
   (`.body { fill: <clay> }` in the dark theme). It has no holes, except where a
   scene shows the black ground through it or leaves ground open
-  (`open_holes`, where no clay rim goes either), and lines
+  (`open_holes`, where no clay rim goes either, except along `rim_lines`:
+  thin clay things that cross open ground, like Hippolytus' bowstring), and lines
   too thin to hold clay on either side (a goad, a spear) get a narrow clay
   rim. The contact sheet's dark boards set it to a clay colour and keep
   the lines dark, so a drawing reads as a red-figure vase instead of a photo
