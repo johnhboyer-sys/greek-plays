@@ -104,7 +104,7 @@ JOIN_W = 2.3
 FACES = [((1160, 578, 1205, 640), 130),                   # Clytemnestra
          ((1550, 545, 1640, 665), 130),                   # Orestes
          ((1940, 690, 2160, 762), 80),                    # Aegisthus' wreath and hair
-         ((1975, 745, 2075, 860), 120),                   # Aegisthus
+         ((1975, 745, 2075, 860), 120),                   # Aegisthus (at 110 his lower lid broke)
          ((2495, 540, 2556, 640), 130)]                   # Electra
 # The faintest brown lines (muscles of the arms and legs, ankle bones, knees) slip past the line
 # finder: a ridge filter on the plate (at its own scale, lightly smoothed; sato, sigmas FAINT_SIGMA,
@@ -121,11 +121,12 @@ FAINT_IN, FAINT_CLEAR, FAINT_MIN, FAINT_W = 4, 3, 20, 1.5
 # the gap by GAP_DARK grey (lightly smoothed): the faded stretch of the line. True ends (pleats'
 # tips, folds that stop) have clay between them, and stay apart.
 GAP_MAX, GAP_RUN, GAP_ANGLE, GAP_W, GAP_DARK = 12, 6, 25, 2.0, 10
-# Orestes' and Electra's lower eyelids are fainter still, and break up at any threshold that leaves
-# the rest of the face fine: each is traced along its darkest ridge through hand-placed points
+# Orestes' and Electra's lower eyelids, and Clytemnestra's upper lid (from its corner to her pupil),
+# are fainter still, and break up at any threshold that leaves the rest of the face fine: each is traced along its darkest ridge through hand-placed points
 # (plate px, from corner to corner), LID_W plate px wide, as hippolytus.py traces a faint line.
 LIDS = [[(1595.5, 605.5), (1600, 608.5), (1605, 610), (1610, 610), (1614, 608), (1616.5, 605.5)],
-        [(2526, 574.5), (2531.5, 578.3), (2536.5, 579.6), (2541, 579.2), (2545, 577.6)]]
+        [(2526, 574.5), (2531.5, 578.3), (2536.5, 579.6), (2541, 579.2), (2545, 577.6)],
+        [(1171, 583.5), (1176, 582), (1181, 581.5), (1184, 581)]]
 LID_W = 1.2
 
 
