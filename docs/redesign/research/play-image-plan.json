@@ -32,14 +32,18 @@
       "author": "aeschylus",
       "work_id": "suppliants-aesch",
       "title": "Suppliant Women",
-      "proposed_subject": "A woman with a supplicant branch at an altar; distinguish from the Euripides play.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "Amymone, one of the Danaids, running, and her father Danaus (John's pick, 2026-10-05: sweep 2 code 03n, 'as proposed (Amymone and Danaus; cut off Poseidon)').",
+      "status": "Drawn 2026-10-07; approved by John",
+      "source_candidate": "https://digi.ub.uni-heidelberg.de/diglit/lenormant1858bd3/0341",
+      "final_image": "docs/redesign/drawings/suppliants-aesch.svg",
+      "credit": "After the plate in C. Lenormant and J. de Witte, Élite des monuments céramographiques III (Paris, 1858), pl. XX (text p. 55): a Nola amphora, formerly in the Durand collection (Catalogue Durand no. 208), owned in 1858 by M. Paravey (present location not found). The plate is signed L. Petit, sc. Scan: Heidelberg University Library.",
+      "license": "Public domain (published 1858). Heidelberg labels the scan with the Public Domain Mark 1.0 (the volume's IIIF manifest, checked 2026-10-07; the viewer page sits behind a bot check).",
+      "crop": "Amymone and Danaus, whole, his staff to its foot. Left out: Poseidon, who pursues her from the left (his cloak, forearm, hand and sceptre come into the crop but touch neither figure; the toes of his front foot lay across her raised heel and are cut off along the line of her sole), the clay strip they stand on, and the black ground. On the vase Poseidon and Amymone are on the front and Danaus on the back; the plate sets them side by side.",
+      "alt_text": "Amymone running, and her father Danaus",
+      "source_file": "https://digi.ub.uni-heidelberg.de/iiif/2/lenormant1858bd3%3A303_Planche_ROEM_020.jpg/full/full/0/default.jpg",
+      "shows": "Related to the play: Amymone is one of the Danaids, the chorus of the Suppliant Women, and Danaus, their father, is a character in it. Her flight from Poseidon is later myth, not the play's action. The names are the Élite's (p. 55).",
+      "method": "Coloured plate, red figures on black, printed sideways (turned upright first), as Hippolytus: the black ground gives the outline; the plate's own lines by local contrast, faint lines joined along their gaps and seven breaks in the print joined by hand; the hair solid inside the painter's reserved outline (followed along its light ridge), her fillet left open; her fingers found at less blur; the two dark bands on Danaus parted from the ground along the plate's faint clay lines; Poseidon's toes cut away along her sole; the plate's own line weight (0.15%; at the house weight her hem's border ran into the pleats); potrace. tools/suppliants_aesch.py.",
+      "result": "Approved by John on the first pass shown, 2026-10-07 ('Approved'). About 35 minutes' work, most of it on the hair, her hand and the bands on Danaus."
     },
     {
       "author": "aeschylus",
@@ -212,14 +216,24 @@
       "author": "euripides",
       "work_id": "alcestis",
       "title": "Alcestis",
-      "proposed_subject": "Alcestis and Heracles; decide whether a return-from-death scene gives away too much.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "Apollo with a bull and a palm; Admetus on his horse (John's pick, 2026-10-05: sweep 2 code 11n, 'as proposed (Apollo; Admetus on his horse)'). Two drawings, which can be laid back together (John, 2026-10-07).",
+      "status": "Drawn 2026-10-07; approved by John",
+      "source_candidate": "https://digi.ub.uni-heidelberg.de/diglit/lenormant1857bd2/0577",
+      "final_image": [
+        "docs/redesign/drawings/alcestis-apollo.svg",
+        "docs/redesign/drawings/alcestis-admetus.svg"
+      ],
+      "credit": "After the plate in C. Lenormant and J. de Witte, Élite des monuments céramographiques II (Paris, 1857), pl. LIV (text pp. 160-161): a red-figure neck-amphora made in Campania (the Owl-Pillar Group), formerly in the Blacas collection; London, British Museum 1867,0508.1122. The plate is signed A. Rey, sc., and Lith. de Bineteau. Scan: Heidelberg University Library.",
+      "license": "Public domain (published 1857). Heidelberg labels the scan with the Public Domain Mark 1.0 (the volume's IIIF manifest, checked 2026-10-07).",
+      "crop": "Two drawings from one plate, each group whole: Apollo with the palm and the bull (alcestis-apollo.svg), Admetus on his horse (alcestis-admetus.svg). Nothing joins the groups (the bull's muzzle and the horse's are about 70 px apart on the plate), so they part along the ground between them, and laid side by side at their places on the plate they give the whole scene. Left out: the black ground and the panel's edges. Drawn from Heidelberg's copy, which shows the bull's head; the Getty copy on the Internet Archive (gri_33125009347440, leaves 637-638) loses it in the binding.",
+      "alt_text": [
+        "Apollo with a palm and a bull",
+        "Admetus on horseback"
+      ],
+      "source_file": "https://digi.ub.uni-heidelberg.de/iiif/2/lenormant1857bd2%3A455a_Planche_054.jpg/full/full/0/default.jpg",
+      "shows": "Related to the play: its backstory. Apollo served Admetus as his herdsman (the prologue, lines 1-9); here he stands by a bull, and Admetus rides. The names are Panofka's and the Élite's (pp. 160-161); the British Museum's record keeps them, Apollo with a query.",
+      "method": "Coloured plate, red figures on black, printed across two facing pages and scanned by Heidelberg as one opening. The scan is levelled first: the frame's top and bottom edges, printed straight, made straight and level column by column; each page's tilt taken out; near the fold each column widened by the height it lost and by an estimate of how far the page sloped away from the camera, set so the dots on the bull's forehead come out round (John chose it over two narrower estimates, 'still too smooshed'); the crease painted out. A photograph of the vase (ArchaiOptix, Wikimedia Commons, CC BY-SA 4.0) was looked at for the bull's head; nothing was traced from it. Then as Suppliant Women: the black ground gives the outline, the plate's own lines by local contrast, the faces from the plate's paint at its own width (eyes kept fine, at John's ask), the hair solid; the outline thinner on thin parts, so they keep their clay on the dark theme; the plate's own line weight; potrace. tools/alcestis.py.",
+      "result": "Approved by John, 2026-10-07 ('Approved'), after his rulings: Heidelberg's scan over the Getty copy, two drawings that can be laid back together, the fold flattened, the widening at the camera's 1 m. About three hours' work, most of it on the fold."
     },
     {
       "author": "euripides",

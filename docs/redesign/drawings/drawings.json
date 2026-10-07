@@ -99,6 +99,33 @@
       "source": "Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 34: Karl Reichhold's drawing of the Vivenzio hydria by the Kleophrades Painter, Naples, Museo Archeologico Nazionale 81669 (Heidelberg scan, public domain)",
       "method": "Printed plate, black lines on grey-brown, the ground a dark halftone: the halftone gives most of the outline, cuts along the plate's own lines where figures touch; lines cleared of grain and redrawn along their centres at 0.11%, wide black solid, faint lines by a ridge filter; the faces, hands, feet, kilt and missed lines after John's traces; the blood a wash following the plate, lines black through it; traced as drawn; potrace",
       "verdict": "Usable; approved by John (2026-10-06) after his traces and rulings (line weight 0.11%; the blood a wash with the lines black through it). Left out: the neck band (but for the crest), the palm and the figures beyond it, the fallen Trojan under Neoptolemos' legs and the kneeling Greek. Reviewed by Grok (2026-10-06), a static read of the overlays and the credits: no missed lines, none along flaws, no wrong facts."
+    },
+    {
+      "slug": "suppliants-aesch",
+      "file": "suppliants-aesch.svg",
+      "name": "Suppliant Women · Amymone and her father Danaus",
+      "alt": "Amymone running, and her father Danaus",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques III (1858), pl. XX: a Nola amphora formerly in the Durand collection, owned in 1858 by M. Paravey (Heidelberg scan, public domain)",
+      "method": "Coloured plate, red figures on black, turned upright: the black ground gives the outline; the plate's own lines by local contrast, breaks in the print joined; hair solid inside its reserved outline; Poseidon's toes cut away along her sole; the plate's own line weight (0.15%); potrace",
+      "verdict": "Usable; approved by John on the first pass (2026-10-07). Poseidon, who pursues her from the left, is left out."
+    },
+    {
+      "slug": "alcestis-apollo",
+      "file": "alcestis-apollo.svg",
+      "name": "Alcestis · Apollo with the herd of Admetus",
+      "alt": "Apollo with a palm and a bull",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. LIV: a Campanian neck-amphora, British Museum 1867,0508.1122, formerly Blacas (Heidelberg scan, public domain)",
+      "method": "Coloured plate across two pages, scanned as one opening: levelled first (the frame's edges straightened, each page's tilt taken out, the fold widened to round the bull's forehead dots); then as Suppliant Women; faces at the paint's own width; potrace",
+      "verdict": "Usable; approved by John (2026-10-07) after his rulings on the scan, the split into two and the fold's widening. One of a pair with alcestis-admetus: laid side by side at their places on the plate they give the whole scene."
+    },
+    {
+      "slug": "alcestis-admetus",
+      "file": "alcestis-admetus.svg",
+      "name": "Alcestis · Admetus on horseback",
+      "alt": "Admetus on horseback",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. LIV: a Campanian neck-amphora, British Museum 1867,0508.1122, formerly Blacas (Heidelberg scan, public domain)",
+      "method": "As alcestis-apollo: the scan levelled first, then the black ground gives the outline, the plate's own lines by local contrast, faces at the paint's own width; potrace",
+      "verdict": "Usable; approved by John (2026-10-07). One of a pair with alcestis-apollo."
     }
   ]
 }

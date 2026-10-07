@@ -3,9 +3,10 @@
 Library in one image (Public Domain Mark):
 https://digi.ub.uni-heidelberg.de/iiif/2/lenormant1857bd2%3A455a_Planche_054.jpg/full/full/0/default.jpg
 (3420 x 2850; page https://digi.ub.uni-heidelberg.de/diglit/lenormant1857bd2/0577)
-The vase, as the Élite gives it (text p. 160): a red-figure Nola amphora in the Blacas collection,
-the painting running round both sides. Apollo Nomios keeps King Admetus' herds: Apollo, a bull and
-a palm; Admetus on horseback.
+The vase, as the Élite gives it (text pp. 160-161): a red-figure Nola amphora in the Blacas
+collection, the painting running round both sides. Apollo Nomios keeps King Admetus' herds: Apollo,
+a bull and a palm; Admetus on horseback. It is now London, British Museum 1867,0508.1122 (Cat.
+Vases F 145, which cites the plate), a neck-amphora made in Campania (the Owl-Pillar Group).
   - alcestis-apollo.svg: Apollo, with the palm and the bull.
   - alcestis-admetus.svg: Admetus on his horse.
 Both are drawn in one frame, at the plate's own line weight, and nothing joins the two groups, so
@@ -94,8 +95,9 @@ GROUPS = {
         paint=[(440, 950)],                                     # his hair, larger than AUTO_GROUND
         faces=[(520, 970, 600, 1075)],
         title='Apollo with a palm and a bull',
-        desc='Line drawing after the 1857 plate of a Nola amphora in the Blacas collection (Lenormant '
-             'and de Witte, Élite des monuments céramographiques II, pl. LIV); cut out and retraced.'),
+        desc='Line drawing after the 1857 plate of a Campanian neck-amphora formerly in the Blacas '
+             'collection, now British Museum 1867,0508.1122 (Lenormant and de Witte, Élite des monuments '
+             'céramographiques II, pl. LIV); cut out and retraced.'),
     'admetus': dict(
         out='alcestis-admetus.svg', box=(1740, 600, 3250, 2050),
         seeds=[(2650, 1497), (2733, 1052)],                     # the horse's body; Admetus' mantle
@@ -104,8 +106,9 @@ GROUPS = {
         paint=[],
         faces=[(2680, 755, 2740, 860)],
         title='Admetus on horseback',
-        desc='Line drawing after the 1857 plate of a Nola amphora in the Blacas collection (Lenormant '
-             'and de Witte, Élite des monuments céramographiques II, pl. LIV); cut out and retraced.'),
+        desc='Line drawing after the 1857 plate of a Campanian neck-amphora formerly in the Blacas '
+             'collection, now British Museum 1867,0508.1122 (Lenormant and de Witte, Élite des monuments '
+             'céramographiques II, pl. LIV); cut out and retraced.'),
 }
 
 
