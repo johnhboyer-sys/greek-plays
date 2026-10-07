@@ -97,9 +97,10 @@ LINE_T, LINE_GROW, LINE_MIN = 16, 2, 40   # the walls for the leg fill (1x px): 
 WEIGHT = 0.0011
 # John's own traces (andromache_traces.json: his strokes as polylines along their centres, the
 # marks he filled in as polygons, his dots as points, the areas he marked to be filled; plate px),
-# where the faces and hands did not come clean (apply_trace), each on a 3x crop of the plate,
-# 2026-10-06: Neoptolemos' face; Priam's head with both hands on it, and his beard and mouth
-# below the arm (the blood on his scalp marked on a screenshot of the drawing)
+# where the faces and hands did not come clean (apply_trace), each on a crop of the plate,
+# 2026-10-06: Neoptolemos' face; Priam's head with both hands on it, and his beard and mouth below
+# the arm (the blood on his scalp marked on a screenshot of the drawing); Astyanax; Neoptolemos'
+# sword hand; Astyanax's hanging hand
 TRACES_FILE = Path(__file__).parent / "andromache_traces.json"
 TRACES = {k: v for k, v in json.loads(TRACES_FILE.read_text()).items() if k.startswith('trace_')} if TRACES_FILE.exists() else {}
 TRACE_NEAR, TRACE_EDGE, TRACE_GAP = 6, 6, 1.5   # plate px
@@ -157,7 +158,20 @@ CHEST = [(3326, 3290), (3266, 3281), (3252, 3270), (3245, 3253), (3244, 3184), (
          (3287, 3123), (3344, 3122), (3358, 3126), (3374, 3146), (3394, 3188), (3392, 3220), (3356, 3280),
          (3350, 3284), (3328, 3284)]
 CHEST_W, CHEST_MIN, DUP, REACH, PLEAT_GAP = 6, 40, 3, 3, 8
+# The three dark streaks on the altar's front and the floor below Astyanax are blood drips, drawn
+# the same way (a ring round each, plate px); no lines run under them, so all their dark is blood,
+# however thin (on the chest, only what is wider than the pleats, CHEST_W)
+ALTAR = [[(2865, 3770), (2945, 3770), (2945, 3945), (2865, 3945)],
+         [(3125, 3860), (3212, 3860), (3212, 4030), (3125, 4030)],
+         [(3380, 3850), (3430, 3850), (3430, 3956), (3380, 3956)]]   # below the hanging hand
 CHEST_PLEATS = json.loads(TRACES_FILE.read_text()).get('chest_pleats', {}).get('lines', []) if TRACES_FILE.exists() else []
+# The lines the drawing still missed (the pleats' tops under Priam's arm and round the blood, his
+# fingers on his chest, his robe's left edge, the base of Neoptolemos' neck, his armpit): John drew
+# them in black over the overlay ('missed_lines'), at 0.84 px per plate px. Each is drawn a line
+# wide along the plate's own line under it: every SNAP_STEP plate px his point moves to the darkest
+# point within SNAP_R plate px, if that is SNAP_D grey levels darker
+MISSED = json.loads(TRACES_FILE.read_text()).get('missed_lines', {}).get('lines', []) if TRACES_FILE.exists() else []
+SNAP_STEP, SNAP_R, SNAP_D = 3, 2, 6
 # A gap between his strokes longer than THICK_LEN plate px whose mean tone is under THICK_T is
 # black too: he traced a thick line along both edges (the line under Priam's arm, 70-90; the dark
 # gaps at the corners of his strokes on Neoptolemos' face are 8 px or shorter)
@@ -205,6 +219,12 @@ def centre_lines(mask, t, min_len, spur):
     return ndi.distance_transform_edt(~sk) <= t / 2
 
 
+def within(mask, r):
+    """Within r px of mask; nowhere if the mask is empty (scipy measures an empty mask's distances
+    from just outside its corner, and drew a speck there)."""
+    return ndi.distance_transform_edt(~mask) <= r if mask.any() else np.zeros_like(mask)
+
+
 def apply_trace(part, ink, edge, fig, tone, wide, t):
     """One of John's traces laid into the drawing. His strokes are drawn t px wide, as every line
     of the drawing, his filled marks solid, and his dots t px across; where he left a gap between
@@ -245,7 +265,10 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     inbox = np.zeros_like(fig)
     inbox[by0:by1, bx0:bx1] = True
     to_stroke = ndi.distance_transform_edt(~strokes)
-    pen = part['pen'] * UP
+    # his pen, but at least 2 work px: a band narrower than that is a diagonal line's single px, and
+    # the white on its two sides touched through it, so the gaps' skeleton ran along his stroke and
+    # the channels cut it away (his finest pen, 0.89 plate px on the corpse's other hand)
+    pen = max(part['pen'] * UP, 2.0)
     # the shapes he closed off, as he drew them (at his own pen width)
     lab, n = ndi.label(inbox & ~((to_stroke <= pen / 2) | solids))
     rim = np.concatenate([lab[by0, bx0:bx1], lab[by1 - 1, bx0:bx1], lab[by0:by1, bx0], lab[by0:by1, bx1 - 1]])
@@ -281,10 +304,9 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
         axis &= ~filled
     # a filled shape is the black he outlined, its edge where he drew it: the strokes round it stay
     # at his pen width. His other strokes are widened to t, but for the channels
-    rims = strokes & (ndi.distance_transform_edt(~filled) <= pen / 2 + 1.5)
+    rims = strokes & within(filled, pen / 2 + 1.5)
     free = ndi.distance_transform_edt(~(strokes & ~rims)) <= t / 2
-    lines = (free & ~(ndi.distance_transform_edt(~axis) <= TRACE_GAP * UP / 2)) | \
-        (ndi.distance_transform_edt(~rims) <= pen / 2)
+    lines = (free & ~within(axis, TRACE_GAP * UP / 2)) | within(rims, pen / 2)
     his = lines | solids | dots
     zone = closed | (ndi.distance_transform_edt(~(strokes | solids | dots)) <= TRACE_NEAR * UP)
     # the plate's wide black outside the zone grows back into it, through wide black and outside
@@ -504,25 +526,51 @@ def main(src, qa=None, diag=None):
             dots |= his_dots
             blood |= his_blood
             his_all |= his
-        # Priam's chest: the smear is blood; the pleats John traced through it are lines
-        chest = lw.polygon_mask(fig.shape, np.array(up(CHEST), float)) & fig
-        smear = ndi.binary_opening(chest & (ndi.gaussian_filter(tone, 0.75 * UP) < BLOOD_T),
-                                   structure=morphology.disk(int(round(CHEST_W / 2 * UP))))
-        smear = morphology.remove_small_objects(smear, max_size=CHEST_MIN * UP * UP)
+        # Priam's chest and the altar: the smear is blood; the pleats John traced through it are lines
         pleats = np.zeros_like(fig)
         for line in CHEST_PLEATS:
             P = up(line)
             for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
                 pleats[draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))] = True
         to_pleat = ndi.distance_transform_edt(~pleats)
-        under = ndi.distance_transform_edt(~smear) <= REACH * UP
-        plate = ndi.binary_closing((black | faint) & chest, structure=np.ones((PLEAT_GAP * UP, 1), bool))
-        plate = centre_lines(plate & chest & ~ndi.binary_dilation(smear, iterations=UP), t, 3 * UP, 2 * t)
-        plate = (plate | edge) & ~((to_pleat <= DUP * UP) & under)
-        ink = (ink & ~(chest & ~his_all)) | (plate & chest) | ((to_pleat <= t / 2) & under & chest)
-        blood |= smear
+        near_his = ndi.distance_transform_edt(~his_all) <= TRACE_NEAR * UP   # his traces keep their ground
+        for ring in [CHEST] + ALTAR:
+            chest = lw.polygon_mask(fig.shape, np.array(up(ring), float)) & fig
+            smear = chest & (ndi.gaussian_filter(tone, 0.75 * UP) < BLOOD_T)
+            if ring is CHEST:
+                smear = ndi.binary_opening(smear, structure=morphology.disk(int(round(CHEST_W / 2 * UP))))
+            smear = morphology.remove_small_objects(smear, max_size=CHEST_MIN * UP * UP)
+            under = ndi.distance_transform_edt(~smear) <= REACH * UP
+            plate = ndi.binary_closing((black | faint) & chest, structure=np.ones((PLEAT_GAP * UP, 1), bool))
+            plate = centre_lines(plate & chest & ~ndi.binary_dilation(smear, iterations=UP), t, 3 * UP, 2 * t)
+            plate = (plate | edge) & ~((to_pleat <= DUP * UP) & under) & ~near_his
+            ink = (ink & ~(chest & ~his_all)) | (plate & chest) | ((to_pleat <= t / 2) & under & chest)
+            blood |= smear
+        # the lines the drawing missed, snapped to the plate's own
+        gsm = ndi.gaussian_filter(g, UP)
+        r = SNAP_R * UP
+        yy, xx = np.mgrid[-r:r + 1, -r:r + 1]
+        disk = xx ** 2 + yy ** 2 <= r * r
+        missed = np.zeros_like(fig)
+        for line in MISSED:
+            P = np.array(up(line), float)
+            s = np.concatenate([[0], np.cumsum(np.hypot(*np.diff(P, axis=0).T))])
+            Q = np.column_stack([np.interp(np.linspace(0, s[-1], max(int(s[-1] / (SNAP_STEP * UP)), 1) + 1), s, P[:, k])
+                                 for k in (0, 1)])
+            for q in Q:
+                x, y = int(round(q[0])), int(round(q[1]))
+                win = np.where(disk, gsm[y - r:y + r + 1, x - r:x + r + 1], np.inf)
+                iy, ix = np.unravel_index(np.argmin(win), win.shape)
+                if gsm[y, x] - win[iy, ix] > SNAP_D:
+                    q[:] = (x + ix - r, y + iy - r)
+            if len(Q) > 2:   # smooth the snapped points (ends stay)
+                Q[1:-1] = (Q[:-2] + 2 * Q[1:-1] + Q[2:]) / 4
+            for (xa, ya), (xb, yb) in zip(Q[:-1], Q[1:]):
+                missed[draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))] = True
+        ink |= within(missed, t / 2)
     info = lw.trace_svg(
-        ink, OUT, body=body, open_holes=held, weight="own",   # drawn at WEIGHT already (even_lines)
+        ink, OUT, body=body, open_holes=held, weight=WEIGHT,   # drawn at WEIGHT already (even_lines): kept
+        # so ("own", the median as measured, jumped a px step when the altar's blobs went, and thinned it)
         dots=dots,           # his dots, a line wide: under potrace's speck limit at this weight
         trace_h=lw.WORK_H,   # at TRACE_H a px is 1.1 plate px: the gaps between close lines closed
         title='Neoptolemos killing Priam, who sits on the altar with the dead Astyanax across his knees',

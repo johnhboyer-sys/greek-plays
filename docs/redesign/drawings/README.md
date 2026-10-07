@@ -61,7 +61,8 @@ the plate's own 0.155%, its close lines ran together (John, 2026-10-06).
 On the vase, blood is thinned paint laid on in lighter brushstrokes. The
 drawing shows it as a wash in the line colour, not as lines. These rules
 come from John's rulings on Andromache (2026-10-06); `tools/andromache.py`
-holds them (`BLOOD`, `PAINTED`, `BLOOD_T`, `BLEND_*`, `RIM`, `BIT`, `CHEST`).
+holds them (`BLOOD`, `PAINTED`, `BLOOD_T`, `BLEND_*`, `RIM`, `BIT`, `CHEST`,
+`ALTAR`).
 
 - No black outlines on the blood. Where John traced a streak's outline
   (Priam's scalp), the outline is part of the wash. Lines that cross the
@@ -84,7 +85,8 @@ holds them (`BLOOD`, `PAINTED`, `BLOOD_T`, `BLEND_*`, `RIM`, `BIT`, `CHEST`).
   inside the ring John drew round it, wider than the pleats: the line finder
   had taken it for black ("The area here you have black is actually blood").
   It gets the same wash as Astyanax's ("make sure the blood on here has the
-  same effect as on the corpse").
+  same effect as on the corpse"). The drips on the altar's front and the floor
+  are blood too, found the same way inside a ring round each.
 - Lines under the blood: where the blood covers lines (the pleats on Priam's
   chest), the drawing takes the blood out, joins the lines through, and lays
   the wash back over them (John: "duplicate image, join the lines, then apply
@@ -99,7 +101,8 @@ green marks blood painted with no outline (he used dark and light green for
 darker and lighter blood, but the wash takes its darkness from the plate).
 A line he painted over is joined across the paint (`JOINS`). The marks are
 kept in `tools/andromache_traces.json` (`fill`, `fill_dark`, `fill_light`,
-`chest_pleats`),
+`chest_pleats`; and `missed_lines`, lines he drew in black over the overlay,
+which the tool snaps to the plate's own line under each),
 plate px. The scripts that read his marks (`map_trace.py`: blue strokes,
 filled marks and dots; `map_fill.py`: blue paint on a screenshot;
 `map_blood.py`: green on a crop; `crisp.py`: sharp close-ups) are kept with
