@@ -39,7 +39,7 @@ from skimage import morphology
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
 
-OUT = Path(__file__).resolve().parent.parent / "libation-bearers.svg"
+OUT = Path(__file__).resolve().parent.parent / "libation-bearers-plate-a.svg"
 
 X0, Y0, X1, Y1 = 584, 440, 2945, 1730     # crop in plate px: the frieze, its band and strip cut below
 UP = 3                                    # work at 3x the plate's px, so curves stay smooth
