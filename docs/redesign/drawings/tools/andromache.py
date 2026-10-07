@@ -1,8 +1,9 @@
 """Andromache: Neoptolemos killing old Priam, who sits on the altar with the
 dead Astyanax across his lap, from Karl Reichhold's drawing of the Vivenzio
 hydria in Furtwängler and Reichhold, Griechische Vasenmalerei I (1904),
-Taf. 34 ("Hydria mit Iliupersis, Neapel"), as scanned by Heidelberg
-University Library (its second copy):
+Taf. 34 ("Hydria mit Iliupersis, Neapel"; text pp. 182-187), as scanned by
+Heidelberg University Library (the plate from its first copy, "Tafel 34
+(1. Exemplar)", added to the volume's scan later; Public Domain Mark):
 https://digi.ub.uni-heidelberg.de/iiif/2/furtwaengler1904bd1%3A061_Tafel_34_1_Exemplar.jpg/full/full/0/default.jpg
 (6734 x 5505; page https://digi.ub.uni-heidelberg.de/diglit/furtwaengler1904bd1/0059)
 
@@ -31,6 +32,17 @@ plate's own lines where they touch:
     only through him and goes too.
   - The altar stands on a step drawn as a strip along the floor band; the cut
     follows the altar's own bottom line (FLOOR_ZONE).
+
+Lines: the plate's black lines, cleared of the print's grain, redrawn along
+their centres at WEIGHT (0.11%, finer than the house weight, which ran the
+close lines together: John chose the finer weight twice), wide black (hair,
+helmet, crest beads) solid; its faint brown lines by a ridge filter, along
+their centres. Where they did not come clean John traced: the three faces,
+the four hands, Priam's feet, the pleats through the blood on Priam's chest,
+the kilt, and the lines still missed (andromache_traces.json, registered to
+the plate by SIFT; apply_trace). The blood is a wash in the line colour, its
+opacity following the plate, with the lines black through it (BLOOD, BLEND).
+Traced as drawn (linework weight "drawn"). Approved by John, 2026-10-06.
 
     python3 docs/redesign/drawings/tools/andromache.py furtwaengler1904bd1_061_Tafel_34.jpg [qa.png]
 """
@@ -671,9 +683,9 @@ def main(src, qa=None, diag=None):
         # (resampled and re-weighted, the blur closed the px between close lines: the kilt's hems ran together)
         dots=dots,        # his dots, a line wide: under potrace's speck limit at this weight
         title='Neoptolemos killing Priam, who sits on the altar with the dead Astyanax across his knees',
-        desc='Line drawing after Karl Reichhold\'s drawing of the Vivenzio hydria by the Kleophrades Painter '
-             '(Naples), in Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 34; '
-             'cut out and retraced.')
+        desc='Line drawing after Karl Reichhold\'s 1904 drawing of the Vivenzio hydria by the Kleophrades '
+             'Painter, Naples, Museo Archeologico Nazionale 81669 (Furtwängler and Reichhold, Griechische '
+             'Vasenmalerei I, Taf. 34); cut out and retraced.')
     if blood.any():
         add_tone(OUT, blood, tone, info['box'])
     print(OUT, info)
