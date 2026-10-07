@@ -95,9 +95,10 @@ LINE_T, LINE_GROW, LINE_MIN = 16, 2, 40   # the walls for the leg fill (1x px): 
 # together. John, 2026-10-06, shown both: "Plate's own weight"
 WEIGHT = 0.00155
 # John's own traces (andromache_traces.json: his strokes as polylines along their centres, the
-# marks he filled in as polygons, his dots as points; plate px), where the faces and hands did
-# not come clean (apply_trace), each on a 3x crop of the plate, 2026-10-06: Neoptolemos' face;
-# Priam's head with both hands on it, and his beard and mouth below the arm
+# marks he filled in as polygons, his dots as points, the areas he marked to be filled; plate px),
+# where the faces and hands did not come clean (apply_trace), each on a 3x crop of the plate,
+# 2026-10-06: Neoptolemos' face; Priam's head with both hands on it, and his beard and mouth
+# below the arm (the blood on his scalp marked on a screenshot of the drawing)
 TRACES_FILE = Path(__file__).parent / "andromache_traces.json"
 TRACES = {k: v for k, v in json.loads(TRACES_FILE.read_text()).items() if k != 'note'} if TRACES_FILE.exists() else {}
 TRACE_NEAR, TRACE_EDGE, TRACE_GAP = 6, 6, 1.5   # plate px
@@ -108,13 +109,18 @@ TRACE_NEAR, TRACE_EDGE, TRACE_GAP = 6, 6, 1.5   # plate px
 # hair curls are filled in black"); the ear's inside, larger than HAIR_MAX plate px, is not
 FILL_T, HAIR_MAX = 130, 200
 HAIR = [(3700, 2791, 3758, 2845)]   # below the gap between the hair and the ear
-# The dark shapes he closed on Priam's scalp are blood, which the plate paints as a wash (mean
-# 94-121, as dark in places as the locks): every shape whose middle lies inside WASH stays open (no
-# washes); the marks he filled in there are solid as he drew them
-WASH = [(3290, 2878, 3485, 2995)]
+# The streaks on Priam's scalp are blood, which the plate prints lighter than its black (94-142):
+# John marked them on the drawing to be filled ('fill' in his trace: "they and the black outlines
+# are blood. same color for the blue and the black shapes they fill in"), so a shape he closed, or a
+# gap between his strokes, that his fill marks mostly cover is filled; his outlines give the edges.
+# The blood, outlines and all, is drawn as a half tone ("make the blood partially transparent/less
+# opaque"): a third path in the line colour at TONE opacity, between the body and the lines, as
+# philoctetes.py draws the brown wash of his hair and beard (and at its opacity)
+TONE = 0.3
+BIT = 100   # plate px^2: a piece of his outline this small that touches the blood is of it
 # A gap between his strokes longer than THICK_LEN plate px whose mean tone is under THICK_T is
-# black: he traced a thick line along both edges (the line under Priam's arm, 70-90; the dark gaps
-# at the corners of his strokes on Neoptolemos' face are 8 px or shorter)
+# black too: he traced a thick line along both edges (the line under Priam's arm, 70-90; the dark
+# gaps at the corners of his strokes on Neoptolemos' face are 8 px or shorter)
 THICK_LEN, THICK_T = 20, 100
 FAINT = (3.0, 6.0)                        # ridge filter thresholds (hysteresis low, high)
 FAINT_MIN = 60                            # plate px: shorter faint pieces are grain
@@ -164,15 +170,16 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     of the drawing, his filled marks solid, and his dots t px across; where he left a gap between
     strokes narrower than that widening would close (between the curls at the temple, the lines of
     the strap), a channel TRACE_GAP plate px wide stays open along its middle, unless the plate
-    paints the gap black (THICK: he traced a thick line along both edges), when it is filled. The
-    shapes his marks close off inside the crop he traced are his: one the plate paints dark there
-    (FILL_T, HAIR; not the blood in WASH), inside the figure, is filled (the curls, the black inside
-    the visor); in the others the plate's lines go. Within TRACE_NEAR plate px of his marks the
-    plate's lines go too, but for its wide black that lies mostly outside all that (the helmet's
-    bowl along his visor line), and where his stroke runs within TRACE_EDGE px of the outline it is
-    the outline (he traced the face's outline on the plate's black line, a px or two outside the
-    clay's edge, where the drawing's own outline runs). Returns the ink, his own ink (his
-    strokes and the shapes filled) and his dots."""
+    paints the gap black (THICK: he traced a thick line along both edges) or he marked it to be
+    filled, when it is filled. The shapes his marks close off inside the crop he traced are his: one
+    the plate paints dark there (FILL_T, HAIR) or he marked to be filled (the blood), inside the
+    figure, is filled (the curls, the black inside the visor); in the others the plate's lines go.
+    Within TRACE_NEAR plate px of his marks the plate's lines go too, but for its wide black that
+    lies mostly outside all that (the helmet's bowl along his visor line), and where his stroke runs
+    within TRACE_EDGE px of the outline it is the outline (he traced the face's outline on the
+    plate's black line, a px or two outside the clay's edge, where the drawing's own outline runs).
+    Returns the ink, his own ink (his strokes and the shapes filled), his dots, and the blood:
+    what he marked to be filled, with his strokes round it."""
     H, W = fig.shape
     strokes, solids = np.zeros_like(fig), np.zeros_like(fig)
     for line in part['lines']:
@@ -186,6 +193,9 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     dots = np.zeros_like(fig)
     for x, y in up(part.get('dots', [])):
         dots[draw.disk((y, x), t / 2, shape=fig.shape)] = True
+    marked = np.zeros_like(fig)   # the areas he marked to be filled
+    for poly in part.get('fill', []):
+        marked |= lw.polygon_mask(fig.shape, np.array(up(poly), float))
     bx0, by0, bx1, by1 = [(v - o) * UP for v, o in zip(part['box'], (X0, Y0, X0, Y0))]
     inbox = np.zeros_like(fig)
     inbox[by0:by1, bx0:bx1] = True
@@ -205,22 +215,21 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     for hx0, hy0, hx1, hy1 in HAIR:
         curl |= (cx >= (hx0 - X0) * UP) & (cx < (hx1 - X0) * UP) & (cy >= (hy0 - Y0) * UP) & (cy < (hy1 - Y0) * UP)
     curl &= size < HAIR_MAX * UP * UP
-    wash = np.zeros(n + 1, bool)
-    for wx0, wy0, wx1, wy1 in WASH:
-        wash |= (cx >= (wx0 - X0) * UP) & (cx < (wx1 - X0) * UP) & (cy >= (wy0 - Y0) * UP) & (cy < (wy1 - Y0) * UP)
-    is_dark = ((mean < FILL_T) | curl) & ~wash & \
+    fill = np.bincount(lab.ravel(), weights=marked.ravel(), minlength=n + 1) > 0.5 * size
+    is_dark = ((mean < FILL_T) | curl | fill) & \
         (np.bincount(lab.ravel(), weights=fig.ravel(), minlength=n + 1) > 0.5 * size)
     closed, filled = is_closed[lab], (is_closed & is_dark)[lab]
     # the gaps between his strokes that widening them to t would close: a channel stays open along
     # the middle of each, but for a long one the plate paints black, which is the inside of a thick
-    # line he traced along both its edges: filled, as a shape he outlined
+    # line he traced along both its edges, and one he marked: filled, as a shape he outlined
     white = inbox & ~((to_stroke <= pen / 2) | solids | filled)
     sk, half = morphology.skeletonize(white), ndi.distance_transform_edt(white)
     axis = sk & (half <= (t - pen) / 2 + 1)
     al, an = ndi.label(sk & (half <= t / 2 + 1), structure=np.ones((3, 3)))   # his edges a line apart
     length = np.bincount(al.ravel(), minlength=an + 1)
-    thick = (length > THICK_LEN * UP) & \
-        (np.bincount(al.ravel(), weights=tone.ravel(), minlength=an + 1) < THICK_T * length)
+    thick = ((length > THICK_LEN * UP) &
+             (np.bincount(al.ravel(), weights=tone.ravel(), minlength=an + 1) < THICK_T * length)) | \
+        (np.bincount(al.ravel(), weights=marked.ravel(), minlength=an + 1) > 0.5 * length)
     thick[0] = False
     if thick.any():
         filled |= white & (ndi.distance_transform_edt(~thick[al]) <= t / 2 + 1)
@@ -244,7 +253,31 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     stays[cy0:cy1, cx0:cx1] = grown
     edge_kept = edge & ~(to_stroke <= TRACE_EDGE * UP)
     ink = (ink & ~zone) | ((edge_kept | stays) & zone) | his | filled
-    return ink, his | filled, dots
+    blood = np.zeros_like(fig)
+    if marked.any():   # what lies on his marks, and each mark he filled in that reaches them
+        to_mark = ndi.distance_transform_edt(~marked)
+        blood = ((his & ~dots) | filled) & (to_mark <= pen + 2)
+        sl, _ = ndi.label(solids)
+        blood |= np.isin(sl, np.unique(sl[(to_mark <= TRACE_NEAR * UP) & solids]))
+        # and the bits of its outline his marks just miss (where strokes meet, a streak's tail)
+        bits, _ = ndi.label((his | filled) & ~dots & ~blood)
+        size = np.bincount(bits.ravel())
+        near = np.unique(bits[ndi.binary_dilation(blood, iterations=2) & (bits > 0)])
+        blood |= np.isin(bits, near[size[near] < BIT * UP * UP])
+    return ink, his | filled, dots, blood
+
+
+def add_tone(svg, tone, box):
+    """Add the half tone (the blood) to the drawing written by lw.trace_svg (box: the crop box it
+    returned) as a third path, class "tone", in the line colour at TONE opacity, between the body
+    and the lines, traced at WORK_H as the lines are."""
+    if not tone.any():
+        return
+    x0, y0, x1, y1 = box
+    d, _ = lw.potrace_d(lw.resample_ink(tone[y0:y1, x0:x1], lw.WORK_H), turdsize=20, alphamax=1.0)
+    s = svg.read_text().replace('<path class="lines"', f'<path class="tone" fill="currentColor" fill-opacity="{TONE}" '
+                                f'stroke="none" d="{d}"/><path class="lines"', 1)
+    svg.write_text(s)
 
 
 def faint_lines(g):
@@ -386,15 +419,17 @@ def main(src, qa=None, diag=None):
     ink = even_lines(black, t, 3 * UP) | centre_lines(faint, t, 3 * UP, 2 * t) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * UP * UP)[lab]   # specks of grain; a small curl stays
-    body, dots = fig, np.zeros_like(fig)
+    body, dots, blood = fig, np.zeros_like(fig), np.zeros_like(fig)
     if TRACES:
         tone = np.asarray(Image.fromarray(den).resize((W, H), Image.BICUBIC), np.float32)
         wide = black & ndi.binary_dilation(ndi.binary_opening(black, structure=morphology.disk(int(np.ceil(t / 2)))),
                                            iterations=2)
         for part in TRACES.values():
-            ink, his, his_dots = apply_trace(part, ink, edge, fig, tone, wide, t)
+            ink, his, his_dots, his_blood = apply_trace(part, ink, edge, fig, tone, wide, t)
             body = body | (his & ndi.binary_dilation(fig, iterations=TRACE_EDGE * UP))   # clay under his outline
             dots |= his_dots
+            blood |= his_blood
+        ink &= ~blood   # the blood is the half tone, not the lines
     info = lw.trace_svg(
         ink, OUT, body=body, open_holes=held, weight="own",   # drawn at WEIGHT already (even_lines)
         dots=dots,           # his dots, a line wide: under potrace's speck limit at this weight
@@ -403,6 +438,7 @@ def main(src, qa=None, diag=None):
         desc='Line drawing after Karl Reichhold\'s drawing of the Vivenzio hydria by the Kleophrades Painter '
              '(Naples), in Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 34; '
              'cut out and retraced.')
+    add_tone(OUT, blood, info['box'])
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info['box'], Path(qa))
