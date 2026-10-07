@@ -115,17 +115,20 @@ HAIR = [(3700, 2791, 3758, 2845)]   # below the gap between the hair and the ear
 # in"), Astyanax's in two greens on his crop ('fill_dark', 'fill_light': "dark green: darker blood;
 # light green, lighter, more transparent blood"). On Priam he painted over his own outlines: a
 # shape they close, or a gap between his strokes, that his marks mostly cover is filled, and his
-# outlines give the edges. On Astyanax he painted the plate's streaks, outlined by nothing: there
-# his marks are the blood's shape, over the plate's ink (PAINTED). The blood is black ink at
-# reduced opacity ("make the blood black ink that's been reduced in opacity, not solid grey"; 0.3
-# had read as a pale grey) with his lines black across it ("you should be able to see black lines
-# through the blood"), each kind at the plate's own darkness under his marks,
-# (clay - tone) / (clay - black), denoised: Priam's 112 between clay 178 and black 75; Astyanax's
-# darker 95 and lighter 124 between clay 169 and black 75. Each kind is a path, class "tone", in
-# the line colour at that opacity, between the body and the lines, as philoctetes.py draws the
+# outlines give the edges. On Astyanax he painted the plate's streaks, outlined by nothing (PAINTED):
+# there the blood is the plate's own streak under his paint, darker than BLOOD_T (his brush is
+# broader than the streaks: drawn as painted, the wounds came out "absurdly big"), and its lines
+# there. The blood is thinned paint in lighter brushstrokes (John) with his lines black across it
+# ("you should be able to see black lines through the blood"): a wash in the line colour whose
+# opacity follows the plate's darkness under it, smoothed over BLEND_SIGMA plate px, from
+# BLEND_A[0] where the plate is BLEND_T[0] to BLEND_A[1] where it is BLEND_T[1], in steps of
+# BLEND_STEP (John, shown flat tones and a blend: "the fourth blend ... was better ... make it more
+# subtle"). Paths of class "tone", between the body and the lines, as philoctetes.py draws the
 # brown wash of his hair and beard
-TONES = {'fill': 0.65, 'fill_dark': 0.8, 'fill_light': 0.5}
+BLOOD = ('fill', 'fill_dark', 'fill_light')
 PAINTED = ('fill_dark', 'fill_light')
+BLOOD_T = 132
+BLEND_T, BLEND_A, BLEND_STEP, BLEND_SIGMA = (140, 85), (0.25, 0.55), 0.05, 2
 # His line from Astyanax's groin down across the thigh runs under the blood he painted over it
 # (his light green hides it but for a fleck): joined across, from his groin line through the
 # fleck to where it comes out, to be seen through the blood
@@ -191,8 +194,8 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     within TRACE_EDGE px of the outline it is the outline (he traced the face's outline on the
     plate's black line, a px or two outside the clay's edge, where the drawing's own outline runs).
     Returns the ink (less the blood, but for his lines across it), his own ink (his strokes and the
-    shapes filled), his dots, and the blood by kind (TONES): the shapes he marked to be filled and
-    the marks he filled in there, or what he painted."""
+    shapes filled), his dots, and the blood: the shapes he marked to be filled and the marks he
+    filled in there, or the plate's streaks under what he painted."""
     H, W = fig.shape
     strokes, solids = np.zeros_like(fig), np.zeros_like(fig)
     for line in part['lines']:
@@ -206,12 +209,12 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     dots = np.zeros_like(fig)
     for x, y in up(part.get('dots', [])):
         dots[draw.disk((y, x), t / 2, shape=fig.shape)] = True
-    marked = {k: np.zeros_like(fig) for k in TONES}   # the areas he marked to be filled, by kind
-    for k in TONES:
+    marked = {k: np.zeros_like(fig) for k in BLOOD}   # the areas he marked to be filled, by kind
+    for k in BLOOD:
         for poly in part.get(k, []):
             marked[k] |= lw.polygon_mask(fig.shape, np.array(up(poly), float))
-    marked['fill_light'] &= ~marked['fill_dark']   # where his greens overlap, the darker
-    marks = np.logical_or.reduce([marked[k] for k in TONES if k not in PAINTED])   # over his outlines
+    marks = np.logical_or.reduce([marked[k] for k in BLOOD if k not in PAINTED])   # over his outlines
+    painted = np.logical_or.reduce([marked[k] for k in PAINTED])
     bx0, by0, bx1, by1 = [(v - o) * UP for v, o in zip(part['box'], (X0, Y0, X0, Y0))]
     inbox = np.zeros_like(fig)
     inbox[by0:by1, bx0:bx1] = True
@@ -270,11 +273,14 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     stays[cy0:cy1, cx0:cx1] = grown
     edge_kept = edge & ~(to_stroke <= TRACE_EDGE * UP)
     ink = (ink & ~zone) | ((edge_kept | stays) & zone) | his | filled
-    blood = {}
-    for k in PAINTED:   # painted with no outline: the marks themselves, over the plate's ink
-        if marked[k].any():
-            blood[k] = marked[k]
-            ink &= ~(marked[k] & ~(his | filled))
+    blood = np.zeros_like(fig)
+    if painted.any():   # painted with no outline: the plate's streak under his paint, and its lines
+        # there, in place of the plate's ink
+        reach = ndi.binary_dilation(painted, iterations=2 * UP)
+        streak = reach & fig & (ndi.gaussian_filter(tone, 0.75 * UP) < BLOOD_T)
+        blood |= ndi.binary_fill_holes(morphology.remove_small_objects(streak, max_size=4 * UP * UP))
+        blood |= ink & painted & ~(his | filled)
+        ink &= ~(reach & ~(his | filled))
     if marks.any():   # the shapes and gaps filled for his marks, and each mark he filled in that
         # reaches them; his strokes round them stay lines, seen through the blood
         to_mark = ndi.distance_transform_edt(~marks)
@@ -282,30 +288,32 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
         b = np.isin(fl, np.unique(fl[filled & marks]))
         sl, _ = ndi.label(solids)
         b |= np.isin(sl, np.unique(sl[(to_mark <= TRACE_NEAR * UP) & solids]))
-        # each part of it of the kind of the mark nearest (within the crop he marked)
-        kinds = [k for k in TONES if k not in PAINTED and marked[k].any()]
-        m = TRACE_NEAR * UP
-        box = (slice(max(by0 - m, 0), by1 + m), slice(max(bx0 - m, 0), bx1 + m))
-        kind = np.argmin([ndi.distance_transform_edt(~marked[k][box]) for k in kinds], axis=0)
-        for i, k in enumerate(kinds):
-            blood[k] = np.zeros_like(fig)
-            blood[k][box] = b[box] & (kind == i)
+        blood |= b
         ink &= ~(b & ~lines)
     return ink, his | filled, dots, blood
 
 
-def add_tone(svg, tones, box):
-    """Add the half tones (the blood, by kind) to the drawing written by lw.trace_svg (box: the crop
-    box it returned): a path for each kind, class "tone", in the line colour at its opacity
-    (TONES), between the body and the lines, traced at WORK_H as the lines are."""
+def add_tone(svg, blood, tone, box):
+    """Add the blood to the drawing written by lw.trace_svg (box: the crop box it returned): a wash
+    in the line colour whose opacity follows the plate's darkness under it (BLEND_*), in steps, each
+    step's area drawn over the one below at the opacity that brings the total there to the step's
+    (so no seam shows between steps): paths of class "tone", between the body and the lines,
+    traced at WORK_H as the lines are."""
     x0, y0, x1, y1 = box
-    paths = ''
-    for k, m in tones.items():
-        if m.any():
-            d, _ = lw.potrace_d(lw.resample_ink(m[y0:y1, x0:x1], lw.WORK_H), turdsize=20, alphamax=1.0)
-            paths += f'<path class="tone" fill="currentColor" fill-opacity="{TONES[k]}" stroke="none" d="{d}"/>'
-    if paths:
-        svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
+    b, g, s = blood[y0:y1, x0:x1], tone[y0:y1, x0:x1], BLEND_SIGMA * UP
+    dark = ndi.gaussian_filter(np.where(b, g, 0), s) / np.maximum(ndi.gaussian_filter(b.astype(np.float32), s), 1e-6)
+    (t0, t1), (a0, a1) = BLEND_T, BLEND_A
+    alpha = a0 + (a1 - a0) * np.clip((t0 - dark) / (t0 - t1), 0, 1)
+    paths, below = '', 0.0
+    for a in np.arange(a0, a1 + 1e-9, BLEND_STEP):
+        m = b & (alpha >= a - BLEND_STEP / 2)
+        if not m.any():
+            break
+        d, _ = lw.potrace_d(lw.resample_ink(m, lw.WORK_H), turdsize=20, alphamax=1.0)
+        paths += (f'<path class="tone" fill="currentColor" fill-opacity="{1 - (1 - a) / (1 - below):.3f}" '
+                  f'stroke="none" d="{d}"/>')
+        below = a
+    svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
 
 
 def faint_lines(g):
@@ -447,7 +455,7 @@ def main(src, qa=None, diag=None):
     ink = even_lines(black, t, 3 * UP) | centre_lines(faint, t, 3 * UP, 2 * t) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * UP * UP)[lab]   # specks of grain; a small curl stays
-    body, dots, blood = fig, np.zeros_like(fig), {k: np.zeros_like(fig) for k in TONES}
+    body, dots, blood = fig, np.zeros_like(fig), np.zeros_like(fig)
     if TRACES:
         tone = np.asarray(Image.fromarray(den).resize((W, H), Image.BICUBIC), np.float32)
         wide = black & ndi.binary_dilation(ndi.binary_opening(black, structure=morphology.disk(int(np.ceil(t / 2)))),
@@ -457,8 +465,7 @@ def main(src, qa=None, diag=None):
             ink, his, his_dots, his_blood = apply_trace(part, ink, edge, fig, tone, wide, t)
             body = body | (his & ndi.binary_dilation(fig, iterations=TRACE_EDGE * UP))   # clay under his outline
             dots |= his_dots
-            for k, m in his_blood.items():
-                blood[k] |= m
+            blood |= his_blood
     info = lw.trace_svg(
         ink, OUT, body=body, open_holes=held, weight="own",   # drawn at WEIGHT already (even_lines)
         dots=dots,           # his dots, a line wide: under potrace's speck limit at this weight
@@ -467,7 +474,8 @@ def main(src, qa=None, diag=None):
         desc='Line drawing after Karl Reichhold\'s drawing of the Vivenzio hydria by the Kleophrades Painter '
              '(Naples), in Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 34; '
              'cut out and retraced.')
-    add_tone(OUT, blood, info['box'])
+    if blood.any():
+        add_tone(OUT, blood, tone, info['box'])
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info['box'], Path(qa))
