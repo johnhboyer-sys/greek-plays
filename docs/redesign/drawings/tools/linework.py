@@ -175,9 +175,11 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
               trace_h: int = TRACE_H) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
     weight (or `weight`, as a fraction of the longer side; "own" keeps the
-    widths the ink has, for ink whose lines are already drawn at their width,
-    as Andromache's: there the plate's lines are finer than the house weight,
-    and thickening them to it ran close lines together, John, 2026-10-06),
+    median width the ink has; "drawn" traces the ink as it is, at its own
+    size, for ink whose lines are already drawn at their width, as
+    Andromache's: there the plate's lines are finer than the house weight,
+    and thickening them to it ran close lines together, John, 2026-10-06;
+    and resampling and re-weighting, which blur, closed the px between them),
     and potrace it into a theme-following SVG 1000 units tall: the
     lines are filled with currentColor. `body`, a mask of the figure's area
     (same shape as ink), becomes a second path under the lines, class "body",
@@ -200,11 +202,16 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     x0, x1 = max(xs.min() - pad, 0), min(xs.max() + pad + 1, ink.shape[1])
     ink = ink[y0:y1, x0:x1]
     before = line_width(ink) / max(ink.shape)
-    weight = HOUSE_WEIGHT if weight is None else before if weight == "own" else weight
-    crop = resample_ink(ink, WORK_H)
-    crop = set_line_width(crop, weight * max(crop.shape))
-    weighted = crop
-    crop = resample_ink(crop, trace_h)  # trace smaller: fewer, smoother curves
+    drawn = weight == "drawn"
+    weight = HOUSE_WEIGHT if weight is None else before if weight in ("own", "drawn") else weight
+    if drawn:
+        crop = weighted = ink
+        trace_h = ink.shape[0]
+    else:
+        crop = resample_ink(ink, WORK_H)
+        crop = set_line_width(crop, weight * max(crop.shape))
+        weighted = crop
+        crop = resample_ink(crop, trace_h)  # trace smaller: fewer, smoother curves
     h, w = crop.shape
     q = trace_h / TRACE_H                 # the speck limits below are set for TRACE_H
     d, tr = potrace_d(crop, turdsize=round(turdsize * q * q), alphamax=alphamax)

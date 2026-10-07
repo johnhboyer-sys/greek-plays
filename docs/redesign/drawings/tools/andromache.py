@@ -144,6 +144,14 @@ BLEND_T, BLEND_A, BLEND_STEP, BLEND_SIGMA = (140, 85), (0.25, 0.55), 0.05, 2
 # (his light green hides it but for a fleck): joined across, from his groin line through the
 # fleck to where it comes out, to be seen through the blood
 JOINS = {'trace_3_astyanax_face_and_hip_hand': [[(3358.61, 3579.16), (3359.19, 3584.36), (3365.0, 3591.0)]]}
+# His trace of the kilt (the scabbard's edges, the chape, the tassels, the flaps and hems) leaves out
+# lines he did not mean to change: the chape's meander, the straps crossed over the scabbard, the
+# corslet's flaps above it. There (PARTIAL) the plate's lines near his go only where they run along
+# his, within DUP_ANGLE degrees (the same line, drawn twice); those that cross his stay. And the
+# shape he closed round the meander keeps the plate's lines (KEEP: a point inside it, plate px)
+PARTIAL = {'trace_13_kilt'}
+DUP_ANGLE = 35
+KEEP = {'trace_13_kilt': [(3778, 3232)]}
 # The dark smear across the pleats on Priam's chest is blood too, not black (John, ringing it: "The
 # area here you have black is actually blood"): inside his ring (CHEST), the plate's dark wider
 # than CHEST_W plate px, darker than BLOOD_T as on Astyanax ("make sure the blood on here has the
@@ -173,14 +181,9 @@ CHEST_PLEATS = json.loads(TRACES_FILE.read_text()).get('chest_pleats', {}).get('
 # point within SNAP_R plate px, if that is SNAP_D grey levels darker
 MISSED = json.loads(TRACES_FILE.read_text()).get('missed_lines', {}).get('lines', []) if TRACES_FILE.exists() else []
 SNAP_STEP, SNAP_R, SNAP_D = 3, 2, 6
-# Where the drawing still missed lines on Neoptolemos' kilt (its flaps' edges and hems, the tassels
-# under the scabbard's end), John marked them "very approx" ('approx_lines'): within APPROX_R plate
-# px of his marks the plate's own thin lines are drawn (what is APPROX_D grey levels darker than
-# the median round it, over APPROX_W plate px), along their centres, where they lie on the figure
-# (off it, on the ground, they had no clay behind them); inside a mark he filled in, the plate's
-# dark (under FILL_T) is solid
-APPROX = json.loads(TRACES_FILE.read_text()).get('approx_lines', {}) if TRACES_FILE.exists() else {}
-APPROX_R, APPROX_D, APPROX_W = 4, 12, 9
+# Areas John marked to be black ink ('black_fills': the gap in Neoptolemos' lock where it crosses
+# the strap behind his neck): solid
+BLACK = json.loads(TRACES_FILE.read_text()).get('black_fills', {}).get('solids', []) if TRACES_FILE.exists() else []
 # Two slivers of figure that the cut left on the sword hand, all outline, with a rim of clay round
 # them in the dark theme (the crossguard's tip; a wedge at the fist's lower left): John ringed them
 # to go: each is the plate's dark ground, which the cut left in the figure. Inside each ring (grown
@@ -271,13 +274,26 @@ def traced_area(part, shape):
     return (band | ((lab > 0) & ~np.isin(lab, rim))) & inbox
 
 
+def along(ink, strokes, angle, t):
+    """Where the ink runs along the nearest stroke (within DUP_ANGLE degrees), or lies within a
+    line's width of it; not where it crosses."""
+    d, (iy, ix) = ndi.distance_transform_edt(~strokes, return_indices=True)
+    f = ndi.gaussian_filter(ink.astype(np.float32), UP / 2)
+    gy, gx = np.gradient(f)
+    jxx, jxy, jyy = [ndi.gaussian_filter(a, 1.5 * UP) for a in (gx * gx, gx * gy, gy * gy)]
+    ink_angle = (0.5 * np.arctan2(2 * jxy, jxx - jyy) + np.pi / 2) % np.pi   # the ink line's direction
+    diff = np.abs(ink_angle - angle[iy, ix])
+    diff = np.minimum(diff, np.pi - diff)
+    return (d <= t) | (diff < np.radians(DUP_ANGLE))
+
+
 def within(mask, r):
     """Within r px of mask; nowhere if the mask is empty (scipy measures an empty mask's distances
     from just outside its corner, and drew a speck there)."""
     return ndi.distance_transform_edt(~mask) <= r if mask.any() else np.zeros_like(mask)
 
 
-def apply_trace(part, ink, edge, fig, tone, wide, t):
+def apply_trace(part, ink, edge, fig, tone, wide, t, partial=False, keep=()):
     """One of John's traces laid into the drawing. His strokes are drawn t px wide, as every line
     of the drawing, his filled marks solid, and his dots t px across; where he left a gap between
     strokes narrower than that widening would close (between the curls at the temple, the lines of
@@ -296,12 +312,14 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     painted."""
     H, W = fig.shape
     strokes, solids = np.zeros_like(fig), np.zeros_like(fig)
+    angle = np.zeros(fig.shape, np.float32)   # each stroke px's direction (radians, mod pi)
     for line in part['lines']:
         P = up(line)
         for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
             rr, cc = draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
             ok = (rr >= 0) & (rr < H) & (cc >= 0) & (cc < W)
             strokes[rr[ok], cc[ok]] = True
+            angle[rr[ok], cc[ok]] = np.arctan2(yb - ya, xb - xa) % np.pi
     for poly in part['solids']:
         solids |= lw.polygon_mask(fig.shape, np.array(up(poly), float))
     dots = np.zeros_like(fig)
@@ -329,6 +347,8 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     is_closed = np.ones(n + 1, bool)
     is_closed[0] = False
     is_closed[np.unique(rim)] = False
+    for x, y in up(keep):   # a shape he closed whose plate lines stay
+        is_closed[lab[int(round(y)), int(round(x))]] = False
     mean = np.bincount(lab.ravel(), weights=tone.ravel(), minlength=n + 1) / np.maximum(size, 1)
     cy, cx = [np.bincount(lab.ravel(), weights=c.ravel(), minlength=n + 1) / np.maximum(size, 1)
               for c in np.mgrid[0:H, 0:W]]
@@ -362,6 +382,15 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     lines = (free & ~within(axis, TRACE_GAP * UP / 2)) | within(rims, pen / 2)
     his = lines | solids | dots
     zone = closed | (ndi.distance_transform_edt(~(strokes | solids | dots)) <= TRACE_NEAR * UP)
+    if partial:   # near his strokes, only the plate's lines that run along them go
+        near = to_stroke <= TRACE_NEAR * UP
+        zone = closed | within(solids | dots, TRACE_NEAR * UP) | (near & along(ink, strokes, angle, t))
+        # and what is left there must run on beyond them, as a line that crosses his does: a crumb
+        # lying all within that distance goes
+        left, n = ndi.label(ink & ~zone, structure=np.ones((3, 3)))
+        out = np.bincount(left.ravel(), weights=(~near).ravel(), minlength=n + 1) > 0
+        out[0] = True
+        zone |= ~out[left]
     # the plate's wide black outside the zone grows back into it, through wide black and outside
     # the closed shapes, as far as TRACE_NEAR px: up to his line, not into what he drew
     cy0, cy1 = max(by0 - (TRACE_NEAR + 1) * UP, 0), min(by1 + (TRACE_NEAR + 1) * UP, H)
@@ -409,7 +438,8 @@ def add_tone(svg, blood, tone, box):
     in the line colour whose opacity follows the plate's darkness under it (BLEND_*), in steps, each
     step's area drawn over the one below at the opacity that brings the total there to the step's
     (so no seam shows between steps): paths of class "tone", between the body and the lines,
-    traced at WORK_H as the lines are."""
+    traced at the ink's own size, as the lines are (weight "drawn"): traced at another size, the
+    wash fell out of register with the lines."""
     x0, y0, x1, y1 = box
     b, g, s = blood[y0:y1, x0:x1], tone[y0:y1, x0:x1], BLEND_SIGMA * UP
     dark = ndi.gaussian_filter(np.where(b, g, 0), s) / np.maximum(ndi.gaussian_filter(b.astype(np.float32), s), 1e-6)
@@ -420,7 +450,7 @@ def add_tone(svg, blood, tone, box):
         m = b & (alpha >= a - BLEND_STEP / 2)
         if not m.any():
             break
-        d, _ = lw.potrace_d(lw.resample_ink(m, lw.WORK_H), turdsize=20, alphamax=1.0)
+        d, _ = lw.potrace_d(m, turdsize=20, alphamax=1.0)
         paths += (f'<path class="tone" fill="currentColor" fill-opacity="{1 - (1 - a) / (1 - below):.3f}" '
                   f'stroke="none" d="{d}"/>')
         below = a
@@ -582,7 +612,8 @@ def main(src, qa=None, diag=None):
         his_all = np.zeros_like(fig)
         for name, part in TRACES.items():
             part = dict(part, lines=part['lines'] + JOINS.get(name, []))
-            ink, his, his_dots, his_blood = apply_trace(part, ink, edge, fig, tone, wide, t)
+            ink, his, his_dots, his_blood = apply_trace(part, ink, edge, fig, tone, wide, t,
+                                                        partial=name in PARTIAL, keep=KEEP.get(name, ()))
             body = body | (his & ndi.binary_dilation(fig, iterations=TRACE_EDGE * UP))   # clay under his outline
             dots |= his_dots
             blood |= his_blood
@@ -629,30 +660,16 @@ def main(src, qa=None, diag=None):
             for (xa, ya), (xb, yb) in zip(Q[:-1], Q[1:]):
                 missed[draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))] = True
         ink |= within(missed, t / 2)
-        # the lines John marked roughly: the plate's own, near his marks
-        hint = np.zeros_like(fig)
-        for line in APPROX.get('lines', []):
-            P = up(line)
-            for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
-                hint[draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))] = True
-        if hint.any():
-            near_hint = within(hint, APPROX_R * UP)
-            ys, xs = np.nonzero(near_hint)
-            m = APPROX_W * UP
-            win = (slice(max(ys.min() - m, 0), ys.max() + m), slice(max(xs.min() - m, 0), xs.max() + m))
-            sub = tone[win]
-            thin = (ndi.median_filter(sub, size=APPROX_W * UP) - sub > APPROX_D) & near_hint[win]
-            ink[win] |= centre_lines(thin, t, 3 * UP, 2 * t) & within(fig[win], t / 2)
-        for poly in APPROX.get('solids', []):
-            ink |= lw.polygon_mask(fig.shape, np.array(up(poly), float)) & (tone < FILL_T)
+        for poly in BLACK:
+            ink |= lw.polygon_mask(fig.shape, np.array(up(poly), float))
     if erase.any():   # in John's rings, the ink left stranded off the figure, and its clay
         ink &= ~(erase & ~within(fig, t))
         body &= ~(erase & ~fig)
     info = lw.trace_svg(
-        ink, OUT, body=body, open_holes=held, weight=WEIGHT,   # drawn at WEIGHT already (even_lines): kept
-        # so ("own", the median as measured, jumped a px step when the altar's blobs went, and thinned it)
-        dots=dots,           # his dots, a line wide: under potrace's speck limit at this weight
-        trace_h=lw.WORK_H,   # at TRACE_H a px is 1.1 plate px: the gaps between close lines closed
+        ink, OUT, body=body, open_holes=held,
+        weight="drawn",   # drawn at WEIGHT already, a px apart in places: traced as it is, at its own size
+        # (resampled and re-weighted, the blur closed the px between close lines: the kilt's hems ran together)
+        dots=dots,        # his dots, a line wide: under potrace's speck limit at this weight
         title='Neoptolemos killing Priam, who sits on the altar with the dead Astyanax across his knees',
         desc='Line drawing after Karl Reichhold\'s drawing of the Vivenzio hydria by the Kleophrades Painter '
              '(Naples), in Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 34; '

@@ -3,7 +3,9 @@ the outline along a straight edge, and none lost inside it. A rod drawn with
 lines twice the house weight (trace_svg thins them by half, as on the
 Pythia's plate) and a ring small enough that the body's edge, pulled under
 its line, would leave less than potrace's speck limit, rendered at 1400px.
-And a dot under that limit, kept only when passed as `dots`.
+And a dot under that limit, kept only when passed as `dots`. And two lines a
+px apart, in ink taller than WORK_H (as Andromache's): traced with
+weight="drawn" the gap between them stays open.
 
     python3 docs/redesign/drawings/tools/test_linework.py
 """
@@ -24,6 +26,7 @@ ROD = (60, 940, 40, 80)       # y0, y1, x0, x1: the rod's outer edge
 LINE = 4                      # px, raw: the house weight here is about 2
 RING = (500, 200, 4, 2)       # centre y, x, outer radius, line width
 DOT = (300, 150, 2)           # centre y, x, radius: under the speck limit at turdsize 100
+GAP = (100, 4500, 20, 5, 1)   # y0, y1, x0, line width, gap: two lines a px apart, taller than WORK_H
 
 
 def drawing():
@@ -74,6 +77,7 @@ def main() -> None:
     assert inside > 0.9, "clay lost inside the rod"
     assert (ring > 0.5).mean() > 0.5, "clay lost inside the ring"
     dots_check()
+    gap_check()
     print("ok")
 
 
@@ -93,6 +97,25 @@ def dots_check() -> None:
     print(f"a dot under the speck limit: {shown[0]:.0%} drawn from the ink alone, {shown[1]:.0%} passed as dots")
     assert shown[0] < 0.5, "the dot was not under the speck limit: the check examined nothing"
     assert shown[1] > 0.5, "a dot passed as dots was dropped"
+
+
+def gap_check() -> None:
+    """Two lines a px apart: closed when the tracer resamples and re-weights them (to a weight a
+    little over their own), open when it traces them as drawn."""
+    y0, y1, x0, lw_, gap = GAP
+    ink = np.zeros((y1 + 100, 60), bool)
+    ink[y0:y1, x0:x0 + lw_] = True
+    ink[y0:y1, x0 + lw_ + gap:x0 + 2 * lw_ + gap] = True
+    shown = []
+    for weight in (1.1 * (lw_ - 1) / (y1 - y0), "drawn"):
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "t.svg"
+            bx0, by0, bx1, _ = lw.trace_svg(ink, out, title="t", desc="t", weight=weight)["box"]
+            lines = render(out.read_text().replace("currentColor", "#000"), bx1 - bx0)   # a px per ink px
+        shown.append(float(lines[(y0 + y1) // 2 - by0, x0 + lw_ - bx0]))
+    print(f"the px between two lines a px apart: {shown[0]:.0%} ink when re-weighted, {shown[1]:.0%} as drawn")
+    assert shown[0] > 0.5, "re-weighting did not close the gap: the check examined nothing"
+    assert shown[1] < 0.5, "a gap between lines drawn a px apart was closed"
 
 
 if __name__ == "__main__":
