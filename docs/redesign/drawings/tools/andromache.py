@@ -115,7 +115,10 @@ HAIR = [(3700, 2791, 3758, 2845)]   # below the gap between the hair and the ear
 # in"), Astyanax's in two greens on his crop ('fill_dark', 'fill_light': "dark green: darker blood;
 # light green, lighter, more transparent blood"). On Priam he painted over his own outlines: a
 # shape they close, or a gap between his strokes, that his marks mostly cover is filled, and his
-# outlines give the edges. On Astyanax he painted the plate's streaks, outlined by nothing (PAINTED):
+# outlines give the edges and are of the blood too ("the outlines of the blood should be the blood
+# color/gradient, wash too"; but his dots, and his lines that only touch it, the hands' outlines),
+# as are the small bits of them his marks just miss (under BIT plate px^2: where strokes meet,
+# a streak's tail). On Astyanax he painted the plate's streaks, outlined by nothing (PAINTED):
 # there the blood is the plate's own streak under his paint, darker than BLOOD_T (his brush is
 # broader than the streaks: drawn as painted, the wounds came out "absurdly big"), and its lines
 # there. The blood is thinned paint in lighter brushstrokes (John) with his lines black across it
@@ -128,6 +131,11 @@ HAIR = [(3700, 2791, 3758, 2845)]   # below the gap between the hair and the ear
 BLOOD = ('fill', 'fill_dark', 'fill_light')
 PAINTED = ('fill_dark', 'fill_light')
 BLOOD_T = 132
+BIT = 100
+# The plate rims some wounds with a darker edge just outside his paint, which the line finder took
+# for lines ("The black circular outlines for the wounds aren't in the original"): a piece of the
+# plate's ink there that hugs his paint (half of it within RIM plate px) goes
+RIM = 6
 BLEND_T, BLEND_A, BLEND_STEP, BLEND_SIGMA = (140, 85), (0.25, 0.55), 0.05, 2
 # His line from Astyanax's groin down across the thigh runs under the blood he painted over it
 # (his light green hides it but for a fleck): joined across, from his groin line through the
@@ -193,9 +201,10 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     lies mostly outside all that (the helmet's bowl along his visor line), and where his stroke runs
     within TRACE_EDGE px of the outline it is the outline (he traced the face's outline on the
     plate's black line, a px or two outside the clay's edge, where the drawing's own outline runs).
-    Returns the ink (less the blood, but for his lines across it), his own ink (his strokes and the
-    shapes filled), his dots, and the blood: the shapes he marked to be filled and the marks he
-    filled in there, or the plate's streaks under what he painted."""
+    Returns the ink (less the blood, but for his lines across what he painted), his own ink (his
+    strokes and the shapes filled), his dots, and the blood: the shapes he marked to be filled, with
+    his strokes round them and the marks he filled in there, or the plate's streaks under what he
+    painted."""
     H, W = fig.shape
     strokes, solids = np.zeros_like(fig), np.zeros_like(fig)
     for line in part['lines']:
@@ -276,20 +285,30 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
     blood = np.zeros_like(fig)
     if painted.any():   # painted with no outline: the plate's streak under his paint, and its lines
         # there, in place of the plate's ink
-        reach = ndi.binary_dilation(painted, iterations=2 * UP)
+        reach = ndi.binary_dilation(painted, iterations=4 * UP)   # its dark edge too: no black outline
         streak = reach & fig & (ndi.gaussian_filter(tone, 0.75 * UP) < BLOOD_T)
         blood |= ndi.binary_fill_holes(morphology.remove_small_objects(streak, max_size=4 * UP * UP))
         blood |= ink & painted & ~(his | filled)
         ink &= ~(reach & ~(his | filled))
-    if marks.any():   # the shapes and gaps filled for his marks, and each mark he filled in that
-        # reaches them; his strokes round them stay lines, seen through the blood
+        to_paint = ndi.distance_transform_edt(~painted)
+        pl, _ = ndi.label(ink & ~(his | filled))
+        ids = np.unique(pl[(to_paint <= RIM * UP) & (pl > 0)])
+        if len(ids):
+            hug = ids[np.asarray(ndi.median(to_paint, labels=pl, index=ids)) <= RIM * UP]
+            ink &= ~np.isin(pl, hug)
+    if marks.any():   # the shapes and gaps filled for his marks, his strokes round them, each mark
+        # he filled in that reaches them, and the bits of their outline his marks just miss
         to_mark = ndi.distance_transform_edt(~marks)
         fl, _ = ndi.label(filled)
-        b = np.isin(fl, np.unique(fl[filled & marks]))
+        b = np.isin(fl, np.unique(fl[filled & marks])) | (his & ~dots & (to_mark <= pen + 2))
         sl, _ = ndi.label(solids)
         b |= np.isin(sl, np.unique(sl[(to_mark <= TRACE_NEAR * UP) & solids]))
+        bits, _ = ndi.label((his | filled) & ~dots & ~b)
+        size = np.bincount(bits.ravel())
+        near = np.unique(bits[ndi.binary_dilation(b, iterations=2) & (bits > 0)])
+        b |= np.isin(bits, near[size[near] < BIT * UP * UP])
         blood |= b
-        ink &= ~(b & ~lines)
+        ink &= ~b
     return ink, his | filled, dots, blood
 
 
