@@ -100,7 +100,7 @@ WEIGHT = 0.00155
 # 2026-10-06: Neoptolemos' face; Priam's head with both hands on it, and his beard and mouth
 # below the arm (the blood on his scalp marked on a screenshot of the drawing)
 TRACES_FILE = Path(__file__).parent / "andromache_traces.json"
-TRACES = {k: v for k, v in json.loads(TRACES_FILE.read_text()).items() if k != 'note'} if TRACES_FILE.exists() else {}
+TRACES = {k: v for k, v in json.loads(TRACES_FILE.read_text()).items() if k.startswith('trace_')} if TRACES_FILE.exists() else {}
 TRACE_NEAR, TRACE_EDGE, TRACE_GAP = 6, 6, 1.5   # plate px
 # A shape he closed off is filled where the plate's mean tone there (denoised) is under FILL_T:
 # the long locks and the black band inside the visor (73-97), not the strap between the locks
@@ -141,6 +141,21 @@ BLEND_T, BLEND_A, BLEND_STEP, BLEND_SIGMA = (140, 85), (0.25, 0.55), 0.05, 2
 # (his light green hides it but for a fleck): joined across, from his groin line through the
 # fleck to where it comes out, to be seen through the blood
 JOINS = {'trace_3_astyanax_face_and_hip_hand': [[(3358.61, 3579.16), (3359.19, 3584.36), (3365.0, 3591.0)]]}
+# The dark smear across the pleats on Priam's chest is blood too, not black (John, ringing it: "The
+# area here you have black is actually blood"): inside his ring (CHEST), the plate's dark wider
+# than CHEST_W plate px, darker than BLOOD_T as on Astyanax ("make sure the blood on here has the
+# same effect as on the corpse"), is blood, in the same wash. The pleats run on under it: John
+# traced them through it ('chest_pleats' in andromache_traces.json, his strokes over the plate),
+# drawn as lines under the blood and as far as REACH plate px past its edge, where they meet the
+# plate's own (clean there: his strokes, drawn in pieces, would break them); there the plate's
+# lines within DUP plate px of his are the same pleats, and go. Inside his ring the plate's lines
+# are all redrawn along their centres (centre_lines): its black there is pleats, and the blood's
+# soft edge, wider, had stayed as blobs beside the wash
+CHEST = [(3326, 3290), (3266, 3281), (3252, 3270), (3245, 3253), (3244, 3184), (3250, 3152), (3263, 3133),
+         (3287, 3123), (3344, 3122), (3358, 3126), (3374, 3146), (3394, 3188), (3392, 3220), (3356, 3280),
+         (3350, 3284), (3328, 3284)]
+CHEST_W, CHEST_MIN, DUP, REACH = 6, 40, 3, 3
+CHEST_PLEATS = json.loads(TRACES_FILE.read_text()).get('chest_pleats', {}).get('lines', []) if TRACES_FILE.exists() else []
 # A gap between his strokes longer than THICK_LEN plate px whose mean tone is under THICK_T is
 # black too: he traced a thick line along both edges (the line under Priam's arm, 70-90; the dark
 # gaps at the corners of his strokes on Neoptolemos' face are 8 px or shorter)
@@ -479,12 +494,30 @@ def main(src, qa=None, diag=None):
         tone = np.asarray(Image.fromarray(den).resize((W, H), Image.BICUBIC), np.float32)
         wide = black & ndi.binary_dilation(ndi.binary_opening(black, structure=morphology.disk(int(np.ceil(t / 2)))),
                                            iterations=2)
+        his_all = np.zeros_like(fig)
         for name, part in TRACES.items():
             part = dict(part, lines=part['lines'] + JOINS.get(name, []))
             ink, his, his_dots, his_blood = apply_trace(part, ink, edge, fig, tone, wide, t)
             body = body | (his & ndi.binary_dilation(fig, iterations=TRACE_EDGE * UP))   # clay under his outline
             dots |= his_dots
             blood |= his_blood
+            his_all |= his
+        # Priam's chest: the smear is blood; the pleats John traced through it are lines
+        chest = lw.polygon_mask(fig.shape, np.array(up(CHEST), float)) & fig
+        smear = ndi.binary_opening(chest & (ndi.gaussian_filter(tone, 0.75 * UP) < BLOOD_T),
+                                   structure=morphology.disk(int(round(CHEST_W / 2 * UP))))
+        smear = morphology.remove_small_objects(smear, max_size=CHEST_MIN * UP * UP)
+        pleats = np.zeros_like(fig)
+        for line in CHEST_PLEATS:
+            P = up(line)
+            for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
+                pleats[draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))] = True
+        to_pleat = ndi.distance_transform_edt(~pleats)
+        under = ndi.distance_transform_edt(~smear) <= REACH * UP
+        plate = centre_lines((black | faint) & chest & ~ndi.binary_dilation(smear, iterations=UP), t, 3 * UP, 2 * t)
+        plate = (plate | edge) & ~((to_pleat <= DUP * UP) & under)
+        ink = (ink & ~(chest & ~his_all)) | (plate & chest) | ((to_pleat <= t / 2) & under & chest)
+        blood |= smear
     info = lw.trace_svg(
         ink, OUT, body=body, open_holes=held, weight="own",   # drawn at WEIGHT already (even_lines)
         dots=dots,           # his dots, a line wide: under potrace's speck limit at this weight
