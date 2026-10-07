@@ -52,6 +52,47 @@ grey; on the dark theme's clay, a darker clay. It needs no CSS (John,
 2026-10-03: "can you do a half-dark tone for the beard to mimic the tone of
 the original on the beard?", "same for hair").
 
+`andromache.svg` carries several `tone` paths, for the blood. Its line
+weight is the plate's own, 0.155%, not the house weight (John, 2026-10-06).
+
+## Blood
+
+On the vase, blood is thinned paint laid on in lighter brushstrokes. The
+drawing shows it as a wash in the line colour, not as lines. These rules
+come from John's rulings on Andromache (2026-10-06); `tools/andromache.py`
+holds them (`BLOOD`, `PAINTED`, `BLOOD_T`, `BLEND_*`, `RIM`, `BIT`).
+
+- No black outlines on the blood. Where John traced a streak's outline
+  (Priam's scalp), the outline is part of the wash. Lines that cross the
+  blood (Astyanax's body) stay black and show through it ("you should be able
+  to see black lines through the blood"). The dots of Priam's stubble stay
+  black.
+- The wash follows the plate. Its opacity runs from 0.25 where the plate is
+  light (grey 140, after denoising) to 0.55 where it is darkest (85),
+  smoothed over 2 plate px, in steps of 0.05. Each step is a path drawn over
+  the larger step below it, at the opacity that brings the total to the
+  step's value, so no seam shows between steps. John saw flat tones (they
+  read as grey patches, and two tones side by side looked patchy) and a
+  blend, and chose the blend: "make it more subtle".
+- Where its edges come from: on Priam, from the shapes John's outlines
+  close where he marked them. On Astyanax, from the plate's own streak under
+  his paint (darker than grey 132): his brush is broader than the streaks,
+  and drawn as painted the wounds came out "absurdly big". The plate's
+  darker rim just outside a wound goes too ("The black circular outlines for
+  the wounds aren't in the original").
+
+How John marks it, on a tracing crop of the plate (or on a screenshot of
+the drawing's close-up, placed by its ruler): blue is black ink, his lines;
+blue paint over his own outlines marks the shapes they close as blood;
+green marks blood painted with no outline (he used dark and light green for
+darker and lighter blood, but the wash takes its darkness from the plate).
+A line he painted over is joined across the paint (`JOINS`). The marks are
+kept in `tools/andromache_traces.json` (`fill`, `fill_dark`, `fill_light`),
+plate px. The scripts that read his marks (`map_trace.py`: blue strokes,
+filled marks and dots; `map_fill.py`: blue paint on a screenshot;
+`map_blood.py`: green on a crop; `crisp.py`: sharp close-ups) are kept with
+the batch's sources in `.remember/batch1-2026-10-06/scripts/`.
+
 ## Rerunning
 
 Sources are not committed. Download each source file named at the top of its
