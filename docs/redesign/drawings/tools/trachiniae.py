@@ -50,26 +50,31 @@ TOP_ARC = (904.9, -1176.2, 1559.9)        # centre x, y and radius, plate px: ab
 # other outlines, and the dark theme showed a broken clay strip under them.
 BOTTOM_ARC = (909.8, -1150.5, 2708.0)
 # the left band's inner edge: its inner border line is straight (centre x = 445.5 - 0.318 (y - 380),
-# measured from y 380 to 1000), with a thin clay line beside it; the ground starts 7 px further in.
-# Left of that is the band. The right band touches no figure.
-LEFT = [(452.5 + 0.318 * 225, 155), (452.5 - 0.318 * 1229, 1609)]
+# measured from y 380 to 1000), with a thin clay line beside it; the ground starts 7 px further in,
+# and the cut runs 1.5 px inside the ground (at the ground's edge it took in a sliver of the thin
+# clay line where the ground narrows to meet Athena's sleeve). Left of the cut is the band. The
+# right band touches no figure.
+LEFT = [(454 + 0.318 * 225, 155), (454 - 0.318 * 1229, 1609)]
 # where a figure crosses a band, the part kept, outlined along the plate's lines (plate px); each
 # polygon closes inside the panel, where it changes nothing.
 # Athena's crest rises through the palmette band to the vase's rim line: the line of its tail
-# (which hangs behind her helmet), the rim line's centre, its front line (measured every 5 px,
-# 0.5 px outside the line's centre) down to its tip, the top edge of the band's lower border line
-# (the border line itself is band), and the top of her helmet, which rises above the band.
-CREST = [(541, 400), (546, 390), (551, 380), (557, 367), (560, 361), (562, 346), (566.5, 340),
-         (570.5, 336.5), (573.5, 336), (575.6, 328), (578.4, 318), (581.6, 308), (585.6, 296),
-         (589.8, 283), (594.5, 270), (599.5, 258), (605.5, 245), (611, 236), (616, 229),
-         (622.5, 226), (622.5, 218.5), (640, 222), (660, 225.5), (680, 229), (700, 232),
-         (720, 234.5), (734, 237), (734.5, 240), (739.5, 244), (745.5, 252), (746.5, 256),
-         (748.5, 260), (750.5, 265), (751.5, 270), (751.5, 280), (750.5, 285), (750.5, 290),
-         (748.5, 295), (747.5, 300), (745.5, 305), (744.5, 310), (742.5, 315), (740.5, 320),
-         (738.5, 325), (736.5, 330), (735.5, 335), (734.5, 340), (732.5, 345), (731.5, 350),
-         (730.5, 355), (729, 358), (728, 360), (720, 360), (710, 360), (700, 358.5), (690, 357),
-         (680, 354.5), (670, 354), (662, 357), (664, 362), (666, 367), (670, 371.5), (674, 376),
-         (678, 381), (680, 400)]
+# (which hangs behind her helmet; straight, measured from y 304 to 340, then curving up to meet
+# the rim line at x 633), the rim line's lower edge
+# (its centre + 2 px: cut through the centre, the crest's top came out a line and a half wide), its
+# front line (measured every 5 px, 0.5 px outside the line's centre) down to its tip, the top edge
+# of the band's lower border line (the border line itself is band), and the top of her helmet,
+# which rises above the band.
+CREST = [(541, 400), (546, 390), (551, 380), (557, 367), (560, 361), (565.5, 346), (567.7, 340),
+         (569.1, 336), (572, 328), (575.6, 318), (579.3, 308), (585.6, 296), (589.8, 283),
+         (594.5, 270), (599.5, 258), (605.5, 245), (611, 236), (616, 229), (621, 227.6), (625, 226),
+         (629, 224.4), (633, 222.8), (640, 224), (660, 227.5), (680, 231), (700, 234), (720, 236.5),
+         (733, 239), (734.5, 240), (739.5, 244), (745.5, 252), (746.5, 256), (748.5, 260),
+         (750.5, 265), (751.5, 270), (751.5, 280), (750.5, 285), (750.5, 290), (748.5, 295),
+         (747.5, 300), (745.5, 305), (744.5, 310), (742.5, 315), (740.5, 320), (738.5, 325),
+         (736.5, 330), (735.5, 335), (734.5, 340), (732.5, 345), (731.5, 350), (730.5, 355),
+         (729, 358), (728, 360), (720, 360), (710, 360), (700, 358.5), (690, 357), (680, 354.5),
+         (670, 354), (662, 357), (664, 362), (666, 367), (670, 371.5), (674, 376), (678, 381),
+         (680, 400)]
 # her spear's head: the clay the palmette's leaves leave round it (the leaves stop at its edge), with
 # a thin line along its right edge near the tip; then its shaft, through the band's lower lines
 SPEAR = [(466, 198.5), (468, 206), (469.5, 212), (471, 218), (471.5, 224), (471.5, 230), (472.5, 236),
@@ -78,12 +83,17 @@ SPEAR = [(466, 198.5), (468, 206), (469.5, 212), (471, 218), (471.5, 224), (471.
          (515.8, 340), (510.4, 320), (505, 300), (502, 292), (502.5, 276), (501.5, 270), (499.5, 264),
          (497, 258), (494.5, 252), (492, 246), (490, 240), (488.5, 236), (486.5, 233), (484.5, 230),
          (481.5, 226), (479.5, 224), (476.5, 218), (473.5, 212), (470.5, 206), (467.5, 199)]
-# her sleeve, at the elbow, hangs over the left band: its outer hem line, then the ends of its
-# fringe
-SLEEVE = [(388, 585), (370, 589), (358, 591), (349, 593), (343, 596), (338, 600), (332, 607),
-          (327, 615), (324, 624), (322, 634), (321, 643), (323, 650), (329, 652), (332, 660),
-          (333, 672), (335, 675), (341, 683), (350, 688), (361, 690), (368, 692), (430, 692),
-          (430, 586)]
+# her sleeve hangs over the left band from y 531 down: its upper edge (the line the band's ivy stops
+# at, through its measured centre every 3 px, from where it leaves the ground at the top), the curve
+# of its outer hem, then the ends of its fringe. (Begun 50 px lower, at a fold, it left the border cut
+# slicing across the sleeve, and a sliver of the band's thin clay line in the figure.)
+SLEEVE = [(405.7, 532.2), (402.7, 535), (399.6, 537.7), (396.6, 540.6), (393.6, 543.5), (390.5, 546.3),
+          (387.4, 549.1), (384.5, 552.1), (381.3, 554.8), (378.3, 557.6), (375.5, 560.7), (372.5, 563.6),
+          (369.6, 566.5), (366.7, 569.6), (363.8, 572.6), (361, 575.6), (358.2, 578.7), (355.3, 581.8),
+          (352.4, 584.8), (349.5, 587.7), (346.5, 590.6), (343.3, 593.2), (338, 600), (332, 607),
+          (327, 615), (324, 624), (322, 634), (321, 643), (323, 650), (329, 652), (332, 660), (333, 672),
+          (335, 675), (341, 683), (350, 688), (361, 690), (368, 692), (430, 692), (430, 515),
+          (412, 526.7)]
 SEEDS = [(330, 1250), (800, 1000), (1200, 1100), (1600, 1200)]   # Athena, Herakles, Deianeira, Oineus
 # pockets of ground the figures close in, smaller than AUTO_GROUND (a point in each, plate px):
 # between Athena's raised arm and her body; between her spear, the tail of her crest and the band;
@@ -106,8 +116,39 @@ RIDGE_GREY = 175
 LINE_W = 1.5                              # plate px
 SPECK = 4                                 # plate px^2: smaller marks are grain
 # Inside the crest's base the plate lets the band show through: the lower leaves of a palmette, the
-# tendrils round them, a spiral with dots. They stay, as printed (John, 2026-10-07, when they were
-# left out: "Details are being lost here").
+# arcs round them, a spiral with dots, and the band's lower border, which runs between the crest
+# and the helmet. They go (John, 2026-10-07: "Remove the vase band that is still around the base of
+# the crest"): every line inside CREST_BASE (plate px), two areas placed between the lines that
+# stay: the crest's outline, its holder with the curl under it, the stalk from the curl down to the
+# helmet, and the helmet's top line. The stalk and the helmet's line are redrawn at LINE_W through
+# their measured centres (STALK, HELMET), as the band's leaves and border touch both.
+STALK = [(651.5, 306), (651.5, 309), (650.5, 312), (649, 315), (648, 318), (647, 321), (646, 324),
+         (645, 327), (644, 330), (643, 333), (642.5, 336), (642, 339), (641.5, 342), (641, 345),
+         (640.5, 348), (640, 350.5)]
+HELMET = [(590, 354.5), (596, 353.5), (600, 353), (604, 352), (608, 351.2), (616, 350.6), (628, 350.2),
+          (636, 350.6), (644, 351.6), (652, 352.6), (657, 354), (662, 356.5)]
+CREST_BASE = [
+    # left of the stalk: the leaves and the arcs round them, and the border, from the crest's tail
+    # down to the helmet line
+    [(564, 336), (576, 327), (580, 318), (587, 311), (597, 306), (610, 304), (619, 304), (620, 319.5),
+     (638, 319.5), (639.5, 330), (639, 340), (638.5, 348), (636, 349.7), (628, 349.3), (616, 349.7),
+     (608, 350.3), (600, 352.1), (594, 353.1), (590, 353.6), (586, 349.3), (576, 349.3), (570, 352),
+     (559, 350)],
+    # the stalk's own strip, below the curl (the stalk is redrawn)
+    [(638, 319.5), (641, 312), (655, 312), (651, 314.5), (650.5, 317), (649.5, 320), (648, 325),
+     (646, 335), (644, 345), (643, 349.5), (638.5, 348), (639, 340), (639.5, 330)],
+    # right of the stalk, below the curl and the line from it to the holder's foot: the leaves,
+    # the arcs, the spiral and its dots, and the border, down to the helmet line and the crest's base
+    [(651, 314.5), (655, 312), (657, 313.5), (663, 313.5), (663, 317), (694.5, 317.5), (695.5, 310),
+     (738, 309), (737, 320), (735, 330), (733, 340), (731, 350), (729.5, 364), (668, 364), (662, 362), (662, 355.6),
+     (657, 353.1), (652, 351.7), (647, 351.0), (643, 349.5), (644, 345), (646, 335), (648, 325),
+     (649.5, 320), (650.5, 317)]]
+# Along the crest's top the rim line's lower edge, ragged in the print, dips below the cut in
+# places, and at its top-left corner the tip of a band leaf touches its edge: there, within 4 px of
+# the edge, only the crest's outline is drawn.
+CREST_TOP = [(612, 228), (621, 225), (630, 221.5), (640, 223), (660, 226.5), (680, 230), (700, 233),
+             (720, 235.5), (733, 238), (733, 242), (720, 240), (700, 237.5), (680, 234.5), (660, 231),
+             (640, 227.5), (632, 226), (624, 229.5), (618, 232.5), (613, 234)]
 # The crest's holder is a band of dots between two thin lines, the dots 1-2 px apart: too close
 # for any one grey to part them (a light grey ran them into a black band, a dark one broke the band
 # into blobs), so it is built as the plate draws it: the band's outline at LINE_W, and the dots'
@@ -190,12 +231,19 @@ def main(src, qa=None):
     dlab, _ = ndi.label(dots)
     dots &= (np.bincount(dlab.ravel()) > 2 * UP * UP)[dlab]
     lines = np.where(arch, rim | dots, lines)
+    for poly in CREST_BASE + [CREST_TOP]:   # the band in the crest goes; the helmet keeps its top line
+        lines &= ~lw.polygon_mask(g.shape, up(poly))
+    lines |= (polyline(g.shape, HELMET, LINE_W) | polyline(g.shape, STALK, LINE_W)) & fig
     edge = fig & (ndi.distance_transform_edt(fig) <= LINE_W * UP)
     ink = lines | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > SPECK * UP * UP)[lab]
 
-    held = ndi.binary_fill_holes(fig) & ground   # the pockets stay open in the dark theme
+    # all that is not figure stays open in the dark theme: the pockets, the ground and the bands. (The
+    # tracer gives a line with no clay beside it a clay rim; where the plate's outline is wider than
+    # a line and a half, its outer part counted as such a line, and the rims showed as clay slivers
+    # outside the outline, on the ground.)
+    held = ~fig
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=held, weight='drawn',
         title='Herakles and Deianeira with their son Hyllos, between Athena and Oineus',
