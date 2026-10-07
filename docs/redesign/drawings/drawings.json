@@ -117,6 +117,42 @@
       "source": "Gerhard, Auserlesene griechische Vasenbilder II (1843), Taf. XCI, 'Eriphyle': an archaic black-figure hydria (Heidelberg scan, public domain)",
       "method": "Black-figure plate, drawn as silhouettes (John's choice): the black solid, incisions, hatching and dots open in it (found on the plate smoothed along each stroke); the added white moved back into register; Eriphyle's feet on the plate's contour lines, joined; her face and hands on John's traces; the end of the pale band ahead of the lead horse closed with his line; a clay rim on the dark theme",
       "verdict": "Usable; approved by John (2026-10-07) after the style test, more detail in the eye and faces, and the feet redrawn. Left out: the shoulder picture, the band's edges, the ground line and the inscriptions. Reviewed by Grok (2026-10-07), a static read of the plate and drawing side by side in thirds, the overlays and the credits with Gerhard's text: no missed lines, none along flaws, no wrong facts. Revised the same day: Eriphyle's face and hands redrawn on John's traces (the pupil he drew cut), and the end of the pale band ahead of the lead horse closed with his line; approved by John. Not reviewed again: John reviewed it himself ('no need for grok')."
+    },
+    {
+      "slug": "suppliants-aesch",
+      "file": "suppliants-aesch.svg",
+      "name": "Suppliant Women · Amymone and her father Danaus",
+      "alt": "Amymone running, and her father Danaus",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques III (1858), pl. XX: a Nola amphora formerly in the Durand collection, owned in 1858 by M. Paravey (Heidelberg scan, public domain)",
+      "method": "Coloured plate, red figures on black, turned upright: the black ground gives the outline; the plate's own lines by local contrast, breaks in the print joined; hair solid inside its reserved outline; Poseidon's toes cut away along her sole; the plate's own line weight (0.15%); potrace",
+      "verdict": "Usable; approved by John on the first pass (2026-10-07). Poseidon, who pursues her from the left, is left out. Reviewed by Grok (2026-10-07), a static read of the overlays and the credits: no missed lines, none along flaws, no wrong facts."
+    },
+    {
+      "slug": "alcestis-apollo",
+      "file": "alcestis-apollo.svg",
+      "name": "Alcestis · Apollo with the herd of Admetus",
+      "alt": "Apollo with a palm and a bull",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. LIV: a Campanian neck-amphora, British Museum 1867,0508.1122, formerly Blacas (Heidelberg scan, public domain)",
+      "method": "Coloured plate across two pages, scanned as one opening: levelled first (the frame's edges straightened, each page's tilt taken out, the fold widened to round the bull's forehead dots); then as Suppliant Women; faces at the paint's own width; potrace",
+      "verdict": "Usable; approved by John (2026-10-07) after his rulings on the scan, the split into two and the fold's widening. One of a pair with alcestis-admetus: laid side by side at their places on the plate they give the whole scene. Reviewed by Grok (2026-10-07), a static read of the overlays and the credits: no missed lines, none along flaws, no wrong facts."
+    },
+    {
+      "slug": "alcestis-admetus",
+      "file": "alcestis-admetus.svg",
+      "name": "Alcestis · Admetus on horseback",
+      "alt": "Admetus on horseback",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. LIV: a Campanian neck-amphora, British Museum 1867,0508.1122, formerly Blacas (Heidelberg scan, public domain)",
+      "method": "As alcestis-apollo: the scan levelled first, then the black ground gives the outline, the plate's own lines by local contrast, faces at the paint's own width; potrace",
+      "verdict": "Usable; approved by John (2026-10-07). One of a pair with alcestis-apollo. Reviewed by Grok (2026-10-07), a static read of the overlays and the credits: no missed lines, none along flaws, no wrong facts."
+    },
+    {
+      "slug": "libation-bearers",
+      "file": "libation-bearers.svg",
+      "name": "Libation Bearers · Orestes killing Aegisthus",
+      "alt": "Orestes kills Aegisthus on his throne; Clytemnestra comes at him with an axe, and Electra stands at the right",
+      "source": "Gerhard, Etruskische und kampanische Vasenbilder (1843), Taf. XXIV: a red-figure stamnos by the Copenhagen Painter, from Vulci, formerly Berlin F 2184, now Moscow, Pushkin Museum (Heidelberg scan, public domain)",
+      "method": "Coloured plate, red figures on black, one leaf photographed open: levelled first (the frame's edges fitted, mapped to a rectangle); then as Suppliant Women; faint glaze lines from the blue channel, breaks in the print joined; faces and fine curls at the paint's own width; the blood a wash; John's corrections on pass 1 laid in as drawn; the plate's own line weight (0.11%); potrace",
+      "verdict": "Usable; approved by John on the third pass (2026-10-07), after his corrections in Photocraft and two screenshots, and chosen for the site ('this will be the plate we use for the site'). The whole frieze; the tongue band, the meander and the painted names are left out. No outside review (John: he reviewed it)."
     }
   ]
 }

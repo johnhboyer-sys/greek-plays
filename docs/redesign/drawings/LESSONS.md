@@ -101,6 +101,89 @@ rather than adding a second one that contradicts it.
   page in the Heidelberg viewer says which copy, and its OCR finds the text
   pages (2026-10-06).
 
+### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
+
+- The Gerhard method works here too. Suppliant Women (III, pl. XX) took
+  about 35 minutes and John approved it on the first pass (2026-10-07).
+  `tools/suppliants_aesch.py`. Alcestis (II, pl. LIV) took about three
+  hours, most of it on the fold (below). `tools/alcestis.py`.
+- The hair prints as dark as the ground, inside a thin light line. Where
+  that line fades, the hair joins the ground and drops out as ground: trace
+  the light line through hand-placed points along its ridge (`HAIR` in
+  `suppliants_aesch.py`), or wall the gap and name the hair as paint
+  (`walls`, `paint` in `alcestis.py`) (2026-10-07).
+- Fingers are clay strips 4-6 px wide with 2-3 px of ground between them:
+  find the ground at less blur inside a box round the hand, and draw the
+  outline finer there (`HAND`, `HAND_EDGE`) (2026-10-07).
+- The house weight is a share of the longer side, so a drawing wider than
+  tall gets heavier lines against its figures: on pl. XX her hem's border
+  ran into the pleats. All three drawings use the plate's own weight
+  (`weight="own"`, 0.14-0.17% of the longer side) (2026-10-07).
+- On the dark theme a 2.5 px outline fills a thin part (a tuft, a leaf's
+  tip, an ear, a toe) and leaves it no clay: cap the outline at 0.6 of the
+  part's half-width. Mark all the ground as open (`held = ground & ~fig`),
+  not only the pockets the figures close in, or `trace_svg`'s clay rim for
+  thin lines strays onto it (a notch of clay at the horse's mouth)
+  (2026-10-07).
+- A plate printed across two pages: the Getty copy on the Internet Archive
+  is bound tight and the gutter swallowed the bull's head. Heidelberg scans
+  each double plate as one opening (vol. II is `lenormant1857bd2`; its IIIF
+  manifest labels plates "Planche 54"). Look for another copy before you
+  draw across a gutter, and ask John before you download it (2026-10-07).
+- Flattening the fold (`level` in `alcestis.py`): the frame's top and
+  bottom edges are printed straight, so straighten them column by column,
+  take out each page's tilt, and widen each column near the fold by the
+  height it lost. The page also slopes away from the camera there, which
+  narrows it further by an amount the edges cannot show; John chose the
+  estimate at which the bull's forehead dots come out round (camera at
+  1 m), after two narrower ones looked "still too smooshed". A photo of
+  the vase did not settle it: the bull's head sits where the vase turns
+  away from the camera (2026-10-07).
+- The handoff's facts were wrong in places; the sources put them right. Vol.
+  II's title page reads 1857, not 1846. Pl. LIV's animal is a bull and its
+  tree a palm (Élite II pp. 160-161, and the British Museum), not a cow and
+  a bare tree; the vase is a Campanian neck-amphora, British Museum
+  1867,0508.1122. On pl. XX Poseidon holds a sceptre, not a trident. The
+  plates are signed in their margins (pl. XX "L. Petit, sc."; pl. LIV "A.
+  Rey, sc." and "Lith. de Bineteau") (2026-10-07).
+- Heidelberg's viewer pages now sit behind a bot check. Its IIIF manifests
+  (`/diglit/iiif/<id>/manifest.json`) give the licence and the page labels,
+  and IIIF image links open in the browser for reading the text pages
+  (2026-10-07).
+
+### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
+
+- Libation Bearers (Taf. XXIV, the whole frieze: four figures, a throne and a footstool): about four
+  hours' work over three passes, approved by John 2026-10-07. `tools/libation_bearers.py`.
+- One leaf photographed open, the frame bent by up to 10 px (its bottom sagging, its sides leaning
+  out). The four edges fitted (cubics top and bottom, lines at the sides) and mapped to a rectangle
+  by a Coons patch (`level`) run straight within 1 px (2026-10-07).
+- The faint glaze lines (anatomy, folds) print pale brown, 15-20 grey levels under the clay, too
+  faint for the line finder in grey; in the blue channel they stand 30-55 under it (the clay is
+  orange). Find them there, keeping pieces that are long, thin and apart from the black lines
+  (`FAINT`) (2026-10-07).
+- Breaks in the print: line ends facing each other across up to 10 px are joined where the plate's
+  blue-channel contrast holds at 7 or more all the way across (true ends measured 0-6). The facing
+  pairs fell from 158 to 66 (`JOIN_*`) (2026-10-07).
+- Eyes and fine curls at the paint's own width by half maximum (darker than halfway between the
+  line's core and the clay round it): local contrast drew them heavier than printed, a fixed
+  threshold lost the lower lids. Electra's ringlets, clay rings on black hair: the same rule turned
+  over (`half_max`, `RINGLETS`) (2026-10-07).
+- The outline cap from alcestis.py (0.6 of a thin part's half-width, read off the skeleton) thinned
+  the outline to nothing beside notches, where the skeleton puts out a spur: about 20 stretches broke
+  up in tracing, one of which John found. Floor it at 1 plate px (`EDGE_MIN`). A check for the
+  figure's edge with no line within 1.5 px found 25 gaps, then 2 (2026-10-07).
+- Weight "own" is measured on the ink: with John's traced strokes added (wider than the plate's
+  lines), every line came out heavier (median 2.4 to 3.0 px). Pin the first pass's weight
+  (`WEIGHT`) (2026-10-07).
+- Clay rims on the dark theme only along a thin light line at least 8 px long with paint on one
+  side and ground on the other: a looser rule put clay rings round the leaves of Electra's wreath
+  (`RIM_*`) (2026-10-07).
+- The black ground printed dark brown inside a figure (under Aegisthus' jaw) came out as clay; John:
+  "the blob here of clay is not part his body". Leave such ground open (`OPEN`) (2026-10-07).
+- The vase went from Berlin (F 2184) to Moscow after the war. The Beazley Archive (no. 202912) gives
+  Pushkin Museum 6528.3, the museum's own page inv. АВ 3742; the credit cites both (2026-10-07).
+
 ## John's traces
 
 - He draws over a crop of the plate, or over a screenshot of a close-up, in
@@ -140,6 +223,15 @@ rather than adding a second one that contradicts it.
 - Never apply a reviewer's findings (Grok, Codex) without him: check each
   one against the plate, and show him crops of the ones that hold up
   (2026-10-06).
+- He may correct a whole pass in Photocraft, over the full-resolution export: a PSD at the
+  drawing's 2000-px width, the pass in red over the plate, blue for ink to add and green for ink to
+  take out. Read it with `photocraft-cli convert` (in `~/.local/bin`); it registers at zero offset,
+  so his marks map straight to plate px as rings (`map_marks.py` in `.remember/batch4/b/scripts/`,
+  outside git). A screenshot he sends later may hold paint that the file on his Desktop does not (he
+  draws on it in the chat): locate the screenshot by matching it to the export, and read his marks
+  off the chat image (2026-10-07).
+- Photocraft has an MCP server (`photocraft-cli mcp`, with read and write roots). Place Embedded is
+  disabled there: copy a layer in from a second document and Paste in Place (2026-10-07).
 
 ## Blood
 
@@ -196,3 +288,10 @@ rulings on Andromache (2026-10-06); `tools/andromache.py` holds them
 - When you fill a shape from a seed inside lines you drew, assert that the
   fill never reaches the edge of its box: it caught a contour line that
   stopped 5 px short of the black it should meet (Seven, 2026-10-07).
+- Line ends that face each other across a short gap, in the finished SVG,
+  find the breaks in the plate's printing (seven on pl. XX); check each by
+  eye, since some are true ends (fingers, short strokes). A sweep for the
+  plate's lines inside the figure that the drawing does not cover found
+  only grain and stains on the Élite plates. `gaps.py` and `missed.py`,
+  with `sclose.py` (close-ups rendered from the SVG), are kept in
+  `.remember/batch3/scripts/`, outside git (2026-10-07).
