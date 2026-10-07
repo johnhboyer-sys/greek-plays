@@ -30,6 +30,7 @@ lead horse's head, and asked for more detail in the eye and the faces.
 
     python3 docs/redesign/drawings/tools/seven.py gerhard1843bd2_091.jpg [qa.png]
 """
+import json
 import sys
 from pathlib import Path
 
@@ -84,6 +85,13 @@ POCKETS = [(552, 1391), (620, 1341), (1126, 1575), (1239, 1458), (1267, 1549), (
 SHIFT = (8.5, 0.0)                        # plate px, x and y
 LINE_W = 1.5                              # plate px: the outline and the thinnest mark
 RIM = 1.5                                 # plate px: the clay round the black on the dark theme
+# Eriphyle's feet: their white, as printed out of register and ragged, gave lumpy outlines (John,
+# 2026-10-07: "the woman's feet can be improved"). They are drawn instead on the plate's own contour
+# lines, the broken ones joined ("The black lines of the foot are broken but should be connected"):
+# FEET_FILE holds the lines (plate px), the boxes they govern and a point inside each white part. In the
+# boxes the white is what those lines and the black enclose; the old white, its soft edge and the line
+# pieces on the ground give way to it.
+FEET_FILE = Path(__file__).parent / "seven_feet.json"
 # a light mark in the black smaller than GRAIN[0] plate px^2 that is nowhere lighter than grey GRAIN[1], and
 # stands alone (no other mark within 2 plate px), is a speck of the print's grain (grey, where incisions and
 # dots show the clay or white), not a mark
@@ -119,6 +127,16 @@ def oriented_smooth(L, sigma_d=1.0, sigma_i=6.0, half=6, sigma_s=3.0):
 def thick(m, w):
     """m, every part at least w plate px wide (thin marks widened along their centres)."""
     return m | (ndi.distance_transform_edt(~morphology.skeletonize(m)) <= w * UP / 2)
+
+
+def polyline(shape, pts, width):
+    """A line `width` plate px wide through pts (plate px), at UP."""
+    m = np.zeros(shape, bool)
+    P = np.array([((x - X0) * UP, (y - Y0) * UP) for x, y in pts], float)
+    for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
+        for t in np.linspace(0, 1, int(np.hypot(xb - xa, yb - ya)) + 2):
+            m[int(round(ya + t * (yb - ya))), int(round(xa + t * (xb - xa)))] = True
+    return ndi.distance_transform_edt(~m) <= width * UP / 2
 
 
 def write_svg(lines, body, out, title, desc):
@@ -195,6 +213,37 @@ def main(src, qa=None):
     fig &= (np.bincount(lab.ravel()) > 60 * UP * UP)[lab]   # specks of the print on the ground go
     fig = (ndi.binary_fill_holes(fig) & ~ground) | white
     white &= fig
+
+    # the feet (FEET_FILE): the white the contour lines and the black enclose
+    feet = json.loads(FEET_FILE.read_text())
+    fb = np.zeros_like(fig)
+    for bx0, by0, bx1, by1 in feet['boxes']:
+        fb[(by0 - Y0) * UP:(by1 - Y0) * UP, (bx0 - X0) * UP:(bx1 - X0) * UP] = True
+    flines = np.zeros_like(fig)
+    for pts in feet['lines'].values():
+        flines |= polyline(fig.shape, pts, LINE_W)
+    flines &= fb & ~outside
+    # (the black closed over its thin light lines, so the fill stops at the mantle's hem)
+    solid = ndi.binary_closing(L < 100, structure=morphology.disk(3 * UP))
+    lab, _ = ndi.label(~(solid | flines | outside | ~fb))
+    ids = {lab[round((y - Y0) * UP), round((x - X0) * UP)] for x, y in feet['seeds']}
+    assert 0 not in ids, 'a foot seed is on a line or the black'
+    filled = np.isin(lab, list(ids))
+    # the closing also shut the small wedges of white where a contour line meets the black (under 40 plate
+    # px^2; the closed-over incisions of the mantle are long, and stay as they are): they are the white's
+    wedge = solid & (L >= 100) & ~flines & ~outside & fb
+    lab, n = ndi.label(wedge)
+    touch = np.zeros(n + 1, bool)
+    touch[np.unique(lab[ndi.binary_dilation(filled) & wedge])] = True
+    touch &= np.bincount(lab.ravel(), minlength=n + 1) < 40 * UP * UP
+    touch[0] = False
+    filled |= touch[lab]
+    assert not (filled & ~ndi.binary_erosion(fb)).any(), 'a foot contour leaks to the edge of its box'
+    big = ndi.binary_opening(L < 100, structure=morphology.disk(2 * UP))
+    soft_old = fig & ~white & (L > 150) & (ndi.distance_transform_edt(~white) <= 3 * UP)
+    keep = fig & ndi.binary_dilation(big, iterations=2 * UP) & ~white & ~soft_old
+    fig = np.where(fb, keep | filled | flines, fig)
+    white = np.where(fb, filled, white)
     near_white = ndi.binary_dilation(white, iterations=2 * UP)
 
     # incisions, hatching and dots: light marks in the black, on the plate smoothed along each stroke
@@ -215,13 +264,13 @@ def main(src, qa=None):
     marks_w = thick(marks, LINE_W) & fig
 
     # the lines on the white (brow, eye, mouth, fingers): darker than its own tone
-    face_w = thick(((L < 150) | dark_ridge) & white, LINE_W) & white
+    face_w = thick(((L < 150) | dark_ridge) & white, LINE_W) & white & ~fb   # the feet have none
 
     # the black: the figure but the white, the marks, and the soft light edge where the white fades into
     # the clay (drawn black, it joined the eye to the profile); the white and that edge outlined where they
     # meet the ground, by a band just outside the figure
-    soft = fig & ~white & (L > 150) & (ndi.distance_transform_edt(~white) <= 3 * UP)
-    a_black = fig & ~white & ~marks_w & ~soft
+    soft = fig & ~white & (L > 150) & (ndi.distance_transform_edt(~white) <= 3 * UP) & ~fb
+    a_black = (fig & ~white & ~marks_w & ~soft) | flines   # light plate px under a foot line are not an incision
     # (under the white feet the outline runs along the ground line, as their soles do on the plate)
     lines = a_black | face_w | (~fig & ~frame & (ndi.distance_transform_edt(~(white | soft)) <= LINE_W * UP))
     body = (ndi.distance_transform_edt(~fig) <= RIM * UP) & ~frame
