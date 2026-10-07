@@ -25,6 +25,7 @@ finish.
 | `andromache.svg` | Neoptolemos killing Priam on the altar, the dead Astyanax across his knees (Andromache) | Furtwängler and Reichhold, *Griechische Vasenmalerei* I (1904), Taf. 34, Heidelberg scan (public domain) |
 | `suppliants-aesch.svg` | Amymone running, and her father Danaus (Suppliant Women) | Lenormant and de Witte, *Élite des monuments céramographiques* III (1858), pl. XX, Heidelberg scan (public domain) |
 | `alcestis-apollo.svg`, `alcestis-admetus.svg` | Apollo with a palm and a bull; Admetus on horseback (Alcestis): two drawings from one plate, which laid side by side at their places give the whole scene | Lenormant and de Witte, *Élite des monuments céramographiques* II (1857), pl. LIV, Heidelberg scan (public domain); the scan levelled first (`tools/alcestis.py`) |
+| `libation-bearers.svg` | Orestes killing Aegisthus, with Clytemnestra and Electra (Libation Bearers): the whole frieze | Gerhard, *Etruskische und kampanische Vasenbilder* (1843), Taf. XXIV, Heidelberg scan (public domain); the scan levelled first; John's corrections on pass 1 in `tools/libation_bearers_marks.json` (`tools/libation_bearers.py`) |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 

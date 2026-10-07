@@ -153,6 +153,12 @@ EDGE_MIN = 1.0
 # on one side and ground on the other within RIM_NEAR px: not round the leaves of Electra's wreath,
 # and not where paint runs straight into the ground (the ends of her zigzag bands)
 RIM_W, RIM_CORE, RIM_LEN, RIM_NEAR = 3, 1, 8, 2
+# The dark brown between Aegisthus' jaw and his shoulder, round the locks of his beard, is the black
+# ground, printed lighter there (John, 2026-10-07: "the blob here of clay is not part his body"): the
+# bare clay (no ink) there, the parts of it that the plate prints darker than OPEN_T on average, is
+# left open on the dark theme, as ground. OPEN: a ring round it; the locks inside keep their clay
+OPEN = [(2014, 818), (2054, 818), (2054, 840), (2014, 840)]
+OPEN_T = 120
 # The faint lines (the anatomy of arms, legs and chests, in thinned glaze) print pale brown: in grey
 # they are 15-20 levels darker than the clay, under the line finder's thresholds, but in the blue
 # channel 30-55 (the clay is orange). There they are found by local contrast (FAINT, hysteresis low
@@ -577,11 +583,16 @@ def main(src, qa=None):
     across = (sy - yy) * (hy - yy) + (sx - xx) * (hx - xx) < -0.5 * ds * dh   # paint and ground on opposite sides
     rims = ndi.binary_dilation(ridge & (ds <= RIM_NEAR * UP) & (dh <= RIM_NEAR * UP) & across, iterations=3 * UP)
     del ds, dh, sy, sx, hy, hx, yy, xx, across
+    lab, n = ndi.label(fig & ~ink)
+    mean = np.bincount(lab.ravel(), weights=gs.ravel(), minlength=n + 1) / np.maximum(np.bincount(lab.ravel(), minlength=n + 1), 1)
+    near = np.unique(lab[lw.polygon_mask(fig.shape, up(OPEN)) & (lab > 0)])
+    held |= np.isin(lab, near[mean[near] < OPEN_T])
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=held, rim_lines=rims, dots=dots, weight=WEIGHT,
         title='Orestes killing Aegisthus, with Clytemnestra and Electra',
-        desc='Line drawing after the 1843 plate of a red-figure stamnos in Berlin (Gerhard, Etruskische und '
-             'kampanische Vasenbilder, Taf. XXIV); cut out and retraced.')
+        desc='Line drawing after the 1843 plate of a red-figure stamnos by the Copenhagen Painter, formerly Berlin '
+             'F 2184, now Moscow, Pushkin Museum (Gerhard, Etruskische und kampanische Vasenbilder, Taf. XXIV); cut '
+             'out and retraced.')
     add_tone(OUT, blood, gb, info['box'])
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it

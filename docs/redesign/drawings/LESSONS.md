@@ -97,6 +97,39 @@ rather than adding a second one that contradicts it.
   and IIIF image links open in the browser for reading the text pages
   (2026-10-07).
 
+### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
+
+- Libation Bearers (Taf. XXIV, the whole frieze: four figures, a throne and a footstool): about four
+  hours' work over three passes, approved by John 2026-10-07. `tools/libation_bearers.py`.
+- One leaf photographed open, the frame bent by up to 10 px (its bottom sagging, its sides leaning
+  out). The four edges fitted (cubics top and bottom, lines at the sides) and mapped to a rectangle
+  by a Coons patch (`level`) run straight within 1 px (2026-10-07).
+- The faint glaze lines (anatomy, folds) print pale brown, 15-20 grey levels under the clay, too
+  faint for the line finder in grey; in the blue channel they stand 30-55 under it (the clay is
+  orange). Find them there, keeping pieces that are long, thin and apart from the black lines
+  (`FAINT`) (2026-10-07).
+- Breaks in the print: line ends facing each other across up to 10 px are joined where the plate's
+  blue-channel contrast holds at 7 or more all the way across (true ends measured 0-6). The facing
+  pairs fell from 158 to 66 (`JOIN_*`) (2026-10-07).
+- Eyes and fine curls at the paint's own width by half maximum (darker than halfway between the
+  line's core and the clay round it): local contrast drew them heavier than printed, a fixed
+  threshold lost the lower lids. Electra's ringlets, clay rings on black hair: the same rule turned
+  over (`half_max`, `RINGLETS`) (2026-10-07).
+- The outline cap from alcestis.py (0.6 of a thin part's half-width, read off the skeleton) thinned
+  the outline to nothing beside notches, where the skeleton puts out a spur: about 20 stretches broke
+  up in tracing, one of which John found. Floor it at 1 plate px (`EDGE_MIN`). A check for the
+  figure's edge with no line within 1.5 px found 25 gaps, then 2 (2026-10-07).
+- Weight "own" is measured on the ink: with John's traced strokes added (wider than the plate's
+  lines), every line came out heavier (median 2.4 to 3.0 px). Pin the first pass's weight
+  (`WEIGHT`) (2026-10-07).
+- Clay rims on the dark theme only along a thin light line at least 8 px long with paint on one
+  side and ground on the other: a looser rule put clay rings round the leaves of Electra's wreath
+  (`RIM_*`) (2026-10-07).
+- The black ground printed dark brown inside a figure (under Aegisthus' jaw) came out as clay; John:
+  "the blob here of clay is not part his body". Leave such ground open (`OPEN`) (2026-10-07).
+- The vase went from Berlin (F 2184) to Moscow after the war. The Beazley Archive (no. 202912) gives
+  Pushkin Museum 6528.3, the museum's own page inv. АВ 3742; the credit cites both (2026-10-07).
+
 ## John's traces
 
 - He draws over a crop of the plate, or over a screenshot of a close-up, in
@@ -132,6 +165,15 @@ rather than adding a second one that contradicts it.
 - Never apply a reviewer's findings (Grok, Codex) without him: check each
   one against the plate, and show him crops of the ones that hold up
   (2026-10-06).
+- He may correct a whole pass in Photocraft, over the full-resolution export: a PSD at the
+  drawing's 2000-px width, the pass in red over the plate, blue for ink to add and green for ink to
+  take out. Read it with `photocraft-cli convert` (in `~/.local/bin`); it registers at zero offset,
+  so his marks map straight to plate px as rings (`map_marks.py` in `.remember/batch4/b/scripts/`,
+  outside git). A screenshot he sends later may hold paint that the file on his Desktop does not (he
+  draws on it in the chat): locate the screenshot by matching it to the export, and read his marks
+  off the chat image (2026-10-07).
+- Photocraft has an MCP server (`photocraft-cli mcp`, with read and write roots). Place Embedded is
+  disabled there: copy a layer in from a second document and Paste in Place (2026-10-07).
 
 ## Blood
 
