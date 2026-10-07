@@ -26,8 +26,9 @@ plate's own lines where they touch:
   - The dead Trojan lying on his shield under Neoptolemos' legs is left out:
     the legs are drawn over him, whole. Within FALLEN_ZONE only the parts of
     the legs are kept (LEGS: each the area its own outlines close, found by
-    flood fill with the plate's lines as walls). The kneeling Greek at the
-    right touches the group only through him and goes too.
+    flood fill with the plate's lines as walls), and Priam's feet (what John's
+    trace of them closes). The kneeling Greek at the right touches the group
+    only through him and goes too.
   - The altar stands on a step drawn as a strip along the floor band; the cut
     follows the altar's own bottom line (FLOOR_ZONE).
 
@@ -172,6 +173,23 @@ CHEST_PLEATS = json.loads(TRACES_FILE.read_text()).get('chest_pleats', {}).get('
 # point within SNAP_R plate px, if that is SNAP_D grey levels darker
 MISSED = json.loads(TRACES_FILE.read_text()).get('missed_lines', {}).get('lines', []) if TRACES_FILE.exists() else []
 SNAP_STEP, SNAP_R, SNAP_D = 3, 2, 6
+# Where the drawing still missed lines on Neoptolemos' kilt (its flaps' edges and hems, the tassels
+# under the scabbard's end), John marked them "very approx" ('approx_lines'): within APPROX_R plate
+# px of his marks the plate's own thin lines are drawn (what is APPROX_D grey levels darker than
+# the median round it, over APPROX_W plate px), along their centres, where they lie on the figure
+# (off it, on the ground, they had no clay behind them); inside a mark he filled in, the plate's
+# dark (under FILL_T) is solid
+APPROX = json.loads(TRACES_FILE.read_text()).get('approx_lines', {}) if TRACES_FILE.exists() else {}
+APPROX_R, APPROX_D, APPROX_W = 4, 12, 9
+# Two slivers of figure that the cut left on the sword hand, all outline, with a rim of clay round
+# them in the dark theme (the crossguard's tip; a wedge at the fist's lower left): John ringed them
+# to go: each is the plate's dark ground, which the cut left in the figure. Inside each ring (grown
+# by 2 plate px) the figure loses what is as dark as the ground (GROUND_T), and the ink left
+# farther than a line's width from it goes
+ERASE = [[(3932, 2397), (3925, 2396), (3920, 2390), (3920, 2386), (3922, 2381), (3928, 2378),
+          (3936, 2377), (3940, 2383), (3934, 2391), (3936, 2395), (3932, 2397)],
+         [(3874, 2488), (3869, 2484), (3868, 2472), (3877, 2459), (3881, 2457), (3881, 2459),
+          (3886, 2464), (3889, 2470), (3879, 2477), (3874, 2488)]]
 # A gap between his strokes longer than THICK_LEN plate px whose mean tone is under THICK_T is
 # black too: he traced a thick line along both edges (the line under Priam's arm, 70-90; the dark
 # gaps at the corners of his strokes on Neoptolemos' face are 8 px or shorter)
@@ -219,6 +237,40 @@ def centre_lines(mask, t, min_len, spur):
     return ndi.distance_transform_edt(~sk) <= t / 2
 
 
+def trace_strokes(part, shape):
+    """John's strokes in one of his traces, 1 px wide, work px."""
+    strokes = np.zeros(shape, bool)
+    for line in part['lines']:
+        P = up(line)
+        for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
+            rr, cc = draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
+            ok = (rr >= 0) & (rr < shape[0]) & (cc >= 0) & (cc < shape[1])
+            strokes[rr[ok], cc[ok]] = True
+    return strokes
+
+
+def below_trace(part, shape):
+    """Inside the crop John traced, what lies below his lowest stroke in each column (work px)."""
+    bx0, by0, bx1, by1 = [(v - o) * UP for v, o in zip(part['box'], (X0, Y0, X0, Y0))]
+    sub = trace_strokes(part, shape)[by0:by1, bx0:bx1]
+    low = np.where(sub.any(0), sub.shape[0] - 1 - np.argmax(sub[::-1], 0), sub.shape[0])
+    out = np.zeros(shape, bool)
+    out[by0:by1, bx0:bx1] = np.arange(sub.shape[0])[:, None] > low[None, :] + max(part['pen'] * UP, 2.0)
+    return out
+
+
+def traced_area(part, shape):
+    """What one of John's traces covers: his strokes and the shapes they close inside the crop he
+    traced (those not reaching its edge), work px. The cut spares it."""
+    band = within(trace_strokes(part, shape), max(part['pen'] * UP, 2.0) / 2)
+    bx0, by0, bx1, by1 = [(v - o) * UP for v, o in zip(part['box'], (X0, Y0, X0, Y0))]
+    inbox = np.zeros(shape, bool)
+    inbox[by0:by1, bx0:bx1] = True
+    lab, _ = ndi.label(inbox & ~band)
+    rim = np.unique(np.concatenate([lab[by0, bx0:bx1], lab[by1 - 1, bx0:bx1], lab[by0:by1, bx0], lab[by0:by1, bx1 - 1]]))
+    return (band | ((lab > 0) & ~np.isin(lab, rim))) & inbox
+
+
 def within(mask, r):
     """Within r px of mask; nowhere if the mask is empty (scipy measures an empty mask's distances
     from just outside its corner, and drew a speck there)."""
@@ -254,7 +306,8 @@ def apply_trace(part, ink, edge, fig, tone, wide, t):
         solids |= lw.polygon_mask(fig.shape, np.array(up(poly), float))
     dots = np.zeros_like(fig)
     for x, y in up(part.get('dots', [])):
-        dots[draw.disk((y, x), t / 2, shape=fig.shape)] = True
+        if fig[int(round(y)), int(round(x))]:   # off the figure, a dot is a slip of his pen
+            dots[draw.disk((y, x), t / 2, shape=fig.shape)] = True
     marked = {k: np.zeros_like(fig) for k in BLOOD}   # the areas he marked to be filled, by kind
     for k in BLOOD:
         for poly in part.get(k, []):
@@ -466,6 +519,9 @@ def main(src, qa=None, diag=None):
     h, w = min(sub.shape[0], H - oy), min(sub.shape[1], W - ox)
     legs[oy:oy + h, ox:ox + w] = sub[:h, :w]
     cut |= fallen & ~legs
+    if 'trace_11_priam_feet' in TRACES:   # Priam's feet, under the fallen zone: John traced them;
+        feet = TRACES['trace_11_priam_feet']   # what hangs below his outline is the fallen man's hair
+        cut = (cut & ~traced_area(feet, g.shape)) | below_trace(feet, g.shape)
 
     # the group: the light area left, joined to the seeds
     lab, _ = ndi.label(~ground & ~cut)
@@ -475,6 +531,11 @@ def main(src, qa=None, diag=None):
     held = ndi.binary_fill_holes(fig) & ground & ~cut    # ground the group closes in stays open
     fig = ndi.binary_fill_holes(fig) & ~held & ~cut      # paint inside the group stays its own
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP))
+    erase = np.zeros_like(fig)
+    for poly in ERASE:   # John's rings: the slivers of figure on the sword hand
+        ring = within(lw.polygon_mask(g.shape, np.array(up(poly), float)), 2 * UP)
+        fig &= ~(ring & (gs < GROUND_T))
+        erase |= ring
     if diag:
         diagnostic(g, ground, cut, fig, paths, Path(diag))
         # check: every dark area the group closes in, ground (left open) or paint (drawn solid)
@@ -568,6 +629,25 @@ def main(src, qa=None, diag=None):
             for (xa, ya), (xb, yb) in zip(Q[:-1], Q[1:]):
                 missed[draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))] = True
         ink |= within(missed, t / 2)
+        # the lines John marked roughly: the plate's own, near his marks
+        hint = np.zeros_like(fig)
+        for line in APPROX.get('lines', []):
+            P = up(line)
+            for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
+                hint[draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))] = True
+        if hint.any():
+            near_hint = within(hint, APPROX_R * UP)
+            ys, xs = np.nonzero(near_hint)
+            m = APPROX_W * UP
+            win = (slice(max(ys.min() - m, 0), ys.max() + m), slice(max(xs.min() - m, 0), xs.max() + m))
+            sub = tone[win]
+            thin = (ndi.median_filter(sub, size=APPROX_W * UP) - sub > APPROX_D) & near_hint[win]
+            ink[win] |= centre_lines(thin, t, 3 * UP, 2 * t) & within(fig[win], t / 2)
+        for poly in APPROX.get('solids', []):
+            ink |= lw.polygon_mask(fig.shape, np.array(up(poly), float)) & (tone < FILL_T)
+    if erase.any():   # in John's rings, the ink left stranded off the figure, and its clay
+        ink &= ~(erase & ~within(fig, t))
+        body &= ~(erase & ~fig)
     info = lw.trace_svg(
         ink, OUT, body=body, open_holes=held, weight=WEIGHT,   # drawn at WEIGHT already (even_lines): kept
         # so ("own", the median as measured, jumped a px step when the altar's blobs went, and thinned it)
