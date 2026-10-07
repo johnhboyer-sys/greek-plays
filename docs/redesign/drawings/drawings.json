@@ -99,6 +99,15 @@
       "source": "Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 34: Karl Reichhold's drawing of the Vivenzio hydria by the Kleophrades Painter, Naples, Museo Archeologico Nazionale 81669 (Heidelberg scan, public domain)",
       "method": "Printed plate, black lines on grey-brown, the ground a dark halftone: the halftone gives most of the outline, cuts along the plate's own lines where figures touch; lines cleared of grain and redrawn along their centres at 0.11%, wide black solid, faint lines by a ridge filter; the faces, hands, feet, kilt and missed lines after John's traces; the blood a wash following the plate, lines black through it; traced as drawn; potrace",
       "verdict": "Usable; approved by John (2026-10-06) after his traces and rulings (line weight 0.11%; the blood a wash with the lines black through it). Left out: the neck band (but for the crest), the palm and the figures beyond it, the fallen Trojan under Neoptolemos' legs and the kneeling Greek. Reviewed by Grok (2026-10-06), a static read of the overlays and the credits: no missed lines, none along flaws, no wrong facts."
+    },
+    {
+      "slug": "trachiniae",
+      "file": "trachiniae.svg",
+      "name": "Women of Trachis · Herakles, Deianeira and Hyllos",
+      "alt": "Herakles and Deianeira with their son Hyllos, between Athena and Oineus",
+      "source": "Gerhard, Auserlesene griechische Vasenbilder II (1843), Taf. CXVI, 'Herakles und Hyllos': a red-figure pelike formerly in the Durand collection (Heidelberg scan, public domain)",
+      "method": "Coloured plate, red figures on black: the black ground gives the outline, cut along the plate's lines where Athena crosses the bands; lines from the plate's own paint and its thin brown lines (ridge filter), at least 1.5 px; the crest's dotted holder built as printed; traced as drawn at the plate's weight (0.104%); potrace",
+      "verdict": "Usable; approved by John (2026-10-07) on the third pass, after 'too blotchy' (lines from the plate's paint instead of local contrast) and the band's ornament taken out of the crest's base. Left out: the bands and the inscriptions."
     }
   ]
 }

@@ -20,6 +20,22 @@ rather than adding a second one that contradicts it.
 - Gerhard numbers a vase's shape drawing and its painting separately (CLXV,
   3 is the amphora's shape, 4 its painting) and heads the text "CLXV, 3.4".
   Cite the figure you drew (2026-10-06).
+- Not every Gerhard plate takes Hippolytus' line finder. On Women of Trachis
+  (Taf. CXVI) its blur ran close lines together (the eyes, the pleats, a
+  dotted band): John, "too blotchy". What worked: the plate's own paint
+  (darker than grey 115, lightly smoothed) and its thin brown lines by a
+  ridge filter (sato), at least 1.5 px wide, traced as drawn at the plate's
+  weight (0.104%). About two hours over three passes (2026-10-07).
+  `tools/trachiniae.py`.
+- Where a figure crosses a border band (a crest, a spear, a sleeve), outline
+  what is kept along the plate's own lines, then check the whole crossing at
+  8x: Athena's sleeve outline first began at a fold 50 px low, and the
+  straight border cut sliced across her sleeve. Band ornament seen through
+  the figure (palmette leaves in the crest's base) goes too (John,
+  2026-10-07).
+- Cut along a border line's edge, not its centre: half a border line drawn
+  as an outline comes out a line and a half wide (the soles, the crest's
+  top) (2026-10-07).
 
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
@@ -129,3 +145,9 @@ rulings on Andromache (2026-10-06); `tools/andromache.py` holds them
   its corner: check `mask.any()` first (it drew a speck at (0, 0)).
 - After any change to the tracer, look at close-ups of the faces, the blood
   and the densest lines before you show John.
+- Render the body path alone and count its pixels outside the figure: there
+  should be none. `trace_svg` gives a line with no clay beside it a clay
+  rim; an outline wider than a line and a half counts as one, and on Women
+  of Trachis the rims showed as clay slivers on the ground in 99 places.
+  When tracing as drawn, pass everything outside the figures as
+  `open_holes` (2026-10-07).

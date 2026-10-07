@@ -23,6 +23,7 @@ finish.
 | `oedipus-coloneus.svg` | Oedipus with Ismene and Antigone (Oedipus at Colonus) | Geddes A 5:8, the photos in Green 2003 (pp. 4, 26 and 29, HathiTrust), placed on their reprint in Taplin, *Pots & Plays* no. 27, with Ismene's lines and borders, and those outside p. 26, from a photo found online (source unknown), checked against Digital LIMC photo 8569X101; the drawing traces only the painting, so it does not carry the photos' rights (John, 2026-10-02) |
 | `hippolytus.svg` | an Amazon fighting a hoplite, Gerhard's "Theseus und Antiope" (Hippolytus) | Gerhard, *Auserlesene griechische Vasenbilder* III (1847), Taf. CLXV, 4, Heidelberg scan (public domain) |
 | `andromache.svg` | Neoptolemos killing Priam on the altar, the dead Astyanax across his knees (Andromache) | Furtwängler and Reichhold, *Griechische Vasenmalerei* I (1904), Taf. 34, Heidelberg scan (public domain) |
+| `trachiniae.svg` | Herakles and Deianeira with their infant son Hyllos, between Athena and Oineus (Women of Trachis) | Gerhard, *Auserlesene griechische Vasenbilder* II (1843), Taf. CXVI, Heidelberg scan (public domain) |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -60,6 +61,8 @@ the original on the beard?", "same for hair").
 `andromache.svg` carries several `tone` paths, for the blood. Its line
 weight is 0.11%, finer than the house weight: at the house weight, and at
 the plate's own 0.155%, its close lines ran together (John, 2026-10-06).
+`trachiniae.svg` too keeps its plate's own weight, 0.104%, traced as drawn
+(John, 2026-10-07: the first pass was "too blotchy").
 
 ## Blood
 
