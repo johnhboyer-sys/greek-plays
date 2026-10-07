@@ -70,7 +70,8 @@ the plate's own 0.155%, its close lines ran together (John, 2026-10-06).
 the incisions open in them; its `body` path runs 1.5 px past them, so on the
 dark theme they stand on a clay rim, as on the vase, and the incisions show
 clay. `tools/seven.py` writes it in this format itself, as `trace_svg` would
-take that rim away.
+take that rim away. Eriphyle's feet are drawn on lines in `tools/seven_feet.json`,
+her face and hands on John's traces in `tools/seven_traces.json` (plate px).
 
 ## Blood
 

@@ -36,7 +36,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 from scipy import ndimage as ndi
 from skimage import morphology
 from skimage.feature import structure_tensor
@@ -77,6 +77,12 @@ AUTO_GROUND = 2000                        # plate px: clay areas this large are 
 # the harness, the hatched manes and tails, the dots.
 POCKETS = [(552, 1391), (620, 1341), (1126, 1575), (1239, 1458), (1267, 1549), (1273, 1633), (1019, 1513),
            (1053, 1697), (968, 1562), (1202, 1536), (1444, 893), (1004, 1071)]
+# the left end of the long pale band ahead of the lead horse, outlined in black above and below: the plate
+# leaves the end open on the ground; John closed it with a line (2026-10-07, traced on a screenshot,
+# registered by SIFT), so the band is reserved clay, not ground (plate px, drawn LINE_W wide); BAND, a point
+# in it (at 2219 plate px^2 it is larger than AUTO_GROUND)
+BAND_END = [(631.0, 1170.8), (605.1, 1202.9)]
+BAND = (680, 1182)
 # The white is printed out of register: about 8.5 plate px left of the shapes Gerhard's black outlines
 # give (measured: the back leg's white 7.5 and 9.5 px left of its two outlines; the face's 9 px left of
 # its profile line; the front leg's about 10). So the white is moved back by SHIFT; where it meets the
@@ -92,6 +98,11 @@ RIM = 1.5                                 # plate px: the clay round the black o
 # boxes the white is what those lines and the black enclose; the old white, its soft edge and the line
 # pieces on the ground give way to it.
 FEET_FILE = Path(__file__).parent / "seven_feet.json"
+# John's traces over 4x crops of the plate (2026-10-07, "we need to correct some parts: face, hands"),
+# registered back by SIFT: his marks as he drew them (outlines in plate px, filled even-odd), the box
+# each governs and a point inside each white part. Handled as the feet are, his marks for the lines;
+# the plate's own lines on the white in the box give way to his.
+TRACES_FILE = Path(__file__).parent / "seven_traces.json"
 # a light mark in the black smaller than GRAIN[0] plate px^2 that is nowhere lighter than grey GRAIN[1], and
 # stands alone (no other mark within 2 plate px), is a speck of the print's grain (grey, where incisions and
 # dots show the clay or white), not a mark
@@ -137,6 +148,16 @@ def polyline(shape, pts, width):
         for t in np.linspace(0, 1, int(np.hypot(xb - xa, yb - ya)) + 2):
             m[int(round(ya + t * (yb - ya))), int(round(xa + t * (xb - xa)))] = True
     return ndi.distance_transform_edt(~m) <= width * UP / 2
+
+
+def even_odd(shape, polys):
+    """The polygons (plate px) filled even-odd, at UP."""
+    m = np.zeros(shape, bool)
+    for c in polys:
+        im = Image.new('1', (shape[1], shape[0]), 0)
+        ImageDraw.Draw(im).polygon([((x - X0) * UP, (y - Y0) * UP) for x, y in c], fill=1)
+        m ^= np.asarray(im)
+    return m
 
 
 def write_svg(lines, body, out, title, desc):
@@ -196,6 +217,8 @@ def main(src, qa=None):
     # (the spill widened by a px: the soft edge between it and the clay is neither, and that seam cut it off)
     spill = ndi.binary_dilation(spill, iterations=UP)
     clay = ndi.binary_opening((((B > 155) & (L > 120)) | spill) & ~white & ~outside, structure=morphology.disk(2 * UP))
+    band_end = polyline(L.shape, BAND_END, LINE_W)
+    clay &= ~band_end
     lab, _ = ndi.label(clay)
     size = np.bincount(lab.ravel())
     size[0] = 0
@@ -204,6 +227,9 @@ def main(src, qa=None):
         k = lab[round((y - Y0) * UP), round((x - X0) * UP)]
         assert k, f'pocket point {(x, y)} is not on clay'
         is_ground[k] = True
+    k = lab[round((BAND[1] - Y0) * UP), round((BAND[0] - X0) * UP)]
+    assert k, 'the band point is not on clay'
+    is_ground[k] = False
     ground = is_ground[lab]
 
     # the figure's area: all else in the band, smoothed; and the thin dark lines on the ground
@@ -214,36 +240,67 @@ def main(src, qa=None):
     fig = (ndi.binary_fill_holes(fig) & ~ground) | white
     white &= fig
 
-    # the feet (FEET_FILE): the white the contour lines and the black enclose
+    # the feet (FEET_FILE) and John's traces (TRACES_FILE): in each box the white is what the lines and the
+    # black enclose
     feet = json.loads(FEET_FILE.read_text())
-    fb = np.zeros_like(fig)
-    for bx0, by0, bx1, by1 in feet['boxes']:
-        fb[(by0 - Y0) * UP:(by1 - Y0) * UP, (bx0 - X0) * UP:(bx1 - X0) * UP] = True
-    flines = np.zeros_like(fig)
-    for pts in feet['lines'].values():
-        flines |= polyline(fig.shape, pts, LINE_W)
-    flines &= fb & ~outside
-    # (the black closed over its thin light lines, so the fill stops at the mantle's hem)
-    solid = ndi.binary_closing(L < 100, structure=morphology.disk(3 * UP))
-    lab, _ = ndi.label(~(solid | flines | outside | ~fb))
-    ids = {lab[round((y - Y0) * UP), round((x - X0) * UP)] for x, y in feet['seeds']}
-    assert 0 not in ids, 'a foot seed is on a line or the black'
-    filled = np.isin(lab, list(ids))
-    # the closing also shut the small wedges of white where a contour line meets the black (under 40 plate
-    # px^2; the closed-over incisions of the mantle are long, and stay as they are): they are the white's
-    wedge = solid & (L >= 100) & ~flines & ~outside & fb
-    lab, n = ndi.label(wedge)
-    touch = np.zeros(n + 1, bool)
-    touch[np.unique(lab[ndi.binary_dilation(filled) & wedge])] = True
-    touch &= np.bincount(lab.ravel(), minlength=n + 1) < 40 * UP * UP
-    touch[0] = False
-    filled |= touch[lab]
-    assert not (filled & ~ndi.binary_erosion(fb)).any(), 'a foot contour leaks to the edge of its box'
-    big = ndi.binary_opening(L < 100, structure=morphology.disk(2 * UP))
-    soft_old = fig & ~white & (L > 150) & (ndi.distance_transform_edt(~white) <= 3 * UP)
-    keep = fig & ndi.binary_dilation(big, iterations=2 * UP) & ~white & ~soft_old
-    fig = np.where(fb, keep | filled | flines, fig)
-    white = np.where(fb, filled, white)
+    flines_of = lambda spec: [polyline(fig.shape, pts, LINE_W) for pts in spec['lines'].values()]
+    specs = [(feet['boxes'], flines_of(feet), feet['seeds'], False, 3)]
+    for part in json.loads(TRACES_FILE.read_text()).values():
+        if isinstance(part, dict):
+            joins = [polyline(fig.shape, seg, part['pen']) for seg in part.get('joins', [])]
+            specs.append(([part['area']], [even_odd(fig.shape, part['marks'])] + joins, part['seeds'], True, part['close']))
+    fb_all, flines_all = np.zeros_like(fig), np.zeros_like(fig)
+    for boxes, line_masks, seeds, traced, close in specs:
+        fb = np.zeros_like(fig)
+        for bx0, by0, bx1, by1 in boxes:
+            fb[(by0 - Y0) * UP:(by1 - Y0) * UP, (bx0 - X0) * UP:(bx1 - X0) * UP] = True
+        flines = np.zeros_like(fig)
+        for m in line_masks:
+            flines |= m
+        flines &= fb & ~outside
+        # (the black closed over its thin light lines, `close` plate px, so the fill stops at the mantle's hem;
+        # where John traced, less or not at all, as his lines bound the white: 3 px shut a finger)
+        solid = L < 100
+        if close:
+            solid = ndi.binary_closing(solid, structure=morphology.disk(close * UP))
+        lab, _ = ndi.label(~(solid | flines | outside | ~fb))
+        ids = {lab[round((y - Y0) * UP), round((x - X0) * UP)] for x, y in seeds}
+        assert 0 not in ids, 'a seed is on a line or the black'
+        filled = np.isin(lab, list(ids))
+        # the closing also shut the small wedges of white where a contour line meets the black (under 40
+        # plate px^2; the closed-over incisions of the mantle are long, and stay as they are): they are the
+        # white's
+        wedge = solid & (L >= 100) & ~flines & ~outside & fb
+        lab, n = ndi.label(wedge)
+        touch = np.zeros(n + 1, bool)
+        touch[np.unique(lab[ndi.binary_dilation(filled) & wedge])] = True
+        touch &= np.bincount(lab.ravel(), minlength=n + 1) < 40 * UP * UP
+        touch[0] = False
+        filled |= touch[lab]
+        if traced:   # (a white his lines govern may run on out of the box, as the arm does; and up an incision where
+            # it meets the white for a px or two, which shows the same)
+            leak = filled & ~ndi.binary_dilation(white | flines, iterations=4 * UP)
+            assert leak.sum() < 10 * UP * UP, 'a trace leaks'
+        else:
+            assert not (filled & ~ndi.binary_erosion(fb)).any(), 'a contour leaks to the edge of its box'
+        big = ndi.binary_opening(L < 100, structure=morphology.disk(2 * UP))
+        soft_old = fig & ~white & (L > 150) & (ndi.distance_transform_edt(~white) <= 3 * UP)
+        keep = fig & ndi.binary_dilation(big, iterations=2 * UP) & ~white & ~soft_old
+        # what else his lines leave on the figure's side of them is black (the white's ragged edge between his
+        # line and the black, the mouth he outlined); on the ground's side (the plate's own profile line and the
+        # white printed past it), ground
+        if traced:
+            rest = fb & fig & ~keep & ~filled & ~flines
+            lab, n = ndi.label(rest)
+            shut = np.ones(n + 1, bool)
+            shut[np.unique(lab[ndi.binary_dilation(~fig) & rest])] = False
+            shut[0] = False
+            keep |= shut[lab]
+        fig = np.where(fb, keep | filled | flines, fig)
+        white = np.where(fb, filled, white)
+        fb_all |= fb
+        flines_all |= flines
+    fb, flines = fb_all, flines_all
     near_white = ndi.binary_dilation(white, iterations=2 * UP)
 
     # incisions, hatching and dots: light marks in the black, on the plate smoothed along each stroke
@@ -270,7 +327,7 @@ def main(src, qa=None):
     # the clay (drawn black, it joined the eye to the profile); the white and that edge outlined where they
     # meet the ground, by a band just outside the figure
     soft = fig & ~white & (L > 150) & (ndi.distance_transform_edt(~white) <= 3 * UP) & ~fb
-    a_black = (fig & ~white & ~marks_w & ~soft) | flines   # light plate px under a foot line are not an incision
+    a_black = (fig & ~white & ~marks_w & ~soft) | flines | band_end   # light plate px under a foot line are not an incision
     # (under the white feet the outline runs along the ground line, as their soles do on the plate)
     lines = a_black | face_w | (~fig & ~frame & (ndi.distance_transform_edt(~(white | soft)) <= LINE_W * UP))
     body = (ndi.distance_transform_edt(~fig) <= RIM * UP) & ~frame

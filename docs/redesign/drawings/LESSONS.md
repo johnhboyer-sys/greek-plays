@@ -60,6 +60,20 @@ rather than adding a second one that contradicts it.
   (2026-10-07).
 - About three hours: the style test, the face detail, and the feet
   (2026-10-07).
+- After approval John traced Eriphyle's face and hands himself (about an
+  hour and a half more). On black-figure his lines are the edges of the
+  white: in each traced box the white is what his lines and the black
+  enclose, filled from a seed; what his lines leave on the figure's side is
+  black, on the ground's side ground. Close the black over its incisions
+  less than for the feet, or not at all: closed 3 px, it shut a thin
+  finger, and 1 px shut the face's narrow strip; 0 let the hand's fill run up
+  the mantle's incisions, so the closing is set per traced box
+  (`tools/seven_traces.json`). He cut the pupil he had drawn
+  (2026-10-07).
+- A line that closes an outlined band on the ground makes the band reserved
+  clay, but it may still be larger than the size that counts as ground
+  (the band ahead of the lead horse, 2219 plate px²): mark it (`BAND`) and
+  check it on the dark theme (2026-10-07).
 
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
@@ -93,6 +107,10 @@ rather than adding a second one that contradicts it.
   Preview, and sends it in chat. The chat image is not a file you can read:
   the file is on his Desktop ("Screenshot ... PM.png", with a narrow
   no-break space before "PM", so glob for it) or in Downloads (2026-10-06).
+- When he traces over a crop you sent, the file in Downloads keeps your
+  crop's name (`1_eriphyle_face.png`) or comes as `image-<digits>.png`; the
+  chat image is the same file. A screenshot of the plate registers with a
+  similarity transform (SIFT) as well as a crop does (2026-10-07).
 - His colours: blue lines are black ink. Blue paint over his own outlines
   marks the shapes they close as blood. Green paint marks blood with no
   outline (dark and light green for darker and lighter blood). Black lines
