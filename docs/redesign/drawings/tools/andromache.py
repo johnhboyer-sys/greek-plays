@@ -90,10 +90,11 @@ LEGS = [(3900, 3800), (4060, 3995), (4200, 3520), (4397, 3671), (4262, 3650)]
 LINE_T, LINE_GROW, LINE_MIN = 16, 2, 40   # the walls for the leg fill (1x px): top-hat, grown, min size
 
 
-# the line weight: the plate's own (the median width of its lines as found, 0.155% of the drawing's
-# height), not the house weight (0.225%): at that weight the close lines (eyelids, lips, curls) ran
-# together. John, 2026-10-06, shown both: "Plate's own weight"
-WEIGHT = 0.00155
+# the line weight: finer than the house weight (0.225%), at which the close lines (eyelids, lips,
+# curls) ran together; John, 2026-10-06, shown both: "Plate's own weight" (0.155%, the median width
+# of its lines as found). Then 0.11%: at 0.155% the pleats on Priam's chest, 5 plate px apart, ran
+# together too; shown 0.155, 0.11 and 0.088%: "Yeah the thinner weight is needed"
+WEIGHT = 0.0011
 # John's own traces (andromache_traces.json: his strokes as polylines along their centres, the
 # marks he filled in as polygons, his dots as points, the areas he marked to be filled; plate px),
 # where the faces and hands did not come clean (apply_trace), each on a 3x crop of the plate,
@@ -150,11 +151,12 @@ JOINS = {'trace_3_astyanax_face_and_hip_hand': [[(3358.61, 3579.16), (3359.19, 3
 # plate's own (clean there: his strokes, drawn in pieces, would break them); there the plate's
 # lines within DUP plate px of his are the same pleats, and go. Inside his ring the plate's lines
 # are all redrawn along their centres (centre_lines): its black there is pleats, and the blood's
-# soft edge, wider, had stayed as blobs beside the wash
+# soft edge, wider, had stayed as blobs beside the wash. Where a pleat prints faint the finder
+# broke it into dashes: gaps up to PLEAT_GAP plate px along the pleats (near upright) are closed
 CHEST = [(3326, 3290), (3266, 3281), (3252, 3270), (3245, 3253), (3244, 3184), (3250, 3152), (3263, 3133),
          (3287, 3123), (3344, 3122), (3358, 3126), (3374, 3146), (3394, 3188), (3392, 3220), (3356, 3280),
          (3350, 3284), (3328, 3284)]
-CHEST_W, CHEST_MIN, DUP, REACH = 6, 40, 3, 3
+CHEST_W, CHEST_MIN, DUP, REACH, PLEAT_GAP = 6, 40, 3, 3, 8
 CHEST_PLEATS = json.loads(TRACES_FILE.read_text()).get('chest_pleats', {}).get('lines', []) if TRACES_FILE.exists() else []
 # A gap between his strokes longer than THICK_LEN plate px whose mean tone is under THICK_T is
 # black too: he traced a thick line along both edges (the line under Priam's arm, 70-90; the dark
@@ -514,7 +516,8 @@ def main(src, qa=None, diag=None):
                 pleats[draw.line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))] = True
         to_pleat = ndi.distance_transform_edt(~pleats)
         under = ndi.distance_transform_edt(~smear) <= REACH * UP
-        plate = centre_lines((black | faint) & chest & ~ndi.binary_dilation(smear, iterations=UP), t, 3 * UP, 2 * t)
+        plate = ndi.binary_closing((black | faint) & chest, structure=np.ones((PLEAT_GAP * UP, 1), bool))
+        plate = centre_lines(plate & chest & ~ndi.binary_dilation(smear, iterations=UP), t, 3 * UP, 2 * t)
         plate = (plate | edge) & ~((to_pleat <= DUP * UP) & under)
         ink = (ink & ~(chest & ~his_all)) | (plate & chest) | ((to_pleat <= t / 2) & under & chest)
         blood |= smear

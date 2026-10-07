@@ -53,7 +53,8 @@ grey; on the dark theme's clay, a darker clay. It needs no CSS (John,
 the original on the beard?", "same for hair").
 
 `andromache.svg` carries several `tone` paths, for the blood. Its line
-weight is the plate's own, 0.155%, not the house weight (John, 2026-10-06).
+weight is 0.11%, finer than the house weight: at the house weight, and at
+the plate's own 0.155%, its close lines ran together (John, 2026-10-06).
 
 ## Blood
 
