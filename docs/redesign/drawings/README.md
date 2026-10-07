@@ -5,6 +5,10 @@ and licences: `../research/play-image-plan.json` (the `playwrights` list, and
 the `plays` entry of each play drawn). Open `contact-sheet.html` to see
 them on every ground, light and dark.
 
+Before you draw from a printed plate, read `LESSONS.md`: what went wrong on
+the earlier plates, how John traces, how blood is drawn. Add to it when you
+finish.
+
 | File | Figure | Source |
 |---|---|---|
 | `aeschylus-pythia.svg` | the Pythia | Bötticher 1859 plate, Heidelberg scan (public domain) |
@@ -59,55 +63,12 @@ the plate's own 0.155%, its close lines ran together (John, 2026-10-06).
 
 ## Blood
 
-On the vase, blood is thinned paint laid on in lighter brushstrokes. The
-drawing shows it as a wash in the line colour, not as lines. These rules
-come from John's rulings on Andromache (2026-10-06); `tools/andromache.py`
-holds them (`BLOOD`, `PAINTED`, `BLOOD_T`, `BLEND_*`, `RIM`, `BIT`, `CHEST`,
-`ALTAR`).
-
-- No black outlines on the blood. Where John traced a streak's outline
-  (Priam's scalp), the outline is part of the wash. Lines that cross the
-  blood (Astyanax's body) stay black and show through it ("you should be able
-  to see black lines through the blood"). The dots of Priam's stubble stay
-  black.
-- The wash follows the plate. Its opacity runs from 0.25 where the plate is
-  light (grey 140, after denoising) to 0.55 where it is darkest (85),
-  smoothed over 2 plate px, in steps of 0.05. Each step is a path drawn over
-  the larger step below it, at the opacity that brings the total to the
-  step's value, so no seam shows between steps. John saw flat tones (they
-  read as grey patches, and two tones side by side looked patchy) and a
-  blend, and chose the blend: "make it more subtle".
-- Where its edges come from: on Priam, from the shapes John's outlines
-  close where he marked them. On Astyanax, from the plate's own streak under
-  his paint (darker than grey 132): his brush is broader than the streaks,
-  and drawn as painted the wounds came out "absurdly big". The plate's
-  darker rim just outside a wound goes too ("The black circular outlines for
-  the wounds aren't in the original"). On Priam's chest, from the plate's dark
-  inside the ring John drew round it, wider than the pleats: the line finder
-  had taken it for black ("The area here you have black is actually blood").
-  It gets the same wash as Astyanax's ("make sure the blood on here has the
-  same effect as on the corpse"). The drips on the altar's front and the floor
-  are blood too, found the same way inside a ring round each.
-- Lines under the blood: where the blood covers lines (the pleats on Priam's
-  chest), the drawing takes the blood out, joins the lines through, and lays
-  the wash back over them (John: "duplicate image, join the lines, then apply
-  the blood with the wash gradient on top of it"). John traced the pleats
-  through the blood (`chest_pleats`); they are drawn under it and a few px
-  past its edge, where they meet the plate's own.
-
-How John marks it, on a tracing crop of the plate (or on a screenshot of
-the drawing's close-up, placed by its ruler): blue is black ink, his lines;
-blue paint over his own outlines marks the shapes they close as blood;
-green marks blood painted with no outline (he used dark and light green for
-darker and lighter blood, but the wash takes its darkness from the plate).
-A line he painted over is joined across the paint (`JOINS`). The marks are
-kept in `tools/andromache_traces.json` (`fill`, `fill_dark`, `fill_light`,
-`chest_pleats`; and `missed_lines`, lines he drew in black over the overlay,
-which the tool snaps to the plate's own line under each),
-plate px. The scripts that read his marks (`map_trace.py`: blue strokes,
-filled marks and dots; `map_fill.py`: blue paint on a screenshot;
-`map_blood.py`: green on a crop; `crisp.py`: sharp close-ups) are kept with
-the batch's sources in `.remember/batch1-2026-10-06/scripts/`.
+`andromache.svg` carries `tone` paths for the blood: a wash in the line
+colour whose opacity follows the plate, with the lines black through it.
+How it is drawn, and John's rulings on it, are in `LESSONS.md` (Blood);
+`tools/andromache.py` holds the code, and `tools/andromache_traces.json`
+John's marks (`fill`, `fill_dark`, `fill_light`, `chest_pleats`,
+`missed_lines`, `black_fills`), in plate px.
 
 ## Rerunning
 
