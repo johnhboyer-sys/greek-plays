@@ -37,6 +37,30 @@ rather than adding a second one that contradicts it.
   as an outline comes out a line and a half wide (the soles, the crest's
   top) (2026-10-07).
 
+### Gerhard, black-figure plates (black silhouettes on orange clay, incised lines, added white)
+
+- Show John a small test of the style first, both ways, light and dark. On
+  Seven Against Thebes (Taf. XCI) he chose the silhouette (the black solid,
+  the incisions open in it, a clay rim on the dark theme) over an outline
+  drawing, then asked for more detail in the eye and the faces (2026-10-07).
+  `tools/seven.py`.
+- Incised hatching lies 3 px apart and the black between its strokes prints
+  mid-grey: a threshold runs the strokes together. Smooth the plate along
+  each stroke first (the structure tensor gives the direction), then take
+  the light marks by a white top-hat (2026-10-07).
+- The added white can be printed out of register: here about 8.5 px left of
+  the shapes its black outlines give. Measure the shift on two or three
+  outlines and move the white back; the white printed past an outline is
+  ground (2026-10-07).
+- Where the white's printed edge is ragged (Eriphyle's feet), draw the shape
+  on the plate's own contour lines instead, and join the broken ones through
+  the centres of their dashes (John: "The black lines of the foot are broken
+  but should be connected"). The lines live in a data file
+  (`tools/seven_feet.json`), so a trace from John can replace one
+  (2026-10-07).
+- About three hours: the style test, the face detail, and the feet
+  (2026-10-07).
+
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
 - Budget hours, not minutes. Andromache (Taf. 34) took about ten hours over
@@ -151,3 +175,6 @@ rulings on Andromache (2026-10-06); `tools/andromache.py` holds them
   of Trachis the rims showed as clay slivers on the ground in 99 places.
   When tracing as drawn, pass everything outside the figures as
   `open_holes` (2026-10-07).
+- When you fill a shape from a seed inside lines you drew, assert that the
+  fill never reaches the edge of its box: it caught a contour line that
+  stopped 5 px short of the black it should meet (Seven, 2026-10-07).

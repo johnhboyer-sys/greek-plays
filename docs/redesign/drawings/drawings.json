@@ -108,6 +108,15 @@
       "source": "Gerhard, Auserlesene griechische Vasenbilder II (1843), Taf. CXVI, 'Herakles und Hyllos': a red-figure pelike formerly in the Durand collection (Heidelberg scan, public domain)",
       "method": "Coloured plate, red figures on black: the black ground gives the outline, cut along the plate's lines where Athena crosses the bands; lines from the plate's own paint and its thin brown lines (ridge filter), at least 1.5 px; the crest's dotted holder built as printed; traced as drawn at the plate's weight (0.104%); potrace",
       "verdict": "Usable; approved by John (2026-10-07) on the third pass, after 'too blotchy' (lines from the plate's paint instead of local contrast) and the band's ornament taken out of the crest's base. Left out: the bands and the inscriptions."
+    },
+    {
+      "slug": "seven",
+      "file": "seven.svg",
+      "name": "Seven Against Thebes · Eriphyle and the chariot of Amphiaraos",
+      "alt": "Eriphyle walking ahead of the four-horse chariot of Amphiaraos",
+      "source": "Gerhard, Auserlesene griechische Vasenbilder II (1843), Taf. XCI, 'Eriphyle': an archaic black-figure hydria (Heidelberg scan, public domain)",
+      "method": "Black-figure plate, drawn as silhouettes (John's choice): the black solid, incisions, hatching and dots open in it (found on the plate smoothed along each stroke); the added white moved back into register; Eriphyle's feet on the plate's contour lines, joined; a clay rim on the dark theme",
+      "verdict": "Usable; approved by John (2026-10-07) after the style test, more detail in the eye and faces, and the feet redrawn. Left out: the shoulder picture, the band's edges, the ground line and the inscriptions."
     }
   ]
 }

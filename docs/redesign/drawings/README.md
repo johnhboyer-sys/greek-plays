@@ -24,6 +24,7 @@ finish.
 | `hippolytus.svg` | an Amazon fighting a hoplite, Gerhard's "Theseus und Antiope" (Hippolytus) | Gerhard, *Auserlesene griechische Vasenbilder* III (1847), Taf. CLXV, 4, Heidelberg scan (public domain) |
 | `andromache.svg` | Neoptolemos killing Priam on the altar, the dead Astyanax across his knees (Andromache) | Furtwängler and Reichhold, *Griechische Vasenmalerei* I (1904), Taf. 34, Heidelberg scan (public domain) |
 | `trachiniae.svg` | Herakles and Deianeira with their infant son Hyllos, between Athena and Oineus (Women of Trachis) | Gerhard, *Auserlesene griechische Vasenbilder* II (1843), Taf. CXVI, Heidelberg scan (public domain) |
+| `seven.svg` | Eriphyle walking ahead of the four-horse chariot of Amphiaraos (Seven Against Thebes) | Gerhard, *Auserlesene griechische Vasenbilder* II (1843), Taf. XCI, Heidelberg scan (public domain) |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -63,6 +64,13 @@ weight is 0.11%, finer than the house weight: at the house weight, and at
 the plate's own 0.155%, its close lines ran together (John, 2026-10-06).
 `trachiniae.svg` too keeps its plate's own weight, 0.104%, traced as drawn
 (John, 2026-10-07: the first pass was "too blotchy").
+
+`seven.svg` is black-figure, drawn as silhouettes (John's choice,
+2026-10-07): its `lines` path is the black figures themselves, solid, with
+the incisions open in them; its `body` path runs 1.5 px past them, so on the
+dark theme they stand on a clay rim, as on the vase, and the incisions show
+clay. `tools/seven.py` writes it in this format itself, as `trace_svg` would
+take that rim away.
 
 ## Blood
 
