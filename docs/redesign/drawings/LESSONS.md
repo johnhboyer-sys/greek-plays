@@ -47,6 +47,56 @@ rather than adding a second one that contradicts it.
   page in the Heidelberg viewer says which copy, and its OCR finds the text
   pages (2026-10-06).
 
+### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
+
+- The Gerhard method works here too. Suppliant Women (III, pl. XX) took
+  about 35 minutes and John approved it on the first pass (2026-10-07).
+  `tools/suppliants_aesch.py`. Alcestis (II, pl. LIV) took about three
+  hours, most of it on the fold (below). `tools/alcestis.py`.
+- The hair prints as dark as the ground, inside a thin light line. Where
+  that line fades, the hair joins the ground and drops out as ground: trace
+  the light line through hand-placed points along its ridge (`HAIR` in
+  `suppliants_aesch.py`), or wall the gap and name the hair as paint
+  (`walls`, `paint` in `alcestis.py`) (2026-10-07).
+- Fingers are clay strips 4-6 px wide with 2-3 px of ground between them:
+  find the ground at less blur inside a box round the hand, and draw the
+  outline finer there (`HAND`, `HAND_EDGE`) (2026-10-07).
+- The house weight is a share of the longer side, so a drawing wider than
+  tall gets heavier lines against its figures: on pl. XX her hem's border
+  ran into the pleats. All three drawings use the plate's own weight
+  (`weight="own"`, 0.14-0.17% of the longer side) (2026-10-07).
+- On the dark theme a 2.5 px outline fills a thin part (a tuft, a leaf's
+  tip, an ear, a toe) and leaves it no clay: cap the outline at 0.6 of the
+  part's half-width. Mark all the ground as open (`held = ground & ~fig`),
+  not only the pockets the figures close in, or `trace_svg`'s clay rim for
+  thin lines strays onto it (a notch of clay at the horse's mouth)
+  (2026-10-07).
+- A plate printed across two pages: the Getty copy on the Internet Archive
+  is bound tight and the gutter swallowed the bull's head. Heidelberg scans
+  each double plate as one opening (vol. II is `lenormant1857bd2`; its IIIF
+  manifest labels plates "Planche 54"). Look for another copy before you
+  draw across a gutter, and ask John before you download it (2026-10-07).
+- Flattening the fold (`level` in `alcestis.py`): the frame's top and
+  bottom edges are printed straight, so straighten them column by column,
+  take out each page's tilt, and widen each column near the fold by the
+  height it lost. The page also slopes away from the camera there, which
+  narrows it further by an amount the edges cannot show; John chose the
+  estimate at which the bull's forehead dots come out round (camera at
+  1 m), after two narrower ones looked "still too smooshed". A photo of
+  the vase did not settle it: the bull's head sits where the vase turns
+  away from the camera (2026-10-07).
+- The handoff's facts were wrong in places; the sources put them right. Vol.
+  II's title page reads 1857, not 1846. Pl. LIV's animal is a bull and its
+  tree a palm (Élite II pp. 160-161, and the British Museum), not a cow and
+  a bare tree; the vase is a Campanian neck-amphora, British Museum
+  1867,0508.1122. On pl. XX Poseidon holds a sceptre, not a trident. The
+  plates are signed in their margins (pl. XX "L. Petit, sc."; pl. LIV "A.
+  Rey, sc." and "Lith. de Bineteau") (2026-10-07).
+- Heidelberg's viewer pages now sit behind a bot check. Its IIIF manifests
+  (`/diglit/iiif/<id>/manifest.json`) give the licence and the page labels,
+  and IIIF image links open in the browser for reading the text pages
+  (2026-10-07).
+
 ## John's traces
 
 - He draws over a crop of the plate, or over a screenshot of a close-up, in
@@ -129,3 +179,10 @@ rulings on Andromache (2026-10-06); `tools/andromache.py` holds them
   its corner: check `mask.any()` first (it drew a speck at (0, 0)).
 - After any change to the tracer, look at close-ups of the faces, the blood
   and the densest lines before you show John.
+- Line ends that face each other across a short gap, in the finished SVG,
+  find the breaks in the plate's printing (seven on pl. XX); check each by
+  eye, since some are true ends (fingers, short strokes). A sweep for the
+  plate's lines inside the figure that the drawing does not cover found
+  only grain and stains on the Élite plates. `gaps.py` and `missed.py`,
+  with `sclose.py` (close-ups rendered from the SVG), are kept in
+  `.remember/batch3/scripts/`, outside git (2026-10-07).
