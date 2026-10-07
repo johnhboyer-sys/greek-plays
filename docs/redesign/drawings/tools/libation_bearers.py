@@ -44,7 +44,6 @@ OUT = Path(__file__).resolve().parent.parent / "libation-bearers.svg"
 X0, Y0, X1, Y1 = 584, 440, 2945, 1730     # crop in plate px: the frieze, its band and strip cut below
 UP = 3                                    # work at 3x the plate's px, so curves stay smooth
 DARK = 85                                 # ground and solid paint: darker than this (grey, lightly smoothed)
-FACE_DARK = 110                           # in FACES, the lines are the paint darker than this
 # Ground and paint. The plate paints wide black bands that run into the ground: Electra's borders,
 # Aegisthus' hair, beard and the border of his mantle. Dark areas that join the ground are not all
 # ground, then. The ground's core is the dark that a disk CORE_R plate px across fits in (the bands
@@ -96,8 +95,38 @@ BLEND_T, BLEND_A, BLEND_STEP, BLEND_SIGMA = (140, 85), (0.25, 0.55), 0.05, 2
 # wide, over the wash ("you should be able to see black lines through the blood", John, 2026-10-06)
 THROUGH = [[(2038, 977), (2047, 977.5), (2059, 978), (2068, 977), (2077, 975)]]
 JOIN_W = 2.3
-# Clytemnestra, Orestes, Aegisthus, Electra (boxes, plate px)
-FACES = [(1115, 530, 1205, 635), (1550, 545, 1640, 665), (1955, 725, 2075, 860), (2495, 515, 2585, 635)]
+# The faces, and Aegisthus' wreath: in each box (plate px), in turn, the ink is the plate's paint
+# darker than its grey (lightly smoothed), at the paint's own width, in place of the lines and the
+# solid paint. The eyes are drawn in a thin brown paler than the black: at 110 (Alcestis') their
+# lower lids and pupils broke up, at 130 they close as printed; the boxes leave out Clytemnestra's
+# curls and Electra's ringlets, whose clay fills in at 130. The wreath is added purple on the black
+# hair: at 80 its leaves and stem come out whole, open in the black, as the plate prints them.
+FACES = [((1160, 578, 1205, 640), 130),                   # Clytemnestra
+         ((1550, 545, 1640, 665), 130),                   # Orestes
+         ((1940, 690, 2160, 762), 80),                    # Aegisthus' wreath and hair
+         ((1975, 745, 2075, 860), 120),                   # Aegisthus
+         ((2495, 540, 2556, 640), 130)]                   # Electra
+# The faintest brown lines (muscles of the arms and legs, ankle bones, knees) slip past the line
+# finder: a ridge filter on the plate (at its own scale, lightly smoothed; sato, sigmas FAINT_SIGMA,
+# hysteresis FAINT) finds them, inside the figures (FAINT_IN plate px from the outline) and clear of
+# the lines already drawn (FAINT_CLEAR plate px) and of the blood; pieces whose centre line runs
+# FAINT_MIN plate px or more are drawn along it, FAINT_W plate px wide: at the filter's own width
+# Andromache's faint lines came out beaded and heavier than the black (LESSONS.md).
+FAINT_SIGMA, FAINT = (1, 1.5), (4, 8)
+FAINT_IN, FAINT_CLEAR, FAINT_MIN, FAINT_W = 4, 3, 20, 1.5
+# Breaks: where the print fades, a line breaks into pieces whose ends face each other across a short
+# gap. Ends of the drawn lines (centre-line ends, the direction read over GAP_RUN plate px back) that
+# face each other within GAP_MAX plate px, each pointing at the other within GAP_ANGLE degrees, are
+# joined, GAP_W plate px wide, where the plate between them is darker than the clay either side of
+# the gap by GAP_DARK grey (lightly smoothed): the faded stretch of the line. True ends (pleats'
+# tips, folds that stop) have clay between them, and stay apart.
+GAP_MAX, GAP_RUN, GAP_ANGLE, GAP_W, GAP_DARK = 12, 6, 25, 2.0, 10
+# Orestes' and Electra's lower eyelids are fainter still, and break up at any threshold that leaves
+# the rest of the face fine: each is traced along its darkest ridge through hand-placed points
+# (plate px, from corner to corner), LID_W plate px wide, as hippolytus.py traces a faint line.
+LIDS = [[(1595.5, 605.5), (1600, 608.5), (1605, 610), (1610, 610), (1614, 608), (1616.5, 605.5)],
+        [(2526, 574.5), (2531.5, 578.3), (2536.5, 579.6), (2541, 579.2), (2545, 577.6)]]
+LID_W = 1.2
 
 
 def up(pts):
@@ -149,6 +178,21 @@ def faint_stretches(firm, loose):
     return alone[flab] | bridges(flab, 12 * UP * UP) | bridges(centre, np.inf)
 
 
+def traced(g, pts, width):
+    """The plate's own dark line between hand-placed points (plate px), followed by a least-cost
+    path along its darkest ridge, `width` plate px wide, at UP (as in hippolytus.py)."""
+    P = up(pts)
+    pad = 10 * UP
+    x0, y0 = int(P[:, 0].min()) - pad, int(P[:, 1].min()) - pad
+    x1, y1 = int(P[:, 0].max()) + pad, int(P[:, 1].max()) + pad
+    w = ndi.gaussian_filter(g[y0:y1, x0:x1], 0.7 * UP)
+    cost = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(w, size=(5 * UP, 5 * UP)) - w, 0, None) / 12)
+    path = lw.livewire(cost, [(x - x0, y - y0) for x, y in P])
+    m = np.zeros(g.shape, bool)
+    m[(path[:, 1] - 0.5).astype(int) + y0, (path[:, 0] - 0.5).astype(int) + x0] = True
+    return ndi.distance_transform_edt(~m) <= width * UP / 2
+
+
 def drawn(shape, pts, width):
     """A line `width` plate px wide through hand-placed points (plate px), at UP."""
     m = np.zeros(shape, bool)
@@ -158,6 +202,77 @@ def drawn(shape, pts, width):
             q = a + t * (b - a)
             m[int(q[1]), int(q[0])] = True
     return ndi.distance_transform_edt(~m) <= width * UP / 2
+
+
+def faint_lines(g1, fig, ink, blood):
+    """The faintest lines (see FAINT), at UP; g1 is the plate's grey at its own scale."""
+    from skimage.filters import apply_hysteresis_threshold, sato
+    h, w = g1.shape
+    small = lambda m: m[::UP, ::UP][:h, :w]  # noqa: E731
+    r = sato(ndi.gaussian_filter(g1, 0.6), sigmas=FAINT_SIGMA, black_ridges=True)
+    m = apply_hysteresis_threshold(r, *FAINT)
+    m &= ndi.binary_erosion(small(fig), iterations=FAINT_IN)
+    m &= ~ndi.binary_dilation(small(ink | blood), iterations=FAINT_CLEAR)
+    lab, n = ndi.label(m, structure=np.ones((3, 3)))
+    sk = morphology.skeletonize(m)
+    sk &= (np.bincount(lab[sk], minlength=n + 1) >= FAINT_MIN)[lab]
+    c = np.zeros(fig.shape, bool)
+    yx = np.argwhere(sk) * UP + UP // 2
+    c[yx[:, 0], yx[:, 1]] = True
+    c = ndi.binary_dilation(c, structure=np.ones((3, 3)), iterations=UP // 2 + 1)  # join the steps
+    c = morphology.skeletonize(c)
+    return (ndi.distance_transform_edt(~c) <= FAINT_W * UP / 2) & fig
+
+
+def join_breaks(ink, g, fig):
+    """Joins across the breaks in the plate's printing (see GAP_*), at UP."""
+    from scipy.spatial import cKDTree
+    sk = morphology.skeletonize(ink)
+    nb = ndi.convolve(sk.astype(np.uint8), np.ones((3, 3), np.uint8), mode='constant') - 1
+    ends = np.argwhere(sk & (nb == 1))
+    run = GAP_RUN * UP
+    pts = np.argwhere(sk)
+    tree = cKDTree(pts)
+    lab = ndi.label(sk, structure=np.ones((3, 3)))[0]
+    heads = []
+    for e in ends:   # the way each end points: from the mean of its line's points within `run`
+        near = pts[tree.query_ball_point(e, run)]
+        near = near[lab[near[:, 0], near[:, 1]] == lab[tuple(e)]]
+        v = e - near.mean(0)
+        n = np.hypot(*v)
+        heads.append(v / n if n > 0.5 * UP else np.zeros(2))
+    gs = ndi.gaussian_filter(g, 0.5 * UP)
+    out = np.zeros_like(ink)
+    used = set()
+    pairs = cKDTree(ends).query_pairs(GAP_MAX * UP)
+    for i, j in sorted(pairs, key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]]))):
+        if i in used or j in used:
+            continue
+        a, b = ends[i].astype(float), ends[j].astype(float)
+        d = np.hypot(*(b - a))
+        if d < 1:
+            continue
+        u = (b - a) / d
+        c = np.cos(np.radians(GAP_ANGLE))
+        if heads[i] @ u < c or heads[j] @ -u < c:
+            continue
+        t = np.linspace(0, 1, int(d) + 2)[1:-1]
+        seg = a + t[:, None] * (b - a)
+        if not len(seg):
+            continue
+        inner = gs[seg[:, 0].astype(int), seg[:, 1].astype(int)]
+        side = np.array([-u[1], u[0]]) * 3 * UP
+        mid = (a + b) / 2
+        clay = [gs[int(q[0]), int(q[1])] for q in (mid + side, mid - side)
+                if 0 <= q[0] < g.shape[0] and 0 <= q[1] < g.shape[1] and fig[int(q[0]), int(q[1])] and not ink[int(q[0]), int(q[1])]]
+        if not clay or np.median(clay) - inner.mean() < GAP_DARK:
+            continue
+        used |= {i, j}
+        m = np.zeros_like(ink)
+        q = np.vstack([a, seg, b]).astype(int)
+        m[q[:, 0], q[:, 1]] = True
+        out |= ndi.distance_transform_edt(~m) <= GAP_W * UP / 2
+    return out & fig
 
 
 def opened(mask, r):
@@ -256,6 +371,10 @@ def main(src, qa=None):
     assert 0 not in keep
     fig = np.isin(lab, list(keep))
     fig = ndi.binary_fill_holes(fig) & ~ground
+    # filling the holes keeps whatever lies in the ground the figures close in: a small clay ring on
+    # the ground between Orestes and Aegisthus (1667, 1074) came back. Only what joins the seeds stays
+    lab, _ = ndi.label(fig)
+    fig = np.isin(lab, [lab[at(x, y)] for x, y in SEEDS])
     ridge = (g - ndi.grey_opening(g, size=(5 * UP, 5 * UP))) > 50
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP)) | (fig & ridge)
 
@@ -264,12 +383,16 @@ def main(src, qa=None):
     faint = faint_stretches(firm, loose)
     lines = (firm | (loose & ndi.binary_dilation(faint, iterations=UP + 1))) & fig
     lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= UP) & fig
-    face = np.zeros_like(fig)
-    for fx0, fy0, fx1, fy1 in FACES:
+    face = np.zeros(fig.shape, np.float32)
+    for (fx0, fy0, fx1, fy1), t in FACES:
         (a, b), (c, d) = at(fx0, fy0), at(fx1, fy1)
-        face[a:c, b:d] = True
-    lines = np.where(face, (ndi.gaussian_filter(g, 0.5 * UP) < FACE_DARK) & fig, lines)
-    solid = paint & fig
+        face[a:c, b:d] = t
+    painted = (ndi.gaussian_filter(g, 0.5 * UP) < face) & fig
+    face = face > 0
+    lines = np.where(face, painted, lines)
+    for pts in LIDS:
+        lines |= traced(g, pts, LID_W) & fig
+    solid = paint & fig & ~face
     lab, _ = ndi.label(solid)
     solid &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
     # the outline: 2.5 plate px in from the clay's edge, but no more than 0.6 of the figure's
@@ -292,6 +415,9 @@ def main(src, qa=None):
     ink[sl] &= ~(ring & b[iy, ix])
     for pts in THROUGH:
         ink |= drawn(ink.shape, pts, JOIN_W) & fig
+    g1 = np.asarray(Image.open(src).convert('L').crop((X0, Y0, X1, Y1)), np.float32)
+    ink |= faint_lines(g1, fig, ink, blood) & ~blood
+    ink |= join_breaks(ink, g, fig) & ~blood
     lab, _ = ndi.label(ink)
     size = np.bincount(lab.ravel())
     ink &= np.where(face, (size > 3 * UP * UP)[lab], (size > 12 * UP * UP)[lab])
