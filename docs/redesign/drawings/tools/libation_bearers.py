@@ -34,15 +34,17 @@ ground black, so the figures' outline comes free.
     big toe (HANDS) are the plate's paint at its own width, so eyes and curls stay fine (John,
     2026-10-07: "not too heavy of a line on fine details like eyes").
   - The blood on Aegisthus' chest is a wash in the line colour, the lines black through it (BLOOD).
-  - Line weight: the plate's own (weight "own"), not the house weight, which on a drawing this wide
-    runs close lines together (LESSONS.md, the Élite plates).
+  - Line weight: the plate's own (WEIGHT), not the house weight, which on a drawing this wide runs
+    close lines together (LESSONS.md, the Élite plates).
+  - John's corrections on pass 1 (MARKS): black ink where he marked it blue, none where green.
   - Dark theme: the figures' area is the body; all the ground stays open, as on the vase. The
     outline is capped at 0.6 of a thin part's half-width, so thin parts keep their clay (as in
-    tools/alcestis.py), and where hair or a black border meets the ground across the clay line the
-    plate prints, that line is kept as a clay rim (RIM_LIGHT).
+    tools/alcestis.py), but never thinner than EDGE_MIN; and where hair or a black border meets the
+    ground across the thin clay line the plate prints, that line is kept as a clay rim (RIM_*).
 
     python3 docs/redesign/drawings/tools/libation_bearers.py 06n_gerhard1843_T24.jpg [qa_stem]
 """
+import json
 import sys
 from pathlib import Path
 
@@ -55,6 +57,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "libation-bearers.svg"
+# John's corrections on pass 1 (2026-10-07), drawn over it: 'blue lines and fill are where there should
+# be black ink. green lines and fill are where you should remove black ink.' Rings in plate px
+# (add: his blue; remove: his green), filled even-odd
+MARKS = Path(__file__).with_name('libation_bearers_marks.json')
 
 # ---------------------------------------------------------------- levelling (scan px)
 EDGE_T = 140                    # the frame's edges: where the grey crosses this, paper to print
@@ -96,10 +102,12 @@ POCKETS = [(1224, 612), (2680, 594), (1929, 989), (873, 1690), (1094, 1690), (28
 # fringe; the zigzag band on Clytemnestra's skirt
 LINES = [(2672, 1147), (2040, 734), (2520, 715), (2222, 797), (1455, 720), (1655, 1478), (1608, 676),
          (2146, 761), (2413, 1510), (2250, 1550), (1799, 1542), (1074, 651), (1985, 776), (1207, 1273)]
-# Aegisthus' hair below his wreath runs into the ground at the left, where the wreath's leaves end
-# and the plate prints no reserved line: a cut (WALL_W plate px wide) closes it from the ground,
-# from the wreath's end to the top of the curls over his forehead
-WALLS = [[(1951, 753), (1957, 760), (1963, 767)]]
+# Hair that runs into the ground where the plate prints no reserved line: a cut (WALL_W plate px wide)
+# closes it from the ground. Aegisthus' hair below his wreath, from the wreath's end to the top of
+# the curls over his forehead; Electra's hair between the second and third leaves of her wreath,
+# from the second leaf's tip to the reserved line's end (John, 2026-10-07: "forgot about this part
+# of his head")
+WALLS = [[(1951, 753), (1957, 760), (1963, 767)], [(2553.5, 513.6), (2558.5, 514), (2563.5, 514.6)]]
 WALL_W = 1.5
 # the faces, boxes: their lines are the plate's paint darker than FACE_DARK, at its own width
 # (Clytemnestra with her curls, Orestes with the locks on his cheek, Aegisthus, the curls over his
@@ -131,10 +139,20 @@ CURLS_W, CURLS_CORE = 3, 1
 # wide, and the lines are the paint at its own width, as in the faces
 HANDS = [(1240, 1680, 1305, 1716)]
 HAND_EDGE = 1.2
+# The plate's own line weight, as pass 1 measured it (weight "own": 0.116% of the longer side before
+# evening, lines 2.4 plate px across at the median). Measured again now, it would count John's traced
+# strokes, which are wider, and every line came out heavier (3.0 px at the median)
+WEIGHT = 0.00109
+# The outline is at least EDGE_MIN plate px wide: where a notch in the edge (a line meeting it) put out
+# a spur of the figure's skeleton, the cap thinned the outline beside it until it broke up in tracing
+# (John, 2026-10-07: "one more line i missed", the edge of Aegisthus' drape at his shoulder)
+EDGE_MIN = 1.0
 # Where hair or a black border meets the ground, the plate prints a thin clay line between them,
-# which the outline covers: the outline there gets a clay rim on the dark theme, where the plate is
-# lighter than RIM_LIGHT under it (where paint runs straight into the ground, no rim)
-RIM_LIGHT = 100
+# which the outline covers: on the dark theme the outline there gets a clay rim. Only along a thin
+# light line (half_max over RIM_W plate px, core RIM_CORE) at least RIM_LEN plate px long, with paint
+# on one side and ground on the other within RIM_NEAR px: not round the leaves of Electra's wreath,
+# and not where paint runs straight into the ground (the ends of her zigzag bands)
+RIM_W, RIM_CORE, RIM_LEN, RIM_NEAR = 3, 1, 8, 2
 # The faint lines (the anatomy of arms, legs and chests, in thinned glaze) print pale brown: in grey
 # they are 15-20 levels darker than the clay, under the line finder's thresholds, but in the blue
 # channel 30-55 (the clay is orange). There they are found by local contrast (FAINT, hysteresis low
@@ -232,6 +250,18 @@ def up(pts):
 
 def at(x, y):
     return int(round((y - Y0) * UP)), int(round((x - X0) * UP))
+
+
+def rings_mask(shape, rings):
+    """Rings (plate px) filled even-odd, at UP."""
+    m = np.zeros(shape, bool)
+    for ring in rings:
+        P = up(ring)
+        x0, y0 = max(int(P[:, 0].min()) - 1, 0), max(int(P[:, 1].min()) - 1, 0)
+        x1, y1 = min(int(P[:, 0].max()) + 2, shape[1]), min(int(P[:, 1].max()) + 2, shape[0])
+        if x1 > x0 and y1 > y0:
+            m[y0:y1, x0:x1] ^= lw.polygon_mask((y1 - y0, x1 - x0), P - (x0, y0))
+    return m
 
 
 def polyline(pts):
@@ -517,10 +547,10 @@ def main(src, qa=None):
     lab, _ = ndi.label(solid)
     solid &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
     # the outline: 2.5 plate px in from the clay's edge, but no more than 0.6 of the figure's
-    # half-width there, so thin parts keep clay inside their outline on the dark theme
+    # half-width there, so thin parts keep clay inside their outline on the dark theme; at least EDGE_MIN
     dt = ndi.distance_transform_edt(fig)
     _, (iy, ix) = ndi.distance_transform_edt(~morphology.skeletonize(fig), return_indices=True)
-    edge = fig & (dt <= np.minimum(2.5 * UP, 0.6 * dt[iy, ix]))
+    edge = fig & (dt <= np.maximum(np.minimum(2.5 * UP, 0.6 * dt[iy, ix]), EDGE_MIN * UP))
     edge = np.where(hand, fig & (dt <= HAND_EDGE * UP), edge)
     del dt, iy, ix
     ink = lines | solid | edge
@@ -529,18 +559,26 @@ def main(src, qa=None):
     dots = ink & rings & ((size > UP * UP) & (size < 12 * UP * UP))[lab]   # the ringlets' dots, 1-12 px^2
     ink &= np.where(face, (size > 3 * UP * UP)[lab], (size > 12 * UP * UP)[lab])
     ink |= dots
+    # John's corrections: black ink where he marked it blue, none where he marked it green
+    marks = json.loads(MARKS.read_text())
+    ink = (ink | rings_mask(ink.shape, marks['add'])) & ~rings_mask(ink.shape, marks['remove'])
 
-    # all the ground stays open on the dark theme. Where solid paint reaches the figure's edge (hair
-    # inside its reserved line, a black border along a garment's edge), the outline covers the thin
-    # clay line the plate prints there, and the paint would run into the ground on the dark theme:
-    # the outline there gets a clay rim, as hair does in suppliants_aesch.py. Only where the plate
-    # prints that line (lighter than RIM_LIGHT at the outline): where paint runs straight into the
-    # ground (the ends of Electra's zigzag bands, Aegisthus' hair below his wreath), no clay is drawn
+    # all the ground stays open on the dark theme. Where the plate prints a thin clay line between
+    # paint (hair, a black border) and the ground, the outline covers it, and the paint would run into
+    # the ground on the dark theme: the outline there gets a clay rim, as hair does in
+    # suppliants_aesch.py (RIM_*)
     held = ground & ~fig
-    rims = ndi.binary_dilation(edge & (ndi.distance_transform_edt(~(solid | (lines & rings))) <= 4 * UP) &
-                               ndi.binary_dilation(held, iterations=UP) & (gs > RIM_LIGHT), iterations=3 * UP)
+    ridge = half_max(gf, RIM_W, RIM_CORE, LINE_DEPTH, light=True) & fig
+    lab, n = ndi.label(ridge, structure=np.ones((3, 3)))
+    ridge &= (np.bincount(lab[morphology.skeletonize(ridge)], minlength=n + 1) >= RIM_LEN * UP)[lab]
+    ds, (sy, sx) = ndi.distance_transform_edt(~(solid | (lines & rings)), return_indices=True)
+    dh, (hy, hx) = ndi.distance_transform_edt(~held, return_indices=True)
+    yy, xx = np.mgrid[0:fig.shape[0], 0:fig.shape[1]]
+    across = (sy - yy) * (hy - yy) + (sx - xx) * (hx - xx) < -0.5 * ds * dh   # paint and ground on opposite sides
+    rims = ndi.binary_dilation(ridge & (ds <= RIM_NEAR * UP) & (dh <= RIM_NEAR * UP) & across, iterations=3 * UP)
+    del ds, dh, sy, sx, hy, hx, yy, xx, across
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=held, rim_lines=rims, dots=dots, weight="own",
+        ink, OUT, body=fig, open_holes=held, rim_lines=rims, dots=dots, weight=WEIGHT,
         title='Orestes killing Aegisthus, with Clytemnestra and Electra',
         desc='Line drawing after the 1843 plate of a red-figure stamnos in Berlin (Gerhard, Etruskische und '
              'kampanische Vasenbilder, Taf. XXIV); cut out and retraced.')
