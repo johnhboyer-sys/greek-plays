@@ -424,7 +424,9 @@ def main(src, qa=None):
     ink &= np.where(face, (size > 3 * UP * UP)[lab], (size > 12 * UP * UP)[lab])
 
     # all the ground stays open on the dark theme (as in alcestis.py)
-    held = ground & ~fig
+    # (everything outside the figures, not only the ground: trace_svg fills the pockets the figures
+    # close in, and the clay ring left out of them came back as a clay dot)
+    held = ~fig
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=held, weight="own",
         title='Orestes killing Aegisthus, between Clytemnestra and Electra',
