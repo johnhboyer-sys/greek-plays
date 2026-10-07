@@ -20,9 +20,14 @@ the bull's head. So the scan is levelled first (level):
   - each page's tilt (left 1.5 degrees, right 0.65, measured on its flat part) is taken out, the
     two blending across the fold, so the figures stand upright;
   - near the fold the panel is up to 2.4% shorter: perspective shrinks the width as much as the
-    height, so each column there is widened by the same factor.
-  Away from the fold, the levelled scan matches the Getty copy (which lies flat but for its gutter)
-  to 1-2 px. At the fold neither copy can check it: Getty's is squeezed or missing there.
+    height, so each column there is widened by the same factor;
+  - and there the page slopes away from the camera, which narrows it sideways further: each column
+    is widened by an estimate of that too (WIDEN_Z0), set so the dots on the bull's forehead come
+    out round, as on the vase. It adds about 90 px across the bull's head and 35 px to the
+    horse's side.
+  More than 450 px from the fold (NEAR_FOLD) the levelled scan matches the Getty copy (which lies
+  flat but for its gutter) to 1-2 px. Near the fold neither copy can check it: Getty's is
+  squeezed or missing there.
   - The fold's crease, a thin light line down the panel and through the bull's ear, is painted out
     (CREASE) before the lines are found: it gets no line, and the lines it crosses join.
 
@@ -54,6 +59,18 @@ FLAT_R = (1950, 3250)
 PANEL_X = (167, 3276)           # the panel's left and right ends
 T0, HP = 600.0, 1450.0          # the levelled panel's top edge and height
 NEAR_FOLD = 450                 # columns this near the fold get the perspective widening
+# The page also slopes away from the camera as it curves into the fold, and that narrows the plate
+# sideways by cos(slope), which the frame's edges cannot show. An estimate (John, 2026-10-07:
+# "Estimate and widen"): the height lost at each column gives the paper's depth below the flat
+# page (depth = Z0 * (HP / height - 1), Z0 the camera's distance in scan px), its slope gives the
+# narrowing, and each column is widened by 1 / cos(slope) as well. Z0 is not known. John chose
+# 8300 px (the camera at about 1 m, at the scan's 207 dpi): there the dots on the bull's forehead,
+# round on the vase once its curve is allowed for, come out round (median width over height 1.0,
+# against 0.73 unwidened). He had seen the camera at 50 and 65 cm (the bull's head 26 and 41 px
+# wider) and found them "still too smooshed". The heights are smoothed (WIDEN_SMOOTH px) first, or
+# the slope follows the edges' pixel noise. None: no widening.
+WIDEN_Z0 = 8300
+WIDEN_SMOOTH = 15
 # the crease in the levelled scan: a straight line through these points, painted out CREASE_W px
 # either side by interpolating across it, row by row
 CREASE = [(1714, 630), (1703, 1970)]
@@ -113,7 +130,8 @@ def edges(g, run=5):
 
 def level(img, margin=150):
     """The scan levelled (see the docstring); rows 0 to T0 + HP + margin, columns as the scan's but
-    widened near the fold."""
+    widened near the fold. Also returns xmap, which takes an x in the levelled frame without the
+    WIDEN_Z0 estimate (where every point in this file is placed) to the frame returned."""
     g = np.asarray(Image.fromarray(img).convert('L'), np.float32)
     top, bot = edges(g)
     W = g.shape[1]
@@ -129,7 +147,14 @@ def level(img, margin=150):
     k = np.ones(W)
     k[ok] = HP / (bot[ok] - top[ok])
     k[np.abs(xs - FOLD) >= NEAR_FOLD] = 1.0
-    ucol = np.cumsum(k) - k[0]                        # output column of each scan column
+    ucol0 = np.cumsum(k) - k[0]                       # output column of each scan column
+    xmap = lambda x: x                                # noqa: E731
+    if WIDEN_Z0:
+        r = ndi.gaussian_filter1d(1 / k, WIDEN_SMOOTH)            # the height lost, smoothed
+        dip = np.gradient(WIDEN_Z0 * (1 / r - 1)) * r            # depth per px of the flat page
+        k *= np.where(np.abs(xs - FOLD) < NEAR_FOLD, np.sqrt(1 + dip ** 2), 1.0)
+        xmap = lambda x: np.interp(np.interp(x, ucol0, xs), xs, np.cumsum(k) - k[0])  # noqa: E731
+    ucol = np.cumsum(k) - k[0]
     v = np.arange(0, T0 + HP + margin, dtype=float)
     U, V = np.meshgrid(np.interp(np.arange(0, ucol[-1] + 1), ucol, xs), v)
     # a vertical line in the plate runs at dx/dy = -lean on the page; the edges are read at the
@@ -143,12 +168,13 @@ def level(img, margin=150):
         X = U - sU * (Y - (tt + bb) / 2)
     out = np.stack([ndi.map_coordinates(img[..., c].astype(np.float32), [Y, X], order=3, mode='nearest')
                     for c in range(3)], -1)
-    return np.clip(out, 0, 255).astype(np.uint8)
+    return np.clip(out, 0, 255).astype(np.uint8), xmap
 
 
-def paint_out_crease(g):
+def paint_out_crease(g, xmap):
     """The crease interpolated away, row by row, CREASE_W px either side of its line."""
     (xa, ya), (xb, yb) = CREASE
+    xa, xb = xmap(xa), xmap(xb)
     g = g.copy()
     for y in range(g.shape[0]):
         c = xa + (y - ya) * (xb - xa) / (yb - ya)
@@ -202,8 +228,14 @@ def faint_stretches(firm, loose):
     return alone[flab] | bridges(flab, 12 * UP * UP) | bridges(centre, np.inf)
 
 
-def draw(lev, grp, qa=None):
+def draw(lev, grp, xmap, qa=None):
+    grp = dict(grp)
+    for key in ('seeds', 'pockets', 'paint'):
+        grp[key] = [(xmap(x), y) for x, y in grp[key]]
+    grp['walls'] = [[(xmap(x), y) for x, y in pts] for pts in grp['walls']]
+    grp['faces'] = [(xmap(a), b, xmap(c), d) for a, b, c, d in grp['faces']]
     X0, Y0, X1, Y1 = grp['box']
+    X0, X1 = int(np.floor(xmap(X0))), int(np.ceil(xmap(X1)))
 
     def at(x, y):
         return int(round((y - Y0) * UP)), int(round((x - X0) * UP))
@@ -260,13 +292,21 @@ def draw(lev, grp, qa=None):
     solid = paint & fig
     lab, _ = ndi.label(solid)
     solid &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
-    edge = fig & ~ndi.binary_erosion(fig, iterations=int(2.5 * UP))
+    # the outline: 2.5 plate px in from the clay's edge, but no more than 0.6 of the figure's
+    # half-width there, so thin parts (a tail's tuft, a leaf's tip, an ear, a toe) keep clay
+    # inside their outline and show it on the dark theme, as on the vase
+    dt = ndi.distance_transform_edt(fig)
+    _, (iy, ix) = ndi.distance_transform_edt(~morphology.skeletonize(fig), return_indices=True)
+    edge = fig & (dt <= np.minimum(2.5 * UP, 0.6 * dt[iy, ix]))
     ink = lines | solid | edge
     lab, _ = ndi.label(ink)
     size = np.bincount(lab.ravel())
     ink &= np.where(face, (size > 3 * UP * UP)[lab], (size > 12 * UP * UP)[lab])
 
-    held = ndi.binary_fill_holes(fig) & ground
+    # all the ground stays open on the dark theme, outside the figures as well as in the pockets
+    # they close in: else trace_svg's clay rim for thin lines strays onto it (a notch of clay at
+    # the horse's mouth, crumbs along the outline)
+    held = ground & ~fig
     out = HERE / grp['out']
     info = lw.trace_svg(ink, out, body=fig, open_holes=held, weight="own", title=grp['title'], desc=grp['desc'])
     print(out, info)
@@ -277,13 +317,13 @@ def draw(lev, grp, qa=None):
 
 
 def main(src, qa=None):
-    lev = level(np.asarray(Image.open(src).convert('RGB')))
-    g = paint_out_crease(np.asarray(Image.fromarray(lev).convert('L'), np.float32))
+    lev, xmap = level(np.asarray(Image.open(src).convert('RGB')))
+    g = paint_out_crease(np.asarray(Image.fromarray(lev).convert('L'), np.float32), xmap)
     lev = np.clip(g, 0, 255).astype(np.uint8)
     if qa:
         Image.fromarray(lev).save(f'{qa}_levelled.png')
     for grp in GROUPS.values():
-        draw(lev, grp, qa)
+        draw(lev, grp, xmap, qa)
 
 
 if __name__ == '__main__':
