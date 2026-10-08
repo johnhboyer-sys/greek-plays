@@ -63,6 +63,30 @@ WALLS = [[(1120, 1607), (1128, 1602), (1137, 1597)], [(1306, 2098), (1316, 2091)
          [(1403, 2019), (1412, 2011)], [(1366, 2105), (1369, 2100), (1373, 2095)], [(1292, 2255), (1290, 2266)], [(1638, 2071), (1636, 2082)],
          [(395, 1899), (419, 1896)]]
 WALL_W = 1.5
+# The plate's lines print solid black (grey 6-40) on the clay (150-165), 1-3 px wide, but the finest
+# folds only 1 px wide and grey 70-140. Lines are the plate's paint at its own width, darker than
+# LINE_DARK after a light blur (local contrast, as on Hippolytus, ran the close lines of the faces
+# together and drew every line heavier than printed); the faint folds the local-contrast finder
+# picks up are added along their centres, LINE_MIN plate px wide.
+LINE_DARK = 100
+LINE_MIN = 1.5
+# the raised hands (boxes, plate px): their fingers are clay strips 4-6 px wide, the ground between
+# them 2-3 px. Here the ground is found at less blur, so the gaps stay ground, and the outline is
+# drawn finer (HAND_EDGE plate px), so each finger keeps its clay inside it (as suppliants_aesch.py)
+HANDS = [(785, 1485, 860, 1560), (1380, 1530, 1450, 1590)]
+HAND_EDGE = 1.2
+# Breaks in the thin lines where the print fades (the folds above all: they print faint and dotted),
+# joined as libation_bearers.py joins them: line ends that face each other across a gap of at most
+# JOIN_MAX plate px (the last JOIN_RUN plate px of each end's centre line point at the other end,
+# within JOIN_ANGLE degrees), joined straight at the lines' width where the plate prints a line
+# across the gap: along its middle 80% the plate's local contrast (grey) has a median of JOIN_C or
+# more and stays under JOIN_LOW for no more than JOIN_FADE plate px together (a gap between the
+# print's dots), and the join crosses no other line. Over the 50 facing pairs in the first pass,
+# the fold breaks ran 10-24 (median); the true ends (the nose, a ribbon's tip, a line ending at the
+# helmet) under 5, or unprinted for 6 px or more, or across other lines
+# (a dot of the faint line's own print in the gap, under JOIN_DOT plate px^2, is no line crossed)
+JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, JOIN_LOW, JOIN_FADE, JOIN_DOT = 30, 6, 20, 10, 4, 4, 30
+SOLES = 6.0                               # plate px: the strip of black under the soles, above the paper, is ground
 
 
 def pc(src, out, *steps):
@@ -96,6 +120,63 @@ def along(shape, path, width):
     return ndi.distance_transform_edt(~m) <= width * UP / 2
 
 
+def join_breaks(lines, contrast):
+    """The breaks in `lines` (at UP) that JOIN_* describe, joined; `contrast` is the plate's local
+    contrast (UP px)."""
+    from scipy.spatial import cKDTree
+    sk = morphology.skeletonize(lines)
+    nb = ndi.convolve(sk.astype(np.uint8), np.ones((3, 3), np.uint8), mode='constant') - 1
+    ends = np.argwhere(sk & (nb == 1))
+    dt = ndi.distance_transform_edt(lines)
+    H, W = sk.shape
+
+    def run_back(p):   # the end's last JOIN_RUN plate px of centre line, from the end inward
+        path, seen = [tuple(p)], {tuple(p)}
+        for _ in range(JOIN_RUN * UP):
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if (dy or dx) and 0 <= y + dy < H and 0 <= x + dx < W and sk[y + dy, x + dx]
+                   and (y + dy, x + dx) not in seen]
+            if not nxt:
+                break
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        return np.array(path, float)
+
+    runs = [run_back(p) for p in ends]
+    lab = ndi.label(lines, structure=np.ones((3, 3)))[0]
+    size = np.bincount(lab.ravel())
+    out = np.zeros_like(lines)
+    used = set()
+    cos = np.cos(np.radians(JOIN_ANGLE))
+    pairs = sorted(cKDTree(ends).query_pairs(JOIN_MAX * UP),
+                   key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]])))
+    for i, j in pairs:
+        if i in used or j in used or len(runs[i]) < JOIN_RUN * UP / 2 or len(runs[j]) < JOIN_RUN * UP / 2:
+            continue
+        a, b = ends[i].astype(float), ends[j].astype(float)
+        u = (b - a) / np.hypot(*(b - a))
+        da, db = runs[i][0] - runs[i][-1], runs[j][0] - runs[j][-1]
+        if da @ u < cos * np.hypot(*da) or db @ -u < cos * np.hypot(*db):
+            continue
+        t = np.linspace(0.1, 0.9, max(int(np.hypot(*(b - a))), 3))
+        q = a[None] + t[:, None] * (b - a)[None]
+        c = ndi.map_coordinates(contrast, q.T, order=1)
+        low = np.r_[0, (c < JOIN_LOW).astype(int), 0]
+        starts, stops = np.nonzero(np.diff(low) == 1)[0], np.nonzero(np.diff(low) == -1)[0]
+        if np.median(c) < JOIN_C or (len(starts) and (stops - starts).max() > JOIN_FADE * UP):
+            continue
+        mid = (np.hypot(*(q - a).T) > 2 * UP) & (np.hypot(*(q - b).T) > 2 * UP)
+        hit = set(lab[tuple(q[mid].round().astype(int).T)]) - {0, lab[tuple(a.astype(int))], lab[tuple(b.astype(int))]}
+        if any(size[k] >= JOIN_DOT * UP * UP for k in hit):   # it would cross another line (not a dot of its own)
+            continue
+        w = np.median([dt[tuple(r.astype(int))] for r in np.vstack([runs[i], runs[j]])]) * 2 / UP
+        seg = np.linspace(a - 1.5 * u, b + 1.5 * u, int(np.hypot(*(b - a))) + 4)[:, ::-1] + 0.5
+        out |= along(lines.shape, seg, max(w, 2.0))
+        used |= {i, j}
+    return out
+
+
 def ink_lines(g_blur, closed, low, high):
     """lw.ink_lines on PhotoCraft's images: the blurred plate's closing (Maximum then Minimum)
     less the blurred plate, with hysteresis."""
@@ -112,12 +193,18 @@ def main(src, qa=None, dump=None):
            ("image.mode.grayscale", None))
         pc(t / "up.png", t / "gs.png", ("filter.blur.gaussianBlur", {"radius": 0.7 * UP}))
         pc(t / "gs.png", t / "dark.png", ("image.adjustments.threshold", {"level": DARK}))
+        pc(t / "up.png", t / "fine.png", ("filter.blur.gaussianBlur", {"radius": 0.35 * UP}),
+           ("image.adjustments.threshold", {"level": DARK}))
+        pc(t / "up.png", t / "core.png", ("filter.blur.gaussianBlur", {"radius": 0.5 * UP}),
+           ("image.adjustments.threshold", {"level": LINE_DARK}))
         pc(t / "up.png", t / "gl.png", ("filter.blur.gaussianBlur", {"radius": 0.8 * UP}))
         r = (9 * UP) // 2
         pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
            ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
         g, gl, closed = grey(t / "up.png"), grey(t / "gl.png"), grey(t / "closed.png")
         dark0 = grey(t / "dark.png") < 128
+        core = grey(t / "core.png") < 128
+        fine = grey(t / "fine.png") < 128
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
 
@@ -125,7 +212,14 @@ def main(src, qa=None, dump=None):
     a, b = BOTTOM
     outside = (yy + 0.5) / UP - 0.5 + Y0 > a + b * ((xx + 0.5) / UP - 0.5 + X0) + 0.5
 
-    dark = ndi.binary_opening(dark0, structure=morphology.disk(2 * UP)) & ~outside
+    dark = ndi.binary_opening(dark0, structure=morphology.disk(2 * UP))
+    hand = np.zeros(g.shape, bool)
+    for box in HANDS:
+        hx0, hy0, hx1, hy1 = [(v - o) * UP for v, o in zip(box, (X0, Y0, X0, Y0))]
+        hand[hy0:hy1, hx0:hx1] = True
+    dark = np.where(hand, ndi.binary_opening(fine, structure=morphology.disk(1)), dark)
+    dark |= dark0 & (ndi.distance_transform_edt(~outside) <= SOLES * UP)   # under the soles the strip is thin
+    dark &= ~outside
     for pts in WALLS:
         dark &= ~along(g.shape, polyline(pts), WALL_W)
     lab, _ = ndi.label(dark)
@@ -154,19 +248,24 @@ def main(src, qa=None, dump=None):
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP)) | (fig & ridge)
 
     firm = ink_lines(gl, closed, 22, 34)
-    lines = firm & fig
-    lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= UP) & fig
+    thin = ndi.distance_transform_edt(~morphology.skeletonize(firm)) <= LINE_MIN * UP / 2
+    lines = (core | thin) & fig
+    lines |= join_breaks(lines, closed - gl) & fig
+    # every line at least LINE_MIN wide, so no thin neck breaks when the weight is evened out
+    lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= LINE_MIN * UP / 2) & fig
     solid = paint & fig
     lab, _ = ndi.label(solid)
     solid &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
     edge = fig & ~ndi.binary_erosion(fig, iterations=int(2.5 * UP))
+    edge = np.where(hand, fig & ~ndi.binary_erosion(fig, iterations=round(HAND_EDGE * UP)), edge)
     ink = lines | solid | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint)
 
-    held = ndi.binary_fill_holes(fig) & ground
+    # all the ground stays open in the dark theme (the pockets too), so no clay rim strays onto it
+    held = ground & ~fig
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=held, weight="own",
         title='Menelaus dropping his sword at the sight of Helen',
