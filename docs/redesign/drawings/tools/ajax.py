@@ -103,6 +103,10 @@ HAND_LINES = [[(577, 1046), (578, 1064), (578, 1081), '-', (577, 1090), '-', (57
               [(598, 1043), (598, 1070), (598, 1100)],
               [(609, 1025), (613.5, 1031), (618, 1036)],
               [(610, 1035), (610.5, 1048), (611, 1060)]]
+FOLD_LINES, FOLD_HALF = [(2382, 630, 960)], 4
+WORN = [(2376, 630, 2436, 990)]
+MARKS_FILE = Path(__file__).parent / "ajax_marks.png"
+MARKS_ORIGIN = (117, 185)       # levelled px of the marks layer's top-left pixel
 WHITE_HOLE = 300                # levelled px^2: parts the white closes in smaller than this are on it (an eye)
 THIN = 4.0                      # levelled px: black parts thinner than this are drawn as lines
 HATCH_WIN, HATCH_SD, HATCH_MEAN, HATCH_MIN = 7, (12, 40), (120, 185), 150
@@ -757,6 +761,13 @@ def main(src, heid, qa=None, dump=None):
     strokes, hatched = hatch_strokes(al, gs, hatch, fig)
     near_h = ndi.binary_dilation(hatched, iterations=UP)
     dark_raw &= ~near_h
+    # the NYPL sheet's old fold prints a light streak down the black (FOLD_LINES: x, y0, y1, levelled px,
+    # found as the one long vertical streak that is no line of the picture), and beside it the print of the
+    # plain black shield is worn to a mottle (WORN, boxes): not incisions
+    for fx, fy0, fy1 in FOLD_LINES:
+        inc_raw &= ~((np.abs(px - fx) <= FOLD_HALF) & (py >= fy0) & (py <= fy1))
+    for wx0, wy0, wx1, wy1 in WORN:
+        inc_raw &= ~((px >= wx0) & (px <= wx1) & (py >= wy0) & (py <= wy1))
     inc = even_lines(inc_raw, INC_W, sigma=2.0, min_len=2.6)
     darkl = even_lines(dark_raw, LINE_W, sigma=2.0, min_len=2.6, max_width=THIN, contrast=closed - al,
                        stop=ndi.binary_opening(black0, structure=disk(THIN / 2)))
@@ -772,6 +783,7 @@ def main(src, heid, qa=None, dump=None):
     # (the white with what it closes in: specks of the print in the white are no edge), on the plate's
     # printed line round it (white_outline); the figure runs out to that line
     wpaths, warea = white_outline(on_white, gs, fig)
+    fig_in = fig.copy()
     fig |= warea & ~outside
     wline = draw_paths(fig.shape, wpaths, [LINE_W * UP] * len(wpaths)) & ~outside
     # one line there: the plate's own faint line beside the white (printed 1-2 px off the white's edge,
@@ -783,6 +795,20 @@ def main(src, heid, qa=None, dump=None):
     darkl &= ~hb
     dots &= ~hb
     lines = ((black | darkl | strokes | dots | hand_lines) & fig) | wline
+    # John's corrections (2026-10-08), drawn over the whole pass in PhotoCraft (show4/ajax_corrections.pcraft,
+    # layer "John Trace"; MARKS_FILE holds them as he drew them: 1 green = take the ink out, 2 blue = ink).
+    # His layer is at UP px with its origin at MARKS_ORIGIN (levelled px), so it maps 1:1 onto the work px.
+    # Green also takes out the figure's area where the ink he removed lay outside it (an outline he moved);
+    # blue brings the figure's area out under his lines, so they keep their clay on the dark theme.
+    mk = np.asarray(Image.open(MARKS_FILE))
+    ox, oy = [round((v - o) * UP) for v, o in zip(MARKS_ORIGIN, BOX[:2])]
+    green, blue = np.zeros_like(fig), np.zeros_like(fig)
+    sy, sx = slice(max(oy, 0), min(oy + mk.shape[0], H)), slice(max(ox, 0), min(ox + mk.shape[1], W))
+    msub = mk[sy.start - oy:sy.stop - oy, sx.start - ox:sx.stop - ox]
+    green[sy, sx], blue[sy, sx] = msub == 1, msub == 2
+    fig &= ~(green & lines & ~fig_in)
+    lines = (lines & ~green) | blue
+    fig |= blue & ~outside
     body = ndi.distance_transform_edt(~fig) <= RIM * UP
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), hatch=hatch, on_white=on_white, hatched=hatched, darkl=darkl, fig=fig, ground=ground, white=white, lines=lines,
