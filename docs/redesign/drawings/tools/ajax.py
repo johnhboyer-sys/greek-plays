@@ -120,6 +120,7 @@ HATCH_WIN, HATCH_SD, HATCH_MEAN, HATCH_MIN = 7, (12, 40), (120, 185), 150
 # hatch_strokes (see there)
 HATCH_DIP, HATCH_RIDGE, HATCH_ALONG, HATCH_ANGLE, HATCH_W, HATCH_SAME, HATCH_EDGE = 2.5, 1.0, 15, 12, 1.6, 2.2, 1.5
 HATCH_N, HATCH_COH = 8, 0.8
+RELEASE_W = 5.0
 # joining broken lines: ends pointing at each other within JOIN_ANGLE degrees (over their last JOIN_RUN
 # levelled px), at most JOIN_MAX apart, where the plate's contrast along the gap holds at JOIN_C; a free
 # end runs on to the black when it points at it within REACH levelled px
@@ -720,23 +721,38 @@ def main(src, heid, qa=None, dump=None):
     hatch = morphology.remove_small_holes(ndi.binary_closing(hatch, structure=disk(4)),
                                           max_size=400 * UP * UP) & ~outside & ~solid0
 
-    # ground: the clay, opened so thin lines do not join it; its large areas and the listed pockets
-    clay = ndi.binary_opening(~black0 & ~white & ~outside & ~hatch, structure=disk(2.6))
-    lab, _ = ndi.label(clay)
-    size = np.bincount(lab.ravel())
-    size[0] = 0
-    is_ground = size > AUTO_GROUND * UP * UP
-    for x, y in POCKETS:
-        k = lab[round((y - BOX[1]) * UP), round((x - BOX[0]) * UP)]
-        assert k, f'pocket point {(x, y)} is not on clay'
-        is_ground[k] = True
-    ground = is_ground[lab]
+    def ground_and_figure(kept):
+        """The ground (the clay less `kept`, opened so thin lines do not join it: its large areas and the
+        listed pockets) and the figures (all else in the panel; specks on the ground, the inscriptions
+        and stray marks, go)."""
+        clay = ndi.binary_opening(~black0 & ~white & ~outside & ~kept, structure=disk(2.6))
+        lab, _ = ndi.label(clay)
+        size = np.bincount(lab.ravel())
+        size[0] = 0
+        is_ground = size > AUTO_GROUND * UP * UP
+        for x, y in POCKETS:
+            k = lab[round((y - BOX[1]) * UP), round((x - BOX[0]) * UP)]
+            assert k, f'pocket point {(x, y)} is not on clay'
+            is_ground[k] = True
+        ground = is_ground[lab]
+        fig = ndi.binary_fill_holes(~ground & ~outside) & ~ground & ~outside
+        fig = ndi.binary_opening(fig, structure=disk(0.7))
+        lab, _ = ndi.label(fig)
+        return ground, fig & (np.bincount(lab.ravel()) > FIG_MIN * UP * UP)[lab]
 
-    # the figures: all else in the panel; specks on the ground (the inscriptions, stray marks) go
-    fig = ndi.binary_fill_holes(~ground & ~outside) & ~ground & ~outside
-    fig = ndi.binary_opening(fig, structure=disk(0.7))
-    lab, _ = ndi.label(fig)
-    fig &= (np.bincount(lab.ravel()) > FIG_MIN * UP * UP)[lab]
+    # The hatched clay is kept out of the ground first; then only the bands hatch_strokes finds strokes in
+    # stay out: the spread test also takes the print's mottled soft edge outside a profile for hatching
+    # (it put a strip of clay along Phoenix's nose; John, 2026-10-08)
+    ground, fig = ground_and_figure(hatch)
+    strokes, hatched = hatch_strokes(al, gs, hatch, fig)
+    # (a band with no strokes is released only if it is a strip, under RELEASE_W levelled px wide (median,
+    # measured 2.2-4.5 on the soft edges): the clay fingers of the hand by Briseis', 6.3, stay)
+    lab, n = ndi.label(hatch & ~hatched)
+    dt = ndi.distance_transform_edt(lab > 0)
+    wide = np.zeros(n + 1, bool)
+    if n:
+        wide[1:] = np.asarray(ndi.median(dt, lab, np.arange(1, n + 1))) * 2 / UP >= RELEASE_W
+    ground, fig = ground_and_figure(hatched | wide[lab])
     white &= fig
     # incisions (light lines in the black) and the thin dark lines (on the white, the clay bands, the
     # ground inside the figures), each redrawn along its smoothed centre line at an even width
@@ -765,7 +781,6 @@ def main(src, heid, qa=None, dump=None):
     # parts it closes in (an eye, under WHITE_HOLE levelled px^2), less a px at its edge
     dark_raw |= (gs < WHITE_LINE) & ((P['closed_s'] - gs) > DL_T) & ndi.binary_erosion(on_white, structure=disk(0.7))
     # the hatched bands: their strokes drawn straight (hatch_strokes); the other finders keep out of them
-    strokes, hatched = hatch_strokes(al, gs, hatch, fig)
     near_h = ndi.binary_dilation(hatched, iterations=UP)
     dark_raw &= ~near_h
     # the NYPL sheet's old fold prints a light streak down the black (FOLD_LINES: x, y0, y1, levelled px,
