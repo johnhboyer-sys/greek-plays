@@ -40,8 +40,9 @@ Photo -> drawing:
     thinned glaze are found by local contrast and drawn along fitted curves (FAINT); the mended break
     across his lap and shield leaves no line (MEND).
 
-    python3 docs/redesign/drawings/tools/acharnians.py H4689-07.jpg [qa.png]
+    python3 docs/redesign/drawings/tools/acharnians.py H4689-07.jpg H4689-03.jpg H4689-02.jpg [qa.png]
     python3 docs/redesign/drawings/tools/acharnians.py H4689-07.jpg H4689-04.jpg H4689-05.jpg H4689-06.jpg --refit
+    python3 docs/redesign/drawings/tools/acharnians.py H4689-03.jpg H4689-04.jpg --refit03
 """
 import json
 import os
@@ -77,10 +78,13 @@ CAMERAS = {
     # matched between 03 and 04 (which shows both figures), taken onto the vase through 04's camera
     # (fit_03; median 2.7 px). It agrees with 07 at the spear's tip, which both show, within 2.5 px.
     "03": dict(D=2100.74, H=422.538, b=-0.0586314, p=-0.0949274, g=0.0289648, f=7600, cx=1824, cy=2736),
+    # photo 02 (EF 40 mm, uncropped; a later shoot), fitted as 03 is, to points matched with 04 (median 2.0 px):
+    # sharp where 03 is not, at the old man's back foot and his white hair and beard
+    "02": dict(D=2759.23, H=518.207, b=0.0208488, p=-0.0429247, g=-0.0657326, f=6080, cx=2736, cy=1824),
 }
 PROFILE_Y = [-300, -100, 100, 300, 500, 700, 900, 1100, 1300, 1500]
 PROFILE_R = [410.7, 615.6, 714.8, 764.3, 789.0, 813.6, 858.0, 902.3, 946.7, 991.1]
-TURNS = {"04": 17.668, "05": 4.449, "06": 1.373, "03": 12.2913}  # degrees each photo is turned from 07
+TURNS = {"04": 17.668, "05": 4.449, "06": 1.373, "03": 12.2913, "02": 46.4725}  # degrees each photo is turned from 07
 PITCH = 10.0 / 1520.0  # mm per px on the 6D's sensor (EXIF focal plane resolution)
 FOCAL_MM = {"07": 50, "04": 40, "05": 28, "06": 28, "03": 50}
 CROPPED = {"07": False, "04": False, "05": True, "06": True}
@@ -556,6 +560,15 @@ OLD_SEEDS = [(1680, 3150), (2266, 4366), (3400, 2856), (2793, 3407)]   # his tun
 # His hair and beard are white, which red less blue reads with the glaze: inside HAIR (boxes) anything
 # lighter than HAIR_L (grey) is him too (the ground round his head is black, without sheen)
 HAIR, HAIR_L = [(1000, 1050, 2150, 1950)], 150
+# His white hair and beard get a half tone, as Philoctetes' hair and beard (John, 2026-10-08, asked how:
+# "Grey wash, as Philoctetes"): the white paint inside HAIR (below), on him, off his lines,
+# lightly smoothed (TONE_SMOOTH px), drawn as a third path in the line colour at TONE opacity, under the lines
+TONE, TONE_SMOOTH = 0.3, 3.0
+# Where the white lies is read on photo 02, laid onto the same flat: in 03 it is soft and worn, and its pale
+# clay at the jaw passes for white. White: lighter than TONE_L and red less blue under TONE_RB (both lightly
+# blurred), closed over its worn gaps (TONE_CLOSE px) and filled, kept in pieces of TONE_MIN px^2 or more
+# (the hair, the beard round his mouth; not specks on his neck)
+TONE_L, TONE_RB, TONE_CLOSE, TONE_MIN = 185, 55, 6, 3000
 # the spear's square top end stops 15 px under a thin strip of the border band: the glaze between found at
 # FINE_OPEN. (Not at his hands: their fingers are parted by painted lines, which the fine opening took for
 # ground, and the black contour where the spear enters his fist with them.)
@@ -584,17 +597,29 @@ OLD_STAGE = [(1250, 5382), (1300, 5378), (1350, 5369), (1400, 5362), (1600, 5322
 OLD_MEND = None                                # (widened y) the mended break, if it crosses him
 # The black band along his tunic's hem runs out into the ground's black at both ends, and the drawing took
 # it for ground: walled across its ends along the line of the tunic's edge (widened px), WALL_W wide
-OLD_WALLS = [[(1157, 3812), (1168, 3888)], [(2387, 3472), (2402, 3528)]]
+OLD_WALLS = [[(1157, 3812), (1168, 3888)], [(2387, 3472), (2402, 3528)],
+             # the ground seen between his legs: the lower knee stroke's black head meets it, and the drawing
+             # took the head for ground, outlined (John, 2026-10-08: "need to fix this area"). Walled along
+             # the ground's right edge (grey's half-way crossing, row by row; between y 4165 and 4185 the
+             # stroke hides it, interpolated), 4 px to the clay's side, so the head is paint
+             [(2162, 4108), (2166, 4120), (2169, 4130), (2171, 4140), (2167, 4150), (2164, 4160), (2161, 4170),
+              (2158, 4180), (2156, 4190), (2155, 4200), (2154, 4210)]]
 # The spear's shaft, from under its top end to his fist, is straight: its edges (where red less blue
 # falls to 60, row by row, every 60 px) fitted by straight lines, x = a y + b (widened px). Between them is
 # the shaft; the shaft's photo edges wobble by the blur of 03, and a faint brown streak runs beside it near
 # his hand (left out)
 SPEAR_Y, SPEAR_LEFT, SPEAR_RIGHT = (340, 2030), (0.666683, 1440.83), (0.668623, 1547.50)
 # Breaks where a fold thins to a faint run, each checked over the photo (line ends and the run's darkest
-# point, row by row, between them; widened px): two folds on his chest, and the crease across his shin
+# point, row by row, between them; widened px): two folds on his chest, the crease across his shin, and a
+# knee stroke
 OLD_JOINS = [((1572, 2435), (1567, 2446), (1561, 2462), (1564, 2464)),
              ((1982, 2343), (1976, 2354), (1971, 2366), (1967, 2377)),
-             ((1545, 4521), (1585, 4517), (1624, 4524))]
+             ((1545, 4521), (1585, 4517), (1624, 4524)),
+             # the upper knee stroke, flaked at its head: on to the edge of the ground between his legs
+             ((2168, 4127), (2200, 4125), (2234, 4121))]
+# the specks of glaze left at the flaked head of that knee stroke, under its line (they drew a hook): erased
+# (box, widened px), and the stroke drawn through (OLD_JOINS)
+OLD_ERASE = [(2168, 4129, 2205, 4152)]
 # The two figures together are wider than the warrior alone, so weight "own" (a share of the longer
 # side) thinned every line, and the warrior's belt broke. The weight is pinned so his lines keep the
 # width John approved: WEIGHT on the warrior's longer side alone (4232 px), on the pair's (5443 px)
@@ -605,11 +630,17 @@ PAIR_WEIGHT = WEIGHT * 4232 / 5443
 NECK = 7
 
 
-def old_man(src):
-    """The old man: (ink, figure, grey), in his crop of the widened flat (OX0, OY0, OX1, OY1)."""
+def old_man(src, src02):
+    """The old man: (ink, figure, grey, half tone), in his crop of the widened flat (OX0, OY0, OX1, OY1)."""
     with tempfile.TemporaryDirectory() as td:
         t = Path(td)
         Image.fromarray(flat_region(src, "03", (OX0, OY0, OX1, OY1))).save(t / "c.png")
+        Image.fromarray(flat_region(src02, "02", (OX0, OY0, OX1, OY1))).save(t / "c02.png")
+        pc(t / "c02.png", t / "rb02.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 2}), ("image.adjustments.threshold", {"level": TONE_RB}))
+        pc(t / "c02.png", t / "l02.png", ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": 2}),
+           ("image.adjustments.threshold", {"level": TONE_L}))
+        white02 = (grey(t / "l02.png") >= 128) & (grey(t / "rb02.png") < 128)
         pc(t / "c.png", t / "rb.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
            ("filter.blur.gaussianBlur", {"radius": 2}), ("image.adjustments.threshold", {"level": CLAY}))
         pc(t / "c.png", t / "g.png", ("image.mode.grayscale", None))
@@ -629,7 +660,8 @@ def old_man(src):
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
     box = lambda bs: np.any([(xx + OX0 >= b[0]) & (yy + OY0 >= b[1]) & (xx + OX0 < b[2]) & (yy + OY0 < b[3]) for b in bs], 0)
-    clay |= light & box(HAIR)
+    white = light & ~clay & box(HAIR)   # the white paint: light, but not red (clay is)
+    clay |= white
     S = np.array(OLD_STAGE, float)
     outside = yy + OY0 > np.polyval(np.polyfit(S[:, 0], S[:, 1], 2), xx + OX0)
     outside |= lw.polygon_mask(g.shape, np.array(PILLAR, float) - (OX0, OY0))
@@ -680,26 +712,46 @@ def old_man(src):
     mend = np.zeros(g.shape, bool) if OLD_MEND is None else (yy + OY0 > OLD_MEND[0]) & (yy + OY0 < OLD_MEND[1])
     lines |= faint_lines(faint_c, (to_edge > FAINT_EDGE) & ~mend, lines) & fig
     lines |= join_breaks(lines & (to_edge > EDGE + 2), to_edge > EDGE + 2)
+    for bx0, by0, bx1, by1 in OLD_ERASE:
+        lines[by0 - OY0:by1 - OY0, bx0 - OX0:bx1 - OX0] = False
     for pts in OLD_JOINS:
         lines |= along(g.shape, pts, LINE_MIN, origin=(OX0, OY0)) & fig
     ink = lines | edge
     holes = ndi.binary_fill_holes(ink) & ~ink
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
-    return ink, fig, g
+    w2 = ndi.binary_fill_holes(ndi.binary_closing(white02 & box(HAIR), structure=morphology.disk(TONE_CLOSE)))
+    lab, _ = ndi.label(w2)
+    w2 &= (np.bincount(lab.ravel()) >= TONE_MIN)[lab]
+    tone = ndi.gaussian_filter((w2 & fig).astype(np.float32), TONE_SMOOTH) > 0.5
+    tone &= fig & ~ink
+    return ink, fig, g, tone
+
+
+def add_tone(svg, tone, box):
+    """The half tone added to a drawing written by lw.trace_svg (box: the crop box it returned) as a third
+    path, class "tone", in the line colour at TONE opacity, between the body and the lines (as
+    philoctetes.py)."""
+    x0, y0, x1, y1 = box
+    d, _ = lw.potrace_d(lw.resample_ink(tone[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
+    s = svg.read_text().replace('<path class="lines"', f'<path class="tone" fill="currentColor" fill-opacity="{TONE}" '
+                                f'stroke="none" d="{d}"/><path class="lines"', 1)
+    svg.write_text(s)
 
 
 # ---------------------------------------------------------------- the two together
 
-def main(src07, src03, qa=None, dump=None):
+def main(src07, src03, src02, qa=None, dump=None):
     w_ink, w_fig, w_g = warrior(src07)
-    o_ink, o_fig, o_g = old_man(src03)
+    o_ink, o_fig, o_g, o_tone = old_man(src03, src02)
     # one canvas over both crops, widened px
     wx0, wy0 = X0 + WIDE[0], Y0 + WIDE[1]
     cx0, cy0 = min(OX0, wx0), min(OY0, wy0)
     cx1, cy1 = max(OX1, X1 + WIDE[0]), max(OY1, Y1 + WIDE[1])
     shape = (cy1 - cy0, cx1 - cx0)
     ink, fig, g = np.zeros(shape, bool), np.zeros(shape, bool), np.full(shape, 255.0, np.float32)
+    tone = np.zeros(shape, bool)
+    tone[OY0 - cy0:OY0 - cy0 + o_tone.shape[0], OX0 - cx0:OX0 - cx0 + o_tone.shape[1]] = o_tone
     for a_ink, a_fig, a_g, (ax, ay) in ((o_ink, o_fig, o_g, (OX0, OY0)), (w_ink, w_fig, w_g, (wx0, wy0))):
         sl = (slice(ay - cy0, ay - cy0 + a_ink.shape[0]), slice(ax - cx0, ax - cx0 + a_ink.shape[1]))
         ink[sl] |= a_ink
@@ -712,6 +764,7 @@ def main(src07, src03, qa=None, dump=None):
                         title='A seated warrior raising his hand as an old man holds out his spear: a comic "departure of the warrior"',
                         desc="Line drawing after the Apulian red-figure bell-krater Würzburg H 4689; traced from "
                              "photographs by ArchaiOptix (CC BY-SA 4.0), taken off the vase's curve, changed.")
+    add_tone(OUT, tone & ~ink, info["box"])
     print(OUT, info, "canvas origin (widened px)", (cx0, cy0))
     if qa:
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
@@ -724,4 +777,4 @@ if __name__ == "__main__":
     elif "--refit03" in sys.argv:
         fit_03(*sys.argv[1:3])
     else:
-        main(*sys.argv[1:5])
+        main(*sys.argv[1:6])
