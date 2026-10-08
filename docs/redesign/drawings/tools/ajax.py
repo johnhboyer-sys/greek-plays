@@ -94,6 +94,15 @@ WHITE_DOT = 135                 # grey: a dot on the white darker than this is k
 WHITE_EDGE = 3.0                # levelled px: the plate's line beside the white within this gives way to the white's edge line
 WHITE_GROW, WHITE_REACH, WHITE_SMOOTH, WHITE_ALONG = 178, 6.0, 1.0, 9.0   # white_outline (grey, levelled px)
 WHITE_R = 4                     # levelled px: on the white, lines are thinner than this (the grey iris is wider)
+HAND_BOX = (558, 1012, 628, 1112)
+HAND_AREA = [(566, 1012), (566.5, 1040), (567.5, 1055), (570, 1062), (570.5, 1094), (573, 1099), (576.5, 1097.5),
+             (578.5, 1100), (582.5, 1104), (587, 1103), (590.5, 1105), (595, 1107), (598.5, 1104), (603, 1099),
+             (614, 1092), (628, 1060), (628, 1012)]
+HAND_LINES = [[(577, 1046), (578, 1064), (578, 1081), '-', (577, 1090), '-', (576, 1098)],
+              [(587, 1044), (587, 1060), (589, 1080), (591, 1092), (592, 1104)],
+              [(598, 1043), (598, 1070), (598, 1100)],
+              [(609, 1025), (613.5, 1031), (618, 1036)],
+              [(610, 1035), (610.5, 1048), (611, 1060)]]
 WHITE_HOLE = 300                # levelled px^2: parts the white closes in smaller than this are on it (an eye)
 THIN = 4.0                      # levelled px: black parts thinner than this are drawn as lines
 HATCH_WIN, HATCH_SD, HATCH_MEAN, HATCH_MIN = 7, (12, 40), (120, 185), 150
@@ -644,6 +653,22 @@ def write_svg(lines, body, out, title, desc):
     return {"bytes": out.stat().st_size, "box": (int(x0), int(y0), int(x1), int(y1))}
 
 
+def traced(g, pts, width):
+    """The plate's own dark line between hand-placed points (levelled px), followed by a least-cost path
+    along its darkest ridge, `width` levelled px wide, at UP (as trojan_women_menelaus.py)."""
+    # ('-' between two points joins them straight, where the print is too faint to follow)
+    P = np.array([((x - BOX[0]) * UP, (y - BOX[1]) * UP) for x, y in (q for q in pts if q != '-')], float)
+    pad = 6 * UP
+    x0, y0 = int(P[:, 0].min()) - pad, int(P[:, 1].min()) - pad
+    x1, y1 = int(P[:, 0].max()) + pad, int(P[:, 1].max()) + pad
+    w = ndi.gaussian_filter(g[y0:y1, x0:x1], 0.7 * UP)
+    cost = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(w, size=(5 * UP, 5 * UP)) - w, 0, None) / 12)
+    it = iter(P)
+    path = lw.livewire(cost, [lw.STRAIGHT if q == '-' else tuple(np.subtract(next(it), (x0, y0))) for q in pts])
+    yx = np.c_[path[:, 1] - 0.5 + y0, path[:, 0] - 0.5 + x0]
+    return draw_paths(g.shape, [smooth_path(yx, 1.5 * UP)], [width * UP])
+
+
 def main(src, heid, qa=None, dump=None):
     lev = mend_tear(level(np.asarray(Image.open(src).convert('RGB'))),
                     level_heid(np.asarray(Image.open(heid).convert('RGB'))))
@@ -709,6 +734,21 @@ def main(src, heid, qa=None, dump=None):
     # small rings into one)
     inc_raw = ((gs - P['opened_gs']) > INC_T) & ndi.binary_closing(black0, structure=disk(2.6)) & ~white & fig
     on_white = morphology.remove_small_holes(white, max_size=WHITE_HOLE * UP * UP) & fig
+    # Briseis' lower hand (HAND_*): its white printed out of register, so clay strips run beside each
+    # finger line and the line finder made a muddle of them. In HAND_BOX the hand is HAND_AREA (placed
+    # on the plate at 10x: its edges against the clay; against the robe it stops at the black) and its
+    # lines are the plate's own, traced along their ridges between HAND_LINES' points (seven.py's feet)
+    hb = np.zeros_like(fig)
+    hx0, hy0, hx1, hy1 = [round((v - o) * UP) for v, o in zip(HAND_BOX, BOX[:2] * 2)]
+    hb[hy0:hy1, hx0:hx1] = True
+    hand = lw.polygon_mask(fig.shape, (np.array(HAND_AREA, float) - BOX[:2]) * UP) & ~solid & ~outside
+    hand_lines = np.zeros_like(fig)
+    for pts in HAND_LINES:
+        hand_lines |= traced(g, pts, LINE_W)
+    hand_lines &= ndi.binary_dilation(hand, iterations=UP) & hb
+    on_white = np.where(hb, hand, on_white)
+    white = np.where(hb, hand, white)
+    fig |= hand
     dark_raw = ((closed - al) > DL_T) & (al < DL_ABS) & ~solid & fig & ~on_white
     # and on the white (eyes, mouths, fingers), anything darker than WHITE_LINE: the white with the small
     # parts it closes in (an eye, under WHITE_HOLE levelled px^2), less a px at its edge
@@ -740,7 +780,9 @@ def main(src, heid, qa=None, dump=None):
     # dark dots on the white (a pupil) as printed, darker than WHITE_DOT: the line redraw drops marks
     # this small
     dots = ndi.binary_opening((gs < WHITE_DOT) & ndi.binary_erosion(on_white, structure=disk(0.7)), structure=disk(0.5))
-    lines = ((black | darkl | strokes | dots) & fig) | wline
+    darkl &= ~hb
+    dots &= ~hb
+    lines = ((black | darkl | strokes | dots | hand_lines) & fig) | wline
     body = ndi.distance_transform_edt(~fig) <= RIM * UP
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), hatch=hatch, on_white=on_white, hatched=hatched, darkl=darkl, fig=fig, ground=ground, white=white, lines=lines,
