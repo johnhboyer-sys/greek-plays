@@ -1,15 +1,17 @@
 """Acharnians: a seated warrior in a crested helmet, his round shield at his side and his right hand
-raised, and an old man with white hair stepping out of a door and holding out a spear to him: a comic
-"departure of the warrior" played on a stage, on the Apulian red-figure bell-krater Würzburg, Martin von
-Wagner Museum H 4689, side A (Beazley Archive 1006966: Apulian, red-figure, bell-krater, HA4689; CVA Würzburg
-4, pp. 12-13, Beilage 1.3, pl. 3.1-4). Attributed to the McDaniel Painter, c. 380-370 BC (RVAp 4/245), as the
-photographer's file description gives it; the museum has no public object record, and the CVA text was not
-read. The warrior is the type of Lamachus, the crested general of Acharnians, whose slave brings out his spear
-as he arms (1118-1120). The link is the type, not an identification of this vase with the play. Photos:
-ArchaiOptix, CC BY-SA 4.0; _07 is the warrior's source and _03 the old man's (John, 2026-10-08: "add other
-figure"); _04, _05 and _06 serve the vase's shape (and _06 the shield's rim under the sheen), _02 the old
-man's back foot and his white hair. The drawing traces only the ancient painting, so it carries no licence
-(John, 2026-10-08); the photographer is credited.
+raised, and an old man with white hair stepping out of a door and holding out a spear to him: two phlyax
+actors on a stage, on the Apulian red-figure bell-krater Würzburg, Martin von Wagner Museum H 4689, side A,
+from Rome, acquired 1932: McDaniel Painter, 380-370 BC. CVA Würzburg 4 (Deutschland 71, ed. G. Güntner,
+1999), pp. 12-13, Tafel 3, 1-4, Beilage 1, 3 (the entry gives the old man mask type E, the warrior type B,
+a star on his shield and a sword belt; it notes the warrior's knee on A is overpainted); RVAp I 99 no. 245,
+pl. 34, 6; Trendall, Phlyax Vases² 47 no. 67, who reads the scene as mockery of a soldier who throws up his
+hand in fright at the sight of weapons; Beazley Archive 1006966. The warrior is the type of Lamachus, the
+crested general of Acharnians, whose slave brings out his spear as he arms (1118-1120). The link is the
+type, not an identification of this vase with the play. Photos: ArchaiOptix, CC BY-SA 4.0; _07 is the
+warrior's source and _03 the old man's (John, 2026-10-08: "add other figure"); _04, _05 and _06 serve the
+vase's shape (and _06 the shield's rim under the sheen), _02 the old man's back foot and his white hair.
+The drawing traces only the ancient painting, so it carries no licence (John, 2026-10-08); the
+photographer is credited.
 https://commons.wikimedia.org/wiki/File:McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_07.jpg
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the crop,

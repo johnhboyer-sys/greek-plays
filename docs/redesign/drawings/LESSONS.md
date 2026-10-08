@@ -212,6 +212,10 @@ rather than adding a second one that contradicts it.
 - Acharnians (Würzburg H 4689, the seated warrior; four ArchaiOptix photos), made with PhotoCraft:
   about an hour and a quarter; approved by John on the first pass, then one fault he circled
   (2026-10-08). `tools/acharnians.py`.
+- The CVA settles what a photographer's file page only reports: Würzburg 4's entry for H 4689 gave the
+  painter and date, the provenance, the mask types, and that the warrior's knee is overpainted. German CVA
+  volumes are open on publikationen.badw.de (PDF with a text layer: `pdftotext`, then search the
+  inventory number) (2026-10-08).
 - `vase_unroll.silhouette` wants a plain light background on both sides; in a museum case (a lekythos
   beside the vase, a chair behind it) it found nothing. Give rough guides to the outline and take the
   strongest light-to-dark step near them (`outline`); the band's edge likewise (`band_edge`) (2026-10-08).
