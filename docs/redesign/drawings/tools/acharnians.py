@@ -45,7 +45,6 @@ from PIL import Image
 from scipy import ndimage as ndi
 from scipy.interpolate import CubicSpline, LinearNDInterpolator, RegularGridInterpolator
 from skimage import morphology
-from skimage.filters import apply_hysteresis_threshold
 
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
@@ -244,6 +243,39 @@ FINE_OPEN = 3
 # drawn EDGE flat px wide: the house weight (0.22% of his height), as on Mika; the painted lines keep
 # their own width (median 15 px, 0.37%): this painter's relief lines are bold
 SMOOTH, FINE_SMOOTH, EDGE = 3.0, 1.5, 9
+# A black dot on the shield's rim touches the ground in 07, where the glaze's sheen greys the thin clay
+# strip of the rim outside it; photo 06, laid onto the same flat, shows the strip (and the rim there
+# agrees with 07's to a few px). WALLS (flat px) mark the strip as clay, WALL_W px wide, its outer side
+# on 06's rim, so the dot stays paint inside the shield.
+WALLS = [[(3543, 2468), (3553, 2484), (3562, 2501), (3570, 2516)]]
+WALL_W = 8
+# Lines are drawn at least LINE_MIN px wide.
+LINE_MIN = 6
+# Faint strokes of thinned glaze (crest feathers, a stroke on the shield, a few folds), too light for
+# LINE_DARK: the grey's local contrast at fine scale (PhotoCraft: the grey lightly blurred, clipped at
+# FAINT_CAP by Levels, so white scratches do not make the clay beside them look dark; its Maximum then
+# Minimum over FAINT_R px, less it), with hysteresis (FAINT, on the Levels scale), FAINT_EDGE px or more
+# inside his edge and off the mended break (MEND, flat y), kept where a piece is FAINT_LEN px long or
+# more and FAINT_RATIO times longer than wide; each drawn along a curve fitted to it, LINE_MIN wide
+FAINT_CAP, FAINT_R, FAINT, FAINT_EDGE, FAINT_LEN, FAINT_RATIO = 140, 6, (16, 34), 18, 30, 4
+MEND = (3465, 3575)
+# the line weight, pinned at the first full pass's own (0.213% of the longer side), so later changes to
+# a few lines do not re-weight them all (as libation_bearers.py)
+WEIGHT = 0.00213
+# Painted lines broken where the glaze has flaked off (the clay shows through): line ends whose last
+# JOIN_RUN px point at each other within JOIN_ANGLE degrees, across at most JOIN_MAX px, joined straight
+# at the lines' width, where the join crosses no other line and keeps EDGE px off his edge
+JOIN_RUN, JOIN_ANGLE, JOIN_MAX = 18, 20, 45
+# and breaks the rule above misses (longer, or the ends bent by the flaking), each checked over the photo:
+# line ends (flat px; a polyline where the line runs on through thin dashes), joined at the lines' width: the belt (across a short dash), a
+# fold across the mend, the lines across the white scratches on his chest and lap, a faint stroke on the
+# shield, a crest feather, a fine line at his shoulder
+JOINS = [((2470, 3193), (2554, 3199)), ((2471, 3514), (2469, 3529)), ((2601, 2322), (2600, 2366), (2593, 2395), (2591, 2412)),
+         ((3382, 3637), (3433, 3655)), ((2668, 2132), (2639, 2185)), ((2578, 3260), (2536, 3325)),
+         ((1692, 1620), (1686, 1624)), ((2784, 1021), (2792, 1026))]
+# specks of glaze on the clay (not lines): ink pieces under SPECK px^2 standing alone; the face (FACE,
+# flat px) keeps its small marks
+SPECK, FACE = 150, (2050, 1200, 2950, 2000)
 # The stage: its top edge is a painted line, which the back foot's sole runs along to its left tip and
 # the stool's right leg stands on. Below the line's lower edge is stage (cut away); the line stays,
 # as their sole. Its lower edge, measured every 25 flat px (the half-way crossing from the line to
@@ -265,6 +297,90 @@ def pc(src, out, *steps):
     subprocess.run(args, check=True, capture_output=True, text=True)
 
 
+def along(shape, pts, width):
+    """A line `width` px wide along hand-placed points (flat px), at the crop's px."""
+    P = np.array([(x - X0, y - Y0) for x, y in pts], float)
+    path = np.vstack([np.linspace(a, b, int(np.hypot(*(b - a))) + 2) for a, b in zip(P[:-1], P[1:])])
+    m = np.zeros(shape, bool)
+    m[path[:, 1].round().astype(int), path[:, 0].round().astype(int)] = True
+    return ndi.distance_transform_edt(~m) <= width / 2
+
+
+def join_breaks(lines, inner):
+    """The breaks in `lines` that JOIN_* describe, joined (a mask of the joins); `inner` is where
+    joins may run."""
+    from scipy.spatial import cKDTree
+    sk = morphology.skeletonize(lines)
+    nb = ndi.convolve(sk.astype(np.uint8), np.ones((3, 3), np.uint8), mode="constant") - 1
+    ends = np.argwhere(sk & (nb == 1))
+    dt = ndi.distance_transform_edt(lines)
+    H, W = sk.shape
+
+    def run_back(p):   # the end's last JOIN_RUN px of centre line, from the end inward
+        path, seen = [tuple(p)], {tuple(p)}
+        for _ in range(JOIN_RUN):
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if (dy or dx) and 0 <= y + dy < H and 0 <= x + dx < W and sk[y + dy, x + dx]
+                   and (y + dy, x + dx) not in seen]
+            if not nxt:
+                break
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        return np.array(path, float)
+
+    runs = [run_back(p) for p in ends]
+    lab = ndi.label(lines, structure=np.ones((3, 3)))[0]
+    out = np.zeros_like(lines)
+    used = set()
+    cos = np.cos(np.radians(JOIN_ANGLE))
+    pairs = sorted(cKDTree(ends).query_pairs(JOIN_MAX), key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]])))
+    for i, j in pairs:
+        if i in used or j in used or len(runs[i]) < JOIN_RUN // 2 or len(runs[j]) < JOIN_RUN // 2:
+            continue
+        a, b = ends[i].astype(float), ends[j].astype(float)
+        if lab[tuple(ends[i])] == lab[tuple(ends[j])]:
+            continue
+        u = (b - a) / np.hypot(*(b - a))
+        da, db = runs[i][0] - runs[i][-1], runs[j][0] - runs[j][-1]
+        if da @ u < cos * np.hypot(*da) or db @ -u < cos * np.hypot(*db):
+            continue
+        q = a[None] + np.linspace(0, 1, int(np.hypot(*(b - a))) + 2)[:, None] * (b - a)[None]
+        qi = tuple(q.round().astype(int).T)
+        if not inner[qi].all():
+            continue
+        if set(lab[qi]) - {0, lab[tuple(ends[i])], lab[tuple(ends[j])]}:   # it would cross another line
+            continue
+        w = np.median([dt[tuple(r.astype(int))] for r in np.vstack([runs[i], runs[j]])]) * 2
+        m = np.zeros_like(lines)
+        m[qi] = True
+        out |= ndi.distance_transform_edt(~m) <= max(w, LINE_MIN) / 2
+        used |= {i, j}
+    return out
+
+
+def faint_lines(contrast, inside, lines):
+    """The faint strokes FAINT_* describe, each drawn along a quadratic fitted to it, LINE_MIN wide."""
+    from skimage.filters import apply_hysteresis_threshold
+    m = apply_hysteresis_threshold(contrast, *FAINT) & inside & ~ndi.binary_dilation(lines, iterations=4)
+    lab, _ = ndi.label(m, structure=np.ones((3, 3)))
+    out = np.zeros_like(m)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        p = np.argwhere(lab[sl] == k).astype(float) + (sl[0].start, sl[1].start)
+        if len(p) < 20:
+            continue
+        c = p.mean(0)
+        w, v = np.linalg.eigh(np.cov((p - c).T))
+        if 4 * np.sqrt(max(w[1], 0)) < FAINT_LEN or np.sqrt(max(w[1], 1e-9) / max(w[0], 0.25)) < FAINT_RATIO:
+            continue
+        t, u = (p - c) @ v[:, 1], (p - c) @ v[:, 0]
+        f = np.polyfit(t, u, 2)
+        tt = np.linspace(t.min(), t.max(), int(t.max() - t.min()) + 2)
+        q = (c + tt[:, None] * v[:, 1] + np.polyval(f, tt)[:, None] * v[:, 0]).round().astype(int)
+        out[q[:, 0], q[:, 1]] = True
+    return ndi.distance_transform_edt(~out) <= LINE_MIN / 2
+
+
 def grey(p):
     return np.asarray(Image.open(p).convert("L")).astype(np.float32)
 
@@ -280,7 +396,12 @@ def main(src, qa=None, dump=None):
         pc(t / "c.png", t / "g.png", ("image.mode.grayscale", None))
         pc(t / "g.png", t / "core.png", ("filter.blur.gaussianBlur", {"radius": 1.5}),
            ("image.adjustments.threshold", {"level": LINE_DARK}))
+        pc(t / "g.png", t / "gf.png", ("filter.blur.gaussianBlur", {"radius": 1.0}),
+           ("image.adjustments.levels", {"inWhite": FAINT_CAP}))
+        pc(t / "gf.png", t / "cf.png", ("filter.other.maximum", {"radius": FAINT_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": FAINT_R, "preserve": "squareness"}))
         g = grey(t / "g.png")
+        faint_c = grey(t / "cf.png") - grey(t / "gf.png")
         clay = grey(t / "rb.png") >= 128
         core = grey(t / "core.png") < 128
     H, W = g.shape
@@ -288,6 +409,8 @@ def main(src, qa=None, dump=None):
     sy = np.convolve(np.pad(STAGE, 2, mode="edge"), np.ones(5) / 5, mode="valid")
     outside = yy + Y0 > np.interp(xx + X0, STAGE_X0 + 25 * np.arange(len(sy)), sy)
     dark = ~clay & ~outside
+    for pts in WALLS:
+        dark &= ~along(g.shape, pts, WALL_W)
     ground0 = ndi.binary_opening(dark, structure=morphology.disk(OPEN))
     fine = np.zeros(g.shape, bool)
     for bx0, by0, bx1, by1 in FINE:
@@ -305,11 +428,29 @@ def main(src, qa=None, dump=None):
     f = fig.astype(np.float32)
     fig = np.where(fine, ndi.gaussian_filter(f, FINE_SMOOTH), ndi.gaussian_filter(f, SMOOTH)) > 0.5
     paint = dark & fig
-    edge = fig & (ndi.distance_transform_edt(fig) <= EDGE)
-    ink = ((core | paint) & fig) | edge
+    to_edge = ndi.distance_transform_edt(fig)
+    edge = fig & (to_edge <= EDGE)
+    lines = (core | paint) & fig & ~edge
+    face = np.zeros(g.shape, bool)
+    face[FACE[1] - Y0:FACE[3] - Y0, FACE[0] - X0:FACE[2] - X0] = True
+    lab, _ = ndi.label(lines, structure=np.ones((3, 3)))
+    sz = np.bincount(lab.ravel())
+    touch = np.unique(lab[ndi.binary_dilation(edge, iterations=2)])
+    small = (sz < SPECK) & ~np.isin(np.arange(len(sz)), touch)
+    lines &= ~(small[lab] & ~face)   # (before the joins: a speck in a gap would block its join)
+    mend = (yy + Y0 > MEND[0]) & (yy + Y0 < MEND[1])
+    lines |= faint_lines(faint_c, (to_edge > FAINT_EDGE) & ~mend, lines) & fig
+    lines |= join_breaks(lines & (to_edge > EDGE + 2), to_edge > EDGE + 2)
+    dt = ndi.distance_transform_edt(lines)
+    for pts in JOINS:
+        P = np.array(pts, float)
+        ua, ub = (P[0] - P[1]) / np.hypot(*(P[0] - P[1])), (P[-1] - P[-2]) / np.hypot(*(P[-1] - P[-2]))
+        near = [dt[int(p[1]) - Y0 - 6:int(p[1]) - Y0 + 7, int(p[0]) - X0 - 6:int(p[0]) - X0 + 7].max() for p in (P[0], P[-1])]
+        lines |= along(g.shape, [P[0] + 3 * ua, *P[1:-1], P[-1] + 3 * ub], max(2 * np.median(near), LINE_MIN)) & fig
+    ink = lines | edge
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, clay=clay)
-    info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight="own",
+    info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT,
                         title='A seated warrior raising his hand, a comic "departure of the warrior"',
                         desc="Line drawing after the Apulian red-figure bell-krater Würzburg H 4689; traced from a "
                              "photograph by ArchaiOptix (CC BY-SA 4.0), taken off the vase's curve.")
