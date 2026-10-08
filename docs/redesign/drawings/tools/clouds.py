@@ -357,33 +357,35 @@ TONE_A = (0.12, 0.24)
 # each a least-cost path along the drawing's lines through hand-placed points (flat px; lw.STRAIGHT: a
 # straight edge to the next point, across clay with no painted line or off the figure): the slave's face
 # (SKIN_S_FACE: the bald crown and face, the ear; behind it his hair), his arm on his hip from the
-# sleeve's hem (SKIN_S_ARM), his fist (TONE_FIST) and legs (TONE_LEGS); the master's face (SKIN_M_FACE,
-# under his hair) and his outstretched arm and hand (SKIN_M_ARM). The slave's hair (HAIR_S: behind his
+# sleeve's hem, the elbow and the forearm down to the skirt (SKIN_S_ARM), his fist (TONE_FIST) and legs (TONE_LEGS); the master's face (SKIN_M_FACE,
+# under his hair, down to his beard) and his outstretched arm and hand, from the sleeve's hem at his
+# shoulder (SKIN_M_ARM). The slave's hair (HAIR_S: behind his
 # face, down to the curve from the notch in his outline to his jaw) and beard (BEARD_S: under his chin) are
 # where his white goes; no painted line bounds them, so their lower edges are placed by eye on the photo.
 SKIN_S_FACE = [(-300, 430), lw.STRAIGHT, (-275, 480), (-265, 530), (-252, 585), (-238, 632), (-222, 668),
                (-195, 700), (-195, 760), (-150, 795), (-100, 802), (-50, 790), (0, 795), (50, 780), (90, 760),
                lw.STRAIGHT, (200, 700), lw.STRAIGHT, (200, 400), lw.STRAIGHT]
 SKIN_S_ARM = [(-560, 880), lw.STRAIGHT, (-500, 905), (-450, 900), (-400, 893), (-388, 940), (-388, 1000),
-              (-395, 1040), (-370, 1080), (-340, 1130), (-360, 1160), (-400, 1180), (-440, 1190), (-500, 1135),
-              (-550, 1085), lw.STRAIGHT, (-645, 1068), lw.STRAIGHT, (-680, 1000), lw.STRAIGHT]
+              (-395, 1040), (-370, 1080), (-340, 1130), (-360, 1160), (-400, 1180), (-440, 1190), (-480, 1215),
+              (-520, 1245), (-555, 1270), lw.STRAIGHT, (-680, 1270), lw.STRAIGHT, (-680, 1000), lw.STRAIGHT]
 HAIR_S = [(-460, 400), lw.STRAIGHT, (-300, 430), (-275, 480), (-265, 530), (-252, 585), (-238, 632),
           (-222, 668), (-195, 700), (-195, 760), lw.STRAIGHT, (-230, 765), lw.STRAIGHT, (-280, 768),
           lw.STRAIGHT, (-340, 762), lw.STRAIGHT, (-400, 752), lw.STRAIGHT, (-500, 752), lw.STRAIGHT]
 BEARD_S = [(-195, 760), (-150, 795), (-100, 802), (-50, 790), (0, 795), (50, 780), (90, 760), lw.STRAIGHT,
            (92, 800), lw.STRAIGHT, (50, 830), lw.STRAIGHT, (-50, 850), lw.STRAIGHT, (-150, 835), lw.STRAIGHT]
-SKIN_M_FACE = [(900, 250), lw.STRAIGHT, (900, 700), lw.STRAIGHT, (1040, 760), lw.STRAIGHT, (1160, 760),
-               (1200, 700), (1230, 640), (1240, 600), (1280, 560), (1320, 540), lw.STRAIGHT, (1320, 250),
-               lw.STRAIGHT]
-SKIN_M_ARM = [(845, 955), (875, 1010), (910, 1070), (940, 1120), (960, 1180), lw.STRAIGHT, (1000, 1450),
-              lw.STRAIGHT, (350, 1480), lw.STRAIGHT, (350, 1250), lw.STRAIGHT, (800, 880), lw.STRAIGHT]
+SKIN_M_FACE = [(900, 250), lw.STRAIGHT, (890, 640), lw.STRAIGHT, (940, 700), (1000, 760), (1060, 790),
+               (1160, 760), (1200, 700), (1230, 640), (1240, 600), (1280, 560), (1320, 540), lw.STRAIGHT,
+               (1320, 250), lw.STRAIGHT]
+SKIN_M_ARM = [(835, 845), (890, 850), (940, 858), (980, 870), (985, 905), (975, 950), (965, 1000), (940, 1080),
+              lw.STRAIGHT, (1000, 1450), lw.STRAIGHT, (350, 1480), lw.STRAIGHT, (350, 1250), lw.STRAIGHT,
+              (780, 830), lw.STRAIGHT]
 CLAY_FILL = "#c4b294"
 WHITE = "#f7f3ea"
 TONE_M = 0.18                  # the master's clothes
-# the white: opacity from WHITE_A[0] where the photo's red less blue (smoothed over WHITE_SIGMA flat px) is
-# WHITE_RB[0] (his face's orange) to WHITE_A[1] at WHITE_RB[1] (the palest), in steps; the zone's edge
-# feathered over WHITE_FEATHER flat px, so the strokes fade out
-WHITE_RB, WHITE_A, WHITE_STEP, WHITE_SIGMA, WHITE_FEATHER = (82, 62), (0.0, 0.9), 0.1, 1.5, 8
+# the white: opacity from WHITE_A[0] where the photo's red less blue (smoothed over WHITE_SIGMA flat px: at
+# 1.5 the white came out as the photo's grain) is WHITE_RB[0] (his face's orange) to WHITE_A[1] at
+# WHITE_RB[1] (the palest), in steps, fading out over WHITE_FEATHER flat px toward his skin
+WHITE_RB, WHITE_A, WHITE_STEP, WHITE_SIGMA, WHITE_FEATHER = (82, 62), (0.0, 0.9), 0.1, 4, 12
 # Under the slave the stage's edge lies lower in the flat than the master's line runs (his part is a flat of
 # its own): STAGE_B (flat px, measured on the flat) runs along it from the column's foot, round the outer
 # edge of his back sandal (heel, sole), up its toe to the black ground between his feet, across, and round
@@ -726,8 +728,9 @@ def add_tones(svg, tones, box):
     svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
 
 
-def add_white(svg, zone, rb, box):
-    """The slave's white hair and beard (WHITE_*), in stepped layers under the lines."""
+def add_white(svg, zone, skin, rb, box):
+    """The slave's white hair and beard (WHITE_*), in stepped layers under the lines, fading out over
+    WHITE_FEATHER flat px toward his skin (no painted line parts them: John, "not hard edges")."""
     x0, y0, x1, y1 = box
     with tempfile.TemporaryDirectory() as td:
         t = Path(td)
@@ -737,11 +740,11 @@ def add_white(svg, zone, rb, box):
             pc(t / f"{n}.png", t / f"{n}s.png", ("filter.blur.gaussianBlur", {"radius": WHITE_SIGMA * UP}))
         zs = grey(t / "zs.png")
         pale = grey(t / "ws.png") / np.maximum(zs, 1.0) * 255.0
-        Image.fromarray((zone * 255).astype(np.uint8)).save(t / "z.png")
-        pc(t / "z.png", t / "zf.png", ("filter.blur.gaussianBlur", {"radius": WHITE_FEATHER * UP}))
-        feather = grey(t / "zf.png") / 255.0
+        Image.fromarray((skin * 255).astype(np.uint8)).save(t / "k.png")
+        pc(t / "k.png", t / "kf.png", ("filter.blur.gaussianBlur", {"radius": WHITE_FEATHER * UP}))
+        fade = np.clip(1 - 2 * grey(t / "kf.png") / 255.0, 0, 1)
     (r0, r1), (a0, a1) = WHITE_RB, WHITE_A
-    alpha = (a0 + (a1 - a0) * np.clip((r0 - pale) / (r0 - r1), 0, 1)) * np.clip(2 * feather - 0.0, 0, 1) * zone
+    alpha = (a0 + (a1 - a0) * np.clip((r0 - pale) / (r0 - r1), 0, 1)) * fade * zone
     paths, below = "", 0.0
     for a in np.arange(a0 + WHITE_STEP, a1 + 1e-9, WHITE_STEP):
         m = alpha >= a - WHITE_STEP / 2
@@ -867,7 +870,7 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     add_hair(OUT, hair, g, info["box"])
     r = regions(fig, ink, (x0, y0))
     add_tones(OUT, [(r["chiton"], TONE_A[0]), (r["himation"], TONE_A[1]), (r["clothes_m"] & ~hair, TONE_M)], info["box"])
-    add_white(OUT, r["white"], rb, info["box"])
+    add_white(OUT, r["white"], r["skin"], rb, info["box"])
     OUT.write_text(OUT.read_text().replace('class="body" fill="none"', f'class="body" fill="{CLAY_FILL}"', 1))
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
