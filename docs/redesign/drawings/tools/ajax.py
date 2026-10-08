@@ -36,42 +36,78 @@ import linework as lw  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "ajax.svg"
 PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli"))
-UP = 3                          # work at 3x the levelled frame's px
+UP = 2                          # work at 2x the levelled frame's px
 
-FOLD = 2040                     # the fold in the scan (x), where both edges kink
-SX0, SX1, SY0 = 1040, 3140, 1000   # the levelled frame: scan columns SX0-SX1, row 0 at scan row SY0 (before levelling)
+# The NYPL scan (the source): the frame's edges, measured: the band's upper edge (grey below N_EDGE_T,
+# scanning down rows N_TOP_ROWS) and the panel's lower edge (scanning up rows N_BOTTOM_ROWS), on columns
+# N_EDGE_X (nypl_edges). Levelled column by column, the band's upper edge to row N_T0 and the lower edge to N_T0 + N_HP,
+# each column leaning by the mean slope of the two edges there (the sheet is turned about 0.4 degrees),
+# as alcestis.py does. The levelled frame: scan columns N_X0-N_X1.
+N_EDGE_X, N_EDGE_T = (1600, 4420), 120
+N_TOP_ROWS, N_BOTTOM_ROWS = (1540, 1600), (3180, 3320)
+N_X0, N_X1, N_T0, N_HP, N_H = 1500, 4500, 60.0, 1667.0, 1800
+# Heidelberg's scan (patches the tear): the plate across two pages, folded at H_FOLD; levelled column by
+# column (vertical only: the two pages have the same horizontal scale, palmette period 78.3 and 78.0 px)
+H_FOLD = 2040                   # the fold in the scan (x), where both edges kink
+SX0, SX1, SY0 = 1040, 3140, 1000   # Heidelberg's levelled frame: scan columns SX0-SX1
 EDGE_X = (1080, 3120)           # columns the edges are measured on
 EDGE_T = 70                     # grey: an edge is where the plate falls below this
 TOP_ROWS = (1020, 1090)         # the band's upper border line lies in these rows (scanned downward)
 BOTTOM_ROWS = (2250, 2400)      # the panel's lower edge (the ground stripe's foot) in these (scanned upward)
 T0, HP = 70.0, 1268.0           # the levelled band edge (row) and the frame's height (the left page's, far from the fold)
-H_OUT = 1420                    # rows in the levelled frame
-# the panel, as drawn (levelled px): just below the band's lower line (its foot wavers 223-229), the ground stripe's top edge, the side
-# lines' inner edges (x a quartic in y, fitted within 1.8 px)
-BAND_Y, STRIPE_Y = 230.0, 1325.0
-LEFT = (-1.3019857e-10, 3.7734458e-07, -1.8266381e-04, -0.26672890, 237.789312)
-RIGHT = (-1.2294879e-10, 4.5273646e-07, -7.5782171e-04, 0.69513261, 1786.830150)
-BOX = (0, 180, 2100, 1330)      # the work box in the levelled frame (x0, y0, x1, y1)
-# the dark mass over Ajax's shoulders rises into the band, right of the fold, up to MASS_TOP and no
-# further right than MASS_X1 (levelled px); MASS_OPEN, the opening that parts it from the band's line
-MASS_TOP, MASS_X1, MASS_OPEN = 180, 1300, 5
-DARK, WHITE = 85, 172           # grey (lightly blurred): black below DARK, the added white above WHITE
-WHITE_MIN = 20                  # levelled px^2: smaller white is a speck
-AUTO_GROUND = 3000              # levelled px^2: clay areas this large are ground
+H_OUT = 1420                    # rows in Heidelberg's levelled frame
+# The NYPL sheet tore along its left-hand fold, from the top of the band through Briseis' fillet, ear and
+# braid to her neck, and below that the fold leaves a faint grey hairline (it would read as an incision
+# in her robe). The strip (levelled NYPL px: row, centre x, half width, joined straight) is filled from
+# Heidelberg's scan, whose fold lies elsewhere: Heidelberg's levelled frame mapped onto NYPL's by
+# HEID_TO_NYPL (a homography from SIFT matches round the strip, median error 0.9 px), its tones
+# matched to NYPL's channel by channel (a table from the pixels of a ring TEAR_RING px round the strip).
+TEAR = [(0, 803, 11), (165, 803, 11), (175, 801, 19), (345, 801, 19), (355, 802, 10), (600, 801, 10),
+        (620, 799, 4), (1000, 797, 4), (1380, 795, 4), (1800, 792, 4)]
+TEAR_RING = 40
+TEAR_WIN = 160
+HEID_TO_NYPL = ((1.27426448, 6.54126212e-04, 44.2696083), (-2.73266661e-03, 1.29116360, -23.1440338),
+                (-1.63900371e-05, -3.58221171e-06, 1.0))
+# the panel, as drawn (levelled px): just below the band's lower line (its foot wavers 264-271), the
+# ground stripe's top edge, the side lines' inner edges (x a quartic in y, fitted within 2.4 px)
+BAND_Y, STRIPE_Y = 273.0, 1710.0
+LEFT = (6.299651e-12, -4.3421863e-08, 0.00023169255, -0.46540408, 362.69867)
+RIGHT = (-9.344963e-11, 4.6584007e-07, -0.00098566804, 0.96516175, 2463.7811)
+BOX = (40, 180, 2940, 1715)     # the work box in the levelled frame (x0, y0, x1, y1)
+# the dark mass over Ajax's shoulders (Achilles' shield on his back, and a bar rising past it) rises into
+# the band; there it is the black inside the shield's printed top edge (MASS_CIRCLE: centre x, y and
+# radius, fitted to it within 1.4 px, dropping the columns where palmette tips touch it) and inside the
+# bar's edges (MASS_BAR, placed on them at 4x), up to MASS_TOP
+MASS_CIRCLE = (1494.08, 462.59, 247.4)
+MASS_BAR = [(1379.5, 189.5), (1391.0, 189.5), (1426.0, 232.0), (1440.0, 290.0), (1403.0, 290.0)]
+MASS_TOP = 189.0
+DARK, WHITE = 122, 205          # grey (lightly blurred): black below DARK, the added white above WHITE
+WHITE_MIN = 35                  # levelled px^2: smaller white is a speck
+AUTO_GROUND = 5200              # levelled px^2: clay areas this large are ground
 POCKETS = []                    # pockets of ground the figures close in (a point in each, levelled px)
-FIG_MIN = 400                   # levelled px^2: smaller pieces on the ground are inscriptions and specks
-INC_T, INC_W = 28, 1.3          # incisions: lighter than the Minimum-then-Maximum by INC_T; drawn INC_W px wide
-DL_T, DL_ABS, LINE_W = 28, 118, 1.5   # thin dark lines: darker than the Maximum-then-Minimum by DL_T and than DL_ABS
-WHITE_LINE = 160                # grey: on the white, a line is darker than this
-THIN = 3.0                      # levelled px: black parts thinner than this are drawn as lines
+FIG_MIN = 700                   # levelled px^2: smaller pieces on the ground are inscriptions and specks
+INC_T, INC_W = 32, 1.4          # incisions: lighter than the Minimum-then-Maximum by INC_T; drawn INC_W px wide
+DL_T, DL_ABS, LINE_W = 22, 175, 1.5   # thin dark lines: darker than the Maximum-then-Minimum by DL_T and than DL_ABS
+WHITE_LINE = 185                # grey: on the white, a line is darker than this
+CLAY_W = 3.0                    # levelled px: reserved clay is at least this wide
+WHITE_DOT = 135                 # grey: a dot on the white darker than this is kept (pupil 108; specks 173 and up)
+WHITE_EDGE = 3.0                # levelled px: the plate's line beside the white within this gives way to the white's edge line
+WHITE_GROW, WHITE_REACH, WHITE_SMOOTH, WHITE_ALONG = 178, 6.0, 1.0, 9.0   # white_outline (grey, levelled px)
+WHITE_R = 4                     # levelled px: on the white, lines are thinner than this (the grey iris is wider)
+WHITE_HOLE = 300                # levelled px^2: parts the white closes in smaller than this are on it (an eye)
+THIN = 4.0                      # levelled px: black parts thinner than this are drawn as lines
+HATCH_WIN, HATCH_SD, HATCH_MEAN, HATCH_MIN = 7, (12, 40), (120, 185), 150
+# hatch_strokes (see there)
+HATCH_DIP, HATCH_RIDGE, HATCH_ALONG, HATCH_ANGLE, HATCH_W, HATCH_SAME, HATCH_EDGE = 2.5, 1.0, 15, 12, 1.6, 2.2, 1.5
+HATCH_N, HATCH_COH = 8, 0.8
 # joining broken lines: ends pointing at each other within JOIN_ANGLE degrees (over their last JOIN_RUN
 # levelled px), at most JOIN_MAX apart, where the plate's contrast along the gap holds at JOIN_C; a free
 # end runs on to the black when it points at it within REACH levelled px
-JOIN_RUN, JOIN_ANGLE, JOIN_MAX, JOIN_C, REACH = 3, 15, 8, 12, 2
-RIM = 1.5                       # levelled px: the clay round the figures on the dark theme
+JOIN_RUN, JOIN_ANGLE, JOIN_MAX, JOIN_C, REACH = 4, 15, 10, 14, 3
+RIM = 2.0                       # levelled px: the clay round the figures on the dark theme
 ANGLES = tuple(range(0, 180, 15))   # Motion Blur directions (degrees)
-ALONG = 3                       # levelled px: the Motion Blur's length
-LINE_R = 5                      # levelled px: the Minimum/Maximum radius that finds the thin lines
+ALONG = 4                       # levelled px: the Motion Blur's length
+LINE_R = 7                      # levelled px: the Minimum/Maximum radius that finds the thin lines
 
 
 def edges(g):
@@ -93,7 +129,7 @@ def edges(g):
     out = []
     for e in (top, bot):
         full = np.empty_like(cols)
-        for side in (xs <= FOLD, xs >= FOLD):
+        for side in (xs <= H_FOLD, xs >= H_FOLD):
             x, v = xs[side], e[side]
             ok = ~np.isnan(v)
             # a column where a figure or a speck crosses the line reads off it: drop readings more than
@@ -101,15 +137,15 @@ def edges(g):
             med = ndi.median_filter(np.interp(x, x[ok], v[ok]), 21)
             ok &= np.abs(v - med) <= 3
             sm = ndi.gaussian_filter1d(np.interp(x, x[ok], v[ok]), 4, mode='nearest')
-            sel = (cols <= FOLD) if side[0] else (cols >= FOLD)
+            sel = (cols <= H_FOLD) if side[0] else (cols >= H_FOLD)
             full[sel] = np.interp(cols[sel], x, sm)
         out.append(full)
     return out
 
 
-def level(img):
-    """The scan levelled (see the docstring): columns SX0-SX1, H_OUT rows; the band's upper edge at
-    row T0, the panel's lower edge at row T0 + HP."""
+def level_heid(img):
+    """Heidelberg's scan levelled: columns SX0-SX1, H_OUT rows; the band's upper edge at row T0, the
+    panel's lower edge at row T0 + HP."""
     g = np.asarray(Image.fromarray(img).convert('L'), np.float32)
     top, bot = edges(g)
     v = np.arange(H_OUT, dtype=float)
@@ -118,6 +154,106 @@ def level(img):
     out = np.stack([ndi.map_coordinates(img[..., c].astype(np.float32), [Y, X], order=3, mode='nearest')
                     for c in range(3)], -1)
     return np.clip(out, 0, 255).astype(np.uint8)
+
+
+def nypl_edges(g):
+    """The NYPL frame's two edges (see N_*) at every scan column N_X0-N_X1: the readings, those more
+    than 3 px off their running median dropped (figures, specks), smoothed over 40 px (the paper bends
+    a little at its old folds, so no one curve fits), and run on straight past the readings' ends
+    (a line fitted to their last 200 px)."""
+    gs = ndi.gaussian_filter(g, 0.8)
+
+    def cross(p, start, step):
+        i = np.where(p < N_EDGE_T)[0]
+        if not len(i) or i[0] == 0:
+            return np.nan
+        i = i[0]
+        return start + step * ((i - 1) + (p[i - 1] - N_EDGE_T) / (p[i - 1] - p[i]))
+
+    xs = np.arange(*N_EDGE_X, 5)
+    top = np.array([cross(gs[N_TOP_ROWS[0]:N_TOP_ROWS[1], x], N_TOP_ROWS[0], 1) for x in xs])
+    bot = np.array([cross(gs[N_BOTTOM_ROWS[1]:N_BOTTOM_ROWS[0]:-1, x], N_BOTTOM_ROWS[1], -1) for x in xs])
+    cols = np.arange(N_X0, N_X1, dtype=float)
+    out = []
+    for e in (top, bot):
+        ok = ~np.isnan(e)
+        med = ndi.median_filter(np.interp(xs, xs[ok], e[ok]), 21)
+        ok &= np.abs(e - med) <= 3
+        x, v = xs[ok], e[ok]
+        sm = ndi.gaussian_filter1d(np.interp(np.arange(x[0], x[-1] + 1, 5), x, v), 8, mode='nearest')
+        xg = np.arange(x[0], x[-1] + 1, 5)
+        lo, hi = np.polyfit(xg[:40], sm[:40], 1), np.polyfit(xg[-40:], sm[-40:], 1)
+        out.append(np.where(cols < xg[0], np.polyval(lo, cols),
+                            np.where(cols > xg[-1], np.polyval(hi, cols), np.interp(cols, xg, sm))))
+    return out
+
+
+def level(img):
+    """The NYPL scan levelled (see N_*): columns N_X0-N_X1, N_H rows."""
+    g = np.asarray(Image.fromarray(img).convert('L'), np.float32)
+    top, bot = nypl_edges(g)
+    cols = np.arange(N_X0, N_X1, dtype=float)
+    # the columns' lean: the edges' mean slope, smoothed over 400 px (a vertical leans with the sheet,
+    # not with each little bend of its edge)
+    lean_c = ndi.gaussian_filter1d((np.gradient(top) + np.gradient(bot)) / 2, 80, mode='nearest')
+    U, V = np.meshgrid(cols, np.arange(N_H, dtype=float))
+    X = U.copy()
+    for _ in range(4):   # the edges are read at the source column, which the lean moves
+        t, b = np.interp(X, cols, top), np.interp(X, cols, bot)
+        Y = t + (V - N_T0) * (b - t) / N_HP
+        X = U - np.interp(X, cols, lean_c) * (Y - (t + b) / 2)
+    out = np.stack([ndi.map_coordinates(img[..., c].astype(np.float32), [Y, X], order=3, mode='nearest')
+                    for c in range(3)], -1)
+    return np.clip(out, 0, 255).astype(np.uint8)
+
+
+def mend_tear(nyp, heid):
+    """The NYPL levelled frame with the TEAR strip filled from Heidelberg's levelled frame (see TEAR)."""
+    H, W = nyp.shape[:2]
+    ys = np.arange(H, dtype=float)
+    ty, tx, th = (np.array(v, float) for v in zip(*TEAR))
+    # the homography, then the leftover offset along the strip: measured by phase correlation in windows
+    # TEAR_WIN px square every 50 px down it (the plates differ a little from place to place), smoothed
+    hw = cv2.warpPerspective(heid, np.array(HEID_TO_NYPL), (W, H), flags=cv2.INTER_CUBIC,
+                             borderMode=cv2.BORDER_REPLICATE)
+    gn = ndi.gaussian_filter(np.asarray(Image.fromarray(nyp).convert('L'), np.float32), 1.0)
+    gh = ndi.gaussian_filter(np.asarray(Image.fromarray(hw).convert('L'), np.float32), 1.0)
+    cy = np.arange(TEAR_WIN // 2, H - TEAR_WIN // 2, 50)
+    sh = []
+    for y in cy:
+        x = int(np.interp(y, ty, tx))
+        sl = (slice(y - TEAR_WIN // 2, y + TEAR_WIN // 2), slice(x - TEAR_WIN // 2, x + TEAR_WIN // 2))
+        a, b = gn[sl].copy(), gh[sl].copy()
+        # (the strip itself left out of the measure: the tear and the crease are not in Heidelberg)
+        cols = np.abs(np.arange(TEAR_WIN) - TEAR_WIN // 2) <= np.interp(y, ty, th) + 2
+        a[:, cols], b[:, cols] = a[:, ~cols].mean(), b[:, ~cols].mean()
+        win = cv2.createHanningWindow((TEAR_WIN, TEAR_WIN), cv2.CV_32F)
+        (sx, sy), _ = cv2.phaseCorrelate(b, a, win)
+        sh.append((sx, sy))
+    sh = ndi.median_filter(np.array(sh), size=(5, 1), mode='nearest')
+    sh = ndi.gaussian_filter1d(sh, 1.5, axis=0, mode='nearest')
+    dxs, dys = np.interp(ys, cy, sh[:, 0]), np.interp(ys, cy, sh[:, 1])
+    Y, X = np.mgrid[0:H, 0:W].astype(np.float32)
+    hw = cv2.remap(hw, X - dxs[:, None].astype(np.float32), Y - dys[:, None].astype(np.float32),
+                   cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE).astype(np.float32)
+    dx = np.abs(np.arange(W)[None, :] - np.interp(ys, ty, tx)[:, None])
+    half = np.interp(ys, ty, th)[:, None]
+    strip, ring = dx <= half, (dx > half + 2) & (dx <= half + TEAR_RING)
+    out = nyp.astype(np.float32)
+    # the tones: for each of Heidelberg's levels, the median NYPL level at the same place in the ring
+    # (both lightly blurred, so a px of misregistration counts less), made non-decreasing
+    for c in range(3):
+        hb = np.round(ndi.gaussian_filter(hw[..., c], 1.5)[ring]).astype(int)
+        nb = ndi.gaussian_filter(out[..., c], 1.5)[ring]
+        lv = np.unique(hb)
+        med = np.array([np.median(nb[hb == v]) for v in lv])
+        cnt = np.array([(hb == v).sum() for v in lv])
+        lv, med = lv[cnt >= 20], med[cnt >= 20]
+        lut = np.maximum.accumulate(np.interp(np.arange(256), lv, med))
+        hw[..., c] = np.interp(hw[..., c], np.arange(256), lut)
+    wgt = np.clip((half + 2 - dx) / 2, 0, 1)[..., None]   # 1 in the strip, falling to 0 over 2 px
+    out = out * (1 - wgt) + hw * wgt
+    return np.clip(np.round(out), 0, 255).astype(np.uint8)
 
 
 def pc(src, out, *steps):
@@ -162,11 +298,16 @@ def plates(lev, box):
             far = np.abs(m - mean) > best
             along[far], best[far] = m[far], np.abs(m - mean)[far]
         Image.fromarray(np.clip(np.round(along), 0, 255).astype(np.uint8)).save(t / "along.png")
+        rs = WHITE_R * UP // 2
+        pc(t / "gs.png", t / "closed_s.png", ("filter.other.maximum", {"radius": rs, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": rs, "preserve": "squareness"}))
+        pc(t / "gs.png", t / "opened_gs.png", ("filter.other.minimum", {"radius": r, "preserve": "squareness"}),
+           ("filter.other.maximum", {"radius": r, "preserve": "squareness"}))
         pc(t / "along.png", t / "opened.png", ("filter.other.minimum", {"radius": r, "preserve": "squareness"}),
            ("filter.other.maximum", {"radius": r, "preserve": "squareness"}))
         pc(t / "along.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
            ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
-        return {k: grey(t / f"{k}.png") for k in ("up", "gs", "along", "opened", "closed")}
+        return {k: grey(t / f"{k}.png") for k in ("up", "gs", "along", "opened", "opened_gs", "closed", "closed_s")}
 
 
 def skeleton_paths(mask):
@@ -343,6 +484,145 @@ def even_lines(mask, width, sigma=1.5, min_len=0, max_width=None, contrast=None,
     return draw_paths(mask.shape, paths, widths)
 
 
+def hatch_strokes(al, gs, hatch, fig):
+    """The strokes of the hatched bands (shields' rims, fillets), each drawn straight across its band.
+    The plate rules a band's hatching parallel all round it, 4-5 levelled px apart, but not as one exact
+    ruling (fitted as one, the lines drifted off the strokes), so each band is read on its own:
+      - its angle: the axial mean of its pieces of stroke (darker than their surroundings by HATCH_DIP);
+      - the plate blurred along that angle over HATCH_ALONG levelled px (PhotoCraft Motion Blur), which
+        joins each stroke's dots into a ridge and blurs the rest; the ridges are what lies HATCH_RIDGE
+        under their surroundings (HATCH_WIN levelled px), inside the band;
+      - each ridge's centre line, if it runs within HATCH_ANGLE degrees of the angle, fitted straight and
+        run out both ways to the band's edge or the first black, as the plate's strokes run edge to edge;
+      - strokes found twice (within HATCH_SAME levelled px side to side, overlapping) count once.
+    Drawn HATCH_W levelled px wide. Returns the strokes and the bands drawn this way. (UP px; the blur in
+    PhotoCraft, the rest numpy.)"""
+    H, W = al.shape
+    m = ndi.uniform_filter(al, HATCH_WIN * UP)
+    st = ndi.binary_opening((al < m - HATCH_DIP) & hatch, structure=np.ones((2, 2)))
+    # the bands: the hatched clay (closed over its gaps in main), inside the figure, less the black
+    bands = hatch & fig & ~(gs < DARK - 20)
+    zl, nz = ndi.label(bands)
+    lab, _ = ndi.label(st, structure=np.ones((3, 3)))
+    pieces = {}
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        p = np.argwhere(lab[sl] == k).astype(float) + (sl[0].start, sl[1].start)
+        if len(p) < 4 * UP:
+            continue
+        c = p.mean(0)
+        w, v = np.linalg.eigh(np.cov((p - c).T))
+        if np.sqrt(w[1] / max(w[0], 1e-3)) < 2.5:
+            continue
+        b = zl[tuple(np.round(c).astype(int))]
+        if b:
+            pieces.setdefault(b, []).append(np.arctan2(v[1, 1], v[0, 1]))
+    black = gs < DARK - 20
+    segs = []
+    used = np.zeros_like(hatch)
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.fromarray(np.clip(np.round(gs), 0, 255).astype(np.uint8)).save(t / "gs.png")
+        for b, angs in sorted(pieces.items()):
+            # a band is hatching only if its pieces agree on one angle (HATCH_COH, the length of their mean
+            # axial direction) and are many (HATCH_N): hair, a white part's soft edge and folds do not
+            z = np.mean(np.exp(2j * np.array(angs)))
+            if len(angs) < HATCH_N or abs(z) < HATCH_COH:
+                continue
+            used |= zl == b
+            a = np.angle(z) / 2      # stroke direction: (y, x) = (cos a, sin a)
+            u = np.array([np.cos(a), np.sin(a)])
+            ps_angle = float(np.degrees(np.arctan2(-u[0], u[1])))         # PhotoCraft: counterclockwise from +x
+            pc(t / "gs.png", t / "mb.png", ("filter.blur.motionBlur", {"angle": round(ps_angle, 2),
+                                                                         "distance": HATCH_ALONG * UP}))
+            mb = grey(t / "mb.png")
+            zone = zl == b
+            to_edge = ndi.distance_transform_edt(zone)
+            ridge = (mb < ndi.uniform_filter(mb, HATCH_WIN * UP) - HATCH_RIDGE) & zone
+            for path in skeleton_paths(ridge):
+                if len(path) < 3 * UP:
+                    continue
+                q = path.astype(float)
+                c = q.mean(0)
+                # (a ridge along the band's edge is its outline, drawn as such: not a stroke)
+                if np.median(to_edge[tuple(path.T)]) < HATCH_EDGE * UP:
+                    continue
+                w, v = np.linalg.eigh(np.cov((q - c).T))
+                d = v[:, 1]
+                if abs(d @ u) < np.cos(np.radians(HATCH_ANGLE)):
+                    continue
+                ends = []
+                for sgn in (-1, 1):
+                    e = c.copy()
+                    for _ in range(int(60 * UP / 0.5)):
+                        ne = e + sgn * d * 0.5
+                        yi, xi = np.round(ne).astype(int)
+                        if not (0 <= yi < H and 0 <= xi < W) or not zone[yi, xi] or black[yi, xi]:
+                            break
+                        e = ne
+                    ends.append(e)
+                segs.append(np.array(ends))
+    order = sorted(range(len(segs)), key=lambda k: -np.hypot(*(segs[k][1] - segs[k][0])))
+    keep = []
+    for k in order:
+        a0, b0 = segs[k]
+        mid = (a0 + b0) / 2
+        same = False
+        for j in keep:
+            c0, d0 = segs[j]
+            L = np.hypot(*(d0 - c0))
+            uu = (d0 - c0) / max(L, 1e-9)
+            if abs((mid - c0) @ np.array([-uu[1], uu[0]])) < HATCH_SAME * UP and -2 * UP <= (mid - c0) @ uu <= L + 2 * UP:
+                same = True
+                break
+        if not same:
+            keep.append(k)
+    return draw_paths(hatch.shape, [segs[k] for k in keep], [HATCH_W * UP] * len(keep)), used
+
+
+def white_outline(on_white, gs, fig):
+    """The white's outline as smooth curves on the plate's printed line. The white prints smaller than
+    its outline (on the shin 4-6 levelled px inside the printed line, on the nose and hand 2-3), so its
+    edge alone would leave clay between the two. The white's edge (its mask smoothed, WHITE_SMOOTH
+    levelled px, traced at half) is followed; from each point the plate is read outward along the normal
+    up to WHITE_REACH levelled px for the printed line (the first dip darker than WHITE_GROW); the
+    offsets, smoothed along the curve (median, then Gaussian WHITE_ALONG levelled px), move the curve onto
+    the line, so a missed dip does not jag it. Returns the curves (y, x at UP) and the area they close.
+    (numpy and skimage: curve fitting, not image filtering)"""
+    from skimage import measure
+    sm = ndi.gaussian_filter(on_white.astype(np.float32), WHITE_SMOOTH * UP)
+    H, W = gs.shape
+    paths, area = [], np.zeros_like(on_white)
+    for c in measure.find_contours(sm, 0.5):
+        if len(c) < 8 * UP:
+            continue
+        closed_c = np.allclose(c[0], c[-1])
+        mode = 'wrap' if closed_c else 'nearest'
+        tg = np.gradient(ndi.gaussian_filter1d(c, 2, axis=0, mode=mode), axis=0)
+        nrm = np.stack([-tg[:, 1], tg[:, 0]], 1)
+        nrm /= np.maximum(np.hypot(*nrm.T), 1e-9)[:, None]
+        # outward: towards lower values of the smoothed mask
+        probe = c + nrm
+        if np.mean(ndi.map_coordinates(sm, probe.T, order=1)) > 0.5:
+            nrm = -nrm
+        steps = np.arange(0, WHITE_REACH * UP + 0.01, 0.5)
+        prof = np.stack([ndi.map_coordinates(gs, (c + d * nrm).T, order=1, mode='nearest') for d in steps], 1)
+        off = np.zeros(len(c))
+        for k, pr in enumerate(prof):
+            for j in range(1, len(pr) - 1):
+                if pr[j] < WHITE_GROW and pr[j] <= pr[j - 1] and pr[j] <= pr[j + 1]:
+                    off[k] = steps[j]
+                    break
+                if pr[j] < DARK:      # the black: the white meets it here
+                    break
+        off = ndi.gaussian_filter1d(ndi.median_filter(off, size=int(WHITE_ALONG * UP) | 1, mode=mode),
+                                    WHITE_ALONG * UP / 2, mode=mode)
+        q = c + off[:, None] * nrm
+        paths.append(q)
+        if closed_c:
+            area |= lw.polygon_mask(on_white.shape, q[:, ::-1])
+    return paths, area
+
+
 def write_svg(lines, body, out, title, desc):
     """The house format (as linework.trace_svg writes it, and seven.py): 1000 units tall, the body path
     under the lines, traced at the work px."""
@@ -364,8 +644,9 @@ def write_svg(lines, body, out, title, desc):
     return {"bytes": out.stat().st_size, "box": (int(x0), int(y0), int(x1), int(y1))}
 
 
-def main(src, qa=None, dump=None):
-    lev = level(np.asarray(Image.open(src).convert('RGB')))
+def main(src, heid, qa=None, dump=None):
+    lev = mend_tear(level(np.asarray(Image.open(src).convert('RGB'))),
+                    level_heid(np.asarray(Image.open(heid).convert('RGB'))))
     P = plates(lev, BOX)
     g, gs, opened, closed, al = P['up'], P['gs'], P['opened'], P['closed'], P['along']
     H, W = g.shape
@@ -377,21 +658,34 @@ def main(src, qa=None, dump=None):
     # edge), the side lines and the paper beyond them
     outside = (py < BAND_Y) | (py >= STRIPE_Y) | (px < np.polyval(LEFT, py)) | (px > np.polyval(RIGHT, py))
     black0 = gs < DARK
-    # but the dark mass rises into the band, right of the fold: its black there, opened so the band's
     # line and palmettes drop away, and grown back as far as the opening took it
-    band = black0 & (py < BAND_Y) & (py >= MASS_TOP) & (px >= FOLD - SX0)
-    seed = ndi.binary_opening(band, structure=disk(MASS_OPEN)) & (px < MASS_X1)
-    lab, _ = ndi.label(seed)   # (only what runs down to the panel: the palmettes' bulbs stand clear of it)
-    seed = np.isin(lab, np.unique(lab[seed & (py >= BAND_Y - 2)]))
-    mass = ndi.binary_dilation(seed, structure=disk(MASS_OPEN)) & band
-    outside &= ~mass
+    # but where the dark mass rises into the band (MASS_*), its black there
+    cx, cy, cr = MASS_CIRCLE
+    inside = (np.hypot(px - cx, py - cy) <= cr) | lw.polygon_mask(px.shape, (np.array(MASS_BAR) - BOX[:2]) * UP)
+    outside &= ~(black0 & inside & (py < BAND_Y) & (py >= MASS_TOP))
 
-    white = ndi.binary_opening((gs > WHITE) & ~outside, structure=disk(1))
+    white = ndi.binary_opening((gs > WHITE) & ~outside, structure=disk(1.3))
     lab, _ = ndi.label(white)
     white &= (np.bincount(lab.ravel()) > WHITE_MIN * UP * UP)[lab]
 
+    # hatched clay (the shields' rims, the fillets): its strokes print paler than DARK, so it would pass for
+    # ground; it is clay whose local spread (over HATCH_WIN levelled px; numpy) is HATCH_SD[0]-HATCH_SD[1]
+    # round a mean tone of HATCH_MEAN (plain ground spreads about 5, an edge between black and clay more
+    # than 40), opened so the thin band along an edge goes, at least HATCH_MIN levelled px^2
+    solid0 = ndi.binary_opening(black0, structure=disk(2.6))
+    w = HATCH_WIN * UP
+    m = ndi.uniform_filter(gs, w)
+    sd = np.sqrt(np.maximum(ndi.uniform_filter(gs * gs, w) - m * m, 0))
+    hatch = (sd > HATCH_SD[0]) & (sd < HATCH_SD[1]) & (m > HATCH_MEAN[0]) & (m < HATCH_MEAN[1]) & ~outside
+    hatch = ndi.binary_closing(ndi.binary_opening(hatch, structure=disk(1.3)), structure=disk(1.3))
+    lab, _ = ndi.label(hatch)
+    hatch &= (np.bincount(lab.ravel()) > HATCH_MIN * UP * UP)[lab]
+    # (and its gaps closed: where the strokes run nearly along the band the spread test misses patches)
+    hatch = morphology.remove_small_holes(ndi.binary_closing(hatch, structure=disk(4)),
+                                          max_size=400 * UP * UP) & ~outside & ~solid0
+
     # ground: the clay, opened so thin lines do not join it; its large areas and the listed pockets
-    clay = ndi.binary_opening(~black0 & ~white & ~outside, structure=disk(2))
+    clay = ndi.binary_opening(~black0 & ~white & ~outside & ~hatch, structure=disk(2.6))
     lab, _ = ndi.label(clay)
     size = np.bincount(lab.ravel())
     size[0] = 0
@@ -404,32 +698,52 @@ def main(src, qa=None, dump=None):
 
     # the figures: all else in the panel; specks on the ground (the inscriptions, stray marks) go
     fig = ndi.binary_fill_holes(~ground & ~outside) & ~ground & ~outside
-    fig = ndi.binary_opening(fig, structure=disk(0.5))
+    fig = ndi.binary_opening(fig, structure=disk(0.7))
     lab, _ = ndi.label(fig)
     fig &= (np.bincount(lab.ravel()) > FIG_MIN * UP * UP)[lab]
     white &= fig
-
     # incisions (light lines in the black) and the thin dark lines (on the white, the clay bands, the
     # ground inside the figures), each redrawn along its smoothed centre line at an even width
-    solid = ndi.binary_opening(black0, structure=disk(2))
-    inc_raw = ((al - opened) > INC_T) & ndi.binary_closing(black0, structure=disk(2)) & ~white & fig
-    dark_raw = ((closed - al) > DL_T) & (al < DL_ABS) & ~solid & fig
-    # and on the white (eyes, mouths, fingers), anything darker than WHITE_LINE
-    dark_raw |= (al < WHITE_LINE) & ~solid & ndi.binary_erosion(ndi.binary_closing(white, structure=disk(2)), structure=disk(0.5)) & fig
-    inc = even_lines(inc_raw, INC_W, min_len=2)
-    darkl = even_lines(dark_raw, LINE_W, min_len=2, max_width=THIN, contrast=closed - al,
+    solid = ndi.binary_opening(black0, structure=disk(2.6))
+    # (the incisions on the plate as printed, lightly blurred: the along-the-line blur smears an eye's
+    # small rings into one)
+    inc_raw = ((gs - P['opened_gs']) > INC_T) & ndi.binary_closing(black0, structure=disk(2.6)) & ~white & fig
+    on_white = morphology.remove_small_holes(white, max_size=WHITE_HOLE * UP * UP) & fig
+    dark_raw = ((closed - al) > DL_T) & (al < DL_ABS) & ~solid & fig & ~on_white
+    # and on the white (eyes, mouths, fingers), anything darker than WHITE_LINE: the white with the small
+    # parts it closes in (an eye, under WHITE_HOLE levelled px^2), less a px at its edge
+    dark_raw |= (gs < WHITE_LINE) & ((P['closed_s'] - gs) > DL_T) & ndi.binary_erosion(on_white, structure=disk(0.7))
+    # the hatched bands: their strokes drawn straight (hatch_strokes); the other finders keep out of them
+    strokes, hatched = hatch_strokes(al, gs, hatch, fig)
+    near_h = ndi.binary_dilation(hatched, iterations=UP)
+    dark_raw &= ~near_h
+    inc = even_lines(inc_raw, INC_W, sigma=2.0, min_len=2.6)
+    darkl = even_lines(dark_raw, LINE_W, sigma=2.0, min_len=2.6, max_width=THIN, contrast=closed - al,
                        stop=ndi.binary_opening(black0, structure=disk(THIN / 2)))
-    # the black: its parts wider than THIN (the thinner ones, hatching and spear shafts, are the lines
-    # above), less the incisions
-    black = ndi.binary_opening(black0, structure=disk(THIN / 2)) & ~inc
+    # the black, lightly opened (specks of the print go; the thin black between close incisions, as in
+    # an eye's rings, stays), less the incisions; on the white only the lines found there
+    # The black is the figure less its white, its incisions, and its reserved clay (the clay at least
+    # CLAY_W levelled px wide: an incision is narrower), not the plate's dark as thresholded: the black
+    # between an eye's close rings prints paler than DARK and would drop out
+    reserved = ndi.binary_opening(fig & ~black0 & ~white, structure=disk(CLAY_W / 2))
+    black = fig & ~on_white & ~inc & ~reserved
     # the white's outline where it meets the ground: a line just outside it (the plate prints a faint
     # line there), as in seven.py
-    wline = ~white & ~solid & ~outside & ~ground & (ndi.distance_transform_edt(~white) <= LINE_W * UP)
-    wline |= ~fig & ~outside & (ndi.distance_transform_edt(~white) <= LINE_W * UP)
-    lines = ((black | darkl) & fig) | wline
+    # (the white with what it closes in: specks of the print in the white are no edge), on the plate's
+    # printed line round it (white_outline); the figure runs out to that line
+    wpaths, warea = white_outline(on_white, gs, fig)
+    fig |= warea & ~outside
+    wline = draw_paths(fig.shape, wpaths, [LINE_W * UP] * len(wpaths)) & ~outside
+    # one line there: the plate's own faint line beside the white (printed 1-2 px off the white's edge,
+    # and broken) gives way to it
+    darkl &= ~(~on_white & (ndi.distance_transform_edt(~on_white) <= (WHITE_REACH + 1) * UP))
+    # dark dots on the white (a pupil) as printed, darker than WHITE_DOT: the line redraw drops marks
+    # this small
+    dots = ndi.binary_opening((gs < WHITE_DOT) & ndi.binary_erosion(on_white, structure=disk(0.7)), structure=disk(0.5))
+    lines = ((black | darkl | strokes | dots) & fig) | wline
     body = ndi.distance_transform_edt(~fig) <= RIM * UP
     if dump:
-        np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, white=white, lines=lines,
+        np.savez_compressed(dump, g=g.astype(np.uint8), hatch=hatch, on_white=on_white, hatched=hatched, darkl=darkl, fig=fig, ground=ground, white=white, lines=lines,
                             inc_raw=inc_raw, dark_raw=dark_raw, black0=black0)
 
     info = write_svg(
@@ -444,4 +758,4 @@ def main(src, qa=None, dump=None):
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:4])
+    main(*sys.argv[1:5])
