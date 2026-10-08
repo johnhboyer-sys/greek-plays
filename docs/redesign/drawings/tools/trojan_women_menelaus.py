@@ -122,10 +122,21 @@ TRACED_W = LINE_MIN
 # across, darker than FACE_DARK (lightly blurred) only at its centre
 FACE = (530, 1540, 600, 1620)
 FACE_DARK = 110
-# and her lips and chin are clay bumps 3-4 px deep on the profile: the outline there is drawn finer
-# (FACE_EDGE plate px), or it fills them and the mouth reads as one wiggle (John, 2026-10-07: "Mouth
-# needs to have the lips and chin distinct")
-FACE_EDGE = 1.2
+# Her profile from the nose to the jaw (John, 2026-10-07: "Mouth needs to have the lips and chin
+# distinct"; then, of a finer outline on the threshold's edge, "The mouth is WORSE now"). The
+# threshold rounds the lips into lumps, so the profile is the plate's own edge, measured row by row
+# (where the plate, enlarged 4x, crosses grey 80; plate px): the nose's tip and underside, the upper
+# lip, the mouth, the lower lip, the step under it, the straight chin, the jaw. Clay lies left of it,
+# ground right, within PROFILE_BOX; the outline along it is FACE_EDGE plate px wide, so a lip 4-5 px
+# deep keeps its clay
+PROFILE = [(570.4, 1562), (571.1, 1566), (572.4, 1570), (573.4, 1573), (574.6, 1575), (575.9, 1578),
+           (577.1, 1580), (577.4, 1581), (576.9, 1582), (576.1, 1583), (569.9, 1584), (569.4, 1585),
+           (569.4, 1587), (569.6, 1589), (566.6, 1590), (564.4, 1591), (564.9, 1592), (566.9, 1593),
+           (568.1, 1594), (568.6, 1595.5), (568.4, 1597), (567.6, 1598), (564.6, 1599), (564.4, 1600),
+           (564.6, 1602), (564.9, 1605), (564.4, 1607), (563.9, 1608), (563.4, 1609), (562.1, 1610),
+           (560.9, 1611), (559.9, 1612), (557.6, 1613), (554.9, 1614)]
+PROFILE_BOX = (548, 1562, 590, 1614)
+FACE_EDGE = 1.6
 # the hair: dark paint inside the left woman's fillet, where its loop's ends come within a px of the
 # clay beside them, and the tassel's black weight at the corner of her mantle are walled off from the
 # ground (with WALLS above)
@@ -354,6 +365,13 @@ def main(src, qa=None, dump=None):
     fig = ndi.binary_fill_holes(fig) & ~ground
     ridge = (g - ndi.grey_opening(g, size=(5 * UP, 5 * UP))) > 50
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP)) | (fig & ridge)
+    # her profile on its measured edge (PROFILE)
+    P = up(PROFILE)
+    right = lw.polygon_mask(g.shape, np.vstack([P, [P[-1][0] + 60 * UP, P[-1][1]], [P[0][0] + 60 * UP, P[0][1]]]))
+    pb = np.zeros(g.shape, bool)
+    bx0, by0, bx1, by1 = [(v - o) * UP for v, o in zip(PROFILE_BOX, (X0, Y0, X0, Y0))]
+    pb[by0:by1, bx0:bx1] = True
+    fig = np.where(pb, ~right & (fig | (xx >= bx0 + 8 * UP)), fig)
 
     firm = ink_lines(gl, closed, 22, 34)
     thin = ndi.distance_transform_edt(~morphology.skeletonize(firm)) <= LINE_MIN * UP / 2
