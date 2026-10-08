@@ -351,41 +351,48 @@ TONE_A = (0.12, 0.24)
 # white hair and beard and a skin tone face, arm, and hand"; "make the slave's white hair and beard be
 # brushstrokes of white, not hard edges"; and, asked how the light page should show white on paper, "Clay
 # skin in both themes"). This drawing carries its own colours, on every page: the figures' area (the body
-# path) is filled with CLAY_FILL in both themes; skin is that clay; clothes carry a wash in the line colour over
-# it (TONE_A: the slave's chiton, his himation, the master's clothes); the master's hair its own wash; the
-# slave's white hair and beard white (WHITE) in soft strokes whose strength follows the photo. Skin areas,
-# each a least-cost path along the drawing's lines through hand-placed points (flat px; lw.STRAIGHT: a
-# straight edge to the next point, across clay with no painted line or off the figure): the slave's face
-# (SKIN_S_FACE: the bald crown and face, the ear; behind it his hair), his arm on his hip from the
-# sleeve's hem, the elbow and the forearm down to the skirt (SKIN_S_ARM), his fist (TONE_FIST) and legs (TONE_LEGS); the master's face (SKIN_M_FACE,
-# under his hair, down to his beard) and his outstretched arm and hand, from the sleeve's hem at his
-# shoulder (SKIN_M_ARM). The slave's hair (HAIR_S: behind his
-# face, down to the curve from the notch in his outline to his jaw) and beard (BEARD_S: under his chin) are
-# where his white goes; no painted line bounds them, so their lower edges are placed by eye on the photo.
+# path) is filled with CLAY_FILL in both themes; skin is that clay; clothes carry a wash in the line colour
+# over it (TONE_A: the slave's chiton, his himation; TONE_M: the master's clothes); the master's hair its own
+# wash; the slave's white hair and beard white (WHITE) in soft strokes whose strength follows the photo.
+# Where the areas meet, the edges are John's (MARKS, tools/clouds_marks.json, flat px): he drew them over the
+# photo and over close-ups of the drawing (2026-10-08, blue), and his screenshots were registered to the flat
+# (SIFT, or matched to the rendered drawing; within about half a flat px): the slave's hairline (from the
+# crown to the top of his ear: his hair is the back of the head, behind it), his beard (round the chin and
+# below it over the chiton, "hair on the lip and sides as well as below chin going over shirt"; the lower
+# lip inside it stays skin) and the edge between his forearm and his clothes ("some part of the shirt is
+# same color as the arm"); the top of his genitals ("the penis should be same tone as legs"); the master's
+# face edge left of his beard, the top of his ear (his hair above it), the toga's edge below his neck ("Skin"
+# down to it), and the top edges of his two feet. Elsewhere an area's edge is a least-cost path along the
+# drawing's lines through hand-placed points (flat px; lw.STRAIGHT: a straight edge to the next point, off
+# the figure).
+MARKS = json.load(open(Path(__file__).resolve().parent / "clouds_marks.json"))
 SKIN_S_FACE = [(-300, 430), lw.STRAIGHT, (-275, 480), (-265, 530), (-252, 585), (-238, 632), (-222, 668),
                (-195, 700), (-195, 760), (-150, 795), (-100, 802), (-50, 790), (0, 795), (50, 780), (90, 760),
                lw.STRAIGHT, (200, 700), lw.STRAIGHT, (200, 400), lw.STRAIGHT]
-SKIN_S_ARM = [(-560, 880), lw.STRAIGHT, (-500, 905), (-450, 900), (-400, 893), (-388, 940), (-388, 1000),
-              (-395, 1040), (-370, 1080), (-340, 1130), (-360, 1160), (-400, 1180), (-440, 1190), (-480, 1215),
-              (-520, 1245), (-555, 1270), lw.STRAIGHT, (-680, 1270), lw.STRAIGHT, (-680, 1000), lw.STRAIGHT]
-HAIR_S = [(-460, 400), lw.STRAIGHT, (-300, 430), (-275, 480), (-265, 530), (-252, 585), (-238, 632),
-          (-222, 668), (-195, 700), (-195, 760), lw.STRAIGHT, (-230, 765), lw.STRAIGHT, (-280, 768),
-          lw.STRAIGHT, (-340, 762), lw.STRAIGHT, (-400, 752), lw.STRAIGHT, (-500, 752), lw.STRAIGHT]
-BEARD_S = [(-195, 760), (-150, 795), (-100, 802), (-50, 790), (0, 795), (50, 780), (90, 760), lw.STRAIGHT,
-           (92, 800), lw.STRAIGHT, (50, 830), lw.STRAIGHT, (-50, 850), lw.STRAIGHT, (-150, 835), lw.STRAIGHT]
-SKIN_M_FACE = [(900, 250), lw.STRAIGHT, (890, 640), lw.STRAIGHT, (940, 700), (1000, 760), (1060, 790),
-               (1160, 760), (1200, 700), (1230, 640), (1240, 600), (1280, 560), (1320, 540), lw.STRAIGHT,
-               (1320, 250), lw.STRAIGHT]
+# the slave's hair: John's hairline, then round his ear and down his jaw along the lines, along the chiton's
+# top (TONE_CHITON) and round the back of his head, off the figure
+EAR_S = [(-238, 660), (-220, 705), (-195, 760)]
+HAIR_S_BACK = [(-230, 765), (-280, 768), (-340, 762), (-395, 752), (-460, 700), (-560, 600), (-520, 400),
+               (-300, 380), (-90, 420), (-90, 480)]
+# his arm: the sleeve's hem, then John's edge from the elbow's inside down to the skirt, then off the figure
+SKIN_S_ARM_TOP = [(-560, 880), lw.STRAIGHT, (-500, 905), (-450, 900), (-400, 893), (-388, 940)]
+SKIN_S_ARM_OFF = [(-720, 1275), (-720, 1000)]
+# the master's face, ear and neck: John's face edge, along his beard's lower edge (lines) to the toga's
+# edge, up past the ear's tip, along the ear's top, up the hair's edge (HAIRLINE), and off the figure
+M_FACE_OFF = [(880, 200), (880, 560)]
+# his outstretched arm and hand, from the sleeve's hem at his shoulder, off the figure round the hand
 SKIN_M_ARM = [(835, 845), (890, 850), (940, 858), (980, 870), (985, 905), (975, 950), (965, 1000), (940, 1080),
               lw.STRAIGHT, (1000, 1450), lw.STRAIGHT, (350, 1480), lw.STRAIGHT, (350, 1250), lw.STRAIGHT,
               (780, 830), lw.STRAIGHT]
+FOOT_SEED = (1320, 2445)
 CLAY_FILL = "#c4b294"
 WHITE = "#f7f3ea"
 TONE_M = 0.18                  # the master's clothes
 # the white: opacity from WHITE_A[0] where the photo's red less blue (smoothed over WHITE_SIGMA flat px: at
 # 1.5 the white came out as the photo's grain) is WHITE_RB[0] (his face's orange) to WHITE_A[1] at
-# WHITE_RB[1] (the palest), in steps, fading out over WHITE_FEATHER flat px toward his skin
-WHITE_RB, WHITE_A, WHITE_STEP, WHITE_SIGMA, WHITE_FEATHER = (82, 62), (0.0, 0.9), 0.1, 4, 12
+# WHITE_RB[1] (the palest), in steps, fading out over WHITE_FEATHER flat px toward his skin and clothes
+# (at WHITE_A[0] = 0 his beard, where the photo is orange, all but vanished)
+WHITE_RB, WHITE_A, WHITE_STEP, WHITE_SIGMA, WHITE_FEATHER = (82, 62), (0.65, 0.95), 0.1, 3, 8
 # Under the slave the stage's edge lies lower in the flat than the master's line runs (his part is a flat of
 # its own): STAGE_B (flat px, measured on the flat) runs along it from the column's foot, round the outer
 # edge of his back sandal (heel, sole), up its toe to the black ground between his feet, across, and round
@@ -448,11 +455,12 @@ PAINT_WIDE = 4                 # flat px: paint is wider than 2 x this (the line
 # flat px) to HAIR_A[1] where it is as dark as HAIR_T[1], in steps of HAIR_STEP, each step over the one
 # below at the opacity that brings the total to its own (no seams). Solid black, the dabs ran into
 # blots. The hair is the figure inside HAIRLINE (flat px: placed by hand along the edge of the dark mass,
-# over the bald crown and forehead, round behind the ear, and out round the back of the head); no lines
+# over the bald crown and forehead, then along the top of the ear as John drew it, and out round the back
+# of the head); no lines
 # are drawn inside it. (By darkness alone it took in the forehead and its brows.)
-HAIRLINE = [(1088, 200), (1092, 262), (1100, 282), (1112, 298), (1126, 314), (1136, 327), (1170, 328), (1212, 326), (1236, 332),
-            (1256, 347), (1259, 365), (1250, 385), (1240, 410), (1230, 440), (1228, 470), (1232, 500), (1242, 518),
-            (1265, 509), (1300, 503), (1325, 505), (1335, 522), (1343, 550), (1362, 548), (1400, 515), (1440, 496), (1490, 496), (1490, 200)]
+HAIRLINE = ([(1088, 200), (1092, 262), (1100, 282), (1112, 298), (1126, 314), (1136, 327), (1170, 328), (1212, 326),
+             (1236, 332), (1256, 347), (1259, 365), (1250, 385), (1240, 410), (1230, 440), (1228, 470)]
+            + [tuple(p) for p in MARKS["m_ear_top"]] + [(1400, 575), (1490, 590), (1490, 200)])
 HAIR_T, HAIR_A, HAIR_STEP, HAIR_SIGMA = (170, 45), (0.2, 0.8), 0.1, 1.5
 # Breaks in the lines where the paint is worn or the photo fades (the long folds low on his robe), joined
 # as trojan_women_menelaus.py joins them (join_breaks, copied with its rules): line ends facing each other
@@ -696,16 +704,39 @@ def regions(fig, ink, origin):
     """The masks (at UP) for the colours: skin, the slave's chiton and himation, the master's clothes, the
     slave's white zone (hair and beard)."""
     x0, y0 = origin
-    up = lambda pts: [p if p == lw.STRAIGHT else ((p[0] - x0 + 0.5) * UP - 0.5, (p[1] - y0 + 0.5) * UP - 0.5)
-                      for p in pts]
+    S = lw.STRAIGHT
+    up = lambda pts: [p if p == S else ((p[0] - x0 + 0.5) * UP - 0.5, (p[1] - y0 + 0.5) * UP - 0.5) for p in pts]
     cost = np.where(ndi.binary_dilation(ink, iterations=UP), 1.0, 25.0)
     area = lambda pts: lw.polygon_mask(fig.shape, lw.livewire(cost, up(pts), closed=True)) & fig
+    poly = lambda pts: lw.polygon_mask(fig.shape, np.array(up([tuple(p) for p in pts]), float)) & fig
+    straight = lambda pts: [q for p in pts for q in (tuple(p), S)]   # John's line, point to point
     near = ndi.binary_dilation(ink, iterations=1)
     cells, _ = ndi.label(fig & ~near)
     legs = {cells[int((y - y0) * UP), int((x - x0) * UP)] for x, y in TONE_LEGS} - {0}
     legs = ndi.binary_dilation(np.isin(cells, list(legs)), iterations=2 * UP) & fig
-    white = (area(HAIR_S) | area(BEARD_S))
-    skin = area(SKIN_S_FACE) | area(SKIN_S_ARM) | area(TONE_FIST) | legs | area(SKIN_M_FACE) | area(SKIN_M_ARM)
+    # the slave
+    hair = area(straight(MARKS["hairline"])[:-1] + EAR_S + [S] + straight(HAIR_S_BACK))
+    beard = poly(MARKS["beard"]) & ~poly(MARKS["lip"])
+    white = hair | beard
+    arm = area(SKIN_S_ARM_TOP + straight(MARKS["arm"]) + straight(SKIN_S_ARM_OFF))
+    skin = area(SKIN_S_FACE) | arm | area(TONE_FIST) | legs | poly(MARKS["genitals"])
+    # the master
+    face = area(straight(MARKS["m_face_left"])[:-1] + straight(MARKS["m_toga"]) + [(1400, 575), S]
+                + straight(MARKS["m_ear_top"][::-1]) + straight(HAIRLINE[14::-1]) + straight(M_FACE_OFF))
+    # his feet: the ankle above the front sandal is John's line (up its left side, along the robe's hem,
+    # down its right side) closed along the sandal's top line; the back foot is the area the lines and his
+    # line over its top close round FOOT_SEED
+    feet = area(straight(MARKS["m_ankle"])[:-1])
+    walls = np.zeros(fig.shape, bool)
+    P = np.array(up([tuple(p) for p in MARKS["m_foot_top"]]), float)
+    for a, b in zip(P[:-1], P[1:]):
+        q = np.linspace(a, b, int(np.hypot(*(b - a))) * 2 + 2).round().astype(int)
+        walls[q[:, 1], q[:, 0]] = True
+    foot_cells, _ = ndi.label(fig & ~near & ~ndi.binary_dilation(walls, iterations=UP))
+    k = foot_cells[int((FOOT_SEED[1] - y0) * UP), int((FOOT_SEED[0] - x0) * UP)]
+    assert k and (foot_cells == k).sum() < 20000 * UP * UP, "the back foot's area leaks"
+    feet |= ndi.binary_dilation(foot_cells == k, iterations=2 * UP) & fig
+    skin |= face | area(SKIN_M_ARM) | feet
     skin &= ~white
     himation = area(TONE_HIMATION) & ~skin & ~white
     lab, _ = ndi.label(himation)   # (the genitals: pieces the lines leave apart from the skirt)
@@ -746,7 +777,7 @@ def add_white(svg, zone, skin, rb, box):
     (r0, r1), (a0, a1) = WHITE_RB, WHITE_A
     alpha = (a0 + (a1 - a0) * np.clip((r0 - pale) / (r0 - r1), 0, 1)) * fade * zone
     paths, below = "", 0.0
-    for a in np.arange(a0 + WHITE_STEP, a1 + 1e-9, WHITE_STEP):
+    for a in np.arange(WHITE_STEP, a1 + 1e-9, WHITE_STEP):
         m = alpha >= a - WHITE_STEP / 2
         if not m.any():
             break
@@ -870,7 +901,7 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     add_hair(OUT, hair, g, info["box"])
     r = regions(fig, ink, (x0, y0))
     add_tones(OUT, [(r["chiton"], TONE_A[0]), (r["himation"], TONE_A[1]), (r["clothes_m"] & ~hair, TONE_M)], info["box"])
-    add_white(OUT, r["white"], r["skin"], rb, info["box"])
+    add_white(OUT, r["white"], fig & ~r["white"], rb, info["box"])
     OUT.write_text(OUT.read_text().replace('class="body" fill="none"', f'class="body" fill="{CLAY_FILL}"', 1))
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
