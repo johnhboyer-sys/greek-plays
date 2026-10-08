@@ -73,12 +73,16 @@ CAMERAS = {
     "04": dict(D=2779.2, H=653.395, b=0.0699611, p=-0.0052447, g=-0.0146033, f=6080, cx=2736, cy=1824),
     "05": dict(D=3445.33, H=-596.409, b=-0.316352, p=0.0454717, g=0.0236176, f=4256, cx=1922.29, cy=1768.52),
     "06": dict(D=3540.23, H=1197.65, b=0.0915277, p=0.0334136, g=0.0325088, f=4256, cx=1789.03, cy=1022.63),
+    # the old man's photo, fitted to the model above with the profile and the other cameras held: points
+    # matched between 03 and 04 (which shows both figures), taken onto the vase through 04's camera
+    # (fit_03; median 2.7 px). It agrees with 07 at the spear's tip, which both show, within 2.5 px.
+    "03": dict(D=2100.74, H=422.538, b=-0.0586314, p=-0.0949274, g=0.0289648, f=7600, cx=1824, cy=2736),
 }
 PROFILE_Y = [-300, -100, 100, 300, 500, 700, 900, 1100, 1300, 1500]
 PROFILE_R = [410.7, 615.6, 714.8, 764.3, 789.0, 813.6, 858.0, 902.3, 946.7, 991.1]
-TURNS = {"04": 17.668, "05": 4.449, "06": 1.373}  # degrees each photo is turned from 07
+TURNS = {"04": 17.668, "05": 4.449, "06": 1.373, "03": 12.2913}  # degrees each photo is turned from 07
 PITCH = 10.0 / 1520.0  # mm per px on the 6D's sensor (EXIF focal plane resolution)
-FOCAL_MM = {"07": 50, "04": 40, "05": 28, "06": 28}
+FOCAL_MM = {"07": 50, "04": 40, "05": 28, "06": 28, "03": 50}
 CROPPED = {"07": False, "04": False, "05": True, "06": True}
 # The data for fit_model: rough guides (photo px) to the meander band's upper edge in each photo,
 # rough guides to the vase's left (0) and right (1) outline where it stands clear of the handles, the
@@ -203,8 +207,9 @@ FLAT_THETA, FLAT_Y = (-1.2, 1.2001, 0.008), (-200.0, 1500.1, 8.0)
 CENTRE_07, BOX07, MARGIN = (1650.0, 2600.0), (60, 420, 3200, 4700), 30.0
 
 
-def flat_image(p07):
-    """Photo 07 laid onto the flat frame (H x W x 3, uint8)."""
+def frame():
+    """The flat and its frame: (cams, R, inv, X0, Y1, G, W, H); inv maps flat world (x, y) to (theta,
+    y) on the vase."""
     cams, R = vase()
     c = cams["07"]
     th, yy = np.arange(*FLAT_THETA), np.arange(*FLAT_Y)
@@ -225,6 +230,13 @@ def flat_image(p07):
     fx, fy = fwd[0](q), fwd[1](q)
     X0, X1, Y0, Y1 = fx.min() - MARGIN, fx.max() + MARGIN, fy.min() - MARGIN, fy.max() + MARGIN
     W, H = int((X1 - X0) * G), int((Y1 - Y0) * G)
+    return cams, R, inv, X0, Y1, G, W, H
+
+
+def flat_image(p07):
+    """Photo 07 laid onto the flat frame (H x W x 3, uint8)."""
+    cams, R, inv, X0, Y1, G, W, H = frame()
+    c = cams["07"]
     step = 4
     gx, gy = np.meshgrid(np.arange(0, W + step, step), np.arange(0, H + step, step))
     tq = inv(np.stack([X0 + gx.ravel() / G, Y1 - gy.ravel() / G], -1))
@@ -235,6 +247,26 @@ def flat_image(p07):
     out = np.stack([ndi.map_coordinates(a[..., k], [v, u], order=3, cval=0) for k in range(3)], -1)
     return out.clip(0, 255).round().astype(np.uint8)
 
+
+def flat_region(src, name, region):
+    """Photo `name` laid onto the flat, over `region` (x0, y0, x1, y1) of the widened frame (WIDE)."""
+    cams, R, inv, X0f, Y1f, G, _, _ = frame()
+    rx0, ry0, rx1, ry1 = region
+    w, h, step = rx1 - rx0, ry1 - ry0, 4
+    gx, gy = np.meshgrid(np.arange(rx0, rx1 + step, step) - WIDE[0], np.arange(ry0, ry1 + step, step) - WIDE[1])
+    tq = inv(np.stack([X0f + gx.ravel() / G, Y1f - gy.ravel() / G], -1))
+    th = tq[:, 0] + np.radians(TURNS.get(name, 0.0))
+    uv = vu.project(cams[name], vu.surface(R, tq[:, 1], th)).reshape(gx.shape + (2,))
+    u = ndi.zoom(np.nan_to_num(uv[..., 0], nan=-1e4), step, order=1)[:h, :w]
+    v = ndi.zoom(np.nan_to_num(uv[..., 1], nan=-1e4), step, order=1)[:h, :w]
+    a = np.asarray(Image.open(src).convert("RGB"), dtype=np.float32)
+    out = np.stack([ndi.map_coordinates(a[..., k], [v, u], order=3, cval=0) for k in range(3)], -1)
+    return out.clip(0, 255).round().astype(np.uint8)
+
+
+# The old man stands to the warrior's left, mostly outside photo 07: the flat is widened by WIDE flat px
+# to the left and at the top (widened px = the warrior's flat px + WIDE), and photo 03 laid onto it there.
+WIDE = (2600, 300)
 
 # ---------------------------------------------------------------- him
 
@@ -316,9 +348,11 @@ def pc(src, out, *steps):
     subprocess.run(args, check=True, capture_output=True, text=True)
 
 
-def along(shape, pts, width):
-    """A line `width` px wide along hand-placed points (flat px), at the crop's px."""
-    P = np.array([(x - X0, y - Y0) for x, y in pts], float)
+def along(shape, pts, width, origin=None):
+    """A line `width` px wide along hand-placed points (flat px), at the crop's px (the crop's corner
+    `origin`, the warrior's by default)."""
+    ox, oy = origin or (X0, Y0)
+    P = np.array([(x - ox, y - oy) for x, y in pts], float)
     path = np.vstack([np.linspace(a, b, int(np.hypot(*(b - a))) + 2) for a, b in zip(P[:-1], P[1:])])
     m = np.zeros(shape, bool)
     m[path[:, 1].round().astype(int), path[:, 0].round().astype(int)] = True
@@ -404,7 +438,8 @@ def grey(p):
     return np.asarray(Image.open(p).convert("L")).astype(np.float32)
 
 
-def main(src, qa=None, dump=None):
+def warrior(src):
+    """The warrior: (ink, figure, grey), in his crop of the flat (X0, Y0, X1, Y1)."""
     with tempfile.TemporaryDirectory() as td:
         t = Path(td)
         Image.fromarray(flat_image(src)).save(t / "flat.png")
@@ -470,13 +505,214 @@ def main(src, qa=None, dump=None):
     holes = ndi.binary_fill_holes(ink) & ~ink
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
+    return ink, fig, g
+
+def fit_03(p03, p04) -> None:
+    """Fit camera 03 (and its turn) to the model, everything else held, and print it: points matched
+    between 03 and 04, taken onto the vase through 04's camera. Needs opencv for SIFT."""
+    import cv2
+    from scipy.optimize import least_squares
+    cams, R = vase()
+    yr = (FLAT_Y[0], FLAT_Y[1])
+    sift = cv2.SIFT_create(contrastThreshold=0.02)
+
+    def feats(path, k):
+        g = cv2.resize(cv2.imread(str(path), cv2.IMREAD_GRAYSCALE), None, fx=k, fy=k, interpolation=cv2.INTER_AREA)
+        kp, d = sift.detectAndCompute(g, None)
+        return np.array([p.pt for p in kp]) / k, d
+
+    k3, d3 = feats(p03, 0.25)
+    k4, d4 = feats(p04, 0.5)
+    m = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True).match(d3, d4)
+    a, b = np.float32([k3[x.queryIdx] for x in m]), np.float32([k4[x.trainIdx] for x in m])
+    _, inl = cv2.findHomography(a, b, cv2.RANSAC, 50.0, maxIters=5000)
+    inl = inl.ravel().astype(bool)
+    ty = vu.photo_to_surface(cams["04"], R, b[inl].astype(float), yr)
+    O = np.c_[ty[:, 0] - np.radians(TURNS["04"]), ty[:, 1], a[inl]]
+    O = O[(O[:, 1] > yr[0] + 5) & (O[:, 1] < yr[1] - 5)]
+
+    def res(x):
+        c = dict(D=x[0], H=x[1], b=x[2], p=x[3], g=x[4], f=FOCAL_MM["03"] / PITCH, cx=1824, cy=2736)
+        return (vu.project(c, vu.surface(R, O[:, 1], O[:, 0] + x[5])) - O[:, 2:]).ravel()
+
+    best = min((least_squares(res, [2100, 400, -0.06, 0.1, 0.06, t], loss="soft_l1", f_scale=5, x_scale="jac",
+                              max_nfev=2000) for t in (0.2, 0.35, 0.5)), key=lambda r: r.cost)
+    for _ in range(2):
+        e = np.hypot(*res(best.x).reshape(-1, 2).T)
+        O = O[e < 30]
+        best = least_squares(res, best.x, loss="soft_l1", f_scale=5, x_scale="jac", max_nfev=2000)
+    e = np.hypot(*res(best.x).reshape(-1, 2).T)
+    print(f"{len(O)} points, median {np.median(e):.1f} px, 90% {np.percentile(e, 90):.1f}")
+    print('    "03": dict(' + ", ".join(f"{k}={v:.6g}" for k, v in zip("DHbpg", best.x[:5])) + "),",
+          "turn", round(float(np.degrees(best.x[5])), 4))
+
+
+# ---------------------------------------------------------------- the old man
+
+# The old man (widened px, WIDE): a phlyax with white hair and beard, stepping out of the door and holding
+# the spear out to the warrior. Photo 03, laid onto the widened flat. The same steps as the warrior's.
+OX0, OY0, OX1, OY1 = 700, 200, 4000, 5520     # his crop
+OLD_SEEDS = [(1680, 3150), (2266, 4366), (3400, 2856), (2793, 3407)]   # his tunic; his legs and feet (the hem parts them); the spear below his fist; a finger
+# His hair and beard are white, which red less blue reads with the glaze: inside HAIR (boxes) anything
+# lighter than HAIR_L (grey) is him too (the ground round his head is black, without sheen)
+HAIR, HAIR_L = [(1000, 1050, 2150, 1950)], 150
+# the spear's square top end stops 15 px under a thin strip of the border band: the glaze between found at
+# FINE_OPEN. (Not at his hands: their fingers are parted by painted lines, which the fine opening took for
+# ground, and the black contour where the spear enters his fist with them.)
+OLD_FINE = [(1550, 290, 1800, 345)]
+# above OLD_TOP (widened y) is the border band, left out
+OLD_TOP = 300
+# The door's pillar (left out): his back foot is raised on its toes, and its heel overlaps the pillar,
+# outlined on it by a black heel line, which turns into the line of the sole. Photo 03 is out of focus
+# there; photo 02 (fitted as 03 is; it is sharp there) shows the lines, which sit 5-10 px from 03's on the
+# flat, so the cut is placed on 03's own pixels: along the outer edge of the heel line and the sole, 4 px
+# off their centres, from the end of the ground between the pillar and his leg to the ground under his
+# arch, then down the pillar's own edge (where red less blue falls under 60, row by row) to the stage. Everything on the pillar's side of it is out.
+PILLAR = [(1150, 4975), (1123, 4977), (1087, 4999), (1052, 5019), (1027, 5042), (1008, 5068), (996, 5100),
+          (991, 5128), (997, 5140), (1061, 5161), (1124, 5176), (1174, 5191), (1169, 5210), (1161, 5225),
+          (1158, 5240), (1160, 5255), (1161, 5270), (1163, 5285), (1169, 5300), (1172, 5315), (1177, 5330), (1180, 5345),
+          (1186, 5360), (1202, 5375), (1208, 5390), (1208, 5700), (0, 5700), (0, 0), (900, 0), (1050, 4700)]
+# the ground under his raised arch, closed in by the sole, the pillar and the stage, is ground (a point in it)
+OLD_GROUND = [(1200, 5300)]
+# The stage under him, cut along the top of its plank (the thin line his toes stand on stays, as their
+# sole): a quadratic through the plank's top edge, measured on 03 where it is sharp and on 02 (moved by
+# 02's offset, +9 px) under his back toes, widened px
+OLD_STAGE = [(1250, 5382), (1300, 5378), (1350, 5369), (1400, 5362), (1600, 5322), (1800, 5296), (1850, 5290),
+             (1900, 5288), (1950, 5283), (2000, 5276), (2450, 5214), (2500, 5210), (2600, 5201), (2650, 5198),
+             (2700, 5194), (2750, 5183), (2800, 5175), (2850, 5169), (2900, 5162), (2950, 5159), (3000, 5154),
+             (3050, 5149), (3100, 5146)]
+OLD_MEND = None                                # (widened y) the mended break, if it crosses him
+# The black band along his tunic's hem runs out into the ground's black at both ends, and the drawing took
+# it for ground: walled across its ends along the line of the tunic's edge (widened px), WALL_W wide
+OLD_WALLS = [[(1157, 3812), (1168, 3888)], [(2387, 3472), (2402, 3528)]]
+# The spear's shaft, from under its top end to his fist, is straight: its edges (where red less blue
+# falls to 60, row by row, every 60 px) fitted by straight lines, x = a y + b (widened px). Between them is
+# the shaft; the shaft's photo edges wobble by the blur of 03, and a faint brown streak runs beside it near
+# his hand (left out)
+SPEAR_Y, SPEAR_LEFT, SPEAR_RIGHT = (340, 2030), (0.666683, 1440.83), (0.668623, 1547.50)
+# Breaks where a fold thins to a faint run, each checked over the photo (line ends and the run's darkest
+# point, row by row, between them; widened px): two folds on his chest, and the crease across his shin
+OLD_JOINS = [((1572, 2435), (1567, 2446), (1561, 2462), (1564, 2464)),
+             ((1982, 2343), (1976, 2354), (1971, 2366), (1967, 2377)),
+             ((1545, 4521), (1585, 4517), (1624, 4524))]
+# The two figures together are wider than the warrior alone, so weight "own" (a share of the longer
+# side) thinned every line, and the warrior's belt broke. The weight is pinned so his lines keep the
+# width John approved: WEIGHT on the warrior's longer side alone (4232 px), on the pair's (5443 px)
+PAIR_WEIGHT = WEIGHT * 4232 / 5443
+# Traced at 0.4 of the flat's px, the pair's ink loses any neck thinner than about 2 trace px: a fold's
+# thin middle, a flaked run of the belt (eight breaks with ink across them). Every line is thickened to at
+# least NECK flat px along its centre line first
+NECK = 7
+
+
+def old_man(src):
+    """The old man: (ink, figure, grey), in his crop of the widened flat (OX0, OY0, OX1, OY1)."""
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.fromarray(flat_region(src, "03", (OX0, OY0, OX1, OY1))).save(t / "c.png")
+        pc(t / "c.png", t / "rb.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 2}), ("image.adjustments.threshold", {"level": CLAY}))
+        pc(t / "c.png", t / "g.png", ("image.mode.grayscale", None))
+        pc(t / "g.png", t / "core.png", ("filter.blur.gaussianBlur", {"radius": 1.5}),
+           ("image.adjustments.threshold", {"level": LINE_DARK}))
+        pc(t / "g.png", t / "light.png", ("filter.blur.gaussianBlur", {"radius": 2}),
+           ("image.adjustments.threshold", {"level": HAIR_L}))
+        pc(t / "g.png", t / "gf.png", ("filter.blur.gaussianBlur", {"radius": 1.0}),
+           ("image.adjustments.levels", {"inWhite": FAINT_CAP}))
+        pc(t / "gf.png", t / "cf.png", ("filter.other.maximum", {"radius": FAINT_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": FAINT_R, "preserve": "squareness"}))
+        g = grey(t / "g.png")
+        faint_c = grey(t / "cf.png") - grey(t / "gf.png")
+        clay = grey(t / "rb.png") >= 128
+        core = grey(t / "core.png") < 128
+        light = grey(t / "light.png") >= 128
+    H, W = g.shape
+    yy, xx = np.mgrid[0:H, 0:W]
+    box = lambda bs: np.any([(xx + OX0 >= b[0]) & (yy + OY0 >= b[1]) & (xx + OX0 < b[2]) & (yy + OY0 < b[3]) for b in bs], 0)
+    clay |= light & box(HAIR)
+    S = np.array(OLD_STAGE, float)
+    outside = yy + OY0 > np.polyval(np.polyfit(S[:, 0], S[:, 1], 2), xx + OX0)
+    outside |= lw.polygon_mask(g.shape, np.array(PILLAR, float) - (OX0, OY0))
+    outside |= yy + OY0 < OLD_TOP
+    dark = ~clay & ~outside
+    for pts in OLD_WALLS:
+        dark &= ~along(g.shape, pts, WALL_W, origin=(OX0, OY0))
+    fine = box(OLD_FINE)
+    ground0 = np.where(fine, ndi.binary_opening(dark, structure=morphology.disk(FINE_OPEN)),
+                       ndi.binary_opening(dark, structure=morphology.disk(OPEN)))
+    lab, _ = ndi.label(ground0)
+    size = np.bincount(lab.ravel())
+    size[0] = 0
+    rim = np.unique(np.r_[lab[0], lab[:, 0], lab[:, -1], lab[ndi.binary_dilation(outside, iterations=2)]])
+    is_ground = (size > AUTO_GROUND) & np.isin(np.arange(len(size)), rim)
+    for x, y in OLD_GROUND:
+        assert lab[y - OY0, x - OX0], f"ground point {(x, y)} is not on glaze"
+        is_ground[lab[y - OY0, x - OX0]] = True
+    ground = is_ground[lab]
+    lab, _ = ndi.label(~ground & ~outside)
+    keep = {lab[y - OY0, x - OX0] for x, y in OLD_SEEDS}
+    assert 0 not in keep
+    sz = np.bincount(lab.ravel())
+    for k, sl in enumerate(ndi.find_objects(lab), 1):   # (check: clay left out)
+        if k not in keep and sz[k] > 2000:
+            py, px = np.argwhere(lab[sl] == k)[np.sum(lab[sl] == k) // 2]
+            print("unseeded clay", sz[k], OX0 + sl[1].start, OY0 + sl[0].start, OX0 + sl[1].stop, OY0 + sl[0].stop,
+                  "e.g.", (OX0 + sl[1].start + px, OY0 + sl[0].start + py))
+    fig = ndi.binary_fill_holes(np.isin(lab, list(keep))) & ~ground
+    f = fig.astype(np.float32)
+    fig = np.where(fine, ndi.gaussian_filter(f, FINE_SMOOTH), ndi.gaussian_filter(f, SMOOTH)) > 0.5
+    Y, X = yy + OY0, xx + OX0
+    left, right = SPEAR_LEFT[0] * Y + SPEAR_LEFT[1], SPEAR_RIGHT[0] * Y + SPEAR_RIGHT[1]
+    zone = (Y >= SPEAR_Y[0]) & (Y < SPEAR_Y[1]) & (X > left - 40) & (X < right + 40)
+    fig = np.where(zone, (X >= left) & (X <= right), fig)
+    lab, _ = ndi.label(fig)   # (the streak's end, cut off from him by the shaft's edge, goes)
+    fig = np.isin(lab, [lab[y - OY0, x - OX0] for x, y in OLD_SEEDS])
+    # paint is dark in grey too: worn patches where the clay's surface has gone (pale, as on his forearm)
+    # read as glaze by red less blue
+    paint = dark & fig & core
+    to_edge = ndi.distance_transform_edt(fig)
+    edge = fig & (to_edge <= EDGE)
+    lines = (core | paint) & fig & ~edge & ~zone   # (the shaft carries no painted lines)
+    lab, _ = ndi.label(lines, structure=np.ones((3, 3)))
+    sz = np.bincount(lab.ravel())
+    touch = np.unique(lab[ndi.binary_dilation(edge, iterations=2)])
+    lines &= ~((sz < SPECK) & ~np.isin(np.arange(len(sz)), touch))[lab]
+    mend = np.zeros(g.shape, bool) if OLD_MEND is None else (yy + OY0 > OLD_MEND[0]) & (yy + OY0 < OLD_MEND[1])
+    lines |= faint_lines(faint_c, (to_edge > FAINT_EDGE) & ~mend, lines) & fig
+    lines |= join_breaks(lines & (to_edge > EDGE + 2), to_edge > EDGE + 2)
+    for pts in OLD_JOINS:
+        lines |= along(g.shape, pts, LINE_MIN, origin=(OX0, OY0)) & fig
+    ink = lines | edge
+    holes = ndi.binary_fill_holes(ink) & ~ink
+    lab, _ = ndi.label(holes)
+    ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
+    return ink, fig, g
+
+
+# ---------------------------------------------------------------- the two together
+
+def main(src07, src03, qa=None, dump=None):
+    w_ink, w_fig, w_g = warrior(src07)
+    o_ink, o_fig, o_g = old_man(src03)
+    # one canvas over both crops, widened px
+    wx0, wy0 = X0 + WIDE[0], Y0 + WIDE[1]
+    cx0, cy0 = min(OX0, wx0), min(OY0, wy0)
+    cx1, cy1 = max(OX1, X1 + WIDE[0]), max(OY1, Y1 + WIDE[1])
+    shape = (cy1 - cy0, cx1 - cx0)
+    ink, fig, g = np.zeros(shape, bool), np.zeros(shape, bool), np.full(shape, 255.0, np.float32)
+    for a_ink, a_fig, a_g, (ax, ay) in ((o_ink, o_fig, o_g, (OX0, OY0)), (w_ink, w_fig, w_g, (wx0, wy0))):
+        sl = (slice(ay - cy0, ay - cy0 + a_ink.shape[0]), slice(ax - cx0, ax - cx0 + a_ink.shape[1]))
+        ink[sl] |= a_ink
+        fig[sl] |= a_fig
+        g[sl] = a_g
+    ink |= (ndi.distance_transform_edt(~morphology.skeletonize(ink)) <= NECK / 2) & fig
     if dump:
-        np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, clay=clay)
-    info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT,
-                        title='A seated warrior raising his hand, a comic "departure of the warrior"',
+        np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, origin=np.array([cx0, cy0]))
+    info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=PAIR_WEIGHT,
+                        title='A seated warrior raising his hand as an old man holds out his spear: a comic "departure of the warrior"',
                         desc="Line drawing after the Apulian red-figure bell-krater Würzburg H 4689; traced from "
                              "photographs by ArchaiOptix (CC BY-SA 4.0), taken off the vase's curve, changed.")
-    print(OUT, info)
+    print(OUT, info, "canvas origin (widened px)", (cx0, cy0))
     if qa:
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
         lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
@@ -485,5 +721,7 @@ def main(src, qa=None, dump=None):
 if __name__ == "__main__":
     if "--refit" in sys.argv:
         fit_model(dict(zip(["07", "04", "05", "06"], sys.argv[1:5])))
+    elif "--refit03" in sys.argv:
+        fit_03(*sys.argv[1:3])
     else:
-        main(*sys.argv[1:4])
+        main(*sys.argv[1:5])
