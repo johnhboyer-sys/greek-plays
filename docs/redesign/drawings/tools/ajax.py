@@ -104,7 +104,7 @@ HAND_LINES = [[(577, 1046), (578, 1064), (578, 1081), '-', (577, 1090), '-', (57
               [(609, 1025), (613.5, 1031), (618, 1036)],
               [(610, 1035), (610.5, 1048), (611, 1060)]]
 FOLD_LINES, FOLD_HALF = [(2382, 630, 960)], 4
-WORN = [(2376, 630, 2436, 990)]
+WORN = [(2376, 612, 2436, 990)]
 MARKS_FILE = Path(__file__).parent / "ajax_marks.png"
 MARKS_ORIGIN = (117, 185)       # levelled px of the marks layer's top-left pixel
 WHITE_HOLE = 300                # levelled px^2: parts the white closes in smaller than this are on it (an eye)
@@ -795,6 +795,16 @@ def main(src, heid, qa=None, dump=None):
     darkl &= ~hb
     dots &= ~hb
     lines = ((black | darkl | strokes | dots | hand_lines) & fig) | wline
+    # and the fold's dots print light enough to pass for added white (outlined as specks; John circled
+    # them, 2026-10-08): along the fold and in the worn patch the shield's plain black is black, clear of
+    # the hatched rim
+    crease = np.zeros_like(fig)
+    for fx, fy0, fy1 in FOLD_LINES:
+        crease |= (np.abs(px - fx) <= FOLD_HALF) & (py >= fy0) & (py <= fy1)
+    for wx0, wy0, wx1, wy1 in WORN:
+        crease |= (px >= wx0) & (px <= wx1) & (py >= wy0) & (py <= wy1)
+    crease &= fig & ~ndi.binary_dilation(hatch | hatched, iterations=2 * UP)
+    lines |= crease
     # John's corrections (2026-10-08), drawn over the whole pass in PhotoCraft (show4/ajax_corrections.pcraft,
     # layer "John Trace"; MARKS_FILE holds them as he drew them: 1 green = take the ink out, 2 blue = ink).
     # His layer is at UP px with its origin at MARKS_ORIGIN (levelled px), so it maps 1:1 onto the work px.
