@@ -388,6 +388,9 @@ FOOT_SEED = (1320, 2445)
 CLAY_FILL = "#c4b294"
 WHITE = "#f7f3ea"
 TONE_M = 0.18                  # the master's clothes
+# the slave's chiton: white at CHITON_WHITE (John, 2026-10-08: "Make the slave's shirt much lighter (just a few
+# shades darker than the hair and beard"), under his hair's white (WHITE_A)
+CHITON_WHITE = 0.5
 # the white: opacity from WHITE_A[0] where the photo's red less blue (smoothed over WHITE_SIGMA flat px: at
 # 1.5 the white came out as the photo's grain) is WHITE_RB[0] (his face's orange) to WHITE_A[1] at
 # WHITE_RB[1] (the palest), in steps, fading out over WHITE_FEATHER flat px toward his skin and clothes
@@ -749,13 +752,13 @@ def regions(fig, ink, origin):
     return dict(skin=skin, chiton=chiton, himation=himation, clothes_m=clothes_m, white=white)
 
 
-def add_tones(svg, tones, box):
-    """Flat washes (mask, opacity) added under the lines of the drawing trace_svg wrote."""
+def add_tones(svg, tones, box, colour="currentColor", cls="tone"):
+    """Flat washes (mask, opacity) in `colour` added under the lines of the drawing trace_svg wrote."""
     x0, y0, x1, y1 = box
     paths = ""
     for m, a in tones:
         d, _ = lw.potrace_d(lw.resample_ink(m[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
-        paths += f'<path class="tone" fill="currentColor" fill-opacity="{a:.3f}" stroke="none" d="{d}"/>'
+        paths += f'<path class="{cls}" fill="{colour}" fill-opacity="{a:.3f}" stroke="none" d="{d}"/>'
     svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
 
 
@@ -900,7 +903,8 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
              "taken off the vase's curve, cut out and retraced.")
     add_hair(OUT, hair, g, info["box"])
     r = regions(fig, ink, (x0, y0))
-    add_tones(OUT, [(r["chiton"], TONE_A[0]), (r["himation"], TONE_A[1]), (r["clothes_m"] & ~hair, TONE_M)], info["box"])
+    add_tones(OUT, [(r["himation"], TONE_A[1]), (r["clothes_m"] & ~hair, TONE_M)], info["box"])
+    add_tones(OUT, [(r["chiton"], CHITON_WHITE)], info["box"], colour=WHITE, cls="white")
     add_white(OUT, r["white"], fig & ~r["white"], rb, info["box"])
     OUT.write_text(OUT.read_text().replace('class="body" fill="none"', f'class="body" fill="{CLAY_FILL}"', 1))
     print(OUT, info)
