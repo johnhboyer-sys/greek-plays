@@ -323,6 +323,30 @@ FACE = (980, 230, 1450, 800)    # flat px: his head
 # the stage's top edge (flat px, y = a + b x, fitted to its edge left of his feet): below it is the
 # stage, left out, except his front foot, which stands over its edge (FOOT)
 STAGE = (2565.0, -0.040)
+# The slave's garments in tone (John, 2026-10-08: "Can't tell where hair ends and tunic begins"; "give
+# lower tunic a slightly darker tone than the top", the slave only): his chiton (shoulders, chest, the sleeve
+# of the arm on his hip) as a light wash, his short himation (the roll at his waist, the skirt, and the end
+# hanging from his fist up over his shoulder) a little darker; his head, fist and legs stay clay. On the
+# vase his face, fist and himation are a deeper orange than the chiton. The washes are paths of class
+# "tone" in the line colour, under the lines, at TONE_A. Each area's edge is a least-cost path along the
+# drawing's own lines through hand-placed points (flat px; lw.STRAIGHT: a straight edge to the next point,
+# off the figure or across clay with no painted line: between the back of his head and his shoulders, where
+# the vase paints none, the edge runs from the notch in his outline to his jaw). Areas of the himation's
+# box that the lines close off as his legs (TONE_LEGS: a point in each), and the genitals, are not toned.
+TONE_CHITON = [(-460, 700), lw.STRAIGHT, (-395, 752), lw.STRAIGHT, (-340, 762), lw.STRAIGHT, (-280, 768),
+               lw.STRAIGHT, (-230, 765), lw.STRAIGHT, (-205, 760),
+               (-150, 795), (-100, 802), (-50, 790), (0, 795), (50, 780), (90, 760), (92, 850), (95, 950),
+               (95, 1050), (95, 1100), (50, 1120), (-50, 1100), (-150, 1095), (-250, 1100), (-300, 1130),
+               (-340, 1150), (-400, 1175), (-440, 1190), (-500, 1135), (-550, 1085), lw.STRAIGHT, (-645, 1068),
+               lw.STRAIGHT, (-700, 1060), lw.STRAIGHT, (-660, 700), lw.STRAIGHT]
+TONE_HIMATION = [(95, 1100), (50, 1120), (-50, 1100), (-150, 1095), (-250, 1100), (-300, 1130), (-340, 1150),
+                 (-400, 1175), (-440, 1190), (-500, 1135), (-550, 1085), lw.STRAIGHT, (-645, 1068),
+                 lw.STRAIGHT, (-700, 1060), lw.STRAIGHT, (-680, 1780), lw.STRAIGHT, (360, 1780), lw.STRAIGHT, (360, 760), lw.STRAIGHT,
+                 (200, 760), lw.STRAIGHT, (100, 745), (90, 760), (92, 850), (95, 950), (95, 1050)]
+TONE_FIST = [(105, 1150), (150, 1130), (200, 1130), (240, 1170), (250, 1210), (240, 1250), (210, 1275),
+             (160, 1280), (120, 1265), (100, 1220)]
+TONE_LEGS = [(-150, 2000), (0, 2000)]
+TONE_A = (0.12, 0.24)
 # Under the slave the stage's edge lies lower in the flat than the master's line runs (his part is a flat of
 # its own): STAGE_B (flat px, measured on the flat) runs along it from the column's foot, round the outer
 # edge of his back sandal (heel, sole), up its toe to the black ground between his feet, across, and round
@@ -628,6 +652,36 @@ def join_breaks(lines, contrast, to_edge):
     return out
 
 
+def garment_tones(fig, ink, origin):
+    """The slave's chiton and himation (TONE_*), masks at UP, each running on under its lines."""
+    x0, y0 = origin
+    up = lambda pts: [p if p == lw.STRAIGHT else ((p[0] - x0 + 0.5) * UP - 0.5, (p[1] - y0 + 0.5) * UP - 0.5)
+                      for p in pts]
+    cost = np.where(ndi.binary_dilation(ink, iterations=UP), 1.0, 25.0)
+    area = lambda pts: lw.polygon_mask(fig.shape, lw.livewire(cost, up(pts), closed=True))
+    near = ndi.binary_dilation(ink, iterations=1)
+    chiton = area(TONE_CHITON) & fig
+    himation = area(TONE_HIMATION) & fig & ~area(TONE_FIST)
+    cells, _ = ndi.label(fig & ~near)
+    legs = {cells[int((y - y0) * UP), int((x - x0) * UP)] for x, y in TONE_LEGS} - {0}
+    himation &= ~ndi.binary_dilation(np.isin(cells, list(legs)), iterations=2 * UP)
+    lab, _ = ndi.label(himation)   # (the genitals: pieces the lines leave apart from the skirt)
+    size = np.bincount(lab.ravel())
+    size[0] = 0
+    himation = lab == np.argmax(size)
+    return chiton & ~himation, himation
+
+
+def add_tones(svg, tones, box):
+    """Flat washes (mask, opacity) added under the lines of the drawing trace_svg wrote."""
+    x0, y0, x1, y1 = box
+    paths = ""
+    for m, a in tones:
+        d, _ = lw.potrace_d(lw.resample_ink(m[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
+        paths += f'<path class="tone" fill="currentColor" fill-opacity="{a:.3f}" stroke="none" d="{d}"/>'
+    svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
+
+
 def main(pJ, pL1, pL3, qa=None, dump=None):
     from skimage import morphology
     from skimage.filters import apply_hysteresis_threshold
@@ -740,6 +794,8 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
         desc="Line drawing after a photo of a Sicilian red-figure calyx-krater (Louvre CA 7249), "
              "taken off the vase's curve, cut out and retraced.")
     add_hair(OUT, hair, g, info["box"])
+    chiton, himation = garment_tones(fig, ink, (x0, y0))
+    add_tones(OUT, [(chiton, TONE_A[0]), (himation, TONE_A[1])], info["box"])
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
