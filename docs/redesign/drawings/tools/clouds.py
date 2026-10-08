@@ -47,6 +47,7 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
 from scipy.interpolate import CubicSpline, LinearNDInterpolator
+from skimage import morphology
 
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
@@ -250,9 +251,15 @@ BOX = (360, 220, 1800, 2720)   # flat px: the master
 UP = 2                         # work at 2x the flat's px, so curves stay smooth
 CLAY = 22                      # red less blue, lightly blurred: his clay (and the pale, washed-out robe low
 #                                on the right) is above it; the ground, black or mottled grey-green, below
+# Ground: the black (darker than GROUND_L in grey, and not clay) or the grey-blue where the glaze is worn
+# or the photo washed out (blue over red by more than GROUND_BR). By the clay map alone the painted lines
+# where the photo is washed out (his feet, his hem: grey 110-220, red over blue by 10-25) joined the
+# ground and cut his back foot off.
+GROUND_L, GROUND_BR = 90, 8
 AUTO_GROUND = 20000            # flat px: dark areas this large, reaching the box's edge, are ground
 SEEDS = [(1200, 1400)]   # flat px: his robe
 EDGE_R = 6                      # flat px
+STRIPE, STRIPE_G = (1030, 1500, 1140, 1980), 125
 FIG_SIGMA = 2.0                 # flat px
 EDGE_ZONE = 5.5                 # flat px
 END_RUN = 6                     # flat px
@@ -261,23 +268,68 @@ FACE = (980, 230, 1450, 800)    # flat px: his head
 # the stage's top edge (flat px, y = a + b x, fitted to its edge left of his feet): below it is the
 # stage, left out, except his front foot, which stands over its edge (FOOT)
 STAGE = (2565.0, -0.040)
+# His front sandal and his right foot stand over the stage's edge, parted from it only by their painted
+# lines; J's frame ends across the front sandal, about 40 flat px above its sole. FOOT closes the figure
+# there along the outer edge of their lines (flat px; the outline is drawn on the lines): the front
+# sandal's left side as J shows it (measured row by row), its sole from L3, and the right foot's back
+# as J and L3 show it. L3 is laid on the flat by a projective map fitted to points matched with the flat
+# around the feet (L3_BOX, L3_K), then moved by L3_SHIFT, the offset at which its lines best match J's
+# where both show the sandal (correlation 0.71); the sole is its darkest line, measured column by
+# column, and drawn along a smooth curve.
+# centre points of the lines (flat px): the front sandal's left side (J), the sole (L3), the right foot's back
+# (J above 2560, L3 below); each fitted with a smooth curve (x a quadratic in y; the sole y a quartic in
+# x) and the figure closed along its outer edge, FOOT_HALF flat px out
+FOOT_LEFT = [(1449, 2490), (1452, 2500), (1453, 2510), (1457, 2520), (1456, 2530), (1455, 2540), (1454, 2550),
+             (1452, 2560), (1449, 2570), (1448, 2580), (1447, 2590), (1444, 2600), (1444, 2610), (1447, 2620)]
+SOLE = [(1456, 2630), (1486, 2635), (1526, 2636), (1556, 2632), (1586, 2628), (1596, 2624), (1646, 2626),
+        (1666, 2629), (1676, 2622), (1686, 2608)]
+FOOT_RIGHT = [(1690, 2490), (1693, 2500), (1696, 2510), (1701, 2520), (1703, 2530), (1704, 2540), (1704, 2550),
+              (1700, 2570), (1696, 2585), (1690, 2598)]
+FOOT_TOP, FOOT_HALF = 2480, 1.75
+L3_BOX, L3_K, L3_SHIFT = (700, 1200, 1900, 2650), 0.15, (-9, -1)
+# ground seen through the figure, below his robe: the black wedge between his front leg and his right foot
+POCKETS = [(1590, 2470)]
 # Lines: the painted lines are black on the clay, 3-8 flat px wide, but where the photo is washed out (his
 # robe low on the right, his feet) only 10-20 grey levels under it. They are found by local contrast (the
-# blurred photo's Maximum then Minimum over 9 flat px, less the blurred photo) with hysteresis
+# blurred photo's Maximum then Minimum over CLOSE_W flat px, less the blurred photo) with hysteresis
 # (LINE_LOW, LINE_HIGH), and drawn at their own width (where the contrast is at least half the
 # strongest within HALF_R flat px), never thinner than LINE_MIN flat px along their centre. The
 # photo's faint horizontal streaks reach 10 at most.
 LINE_LOW, LINE_HIGH, HALF_R, LINE_MIN = 12, 24, 3, 2.5
+CLOSE_W = 9
 # a piece of line shorter than LINE_LEN flat px (along its centre) is grain or a streak of the photo
 LINE_LEN = 14
 # and one shorter than SHORT_LEN whose contrast never reaches SHORT_C is grain
 SHORT_LEN, SHORT_C = 40, 32
 HOLE = 12                      # flat px^2: holes this small in a line are filled
-SPUR, WIDTH_SIGMA = 4, 6.0     # flat px: side spurs pruned from the centre lines; width smoothing
+MASK_SIGMA = 1.5               # flat px
+SPUR, WIDTH_SIGMA = 7, 6.0     # flat px: side spurs pruned from the centre lines; width smoothing
 # solid paint: the beard, the hair, the pupils. Darker than PAINT (grey, lightly blurred), in areas over
 # PAINT_AREA flat px^2
 PAINT, PAINT_AREA = 80, 150
+PAINT_HOLE = 80                # flat px^2
 PAINT_WIDE = 4                 # flat px: paint is wider than 2 x this (the lines are not)
+# His hair is dark dabs over a thinner brown wash, with a rim of brown curls: drawn as a wash in the line
+# colour (paths of class "tone" under the lines, as Andromache's blood) whose opacity follows the
+# photo's darkness, from HAIR_A[0] where it is as light as HAIR_T[0] (grey, smoothed over HAIR_SIGMA
+# flat px) to HAIR_A[1] where it is as dark as HAIR_T[1], in steps of HAIR_STEP, each step over the one
+# below at the opacity that brings the total to its own (no seams). Solid black, the dabs ran into
+# blots. The hair is the figure inside HAIRLINE (flat px: placed by hand along the edge of the dark mass,
+# over the bald crown and forehead, round behind the ear, and out round the back of the head); no lines
+# are drawn inside it. (By darkness alone it took in the forehead and its brows.)
+HAIRLINE = [(1088, 200), (1092, 262), (1100, 282), (1112, 298), (1126, 314), (1136, 327), (1170, 328), (1212, 326), (1236, 332),
+            (1256, 347), (1259, 365), (1250, 385), (1240, 410), (1230, 440), (1228, 470), (1232, 500), (1242, 518),
+            (1265, 509), (1300, 503), (1325, 505), (1335, 522), (1343, 550), (1362, 548), (1400, 515), (1440, 496), (1490, 496), (1490, 200)]
+HAIR_T, HAIR_A, HAIR_STEP, HAIR_SIGMA = (170, 45), (0.2, 0.8), 0.1, 1.5
+# Breaks in the lines where the paint is worn or the photo fades (the long folds low on his robe), joined
+# as trojan_women_menelaus.py joins them (join_breaks, copied with its rules): line ends facing each other
+# across at most JOIN_MAX flat px (their last JOIN_RUN flat px pointing at each other within JOIN_ANGLE
+# degrees), where the photo's local contrast across the gap has a median of JOIN_C or more and stays under
+# JOIN_LOW for no more than JOIN_FADE flat px together, and the join crosses no other line (dots under
+# JOIN_DOT flat px^2 aside); ends pointing straight at each other (within 10 degrees) across up to ALIGN_MAX,
+# where the contrast's median is ALIGN_C or more, and not along the figure's edge (FAINT_EDGE)
+JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, JOIN_LOW, JOIN_FADE, JOIN_DOT = 30, 6, 20, 7, 3, 5, 30
+ALIGN_COS, ALIGN_C, ALIGN_MAX, FAINT_EDGE = np.cos(np.radians(10)), 4, 40, 6
 EDGE = 3.5                     # flat px: the outline, drawn inside the figure's edge (the painted lines
 #                                are 3-8 wide; at 2.5 it read as a halo round the figure)
 
@@ -314,6 +366,12 @@ def even_lines(m, own):
     and the brush's ragged edges made the lines lumpy."""
     from skimage import morphology
     m = morphology.remove_small_holes(m, max_size=HOLE * UP * UP)   # pinholes made rings of the centre lines
+    # the mask smoothed first (blurred over MASK_SIGMA flat px in PhotoCraft, cut at half): its ragged
+    # edges forked the centre lines at the ends of thick strokes, which drew drips hanging off them
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray((m * 255).astype(np.uint8)).save(Path(td) / "m.png")
+        pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": MASK_SIGMA * UP}))
+        m = grey(Path(td) / "ms.png") >= 128
     c = centre_lines(m, spur=SPUR * UP, min_len=LINE_LEN * UP)
     w = 2 * ndi.distance_transform_edt(own)
     num, den = (ndi.gaussian_filter(a, WIDTH_SIGMA * UP) for a in (np.where(c, w, 0.0), c.astype(float)))
@@ -351,7 +409,8 @@ def find_lines(contrast, cmax, fig, origin):
     firm &= keep[lab]
     own = firm & (contrast >= 0.5 * cmax)
     lines, c, half = even_lines(own | firm, own)
-    return (lines | to_outline(c, half, to_edge)) & fig
+    lines = (lines | to_outline(c, half, to_edge)) & fig
+    return lines | (join_breaks(lines, contrast, ndi.distance_transform_edt(fig)) & fig)
 
 
 def to_outline(c, half, to_edge):
@@ -393,6 +452,113 @@ def to_outline(c, half, to_edge):
     return out
 
 
+def foot_polygon():
+    """FOOT: the figure's closing below the stage's edge (flat px, a closed polygon)."""
+    Lp, Sp, Rp = (np.array(v, float) for v in (FOOT_LEFT, SOLE, FOOT_RIGHT))
+    kl, kr = np.polyfit(Lp[:, 1], Lp[:, 0], 2), np.polyfit(Rp[:, 1], Rp[:, 0], 2)
+    ks = np.polyfit(Sp[:, 0], Sp[:, 1], 4)
+    xs = np.linspace(np.polyval(kl, Sp[0, 1]), np.polyval(kr, Sp[-1, 1]), 120)
+    ys_l = np.linspace(FOOT_TOP, np.polyval(ks, xs[0]), 60)
+    ys_r = np.linspace(np.polyval(ks, xs[-1]), FOOT_TOP, 60)
+    return np.vstack([np.c_[np.polyval(kl, ys_l) - FOOT_HALF, ys_l],
+                      np.c_[xs, np.polyval(ks, xs) + FOOT_HALF],
+                      np.c_[np.polyval(kr, ys_r) + FOOT_HALF, ys_r]])
+
+
+def hair_mask(fig):
+    x0, y0 = BOX[:2]
+    return fig & lw.polygon_mask(fig.shape, (np.array(HAIRLINE, float) - (x0, y0) + 0.5) * UP - 0.5)
+
+
+def add_hair(svg, hair, g, box):
+    """The hair's wash (HAIR_*) added to the drawing trace_svg wrote (box: the crop box it returned)."""
+    x0, y0, x1, y1 = box
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.fromarray(np.where(hair, g, 0).astype(np.uint8)).save(t / "hg.png")
+        Image.fromarray((hair * 255).astype(np.uint8)).save(t / "hm.png")
+        for n in ("hg", "hm"):
+            pc(t / f"{n}.png", t / f"{n}s.png", ("filter.blur.gaussianBlur", {"radius": HAIR_SIGMA * UP}))
+        dark = grey(t / "hgs.png") / np.maximum(grey(t / "hms.png"), 1.0) * 255.0
+    (t0, t1), (a0, a1) = HAIR_T, HAIR_A
+    alpha = a0 + (a1 - a0) * np.clip((t0 - dark) / (t0 - t1), 0, 1)
+    paths, below = "", 0.0
+    for a in np.arange(a0, a1 + 1e-9, HAIR_STEP):
+        m = hair & (alpha >= a - HAIR_STEP / 2)
+        if not m.any():
+            break
+        d, _ = lw.potrace_d(lw.resample_ink(m[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
+        paths += (f'<path class="tone" fill="currentColor" fill-opacity="{1 - (1 - a) / (1 - below):.3f}" '
+                  f'stroke="none" d="{d}"/>')
+        below = a
+    svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
+
+
+def join_breaks(lines, contrast, to_edge):
+    """The breaks in `lines` (at UP) that JOIN_* describe, joined; `contrast` is the plate's local
+    contrast (UP px)."""
+    from scipy.spatial import cKDTree
+    sk = morphology.skeletonize(lines)
+    nb = ndi.convolve(sk.astype(np.uint8), np.ones((3, 3), np.uint8), mode='constant') - 1
+    ends = np.argwhere(sk & (nb == 1))
+    dt = ndi.distance_transform_edt(lines)
+    H, W = sk.shape
+
+    def run_back(p):   # the end's last JOIN_RUN plate px of centre line, from the end inward
+        path, seen = [tuple(p)], {tuple(p)}
+        for _ in range(JOIN_RUN * UP):
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if (dy or dx) and 0 <= y + dy < H and 0 <= x + dx < W and sk[y + dy, x + dx]
+                   and (y + dy, x + dx) not in seen]
+            if not nxt:
+                break
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        return np.array(path, float)
+
+    runs = [run_back(p) for p in ends]
+    lab = ndi.label(lines, structure=np.ones((3, 3)))[0]
+    size = np.bincount(lab.ravel())
+    out = np.zeros_like(lines)
+    used = set()
+    cos = np.cos(np.radians(JOIN_ANGLE))
+    pairs = sorted(cKDTree(ends).query_pairs(ALIGN_MAX * UP),
+                   key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]])))
+    for i, j in pairs:
+        if i in used or j in used or len(runs[i]) < JOIN_RUN * UP / 2 or len(runs[j]) < JOIN_RUN * UP / 2:
+            continue
+        a, b = ends[i].astype(float), ends[j].astype(float)
+        u = (b - a) / np.hypot(*(b - a))
+        da, db = runs[i][0] - runs[i][-1], runs[j][0] - runs[j][-1]
+        if da @ u < cos * np.hypot(*da) or db @ -u < cos * np.hypot(*db):
+            continue
+        t = np.linspace(0.1, 0.9, max(int(np.hypot(*(b - a))), 3))
+        q = a[None] + t[:, None] * (b - a)[None]
+        c = ndi.map_coordinates(contrast, q.T, order=1)
+        low = np.r_[0, (c < JOIN_LOW).astype(int), 0]
+        starts, stops = np.nonzero(np.diff(low) == 1)[0], np.nonzero(np.diff(low) == -1)[0]
+        aligned = da @ u >= ALIGN_COS * np.hypot(*da) and db @ -u >= ALIGN_COS * np.hypot(*db)
+        if not aligned and np.hypot(*(b - a)) > JOIN_MAX * UP:
+            continue
+        if aligned:   # a dotted fold: its pieces lie along one curve, so the print's gaps may be long
+            # (not along the figure's edge, where the print's darker band beside the outline would pass
+            # for a faint line: it joined a stroke straight down the left woman's face)
+            if np.median(c) < ALIGN_C or np.median(ndi.map_coordinates(to_edge, q.T, order=1)) < FAINT_EDGE * UP:
+                continue
+        elif np.median(c) < JOIN_C or (len(starts) and (stops - starts).max() > JOIN_FADE * UP):
+            continue
+        mid = (np.hypot(*(q - a).T) > 2 * UP) & (np.hypot(*(q - b).T) > 2 * UP)
+        hit = set(lab[tuple(q[mid].round().astype(int).T)]) - {0, lab[tuple(a.astype(int))], lab[tuple(b.astype(int))]}
+        if any(size[k] >= JOIN_DOT * UP * UP for k in hit):   # it would cross another line (not a dot of its own)
+            continue
+        w = np.median([dt[tuple(r.astype(int))] for r in np.vstack([runs[i], runs[j]])]) * 2 / UP
+        seg = np.linspace(a - 1.5 * u, b + 1.5 * u, int(np.hypot(*(b - a))) + 4)[:, ::-1] + 0.5
+        out |= along(lines.shape, seg, max(w, 2.0))
+        used |= {i, j}
+    return out
+
+
 def main(pJ, pL1, pL3, qa=None, dump=None):
     from skimage import morphology
     from skimage.filters import apply_hysteresis_threshold
@@ -410,9 +576,12 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     pc(t / "up.png", t / "g.png", ("image.mode.grayscale", None))
     pc(t / "up.png", t / "rb.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
        ("filter.blur.gaussianBlur", {"radius": 1.0 * UP}))
+    pc(t / "up.png", t / "br.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [-100, 0, 100, 0]}),
+       ("filter.blur.gaussianBlur", {"radius": 1.0 * UP}))
     pc(t / "g.png", t / "gp.png", ("filter.blur.gaussianBlur", {"radius": 0.7 * UP}))
     pc(t / "rb.png", t / "rbmax.png", ("filter.other.maximum", {"radius": EDGE_R * UP, "preserve": "roundness"}))
     g, rb, gp, rbmax = grey(t / "g.png"), grey(t / "rb.png"), grey(t / "gp.png"), grey(t / "rbmax.png")
+    br = grey(t / "br.png")
     onphoto = grey(t / "up.png") > 0
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
@@ -422,22 +591,32 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
 
     # ground: the dark (by the clay map) with thin lines opened away, in large areas reaching the box's
     # edge; the figure: what it leaves, from SEEDS
-    dark = (rb <= CLAY) & ~outside
+    dark = ((br > GROUND_BR) | ((rb <= CLAY) & (gp < GROUND_L))) & ~outside & onphoto
     dark = ndi.binary_opening(dark, structure=np.ones((4 * UP + 1, 4 * UP + 1)))
     lab, _ = ndi.label(dark)
     size = np.bincount(lab.ravel())
     size[0] = 0
     rim = np.unique(np.r_[lab[0], lab[:, 0], lab[:, -1], lab[ndi.binary_dilation(outside, iterations=2)]])
     is_ground = (size > AUTO_GROUND * UP * UP) & np.isin(np.arange(len(size)), rim)
+    for x, y in POCKETS:
+        k = lab[int((y - y0) * UP), int((x - x0) * UP)]
+        assert k, f"pocket point {(x, y)} is not on dark"
+        is_ground[k] = True
     ground = is_ground[lab]
+    foot = lw.polygon_mask(g.shape, (foot_polygon() - (x0, y0) + 0.5) * UP - 0.5)
+    outside &= ~foot
     lab, _ = ndi.label(~ground & ~outside)
     keep = {lab[int((y - y0) * UP), int((x - x0) * UP)] for x, y in SEEDS}
     assert 0 not in keep
     fig = ndi.binary_fill_holes(np.isin(lab, list(keep))) & ~ground
     # its edge where the clay map falls to half the clay's level nearby (EDGE_R): CLAY alone put it out
     # in the blur between clay and ground, and the dark there drew a second line inside the outline
-    band = fig & ~ndi.binary_erosion(fig, iterations=EDGE_R * UP)
-    fig &= ~(band & (rb < 0.5 * rbmax))
+    fig &= ~((ndi.distance_transform_edt(fig) <= EDGE_R * UP) & (rb < 0.5 * rbmax))
+    # along his robe's left edge the painter's brown stripe of glaze (10-15 flat px, olive where it is
+    # worn) stays out: in STRIPE the figure is the clay lighter than STRIPE_G (grey, lightly blurred)
+    sx0, sy0, sx1, sy1 = STRIPE
+    fig &= ~((fx >= sx0) & (fx < sx1) & (fy >= sy0) & (fy < sy1) & (gp < STRIPE_G))
+    fig |= ndi.binary_fill_holes(fig) & ~ground        # (not the painted folds there: they are dark too)
     # and smoothed along its length (the photo's grain made the outline wobble): the mask blurred over
     # FIG_SIGMA flat px in PhotoCraft and cut at half
     Image.fromarray((fig * 255).astype(np.uint8)).save(t / "fig.png")
@@ -448,9 +627,9 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
 
     # lines by local contrast, on the grey photo with everything off the figure turned white, so the
     # ground's dark makes no contrast along the figure's edge (it drew a second outline inside the first)
-    Image.fromarray(np.where(fig, g, 255).astype(np.uint8)).save(t / "gw.png")
+    Image.fromarray(np.where(fig & onphoto, g, 255).astype(np.uint8)).save(t / "gw.png")
     pc(t / "gw.png", t / "gl.png", ("filter.blur.gaussianBlur", {"radius": 0.8 * UP}))
-    r = (9 * UP) // 2
+    r = (CLOSE_W * UP) // 2
     pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
        ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
     gl, closed = grey(t / "gl.png"), grey(t / "closed.png")
@@ -461,13 +640,15 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     td.cleanup()
 
     lines = find_lines(contrast, cmax, fig, (x0, y0))
-    paint = (gp < PAINT) & fig
+    paint = (gp < PAINT) & fig & onphoto
     wide = ndi.binary_opening(paint, structure=morphology.disk(PAINT_WIDE * UP))   # not the lines
     paint &= ndi.binary_dilation(wide, structure=morphology.disk(UP))
     lab, _ = ndi.label(paint)
     paint &= (np.bincount(lab.ravel()) > PAINT_AREA * UP * UP)[lab]
+    paint = morphology.remove_small_holes(paint, max_size=PAINT_HOLE * UP * UP)   # specks of clay in the beard
     edge = fig & ~ndi.binary_erosion(fig, iterations=round(EDGE * UP))
-    ink = lines | paint | edge
+    hair = hair_mask(fig)
+    ink = ((lines | paint) & ~hair) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
     if dump:
@@ -478,6 +659,7 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
         title="A comic old man, the master",
         desc="Line drawing after a photo of a Sicilian red-figure calyx-krater (Louvre CA 7249), "
              "taken off the vase's curve, cut out and retraced.")
+    add_hair(OUT, hair, g, info["box"])
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
