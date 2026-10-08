@@ -611,7 +611,7 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     fig = ndi.binary_fill_holes(np.isin(lab, list(keep))) & ~ground
     # its edge where the clay map falls to half the clay's level nearby (EDGE_R): CLAY alone put it out
     # in the blur between clay and ground, and the dark there drew a second line inside the outline
-    fig &= ~((ndi.distance_transform_edt(fig) <= EDGE_R * UP) & (rb < 0.5 * rbmax))
+    fig &= ~((ndi.distance_transform_edt(fig) <= EDGE_R * UP) & (rb < 0.5 * rbmax) & onphoto)
     # along his robe's left edge the painter's brown stripe of glaze (10-15 flat px, olive where it is
     # worn) stays out: in STRIPE the figure is the clay lighter than STRIPE_G (grey, lightly blurred)
     sx0, sy0, sx1, sy1 = STRIPE
@@ -627,7 +627,9 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
 
     # lines by local contrast, on the grey photo with everything off the figure turned white, so the
     # ground's dark makes no contrast along the figure's edge (it drew a second outline inside the first)
-    Image.fromarray(np.where(fig & onphoto, g, 255).astype(np.uint8)).save(t / "gw.png")
+    # (and J's own edge: resampling darkens a rim of it, 1-3 flat px, which drew a line along it)
+    inside = ndi.binary_erosion(onphoto, iterations=3 * UP)
+    Image.fromarray(np.where(fig & inside, g, 255).astype(np.uint8)).save(t / "gw.png")
     pc(t / "gw.png", t / "gl.png", ("filter.blur.gaussianBlur", {"radius": 0.8 * UP}))
     r = (CLOSE_W * UP) // 2
     pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
