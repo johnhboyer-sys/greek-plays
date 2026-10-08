@@ -162,6 +162,15 @@
       "source": "Gerhard, Auserlesene griechische Vasenbilder III (1847), Taf. CLXIX, 4: a red-figure amphora by the Altamura Painter, from Vulci, now British Museum 1837,0609.71 (E 263) (Heidelberg scan, public domain)",
       "method": "Coloured plate, red figures on black, made with PhotoCraft: the black ground gives the outline; black borders parted from the ground along faint clay lines; the plate's lines at the paint's width, faint dotted folds drawn along fitted curves and joined; fingers found at less blur; the left woman's profile on John's line; the plate's own line weight (0.10%); potrace",
       "verdict": "Usable; approved by John on the fourth pass (2026-10-08), after his marks on 26 faint lines, the hair and the mouth. The whole picture. No outside review (John: he reviewed it; the citation checked against Gerhard's text and the British Museum)."
+    },
+    {
+      "slug": "acharnians",
+      "file": "acharnians.svg",
+      "name": "Acharnians · a seated warrior (the type of Lamachus)",
+      "alt": "A comic warrior in a crested helmet, seated on a stool with his round shield, his right hand raised",
+      "source": "Apulian bell-krater, Würzburg H 4689, photographs by ArchaiOptix (CC BY-SA 4.0); the drawing traces only the painting and carries no licence",
+      "method": "Red-figure photos taken off the vase (a fitted model of the vase and four cameras, flattened without shear), made with PhotoCraft: clay by red less blue; the shield's rim under the sheen checked on a second photo and walled; stage cut along its painted line; painted lines at their own width, flaked breaks joined, faint strokes along fitted curves; outline at the house weight; potrace",
+      "verdict": "Approved by John on the first pass (2026-10-08); then the shield's top ray made solid black at his mark ('Good'). No outside review."
     }
   ]
 }

@@ -207,6 +207,29 @@ rather than adding a second one that contradicts it.
 - The vase went from Berlin (F 2184) to Moscow after the war. The Beazley Archive (no. 202912) gives
   Pushkin Museum 6528.3, the museum's own page inv. АВ 3742; the credit cites both (2026-10-07).
 
+### Photos of vases (red-figure, taken off the vase with `tools/vase_unroll.py`)
+
+- Acharnians (Würzburg H 4689, the seated warrior; four ArchaiOptix photos), made with PhotoCraft:
+  about an hour and a quarter; approved by John on the first pass, then one fault he circled
+  (2026-10-08). `tools/acharnians.py`.
+- `vase_unroll.silhouette` wants a plain light background on both sides; in a museum case (a lekythos
+  beside the vase, a chair behind it) it found nothing. Give rough guides to the outline and take the
+  strongest light-to-dark step near them (`outline`); the band's edge likewise (`band_edge`) (2026-10-08).
+- Clay against glaze by red less blue (PhotoCraft's Channel Mixer, monochrome [100, 0, -100]): the
+  glaze's white sheen reads 0 with the glaze, clay 90-140 (2026-10-08).
+- Where the sheen lies over the figure's edge, lay a second photo, lit otherwise, onto the same flat
+  and compare the edges: decisive, and it overturned my own reading of a close-up (2026-10-08).
+- A painted stroke that runs up to the figure's edge meets the ground's black there, and the drawing
+  takes it for ground: the shield's top ray came out a hollow sliver (John: "this circled part should
+  be black ink"; "looks terrible in day mode"). Wall it along the edge (`WALLS`), and look in the light
+  theme for any band drawn hollow beside the outline (2026-10-08).
+- On a worn photo, local contrast at the Gerhard plates' radius drew stains, the edges of white
+  scratches and the brown strip along a mend. Cap the grey at the clay's level first (Levels, input
+  white 140: exact; Curves bends the tones below its points), keep long thin pieces only, and keep off
+  the mend (`FAINT`, `MEND`) (2026-10-08).
+- Remove specks before joining breaks: glaze specks left in a flaked gap counted as a line crossed and
+  blocked the join (2026-10-08).
+
 ## John's traces
 
 - He draws over a crop of the plate, or over a screenshot of a close-up, in

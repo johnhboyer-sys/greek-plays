@@ -1,14 +1,19 @@
 """Acharnians: a seated warrior in a crested helmet, his round shield at his side and his right hand
 raised, from a comic "departure of the warrior" played on a stage, on the Apulian red-figure
-bell-krater Würzburg, Martin von Wagner Museum H 4689 (McDaniel Painter). He is the type of
-Lamachus, the crested general of Acharnians; the link is the type, not an identification of this
-vase with the play. Photos: ArchaiOptix, CC BY-SA 4.0; _07 is the drawing's source, _04, _05 and _06
-serve the vase's shape:
+bell-krater Würzburg, Martin von Wagner Museum H 4689, side A (Beazley Archive 1006966: Apulian,
+red-figure, bell-krater, HA4689; CVA Würzburg 4, pp. 12-13, Beilage 1.3, pl. 3.1-4). Attributed to the
+McDaniel Painter, c. 380-370 BC (RVAp 4/245), as the photographer's file description gives it; the
+museum has no public object record, and the CVA text was not read. He is the type of Lamachus, the
+crested general of Acharnians, whose slave brings out his spear as he arms (1118-1120); the old man
+at the door here holds out a spear. The link is the type, not an identification of this vase with the
+play. Photos: ArchaiOptix, CC BY-SA 4.0; _07 is the drawing's source, _04, _05 and _06 serve the vase's
+shape (and _06 its shield rim under the sheen). The drawing traces only the ancient painting, so it
+carries no licence (John, 2026-10-08); the photographer is credited.
 https://commons.wikimedia.org/wiki/File:McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_07.jpg
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the crop,
-the R-B channel (Channel Mixer), the grey, the blurs, the Maximum and Minimum filters and the
-thresholds. numpy only combines the masks PhotoCraft made (labels, unions, hysteresis) and measures.
+the R-B channel (Channel Mixer), the grey, the blurs, the cap on the grey (Levels), the Maximum and
+Minimum filters and the thresholds. numpy only combines the masks PhotoCraft made (labels, unions, hysteresis) and measures.
 Two steps are geometry, not image filtering, and stay in numpy/scipy: taking the painting off the
 vase's curve (vase_unroll.py) and fitting the vase (--refit). The SVG is written by
 linework.trace_svg.
@@ -21,14 +26,19 @@ Photo -> drawing:
     EOS 6D: 07 at 50 mm, 04 at 40 mm, 05 and 06 at 28 mm (EXIF), so the focal lengths are fixed;
     07 and 04 are uncropped, 05 and 06 cropped (their centres fitted). The vase is flattened
     without shear (vase_unroll.flatten) about his axis and 07 laid onto it at 07's own scale at his
-    waist. The shield, on the side turning away from the camera, comes out about a third wider.
-    His head checked against 06 laid onto the same flat: they agree within 1-2 px.
+    waist. His head checked against 06 laid onto the same flat: they agree within 1-2 px.
   - Clay against glaze by red less blue (R-B), in which the glaze's white sheen reads as glaze.
     He is the clay joined to SEEDS: the old man's spear tip, at the left, is a separate shape and
     left out. The stage he sits on is cut away along its top edge (STAGE): the back foot stands on
     the stage's painted line, which is kept as its sole; the stool's right leg runs into the plank.
+  - The shield's rim lies under the glaze's sheen at the top right: checked on photo 06 laid onto the
+    same flat, and walled (WALLS) where a black dot and the top ray, painted up to the rim, met the
+    ground's black.
   - Lines: the painting's dark lines inside him, by grey (luminance; scratches in the clay are
-    light, not dark): the paint at its own width, the outline, and the solid black (hair, beard).
+    light, not dark): the paint at its own width, the outline, and the solid black (hair, beard, the
+    helmet's inside). Lines broken where the glaze flaked are joined (JOIN_*, JOINS); faint strokes of
+    thinned glaze are found by local contrast and drawn along fitted curves (FAINT); the mended break
+    across his lap and shield leaves no line (MEND).
 
     python3 docs/redesign/drawings/tools/acharnians.py H4689-07.jpg [qa.png]
     python3 docs/redesign/drawings/tools/acharnians.py H4689-07.jpg H4689-04.jpg H4689-05.jpg H4689-06.jpg --refit
@@ -464,8 +474,8 @@ def main(src, qa=None, dump=None):
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, clay=clay)
     info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT,
                         title='A seated warrior raising his hand, a comic "departure of the warrior"',
-                        desc="Line drawing after the Apulian red-figure bell-krater Würzburg H 4689; traced from a "
-                             "photograph by ArchaiOptix (CC BY-SA 4.0), taken off the vase's curve.")
+                        desc="Line drawing after the Apulian red-figure bell-krater Würzburg H 4689; traced from "
+                             "photographs by ArchaiOptix (CC BY-SA 4.0), taken off the vase's curve, changed.")
     print(OUT, info)
     if qa:
         lw.qa_overlay(g, OUT, info["box"], Path(qa))

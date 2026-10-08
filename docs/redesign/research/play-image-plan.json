@@ -505,14 +505,23 @@
       "author": "aristophanes",
       "work_id": "acharnians",
       "title": "Acharnians",
-      "proposed_subject": "A market or peace-making figure; the motif is thematic until a direct source is found.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "The seated, crested warrior from the comic 'departure of the warrior' on the Apulian bell-krater Würzburg H 4689 (John's pick, 2026-10-05: sweep 2 code 29b, 'the seated warrior; flatten first').",
+      "status": "Drawn 2026-10-08; approved by John 2026-10-08",
+      "source_candidate": "https://commons.wikimedia.org/wiki/File:McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_07.jpg",
+      "final_image": "docs/redesign/drawings/acharnians.svg",
+      "credit": "After the Apulian red-figure bell-krater Würzburg, Martin von Wagner Museum H 4689 (CVA Würzburg 4, pp. 12-13, pl. 3.1-4; Beazley Archive 1006966), side A: a phlyax scene on a stage. Attributed to the McDaniel Painter, c. 380-370 BC (RVAp 4/245), as the photographer's file description gives it. Photographs: ArchaiOptix (Wikimedia Commons). Drawing traced from the photographs and changed.",
+      "license": "ArchaiOptix's photos CC BY-SA 4.0 (Commons file pages, checked 2026-10-08). The drawing traces only the ancient painting, which is public domain, so it carries no licence (John, 2026-10-08, as for Oedipus Tyrannus and Philoctetes); the photographer is credited.",
+      "crop": "The seated warrior, whole: his helmet, crest and the crest's ribbon, his round shield and the stool he sits on, which are all he touches. Left out: the old man at the open door, whose spear tip comes in from the left (cut off; it touches nothing of him), the door and its pillar, the stage, cut along its painted top line (kept as the back foot's sole and the foot of the stool's right leg), and the black ground. The ground the stool closes in stays open. No costume phallus: his chiton covers his lap.",
+      "alt_text": "A comic warrior in a crested helmet, seated on a stool with his round shield, his right hand raised",
+      "source_file": [
+        "https://upload.wikimedia.org/wikipedia/commons/3/38/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_07.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/e/eb/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_04.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/1/11/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_05.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/6/66/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_06.jpg"
+      ],
+      "shows": "Related to the play by type: a comic 'departure of the warrior', the crested soldier of the phlyax stage, handed his spear at a door. In Acharnians the crested general Lamachus has his slave bring out his spear as he arms for the frontier (1118-1120). The link is the type, not an identification of this vase with the play.",
+      "method": "Red-figure photos taken off the vase, every image step run in PhotoCraft (photocraft-cli 0.2.0), numpy only combining its masks: the vase's profile and the cameras of four photos fitted together (tools/vase_unroll.py: the meander band's upper edge in all four, the vase's outline in 04, 05 and 06, points matched between 07 and the others; focal lengths from EXIF), photo 07 laid onto the vase flattened without shear; clay against glaze by red less blue (Channel Mixer), in which the glaze's white sheen reads as glaze; the shield's rim under the sheen checked on photo 06 laid onto the same flat, and walled where a dot and the top ray, painted up to the rim, met the ground; the stage cut along its painted top line; the painted lines at their own width, lines broken where the glaze flaked joined, faint strokes of thinned glaze found by local contrast on the grey capped by Levels (so scratches do not count) and drawn along fitted curves; the mended break across his lap and shield left out; outline at the house weight, as Mika; potrace. tools/acharnians.py.",
+      "result": "Approved by John on the first pass shown, 2026-10-08; then one fault he circled, the shield's top ray, read as ground ('this circled part should be black ink'), made solid black ('Good'). About an hour and a quarter's work. No outside review; the credit checked against the Beazley Archive's record (1006966) and the Commons file page. The museum has no public object record; the CVA text was not read (John declined the download), so the attribution and date rest on the photographer's description."
     },
     {
       "author": "aristophanes",
