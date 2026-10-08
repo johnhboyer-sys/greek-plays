@@ -122,21 +122,20 @@ TRACED_W = LINE_MIN
 # across, darker than FACE_DARK (lightly blurred) only at its centre
 FACE = (530, 1540, 600, 1620)
 FACE_DARK = 110
-# Her profile from the nose to the jaw (John, 2026-10-07: "Mouth needs to have the lips and chin
-# distinct"; then, of a finer outline on the threshold's edge, "The mouth is WORSE now"). The
-# threshold rounds the lips into lumps, so the profile is the plate's own edge, measured row by row
-# (where the plate, enlarged 4x, crosses grey 80; plate px): the nose's tip and underside, the upper
-# lip, the mouth, the lower lip, the step under it, the straight chin, the jaw. Clay lies left of it,
-# ground right, within PROFILE_BOX; the outline along it is FACE_EDGE plate px wide, so a lip 4-5 px
-# deep keeps its clay
-PROFILE = [(570.4, 1562), (571.1, 1566), (572.4, 1570), (573.4, 1573), (574.6, 1575), (575.9, 1578),
-           (577.1, 1580), (577.4, 1581), (576.9, 1582), (576.1, 1583), (569.9, 1584), (569.4, 1585),
-           (569.4, 1587), (569.6, 1589), (566.6, 1590), (564.4, 1591), (564.9, 1592), (566.9, 1593),
-           (568.1, 1594), (568.6, 1595.5), (568.4, 1597), (567.6, 1598), (564.6, 1599), (564.4, 1600),
-           (564.6, 1602), (564.9, 1605), (564.4, 1607), (563.9, 1608), (563.4, 1609), (562.1, 1610),
-           (560.9, 1611), (559.9, 1612), (557.6, 1613), (554.9, 1614)]
-PROFILE_BOX = (548, 1562, 590, 1614)
-FACE_EDGE = 1.6
+# Her profile from the nose to the jaw is drawn on John's line (2026-10-07: "Mouth needs to have the lips
+# and chin distinct"; "Red line is where ink should go. Green pixels should not ink. They are
+# background"), which he drew over the plate's pixels at 20x: the nose's tip and underside, the upper
+# lip, the mouth (ground between the lips, outlined), the lower lip, the step under it, the straight
+# chin, the jaw. The grey threshold had taken a pale strip along her lips and chin for clay and the
+# mouth's ground for paint. Within PROFILE_BOX, clay lies left of the line, ground right, and the
+# outline is drawn along it (centred), PROFILE_W plate px wide (the outline's own width elsewhere). Its
+# two ends are moved a px onto the outline's centre beyond the box, so the line runs on without a step
+PROFILE = [(571.1, 1570), (573.25, 1572), (574.5, 1573.75), (575.5, 1576.25), (576, 1578), (576.5, 1579.25),
+           (576.6, 1582.75), (576, 1583.5), (570, 1583.5), (569.75, 1584.25), (569.5, 1588.5), (569.75, 1589.25),
+           (564.75, 1589.15), (564.5, 1593), (568.75, 1593.5), (568.9, 1596.75), (568, 1598.5), (564.5, 1598.6),
+           (564.5, 1606), (564, 1608), (562.5, 1610.25), (561.5, 1611.5), (555.5, 1613.2), (553.5, 1614.2)]
+PROFILE_BOX = (548, 1570, 590, 1615)
+PROFILE_W = 7 / 3
 # the hair: dark paint inside the left woman's fillet, where its loop's ends come within a px of the
 # clay beside them, and the tassel's black weight at the corner of her mantle are walled off from the
 # ground (with WALLS above)
@@ -365,13 +364,17 @@ def main(src, qa=None, dump=None):
     fig = ndi.binary_fill_holes(fig) & ~ground
     ridge = (g - ndi.grey_opening(g, size=(5 * UP, 5 * UP))) > 50
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP)) | (fig & ridge)
-    # her profile on its measured edge (PROFILE)
+    # her profile on John's line (PROFILE)
     P = up(PROFILE)
-    right = lw.polygon_mask(g.shape, np.vstack([P, [P[-1][0] + 60 * UP, P[-1][1]], [P[0][0] + 60 * UP, P[0][1]]]))
+    # (ground: right of the line, and below its end at the jaw)
+    right = lw.polygon_mask(g.shape, np.vstack([P, [P[-1][0], P[-1][1] + 10 * UP],
+                                                [P[0][0] + 60 * UP, P[-1][1] + 10 * UP], [P[0][0] + 60 * UP, P[0][1]]]))
     pb = np.zeros(g.shape, bool)
     bx0, by0, bx1, by1 = [(v - o) * UP for v, o in zip(PROFILE_BOX, (X0, Y0, X0, Y0))]
     pb[by0:by1, bx0:bx1] = True
-    fig = np.where(pb, ~right & (fig | (xx >= bx0 + 8 * UP)), fig)
+    near = along(g.shape, polyline(PROFILE), 12) & (yy < P[-1][1])   # within 6 plate px of the line
+    fig = np.where(pb, ~right & (fig | near), fig)
+    profile = along(g.shape, polyline(PROFILE), PROFILE_W)
 
     firm = ink_lines(gl, closed, 22, 34)
     thin = ndi.distance_transform_edt(~morphology.skeletonize(firm)) <= LINE_MIN * UP / 2
@@ -392,10 +395,10 @@ def main(src, qa=None, dump=None):
     solid &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
     edge = fig & ~ndi.binary_erosion(fig, iterations=int(2.5 * UP))
     edge = np.where(hand, fig & ~ndi.binary_erosion(fig, iterations=round(HAND_EDGE * UP)), edge)
+    edge = np.where(pb, profile, edge)
     face = np.zeros(g.shape, bool)
     fx0, fy0, fx1, fy1 = [(v - o) * UP for v, o in zip(FACE, (X0, Y0, X0, Y0))]
     face[fy0:fy1, fx0:fx1] = True
-    edge = np.where(face, fig & ~ndi.binary_erosion(fig, iterations=round(FACE_EDGE * UP)), edge)
     ink = lines | solid | edge | (face & face_dark & fig)
     lab, _ = ndi.label(ink)
     ink &= np.where(face, (np.bincount(lab.ravel()) > 3 * UP * UP)[lab], (np.bincount(lab.ravel()) > 12 * UP * UP)[lab])
