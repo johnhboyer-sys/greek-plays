@@ -204,32 +204,85 @@ def fit_model(pJ, pL1):
 # theta in J's frame), the meridian CENTRE (his middle) straight up; G px per world unit (J's own scale
 # at the front of the vase).
 FLAT_THETA, FLAT_Y, CENTRE, G = (-0.22, 0.7801, 0.004), (125.0, 461.0, 3.0), 0.30, 8.3
+# The slave (John, 2026-10-08: "yes, the slave on the left too") stands further round the vase. Flattened
+# with the master, over the wider patch, the master moved by up to 16 flat px and every point measured on
+# him would have gone off; so the slave's part is flattened on its own (FLAT_THETA_B, centred on him at
+# CENTRE_B) and laid beside the master's by the rotation and shift that best fit the two flats where they
+# overlap near the seam (within SEAM_FIT of it). Left of the meridian SEAM, which runs through the
+# black ground between the slave's hand and the master's fingertips, the frame shows the slave's flat;
+# right of it, the master's. Flat px are the master's flat's own (x may be negative: the image starts
+# PAD px left of x = 0).
+FLAT_THETA_B, CENTRE_B, SEAM, PAD, SEAM_FIT = (-0.74, -0.0499, 0.004), -0.45, -0.12, 1100, 0.03
+
+
+def _flat(R, theta, centre):
+    th, yy = np.arange(*theta), np.arange(*FLAT_Y)
+    with redirect_stdout(io.StringIO()):
+        XY = vu.flatten(R, th, yy, centre=centre)
+    TH, Y = np.meshgrid(th, yy)
+    X0, Y1 = np.nanmin(XY[..., 0]), np.nanmax(XY[..., 1])
+    P = np.stack([(XY[..., 0] - X0) * G, (Y1 - XY[..., 1]) * G], -1)   # flat px
+    inv = LinearNDInterpolator(P.reshape(-1, 2), np.stack([TH.ravel(), Y.ravel()], -1))
+    return th, P, inv
 
 
 def frame(R):
-    th, yy = np.arange(*FLAT_THETA), np.arange(*FLAT_Y)
+    """The master's flat (to_vase: flat px -> (theta, y)) and the slave's, laid onto it (to_vase_b)."""
+    th, P, inv = _flat(R, FLAT_THETA, CENTRE)
+    thb, Pb, invb = _flat(R, FLAT_THETA_B, CENTRE_B)
+    # the rotation and shift that best fit the slave's flat to the master's along the seam (theta
+    # within SEAM_FIT of it)
+    ia = np.nonzero(np.abs(th - SEAM) <= SEAM_FIT)[0]
+    ib = np.round((th[ia] - thb[0]) / FLAT_THETA_B[2]).astype(int)
+    A, B = P[:, ia].reshape(-1, 2), Pb[:, ib].reshape(-1, 2)
+    ok = np.isfinite(A).all(1) & np.isfinite(B).all(1)
+    A, B = A[ok], B[ok]
+    ma, mb = A.mean(0), B.mean(0)
+    U, _, Vt = np.linalg.svd((B - mb).T @ (A - ma))
+    rot = (U @ Vt).T
+    fit = np.hypot(*((B - mb) @ rot.T + ma - A).T)
+
+    # (the master's map interpolates in world units, as before the slave was added: the same flat px)
+    tha, yya = np.arange(*FLAT_THETA), np.arange(*FLAT_Y)
     with redirect_stdout(io.StringIO()):
-        XY = vu.flatten(R, th, yy, centre=CENTRE)
-    TH, Y = np.meshgrid(th, yy)
-    X0, X1 = np.nanmin(XY[..., 0]), np.nanmax(XY[..., 0])
-    Y0, Y1 = np.nanmin(XY[..., 1]), np.nanmax(XY[..., 1])
-    inv = LinearNDInterpolator(XY.reshape(-1, 2), np.stack([TH.ravel(), Y.ravel()], -1))
+        XY = vu.flatten(R, tha, yya, centre=CENTRE)
+    TH, YY = np.meshgrid(tha, yya)
+    X0, Y1 = np.nanmin(XY[..., 0]), np.nanmax(XY[..., 1])
+    inv_w = LinearNDInterpolator(XY.reshape(-1, 2), np.stack([TH.ravel(), YY.ravel()], -1))
 
     def to_vase(X, Y):
-        return inv(np.stack([X0 + np.ravel(X) / G, Y1 - np.ravel(Y) / G], -1))
-    return dict(W=int((X1 - X0) * G), H=int((Y1 - Y0) * G), to_vase=to_vase)
+        return inv_w(np.stack([X0 + np.ravel(X) / G, Y1 - np.ravel(Y) / G], -1))
+
+    def to_vase_b(X, Y):
+        q = np.stack([np.ravel(X), np.ravel(Y)], -1).astype(float)
+        return invb((q - ma) @ rot + mb)
+    return dict(W=int(np.nanmax(P[..., 0])), H=int(np.nanmax(P[..., 1])), to_vase=to_vase, to_vase_b=to_vase_b,
+                fit=(float(np.median(fit)), float(fit.max())))
 
 
-def flat_image(a, cam, R, fr, step=4):
-    """A photo laid onto the frame through its camera (black off the flat or off the photo)."""
-    W, H = fr["W"], fr["H"]
-    gx, gy = np.meshgrid(np.arange(0, W + step, step), np.arange(0, H + step, step))
-    ty = fr["to_vase"](gx, gy)
+def _lay(a, cam, R, to_vase, x_start, W, H, step=4):
+    """A photo laid onto W x H flat px from x_start through its camera (black off the flat or the
+    photo); also the theta of each px (NaN off the flat)."""
+    gx, gy = np.meshgrid(np.arange(x_start, x_start + W + step, step), np.arange(0, H + step, step))
+    ty = to_vase(gx, gy)
     good = np.isfinite(ty[:, 0])
     uv = vu.project(cam, vu.surface(R, np.where(good, ty[:, 1], 0.0), np.where(good, ty[:, 0], 0.0)))
     u = ndi.zoom(np.where(good, uv[:, 0], -1e4).reshape(gx.shape), step, order=1)[:H, :W]
     v = ndi.zoom(np.where(good, uv[:, 1], -1e4).reshape(gx.shape), step, order=1)[:H, :W]
-    return np.stack([ndi.map_coordinates(a[..., k], [v, u], order=3, cval=0) for k in range(3)], -1).clip(0, 255)
+    t = ndi.zoom(np.where(good, ty[:, 0], np.nan).reshape(gx.shape), step, order=0)[:H, :W]
+    img = np.stack([ndi.map_coordinates(a[..., k], [v, u], order=3, cval=0) for k in range(3)], -1).clip(0, 255)
+    return img, t
+
+
+def flat_image(a, cam, R, fr):
+    """The frame: the master's flat right of SEAM, the slave's left of it; column 0 is flat x = -PAD."""
+    W, H = fr["W"], fr["H"]
+    img_a, t_a = _lay(a, cam, R, fr["to_vase"], 0, W, H)
+    img_b, t_b = _lay(a, cam, R, fr["to_vase_b"], -PAD, W + PAD, H)
+    out = img_b.copy()   # (where the seam leaves a px to neither, the slave's flat fills it: ground)
+    right = out[:, PAD:]
+    right[:] = np.where((t_a >= SEAM)[..., None], img_a, right)
+    return out
 
 
 def pc(src, out, *steps):
@@ -247,7 +300,7 @@ def grey(p):
 
 # ---------------------------------------------------------------- the drawing
 
-BOX = (360, 220, 1800, 2720)   # flat px: the master
+BOX = (-720, 220, 1800, 2720)  # flat px: the slave and the master
 UP = 2                         # work at 2x the flat's px, so curves stay smooth
 CLAY = 22                      # red less blue, lightly blurred: his clay (and the pale, washed-out robe low
 #                                on the right) is above it; the ground, black or mottled grey-green, below
@@ -257,9 +310,9 @@ CLAY = 22                      # red less blue, lightly blurred: his clay (and t
 # ground and cut his back foot off.
 GROUND_L, GROUND_BR = 90, 8
 AUTO_GROUND = 20000            # flat px: dark areas this large, reaching the box's edge, are ground
-SEEDS = [(1200, 1400)]   # flat px: his robe
+SEEDS = [(1200, 1400), (-200, 1440)]   # flat px: the master's robe, the slave's tunic
 EDGE_R = 6                      # flat px
-STRIPE, STRIPE_G = (1030, 1500, 1140, 1980), 125
+STRIPES, STRIPE_G = [(1030, 1500, 1140, 1980), (-290, 2000, -205, 2470)], 125
 FIG_SIGMA = 2.0                 # flat px
 EDGE_ZONE = 5.5                 # flat px
 END_RUN = 6                     # flat px
@@ -268,6 +321,29 @@ FACE = (980, 230, 1450, 800)    # flat px: his head
 # the stage's top edge (flat px, y = a + b x, fitted to its edge left of his feet): below it is the
 # stage, left out, except his front foot, which stands over its edge (FOOT)
 STAGE = (2565.0, -0.040)
+# The slave's costume phallus is left out (John's one rule on nudity, 2026-10-05): everything drawn inside
+# PHALLUS (flat px, round the phallus from the tunic's hem down, kept off the near leg's inner contour) is
+# erased, and that contour, which runs on below it, is drawn through as one line, LEG_W flat px wide, along
+# a cubic (x in y) fitted to its centres measured every 10 flat px (LEG: points on the fit; it lies within 3.5 px of them).
+PHALLUS = [(-134, 1687), (-86, 1687), (-50, 1750), (-44, 1800), (-48, 1845), (-62, 1878), (-84, 1888), (-96, 1884),
+           (-100, 1862), (-105, 1830), (-110, 1800), (-115, 1770), (-123, 1740), (-136, 1715)]
+LEG = [(-156.5, 1692), (-148.2, 1704), (-141.1, 1716), (-135.1, 1728), (-130.0, 1740), (-125.8, 1752),
+       (-122.3, 1764), (-119.4, 1776), (-117.0, 1788), (-115.0, 1800), (-113.2, 1812), (-111.5, 1824),
+       (-109.9, 1836), (-108.1, 1848), (-106.1, 1860), (-103.7, 1872), (-100.9, 1884), (-97.5, 1896),
+       (-93.3, 1908)]
+LEG_W = 6
+# Under the slave the stage's edge lies lower in the flat than the master's line runs (his part is a flat of
+# its own): STAGE_B (flat px, measured on the flat) runs along it from the column's foot, round the outer
+# edge of his back sandal (heel, sole), up its toe to the black ground between his feet, across, and round
+# his front sandal (heel, sole, toe) to the stage's edge beyond; below it is the stage. Right of
+# STAGE_SPLIT the master's STAGE governs.
+STAGE_B = [(-620, 2510), (-580, 2516), (-540, 2520), (-500, 2528), (-460, 2534), (-420, 2543), (-380, 2549),
+           (-340, 2548), (-300, 2540), (-260, 2542), (-230, 2536), (-207, 2530), (-205, 2555), (-195, 2566),
+           (-170, 2569), (-100, 2570), (-20, 2567), (4, 2562), (12, 2540), (12, 2499), (45, 2499), (46, 2520),
+           (52, 2550), (62, 2575), (80, 2584), (100, 2574), (120, 2560), (140, 2550), (160, 2546), (180, 2547),
+           (200, 2549), (220, 2554), (260, 2559), (300, 2563), (340, 2566), (352, 2560), (360, 2554),
+           (400, 2552), (460, 2550), (550, 2548), (600, 2548)]
+STAGE_SPLIT = 600
 # His front sandal and his right foot stand over the stage's edge, parted from it only by their painted
 # lines; J's frame ends across the front sandal, about 40 flat px above its sole. FOOT closes the figure
 # there along the outer edge of their lines (flat px; the outline is drawn on the lines): the front
@@ -287,8 +363,9 @@ FOOT_RIGHT = [(1690, 2490), (1693, 2500), (1696, 2510), (1701, 2520), (1703, 253
               (1700, 2570), (1696, 2585), (1690, 2598)]
 FOOT_TOP, FOOT_HALF = 2480, 1.75
 L3_BOX, L3_K, L3_SHIFT = (700, 1200, 1900, 2650), 0.15, (-9, -1)
-# ground seen through the figure, below his robe: the black wedge between his front leg and his right foot
-POCKETS = [(1590, 2470)]
+# ground seen through the figures: the black wedge between the master's front leg and his right foot; the
+# black inside the slave's arm, akimbo on his hip
+POCKETS = [(1590, 2470), (-460, 1110)]
 # Lines: the painted lines are black on the clay, 3-8 flat px wide, but where the photo is washed out (his
 # robe low on the right, his feet) only 10-20 grey levels under it. They are found by local contrast (the
 # blurred photo's Maximum then Minimum over CLOSE_W flat px, less the blurred photo) with hysteresis
@@ -570,8 +647,10 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     td = tempfile.TemporaryDirectory()
     t = Path(td.name)
     Image.fromarray(flat.astype(np.uint8)).save(t / "flat.png")
+    if dump:
+        Image.fromarray(flat.astype(np.uint8)).save(str(dump) + ".flat.png")
     pc(t / "flat.png", t / "up.png",
-       ("image.crop", {"x": x0, "y": y0, "width": w, "height": h}),
+       ("image.crop", {"x": x0 + PAD, "y": y0, "width": w, "height": h}),
        ("image.imageSize", {"width": w * UP, "height": h * UP, "resample": "bicubic"}))
     pc(t / "up.png", t / "g.png", ("image.mode.grayscale", None))
     pc(t / "up.png", t / "rb.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
@@ -587,7 +666,9 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     yy, xx = np.mgrid[0:H, 0:W]
     fx, fy = x0 + (xx + 0.5) / UP - 0.5, y0 + (yy + 0.5) / UP - 0.5   # flat px
     a, b = STAGE
-    outside = (fy > a + b * fx) | ~onphoto
+    below_b = lw.polygon_mask(g.shape, (np.array(STAGE_B + [(STAGE_SPLIT, y1 + 10), (x0 - 10, y1 + 10), (x0 - 10, STAGE_B[0][1])], float)
+                                         - (x0, y0) + 0.5) * UP - 0.5)
+    outside = np.where(fx < STAGE_SPLIT, below_b, fy > a + b * fx) | ~onphoto
 
     # ground: the dark (by the clay map) with thin lines opened away, in large areas reaching the box's
     # edge; the figure: what it leaves, from SEEDS
@@ -612,10 +693,11 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     # its edge where the clay map falls to half the clay's level nearby (EDGE_R): CLAY alone put it out
     # in the blur between clay and ground, and the dark there drew a second line inside the outline
     fig &= ~((ndi.distance_transform_edt(fig) <= EDGE_R * UP) & (rb < 0.5 * rbmax) & onphoto)
-    # along his robe's left edge the painter's brown stripe of glaze (10-15 flat px, olive where it is
-    # worn) stays out: in STRIPE the figure is the clay lighter than STRIPE_G (grey, lightly blurred)
-    sx0, sy0, sx1, sy1 = STRIPE
-    fig &= ~((fx >= sx0) & (fx < sx1) & (fy >= sy0) & (fy < sy1) & (gp < STRIPE_G))
+    # along the master's robe's left edge and the back of the slave's calf the painter's brown stripe of
+    # glaze (10-15 flat px, olive where it is worn) stays out: in STRIPES the figure is the clay
+    # lighter than STRIPE_G (grey, lightly blurred)
+    for sx0, sy0, sx1, sy1 in STRIPES:
+        fig &= ~((fx >= sx0) & (fx < sx1) & (fy >= sy0) & (fy < sy1) & (gp < STRIPE_G))
     fig |= ndi.binary_fill_holes(fig) & ~ground        # (not the painted folds there: they are dark too)
     # and smoothed along its length (the photo's grain made the outline wobble): the mask blurred over
     # FIG_SIGMA flat px in PhotoCraft and cut at half
@@ -651,6 +733,11 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     edge = fig & ~ndi.binary_erosion(fig, iterations=round(EDGE * UP))
     hair = hair_mask(fig)
     ink = ((lines | paint) & ~hair) | edge
+    ink &= ~lw.polygon_mask(g.shape, (np.array(PHALLUS, float) - (x0, y0) + 0.5) * UP - 0.5)
+    P = np.array(LEG, float)
+    k = np.polyfit(P[:, 1], P[:, 0], 3)
+    ly = np.linspace(P[0, 1], P[-1, 1], int((P[-1, 1] - P[0, 1]) * UP * 2))
+    ink |= along(g.shape, np.c_[(np.polyval(k, ly) - x0) * UP + 0.5, (ly - y0) * UP + 0.5], LEG_W) & fig
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
     if dump:
