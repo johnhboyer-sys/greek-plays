@@ -246,8 +246,14 @@ SMOOTH, FINE_SMOOTH, EDGE = 3.0, 1.5, 9
 # A black dot on the shield's rim touches the ground in 07, where the glaze's sheen greys the thin clay
 # strip of the rim outside it; photo 06, laid onto the same flat, shows the strip (and the rim there
 # agrees with 07's to a few px). WALLS (flat px) mark the strip as clay, WALL_W px wide, its outer side
-# on 06's rim, so the dot stays paint inside the shield.
-WALLS = [[(3543, 2468), (3553, 2484), (3562, 2501), (3570, 2516)]]
+# on 06's rim, so the dot stays paint inside the shield. Above it, the shield's top ray is painted black
+# up to the rim, where the ground's black meets it, and the drawing took it for ground (an outlined
+# sliver of rim beside it; John, 2026-10-08: "this circled part should be black ink", "that part of the
+# shield's design"): its wall runs along the rim, a quadratic fitted to the rim's outer edge on either
+# side (x 3150-3325 and 3580-3650; the sheen hides it between), 3 px in from it, and meets the dot's.
+WALLS = [[(3317, 2215), (3347, 2244), (3377, 2275), (3407, 2307), (3437, 2341), (3467, 2376), (3497, 2413),
+          (3527, 2451), (3543, 2468)],
+         [(3543, 2468), (3553, 2484), (3562, 2501), (3570, 2516)]]
 WALL_W = 8
 # Lines are drawn at least LINE_MIN px wide.
 LINE_MIN = 6
@@ -276,6 +282,9 @@ JOINS = [((2470, 3193), (2554, 3199)), ((2471, 3514), (2469, 3529)), ((2601, 232
 # specks of glaze on the clay (not lines): ink pieces under SPECK px^2 standing alone; the face (FACE,
 # flat px) keeps its small marks
 SPECK, FACE = 150, (2050, 1200, 2950, 2000)
+# and flecks of clay the ink closes in, under FLECK px^2, are inked (where the rim strip tapers to its point
+# between the shield's top ray and the outline; the rest are a few px); real pockets are 500 px^2 or more
+FLECK = 200
 # The stage: its top edge is a painted line, which the back foot's sole runs along to its left tip and
 # the stool's right leg stands on. Below the line's lower edge is stage (cut away); the line stays,
 # as their sole. Its lower edge, measured every 25 flat px (the half-way crossing from the line to
@@ -448,6 +457,9 @@ def main(src, qa=None, dump=None):
         near = [dt[int(p[1]) - Y0 - 6:int(p[1]) - Y0 + 7, int(p[0]) - X0 - 6:int(p[0]) - X0 + 7].max() for p in (P[0], P[-1])]
         lines |= along(g.shape, [P[0] + 3 * ua, *P[1:-1], P[-1] + 3 * ub], max(2 * np.median(near), LINE_MIN)) & fig
     ink = lines | edge
+    holes = ndi.binary_fill_holes(ink) & ~ink
+    lab, _ = ndi.label(holes)
+    ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, clay=clay)
     info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT,
