@@ -347,6 +347,43 @@ TONE_FIST = [(105, 1150), (150, 1130), (200, 1130), (240, 1170), (250, 1210), (2
              (160, 1280), (120, 1265), (100, 1220)]
 TONE_LEGS = [(-150, 2000), (0, 2000)]
 TONE_A = (0.12, 0.24)
+# Colour (John, 2026-10-08: "I want both figure's skin to be different tone than clothes"; "the slave has
+# white hair and beard and a skin tone face, arm, and hand"; "make the slave's white hair and beard be
+# brushstrokes of white, not hard edges"; and, asked how the light page should show white on paper, "Clay
+# skin in both themes"). This drawing carries its own colours, on every page: the figures' area (the body
+# path) is filled with CLAY_FILL in both themes; skin is that clay; clothes carry a wash in the line colour over
+# it (TONE_A: the slave's chiton, his himation, the master's clothes); the master's hair its own wash; the
+# slave's white hair and beard white (WHITE) in soft strokes whose strength follows the photo. Skin areas,
+# each a least-cost path along the drawing's lines through hand-placed points (flat px; lw.STRAIGHT: a
+# straight edge to the next point, across clay with no painted line or off the figure): the slave's face
+# (SKIN_S_FACE: the bald crown and face, the ear; behind it his hair), his arm on his hip from the
+# sleeve's hem (SKIN_S_ARM), his fist (TONE_FIST) and legs (TONE_LEGS); the master's face (SKIN_M_FACE,
+# under his hair) and his outstretched arm and hand (SKIN_M_ARM). The slave's hair (HAIR_S: behind his
+# face, down to the curve from the notch in his outline to his jaw) and beard (BEARD_S: under his chin) are
+# where his white goes; no painted line bounds them, so their lower edges are placed by eye on the photo.
+SKIN_S_FACE = [(-300, 430), lw.STRAIGHT, (-275, 480), (-265, 530), (-252, 585), (-238, 632), (-222, 668),
+               (-195, 700), (-195, 760), (-150, 795), (-100, 802), (-50, 790), (0, 795), (50, 780), (90, 760),
+               lw.STRAIGHT, (200, 700), lw.STRAIGHT, (200, 400), lw.STRAIGHT]
+SKIN_S_ARM = [(-560, 880), lw.STRAIGHT, (-500, 905), (-450, 900), (-400, 893), (-388, 940), (-388, 1000),
+              (-395, 1040), (-370, 1080), (-340, 1130), (-360, 1160), (-400, 1180), (-440, 1190), (-500, 1135),
+              (-550, 1085), lw.STRAIGHT, (-645, 1068), lw.STRAIGHT, (-680, 1000), lw.STRAIGHT]
+HAIR_S = [(-460, 400), lw.STRAIGHT, (-300, 430), (-275, 480), (-265, 530), (-252, 585), (-238, 632),
+          (-222, 668), (-195, 700), (-195, 760), lw.STRAIGHT, (-230, 765), lw.STRAIGHT, (-280, 768),
+          lw.STRAIGHT, (-340, 762), lw.STRAIGHT, (-400, 752), lw.STRAIGHT, (-500, 752), lw.STRAIGHT]
+BEARD_S = [(-195, 760), (-150, 795), (-100, 802), (-50, 790), (0, 795), (50, 780), (90, 760), lw.STRAIGHT,
+           (92, 800), lw.STRAIGHT, (50, 830), lw.STRAIGHT, (-50, 850), lw.STRAIGHT, (-150, 835), lw.STRAIGHT]
+SKIN_M_FACE = [(900, 250), lw.STRAIGHT, (900, 700), lw.STRAIGHT, (1040, 760), lw.STRAIGHT, (1160, 760),
+               (1200, 700), (1230, 640), (1240, 600), (1280, 560), (1320, 540), lw.STRAIGHT, (1320, 250),
+               lw.STRAIGHT]
+SKIN_M_ARM = [(845, 955), (875, 1010), (910, 1070), (940, 1120), (960, 1180), lw.STRAIGHT, (1000, 1450),
+              lw.STRAIGHT, (350, 1480), lw.STRAIGHT, (350, 1250), lw.STRAIGHT, (800, 880), lw.STRAIGHT]
+CLAY_FILL = "#c4b294"
+WHITE = "#f7f3ea"
+TONE_M = 0.18                  # the master's clothes
+# the white: opacity from WHITE_A[0] where the photo's red less blue (smoothed over WHITE_SIGMA flat px) is
+# WHITE_RB[0] (his face's orange) to WHITE_A[1] at WHITE_RB[1] (the palest), in steps; the zone's edge
+# feathered over WHITE_FEATHER flat px, so the strokes fade out
+WHITE_RB, WHITE_A, WHITE_STEP, WHITE_SIGMA, WHITE_FEATHER = (82, 62), (0.0, 0.9), 0.1, 1.5, 8
 # Under the slave the stage's edge lies lower in the flat than the master's line runs (his part is a flat of
 # its own): STAGE_B (flat px, measured on the flat) runs along it from the column's foot, round the outer
 # edge of his back sandal (heel, sole), up its toe to the black ground between his feet, across, and round
@@ -359,6 +396,7 @@ STAGE_B = [(-620, 2510), (-580, 2516), (-540, 2520), (-500, 2528), (-460, 2534),
            (200, 2549), (220, 2554), (260, 2559), (300, 2563), (340, 2566), (352, 2560), (360, 2554),
            (400, 2552), (460, 2550), (550, 2548), (600, 2548)]
 STAGE_SPLIT = 600
+SEAM_X = 350                   # flat px: between the two figures (the master right of it)
 SLIVER = 5                     # flat px
 # His front sandal and his right foot stand over the stage's edge, parted from it only by their painted
 # lines; J's frame ends across the front sandal, about 40 flat px above its sole. FOOT closes the figure
@@ -652,24 +690,30 @@ def join_breaks(lines, contrast, to_edge):
     return out
 
 
-def garment_tones(fig, ink, origin):
-    """The slave's chiton and himation (TONE_*), masks at UP, each running on under its lines."""
+def regions(fig, ink, origin):
+    """The masks (at UP) for the colours: skin, the slave's chiton and himation, the master's clothes, the
+    slave's white zone (hair and beard)."""
     x0, y0 = origin
     up = lambda pts: [p if p == lw.STRAIGHT else ((p[0] - x0 + 0.5) * UP - 0.5, (p[1] - y0 + 0.5) * UP - 0.5)
                       for p in pts]
     cost = np.where(ndi.binary_dilation(ink, iterations=UP), 1.0, 25.0)
-    area = lambda pts: lw.polygon_mask(fig.shape, lw.livewire(cost, up(pts), closed=True))
+    area = lambda pts: lw.polygon_mask(fig.shape, lw.livewire(cost, up(pts), closed=True)) & fig
     near = ndi.binary_dilation(ink, iterations=1)
-    chiton = area(TONE_CHITON) & fig
-    himation = area(TONE_HIMATION) & fig & ~area(TONE_FIST)
     cells, _ = ndi.label(fig & ~near)
     legs = {cells[int((y - y0) * UP), int((x - x0) * UP)] for x, y in TONE_LEGS} - {0}
-    himation &= ~ndi.binary_dilation(np.isin(cells, list(legs)), iterations=2 * UP)
+    legs = ndi.binary_dilation(np.isin(cells, list(legs)), iterations=2 * UP) & fig
+    white = (area(HAIR_S) | area(BEARD_S))
+    skin = area(SKIN_S_FACE) | area(SKIN_S_ARM) | area(TONE_FIST) | legs | area(SKIN_M_FACE) | area(SKIN_M_ARM)
+    skin &= ~white
+    himation = area(TONE_HIMATION) & ~skin & ~white
     lab, _ = ndi.label(himation)   # (the genitals: pieces the lines leave apart from the skirt)
     size = np.bincount(lab.ravel())
     size[0] = 0
     himation = lab == np.argmax(size)
-    return chiton & ~himation, himation
+    chiton = area(TONE_CHITON) & ~skin & ~white & ~himation
+    master = fig & (np.arange(fig.shape[1])[None, :] >= (SEAM_X - x0) * UP)
+    clothes_m = master & ~skin
+    return dict(skin=skin, chiton=chiton, himation=himation, clothes_m=clothes_m, white=white)
 
 
 def add_tones(svg, tones, box):
@@ -681,6 +725,33 @@ def add_tones(svg, tones, box):
         paths += f'<path class="tone" fill="currentColor" fill-opacity="{a:.3f}" stroke="none" d="{d}"/>'
     svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
 
+
+def add_white(svg, zone, rb, box):
+    """The slave's white hair and beard (WHITE_*), in stepped layers under the lines."""
+    x0, y0, x1, y1 = box
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.fromarray(np.where(zone, rb, 0).clip(0, 255).astype(np.uint8)).save(t / "w.png")
+        Image.fromarray((zone * 255).astype(np.uint8)).save(t / "z.png")
+        for n in ("w", "z"):
+            pc(t / f"{n}.png", t / f"{n}s.png", ("filter.blur.gaussianBlur", {"radius": WHITE_SIGMA * UP}))
+        zs = grey(t / "zs.png")
+        pale = grey(t / "ws.png") / np.maximum(zs, 1.0) * 255.0
+        Image.fromarray((zone * 255).astype(np.uint8)).save(t / "z.png")
+        pc(t / "z.png", t / "zf.png", ("filter.blur.gaussianBlur", {"radius": WHITE_FEATHER * UP}))
+        feather = grey(t / "zf.png") / 255.0
+    (r0, r1), (a0, a1) = WHITE_RB, WHITE_A
+    alpha = (a0 + (a1 - a0) * np.clip((r0 - pale) / (r0 - r1), 0, 1)) * np.clip(2 * feather - 0.0, 0, 1) * zone
+    paths, below = "", 0.0
+    for a in np.arange(a0 + WHITE_STEP, a1 + 1e-9, WHITE_STEP):
+        m = alpha >= a - WHITE_STEP / 2
+        if not m.any():
+            break
+        d, _ = lw.potrace_d(lw.resample_ink(m[y0:y1, x0:x1], lw.TRACE_H), turdsize=4, alphamax=1.0)
+        paths += (f'<path class="white" fill="{WHITE}" fill-opacity="{1 - (1 - a) / (1 - below):.3f}" '
+                  f'stroke="none" d="{d}"/>')
+        below = a
+    svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
 
 def main(pJ, pL1, pL3, qa=None, dump=None):
     from skimage import morphology
@@ -794,8 +865,10 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
         desc="Line drawing after a photo of a Sicilian red-figure calyx-krater (Louvre CA 7249), "
              "taken off the vase's curve, cut out and retraced.")
     add_hair(OUT, hair, g, info["box"])
-    chiton, himation = garment_tones(fig, ink, (x0, y0))
-    add_tones(OUT, [(chiton, TONE_A[0]), (himation, TONE_A[1])], info["box"])
+    r = regions(fig, ink, (x0, y0))
+    add_tones(OUT, [(r["chiton"], TONE_A[0]), (r["himation"], TONE_A[1]), (r["clothes_m"] & ~hair, TONE_M)], info["box"])
+    add_white(OUT, r["white"], rb, info["box"])
+    OUT.write_text(OUT.read_text().replace('class="body" fill="none"', f'class="body" fill="{CLAY_FILL}"', 1))
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
