@@ -37,6 +37,29 @@ rather than adding a second one that contradicts it.
   as an outline comes out a line and a half wide (the soles, the crest's
   top) (2026-10-07).
 
+- Trojan Women (Taf. CLXIX, 4, Menelaus and Helen), made with PhotoCraft: about three hours over four
+  passes, approved by John 2026-10-08. `tools/trojan_women_menelaus.py` (2026-10-08).
+- Drawing with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (crop, enlarge,
+  grey, Gaussian blur, Maximum then Minimum for local contrast, Threshold); numpy only combines its
+  masks and measures. It reran byte for byte. The red-figure method carried over whole; the tool's
+  steps are the same, only run in PhotoCraft (2026-10-08).
+- Black borders inside a figure (a shield's inner band, zigzag hems) run into the ground where the
+  clay line between them fades to a px: the ground then floods the border and drops the clay beyond
+  it. Find the leak with a least-cost path through the ground from the border to the open ground,
+  and wall it where the path is narrowest (`WALLS`) (2026-10-08).
+- The faintest folds print as dotted runs, grey 100-135 on clay 145-160. Local contrast at fine blur
+  finds the dots; each run drawn along a curve fitted to it comes out an even line, and ends that point
+  straight at each other (within 10 degrees) are joined across the print's gaps. Keep runs off the
+  figure's edge: the print's darker band inside the outline passes for a fold (`FAINT`, `ALIGN_*`)
+  (2026-10-08).
+- A profile's lips and chin are clay bumps 3-4 px deep with a thin pale strip along them: the grey
+  threshold made a wiggle of them. Three tries of my own made it worse (John: "The mouth is WORSE
+  now"); John drew the line over the plate's pixels at 20x and it is drawn on his line (`PROFILE`).
+  For a small part, send him the pixel grid first (2026-10-08).
+- Gerhard's text can be wrong about where a vase is: he puts CLXIX, 3.4 in the Vatican; it is British
+  Museum 1837,0609.71 (E 263), as the BM's 1896 catalogue says. Check the museum's record, which opens
+  in the browser pane when a plain fetch meets its bot check (2026-10-08).
+
 ### Gerhard, black-figure plates (black silhouettes on orange clay, incised lines, added white)
 
 - Show John a small test of the style first, both ways, light and dark. On

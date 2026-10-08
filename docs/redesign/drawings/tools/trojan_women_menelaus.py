@@ -4,6 +4,11 @@ Auserlesene griechische Vasenbilder III (1847), Taf. CLXIX, as scanned by Heidel
 Library (Public Domain Mark):
 https://digi.ub.uni-heidelberg.de/iiif/2/gerhard1847bd3%3A190a_Tafel_ROEM_169.jpg/full/full/0/default.jpg
 (2078 x 2869; page https://digi.ub.uni-heidelberg.de/diglit/gerhard1847bd3/0216)
+The vase: a red-figure belly amphora (type B) from Vulci, attributed to the Altamura Painter, c. 470-450
+BC, now British Museum 1837,0609.71 (Cat. Vases E 263), bought from the Prince of Canino's sale in 1837.
+Gerhard (text p. 55) places it in the Vatican's Museo Gregoriano; the BM's catalogue (1896, E 263) notes
+the slip. Fig. 3 on the plate is the amphora's shape, fig. 4 the painting drawn here; the other side
+(three maenads) is not on the plate.
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the
 crop, the enlargement, the grey, the blurs, the Maximum and Minimum filters and the thresholds.
