@@ -229,6 +229,22 @@ rather than adding a second one that contradicts it.
   the mend (`FAINT`, `MEND`) (2026-10-08).
 - Remove specks before joining breaks: glaze specks left in a flaked gap counted as a line crossed and
   blocked the join (2026-10-08).
+- A second figure from another photo: fit that photo's camera to the finished vase model alone (profile and
+  other cameras held), lay it onto the same flat, and check where the two photos overlap (here 2.5 px at the
+  spear's tip). Keep the first figure's pipeline untouched, so the approved drawing cannot change, and pin
+  the line weight to the approved width: weight "own" is a share of the longer side, and the wider canvas
+  thinned every line (2026-10-08).
+- Traced at 0.4 of the work px, a line's thin neck vanishes: eight breaks with ink across them, the
+  approved warrior's belt among them, missed earlier because the gap check's angle limit dropped the pair.
+  Thicken every line to a minimum width along its centre before tracing (`NECK`) (2026-10-08).
+- White paint (hair, beard): no black outline, as on the vase; draw the edge along it in the tone
+  (John: "the hair is all white strokes of paint, no black outline"). Its strokes: the black between the
+  curls is ground (found at fine scale, but only inside the hair's outline: over the face the fine opening
+  ran the ground through the jaw line and cut the head off), and the wash in steps following the paint's
+  whiteness, as Andromache's blood. Threshold- and ridge-finding of single strokes on worn paint gave
+  blobs and noise; John chose the stepped wash over a solid one (2026-10-08).
+- Worn pale clay passes for white paint in grey and in red less blue alike; a sharper photo of the same
+  spot (here 02) told them apart, and the hair's boxes were set to leave the jaw out (2026-10-08).
 
 ## John's traces
 

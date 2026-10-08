@@ -1,14 +1,15 @@
 """Acharnians: a seated warrior in a crested helmet, his round shield at his side and his right hand
-raised, from a comic "departure of the warrior" played on a stage, on the Apulian red-figure
-bell-krater Würzburg, Martin von Wagner Museum H 4689, side A (Beazley Archive 1006966: Apulian,
-red-figure, bell-krater, HA4689; CVA Würzburg 4, pp. 12-13, Beilage 1.3, pl. 3.1-4). Attributed to the
-McDaniel Painter, c. 380-370 BC (RVAp 4/245), as the photographer's file description gives it; the
-museum has no public object record, and the CVA text was not read. He is the type of Lamachus, the
-crested general of Acharnians, whose slave brings out his spear as he arms (1118-1120); the old man
-at the door here holds out a spear. The link is the type, not an identification of this vase with the
-play. Photos: ArchaiOptix, CC BY-SA 4.0; _07 is the drawing's source, _04, _05 and _06 serve the vase's
-shape (and _06 its shield rim under the sheen). The drawing traces only the ancient painting, so it
-carries no licence (John, 2026-10-08); the photographer is credited.
+raised, and an old man with white hair stepping out of a door and holding out a spear to him: a comic
+"departure of the warrior" played on a stage, on the Apulian red-figure bell-krater Würzburg, Martin von
+Wagner Museum H 4689, side A (Beazley Archive 1006966: Apulian, red-figure, bell-krater, HA4689; CVA Würzburg
+4, pp. 12-13, Beilage 1.3, pl. 3.1-4). Attributed to the McDaniel Painter, c. 380-370 BC (RVAp 4/245), as the
+photographer's file description gives it; the museum has no public object record, and the CVA text was not
+read. The warrior is the type of Lamachus, the crested general of Acharnians, whose slave brings out his spear
+as he arms (1118-1120). The link is the type, not an identification of this vase with the play. Photos:
+ArchaiOptix, CC BY-SA 4.0; _07 is the warrior's source and _03 the old man's (John, 2026-10-08: "add other
+figure"); _04, _05 and _06 serve the vase's shape (and _06 the shield's rim under the sheen), _02 the old
+man's back foot and his white hair. The drawing traces only the ancient painting, so it carries no licence
+(John, 2026-10-08); the photographer is credited.
 https://commons.wikimedia.org/wiki/File:McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_07.jpg
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the crop,
@@ -39,6 +40,14 @@ Photo -> drawing:
     helmet's inside). Lines broken where the glaze flaked are joined (JOIN_*, JOINS); faint strokes of
     thinned glaze are found by local contrast and drawn along fitted curves (FAINT); the mended break
     across his lap and shield leaves no line (MEND).
+  - The old man (old_man): photo 03, fitted to the same model (fit_03), laid onto the same flat, widened to
+    the left (WIDE); 03 and 07 agree within 2.5 px at the spear's tip, which both show. The same steps as
+    the warrior's; the spear's shaft straight between its fitted edges; the door's pillar cut away along
+    his raised heel's own line (PILLAR), and the stage under his feet (OLD_STAGE). His white hair and beard
+    have no black outline and are drawn as their strokes, in a stepped grey wash that follows the paint
+    (HAIR_TONE; John's choice, 2026-10-08).
+  - The two drawings are joined on one canvas and traced together at the warrior's approved line width
+    (PAIR_WEIGHT), every line kept at least NECK px wide so the tracing keeps its thin necks.
 
     python3 docs/redesign/drawings/tools/acharnians.py H4689-07.jpg H4689-03.jpg [qa.png]
     python3 docs/redesign/drawings/tools/acharnians.py H4689-07.jpg H4689-04.jpg H4689-05.jpg H4689-06.jpg --refit
