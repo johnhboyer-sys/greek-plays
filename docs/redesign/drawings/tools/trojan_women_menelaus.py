@@ -122,6 +122,10 @@ TRACED_W = LINE_MIN
 # across, darker than FACE_DARK (lightly blurred) only at its centre
 FACE = (530, 1540, 600, 1620)
 FACE_DARK = 110
+# and her lips and chin are clay bumps 3-4 px deep on the profile: the outline there is drawn finer
+# (FACE_EDGE plate px), or it fills them and the mouth reads as one wiggle (John, 2026-10-07: "Mouth
+# needs to have the lips and chin distinct")
+FACE_EDGE = 1.2
 # the hair: dark paint inside the left woman's fillet, where its loop's ends come within a px of the
 # clay beside them, and the tassel's black weight at the corner of her mantle are walled off from the
 # ground (with WALLS above)
@@ -373,6 +377,7 @@ def main(src, qa=None, dump=None):
     face = np.zeros(g.shape, bool)
     fx0, fy0, fx1, fy1 = [(v - o) * UP for v, o in zip(FACE, (X0, Y0, X0, Y0))]
     face[fy0:fy1, fx0:fx1] = True
+    edge = np.where(face, fig & ~ndi.binary_erosion(fig, iterations=round(FACE_EDGE * UP)), edge)
     ink = lines | solid | edge | (face & face_dark & fig)
     lab, _ = ndi.label(ink)
     ink &= np.where(face, (np.bincount(lab.ravel()) > 3 * UP * UP)[lab], (np.bincount(lab.ravel()) > 12 * UP * UP)[lab])
