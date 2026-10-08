@@ -1,8 +1,10 @@
 """Clouds: a comic old man, the master, in a long chiton and a himation drawn up over his shoulder, a
-bearded mask with curly hair, his right arm stretched out, from the phlyax scene on side A of a Sicilian
-red-figure calyx-krater, Lentini-Manfria Group, c. 350-340 BC, Paris, Louvre CA 7249 (bought 1986).
-The vase does not show Clouds: the master is the type of Strepsiades. His slave at the left (a short
-tunic, the costume phallus), the stage under them, the door, the woman and the black ground are left out.
+bearded mask with curly hair, his right arm stretched out, and his slave (John, 2026-10-08: "yes, the
+slave on the left too"), masked, his short tunic hitched up in his fist, from the phlyax scene on side A of
+a Sicilian red-figure calyx-krater, Lentini-Manfria Group, c. 350-340 BC, Paris, Louvre CA 7249 (bought
+1986). The vase does not show Clouds: the master is the type of Strepsiades. The slave's costume phallus is
+drawn as painted (John, 2026-10-08: "you can include the genitals they aren't grotesque"). The stage under
+them, the door and its column, the woman and the black ground are left out.
 
 Photos:
   J  Jastrow, 2008-03-07, CC BY 3.0, the drawing's source (Nikon D200, 22 mm; a crop of the frame):
@@ -321,17 +323,6 @@ FACE = (980, 230, 1450, 800)    # flat px: his head
 # the stage's top edge (flat px, y = a + b x, fitted to its edge left of his feet): below it is the
 # stage, left out, except his front foot, which stands over its edge (FOOT)
 STAGE = (2565.0, -0.040)
-# The slave's costume phallus is left out (John's one rule on nudity, 2026-10-05): everything drawn inside
-# PHALLUS (flat px, round the phallus from the tunic's hem down, kept off the near leg's inner contour) is
-# erased, and that contour, which runs on below it, is drawn through as one line, LEG_W flat px wide, along
-# a cubic (x in y) fitted to its centres measured every 10 flat px (LEG: points on the fit; it lies within 3.5 px of them).
-PHALLUS = [(-134, 1687), (-86, 1687), (-50, 1750), (-44, 1800), (-48, 1845), (-62, 1878), (-84, 1888), (-96, 1884),
-           (-100, 1862), (-105, 1830), (-110, 1800), (-115, 1770), (-123, 1740), (-136, 1715)]
-LEG = [(-156.5, 1692), (-148.2, 1704), (-141.1, 1716), (-135.1, 1728), (-130.0, 1740), (-125.8, 1752),
-       (-122.3, 1764), (-119.4, 1776), (-117.0, 1788), (-115.0, 1800), (-113.2, 1812), (-111.5, 1824),
-       (-109.9, 1836), (-108.1, 1848), (-106.1, 1860), (-103.7, 1872), (-100.9, 1884), (-97.5, 1896),
-       (-93.3, 1908)]
-LEG_W = 6
 # Under the slave the stage's edge lies lower in the flat than the master's line runs (his part is a flat of
 # its own): STAGE_B (flat px, measured on the flat) runs along it from the column's foot, round the outer
 # edge of his back sandal (heel, sole), up its toe to the black ground between his feet, across, and round
@@ -738,11 +729,6 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     edge = fig & ~ndi.binary_erosion(fig, iterations=round(EDGE * UP))
     hair = hair_mask(fig)
     ink = ((lines | paint) & ~hair) | edge
-    ink &= ~lw.polygon_mask(g.shape, (np.array(PHALLUS, float) - (x0, y0) + 0.5) * UP - 0.5)
-    P = np.array(LEG, float)
-    k = np.polyfit(P[:, 1], P[:, 0], 3)
-    ly = np.linspace(P[0, 1], P[-1, 1], int((P[-1, 1] - P[0, 1]) * UP * 2))
-    ink |= along(g.shape, np.c_[(np.polyval(k, ly) - x0) * UP + 0.5, (ly - y0) * UP + 0.5], LEG_W) & fig
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
     if dump:
