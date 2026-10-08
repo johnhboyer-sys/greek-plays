@@ -87,9 +87,11 @@ AUTO_GROUND = 5200              # levelled px^2: clay areas this large are groun
 # pockets of ground the figures close in, printed as clay (a point in each, levelled px; John circled them
 # on pass 3, 2026-10-08): between Phoenix's arm and body; between Briseis' arm and her robe; between the
 # crest of Achilles' helmet and the spear; three among the spears below Briseis' arm; under Diomedes'
-# crest (two); above Teucer's shoulder; two between Teucer's body and the shield's rim; inside Teucer's arm
+# crest (two); above Teucer's shoulder; two between Teucer's body and the shield's rim; inside Teucer's arm;
+# and (his second look) between Briseis' lower hand and her robe, and a third by Teucer's waist
 POCKETS = [(229.0, 821.5), (580.0, 815.5), (1398.0, 282.5), (922.0, 1212.5), (923.0, 1181.5), (978.5, 1181.5),
-           (2246.5, 476.5), (2186.0, 502.5), (2617.5, 432.5), (2491.0, 786.5), (2492.5, 921.0), (2685.0, 721.0)]
+           (2246.5, 476.5), (2186.0, 502.5), (2617.5, 432.5), (2491.0, 786.5), (2492.5, 921.0), (2685.0, 721.0),
+           (624.0, 1004.0), (2456.5, 998.5)]
 FIG_MIN = 700                   # levelled px^2: smaller pieces on the ground are inscriptions and specks
 INC_T, INC_W = 32, 1.4          # incisions: lighter than the Minimum-then-Maximum by INC_T; drawn INC_W px wide
 DL_T, DL_ABS, LINE_W = 22, 175, 1.5   # thin dark lines: darker than the Maximum-then-Minimum by DL_T and than DL_ABS
