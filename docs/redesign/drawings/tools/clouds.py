@@ -344,6 +344,7 @@ STAGE_B = [(-620, 2510), (-580, 2516), (-540, 2520), (-500, 2528), (-460, 2534),
            (200, 2549), (220, 2554), (260, 2559), (300, 2563), (340, 2566), (352, 2560), (360, 2554),
            (400, 2552), (460, 2550), (550, 2548), (600, 2548)]
 STAGE_SPLIT = 600
+SLIVER = 5                     # flat px
 # His front sandal and his right foot stand over the stage's edge, parted from it only by their painted
 # lines; J's frame ends across the front sandal, about 40 flat px above its sole. FOOT closes the figure
 # there along the outer edge of their lines (flat px; the outline is drawn on the lines): the front
@@ -699,6 +700,10 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     for sx0, sy0, sx1, sy1 in STRIPES:
         fig &= ~((fx >= sx0) & (fx < sx1) & (fy >= sy0) & (fy < sy1) & (gp < STRIPE_G))
     fig |= ndi.binary_fill_holes(fig) & ~ground        # (not the painted folds there: they are dark too)
+    # slivers of the stage's clay left between the ground and the stage cut, beside the sandals, drew tails
+    # off them: along the cut (within SLIVER flat px of it) only what an opening over SLIVER keeps is figure
+    near_cut = ndi.distance_transform_edt(~outside) <= SLIVER * UP
+    fig &= ~(near_cut & ~ndi.binary_opening(fig, structure=morphology.disk(SLIVER * UP)))
     # and smoothed along its length (the photo's grain made the outline wobble): the mask blurred over
     # FIG_SIGMA flat px in PhotoCraft and cut at half
     Image.fromarray((fig * 255).astype(np.uint8)).save(t / "fig.png")
