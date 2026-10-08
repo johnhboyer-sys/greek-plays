@@ -91,6 +91,26 @@ NOTCH_NEAR = 3
 # The skin's soft edge (grey between the white and its printed contour) is the skin's: left open, it drew
 # a second outline beside the contour (the thumbs). Neither black nor clay, within SOFT plate px of it
 SOFT = 2
+# The hands, arms and feet (John, 2026-10-08, on pass 1: "hands. and some lines could be smoother"): the
+# plate's contours round the skin and between the fingers print uneven, broken and specked, 1-3 px; drawn
+# as printed, or along their centres or their midline, they came out lumpy or broken. Here the outline is
+# drawn from the skin's shape (its light, the thin fingertips too): the skin closed over the thin dark lines inside it (SIL_CLOSE plate px,
+# never over clay), its holes filled, smoothed (PhotoCraft: Gaussian Blur SIL_SMOOTH plate px, Threshold);
+# the outline is an even band LINE_W wide just outside it, and the rest of the printed band is the figure's
+# (clay on the dark theme). The lines inside the shape (between the fingers, the thumb's crease) are the
+# dark it closes in, along their centres, LINE_W wide, pieces under INNER_MIN plate px long going as specks.
+# All this within CONTOUR_NEAR plate px of the skin, apart from the wide black (the dresses, hair and jars:
+# what survives an opening of WIDE plate px). The faces keep the plate's own lines, which came out clean,
+# with the skin's outline: the skin of each head, found from a point on each cheek (FACE_PTS)
+SIL_CLOSE, SIL_SMOOTH, INNER_MIN = 0, 1.0, 4
+# the lines inside: darker than INNER_T, or the black top-hat over SKIN_T; pieces of the skin's shape smaller
+# than SIL_MIN plate px^2 (the print's specks of white at the fingertips) go with their outline
+INNER_T, SIL_MIN = 160, 40
+CONTOUR_NEAR, WIDE = 6, 2
+FACE_PTS = [(700, 1400), (960, 1440), (1150, 1360), (1480, 1400), (1760, 1380)]
+# Every line's edge is smoothed before tracing (PhotoCraft: Gaussian Blur SMOOTH plate px, then Threshold
+# at half): the print's grain left the edges ragged (John: "some lines could be smoother")
+SMOOTH = 0.5
 
 
 def pc(src, out, *steps):
@@ -104,6 +124,38 @@ def pc(src, out, *steps):
 
 def grey(p):
     return np.asarray(Image.open(p).convert("L")).astype(np.float32)
+
+
+def pc_mask(m, *steps):
+    """A mask run through PhotoCraft (steps as for pc), back as a mask (grey 128 and over)."""
+    with tempfile.TemporaryDirectory() as td:
+        a, b = Path(td) / "m.png", Path(td) / "o.png"
+        Image.fromarray(m.astype(np.uint8) * 255).save(a)
+        pc(a, b, *steps)
+        return grey(b) >= 128
+
+
+def smooth(m, r):
+    """m with its edges smoothed: PhotoCraft's Gaussian Blur r plate px, then Threshold at half."""
+    return pc_mask(m, ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": r * UP}),
+                   ("image.adjustments.threshold", {"level": 128}))
+
+
+def centre_lines(mask, t, spur):
+    """mask redrawn along its centre line, t px wide, less spurs shorter than spur px (as andromache.py)."""
+    n8 = np.ones((3, 3), int)
+    sk = morphology.skeletonize(mask)
+    nb = ndi.convolve(sk.astype(int), n8, mode='constant') - 1
+    near_j = ndi.binary_dilation(sk & (nb >= 3), structure=n8)
+    lab, n = ndi.label(sk & ~near_j, structure=n8)
+    size = np.bincount(lab.ravel(), minlength=n + 1)
+    at_j, at_end = np.zeros(n + 1, bool), np.zeros(n + 1, bool)
+    at_j[lab[ndi.binary_dilation(near_j, structure=n8) & ~near_j & sk]] = True
+    at_end[lab[sk & (nb == 1) & ~near_j]] = True
+    cut = at_j & at_end & (size < spur)
+    cut[0] = False
+    sk = morphology.skeletonize(sk & ~cut[lab])
+    return ndi.distance_transform_edt(~sk) <= t / 2
 
 
 def thick(m, w):
@@ -177,7 +229,7 @@ def main(src, qa=None, dump=None):
     yy, xx = np.mgrid[0:H, 0:W]
     px, py = (xx + 0.5) / UP - 0.5 + X0, (yy + 0.5) / UP - 0.5 + Y0
     below = py > np.polyval(FLOOR, px - 1270) - FLOOR_CLEAR
-    frame = (px < np.where(py < LEFT[2], LEFT[0], LEFT[1])) | (py < TOP[0] * px + TOP[1] + TOP_CLEAR) | (px > RIGHT[0] * py + RIGHT[1] - 0.5)
+    frame = (px < np.where(py < LEFT[2], LEFT[0], LEFT[1])) | (py < TOP[0] * px + TOP[1] + TOP_CLEAR) | (px > RIGHT[0] * py + RIGHT[1] - 2.0)
     outside = below | frame
 
     # ground: the clay, opened so thin marks do not join it; its large areas and the pockets
@@ -210,9 +262,11 @@ def main(src, qa=None, dump=None):
 
     # the added white (skin): light, not warm, inside the women
     white = light & ~clay & fig
+    white_raw = white.copy()   # (before the opening: the fingertips are 2-3 px wide)
     white = ndi.binary_opening(white, structure=morphology.disk(UP))
     lab, _ = ndi.label(white)
     white &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
+    white0 = white.copy()   # (before its soft edge: the grey lines between the fingers are not skin)
     white |= fig & ~black & ~clay & (ndi.distance_transform_edt(~white) <= SOFT * UP)
     notch = fig & clay & (ndi.distance_transform_edt(~white) <= NOTCH_NEAR * UP)
     lab, n = ndi.label(notch)
@@ -239,6 +293,29 @@ def main(src, qa=None, dump=None):
     skin_lines = thick((dark_hat > SKIN_T) & near & ~outside & ~clay, LINE_W) & near & ~frame & ~notch
     outline = ~fig & ~frame & (ndi.distance_transform_edt(~white) <= LINE_W * UP)
     lines = a_black | outline | skin_lines
+    # the outline of the hands, arms and feet, from the skin's smoothed shape
+    lab, _ = ndi.label(white)
+    heads = {lab[round((y - Y0) * UP), round((x - X0) * UP)] for x, y in FACE_PTS}
+    assert 0 not in heads, 'a face point is off the skin'
+    faces = ndi.distance_transform_edt(~np.isin(lab, list(heads))) <= (CONTOUR_NEAR + 1) * UP
+    wide = ndi.binary_dilation(ndi.binary_opening(a_black, structure=morphology.disk(WIDE * UP)), iterations=UP)
+    zone = (ndi.distance_transform_edt(~white) <= CONTOUR_NEAR * UP) & ~wide & ~faces & ~outside
+    # (its soft edge left out: on the last woman's hand the grey between the fingers, 1-2 px, would fill in)
+    skin = white0 | (white_raw & (ndi.distance_transform_edt(~white0) <= 4 * UP))
+    sil = ndi.binary_closing(skin, structure=morphology.disk(SIL_CLOSE * UP)) if SIL_CLOSE else skin
+    sil = smooth(ndi.binary_fill_holes((sil & ~clay) | skin), SIL_SMOOTH)
+    lab, _ = ndi.label(sil)
+    sil &= (np.bincount(lab.ravel()) >= SIL_MIN * UP * UP)[lab]
+    ring = ~sil & (ndi.distance_transform_edt(~sil) <= LINE_W * UP)
+    inner = centre_lines(sil & ~white0 & ~clay & ((L < INNER_T) | (dark_hat > SKIN_T)), LINE_W * UP, 3 * UP) & sil
+    inner &= ~(ndi.distance_transform_edt(sil) <= LINE_W * UP)   # (not along the outline itself)
+    lab, _ = ndi.label(inner)
+    inner &= (np.bincount(lab.ravel()) >= INNER_MIN * LINE_W * UP * UP)[lab]
+    fig |= zone & ~clay
+    contour = (ring | inner) & ~frame
+    lines = np.where(zone, contour, lines)
+    fig |= contour & zone
+    lines = smooth(lines, SMOOTH) & ~frame
     body = (ndi.distance_transform_edt(~fig) <= RIM * UP) & ~frame
     if dump:
         np.savez_compressed(dump, L=L.astype(np.uint8), fig=fig, white=white, lines=lines, ground=ground, marks=marks)
