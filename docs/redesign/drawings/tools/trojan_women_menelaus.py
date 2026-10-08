@@ -56,11 +56,11 @@ SEEDS = [(500, 1980), (1020, 1840), (1540, 2180), (720, 2140), (1350, 1789), (13
 POCKETS = [(1686, 2019)]
 # Black borders that run into the ground: the band inside the shield's rim (at both ends, where the
 # rim thins out to a faint clay line), Helen's zigzag hem (at both ends, and where it turns between
-# two clay tips), the hem of her overfold where it runs into the pocket at her side, and the left
+# two clay tips, and where a corner of it all but touches the ground), the hem of her overfold where it runs into the pocket at her side, and the left
 # woman's zigzag hem (at its lower end, its tassel). WALLS (plate px) part them from the ground, WALL_W px wide: along the
 # faint clay line, or across the border's end along the figure's edge.
 WALLS = [[(1120, 1607), (1128, 1602), (1137, 1597)], [(1306, 2098), (1316, 2091), (1327, 2079)],
-         [(1403, 2019), (1412, 2011)], [(1366, 2105), (1369, 2100), (1373, 2095)], [(1292, 2255), (1290, 2266)], [(1638, 2071), (1636, 2082)],
+         [(1405, 2021.5), (1409.5, 2015)], [(1369.5, 2105.5), (1371.5, 2100), (1374, 2095)], [(1292, 2255), (1290, 2266)], [(1332, 2183), (1337, 2177)], [(1638, 2071), (1636, 2082)],
          [(395, 1899), (419, 1896)]]
 WALL_W = 1.5
 # The plate's lines print solid black (grey 6-40) on the clay (150-165), 1-3 px wide, but the finest
@@ -264,8 +264,9 @@ def main(src, qa=None, dump=None):
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint)
 
-    # all the ground stays open in the dark theme (the pockets too), so no clay rim strays onto it
-    held = ground & ~fig
+    # all outside the figures stays open in the dark theme (the ground, its pockets, and the sliver of
+    # paper above the cut under the soles), so no clay rim strays onto it
+    held = ~fig
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=held, weight="own",
         title='Menelaus dropping his sword at the sight of Helen',
