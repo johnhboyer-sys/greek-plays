@@ -61,7 +61,9 @@ POCKETS = [(1686, 2019)]
 # faint clay line, or across the border's end along the figure's edge.
 WALLS = [[(1120, 1607), (1128, 1602), (1137, 1597)], [(1306, 2098), (1316, 2091), (1327, 2079)],
          [(1405, 2021.5), (1409.5, 2015)], [(1369.5, 2105.5), (1371.5, 2100), (1374, 2095)], [(1292, 2255), (1290, 2266)], [(1332, 2183), (1337, 2177)], [(1638, 2071), (1636, 2082)],
-         [(395, 1899), (419, 1896)]]
+         [(395, 1899), (419, 1896)],
+         [(444, 1546), (447, 1556)], [(466, 1533), (470, 1536)],
+         [(649, 2203), (655, 2204)], [(662, 2203.5), (668.5, 2203)]]
 WALL_W = 1.5
 # The plate's lines print solid black (grey 6-40) on the clay (150-165), 1-3 px wide, but the finest
 # folds only 1 px wide and grey 70-140. Lines are the plate's paint at its own width, darker than
@@ -85,7 +87,44 @@ HAND_EDGE = 1.2
 # the fold breaks ran 10-24 (median); the true ends (the nose, a ribbon's tip, a line ending at the
 # helmet) under 5, or unprinted for 6 px or more, or across other lines
 # (a dot of the faint line's own print in the gap, under JOIN_DOT plate px^2, is no line crossed)
-JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, JOIN_LOW, JOIN_FADE, JOIN_DOT = 30, 6, 20, 10, 4, 4, 30
+JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, JOIN_LOW, JOIN_FADE, JOIN_DOT = 30, 6, 20, 7, 3, 5, 30
+# The faintest folds (John, 2026-10-07, circling 26 places on pass 1: "lines or sections that should
+# have black ink. Some may be faint"): the plate prints them as dotted runs of grey 100-135 on clay
+# 145-160. They are the plate's local contrast at fine blur (0.5 plate px; its Maximum then Minimum
+# over 5 plate px, less it) above FAINT[0], joined to a point above FAINT[1]; a piece is a line if its
+# long axis is FAINT_LEN plate px or more and 3 times its width (grain is rounder and shorter).
+# Each piece is drawn along a smooth curve fitted to it (a quadratic across its long axis), LINE_MIN
+# wide, so a dotted run of print comes out an even line; join_breaks then joins the pieces along a
+# fold where the print breaks
+FAINT, FAINT_LEN = (7, 14), 8
+# A short piece must also run with the lines round it (within FAINT_ANGLE degrees of their direction,
+# FAINT_NEAR plate px about): a dash across the folds is grain
+FAINT_ANGLE, FAINT_NEAR = 25, 8
+# and a piece lying along the figure's edge (its median distance from the ground under FAINT_EDGE plate
+# px) is the darker band the print leaves inside the outline, not a line (it drew a line down the left
+# woman's face, beside her profile)
+FAINT_EDGE = 6
+# Line ends that point straight at each other (within ALIGN_ANGLE degrees, both ways) are pieces of one
+# dotted fold: joined across up to ALIGN_MAX plate px where the print between them is faint (median
+# contrast ALIGN_C or more), however long its gaps
+ALIGN_COS, ALIGN_C, ALIGN_MAX = np.cos(np.radians(10)), 4, 40
+# faint lines the finders miss, traced along the plate's own line between hand-placed points (plate
+# px), TRACED_W wide: a fold across the left woman's shoulder (a row of dots), Menelaus' ankle bone
+# between its two printed strokes
+TRACED = [[(522.5, 1668), (536, 1656), (547, 1647)], [(679, 2416.5), (675.5, 2420.5), (673, 2424)]]
+# Two folds low on Helen's skirt print so faint (grey 125-150 on clay 145-160), and so close to darker
+# lines, that the finders and a least-cost path both run onto their neighbours: drawn along a curve
+# (x a quadratic in y) fitted to their centres, measured every 10 px (plate px; John circled them)
+FOLDS = [[(1441, 2410), (1440, 2420), (1438, 2430), (1436, 2440), (1435, 2450), (1432, 2460), (1432, 2470)],
+         [(1639, 2360), (1638, 2370), (1637, 2380), (1636, 2390), (1636, 2400), (1637, 2410), (1636, 2420)]]
+TRACED_W = LINE_MIN
+# small dark marks kept in the left woman's face (box, plate px): her nostril prints as a dot 3 px
+# across, darker than FACE_DARK (lightly blurred) only at its centre
+FACE = (530, 1540, 600, 1620)
+FACE_DARK = 110
+# the hair: dark paint inside the left woman's fillet, where its loop's ends come within a px of the
+# clay beside them, and the tassel's black weight at the corner of her mantle are walled off from the
+# ground (with WALLS above)
 SOLES = 6.0                               # plate px: the strip of black under the soles, above the paper, is ground
 
 
@@ -120,7 +159,7 @@ def along(shape, path, width):
     return ndi.distance_transform_edt(~m) <= width * UP / 2
 
 
-def join_breaks(lines, contrast):
+def join_breaks(lines, contrast, to_edge):
     """The breaks in `lines` (at UP) that JOIN_* describe, joined; `contrast` is the plate's local
     contrast (UP px)."""
     from scipy.spatial import cKDTree
@@ -149,7 +188,7 @@ def join_breaks(lines, contrast):
     out = np.zeros_like(lines)
     used = set()
     cos = np.cos(np.radians(JOIN_ANGLE))
-    pairs = sorted(cKDTree(ends).query_pairs(JOIN_MAX * UP),
+    pairs = sorted(cKDTree(ends).query_pairs(ALIGN_MAX * UP),
                    key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]])))
     for i, j in pairs:
         if i in used or j in used or len(runs[i]) < JOIN_RUN * UP / 2 or len(runs[j]) < JOIN_RUN * UP / 2:
@@ -164,7 +203,15 @@ def join_breaks(lines, contrast):
         c = ndi.map_coordinates(contrast, q.T, order=1)
         low = np.r_[0, (c < JOIN_LOW).astype(int), 0]
         starts, stops = np.nonzero(np.diff(low) == 1)[0], np.nonzero(np.diff(low) == -1)[0]
-        if np.median(c) < JOIN_C or (len(starts) and (stops - starts).max() > JOIN_FADE * UP):
+        aligned = da @ u >= ALIGN_COS * np.hypot(*da) and db @ -u >= ALIGN_COS * np.hypot(*db)
+        if not aligned and np.hypot(*(b - a)) > JOIN_MAX * UP:
+            continue
+        if aligned:   # a dotted fold: its pieces lie along one curve, so the print's gaps may be long
+            # (not along the figure's edge, where the print's darker band beside the outline would pass
+            # for a faint line: it joined a stroke straight down the left woman's face)
+            if np.median(c) < ALIGN_C or np.median(ndi.map_coordinates(to_edge, q.T, order=1)) < FAINT_EDGE * UP:
+                continue
+        elif np.median(c) < JOIN_C or (len(starts) and (stops - starts).max() > JOIN_FADE * UP):
             continue
         mid = (np.hypot(*(q - a).T) > 2 * UP) & (np.hypot(*(q - b).T) > 2 * UP)
         hit = set(lab[tuple(q[mid].round().astype(int).T)]) - {0, lab[tuple(a.astype(int))], lab[tuple(b.astype(int))]}
@@ -175,6 +222,55 @@ def join_breaks(lines, contrast):
         out |= along(lines.shape, seg, max(w, 2.0))
         used |= {i, j}
     return out
+
+
+def faint_lines(contrast, fig, lines):
+    """The faint folds FAINT describes, each drawn along a quadratic fitted to it, LINE_MIN wide (UP px)."""
+    m = apply_hysteresis_threshold(contrast, *FAINT) & fig & ~ndi.binary_dilation(lines, iterations=UP)
+    lab, _ = ndi.label(m, structure=np.ones((3, 3)))
+    to_edge = ndi.distance_transform_edt(fig)
+    gy, gx = np.gradient(ndi.gaussian_filter(lines.astype(np.float32), UP))   # the lines' direction round
+    jyy, jxx, jxy = (ndi.gaussian_filter(a, FAINT_NEAR * UP) for a in (gy * gy, gx * gx, gx * gy))
+    out = np.zeros_like(m)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        p = np.argwhere(lab[sl] == k).astype(float) + (sl[0].start, sl[1].start)
+        if len(p) < 3:
+            continue
+        c = p.mean(0)
+        w, v = np.linalg.eigh(np.cov((p - c).T))
+        long_ = 4 * np.sqrt(max(w[1], 0))
+        if long_ < FAINT_LEN * UP or np.sqrt(max(w[1], 1e-9) / max(w[0], 0.25)) < 3:
+            continue
+        if np.median(to_edge[tuple(p.astype(int).T)]) < FAINT_EDGE * UP:
+            continue
+        if long_ < 3 * FAINT_LEN * UP:
+            i, j = int(c[0]), int(c[1])
+            ev, evec = np.linalg.eigh(np.array([[jyy[i, j], jxy[i, j]], [jxy[i, j], jxx[i, j]]]))
+            if ev[1] > 0 and abs(evec[:, 0] @ v[:, 1]) < np.cos(np.radians(FAINT_ANGLE)):
+                continue
+        t, u = (p - c) @ v[:, 1], (p - c) @ v[:, 0]
+        f = np.polyfit(t, u, 2 if long_ >= 3 * FAINT_LEN * UP else 1)
+        tt = np.linspace(t.min(), t.max(), int(t.max() - t.min()) + 2)
+        q = c + tt[:, None] * v[:, 1] + np.polyval(f, tt)[:, None] * v[:, 0]
+        q = q.round().astype(int)
+        ok = (q[:, 0] >= 0) & (q[:, 0] < m.shape[0]) & (q[:, 1] >= 0) & (q[:, 1] < m.shape[1])
+        out[q[ok, 0], q[ok, 1]] = True
+    return ndi.distance_transform_edt(~out) <= LINE_MIN * UP / 2
+
+
+def traced(g, pts, width):
+    """The plate's own dark line between hand-placed points (plate px), followed by a least-cost
+    path along its darkest ridge, `width` plate px wide, at UP (as hippolytus.py)."""
+    P = up(pts)
+    pad = 10 * UP
+    x0, y0 = int(P[:, 0].min()) - pad, int(P[:, 1].min()) - pad
+    x1, y1 = int(P[:, 0].max()) + pad, int(P[:, 1].max()) + pad
+    w = ndi.gaussian_filter(g[y0:y1, x0:x1], 0.7 * UP)
+    cost = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(w, size=(5 * UP, 5 * UP)) - w, 0, None) / 12)
+    path = lw.livewire(cost, [(x - x0, y - y0) for x, y in P])
+    m = np.zeros(g.shape, bool)
+    m[(path[:, 1] - 0.5).astype(int) + y0, (path[:, 0] - 0.5).astype(int) + x0] = True
+    return ndi.distance_transform_edt(~m) <= width * UP / 2
 
 
 def ink_lines(g_blur, closed, low, high):
@@ -201,10 +297,18 @@ def main(src, qa=None, dump=None):
         r = (9 * UP) // 2
         pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
            ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
+        rf = (5 * UP) // 2
+        pc(t / "up.png", t / "gf.png", ("filter.blur.gaussianBlur", {"radius": 0.5 * UP}))
+        pc(t / "gf.png", t / "closedf.png", ("filter.other.maximum", {"radius": rf, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": rf, "preserve": "squareness"}))
         g, gl, closed = grey(t / "up.png"), grey(t / "gl.png"), grey(t / "closed.png")
+        faint_c = grey(t / "closedf.png") - grey(t / "gf.png")
         dark0 = grey(t / "dark.png") < 128
         core = grey(t / "core.png") < 128
         fine = grey(t / "fine.png") < 128
+        pc(t / "up.png", t / "facedark.png", ("filter.blur.gaussianBlur", {"radius": 0.35 * UP}),
+           ("image.adjustments.threshold", {"level": FACE_DARK}))
+        face_dark = grey(t / "facedark.png") < 128
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
 
@@ -250,7 +354,15 @@ def main(src, qa=None, dump=None):
     firm = ink_lines(gl, closed, 22, 34)
     thin = ndi.distance_transform_edt(~morphology.skeletonize(firm)) <= LINE_MIN * UP / 2
     lines = (core | thin) & fig
-    lines |= join_breaks(lines, closed - gl) & fig
+    lines |= faint_lines(faint_c, fig, lines) & fig
+    for pts in TRACED:
+        lines |= traced(g, pts, TRACED_W) & fig
+    for pts in FOLDS:
+        P = np.array(pts, float)
+        yy_ = np.linspace(P[0, 1], P[-1, 1], int((P[-1, 1] - P[0, 1]) * UP) + 1)
+        xx_ = np.polyval(np.polyfit(P[:, 1], P[:, 0], 2), yy_)
+        lines |= along(g.shape, up(np.c_[xx_, yy_]), LINE_MIN) & fig
+    lines |= join_breaks(lines, np.maximum(closed - gl, faint_c), ndi.distance_transform_edt(fig)) & fig
     # every line at least LINE_MIN wide, so no thin neck breaks when the weight is evened out
     lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= LINE_MIN * UP / 2) & fig
     solid = paint & fig
@@ -258,9 +370,12 @@ def main(src, qa=None, dump=None):
     solid &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
     edge = fig & ~ndi.binary_erosion(fig, iterations=int(2.5 * UP))
     edge = np.where(hand, fig & ~ndi.binary_erosion(fig, iterations=round(HAND_EDGE * UP)), edge)
-    ink = lines | solid | edge
+    face = np.zeros(g.shape, bool)
+    fx0, fy0, fx1, fy1 = [(v - o) * UP for v, o in zip(FACE, (X0, Y0, X0, Y0))]
+    face[fy0:fy1, fx0:fx1] = True
+    ink = lines | solid | edge | (face & face_dark & fig)
     lab, _ = ndi.label(ink)
-    ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
+    ink &= np.where(face, (np.bincount(lab.ravel()) > 3 * UP * UP)[lab], (np.bincount(lab.ravel()) > 12 * UP * UP)[lab])
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint)
 
