@@ -244,13 +244,244 @@ def grey(p):
     return np.asarray(Image.open(p).convert("L")).astype(np.float32)
 
 
+# ---------------------------------------------------------------- the drawing
+
+BOX = (360, 220, 1800, 2720)   # flat px: the master
+UP = 2                         # work at 2x the flat's px, so curves stay smooth
+CLAY = 22                      # red less blue, lightly blurred: his clay (and the pale, washed-out robe low
+#                                on the right) is above it; the ground, black or mottled grey-green, below
+AUTO_GROUND = 20000            # flat px: dark areas this large, reaching the box's edge, are ground
+SEEDS = [(1200, 1400)]   # flat px: his robe
+EDGE_R = 6                      # flat px
+FIG_SIGMA = 2.0                 # flat px
+EDGE_ZONE = 5.5                 # flat px
+END_RUN = 6                     # flat px
+STREAK_ANGLE, STREAK_C = 15, 36
+FACE = (980, 230, 1450, 800)    # flat px: his head
+# the stage's top edge (flat px, y = a + b x, fitted to its edge left of his feet): below it is the
+# stage, left out, except his front foot, which stands over its edge (FOOT)
+STAGE = (2565.0, -0.040)
+# Lines: the painted lines are black on the clay, 3-8 flat px wide, but where the photo is washed out (his
+# robe low on the right, his feet) only 10-20 grey levels under it. They are found by local contrast (the
+# blurred photo's Maximum then Minimum over 9 flat px, less the blurred photo) with hysteresis
+# (LINE_LOW, LINE_HIGH), and drawn at their own width (where the contrast is at least half the
+# strongest within HALF_R flat px), never thinner than LINE_MIN flat px along their centre. The
+# photo's faint horizontal streaks reach 10 at most.
+LINE_LOW, LINE_HIGH, HALF_R, LINE_MIN = 12, 24, 3, 2.5
+# a piece of line shorter than LINE_LEN flat px (along its centre) is grain or a streak of the photo
+LINE_LEN = 14
+# and one shorter than SHORT_LEN whose contrast never reaches SHORT_C is grain
+SHORT_LEN, SHORT_C = 40, 32
+HOLE = 12                      # flat px^2: holes this small in a line are filled
+SPUR, WIDTH_SIGMA = 4, 6.0     # flat px: side spurs pruned from the centre lines; width smoothing
+# solid paint: the beard, the hair, the pupils. Darker than PAINT (grey, lightly blurred), in areas over
+# PAINT_AREA flat px^2
+PAINT, PAINT_AREA = 80, 150
+PAINT_WIDE = 4                 # flat px: paint is wider than 2 x this (the lines are not)
+EDGE = 3.5                     # flat px: the outline, drawn inside the figure's edge (the painted lines
+#                                are 3-8 wide; at 2.5 it read as a halo round the figure)
+
+
+def along(shape, path, width):
+    """A line `width` flat px wide along a path (x, y at UP)."""
+    m = np.zeros(shape, bool)
+    yx = (np.asarray(path)[:, ::-1] - 0.5).round().astype(int)
+    ok = (yx[:, 0] >= 0) & (yx[:, 0] < shape[0]) & (yx[:, 1] >= 0) & (yx[:, 1] < shape[1])
+    m[yx[ok, 0], yx[ok, 1]] = True
+    return ndi.distance_transform_edt(~m) <= width * UP / 2
+
+
+def centre_lines(m, spur, min_len):
+    """Centre lines of a stroke mask, side spurs under `spur` px pruned (the line ends kept), pieces under
+    `min_len` px dropped (as oedipus_syracuse.py)."""
+    from skimage import morphology
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    sk = morphology.skeletonize(m)
+    s = sk.copy()
+    for _ in range(spur):  # peel the ends...
+        s &= ~((ndi.convolve(s.astype(int), k, mode="constant") == 1) & s)
+    front = (ndi.convolve(s.astype(int), k, mode="constant") == 1) & s
+    for _ in range(spur):  # ...and grow the surviving ends back
+        front = ndi.binary_dilation(front, structure=np.ones((3, 3))) & sk & ~s
+        s |= front
+    return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
+
+
+def even_lines(m, own):
+    """The lines of mask m redrawn along their centres, each at the width `own` has there (the paint's
+    own width), smoothed along the line over WIDTH_SIGMA flat px, at least LINE_MIN: the photo's grain
+    and the brush's ragged edges made the lines lumpy."""
+    from skimage import morphology
+    m = morphology.remove_small_holes(m, max_size=HOLE * UP * UP)   # pinholes made rings of the centre lines
+    c = centre_lines(m, spur=SPUR * UP, min_len=LINE_LEN * UP)
+    w = 2 * ndi.distance_transform_edt(own)
+    num, den = (ndi.gaussian_filter(a, WIDTH_SIGMA * UP) for a in (np.where(c, w, 0.0), c.astype(float)))
+    half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_MIN * UP) / 2, 0.0)
+    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
+    return d <= half[iy, ix], c, half
+
+
+def find_lines(contrast, cmax, fig, origin):
+    """The painted lines on the figure (LINE_* above), at their own width along their centres."""
+    from skimage import morphology
+    from skimage.filters import apply_hysteresis_threshold
+    x0, y0 = origin
+    to_edge = ndi.distance_transform_edt(fig) / UP
+    # within EDGE_ZONE flat px of the edge the half-tone between clay and ground passes for a line: the
+    # lines are found inside it, and those that run into it are carried on to the outline (to_outline)
+    firm = apply_hysteresis_threshold(contrast, LINE_LOW, LINE_HIGH) & fig & (to_edge >= EDGE_ZONE)
+    lab, n = ndi.label(firm, structure=np.ones((3, 3)))
+    sk = morphology.skeletonize(firm)
+    length = np.bincount(lab[sk], minlength=n + 1) / UP          # flat px of centre line per piece
+    fxa, fya, fxb, fyb = FACE
+    keep = np.zeros(n + 1, bool)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        p = np.argwhere(lab[sl] == k).astype(float)
+        if length[k] < LINE_LEN or len(p) < 3:
+            continue                                            # grain
+        top = contrast[sl][lab[sl] == k].max()
+        if length[k] < SHORT_LEN and top < SHORT_C:
+            continue                                            # grain: short, curly and faint
+        cy, cx = p.mean(0) / UP + (sl[0].start / UP + y0, sl[1].start / UP + x0)
+        ax = np.linalg.eigh(np.cov(p.T))[1][:, 1]
+        level = np.degrees(np.arctan2(abs(ax[0]), abs(ax[1]))) < STREAK_ANGLE
+        in_face = fxa <= cx <= fxb and fya <= cy <= fyb
+        keep[k] = not (level and top < STREAK_C and not in_face)
+    firm &= keep[lab]
+    own = firm & (contrast >= 0.5 * cmax)
+    lines, c, half = even_lines(own | firm, own)
+    return (lines | to_outline(c, half, to_edge)) & fig
+
+
+def to_outline(c, half, to_edge):
+    """Each line ending within EDGE_ZONE + 2 flat px of the figure's edge, carried straight on (the
+    direction of its last END_RUN flat px) until it meets the outline, at its own width."""
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    ends = np.argwhere(c & (ndi.convolve(c.astype(int), k, mode="constant") == 1))
+    H, W = c.shape
+    out = np.zeros(c.shape, bool)
+    for e in ends:
+        if to_edge[tuple(e)] > EDGE_ZONE + 2:
+            continue
+        path, seen = [tuple(e)], {tuple(e)}
+        for _ in range(END_RUN * UP):
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dy or dx)
+                   and 0 <= y + dy < H and 0 <= x + dx < W and c[y + dy, x + dx] and (y + dy, x + dx) not in seen]
+            if not nxt:
+                break
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        if len(path) < END_RUN * UP / 2:
+            continue
+        d = np.array(path[0], float) - np.array(path[-1], float)
+        d /= np.hypot(*d)
+        q = np.array(e, float)
+        for step in range(int(3 * EDGE_ZONE * UP)):
+            q = q + d * 0.5
+            i, j = int(round(q[0])), int(round(q[1]))
+            if not (0 <= i < H and 0 <= j < W) or to_edge[i, j] <= EDGE:
+                break
+        else:
+            continue
+        seg = np.linspace(np.array(e, float), q, int(np.hypot(*(q - e))) * 2 + 2)
+        m = np.zeros(c.shape, bool)
+        m[seg[:, 0].round().astype(int).clip(0, H - 1), seg[:, 1].round().astype(int).clip(0, W - 1)] = True
+        out |= ndi.distance_transform_edt(~m) <= half[tuple(e)]
+    return out
+
+
 def main(pJ, pL1, pL3, qa=None, dump=None):
+    from skimage import morphology
+    from skimage.filters import apply_hysteresis_threshold
     cams, R = vase()
     fr = frame(R)
     flat = flat_image(rgb(pJ), cams["J"], R, fr)
-    if dump:
-        Image.fromarray(flat.astype(np.uint8)).save(dump)
+    x0, y0, x1, y1 = BOX
+    w, h = x1 - x0, y1 - y0
+    td = tempfile.TemporaryDirectory()
+    t = Path(td.name)
+    Image.fromarray(flat.astype(np.uint8)).save(t / "flat.png")
+    pc(t / "flat.png", t / "up.png",
+       ("image.crop", {"x": x0, "y": y0, "width": w, "height": h}),
+       ("image.imageSize", {"width": w * UP, "height": h * UP, "resample": "bicubic"}))
+    pc(t / "up.png", t / "g.png", ("image.mode.grayscale", None))
+    pc(t / "up.png", t / "rb.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+       ("filter.blur.gaussianBlur", {"radius": 1.0 * UP}))
+    pc(t / "g.png", t / "gp.png", ("filter.blur.gaussianBlur", {"radius": 0.7 * UP}))
+    pc(t / "rb.png", t / "rbmax.png", ("filter.other.maximum", {"radius": EDGE_R * UP, "preserve": "roundness"}))
+    g, rb, gp, rbmax = grey(t / "g.png"), grey(t / "rb.png"), grey(t / "gp.png"), grey(t / "rbmax.png")
+    onphoto = grey(t / "up.png") > 0
+    H, W = g.shape
+    yy, xx = np.mgrid[0:H, 0:W]
+    fx, fy = x0 + (xx + 0.5) / UP - 0.5, y0 + (yy + 0.5) / UP - 0.5   # flat px
+    a, b = STAGE
+    outside = (fy > a + b * fx) | ~onphoto
 
+    # ground: the dark (by the clay map) with thin lines opened away, in large areas reaching the box's
+    # edge; the figure: what it leaves, from SEEDS
+    dark = (rb <= CLAY) & ~outside
+    dark = ndi.binary_opening(dark, structure=np.ones((4 * UP + 1, 4 * UP + 1)))
+    lab, _ = ndi.label(dark)
+    size = np.bincount(lab.ravel())
+    size[0] = 0
+    rim = np.unique(np.r_[lab[0], lab[:, 0], lab[:, -1], lab[ndi.binary_dilation(outside, iterations=2)]])
+    is_ground = (size > AUTO_GROUND * UP * UP) & np.isin(np.arange(len(size)), rim)
+    ground = is_ground[lab]
+    lab, _ = ndi.label(~ground & ~outside)
+    keep = {lab[int((y - y0) * UP), int((x - x0) * UP)] for x, y in SEEDS}
+    assert 0 not in keep
+    fig = ndi.binary_fill_holes(np.isin(lab, list(keep))) & ~ground
+    # its edge where the clay map falls to half the clay's level nearby (EDGE_R): CLAY alone put it out
+    # in the blur between clay and ground, and the dark there drew a second line inside the outline
+    band = fig & ~ndi.binary_erosion(fig, iterations=EDGE_R * UP)
+    fig &= ~(band & (rb < 0.5 * rbmax))
+    # and smoothed along its length (the photo's grain made the outline wobble): the mask blurred over
+    # FIG_SIGMA flat px in PhotoCraft and cut at half
+    Image.fromarray((fig * 255).astype(np.uint8)).save(t / "fig.png")
+    pc(t / "fig.png", t / "figs.png", ("filter.blur.gaussianBlur", {"radius": FIG_SIGMA * UP}))
+    fig = (grey(t / "figs.png") >= 128) & ~outside
+    lab, _ = ndi.label(fig)
+    fig = np.isin(lab, list({lab[int((y - y0) * UP), int((x - x0) * UP)] for x, y in SEEDS}))
+
+    # lines by local contrast, on the grey photo with everything off the figure turned white, so the
+    # ground's dark makes no contrast along the figure's edge (it drew a second outline inside the first)
+    Image.fromarray(np.where(fig, g, 255).astype(np.uint8)).save(t / "gw.png")
+    pc(t / "gw.png", t / "gl.png", ("filter.blur.gaussianBlur", {"radius": 0.8 * UP}))
+    r = (9 * UP) // 2
+    pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
+       ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
+    gl, closed = grey(t / "gl.png"), grey(t / "closed.png")
+    contrast = (closed - gl).clip(0, None)
+    Image.fromarray(contrast.clip(0, 255).astype(np.uint8)).save(t / "c.png")
+    pc(t / "c.png", t / "cmax.png", ("filter.other.maximum", {"radius": HALF_R * UP, "preserve": "roundness"}))
+    cmax = grey(t / "cmax.png")
+    td.cleanup()
+
+    lines = find_lines(contrast, cmax, fig, (x0, y0))
+    paint = (gp < PAINT) & fig
+    wide = ndi.binary_opening(paint, structure=morphology.disk(PAINT_WIDE * UP))   # not the lines
+    paint &= ndi.binary_dilation(wide, structure=morphology.disk(UP))
+    lab, _ = ndi.label(paint)
+    paint &= (np.bincount(lab.ravel()) > PAINT_AREA * UP * UP)[lab]
+    edge = fig & ~ndi.binary_erosion(fig, iterations=round(EDGE * UP))
+    ink = lines | paint | edge
+    lab, _ = ndi.label(ink)
+    ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
+    if dump:
+        np.savez_compressed(dump, g=g.astype(np.uint8), rb=rb.astype(np.uint8), fig=fig, ground=ground,
+                            outside=outside, contrast=contrast.clip(0, 255).astype(np.uint8), ink=ink)
+    info = lw.trace_svg(
+        ink, OUT, body=fig, open_holes=~fig, weight="own",
+        title="A comic old man, the master",
+        desc="Line drawing after a photo of a Sicilian red-figure calyx-krater (Louvre CA 7249), "
+             "taken off the vase's curve, cut out and retraced.")
+    print(OUT, info)
+    if qa:  # optional: the drawing over its source, and as the dark theme shows it
+        lw.qa_overlay(g, OUT, info["box"], Path(qa))
+        lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
 
 if __name__ == "__main__":
     if sys.argv[1] == "--refit":
