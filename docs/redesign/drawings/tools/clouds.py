@@ -397,6 +397,14 @@ CHITON_WHITE = 0.5
 # WHITE_RB[1] (the palest), in steps, fading out over WHITE_FEATHER flat px toward his skin and clothes
 # (at WHITE_A[0] = 0 his beard, where the photo is orange, all but vanished)
 WHITE_RB, WHITE_A, WHITE_STEP, WHITE_SIGMA, WHITE_FEATHER = (82, 62), (0.65, 0.95), 0.1, 3, 8
+# The top of the slave's genitals (John, 2026-10-09: "the penis should not be two complete arcs. the smaller
+# one actually kinda an inverted comma"): the line finder joined the small comma painted inside the V to the
+# V's left stroke, a closed loop. Redrawn on his marks: below the hem (the line through his V's two ends,
+# moved GEN_HEM flat px down), inside his V widened by GEN_PAD flat px, the drawn lines are erased; the V is
+# drawn along the centre of his stroke (MARKS["genital_v"]), GEN_W flat px wide (the lines' own width
+# there); the comma is the photo's own paint (grey under GEN_DARK, lightly blurred) inside his comma
+# (MARKS["genital_comma"]: his pen is twice the painted comma's size).
+GEN_HEM, GEN_PAD, GEN_W, GEN_DARK = 4, 4, 5, 90
 # Under the slave the stage's edge lies lower in the flat than the master's line runs (his part is a flat of
 # its own): STAGE_B (flat px, measured on the flat) runs along it from the column's foot, round the outer
 # edge of his back sandal (heel, sole), up its toe to the black ground between his feet, across, and round
@@ -791,6 +799,21 @@ def add_white(svg, zone, skin, rb, box):
         below = a
     svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
 
+def genital_top(shape, gp, fig, origin):
+    """The erase zone, and the V and comma to draw, at the top of the slave's genitals (GEN_*), at UP."""
+    x0, y0 = origin
+    up = lambda pts: (np.array(pts, float) - (x0, y0) + 0.5) * UP - 0.5
+    V = up(MARKS["genital_v"])
+    V = np.vstack([np.linspace(a, b, int(np.hypot(*(b - a))) + 2) for a, b in zip(V[:-1], V[1:])])
+    yy, xx = np.mgrid[0:shape[0], 0:shape[1]]
+    (ax, ay), (bx, by) = V[0], V[-1]   # (the line through his V's two ends: the hem)
+    below_hem = yy > ay + (by - ay) * (xx - ax) / (bx - ax) + GEN_HEM * UP
+    zone = ndi.binary_dilation(lw.polygon_mask(shape, V) | along(shape, V + 0.5, 1), iterations=GEN_PAD * UP) & below_hem
+    v = along(shape, V + 0.5, GEN_W) & fig
+    comma = (gp < GEN_DARK) & lw.polygon_mask(shape, up(MARKS["genital_comma"])) & fig & below_hem
+    return zone, v | comma
+
+
 def main(pJ, pL1, pL3, qa=None, dump=None):
     from skimage import morphology
     from skimage.filters import apply_hysteresis_threshold
@@ -892,6 +915,8 @@ def main(pJ, pL1, pL3, qa=None, dump=None):
     edge = fig & ~ndi.binary_erosion(fig, iterations=round(EDGE * UP))
     hair = hair_mask(fig)
     ink = ((lines | paint) & ~hair) | edge
+    gen_zone, gen_ink = genital_top(g.shape, gp, fig, (x0, y0))
+    ink = (ink & ~gen_zone) | gen_ink
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
     if dump:
