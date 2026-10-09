@@ -60,7 +60,11 @@ FIG_MIN = 200                             # plate px: clay areas smaller than th
 PAPER = 185
 # pockets of ground the figure closes in (a point in each, plate px)
 POCKETS = []
-WALLS = []
+# Black paint that runs into the ground (John, 2026-10-09, circling both on pass 1: drawn hollow, it
+# should be black): the inside of the lion's ear, open to the ground above it between the ear's curl
+# and the head's top edge, walled along that edge; and the quiver's black band, open at its lower end,
+# walled from the tip of its inner clay line to the end of its outer one (plate px)
+WALLS = [[(481.5, 387), (490.5, 387)], [(585.5, 1023), (576, 1034.5)]]
 WALL_W = 1.5
 LINE_DARK = 100
 LINE_MIN = 1.5
