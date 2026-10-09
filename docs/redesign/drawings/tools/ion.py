@@ -103,10 +103,12 @@ NO_FAINT = (860, 760, 1160, 1300)
 # the original"; 17 marked in the girl's mantle and Apollo's lap and the tripod's bowl, 85% of them its
 # pieces): this plate prints its lines solid, and what the finder found was the paper's grain
 FAINT_ON = False
-# John's marks on pass 1 (2026-10-09), drawn in PhotoCraft over the plate at UP (this crop's px, so they
-# register at zero offset): green = ink to take out, blue = ink to add. Green clears the drawing's ink
-# under it (and 1 plate px round it); each blue stroke is drawn along its centre, LINE_MIN wide
-MARKS_FILE = Path(__file__).parent / "ion_marks.png"
+# John's marks (2026-10-09), drawn in PhotoCraft over the plate at UP (this crop's px, so they register
+# at zero offset): green = ink to take out, blue = ink to add; on pass 1, and on pass 3 (some drawn on
+# the drawing's layer, picked out by colour). Applied in order: green clears the drawing's ink under it
+# (and 1 plate px round it); each blue stroke is drawn along its centre, LINE_MIN wide, and a blue dot
+# wider than that (a pupil) is drawn as marked
+MARKS_FILES = [Path(__file__).parent / "ion_marks.png", Path(__file__).parent / "ion_marks_3.png"]
 assert tw.UP == UP
 
 
@@ -295,13 +297,16 @@ def main(src, qa=None, dump=None):
     ink = lines | solid | edge
     lab, _ = ndi.label(ink)
     ink &= np.where(face, (np.bincount(lab.ravel()) > 3 * UP * UP)[lab], (np.bincount(lab.ravel()) > 12 * UP * UP)[lab])
-    m = np.asarray(Image.open(MARKS_FILE).convert('RGBA')).astype(int)
-    assert m.shape[:2] == ink.shape, (m.shape, ink.shape)
-    r, gg, bb, al = (m[..., i] for i in range(4))
-    green = (al > 40) & (gg > r + 40) & (gg > bb + 20)
-    blue = (al > 40) & (bb > r + 40) & (bb > gg + 20)
-    ink &= ~ndi.binary_dilation(green, iterations=UP)
-    ink |= ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= LINE_MIN * UP / 2
+    for mf in MARKS_FILES:
+        m = np.asarray(Image.open(mf).convert('RGBA')).astype(int)
+        assert m.shape[:2] == ink.shape, (m.shape, ink.shape)
+        r, gg, bb, al = (m[..., i] for i in range(4))
+        green = (al > 40) & (gg > r + 40) & (gg > bb + 20)
+        blue = (al > 40) & (bb > r + 40) & (bb > gg + 20)
+        green = ndi.binary_fill_holes(ndi.binary_closing(green, structure=morphology.disk(2 * UP)))   # a ring (not quite closed) round a mark takes out what it encloses
+        ink &= ~ndi.binary_dilation(green, iterations=UP)
+        ink |= ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= LINE_MIN * UP / 2
+        ink |= ndi.binary_opening(blue, structure=morphology.disk(round(LINE_MIN * UP)))
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, dark=dark, core=_core, thin=_thin, faint=_faint, join=_join)
 
