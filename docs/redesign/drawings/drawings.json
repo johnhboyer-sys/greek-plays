@@ -198,6 +198,15 @@
       "source": "Gerhard, Auserlesene griechische Vasenbilder IV (1858), Taf. CCCVIII, 2: an Attic black-figure hydria from Vulci, now Würzburg, Martin von Wagner Museum L 304 (Heidelberg scan, public domain)",
       "method": "Coloured plate, black figures on clay, a silhouette, made with PhotoCraft: the clay gives the outline; the black solid with its incisions and the added white open; arms and hands outlined from the skin's smoothed shape; John's traces of the lowered hands laid in as drawn; every edge smoothed; potrace",
       "verdict": "Usable; approved by John on the fourth pass (2026-10-09), after his traces of the lowered hands. No outside review (the citation checked against Gerhard, the plate's signature, photos of the vase and the American School's Agora booklet)."
+    },
+    {
+      "slug": "heracles",
+      "file": "heracles.svg",
+      "name": "Heracles · Herakles drawing his bow",
+      "alt": "Herakles in a lion skin drawing his bow",
+      "source": "Gerhard, Trinkschalen und Gefässe des Königlichen Museums zu Berlin II (1850), Taf. XXI, side B: an Attic red-figure amphora, Berlin, Antikensammlung F 2164 (Heidelberg scan, public domain)",
+      "method": "Coloured plate, red figures on black, made with PhotoCraft: the black ground gives the outline; the plate's lines traced as drawn at its own weight; the pale brown lines as a grey wash; the bowstring along its measured centres; potrace",
+      "verdict": "Usable; approved by John on the second pass (2026-10-09), after his marks on the ear and the quiver. No outside review (the citation checked against Gerhard's text and Furtwängler 1885, no. 2164)."
     }
   ]
 }

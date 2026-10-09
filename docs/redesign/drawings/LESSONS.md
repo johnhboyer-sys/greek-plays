@@ -145,6 +145,32 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   pages did not answer from the browser pane; the American School's booklet *Women in the Athenian
   Agora* (fig. 3) gives the museum number (2026-10-09).
 
+### Gerhard, *Trinkschalen und Gefässe des Königlichen Museums zu Berlin* (coloured lithographs, red figures on black)
+
+- Heracles (II, Taf. XXI, side B), made with PhotoCraft: about three hours over two passes, approved by John
+  2026-10-09. `tools/heracles.py`. The Auserlesene Vasenbilder method carried over, with these differences
+  (2026-10-09).
+- The plate prints two kinds of line: black, and pale brown (the lion's fur, the anatomy, the folds; their
+  darkest grey stays above 105). Drawn black they read as heavy as the outlines; John chose them as a grey
+  `tone` wash. Keep the test inside a box round where they are printed: elsewhere a black line's thinning end
+  passes it, and the toes came out half black, half grey (`BROWN_BOX`) (2026-10-09).
+- Its lines are finer (0.12% of the longer side, 1-2 px) and closer than the AV plates': at the house
+  weight the eye's rings ran into a blot. Trace as drawn (`weight="drawn"`), and draw the eye and the toes
+  from the plate's paint at its own width (`FACES`) (2026-10-09).
+- A bowstring 1-2 px wide on the black: measure its centre row by row only where it is clear of the bow
+  (the bow's clay pulled the centroid), fit a curve, and where it meets the bow take the bow's edge from a
+  curve fitted above and below the junction. Drawn from guessed ends it ran beside the printed string
+  (John: "way off") (`STRINGS`, `bow_edge`) (2026-10-09).
+- Thin clay parts that end free (the arrow's shaft, 1-3 px of clay between its lines; the bow's tip) lose
+  their clay to the body path's smoothing in `trace_svg`: pass them as `keep` (2026-10-09).
+- Black paint inside the figure that meets the ground through a gap (the inside of the lion's ear, the
+  quiver's black band) came out hollow in the light theme; John circled both. Wall each gap along the
+  plate's own edge (`WALLS`), and look for hollow black areas in the light theme before showing him
+  (2026-10-09).
+- The text names no inventory number; Furtwängler's 1885 catalogue of the Berlin vases does (no. 2164, with
+  "Abg. Gerhard, Trinksch. und Gefässe Taf. XXI") and says what is restored (here Herakles' legs). Its text
+  is on the Internet Archive (`beschreibungderv00furt`): search the plate number (2026-10-09).
+
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
 - Budget hours, not minutes. Andromache (Taf. 34) took about ten hours over
