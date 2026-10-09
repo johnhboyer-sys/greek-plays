@@ -112,6 +112,9 @@ HAND_LINES = [[(577, 1046), (578, 1064), (578, 1081), '-', (577, 1090), '-', (57
               [(610, 1035), (610.5, 1048), (611, 1060)]]
 FOLD_LINES, FOLD_HALF = [(2382, 630, 960)], 4
 WORN = [(2376, 612, 2436, 990)]
+HAND2_FILE = Path(__file__).parent / "ajax_hand_marks.png"
+HAND2_ORIGIN = (1090, 445)
+HAND2_TIPS = (1100, 458, 1160, 478)
 MARKS_FILE = Path(__file__).parent / "ajax_marks.png"
 MARKS_ORIGIN = (117, 185)       # levelled px of the marks layer's top-left pixel
 WHITE_HOLE = 300                # levelled px^2: parts the white closes in smaller than this are on it (an eye)
@@ -695,6 +698,28 @@ def main(src, heid, qa=None, dump=None):
     # edge), the side lines and the paper beyond them
     outside = (py < BAND_Y) | (py >= STRIPE_Y) | (px < np.polyval(LEFT, py)) | (px > np.polyval(RIGHT, py))
     black0 = gs < DARK
+    # The copyist drew Briseis' hand twice: white, raised to the crest, and again in outline lower down,
+    # its fingers on the black of the helmeted head. On the vase (Vatican 16444) there is one hand
+    # (John, 2026-10-09: "remove the phantom hand"). HAND2_FILE holds his marks over the plate (registered
+    # by SIFT, median error 0.06 px; UP px, origin HAND2_ORIGIN levelled px): blue, the head's black run
+    # on where the fingers crossed it; green, the outlined fingers, which are ground
+    hm = np.asarray(Image.open(HAND2_FILE))
+    hx, hy = [round((v - o) * UP) for v, o in zip(HAND2_ORIGIN, BOX[:2])]
+    h2_green, h2_blue = np.zeros_like(black0), np.zeros_like(black0)
+    h2_green[hy:hy + hm.shape[0], hx:hx + hm.shape[1]] = hm == 1
+    h2_blue[hy:hy + hm.shape[0], hx:hx + hm.shape[1]] = hm == 2
+    black0 = (black0 & ~h2_green) | h2_blue
+    for name in ('gs', 'al', 'closed', 'opened'):   # (the plate as the finders see it, the same way)
+        im = locals()[name]
+        im = np.where(h2_green & ~h2_blue, np.maximum(im, 200), np.where(h2_blue, np.minimum(im, 40), im))
+        if name == 'gs':
+            gs = im
+        elif name == 'al':
+            al = im
+        elif name == 'closed':
+            closed = im
+        else:
+            opened = im
     # line and palmettes drop away, and grown back as far as the opening took it
     # but where the dark mass rises into the band (MASS_*), its black there
     cx, cy, cr = MASS_CIRCLE
@@ -841,6 +866,13 @@ def main(src, heid, qa=None, dump=None):
     fig &= ~(green & lines & ~fig_in)
     lines = (lines & ~green) | blue
     fig |= blue & ~outside
+    # (his first pass had traced the phantom fingers too: they go here as well, with the tips of the upper
+    # fingers just past his green (HAND2_TIPS); the white hand and its outline stay)
+    tx0, ty0, tx1, ty1 = HAND2_TIPS
+    erase = (h2_green | ((px >= tx0) & (px <= tx1) & (py >= ty0) & (py <= ty1))) & ~h2_blue
+    erase &= ~ndi.binary_dilation(warea | on_white, iterations=round((LINE_W + 1) * UP))
+    lines &= ~erase
+    fig &= ~erase
     body = ndi.distance_transform_edt(~fig) <= RIM * UP
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), hatch=hatch, on_white=on_white, hatched=hatched, darkl=darkl, fig=fig, ground=ground, white=white, lines=lines,
