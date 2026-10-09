@@ -531,14 +531,22 @@
       "author": "aristophanes",
       "work_id": "clouds",
       "title": "Clouds",
-      "proposed_subject": "A thinker and a cloud form; an ancient thinker image is thematic, not a portrait of Aristophanes’ Socrates.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "A comic old man, the master, and his slave, from the phlyax scene on Louvre CA 7249 (John's pick, 2026-10-05: sweep 2 code 31b, 'the master; flatten first'; chosen as the next drawing 2026-10-08; the slave added the same day: 'yes, the slave on the left too'). The earlier proposal, a thinker and a cloud form, was not sourced.",
+      "status": "Drawn 2026-10-08; approved by John 2026-10-08",
+      "source_candidate": "https://commons.wikimedia.org/wiki/File:Phlyax_scene_Louvre_CA7249.jpg",
+      "final_image": "docs/redesign/drawings/clouds.svg",
+      "credit": "After the phlyax scene on side A of a Sicilian red-figure calyx-krater, Lentini-Manfria Group, c. 350-340 BC, Paris, Musée du Louvre CA 7249 (bought 1986, ex Burki). Photograph: Marie-Lan Nguyen (Jastrow), 2008 (Commons). Drawing traced from the photograph and changed.",
+      "license": "Nguyen's photo CC BY 3.0 (Commons file page, checked 2026-10-08). The drawing traces only the ancient painting, which is public domain, so it carries no licence (John's rulings on Oedipus Tyrannus, 2026-10-02, and Philoctetes, 2026-10-03); the photographer is credited. The Louvre's photos of the vase (© GrandPalaisRmn / Hervé Lewandowski, downloaded with John's leave, not committed) were used only to fit the vase's shape and to complete the master's front sole, which Nguyen's photo cuts off.",
+      "crop": "The master and his slave, whole, with their sandals. Left out: the stage and its ladder, the door and its column, the woman at the far right, the black ground and the frame. The black ground the figures close in (inside the slave's arm on his hip, between the master's front leg and his back foot) stays open.",
+      "alt_text": "A comic old man in a long robe, his arm stretched out, and his white-haired slave hitching up his short tunic",
+      "source_file": [
+        "https://upload.wikimedia.org/wikipedia/commons/4/41/Phlyax_scene_Louvre_CA7249.jpg",
+        "https://collections.louvre.fr/media/cache/large/0000000021/0000263745/0000914097_OG.JPG",
+        "https://collections.louvre.fr/media/cache/original/0000000021/0000263745/0001015514_OG.JPG"
+      ],
+      "shows": "Related to the play: a scene from a South Italian comic play (a phlyax play), masked actors as a master and his slave. The vase does not show Clouds; the master is the type of Strepsiades, the old man of the play.",
+      "method": "Red-figure photo, taken off the vase first (tools/vase_unroll.py): the vase's profile and the Louvre whole-vase photo's camera fitted to its outline, the line under the checkers and the strip under the ovolo; Nguyen's camera to 128 points matched with it, her focal length from EXIF (22 mm on a Nikon D200); the camera stood about 20 cm away, so the flat widens the master's back by a third. The slave's part flattened on its own and joined at a seam in the ground. Every image step run in PhotoCraft (photocraft-cli 0.2.0: crop, enlargement, grey, the clay map by Channel Mixer, blurs, Maximum and Minimum, thresholds), numpy only combining its masks: the figures by the clay map, the worn grey ground by its blue cast; the brown stripe of glaze along the robe's and the calf's edges kept out; lines by local contrast, redrawn along their centres at the paint's own width, breaks joined; the feet cut from the stage along the sandals' own lines, the master's front sole from the Louvre's close view. In colour, at John's asks: skin clay in both themes, clothes in washes of the line colour (the slave's chiton a pale white), the master's hair a wash, the slave's white hair and beard in soft white strokes following the photo; the edges between them on John's lines (tools/clouds_marks.json). tools/clouds.py.",
+      "result": "Approved by John on the third pass, 2026-10-08, after he added the slave, kept the genitals ('you can include the genitals they aren't grotesque'), asked for colour (skin apart from clothes, the slave's white hair and beard as brushstrokes, the shirt pale) and drew the edges between skin, hair, beard and clothes over the photo. About eight hours' work. No outside review; the credit checked against the Louvre's record of CA 7249 (collections.louvre.fr/ark:/53355/cl010263745, read in the browser pane: cratère en calice, groupe de Lentini-Manfria, Sicile, -350/-340, h. 55.6 cm, achat 1986; the Commons page says 1985) and the Commons file page."
     },
     {
       "author": "aristophanes",

@@ -7,14 +7,15 @@ drawn as painted (John, 2026-10-08: "you can include the genitals they aren't gr
 them, the door and its column, the woman and the black ground are left out.
 
 Photos:
-  J  Jastrow, 2008-03-07, CC BY 3.0, the drawing's source (Nikon D200, 22 mm; a crop of the frame):
+  J  Marie-Lan Nguyen (Commons user Jastrow), 2008-03-07, CC BY 3.0, the drawing's source (Nikon D200, 22 mm;
+     a crop of the frame):
      https://upload.wikimedia.org/wikipedia/commons/4/41/Phlyax_scene_Louvre_CA7249.jpg
   L1 the Louvre's photo of side A, the whole vase (Hervé Lewandowski, 2005, (c) GrandPalaisRmn), for the
      vase's shape: https://collections.louvre.fr/media/cache/large/0000000021/0000263745/0000914097_OG.JPG
   L3 the Louvre's close view of the scene (the same), for the front foot's sole, which J cuts off:
      https://collections.louvre.fr/media/cache/original/0000000021/0000263745/0001015514_OG.JPG
 The drawing traces only the ancient painting, which is public domain, so it does not carry the photos'
-rights (John's rulings on Oedipus Tyrannus, 2026-10-02, and Philoctetes, 2026-10-03); Jastrow is credited.
+rights (John's rulings on Oedipus Tyrannus, 2026-10-02, and Philoctetes, 2026-10-03); Nguyen is credited.
 
 Photo -> flat (vase_unroll.py; geometry, so numpy and scipy, not PhotoCraft):
   - J shows none of the vase's outline. The profile and L1's camera are fitted to L1's outline (row by

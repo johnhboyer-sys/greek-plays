@@ -162,6 +162,15 @@
       "source": "Gerhard, Auserlesene griechische Vasenbilder III (1847), Taf. CLXIX, 4: a red-figure amphora by the Altamura Painter, from Vulci, now British Museum 1837,0609.71 (E 263) (Heidelberg scan, public domain)",
       "method": "Coloured plate, red figures on black, made with PhotoCraft: the black ground gives the outline; black borders parted from the ground along faint clay lines; the plate's lines at the paint's width, faint dotted folds drawn along fitted curves and joined; fingers found at less blur; the left woman's profile on John's line; the plate's own line weight (0.10%); potrace",
       "verdict": "Usable; approved by John on the fourth pass (2026-10-08), after his marks on 26 faint lines, the hair and the mouth. The whole picture. No outside review (John: he reviewed it; the citation checked against Gerhard's text and the British Museum)."
+    },
+    {
+      "slug": "clouds",
+      "file": "clouds.svg",
+      "name": "Clouds · A master and his slave",
+      "alt": "A comic old man in a long robe, his arm stretched out, and his white-haired slave hitching up his short tunic",
+      "source": "Sicilian calyx-krater, Lentini-Manfria Group, Louvre CA 7249, photograph by Marie-Lan Nguyen (CC BY 3.0)",
+      "method": "Red-figure photo taken off the vase (fitted to the Louvre's whole-vase photo), made with PhotoCraft: figures by the clay map, lines by local contrast along their centres, feet cut from the stage on the sandals' lines; in colour: skin clay in both themes, clothes in washes, white hair and beard in soft strokes, the edges on John's lines; potrace",
+      "verdict": "Usable; approved by John on the third pass (2026-10-08), after he added the slave, asked for colour and drew the edges between skin, hair and clothes. No outside review (the citation checked against the Louvre's record)."
     }
   ]
 }
