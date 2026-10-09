@@ -405,6 +405,14 @@ WHITE_RB, WHITE_A, WHITE_STEP, WHITE_SIGMA, WHITE_FEATHER = (82, 62), (0.65, 0.9
 # there); the comma is the photo's own paint (grey under GEN_DARK, lightly blurred) inside his comma
 # (MARKS["genital_comma"]: his pen is twice the painted comma's size).
 GEN_HEM, GEN_PAD, GEN_W, GEN_DARK = 4, 4, 5, 90
+# Below the V, the leg's line, the smaller arc and the outer arc are drawn on John's lines (2026-10-09,
+# asked whether to draw them as ink: "Draw them as ink"; MARKS["genital_leg"], ["genital_inner"],
+# ["genital_outer"]: his outer arc came through in two pieces, joined by a cubic fitted to both, within
+# 3 px), each GEN_W wide, from the V's foot (its lowest point) to one meeting point at the bottom (the end of
+# his leg line). The drawn lines between the
+# leg's line and the outer arc are erased first (the area between them, widened by GEN_PAD2 flat px: his
+# lines run along the strokes' edges, and the old lines lay up to that far off them).
+GEN_PAD2 = 10
 # Under the slave the stage's edge lies lower in the flat than the master's line runs (his part is a flat of
 # its own): STAGE_B (flat px, measured on the flat) runs along it from the column's foot, round the outer
 # edge of his back sandal (heel, sole), up its toe to the black ground between his feet, across, and round
@@ -811,7 +819,19 @@ def genital_top(shape, gp, fig, origin):
     zone = ndi.binary_dilation(lw.polygon_mask(shape, V) | along(shape, V + 0.5, 1), iterations=GEN_PAD * UP) & below_hem
     v = along(shape, V + 0.5, GEN_W) & fig
     comma = (gp < GEN_DARK) & lw.polygon_mask(shape, up(MARKS["genital_comma"])) & fig & below_hem
-    return zone, v | comma
+    dense = lambda P: np.vstack([np.linspace(a, b, int(np.hypot(*(b - a))) + 2) for a, b in zip(P[:-1], P[1:])])
+    # each line runs from the V's foot (its lowest point) to one meeting point at the bottom (the leg line's end)
+    Vu = up(MARKS["genital_v"])
+    foot, meet = Vu[np.argmax(Vu[:, 1])], up(MARKS["genital_leg"])[-1]
+    leg, inner, outer = (dense(np.vstack([foot, up(MARKS[k])[1:-1], meet]))
+                         for k in ("genital_leg", "genital_inner", "genital_outer"))
+    between = lw.polygon_mask(shape, np.vstack([leg, outer[::-1]]))
+    zone |= ndi.binary_dilation(between | along(shape, leg + 0.5, 1) | along(shape, outer + 0.5, 1),
+                                iterations=GEN_PAD2 * UP) & below_hem & (yy <= meet[1])   # (the leg runs on below)
+    lines = np.zeros(shape, bool)
+    for P in (leg, inner, outer):
+        lines |= along(shape, P + 0.5, GEN_W)
+    return zone, (v | comma | lines) & fig
 
 
 def main(pJ, pL1, pL3, qa=None, dump=None):
