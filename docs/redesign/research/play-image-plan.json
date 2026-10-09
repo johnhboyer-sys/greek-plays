@@ -120,7 +120,7 @@
       "source_file": "https://babel.hathitrust.org/cgi/imgsrv/image?id=nyp.33433115806782&seq=247&size=full",
       "shows": "Related to the play: Ajax, before the play, carrying Achilles' body out of the battle, the deed that made him claim Achilles' armour; the armour's award to Odysseus drives the play. The scene is the myth's, not the play's action. The names (Phoenix, Briseis, Diomedes, Teucer) are Gerhard's; the Beazley Archive calls them old man, woman, warrior and archer.",
       "method": "Coloured plate, black figures on clay, a silhouette as Seven Against Thebes (John's choice from a test both ways), every image step in PhotoCraft: the sheet levelled from the frame's edges, a torn strip filled from Heidelberg's scan; the black solid, incisions and lines redrawn along smoothed centres, the hatched rims as straight strokes along each band's angle, the added white outlined on its printed line; John's marks laid in as drawn; potrace",
-      "result": "Approved by John on the fifth pass, 2026-10-09, after a whole pass marked in PhotoCraft, fourteen ground pockets and the fold's specks circled, Phoenix's nose, and the phantom hand removed. About a day's work over two days. No outside review; the credit checked against Gerhard's text (pp. 124-125), the Beazley Archive (302090, which cites the plate) and photos of the vase (ArchaiOptix, Wikimedia Commons, which give the inventory number 16444). Gerhard's text puts the vase in Munich, from the Candelori collection; it is in the Vatican."
+      "result": "Approved by John on the fourth pass, 2026-10-09, after a whole pass marked in PhotoCraft, fourteen ground pockets and the fold's specks circled, Phoenix's nose, and the phantom hand removed. About a day's work over two days. No outside review; the credit checked against Gerhard's text (pp. 124-125), the Beazley Archive (302090, which cites the plate) and photos of the vase (ArchaiOptix, Wikimedia Commons, which give the inventory number 16444). Gerhard's text puts the vase in Munich, from the Candelori collection; it is in the Vatican."
     },
     {
       "author": "sophocles",
@@ -606,14 +606,18 @@
       "author": "aristophanes",
       "work_id": "lysistrata",
       "title": "Lysistrata",
-      "proposed_subject": "Women and an Acropolis-linked object; avoid a generic erotic image as the entire premise.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "Five women carrying water jars at a fountain, a chorus of women (John's pick, 2026-10-08: 'do water carriers, and include them all. It's a CHORUS'; the fountain house out). Drawn with PhotoCraft. A first attempt, two dancers from the round dance on Furtwängler-Reichhold I Taf. 17/18 (sweep 2 code 35m), was dropped by John the same day over their clasped hands ('THe hands are the real issue. let's find another image').",
+      "status": "Drawn 2026-10-08; approved by John 2026-10-09",
+      "source_candidate": "https://digi.ub.uni-heidelberg.de/diglit/gerhard1858bd4/0200",
+      "final_image": "docs/redesign/drawings/lysistrata.svg",
+      "credit": "After the plate in E. Gerhard, Auserlesene griechische Vasenbilder IV (Berlin, 1858), Taf. CCCVIII, 2 (text pp. 79-80, 'Hydrophoren'): an Attic black-figure hydria from Vulci, c. 530-520 BC, formerly in the Feoli collection, Rome, now Würzburg, Martin von Wagner Museum L 304. The plate is signed 'Lith. Atelier v. A. Schütze in Berlin'. Scan: Heidelberg University Library.",
+      "license": "Public domain (published 1858). Heidelberg labels the scan with the Public Domain Mark 1.0 (the volume's IIIF manifest, checked 2026-10-08).",
+      "crop": "The five women with their jars, whole. Left out: the fountain house at the left (the first woman's heel, which stands against its basin, cut straight along it), the painted names, the frame and the ground line under the feet. The plate's upper picture (fig. 1: the vase's shoulder, Herakles and the lion) is not drawn.",
+      "alt_text": "Five women in long patterned dresses, three carrying water jars on their heads, meet at a fountain",
+      "source_file": "https://digi.ub.uni-heidelberg.de/iiif/2/gerhard1858bd4%3ATafel_308.jpg/full/full/0/default.jpg",
+      "shows": "Related to the play: Athenian women fetching water at a fountain, the type of the chorus of old women who carry jars of water up to the Acropolis to douse the old men's fire. The vase does not show the play; the names on it are the women's own (Anthyle, Rhodon, Hegesila, Myrtale).",
+      "method": "Coloured plate, black figures on clay, a silhouette as Seven Against Thebes, every image step in PhotoCraft (photocraft-cli 0.2.0: crop, enlargement, grey, a warm channel by the Channel Mixer, blurs, Motion Blur along the strokes, Maximum and Minimum filters, thresholds), numpy only combining its masks: the clay gives the outline; the black solid, with its incisions open (the finest on the plate smoothed along their own direction) and the added white of the skin; the faces' lines from the plate; the arms and hands outlined from the skin's smoothed shape; John's traces of the lowered hands laid in as drawn; every line's edge smoothed; potrace. tools/lysistrata.py, tools/lysistrata_traces.json.",
+      "result": "Approved by John on the fourth pass, 2026-10-09 ('Approved'), after he asked for better hands and smoother lines, traced the lowered hands himself in PhotoCraft, and had a pinky closed and a blot of ink taken out. About four and a half hours' work over two days, with the Falerii attempt. No outside review; the credit checked against Gerhard's text (pp. 79-80), the plate's signature, Wikimedia Commons (ArchaiOptix's photo of Würzburg L 304: the same pictures and inscriptions, findspot Vulci), the American School's booklet Women in the Athenian Agora (fig. 3: 'Würzburg, Martin von Wagner Museum 304', c. 530 BC), and the Feoli collection's sale to Würzburg in 1872. The Beazley Archive's search did not answer (Commons gives BAPD 306484, not checked). Gerhard reads ΗΕΓΕΣΙΛΑ as Telesilla."
     },
     {
       "author": "aristophanes",
