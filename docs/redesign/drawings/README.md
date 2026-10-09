@@ -29,6 +29,8 @@ finish.
 | `alcestis-apollo.svg`, `alcestis-admetus.svg` | Apollo with a palm and a bull; Admetus on horseback (Alcestis): two drawings from one plate, which laid side by side at their places give the whole scene | Lenormant and de Witte, *Élite des monuments céramographiques* II (1857), pl. LIV, Heidelberg scan (public domain); the scan levelled first (`tools/alcestis.py`) |
 | `libation-bearers.svg` | Orestes killing Aegisthus, with Clytemnestra and Electra (Libation Bearers): the whole frieze | Gerhard, *Etruskische und kampanische Vasenbilder* (1843), Taf. XXIV, Heidelberg scan (public domain); the scan levelled first; John's corrections on pass 1 in `tools/libation_bearers_marks.json` (`tools/libation_bearers.py`) |
 | `trojan-women.svg` | Menelaus dropping his sword at the sight of Helen, with a woman running at the left (Trojan Women) | Gerhard, *Auserlesene griechische Vasenbilder* III (1847), Taf. CLXIX, 4, Heidelberg scan (public domain); made with PhotoCraft (`tools/trojan_women_menelaus.py`); the left woman's profile on John's line |
+| `acharnians.svg` | an old man holding out a spear to a seated warrior in a crested helmet, the comic soldier of the type of Lamachus (Acharnians) | Würzburg H 4689, photos by ArchaiOptix (CC BY-SA 4.0); the drawing traces only the painting, so it carries no licence (John, 2026-10-08); flattened off the vase with `tools/vase_unroll.py`; made with PhotoCraft (`tools/acharnians.py`); the old man's white hair and beard in a stepped `tone` wash |
+| `clouds.svg` | a comic old man, the master, and his white-haired slave, phlyax actors (Clouds: the master is the type of Strepsiades) | Louvre CA 7249, photo by Marie-Lan Nguyen (CC BY 3.0); the drawing traces only the painting, so it carries no licence; flattened off the vase with `tools/vase_unroll.py`; made with PhotoCraft (`tools/clouds.py`); in colour, the edges between skin, hair and clothes on John's lines (`tools/clouds_marks.json`) |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -55,8 +57,8 @@ stroke-width: .5px` (the path has `vector-effect="non-scaling-stroke"`, so
 the stroke stays .5px at any size). Where between the two to switch it on is
 a layout decision.
 
-A drawing may carry a third path between the two: `tone` (only
-`philoctetes.svg` so far), `fill="currentColor"` at partial opacity
+A drawing may carry a third path between the two: `tone` (`philoctetes.svg`,
+and `acharnians.svg` in three steps), `fill="currentColor"` at partial opacity
 (`fill-opacity`) and `stroke="none"`, for the brown wash of hair and beard,
 which on the vase is thinned glaze over the clay. On a light page it shows
 grey; on the dark theme's clay, a darker clay. It needs no CSS (John,
@@ -68,6 +70,11 @@ weight is 0.11%, finer than the house weight: at the house weight, and at
 the plate's own 0.155%, its close lines ran together (John, 2026-10-06).
 `trachiniae.svg` too keeps its plate's own weight, 0.104%, traced as drawn
 (John, 2026-10-07: the first pass was "too blotchy").
+
+`clouds.svg` carries its own colours (John, 2026-10-08): its `body` path is filled with clay
+(`fill="#c4b294"`) in both themes, skin is that clay, clothes are `tone` washes over it, and the slave's
+white hair, beard and pale chiton are paths of class `white`, `fill="#f7f3ea"` at partial opacity, under
+the lines. On the light page it shows clay, not paper.
 
 `seven.svg` is black-figure, drawn as silhouettes (John's choice,
 2026-10-07): its `lines` path is the black figures themselves, solid, with
@@ -140,5 +147,5 @@ keeps its shape); plain unrolling, around by arc length and up the profile,
 shears whatever lies off its centre line where the profile slopes. Give it every photo's
 focal length from its EXIF, and mark cropped photos (`crop: True`) so their
 centres are fitted; fitted free, focal length trades against distance and
-the perspective comes out wrong. `tools/euphorbos.py`, `tools/antigone.py` and
-`tools/philoctetes.py` use it; their docstrings say what was fitted.
+the perspective comes out wrong. `tools/euphorbos.py`, `tools/antigone.py`,
+`tools/philoctetes.py` and `tools/acharnians.py` use it; their docstrings say what was fitted.
