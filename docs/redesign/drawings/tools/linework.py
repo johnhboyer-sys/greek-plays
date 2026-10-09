@@ -170,7 +170,7 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
               open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None,
-              dots: np.ndarray | None = None, pad: int = 4,
+              dots: np.ndarray | None = None, keep: np.ndarray | None = None, pad: int = 4,
               turdsize: int = 10, alphamax: float = 1.0, weight: float | str | None = None,
               trace_h: int = TRACE_H) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
@@ -196,6 +196,8 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     `dots` (same shape): marks to keep however small, which potrace's speck
     filter would drop (a stipple a line wide, at a weight finer than the
     house's): traced on their own, at their own size, and added to the lines.
+    `keep` (same shape): thin parts of the body (an arrow's shaft, 3 px of
+    clay between its lines) that the body's smoothing would take: kept.
     Returns the crop box in ink's pixels, for qa_overlay."""
     ys, xs = np.nonzero(ink)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
@@ -232,6 +234,8 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         held = np.zeros_like(b) if open_holes is None else resample_ink(open_holes[y0:y1, x0:x1], trace_h)[:hh, :ww]
         b &= ~held
         b = ndi.binary_opening(b, structure=morphology.disk(round(2 * q)))
+        if keep is not None:  # thin clay parts the opening would take (an arrow's shaft)
+            b |= resample_ink(keep[y0:y1, x0:x1], trace_h)[:hh, :ww] & ~held
         # a line with no clay on either side of it (a goad, a chain link) would
         # vanish on a dark page: give it a narrow clay rim
         lw_px = weight * max(lines.shape)
