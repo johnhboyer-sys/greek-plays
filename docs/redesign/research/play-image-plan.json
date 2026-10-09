@@ -505,14 +505,25 @@
       "author": "aristophanes",
       "work_id": "acharnians",
       "title": "Acharnians",
-      "proposed_subject": "A market or peace-making figure; the motif is thematic until a direct source is found.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "The comic 'departure of the warrior' on the Apulian bell-krater Würzburg H 4689: the seated, crested warrior (John's pick, 2026-10-05: sweep 2 code 29b, 'the seated warrior; flatten first') and the old man holding out his spear (John, 2026-10-08: 'add other figure').",
+      "status": "Drawn 2026-10-08; approved by John 2026-10-08 (the warrior; then the pair)",
+      "source_candidate": "https://commons.wikimedia.org/wiki/File:McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_07.jpg",
+      "final_image": "docs/redesign/drawings/acharnians.svg",
+      "credit": "After the Apulian red-figure bell-krater Würzburg, Martin von Wagner Museum H 4689, from Rome, acquired 1932 (CVA Würzburg 4, Deutschland 71, ed. G. Güntner, 1999, pp. 12-13, pl. 3, 1-4, Beilage 1, 3; RVAp I 99 no. 245, pl. 34, 6; Trendall, Phlyax Vases² 47 no. 67; Beazley Archive 1006966), side A: two phlyax actors on a stage. McDaniel Painter, 380-370 BC (CVA). Photographs: ArchaiOptix (Wikimedia Commons). Drawing traced from the photographs and changed.",
+      "license": "ArchaiOptix's photos CC BY-SA 4.0 (Commons file pages, checked 2026-10-08). The drawing traces only the ancient painting, which is public domain, so it carries no licence (John, 2026-10-08, as for Oedipus Tyrannus and Philoctetes); the photographer is credited.",
+      "crop": "The seated warrior and the old man, whole: the warrior's helmet, crest and its ribbon, his round shield and his stool; the old man's spear whole, from its square top end to its blade. Left out: the door and its pillar (the old man's raised back heel cut along its own line where it overlaps the pillar), the border band above the spear, the stage, cut along its painted top line under both (kept as the soles), and the black ground. The ground the stool and the old man's legs close in stays open. No costume phallus: both wear tunics over the lap.",
+      "alt_text": "An old man with white hair holds out a spear to a comic warrior in a crested helmet, seated on a stool with his round shield, his right hand raised",
+      "source_file": [
+        "https://upload.wikimedia.org/wikipedia/commons/3/38/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_07.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/8/80/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_03.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/e/eb/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_04.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/1/11/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_05.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/6/66/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_06.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/c/c1/McDaniel_Painter_-_RVAp_4-245_-_departure_of_warrior_as_phlyax_play_-_draped_youths_-_W%C3%BCrzburg_MvWM_H_4689_-_02.jpg"
+      ],
+      "shows": "Related to the play by type: a comic 'departure of the warrior'. On a stage an old man with white hair and beard (mask type E) steps out of a door with a spear pointed down, toward a warrior on a stool (mask type B, helmet, shield with a star, sword belt) who raises his right arm; Trendall (Phlyax Vases²) reads it as mockery of a soldier who throws up his hand in fright at the sight of weapons (CVA Würzburg 4, p. 13). In Acharnians the crested general Lamachus, a comic soldier, has his slave bring out his spear as he arms for the frontier (1118-1120). The link is the type, not an identification of this vase with the play.",
+      "method": "Red-figure photos taken off the vase, every image step run in PhotoCraft (photocraft-cli 0.2.0), numpy only combining its masks: the vase's profile and the cameras of photos 07, 04, 05 and 06 fitted together (tools/vase_unroll.py: the meander band's upper edge, the vase's outline, matched points; focal lengths from EXIF), and photos 03 and 02 fitted to that model; 07 (the warrior) and 03 (the old man) laid onto one flat, which they share within 2.5 px. Clay against glaze by red less blue (Channel Mixer); the shield's rim under the sheen checked on photo 06 and walled where a dot and the top ray met the ground; the stage cut along its painted line; the door's pillar cut along the old man's heel; the spear's shaft straight between its fitted edges; painted lines at their own width, flaked breaks joined, faint strokes along fitted curves; the knee strokes walled from the ground between the old man's legs; the old man's white hair and beard without black outline, as their strokes in a stepped grey wash that follows the paint; outline at the house weight, as Mika; potrace. tools/acharnians.py.",
+      "result": "The warrior approved by John on the first pass shown, 2026-10-08, then the shield's top ray made solid black at his mark ('Good'). Then the old man added at his ask ('add other figure'): the area between his legs fixed at John's mark, his hair and beard drawn without black outline as their strokes ('the hair is all white strokes of paint, no black outline'), the stepped wash his choice of two shown; the pair approved 2026-10-08. About four hours in all. No outside review; the credit checked against the CVA's entry (Würzburg 4, Tafel 3, pp. 12-13, read 2026-10-08), the Beazley Archive's record (1006966) and the Commons file page. The CVA notes that the warrior's knee on side A is overpainted (restored); the drawing traces it as the vase now shows it."
     },
     {
       "author": "aristophanes",
