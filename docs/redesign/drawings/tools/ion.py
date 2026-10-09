@@ -93,15 +93,16 @@ FINE = [(235, 315, 480, 665), (935, 75, 1190, 365)]
 # where it still does not: Apollo's line over the brow ends a px short of the forehead, and the line
 # beside his front lock fades where it meets his shoulder
 WALLS = [[(999.5, 145.5), (1003, 148.5)], [(988, 266), (986, 272), (984.5, 278)]]
-# The Pythia's staff (?): a thin clay line on the black, 1 px wide and 10-25 grey levels over it, from
-# under her fingers straight down to the laurel's top leaf (its centre measured row by row, rows
-# 690-1000, fits x = STAFF[0] y + STAFF[1] within 0.45 px; below the laurel nothing of it shows). The
-# Élite's text does not name it. Drawn from STAFF_Y[0] to STAFF_Y[1], STAFF_W wide, with a clay rim on
-# the dark theme, as Heracles' bowstring
-STAFF, STAFF_Y, STAFF_W = (0.10910, 1197.61), (660, 1010), 1.5
+# A very faint thin line on the black, from under the Pythia's fingers straight down to the laurel's top,
+# is left out: the Élite's text does not mention it, and John took it for a flaw in the print
+# (2026-10-09: "Leave it out")
 # no faint lines on the tripod's legs and post (box, levelled px): they are plain clay on the plate, and
 # the grain made short dashes on them; its rings' lines print black and are kept
 NO_FAINT = (860, 760, 1160, 1300)
+# No faint-line finder at all (John, 2026-10-09, on pass 1: "you added a lot of strokes that weren't in
+# the original"; 17 marked in the girl's mantle and Apollo's lap and the tripod's bowl, 85% of them its
+# pieces): this plate prints its lines solid, and what the finder found was the paper's grain
+FAINT_ON = False
 assert tw.UP == UP
 
 
@@ -255,18 +256,18 @@ def main(src, qa=None, dump=None):
     ridge = (g - ndi.grey_opening(g, size=(5 * UP, 5 * UP))) > 50
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP)) | (fig & ridge)
 
-    # the staff over the ground
-    ys = np.arange(STAFF_Y[0], STAFF_Y[1] + 1, 1 / UP)
-    staff = along(g.shape, up(np.c_[STAFF[0] * ys + STAFF[1], ys]) + UP / 2, STAFF_W) & ~fig
-
     firm = tw.ink_lines(gl, closed, 22, 34)
     thin = ndi.distance_transform_edt(~morphology.skeletonize(firm)) <= LINE_MIN * UP / 2
     lines = (core | thin) & fig
+    _core, _thin = core & fig, thin & fig
     nf = np.zeros(g.shape, bool)
     nx0, ny0, nx1, ny1 = [(v - o) * UP for v, o in zip(NO_FAINT, (X0, Y0, X0, Y0))]
     nf[ny0:ny1, nx0:nx1] = True
-    lines |= faint_lines(faint_c, fig, lines) & fig & ~nf
-    lines |= join_breaks(lines, np.maximum(closed - gl, faint_c), ndi.distance_transform_edt(fig)) & fig
+    _faint = (faint_lines(faint_c, fig, lines) & fig & ~nf) if FAINT_ON else np.zeros_like(fig)
+    lines |= _faint
+    _join = join_breaks(lines, np.maximum(closed - gl, faint_c) if FAINT_ON else closed - gl,
+                        ndi.distance_transform_edt(fig)) & fig
+    lines |= _join
     lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= LINE_MIN * UP / 2) & fig
     face = np.zeros(g.shape, bool)
     for box in FACES:
@@ -287,16 +288,15 @@ def main(src, qa=None, dump=None):
     edge = fig & (dt <= np.maximum(np.minimum(2.5 * UP, 0.6 * dt[iy, ix]), EDGE_MIN * UP))
     edge = np.where(hand, fig & (dt <= HAND_EDGE * UP), edge)
     del dt, iy, ix
-    ink = lines | solid | edge | staff
+    ink = lines | solid | edge
     lab, _ = ndi.label(ink)
     ink &= np.where(face, (np.bincount(lab.ravel()) > 3 * UP * UP)[lab], (np.bincount(lab.ravel()) > 12 * UP * UP)[lab])
     if dump:
-        np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, dark=dark)
+        np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, dark=dark, core=_core, thin=_thin, faint=_faint, join=_join)
 
     held = ~fig
-    rims = ndi.binary_dilation(staff, iterations=2 * UP)
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=held, rim_lines=rims, weight="own",
+        ink, OUT, body=fig, open_holes=held, weight="own",
         title='Apollo on the Delphic tripod, between the Pythia and a girl come to consult him',
         desc='Line drawing after the 1857 plate of a red-figure vase (Lenormant and de Witte, Élite des '
              'monuments céramographiques II, pl. XLVI); cut out and retraced.')
