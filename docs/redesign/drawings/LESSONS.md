@@ -6,6 +6,10 @@ each entry and name the plate it came from. Keep entries short; the detail
 belongs in the tool's comments. Correct an entry that turns out wrong
 rather than adding a second one that contradicts it.
 
+The design brief is `docs/redesign/DESIGN.md` (its Drawings section governs these drawings); the phase
+prompts are in `docs/redesign/PHASES.md`, the reasons in `docs/redesign/decisions.md`, and the approved
+sketches in `docs/redesign/sketches/`. Read the brief before drawing.
+
 ## Plate families
 
 ### Gerhard, *Auserlesene griechische Vasenbilder* (coloured lithographs, red figures on black)
@@ -121,6 +125,26 @@ rather than adding a second one that contradicts it.
   Commons) she has one. John: remove the phantom hand. Gerhard's text also put the vase in Munich; the
   Beazley Archive (which cites the plate) and the photos put it in the Vatican (2026-10-09).
 
+- Lysistrata (AV IV Taf. CCCVIII, 2, five water carriers), made with PhotoCraft: about four and a half
+  hours over two days and four passes, approved by John 2026-10-09. `tools/lysistrata.py` (2026-10-09).
+- This plate needs no levelling and no out-of-register shift: the clay is a warm channel (red less blue,
+  PhotoCraft's Channel Mixer), the black and the added white plain thresholds (2026-10-09).
+- The arms and hands: the plate's contour round the white is uneven, broken and specked, so drawn as
+  printed it came out lumpy, and along its centres or its midline it broke up. What worked: the outline
+  drawn from the skin's own shape, smoothed (Gaussian Blur then Threshold), as an even band just outside
+  it. Do not close the skin over the gaps between fingers: they are 1-2 px of clay or grey, and a closing
+  of even 1 px joins the fingers (2026-10-09).
+- Then John traced the lowered hands himself in PhotoCraft, on a file of the whole picture at the tool's
+  own 3x grid (plate, my pass in blue at 50%, an empty layer): no registration, his red layer read
+  straight off the file. His fingertips are short strokes joined to the fingers' sides; the rule that
+  lets my outline run on to meet the free end of one of his strokes must not count those joints as free
+  ends, or the tips drop out and the print's blot shows through (John: "Close off the pinky. And remove
+  that bit of black ink sticking out") (2026-10-09).
+- Gerhard's text has the vase in the Feoli collection in Rome; Würzburg bought that collection in 1872,
+  and the vase is Würzburg L 304 (the same pictures and painted names). The Beazley Archive's search
+  pages did not answer from the browser pane; the American School's booklet *Women in the Athenian
+  Agora* (fig. 3) gives the museum number (2026-10-09).
+
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
 - Budget hours, not minutes. Andromache (Taf. 34) took about ten hours over
@@ -146,6 +170,10 @@ rather than adding a second one that contradicts it.
   first copy, added to the volume later (the handoff said the second). The
   page in the Heidelberg viewer says which copy, and its OCR finds the text
   pages (2026-10-06).
+- Not every FR frieze can be cut into a few whole figures. Lysistrata's first try, two dancers from the
+  round dance on Taf. 17/18, was dropped: each dancer's outer hand clasps a neighbour's, the thumb of one
+  over the other's fingers, so no cut leaves a whole hand (John: "THe hands are the real issue. let's
+  find another image"). Check the hands and feet at the edges of a crop before picking it (2026-10-08).
 
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
