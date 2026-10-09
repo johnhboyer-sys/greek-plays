@@ -108,6 +108,15 @@ SIL_CLOSE, SIL_SMOOTH, INNER_MIN = 0, 1.0, 4
 INNER_T, SIL_MIN = 160, 40
 CONTOUR_NEAR, WIDE = 6, 2
 FACE_PTS = [(700, 1400), (960, 1440), (1150, 1360), (1480, 1400), (1760, 1380)]
+# John's traces (2026-10-09, after pass 2: "i'll need to trace some in photocraft myself"): the lowered hands,
+# drawn in red in PhotoCraft on a layer over the picture at 3x (this tool's own grid: no registration);
+# lysistrata_traces.json holds his strokes as polylines along their centres, plate px. His strokes are drawn
+# LINE_W wide; within TRACE_NEAR plate px of them, and inside the shapes they close (his fingers), my lines
+# go, but for the wide black (the mantle the third woman's hand lies on), and but round the open ends of his
+# strokes (TRACE_NEAR + 1 plate px), where my outline runs on to meet them (cleared there, it left gaps); what
+# his lines close is skin
+TRACES_FILE = Path(__file__).parent / "lysistrata_traces.json"
+TRACE_NEAR = 2.5
 # Every line's edge is smoothed before tracing (PhotoCraft: Gaussian Blur SMOOTH plate px, then Threshold
 # at half): the print's grain left the edges ragged (John: "some lines could be smoother")
 SMOOTH = 0.5
@@ -156,6 +165,20 @@ def centre_lines(mask, t, spur):
     cut[0] = False
     sk = morphology.skeletonize(sk & ~cut[lab])
     return ndi.distance_transform_edt(~sk) <= t / 2
+
+
+def polyline(pts):
+    """Points (plate px) joined by straight lines, a point per work px, (x, y) at UP."""
+    P = np.array([((x - X0) * UP, (y - Y0) * UP) for x, y in pts], float)
+    return np.vstack([np.linspace(a, b, int(np.hypot(*(b - a))) + 2) for a, b in zip(P[:-1], P[1:])]) + 0.5
+
+
+def along(shape, path, width):
+    """A line `width` plate px wide along a path (x, y at UP)."""
+    m = np.zeros(shape, bool)
+    yx = np.clip((path[:, ::-1] - 0.5).astype(int), 0, np.array(shape) - 1)
+    m[yx[:, 0], yx[:, 1]] = True
+    return ndi.distance_transform_edt(~m) <= width * UP / 2
 
 
 def thick(m, w):
@@ -315,6 +338,21 @@ def main(src, qa=None, dump=None):
     contour = (ring | inner) & ~frame
     lines = np.where(zone, contour, lines)
     fig |= contour & zone
+    # John's traces (TRACES_FILE)
+    his, ends = np.zeros(fig.shape, bool), np.zeros(fig.shape, bool)
+    for part in json.loads(TRACES_FILE.read_text()).values():
+        if isinstance(part, dict):
+            for pts in part['lines']:
+                his |= along(fig.shape, polyline(pts), LINE_W)
+                if np.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1]) > 2:   # an open stroke
+                    for x, y in (pts[0], pts[-1]):
+                        ends[min(max(round((y - Y0) * UP), 0), fig.shape[0] - 1),
+                             min(max(round((x - X0) * UP), 0), fig.shape[1] - 1)] = True
+    closed = ndi.binary_fill_holes(his) & ~his
+    near_end = ndi.distance_transform_edt(~ends) <= (TRACE_NEAR + 1) * UP
+    region = (((ndi.distance_transform_edt(~his) <= TRACE_NEAR * UP) & ~near_end) | closed)
+    lines = np.where(region, his | (lines & wide), lines)
+    fig |= his | closed
     lines = smooth(lines, SMOOTH) & ~frame
     body = (ndi.distance_transform_edt(~fig) <= RIM * UP) & ~frame
     if dump:
