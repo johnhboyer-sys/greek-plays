@@ -104,11 +104,11 @@ NO_FAINT = (860, 760, 1160, 1300)
 # pieces): this plate prints its lines solid, and what the finder found was the paper's grain
 FAINT_ON = False
 # John's marks (2026-10-09), drawn in PhotoCraft over the plate at UP (this crop's px, so they register
-# at zero offset): green = ink to take out, blue = ink to add; on pass 1, and on pass 3 (some drawn on
+# at zero offset): green = ink to take out, blue = ink to add; on passes 1, 3 and 4 (on pass 3 some drawn on
 # the drawing's layer, picked out by colour). Applied in order: green clears the drawing's ink under it
 # (and 1 plate px round it); each blue stroke is drawn along its centre, LINE_MIN wide, and a blue dot
 # wider than that (a pupil) is drawn as marked
-MARKS_FILES = [Path(__file__).parent / "ion_marks.png", Path(__file__).parent / "ion_marks_3.png"]
+MARKS_FILES = [Path(__file__).parent / f for f in ("ion_marks.png", "ion_marks_3.png", "ion_marks_4.png")]
 assert tw.UP == UP
 
 
