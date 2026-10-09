@@ -73,7 +73,7 @@ POCKETS = [(547, 803), (1174, 478), (950, 787), (1068, 786), (950, 1050), (1065,
 WALL_W = 1.5
 LINE_DARK = 100
 LINE_MIN = 1.5
-EDGE_MIN = 1.0
+EDGE_OUT = 2.0                            # plate px: the outline's width, on the ground
 # the girl's raised hand (box, levelled px): its fingers are clay strips 3-5 px wide with 1-3 px of
 # ground between them; found at less blur and outlined finer (HAND_EDGE), as on Trojan Women (the same
 # box on the Pythia's lowered fingers dropped two of them as ground)
@@ -281,13 +281,13 @@ def main(src, qa=None, dump=None):
     solid = paint & fig
     lab, _ = ndi.label(solid)
     solid &= (np.bincount(lab.ravel()) > 30 * UP * UP)[lab]
-    # the outline: 2.5 plate px in from the clay's edge, but no more than 0.6 of the figure's half-width
-    # there, so thin parts keep clay inside it (as alcestis.py), and at least EDGE_MIN (libation_bearers.py)
-    dt = ndi.distance_transform_edt(fig)
-    _, (iy, ix) = ndi.distance_transform_edt(~morphology.skeletonize(fig), return_indices=True)
-    edge = fig & (dt <= np.maximum(np.minimum(2.5 * UP, 0.6 * dt[iy, ix]), EDGE_MIN * UP))
-    edge = np.where(hand, fig & (dt <= HAND_EDGE * UP), edge)
-    del dt, iy, ix
+    # the outline: EDGE_OUT plate px wide on the black ground outside the clay, not on the clay (John,
+    # 2026-10-09: "the black lines for the outer clay bands should be drawn on the black background,
+    # not on the clay itself"; every outline), so every clay part keeps its full width
+    dt = ndi.distance_transform_edt(~fig)
+    edge = ~fig & ~outside & (dt <= EDGE_OUT * UP)
+    edge = np.where(hand, ~fig & ~outside & (dt <= HAND_EDGE * UP), edge)
+    del dt
     ink = lines | solid | edge
     lab, _ = ndi.label(ink)
     ink &= np.where(face, (np.bincount(lab.ravel()) > 3 * UP * UP)[lab], (np.bincount(lab.ravel()) > 12 * UP * UP)[lab])
