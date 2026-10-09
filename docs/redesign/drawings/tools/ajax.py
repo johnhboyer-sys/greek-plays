@@ -1,21 +1,30 @@
-"""Ajax: Ajax carrying the body of Achilles, between Phoenix and Briseis (left) and two warriors
-(right), from the lower picture (fig. 4) of Gerhard, Auserlesene griechische Vasenbilder III (1847),
-Taf. CCXI-CCXII, as scanned by Heidelberg University Library (Public Domain Mark):
-https://digi.ub.uni-heidelberg.de/iiif/2/gerhard1847bd3%3A190a_Tafel_ROEM_211_ROEM_212.jpg/full/full/0/default.jpg
-(4178 x 2965, a double plate across a fold; page https://digi.ub.uni-heidelberg.de/diglit/gerhard1847bd3/0253)
+"""Ajax: Ajax carrying the body of Achilles, with Phoenix and Briseis (left) and a hoplite and an archer
+(right), from the lower picture (figs. 3-4) of Gerhard, Auserlesene griechische Vasenbilder III (1847),
+Taf. CCXI-CCXII (text pp. 124-125). The vase: an Attic black-figure belly amphora (type A) from
+Cerveteri, Leagros Group (ABV 367.95; Beazley Archive 302090), c. 525-500 BC, now Vatican, Museo
+Gregoriano Etrusco 16444 (Albizzati 370). Gerhard (p. 124) puts it in Munich, from the Candelori
+collection; the Beazley Archive cites his plate for this Vatican vase, and its photos match.
 
-Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0). Geometry
-(levelling the two pages across the fold) is not image filtering: it is numpy/scipy here, as in
-alcestis.py and libation_bearers.py.
+Source: the New York Public Library copy, as scanned by Google and served by HathiTrust (public domain
+in the US), the double plate photographed unfolded:
+https://babel.hathitrust.org/cgi/pt?id=nyp.33433115806782&seq=247 (6040 x 3813). Heidelberg's scan
+(https://digi.ub.uni-heidelberg.de/iiif/2/gerhard1847bd3%3A190a_Tafel_ROEM_211_ROEM_212.jpg/full/full/0/default.jpg,
+4178 x 2965) folds the plate in the gutter and loses a strip of the Gorgon shield; it is used only to
+fill the strip where the NYPL sheet is torn (TEAR).
 
-The fold. The plate is printed across two pages, folded at x = FOLD; the fold is a ridge, not a
-gutter (the lines bend at it, none are lost). The frame's edges are printed straight, but in the scan
-the right page stands about 30 px higher next to the fold and is about 2% shorter (tilted away from
-the camera), and both edges bend near the fold. Measured on the band's palmettes, the two pages have
-the same horizontal scale (period 78.3 and 78.0 px), so the levelling is vertical only: column by
-column, the band's upper edge goes to row T0 and the panel's lower edge to row T0 + HP.
+Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the crop,
+the enlargement, the grey, the blurs, Motion Blur along the strokes, Maximum and Minimum. numpy only
+combines the masks PhotoCraft made and measures; geometry (levelling the sheet, warping Heidelberg's
+patch onto it) is numpy/scipy/OpenCV, as in alcestis.py and libation_bearers.py.
 
-    python3 docs/redesign/drawings/tools/ajax.py gerhard1847bd3_211_212.jpg [qa.png]
+Plate -> drawing, black-figure as a silhouette (John's choice, 2026-10-08, from a test both ways, as
+seven.py): the black solid, the incisions open in it, the added white open with its lines, the hatched
+shield rims as straight strokes (hatch_strokes); a clay rim round the figures on the dark theme.
+John's corrections: a whole pass marked in PhotoCraft (MARKS_FILE), fourteen ground pockets circled
+(POCKETS), the fold's specks on the three-legs shield (FOLD_LINES, WORN), and the copyist's phantom
+second hand under Briseis' raised one removed (HAND2_*: on the vase she has one hand).
+
+    python3 docs/redesign/drawings/tools/ajax.py nypl_seq247.jpg heidelberg_211_212.jpg [qa.png]
 """
 import json
 import os
@@ -881,7 +890,7 @@ def main(src, heid, qa=None, dump=None):
     info = write_svg(
         lines, body, OUT,
         title='Ajax carrying the body of Achilles',
-        desc='Line drawing after the 1847 plate of an archaic black-figure amphora (Gerhard, Auserlesene '
+        desc='Line drawing after the 1847 plate of a black-figure amphora (Gerhard, Auserlesene '
              'griechische Vasenbilder III, Taf. CCXI-CCXII, 4); cut out and retraced.')
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
