@@ -251,6 +251,27 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   and IIIF image links open in the browser for reading the text pages
   (2026-10-07).
 
+- Ion (II, pl. XLVI, Apollo on the tripod with the Pythia and a girl), made with PhotoCraft: about three
+  and a half hours over five passes, approved by John 2026-10-09. `tools/ion.py` (2026-10-09).
+- Don't carry the faint-line finder over from Trojan Women without looking: this plate prints every line
+  solid, and the finder drew the paper's grain as short strokes beside the folds (John: "you added a lot of
+  strokes that weren't in the original"). Turned off, 335 pieces went and none was a printed line
+  (`FAINT_ON`) (2026-10-09).
+- Draw the outline on the black ground outside the clay, not on the clay (John: "the black lines for the
+  outer clay bands should be drawn on the black background, not on the clay itself"; every outline). Thin
+  clay parts (the hair's reserved lines, fingers, the laurel) then keep their full width with no cap
+  (`EDGE_OUT`) (2026-10-09).
+- The hair prints as dark as the ground and is larger than the ground's size limit: ground must also reach
+  the crop's edge, and the hair's clay line is found at fine blur (`FINE`) (2026-10-09).
+- A plate printed sideways and photographed a little askew: fit the panel's four edges as lines on their
+  straight stretches (start each search on the paper, past the scan's dark margins) and map the corners to
+  a rectangle (`level`, a homography) (2026-10-09).
+- John marks corrections in PhotoCraft on a .pcraft with the plate, the drawing in red and an empty marks
+  layer; save it from the app before reading it (an unsaved file reads empty). Some marks land on the
+  drawing's layer: read both layers by colour. Build the file with `photocraft-cli serve`
+  (`--automation-read-root`/`--automation-write-root`, relative paths): open, copy, paste in place, new
+  layer, save. Keep each round's marks in its own file, applied in order (`MARKS_FILES`) (2026-10-09).
+
 ### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
 
 - Libation Bearers (Taf. XXIV, the whole frieze: four figures, a throne and a footstool): about four

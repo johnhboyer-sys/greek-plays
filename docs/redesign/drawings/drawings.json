@@ -207,6 +207,15 @@
       "source": "Gerhard, Trinkschalen und Gefässe des Königlichen Museums zu Berlin II (1850), Taf. XXI, side B: an Attic red-figure amphora, Berlin, Antikensammlung F 2164 (Heidelberg scan, public domain)",
       "method": "Coloured plate, red figures on black, made with PhotoCraft: the black ground gives the outline; the plate's lines traced as drawn at its own weight; the pale brown lines as a grey wash; the bowstring along its measured centres; potrace",
       "verdict": "Usable; approved by John on the second pass (2026-10-09), after his marks on the ear and the quiver. No outside review (the citation checked against Gerhard's text and Furtwängler 1885, no. 2164)."
+    },
+    {
+      "slug": "ion",
+      "file": "ion.svg",
+      "name": "Ion · Apollo on the Delphic tripod",
+      "alt": "Apollo seated on the Delphic tripod with a bowl and a bow, between the Pythia holding a jug and a girl reaching towards him",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. XLVI, after Hamilton-Tischbein I, pl. XXVIII (Heidelberg scan, public domain)",
+      "method": "Coloured plate, red figures on black, printed sideways, made with PhotoCraft: turned upright and squared; the black ground gives the outline, drawn on the ground; the plate's lines at their own width; John's marks laid in; potrace",
+      "verdict": "Usable; approved by John on the fifth pass (2026-10-09), after three rounds of his marks. No outside review (the citation checked against the Élite's text)."
     }
   ]
 }
