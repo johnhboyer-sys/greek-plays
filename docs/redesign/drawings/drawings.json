@@ -180,6 +180,15 @@
       "source": "Sicilian calyx-krater, Lentini-Manfria Group, Louvre CA 7249, photograph by Marie-Lan Nguyen (CC BY 3.0)",
       "method": "Red-figure photo taken off the vase (fitted to the Louvre's whole-vase photo), made with PhotoCraft: figures by the clay map, lines by local contrast along their centres, feet cut from the stage on the sandals' lines; in colour: skin clay in both themes, clothes in washes, white hair and beard in soft strokes, the edges on John's lines; potrace",
       "verdict": "Usable; approved by John on the third pass (2026-10-08), after he added the slave, asked for colour and drew the edges between skin, hair and clothes. No outside review (the citation checked against the Louvre's record)."
+    },
+    {
+      "slug": "ajax",
+      "file": "ajax.svg",
+      "name": "Ajax · Ajax carrying the body of Achilles",
+      "alt": "Ajax carries the armed body of Achilles; Briseis lays her hand on his helmet, the old Phoenix raises his hand, and a hoplite and an archer follow",
+      "source": "Gerhard, Auserlesene griechische Vasenbilder III (1847), Taf. CCXI-CCXII, 4: a black-figure belly amphora of the Leagros Group, from Cerveteri, now Vatican, Museo Gregoriano Etrusco 16444 (NYPL copy, HathiTrust scan, public domain)",
+      "method": "Coloured plate, black figures on clay, a silhouette, made with PhotoCraft: levelled from the frame; the black solid, incisions and lines along smoothed centres, hatched rims as straight strokes, the added white outlined on its printed line; John's marks laid in as drawn; potrace",
+      "verdict": "Usable; approved by John on the fifth pass (2026-10-09), after his marks and circles; the copyist's phantom second hand left out (one hand on the vase). No outside review (the citation checked against Gerhard, the Beazley Archive and photos of the vase)."
     }
   ]
 }

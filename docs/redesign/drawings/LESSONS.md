@@ -98,6 +98,29 @@ rather than adding a second one that contradicts it.
   (the band ahead of the lead horse, 2219 plate px²): mark it (`BAND`) and
   check it on the dark theme (2026-10-07).
 
+- Ajax (Taf. CCXI-CCXII, 4), made with PhotoCraft: about a day over two days and five passes, approved
+  by John 2026-10-09. `tools/ajax.py` (2026-10-09).
+- A double plate across the gutter: look for a copy photographed unfolded before drawing across the
+  fold. Heidelberg's fold hid a strip of the Gorgon shield; the NYPL copy on HathiTrust has the plate
+  as one flat foldout (its page list tags the page before it FOLDOUT). HathiTrust's Cloudflare check
+  loops in the built-in browser; it passes in Chrome (Claude in Chrome). A torn strip in the NYPL
+  sheet was filled from Heidelberg's scan, registered by SIFT and matched in tone (2026-10-09).
+- Hatched rims (strokes 4-5 px apart, printed pale on this copy): Motion Blur along the band's own
+  angle joins each stroke's dots into a ridge; each ridge is drawn straight, run out to the band's
+  edges. The band's angle is the mean of its pieces; ruled as one set they drift off the strokes
+  (`hatch_strokes`). The spread test that finds hatching also takes the print's mottled soft edge
+  outside a profile: only bands with strokes, or wider than 5 px, stay out of the ground (it put a
+  strip of clay along Phoenix's nose; John) (2026-10-09).
+- The added white prints 2-6 px inside its outline: draw the outline as a curve on the printed line,
+  found by reading outward from the white's edge, not as a band round the white (`white_outline`)
+  (2026-10-09).
+- Small ground pockets the figures close in print as clay, too small to pass for ground: John circled
+  fourteen on the dark theme, where they show as clay (`POCKETS`) (2026-10-09).
+- Check the vase, not only the plate, when something looks wrong: the copyist drew Briseis' hand
+  twice (white on the crest, again in outline lower down); on the vase (photos by ArchaiOptix on
+  Commons) she has one. John: remove the phantom hand. Gerhard's text also put the vase in Munich; the
+  Beazley Archive (which cites the plate) and the photos put it in the Vatican (2026-10-09).
+
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
 - Budget hours, not minutes. Andromache (Taf. 34) took about ten hours over
