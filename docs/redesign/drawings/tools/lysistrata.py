@@ -3,9 +3,14 @@ Gerhard, Auserlesene griechische Vasenbilder IV (Berlin, 1858), Taf. CCCVIII, as
 University Library (Public Domain Mark):
 https://digi.ub.uni-heidelberg.de/iiif/2/gerhard1858bd4%3ATafel_308.jpg/full/full/0/default.jpg
 (1995 x 2680; page https://digi.ub.uni-heidelberg.de/diglit/gerhard1858bd4/0200)
-The vase: a black-figure hydria; its picture of women fetching water at a fountain house, each named
-by an inscription. John's pick (2026-10-08: "do water carriers, and include them all. It's a CHORUS"):
-the five women, without the fountain house ("Out").
+The plate is signed "Lith. Atelier v. A. Schütze in Berlin". The vase: an Attic black-figure hydria
+from Vulci, c. 530-520 BC, now Würzburg, Martin von Wagner Museum L 304; on its body five women with
+water jars at a fountain house, named in painted letters (Anthyle, Rhodon, Hegesila, Myrtale); on its
+shoulder Herakles and the Nemean lion; a band of lions and boars below. Gerhard (text pp. 79-80,
+"Hydrophoren") has it in the Feoli collection in Rome (Campanari, Vasi Feoli no. 139), which Würzburg
+bought in 1872, and reads Hegesila as Telesilla. John's pick (2026-10-08: "do water carriers, and include
+them all. It's a CHORUS"): the five women, without the fountain house ("Out"). John traced the lowered
+hands himself (2026-10-09, lysistrata_traces.json).
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the crop,
 the enlargement, the grey, the warm channel (Channel Mixer), the blurs and the thresholds. numpy only
