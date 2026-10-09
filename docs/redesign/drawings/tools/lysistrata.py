@@ -112,9 +112,16 @@ FACE_PTS = [(700, 1400), (960, 1440), (1150, 1360), (1480, 1400), (1760, 1380)]
 # drawn in red in PhotoCraft on a layer over the picture at 3x (this tool's own grid: no registration);
 # lysistrata_traces.json holds his strokes as polylines along their centres, plate px. His strokes are drawn
 # LINE_W wide; within TRACE_NEAR plate px of them, and inside the shapes they close (his fingers), my lines
-# go, but for the wide black (the mantle the third woman's hand lies on), and but round the open ends of his
-# strokes (TRACE_NEAR + 1 plate px), where my outline runs on to meet them (cleared there, it left gaps); what
-# his lines close is skin
+# go, but for the wide black (the mantle the third woman's hand lies on), and but round the free ends of his
+# strokes (TRACE_NEAR + 1 plate px), where my outline runs on to meet them (cleared there, it left gaps). An
+# end within END_JOIN plate px of another of his strokes is a joint, not a free end: his fingertips are short
+# strokes joined to the fingers' sides, and kept as free ends they let my lines through as a blot and the
+# tips dropped out (John, 2026-10-09: "Close off the pinky. And remove that bit of black ink sticking out").
+# What his lines close is skin
+END_JOIN = 1.5
+# The wide black kept under his strokes is the mantle's, not a blot of print between his fingertips (which
+# survives the opening too): only pieces of it over BIG_BLACK plate px^2
+BIG_BLACK = 400
 TRACES_FILE = Path(__file__).parent / "lysistrata_traces.json"
 TRACE_NEAR = 2.5
 # Every line's edge is smoothed before tracing (PhotoCraft: Gaussian Blur SMOOTH plate px, then Threshold
@@ -339,19 +346,27 @@ def main(src, qa=None, dump=None):
     lines = np.where(zone, contour, lines)
     fig |= contour & zone
     # John's traces (TRACES_FILE)
+    strokes = [pts for part in json.loads(TRACES_FILE.read_text()).values() if isinstance(part, dict)
+               for pts in part['lines']]
+    paths = [polyline(pts) for pts in strokes]
     his, ends = np.zeros(fig.shape, bool), np.zeros(fig.shape, bool)
-    for part in json.loads(TRACES_FILE.read_text()).values():
-        if isinstance(part, dict):
-            for pts in part['lines']:
-                his |= along(fig.shape, polyline(pts), LINE_W)
-                if np.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1]) > 2:   # an open stroke
-                    for x, y in (pts[0], pts[-1]):
-                        ends[min(max(round((y - Y0) * UP), 0), fig.shape[0] - 1),
-                             min(max(round((x - X0) * UP), 0), fig.shape[1] - 1)] = True
+    for path in paths:
+        his |= along(fig.shape, path, LINE_W)
+    for k, pts in enumerate(strokes):
+        if np.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1]) <= 2:   # a closed stroke
+            continue
+        others = np.vstack([q for j, q in enumerate(paths) if j != k])
+        for x, y in (pts[0], pts[-1]):
+            e = np.array([(x - X0) * UP + 0.5, (y - Y0) * UP + 0.5])
+            if np.hypot(*(others - e).T).min() > END_JOIN * UP:   # a free end
+                ends[min(max(round((y - Y0) * UP), 0), fig.shape[0] - 1),
+                     min(max(round((x - X0) * UP), 0), fig.shape[1] - 1)] = True
     closed = ndi.binary_fill_holes(his) & ~his
     near_end = ndi.distance_transform_edt(~ends) <= (TRACE_NEAR + 1) * UP
     region = (((ndi.distance_transform_edt(~his) <= TRACE_NEAR * UP) & ~near_end) | closed)
-    lines = np.where(region, his | (lines & wide), lines)
+    lab, _ = ndi.label(lines & wide)
+    mantle = (np.bincount(lab.ravel()) > BIG_BLACK * UP * UP)[lab] & (lab > 0)
+    lines = np.where(region, his | mantle, lines | his)
     fig |= his | closed
     lines = smooth(lines, SMOOTH) & ~frame
     body = (ndi.distance_transform_edt(~fig) <= RIM * UP) & ~frame
