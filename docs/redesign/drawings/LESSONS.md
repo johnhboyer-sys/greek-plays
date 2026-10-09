@@ -6,6 +6,10 @@ each entry and name the plate it came from. Keep entries short; the detail
 belongs in the tool's comments. Correct an entry that turns out wrong
 rather than adding a second one that contradicts it.
 
+The design brief is `docs/redesign/DESIGN.md` (its Drawings section governs these drawings); the phase
+prompts are in `docs/redesign/PHASES.md`, the reasons in `docs/redesign/decisions.md`, and the approved
+sketches in `docs/redesign/sketches/`. Read the brief before drawing.
+
 ## Plate families
 
 ### Gerhard, *Auserlesene griechische Vasenbilder* (coloured lithographs, red figures on black)
