@@ -5,7 +5,9 @@ Pythia's plate) and a ring small enough that the body's edge, pulled under
 its line, would leave less than potrace's speck limit, rendered at 1400px.
 And a dot under that limit, kept only when passed as `dots`. And two lines a
 px apart, in ink taller than WORK_H (as Andromache's): traced with
-weight="drawn" the gap between them stays open.
+weight="drawn" the gap between them stays open. And an arrow's shaft that narrows to 3 px of clay
+between its lines, in ink as tall as Heracles': the body's smoothing takes the narrow part's clay,
+which stays when it is passed as `keep`.
 
     python3 docs/redesign/drawings/tools/test_linework.py
 """
@@ -27,6 +29,7 @@ LINE = 4                      # px, raw: the house weight here is about 2
 RING = (500, 200, 4, 2)       # centre y, x, outer radius, line width
 DOT = (300, 150, 2)           # centre y, x, radius: under the speck limit at turdsize 100
 GAP = (100, 4500, 20, 5, 1)   # y0, y1, x0, line width, gap: two lines a px apart, taller than WORK_H
+SHAFT = (4900, 5000, 100, 3, 3)   # y0, y1, x0, line width, clay width: the shaft's narrow part
 
 
 def drawing():
@@ -78,6 +81,7 @@ def main() -> None:
     assert (ring > 0.5).mean() > 0.5, "clay lost inside the ring"
     dots_check()
     gap_check()
+    keep_check()
     print("ok")
 
 
@@ -117,6 +121,38 @@ def gap_check() -> None:
     assert shown[0] > 0.5, "re-weighting did not close the gap: the check examined nothing"
     assert shown[1] < 0.5, "a gap between lines drawn a px apart was closed"
 
+
+def keep_check() -> None:
+    """An arrow's shaft that narrows: clay 9 px wide between two 3 px lines, then 3 px wide for its
+    last SHAFT px, traced as drawn in ink 5000 px tall. The body's opening takes the narrow part's
+    clay, and the clay rims its lines then get fall short of the wide part, so the speck filter drops
+    them (Heracles' arrow, 2026-10-09); passed as `keep`, the narrow part keeps its clay."""
+    y0, y1, x0, lw_, cw = SHAFT
+    ink, body = np.zeros((5100, 300), bool), np.zeros((5100, 300), bool)
+
+    def part(ya, yb, clay):
+        w = 2 * lw_ + clay
+        body[ya:yb, x0:x0 + w] = True
+        ink[ya:yb, x0:x0 + lw_] = ink[ya:yb, x0 + lw_ + clay:x0 + w] = True
+
+    part(100, y0, 9)                                  # the wide part (its clay survives the opening)
+    part(y0, y1, cw)                                  # the narrow part
+    ink[y1 - lw_:y1, x0:x0 + 2 * lw_ + cw] = True     # its closed end
+    ink[100:100 + lw_, x0:x0 + 2 * lw_ + 9] = True
+    narrow = np.zeros_like(body)
+    narrow[y0:y1] = body[y0:y1]
+    shown = []
+    for kw in ({}, {"keep": narrow}):
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "t.svg"
+            bx0, by0, bx1, _ = lw.trace_svg(ink, out, title="t", desc="t", body=body, open_holes=~body,
+                                            weight="drawn", **kw)["box"]
+            s = out.read_text()
+        clay = render(re.sub(r'<path class="lines"[^>]*/>', "", s).replace('fill="none"', 'fill="#000"'), bx1 - bx0)
+        shown.append(float(clay[(y0 + y1) // 2 - by0, x0 + lw_ + cw // 2 - bx0]))
+    print(f"the narrow shaft's clay: {shown[0]:.0%} without keep, {shown[1]:.0%} with it")
+    assert shown[0] < 0.5, "the shaft kept its clay without keep: the check examined nothing"
+    assert shown[1] > 0.5, "a shaft passed as keep lost its clay"
 
 if __name__ == "__main__":
     main()
