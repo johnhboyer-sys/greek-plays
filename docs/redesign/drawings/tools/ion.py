@@ -103,6 +103,10 @@ NO_FAINT = (860, 760, 1160, 1300)
 # the original"; 17 marked in the girl's mantle and Apollo's lap and the tripod's bowl, 85% of them its
 # pieces): this plate prints its lines solid, and what the finder found was the paper's grain
 FAINT_ON = False
+# John's marks on pass 1 (2026-10-09), drawn in PhotoCraft over the plate at UP (this crop's px, so they
+# register at zero offset): green = ink to take out, blue = ink to add. Green clears the drawing's ink
+# under it (and 1 plate px round it); each blue stroke is drawn along its centre, LINE_MIN wide
+MARKS_FILE = Path(__file__).parent / "ion_marks.png"
 assert tw.UP == UP
 
 
@@ -291,6 +295,13 @@ def main(src, qa=None, dump=None):
     ink = lines | solid | edge
     lab, _ = ndi.label(ink)
     ink &= np.where(face, (np.bincount(lab.ravel()) > 3 * UP * UP)[lab], (np.bincount(lab.ravel()) > 12 * UP * UP)[lab])
+    m = np.asarray(Image.open(MARKS_FILE).convert('RGBA')).astype(int)
+    assert m.shape[:2] == ink.shape, (m.shape, ink.shape)
+    r, gg, bb, al = (m[..., i] for i in range(4))
+    green = (al > 40) & (gg > r + 40) & (gg > bb + 20)
+    blue = (al > 40) & (bb > r + 40) & (bb > gg + 20)
+    ink &= ~ndi.binary_dilation(green, iterations=UP)
+    ink |= ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= LINE_MIN * UP / 2
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, dark=dark, core=_core, thin=_thin, faint=_faint, join=_join)
 
