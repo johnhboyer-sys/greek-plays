@@ -98,6 +98,29 @@ rather than adding a second one that contradicts it.
   (the band ahead of the lead horse, 2219 plate px²): mark it (`BAND`) and
   check it on the dark theme (2026-10-07).
 
+- Ajax (Taf. CCXI-CCXII, 4), made with PhotoCraft: about a day over two days and five passes, approved
+  by John 2026-10-09. `tools/ajax.py` (2026-10-09).
+- A double plate across the gutter: look for a copy photographed unfolded before drawing across the
+  fold. Heidelberg's fold hid a strip of the Gorgon shield; the NYPL copy on HathiTrust has the plate
+  as one flat foldout (its page list tags the page before it FOLDOUT). HathiTrust's Cloudflare check
+  loops in the built-in browser; it passes in Chrome (Claude in Chrome). A torn strip in the NYPL
+  sheet was filled from Heidelberg's scan, registered by SIFT and matched in tone (2026-10-09).
+- Hatched rims (strokes 4-5 px apart, printed pale on this copy): Motion Blur along the band's own
+  angle joins each stroke's dots into a ridge; each ridge is drawn straight, run out to the band's
+  edges. The band's angle is the mean of its pieces; ruled as one set they drift off the strokes
+  (`hatch_strokes`). The spread test that finds hatching also takes the print's mottled soft edge
+  outside a profile: only bands with strokes, or wider than 5 px, stay out of the ground (it put a
+  strip of clay along Phoenix's nose; John) (2026-10-09).
+- The added white prints 2-6 px inside its outline: draw the outline as a curve on the printed line,
+  found by reading outward from the white's edge, not as a band round the white (`white_outline`)
+  (2026-10-09).
+- Small ground pockets the figures close in print as clay, too small to pass for ground: John circled
+  fourteen on the dark theme, where they show as clay (`POCKETS`) (2026-10-09).
+- Check the vase, not only the plate, when something looks wrong: the copyist drew Briseis' hand
+  twice (white on the crest, again in outline lower down); on the vase (photos by ArchaiOptix on
+  Commons) she has one. John: remove the phantom hand. Gerhard's text also put the vase in Munich; the
+  Beazley Archive (which cites the plate) and the photos put it in the Vatican (2026-10-09).
+
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
 - Budget hours, not minutes. Andromache (Taf. 34) took about ten hours over
@@ -206,6 +229,78 @@ rather than adding a second one that contradicts it.
   "the blob here of clay is not part his body". Leave such ground open (`OPEN`) (2026-10-07).
 - The vase went from Berlin (F 2184) to Moscow after the war. The Beazley Archive (no. 202912) gives
   Pushkin Museum 6528.3, the museum's own page inv. АВ 3742; the credit cites both (2026-10-07).
+
+### Photos of vases (red-figure, taken off the vase with `tools/vase_unroll.py`)
+
+- Acharnians (Würzburg H 4689, the seated warrior; four ArchaiOptix photos), made with PhotoCraft:
+  about an hour and a quarter; approved by John on the first pass, then one fault he circled
+  (2026-10-08). `tools/acharnians.py`.
+- The CVA settles what a photographer's file page only reports: Würzburg 4's entry for H 4689 gave the
+  painter and date, the provenance, the mask types, and that the warrior's knee is overpainted. German CVA
+  volumes are open on publikationen.badw.de (PDF with a text layer: `pdftotext`, then search the
+  inventory number) (2026-10-08).
+- `vase_unroll.silhouette` wants a plain light background on both sides; in a museum case (a lekythos
+  beside the vase, a chair behind it) it found nothing. Give rough guides to the outline and take the
+  strongest light-to-dark step near them (`outline`); the band's edge likewise (`band_edge`) (2026-10-08).
+- Clay against glaze by red less blue (PhotoCraft's Channel Mixer, monochrome [100, 0, -100]): the
+  glaze's white sheen reads 0 with the glaze, clay 90-140 (2026-10-08).
+- Where the sheen lies over the figure's edge, lay a second photo, lit otherwise, onto the same flat
+  and compare the edges: decisive, and it overturned my own reading of a close-up (2026-10-08).
+- A painted stroke that runs up to the figure's edge meets the ground's black there, and the drawing
+  takes it for ground: the shield's top ray came out a hollow sliver (John: "this circled part should
+  be black ink"; "looks terrible in day mode"). Wall it along the edge (`WALLS`), and look in the light
+  theme for any band drawn hollow beside the outline (2026-10-08).
+- On a worn photo, local contrast at the Gerhard plates' radius drew stains, the edges of white
+  scratches and the brown strip along a mend. Cap the grey at the clay's level first (Levels, input
+  white 140: exact; Curves bends the tones below its points), keep long thin pieces only, and keep off
+  the mend (`FAINT`, `MEND`) (2026-10-08).
+- Remove specks before joining breaks: glaze specks left in a flaked gap counted as a line crossed and
+  blocked the join (2026-10-08).
+- A second figure from another photo: fit that photo's camera to the finished vase model alone (profile and
+  other cameras held), lay it onto the same flat, and check where the two photos overlap (here 2.5 px at the
+  spear's tip). Keep the first figure's pipeline untouched, so the approved drawing cannot change, and pin
+  the line weight to the approved width: weight "own" is a share of the longer side, and the wider canvas
+  thinned every line (2026-10-08).
+- Traced at 0.4 of the work px, a line's thin neck vanishes: eight breaks with ink across them, the
+  approved warrior's belt among them, missed earlier because the gap check's angle limit dropped the pair.
+  Thicken every line to a minimum width along its centre before tracing (`NECK`) (2026-10-08).
+- White paint (hair, beard): no black outline, as on the vase; draw the edge along it in the tone
+  (John: "the hair is all white strokes of paint, no black outline"). Its strokes: the black between the
+  curls is ground (found at fine scale, but only inside the hair's outline: over the face the fine opening
+  ran the ground through the jaw line and cut the head off), and the wash in steps following the paint's
+  whiteness, as Andromache's blood. Threshold- and ridge-finding of single strokes on worn paint gave
+  blobs and noise; John chose the stepped wash over a solid one (2026-10-08).
+- Worn pale clay passes for white paint in grey and in red less blue alike; a sharper photo of the same
+  spot (here 02) told them apart, and the hair's boxes were set to leave the jaw out (2026-10-08).
+- Clouds (Louvre CA 7249, a phlyax scene: the master and his slave), from Marie-Lan Nguyen's photo: about
+  eight hours over three passes, approved by John 2026-10-08. `tools/clouds.py` (2026-10-08).
+- The source photo showed none of the vase's outline. The museum's own whole-vase photo gave the profile
+  (outline, the line under the checkers, the strip under the ovolo as a ring), and the close photo's camera
+  was fitted to points matched with it, its focal length from EXIF. Ask before downloading museum photos;
+  use them only for the fit and to fill what the source cuts off (2026-10-08).
+- A second figure further round the vase: flatten its part on its own and join the two at a seam in the
+  ground. One wider flat moved the first figure by up to 16 px, which would have moved every point
+  already measured on him (2026-10-08).
+- Red less blue (PhotoCraft's Channel Mixer, which matches the arithmetic exactly) parts clay from glaze,
+  but worn glaze photographs grey-blue and washed-out clay pale: ground is dark or bluish, not merely
+  "not orange", or the faint lines at the feet join the ground and cut a foot off (2026-10-08).
+- The painter's brown stripe of glaze along an outline drew a second outline inside the first: set the
+  figure's edge at half the local clay level, and in the stripe's boxes keep only clay lighter than grey
+  125 (`STRIPES`) (2026-10-08).
+- Lines by local contrast came out beaded: fill pinholes, smooth the mask (Gaussian in PhotoCraft, cut at
+  half), prune spurs, and redraw each line along its centre at its own width smoothed along the line
+  (`even_lines`) (2026-10-08).
+- Colour (John's asks): skin clay in both themes, clothes as washes, white hair as white strokes. Where no
+  painted line parts two areas (hair from face, beard from shirt, arm from sleeve), don't guess: send
+  John close-ups and register his marked screenshots to the flat (SIFT, or template matching for a
+  screenshot of the drawing); his lines live in a data file (`clouds_marks.json`). Edges he did not
+  draw follow the drawing's lines by a least-cost path (2026-10-08).
+- White paint that the photo shows only as a paler, worn area reads as grain if its strength follows the
+  photo alone: give it a floor (0.65 opacity), smooth it, and fade it toward the areas beside it, so it
+  has no hard edge; John: "Thicker basically" (2026-10-08).
+- John's marks arrive as chat images; not all reach the session's image folder. His Desktop holds the
+  screenshots too ("Screenshot ... PM.png"): match them to the chat by size, and say when you use one he
+  did not send (2026-10-08).
 
 ## John's traces
 
