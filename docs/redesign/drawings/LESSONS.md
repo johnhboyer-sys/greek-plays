@@ -249,6 +249,35 @@ rather than adding a second one that contradicts it.
   blobs and noise; John chose the stepped wash over a solid one (2026-10-08).
 - Worn pale clay passes for white paint in grey and in red less blue alike; a sharper photo of the same
   spot (here 02) told them apart, and the hair's boxes were set to leave the jaw out (2026-10-08).
+- Clouds (Louvre CA 7249, a phlyax scene: the master and his slave), from Marie-Lan Nguyen's photo: about
+  eight hours over three passes, approved by John 2026-10-08. `tools/clouds.py` (2026-10-08).
+- The source photo showed none of the vase's outline. The museum's own whole-vase photo gave the profile
+  (outline, the line under the checkers, the strip under the ovolo as a ring), and the close photo's camera
+  was fitted to points matched with it, its focal length from EXIF. Ask before downloading museum photos;
+  use them only for the fit and to fill what the source cuts off (2026-10-08).
+- A second figure further round the vase: flatten its part on its own and join the two at a seam in the
+  ground. One wider flat moved the first figure by up to 16 px, which would have moved every point
+  already measured on him (2026-10-08).
+- Red less blue (PhotoCraft's Channel Mixer, which matches the arithmetic exactly) parts clay from glaze,
+  but worn glaze photographs grey-blue and washed-out clay pale: ground is dark or bluish, not merely
+  "not orange", or the faint lines at the feet join the ground and cut a foot off (2026-10-08).
+- The painter's brown stripe of glaze along an outline drew a second outline inside the first: set the
+  figure's edge at half the local clay level, and in the stripe's boxes keep only clay lighter than grey
+  125 (`STRIPES`) (2026-10-08).
+- Lines by local contrast came out beaded: fill pinholes, smooth the mask (Gaussian in PhotoCraft, cut at
+  half), prune spurs, and redraw each line along its centre at its own width smoothed along the line
+  (`even_lines`) (2026-10-08).
+- Colour (John's asks): skin clay in both themes, clothes as washes, white hair as white strokes. Where no
+  painted line parts two areas (hair from face, beard from shirt, arm from sleeve), don't guess: send
+  John close-ups and register his marked screenshots to the flat (SIFT, or template matching for a
+  screenshot of the drawing); his lines live in a data file (`clouds_marks.json`). Edges he did not
+  draw follow the drawing's lines by a least-cost path (2026-10-08).
+- White paint that the photo shows only as a paler, worn area reads as grain if its strength follows the
+  photo alone: give it a floor (0.65 opacity), smooth it, and fade it toward the areas beside it, so it
+  has no hard edge; John: "Thicker basically" (2026-10-08).
+- John's marks arrive as chat images; not all reach the session's image folder. His Desktop holds the
+  screenshots too ("Screenshot ... PM.png"): match them to the chat by size, and say when you use one he
+  did not send (2026-10-08).
 
 ## John's traces
 
