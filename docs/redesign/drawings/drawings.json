@@ -68,10 +68,10 @@
       "slug": "philoctetes",
       "file": "philoctetes.svg",
       "name": "Philoctetes · Philoctetes on Lemnos",
-      "alt": "Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case beside him",
+      "alt": "Philoctetes alone on Lemnos, seated on a rock under a tree, his bandaged leg drawn up, his bow case beside him",
       "source": "Squat lekythos in the manner of the Eretria Painter, Met 56.171.58, photographs by Marie-Lan Nguyen (CC BY 2.5) and the Met (CC0)",
-      "method": "Red-figure photos taken off the vase (a fitted model, flattened over the scene only); him, the rock and the bow case cut out as one, the tree cut off; lines found by their narrowness, washes left out, only black lines on the rock; head, feet and hands from John's traces; half tone on hair and beard; potrace",
-      "verdict": "Sixth pass, 2026-10-03: head, feet and hands from John's traces, half tone on hair and beard (his asks)."
+      "method": "Red-figure photos taken off the vase (a fitted model, flattened over the scene only), made with PhotoCraft: him, the rock, the bow case and the tree as one cut-out, the tree from a flat of its own joined at the trunk's base; lines along their centres at the paint's own width; hair, beard and the black top as layered brushstrokes in stepped washes, no outline round the top of the head; the rock's brushstrokes and the shadow at his foot as washes; potrace",
+      "verdict": "Redrawn with PhotoCraft and approved by John (2026-10-09), after five passes and two rounds on the hair, the tree added at his ask. No outside review."
     },
     {
       "slug": "oedipus-coloneus",
@@ -79,8 +79,8 @@
       "name": "Oedipus at Colonus · Oedipus at the altar between his daughters",
       "alt": "Blind Oedipus, white-haired and bearded, seated at an altar with his staff, one hand raised, between his daughters Ismene and Antigone",
       "source": "Apulian calyx-krater close to the De Schulthess Painter, formerly Melbourne, Geddes collection A 5:8; the photos in Green 2003 (pp. 4, 26, 29; HathiTrust mdp.39015060089391), with Ismene's lines and borders, and those of the altar's left end and the strip below p. 26, from a photo found online (source unknown), placed on their reprint in Taplin, Pots & Plays (2007) no. 27, checked against Digital LIMC photo 8569X101 (all in copyright)",
-      "method": "Red-figure photos, Green's pages registered to the plate and laid over its 4x enlargement, Ismene's lines and borders (and those outside p. 26) from a photo found online: cut round the group and the altar, columns left out; one outline where a blur left a brown band; painted marks at their own widths, close ones along their centres, faint folds by a ridge filter, worn dashes joined; dark hair and Ismene's borders solid; Oedipus' face drawn on the paint of p. 29, the dark marks in his hair and beard solid, his staff in its two visible parts, his hand from the column's edge; the daughters' faces, and Antigone's hand and forearm, after John's traces; potrace",
-      "verdict": "Usable; approved by John (2026-10-03). Oedipus redrawn from Green's p. 29 (his lower fingers from John's marks, the raised two turned a little apart so they read at display size); Antigone from John's traces on p. 26; Ismene's folds from the photo John found, her face from his traces and marks. Reviewed by Codex (GPT-6-Sol) and its fixes made. The zigzag ends of the two mantles are only as clear as the photos allow."
+      "method": "Red-figure photos (Green's pages and a found photo, registered to Taplin's plate), made with PhotoCraft: the cut and the hand-placed face and hand strokes kept, John's traces of the daughters kept; outline smoothed; painted lines along their centres at their own width; Oedipus' white hair a light tone with crisp dark strokes, the daughters' hair two firm tones, Ismene's headdress black with white ribs; faces drawn at twice the size; potrace",
+      "verdict": "Redrawn with PhotoCraft and approved by John (2026-10-10), after three passes. No outside review."
     },
     {
       "slug": "hippolytus",

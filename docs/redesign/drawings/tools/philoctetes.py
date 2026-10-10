@@ -13,7 +13,13 @@ does not carry the photos' licences (John's ruling on Oedipus Tyrannus,
 2026-10-02; on this drawing: "Don't care about license"); the photographers
 are credited.
 
-Photo -> drawing:
+Redrawn with PhotoCraft (2026-10-09; John: "The photocraft method is so good,
+that these earlier ones are looking not good"). The first drawing's tool
+(2026-10-03, in git history) set the geometry, which is kept as John approved
+it: the vase model and the flat, the cut-out (the tree cut, the windows, the
+damage in the glaze), the rock's black lines only. Its lines are found anew.
+
+Photo -> flat (vase_unroll.py; geometry, so numpy and scipy, not PhotoCraft):
   - The vase is taken off its curve (vase_unroll.py, as for Euphorbos and
     Antigone). Its profile and the cameras of C, A and B were fitted together
     (MODEL): to the outline of the vase in A and B, the upper edge of the
@@ -26,55 +32,47 @@ Photo -> drawing:
   - The scene wraps 150 degrees round the vase, and the photos all face the
     same side: his raised leg and feet lie 40-70 degrees round from C, the
     rock's left end about 80. The flat (flat_keep) covers the scene alone,
-    which keeps every part within 3% of the vase's own lengths. C's camera
-    was level with his head, which the flat changes by under 3%; it widens
-    his right hand by about 20% and his raised leg and feet up to 1.8x.
+    which keeps every part within 3% of the vase's own lengths.
   - C is the sharpest photo in the middle of the scene; A is sharper toward
     the sides (C is out of focus there and does not reach the rock's left
-    end). Each part is taken from the sharper photo (SEAMS). On the flat the
-    two agree to 1-2 px in the middle; toward the rock's left end C drifts
-    off A, 3-5 px across the seam and 6-7 px past it.
+    end). Each part is taken from the sharper photo (SEAMS), the two laid
+    together with numpy before PhotoCraft sees them. On the flat the two
+    agree to 1-2 px in the middle; toward the rock's left end C drifts off
+    A, 3-5 px across the seam and 6-7 px past it.
+
+Flat -> drawing: every image step runs in PhotoCraft (`photocraft-cli` 0.2.0):
+the grey, the clay map (Channel Mixer, red less blue), the blurs, the Maximum
+and Minimum filters (local contrast, and the clay level round each pixel).
+numpy only combines PhotoCraft's maps and measures. The SVG is written by
+linework.trace_svg.
   - The scene is him, the rock he sits on and his bow case: one clay area.
-    The tree is cut off where its trunk meets the rock (TREE_CUT, along the
-    rock's own top line and the top of his hand). The black ground seen
-    through the scene (WINDOWS: between his arms and his body, between his
-    hanging leg and the rock, under his raised foot) stays open in the dark
-    theme too.
-  - Painted lines are found by their narrowness (darker than the clay within
-    a few px of them), which passes over the broad brown washes, and redrawn
-    as even lines along their centres. The washes are not drawn ("the orange
-    strokes don't translate to two tone"); on the rock, where the brush also
-    left narrow strokes of wash, only black lines are drawn (ROCK). The bow
-    case's black and the broad dark strokes outlining his feet are drawn solid
-    (QUIVER, BLACK_BANDS).
-  - His head is drawn from John's own trace (2026-10-03; TRACES): his strokes
-    as lines, his filled marks (eye, brow, the marks at his neck) solid, the
-    black top of his head solid with the fillet he outlined left light, and
-    the area's edge following his outline. His hair and beard carry a half
-    tone where the vase has its brown wash (TONE: "can you do a half-dark
-    tone for the beard to mimic the tone of the original on the beard?",
-    "same for hair"), a third path under the lines.
-  - The outline follows the clay's own edge, not the browner stripe of glaze
-    the painter laid along it (STRIPE_L, SOFT_L), and is smoothed along its
-    length (EDGE_SIGMA): the photo's grain and the brush's ragged outer edge
-    made it wobble. His head keeps its edge as found, and then John's.
-  - Faint lines that the line test breaks up (worn stretches, a dry brush)
-    are joined across their gaps (join_gaps); the bow's outer top curve,
-    fainter than any test passes, is placed by hand and snapped to the paint
-    (BOW_LINE), as is the outer line round the end of the strap's loop
-    (STRAP_LINE). (John, 2026-10-03, on the first pass: "Not all the dark ink
-    on the quiver and arrow are captured"; "part of the top outside curve of
-    the bow isn't drawn".)
-  - Damage: a scratch and an abraded patch in the glaze by his right arm, and
-    chips where the glaze meets the rock's left side, are left out of his
-    outline (GLAZE_DAMAGE, WORN).
+    The tree is cut off where its trunk meets the rock (TREE_CUT). The black
+    ground seen through the scene (WINDOWS) stays open in the dark theme;
+    the two between his legs are drawn black on the light page too.
+  - Painted lines by local contrast (the grey's Maximum then Minimum, less
+    the grey), which passes over the broad brown washes, drawn along their
+    centres at their own width, smoothed along the line (as clouds.py). On
+    the rock only black lines (ROCK); on the bow, the case and the straps
+    all of them (GEAR).
+  - His hair and beard are brown wash over the clay, with darker strokes for
+    the curls: drawn as a wash in the line colour whose opacity follows the
+    photo's darkness, in steps, so the brushstrokes show (John, 2026-10-09:
+    "do the brown curly hair and beard as brushstrokes, similar to how we did
+    hair in other plates"; as Clouds' hair).
+  - John's traces of the head, feet and hands for the first drawing
+    (philoctetes_traces.json, frame px) are the check for the new lines
+    there: `--traces out.png` draws them over the new drawing.
 
     python3 docs/redesign/drawings/tools/philoctetes.py C.jpg A.jpg B.jpg [qa.png]
     python3 docs/redesign/drawings/tools/philoctetes.py C.jpg A.jpg B.jpg --refit
+    python3 docs/redesign/drawings/tools/philoctetes.py C.jpg A.jpg B.jpg --traces out.png
 """
 import io
 import json
+import os
+import subprocess
 import sys
+import tempfile
 from contextlib import redirect_stdout
 from pathlib import Path
 
@@ -88,6 +86,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
 import vase_unroll as vu  # noqa: E402
 from euphorbos import strokes  # noqa: E402
+
+PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli"))
 
 OUT = Path(__file__).resolve().parent.parent / "philoctetes.svg"
 
@@ -261,14 +261,88 @@ def flat_image(photo, name, R, fr, step=4):
     return np.stack([ndi.map_coordinates(a[..., k], [v, u], order=1, cval=0) for k in range(3)], -1)
 
 
+# ---------------------------------------------------------------- PhotoCraft
+
+def pc(src, out, *steps):
+    """Run PhotoCraft on src: steps are (command, params) pairs; the result saved to out."""
+    args = [PC, "run", str(src)]
+    for cmd, params in steps:
+        args += ["--cmd", cmd] + (["--params", json.dumps(params)] if params is not None else [])
+    args += ["--out", str(out)]
+    subprocess.run(args, check=True, capture_output=True, text=True)
+
+
+def grey(p):
+    return np.asarray(Image.open(p).convert("L")).astype(np.float32)
+
+
+# Each part from the sharper photo: C between the SEAMS (frame columns), A
+# outside them, blended across each seam's span. (C is out of focus toward
+# both sides and does not reach the rock's left end.)
+SEAMS = ((950, 1100), (2300, 2450))
+# The local contrast of a line: the grey (blurred 1 px) closed by PhotoCraft's
+# Maximum then Minimum over CLOSE_R px, less the grey. The clay level round a
+# pixel: the grey closed over CLAY_R px and blurred CLAY_BLUR px (darkness
+# ratios are the grey over it); the wide one (A's grey, WIDE_R, WIDE_BLUR) for
+# black paint wider than the narrow window.
+CLOSE_R, CLAY_R, CLAY_BLUR, WIDE_R, WIDE_BLUR = 6, 12, 4, 40, 10
+
+
+def seam_weight(rgbC):
+    """C's weight in each pixel (A has the rest)."""
+    x = np.arange(rgbC.shape[1], dtype=float)
+    (a0, a1), (b0, b1) = SEAMS
+    w = np.clip((x - a0) / (a1 - a0), 0, 1) * np.clip((b1 - x) / (b1 - b0), 0, 1)
+    return w[None, :] * (ndi.binary_erosion(rgbC.max(2) > 3, iterations=8))
+
+
+def maps(rgbC, rgbA):
+    """PhotoCraft's maps of the frame. From A (no glare on the glaze, so the
+    colours): LA, its grey blurred 1 px; RBA, red less blue blurred 1 px; rA,
+    LA over the wide clay level. From the blend of C and A (the sharper photo
+    in each part): g, its grey; gf, blurred 1 px; contrast, gf closed over
+    CLOSE_R less gf; r, gf over the clay level; rW, gf over the wide one; RB,
+    red less blue blurred 1 px."""
+    wC = seam_weight(rgbC)[..., None]
+    blend = (wC * rgbC + (1 - wC) * rgbA).clip(0, 255).round().astype(np.uint8)
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.fromarray(rgbA.clip(0, 255).round().astype(np.uint8)).save(t / "A.png")
+        Image.fromarray(blend).save(t / "F.png")
+        pc(t / "A.png", t / "LA.png", ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "A.png", t / "RBA.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "LA.png", t / "clayA.png", ("filter.other.maximum", {"radius": WIDE_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": WIDE_R, "preserve": "squareness"}),
+           ("filter.blur.gaussianBlur", {"radius": WIDE_BLUR}))
+        pc(t / "F.png", t / "g.png", ("image.mode.grayscale", None))
+        pc(t / "F.png", t / "RB.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "g.png", t / "gf.png", ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "gf.png", t / "clayW.png", ("filter.other.maximum", {"radius": WIDE_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": WIDE_R, "preserve": "squareness"}),
+           ("filter.blur.gaussianBlur", {"radius": WIDE_BLUR}))
+        pc(t / "gf.png", t / "cl.png", ("filter.other.maximum", {"radius": CLOSE_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": CLOSE_R, "preserve": "squareness"}))
+        pc(t / "gf.png", t / "clay.png", ("filter.other.maximum", {"radius": CLAY_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": CLAY_R, "preserve": "squareness"}),
+           ("filter.blur.gaussianBlur", {"radius": CLAY_BLUR}))
+        m = {k: grey(t / f"{k}.png") for k in ("LA", "RBA", "clayA", "g", "gf", "cl", "clay", "clayW", "RB")}
+    m["contrast"] = m["cl"] - m["gf"]
+    m["r"] = m["gf"] / np.maximum(m["clay"], 1.0)
+    m["rA"] = m["LA"] / np.maximum(m["clayA"], 1.0)
+    m["rW"] = m["gf"] / np.maximum(m["clayW"], 1.0)
+    m["LAn"] = m["LA"] / 100.0   # A's grey on the ratios' scale (for the black top of his head)
+    return m
+
+
 # ---------------------------------------------------------------- the scene
 
-# Colour classes, in A (C has glare on the glaze): clay is redder than CLAY_RB
-# (red minus blue) and lighter than CLAY_L; glaze is less red than GLAZE_RB
-# and darker than GLAZE_L; between them, the brown washes. Pale grey (less
-# saturated than PALE_SAT, lighter than PALE_L; clay is far more saturated)
-# is a scratch or a chip in the glaze, and counts as glaze.
-CLAY_RB, CLAY_L, GLAZE_RB, GLAZE_L, PALE_SAT, PALE_L = 75, 120, 28, 70, 0.45, 60
+# Colour classes, in A: clay is redder than CLAY_RB (red minus blue) and
+# lighter than CLAY_L; glaze is less red than GLAZE_RB and darker than GLAZE_L;
+# between them, the brown washes. Pale grey (less red than PALE_RB, lighter
+# than PALE_L) is a scratch or a chip in the glaze, and counts as glaze.
+CLAY_RB, CLAY_L, GLAZE_RB, GLAZE_L, PALE_RB, PALE_L = 75, 120, 28, 70, 30, 60
 SEED = (2000, 900)  # on his chiton (frame px): the scene is the clay joined to it
 # The tree: its trunk widens into the rock where his right hand rests. A
 # thin painted line marks the rock's top under it: the washes that model the
@@ -290,8 +364,8 @@ TREE_CORRIDOR = 8
 # where the rock's left end meets the ground line. These stay open; every
 # other black area inside the scene is paint (the top of his head, the bow
 # case's black, the broad stroke down the back of his raised calf, which is
-# browner than the ground and shows the brush: in A L 21, red minus blue 23,
-# against 14 and 6; John, 2026-10-03, marked it black).
+# browner than the ground and shows the brush; John, 2026-10-03, marked it
+# black).
 WINDOWS = [(1635, 1256), (2213, 1024), (2490, 1804), (2857, 1902), (147, 2399)]
 # The two between his legs (between his hanging leg and the rock, under his
 # raised foot) are drawn black, on the light page too (John, 2026-10-03:
@@ -299,23 +373,20 @@ WINDOWS = [(1635, 1256), (2213, 1024), (2490, 1804), (2857, 1902), (147, 2399)]
 # two by his arms stay open there (he chose that over drawing them black).
 BLACK_WINDOWS = [(2490, 1804), (2857, 1902)]
 # Along the figure's edge the glaze is a little browner and lighter than the
-# rest (the painter's contour stripe, 3-15 px wide; A shows it at L 25-50, red
-# minus blue 25-55), and the colour test leaves it to the figure, whose edge
-# then follows the stripe's ragged outer side instead of the clay's crisp one.
-# The ground takes in paint darker than STRIPE_L within STRIPE_REACH px of it
-# (an opening of STRIPE_OPEN px keeps out painted lines that touch it), except
-# in his head (HEAD), where the curls of his hair and beard reach the edge,
-# and along the black strokes that outline his feet (BLACK_BANDS), which are
-# paint, not stripe.
+# rest (the painter's contour stripe, 3-15 px wide), and the colour test
+# leaves it to the figure, whose edge then follows the stripe's ragged outer
+# side instead of the clay's crisp one. The ground takes in paint darker than
+# STRIPE_L within STRIPE_REACH px of it (an opening of STRIPE_OPEN px keeps
+# out painted lines that touch it), except in his head (HEAD), where the
+# curls of his hair and beard reach the edge, and along the black strokes
+# that outline his feet (BLACK_BANDS), which are paint, not stripe.
 # Where a window narrows to less than 2 * WINDOW_OPEN px (down along his heel),
-# it is drawn as black paint, a line or a solid shape, not as two outlines
-# with a sliver between.
+# it is drawn as black paint, not as two outlines with a sliver between.
 STRIPE_L, STRIPE_REACH, STRIPE_OPEN, WINDOW_OPEN = 55, 40, 4, 6
 # Where the stripe is too narrow for that opening, or the photo soft (A sees
 # the right end of the rock at 60 degrees), the edge is drawn in to the
 # midpoint between clay and glaze: paint darker than SOFT_L within SOFT_REACH
-# px of the ground (painted lines that end at the edge lose that much; not
-# along the ground line, where his toes stand on it).
+# px of the ground (not along the ground line, where his toes stand on it).
 SOFT_L, SOFT_REACH = 75, 10
 HEAD = [(1800, 470), (1815, 380), (1850, 300), (1930, 240), (2000, 160), (2150, 140), (2330, 190), (2400, 330),
         (2380, 450), (2300, 520), (2280, 640), (2200, 700), (2070, 700), (2010, 690), (1960, 645), (1920, 595),
@@ -335,44 +406,49 @@ GLAZE_DAMAGE = [
 LEFT_X = 98
 # The scene's edges: specks under EDGE_R px are opened and closed away, and
 # each outline (the scene's and each window's) is smoothed along its own
-# length (EDGE_SIGMA px of arc), which evens out the ragged brushwork and the
-# photo's grain without thinning narrow parts, as a blur of the whole area
-# would. Where the glaze meets the rock's left side it is chipped and the
-# edge bites in and out by 10-20 px: inside WORN it is smoothed over
-# WORN_SIGMA px. His head (HEAD) keeps its edge as found (the curls, the
-# profile of his face).
+# length (EDGE_SIGMA px of arc). Where the glaze meets the rock's left side it
+# is chipped and the edge bites in and out by 10-20 px: inside WORN it is
+# smoothed over WORN_SIGMA px. His head (HEAD) keeps its edge as found (the
+# curls, the profile of his face).
 EDGE_R, EDGE_SIGMA = 4, 9.0
 WORN, WORN_SIGMA = [(560, 1700), (830, 1700), (830, 2000), (560, 2120), (360, 2120), (360, 1960)], 15.0
 
 
-def classes(rgb):
-    L, RB = ndi.gaussian_filter(lum(rgb), 1.0), ndi.gaussian_filter(rgb[..., 0] - rgb[..., 2], 1.0)
-    mx = ndi.gaussian_filter(rgb.max(2), 1.0)
-    sat = (mx - ndi.gaussian_filter(rgb.min(2), 1.0)) / np.maximum(mx, 1)
-    glaze = ((RB < GLAZE_RB) & (L < GLAZE_L)) | (rgb.max(2) < 3)  # black off the flat counts as ground
-    glaze |= (sat < PALE_SAT) & (L > PALE_L)
+def classes(m):
+    """Glaze and clay, from A's PhotoCraft maps."""
+    L, RB = m["LA"], m["RBA"]
+    glaze = ((RB < GLAZE_RB) & (L < GLAZE_L)) | (L < 2)  # black off the flat counts as ground
+    glaze |= (RB < PALE_RB) & (L > PALE_L)
     clay = (RB > CLAY_RB) & (L > CLAY_L)
     return glaze, clay
 
 
-def cut_path(L, pts, corridor=6):
+def poly(shape, pts):
+    return lw.polygon_mask(shape, np.array(pts, float))
+
+
+def trace_line(shape, pts):
+    """A polyline through pts, 1 px wide."""
+    from skimage.draw import line
+    m = np.zeros(shape, bool)
+    for (xa, ya), (xb, yb) in zip(pts[:-1], pts[1:]):
+        rr, cc = line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
+        ok = (rr >= 0) & (rr < shape[0]) & (cc >= 0) & (cc < shape[1])
+        m[rr[ok], cc[ok]] = True
+    return m
+
+
+def cut_path(gf, pts, corridor=6):
     """A least-cost path through pts (STRAIGHT between two points joins them
     directly), held within `corridor` px of the polyline through them."""
-    from skimage.draw import line
     plain = [p for p in pts if p != lw.STRAIGHT]
-    rough = np.zeros(L.shape, bool)
-    for (xa, ya), (xb, yb) in zip(plain[:-1], plain[1:]):
-        rr, cc = line(int(ya), int(xa), int(yb), int(xb))
-        rough[rr, cc] = True
-    near = ndi.distance_transform_edt(~rough) <= corridor
-    return lw.livewire(np.where(near, 1.0 + ndi.gaussian_filter(L, 1.2) / 8.0, 1e4), pts)
+    near = ndi.distance_transform_edt(~trace_line(gf.shape, plain)) <= corridor
+    return lw.livewire(np.where(near, 1.0 + gf / 8.0, 1e4), pts)
 
 
 def ground_line(fr, W):
     """Per frame column, the frame row of the ground line: the upper edge of
-    the dark line under the scene, y = 0 on the vase (MODEL fits it as a
-    circle, to about a pixel). On A it is brownish, not as dark as the glaze,
-    so the colours alone do not stop the scene there."""
+    the dark line under the scene, y = 0 on the vase."""
     th = np.linspace(BOX_THETA[0] - 0.05, BOX_THETA[1] + 0.05, 2000)
     xy = fr["to_frame"](th, np.zeros_like(th))
     ok = np.isfinite(xy[:, 0])
@@ -403,39 +479,45 @@ def smooth_outline(mask, keep, worn):
     return out
 
 
-def scene(rgbA, L, ground_row):
+def biggest(mask):
+    lab, n = ndi.label(mask)
+    return lab == 1 + int(np.argmax(ndi.sum(np.ones(mask.shape), lab, np.arange(1, n + 1))))
+
+
+def scene(m, ground_row):
     """The scene's area (him, the rock and the bow case), its windows (the
-    black ground seen through it), and the painted black inside it. The tree
-    cut follows L, the luminance the lines are found on."""
-    glaze, _ = classes(rgbA)
+    black ground seen through it), and the painted black inside it."""
+    glaze, _ = classes(m)
     shape = glaze.shape
     glaze |= np.arange(shape[0])[:, None] >= ground_row[None, :]  # below the ground line
     for p in GLAZE_DAMAGE:
-        glaze |= lw.polygon_mask(shape, np.array(p, float))
+        glaze |= poly(shape, p)
     glaze[:, :LEFT_X] = True
     cut = np.zeros(shape, bool)
-    xy = cut_path(L, TREE_CUT, TREE_CORRIDOR).astype(int)
+    xy = cut_path(m["gf"], TREE_CUT, TREE_CORRIDOR).astype(int)
     cut[xy[:, 1], xy[:, 0]] = True
     cut = ndi.binary_dilation(cut, iterations=1)
     ground = ndi.binary_opening(glaze, structure=morphology.disk(2))
     # the ground takes in the contour stripe along its edge
-    keep_paint = lw.polygon_mask(shape, np.array(HEAD, float))
+    keep_paint = poly(shape, HEAD)
     for pts, half in BLACK_BANDS:
         keep_paint |= ndi.distance_transform_edt(~trace_line(shape, pts)) <= half
-    stripe = (ndi.gaussian_filter(lum(rgbA), 1.0) < STRIPE_L) & ~ground & ~keep_paint
+    stripe = (m["LA"] < STRIPE_L) & ~ground & ~keep_paint
     stripe &= ndi.distance_transform_edt(~ground) <= STRIPE_REACH
     stripe = ndi.binary_opening(stripe, structure=morphology.disk(STRIPE_OPEN))
     # (only the ground round him and the windows: not the specks of glaze in a
     # wash stroke, which the stripe would swell into black blots)
-    glab, _ = ndi.label(ground)
-    outer = np.unique(np.r_[glab[0], glab[-1], glab[:, 0], glab[:, -1], [glab[y, x] for x, y in WINDOWS]])
+    def outer_of(gr):
+        glab, _ = ndi.label(gr)
+        o = np.unique(np.r_[glab[0], glab[-1], glab[:, 0], glab[:, -1], [glab[y, x] for x, y in WINDOWS]])
+        return glab, o[o > 0]
+    glab, outer = outer_of(ground)
     lab, _ = ndi.label(ground | stripe)
-    ground |= stripe & np.isin(lab, np.unique(lab[np.isin(glab, outer[outer > 0])]))
-    glab, _ = ndi.label(ground)
-    outer = np.unique(np.r_[glab[0], glab[-1], glab[:, 0], glab[:, -1], [glab[y, x] for x, y in WINDOWS]])
-    outer_ground = np.isin(glab, outer[outer > 0])
+    ground |= stripe & np.isin(lab, np.unique(lab[np.isin(glab, outer)]))
+    glab, outer = outer_of(ground)
+    outer_ground = np.isin(glab, outer)
     near_ground = np.arange(shape[0])[:, None] >= ground_row[None, :] - 2 * SOFT_REACH
-    soft = (ndi.gaussian_filter(lum(rgbA), 1.0) < SOFT_L) & ~ground & ~keep_paint & ~near_ground
+    soft = (m["LA"] < SOFT_L) & ~ground & ~keep_paint & ~near_ground
     soft &= ndi.distance_transform_edt(~outer_ground) <= SOFT_REACH
     lab, _ = ndi.label(outer_ground | soft)
     ground |= soft & np.isin(lab, np.unique(lab[outer_ground]))
@@ -446,19 +528,14 @@ def scene(rgbA, L, ground_row):
     windows = np.isin(glab, [glab[y, x] for x, y in WINDOWS]) & area
     # a window's narrow parts are black paint, not ground
     lab, _ = ndi.label(ndi.binary_opening(windows, structure=morphology.disk(WINDOW_OPEN)))
-    keep = [lab[y, x] for x, y in WINDOWS]
-    windows = np.isin(lab, [k for k in keep if k > 0])
+    windows = np.isin(lab, [k for k in (lab[y, x] for x, y in WINDOWS) if k > 0])
     area &= ~windows
     # smooth edges: flecks of clay in the glaze along an edge leave no notches
     area = ndi.binary_closing(ndi.binary_opening(area, structure=morphology.disk(EDGE_R)), structure=morphology.disk(EDGE_R))
-    lab, n = ndi.label(area)
-    area = lab == 1 + int(np.argmax(ndi.sum(np.ones(shape), lab, np.arange(1, n + 1))))
-    area = smooth_outline(area, lw.polygon_mask(shape, np.array(HEAD, float)), lw.polygon_mask(shape, np.array(WORN, float)))
-    lab, n = ndi.label(area)  # one piece: flecks of clay inside a window are not the scene
-    area = lab == 1 + int(np.argmax(ndi.sum(np.ones(shape), lab, np.arange(1, n + 1))))
-    # the windows are exactly the holes left in the smoothed area (no sliver
-    # of neither between them, which the body path would fill with clay);
-    # holes that are not windows are filled
+    area = smooth_outline(biggest(area), poly(shape, HEAD), poly(shape, WORN))
+    area = biggest(area)  # one piece: flecks of clay inside a window are not the scene
+    # the windows are exactly the holes left in the smoothed area; holes that
+    # are not windows are filled
     holes = ndi.binary_fill_holes(area) & ~area
     lab, _ = ndi.label(holes)
     windows = np.isin(lab, np.unique(lab[windows & holes])) & (lab > 0)
@@ -469,85 +546,57 @@ def scene(rgbA, L, ground_row):
 
 # ---------------------------------------------------------------- the lines
 
-# Each part from the sharper photo: C between the SEAMS (frame columns), A
-# outside them, blended across each seam's span. (C is out of focus toward
-# both sides and does not reach the rock's left end.)
-SEAMS = ((950, 1100), (2300, 2450))
-# Painted lines are found by their narrowness: a line is darker than the
-# brightest pixel within LINE_SIZE px of it by a share of the clay round it
-# (its depth), above LINE_HIGH to start a line and above LINE_LOW to carry it
-# on, so faint stretches of a line survive and grain does not. The brown
-# washes are broader than LINE_SIZE and have next to no depth. On the rock
-# (ROCK: the rock he sits on, round the bow case, and the rock under his
-# raised foot) some wash strokes are narrow too, and fainter than the
-# painter's lines: there a line must reach ROCK_HIGH (carried on above
-# ROCK_LOW). The lines are thinned to their centres and redrawn even. The
-# black glaze inside the scene (the window between his hanging leg and the
-# rock narrowing to a stroke along his heel; the bow case's black) is drawn
-# solid where it is wide and as a line where it is not.
-LINE_SIZE, LINE_LOW, LINE_HIGH, ROCK_LOW, ROCK_HIGH = 11, 0.12, 0.28, 0.2, 0.4
+# Painted lines: local contrast (maps) with hysteresis, LINE_LOW to carry a
+# line on and LINE_HIGH to start one; drawn at their own width (where the
+# contrast is at least half the strongest within HALF_R px), along their
+# centres, never thinner than LINE_MIN px. A piece shorter than LINE_LEN px
+# (along its centre) is grain; one shorter than SHORT_LEN whose contrast never
+# reaches SHORT_C is grain too. The brown washes are broader than the closing
+# and give next to no contrast inside.
+LINE_LOW, LINE_HIGH, HALF_R, LINE_MIN = 14, 30, 3, 3.5
+LINE_LEN, SHORT_LEN, SHORT_C = 14, 40, 45
+HOLE, MASK_SIGMA, SPUR, WIDTH_SIGMA = 12, 1.5, 7, 6.0
+# The outline, drawn EDGE px wide inside the figure's edge; lines ending within
+# EDGE_ZONE px of the edge are carried straight on to it (the last END_RUN px
+# give their direction), and none are found nearer the edge than that (the
+# half-tone between clay and ground passes for a line there).
+EDGE, EDGE_ZONE, END_RUN = 5.0, 7.0, 8
+# On the rock (ROCK: the rock he sits on, and the rock under his raised foot)
+# only black lines are drawn: a line there must have a tenth of its pixels
+# darker than ROCK_DARK times the clay round it (r), and be ROCK_MIN px long.
+# The rock's own thin strokes are brown dilute paint, like its washes, and are
+# left out. His gear (GEAR: the bow, the bow case and its straps) lies on the
+# rock with almost no wash under it; there the lines are found as on him,
+# faint ones included, and pieces shorter than GEAR_MIN are wash or a crack.
 ROCK = [
-    # the rock he sits on: from the ground left of it, under his right hand
-    # and thumb, along the bottom of the black window under his arm, down the
-    # left edge of his cloak where it hangs over the rock and along its hem,
-    # and down the black between the rock and his hanging leg to the ground line
     [(0, 2420), (0, 1300), (950, 1300), (950, 1380), (1050, 1440), (1095, 1442), (1222, 1372), (1290, 1378),
      (1302, 1460), (1335, 1500), (1345, 1435), (1880, 1440), (1975, 1480), (2030, 1530), (2075, 1570), (2105, 1610),
      (2112, 1650), (2105, 1705), (2130, 1715), (2200, 1718), (2260, 1695), (2300, 1665), (2350, 1700),
      (2500, 1850), (2650, 2000), (2690, 2070), (2700, 2250), (2750, 2420)],
-    # the rock under his raised foot, below its sole, right of his hanging foot
     [(2895, 1840), (3060, 1815), (3200, 1790), (3350, 1790), (3350, 2420), (3140, 2420), (3130, 2290),
      (3020, 2240), (2950, 2200), (2900, 2050)],
 ]
-# On the rock only black lines are drawn: a line there must have a tenth of
-# its pixels darker than ROCK_DARK times the clay, and be ROCK_MIN px long.
-# The rock's own thin strokes are brown dilute paint, like its washes, and
-# are left out. His gear (GEAR: the bow, the bow case and its straps) lies on
-# the rock with almost no wash under it; there the lines are found as on him,
-# faint ones included (the bow's inner curve, the outer curve of the case's
-# lid, the straps' edges). The space between the two straps, where the rock's
-# washes show, is left out of it.
 ROCK_DARK, ROCK_MIN = 0.35, 60
 GEAR = [(1630, 1395), (1795, 1395), (1800, 1560), (1850, 1640), (1950, 1690), (1990, 1765), (2250, 1765),
         (2335, 1795), (2365, 1860), (2365, 1990), (2250, 2005), (2150, 2005), (2120, 2100), (2250, 2120),
         (2355, 2160), (2360, 2335), (1950, 2335), (1840, 2210), (1665, 2070), (1550, 2070), (1462, 1735),
         (1622, 1580)]
-GEAR_MIN = 40  # the gear's lines are long: pieces shorter than this there are wash or a crack
+GEAR_MIN = 40
 # Black paint the colours miss (A shows it brown-black, not as dark as the
-# ground), drawn as its own filled shape. On the bow case (QUIVER: the case
-# with its band of dots, the black shapes painted on it, the arrowhead, and
-# the black at its foot): paint in A darker than QUIVER_SEED times the clay,
-# joined by paint darker than QUIVER_GROW; each piece of it that is at least
-# 2 * QUIVER_THICK px wide somewhere is filled whole, thin parts and all,
-# and the thin pieces are lines. (A, not the blend: in C the glaze's sheen
-# lightens the black, and the fill came out patchy. The clay it is measured
-# against is the lightest within QUIVER_CLAY px: inside black wider than the
-# usual 25 px window, that window finds only black.)
-# Along BLACK_BANDS (the broad dark strokes that outline his feet against the
-# rock: heel and sole of his hanging foot, its instep, and the sole of his
-# raised foot to its end under the toes; and the stroke down the back of his
-# raised calf, its broad top and its narrower lower part; points along each,
-# and a half-width in px), paint darker than BLACK_K joined by paint darker
-# than BAND_LOW.
+# ground), drawn solid. On the bow case (QUIVER, ARROWHEAD): paint darker
+# than QUIVER_SEED times the wide clay level (rA), joined by paint darker than
+# QUIVER_GROW; pieces at least 2 * QUIVER_THICK px wide somewhere are filled
+# whole. Along BLACK_BANDS (the broad dark strokes that outline his feet
+# against the rock, and the stroke down the back of his raised calf: points
+# along each, and a half-width in px), paint darker than BLACK_K joined by
+# paint darker than BAND_LOW. Glaze inside the scene at least 2 * THICK px
+# wide stays solid (the top of his head, a thick stroke at his heel).
 QUIVER = [(1685, 1773), (1752, 1665), (1900, 1660), (1945, 1700), (1950, 1790), (2027, 1915), (2077, 1990),
           (2093, 2107), (2043, 2157), (2127, 2190), (2143, 2307), (1977, 2323), (1918, 2223), (1835, 2107),
           (1752, 1995), (1650, 1985), (1645, 1915), (1685, 1857)]
 ARROWHEAD = [(1570, 2005), (1640, 2005), (1640, 2068), (1570, 2068)]
-QUIVER_SEED, QUIVER_GROW, QUIVER_THICK, QUIVER_CLAY = 0.3, 0.35, 4.5, 81
+QUIVER_SEED, QUIVER_GROW, QUIVER_THICK = 0.3, 0.35, 4.5
 BLACK_K, BAND_LOW = 0.3, 0.45
-# The bow's inner line, a fine line fainter than the rock test passes, from
-# the hem of his cloak down to where the found line takes over (BOW_LINE,
-# placed by hand and snapped to the paint within BOW_SNAP px).
-BOW_LINE = [(1655, 1402), (1664, 1420), (1684, 1444), (1700, 1465), (1708, 1480), (1713, 1500), (1716, 1540),
-            (1715, 1560), (1713, 1580), (1710, 1600), (1705, 1620), (1699, 1640), (1692, 1660), (1685, 1680),
-            (1677, 1700), (1668, 1720)]
-# The outer line round the right end of the strap's loop thins out there,
-# just past GEAR, and the rock test drops it (John, 2026-10-03: "you also
-# missed part of the strap ... for the quiver"): placed by hand the same way
-# (STRAP_LINE), between the ends of the found line.
-STRAP_LINE = [(2345, 1822), (2357, 1833), (2366, 1847), (2372, 1862), (2376, 1880), (2376, 1895), (2374, 1910),
-              (2368, 1924)]
-BOW_SNAP = 4
 BLACK_BANDS = [
     ([(2700, 2040), (2745, 2075), (2765, 2105), (2750, 2140), (2735, 2180), (2727, 2212), (2735, 2235), (2770, 2248),
       (2820, 2258), (2870, 2275), (2930, 2300), (3000, 2322), (3035, 2332)], 16),
@@ -556,316 +605,234 @@ BLACK_BANDS = [
     ([(2512, 1270), (2500, 1320), (2505, 1370), (2540, 1420), (2585, 1465)], 32),
     ([(2585, 1465), (2620, 1505), (2648, 1550), (2668, 1590), (2690, 1640), (2705, 1680), (2718, 1712)], 22),
 ]
-# Paint at least 2 * THICK px wide and as dark as the glaze stays solid: the
-# top of his head, a thick stroke at his heel.
 THICK = 6
-# The toes of his raised foot (FINE) lie closer together than the line test
-# can hold apart; there the lines are the paint itself, darker than PAINT_K
-# times the clay round it, thinned to their centres.
-FINE = [[(2975, 1735), (3095, 1735), (3095, 1798), (2975, 1798)]]
-PAINT_K = 0.62
-# Lines broken by wear or by a faint stretch of the brush are joined across
-# their gaps (join_gaps): two line ends at most JOIN_GAP px apart, each
-# pointing at the other within JOIN_TURN degrees, the two lines running the
-# same way within JOIN_BEND degrees; the joining curve crosses no other line
-# and stays inside him.
-JOIN_GAP, JOIN_TURN, JOIN_BEND = 35, 30.0, 45.0
-# Then a second pass for faint straight lines that the line test breaks into
-# dashes (the upper strap's top edge, the case's right side): ends up to
-# DASH_GAP px apart, pointing at each other within DASH_TURN degrees.
-DASH_GAP, DASH_TURN, DASH_BEND = 80, 12.0, 18.0
-# John's own traces (philoctetes_traces.json: his strokes as polylines along
-# their centres, and the marks he filled in, registered onto this frame by
-# SIFT). The head (2026-10-03): inside the region his outline encloses, and
-# within a few px of his marks (the zone), his trace replaces the found
-# drawing. His strokes are drawn at TRACE_PEN px, the width of his own (6-9
-# px on the crop he traced, at twice this scale), his filled marks solid.
-# Black glaze inside his outline (the top of the head; the brushy brown
-# patches of thinner glaze inside it, holes up to TRACE_HOLE_MAX px, filled)
-# is drawn solid where it spreads over TRACE_BLACK_MIN px; his strokes lying
-# inside it are drawn light (the fillet he outlined round the head). The
-# figure's area follows his outline: inside it is the head; within
-# TRACE_NEAR px outside it only clean clay stays (the reserved rim round the
-# top of the head); and where his line runs within TRACE_EDGE px of the
-# area's edge, his line stands for the outline.
-TRACES = {k: v for k, v in json.loads((Path(__file__).parent / "philoctetes_traces.json").read_text()).items()
-          if k != "note"}
-TRACE_PEN, TRACE_NEAR, TRACE_EDGE, TRACE_BLACK_MIN, TRACE_HOLE_MAX = 4.0, 20, 6, 3000, 4000
-# The feet and hands (2026-10-03) are drawn from his traces the same way,
-# except that his outline sets the figure's area round the head alone
-# (AREA_PARTS; round the hands the area only reaches out to his contour,
-# HAND_GROW below), and his trace replaces the black paint found under it
-# round the head and the hands (PAINT_PARTS), where he drew the painted strokes as
-# single lines, often along one edge of a stroke. Round the feet his lines run
-# along the rock's brown washes, which the clean-clay rule would cut out of
-# the figure, and his toes close pockets of ground under them: there the
-# scene's own edge stands, and the black paint found (the bands, the broad
-# stroke down his calf) stays under his lines. Where two of his lines, or
-# one of his lines and the figure's edge, run within 2 * BAND_R px of each
-# other, the paint between them darker than BAND_LOW times the clay is drawn
-# solid too (BAND_PARTS): the dark bands outlining his feet, whose edges he
-# traced. His ink ends a pen's half-width past the figure (his toes reach
-# over the ground line; where his line runs further out, the found outline
-# stands), and the ground within BAND_R px of his lines is left open
-# (lw.trace_svg open_holes): a dark band at the figure's edge lies far from
-# clay on its outer side, and would get the clay rim that keeps a lone line
-# visible on the dark theme.
-AREA_PARTS, PAINT_PARTS, BAND_PARTS, BAND_R = ("head",), ("head", "right_hand", "left_hand"), ("feet",), 18
-# The hands (2026-10-03): his single lines run along the painted strokes,
-# often by one edge of a stroke 10-15 px wide, so his trace replaces the
-# lines found within HAND_ZONE px of his (the centre lines of those
-# strokes); and where his contour runs up to HAND_GROW px outside the edge
-# the colours give, the figure's area reaches out to it, as round the head,
-# a window giving way: 16 px round the left hand (his line over the knee
-# runs up to 15 px outside, past the browner stripe along the edge), 10
-# round the right, whose wrist meets his strokes up the cut-off tree trunk
-# (9-29 px out), which stay out.
-HAND_PARTS, HAND_ZONE, HAND_GROW = ("right_hand", "left_hand"), 16, {"right_hand": 10, "left_hand": 16}
-# Where his line ends beside the found outline, a few px to one side, so
-# that join_gaps (below) cannot pair the two ends (by the right thumb, along
-# the window there; twice along the left arm's edge, once where his crop
-# ends), a short stroke joins them (HAND_JOINS; John, 2026-10-03: "Something
-# like this just to connect the lines").
-HAND_JOINS = [[(1385, 1293), (1392, 1302)], [(2345, 857), (2354, 862)], [(2243, 977), (2251, 982)]]
-# His hair and beard get a half tone where the vase has its brown wash (John,
-# 2026-10-03: "can you do a half-dark tone for the beard to mimic the tone of
-# the original on the beard?", "same for hair"): paint darker than TONE_K
-# times the clay within TONE_CLAY px, inside his outline of the head, drawn
-# as a third path in the line colour at TONE opacity, under the lines. On a
-# light page it shows grey, on the dark theme's clay a darker clay, as the
-# thinned glaze does on the vase. (0.45 at first; John: "the original wasn't
-# just a different tone but also somewhat less opaque".)
-TONE_PARTS, TONE, TONE_K, TONE_CLAY = ("head",), 0.3, 0.72, 81
+# The dark strokes round his hanging foot (BLACK_BANDS 0 and 1: heel and sole,
+# and down the front of his shin to the toes) are dark brown paint, darkest in
+# the core (rA 0.14-0.3) with a browner fringe: drawn as their brushstroke, a
+# wash in SHADOW_STEPS (as the hair's) over the paint darker than SHADOW_K
+# within SHADOW_PAD px of the band's corridor, near black in the core (John,
+# 2026-10-09: "the shadow around his foot needs some correcting").
+SHADOW, SHADOW_PAD, SHADOW_K, SHADOW_SIGMA, SHADOW_MIN = (0, 1), 8, 0.75, 1.5, 40
+SHADOW_STEPS = [("rA", 0.75, 0.35), ("rA", 0.55, 0.6), ("rA", 0.42, 0.85), ("rA", 0.3, 1.0)]
+# The bow's inner line and the outer line round the end of the strap's loop
+# are fainter than any test passes: placed by hand, snapped to the paint
+# within BOW_SNAP px (John, 2026-10-03: "part of the top outside curve of the
+# bow isn't drawn"; "you also missed part of the strap").
+BOW_LINE = [(1655, 1402), (1664, 1420), (1684, 1444), (1700, 1465), (1708, 1480), (1713, 1500), (1716, 1540),
+            (1715, 1560), (1713, 1580), (1710, 1600), (1705, 1620), (1699, 1640), (1692, 1660), (1685, 1680),
+            (1677, 1700), (1668, 1720)]
+STRAP_LINE = [(2345, 1822), (2357, 1833), (2366, 1847), (2372, 1862), (2376, 1880), (2376, 1895), (2374, 1910),
+              (2368, 1924)]
+BOW_SNAP = 4
+# Breaks where the paint is worn or the photo fades (as clouds.py): line ends
+# facing each other across at most JOIN_MAX px (their last JOIN_RUN px
+# pointing at each other within JOIN_ANGLE degrees), where the contrast across
+# the gap has a median of JOIN_C or more and stays under JOIN_LOW for no more
+# than JOIN_FADE px together, and the join crosses no other line; ends pointing
+# straight at each other (within 10 degrees) across up to ALIGN_MAX, where the
+# contrast's median is ALIGN_C or more, and not along the edge (FAINT_EDGE).
+JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, JOIN_LOW, JOIN_FADE, JOIN_DOT = 35, 8, 20, 8, 4, 6, 40
+ALIGN_COS, ALIGN_C, ALIGN_MAX, FAINT_EDGE = np.cos(np.radians(10)), 5, 60, 8
+# His hair and beard: brown wash over the clay, darker strokes for the curls,
+# inside HEAD. The hair is the paint there darker than HAIR_K times the clay
+# over the wide window (rW: the narrow one finds only brown inside the hair)
+# and redder than HAIR_RB (red less blue: C's glare on the black glaze is
+# light but grey, and the glaze itself under 40; the brown 45-150), closed over HAIR_CLOSE px, in pieces of HAIR_MIN px or more, less the
+# black top of the head and his face (FACE: the profile, brow and eye, drawn as
+# lines); the clay between the strokes stays clay. Its wash in the line colour follows the photo's
+# darkness (smoothed over HAIR_SIGMA px) in HAIR_STEPS (map, level, total
+# opacity; pieces of HAIR_STEP_MIN px or more): only the brown paint, the
+# clay between the strokes left clear (John, 2026-10-09, of four treatments:
+# "D, but note the different dark and light intensities"), from the light
+# wash through the curl strokes (r: darker than the wash round them) to the
+# darkest curls, whose glaze touches the black top of his head and is all but
+# black, so the hair grades into it ("he's not wearing a hat"); rH (below)
+# darkens it toward the top. As acharnians.py. No lines are drawn inside the hair.
+CAP_OPEN = 10
+# where the curls meet the ground: the back of his head, and the curls over
+# his forehead (elsewhere the brown stripe along his outline is not hair)
+HEAD_OPEN = [(1760, 600), (1760, 90), (2460, 90), (2460, 470), (2345, 470), (2300, 440), (1990, 560), (1960, 600)]
+# the black top's brushstrokes: A's grey (no glare there; LAn = grey / 100),
+# the whole top at the first step's opacity and the darker strokes layered on
+CAP_STEPS = [("LAn", 9.0, 0.86)] + [("LAn", float(lv), float(op)) for lv, op in
+                                    zip(np.linspace(0.34, 0.17, 6), np.linspace(0.89, 0.99, 6))]
+CAP_SIGMA, CAP_MIN = 3.0, 60
+HAIR_EDGE = [[(1780, 250), (1960, 250), (1960, 600), (1780, 600)], [(2290, 370), (2370, 370), (2370, 470), (2290, 470)]]
+HAIR_K, HAIR_RB, HAIR_CLOSE, HAIR_MIN, HAIR_SIGMA = 0.78, 40, 2, 100, 6.0
+# Layered as the vase has it (John, 2026-10-09: "More blending of tones", then
+# "keep iterating on the hair"; of three layerings he chose the one with the
+# most curls): the hair's mass as a soft tone (HAIR_STEPS, smoothed over
+# HAIR_SIGMA px), and on it the curl strokes, the paint darker than CURL_R
+# times the wash round it (r), sharp (CURL_STEPS, smoothed over CURL_SIGMA px,
+# in pieces of CURL_MIN px or more).
+HAIR_STEPS = [("rH", float(lv), float(op)) for lv, op in zip(np.linspace(0.8, 0.4, 6), np.linspace(0.22, 0.5, 6))]
+CURL_R, CURL_SIGMA, CURL_MIN = 0.8, 1.2, 25
+CURL_STEPS = [("rH", 9.0, 0.5), ("rH", 0.45, 0.68), ("rH", 0.36, 0.82), ("rH", 0.28, 0.92)]
+# rH: rW darkened toward the black top of his head, by CAP_DARK at its edge,
+# fading to nothing CAP_NEAR px away (John, 2026-10-09: "make the other hair
+# (especially those closest to the dark part on the top) darker so there's
+# less contrast between top of head and the rest")
+CAP_DARK, CAP_NEAR = 0.45, 120
+# and in his goatee (BEARD, frame px), by BEARD_DARK, feathered over
+# BEARD_FEATHER px (John, 2026-10-09: "And make the goatee area darker")
+BEARD = [(1980, 500), (2100, 470), (2180, 520), (2190, 600), (2160, 690), (2080, 710), (2000, 680), (1970, 600)]
+BEARD_DARK, BEARD_FEATHER = 0.35, 12
+HAIR_STEP_MIN, HAIR_HOLE = 60, 200
+# his face's painted marks (brow, eye, pupil), at their own shape: r under
+# FACE_K, or A's rA under FACE_KA (C's glare lightens the glossy brow)
+FACE_K, FACE_KA = 0.62, 0.5
+FACE = [(2130, 445), (2170, 425), (2200, 430), (2240, 450), (2290, 465), (2340, 470), (2350, 520), (2300, 600),
+        (2180, 600), (2150, 555), (2140, 510), (2125, 470)]
 
 
-def poly(shape, pts):
-    return lw.polygon_mask(shape, np.array(pts, float))
-
-
-def trace_line(shape, pts):
-    """A polyline through pts, 1 px wide."""
-    from skimage.draw import line
-    m = np.zeros(shape, bool)
-    for (xa, ya), (xb, yb) in zip(pts[:-1], pts[1:]):
-        rr, cc = line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
-        ok = (rr >= 0) & (rr < shape[0]) & (cc >= 0) & (cc < shape[1])
-        m[rr[ok], cc[ok]] = True
-    return m
-
-
-def seam_weight(rgbC):
-    """C's weight in each pixel (A has the rest)."""
-    x = np.arange(rgbC.shape[1], dtype=float)
-    (a0, a1), (b0, b1) = SEAMS
-    w = np.clip((x - a0) / (a1 - a0), 0, 1) * np.clip((b1 - x) / (b1 - b0), 0, 1)
-    return w[None, :] * (ndi.binary_erosion(rgbC.max(2) > 3, iterations=8))
-
-
-def darkness(rgb):
-    """Each pixel's brightness over that of the clay round it, the glaze's pale
-    highlights counted as dark (as antigone.paint)."""
-    L = lum(rgb)
-    mx, mn = rgb.max(2), rgb.min(2)
-    hl = ((mx - mn) / np.maximum(mx, 1) < 0.5) & (mx > 70) & ndi.binary_dilation(ndi.gaussian_filter(L, 1.0) < 70,
-                                                                                  iterations=3)
-    L = np.where(ndi.binary_dilation(hl, iterations=1), np.minimum(L, 15), L)
-    sm = ndi.gaussian_filter(L, 1.0)
-    clay = ndi.gaussian_filter(ndi.grey_closing(sm, size=(25, 25)), 4)
-    return sm / np.maximum(clay, 1.0)
-
-
-def centre_lines(m, spur=6, min_len=14):
-    """Centre lines of a stroke mask, side spurs under `spur` px pruned and
-    pieces under `min_len` px dropped (as in antigone.py)."""
+def centre_lines(m, spur, min_len):
+    """Centre lines of a stroke mask, side spurs under `spur` px pruned (the
+    line ends kept), pieces under `min_len` px dropped."""
     k = np.ones((3, 3), int)
     k[1, 1] = 0
     sk = morphology.skeletonize(m)
     s = sk.copy()
-    for _ in range(spur):
+    for _ in range(spur):  # peel the ends...
         s &= ~((ndi.convolve(s.astype(int), k, mode="constant") == 1) & s)
     front = (ndi.convolve(s.astype(int), k, mode="constant") == 1) & s
-    for _ in range(spur):
+    for _ in range(spur):  # ...and grow the surviving ends back
         front = ndi.binary_dilation(front, structure=np.ones((3, 3))) & sk & ~s
         s |= front
     return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
 
 
-def join_gaps(cl, keep_in, max_gap=JOIN_GAP, max_turn=JOIN_TURN, max_bend=JOIN_BEND, look=12):
-    """Curves joining the line ends of the centre lines cl across their gaps
-    (as oedipus_syracuse.join_gaps, on centre lines): each end's direction is
-    taken from its last `look` px; the curve may touch cl only at its two
-    ends and must stay inside keep_in. Returns the curves, 1 px wide."""
-    from scipy.spatial import cKDTree
+def even_lines(mask, own):
+    """The lines of `mask` redrawn along their centres, each at the width `own`
+    has there (the paint's own width), smoothed along the line over
+    WIDTH_SIGMA px, at least LINE_MIN (as clouds.py). The mask is smoothed
+    first in PhotoCraft (Gaussian, cut at half)."""
+    mask = morphology.remove_small_holes(mask, max_size=HOLE)
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray((mask * 255).astype(np.uint8)).save(Path(td) / "m.png")
+        pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": MASK_SIGMA}))
+        mask = grey(Path(td) / "ms.png") >= 128
+    c = centre_lines(mask, spur=SPUR, min_len=LINE_LEN)
+    w = 2 * ndi.distance_transform_edt(own)
+    num, den = (ndi.gaussian_filter(a, WIDTH_SIGMA) for a in (np.where(c, w, 0.0), c.astype(float)))
+    half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_MIN) / 2, 0.0)
+    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
+    return d <= half[iy, ix], c, half
+
+
+def along(shape, pts, width):
+    """A line `width` px wide along points (x, y)."""
+    P = np.array(pts, float)
+    path = np.vstack([np.linspace(a, b, int(np.hypot(*(b - a))) * 2 + 2) for a, b in zip(P[:-1], P[1:])])
+    m = np.zeros(shape, bool)
+    iy, ix = path[:, 1].round().astype(int), path[:, 0].round().astype(int)
+    ok = (iy >= 0) & (iy < shape[0]) & (ix >= 0) & (ix < shape[1])
+    m[iy[ok], ix[ok]] = True
+    return ndi.distance_transform_edt(~m) <= width / 2
+
+
+def to_outline(c, half, to_edge):
+    """Each line ending within EDGE_ZONE + 2 px of the figure's edge, carried
+    straight on until it meets the outline, at its own width."""
     k = np.ones((3, 3), int)
     k[1, 1] = 0
-    lab, _ = ndi.label(cl, structure=np.ones((3, 3)))
-    ends = np.argwhere(cl & (ndi.convolve(cl.astype(int), k, mode="constant") == 1))
-    out = np.zeros_like(cl)
-    if len(ends) < 2:
-        return out
-    heads = []
-    for y, x in ends:
-        path, seen, cur = [(y, x)], {(y, x)}, (y, x)
-        for _ in range(look):
-            nxt = [(cur[0] + dy, cur[1] + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
-                   if (dy or dx) and 0 <= cur[0] + dy < cl.shape[0] and 0 <= cur[1] + dx < cl.shape[1]
-                   and cl[cur[0] + dy, cur[1] + dx] and (cur[0] + dy, cur[1] + dx) not in seen]
+    ends = np.argwhere(c & (ndi.convolve(c.astype(int), k, mode="constant") == 1))
+    H, W = c.shape
+    out = np.zeros(c.shape, bool)
+    for e in ends:
+        if to_edge[tuple(e)] > EDGE_ZONE + 2:
+            continue
+        path, seen = [tuple(e)], {tuple(e)}
+        for _ in range(END_RUN):
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dy or dx)
+                   and 0 <= y + dy < H and 0 <= x + dx < W and c[y + dy, x + dx] and (y + dy, x + dx) not in seen]
             if not nxt:
                 break
-            cur = nxt[0]
-            seen.add(cur)
-            path.append(cur)
-        P = np.array(path, float)
-        d = P[0] - P[len(P) // 2:].mean(0) if len(P) >= 6 else np.zeros(2)
-        n = np.hypot(*d)
-        heads.append(d / n if n else d)
-    heads = np.array(heads)
-    cos_max, cos_bend = np.cos(np.radians(max_turn)), np.cos(np.radians(max_bend))
-    pairs = []
-    for i, j in cKDTree(ends).query_pairs(max_gap):
-        if lab[tuple(ends[i])] == lab[tuple(ends[j])]:
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        if len(path) < END_RUN / 2:
             continue
-        v = (ends[j] - ends[i]).astype(float)
-        g = np.hypot(*v)
-        if g < 2:
+        d = np.array(path[0], float) - np.array(path[-1], float)
+        d /= np.hypot(*d)
+        q = np.array(e, float)
+        for _ in range(int(6 * EDGE_ZONE)):
+            q = q + d * 0.5
+            i, j = int(round(q[0])), int(round(q[1]))
+            if not (0 <= i < H and 0 <= j < W) or to_edge[i, j] <= EDGE:
+                break
+        else:
             continue
-        v /= g
-        a, b = heads[i] @ v, heads[j] @ -v
-        if a >= cos_max and b >= cos_max and heads[i] @ -heads[j] >= cos_bend:
-            pairs.append((g * (3 - a - b), i, j, g))
-    used = set()
-    for _, i, j, g in sorted(pairs):
-        if i in used or j in used:
-            continue
-        p0, p3 = ends[i].astype(float), ends[j].astype(float)
-        p1, p2 = p0 + heads[i] * g / 3, p3 + heads[j] * g / 3
-        tt = np.linspace(0, 1, int(g * 2) + 2)[:, None]
-        curve = (1 - tt) ** 3 * p0 + 3 * (1 - tt) ** 2 * tt * p1 + 3 * (1 - tt) * tt ** 2 * p2 + tt ** 3 * p3
-        cy = np.clip(np.round(curve[:, 0]).astype(int), 0, cl.shape[0] - 1)
-        cx = np.clip(np.round(curve[:, 1]).astype(int), 0, cl.shape[1] - 1)
-        off = (np.hypot(*(curve - p0).T) > 3) & (np.hypot(*(curve - p3).T) > 3)
-        if ndi.binary_dilation(cl, iterations=1)[cy[off], cx[off]].any() or not keep_in[cy, cx].all():
-            continue
-        used |= {i, j}
-        out[cy, cx] = True
+        out |= along(c.shape, [e[::-1], q[::-1]], 2 * half[tuple(e)])
     return out
 
 
-def traced(shape):
-    """John's traces on the frame, per part: his strokes' centre lines, the
-    marks he filled, the walls they make, the region his outline encloses,
-    and the zone where his trace replaces the found drawing."""
-    parts = {}
-    for name, t in TRACES.items():
-        centre = np.zeros(shape, bool)
-        for pts in t["lines"]:
-            centre |= trace_line(shape, pts)
-        solids = np.zeros(shape, bool)
-        for pts in t["solids"]:
-            solids |= poly(shape, pts)
-        walls = ndi.binary_dilation(centre, iterations=1) | solids
-        inside = ndi.binary_fill_holes(ndi.binary_closing(walls, structure=morphology.disk(2)))
-        parts[name] = dict(centre=centre, solids=solids, walls=walls, inside=inside,
-                           zone=inside | ndi.binary_dilation(walls, iterations=HAND_ZONE if name in HAND_PARTS else 6))
-    return parts
+def join_breaks(lines, contrast, to_edge):
+    """The breaks in `lines` that JOIN_* describe, joined (as clouds.py)."""
+    from scipy.spatial import cKDTree
+    sk = morphology.skeletonize(lines)
+    nb = ndi.convolve(sk.astype(np.uint8), np.ones((3, 3), np.uint8), mode="constant") - 1
+    ends = np.argwhere(sk & (nb == 1))
+    dt = ndi.distance_transform_edt(lines)
+    H, W = sk.shape
+
+    def run_back(p):
+        path, seen = [tuple(p)], {tuple(p)}
+        for _ in range(JOIN_RUN):
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if (dy or dx) and 0 <= y + dy < H and 0 <= x + dx < W and sk[y + dy, x + dx]
+                   and (y + dy, x + dx) not in seen]
+            if not nxt:
+                break
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        return np.array(path, float)
+
+    runs = [run_back(p) for p in ends]
+    lab = ndi.label(lines, structure=np.ones((3, 3)))[0]
+    size = np.bincount(lab.ravel())
+    out = np.zeros_like(lines)
+    used = set()
+    cos = np.cos(np.radians(JOIN_ANGLE))
+    pairs = sorted(cKDTree(ends).query_pairs(ALIGN_MAX), key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]])))
+    for i, j in pairs:
+        if i in used or j in used or len(runs[i]) < JOIN_RUN / 2 or len(runs[j]) < JOIN_RUN / 2:
+            continue
+        a, b = ends[i].astype(float), ends[j].astype(float)
+        if lab[tuple(ends[i])] == lab[tuple(ends[j])]:
+            continue
+        u = (b - a) / np.hypot(*(b - a))
+        da, db = runs[i][0] - runs[i][-1], runs[j][0] - runs[j][-1]
+        if da @ u < cos * np.hypot(*da) or db @ -u < cos * np.hypot(*db):
+            continue
+        t = np.linspace(0.1, 0.9, max(int(np.hypot(*(b - a))), 3))
+        q = a[None] + t[:, None] * (b - a)[None]
+        c = ndi.map_coordinates(contrast, q.T, order=1)
+        low = np.r_[0, (c < JOIN_LOW).astype(int), 0]
+        starts, stops = np.nonzero(np.diff(low) == 1)[0], np.nonzero(np.diff(low) == -1)[0]
+        aligned = da @ u >= ALIGN_COS * np.hypot(*da) and db @ -u >= ALIGN_COS * np.hypot(*db)
+        if not aligned and np.hypot(*(b - a)) > JOIN_MAX:
+            continue
+        if aligned:
+            if np.median(c) < ALIGN_C or np.median(ndi.map_coordinates(to_edge, q.T, order=1)) < FAINT_EDGE:
+                continue
+        elif np.median(c) < JOIN_C or (len(starts) and (stops - starts).max() > JOIN_FADE):
+            continue
+        mid = (np.hypot(*(q - a).T) > 2) & (np.hypot(*(q - b).T) > 2)
+        hit = set(lab[tuple(q[mid].round().astype(int).T)]) - {0, lab[tuple(a.astype(int))], lab[tuple(b.astype(int))]}
+        if any(size[k] >= JOIN_DOT for k in hit):
+            continue
+        w = np.median([dt[tuple(r.astype(int))] for r in np.vstack([runs[i], runs[j]])]) * 2
+        out |= along(lines.shape, [(a - 1.5 * u)[::-1], (b + 1.5 * u)[::-1]], max(w, LINE_MIN))
+        used |= {i, j}
+    return out
 
 
-def traced_area(area, windows, rgbA, parts):
-    """The scene's area and windows with the outline of each part in
-    AREA_PARTS: inside it is the figure; within TRACE_NEAR px outside it only
-    clean clay stays. Round the hands (HAND_PARTS) the area reaches out to his
-    contour, a window giving way to it, up to HAND_GROW px past the edge."""
-    _, clay = classes(rgbA)
-    clay = ndi.binary_opening(clay, structure=morphology.disk(2))
-    out = ndi.distance_transform_edt(~area)  # px outside the scene's own edge
-    for name, t in parts.items():
-        if name in AREA_PARTS:
-            near = ndi.binary_dilation(t["walls"], iterations=TRACE_NEAR)
-            area = (area & ~(near & ~t["inside"] & ~clay)) | t["inside"]
-        if name in HAND_PARTS:  # out to his contour where it runs just outside the edge
-            grown = ndi.binary_closing(area | t["walls"], structure=morphology.disk(HAND_GROW[name] // 2))
-            grown &= (ndi.distance_transform_edt(~t["walls"]) <= HAND_GROW[name]) & (out <= HAND_GROW[name])
-            area, windows = area | grown, windows & ~grown
-    lab, n = ndi.label(area)
-    area = lab == 1 + int(np.argmax(ndi.sum(np.ones(area.shape), lab, np.arange(1, n + 1))))
-    return ndi.binary_fill_holes(area | windows) & ~windows, windows
-
-
-def traced_ink(parts, rgbA, g, area):
-    """The traced parts' ink (his strokes, his filled marks, the black glaze
-    inside his outline, his strokes inside it light, the dark bands between
-    his lines) and the half tone (g: the frame's luminance; area: the figure,
-    windows excluded)."""
-    glaze, _ = classes(rgbA)
-    glaze = ndi.binary_closing(ndi.binary_opening(glaze, structure=morphology.disk(2)), structure=morphology.disk(3))
-    rw = g / np.maximum(ndi.gaussian_filter(ndi.grey_closing(g, size=(TONE_CLAY, TONE_CLAY)), 10), 1.0)
-    ink = np.zeros(g.shape, bool)
-    tone = np.zeros(g.shape, bool)
-    for name, t in parts.items():
-        walls, inside, centre = t["walls"], t["inside"], t["centre"]
-        black = glaze & inside & ~walls & area
-        black = ndi.binary_closing(black | (walls & ndi.binary_dilation(black, iterations=3)),
-                                   structure=morphology.disk(4)) & inside
-        lab, n = ndi.label(ndi.binary_fill_holes(black) & ~black)
-        small = np.zeros(n + 1, bool)
-        small[1:] = ndi.sum(np.ones(g.shape), lab, np.arange(1, n + 1)) < TRACE_HOLE_MAX
-        black = morphology.remove_small_objects(black | small[lab], max_size=TRACE_BLACK_MIN)
-        lab, n = ndi.label(centre, structure=np.ones((3, 3)))
-        light_piece = np.zeros(n + 1, bool)
-        light_piece[1:] = ndi.mean(ndi.binary_erosion(black, iterations=2).astype(float), lab, np.arange(1, n + 1)) > 0.8
-        light = ndi.binary_fill_holes(ndi.distance_transform_edt(~(centre & light_piece[lab])) <= TRACE_PEN / 2)
-        black &= ~light
-        ink |= ((ndi.distance_transform_edt(~centre) <= TRACE_PEN / 2) & ~light) | t["solids"] | black
-        if name in BAND_PARTS:
-            band = ndi.binary_closing(walls | ~area, structure=morphology.disk(BAND_R)) & ~walls & area
-            band &= (rw < BAND_LOW) & (ndi.distance_transform_edt(~walls) <= 2 * BAND_R)
-            ink |= ndi.binary_opening(band, structure=morphology.disk(2))
-        if name in TONE_PARTS:
-            paint = ndi.binary_opening((rw < TONE_K) & inside, structure=morphology.disk(1))
-            paint = ndi.gaussian_filter(paint.astype(np.float32), 2.0) > 0.5
-            paint = morphology.remove_small_holes(morphology.remove_small_objects(paint, max_size=80), max_size=80)
-            tone |= paint & ~walls & ~black
-    return ink, tone
-
-
-def add_tone(svg, tone, box):
-    """Add the half tone to a drawing written by lw.trace_svg (box: the crop
-    box it returned) as a third path, class "tone", in the line colour at TONE
-    opacity, between the body and the lines."""
-    x0, y0, x1, y1 = box
-    d, _ = lw.potrace_d(lw.resample_ink(tone[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
-    s = svg.read_text().replace('<path class="lines"', f'<path class="tone" fill="currentColor" fill-opacity="{TONE}" '
-                                f'stroke="none" d="{d}"/><path class="lines"', 1)
-    svg.write_text(s)
-
-
-def outline(area, w):
-    """The scene's edge, w wide, straddling it (a quarter outside)."""
-    return (area & (ndi.distance_transform_edt(area) <= 0.75 * w)) | (~area & (ndi.distance_transform_edt(~area) <= 0.25 * w))
-
-
-def drawing(rgbC, rgbA, area, painted, w, parts):
-    """The ink (outline, painted lines, black paint, John's traces) and the
-    half tone."""
-    from skimage.filters import apply_hysteresis_threshold
+def black_paint(m, area, painted):
+    """The solid black: the bow case's black, the bands along his feet, and
+    glaze inside the scene wider than 2 * THICK px."""
     shape = area.shape
-    wC = seam_weight(rgbC)
-    r = wC * darkness(rgbC) + (1 - wC) * darkness(rgbA)
-    g = ndi.gaussian_filter(lum(wC[..., None] * rgbC + (1 - wC[..., None]) * rgbA), 1.0)
-    depth = (ndi.grey_closing(g, size=(LINE_SIZE, LINE_SIZE)) - g) / np.maximum(
-        ndi.gaussian_filter(ndi.grey_closing(g, size=(25, 25)), 4), 1.0)
-    rock = np.zeros(shape, bool)
-    for p in ROCK:
-        rock |= poly(shape, p)
-    inner = ndi.binary_erosion(area, structure=morphology.disk(4))
-    zone = np.zeros(shape, bool)
-    paint_zone = np.zeros(shape, bool)  # where his trace replaces the found black paint too
-    for name, t in parts.items():
-        zone |= t["zone"]
-        if name in PAINT_PARTS:
-            paint_zone |= t["zone"]
-    LA = ndi.gaussian_filter(lum(rgbA), 1.0)
-    rA = LA / np.maximum(ndi.gaussian_filter(ndi.grey_closing(LA, size=(QUIVER_CLAY, QUIVER_CLAY)), 10), 1.0)
+    rA = m["rA"]
     quiver = (poly(shape, QUIVER) | poly(shape, ARROWHEAD)) & area
     lab, _ = ndi.label(quiver & (rA < QUIVER_GROW))
     seeds = np.unique(lab[quiver & (rA < QUIVER_SEED)])
@@ -874,68 +841,350 @@ def drawing(rgbC, rgbA, area, painted, w, parts):
     thick = np.zeros(n + 1, bool)
     thick[1:] = ndi.maximum(ndi.distance_transform_edt(black), lab, np.arange(1, n + 1)) >= QUIVER_THICK
     black = thick[lab]
-    for pts, half in BLACK_BANDS:
+    for k, (pts, half) in enumerate(BLACK_BANDS):
+        if k in SHADOW:
+            continue
         corridor = ndi.distance_transform_edt(~trace_line(shape, pts)) <= half
         lab, _ = ndi.label(corridor & (rA < BAND_LOW))
         seeds = np.unique(lab[corridor & (rA < BLACK_K)])
         black |= np.isin(lab, seeds[seeds > 0])
     black = ndi.binary_opening(black & area, structure=morphology.disk(1))
     black = morphology.remove_small_objects(ndi.gaussian_filter(black.astype(np.float32), 1.0) > 0.5, max_size=30)
-    solid = ndi.binary_fill_holes(ndi.binary_opening(painted, structure=morphology.disk(THICK))) | black
-    rock &= ~poly(shape, GEAR)
-    found = np.where(rock, apply_hysteresis_threshold(depth, ROCK_LOW, ROCK_HIGH),
-                     apply_hysteresis_threshold(depth, LINE_LOW, LINE_HIGH))
-    fine = np.zeros(shape, bool)
-    for p in FINE:
-        fine |= poly(shape, p)
-    found = np.where(fine, r < PAINT_K, found)
-    lines = (found | painted) & inner & ~zone & ~ndi.binary_dilation(solid, iterations=2)
-    lines = morphology.remove_small_objects(ndi.binary_opening(lines, structure=morphology.disk(1)), max_size=40)
-    lines = morphology.remove_small_holes(lines, max_size=40)  # pinholes in a line thin to loops
-    cl = centre_lines(lines)
-    # on the rock, only black lines (not the brown strokes of its washes)
-    lab, n = ndi.label(cl & rock, structure=np.ones((3, 3)))
-    idx = np.arange(1, n + 1)
-    drop = np.zeros(n + 1, bool)
-    if n:
-        dark = np.array([np.percentile(r[lab == i], 10) for i in idx])
-        drop[1:] = (ndi.sum(np.ones(shape), lab, idx) < ROCK_MIN) | (dark > ROCK_DARK)
-    cl &= ~drop[lab]
-    cl |= join_gaps(cl, inner & ~zone & ~solid)
-    cl |= join_gaps(cl, inner & ~zone & ~solid, DASH_GAP, DASH_TURN, DASH_BEND)
+    return ndi.binary_fill_holes(ndi.binary_opening(painted, structure=morphology.disk(THICK))) | black
+
+
+def shadow_zone(m, area):
+    """The paint of the shadow bands round his hanging foot (SHADOW_*)."""
+    shape = area.shape
+    corridor = np.zeros(shape, bool)
+    for k in SHADOW:
+        pts, half = BLACK_BANDS[k]
+        corridor |= ndi.distance_transform_edt(~trace_line(shape, pts)) <= half + SHADOW_PAD
+    z = corridor & area & (m["rA"] < SHADOW_K)
+    return morphology.remove_small_objects(ndi.binary_opening(z, structure=morphology.disk(1)), max_size=SHADOW_MIN)
+
+
+def hair_zone(m, area, cap, painted):
+    """His hair and beard (HAIR_*): the brown paint inside HEAD, and the glaze
+    of the darkest curls (painted), less the top of his head (cap) and his
+    face (FACE)."""
+    head = poly(area.shape, HEAD) & area & ~cap & ~poly(area.shape, FACE)
+    paint = ((m["rW"] < HAIR_K) & (m["RB"] > HAIR_RB)) | painted
+    brown = ndi.binary_closing(head & paint, structure=morphology.disk(HAIR_CLOSE)) & head
+    # specks of clay between the strokes, under HAIR_HOLE px, take the wash
+    # (white specks in the dark hair read as noise)
+    brown = morphology.remove_small_holes(brown, max_size=HAIR_HOLE) & head
+    return morphology.remove_small_objects(brown, max_size=HAIR_MIN)
+
+
+def drawing(m, area, painted, w):
+    """(ink, hair, solid): the lines, the hair's area, the solid black."""
+    from skimage.filters import apply_hysteresis_threshold
+    shape = area.shape
+    contrast, r = m["contrast"], m["r"]
+    solid = black_paint(m, area, painted)
+    # the black top of his head (opened over CAP_OPEN px: the dark curls
+    # touching its lower edge come off) is not solid but very dark layered
+    # brushstrokes (CAP_STEPS), so all the hair is the same (John, 2026-10-09:
+    # "the black part of the hair might work best as VERY dark layered
+    # brushstrokes so all the hair is same"); the dark curls are the hair's
+    # darkest wash
+    head = poly(shape, HEAD)
+    cap = biggest(ndi.binary_opening(biggest(solid & head), structure=morphology.disk(CAP_OPEN)))
+    solid &= ~head
+    hair = hair_zone(m, area, cap, painted)
+    shadow = shadow_zone(m, area) & ~solid
+    to_edge = ndi.distance_transform_edt(area)
+    keep_out = hair | ndi.binary_dilation(solid, iterations=2) | ndi.binary_dilation(shadow, iterations=3)
+    firm = apply_hysteresis_threshold(contrast, LINE_LOW, LINE_HIGH) & area & (to_edge >= EDGE_ZONE) & ~keep_out
+    rock = np.zeros(shape, bool)
+    for p in ROCK:
+        rock |= poly(shape, p)
     gear = poly(shape, GEAR)
-    lab, n = ndi.label(cl, structure=np.ones((3, 3)))
-    short = np.zeros(n + 1, bool)
-    short[1:] = ndi.sum(np.ones(shape), lab, np.arange(1, n + 1)) < GEAR_MIN
-    cl &= ~(short[lab] & gear)
-    bow = strokes(g, [BOW_LINE, STRAP_LINE], w, snap=BOW_SNAP)
-    lines = (ndi.distance_transform_edt(~cl) <= w / 2) | bow
-    t_ink, tone = traced_ink(parts, rgbA, g, area)
-    reach = ndi.distance_transform_edt(~area) <= TRACE_PEN / 2  # his ink ends a pen's half-width past the figure
-    centre = np.zeros(shape, bool)
-    for t in parts.values():
-        centre |= t["centre"]
-    edge = outline(area, w) & ~(ndi.distance_transform_edt(~(centre & reach)) <= TRACE_EDGE)  # there his line is the edge
-    # inside his zone round the feet the black paint is drawn as found, narrow
-    # parts too (a window's narrow end), not thinned to a line his own lines
-    # replace; round the head and the hands (PAINT_PARTS) his trace replaces it
-    paint = solid | (painted & zone)
-    ink = (lines & ~zone) | (paint & ~paint_zone) | (t_ink & reach) | edge
-    # round the hands, where his line ends a few px off the found outline that
-    # takes over from it, the two are joined (John, 2026-10-03: "Something
-    # like this just to connect the lines"): join_gaps on the drawing's centre
-    # lines there, as for the found lines
-    near = np.zeros(shape, bool)
-    for name, t in parts.items():
-        if name in HAND_PARTS:
-            near |= ndi.distance_transform_edt(~t["walls"]) <= HAND_ZONE
-    if near.any():
-        sk = morphology.skeletonize(ink & ndi.binary_dilation(near, iterations=12))
-        joins = join_gaps(sk, near) | join_gaps(sk, near, DASH_GAP, DASH_TURN, DASH_BEND)
-        ink |= ndi.distance_transform_edt(~joins) <= TRACE_PEN / 2
-        for pts in HAND_JOINS:
-            ink |= ndi.distance_transform_edt(~trace_line(shape, pts)) <= w / 2
-    return morphology.remove_small_objects(ink, max_size=60), tone
+    rock &= ~gear
+    lab, n = ndi.label(firm, structure=np.ones((3, 3)))
+    sk = morphology.skeletonize(firm)
+    idx = np.arange(1, n + 1)
+    length = np.bincount(lab[sk], minlength=n + 1)
+    top = np.zeros(n + 1)
+    top[1:] = ndi.maximum(contrast, lab, idx)
+    dark = np.ones(n + 1)
+    on_rock = np.zeros(n + 1)
+    on_gear = np.zeros(n + 1)
+    if n:
+        dark[1:] = ndi.minimum(ndi.minimum_filter(r, 3), lab, idx)
+        on_rock[1:] = ndi.mean(rock.astype(float), lab, idx)
+        on_gear[1:] = ndi.mean(gear.astype(float), lab, idx)
+    keep = (length >= LINE_LEN) & ~((length < SHORT_LEN) & (top < SHORT_C))
+    keep &= ~((on_rock > 0.5) & ((dark > ROCK_DARK) | (length < ROCK_MIN)))
+    keep &= ~((on_gear > 0.5) & (length < GEAR_MIN))
+    keep[0] = False
+    firm &= keep[lab]
+    near_max = ndi.maximum_filter(np.where(firm, contrast, 0), 2 * HALF_R + 1)
+    own = firm & (contrast >= 0.5 * near_max)
+    lines, c, half = even_lines(own | firm, own)
+    lines = (lines | to_outline(c, half, to_edge)) & area
+    # his face: the brow, the eye and its pupil at the paint's own shape
+    # (smoothed in PhotoCraft), not as centre lines
+    face = poly(shape, FACE) & area & (to_edge >= EDGE)
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray(((face & ((r < FACE_K) | (m["rA"] < FACE_KA))) * 255).astype(np.uint8)).save(Path(td) / "f.png")
+        pc(Path(td) / "f.png", Path(td) / "fs.png", ("filter.blur.gaussianBlur", {"radius": 1.0}))
+        fpaint = morphology.remove_small_objects(grey(Path(td) / "fs.png") >= 128, max_size=20)
+    lines = (lines & ~face) | fpaint
+    lines |= join_breaks(lines, contrast, to_edge) & area
+    lines |= strokes(m["gf"], [BOW_LINE, STRAP_LINE], 2 * np.median(half[c]), snap=BOW_SNAP)
+    edge = area & (to_edge <= EDGE)
+    # where the curls meet the ground (HAIR_EDGE) there is no outline on the
+    # vase: the edge there is the hair's wash; round the top and back of his
+    # head (HEAD_OPEN, not his face) no outline is drawn either: the clay band
+    # round the black top is left to the page (John, 2026-10-09: "in day mode,
+    # the white buffer with black line outlining the head doesn't work")
+    soft = edge & (ndi.distance_transform_edt(~hair) <= 2) & ~cap
+    soft &= np.any([poly(shape, p) for p in HAIR_EDGE], axis=0)
+    open_head = edge & poly(shape, HEAD_OPEN) & ~poly(shape, FACE)
+    hair = (hair & ~edge) | soft
+    ink = lines | (edge & ~soft & ~open_head) | solid
+    return ink, hair, shadow, cap
+
+
+def add_wash(svg, washes, m, box):
+    """Washes added to the drawing trace_svg wrote (box: the crop box it
+    returned), between the body and the lines: for each (mask, steps, sigma,
+    min_px), the maps named in its steps smoothed within the mask over sigma px
+    (a masked blur in PhotoCraft), and a path per step (map, level, total
+    opacity: where the map is under the level, inside the step below, in
+    pieces of min_px or more), each over the one below at the opacity that
+    brings the total to its own."""
+    x0, y0, x1, y1 = box
+    paths = ""
+    for mask, steps, sigma, min_px in washes:
+        dark = {}
+        with tempfile.TemporaryDirectory() as td:
+            t = Path(td)
+            Image.fromarray((mask * 255).astype(np.uint8)).save(t / "hm.png")
+            pc(t / "hm.png", t / "hms.png", ("filter.blur.gaussianBlur", {"radius": sigma}))
+            for key in sorted({k for k, _, _ in steps}):
+                Image.fromarray((np.where(mask, m[key], 0) * 200).clip(0, 255).astype(np.uint8)).save(t / "hr.png")
+                pc(t / "hr.png", t / "hrs.png", ("filter.blur.gaussianBlur", {"radius": sigma}))
+                dark[key] = grey(t / "hrs.png") / 200 / np.maximum(grey(t / "hms.png") / 255, 1e-3)
+        below, prev = 0.0, mask
+        for key, level, total in steps:
+            mk = prev & (dark[key] < level)
+            lab, _ = ndi.label(mk)
+            mk &= (np.bincount(lab.ravel()) >= min_px)[lab]
+            prev = mk
+            if not mk[y0:y1, x0:x1].any():
+                continue
+            d, _ = lw.potrace_d(lw.resample_ink(mk[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
+            paths += (f'<path class="tone" fill="currentColor" fill-opacity="{1 - (1 - total) / (1 - below):.3f}" '
+                      f'stroke="none" d="{d}"/>')
+            below = total
+    svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
+
+
+# The rock's brown washes, drawn as its brushstrokes (John, 2026-10-09: "can
+# you also duplicate the texture brush strokes on the rock?"; the first drawing
+# left them out): on the rock (ROCK, less the bow case), the paint darker than
+# ROCK_K times the wide clay level and redder than HAIR_RB, in ROCK_STEPS (as
+# the hair's; the first step is the strokes darker than the wash round them
+# (r), so the strokes stand on clay, not one pale wash), smoothed
+# over ROCK_SIGMA px, in pieces of ROCK_STEP_MIN px or more.
+ROCK_K, ROCK_SIGMA, ROCK_STEP_MIN = 0.93, 3.0, 300
+ROCK_STEPS = [("r", 0.92, 0.16), ("rW", 0.7, 0.34), ("rW", 0.58, 0.5), ("rW", 0.46, 0.65)]
+
+
+def rock_wash(m, area, ink):
+    shape = area.shape
+    rock = np.any([poly(shape, p) for p in ROCK], axis=0) & area & ~poly(shape, QUIVER)
+    rock &= ~ndi.binary_dilation(ink, iterations=1)
+    brown = rock & (m["rW"] < ROCK_K) & (m["RB"] > HAIR_RB)
+    brown = ndi.binary_opening(brown, structure=morphology.disk(2))
+    return morphology.remove_small_objects(brown, max_size=ROCK_STEP_MIN)
+
+
+def build(m, ground_row):
+    """Everything up to the SVG: (ink, area, windows, washes); washes as
+    add_wash takes them."""
+    area, windows, painted = scene(m, ground_row)
+    ys, xs = np.nonzero(area)
+    w = lw.HOUSE_WEIGHT * max(np.ptp(ys), np.ptp(xs))
+    ink, hair, shadow, cap = drawing(m, area, painted, w)
+    lab, _ = ndi.label(windows)
+    ink |= np.isin(lab, [k for k in (lab[y, x] for x, y in BLACK_WINDOWS) if k > 0])
+    ink &= ~hair & ~shadow & ~cap
+    m["rH"] = m["rW"] * (1 - CAP_DARK * np.clip(1 - ndi.distance_transform_edt(~cap) / CAP_NEAR, 0, 1))
+    m["rH"] *= 1 - BEARD_DARK * ndi.gaussian_filter(poly(area.shape, BEARD).astype(np.float32), BEARD_FEATHER)
+    washes = [(rock_wash(m, area, ink) & ~shadow, ROCK_STEPS, ROCK_SIGMA, ROCK_STEP_MIN),
+              (shadow, SHADOW_STEPS, SHADOW_SIGMA, SHADOW_MIN), (cap, CAP_STEPS, CAP_SIGMA, CAP_MIN),
+              (hair, HAIR_STEPS, HAIR_SIGMA, HAIR_STEP_MIN),
+              (hair & (m["r"] < CURL_R), CURL_STEPS, CURL_SIGMA, CURL_MIN)]
+    return ink, area, windows, washes
+
+
+# the line weight, pinned (as acharnians.py): the paint's own median width is
+# 0.14% of the longer side, which read faint beside the other drawings at 400 px
+WEIGHT = 0.0021
+
+
+def write(ink, area, washes, m, qa=None):
+    ys, xs = np.nonzero(ink | area)   # the crop trace_svg takes (pad 4)
+    weight = WEIGHT_PX / max(np.ptp(ys) + 9, np.ptp(xs) + 9)
+    info = lw.trace_svg(
+        ink, OUT, body=area, open_holes=~area, extent=area, weight=weight,
+        title="Philoctetes alone on Lemnos, seated on a rock under a tree, his bandaged leg drawn up, his bow case beside him",
+        desc="Line drawing after the Attic red-figure squat lekythos in the manner of the Eretria Painter, c. 420 BCE, "
+             "New York, Metropolitan Museum of Art 56.171.58; traced from photographs by Marie-Lan Nguyen (CC BY 2.5) "
+             "and the Metropolitan Museum of Art (CC0), changed.")
+    add_wash(OUT, washes, m, info["box"])
+    print(OUT, info)
+    if qa:
+        lw.qa_overlay(m["g"], OUT, info["box"], Path(qa))
+        lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
+    return info
+
+# ---------------------------------------------------------------- the tree
+
+# The tree, added back (John, 2026-10-09: "Can we also add the tree? I think it
+# completes the framing nicely"; the first drawing cut it off). Its boughs run
+# up onto the vase's shoulder, outside the flat (flat_keep keeps his head true).
+# So the tree has a flat of its own, the whole rectangle up to TREE_TOP, and
+# that flat is laid onto the frame by the similarity (with the flip of the y
+# axis) that best fits the frame along the seam where the trunk meets the rock
+# (TREE_CUT, sampled every 2 px and TREE_SEAM_OFFS px either side): 0.65 px
+# median, 3.3 at most; away from the seam the boughs are free. The canvas is the
+# frame widened by PAD_T px at the top. Photo A (it sees the whole tree).
+TREE_TOP, PAD_T = 1560.1, 300
+TREE_SEAM_OFFS = (-30, -15, 0, 15, 30)
+# The tree's area: clay (as classes) joined to TREE_SEED (frame px, on the
+# trunk), walled off from the scene along TREE_CUT (TREE_WALL px), its outline
+# smoothed as the scene's; the narrow gap the wall leaves at the seam closed
+# over SEAM_CLOSE px. It is drawn as its outline, EDGE px wide, except along the
+# seam (the scene draws the rock's top line there).
+TREE_SEED, TREE_WALL, SEAM_CLOSE = (1220, 620), 4, 6
+# the line weight in frame px, pinned at the weight of the drawing without the
+# tree (WEIGHT of its 3228-px crop), as the wider canvas would thin it
+WEIGHT_PX = WEIGHT * 3228
+
+
+def tree_frame(R, fr):
+    """The tree's flat (inverse map to the vase) and the seam fit: tree flat
+    world (x, y) -> frame px is z -> c[0] * conj(z) + c[1]."""
+    th, yy = np.arange(*FLAT_THETA), np.arange(FLAT_Y[0], TREE_TOP, FLAT_Y[2])
+    with redirect_stdout(io.StringIO()):
+        XY = vu.flatten(R, th, yy, centre=CENTRE)
+    TH, Y = np.meshgrid(th, yy)
+    inv = LinearNDInterpolator(XY.reshape(-1, 2), np.stack([TH.ravel(), Y.ravel()], -1))
+    fwd = [RegularGridInterpolator((yy, th), XY[..., k], bounds_error=False) for k in (0, 1)]
+    P = np.array([p for p in TREE_CUT if p != lw.STRAIGHT], float)
+    seg = np.vstack([np.linspace(a, b, max(int(np.hypot(*(b - a)) / 2), 2)) for a, b in zip(P[:-1], P[1:])])
+    S = np.vstack([seg + (dx, dy) for dx in TREE_SEAM_OFFS for dy in TREE_SEAM_OFFS])
+    tv = fr["to_vase"](S[:, 0], S[:, 1])
+    ok = np.isfinite(tv).all(1)
+    S, tv = S[ok], tv[ok]
+    q = np.c_[tv[:, 1], tv[:, 0]]
+    b = np.c_[fwd[0](q), fwd[1](q)]
+    ok = np.isfinite(b).all(1)
+    A = np.c_[np.conj(b[ok, 0] + 1j * b[ok, 1]), np.ones(ok.sum())]
+    c, *_ = np.linalg.lstsq(A, S[ok, 0] + 1j * S[ok, 1], rcond=None)
+    return inv, c
+
+
+def tree_image(photo, R, fr, step=4):
+    """Photo A laid onto the canvas (the frame widened by PAD_T at the top)
+    through the tree's flat."""
+    inv, c = tree_frame(R, fr)
+    Hc, Wc = fr["H"] + PAD_T, fr["W"]
+    gx, gy = np.meshgrid(np.arange(0, Wc + step, step), np.arange(0, Hc + step, step))
+    zb = np.conj(((gx + 1j * (gy - PAD_T)).ravel() - c[1]) / c[0])
+    tq = inv(np.c_[zb.real, zb.imag])
+    good = np.isfinite(tq[:, 0])
+    t, y = np.where(good, tq[:, 0], 0.0), np.where(good, tq[:, 1], 0.0)
+    cams, _ = vase()
+    cam, phi = cams["A"], np.radians(TURNS["A"])
+    P = vu.surface(R, y, t + phi)
+    uv = vu.project(cam, P)
+    nrm = np.stack([np.sin(t + phi), -R(y, 1), np.cos(t + phi)], -1)
+    facing = np.einsum("ij,ij->i", nrm, np.array([0.0, cam["H"], cam["D"]]) - P) > 0
+    ok = (good & facing).reshape(gx.shape)
+    u = ndi.zoom(np.where(ok, uv[:, 0].reshape(gx.shape), -1e4), step, order=1)[:Hc, :Wc]
+    v = ndi.zoom(np.where(ok, uv[:, 1].reshape(gx.shape), -1e4), step, order=1)[:Hc, :Wc]
+    a = np.asarray(Image.open(photo).convert("RGB"), dtype=np.float32)
+    return np.stack([ndi.map_coordinates(a[..., k], [v, u], order=1, cval=0) for k in range(3)], -1)
+
+
+def pad(a, value=0):
+    return np.pad(a, ((PAD_T, 0), (0, 0)) + ((0, 0),) * (a.ndim - 2), constant_values=value)
+
+
+def with_tree(rgbT, ink, area, washes, m):
+    """The drawing on the canvas, with the tree: (ink, area, washes, maps)."""
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.fromarray(rgbT.clip(0, 255).round().astype(np.uint8)).save(t / "T.png")
+        pc(t / "T.png", t / "LT.png", ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "T.png", t / "RBT.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 1}))
+        _, clay = classes({"LA": grey(t / "LT.png"), "RBA": grey(t / "RBT.png")})
+        gT = grey(t / "LT.png")
+    shape = clay.shape
+    main = pad(area)
+    cut = np.zeros(shape, bool)
+    for (xa, ya), (xb, yb) in zip(*[[p for p in TREE_CUT if p != lw.STRAIGHT][k:] for k in (0, 1)]):
+        cut |= trace_line(shape, [(xa, ya + PAD_T), (xb, yb + PAD_T)])
+    wall = ndi.binary_dilation(cut, iterations=TREE_WALL)
+    cand = ndi.binary_opening(clay, structure=morphology.disk(2)) & ~wall & ~main
+    lab, _ = ndi.label(cand)
+    k = lab[TREE_SEED[1] + PAD_T, TREE_SEED[0]]
+    assert k, "TREE_SEED is not on the tree's clay"
+    tree = ndi.binary_fill_holes(lab == k)
+    tree = ndi.binary_closing(ndi.binary_opening(tree, structure=morphology.disk(EDGE_R)), structure=morphology.disk(EDGE_R))
+    tree = smooth_outline(biggest(tree), np.zeros(shape, bool), np.zeros(shape, bool)) & ~main
+    both = main | tree
+    gap = ndi.binary_closing(both, structure=morphology.disk(SEAM_CLOSE)) & ~both & ndi.binary_dilation(wall, iterations=2)
+    area2 = both | gap
+    edge = area2 & (ndi.distance_transform_edt(area2) <= EDGE)
+    ink2 = pad(ink) | (edge & ~ndi.binary_dilation(main | gap, iterations=int(EDGE) + 3))
+    m2 = {k: pad(v) for k, v in m.items() if isinstance(v, np.ndarray) and v.ndim == 2}
+    m2["g"] = np.where(np.arange(shape[0])[:, None] < PAD_T, gT, m2["g"])
+    return ink2, area2, [(pad(mk), *rest) for mk, *rest in washes], m2
+
+
+# John's traces for the first drawing (frame px): the check for the new lines
+TRACES = {k: v for k, v in json.loads((Path(__file__).parent / "philoctetes_traces.json").read_text()).items()
+          if k != "note"}
+TRACE_K = 3   # the check image's enlargement
+
+
+def traces_check(ink, hair, g, out):
+    """John's traces (blue) over the new drawing (red ink, the hair's area
+    pale red) and the photo's grey, one panel per traced part."""
+    panels = []
+    for name, t in TRACES.items():
+        pts = np.vstack([np.array(p, float) for p in t["lines"] + t["solids"]])
+        x0, y0 = (pts.min(0) - 20).astype(int)
+        x1, y1 = (pts.max(0) + 20).astype(int)
+        sl = (slice(y0, y1), slice(x0, x1))
+        im = np.repeat(g[sl][..., None], 3, -1) * 0.5 + 127
+        im[hair[sl]] = im[hair[sl]] * 0.7 + np.array([255, 120, 120]) * 0.3
+        im[ink[sl]] = [220, 30, 30]
+        big = Image.fromarray(im.clip(0, 255).astype(np.uint8)).resize(((x1 - x0) * TRACE_K, (y1 - y0) * TRACE_K),
+                                                                       Image.NEAREST)
+        from PIL import ImageDraw
+        d = ImageDraw.Draw(big)
+        for p in t["lines"]:
+            d.line([((x - x0) * TRACE_K, (y - y0) * TRACE_K) for x, y in p], fill=(0, 90, 255), width=2)
+        for p in t["solids"]:
+            d.polygon([((x - x0) * TRACE_K, (y - y0) * TRACE_K) for x, y in p], outline=(0, 90, 255))
+        d.text((6, 6), name, fill=(0, 0, 0))
+        panels.append(big)
+    W = max(p.width for p in panels)
+    sheet = Image.new("RGB", (W, sum(p.height + 10 for p in panels)), "white")
+    y = 0
+    for p in panels:
+        sheet.paste(p, (0, y))
+        y += p.height + 10
+    sheet.save(out)
 
 
 def main(pC: str, pA: str, pB: str) -> None:
@@ -944,47 +1193,15 @@ def main(pC: str, pA: str, pB: str) -> None:
         return
     _, R = vase()
     fr = frame(R)
-    if "--flat" in sys.argv:  # diagnostic: the frame as each photo shows it
-        stem = sys.argv[sys.argv.index("--flat") + 1]
-        for name, p in (("C", pC), ("A", pA), ("B", pB)):
-            Image.fromarray(flat_image(p, name, R, fr).clip(0, 255).astype(np.uint8)).save(f"{stem}_{name}.png")
-        return
     rgbC, rgbA = flat_image(pC, "C", R, fr), flat_image(pA, "A", R, fr)
-    wC = seam_weight(rgbC)[..., None]
-    L = lum(wC * rgbC + (1 - wC) * rgbA)  # each part from its sharper photo, as the lines are found
-    if "--masks" in sys.argv:  # diagnostic: the scene over the frame
-        area, windows, painted = scene(rgbA, L, ground_line(fr, rgbA.shape[1]))
-        g = np.clip(lum(rgbA), 0, 255) * 0.55
-        m = np.stack([g, g, g], -1)
-        m[area] = m[area] * 0.55 + np.array([255, 60, 60]) * 0.45
-        m[windows] = m[windows] * 0.5 + np.array([60, 60, 255]) * 0.5
-        m[painted] = m[painted] * 0.4 + np.array([60, 255, 60]) * 0.6
-        Image.fromarray(m.astype(np.uint8)).save(sys.argv[sys.argv.index("--masks") + 1])
+    m = maps(rgbC, rgbA)
+    ink, area, windows, washes = build(m, ground_line(fr, rgbA.shape[1]))
+    if "--traces" in sys.argv:   # the check against John's traces, not the drawing
+        traces_check(ink, washes[3][0], m["g"], sys.argv[sys.argv.index("--traces") + 1])
         return
-    area, windows, painted = scene(rgbA, L, ground_line(fr, rgbA.shape[1]))
-    parts = traced(area.shape)
-    area, windows = traced_area(area, windows, rgbA, parts)
-    ys, xs = np.nonzero(area)
-    w = lw.HOUSE_WEIGHT * max(np.ptp(ys), np.ptp(xs))  # the house weight, in frame px
-    ink, tone = drawing(rgbC, rgbA, area, painted, w, parts)
-    lab, _ = ndi.label(windows)
-    ink |= np.isin(lab, [k for k in (lab[y, x] for x, y in BLACK_WINDOWS) if k > 0])
-    held = windows.copy()  # ground left open: the windows, and the ground by his lines round the feet
-    for name, t in parts.items():
-        if name in BAND_PARTS:
-            held |= ~area & (ndi.distance_transform_edt(~t["walls"]) <= BAND_R)
-    info = lw.trace_svg(
-        ink, OUT, body=area, open_holes=held,
-        title="Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case beside him",
-        desc="Line drawing after the Attic red-figure squat lekythos in the manner of the Eretria Painter, c. 420 BCE, "
-             "New York, Metropolitan Museum of Art 56.171.58; traced from photographs by Marie-Lan Nguyen (CC BY 2.5) "
-             "and the Metropolitan Museum of Art (CC0), changed.")
-    add_tone(OUT, tone, info["box"])
-    print(OUT, info)
-    qa = [a for a in sys.argv[4:] if not a.startswith("--")]
-    if qa:  # optional: the drawing over its source, and as the dark theme shows it
-        lw.qa_overlay(L, OUT, info["box"], Path(qa[0]))
-        lw.qa_dark(OUT, info["box"], Path(qa[0]).with_suffix(".dark.png"))
+    ink, area, washes, m = with_tree(tree_image(pA, R, fr), ink, area, washes, m)
+    rest = [a for a in sys.argv[4:] if not a.startswith("--")]
+    write(ink, area, washes, m, rest[0] if rest else None)
 
 
 if __name__ == "__main__":

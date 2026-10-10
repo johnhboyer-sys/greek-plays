@@ -170,7 +170,8 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
               open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None,
-              dots: np.ndarray | None = None, keep: np.ndarray | None = None, pad: int = 4,
+              dots: np.ndarray | None = None, keep: np.ndarray | None = None,
+              extent: np.ndarray | None = None, pad: int = 4,
               turdsize: int = 10, alphamax: float = 1.0, weight: float | str | None = None,
               trace_h: int = TRACE_H) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
@@ -198,8 +199,10 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     house's): traced on their own, at their own size, and added to the lines.
     `keep` (same shape): thin parts of the body (an arrow's shaft, 3 px of
     clay between its lines) that the body's smoothing would take: kept.
+    `extent` (same shape): an area the crop must hold besides the ink (the
+    body where its edge is left without an outline).
     Returns the crop box in ink's pixels, for qa_overlay."""
-    ys, xs = np.nonzero(ink)
+    ys, xs = np.nonzero(ink if extent is None else ink | extent)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
     x0, x1 = max(xs.min() - pad, 0), min(xs.max() + pad + 1, ink.shape[1])
     ink = ink[y0:y1, x0:x1]
