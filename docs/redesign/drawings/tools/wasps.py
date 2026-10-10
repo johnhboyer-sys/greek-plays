@@ -286,15 +286,17 @@ PLANK_ROW, PLANK_STEP, PLANK_X = 2540, 25, (200, 5100)
 # hair and beard a warm cream (about 80, as red as worn clay), told from his clay by lightness alone (clay there
 # 168 or darker, the cream 175 and up)
 HEADS = [((1850, 330, 2420, 820), 150, 75), ((3980, 330, 4560, 1250), 150, 75), ((3300, 950, 3720, 1350), 175, 255)]
-# The slave's curls are dots and hooks of brown glaze on the cream: darker than CURL_L (grey, blurred 1 px) inside
-# his hair, drawn as ink at their own size
-CURL_BOX, CURL_L = (3300, 950, 3720, 1350), 140
-# The slave's head is a sheep mask (John, 2026-10-10: "that's a sheep mask"): the fleece cream with brown curl
-# marks, and the sheep's face drawn in thinned glaze, a pale brown arc and ring that grey hardly shows. In the blue
-# channel (the cream is high in it, the glaze low) they stand 35 or more under the cream round them: blue blurred
-# SHEEP_BLUR px, its Maximum then Minimum over SHEEP_R px less it, above SHEEP_T, pieces of SHEEP_MIN px^2 or more,
-# inside SHEEP_BOX (flat px)
-SHEEP_BOX, SHEEP_BLUR, SHEEP_R, SHEEP_T, SHEEP_MIN = (3420, 1150, 3640, 1330), 2.5, 10, 35, 40
+# The slave's head is a sheep mask (John, 2026-10-10: "that's a sheep mask"): the fleece cream, its curls hooks of
+# brown glaze, the sheep's face (an arc, the eye) in thinner glaze that grey hardly shows. In the blue channel (the
+# cream is high in it, the glaze low) all of them stand 35 or more under the cream round them: blue blurred SHEEP_BLUR
+# px, its Maximum then Minimum over SHEEP_R px less it, above SHEEP_T, in pieces holding a core above SHEEP_CORE where
+# the blue is under SHEEP_BLUE (a dark brown stroke: pale tan specks),
+# SHEEP_MIN px^2 or more, inside the mask (SHEEP_BOX, flat px) and off its outline, drawn as ink at their whole width (John: "Sheep mask needs stronger lines"; pass 2 drew
+# the curls' dark cores only), smoothed (Gaussian SHEEP_SMOOTH in PhotoCraft, cut at half). And told apart from the
+# old men's hair (John: "And more distinction from hair"): the mask is an object, so it has an outline all round,
+# against the ground and the slave's neck alike, and no grey wash: its fleece is the curls on the clay
+SHEEP_BOX, SHEEP_BLUR, SHEEP_R, SHEEP_T, SHEEP_MIN, SHEEP_SMOOTH = (3300, 950, 3720, 1350), 1.5, 10, 35, 60, 1.5
+SHEEP_CORE, SHEEP_BLUE = 70, 90
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
 FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
@@ -417,7 +419,8 @@ def scene(src):
            ("filter.blur.gaussianBlur", {"radius": SHEEP_BLUR}))
         pc(t / "blue.png", t / "bluec.png", ("filter.other.maximum", {"radius": SHEEP_R, "preserve": "squareness"}),
            ("filter.other.minimum", {"radius": SHEEP_R, "preserve": "squareness"}))
-        sheep_c = grey(t / "bluec.png") - grey(t / "blue.png")
+        blue = grey(t / "blue.png")
+        sheep_c = grey(t / "bluec.png") - blue
         rbw = grey(t / "rbw.png")
         whiteness = np.clip(grey(t / "gw.png") - 120, 0, None) * np.clip((80 - rbw) / 60, 0, 1)
         g = grey(t / "g.png")
@@ -502,11 +505,19 @@ def scene(src):
     strokes = fig & hair_zone & ~paint
     soft_edge = edge & (ndi.distance_transform_edt(~strokes) <= EDGE + 3)
     lines &= ~strokes
-    curls = strokes & box([CURL_BOX]) & (g1 < CURL_L)
-    sheep = box([SHEEP_BOX]) & (sheep_c > SHEEP_T) & strokes
-    lab, _ = ndi.label(sheep)
-    sheep &= (np.bincount(lab.ravel()) >= SHEEP_MIN)[lab]
-    ink = lines | (edge & ~soft_edge) | curls | sheep
+    # (worn pink patches in the fleece read as clay and left holes in it, which an outline would ring: filled)
+    mask = ndi.binary_fill_holes(fig & hair_zone & box([SHEEP_BOX]))
+    soft_edge &= ~box([SHEEP_BOX])
+    lab, _ = ndi.label(mask & (sheep_c > SHEEP_T) & (ndi.distance_transform_edt(mask) > EDGE))
+    sheep = np.isin(lab, np.unique(lab[(sheep_c > SHEEP_CORE) & (blue < SHEEP_BLUE)])) & (lab > 0)
+    sheep = morphology.remove_small_objects(sheep, max_size=SHEEP_MIN)
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray((sheep * 255).astype(np.uint8)).save(Path(td) / "m.png")
+        pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": SHEEP_SMOOTH}))
+        sheep = (grey(Path(td) / "ms.png") >= 128) & fig
+    rim = mask & (ndi.distance_transform_edt(mask) <= EDGE)   # (its outline against the neck too)
+    strokes &= ~mask
+    ink = lines | (edge & ~soft_edge) | sheep | rim
     holes = ndi.binary_fill_holes(ink) & ~ink
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
