@@ -406,6 +406,34 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - The vase went from Berlin (F 2184) to Moscow after the war. The Beazley Archive (no. 202912) gives
   Pushkin Museum 6528.3, the museum's own page inv. АВ 3742; the credit cites both (2026-10-07).
 
+### Contour plates with no black ground (Hoernes, *Archäologische Zeitung* 1877: black pen lines on paper)
+
+- Rhesus (AZ 35, 1877, Taf. 5, two youths on a night raid), made with PhotoCraft: about an hour and fifty minutes
+  over a style test and one pass, approved by John 2026-10-10. `tools/rhesus.py` (2026-10-10).
+- Compare every scan of the plate at full size before choosing: the IGNCA scan's 5120 px were JPEG blocks (the face
+  mush), the Getty copy's 2365 px photo sharp. Register one to the other (SIFT): within 2 px under a similarity, the
+  photo was flat. The Internet Archive's "orig" captures are numbered by leaf, not by viewer page: read the
+  scandata (n228 was leaf 229; leaf 228 was blank). PhotoCraft cannot read JPEG 2000: convert to PNG first (2026-10-10).
+- Lines at half maximum (darker than halfway between the paper and the line's darkest px nearby): local contrast
+  alone took in each line's soft edge, and the hair's strokes ran together (2026-10-10).
+- No ground to cut from: the figures' area is the paper the lines close off. The pen outline breaks at joints and
+  where a line stops short of the next, so seal the gaps: open the paper by a disk (6 plate px here), take the
+  pieces left as areas, and give every paper px to the nearest by a watershed on the distance to the ink, so slivers
+  of ground stay with the ground. Then mark the pockets of ground the figures close (`POCKETS`) on a numbered map of
+  the areas laid over the plate, not on a flat colour map (2026-10-10).
+- An opening seals gaps narrower than its disk, but not a passage just as wide: when the lines were thinned the
+  right youth leaked through an 11 px break behind his knee. Find a leak by the shortest path inside the opened
+  paper from a point well inside the body to the crop's edge; it crosses the line at the break. Wall it
+  (`WALLS`, for the area only, not drawn). A body that has turned to ground may instead have joined a pocket:
+  check what area the body's point lands in before searching (2026-10-10).
+- Spear shafts (12-22 px between their edge lines) are too narrow for the seal: fit each shaft's centre and width
+  to the midpoints between its edge lines, read across it every 4 px from rough ends (`SHAFTS`) (2026-10-10).
+- Drop specks by distance from the figures, not by touch: a toe's tip curl stands just off the foot (2026-10-10).
+- John read a strip I took for cloak (between the forearm, the cloak's edge and the spear) as ground; he marked it
+  on the whole dark view. On a contour plate, show the dark theme of the whole group early (2026-10-10).
+- Weight: John asked for heavier lines than the plate's own (0.084%), then chose 0.12% of 0.12, 0.16 and the house
+  0.225%: at 0.225% the hair's strokes ran into blots (2026-10-10).
+
 ### Photos of vases (red-figure, taken off the vase with `tools/vase_unroll.py`)
 
 - Acharnians (Würzburg H 4689, the seated warrior; four ArchaiOptix photos), made with PhotoCraft:
