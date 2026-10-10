@@ -235,9 +235,40 @@ FINE, FINE_OPEN = [], 3       # boxes (flat px) where the ground between parts i
 SMOOTH, FINE_SMOOTH = 3.0, 1.5
 EDGE = 9                      # the outline, flat px wide
 SPECK, FLECK = 150, 200
+# Lines (pass 2; John, 2026-10-10: "multiple lines in the clothes aren't registering", "hand lines and other lines
+# are too bloby rather than crisp"), as philoctetes.py: the grey's local contrast (PhotoCraft: blurred 1 px, capped
+# at the clay's level by Levels, input white LC_CAP, so the white paint and pale scratches do not count; its Maximum
+# then Minimum over LC_R px, less it), with hysteresis (LC_LOW, LC_HIGH), LINE_LEN px or longer along the centre,
+# off the outline, the hair and the solid paint; each line redrawn along its centre at the paint's own width (where
+# the contrast is at least half the line's top: half maximum), smoothed along the line over WIDTH_SIGMA px, at least
+# LINE_MIN wide. The mask is smoothed first (Gaussian MASK_SIGMA in PhotoCraft, cut at half), pinholes under HOLE
+# px^2 filled, side spurs under SPUR px pruned. Solid paint (belts, the mouth, bands): the dark (LINE_DARK) opened
+# over SOLID_R px, drawn at its own shape
+LC_CAP, LC_R, LC_LOW, LC_HIGH = 175, 8, 30, 50
+# On the porch, the plank and the chest the contrast finder drew the wood's grain and scratches as dashes: there
+# (outside LC_ZONES, boxes round the figures, flat px) its hysteresis is stronger (CORE_LC). Everywhere the dark
+# core (LINE_DARK) is a line too: lines wider than the contrast window (the porch's, widened by the flat where it
+# turns from the camera) keep their middle. (The door's rings are open C's on the vase.)
+LC_ZONES = [(1640, 330, 2400, 2560), (3150, 950, 3720, 1900), (3700, 330, 4980, 2580)]
+CORE_LC = (45, 70)
+# The left-hand man's hand lies over the cloth: outside the patterns (flat px, round the hand, read off the flat)
+HAND = [(2420, 1175), (2435, 1080), (2480, 1030), (2525, 990), (2535, 940), (2565, 905), (2605, 920), (2600, 980),
+        (2630, 992), (2728, 995), (2740, 1030), (2675, 1045), (2728, 1078), (2735, 1110), (2720, 1125), (2740, 1140),
+        (2735, 1172), (2580, 1180)]
+LINE_LEN, HALF_R, WIDTH_SIGMA, LINE_MIN = 25, 6, 6.0, 4.0
+HOLE, MASK_SIGMA, SPUR, SOLID_R = 12, 1.5, 7, 10
+# The patterns on the cloth and the chest are brushstrokes of thinned brown glaze, darker where the brush pooled
+# (John, 2026-10-10: "marks on the boxes need to be sharper and done as brushstrokes"): inside PATTERNS (boxes, flat
+# px) the brown wider than PAT_W px (an opening; the ruled lines and the hand's lines are narrower and stay lines)
+# is a stepped wash at its own crisp edge, PAT_STEPS (grey under, total opacity), the grey blurred 1 px
+PATTERNS = [(2335, 850, 3195, 1495), (2930, 1880, 3815, 2505)]
+PAT_W, PAT_STEPS = 4, [(140, 0.35), (105, 0.6), (70, 0.9)]
 # the line weight, pinned at pass 1's own (the median width, 7.49 flat px, over the longer side, 4848 px), so that
 # later changes to a few lines do not re-weight them all (as phoenician_women.py)
 WEIGHT = 0.0015440
+# Traced at 0.83 of the flat's px and re-weighted, a line's thin stretch vanishes (the paler arcs of the door's
+# rings broke): every line is thickened to at least NECK flat px along its centre first (as acharnians.py)
+NECK = 5
 # Seeds (flat px): the door leaf, the column, the roof, the left-hand man, the patterned cloth he holds out, the
 # slave, his chest, the right-hand man, the plank
 SEEDS = [(845, 1306), (1450, 1500), (1100, 480), (1900, 1600), (2680, 1088), (3300, 1400), (3400, 2200),
@@ -307,6 +338,44 @@ def plank_bottom(clay_rb):
     return np.array(xs), ys
 
 
+def centre_lines(m, spur, min_len):
+    """Centre lines of a stroke mask, side spurs under `spur` px pruned (the line ends kept), pieces under
+    `min_len` px dropped (as philoctetes.py)."""
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    sk = morphology.skeletonize(m)
+    s = sk.copy()
+    for _ in range(spur):  # peel the ends...
+        s &= ~((ndi.convolve(s.astype(int), k, mode="constant") == 1) & s)
+    front = (ndi.convolve(s.astype(int), k, mode="constant") == 1) & s
+    for _ in range(spur):  # ...and grow the surviving ends back
+        front = ndi.binary_dilation(front, structure=np.ones((3, 3))) & sk & ~s
+        s |= front
+    return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
+
+
+def even_lines(contrast, dark, area, zones):
+    """The painted lines: `dark`, and in `area` those found by local contrast (CORE_LC outside `zones`), redrawn
+    along their centres at the paint's own width (see LC_* and the constants after it)."""
+    from skimage.filters import apply_hysteresis_threshold
+    found = np.where(zones, apply_hysteresis_threshold(contrast, LC_LOW, LC_HIGH),
+                     apply_hysteresis_threshold(contrast, *CORE_LC))
+    firm = (found & area) | dark
+    firm = morphology.remove_small_holes(firm, max_size=HOLE)
+    near_max = ndi.maximum_filter(np.where(firm, contrast, 0), 2 * HALF_R + 1)
+    own = (firm & (contrast >= 0.5 * near_max)) | dark
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray((firm * 255).astype(np.uint8)).save(Path(td) / "m.png")
+        pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": MASK_SIGMA}))
+        mask = grey(Path(td) / "ms.png") >= 128
+    c = centre_lines(mask, spur=SPUR, min_len=LINE_LEN)
+    w = 2 * ndi.distance_transform_edt(own)
+    num, den = (ndi.gaussian_filter(a, WIDTH_SIGMA) for a in (np.where(c, w, 0.0), c.astype(float)))
+    half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_MIN) / 2, 0.0)
+    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
+    return d <= half[iy, ix]
+
+
 def teeth(g):
     """The teeth's area (see MOUTH), on the flat."""
     x0, y0, x1, y1 = MOUTH[0] - 60, MOUTH[1] - 150, TEETH_X1 + 40, MOUTH[1] + 80
@@ -356,6 +425,11 @@ def scene(src):
         clay = grey(t / "rb.png") >= 128
         core = grey(t / "core.png") < 128
         g2, g1 = grey(t / "g2.png"), grey(t / "g1.png")
+        pc(t / "g.png", t / "gc.png", ("filter.blur.gaussianBlur", {"radius": 1}),
+           ("image.adjustments.levels", {"inWhite": LC_CAP}))
+        pc(t / "gc.png", t / "gcc.png", ("filter.other.maximum", {"radius": LC_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": LC_R, "preserve": "squareness"}))
+        contrast = grey(t / "gcc.png") - grey(t / "gc.png")
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
     box = lambda bs: np.any([(xx >= b[0]) & (yy >= b[1]) & (xx < b[2]) & (yy < b[3]) for b in bs], 0)
@@ -406,11 +480,24 @@ def scene(src):
     paint = dark & fig & core
     to_edge = ndi.distance_transform_edt(fig)
     edge = fig & (to_edge <= EDGE)
-    lines = (core | paint) & fig & ~edge
-    lab, _ = ndi.label(lines, structure=np.ones((3, 3)))
+    # the old lines (the grey's dark core) are kept in the faces, which pass 1 drew well (traced at their own size)
+    face_box = box(FACES)
+    old = (core | paint) & fig & ~edge & face_box
+    lab, _ = ndi.label(old, structure=np.ones((3, 3)))
     sz = np.bincount(lab.ravel())
     touch = np.unique(lab[ndi.binary_dilation(edge, iterations=2)])
-    lines &= ~((sz < SPECK) & ~np.isin(np.arange(len(sz)), touch))[lab]
+    old &= ~((sz < SPECK) & ~np.isin(np.arange(len(sz)), touch))[lab]
+    # the brushstroke patterns
+    pat = box(PATTERNS) & fig & ~edge & ~lw.polygon_mask(g.shape, np.array(HAND, float))
+    brown = pat & (g1 < PAT_STEPS[0][0])
+    wide = ndi.binary_opening(brown, structure=morphology.disk(PAT_W))
+    wide = ndi.binary_dilation(wide, iterations=2) & brown
+    # solid paint and the lines elsewhere
+    solid = ndi.binary_opening(paint & ~edge, structure=morphology.disk(SOLID_R)) & ~pat
+    solid = ndi.binary_dilation(solid, iterations=2) & paint
+    area = fig & ~edge & ~face_box & ~hair_zone & ~wide & ~ndi.binary_dilation(solid, iterations=3)
+    lines = solid | even_lines(contrast, core & area, area, box(LC_ZONES)) | old
+    lines &= fig & ~edge
     # the hair: the figure inside the hair's outline, so each curl and strand is its own shape, edged in the tone
     strokes = fig & hair_zone & ~paint
     soft_edge = edge & (ndi.distance_transform_edt(~strokes) <= EDGE + 3)
@@ -425,9 +512,15 @@ def scene(src):
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
     base = ((ndi.gaussian_filter(strokes.astype(np.float32), 3.0) > 0.5) | soft_edge) & fig & ~ink
     base &= ~teeth(g)
+    pat_steps = []
     holes = ndi.binary_fill_holes(base) & ~base & ~ink   # (specks of bare clay in the worn white: washed over)
     lab, _ = ndi.label(holes)
     base |= (np.bincount(lab.ravel()) < WASH_HOLE)[lab] & holes
+    for level, opacity in PAT_STEPS:   # (the patterns' wash, drawn under the hair's: they do not meet)
+        m = wide & (g1 < level)
+        lab, _ = ndi.label(m)
+        m &= (np.bincount(lab.ravel()) >= 20)[lab]
+        pat_steps.append((m, opacity))
     steps = []
     for level, opacity in TONE_STEPS:
         m = base & (whiteness >= level)
@@ -435,7 +528,7 @@ def scene(src):
         m &= (np.bincount(lab.ravel()) >= STEP_MIN)[lab]
         steps.append((m, opacity))
     faces = box(FACES) & ink
-    return ink & ~faces, faces, fig, g, steps
+    return ink & ~faces, faces, fig, g, steps, pat_steps
 
 
 def add_tone(svg, steps, box):
@@ -456,13 +549,15 @@ def add_tone(svg, steps, box):
 
 
 def main(src, qa=None, dump=None):
-    ink, faces, fig, g, steps = scene(src)
+    ink, faces, fig, g, steps, pat_steps = scene(src)
+    ink |= (ndi.distance_transform_edt(~morphology.skeletonize(ink)) <= NECK / 2) & fig
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, faces=faces)
     info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=faces,
                         title="Two old men in comic masks and a small slave behind a chest, by a door: a comic stage",
                         desc="Line drawing after the Apulian red-figure bell-krater J. Paul Getty Museum 96.AE.112; "
                              "traced from the museum's photograph (CC0), taken off the vase's curve.")
+    add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in pat_steps], info["box"])
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in steps], info["box"])
     print(OUT, info)
     if qa:
