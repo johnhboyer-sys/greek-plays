@@ -274,7 +274,7 @@ MEND_JOINS = [[(1126, 1227), (1083, 1314)], [(1230, 1188), (1217, 1298)]]
 # shows clay there (red less blue above TRACE_RB) or it was already inside her.
 TR = json.load(open(Path(__file__).resolve().parent / "antigone_traces.json"))
 TRACE_SNAP, TRACE_W, TRACE_RB = 2, 5.0, 45
-# His corrections to pass 1 (John, 2026-10-10, two sittings, marked in PhotoCraft over the photo with pass 1 in red, on
+# His corrections to pass 1 (John, 2026-10-10, four sittings, marked in PhotoCraft over the photo with pass 1 in red, on
 # this tool's grid: UP px per frame px over BOX): tools/antigone_marks_1.png, blue = add, green = remove.
 # Green takes out the lines and her area under it; blue is drawn as he drew it (its edge smoothed over
 # MARK_SIGMA px), solid where he filled. Her area follows: a space his blue encloses, or the green leaves
