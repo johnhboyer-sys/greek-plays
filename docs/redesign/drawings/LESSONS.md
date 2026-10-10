@@ -376,6 +376,21 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - John's marks arrive as chat images; not all reach the session's image folder. His Desktop holds the
   screenshots too ("Screenshot ... PM.png"): match them to the chat by size, and say when you use one he
   did not send (2026-10-08).
+- Philoctetes redone with PhotoCraft (Met 56.171.58; the 2026-10-03 tool's flat and cut points kept): about six
+  hours over five passes and two rounds on the hair, approved by John 2026-10-09. `tools/philoctetes.py` (2026-10-09).
+- Brown hair as brushstrokes: only the brown paint (the clay between strokes left clear), a soft stepped tone for
+  the mass with the curl strokes sharp on it (one blur for both smeared the curls into blotches); darker toward
+  a black top of the head and drawn into it as very dark layered strokes, not solid ("he's not wearing a hat").
+  No outline round the top and back of the head where a clay band rings it: on the light page the band goes to
+  the page. Glare on glaze passes for light brown: measure the black top and a glossy brow on a second photo
+  without glare, and require red less blue for the brown (2026-10-09).
+- A dark brown band (a shadow at the foot) drawn as a wash following the paint reads better than solid black;
+  the rock's brown washes too, as their strokes (2026-10-09).
+- A part outside the scene's flat (the tree's boughs on the shoulder): flatten it on its own and lay it on by the
+  similarity that fits the two flats along the seam (sampled both sides of the cut line; 0.65 px). One map for
+  the whole frame missed by up to 17 px, the scene's flat bending at its edge (2026-10-09).
+- With no outline at an edge, `trace_svg` crops to the ink and cut off the head: pass the area as `extent`
+  (2026-10-09).
 
 ## John's traces
 

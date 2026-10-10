@@ -1032,7 +1032,7 @@ def write(ink, area, washes, m, qa=None):
     weight = WEIGHT_PX / max(np.ptp(ys) + 9, np.ptp(xs) + 9)
     info = lw.trace_svg(
         ink, OUT, body=area, open_holes=~area, extent=area, weight=weight,
-        title="Philoctetes alone on Lemnos, seated on a rock, his bandaged leg drawn up, his bow case beside him",
+        title="Philoctetes alone on Lemnos, seated on a rock under a tree, his bandaged leg drawn up, his bow case beside him",
         desc="Line drawing after the Attic red-figure squat lekythos in the manner of the Eretria Painter, c. 420 BCE, "
              "New York, Metropolitan Museum of Art 56.171.58; traced from photographs by Marie-Lan Nguyen (CC BY 2.5) "
              "and the Metropolitan Museum of Art (CC0), changed.")
