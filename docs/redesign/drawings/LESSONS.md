@@ -335,6 +335,24 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   marks copy"). Hide all layers but his, save as PNG, and check the red layer for his edits too
   (2026-10-10).
 
+- Iphigenia at Aulis (II, pl. XC, Artemis pursuing a woman with a child, read by the Élite as Helen with the
+  infant Iphigenia), made with PhotoCraft: about two and a half hours over two passes, the credit included,
+  approved by John 2026-10-10. `tools/iphigenia_aulis.py` (2026-10-10).
+- A big crop is slow: 2940 x 2032 plate px at UP 3 took 11 minutes and 2 GB a run. Fix the masks on
+  sub-crops (the same tool on a box, the edge rule and out-of-box points dropped: seconds a run) and run the
+  whole plate only to check and to show (2026-10-10).
+- Bands of paint along a garment's edge that touch the ground (a mantle's borders, a sleeve's border) are
+  too many and too long to wall one by one. Find them as the thin parts of the ground (what an opening of 8
+  plate px takes away), sheet every one on the plate, and mark the bands with a point each (`PAINT`). John
+  sorted the sheet in one look: the gaps between fingers and a strip between arm and drapery are ground.
+  After the bands go, relabel the ground: pieces they cut off are paint too (2026-10-10).
+- The gap joiner took the larger dots of a dress for broken line ends and bridged pairs of them, or ran a
+  line on to a dot. Drop its pieces that touch only small marks or touch a dot (`JOIN_SMALL`, `JOIN_DOT`)
+  (2026-10-10).
+- A hair wall can close off ground: Artemis' hair walled, the black between her raised arm and her back
+  became a pocket and filled as paint. Check the full drawing after every wall (`POCKETS`) (2026-10-10).
+- A bowstring printed as black paint over the black ground (grey 3-6 against 7-9): place each straight run
+  where the mean grey along it is least, searching half-px shifts of its ends (`STRINGS`) (2026-10-10).
 - Wealth (III, pl. LVIII, Plutus with the cornucopia), made with PhotoCraft: about forty minutes over two
   passes, the credit included, approved by John 2026-10-10. `tools/wealth.py` (2026-10-10).
 - Added white (hair, beard) over the black ground, no black outline on the vase: show John a small test of each house
