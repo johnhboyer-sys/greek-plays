@@ -66,13 +66,21 @@ DARK = 85                                 # ground and solid paint: darker than 
 AUTO_GROUND = 10000                       # plate px: dark areas this large, reaching the crop's edge, are ground
 FIG_MIN = 200                             # plate px: clay areas smaller than this are specks of the print
 # pockets of ground the figures close in (a point in each, levelled px): between the two arms, Helen's
-# side and his
-POCKETS = [(1300, 510)]
+# side and his; between Helen's top two fingers on his skirt (John, pass 1: it came out as black paint)
+POCKETS = [(1300, 510), (1398, 572)]
 WALL_W = 1.5
+# Helen's hair above her diadem, round the two leaves (John, pass 1: "is there hair above the crown?"):
+# no clay line bounds it, but the plate prints it as it prints the hair and the diadem's band (grey 17-40)
+# and the ground darker (5-10). Its edge (levelled px), measured column by column where the plate turns
+# lighter than the ground: from the veil along y 262.5-263.5 to the right leaf, then down the leaf's edge
+CROWN = [(1143, 262.5), (1157, 262.5), (1172, 263.5), (1184, 263.5), (1184, 281), (1143, 281)]
 LINE_DARK = 100
 LINE_MIN = 1.5
 EDGE_OUT = 2.0                            # plate px: the outline's width, on the ground
-HANDS = []
+# Helen's hand on his skirt (box, levelled px): its fingers are clay strips with 1-3 px of ground between
+# them, which came out as clay with a line each side; found at less blur and outlined finer (HAND_EDGE),
+# as on Ion and Trojan Women
+HANDS = [(1375, 555, 1420, 592)]
 HAND_EDGE = 1.2
 # the eyes (boxes, levelled px: Helen's, Menelaus'): the local-contrast finder drew each eye as a heavy
 # loop, the pupil run into the lids. Here the brow and the pupil are the plate's paint at its own width,
@@ -240,7 +248,7 @@ def main(src, qa=None, dump=None):
         k = lab[round((y - Y0) * UP), round((x - X0) * UP)]
         assert k, f'pocket point {(x, y)} is not on dark'
         is_ground[k] = True
-    ground = is_ground[lab]
+    ground = is_ground[lab] & ~lw.polygon_mask(g.shape, up(CROWN))
     paint = dark & ~ground
 
     lab, _ = ndi.label(~ground & ~outside)
