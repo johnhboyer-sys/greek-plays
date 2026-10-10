@@ -7,52 +7,31 @@ Photos: ArchaiOptix, CC BY-SA 4.0, so the drawing is CC BY-SA 4.0; _04 is the
 drawing's source, _05 and _06 serve the vase's shape:
 https://commons.wikimedia.org/wiki/File:Darius_Painter_-_RVAp_18-23_-_Antigone_-_judgement_of_Paris_-_Eros_with_youths_and_women_-_Berlin_AS_F_3240_-_04.jpg
 
-Photo -> drawing:
-  - The vase is taken off its curve (vase_unroll.py, as for Euphorbos; John
-    approved the method on that drawing, 2026-10-02). Its profile and the
-    cameras of 04, 05 and 06 were fitted together (MODEL): to the upper
-    border of the animal frieze under her feet (a painted circle) in all
-    three, the vase's right-hand outline in 06, and points of the painting
-    matched between 04 and the other two. All three photos were taken on an
-    EOS 6D, 04 and 05 at 50 mm, 06 at 40 mm (EXIF), so the focal lengths are
-    fixed; 04 and 05 are uncropped. The vase is then flattened without shear
-    (vase_unroll.flatten) about her axis, and 04 laid onto it at 04's own
-    scale at her waist. Unflattened, the photo shortens her feet and lower
-    skirt by up to 13%: the camera looked down on them where the vase stands
-    upright. Her head, on the shoulder, which leans back toward the camera,
-    hardly changes.
-  - She is the clay joined to SEED; the guard and the boy are separate
-    figures on the glaze, and the guard's cord, which only touches her
-    wrists, is left out with him. Both feet are paler than the rest of her,
-    the back one half hidden under her hem; inside FEET anything lighter
-    than the glaze is her (John, 2026-10-02: "Don't leave out the other
-    foot").
-  - Two mended breaks cross her: one over her upper arm, one diagonally
-    across her skirt. Each is erased whole and nothing is drawn along it;
-    the folds it broke are joined across (John: "connect the lines broken
-    up by that slash on the vase"). Across the arm mend the lines are John's
-    own trace (ARM_LINES).
-  - Painted lines are found by local contrast and redrawn as even lines
-    along their centres at the house weight. In her head, where the lines
-    crowd and carry white highlights, they are the paint itself thinned to
-    its centres (HEAD, paint()); beside her hands only the darkest strokes
-    count, not the brushy shading (WASH). Wide dark paint (the band binding
-    her wrists, the hem's edge over her back foot) stays solid.
-  - Her hands and face are drawn from John's own traces (2026-10-02): the
-    hands once, the face three times, each closer than the last (HAND_TRACE,
-    FACE_TRACES), each registered onto this frame by SIFT to within half a
-    pixel. Inside a trace's zone his strokes replace the found lines and her
-    edge, and her area follows his outlines; where his outline encloses paint
-    (a curl, the glaze dot, the dark of the lower lip) the paint is drawn as
-    its filled shape. Her eye is the paint itself (EYE): its strokes lie too
-    close together for outlines. The reddish streak across her cheek, which
-    John marked in pink, is a stain in the clay and is not drawn (NOT_LINES):
-    "the orange strokes don't translate to two tone".
+Redrawn with PhotoCraft (John, 2026-10-09); the first tool of this name (2026-10-02/03, drawn from John's
+traces of her hands and face) is in git history.
+
+Photo -> flat (vase_unroll.py; geometry, so numpy and scipy, not PhotoCraft), as approved on 2026-10-02:
+  - Her profile and the cameras of 04, 05 and 06 were fitted together (MODEL): to the upper border of
+    the animal frieze under her feet (a painted circle) in all three, the vase's right-hand outline in
+    06, and points of the painting matched between 04 and the other two. All three photos were taken on
+    an EOS 6D, 04 and 05 at 50 mm, 06 at 40 mm (EXIF), so the focal lengths are fixed; 04 and 05 are
+    uncropped. The vase is flattened without shear (vase_unroll.flatten) about her axis, and 04 laid
+    onto it at 04's own scale at her waist. Unflattened, the photo shortens her feet and lower skirt by
+    up to 13%.
+
+Flat -> drawing: every image step runs in PhotoCraft (`photocraft-cli` 0.2.0): the crop, the
+enlargement, the grey, the clay map (Channel Mixer, red less blue), the blurs, the Maximum and Minimum
+filters and the thresholds. numpy only combines PhotoCraft's masks and measures. The SVG is written by
+linework.trace_svg.
 
     python3 docs/redesign/drawings/tools/antigone.py 04.jpg 05.jpg 06.jpg [qa.png]
     python3 docs/redesign/drawings/tools/antigone.py 04.jpg 05.jpg 06.jpg --refit
 """
+import json
+import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -64,9 +43,9 @@ from skimage import morphology
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
 import vase_unroll as vu  # noqa: E402
-from euphorbos import strokes  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "antigone.svg"
+PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli"))
 
 # ---------------------------------------------------------------- the vase
 
@@ -188,641 +167,165 @@ def flat_image(p04):
 
 # ---------------------------------------------------------------- her
 
-CLAY_RB = 100        # clay is redder than this (red minus blue)
-SEED = (900, 2300)   # on her skirt (frame px): she is the clay joined to it
-# Both feet are paler than the clay (her front foot, and the back one under
-# her hem): inside FEET, anything lighter than the glaze (FOOT_L) is her.
+BOX = (150, 230, 1420, 3720)   # frame px: her crop
+UP = 2                          # work at 2x the frame's px, so curves stay smooth
+SEED = (900, 2300)              # frame px, on her skirt: she is the clay joined to it
+# Clay: red less blue (PhotoCraft's Channel Mixer, lightly blurred) above CLAY; the glaze, its white sheen
+# and the painted lines read near 0, her clay about 200 (the plaster in the mends too)
+CLAY = 90
+# Both feet are paler than the clay (her front foot, and the back one under her hem): inside FEET anything
+# lighter than FOOT_L (grey) is her (John, 2026-10-02: "Don't leave out the other foot")
 FEET = [[(198, 3365), (335, 3365), (335, 3645), (198, 3645)],
         [(355, 3470), (1000, 3470), (1000, 3665), (355, 3665)]]
 FOOT_L = 90
-# The back foot, under her hem, is cut off from her by the hem's dark line,
-# and a thick painted stroke (the hem falling over it) crosses it to the
-# sole: light areas in FEET within FOOT_GAP px of her join her, and the gaps
-# close up (FOOT_CLOSE).
-FOOT_GAP, FOOT_CLOSE = 20, 20
-# Her hands: the fingers of both hands point left, tips against the glaze,
-# some painted so thinly that the clay test misses them; inside HAND the clay
-# test is looser (HAND_RB). (Their lines come from John's trace, HAND_TRACE.)
+# Her fingers point left, tips against the glaze, some painted so thinly that the clay test misses them:
+# inside HAND the clay test is looser (HAND_RB)
 HAND = [(445, 1880), (600, 1840), (650, 1880), (650, 2000), (610, 2110), (445, 2110)]
 HAND_RB = 55
-# In her head (HEAD: veil and hair) and her hands the painted lines lie close
-# together and each carries a white highlight, and the contrast finder joins
-# neighbours into ladders. There the lines are the paint itself: darker than
-# PAINT_K times the clay around it (the highlights, pale and grey on dark
-# paint, counted as paint), thinned to their centres.
+# The band binding her wrists is black glaze, a crescent open to the black ground at its ends: inside
+# WRIST_BAND the dark is paint, not ground
+WRIST_BAND = [(595, 1804), (628, 1778), (652, 1770), (680, 1771), (712, 1781), (735, 1792), (754, 1804), (768, 1820),
+              (772, 1840), (754, 1842), (742, 1826), (728, 1816), (708, 1806), (686, 1803), (665, 1804), (646, 1810),
+              (628, 1824), (610, 1838)]
+# Ground: the dark with the painted lines (up to 2 * OPEN frame px wide) opened away, in areas over
+# AUTO_GROUND frame px^2 that reach the crop's edge
+OPEN, AUTO_GROUND = 5, 20000
+EDGE_R = 6                      # frame px: her edge where the clay map falls to half the clay's level nearby
+FIG_SIGMA = 3.0                 # frame px: her area smoothed along its length
+EDGE = 4.5                      # frame px: the outline, drawn inside her edge, as wide as her painted lines (median)
+# Lines: the painted lines are black glaze on the clay, 3-8 frame px wide, many with a white highlight
+# along them. In red less blue the highlight reads as glaze (it is grey, not red), so the lines are found
+# there by local contrast (the blurred map's Maximum then Minimum over CLOSE_W frame px, less the blurred
+# map) with hysteresis (LINE_LOW, LINE_HIGH), and drawn at their own width (where the contrast is at
+# least half the strongest within HALF_R frame px), never thinner than LINE_MIN along their centre.
+LINE_LOW, LINE_HIGH, HALF_R, LINE_MIN = 25, 55, 3, 2.5
+CLOSE_W = 11
+LINE_LEN = 25                   # frame px: shorter pieces are grain
+# and pieces shorter than SHORT_LEN whose contrast never reaches SHORT_C are the brushy wash of dilute glaze
+# the painter shaded the drapery with (by her elbows and fingers), not lines: the painted lines reach 200
+# and more, the wash 70-110
+SHORT_LEN, SHORT_C = 80, 130
+HOLE = 12                       # frame px^2: holes this small in a line are filled
+MASK_SIGMA = 1.5                # frame px
+SPUR, WIDTH_SIGMA = 10, 8.0     # frame px
+# Breaks in a painted line (where the glaze flaked, a crack crossed it, or a highlight cut it) are joined
+# (John, 2026-10-09: "we want these ink strokes to be clean, not cracked or jagged"), as clouds.py joins
+# them: line ends facing each other across at most JOIN_MAX frame px (their last JOIN_RUN px pointing at
+# each other within JOIN_ANGLE degrees), where the contrast across the gap has a median of JOIN_C or more,
+# and the join crosses no other line; ends pointing straight at each other (within 10 degrees) across up to
+# ALIGN_MAX where its median is ALIGN_C or more
+JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, ALIGN_MAX, ALIGN_C = 20, 8, 20, 15, 40, 8
+ALIGN_COS = np.cos(np.radians(10))
+# Pale white streaks lie on the clay (arcs across her back by her elbows: worn white or a deposit, not
+# painted lines); grey, not red, so red less blue reads them as glaze. Areas lighter than WHITE_L (grey)
+# and wider than 2 * WHITE_W frame px count as clay for the lines (the highlights along painted lines are
+# narrower), inside WHITE_ZONE only (elsewhere broad white is the highlight on her veil's glossy lines)
+WHITE_L, WHITE_W, WHITE_ZONE = 150, 3, [(480, 1450), (980, 1450), (980, 1760), (480, 1760)]
+# In her veil and hair (HEAD) the lines crowd and carry broad white highlights, and the contrast finder
+# joined neighbours into ladders: there the lines are the paint itself (red less blue under HEAD_K times the
+# clay nearby, the Maximum over EDGE_R), redrawn along its centres at its own width
 HEAD = [(860, 280), (1340, 280), (1340, 860), (1100, 860), (900, 760), (860, 600)]
-PAINT_K = 0.65
-# Right of her fingers the painter shaded the drapery with brushy dilute
-# glaze over a few crisp strokes; inside WASH only paint darker than WASH_K
-# times the clay counts, so the crisp strokes stay and the shading goes.
-WASH = [(600, 1870), (765, 1860), (775, 2140), (590, 2140)]
-WASH_K = 0.45
-# Two mended breaks, each a band given by points along its two edges (upper,
-# then lower, left to right). The plaster bleeds, so a band is erased
-# MEND_PAD px wider. Folds that cross a band are joined across it: a line
-# ending within MEND_NEAR px of one edge is carried on along its own line to
-# the line it meets on the other side (see join_across).
+HEAD_PAINT, HEAD_K, HEAD_SIGMA = False, 0.5, 0.5   # (the mask smoothed less there: its lines lie 4-6 px apart)
+# At the front of her veil four thick glossy lines lie 4-6 px apart, each with a broad white highlight, and
+# the finder joined them with rungs. Inside BAND_ZONE they are drawn on hand-placed points (frame px, read off
+# the photo at 4x on a 20 px grid, 2026-10-09), snapped to the paint as his strokes are, each at its own
+# width (frame px); the found lines there go.
+BAND_ZONE = [(1132, 412), (1325, 412), (1325, 522), (1132, 522)]
+BAND_LINES = [(5, [(1126, 431), (1140, 428), (1160, 425), (1200, 424), (1240, 426), (1270, 429), (1290, 433), (1300, 438)]),
+              (4, [(1122, 453), (1135, 450), (1160, 451), (1200, 450), (1240, 450), (1280, 449), (1298, 450)]),
+              (7, [(1120, 486), (1140, 480), (1160, 475), (1180, 471), (1200, 471), (1220, 472), (1240, 475),
+                   (1260, 480), (1280, 484), (1300, 487), (1315, 491)]),
+              (6, [(1120, 506), (1140, 504), (1160, 501), (1180, 500), (1200, 500), (1220, 501), (1240, 504),
+                   (1260, 501), (1280, 500)]),
+              (4, [(1280, 515), (1292, 523), (1300, 530), (1305, 535)])]
+# solid paint (the band at her wrists, the hem's dark edge over her back foot): red less blue under
+# PAINT, wider than 2 * PAINT_WIDE frame px
+PAINT, PAINT_WIDE = 40, 4
+# Two mended breaks, each a band given by points along its two edges (upper, then lower, left to right),
+# frame px. The plaster bleeds, so a band is erased MEND_PAD px wider. Each is erased whole and nothing is
+# drawn along it; the folds it broke are joined across (John, 2026-10-02: "connect the lines broken up by
+# that slash on the vase"): a line ending within MEND_NEAR px of one edge is carried on along its own line
+# to the line it meets on the other side, within MEND_GAP px of the end and MEND_LAT px of its line.
 MENDS = {
     "skirt": ([(444, 2810), (540, 2852), (620, 2896), (700, 2932), (780, 2976), (860, 3024), (940, 3084),
                (1020, 3144), (1036, 3166)],
               [(444, 2848), (540, 2888), (620, 2926), (700, 2968), (780, 3016), (860, 3064), (940, 3120),
                (1036, 3206)]),
-    # the plaster ridge from x 575 to 800; left of it only a thin crack across her bare arm
+    # the plaster ridge from x 575 to 800; left of it only a thin crack across her bare arm; right of it the
+    # plaster spreads into a broad patch across her far shoulder to her back edge (x 850-1265, placed by eye
+    # on the photo, 2026-10-09; the first tool's band stopped at x 820)
     "arm": ([(430, 1430), (500, 1408), (560, 1383), (575, 1368), (600, 1362), (650, 1350), (700, 1340), (760, 1328),
-             (820, 1314)],
+             (820, 1314), (850, 1290), (950, 1278), (1050, 1262), (1110, 1238), (1160, 1215), (1265, 1192)],
             [(430, 1446), (500, 1424), (560, 1400), (575, 1393), (600, 1389), (650, 1382), (700, 1372), (760, 1360),
-             (820, 1346)]),
+             (820, 1346), (850, 1345), (950, 1335), (1050, 1318), (1110, 1302), (1160, 1296), (1265, 1290)]),
 }
 MEND_PAD, MEND_NEAR, MEND_GAP, MEND_LAT, MEND_MIN = 4, 24, 110, 6, 40
-# Across the arm mend John traced the lines himself (2026-10-02), on a crop of
-# photo 04: each fold straight through the mend, the drapery's hook on the
-# right. His trace was registered onto this frame by SIFT (183 matches, 0.3
-# px) and its strokes turned into polylines (ARM_LINES, frame px). Inside
-# ARM_ZONE (his crop, less ARM_INSET px, so his lines overlap the found ones
-# at its edges) they replace the found lines, drawn even and snapped to the
-# paint within ARM_SNAP px.
-ARM_ZONE, ARM_INSET, ARM_SNAP = (562, 1303, 843, 1430), 6, 3
-# Her hands: John traced them himself (2026-10-02, on a crop of this frame):
-# the arms and the band binding her wrists, the back of the upper hand, each
-# finger of both hands as its own outline, and the folds below. His trace was
-# registered onto the frame by SIFT (656 matches, 0.3 px) and its strokes
-# turned into polylines (HAND_TRACE, frame px). Inside HAND_TRACE_ZONE (the
-# hull of his strokes) they replace the found lines and her edge, drawn even
-# and snapped to the paint within TRACE_SNAP px. Her area there comes from his
-# outlines: a space they enclose is her if the photo shows clay there (red
-# minus blue above TRACE_RB; the lower hand's fingers are painted darker than
-# the rest of her, and the clay test missed them) or if it was already inside
-# her (the black band at her wrists, which stays solid).
-HAND_TRACE_ZONE = [(506, 1752), (530, 1751), (656, 1759), (778, 1788), (784, 1791), (784, 2094), (782, 2100), (772, 2121), (753, 2143), (629, 2144), (539, 2143), (469, 2090), (467, 2088), (450, 1951), (451, 1940), (500, 1770)]
-TRACE_SNAP, TRACE_RB, PAINT_CELL, PAINT_L = 2, 45, 800, 70
-# The band binding her wrists is black glaze, a crescent open to the black
-# ground at its ends, so neither her area nor the solid test holds it; it is
-# drawn solid where the photo is dark inside WRIST_BAND (its highlights filled).
-WRIST_BAND = [(595, 1804), (628, 1778), (652, 1770), (680, 1771), (712, 1781), (735, 1792), (754, 1804), (768, 1820),
-              (772, 1840), (754, 1842), (742, 1826), (728, 1816), (708, 1806), (686, 1803), (665, 1804), (646, 1810),
-              (628, 1824), (610, 1838)]
-HAND_TRACE = [
-    [(763.9, 1815.1), (750.2, 1833.5)],
-    [(480.2, 2085.1), (479.9, 2088.1), (474.5, 2090.8), (468.6, 2090.5), (467.4, 2087.8), (469.8, 2081.9), (475.7, 2077.7), (479.6, 2076.5)],
-    [(506.9, 1802.3), (509.6, 1793.4), (513.8, 1788.4), (523.3, 1770.5), (530.4, 1750.9)],
-    [(555.9, 1999), (544.1, 1999.3), (520.3, 1996.9), (508.4, 1996.9), (502.5, 1998.7), (497.1, 1999)],
-    [(612.1, 1893.8), (607, 1908.7), (602.3, 1926.5), (602, 1944.3), (604.1, 1964.5)],
-    [(755.3, 2004.3), (763, 2019.8)],
-    [(693.2, 1910.5), (690.2, 1911.6), (671.8, 1935.4), (666.2, 1944)],
-    [(631.1, 2024.5), (628.1, 2023.9), (625.2, 2025.1), (613.6, 2036.1), (610, 2042.1)],
-    [(770.4, 2045), (771.9, 2032)],
-    [(558.6, 2073.5), (558.9, 2079.8)],
-    [(503.1, 2045.6), (497.1, 2043.5), (488.8, 2036.4), (482.9, 2037), (476.9, 2041.5), (475.4, 2044.4), (471, 2056.3), (470.4, 2062.3), (472.5, 2063.4), (481.4, 2059), (487.3, 2057.5), (496.2, 2051.3), (501.3, 2049.8)],
-    [(553.3, 1798.2), (553.6, 1795.2), (550.6, 1790.4)],
-    [(772.8, 1802.6), (765.1, 1814.8)],
-    [(770.7, 2045.3), (775.5, 2049.2)],
-    [(693.5, 1910.2), (694.7, 1902.4)],
-    [(733.6, 2006.1), (735.7, 2008.8), (740.1, 2021.6)],
-    [(784.1, 2014.1), (779.9, 2026), (777.9, 2028.7), (772.2, 2031.7)],
-    [(496.8, 1999), (494.4, 2001.4), (479.6, 2001.7), (473.7, 2002.8), (467.7, 2005.2), (467.1, 2008.2), (468, 2011.2), (473.1, 2016.8), (476, 2018.3), (514.6, 2020.4), (523.6, 2022.7), (528.9, 2025.4)],
-    [(752.6, 2143.4), (753.5, 2137.4), (753.2, 2119.6), (754.7, 2104.7), (767.2, 2054.2), (770.4, 2045.3)],
-    [(695.3, 1910.7), (698.2, 1909), (703.6, 1900.1), (703.6, 1898.6)],
-    [(693.5, 2106.8), (697.4, 2100.9), (705.4, 2093.5), (708.3, 2093.2)],
-    [(693.5, 2106.8), (690.5, 2107.7), (687.5, 2110.1), (674.8, 2122.6)],
-    [(693.5, 2106.8), (695.9, 2109.8), (695.9, 2112.8), (694.1, 2124.6), (693.2, 2139.5)],
-    [(670.6, 1952), (666.5, 1961), (652.8, 1984.7), (638.2, 2004.6)],
-    [(576.4, 2033.1), (552.7, 2033.1), (543.8, 2031.1), (531.9, 2026), (529.2, 2025.7)],
-    [(556.5, 1999), (565.4, 1997.8), (568.4, 1996.3), (569.6, 1994.5)],
-    [(549.7, 1985.6), (525.9, 1974), (514.1, 1971.9), (512.6, 1969.3), (514.9, 1967.5), (520.9, 1965.7), (529.8, 1964.8), (554.8, 1966.6)],
-    [(585.9, 1897.4), (583, 1898), (577, 1901.5), (568.1, 1908.7), (562.2, 1911), (535.4, 1930.4), (512.3, 1952.3), (509.3, 1953.5), (497.4, 1957.1), (485.5, 1957.7), (476.6, 1956.8), (470.7, 1954.7), (461.8, 1953.2), (452.9, 1953.2), (450.5, 1951.4), (450.8, 1939.6), (455.5, 1933.6), (461.5, 1931.8), (467.4, 1932.1), (470.1, 1930.1), (473.1, 1929.5), (482, 1928.6), (493.9, 1923.8), (502.8, 1919.4), (514.6, 1909.6), (532.5, 1900.3), (534, 1898.3)],
-    [(621, 2086.6), (620.4, 2083.6), (624.6, 2068.8), (626.1, 2059.9), (626.9, 2042.1), (631.4, 2024.8)],
-    [(641.5, 1805.6), (647.4, 1802.6), (668.2, 1796.1), (677.2, 1795.2), (721.4, 1808.9)],
-    [(539, 2143.1), (538.7, 2140.1), (543.5, 2125.2), (542.6, 2122.9)],
-    [(784.1, 1791), (783.2, 1794), (778.8, 1799.9), (773.1, 1802.6)],
-    [(727.7, 2137.7), (729.1, 2128.8), (729.4, 2116.9), (734.5, 2093.2), (737.5, 2070.9)],
-    [(605.6, 1817.8), (611.5, 1816.9), (617.4, 1813.9), (623.1, 1813.3)],
-    [(731.5, 2006.1), (726.8, 2000.8), (722.3, 1988.9), (719.6, 1977), (715.8, 1968.1), (715.5, 1956.2), (717.3, 1948.5)],
-    [(731.5, 2006.1), (730.6, 2012.4)],
-    [(555.1, 1966.6), (560.7, 1969), (584.5, 1969.9), (593.4, 1968.4), (603.8, 1964.8)],
-    [(586.2, 1897.7), (585.9, 1900.6), (579.1, 1912.5), (574.7, 1933.3), (572.6, 1939.3), (556.5, 1963), (555.1, 1966.3)],
-    [(560.1, 2081.3), (559.5, 2084.2), (555.6, 2087.8)],
-    [(697.1, 1890.8), (695, 1893.5), (694.1, 1896.5), (694.7, 1902.1)],
-    [(765.1, 1815.1), (771, 1820.4), (772.8, 1823.4), (771.9, 1826.4), (770.7, 1827.3)],
-    [(611.8, 1841.2), (610, 1844.2), (593.7, 1854.9)],
-    [(555.1, 2088.1), (552.1, 2089.9), (546.1, 2101.8), (543.5, 2109.8)],
-    [(621.6, 2086.6), (630.2, 2079.8), (633.5, 2078.6)],
-    [(558.6, 2138.6), (558.6, 2135.6), (556.5, 2133.3)],
-    [(550, 1985.9), (558.9, 1988.6), (569.6, 1994.5)],
-    [(761.8, 1949.4), (753.5, 1967.2), (752.3, 1973.1), (751.7, 1985), (752.3, 1993.9), (754.1, 2000.5)],
-    [(707.5, 2001.7), (704.5, 2003.1), (702.1, 2006.1), (699.1, 2012.1), (697.1, 2021), (694.4, 2026.9), (677.4, 2050.7), (672.1, 2059.6), (666.8, 2064.6), (662, 2071.8)],
-    [(479.9, 2076.2), (484.9, 2070.6), (490.9, 2067), (501.9, 2057.2)],
-    [(520, 1853.1), (510.5, 1838.3), (508.1, 1832.3), (506.9, 1802.6)],
-    [(753.2, 1852.8), (752.3, 1840.9), (749.9, 1837.7)],
-    [(717.6, 1947.3), (720.2, 1944.9), (726.2, 1943.1), (729.1, 1943.7), (730.9, 1946.7), (731.2, 1955.6), (729.1, 1973.4), (729.1, 1988.3), (733.3, 2000.2), (733.6, 2005.8)],
-    [(506.6, 1802.6), (503.7, 1803.8), (499.8, 1810.6)],
-    [(571.4, 1994.5), (577.3, 1994.8), (582.7, 1993.3)],
-    [(748.2, 1998.4), (753.8, 2000.8)],
-    [(612.1, 1840.9), (615.1, 1840.3), (632.9, 1830.2), (638.8, 1828.2), (642.4, 1824.9)],
-    [(666.2, 1944.3), (669.1, 1946.1), (670.6, 1951.7)],
-    [(730.6, 2012.4), (728, 2014.4), (716.7, 2032.3), (687, 2067.9), (668.2, 2100.6), (667.6, 2112.2)],
-    [(730.6, 2012.4), (736.3, 2021), (739.8, 2021.9)],
-    [(555.6, 2088.1), (557.1, 2091.1), (556.5, 2094), (549.1, 2111.9), (545.5, 2114.2)],
-    [(588.9, 2069.4), (589.8, 2075.3), (587.7, 2093.2), (581.8, 2108), (574.7, 2134.7), (572, 2141.3)],
-    [(763.6, 1908.7), (764.2, 1914.6), (769.5, 1932.4), (776.4, 1947.3), (779.6, 1953.2), (781.4, 1954.7)],
-    [(772.2, 2120.8), (773.4, 2114.8), (782.3, 2100), (784.1, 2093.5)],
-    [(695, 1911), (695, 1922.9), (697.7, 1931.8), (699.7, 1934.8), (705.7, 1939.9), (717.3, 1947.3)],
-    [(692.6, 1988), (689.9, 1990.1), (660.5, 2031.7), (642.1, 2067.3), (637, 2073), (633.8, 2078.3)],
-    [(548.2, 1989.5), (554.2, 1993.9), (556.2, 1998.7)],
-    [(687, 1827.9), (678, 1827.3), (672.7, 1825.5)],
-    [(653.4, 1778.8), (654, 1764), (656.4, 1759.2)],
-    [(653.1, 1779.1), (635.3, 1784.5), (623.4, 1793.4), (617.7, 1798.7), (605.6, 1813.6), (605.3, 1817.5)],
-    [(506.3, 1752.1), (499.8, 1769.9), (495.6, 1790.7), (493.3, 1814.5), (493.3, 1844.2), (494.4, 1859.1), (496.2, 1865), (504, 1879.9), (509.9, 1884.6), (527.7, 1893.5), (534, 1898.3)],
-    [(755, 2004.3), (752, 2007), (748.2, 2007)],
-    [(543.2, 1817.2), (543.8, 1811.2), (542.9, 1791.3)],
-    [(593.1, 1854.9), (590.1, 1855.5), (587.1, 1857.6), (575.3, 1867.7), (554.5, 1882.5), (536.6, 1897.7), (534, 1898.3)],
-    [(637.9, 1990.1), (645.7, 1978.2), (658.7, 1954.4), (665.9, 1944.3)],
-    [(558.6, 2073.3), (585.4, 2061.1), (591.9, 2059.3)],
-    [(641.8, 1811.8), (643.9, 1814.8), (643.9, 1820.7), (642.7, 1824.6)],
-    [(653.7, 1779.1), (671.5, 1779.1), (683.4, 1777.1), (698.2, 1777.1), (704.2, 1778.5), (733.9, 1791.6), (748.8, 1799.6), (763.9, 1814.8)],
-    [(750.2, 2047.4), (749.6, 2056.3), (750.2, 2077.1)],
-    [(552.4, 2138.6), (553, 2135.6), (556.5, 2133.3)],
-    [(619.2, 1974.6), (613.3, 1976.1), (604.4, 1980.6), (589.5, 1985), (583.6, 1987.7), (574.7, 1989.5), (572.3, 1991.6), (571.4, 1994.2)],
-    [(772.8, 1802.3), (774.3, 1796.4), (778.5, 1787.5)],
-    [(751.1, 2034.9), (756.5, 2030.2), (759.1, 2024.2), (763, 2020.1)],
-    [(750.8, 2035.2), (750.2, 2046.8)],
-    [(641.2, 2101.2), (641.8, 2104.1), (640, 2110.1), (635.9, 2118.7)],
-    [(623.1, 1827.9), (626.7, 1822.2), (638.5, 1813), (641.5, 1811.8)],
-    [(602, 1819.5), (591, 1805), (553, 1767), (549.1, 1761), (548.2, 1756)],
-    [(641.2, 1805.6), (623.7, 1813.3)],
-    [(503.4, 2045.6), (509.3, 2042.7), (527.1, 2028.7), (528.9, 2026)],
-    [(606.1, 2136.2), (606.1, 2133.3), (616.5, 2094.6), (619.2, 2088.7), (621.3, 2086.9)],
-    [(708.3, 2093.2), (715.8, 2081.3), (718.7, 2080.4), (724.7, 2075.9), (732.4, 2068.5), (734.8, 2062.6), (742.8, 2050.7), (745.5, 2048.6), (749.9, 2047.1)],
-    [(708.3, 2093.2), (710.7, 2096.1), (710.4, 2099.1), (705.7, 2122.9), (702.7, 2131.8), (701.8, 2138.9)],
-    [(547.9, 1989.2), (536, 1988.6), (527.1, 1986.5), (503.4, 1986.2), (494.4, 1983.2), (485.5, 1976.1), (482.9, 1976.7), (480.2, 1982.6), (480.2, 1985.6), (482.9, 1991.6), (496.8, 1998.7)],
-    [(624.3, 2004), (621.3, 2004.9), (614.2, 2013.8), (599.3, 2025.1), (581.5, 2033.4), (576.7, 2033.1)],
-    [(670.9, 1952), (673.9, 1953.5), (681, 1962.4), (684.3, 1968.4), (686.1, 1974.3), (688.7, 1977.3), (692, 1978.8)],
-    [(594.3, 2058.4), (596.9, 2052.5), (602, 2046.8), (610, 2042.1)],
-    [(649.8, 2141.3), (651.9, 2132.4), (652.2, 2126.4), (649.2, 2108.6), (649.5, 2093.8), (657.5, 2075.9), (661.7, 2072.1)],
-    [(558.6, 2080.1), (555.6, 2081.3), (554.5, 2083.9), (554.5, 2086.9), (555.3, 2087.8)],
-    [(602.3, 1819.8), (610.9, 1831.7), (610.3, 1837.7), (611.8, 1840.9)],
-    [(641.5, 1805.9), (642.7, 1808.9), (641.8, 1811.5)],
-    [(763.6, 1908.1), (763.6, 1902.1), (761.8, 1896.2), (760, 1878.4), (753.2, 1853.4)],
-    [(531, 2077.1), (542.9, 2073.5), (558.3, 2073.3)],
-    [(679.5, 1838.6), (667.6, 1837.1), (642.7, 1824.9)],
-    [(592.2, 2059.6), (588.9, 2069.1)],
-    [(588.6, 2069.4), (585.6, 2070.9), (581.5, 2079.8), (577.9, 2083.1)],
-    [(633.8, 2078.6), (632.3, 2105.3), (632.9, 2117.2), (635.3, 2118.7)],
-    [(528.9, 2120.8), (528.3, 2117.8), (528.9, 2108.9), (535.1, 2097), (539.6, 2091.1), (540.2, 2088.1), (538.4, 2085.7), (535.4, 2085.1), (531, 2077.4)],
-    [(703.6, 1898.6), (716.7, 1880.7), (719.6, 1879.3), (724.4, 1873.9), (735.4, 1859.1), (745.8, 1841.2), (747.9, 1838.6), (749.9, 1837.7)],
-    [(703.6, 1898.6), (695, 1902.1)],
-    [(749, 2029.3), (746.1, 2027.8), (740.1, 2021.9)],
-    [(747.9, 2007.3), (747.3, 2013.2), (749.6, 2022.2), (749.3, 2029)],
-    [(502.2, 2056.9), (514.1, 2055.1), (539.3, 2044.7)],
-    [(479, 2084.2), (479.9, 2076.5)],
-    [(631.4, 2024.5), (635.6, 2015.6), (637.9, 2004.9)],
-    [(771.9, 2031.7), (768.9, 2022.7), (763.3, 2020.1)],
-    [(529.2, 2121.1), (532.2, 2120.5), (539.6, 2112.2), (543.2, 2110.1)],
-    [(556.5, 2133.3), (564.3, 2112.5), (569.6, 2103.6), (572.3, 2094.6), (577.6, 2083.4)],
-    [(628.7, 2143.7), (628.4, 2140.7), (635, 2122.9), (635.6, 2119)],
-    [(749.9, 1833.5), (744, 1829.1), (732.7, 1817.8), (722, 1808.9)],
-    [(545.5, 2114.2), (542.6, 2122.9)],
-    [(542.6, 2122.9), (539.6, 2124.6), (536.6, 2130.6), (536, 2133.9)],
-    [(530.7, 2077.1), (527.7, 2075.9), (509.9, 2076.8), (486.1, 2084.2), (480.5, 2084.8)],
-    [(610, 2042.1), (609.7, 2053.9), (605.9, 2074.7), (592.5, 2131.2), (592.5, 2134.2), (594.6, 2139.2)],
-    [(501.9, 2056.6), (501.6, 2050.1)],
-]
-# Her face: John traced it himself too (2026-10-02, on a crop of this
-# frame): the curls by her ear and the wash of hair behind her temple, the
-# glaze dot on her temple, brow, lids and eye, her profile from forehead to
-# jaw with nostril, mouth and chin, her neck and the edge of her dress.
-# Registered by SIFT (1092 matches, 0.3 px) and used like HAND_TRACE. Inside
-# FACE_CORE (the face itself) his lines are drawn at the face's pen,
-# FACE_PEN px: her head is about 350 px tall, and lines 1.2-1.4% of the
-# head's height match the faces John approved (Oedipus Tyrannus, Euphorbos);
-# beyond it the width eases to the house weight over 12 px.
-FACE_CORE = [(1100, 530), (1310, 530), (1310, 790), (1100, 790)]
-FACE_PEN = 5
-# Her eye: brow, crease, upper lid and the lower lid's V are solid strokes 4
-# to 7 px thick with 3 to 5 px of clay between them, too close for outlines
-# (John's loops round each stroke merged at the pen's width). Inside EYE the
-# strokes he traced are drawn as the paint itself: darker than EYE_K times
-# the clay around it, their white highlights counted as paint.
-EYE, EYE_K = [(1145, 546), (1268, 546), (1268, 612), (1145, 612)], 0.6
-FACE_TRACE = [
-    [(1050.1, 537.9), (1057.7, 533.5), (1064.1, 532.3)],
-    [(1042.2, 845.1), (1057.4, 843.1)],
-    [(1007.1, 852.5), (1009.9, 849.2), (1017, 846.7), (1026.4, 844.6), (1029.5, 846.2)],
-    [(1213.8, 727.5), (1216.6, 724.7), (1219.9, 724.4)],
-    [(1001.3, 860.6), (1013.7, 859.4), (1023.6, 856.6), (1041.9, 856.6), (1043.2, 857.8), (1043.5, 860.4)],
-    [(1201.1, 564.3), (1206.2, 568.9), (1207.2, 570.9)],
-    [(1001.3, 591), (1006.9, 589.4), (1008.2, 578.8), (1018.1, 566.3)],
-    [(1295.4, 547.8), (1291.1, 548.8), (1290, 550.3), (1290, 552.9), (1296.6, 559.7)],
-    [(1086.7, 559), (1088.2, 560.2), (1091, 560.5), (1095.9, 565.6), (1098.9, 565.6), (1104.5, 563.3), (1112.6, 551.3), (1112.6, 541.2), (1109.8, 539.6), (1089.2, 538.9), (1088, 547.3), (1088, 557.4), (1086.7, 558.7)],
-    [(1109, 849.5), (1106.7, 851.5), (1103.7, 851.5), (1100.9, 849)],
-    [(1176.6, 848.2), (1173.3, 847.7), (1171.8, 846.2), (1171, 844.1), (1171.6, 840.6)],
-    [(1178.5, 593.5), (1182, 598.6), (1187.6, 604), (1191.2, 605.7), (1195.2, 605)],
-    [(1145.2, 541.4), (1141.4, 540.2), (1138, 541.2), (1132.2, 547.3), (1130.7, 553.4), (1135.5, 553.4), (1140.3, 551.1), (1143.6, 547.5), (1145.4, 541.7)],
-    [(1146.4, 778.3), (1179.2, 778.3), (1188.1, 777), (1192.4, 774.8), (1203.3, 763.1), (1210.2, 754.4), (1214, 746)],
-    [(1018.3, 566.3), (1023.7, 568.1)],
-    [(1127.6, 852.3), (1125.3, 850.7), (1109.3, 849.5)],
-    [(1127.6, 852.3), (1130.4, 852), (1138.3, 853.8), (1142.1, 855.6), (1146.4, 856.1), (1148.7, 857.6)],
-    [(1127.6, 852.3), (1123.5, 856.6), (1104.7, 856.3), (1100.6, 855.3), (1099.1, 853)],
-    [(1296.6, 559.7), (1298.7, 557.7), (1298.9, 554.9)],
-    [(1296.6, 559.7), (1297.1, 567.1), (1292.6, 581.6)],
-    [(1019.9, 621.7), (1022.6, 620.5), (1022.6, 612.6)],
-    [(1216.3, 595.8), (1215.8, 593.8), (1218.9, 587.7)],
-    [(1178.2, 843.6), (1189.6, 848.7), (1192.1, 854.1)],
-    [(1121.5, 770.4), (1110.3, 762), (1104, 759.2)],
-    [(1162.2, 556.9), (1163.2, 556.2), (1175.9, 556.4), (1183.5, 553.1), (1198.8, 553.4), (1211.5, 552.1), (1229, 555.9), (1231.3, 559.2)],
-    [(1000.3, 856.1), (1001.5, 854.3), (1006.9, 852.8)],
-    [(1086.2, 846.7), (1083.9, 843.6), (1077.8, 841.6), (1059.7, 841.1), (1057.7, 843.1)],
-    [(1298.7, 554.7), (1295.6, 551.4), (1295.6, 548.1)],
-    [(1239.4, 697), (1241, 693.2), (1264.3, 691.9), (1272, 689.9), (1280.6, 682), (1281.1, 678.7), (1280.1, 677.2)],
-    [(1239.4, 697), (1237.2, 698.3), (1234.1, 702.1), (1228.3, 704.9), (1220.1, 706.9), (1208.7, 706.6), (1188.1, 703.1)],
-    [(1239.4, 697), (1242, 700), (1241.2, 708.2), (1233.1, 722.9), (1228.8, 743.5), (1226.2, 748.8), (1218.6, 759.3)],
-    [(1041.7, 571.2), (1039.7, 576)],
-    [(1017.3, 530), (1019.1, 532.3), (1018.1, 540.6), (1010.5, 546.2), (1003.8, 552.8), (1001.1, 556.2), (1000.3, 558.7)],
-    [(1191.9, 854.3), (1185.3, 852.8), (1176.9, 848.2)],
-    [(1088.5, 796.3), (1087.9, 785.9), (1088.7, 784.1)],
-    [(1022.6, 636.2), (1019.3, 638.2), (1012.7, 638), (1001, 632.1)],
-    [(1078.6, 551.6), (1082.6, 556.7), (1085.9, 558.7)],
-    [(1231.3, 559.5), (1230.3, 561.8), (1202.9, 562.5), (1201.1, 564.1)],
-    [(1048.1, 565.8), (1055.2, 571.2), (1061.3, 572.4)],
-    [(1089, 807), (1087.4, 819.2), (1085.9, 822.5)],
-    [(1192.4, 854.3), (1198.5, 856.6), (1201.3, 856.6), (1203.1, 854.8), (1208.2, 855.1)],
-    [(1151.5, 560.5), (1155.3, 559.2)],
-    [(1100.6, 847.2), (1091.2, 845.9), (1089.2, 846.9)],
-    [(1035.1, 585.1), (1035.4, 589.7), (1037.9, 593.3), (1042.2, 595), (1045.8, 595.3), (1046, 592.2), (1040.4, 587.4), (1039.4, 584.9)],
-    [(1072, 585.9), (1066.9, 584.1), (1062.6, 580.1), (1061.5, 572.7)],
-    [(1214, 745.8), (1213.3, 741.5), (1213.5, 727.7)],
-    [(1230, 588.2), (1219.9, 582.4), (1210.2, 580.8), (1205.9, 578.8), (1193.2, 577.5), (1179, 577.5), (1175.2, 578.5), (1167, 583.4), (1163.5, 587.4), (1162.4, 590.2)],
-    [(1051.4, 541.9), (1051.9, 540.1), (1050.1, 538.1)],
-    [(1176.9, 848), (1177.9, 843.6)],
-    [(1089.2, 846.9), (1093.5, 852.5), (1098.9, 853)],
-    [(1214.3, 746), (1217.6, 748.3)],
-    [(1072.2, 585.6), (1072.5, 581.3), (1070.9, 577), (1067.9, 573.4), (1063.8, 571.7)],
-    [(1161.7, 559.7), (1156.3, 560.2), (1155.3, 559.2)],
-    [(1039.4, 576.2), (1037.4, 577), (1028, 576.7), (1026.2, 578.3)],
-    [(1155.3, 559.2), (1157.1, 556.2), (1161.9, 556.9)],
-    [(1237.7, 588.2), (1230.3, 588.2)],
-    [(1026, 579.8), (1016.8, 586.9), (1014, 591), (1014, 598.9), (1015, 602.2), (1017.3, 606.2), (1020.9, 609.3), (1022.6, 612.3)],
-    [(1212.3, 598.6), (1209.7, 596.1), (1209.5, 591.3), (1203.1, 587.7), (1181.5, 587.7), (1178.5, 593)],
-    [(1075.8, 587.4), (1077.8, 585.1), (1076.5, 553.4), (1078.3, 551.6)],
-    [(1007.1, 852.8), (1008.4, 853.8), (1016.8, 852.8), (1027.4, 849), (1029.5, 846.2)],
-    [(1062.1, 547), (1059.8, 552.1), (1055.7, 553.9)],
-    [(1054.2, 582.8), (1052.1, 584.1), (1039.7, 584.6)],
-    [(1146.1, 778.3), (1143.1, 775.3), (1121.8, 770.7)],
-    [(1019.6, 621.7), (1015, 621), (1014, 619.9)],
-    [(1080.8, 836), (1081.3, 831.9), (1082.6, 829.9), (1082.3, 827.4)],
-    [(1294.6, 586.2), (1294.9, 583.9), (1292.8, 581.9)],
-    [(1084.6, 757.2), (1091.3, 759.2), (1095.3, 757.7)],
-    [(1109, 849.2), (1107.3, 847.2), (1102.4, 846.4)],
-    [(1055.4, 553.9), (1051.1, 551.8), (1044.8, 550.6)],
-    [(1216.3, 596.1), (1215.6, 597.4), (1212.5, 598.6)],
-    [(1170.3, 566.1), (1166, 568.4), (1165, 570.7), (1165.7, 571.4), (1175.4, 571.7), (1178.2, 570.4), (1186.8, 571.7), (1206.9, 571.2)],
-    [(1026.5, 579.8), (1032.6, 582.3), (1034.9, 584.9)],
-    [(1212, 599.1), (1209.5, 600.7), (1208.7, 603.7)],
-    [(1218.8, 767.6), (1218.6, 759.3)],
-    [(1000.3, 573.9), (1001.6, 571.7), (1011.2, 564.5), (1014, 564.3), (1018.1, 566.1)],
-    [(1055.7, 554.1), (1057, 556.7), (1061.3, 560), (1062.8, 562.8), (1063.6, 571.4)],
-    [(1044.3, 550.6), (1032.1, 554.6), (1026.7, 558.2)],
-    [(1224.4, 688.6), (1227, 683.5), (1232.8, 678.7), (1237.4, 678.4), (1242.7, 681.7), (1252.7, 685.6), (1266.6, 686.1), (1279.6, 677.2)],
-    [(1170.6, 565.8), (1165.7, 561), (1162.2, 559.7)],
-    [(1063.3, 856.8), (1062.5, 855.8), (1062.8, 846.9), (1060.2, 845.9), (1057.7, 843.4)],
-    [(1083.6, 850), (1079.5, 849.7), (1063.5, 856.8)],
-    [(1162.7, 590.5), (1178.2, 593.3)],
-    [(1044.5, 550.3), (1042.7, 547.8), (1039.4, 546), (1039.4, 543.4), (1049.9, 538.1)],
-    [(1064.1, 532.3), (1066.9, 530), (1069.4, 529.7)],
-    [(1064.1, 532.3), (1063.8, 536.1), (1061.5, 542.9), (1062.1, 546.8)],
-    [(1224.7, 575.2), (1231.6, 576.5), (1235.9, 578.8), (1240, 582.6)],
-    [(1212.5, 599.1), (1214.5, 601.2), (1214.3, 602.9)],
-    [(1279.9, 675.9), (1279.1, 672.3), (1279.1, 667), (1280.1, 664.7), (1279.9, 657.6)],
-    [(1218.6, 759.3), (1215, 757.7), (1212, 767.4), (1190.4, 787), (1187.3, 788.7), (1175.9, 789), (1158.9, 786.7), (1154.3, 784.2), (1147.2, 782.4), (1146.1, 781.4), (1146.1, 778.6)],
-    [(1292.3, 581.9), (1287.7, 585.2), (1279.1, 623), (1278.3, 655.3), (1279.6, 657.3)],
-    [(1298.9, 554.7), (1302.5, 550.6), (1302, 544.5)],
-    [(1118.7, 793.3), (1119, 795.1), (1121, 797.1), (1137.3, 808), (1138.8, 809.6), (1138.5, 811.9)],
-    [(1002.8, 605), (1006.6, 605.7), (1007.1, 618.2), (1008.7, 619.4), (1013.8, 619.7)],
-    [(1301.7, 544.2), (1297.9, 544.5), (1295.6, 547.8)],
-    [(1078.6, 551.3), (1079.8, 545.7), (1090.8, 528.2)],
-    [(1023.9, 571.7), (1022.9, 576.7), (1026.2, 578.3)],
-    [(1138.5, 812.4), (1140, 815.9), (1154.8, 828.6), (1158.3, 833), (1171.6, 840.6)],
-    [(1268.4, 573.2), (1266.4, 570.7), (1259.3, 568.4), (1248.6, 561), (1239.2, 559), (1231.6, 559.2)],
-    [(1213.5, 727.5), (1211.2, 725.7), (1210.7, 722.9)],
-    [(1063.3, 857.1), (1058.7, 861.2), (1053.9, 860.9)],
-    [(1062.3, 546.8), (1065.1, 545.5), (1066.9, 542.9), (1069.4, 535.6), (1069.7, 530)],
-    [(1218.9, 574.2), (1216.1, 574.5), (1207.4, 571.2)],
-    [(1024.2, 568.1), (1027, 564), (1031, 560.7), (1039.7, 557.9)],
-    [(1069.9, 524.9), (1069.7, 529.5)],
-    [(1200.6, 564.3), (1199.3, 565.6), (1180.5, 565.3), (1179.5, 562.8), (1182, 560), (1189.9, 559.2), (1198.3, 561.3), (1200.8, 564.1)],
-    [(1102.2, 846.2), (1102.9, 845.1), (1102.4, 828.1), (1105.5, 818.2), (1109.3, 810.3), (1114.6, 787.5), (1118.7, 779.3), (1121.5, 770.7)],
-    [(1095.6, 757.5), (1098.1, 754.4)],
-    [(1084.4, 757.2), (1083.6, 758), (1083.9, 764.8), (1091.5, 766.9), (1093.8, 766.9), (1095.1, 765.3), (1096.3, 760), (1095.8, 757.7)],
-    [(1216.6, 595.8), (1220.6, 594.3), (1223.9, 591.8), (1227.8, 591), (1230, 588.5)],
-    [(1054.2, 582.6), (1052.9, 580.3), (1049.6, 578.3), (1041.2, 577.3), (1039.7, 576.2)],
-    [(1100.4, 849), (1099.1, 850.7), (1099.1, 852.8)],
-    [(1177.9, 843.4), (1176.1, 841.9), (1171.6, 840.6)],
-    [(1022.6, 636), (1019.6, 622)],
-    [(1029.5, 846.2), (1034.3, 845.1), (1041.7, 845.1)],
-]
-FACE_TRACE_ZONE = [(1000, 856), (1000, 559), (1001, 556), (1017, 530), (1070, 525), (1302, 544), (1302, 544), (1306, 586), (1281, 682), (1208, 855), (1201, 857), (1059, 861), (1001, 861)]
-# The lower face John traced again, closer (2026-10-02): inside
-# LOWER_FACE_ZONE his second trace replaces the first. His dark red strokes
-# are lines (LOWER_FACE_TRACE); where he filled a mark in (the two arms of
-# the lower lid's V, the dark spot at the corner of the mouth) it is drawn
-# solid (LOWER_FACE_SOLID: filled marks big and blob-shaped, not strokes gone
-# over twice). He marked the reddish streak across her cheek in pink: a
-# stain in the clay, not a line, so nothing is drawn there (NOT_LINES).
-# His faint hatches on the chin are left out: he left them out when he traced
-# the chin a third time (LIPS_TRACE). Registered by SIFT (981 matches, 0.2
-# px). One stroke of the first trace is
-# left out: the far edge of his heavy stroke down the forehead, which traced
-# as a second line in the dark beside her profile.
-LOWER_FACE_TRACE = [
-    [(1238.2, 697.6), (1236.4, 698.9), (1234.6, 701.6), (1228.3, 704.6), (1222, 706.6), (1211, 706.9), (1199.1, 704.5), (1188, 703.3)],
-    [(1279.9, 657.6), (1280.1, 665.1), (1279.2, 666.4), (1279.2, 671.5), (1280.1, 676.7)],
-    [(1210.4, 672.6), (1208, 674.3), (1203.8, 679.2)],
-    [(1241.4, 691.3), (1239.1, 691.6), (1237.8, 692.8), (1237, 695.9), (1238.2, 697.4)],
-    [(1249.1, 650.6), (1250.4, 644.9), (1253.3, 637.6)],
-    [(1239.9, 697.6), (1241.9, 699.8), (1241.3, 707.7), (1238.7, 713.4), (1235.5, 717.6), (1233.4, 721.8), (1230.6, 737.4), (1228.5, 743.9), (1225.9, 749), (1218.7, 758.8), (1218.7, 767.1)],
-    [(1121.1, 770.7), (1118.4, 779.4), (1114.5, 787.5), (1111.9, 798.7), (1110.2, 799.7)],
-    [(1146.2, 778.4), (1181.2, 778.2), (1188.2, 777), (1193.4, 773.8), (1198.2, 769), (1209.1, 756.1), (1211.3, 752.3), (1212.8, 747.1), (1214, 745.9)],
-    [(1146, 778.5), (1145.9, 781.2), (1146.8, 782.3), (1155.4, 784.7), (1159.4, 786.9), (1173.9, 788.9), (1187.1, 788.7), (1191.5, 785.9), (1200.2, 777.1), (1211.2, 768.3), (1212.7, 765.6), (1214.9, 757.9)],
-    [(1224.4, 688.8), (1226.7, 683.9), (1230.4, 680.1), (1232.8, 678.6), (1237.8, 678.5), (1240.8, 680.6), (1250.7, 684.9), (1266.2, 686), (1279.9, 676.8)],
-    [(1197.3, 606.4), (1198.1, 605.2), (1196.4, 602.4)],
-    [(1219.9, 661.3), (1220.8, 660.1), (1230, 660.1)],
-    [(1250.7, 653.2), (1250.6, 652.1), (1249.2, 650.8)],
-    [(1215.1, 738.8), (1213.4, 741.3)],
-    [(1127.7, 799.9), (1123.3, 799), (1120.8, 797.2), (1118.8, 795.2), (1118.7, 792.5)],
-    [(1211.5, 682.4), (1208.8, 683.7)],
-    [(1213.3, 741.3), (1211.6, 738.9)],
-    [(1213.4, 741.5), (1214, 745.7)],
-    [(1121.1, 770.4), (1110.2, 762.3), (1104.5, 759.6), (1103.6, 758)],
-    [(1279.9, 657.4), (1283.1, 654.1), (1283.7, 643.4)],
-    [(1121.2, 770.5), (1129.5, 772.8), (1142.9, 775.2), (1144.7, 776.4), (1146, 778.4)],
-    [(1208.6, 683.9), (1206.4, 686), (1204.7, 686.4), (1200.9, 690.2)],
-    [(1248, 654.1), (1247.6, 652), (1248.9, 650.8)],
-    [(1280.1, 676.8), (1281.3, 678.6), (1281.1, 680.7), (1280.2, 682.5), (1273.9, 688.5), (1271, 690.1), (1263.8, 691.9), (1242.5, 692.9)],
-    [(1222.3, 670.5), (1216.6, 672.6)],
-    [(1239.9, 697.4), (1241.7, 695.5), (1242.3, 693.1)],
-    [(1279.8, 657.4), (1278.3, 654.7), (1279, 624.2), (1280.7, 617.7), (1283.2, 595.4)],
-    [(1222.6, 670.5), (1228.9, 669.3), (1231.6, 667.6)],
-    [(1217.5, 748.3), (1216.3, 746.8), (1214.2, 745.9)],
-]
-LOWER_FACE_SOLID = [
-    [(1182.4, 594.7), (1183.6, 595.1), (1189.7, 600.6), (1196.3, 603.9), (1196.7, 606), (1194.8, 608.4), (1188.6, 608.4), (1184.5, 606.2), (1177.8, 598.1), (1178.1, 595.9), (1180.3, 594.7)],
-    [(1218.5, 594.7), (1219.7, 595.1), (1221, 597.2), (1217.3, 603), (1214.6, 604.7), (1212.2, 603.2), (1210.4, 605.4), (1208.3, 605.7), (1206.6, 604), (1206.3, 596.8), (1208.2, 594.9), (1211, 595.8), (1213, 594.7)],
-    [(1213.3, 739), (1208, 735.3), (1205.8, 732), (1206.1, 723.7), (1207.7, 721.9), (1211.5, 719.9), (1219.3, 720.2), (1221.2, 722.7), (1220.9, 728.6), (1216.7, 736.5), (1213.3, 739)],
-]
-NOT_LINES = [
-    [(1153.3, 728.5), (1150, 726.3), (1149.3, 722.8), (1149.1, 698.2), (1150.3, 692.6), (1154.8, 683.9), (1157.2, 681.9), (1159.8, 681.8), (1177.8, 627), (1180.8, 624.7), (1183.9, 625.7), (1189.3, 613.9), (1191.8, 611.2), (1200.6, 611), (1203.4, 613.5), (1204, 616.2), (1187.6, 660.9), (1184.4, 662.6), (1182.3, 660.5), (1173.5, 673.1), (1170.6, 674.6), (1169.6, 672.6), (1172.4, 665.5), (1172, 657.6), (1162.1, 683.3), (1160.4, 691.4), (1158.8, 693.3), (1157.5, 692.9), (1159.2, 698), (1156.9, 723.7), (1156.3, 726), (1153.3, 728.5)],
-    [(1172.4, 656.7), (1172.4, 656.7)],
-    [(1134.2, 740.5), (1132.6, 739.1), (1133.3, 736.8), (1132, 735.5), (1133.6, 729.6), (1128.1, 719.5), (1129.3, 716.8), (1127.8, 713.5), (1129, 712.4), (1142.9, 722.5), (1152, 734.4), (1151.5, 737.7), (1148.4, 740.2), (1145.6, 739.8), (1143.5, 737.4), (1139.9, 738.1), (1137.2, 735.3), (1134.2, 740.5)],
-]
-LOWER_FACE_ZONE = [(1104, 758), (1178, 596), (1180, 595), (1218, 595), (1283, 595), (1284, 643), (1283, 654), (1281, 679), (1281, 681), (1280, 682), (1219, 767), (1192, 786), (1187, 789), (1128, 800), (1110, 800)]
-# And a third time, closer still, the nose, mouth and chin (2026-10-02,
-# every stroke a line): inside LIPS_ZONE it replaces the first two, and his
-# outline of the lower lip's dark shape replaces the solid mark there.
-# Registered by SIFT (931 matches, 0.2 px).
-LIPS_TRACE = [
-    [(1276.1, 686.1), (1275.9, 686.9), (1272.6, 690.7), (1269.6, 693), (1266.4, 693.4), (1254.6, 697.4), (1247.8, 697.3), (1245.7, 696.3)],
-    [(1241.5, 693.9), (1244.2, 696.3)],
-    [(1280.7, 676.6), (1280.1, 676.2), (1277, 676.3)],
-    [(1214.1, 697.9), (1216.9, 696.3), (1217.3, 694.8)],
-    [(1217.5, 660.8), (1220.7, 658.8), (1229.6, 659.3)],
-    [(1230.9, 665.9), (1227.5, 665.9), (1224.3, 666.6), (1216.9, 669.9), (1215.4, 671.4)],
-    [(1162.2, 786.6), (1174.3, 785.6), (1185.2, 782.5), (1196.5, 780.2), (1204.9, 776.1), (1208.9, 774.7), (1211.7, 772.4), (1212.7, 770.8), (1219.3, 764.5), (1220.9, 761.8), (1223.6, 752.5), (1224.3, 747.5), (1226, 743), (1235.8, 722.4), (1236.4, 720.3), (1236.7, 714.7), (1238.6, 707.3), (1241.3, 701.2), (1244.2, 696.4)],
-    [(1241.4, 693.9), (1234.9, 699.3)],
-    [(1176.8, 774), (1177.3, 774.4), (1192.3, 774.3), (1196.7, 772.5), (1201.2, 768.5), (1204.8, 764.3), (1212.6, 751.9), (1213.8, 749), (1214.2, 745.8), (1218.5, 733.4), (1219.6, 731.4), (1220.5, 730.9)],
-    [(1232.5, 699.6), (1231.4, 697.1), (1231.1, 694.2), (1232.6, 691.2), (1234.3, 689.6), (1237.6, 689.4), (1239.8, 691.3), (1241.4, 693.8)],
-    [(1201.6, 703.4), (1208.2, 703.8), (1214.3, 706.5), (1216.3, 708.2), (1221.4, 708), (1223.9, 706.9), (1230.3, 701.1), (1232.4, 699.9)],
-    [(1276.1, 686), (1272.2, 686), (1266.7, 687.5), (1251.6, 688.3), (1245, 684.7), (1237.1, 681.9), (1235.2, 680.5), (1231.2, 680.5), (1228.1, 681.5), (1223.7, 686.5), (1222.7, 686.9)],
-    [(1236.2, 676.8), (1235.4, 676), (1230.8, 675.9), (1225.2, 678.3), (1223.4, 679.9), (1222.7, 681.2), (1222.7, 686.9)],
-    [(1219.7, 674.2), (1221.1, 671.8)],
-    [(1276.9, 676.2), (1277.2, 659.2), (1276.2, 649), (1276.1, 624.6)],
-    [(1233.4, 701.3), (1233.3, 704), (1233.8, 704.6)],
-    [(1210, 715.2), (1211, 716.4), (1212.2, 716.3)],
-    [(1220.6, 730.8), (1221.7, 725), (1221.6, 721.5), (1220.2, 720.3), (1217.5, 719.2), (1212.2, 719.1), (1211.4, 719.5), (1209.1, 722.5), (1206.3, 729.2), (1206.4, 734.1), (1208, 744.9), (1208, 751.4), (1207.3, 754), (1205.4, 757.7), (1198.3, 766.1), (1196.2, 767.8), (1193.7, 768.7), (1185.6, 769), (1177.4, 772.9), (1176.8, 773.9)],
-    [(1184.2, 704.4), (1185.4, 705.2), (1186.5, 705.3), (1196, 703.6), (1201.5, 703.4)],
-    [(1176.7, 774), (1167.8, 776), (1162.6, 777.7), (1162.1, 778.4)],
-    [(1276.9, 676.4), (1275.5, 679.1), (1267.4, 682.3), (1263.5, 683.1), (1253.6, 683), (1246.2, 678.5), (1238.1, 677.5), (1236.3, 676.9)],
-    [(1222.7, 686.9), (1222.3, 688.8), (1222.7, 690.2)],
-    [(1279.2, 686), (1280.8, 681)],
-]
-LIPS_ZONE = [(1162, 778), (1184, 704), (1218, 661), (1221, 659), (1276, 625), (1281, 677), (1281, 681), (1279, 686), (1219, 764), (1212, 772), (1209, 775), (1196, 780), (1174, 786), (1162, 787)]
-# The face traces in order; each replaces the earlier ones inside its zone.
-FACE_TRACES = [("FACE_TRACE", "FACE_TRACE_ZONE"), ("LOWER_FACE_TRACE", "LOWER_FACE_ZONE"), ("LIPS_TRACE", "LIPS_ZONE")]
-ARM_LINES = [
-    [(658.3, 1412.6), (656.8, 1416.6), (656.8, 1420.6), (656.8, 1424.6), (656.3, 1425.1)],
-    [(778.8, 1377.4), (782.8, 1379.4), (786.8, 1380.4), (788.8, 1379.9)],
-    [(650.7, 1391.5), (646.7, 1392), (642.7, 1393.5), (639.2, 1397), (638.2, 1401), (637.7, 1405), (637.7, 1409.1), (637.7, 1413.1), (637.7, 1417.1), (637.7, 1419.6)],
-    [(695.9, 1418.6), (695.9, 1414.6), (695.4, 1410.6), (695.9, 1406.5), (695.9, 1402.5), (696.4, 1398.5), (696.4, 1394.5), (696.4, 1390.5), (696.9, 1386.4), (696.9, 1382.4), (696.9, 1378.4), (697.4, 1374.4), (697.9, 1370.4), (698.4, 1366.4), (698.4, 1362.3), (698.9, 1358.3), (699.4, 1354.3), (700.4, 1350.3), (700.4, 1346.3), (700.4, 1342.3), (699.9, 1338.2)],
-    [(836, 1353.8), (835, 1357.8), (833.5, 1361.8), (831.5, 1365.8), (829, 1369.9), (827.5, 1373.9), (826.5, 1377.9), (825, 1381.9), (822.5, 1385.9), (819.4, 1389.9), (817.4, 1394), (813.9, 1398), (811.9, 1402), (809.4, 1406), (807.4, 1410), (805.9, 1414), (803.9, 1418.1), (802.4, 1422.1), (800.9, 1426.1), (796.9, 1428.6), (795.9, 1428.6)],
-    [(612.1, 1374.9), (612.6, 1378.9), (613.1, 1383), (613.6, 1387), (614.1, 1391), (614.1, 1395), (614.1, 1399), (614.1, 1403), (614.1, 1407.1), (614.1, 1411.1), (614.1, 1415.1), (614.1, 1419.1), (614.1, 1423.1), (613.6, 1426.6)],
-    [(736.1, 1314.1), (735.6, 1310.1), (736.6, 1306.1), (739.1, 1305.1)],
-    [(651.2, 1391), (650.2, 1387), (649.2, 1382.9), (646.7, 1378.9), (644.2, 1374.9), (642.2, 1370.9), (639.7, 1366.9), (637.7, 1362.9), (635.2, 1358.8), (632.7, 1354.8), (630.6, 1350.8), (629.1, 1346.8), (627.6, 1342.8), (626.6, 1338.8), (625.6, 1334.7), (624.6, 1330.7), (624.1, 1326.7), (624.1, 1322.7), (623.1, 1318.7), (622.6, 1314.7), (621.6, 1310.6), (619.6, 1308.6)],
-    [(658.8, 1412.1), (658.8, 1408), (658.8, 1404), (658.3, 1400), (658.3, 1397.5)],
-    [(662.3, 1327.7), (662.3, 1331.7), (662.3, 1335.7)],
-    [(634.2, 1428.6), (636.7, 1425.1), (637.2, 1421.1), (637.7, 1420.1)],
-    [(584.5, 1375.9), (580.9, 1379.9), (579.9, 1382.5)],
-    [(576.4, 1400.5), (574.9, 1396.5), (574.4, 1392.5), (575.4, 1388.5), (577.9, 1384.5), (579.9, 1382.5)],
-    [(593.5, 1429.2), (589.5, 1427.1), (586.5, 1423.1), (584.5, 1419.1), (581.4, 1415.1), (579.9, 1411.1)],
-    [(585, 1375.4), (587.5, 1371.4), (589.5, 1367.4), (591.5, 1363.4), (593.5, 1359.4), (594, 1357.3)],
-    [(707, 1305.1), (704.4, 1308.6), (704.4, 1312.6), (703.9, 1316.7), (702.9, 1320.7), (702.4, 1324.7), (701.9, 1328.7), (701.4, 1332.7), (700.9, 1336.7), (700.4, 1337.7)],
-    [(768.7, 1328.7), (766.7, 1332.7), (766.7, 1336.7), (766.7, 1340.7), (766.7, 1344.8), (767.2, 1348.8), (767.2, 1352.8), (767.7, 1356.8), (767.7, 1360.8), (768.7, 1364.8), (770.7, 1368.9), (773.7, 1372.9), (777.8, 1375.9), (778.3, 1376.9)],
-    [(598, 1344.8), (599, 1340.8), (600, 1336.8), (601.5, 1332.7), (603.5, 1328.7), (606, 1324.7), (609, 1320.7), (610, 1320.2)],
-    [(757.7, 1305.6), (757.7, 1309.6), (758.7, 1313.6), (758.2, 1317.6), (758.7, 1320.2)],
-    [(751.2, 1402), (750.2, 1406), (750.2, 1410), (750.2, 1414.1), (750.2, 1418.1), (750.7, 1422.1), (754.2, 1425.6), (758.2, 1426.6), (762.2, 1426.6), (766.2, 1426.6), (770.2, 1424.6), (772.3, 1423.1)],
-    [(835.5, 1353.3), (831.5, 1354.3), (827.5, 1355.3), (823.5, 1358.3), (819.4, 1361.3), (815.4, 1364.3), (811.4, 1366.3), (807.4, 1368.3), (803.4, 1370.9), (799.4, 1373.4), (795.3, 1375.9), (791.3, 1377.4), (789.3, 1379.4)],
-    [(618.6, 1308.6), (614.6, 1311.1), (612.1, 1315.2), (610.6, 1319.2), (610.6, 1319.7)],
-    [(597.5, 1345.8), (596, 1349.8), (594.5, 1353.8), (594.5, 1356.3)],
-    [(836, 1352.8), (837.5, 1348.8), (839, 1344.7), (840.5, 1340.7), (842, 1336.7), (842, 1336.2)],
-    [(769.7, 1317.6), (769.2, 1321.7), (769.2, 1325.7), (769.2, 1328.2)],
-    [(636.7, 1304.1), (640.2, 1307.1), (641.7, 1311.1), (644.2, 1315.2), (646.7, 1319.2), (649.2, 1323.2), (649.2, 1327.2), (649.2, 1331.2)],
-    [(695.9, 1419.1), (696.4, 1423.1), (695.4, 1427.1), (691.9, 1427.1)],
-    [(774.2, 1304.1), (770.2, 1308.1), (769.7, 1312.1), (770.2, 1316.1), (770.2, 1316.6)],
-    [(658.8, 1412.6), (662.8, 1416.6), (664.3, 1419.1)],
-    [(611.6, 1351.3), (611.6, 1355.3), (612.1, 1359.4), (612.1, 1363.4), (612.1, 1367.4), (612.1, 1371.4), (612.1, 1374.4)],
-    [(729.1, 1425.6), (729.1, 1421.6), (729.1, 1417.6), (729.1, 1413.6), (729.1, 1409.5), (729.1, 1405.5), (729.1, 1401.5), (729.1, 1397.5), (729.1, 1393.5), (729.1, 1389.5), (729.1, 1385.4), (729.1, 1381.4), (729.6, 1377.4), (730.1, 1373.4), (730.1, 1369.4), (730.6, 1365.4), (731.1, 1361.3), (731.6, 1357.3), (731.6, 1353.3), (732.1, 1349.3), (732.6, 1345.3), (733.1, 1341.3), (733.1, 1337.2), (733.6, 1333.2), (734.1, 1329.2), (734.1, 1327.2)],
-    [(658.3, 1397), (662.3, 1394), (663.3, 1390), (662.3, 1386), (662.3, 1381.9), (662.3, 1377.9), (662.3, 1373.9), (662.3, 1369.9), (662.3, 1365.9), (662.3, 1361.9), (662.3, 1357.8), (662.3, 1353.8), (662.3, 1349.8), (662.3, 1345.8), (662.3, 1341.8), (662.3, 1337.8), (662.3, 1336.7)],
-    [(840.5, 1304.1), (836.5, 1306.6), (832.5, 1310.1), (828.5, 1314.1), (825.5, 1318.1), (821.4, 1322.2), (817.4, 1325.7), (813.4, 1328.7), (809.4, 1332.2), (805.4, 1334.2), (801.4, 1335.7), (797.3, 1335.7), (793.3, 1335.7), (789.3, 1334.7), (785.3, 1332.2), (782.8, 1328.2), (780.3, 1324.2), (777.8, 1320.7), (773.7, 1318.6), (770.7, 1317.1)],
-    [(668.3, 1304.1), (664.8, 1307.6), (664.3, 1311.6), (663.8, 1315.7), (663.3, 1318.7)],
-    [(651.2, 1392), (655.3, 1395), (657.8, 1397)],
-    [(611.6, 1350.8), (610.6, 1346.8), (610.6, 1342.8), (610.1, 1340.8)],
-]
+MEND_BEND = 0.0
+# Across the broad patch on her far shoulder only the lines that plainly run on are joined, by hand (frame
+# px, line ends on either side, checked on the photo): the long diagonal fold, and the fold at the shoulder's
+# back that the patch cut (its two ends 110 px apart). The other folds end at the patch.
+MEND_JOINS = [[(1126, 1227), (1083, 1314)], [(1230, 1188), (1217, 1298)]]
+# John traced her hands, her face and the lines across the arm mend himself (2026-10-02, on crops of this
+# frame; registered by SIFT within half a px): tools/antigone_traces.json, frame px, unchanged from the first
+# antigone.py. His arm and fingers are the standard (John, 2026-10-09); the lines found in the photo did not
+# meet it (lumpy fingers, the lips and chin doubled), so inside his traced zones his strokes are her lines
+# and her edge, snapped to the paint within TRACE_SNAP frame px and drawn even, TRACE_W frame px wide (the
+# found lines' median width), and her area follows his outlines: a space they enclose is her if the photo
+# shows clay there (red less blue above TRACE_RB) or it was already inside her.
+TR = json.load(open(Path(__file__).resolve().parent / "antigone_traces.json"))
+TRACE_SNAP, TRACE_W, TRACE_RB = 2, 5.0, 45
+# His corrections to pass 1 (John, 2026-10-10, four sittings, marked in PhotoCraft over the photo with pass 1 in red, on
+# this tool's grid: UP px per frame px over BOX): tools/antigone_marks_1.png, blue = add, green = remove.
+# Green takes out the lines and her area under it; blue is drawn as he drew it (its edge smoothed over
+# MARK_SIGMA px), solid where he filled. Her area follows: a space his blue encloses, or the green leaves
+# inside her, is her; green at her edge, outside his new line, is ground (the face's profile), and a new
+# edge is drawn there only where he drew none
+MARKS = np.asarray(Image.open(Path(__file__).resolve().parent / "antigone_marks_1.png"))
+MARK_SIGMA, SLIVER, HOLE_MAX = 1.0, 5, 3000
+# Across the arm mend his lines replace the found ones inside ARM_ZONE (his crop, less ARM_INSET px, so his
+# lines overlap the found ones at its edges)
+ARM_ZONE, ARM_INSET = (562, 1303, 843, 1430), 6
+# The face: three traces, each closer than the last, each replacing the earlier ones inside its zone. Inside
+# FACE_CORE his lines are drawn FACE_PEN frame px wide (lines 1.0-1.4% of the head's 350 px, as the faces
+# John approved), easing to TRACE_W over 12 px. Where his outline encloses paint (a curl, the glaze dot on
+# her temple, the dark of the lower lip: a cell under PAINT_CELL frame px^2 darker than PAINT_L grey) the
+# paint is drawn as its filled shape. His solid marks (the lower lid's V, the corner of the mouth) are drawn
+# solid. Her eye is the paint itself (EYE: red less blue under EYE_K times the clay nearby): its strokes lie
+# too close for outlines. The
+# reddish streak across her cheek, which he marked in pink, is a stain and not drawn (not_lines).
+FACE_TRACES = [("face_trace", "face_trace_zone"), ("lower_face_trace", "lower_face_zone"), ("lips_trace", "lips_zone")]
+FACE_CORE, FACE_PEN = [(1100, 530), (1310, 530), (1310, 790), (1100, 790)], 3.5
+EYE, EYE_K = [(1145, 546), (1268, 546), (1268, 612), (1145, 612)], 0.4
+PAINT_CELL, PAINT_L = 800, 70
+# lines are drawn at this weight (the first pass's own, pinned so his strokes do not re-weight the rest)
+WEIGHT = 0.00146
 
-# Painted lines are redrawn as even lines along their centres at the house
-# weight; paint wider than 2 * THICK px and darker than DARK (the band at
-# her wrists, the hem's dark edge over her back foot) stays solid.
-THICK, DARK = 7, 60
+
+def pc(src, out, *steps):
+    """Run PhotoCraft on src: steps are (command, params) pairs; the result saved to out."""
+    args = [PC, "run", str(src)]
+    for cmd, params in steps:
+        args += ["--cmd", cmd] + (["--params", json.dumps(params)] if params is not None else [])
+    args += ["--out", str(out)]
+    subprocess.run(args, check=True, capture_output=True, text=True)
+
+
+def grey(p):
+    return np.asarray(Image.open(p).convert("L")).astype(np.float32)
+
+
+def to_up(pts):
+    """Frame px -> px of the crop at UP."""
+    return (np.asarray(pts, float) - BOX[:2] + 0.5) * UP - 0.5
 
 
 def poly(shape, pts):
-    return lw.polygon_mask(shape, np.array(pts, float))
+    return lw.polygon_mask(shape, to_up(pts))
 
 
-def clean_band_edges(cl, band):
-    """Drop skeleton pieces shorter than MEND_MIN px that lie within MEND_NEAR
-    px of a band: the plaster's rough edges, not painted lines."""
-    near = ndi.distance_transform_edt(~band) <= MEND_NEAR
-    lab, n = ndi.label(cl, structure=np.ones((3, 3)))
-    size = np.bincount(lab.ravel())
-    inside = np.bincount(lab.ravel(), weights=near.ravel())
-    drop = (size < MEND_MIN) & (inside > 0.5 * size)
-    drop[0] = False
-    return cl & ~drop[lab]
-
-
-def mend_bands(shape, pad=MEND_PAD):
-    """Each mend's band as a mask, `pad` px wider than its edges."""
-    out = {}
-    for name, (upper, lower) in MENDS.items():
-        m = poly(shape, list(upper) + list(lower)[::-1])
-        out[name] = ndi.binary_dilation(m, iterations=pad) if pad else m
-    return out
-
-
-def silhouette(rgb):
-    """Her area: the clay joined to SEED, with her feet, her painted lines,
-    the black band at her wrists and the mends' plaster filled in."""
-    RB, L = rgb[..., 0] - rgb[..., 2], lum(rgb)
-    clay = ndi.binary_opening(RB > CLAY_RB, structure=morphology.disk(2))
-    feet = np.zeros(L.shape, bool)
-    for f in FEET:
-        feet |= poly(L.shape, f)
-    clay |= feet & ndi.binary_opening(L > FOOT_L, structure=morphology.disk(2))
-    clay |= poly(L.shape, HAND) & ndi.binary_opening(RB > HAND_RB, structure=morphology.disk(1))
-    lab, _ = ndi.label(ndi.binary_closing(clay, structure=morphology.disk(3)))
-    fig = lab == lab[SEED[1], SEED[0]]
-    # the back foot: light parts of the feet's zones close to her join her...
-    near = ndi.binary_dilation(fig, iterations=FOOT_GAP)
-    keep = np.unique(lab[near & feet & clay])
-    fig |= np.isin(lab, keep[keep > 0]) & feet
-    # ...and the hem line between them closes up
-    fig |= ndi.binary_closing(fig, structure=morphology.disk(FOOT_CLOSE)) & feet
-    # the mends' plaster is her where it lies within her outline
-    bands = np.zeros(L.shape, bool)
-    for m in mend_bands(L.shape).values():
-        bands |= m
-    fig |= ndi.binary_closing(fig, structure=morphology.disk(12)) & bands
-    fig = ndi.binary_fill_holes(fig)
-    return ndi.gaussian_filter(fig.astype(float), 1.5) > 0.5
-
-
-def _centre(upper, lower, step=10.0):
-    """A mend band's centre line and half-width, both edges resampled on one
-    x grid (the bands run left to right)."""
-    U, D = np.asarray(upper, float), np.asarray(lower, float)
-    x = np.arange(max(U[0, 0], D[0, 0]), min(U[-1, 0], D[-1, 0]) + 1, step)
-    yu, yd = np.interp(x, U[:, 0], U[:, 1]), np.interp(x, D[:, 0], D[:, 1])
-    return np.stack([x, (yu + yd) / 2], -1), np.mean(yd - yu) / 2
-
-
-def _side(pts, upper, lower):
-    """Signed distance of points from a mend band's centre line (positive on
-    the upper side), and the band's unit normal there (pointing up)."""
-    C, _ = _centre(upper, lower)
-    best_d = np.full(len(pts), np.inf)
-    sd = np.zeros(len(pts))
-    nrm = np.zeros((len(pts), 2))
-    for a, b in zip(C[:-1], C[1:]):
-        ab = b - a
-        t = np.clip(((pts - a) @ ab) / (ab @ ab), 0, 1)
-        foot = a + t[:, None] * ab
-        d = np.hypot(*(pts - foot).T)
-        n = np.array([ab[1], -ab[0]]) / np.hypot(*ab)  # left of the direction of travel: up for a band run left to right
-        if n[1] > 0:
-            n = -n
-        closer = d < best_d
-        best_d[closer] = d[closer]
-        sd[closer] = ((pts - foot) @ n)[closer]
-        nrm[closer] = n
-    return sd, nrm
-
-
-def _walk(cl, x, y, n):
-    """Up to n skeleton pixels from the end (x, y), following the line and
-    stopping where it branches. Returns (x, y) points, the end first."""
-    H, W = cl.shape
-    path, seen = [(x, y)], {(x, y)}
-    for _ in range(n - 1):
-        nxt = [(x + dx, y + dy) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
-               if (dx or dy) and 0 <= x + dx < W and 0 <= y + dy < H and cl[y + dy, x + dx] and (x + dx, y + dy) not in seen]
-        if len(nxt) != 1:
-            # two steps on from a diagonal and a straight neighbour can be the same line: keep the straight one
-            if len(nxt) == 2 and abs(nxt[0][0] - nxt[1][0]) + abs(nxt[0][1] - nxt[1][1]) == 1:
-                nxt = sorted(nxt, key=lambda q: abs(q[0] - x) + abs(q[1] - y))[:1]
-            else:
-                break
-        x, y = nxt[0]
-        seen.add((x, y))
-        path.append((x, y))
-    return np.array(path, float)
-
-
-def join_across(cl, name):
-    """Join the centre lines (cl, a skeleton) that a mend broke. From each line
-    end near the band, a ray is cast along its line (its direction taken 10-35
-    px back along it; the last few px hook along the plaster's edge) across
-    the band; it is joined to the first line pixel it meets on the far side
-    within MEND_LAT px of the ray and MEND_GAP px of the end. Rays that run
-    along the band (from lines that follow its edge) never reach the far side
-    and make no join. Returns the joins (1-px lines) and how many were made."""
-    from skimage.draw import line
-    upper, lower = MENDS[name]
-    k = np.ones((3, 3), int)
-    k[1, 1] = 0
-    ends = np.argwhere((ndi.convolve(cl.astype(int), k, mode="constant") == 1) & cl)[:, ::-1].astype(float)
-    if not len(ends):
-        return np.zeros_like(cl), 0
-    sd, nrm = _side(ends, upper, lower)
-    band = mend_bands(cl.shape)[name]
-    gap = ndi.distance_transform_edt(~band)
-    near = gap[ends[:, 1].astype(int), ends[:, 0].astype(int)] <= MEND_NEAR
-    ends, sd, nrm = ends[near], sd[near], nrm[near]
-    # targets: pixels of lines at least MEND_MIN px long, on the far side near the band
-    lab, _ = ndi.label(cl, structure=np.ones((3, 3)))
-    size = np.bincount(lab.ravel())
-    long_ = (size >= MEND_MIN)[lab] & cl
-    targets = np.argwhere(long_ & ~band & (gap <= MEND_NEAR + 10))[:, ::-1].astype(float)
-    tside, _ = _side(targets, upper, lower)
-    joins = np.zeros_like(cl)
-    n = 0
-    for (x, y), side, nb in zip(ends, sd, nrm):
-        path = _walk(cl, int(x), int(y), 35)
-        if len(path) < MEND_MIN // 2:  # a fragment, not a fold
-            continue
-        back = path[10:]
-        c = back.mean(0)
-        u = np.linalg.svd(back - c)[2][0]
-        u = u if (np.array([x, y]) - c) @ u > 0 else -u
-        if abs(u @ nb) < 0.5:  # runs along the band, not across it
-            continue
-        far = targets[np.sign(tside) == -np.sign(side)]  # line pixels on the other side
-        rel = far - [x, y]
-        along = rel @ u
-        off = np.abs(rel[:, 0] * u[1] - rel[:, 1] * u[0])
-        ok = (along > 0) & (along <= MEND_GAP) & (off <= MEND_LAT)
-        if not ok.any():
-            continue
-        hit = far[ok][np.argmin(along[ok] + 2 * off[ok])]
-        rr, cc = line(int(y), int(x), int(hit[1]), int(hit[0]))
-        joins[rr, cc] = True
-        n += 1
-    return joins, n
-
-
-def paint(rgb, k=PAINT_K):
-    """Painted lines as the paint itself: darker than k times the clay
-    around it, with the white highlights on dark paint counted as paint."""
-    L = lum(rgb)
-    mx, mn = rgb.max(2), rgb.min(2)
-    hl = ((mx - mn) / np.maximum(mx, 1) < 0.5) & (mx > 70) & ndi.binary_dilation(ndi.gaussian_filter(L, 1.0) < 70, iterations=3)
-    L = np.where(ndi.binary_dilation(hl, iterations=1), np.minimum(L, 15), L)
-    sm = ndi.gaussian_filter(L, 1.0)
-    clay = ndi.gaussian_filter(ndi.grey_closing(sm, size=(25, 25)), 4)
-    m = ndi.binary_opening(sm < k * clay, structure=morphology.disk(1))
-    return morphology.remove_small_holes(morphology.remove_small_objects(m, max_size=40), max_size=60)
-
-
-def centre_lines(m, spur=6, min_len=14):
-    """Centre lines of a stroke mask, with side spurs under `spur` px pruned
-    (the line ends are kept) and pieces under `min_len` px dropped. (As in
-    oedipus_syracuse.py and euphorbos.py.)"""
+def centre_lines(m, spur, min_len):
+    """Centre lines of a stroke mask, side spurs under `spur` px pruned (the line ends kept), pieces under
+    `min_len` px dropped (as clouds.py)."""
     k = np.ones((3, 3), int)
     k[1, 1] = 0
     sk = morphology.skeletonize(m)
@@ -836,164 +339,406 @@ def centre_lines(m, spur=6, min_len=14):
     return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
 
 
+def smooth_mask(m, sigma, t):
+    """m blurred over sigma px in PhotoCraft and cut at half."""
+    Image.fromarray((m * 255).astype(np.uint8)).save(t / "m.png")
+    pc(t / "m.png", t / "ms.png", ("filter.blur.gaussianBlur", {"radius": sigma}))
+    return grey(t / "ms.png") >= 128
+
+
+def _walk(cl, x, y, n):
+    """Up to n skeleton px from the end (x, y), following the line and stopping where it branches. Returns
+    (x, y) points, the end first."""
+    H, W = cl.shape
+    path, seen = [(x, y)], {(x, y)}
+    for _ in range(n - 1):
+        nxt = [(x + dx, y + dy) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+               if (dx or dy) and 0 <= x + dx < W and 0 <= y + dy < H and cl[y + dy, x + dx] and (x + dx, y + dy) not in seen]
+        if len(nxt) != 1:
+            if len(nxt) == 2 and abs(nxt[0][0] - nxt[1][0]) + abs(nxt[0][1] - nxt[1][1]) == 1:
+                nxt = sorted(nxt, key=lambda q: abs(q[0] - x) + abs(q[1] - y))[:1]
+            else:
+                break
+        x, y = nxt[0]
+        seen.add((x, y))
+        path.append((x, y))
+    return np.array(path, float)
+
+
+def mend_band(shape, name, pad):
+    upper, lower = MENDS[name]
+    m = poly(shape, list(upper) + list(lower)[::-1])
+    return ndi.binary_dilation(m, iterations=round(pad * UP)) if pad else m
+
+
+def _side(pts, name):
+    """Signed distance of points (crop px) from a mend's centre line (positive above), and its unit normal
+    there (pointing up)."""
+    U, D = to_up(MENDS[name][0]), to_up(MENDS[name][1])
+    x = np.arange(max(U[0, 0], D[0, 0]), min(U[-1, 0], D[-1, 0]) + 1, 10.0)
+    C = np.stack([x, (np.interp(x, U[:, 0], U[:, 1]) + np.interp(x, D[:, 0], D[:, 1])) / 2], -1)
+    best = np.full(len(pts), np.inf)
+    sd, nrm = np.zeros(len(pts)), np.zeros((len(pts), 2))
+    for a, b in zip(C[:-1], C[1:]):
+        ab = b - a
+        t = np.clip(((pts - a) @ ab) / (ab @ ab), 0, 1)
+        foot = a + t[:, None] * ab
+        d = np.hypot(*(pts - foot).T)
+        n = np.array([ab[1], -ab[0]]) / np.hypot(*ab)
+        if n[1] > 0:
+            n = -n
+        c = d < best
+        best[c], sd[c], nrm[c] = d[c], ((pts - foot) @ n)[c], n
+    return sd, nrm
+
+
+def join_across(cl, name):
+    """Join the centre lines (cl) a mend broke (as the first antigone.py): from each line end near the band
+    a ray is cast along its line across the band and joined to the first line px it meets on the far side.
+    Returns the joins (1-px lines) and how many."""
+    from skimage.draw import line
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    ends = np.argwhere((ndi.convolve(cl.astype(int), k, mode="constant") == 1) & cl)[:, ::-1].astype(float)
+    joins = np.zeros_like(cl)
+    if not len(ends):
+        return joins, 0
+    band = mend_band(cl.shape, name, MEND_PAD)
+    gap = ndi.distance_transform_edt(~band)
+    near = gap[ends[:, 1].astype(int), ends[:, 0].astype(int)] <= MEND_NEAR * UP
+    ends = ends[near]
+    sd, nrm = _side(ends, name)
+    lab, _ = ndi.label(cl, structure=np.ones((3, 3)))
+    long_ = (np.bincount(lab.ravel()) >= MEND_MIN * UP)[lab] & cl
+    targets = np.argwhere(long_ & ~band & (gap <= (MEND_NEAR + 10) * UP))[:, ::-1].astype(float)
+    tside, _ = _side(targets, name)
+    n = 0
+    for (x, y), side, nb in zip(ends, sd, nrm):
+        path = _walk(cl, int(x), int(y), 35 * UP)
+        if len(path) < MEND_MIN * UP // 2:
+            continue
+        back = path[10 * UP:]
+        c = back.mean(0)
+        u = np.linalg.svd(back - c)[2][0]
+        u = u if (np.array([x, y]) - c) @ u > 0 else -u
+        if abs(u @ nb) < 0.5:   # runs along the band, not across it
+            continue
+        far = targets[np.sign(tside) == -np.sign(side)]
+        rel = far - [x, y]
+        al = rel @ u
+        off = np.abs(rel[:, 0] * u[1] - rel[:, 1] * u[0])
+        ok = (al > 0) & (al <= MEND_GAP * UP) & (off <= MEND_LAT * UP + MEND_BEND * al)
+        if not ok.any():
+            continue
+        hit = far[ok][np.argmin(al[ok] + 2 * off[ok])]
+        rr, cc = line(int(y), int(x), int(hit[1]), int(hit[0]))
+        joins[rr, cc] = True
+        n += 1
+    return joins, n
+
+
 def trace_walls(shape, trace):
-    """John's strokes, rasterized as they are (not snapped), 3 px wide."""
+    """His strokes, rasterized as they are (not snapped), about 3 frame px wide."""
     from skimage.draw import line
     walls = np.zeros(shape, bool)
     for pts in trace:
-        for (xa, ya), (xb, yb) in zip(pts[:-1], pts[1:]):
+        P = to_up(pts)
+        for (xa, ya), (xb, yb) in zip(P[:-1], P[1:]):
             rr, cc = line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
             ok = (rr >= 0) & (rr < shape[0]) & (cc >= 0) & (cc < shape[1])
             walls[rr[ok], cc[ok]] = True
-    return ndi.binary_dilation(walls, iterations=1)
+    return ndi.binary_dilation(walls, iterations=UP)
 
 
-def traced_area(rgb, sil, walls, zone_pts):
-    """Her area inside a traced zone, from John's outlines (walls; see
-    HAND_TRACE). Returns the new area and the zone."""
-    shape = sil.shape
+def traced_area(rb, fig, walls, zone_pts):
+    """Her area inside a traced zone, from his outlines (walls). Returns the new area and the zone."""
+    shape = fig.shape
     zone = poly(shape, zone_pts)
-    walls = ndi.binary_closing(walls, structure=morphology.disk(3))  # where two strokes nearly meet
+    walls = ndi.binary_closing(walls, structure=morphology.disk(3 * UP))   # where two strokes nearly meet
     cells, n = ndi.label(zone & ~walls)
     idx = np.arange(1, n + 1)
-    rb = ndi.median(rgb[..., 0] - rgb[..., 2], cells, idx)
-    inside = ndi.mean(sil.astype(float), cells, idx)
-    size = ndi.sum(np.ones(shape), cells, idx)
     her = np.zeros(n + 1, bool)
-    her[1:] = ((rb > TRACE_RB) | (inside > 0.6)) & (size >= 20)
+    her[1:] = (((ndi.median(rb, cells, idx) > TRACE_RB) | (ndi.mean(fig.astype(float), cells, idx) > 0.6))
+               & (ndi.sum(np.ones(shape), cells, idx) >= 20 * UP * UP))
     area = her[cells]
-    area |= walls & ndi.binary_dilation(area, iterations=3)  # her outline itself
-    area = ndi.binary_closing(area, structure=morphology.disk(1))
-    # under the drawn lines, so no clay shows past them (not at the zone's own edge)
-    area &= ndi.binary_erosion(area | ~zone, iterations=2)
-    return (sil & ~zone) | (area & zone), zone
+    area |= walls & ndi.binary_dilation(area, iterations=3 * UP)   # her outline itself
+    area = ndi.binary_closing(area, structure=morphology.disk(UP))
+    area &= ndi.binary_erosion(area | ~zone, iterations=2 * UP)     # under the drawn lines, so no clay shows past them
+    return (fig & ~zone) | (area & zone), zone
 
 
-def drawing(rgb, w):
-    """Her lines (ink) and area (sil) from the flat frame, and its luminance;
-    w is the house weight in px."""
-    shape = rgb.shape[:2]
-    sil, hand_zone = traced_area(rgb, silhouette(rgb), trace_walls(shape, HAND_TRACE), HAND_TRACE_ZONE)
-    # the face: each trace where no later trace replaces it
+def strokes(gp, paths, w):
+    """His strokes, each snapped to the darkest line within TRACE_SNAP frame px of its points (gp, the
+    blurred grey), smoothed, and drawn as an even line w px wide (w at UP; w = 0: the centre lines)."""
+    from skimage.draw import line
+    centre = np.zeros(gp.shape, bool)
+    H, W = gp.shape
+    for pts in paths:
+        P = to_up(pts).round().astype(int)
+        x0, y0 = max(P[:, 0].min() - 20, 0), max(P[:, 1].min() - 20, 0)
+        x1, y1 = min(P[:, 0].max() + 21, W), min(P[:, 1].max() + 21, H)
+        sub = gp[y0:y1, x0:x1]
+        Q = [(x - x0, y - y0) for x, y in P]
+        rough = np.zeros(sub.shape, bool)
+        for (xa, ya), (xb, yb) in zip(Q[:-1], Q[1:]):
+            rr, cc = line(ya, xa, yb, xb)
+            rough[rr, cc] = True
+        near = ndi.distance_transform_edt(~rough) <= TRACE_SNAP * UP
+        xy = lw.livewire(np.where(near, 1.0 + sub / 8.0, 1e4), Q) if len(Q) > 1 else np.array(Q, float)
+        if len(xy) > 9:   # a running mean evens out the px steps; the ends stay put
+            k = 7 * UP
+            sm = np.vstack([np.convolve(np.pad(xy[:, i], k // 2, mode="edge"), np.ones(k) / k, mode="valid")[:len(xy)]
+                            for i in (0, 1)]).T
+            sm[0], sm[-1] = xy[0], xy[-1]
+            xy = sm
+        xy = xy + (x0, y0)
+        for (xa, ya), (xb, yb) in zip(xy[:-1], xy[1:]):
+            rr, cc = line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
+            ok = (rr >= 0) & (rr < H) & (cc >= 0) & (cc < W)
+            centre[rr[ok], cc[ok]] = True
+    return centre if w == 0 else ndi.distance_transform_edt(~centre) <= w / 2
+
+
+def join_breaks(c, contrast, inner):
+    """Joins (1-px lines) for the breaks in centre lines c that JOIN_* describe; `inner` is where they may run."""
+    from scipy.spatial import cKDTree
+    from skimage.draw import line
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    ends = np.argwhere(c & (ndi.convolve(c.astype(int), k, mode="constant") == 1))
+    out = np.zeros_like(c)
+    if len(ends) < 2:
+        return out
+    runs = [_walk(c, int(x), int(y), JOIN_RUN * UP)[:, ::-1] for y, x in ends]   # (y, x), the end first
+    lab = ndi.label(c, structure=np.ones((3, 3)))[0]
+    used = set()
+    cos = np.cos(np.radians(JOIN_ANGLE))
+    for i, j in sorted(cKDTree(ends).query_pairs(ALIGN_MAX * UP), key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]]))):
+        if i in used or j in used or len(runs[i]) < JOIN_RUN * UP / 2 or len(runs[j]) < JOIN_RUN * UP / 2:
+            continue
+        a, b = ends[i].astype(float), ends[j].astype(float)
+        if lab[tuple(ends[i])] == lab[tuple(ends[j])]:
+            continue
+        u = (b - a) / np.hypot(*(b - a))
+        da, db = runs[i][0] - runs[i][-1], runs[j][0] - runs[j][-1]
+        if da @ u < cos * np.hypot(*da) or db @ -u < cos * np.hypot(*db):
+            continue
+        aligned = da @ u >= ALIGN_COS * np.hypot(*da) and db @ -u >= ALIGN_COS * np.hypot(*db)
+        if not aligned and np.hypot(*(b - a)) > JOIN_MAX * UP:
+            continue
+        q = a[None] + np.linspace(0.1, 0.9, max(int(np.hypot(*(b - a))), 3))[:, None] * (b - a)[None]
+        qi = tuple(q.round().astype(int).T)
+        if not inner[qi].all() or np.median(ndi.map_coordinates(contrast, q.T, order=1)) < (ALIGN_C if aligned else JOIN_C):
+            continue
+        if set(lab[qi]) - {0, lab[tuple(ends[i])], lab[tuple(ends[j])]}:   # it would cross another line
+            continue
+        rr, cc = line(int(a[0]), int(a[1]), int(b[0]), int(b[1]))
+        out[rr, cc] = True
+        used |= {i, j}
+    return out
+
+
+def drawing(p04, t):
+    """Her lines (ink) and area (fig) at UP, and the grey crop."""
+    rgb, _ = flat_image(p04)
+    Image.fromarray(rgb.clip(0, 255).round().astype(np.uint8)).save(t / "flat.png")
+    x0, y0, x1, y1 = BOX
+    w, h = x1 - x0, y1 - y0
+    pc(t / "flat.png", t / "up.png", ("image.crop", {"x": x0, "y": y0, "width": w, "height": h}),
+       ("image.imageSize", {"width": w * UP, "height": h * UP, "resample": "bicubic"}))
+    pc(t / "up.png", t / "g.png", ("image.mode.grayscale", None))
+    pc(t / "g.png", t / "gp.png", ("filter.blur.gaussianBlur", {"radius": 0.7 * UP}))
+    pc(t / "up.png", t / "rb.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+       ("filter.blur.gaussianBlur", {"radius": 1.0 * UP}))
+    pc(t / "rb.png", t / "rbmax.png", ("filter.other.maximum", {"radius": EDGE_R * UP, "preserve": "roundness"}))
+    g, gp, rb, rbmax = grey(t / "g.png"), grey(t / "gp.png"), grey(t / "rb.png"), grey(t / "rbmax.png")
+    shape = g.shape
+    pc(t / "g.png", t / "white.png", ("filter.blur.gaussianBlur", {"radius": 1.0 * UP}),
+       ("image.adjustments.threshold", {"level": WHITE_L}))
+    white = ndi.binary_dilation(ndi.binary_opening(grey(t / "white.png") >= 128, structure=morphology.disk(WHITE_W * UP)),
+                                iterations=2 * UP) & poly(shape, WHITE_ZONE)
+
+    clay = rb > CLAY
+    feet = np.zeros(shape, bool)
+    for f in FEET:
+        feet |= poly(shape, f)
+    clay |= feet & (gp > FOOT_L)
+    clay |= poly(shape, HAND) & (rb > HAND_RB)
+    wrist = poly(shape, WRIST_BAND)
+    dark = ~clay & ~wrist
+    ground0 = ndi.binary_opening(dark, structure=morphology.disk(OPEN * UP))
+    lab, _ = ndi.label(ground0)
+    size = np.bincount(lab.ravel())
+    size[0] = 0
+    rim = np.unique(np.r_[lab[0], lab[-1], lab[:, 0], lab[:, -1]])
+    ground = ((size > AUTO_GROUND * UP * UP) & np.isin(np.arange(len(size)), rim))[lab]
+    lab, _ = ndi.label(~ground)
+    sx, sy = to_up([SEED])[0].round().astype(int)
+    fig = ndi.binary_fill_holes(lab == lab[sy, sx]) & ~ground
+    fig &= ~((ndi.distance_transform_edt(fig) <= EDGE_R * UP) & (rb < 0.5 * rbmax) & ~wrist & ~feet)
+    fig = ndi.binary_fill_holes(fig)
+    fig = smooth_mask(fig, FIG_SIGMA * UP, t)
+    lab, _ = ndi.label(fig)
+    fig = lab == lab[sy, sx]
+    # his traced zones: her area there follows his outlines
+    fig, hand_zone = traced_area(rb, fig, trace_walls(shape, TR["hand_trace"]), TR["hand_trace_zone"])
     layers = []
     for k, (trace, _) in enumerate(FACE_TRACES):
         later = np.zeros(shape, bool)
         for _, z in FACE_TRACES[k + 1:]:
-            later |= poly(shape, globals()[z])
-        layers.append((globals()[trace], ~ndi.binary_erosion(later, iterations=3)))
+            later |= poly(shape, TR[z])
+        layers.append((TR[trace], ~ndi.binary_erosion(later, iterations=3 * UP)))
     marks = np.zeros(shape, bool)
-    for m in LOWER_FACE_SOLID:
+    for m in TR["lower_face_solid"]:
         marks |= poly(shape, m)
     marks &= layers[1][1]
     face_walls = marks.copy()
     for trace, keep in layers:
         face_walls |= trace_walls(shape, trace) & keep
-    sil, face_zone = traced_area(rgb, sil, face_walls, FACE_TRACE_ZONE)
+    fig, face_zone = traced_area(rb, fig, face_walls, TR["face_trace_zone"])
     traced = hand_zone | face_zone
-    # a check: her area in the traced zones that the photo shows as black glaze
-    leak = traced & sil & ~face_walls & (ndi.gaussian_filter(rgb[..., 0] - rgb[..., 2], 2) < 20)
-    leak = morphology.remove_small_objects(leak, max_size=50)
-    print(f"  traced zones: {int(leak.sum())} px of her area on black glaze" + (" (check the walls)" if leak.sum() > 500 else ""))
-    mx, mn = rgb.max(2), rgb.min(2)
-    gloss = ((mx - mn) / np.maximum(mx, 1) < 0.5) & (mx > 70)  # the glaze's highlights, pale and grey
-    wrist = ((ndi.gaussian_filter(lum(rgb), 1.2) < 70) | gloss) & poly(sil.shape, WRIST_BAND)
-    wrist = ndi.binary_fill_holes(ndi.binary_closing(morphology.remove_small_objects(wrist, max_size=200),
-                                                      structure=morphology.disk(3)))
-    sil |= wrist
-    L = lum(rgb)
-    inner = ndi.binary_erosion(sil, structure=morphology.disk(4))
-    found = lw.ink_lines(L, size=21, low=16, high=38, sigma=1.0) & inner
-    # wide dark paint stays solid: the line finder sees only the edges of a band wider than its window
-    solid = ndi.binary_opening((ndi.gaussian_filter(L, 1.5) < DARK) & inner, structure=morphology.disk(THICK))
-    thin = found & ~ndi.binary_dilation(solid, iterations=2)
-    thin = ndi.gaussian_filter(ndi.binary_closing(thin, structure=morphology.disk(1)).astype(np.float32), 1.0) > 0.5
-    cl = centre_lines(thin)
-    keep_out = ~ndi.binary_dilation(solid, iterations=2)
-    zone = poly(L.shape, HAND) | poly(L.shape, HEAD)
-    cl = (cl & ~zone) | centre_lines(paint(rgb) & inner & zone & keep_out, spur=10, min_len=25)
-    wash = poly(L.shape, WASH)
-    cl = (cl & ~wash) | centre_lines(paint(rgb, WASH_K) & inner & wash & keep_out, spur=12, min_len=30)
+    ax0, ay0, ax1, ay1 = ARM_ZONE
+    arm = poly(shape, [(ax0 + ARM_INSET, ay0 + ARM_INSET), (ax1 - ARM_INSET, ay0 + ARM_INSET),
+                       (ax1 - ARM_INSET, ay1 - ARM_INSET), (ax0 + ARM_INSET, ay1 - ARM_INSET)])
+
+    # lines by local contrast in red less blue, everything off her turned clay-bright, so the ground's
+    # dark makes no contrast along her edge
+    Image.fromarray(np.where(fig & ~white, rb, 255).astype(np.uint8)).save(t / "rw.png")
+    pc(t / "rw.png", t / "rl.png", ("filter.blur.gaussianBlur", {"radius": 0.8 * UP}))
+    r = (CLOSE_W * UP) // 2
+    pc(t / "rl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
+       ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
+    contrast = (grey(t / "closed.png") - grey(t / "rl.png")).clip(0, None)
+    Image.fromarray(contrast.clip(0, 255).astype(np.uint8)).save(t / "c.png")
+    pc(t / "c.png", t / "cmax.png", ("filter.other.maximum", {"radius": HALF_R * UP, "preserve": "roundness"}))
+    cmax = grey(t / "cmax.png")
+    from skimage.filters import apply_hysteresis_threshold
+    to_edge = ndi.distance_transform_edt(fig) / UP
+    firm = apply_hysteresis_threshold(contrast, LINE_LOW, LINE_HIGH) & fig & (to_edge > EDGE)
+    lab, n = ndi.label(firm, structure=np.ones((3, 3)))
+    length = np.bincount(lab[morphology.skeletonize(firm)], minlength=n + 1) / UP
+    top = ndi.maximum(contrast, lab, np.arange(n + 1))
+    firm &= ~((length < SHORT_LEN) & (top < SHORT_C))[lab]
+    own = firm & (contrast >= 0.5 * cmax)
+    head = poly(shape, HEAD) & ~face_zone
+    hp = (rb < HEAD_K * rbmax) & fig & (to_edge > EDGE) & ~white
+    if HEAD_PAINT:
+        own = np.where(head, hp, own)
+        firm = np.where(head, hp, firm)
+    m = morphology.remove_small_holes(firm | own, max_size=HOLE * UP * UP)
+    m = np.where(head, smooth_mask(m, HEAD_SIGMA * UP, t), smooth_mask(m, MASK_SIGMA * UP, t))
+    c = centre_lines(m, SPUR * UP, LINE_LEN * UP)
+    c |= join_breaks(c, contrast, fig & (to_edge > EDGE))
     # the mends: erased whole, nothing drawn along them; the folds they broke joined across
-    for name, band in mend_bands(L.shape).items():
-        cl &= ~band
-        solid &= ~band
-        cl = clean_band_edges(morphology.remove_small_objects(cl, max_size=6, connectivity=2), band)
-        joins, n = join_across(cl, name)
-        cl |= joins
+    for name in MENDS:
+        band = mend_band(shape, name, MEND_PAD)
+        c &= ~band
+        c = morphology.remove_small_objects(c, max_size=MEND_MIN * UP // 2, connectivity=2) | (c & ~ndi.binary_dilation(band, iterations=MEND_NEAR * UP))
+        joins, n = join_across(c, name)
+        c |= joins
         print(f"  {name} mend: {n} lines joined across")
-    # John's lines across the arm mend
-    x0, y0, x1, y1 = ARM_ZONE
-    zone = np.zeros(L.shape, bool)
-    zone[y0 + ARM_INSET:y1 - ARM_INSET, x0 + ARM_INSET:x1 - ARM_INSET] = True
-    cl &= ~zone
-    solid &= ~zone
-    cl &= ~traced
-    solid &= ~traced
-    lines = (ndi.distance_transform_edt(~cl) <= w / 2) | solid | strokes(L, ARM_LINES, w, snap=ARM_SNAP)
-    lines |= strokes(L, HAND_TRACE, w, snap=TRACE_SNAP) | wrist
-    # John's face lines, at the face's pen in the face itself
-    ease = np.clip(ndi.gaussian_filter(poly(L.shape, FACE_CORE).astype(float), 6) * 2, 0, 1)
-    wmap = w - (w - FACE_PEN) * ease
+    for a, b in MEND_JOINS:
+        from skimage.draw import line
+        (xa, ya), (xb, yb) = to_up([a, b]).round().astype(int)
+        rr, cc = line(ya, xa, yb, xb)
+        c[rr, cc] = True
+    bandz = poly(shape, BAND_ZONE)
+    c &= ~traced & ~arm & ~bandz
+    wd = 2 * ndi.distance_transform_edt(own)
+    num, den = (ndi.gaussian_filter(a, WIDTH_SIGMA * UP) for a in (np.where(c, wd, 0.0), c.astype(float)))
+    half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_MIN * UP) / 2, 0.0)
+    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
+    lines = (d <= half[iy, ix]) & fig
+    paint = (rb < PAINT) & fig & ~white
+    paint &= ndi.binary_dilation(ndi.binary_opening(paint, structure=morphology.disk(PAINT_WIDE * UP)), iterations=UP)
+    for name in MENDS:
+        paint &= ~mend_band(shape, name, MEND_PAD)
+    paint &= ~traced & ~bandz
+    for w, pts in BAND_LINES:
+        lines |= strokes(gp, [pts], w * UP)
+    # his lines: across the arm mend and in the hands at TRACE_W, in the face at FACE_PEN
+    lines |= strokes(gp, TR["arm_lines"], TRACE_W * UP) | strokes(gp, TR["hand_trace"], TRACE_W * UP)
+    ease = np.clip(ndi.gaussian_filter(poly(shape, FACE_CORE).astype(float), 6 * UP) * 2, 0, 1)
+    wmap = (TRACE_W - (TRACE_W - FACE_PEN) * ease) * UP
     centres = np.zeros(shape, bool)
     for trace, keep in layers:
-        centres |= strokes(L, trace, 1, snap=TRACE_SNAP) & keep
-    # where his outline encloses paint (he outlined a thick stroke, a curl, the
-    # dot instead of drawing along it), the paint is drawn as its filled shape
-    # and the outline itself is not drawn, or the eye's close strokes merge
+        centres |= strokes(gp, trace, 0) & keep
     thin = np.zeros(shape, bool)
     for trace, keep in layers:
         thin |= trace_walls(shape, trace) & keep
     thin = morphology.skeletonize(thin) | marks
     cells, n = ndi.label(face_zone & ~thin)
     idx = np.arange(1, n + 1)
-    paint_cell = np.zeros(n + 1, bool)
-    paint_cell[1:] = (ndi.sum(np.ones(shape), cells, idx) <= PAINT_CELL) & (ndi.median(L, cells, idx) < PAINT_L)
-    filled = ndi.binary_dilation(paint_cell[cells], iterations=1)
-    centres &= ndi.distance_transform_edt(~filled) > 3
+    pcell = np.zeros(n + 1, bool)
+    pcell[1:] = ((ndi.sum(np.ones(shape), cells, idx) <= PAINT_CELL * UP * UP) & (ndi.median(gp, cells, idx) < PAINT_L)
+                 & (ndi.mean(fig.astype(float), cells, idx) > 0.5))   # (paint on her, not the ground beside her profile)
+    filled = ndi.binary_dilation(pcell[cells], iterations=UP)
+    centres &= ndi.distance_transform_edt(~filled) > 3 * UP
     eye = poly(shape, EYE)
     centres &= ~eye
-    lines |= (((ndi.distance_transform_edt(~centres) <= wmap / 2) | marks | filled) & ~eye)
-    lines |= paint(rgb, EYE_K) & eye
-    not_lines = np.zeros(shape, bool)
-    for m in NOT_LINES:
-        not_lines |= poly(shape, m)
-    lines &= ~not_lines
-    lines = morphology.remove_small_objects(lines, max_size=60)  # specks of wear
-    # the outline, w wide (finer at the face), straddling her edge (a quarter outside)
-    edge = (sil & (ndi.distance_transform_edt(sil) <= 0.75 * wmap)) | (~sil & (ndi.distance_transform_edt(~sil) <= 0.25 * wmap))
-    edge &= ~ndi.binary_erosion(traced, iterations=6)  # there John's outline is her edge
-    return edge | lines, sil, L
+    lines |= ((ndi.distance_transform_edt(~centres) <= wmap / 2) | marks | filled) & ~eye
+    lines |= smooth_mask((rb < EYE_K * rbmax) & eye, 0.5 * UP, t) & eye
+    for m in TR["not_lines"]:
+        lines &= ~poly(shape, m)
+    # the band binding her wrists: solid where the photo is dark inside WRIST_BAND (its highlights filled)
+    band = ((gp < 70) | (rb < PAINT)) & wrist
+    band = ndi.binary_fill_holes(ndi.binary_closing(morphology.remove_small_objects(band, max_size=200 * UP * UP),
+                                                    structure=morphology.disk(3 * UP)))
+    fig |= band
+    edge = fig & ~ndi.binary_erosion(fig, iterations=round(EDGE * UP))
+    edge &= ~ndi.binary_erosion(traced, iterations=6 * UP)   # there his outline is her edge
+    ink = lines | paint | edge | band
+    # his corrections to pass 1
+    blue = smooth_mask(MARKS == 1, MARK_SIGMA * UP, t)
+    green = MARKS == 2
+    kept = fig & ~green
+    holes = ndi.binary_fill_holes(kept | blue) & ~(kept | blue)
+    lab, n = ndi.label(holes)
+    was = ndi.mean((fig | green).astype(float), lab, np.arange(n + 1)) > 0.5   # (not the ground seen through her)
+    was[0] = False
+    fig2 = kept | blue | was[lab]
+    # (slivers of her left outside his new line where he marked green near it, under 2 * SLIVER frame px
+    # wide (his green stopped short of the old outline), are ground; small holes in her,
+    # under HOLE_MAX px^2 (the dark between brow and lid, specks by her back), are her)
+    thin = fig2 & ~blue & ~ndi.binary_opening(fig2 & ~blue, structure=morphology.disk(SLIVER * UP))
+    lab, n = ndi.label(thin)
+    out = np.unique(lab[ndi.binary_dilation(~fig2) & thin])
+    nearb = np.unique(lab[ndi.binary_dilation(blue, iterations=2) & thin])
+    nearg = np.unique(lab[ndi.binary_dilation(green, iterations=5 * UP) & thin])
+    fig2 &= ~np.isin(lab, np.intersect1d(np.intersect1d(out[out > 0], nearb), nearg))
+    lab, n = ndi.label(ndi.binary_fill_holes(fig2) & ~fig2)
+    fig2 |= (np.bincount(lab.ravel(), minlength=n + 1) < HOLE_MAX)[lab] & (lab > 0)
+    changed = ndi.binary_dilation(fig ^ fig2, iterations=3 * UP)
+    edge2 = fig2 & ~ndi.binary_erosion(fig2, iterations=round(EDGE * UP)) & changed
+    edge2 &= ~ndi.binary_dilation(blue, iterations=4 * UP)
+    ink = (ink & ~green & fig2) | blue | edge2
+    fig = fig2
+    lab, _ = ndi.label(ink)
+    ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
+    return ink, fig, g, dict(contrast=contrast, rb=rb, c=c)
 
 
-def main(p04: str, p05: str, p06: str) -> None:
+def main(p04, p05, p06, qa=None, dump=None):
     if "--refit" in sys.argv:
         fit_model({"04": p04, "05": p05, "06": p06})
         return
-    rgb, _ = flat_image(p04)
-    if "--flat" in sys.argv:  # diagnostic: the flat frame as one photo
-        Image.fromarray(rgb.clip(0, 255).astype(np.uint8)).save(sys.argv[sys.argv.index("--flat") + 1])
-        return
-    sil = silhouette(rgb)
-    if "--masks" in sys.argv:  # diagnostic: her area over the frame
-        g = np.clip(lum(rgb), 0, 255) * 0.55
-        m = np.stack([g, g, g], -1)
-        m[sil] = m[sil] * 0.55 + np.array([255, 60, 60]) * 0.45
-        Image.fromarray(m.astype(np.uint8)).save(sys.argv[sys.argv.index("--masks") + 1])
-        return
-    w = lw.HOUSE_WEIGHT * max(rgb.shape[:2])  # the house weight, in frame px
-    ink, sil, L = drawing(rgb, w)
+    with tempfile.TemporaryDirectory() as td:
+        ink, fig, g, extra = drawing(p04, Path(td))
+    if dump:
+        np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, c=extra["c"],
+                            contrast=extra["contrast"].clip(0, 255).astype(np.uint8), rb=extra["rb"].astype(np.uint8))
     info = lw.trace_svg(
-        ink, OUT, body=sil,
+        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT,
         title="Antigone, veiled, her hands bound behind her back, her head bowed",
         desc="Line drawing after the Apulian red-figure amphora by the Darius Painter, c. 350-320 BCE, Berlin, "
-             "Antikensammlung F 3240; traced from a photograph by ArchaiOptix (CC BY-SA 4.0), changed. This drawing "
-             "is CC BY-SA 4.0.")
+             "Antikensammlung F 3240; traced from a photograph by ArchaiOptix (CC BY-SA 4.0), taken off the "
+             "vase's curve, changed. This drawing is CC BY-SA 4.0.")
     print(OUT, info)
-    qa = [a for a in sys.argv[4:] if not a.startswith("--")]
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
-        lw.qa_overlay(L, OUT, info["box"], Path(qa[0]))
-        lw.qa_dark(OUT, info["box"], Path(qa[0]).with_suffix(".dark.png"))
+        lw.qa_overlay(g, OUT, info["box"], Path(qa))
+        lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:4])
+    args = [a for a in sys.argv[1:] if a != "--refit"]
+    main(*args[:5])

@@ -425,6 +425,19 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   face clear (2026-10-10).
 - What reads as hair may be attire: a dark band with white ribs over Ismene's head is a headdress (John). Look at
   the clearest photo; draw it black with the ribs clear (a white top-hat, Minimum then Maximum) (2026-10-10).
+- Antigone redone with PhotoCraft (Berlin F 3240; the 2026-10-02 flat, cut and John's traces kept): about an hour
+  for pass 1, then John's corrections and four short rounds, approved by John 2026-10-10. `tools/antigone.py`
+  (2026-10-09/10).
+- A corrections file John can mark: the photo on the tool's own grid, pass 1 in red on a layer at 70%, and an empty
+  layer for him (blue to add, green to remove). Read his layer alone (hide the others with `layer.select`
+  {"layer": id} and `layer.setProps` {"visible": false}, then save a PNG); it lands on the tool's grid at zero
+  offset. Keep it as a data file beside the tool. He may mark again in the same file: diff each save against the
+  last and fold the changes in (green painted over his own blue removes it) (2026-10-10).
+- Apply his marks as ink = (ink less green) plus blue, drawn as he drew them. Let her area follow: a space his blue
+  encloses, or green leaves inside her, stays hers; green at her edge, outside his new line, is ground. Where two
+  of his strokes run close (nose, chin), the clay between them is his: ask before closing it (2026-10-10).
+- A small hole in the figure's area shows the dark ground in dark mode only: her eye read heavy there since pass 1.
+  Close holes under a few hundred frame px^2 when the figure has no ground seen through it (2026-10-10).
 
 ## John's traces
 
