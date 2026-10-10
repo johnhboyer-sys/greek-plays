@@ -26,24 +26,32 @@ https://iiif.dasch.swiss/080E/39p0GV9AZiB-7HG3RtcJ3N4.jpx/full/max/0/default.png
 
     pdfimages -j -f 112 -l 112 6f3674dd-413a-56da-bec2-9da5564907df.pdf plate
 
-Red-figure photo -> drawing, at 4x the plate. The plate's crop is cleaned of
-JPEG noise and enlarged 4x (Lanczos); Green's detail pages are registered to
-it and laid over it. The group is clay and added white (the altar, his hair)
-on black glaze. Inside a loose cut (OUTLINE) the ground is the glaze that
-reaches the cut, with the two white columns (COLUMNS) counted as ground;
-black inside the figures (the daughters' hair, the borders of Ismene's
-mantle) stays, drawn solid. Lines: the group's outline; the edges between
-clay, white and black inside it (figures against the altar, the altar's
-bands, hair, borders); and the painted lines on the clay, found by local
-contrast. His hair and beard are outlined, with the dark marks between the
-curls drawn solid. The staff is added yellow, drawn in its two visible parts
-(STAFF). Faces and hands are drawn stroke by stroke on their painted lines.
+Redrawn with PhotoCraft (2026-10-09/10; the 2026-10-03 tool is in git
+history), approved by John. Kept as approved: the frame (the plate's crop at
+4x), the chain registering Green's pages and the found photo to it
+(geometry: SIFT, homography and thin-plate spline, warp and colour match, in
+numpy/OpenCV), the cut (OUTLINE, COLUMNS), the staff, the hand-placed strokes
+of his face and hand, and John's traces of the daughters' faces and Antigone's
+hand. Every image step runs in PhotoCraft (`photocraft-cli` 0.2.0): the
+plate's crop, its JPEG cleaning and enlargement; the grey, the channel maps,
+the blurs, the Maximum and Minimum filters (maps). numpy only combines and
+measures. The outline is smoothed along its length; the painted lines drawn
+along their centres at their own width (as clouds.py); his white hair and
+beard a light tone with the dark marks between the curls as crisp strokes;
+the daughters' dark hair two firm tones; Ismene's headdress black with its
+white ribs clear; the hand-placed strokes drawn at twice the frame (UP), so
+the faces stay crisp. Washes are paths of class tone; the SVG is written by
+linework.trace_svg.
 
     python3 docs/redesign/drawings/tools/oedipus_colonus.py plate-001.jpg \
         mdp.39015060089391-seq_6.tif mdp.39015060089391-seq_28.tif mdp.39015060089391-seq_31.tif \
         found.png [qa.png]
 """
+import json
+import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import cv2
@@ -57,6 +65,20 @@ import linework as lw  # noqa: E402
 from oedipus_syracuse import centre_lines, drawn, join_gaps, pen  # noqa: E402  (shared helpers; that file is not changed)
 
 OUT = Path(__file__).resolve().parent.parent / "oedipus-coloneus.svg"
+PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli"))
+
+
+def pc(src, out, *steps):
+    """Run PhotoCraft on src: steps are (command, params) pairs; the result saved to out."""
+    args = [PC, "run", str(src)]
+    for cmd, params in steps:
+        args += ["--cmd", cmd] + (["--params", json.dumps(params)] if params is not None else [])
+    args += ["--out", str(out)]
+    subprocess.run(args, check=True, capture_output=True, text=True)
+
+
+def grey(p):
+    return np.asarray(Image.open(p).convert("L")).astype(np.float32)
 BOX = (196, 150, 734, 584)  # plate crop around the group; points below are plate (x, y)
 F = 4                       # enlargement
 BLACK_L, WHITE_B = 60, 110  # glaze is darker than BLACK_L; the added white bluer than WHITE_B
@@ -498,6 +520,17 @@ ANTIGONE_HAIR = [(572, 232), (576, 224), (586, 219), (600, 217), (612, 220), (62
                  (590, 235), (585, 238), (583, 246), (582.5, 255), (583, 270), (583, 288), (576, 288), (575, 270),
                  (572, 258), (570, 245)]
 HAIRS = [ISMENE_HAIR, ANTIGONE_HAIR]
+# Over Ismene's head and down behind her neck runs a dark band with light ribs:
+# not hair but a headdress (John, 2026-10-10: "This is not part of hair but some
+# crown or some attire", his ring round it on the close-up, carried to plate px).
+# On the vase (the found photo shows it best) it is a dark band with white beaded
+# ribs across it: drawn black where darker than CROWN_L, the ribs (light marks
+# narrower than 2 RIB_R px standing RIB_T over their surround: a white top-hat,
+# PhotoCraft's Minimum then Maximum) left clear, not in the hair's wash.
+ISMENE_CROWN = [(279.4, 196.3), (304.3, 194.1), (317.5, 215.3), (316.0, 239.5), (297.0, 238.8), (289.6, 223.4),
+                (275.0, 241.7), (270.6, 260.7), (264.7, 279.8), (244.2, 279.8), (245.7, 243.1), (254.5, 219.7),
+                (264.7, 205.1)]
+CROWN_L, CROWN_HOLE, RIB_R, RIB_T = 150, 12, 5, 12
 HAIR_DARK_L, GROUND_L = (100, 115), 40  # hair darker than HAIR_DARK_L (Ismene's, Antigone's) is solid
 LINE_W = 5  # working px: strokes drawn by hand, as wide as the painted lines found (their median)
 FINE_W = 3  # faces and fingers, whose marks lie closer together
@@ -561,14 +594,17 @@ def tapered(shape, pts, w_mid, w_end):
 
 
 def load(src):
-    """The plate's crop, cleaned of JPEG noise and enlarged F times: the frame
-    every point in this file is placed in, and the colours every threshold
-    was set on."""
-    a = np.asarray(Image.open(src).convert("RGB"))
-    a = cv2.fastNlMeansDenoisingColored(a[:, :, ::-1].copy(), None, 3, 3, 5, 15)[:, :, ::-1]
-    c = Image.fromarray(a).crop(BOX)
-    c = c.resize((c.width * F, c.height * F), Image.LANCZOS)
-    return np.asarray(c, dtype=np.float32)
+    """The plate's crop, cleaned of JPEG noise and enlarged F times (PhotoCraft:
+    Crop, Reduce Noise with JPEG artifacts removed, Image Size by Lanczos): the
+    frame every point in this file is placed in, and the colours the pages are
+    matched to."""
+    w, h = BOX[2] - BOX[0], BOX[3] - BOX[1]
+    with tempfile.TemporaryDirectory() as td:
+        pc(src, Path(td) / "p.png", ("image.crop", {"x": BOX[0], "y": BOX[1], "width": w, "height": h}),
+           ("filter.noise.reduceNoise", {"strength": 4, "preserveDetails": 60, "reduceColorNoise": 45,
+                                         "sharpenDetails": 0, "removeJpegArtifact": True}),
+           ("image.imageSize", {"width": w * F, "height": h * F, "resample": "lanczos"}))
+        return np.asarray(Image.open(Path(td) / "p.png").convert("RGB"), dtype=np.float32)
 
 
 # ---------------------------------------------------------------- Green's pages
@@ -711,110 +747,310 @@ def load_green(plate_src, page_srcs):
     return out.astype(np.float32), out_lines.astype(np.float32)
 
 
-def curl_strokes(core, min_len):
-    """Each stroke of the white as one smooth line: the longest path through its
-    centre line, kept if it runs at least min_len px. Returns lists of (x, y)."""
-    from collections import deque
-    sk = morphology.skeletonize(core)
-    lab, n = ndi.label(sk, structure=np.ones((3, 3)))
-    nbr = [(dy, dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dy or dx]
+# ---------------------------------------------------------------- PhotoCraft
+# The drawing, redone with PhotoCraft (2026-10-09; John: Colonus "is okay, but i
+# wonder if a second pass in photocraft could do better"). The frame, the cut,
+# the staff, the hand-placed strokes of his face and hand, and John's traces of
+# the daughters' faces and Antigone's hand are kept as approved on 2026-10-03.
+# New: every image step in PhotoCraft (the maps below); the painted lines drawn
+# along their centres at their own width, smoothed along the line (as
+# clouds.py); the hair as washes, not solid black: his white hair and beard in
+# steps following the paint's whiteness, with no black outline (as the old
+# man's on acharnians.py), the daughters' dark hair in steps following its
+# darkness, with the white beads and clay curls left clear.
 
-    def far(start, pix):
-        prev, q, last = {start: None}, deque([start]), start
-        while q:
-            last = cur = q.popleft()
-            for dy, dx in nbr:
-                nb = (cur[0] + dy, cur[1] + dx)
-                if nb in pix and nb not in prev:
-                    prev[nb] = cur
-                    q.append(nb)
-        return last, prev
+# local contrast: the lines frame's grey (blurred 1 px) closed over CLOSE_R px
+# by PhotoCraft's Maximum then Minimum, less it
+CLOSE_R = 7
 
-    strokes = []
-    for sl, k in zip(ndi.find_objects(lab), range(1, n + 1)):
-        ys, xs = np.nonzero(lab[sl] == k)
-        pix = set(zip((ys + sl[0].start).tolist(), (xs + sl[1].start).tolist()))
-        if len(pix) < min_len:
+
+def maps(a, a_lines):
+    """PhotoCraft's maps of the frame (a: the colours, from the plate and
+    Green's pages; a_lines: with the found photo's lines): gL, grey blurred
+    1 px; B, blue blurred 1 px (the added white is bluer than the clay); GR,
+    green less HAIR_GR times red, blurred 1.5 px (above 0, the yellower white
+    of his hair); OR, green less 0.75 times red, blurred 1 px (under 0,
+    orange clay); Ll, the lines frame's grey blurred 1 px; contrast, its
+    local contrast."""
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        for name, im in (("a", a), ("al", a_lines)):
+            Image.fromarray(im.clip(0, 255).round().astype(np.uint8)).save(t / f"{name}.png")
+        pc(t / "a.png", t / "gL.png", ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "a.png", t / "B.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [0, 0, 100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "a.png", t / "GR.png", ("image.adjustments.channelMixer",
+                                       {"monochrome": True, "gray": [-100 * HAIR_GR, 100, 0, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 1.5}))
+        pc(t / "a.png", t / "OR.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [-75, 100, 0, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "gL.png", t / "op.png", ("filter.other.minimum", {"radius": RIB_R, "preserve": "roundness"}),
+           ("filter.other.maximum", {"radius": RIB_R, "preserve": "roundness"}))
+        pc(t / "al.png", t / "Ll.png", ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "Ll.png", t / "cl.png", ("filter.other.maximum", {"radius": CLOSE_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": CLOSE_R, "preserve": "squareness"}))
+        m = {k: grey(t / f"{k}.png") for k in ("gL", "B", "GR", "OR", "Ll", "cl", "op")}
+    m["contrast"] = m["cl"] - m["Ll"]
+    m["light"] = m["gL"] - m["op"]   # white top-hat: light marks narrower than 2 RIB_R
+    return m
+
+
+# Painted lines: local contrast with hysteresis (LINE_LOW to carry a line on,
+# LINE_HIGH to start one), drawn at their own width (where the contrast is at
+# least half the strongest within HALF_R px), along their centres, smoothed
+# over WIDTH_SIGMA px, never thinner than LINE_MIN; pieces shorter than
+# LINE_LEN px are grain, and shorter than SHORT_LEN whose contrast never
+# reaches SHORT_C too. In the folds that lie closer than a line's width (the
+# zigzag ends of the two mantles, the pleats at his neckline, two folds by his
+# hand) no wider than FINE_W.
+LINE_LOW, LINE_HIGH, HALF_R, LINE_MIN = 10, 22, 2, 3.0
+LINE_LEN, SHORT_LEN, SHORT_C = 12, 30, 34
+HOLE, MASK_SIGMA, SPUR, WIDTH_SIGMA = 10, 1.2, 6, 5.0
+# Breaks where the paint is worn or the photos fade: line ends facing each other
+# across at most JOIN_MAX px (their last JOIN_RUN px pointing at each other
+# within JOIN_ANGLE degrees), where the contrast across the gap has a median of
+# JOIN_C or more and stays under JOIN_LOW for no more than JOIN_FADE px, and
+# the join crosses no other line (as clouds.py).
+JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, JOIN_LOW, JOIN_FADE, JOIN_DOT = 26, 6, 25, 6, 3, 5, 30
+# His white hair and beard, layered (as Philoctetes' hair, John's choice): a
+# light soft tone over the whole mass (HAIR_BASE, smoothed over BASE_SIGMA px),
+# and on it the dark marks the painter left between the curls as crisp strokes
+# (MARK_STEPS: the grey under the level, total opacity; smoothed over
+# MARK_SIGMA px): they give the curls (as one grey wash, or the white strokes
+# alone, the curls were lost; John, 2026-10-10: "Iterate the hair", then "Oedipus's
+# hair and beard are good"). The daughters' dark hair crisp too, and darker
+# in two firm steps (DARK_STEPS, smoothed over DARK_SIGMA px, holes under
+# DARK_MIN px filled: more steps made a grey mottle round Ismene's face), so
+# their faces stand out against it (John: "faces need to be crisper (especially
+# daughter on left)").
+HAIR_BASE, BASE_SIGMA = 0.14, 3.0
+MARK_STEPS, MARK_SIGMA = [(150, 0.6), (115, 0.78), (85, 0.9)], 0.8
+DARK_STEPS, DARK_SIGMA, DARK_MIN = [(125, 0.6), (90, 0.95)], 1.6, 60
+WASH_SIGMA, WASH_MIN = 0.8, 12
+
+
+def centre_lines_px(m, spur, min_len):
+    """Centre lines of a stroke mask, side spurs under `spur` px pruned (the
+    line ends kept), pieces under `min_len` px dropped."""
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    sk = morphology.skeletonize(m)
+    s = sk.copy()
+    for _ in range(spur):
+        s &= ~((ndi.convolve(s.astype(int), k, mode="constant") == 1) & s)
+    front = (ndi.convolve(s.astype(int), k, mode="constant") == 1) & s
+    for _ in range(spur):
+        front = ndi.binary_dilation(front, structure=np.ones((3, 3))) & sk & ~s
+        s |= front
+    return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
+
+
+def even_lines(mask, own, cap):
+    """The lines of `mask` redrawn along their centres at the width `own` has
+    there, smoothed along the line, at least LINE_MIN and at most `cap` (an
+    array of px: the fine zones' FINE_W, elsewhere no cap). The mask is
+    smoothed first in PhotoCraft (Gaussian, cut at half)."""
+    mask = morphology.remove_small_holes(mask, max_size=HOLE)
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray((mask * 255).astype(np.uint8)).save(Path(td) / "m.png")
+        pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": MASK_SIGMA}))
+        mask = grey(Path(td) / "ms.png") >= 128
+    c = centre_lines_px(mask, spur=SPUR, min_len=LINE_LEN)
+    w = 2 * ndi.distance_transform_edt(own)
+    num, den = (ndi.gaussian_filter(x, WIDTH_SIGMA) for x in (np.where(c, w, 0.0), c.astype(float)))
+    half = np.where(c, np.minimum(np.maximum(num / np.maximum(den, 1e-6), LINE_MIN), cap) / 2, 0.0)
+    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
+    return d <= half[iy, ix], c
+
+
+def along(shape, pts, width):
+    P_ = np.array(pts, float)
+    path = np.vstack([np.linspace(a, b, int(np.hypot(*(b - a))) * 2 + 2) for a, b in zip(P_[:-1], P_[1:])])
+    m = np.zeros(shape, bool)
+    iy, ix = path[:, 1].round().astype(int), path[:, 0].round().astype(int)
+    ok = (iy >= 0) & (iy < shape[0]) & (ix >= 0) & (ix < shape[1])
+    m[iy[ok], ix[ok]] = True
+    return ndi.distance_transform_edt(~m) <= width / 2
+
+
+def join_breaks(lines, contrast, keep_in):
+    """The breaks in `lines` that JOIN_* describe, joined (as clouds.py)."""
+    from scipy.spatial import cKDTree
+    sk = morphology.skeletonize(lines)
+    nb = ndi.convolve(sk.astype(np.uint8), np.ones((3, 3), np.uint8), mode="constant") - 1
+    ends = np.argwhere(sk & (nb == 1))
+    dt = ndi.distance_transform_edt(lines)
+    H, W = sk.shape
+
+    def run_back(p):
+        path, seen = [tuple(p)], {tuple(p)}
+        for _ in range(JOIN_RUN):
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if (dy or dx) and 0 <= y + dy < H and 0 <= x + dx < W and sk[y + dy, x + dx]
+                   and (y + dy, x + dx) not in seen]
+            if not nxt:
+                break
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        return np.array(path, float)
+
+    runs = [run_back(p) for p in ends]
+    lab = ndi.label(lines, structure=np.ones((3, 3)))[0]
+    size = np.bincount(lab.ravel())
+    out = np.zeros_like(lines)
+    used = set()
+    cos = np.cos(np.radians(JOIN_ANGLE))
+    for i, j in sorted(cKDTree(ends).query_pairs(JOIN_MAX), key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]]))):
+        if i in used or j in used or len(runs[i]) < JOIN_RUN / 2 or len(runs[j]) < JOIN_RUN / 2:
             continue
-        a, _ = far(next(iter(pix)), pix)
-        b, prev = far(a, pix)
-        path = [b]
-        while prev[path[-1]] is not None:
-            path.append(prev[path[-1]])
-        if len(path) >= min_len:
-            pts = path[::3] + ([path[-1]] if (len(path) - 1) % 3 else [])
-            strokes.append([(x, y) for y, x in pts])
-    return strokes
-
-
-def ridge_lines(L, inside, avoid, w, min_len=RIDGE_MIN):
-    """Faint folds the local-contrast pass misses, found as dark ridges (a Sato
-    filter, sigmas 1.5-3.5): inside `inside`, away from `avoid`, at least
-    min_len px long, each drawn as a smooth stroke along its centre."""
-    from scipy.interpolate import splprep, splev
-    from skimage import filters
-    r = filters.sato(ndi.gaussian_filter(L, 0.8), sigmas=[1.5, 2.5, 3.5], black_ridges=True)
-    cand = filters.apply_hysteresis_threshold(r, *RIDGE_T) & inside & ~avoid
-    sk = morphology.skeletonize(cand)
-    out = np.zeros(L.shape, bool)
-    for path in curl_strokes(sk, min_len):
-        q = np.array(path, float)
-        q = q[np.r_[True, np.any(np.diff(q, axis=0) != 0, axis=1)]]
-        if len(q) < 2:
+        a_, b_ = ends[i].astype(float), ends[j].astype(float)
+        if lab[tuple(ends[i])] == lab[tuple(ends[j])]:
             continue
-        tck, _ = splprep(q.T, k=min(3, len(q) - 1), s=0.6 * len(q))
-        x, y = splev(np.linspace(0, 1, 9 * len(q)), tck)
-        out[np.clip(np.round(y).astype(int), 0, L.shape[0] - 1), np.clip(np.round(x).astype(int), 0, L.shape[1] - 1)] = True
-    return ndi.distance_transform_edt(~out) <= w / 2
+        u = (b_ - a_) / np.hypot(*(b_ - a_))
+        da, db = runs[i][0] - runs[i][-1], runs[j][0] - runs[j][-1]
+        if da @ u < cos * np.hypot(*da) or db @ -u < cos * np.hypot(*db):
+            continue
+        q = a_[None] + np.linspace(0.1, 0.9, max(int(np.hypot(*(b_ - a_))), 3))[:, None] * (b_ - a_)[None]
+        c = ndi.map_coordinates(contrast, q.T, order=1)
+        low = np.r_[0, (c < JOIN_LOW).astype(int), 0]
+        starts, stops = np.nonzero(np.diff(low) == 1)[0], np.nonzero(np.diff(low) == -1)[0]
+        if np.median(c) < JOIN_C or (len(starts) and (stops - starts).max() > JOIN_FADE):
+            continue
+        qi = tuple(q.round().astype(int).T)
+        if not keep_in[qi].all():
+            continue
+        mid = (np.hypot(*(q - a_).T) > 2) & (np.hypot(*(q - b_).T) > 2)
+        hit = set(lab[tuple(q[mid].round().astype(int).T)]) - {0, lab[tuple(ends[i])], lab[tuple(ends[j])]}
+        if any(size[k] >= JOIN_DOT for k in hit):
+            continue
+        w = np.median([dt[tuple(r.astype(int))] for r in np.vstack([runs[i], runs[j]])]) * 2
+        out |= along(lines.shape, [(a_ - 1.5 * u)[::-1], (b_ + 1.5 * u)[::-1]], max(w, LINE_MIN))
+        used |= {i, j}
+    return out
 
 
-def centre_strokes(gL, zone, w, thresholds=STROKE_T, min_len=14):
-    """The painted lines inside zone redrawn w px wide along their centres,
-    every branch kept (local contrast, hysteresis; spurs under 6 px and
-    pieces under min_len px dropped; pixel steps softened)."""
+def find_lines(m, zone, cap):
+    """The painted lines inside zone (LINE_* above)."""
     from skimage.filters import apply_hysteresis_threshold
-    th = ndi.grey_closing(gL, size=(13, 13)) - gL
-    m = apply_hysteresis_threshold(th, *thresholds) & zone
-    m = ndi.binary_closing(m, structure=morphology.disk(2)) & zone
-    sk, _ = centre_lines(m, spur=6, min_len=min_len)
-    sk = morphology.skeletonize(ndi.gaussian_filter(sk.astype(float), 1.5) > 0.12)
-    return ndi.distance_transform_edt(~sk) <= w / 2
+    contrast = m["contrast"]
+    firm = apply_hysteresis_threshold(contrast, LINE_LOW, LINE_HIGH) & zone
+    lab, n = ndi.label(firm, structure=np.ones((3, 3)))
+    if not n:
+        return firm
+    sk = morphology.skeletonize(firm)
+    length = np.bincount(lab[sk], minlength=n + 1)
+    top = np.zeros(n + 1)
+    top[1:] = ndi.maximum(contrast, lab, np.arange(1, n + 1))
+    keep = (length >= LINE_LEN) & ~((length < SHORT_LEN) & (top < SHORT_C))
+    keep[0] = False
+    firm &= keep[lab]
+    near_max = ndi.maximum_filter(np.where(firm, contrast, 0), 2 * HALF_R + 1)
+    own = firm & (contrast >= 0.5 * near_max)
+    lines, _ = even_lines(own | firm, own, cap)
+    lines &= zone
+    return lines | (join_breaks(lines, contrast, zone) & zone)
 
 
-def main(plate_src: str, page_srcs: list) -> None:
-    a, a_lines = load_green(plate_src, page_srcs)
-    R, G, B = a[..., 0], a[..., 1], a[..., 2]
-    L = 0.2126 * R + 0.7152 * G + 0.0722 * B
-    L_lines = 0.2126 * a_lines[..., 0] + 0.7152 * a_lines[..., 1] + 0.0722 * a_lines[..., 2]  # painted lines are found on this
-    shape = L.shape
+def add_wash(svg, washes, box):
+    """Washes (each: [(mask, total opacity)], from the lightest step up) added
+    to the drawing trace_svg wrote (box: the crop box it returned), between the
+    body and the lines, each step over the one below at the opacity that
+    brings the total to its own."""
+    x0, y0, x1, y1 = box
+    paths = ""
+    for steps in washes:
+        below = 0.0
+        for mk, total in steps:
+            if not mk[y0:y1, x0:x1].any():
+                continue
+            d, _ = lw.potrace_d(lw.resample_ink(mk[y0:y1, x0:x1], lw.TRACE_H), turdsize=8, alphamax=1.0)
+            paths += (f'<path class="tone" fill="currentColor" fill-opacity="{1 - (1 - total) / (1 - below):.3f}" '
+                      f'stroke="none" d="{d}"/>')
+            below = total
+    svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
+
+
+def smoothed(mask, sigma):
+    """mask blurred in PhotoCraft over sigma px and cut at half."""
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray((mask * 255).astype(np.uint8)).save(Path(td) / "m.png")
+        pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": sigma}))
+        return grey(Path(td) / "ms.png") >= 128
+
+
+def stepped(zone, value, steps, darker, sigma=None):
+    """The steps of a wash over zone: [(mask, total opacity)], each inside the
+    one before; value smoothed within the zone (masked blur in PhotoCraft)
+    and compared with each level (under it when darker, else over it)."""
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.fromarray((zone * 255).astype(np.uint8)).save(t / "z.png")
+        Image.fromarray(np.where(zone, value, 0).clip(0, 255).astype(np.uint8)).save(t / "v.png")
+        for n in ("z", "v"):
+            pc(t / f"{n}.png", t / f"{n}s.png", ("filter.blur.gaussianBlur", {"radius": sigma or WASH_SIGMA}))
+        v = grey(t / "vs.png") / np.maximum(grey(t / "zs.png") / 255, 1e-3)
+    out, prev = [], zone
+    for level, total in steps:
+        mk = prev & ((v < level) if darker else (v >= level))
+        mk = morphology.remove_small_objects(mk, max_size=WASH_MIN)
+        out.append((mk, total))
+        prev = mk
+    return out
+
+
+# The outline is smoothed along its own length over EDGE_SIGMA working px (the
+# plate's blur and the pages' seams left it ragged), except at the faces, his
+# hand and hair (KEEP_EDGE: they keep their edges as drawn); the borders of
+# Ismene's mantle over BORDER_SIGMA.
+EDGE_SIGMA, BORDER_SIGMA = 5.0, 2.0
+
+
+def smooth_outline(mask, keep):
+    """The mask with every outline (outer and holes) smoothed along its own
+    length over EDGE_SIGMA px, none inside keep (blended), filled again
+    (even-odd) (as philoctetes.py)."""
+    from PIL import ImageDraw
+    from skimage import measure
+    out = np.zeros(mask.shape, bool)
+    H, W = mask.shape
+    for c in measure.find_contours(np.pad(mask, 1).astype(np.float32), 0.5):
+        c = c[:-1] - 1.0
+        if len(c) < 8:
+            continue
+        iy, ix = np.clip(np.round(c[:, 0]).astype(int), 0, H - 1), np.clip(np.round(c[:, 1]).astype(int), 0, W - 1)
+        s1 = ndi.gaussian_filter1d(c, EDGE_SIGMA, axis=0, mode="wrap")
+        wk = ndi.gaussian_filter1d(keep[iy, ix].astype(float), EDGE_SIGMA, mode="wrap")[:, None]
+        sm = (1 - wk) * s1 + wk * c
+        im = Image.new("1", (W, H), 0)
+        ImageDraw.Draw(im).polygon([(float(x), float(y)) for y, x in sm], fill=1)
+        out ^= np.asarray(im, dtype=bool)
+    return out
+
+
+def build(a, a_lines):
+    """Everything up to the SVG: (ink, body, washes, the lines frame's grey)."""
+    m = maps(a, a_lines)
+    gL, B = m["gL"], m["B"]
+    shape = gL.shape
     inside = poly(shape, OUTLINE)
-    gL = ndi.gaussian_filter(L, 1.0)
     hair_zones = poly(shape, HAIRS[0]) | poly(shape, HAIRS[1])
-    # the dark brown of the daughters' hair is not ground: there only the true black is
     black = np.where(hair_zones, gL < GROUND_L, gL < BLACK_L)
-    white = ndi.gaussian_filter(B, 1.0) > WHITE_B
+    white = B > WHITE_B
     columns = poly(shape, COLUMNS[0]) | poly(shape, COLUMNS[1])
     staff = poly(shape, STAFF[0]) | poly(shape, STAFF[1])
-
-    # the ground: the glaze and the columns' white wherever they reach the
-    # cut; everything else inside the cut is the group. The dark border along
-    # Ismene's arm touches the left column; inside ARM_BAND it stays hers.
-    orange = (ndi.gaussian_filter(G, 1.0) < 0.75 * ndi.gaussian_filter(R, 1.0)) & ~black & ~white
+    # the ground: the glaze and the columns' white wherever they reach the cut
+    # (as the 2026-10-03 tool, on PhotoCraft's maps)
+    orange = (m["OR"] < 1) & ~black & ~white
     rim = inside & ~ndi.binary_erosion(inside, iterations=2)
 
-    def reaching(m):
-        lab, _ = ndi.label(m)
-        reach = np.unique(lab[rim & m])
+    def reaching(mk):
+        lab, _ = ndi.label(mk)
+        reach = np.unique(lab[rim & mk])
         return np.isin(lab, reach[reach > 0])
     ground0 = reaching(inside & (black | (columns & ~orange) | poly(shape, SCRATCH) | poly(shape, VEIL_CORNER))
                        & ~poly(shape, ARM_BAND))
     glaze = ground0 & black
-    # The plate's blur leaves a brown band between a figure and the glaze,
-    # which would trace as a second line just inside the outline: dark pixels
-    # within PEEL_R px of the glaze, and joined to it, are ground too, so the
-    # outline falls where the clay begins (about halfway between clay and
-    # glaze). Not in the daughters' hair, which is as dark, nor in the
-    # zigzag ends of the two mantles, whose folds run along the outline.
     ends = poly(shape, VEIL_END) | poly(shape, ISMENE_END)
     fine_ends = poly(shape, CHEST) | poly(shape, MANTLE_FOLDS)
     band = inside & (gL < PEEL_L) & (ndi.distance_transform_edt(~glaze) <= PEEL_R) & ~hair_zones & ~ends
@@ -823,147 +1059,149 @@ def main(plate_src: str, page_srcs: list) -> None:
     ground = np.isin(lab, reach[reach > 0])
     sil = ndi.binary_opening(inside & ~ground, structure=morphology.disk(2)) | staff
     sil = ndi.binary_fill_holes(morphology.remove_small_objects(sil, max_size=4000))
-    sil = ndi.gaussian_filter(sil.astype(float), 1.0) > 0.5
-    sil = (sil | poly(shape, NOSE_SKIN)) & ~poly(shape, NOSE_GROUND)  # Ismene's nose, sharp
-    edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(EDGE_W))
+    keep_edge = (poly(shape, HEAD_ZONE) | poly(shape, HAND) | ndi.binary_dilation(
+        drawn(shape, [P(s_) for s_ in JOHN_ANTIGONE + JOHN_ANTIGONE_ARM + JOHN_ISMENE], FINE_W), iterations=8)
+        | poly(shape, NOSE_SKIN) | poly(shape, NOSE_GROUND) | hair_zones)
+    sil = smooth_outline(sil, keep_edge)
+    sil = (sil | poly(shape, NOSE_SKIN)) & ~poly(shape, NOSE_GROUND)
 
-    # Oedipus' head: his face, the clay inside the hair, closed by its lines;
-    # hair and beard the yellower white inside HEAD_ZONE, one mass
+    # his head: the face's hand-drawn lines (kept as approved), the face found
+    # by colour inside them, his hair and beard the yellower white
     head_zone = poly(shape, HEAD_ZONE)
     face_lines = drawn(shape, [P(s_) for s_ in FACE_LINES], FACE_W) | drawn(shape, [P(s_) for s_ in FACE_FINE], FINE_W)
     for s_ in CLOSED_EYES:
         face_lines |= tapered(shape, P(s_), *EYE_W)
-    ratio = ndi.gaussian_filter(G, 1.0) / np.maximum(ndi.gaussian_filter(R, 1.0), 1)
-    face = (gL > FACE_L) & ~white & (ratio < HAIR_GR) & ndi.binary_dilation(smooth_poly(shape, FACE), iterations=12)
+    face = (gL > FACE_L) & ~white & (m["GR"] < 1) & ndi.binary_dilation(smooth_poly(shape, FACE), iterations=12)
     lab, _ = ndi.label(face)
     seeds = [lab[int(round(y)), int(round(x))] for x, y in P(OED_FACE_SEEDS)]
     face = np.isin(lab, [k for k in seeds if k]) | poly(shape, FAR_WRINKLE)
     face = ndi.binary_fill_holes(ndi.binary_closing(face | face_lines, structure=morphology.disk(3)))
-    face = ndi.gaussian_filter(ndi.binary_opening(face, structure=morphology.disk(3)).astype(float), 2.0) > 0.5
+    face = smoothed(ndi.binary_opening(face, structure=morphology.disk(3)), 2.0)
     face_edge = face & ~ndi.binary_erosion(face, structure=morphology.disk(3))
     face_edge &= ~ndi.binary_dilation(face_lines, iterations=3)
-    ratio = ndi.gaussian_filter(G, 1.5) / np.maximum(ndi.gaussian_filter(R, 1.5), 1)
-    hair = (ratio > HAIR_GR) & ~black & head_zone
+    hair = (m["GR"] >= 1) & ~black & head_zone & sil
     hair = ndi.binary_closing(ndi.binary_opening(hair, structure=morphology.disk(2)), structure=morphology.disk(4))
-    hair = ndi.binary_fill_holes(morphology.remove_small_objects(hair, max_size=300))
-    hair = (ndi.gaussian_filter(hair.astype(float), 2.0) > 0.5) & ~face
+    hair = smoothed(ndi.binary_fill_holes(morphology.remove_small_objects(hair, max_size=300)), 2.0) & ~face & sil
 
-    # inside the group: clay, white and black. Black (hair, borders) is drawn
-    # solid; where white meets a broad area of clay (a figure on the altar) the
-    # edge is drawn; thin clay on the white (the altar's bands) is a painted
-    # line, found below with the rest
+    # his hand, John's strokes and the skin they close in (kept as approved)
     hand_lines = [list(s_) for s_ in HAND_LINES]
     for k, first, pivot, deg in FINGER_SPREAD:
         hand_lines[k][first:] = spread(hand_lines[k][first:], pivot, deg)
     hand_zone = poly(shape, HAND) | ndi.binary_dilation(ndi.binary_fill_holes(drawn(shape, [P(s_) for s_ in hand_lines], FINE_W)),
                                                         iterations=6)
-    # John's strokes, and the skin they close in round each face
     john = drawn(shape, [P(s_) for s_ in JOHN_ANTIGONE + JOHN_ANTIGONE_ARM + JOHN_ISMENE], FINE_W)
     for q in JOHN_ANTIGONE_FILLS:
         john |= poly(shape, q)
     regions, _ = ndi.label(ndi.binary_fill_holes(john) & ~john)
     seeds = [regions[int(round(y))][int(round(x))] for x, y in P(FACE_SEEDS)]
     face_zones = ndi.binary_dilation(np.isin(regions, [k for k in seeds if k]), iterations=2) & ~john
-    drawn_zone = head_zone | hand_zone | face_zones | hair_zones | ends | fine_ends
+    hand = drawn(shape, [P(s_) for s_ in hand_lines], FINE_W)
+    sil = (sil & ~hand_zone) | (ndi.binary_fill_holes(hand | (sil & ~hand_zone)) & hand_zone)
+
+    # the outline, and where white meets a broad area of clay (a figure on the
+    # altar): EDGE_W px inside the figure's edge; none round his hair (white
+    # paint on black has no outline on the vase)
+    edge = sil & ~ndi.binary_erosion(sil, structure=morphology.disk(EDGE_W))
+    soft = edge & ndi.binary_dilation(hair, iterations=1)
+    edge &= ~hand_zone & ~soft
     core = ndi.binary_erosion(sil, structure=morphology.disk(5))
-    solid = ndi.binary_opening(black & core, structure=morphology.disk(2))
-    # the borders are found on the lines frame: the found photo shows them as unbroken bands where the plate breaks them up
-    solid |= ndi.binary_opening((ndi.gaussian_filter(L_lines, 1.0) < SOLID_L) & core & poly(shape, BORDERS) & ~ends,
-                                structure=morphology.disk(3))
-    solid = morphology.remove_small_objects(solid & ~drawn_zone, max_size=60)
-    solid = ndi.gaussian_filter(solid.astype(float), 1.0) > 0.5
     clay = sil & ~white & ~black
     broad = ndi.binary_opening(clay, structure=morphology.disk(6))
     whites = ndi.binary_opening(white & sil, structure=morphology.disk(1))
+    drawn_zone = hair | face | hand_zone | face_zones | hair_zones
     meet = whites & ndi.binary_dilation(broad, iterations=2) | broad & ndi.binary_dilation(whites, iterations=2)
     meet &= ~drawn_zone & ~ndi.binary_dilation(staff, iterations=2) & ~ndi.binary_dilation(john, iterations=JOHN_NEAR)
     meet = pen(meet, LINE_W)
 
-    # painted lines, dots and bands by local contrast, kept as the painter made
-    # them (a bead stays a dot); thinned by the blur the enlargement adds, with
-    # their centre lines kept so faint stretches stay joined. The head, the hand
-    # and the staff are drawn below
-    lines = lw.ink_lines(L_lines, size=15, low=10, high=22, sigma=1.0)
-    lines = ndi.binary_erosion(lines) | morphology.skeletonize(lines)
-    lines &= ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~solid
-    lines &= ~(drawn_zone | ndi.binary_dilation(staff, iterations=2))
-    lines = morphology.remove_small_objects(lines, max_size=30)
+    # Ismene's mantle borders, solid (the found photo's unbroken bands)
+    solid = (m["Ll"] < SOLID_L) & core & poly(shape, BORDERS) & ~ends
+    solid = ndi.binary_opening(solid, structure=morphology.disk(3)) | ndi.binary_opening(black & core, structure=morphology.disk(2))
+    solid = smoothed(morphology.remove_small_objects(solid & ~drawn_zone, max_size=60), BORDER_SIGMA) & core
 
-    # the head: the hair's edge where it meets the robe (its outer edge is the
-    # outline, its inner one the face's), and the dark marks inside it, solid
-    hair_edge = hair & ~ndi.binary_erosion(hair, structure=morphology.disk(2))
-    hair_edge &= ndi.binary_erosion(sil, structure=morphology.disk(5)) & ~ndi.binary_dilation(face, iterations=4)
-    th = ndi.grey_closing(gL, size=(13, 13)) - gL
-    hair_marks = filters.apply_hysteresis_threshold(th, *HAIR_MARK_T) & head_zone & sil
-    hair_marks &= ~ndi.binary_erosion(face, iterations=3)
-    hair_marks = morphology.remove_small_objects(ndi.binary_opening(hair_marks, structure=morphology.disk(1)), max_size=24)
-    hair_marks = ndi.gaussian_filter(hair_marks.astype(float), 1.0) > 0.5
+    # the painted lines, everywhere inside the figures but the hand-drawn parts
+    zone = ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~solid & ~drawn_zone
+    zone &= ~ndi.binary_dilation(staff, iterations=2) & ~ndi.binary_dilation(john, iterations=JOHN_NEAR)
+    cap = np.where(ends | fine_ends, float(FINE_W), np.inf)
+    lines = find_lines(m, zone, cap)
+    for q in SPECKS:
+        lines &= ~poly(shape, q)
 
-    # the hand: only its strokes; the clay under them fills the closed fingers
-    hand = drawn(shape, [P(s_) for s_ in hand_lines], FINE_W)
-    edge &= ~hand_zone
-    sil = (sil & ~hand_zone) | (ndi.binary_fill_holes(hand | (sil & ~hand_zone)) & hand_zone)
+    # the daughters' hair: a wash following its darkness (the white beads and
+    # clay curls left clear); Ismene's bun keeps its painted lines
+    dark_zone = hair_zones & sil & ~face_zones & ~ndi.binary_dilation(john, iterations=1)
+    dark_zone &= ~(ndi.distance_transform_edt(~poly(shape, JOHN_ANTIGONE_FILLS[1])) <= EYE_RIM)
+    crown = poly(shape, ISMENE_CROWN) & sil & ~face_zones & ~ndi.binary_dilation(john, iterations=1)
+    dark_zone &= ~crown
+    ribs = smoothed(crown & (m["light"] > RIB_T), 1.0)
+    crown_ink = morphology.remove_small_holes(smoothed(crown & (gL < CROWN_L) & ~ribs, 1.2), max_size=CROWN_HOLE) & crown
+    crown_ink = morphology.remove_small_objects(crown_ink, max_size=20)
+    dark = dark_zone & (gL < DARK_STEPS[0][0])
+    dark = morphology.remove_small_objects(ndi.binary_closing(dark, structure=morphology.disk(1)) & dark_zone, max_size=20)
+    bun = find_lines(m, dark_zone & ~dark, np.full(shape, float(FINE_W)))
+    from skimage.filters import apply_hysteresis_threshold
+    marks = apply_hysteresis_threshold(m["contrast"], *HAIR_MARK_T) & head_zone & sil & ~ndi.binary_erosion(face, iterations=3)
+    marks = smoothed(morphology.remove_small_objects(ndi.binary_opening(marks, structure=morphology.disk(1)), max_size=24), 1.0)
+    hair_steps = [(smoothed(hair, BASE_SIGMA) & hair, HAIR_BASE)]
+    mark_steps = stepped(ndi.binary_dilation(marks, iterations=1) & hair, gL, MARK_STEPS, darker=True, sigma=MARK_SIGMA)
+    dark_steps = [(morphology.remove_small_holes(mk, max_size=DARK_MIN), op)
+                  for mk, op in stepped(dark, gL, DARK_STEPS, darker=True, sigma=DARK_SIGMA)]
 
-    # the daughters' hair: solid where it is dark, with beads and clay curls as
-    # holes; Ismene's lighter bun keeps the painted lines found in it
-    dark_hair = np.zeros(shape, bool)
-    for zone_pts, thr, close, holes in ((ISMENE_HAIR, HAIR_DARK_L[0], 1, 12), (ANTIGONE_HAIR, HAIR_DARK_L[1], 2, 40)):
-        zone = poly(shape, zone_pts)
-        m = zone & sil & (gL < thr) & ~face_zones
-        m = ndi.binary_closing(m, structure=morphology.disk(close)) & zone
-        dark_hair |= morphology.remove_small_objects(morphology.remove_small_holes(m, max_size=holes), max_size=30)
-    dark_hair = ndi.gaussian_filter(dark_hair.astype(float), 1.0) > 0.5
-    # her left eye sits at the edge of her face, its iris against her hair: a
-    # thin rim of clay keeps the two apart, so the eye reads
-    dark_hair &= ~(ndi.distance_transform_edt(~poly(shape, JOHN_ANTIGONE_FILLS[1])) <= EYE_RIM)
-    bun = lw.ink_lines(L_lines, size=15, low=10, high=22, sigma=1.0) & hair_zones & ~dark_hair & ~face_zones
-    bun = morphology.remove_small_objects(ndi.binary_erosion(bun) | morphology.skeletonize(bun), max_size=30)
-
-    marks = drawn(shape, [P(s_) for s_ in ISMENE_FEATURES], FINE_W)
-    # his strokes, except where the outline already runs; painted marks right
-    # beside them give way. A stroke that ran just outside the outline leaves
-    # pieces in the ground once its part along the outline goes (a tick under
-    # Ismene's chin, a clay ring in dark mode): pieces mostly outside the
-    # figure go too
+    feats = drawn(shape, [P(s_) for s_ in ISMENE_FEATURES], FINE_W)
     john_marks = john & ~ndi.binary_dilation(edge, iterations=JOHN_NEAR)
     lab, n = ndi.label(john_marks, structure=np.ones((3, 3)))
     if n:
         outside = np.asarray(ndi.mean(~sil, lab, range(1, n + 1)))
         john_marks &= ~np.isin(lab, 1 + np.nonzero(outside > 0.5)[0])
-    marks |= john_marks
-    lines &= ~ndi.binary_dilation(john, iterations=JOHN_NEAR)
+    ink = lines | edge | solid | meet | face_edge | bun | crown_ink
+    ink &= ~(hair & ~face)  # the white hair is wash, not ink
+    ink &= ~(face_lines | hand | feats | john_marks)  # drawn at UP below
+    washes = [hair_steps, mark_steps, dark_steps]
+    # everything at UP times the frame, the hand-placed strokes drawn there
+    # (rasterised at the frame's own px, the small marks of the faces rounded off:
+    # John, 2026-10-10: "faces need to be crisper")
+    H2 = shape[0] * UP
+    up = lambda mk: lw.resample_ink(mk, H2)[:H2, :shape[1] * UP]
+    ink2 = up(ink) | hand_drawn((H2, shape[1] * UP), hand_lines, up(ndi.binary_dilation(john_marks, iterations=2)))
+    washes2 = [[(up(mk), op) for mk, op in steps] for steps in washes]
+    Ll2 = ndi.zoom(m["Ll"], UP, order=1)[:H2, :shape[1] * UP]
+    return ink2, up(sil), washes2, Ll2
 
-    lines |= edge | solid | meet | hair_edge | hair_marks | face_edge | face_lines | hand | dark_hair | bun | marks
-    lines |= centre_strokes(ndi.gaussian_filter(L_lines, 1.0), ends & ndi.binary_erosion(sil, structure=morphology.disk(3)), LINE_W)
-    lines |= centre_strokes(gL, fine_ends & ndi.binary_erosion(sil, structure=morphology.disk(3)) & ~hand_zone, FINE_W)
-    lines |= drawn(shape, [P(s_) for s_ in STAFF_EDGES], LINE_W)
-    # faint folds, then lines broken into dashes by wear joined where two ends face each other
-    keep_out = ~ndi.binary_erosion(sil, structure=morphology.disk(6)) | drawn_zone | ndi.binary_dilation(staff, iterations=3)
-    lines |= ridge_lines(L_lines, ~keep_out, ndi.binary_dilation(lines, iterations=4), FINE_W)
-    lines |= join_gaps(lines & ~keep_out & ~solid, keep_out | solid, max_gap=24)
-    for q in SPECKS:
-        lines &= ~poly(shape, q)
 
-    if "--masks" in sys.argv:  # diagnostic: the masks over the photo
-        g = L * 0.55
-        rgb = np.stack([g, g, g], -1)
-        rgb[sil] = rgb[sil] * 0.5 + np.array([255, 60, 60]) * 0.5
-        rgb[solid] = (40, 40, 255)
-        rim = inside & ~ndi.binary_erosion(inside, iterations=2)
-        rgb[rim] = (255, 255, 0)
-        Image.fromarray(rgb.astype(np.uint8)).save(sys.argv[6])
-        return
+# the hand-placed strokes (his face and hand, the staff, Ismene's features,
+# John's traces) are drawn at UP times the frame
+UP = 2
 
+
+def hand_drawn(sh, hand_lines, john_keep):
+    """The hand-placed strokes at UP times the frame (sh: that shape); John's
+    traces only where john_keep (his strokes along the outline give way to it)."""
+    S = lambda pts: [(x * UP, y * UP) for x, y in P(pts)]
+    m = drawn(sh, [S(s_) for s_ in FACE_LINES], FACE_W * UP) | drawn(sh, [S(s_) for s_ in FACE_FINE], FINE_W * UP)
+    for s_ in CLOSED_EYES:
+        m |= tapered(sh, S(s_), EYE_W[0] * UP, EYE_W[1] * UP)
+    m |= drawn(sh, [S(s_) for s_ in hand_lines], FINE_W * UP)
+    m |= drawn(sh, [S(s_) for s_ in ISMENE_FEATURES], FINE_W * UP)
+    m |= drawn(sh, [S(s_) for s_ in STAFF_EDGES], LINE_W * UP)
+    john = drawn(sh, [S(s_) for s_ in JOHN_ANTIGONE + JOHN_ANTIGONE_ARM + JOHN_ISMENE], FINE_W * UP)
+    for q in JOHN_ANTIGONE_FILLS:
+        john |= lw.polygon_mask(sh, np.array(S(q), float))
+    return m | (john & john_keep)
+
+
+def main(plate_src: str, page_srcs: list) -> None:
+    a, a_lines = load_green(plate_src, page_srcs)
+    ink, sil, washes, Ll = build(a, a_lines)
     info = lw.trace_svg(
-        lines, OUT, body=sil,
+        ink, OUT, body=sil, open_holes=~sil, extent=sil,
         title="Blind Oedipus seated at an altar between his daughters, Ismene and Antigone",
         desc="Line drawing after the Apulian red-figure calyx-krater close to the De Schulthess Painter, "
              "340s BCE, formerly Melbourne, Geddes collection A 5:8, read as a scene from Sophocles' Oedipus at "
              "Colonus (Taplin, Pots & Plays no. 27); traced from photographs, chiefly those in J. R. Green, "
              "Ancient Voices, Modern Echoes (2003): cut out, columns left out, redrawn as line.")
+    add_wash(OUT, washes, info["box"])
     print(OUT, info)
     if len(sys.argv) > 6:  # optional: the drawing over its source, and as the dark theme shows it
-        lw.qa_overlay(L_lines, OUT, info["box"], Path(sys.argv[6]))
+        lw.qa_overlay(Ll, OUT, info["box"], Path(sys.argv[6]))
         lw.qa_dark(OUT, info["box"], Path(sys.argv[6]).with_suffix(".dark.png"))
 
 

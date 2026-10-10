@@ -145,6 +145,32 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   pages did not answer from the browser pane; the American School's booklet *Women in the Athenian
   Agora* (fig. 3) gives the museum number (2026-10-09).
 
+### Gerhard, *Trinkschalen und Gefässe des Königlichen Museums zu Berlin* (coloured lithographs, red figures on black)
+
+- Heracles (II, Taf. XXI, side B), made with PhotoCraft: about three hours over two passes, approved by John
+  2026-10-09. `tools/heracles.py`. The Auserlesene Vasenbilder method carried over, with these differences
+  (2026-10-09).
+- The plate prints two kinds of line: black, and pale brown (the lion's fur, the anatomy, the folds; their
+  darkest grey stays above 105). Drawn black they read as heavy as the outlines; John chose them as a grey
+  `tone` wash. Keep the test inside a box round where they are printed: elsewhere a black line's thinning end
+  passes it, and the toes came out half black, half grey (`BROWN_BOX`) (2026-10-09).
+- Its lines are finer (0.12% of the longer side, 1-2 px) and closer than the AV plates': at the house
+  weight the eye's rings ran into a blot. Trace as drawn (`weight="drawn"`), and draw the eye and the toes
+  from the plate's paint at its own width (`FACES`) (2026-10-09).
+- A bowstring 1-2 px wide on the black: measure its centre row by row only where it is clear of the bow
+  (the bow's clay pulled the centroid), fit a curve, and where it meets the bow take the bow's edge from a
+  curve fitted above and below the junction. Drawn from guessed ends it ran beside the printed string
+  (John: "way off") (`STRINGS`, `bow_edge`) (2026-10-09).
+- Thin clay parts that end free (the arrow's shaft, 1-3 px of clay between its lines; the bow's tip) lose
+  their clay to the body path's smoothing in `trace_svg`: pass them as `keep` (2026-10-09).
+- Black paint inside the figure that meets the ground through a gap (the inside of the lion's ear, the
+  quiver's black band) came out hollow in the light theme; John circled both. Wall each gap along the
+  plate's own edge (`WALLS`), and look for hollow black areas in the light theme before showing him
+  (2026-10-09).
+- The text names no inventory number; Furtwängler's 1885 catalogue of the Berlin vases does (no. 2164, with
+  "Abg. Gerhard, Trinksch. und Gefässe Taf. XXI") and says what is restored (here Herakles' legs). Its text
+  is on the Internet Archive (`beschreibungderv00furt`): search the plate number (2026-10-09).
+
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
 - Budget hours, not minutes. Andromache (Taf. 34) took about ten hours over
@@ -224,6 +250,49 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   (`/diglit/iiif/<id>/manifest.json`) give the licence and the page labels,
   and IIIF image links open in the browser for reading the text pages
   (2026-10-07).
+
+- Ion (II, pl. XLVI, Apollo on the tripod with the Pythia and a girl), made with PhotoCraft: about three
+  and a half hours over five passes, approved by John 2026-10-09. `tools/ion.py` (2026-10-09).
+- Don't carry the faint-line finder over from Trojan Women without looking: this plate prints every line
+  solid, and the finder drew the paper's grain as short strokes beside the folds (John: "you added a lot of
+  strokes that weren't in the original"). Turned off, 335 pieces went and none was a printed line
+  (`FAINT_ON`) (2026-10-09).
+- Draw the outline on the black ground outside the clay, not on the clay (John: "the black lines for the
+  outer clay bands should be drawn on the black background, not on the clay itself"; every outline). Thin
+  clay parts (the hair's reserved lines, fingers, the laurel) then keep their full width with no cap
+  (`EDGE_OUT`) (2026-10-09).
+- The hair prints as dark as the ground and is larger than the ground's size limit: ground must also reach
+  the crop's edge, and the hair's clay line is found at fine blur (`FINE`) (2026-10-09).
+- A plate printed sideways and photographed a little askew: fit the panel's four edges as lines on their
+  straight stretches (start each search on the paper, past the scan's dark margins) and map the corners to
+  a rectangle (`level`, a homography) (2026-10-09).
+- John marks corrections in PhotoCraft on a .pcraft with the plate, the drawing in red and an empty marks
+  layer; save it from the app before reading it (an unsaved file reads empty). Some marks land on the
+  drawing's layer: read both layers by colour. Build the file with `photocraft-cli serve`
+  (`--automation-read-root`/`--automation-write-root`, relative paths): open, copy, paste in place, new
+  layer, save. Keep each round's marks in its own file, applied in order (`MARKS_FILES`) (2026-10-09).
+
+- Helen (III, pl. LVII B, the warrior leading away a bride), made with PhotoCraft: about an hour and a quarter
+  over two passes, the credit included, approved by John 2026-10-10. `tools/helen.py` (2026-10-10).
+- The Élite's reading of a scene can differ from its own source's and the museum's. Its plate list and text
+  say Menelaus taking Helen home; Gerhard, whose plate it copies (AV I, Taf. XLVI), and the British Museum,
+  Beazley and LIMC say Idas and Marpessa. The Beazley Archive's record (it opens in the browser pane) cites
+  both plates and so ties them to the vase. John: keep it for the play, titled as the museum reads it
+  (2026-10-10).
+- Weight "own" sets every line to the median width: 1 px lids ran into the pupil, and the dress's crosses and
+  stars came out as blobs. Pass the eyes and small marks standing alone to `trace_svg` as `dots` (traced at
+  their own size) and take them out of the main ink; a pupil that still traced as a ring is drawn from points
+  read off the plate's grey values (`EYE_LINES`, `EYE_PUPIL`) (2026-10-10).
+- Dots paler than the line threshold (a veil's dots, a hem's beads): keep small marks whose core is darker than
+  60; the dots' cores read 0-30, specks of the print 90 and up. The local-contrast finder bridged some to the
+  line beside them: cut its thin-only ink near the dots (`DOT_*`) (2026-10-10).
+- Where hair leaked into the ground through a gap in its clay line, the fine-blur box (`FINE`) made it worse
+  (the diadem went with it). A least-cost path through the dark from the hair to the ground found the gap
+  (3 px, where the diadem's lower line stops short of the forehead); a wall there fixed it (2026-10-10).
+- Look for dark areas printed a little lighter than the ground (grey 17-40 against 5-10) with no clay line
+  round them: John asked "is there hair above the crown?", and there was. Stretch the darks to see them;
+  the edge is where the plate turns lighter than the ground, measured column by column (`CROWN`). Ground that
+  fingers close off against another figure is a pocket: it came out as black paint (John) (2026-10-10).
 
 ### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
 
@@ -329,6 +398,33 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - John's marks arrive as chat images; not all reach the session's image folder. His Desktop holds the
   screenshots too ("Screenshot ... PM.png"): match them to the chat by size, and say when you use one he
   did not send (2026-10-08).
+- Philoctetes redone with PhotoCraft (Met 56.171.58; the 2026-10-03 tool's flat and cut points kept): about six
+  hours over five passes and two rounds on the hair, approved by John 2026-10-09. `tools/philoctetes.py` (2026-10-09).
+- Brown hair as brushstrokes: only the brown paint (the clay between strokes left clear), a soft stepped tone for
+  the mass with the curl strokes sharp on it (one blur for both smeared the curls into blotches); darker toward
+  a black top of the head and drawn into it as very dark layered strokes, not solid ("he's not wearing a hat").
+  No outline round the top and back of the head where a clay band rings it: on the light page the band goes to
+  the page. Glare on glaze passes for light brown: measure the black top and a glossy brow on a second photo
+  without glare, and require red less blue for the brown (2026-10-09).
+- A dark brown band (a shadow at the foot) drawn as a wash following the paint reads better than solid black;
+  the rock's brown washes too, as their strokes (2026-10-09).
+- A part outside the scene's flat (the tree's boughs on the shoulder): flatten it on its own and lay it on by the
+  similarity that fits the two flats along the seam (sampled both sides of the cut line; 0.65 px). One map for
+  the whole frame missed by up to 17 px, the scene's flat bending at its edge (2026-10-09).
+- With no outline at an edge, `trace_svg` crops to the ink and cut off the head: pass the area as `extent`
+  (2026-10-09).
+- Oedipus at Colonus redone with PhotoCraft (Green's pages and a found photo on Taplin's plate; the 2026-10-03
+  registration, cut and hand strokes kept): about three hours over three passes, approved by John 2026-10-10.
+  `tools/oedipus_colonus.py` (2026-10-10).
+- Say plainly when a redo is not better: pass 1 lost the old drawing's curl detail (white hair as one grey wash).
+  White curls on clay: a light tone over the mass with the painter's dark marks between the curls as crisp
+  strokes. Keep the lines-off zone to the hair itself, not a box round the head: the robe's lines under the
+  beard went with it (John marked them) (2026-10-10).
+- Hand-placed strokes at a plate's own px round off small marks: draw them at twice the frame and trace from
+  there ("faces need to be crisper"). Dark hair as many wash steps mottles round a face; two firm steps keep the
+  face clear (2026-10-10).
+- What reads as hair may be attire: a dark band with white ribs over Ismene's head is a headdress (John). Look at
+  the clearest photo; draw it black with the ribs clear (a white top-hat, Minimum then Maximum) (2026-10-10).
 
 ## John's traces
 
