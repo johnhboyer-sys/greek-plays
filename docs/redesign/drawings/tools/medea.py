@@ -381,6 +381,24 @@ PAINT, PAINT_WIDE = 25, 4
 # to be clean, not cracked or jagged"; as antigone.py)
 JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, ALIGN_MAX, ALIGN_C = 18, 8, 20, 10, 36, 6
 ALIGN_COS = np.cos(np.radians(10))
+# The serpents (John, 2026-10-10, "I place their lines"): the photo cannot tell their coil edges and head
+# markings from the yellow paint's texture, so inside SERP["zone"] (flat px polygon; medea_serpents.json)
+# the found lines are kept only on and along the pale belly (the grey, smoothed over 4 px, over BELLY_L,
+# widened by BELLY_NEAR px: the scales and the belly's edges, which come out clean) or SERP_LONG px long or
+# more on the back (the golden bands that part the coils run on; the paint's texture breaks short), and the rest are placed
+# by hand: SERP["lines"] (flat px points along each stroke), each snapped to the darkest path in the green
+# channel within SERP_SNAP px of its points (livewire) and drawn as the other strokes; SERP["eyes"]
+# (cx, cy, rx, ry: rings drawn as they are); SERP["mouths"] (polygons, filled) less SERP["tongues"]
+# (lines, left in the body colour). The heads (SERP["heads"], polygons) are pale too: there every line is
+# placed by hand
+SERP = json.loads((Path(__file__).resolve().parent / "medea_serpents.json").read_text())
+BELLY_L, BELLY_NEAR, SERP_LONG, SERP_SNAP = 175, 5, 90, 6
+# and their spots and the dark bands between their coils: dark brown paint, the red channel (blurred over
+# 1.5 px) under SPOT_RED (the yellow, the golden bands and head strokes and the clay read over 175, the spots
+# 40-165), opened over SPOT_OPEN px; marks of SPOT_AREA flat px^2, at most SPOT_LONG px long (the
+# fitted ellipse's long axis) and SPOT_RATIO times as long as wide are spots, each drawn as its fitted ellipse; longer ones (centre
+# line over COIL_LEN px) are the coils' bands, drawn as strokes along their centres
+SPOT_RED, SPOT_OPEN, SPOT_AREA, SPOT_LONG, SPOT_RATIO, COIL_LEN = 168, 2, (30, 700), 50, 4.0, 60
 # lines are drawn at this weight (pinned once the first pass is approved)
 WEIGHT = "drawn"   # (the strokes are drawn at their width already; resampling would soften them)
 
@@ -522,6 +540,77 @@ def strokes_from(c, width=None, sigma=None):
     return ndi.distance_transform_edt(~centre) <= width / 2
 
 
+def poly_mask(shape, pts):
+    from skimage.draw import polygon
+    m = np.zeros(shape, bool)
+    P = np.array(pts, float)
+    rr, cc = polygon(P[:, 1], P[:, 0], shape)
+    m[rr, cc] = True
+    return m
+
+
+def hand_lines(dark, paths, snap):
+    """Centre lines (1 px) of hand-placed strokes: each snapped to the darkest path (low `dark`) within
+    `snap` px of its points (livewire), then smoothed along its length as strokes_from does."""
+    from skimage.draw import line
+    centre = np.zeros(dark.shape, bool)
+    H, W = dark.shape
+    for pts in paths:
+        P = np.array(pts, int)
+        x0, y0 = max(P[:, 0].min() - snap - 2, 0), max(P[:, 1].min() - snap - 2, 0)
+        x1, y1 = min(P[:, 0].max() + snap + 3, W), min(P[:, 1].max() + snap + 3, H)
+        sub = dark[y0:y1, x0:x1]
+        Q = [(x - x0, y - y0) for x, y in P]
+        rough = np.zeros(sub.shape, bool)
+        for (xa, ya), (xb, yb) in zip(Q[:-1], Q[1:]):
+            rr, cc = line(ya, xa, yb, xb)
+            rough[rr, cc] = True
+        near = ndi.distance_transform_edt(~rough) <= snap
+        xy = lw.livewire(np.where(near, 1.0 + sub / 8.0, 1e4), Q)
+        if len(xy) > 4:
+            sm = np.stack([ndi.gaussian_filter1d(xy[:, j], STROKE_SIGMA, mode="nearest") for j in (0, 1)], -1)
+            sm[0], sm[-1] = xy[0], xy[-1]
+            xy = sm
+        xy = xy + (x0, y0)
+        for (xa, ya), (xb, yb) in zip(xy[:-1], xy[1:]):
+            rr, cc = line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
+            ok = (rr >= 0) & (rr < H) & (cc >= 0) & (cc < W)
+            centre[rr[ok], cc[ok]] = True
+    return centre
+
+
+def rings(shape, eyes):
+    """Centre lines (1 px) of the ellipses (cx, cy, rx, ry)."""
+    from skimage.draw import ellipse_perimeter
+    centre = np.zeros(shape, bool)
+    for cx, cy, rx, ry in eyes:
+        rr, cc = ellipse_perimeter(int(round(cy)), int(round(cx)), int(round(ry)), int(round(rx)), shape=shape)
+        centre[rr, cc] = True
+    return centre
+
+
+def spots_in(red, zone):
+    """The serpents' spots in `zone` as fitted ellipses, and the centre lines of their coils' bands (SPOT_*)."""
+    from skimage.draw import ellipse
+    m = ndi.binary_opening((red < SPOT_RED) & zone, structure=morphology.disk(SPOT_OPEN))
+    lab, _ = ndi.label(m)
+    out, long = np.zeros(m.shape, bool), np.zeros(m.shape, bool)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        q = lab[sl] == k
+        p = np.argwhere(q).astype(float) + (sl[0].start, sl[1].start)
+        if len(p) < SPOT_AREA[0]:
+            continue
+        w, v = np.linalg.eigh(np.cov(p.T) + np.eye(2) * 0.25)
+        if len(p) > SPOT_AREA[1] or 4 * np.sqrt(w[1]) > SPOT_LONG or np.sqrt(w[1] / w[0]) > SPOT_RATIO:
+            long[sl] |= q
+            continue
+        cy, cx = p.mean(0)
+        rr, cc = ellipse(cy, cx, 2 * np.sqrt(w[1]) + 0.5, 2 * np.sqrt(w[0]) + 0.5, shape=m.shape,
+                         rotation=np.arctan2(v[1, 1], v[0, 1]))
+        out[rr, cc] = True
+    return out, centre_lines(long, SPUR, COIL_LEN)
+
+
 def drawing(flat, t):
     """The lines (ink) and figures' area (fig) on the flat, and its grey."""
     from skimage.filters import apply_hysteresis_threshold
@@ -633,8 +722,35 @@ def drawing(flat, t):
     m = smooth_mask(m, MASK_SIGMA, t)
     c = centre_lines(m & ~face, SPUR, LINE_LEN)
     c |= join_breaks(c, contrast, fig & (to_edge > EDGE))
+    # the serpents: found lines only on and along the belly; the rest by hand; their spots
+    zone = poly_mask(fig.shape, SERP["zone"]) & fig
+    belly = ndi.gaussian_filter(g, 4) > BELLY_L
+    off = zone & ~ndi.binary_dilation(belly, iterations=BELLY_NEAR)
+    lab, n = ndi.label(c & off, structure=np.ones((3, 3)))
+    c &= ~(off & ~(np.bincount(lab.ravel(), minlength=n + 1) >= SERP_LONG)[lab])
+    heads = np.zeros(fig.shape, bool)   # (the heads are pale: their lines are all placed by hand)
+    for pts in SERP["heads"]:
+        heads |= poly_mask(fig.shape, pts)
+    c &= ~heads
+    c = morphology.remove_small_objects(c, max_size=LINE_LEN, connectivity=2)
+    pc(t / "flat.png", t / "green.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [0, 100, 0, 0]}))
+    green = grey(t / "green.png")
+    hand = hand_lines(ndi.gaussian_filter(green, 1.0), SERP["lines"], SERP_SNAP) | rings(fig.shape, SERP["eyes"])
+    pc(t / "flat.png", t / "red.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, 0, 0]}),
+       ("filter.blur.gaussianBlur", {"radius": 1.5}))
+    spots, coils = spots_in(grey(t / "red.png"), zone & ~ndi.binary_dilation(hand, iterations=4))
+    dots &= ~zone
+    dots |= spots & fig
+    c &= ~(zone & ndi.binary_dilation(spots, iterations=4))   # (the found lines round the spots)
+    c = morphology.remove_small_objects(c, max_size=LINE_LEN, connectivity=2)
+    c |= coils
+    mouth = np.zeros(fig.shape, bool)
+    for pts in SERP["mouths"]:
+        mouth |= poly_mask(fig.shape, pts)
+    mouth = smooth_mask(mouth, 2.0, t) & ~(ndi.distance_transform_edt(~hand_lines(green, SERP["tongues"], 2)) <= STROKE_W / 2)
     cf = centre_lines(m & face, FACE_SPUR, FACE_LEN)
-    lines = (strokes_from(c) | strokes_from(cf, FACE_W, FACE_SIGMA)) & fig
+    lines = (strokes_from(c) | strokes_from(cf, FACE_W, FACE_SIGMA) | (ndi.distance_transform_edt(~hand) <= STROKE_W / 2)
+             | mouth) & fig
     # the hair washes
     gs = ndi.gaussian_filter(g, WASH_SIGMA)
     wash = ndi.binary_opening((gs >= WASH_G[0]) & (gs < WASH_G[1]) & fig & hz, structure=morphology.disk(WASH_OPEN))
