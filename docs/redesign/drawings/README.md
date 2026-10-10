@@ -38,6 +38,7 @@ finish.
 | `helen.svg` | A warrior in a cuirass leading away a woman veiled as a bride (Helen): on the vase Idas and Marpessa; the Élite reads them as Menelaus and Helen | Lenormant and de Witte, *Élite des monuments céramographiques* III (1858), pl. LVII B, after Gerhard, *Auserlesene Vasenbilder* I, Taf. XLVI, 1 (British Museum 1895,1031.1), Heidelberg scan (public domain); turned upright and squared; made with PhotoCraft (`tools/helen.py`); the outlines on the ground outside the clay; the eyes and the dress's small marks at their printed width |
 | `phoenician-women.svg` | Europa on the bull, and a woman the Élite calls Phoenice, her sister (Phoenician Women): on the vase the woman is on the other side | Lenormant and de Witte, *Élite des monuments céramographiques* I (1844), pl. XXVIII (Phiale Painter, Beazley Archive 214180, now lost), Heidelberg scan (public domain); turned upright and squared; made with PhotoCraft (`tools/phoenician_women.py`); the outlines on the ground outside the clay; John's marks in `tools/phoenician_women_marks_1.png` |
 | `wealth.svg` | Plutus, the god of wealth, an old man with white hair and beard, holding a sceptre and a cornucopia (Wealth): on the vase the museum reads Hades (Pluto); the Élite calls him Plutus | Lenormant and de Witte, *Élite des monuments céramographiques* III (1858), pl. LVIII, after *Monumenti inediti dell'Instituto* I, pl. IV (Painter of London E 183, British Museum 1868,0606.8), Heidelberg scan (public domain); the left page's panel squared; made with PhotoCraft (`tools/wealth.py`); the outlines on the ground outside the clay; the white hair and beard as `white` paths, outlined on the ground by a `day` path |
+| `hecuba.svg` | Neoptolemos leading veiled Polyxena to the tomb of Achilles, with the snake, the animal at the tomb and the winged shade (Hecuba) | Gerhard, *Trinkschalen und Gefässe des Königlichen Museums zu Berlin* II (1850), Taf. XVI (Berlin F 1902), Heidelberg scan (public domain); black-figure, a silhouette as `seven.svg`; made with PhotoCraft (`tools/hecuba.py`); the purple a `tone` wash; John's marks in `tools/hecuba_marks_1.png` |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -96,6 +97,8 @@ dark theme they stand on a clay rim, as on the vase, and the incisions show
 clay. `tools/seven.py` writes it in this format itself, as `trace_svg` would
 take that rim away. Eriphyle's feet are drawn on lines in `tools/seven_feet.json`,
 her face and hands on John's traces in `tools/seven_traces.json` (plate px).
+`hecuba.svg` is a silhouette in the same format (John, 2026-10-10), written by `tools/hecuba.py`, with a `tone`
+path between the body and the lines: the added purple, the line colour at 0.45.
 
 ## Blood
 
