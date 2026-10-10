@@ -315,7 +315,7 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   marks copy"). Hide all layers but his, save as PNG, and check the red layer for his edits too
   (2026-10-10).
 
-- Wealth (III, pl. LVIII, Plutus with the cornucopia), made with PhotoCraft: about two and a half hours over two
+- Wealth (III, pl. LVIII, Plutus with the cornucopia), made with PhotoCraft: about forty minutes over two
   passes, the credit included, approved by John 2026-10-10. `tools/wealth.py` (2026-10-10).
 - Added white (hair, beard) over the black ground, no black outline on the vase: show John a small test of each house
   way on the head first. He chose white paths (as Clouds) with a black outline on the ground in day mode only, so the
