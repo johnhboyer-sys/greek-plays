@@ -28,7 +28,7 @@ Plate -> drawing, as for Helen:
     top, left or right edge. The figures stand on the panel's lower edge, which is the cut (BOTTOM).
   - Lines: the plate's dark lines inside the figures (local contrast), the outline on the black ground
     outside the clay, and the plate's solid paint. No faint-line finder: the Élite prints its lines
-    solid (Ion).
+    solid (Ion). The bowstring crosses the ground as black paint a little darker than it (STRINGS).
   - Dark theme: the figures' area is the body; the ground stays open, as on the vase.
 
     python3 docs/redesign/drawings/tools/iphigenia_aulis.py lenormant1857bd2_pl90.jpg [qa.png]
@@ -72,8 +72,9 @@ UP = 3                                    # work at 3x the plate's px, so curves
 DARK = 85                                 # ground and solid paint: darker than this (grey, lightly smoothed)
 AUTO_GROUND = 10000                       # plate px: dark areas this large, reaching the crop's edge, are ground
 FIG_MIN = 200                             # plate px: clay areas smaller than this are specks of the print
-# pockets of ground the figures close in (a point in each, levelled px)
-POCKETS = []
+# pockets of ground the figures close in (a point in each, levelled px): between Artemis' raised arm, the
+# arrow she draws and her back
+POCKETS = [(720, 420)]
 WALL_W = 1.5
 # dark printed a little lighter than the ground with no clay line round it (hair, as Helen's above her
 # diadem): a polygon (levelled px), or none
@@ -87,8 +88,9 @@ HANDS = []
 HAND_EDGE = 1.2
 # the eyes (boxes, levelled px): the brow and the pupil are the plate's paint at its own width, darker
 # than FACE_DARK after a light blur; the lids, paler and thinner, the plate darker than FACE_FAINT, its
-# gaps closed over FACE_CLOSE px (at UP), drawn along their centres FACE_LINE wide (Helen)
-FACES = []
+# gaps closed over FACE_CLOSE px (at UP), drawn along their centres FACE_LINE wide (Helen): Artemis', the
+# woman's, the child's
+FACES = [(1022, 354, 1062, 395), (2748, 348, 2790, 390), (3030, 522, 3060, 548)]
 FACE_DARK, FACE_FAINT, FACE_CLOSE = 85, 150, 2
 FACE_LINE = 1.0                           # plate px: the lids' width, as printed
 # an eye drawn through points read off the plate's grey values (levelled px), where the finder drew the
@@ -96,10 +98,42 @@ FACE_LINE = 1.0                           # plate px: the lids' width, as printe
 EYE_BOX = None
 EYE_LINES = []
 EYE_PUPIL = None
-FINE = []
-# black areas that run into the ground through a gap in their clay line (levelled px): walls
-WALLS = []
+# the hair prints as dark as the ground inside a thin clay line, found at fine blur in these boxes
+# (levelled px: Artemis' head, the woman's) (Ion)
+FINE = [(2830, 250, 3000, 380)]
+# the bowstring, a line of black paint on the black ground, printed a little darker than it (grey 3-6
+# against 7-9): two straight runs (levelled px), from the bow's upper tip to her forearm and from under
+# it to the lower tip, each placed where the mean grey along it is least (searched over half-px shifts
+# of its ends); drawn STRING_W plate px wide up to the clay (heracles.py's STRINGS, here dark). Where it
+# crosses her forearm the plate prints it as a line on the clay, found with the rest
+STRINGS = [[(1566.2, 222), (1580.4, 535)], [(1601.6, 615), (1634.2, 808)]]
+STRING_W = 2.0
+# black areas that run into the ground through a gap in their clay line (levelled px), walled along the
+# line (each gap found by a least-cost path through the dark from the hair to the ground, cut at its
+# narrowest and searched again until none was left): the woman's bun, where its line stops short of the
+# band, where its scallops reach the line at the top, and where its line meets the crown's; Artemis' front curl, where its line meets the
+# band's end; her hair at the back, where its line meets the ribbon's loop. And bands of solid paint that
+# cross a clay part and so touch the ground (Phoenician Women's girdle), walled along the clay's edge,
+# measured above and below each band: the two bracelets on Artemis' raised arm (both edges); the
+# bowstring where it crosses her forearm and the bracelets by her wrist (both edges); the bow's grip
+# bands above her hand (both edges)
+WALLS = [[(2964, 359), (2959.5, 363.5), (2955, 367)], [(2945, 277), (2957, 276), (2966, 275)],
+         [(2933.5, 284), (2936, 282), (2938, 280)],
+         [(1068, 301), (1074, 297.5), (1080, 296.5)], [(886.5, 333), (884, 336.5), (881.5, 339.5)],
+         [(600.5, 455), (598, 466), (595, 476), (592.5, 486), (590.5, 496), (589.5, 503)],
+         [(660.5, 482), (660, 494), (659.5, 506), (659, 515), (658.5, 524)],
+         [(1576, 531), (1600, 528), (1622, 524), (1640, 516.5), (1650, 513), (1660, 511), (1670, 507.5), (1680, 503)],
+         [(1572, 626.5), (1590, 615.5), (1603, 608.5), (1620, 597), (1630, 590.5), (1640, 586.5), (1648, 581.5),
+          (1655, 576.5), (1662, 572), (1672, 567)],
+         [(1742.5, 378), (1744, 392), (1745.5, 402), (1744.5, 416)],
+         [(1763, 378), (1764.5, 392), (1766.5, 402), (1767.5, 414)]]
 MARKS_FILES = []
+# the line weight, kept fixed after pass 1 (its median width, px over the longer side; Phoenician Women)
+WEIGHT = "own"
+# his marks left out (boxes, work px at UP), and clay areas the figures close in that are the vase's ground
+# (a point in each, levelled px) (Phoenician Women)
+DROP = []
+OPEN = []
 # Small dots paler than the lines: small marks darker than FACE_FAINT, no wider than DOT_W px and smaller
 # than DOT_MAX px, whose core is darker than DOT_DARK, drawn at their own size as `dots` (Helen)
 DOT_DARK, DOT_W, DOT_MAX = 60, 7, 30
@@ -107,6 +141,7 @@ DOT_DARK, DOT_W, DOT_MAX = 60, 7, 30
 # the dots, at their printed width (Helen)
 MARK_W, MARK_MAX = 10, 70
 DOT_TAIL = 1.8
+JOIN_SMALL = 160
 assert tw.UP == UP
 
 
@@ -257,11 +292,29 @@ def main(src, qa=None, dump=None):
     ridge = (g - ndi.grey_opening(g, size=(5 * UP, 5 * UP))) > 50
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP)) | (fig & ridge)
 
+    string = np.zeros(g.shape, bool)
+    for pts in STRINGS:
+        string |= along(g.shape, polyline(pts), STRING_W)
+    string &= ~fig & ~outside
+
     firm = tw.ink_lines(gl, closed, 22, 34)
     thin = ndi.distance_transform_edt(~morphology.skeletonize(firm)) <= LINE_MIN * UP / 2
     lines = (core | thin) & fig
     _core, _thin = core & fig, thin & fig
     _join = join_breaks(lines, closed - gl, ndi.distance_transform_edt(fig)) & fig
+    # the joiner took the dots on Artemis' dress (larger than the dots below) for the ends of broken lines and
+    # bridged pairs of them with strokes: its pieces that touch only small marks (under JOIN_SMALL px) go
+    lab, _ = ndi.label(lines)
+    sz = np.bincount(lab.ravel())
+    sz[0] = 0
+    jl, nj = ndi.label(_join & ~lines)
+    for i, sl in enumerate(ndi.find_objects(jl), 1):
+        sl = tuple(slice(max(a.start - 2, 0), a.stop + 2) for a in sl)
+        piece = ndi.binary_dilation(jl[sl] == i, iterations=2)
+        ends = np.unique(lab[sl][piece])
+        ends = ends[ends > 0]
+        if len(ends) and (sz[ends] < JOIN_SMALL * UP * UP).all():
+            _join[sl] &= ~piece
     lines |= _join
     lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= LINE_MIN * UP / 2) & fig
     face = boxes(g.shape, FACES)
@@ -302,7 +355,7 @@ def main(src, qa=None, dump=None):
     # the local-contrast finder bridges a dot to the line beside it with a short thin stroke (the hem's
     # beads hung from the line above): its ink that the plate's paint does not hold goes near the dots
     lines &= ~(~_core & (ndi.distance_transform_edt(~dots) <= DOT_TAIL * UP) & ~dots)
-    ink = lines | solid | edge | dots
+    ink = lines | solid | edge | dots | string
     lab, _ = ndi.label(ink)
     ink &= np.where(face, (np.bincount(lab.ravel()) > 3 * UP * UP)[lab], (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]) | dots
     lab, n = ndi.label(ink)
@@ -327,17 +380,31 @@ def main(src, qa=None, dump=None):
         r, gg, bb, al = (m[..., i] for i in range(4))
         green = (al > 40) & (gg > r + 40) & (gg > bb + 20)
         blue = (al > 40) & (bb > r + 40) & (bb > gg + 20)
+        for bx0, by0, bx1, by1 in DROP:
+            blue[by0:by1, bx0:bx1] = False
         green = ndi.binary_fill_holes(ndi.binary_closing(green, structure=morphology.disk(2 * UP)))
-        ink &= ~ndi.binary_dilation(green, iterations=UP)
-        ink |= ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= LINE_MIN * UP / 2
-        ink |= ndi.binary_opening(blue, structure=morphology.disk(round(LINE_MIN * UP)))
+        gone = ndi.binary_dilation(green, iterations=UP)
+        ink &= ~gone
+        eyes &= ~gone
+        dots &= ~gone
+        # his lines kept at the width he drew them (traced with the dots, at their own size), on clay
+        # so they keep it on the dark theme
+        ink |= blue
+        eyes |= blue
+        dots |= blue
+        fig |= ndi.binary_dilation(blue, iterations=UP)
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, dark=dark,
                             core=_core, thin=_thin, join=_join, edge=edge, dots=dots)
 
+    lab, _ = ndi.label(fig & ~ink)
+    for x, y in OPEN:
+        k = lab[round((y - Y0) * UP), round((x - X0) * UP)]
+        assert k, f'open point {(x, y)} is not on clay'
+        fig &= lab != k
     held = ~fig
     info = lw.trace_svg(
-        ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight="own",
+        ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight=WEIGHT,
         title='Artemis drawing her bow at Niobe, who flees with her child',
         desc='Line drawing after the 1857 plate of a red-figure vase (Lenormant and de Witte, Élite des '
              'monuments céramographiques II, pl. XC); cut out and retraced.')
