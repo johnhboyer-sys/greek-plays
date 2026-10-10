@@ -1,11 +1,19 @@
-"""Helen (Euripides): Menelaus, bearded, bare-chested, in an armoured skirt, with a spear, leads away
-Helen, veiled; his hand on her shoulder. From Lenormant and de Witte, Élite des monuments
-céramographiques III (Paris, 1858), pl. LVII B, as scanned by Heidelberg University Library (Public
-Domain Mark):
+"""Helen (Euripides): a warrior in a cuirass, with a spear, leads away a woman veiled as a bride, his hand on
+her shoulder. From Lenormant and de Witte, Élite des monuments céramographiques III (Paris, 1858),
+pl. LVII B, as scanned by Heidelberg University Library (Public Domain Mark):
 https://digi.ub.uni-heidelberg.de/iiif/2/lenormant1858bd3%3A303_Planche_ROEM_057_B.jpg/full/full/0/default.jpg
 (1826 x 2768, printed sideways; page https://digi.ub.uni-heidelberg.de/diglit/lenormant1858bd3/0386)
-The pair only: the winged figure at their left (the tip of its wing and its staff come near Helen, with
-ground between) and the youth beyond it are left out.
+The Élite's text (pp. 117 and 171) takes the plate from Gerhard, Auserlesene Vasenbilder I, Taf. XLVI, 1
+(the reverse of the Triptolemos amphora on its pl. LVII A) and reads it as Menelaus taking Helen home
+after the fall of Troy, his spear reversed as a sign of rest, with Iris 'in her character of Eris' and
+Paris. Gerhard (AV I, p. 169: a red-figure amphora 'drawn in the Roman art trade') read it as Marpessa
+between Idas and Apollo, and so do the vase's modern records: an Attic red-figure belly amphora
+attributed to the Painter of London 95, c. 480-460 BC, British Museum 1895,1031.1 (Beazley Archive
+206725, citing both plates; ARV2 583.1). John (2026-10-10): keep it for Helen, titled as the museum reads
+it (Idas leading Marpessa as his bride), the Élite's reading noted. The comments below name the two
+as the Élite does, Menelaus and Helen.
+The pair only: Iris at their left (the tip of her wing and her staff come near the woman, with ground
+between) and Apollo beyond her are left out.
 
 Made with PhotoCraft (John, 2026-10-07), as tools/ion.py: every image step runs in `photocraft-cli`
 (0.2.0). The scan is turned upright and its panel squared (`level`, numpy and scipy: geometry); numpy
@@ -342,7 +350,7 @@ def main(src, qa=None, dump=None):
     held = ~fig
     info = lw.trace_svg(
         ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight="own",
-        title='Menelaus leading Helen away',
+        title='Idas leading Marpessa away as his bride',
         desc='Line drawing after the 1858 plate of a red-figure vase (Lenormant and de Witte, Élite des '
              'monuments céramographiques III, pl. LVII B); cut out and retraced.')
     print(OUT, info)
