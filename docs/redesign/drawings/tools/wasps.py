@@ -218,8 +218,264 @@ def flat_image(src):
     return out.clip(0, 255).round().astype(np.uint8)
 
 
+# ---------------------------------------------------------------- the scene
+
+CLAY = 60                     # clay: red less blue above this (blurred 2 px); glaze under it
+LINE_DARK = 85                # painted lines: grey darker than this (blurred 1.5 px)
+# Ground: the glaze, its painted lines (up to OPEN*2 px wide) opened away; the large areas, inside the scene too.
+# Smaller glaze areas inside the figures are paint.
+OPEN, AUTO_GROUND = 14, 40000
+# and smaller areas of ground that the figures close in (flat px, a point in each): between the slave's right arm
+# and his side
+OPEN_PTS = [(3174, 1817)]
+# and pockets narrower than the opening, found at FINE_OPEN within OPEN_FINE_R px of a point: the ground between
+# the slave's left hand and the chest's rim
+OPEN_FINE, OPEN_FINE_R = [(3069, 1852)], 80
+FINE, FINE_OPEN = [], 3       # boxes (flat px) where the ground between parts is narrower (fingers)
+SMOOTH, FINE_SMOOTH = 3.0, 1.5
+EDGE = 9                      # the outline, flat px wide
+SPECK, FLECK = 150, 200
+# the line weight, pinned at pass 1's own (the median width, 7.49 flat px, over the longer side, 4848 px), so that
+# later changes to a few lines do not re-weight them all (as phoenician_women.py)
+WEIGHT = 0.0015440
+# Seeds (flat px): the door leaf, the column, the roof, the left-hand man, the patterned cloth he holds out, the
+# slave, his chest, the right-hand man, the plank
+SEEDS = [(845, 1306), (1450, 1500), (1100, 480), (1900, 1600), (2680, 1088), (3300, 1400), (3400, 2200),
+         (4200, 1500), (2600, 2540)]
+# The left handle's palmette touches the porch's left side across a dark seam narrower than the opening: all left
+# of the porch's own edge (flat px: where red less blue falls under CLAY into 15 px of glaze, row by row, less 4) is out, the seam with it
+PALM_L = [(0, 850), (654, 850), (654, 900), (647, 1000), (635, 1100), (623, 1200), (618, 1275), (624, 1350),
+          (634, 1450), (637, 1525), (631, 1600), (610, 1700), (572, 1800), (528, 1900), (505, 2000), (481, 2100),
+          (468, 2200), (0, 2200)]
+# The stage's legs are cut off at the plank's lower edge: per column (every PLANK_STEP px), the end of the clay run
+# that holds row PLANK_ROW, smoothed (a running median over 5)
+PLANK_ROW, PLANK_STEP, PLANK_X = 2540, 25, (200, 5100)
+# White paint (hair and beards): inside each head's box (flat px), lighter than its grey limit and less red than its
+# red-less-blue limit (clay is redder). The old men's white is a cool white (red less blue about 45); the slave's
+# hair and beard a warm cream (about 80, as red as worn clay), told from his clay by lightness alone (clay there
+# 168 or darker, the cream 175 and up)
+HEADS = [((1850, 330, 2420, 820), 150, 75), ((3980, 330, 4560, 1250), 150, 75), ((3300, 950, 3720, 1350), 175, 255)]
+# The slave's curls are dots and hooks of brown glaze on the cream: darker than CURL_L (grey, blurred 1 px) inside
+# his hair, drawn as ink at their own size
+CURL_BOX, CURL_L = (3300, 950, 3720, 1350), 140
+# The slave's head is a sheep mask (John, 2026-10-10: "that's a sheep mask"): the fleece cream with brown curl
+# marks, and the sheep's face drawn in thinned glaze, a pale brown arc and ring that grey hardly shows. In the blue
+# channel (the cream is high in it, the glaze low) they stand 35 or more under the cream round them: blue blurred
+# SHEEP_BLUR px, its Maximum then Minimum over SHEEP_R px less it, above SHEEP_T, pieces of SHEEP_MIN px^2 or more,
+# inside SHEEP_BOX (flat px)
+SHEEP_BOX, SHEEP_BLUR, SHEEP_R, SHEEP_T, SHEEP_MIN = (3420, 1150, 3640, 1330), 2.5, 10, 35, 40
+# Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
+# helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
+FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
+HAIR_SPAN, CLAY_SPECK = 20, 10
+# The left-hand man's open mouth shows a row of teeth hanging from the moustache, white like it (John, 2026-10-10:
+# "there are teeth here along with the beard/mustache"; he drew the line between them). The line: the mouth's top
+# edge (the black joined to MOUTH, flat px, grey under LINE_DARK), its highest points between the teeth joined (a
+# running minimum over TOOTH_SPAN px, smoothed TOOTH_SMOOTH px) and raised TOOTH_ROOT px, run flat on to TEETH_X1.
+# Below it, and with the mouth under it within TOOTH_H px, the white is teeth: no wash, so they stand white against the black of the mouth
+MOUTH, TOOTH_SPAN, TOOTH_SMOOTH, TOOTH_ROOT, TEETH_X1, TOOTH_H = (2200, 767), 45, 10, 6, 2372, 40
+WASH_HOLE = 2000
+TONE_STEPS, STEP_BLUR, STEP_MIN = [(0, 0.16), (45, 0.27), (70, 0.38)], 4.0, 600
+
+
+def pc(src, out, *steps):
+    """Run PhotoCraft on src: steps are (command, params) pairs; the result saved to out."""
+    args = [PC, "run", str(src)]
+    for cmd, params in steps:
+        args += ["--cmd", cmd] + (["--params", json.dumps(params)] if params is not None else [])
+    args += ["--out", str(out)]
+    subprocess.run(args, check=True, capture_output=True, text=True)
+
+
+def grey(p):
+    return np.asarray(Image.open(p).convert("L")).astype(np.float32)
+
+
+def plank_bottom(clay_rb):
+    """The plank's lower edge (row per column of the flat), from red less blue (blurred)."""
+    xs, ys = [], []
+    for x in range(PLANK_X[0], PLANK_X[1], PLANK_STEP):
+        col = clay_rb[:, x] > CLAY
+        if not col[PLANK_ROW]:
+            continue
+        y = PLANK_ROW
+        while col[y + 1]:
+            y += 1
+        xs.append(x)
+        ys.append(y + 0.5)
+    ys = ndi.median_filter(np.array(ys), 5, mode="nearest")
+    return np.array(xs), ys
+
+
+def teeth(g):
+    """The teeth's area (see MOUTH), on the flat."""
+    x0, y0, x1, y1 = MOUTH[0] - 60, MOUTH[1] - 150, TEETH_X1 + 40, MOUTH[1] + 80
+    sub = ndi.gaussian_filter(g[y0:y1, x0:x1], 1.5) < LINE_DARK
+    lab, _ = ndi.label(sub)
+    mouth = lab == lab[MOUTH[1] - y0, MOUTH[0] - x0]
+    cols = np.nonzero(mouth.any(0))[0]
+    top = np.array([np.nonzero(mouth[:, c])[0][0] for c in cols], float)
+    line = ndi.gaussian_filter1d(ndi.minimum_filter1d(top, TOOTH_SPAN, mode="nearest"), TOOTH_SMOOTH) - TOOTH_ROOT
+    xs = np.arange(x1 - x0)
+    root = np.interp(xs, cols, line)
+    below = np.zeros_like(mouth)   # the mouth within TOOTH_H px under a point (a column either side)
+    m = ndi.maximum_filter(mouth, size=(1, 5))
+    for d in range(1, TOOTH_H + 1):
+        below[:-d] |= m[d:]
+    yy, xx = np.mgrid[0:y1 - y0, 0:x1 - x0]
+    out = np.zeros(g.shape, bool)
+    out[y0:y1, x0:x1] = (yy >= root[xx]) & below & (xx + x0 <= TEETH_X1) & ~mouth
+    return out
+
+
+def scene(src):
+    """(ink, figure, grey, half-tone steps [(mask, total opacity)]) on the flat."""
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.fromarray(flat_image(src)).save(t / "c.png")
+        pc(t / "c.png", t / "rbw.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": STEP_BLUR}))
+        pc(t / "c.png", t / "gw.png", ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": STEP_BLUR}))
+        pc(t / "c.png", t / "rbs.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 2}))
+        pc(t / "rbs.png", t / "rb.png", ("image.adjustments.threshold", {"level": CLAY}))
+        pc(t / "c.png", t / "g.png", ("image.mode.grayscale", None))
+        pc(t / "g.png", t / "core.png", ("filter.blur.gaussianBlur", {"radius": 1.5}),
+           ("image.adjustments.threshold", {"level": LINE_DARK}))
+        pc(t / "g.png", t / "g2.png", ("filter.blur.gaussianBlur", {"radius": 2}))
+        pc(t / "g.png", t / "g1.png", ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "c.png", t / "blue.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [0, 0, 100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": SHEEP_BLUR}))
+        pc(t / "blue.png", t / "bluec.png", ("filter.other.maximum", {"radius": SHEEP_R, "preserve": "squareness"}),
+           ("filter.other.minimum", {"radius": SHEEP_R, "preserve": "squareness"}))
+        sheep_c = grey(t / "bluec.png") - grey(t / "blue.png")
+        rbw = grey(t / "rbw.png")
+        whiteness = np.clip(grey(t / "gw.png") - 120, 0, None) * np.clip((80 - rbw) / 60, 0, 1)
+        g = grey(t / "g.png")
+        rbs = grey(t / "rbs.png")
+        clay = grey(t / "rb.png") >= 128
+        core = grey(t / "core.png") < 128
+        g2, g1 = grey(t / "g2.png"), grey(t / "g1.png")
+    H, W = g.shape
+    yy, xx = np.mgrid[0:H, 0:W]
+    box = lambda bs: np.any([(xx >= b[0]) & (yy >= b[1]) & (xx < b[2]) & (yy < b[3]) for b in bs], 0)
+    heads = box([b for b, _, _ in HEADS])
+    white = np.any([box([b]) & (g2 > wl) & (rbs < wrb) for b, wl, wrb in HEADS], 0)   # the white paint
+    hair_zone = ndi.binary_fill_holes(ndi.binary_closing(white, structure=morphology.disk(HAIR_SPAN))) & heads
+    # (the clay it closes in, inside an ear or on a cheek, is not hair: red areas wider than a speck; the slave's
+    # cream is as red as clay, so the white itself is not counted)
+    hair_zone &= ~ndi.binary_opening(clay & ~white, structure=morphology.disk(CLAY_SPECK))
+    clay |= white | (hair_zone & ~core)
+    px, py = plank_bottom(rbs)
+    outside = yy > np.interp(xx, px, py)
+    outside |= lw.polygon_mask(g.shape, np.array(PALM_L, float))
+    dark = ~clay & ~outside
+    fine = box(FINE) | hair_zone
+    ground0 = np.where(fine, ndi.binary_opening(dark, structure=morphology.disk(FINE_OPEN)),
+                       ndi.binary_opening(dark, structure=morphology.disk(OPEN)))
+    lab, _ = ndi.label(ground0)
+    size = np.bincount(lab.ravel())
+    size[0] = 0
+    # (the figures and the plank close in large areas of ground: behind the door, between the legs)
+    is_ground = size > AUTO_GROUND
+    for x, y in OPEN_PTS:
+        assert lab[y, x], f"open point {(x, y)} is not on glaze"
+        is_ground[lab[y, x]] = True
+    ground = is_ground[lab]
+    for x, y in OPEN_FINE:
+        r = OPEN_FINE_R
+        sub = ndi.binary_opening(dark[y - r:y + r, x - r:x + r], structure=morphology.disk(FINE_OPEN))
+        sl, _ = ndi.label(sub)
+        assert sl[r, r], f"open point {(x, y)} is not on glaze"
+        ground[y - r:y + r, x - r:x + r] |= sl == sl[r, r]
+    for k in np.unique(lab[(lab > 0) & ~ground]):   # (check: the largest areas kept as paint)
+        if size[k] > 3000:
+            yk, xk = np.argwhere(lab == k)[0]
+            print("dark kept as paint", size[k], (xk, yk))
+    lab, _ = ndi.label(~ground & ~outside)
+    keep = {lab[y, x] for x, y in SEEDS}
+    assert 0 not in keep
+    sz = np.bincount(lab.ravel())
+    for k, sl in enumerate(ndi.find_objects(lab), 1):   # (check: clay left out)
+        if k not in keep and sz[k] > 2000:
+            print("unseeded", sz[k], (sl[1].start, sl[0].start, sl[1].stop, sl[0].stop))
+    fig = ndi.binary_fill_holes(np.isin(lab, list(keep))) & ~ground
+    f = fig.astype(np.float32)
+    fig = np.where(fine, ndi.gaussian_filter(f, FINE_SMOOTH), ndi.gaussian_filter(f, SMOOTH)) > 0.5
+    fig &= ~outside
+    paint = dark & fig & core
+    to_edge = ndi.distance_transform_edt(fig)
+    edge = fig & (to_edge <= EDGE)
+    lines = (core | paint) & fig & ~edge
+    lab, _ = ndi.label(lines, structure=np.ones((3, 3)))
+    sz = np.bincount(lab.ravel())
+    touch = np.unique(lab[ndi.binary_dilation(edge, iterations=2)])
+    lines &= ~((sz < SPECK) & ~np.isin(np.arange(len(sz)), touch))[lab]
+    # the hair: the figure inside the hair's outline, so each curl and strand is its own shape, edged in the tone
+    strokes = fig & hair_zone & ~paint
+    soft_edge = edge & (ndi.distance_transform_edt(~strokes) <= EDGE + 3)
+    lines &= ~strokes
+    curls = strokes & box([CURL_BOX]) & (g1 < CURL_L)
+    sheep = box([SHEEP_BOX]) & (sheep_c > SHEEP_T) & strokes
+    lab, _ = ndi.label(sheep)
+    sheep &= (np.bincount(lab.ravel()) >= SHEEP_MIN)[lab]
+    ink = lines | (edge & ~soft_edge) | curls | sheep
+    holes = ndi.binary_fill_holes(ink) & ~ink
+    lab, _ = ndi.label(holes)
+    ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
+    base = ((ndi.gaussian_filter(strokes.astype(np.float32), 3.0) > 0.5) | soft_edge) & fig & ~ink
+    base &= ~teeth(g)
+    holes = ndi.binary_fill_holes(base) & ~base & ~ink   # (specks of bare clay in the worn white: washed over)
+    lab, _ = ndi.label(holes)
+    base |= (np.bincount(lab.ravel()) < WASH_HOLE)[lab] & holes
+    steps = []
+    for level, opacity in TONE_STEPS:
+        m = base & (whiteness >= level)
+        lab, _ = ndi.label(m)
+        m &= (np.bincount(lab.ravel()) >= STEP_MIN)[lab]
+        steps.append((m, opacity))
+    faces = box(FACES) & ink
+    return ink & ~faces, faces, fig, g, steps
+
+
+def add_tone(svg, steps, box):
+    """The half tone added to a drawing written by lw.trace_svg (box: the crop box it returned) as paths of class
+    "tone" in the line colour, between the body and the lines, one per step [(mask, total opacity)], each drawn
+    over the last at the opacity that brings the total to its own (as acharnians.py)."""
+    x0, y0, x1, y1 = box
+    paths, below = [], 0.0
+    for mask, total in steps:
+        if not mask[y0:y1, x0:x1].any():
+            continue
+        d, _ = lw.potrace_d(lw.resample_ink(mask[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
+        a = 1 - (1 - total) / (1 - below)
+        paths.append(f'<path class="tone" fill="currentColor" fill-opacity="{a:.3f}" stroke="none" d="{d}"/>')
+        below = total
+    s = svg.read_text().replace('<path class="lines"', "".join(paths) + '<path class="lines"', 1)
+    svg.write_text(s)
+
+
+def main(src, qa=None, dump=None):
+    ink, faces, fig, g, steps = scene(src)
+    if dump:
+        np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, faces=faces)
+    info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=faces,
+                        title="Two old men in comic masks and a small slave behind a chest, by a door: a comic stage",
+                        desc="Line drawing after the Apulian red-figure bell-krater J. Paul Getty Museum 96.AE.112; "
+                             "traced from the museum's photograph (CC0), taken off the vase's curve.")
+    add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in steps], info["box"])
+    print(OUT, info)
+    if qa:
+        lw.qa_overlay(g, OUT, info["box"], Path(qa))
+        lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
+
+
 if __name__ == "__main__":
     if "--refit" in sys.argv:
         fit_model(dict(zip(["front", "lprofile", "rprofile"], sys.argv[1:4])))
     elif "--flat" in sys.argv:
         Image.fromarray(flat_image(sys.argv[1])).save(sys.argv[2])
+    elif "--dump" in sys.argv:
+        main(sys.argv[1], sys.argv[2], dump=sys.argv[3])
+    else:
+        main(*sys.argv[1:3])
