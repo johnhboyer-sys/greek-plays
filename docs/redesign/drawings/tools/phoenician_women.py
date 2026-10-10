@@ -9,7 +9,8 @@ a woman they call Phoenice, from the scholiast on Euripides, Phoenissae 5, who n
 Astypalaea and Phoenice. The plate sets the two sides next to each other. The Beazley Archive (214180):
 an Attic red-figure neck-amphora (Nolan) from Nola, attributed to the Phiale Painter, A Europa riding the
 bull, B a woman fleeing; last recorded at Suippes, private; now lost (ARV2 1014.3).
-The whole group as the plate prints it (John, 2026-10-10): the woman, the bull and Europa.
+The whole group as the plate prints it (John, 2026-10-10): the woman, the bull and Europa; titled as the
+Élite reads it, Europa on the bull and Phoenice (John, 2026-10-10).
 
 Made with PhotoCraft (John, 2026-10-07), as tools/helen.py: every image step runs in `photocraft-cli`
 (0.2.0). The scan is turned upright and its panel squared (`level`, numpy and scipy: geometry); numpy
@@ -373,7 +374,7 @@ def main(src, qa=None, dump=None):
     held = ~fig
     info = lw.trace_svg(
         ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight=WEIGHT,
-        title='Europa on the bull, and a woman fleeing',
+        title='Europa on the bull, and Phoenice',
         desc='Line drawing after the 1844 plate of a red-figure vase (Lenormant and de Witte, Élite des '
              'monuments céramographiques I, pl. XXVIII); cut out and retraced.')
     print(OUT, info)
