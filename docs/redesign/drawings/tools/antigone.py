@@ -274,6 +274,14 @@ MEND_JOINS = [[(1126, 1227), (1083, 1314)], [(1230, 1188), (1217, 1298)]]
 # shows clay there (red less blue above TRACE_RB) or it was already inside her.
 TR = json.load(open(Path(__file__).resolve().parent / "antigone_traces.json"))
 TRACE_SNAP, TRACE_W, TRACE_RB = 2, 5.0, 45
+# His corrections to pass 1 (John, 2026-10-10, marked in PhotoCraft over the photo with pass 1 in red, on
+# this tool's grid: UP px per frame px over BOX): tools/antigone_marks_1.png, blue = add, green = remove.
+# Green takes out the lines and her area under it; blue is drawn as he drew it (its edge smoothed over
+# MARK_SIGMA px), solid where he filled. Her area follows: a space his blue encloses, or the green leaves
+# inside her, is her; green at her edge, outside his new line, is ground (the face's profile), and a new
+# edge is drawn there only where he drew none
+MARKS = np.asarray(Image.open(Path(__file__).resolve().parent / "antigone_marks_1.png"))
+MARK_SIGMA, SLIVER, HOLE_MAX = 1.0, 5, 3000
 # Across the arm mend his lines replace the found ones inside ARM_ZONE (his crop, less ARM_INSET px, so his
 # lines overlap the found ones at its edges)
 ARM_ZONE, ARM_INSET = (562, 1303, 843, 1430), 6
@@ -680,6 +688,31 @@ def drawing(p04, t):
     edge = fig & ~ndi.binary_erosion(fig, iterations=round(EDGE * UP))
     edge &= ~ndi.binary_erosion(traced, iterations=6 * UP)   # there his outline is her edge
     ink = lines | paint | edge | band
+    # his corrections to pass 1
+    blue = smooth_mask(MARKS == 1, MARK_SIGMA * UP, t)
+    green = MARKS == 2
+    kept = fig & ~green
+    holes = ndi.binary_fill_holes(kept | blue) & ~(kept | blue)
+    lab, n = ndi.label(holes)
+    was = ndi.mean((fig | green).astype(float), lab, np.arange(n + 1)) > 0.5   # (not the ground seen through her)
+    was[0] = False
+    fig2 = kept | blue | was[lab]
+    # (slivers of her left outside his new line where he marked green near it, under 2 * SLIVER frame px
+    # wide (his green stopped short of the old outline), are ground; small holes in her,
+    # under HOLE_MAX px^2 (the dark between brow and lid, specks by her back), are her)
+    thin = fig2 & ~blue & ~ndi.binary_opening(fig2 & ~blue, structure=morphology.disk(SLIVER * UP))
+    lab, n = ndi.label(thin)
+    out = np.unique(lab[ndi.binary_dilation(~fig2) & thin])
+    nearb = np.unique(lab[ndi.binary_dilation(blue, iterations=2) & thin])
+    nearg = np.unique(lab[ndi.binary_dilation(green, iterations=5 * UP) & thin])
+    fig2 &= ~np.isin(lab, np.intersect1d(np.intersect1d(out[out > 0], nearb), nearg))
+    lab, n = ndi.label(ndi.binary_fill_holes(fig2) & ~fig2)
+    fig2 |= (np.bincount(lab.ravel(), minlength=n + 1) < HOLE_MAX)[lab] & (lab > 0)
+    changed = ndi.binary_dilation(fig ^ fig2, iterations=3 * UP)
+    edge2 = fig2 & ~ndi.binary_erosion(fig2, iterations=round(EDGE * UP)) & changed
+    edge2 &= ~ndi.binary_dilation(blue, iterations=4 * UP)
+    ink = (ink & ~green & fig2) | blue | edge2
+    fig = fig2
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab]
     return ink, fig, g, dict(contrast=contrast, rb=rb, c=c)
