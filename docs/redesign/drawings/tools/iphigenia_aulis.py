@@ -108,6 +108,17 @@ FINE = [(2830, 250, 3000, 380)]
 # crosses her forearm the plate prints it as a line on the clay, found with the rest
 STRINGS = [[(1566.2, 222), (1580.4, 535)], [(1601.6, 615), (1634.2, 808)]]
 STRING_W = 2.0
+# bands of solid paint that touch the ground along a garment's edge and read as ground (John, pass 1: "some
+# of the wide lines on the clothes are registering as ground instead of ink"): a point in each (levelled
+# px); the band is the thin part of the ground there, narrower than 2 BAND_R + 1 plate px. The border of
+# Artemis' sleeve, the band on her cloak's lower fold, the bow's two grip bands below her hand; the
+# borders of the woman's mantle (the upper fold, the V and the foot of the V, the two long tails, in pieces)
+# and the arc of her sleeve beside the child. Not the gaps between her fingers or the strip of ground
+# between her forearm and the drapery under the child: ground (John)
+PAINT = [(1412, 586), (561, 1558), (1761, 517), (1754, 527),
+         (2432, 1253), (2383, 1443), (2346, 1480), (2289, 1521), (2323, 1540), (2281, 1575), (2287, 1677),
+         (2858, 984)]
+BAND_R = 8
 # black areas that run into the ground through a gap in their clay line (levelled px), walled along the
 # line (each gap found by a least-cost path through the dark from the hair to the ground, cut at its
 # narrowest and searched again until none was left): the woman's bun, where its line stops short of the
@@ -128,8 +139,9 @@ WALLS = [[(2964, 359), (2959.5, 363.5), (2955, 367)], [(2945, 277), (2957, 276),
          [(1742.5, 378), (1744, 392), (1745.5, 402), (1744.5, 416)],
          [(1763, 378), (1764.5, 392), (1766.5, 402), (1767.5, 414)]]
 MARKS_FILES = []
-# the line weight, kept fixed after pass 1 (its median width, px over the longer side; Phoenician Women)
-WEIGHT = "own"
+# the line weight pass 1 had (its median width, px over the longer side), kept fixed: the median is read off
+# whole pixel steps, and later changes can move it a step, which thins or thickens every line (Phoenician Women)
+WEIGHT = 5.324555320336759 / 8591
 # his marks left out (boxes, work px at UP), and clay areas the figures close in that are the vase's ground
 # (a point in each, levelled px) (Phoenician Women)
 DROP = []
@@ -141,7 +153,7 @@ DOT_DARK, DOT_W, DOT_MAX = 60, 7, 30
 # the dots, at their printed width (Helen)
 MARK_W, MARK_MAX = 10, 70
 DOT_TAIL = 1.8
-JOIN_SMALL = 160
+JOIN_SMALL, JOIN_DOT = 160, 14
 assert tw.UP == UP
 
 
@@ -278,6 +290,26 @@ def main(src, qa=None, dump=None):
         assert k, f'pocket point {(x, y)} is not on dark'
         is_ground[k] = True
     ground = is_ground[lab]
+    if PAINT:
+        # bands of paint read as ground: the thin parts of the ground (what an opening of BAND_R plate px
+        # takes away, found at plate px) holding a PAINT point
+        gp = ground[UP // 2::UP, UP // 2::UP]
+        thin = gp & ~ndi.binary_opening(gp, structure=morphology.disk(BAND_R))
+        tl, _ = ndi.label(thin)
+        ks = [tl[round(y - Y0), round(x - X0)] for x, y in PAINT]
+        assert all(ks), [p for p, k in zip(PAINT, ks) if not k]
+        band = np.repeat(np.repeat(np.isin(tl, ks), UP, 0), UP, 1)[:H, :W]
+        ground &= ~ndi.binary_dilation(band, iterations=UP)
+        # (pieces the bands cut off from the ground are paint too: the ground is again what reaches its
+        # large areas or a pocket)
+        lab, _ = ndi.label(ground)
+        size = np.bincount(lab.ravel())
+        size[0] = 0
+        keep = size > AUTO_GROUND * UP * UP
+        for x, y in POCKETS:
+            keep[lab[round((y - Y0) * UP), round((x - X0) * UP)]] = True
+        keep[0] = False
+        ground = keep[lab]
     if CROWN:
         ground &= ~lw.polygon_mask(g.shape, up(CROWN))
     paint = dark & ~ground
@@ -303,17 +335,23 @@ def main(src, qa=None, dump=None):
     _core, _thin = core & fig, thin & fig
     _join = join_breaks(lines, closed - gl, ndi.distance_transform_edt(fig)) & fig
     # the joiner took the dots on Artemis' dress (larger than the dots below) for the ends of broken lines and
-    # bridged pairs of them with strokes: its pieces that touch only small marks (under JOIN_SMALL px) go
-    lab, _ = ndi.label(lines)
+    # bridged pairs of them with strokes, or ran a line on to a dot: its pieces that touch only small marks
+    # (under JOIN_SMALL px) or touch a dot (a small mark no longer than JOIN_DOT px) go
+    lab, n = ndi.label(lines)
     sz = np.bincount(lab.ravel())
     sz[0] = 0
+    small = sz < JOIN_SMALL * UP * UP
+    dot = small.copy()
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        dot[i] &= max(sl[0].stop - sl[0].start, sl[1].stop - sl[1].start) <= JOIN_DOT * UP
+    dot[0] = False
     jl, nj = ndi.label(_join & ~lines)
     for i, sl in enumerate(ndi.find_objects(jl), 1):
         sl = tuple(slice(max(a.start - 2, 0), a.stop + 2) for a in sl)
         piece = ndi.binary_dilation(jl[sl] == i, iterations=2)
         ends = np.unique(lab[sl][piece])
         ends = ends[ends > 0]
-        if len(ends) and (sz[ends] < JOIN_SMALL * UP * UP).all():
+        if len(ends) and (small[ends].all() or dot[ends].any()):
             _join[sl] &= ~piece
     lines |= _join
     lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= LINE_MIN * UP / 2) & fig
