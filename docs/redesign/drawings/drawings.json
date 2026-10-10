@@ -216,6 +216,15 @@
       "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. XLVI, after Hamilton-Tischbein I, pl. XXVIII (Heidelberg scan, public domain)",
       "method": "Coloured plate, red figures on black, printed sideways, made with PhotoCraft: turned upright and squared; the black ground gives the outline, drawn on the ground; the plate's lines at their own width; John's marks laid in; potrace",
       "verdict": "Usable; approved by John on the fifth pass (2026-10-09), after three rounds of his marks. No outside review (the citation checked against the Élite's text)."
+    },
+    {
+      "slug": "helen",
+      "file": "helen.svg",
+      "name": "Helen · a warrior leading away a bride",
+      "alt": "A bearded warrior in a cuirass, his spear reversed, leading away a woman veiled as a bride, his hand on her shoulder",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques III (1858), pl. LVII B, after Gerhard, Auserlesene Vasenbilder I, Taf. XLVI, 1: an Attic red-figure belly amphora by the Painter of London 95, British Museum 1895,1031.1 (Heidelberg scan, public domain). The Élite reads Menelaus and Helen; the museum, Idas and Marpessa",
+      "method": "Coloured plate, red figures on black, printed sideways, made with PhotoCraft: turned upright and squared; the black ground gives the outline, drawn on the ground; the plate's lines at their own width, the eyes and small marks at their printed width, the veil's dots kept; potrace",
+      "verdict": "Usable; approved by John on the second pass (2026-10-10), after his marks on her fingers and the hair above her crown. No outside review (the citation checked against the Élite's and Gerhard's texts, the British Museum and the Beazley Archive)."
     }
   ]
 }

@@ -272,6 +272,28 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   (`--automation-read-root`/`--automation-write-root`, relative paths): open, copy, paste in place, new
   layer, save. Keep each round's marks in its own file, applied in order (`MARKS_FILES`) (2026-10-09).
 
+- Helen (III, pl. LVII B, the warrior leading away a bride), made with PhotoCraft: about an hour and a quarter
+  over two passes, the credit included, approved by John 2026-10-10. `tools/helen.py` (2026-10-10).
+- The Élite's reading of a scene can differ from its own source's and the museum's. Its plate list and text
+  say Menelaus taking Helen home; Gerhard, whose plate it copies (AV I, Taf. XLVI), and the British Museum,
+  Beazley and LIMC say Idas and Marpessa. The Beazley Archive's record (it opens in the browser pane) cites
+  both plates and so ties them to the vase. John: keep it for the play, titled as the museum reads it
+  (2026-10-10).
+- Weight "own" sets every line to the median width: 1 px lids ran into the pupil, and the dress's crosses and
+  stars came out as blobs. Pass the eyes and small marks standing alone to `trace_svg` as `dots` (traced at
+  their own size) and take them out of the main ink; a pupil that still traced as a ring is drawn from points
+  read off the plate's grey values (`EYE_LINES`, `EYE_PUPIL`) (2026-10-10).
+- Dots paler than the line threshold (a veil's dots, a hem's beads): keep small marks whose core is darker than
+  60; the dots' cores read 0-30, specks of the print 90 and up. The local-contrast finder bridged some to the
+  line beside them: cut its thin-only ink near the dots (`DOT_*`) (2026-10-10).
+- Where hair leaked into the ground through a gap in its clay line, the fine-blur box (`FINE`) made it worse
+  (the diadem went with it). A least-cost path through the dark from the hair to the ground found the gap
+  (3 px, where the diadem's lower line stops short of the forehead); a wall there fixed it (2026-10-10).
+- Look for dark areas printed a little lighter than the ground (grey 17-40 against 5-10) with no clay line
+  round them: John asked "is there hair above the crown?", and there was. Stretch the darks to see them;
+  the edge is where the plate turns lighter than the ground, measured column by column (`CROWN`). Ground that
+  fingers close off against another figure is a pocket: it came out as black paint (John) (2026-10-10).
+
 ### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
 
 - Libation Bearers (Taf. XXIV, the whole frieze: four figures, a throne and a footstool): about four
