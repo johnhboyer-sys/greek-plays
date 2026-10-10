@@ -99,6 +99,10 @@ FINE = []
 SCEPTRE = [((326, 520), (124.906, 0.3319), (131.184, 0.3415)), ((1150, 1336), (126.142, 0.3312), (138.508, 0.3320))]
 WALLS = [[(a + b * y + side, y) for y in ys] for ys, *edges in SCEPTRE
          for (a, b), side in zip(edges, (-1.0, 1.0))]
+# boxes (levelled px) where the line finder drew a line the plate does not print: down the sceptre's head, from
+# the right leaf's inner edge down the stem to its right outline, two boxes clear of that outline (John, pass 1: "there's a vertical line in the spear/scepter at the spear head.
+# remove it"); the outline, found apart from the lines, stays
+LINES_OFF = [(229, 281, 241, 304), (238, 304, 245, 321)]
 # John's marks, drawn in PhotoCraft over a pass on the crop at UP px (1:1 with the work px): green takes the
 # ink out, blue is ink as he drew it; none so far
 MARKS_FILES = []
@@ -286,6 +290,7 @@ def main(src, qa=None, dump=None):
     _join = join_breaks(lines, closed - gl, ndi.distance_transform_edt(fig)) & fig
     lines |= _join
     lines |= (ndi.distance_transform_edt(~morphology.skeletonize(lines)) <= LINE_MIN * UP / 2) & fig
+    lines &= ~boxes(g.shape, LINES_OFF)
     face = boxes(g.shape, FACES)
     lids = ndi.binary_closing(face_faint & face, structure=morphology.disk(FACE_CLOSE)) & fig
     lab, _ = ndi.label(lids)
