@@ -678,14 +678,18 @@
       "author": "aristophanes",
       "work_id": "wealth",
       "title": "Wealth",
-      "proposed_subject": "A blind or newly sighted Wealth figure; seek a verified Ploutos identification.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "Plutus, the god of wealth, an old man with white hair and beard holding a sceptre and a cornucopia (John's pick, 2026-10-08: Plate Picks 39-Ba, Élite III pl. LVIII; 2026-10-10: drawn with PhotoCraft, titled as the Élite reads it).",
+      "status": "Drawn 2026-10-10; approved by John",
+      "source_candidate": "https://digi.ub.uni-heidelberg.de/diglit/lenormant1858bd3/0387",
+      "final_image": "docs/redesign/drawings/wealth.svg",
+      "credit": "After the plate in C. Lenormant and J. de Witte, Élite des monuments céramographiques III (Paris, 1858), pl. LVIII (text pp. 121 and 172), after Monumenti inediti dell'Instituto I, pl. IV: an Attic red-figure hydria from Nola attributed to the Painter of London E 183, about 430 BC, London, British Museum 1868,0606.8 (E 183; Beazley Archive 215772). The Élite names the figure Plutus; the museum reads him as Hades (Pluto). Scan: Heidelberg University Library.",
+      "license": "Public domain (published 1858). Heidelberg labels the scan with the Public Domain Mark 1.0 (the volume's IIIF manifest, checked 2026-10-10).",
+      "crop": "Plutus alone, the figure at the left end of the frieze, the whole figure with his sceptre. Left out: the rest of the frieze (Triptolemos in his chariot with Demeter, Persephone, Hekate and two more women), the black ground and the panel's frame.",
+      "alt_text": "An old man with white hair and a white beard, in a long pleated robe and a mantle, holding a long banded sceptre and a large horn of plenty, its mouth crowned with leaves and a shell",
+      "source_file": "https://digi.ub.uni-heidelberg.de/diglitData/image/lenormant1858bd3/4/303_Planche_ROEM_058.jpg",
+      "shows": "A character of the play in another story, not a scene of it: Plutus (Wealth), the god the play is about, at the sending out of Triptolemos; on the vase he can see, where in the play he is blind until healed. The Élite (pp. 121, 172) names him Plutus, the old man with white hair holding the sceptre and the horn of plenty; the British Museum reads him as Hades/Pluto, the Beazley Archive as Hades. John (2026-10-10): titled as the Élite reads it.",
+      "method": "Coloured plate, red figures on black, a double plate printed upright: the left page's part of the panel squared (its top, bottom and left edges fitted as lines); every image step run in PhotoCraft (photocraft-cli 0.2.0), numpy only combining its masks and measuring: the black ground gives the figure's area, with walls along the sceptre's edges where it crosses the ground, so its black bands stay paint; the added white of the hair and beard (light and not red) drawn as white paths, outlined on the ground by a path the dark theme hides (John); the eye drawn on points read off the plate; every outline drawn on the black ground outside the clay; the line weight kept at pass 1's; a crease in the paper through his head left out; tools/wealth.py.",
+      "result": "Approved by John on the second pass, 2026-10-10, after he chose the hair's treatment (white paths, with a black outline at the top in day mode only) and asked for one line in the sceptre's head to go. About two and a half hours' work, the credit included. No outside review; the credit checked against the Élite's plate list (p. vj) and text (pp. 121, 172), the British Museum's record (1868,0606.8: from Nola, bought from Alessandro Castellani; cites Él. Cér. iii pl. 58) and the Beazley Archive (215772: ARV2 1191.1; cites Élite III pl. 58)."
     }
   ],
   "playwrights": [

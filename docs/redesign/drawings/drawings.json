@@ -234,6 +234,15 @@
       "source": "Lenormant and de Witte, Élite des monuments céramographiques I (1844), pl. XXVIII: the two sides of an Attic red-figure Nolan neck-amphora by the Phiale Painter (Beazley Archive 214180), once at Suippes, now lost (Heidelberg scan, public domain). The Élite names the woman Phoenice; Beazley reads a woman fleeing",
       "method": "Coloured plate, red figures on black, printed sideways, made with PhotoCraft: turned upright and squared; the black ground gives the outline, drawn on the ground; the plate's lines at their own width, the line weight kept at pass 1's; the girdle and the band on the tail walled off as paint; John's marks laid in; potrace",
       "verdict": "Usable; approved by John on the fourth pass (2026-10-10), after his marks on pass 1 and his notes on the girdle, the tail and the ground under Europa's arm. No outside review (the citation checked against the Élite's text and the Beazley Archive)."
+    },
+    {
+      "slug": "wealth",
+      "file": "wealth.svg",
+      "name": "Wealth · Plutus with the cornucopia",
+      "alt": "An old man with white hair and a white beard, in a long pleated robe and a mantle, holding a long banded sceptre and a large horn of plenty, its mouth crowned with leaves and a shell",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques III (1858), pl. LVIII, after Monumenti inediti dell'Instituto I, pl. IV: an Attic red-figure hydria from Nola by the Painter of London E 183, British Museum 1868,0606.8 (E 183; Beazley Archive 215772) (Heidelberg scan, public domain). The Élite names him Plutus; the museum reads Hades (Pluto)",
+      "method": "Coloured plate, red figures on black, a double plate, made with PhotoCraft: the left page's panel squared; the black ground gives the outline, drawn on the ground; the plate's lines at their own width, the line weight kept at pass 1's; the sceptre's bands walled off as paint; the white hair and beard as white paths, outlined on the ground in day mode only; the eye drawn on points; potrace",
+      "verdict": "Usable; approved by John on the second pass (2026-10-10), after his choice for the hair and one line taken out of the sceptre's head. No outside review (the citation checked against the Élite's text, the British Museum and the Beazley Archive)."
     }
   ]
 }

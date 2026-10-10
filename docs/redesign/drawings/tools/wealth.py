@@ -1,8 +1,15 @@
-"""Wealth (Aristophanes): Plutos, an old man with white hair and beard, holding a long sceptre and a cornucopia.
+"""Wealth (Aristophanes): Plutus, an old man with white hair and beard, holding a long sceptre and a cornucopia.
 From Lenormant and de Witte, Élite des monuments céramographiques III (Paris, 1858), pl. LVIII, as scanned by
 Heidelberg University Library (Public Domain Mark):
 https://digi.ub.uni-heidelberg.de/diglitData/image/lenormant1858bd3/4/303_Planche_ROEM_058.jpg
 (4272 x 2818, a double plate printed upright; page https://digi.ub.uni-heidelberg.de/diglit/lenormant1858bd3/0387)
+The Élite's plate list (p. vj) and text (pp. 121, 172): a red-figure hydria from Nola, after Monumenti inediti
+dell'Instituto I, pl. IV (and Inghirami, Vasi fittili I, tav. VII): the sending out of Triptolemos, with Demeter,
+Hekate, Persephone, a goddess they call Diane or Télété, Plutus and Daïs; Plutus at the left end, an old man with white
+hair and beard holding the sceptre and the horn of plenty. Now London, British Museum 1868,0606.8 (E 183), from Nola,
+bought from Alessandro Castellani; attributed to the Painter of London E 183 (ARV2 1191.1), about 430 BC; the museum
+reads the figure as Hades/Pluto, the Beazley Archive (215772) as Hades; both cite this plate. Titled as the Élite
+reads it, Plutus (John, 2026-10-10).
 The figure at the far left of the plate's frieze, alone: the woman next to him stays out (whole figures only).
 A thin pale line runs down the plate through his head: a crease in the paper (it runs on through the margins
 above and below the panel, dark on the paper), not printed; it reads as ground or clay and draws nothing.
@@ -381,7 +388,7 @@ def main(src, qa=None, dump=None):
     held = ~fig
     info = lw.trace_svg(
         ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight=WEIGHT, day=day & ~fig,
-        title='Plutos with the cornucopia',
+        title='Plutus with the cornucopia',
         desc='Line drawing after the 1858 plate of a red-figure vase (Lenormant and de Witte, Élite des '
              'monuments céramographiques III, pl. LVIII); cut out and retraced.')
     add_white(OUT, white, info['box'])
