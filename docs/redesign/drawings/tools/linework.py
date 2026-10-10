@@ -171,7 +171,7 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
               open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None,
               dots: np.ndarray | None = None, keep: np.ndarray | None = None,
-              extent: np.ndarray | None = None, pad: int = 4,
+              extent: np.ndarray | None = None, day: np.ndarray | None = None, pad: int = 4,
               turdsize: int = 10, alphamax: float = 1.0, weight: float | str | None = None,
               trace_h: int = TRACE_H) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
@@ -201,6 +201,10 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     clay between its lines) that the body's smoothing would take: kept.
     `extent` (same shape): an area the crop must hold besides the ink (the
     body where its edge is left without an outline).
+    `day` (same shape): an area whose lines go to a path of their own, class
+    "day", after the lines, which the dark theme hides (Wealth's white hair,
+    outlined on the ground in day mode only, John, 2026-10-10). It overlaps the
+    lines by a px where they meet, so no seam shows in day mode.
     Returns the crop box in ink's pixels, for qa_overlay."""
     ys, xs = np.nonzero(ink if extent is None else ink | extent)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
@@ -219,7 +223,16 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
         crop = resample_ink(crop, trace_h)  # trace smaller: fewer, smoother curves
     h, w = crop.shape
     q = trace_h / TRACE_H                 # the speck limits below are set for TRACE_H
-    d, tr = potrace_d(crop, turdsize=round(turdsize * q * q), alphamax=alphamax)
+    day_path = ""
+    if day is not None:
+        dm = np.zeros_like(crop)
+        r = resample_ink(day[y0:y1, x0:x1], trace_h)[:crop.shape[0], :crop.shape[1]]
+        dm[:r.shape[0], :r.shape[1]] = r
+        dd, _ = potrace_d(crop & ndi.binary_dilation(dm), turdsize=round(turdsize * q * q), alphamax=alphamax)
+        day_path = f'<path class="day" fill="currentColor" d="{dd}"/>'
+        d, tr = potrace_d(crop & ~dm, turdsize=round(turdsize * q * q), alphamax=alphamax)
+    else:
+        d, tr = potrace_d(crop, turdsize=round(turdsize * q * q), alphamax=alphamax)
     if dots is not None and dots[y0:y1, x0:x1].any():
         r = resample_ink(dots[y0:y1, x0:x1], trace_h)[:h, :w]
         dd = np.zeros_like(crop)
@@ -298,7 +311,7 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W:g} 1000" role="img">\n'
            f'<title>{esc(title)}</title>\n<desc>{esc(desc)}</desc>\n'
            f'<g transform="scale({k:.6f})"><g transform="{tr}">{body_path}'
-           f'<path class="lines" fill="currentColor" vector-effect="non-scaling-stroke" d="{d}"/></g></g>\n</svg>\n')
+           f'<path class="lines" fill="currentColor" vector-effect="non-scaling-stroke" d="{d}"/>{day_path}</g></g>\n</svg>\n')
     out.write_text(svg)
     return {"bytes": out.stat().st_size, "viewBox": (W, 1000), "box": (int(x0), int(y0), int(x1), int(y1)),
             "weight_before": round(before * 100, 3), "weight_after": round(line_width(weighted) / max(weighted.shape) * 100, 3)}
