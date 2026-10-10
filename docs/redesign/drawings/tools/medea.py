@@ -327,20 +327,48 @@ CLAY, WHITE_L = 40, 140
 OPEN, AUTO_GROUND, POCKET = 5, 40000, 1500
 PAINT_SEEDS = []
 EDGE_R = 6                      # flat px: the figure's edge where the clay map falls to half the clay's level nearby
-FIG_SIGMA = 2.0                 # flat px: the figure's area smoothed along its length
+FIG_SIGMA = 3.0                 # flat px: the figure's area smoothed along its length
 EDGE = 4.0                      # flat px: the outline, drawn inside the figure's edge
 # Lines (as antigone.py): local contrast in the grey (the blurred map's Maximum then Minimum over
 # CLOSE_W flat px, less the blurred map), hysteresis (LINE_LOW, LINE_HIGH), drawn along their centres at
 # their own width (where the contrast is at least half the strongest within HALF_R px), smoothed along the
 # line over WIDTH_SIGMA px, never thinner than LINE_MIN
-LINE_LOW, LINE_HIGH, HALF_R, LINE_MIN = 15, 32, 3, 2.5
+LINE_LOW, LINE_HIGH, HALF_R, LINE_MIN = 25, 55, 3, 2.5
 CLOSE_W = 11
-LINE_LEN, SHORT_LEN, SHORT_C = 20, 60, 60
+LINE_LEN, SHORT_LEN, SHORT_C = 30, 80, 90
+# Clean, crisp lines (John, 2026-10-10: "I don't want this rough. Nice and clean and crisp"): each line is
+# redrawn as one stroke along its centre, the centre's path smoothed (Gaussian over STROKE_SIGMA flat px
+# along the line, its ends kept), at one even width, STROKE_W flat px; the brush's ragged edges, the grain
+# and the photo's texture do not come through
+STROKE_SIGMA, STROKE_W = 4.0, 4.5
+# Faces (flat px boxes): Medea, the Furies, Jason, the nurse, the tutor, the elder child. Their lines are
+# finer and closer: drawn FACE_W wide, found at the lower FACE_LOW/FACE_HIGH, kept down to FACE_LEN px long
+# with spurs under FACE_SPUR pruned, smoothed over FACE_SIGMA; dots there (pupils) at most FACE_DOT px^2,
+# larger dark marks are lines
+FACES = {"medea": (4850, 430, 5000, 600), "fury_l": (2300, 470, 2500, 660), "jason": (2560, 1640, 2760, 1860),
+         "fury_r": (6600, 440, 6820, 650), "nurse": (6180, 1900, 6380, 2060), "tutor": (7240, 1680, 7420, 1830),
+         "child": (5650, 2520, 5770, 2650)}
+FACE_W, FACE_LOW, FACE_HIGH, FACE_LEN, FACE_SPUR, FACE_SIGMA, FACE_DOT = 3.0, 18, 40, 10, 3, 2.0, 140
+# Hair and beards of thinned brown glaze (Jason, the tutor, the children): drawn as a wash in the line colour,
+# as Philoctetes' and the Acharnians old man's (paths of class "tone" under the lines), not as lines, which
+# made blots of the curls. Inside HAIR (flat px boxes) the wash is the figure where the grey, smoothed over
+# WASH_SIGMA px, lies between WASH_G (black glaze under it, clay over it), wider than a line (opened over
+# WASH_OPEN px); no lines are drawn in it. Its opacity follows the darkness in steps (WASH_STEPS: grey under,
+# total opacity), each step over the one below (no seams)
+HAIR = {"jason": (2400, 1540, 2820, 1900), "tutor": (7200, 1560, 7500, 1800), "child_r": (5560, 2520, 5800, 2740),
+        "child_l": (4930, 2370, 5170, 2620)}
+WASH_SIGMA, WASH_G, WASH_OPEN = 3.0, (47, 125), 4
+WASH_STEPS, STEP_SIGMA = [(125, 0.3), (90, 0.5), (65, 0.7)], 6.0   # (the steps follow the grey smoothed over STEP_SIGMA px)
 HOLE, MASK_SIGMA, SPUR, WIDTH_SIGMA = 12, 1.2, 8, 6.0
 # Dots (the serpents' spots, the dots on the Furies' wings and dresses, the cat's spots): compact dark marks,
 # DOT_AREA flat px^2, under DOT_RATIO times as long as wide, found by the same contrast at DOT_C or more;
 # drawn as their own filled shapes (smoothed), not as centre lines (which made crumbs of them)
 DOT_AREA, DOT_RATIO, DOT_C = (60, 900), 2.6, 30
+# Each dot is drawn as the ellipse fitted to it (same area, centre and axes), so spots come out clean, not
+# ragged. On the serpents' added yellow (YELLOW: grey over YELLOW_G and red less blue over YELLOW_RB, smoothed
+# over 8 px) the paint's texture breaks into crumbs: there a line must be YELLOW_LEN px long and reach YELLOW_C
+YELLOW_G, YELLOW_RB, YELLOW_LEN, YELLOW_C = 150, 50, 50, 55
+DOT_BIG = 260
 # solid paint (hair, the black borders and bands of the clothes): red less blue under PAINT, wider than
 # 2 * PAINT_WIDE flat px
 PAINT, PAINT_WIDE = 25, 4
@@ -349,7 +377,7 @@ PAINT, PAINT_WIDE = 25, 4
 JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C, ALIGN_MAX, ALIGN_C = 18, 8, 20, 10, 36, 6
 ALIGN_COS = np.cos(np.radians(10))
 # lines are drawn at this weight (pinned once the first pass is approved)
-WEIGHT = "own"
+WEIGHT = "drawn"   # (the strokes are drawn at their width already; resampling would soften them)
 
 
 def pc(src, out, *steps):
@@ -445,6 +473,50 @@ def join_breaks(c, contrast, inner):
     return out
 
 
+def strokes_from(c, width=None, sigma=None):
+    """The centre lines c (a skeleton) redrawn clean: split into branches at their junctions, each
+    branch's path smoothed (STROKE_SIGMA) and drawn STROKE_W wide (or `width`, `sigma`); the junctions kept."""
+    width, sigma = width or STROKE_W, sigma or STROKE_SIGMA
+    from skimage.draw import line
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    nb = ndi.convolve(c.astype(int), k, mode="constant")
+    junc = ndi.binary_dilation(c & (nb >= 3), structure=np.ones((3, 3))) & c
+    branches = c & ~junc
+    lab, n = ndi.label(branches, structure=np.ones((3, 3)))
+    centre = junc.copy()
+    H, W = c.shape
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        m = lab[sl] == i
+        pts = np.argwhere(m)
+        if len(pts) < 3:
+            centre[sl] |= m
+            continue
+        mk = ndi.convolve(m.astype(int), k, mode="constant")
+        ends = np.argwhere(m & (mk == 1))
+        start = tuple(ends[0]) if len(ends) else tuple(pts[0])
+        path, seen = [start], {start}
+        while True:   # walk the branch from one end to the other
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dy or dx)
+                   and 0 <= y + dy < m.shape[0] and 0 <= x + dx < m.shape[1] and m[y + dy, x + dx] and (y + dy, x + dx) not in seen]
+            if not nxt:
+                break
+            nxt.sort(key=lambda q: abs(q[0] - y) + abs(q[1] - x))
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        P = np.array(path, float) + (sl[0].start, sl[1].start)
+        if len(P) > 4:
+            Q = np.stack([ndi.gaussian_filter1d(P[:, j], sigma, mode="nearest") for j in (0, 1)], -1)
+            Q[0], Q[-1] = P[0], P[-1]
+            P = Q
+        for (ya, xa), (yb, xb) in zip(P[:-1], P[1:]):
+            rr, cc = line(int(round(ya)), int(round(xa)), int(round(yb)), int(round(xb)))
+            ok = (rr >= 0) & (rr < H) & (cc >= 0) & (cc < W)
+            centre[rr[ok], cc[ok]] = True
+    return ndi.distance_transform_edt(~centre) <= width / 2
+
+
 def drawing(flat, t):
     """The lines (ink) and figures' area (fig) on the flat, and its grey."""
     from skimage.filters import apply_hysteresis_threshold
@@ -478,6 +550,11 @@ def drawing(flat, t):
     pocket = size > POCKET
     for x, y in PAINT_SEEDS:
         pocket[lab[y, x]] = False
+    hz = np.zeros(fig.shape, bool)   # (in the hair boxes the dark is hair, not ground seen through)
+    for x0, y0, x1, y1 in HAIR.values():
+        hz[y0:y1, x0:x1] = True
+    inhair = ndi.mean(hz.astype(float), lab, np.arange(len(pocket))) > 0.5
+    pocket &= ~inhair
     fig &= ~pocket[lab]
     fig &= ~((ndi.distance_transform_edt(fig) <= EDGE_R) & (cm < 0.5 * cmmax))
     fig = smooth_mask(fig, FIG_SIGMA, t) & ~outside
@@ -502,37 +579,88 @@ def drawing(flat, t):
     length = np.bincount(lab[morphology.skeletonize(firm)], minlength=n + 1)
     top = ndi.maximum(contrast, lab, np.arange(n + 1))
     firm &= ~((length < SHORT_LEN) & (top < SHORT_C))[lab]
+    face = np.zeros(fig.shape, bool)
+    for x0, y0, x1, y1 in FACES.values():
+        face[y0:y1, x0:x1] = True
+    firm = np.where(face, apply_hysteresis_threshold(contrast, FACE_LOW, FACE_HIGH) & fig & (to_edge > EDGE), firm)
     # the dots, taken out before the lines
     dm = (contrast >= DOT_C) & fig & (to_edge > EDGE)
     lab, n = ndi.label(dm)
     dots = np.zeros_like(dm)
     for k, sl in enumerate(ndi.find_objects(lab), 1):
         p = np.argwhere(lab[sl] == k).astype(float)
-        if not DOT_AREA[0] <= len(p) <= DOT_AREA[1]:
+        if not DOT_AREA[0] <= len(p) <= (FACE_DOT if face[sl][lab[sl] == k].any() else DOT_AREA[1]):
             continue
         w = np.linalg.eigvalsh(np.cov(p.T)) if len(p) > 2 else np.array([1.0, 1.0])
         if np.sqrt(max(w[1], 1e-6) / max(w[0], 0.25)) < DOT_RATIO:
             dots[sl] |= lab[sl] == k
-    dots = smooth_mask(ndi.binary_dilation(dots), 1.0, t) & fig
+    from skimage.draw import ellipse
+    lab, n = ndi.label(dots)
+    dots = np.zeros_like(dots)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        p = np.argwhere(lab[sl] == k).astype(float) + (sl[0].start, sl[1].start)
+        if len(p) > DOT_BIG:   # (larger marks, an eye, a pupil: their own shape, smoothed)
+            dots[sl] |= ndi.gaussian_filter((lab[sl] == k).astype(float), 1.5) > 0.5
+            continue
+        cy, cx = p.mean(0)
+        w, v = np.linalg.eigh(np.cov(p.T) + np.eye(2) * 0.25)
+        a, b = 2 * np.sqrt(w[1]) + 0.5, 2 * np.sqrt(w[0]) + 0.5
+        rr, cc = ellipse(cy, cx, a, b, shape=dots.shape, rotation=np.arctan2(v[1, 1], v[0, 1]))
+        dots[rr, cc] = True
+    dots &= fig
     firm &= ~ndi.binary_dilation(dots, iterations=2)
+    yellow = ndi.gaussian_filter(((g > YELLOW_G) & (cm > YELLOW_RB)).astype(float), 8) > 0.5
+    lab, n = ndi.label(firm, structure=np.ones((3, 3)))
+    length = np.bincount(lab[morphology.skeletonize(firm)], minlength=n + 1)
+    top = ndi.maximum(contrast, lab, np.arange(n + 1))
+    iny = ndi.mean(yellow.astype(float), lab, np.arange(n + 1)) > 0.5
+    firm &= ~(iny & ((length < YELLOW_LEN) | (top < YELLOW_C)))[lab]
     own = firm & (contrast >= 0.5 * cmax)
     m = morphology.remove_small_holes(firm | own, max_size=HOLE)
     m = smooth_mask(m, MASK_SIGMA, t)
-    c = centre_lines(m, SPUR, LINE_LEN)
+    c = centre_lines(m & ~face, SPUR, LINE_LEN)
     c |= join_breaks(c, contrast, fig & (to_edge > EDGE))
-    wd = 2 * ndi.distance_transform_edt(own)
-    num, den = (ndi.gaussian_filter(a, WIDTH_SIGMA) for a in (np.where(c, wd, 0.0), c.astype(float)))
-    half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_MIN) / 2, 0.0)
-    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
-    lines = (d <= half[iy, ix]) & fig
+    cf = centre_lines(m & face, FACE_SPUR, FACE_LEN)
+    lines = (strokes_from(c) | strokes_from(cf, FACE_W, FACE_SIGMA)) & fig
+    # the hair washes
+    gs = ndi.gaussian_filter(g, WASH_SIGMA)
+    wash = ndi.binary_opening((gs >= WASH_G[0]) & (gs < WASH_G[1]) & fig & hz, structure=morphology.disk(WASH_OPEN))
+    wash = smooth_mask(wash, 2.0, t) & fig & hz
+    lines &= ~wash
     paint = (cm < PAINT) & fig
     paint &= ndi.binary_dilation(ndi.binary_opening(paint, structure=morphology.disk(PAINT_WIDE)), iterations=1)
-    edge = fig & ~ndi.binary_erosion(fig, iterations=round(EDGE))
+    paint = smooth_mask(paint, 2.0, t) & fig   # (its edge smooth too)
+    paint &= ~wash
+    edge = fig & (ndi.distance_transform_edt(fig) <= STROKE_W)
     ink = lines | paint | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 40)[lab]
+    dots &= ~wash
     ink |= dots
-    return ink, fig, g, dict(contrast=contrast, cm=cm, c=c, ground=ground, dots=dots)
+    steps = []
+    gw = ndi.gaussian_filter(g, STEP_SIGMA)
+    for level, opacity in WASH_STEPS:
+        m = wash & (gw < level) & ~ink
+        m = morphology.remove_small_objects(smooth_mask(m, 2.0, t) & wash, max_size=80)
+        steps.append((m, opacity))
+    return ink, fig, g, dict(contrast=contrast, cm=cm, c=c, ground=ground, dots=dots, steps=steps)
+
+
+def add_tone(svg, steps, box):
+    """The hair washes added to a drawing written by lw.trace_svg (box: the crop box it returned) as paths of
+    class "tone" in the line colour, between the body and the lines (as acharnians.py): one per step
+    [(mask, total opacity)], each drawn over the last at the opacity that brings the total to its own."""
+    x0, y0, x1, y1 = box
+    paths, below = [], 0.0
+    for mask, total in steps:
+        if not mask[y0:y1, x0:x1].any():
+            continue
+        d, _ = lw.potrace_d(mask[y0:y1, x0:x1], turdsize=20, alphamax=1.0)
+        a = 1 - (1 - total) / (1 - below)
+        paths.append(f'<path class="tone" fill="currentColor" fill-opacity="{a:.3f}" stroke="none" d="{d}"/>')
+        below = total
+    s = svg.read_text().replace('<path class="lines"', "".join(paths) + '<path class="lines"', 1)
+    svg.write_text(s)
 
 
 def main(paths, qa=None, dump=None):
@@ -557,6 +685,7 @@ def main(paths, qa=None, dump=None):
         title="Medea in the serpent chariot in the sun disk, with the Furies, Jason, the nurse, the tutor and the dead children",
         desc="Line drawing after the Lucanian red-figure calyx-krater near the Policoro Painter, c. 400 BCE, Cleveland "
              "Museum of Art 1991.1, side A; traced from the museum's photographs (CC0), taken off the vase's curve, changed.")
+    add_tone(OUT, extra["steps"], info["box"])
     print(OUT, info)
     if qa:
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
