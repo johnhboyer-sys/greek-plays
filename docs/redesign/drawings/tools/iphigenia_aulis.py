@@ -9,7 +9,9 @@ p. 294; its other side, pl. XCI, they read as Apollo and Hemithea). The Beazley 
 Attic red-figure belly amphora (type B) from Vulci, attributed to the Niobid Painter, A Artemis and Niobe
 fleeing with a child (a Niobid), B a merchant (?) selling oil, a seated woman and a youth; ex Canino,
 Laborde and Baron Seillière, last recorded in a private collection in Paris (ARV2 604.51).
-The whole plate, both figures (John, 2026-10-10).
+The Élite's text (pp. 294-297) weighs Comaetho and Callisto, then Leda (or Nemesis) carrying Helen, or
+Helen carrying Iphigenia. The whole plate, both figures (John, 2026-10-10); titled as the Élite reads it,
+Artemis pursuing Helen, who carries the infant Iphigenia (John, 2026-10-10).
 
 Made with PhotoCraft (John, 2026-10-07), as tools/helen.py: every image step runs in `photocraft-cli`
 (0.2.0). The scan is levelled across the fold (`level`, numpy and scipy: geometry, after
@@ -443,7 +445,7 @@ def main(src, qa=None, dump=None):
     held = ~fig
     info = lw.trace_svg(
         ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight=WEIGHT,
-        title='Artemis drawing her bow at Niobe, who flees with her child',
+        title='Artemis pursuing Helen, who carries the infant Iphigenia',
         desc='Line drawing after the 1857 plate of a red-figure vase (Lenormant and de Witte, Élite des '
              'monuments céramographiques II, pl. XC); cut out and retraced.')
     print(OUT, info)
