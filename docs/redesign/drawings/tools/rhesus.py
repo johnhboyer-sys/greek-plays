@@ -27,7 +27,12 @@ area filled as clay, as on Andromache.
     solid black (the shield's star, the crescent) by a plain threshold; the mask smoothed (Gaussian Blur, cut at
     half) so the lines come out even.
   - The figures' area: every paper area the plate's lines close, but for the one round the group and the pockets
-    of vase ground the figures close in (POCKETS: between an arm and the body, a spear and a leg).
+    of vase ground the figures close in (POCKETS). The pen outline is broken in many places, so gaps narrower than
+    SEAL are sealed, one wider break is walled (WALLS), and the spear shafts, too narrow for the seal, are fitted to
+    their edge lines (SHAFTS).
+  - Line weight 0.12% of the longer side (John), heavier than the plate's own 0.084%.
+Approved by John on the first pass, 2026-10-10, after the style test, his choice of weight and two pockets he
+marked.
 
     python3 docs/redesign/drawings/tools/rhesus.py archaologischez35deut_orig_0229.jp2 [qa.png]
 """

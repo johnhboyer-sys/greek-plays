@@ -243,6 +243,15 @@
       "source": "Lenormant and de Witte, Élite des monuments céramographiques III (1858), pl. LVIII, after Monumenti inediti dell'Instituto I, pl. IV: an Attic red-figure hydria from Nola by the Painter of London E 183, British Museum 1868,0606.8 (E 183; Beazley Archive 215772) (Heidelberg scan, public domain). The Élite names him Plutus; the museum reads Hades (Pluto)",
       "method": "Coloured plate, red figures on black, a double plate, made with PhotoCraft: the left page's panel squared; the black ground gives the outline, drawn on the ground; the plate's lines at their own width, the line weight kept at pass 1's; the sceptre's bands walled off as paint; the white hair and beard as white paths, outlined on the ground in day mode only; the eye drawn on points; potrace",
       "verdict": "Usable; approved by John on the second pass (2026-10-10), after his choice for the hair and one line taken out of the sceptre's head. No outside review (the citation checked against the Élite's text, the British Museum and the Beazley Archive)."
+    },
+    {
+      "slug": "rhesus",
+      "file": "rhesus.svg",
+      "name": "Rhesus · Diomedes and Odysseus on the night raid",
+      "alt": "Two nude young warriors creeping to the right: behind, one in a pointed cap with a crescent and a rim of discs and a disc-studded cross-band, two spears over his shoulder and one lowered in his hand; ahead, one in a helmet with a star-tipped spike and a flying cloak, his spear levelled and a round shield with a star",
+      "source": "Hoernes, Archäologische Zeitung 35 (1877), Taf. 5: the front of a red-figure krater from the Lamberg collection, Vienna (Sacken and Kenner 1866, Kasten V, 2, no. 57), present location not found (Getty copy, Internet Archive, public domain). Hoernes reads Diomedes and Odysseus; Sacken and Kenner, ephebes",
+      "method": "Contour plate, black pen lines on paper with no black ground, made with PhotoCraft: turned upright; the lines at their printed width, weighted to 0.12%; the figures' area is the paper the lines close off from the ground, the gaps in the outline sealed, the spear shafts fitted, pockets of ground left open; clay on the dark theme; potrace",
+      "verdict": "Usable; approved by John on the first pass (2026-10-10), after a style test, his choice of line weight and two areas he marked as ground. No outside review (the citation checked against Hoernes's text and Sacken and Kenner's catalogue)."
     }
   ]
 }
