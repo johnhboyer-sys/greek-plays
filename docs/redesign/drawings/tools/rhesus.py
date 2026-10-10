@@ -66,8 +66,10 @@ SPECK = 6                                 # plate px^2: smaller pieces of ink ar
 SEAL = 6
 # pockets of vase ground the figures close in (a point in each, upright px): between the left youth's
 # raised arm and the spears on his shoulder; between the two youths, down to where their feet meet; and
-# between the left youth's lowered arm, his back, the lowered spear and his calf
-POCKETS = [(2060, 915), (2320, 1510), (1630, 1530)]
+# between the left youth's lowered arm, his back, the lowered spear and his calf; and two John marked blue on the
+# style test (2026-10-10: "Areas with blue are ground not clay"): the small triangle in the right youth's armpit,
+# and the strip between his forearm, with the cloak's edge, and his spear
+POCKETS = [(2060, 915), (2320, 1510), (1630, 1530), (2832, 1032), (2803, 1147)]
 # Shafts too narrow for the seal (12-22 plate px between their edge lines): each given by rough ends of its
 # centre line (upright px); the centre and width are fitted to its two edge lines (`shaft`). The two spears
 # over the left youth's shoulder, behind his neck, before and past his fist and in front of his face; the
@@ -80,6 +82,10 @@ SHAFTS = [((1880, 815), (2215, 849)), ((1880, 830), (2215, 862)),
 # clay (the spike's star, the right spear's head, the blade under the spearheads behind the left youth)
 CLOSED = [(3200, 440, 3260, 500), (3930, 1330, 4040, 1400), (1240, 800, 1440, 835)]
 CLOSE = 2
+NEAR = 10                                 # plate px
+# the line weight (share of the longer side): the plate's own is 0.084%; John, shown 0.12, 0.16 and the house
+# 0.225% on the left head (2026-10-10, "Heavier lines", then 0.12%): at 0.225% the hair's strokes ran together
+WEIGHT = 0.0012
 # breaks in the outline wider than the seal, walled for the figures' area only (not drawn): each found by the
 # path the ground takes into a figure, cut where it crosses the plate's lines (upright px): behind the right
 # youth's rear knee
@@ -210,15 +216,17 @@ def figure(ink, gl):
 def main(src, qa=None, dump=None):
     g, gl, ink = masks(src)
     fig = figure(ink, gl)
-    lab, n = ndi.label(ink)   # specks on the paper round the group: ink that touches no figure
+    # specks on the paper round the group: ink farther than NEAR from every figure (a toe's tip stands just
+    # outside the foot's outline: the left youth's rear foot)
+    lab, n = ndi.label(ink)
     on = np.zeros(n + 1, bool)
-    on[lab[fig]] = True
+    on[lab[ndi.distance_transform_edt(~fig) <= NEAR * UP]] = True
     on[0] = False
     ink &= on[lab]
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), gl=gl.astype(np.uint8), ink=ink, fig=fig)
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=~fig, weight="drawn",
+        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT,
         title='Diomedes and Odysseus on the night raid',
         desc='Line drawing after the 1877 plate of a red-figure krater in Vienna (Hoernes, Archäologische '
              'Zeitung 35, Taf. 5); cut out and retraced.')
