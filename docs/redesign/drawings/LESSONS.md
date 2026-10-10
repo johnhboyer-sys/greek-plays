@@ -391,6 +391,18 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   the whole frame missed by up to 17 px, the scene's flat bending at its edge (2026-10-09).
 - With no outline at an edge, `trace_svg` crops to the ink and cut off the head: pass the area as `extent`
   (2026-10-09).
+- Oedipus at Colonus redone with PhotoCraft (Green's pages and a found photo on Taplin's plate; the 2026-10-03
+  registration, cut and hand strokes kept): about three hours over three passes, approved by John 2026-10-10.
+  `tools/oedipus_colonus.py` (2026-10-10).
+- Say plainly when a redo is not better: pass 1 lost the old drawing's curl detail (white hair as one grey wash).
+  White curls on clay: a light tone over the mass with the painter's dark marks between the curls as crisp
+  strokes. Keep the lines-off zone to the hair itself, not a box round the head: the robe's lines under the
+  beard went with it (John marked them) (2026-10-10).
+- Hand-placed strokes at a plate's own px round off small marks: draw them at twice the frame and trace from
+  there ("faces need to be crisper"). Dark hair as many wash steps mottles round a face; two firm steps keep the
+  face clear (2026-10-10).
+- What reads as hair may be attire: a dark band with white ribs over Ismene's head is a headdress (John). Look at
+  the clearest photo; draw it black with the ribs clear (a white top-hat, Minimum then Maximum) (2026-10-10).
 
 ## John's traces
 
