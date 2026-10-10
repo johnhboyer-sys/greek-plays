@@ -102,23 +102,25 @@ FINE = [(415, 238, 632, 362), (1388, 252, 1592, 412)]
 # the line fades, at the top where the inner line parts from it, at the nape, and before the ear;
 # Europa's at the bottom of the bun, where the line thins, and her front hair, where it touches the
 # ground behind the neck at the band's lower end; the woman's girdle, painted solid, where its right end
-# meets the ground at her hip (John, pass 2)
+# meets the ground at her hip; the band tied round the bull's tail, where it meets the ground at the
+# tail's left edge, walled along the line John drew there (John, pass 3: "same fix on ox tail")
 WALLS = [[(443, 283), (440, 288), (439, 293), (441, 298), (444, 302)], [(545, 258), (556, 255)],
          [(505, 337), (512, 342), (515, 346)], [(608, 302), (609, 310), (609, 318)],
          [(1557, 388), (1563, 386), (1568, 382)], [(1498, 365), (1495, 368), (1493, 371)],
-         [(666, 865), (669, 861), (673, 859), (680, 855)]]
+         [(666, 865), (669, 861), (673, 859), (680, 855)], [(793.5, 1022), (792.7, 1029), (792, 1049), (791.5, 1052)]]
 # John's marks (2026-10-10), drawn in PhotoCraft over pass 1 on the crop at UP px (1:1 with the work px):
 # green takes the ink out, blue is ink as he drew it (both eyes redrawn, the toenails, three short lines)
 MARKS_FILES = [Path(__file__).parent / "phoenician_women_marks_1.png"]
 # the line weight pass 1 had (its median width, px over the longer side), kept fixed: the median is read off
 # whole pixel steps, and the marks moved it a step, which thinned every line
 WEIGHT = 5.324555320336759 / 6599
-# his marks drawn thinner than the plate's lines, redrawn along their centres at the line weight (boxes, work
-# px at UP; the drawing is 6599 work px wide): the line by the tail fold, drawn 3 px wide (John, pass 2)
-TO_WEIGHT = [(2280, 2480, 2296, 2552)]
-# his marks left out (boxes, work px at UP): the short line at the girdle's right end, which meant the band
-# is black paint, not a line to draw (John, pass 2); the wall above closes the band there
-DROP = [(1915, 1965, 1956, 2002)]
+# his marks left out (boxes, work px at UP): the short line at the girdle's right end and the line by the tail
+# fold, which meant the bands are black paint, not lines to draw (John, passes 2 and 3); the walls above
+# close the bands there
+DROP = [(1915, 1965, 1956, 2002), (2280, 2480, 2296, 2552)]
+# clay areas the figures close in that are the vase's ground (a point in each, levelled px): between Europa's
+# arm, the bull's back and her cloak (John, pass 3)
+OPEN = [(1299, 672)]
 # Small dots paler than the lines: small marks darker than FACE_FAINT, no wider than DOT_W px and smaller
 # than DOT_MAX px, whose core is darker than DOT_DARK, drawn at their own size as `dots` (Helen)
 DOT_DARK, DOT_W, DOT_MAX = 60, 7, 30
@@ -348,10 +350,6 @@ def main(src, qa=None, dump=None):
         blue = (al > 40) & (bb > r + 40) & (bb > gg + 20)
         for bx0, by0, bx1, by1 in DROP:
             blue[by0:by1, bx0:bx1] = False
-        for bx0, by0, bx1, by1 in TO_WEIGHT:
-            b = np.zeros_like(blue)
-            b[by0:by1, bx0:bx1] = blue[by0:by1, bx0:bx1]
-            blue = (blue & ~b) | (ndi.distance_transform_edt(~morphology.skeletonize(b)) <= WEIGHT * 6599 / 2)
         green = ndi.binary_fill_holes(ndi.binary_closing(green, structure=morphology.disk(2 * UP)))
         gone = ndi.binary_dilation(green, iterations=UP)
         ink &= ~gone
@@ -367,6 +365,11 @@ def main(src, qa=None, dump=None):
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, dark=dark,
                             core=_core, thin=_thin, join=_join, edge=edge, dots=dots)
 
+    lab, _ = ndi.label(fig & ~ink)
+    for x, y in OPEN:
+        k = lab[round((y - Y0) * UP), round((x - X0) * UP)]
+        assert k, f'open point {(x, y)} is not on clay'
+        fig &= lab != k
     held = ~fig
     info = lw.trace_svg(
         ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight=WEIGHT,
