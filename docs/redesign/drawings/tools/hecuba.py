@@ -82,6 +82,13 @@ SOLES, SOLE_H = (950, 1345), 12
 # drawn LINE_W wide along their centres, and his blue wider than that solid; his green, its holes filled, goes
 MARKS_FILES = [Path(__file__).parent / "hecuba_marks_1.png"]
 MARK_SPECK = 12
+# John, pass 3 ("Clean the flecks first"): the incisions of the dress behind Polyxena's fingers cross the black
+# between them, and left flecks of black on the fingers' edges; in FINGERS (x0, y0, x1, y1, plate px) no light
+# marks, and inside his green there his blue is the black as he painted it. And the tip of the shield's white device, where it touches the dress strip's outer
+# incision, left a sliver of light inside her outline: in DEVICE_TIP no light marks or white
+FINGERS = (1480, 1720, 1575, 1800)
+FLECK = 20                                 # plate px^2: the largest speck between his strokes there (16)
+DEVICE_TIP = (1064, 1648, 1078, 1692)
 # Polyxena's back, against the hoplite and his shield: his shield's rim shows up to the line that bounds the
 # clay gap with his two spears in it, so the shield lies behind her and her back is that line (BACK, a
 # least-cost path along it, from her shoulder down to her heel; straight along the end of the rim, where the
@@ -388,7 +395,15 @@ def main(src, qa=None, dump=None):
     sole = feet & over & ~white & fig
     fig &= ~sole
     marks &= ~sole
-    outline = ~fig & ~(above & ~keep_top) & (ndi.distance_transform_edt(~white) <= LINE_W * UP)
+    for bx0, by0, bx1, by1 in (FINGERS, DEVICE_TIP):
+        marks &= ~((px >= bx0) & (px < bx1) & (py >= by0) & (py < by1))
+    tx0, ty0, tx1, ty1 = DEVICE_TIP
+    white &= ~((px >= tx0) & (px < tx1) & (py >= ty0) & (py < ty1))
+    # (above TOP the outline is kept within a line's width of TOP_KEEP: the helmet's white crest band starts at the
+    # crest's cut, and its outline, just outside, had fallen outside TOP_KEEP and gone; John, pass 3: "Missing
+    # outline line?")
+    keep_line = ndi.binary_dilation(keep_top, iterations=int(np.ceil(LINE_W * UP)) + 1)
+    outline = ~fig & ~(above & ~keep_line) & (ndi.distance_transform_edt(~white) <= LINE_W * UP)
     lines = smooth((fig & ~marks & ~purple & ~white) | outline, SMOOTH)
     for mf in MARKS_FILES:
         m = np.asarray(Image.open(mf).convert('RGBA')).astype(int)
@@ -406,6 +421,13 @@ def main(src, qa=None, dump=None):
         near = np.bincount(lab[ndi.binary_dilation(green | blue, iterations=3 * UP) & lines], minlength=lab.max() + 1)
         small = np.bincount(lab.ravel()) < MARK_SPECK * UP * UP
         lines &= ~((near > 0) & small)[lab]
+        # (in FINGERS his blue is painted, not drawn: the black between the fingers and round them, as wide as he
+        # painted it; drawn LINE_W wide along its centre, it came out thinner than the plate's and left flecks)
+        fx0, fy0, fx1, fy1 = FINGERS
+        fbox = (px >= fx0) & (px < fx1) & (py >= fy0) & (py < fy1)
+        # (the specks of light his strokes left between them, where the incisions cross, filled)
+        lines = np.where(fbox & green, smooth(morphology.remove_small_holes(blue, max_size=FLECK * UP * UP), SMOOTH),
+                         lines)
     tone = smooth(purple, SMOOTH) & ~lines
     body = ndi.distance_transform_edt(~(fig | outline)) <= RIM * UP
     if dump:
