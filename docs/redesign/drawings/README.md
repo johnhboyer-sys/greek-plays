@@ -36,6 +36,8 @@ finish.
 | `heracles.svg` | Herakles drawing his bow, in a lion-skin cap and cloak (Heracles) | Gerhard, *Trinkschalen und Gefässe des Königlichen Museums zu Berlin* II (1850), Taf. XXI, side B, Heidelberg scan (public domain); made with PhotoCraft (`tools/heracles.py`); the pale brown lines in a `tone` wash |
 | `ion.svg` | Apollo on the Delphic tripod between the Pythia and a girl come to consult him, a laurel behind (Ion) | Lenormant and de Witte, *Élite des monuments céramographiques* II (1857), pl. XLVI, Heidelberg scan (public domain); turned upright and squared; made with PhotoCraft (`tools/ion.py`); the outlines on the ground outside the clay; John's marks in `tools/ion_marks.png`, `ion_marks_3.png` and `ion_marks_4.png` |
 | `helen.svg` | A warrior in a cuirass leading away a woman veiled as a bride (Helen): on the vase Idas and Marpessa; the Élite reads them as Menelaus and Helen | Lenormant and de Witte, *Élite des monuments céramographiques* III (1858), pl. LVII B, after Gerhard, *Auserlesene Vasenbilder* I, Taf. XLVI, 1 (British Museum 1895,1031.1), Heidelberg scan (public domain); turned upright and squared; made with PhotoCraft (`tools/helen.py`); the outlines on the ground outside the clay; the eyes and the dress's small marks at their printed width |
+| `phoenician-women.svg` | Europa on the bull, and a woman the Élite calls Phoenice, her sister (Phoenician Women): on the vase the woman is on the other side | Lenormant and de Witte, *Élite des monuments céramographiques* I (1844), pl. XXVIII (Phiale Painter, Beazley Archive 214180, now lost), Heidelberg scan (public domain); turned upright and squared; made with PhotoCraft (`tools/phoenician_women.py`); the outlines on the ground outside the clay; John's marks in `tools/phoenician_women_marks_1.png` |
+| `wealth.svg` | Plutus, the god of wealth, an old man with white hair and beard, holding a sceptre and a cornucopia (Wealth): on the vase the museum reads Hades (Pluto); the Élite calls him Plutus | Lenormant and de Witte, *Élite des monuments céramographiques* III (1858), pl. LVIII, after *Monumenti inediti dell'Instituto* I, pl. IV (Painter of London E 183, British Museum 1868,0606.8), Heidelberg scan (public domain); the left page's panel squared; made with PhotoCraft (`tools/wealth.py`); the outlines on the ground outside the clay; the white hair and beard as `white` paths, outlined on the ground by a `day` path |
 | `rejected/iphigenia-at-aulis.svg` | failed test, not for use | Met 31.11.2, museum photo (CC0) |
 | `alternates/sophocles-oedipus-sphinx-vatican.svg` | Oedipus and the Sphinx | 2009 public-domain vector redrawing of Vatican 16541 |
 
@@ -75,6 +77,12 @@ weight is 0.11%, finer than the house weight: at the house weight, and at
 the plate's own 0.155%, its close lines ran together (John, 2026-10-06).
 `trachiniae.svg` too keeps its plate's own weight, 0.104%, traced as drawn
 (John, 2026-10-07: the first pass was "too blotchy").
+
+`wealth.svg` carries two more paths for the added white of the hair and beard (John, 2026-10-10): `white`, under
+the lines, `fill="#f7f3ea"`, as Clouds, and after the lines `day`, `fill="currentColor"`: the black outline where the
+white meets the ground, which the vase does not have. The dark theme hides it (`.day { display: none }`), so the white
+stands on the ground as on the vase; on a light page it keeps the white hair from vanishing into the paper. The
+contact sheet sets it per board (`--day`).
 
 `clouds.svg` carries its own colours (John, 2026-10-08): its `body` path is filled with clay
 (`fill="#c4b294"`) in both themes, skin is that clay, clothes are `tone` washes over it, and the slave's

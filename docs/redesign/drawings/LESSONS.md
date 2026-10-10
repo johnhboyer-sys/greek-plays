@@ -294,6 +294,47 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   the edge is where the plate turns lighter than the ground, measured column by column (`CROWN`). Ground that
   fingers close off against another figure is a pocket: it came out as black paint (John) (2026-10-10).
 
+- Phoenician Women (I, pl. XXVIII, Europa on the bull and Phoenice), made with PhotoCraft: about an hour and a
+  quarter over four passes, the credit included, approved by John 2026-10-10. `tools/phoenician_women.py`
+  (2026-10-10).
+- Pin the line weight after the first pass (`WEIGHT`, pass 1's median width over the longer side). With
+  weight "own" his marks moved the median one pixel step and thinned every line on the plate. After each
+  round, diff the whole plate against the last pass: only the marked places may change (2026-10-10).
+- A band of solid paint that touches the ground (a girdle meeting the black at the hip, the band tied round a
+  bull's tail) is read as ground: it came out as two outlines with the clay showing between. Wall it off
+  where it meets the ground (`WALLS`), and check the masks: the first wall stopped short and the band still
+  leaked past its end (2026-10-10).
+- A short line John draws across such a junction means "this is paint", not a line to draw: twice it went in
+  as ink. Use it as the wall and drop it from the marks (`DROP`); ask in one line when a mark could be
+  either (2026-10-10).
+- Clay the figures close in can be the vase's ground even where the plate prints it clay (under Europa's
+  arm): John's call; open it with a point inside (`OPEN`) (2026-10-10).
+- The .pcraft round trip: build it with `photocraft-cli serve` (open the plate and the red drawing, copy,
+  paste in place, name the layer, add an empty "John marks" layer, save); `doc.select` takes `index`. Read
+  the layer ids with `photocraft-cli info` before exporting: he may rename or duplicate his layer ("John
+  marks copy"). Hide all layers but his, save as PNG, and check the red layer for his edits too
+  (2026-10-10).
+
+- Wealth (III, pl. LVIII, Plutus with the cornucopia), made with PhotoCraft: about forty minutes over two
+  passes, the credit included, approved by John 2026-10-10. `tools/wealth.py` (2026-10-10).
+- Added white (hair, beard) over the black ground, no black outline on the vase: show John a small test of each house
+  way on the head first. He chose white paths (as Clouds) with a black outline on the ground in day mode only, so the
+  hair does not vanish into a light page: `trace_svg(day=...)` puts the lines in that area on a path of class "day",
+  which the dark theme hides. The white path runs half a line onto the ground, under that outline, or the dark theme
+  shows a rim of clay where the body's edge sits under the hidden line (2026-10-10).
+- The white: light and not red (red less blue, PhotoCraft's Channel Mixer); a grey threshold alone counts the soft edge
+  between the white and the black as clay and draws an outline round the hair (2026-10-10).
+- A long staff crossing the ground with black bands (the sceptre): fit its two edges as lines where it is clear of the
+  bands (sub-px, where the grey crosses 80) and wall along both a px out; the staff can widen along its length (here
+  10 to 13 px), so fit each stretch on its own (`SCEPTRE`) (2026-10-10).
+- Boxes that help on one plate can hurt on the next: a FACES box broke the eye's lid into pieces and a HANDS box lost
+  the thumb under the cornucopia. The eye drawn on points read off the plate's grey map came out right at once
+  (`EYE_LINES`), as Helen's (2026-10-10).
+- A thin pale line down the plate through the figure is a crease if it runs on through the margins (dark on the paper):
+  it draws nothing, as ground on the black and clay on the clay (2026-10-10).
+- Check a close-up's panel offsets before reading coordinates off it: the first box to drop the line John flagged
+  missed it by 20 px (2026-10-10).
+
 ### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
 
 - Libation Bearers (Taf. XXIV, the whole frieze: four figures, a throne and a footstool): about four
