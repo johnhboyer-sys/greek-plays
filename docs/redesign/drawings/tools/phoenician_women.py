@@ -105,7 +105,12 @@ FINE = [(415, 238, 632, 362), (1388, 252, 1592, 412)]
 WALLS = [[(443, 283), (440, 288), (439, 293), (441, 298), (444, 302)], [(545, 258), (556, 255)],
          [(505, 337), (512, 342), (515, 346)], [(608, 302), (609, 310), (609, 318)],
          [(1557, 388), (1563, 386), (1568, 382)], [(1498, 365), (1495, 368), (1493, 371)]]
-MARKS_FILES = []
+# John's marks (2026-10-10), drawn in PhotoCraft over pass 1 on the crop at UP px (1:1 with the work px):
+# green takes the ink out, blue is ink as he drew it (both eyes redrawn, the toenails, three short lines)
+MARKS_FILES = [Path(__file__).parent / "phoenician_women_marks_1.png"]
+# the line weight pass 1 had (its median width, px over the longer side), kept fixed: the median is read off
+# whole pixel steps, and the marks moved it a step, which thinned every line
+WEIGHT = 5.324555320336759 / 6599
 # Small dots paler than the lines: small marks darker than FACE_FAINT, no wider than DOT_W px and smaller
 # than DOT_MAX px, whose core is darker than DOT_DARK, drawn at their own size as `dots` (Helen)
 DOT_DARK, DOT_W, DOT_MAX = 60, 7, 30
@@ -334,16 +339,23 @@ def main(src, qa=None, dump=None):
         green = (al > 40) & (gg > r + 40) & (gg > bb + 20)
         blue = (al > 40) & (bb > r + 40) & (bb > gg + 20)
         green = ndi.binary_fill_holes(ndi.binary_closing(green, structure=morphology.disk(2 * UP)))
-        ink &= ~ndi.binary_dilation(green, iterations=UP)
-        ink |= ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= LINE_MIN * UP / 2
-        ink |= ndi.binary_opening(blue, structure=morphology.disk(round(LINE_MIN * UP)))
+        gone = ndi.binary_dilation(green, iterations=UP)
+        ink &= ~gone
+        eyes &= ~gone
+        dots &= ~gone
+        # his lines kept at the width he drew them (traced with the dots, at their own size), on clay
+        # so they keep it on the dark theme
+        ink |= blue
+        eyes |= blue
+        dots |= blue
+        fig |= ndi.binary_dilation(blue, iterations=UP)
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, dark=dark,
                             core=_core, thin=_thin, join=_join, edge=edge, dots=dots)
 
     held = ~fig
     info = lw.trace_svg(
-        ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight="own",
+        ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight=WEIGHT,
         title='Europa on the bull, and a woman fleeing',
         desc='Line drawing after the 1844 plate of a red-figure vase (Lenormant and de Witte, Élite des '
              'monuments céramographiques I, pl. XXVIII); cut out and retraced.')
