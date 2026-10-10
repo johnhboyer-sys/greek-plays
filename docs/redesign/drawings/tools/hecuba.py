@@ -76,6 +76,12 @@ FLOOR_CLEAR = 1.0
 # FLOOR with white above it in the same column (or 2 px to either side) goes too, and the feet get the outline LINE_W wide along their
 # own lower edge (not further right: Neoptolemos' black foot lies on the white tomb)
 SOLES, SOLE_H = (950, 1345), 12
+# John's marks on pass 2, in PhotoCraft over the full-res export (hecuba_marks_1.png, his layer alone, on the tool's
+# grid): blue is ink to add, green ink to take out (the fingers of Polyxena's hand on the tomb, her mantle's edge
+# above her heel, the soles, and the black's edge along the white in the faces and arms). His blue strokes are
+# drawn LINE_W wide along their centres, and his blue wider than that solid; his green, its holes filled, goes
+MARKS_FILES = [Path(__file__).parent / "hecuba_marks_1.png"]
+MARK_SPECK = 12
 # Polyxena's back, against the hoplite and his shield: his shield's rim shows up to the line that bounds the
 # clay gap with his two spears in it, so the shield lies behind her and her back is that line (BACK, a
 # least-cost path along it, from her shoulder down to her heel; straight along the end of the rim, where the
@@ -85,7 +91,18 @@ SOLES, SOLE_H = (950, 1345), 12
 # against the hoplite's foot with no line between: the cut runs along the white's own edge (HEEL, its
 # half-maximum, measured every 5-10 rows), and the outline drawn there is hers.
 UP_BACK = [(1136, 1190), (1136, 1450), (1128, 1476), (1121, 1490), (1114, 1503)]
-BACK = [(1112, 1512), (1104, 1600), (1117, 1655), (1140, 1700), (1130, 1780), (1131, 1845), (1121.5, 1884),
+# John, pass 2 (ringed on a screenshot of his corrections file, 2026-10-10: "you missed part of her clothes"): the
+# black strip with incised folds between the shield and her purple mantle is her dress, hanging over the shield's
+# rim to a point below it. The cut runs down its outer line (the long incision from the rim at her shoulder), round
+# its point under the rim (measured: the strip 1028-1039 wide at y 1940), up its right edge across the rim, and
+# along the rim's upper edge (straight, through points read off the plate) to where the old cut met the rim's end.
+# Where the shield's white device touches the incision (y 1660-1880) the path is straight through the incision's
+# centre, measured every 10-30 rows: a least-cost path there ran round the device's lobe
+BACK = [(1103, 1513), (1083, 1580), (1071, 1660), lw.STRAIGHT, (1069, 1690), lw.STRAIGHT, (1067, 1710),
+        lw.STRAIGHT, (1063, 1740), lw.STRAIGHT, (1059, 1770), lw.STRAIGHT, (1055, 1800), lw.STRAIGHT, (1051, 1830),
+        lw.STRAIGHT, (1047, 1860), lw.STRAIGHT, (1043, 1880), (1037, 1910), (1028, 1940),
+        lw.STRAIGHT, (1027, 1945), lw.STRAIGHT, (1039, 1941), lw.STRAIGHT, (1047, 1906), lw.STRAIGHT, (1060, 1900),
+        lw.STRAIGHT, (1080, 1893), lw.STRAIGHT, (1100, 1887), lw.STRAIGHT, (1121.5, 1884),
         lw.STRAIGHT, (1110.5, 1916), (1100, 1990), (1085, 2040), (1033, 2103), (1010, 2180), (988, 2242)]
 HEEL = [(972, 2262), (965, 2286), (963.5, 2295), (960.5, 2305), (957.5, 2312), (954.5, 2320), (953.5, 2330),
         (954.5, 2340), (956.5, 2350), (957.5, 2358), (957.5, 2370), (X0 - 2, 2370)]
@@ -373,6 +390,22 @@ def main(src, qa=None, dump=None):
     marks &= ~sole
     outline = ~fig & ~(above & ~keep_top) & (ndi.distance_transform_edt(~white) <= LINE_W * UP)
     lines = smooth((fig & ~marks & ~purple & ~white) | outline, SMOOTH)
+    for mf in MARKS_FILES:
+        m = np.asarray(Image.open(mf).convert('RGBA')).astype(int)
+        assert m.shape[:2] == lines.shape, (m.shape, lines.shape)
+        r, gg, bb, al = (m[..., i] for i in range(4))
+        green = (al > 40) & (gg > r + 40) & (gg > bb + 20)
+        blue = (al > 40) & (bb > r + 40) & (bb > gg + 20)
+        green = ndi.binary_fill_holes(ndi.binary_closing(green, structure=morphology.disk(UP)))
+        lines &= ~(green & ~blue)
+        lines |= ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= LINE_W * UP / 2
+        lines |= ndi.binary_opening(blue, structure=morphology.disk(round(LINE_W * UP)))
+        # (the incisions that crossed the black he took out leave specks of it on the white: pieces of ink near
+        # his marks smaller than MARK_SPECK plate px^2 go)
+        lab, _ = ndi.label(lines)
+        near = np.bincount(lab[ndi.binary_dilation(green | blue, iterations=3 * UP) & lines], minlength=lab.max() + 1)
+        small = np.bincount(lab.ravel()) < MARK_SPECK * UP * UP
+        lines &= ~((near > 0) & small)[lab]
     tone = smooth(purple, SMOOTH) & ~lines
     body = ndi.distance_transform_edt(~(fig | outline)) <= RIM * UP
     if dump:
