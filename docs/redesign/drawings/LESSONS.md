@@ -170,6 +170,26 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - The text names no inventory number; Furtwängler's 1885 catalogue of the Berlin vases does (no. 2164, with
   "Abg. Gerhard, Trinksch. und Gefässe Taf. XXI") and says what is restored (here Herakles' legs). Its text
   is on the Internet Archive (`beschreibungderv00furt`): search the plate number (2026-10-09).
+- Hecuba (II, Taf. XVI, black-figure: Neoptolemos leading Polyxena to Achilles' tomb), made with PhotoCraft in the
+  black-figure silhouette (see that section): about an hour and a half over four passes, approved by John
+  2026-10-10. `tools/hecuba.py` (2026-10-10).
+- The added purple: John chose it as a grey `tone` wash (0.45) over the black, from a small test of three (wash,
+  open, outline) (2026-10-10).
+- A face drawn in incisions about 1 px wide (Achilles' shade, 25 px tall): no threshold, top-hat or blur along the
+  strokes gave clean lines. Hand-placed strokes read off the plate's pixel grid at 12-14x did (`SHADE_STROKES`);
+  a ridge filter outside the tool helped find them (2026-10-10).
+- Where a figure is cut from one it overlaps, check what hangs over the overlap: the strip of Polyxena's dress
+  over the hoplite's shield rim was left out by a cut along the shield's edge (John: "you missed part of her
+  clothes"). Her outline there is the dress's outer incision, straight through it where the shield's white device
+  touches it (a least-cost path ran round the device) (2026-10-10).
+- A cut along the frieze's ground line also took the outline of the helmet's white crest band, which starts at the
+  cut: keep the outline within a line's width of what the cut keeps (`keep_line`; John: "Missing outline line?")
+  (2026-10-10).
+- John's blue painted over a whole hand (the black between fingers he had greened out) is paint, not strokes:
+  drawn along its centres at the line width it left flecks; taken as painted, with its pinholes filled
+  (`FINGERS`, `FLECK`), it came clean (2026-10-10).
+- Gerhard reads the animal at the tomb as Hecuba turned dog; Furtwängler 1885 (no. 1902) says it is a hare. The
+  credit follows the museum's number from Furtwängler and the Beazley Archive (302032) (2026-10-10).
 
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 

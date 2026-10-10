@@ -243,6 +243,15 @@
       "source": "Lenormant and de Witte, Élite des monuments céramographiques III (1858), pl. LVIII, after Monumenti inediti dell'Instituto I, pl. IV: an Attic red-figure hydria from Nola by the Painter of London E 183, British Museum 1868,0606.8 (E 183; Beazley Archive 215772) (Heidelberg scan, public domain). The Élite names him Plutus; the museum reads Hades (Pluto)",
       "method": "Coloured plate, red figures on black, a double plate, made with PhotoCraft: the left page's panel squared; the black ground gives the outline, drawn on the ground; the plate's lines at their own width, the line weight kept at pass 1's; the sceptre's bands walled off as paint; the white hair and beard as white paths, outlined on the ground in day mode only; the eye drawn on points; potrace",
       "verdict": "Usable; approved by John on the second pass (2026-10-10), after his choice for the hair and one line taken out of the sceptre's head. No outside review (the citation checked against the Élite's text, the British Museum and the Beazley Archive)."
+    },
+    {
+      "slug": "hecuba",
+      "file": "hecuba.svg",
+      "name": "Hecuba · Neoptolemos leading Polyxena to the tomb",
+      "alt": "A helmeted warrior with a spear leads a veiled woman by the wrist towards a white tomb, a snake rising from the tomb and a small animal at its foot, a winged armed figure flying above",
+      "source": "Gerhard, Trinkschalen und Gefässe des Königlichen Museums zu Berlin II (1850), Taf. XVI: an Attic black-figure hydria of the Leagros Group, Berlin, Antikensammlung F 1902 (Heidelberg scan, public domain)",
+      "method": "Coloured plate, black figures on clay, a silhouette, made with PhotoCraft: the clay gives the outline; the black solid with its incisions and the added white open; the purple as a grey wash; the shade's face on hand-placed strokes; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the fourth pass (2026-10-10), after his marks in PhotoCraft and the strip of her dress he ringed. No outside review (the citation checked against Gerhard's text, Furtwängler 1885, no. 1902, and the Beazley Archive)."
     }
   ]
 }

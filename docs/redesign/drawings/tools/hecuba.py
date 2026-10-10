@@ -3,6 +3,11 @@ Gefässe des Königlichen Museums zu Berlin II (Berlin, 1850), Taf. XVI, as scan
 Library (Public Domain Mark):
 https://digi.ub.uni-heidelberg.de/diglitData/image/gerhard1850bd2/4/V_Tafel_16.jpg
 (2123 x 3063; page https://digi.ub.uni-heidelberg.de/diglit/gerhard1850bd2/0051)
+Gerhard's text (p. 32, "Tod der Polyxena") calls the vase a fine archaic hydria and reads the little animal at the
+tomb as Hecuba, foretold to become a dog. It is an Attic black-figure hydria of the Leagros Group, c. 525-475 BC,
+from Etruria, bought by Gerhard in 1841: Berlin, Antikensammlung F 1902 (Furtwängler, Beschreibung der
+Vasensammlung im Antiquarium, 1885, no. 1902, citing the plate; he takes the animal for a hare; Beazley Archive
+302032, ABV 363.37). Approved by John on the fourth pass, 2026-10-10.
 John's pick (Plate Picks 15-6Ea, 2026-10-08); the crop (2026-10-10): Polyxena, Neoptolemos with his spear,
 the white tomb with the snake and the dog, and Achilles' winged shade above it; the hoplite at the left, his
 shield and spears, and the chariot of the frieze above, left out along the pair's own lines.
