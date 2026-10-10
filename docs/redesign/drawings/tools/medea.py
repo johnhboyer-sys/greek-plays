@@ -367,7 +367,12 @@ DOT_AREA, DOT_RATIO, DOT_C = (60, 900), 2.6, 30
 # Each dot is drawn as the ellipse fitted to it (same area, centre and axes), so spots come out clean, not
 # ragged. On the serpents' added yellow (YELLOW: grey over YELLOW_G and red less blue over YELLOW_RB, smoothed
 # over 8 px) the paint's texture breaks into crumbs: there a line must be YELLOW_LEN px long and reach YELLOW_C
-YELLOW_G, YELLOW_RB, YELLOW_LEN, YELLOW_C = 150, 50, 50, 55
+YELLOW_G, YELLOW_RB, YELLOW_LEN, YELLOW_C = 150, 50, 30, 45
+# On the added yellow and white (the serpents, the wheels, the rays: the blue channel over ADDED_B, smoothed
+# over 8 px) the lines are found in the blue channel instead of the grey: there the white belly, the yellow
+# back and the clay all read light and every painted stroke (the belly's scallops, the coils' edges, the
+# spots) dark and crisp; in the grey the gold strokes fade into the yellow
+ADDED_B = 140
 DOT_BIG = 260
 # solid paint (hair, the black borders and bands of the clothes): red less blue under PAINT, wider than
 # 2 * PAINT_WIDE flat px
@@ -570,6 +575,14 @@ def drawing(flat, t):
     pc(t / "cl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
        ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
     contrast = (grey(t / "closed.png") - grey(t / "cl.png")).clip(0, None)
+    pc(t / "flat.png", t / "blue.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [0, 0, 100, 0]}))
+    blue = grey(t / "blue.png")
+    added = ndi.gaussian_filter((blue > ADDED_B).astype(np.float32), 8) > 0.3
+    Image.fromarray(np.where(fig, blue, 255).clip(0, 255).astype(np.uint8)).save(t / "bw.png")
+    pc(t / "bw.png", t / "bl.png", ("filter.blur.gaussianBlur", {"radius": 0.8}))
+    pc(t / "bl.png", t / "bclosed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
+       ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
+    contrast = np.where(added, (grey(t / "bclosed.png") - grey(t / "bl.png")).clip(0, None), contrast)
     Image.fromarray(contrast.clip(0, 255).astype(np.uint8)).save(t / "c.png")
     pc(t / "c.png", t / "cx.png", ("filter.other.maximum", {"radius": HALF_R, "preserve": "roundness"}))
     cmax = grey(t / "cx.png")
@@ -609,7 +622,7 @@ def drawing(flat, t):
         dots[rr, cc] = True
     dots &= fig
     firm &= ~ndi.binary_dilation(dots, iterations=2)
-    yellow = ndi.gaussian_filter(((g > YELLOW_G) & (cm > YELLOW_RB)).astype(float), 8) > 0.5
+    yellow = added
     lab, n = ndi.label(firm, structure=np.ones((3, 3)))
     length = np.bincount(lab[morphology.skeletonize(firm)], minlength=n + 1)
     top = ndi.maximum(contrast, lab, np.arange(n + 1))
