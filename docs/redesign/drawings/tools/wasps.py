@@ -298,11 +298,14 @@ HEADS = [((1850, 330, 2420, 820), 150, 75), ((3980, 330, 4560, 1250), 150, 75), 
 SHEEP_BOX, SHEEP_BLUR, SHEEP_R, SHEEP_T, SHEEP_MIN, SHEEP_SMOOTH = (3300, 950, 3720, 1350), 1.5, 10, 35, 60, 1.5
 SHEEP_CORE, SHEEP_BLUE = 70, 90
 # Only the sheep's face is drawn so; its fleece on top stays painted hair, as the old men's (John, 2026-10-10: "Keep
-# the painted hair for the slave's sheep mask top but use the sharp sheep mask face"): above FLEECE (flat px, under the
-# lowest curls, read off the flat) the stepped wash with no outline, its curls (grey under CURL_L, blurred 1 px) as ink
-FLEECE = [(3300, 1185), (3445, 1190), (3480, 1225), (3520, 1205), (3580, 1185), (3640, 1160), (3730, 1160),
-          (3730, 940), (3300, 940)]
-CURL_L = 140
+# the painted hair for the slave's sheep mask top but use the sharp sheep mask face"): above FLEECE the wash with no
+# outline, and its brown daubs not as ink but as a painterly wash over it (John: "The sheep wool/hair is not a
+# painterly wash with daubs now"), stepped as the brush pooled: DAUB_STEPS (grey under, blurred 1 px; opacity), each
+# step's shape smoothed DAUB_SIGMA px, pieces DAUB_MIN px^2 or more. The division is John's line ("Where i see
+# division", drawn over a grid of the flat: x 3546-3642, flat px), carried on left at its own slope to the neck
+FLEECE = [(3300, 1185), (3445, 1196), (3500, 1182), (3546, 1169), (3563, 1164), (3580, 1159), (3597, 1154),
+          (3620, 1149), (3640, 1149), (3642, 1141), (3730, 1141), (3730, 940), (3300, 940)]
+DAUB_STEPS, DAUB_SIGMA, DAUB_MIN = [(165, 0.3), (135, 0.55), (105, 0.8)], 1.5, 30
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
 FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
@@ -514,9 +517,14 @@ def scene(src):
     # (worn pink patches in the fleece read as clay and left holes in it, which an outline would ring: filled)
     mask = ndi.binary_fill_holes(fig & hair_zone & box([SHEEP_BOX]))
     fleece = lw.polygon_mask(g.shape, np.array(FLEECE, float))
-    curls = strokes & fleece & box([SHEEP_BOX]) & (g1 < CURL_L)
+    wool = strokes & fleece & box([SHEEP_BOX])
+    daubs = []
+    for level, opacity in DAUB_STEPS:
+        m = ndi.gaussian_filter((wool & (g1 < level)).astype(np.float32), DAUB_SIGMA) > 0.5
+        daubs.append((morphology.remove_small_objects(m & wool, max_size=DAUB_MIN), opacity))
     face_m = mask & ~fleece
     soft_edge &= ~(box([SHEEP_BOX]) & ~fleece)
+    soft_edge |= edge & fleece & box([SHEEP_BOX]) & (ndi.distance_transform_edt(~mask) <= EDGE + 3)   # (no outline)
     lab, _ = ndi.label(face_m & (sheep_c > SHEEP_T) & (ndi.distance_transform_edt(mask) > EDGE))
     sheep = np.isin(lab, np.unique(lab[(sheep_c > SHEEP_CORE) & (blue < SHEEP_BLUE)])) & (lab > 0)
     sheep = morphology.remove_small_objects(sheep, max_size=SHEEP_MIN)
@@ -526,7 +534,11 @@ def scene(src):
         sheep = (grey(Path(td) / "ms.png") >= 128) & fig
     rim = face_m & (ndi.distance_transform_edt(mask) <= EDGE)   # (its outline against the neck too)
     strokes &= ~face_m
-    ink = lines | (edge & ~soft_edge) | sheep | rim | curls
+    ink = lines | (edge & ~soft_edge) | sheep | rim
+    # (its darkest daubs, read as solid paint where they meet the ground, are wash too, not ink)
+    dark_daubs = ink & fleece & box([SHEEP_BOX]) & ndi.binary_dilation(mask, iterations=EDGE + 3)
+    ink &= ~dark_daubs & ~(edge & fleece & box([SHEEP_BOX]))   # (and a sliver of outline left at a notch: no outline)
+    daubs = [(m | dark_daubs, o) for m, o in daubs]
     holes = ndi.binary_fill_holes(ink) & ~ink
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
@@ -548,7 +560,7 @@ def scene(src):
         m &= (np.bincount(lab.ravel()) >= STEP_MIN)[lab]
         steps.append((m, opacity))
     faces = box(FACES) & ink
-    return ink & ~faces, faces, fig, g, steps, pat_steps
+    return ink & ~faces, faces, fig, g, steps, pat_steps, daubs
 
 
 def add_tone(svg, steps, box):
@@ -569,7 +581,7 @@ def add_tone(svg, steps, box):
 
 
 def main(src, qa=None, dump=None):
-    ink, faces, fig, g, steps, pat_steps = scene(src)
+    ink, faces, fig, g, steps, pat_steps, daubs = scene(src)
     ink |= (ndi.distance_transform_edt(~morphology.skeletonize(ink)) <= NECK / 2) & fig
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, faces=faces)
@@ -579,6 +591,7 @@ def main(src, qa=None, dump=None):
                              "traced from the museum's photograph (CC0), taken off the vase's curve.")
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in pat_steps], info["box"])
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in steps], info["box"])
+    add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in daubs], info["box"])   # (the daubs over the fleece's wash)
     print(OUT, info)
     if qa:
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
