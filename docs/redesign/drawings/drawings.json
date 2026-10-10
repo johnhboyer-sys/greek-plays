@@ -243,6 +243,15 @@
       "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. XC: an Attic red-figure belly amphora by the Niobid Painter (Beazley Archive 206990), ex Canino and Laborde, last recorded in Paris in private hands (Heidelberg scan, public domain). The Élite reads Helen carrying the infant Iphigenia; Beazley, Artemis and Niobe with a child",
       "method": "Coloured plate, red figures on black, a double leaf levelled across the fold, made with PhotoCraft: the black ground gives the outline, drawn on the ground; the plate's lines at their own width, the line weight kept at pass 1's; the bands of paint on the clothes and the bracelets walled off from the ground; the bowstring drawn along its measured line; potrace",
       "verdict": "Usable; approved by John on the second pass (2026-10-10), after his note on the bands of paint on the clothes. No outside review (the citation checked against the Élite's text and the Beazley Archive)."
+    },
+    {
+      "slug": "wealth",
+      "file": "wealth.svg",
+      "name": "Wealth · Plutus with the cornucopia",
+      "alt": "An old man with white hair and a white beard, in a long pleated robe and a mantle, holding a long banded sceptre and a large horn of plenty, its mouth crowned with leaves and a shell",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques III (1858), pl. LVIII, after Monumenti inediti dell'Instituto I, pl. IV: an Attic red-figure hydria from Nola by the Painter of London E 183, British Museum 1868,0606.8 (E 183; Beazley Archive 215772) (Heidelberg scan, public domain). The Élite names him Plutus; the museum reads Hades (Pluto)",
+      "method": "Coloured plate, red figures on black, a double plate, made with PhotoCraft: the left page's panel squared; the black ground gives the outline, drawn on the ground; the plate's lines at their own width, the line weight kept at pass 1's; the sceptre's bands walled off as paint; the white hair and beard as white paths, outlined on the ground in day mode only; the eye drawn on points; potrace",
+      "verdict": "Usable; approved by John on the second pass (2026-10-10), after his choice for the hair and one line taken out of the sceptre's head. No outside review (the citation checked against the Élite's text, the British Museum and the Beazley Archive)."
     }
   ]
 }

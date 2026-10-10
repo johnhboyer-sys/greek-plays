@@ -69,8 +69,9 @@ def main() -> None:
             big = "".join(fig(it, 400) for it in items)
             small = "".join(fig(it, 120) for it in items)
             body = "none" if theme == "light" else CLAY
+            day = "inline" if theme == "light" else "none"   # the "day" path (Wealth's white hair outline)
             boards.append(
-                f'<section class="board" id="{theme}-{key}" style="--bg:{bg};--fg:{fg};--body:{body}">'
+                f'<section class="board" id="{theme}-{key}" style="--bg:{bg};--fg:{fg};--body:{body};--day:{day}">'
                 f'<h2>{"Light" if theme == "light" else "Dark"} · {name} <code>{bg}</code></h2>'
                 f'<div class="row big">{big}</div><div class="row small">{small}</div></section>')
 
@@ -107,6 +108,7 @@ figure{{margin:0;max-width:100%}}
 .slot{{display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid currentColor;max-width:100%}}
 .dr{{display:block;color:{LINE};overflow:visible;max-width:100%;height:auto}}
 .body{{fill:var(--body,none)}}
+.day{{display:var(--day,inline)}}
 figcaption{{font-size:13px;line-height:1.35;margin-top:6px;opacity:.8;height:2.7em;overflow:hidden}}
 .small figcaption{{font-size:11px;height:4.05em}}
 .small .dr{{stroke:currentColor;stroke-width:.5px}}

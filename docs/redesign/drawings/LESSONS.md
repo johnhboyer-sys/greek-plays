@@ -333,6 +333,25 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   became a pocket and filled as paint. Check the full drawing after every wall (`POCKETS`) (2026-10-10).
 - A bowstring printed as black paint over the black ground (grey 3-6 against 7-9): place each straight run
   where the mean grey along it is least, searching half-px shifts of its ends (`STRINGS`) (2026-10-10).
+- Wealth (III, pl. LVIII, Plutus with the cornucopia), made with PhotoCraft: about forty minutes over two
+  passes, the credit included, approved by John 2026-10-10. `tools/wealth.py` (2026-10-10).
+- Added white (hair, beard) over the black ground, no black outline on the vase: show John a small test of each house
+  way on the head first. He chose white paths (as Clouds) with a black outline on the ground in day mode only, so the
+  hair does not vanish into a light page: `trace_svg(day=...)` puts the lines in that area on a path of class "day",
+  which the dark theme hides. The white path runs half a line onto the ground, under that outline, or the dark theme
+  shows a rim of clay where the body's edge sits under the hidden line (2026-10-10).
+- The white: light and not red (red less blue, PhotoCraft's Channel Mixer); a grey threshold alone counts the soft edge
+  between the white and the black as clay and draws an outline round the hair (2026-10-10).
+- A long staff crossing the ground with black bands (the sceptre): fit its two edges as lines where it is clear of the
+  bands (sub-px, where the grey crosses 80) and wall along both a px out; the staff can widen along its length (here
+  10 to 13 px), so fit each stretch on its own (`SCEPTRE`) (2026-10-10).
+- Boxes that help on one plate can hurt on the next: a FACES box broke the eye's lid into pieces and a HANDS box lost
+  the thumb under the cornucopia. The eye drawn on points read off the plate's grey map came out right at once
+  (`EYE_LINES`), as Helen's (2026-10-10).
+- A thin pale line down the plate through the figure is a crease if it runs on through the margins (dark on the paper):
+  it draws nothing, as ground on the black and clay on the clay (2026-10-10).
+- Check a close-up's panel offsets before reading coordinates off it: the first box to drop the line John flagged
+  missed it by 20 px (2026-10-10).
 
 ### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
 
