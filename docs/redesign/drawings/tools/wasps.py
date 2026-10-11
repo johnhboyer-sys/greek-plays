@@ -323,17 +323,22 @@ TEXTURE_STEPS, TEXTURE_SIGMA, TEXTURE_MIN = [(192, 0.2), (178, 0.24)], 0.8, 12
 # not on the faces
 BODY_BLUR, BODY_R, BODY_RB, BODY_EDGE, BODY_OFF = 2.5, 12, 70, 18, 5
 # Repainted as broad, long, soft brushstrokes (John: "Make them more wash (like watercolor)", then "Broader, longer
-# strokes that emphasize lines and texture. Painterly", then "Fewer strokes. More subtle."): each stroke (contrast over BODY_T, at least BODY_LEN px long
-# and BODY_RATIO times longer than wide) is a line fitted to its pixels (a gentle curve when longer than BRUSH_CURVE
-# px), run on BRUSH_EXT of its length and BRUSH_PAD px at each end, and painted with PhotoCraft's brush (paint.stroke,
+# strokes that emphasize lines and texture. Painterly", then "Fewer strokes. More subtle."): each stroke (contrast
+# over BODY_T, at least BODY_LEN px long and BODY_RATIO times longer than wide) is run on BRUSH_EXT of its length and
+# BRUSH_PAD px at each end, along the contours (FLOW_*), and painted with PhotoCraft's brush (paint.stroke,
 # hardness 0) BRUSH_W times its width (at least BRUSH_MIN px), at an opacity rising with its darkness (BRUSH_OP, plus
 # BRUSH_K times its contrast); the strokes build up where they cross. The paint, inside the figures and off the lines,
 # drawn in WATER_STEPS (paint level, total opacity)
 BODY_T, BODY_LEN, BODY_RATIO = 0.04, 40, 2.5
-# Left out: the thin level streaks of the wheel and scratches (within BODY_FLAT degrees of level and under BODY_THIN
-# px wide), and the plank (below BODY_FLOOR, flat y)
-BODY_FLAT, BODY_THIN, BODY_FLOOR = 6, 5, 2440
-BRUSH_CURVE, BRUSH_EXT, BRUSH_PAD, BRUSH_W, BRUSH_MIN, BRUSH_OP, BRUSH_K = 60, 0.25, 6, 1.6, 12, 0.1, 1.2
+# Left out: every stroke within BODY_FLAT degrees of level (the wheel's streaks and their kin; John: "No perfectly
+# horizontal parallel strokes"), and the plank (below BODY_FLOOR, flat y)
+BODY_FLAT, BODY_FLOOR = 12, 2440
+# Each stroke follows the contours of its area (John: "Follow contours of areas"): from its centre it runs both ways
+# along the direction of the nearest painted lines (the level lines of the distance to the lines; the direction
+# field smoothed over FLOW_SIGMA px by doubled angles), FLOW_STEP px a step, for its own length plus the run-on, and
+# stops at a line or the figure's edge
+FLOW_SIGMA, FLOW_STEP = 10.0, 3.0
+BRUSH_EXT, BRUSH_PAD, BRUSH_W, BRUSH_MIN, BRUSH_OP, BRUSH_K = 0.25, 6, 1.6, 12, 0.1, 1.2
 WATER_STEPS = [(0.05, 0.05), (0.12, 0.09), (0.22, 0.13), (0.34, 0.17)]
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
@@ -425,8 +430,43 @@ def even_lines(contrast, dark, area, zones):
     return d <= half[iy, ix]
 
 
-def painted_strokes(m, contrast):
-    """The brushstrokes in m (see BODY_T and after it) repainted with PhotoCraft's brush; returns the paint (0-1)."""
+def contour_flow(ink):
+    """The direction of the contours at every px (unit vectors (dy, dx), sign arbitrary): along the level lines of
+    the distance to the lines, smoothed by doubled angles over FLOW_SIGMA px."""
+    gy, gx = np.gradient(ndi.distance_transform_edt(~ink))
+    c2, s2 = gx * gx - gy * gy, 2 * gx * gy   # doubled angle of the gradient, weighted by its strength
+    c2, s2 = ndi.gaussian_filter(c2, FLOW_SIGMA), ndi.gaussian_filter(s2, FLOW_SIGMA)
+    a = np.arctan2(s2, c2) / 2 + np.pi / 2   # the gradient's angle, turned a right angle: along the contour
+    return np.sin(a), np.cos(a)
+
+
+def follow(start, length, flow, room):
+    """A path from start (y, x) running both ways along flow for length px in all, inside room."""
+    fy, fx = flow
+    H, W = room.shape
+    halves = []
+    for sign in (1, -1):
+        p, d, pts = np.array(start, float), None, []
+        for _ in range(int(length / 2 / FLOW_STEP)):
+            i, j = int(round(p[0])), int(round(p[1]))
+            if not (0 <= i < H and 0 <= j < W and room[i, j]):
+                break
+            v = np.array([fy[i, j], fx[i, j]])
+            if d is None:
+                v = sign * v
+            elif v @ d < 0:
+                v = -v
+            d = v
+            p = p + FLOW_STEP * v
+            pts.append(p.copy())
+        halves.append(pts)
+    return halves[1][::-1] + [np.array(start, float)] + halves[0]
+
+
+def painted_strokes(m, contrast, ink, room):
+    """The brushstrokes in m (see BODY_T and after it) repainted with PhotoCraft's brush along the contours; returns
+    the paint (0-1)."""
+    flow = contour_flow(ink)
     lab, _ = ndi.label(m, structure=np.ones((3, 3)))
     strokes = []
     for k, sl in enumerate(ndi.find_objects(lab), 1):
@@ -439,14 +479,12 @@ def painted_strokes(m, contrast):
         long_, wide_ = 4 * np.sqrt(max(w[1], 0)), 4 * np.sqrt(max(w[0], 0))
         level = abs(np.degrees(np.arctan2(v[0, 1], v[1, 1])))   # (the long axis from the horizontal)
         level = min(level, 180 - level)
-        if long_ < BODY_LEN or long_ < BODY_RATIO * max(wide_, 1) or (level < BODY_FLAT and wide_ < BODY_THIN):
+        if long_ < BODY_LEN or long_ < BODY_RATIO * max(wide_, 1) or level < BODY_FLAT:
             continue
-        t, u = (p - ctr) @ v[:, 1], (p - ctr) @ v[:, 0]
-        f = np.polyfit(t, u, 2) if long_ > BRUSH_CURVE else np.r_[0.0, np.polyfit(t, u, 1)]
-        f[0] = np.clip(f[0], -0.004, 0.004)
-        ext = BRUSH_EXT * (t.max() - t.min()) + BRUSH_PAD
-        tt = np.linspace(t.min() - ext, t.max() + ext, 12)
-        q = ctr + tt[:, None] * v[:, 1] + np.polyval(f, tt)[:, None] * v[:, 0]
+        q = follow(ctr, long_ * (1 + 2 * BRUSH_EXT) + 2 * BRUSH_PAD, flow, room)
+        if len(q) < 4:
+            continue
+        q = np.array(q)[::max(1, len(q) // 16)]
         dark = float(np.clip(np.percentile(contrast[sl][here], 80), 0, 0.2))
         strokes.append(([[round(x, 1), round(y, 1)] for y, x in q], round(max(BRUSH_W * wide_, BRUSH_MIN), 1),
                         round(min(BRUSH_OP + BRUSH_K * dark, 0.6), 3)))
@@ -647,7 +685,7 @@ def scene(src):
     on = (fig & box(LC_ZONES) & (to_edge > BODY_EDGE) & (body_rb > BODY_RB) & ~ndi.binary_dilation(ink, iterations=BODY_OFF)
           & ~base & ~hair_zone & ~mask & ~ndi.binary_dilation(box(PATTERNS) & fig, iterations=BODY_OFF))
     on &= ~face_box & (yy < BODY_FLOOR)
-    field = painted_strokes(on & (body_c > BODY_T), body_c) * (fig & ~ink)
+    field = painted_strokes(on & (body_c > BODY_T), body_c, ink, fig & ~ndi.binary_dilation(ink, iterations=2)) * (fig & ~ink)
     body = [(field > level, opacity) for level, opacity in WATER_STEPS]
     faces = box(FACES) & ink
     return ink & ~faces, faces, fig, g, steps, pat_steps, daubs, body
