@@ -228,6 +228,11 @@ OPEN, AUTO_GROUND = 14, 40000
 # and smaller areas of ground that the figures close in (flat px, a point in each): between the slave's right arm
 # and his side
 OPEN_PTS = [(3174, 1817)]
+# Solid paint that runs into the ground's black is taken for ground: walled where it meets it (flat px, along the
+# ground's edge, read off the flat; WALL_W px wide): the right-hand man's belt at its left end (John, 2026-10-10:
+# "this part of the belt is ink not ground")
+WALLS = [[(4158, 1336), (4148, 1350), (4142, 1370), (4142, 1390), (4146, 1402)]]
+WALL_W = 8
 # and pockets narrower than the opening, found at FINE_OPEN within OPEN_FINE_R px of a point: the ground between
 # the slave's left hand and the chest's rim
 OPEN_FINE, OPEN_FINE_R = [(3069, 1852)], 80
@@ -310,6 +315,13 @@ FLEECE = [(3300, 1185), (3445, 1196), (3500, 1182), (3546, 1169), (3563, 1164), 
 # steps of the same wash, shaped finer (TEXTURE_SIGMA, TEXTURE_MIN)
 DAUB_STEPS, DAUB_SIGMA, DAUB_MIN = [(165, 0.45), (135, 0.65), (105, 0.85)], 1.5, 30
 TEXTURE_STEPS, TEXTURE_SIGMA, TEXTURE_MIN = [(192, 0.2), (178, 0.24)], 0.8, 12
+# The bodies' brushwork (John, 2026-10-10: "the bodies have some textural brushwork like the rock in the Philoctetes
+# plate"): the thinned brown glaze the painter laid over the clay of the figures (LC_ZONES), as philoctetes.py's rock:
+# the grey (blurred BODY_BLUR px in PhotoCraft) over the clay's own level round it (its Maximum over BODY_R px, blurred
+# BODY_R px), under each BODY_STEPS level, red (red less blue over BODY_RB), BODY_EDGE px or more inside the outline
+# and BODY_OFF px off the lines, smoothed BODY_SIGMA px, in pieces of BODY_MIN px^2 or more; a wash in the line colour
+BODY_BLUR, BODY_R, BODY_RB, BODY_EDGE, BODY_OFF = 3, 20, 70, 18, 4
+BODY_STEPS, BODY_SIGMA, BODY_MIN = [(0.82, 0.13), (0.72, 0.25), (0.62, 0.37)], 2.0, 150
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
 FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
@@ -351,6 +363,15 @@ def plank_bottom(clay_rb):
         ys.append(y + 0.5)
     ys = ndi.median_filter(np.array(ys), 5, mode="nearest")
     return np.array(xs), ys
+
+
+def along(shape, pts, width):
+    """A band `width` px wide along points (x, y) (as acharnians.py)."""
+    P = np.array(pts, float)
+    path = np.vstack([np.linspace(a, b, int(np.hypot(*(b - a))) + 2) for a, b in zip(P[:-1], P[1:])])
+    m = np.zeros(shape, bool)
+    m[path[:, 1].round().astype(int), path[:, 0].round().astype(int)] = True
+    return ndi.distance_transform_edt(~m) <= width / 2
 
 
 def centre_lines(m, spur, min_len):
@@ -446,6 +467,13 @@ def scene(src):
         pc(t / "gc.png", t / "gcc.png", ("filter.other.maximum", {"radius": LC_R, "preserve": "squareness"}),
            ("filter.other.minimum", {"radius": LC_R, "preserve": "squareness"}))
         contrast = grey(t / "gcc.png") - grey(t / "gc.png")
+        pc(t / "g.png", t / "gb.png", ("filter.blur.gaussianBlur", {"radius": BODY_BLUR}))
+        pc(t / "g.png", t / "gl.png", ("filter.other.maximum", {"radius": BODY_R, "preserve": "squareness"}),
+           ("filter.blur.gaussianBlur", {"radius": BODY_R}))
+        pc(t / "c.png", t / "rbb.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": BODY_BLUR}))
+        body_r = grey(t / "gb.png") / np.maximum(grey(t / "gl.png"), 1)
+        body_rb = grey(t / "rbb.png")
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
     box = lambda bs: np.any([(xx >= b[0]) & (yy >= b[1]) & (xx < b[2]) & (yy < b[3]) for b in bs], 0)
@@ -460,6 +488,8 @@ def scene(src):
     outside = yy > np.interp(xx, px, py)
     outside |= lw.polygon_mask(g.shape, np.array(PALM_L, float))
     dark = ~clay & ~outside
+    for pts in WALLS:
+        dark &= ~along(g.shape, pts, WALL_W)
     fine = box(FINE) | hair_zone
     ground0 = np.where(fine, ndi.binary_opening(dark, structure=morphology.disk(FINE_OPEN)),
                        ndi.binary_opening(dark, structure=morphology.disk(OPEN)))
@@ -564,8 +594,14 @@ def scene(src):
         lab, _ = ndi.label(m)
         m &= (np.bincount(lab.ravel()) >= STEP_MIN)[lab]
         steps.append((m, opacity))
+    on = (fig & box(LC_ZONES) & (to_edge > BODY_EDGE) & (body_rb > BODY_RB) & ~ndi.binary_dilation(ink, iterations=BODY_OFF)
+          & ~base & ~hair_zone & ~wide & ~mask)
+    body = []
+    for level, opacity in BODY_STEPS:
+        m = ndi.gaussian_filter((on & (body_r < level)).astype(np.float32), BODY_SIGMA) > 0.5
+        body.append((morphology.remove_small_objects(m & on, max_size=BODY_MIN), opacity))
     faces = box(FACES) & ink
-    return ink & ~faces, faces, fig, g, steps, pat_steps, daubs
+    return ink & ~faces, faces, fig, g, steps, pat_steps, daubs, body
 
 
 def add_tone(svg, steps, box):
@@ -586,7 +622,7 @@ def add_tone(svg, steps, box):
 
 
 def main(src, qa=None, dump=None):
-    ink, faces, fig, g, steps, pat_steps, daubs = scene(src)
+    ink, faces, fig, g, steps, pat_steps, daubs, body = scene(src)
     ink |= (ndi.distance_transform_edt(~morphology.skeletonize(ink)) <= NECK / 2) & fig
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ink=ink, faces=faces)
@@ -594,6 +630,7 @@ def main(src, qa=None, dump=None):
                         title="Two old men in comic masks and a small slave behind a chest, by a door: a comic stage",
                         desc="Line drawing after the Apulian red-figure bell-krater J. Paul Getty Museum 96.AE.112; "
                              "traced from the museum's photograph (CC0), taken off the vase's curve.")
+    add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in body], info["box"])
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in pat_steps], info["box"])
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in steps], info["box"])
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in daubs], info["box"])   # (the daubs over the fleece's wash)
