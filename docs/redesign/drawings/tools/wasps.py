@@ -290,7 +290,7 @@ PLANK_ROW, PLANK_STEP, PLANK_X = 2540, 25, (200, 5100)
 # red-less-blue limit (clay is redder). The old men's white is a cool white (red less blue about 45); the slave's
 # hair and beard a warm cream (about 80, as red as worn clay), told from his clay by lightness alone (clay there
 # 168 or darker, the cream 175 and up)
-HEADS = [((1850, 330, 2420, 820), 150, 75), ((3980, 330, 4560, 1250), 150, 75), ((3300, 950, 3720, 1350), 175, 255)]
+HEADS = [((1850, 330, 2440, 900), 150, 75), ((3980, 330, 4560, 1250), 150, 75), ((3300, 950, 3720, 1350), 175, 255)]
 # The slave's head is a sheep mask (John, 2026-10-10: "that's a sheep mask"): the fleece cream, its curls hooks of
 # brown glaze, the sheep's face (an arc, the eye) in thinner glaze that grey hardly shows. In the blue channel (the
 # cream is high in it, the glaze low) all of them stand 35 or more under the cream round them: blue blurred SHEEP_BLUR
@@ -316,12 +316,15 @@ FLEECE = [(3300, 1185), (3445, 1196), (3500, 1182), (3546, 1169), (3563, 1164), 
 DAUB_STEPS, DAUB_SIGMA, DAUB_MIN = [(165, 0.45), (135, 0.65), (105, 0.85)], 1.5, 30
 TEXTURE_STEPS, TEXTURE_SIGMA, TEXTURE_MIN = [(192, 0.2), (178, 0.24)], 0.8, 12
 # The bodies' brushwork (John, 2026-10-10: "the bodies have some textural brushwork like the rock in the Philoctetes
-# plate"): the thinned brown glaze the painter laid over the clay of the figures (LC_ZONES), as philoctetes.py's rock:
-# the grey (blurred BODY_BLUR px in PhotoCraft) over the clay's own level round it (its Maximum over BODY_R px, blurred
-# BODY_R px), under each BODY_STEPS level, red (red less blue over BODY_RB), BODY_EDGE px or more inside the outline
-# and BODY_OFF px off the lines, smoothed BODY_SIGMA px, in pieces of BODY_MIN px^2 or more; a wash in the line colour
-BODY_BLUR, BODY_R, BODY_RB, BODY_EDGE, BODY_OFF = 3, 20, 70, 18, 4
-BODY_STEPS, BODY_SIGMA, BODY_MIN = [(0.82, 0.13), (0.72, 0.25), (0.62, 0.37)], 2.0, 150
+# plate"; then "too blotchy. strokes, not blotches"): the strokes of thinned brown glaze over the clay of the figures
+# (LC_ZONES), as a wash in the line colour. A stroke is darker than the clay a brush's width round it: the grey
+# blurred BODY_BLUR px, its Maximum then Minimum over BODY_R px (round), the difference over the closed level, above
+# each BODY_STEPS level; red (red less blue over BODY_RB), BODY_EDGE px or more inside the outline and BODY_OFF px
+# off the lines and the patterns; kept only in pieces at least BODY_LEN px long and BODY_RATIO times longer than wide
+# (strokes, not patches), and not the thin level streaks of the wheel and scratches (within BODY_FLAT degrees of
+# level and under BODY_THIN px wide)
+BODY_BLUR, BODY_R, BODY_RB, BODY_EDGE, BODY_OFF = 2.5, 12, 70, 18, 5
+BODY_STEPS, BODY_LEN, BODY_RATIO, BODY_FLAT, BODY_THIN = [(0.03, 0.2), (0.05, 0.38)], 30, 2.5, 6, 5
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
 FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
@@ -412,6 +415,25 @@ def even_lines(contrast, dark, area, zones):
     return d <= half[iy, ix]
 
 
+def brush_strokes(m):
+    """The pieces of m that are strokes (see BODY_LEN and after it): their shape measured by the spread of their
+    pixels (the principal axes)."""
+    lab, _ = ndi.label(m, structure=np.ones((3, 3)))
+    keep = np.zeros(lab.max() + 1, bool)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        p = np.argwhere(lab[sl] == k).astype(float)
+        if len(p) < 20:
+            continue
+        w, v = np.linalg.eigh(np.cov(p.T))
+        long_, wide_ = 4 * np.sqrt(max(w[1], 0)), 4 * np.sqrt(max(w[0], 0))
+        level = abs(np.degrees(np.arctan2(v[0, 1], v[1, 1])))   # (the long axis from the horizontal)
+        level = min(level, 180 - level)
+        if long_ < BODY_LEN or long_ < BODY_RATIO * max(wide_, 1) or (level < BODY_FLAT and wide_ < BODY_THIN):
+            continue
+        keep[k] = True
+    return keep[lab]
+
+
 def teeth(g):
     """The teeth's area (see MOUTH), on the flat."""
     x0, y0, x1, y1 = MOUTH[0] - 60, MOUTH[1] - 150, TEETH_X1 + 40, MOUTH[1] + 80
@@ -468,11 +490,12 @@ def scene(src):
            ("filter.other.minimum", {"radius": LC_R, "preserve": "squareness"}))
         contrast = grey(t / "gcc.png") - grey(t / "gc.png")
         pc(t / "g.png", t / "gb.png", ("filter.blur.gaussianBlur", {"radius": BODY_BLUR}))
-        pc(t / "g.png", t / "gl.png", ("filter.other.maximum", {"radius": BODY_R, "preserve": "squareness"}),
-           ("filter.blur.gaussianBlur", {"radius": BODY_R}))
+        pc(t / "gb.png", t / "gbc.png", ("filter.other.maximum", {"radius": BODY_R, "preserve": "roundness"}),
+           ("filter.other.minimum", {"radius": BODY_R, "preserve": "roundness"}))
         pc(t / "c.png", t / "rbb.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
            ("filter.blur.gaussianBlur", {"radius": BODY_BLUR}))
-        body_r = grey(t / "gb.png") / np.maximum(grey(t / "gl.png"), 1)
+        gbc = grey(t / "gbc.png")
+        body_c = (gbc - grey(t / "gb.png")) / np.maximum(gbc, 1)
         body_rb = grey(t / "rbb.png")
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
@@ -595,11 +618,8 @@ def scene(src):
         m &= (np.bincount(lab.ravel()) >= STEP_MIN)[lab]
         steps.append((m, opacity))
     on = (fig & box(LC_ZONES) & (to_edge > BODY_EDGE) & (body_rb > BODY_RB) & ~ndi.binary_dilation(ink, iterations=BODY_OFF)
-          & ~base & ~hair_zone & ~wide & ~mask)
-    body = []
-    for level, opacity in BODY_STEPS:
-        m = ndi.gaussian_filter((on & (body_r < level)).astype(np.float32), BODY_SIGMA) > 0.5
-        body.append((morphology.remove_small_objects(m & on, max_size=BODY_MIN), opacity))
+          & ~base & ~hair_zone & ~mask & ~ndi.binary_dilation(box(PATTERNS) & fig, iterations=BODY_OFF))
+    body = [(brush_strokes(on & (body_c > level)), opacity) for level, opacity in BODY_STEPS]
     faces = box(FACES) & ink
     return ink & ~faces, faces, fig, g, steps, pat_steps, daubs, body
 
