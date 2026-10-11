@@ -395,11 +395,11 @@ RED_BARS = [([(1195, 2296.3), (1767, 2310.3)], 14), ([(1215, 2426.1), (1687, 244
 # distinct separation"): his centreline for each strand (prometheus_ropes.json, round px). The rope is the red
 # (red less green over ROPE_RG, darker than ROPE_L) within ROPE_MAX round px of his lines, its incisions closed
 # (ROPE_CLOSE round px) and its holes filled; each px of it goes to the nearest line; between neighbouring strands
-# an open line ROPE_SEP wide, where their areas meet. Bands of a fixed width along his lines left black between
+# a black line ROPE_SEP wide, where their areas meet (John, pass 2: drawn open, the separations were "too faint"). Bands of a fixed width along his lines left black between
 # the strands where the photo has only the incisions; in the glare, where the red does not show, the strand is at
 # least a band ROPE_W round px wide along his line
 ROPES = json.loads((Path(__file__).parent / "prometheus_ropes.json").read_text())["strands"]
-ROPE_RG, ROPE_L, ROPE_MAX, ROPE_CLOSE, ROPE_SEP, ROPE_W = 22, 135, 14, 4, 3.0, 22
+ROPE_RG, ROPE_L, ROPE_MAX, ROPE_CLOSE, ROPE_SEP, ROPE_W = 22, 135, 14, 4, 3.5, 22
 
 
 def ropes(shape, L, RG, ground):
@@ -423,6 +423,45 @@ def ropes(shape, L, RG, ground):
         edge[:shape[0] - dy, :shape[1] - dx] |= e
     sep = (ndi.distance_transform_edt(~edge) <= ROPE_SEP / 2 * UP) & (lab > 0)
     return lab, sep
+
+
+# areas painted solid red edge to edge (John, pass 2: the eagle's wing "is a well defined area which is filled edge
+# to edge with red"; "Whole beard shape is solid one color"). Each a polygon (round px) drawn a little outside the
+# incisions that bound the area, read off the photo's grid: the eagle's red coverts, the brown-red band above them
+# (the crack crosses between), the red stripe low on its wing (no incisions: the polygon is its edge), Atlas's
+# beard. Inside each, the figure less the incisions longer than SOLID_SCRATCH round px is cut into pieces; the pieces
+# at least SOLID_FRAC red are the area, its holes filled and its edge smoothed (SOLID_SMOOTH); the scratches in it go
+SOLID_AREAS = [
+    [(1700, 1000), (1760, 958), (1800, 918), (1830, 893), (1852, 903), (1858, 1000), (1862, 1100), (1875, 1180),
+     (1882, 1250), (1832, 1288), (1788, 1250), (1745, 1170), (1720, 1090), (1703, 1030)],
+    [(1430, 985), (1500, 950), (1600, 905), (1690, 878), (1745, 872), (1722, 930), (1690, 962), (1600, 988),
+     (1500, 1012), (1440, 1022)],
+    [(1440, 1320), (1475, 1316), (1505, 1350), (1530, 1395), (1560, 1440), (1600, 1478), (1606, 1510), (1570, 1516),
+     (1540, 1490), (1510, 1450), (1480, 1410), (1455, 1370), (1438, 1340)],
+    # (the beard: along its ringing incision, read at 3x)
+    [(1090, 642), (1100, 663), (1114, 690), (1135, 718), (1147, 739), (1149, 767), (1152, 798), (1157, 829), (1159, 861), (1152, 882), (1135, 888), (1111, 879), (1087, 864), (1062, 840), (1038, 809), (1017, 777), (1010, 749), (1020, 725), (1038, 700), (1055, 680), (1072, 659)],
+]
+SOLID_SCRATCH, SOLID_FRAC, SOLID_SMOOTH = 25, 0.3, 1.5
+
+
+def solid_red(red, fig, marks, px, py):
+    """red, made solid in SOLID_AREAS (at UP), and the scratches inside them dropped. Returns red and marks."""
+    out = red.copy()
+    lab, n = ndi.label(marks)
+    ext = np.zeros(n + 1)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        ext[k] = max(sl[0].stop - sl[0].start, sl[1].stop - sl[1].start)
+    long_marks = (ext >= SOLID_SCRATCH * UP)[lab] & marks
+    for pts in SOLID_AREAS:
+        poly = lw.polygon_mask(red.shape, np.array([((x - X0) * UP, (y - Y0) * UP) for x, y in pts], float))
+        room = poly & fig & ~ndi.binary_dilation(long_marks, iterations=UP)
+        pl, m = ndi.label(room)
+        frac = np.bincount(pl[red & room], minlength=m + 1) / np.maximum(np.bincount(pl.ravel(), minlength=m + 1), 1)
+        area = (frac > SOLID_FRAC)[pl] & (pl > 0)
+        area = smooth(ndi.binary_fill_holes(area), SOLID_SMOOTH) & fig & poly
+        marks = marks & ~(area & ~long_marks)
+        out = (out & ~poly) | (area & ~marks)
+    return out, marks
 
 
 def strokes(shape, lines, w):
@@ -573,7 +612,8 @@ def masks(ch, dump=None):
     marks = (marks | (ndi.distance_transform_edt(~sk) <= LINE_W / 2 * UP)) & fig
     marks |= crack_joins(marks.shape) & fig
     marks |= strokes(marks.shape, HAND, EYE_W) & fig
-    marks = (marks & ~(rbox & rope)) | rope_sep
+    marks = marks & ~(rbox & rope)
+    red, marks = solid_red(red, fig, marks, px, py)
     for lines in EYES.values():
         c = np.mean(lines[0], axis=0)
         zone = np.hypot(px - c[0], py - c[1]) < EYE_R
