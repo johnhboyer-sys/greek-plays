@@ -8,7 +8,8 @@ Laborde's text (pp. 8-10) reads it as the recognition of Orestes and Electra by 
 Sophocles' Electra, and says the vase was found at Avella. The Kunsthistorisches Museum, Vienna
 (Antikensammlung IV 689): a South Italian bell krater, about 350 BC, attributed to the Sydney Painter,
 side A Pylades, Orestes and Electra; from the Lamberg collection, bought 1815.
-The three figures, as the plate prints them.
+The three figures, as the plate prints them; titled with the scene as Laborde reads it, Orestes bringing
+Electra the urn, with Pylades (John, 2026-10-10; the museum: Pylades, Orestes and Electra).
 
 Made with PhotoCraft (John, 2026-10-07), as tools/iphigenia_aulis.py: every image step runs in
 `photocraft-cli` (0.2.0). The panel is squared (`level`, numpy and scipy: geometry, after
@@ -460,7 +461,7 @@ def main(src, qa=None, dump=None):
     held = ~fig
     info = lw.trace_svg(
         ink & ~eyes, OUT, body=fig, open_holes=held, dots=dots, weight=WEIGHT,
-        title='Pylades, Orestes and Electra',
+        title='Orestes brings Electra the urn, with Pylades',
         desc='Line drawing after the 1813 plate of a red-figure vase (Laborde, Collection des vases grecs de '
              'M. le comte de Lamberg I, pl. VIII); cut out and retraced.')
     print(OUT, info)

@@ -373,6 +373,23 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Check a close-up's panel offsets before reading coordinates off it: the first box to drop the line John flagged
   missed it by 20 px (2026-10-10).
 
+### Laborde, *Collection des vases grecs de M. le comte de Lamberg* (colour aquatints, red figures on a dark ground)
+
+- Electra (Sophocles) (I, pl. VIII, Orestes brings Electra the urn), made with PhotoCraft: about an hour and a half
+  over two passes, the credit included, approved by John 2026-10-10. `tools/electra_soph.py` (2026-10-10).
+- The Élite method carries over unchanged: ground grey about 60, clay 160, the same thresholds at UP 3; a full run
+  takes 25 seconds. The leaf holds two plates: fit each panel edge on its own window (`EDGES`) (2026-10-10).
+- The band the figures stand on bows up about 10 px under them. A ground line drawn straight between clear stretches
+  ran up to 3.5 px off under the feet and cut through the 1-3 px of dark between the toes and the band: the toes came
+  out open below (John: "look at the toes"). Measure the band's top in every column, going up from inside the band,
+  and draw the sole as a band of line width along the cut wherever a figure stands on it; the outline alone left nubs
+  under the gaps between toes (2026-10-10).
+- The cut must sit a little above the band's soft edge (`GROUND_IN`): below it, a sliver of clay ran from Pylades'
+  feet along the band to the crop's edge, and the edge rule dropped the whole figure (2026-10-10).
+- The aquatint's grain leaves light specks in the ground that the ridge term keeps: drop clay pieces under 20 plate
+  px once the figures are cut (`SPECK`). A FACES box took the grain on the clay as lid lines; one eye drawn on points
+  was enough (2026-10-10).
+
 ### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
 
 - Libation Bearers (Taf. XXIV, the whole frieze: four figures, a throne and a footstool): about four
