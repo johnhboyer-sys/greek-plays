@@ -231,6 +231,7 @@ GLARE_GROW, GLARE_EDGE, GLARE_HAT, GLARE_L, GLARE_W, GLARE_WLEN = 6, 40, 10, 100
 EDGE_CLEAR, FLOOR_CLEAR = 4, 9
 MARK_MIN, MARK_LEN = 8, 7
 LINE_W = 1.6                               # round px: the thinnest mark
+CLAY = "#c4b294"                           # the body's fill in both themes (as clouds.svg)
 RIM = 1.5                                  # round px: the clay round the black on the dark theme
 SMOOTH = 0.6                               # round px: every edge smoothed (Gaussian Blur, Threshold at half)
 # worn glaze that photographs as clay inside a figure (round px polygons): black (Atlas's palm on the sky)
@@ -348,7 +349,7 @@ def write_svg(lines, body, tone, out, title, desc):
     out.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {round(w * k, 1):g} 1000" role="img">\n'
                    f'<title>{esc(title)}</title>\n<desc>{esc(desc)}</desc>\n'
                    f'<g transform="scale({k:.6f})"><g transform="{tr}">'
-                   f'<path class="body" fill="none" stroke="none" d="{bd}"/>'
+                   f'<path class="body" fill="{CLAY}" stroke="none" d="{bd}"/>'
                    f'<path class="tone" fill="currentColor" fill-opacity="{RED_OP}" stroke="none" d="{td}"/>'
                    f'<path class="lines" fill="currentColor" vector-effect="non-scaling-stroke" d="{d}"/>'
                    f'</g></g>\n</svg>\n')
@@ -642,7 +643,9 @@ def main(src, qa=None, dump=None, cache=None):
     fig, red, marks, crack, rings = masks(ch, dump)
     lines = smooth(fig & ~marks & ~red, SMOOTH) | rings
     tone = smooth(red, SMOOTH) & ~lines
-    body = ndi.distance_transform_edt(~(fig | rings)) <= RIM * UP
+    # (John, 2026-10-11: "the white background just doesn't work here. Let's have clay for both light and dark":
+    # the body is the whole tondo to the outer ring's edge, filled with clay in both themes, as clouds.svg)
+    body = ndi.binary_fill_holes(fig | rings | (ndi.distance_transform_edt(~rings) <= RIM * UP))
     info = write_svg(
         lines, body, tone, OUT,
         title='Atlas holding up the sky, and Prometheus bound, with the eagle',
