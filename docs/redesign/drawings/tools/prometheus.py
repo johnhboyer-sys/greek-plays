@@ -58,9 +58,16 @@ PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli")
 # the tondo's outer edge in the photo: centre (x, y), axes (along ANGLE, across), ANGLE (degrees), photo px
 TONDO = ((2198.73, 1767.92), (2813.74, 2882.57), 5.50)
 N = 2960                                   # the round image: N x N, the tondo's centre at N/2, radius R0
-R_IN = 1350                                # round px: the innermost border ring's inner edge; outside it, out
-X0, Y0 = N // 2 - R_IN - 4, N // 2 - R_IN - 4
-X1, Y1 = N // 2 + R_IN + 4, N // 2 + R_IN + 4
+# the border (John, 2026-10-10: "add a border to the circle. It looks bad without the band"): the three painted
+# rings round the tondo, each fitted as a circle to the darkest px across it on 1440 rays (sub-px; the points off
+# it by more than 2.5 medians dropped): centres within 2.5 px of each other, radii 1380, 1402.5 and 1423 (the
+# painter's rings wobble by up to 4 px). Drawn as circles about RINGS_C, RING_W round px wide; inside the first
+# ring's inner edge, the picture; outside it, out
+RINGS_C, RINGS_R, RING_W = (1476.0, 1480.0), (1380.0, 1402.5, 1423.0), 5.0
+R_IN = RINGS_R[0] - RING_W / 2
+R_OUT = RINGS_R[-1] + RING_W / 2
+X0 = Y0 = int(min(RINGS_C) - R_OUT) - 4
+X1 = Y1 = int(max(RINGS_C) + R_OUT) + 5
 UP = 2                                     # work at 2x the round image's px
 
 
@@ -219,8 +226,9 @@ RED_OP = 0.45
 # red under MARK_BR: the glare); not within EDGE_CLEAR of the figures' edge; pieces at least MARK_LEN long
 MARK_R, MARK_T, MARK_BR = 2, 12, 40
 ORIENT_D, ORIENT_STEP = 4, 15
-GLARE_BR, GLARE_K, GLARE_LEN = 35, 1.8, 20
-EDGE_CLEAR = 4
+GLARE_BR, GLARE_K, GLARE_LEN = 35, 2.2, 25
+GLARE_GROW, GLARE_EDGE, GLARE_HAT, GLARE_L, GLARE_W, GLARE_WLEN = 6, 40, 10, 100, 20, 12
+EDGE_CLEAR, FLOOR_CLEAR = 4, 9
 MARK_MIN, MARK_LEN = 8, 7
 LINE_W = 1.6                               # round px: the thinnest mark
 RIM = 1.5                                  # round px: the clay round the black on the dark theme
@@ -228,6 +236,12 @@ SMOOTH = 0.6                               # round px: every edge smoothed (Gaus
 # worn glaze that photographs as clay inside a figure (round px polygons): black (Atlas's palm on the sky)
 WORN = [[(1590, 468), (1608, 452), (1640, 434), (1672, 419), (1690, 417), (1693, 432), (1670, 452), (1642, 472),
          (1616, 492), (1598, 501), (1587, 490)]]
+# the sky's top, between these angles (degrees about RINGS_C, y down; its ends at the ring are at -134 and -53):
+# black out to the first ring, over the last SKY_W round px
+SKY_SPAN, SKY_W = (-128, -60), 30
+SPECK = 200
+FLOOR_CLOSE, RING_HUG = 3, 35
+DROP = [(2242, 2587)]                      # round px: a stain on the clay right of the capital, below the lotus
 SEEDS = [(1000, 1500), (1900, 1500), (1480, 2500)]
 
 
@@ -242,6 +256,21 @@ def pc_mask(m, *steps):
 def smooth(m, r):
     return pc_mask(m, ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": r * UP}),
                    ("image.adjustments.threshold", {"level": 128}))
+
+
+def along(t, src, out):
+    """t/src smoothed along its own strokes: PhotoCraft's Motion Blur ORIENT_D long at every ORIENT_STEP degrees;
+    numpy picks, per px, the blur at the strokes' direction (the structure tensor's, as hecuba.py)."""
+    g = grey(t / src)
+    angs = list(range(0, 180, ORIENT_STEP))
+    for a in angs:
+        pc(t / src, t / f"o{a}.png", ("filter.blur.motionBlur", {"angle": a, "distance": ORIENT_D * UP}))
+    mb = np.stack([grey(t / f"o{a}.png") for a in angs])
+    gy, gx = np.gradient(g)
+    jxx, jyy, jxy = (ndi.gaussian_filter(v, 1.5 * UP) for v in (gx * gx, gy * gy, gx * gy))
+    line = np.degrees(0.5 * np.arctan2(2 * jxy, jxx - jyy)) + 90       # the strokes' direction, y down
+    i = np.round(((-line) % 180) / ORIENT_STEP).astype(int) % len(angs)   # PhotoCraft's angle is y up
+    Image.fromarray(np.clip(np.take_along_axis(mb, i[None], 0)[0], 0, 255).round().astype(np.uint8)).save(t / out)
 
 
 def channels(src):
@@ -261,23 +290,18 @@ def channels(src):
         mix("W.png", [100, 0, -100, 0], 0.5)
         mix("RG.png", [100, -100, 0, 0], 0.8)
         mix("BR.png", [-100, 0, 100, 0], 1.0)
+        mix("Wc.png", [100, 0, -100, 50], 0.5)          # red less blue, offset by half the range (no clipping)
         mix("GB.png", [0, 100, -100, 0], 0.8)
         pc(t / "up.png", t / "up_s.png", ("filter.blur.gaussianBlur", {"radius": 2 * UP}))
         rgb = np.asarray(Image.open(t / "up_s.png").convert("RGB")).astype(np.float32)
         sat = (rgb.max(-1) - rgb.min(-1)) / (rgb.max(-1) + 1)
-        g = grey(t / "L.png")
-        angs = list(range(0, 180, ORIENT_STEP))
-        for a in angs:
-            pc(t / "L.png", t / f"Lo{a}.png", ("filter.blur.motionBlur", {"angle": a, "distance": ORIENT_D * UP}))
-        mb = np.stack([grey(t / f"Lo{a}.png") for a in angs])
-        gy, gx = np.gradient(g)
-        jxx, jyy, jxy = (ndi.gaussian_filter(v, 1.5 * UP) for v in (gx * gx, gy * gy, gx * gy))
-        line = np.degrees(0.5 * np.arctan2(2 * jxy, jxx - jyy)) + 90       # the strokes' direction, y down
-        i = np.round(((-line) % 180) / ORIENT_STEP).astype(int) % len(angs)   # PhotoCraft's angle is y up
-        Image.fromarray(np.clip(np.take_along_axis(mb, i[None], 0)[0], 0, 255).round().astype(np.uint8)).save(t / "Lo.png")
+        along(t, "L.png", "Lo.png")
+        along(t, "Wc.png", "Wco.png")
         pc(t / "Lo.png", t / "Lopen.png", ("filter.other.minimum", {"radius": MARK_R * UP, "preserve": "roundness"}),
            ("filter.other.maximum", {"radius": MARK_R * UP, "preserve": "roundness"}))
-        return dict(L1=L1, L=g, W=grey(t / "W.png"), RG=grey(t / "RG.png"), BR=grey(t / "BR.png"), GB=grey(t / "GB.png"), sat=sat,
+        pc(t / "Wco.png", t / "Wopen.png", ("filter.other.minimum", {"radius": MARK_R * UP, "preserve": "roundness"}),
+           ("filter.other.maximum", {"radius": MARK_R * UP, "preserve": "roundness"}))
+        return dict(L1=L1, L=grey(t / "L.png"), what=grey(t / "Wco.png") - grey(t / "Wopen.png"), Wc=grey(t / "Wc.png") - 127.5, W=grey(t / "W.png"), RG=grey(t / "RG.png"), BR=grey(t / "BR.png"), GB=grey(t / "GB.png"), sat=sat,
                     hat=grey(t / "Lo.png") - grey(t / "Lopen.png"))
 
 
@@ -355,6 +379,52 @@ EYES = {
 EYE_R, EYE_W = 34, 2.4
 
 
+# the incisions between the fingers of Prometheus's hanging hand, too faint in its glare to be found whole: placed on
+# the warm top-hat's streaks (round px), drawn EYE_W wide
+HAND = [[(2258, 1920), (2246, 1950), (2234, 1980), (2222, 2008), (2212, 2030)],
+        [(2276, 1928), (2264, 1955), (2251, 1985), (2240, 2012), (2232, 2030)]]
+
+
+# the two added-red bars across the capital's abacus: in its glare their left parts read only as darker than the
+# glaze, with no hue of their own. Each a straight line fitted to the darkest row in every 25th column (round px;
+# within 4.7 px), from end to end, drawn as wash at its measured width
+RED_BARS = [([(1195, 2296.3), (1767, 2310.3)], 14), ([(1215, 2426.1), (1687, 2441.7)], 17)]
+
+
+# the ropes binding Prometheus to the column (John, 2026-10-10: "Those are big thick rope lines"; "They have
+# distinct separation"): his centreline for each strand (prometheus_ropes.json, round px). The rope is the red
+# (red less green over ROPE_RG, darker than ROPE_L) within ROPE_MAX round px of his lines, its incisions closed
+# (ROPE_CLOSE round px) and its holes filled; each px of it goes to the nearest line; between neighbouring strands
+# an open line ROPE_SEP wide, where their areas meet. Bands of a fixed width along his lines left black between
+# the strands where the photo has only the incisions; in the glare, where the red does not show, the strand is at
+# least a band ROPE_W round px wide along his line
+ROPES = json.loads((Path(__file__).parent / "prometheus_ropes.json").read_text())["strands"]
+ROPE_RG, ROPE_L, ROPE_MAX, ROPE_CLOSE, ROPE_SEP, ROPE_W = 22, 135, 14, 4, 3.0, 22
+
+
+def ropes(shape, L, RG, ground):
+    """The rope strands (one label each, 0 elsewhere) and the open lines between them, at UP."""
+    seeds = np.zeros(shape, np.int32)
+    for k, pts in enumerate(ROPES, 1):
+        seeds[strokes(shape, [pts], 1.0)] = k
+    d, (iy, ix) = ndi.distance_transform_edt(seeds == 0, return_indices=True)
+    near = seeds[iy, ix]
+    zone = d <= ROPE_MAX * UP
+    rope = (RG > ROPE_RG) & (L < ROPE_L) & zone & ~ground
+    rope = ndi.binary_closing(rope, structure=morphology.disk(ROPE_CLOSE * UP)) & zone & ~ground
+    rope = ndi.binary_opening(ndi.binary_fill_holes(rope), structure=morphology.disk(2 * UP))
+    rope |= d <= ROPE_W / 2 * UP           # (in the glare the red does not show: a band along each line at least)
+    rope = smooth(rope, 1.0) & zone & ~ground
+    lab = np.where(rope, near, 0)
+    edge = np.zeros(shape, bool)
+    for dy, dx in ((0, 1), (1, 0)):
+        e = (lab[:shape[0] - dy, :shape[1] - dx] != lab[dy:, dx:]) & (lab[:shape[0] - dy, :shape[1] - dx] > 0) \
+            & (lab[dy:, dx:] > 0)
+        edge[:shape[0] - dy, :shape[1] - dx] |= e
+    sep = (ndi.distance_transform_edt(~edge) <= ROPE_SEP / 2 * UP) & (lab > 0)
+    return lab, sep
+
+
 def strokes(shape, lines, w):
     """Polylines (round px) drawn w round px wide, at UP; those of four points or more as a smoothing spline through
     them (closed when the first point is the last)."""
@@ -386,11 +456,21 @@ def crack_joins(shape):
 
 
 def masks(ch, dump=None):
-    L, W, RG, BR, GB, sat, hat = (ch[k] for k in ("L", "W", "RG", "BR", "GB", "sat", "hat"))
+    L, W, RG, BR, GB, sat, hat, what, Wc = (ch[k] for k in ("L", "W", "RG", "BR", "GB", "sat", "hat", "what", "Wc"))
+    # the glare: blue over GLARE_BR round it (4 px), or lighter than GLARE_L and less warm than GLARE_W over 8 px
+    # (the glaze photographs grey-blue in it: Prometheus's hanging hand), grown by GLARE_GROW. There the grey and the blue both flicker;
+    # red less blue does not (the black and its glare read under 20, the clay 60-90, an incision 20-30 over the
+    # black beside it): the edge is where red less blue crosses GLARE_EDGE, the incisions its white top-hat
+    f = 4
+    Ls = ndi.zoom(ndi.gaussian_filter(L[::f, ::f], 8 * UP / f), f, order=1)[:L.shape[0], :L.shape[1]]
+    Ws = ndi.zoom(ndi.gaussian_filter(Wc[::f, ::f], 8 * UP / f), f, order=1)[:L.shape[0], :L.shape[1]]
+    glare0 = (ndi.gaussian_filter(BR, 4 * UP) > GLARE_BR) | ((Ls > GLARE_L) & (Ws < GLARE_W))
+    glare0 = ndi.binary_dilation(glare0, structure=morphology.disk(GLARE_GROW * UP))
     H, Wd = L.shape
     yy, xx = np.mgrid[0:H, 0:Wd]
     px, py = (xx + 0.5) / UP - 0.5 + X0, (yy + 0.5) / UP - 0.5 + Y0
-    inside = np.hypot(px - N / 2, py - N / 2) < R_IN
+    rr = np.hypot(px - RINGS_C[0], py - RINGS_C[1])
+    inside = rr < R_IN
     c1 = crack_mask(ch["L1"])[Y0:Y1, X0:X1]
     crack = np.repeat(np.repeat(c1, UP, 0), UP, 1)[:H, :Wd]
 
@@ -413,6 +493,7 @@ def masks(ch, dump=None):
     lf = ndi.gaussian_filter(np.where(ground, 0, L), EDGE_R * UP) / np.maximum(1 - wg, 1e-3)
     # (the glare is blue and as light as the clay: blue over EDGE_BLUE is figure)
     ground = np.where(band & ~crack & inside, (L > (lg + lf) / 2) & (BR < EDGE_BLUE), ground)
+    ground = np.where(band & ~crack & inside & glare0, ndi.gaussian_filter(Wc, UP) > GLARE_EDGE, ground)
     # the added red
     red = (RG > RED_RG) & (GB < RED_GBK * RG) & (L < RED_L) & inside & ~crack
     red = ndi.binary_opening(red, structure=morphology.disk(UP))
@@ -429,23 +510,54 @@ def masks(ch, dump=None):
     fig = inside & ~ground & ~crack
     fig = keep_big(ndi.binary_opening(fig, structure=morphology.disk(UP)), FIG_MIN * UP * UP, keep=red)
     fig = ndi.binary_fill_holes(fig) & ~ground
+    # (below the ground line the glaze's raised edge throws a thin shadow just outside it, with the glare's bright
+    # rim inside: a sliver of ground between the two drew a second outline round the capital and the lotus. There
+    # the figures are closed by FLOOR_CLOSE round px)
+    fig = np.where(py > FLOOR, ndi.binary_closing(fig, structure=morphology.disk(FLOOR_CLOSE * UP)) & inside, fig)
+    # (dark specks off the figures, under SPECK round px^2 and not red, go; pieces lying wholly within RING_HUG of the
+    # first ring (the ring's shadow) go; and the pieces under DROP)
+    lab, n = ndi.label(fig)
+    sz = np.bincount(lab.ravel(), minlength=n + 1)
+    has_red = np.bincount(lab[red], minlength=n + 1) > 0
+    far = np.bincount(lab[rr < R_IN - RING_HUG], minlength=n + 1) > 0
+    drop = ((sz < SPECK * UP * UP) & ~has_red) | ~far
+    for x, y in DROP:
+        drop[lab[round((y - Y0) * UP), round((x - X0) * UP)]] = True
+    drop[0] = False
+    fig &= ~drop[lab]
     for pts in WORN:
         fig |= lw.polygon_mask(fig.shape, np.array([((x - X0) * UP, (y - Y0) * UP) for x, y in pts], float)) & inside
     # across the crack: the figures and the red carried over from both sides
     free = ~inside
     fig = harmonic_fill(fig, crack, free) & inside
     red = harmonic_fill(red, crack, free) & inside
+    # the sky meets the first ring: the filler runs along the ring there, and the fill left a strip of clay
+    ang = np.degrees(np.arctan2(py - RINGS_C[1], px - RINGS_C[0]))
+    fig |= inside & (rr > R_IN - SKY_W) & (ang > SKY_SPAN[0]) & (ang < SKY_SPAN[1])
     fig = smooth(fig, 0.8)
     red = smooth(red, 1.5) & fig
+    for pts, w in RED_BARS:
+        red |= strokes(red.shape, [pts], w) & fig
+    rope_lab, rope_sep = ropes(red.shape, L, RG, ground)
+    rp = np.array([p for pts in ROPES for p in pts])
+    rbox = ((px > rp[:, 0].min() - 20) & (px < rp[:, 0].max() + 20) & (py > rp[:, 1].min() - 20)
+            & (py < rp[:, 1].max() + 20))
+    rope = rope_lab > 0
+    fig |= rope
+    red = np.where(rbox, rope & ~rope_sep, red)
     # the incisions
     from skimage.filters import apply_hysteresis_threshold
-    clear = ndi.distance_transform_edt(fig) > EDGE_CLEAR * UP
+    # (below the ground line the glare's bright rim along the capital's edges drew a second outline: clear further)
+    clear = ndi.distance_transform_edt(fig) > np.where(py > FLOOR, FLOOR_CLEAR, EDGE_CLEAR) * UP
     # (in the glare, blue over its 4 px round, and below the ground line, its speckle passed for incisions: there the
     # threshold is GLARE_K times as high, and the marks at least GLARE_LEN long)
-    glare = (ndi.gaussian_filter(BR, 4 * UP) > GLARE_BR) | (py > FLOOR)
+    glare = glare0 | (py > FLOOR)
     t = np.where(glare, GLARE_K * MARK_T, MARK_T)
     marks = fig & clear & ~red & ~crack & (hat > t / 2) & (BR < MARK_BR)
     marks = ndi.binary_propagation(marks & (hat > t), mask=marks)
+    wm = fig & clear & ~red & ~crack & glare0 & (what > GLARE_HAT / 2)
+    wm = ndi.binary_propagation(wm & (what > GLARE_HAT), mask=wm)
+    marks = np.where(glare0, wm, marks)
     # (below the ground line the glare's speckle passed for incisions: there they are also orange)
     marks &= (py < FLOOR) | (W > 0.4 * L)
     lab, _ = ndi.label(marks)
@@ -454,18 +566,24 @@ def masks(ch, dump=None):
     for k, sl in enumerate(ndi.find_objects(lab), 1):
         if sl is not None:
             ext[k] = max(sl[0].stop - sl[0].start, sl[1].stop - sl[1].start)
-    in_glare = np.bincount(lab[glare], minlength=len(sz)) > 0.5 * sz
-    marks &= ((sz >= MARK_MIN * UP * UP) & (ext >= np.where(in_glare, GLARE_LEN, MARK_LEN) * UP))[lab]
+    in_glare = np.bincount(lab[glare & ~glare0], minlength=len(sz)) > 0.5 * sz
+    in_g0 = np.bincount(lab[glare0], minlength=len(sz)) > 0.5 * sz
+    marks &= ((sz >= MARK_MIN * UP * UP) & (ext >= np.where(in_g0, GLARE_WLEN, np.where(in_glare, GLARE_LEN, MARK_LEN)) * UP))[lab]
     sk = morphology.skeletonize(marks)
     marks = (marks | (ndi.distance_transform_edt(~sk) <= LINE_W / 2 * UP)) & fig
     marks |= crack_joins(marks.shape) & fig
+    marks |= strokes(marks.shape, HAND, EYE_W) & fig
+    marks = (marks & ~(rbox & rope)) | rope_sep
     for lines in EYES.values():
         c = np.mean(lines[0], axis=0)
         zone = np.hypot(px - c[0], py - c[1]) < EYE_R
         marks = np.where(zone, strokes(marks.shape, lines, EYE_W) & fig, marks)
     if dump:
         np.savez_compressed(dump, fig=fig, red=red, marks=marks, crack=crack, ground=ground)
-    return fig, red, marks, crack, (px, py)
+    rings = np.zeros(L.shape, bool)
+    for r in RINGS_R:
+        rings |= np.abs(rr - r) <= RING_W / 2
+    return fig, red, marks, crack, rings
 
 
 def main(src, qa=None, dump=None, cache=None):
@@ -475,10 +593,10 @@ def main(src, qa=None, dump=None, cache=None):
         ch = channels(src)
         if cache:
             np.savez(cache, **ch)
-    fig, red, marks, crack, _ = masks(ch, dump)
-    lines = smooth(fig & ~marks & ~red, SMOOTH)
+    fig, red, marks, crack, rings = masks(ch, dump)
+    lines = smooth(fig & ~marks & ~red, SMOOTH) | rings
     tone = smooth(red, SMOOTH) & ~lines
-    body = ndi.distance_transform_edt(~fig) <= RIM * UP
+    body = ndi.distance_transform_edt(~(fig | rings)) <= RIM * UP
     info = write_svg(
         lines, body, tone, OUT,
         title='Atlas holding up the sky, and Prometheus bound, with the eagle',
