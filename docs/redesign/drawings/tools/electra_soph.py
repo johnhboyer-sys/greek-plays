@@ -65,6 +65,7 @@ MARGIN = 20
 # edge, and the figure went with it
 GROUND_FROM = 760
 GROUND_IN = 1.5
+GROUND_BELOW, GROUND_SEARCH, GROUND_OFF = 6, 14, 4.5
 GROUND_CLEAR = [(48, 158), (448, 508), (798, 848), (898, 1068), (1345, 1428)]
 # crop in levelled px: the three figures, inside the dark on all sides, down past the ground line
 X0, Y0, X1, Y1 = 60, 26, 1400, 812
@@ -118,8 +119,9 @@ BAND_R = 8
 # line (Helen, Phoenician Women)
 WALLS = []
 MARKS_FILES = []
-# the line weight, to be kept fixed at pass 1's (its median width, px over the longer side; Phoenician Women)
-WEIGHT = "own"
+# the line weight pass 1 had (its median width, px over the longer side, its crop 3546 px wide), kept fixed:
+# the median is read off whole pixel steps, and later changes can move it a step (Phoenician Women)
+WEIGHT = 5.0 / 3546
 # his marks left out (boxes, work px at UP), and clay areas the figures close in that are the vase's ground
 # (a point in each, levelled px) (Phoenician Women)
 DROP = []
@@ -197,8 +199,12 @@ def level(g_rgb):
 
 
 def ground_line(lev):
-    """The ground line in the levelled frame: (x, y) of the top of the clay band, measured on GROUND_CLEAR,
-    lightly smoothed."""
+    """The ground line in the levelled frame: (x, y) of the top of the clay band at every column. A guide is
+    measured on GROUND_CLEAR going down from GROUND_FROM and drawn straight between; then each column is
+    read going up from inside the band (GROUND_BELOW px under the guide) to the first px darker than
+    EDGE_DARK: under the feet the band sat up to 3.5 px off the guide, and the cut ran through the dark
+    strip under Electra's toes and left them open below (John, pass 1: "look at the toes"). A column that
+    finds no dark within GROUND_SEARCH px (a foot or a spear on the band) keeps the guide."""
     g = ndi.gaussian_filter(np.asarray(Image.fromarray(lev).convert('L'), np.float32), 1.5)
     xs = np.concatenate([np.arange(a, b) for a, b in GROUND_CLEAR])
     prof = g[GROUND_FROM:, xs].T
@@ -206,7 +212,19 @@ def ground_line(lev):
     r = np.arange(len(xs))
     a_, b_ = prof[r, i - 1], prof[r, i]
     y = GROUND_FROM + i - 1 + (EDGE_DARK - a_) / (b_ - a_)
-    return xs.astype(float), ndi.median_filter(y, 9, mode='nearest')
+    gx = np.arange(g.shape[1], dtype=float)
+    guide = np.interp(gx, xs, ndi.median_filter(y, 9, mode='nearest'))
+    top = guide.copy()
+    for x in range(g.shape[1]):
+        c = g[:, x]
+        y0 = int(round(guide[x])) + GROUND_BELOW
+        for yy in range(y0, y0 - GROUND_SEARCH, -1):
+            if c[yy] < EDGE_DARK:
+                top[x] = yy + (EDGE_DARK - c[yy]) / (c[yy + 1] - c[yy])
+                break
+    bad = np.abs(top - guide) > GROUND_OFF
+    top[bad] = guide[bad]
+    return gx, ndi.median_filter(top, 5, mode='nearest')
 
 
 def upright(src):
@@ -370,7 +388,16 @@ def main(src, qa=None, dump=None):
     # the outline: EDGE_OUT plate px wide on the black ground outside the clay, not on the clay (John on
     # Ion, 2026-10-09), so every clay part keeps its full width
     dt = ndi.distance_transform_edt(~fig)
+    # The soles close on the ground line: the dark strip between the toes and the band is 1-3 px, and with the
+    # outline stopped at the cut the toes came out open below (John, pass 1: "look at the toes").
+    # The sole line is a band EDGE_OUT wide under the cut wherever a figure stands on it (within EDGE_OUT
+    # of the cut, widened by EDGE_OUT either side): the outline alone hung nubs under the gaps between toes
+    cut = np.interp((xx[0] + 0.5) / UP - 0.5 + X0, gx, gy - GROUND_IN)[None, :]
+    row = (yy + 0.5) / UP - 0.5 + Y0
+    on = (fig & (row > cut - EDGE_OUT)).any(axis=0)
+    on = ndi.binary_dilation(on, iterations=round(EDGE_OUT * UP))
     edge = ~fig & ~outside & (dt <= EDGE_OUT * UP)
+    edge |= outside & (row <= cut + EDGE_OUT) & on[None, :]
     edge = np.where(hand, ~fig & ~outside & (dt <= HAND_EDGE * UP), edge)
     del dt
     lab, n = ndi.label(face_faint & fig)
