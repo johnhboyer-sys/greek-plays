@@ -432,16 +432,18 @@ def ropes(shape, L, RG, ground):
 # beard. Inside each, the figure less the incisions longer than SOLID_SCRATCH round px is cut into pieces; the pieces
 # at least SOLID_FRAC red are the area, its holes filled and its edge smoothed (SOLID_SMOOTH); the scratches in it go
 SOLID_AREAS = [
-    [(1700, 1000), (1760, 958), (1800, 918), (1830, 893), (1852, 903), (1858, 1000), (1862, 1100), (1875, 1180),
-     (1882, 1250), (1832, 1288), (1788, 1250), (1745, 1170), (1720, 1090), (1703, 1030)],
-    [(1430, 985), (1500, 950), (1600, 905), (1690, 878), (1745, 872), (1722, 930), (1690, 962), (1600, 988),
-     (1500, 1012), (1440, 1022)],
+    # (the band's left part, beyond John's outline: WING)
+    [(1430, 985), (1500, 950), (1600, 905), (1640, 893), (1640, 985), (1600, 988), (1500, 1012), (1440, 1022)],
     [(1440, 1320), (1475, 1316), (1505, 1350), (1530, 1395), (1560, 1440), (1600, 1478), (1606, 1510), (1570, 1516),
      (1540, 1490), (1510, 1450), (1480, 1410), (1455, 1370), (1438, 1340)],
     # (the beard: along its ringing incision, read at 3x)
     [(1090, 642), (1100, 663), (1114, 690), (1135, 718), (1147, 739), (1149, 767), (1152, 798), (1157, 829), (1159, 861), (1152, 882), (1135, 888), (1111, 879), (1087, 864), (1062, 840), (1038, 809), (1017, 777), (1010, 749), (1020, 725), (1038, 700), (1055, 680), (1072, 659)],
 ]
 SOLID_SCRATCH, SOLID_FRAC, SOLID_SMOOTH = 25, 0.3, 1.5
+# John's outline of the eagle's red coverts and the brown-red band above them, one area across the crack between
+# them (2026-10-11, "Wing area": prometheus_wing.json, round px), open at its left, where the band runs on: closed
+# straight down there. Red whole inside it, edge to edge
+WING = json.loads((Path(__file__).parent / "prometheus_wing.json").read_text())["outline"]
 
 
 def solid_red(red, fig, marks, px, py):
@@ -461,6 +463,10 @@ def solid_red(red, fig, marks, px, py):
         area = smooth(ndi.binary_fill_holes(area), SOLID_SMOOTH) & fig & poly
         marks = marks & ~(area & ~long_marks)
         out = (out & ~poly) | (area & ~marks)
+    poly = lw.polygon_mask(red.shape, np.array([((x - X0) * UP, (y - Y0) * UP) for x, y in WING], float))
+    area = smooth(poly, SOLID_SMOOTH) & fig
+    marks = marks & ~area
+    out = (out & ~poly) | area
     return out, marks
 
 
