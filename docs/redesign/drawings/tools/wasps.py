@@ -323,18 +323,18 @@ TEXTURE_STEPS, TEXTURE_SIGMA, TEXTURE_MIN = [(192, 0.2), (178, 0.24)], 0.8, 12
 # not on the faces
 BODY_BLUR, BODY_R, BODY_RB, BODY_EDGE, BODY_OFF = 2.5, 12, 70, 18, 5
 # Repainted as broad, long, soft brushstrokes (John: "Make them more wash (like watercolor)", then "Broader, longer
-# strokes that emphasize lines and texture. Painterly"): each stroke (contrast over BODY_T, at least BODY_LEN px long
+# strokes that emphasize lines and texture. Painterly", then "Fewer strokes. More subtle."): each stroke (contrast over BODY_T, at least BODY_LEN px long
 # and BODY_RATIO times longer than wide) is a line fitted to its pixels (a gentle curve when longer than BRUSH_CURVE
 # px), run on BRUSH_EXT of its length and BRUSH_PAD px at each end, and painted with PhotoCraft's brush (paint.stroke,
 # hardness 0) BRUSH_W times its width (at least BRUSH_MIN px), at an opacity rising with its darkness (BRUSH_OP, plus
 # BRUSH_K times its contrast); the strokes build up where they cross. The paint, inside the figures and off the lines,
 # drawn in WATER_STEPS (paint level, total opacity)
-BODY_T, BODY_LEN, BODY_RATIO = 0.025, 25, 2.2
+BODY_T, BODY_LEN, BODY_RATIO = 0.04, 40, 2.5
 # Left out: the thin level streaks of the wheel and scratches (within BODY_FLAT degrees of level and under BODY_THIN
 # px wide), and the plank (below BODY_FLOOR, flat y)
 BODY_FLAT, BODY_THIN, BODY_FLOOR = 6, 5, 2440
 BRUSH_CURVE, BRUSH_EXT, BRUSH_PAD, BRUSH_W, BRUSH_MIN, BRUSH_OP, BRUSH_K = 60, 0.25, 6, 1.6, 12, 0.1, 1.2
-WATER_STEPS = [(0.05, 0.08), (0.12, 0.14), (0.22, 0.2), (0.34, 0.27)]
+WATER_STEPS = [(0.05, 0.05), (0.12, 0.09), (0.22, 0.13), (0.34, 0.17)]
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
 FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
