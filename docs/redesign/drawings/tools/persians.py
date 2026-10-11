@@ -40,9 +40,9 @@ SEAL = 6
 # chariot's rear rail curl and between it and the left wheel, and the gaps between the legs and wheels under
 # the chariot (John, 2026-10-10: "Still some areas that should be ground")
 OPEN_R, NECK = 8, 5                       # plate px
-POCKETS = [(1049, 917, OPEN_R), (1076, 1043), (1019, 1104, OPEN_R), (1107, 1087), (1152, 1038),
-           (1153, 1057), (1156, 934), (1166, 844),
-           (1463, 1141, OPEN_R), (1520, 1085), (1406, 1079), (1424, 1044), (1473, 1005), (1421, 966),
+POCKETS = [(1049, 917, OPEN_R), (1076, 1043, NECK), (1019, 1104, OPEN_R), (1107, 1087, NECK), (1152, 1038),
+           (1153, 1057, NECK), (1156, 934, NECK), (1166, 844, NECK),
+           (1463, 1141, OPEN_R), (1520, 1085, NECK), (1406, 1079, NECK), (1424, 1044, NECK), (1473, 1005), (1421, 966),
            # and those John marked blue on pass 1 (2026-10-11, "here are spots you missed"): between the
            # horseman's horse and the chariot, under the driver's arm, behind the chariot, the left wheel's
            # openings, between the horses' legs, and in the right-hand plant (he ruled each area, 2026-10-11:
@@ -52,12 +52,14 @@ POCKETS = [(1049, 917, OPEN_R), (1076, 1043), (1019, 1104, OPEN_R), (1107, 1087)
            (986, 517, NECK), (828, 545, NECK), (1833, 556, NECK),
            (992, 564, NECK), (1090, 596, NECK), (1476, 684, NECK), (1528, 707, NECK), (1013, 757, NECK),
            (1013, 846, NECK), (966, 883, NECK), (1097, 971, NECK), (992, 988, NECK), (3231, 1053, NECK),
-           (3185, 1086, NECK), (1084, 1112, NECK)]
+           (3185, 1086, NECK), (1084, 1112, NECK), (1795, 691, NECK)]
 # shafts crossing ground (rough ends of the centre line, plate px; fitted to their edge lines by `shaft`, kept
 # clay through the pockets): the horseman's lance, from its butt past his hand to the king; the spear over the
 # horses' heads, from the mane to its collar, and its head
 SHAFTS = [((482, 489), (1120, 550)), ((1768, 556), (1888, 503)), ((1912, 497), (1960, 476))]
-CLOSED = []
+# small closed parts (boxes, plate px): the paper the ink closes there, after a closing by CLOSE plate px, is
+# clay: the horseman's spearhead
+CLOSED = [(392, 452, 472, 496)]
 CLOSE = 2
 NEAR = 10                                 # plate px
 GROUND_Y = 990                            # plate px: the ground line lies below
@@ -66,6 +68,11 @@ WEIGHT = 0.00025                          # 0.8 plate px: John chose it (2026-10
 #                                           king's head; he asked for "crisp and precise"); the plate's pen line is about
 #                                           1-1.2 px under the scan's blur (its half-maximum width is 1.5)
 TRACE_H = 6400
+# John's marks (2026-10-11), drawn in PhotoCraft over pass 1 on the crop at MARKS_K x the plate px: blue is
+# ink as he drew it (outlines closed where the pen broke off, a few missing ones); green takes the ink out, and
+# the paper under it is ground (a pocket: between the first chariot horse's chest and the next one's mane)
+MARKS_FILES = [Path(__file__).parent / "persians_marks_1.png"]
+MARKS_K = 2
 WALLS = []
 WALL_W = 2.0
 # Shading: the plate shades some parts (the king's cap, sleeves and belt, the chariot's rails and panel, the
@@ -394,18 +401,36 @@ def figure(ink, gl):
         print('shaft', a, b, 'half-width', round(hw, 2), 'rms', round(rms, 2))
         clay |= band & paper
         bands |= band & paper
+    kept = np.zeros_like(paper)                  # (thin clay there, which the body's smoothing would take)
     for bx0, by0, bx1, by1 in CLOSED:
         sl = np.s_[(by0 - Y0) * UP:(by1 - Y0) * UP, (bx0 - X0) * UP:(bx1 - X0) * UP]
         c = ndi.binary_closing(ink[sl], structure=morphology.disk(CLOSE * UP))
         clay[sl] |= ndi.binary_fill_holes(c) & ~c & paper[sl]
+        kept[sl] |= ndi.binary_fill_holes(c) & ~c & paper[sl]
     # (the ink they close in too: the shield's star, wider than the reach)
     fig = ndi.binary_fill_holes(clay | (ink & ndi.binary_dilation(clay, iterations=2 * UP)))
-    return fig & ~(ground & paper & ~bands), pk & ~bands
+    return fig & ~(ground & paper & ~bands), pk & ~bands, kept
+
+
+def marks(shape):
+    """John's marks at the work px: (blue, green)."""
+    blue, green = np.zeros(shape, bool), np.zeros(shape, bool)
+    for mf in MARKS_FILES:
+        m = Image.open(mf).convert('RGBA')
+        assert m.size == ((X1 - X0) * MARKS_K, (Y1 - Y0) * MARKS_K), m.size
+        m = np.asarray(m.resize((shape[1], shape[0]), Image.NEAREST)).astype(int)
+        r, gg, bb, al = (m[..., i] for i in range(4))
+        blue |= (al > 40) & (bb > r + 40) & (bb > gg + 20)
+        green |= (al > 40) & (gg > r + 40) & (gg > bb + 20)
+    return blue, green
 
 
 def main(src, qa=None, dump=None):
     g, gl, ink, reg, hatch = masks(src)
-    fig, pk = figure(ink | reg, gl)
+    blue, green = marks(ink.shape)
+    ink = (ink | blue) & ~ndi.binary_dilation(green, iterations=UP)
+    fig, pk, kept = figure(ink | reg, gl)
+    fig |= ndi.binary_dilation(blue, iterations=UP) & ~pk    # (his lines on clay, on the dark theme)
     fig |= reg                               # the hatched areas whole (the paper between the ruled lines is
     #                                          too narrow for the seal), and walls to the ground
     # specks on the paper round the group: ink farther than NEAR from every figure (a toe's tip stands just
@@ -433,7 +458,7 @@ def main(src, qa=None, dump=None):
     lw.WORK_H = TRACE_H
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=hatch, trace_h=lw.WORK_H,
-        day=ndi.binary_dilation(orn, iterations=UP), add_clay=orn,
+        day=ndi.binary_dilation(orn, iterations=UP), add_clay=orn, keep=kept,
         title='The Persian king fleeing',
         desc='Line drawing after the 1883 plate of an Apulian amphora in Naples (Heydemann, Hallisches Winckelmannsprogramm 8); cut out and retraced.')
     print(OUT, info)
