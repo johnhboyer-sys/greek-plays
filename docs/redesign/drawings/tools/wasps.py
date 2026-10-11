@@ -305,7 +305,11 @@ SHEEP_CORE, SHEEP_BLUE = 70, 90
 # division", drawn over a grid of the flat: x 3546-3642, flat px), carried on left at its own slope to the neck
 FLEECE = [(3300, 1185), (3445, 1196), (3500, 1182), (3546, 1169), (3563, 1164), (3580, 1159), (3597, 1154),
           (3620, 1149), (3640, 1149), (3642, 1141), (3730, 1141), (3730, 940), (3300, 940)]
-DAUB_STEPS, DAUB_SIGMA, DAUB_MIN = [(165, 0.3), (135, 0.55), (105, 0.8)], 1.5, 30
+# Under the daubs, the fleece's textured brushwork (John, 2026-10-10: "There's some textured brushwork on the
+# original. Add that"): the white paint's own streaks and ridges, a little greyer than its brightest, as the lightest
+# steps of the same wash, shaped finer (TEXTURE_SIGMA, TEXTURE_MIN)
+DAUB_STEPS, DAUB_SIGMA, DAUB_MIN = [(165, 0.45), (135, 0.65), (105, 0.85)], 1.5, 30
+TEXTURE_STEPS, TEXTURE_SIGMA, TEXTURE_MIN = [(192, 0.2), (178, 0.24)], 0.8, 12
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
 FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
@@ -519,9 +523,10 @@ def scene(src):
     fleece = lw.polygon_mask(g.shape, np.array(FLEECE, float))
     wool = strokes & fleece & box([SHEEP_BOX])
     daubs = []
-    for level, opacity in DAUB_STEPS:
-        m = ndi.gaussian_filter((wool & (g1 < level)).astype(np.float32), DAUB_SIGMA) > 0.5
-        daubs.append((morphology.remove_small_objects(m & wool, max_size=DAUB_MIN), opacity))
+    for (level, opacity), sigma, least in ([(t, TEXTURE_SIGMA, TEXTURE_MIN) for t in TEXTURE_STEPS] +
+                                           [(t, DAUB_SIGMA, DAUB_MIN) for t in DAUB_STEPS]):
+        m = ndi.gaussian_filter((wool & (g1 < level)).astype(np.float32), sigma) > 0.5
+        daubs.append((morphology.remove_small_objects(m & wool, max_size=least), opacity))
     face_m = mask & ~fleece
     soft_edge &= ~(box([SHEEP_BOX]) & ~fleece)
     soft_edge |= edge & fleece & box([SHEEP_BOX]) & (ndi.distance_transform_edt(~mask) <= EDGE + 3)   # (no outline)
