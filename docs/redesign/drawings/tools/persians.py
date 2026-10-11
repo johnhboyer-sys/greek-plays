@@ -35,11 +35,20 @@ SMOOTH = 0.6                              # plate px: the line mask's Gaussian, 
 SPECK = 2                                 # plate px^2: smaller pieces of ink are specks of the print (the
 #                                           mouth's dot and the beard's are 3)
 SEAL = 6
-POCKETS = []
+# pockets of ground the figures close in (a point in each, plate px): the wheels' openings between the
+# spokes (OPEN: the paper inside the spokes, narrower than OPEN_R across, stays clay), the space under the
+# chariot's rear rail curl and between it and the left wheel, and the gaps between the legs and wheels under
+# the chariot (John, 2026-10-10: "Still some areas that should be ground")
+POCKETS = [(1049, 917, 'open'), (1076, 1043), (1019, 1104, 'open'), (1107, 1087), (1152, 1038),
+           (1153, 1057), (1156, 934), (1166, 844),
+           (1463, 1141, 'open'), (1520, 1085), (1406, 1079), (1424, 1044), (1473, 1005), (1421, 966)]
+OPEN_R = 8                                # plate px
 SHAFTS = []
 CLOSED = []
 CLOSE = 2
 NEAR = 10                                 # plate px
+GROUND_Y = 990                            # plate px: the ground line lies below
+BIG = 20000                               # plate px^2
 WEIGHT = 0.00025                          # 0.8 plate px: John chose it (2026-10-10, A/B of 0.8 and 1.4 on the
 #                                           king's head; he asked for "crisp and precise"); the plate's pen line is about
 #                                           1-1.2 px under the scan's blur (its half-maximum width is 1.5)
@@ -348,10 +357,17 @@ def figure(ink, gl):
     out = np.unique(np.r_[ws[0], ws[-1], ws[:, 0], ws[:, -1]])
     out = out[out > 0]
     ground = np.isin(ws, out)
-    for x, y in POCKETS:
+    for x, y, *how in POCKETS:
         k = ws[round((y - Y0) * UP), round((x - X0) * UP)]
-        assert k and k not in out, f'pocket point {(x, y)} is not on paper the group closes'
-        ground |= ws == k
+        if not k or k in out:
+            print('pocket point', (x, y), 'is not on paper the group closes')
+            continue
+        m = ws == k
+        if how:  # the wide openings, grown back into their corners but not along the narrow spokes
+            r = OPEN_R * UP
+            o = ndi.binary_opening(m, structure=morphology.disk(r))
+            m = ndi.binary_dilation(o, iterations=r, mask=m) if o.any() else o   # step by step: not across lines
+        ground |= m
     clay = paper & ~ground
     for a, b in SHAFTS:
         band, hw, rms = shaft(gl, a, b)
@@ -375,8 +391,18 @@ def main(src, qa=None, dump=None):
     lab, n = ndi.label(ink)
     on = np.zeros(n + 1, bool)
     on[lab[ndi.distance_transform_edt(~fig) <= NEAR * UP]] = True
+    on[lab[GROUND_Y * UP - Y0 * UP:]] = True          # the dotted ground line (John: keep it)
     on[0] = False
     ink &= on[lab]
+    # The field ornaments (the stars, the plants, the dotted ground line; John, 2026-10-10: kept): everything
+    # but the figures (pieces of the figures' area over BIG) and the ink at or near them. On the vase they are
+    # painted in clay on the black, so the dark theme shows them as clay shapes (the ink a px wider), their
+    # lines in day mode only (`day`).
+    fl, _ = ndi.label(fig)
+    big = (np.bincount(fl.ravel()) >= BIG * UP * UP)[fl] & fig
+    orn = (ink & (ndi.distance_transform_edt(~big) > NEAR * UP)) | (fig & ~big)
+    orn = ndi.binary_fill_holes(ndi.binary_dilation(orn, structure=morphology.disk(UP)))
+    fig = big | orn
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), gl=gl.astype(np.uint8), ink=ink | hatch, lines=ink, hatch=hatch, fig=fig, reg=reg)
     # weighted and traced at TRACE_H tall, not the house 4000 px: this wide frieze is only 3150 work px tall,
@@ -384,6 +410,7 @@ def main(src, qa=None, dump=None):
     lw.WORK_H = TRACE_H
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=hatch, trace_h=lw.WORK_H,
+        day=ndi.binary_dilation(orn, iterations=UP), add_clay=orn,
         title='The Persian king fleeing',
         desc='Line drawing after the 1883 plate of an Apulian amphora in Naples (Heydemann, Hallisches Winckelmannsprogramm 8); cut out and retraced.')
     print(OUT, info)
