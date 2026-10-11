@@ -595,14 +595,22 @@
       "author": "aristophanes",
       "work_id": "wasps",
       "title": "Wasps",
-      "proposed_subject": "A juror motif with a wasp; a new illustration may be more honest than a loosely related vase.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "Two old men in comic masks and a small figure in a ram mask behind a chest, on a stage by a porch, from the Apulian bell-krater Getty 96.AE.112 (John's pick, 2026-10-09: Plate Picks 32-8Ma; drawn with PhotoCraft 2026-10-10). The earlier proposal, a juror motif with a wasp, was not sourced.",
+      "status": "Drawn 2026-10-10; approved by John 2026-10-10",
+      "source_candidate": "https://www.getty.edu/art/collection/object/10403Y",
+      "final_image": "docs/redesign/drawings/wasps.svg",
+      "credit": "After the Apulian red-figure bell-krater J. Paul Getty Museum 96.AE.112, side A, attributed to the Rainone Painter, about 370 BC (RVAp I no. 4/224a, as Vidigulfo, Castello dei Landriani 261; Gift of Barbara and Lawrence Fleischman). Photographs: J. Paul Getty Museum (Open Content). Drawing traced from the photograph and changed.",
+      "license": "The Getty's photos CC0 (Open Content Program; the object's IIIF manifest, checked 2026-10-10). The drawing traces only the ancient painting and carries no licence.",
+      "crop": "The whole stage scene: the porch at the left (its door, columns and roof), the old man holding out a patterned cloth, the small figure in the ram mask behind the chest, and the old man with the stick who holds his wrist; the stage's plank under them (its legs cut at the plank's lower edge). Left out: the handle palmettes, the black ground and the bands. The small figure's costume phallus is drawn as painted (John, 2026-10-09: no censorship).",
+      "alt_text": "Two comic old men with white hair and beards on a stage by a porch: one holds out a patterned cloth, the other leans on a stick and holds the wrist of a small figure in a ram mask who stands behind a patterned chest",
+      "source_file": [
+        "https://media.getty.edu/iiif/image/d04891da-2e69-4cf0-878e-d7d16c456323/full/max/0/default.jpg",
+        "https://media.getty.edu/iiif/image/520a902e-d612-4ceb-98dc-29d7e52dde49/full/max/0/default.jpg",
+        "https://media.getty.edu/iiif/image/a5e8bd6f-2352-451c-810e-8589c7bbee99/full/max/0/default.jpg"
+      ],
+      "shows": "Related to the play by type only: a phlyax scene, comic actors as two old men and a small figure in a ram mask emerging from a chest. The Getty reads it as a parody, perhaps of the birth of Erichthonios or of Medea's rejuvenation of the ram (Kossatz-Deissmann 2000). The vase names no play and is some fifty years later than Wasps (422 BC); two comic old men and a slave-sized companion are stock types the play uses (Philocleon and Bdelycleon, Xanthias), and Bdelycleon shuts his father in the house, as the porch recalls.",
+      "method": "Red-figure photo taken off the vase (tools/vase_unroll.py): the profile and the three Getty cameras (front, left and right profile; no EXIF, the focal length fitted at 40000 px) fitted to the meander band, the outline and points matched by SIFT; the flat keeps the rings straight and the meridians upright (John's choice over the shear-free flat, which bowed the plank). Every image step run in PhotoCraft (photocraft-cli 0.2.0), numpy only combining its masks and measuring: the scene by red less blue; lines by local contrast along their centres at the paint's own width; the white hair and beards as stepped grey washes with no outline, the left man's teeth white on John's line; the ram mask's fleece as a wash with its daubs and texture, its face sharp and outlined on John's line; the cloth's and the chest's patterns as brushstroke washes; the thinned glaze on the bodies repainted with PhotoCraft's brush as soft strokes along the contours; potrace. tools/wasps.py.",
+      "result": "Approved by John on the twelfth pass, 2026-10-10, after his notes: teeth with the beard (he drew the line), a sheep mask (stronger lines, apart from the hair; the fleece painted, the face sharp, on his line; its brushwork textured), the patterns as brushstrokes, the clothes' lines found, crisp hands, the belt's end as ink, and the bodies' brushwork (strokes, not blotches; watercolour; broader and painterly; fewer and subtler; no level strokes; following the contours). About five hours. No outside review; the credit checked against the Getty's record (object page and linked-data record: attribution, date, provenance, bibliography, read 2026-10-10)."
     },
     {
       "author": "aristophanes",

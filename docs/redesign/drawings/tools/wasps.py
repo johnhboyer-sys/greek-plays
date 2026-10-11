@@ -22,6 +22,23 @@ Photo -> flat:
     keeps the vase's rings straight and its meridians upright (see "the flat"), and the front photo is laid
     onto it at its own scale at the scene's centre.
 
+Flat -> drawing (approved by John on pass 12, 2026-10-10):
+  - The scene is the clay joined to SEEDS (the porch, both men, the slave, his chest, the plank), cut from the
+    left handle's palmette (PALM_L) and below the plank's lower edge (the stage's legs left out). The large black
+    areas the figures close in are ground (behind the door, between the legs); a wall makes the right man's belt
+    paint where it meets the ground (WALLS).
+  - Lines: the grey's local contrast on the figures, the stricter contrast and the dark core on the porch, the
+    plank and the chest (so the wood's grain stays out), each line redrawn along its centre at the paint's own
+    width (even_lines); the faces at their own shape, traced at their own size (FACES); the line weight pinned at
+    pass 1's (WEIGHT).
+  - The old men's white hair and beards: no outline, a stepped grey wash following the paint; the left man's teeth
+    white below John's line (MOUTH). The slave's head is a ram (sheep) mask, as the museum reads it: the fleece a
+    wash with its brown daubs and the paint's texture as lighter steps over it (DAUB_*, TEXTURE_*), the sheep's
+    face below John's line (FLEECE) sharp and outlined (SHEEP_*).
+  - The patterns on the cloth and the chest: brushstrokes as a crisp-edged wash, darker where the brush pooled
+    (PATTERNS, PAT_*). The thinned glaze on the bodies: its strokes repainted with PhotoCraft's brush
+    (paint.stroke), broad and soft, along the contours of their areas (BODY_*, BRUSH_*, FLOW_*, WATER_STEPS).
+
     python3 docs/redesign/drawings/tools/wasps.py front.jpg [qa.png]
     python3 docs/redesign/drawings/tools/wasps.py front.jpg lprofile.jpg rprofile.jpg --refit
 """

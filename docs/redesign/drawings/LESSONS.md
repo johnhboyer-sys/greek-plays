@@ -562,6 +562,26 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   of his strokes run close (nose, chin), the clay between them is his: ask before closing it (2026-10-10).
 - A small hole in the figure's area shows the dark ground in dark mode only: her eye read heavy there since pass 1.
   Close holes under a few hundred frame px^2 when the figure has no ground seen through it (2026-10-10).
+- Wasps (Getty 96.AE.112, a phlyax stage scene; the Getty's three photos): about five hours over twelve passes, approved
+  by John 2026-10-10. `tools/wasps.py` (2026-10-10).
+- Museum photos without EXIF: fit the focal length by trying several and keeping the one where the fit's cost levels
+  off (here 40000 px for all three, taken from one stand). The profile views match the front only at a turn near 90
+  degrees: filter SIFT matches by the turn a cylinder implies before fitting, or the fit drops the front as outliers.
+  `vase_unroll.silhouette` wants a light ground (L > 140); the Getty's grey (115-143) needs its own edge rule.
+- A scene that wraps 130 degrees round a body tapering under it: the shear-free flat bowed the stage plank and fanned
+  the outer figures out. John chose the flat with the rings straight and the meridians upright (x = R_C theta, y = arc
+  length), widening the feet by up to 5% (2026-10-10).
+- Read the white paint as the painter used it: John saw teeth under a moustache and a sheep (ram) mask where I saw a
+  beard and hair; the Getty's record calls it a ram's head. Ask for a line where one area becomes another (he drew
+  both) and keep a mask an object: its face sharp and outlined, its fleece painted (2026-10-10).
+- The thinned glaze on clay (bodies, clothes) took six rounds: a stepped wash was "too blotchy", strokes found by
+  elongation read as thin daubs, a blurred watercolour too faint. What he approved: each stroke repainted with
+  PhotoCraft's own brush (paint.stroke, hardness 0, seeded, so it reruns byte for byte), broader than the mark, run
+  along the contours (the level lines of the distance to the painted lines), few and faint, and never level (the
+  wheel's streaks). Patterns on cloth: crisp-edged washes darker where the brush pooled (2026-10-10).
+- The big dark areas the figures close in (behind a door, between legs) are ground; a fixed head box cut a beard's
+  tail where it hangs over cloth and showed as a gap in the dark theme: check every white area's whole extent
+  (2026-10-10).
 
 ## John's traces
 
