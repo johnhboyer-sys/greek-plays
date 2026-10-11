@@ -41,9 +41,18 @@ SEAL = 6
 # the chariot (John, 2026-10-10: "Still some areas that should be ground")
 POCKETS = [(1049, 917, 'open'), (1076, 1043), (1019, 1104, 'open'), (1107, 1087), (1152, 1038),
            (1153, 1057), (1156, 934), (1166, 844),
-           (1463, 1141, 'open'), (1520, 1085), (1406, 1079), (1424, 1044), (1473, 1005), (1421, 966)]
+           (1463, 1141, 'open'), (1520, 1085), (1406, 1079), (1424, 1044), (1473, 1005), (1421, 966),
+           # and those John marked blue on pass 1 (2026-10-11, "here are spots you missed"): between the
+           # horseman's horse and the chariot, under the driver's arm, behind the chariot, the left wheel's
+           # openings, between the horses' legs, and in the right-hand plant
+           (986, 517), (828, 545), (980, 552), (773, 554), (1833, 556), (992, 564), (1090, 596), (1476, 684),
+           (1528, 707), (1013, 757), (1013, 846), (966, 883), (1097, 971), (992, 988), (3231, 1053),
+           (3185, 1086), (1084, 1112)]
 OPEN_R = 8                                # plate px
-SHAFTS = []
+# shafts crossing ground (rough ends of the centre line, plate px; fitted to their edge lines by `shaft`, kept
+# clay through the pockets): the horseman's lance, from its butt past his hand to the king; the spear over the
+# horses' heads, from the mane to its collar, and its head
+SHAFTS = [((482, 489), (1120, 550)), ((1768, 556), (1888, 503)), ((1912, 497), (1960, 476))]
 CLOSED = []
 CLOSE = 2
 NEAR = 10                                 # plate px
@@ -357,6 +366,7 @@ def figure(ink, gl):
     out = np.unique(np.r_[ws[0], ws[-1], ws[:, 0], ws[:, -1]])
     out = out[out > 0]
     ground = np.isin(ws, out)
+    pk = np.zeros_like(ground)
     for x, y, *how in POCKETS:
         k = ws[round((y - Y0) * UP), round((x - X0) * UP)]
         if not k or k in out:
@@ -368,23 +378,27 @@ def figure(ink, gl):
             o = ndi.binary_opening(m, structure=morphology.disk(r))
             m = ndi.binary_dilation(o, iterations=r, mask=m) if o.any() else o   # step by step: not across lines
         ground |= m
+        pk |= m
     clay = paper & ~ground
+    bands = np.zeros_like(paper)
     for a, b in SHAFTS:
         band, hw, rms = shaft(gl, a, b)
         print('shaft', a, b, 'half-width', round(hw, 2), 'rms', round(rms, 2))
         clay |= band & paper
+        bands |= band & paper
     for bx0, by0, bx1, by1 in CLOSED:
         sl = np.s_[(by0 - Y0) * UP:(by1 - Y0) * UP, (bx0 - X0) * UP:(bx1 - X0) * UP]
         c = ndi.binary_closing(ink[sl], structure=morphology.disk(CLOSE * UP))
         clay[sl] |= ndi.binary_fill_holes(c) & ~c & paper[sl]
     # (the ink they close in too: the shield's star, wider than the reach)
     fig = ndi.binary_fill_holes(clay | (ink & ndi.binary_dilation(clay, iterations=2 * UP)))
-    return fig & ~(ground & paper)
+    return fig & ~(ground & paper & ~bands), pk & ~bands
 
 
 def main(src, qa=None, dump=None):
     g, gl, ink, reg, hatch = masks(src)
-    fig = figure(ink | reg, gl) | reg        # the hatched areas whole (the paper between the ruled lines is
+    fig, pk = figure(ink | reg, gl)
+    fig |= reg                               # the hatched areas whole (the paper between the ruled lines is
     #                                          too narrow for the seal), and walls to the ground
     # specks on the paper round the group: ink farther than NEAR from every figure (a toe's tip stands just
     # outside the foot's outline: the left youth's rear foot)
@@ -398,11 +412,12 @@ def main(src, qa=None, dump=None):
     # but the figures (pieces of the figures' area over BIG) and the ink at or near them. On the vase they are
     # painted in clay on the black, so the dark theme shows them as clay shapes (the ink a px wider), their
     # lines in day mode only (`day`).
-    fl, _ = ndi.label(fig)
+    # (sized with the pockets filled: a pocket can cut a figure's part off, as the horseman's horse's head)
+    fl, _ = ndi.label(fig | pk)
     big = (np.bincount(fl.ravel()) >= BIG * UP * UP)[fl] & fig
     orn = (ink & (ndi.distance_transform_edt(~big) > NEAR * UP)) | (fig & ~big)
     orn = ndi.binary_fill_holes(ndi.binary_dilation(orn, structure=morphology.disk(UP)))
-    fig = big | orn
+    fig = (big | orn) & ~pk                  # (the pockets stay ground in the ornaments too)
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), gl=gl.astype(np.uint8), ink=ink | hatch, lines=ink, hatch=hatch, fig=fig, reg=reg)
     # weighted and traced at TRACE_H tall, not the house 4000 px: this wide frieze is only 3150 work px tall,
