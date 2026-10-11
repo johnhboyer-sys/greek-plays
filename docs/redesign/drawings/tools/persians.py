@@ -39,16 +39,20 @@ SEAL = 6
 # spokes (OPEN: the paper inside the spokes, narrower than OPEN_R across, stays clay), the space under the
 # chariot's rear rail curl and between it and the left wheel, and the gaps between the legs and wheels under
 # the chariot (John, 2026-10-10: "Still some areas that should be ground")
-POCKETS = [(1049, 917, 'open'), (1076, 1043), (1019, 1104, 'open'), (1107, 1087), (1152, 1038),
+OPEN_R, NECK = 8, 5                       # plate px
+POCKETS = [(1049, 917, OPEN_R), (1076, 1043), (1019, 1104, OPEN_R), (1107, 1087), (1152, 1038),
            (1153, 1057), (1156, 934), (1166, 844),
-           (1463, 1141, 'open'), (1520, 1085), (1406, 1079), (1424, 1044), (1473, 1005), (1421, 966),
+           (1463, 1141, OPEN_R), (1520, 1085), (1406, 1079), (1424, 1044), (1473, 1005), (1421, 966),
            # and those John marked blue on pass 1 (2026-10-11, "here are spots you missed"): between the
            # horseman's horse and the chariot, under the driver's arm, behind the chariot, the left wheel's
-           # openings, between the horses' legs, and in the right-hand plant
-           (986, 517), (828, 545), (980, 552), (773, 554), (1833, 556), (992, 564), (1090, 596), (1476, 684),
-           (1528, 707), (1013, 757), (1013, 846), (966, 883), (1097, 971), (992, 988), (3231, 1053),
-           (3185, 1086), (1084, 1112)]
-OPEN_R = 8                                # plate px
+           # openings, between the horses' legs, and in the right-hand plant (he ruled each area, 2026-10-11:
+           # two he marked, under the horseman's arm and at his horse's chest, are figure); each cut at its necks narrower
+           # than NECK (John: "Some of your areas are a mix of illustration and ground": a gap in a line had
+           # joined them)
+           (986, 517, NECK), (828, 545, NECK), (1833, 556, NECK),
+           (992, 564, NECK), (1090, 596, NECK), (1476, 684, NECK), (1528, 707, NECK), (1013, 757, NECK),
+           (1013, 846, NECK), (966, 883, NECK), (1097, 971, NECK), (992, 988, NECK), (3231, 1053, NECK),
+           (3185, 1086, NECK), (1084, 1112, NECK)]
 # shafts crossing ground (rough ends of the centre line, plate px; fitted to their edge lines by `shaft`, kept
 # clay through the pockets): the horseman's lance, from its butt past his hand to the king; the spear over the
 # horses' heads, from the mane to its collar, and its head
@@ -373,9 +377,13 @@ def figure(ink, gl):
             print('pocket point', (x, y), 'is not on paper the group closes')
             continue
         m = ws == k
-        if how:  # the wide openings, grown back into their corners but not along the narrow spokes
-            r = OPEN_R * UP
+        if how:  # the wide part round the point, grown back into its corners but not through narrow necks
+            r = how[0] * UP
             o = ndi.binary_opening(m, structure=morphology.disk(r))
+            lab, _ = ndi.label(o)
+            _, (iy, ix) = ndi.distance_transform_edt(lab == 0, return_indices=True)
+            py, px = round((y - Y0) * UP), round((x - X0) * UP)
+            o = lab == lab[iy[py, px], ix[py, px]]      # the piece holding the point (or nearest it)
             m = ndi.binary_dilation(o, iterations=r, mask=m) if o.any() else o   # step by step: not across lines
         ground |= m
         pk |= m
