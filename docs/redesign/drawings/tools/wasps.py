@@ -324,7 +324,11 @@ TEXTURE_STEPS, TEXTURE_SIGMA, TEXTURE_MIN = [(192, 0.2), (178, 0.24)], 0.8, 12
 # (strokes, not patches), and not the thin level streaks of the wheel and scratches (within BODY_FLAT degrees of
 # level and under BODY_THIN px wide)
 BODY_BLUR, BODY_R, BODY_RB, BODY_EDGE, BODY_OFF = 2.5, 12, 70, 18, 5
-BODY_STEPS, BODY_LEN, BODY_RATIO, BODY_FLAT, BODY_THIN = [(0.03, 0.2), (0.05, 0.38)], 30, 2.5, 6, 5
+BODY_STEPS, BODY_LEN, BODY_RATIO, BODY_FLAT, BODY_THIN = [(0.03, 0.6), (0.05, 1.0)], 30, 2.5, 6, 5
+# drawn as watercolour (John: "Make them more wash (like watercolor)"): the strokes, weighted by BODY_STEPS, spread
+# by a Gaussian of WATER_SIGMA px (in PhotoCraft) into a soft field, and the field drawn in WATER_STEPS (field
+# level, total opacity), so each stroke fades out at its edges and pools darker where strokes meet
+WATER_SIGMA, WATER_STEPS = 5.0, [(0.12, 0.07), (0.3, 0.13), (0.5, 0.2), (0.75, 0.28)]
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
 FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
@@ -619,7 +623,12 @@ def scene(src):
         steps.append((m, opacity))
     on = (fig & box(LC_ZONES) & (to_edge > BODY_EDGE) & (body_rb > BODY_RB) & ~ndi.binary_dilation(ink, iterations=BODY_OFF)
           & ~base & ~hair_zone & ~mask & ~ndi.binary_dilation(box(PATTERNS) & fig, iterations=BODY_OFF))
-    body = [(brush_strokes(on & (body_c > level)), opacity) for level, opacity in BODY_STEPS]
+    field = sum(brush_strokes(on & (body_c > level)) * weight for level, weight in BODY_STEPS)
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray((np.clip(field, 0, 1) * 255).astype(np.uint8)).save(Path(td) / "f.png")
+        pc(Path(td) / "f.png", Path(td) / "fs.png", ("filter.blur.gaussianBlur", {"radius": WATER_SIGMA}))
+        field = grey(Path(td) / "fs.png") / 255
+    body = [(field > level, opacity) for level, opacity in WATER_STEPS]
     faces = box(FACES) & ink
     return ink & ~faces, faces, fig, g, steps, pat_steps, daubs, body
 
