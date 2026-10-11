@@ -270,6 +270,15 @@
       "source": "Hoernes, Archäologische Zeitung 35 (1877), Taf. 5: the front of a red-figure krater from the Lamberg collection, Vienna (Sacken and Kenner 1866, Kasten V, 2, no. 57), present location not found (Getty copy, Internet Archive, public domain). Hoernes reads Diomedes and Odysseus; Sacken and Kenner, ephebes",
       "method": "Contour plate, black pen lines on paper with no black ground, made with PhotoCraft: turned upright; the lines at their printed width, weighted to 0.12%; the figures' area is the paper the lines close off from the ground, the gaps in the outline sealed, the spear shafts fitted, pockets of ground left open; clay on the dark theme; potrace",
       "verdict": "Usable; approved by John on the first pass (2026-10-10), after a style test, his choice of line weight and two areas he marked as ground. No outside review (the citation checked against Hoernes's text and Sacken and Kenner's catalogue)."
+    },
+    {
+      "slug": "electra-soph",
+      "file": "electra-soph.svg",
+      "name": "Electra (Sophocles) · Orestes brings Electra the urn, with Pylades",
+      "alt": "A young man in a short cloak holds out a two-handled urn to a veiled woman, who raises a hand to her chin; behind him a second young man in a cloak stands with two spears, his hand on his hip",
+      "source": "Laborde, Collection des vases grecs de M. le comte de Lamberg I (1813), pl. VIII: a South Italian red-figure bell krater by the Sydney Painter, Kunsthistorisches Museum, Vienna, IV 689 (Heidelberg scan, public domain). The museum names the figures Pylades, Orestes and Electra",
+      "method": "Colour aquatint, red figures on a dark ground, made with PhotoCraft: the panel squared; the dark ground gives the outline, drawn on the ground; the plate's lines at their own width, the line weight kept at pass 1's; the cut along the band the figures stand on, the soles closed along it; Pylades' eye drawn on points; potrace",
+      "verdict": "Usable; approved by John on the second pass (2026-10-10), after his note on the toes. No outside review (the citation checked against Laborde's text and the museum's record)."
     }
   ]
 }
