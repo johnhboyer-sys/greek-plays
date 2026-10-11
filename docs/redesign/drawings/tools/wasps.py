@@ -318,17 +318,23 @@ TEXTURE_STEPS, TEXTURE_SIGMA, TEXTURE_MIN = [(192, 0.2), (178, 0.24)], 0.8, 12
 # The bodies' brushwork (John, 2026-10-10: "the bodies have some textural brushwork like the rock in the Philoctetes
 # plate"; then "too blotchy. strokes, not blotches"): the strokes of thinned brown glaze over the clay of the figures
 # (LC_ZONES), as a wash in the line colour. A stroke is darker than the clay a brush's width round it: the grey
-# blurred BODY_BLUR px, its Maximum then Minimum over BODY_R px (round), the difference over the closed level, above
-# each BODY_STEPS level; red (red less blue over BODY_RB), BODY_EDGE px or more inside the outline and BODY_OFF px
-# off the lines and the patterns; kept only in pieces at least BODY_LEN px long and BODY_RATIO times longer than wide
-# (strokes, not patches), and not the thin level streaks of the wheel and scratches (within BODY_FLAT degrees of
-# level and under BODY_THIN px wide)
+# blurred BODY_BLUR px, its Maximum then Minimum over BODY_R px (round), the difference over the closed level; red
+# (red less blue over BODY_RB), BODY_EDGE px or more inside the outline, BODY_OFF px off the lines and the patterns,
+# not on the faces
 BODY_BLUR, BODY_R, BODY_RB, BODY_EDGE, BODY_OFF = 2.5, 12, 70, 18, 5
-BODY_STEPS, BODY_LEN, BODY_RATIO, BODY_FLAT, BODY_THIN = [(0.03, 0.6), (0.05, 1.0)], 30, 2.5, 6, 5
-# drawn as watercolour (John: "Make them more wash (like watercolor)"): the strokes, weighted by BODY_STEPS, spread
-# by a Gaussian of WATER_SIGMA px (in PhotoCraft) into a soft field, and the field drawn in WATER_STEPS (field
-# level, total opacity), so each stroke fades out at its edges and pools darker where strokes meet
-WATER_SIGMA, WATER_STEPS = 5.0, [(0.12, 0.07), (0.3, 0.13), (0.5, 0.2), (0.75, 0.28)]
+# Repainted as broad, long, soft brushstrokes (John: "Make them more wash (like watercolor)", then "Broader, longer
+# strokes that emphasize lines and texture. Painterly"): each stroke (contrast over BODY_T, at least BODY_LEN px long
+# and BODY_RATIO times longer than wide) is a line fitted to its pixels (a gentle curve when longer than BRUSH_CURVE
+# px), run on BRUSH_EXT of its length and BRUSH_PAD px at each end, and painted with PhotoCraft's brush (paint.stroke,
+# hardness 0) BRUSH_W times its width (at least BRUSH_MIN px), at an opacity rising with its darkness (BRUSH_OP, plus
+# BRUSH_K times its contrast); the strokes build up where they cross. The paint, inside the figures and off the lines,
+# drawn in WATER_STEPS (paint level, total opacity)
+BODY_T, BODY_LEN, BODY_RATIO = 0.025, 25, 2.2
+# Left out: the thin level streaks of the wheel and scratches (within BODY_FLAT degrees of level and under BODY_THIN
+# px wide), and the plank (below BODY_FLOOR, flat y)
+BODY_FLAT, BODY_THIN, BODY_FLOOR = 6, 5, 2440
+BRUSH_CURVE, BRUSH_EXT, BRUSH_PAD, BRUSH_W, BRUSH_MIN, BRUSH_OP, BRUSH_K = 60, 0.25, 6, 1.6, 12, 0.1, 1.2
+WATER_STEPS = [(0.05, 0.08), (0.12, 0.14), (0.22, 0.2), (0.34, 0.27)]
 # Faces, the mouth and its teeth, and the mask are traced at their own size, not re-weighted with the rest (as
 # helen.py's eyes): weighting rounded the notches between the teeth and thickened the eyes. Boxes, flat px
 FACES = [(2150, 380, 2440, 830), (4050, 420, 4420, 1000), (3300, 950, 3720, 1350)]
@@ -419,23 +425,40 @@ def even_lines(contrast, dark, area, zones):
     return d <= half[iy, ix]
 
 
-def brush_strokes(m):
-    """The pieces of m that are strokes (see BODY_LEN and after it): their shape measured by the spread of their
-    pixels (the principal axes)."""
+def painted_strokes(m, contrast):
+    """The brushstrokes in m (see BODY_T and after it) repainted with PhotoCraft's brush; returns the paint (0-1)."""
     lab, _ = ndi.label(m, structure=np.ones((3, 3)))
-    keep = np.zeros(lab.max() + 1, bool)
+    strokes = []
     for k, sl in enumerate(ndi.find_objects(lab), 1):
-        p = np.argwhere(lab[sl] == k).astype(float)
+        here = lab[sl] == k
+        p = np.argwhere(here).astype(float) + (sl[0].start, sl[1].start)
         if len(p) < 20:
             continue
-        w, v = np.linalg.eigh(np.cov(p.T))
+        ctr = p.mean(0)
+        w, v = np.linalg.eigh(np.cov((p - ctr).T))
         long_, wide_ = 4 * np.sqrt(max(w[1], 0)), 4 * np.sqrt(max(w[0], 0))
         level = abs(np.degrees(np.arctan2(v[0, 1], v[1, 1])))   # (the long axis from the horizontal)
         level = min(level, 180 - level)
         if long_ < BODY_LEN or long_ < BODY_RATIO * max(wide_, 1) or (level < BODY_FLAT and wide_ < BODY_THIN):
             continue
-        keep[k] = True
-    return keep[lab]
+        t, u = (p - ctr) @ v[:, 1], (p - ctr) @ v[:, 0]
+        f = np.polyfit(t, u, 2) if long_ > BRUSH_CURVE else np.r_[0.0, np.polyfit(t, u, 1)]
+        f[0] = np.clip(f[0], -0.004, 0.004)
+        ext = BRUSH_EXT * (t.max() - t.min()) + BRUSH_PAD
+        tt = np.linspace(t.min() - ext, t.max() + ext, 12)
+        q = ctr + tt[:, None] * v[:, 1] + np.polyval(f, tt)[:, None] * v[:, 0]
+        dark = float(np.clip(np.percentile(contrast[sl][here], 80), 0, 0.2))
+        strokes.append(([[round(x, 1), round(y, 1)] for y, x in q], round(max(BRUSH_W * wide_, BRUSH_MIN), 1),
+                        round(min(BRUSH_OP + BRUSH_K * dark, 0.6), 3)))
+    strokes.sort(key=lambda s: (s[0][0][1], s[0][0][0]))
+    H, W = m.shape
+    with tempfile.TemporaryDirectory() as td:
+        args = [PC, "run", "--new", json.dumps({"width": W, "height": H, "background": "white"})]
+        for pts, size, op in strokes:
+            args += ["--cmd", "paint.stroke", "--params", json.dumps({"points": pts, "size": size, "hardness": 0.0,
+                     "opacity": op, "flow": 1, "color": "#000000", "seed": 1})]
+        subprocess.run(args + ["--out", str(Path(td) / "p.png")], check=True, capture_output=True, text=True)
+        return 1 - grey(Path(td) / "p.png") / 255
 
 
 def teeth(g):
@@ -623,11 +646,8 @@ def scene(src):
         steps.append((m, opacity))
     on = (fig & box(LC_ZONES) & (to_edge > BODY_EDGE) & (body_rb > BODY_RB) & ~ndi.binary_dilation(ink, iterations=BODY_OFF)
           & ~base & ~hair_zone & ~mask & ~ndi.binary_dilation(box(PATTERNS) & fig, iterations=BODY_OFF))
-    field = sum(brush_strokes(on & (body_c > level)) * weight for level, weight in BODY_STEPS)
-    with tempfile.TemporaryDirectory() as td:
-        Image.fromarray((np.clip(field, 0, 1) * 255).astype(np.uint8)).save(Path(td) / "f.png")
-        pc(Path(td) / "f.png", Path(td) / "fs.png", ("filter.blur.gaussianBlur", {"radius": WATER_SIGMA}))
-        field = grey(Path(td) / "fs.png") / 255
+    on &= ~face_box & (yy < BODY_FLOOR)
+    field = painted_strokes(on & (body_c > BODY_T), body_c) * (fig & ~ink)
     body = [(field > level, opacity) for level, opacity in WATER_STEPS]
     faces = box(FACES) & ink
     return ink & ~faces, faces, fig, g, steps, pat_steps, daubs, body
