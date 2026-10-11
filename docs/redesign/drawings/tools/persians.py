@@ -72,8 +72,9 @@ EDGE = 2                                  # plate px
 INNER = 2                                 # plate px
 COVER = 0.2
 SMOOTH_D = 0.7                            # plate px
-MERGE = 0.6
-DOT_D = 0.9                               # plate px
+MERGE, SPLIT = 0.6, 1.4
+DOT_D, DOT_SP = 0.8, 1.7                   # plate px: dot width and spacing (John, 2026-10-10: "stipple
+#                                           should be denser"; first 2.5-3, read off the plate)
 HATCH = [
     # the king's cap, its knob and its flaps down both sides of his face, cut along the hair
     ('lines', 2.6, [(1226, 442), (1222, 400), (1222, 368), (1228, 358), (1236, 350), (1234, 320), (1238, 300),
@@ -94,13 +95,13 @@ HATCH = [
     ('lines', 3.0, [(1322, 662), (1340, 660), (1425, 705), (1422, 722), (1410, 724), (1325, 684)], {'sides': ((1335, 664), (1422, 706), (1325, 682), (1414, 724))}),
     ('lines', 3.0, [(1438, 714), (1460, 716), (1498, 736), (1496, 750), (1438, 740)], {'sides': ((1453, 718), (1503, 742), (1450, 744), (1500, 748))}),
     # the sword's hilt: stipple
-    ('dots', 2.8, [(1265, 620), (1300, 615), (1330, 640), (1335, 664), (1320, 674), (1290, 672), (1265, 665),
+    ('dots', DOT_SP, [(1265, 620), (1300, 615), (1330, 640), (1335, 664), (1320, 674), (1290, 672), (1265, 665),
                    (1262, 640)]),
     # the chariot's rail curving round the king's legs, and its curl at the left: stipple
-    ('dots', 2.8, [(1240, 752), (1245, 720), (1262, 690), (1300, 676), (1340, 682), (1362, 700), (1368, 728),
+    ('dots', DOT_SP, [(1240, 752), (1245, 720), (1262, 690), (1300, 676), (1340, 682), (1362, 700), (1368, 728),
                    (1356, 732), (1350, 708), (1330, 692), (1300, 688), (1272, 698), (1258, 722), (1254, 752)],
      {'dk': 14, 'keep': 'edge'}),
-    ('dots', 2.8, [(1215, 782), (1180, 786), (1150, 800), (1132, 830), (1126, 860), (1136, 890), (1160, 908),
+    ('dots', DOT_SP, [(1215, 782), (1180, 786), (1150, 800), (1132, 830), (1126, 860), (1136, 890), (1160, 908),
                    (1190, 920), (1192, 905), (1165, 895), (1148, 875), (1144, 850), (1150, 822), (1165, 805),
                    (1195, 798), (1214, 796)], {'dk': 14, 'keep': 'edge'}),
     # the chariot's side panel, upper and lower zones (the scrolls kept as printed)
@@ -117,16 +118,16 @@ HATCH = [
     # the axe-man's belt; the strap and the patch behind the shield: stipple
     ('lines', 2.5, [(2540, 668), (2580, 664), (2612, 674), (2645, 690), (2662, 704), (2656, 716), (2640, 714),
                 (2608, 699), (2580, 688), (2540, 688)], {'sides': ((2541, 668), (2660, 702), (2541, 688), (2652, 716))}),
-    ('dots', 3.0, [(2725, 575), (2740, 565), (2765, 570), (2795, 610), (2790, 632), (2770, 638), (2730, 600)]),
-    ('dots', 3.0, [(2698, 650), (2712, 648), (2740, 672), (2735, 686), (2722, 686), (2700, 665)]),
+    ('dots', DOT_SP, [(2725, 575), (2740, 565), (2765, 570), (2795, 610), (2790, 632), (2770, 638), (2730, 600)]),
+    ('dots', DOT_SP, [(2698, 650), (2712, 648), (2740, 672), (2735, 686), (2722, 686), (2700, 665)]),
     # the shield's rim
     ('lines', 2.2, [(2705, 690), (2710, 728), (2740, 750), (2790, 749), (2850, 736), (2910, 713),
                                  (2962, 688), (2999, 656), (3021, 622), (3020, 595), (3005, 575), (2985, 575),
                                  (2995, 600), (2990, 625), (2960, 655), (2915, 680), (2860, 700), (2800, 715),
                                  (2750, 722), (2722, 712), (2718, 695)], {'keep': 'edge', 'dk': 12, 'ends': ((2711, 708), (3012, 578))}),
     # the right-hand Greek's scabbard: its mount and its tip, stipple
-    ('dots', 2.5, [(2895, 716), (2952, 712), (2955, 735), (2945, 750), (2905, 742)]),
-    ('dots', 2.5, [(2965, 858), (2995, 852), (3000, 870), (2990, 890), (2972, 885)]),
+    ('dots', DOT_SP, [(2895, 716), (2952, 712), (2955, 735), (2945, 750), (2905, 742)]),
+    ('dots', DOT_SP, [(2965, 858), (2995, 852), (3000, 870), (2990, 890), (2972, 885)]),
 ]
 
 
@@ -231,7 +232,9 @@ def ruled(reg, inner):
     two sides, at its two 'ends' (where it narrows to a point) or as its 'sides' give them (each from its first
     point to its second, where it ends square), and the lines are the levels of the share of the way across
     from one side to the other, as many as the median width holds at the spacing; where they close in
-    toward an end, every other one stops each time they close to under MERGE of the spacing."""
+    toward an end, every other one stops each time they close to under MERGE of the spacing, and where they
+    spread, one is added between each two each time they pass SPLIT of it (John, 2026-10-10: the cap's crown
+    "could be denser")."""
     from skimage.measure import find_contours
     out = np.zeros(reg.shape, bool)
     for k, sl in enumerate(ndi.find_objects(reg), 1):
@@ -275,7 +278,11 @@ def ruled(reg, inner):
             w = d[0] + d[1]
             n = max(1, round(np.median(w[reg[sl] == k]) / sp))
             t = d[0] / np.maximum(w, 1e-6) * n
-            on = np.abs(t % 1 - 0.5) * w / n < COVER * sp / 2
+            # where the area widens, a line is added between each two each time they spread past SPLIT of
+            # the spacing (else the lines stand apart, as on the cap's crown)
+            up = np.ceil(np.log2(np.maximum(w / (n * sp) / SPLIT, 1))).astype(int)
+            u = t * 2 ** up
+            on = np.abs(u % 1 - 0.5) * w / (n * 2 ** up) < COVER * sp / 2
             # toward the ends, where the sides meet, every other line stops each time the lines close to
             # under MERGE of the spacing (else they run together in a fan)
             lv = np.ceil(np.log2(np.maximum(MERGE * sp * n / np.maximum(w, 1e-6), 1))).astype(int)
