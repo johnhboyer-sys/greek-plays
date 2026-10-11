@@ -43,37 +43,90 @@ NEAR = 10                                 # plate px
 WEIGHT = 0.00025                          # 0.8 plate px: John chose it (2026-10-10, A/B of 0.8 and 1.4 on the
 #                                           king's head; he asked for "crisp and precise"); the plate's pen line is about
 #                                           1-1.2 px under the scan's blur (its half-maximum width is 1.5)
+TRACE_H = 6400
 WALLS = []
 WALL_W = 2.0
-# Hatching: the plate shades some parts (the king's cap, sleeves and belt, the chariot's rails and panel, the
-# shield's rim) with hatching finer than the scan resolves (strokes 2-3 plate px apart); John (2026-10-10):
-# "Even hatch lines", ruled evenly at the plate's angle and spacing. Each hatched area is given by a polygon
-# drawn round it (plate px), outside its outlines and along the edge of the hair or the like where no line
-# bounds it: the area is the polygon's px where the plate, blurred by DARK_S, is darker than DARK_DK below the
-# paper (the paper outside the outlines and between the curls is lighter), closed and opened by a disk
-# DARK_R wide, holes under HOLE filled. Inside it the plate's dark lines (STRONG, by local contrast with
-# hysteresis) and marks of DOT or more are kept as printed, and the hatch is ruled at the angle (degrees, rising to the
-# right) and spacing (plate px) read off the plate at 8x (its spectrum has no clear peak at this scan's
-# resolution), each line COVER of the spacing wide.
+# Shading: the plate shades some parts (the king's cap, sleeves and belt, the chariot's rails and panel, the
+# shield's rim) finer than the scan resolves (strokes and dots 2-3 plate px apart). Each shaded area is given
+# by a polygon drawn round it (plate px), outside its outlines and along the edge of the hair or the like
+# where no line bounds it: the area is the polygon's px where the plate, blurred by DARK_S, is darker than
+# DARK_DK below the paper (the paper outside the outlines and between the curls is lighter), closed and opened
+# by a disk DARK_R wide (an entry's 'dk' sets its own, for the lighter stipple of the rails), holes under
+# HOLE filled. Inside it the plate's dark lines (STRONG, by local contrast with hysteresis) of LINE_MIN or more
+# are kept as printed (smaller are the shading's own darker specks; an entry's 'keep' sets its own: smaller
+# for the sleeves' dotted pattern; 'edge' on the shield's rim and the rails, whose shading the scan blots
+# into their outlines: none kept, the outline drawn new along the area's edge, a plate px wide;
+# 'dk' lower on the rim's lighter lower half), and
+# every line within EDGE of the area's border (its outlines, however broken), but for blots wider than BLOT
+# (the scan's blur of shading against a line); the shading is drawn only inside the outlines (John,
+# 2026-10-10: "Don't let hatching or stipples extend beyond outlines"), dots only where they fit whole; the shading is drawn evenly in its own
+# kind (John, 2026-10-10): hatch ("Even hatch lines") as lines running the area's length (between its 'ends'
+# or along its 'sides') and following both its sides ("They need to also follow the contours of the area they fill"), at the
+# spacing (plate px) read off the plate at 8x, each line COVER of the spacing wide ("Thinner lines for
+# hatching"), the outline smoothed by SMOOTH_D; stipple ("Even dots") as a staggered grid of dots DOT_D wide at the spacing.
 STRONG = (65, 100)
 DARK_S, DARK_DK, DARK_R = 1.0, 20, 1.5    # plate px, grey levels, plate px
-HOLE, DOT = 80, 8                         # plate px^2
-COVER = 0.3
+HOLE, LINE_MIN = 80, 25                   # plate px^2
+BLOT = 3.2                                # plate px
+EDGE = 2                                  # plate px
+INNER = 2                                 # plate px
+COVER = 0.2
+SMOOTH_D = 0.7                            # plate px
+MERGE = 0.6
+DOT_D = 0.9                               # plate px
 HATCH = [
-    # the king's cap: its top and knob, cut along the hair
-    (50, 3.0, [(1238, 300), (1270, 300), (1305, 322), (1345, 340), (1362, 358), (1366, 368), (1334, 368),
-               (1310, 365), (1285, 362), (1262, 362), (1250, 368), (1222, 368), (1228, 358), (1236, 350),
-               (1234, 320)]),
-    # its flap down the left side of his face, and down the right
-    (10, 2.5, [(1222, 368), (1250, 368), (1248, 395), (1250, 420), (1246, 442), (1226, 442), (1222, 400)]),
-    (0, 2.3, [(1334, 368), (1366, 368), (1368, 400), (1362, 445), (1345, 448), (1338, 420), (1336, 395),
-              (1332, 375)]),
+    # the king's cap, its knob and its flaps down both sides of his face, cut along the hair
+    ('lines', 2.6, [(1226, 442), (1222, 400), (1222, 368), (1228, 358), (1236, 350), (1234, 320), (1238, 300),
+                    (1270, 300), (1305, 322), (1345, 340), (1362, 358), (1366, 368), (1368, 400), (1362, 445),
+                    (1345, 448), (1338, 420), (1336, 395), (1332, 375), (1310, 365), (1285, 362), (1262, 362),
+                    (1250, 368), (1248, 395), (1250, 420), (1246, 442)],
+     {'sides': ((1226, 442), (1362, 446), (1246, 442), (1345, 448))}),
     # his raised sleeve, wrist to shoulder
-    (-5, 2.8, [(1098, 425), (1112, 402), (1150, 425), (1185, 444), (1225, 442), (1228, 470), (1222, 505),
-               (1170, 505), (1140, 490), (1110, 465), (1095, 440)]),
-    # his belt, ruled along it
-    (-15, 2.4, [(1194, 575), (1200, 566), (1220, 556), (1250, 559), (1282, 569), (1305, 586), (1308, 600),
-                (1300, 607), (1288, 602), (1250, 592), (1220, 590), (1196, 594)]),
+    ('lines', 2.8, [(1098, 425), (1112, 402), (1150, 425), (1185, 444), (1225, 442), (1228, 470), (1222, 505),
+               (1170, 505), (1140, 490), (1110, 465), (1095, 440)], {'keep': 8, 'sides': ((1112, 404), (1224, 447), (1099, 445), (1205, 505))}),
+    # his belt
+    ('lines', 2.4, [(1194, 575), (1200, 566), (1220, 556), (1250, 559), (1282, 569), (1305, 586), (1308, 600),
+                (1300, 607), (1288, 602), (1250, 592), (1220, 590), (1196, 594)], {'sides': ((1197, 565), (1302, 594), (1196, 590), (1296, 610))}),
+    # his other sleeve, by the driver's hand
+    ('lines', 2.8, [(1376, 630), (1398, 620), (1420, 640), (1442, 668), (1430, 680), (1400, 690), (1382, 690),
+               (1372, 660)], {'keep': 8, 'sides': ((1402, 618), (1444, 668), (1385, 627), (1440, 674))}),
+    # the sword's scabbard, and its tip past his hand
+    ('lines', 3.0, [(1322, 662), (1340, 660), (1425, 705), (1422, 722), (1410, 724), (1325, 684)], {'sides': ((1335, 664), (1422, 706), (1325, 682), (1414, 724))}),
+    ('lines', 3.0, [(1438, 714), (1460, 716), (1498, 736), (1496, 750), (1438, 740)], {'sides': ((1453, 718), (1503, 742), (1450, 744), (1500, 748))}),
+    # the sword's hilt: stipple
+    ('dots', 2.8, [(1265, 620), (1300, 615), (1330, 640), (1335, 664), (1320, 674), (1290, 672), (1265, 665),
+                   (1262, 640)]),
+    # the chariot's rail curving round the king's legs, and its curl at the left: stipple
+    ('dots', 2.8, [(1240, 752), (1245, 720), (1262, 690), (1300, 676), (1340, 682), (1362, 700), (1368, 728),
+                   (1356, 732), (1350, 708), (1330, 692), (1300, 688), (1272, 698), (1258, 722), (1254, 752)],
+     {'dk': 14, 'keep': 'edge'}),
+    ('dots', 2.8, [(1215, 782), (1180, 786), (1150, 800), (1132, 830), (1126, 860), (1136, 890), (1160, 908),
+                   (1190, 920), (1192, 905), (1165, 895), (1148, 875), (1144, 850), (1150, 822), (1165, 805),
+                   (1195, 798), (1214, 796)], {'dk': 14, 'keep': 'edge'}),
+    # the chariot's side panel, upper and lower zones (the scrolls kept as printed)
+    ('lines', 3.0, [(1350, 904), (1436, 904), (1410, 992), (1288, 992)], {'sides': ((1352, 906), (1428, 906), (1287, 990), (1406, 995))}),
+    ('lines', 3.0, [(1288, 988), (1410, 994), (1385, 1015), (1355, 1054), (1218, 1054), (1240, 1030)], {'sides': ((1288, 992), (1404, 998), (1222, 1045), (1350, 1050))}),
+    # and its sliver showing between the horses' legs at the left
+    ('lines', 3.0, [(1158, 1036), (1172, 1018), (1200, 996), (1224, 974), (1222, 985), (1205, 1012), (1185, 1025),
+               (1176, 1040)], {'sides': ((1162, 1030), (1222, 976), (1175, 1040), (1222, 986))}),
+    # the horseman: the patch under his arm, the one at his side, and the scalloped band at his waist
+    ('lines', 2.8, [(640, 392), (672, 386), (700, 400), (702, 430), (690, 452), (660, 452), (640, 425), (634, 405)], {'ends': ((637, 400), (690, 450))}),
+    ('lines', 2.8, [(780, 470), (805, 455), (830, 462), (828, 500), (815, 522), (780, 522), (775, 500)], {'sides': ((790, 460), (780, 518), (822, 460), (828, 505))}),
+    ('lines', 2.6, [(622, 575), (640, 570), (660, 592), (720, 606), (758, 594), (775, 570), (795, 575), (800, 600),
+               (780, 625), (740, 645), (700, 645), (660, 640), (630, 620), (618, 595)], {'sides': ((628, 575), (785, 573), (622, 600), (798, 600))}),
+    # the axe-man's belt; the strap and the patch behind the shield: stipple
+    ('lines', 2.5, [(2540, 668), (2580, 664), (2612, 674), (2645, 690), (2662, 704), (2656, 716), (2640, 714),
+                (2608, 699), (2580, 688), (2540, 688)], {'sides': ((2541, 668), (2660, 702), (2541, 688), (2652, 716))}),
+    ('dots', 3.0, [(2725, 575), (2740, 565), (2765, 570), (2795, 610), (2790, 632), (2770, 638), (2730, 600)]),
+    ('dots', 3.0, [(2698, 650), (2712, 648), (2740, 672), (2735, 686), (2722, 686), (2700, 665)]),
+    # the shield's rim
+    ('lines', 2.2, [(2705, 690), (2710, 728), (2740, 750), (2790, 749), (2850, 736), (2910, 713),
+                                 (2962, 688), (2999, 656), (3021, 622), (3020, 595), (3005, 575), (2985, 575),
+                                 (2995, 600), (2990, 625), (2960, 655), (2915, 680), (2860, 700), (2800, 715),
+                                 (2750, 722), (2722, 712), (2718, 695)], {'keep': 'edge', 'dk': 12, 'ends': ((2711, 708), (3012, 578))}),
+    # the right-hand Greek's scabbard: its mount and its tip, stipple
+    ('dots', 2.5, [(2895, 716), (2952, 712), (2955, 735), (2945, 750), (2905, 742)]),
+    ('dots', 2.5, [(2965, 858), (2995, 852), (3000, 870), (2990, 890), (2972, 885)]),
 ]
 
 
@@ -119,47 +172,115 @@ def masks(src):
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > SPECK * UP * UP)[lab]
     dk = np.clip(closed - gl, 0, None)
-    reg, strong = hatched(dk)
-    lines = ruled(reg)
+    reg, inner, strong = hatched(dk)
+    lines = ruled(reg, inner)
     reg = reg > 0
     ink = (ink & ~reg) | (strong & reg)
-    return g, gl, ink, reg, lines & reg
+    return g, gl, ink, reg, lines & (inner > 0)
 
 
 def hatched(dk):
-    """The hatched areas (work px, numbered as HATCH), and the plate's dark lines and marks inside them."""
+    """The shaded areas (work px, numbered as HATCH), the part of each inside its outlines (where the shading
+    is drawn), and the plate's dark lines kept in them."""
     from skimage.draw import polygon as poly
     strong = apply_hysteresis_threshold(dk, *STRONG)
     r = DARK_R * UP
     disk = np.hypot(*np.mgrid[-int(r):int(r) + 1, -int(r):int(r) + 1]) <= r
-    dark = ndi.gaussian_filter(dk, DARK_S * UP) > DARK_DK
-    dark = ndi.binary_opening(ndi.binary_closing(dark, structure=disk), structure=disk)
+    blur = ndi.gaussian_filter(dk, DARK_S * UP)
+    dark = {t: ndi.binary_opening(ndi.binary_closing(blur > t, structure=disk), structure=disk)
+            for t in {e[3].get('dk', DARK_DK) if len(e) > 3 else DARK_DK for e in HATCH}}
+    sl, _ = ndi.label(strong)
+    size = np.bincount(sl.ravel())[sl]
     reg = np.zeros(dk.shape, np.int16)
-    for i, (_, _, pts) in enumerate(HATCH, 1):
+    inner = np.zeros(dk.shape, np.int16)
+    keep = np.zeros(dk.shape, bool)
+    rims = np.zeros(dk.shape, bool)
+    for i, (mode, _, pts, *opt) in enumerate(HATCH, 1):
+        opt = opt[0] if opt else {}
         xs, ys = zip(*pts)
         rr, cc = poly((np.array(ys) - Y0 + 0.5) * UP, (np.array(xs) - X0 + 0.5) * UP, dk.shape)
         m = np.zeros(dk.shape, bool)
         m[rr, cc] = True
-        m &= dark
+        m &= dark[opt.get('dk', DARK_DK)]
         holes = ndi.binary_fill_holes(m) & ~m
         hl, _ = ndi.label(holes)
         m |= (np.bincount(hl.ravel()) < HOLE * UP * UP)[hl] & holes
-        reg[m & (reg == 0)] = i
-    sl, _ = ndi.label(strong)
-    strong &= (np.bincount(sl.ravel()) >= DOT * UP * UP)[sl]
-    return reg, strong
+        m &= reg == 0
+        reg[m] = i
+        edge = opt.get('keep') == 'edge'
+        k = np.zeros_like(m) if edge else m & ~ndi.binary_erosion(m, iterations=round(EDGE * UP))
+        if not edge:
+            k |= m & (size >= opt.get('keep', LINE_MIN) * UP * UP)
+        keep |= k
+        # inside the outlines: the area less the lines kept, without the strips beyond them (thinner than
+        # INNER plate px: the blur took in a px or two past each outline)
+        n = ndi.binary_opening(m & ~(strong & k), structure=morphology.disk(INNER * UP / 2))
+        nl, _ = ndi.label(n)
+        n &= (np.bincount(nl.ravel()) >= HOLE * UP * UP)[nl]
+        inner[n] = i
+        if edge:  # its outline drawn new along the area's edge
+            rims |= n & ~ndi.binary_erosion(n, iterations=UP)
+    # the dark blots the scan makes of the shading where it runs into a line (wider than BLOT): not lines
+    blot = ndi.binary_opening(strong, structure=morphology.disk(BLOT * UP / 2)) & (reg > 0)
+    return reg, inner, (strong & ~blot & (keep | (reg == 0))) | rims
 
 
-def ruled(reg):
-    """Even hatch lines in each hatched area, at its HATCH angle and spacing."""
+def ruled(reg, inner):
+    """The even lines or dots in each shaded area (reg, whole), drawn inside its outlines (inner), as its
+    HATCH entry says. Lines run the area's length, following both its sides: the area's outline is split into
+    two sides, at its two 'ends' (where it narrows to a point) or as its 'sides' give them (each from its first
+    point to its second, where it ends square), and the lines are the levels of the share of the way across
+    from one side to the other, as many as the median width holds at the spacing; where they close in
+    toward an end, every other one stops each time they close to under MERGE of the spacing."""
+    from skimage.measure import find_contours
     out = np.zeros(reg.shape, bool)
     for k, sl in enumerate(ndi.find_objects(reg), 1):
         if sl is None:
             continue
-        a, sp = np.radians(HATCH[k - 1][0]), HATCH[k - 1][1]
+        mode, sp, pts, *opt = HATCH[k - 1]
         yy, xx = np.mgrid[sl]
-        u = ((xx + 0.5) / UP * np.sin(a) + (yy + 0.5) / UP * np.cos(a)) / sp % 1
-        out[sl] |= (u < COVER) & (reg[sl] == k)
+        x, y = (xx + 0.5) / UP, (yy + 0.5) / UP
+        if mode == 'dots':
+            h = sp * np.sqrt(3) / 2
+            j = np.round(y / h)
+            i = np.round(x / sp - (j % 2) / 2)
+            cx, cy = (i + (j % 2) / 2) * sp, j * h
+            on = np.hypot(x - cx, y - cy) <= DOT_D / 2
+            # only dots wholly inside the outlines
+            fits = ndi.distance_transform_edt(inner[sl] == k) / UP >= DOT_D / 2 + 0.3
+            on &= fits[np.clip(np.round(cy * UP - 0.5).astype(int) - sl[0].start, 0, fits.shape[0] - 1),
+                       np.clip(np.round(cx * UP - 0.5).astype(int) - sl[1].start, 0, fits.shape[1] - 1)]
+        else:
+            a = ndi.binary_fill_holes(np.pad(reg[sl] == k, 3))
+            c = max(find_contours(ndi.gaussian_filter(a.astype(float), SMOOTH_D * UP), 0.5), key=len)
+            near = [int(np.argmin(np.hypot(c[:, 0] - ((ey - Y0) * UP - sl[0].start + 3),
+                                           c[:, 1] - ((ex - X0) * UP - sl[1].start + 3))))
+                    for ex, ey in opt[0].get('sides', opt[0].get('ends'))]
+            N = len(c)
+            run = lambda i, j: np.arange(i, j + 1 if j >= i else j + N + 1) % N
+            if len(near) == 2:   # two ends: the two arcs between them
+                arcs = [run(near[0], near[1]), run(near[1], near[0])]
+            else:                # two sides, each from its first point to its second, not over the other's
+                arcs = []
+                for (i, j), other in (((near[0], near[1]), near[2:]), ((near[2], near[3]), near[:2])):
+                    r = run(i, j)
+                    arcs.append(r if not np.isin(other, r).any() else run(j, i))
+            d = []
+            for arc in (c[arcs[0]], c[arcs[1]]):
+                m = np.ones(a.shape, bool)
+                f = np.linspace(0, len(arc) - 1, len(arc) * 4)
+                m[np.round(np.interp(f, np.arange(len(arc)), arc[:, 0])).astype(int).clip(0, a.shape[0] - 1),
+                  np.round(np.interp(f, np.arange(len(arc)), arc[:, 1])).astype(int).clip(0, a.shape[1] - 1)] = False
+                d.append(ndi.distance_transform_edt(m)[3:-3, 3:-3] / UP)
+            w = d[0] + d[1]
+            n = max(1, round(np.median(w[reg[sl] == k]) / sp))
+            t = d[0] / np.maximum(w, 1e-6) * n
+            on = np.abs(t % 1 - 0.5) * w / n < COVER * sp / 2
+            # toward the ends, where the sides meet, every other line stops each time the lines close to
+            # under MERGE of the spacing (else they run together in a fan)
+            lv = np.ceil(np.log2(np.maximum(MERGE * sp * n / np.maximum(w, 1e-6), 1))).astype(int)
+            on &= np.floor(t).astype(int) % (2 ** lv) == 0
+        out[sl] |= on & (inner[sl] == k)
     return out
 
 
@@ -250,7 +371,10 @@ def main(src, qa=None, dump=None):
     on[0] = False
     ink &= on[lab]
     if dump:
-        np.savez_compressed(dump, g=g.astype(np.uint8), gl=gl.astype(np.uint8), ink=ink | hatch, fig=fig, reg=reg)
+        np.savez_compressed(dump, g=g.astype(np.uint8), gl=gl.astype(np.uint8), ink=ink | hatch, lines=ink, hatch=hatch, fig=fig, reg=reg)
+    # weighted and traced at TRACE_H tall, not the house 4000 px: this wide frieze is only 3150 work px tall,
+    # and at 4000 the thin scrolls broke when the lines were thinned to WEIGHT
+    lw.WORK_H = TRACE_H
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=hatch, trace_h=lw.WORK_H,
         title='The Persian king fleeing',
