@@ -7,7 +7,8 @@ And a dot under that limit, kept only when passed as `dots`. And two lines a
 px apart, in ink taller than WORK_H (as Andromache's): traced with
 weight="drawn" the gap between them stays open. And an arrow's shaft that narrows to 3 px of clay
 between its lines, in ink as tall as Heracles': the body's smoothing takes the narrow part's clay,
-which stays when it is passed as `keep`.
+which stays when it is passed as `keep`. And lines in an area passed as `day`: drawn by a path of their own,
+class "day", which the dark theme hides, and left out of the lines path.
 
     python3 docs/redesign/drawings/tools/test_linework.py
 """
@@ -82,6 +83,7 @@ def main() -> None:
     dots_check()
     gap_check()
     keep_check()
+    day_check()
     print("ok")
 
 
@@ -153,6 +155,28 @@ def keep_check() -> None:
     print(f"the narrow shaft's clay: {shown[0]:.0%} without keep, {shown[1]:.0%} with it")
     assert shown[0] < 0.5, "the shaft kept its clay without keep: the check examined nothing"
     assert shown[1] > 0.5, "a shaft passed as keep lost its clay"
+
+def day_check() -> None:
+    """The rod with its right half passed as `day` (Wealth's white hair, outlined in day mode only): its right
+    line is drawn by the "day" path and not by "lines"; its left line by "lines" and not by "day"."""
+    ink, body = drawing()
+    day = np.zeros_like(ink)
+    day[:, (ROD[2] + ROD[3]) // 2:] = True
+    with tempfile.TemporaryDirectory() as td:
+        out = Path(td) / "t.svg"
+        bx0, by0, bx1, _ = lw.trace_svg(ink, out, title="t", desc="t", body=body, day=day)["box"]
+        s = out.read_text()
+    assert s.count('<path class="day"') == 1, "no day path"
+    only = lambda keep: re.sub(rf'<path class="(?!{keep})[a-z]+"[^>]*/>', "", s).replace("currentColor", "#000")  # noqa: E731
+    k = 1400 / (bx1 - bx0)
+    y = int(((ROD[0] + ROD[1]) / 2 - by0) * k)
+    xl, xr = int((ROD[2] + LINE / 2 - bx0) * k), int((ROD[3] - LINE / 2 - bx0) * k)
+    lines, dayp = render(only("lines"), 1400), render(only("day"), 1400)
+    print(f"day: left line {lines[y, xl]:.0%} lines, {dayp[y, xl]:.0%} day; right line {lines[y, xr]:.0%} lines, "
+          f"{dayp[y, xr]:.0%} day")
+    assert lines[y, xl] > 0.5 and dayp[y, xl] < 0.5, "the left line is not in the lines path alone"
+    assert dayp[y, xr] > 0.5 and lines[y, xr] < 0.5, "the right line is not in the day path alone"
+
 
 if __name__ == "__main__":
     main()
