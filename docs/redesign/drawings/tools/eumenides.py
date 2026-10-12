@@ -19,6 +19,7 @@ areas (the Fury, the hair, the stripes) solid, with a clay rim round them on the
 """
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -54,8 +55,34 @@ WEIGHT = 1.2 / (X1 - X0)                  # the plate's own line, 1.2 scan px (J
 RIM = 1.5                                 # scan px: the clay round the solid black on the dark theme
 SOLID_OPEN = 2                            # scan px: solid black is the ink an opening this wide leaves
 # points on the ground (levelled scan px): the paper areas they fall in are vase ground; every other area the
-# lines close is clay
-GROUND = []
+# lines close is clay. The rules, the columns and the ground line close the whole field, so the field is listed too:
+# the field round the Fury and between the Pythia and Apollo; by the Fury's snakes and head; behind the laver and
+# below it; under the Pythia's hem; between her head and raised hand; between her shawl, her hem and Apollo; behind
+# and between the tripod's legs; between Apollo's legs and under them; by the centre column's capital; the field
+# round Orestes, by the column behind him, between his hair and the cloak; between the omphalos and the laurel and
+# between the laurel's leaves; round Artemis, by her raised arm and between the spear and the right column;
+# between her legs, the boots and the hounds
+GROUND = [(727, 445), (454, 242), (456, 273), (481, 280), (508, 568), (506, 662), (476, 756), (712, 852),
+          (648, 479), (712, 596), (746, 633), (714, 674), (734, 726), (742, 736), (806, 676), (782, 763),
+          (779, 826), (804, 817), (838, 801), (836, 762), (920, 654), (883, 732), (902, 817), (788, 855),
+          (1006, 251), (1054, 258), (1139, 349), (1022, 522), (1005, 501), (1164, 480), (1236, 600), (1215, 368),
+          (1238, 402), (1249, 354), (1421, 346), (1503, 314), (1284, 590), (1492, 624), (1529, 496), (1541, 693),
+          (1411, 721), (1440, 768), (1399, 779), (1335, 774), (1345, 721)]
+# the rules along the top and the ground line run on the field: on the dark theme they get a clay rim (rows,
+# levelled scan px)
+RULES = [(178, 250), (866, 892)]
+# the faces' eyes, brows, noses and mouths (boxes, levelled scan px): the faces are 30-40 px tall and their marks
+# 1 px, so at one weight the eyes ran into blots. Inside these boxes the ink is found finer (no blur, FINE) and
+# traced at its printed width (trace_svg's dots): the Pythia, Apollo, Orestes, Artemis
+FEATURES = [(566, 438, 606, 480), (846, 340, 884, 375), (1086, 422, 1124, 466), (1340, 300, 1368, 345)]
+FINE = dict(blur=0, half=0.6, smooth=0.25, core_r=1.5)
+FEATURE_SPECK = 2                         # scan px^2: smaller pieces inside a box are grain
+# the laurel's leaves are narrower than the seal: inside this box the paper the ink closes, after a closing by
+# LEAF_CLOSE scan px, is clay if smaller than LEAF_MAX scan px^2
+LEAVES = (1236, 252, 1332, 872)
+LEAF_CLOSE, LEAF_MAX = 1, 400
+# specks of the print on the field: ink pieces under SPECK_MAX scan px^2 farther than NEAR scan px from the figures
+SPECK_MAX, NEAR = 40, 3
 
 
 def pc(src, out, *steps):
@@ -78,32 +105,36 @@ def level(src, out):
     Image.fromarray(np.clip(r, 0, 255).round().astype(np.uint8)).save(out)
 
 
-def masks(src):
-    """The plate's ink at UP (work px), and the plate in grey."""
+def masks(src, box=None, blur=BLUR, half=HALF, smooth=SMOOTH, core_r=CORE_R, speck=SPECK):
+    """The plate's ink at UP (work px) in box (levelled scan px; the crop by default), and the plate in grey."""
+    x0, y0, x1, y1 = box or (X0, Y0, X1, Y1)
     with tempfile.TemporaryDirectory() as td:
         t = Path(td)
         level(src, t / "src.png")
-        w, h = X1 - X0, Y1 - Y0
+        w, h = x1 - x0, y1 - y0
         pc(t / "src.png", t / "up.png",
-           ("image.crop", {"x": X0, "y": Y0, "width": w, "height": h}),
+           ("image.crop", {"x": x0, "y": y0, "width": w, "height": h}),
            ("image.imageSize", {"width": w * UP, "height": h * UP, "resample": "bicubic"}),
            ("image.mode.grayscale", None))
-        pc(t / "up.png", t / "gl.png", ("filter.blur.gaussianBlur", {"radius": BLUR * UP}))
+        if blur:
+            pc(t / "up.png", t / "gl.png", ("filter.blur.gaussianBlur", {"radius": blur * UP}))
+        else:
+            shutil.copy(t / "up.png", t / "gl.png")
         r = CLOSE_R * UP
         pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
            ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
         pc(t / "gl.png", t / "solid.png", ("image.adjustments.threshold", {"level": SOLID}))
-        pc(t / "gl.png", t / "core.png", ("filter.other.minimum", {"radius": CORE_R * UP, "preserve": "roundness"}))
+        pc(t / "gl.png", t / "core.png", ("filter.other.minimum", {"radius": core_r * UP, "preserve": "roundness"}))
         g, gl, closed, core = grey(t / "up.png"), grey(t / "gl.png"), grey(t / "closed.png"), grey(t / "core.png")
         # half maximum: darker than halfway between the paper and the line's darkest px near it
-        half = (closed - gl) >= HALF * (closed - core)
-        ink = apply_hysteresis_threshold(np.where(half, closed - gl, 0), LOW, HIGH) | (grey(t / "solid.png") < 128)
+        hm = (closed - gl) >= half * (closed - core)
+        ink = apply_hysteresis_threshold(np.where(hm, closed - gl, 0), LOW, HIGH) | (grey(t / "solid.png") < 128)
         Image.fromarray(np.where(ink, 0, 255).astype(np.uint8)).save(t / "ink.png")
-        pc(t / "ink.png", t / "smooth.png", ("filter.blur.gaussianBlur", {"radius": SMOOTH * UP}),
+        pc(t / "ink.png", t / "smooth.png", ("filter.blur.gaussianBlur", {"radius": smooth * UP}),
            ("image.adjustments.threshold", {"level": 128}))
         ink = grey(t / "smooth.png") < 128
     lab, _ = ndi.label(ink)
-    ink &= (np.bincount(lab.ravel()) > SPECK * UP * UP)[lab]
+    ink &= (np.bincount(lab.ravel()) > speck * UP * UP)[lab]
     return g, gl, ink
 
 
@@ -124,11 +155,22 @@ def at(ws, x, y):
     return v[np.argmax(n)]
 
 
+def sl(box):
+    """A box (levelled scan px) as a slice of the work arrays."""
+    x0, y0, x1, y1 = box
+    return np.s_[(y0 - Y0) * UP:(y1 - Y0) * UP, (x0 - X0) * UP:(x1 - X0) * UP]
+
+
 def figure(ink, ws):
-    """The figures' area: every paper area but the ground (GROUND, and the areas reaching the crop's edge), and the
-    ink touching it."""
+    """The figures' area: every paper area but the ground (GROUND, and the areas reaching the crop's edge), the
+    laurel's leaves, and the ink touching them."""
     out = np.unique(np.r_[ws[0], ws[-1], ws[:, 0], ws[:, -1]])
     ground = np.isin(ws, np.r_[out[out > 0], [at(ws, x, y) for x, y in GROUND]])
+    b = sl(LEAVES)
+    c = ndi.binary_closing(ink[b], structure=morphology.disk(LEAF_CLOSE * UP))
+    lab, _ = ndi.label(ndi.binary_fill_holes(c) & ~c)
+    leaf = (lab > 0) & (np.bincount(lab.ravel()) <= LEAF_MAX * UP * UP)[lab] & ~ink[b]
+    ground[b] &= ~leaf
     clay = (ws > 0) & ~ground
     fig = ndi.binary_fill_holes(clay | (ink & ndi.binary_dilation(clay, iterations=2 * UP)))
     return fig & ~ground, ground
@@ -147,15 +189,34 @@ def add_rim(rim, info):
 
 def main(src, qa=None, dump=None):
     g, gl, ink = masks(src)
+    # the faces' marks, found finer and traced at their printed width
+    dots = np.zeros_like(ink)
+    for box in FEATURES:
+        _, _, f = masks(src, box, speck=FEATURE_SPECK, **FINE)
+        dots[sl(box)] = f
+        ink[sl(box)] = f
     ws = areas(ink)
     fig, ground = figure(ink, ws)
+    # specks on the field
+    lab, n = ndi.label(ink)
+    size = np.bincount(lab.ravel()) / UP / UP
+    near = np.zeros(n + 1, bool)
+    near[lab[ndi.distance_transform_edt(~fig) <= NEAR * UP]] = True
+    drop = (size < SPECK_MAX) & ~near
+    drop[0] = False
+    ink &= ~drop[lab]
+    for box in FEATURES:
+        ink[sl(box)] &= ~dots[sl(box)]
     solid = ndi.binary_opening(ink, structure=morphology.disk(SOLID_OPEN * UP))
     rim = (ndi.distance_transform_edt(~solid) <= RIM * UP) & ~ink
     body = fig | solid
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig, body=body)
+    rules = np.zeros_like(ink)
+    for a, b in RULES:
+        rules[(a - Y0) * UP:(b - Y0) * UP] = True
     info = lw.trace_svg(
-        ink, OUT, body=body, open_holes=~body, weight=WEIGHT,
+        ink, OUT, body=body, open_holes=~body, rim_lines=rules & ink & ~fig, dots=dots, weight=WEIGHT,
         title="Orestes at Delphi",
         desc="Line drawing after Carl Bötticher's 1859 drawing of an Apulian red-figure volute-krater (Naples): "
              "the Pythia fleeing, the Fury, Apollo, Orestes at the omphalos, Artemis with her hounds; retraced.")
