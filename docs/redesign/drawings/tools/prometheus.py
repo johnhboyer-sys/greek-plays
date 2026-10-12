@@ -221,6 +221,7 @@ DARK_RG, DARK_L, DARK_OPEN, DARK_MIN = 12, 90, 3, 300
 # glaze, worn brown in the glare
 DARK_BOXES = [(1050, 680, 1240, 900)]
 RED_OP = 0.45
+RED_NARROW = 4
 # incisions: the white top-hat (radius MARK_R round px) on the grey smoothed along its strokes (Motion Blur
 # ORIENT_D long at every ORIENT_STEP degrees, as hecuba.py), hysteresis MARK_T / 2 to MARK_T; not blue (blue less
 # red under MARK_BR: the glare); not within EDGE_CLEAR of the figures' edge; pieces at least MARK_LEN long
@@ -525,8 +526,11 @@ INC_W, INC_SPUR, INC_GAP, INC_HOLD, INC_ANGLE, INC_WIDE, INC_SHORT = 2.6, 4, 16,
 # cap, curls, eye, beard, arms and side, the eagle's wing, legs and back, Prometheus's ribs and legs and toes; green
 # painted broad (wider than MARK_BROAD round px: the lost surface under Atlas's hand) is clay there, not a line;
 # blue the black over it; red the wash beside Prometheus's thigh
-MARKS_FILES = [Path(__file__).parent / f"prometheus_marks_{i}.png" for i in (1, 2, 3)]
+# On pass 7 (prometheus_marks_4.png): green along Atlas's beard and arm, the eagle's wing top and leg, the ribs, and
+# small wedges at the corners of the eyes
+MARKS_FILES = [Path(__file__).parent / f"prometheus_marks_{i}.png" for i in (1, 2, 3, 4)]
 MARK_BROAD = 8
+MARK_DOT = 40                              # round px^2: his marks smaller than this are painted
 MARK_SNAP, MARK_NEAR, MARK_PEAK, MARK_CLEAR, MARK_HULL = 4, 3, 6, 0.5, 8
 
 
@@ -616,6 +620,9 @@ STRAIGHT_ZONES = [
     [(1130, 1340), (1390, 1300), (1440, 1390), (1560, 1480), (1580, 1620), (1520, 1700), (1480, 1720),
      (1340, 1690), (1200, 1600), (1140, 1480)],
 ]
+# Prometheus's ribs across the blood (John, 2026-10-12: "you aren't keeping those rib lines distinct"; "they keep
+# getting swallowed up"): there his lines alone (round px)
+RIB_ZONE = [(2110, 1160), (2240, 1160), (2245, 1305), (2095, 1305)]
 ST_ANGLE, ST_OFF, ST_GAP, ST_RMS, ST_LEN, ST_PIECE = 7, 1.6, 30, 1.2, 15, 4
 
 
@@ -707,6 +714,9 @@ def john_lines(shape, hat, path):
     blue = (a > 40) & (b > r + 40) & (b > g + 20)
     broad = ndi.binary_opening(green, structure=morphology.disk(round(MARK_BROAD / 2 * UP)))
     broad = ndi.binary_propagation(broad, mask=green)
+    # (his small dots and wedges, too short to follow, are clay as painted)
+    lab, n = ndi.label(green & ~broad)
+    broad |= (np.bincount(lab.ravel(), minlength=n + 1) < MARK_DOT * UP * UP)[lab] & (lab > 0)
     green &= ~broad
     hs = ndi.gaussian_filter(hat, 0.8 * UP)
     out = np.zeros(shape, bool)
@@ -868,9 +878,13 @@ def masks(ch, dump=None):
     # threshold is GLARE_K times as high, and the marks at least GLARE_LEN long)
     glare = glare0 | (py > FLOOR)
     t = np.where(glare, GLARE_K * MARK_T, MARK_T)
-    marks = fig & clear & ~red & ~crack & (hat > t / 2) & (BR < MARK_BR)
+    # (incisions run across the red too: the ribs over the blood, the feathers' bases. Only the red's narrow parts,
+    # under 2 RED_NARROW round px across (drops, strands), are kept out, where its own edges pass for an incision;
+    # John, 2026-10-12: the ribs "keep getting swallowed up")
+    narrow = red & ~ndi.binary_opening(red, structure=morphology.disk(RED_NARROW * UP))
+    marks = fig & clear & ~narrow & ~crack & (hat > t / 2) & (BR < MARK_BR)
     marks = ndi.binary_propagation(marks & (hat > t), mask=marks)
-    wm = fig & clear & ~red & ~crack & glare0 & (what > GLARE_HAT / 2)
+    wm = fig & clear & ~narrow & ~crack & glare0 & (what > GLARE_HAT / 2)
     wm = ndi.binary_propagation(wm & (what > GLARE_HAT), mask=wm)
     marks = np.where(glare0, wm, marks)
     # (below the ground line the glare's speckle passed for incisions: there they are also orange)
@@ -887,6 +901,17 @@ def masks(ch, dump=None):
     marks = even_incisions(marks, hat, fig)
     feathers, fcover = straight_feathers(hat, fig, marks.shape)
     marks = (marks & ~fcover) | feathers
+    marks |= crack_joins(marks.shape) & fig
+    marks |= strokes(marks.shape, HAND, EYE_W) & fig
+    marks = marks & ~(rbox & rope)
+    red, marks = solid_red(red, fig, marks, px, py)
+    for lines in EYES.values():
+        c = np.mean(lines[0], axis=0)
+        zone = np.hypot(px - c[0], py - c[1]) < EYE_R
+        marks = np.where(zone, strokes(marks.shape, lines, EYE_W) & fig, marks)
+    # John's marks last, so the boxes above (the eyes, the solid red) cannot undo them. In RIB_ZONE only his lines:
+    # the found incisions there ran into each other over the blood
+    marks &= ~lw.polygon_mask(marks.shape, np.array([((x - X0) * UP, (y - Y0) * UP) for x, y in RIB_ZONE], float))
     jblue = np.zeros(marks.shape, bool)
     for path in MARKS_FILES:
         jl, jb, jweak, jbroad = john_lines(marks.shape, hat, path)
@@ -896,14 +921,6 @@ def masks(ch, dump=None):
         marks |= smooth(ndi.distance_transform_edt(~jl) <= INC_W / 2 * UP, 0.5) & fig
         jblue = (jblue & ~(ndi.distance_transform_edt(~jl) <= INC_W / 2 * UP)) | jb
     jred = john_red(marks.shape)
-    marks |= crack_joins(marks.shape) & fig
-    marks |= strokes(marks.shape, HAND, EYE_W) & fig
-    marks = marks & ~(rbox & rope)
-    red, marks = solid_red(red, fig, marks, px, py)
-    for lines in EYES.values():
-        c = np.mean(lines[0], axis=0)
-        zone = np.hypot(px - c[0], py - c[1]) < EYE_R
-        marks = np.where(zone, strokes(marks.shape, lines, EYE_W) & fig, marks)
     if dump:
         np.savez_compressed(dump, fig=fig, red=red, marks=marks, crack=crack, ground=ground)
     rings = np.zeros(L.shape, bool)
@@ -920,8 +937,10 @@ def main(src, qa=None, dump=None, cache=None):
         if cache:
             np.savez(cache, **ch)
     fig, red, marks, crack, rings, jblue, jred = masks(ch, dump)
+    fig_marks = marks & fig
     lines = (smooth(fig & ~marks & ~red, SMOOTH) & ~jred) | rings | smooth(jblue, SMOOTH)
-    tone = (smooth(red, SMOOTH) | jred) & ~lines
+    # (the wash stops at the incisions: drawn over them it hid the ribs, John, 2026-10-12)
+    tone = (smooth(red, SMOOTH) | jred) & ~lines & ~fig_marks
     # (John, 2026-10-11: "the white background just doesn't work here. Let's have clay for both light and dark":
     # the body is the whole tondo to the outer ring's edge, filled with clay in both themes, as clouds.svg)
     body = ndi.binary_fill_holes(fig | rings | (ndi.distance_transform_edt(~rings) <= RIM * UP))
