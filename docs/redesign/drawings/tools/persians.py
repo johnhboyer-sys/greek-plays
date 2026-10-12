@@ -58,8 +58,9 @@ POCKETS = [(1049, 917, OPEN_R), (1076, 1043, NECK), (1019, 1104, OPEN_R), (1107,
 # horses' heads, from the mane to its collar, and its head
 SHAFTS = [((482, 489), (1120, 550)), ((1768, 556), (1888, 503)), ((1912, 497), (1960, 476))]
 # small closed parts (boxes, plate px): the paper the ink closes there, after a closing by CLOSE plate px, is
-# clay: the horseman's spearhead
-CLOSED = [(392, 452, 472, 496)]
+# clay: the horseman's spearhead; the horseman's horse's forelock (its first lock, closed by John's line on
+# pass 2, reached the ground through a gap)
+CLOSED = [(392, 452, 472, 496), (935, 360, 975, 400)]
 CLOSE = 2
 NEAR = 10                                 # plate px
 GROUND_Y = 990                            # plate px: the ground line lies below
@@ -68,11 +69,15 @@ WEIGHT = 0.00025                          # 0.8 plate px: John chose it (2026-10
 #                                           king's head; he asked for "crisp and precise"); the plate's pen line is about
 #                                           1-1.2 px under the scan's blur (its half-maximum width is 1.5)
 TRACE_H = 6400
-# John's marks (2026-10-11), drawn in PhotoCraft over pass 1 on the crop at MARKS_K x the plate px: blue is
-# ink as he drew it (outlines closed where the pen broke off, a few missing ones); green takes the ink out, and
-# the paper under it is ground (a pocket: between the first chariot horse's chest and the next one's mane)
-MARKS_FILES = [Path(__file__).parent / "persians_marks_1.png"]
+# John's marks, drawn in PhotoCraft over each pass on the crop at MARKS_K x the plate px. Blue is ink as he
+# drew it (outlines closed where the pen broke off, missing ones, the eyes); yellow is clay (2026-10-12: the
+# paper round it, out to the lines, up to MARK_R); green is "erase or ground" (2026-10-12): the ink he covers
+# mostly (MARK_COVER of a piece) goes, and the paper round it, out to the lines and up to MARK_R, is ground,
+# or the whole area the lines close if he covers MARK_FILL of it. Marks 1 (2026-10-11): pass 1; marks 2
+# (2026-10-12): pass 2.
+MARKS_FILES = [Path(__file__).parent / "persians_marks_1.png", Path(__file__).parent / "persians_marks_2.png"]
 MARKS_K = 2
+MARK_R, MARK_COVER, MARK_FILL = 8, 0.5, 0.15
 WALLS = []
 WALL_W = 2.0
 # Shading: the plate shades some parts (the king's cap, sleeves and belt, the chariot's rails and panel, the
@@ -413,8 +418,8 @@ def figure(ink, gl):
 
 
 def marks(shape):
-    """John's marks at the work px: (blue, green)."""
-    blue, green = np.zeros(shape, bool), np.zeros(shape, bool)
+    """John's marks at the work px: (blue, green, yellow)."""
+    blue, green, yellow = (np.zeros(shape, bool) for _ in range(3))
     for mf in MARKS_FILES:
         m = Image.open(mf).convert('RGBA')
         assert m.size == ((X1 - X0) * MARKS_K, (Y1 - Y0) * MARKS_K), m.size
@@ -422,14 +427,30 @@ def marks(shape):
         r, gg, bb, al = (m[..., i] for i in range(4))
         blue |= (al > 40) & (bb > r + 40) & (bb > gg + 20)
         green |= (al > 40) & (gg > r + 40) & (gg > bb + 20)
-    return blue, green
+        yellow |= (al > 40) & (r > 150) & (gg > 150) & (bb < r - 60)
+    return blue, green, yellow
 
 
 def main(src, qa=None, dump=None):
     g, gl, ink, reg, hatch = masks(src)
-    blue, green = marks(ink.shape)
-    ink = (ink | blue) & ~ndi.binary_dilation(green, iterations=UP)
+    blue, green, yellow = marks(ink.shape)
+    near = ndi.binary_dilation(green, iterations=UP)
+    lab, n = ndi.label(ink)
+    covered = np.bincount(lab[near], minlength=n + 1) >= MARK_COVER * np.bincount(lab.ravel(), minlength=n + 1)
+    covered[0] = False
+    ink = (ink & ~covered[lab]) | blue
     fig, pk, kept = figure(ink | reg, gl)
+    paper = ~(ink | reg)
+    grow = lambda m: ndi.binary_dilation(m & paper, iterations=MARK_R * UP, mask=paper) | m  # noqa: E731
+    lab, n = ndi.label(paper)
+    size = np.bincount(lab.ravel(), minlength=n + 1)
+    full = np.bincount(lab[green], minlength=n + 1) >= MARK_FILL * size
+    full[0] = False
+    gone = grow(green) | (full[lab] & paper)
+    clay = ndi.binary_fill_holes(grow(yellow))
+    fig = (fig & ~gone) | clay
+    pk = (pk | gone) & ~clay
+    kept |= clay
     fig |= ndi.binary_dilation(blue, iterations=UP) & ~pk    # (his lines on clay, on the dark theme)
     fig |= reg                               # the hatched areas whole (the paper between the ruled lines is
     #                                          too narrow for the seal), and walls to the ground
