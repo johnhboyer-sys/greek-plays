@@ -335,6 +335,24 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   marks copy"). Hide all layers but his, save as PNG, and check the red layer for his edits too
   (2026-10-10).
 
+- Iphigenia at Aulis (II, pl. XC, Artemis pursuing a woman with a child, read by the Élite as Helen with the
+  infant Iphigenia), made with PhotoCraft: about two and a half hours over two passes, the credit included,
+  approved by John 2026-10-10. `tools/iphigenia_aulis.py` (2026-10-10).
+- A big crop is slow: 2940 x 2032 plate px at UP 3 took 11 minutes and 2 GB a run. Fix the masks on
+  sub-crops (the same tool on a box, the edge rule and out-of-box points dropped: seconds a run) and run the
+  whole plate only to check and to show (2026-10-10).
+- Bands of paint along a garment's edge that touch the ground (a mantle's borders, a sleeve's border) are
+  too many and too long to wall one by one. Find them as the thin parts of the ground (what an opening of 8
+  plate px takes away), sheet every one on the plate, and mark the bands with a point each (`PAINT`). John
+  sorted the sheet in one look: the gaps between fingers and a strip between arm and drapery are ground.
+  After the bands go, relabel the ground: pieces they cut off are paint too (2026-10-10).
+- The gap joiner took the larger dots of a dress for broken line ends and bridged pairs of them, or ran a
+  line on to a dot. Drop its pieces that touch only small marks or touch a dot (`JOIN_SMALL`, `JOIN_DOT`)
+  (2026-10-10).
+- A hair wall can close off ground: Artemis' hair walled, the black between her raised arm and her back
+  became a pocket and filled as paint. Check the full drawing after every wall (`POCKETS`) (2026-10-10).
+- A bowstring printed as black paint over the black ground (grey 3-6 against 7-9): place each straight run
+  where the mean grey along it is least, searching half-px shifts of its ends (`STRINGS`) (2026-10-10).
 - Wealth (III, pl. LVIII, Plutus with the cornucopia), made with PhotoCraft: about forty minutes over two
   passes, the credit included, approved by John 2026-10-10. `tools/wealth.py` (2026-10-10).
 - Added white (hair, beard) over the black ground, no black outline on the vase: show John a small test of each house
@@ -354,6 +372,23 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   it draws nothing, as ground on the black and clay on the clay (2026-10-10).
 - Check a close-up's panel offsets before reading coordinates off it: the first box to drop the line John flagged
   missed it by 20 px (2026-10-10).
+
+### Laborde, *Collection des vases grecs de M. le comte de Lamberg* (colour aquatints, red figures on a dark ground)
+
+- Electra (Sophocles) (I, pl. VIII, Orestes brings Electra the urn), made with PhotoCraft: about an hour and a half
+  over two passes, the credit included, approved by John 2026-10-10. `tools/electra_soph.py` (2026-10-10).
+- The Élite method carries over unchanged: ground grey about 60, clay 160, the same thresholds at UP 3; a full run
+  takes 25 seconds. The leaf holds two plates: fit each panel edge on its own window (`EDGES`) (2026-10-10).
+- The band the figures stand on bows up about 10 px under them. A ground line drawn straight between clear stretches
+  ran up to 3.5 px off under the feet and cut through the 1-3 px of dark between the toes and the band: the toes came
+  out open below (John: "look at the toes"). Measure the band's top in every column, going up from inside the band,
+  and draw the sole as a band of line width along the cut wherever a figure stands on it; the outline alone left nubs
+  under the gaps between toes (2026-10-10).
+- The cut must sit a little above the band's soft edge (`GROUND_IN`): below it, a sliver of clay ran from Pylades'
+  feet along the band to the crop's edge, and the edge rule dropped the whole figure (2026-10-10).
+- The aquatint's grain leaves light specks in the ground that the ridge term keeps: drop clay pieces under 20 plate
+  px once the figures are cut (`SPECK`). A FACES box took the grain on the clay as lid lines; one eye drawn on points
+  was enough (2026-10-10).
 
 ### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
 
@@ -387,6 +422,34 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   "the blob here of clay is not part his body". Leave such ground open (`OPEN`) (2026-10-07).
 - The vase went from Berlin (F 2184) to Moscow after the war. The Beazley Archive (no. 202912) gives
   Pushkin Museum 6528.3, the museum's own page inv. АВ 3742; the credit cites both (2026-10-07).
+
+### Contour plates with no black ground (Hoernes, *Archäologische Zeitung* 1877: black pen lines on paper)
+
+- Rhesus (AZ 35, 1877, Taf. 5, two youths on a night raid), made with PhotoCraft: about an hour and fifty minutes
+  over a style test and one pass, approved by John 2026-10-10. `tools/rhesus.py` (2026-10-10).
+- Compare every scan of the plate at full size before choosing: the IGNCA scan's 5120 px were JPEG blocks (the face
+  mush), the Getty copy's 2365 px photo sharp. Register one to the other (SIFT): within 2 px under a similarity, the
+  photo was flat. The Internet Archive's "orig" captures are numbered by leaf, not by viewer page: read the
+  scandata (n228 was leaf 229; leaf 228 was blank). PhotoCraft cannot read JPEG 2000: convert to PNG first (2026-10-10).
+- Lines at half maximum (darker than halfway between the paper and the line's darkest px nearby): local contrast
+  alone took in each line's soft edge, and the hair's strokes ran together (2026-10-10).
+- No ground to cut from: the figures' area is the paper the lines close off. The pen outline breaks at joints and
+  where a line stops short of the next, so seal the gaps: open the paper by a disk (6 plate px here), take the
+  pieces left as areas, and give every paper px to the nearest by a watershed on the distance to the ink, so slivers
+  of ground stay with the ground. Then mark the pockets of ground the figures close (`POCKETS`) on a numbered map of
+  the areas laid over the plate, not on a flat colour map (2026-10-10).
+- An opening seals gaps narrower than its disk, but not a passage just as wide: when the lines were thinned the
+  right youth leaked through an 11 px break behind his knee. Find a leak by the shortest path inside the opened
+  paper from a point well inside the body to the crop's edge; it crosses the line at the break. Wall it
+  (`WALLS`, for the area only, not drawn). A body that has turned to ground may instead have joined a pocket:
+  check what area the body's point lands in before searching (2026-10-10).
+- Spear shafts (12-22 px between their edge lines) are too narrow for the seal: fit each shaft's centre and width
+  to the midpoints between its edge lines, read across it every 4 px from rough ends (`SHAFTS`) (2026-10-10).
+- Drop specks by distance from the figures, not by touch: a toe's tip curl stands just off the foot (2026-10-10).
+- John read a strip I took for cloak (between the forearm, the cloak's edge and the spear) as ground; he marked it
+  on the whole dark view. On a contour plate, show the dark theme of the whole group early (2026-10-10).
+- Weight: John asked for heavier lines than the plate's own (0.084%), then chose 0.12% of 0.12, 0.16 and the house
+  0.225%: at 0.225% the hair's strokes ran into blots (2026-10-10).
 
 ### Photos of vases (red-figure, taken off the vase with `tools/vase_unroll.py`)
 
@@ -499,6 +562,26 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   of his strokes run close (nose, chin), the clay between them is his: ask before closing it (2026-10-10).
 - A small hole in the figure's area shows the dark ground in dark mode only: her eye read heavy there since pass 1.
   Close holes under a few hundred frame px^2 when the figure has no ground seen through it (2026-10-10).
+- Wasps (Getty 96.AE.112, a phlyax stage scene; the Getty's three photos): about five hours over twelve passes, approved
+  by John 2026-10-10. `tools/wasps.py` (2026-10-10).
+- Museum photos without EXIF: fit the focal length by trying several and keeping the one where the fit's cost levels
+  off (here 40000 px for all three, taken from one stand). The profile views match the front only at a turn near 90
+  degrees: filter SIFT matches by the turn a cylinder implies before fitting, or the fit drops the front as outliers.
+  `vase_unroll.silhouette` wants a light ground (L > 140); the Getty's grey (115-143) needs its own edge rule.
+- A scene that wraps 130 degrees round a body tapering under it: the shear-free flat bowed the stage plank and fanned
+  the outer figures out. John chose the flat with the rings straight and the meridians upright (x = R_C theta, y = arc
+  length), widening the feet by up to 5% (2026-10-10).
+- Read the white paint as the painter used it: John saw teeth under a moustache and a sheep (ram) mask where I saw a
+  beard and hair; the Getty's record calls it a ram's head. Ask for a line where one area becomes another (he drew
+  both) and keep a mask an object: its face sharp and outlined, its fleece painted (2026-10-10).
+- The thinned glaze on clay (bodies, clothes) took six rounds: a stepped wash was "too blotchy", strokes found by
+  elongation read as thin daubs, a blurred watercolour too faint. What he approved: each stroke repainted with
+  PhotoCraft's own brush (paint.stroke, hardness 0, seeded, so it reruns byte for byte), broader than the mark, run
+  along the contours (the level lines of the distance to the painted lines), few and faint, and never level (the
+  wheel's streaks). Patterns on cloth: crisp-edged washes darker where the brush pooled (2026-10-10).
+- The big dark areas the figures close in (behind a door, between legs) are ground; a fixed head box cut a beard's
+  tail where it hangs over cloth and showed as a gap in the dark theme: check every white area's whole extent
+  (2026-10-10).
 
 ## John's traces
 
