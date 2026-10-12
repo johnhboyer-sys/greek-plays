@@ -30,12 +30,16 @@ Plate -> drawing, Furtwängler-Reichhold, red figures on the black ground (as to
     just outside the clay, as wide. The paint (the black bands of Medea's dress, the hair's dark) at its own width.
   - The grey of the plate (the robes and sleeves in thinned paint): a `tone` wash in the line colour, its opacity
     following how much darker than the clay the plate is there; the white dots and patterns on it left open.
+  - The faces (FACES): their features traced finer, from the plate barely blurred.
+  - The added white (WHITE_*): lighter than the clay round it; `white` paths (as Wealth), outlined finely where it
+    meets clay by a `day` path the dark theme hides.
   - Dark theme: the figures' area is the body; the ground stays open, as on the vase.
 
     python3 docs/redesign/drawings/tools/medea.py jstor_medea.jpg [qa.png [dump.npz]]
 """
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -112,12 +116,26 @@ LINE_W = 1.7
 # the curls open (pinholes under HAIR_HOLE plate px filled)
 HEADS = [(685, 1840, 790, 1980), (835, 1605, 905, 1692), (1205, 1580, 1248, 1645), (1378, 1600, 1425, 1700),
          (1688, 1476, 1798, 1600), (2093, 1525, 2190, 1652), (2495, 1578, 2526, 1645)]
-HAIR_T, HAIR_HOLE = 75, 2
+HAIR_T, HAIR_HOLE = 55, 2
 # the eyes (boxes, plate px: the servant, Medea, the boy, Oistros' two, Jason, the spearman): finer lines, EYE_W
 # plate px, and the pupil, darker than PUPIL_T, a dot at its own size (eyes never heavy: John, 2026-10-07)
 EYES = [(880, 1651, 898, 1669), (1226, 1617, 1246, 1636), (1410, 1628, 1446, 1648), (1726, 1515, 1741, 1536),
         (1749, 1513, 1767, 1533), (2099, 1586, 2115, 1601), (2490, 1601, 2508, 1617)]
 EYE_W, PUPIL_T, PUPIL_MAX = 1.0, 60, 10
+# the faces (boxes, plate px: the servant, Medea, the boy, Oistros, Jason, the spearman): their features traced
+# finer (John, 2026-10-12: "faces need to be more precise"): the plate barely blurred, closed over FACE_R plate px,
+# local contrast FACE_LO/FACE_HI, drawn at FACE_W plate px, the short strokes of the lips and nostrils kept
+FACES = [(866, 1640, 915, 1700), (1213, 1598, 1262, 1662), (1398, 1612, 1452, 1668), (1700, 1490, 1792, 1565),
+         (2092, 1555, 2135, 1628), (2466, 1588, 2512, 1652)]
+FACE_R, FACE_LO, FACE_HI, FACE_W = 1.5, 24, 40, 1.2
+# the added white (John, 2026-10-12: "white paint strokes should be made visible"): on the figures, lighter than
+# the clay round it by WHITE_D (the plate lightly blurred, against the clay's level there: the mean over WHITE_S
+# plate px of the figures' clay, 150-212, WHITE_CLEAR plate px or more from the plate's dark, less what reads
+# WHITE_D2 over it; the scan's light falls off across the
+# band, 175 at the left, 200 at the right); none in the faces. Drawn as `white` paths in WHITE_FILL under the lines (as Wealth); where
+# it meets clay, a fine outline, WHITE_LINE plate px, as a `day` path the dark theme hides
+WHITE_D, WHITE_D2, WHITE_S, WHITE_MIN, WHITE_CLEAR = 20, 10, 20, 3, 2.5
+WHITE_FILL, WHITE_LINE = "#f7f3ea", 0.8
 # Medea's cap and the border of her veil (plate px): a band of dark grey (60-90) with white scrolls and dots, as dark
 # as the plate's thin lines blurred; inside it only the black (lightly blurred, darker than CAP_LINE) is line, the
 # grey is tone
@@ -198,8 +216,13 @@ def main(src, qa=None, dump=None):
         pc(t / "up.png", t / "gf.png", ("filter.blur.gaussianBlur", {"radius": 0.3 * UP}))
         pc(t / "gf.png", t / "fine.png", ("image.adjustments.threshold", {"level": DARK}))
         pc(t / "tone.png", t / "tsm.png", ("filter.blur.gaussianBlur", {"radius": TONE_SMOOTH * UP}))
+        r = round(FACE_R * UP)
+        pc(t / "gf.png", t / "fclosed.png", ("filter.other.maximum", {"radius": r, "preserve": "roundness"}),
+           ("filter.other.minimum", {"radius": r, "preserve": "roundness"}))
+        pc(t / "up.png", t / "gw.png", ("filter.blur.gaussianBlur", {"radius": 0.7 * UP}))
         g, gl, closed, tn = grey(t / "up.png"), grey(t / "gl.png"), grey(t / "closed.png"), grey(t / "tone.png")
         gs, gf, tsm = grey(t / "gs.png"), grey(t / "gf.png"), grey(t / "tsm.png")
+        fclosed, gw = grey(t / "fclosed.png"), grey(t / "gw.png")
         dark0 = grey(t / "dark.png") < 128
         fine = grey(t / "fine.png") < 128
     H, W = g.shape
@@ -284,36 +307,67 @@ def main(src, qa=None, dump=None):
     pupil = (gs < PUPIL_T) & eyes & fig
     lab, _ = ndi.label(pupil)
     pupil &= (np.bincount(lab.ravel()) < PUPIL_MAX * UP * UP)[lab]
-    eye_lines = centre_lines(firm & fig & eyes & ~ndi.binary_dilation(pupil, iterations=UP // 2), EYE_W * UP, UP, UP)
-    lines = np.where(eyes, eye_lines | pupil, lines)
+    faces = boxes(FACES) & ~ndi.binary_dilation(paint, iterations=UP)
+    ffirm = apply_hysteresis_threshold(fclosed - gf, FACE_LO, FACE_HI) & fig
+    face_lines = centre_lines(ffirm & faces & ~eyes, FACE_W * UP, UP, UP)
+    eye_lines = centre_lines(ffirm & eyes & ~ndi.binary_dilation(pupil, iterations=UP // 2), EYE_W * UP, UP, UP)
+    lines = np.where(eyes, eye_lines | pupil, np.where(faces, face_lines, lines))
     dt = ndi.distance_transform_edt(~fig)
     edge = ~fig & (dt <= tw) & ~outside
     ink = (lines & fig) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 2 * UP * UP)[lab]
 
+    # the added white, against the clay's level round it
+    s_ = WHITE_S * UP
+    clayish = fig & (gw > 150) & (gw < 212) & (ndi.distance_transform_edt(~dark0) > WHITE_CLEAR * UP)
+    level = ndi.gaussian_filter(np.where(clayish, gw, 0), s_) / np.maximum(ndi.gaussian_filter(clayish * 1.0, s_), 1e-3)
+    clayish &= gw < level + WHITE_D2
+    level = ndi.gaussian_filter(np.where(clayish, gw, 0), s_) / np.maximum(ndi.gaussian_filter(clayish * 1.0, s_), 1e-3)
+    white = morphology.remove_small_objects((gw > level + WHITE_D) & fig & ~boxes(FACES), max_size=WHITE_MIN * UP * UP)
+    # (its outline where it meets clay, not where it meets the lines or the ground: there the white shows already)
+    rim = (ndi.distance_transform_edt(~white) <= WHITE_LINE * UP) & ~white & fig & ~ink
+    day = rim & ~ndi.binary_dilation(ink, iterations=UP)
+    lab, _ = ndi.label(day)
+    day &= (np.bincount(lab.ravel()) > UP * UP)[lab]
+    ink |= day
+
     depth = CLAY - tn
     inner = ndi.distance_transform_edt(fig) > TONE_EDGE * UP
     tone = inner & ((CLAY - tsm > TONE_D) | (gf < TONE_DARK)) & \
         ~ndi.binary_dilation(black | paint, iterations=round(TONE_CLEAR * UP))
-    tone = ndi.binary_opening(tone, structure=morphology.disk(max(1, round(TONE_W * UP / 2)))) & (gf < TONE_WHITE)
+    tone = ndi.binary_opening(tone, structure=morphology.disk(max(1, round(TONE_W * UP / 2)))) & (gf < TONE_WHITE) & \
+        ~white
     tone = morphology.remove_small_objects(tone, max_size=TONE_MIN * UP * UP)
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint,
-                            firm=firm & fig, edge=edge, tone=tone, depth=depth.astype(np.float16))
+                            firm=firm & fig, edge=edge, tone=tone, depth=depth.astype(np.float16), white=white, day=day)
 
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=~fig, weight="drawn",
+        ink, OUT, body=fig, open_holes=~fig, weight="drawn", day=day,
         title='Medea seizing her son, the serpent chariot, and Jason',
         desc='Line drawing after Karl Reichhold\'s 1906 drawing of the Medea krater by the Underworld Painter, '
              'Munich, Staatliche Antikensammlungen 3296 (Furtwängler and Reichhold, Griechische Vasenmalerei II, '
              'Taf. 90); the lower band, cut out and retraced.')
     if tone.any():
         add_tone(OUT, tone, depth, info['box'])
+    add_white(OUT, white, info['box'])
     print(OUT, info)
-    if qa:  # optional: the drawing over its source, and as the dark theme shows it
+    if qa:  # optional: the drawing over its source, and as the dark theme shows it (the day path hidden)
         lw.qa_overlay(g, OUT, info['box'], Path(qa))
-        lw.qa_dark(OUT, info['box'], Path(qa).with_suffix('.dark.png'))
+        dark = Path(qa).with_suffix('.dark.svg')
+        dark.write_text(re.sub(r'<path class="day"[^>]*/>', "", OUT.read_text()))
+        lw.qa_dark(dark, info['box'], Path(qa).with_suffix('.dark.png'))
+        dark.unlink()
+
+
+def add_white(svg, white, box):
+    """The added white as a path of class "white" in WHITE_FILL, between the body (and the tone) and the lines, as
+    Wealth: traced at the lines' size."""
+    x0, y0, x1, y1 = box
+    d, _ = lw.potrace_d(white[y0:y1, x0:x1], turdsize=4, alphamax=1.0)
+    svg.write_text(svg.read_text().replace(
+        '<path class="lines"', f'<path class="white" fill="{WHITE_FILL}" stroke="none" d="{d}"/><path class="lines"', 1))
 
 
 if __name__ == '__main__':
