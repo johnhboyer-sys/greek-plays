@@ -55,15 +55,17 @@ X0, Y0, X1, Y1 = 800, -60, 3070, 2085            # the crop: the figure and the 
 PANEL_L, PANEL_R = (968.87, 0.00199), (2419.38, -0.00136)
 PAPER_T = 150                                    # outside the panel: paper lighter than this, reaching the
                                                  # crop's edge, is ground
-FLOOR = 2077                                     # below this, out: the meander band (its top edge at
-                                                 # 2080.7-2083.7 after levelling; the soles end at 2072)
+FLOOR = 2075                                     # below this, out: the meander band (its top edge at
+                                                 # 2080.7-2083.7 after levelling) and the ground over it;
+                                                 # the soles' clay ends at 2074-2075, and their outline
+                                                 # is drawn below the cut
 UP = 2                                           # work at 2x the scan's px
 SEEDS = [(1500, 1500), (1900, 300)]
 DARK = 85                                        # ground and paint: darker than this (grey, lightly smoothed)
 AUTO_GROUND = 8000                               # scan px: dark areas this large reaching the crop's edge
-# ground the figures close in (a point in each, scan px): between the chiton and the mantle below the spear;
-# between the hem and the spear behind his hand
-POCKETS = [(1805, 1070), (1545, 1036)]
+# ground the figures close in (a point in each, scan px): between the chiton and the mantle, above and below
+# the spear; between the hem and the spear behind his hand
+POCKETS = [(1840, 1010), (1837, 1075), (1550, 1070)]
 LINE_R = 3.0                                     # scan px: the closing for the lines' local contrast
 LINE_LO, LINE_HI = 22, 34
 PAINT_NEAR, PAINT_CORE, PAINT_MIN = 1, 45, 80                  # (paint: the dark areas wider than the opening, with a core
@@ -78,8 +80,14 @@ LINE_W = 2.2                                     # scan px: the lines' width, th
 # lines are the plate darker than FACE_T (blurred FACE_BLUR scan px: the lines' cores 45-70, the clay
 # 170-190), at their printed width, traced at their own size; specks under FACE_SPECK scan px dropped
 FACES = [(1868, 113, 1995, 215), (1826, 268, 1935, 352), (1738, 380, 1860, 468),
-         (1236, 1960, 1565, 2078), (1676, 1960, 2032, 2078),   # (and the sandals' lattices,
-         (1712, 718, 1822, 772)]                              # and the belt's two rows of triangles)
+         (1712, 718, 1822, 772),                              # (and the belt's two rows of triangles,
+         (2876, 939, 2934, 951, 150)]                         # and the five dots on the spear's socket,
+                                                              # paler: darker than 150)
+# the sandals' straps and lattices (boxes, scan px): broad brushstrokes; at FACE_BLUR their edges came out
+# ragged and broken by the print's grain, so here the plate blurred SANDAL_BLUR scan px, darker than SANDAL_T,
+# its pinholes filled and its specks (under SANDAL_SPECK scan px) dropped
+SANDALS = [(1236, 1960, 1565, 2076), (1676, 1960, 2032, 2076)]
+SANDAL_BLUR, SANDAL_T, SANDAL_SPECK = 1.2, 112, 8
 # the petasos' thinned paint (a polygon round the crown and the cord, scan px): a wash whose opacity follows
 # how much darker the plate is (blurred 1 scan px) than the hat's clay (HAT_CLAY, read at five points:
 # 172-186), from HAT_A[0] at HAT_D[0] darker to HAT_A[1] at HAT_D[1]; the cord's broad brushstroke (darker
@@ -240,6 +248,10 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     fig = np.isin(lab, np.nonzero(sz > 2000 * UP * UP)[0])
     fig = ndi.binary_fill_holes(fig) & ~ground & ~outside
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP))
+    # (on the paper the spear's printed outline is its lines, not its clay: the clay is the paper inside them)
+    paper_lines = fig & ~panel & ~(gs > PAPER_T)
+    fig &= panel | (gs > PAPER_T)
+    fig = morphology.remove_small_objects(fig, max_size=200 * UP * UP)   # (slivers of paper at the panel's edge)
 
     lab, n = ndi.label(dark & fig)
     solid = np.r_[False, np.array(ndi.minimum(gs, lab, range(1, n + 1))) < PAINT_CORE] if n else np.zeros(1, bool)
@@ -277,19 +289,33 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
 
     tw = LINE_W * UP - 1      # (a centre line grown by tw / 2 comes out tw + 1 px wide)
     firm = apply_hysteresis_threshold(closed - gl, LINE_LO, LINE_HI)
-    black = firm & fig & ~ndi.binary_dilation(paint, iterations=UP) & ~(head & hair)
+    black = firm & (fig | paper_lines) & ~ndi.binary_dilation(paint, iterations=UP) & ~(head & hair)
     lab, n = ndi.label(black & ch)
     sk = np.bincount(lab[morphology.skeletonize(black & ch)].ravel(), minlength=n + 1)
     black &= ~(ch & ~(sk > CHILD_LONG * UP)[lab])
     lines = centre_lines(black, tw, 3 * UP, 2 * tw) | paint
     faces = np.zeros_like(fig)
-    for b in FACES:
-        faces |= (px >= b[0]) & (px < b[2]) & (py >= b[1]) & (py < b[3])
-    fl = (m["gf"] < FACE_T) & faces & fig & ~ch
+    face_t = np.full(fig.shape, FACE_T, np.float32)
+    dotbox = np.zeros_like(fig)                  # (boxes with their own threshold add dots only, pieces
+    for b in FACES:                              # under 20 scan px, to the lines, which they keep)
+        inb = (px >= b[0]) & (px < b[2]) & (py >= b[1]) & (py < b[3])
+        faces |= inb
+        if len(b) > 4:
+            face_t[inb] = b[4]
+            dotbox |= inb
+    sandals = np.zeros_like(fig)
+    for b in SANDALS:
+        sandals |= (px >= b[0]) & (px < b[2]) & (py >= b[1]) & (py < b[3])
+    faces |= sandals
+    fl = (m["gf"] < face_t) & faces & ~sandals & (fig | paper_lines) & ~ch
+    sd = (ndi.gaussian_filter(m['g'], SANDAL_BLUR * UP) < SANDAL_T) & sandals & fig
+    sd |= ndi.binary_fill_holes(sd) & ~morphology.remove_small_objects(ndi.binary_fill_holes(sd) & ~sd, max_size=3 * UP * UP)
+    fl |= morphology.remove_small_objects(sd, max_size=SANDAL_SPECK * UP * UP)
     holes = ndi.binary_fill_holes(fl) & ~fl
     fl |= holes & ~morphology.remove_small_objects(holes, max_size=UP * UP)
     fl = morphology.remove_small_objects(fl, max_size=FACE_SPECK * UP * UP)
-    lines = (lines & ~faces) | fl
+    fl &= ~(dotbox & morphology.remove_small_objects(fl & dotbox, max_size=20 * UP * UP))
+    lines = (lines & ~(faces & ~dotbox)) | fl
     lines &= ~ndi.binary_dilation(cord, iterations=UP)
     hd = HAT_CLAY - ndi.gaussian_filter(m['gw'], UP)
     hw = hat & (hd > HAT_D[0]) & ~ndi.binary_dilation(lines & ~cord, iterations=UP // 2)
@@ -303,8 +329,8 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     tone = np.where(hw, HAT_A[0] + (HAT_A[1] - HAT_A[0]) * np.clip((hd - HAT_D[0]) / (HAT_D[1] - HAT_D[0]), 0, 1), tone)
     tone = np.round(tone / 0.05) * 0.05
     dt = ndi.distance_transform_edt(~fig)
-    edge = ~fig & (dt <= tw) & ndi.binary_dilation(inground, iterations=UP)
-    ink = (lines & fig) | edge
+    edge = ~fig & (dt <= tw) & ndi.binary_dilation(inground | outside, iterations=UP) & panel
+    ink = (lines & (fig | paper_lines)) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * UP * UP)[lab]
     if dump:
