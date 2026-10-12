@@ -284,6 +284,16 @@ MASK_HAIR, GOATEE, MASK_DARK, MASK_OP = (410, 420, 598, 640), (690, 505, 790, 58
 DOT_L, DOT_MIN, DOT_MAX, DOT_LEN, VINE_Y = 130, 12, 700, 45, 780
 # The added yellow (the wreath's berries): yellower than the clay (green over BERRY_G, blurred 2 px), a wash
 BERRY_G, BERRY_OP = 195, 0.3
+# The right actor's shaggy suit (John, 2026-10-12: "you missed some hairs and the back leg needs black outline. hairs
+# should go over onto ground"): the outline runs along the clay's own edge (the figure less the white that stands
+# out past it: the white closed over TUFT_CLOSE px, filled), and the white strokes past it on the black, found at
+# finer blur (grey blurred 1 px over TUFT_L, red less blue under WHITE_RB) within TUFT_NEAR px of the clay, join the
+# white wash over the ground
+TUFT_CLOSE, TUFT_L, TUFT_NEAR, TUFT_MIN = 4, 130, 30, 8
+SUIT = (2200, 880, 2960, 1800)   # (flat px: the suit below his head; his white hair keeps no outline, as wasps.py)
+# The black of Dionysos's cloak, crisp solid ink with no wash (John, 2026-10-12: "crisper ink here. not wash"):
+# inside CLOAK (flat px) the paint is not hair and the brown has no wash
+CLOAK = (1680, 1380, 2130, 1800)
 # The added white: a stepped grey wash following its whiteness, no outline where it meets the ground (as wasps.py)
 TONE_STEPS, STEP_BLUR, STEP_MIN = [(0, 0.16), (45, 0.27), (70, 0.38)], 2.0, 40
 # Paint that runs into the ground's black is taken for ground: inside these polygons (flat px) the dark is paint:
@@ -300,7 +310,7 @@ OPEN_PTS = [(416, 234)]
 # Dionysos's hair (HAIR_BOX, flat px)
 VINE_TOP, HAIR_BOX = 330, (1150, 262, 2050, 760)
 # Big dark areas the figures close in that are paint, not ground (flat px, a point in each)
-PAINT_PTS = []
+PAINT_PTS = [(1760, 1700)]   # (the black of Dionysos's cloak by the floor; John, 2026-10-12: "this part is ink, not ground")
 WEIGHT = 0.0015   # (pass 0: "own" gave 0.205%, the outline heavy)
 
 
@@ -480,6 +490,8 @@ def scene(rgb, paint_pts=()):
         if size[k] > 3000:
             yk, xk = np.argwhere(lab == k)[0]
             print("dark kept as paint", size[k], (xk, yk))
+    for x, y in paint_pts:   # (paint that reaches the floor is closed in by nothing: it joins the figure itself)
+        painted |= ndi.binary_dilation(lab == lab[y, x], iterations=OPEN + 1) & dark
     ground = (is_ground[lab] | ~rows) & ~painted
     fig = (ndi.binary_fill_holes(inside[ndi.label(clay)[0]] & ~ground) & ~ground) | painted
     fig = ndi.gaussian_filter(fig.astype(np.float32), SMOOTH) > 0.5
@@ -489,15 +501,22 @@ def scene(rgb, paint_pts=()):
     paint = dark & fig & core
     to_edge = ndi.distance_transform_edt(fig)
     edge = fig & (to_edge <= EDGE_IN)
-    # (the white has no outline where it meets the ground: the tufts that stand out on the black; the clay body under
-    # them keeps its outline)
-    dt, (iy, ix) = ndi.distance_transform_edt(~fig, return_indices=True)
-    outline = ~fig & rows & (dt <= EDGE_OUT) & ~white[iy, ix]
-    outline |= fig & (yy >= floor[xx] - 1 - EDGE_OUT)
+    # (the outline is the clay's edge; the white standing out past it on the black has none, see TUFT_*)
     inbox = lambda b: (xx >= b[0]) & (yy >= b[1]) & (xx < b[2]) & (yy < b[3])
+    suit = inbox(SUIT)
+    body = ndi.binary_fill_holes(ndi.binary_closing(fig & ~white, structure=morphology.disk(TUFT_CLOSE))) & fig
+    body |= fig & ~ndi.binary_dilation(white, iterations=2)
+    body = np.where(suit, body, fig)
+    dt, (iy, ix) = ndi.distance_transform_edt(~body, return_indices=True)
+    outline = ~body & rows & (dt <= EDGE_OUT) & (suit | ~white[iy, ix])
+    outline |= fig & (yy >= floor[xx] - 1 - EDGE_OUT)
+    tufts = (g1 > TUFT_L) & (rbs < WHITE_RB) & rows & ~body & (dt <= TUFT_NEAR) & suit
+    tufts = morphology.remove_small_objects(tufts, max_size=TUFT_MIN)
+    fig |= tufts
+    white |= tufts
     faces = np.any([inbox(b) for b in FACES], 0)
     # (the faces' close lines are not hair)
-    hair = ndi.binary_dilation(ndi.gaussian_filter(paint.astype(np.float32), HAIR_SIGMA) > HAIR_DENS, iterations=4) & fig & ~(faces & ~inbox(MASK_HAIR))
+    hair = ndi.binary_dilation(ndi.gaussian_filter(paint.astype(np.float32), HAIR_SIGMA) > HAIR_DENS, iterations=4) & fig & ~(faces & ~inbox(MASK_HAIR)) & ~inbox(CLOAK)
     hair_ink = (ndi.gaussian_filter(((g1 < HAIR_INK) & fig & ~edge).astype(np.float32), HAIR_SMOOTH) > 0.5) & hair & ~edge
     mask_wash = ((inbox(MASK_HAIR) & hair) | inbox(GOATEE)) & fig & ~edge & (g1 < MASK_DARK)
     mask_wash = ndi.gaussian_filter(mask_wash.astype(np.float32), HAIR_SMOOTH) > 0.5
@@ -535,7 +554,7 @@ def scene(rgb, paint_pts=()):
     main = ink & ~hair_ink & ~green
     ink = (ink & ~green) | blue
     hair_ink = (hair_ink & ~green) | blue
-    brown = fig & ~ink & ~white & ((rbs > BROWN_RB) | hair)
+    brown = fig & ~ink & ~white & ((rbs > BROWN_RB) | hair) & ~inbox(CLOAK)
     bsteps, hsteps = [], []
     for steps, where, out in ((BROWN_STEPS, ~hair, bsteps), (HAIR_STEPS, hair, hsteps)):
         for level, opacity in steps:
