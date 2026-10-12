@@ -170,6 +170,26 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - The text names no inventory number; Furtwängler's 1885 catalogue of the Berlin vases does (no. 2164, with
   "Abg. Gerhard, Trinksch. und Gefässe Taf. XXI") and says what is restored (here Herakles' legs). Its text
   is on the Internet Archive (`beschreibungderv00furt`): search the plate number (2026-10-09).
+- Hecuba (II, Taf. XVI, black-figure: Neoptolemos leading Polyxena to Achilles' tomb), made with PhotoCraft in the
+  black-figure silhouette (see that section): about an hour and a half over four passes, approved by John
+  2026-10-10. `tools/hecuba.py` (2026-10-10).
+- The added purple: John chose it as a grey `tone` wash (0.45) over the black, from a small test of three (wash,
+  open, outline) (2026-10-10).
+- A face drawn in incisions about 1 px wide (Achilles' shade, 25 px tall): no threshold, top-hat or blur along the
+  strokes gave clean lines. Hand-placed strokes read off the plate's pixel grid at 12-14x did (`SHADE_STROKES`);
+  a ridge filter outside the tool helped find them (2026-10-10).
+- Where a figure is cut from one it overlaps, check what hangs over the overlap: the strip of Polyxena's dress
+  over the hoplite's shield rim was left out by a cut along the shield's edge (John: "you missed part of her
+  clothes"). Her outline there is the dress's outer incision, straight through it where the shield's white device
+  touches it (a least-cost path ran round the device) (2026-10-10).
+- A cut along the frieze's ground line also took the outline of the helmet's white crest band, which starts at the
+  cut: keep the outline within a line's width of what the cut keeps (`keep_line`; John: "Missing outline line?")
+  (2026-10-10).
+- John's blue painted over a whole hand (the black between fingers he had greened out) is paint, not strokes:
+  drawn along its centres at the line width it left flecks; taken as painted, with its pinholes filled
+  (`FINGERS`, `FLECK`), it came clean (2026-10-10).
+- Gerhard reads the animal at the tomb as Hecuba turned dog; Furtwängler 1885 (no. 1902) says it is a hare. The
+  credit follows the museum's number from Furtwängler and the Beazley Archive (302032) (2026-10-10).
 
 ### Furtwängler and Reichhold, *Griechische Vasenmalerei* (black pen lines on grey-brown, the ground a dark halftone)
 
@@ -200,6 +220,21 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   round dance on Taf. 17/18, was dropped: each dancer's outer hand clasps a neighbour's, the thumb of one
   over the other's fingers, so no cut leaves a whole hand (John: "THe hands are the real issue. let's
   find another image"). Check the hands and feet at the edges of a crop before picking it (2026-10-08).
+- Bacchae (Taf. 37, four maenads), made with PhotoCraft: about an hour over two passes, approved by John
+  2026-10-12. `tools/bacchae.py`. The figures stand free of each other but for the staffs: no livewire cuts;
+  the floor is the meander band's edge, measured column by column where the ground lies over it (2026-10-12).
+- Taf. 37 is small (2385 px; a face about 60 px): lines by local contrast (a closing 2.5 plate px wide) drawn
+  along their centres at 0.11%; the plain dark threshold took the thinned paint's broad strokes for lines
+  (2026-10-10).
+- The hair at the paint's threshold came out mottled, its brown curls open. Inside a box round each head the
+  plate under grey 120, joined to the paint's dark cores, gives solid hair with the ivy leaves and berries
+  open (`HEADS`). The eyes, about 12 px, drawn finer with the pupils as dots (`EYES`) (2026-10-10).
+- The thinned paint (shadows in the folds, says the text): a `tone` wash, found as the plate darker than its
+  closing over 16 plate px (wider than the broadest band; the scan's light falls off to the left), with the
+  drawn lines taken out before the opening, so broad bands stay whole (2026-10-10).
+- Clay islands on the ground (three leaves of a sprig) are lost when the figures are the clay joined to seeds.
+  John ringed them in PhotoCraft: a ring whose inside lies off the figure puts the plate's own clay there back
+  (`MARKS_FILES`). Check for free-standing leaves, berries and tips before showing him (2026-10-12).
 
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
@@ -294,6 +329,82 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   the edge is where the plate turns lighter than the ground, measured column by column (`CROWN`). Ground that
   fingers close off against another figure is a pocket: it came out as black paint (John) (2026-10-10).
 
+- Phoenician Women (I, pl. XXVIII, Europa on the bull and Phoenice), made with PhotoCraft: about an hour and a
+  quarter over four passes, the credit included, approved by John 2026-10-10. `tools/phoenician_women.py`
+  (2026-10-10).
+- Pin the line weight after the first pass (`WEIGHT`, pass 1's median width over the longer side). With
+  weight "own" his marks moved the median one pixel step and thinned every line on the plate. After each
+  round, diff the whole plate against the last pass: only the marked places may change (2026-10-10).
+- A band of solid paint that touches the ground (a girdle meeting the black at the hip, the band tied round a
+  bull's tail) is read as ground: it came out as two outlines with the clay showing between. Wall it off
+  where it meets the ground (`WALLS`), and check the masks: the first wall stopped short and the band still
+  leaked past its end (2026-10-10).
+- A short line John draws across such a junction means "this is paint", not a line to draw: twice it went in
+  as ink. Use it as the wall and drop it from the marks (`DROP`); ask in one line when a mark could be
+  either (2026-10-10).
+- Clay the figures close in can be the vase's ground even where the plate prints it clay (under Europa's
+  arm): John's call; open it with a point inside (`OPEN`) (2026-10-10).
+- The .pcraft round trip: build it with `photocraft-cli serve` (open the plate and the red drawing, copy,
+  paste in place, name the layer, add an empty "John marks" layer, save); `doc.select` takes `index`. Read
+  the layer ids with `photocraft-cli info` before exporting: he may rename or duplicate his layer ("John
+  marks copy"). Hide all layers but his, save as PNG, and check the red layer for his edits too
+  (2026-10-10).
+
+- Iphigenia at Aulis (II, pl. XC, Artemis pursuing a woman with a child, read by the Élite as Helen with the
+  infant Iphigenia), made with PhotoCraft: about two and a half hours over two passes, the credit included,
+  approved by John 2026-10-10. `tools/iphigenia_aulis.py` (2026-10-10).
+- A big crop is slow: 2940 x 2032 plate px at UP 3 took 11 minutes and 2 GB a run. Fix the masks on
+  sub-crops (the same tool on a box, the edge rule and out-of-box points dropped: seconds a run) and run the
+  whole plate only to check and to show (2026-10-10).
+- Bands of paint along a garment's edge that touch the ground (a mantle's borders, a sleeve's border) are
+  too many and too long to wall one by one. Find them as the thin parts of the ground (what an opening of 8
+  plate px takes away), sheet every one on the plate, and mark the bands with a point each (`PAINT`). John
+  sorted the sheet in one look: the gaps between fingers and a strip between arm and drapery are ground.
+  After the bands go, relabel the ground: pieces they cut off are paint too (2026-10-10).
+- The gap joiner took the larger dots of a dress for broken line ends and bridged pairs of them, or ran a
+  line on to a dot. Drop its pieces that touch only small marks or touch a dot (`JOIN_SMALL`, `JOIN_DOT`)
+  (2026-10-10).
+- A hair wall can close off ground: Artemis' hair walled, the black between her raised arm and her back
+  became a pocket and filled as paint. Check the full drawing after every wall (`POCKETS`) (2026-10-10).
+- A bowstring printed as black paint over the black ground (grey 3-6 against 7-9): place each straight run
+  where the mean grey along it is least, searching half-px shifts of its ends (`STRINGS`) (2026-10-10).
+- Wealth (III, pl. LVIII, Plutus with the cornucopia), made with PhotoCraft: about forty minutes over two
+  passes, the credit included, approved by John 2026-10-10. `tools/wealth.py` (2026-10-10).
+- Added white (hair, beard) over the black ground, no black outline on the vase: show John a small test of each house
+  way on the head first. He chose white paths (as Clouds) with a black outline on the ground in day mode only, so the
+  hair does not vanish into a light page: `trace_svg(day=...)` puts the lines in that area on a path of class "day",
+  which the dark theme hides. The white path runs half a line onto the ground, under that outline, or the dark theme
+  shows a rim of clay where the body's edge sits under the hidden line (2026-10-10).
+- The white: light and not red (red less blue, PhotoCraft's Channel Mixer); a grey threshold alone counts the soft edge
+  between the white and the black as clay and draws an outline round the hair (2026-10-10).
+- A long staff crossing the ground with black bands (the sceptre): fit its two edges as lines where it is clear of the
+  bands (sub-px, where the grey crosses 80) and wall along both a px out; the staff can widen along its length (here
+  10 to 13 px), so fit each stretch on its own (`SCEPTRE`) (2026-10-10).
+- Boxes that help on one plate can hurt on the next: a FACES box broke the eye's lid into pieces and a HANDS box lost
+  the thumb under the cornucopia. The eye drawn on points read off the plate's grey map came out right at once
+  (`EYE_LINES`), as Helen's (2026-10-10).
+- A thin pale line down the plate through the figure is a crease if it runs on through the margins (dark on the paper):
+  it draws nothing, as ground on the black and clay on the clay (2026-10-10).
+- Check a close-up's panel offsets before reading coordinates off it: the first box to drop the line John flagged
+  missed it by 20 px (2026-10-10).
+
+### Laborde, *Collection des vases grecs de M. le comte de Lamberg* (colour aquatints, red figures on a dark ground)
+
+- Electra (Sophocles) (I, pl. VIII, Orestes brings Electra the urn), made with PhotoCraft: about an hour and a half
+  over two passes, the credit included, approved by John 2026-10-10. `tools/electra_soph.py` (2026-10-10).
+- The Élite method carries over unchanged: ground grey about 60, clay 160, the same thresholds at UP 3; a full run
+  takes 25 seconds. The leaf holds two plates: fit each panel edge on its own window (`EDGES`) (2026-10-10).
+- The band the figures stand on bows up about 10 px under them. A ground line drawn straight between clear stretches
+  ran up to 3.5 px off under the feet and cut through the 1-3 px of dark between the toes and the band: the toes came
+  out open below (John: "look at the toes"). Measure the band's top in every column, going up from inside the band,
+  and draw the sole as a band of line width along the cut wherever a figure stands on it; the outline alone left nubs
+  under the gaps between toes (2026-10-10).
+- The cut must sit a little above the band's soft edge (`GROUND_IN`): below it, a sliver of clay ran from Pylades'
+  feet along the band to the crop's edge, and the edge rule dropped the whole figure (2026-10-10).
+- The aquatint's grain leaves light specks in the ground that the ridge term keeps: drop clay pieces under 20 plate
+  px once the figures are cut (`SPECK`). A FACES box took the grain on the clay as lid lines; one eye drawn on points
+  was enough (2026-10-10).
+
 ### Gerhard, *Etruskische und kampanische Vasenbilder* (coloured lithographs, red figures on black)
 
 - Libation Bearers (Taf. XXIV, the whole frieze: four figures, a throne and a footstool): about four
@@ -326,6 +437,57 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   "the blob here of clay is not part his body". Leave such ground open (`OPEN`) (2026-10-07).
 - The vase went from Berlin (F 2184) to Moscow after the war. The Beazley Archive (no. 202912) gives
   Pushkin Museum 6528.3, the museum's own page inv. АВ 3742; the credit cites both (2026-10-07).
+
+### Contour plates with no black ground (Hoernes, *Archäologische Zeitung* 1877: black pen lines on paper)
+
+- Rhesus (AZ 35, 1877, Taf. 5, two youths on a night raid), made with PhotoCraft: about an hour and fifty minutes
+  over a style test and one pass, approved by John 2026-10-10. `tools/rhesus.py` (2026-10-10).
+- Compare every scan of the plate at full size before choosing: the IGNCA scan's 5120 px were JPEG blocks (the face
+  mush), the Getty copy's 2365 px photo sharp. Register one to the other (SIFT): within 2 px under a similarity, the
+  photo was flat. The Internet Archive's "orig" captures are numbered by leaf, not by viewer page: read the
+  scandata (n228 was leaf 229; leaf 228 was blank). PhotoCraft cannot read JPEG 2000: convert to PNG first (2026-10-10).
+- Lines at half maximum (darker than halfway between the paper and the line's darkest px nearby): local contrast
+  alone took in each line's soft edge, and the hair's strokes ran together (2026-10-10).
+- No ground to cut from: the figures' area is the paper the lines close off. The pen outline breaks at joints and
+  where a line stops short of the next, so seal the gaps: open the paper by a disk (6 plate px here), take the
+  pieces left as areas, and give every paper px to the nearest by a watershed on the distance to the ink, so slivers
+  of ground stay with the ground. Then mark the pockets of ground the figures close (`POCKETS`) on a numbered map of
+  the areas laid over the plate, not on a flat colour map (2026-10-10).
+- An opening seals gaps narrower than its disk, but not a passage just as wide: when the lines were thinned the
+  right youth leaked through an 11 px break behind his knee. Find a leak by the shortest path inside the opened
+  paper from a point well inside the body to the crop's edge; it crosses the line at the break. Wall it
+  (`WALLS`, for the area only, not drawn). A body that has turned to ground may instead have joined a pocket:
+  check what area the body's point lands in before searching (2026-10-10).
+- Spear shafts (12-22 px between their edge lines) are too narrow for the seal: fit each shaft's centre and width
+  to the midpoints between its edge lines, read across it every 4 px from rough ends (`SHAFTS`) (2026-10-10).
+- Drop specks by distance from the figures, not by touch: a toe's tip curl stands just off the foot (2026-10-10).
+- John read a strip I took for cloak (between the forearm, the cloak's edge and the spear) as ground; he marked it
+  on the whole dark view. On a contour plate, show the dark theme of the whole group early (2026-10-10).
+- Weight: John asked for heavier lines than the plate's own (0.084%), then chose 0.12% of 0.12, 0.16 and the house
+  0.225%: at 0.225% the hair's strokes ran into blots (2026-10-10).
+
+### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
+
+- Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
+  two and three-quarter hours over a style test and three passes, the credit included, approved by John 2026-10-12.
+  `tools/cyclops.py` (2026-10-12).
+- The Internet Archive's original capture was far larger than its viewer page (6000 x 4000 against 2635 x 3625) and
+  the book was photographed upside down: a half-turn, not the quarter-turn the preview card gave. Viewer page n418 was
+  leaf 419. Each "orig" JP2 can be pulled alone from the tar's listing (690 KB here) (2026-10-12).
+- Thinned glaze on the clay (smoke, flames) read as stepped washes, as the blood (John chose them over one flat wash).
+  The smoke is redder than the clay: red less 1.6 green (PhotoCraft's Channel Mixer) parts it from the clay and from
+  every mix of black and clay. The flames print as a dark stipple, so read them by darkness at a heavy blur (7 plate
+  px); black inside the fire is only the solid black, opened and closed over the dot screen and smoothed. A lighter
+  blur left the wash blotchy and the loops pinholed (John: "Clean the fire") (2026-10-12).
+- Added white on this plate (the rock's patches) went in as ink (John: "those are patches but make them ink"), their
+  reddish printed rims with them; keep the white finder in a box round the rock, or it takes a beard's light incision
+  for white (2026-10-12).
+- Faint brown lines on the clay (the hats' brims prolonged, which Saglio says are worn): least-cost paths along the
+  dark through points read off the plate at 3x, smoothed along their length, in the wash (2026-10-12).
+- A part lying over the border band (the club's end): its outline read off the plate and filled, the band's clay
+  round it kept from becoming light marks (2026-10-12).
+- The Louvre's collection site answered with a CAPTCHA; the Beazley Archive's record opened in the browser pane after
+  its automatic check (2026-10-12).
 
 ### Photos of vases (red-figure, taken off the vase with `tools/vase_unroll.py`)
 
@@ -438,6 +600,55 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   of his strokes run close (nose, chin), the clay between them is his: ask before closing it (2026-10-10).
 - A small hole in the figure's area shows the dark ground in dark mode only: her eye read heavy there since pass 1.
   Close holes under a few hundred frame px^2 when the figure has no ground seen through it (2026-10-10).
+- Wasps (Getty 96.AE.112, a phlyax stage scene; the Getty's three photos): about five hours over twelve passes, approved
+  by John 2026-10-10. `tools/wasps.py` (2026-10-10).
+- Museum photos without EXIF: fit the focal length by trying several and keeping the one where the fit's cost levels
+  off (here 40000 px for all three, taken from one stand). The profile views match the front only at a turn near 90
+  degrees: filter SIFT matches by the turn a cylinder implies before fitting, or the fit drops the front as outliers.
+  `vase_unroll.silhouette` wants a light ground (L > 140); the Getty's grey (115-143) needs its own edge rule.
+- A scene that wraps 130 degrees round a body tapering under it: the shear-free flat bowed the stage plank and fanned
+  the outer figures out. John chose the flat with the rings straight and the meridians upright (x = R_C theta, y = arc
+  length), widening the feet by up to 5% (2026-10-10).
+- Read the white paint as the painter used it: John saw teeth under a moustache and a sheep (ram) mask where I saw a
+  beard and hair; the Getty's record calls it a ram's head. Ask for a line where one area becomes another (he drew
+  both) and keep a mask an object: its face sharp and outlined, its fleece painted (2026-10-10).
+- The thinned glaze on clay (bodies, clothes) took six rounds: a stepped wash was "too blotchy", strokes found by
+  elongation read as thin daubs, a blurred watercolour too faint. What he approved: each stroke repainted with
+  PhotoCraft's own brush (paint.stroke, hardness 0, seeded, so it reruns byte for byte), broader than the mark, run
+  along the contours (the level lines of the distance to the painted lines), few and faint, and never level (the
+  wheel's streaks). Patterns on cloth: crisp-edged washes darker where the brush pooled (2026-10-10).
+- The big dark areas the figures close in (behind a door, between legs) are ground; a fixed head box cut a beard's
+  tail where it hangs over cloth and showed as a gap in the dark theme: check every white area's whole extent
+  (2026-10-10).
+
+### Photos of vases, black-figure (a cup's tondo taken at a slant)
+
+- Prometheus Bound (Vatican 16592, Laconian cup by the Arkesilas Painter; Daderot's photo), made with PhotoCraft in
+  the black-figure silhouette: about seven hours over three days and eight passes, approved by John 2026-10-12.
+  `tools/prometheus.py` (2026-10-12).
+- A tondo shot at a slant: fit an ellipse to the clay's edge against the black band (1440 rays, half-maximum, outliers
+  dropped) and map it to a circle by one affine map; on a shallow cup that left under half a px, so no unrolling.
+  The border's painted rings fit as circles too, and John wanted them drawn: "It looks bad without the band"
+  (2026-10-10).
+- A ring of pale filler round a glued-back piece: trace it as a least-cost path through hand points, then carry each
+  mask across it by a harmonic fill of its signed distance, measured over known px only (measured to the hole's edge,
+  single px tipped it and the fill came out black); join the incisions it broke by hand, as automatic pairing joined
+  the wrong hair locks (2026-10-10).
+- The light falls off toward the rim (clay grey 150 in the middle, 30-90 at the edge): test clay against the clay's
+  own grey round it, not a fixed level. The glaze's glare photographs light and blue, and over the capital light and
+  warm: there test saturation too. A red channel less blue clips at 0 in PhotoCraft; the Channel Mixer's constant
+  (50) keeps it whole (2026-10-10).
+- Photo incisions found by top-hat came out broken and of every width: John found it "isn't precise enough". Redraw
+  each as an even centre line, join small gaps, and fit the feathers as straight lines (2026-10-12).
+- Added red fills its area edge to edge (John: "well defined area which is filled edge to edge"; the beard "solid one
+  color"): fill the area, not the photo's patchy red. Ropes are "big thick rope lines" with "distinct separation":
+  draw them on his centrelines, the separations black. Where the wash met incisions (the ribs) it swallowed them; keep
+  incisions out of narrow red only, stop the wash at them, and in the end the ribs were his lines alone (2026-10-12).
+- On a tondo, clay for the whole ground in both themes: the white ground "just doesn't work here" (John, 2026-10-11).
+- John's PhotoCraft marks over five rounds: export his layer alone through `photocraft-cli serve` (layer.setProps
+  visible false on the rest, doc.save png). His colours changed between rounds (green first "lines to draw whole",
+  later "remove", i.e. a clay line): ask what each colour means each round, and confirm in plain words if he answers
+  "confused" (2026-10-12).
 
 ## John's traces
 
