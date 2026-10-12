@@ -10,8 +10,33 @@ Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cl
 geometry, not image filtering, and stay in numpy/scipy: taking the painting off the vase's curve
 (vase_unroll.py) and fitting the vase (--refit). The SVG is written by linework.trace_svg.
 
+Photo -> flat:
+  - The photos carry no focal length. The vase's profile and the three cameras were fitted together (MODEL): to
+    the meander band's lower edge in all three, the outline (the rows clear of the handles), and points of the
+    painting matched by SIFT between the front and each other view. The focal length was tried at 15000, 20000,
+    25000 and 50000 px (the prints' scaled by their size against the TIFs); the matches with alt2 were best at
+    15000-20000 (1.0-1.1 px; 1.3 at 25000, 4.2 at 50000) and the cost least at 20000, so FOCAL is 20000. Started
+    from the outline alone, the longer ones let alt1's turn slide to a false -164 degrees (START).
+  - The flat keeps the rings straight and the meridians upright, as wasps.py; the bands come out straight.
+
+Flat -> drawing (approved by John on pass 4, 2026-10-12):
+  - Side A whole (John): under the laurel band, on the meander band, between the handles' ornaments; the scene is
+    the clay most of which lies between LEFT and RIGHT. The outline lies on the black ground outside the clay
+    (John: "the vine should not be ink, but ground with outline").
+  - Lines by local contrast along their centres at the paint's own width; the faces near half maximum (FACES,
+    HM_*: "you're missing some of the finer lines on the face"); the grapes' dots ink (DOT_*); the line weight
+    pinned (WEIGHT).
+  - Dionysos's hair: black curls as ink, the brown under them stepped washes, darker round the wreath (HAIR_*);
+    his cloak's black crisp ink (CLOAK). The left actor's hair and goatee a wash just short of ink (MASK_*,
+    GOATEE). The right actor's white suit: tufts as a stepped grey wash running past the clay's outline onto the
+    ground (SUIT, TUFT_*); his white hair and beard without an outline. The irises and the thinned glaze as
+    stepped washes (BROWN_STEPS); the wreath's yellow berries a light wash.
+  - John's marks on passes 1 and 3 (blue lines) laid in as he drew them (MARKS_FILES).
+
     python3 docs/redesign/drawings/tools/frogs.py front.tif [qa.png]
     python3 docs/redesign/drawings/tools/frogs.py front.tif alt1.jpg alt2.jpg --refit [focal]
+    python3 docs/redesign/drawings/tools/frogs.py --flat front.tif flat.png        (the flat alone)
+    python3 docs/redesign/drawings/tools/frogs.py --from-flat flat.png [qa.png]   (quicker; the same SVG)
 """
 import json
 import os
@@ -56,7 +81,6 @@ TURNS = {"alt1": -94.784, "alt2": 1.905}
 FIT_ROWS = {"front": [(2010, 2240), (3080, 4700)], "alt1": [(1090, 2800)], "alt2": [(1850, 2600)]}
 FIT_BAND = {"front": [(1000, 3930), (2200, 3957), (3400, 3930)], "alt1": [(780, 2290), (1300, 2318), (2000, 2300)],
             "alt2": [(830, 2195), (1350, 2245), (1950, 2190)]}
-BAND_V = 3961   # the band's row in the front photo at the axis, roughly (the profile's start)
 PROFILE_PX = [-750, -450, -150, 150, 450, 750, 1050, 1350, 1650, 1950, 2150]   # knots, in front px above the band
 
 
@@ -598,7 +622,7 @@ def main(src, qa=None, flat_png=None):
     rgb = np.asarray(Image.open(flat_png).convert("RGB")) if flat_png else flat_image(src)
     ink, main, own, fig, g, bsteps, wsteps = scene(rgb, PAINT_PTS)
     info = lw.trace_svg(main, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=own,
-                        title="The bust of Dionysos between two comic actors, one reaching for grapes, one holding a cup",
+                        title="Bust of Dionysos and comic actors",
                         desc="Line drawing after the Apulian red-figure bell-krater Cleveland Museum of Art 1989.73, side A; "
                              "traced from the museum's photograph (CC0), taken off the vase's curve.")
     for steps in bsteps:   # (the brown, the hair, the left actor's hair and goatee: each its own set of steps)

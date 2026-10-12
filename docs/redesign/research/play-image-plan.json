@@ -692,14 +692,23 @@
       "author": "aristophanes",
       "work_id": "frogs",
       "title": "Frogs",
-      "proposed_subject": "Dionysus as a traveler, with a frog or crossing motif; keep distinct from Bacchae.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "The whole of side A of the Apulian bell-krater Cleveland 1989.73: a colossal bust of Dionysos, his thyrsos and vine over his shoulder, between two comic actors, one reaching for grapes, one holding a large skyphos (John's pick, 2026-10-09: Plate Picks 37-Sa, \"better because it has comic actors\"; the whole side, 2026-10-12; drawn with PhotoCraft 2026-10-12). The earlier proposal, Dionysus as a traveller with a frog motif, was not sourced.",
+      "status": "Drawn 2026-10-12; approved by John 2026-10-12",
+      "source_candidate": "https://www.clevelandart.org/art/1989.73",
+      "final_image": "docs/redesign/drawings/frogs.svg",
+      "credit": "After the Apulian red-figure bell-krater Cleveland Museum of Art 1989.73, side A, attributed to the Choregos Painter, about 390-380 BC (Beazley Archive 1002927; John L. Severance Fund). Photographs: Cleveland Museum of Art (Open Access). Drawing traced from the photograph and changed.",
+      "license": "The museum's photos CC0 (Open Access; the record's share_license_status, checked 2026-10-12). The drawing traces only the ancient painting and carries no licence.",
+      "crop": "The whole of side A: the vine with its grapes along the top (under the rim's laurel band), the left actor reaching for a bunch, the thymiaterion at the far left, the bust of Dionysos, and the right actor in his shaggy suit holding the skyphos, on his block, with his tail. Left out: the handles' ornaments, the laurel and meander bands, the black ground. The left actor's costume phallus is drawn as painted (John, 2026-10-09: no censorship).",
+      "alt_text": "The bust of Dionysos in a wreath and fillet, a vine with grapes above, between two comic actors in masks: on the left one reaches up for a bunch of grapes, on the right one in a shaggy white suit holds out a large cup",
+      "source_file": [
+        "https://openaccess-cdn.clevelandart.org/1989.73/1989.73_full.tif",
+        "https://openaccess-cdn.clevelandart.org/1989.73/1989.73_alt1_print.jpg",
+        "https://openaccess-cdn.clevelandart.org/1989.73/1989.73_alt2_print.jpg",
+        "https://openaccess-cdn.clevelandart.org/1989.73/1989.73_alt3_print.jpg"
+      ],
+      "shows": "Thematic only: the vase is no scene of the play. Dionysos is the hero of Frogs and the god of the theatre, and the two comic actors stand for comedy at his festival; the vase is some fifteen years later than Frogs (405 BC). The museum reads the scene as a bust of Dionysos and comic actors; the right actor's shaggy suit is painted in added white.",
+      "method": "Red-figure photo taken off the vase (tools/vase_unroll.py): the profile and three of the museum's cameras (the main view, the right handle turned to the camera, side A from above; no EXIF, the focal length fitted at 20000 px) fitted to the meander band, the outline and points matched by SIFT; the flat keeps the rings straight and the meridians upright. Every image step run in PhotoCraft (photocraft-cli 0.2.0), numpy only combining its masks and measuring: the scene by red less blue, the outline on the ground outside the clay; lines by local contrast along their centres, the faces near half maximum; Dionysos's curls as ink over stepped washes; the left actor's hair and goatee a near-black wash; the white suit's tufts as a stepped grey wash past the outline; the grapes' dots as ink; John's lines laid in; potrace. tools/frogs.py.",
+      "result": "Approved by John on the fourth pass, 2026-10-12, after his notes on the style test (the actor's hair and goatee just short of ink, the grape dots ink, the faces' finer lines, Dionysos's curls darker round the wreath, the vine as clay with an outline) and on passes 1-3 (his lines in PhotoCraft twice; the suit's outline with its tufts over the ground; the cloak's black crisp ink, its part by the floor paint). About three hours, less a pause. No outside review; the credit checked against the museum's record and the Beazley Archive's (1002927: Apulian red-figure with added colour, bell-krater; CVA Cleveland 2, pls. 92-93)."
     },
     {
       "author": "aristophanes",
