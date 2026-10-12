@@ -8,7 +8,8 @@ px apart, in ink taller than WORK_H (as Andromache's): traced with
 weight="drawn" the gap between them stays open. And an arrow's shaft that narrows to 3 px of clay
 between its lines, in ink as tall as Heracles': the body's smoothing takes the narrow part's clay,
 which stays when it is passed as `keep`. And lines in an area passed as `day`: drawn by a path of their own,
-class "day", which the dark theme hides, and left out of the lines path.
+class "day", which the dark theme hides, and left out of the lines path. And a body dot under the body's
+speck limit (a dot of Persians' ground line): no clay without `add_clay`, clay when passed as `add_clay`.
 
     python3 docs/redesign/drawings/tools/test_linework.py
 """
@@ -84,6 +85,7 @@ def main() -> None:
     gap_check()
     keep_check()
     day_check()
+    clay_check()
     print("ok")
 
 
@@ -176,6 +178,25 @@ def day_check() -> None:
           f"{dayp[y, xr]:.0%} day")
     assert lines[y, xl] > 0.5 and dayp[y, xl] < 0.5, "the left line is not in the lines path alone"
     assert dayp[y, xr] > 0.5 and lines[y, xr] < 0.5, "the right line is not in the day path alone"
+
+
+def clay_check() -> None:
+    """A dot of clay under the body's speck limit, away from the rod: none without `add_clay`, clay with it."""
+    ink, body = drawing()
+    yy, xx = np.mgrid[0:H, 0:W]
+    dot = np.hypot(yy - DOT[0], xx - DOT[1]) <= DOT[2]
+    shown = []
+    for kw in ({}, {"add_clay": dot}):
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "t.svg"
+            bx0, by0, bx1, _ = lw.trace_svg(ink, out, title="t", desc="t", body=body | dot, **kw)["box"]
+            s = out.read_text()
+        clay = render(re.sub(r'<path class="lines"[^>]*/>', "", s).replace('fill="none"', 'fill="#000"'), 1400)
+        k = 1400 / (bx1 - bx0)
+        shown.append(clay[int((DOT[0] - by0) * k), int((DOT[1] - bx0) * k)])
+    print(f"a clay dot under the body's speck limit: {shown[0]:.0%} from the body alone, {shown[1]:.0%} passed as add_clay")
+    assert shown[0] < 0.5, "the dot was not under the body's speck limit: the check examined nothing"
+    assert shown[1] > 0.5, "a dot passed as add_clay was dropped"
 
 
 if __name__ == "__main__":

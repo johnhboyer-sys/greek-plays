@@ -6,9 +6,9 @@
       "file": "aeschylus-pythia.svg",
       "name": "Aeschylus · the Pythia (Eumenides)",
       "alt": "The Pythia, Apollo's priestess, fleeing in terror with her hands raised",
-      "source": "Bötticher's 1859 drawing of an Apulian krater, Orestes at Delphi (Heidelberg scan, public domain)",
-      "method": "Engraved plate: cut along her own lines, with straight cuts across blank paper; Apollo's overlapping foot erased; potrace",
-      "verdict": "Clean. Revised twice: arm, head curl, fingers, knee edge and the whole shawl are in. One line is drawn in: her dress's black stripe, continued 45px across the gap where Apollo's foot was erased."
+      "source": "Bötticher's 1859 drawing of an Apulian volute-krater, Orestes at Delphi, Naples 82270 (Heidelberg scan, public domain); cut from eumenides.svg",
+      "method": "Contour plate, made with PhotoCraft: cut from the Eumenides drawing along her own lines; Apollo's overlapping foot erased; potrace",
+      "verdict": "Usable; redrawn and approved by John (2026-10-12). One line is drawn in: her dress's black stripe, continued across the gap where Apollo's foot was erased."
     },
     {
       "slug": "sophocles",
@@ -306,6 +306,33 @@
       "source": "Saglio, Gazette archéologique 12 (1887), pl. 1: an Attic black-figure oinochoe by the Theseus Painter, Paris, Louvre F 342 (Internet Archive scan, public domain)",
       "method": "Coloured plate, black figures on clay, a silhouette, made with PhotoCraft: the clay gives the outline; the black solid with its incisions open; the smoke and the fire as stepped washes; the rock's white patches as ink; potrace",
       "verdict": "Usable; approved by John on the third pass (2026-10-12). No outside review (the citation checked against Saglio's text and the Beazley Archive)."
+    },
+    {
+      "slug": "prometheus-bound",
+      "file": "prometheus.svg",
+      "name": "Prometheus Bound · Prometheus and Atlas",
+      "alt": "A long-haired bearded man bends his knees under the sky he holds up; facing him, a bearded man bound to a column, an eagle at his chest and his blood falling; a snake behind the first man; below the ground line, a capital between two lotus sprays; three rings round the circle",
+      "source": "Daderot's photo (Wikimedia Commons, public domain) of a Laconian black-figure cup attributed to the Arkesilas Painter, 560-550 BC: the Vatican's Laconic Kylix with Prometheus and Atlas, Museo Gregoriano Etrusco 16592",
+      "method": "Photo of the cup's tondo, the slant taken out (an ellipse mapped to a circle), the crack filled; black figures on clay, a silhouette, made with PhotoCraft: the incisions redrawn as even lines, the added red as a wash filled edge to edge, the ropes on John's lines, the border rings; John's PhotoCraft marks laid in over five rounds; clay ground in both themes; potrace",
+      "verdict": "Usable; approved by John on the eighth pass (2026-10-12), after his marks in PhotoCraft. No outside review (the credit checked against the Vatican Museums' page)."
+    },
+    {
+      "slug": "persians",
+      "file": "persians.svg",
+      "name": "Persians · Alexander pursuing Darius in flight",
+      "alt": "A Greek horseman charges with a levelled lance at a bearded king in a Persian cap and patterned sleeves, who flees in a four-horse chariot driven by a young charioteer and looks back holding out his hand; beyond the horses a Persian swings a battle-axe at a young Greek with a spear and a round shield; stars above, plants and a dotted ground line below",
+      "source": "Heydemann, Alexander der Grosse und Dareios Kodomannos auf unteritalischen Vasenbildern (Achtes Hallisches Winckelmannsprogramm, 1883), folding plate, the upper band: an Apulian amphora from Ruvo attributed to the Darius Painter, Naples (Heydemann's catalogue no. 3220) (Heidelberg scan, public domain). Heydemann reads Alexander and Darius III",
+      "method": "Contour plate, pen lines on paper with no black ground, made with PhotoCraft: the lines at half maximum, weighted to 0.8 plate px; the shading drawn evenly, hatch along the bands and stipple as dots, inside the outlines; the figures' area by the sealed watershed with pockets of ground; clay on the dark theme, the ornaments clay with no lines; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the fourth pass (2026-10-12), after a head test, four rounds on the shading and three rounds of his marks in PhotoCraft. No outside review (the citation checked against Heydemann's text)."
+    },
+    {
+      "slug": "eumenides",
+      "file": "eumenides.svg",
+      "name": "Eumenides · Orestes at Delphi",
+      "alt": "Inside the temple at Delphi: the old priestess flees with her hands raised beneath a black Fury holding a snake; Apollo strides forward with his arm stretched out; Orestes kneels with his sword at the omphalos, which is wrapped in a net of tassels, beside a laurel; Artemis stands with two spears and her hounds; Ionic columns, hanging shields and tripods",
+      "source": "Bötticher, Der Omphalos des Zeus zu Delphi (1859), plate, fig. 1, after Jahn, Vasenbilder (1839), Taf. I: an Apulian volute-krater of the Black Fury Group, Naples 82270 (H 3249) (Heidelberg scan, public domain)",
+      "method": "Contour plate, pen lines on paper with no black ground, made with PhotoCraft: lines at half maximum at the plate's own weight; faces and the omphalos net at their printed width; figures clay on the dark theme, the black solid with a clay rim; potrace",
+      "verdict": "Usable; approved by John on the third pass (2026-10-12). No outside review (the citation checked against Bötticher's text and the Beazley Archive)."
     }
   ]
 }

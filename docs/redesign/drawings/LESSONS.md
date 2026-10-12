@@ -466,6 +466,59 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Weight: John asked for heavier lines than the plate's own (0.084%), then chose 0.12% of 0.12, 0.16 and the house
   0.225%: at 0.225% the hair's strokes ran into blots (2026-10-10).
 
+- Persians (Heydemann, Hallisches Winckelmannsprogramm 8, 1883, the upper band of the folding plate), made with
+  PhotoCraft: about seven hours over three days and four passes, approved by John 2026-10-12. `tools/persians.py`
+  (2026-10-12).
+- "Crisp and precise" (John): the lines at the plate's pen width, not the house weight. Show an A/B of two
+  weights on one head; he chose the thinner, 0.8 plate px (2026-10-10).
+- Shading finer than the scan resolves (hatch 2-3 px apart at 239 dpi) reads as a grey tone and traces as blobs.
+  Its spectrum gave no clear peak; ask how to draw it. John: evenly, in its own kind. Hatch as thin lines that run
+  along each band and follow both its sides (the share of the way across from one side to the other, split at
+  the band's ends or along its sides; a line added where the band widens, every other one stopped where it
+  narrows), drawn only inside the outlines; stipple as even dots that fit whole; a rim hatched along its curve.
+  Straight hatch at one angle and lines as offsets of the outline were both rejected (2026-10-10).
+- The area of each shaded patch: a polygon drawn round it, and inside it the plate's darker px, blurred, closed and
+  opened; the plate's lines there kept only where they are long or at the patch's edge (the shading's own specks
+  dropped) (2026-10-10).
+- A wide frieze traced at the house 4000 px broke its finest scrolls when the lines were thinned: trace at 6400 px
+  tall (`TRACE_H`). A run is then 11 minutes and over 2 GB: on this 8 GB Mac it crawled for an hour while other
+  sessions held the memory. Check `vm.swapusage` and the other sessions' Python jobs before a full run
+  (2026-10-12).
+- Ground marked by area: a mark's whole enclosed area took in clay where a gap in a line joined it to the
+  drawing (a horse's mane, a muzzle). Cut each marked area at its necks (`NECK`, 5 plate px) and keep the piece
+  round the mark. And read "colour it in" marks on the sealed watershed areas, not the raw paper: through the
+  pen's gaps the raw paper is one area with the background (2026-10-12).
+- Show ground choices as numbered areas over the plate in day colours, not on the dark view: John ruled them by
+  number in one message (2026-10-11).
+- John's PhotoCraft marks, third form: blue ink, yellow clay, green "erase or ground". Read green by what it
+  covers: ink mostly under it goes, the paper round it is ground (2026-10-12).
+- Field ornaments on a contour plate (stars, plants, ground dots) are painted clay on the vase: clay shapes with
+  no lines on the dark theme, lines on the light (`day`, `add_clay`); John kept it so when asked (2026-10-12).
+- Paired fine strokes the scan runs together (a greave's edges) came out as blobs with holes: fill the slits and
+  draw each pair as one line along its middle (`PAIRS`) (2026-10-12).
+
+- Eumenides (Bötticher, *Der Omphalos des Zeus zu Delphi*, 1859, fig. 1, the whole plate: Orestes at Delphi), made with
+  PhotoCraft: about two hours and fifty minutes over a style test and three passes, approved by John 2026-10-12.
+  `tools/eumenides.py`, which also cuts the Aeschylus home Pythia from the same drawing (2026-10-12).
+- Look for a larger scan, then compare at full size: Munich's copy (MDZ, 1.3x the px) was softer than Heidelberg's, and
+  the plate's own source (Jahn 1839, Taf. I, in a library PDF) smaller. The plate's text names its source: read it
+  (MDZ serves OCR per page as hOCR beside its IIIF manifest) (2026-10-12).
+- A frieze the columns, rules and ground line close is all closed paper: every field area is a pocket. Mark them on
+  the numbered area map at once (here 45 points), then check the dark theme of the whole plate for figures turned to
+  ground: one point landed on Apollo's latticed boot, whose cells are smaller than the seal (2026-10-12).
+- "Crisp, detailed" (John): faces about 35 px tall and the omphalos net's 1 px hatching came out as blots at the line
+  weight. Found again inside boxes at less blur and a narrower core, and traced at their printed width as `dots`, with
+  the main lines run a few px into each box so no seam shows where a box cuts the hair. No blur at all broke the
+  lines and took in the paper's grain (2026-10-12).
+- Paper the seal leaves unseeded (a sword's blade, the lattice cells) is clay unless it reaches the crop's edge; leaves
+  narrower than the seal are sealed again inside a box at a smaller disk (a closing of the ink rounded them off and
+  missed half) (2026-10-12).
+- A filter that drops marks lying off the figures (a speck by a nose) also dropped a pale tassel hanging on the field:
+  John found it. Exempt the parts that hang free (`net`), and fill them as clay (2026-10-12).
+- Cutting one figure from an approved whole-plate drawing: her body is her own clay inside the cut and the lines that
+  border it, not the whole plate's body, which counts every line touching clay (Apollo's shin line came in with it)
+  (2026-10-12).
+
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
 - Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
@@ -620,6 +673,35 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - The big dark areas the figures close in (behind a door, between legs) are ground; a fixed head box cut a beard's
   tail where it hangs over cloth and showed as a gap in the dark theme: check every white area's whole extent
   (2026-10-10).
+
+### Photos of vases, black-figure (a cup's tondo taken at a slant)
+
+- Prometheus Bound (Vatican 16592, Laconian cup by the Arkesilas Painter; Daderot's photo), made with PhotoCraft in
+  the black-figure silhouette: about seven hours over three days and eight passes, approved by John 2026-10-12.
+  `tools/prometheus.py` (2026-10-12).
+- A tondo shot at a slant: fit an ellipse to the clay's edge against the black band (1440 rays, half-maximum, outliers
+  dropped) and map it to a circle by one affine map; on a shallow cup that left under half a px, so no unrolling.
+  The border's painted rings fit as circles too, and John wanted them drawn: "It looks bad without the band"
+  (2026-10-10).
+- A ring of pale filler round a glued-back piece: trace it as a least-cost path through hand points, then carry each
+  mask across it by a harmonic fill of its signed distance, measured over known px only (measured to the hole's edge,
+  single px tipped it and the fill came out black); join the incisions it broke by hand, as automatic pairing joined
+  the wrong hair locks (2026-10-10).
+- The light falls off toward the rim (clay grey 150 in the middle, 30-90 at the edge): test clay against the clay's
+  own grey round it, not a fixed level. The glaze's glare photographs light and blue, and over the capital light and
+  warm: there test saturation too. A red channel less blue clips at 0 in PhotoCraft; the Channel Mixer's constant
+  (50) keeps it whole (2026-10-10).
+- Photo incisions found by top-hat came out broken and of every width: John found it "isn't precise enough". Redraw
+  each as an even centre line, join small gaps, and fit the feathers as straight lines (2026-10-12).
+- Added red fills its area edge to edge (John: "well defined area which is filled edge to edge"; the beard "solid one
+  color"): fill the area, not the photo's patchy red. Ropes are "big thick rope lines" with "distinct separation":
+  draw them on his centrelines, the separations black. Where the wash met incisions (the ribs) it swallowed them; keep
+  incisions out of narrow red only, stop the wash at them, and in the end the ribs were his lines alone (2026-10-12).
+- On a tondo, clay for the whole ground in both themes: the white ground "just doesn't work here" (John, 2026-10-11).
+- John's PhotoCraft marks over five rounds: export his layer alone through `photocraft-cli serve` (layer.setProps
+  visible false on the rest, doc.save png). His colours changed between rounds (green first "lines to draw whole",
+  later "remove", i.e. a clay line): ask what each colour means each round, and confirm in plain words if he answers
+  "confused" (2026-10-12).
 
 ## John's traces
 
