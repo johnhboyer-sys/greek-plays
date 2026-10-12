@@ -299,10 +299,10 @@ TONE_STEPS, STEP_BLUR, STEP_MIN = [(0, 0.16), (45, 0.27), (70, 0.38)], 2.0, 40
 # Paint that runs into the ground's black is taken for ground: inside these polygons (flat px) the dark is paint:
 # the right actor's open mouth, open to the ground between his moustache and his beard
 PAINT_POLYS = [[(2392, 801), (2450, 803), (2452, 832), (2390, 826)]]
-# John's marks (2026-10-12, on pass 1 in PhotoCraft: 1 blue = ink to add, 2 green = ink to take out), on the file's
+# John's marks (2026-10-12, on passes 1 and 3 in PhotoCraft: 1 blue = ink to add, 2 green = ink to take out), on the file's
 # grid: the flat cropped at MARKS_AT (its top-left, flat px). Laid in as he drew them, smoothed (Gaussian MARK_SIGMA,
 # cut at half), and traced at their own size
-MARKS_FILES, MARKS_AT, MARK_SIGMA = ["frogs_marks_1.png"], (0, 120), 0.8
+MARKS_FILES, MARKS_AT, MARK_SIGMA = ["frogs_marks_1.png", "frogs_marks_2.png"], (0, 120), 0.8
 # Smaller dark areas the figures close in that are ground (flat px, a point in each): the loop between the left
 # grape bunch and its stalk
 OPEN_PTS = [(416, 234)]
