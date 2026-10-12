@@ -234,7 +234,11 @@ WHITE_L, WHITE_RB = 200, 60   # the added white: lighter than this (grey blurred
 # inside the figures are paint
 OPEN, AUTO_GROUND = 14, 40000
 SMOOTH = 2.0
-EDGE = 8                      # the outline, flat px wide
+# The outline: EDGE_OUT flat px wide on the black ground outside the clay, not on the clay (John on Ion, 2026-10-09;
+# here, 2026-10-12: "the vine should not be ink, but ground with outline"), so thin clay (the vine, the stalks)
+# keeps its full width; and along the floor, inside the clay (the soles). No lines are looked for within EDGE_IN px
+# inside the clay's edge (its soft rim)
+EDGE_OUT, EDGE_IN = 5, 4
 SPECK, FLECK = 150, 200
 # Lines, as wasps.py: the grey's local contrast (PhotoCraft: blurred 1 px, capped at the clay's level by Levels,
 # input white LC_CAP; its Maximum then Minimum over LC_R px, less it), with hysteresis (LC_LOW, LC_HIGH), LINE_LEN px
@@ -244,6 +248,19 @@ SPECK, FLECK = 150, 200
 # over SOLID_R px, drawn at its own shape
 LC_CAP, LC_R, LC_LOW, LC_HIGH = 175, 8, 30, 50
 LINE_LEN, HALF_R, WIDTH_SIGMA, LINE_MIN = 25, 6, 6.0, 3.0
+# The faces' finer lines (John, 2026-10-12: "you're missing some of the finer lines on the face"): inside FACES
+# (boxes, flat px: Dionysos, the left actor's mask, the right actor's) the paler brown lines too (FACE_LC
+# hysteresis) and shorter ones (FACE_LEN px)
+FACES = [(1385, 700, 1835, 1300), (540, 400, 790, 600), (2350, 660, 2520, 850)]
+FACE_LC, FACE_LEN = (16, 28), 8
+# In the faces, lines near half maximum (as libation_bearers.py's eyes): darker than HM_FR of the way from their core
+# (PhotoCraft's Minimum over HM_CORE px of the grey blurred 1 px) to the clay round them (its Maximum over HM_R px),
+# where that dip is over HM_DEPTH; smoothed (HM_SMOOTH, cut at half); pieces under HM_MIN px^2, or whose darkest px
+# is lighter than HM_DARK (the clay's mottling), dropped. Redrawn along their centres the short faint strokes
+# smeared into blots
+HM_R, HM_CORE, HM_FR, HM_DEPTH, HM_SMOOTH, HM_MIN, HM_DARK = 8, 2, 0.42, 40, 0.8, 10, 110
+# (the grey capped at the clay's level first, LC_CAP, so the white paint beside a line does not widen it; HM_DEPTH
+# is on that scale)
 HOLE, MASK_SIGMA, SPUR, SOLID_R = 12, 1.5, 7, 6
 # The thinned brown glaze (the irises, the hair's lighter curls, the tail): darker than the clay, still red; a
 # stepped wash (grey under, blurred 1 px; total opacity)
@@ -254,11 +271,33 @@ BROWN_RB, BROWN_MIN = 60, 30
 # HAIR_SMOOTH, cut at half) is ink at its own shape, traced at its own size, not redrawn along centres (that gave
 # noodles and blots); the brown under it a stepped wash darker than elsewhere (HAIR_STEPS; drawn solid it was one blot)
 HAIR_SIGMA, HAIR_DENS, HAIR_SMOOTH, HAIR_INK = 12.0, 0.25, 1.0, 36
-HAIR_STEPS = [(150, 0.18), (125, 0.32), (100, 0.46), (75, 0.6), (55, 0.72)]
+# (darker, John, 2026-10-12: "the curls should be darker", "esp. around the leaves of the crown")
+HAIR_STEPS = [(150, 0.3), (125, 0.5), (100, 0.66), (75, 0.8), (55, 0.88)]
+# The left actor's hair and goatee, darker (John, 2026-10-12: "make the comic actor's hair darker", then "not ink,
+# but just above ink color wise", "the goatee should be just above ink wash"): inside MASK_HAIR (the hair) and
+# GOATEE (boxes, flat px) the paint darker than MASK_DARK (grey, blurred 1 px) is a wash at MASK_OP, not ink; the
+# lines in them (the sprig's leaves) stay ink
+MASK_HAIR, GOATEE, MASK_DARK, MASK_OP = (410, 420, 598, 640), (690, 505, 790, 585), 110, 0.85
+# The grapes' dots, black ink (John, 2026-10-12: "those dots of the grapes should just be black ink"): small,
+# compact dark marks (grey under DOT_L, blurred 1 px; DOT_MIN to DOT_MAX px^2, no longer than DOT_LEN px) on the
+# clay above VINE_Y (flat y), off the hair, traced at their own size
+DOT_L, DOT_MIN, DOT_MAX, DOT_LEN, VINE_Y = 130, 12, 700, 45, 780
 # The added yellow (the wreath's berries): yellower than the clay (green over BERRY_G, blurred 2 px), a wash
 BERRY_G, BERRY_OP = 195, 0.3
 # The added white: a stepped grey wash following its whiteness, no outline where it meets the ground (as wasps.py)
 TONE_STEPS, STEP_BLUR, STEP_MIN = [(0, 0.16), (45, 0.27), (70, 0.38)], 2.0, 40
+# Paint that runs into the ground's black is taken for ground: inside these polygons (flat px) the dark is paint:
+# the right actor's open mouth, open to the ground between his moustache and his beard
+PAINT_POLYS = [[(2392, 801), (2450, 803), (2452, 832), (2390, 826)]]
+# Smaller dark areas the figures close in that are ground (flat px, a point in each): the loop between the left
+# grape bunch and its stalk
+OPEN_PTS = [(416, 234)]
+# The vine's loops close in the ground: every dark area above VINE_TOP (flat y; its top row) is ground, except in
+# Dionysos's hair (HAIR_BOX, flat px)
+VINE_TOP, HAIR_BOX = 330, (1150, 262, 2050, 760)
+# Big dark areas the figures close in that are paint, not ground (flat px, a point in each)
+PAINT_PTS = []
+WEIGHT = 0.0015   # (pass 0: "own" gave 0.205%, the outline heavy)
 
 
 def pc(src, out, *steps):
@@ -290,11 +329,12 @@ def centre_lines(m, spur, min_len):
     return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
 
 
-def even_lines(contrast, dark, area):
-    """The painted lines: `dark`, and in `area` those found by local contrast, redrawn along their centres at the
-    paint's own width (see LC_* and the constants after it; as wasps.py)."""
+def even_lines(contrast, dark, area, faces):
+    """The painted lines: `dark`, and in `area` those found by local contrast (paler and shorter ones in `faces`),
+    redrawn along their centres at the paint's own width (see LC_* and the constants after it; as wasps.py)."""
     from skimage.filters import apply_hysteresis_threshold
-    firm = (apply_hysteresis_threshold(contrast, LC_LOW, LC_HIGH) & area) | dark
+    found = np.where(faces, apply_hysteresis_threshold(contrast, *FACE_LC), apply_hysteresis_threshold(contrast, LC_LOW, LC_HIGH))
+    firm = (found & area) | dark
     firm = morphology.remove_small_holes(firm, max_size=HOLE)
     near_max = ndi.maximum_filter(np.where(firm, contrast, 0), 2 * HALF_R + 1)
     own = (firm & (contrast >= 0.5 * near_max)) | dark
@@ -302,7 +342,12 @@ def even_lines(contrast, dark, area):
         Image.fromarray((firm * 255).astype(np.uint8)).save(Path(td) / "m.png")
         pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": MASK_SIGMA}))
         mask = grey(Path(td) / "ms.png") >= 128
-    c = centre_lines(mask, spur=SPUR, min_len=LINE_LEN)
+    c = centre_lines(mask, spur=SPUR, min_len=FACE_LEN)
+    lab, _ = ndi.label(c, structure=np.ones((3, 3)))   # (outside the faces, only the longer pieces)
+    short = np.bincount(lab.ravel()) <= LINE_LEN
+    short[np.unique(lab[faces & c])] = False
+    short[0] = False
+    c &= ~short[lab]
     w = 2 * ndi.distance_transform_edt(own)
     num, den = (ndi.gaussian_filter(a, WIDTH_SIGMA) for a in (np.where(c, w, 0.0), c.astype(float)))
     half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_MIN) / 2, 0.0)
@@ -329,57 +374,151 @@ def measures(rgb):
            ("filter.other.minimum", {"radius": LC_R, "preserve": "squareness"}))
         pc(t / "c.png", t / "g2b.png", ("image.adjustments.channelMixer", {"monochrome": True, "gray": [0, 100, 0, 0]}),
            ("filter.blur.gaussianBlur", {"radius": 2}))
-        m = {n: grey(t / f"{n}.png") for n in ("rbs", "g", "g1", "g2", "gw", "gc", "gcc", "g2b")}
+        pc(t / "gc.png", t / "hmax.png", ("filter.other.maximum", {"radius": HM_R, "preserve": "roundness"}))
+        pc(t / "gc.png", t / "hmin.png", ("filter.other.minimum", {"radius": HM_CORE, "preserve": "roundness"}))
+        m = {n: grey(t / f"{n}.png") for n in ("rbs", "g", "g1", "g2", "gw", "gc", "gcc", "g2b", "hmax", "hmin")}
         m["core"] = grey(t / "core.png") < 128
     m["contrast"] = m["gcc"] - m["gc"]
     return m
 
 
-def scene(rgb, region, paint_pts=()):
-    """(ink, figure, grey, brown steps, white steps) for the flat image `rgb` inside `region` (bool mask)."""
+# Side A's edges (John, 2026-10-12: "the whole of side A"; the edges as shown to him on the museum's preview). Top:
+# under the rim's laurel band, whose lower clay strip holds row TOP_ROW; its lower edge per column, fitted by a
+# cubic where nothing touches it. Floor: the top of the meander band's upper clay strip, found per column where no
+# figure stands on it (the ground over it for FLOOR_CLEAR px) in rows FLOOR_ROWS, fitted by a cubic; the figures end
+# a px above it. Sides: between LEFT and RIGHT (flat px, run through the black between the scene and the handles'
+# ornaments); a clay piece is the scene's if most of it lies between them, so no ornament is cut through
+TOP_ROW, FLOOR_ROWS, FLOOR_CLEAR = 112, (1772, 1812), 30
+LEFT = [(90, 0), (90, 640), (175, 700), (195, 1000), (135, 1120), (125, 1360), (100, 1400), (40, 1650), (20, 2200)]
+RIGHT = [(2985, 0), (2985, 540), (2965, 700), (2970, 940), (2895, 965), (2895, 1110), (2908, 1140), (2910, 1320),
+         (2950, 2200)]
+
+
+def band_lines(clay):
+    """(top, floor): the rows of the scene's top and floor per column of the flat (see TOP_ROW)."""
+    H, W = clay.shape
+    xs, top, fl = np.arange(W), [], []
+    for x in xs:
+        col = clay[:, x]
+        if col[TOP_ROW]:
+            y = TOP_ROW
+            while col[y + 1]:
+                y += 1
+            if y < TOP_ROW + 30:   # (the vine or the thyrsos touching it runs on: left out)
+                top.append((x, y + 1))
+        y0, y1 = FLOOR_ROWS
+        k = np.nonzero(col[y0:y1])[0]
+        if len(k) and not col[y0 + k[0] - FLOOR_CLEAR:y0 + k[0]].any():
+            fl.append((x, y0 + k[0]))
+    out = []
+    for pts in (np.array(top, float), np.array(fl, float)):
+        keep = np.ones(len(pts), bool)
+        for _ in range(3):
+            f = np.polyfit(pts[keep, 0], pts[keep, 1], 3)
+            keep = np.abs(pts[:, 1] - np.polyval(f, pts[:, 0])) < 3
+        out.append(np.polyval(f, xs))
+    return out
+
+
+def scene(rgb, paint_pts=()):
+    """(ink, ink traced at its own size, figure, grey, brown steps, white steps) for the flat image `rgb`."""
     m = measures(rgb)
     g, g1, g2, rbs, core, contrast = m["g"], m["g1"], m["g2"], m["rbs"], m["core"], m["contrast"]
-    white = (g2 > WHITE_L) & (rbs < WHITE_RB) & region
-    clay = ((rbs > CLAY) | white) & region
-    dark = ~clay & region
+    H, W = g.shape
+    yy, xx = np.mgrid[0:H, 0:W]
+    top, floor = band_lines(rbs > CLAY)
+    rows = (yy >= top[xx]) & (yy < floor[xx] - 1)
+    white = (g2 > WHITE_L) & (rbs < WHITE_RB) & rows
+    clay = ((rbs > CLAY) | white) & rows
+    side = lw.polygon_mask(g.shape, np.array(LEFT[::-1] + RIGHT, float))
+    lab, _ = ndi.label(clay)
+    inside = np.bincount(lab[side].ravel(), minlength=lab.max() + 1) > 0.5 * np.bincount(lab.ravel())
+    inside[0] = False
+    region = ndi.binary_fill_holes(inside[lab] | ~rows) & rows   # (the scene's clay with the dark it closes in)
+    region = rows & ndi.binary_fill_holes(region | ~side)
+    dark = ~clay & rows
+    painted = np.any([lw.polygon_mask(g.shape, np.array(q, float)) for q in PAINT_POLYS], 0) & dark
     ground0 = ndi.binary_opening(dark, structure=morphology.disk(OPEN))
     lab, _ = ndi.label(ground0)
     size = np.bincount(lab.ravel())
     size[0] = 0
     is_ground = size > AUTO_GROUND
     for x, y in paint_pts:
+        assert lab[y, x], f"paint point {(x, y)} is not on glaze"
         is_ground[lab[y, x]] = False
-    ground = is_ground[lab] | ~region
-    fig = ndi.binary_fill_holes(~ground) & ~ground
+    for x, y in OPEN_PTS:
+        assert lab[y, x], f"open point {(x, y)} is not on glaze"
+        is_ground[lab[y, x]] = True
+    hx0, hy0, hx1, hy1 = HAIR_BOX
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        if sl is None or sl[0].start >= VINE_TOP:
+            continue
+        cy, cx = (sl[0].start + sl[0].stop) / 2, (sl[1].start + sl[1].stop) / 2
+        if not (hx0 <= cx < hx1 and hy0 <= cy < hy1):
+            is_ground[k] = True
+    for k in np.unique(lab[(lab > 0) & ~is_ground[lab]]):   # (check: the largest areas kept as paint)
+        if size[k] > 3000:
+            yk, xk = np.argwhere(lab == k)[0]
+            print("dark kept as paint", size[k], (xk, yk))
+    ground = (is_ground[lab] | ~rows) & ~painted
+    fig = (ndi.binary_fill_holes(inside[ndi.label(clay)[0]] & ~ground) & ~ground) | painted
     fig = ndi.gaussian_filter(fig.astype(np.float32), SMOOTH) > 0.5
-    fig &= region
+    fig &= rows
     lab, _ = ndi.label(fig)
     fig &= (np.bincount(lab.ravel()) >= SPECK)[lab]
     paint = dark & fig & core
     to_edge = ndi.distance_transform_edt(fig)
-    edge = fig & (to_edge <= EDGE)
-    # (the white has no outline where it meets the ground)
-    soft_edge = edge & (ndi.distance_transform_edt(~(white & fig)) <= EDGE + 3)
-    hair = ndi.binary_dilation(ndi.gaussian_filter(paint.astype(np.float32), HAIR_SIGMA) > HAIR_DENS, iterations=4) & fig
+    edge = fig & (to_edge <= EDGE_IN)
+    # (the white has no outline where it meets the ground: the tufts that stand out on the black; the clay body under
+    # them keeps its outline)
+    dt, (iy, ix) = ndi.distance_transform_edt(~fig, return_indices=True)
+    outline = ~fig & rows & (dt <= EDGE_OUT) & ~white[iy, ix]
+    outline |= fig & (yy >= floor[xx] - 1 - EDGE_OUT)
+    inbox = lambda b: (xx >= b[0]) & (yy >= b[1]) & (xx < b[2]) & (yy < b[3])
+    faces = np.any([inbox(b) for b in FACES], 0)
+    # (the faces' close lines are not hair)
+    hair = ndi.binary_dilation(ndi.gaussian_filter(paint.astype(np.float32), HAIR_SIGMA) > HAIR_DENS, iterations=4) & fig & ~(faces & ~inbox(MASK_HAIR))
     hair_ink = (ndi.gaussian_filter(((g1 < HAIR_INK) & fig & ~edge).astype(np.float32), HAIR_SMOOTH) > 0.5) & hair & ~edge
+    mask_wash = ((inbox(MASK_HAIR) & hair) | inbox(GOATEE)) & fig & ~edge & (g1 < MASK_DARK)
+    mask_wash = ndi.gaussian_filter(mask_wash.astype(np.float32), HAIR_SMOOTH) > 0.5
+    hair_ink &= ~mask_wash
     solid = ndi.binary_opening(paint & ~edge & ~hair, structure=morphology.disk(SOLID_R))
     solid = ndi.binary_dilation(solid, iterations=2) & paint
     area = fig & ~edge & ~white & ~hair & ~ndi.binary_dilation(solid, iterations=3)
-    lines = solid | even_lines(contrast, core & area, area)
+    hm = (m["gc"] < m["hmin"] + HM_FR * (m["hmax"] - m["hmin"])) & (m["hmax"] - m["hmin"] > HM_DEPTH) & faces & area
+    hm = (ndi.gaussian_filter(hm.astype(np.float32), HM_SMOOTH) > 0.5) & area
+    hm = morphology.remove_small_objects(hm, max_size=HM_MIN)
+    lab, n = ndi.label(hm)
+    hm &= np.r_[False, ndi.minimum(g1, lab, np.arange(1, n + 1)) < HM_DARK][lab]
+    lines = solid | (even_lines(contrast, core & area & ~faces, area & ~faces, faces) & ~faces) | hm
     lines &= fig & ~edge & ~white & ~hair
-    ink = lines | (edge & ~soft_edge) | hair_ink
+    marks = (g1 < DOT_L) & fig & ~edge & ~hair & (yy < VINE_Y)
+    lab, _ = ndi.label(marks)
+    sz = np.bincount(lab.ravel())
+    ok = (sz >= DOT_MIN) & (sz <= DOT_MAX)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        if ok[k] and max(sl[0].stop - sl[0].start, sl[1].stop - sl[1].start) > DOT_LEN:
+            ok[k] = False
+    ok[0] = False
+    dots = ok[lab]
+    lines &= ~ndi.binary_dilation(dots, iterations=2)
+    hair_ink |= dots
+    lines &= ~(mask_wash & inbox(GOATEE))   # (the goatee's strokes are the wash, not lines)
+    ink = lines | outline | hair_ink
+    hair_ink = hair_ink | (lines & np.any([inbox(b) for b in FACES], 0))   # (faces traced at their own size, as wasps.py)
     holes = ndi.binary_fill_holes(ink) & ~ink
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
     brown = fig & ~ink & ~white & ((rbs > BROWN_RB) | hair)
-    bsteps = []
-    for (level, _), (hlevel, hopacity) in zip(BROWN_STEPS + [(0, 0)] * 2, HAIR_STEPS):
-        mm = brown & np.where(hair, g1 < hlevel, g1 < level)
-        lab, _ = ndi.label(mm)
-        mm &= (np.bincount(lab.ravel()) >= BROWN_MIN)[lab]
-        bsteps.append((mm, hopacity))   # (the brown's opacities are the hair's first three)
+    bsteps, hsteps = [], []
+    for steps, where, out in ((BROWN_STEPS, ~hair, bsteps), (HAIR_STEPS, hair, hsteps)):
+        for level, opacity in steps:
+            mm = brown & where & (g1 < level)
+            lab, _ = ndi.label(mm)
+            mm &= (np.bincount(lab.ravel()) >= BROWN_MIN)[lab]
+            out.append((mm, opacity))
     whiteness = np.clip(m["gw"] - 120, 0, None) * np.clip((80 - rbs) / 60, 0, 1)
-    wbase = fig & ~ink & ((ndi.gaussian_filter((white & fig).astype(np.float32), 1.5) > 0.5) | soft_edge)
+    wbase = fig & ~ink & (ndi.gaussian_filter((white & fig).astype(np.float32), 1.5) > 0.5)
     wsteps = []
     for level, opacity in TONE_STEPS:
         mm = wbase & (whiteness >= level)
@@ -390,7 +529,7 @@ def scene(rgb, region, paint_pts=()):
     lab, _ = ndi.label(berry)
     berry &= (np.bincount(lab.ravel()) >= BROWN_MIN)[lab]
     wsteps.append((berry, BERRY_OP))   # (drawn last; berries and white do not meet)
-    return ink, hair_ink, fig, g, bsteps, wsteps
+    return ink, hair_ink, fig, g, (bsteps, hsteps, [(mask_wash & ~ink, MASK_OP)]), wsteps
 
 
 def add_tone(svg, steps, box):
@@ -410,19 +549,20 @@ def add_tone(svg, steps, box):
     svg.write_text(s)
 
 
-def test(flat_png, box, out, weight="own", paint_pts=()):
-    """A small test of the style on box (x0, y0, x1, y1, flat px): the drawing (SVG) and its QA renders."""
-    x0, y0, x1, y1 = box
-    rgb = np.asarray(Image.open(flat_png).convert("RGB"))[y0:y1, x0:x1].copy()
-    region = np.ones(rgb.shape[:2], bool)
-    ink, own, fig, g, bsteps, wsteps = scene(rgb, region, [(x - x0, y - y0) for x, y in paint_pts])
-    out = Path(out)
-    info = lw.trace_svg(ink & ~own, out, body=fig, open_holes=~fig, weight=weight, extent=fig, dots=own,
-                        title="test", desc="test")
-    add_tone(out, [(mm & ~ink, o) for mm, o in bsteps], info["box"])
-    add_tone(out, [(mm & ~ink, o) for mm, o in wsteps], info["box"])
-    print(out, info)
-    return info
+def main(src, qa=None, flat_png=None):
+    rgb = np.asarray(Image.open(flat_png).convert("RGB")) if flat_png else flat_image(src)
+    ink, own, fig, g, bsteps, wsteps = scene(rgb, PAINT_PTS)
+    info = lw.trace_svg(ink & ~own, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=own,
+                        title="The bust of Dionysos between two comic actors, one reaching for grapes, one holding a cup",
+                        desc="Line drawing after the Apulian red-figure bell-krater Cleveland Museum of Art 1989.73, side A; "
+                             "traced from the museum's photograph (CC0), taken off the vase's curve.")
+    for steps in bsteps:   # (the brown, the hair, the left actor's hair and goatee: each its own set of steps)
+        add_tone(OUT, [(mm & ~ink, o) for mm, o in steps], info["box"])
+    add_tone(OUT, [(mm & ~ink, o) for mm, o in wsteps], info["box"])
+    print(OUT, info)
+    if qa:
+        lw.qa_overlay(g, OUT, info["box"], Path(qa))
+        lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
 
 
 if __name__ == "__main__":
@@ -433,6 +573,8 @@ if __name__ == "__main__":
         args = [a for a in sys.argv[1:] if a != "--flat"]
         cam = args[2] if len(args) > 2 else "front"
         Image.fromarray(flat_image(args[0], cam)).save(args[1])
-    elif "--test" in sys.argv:   # flat.png x0 y0 x1 y1 out.svg
-        a = [x for x in sys.argv[1:] if x != "--test"]
-        test(a[0], tuple(int(v) for v in a[1:5]), a[5])
+    elif "--from-flat" in sys.argv:   # flat.png [qa.png] (a flat saved with --flat: quicker)
+        a = [x for x in sys.argv[1:] if x != "--from-flat"]
+        main(None, a[1] if len(a) > 1 else None, flat_png=a[0])
+    else:
+        main(*sys.argv[1:3])
