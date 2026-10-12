@@ -289,6 +289,10 @@ TONE_STEPS, STEP_BLUR, STEP_MIN = [(0, 0.16), (45, 0.27), (70, 0.38)], 2.0, 40
 # Paint that runs into the ground's black is taken for ground: inside these polygons (flat px) the dark is paint:
 # the right actor's open mouth, open to the ground between his moustache and his beard
 PAINT_POLYS = [[(2392, 801), (2450, 803), (2452, 832), (2390, 826)]]
+# John's marks (2026-10-12, on pass 1 in PhotoCraft: 1 blue = ink to add, 2 green = ink to take out), on the file's
+# grid: the flat cropped at MARKS_AT (its top-left, flat px). Laid in as he drew them, smoothed (Gaussian MARK_SIGMA,
+# cut at half), and traced at their own size
+MARKS_FILES, MARKS_AT, MARK_SIGMA = ["frogs_marks_1.png"], (0, 120), 0.8
 # Smaller dark areas the figures close in that are ground (flat px, a point in each): the loop between the left
 # grape bunch and its stalk
 OPEN_PTS = [(416, 234)]
@@ -420,6 +424,22 @@ def band_lines(clay):
     return out
 
 
+def john_marks(shape):
+    """(blue, green) of John's marks (MARKS_FILES, in order) on the flat."""
+    blue, green = np.zeros(shape, bool), np.zeros(shape, bool)
+    x0, y0 = MARKS_AT
+    for f in MARKS_FILES:
+        m = np.asarray(Image.open(Path(__file__).resolve().parent / f))
+        h, w = m.shape
+        b = np.zeros(shape, bool)
+        b[y0:y0 + h, x0:x0 + w] = ndi.gaussian_filter((m == 1).astype(np.float32), MARK_SIGMA) > 0.5
+        gr = np.zeros(shape, bool)
+        gr[y0:y0 + h, x0:x0 + w] = m == 2
+        blue = (blue & ~gr) | b
+        green = (green & ~b) | gr
+    return blue, green
+
+
 def scene(rgb, paint_pts=()):
     """(ink, ink traced at its own size, figure, grey, brown steps, white steps) for the flat image `rgb`."""
     m = measures(rgb)
@@ -509,6 +529,12 @@ def scene(rgb, paint_pts=()):
     holes = ndi.binary_fill_holes(ink) & ~ink
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
+    blue, green = john_marks(g.shape)
+    # (the lines traced at the pinned weight stay as pass 1 drew them, less his green: his blue goes with the ink
+    # traced at its own size, or the weighting's measured width moves and every line on the side changes)
+    main = ink & ~hair_ink & ~green
+    ink = (ink & ~green) | blue
+    hair_ink = (hair_ink & ~green) | blue
     brown = fig & ~ink & ~white & ((rbs > BROWN_RB) | hair)
     bsteps, hsteps = [], []
     for steps, where, out in ((BROWN_STEPS, ~hair, bsteps), (HAIR_STEPS, hair, hsteps)):
@@ -529,7 +555,7 @@ def scene(rgb, paint_pts=()):
     lab, _ = ndi.label(berry)
     berry &= (np.bincount(lab.ravel()) >= BROWN_MIN)[lab]
     wsteps.append((berry, BERRY_OP))   # (drawn last; berries and white do not meet)
-    return ink, hair_ink, fig, g, (bsteps, hsteps, [(mask_wash & ~ink, MASK_OP)]), wsteps
+    return ink, main, hair_ink, fig, g, (bsteps, hsteps, [(mask_wash & ~ink, MASK_OP)]), wsteps
 
 
 def add_tone(svg, steps, box):
@@ -551,8 +577,8 @@ def add_tone(svg, steps, box):
 
 def main(src, qa=None, flat_png=None):
     rgb = np.asarray(Image.open(flat_png).convert("RGB")) if flat_png else flat_image(src)
-    ink, own, fig, g, bsteps, wsteps = scene(rgb, PAINT_PTS)
-    info = lw.trace_svg(ink & ~own, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=own,
+    ink, main, own, fig, g, bsteps, wsteps = scene(rgb, PAINT_PTS)
+    info = lw.trace_svg(main, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=own,
                         title="The bust of Dionysos between two comic actors, one reaching for grapes, one holding a cup",
                         desc="Line drawing after the Apulian red-figure bell-krater Cleveland Museum of Art 1989.73, side A; "
                              "traced from the museum's photograph (CC0), taken off the vase's curve.")
