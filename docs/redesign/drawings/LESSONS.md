@@ -621,6 +621,35 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   tail where it hangs over cloth and showed as a gap in the dark theme: check every white area's whole extent
   (2026-10-10).
 
+### Photos of vases, black-figure (a cup's tondo taken at a slant)
+
+- Prometheus Bound (Vatican 16592, Laconian cup by the Arkesilas Painter; Daderot's photo), made with PhotoCraft in
+  the black-figure silhouette: about seven hours over three days and eight passes, approved by John 2026-10-12.
+  `tools/prometheus.py` (2026-10-12).
+- A tondo shot at a slant: fit an ellipse to the clay's edge against the black band (1440 rays, half-maximum, outliers
+  dropped) and map it to a circle by one affine map; on a shallow cup that left under half a px, so no unrolling.
+  The border's painted rings fit as circles too, and John wanted them drawn: "It looks bad without the band"
+  (2026-10-10).
+- A ring of pale filler round a glued-back piece: trace it as a least-cost path through hand points, then carry each
+  mask across it by a harmonic fill of its signed distance, measured over known px only (measured to the hole's edge,
+  single px tipped it and the fill came out black); join the incisions it broke by hand, as automatic pairing joined
+  the wrong hair locks (2026-10-10).
+- The light falls off toward the rim (clay grey 150 in the middle, 30-90 at the edge): test clay against the clay's
+  own grey round it, not a fixed level. The glaze's glare photographs light and blue, and over the capital light and
+  warm: there test saturation too. A red channel less blue clips at 0 in PhotoCraft; the Channel Mixer's constant
+  (50) keeps it whole (2026-10-10).
+- Photo incisions found by top-hat came out broken and of every width: John found it "isn't precise enough". Redraw
+  each as an even centre line, join small gaps, and fit the feathers as straight lines (2026-10-12).
+- Added red fills its area edge to edge (John: "well defined area which is filled edge to edge"; the beard "solid one
+  color"): fill the area, not the photo's patchy red. Ropes are "big thick rope lines" with "distinct separation":
+  draw them on his centrelines, the separations black. Where the wash met incisions (the ribs) it swallowed them; keep
+  incisions out of narrow red only, stop the wash at them, and in the end the ribs were his lines alone (2026-10-12).
+- On a tondo, clay for the whole ground in both themes: the white ground "just doesn't work here" (John, 2026-10-11).
+- John's PhotoCraft marks over five rounds: export his layer alone through `photocraft-cli serve` (layer.setProps
+  visible false on the rest, doc.save png). His colours changed between rounds (green first "lines to draw whole",
+  later "remove", i.e. a clay line): ask what each colour means each round, and confirm in plain words if he answers
+  "confused" (2026-10-12).
+
 ## John's traces
 
 - He draws over a crop of the plate, or over a screenshot of a close-up, in

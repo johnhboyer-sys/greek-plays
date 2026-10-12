@@ -5,7 +5,8 @@ https://commons.wikimedia.org/wiki/File:Prometheus_and_Atlas,_Laconian_black-fig
 (4468 x 3568).
 John's pick (Plate Picks 4-6Va, 2026-10-08); what it holds (2026-10-10): everything painted inside the innermost
 border ring (Atlas with the sky, the eagle, Prometheus and his column, the snake, the blood, and below the ground
-line the capital between two lotus sprays); the rings left out.
+line the capital between two lotus sprays); the three border rings drawn round it (John, 2026-10-10: "add a
+border to the circle. It looks bad without the band"). Approved by John on the eighth pass, 2026-10-12.
 
 The photo is taken at a slant: the tondo's outer edge (clay against the black band round it), found on 1440 rays
 from the centre at the half-maximum between the clay and the black, fits an ellipse within 0.43 px (median, the
@@ -26,13 +27,21 @@ masks PhotoCraft made and measures. The SVG is written in the house format direc
 
 Photo -> drawing, black-figure, drawn as a silhouette (John's choice, 2026-10-10, from a test on Prometheus's head
 and the eagle, as Hecuba), the added red as a grey wash:
-  - Ground: the clay (warm, red less blue over WARM_T, and lighter than CLAY_L), its large areas.
+  - Ground: the clay (lighter than CLAY_K of the clay's own grey round it, not blue, not red; below the ground
+    line also saturated: FLOOR), its large areas.
   - The figures: all else inside the ring. The glaze's glare photographs light and blue: it is black (red less
     blue reads 0 there).
-  - Open in the black: the incisions, light thin marks (a white top-hat on the grey smoothed along its strokes)
-    that are not blue (glare).
-  - The added red: red well over green, darker than RED_L: a `tone` path at RED_OP.
-  - Dark theme: the figures' area is clay, a RIM wider than the black.
+  - Open in the black: the incisions, light thin marks (a white top-hat on the grey smoothed along its strokes;
+    in the glare, on red less blue), redrawn as even centre lines INC_W wide and joined across small gaps (John,
+    2026-10-12: "the whole thing isn't precise enough"); the eagle's feathers fitted as straight lines.
+  - The added red: red well over green (RED_RG), darker than RED_L: a `tone` path at RED_OP. The wing's red, the beard and
+    the bands filled edge to edge (John: "well defined area which is filled edge to edge"; WING, SOLID_AREAS);
+    the ropes on John's centrelines, split by black lines (ROPES).
+  - John's marks in PhotoCraft (MARKS_FILES, his layer read alone from each corrections file): green, a clay line
+    (snapped to the photo's incision where there is one; broad paint as painted); blue, black; red, the wash.
+    The ribs are his lines alone (RIB_ZONE).
+  - Both themes: the whole tondo to the outer ring is clay (John, 2026-10-11: "Let's have clay for both light and
+    dark").
 
     python3 docs/redesign/drawings/tools/prometheus.py vatican-16592-daderot.jpg [qa.png]
 """
@@ -949,7 +958,7 @@ def main(src, qa=None, dump=None, cache=None):
         title='Atlas holding up the sky, and Prometheus bound, with the eagle',
         desc='Line drawing after a photo of a Laconian black-figure cup in the Vatican (Museo Gregoriano Etrusco '
              '16592): Atlas holds up the sky; Prometheus is bound to a column and the eagle feeds on him; a snake '
-             'behind Atlas; below, a capital between two lotus sprays; retraced.')
+             'behind Atlas; below, a capital between two lotus sprays; the three border rings; retraced.')
     print(OUT, info)
     if qa:
         lw.qa_overlay(ch["L"], OUT, info['box'], Path(qa))
