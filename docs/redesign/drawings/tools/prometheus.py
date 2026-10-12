@@ -501,6 +501,249 @@ def crack_joins(shape):
     return ndi.distance_transform_edt(~m) <= JOIN_W / 2 * UP
 
 
+# The incisions redrawn as even lines (John, 2026-10-12: "the whole thing isn't precise enough"; found px by px in
+# the photo they came out broken, beaded and wobbly): each found incision is thinned to its centre line, spurs
+# shorter than INC_SPUR round px pruned, line ends that face each other across a gap of at most INC_GAP round px
+# joined where the photo's top-hat holds over INC_HOLD of MARK_T all the way across, and the whole drawn INC_W round
+# px wide (the incisions measure 2.5-3.0 at half maximum, median 2.75), its edges smoothed. Marks wider than
+# INC_WIDE round px (dots, clay patches) stay as found
+INC_W, INC_SPUR, INC_GAP, INC_HOLD, INC_ANGLE, INC_WIDE, INC_SHORT = 2.6, 4, 16, 0.15, 25, 4.5, 6
+# John's marks on pass 4, in PhotoCraft over the full-res photo (prometheus_marks_1.png, his layer alone, on the
+# tool's grid): green along incisions the drawing broke or missed (Atlas's hair locks, headband and brow, the edges
+# of the eagle's wing, Prometheus's bracelets: "draw them whole"); each stroke, thinned to its centre and moved
+# across to the photo's incision (the top-hat's peak within MARK_SNAP round px, where it is clear; the shifts
+# smoothed along the stroke), is drawn INC_W wide and the found marks within MARK_NEAR of it go. Where under
+# MARK_CLEAR of a stroke finds a peak (the bracelets, in the glare) it is drawn as he drew it, and every found mark in
+# the area his strokes there cover (grown MARK_HULL round px, its convex hull) goes. Blue is ink
+MARKS_FILES = [Path(__file__).parent / "prometheus_marks_1.png"]
+MARK_SNAP, MARK_NEAR, MARK_PEAK, MARK_CLEAR, MARK_HULL = 4, 3, 6, 0.5, 8
+
+
+def order_path(sk):
+    """The px of a thin open stroke, in order from one end (a walk to the nearest unvisited px)."""
+    pts = np.argwhere(sk)
+    nb = ndi.convolve(sk.astype(int), np.ones((3, 3), int), mode='constant') - 1
+    ends = np.argwhere(sk & (nb == 1))
+    start = ends[0] if len(ends) else pts[0]
+    rem = {tuple(p) for p in pts}
+    rem.discard(tuple(start))
+    out, cur = [start], start
+    while rem:
+        cand = np.array(list(rem))
+        d = np.hypot(*(cand - cur).T)
+        i = int(np.argmin(d))
+        if d[i] > 3:
+            break
+        cur = cand[i]
+        out.append(cur)
+        rem.discard(tuple(cur))
+    return np.array(out, float)
+
+
+def even_incisions(marks, hat, fig):
+    """The found incisions as even lines along their centres, joined across short gaps (INC_*), at UP."""
+    from lysistrata import centre_lines
+    wide = ndi.binary_opening(marks, structure=morphology.disk(round(INC_WIDE / 2 * UP)))
+    wide = ndi.binary_propagation(wide, mask=marks)
+    thin = marks & ~wide
+    sk = morphology.skeletonize(centre_lines(thin, 1, INC_SPUR * UP))
+    n8 = np.ones((3, 3), int)
+    nb = ndi.convolve(sk.astype(int), n8, mode='constant') - 1
+    lab, _ = ndi.label(sk, structure=n8)
+    ends = []
+    for y, x in np.argwhere(sk & (nb == 1)):
+        win = lab[max(y - 8, 0):y + 9, max(x - 8, 0):x + 9] == lab[y, x]
+        yy, xx = np.nonzero(win)
+        d = np.array([y - (yy.mean() + max(y - 8, 0)), x - (xx.mean() + max(x - 8, 0))])
+        if np.hypot(*d) > 0.5:
+            ends.append(((y, x), d / np.hypot(*d), lab[y, x]))
+    cand = []
+    for i, (p, d, la) in enumerate(ends):
+        for j in range(i + 1, len(ends)):
+            q, e, lb = ends[j]
+            if la == lb:
+                continue
+            v = np.array(q, float) - p
+            L = np.hypot(*v)
+            if L < 1 or L > INC_GAP * UP:
+                continue
+            u = v / L
+            c = np.cos(np.radians(INC_ANGLE))
+            if np.dot(d, u) < c or np.dot(e, -u) < c:
+                continue
+            t = np.linspace(0, 1, int(L) + 2)
+            ys, xs = (p[0] + t * v[0]).astype(int), (p[1] + t * v[1]).astype(int)
+            if hat[ys, xs].min() < INC_HOLD * MARK_T or not fig[ys, xs].all():
+                continue
+            cand.append((L, i, j, ys, xs))
+    used = set()
+    for _, i, j, ys, xs in sorted(cand, key=lambda c: c[0]):
+        if i in used or j in used:
+            continue
+        used |= {i, j}
+        sk[ys, xs] = True
+    print('incision joins', len(used) // 2)
+    # (short pieces standing alone, under INC_SHORT round px long, are flecks of the glaze, not incisions)
+    lab, n = ndi.label(sk, structure=n8)
+    ext = np.zeros(n + 1)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        ext[k] = max(sl[0].stop - sl[0].start, sl[1].stop - sl[1].start)
+    sk &= (ext >= INC_SHORT * UP)[lab]
+    line = ndi.distance_transform_edt(~sk) <= INC_W / 2 * UP
+    return (smooth(line, 0.5) | wide) & fig
+
+
+# The eagle's feathers are straight incisions, broken in the photo by wear and glare into dashes. In STRAIGHT_ZONES
+# (round px: the upper wing's flight feathers, the tail's fan) the light marks (the top-hat over half MARK_T) are cut
+# into pieces along their centres; pieces that lie on one straight line (each piece's direction within ST_ANGLE
+# degrees, its px within ST_OFF round px of the line at the median, the gaps between them at most ST_GAP) are one feather, drawn
+# straight from end to end where the line fits all its pieces within ST_RMS round px and is at least ST_LEN long. The
+# curved bands across the feathers do not fit a line and stay as found
+STRAIGHT_ZONES = [
+    [(1180, 1105), (1400, 1075), (1560, 1050), (1690, 1015), (1720, 1080), (1790, 1250), (1800, 1330),
+     (1680, 1345), (1580, 1270), (1450, 1205), (1250, 1195), (1185, 1160)],
+    [(1130, 1340), (1390, 1300), (1440, 1390), (1560, 1480), (1580, 1620), (1520, 1700), (1480, 1720),
+     (1340, 1690), (1200, 1600), (1140, 1480)],
+]
+ST_ANGLE, ST_OFF, ST_GAP, ST_RMS, ST_LEN, ST_PIECE = 7, 1.6, 30, 1.2, 15, 4
+
+
+def straight_feathers(hat, fig, shape):
+    """The feathers in STRAIGHT_ZONES as straight lines (ST_*): their lines at UP, and the zone they cover."""
+    zone = np.zeros(shape, bool)
+    for pts in STRAIGHT_ZONES:
+        zone |= lw.polygon_mask(shape, np.array([((x - X0) * UP, (y - Y0) * UP) for x, y in pts], float))
+    light = ndi.binary_propagation((hat > MARK_T) & zone & fig, mask=(hat > MARK_T / 2) & zone & fig)
+    sk = morphology.skeletonize(light)
+    n8 = np.ones((3, 3), int)
+    nb = ndi.convolve(sk.astype(int), n8, mode='constant') - 1
+    sk &= nb <= 2                                   # (cut at junctions: pieces are simple strokes)
+    lab, n = ndi.label(sk, structure=n8)
+    pieces = []
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        yy, xx = np.nonzero(lab[sl] == k)
+        P = np.c_[xx + sl[1].start, yy + sl[0].start].astype(float)
+        if len(P) < ST_PIECE * UP:
+            continue
+        c = P.mean(0)
+        _, sv, vt = np.linalg.svd(P - c, full_matrices=False)
+        if sv[1] / max(sv[0], 1e-6) > 0.25:
+            continue
+        pieces.append((len(P), P, c, vt[0]))
+    pieces.sort(key=lambda q: -q[0])
+    used = [False] * len(pieces)
+    out = np.zeros(shape, bool)
+    cover = np.zeros(shape, bool)
+    nlines = 0
+    for i, (_, P, c, d) in enumerate(pieces):
+        if used[i]:
+            continue
+        members = [i]
+        pts = P
+        grew = True
+        while grew:
+            grew = False
+            cc = pts.mean(0)
+            _, _, vt = np.linalg.svd(pts - cc, full_matrices=False)
+            dd = vt[0]
+            nn = np.array([-dd[1], dd[0]])
+            proj = (pts - cc) @ dd
+            lo, hi = proj.min(), proj.max()
+            for j, (_, Q, cq, dq) in enumerate(pieces):
+                if used[j] or j in members:
+                    continue
+                if abs(np.dot(dq, dd)) < np.cos(np.radians(ST_ANGLE)):
+                    continue
+                if np.median(np.abs((Q - cc) @ nn)) > ST_OFF * UP:
+                    continue
+                pq = (Q - cc) @ dd
+                gap = max(pq.min() - hi, lo - pq.max(), 0)
+                if gap > ST_GAP * UP:
+                    continue
+                members.append(j)
+                pts = np.vstack([pts, Q])
+                grew = True
+                break
+        cc = pts.mean(0)
+        _, _, vt = np.linalg.svd(pts - cc, full_matrices=False)
+        dd = vt[0]
+        nn = np.array([-dd[1], dd[0]])
+        rms = np.sqrt(np.mean(((pts - cc) @ nn) ** 2))
+        proj = (pts - cc) @ dd
+        if len(members) < 2 or rms > ST_RMS * UP or proj.max() - proj.min() < ST_LEN * UP:
+            continue
+        for j in members:
+            used[j] = True
+        a, b = cc + proj.min() * dd, cc + proj.max() * dd
+        t = np.linspace(0, 1, int(np.hypot(*(b - a)) * 2) + 2)[:, None]
+        q = np.clip((a + t * (b - a)).round().astype(int), 0, np.array(shape)[::-1] - 1)
+        line = np.zeros(shape, bool)
+        line[q[:, 1], q[:, 0]] = True
+        out |= line
+        nlines += 1
+    print('straight feathers', nlines)
+    near = ndi.distance_transform_edt(~out) <= MARK_NEAR * UP
+    return smooth(ndi.distance_transform_edt(~out) <= INC_W / 2 * UP, 0.5) & fig, near & zone
+
+
+def john_lines(shape, hat):
+    """John's green strokes snapped to the photo's incisions (MARK_*), as centre lines at UP; and his blue."""
+    from scipy.interpolate import splev, splprep
+    m = np.asarray(Image.open(MARKS_FILES[0]).convert('RGBA')).astype(int)
+    assert m.shape[:2] == shape, (m.shape, shape)
+    r, g, b, a = (m[..., i] for i in range(4))
+    green = (a > 40) & (g > r + 40) & (g > b + 20)
+    blue = (a > 40) & (b > r + 40) & (b > g + 20)
+    hs = ndi.gaussian_filter(hat, 0.8 * UP)
+    out = np.zeros(shape, bool)
+    weak = np.zeros(shape, bool)
+    lab, n = ndi.label(ndi.binary_closing(green, iterations=2), structure=np.ones((3, 3)))
+    for k in range(1, n + 1):
+        sk = morphology.skeletonize(lab == k)
+        if sk.sum() < 6:
+            continue
+        P = order_path(sk)
+        if len(P) < 6:
+            continue
+        tck, _ = splprep(P.T, s=len(P) * 1.0, k=min(3, len(P) - 1))
+        P = np.array(splev(np.linspace(0, 1, max(int(len(P) / 2), 4)), tck)).T
+        T = np.gradient(P, axis=0)
+        T /= np.maximum(np.hypot(*T.T), 1e-6)[:, None]
+        Nn = np.c_[-T[:, 1], T[:, 0]]
+        sh = np.arange(-MARK_SNAP * UP, MARK_SNAP * UP + 0.5, 0.5)
+        off = np.full(len(P), np.nan)
+        for i, (p, nn) in enumerate(zip(P, Nn)):
+            q = p + sh[:, None] * nn
+            v = ndi.map_coordinates(hs, [q[:, 0], q[:, 1]], order=1)
+            j = int(np.argmax(v))
+            if v[j] > MARK_PEAK and 0 < j < len(sh) - 1:
+                off[i] = sh[j]
+        ok = ~np.isnan(off)
+        if ok.mean() < MARK_CLEAR:
+            # (in the glare, on the bracelets, the photo shows no incision to snap to: his line as drawn, and
+            # the marks found round it are glare)
+            ok[:] = False
+            weak[tuple(np.round(P).astype(int).T)] = True
+        if ok.sum() >= 3:
+            idx = np.arange(len(P))
+            off = np.interp(idx, idx[ok], off[ok])
+            off = ndi.gaussian_filter1d(off, 1.5)
+        else:
+            off = np.zeros(len(P))
+        Q = P + off[:, None] * Nn
+        line = np.zeros(shape, bool)
+        for a_, b_ in zip(Q[:-1], Q[1:]):
+            t = np.linspace(0, 1, int(np.hypot(*(b_ - a_)) * 2) + 2)[:, None]
+            q = np.clip((a_ + t * (b_ - a_)).round().astype(int), 0, np.array(shape) - 1)
+            line[q[:, 0], q[:, 1]] = True
+        out |= line
+    if weak.any():
+        from skimage.morphology import convex_hull_object
+        lab, _ = ndi.label(ndi.binary_dilation(weak, structure=morphology.disk(MARK_HULL * UP)))
+        weak = convex_hull_object(lab > 0)
+    return out, blue, weak
+
+
 def masks(ch, dump=None):
     L, W, RG, BR, GB, sat, hat, what, Wc = (ch[k] for k in ("L", "W", "RG", "BR", "GB", "sat", "hat", "what", "Wc"))
     # the glare: blue over GLARE_BR round it (4 px), or lighter than GLARE_L and less warm than GLARE_W over 8 px
@@ -615,8 +858,12 @@ def masks(ch, dump=None):
     in_glare = np.bincount(lab[glare & ~glare0], minlength=len(sz)) > 0.5 * sz
     in_g0 = np.bincount(lab[glare0], minlength=len(sz)) > 0.5 * sz
     marks &= ((sz >= MARK_MIN * UP * UP) & (ext >= np.where(in_g0, GLARE_WLEN, np.where(in_glare, GLARE_LEN, MARK_LEN)) * UP))[lab]
-    sk = morphology.skeletonize(marks)
-    marks = (marks | (ndi.distance_transform_edt(~sk) <= LINE_W / 2 * UP)) & fig
+    marks = even_incisions(marks, hat, fig)
+    feathers, fcover = straight_feathers(hat, fig, marks.shape)
+    marks = (marks & ~fcover) | feathers
+    jl, jblue, jweak = john_lines(marks.shape, hat)
+    marks &= ~(ndi.distance_transform_edt(~jl) <= MARK_NEAR * UP) & ~jweak
+    marks |= smooth(ndi.distance_transform_edt(~jl) <= INC_W / 2 * UP, 0.5) & fig
     marks |= crack_joins(marks.shape) & fig
     marks |= strokes(marks.shape, HAND, EYE_W) & fig
     marks = marks & ~(rbox & rope)
@@ -630,7 +877,7 @@ def masks(ch, dump=None):
     rings = np.zeros(L.shape, bool)
     for r in RINGS_R:
         rings |= np.abs(rr - r) <= RING_W / 2
-    return fig, red, marks, crack, rings
+    return fig, red, marks, crack, rings, jblue
 
 
 def main(src, qa=None, dump=None, cache=None):
@@ -640,8 +887,8 @@ def main(src, qa=None, dump=None, cache=None):
         ch = channels(src)
         if cache:
             np.savez(cache, **ch)
-    fig, red, marks, crack, rings = masks(ch, dump)
-    lines = smooth(fig & ~marks & ~red, SMOOTH) | rings
+    fig, red, marks, crack, rings, jblue = masks(ch, dump)
+    lines = smooth(fig & ~marks & ~red, SMOOTH) | rings | jblue
     tone = smooth(red, SMOOTH) & ~lines
     # (John, 2026-10-11: "the white background just doesn't work here. Let's have clay for both light and dark":
     # the body is the whole tondo to the outer ring's edge, filled with clay in both themes, as clouds.svg)
