@@ -253,7 +253,8 @@ SPECK, FLECK = 150, 200
 # smoothed first (Gaussian MASK_SIGMA in PhotoCraft, cut at half), pinholes under HOLE px^2 filled, side spurs
 # under SPUR px pruned. Solid paint (the hair, the belts, the mouths): the dark (LINE_DARK) opened over SOLID_R px,
 # drawn at its own shape
-LC_CAP, LC_R, LC_LOW, LC_HIGH = 175, 8, 30, 50
+LC_CAP, LC_R, LC_LOW, LC_HIGH = 175, 5, 30, 50
+# (LC_R 5: at 8 the window bridged the clay between the dress's close folds)
 # Off the figures (outside LC_ZONES, boxes round them, flat px: on the plank) the contrast finder's hysteresis is
 # stronger (CORE_LC), so the wood's grain stays out. Everywhere the dark core (LINE_DARK) is a line too
 LC_ZONES = [(950, 300, 2400, 2450), (2450, 300, 3800, 2450), (3850, 150, 5600, 2450)]
@@ -283,6 +284,8 @@ PANEL_ROW, PLANK_STEP, PLANK_X, PLANK_MED = 2880, 25, (700, 4980), 5   # (past t
 # level bar PLANK_BAR px long (the wear's branches go), then pieces PLANK_LEN px long or more; its stains and wear
 # left out
 PLANK_TOP, PLANK_BAR, PLANK_LEN = 2505, 41, 150
+# and the joins' breaks where the wear crosses them closed, up to PLANK_GAP px (wear leaves no line, and no gap)
+PLANK_GAP = 201
 # White paint (hair and beards): inside each head's box (flat px), lighter than its grey limit and less red than its
 # red-less-blue limit (clay is redder): the old woman's mask, the king's
 HEADS = [((2850, 420, 3200, 800), 150, 75), ((4520, 300, 5020, 1000), 150, 75)]
@@ -309,7 +312,11 @@ BRUSH_EXT, BRUSH_PAD, BRUSH_W, BRUSH_MIN, BRUSH_OP, BRUSH_K = 0.25, 6, 1.6, 12, 
 WATER_STEPS = [(0.05, 0.05), (0.12, 0.09), (0.22, 0.13), (0.34, 0.17)]
 # Faces and masks are traced at their own size, not re-weighted with the rest (as wasps.py). Boxes, flat px: the
 # left actor's, the old woman's, the king's
-FACES = [(1450, 430, 1730, 780), (2760, 500, 3030, 840), (4520, 330, 4820, 800)]
+FACES = [(1450, 430, 1730, 780), (2760, 420, 3030, 840), (4520, 330, 4820, 800)]
+# In them the paler, finer lines too (FACE_LC hysteresis; as frogs.py; John, 2026-10-12, of the cloth's thin strokes
+# over the old woman's brow: "dont miss those finer lines please")
+FACE_LC = (14, 28)
+PALE_OFF, PALE_MIN = 4, 30
 FACE_MAX = 20000
 HAIR_SPAN, CLAY_SPECK = 20, 10
 WASH_HOLE = 2000
@@ -371,12 +378,13 @@ def centre_lines(m, spur, min_len):
     return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
 
 
-def even_lines(contrast, dark, area, zones):
+def even_lines(contrast, dark, area, zones, faces):
     """The painted lines: `dark`, and in `area` those found by local contrast (CORE_LC outside `zones`), redrawn
     along their centres at the paint's own width (see LC_* and the constants after it)."""
     from skimage.filters import apply_hysteresis_threshold
     found = np.where(zones, apply_hysteresis_threshold(contrast, LC_LOW, LC_HIGH),
                      apply_hysteresis_threshold(contrast, *CORE_LC))
+    found = np.where(faces, apply_hysteresis_threshold(contrast, *FACE_LC), found)
     firm = (found & area) | dark
     firm = morphology.remove_small_holes(firm, max_size=HOLE)
     near_max = ndi.maximum_filter(np.where(firm, contrast, 0), 2 * HALF_R + 1)
@@ -575,8 +583,16 @@ def scene(rgb):
     solid = ndi.binary_opening(paint & ~edge, structure=morphology.disk(SOLID_R)) & ~pat
     solid = ndi.binary_dilation(solid, iterations=2) & paint
     shaft = np.any([along(g.shape, pts, SCEPTRE_W) for pts in SCEPTRE], 0) & fig
-    area = fig & ~edge & ~face_box & ~hair_zone & ~yellow & ~wide & ~ndi.binary_dilation(solid, iterations=3)
-    lines = solid | even_lines(contrast, core & area, area, box(LC_ZONES)) | old
+    # (the faces too: their finer, paler lines, John, 2026-10-12: "dont miss those finer lines please"; the dark core
+    # alone, `old`, missed them)
+    area = fig & ~edge & ~hair_zone & ~yellow & ~wide & ~ndi.binary_dilation(solid, iterations=3)
+    found = even_lines(contrast, core & area, area, box(LC_ZONES), face_box)
+    # (in the faces the dark lines keep their own shape, `old`: redrawn they came out heavy; the finder adds only the
+    # paler lines, its px more than PALE_OFF px from them, pieces of PALE_MIN px^2 or more)
+    pale = found & face_box & ~ndi.binary_dilation(old, iterations=PALE_OFF)
+    pale = morphology.remove_small_objects(pale, max_size=PALE_MIN)
+    pale = ndi.binary_dilation(pale, iterations=PALE_OFF + 1, mask=found)   # (grown back to meet the dark lines)
+    lines = solid | (found & ~face_box) | pale | old
     lines &= fig & ~edge
     # the sceptre: its long upright lines only
     rods = ndi.binary_opening(core & shaft & ~edge, structure=np.ones((SCEPTRE_BAR, 1), bool))
@@ -586,6 +602,7 @@ def scene(rgb):
     # on the plank only the boards' joins: stains and wear left out
     on_plank = yy > PLANK_TOP
     joins = ndi.binary_opening(lines & on_plank, structure=np.ones((1, PLANK_BAR), bool))
+    joins = ndi.binary_closing(joins, structure=np.ones((1, PLANK_GAP), bool)) & on_plank & fig & ~edge   # (the wear's breaks)
     lab, _ = ndi.label(joins, structure=np.ones((3, 3)))
     short = [k for k, sl in enumerate(ndi.find_objects(lab), 1) if sl[1].stop - sl[1].start < PLANK_LEN]
     lines = (lines & ~on_plank) | (joins & ~np.isin(lab, short))
