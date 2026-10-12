@@ -220,6 +220,21 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   round dance on Taf. 17/18, was dropped: each dancer's outer hand clasps a neighbour's, the thumb of one
   over the other's fingers, so no cut leaves a whole hand (John: "THe hands are the real issue. let's
   find another image"). Check the hands and feet at the edges of a crop before picking it (2026-10-08).
+- Bacchae (Taf. 37, four maenads), made with PhotoCraft: about an hour over two passes, approved by John
+  2026-10-12. `tools/bacchae.py`. The figures stand free of each other but for the staffs: no livewire cuts;
+  the floor is the meander band's edge, measured column by column where the ground lies over it (2026-10-12).
+- Taf. 37 is small (2385 px; a face about 60 px): lines by local contrast (a closing 2.5 plate px wide) drawn
+  along their centres at 0.11%; the plain dark threshold took the thinned paint's broad strokes for lines
+  (2026-10-10).
+- The hair at the paint's threshold came out mottled, its brown curls open. Inside a box round each head the
+  plate under grey 120, joined to the paint's dark cores, gives solid hair with the ivy leaves and berries
+  open (`HEADS`). The eyes, about 12 px, drawn finer with the pupils as dots (`EYES`) (2026-10-10).
+- The thinned paint (shadows in the folds, says the text): a `tone` wash, found as the plate darker than its
+  closing over 16 plate px (wider than the broadest band; the scan's light falls off to the left), with the
+  drawn lines taken out before the opening, so broad bands stay whole (2026-10-10).
+- Clay islands on the ground (three leaves of a sprig) are lost when the figures are the clay joined to seeds.
+  John ringed them in PhotoCraft: a ring whose inside lies off the figure puts the plate's own clay there back
+  (`MARKS_FILES`). Check for free-standing leaves, berries and tips before showing him (2026-10-12).
 
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
@@ -451,6 +466,29 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Weight: John asked for heavier lines than the plate's own (0.084%), then chose 0.12% of 0.12, 0.16 and the house
   0.225%: at 0.225% the hair's strokes ran into blots (2026-10-10).
 
+### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
+
+- Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
+  two and three-quarter hours over a style test and three passes, the credit included, approved by John 2026-10-12.
+  `tools/cyclops.py` (2026-10-12).
+- The Internet Archive's original capture was far larger than its viewer page (6000 x 4000 against 2635 x 3625) and
+  the book was photographed upside down: a half-turn, not the quarter-turn the preview card gave. Viewer page n418 was
+  leaf 419. Each "orig" JP2 can be pulled alone from the tar's listing (690 KB here) (2026-10-12).
+- Thinned glaze on the clay (smoke, flames) read as stepped washes, as the blood (John chose them over one flat wash).
+  The smoke is redder than the clay: red less 1.6 green (PhotoCraft's Channel Mixer) parts it from the clay and from
+  every mix of black and clay. The flames print as a dark stipple, so read them by darkness at a heavy blur (7 plate
+  px); black inside the fire is only the solid black, opened and closed over the dot screen and smoothed. A lighter
+  blur left the wash blotchy and the loops pinholed (John: "Clean the fire") (2026-10-12).
+- Added white on this plate (the rock's patches) went in as ink (John: "those are patches but make them ink"), their
+  reddish printed rims with them; keep the white finder in a box round the rock, or it takes a beard's light incision
+  for white (2026-10-12).
+- Faint brown lines on the clay (the hats' brims prolonged, which Saglio says are worn): least-cost paths along the
+  dark through points read off the plate at 3x, smoothed along their length, in the wash (2026-10-12).
+- A part lying over the border band (the club's end): its outline read off the plate and filled, the band's clay
+  round it kept from becoming light marks (2026-10-12).
+- The Louvre's collection site answered with a CAPTCHA; the Beazley Archive's record opened in the browser pane after
+  its automatic check (2026-10-12).
+
 ### Photos of vases (red-figure, taken off the vase with `tools/vase_unroll.py`)
 
 - Acharnians (Würzburg H 4689, the seated warrior; four ArchaiOptix photos), made with PhotoCraft:
@@ -562,6 +600,26 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   of his strokes run close (nose, chin), the clay between them is his: ask before closing it (2026-10-10).
 - A small hole in the figure's area shows the dark ground in dark mode only: her eye read heavy there since pass 1.
   Close holes under a few hundred frame px^2 when the figure has no ground seen through it (2026-10-10).
+- Wasps (Getty 96.AE.112, a phlyax stage scene; the Getty's three photos): about five hours over twelve passes, approved
+  by John 2026-10-10. `tools/wasps.py` (2026-10-10).
+- Museum photos without EXIF: fit the focal length by trying several and keeping the one where the fit's cost levels
+  off (here 40000 px for all three, taken from one stand). The profile views match the front only at a turn near 90
+  degrees: filter SIFT matches by the turn a cylinder implies before fitting, or the fit drops the front as outliers.
+  `vase_unroll.silhouette` wants a light ground (L > 140); the Getty's grey (115-143) needs its own edge rule.
+- A scene that wraps 130 degrees round a body tapering under it: the shear-free flat bowed the stage plank and fanned
+  the outer figures out. John chose the flat with the rings straight and the meridians upright (x = R_C theta, y = arc
+  length), widening the feet by up to 5% (2026-10-10).
+- Read the white paint as the painter used it: John saw teeth under a moustache and a sheep (ram) mask where I saw a
+  beard and hair; the Getty's record calls it a ram's head. Ask for a line where one area becomes another (he drew
+  both) and keep a mask an object: its face sharp and outlined, its fleece painted (2026-10-10).
+- The thinned glaze on clay (bodies, clothes) took six rounds: a stepped wash was "too blotchy", strokes found by
+  elongation read as thin daubs, a blurred watercolour too faint. What he approved: each stroke repainted with
+  PhotoCraft's own brush (paint.stroke, hardness 0, seeded, so it reruns byte for byte), broader than the mark, run
+  along the contours (the level lines of the distance to the painted lines), few and faint, and never level (the
+  wheel's streaks). Patterns on cloth: crisp-edged washes darker where the brush pooled (2026-10-10).
+- The big dark areas the figures close in (behind a door, between legs) are ground; a fixed head box cut a beard's
+  tail where it hangs over cloth and showed as a gap in the dark theme: check every white area's whole extent
+  (2026-10-10).
 
 ## John's traces
 
