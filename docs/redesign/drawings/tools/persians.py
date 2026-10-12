@@ -73,11 +73,17 @@ TRACE_H = 6400
 # drew it (outlines closed where the pen broke off, missing ones, the eyes); yellow is clay (2026-10-12: the
 # paper round it, out to the lines, up to MARK_R); green is "erase or ground" (2026-10-12): the ink he covers
 # mostly (MARK_COVER of a piece) goes, and the paper round it, out to the lines and up to MARK_R, is ground,
-# or the whole area the lines close if he covers MARK_FILL of it. Marks 1 (2026-10-11): pass 1; marks 2
-# (2026-10-12): pass 2.
-MARKS_FILES = [Path(__file__).parent / "persians_marks_1.png", Path(__file__).parent / "persians_marks_2.png"]
+# or the whole area the lines close (sealed by the watershed, as the figures' area; cut at its necks narrower
+# than NECK) if he covers MARK_FILL of it (marks 3, 2026-10-12: "I didn't color in all of the ground there"). Marks 1 (2026-10-11): pass 1; marks 2
+# (2026-10-12): pass 2; marks 3 (2026-10-12): pass 3.
+MARKS_FILES = [Path(__file__).parent / f"persians_marks_{i}.png" for i in (1, 2, 3)]
 MARKS_K = 2
 MARK_R, MARK_COVER, MARK_FILL = 8, 0.5, 0.15
+# paired fine strokes the scan runs together (boxes, plate px): the slits between them, under SLIT plate px^2,
+# filled and the pair drawn along its middle at a pen line's width, as one clean line (John, 2026-10-12: the horseman's greave, "those lines on
+# the leg look bad": they came out as blobs with holes)
+PAIRS = [(755, 770, 800, 940)]
+SLIT = 40
 WALLS = []
 WALL_W = 2.0
 # Shading: the plate shades some parts (the king's cap, sleeves and belt, the chariot's rails and panel, the
@@ -414,7 +420,7 @@ def figure(ink, gl):
         kept[sl] |= ndi.binary_fill_holes(c) & ~c & paper[sl]
     # (the ink they close in too: the shield's star, wider than the reach)
     fig = ndi.binary_fill_holes(clay | (ink & ndi.binary_dilation(clay, iterations=2 * UP)))
-    return fig & ~(ground & paper & ~bands), pk & ~bands, kept
+    return fig & ~(ground & paper & ~bands), pk & ~bands, kept, ws
 
 
 def marks(shape):
@@ -439,14 +445,24 @@ def main(src, qa=None, dump=None):
     covered = np.bincount(lab[near], minlength=n + 1) >= MARK_COVER * np.bincount(lab.ravel(), minlength=n + 1)
     covered[0] = False
     ink = (ink & ~covered[lab]) | blue
-    fig, pk, kept = figure(ink | reg, gl)
+    for bx0, by0, bx1, by1 in PAIRS:
+        sl = np.s_[(by0 - Y0) * UP:(by1 - Y0) * UP, (bx0 - X0) * UP:(bx1 - X0) * UP]
+        holes = ndi.binary_fill_holes(ink[sl]) & ~ink[sl]
+        hl, _ = ndi.label(holes)
+        ink[sl] |= (np.bincount(hl.ravel()) < SLIT * UP * UP)[hl] & holes
+        ink[sl] = ndi.binary_dilation(morphology.skeletonize(ink[sl]), iterations=UP // 2 + 1)  # one line wide
+    fig, pk, kept, ws = figure(ink | reg, gl)
     paper = ~(ink | reg)
     grow = lambda m: ndi.binary_dilation(m & paper, iterations=MARK_R * UP, mask=paper) | m  # noqa: E731
-    lab, n = ndi.label(paper)
+    lab, n = ws, ws.max()                             # the areas the lines close, sealed as in `figure`
     size = np.bincount(lab.ravel(), minlength=n + 1)
     full = np.bincount(lab[green], minlength=n + 1) >= MARK_FILL * size
     full[0] = False
-    gone = grow(green) | (full[lab] & paper)
+    whole = full[lab] & paper                         # (cut at its necks: a gap in the third horse's muzzle
+    o = ndi.binary_opening(whole, structure=morphology.disk(NECK * UP))   # let the area run into it)
+    ol, _ = ndi.label(o)
+    o = np.isin(ol, np.unique(ol[ndi.binary_dilation(green, iterations=NECK * UP) & (ol > 0)]))
+    gone = grow(green) | (ndi.binary_dilation(o, iterations=NECK * UP, mask=whole) if o.any() else o)
     clay = ndi.binary_fill_holes(grow(yellow))
     fig = (fig & ~gone) | clay
     pk = (pk | gone) & ~clay
