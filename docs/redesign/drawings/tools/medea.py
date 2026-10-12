@@ -31,6 +31,7 @@ Plate -> drawing, Furtwängler-Reichhold, red figures on the black ground (as to
   - The grey of the plate (the robes and sleeves in thinned paint): a `tone` wash in the line colour, its opacity
     following how much darker than the clay the plate is there; the white dots and patterns on it left open.
   - The faces (FACES): their features traced finer, from the plate barely blurred.
+  - Medea's sword-arm sleeve (SLEEVE): ink, its white dots open.
   - The added white (WHITE_*): lighter than the clay round it; `white` paths (as Wealth), outlined finely where it
     meets clay by a `day` path the dark theme hides.
   - Dark theme: the figures' area is the body; the ground stays open, as on the vase.
@@ -148,6 +149,10 @@ ALTAR = [(1272, 2056), (1490, 2061), (1484, 2082), (1466, 2092), (1466, 2244), (
 # Medea's cap: its grey (the plate barely blurred, from CAP_LINE to CAP_GREY) a flat tone (CAP_DEPTH), the white
 # scrolls open at the plate's width (no opening there)
 CAP_DEPTH, CAP_GREY = 75, 140
+# Medea's sword-arm sleeve (box, plate px): ink, with its white dots open (John, 2026-10-12: "the sleeve should be
+# ink with white dots"): its grey area, closed over SLEEVE_CLOSE plate px and filled, less the dots (the plate
+# barely blurred, lighter than SLEEVE_DOT: the dots 214-245, the grey 90-130)
+SLEEVE, SLEEVE_CLOSE, SLEEVE_DOT = (1045, 1705, 1130, 1840), 2, 170
 # Medea's cap and the border of her veil (plate px): a band of dark grey (60-90) with white scrolls and dots, as dark
 # as the plate's thin lines blurred; inside it only the black (lightly blurred, darker than CAP_LINE) is line, the
 # grey is tone
@@ -364,6 +369,12 @@ def main(src, qa=None, dump=None):
     tone = (tone & ~cap) | ndi.binary_opening(cap & fig & (gf >= CAP_LINE) & (gf < CAP_GREY) & ~white,
                                               structure=morphology.disk(UP // 2))
     tone = morphology.remove_small_objects(tone, max_size=TONE_MIN * UP * UP)
+    sleeve = ndi.binary_fill_holes(ndi.binary_closing(tone & boxes([SLEEVE]),
+                                                      structure=morphology.disk(SLEEVE_CLOSE * UP))) & fig
+    dots = sleeve & (gf > SLEEVE_DOT)
+    ink = (ink & ~sleeve) | (sleeve & ~dots) | (ink & sleeve & ~dots)
+    white = (white & ~sleeve) | dots
+    tone &= ~sleeve
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint,
                             firm=firm & fig, edge=edge, tone=tone, depth=depth.astype(np.float16), white=white, day=day)
