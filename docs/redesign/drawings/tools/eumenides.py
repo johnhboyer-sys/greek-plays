@@ -103,6 +103,34 @@ TASSELS = (1050, 836, 1290, 872)
 TASSEL_CLOSE = 1                           # scan px: each edge line is looked for this far from the rough centre
 # specks of the print on the field: ink pieces under SPECK_MAX scan px^2 farther than NEAR scan px from the figures
 SPECK_MAX, NEAR = 40, 3
+# The Pythia alone, cut from this drawing for the Aeschylus home page (PYTHIA_OUT; John chose both uses,
+# 2026-10-12). Her outline, Apollo's foot and the restored stripe are tools/pythia.py's (in unlevelled scan px,
+# mapped through `level_pt`), with John's decisions there: both ends of her starred shawl kept, black folds and
+# all; Apollo's raised back foot, which lies across her hem, erased and the hem left blank; the black stripe of her
+# dress drawn on across the gap (a straight run of its last 40 px, tapering from 7.5 to 4.5 px)
+PYTHIA_OUT = Path(__file__).resolve().parent.parent / "aeschylus-pythia.svg"
+PYTHIA = [
+    (483, 429), (494, 423), (505, 423), (515, 430), (517, 450), (521, 459), lw.STRAIGHT, (531, 457),
+    (533, 440), (540, 428), (565, 420), (575, 414), (588, 416), (596, 423), (600, 428), (618, 438), (630, 446),
+    (634, 451), lw.STRAIGHT,
+    (641, 448), (638, 436), lw.STRAIGHT, (638, 409), lw.STRAIGHT, (684, 409), lw.STRAIGHT,
+    (684, 430), (682, 445), (675, 465), (688, 483), (698, 498),
+    (720, 496), (760, 498), (785, 496), (803, 506), (798, 521), (790, 527), (765, 530), (740, 530), (715, 530),
+    (702, 535), (712, 542), (735, 548), (752, 553), (775, 570), (780, 582), (768, 594), (752, 612), (742, 617),
+    (728, 609), (712, 600), (705, 608),
+    (724, 634), (742, 656), (743, 690), (744, 725), (743, 760), (742, 777),
+    (772, 786), (773, 801), (766, 815), (766, 840), (764, 864), (751, 874), (737, 860), (733, 845),
+    (715, 841), (675, 838), (640, 852), lw.STRAIGHT, (600, 862), lw.STRAIGHT, (560, 865), (553, 862),
+    (520, 865), (495, 864),
+    (487, 854), (497, 844), (510, 831), (505, 801), (505, 761), (503, 735), (506, 708), (514, 682), (535, 671),
+    (540, 631), (537, 590), (527, 560), (510, 551), (494, 546), (476, 540), (463, 530), (459, 515), (461, 498),
+    (467, 480), (479, 460),
+]
+APOLLO_FOOT = [(696, 782), (740, 776), (772, 782), (775, 806), (764, 816), (735, 814), (700, 806), (692, 795)]
+RESTORED = [((737, 777), (757, 819), 7.5, 4.5)]
+PYTHIA_NEAR = 2                           # scan px: her ink lies within this of her body
+SCAN_C = (887.0, 1170.0)                  # the scan's centre (px), about which `level` turns it
+
 # John's corrections on pass 1 (2026-10-12), marked in PhotoCraft on the plate at MARKS_K x its levelled scan px over
 # the crop (both his layers, the copy on top): blue is ink, green is paper; the ink is pass 1's less his green, plus
 # his blue (read literally: in Orestes's and the Pythia's eyes he redrew the eye in blue and cleared the old blot
@@ -266,6 +294,54 @@ def figure(ink, ws, gl):
     return (fig & ~ground) | bands, ground
 
 
+def level_pt(x, y):
+    """A point in the scan as `level` moves it (unlevelled -> levelled scan px)."""
+    a = np.radians(ANGLE)
+    cx, cy = SCAN_C
+    return (cx + np.cos(a) * (x - cx) - np.sin(a) * (y - cy), cy + np.sin(a) * (x - cx) + np.cos(a) * (y - cy))
+
+
+def pythia(ink, dots, body, gl):
+    """The Pythia alone, cut along PYTHIA by a least-cost path on the drawing's ink, written to PYTHIA_OUT at the
+    same printed line (1.2 scan px)."""
+    from skimage import draw
+    w = lambda p: p if p == lw.STRAIGHT else (((level_pt(*p)[0] - X0) * UP), ((level_pt(*p)[1] - Y0) * UP))
+    lines = ink | dots
+    soft = ndi.gaussian_filter(lines.astype(np.float32), 1.5 * UP / 4)
+    cost = 1 + 30 * (1 - np.clip(soft * 2, 0, 1))
+    path, on_straight = lw.livewire(cost, [w(p) for p in PYTHIA], closed=True, flags=True)
+    keep, inner, wall = lw.cut_masks(ink.shape, path, on_straight, rim=2 * UP)
+    foot = lw.polygon_mask(ink.shape, np.array([w(p) for p in APOLLO_FOOT], float))
+    cut = lambda m: m & keep & ~foot
+    i, d = cut(ink), cut(dots)
+    for a, b, wa, wb in RESTORED:
+        (xa, ya), (xb, yb) = w(a), w(b)
+        for t in np.linspace(0, 1, int(np.hypot(xb - xa, yb - ya)) + 1):
+            rr, cc = draw.disk((ya + t * (yb - ya), xa + t * (xb - xa)), (wa + t * (wb - wa)) * UP / 2, shape=i.shape)
+            i[rr, cc] = True
+    # her hem behind the erased foot is hers: the body there filled
+    b = (body & inner & ~lines) | (foot & ndi.binary_erosion(inner, iterations=UP))
+    # her body is her clay inside the cut and the lines bordering it (the whole plate's body counts every line
+    # touching clay: Apollo's shin line, whose clay lies outside her cut, came in with it)
+    b = ndi.binary_fill_holes(b | (lines & ndi.binary_dilation(b, iterations=2 * UP)))
+    # the outline runs down the front of Apollo's thigh, but the field between him and her is ground here: only ink
+    # on or beside her body stays (his leg's lines go), and pieces that leaves smaller than a speck
+    near = ndi.distance_transform_edt(~b) <= PYTHIA_NEAR * UP
+    i &= near
+    d &= near
+    lab, _ = ndi.label(i)
+    i &= (np.bincount(lab.ravel()) > SPECK * UP * UP)[lab]
+    ys, xs = np.nonzero(i | d)
+    longer = max(ys.max() - ys.min(), xs.max() - xs.min()) + 9
+    info = lw.trace_svg(
+        i, PYTHIA_OUT, body=b, open_holes=~b, dots=d, weight=1.2 * UP / longer,
+        title="The Pythia, Apollo's priestess, fleeing in terror with her hands raised",
+        desc="Line drawing after Carl Bötticher's 1859 drawing of an Apulian red-figure krater "
+             "showing Orestes at Delphi (Naples); cut out and retraced.")
+    print(PYTHIA_OUT, info)
+    return info
+
+
 def marks(shape):
     """John's marks on the work grid: (blue, green) bool masks, each file applied in order (a later file's green
     clears an earlier blue)."""
@@ -349,6 +425,7 @@ def main(src, qa=None, dump=None):
              "the Pythia fleeing, the Fury, Apollo, Orestes at the omphalos, Artemis with her hounds; retraced.")
     add_rim(rim, info)
     print(OUT, info)
+    pythia(ink, dots, body, gl)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
         lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
