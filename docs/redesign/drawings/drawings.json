@@ -297,6 +297,15 @@
       "source": "Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 37: an Attic red-figure stamnos by the Dinos Painter, Naples, Museo Archeologico Nazionale 81674 (Heidelberg scan, public domain)",
       "method": "Furtwängler-Reichhold plate, made with PhotoCraft: the black ground gives the outline; the lines along their centres at the F-R weight; hair solid, ivy open; the thinned paint as a wash; John's PhotoCraft marks laid in; potrace",
       "verdict": "Usable; approved by John on the second pass (2026-10-12), after his marks in PhotoCraft. No outside review (the citation checked against the Furtwängler-Reichhold text and the Beazley Archive)."
+    },
+    {
+      "slug": "cyclops",
+      "file": "cyclops.svg",
+      "name": "Cyclops · The blinding of Polyphemus",
+      "alt": "Two men in short tunics and broad hats drive a long stake into the eye of a huge bearded man who reclines asleep with a club; behind them a third man thrusts a stake into a fire, and ivy trails above",
+      "source": "Saglio, Gazette archéologique 12 (1887), pl. 1: an Attic black-figure oinochoe by the Theseus Painter, Paris, Louvre F 342 (Internet Archive scan, public domain)",
+      "method": "Coloured plate, black figures on clay, a silhouette, made with PhotoCraft: the clay gives the outline; the black solid with its incisions open; the smoke and the fire as stepped washes; the rock's white patches as ink; potrace",
+      "verdict": "Usable; approved by John on the third pass (2026-10-12). No outside review (the citation checked against Saglio's text and the Beazley Archive)."
     }
   ]
 }

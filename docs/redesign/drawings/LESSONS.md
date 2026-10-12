@@ -466,6 +466,29 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Weight: John asked for heavier lines than the plate's own (0.084%), then chose 0.12% of 0.12, 0.16 and the house
   0.225%: at 0.225% the hair's strokes ran into blots (2026-10-10).
 
+### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
+
+- Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
+  two and three-quarter hours over a style test and three passes, the credit included, approved by John 2026-10-12.
+  `tools/cyclops.py` (2026-10-12).
+- The Internet Archive's original capture was far larger than its viewer page (6000 x 4000 against 2635 x 3625) and
+  the book was photographed upside down: a half-turn, not the quarter-turn the preview card gave. Viewer page n418 was
+  leaf 419. Each "orig" JP2 can be pulled alone from the tar's listing (690 KB here) (2026-10-12).
+- Thinned glaze on the clay (smoke, flames) read as stepped washes, as the blood (John chose them over one flat wash).
+  The smoke is redder than the clay: red less 1.6 green (PhotoCraft's Channel Mixer) parts it from the clay and from
+  every mix of black and clay. The flames print as a dark stipple, so read them by darkness at a heavy blur (7 plate
+  px); black inside the fire is only the solid black, opened and closed over the dot screen and smoothed. A lighter
+  blur left the wash blotchy and the loops pinholed (John: "Clean the fire") (2026-10-12).
+- Added white on this plate (the rock's patches) went in as ink (John: "those are patches but make them ink"), their
+  reddish printed rims with them; keep the white finder in a box round the rock, or it takes a beard's light incision
+  for white (2026-10-12).
+- Faint brown lines on the clay (the hats' brims prolonged, which Saglio says are worn): least-cost paths along the
+  dark through points read off the plate at 3x, smoothed along their length, in the wash (2026-10-12).
+- A part lying over the border band (the club's end): its outline read off the plate and filled, the band's clay
+  round it kept from becoming light marks (2026-10-12).
+- The Louvre's collection site answered with a CAPTCHA; the Beazley Archive's record opened in the browser pane after
+  its automatic check (2026-10-12).
+
 ### Photos of vases (red-figure, taken off the vase with `tools/vase_unroll.py`)
 
 - Acharnians (Würzburg H 4689, the seated warrior; four ArchaiOptix photos), made with PhotoCraft:

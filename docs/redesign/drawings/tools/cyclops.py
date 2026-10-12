@@ -8,6 +8,9 @@ catalogue), in the Louvre since 1862, unpublished till then. Polyphemus, nude, h
 its white remain), his club on his left arm, his eye shut; two men drive the stake, its tip smoking (close
 brushstrokes); a third, turned away, plunges the end of a stake into the brazier (quick brushstrokes, the clay
 showing through); added red, much faded, on the Greeks' hair and beards and belts; ivy above.
+The vase: an Attic black-figure oinochoe attributed to the Theseus Painter, c. 550-500 BC; Paris, Louvre F 342
+(Beazley Archive 303347, ABV 433.6; the Louvre's own collection site sat behind a bot check, 2026-10-12, and was not
+read). Approved by John on the third pass, 2026-10-12.
 John's pick (Plate Picks 28-7Da, 2026-10-10); the drawing (2026-10-12): the group, the ivy and the fire.
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the half-turn, the
