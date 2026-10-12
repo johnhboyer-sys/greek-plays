@@ -80,6 +80,9 @@ UPPER_X = 2255
 CASKET = [(1974, 1441), (2066, 1436), (2072, 1442), (2049, 1484), (1953, 1492), (1953, 1486)]
 FLAMES = [(1462, 1390, 1605, 1472), (1912, 1388, 2060, 1446)]
 FLAME_R, FLAME_T = 6, 15
+# the flames' necks, where each flame narrows onto its torch at the base's edge (plate px, measured at 6x)
+NECKS = [[(1478, 1438), (1520, 1438), (1516, 1471), (1482, 1471)], [(1916, 1438), (1964, 1438), (1959, 1466),
+                                                                        (1921, 1466)]]
 LEFT = 672                                  # the left palmette's border band, left of this
 # the ghost of Aietes, his robe's left edge and the cloud under him, then the right palmette (plate px, y: x):
 # right of this, out
@@ -99,7 +102,7 @@ POCKETS = [(1340, 1717), (1469, 1690), (1616, 1690), (1667, 1684), (1695, 1686),
            (1912, 1670), (1945, 1700), (1916, 1729), (2262, 1740), (1615, 2251)]
 # hair whose black runs into the ground's with no clay between (outlines, plate px, along the curls' tips and the
 # beads): inside, figure, and its dark is hair: Medea's, under the beads of her cap; the spearman's, under his hat
-HAIRS = [[(1212, 1552), (1236, 1554), (1258, 1560), (1253, 1584), (1245, 1600), (1240, 1640), (1215, 1650),
+HAIRS = [[(1212, 1566), (1236, 1567), (1255, 1571), (1253, 1584), (1245, 1600), (1240, 1640), (1215, 1650),
           (1205, 1600)],
          [(2503, 1582), (2548, 1582), (2553, 1600), (2551, 1632), (2540, 1646), (2520, 1646), (2505, 1625)]]
 # the chariot's wheels (ellipses: centre, half-width, half-height, plate px): the dark between the spokes is ground
@@ -136,6 +139,15 @@ FACE_R, FACE_LO, FACE_HI, FACE_W = 1.5, 24, 40, 1.2
 # it meets clay, a fine outline, WHITE_LINE plate px, as a `day` path the dark theme hides
 WHITE_D, WHITE_D2, WHITE_S, WHITE_MIN, WHITE_CLEAR = 20, 10, 20, 3, 2.5
 WHITE_FILL, WHITE_LINE = "#f7f3ea", 0.8
+# slivers of it narrower than WHITE_W plate px along the lines' edges dropped; a clay area between the lines that is
+# white for more than WHITE_AREA of it is white whole (the casket, the dish, the wheels' rims, the hilts); the altar,
+# lighter than the clay all over (205 to the figures' 175 there) and so not found against it, white whole (ALTAR)
+WHITE_W, WHITE_AREA = 1.8, 0.45
+ALTAR = [(1272, 2056), (1490, 2061), (1484, 2082), (1466, 2092), (1466, 2244), (1496, 2250), (1496, 2298),
+         (1242, 2298), (1248, 2250), (1268, 2240), (1268, 2090)]
+# Medea's cap: its grey (the plate barely blurred, from CAP_LINE to CAP_GREY) a flat tone (CAP_DEPTH), the white
+# scrolls open at the plate's width (no opening there)
+CAP_DEPTH, CAP_GREY = 75, 140
 # Medea's cap and the border of her veil (plate px): a band of dark grey (60-90) with white scrolls and dots, as dark
 # as the plate's thin lines blurred; inside it only the black (lightly blurred, darker than CAP_LINE) is line, the
 # grey is tone
@@ -276,6 +288,9 @@ def main(src, qa=None, dump=None):
         strokes = (closed - gl > FLAME_T) & box
         env = ndi.binary_closing(strokes, structure=morphology.disk(FLAME_R * UP))
         flames |= ndi.binary_fill_holes(env) & box
+    for pts in NECKS:
+        rr, cc = draw.polygon([(y - Y0) * UP for _, y in pts], [(x - X0) * UP for x, _ in pts], fig.shape)
+        flames[rr, cc] = True
     fig |= lid | flames | (hairs & ~outside)
 
     # the paint: dark areas within the figures whose core is darker than PAINT_CORE, at the edge the plate prints
@@ -325,6 +340,14 @@ def main(src, qa=None, dump=None):
     clayish &= gw < level + WHITE_D2
     level = ndi.gaussian_filter(np.where(clayish, gw, 0), s_) / np.maximum(ndi.gaussian_filter(clayish * 1.0, s_), 1e-3)
     white = morphology.remove_small_objects((gw > level + WHITE_D) & fig & ~boxes(FACES), max_size=WHITE_MIN * UP * UP)
+    white = ndi.binary_opening(white, structure=morphology.disk(round(WHITE_W * UP / 2))) | (white & cap)
+    lab, n = ndi.label(fig & ~ndi.binary_dilation(ink, iterations=UP // 2))
+    frac = ndi.mean(white, lab, range(1, n + 1)) if n else []
+    whole = np.r_[False, np.asarray(frac) > WHITE_AREA][lab]
+    altar = np.zeros_like(fig)
+    rr, cc = draw.polygon([(y - Y0) * UP for _, y in ALTAR], [(x - X0) * UP for x, _ in ALTAR], fig.shape)
+    altar[rr, cc] = True
+    white = (white | whole | (altar & fig & ~ndi.binary_dilation(ink, iterations=UP // 2))) & ~boxes(FACES)
     # (its outline where it meets clay, not where it meets the lines or the ground: there the white shows already)
     rim = (ndi.distance_transform_edt(~white) <= WHITE_LINE * UP) & ~white & fig & ~ink
     day = rim & ~ndi.binary_dilation(ink, iterations=UP)
@@ -332,12 +355,14 @@ def main(src, qa=None, dump=None):
     day &= (np.bincount(lab.ravel()) > UP * UP)[lab]
     ink |= day
 
-    depth = CLAY - tn
+    depth = np.where(cap, CAP_DEPTH, CLAY - tn)
     inner = ndi.distance_transform_edt(fig) > TONE_EDGE * UP
     tone = inner & ((CLAY - tsm > TONE_D) | (gf < TONE_DARK)) & \
         ~ndi.binary_dilation(black | paint, iterations=round(TONE_CLEAR * UP))
     tone = ndi.binary_opening(tone, structure=morphology.disk(max(1, round(TONE_W * UP / 2)))) & (gf < TONE_WHITE) & \
         ~white
+    tone = (tone & ~cap) | ndi.binary_opening(cap & fig & (gf >= CAP_LINE) & (gf < CAP_GREY) & ~white,
+                                              structure=morphology.disk(UP // 2))
     tone = morphology.remove_small_objects(tone, max_size=TONE_MIN * UP * UP)
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint,
