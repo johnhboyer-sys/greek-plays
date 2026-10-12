@@ -18,9 +18,9 @@ house format directly, as hecuba.py.
 Plate -> drawing, black-figure, drawn as a silhouette (John, 2026-10-12: "as Hecuba"):
   - Ground: the orange clay (warm: red less blue over WARM_T, and lighter than CLAY_L), its large areas.
   - The figures: all else that is not ground, inside the cuts.
-  - The black is drawn black. Open in it: the incisions (light marks, at least LINE_W wide), and the added
-    white (the rock), with an outline LINE_W wide where the white meets the ground.
-  - The thinned glaze (the smoke at the stake's tip, the fire): a `tone` path, the line colour at the opacities SMOKE_STEPS.
+  - The black is drawn black. Open in it: the incisions (light marks, at least LINE_W wide). The rock's added
+    white patches are drawn as ink (John, 2026-10-12).
+  - The thinned glaze (the smoke at the stake's tip, the fire): `tone` paths in steps (SMOKE_STEPS, FIRE_STEPS).
   - Dark theme: the figures' area is clay, a RIM wider than the black, so the black reads on the dark page.
 
     python3 docs/redesign/drawings/tools/cyclops.py leaf0419.png [qa.png]
@@ -115,9 +115,11 @@ FIRE_BLACK, FIRE_OPEN, FIRE_SPECK = 26, 3, 150
 # under FIRE_HOLE plate px^2 filled; the wash is read on the plate blurred FIRE_BLUR plate px, each step's islands and
 # holes under FIRE_HOLE dropped and filled, its edge smoothed FIRE_SMOOTH
 FIRE_BLUR, FIRE_SMOOTH, FIRE_HOLE = 7, 1.5, 60
-# the rock's added white: light, and not warm
+# the rock's added white (patches, Saglio: traces of it remain): light, and not warm. Drawn as ink (John, 2026-10-12,
+# pass 2: "those are patches but make them ink"); found only so the light-mark finder does not open them
 WHITE_L, WHITE_WARM = 115, 30
-WHITE_FILL = "#f7f3ea"
+PATCH_RIM = 6                              # plate px: no light marks this near a patch (its reddish printed rim)
+ROCK = (3550, 2250, 4000, 2520)            # plate px: the rock (elsewhere a light stroke is an incision: a beard's)
 AUTO_GROUND = 60                           # plate px^2: clay areas this large are ground
 DOT_MIN = 12                               # plate px^2: dark marks on the ground smaller than this are grain
 LINE_W = 2.0                               # plate px: the outline and the thinnest mark
@@ -229,9 +231,8 @@ def oriented(t, src_png, name):
     return t / f"{name}.png"
 
 
-def write_svg(lines, body, tone, white, out, title, desc):
-    """The house format (as hecuba.py): 1000 units tall, the body path under the `tone` paths (steps) under the
-    added white (class "white", as wealth.py) under the lines."""
+def write_svg(lines, body, tone, out, title, desc):
+    """The house format (as hecuba.py): 1000 units tall, the body path under the `tone` paths (steps) under the lines."""
     ys, xs = np.nonzero(lines | body)
     pad = 4
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, lines.shape[0])
@@ -246,7 +247,6 @@ def write_svg(lines, body, tone, white, out, title, desc):
             tp += (f'<path class="tone" fill="currentColor" fill-opacity="{1 - (1 - a) / (1 - below):.3f}" '
                    f'stroke="none" d="{td}"/>')
             below = a
-    wd, _ = lw.potrace_d(white[y0:y1, x0:x1], turdsize=2, alphamax=1.0)
     h, w = y1 - y0, x1 - x0
     k = 1000.0 / h
     esc = lambda s: s.replace("&", "&amp;").replace("<", "&lt;")
@@ -254,7 +254,7 @@ def write_svg(lines, body, tone, white, out, title, desc):
                    f'<title>{esc(title)}</title>\n<desc>{esc(desc)}</desc>\n'
                    f'<g transform="scale({k:.6f})"><g transform="{tr}">'
                    f'<path class="body" fill="none" stroke="none" d="{bd}"/>'
-                   f'{tp}<path class="white" fill="{WHITE_FILL}" stroke="none" d="{wd}"/>'
+                   f'{tp}'
                    f'<path class="lines" fill="currentColor" vector-effect="non-scaling-stroke" d="{d}"/>'
                    f'</g></g>\n</svg>\n')
     return {"bytes": out.stat().st_size, "box": (int(x0), int(y0), int(x1), int(y1))}
@@ -355,13 +355,14 @@ def main(src, qa=None, dump=None):
     steps = [m | brim for m in steps]
 
     # the rock's added white
-    white = ndi.binary_opening((L > WHITE_L) & (W < WHITE_WARM) & fig, structure=morphology.disk(UP))
+    rock = (px >= ROCK[0]) & (px < ROCK[2]) & (py >= ROCK[1]) & (py < ROCK[3])
+    white = ndi.binary_opening((L > WHITE_L) & (W < WHITE_WARM) & fig & rock, structure=morphology.disk(UP))
     lab, _ = ndi.label(white)
     white &= (np.bincount(lab.ravel()) > 20 * UP * UP)[lab]
 
     # the light marks in the black (incisions), at least LINE_W wide; not along the figures' edge
     clear = ndi.distance_transform_edt(fig) > EDGE_CLEAR * UP
-    clear &= ndi.distance_transform_edt(~white) > 2 * UP
+    clear &= ndi.distance_transform_edt(~white) > PATCH_RIM * UP   # (the patches' printed rims are ink too)
     clear &= ~(club & (ndi.distance_transform_edt(club) <= CLUB_CLEAR * UP))   # (the clay round the club's end)
     clear &= ~((px >= KNOB[0]) & (px < KNOB[2]) & (py >= KNOB[1]) & (py < KNOB[3]))
     marks = fig & ~white & clear & ((L > BLACK_T) | (light_hat > MARK_T))
@@ -370,7 +371,7 @@ def main(src, qa=None, dump=None):
     marks = (marks | (ndi.distance_transform_edt(~morphology.skeletonize(marks)) <= LINE_W * UP / 2)) & fig & clear
     marks |= join_marks(marks) & fig
 
-    lines = smooth(fig & ~marks & ~white, SMOOTH)
+    lines = smooth(fig & ~marks, SMOOTH)
     tones = [[(smooth(m, SMOOTH) & ~lines, a) for m, (_, a) in zip(steps, SMOKE_STEPS)],
              [(smooth(m, SMOOTH) & ~lines, a) for m, (_, a) in zip(fsteps, FIRE_STEPS)]]
     body = ndi.distance_transform_edt(~(fig | tones[0][0][0] | tones[1][0][0])) <= RIM * UP
@@ -378,7 +379,7 @@ def main(src, qa=None, dump=None):
         np.savez_compressed(dump, L=L.astype(np.uint8), W=W.astype(np.uint8), fig=fig, lines=lines, ground=ground,
                             marks=marks, white=white, fire=fire)
     info = write_svg(
-        lines, body, tones, ndi.binary_dilation(white, iterations=UP) & ~lines, out,
+        lines, body, tones, out,
         title='The blinding of Polyphemus',
         desc='Line drawing after the 1887 plate of a black-figure oinochoe in the Louvre (Gazette archéologique '
              '12, pl. 1): three of Odysseus\' men, two driving a stake into the eye of the sleeping Polyphemus, '
