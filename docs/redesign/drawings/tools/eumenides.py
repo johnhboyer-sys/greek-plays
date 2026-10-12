@@ -99,7 +99,8 @@ OMPHALOS = [(1103, 585), (1150, 575), (1215, 575), (1235, 640), (1255, 700), (12
 # the net's hatching and rings (1 px strokes 3 px apart) ran together or broke at the house weight: inside the
 # omphalos's outline and over its tassels (TASSELS, a box) the net is found by the faces' finer pass and traced at
 # its printed width
-TASSELS = (1050, 836, 1290, 868)                           # scan px: each edge line is looked for this far from the rough centre
+TASSELS = (1050, 836, 1290, 872)
+TASSEL_CLOSE = 1                           # scan px: each edge line is looked for this far from the rough centre
 # specks of the print on the field: ink pieces under SPECK_MAX scan px^2 farther than NEAR scan px from the figures
 SPECK_MAX, NEAR = 40, 3
 # John's corrections on pass 1 (2026-10-12), marked in PhotoCraft on the plate at MARKS_K x its levelled scan px over
@@ -325,8 +326,14 @@ def main(src, qa=None, dump=None):
     drop = (size < SPECK_MAX) & ~near
     drop[0] = False
     ink &= ~drop[lab]
-    dots &= ndi.binary_dilation(fig, iterations=UP)          # (a speck by Apollo's nose lay on the field)
+    # (a speck by Apollo's nose lay on the field; the net's tassels hang on the field and stay: John, pass 2)
+    dots &= ndi.binary_dilation(fig, iterations=UP) | net
     ink &= ~fine
+    # the tassels hang on the field: each is clay inside its own lines (the net's marks closed over TASSEL_CLOSE
+    # scan px and filled), or a pale one shows the ground through it on the dark theme (John, pass 2)
+    t = sl(TASSELS)
+    c = ndi.binary_closing(dots[t] | ink[t], structure=morphology.disk(TASSEL_CLOSE * UP))
+    fig[t] |= ndi.binary_fill_holes(c)
     solid = ndi.binary_opening(ink, structure=morphology.disk(SOLID_OPEN * UP))
     rim = (ndi.distance_transform_edt(~solid) <= RIM * UP) & ~ink
     body = fig | solid
