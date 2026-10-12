@@ -515,7 +515,13 @@ INC_W, INC_SPUR, INC_GAP, INC_HOLD, INC_ANGLE, INC_WIDE, INC_SHORT = 2.6, 4, 16,
 # smoothed along the stroke), is drawn INC_W wide and the found marks within MARK_NEAR of it go. Where under
 # MARK_CLEAR of a stroke finds a peak (the bracelets, in the glare) it is drawn as he drew it, and every found mark in
 # the area his strokes there cover (grown MARK_HULL round px, its convex hull) goes. Blue is ink
-MARKS_FILES = [Path(__file__).parent / "prometheus_marks_1.png"]
+# His marks on pass 5 (2026-10-12, prometheus_marks_2.png; "Red trace is the lighter grey/blood. green=remove.
+# blue = black ink"): green as on pass 4 (ink taken out along his line: the incisions of Prometheus's face, eye, ear
+# and hair, the hip's ring, the column's capital); blue is black, as painted (the glare's patches on Prometheus's
+# body, the bonds from his hand to the column, the block under the blood, the lines of the plant at the right, the
+# column's top); red is the wash: each closed red line filled (the blood between the ribs), the dabs as painted (the
+# drops)
+MARKS_FILES = [Path(__file__).parent / "prometheus_marks_1.png", Path(__file__).parent / "prometheus_marks_2.png"]
 MARK_SNAP, MARK_NEAR, MARK_PEAK, MARK_CLEAR, MARK_HULL = 4, 3, 6, 0.5, 8
 
 
@@ -686,10 +692,10 @@ def straight_feathers(hat, fig, shape):
     return smooth(ndi.distance_transform_edt(~out) <= INC_W / 2 * UP, 0.5) & fig, near & zone
 
 
-def john_lines(shape, hat):
+def john_lines(shape, hat, path):
     """John's green strokes snapped to the photo's incisions (MARK_*), as centre lines at UP; and his blue."""
     from scipy.interpolate import splev, splprep
-    m = np.asarray(Image.open(MARKS_FILES[0]).convert('RGBA')).astype(int)
+    m = np.asarray(Image.open(path).convert('RGBA')).astype(int)
     assert m.shape[:2] == shape, (m.shape, shape)
     r, g, b, a = (m[..., i] for i in range(4))
     green = (a > 40) & (g > r + 40) & (g > b + 20)
@@ -742,6 +748,16 @@ def john_lines(shape, hat):
         lab, _ = ndi.label(ndi.binary_dilation(weak, structure=morphology.disk(MARK_HULL * UP)))
         weak = convex_hull_object(lab > 0)
     return out, blue, weak
+
+
+def john_red(shape):
+    """John's red (prometheus_marks_2.png): closed lines filled, dabs as painted, at UP."""
+    m = np.asarray(Image.open(MARKS_FILES[1]).convert('RGBA')).astype(int)
+    r, g, b, a = (m[..., i] for i in range(4))
+    red = (a > 40) & (r > g + 40) & (r > b + 40)
+    sk = morphology.skeletonize(ndi.binary_closing(red, iterations=2))
+    inside = ndi.binary_fill_holes(sk) & ~sk
+    return smooth(red | inside, 0.5) | (inside & ~red)
 
 
 def masks(ch, dump=None):
@@ -861,9 +877,13 @@ def masks(ch, dump=None):
     marks = even_incisions(marks, hat, fig)
     feathers, fcover = straight_feathers(hat, fig, marks.shape)
     marks = (marks & ~fcover) | feathers
-    jl, jblue, jweak = john_lines(marks.shape, hat)
-    marks &= ~(ndi.distance_transform_edt(~jl) <= MARK_NEAR * UP) & ~jweak
-    marks |= smooth(ndi.distance_transform_edt(~jl) <= INC_W / 2 * UP, 0.5) & fig
+    jblue = np.zeros(marks.shape, bool)
+    for path in MARKS_FILES:
+        jl, jb, jweak = john_lines(marks.shape, hat, path)
+        marks &= ~(ndi.distance_transform_edt(~jl) <= MARK_NEAR * UP) & ~jweak
+        marks |= smooth(ndi.distance_transform_edt(~jl) <= INC_W / 2 * UP, 0.5) & fig
+        jblue = (jblue & ~(ndi.distance_transform_edt(~jl) <= INC_W / 2 * UP)) | jb
+    jred = john_red(marks.shape)
     marks |= crack_joins(marks.shape) & fig
     marks |= strokes(marks.shape, HAND, EYE_W) & fig
     marks = marks & ~(rbox & rope)
@@ -877,7 +897,7 @@ def masks(ch, dump=None):
     rings = np.zeros(L.shape, bool)
     for r in RINGS_R:
         rings |= np.abs(rr - r) <= RING_W / 2
-    return fig, red, marks, crack, rings, jblue
+    return fig, red, marks, crack, rings, jblue, jred
 
 
 def main(src, qa=None, dump=None, cache=None):
@@ -887,9 +907,9 @@ def main(src, qa=None, dump=None, cache=None):
         ch = channels(src)
         if cache:
             np.savez(cache, **ch)
-    fig, red, marks, crack, rings, jblue = masks(ch, dump)
-    lines = smooth(fig & ~marks & ~red, SMOOTH) | rings | jblue
-    tone = smooth(red, SMOOTH) & ~lines
+    fig, red, marks, crack, rings, jblue, jred = masks(ch, dump)
+    lines = (smooth(fig & ~marks & ~red, SMOOTH) & ~jred) | rings | smooth(jblue, SMOOTH)
+    tone = (smooth(red, SMOOTH) | jred) & ~lines
     # (John, 2026-10-11: "the white background just doesn't work here. Let's have clay for both light and dark":
     # the body is the whole tondo to the outer ring's edge, filled with clay in both themes, as clouds.svg)
     body = ndi.binary_fill_holes(fig | rings | (ndi.distance_transform_edt(~rings) <= RIM * UP))
