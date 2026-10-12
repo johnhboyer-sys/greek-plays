@@ -52,7 +52,7 @@ SMOOTH = 0.4                              # scan px: the line mask's Gaussian, c
 SPECK = 3                                 # scan px^2: smaller pieces of ink are specks of the print
 SEAL = 4                                  # scan px: passages narrower than this do not join ground to figure
 WEIGHT = 1.2 / (X1 - X0)                  # the plate's own line, 1.2 scan px (John, 2026-10-12)
-RIM = 1.5                                 # scan px: the clay round the solid black on the dark theme
+RIM = 3                                   # scan px: the clay round the solid black on the dark theme (John chose a wider rim than 1.5, 2026-10-12)
 SOLID_OPEN = 2                            # scan px: solid black is the ink an opening this wide leaves
 # points on the ground (levelled scan px): the paper areas they fall in are vase ground; every other area the
 # lines close is clay. The rules, the columns and the ground line close the whole field, so the field is listed too:
@@ -102,6 +102,12 @@ OMPHALOS = [(1103, 585), (1150, 575), (1215, 575), (1235, 640), (1255, 700), (12
 TASSELS = (1050, 836, 1290, 868)                           # scan px: each edge line is looked for this far from the rough centre
 # specks of the print on the field: ink pieces under SPECK_MAX scan px^2 farther than NEAR scan px from the figures
 SPECK_MAX, NEAR = 40, 3
+# John's corrections on pass 1 (2026-10-12), marked in PhotoCraft on the plate at MARKS_K x its levelled scan px over
+# the crop (both his layers, the copy on top): blue is ink, green is paper; the ink is pass 1's less his green, plus
+# his blue (read literally: in Orestes's and the Pythia's eyes he redrew the eye in blue and cleared the old blot
+# with green; elsewhere blue joins breaks and adds faint lines the finder missed)
+MARKS_FILES = [Path(__file__).with_name("eumenides_marks_1.png")]
+MARKS_K = 2.5
 
 
 def pc(src, out, *steps):
@@ -259,6 +265,23 @@ def figure(ink, ws, gl):
     return (fig & ~ground) | bands, ground
 
 
+def marks(shape):
+    """John's marks on the work grid: (blue, green) bool masks, each file applied in order (a later file's green
+    clears an earlier blue)."""
+    blue, green = np.zeros(shape, bool), np.zeros(shape, bool)
+    for f in MARKS_FILES:
+        a = np.asarray(Image.open(f).convert("RGBA")).astype(np.float32)
+        r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3] / 255
+        size = (shape[1], shape[0])
+        assert abs(a.shape[1] * UP / MARKS_K - shape[1]) <= UP and abs(a.shape[0] * UP / MARKS_K - shape[0]) <= UP
+        up = lambda m: np.asarray(Image.fromarray((m * 255).astype(np.uint8)).resize(size, Image.BILINEAR)) >= 128
+        bl = up(al * ((b > r + 40) & (b > g + 20)))
+        gr = up(al * ((g > r + 40) & (g > b + 20)))
+        blue = (blue & ~gr) | bl
+        green = (green & ~bl) | gr
+    return blue, green
+
+
 def add_rim(rim, info):
     """The clay rim round the solid black, added to the body path after tracing: trace_svg takes clay off
     where it lies outside a line and no wider than one, which is what this rim is. Traced on the body's grid."""
@@ -285,6 +308,13 @@ def main(src, qa=None, dump=None):
     m = np.zeros_like(ink)
     m[sl(nbox)] = f
     dots |= m & net
+    blue, green = marks(ink.shape)
+    fine = np.zeros_like(ink)
+    for x0, y0, x1, y1 in FEATURES:
+        fine[sl((x0 + MARGIN, y0 + MARGIN, x1 - MARGIN, y1 - MARGIN))] = True
+    fine |= ndi.binary_erosion(net, iterations=MARGIN * UP)
+    ink = (ink & ~green) | blue
+    dots = (dots & ~green) | (blue & fine)
     ws = areas(ink)
     fig, ground = figure(ink, ws, gl)
     # specks on the field
@@ -296,9 +326,7 @@ def main(src, qa=None, dump=None):
     drop[0] = False
     ink &= ~drop[lab]
     dots &= ndi.binary_dilation(fig, iterations=UP)          # (a speck by Apollo's nose lay on the field)
-    for x0, y0, x1, y1 in FEATURES:
-        ink[sl((x0 + MARGIN, y0 + MARGIN, x1 - MARGIN, y1 - MARGIN))] = False
-    ink &= ~ndi.binary_erosion(net, iterations=MARGIN * UP)
+    ink &= ~fine
     solid = ndi.binary_opening(ink, structure=morphology.disk(SOLID_OPEN * UP))
     rim = (ndi.distance_transform_edt(~solid) <= RIM * UP) & ~ink
     body = fig | solid
