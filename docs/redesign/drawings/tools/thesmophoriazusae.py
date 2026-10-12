@@ -284,6 +284,7 @@ PANEL_ROW, PLANK_STEP, PLANK_X, PLANK_MED = 2880, 25, (700, 4980), 5   # (past t
 # level bar PLANK_BAR px long (the wear's branches go), then pieces PLANK_LEN px long or more; its stains and wear
 # left out
 PLANK_TOP, PLANK_BAR, PLANK_LEN = 2505, 41, 150
+PLANK_BARE = [(660, 2430, 870, 2560)]   # (and the plank's left end up to its top, where no foot stands: its wear)
 # and the joins' breaks where the wear crosses them closed, up to PLANK_GAP px (wear leaves no line, and no gap)
 PLANK_GAP = 201
 # White paint (hair and beards): inside each head's box (flat px), lighter than its grey limit and less red than its
@@ -317,6 +318,9 @@ FACES = [(1450, 430, 1730, 780), (2760, 420, 3030, 840), (4520, 330, 4820, 800)]
 # over the old woman's brow: "dont miss those finer lines please")
 FACE_LC = (14, 28)
 PALE_OFF, PALE_MIN = 4, 30
+# Breaks in the lines where specks of wear cross them (the dress's folds; John, 2026-10-12: "Some lines incomplete or
+# missing"): closed where the paint runs on under them (see join_breaks)
+JOIN_D, JOIN_COS, JOIN_G, JOIN_BACK = 30, 0.75, 120, 12
 FACE_MAX = 20000
 HAIR_SPAN, CLAY_SPECK = 20, 10
 WASH_HOLE = 2000
@@ -470,6 +474,56 @@ def painted_strokes(m, contrast, ink, room):
         return 1 - grey(Path(td) / "p.png") / 255
 
 
+def join_breaks(lines, g1, room):
+    """The lines' breaks closed: skeleton ends facing each other (each end's direction, over its last JOIN_BACK px,
+    within acos(JOIN_COS) of the other end) under JOIN_D px apart, where the paint runs on under the gap (the grey,
+    blurred 1 px, darker than JOIN_G along it, median) and both ends lie in `room`: a stroke between them at the
+    line's own width there."""
+    from scipy.spatial import cKDTree
+    sk = morphology.skeletonize(lines)
+    k = np.ones((3, 3))
+    k[1, 1] = 0
+    ends = np.argwhere(sk & (ndi.convolve(sk.astype(int), k, mode="constant") == 1))
+    width = 2 * ndi.distance_transform_edt(lines)
+
+    def heading(p):
+        seen, cur = {tuple(p)}, tuple(p)
+        for _ in range(JOIN_BACK):
+            nxt = [q for q in ((cur[0] + dy, cur[1] + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1))
+                   if q not in seen and 0 <= q[0] < sk.shape[0] and 0 <= q[1] < sk.shape[1] and sk[q]]
+            if not nxt:
+                break
+            cur = nxt[0]
+            seen.add(cur)
+        v = np.asarray(p, float) - cur
+        n = np.hypot(*v)
+        return v / n if n else None
+
+    out = lines.copy()
+    tree = cKDTree(ends)
+    hd = {}
+    for i, j in sorted(tree.query_pairs(JOIN_D)):
+        a, b = ends[i], ends[j]
+        if not (room[tuple(a)] and room[tuple(b)]):
+            continue
+        for e in (i, j):
+            if e not in hd:
+                hd[e] = heading(ends[e])
+        if hd[i] is None or hd[j] is None:
+            continue
+        v = (b - a).astype(float)
+        d = np.hypot(*v)
+        if d < 2 or hd[i] @ (v / d) < JOIN_COS or hd[j] @ (-v / d) < JOIN_COS:
+            continue
+        n = int(d) + 1
+        ys, xs = np.linspace(a[0], b[0], n).round().astype(int), np.linspace(a[1], b[1], n).round().astype(int)
+        if lines[ys, xs].all() or np.median(g1[ys, xs]) >= JOIN_G:
+            continue
+        w = max(min(np.median(width[tuple(a)]), np.median(width[tuple(b)])), LINE_MIN)
+        out |= along(lines.shape, [(a[1], a[0]), (b[1], b[0])], w)
+    return out
+
+
 def scene(rgb):
     """(ink, ink traced at its own size, figure, grey, white steps, pattern steps, body steps) for the flat image
     `rgb`."""
@@ -585,7 +639,9 @@ def scene(rgb):
     shaft = np.any([along(g.shape, pts, SCEPTRE_W) for pts in SCEPTRE], 0) & fig
     # (the faces too: their finer, paler lines, John, 2026-10-12: "dont miss those finer lines please"; the dark core
     # alone, `old`, missed them)
-    area = fig & ~edge & ~hair_zone & ~yellow & ~wide & ~ndi.binary_dilation(solid, iterations=3)
+    # (and the white hair and beards: the face's lines run under and through the white, John, 2026-10-12: "Some lines
+    # incomplete or missing"; only the white paint itself is no line)
+    area = fig & ~edge & ~white & ~yellow & ~wide & ~ndi.binary_dilation(solid, iterations=3)
     found = even_lines(contrast, core & area, area, box(LC_ZONES), face_box)
     # (in the faces the dark lines keep their own shape, `old`: redrawn they came out heavy; the finder adds only the
     # paler lines, its px more than PALE_OFF px from them, pieces of PALE_MIN px^2 or more)
@@ -599,8 +655,9 @@ def scene(rgb):
     lab, _ = ndi.label(rods, structure=np.ones((3, 3)))
     rods &= np.isin(lab, [k for k, sl in enumerate(ndi.find_objects(lab), 1) if sl[0].stop - sl[0].start >= SCEPTRE_LEN])
     lines = (lines & ~shaft) | rods
+    lines = join_breaks(lines, g1, fig & ~shaft & ~yellow & ~(yy > PLANK_TOP) & ~solid) & fig
     # on the plank only the boards' joins: stains and wear left out
-    on_plank = yy > PLANK_TOP
+    on_plank = (yy > PLANK_TOP) | box(PLANK_BARE)
     joins = ndi.binary_opening(lines & on_plank, structure=np.ones((1, PLANK_BAR), bool))
     joins = ndi.binary_closing(joins, structure=np.ones((1, PLANK_GAP), bool)) & on_plank & fig & ~edge   # (the wear's breaks)
     lab, _ = ndi.label(joins, structure=np.ones((3, 3)))
@@ -610,7 +667,7 @@ def scene(rgb):
     # edged in the tone, no outline
     strokes = fig & ((hair_zone & ~paint) | yellow)
     soft_edge = edge & (ndi.distance_transform_edt(~strokes) <= EDGE + 3)
-    lines &= ~strokes
+    lines &= ~white & ~yellow
     ink = lines | (edge & ~soft_edge)
     holes = ndi.binary_fill_holes(ink) & ~ink
     lab, _ = ndi.label(holes)
