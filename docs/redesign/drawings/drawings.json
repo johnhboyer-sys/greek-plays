@@ -315,6 +315,15 @@
       "source": "Daderot's photo (Wikimedia Commons, public domain) of a Laconian black-figure cup attributed to the Arkesilas Painter, 560-550 BC: the Vatican's Laconic Kylix with Prometheus and Atlas, Museo Gregoriano Etrusco 16592",
       "method": "Photo of the cup's tondo, the slant taken out (an ellipse mapped to a circle), the crack filled; black figures on clay, a silhouette, made with PhotoCraft: the incisions redrawn as even lines, the added red as a wash filled edge to edge, the ropes on John's lines, the border rings; John's PhotoCraft marks laid in over five rounds; clay ground in both themes; potrace",
       "verdict": "Usable; approved by John on the eighth pass (2026-10-12), after his marks in PhotoCraft. No outside review (the credit checked against the Vatican Museums' page)."
+    },
+    {
+      "slug": "persians",
+      "file": "persians.svg",
+      "name": "Persians · Alexander pursuing Darius in flight",
+      "alt": "A Greek horseman charges with a levelled lance at a bearded king in a Persian cap and patterned sleeves, who flees in a four-horse chariot driven by a young charioteer and looks back holding out his hand; beyond the horses a Persian swings a battle-axe at a young Greek with a spear and a round shield; stars above, plants and a dotted ground line below",
+      "source": "Heydemann, Alexander der Grosse und Dareios Kodomannos auf unteritalischen Vasenbildern (Achtes Hallisches Winckelmannsprogramm, 1883), folding plate, the upper band: an Apulian amphora from Ruvo attributed to the Darius Painter, Naples (Heydemann's catalogue no. 3220) (Heidelberg scan, public domain). Heydemann reads Alexander and Darius III",
+      "method": "Contour plate, pen lines on paper with no black ground, made with PhotoCraft: the lines at half maximum, weighted to 0.8 plate px; the shading drawn evenly, hatch along the bands and stipple as dots, inside the outlines; the figures' area by the sealed watershed with pockets of ground; clay on the dark theme, the ornaments clay with no lines; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the fourth pass (2026-10-12), after a head test, four rounds on the shading and three rounds of his marks in PhotoCraft. No outside review (the citation checked against Heydemann's text)."
     }
   ]
 }

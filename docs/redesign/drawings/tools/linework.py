@@ -171,7 +171,8 @@ TRACE_H = 2000  # ...and traced at this one (smaller files)
 def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.ndarray | None = None,
               open_holes: np.ndarray | None = None, rim_lines: np.ndarray | None = None,
               dots: np.ndarray | None = None, keep: np.ndarray | None = None,
-              extent: np.ndarray | None = None, day: np.ndarray | None = None, pad: int = 4,
+              extent: np.ndarray | None = None, day: np.ndarray | None = None,
+              add_clay: np.ndarray | None = None, pad: int = 4,
               turdsize: int = 10, alphamax: float = 1.0, weight: float | str | None = None,
               trace_h: int = TRACE_H) -> dict:
     """Crop a figure's ink, rescale it to WORK_H px tall, set the house line
@@ -205,6 +206,9 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
     "day", after the lines, which the dark theme hides (Wealth's white hair,
     outlined on the ground in day mode only, John, 2026-10-10). It overlaps the
     lines by a px where they meet, so no seam shows in day mode.
+    `add_clay` (same shape): areas added to the body as they are, after its
+    smoothing and speck filters (the dots of Persians' ground line, clay on the
+    dark theme, smaller than the speck limit).
     Returns the crop box in ink's pixels, for qa_overlay."""
     ys, xs = np.nonzero(ink if extent is None else ink | extent)
     y0, y1 = max(ys.min() - pad, 0), min(ys.max() + pad + 1, ink.shape[0])
@@ -303,6 +307,8 @@ def trace_svg(ink: np.ndarray, out: Path, *, title: str, desc: str, body: np.nda
             np.maximum.at(most, of, size)
             b &= ((size > 200 * q * q) | (size == most[of]) |
                   (np.bincount(lab[b & ~lines], minlength=n + 1) >= lw_px ** 2))[lab]
+        if add_clay is not None:
+            b |= resample_ink(add_clay[y0:y1, x0:x1], trace_h)[:b.shape[0], :b.shape[1]]
         bd, _ = potrace_d(b, turdsize=0, alphamax=1.2)
         body_path = f'<path class="body" fill="none" stroke="none" d="{bd}"/>'
     k = 1000.0 / h
