@@ -103,13 +103,18 @@ BRIMS = [
 BRIM_R, BRIM_W, BRIM_SMOOTH = 3, 2.5, 4
 # the fire (FIRE, plate px): the brazier and its flames are quick brushstrokes, the clay showing through the black
 # (Saglio); the print gives the flames as dark stipple and the brazier's loops nearly as dark, so the whole fire is a
-# wash in steps by darkness (grey smoothed by TONE_BLUR under each threshold, FIRE_STEPS). Black in it is only the
+# wash in steps by darkness (grey smoothed by FIRE_BLUR under each threshold, FIRE_STEPS). Black in it is only the
 # solid black (grey under FIRE_BLACK, opened by FIRE_OPEN plate px, pieces under FIRE_SPECK plate px^2 dropped, closed
 # by FIRE_OPEN over the print's dot screen, grown a px into the black): the brazier's loops, the man's leg and foot
 # and the stake he holds; the flames' stipple goes to the wash
 FIRE = [(1737, 1690), (1920, 1690), (2040, 2050), (2110, 2250), (2270, 2280), (2290, 2620), (1737, 2620)]
 FIRE_STEPS = [[72, 0.15], [60, 0.3], [48, 0.45], [38, 0.6], [30, 0.75]]
 FIRE_BLACK, FIRE_OPEN, FIRE_SPECK = 26, 3, 150
+# John, pass 1 ("Clean the fire"): the loops came out ragged and pinholed where the print's dots run into them, and the
+# wash's steps blotchy. The loops are smoothed (FIRE_SMOOTH plate px, Gaussian Blur then Threshold at half) with holes
+# under FIRE_HOLE plate px^2 filled; the wash is read on the plate blurred FIRE_BLUR plate px, each step's islands and
+# holes under FIRE_HOLE dropped and filled, its edge smoothed FIRE_SMOOTH
+FIRE_BLUR, FIRE_SMOOTH, FIRE_HOLE = 7, 1.5, 60
 # the rock's added white: light, and not warm
 WHITE_L, WHITE_WARM = 115, 30
 WHITE_FILL = "#f7f3ea"
@@ -271,10 +276,12 @@ def main(src, qa=None, dump=None):
            ("filter.other.maximum", {"radius": UP, "preserve": "roundness"}))
         pc(t / "L.png", t / "L_close.png", ("filter.other.maximum", {"radius": BRIM_R * UP, "preserve": "roundness"}),
            ("filter.other.minimum", {"radius": BRIM_R * UP, "preserve": "roundness"}))
+        pc(t / "L.png", t / "Lf.png", ("filter.blur.gaussianBlur", {"radius": FIRE_BLUR * UP}))
         pc(t / "L.png", t / "Lb.png", ("filter.blur.gaussianBlur", {"radius": TONE_BLUR * UP}))
         pc(t / "up.png", t / "red.png", ("image.adjustments.channelMixer", {"gray": [100, -160, 0, 0], "monochrome": True}),
            ("filter.blur.gaussianBlur", {"radius": TONE_BLUR * UP}))
         L, W, R, Lb = grey(t / "L.png"), grey(t / "warm.png"), grey(t / "red.png"), grey(t / "Lb.png")
+        Lf = grey(t / "Lf.png")
         light_hat = grey(Lo) - grey(t / "L_open.png")
         dark_hat = grey(t / "L_close.png") - L
 
@@ -317,10 +324,13 @@ def main(src, qa=None, dump=None):
     fblack &= (np.bincount(lab.ravel()) >= FIRE_SPECK * UP * UP)[lab]
     fblack = ndi.binary_closing(fblack, structure=morphology.disk(round(FIRE_OPEN * UP)))
     fblack = ndi.binary_dilation(fblack, structure=morphology.disk(UP)) & black & fire
+    # (the leg's incisions, closed here, are found again from the plate with the other light marks)
+    fblack = smooth(morphology.remove_small_holes(fblack, max_size=FIRE_HOLE * UP * UP), FIRE_SMOOTH) & fire
     fsteps = []
     for th, a in FIRE_STEPS:
-        m = ndi.binary_opening((Lb < th) & fire, structure=morphology.disk(round(TONE_OPEN * UP)))
-        fsteps.append(m & ~ndi.binary_dilation(fblack, iterations=UP))
+        m = morphology.remove_small_objects((Lf < th) & fire, max_size=FIRE_HOLE * UP * UP)
+        m = morphology.remove_small_holes(m, max_size=FIRE_HOLE * UP * UP)
+        fsteps.append(smooth(m, FIRE_SMOOTH) & fire)   # (under the loops: no seam of paper between them)
     soft = steps[0] | (fire & ~fblack)
 
     # the figures: all else, but specks of the print on the ground
