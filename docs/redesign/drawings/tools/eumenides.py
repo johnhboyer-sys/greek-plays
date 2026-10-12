@@ -3,8 +3,11 @@
 Heidelberg University Library (Public Domain Mark 1.0):
 https://digi.ub.uni-heidelberg.de/iiif/2/bwpr1859%3A010a.jpg/full/full/0/default.jpg (1775 x 2341). The Munich copy
 (MDZ bsb10221820, 2458 x 3192) is larger but softer; Heidelberg's is the sharper (John, 2026-10-12).
-Bötticher (p. 15, note 66) copied the drawing from O. Jahn, Vasenbilder (Hamburg, 1839), Taf. I. The vase: the Black
-Fury Painter's volute-krater, Naples, Museo Archeologico Nazionale 82270 (H 3249).
+Bötticher (p. 15, note 66) copied the drawing from O. Jahn, Vasenbilder (Hamburg, 1839), Taf. I; he reads the scene
+(p. 8) as Apollo consecrating Orestes's sword, not the purification. The vase: an Apulian red-figure volute-krater,
+4th century BC, of the Black Fury Group (Trendall, RVAp 167.13); Naples, Museo Archeologico Nazionale 82270 (H 3249;
+Beazley Archive 9036827, which describes Orestes in Delphi, Apollo, the old priestess, the black Erinys, Artemis
+with dogs).
 
 Made with PhotoCraft (John, 2026-10-07), as tools/rhesus.py: every image step runs in `photocraft-cli` (0.2.0) but the
 levelling, a rotation by ANGLE in scipy (PhotoCraft has no free rotation). numpy only combines the masks PhotoCraft
@@ -13,7 +16,12 @@ made and measures. The SVG is written by linework.trace_svg.
 Plate -> drawing. A pen contour drawing on paper, no black ground (the vase's ground is black). John chose
 (2026-10-12): the whole of fig. 1 (the two outer columns, the rules, the hanging objects, the ground line); the pen
 lines traced at the plate's own weight (1.2 scan px); on the dark theme the figures' area filled as clay; the black
-areas (the Fury, the hair, the stripes) solid, with a clay rim round them on the dark theme.
+areas (the Fury, the hair, the stripes) solid, with a clay rim round them on the dark theme (RIM, widened by John);
+"crisp, detailed" (John): the faces and the omphalos net at their printed width. Approved by John on the third pass,
+2026-10-12, after one round of his PhotoCraft marks and a missed tassel he flagged.
+
+Writes eumenides.svg (the play) and aeschylus-pythia.svg (the Pythia alone, cut from the same drawing for the
+Aeschylus home page; John, 2026-10-12: replace the old cut, tools/pythia.py, retired).
 
     python3 docs/redesign/drawings/tools/eumenides.py boetticher-1859-010a.jpg [qa.png]
 """

@@ -497,6 +497,28 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Paired fine strokes the scan runs together (a greave's edges) came out as blobs with holes: fill the slits and
   draw each pair as one line along its middle (`PAIRS`) (2026-10-12).
 
+- Eumenides (Bötticher, *Der Omphalos des Zeus zu Delphi*, 1859, fig. 1, the whole plate: Orestes at Delphi), made with
+  PhotoCraft: about two hours and fifty minutes over a style test and three passes, approved by John 2026-10-12.
+  `tools/eumenides.py`, which also cuts the Aeschylus home Pythia from the same drawing (2026-10-12).
+- Look for a larger scan, then compare at full size: Munich's copy (MDZ, 1.3x the px) was softer than Heidelberg's, and
+  the plate's own source (Jahn 1839, Taf. I, in a library PDF) smaller. The plate's text names its source: read it
+  (MDZ serves OCR per page as hOCR beside its IIIF manifest) (2026-10-12).
+- A frieze the columns, rules and ground line close is all closed paper: every field area is a pocket. Mark them on
+  the numbered area map at once (here 45 points), then check the dark theme of the whole plate for figures turned to
+  ground: one point landed on Apollo's latticed boot, whose cells are smaller than the seal (2026-10-12).
+- "Crisp, detailed" (John): faces about 35 px tall and the omphalos net's 1 px hatching came out as blots at the line
+  weight. Found again inside boxes at less blur and a narrower core, and traced at their printed width as `dots`, with
+  the main lines run a few px into each box so no seam shows where a box cuts the hair. No blur at all broke the
+  lines and took in the paper's grain (2026-10-12).
+- Paper the seal leaves unseeded (a sword's blade, the lattice cells) is clay unless it reaches the crop's edge; leaves
+  narrower than the seal are sealed again inside a box at a smaller disk (a closing of the ink rounded them off and
+  missed half) (2026-10-12).
+- A filter that drops marks lying off the figures (a speck by a nose) also dropped a pale tassel hanging on the field:
+  John found it. Exempt the parts that hang free (`net`), and fill them as clay (2026-10-12).
+- Cutting one figure from an approved whole-plate drawing: her body is her own clay inside the cut and the lines that
+  border it, not the whole plate's body, which counts every line touching clay (Apollo's shin line came in with it)
+  (2026-10-12).
+
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
 - Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
