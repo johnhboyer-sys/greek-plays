@@ -72,15 +72,34 @@ GROUND = [(727, 445), (454, 242), (456, 273), (481, 280), (508, 568), (506, 662)
 # levelled scan px)
 RULES = [(178, 250), (866, 892)]
 # the faces' eyes, brows, noses and mouths (boxes, levelled scan px): the faces are 30-40 px tall and their marks
-# 1 px, so at one weight the eyes ran into blots. Inside these boxes the ink is found finer (no blur, FINE) and
-# traced at its printed width (trace_svg's dots): the Pythia, Apollo, Orestes, Artemis
-FEATURES = [(566, 438, 606, 480), (846, 340, 884, 375), (1086, 422, 1124, 466), (1340, 300, 1368, 345)]
-FINE = dict(blur=0, half=0.6, smooth=0.25, core_r=1.5)
+# 1 px, so at one weight the eyes ran into blots. Inside these boxes the ink is found finer (FINE: less blur, a
+# narrower core; no blur at all broke the lines and took in the paper's grain) and traced at its printed width
+# (trace_svg's dots): the Pythia, Apollo, Orestes, Artemis. The main lines run MARGIN scan px into each box under
+# the fine ones, so no seam shows where a box cuts a line or the hair
+FEATURES = [(566, 438, 606, 480), (846, 336, 890, 378), (1088, 426, 1122, 466), (1340, 305, 1362, 345)]
+FINE = dict(blur=0.25, half=0.55, smooth=0.35, core_r=2)
+MARGIN = 3
 FEATURE_SPECK = 2                         # scan px^2: smaller pieces inside a box are grain
-# the laurel's leaves are narrower than the seal: inside this box the paper the ink closes, after a closing by
-# LEAF_CLOSE scan px, is clay if smaller than LEAF_MAX scan px^2
-LEAVES = (1236, 252, 1332, 872)
-LEAF_CLOSE, LEAF_MAX = 1, 400
+# the laurel's leaves are narrower than the seal: inside these boxes the paper is sealed again at LEAF_SEAL, and
+# its areas smaller than LEAF_MAX scan px^2 (not cut by the box) are clay (a closing of the ink rounded the leaves
+# off and missed half): the laurel; the head of Artemis's spear; Apollo's latticed boot (its cells smaller than
+# the seal went to the ground round it); Orestes's sword blade
+LEAVES = [(1222, 252, 1296, 872), (1518, 590, 1556, 668), (830, 765, 905, 856), (1176, 440, 1204, 556)]
+LEAF_SEAL, LEAF_MAX = 1.5, 250
+# shafts too narrow for the seal (4-5 scan px between their edge lines): rough ends of each centre line (levelled
+# scan px); the centre and width are fitted to the edge lines (`shaft`): Artemis's two spears from their butts to
+# her hand, and the one shaft below her hand down to its head
+SHAFTS = [((1438, 318), (1497, 466)), ((1447, 316), (1505, 466)), ((1503, 512), (1534, 596))]
+SHAFT_REACH = 5
+# the omphalos: its net's paper reaches the field through the gaps between the tassels, so the cone is outlined
+# (levelled scan px, snapped to its printed outline by a least-cost path; straight across under the net's last
+# row) and the paper inside is clay. The tassels below hang free, the field between them
+OMPHALOS = [(1103, 585), (1150, 575), (1215, 575), (1235, 640), (1255, 700), (1268, 760), (1278, 805),
+            (1282, 838), lw.STRAIGHT, (1056, 838), (1072, 760), (1085, 700), (1095, 640)]
+# the net's hatching and rings (1 px strokes 3 px apart) ran together or broke at the house weight: inside the
+# omphalos's outline and over its tassels (TASSELS, a box) the net is found by the faces' finer pass and traced at
+# its printed width
+TASSELS = (1050, 836, 1290, 868)                           # scan px: each edge line is looked for this far from the rough centre
 # specks of the print on the field: ink pieces under SPECK_MAX scan px^2 farther than NEAR scan px from the figures
 SPECK_MAX, NEAR = 40, 3
 
@@ -138,11 +157,11 @@ def masks(src, box=None, blur=BLUR, half=HALF, smooth=SMOOTH, core_r=CORE_R, spe
     return g, gl, ink
 
 
-def areas(ink):
-    """The paper the ink closes off, sealed at SEAL: watershed labels (0 on ink)."""
+def areas(ink, seal=SEAL):
+    """The paper the ink closes off, sealed at seal (scan px): watershed labels (0 on ink)."""
     from skimage.segmentation import watershed
     paper = ~ink
-    mk, _ = ndi.label(ndi.binary_opening(paper, structure=morphology.disk(SEAL * UP)))
+    mk, _ = ndi.label(ndi.binary_opening(paper, structure=morphology.disk(seal * UP)))
     return watershed(-ndi.distance_transform_edt(paper), mk, mask=paper)
 
 
@@ -161,19 +180,83 @@ def sl(box):
     return np.s_[(y0 - Y0) * UP:(y1 - Y0) * UP, (x0 - X0) * UP:(x1 - X0) * UP]
 
 
-def figure(ink, ws):
+def shaft(gl, a, b):
+    """A shaft's band (bool, work px), as tools/rhesus.py: the paper between its two edge lines, along the centre
+    line fitted to the midpoints between them (read across the shaft every 2 scan px, the darkest px on each side of
+    the rough centre within SHAFT_REACH), out to the edge lines' centres. Returns the band, its half-width and the
+    fit's rms (scan px)."""
+    a, b = np.array(a, float), np.array(b, float)
+    u = (b - a) / np.hypot(*(b - a))
+    n = np.array([-u[1], u[0]])
+    mids, gaps = [], []
+    for s in np.arange(0, np.hypot(*(b - a)), 2):
+        p = a + s * u
+        o = np.arange(-SHAFT_REACH, SHAFT_REACH + 0.01, 0.25)
+        q = (p[None] + o[:, None] * n[None] - (X0, Y0)) * UP
+        v = ndi.map_coordinates(gl, [q[:, 1], q[:, 0]], order=1)
+        lo, hi = o < 0, o > 0
+        i, j = np.argmin(np.where(lo, v, 1e9)), np.argmin(np.where(hi, v, 1e9))
+        if v[i] < 170 and v[j] < 170 and 2 < o[j] - o[i] < 9:
+            mids.append(p + (o[i] + o[j]) / 2 * n)
+            gaps.append(o[j] - o[i])
+    mids = np.array(mids)
+    t = (mids - a) @ u
+    f = np.polyfit(t, (mids - a) @ n, 1)
+    res = (mids - a) @ n - np.polyval(f, t)
+    hw = np.median(gaps) / 2
+    band = np.zeros(gl.shape, bool)
+    (cx0, cy0), (cx1, cy1) = [(np.floor((np.minimum(a, b) - 10 - (X0, Y0)) * UP)).astype(int).clip(0),
+                              (np.ceil((np.maximum(a, b) + 10 - (X0, Y0)) * UP)).astype(int)]
+    yy, xx = np.mgrid[cy0:cy1, cx0:cx1]
+    px, py = (xx + 0.5) / UP + X0 - a[0], (yy + 0.5) / UP + Y0 - a[1]
+    along_, across = px * u[0] + py * u[1], px * n[0] + py * n[1]
+    band[cy0:cy1, cx0:cx1] = ((along_ >= 0) & (along_ <= np.hypot(*(b - a))) &
+                              (np.abs(across - np.polyval(f, along_)) <= hw))
+    return band, hw, float(np.sqrt(np.mean(res ** 2)))
+
+
+def outline(gl, pts):
+    """The area inside a closed outline through pts (levelled scan px), snapped to the plate's dark lines by
+    linework.livewire, as a mask (work px)."""
+    xy = np.array([p for p in pts if p != lw.STRAIGHT], float)
+    x0, y0 = (xy.min(0) - 10).astype(int)
+    x1, y1 = (xy.max(0) + 10).astype(int)
+    b = sl((x0, y0, x1, y1))
+    cost = 1 + 30 * np.clip(gl[b] / 255, 0, 1) ** 2
+    work = [p if p == lw.STRAIGHT else ((p[0] - x0) * UP, (p[1] - y0) * UP) for p in pts]
+    path = lw.livewire(cost, work, closed=True)
+    m = np.zeros(gl.shape, bool)
+    m[b] = lw.polygon_mask(cost.shape, path)
+    return m
+
+
+def figure(ink, ws, gl):
     """The figures' area: every paper area but the ground (GROUND, and the areas reaching the crop's edge), the
     laurel's leaves, and the ink touching them."""
     out = np.unique(np.r_[ws[0], ws[-1], ws[:, 0], ws[:, -1]])
     ground = np.isin(ws, np.r_[out[out > 0], [at(ws, x, y) for x, y in GROUND]])
-    b = sl(LEAVES)
-    c = ndi.binary_closing(ink[b], structure=morphology.disk(LEAF_CLOSE * UP))
-    lab, _ = ndi.label(ndi.binary_fill_holes(c) & ~c)
-    leaf = (lab > 0) & (np.bincount(lab.ravel()) <= LEAF_MAX * UP * UP)[lab] & ~ink[b]
-    ground[b] &= ~leaf
-    clay = (ws > 0) & ~ground
+    for box in LEAVES:
+        b = sl(box)
+        w = areas(ink[b], LEAF_SEAL)
+        small = np.bincount(w.ravel()) <= LEAF_MAX * UP * UP
+        small[0] = False
+        small[np.unique(np.r_[w[0], w[-1], w[:, 0], w[:, -1]])] = False
+        ground[b] &= ~small[w]
+    ground &= ~outline(gl, OMPHALOS)
+    bands = np.zeros_like(ink)
+    for a, b in SHAFTS:
+        band, hw, rms = shaft(gl, a, b)
+        print("shaft", a, b, "half-width", round(hw, 2), "rms", round(rms, 2))
+        ground &= ~band
+        bands |= band
+    # paper the seal leaves without a seed (slivers the lines close: a sword's blade, a boot's lattice cells) is
+    # clay, unless it reaches the crop's edge
+    lab, _ = ndi.label((ws == 0) & ~ink)
+    edge = np.unique(np.r_[lab[0], lab[-1], lab[:, 0], lab[:, -1]])
+    clay = ((ws > 0) | ((lab > 0) & ~np.isin(lab, edge))) & ~ground
     fig = ndi.binary_fill_holes(clay | (ink & ndi.binary_dilation(clay, iterations=2 * UP)))
-    return fig & ~ground, ground
+    # a shaft's band whole is clay, the lines drawn over it: the paper between its lines alone broke into bits
+    return (fig & ~ground) | bands, ground
 
 
 def add_rim(rim, info):
@@ -194,9 +277,16 @@ def main(src, qa=None, dump=None):
     for box in FEATURES:
         _, _, f = masks(src, box, speck=FEATURE_SPECK, **FINE)
         dots[sl(box)] = f
-        ink[sl(box)] = f
+    net = outline(gl, OMPHALOS)
+    net[sl(TASSELS)] = True
+    xy = np.array([p for p in OMPHALOS if p != lw.STRAIGHT])
+    nbox = (*(xy.min(0) - 4).astype(int).tolist(), *(np.maximum(xy.max(0), TASSELS[2:]) + 4).astype(int).tolist())
+    _, _, f = masks(src, nbox, speck=FEATURE_SPECK, **FINE)
+    m = np.zeros_like(ink)
+    m[sl(nbox)] = f
+    dots |= m & net
     ws = areas(ink)
-    fig, ground = figure(ink, ws)
+    fig, ground = figure(ink, ws, gl)
     # specks on the field
     lab, n = ndi.label(ink)
     size = np.bincount(lab.ravel()) / UP / UP
@@ -205,8 +295,10 @@ def main(src, qa=None, dump=None):
     drop = (size < SPECK_MAX) & ~near
     drop[0] = False
     ink &= ~drop[lab]
-    for box in FEATURES:
-        ink[sl(box)] &= ~dots[sl(box)]
+    dots &= ndi.binary_dilation(fig, iterations=UP)          # (a speck by Apollo's nose lay on the field)
+    for x0, y0, x1, y1 in FEATURES:
+        ink[sl((x0 + MARGIN, y0 + MARGIN, x1 - MARGIN, y1 - MARGIN))] = False
+    ink &= ~ndi.binary_erosion(net, iterations=MARGIN * UP)
     solid = ndi.binary_opening(ink, structure=morphology.disk(SOLID_OPEN * UP))
     rim = (ndi.distance_transform_edt(~solid) <= RIM * UP) & ~ink
     body = fig | solid
