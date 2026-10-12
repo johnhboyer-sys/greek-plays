@@ -1,6 +1,34 @@
-"""Persians (Aeschylus): the Persian king flees in his chariot (WORK IN PROGRESS; docstring filled at approval).
-From H. Heydemann, Hallisches Winckelmannsprogramm 8 (1883), folding plate, top frieze (Naples H 3220), Heidelberg
-hwpr1883 C.jpg (3682 x 2779; Public Domain Mark 1.0).
+"""Persians (Aeschylus): Alexander pursuing Darius in flight, as Heydemann reads it (John, 2026-10-12).
+From H. Heydemann, Alexander der Grosse und Dareios Kodomannos auf unteritalischen Vasenbildern (Achtes
+Hallisches Winckelmannsprogramm, Halle 1883), folding plate, the upper band at 2/3 the vase's size; Heidelberg
+University Library's scan, hwpr1883 canvas C (C.jpg, 3682 x 2779, the largest it serves; Public Domain Mark 1.0):
+https://digi.ub.uni-heidelberg.de/diglitData/image/hwpr1883/4/C.jpg
+Heydemann (pp. 3-5): one band of a large amphora (height 1.00 m) from Ruvo, in the Museo Nazionale, Naples, since
+August 1835, his Naples catalogue no. 3220 (pp. 502 ff.). A Persian king in Phrygian dress flees in a four-horse
+chariot driven by a young Phrygian, looking back and holding out his right hand to a Greek horseman who charges
+with a levelled lance; beyond, a young Phrygian with a battle-axe attacks a Greek youth with spear and shield;
+flowers and shrubs below, stars above. He reads the battles of Issos and Arbela: the victory of Alexander and the
+flight of Darius III Kodomannos. A museum photograph's caption (Bridgeman) gives the same reading, the Darius
+Painter, and c. 330-320 BC; no Trendall number or modern inventory number found.
+
+Made with PhotoCraft (John, 2026-10-07), as tools/rhesus.py: every image step runs in `photocraft-cli` (0.2.0).
+Pillow only converts the JPEG to PNG and reads PhotoCraft's results; numpy and scipy only combine the masks
+PhotoCraft made, measure, and lay in John's marks. The SVG is written by linework.trace_svg.
+
+Plate -> drawing. A contour plate in pen on cream paper, the dress patterns drawn, no black ground. John chose
+(2026-10-10): the whole upper band, the stars, plants and dotted ground line kept; pen lines, the figures' area
+clay on the dark theme ("crisp and precise").
+  - Lines at half maximum, as Rhesus, at 3 x the plate's px for the small king; weight 0.8 plate px (John's
+    choice of 0.8 and 1.4).
+  - Shading finer than the scan resolves (the cap, sleeves and belts, the chariot's panel and rails, the shield's
+    rim, the horseman's patches): drawn evenly in its own kind, in polygons drawn round each area (HATCH): hatch
+    as thin lines along each band, following both its sides, inside the outlines; stipple as even dots (John).
+  - The figures' area by the sealed watershed, with pockets of ground (POCKETS, most marked by John), the lance
+    and the spear fitted as shafts, small closed parts (CLOSED), the greave's paired strokes drawn as single lines
+    (PAIRS). The field ornaments clay on the dark theme with no lines, lines on the light (John: "Keep as is").
+  - John's marks in PhotoCraft over three rounds (persians_marks_1-3.png): blue ink, yellow clay, green erase or
+    ground.
+Approved by John on the fourth pass, 2026-10-12.
 
     python3 docs/redesign/drawings/tools/persians.py C.jpg [qa.png] [dump.npz]
 """
@@ -496,7 +524,7 @@ def main(src, qa=None, dump=None):
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=hatch, trace_h=lw.WORK_H,
         day=ndi.binary_dilation(orn, iterations=UP), add_clay=orn, keep=kept,
-        title='The Persian king fleeing',
+        title='Alexander pursuing Darius in flight',
         desc='Line drawing after the 1883 plate of an Apulian amphora in Naples (Heydemann, Hallisches Winckelmannsprogramm 8); cut out and retraced.')
     print(OUT, info)
     if qa:  # optional: the drawing over its source, and as the dark theme shows it

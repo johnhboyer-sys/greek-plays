@@ -466,6 +466,37 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Weight: John asked for heavier lines than the plate's own (0.084%), then chose 0.12% of 0.12, 0.16 and the house
   0.225%: at 0.225% the hair's strokes ran into blots (2026-10-10).
 
+- Persians (Heydemann, Hallisches Winckelmannsprogramm 8, 1883, the upper band of the folding plate), made with
+  PhotoCraft: about seven hours over three days and four passes, approved by John 2026-10-12. `tools/persians.py`
+  (2026-10-12).
+- "Crisp and precise" (John): the lines at the plate's pen width, not the house weight. Show an A/B of two
+  weights on one head; he chose the thinner, 0.8 plate px (2026-10-10).
+- Shading finer than the scan resolves (hatch 2-3 px apart at 239 dpi) reads as a grey tone and traces as blobs.
+  Its spectrum gave no clear peak; ask how to draw it. John: evenly, in its own kind. Hatch as thin lines that run
+  along each band and follow both its sides (the share of the way across from one side to the other, split at
+  the band's ends or along its sides; a line added where the band widens, every other one stopped where it
+  narrows), drawn only inside the outlines; stipple as even dots that fit whole; a rim hatched along its curve.
+  Straight hatch at one angle and lines as offsets of the outline were both rejected (2026-10-10).
+- The area of each shaded patch: a polygon drawn round it, and inside it the plate's darker px, blurred, closed and
+  opened; the plate's lines there kept only where they are long or at the patch's edge (the shading's own specks
+  dropped) (2026-10-10).
+- A wide frieze traced at the house 4000 px broke its finest scrolls when the lines were thinned: trace at 6400 px
+  tall (`TRACE_H`). A run is then 11 minutes and over 2 GB: on this 8 GB Mac it crawled for an hour while other
+  sessions held the memory. Check `vm.swapusage` and the other sessions' Python jobs before a full run
+  (2026-10-12).
+- Ground marked by area: a mark's whole enclosed area took in clay where a gap in a line joined it to the
+  drawing (a horse's mane, a muzzle). Cut each marked area at its necks (`NECK`, 5 plate px) and keep the piece
+  round the mark. And read "colour it in" marks on the sealed watershed areas, not the raw paper: through the
+  pen's gaps the raw paper is one area with the background (2026-10-12).
+- Show ground choices as numbered areas over the plate in day colours, not on the dark view: John ruled them by
+  number in one message (2026-10-11).
+- John's PhotoCraft marks, third form: blue ink, yellow clay, green "erase or ground". Read green by what it
+  covers: ink mostly under it goes, the paper round it is ground (2026-10-12).
+- Field ornaments on a contour plate (stars, plants, ground dots) are painted clay on the vase: clay shapes with
+  no lines on the dark theme, lines on the light (`day`, `add_clay`); John kept it so when asked (2026-10-12).
+- Paired fine strokes the scan runs together (a greave's edges) came out as blobs with holes: fill the slits and
+  draw each pair as one line along its middle (`PAIRS`) (2026-10-12).
+
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
 - Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
