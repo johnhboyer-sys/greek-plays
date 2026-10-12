@@ -29,7 +29,10 @@ Plate -> drawing, Furtwängler-Reichhold, red figures on the black ground:
     the eyes finer, the pupils dots (EYES); the white of the torch's flame open, its edge a line (FLAME).
   - The grey brushstrokes of thinned paint (the text: shadows in the folds, and along the upper lids): a
     `tone` wash in the line colour, its opacity following the plate (John, 2026-10-10: "Wash").
+  - John's marks on pass 1 in PhotoCraft (MARKS_FILES): his blue drawn in; his rings round clay the figures had
+    lost put that clay back.
   - Dark theme: the figures' area is the body; the ground stays open, as on the vase.
+Approved by John on the second pass, 2026-10-12.
 
     python3 docs/redesign/drawings/tools/bacchae.py 037.jpg [qa.png]
 """

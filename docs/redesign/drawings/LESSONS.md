@@ -220,6 +220,21 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   round dance on Taf. 17/18, was dropped: each dancer's outer hand clasps a neighbour's, the thumb of one
   over the other's fingers, so no cut leaves a whole hand (John: "THe hands are the real issue. let's
   find another image"). Check the hands and feet at the edges of a crop before picking it (2026-10-08).
+- Bacchae (Taf. 37, four maenads), made with PhotoCraft: about an hour over two passes, approved by John
+  2026-10-12. `tools/bacchae.py`. The figures stand free of each other but for the staffs: no livewire cuts;
+  the floor is the meander band's edge, measured column by column where the ground lies over it (2026-10-12).
+- Taf. 37 is small (2385 px; a face about 60 px): lines by local contrast (a closing 2.5 plate px wide) drawn
+  along their centres at 0.11%; the plain dark threshold took the thinned paint's broad strokes for lines
+  (2026-10-10).
+- The hair at the paint's threshold came out mottled, its brown curls open. Inside a box round each head the
+  plate under grey 120, joined to the paint's dark cores, gives solid hair with the ivy leaves and berries
+  open (`HEADS`). The eyes, about 12 px, drawn finer with the pupils as dots (`EYES`) (2026-10-10).
+- The thinned paint (shadows in the folds, says the text): a `tone` wash, found as the plate darker than its
+  closing over 16 plate px (wider than the broadest band; the scan's light falls off to the left), with the
+  drawn lines taken out before the opening, so broad bands stay whole (2026-10-10).
+- Clay islands on the ground (three leaves of a sprig) are lost when the figures are the clay joined to seeds.
+  John ringed them in PhotoCraft: a ring whose inside lies off the figure puts the plate's own clay there back
+  (`MARKS_FILES`). Check for free-standing leaves, berries and tips before showing him (2026-10-12).
 
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
