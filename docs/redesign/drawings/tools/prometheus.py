@@ -521,7 +521,12 @@ INC_W, INC_SPUR, INC_GAP, INC_HOLD, INC_ANGLE, INC_WIDE, INC_SHORT = 2.6, 4, 16,
 # body, the bonds from his hand to the column, the block under the blood, the lines of the plant at the right, the
 # column's top); red is the wash: each closed red line filled (the blood between the ribs), the dabs as painted (the
 # drops)
-MARKS_FILES = [Path(__file__).parent / "prometheus_marks_1.png", Path(__file__).parent / "prometheus_marks_2.png"]
+# His marks on pass 6 (2026-10-12, prometheus_marks_3.png), read the same way: green along the incisions of Atlas's
+# cap, curls, eye, beard, arms and side, the eagle's wing, legs and back, Prometheus's ribs and legs and toes; green
+# painted broad (wider than MARK_BROAD round px: the lost surface under Atlas's hand) is clay there, not a line;
+# blue the black over it; red the wash beside Prometheus's thigh
+MARKS_FILES = [Path(__file__).parent / f"prometheus_marks_{i}.png" for i in (1, 2, 3)]
+MARK_BROAD = 8
 MARK_SNAP, MARK_NEAR, MARK_PEAK, MARK_CLEAR, MARK_HULL = 4, 3, 6, 0.5, 8
 
 
@@ -700,6 +705,9 @@ def john_lines(shape, hat, path):
     r, g, b, a = (m[..., i] for i in range(4))
     green = (a > 40) & (g > r + 40) & (g > b + 20)
     blue = (a > 40) & (b > r + 40) & (b > g + 20)
+    broad = ndi.binary_opening(green, structure=morphology.disk(round(MARK_BROAD / 2 * UP)))
+    broad = ndi.binary_propagation(broad, mask=green)
+    green &= ~broad
     hs = ndi.gaussian_filter(hat, 0.8 * UP)
     out = np.zeros(shape, bool)
     weak = np.zeros(shape, bool)
@@ -747,14 +755,16 @@ def john_lines(shape, hat, path):
         from skimage.morphology import convex_hull_object
         lab, _ = ndi.label(ndi.binary_dilation(weak, structure=morphology.disk(MARK_HULL * UP)))
         weak = convex_hull_object(lab > 0)
-    return out, blue, weak
+    return out, blue, weak, broad
 
 
 def john_red(shape):
-    """John's red (prometheus_marks_2.png): closed lines filled, dabs as painted, at UP."""
-    m = np.asarray(Image.open(MARKS_FILES[1]).convert('RGBA')).astype(int)
-    r, g, b, a = (m[..., i] for i in range(4))
-    red = (a > 40) & (r > g + 40) & (r > b + 40)
+    """John's red (the marks files after the first): closed lines filled, dabs as painted, at UP."""
+    red = np.zeros(shape, bool)
+    for path in MARKS_FILES[1:]:
+        m = np.asarray(Image.open(path).convert('RGBA')).astype(int)
+        r, g, b, a = (m[..., i] for i in range(4))
+        red |= (a > 40) & (r > g + 40) & (r > b + 40)
     sk = morphology.skeletonize(ndi.binary_closing(red, iterations=2))
     inside = ndi.binary_fill_holes(sk) & ~sk
     return smooth(red | inside, 0.5) | (inside & ~red)
@@ -879,8 +889,10 @@ def masks(ch, dump=None):
     marks = (marks & ~fcover) | feathers
     jblue = np.zeros(marks.shape, bool)
     for path in MARKS_FILES:
-        jl, jb, jweak = john_lines(marks.shape, hat, path)
+        jl, jb, jweak, jbroad = john_lines(marks.shape, hat, path)
         marks &= ~(ndi.distance_transform_edt(~jl) <= MARK_NEAR * UP) & ~jweak
+        marks |= jbroad & fig
+        jblue &= ~jbroad
         marks |= smooth(ndi.distance_transform_edt(~jl) <= INC_W / 2 * UP, 0.5) & fig
         jblue = (jblue & ~(ndi.distance_transform_edt(~jl) <= INC_W / 2 * UP)) | jb
     jred = john_red(marks.shape)
