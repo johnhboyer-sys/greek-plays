@@ -673,6 +673,28 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - The big dark areas the figures close in (behind a door, between legs) are ground; a fixed head box cut a beard's
   tail where it hangs over cloth and showed as a gap in the dark theme: check every white area's whole extent
   (2026-10-10).
+- Frogs (Cleveland 1989.73, the whole of side A: the bust of Dionysos between two comic actors; the museum's TIF and three
+  print views), made with PhotoCraft: about three hours over a style test and four passes, approved by John 2026-10-12.
+  `tools/frogs.py` (2026-10-12).
+- Museum prints are the full TIFs scaled down: give each view its focal length times its scale. A start from the outline
+  alone let a side view's turn slide to a false solution at longer focal lengths; start each from the best fit's numbers,
+  scaled (`START`) (2026-10-12).
+- John was watching the session and gave the style live, one line at a time; each went into its own constant with his
+  words. Two of his asks: the outline on the ground outside the clay, so thin clay (a vine) stays open ("ground with
+  outline"); dark hair and a goatee as a wash "just above ink", not ink (2026-10-12).
+- Lines redrawn along their centres smeared a mask's short faint strokes into blots. Near half maximum (a fraction of the
+  way from the line's core to the clay round it), the grey first capped at the clay's level so white paint beside a line
+  does not widen it, and only pieces with a truly dark core, came out clean (`HM_*`). Keep the faces out of any rule for
+  dense paint: the eye's close lines were taken for hair (2026-10-12).
+- A shaggy suit painted in white strokes over clay: outline the clay's own edge (the white closed and filled away) and let
+  the strokes run on past it over the ground (John: "the back leg needs black outline. hairs should go over onto
+  ground"); keep the rule to the suit, or white hair gets a dotted outline (`SUIT`, `TUFT_*`) (2026-10-12).
+- Laying John's lines into the ink re-weighted every line: the pinned weight is a target, but the tracer measures the
+  median width first, and his strokes (and the order of the fleck fill) moved it. Keep the main ink exactly as the pass he
+  marked and add his strokes to the ink traced at its own size; then the diff shows only his places (2026-10-12).
+- Paint that reaches the floor or the ground through a gap (a cloak's black by the floor, a mask's open mouth) is closed
+  in by nothing: a point or a polygon marks it as paint and it joins the figure directly (`PAINT_PTS`, `PAINT_POLYS`)
+  (2026-10-12).
 
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 
