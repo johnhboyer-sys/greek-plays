@@ -270,6 +270,51 @@
       "source": "Hoernes, Archäologische Zeitung 35 (1877), Taf. 5: the front of a red-figure krater from the Lamberg collection, Vienna (Sacken and Kenner 1866, Kasten V, 2, no. 57), present location not found (Getty copy, Internet Archive, public domain). Hoernes reads Diomedes and Odysseus; Sacken and Kenner, ephebes",
       "method": "Contour plate, black pen lines on paper with no black ground, made with PhotoCraft: turned upright; the lines at their printed width, weighted to 0.12%; the figures' area is the paper the lines close off from the ground, the gaps in the outline sealed, the spear shafts fitted, pockets of ground left open; clay on the dark theme; potrace",
       "verdict": "Usable; approved by John on the first pass (2026-10-10), after a style test, his choice of line weight and two areas he marked as ground. No outside review (the citation checked against Hoernes's text and Sacken and Kenner's catalogue)."
+    },
+    {
+      "slug": "electra-soph",
+      "file": "electra-soph.svg",
+      "name": "Electra (Sophocles) · Orestes brings Electra the urn, with Pylades",
+      "alt": "A young man in a short cloak holds out a two-handled urn to a veiled woman, who raises a hand to her chin; behind him a second young man in a cloak stands with two spears, his hand on his hip",
+      "source": "Laborde, Collection des vases grecs de M. le comte de Lamberg I (1813), pl. VIII: a South Italian red-figure bell krater by the Sydney Painter, Kunsthistorisches Museum, Vienna, IV 689 (Heidelberg scan, public domain). The museum names the figures Pylades, Orestes and Electra",
+      "method": "Colour aquatint, red figures on a dark ground, made with PhotoCraft: the panel squared; the dark ground gives the outline, drawn on the ground; the plate's lines at their own width, the line weight kept at pass 1's; the cut along the band the figures stand on, the soles closed along it; Pylades' eye drawn on points; potrace",
+      "verdict": "Usable; approved by John on the second pass (2026-10-10), after his note on the toes. No outside review (the citation checked against Laborde's text and the museum's record)."
+    },
+    {
+      "slug": "wasps",
+      "file": "wasps.svg",
+      "name": "Wasps · Two old men and a figure in a ram mask",
+      "alt": "Two comic old men with white hair and beards on a stage by a porch: one holds out a patterned cloth, the other leans on a stick and holds the wrist of a small figure in a ram mask who stands behind a patterned chest",
+      "source": "Apulian bell-krater, Rainone Painter, J. Paul Getty Museum 96.AE.112, museum photographs (CC0)",
+      "method": "Red-figure photo taken off the vase (three Getty cameras fitted, the rings kept straight), made with PhotoCraft: the scene by the clay map; lines by local contrast along their centres; white hair and beards as stepped washes, no outline; the ram mask's fleece a textured wash, its face sharp; the patterns and the bodies' thinned glaze as brushstroke washes, the bodies' strokes repainted with PhotoCraft's brush along the contours; potrace",
+      "verdict": "Approved by John on the twelfth pass (2026-10-10), after his notes on the teeth, the sheep mask, the patterns, the clothes' lines, the belt and the bodies' brushwork. No outside review (the citation checked against the Getty's record)."
+    },
+    {
+      "slug": "bacchae",
+      "file": "bacchae.svg",
+      "name": "Bacchae · Four maenads dancing",
+      "alt": "Four women in long dresses and mantles dance in a line: one plays a double pipe, one carries a tall thyrsos and a torch held down, one beats a drum raised high, and one wrapped in her mantle carries a staff",
+      "source": "Furtwängler and Reichhold, Griechische Vasenmalerei I (1904), Taf. 37: an Attic red-figure stamnos by the Dinos Painter, Naples, Museo Archeologico Nazionale 81674 (Heidelberg scan, public domain)",
+      "method": "Furtwängler-Reichhold plate, made with PhotoCraft: the black ground gives the outline; the lines along their centres at the F-R weight; hair solid, ivy open; the thinned paint as a wash; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the second pass (2026-10-12), after his marks in PhotoCraft. No outside review (the citation checked against the Furtwängler-Reichhold text and the Beazley Archive)."
+    },
+    {
+      "slug": "cyclops",
+      "file": "cyclops.svg",
+      "name": "Cyclops · The blinding of Polyphemus",
+      "alt": "Two men in short tunics and broad hats drive a long stake into the eye of a huge bearded man who reclines asleep with a club; behind them a third man thrusts a stake into a fire, and ivy trails above",
+      "source": "Saglio, Gazette archéologique 12 (1887), pl. 1: an Attic black-figure oinochoe by the Theseus Painter, Paris, Louvre F 342 (Internet Archive scan, public domain)",
+      "method": "Coloured plate, black figures on clay, a silhouette, made with PhotoCraft: the clay gives the outline; the black solid with its incisions open; the smoke and the fire as stepped washes; the rock's white patches as ink; potrace",
+      "verdict": "Usable; approved by John on the third pass (2026-10-12). No outside review (the citation checked against Saglio's text and the Beazley Archive)."
+    },
+    {
+      "slug": "prometheus-bound",
+      "file": "prometheus.svg",
+      "name": "Prometheus Bound · Prometheus and Atlas",
+      "alt": "A long-haired bearded man bends his knees under the sky he holds up; facing him, a bearded man bound to a column, an eagle at his chest and his blood falling; a snake behind the first man; below the ground line, a capital between two lotus sprays; three rings round the circle",
+      "source": "Daderot's photo (Wikimedia Commons, public domain) of a Laconian black-figure cup attributed to the Arkesilas Painter, 560-550 BC: the Vatican's Laconic Kylix with Prometheus and Atlas, Museo Gregoriano Etrusco 16592",
+      "method": "Photo of the cup's tondo, the slant taken out (an ellipse mapped to a circle), the crack filled; black figures on clay, a silhouette, made with PhotoCraft: the incisions redrawn as even lines, the added red as a wash filled edge to edge, the ropes on John's lines, the border rings; John's PhotoCraft marks laid in over five rounds; clay ground in both themes; potrace",
+      "verdict": "Usable; approved by John on the eighth pass (2026-10-12), after his marks in PhotoCraft. No outside review (the credit checked against the Vatican Museums' page)."
     }
   ]
 }
