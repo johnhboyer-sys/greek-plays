@@ -114,6 +114,13 @@ WASH_A, WASH_D1, WASH_STEP, WASH_SIGMA = (0.15, 0.35), 60, 0.05, 2
 FLAME = (835, 2405, 1045, 2480)
 WHITE_T = 203
 FLAME_CLEAR = 4.0
+# John's marks on pass 1, in PhotoCraft over the full-res export (bacchae_marks_1.png, his layer alone, on the tool's
+# grid; 2026-10-12): all blue, ink to add (eyelids and brows, nostrils, curls on the neck, neck lines, the fingers on
+# the pipes, the flame's white strokes, and rings). His strokes are drawn at the line weight along their centres, his
+# blue wider than that solid. A ring round clay the figures had lost (three leaves of the second maenad's sprig,
+# islands of clay on the ground that no seed reached) puts that clay back in the figure, outlined as the rest; a
+# ring inside the figure is drawn as he drew it
+MARKS_FILES = [Path(__file__).parent / "bacchae_marks_1.png"]
 
 def pc(src, out, *steps):
     """Run PhotoCraft on src: steps are (command, params) pairs; the result saved to out."""
@@ -229,6 +236,26 @@ def main(src, qa=None, dump=None):
     fig = np.isin(lab, list(keep))
     fig = ndi.binary_fill_holes(fig) & ~ground & ~outside
     fig = ndi.binary_opening(fig, structure=morphology.disk(UP))
+    blue = np.zeros_like(fig)
+    for mf in MARKS_FILES:
+        m = np.asarray(Image.open(mf).convert('RGBA')).astype(int)
+        assert m.shape[:2] == fig.shape, (m.shape, fig.shape)
+        r, gg, bb, al = (m[..., i] for i in range(4))
+        blue |= (al > 40) & (bb > r + 40) & (bb > gg + 20)
+    ring = ndi.binary_fill_holes(blue)   # each ring with what it closes in
+    lab, n = ndi.label(ring)
+    lost = np.zeros(n + 1, bool)   # rings round clay off the figure: clay he wants back
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        inside = (lab[sl] == i) & ~blue[sl]
+        lost[i] = inside.any() and not (fig[sl] & inside).any()
+    lost = lost[lab]
+    # (the clay is the plate's own, round to its edge, which his ring only roughly follows: the light areas
+    # within his ring, grown out to the plate's dark)
+    lab, _ = ndi.label(~dark0 & ndi.binary_dilation(lost, iterations=2 * UP))
+    back = np.unique(lab[lost & ~blue & (lab > 0)])
+    clay_back = ndi.binary_opening(np.isin(lab, back), structure=morphology.disk(UP // 2 + 1))
+    fig |= clay_back
+    blue &= ~ndi.binary_dilation(lost, iterations=UP)
     # the paint (the hair), at its edge as the plate prints it (less blurred), with the thin black between
     # the wreath's leaves and the curls within PAINT_NEAR plate px of it
     # (only dark areas whose core is darker than PAINT_CORE: the darkest parts of the thinned paint's
@@ -277,6 +304,9 @@ def main(src, qa=None, dump=None):
     # (beyond RIGHT, only round the staff: the strip widened by the outline)
     edge = ~fig & (dt <= tw) & ~((px > RIGHT) & ~staff_strip(g.shape, STAFF_PAD + tw / UP) & ~below)
     ink = (lines & fig) | edge
+    if blue.any():
+        ink |= ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= tw / 2
+        ink |= ndi.binary_opening(blue, structure=morphology.disk(max(1, round(tw))))
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * UP * UP)[lab]
 
