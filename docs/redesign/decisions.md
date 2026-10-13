@@ -100,3 +100,8 @@ Same frieze in each. Only the amount under the ground line changes:
 - The shepherd with the infant Oedipus: use it ("definitely use that for something"); it stays Sophocles' home-page figure.
 - Antigone bound (Berlin F 3240, Darius Painter) goes to a Sophocles play, Antigone, whatever play the vase was painted for.
 - The Syracuse Oedipus Tyrannus drawing drops the CC BY-NC-SA licence (John, 2026-10-02: "drop it, with the license"): it traces only the public-domain painting. Diffendale's photo is still credited.
+
+## Home page, built (2026-10-13)
+
+- First build (round 3 A on warm paper, line figures): "too black and white."
+- Four colour versions on the real site: clay figures; Attic orange figures; figures on author-tinted panels; panels with clay. John picked Attic orange: dark lines on orange (#d4875a) in both themes, each author's English name and play count in his colour.

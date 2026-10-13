@@ -129,7 +129,7 @@ const structuredData = Astro.site
 
       <div class="row">
         {playwrights.map(({ author, works, fig }) => (
-          <div class="c">
+          <div class="c" data-author={author.id}>
             <div class="fb">
               {fig && (
                 <svg
@@ -179,8 +179,10 @@ const structuredData = Astro.site
       --ink: #1b1c1f;
       --ink-mid: #5c6064;
       --link: #6d385a;
-      --fig-ink: var(--ink);
-      --fig-body: none;
+      /* Dark lines on Attic orange, as on a red-figure vase, in both themes
+         (John, 2026-10-13). */
+      --fig-ink: #1b1916;
+      --fig-body: #d4875a;
       background: var(--paper);
       color: var(--ink);
       font-family: "Alegreya Sans", system-ui, sans-serif;
@@ -190,9 +192,6 @@ const structuredData = Astro.site
       --ink: #e8e1d3;
       --ink-mid: #b9b0a1;
       --link: #d7a3c4;
-      /* Dark lines on clay, as on a red-figure vase (approved 2026-10-02). */
-      --fig-ink: #1b1916;
-      --fig-body: #c4b294;
     }
     .frieze-page { max-width: 80rem; margin: 0 auto; padding: 0 3.5rem 3.5rem; }
     .frieze-page a { color: inherit; text-decoration: none; }
@@ -254,6 +253,19 @@ const structuredData = Astro.site
       position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
       overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
     }
+
+    /* Each author's name and count in his colour: DESIGN.md's author tints,
+       the dark values lifted to pass AA (John, 2026-10-13: "too black and
+       white"; he picked these with the Attic orange figures). */
+    .c[data-author="aeschylus"]    { --tint-ink: #34536b; }
+    .c[data-author="sophocles"]    { --tint-ink: #43603b; }
+    .c[data-author="euripides"]    { --tint-ink: #8a3f30; }
+    .c[data-author="aristophanes"] { --tint-ink: #6e5114; }
+    :root[data-theme="dark"] .c[data-author="aeschylus"]    { --tint-ink: #9db8cf; }
+    :root[data-theme="dark"] .c[data-author="sophocles"]    { --tint-ink: #a9c39e; }
+    :root[data-theme="dark"] .c[data-author="euripides"]    { --tint-ink: #e3a493; }
+    :root[data-theme="dark"] .c[data-author="aristophanes"] { --tint-ink: #d9bb7c; }
+    .en, .frieze-page .meta { color: var(--tint-ink); }
 
     /* Narrow screens (and 200% zoom): the frieze becomes two pairs of
        figures. */
