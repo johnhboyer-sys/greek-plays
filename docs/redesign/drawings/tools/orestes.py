@@ -16,7 +16,8 @@ Plate -> drawing:
   - Ground: the plate's dark, thin lines opened away; the large areas reaching the crop's edge, and the
     pockets the figures close in (POCKETS).
   - The figures: the clay joined to SEEDS (each moved to the nearest clay within 15 plate px).
-  - Lines, paint, hair, eyes, and the wash: as bacchae.py.
+  - Lines, paint, and hair: as bacchae.py. The faces at the plate's own width (FACES), the small dots kept (DOT_*), the
+    white wrist bands outlined (BANDS), the wash only on the omphalos (OMPHALOS).
 
     python3 docs/redesign/drawings/tools/orestes.py fr120_full.jpg [qa.png]
     python3 docs/redesign/drawings/tools/orestes.py fr120_full.jpg qa.png --test x0,y0,x1,y1 out.svg
@@ -61,8 +62,29 @@ POCKETS = [(780, 2193), (922, 2124), (1039, 2304), (1188, 2386), (1088, 2556), (
 PAINT_NEAR, PAINT_CORE = 4, 45
 HEADS = []
 HAIR_T, HAIR_HOLE = 120, 4
-EYES = []
-EYE_W, PUPIL_T, PUPIL_MAX = 1.0, 55, 12
+# the faces (boxes, plate px: Orestes, Apollo, Artemis, the ghost, the seated, the sleeping, and the risen Fury, the
+# piglet's head): at the line weight the lids ran together and the sleeping Fury's closed eye came out a ring (John,
+# 2026-10-12: "eyes need close detailed attention"). Inside each box the lines are the plate's own, at their own
+# width: its local contrast (as the line finder's) over FACE_LO, joined to cores over FACE_HI (the face lines print
+# grey, 90-130, not black: the dark threshold lost the closed eye), cut to half maximum (darker than FACE_HM of the
+# way from the clay round it to the darkest plate within FACE_MIN_R plate px: the contrast alone drew every line
+# twice as wide as printed), specks under FACE_SPECK plate px out
+FACES = [(1205, 2262, 1275, 2340), (1515, 2005, 1580, 2075), (1860, 2130, 1935, 2205), (670, 1995, 735, 2095),
+         (905, 2065, 985, 2130), (825, 2170, 930, 2240), (735, 2650, 800, 2740), (1180, 2130, 1225, 2210)]
+FACE_LO, FACE_HI, FACE_SPECK = 12, 22, 1.5
+FACE_HM, FACE_MIN_R = 0.6, 2
+# small dark marks standing alone (the dotted rows on Apollo's himation, the ghost's clusters of dots): the centre
+# lines drop them as too short. Kept as the plate prints them (local contrast over DOT_LC), DOT_AREA plate px^2,
+# no side over DOT_SIDE
+DOT_LC, DOT_AREA, DOT_SIDE = 16, (2, 40), 8
+# the white bands at the wrists (boxes, plate px: the seated Fury's two, the sleeping Fury's, the risen Fury's two,
+# Artemis's): lighter than BAND_T (clay 150-166, the white 171-201), outlined (John, 2026-10-12: "white bands on
+# wrists should be outlined"); the finder's lines within BAND_CLEAR plate px of the white go: the outline is the line
+BANDS = [(585, 2350, 620, 2395), (965, 2340, 1010, 2390), (1025, 2320, 1070, 2380), (880, 2725, 935, 2770),
+         (565, 2820, 610, 2870), (1830, 2345, 1870, 2395)]
+BAND_T, BAND_CLEAR = 176, 1.5
+# the omphalos (box, plate px): the only grey on this plate, its net of white leaves on a grey stone; the wash only here
+OMPHALOS = (1350, 2230, 1580, 2620)
 LINE_R = 2.5
 LINE_LO, LINE_HI = 22, 34
 WEIGHT = 0.0011                            # the line weight, of the longer side (F-R: John on Andromache)
@@ -140,6 +162,7 @@ def main(src, qa=None, test=None, out=None):
         r = round(LINE_R * UP)
         pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "roundness"}),
            ("filter.other.minimum", {"radius": r, "preserve": "roundness"}))
+        pc(t / "gl.png", t / "gmin.png", ("filter.other.minimum", {"radius": FACE_MIN_R * UP, "preserve": "roundness"}))
         pc(t / "up.png", t / "gw.png", ("filter.blur.gaussianBlur", {"radius": WASH_BLUR * UP}))
         r = WASH_R * UP
         pc(t / "gw.png", t / "wclosed.png", ("filter.other.maximum", {"radius": r, "preserve": "roundness"}),
@@ -148,6 +171,7 @@ def main(src, qa=None, test=None, out=None):
            ("image.adjustments.threshold", {"level": DARK}))
         g, gl, closed, gw = grey(t / "up.png"), grey(t / "gl.png"), grey(t / "closed.png"), grey(t / "gw.png")
         gs = grey(t / "gs.png")
+        gmin = grey(t / "gmin.png")
         wclosed = grey(t / "wclosed.png")
         dark0 = grey(t / "dark.png") < 128
         fine = grey(t / "fine.png") < 128
@@ -205,14 +229,31 @@ def main(src, qa=None, test=None, out=None):
     firm = apply_hysteresis_threshold(closed - gl, LINE_LO, LINE_HI)
     black = firm & fig & ~ndi.binary_dilation(paint, iterations=UP)
     lines = centre_lines(black, tw, 3 * UP, 2 * tw) | paint
-    eyes = np.zeros_like(fig)
-    for ex0, ey0, ex1, ey1 in EYES:
-        eyes |= (px >= ex0) & (px < ex1) & (py >= ey0) & (py < ey1)
-    pupil = (gs < PUPIL_T) & eyes & fig & ~paint
-    lab, _ = ndi.label(pupil)
-    pupil &= (np.bincount(lab.ravel()) < PUPIL_MAX * UP * UP)[lab]
-    eye_lines = centre_lines(black & eyes & ~ndi.binary_dilation(pupil, iterations=UP // 2), EYE_W * UP, UP, UP)
-    lines = np.where(eyes & ~paint, eye_lines | pupil, lines)
+    box_mask = lambda boxes: np.any([(px >= a) & (px < c) & (py >= b) & (py < d) for a, b, c, d in boxes], axis=0) \
+        if boxes else np.zeros_like(fig)
+    # the dots: small dark marks of the fine threshold standing alone in the clay
+    lc = closed - gl
+    lab, n = ndi.label((lc > DOT_LC) & fig & ~paint)
+    if n:
+        area = np.bincount(lab.ravel()) / (UP * UP)
+        sides = np.array([0] + [max(s[0].stop - s[0].start, s[1].stop - s[1].start) / UP
+                                for s in ndi.find_objects(lab)])
+        dot = (area >= DOT_AREA[0]) & (area <= DOT_AREA[1]) & (sides <= DOT_SIDE)
+        dot[0] = False
+        lines |= dot[lab] & ~ndi.binary_dilation(lines, iterations=UP)
+    # the faces: the plate's own dark at its own width
+    faces = box_mask(FACES)
+    hm = gl < closed - FACE_HM * (closed - gmin)
+    face_lines = morphology.remove_small_objects(apply_hysteresis_threshold(lc, FACE_LO, FACE_HI) & hm & fig & faces,
+                                                 max_size=round(FACE_SPECK * UP * UP))
+    lines = np.where(faces & ~paint, face_lines, lines)
+    # the white bands: no lines inside them; their edge a line
+    white = ndi.binary_opening((gw > BAND_T) & box_mask(BANDS) & fig, structure=morphology.disk(UP // 2 + 1))
+    lab, _ = ndi.label(white)
+    white &= (np.bincount(lab.ravel()) > 8 * UP * UP)[lab]
+    rim_w = (ndi.distance_transform_edt(white) <= tw / 2) & white | \
+        (ndi.distance_transform_edt(~white) <= tw / 2) & ~white & ndi.binary_dilation(white, iterations=round(tw))
+    lines = (lines & ~ndi.binary_dilation(white, iterations=round(BAND_CLEAR * UP))) | rim_w
     dt = ndi.distance_transform_edt(~fig)
     edge = ~fig & (dt <= tw) & ~outside
     ink = (lines & fig) | edge
@@ -222,7 +263,7 @@ def main(src, qa=None, test=None, out=None):
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * UP * UP)[lab]
 
-    w0 = fig & (wclosed - gw > WASH_D) & ~paint
+    w0 = fig & (wclosed - gw > WASH_D) & ~paint & box_mask([OMPHALOS])
     wash = ndi.binary_opening(w0 & ~ndi.binary_dilation(lines, iterations=UP // 2),
                               structure=morphology.disk(round(WASH_W * UP / 2)))
     wash = ndi.binary_closing(wash, structure=morphology.disk(2 * UP)) & w0
