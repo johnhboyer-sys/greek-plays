@@ -35,6 +35,7 @@ Plate -> drawing, Furtwängler-Reichhold, red figures on the black ground (as to
     shapes.
   - The added white (WHITE_*): lighter than the clay round it; `white` paths (as Wealth), outlined finely where it
     meets clay by a `day` path the dark theme hides.
+  - John's marks (MARKS_FILE): blue drawn, green out; his outline of the cap's top (CAP_TOP) adds it to the cap.
   - Dark theme: the figures' area is the body; the ground stays open, as on the vase.
 
     python3 docs/redesign/drawings/tools/medea.py jstor_medea.jpg [qa.png [dump.npz]]
@@ -183,6 +184,13 @@ SLEEVES, SLEEVE_CLOSE, SLEEVE_DOT = [(1045, 1705, 1130, 1840), (1300, 1645, 1390
 # plate px^2 and at most DOT_LEN plate px long, kept at their printed shapes
 DRESS = (960, 1690, 1340, 2215)
 DOT_AREA, DOT_LEN = (3, 90), 14
+# John's marks on pass 4 in PhotoCraft (medea_marks_1.png: his layer, and the blue he put on the red layer, on the
+# tool's grid; 1 = blue, 2 = green; 2026-10-12): blue drawn at the line weight along its centre (in the faces at
+# FACE_W), his blots solid; green taken out. His outline of the top of Medea's cap (in CAP_TOP, plate px), the
+# scalloped border the upper cut had left off, closes with the cap below it: inside, figure, and cap (its grey shaded,
+# the white open: John, 2026-10-12: "make sure medea's headdress gets the shading it needs on the part i outlined")
+MARKS_FILE = Path(__file__).parent / "medea_marks_1.png"
+CAP_TOP = (1150, 1500, 1262, 1600)
 SLEEVE_DEPTH = 75                           # the sleeves' grey, flat, as the cap's
 # Medea's cap and the border of her veil (plate px): a band of dark grey (60-90) with white scrolls and dots, as dark
 # as the plate's thin lines blurred; inside it only the black (lightly blurred, darker than CAP_LINE) is line, the
@@ -368,6 +376,14 @@ def main(src, qa=None, dump=None):
                                                      structure=morphology.disk(FLAME_R * UP))) & spear
     flames |= spear
     fig |= lid | flames | (hairs & ~outside)
+    marks = np.asarray(Image.open(MARKS_FILE))
+    assert marks.shape == fig.shape, (marks.shape, fig.shape)
+    mblue, mgreen = marks == 1, marks == 2
+    tx0, ty0, tx1, ty1 = CAP_TOP
+    in_top = (px >= tx0) & (px < tx1) & (py >= ty0) & (py < ty1)
+    cap_top = ndi.binary_fill_holes(ndi.binary_dilation(mblue & in_top, iterations=UP) | (fig & in_top)) & in_top
+    cap_top &= ~fig
+    fig |= cap_top
 
     # the paint: dark areas within the figures whose core is darker than PAINT_CORE, at the edge the plate prints
     lab, n = ndi.label(dark & fig)
@@ -395,6 +411,7 @@ def main(src, qa=None, dump=None):
     cap = np.zeros_like(fig)
     rr, cc = draw.polygon([(y - Y0) * UP for _, y in CAP], [(x - X0) * UP for x, _ in CAP], fig.shape)
     cap[rr, cc] = True
+    cap |= cap_top
     firm &= ~cap | (gl < CAP_LINE)
     black = firm & fig & ~ndi.binary_dilation(paint, iterations=UP)
     black = join_gaps(black & ~cap, closed - gl) & fig | (black & cap)
@@ -412,6 +429,12 @@ def main(src, qa=None, dump=None):
     ink = (lines & fig) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 2 * UP * UP)[lab]
+    # John's marks: green out, blue in (along its centre, at the face weight in the faces; his blots solid)
+    ink &= ~ndi.binary_dilation(mgreen, iterations=UP // 2)
+    in_face = boxes(FACES)
+    bsk = ndi.distance_transform_edt(~morphology.skeletonize(mblue))
+    ink |= (bsk <= tw / 2) & ~in_face | (bsk <= FACE_W * UP / 2) & in_face
+    ink |= ndi.binary_opening(mblue, structure=morphology.disk(max(1, round(tw))))
     lab, n = ndi.label(fine & fig & boxes([DRESS]) & ~paint)
     area = np.bincount(lab.ravel(), minlength=n + 1) / (UP * UP)
     ext = np.zeros(n + 1)
