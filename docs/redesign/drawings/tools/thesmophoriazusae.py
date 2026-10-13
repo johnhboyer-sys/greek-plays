@@ -339,6 +339,20 @@ BEARD = [(4580, 675), (4575, 615), (4597, 595), (4720, 591), (4724, 600), (4730,
          (4680, 685), (4702, 665), (4711, 645), (4710, 635), (4700, 620), (4682, 607), (4660, 611), (4622, 622),
          (4596, 629), (4597, 640), (4615, 650), (4637, 656), (4642, 665), (4650, 665), (4615, 670)]
 BEARD_L, BEARD_RB = 160, 95
+# The white hair and beards as brushstrokes (John, 2026-10-12): inside HEADS' boxes and BEARD, the white paint's
+# strokes (grey blurred 1 px lighter than ZEUS_L and RIDGE_D lighter than the grey blurred RIDGE_R px round it, so the
+# close strokes part; less red than BEARD_RB; pieces ZEUS_MIN px^2 or more) along their skeleton's
+# branches (STROKE_MIN px or longer, a point every STROKE_STEP px), each a stroke of PhotoCraft's brush STROKE_W times
+# the paint's width there (at least STROKE_SIZE_MIN), hardness STROKE_HARD, opacity STROKE_OP, building up where they
+# cross; drawn in STROKE_STEPS (paint level, total opacity)
+ZEUS_L, ZEUS_MIN, RIDGE_R, RIDGE_D = 185, 20, 4, 3
+# (each stroke tapers by pen pressure, sin^STROKE_TAPER along it: John, 2026-10-12, of the moustache, "the beard as
+# wispy brushstrokes"; in the beard area the cream counts from BEARD_L)
+# The strokes follow the paint's grain (GRAIN_SIGMA), up to STROKE_LEN px, STROKE_MIN px or longer, on the paint (its
+# room: ROOM_D greys below the white's limit)
+STROKE_MIN, STROKE_LEN, STROKE_W, STROKE_SIZE_MIN, STROKE_HARD, STROKE_OP = 14, 120, 1.0, 4, 0.8, 0.55
+STROKE_TAPER, GRAIN_SIGMA, ROOM_D = 0.7, 4.0, 15
+STROKE_STEPS = [(0.2, 0.24), (0.55, 0.38)]
 FACE_MAX = 20000
 HAIR_SPAN, CLAY_SPECK = 20, 10
 WASH_HOLE = 2000
@@ -542,6 +556,48 @@ def join_breaks(lines, g1, room):
     return out
 
 
+def white_strokes(m, light, room):
+    """The white paint's strokes repainted with PhotoCraft's brush (see STROKE_*): streamlines along the paint's own
+    grain (the direction of the grey's level lines, smoothed by doubled angles over GRAIN_SIGMA px), each seeded at
+    the lightest paint of m no stroke covers yet, run both ways up to STROKE_LEN px while it stays in `room` (the
+    paint), at the paint's own width there, thinning to a point at both ends (pen pressure); returns the paint (0-1)."""
+    gy, gx = np.gradient(ndi.gaussian_filter(light, 1.5))
+    c2, s2 = ndi.gaussian_filter(gx * gx - gy * gy, GRAIN_SIGMA), ndi.gaussian_filter(2 * gx * gy, GRAIN_SIGMA)
+    ang = np.arctan2(s2, c2) / 2 + np.pi / 2
+    flow = (np.sin(ang), np.cos(ang))
+    width = 2 * ndi.distance_transform_edt(room)
+    H, W = m.shape
+    covered = np.zeros_like(m)
+    order = np.argwhere(m)
+    order = order[np.argsort(-light[m], kind="stable")]
+    strokes = []
+    for y, x in order:
+        if covered[y, x]:
+            continue
+        path = follow((y, x), STROKE_LEN, flow, room)
+        pts = np.array(path)
+        seg = np.hypot(*np.diff(pts, axis=0).T).sum() if len(pts) > 1 else 0.0
+        iy, ix = np.clip(pts[:, 0].round().astype(int), 0, H - 1), np.clip(pts[:, 1].round().astype(int), 0, W - 1)
+        w = float(np.median(width[iy, ix]))
+        cov = np.zeros_like(m)
+        cov[iy, ix] = True
+        covered |= ndi.binary_dilation(cov, iterations=max(int(w / 2), 1)) & m
+        covered[y, x] = True
+        if seg < STROKE_MIN:
+            continue
+        t = np.linspace(0, 1, len(pts))
+        pr = np.maximum(np.sin(np.pi * t) ** STROKE_TAPER, 0.08)
+        strokes.append(([[round(float(px), 1), round(float(py), 1), round(float(c), 3)] for (py, px), c in zip(pts, pr)],
+                        round(max(STROKE_W * w, STROKE_SIZE_MIN), 1)))
+    with tempfile.TemporaryDirectory() as td:
+        args = [PC, "run", "--new", json.dumps({"width": W, "height": H, "background": "white"})]
+        for pts, size in strokes:
+            args += ["--cmd", "paint.stroke", "--params", json.dumps({"points": pts, "size": size, "hardness": STROKE_HARD,
+                     "opacity": STROKE_OP, "flow": 1, "color": "#000000", "seed": 1})]
+        subprocess.run(args + ["--out", str(Path(td) / "p.png")], check=True, capture_output=True, text=True)
+        return 1 - grey(Path(td) / "p.png") / 255
+
+
 def scene(rgb):
     """(ink, ink traced at its own size, figure, grey, white steps, pattern steps, body steps) for the flat image
     `rgb`."""
@@ -561,6 +617,8 @@ def scene(rgb):
            ("image.adjustments.threshold", {"level": LINE_DARK}))
         pc(t / "g.png", t / "g2.png", ("filter.blur.gaussianBlur", {"radius": 2}))
         pc(t / "g.png", t / "g1.png", ("filter.blur.gaussianBlur", {"radius": 1}))
+        pc(t / "g.png", t / "g4.png", ("filter.blur.gaussianBlur", {"radius": RIDGE_R}))
+        g4 = grey(t / "g4.png")
         rbw = grey(t / "rbw.png")
         whiteness = np.clip(grey(t / "gw.png") - 120, 0, None) * np.clip((80 - rbw) / 60, 0, 1)
         g = grey(t / "g.png")
@@ -707,6 +765,17 @@ def scene(rgb):
         m &= (np.bincount(lab.ravel()) >= 20)[lab]
         pat_steps.append((m, opacity))
     rod_steps = [(shaft & ~ink & ~yellow & (g1 < level), opacity) for level, opacity in SCEPTRE_STEPS]
+    # the white hair and beards, as brushstrokes (John, 2026-10-12: "Zeus's beard should be brushstrokes", then "All
+    # lighter hair should be brush strokes"): the white paint (lighter than ZEUS_L, grey blurred 1 px; inside the heads'
+    # boxes and the king's beard area) repainted
+    zeus = (heads | beard) & fig
+    zw = zeus & (g1 > np.where(beard, BEARD_L, ZEUS_L)) & (g1 > g4 + RIDGE_D) & (rbs < BEARD_RB) & ~ink
+    zw &= ~np.any([lw.polygon_mask(g.shape, np.array(t, float)) for t in TEETH], 0)
+    zw = morphology.remove_small_objects(zw, max_size=ZEUS_MIN)
+    room_z = zeus & (g1 > np.where(beard, BEARD_L, ZEUS_L) - ROOM_D) & (rbs < BEARD_RB) & ~ink
+    paint_z = white_strokes(zw, g1, room_z) * (fig & ~ink)
+    zeus_steps = [(paint_z > level, opacity) for level, opacity in STROKE_STEPS]
+    base &= ~zeus
     steps = []
     for level, opacity in TONE_STEPS:
         m = base & (whiteness >= level)
@@ -724,7 +793,7 @@ def scene(rgb):
     lab, _ = ndi.label(ink, structure=np.ones((3, 3)))
     sz = np.bincount(lab.ravel())
     faces = np.isin(lab, np.unique(lab[box(FACES) & ink])) & (sz < FACE_MAX)[lab] & (lab > 0)
-    return ink & ~faces, faces, fig, g, steps, pat_steps + rod_steps, body
+    return ink & ~faces, faces, fig, g, steps, pat_steps + rod_steps, body, zeus_steps
 
 
 def add_tone(svg, steps, box):
@@ -746,7 +815,7 @@ def add_tone(svg, steps, box):
 
 def main(src, qa=None, flat_png=None):
     rgb = np.asarray(Image.open(flat_png).convert("RGB")) if flat_png else flat_image(src)
-    ink, faces, fig, g, steps, washes, body = scene(rgb)
+    ink, faces, fig, g, steps, washes, body, zeus_steps = scene(rgb)
     pat_steps, rod_steps = washes[:len(PAT_STEPS)], washes[len(PAT_STEPS):]
     ink |= (ndi.distance_transform_edt(~morphology.skeletonize(ink)) <= NECK / 2) & fig
     info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=faces,
@@ -758,6 +827,7 @@ def main(src, qa=None, flat_png=None):
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in pat_steps], info["box"])
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in rod_steps], info["box"])
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in steps], info["box"])
+    add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in zeus_steps], info["box"])
     print(OUT, info)
     if qa:
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
