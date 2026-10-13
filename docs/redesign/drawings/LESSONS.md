@@ -64,6 +64,38 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   Museum 1837,0609.71 (E 263), as the BM's 1896 catalogue says. Check the museum's record, which opens
   in the browser pane when a plain fetch meets its bot check (2026-10-08).
 
+- Suppliant Women (III, Taf. CLVIII, Aithra and Theseus), made with PhotoCraft: about three hours over three passes,
+  the source search included, approved by John 2026-10-13. `tools/suppliants_eur.py` (2026-10-13).
+- John: "be sure to get all those clothing lines without breaks". The pleats print 1-2 px wide, often as dashes, and in
+  places 2-4 px apart. Local contrast (Trojan Women) ran neighbours together and their centre lines grew rungs; the
+  plate at half maximum kept them apart but broke the dashes (2350 line ends). What worked: blur the plate along its own
+  lines first, PhotoCraft's Motion Blur at 12 angles, each px from the angle nearest the lines' direction there (the
+  structure tensor's, smoothed over 4 plate px), then half maximum and centre lines: 917 ends, the pleats whole. Taking
+  each px from the darkest of the 12 blurs instead is wrong: between two pleats a blur across a neighbour is darkest
+  (2026-10-13).
+- That blur smears short marks (the cuirass's hatching, scales and tassels, eyes). Use it only where the structure
+  tensor's coherence says lines run parallel (drapery 0.8-0.95, marks 0.4-0.5), keep only its long centre-line pieces
+  (15 plate px or more) mostly in such areas, and take the rest from the unblurred half maximum at its printed width.
+  Two traps: the final speck filter dropped every small mark until the marks were spared from it, and the blurred
+  smears of the marks, kept, "covered" the sharp ones so they were dropped as drawn twice (2026-10-13).
+- Trojan Women's gap joiner asks a median contrast of only 4 along a join of ends that point at each other, across up to
+  40 px; the clay's grain reads 7 at the median, 14-18 at the 90th percentile, and it drew straight strokes across
+  Theseus' face. Ask 15 (the dashed lines' gaps read 20 and up), over at most 20 and 30 px (2026-10-13).
+- Faint fold ends: follow each line end on along the plate's line, a step at a time onto the darkest of the three px
+  ahead, while the mean contrast over the last 4 plate px stays 18 or more, for at most 12 px, stopping at other ink
+  (`grow_ends`): 923 ends to 574, the candidate breaks (ends where the print runs on) 115 to 41 (2026-10-13).
+- A sweep for breaks before showing John: for every line end inside the figure, sample the plate's contrast 2-9 plate px
+  beyond it; where it stays over 12 until it meets ink, sheet the end (plate | drawing). Most are true ends (eye corners,
+  curl tips, tapering folds); the rest are the breaks to mend (2026-10-13).
+- John's blue strokes on faint lines: drawn along the plate's line through points read off his stroke (ordered by the
+  longest path through its skeleton: walking from one end took a small branch and lost two strokes), kept within 2.5
+  plate px of it, or a livewire cut across a curve where the plate's line is faint. A blue dot too small to be a stroke
+  is taken as painted. Where his stroke lies over broken wiggles (fingers printed faint), take the old ink within 2.5 px
+  out first (`REPLACE`). Where green takes out a drawn ring the plate prints as a solid dot, put the dot back
+  (`AFTER_DOTS`) (2026-10-13).
+- Hair printed only a shade lighter than the ground, with a darker rim and no clay line, joins the ground: find the
+  leak by the shortest path through the dark from the hair to the open ground and wall it there (2026-10-13).
+
 ### Gerhard, black-figure plates (black silhouettes on orange clay, incised lines, added white)
 
 - Show John a small test of the style first, both ways, light and dark. On
