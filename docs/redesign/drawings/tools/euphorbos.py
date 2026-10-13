@@ -190,6 +190,15 @@ CHILD_FACE_W, PUPIL_T = 1.8, 48
 IRIS, IRIS_W, EYE_LW = (1865.0, 291.3, 3.6), 1.0, 1.4
 
 
+# John's marks on pass 4, in PhotoCraft over the plate (euphorbos_marks_1.png: his layer alone, on the tool's work
+# grid; 2026-10-12): all blue, ink to add (Euphorbos' upper lids, his chin closed against the child's head, the
+# child's eye, nose, mouth, and the grey stroke down the child's back, the child's fingers, the cord round the
+# petasos outlined, short lines at the belt). His strokes are drawn at the line width along their centres; his
+# blue wider than MARK_SOLID work px stays solid as painted
+MARKS_FILES = [Path(__file__).parent / "euphorbos_marks_1.png"]
+MARK_SOLID = 4
+
+
 def pc(src, out, *steps):
     """Run PhotoCraft on src: steps are (command, params) pairs; the result saved to out."""
     args = [PC, "run", str(src)]
@@ -640,6 +649,18 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
                             gs=gs.astype(np.uint8))
     if hand is not None:
         ink = (ink & ~cfb) | hand
+    if box is None:
+        blue = np.zeros_like(ink)
+        for mf in MARKS_FILES:
+            mk = np.asarray(Image.open(mf).convert('RGBA')).astype(int)
+            assert mk.shape[:2] == ink.shape, (mk.shape, ink.shape)
+            r_, g_, b_, a_ = (mk[..., i] for i in range(4))
+            blue |= (a_ > 40) & (b_ > r_ + 40) & (b_ > g_ + 20)
+        if blue.any():
+            marks = ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= tw / 2
+            marks |= ndi.binary_opening(blue, structure=morphology.disk(MARK_SOLID))
+            ink |= marks
+            eye_marks |= marks          # (traced at their own size)
     info = lw.trace_svg(
         ink, Path(out), body=fig, open_holes=~fig, weight="drawn", dots=(fl & ~cfb | eye_marks) & ink,
         title='The shepherd Euphorbos carrying the infant Oedipus',
