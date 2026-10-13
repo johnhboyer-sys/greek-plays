@@ -235,6 +235,28 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Clay islands on the ground (three leaves of a sprig) are lost when the figures are the clay joined to seeds.
   John ringed them in PhotoCraft: a ring whose inside lies off the figure puts the plate's own clay there back
   (`MARKS_FILES`). Check for free-standing leaves, berries and tips before showing him (2026-10-12).
+- Medea (Taf. 90, the lower band of the Munich Medea krater), made with PhotoCraft: about five hours, approved
+  by John on pass 5, 2026-10-12. `tools/medea.py`. It replaced a drawing from the Cleveland krater photo, whose
+  fine lines were too faint to trace (John: "many fine details are left out. i'm not tracing all of those").
+  When a photo's detail runs out, look for the vase in an old plate before tracing by hand (2026-10-12).
+- Heidelberg's scans of F-R vol. II stop at 1645 px for Taf. 90 (its IIIF levels and the volume PDF alike),
+  too small: its 1-2 px lines traced as dashes. John found a 3474 px photo of the plate on JSTOR (Williams
+  College). HathiTrust holds only F-R's text volumes; the plates were loose portfolios (2026-10-12).
+- On a plate this fine, the line finder drops what John calls "small lines broken or missing": short strokes
+  (body hair, the serpents' bands, a dress's dots) fall under the centre-line step's length limit, and the
+  tracer's speck filter takes what is left. Keep short marks at their printed shapes and pass them to
+  `trace_svg` as `dots`; join line ends that face each other across a gap where the plate is dark between;
+  lower the hysteresis floor (12) for faint lines (2026-10-12).
+- Check a pass over the whole drawing, not just where John pointed: a map of the plate's line centres farther
+  than a plate px from any drawn line. Its false alarms are the halos round white dots and the stippled grey of
+  the thinned paint; the rest were real (2026-10-12).
+- Added white on red-figure: lighter than the clay's own level round it (the scan's light varies across the
+  band), drawn as `white` paths (as Wealth) with a `day` outline. Pale clay (the serpents) rises less: keep a
+  large piece only where it is clearly lighter somewhere; keep small dots. Within a pale area cut by lines,
+  white whole (the altar, the casket, the hilts) (2026-10-12).
+- Grey thinned paint with white on it (Medea's sleeves and cap): a flat `tone` with the white open; John chose
+  grey over ink for the sleeves. Build the PhotoCraft corrections file with the tone and the white as layers,
+  not lines only, or John cannot see what he is marking (2026-10-12).
 
 - Euphorbos with the infant Oedipus (III, Taf. 167, 1, the Sophocles home figure), made with PhotoCraft from
   Williams College's scan on JSTOR: about four and a half hours over a style test and six passes, approved by John
