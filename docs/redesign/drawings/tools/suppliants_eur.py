@@ -115,7 +115,17 @@ DOTS = [(1025.7, 724.3, 2.4), (1035.7, 725, 2.4), (1044, 721.4, 2.4), (1067.6, 7
 # percentile), for at most GROW_MAX plate px, stopping where it meets other ink. Ends within GROW_EDGE plate px of the
 # ground (at the outline) are not followed
 GROW_C, GROW_RUN, GROW_MAX, GROW_EDGE = 18, 4, 12, 3
-MARKS_FILES = []
+# John's corrections, marked in PhotoCraft over pass 1 (2026-10-13), as RGBA over the crop at MARKS_K x the plate's px:
+# green, ink to take out (inside the figures; the outline stays); blue, ink to add, drawn along the plate's own line
+# through points read off his stroke every MARK_STEP plate px (as TRACED), LINE_W wide. Some of his green landed on the
+# red pass layer; both layers are merged into the one file
+MARKS_FILES = [Path(__file__).parent / "suppliants_eur_marks_1.png"]
+MARKS_K, MARK_STEP, MARK_NEAR = 2, 4, 2.5   # (the line kept within MARK_NEAR plate px of his stroke)
+# inside REPLACE (boxes, plate px) his blue strokes replace the lines there, the ink within MARK_NEAR plate px of them
+# taken out first: the fingers of Aithra's lower hand, which print faint and came out as broken wiggles beside them
+REPLACE = [(605, 800, 662, 836)]
+# the line weight, pinned after pass 1 (its median width over the longer side), so the marks change only where they lie
+WEIGHT = 5.0 / 4621
 assert tw.UP == UP
 # The gap joiner (trojan_women_menelaus.join_breaks) as Trojan Women set it joined line ends that point at each other
 # across 40 plate px of bare clay (median contrast 4 asked; the clay's grain reads 7 at the median, 14-18 at the 90th
@@ -158,14 +168,16 @@ def along(shape, path, width):
     return ndi.distance_transform_edt(~m) <= width * UP / 2
 
 
-def traced(g, P, width):
+def traced(g, P, width, near=None):
     """The plate's own dark line through hand-placed points P (x, y at UP), followed by a least-cost path along
-    its darkest ridge, `width` plate px wide (as trojan_women_menelaus.py)."""
+    its darkest ridge, `width` plate px wide (as trojan_women_menelaus.py); kept within `near` (a mask at UP) if given."""
     pad = 10 * UP
     x0, y0 = max(int(P[:, 0].min()) - pad, 0), max(int(P[:, 1].min()) - pad, 0)
     x1, y1 = int(P[:, 0].max()) + pad, int(P[:, 1].max()) + pad
     w = ndi.gaussian_filter(g[y0:y1, x0:x1], 0.7 * UP)
     cost = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(w, size=(5 * UP, 5 * UP)) - w, 0, None) / 12)
+    if near is not None:
+        cost = np.where(near[y0:y1, x0:x1], cost, 1e6)
     path = lw.livewire(cost, [(x - x0, y - y0) for x, y in P])
     m = np.zeros(g.shape, bool)
     m[(path[:, 1] - 0.5).astype(int) + y0, (path[:, 0] - 0.5).astype(int) + x0] = True
@@ -225,6 +237,54 @@ def grow_ends(lines, contrast, fig, width):
         for iy, ix in grown:
             out[iy, ix] = True
     return ndi.distance_transform_edt(~out) <= width * UP / 2 if out.any() else out
+
+
+def marks(mf, shape):
+    """John's green and blue in a marks file, at the work px (shape: the work arrays')."""
+    a = np.asarray(Image.open(mf).convert('RGBA')).astype(int)
+    assert a.shape[:2] == ((Y1 - Y0) * MARKS_K, (X1 - X0) * MARKS_K), a.shape
+    r, gg, b, al = (a[..., i] for i in range(4))
+    on = al > 40
+    out = []
+    for m in (on & (gg > r + 40) & (gg > b + 20), on & (b > r + 40) & (b > gg + 20)):
+        out.append(np.asarray(Image.fromarray(m.astype(np.uint8) * 255).resize((shape[1], shape[0]), Image.NEAREST)) > 0)
+    green = ndi.binary_fill_holes(ndi.binary_closing(out[0], structure=morphology.disk(2 * UP)))
+    return green, out[1]
+
+
+def strokes(blue):
+    """Each of John's blue strokes as points along its centre line from end to end (the longest path through its
+    skeleton), MARK_STEP plate px apart, (x, y) at UP; and the marks too small to be strokes (dots), as painted."""
+    from scipy.sparse import csr_matrix
+    from scipy.sparse.csgraph import shortest_path
+    sk = morphology.skeletonize(blue)
+    lab, n = ndi.label(blue, structure=np.ones((3, 3)))
+    out, dots = [], np.zeros_like(blue)
+    for k, sl in enumerate(ndi.find_objects(lab), 1):
+        pts = np.argwhere(sk[sl] & (lab[sl] == k)) + (sl[0].start, sl[1].start)
+        if len(pts) < 3 * UP:
+            dots |= lab == k
+            continue
+        idx = {tuple(p): i for i, p in enumerate(pts)}
+        rows, cols, vals = [], [], []
+        for i, (y, x) in enumerate(pts):
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    j = idx.get((y + dy, x + dx))
+                    if (dy or dx) and j is not None:
+                        rows.append(i); cols.append(j); vals.append(np.hypot(dy, dx))
+        G = csr_matrix((vals, (rows, cols)), shape=(len(pts), len(pts)))
+        d0 = shortest_path(G, indices=0)
+        a = int(np.argmax(np.where(np.isfinite(d0), d0, -1)))
+        da, pred = shortest_path(G, indices=a, return_predecessors=True)
+        b = int(np.argmax(np.where(np.isfinite(da), da, -1)))
+        path = [b]
+        while path[-1] != a:
+            path.append(pred[path[-1]])
+        path = pts[path]
+        sel = np.unique(np.r_[np.arange(0, len(path), MARK_STEP * UP), len(path) - 1])
+        out.append(np.array([(path[i][1] + 0.5, path[i][0] + 0.5) for i in sel], float))
+    return out, dots
 
 
 def masks(src, box=None):
@@ -367,13 +427,25 @@ def main(src, qa=None, dump=None, box=None):
     ink = lines | solid | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 12 * UP * UP)[lab] | det   # (the short marks are small)
+    for mf in ([] if box else MARKS_FILES):
+        green, blue = marks(mf, g.shape)
+        ink &= ~(ndi.binary_dilation(green, iterations=UP) & fig & ~edge)
+        lines_, dots_ = strokes(blue)
+        near = ndi.distance_transform_edt(~blue) <= MARK_NEAR * UP
+        rep = np.zeros_like(near)
+        for rx0, ry0, rx1, ry1 in REPLACE:
+            rep[(ry0 - by0) * UP:(ry1 - by0) * UP, (rx0 - bx0) * UP:(rx1 - bx0) * UP] = True
+        ink &= ~(near & rep & fig & ~edge)
+        for P in lines_:
+            ink |= traced(g, P, LINE_W, near) & fig
+        ink |= dots_ & fig
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint,
                             found=_found, det=_det, join=_join, grow=_grow, contrast=np.clip(c, 0, 255).astype(np.uint8), edge=edge, lines=lines)
     if box:
         return
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=~fig, weight="own", trace_h=TRACE_H,
+        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, trace_h=TRACE_H,
         title='Aithra holding out a phiale to Theseus',
         desc='Line drawing after the 1847 plate of a red-figure calyx-krater (Gerhard, Auserlesene griechische '
              'Vasenbilder III, Taf. CLVIII); cut out and retraced.')
