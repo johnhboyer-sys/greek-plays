@@ -16,7 +16,11 @@ PhotoCraft made and measure. The SVG is written by linework.trace_svg. The plate
 
 Plate -> drawing. A lithographed contour plate, black pen lines on cream paper. John chose (2026-10-13): the whole lower
 row with the plant between the woman and the throne; the upper row, the beaded line between the rows and the ribbons
-hanging from the upper row's garland left out; one ground line (the upper of the two over the meander) drawn.
+hanging from the upper row's garland left out; one ground line (the upper of the two over the meander) drawn; the lines
+redrawn along their centres at 2.0 plate px (from 1.6, 2.0 and 2.4), the hair and broad bands solid as printed. John
+ruled the ground areas by number on pass 1, marked pass 1 in PhotoCraft (oedipus_tyrannus_marks_1.png) and named one
+more bit of ground on pass 3. Approved by John on the fourth pass, 2026-10-13. It replaces the drawing from the Syracuse
+krater (tools/oedipus_syracuse.py; John, 2026-10-09: "too damaged", "too crude").
 
     python3 docs/redesign/drawings/tools/oedipus_tyrannus.py rochette1833-pl78.jpg [qa.png] [dump.npz]
 """

@@ -601,6 +601,25 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Three test runs at once on this 8 GB Mac with other sessions running took ten minutes each and filled the swap: run
   A/B variants one at a time (2026-10-13).
 
+- Oedipus Tyrannus (Raoul-Rochette, *Monumens inédits* I, 1833, pl. LXXVIII: the Sbani vase's lower row), made with
+  PhotoCraft: about two and a quarter hours over the scan search and four passes, approved by John 2026-10-13.
+  `tools/oedipus_tyrannus.py`, on `ecclesiazusae.py`'s rules (2026-10-13).
+- Go back to the plate a copy was made from: Benndorf's 1890 plate cites Raoul-Rochette's of 1833, which Heidelberg
+  serves with the figures 2.9 times as tall and sharper (the bird on the sceptre, the throne's winged figures). Read the
+  text too: Raoul-Rochette reads the scene as an initiation; the Oedipus reading is Müller's and Welcker's, in Overbeck
+  1853 (p. 62), whose text is on the Internet Archive. Heidelberg's text pages sit behind a bot check; their IIIF
+  images open (2026-10-13).
+- A lithograph prints the hair, wreaths and beards solid black. The centre-line redraw turned them into outlines: keep
+  what an opening wider than the pen lines leaves (1.5 plate px) as printed, and the small dots too, which a centre line
+  drops (`SOLID_R`, `DOT`) (2026-10-13).
+- A row cut from a two-row plate: figures rise through the beaded line between the rows. Drop the pieces lying above it,
+  but keep those lying wholly inside a box round each head; keeping every piece that touched a box kept the shield and
+  feet of the row above. Where the rows truly touch (the staff top in a robe's hem), cut along a polygon (`ROW`, `KEEP`,
+  `CUTS`) (2026-10-13).
+- John's marks, fourth form: green ground, yellow "that area bounded by ink lines is clay", blue ink. A mark rules the
+  closed area it mostly lies in (at least 0.3 of its largest share), so a stroke that strays over a line does not rule
+  the next area as well; unsealed paper narrower than the seal is ruled the same way (`ruled`) (2026-10-13).
+
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
 - Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
