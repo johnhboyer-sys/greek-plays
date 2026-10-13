@@ -40,11 +40,11 @@
     {
       "slug": "medea",
       "file": "medea.svg",
-      "name": "Medea · in the serpent chariot",
-      "alt": "Medea in a chariot drawn by two serpents",
-      "source": "Cleveland Museum of Art 1991.1, museum photograph, full-resolution TIFF (CC0)",
-      "method": "Red-figure photo: clay mask, disk border cut away, netted sleeves kept; lines from the full-resolution TIFF; potrace",
-      "verdict": "Usable. Revised twice: the face and the netted left sleeve now show, and in dark mode the goad and the gaps inside the figure carry the clay. Still the busiest drawing."
+      "name": "Medea · seizing her son, the serpent chariot, and Jason",
+      "alt": "Medea in a patterned dress and tall headdress seizes a boy on an altar, sword in hand; a servant leads another boy away; in the middle a youth with torches stands in a chariot drawn by two serpents; at the right a bearded man with sword and spear rushes in, followed by a young man in a broad hat",
+      "source": "Furtwängler and Reichhold, Griechische Vasenmalerei II (1906), Taf. 90 (Munich 3296, Underworld Painter), Williams College scan via JSTOR (public domain plate)",
+      "method": "F-R plate with PhotoCraft: the ground gives the figures; lines by local contrast at the plate's weight, faint lines and short strokes kept; grey tone and added white; John's marks; potrace",
+      "verdict": "Approved by John on pass 5, 2026-10-12."
     },
     {
       "slug": "oedipus-tyrannus",

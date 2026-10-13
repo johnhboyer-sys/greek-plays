@@ -38,6 +38,8 @@ Plate -> drawing, Furtwängler-Reichhold, red figures on the black ground (as to
   - John's marks (MARKS_FILE): blue drawn, green out; his outline of the cap's top (CAP_TOP) adds it to the cap.
   - Dark theme: the figures' area is the body; the ground stays open, as on the vase.
 
+Approved by John on pass 5, 2026-10-12.
+
     python3 docs/redesign/drawings/tools/medea.py jstor_medea.jpg [qa.png [dump.npz]]
 """
 import json
