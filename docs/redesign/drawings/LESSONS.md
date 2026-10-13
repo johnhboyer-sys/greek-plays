@@ -695,6 +695,28 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Paint that reaches the floor or the ground through a gap (a cloak's black by the floor, a mask's open mouth) is closed
   in by nothing: a point or a polygon marks it as paint and it joins the figure directly (`PAINT_PTS`, `PAINT_POLYS`)
   (2026-10-12).
+- Women at the Thesmophoria (Getty 96.AE.113, Wasps' sister vase: three comic actors; the Getty's three photos), made
+  with PhotoCraft: about four hours over five passes, approved by John 2026-10-12. `tools/thesmophoriazusae.py`
+  (2026-10-12).
+- Read the museum's own account of the scene before describing it to John: the handoff guessed an old man, a kneeling
+  veiled figure and a king; the Getty reads a padded youth, an actor in a woman's dress with an old woman's mask, and
+  Zeus. The same Getty stand needed a focal length of its own (30000 px here, 40000 for Wasps), and its clay was
+  darker (the band's clay limit lowered) (2026-10-12).
+- Faces drawn only from the dark core lose the paler, finer lines (John: "dont miss those finer lines please"): keep
+  the dark lines at their own shape and add the line finder's paler lines where they lie away from them, grown back
+  to meet them. A lower threshold over the whole figure bridged the dress's close folds; a 5 px contrast window
+  (not 8) kept them apart (2026-10-12).
+- Lines run on under white paint: keeping the hair's whole area free of lines broke the face's contours through the
+  beard ("Some lines incomplete or missing"). Only the white paint itself is no line. Then sweep for line ends facing
+  each other with paint under the gap: on a worn vase specks of wear cut the folds into dashes; close them (2026-10-12).
+- Teeth on an open mouth that opens to the ground: the mouth's black counts as ground and the teeth fall out of the
+  figure. Mark the mouth as paint (a polygon), and ask what is teeth and what is moustache: John drew the beard's
+  area round the mouth; the white curve I took for teeth was moustache (2026-10-12).
+- White hair as brushstrokes (John: "All lighter hair should be brush strokes", "wispy"): strokes centred on the
+  white's skeleton came out as specks, because the painted strokes merge. Streamlines along the paint's grain (the
+  grey's structure tensor), seeded at the lightest uncovered paint and run while on the paint, drawn with
+  PhotoCraft's brush at the paint's width, read as brushwork. paint.stroke takes [x, y, pressure]: pressure tapers
+  the stroke to a point at both ends. The greedy seeding takes a few minutes per run (2026-10-12).
 
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 

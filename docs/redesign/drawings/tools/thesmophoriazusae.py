@@ -23,6 +23,21 @@ Photo -> flat:
     then turn 91 and 93 degrees from the front; matches 2.7 and 6.6 px median). The flat keeps the vase's rings
     straight and its meridians upright, as John chose for Wasps.
 
+Flat -> drawing (approved by John on pass 5, 2026-10-12):
+  - The scene is the clay joined to SEEDS (the three actors, the staff, the cloth, the sceptre and its bird, the
+    plank), the handles' palmettes left out, cut at the plank's lower edge, found between the stage's posts (the
+    posts left out). Pockets of ground the figures close in are opened (OPEN_PTS); the left actor's black hair and
+    the king's open mouth are paint (PAINT_PTS, PAINT_POLYS).
+  - Lines, as wasps.py: the grey's local contrast (a 5 px window, so the dress's close folds stay apart), each line
+    redrawn along its centre at the paint's own width; in the faces the dark lines at their own shape and the
+    paler, finer ones found too (FACE_LC, PALE_*; John: "dont miss those finer lines please"); lines run on
+    through the white hair and beards (John: "Some lines incomplete or missing"); breaks where specks of wear
+    cross a line closed (JOIN_*). On the plank only its boards' joins (PLANK_*). The sceptre's brown shaft a wash
+    with its long upright lines (SCEPTRE_*); the added yellow (the bird, the dots) a wash with no outline.
+  - The white hair and beards: brushstrokes of PhotoCraft's brush along the paint's grain, tapering (STROKE_*); the
+    moustache round the mouth as John drew the area (BEARD); the king's two teeth white in his black mouth
+    (TEETH). The bodies' thinned glaze repainted with PhotoCraft's brush along the contours, as wasps.py (BODY_*).
+
     python3 docs/redesign/drawings/tools/thesmophoriazusae.py front.jpg [qa.png]
     python3 docs/redesign/drawings/tools/thesmophoriazusae.py front.jpg flat.png --flat
     python3 docs/redesign/drawings/tools/thesmophoriazusae.py flat.png [qa.png] --from-flat
@@ -179,14 +194,12 @@ def fit_model(photos: dict, focal: float = FOCAL) -> None:
 
 # ---------------------------------------------------------------- the flat
 
-# The scene wraps about 130 degrees round the vase, and the body tapers just above the stage. The shear-free
-# flat (vase_unroll.flatten) cannot lay a tapering band out straight: it bowed the plank into an arc and fanned
-# the door and the right-hand man outward. So the flat keeps the vase's rings straight and its meridians upright
-# (John's choice, 2026-10-10, shown both): x = R_C (theta - theta_C), y = the arc length up the profile, where
-# R_C is the radius at CENTRE (a front-photo point at the scene's middle, the slave's chest). No shear: the grid
-# stays square, as on the vase. Lengths up the vase and round it at R_C are true; lower down, where the vase is
-# narrower, round it is widened by R_C / R (up to about 5% at the feet). G px per world unit is the front
-# photo's own scale at CENTRE. The frame is the flat image of the front-photo box BOX, MARGIN units wider.
+# As wasps.py (John's choice there, 2026-10-10, of the flat with the rings straight over the shear-free one, which
+# bowed the plank): x = R_C (theta - theta_C), y = the arc length up the profile, where R_C is the radius at CENTRE (a
+# front-photo point at the scene's middle, the old woman's chest). No shear: the grid stays square, as on the vase.
+# Lengths up the vase and round it at R_C are true; lower down, where the vase is narrower, round it is widened by
+# R_C / R. G px per world unit is the front photo's own scale at CENTRE. The frame is the flat image of the
+# front-photo box BOX, MARGIN units wider.
 FLAT_Y = (-60.0, 1040.0)
 CENTRE, BOX, MARGIN = (4000.0, 3500.0), (1950, 2200, 6050, 4900), 10.0
 
@@ -339,17 +352,16 @@ BEARD = [(4580, 675), (4575, 615), (4597, 595), (4720, 591), (4724, 600), (4730,
          (4680, 685), (4702, 665), (4711, 645), (4710, 635), (4700, 620), (4682, 607), (4660, 611), (4622, 622),
          (4596, 629), (4597, 640), (4615, 650), (4637, 656), (4642, 665), (4650, 665), (4615, 670)]
 BEARD_L, BEARD_RB = 160, 95
-# The white hair and beards as brushstrokes (John, 2026-10-12): inside HEADS' boxes and BEARD, the white paint's
-# strokes (grey blurred 1 px lighter than ZEUS_L and RIDGE_D lighter than the grey blurred RIDGE_R px round it, so the
-# close strokes part; less red than BEARD_RB; pieces ZEUS_MIN px^2 or more) along their skeleton's
-# branches (STROKE_MIN px or longer, a point every STROKE_STEP px), each a stroke of PhotoCraft's brush STROKE_W times
-# the paint's width there (at least STROKE_SIZE_MIN), hardness STROKE_HARD, opacity STROKE_OP, building up where they
-# cross; drawn in STROKE_STEPS (paint level, total opacity)
+# The white hair and beards as brushstrokes (John, 2026-10-12: "Zeus's beard should be brushstrokes", "All lighter
+# hair should be brush strokes", of the moustache "the beard as wispy brushstrokes"). Inside HEADS' boxes and BEARD,
+# the white paint's strokes (grey blurred 1 px lighter than ZEUS_L, in BEARD than BEARD_L, and RIDGE_D lighter than
+# the grey blurred RIDGE_R px round it, so close strokes part; less red than BEARD_RB; pieces ZEUS_MIN px^2 or more)
+# seed streamlines along the paint's grain (GRAIN_SIGMA), run up to STROKE_LEN px while on the paint (ROOM_D greys
+# under the white's limit), kept at STROKE_MIN px or longer; each a stroke of PhotoCraft's brush STROKE_W times the
+# paint's width there (at least STROKE_SIZE_MIN), hardness STROKE_HARD, opacity STROKE_OP, thinning to a point at both
+# ends by pen pressure (sin^STROKE_TAPER), building up where they cross; drawn in STROKE_STEPS (paint level, total
+# opacity). Lines centred on the skeleton's branches came out as specks
 ZEUS_L, ZEUS_MIN, RIDGE_R, RIDGE_D = 185, 20, 4, 3
-# (each stroke tapers by pen pressure, sin^STROKE_TAPER along it: John, 2026-10-12, of the moustache, "the beard as
-# wispy brushstrokes"; in the beard area the cream counts from BEARD_L)
-# The strokes follow the paint's grain (GRAIN_SIGMA), up to STROKE_LEN px, STROKE_MIN px or longer, on the paint (its
-# room: ROOM_D greys below the white's limit)
 STROKE_MIN, STROKE_LEN, STROKE_W, STROKE_SIZE_MIN, STROKE_HARD, STROKE_OP = 14, 120, 1.0, 4, 0.8, 0.55
 STROKE_TAPER, GRAIN_SIGMA, ROOM_D = 0.7, 4.0, 15
 STROKE_STEPS = [(0.2, 0.24), (0.55, 0.38)]
