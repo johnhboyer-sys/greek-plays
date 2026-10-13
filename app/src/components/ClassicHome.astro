@@ -4,12 +4,12 @@ import { getWork, workLanding, authorPath, type Work } from '@shared/lib/works';
 import { AUTHORS } from '@shared/lib/authors';
 import { SITE_NAME } from '../lib/site';
 import ThemeInit from './ThemeInit.astro';
-import ThemeToggle from './ThemeToggle.astro';
 import Pwa from './Pwa.astro';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
 import { jsonLdSafe } from '../lib/jsonld';
 import { isBuilt } from '../lib/built-works';
-import { drawing } from '../lib/drawings';
+import SiteHeader from './SiteHeader.astro';
+import Figure from './Figure.astro';
 import '@shared/styles/global.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -34,7 +34,6 @@ const playwrights = AUTHORS
     works: author.works
       .map((id) => getWork(id))
       .filter((w): w is Work => Boolean(w) && isBuilt(w.id)),
-    fig: drawing(author.id),
   }))
   .filter((p) => p.works.length > 0);
 
@@ -105,22 +104,7 @@ const structuredData = Astro.site
 <body class="home">
   <CommandPalette client:load />
   <div class="frieze-page">
-    <header class="hd">
-      <a class="wm" href={`${base}/`}>{SITE_NAME}</a>
-      <nav aria-label="Site">
-        <a
-          class="resume"
-          id="resume-link"
-          href="#"
-          hidden
-          data-works={JSON.stringify(Object.fromEntries(
-            builtWorks.map((w) => [w.id, { title: w.title, books: w.books }]),
-          ))}
-        >Resume</a>
-        <a href={`${base}/search`}>Search</a>
-        <ThemeToggle />
-      </nav>
-    </header>
+    <SiteHeader />
 
     <main>
       <h1 class="visually-hidden">{SITE_NAME}</h1>
@@ -128,20 +112,9 @@ const structuredData = Astro.site
       <p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
 
       <div class="row">
-        {playwrights.map(({ author, works, fig }) => (
+        {playwrights.map(({ author, works }) => (
           <div class="c" data-author={author.id}>
-            <div class="fb">
-              {fig && (
-                <svg
-                  class="fig"
-                  viewBox={fig.viewBox}
-                  preserveAspectRatio="xMidYMax meet"
-                  style={`aspect-ratio:${fig.width}/${fig.height}`}
-                  role="img"
-                  aria-label={fig.alt}
-                ><use href={`${base}/drawings/${fig.name}.svg#fig`} /></svg>
-              )}
-            </div>
+            <Figure slug={author.id} />
             <div class="txt">
               <a class="nm" href={`${base}${authorPath(author.id)}`}>
                 <span class="gk" lang="grc">{author.nativeName}</span>
@@ -179,10 +152,6 @@ const structuredData = Astro.site
       --ink: #1b1c1f;
       --ink-mid: #5c6064;
       --link: #6d385a;
-      /* Dark lines on Attic orange, as on a red-figure vase, in both themes
-         (John, 2026-10-13). */
-      --fig-ink: #1b1916;
-      --fig-body: #d4875a;
       background: var(--paper);
       color: var(--ink);
       font-family: "Alegreya Sans", system-ui, sans-serif;
@@ -197,16 +166,6 @@ const structuredData = Astro.site
     .frieze-page a { color: inherit; text-decoration: none; }
     .frieze-page a:hover { text-decoration: underline; }
 
-    .hd {
-      display: flex; justify-content: space-between; align-items: baseline;
-      padding: 1.4rem 0 1.1rem; font-size: 1.06rem;
-    }
-    .wm { font-family: Cardo, serif; font-size: 1.3rem; }
-    .hd nav { display: flex; gap: 1.6rem; align-items: baseline; }
-    .hd .resume { color: var(--link); }
-    .hd .resume[hidden] { display: none; }
-    .hd :global(.theme-toggle) { align-self: center; }
-
     .intro {
       font: 400 1.3rem/1.4 Cardo, serif; color: var(--ink-mid);
       margin: .6rem 0 2.1rem;
@@ -220,17 +179,6 @@ const structuredData = Astro.site
       display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
     }
     .c { min-width: 0; }
-    .fb {
-      height: calc(var(--fig-h) + .65rem); border-bottom: 2px solid var(--ink);
-      display: flex; align-items: flex-end; justify-content: center;
-      padding: 0 .6rem;
-    }
-    .fig {
-      /* Every figure stands the same height; a wide one may reach a little
-         past its column, into the space beside its neighbour. */
-      display: block; height: var(--fig-h); width: auto; flex: none;
-      color: var(--fig-ink); fill: currentColor;
-    }
     .txt { padding: 1.25rem .4rem 0; text-align: center; }
     .nm { display: block; }
     .gk { display: block; font-family: var(--font-greek); font-size: min(1.9rem, 2.1vw); line-height: 1.1; color: var(--ink-mid); }
@@ -280,13 +228,8 @@ const structuredData = Astro.site
     /* Phone. */
     @media (max-width: 40rem) {
       .frieze-page { padding: 0 1rem 2rem; }
-      .hd { flex-direction: column; gap: .4rem; padding: 1rem 0 .6rem; }
-      .hd nav { gap: 1.1rem; font-size: 1rem; }
       .intro { font-size: 1.12rem; margin: .4rem 0 1.4rem; }
       .row { --fig-h: 11.25rem; row-gap: 1.75rem; }
-      /* At this size the finer pen lines fade without a hairline stroke
-         (docs/redesign/drawings/README.md). */
-      .fig { stroke: currentColor; stroke-width: .5px; }
       .txt { padding: .75rem .25rem 0; }
       .gk { font-size: 1.2rem; }
       .en { font-size: 1.75rem; }
@@ -416,32 +359,6 @@ const structuredData = Astro.site
     });
   </script>
 
-  <script>
-    // Resume link in the header: shown only when the reader has saved a
-    // recent position (localStorage, see shared/lib/resume.ts), pointing back
-    // into the reader at the remembered book and citation.
-    import { lastRead, resumeHref } from '@shared/lib/resume';
-
-    const link = document.getElementById('resume-link') as HTMLAnchorElement | null;
-    if (link) {
-      const works: Record<string, { title: string; books: number }> =
-        JSON.parse(link.dataset.works || '{}');
-      const last = lastRead((w) => w in works);
-      if (last) {
-        const w = works[last.work];
-        const book = Math.min(Math.max(1, last.book), w.books);
-        // Astra lane A, F8: a later occurrence is saved as "803--2" so the
-        // hash lands on the second 803; drop that suffix from the displayed
-        // resume text. The href keeps the full cite.
-        const displayCite = last.cite ? last.cite.replace(/--\d+$/, '') : null;
-        const where = displayCite ?? (w.books > 1 ? `Book ${book}` : '');
-        link.textContent = `Resume: ${w.title}${where ? ` ${where}` : ''}`;
-        const base = (import.meta.env.BASE_URL as string).replace(/\/$/, '');
-        link.href = resumeHref(last.work, { ...last, book }, base);
-        link.hidden = false;
-      }
-    }
-  </script>
 
 </body>
 </html>

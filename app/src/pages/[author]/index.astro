@@ -1,30 +1,19 @@
 ---
-// An author's landing page, served at the bare /<author> slug — name, native
-// name, floruit, blurb, the author's works (in registry order), and a note on
-// how each work is cited. See src/pages/authors.astro for the A–Z index of
-// every author, and src/components/Landing.astro for the per-WORK landing
-// page this mirrors the idiom of.
-import { existsSync, readFileSync } from 'node:fs';
+// An author's page, served at the bare /<author> slug (docs/redesign/
+// DESIGN.md, Author pages; sketch author-pages-round4.html): the author's
+// tint as the page ground, the figure on its ground line, the names, dates,
+// play count and blurb, then the plays without boxes, any group first.
 import ThemeInit from '../../components/ThemeInit.astro';
-import ThemeToggle from '../../components/ThemeToggle.astro';
 import Pwa from '../../components/Pwa.astro';
-import Breadcrumb from '../../components/Breadcrumb.svelte';
+import SiteHeader from '../../components/SiteHeader.astro';
+import Figure from '../../components/Figure.astro';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
-import { AUTHORS, PERIOD_LABEL, getAuthor } from '@shared/lib/authors';
-import {
-  bookLabel,
-  getWork,
-  isBookless,
-  workGroupsFor,
-  workLanding,
-  type AuthorWorkGroup,
-  type Work,
-} from '@shared/lib/works';
-import { formatCite, scheme, type SchemeId } from '@shared/lib/citation';
-import { SUPPORT_URL } from '../../lib/support';
+import { AUTHORS, getAuthor } from '@shared/lib/authors';
+import { getWork, workLanding, type Work } from '@shared/lib/works';
 import { SITE_NAME } from '../../lib/site';
 import { jsonLdSafe } from '../../lib/jsonld';
-import { isBuilt, builtAuthors } from '../../lib/built-works';
+import { isBuilt } from '../../lib/built-works';
+import { AUTHOR_GROUPS, ORDINALS } from '../../lib/author-groups';
 import '@shared/styles/global.css';
 
 // The Greek editions list is part of the edition picker (plan 4.6), behind the flag.
@@ -41,192 +30,42 @@ export function getStaticPaths() {
 const authorId = Astro.params.author!;
 const author = getAuthor(authorId)!;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-
-// data-genre on <html> picks the accent sitewide — rubric red for tragedy,
-// malachite for comedy — BY GENRE, never by author (John; docs/p4-plan.md).
-// Same attribute ReaderShell.astro sets; an author with no genre falls back
-// to :root's tragedy default.
+const siteName = SITE_NAME;
+// data-genre on <html> picks the accent sitewide (rubric red for tragedy,
+// malachite for comedy), as ReaderShell.astro sets it.
 const genre = author.genre;
 
-const siteName = SITE_NAME;
-
-// Built works only, in the author's own curated order (author.works), not
-// WORKS registry order — the same convention SHELVES/WORK_GROUPS use elsewhere.
+// Built works only, in the author's own curated order (author.works).
 const works: Work[] = author.works
   .map((id) => getWork(id))
   .filter((w): w is Work => Boolean(w) && isBuilt(w.id));
-// Breadcrumb's AUTHOR dropdown option list — every built author, site-wide.
-const authorOptions = builtAuthors().map((a) => ({ id: a.id, name: a.name }));
 
-// ── Fix 1: grouped Works section (Lyceum P3 vendored CATEGORIES) ───────────
-// Non-empty only for authors with a vendored taxonomy (aristotle today — see
-// shared/lib/works.ts's workGroupsFor doc comment). Groups reference the full
-// registry; a group/subcategory is filtered down to this page's `works`
-// (built + existing) the same way the flat list already is, and dropped
-// entirely if that leaves it empty (a partial checkout with none of a
-// division's works built yet shows no heading for it, never an empty one).
-const builtWorkIds = new Set(works.map((w) => w.id));
-function worksIn(ids: string[] | undefined): Work[] {
-  return (ids ?? [])
-    .map((id) => getWork(id))
-    .filter((w): w is Work => Boolean(w) && builtWorkIds.has(w.id));
-}
-const workGroups: AuthorWorkGroup[] = workGroupsFor(author.id);
-// Flattened to one render unit per (numbered division, optional subcategory
-// heading): a division's own direct works render as a headingless part, each
-// subcategory as its own heading+list. Empty parts (nothing built yet) are
-// dropped, and a division left with no parts at all is dropped entirely.
-interface WorkGroupPart {
-  heading: string | null;
-  items: Work[];
-}
-interface WorkGroupSection {
-  numeral: string;
-  title: string;
-  appendix?: boolean;
-  parts: WorkGroupPart[];
-}
-const workGroupSections: WorkGroupSection[] = workGroups
-  .map((g) => {
-    const direct = worksIn(g.works);
-    const subs: WorkGroupPart[] = (g.subcategories ?? []).map((s) => ({
-      heading: `${s.ref} ${s.label}`,
-      items: worksIn(s.works),
-    }));
-    const parts = (direct.length > 0 ? [{ heading: null, items: direct }, ...subs] : subs)
-      .filter((p) => p.items.length > 0);
-    return { numeral: g.numeral, title: g.title, appendix: g.appendix, parts };
-  })
-  .filter((g) => g.parts.length > 0);
-
-// ── Fix 2: citation-convention classes (book-aware Bekker wording) ─────────
-// John, 2026-08-28: not one line per work — one sentence per (citation
-// scheme × bookless-vs-multi-book) class, with a single real example drawn
-// from that class's own built data. Classes are keyed in the order their
-// first member appears in `works` (the author's curated order), so the
-// example shown for a class is whichever of its member works comes first —
-// an arbitrary but deterministic pick (see the task's returned report for
-// which work that is per class, per author).
-interface ConventionClass {
-  key: string;
-  schemeId: SchemeId | string;
-  bookless: boolean;
-  members: Work[];
-}
-const conventionClasses: ConventionClass[] = [];
-{
-  const byKey = new Map<string, ConventionClass>();
-  for (const w of works) {
-    const schemeId = w.citation?.scheme ?? 'bekker';
-    const bookless = isBookless(w);
-    const key = `${schemeId}:${bookless}`;
-    let cls = byKey.get(key);
-    if (!cls) {
-      cls = { key, schemeId, bookless, members: [] };
-      byKey.set(key, cls);
-      conventionClasses.push(cls);
+// The group listed first (lib/author-groups.ts), when all its plays are
+// built; the rest follow in the author's order.
+const groupDef = AUTHOR_GROUPS[author.id];
+const groupWorks = (groupDef?.works ?? [])
+  .map((id) => works.find((w) => w.id === id))
+  .filter((w): w is Work => Boolean(w));
+const group = groupDef && groupWorks.length === groupDef.works.length
+  ? {
+      ...groupDef,
+      works: groupWorks,
+      note: groupDef.fromProduction && groupWorks[0].production
+        ? `${groupDef.note} · ${groupWorks[0].production.replace(/^[^·]*play · /, '')}`
+        : groupDef.note,
     }
-    cls.members.push(w);
-  }
-}
+  : null;
+const rest = group ? works.filter((w) => !group.works.includes(w)) : works;
 
-// Reads a built work's JSON output the way built-works.ts/isBuilt does
-// (cwd-relative public/data/…). Returns null — never throws — for any work
-// with no such file or malformed content, so a registered-but-not-actually-
-// built work (or a build with unexpectedly thin pipeline output) falls
-// through to the scheme-placeholder example below rather than crashing the
-// page (brief item 3).
-function readWorkJson(workId: string, file: string): any | null {
-  const path = `public/data/${workId}/${file}`;
-  if (!existsSync(path)) return null;
-  try {
-    return JSON.parse(readFileSync(path, 'utf8'));
-  } catch {
-    return null;
-  }
-}
-
-// A real, in-range "book N, chapter C, Bekker page" example for a bekker work
-// — chapters.json's book-1 (single-book works) or book-1-of-N (multi-book)
-// first entry, which is always the work's real opening citation. Never
-// fabricated: a missing/empty chapters.json yields null rather than a guess.
-function bekkerExample(w: Work, bookless: boolean): string | null {
-  const chapters = readWorkJson(w.id, 'chapters.json');
-  const book1 = chapters?.['1'];
-  if (!Array.isArray(book1) || book1.length === 0) return null;
-  const first = book1[0];
-  if (!first?.column || !first?.chapter) return null;
-  const line = first.line != null ? Number(first.line) : null;
-  const cite = formatCite(w.id, first.column, line);
-  const abbr = w.citation?.copyAbbr ?? w.abbr;
-  return bookless ? `${abbr} ${first.chapter}, ${cite}` : `${abbr} ${bookLabel(w, 1)}.${first.chapter}, ${cite}`;
-}
-
-// A real first-citable-unit example for any other scheme — manifest.json's
-// citation.books[0].start (the pipeline's own record of the work's real
-// opening column; see docs/p3-plan.md/this task's brief). No chapter/line:
-// most non-bekker schemes here have no chapters.json data at all (dk,
-// book-section, section, letter, verse-line all emit an empty chapters.json
-// — their column already carries whatever book/section structure they have),
-// and busse (Isa) is deliberately kept to a bare page per the brief's own
-// wording choice ("cited by Busse page").
-function genericExample(w: Work): string | null {
-  const manifest = readWorkJson(w.id, 'manifest.json');
-  const start = manifest?.citation?.books?.[0]?.start;
-  if (!start) return null;
-  const abbr = w.citation?.copyAbbr ?? w.abbr;
-  return `${abbr} ${formatCite(w.id, start, null)}`;
-}
-
-// Lead sentence for a class — DRAFT copy (John, human-authorship rule: agent-
-// drafted site copy is draft until his sign-off). Only bekker gets book-aware
-// wording (John, 2026-08-28: "shouldn't we have book and chapter included?");
-// busse keeps the brief's own bespoke "Busse page" phrasing; every other
-// scheme uses its citation.ts `label` VERBATIM (not lowercased — the
-// lowercasing was the bug: "Diels–Kranz citation"/"Stephanus page" are proper
-// nouns, and label.toLowerCase() mangled them into "diels–kranz citation" /
-// "stephanus page").
-function leadFor(schemeId: string, bookless: boolean): string {
-  if (schemeId === 'bekker') {
-    return bookless
-      ? 'Works in a single book are cited by work, chapter, and Bekker page'
-      : 'Works in several books are cited by work, book, chapter, and Bekker page';
-  }
-  if (schemeId === 'busse') return 'Works are cited by Busse page';
-  return `Works are cited by ${scheme(schemeId).label}`;
-}
-
-interface ConventionLine {
-  lead: string;
-  example: string;
-}
-const conventionLines: ConventionLine[] = conventionClasses.map((cls) => {
-  let example: string | null = null;
-  for (const w of cls.members) {
-    example = cls.schemeId === 'bekker' ? bekkerExample(w, cls.bookless) : genericExample(w);
-    if (example) break;
-  }
-  if (!example) {
-    // No member of this class has usable built data — fall back to the
-    // scheme's own jump-box placeholder rather than omitting the example
-    // (brief item 3's other documented option; chosen here so every line
-    // still reads as a complete sentence).
-    const s = scheme(cls.schemeId);
-    const rep = cls.members[0];
-    const abbr = rep.citation?.copyAbbr ?? rep.abbr;
-    example = `${abbr} ${s.jumpPlaceholder.replace(/^e\.g\.\s*/, '')}`;
-  }
-  return { lead: leadFor(String(cls.schemeId), cls.bookless), example };
-});
-const languageLabel = author.languages.includes('lat') && author.languages.includes('grc')
-  ? 'Greek & Latin'
-  : author.languages.includes('lat') ? 'Latin' : 'Greek';
+// authors.yaml blurbs may start in lower case (written to follow a name).
+const blurb = author.blurb.charAt(0).toUpperCase() + author.blurb.slice(1);
+const findOn = author.id === 'euripides';
 
 // ── SEO ─────────────────────────────────────────────────────────────────────
-const pageTitle = `${author.name} — Works in ${languageLabel} & English`;
+const pageTitle = `${author.name} — Works in Greek & English`;
 const metaDescription =
   `${author.name} (${author.floruit}): ${author.blurb} ${works.length} work${works.length === 1 ? '' : 's'}` +
-  ` with the original ${languageLabel} and English translation where available.`;
+  ` with the original Greek and English translation where available.`;
 const canonical = Astro.site ? new URL(`${base}/${authorId}/`, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
 const jsonLd = {
@@ -277,140 +116,237 @@ const breadcrumbLd = Astro.site
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Alegreya+Sans+SC:wght@500;700&family=Cardo:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-  <style>
-    .au-body { max-width: 760px; margin: 0 auto; padding: 2rem 1rem 5rem; font-family: var(--font-english); color: var(--text); }
-    .au-eyebrow { font-family: var(--font-ui); font-size: 0.8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text-mid); margin: 0 0 0.3rem; }
-    .au-title { font-family: var(--font-english); font-size: 2rem; font-weight: 600; margin: 0 0 0.2rem; line-height: 1.15; }
-    .au-native { font-family: var(--font-greek); font-size: 1.15rem; color: var(--text-mid); margin: 0 0 1rem; }
-    .au-lede { font-size: 1.1rem; line-height: 1.6; margin: 0 0 1.5rem; }
-    h2.au-h { font-family: var(--font-ui); font-size: 0.95rem; font-weight: 700; letter-spacing: .03em; color: var(--accent); margin: 2.2rem 0 0.7rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
-    .ed-list, .read-list { list-style: none; padding: 0; margin: 0; }
-    .ed-list li { margin: 0 0 0.5rem; }
-    .ed-list a { display: flex; flex-direction: column; gap: 0.3rem; text-decoration: none; color: var(--text); padding: 0.55rem 0.7rem; border: 1px solid var(--border); border-radius: 6px; }
-    .ed-list a:hover { border-color: var(--accent); }
-    .ed-row { display: flex; justify-content: space-between; gap: 0.8rem; align-items: baseline; }
-    .ed-name { font-family: var(--font-ui); font-weight: 600; font-size: 0.92rem; display: flex; align-items: baseline; gap: 0.5rem; }
-    .ed-name .work-gk { font-family: var(--font-greek); font-weight: 400; color: var(--text-mid); }
-    .ed-kind { font-size: 0.78rem; color: var(--text-mid); text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 0.5rem; }
-    .ed-blurb { font-family: var(--font-english); font-size: 0.82rem; color: var(--text-light); line-height: 1.4; text-wrap: pretty; }
-    .read-list li { margin: 0 0 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text-mid); }
-    .read-list code { font-family: var(--font-ui); background: var(--border); border-radius: 3px; padding: 0.05em 0.4em; color: var(--text); }
-    .work-group + .work-group { margin-top: 1.8rem; }
-    .work-group-h { font-family: var(--font-ui); font-size: 0.85rem; font-weight: 700; color: var(--text-mid); margin: 0 0 0.6rem; }
-    .work-group-num { color: var(--accent); }
-    .work-subgroup-h { font-family: var(--font-ui); font-size: 0.78rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: .03em; margin: 1.1rem 0 0.5rem; }
-    .work-group-appendix { margin-top: 2.4rem; padding-top: 1.7rem; border-top: 1px solid var(--border); }
-    .work-group-appendix .work-group-h { font-style: italic; }
-    .au-support { margin-top: 2.75rem; }
-  </style>
   <Pwa />
 </head>
-<body>
+<body class="author-page" data-author={author.id}>
   <CommandPalette client:load />
-  <header class="simple-header">
-    <Breadcrumb authorId={author.id} authors={authorOptions} client:load />
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/authors`} class="search-link">All authors</a>
-      <a href={`${base}/lemma/grc/`} class="search-link">Lexicon</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <div class="ap">
+    <SiteHeader />
 
-  <main class="au-body">
-    <p class="au-eyebrow">{PERIOD_LABEL[author.period]} · {author.floruit}</p>
-    <h1 class="au-title">{author.name}</h1>
-    {author.nativeName && <p class="au-native" lang={author.languages[0]}>{author.nativeName}</p>}
-    <p class="au-lede">{author.blurb}</p>
+    <main>
+      <div class="hero">
+        <Figure slug={author.id} />
+        <div class="hx">
+          <p class="gk" lang="grc">{author.nativeName}</p>
+          <h1 class="en">{author.name}</h1>
+          <p class="meta">{author.floruit} · {works.length} play{works.length === 1 ? '' : 's'}</p>
+          <p class="ab">{blurb}</p>
+        </div>
+      </div>
 
-    <h2 class="au-h">Works</h2>
-    {workGroupSections.length > 0 ? (
-      workGroupSections.map((g) => (
-        <section class={g.appendix ? 'work-group work-group-appendix' : 'work-group'}>
-          <h3 class="work-group-h">{g.numeral && <span class="work-group-num">{g.numeral}.</span>} {g.title}</h3>
-          {g.parts.map((p) => (
-            <>
-              {p.heading && <h4 class="work-subgroup-h">{p.heading}</h4>}
-              <ul class="ed-list">
-                {p.items.map((w) => (
-                  <li>
-                    <a href={`${base}${workLanding(w.id)}`}>
-                      <span class="ed-row">
-                        <span class="ed-name">
-                          {w.title}
-                          {w.greekTitle && <span class="work-gk">{w.greekTitle}</span>}
-                        </span>
-                        <span class="ed-kind">
-                          {w.language === 'lat' && <span class="lang-badge">Latin</span>}
-                          {w.workType}
-                        </span>
-                      </span>
-                      {w.blurb && <span class="ed-blurb">{w.blurb}</span>}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ))}
-        </section>
-      ))
-    ) : (
-      <ul class="ed-list">
-        {works.map((w) => (
-          <li>
-            <a href={`${base}${workLanding(w.id)}`}>
-              <span class="ed-row">
-                <span class="ed-name">
-                  {w.title}
-                  {w.greekTitle && <span class="work-gk">{w.greekTitle}</span>}
-                </span>
-                <span class="ed-kind">
-                  {w.language === 'lat' && <span class="lang-badge">Latin</span>}
-                  {w.workType}
-                </span>
-              </span>
-              {w.blurb && <span class="ed-blurb">{w.blurb}</span>}
-            </a>
+      <div class="ctl">
+        {findOn && (
+          <label class="find">
+            <span>Find a play</span>
+            <input type="search" id="find-play" placeholder="Title in English or Greek" autocomplete="off" />
+          </label>
+        )}
+        <div class="vw" role="group" aria-label="List view">
+          <button type="button" data-view="notes" aria-pressed="true">Titles and notes</button>
+          <button type="button" data-view="titles" aria-pressed="false">Titles only</button>
+        </div>
+      </div>
+
+      <ul class="pl" id="play-list">
+        {group && (
+          <li class="grp">
+            <h2 class="gl"><span class="gn">{group.title}</span> <span class="gm">{group.note}</span></h2>
+            <ol class="tri">
+              {group.works.map((w, i) => (
+                <li class="play" data-find={`${w.title} ${w.greekTitle ?? ''}`}>
+                  {group.ordinals && <div class="ord">{ORDINALS[i]}</div>}
+                  <a href={`${base}${workLanding(w.id)}`} class="t">{w.title}</a>
+                  {w.greekTitle && <span class="g" lang="grc">{w.greekTitle}</span>}
+                  {w.blurb && <p class="bl">{w.blurb}</p>}
+                </li>
+              ))}
+            </ol>
+          </li>
+        )}
+        {rest.map((w) => (
+          <li class="it play" data-find={`${w.title} ${w.greekTitle ?? ''}`}>
+            <div class="tt">
+              <a href={`${base}${workLanding(w.id)}`} class="t">{w.title}</a>
+              {w.greekTitle && <span class="g" lang="grc">{w.greekTitle}</span>}
+            </div>
+            <div class="nt">
+              {w.blurb && <p class="bl">{w.blurb}</p>}
+              {w.production && <p class="pr">{w.production}</p>}
+            </div>
           </li>
         ))}
-        {works.length === 0 && <li>No works yet.</li>}
       </ul>
-    )}
+      {findOn && <p class="none" id="find-none" hidden>No play matches.</p>}
 
-    {editionsOn && works.some((w) => (w.greekEditions?.length ?? 0) > 1) && (
-      <>
-        <h2 class="au-h">Greek editions</h2>
-        <ul class="read-list">
-          {works.filter((w) => (w.greekEditions?.length ?? 0) > 1).map((w) => (
-            <li>
-              {w.title}:{' '}
-              {w.greekEditions!.map((e, i) => (
-                <>
-                  {i > 0 && ' · '}
-                  <a href={`${base}${workLanding(w.id)}?view=greek&ed=${encodeURIComponent(e.id)}`}>{e.short}</a>
-                </>
-              ))}
-            </li>
-          ))}
-        </ul>
-      </>
-    )}{works.length > 0 && (
-      <>
-        <h2 class="au-h">Citation conventions</h2>
-        <ul class="read-list">
-          {conventionLines.map((line) => (
-            <li>{line.lead} — e.g. <code>{line.example}</code>.</li>
-          ))}
-        </ul>
-      </>
-    )}
+      {editionsOn && works.some((w) => (w.greekEditions?.length ?? 0) > 1) && (
+        <section class="eds">
+          <h2>Greek editions</h2>
+          <ul>
+            {works.filter((w) => (w.greekEditions?.length ?? 0) > 1).map((w) => (
+              <li>
+                {w.title}:{' '}
+                {w.greekEditions!.map((e, i) => (
+                  <>
+                    {i > 0 && ' · '}
+                    <a href={`${base}${workLanding(w.id)}?view=greek&ed=${encodeURIComponent(e.id)}`}>{e.short}</a>
+                  </>
+                ))}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </main>
 
-    <section class="support-card au-support">
-      <div class="eyebrow">Support <span class="gk">χάρις</span></div>
-      <h2>Support {siteName}</h2>
-      <p>The reader is free and open. A contribution helps defray development costs and keeps it that way.</p>
-      <a class="btn-donate" href={SUPPORT_URL} target="_blank" rel="noopener">Make a gift</a>
-    </section>
-  </main>
+    <footer class="foot">
+      <nav aria-label="Resources">
+        <a href={`${base}/`}>All playwrights</a>
+        <a href={`${base}/search`}>Search the plays</a>
+        <a href={`${base}/lemma/grc/`}>Greek lexicon</a>
+        <a href={`${base}/attribution`}>Texts and licences</a>
+        <a href={`${base}/support`}>Support</a>
+      </nav>
+    </footer>
+  </div>
+
+  <style>
+    /* The author's tint (DESIGN.md, Author tints); dark values pass AA. */
+    body.author-page {
+      --ink: #1b1c1f;
+      --ink-mid: #5c6064;
+      background: var(--tint); color: var(--ink);
+      font-family: "Alegreya Sans", system-ui, sans-serif;
+    }
+    body[data-author="aeschylus"]    { --tint: #e2e7ec; --link: #34536b; }
+    body[data-author="sophocles"]    { --tint: #e3e8df; --link: #43603b; }
+    body[data-author="euripides"]    { --tint: #efe2dc; --link: #8a3f30; }
+    body[data-author="aristophanes"] { --tint: #f0e7d2; --link: #6e5114; }
+    :root[data-theme="dark"] body.author-page { --ink: #e8e1d3; --ink-mid: #b9b0a1; }
+    :root[data-theme="dark"] body[data-author="aeschylus"]    { --tint: #182027; --link: #9db8cf; }
+    :root[data-theme="dark"] body[data-author="sophocles"]    { --tint: #1a2019; --link: #a9c39e; }
+    :root[data-theme="dark"] body[data-author="euripides"]    { --tint: #261b17; --link: #e3a493; }
+    :root[data-theme="dark"] body[data-author="aristophanes"] { --tint: #252013; --link: #d9bb7c; }
+
+    .ap { max-width: 80rem; margin: 0 auto; padding: 0 3.5rem 3.5rem; }
+    .ap a { color: inherit; text-decoration: none; }
+    .ap a:hover { text-decoration: underline; }
+
+    .hero {
+      --fig-h: 20rem;
+      display: grid; grid-template-columns: 18.75rem 1fr; gap: 3rem;
+      align-items: end; margin: 1.1rem 0 2.6rem;
+    }
+    .hero p { margin: 0; }
+    .gk { font-family: var(--font-greek); font-size: 1.9rem; line-height: 1.1; color: var(--ink-mid); }
+    .en { font: 400 4.75rem/1 Cardo, serif; margin: .1rem 0 .6rem; color: var(--link); }
+    .meta { font-size: 1.12rem; color: var(--ink-mid); }
+    .hero .ab { font: 400 1.3rem/1.4 Cardo, serif; margin-top: .75rem; max-width: 34em; }
+
+    .ctl { display: flex; justify-content: space-between; align-items: center; gap: 1.25rem; margin-bottom: .5rem; }
+    .vw { display: flex; gap: 1.1rem; margin-left: auto; }
+    .vw button {
+      background: none; border: 0; padding: 0; cursor: pointer;
+      font: inherit; font-size: 1rem; color: var(--ink-mid);
+    }
+    .vw button[aria-pressed="true"] { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+    .find { display: flex; align-items: center; gap: .6rem; font-size: 1rem; }
+    .find input {
+      font: 1rem "Alegreya Sans", sans-serif; padding: .45rem .6rem; width: 16rem;
+      color: var(--ink); background: color-mix(in srgb, var(--tint) 50%, white);
+      border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); border-radius: 2px;
+    }
+    :root[data-theme="dark"] .find input { background: color-mix(in srgb, var(--tint) 70%, black); }
+
+    .pl, .tri { list-style: none; margin: 0; padding: 0; }
+    .it { display: grid; grid-template-columns: 25rem 1fr; gap: 2.5rem; padding: 1.25rem 0; }
+    .ap .t { display: block; font: 400 1.9rem/1.15 Cardo, serif; color: var(--link); }
+    .g { display: block; font: 400 1.25rem/1.3 var(--font-greek); color: var(--ink-mid); margin-top: .1rem; }
+    .bl { font: 400 1.19rem/1.45 Cardo, serif; margin: .25rem 0 0; max-width: 36em; }
+    .pr { font-size: .94rem; color: var(--ink-mid); margin: .4rem 0 0; }
+
+    .grp { margin: .9rem 0 1.6rem; }
+    .gl { display: flex; align-items: baseline; gap: 1.1rem; flex-wrap: wrap; margin: 0; font-weight: 400; }
+    .gn { font: 400 2.5rem Cardo, serif; }
+    .gm { color: var(--ink-mid); font-size: 1rem; font-family: "Alegreya Sans", sans-serif; }
+    .tri { margin-top: 1.1rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
+    .ord { font-size: .94rem; color: var(--ink-mid); margin-bottom: .25rem; }
+
+    /* Titles only: the blurbs and notes go. */
+    .pl[data-view="titles"] .bl, .pl[data-view="titles"] .pr { display: none; }
+    .pl[data-view="titles"] .it { padding: .6rem 0; }
+    .play[hidden], .grp[hidden] { display: none; }
+    .none { color: var(--ink-mid); }
+
+    .eds { margin-top: 2.5rem; }
+    .eds h2 { font: 400 1.6rem Cardo, serif; margin: 0 0 .5rem; }
+    .eds ul { margin: 0; padding: 0; list-style: none; }
+    .eds a { color: var(--link); }
+
+    .foot { margin-top: 4rem; display: flex; justify-content: center; color: var(--ink-mid); }
+    .foot nav { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem 1.6rem; }
+    .foot a { color: var(--ink-mid); }
+
+    /* Phone: hero stacked; each play its title, Greek title and blurb only. */
+    @media (max-width: 40rem) {
+      .ap { padding: 0 1rem 2rem; }
+      .hero { --fig-h: 11.9rem; grid-template-columns: 1fr; gap: .9rem; margin: .6rem 0 1.5rem; }
+      .gk { font-size: 1.3rem; }
+      .en { font-size: 2.9rem; }
+      .hero .ab { font-size: 1.12rem; }
+      .ctl { flex-direction: column; align-items: stretch; gap: .6rem; }
+      .vw { margin-left: 0; }
+      .find { flex-direction: column; align-items: stretch; gap: .25rem; }
+      .find input { width: 100%; }
+      .it { grid-template-columns: 1fr; gap: .25rem; padding: 1rem 0; }
+      .ap .t { font-size: 1.62rem; }
+      .bl { font-size: 1.06rem; }
+      .pr { display: none; }
+      .gl { display: block; }
+      .gn { display: block; font-size: 2rem; }
+      .gm { display: block; margin-top: .25rem; }
+      body[data-author="aeschylus"] .gm { display: none; }
+      .tri { grid-template-columns: 1fr; gap: 1.25rem; }
+      .foot { margin-top: 2.5rem; }
+    }
+    @media (min-width: 40.01rem) and (max-width: 64rem) {
+      .it { grid-template-columns: 16rem 1fr; gap: 1.5rem; }
+      .en { font-size: 3.6rem; }
+    }
+  </style>
+
+  <script>
+    // "Titles and notes / Titles only", remembered across author pages; and
+    // Find a play (Euripides), matching English or Greek titles with accents
+    // and case ignored.
+    const KEY = 'drama-author-view';
+    const list = document.getElementById('play-list');
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.vw button');
+    const setView = (view: string) => {
+      if (!list) return;
+      list.dataset.view = view;
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
+    };
+    try { const saved = localStorage.getItem(KEY); if (saved) setView(saved); } catch {}
+    buttons.forEach((b) => b.addEventListener('click', () => {
+      setView(b.dataset.view!);
+      try { localStorage.setItem(KEY, b.dataset.view!); } catch {}
+    }));
+
+    const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+    const find = document.getElementById('find-play') as HTMLInputElement | null;
+    find?.addEventListener('input', () => {
+      const q = fold(find.value.trim());
+      let shown = 0;
+      document.querySelectorAll<HTMLElement>('.play').forEach((li) => {
+        const hit = !q || fold(li.dataset.find ?? '').includes(q);
+        li.hidden = !hit;
+        if (hit) shown++;
+      });
+      document.querySelectorAll<HTMLElement>('.grp').forEach((g) => {
+        g.hidden = !g.querySelector('.play:not([hidden])');
+      });
+      document.getElementById('find-none')!.hidden = shown > 0;
+    });
+  </script>
 </body>
 </html>
