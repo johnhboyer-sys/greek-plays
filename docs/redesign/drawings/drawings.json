@@ -369,6 +369,15 @@
       "source": "Bötticher, Der Omphalos des Zeus zu Delphi (1859), plate, fig. 1, after Jahn, Vasenbilder (1839), Taf. I: an Apulian volute-krater of the Black Fury Group, Naples 82270 (H 3249) (Heidelberg scan, public domain)",
       "method": "Contour plate, pen lines on paper with no black ground, made with PhotoCraft: lines at half maximum at the plate's own weight; faces and the omphalos net at their printed width; figures clay on the dark theme, the black solid with a clay rim; potrace",
       "verdict": "Usable; approved by John on the third pass (2026-10-12). No outside review (the citation checked against Bötticher's text and the Beazley Archive)."
+    },
+    {
+      "slug": "ecclesiazusae",
+      "file": "ecclesiazusae.svg",
+      "name": "Assemblywomen · Three comic actors: Philotimides, Charis and Xanthias",
+      "alt": "Three masked comic actors on a stage before a half-open studded door, a jug hanging above: an old man in a short tunic and an old woman in a long veiled cloak hold a dish of cakes between them over a bench, each holding up a morsel; behind her a bald, bearded slave turns away, a hand at his mouth",
+      "source": "Heydemann, Vase Caputi mit Theaterdarstellungen (Neuntes Hallisches Winckelmannsprogramm, 1884), Taf. I: an Apulian bell-krater from Ruvo attributed to the Choregos Painter, Milan, Civico Museo Archeologico A 0.9.2841 (Heidelberg scan, public domain)",
+      "method": "Contour plate, pen lines on paper with no black ground, made with PhotoCraft: the lines redrawn along their centres at their printed width, weighted to 1.6 plate px (John); Xanthias's beard a stepped grey wash; the door's studs and the hem band solid; the figures' area by the sealed watershed with John's ground areas; clay on the dark theme; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the fourth pass (2026-10-13), after his ground calls, a weight A/B and one round of his marks in PhotoCraft. No outside review (the citation checked against Heydemann's text and the museum's record)."
     }
   ]
 }
