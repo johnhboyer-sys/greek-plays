@@ -12,7 +12,7 @@ finish.
 | File | Figure | Source |
 |---|---|---|
 | `aeschylus-pythia.svg` | the Pythia | Bötticher 1859 plate, Heidelberg scan (public domain); cut from `eumenides.svg` (`tools/eumenides.py`, 2026-10-12), Apollo's overlapping foot erased and her dress's stripe drawn on across the gap |
-| `sophocles-euphorbos.svg` | Euphorbos carrying the infant Oedipus (Sophocles' home-page figure) | Cabinet des médailles 372, four photos by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0); flattened off the vase with `tools/vase_unroll.py` |
+| `sophocles-euphorbos.svg` | Euphorbos carrying the infant Oedipus (Sophocles' home-page figure) | Furtwängler and Reichhold, *Griechische Vasenmalerei* III (1927), Taf. 167 (Cabinet des médailles 372), Williams College scan via JSTOR (public domain); made with PhotoCraft (`tools/euphorbos.py`, 2026-10-12); John's marks in `tools/euphorbos_marks_1.png` |
 | `sophocles-oedipus.svg` | Oedipus (superseded by the Euphorbos drawing) | Berlin F 2355, photo by Gary Todd (CC0) |
 | `euripides-iphigenia.svg` | Iphigenia | Archäologische Zeitung 1849 Taf. XII (public domain) |
 | `aristophanes-mika.svg` | Mika | Würzburg H 5697, photo by ArchaiOptix (CC BY-SA 4.0, so the drawing is CC BY-SA 4.0) |
