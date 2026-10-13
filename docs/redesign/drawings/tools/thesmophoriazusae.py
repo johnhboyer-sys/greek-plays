@@ -235,6 +235,9 @@ OPEN_PTS = [(1172, 1035), (2788, 644), (2639, 949), (3260, 1141)]
 # Big dark areas that are paint, not ground (flat px, a point in each): the left actor's black hair, closed in by
 # the clay band round his head
 PAINT_PTS = [(1420, 470)]
+# and dark inside these polygons (flat px) is paint: the king's open mouth, open to the ground under his teeth (John,
+# 2026-10-12, the teeth white: they lie on the mouth's black), its left side along the teeth's outer edge
+PAINT_POLYS = [[(4582, 604), (4720, 604), (4720, 690), (4594, 690), (4587, 668), (4582, 652), (4579, 632)]]
 # Solid paint that runs into the ground's black is taken for ground: walled where it meets it (flat px, along the
 # ground's edge; WALL_W px wide)
 WALLS = []
@@ -321,6 +324,14 @@ PALE_OFF, PALE_MIN = 4, 30
 # Breaks in the lines where specks of wear cross them (the dress's folds; John, 2026-10-12: "Some lines incomplete or
 # missing"): closed where the paint runs on under them (see join_breaks)
 JOIN_D, JOIN_COS, JOIN_G, JOIN_BACK = 30, 0.75, 120, 12
+# The king's teeth in his open mouth, white like his beard but no wash, so they stand white against the black (John,
+# 2026-10-12: "make the teeth white"; as wasps.py): polygons round them (flat px, read off the flat), the upper tooth
+# the lower ones, and the curve of the lower teeth (a white C on the black)
+TEETH = [[(4655, 617), (4706, 617), (4706, 633), (4655, 633)],
+         [(4576, 626), (4590, 628), (4593, 645), (4605, 655), (4628, 656), (4641, 653), (4641, 669), (4610, 671),
+          (4589, 663), (4577, 646)],
+         [(4611, 631), (4669, 631), (4669, 648), (4611, 648)],
+         [(4609, 648), (4641, 648), (4641, 663), (4609, 663)]]
 FACE_MAX = 20000
 HAIR_SPAN, CLAY_SPECK = 20, 10
 WASH_HOLE = 2000
@@ -597,6 +608,8 @@ def scene(rgb):
         assert lab[y, x], f"paint point {(x, y)} is not on glaze"
         is_ground[lab[y, x]] = False
     ground = is_ground[lab]
+    for poly in PAINT_POLYS:
+        ground &= ~lw.polygon_mask(g.shape, np.array(poly, float))
     for x, y in OPEN_FINE:
         r = OPEN_FINE_R
         sub = ndi.binary_opening(dark[y - r:y + r, x - r:x + r], structure=morphology.disk(FINE_OPEN))
@@ -673,6 +686,7 @@ def scene(rgb):
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
     base = ((ndi.gaussian_filter(strokes.astype(np.float32), 3.0) > 0.5) | soft_edge) & fig & ~ink
+    base &= ~np.any([lw.polygon_mask(g.shape, np.array(t, float)) for t in TEETH], 0)   # (the teeth: white)
     pat_steps = []
     holes = ndi.binary_fill_holes(base) & ~base & ~ink   # (specks of bare clay in the worn white: washed over)
     lab, _ = ndi.label(holes)
