@@ -102,7 +102,15 @@ GROUND = [(1909, 1944), (1428, 1898), (285, 1570), (425, 1776), (982, 1910), (99
 # specks of the print: ink pieces under SPECK_MAX plate px^2 farther than NEAR plate px from the figures, and under
 # SPECK_IN anywhere
 SPECK_MAX, NEAR, SPECK_IN = 150, 6, 6
-MARKS_FILES = []
+# John's marks in PhotoCraft over each pass, on the crop at MARKS_K x the plate px (his layer alone): blue is ink as he
+# drew it, traced at its own size (as trace_svg's dots, so the pinned weight is not moved); green rules the area it lies
+# in ground, yellow clay (John, 2026-10-13: "green = ground; yellow = that area bounded by ink lines is clay; blue =
+# ink"). A mark rules the areas holding at least MARK_SHARE of its largest share, so a stroke that strays over a line
+# into the next area does not rule that one too. Marks 1 (2026-10-13), on pass 1: gaps closed in the old man's head and
+# hands, Oedipus' eye and beard, the woman's head; ground between the plant's leaves, the throne's legs, the woman's
+# fillets, the boy's branch, the old man's fingers; clay in the staff top's frame, the bird on the sceptre, the hems
+MARKS_FILES = [Path(__file__).with_name("oedipus_tyrannus_marks_1.png")]
+MARK_SHARE = 0.3
 MARKS_K = 2
 MARKS_X0, MARKS_Y0 = X0, Y0                # the marks' grid: the whole crop
 # a development run on part of the plate: OT_BOX="x0,y0,x1,y1" (plate px); the drawing goes to OT_OUT
@@ -193,16 +201,30 @@ def redraw(m, spur, min_len):
 
 
 def marks(shape):
-    """John's blue at the work px (shape: the work arrays')."""
-    blue = np.zeros(shape, bool)
+    """John's blue, green and yellow at the work px (shape: the work arrays')."""
+    out = [np.zeros(shape, bool) for _ in range(3)]
     for mf in MARKS_FILES:
         a = np.asarray(Image.open(mf).convert("RGBA")).astype(int)
         r, g, b, al = (a[..., i] for i in range(4))
-        on = (al > 40) & (b > r + 40) & (b > g + 20)
+        on = al > 40
         x0, y0 = (X0 - MARKS_X0) * MARKS_K, (Y0 - MARKS_Y0) * MARKS_K   # (a development run's box inside it)
-        on = on[y0:y0 + (Y1 - Y0) * MARKS_K, x0:x0 + (X1 - X0) * MARKS_K]
-        blue |= np.asarray(Image.fromarray(on.astype(np.uint8) * 255).resize((shape[1], shape[0]), Image.NEAREST)) > 0
-    return blue
+        for m, c in zip(out, (on & (b > r + 40) & (b > g + 20), on & (g > r + 40) & (g > b + 20),
+                              on & (r > b + 60) & (g > b + 60))):
+            c = c[y0:y0 + (Y1 - Y0) * MARKS_K, x0:x0 + (X1 - X0) * MARKS_K]
+            m |= np.asarray(Image.fromarray(c.astype(np.uint8) * 255).resize((shape[1], shape[0]), Image.NEAREST)) > 0
+    return out
+
+
+def ruled(mark, labels):
+    """The labels a mark rules: for each piece of the mark, those under it holding at least MARK_SHARE of the largest
+    count (label 0, the ink, never)."""
+    hit = set()
+    lab, n = ndi.label(mark)
+    for i, s in enumerate(ndi.find_objects(lab), 1):
+        v, c = np.unique(labels[s][(lab[s] == i) & (labels[s] > 0)], return_counts=True)
+        if len(v):
+            hit |= set(v[c >= MARK_SHARE * c.max()].tolist())
+    return list(hit)
 
 
 def sl(box):
@@ -275,16 +297,18 @@ def at(ws, x, y):
     return v[np.argmax(n)]
 
 
-def figure(ink, ws):
-    """The figures' area: every paper area but the ground (GROUND, and the areas reaching the crop's edge), and the
-    ink touching them."""
+def figure(ink, ws, green, yellow):
+    """The figures' area: every paper area but the ground (GROUND, the areas reaching the crop's edge, and those John
+    marked green; but those he marked yellow are clay), and the ink touching them."""
     out = np.unique(np.r_[ws[0], ws[-1], ws[:, 0], ws[:, -1]])
     pts = [at(ws, x, y) for x, y in GROUND if X0 <= x < X1 and Y0 <= y < Y1]
-    ground = np.isin(ws, np.r_[out[out > 0], pts])
-    # paper the seal leaves without a seed is clay, unless it reaches the crop's edge
+    # paper the seal leaves without a seed is clay, unless it reaches the crop's edge or John marked it
     lab, _ = ndi.label((ws == 0) & ~ink)
     edge = np.unique(np.r_[lab[0], lab[-1], lab[:, 0], lab[:, -1]])
-    clay = ((ws > 0) | ((lab > 0) & ~np.isin(lab, edge))) & ~ground
+    yw, yl = ruled(yellow, ws), ruled(yellow, lab)
+    ground = ((np.isin(ws, np.r_[out[out > 0], pts, ruled(green, ws)]) & ~np.isin(ws, yw))
+              | np.isin(lab, ruled(green, lab)))
+    clay = ((ws > 0) | ((lab > 0) & ~np.isin(lab, edge)) | np.isin(lab, yl)) & ~ground
     fig = ndi.binary_fill_holes(clay | (ink & ndi.binary_dilation(clay, iterations=2 * UP)))
     return fig & ~ground, ground
 
@@ -313,9 +337,9 @@ def main(src, qa=None, dump=None):
     solid = ink & ndi.binary_dilation(ndi.binary_opening(ink, structure=morphology.disk(SOLID_R * UP)))
     ink = (redraw(ink & ~heads & ~dot, SPUR, LINE_LEN) | (redraw(ink & heads & ~dot, HEAD_SPUR, HEAD_LEN) & heads)
            | dot | solid)
-    blue = marks(ink.shape)
+    blue, green, yellow = marks(ink.shape)
     ws = areas(ink | printed | blue)
-    fig, ground = figure(ink | printed | blue, ws)
+    fig, ground = figure(ink | printed | blue, ws, green, yellow)
     del printed
     fig |= ndi.binary_dilation(blue, iterations=UP) & ~ground
     kept = np.zeros_like(fig)
