@@ -126,6 +126,13 @@ GROUND = [(1223, 1012), (1249, 1323), (1371, 1482), (413, 1150), (1081, 796), (1
 # 40 left dashes of the frame line and the plate's number), and under SPECK_IN anywhere (dots of grain in the door's
 # panels; a pupil is about 20)
 SPECK_MAX, NEAR, SPECK_IN = 150, 6, 6
+# John's marks in PhotoCraft over each pass, on the crop at MARKS_K x the plate px (his layer alone): blue is ink as
+# he drew it, traced at its own size (as trace_svg's dots, so the pinned weight is not moved), sealing the areas and
+# clay round it on the dark theme. Marks 1 (2026-10-13): pass 3, all blue (Philotimides' moustache and lips, his
+# fingers and the string of figs, Xanthias's brow and beard's edge, his hem band's breaks, Charis's cloak band)
+MARKS_FILES = [Path(__file__).with_name("ecclesiazusae_marks_1.png")]
+MARKS_K = 2
+MARKS_X0, MARKS_Y0 = X0, Y0                # the marks' grid: the whole crop
 # a development run on part of the plate: ECCL_BOX="x0,y0,x1,y1" (plate px); the drawing goes to ECCL_OUT
 if os.environ.get("ECCL_BOX"):
     X0, Y0, X1, Y1 = map(int, os.environ["ECCL_BOX"].split(","))
@@ -246,6 +253,19 @@ def redraw(m, spur, min_len):
     return d <= half[iy, ix]
 
 
+def marks(shape):
+    """John's blue at the work px (shape: the work arrays')."""
+    blue = np.zeros(shape, bool)
+    for mf in MARKS_FILES:
+        a = np.asarray(Image.open(mf).convert("RGBA")).astype(int)
+        r, g, b, al = (a[..., i] for i in range(4))
+        on = (al > 40) & (b > r + 40) & (b > g + 20)
+        x0, y0 = (X0 - MARKS_X0) * MARKS_K, (Y0 - MARKS_Y0) * MARKS_K   # (a development run's box inside it)
+        on = on[y0:y0 + (Y1 - Y0) * MARKS_K, x0:x0 + (X1 - X0) * MARKS_K]
+        blue |= np.asarray(Image.fromarray(on.astype(np.uint8) * 255).resize((shape[1], shape[0]), Image.NEAREST)) > 0
+    return blue
+
+
 def sl(box):
     """A box (plate px) as a slice of the work arrays, clipped to the crop."""
     x0, y0, x1, y1 = box
@@ -347,10 +367,11 @@ def main(src, qa=None, dump=None):
     ink = (redraw(free & ~heads, SPUR, LINE_LEN) | (redraw(free & heads & ~dot, HEAD_SPUR, HEAD_LEN) & heads)
            | dot | stud | band)
     ink = drop_inside(ink, SMUDGES)                   # (again: redrawn, they part from the post's line)
-    ws = areas(ink | printed | beard)
-    fig, ground = figure(ink | printed | beard, ws)
+    blue = marks(ink.shape)
+    ws = areas(ink | printed | beard | blue)
+    fig, ground = figure(ink | printed | beard | blue, ws)
     del printed
-    fig |= beard
+    fig |= beard | (ndi.binary_dilation(blue, iterations=UP) & ~ground)
     kept = np.zeros_like(fig)
     for box in CLOSED:
         b = sl(box)
@@ -369,7 +390,7 @@ def main(src, qa=None, dump=None):
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
     lw.WORK_H = TRACE_H
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, trace_h=TRACE_H, keep=kept,
+        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, trace_h=TRACE_H, keep=kept, dots=blue,
         title="Three comic actors: Philotimides, Charis and Xanthias",
         desc="Line drawing after the 1884 plate of the Caputi vase (Heydemann, Hallisches Winckelmannsprogramm 9); "
              "retraced.")
