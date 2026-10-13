@@ -466,6 +466,59 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Weight: John asked for heavier lines than the plate's own (0.084%), then chose 0.12% of 0.12, 0.16 and the house
   0.225%: at 0.225% the hair's strokes ran into blots (2026-10-10).
 
+- Persians (Heydemann, Hallisches Winckelmannsprogramm 8, 1883, the upper band of the folding plate), made with
+  PhotoCraft: about seven hours over three days and four passes, approved by John 2026-10-12. `tools/persians.py`
+  (2026-10-12).
+- "Crisp and precise" (John): the lines at the plate's pen width, not the house weight. Show an A/B of two
+  weights on one head; he chose the thinner, 0.8 plate px (2026-10-10).
+- Shading finer than the scan resolves (hatch 2-3 px apart at 239 dpi) reads as a grey tone and traces as blobs.
+  Its spectrum gave no clear peak; ask how to draw it. John: evenly, in its own kind. Hatch as thin lines that run
+  along each band and follow both its sides (the share of the way across from one side to the other, split at
+  the band's ends or along its sides; a line added where the band widens, every other one stopped where it
+  narrows), drawn only inside the outlines; stipple as even dots that fit whole; a rim hatched along its curve.
+  Straight hatch at one angle and lines as offsets of the outline were both rejected (2026-10-10).
+- The area of each shaded patch: a polygon drawn round it, and inside it the plate's darker px, blurred, closed and
+  opened; the plate's lines there kept only where they are long or at the patch's edge (the shading's own specks
+  dropped) (2026-10-10).
+- A wide frieze traced at the house 4000 px broke its finest scrolls when the lines were thinned: trace at 6400 px
+  tall (`TRACE_H`). A run is then 11 minutes and over 2 GB: on this 8 GB Mac it crawled for an hour while other
+  sessions held the memory. Check `vm.swapusage` and the other sessions' Python jobs before a full run
+  (2026-10-12).
+- Ground marked by area: a mark's whole enclosed area took in clay where a gap in a line joined it to the
+  drawing (a horse's mane, a muzzle). Cut each marked area at its necks (`NECK`, 5 plate px) and keep the piece
+  round the mark. And read "colour it in" marks on the sealed watershed areas, not the raw paper: through the
+  pen's gaps the raw paper is one area with the background (2026-10-12).
+- Show ground choices as numbered areas over the plate in day colours, not on the dark view: John ruled them by
+  number in one message (2026-10-11).
+- John's PhotoCraft marks, third form: blue ink, yellow clay, green "erase or ground". Read green by what it
+  covers: ink mostly under it goes, the paper round it is ground (2026-10-12).
+- Field ornaments on a contour plate (stars, plants, ground dots) are painted clay on the vase: clay shapes with
+  no lines on the dark theme, lines on the light (`day`, `add_clay`); John kept it so when asked (2026-10-12).
+- Paired fine strokes the scan runs together (a greave's edges) came out as blobs with holes: fill the slits and
+  draw each pair as one line along its middle (`PAIRS`) (2026-10-12).
+
+- Eumenides (Bötticher, *Der Omphalos des Zeus zu Delphi*, 1859, fig. 1, the whole plate: Orestes at Delphi), made with
+  PhotoCraft: about two hours and fifty minutes over a style test and three passes, approved by John 2026-10-12.
+  `tools/eumenides.py`, which also cuts the Aeschylus home Pythia from the same drawing (2026-10-12).
+- Look for a larger scan, then compare at full size: Munich's copy (MDZ, 1.3x the px) was softer than Heidelberg's, and
+  the plate's own source (Jahn 1839, Taf. I, in a library PDF) smaller. The plate's text names its source: read it
+  (MDZ serves OCR per page as hOCR beside its IIIF manifest) (2026-10-12).
+- A frieze the columns, rules and ground line close is all closed paper: every field area is a pocket. Mark them on
+  the numbered area map at once (here 45 points), then check the dark theme of the whole plate for figures turned to
+  ground: one point landed on Apollo's latticed boot, whose cells are smaller than the seal (2026-10-12).
+- "Crisp, detailed" (John): faces about 35 px tall and the omphalos net's 1 px hatching came out as blots at the line
+  weight. Found again inside boxes at less blur and a narrower core, and traced at their printed width as `dots`, with
+  the main lines run a few px into each box so no seam shows where a box cuts the hair. No blur at all broke the
+  lines and took in the paper's grain (2026-10-12).
+- Paper the seal leaves unseeded (a sword's blade, the lattice cells) is clay unless it reaches the crop's edge; leaves
+  narrower than the seal are sealed again inside a box at a smaller disk (a closing of the ink rounded them off and
+  missed half) (2026-10-12).
+- A filter that drops marks lying off the figures (a speck by a nose) also dropped a pale tassel hanging on the field:
+  John found it. Exempt the parts that hang free (`net`), and fill them as clay (2026-10-12).
+- Cutting one figure from an approved whole-plate drawing: her body is her own clay inside the cut and the lines that
+  border it, not the whole plate's body, which counts every line touching clay (Apollo's shin line came in with it)
+  (2026-10-12).
+
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
 - Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
@@ -620,6 +673,50 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - The big dark areas the figures close in (behind a door, between legs) are ground; a fixed head box cut a beard's
   tail where it hangs over cloth and showed as a gap in the dark theme: check every white area's whole extent
   (2026-10-10).
+- Frogs (Cleveland 1989.73, the whole of side A: the bust of Dionysos between two comic actors; the museum's TIF and three
+  print views), made with PhotoCraft: about three hours over a style test and four passes, approved by John 2026-10-12.
+  `tools/frogs.py` (2026-10-12).
+- Museum prints are the full TIFs scaled down: give each view its focal length times its scale. A start from the outline
+  alone let a side view's turn slide to a false solution at longer focal lengths; start each from the best fit's numbers,
+  scaled (`START`) (2026-10-12).
+- John was watching the session and gave the style live, one line at a time; each went into its own constant with his
+  words. Two of his asks: the outline on the ground outside the clay, so thin clay (a vine) stays open ("ground with
+  outline"); dark hair and a goatee as a wash "just above ink", not ink (2026-10-12).
+- Lines redrawn along their centres smeared a mask's short faint strokes into blots. Near half maximum (a fraction of the
+  way from the line's core to the clay round it), the grey first capped at the clay's level so white paint beside a line
+  does not widen it, and only pieces with a truly dark core, came out clean (`HM_*`). Keep the faces out of any rule for
+  dense paint: the eye's close lines were taken for hair (2026-10-12).
+- A shaggy suit painted in white strokes over clay: outline the clay's own edge (the white closed and filled away) and let
+  the strokes run on past it over the ground (John: "the back leg needs black outline. hairs should go over onto
+  ground"); keep the rule to the suit, or white hair gets a dotted outline (`SUIT`, `TUFT_*`) (2026-10-12).
+- Laying John's lines into the ink re-weighted every line: the pinned weight is a target, but the tracer measures the
+  median width first, and his strokes (and the order of the fleck fill) moved it. Keep the main ink exactly as the pass he
+  marked and add his strokes to the ink traced at its own size; then the diff shows only his places (2026-10-12).
+- Paint that reaches the floor or the ground through a gap (a cloak's black by the floor, a mask's open mouth) is closed
+  in by nothing: a point or a polygon marks it as paint and it joins the figure directly (`PAINT_PTS`, `PAINT_POLYS`)
+  (2026-10-12).
+- Women at the Thesmophoria (Getty 96.AE.113, Wasps' sister vase: three comic actors; the Getty's three photos), made
+  with PhotoCraft: about four hours over five passes, approved by John 2026-10-12. `tools/thesmophoriazusae.py`
+  (2026-10-12).
+- Read the museum's own account of the scene before describing it to John: the handoff guessed an old man, a kneeling
+  veiled figure and a king; the Getty reads a padded youth, an actor in a woman's dress with an old woman's mask, and
+  Zeus. The same Getty stand needed a focal length of its own (30000 px here, 40000 for Wasps), and its clay was
+  darker (the band's clay limit lowered) (2026-10-12).
+- Faces drawn only from the dark core lose the paler, finer lines (John: "dont miss those finer lines please"): keep
+  the dark lines at their own shape and add the line finder's paler lines where they lie away from them, grown back
+  to meet them. A lower threshold over the whole figure bridged the dress's close folds; a 5 px contrast window
+  (not 8) kept them apart (2026-10-12).
+- Lines run on under white paint: keeping the hair's whole area free of lines broke the face's contours through the
+  beard ("Some lines incomplete or missing"). Only the white paint itself is no line. Then sweep for line ends facing
+  each other with paint under the gap: on a worn vase specks of wear cut the folds into dashes; close them (2026-10-12).
+- Teeth on an open mouth that opens to the ground: the mouth's black counts as ground and the teeth fall out of the
+  figure. Mark the mouth as paint (a polygon), and ask what is teeth and what is moustache: John drew the beard's
+  area round the mouth; the white curve I took for teeth was moustache (2026-10-12).
+- White hair as brushstrokes (John: "All lighter hair should be brush strokes", "wispy"): strokes centred on the
+  white's skeleton came out as specks, because the painted strokes merge. Streamlines along the paint's grain (the
+  grey's structure tensor), seeded at the lightest uncovered paint and run while on the paint, drawn with
+  PhotoCraft's brush at the paint's width, read as brushwork. paint.stroke takes [x, y, pressure]: pressure tapers
+  the stroke to a point at both ends. The greedy seeding takes a few minutes per run (2026-10-12).
 
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 
