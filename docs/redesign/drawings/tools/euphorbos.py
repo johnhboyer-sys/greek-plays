@@ -53,6 +53,11 @@ X0, Y0, X1, Y1 = 800, -60, 3070, 2085            # the crop: the figure and the 
 # spear runs past both onto the paper, where its own outline closes it (John, 2026-10-12: as printed, "then we
 # can cut down to b if need be")
 PANEL_L, PANEL_R = (968.87, 0.00199), (2419.38, -0.00136)
+# where the spear crosses the panel's edges its outline (on the ground) meets its printed lines (on the paper)
+# a px or two apart, and jogged: within SEAM scan px of each edge the two lines are redrawn straight between
+# their centres measured just outside that band (rows: the spear's span at each edge, scan px)
+SEAMS = [(1080, 1140), (940, 1000)]              # left edge, right edge
+SEAM = 6
 PAPER_T = 150                                    # outside the panel: paper lighter than this, reaching the
                                                  # crop's edge, is ground
 FLOOR = 2075                                     # below this, out: the meander band (its top edge at
@@ -68,6 +73,23 @@ AUTO_GROUND = 8000                               # scan px: dark areas this larg
 POCKETS = [(1840, 1010), (1837, 1075), (1550, 1070)]
 LINE_R = 3.0                                     # scan px: the closing for the lines' local contrast
 LINE_LO, LINE_HI = 22, 34
+# Fine lines the finder broke or lost (John, 2026-10-12, on pass 1: "Find broken fine lines and complete them"):
+# the plate's local contrast at a looser hysteresis (FAINT), drawn along its centres like the rest, where the
+# drawing has no line (more than a line's width away); a piece is kept if it runs on from a drawn line's end
+# (FAINT_TOUCH scan px of new line or more; one meeting a line along its side made ticks) or stands alone
+# FAINT_LEN scan px or more (shorter ones were the print's grain, as hooks). Then line ends facing each other across JOIN_MAX scan px or less (the last JOIN_RUN scan px
+# of each end pointing at the other within JOIN_ANGLE degrees) are joined straight where the plate's contrast
+# holds at JOIN_C or more across the gap's middle 70%
+FAINT, FAINT_TOUCH, FAINT_LEN = (12, 20), 6, 25
+FAINT_SPUR = 6                                   # scan px: its spurs pruned (they made Y's on the lines)
+# no faint lines in these boxes (scan px): the loose thong at the right ankle, a brushy stroke the finder drew
+# as loops; the child's hair at the back of his head
+FAINT_OFF = [(1700, 1700, 1800, 1850), (1795, 170, 1845, 210)]
+FAINT_DARK = 70                                  # none within 3 scan px of the plate's broad dark strokes
+                                                 # (darker than this): there they ran round the strokes
+FAINT_R = 5                                      # scan px: its closing, wider than LINE_R (the wrappings'
+                                                 # greyer lines are broad brushstrokes, 4-6 scan px)
+JOIN_MAX, JOIN_RUN, JOIN_ANGLE, JOIN_C = 12, 6, 35, 9
 PAINT_NEAR, PAINT_CORE, PAINT_MIN = 1, 45, 80                  # (paint: the dark areas wider than the opening, with a core
                                                  # darker than PAINT_CORE; at 6 scan px round them, as on
                                                  # Bacchae, the pen lines near them came out ragged;
@@ -83,9 +105,10 @@ FACES = [(1868, 113, 1995, 215), (1826, 268, 1935, 352), (1738, 380, 1860, 468),
          (1712, 718, 1822, 772),                              # (and the belt's two rows of triangles,
          (2876, 939, 2934, 951, 150)]                         # and the five dots on the spear's socket,
                                                               # paler: darker than 150)
-# the sandals' straps and lattices (boxes, scan px): broad brushstrokes; at FACE_BLUR their edges came out
-# ragged and broken by the print's grain, so here the plate blurred SANDAL_BLUR scan px, darker than SANDAL_T,
-# its pinholes filled and its specks (under SANDAL_SPECK scan px) dropped
+# the sandals' straps and lattices (boxes, scan px): broad
+# brushstrokes; at FACE_BLUR their edges came out ragged and broken by the print's grain, so here the plate
+# blurred SANDAL_BLUR scan px, darker than SANDAL_T, its pinholes filled and its specks (under SANDAL_SPECK
+# scan px) dropped. (The leg wrappings' greyer lines are the finder's: in a box like these they broke up)
 SANDALS = [(1236, 1960, 1565, 2076), (1676, 1960, 2032, 2076)]
 SANDAL_BLUR, SANDAL_T, SANDAL_SPECK = 1.2, 112, 8
 # the petasos' thinned paint (a polygon round the crown and the cord, scan px): a wash whose opacity follows
@@ -104,6 +127,9 @@ FACE_T, FACE_BLUR, FACE_SPECK = 100, 0.35, 3
 HAIR = [(1620, -45), (2000, -45), (2000, 112), (1890, 112), (1875, 140), (1850, 150), (1815, 165), (1790, 240),
         (1620, 240)]
 HAIR_T, HAIR_HOLE = 130, 6
+# the curls' loose tips below the mass (grey strokes on the clay at the neck, apart from the paint's cores):
+# wash too, if larger than TIP_MIN scan px and paler at their darkest than TIP_CORE (a pen line's core is darker)
+TIP_MIN, TIP_CORE = 8, 60
 HAIR_STYLE = "wash"                               # John, 2026-10-12: "Wash"
 HAIR_A, HAIR_G = (0.45, 1.0), (130, 45)
 # the child's curls, stippled in thinned paint: a wash whose opacity follows how much darker the plate is
@@ -176,6 +202,77 @@ def add_tone(svg, alpha, box, step=0.05):
     svg.write_text(svg.read_text().replace('<path class="lines"', paths + '<path class="lines"', 1))
 
 
+def join_breaks(lines, contrast, tw, where):
+    """The breaks in `lines` (work px) that JOIN_* describe, joined straight at width tw (as libation_bearers.py);
+    `contrast` is the plate's local contrast (work px); only ends inside `where` are joined, but a free end
+    may run on to any line (the outline too)."""
+    from scipy.spatial import cKDTree
+    sk = morphology.skeletonize(lines)
+    nb = ndi.convolve(sk.astype(np.uint8), np.ones((3, 3), np.uint8), mode='constant') - 1
+    ends = np.argwhere(sk & (nb == 1) & where)
+    H, W = sk.shape
+
+    def run_back(p):   # the end's last JOIN_RUN scan px of centre line, from the end inward
+        path, seen = [tuple(p)], {tuple(p)}
+        for _ in range(JOIN_RUN * UP):
+            y, x = path[-1]
+            nxt = [(y + dy, x + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if (dy or dx) and 0 <= y + dy < H and 0 <= x + dx < W and sk[y + dy, x + dx]
+                   and (y + dy, x + dx) not in seen]
+            if not nxt:
+                break
+            path.append(nxt[0])
+            seen.add(nxt[0])
+        return np.array(path, float)
+
+    out = np.zeros_like(lines)
+    if len(ends) < 2:
+        return out
+    runs = [run_back(p) for p in ends]
+    used = set()
+    cos = np.cos(np.radians(JOIN_ANGLE))
+    pairs = sorted(cKDTree(ends).query_pairs(JOIN_MAX * UP), key=lambda ij: np.hypot(*(ends[ij[0]] - ends[ij[1]])))
+    for i, j in pairs:
+        if i in used or j in used or len(runs[i]) < JOIN_RUN * UP / 2 or len(runs[j]) < JOIN_RUN * UP / 2:
+            continue
+        a, b = ends[i].astype(float), ends[j].astype(float)
+        u = (b - a) / np.hypot(*(b - a))
+        da, db = runs[i][0] - runs[i][-1], runs[j][0] - runs[j][-1]
+        if da @ u < cos * np.hypot(*da) or db @ -u < cos * np.hypot(*db):
+            continue
+        t = np.linspace(0.15, 0.85, max(int(np.hypot(*(b - a))), 3))
+        q = a[None] + t[:, None] * (b - a)[None]
+        if ndi.map_coordinates(contrast, q.T, order=1).min() < JOIN_C:
+            continue
+        n = int(np.hypot(*(b - a))) * 2 + 2
+        for y, x in np.linspace(a, b, n):
+            out[int(round(y)), int(round(x))] = True
+        used |= {i, j}
+    # then each end left free, run on straight along its own direction to the first line it meets within
+    # JOIN_MAX scan px (a wrapping's line stopping short of the leg's outline), where the contrast holds
+    for i, p in enumerate(ends):
+        if i in used or len(runs[i]) < JOIN_RUN * UP / 2:
+            continue
+        d = runs[i][0] - runs[i][-1]
+        d /= max(np.hypot(*d), 1e-6)
+        hit = None
+        for k in range(round(tw) + 1, JOIN_MAX * UP):
+            y, x = np.round(p + k * d).astype(int)
+            if not (0 <= y < H and 0 <= x < W):
+                break
+            if lines[y, x]:
+                hit = k
+                break
+        if hit is None:
+            continue
+        q = p[None] + np.linspace(1, hit, hit * 2)[:, None] * d[None]
+        if ndi.map_coordinates(contrast, q.T, order=1).min() < JOIN_C:
+            continue
+        for y, x in np.round(q).astype(int):
+            out[y, x] = True
+    return ndi.distance_transform_edt(~out) <= tw / 2 if out.any() else out
+
+
 def masks(src, box=None):
     """Everything up to the ink: returns a dict of work-px arrays for the crop (or `box`, scan px)."""
     x0, y0, x1, y1 = box or (X0, Y0, X1, Y1)
@@ -192,6 +289,9 @@ def masks(src, box=None):
         r = round(LINE_R * UP)
         pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "roundness"}),
            ("filter.other.minimum", {"radius": r, "preserve": "roundness"}))
+        r = round(FAINT_R * UP)
+        pc(t / "gl.png", t / "closed5.png", ("filter.other.maximum", {"radius": r, "preserve": "roundness"}),
+           ("filter.other.minimum", {"radius": r, "preserve": "roundness"}))
         pc(t / "up.png", t / "gw.png", ("filter.blur.gaussianBlur", {"radius": 1.0 * UP}))
         r = WASH_R * UP
         pc(t / "gw.png", t / "wclosed.png", ("filter.other.maximum", {"radius": r, "preserve": "roundness"}),
@@ -200,13 +300,14 @@ def masks(src, box=None):
         pc(t / "up.png", t / "fine.png", ("filter.blur.gaussianBlur", {"radius": 0.35 * UP}),
            ("image.adjustments.threshold", {"level": DARK}))
         g, gl, closed, gs, gw, wclosed = (grey(t / f"{n}.png") for n in ("up", "gl", "closed", "gs", "gw", "wclosed"))
+        closed5 = grey(t / "closed5.png")
         dark0 = grey(t / "dark.png") < 128
         fine = grey(t / "fine.png") < 128
         gf = grey(t / "gf.png")
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
     px, py = (xx + 0.5) / UP + x0 - 0.5, (yy + 0.5) / UP + y0 - 0.5
-    return dict(gf=gf, g=g, gl=gl, closed=closed, gs=gs, gw=gw, wclosed=wclosed, dark0=dark0, fine=fine, px=px, py=py, box=(x0, y0, x1, y1))
+    return dict(closed5=closed5, gf=gf, g=g, gl=gl, closed=closed, gs=gs, gw=gw, wclosed=wclosed, dark0=dark0, fine=fine, px=px, py=py, box=(x0, y0, x1, y1))
 
 
 def main(view, plate, qa=None, box=None, out=OUT, dump=None):
@@ -265,6 +366,13 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     hair = hair[lab]
     holes = ndi.binary_fill_holes(hair) & ~hair
     hair |= holes & ~morphology.remove_small_objects(holes, max_size=HAIR_HOLE * UP * UP)
+    lab, n = ndi.label((gs < HAIR_T) & fig & head & ~hair)
+    if n:
+        core = np.r_[0, np.array(ndi.minimum(gs, lab, range(1, n + 1)))]
+        size = np.bincount(lab.ravel(), minlength=n + 1)
+        tip = (core > TIP_CORE) & (size >= TIP_MIN * UP * UP)
+        tip[0] = False
+        hair |= tip[lab]
     paint &= ~head
     tone = np.zeros(g.shape, np.float32)
     if HAIR_STYLE == "solid":
@@ -289,7 +397,8 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
 
     tw = LINE_W * UP - 1      # (a centre line grown by tw / 2 comes out tw + 1 px wide)
     firm = apply_hysteresis_threshold(closed - gl, LINE_LO, LINE_HI)
-    black = firm & (fig | paper_lines) & ~ndi.binary_dilation(paint, iterations=UP) & ~(head & hair)
+    black = firm & (fig | paper_lines) & ~ndi.binary_dilation(paint, iterations=UP) & \
+        ~(head & ndi.binary_dilation(hair, iterations=3 * UP))   # (strand ends at the fringe: the wash's)
     lab, n = ndi.label(black & ch)
     sk = np.bincount(lab[morphology.skeletonize(black & ch)].ravel(), minlength=n + 1)
     black &= ~(ch & ~(sk > CHILD_LONG * UP)[lab])
@@ -331,10 +440,68 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     dt = ndi.distance_transform_edt(~fig)
     edge = ~fig & (dt <= tw) & ndi.binary_dilation(inground | outside, iterations=UP) & panel
     ink = (lines & (fig | paper_lines)) | edge
+    # (fine lines the finder broke or lost: FAINT, JOIN)
+    zone = (fig | paper_lines) & ~head & ~ch & ~hat & ~(faces & ~dotbox)
+    contrast = m['closed5'] - gl
+    loose = apply_hysteresis_threshold(contrast, *FAINT) & zone & ~ndi.binary_dilation(paint, iterations=UP)
+    for b in FAINT_OFF:
+        loose &= ~((px >= b[0]) & (px < b[2]) & (py >= b[1]) & (py < b[3]))
+    lcl = centre_lines(loose, tw, 3 * UP, FAINT_SPUR * UP)
+    new = lcl & ~ndi.binary_dilation(ink, iterations=round(tw)) & zone
+    lab, n = ndi.label(new)
+    if n:
+        length = np.bincount(lab[morphology.skeletonize(new)].ravel(), minlength=n + 1) / UP
+        touch = np.zeros(n + 1, bool)
+        isk = morphology.skeletonize(ink)
+        nb = ndi.convolve(isk.astype(np.uint8), np.ones((3, 3), np.uint8), mode='constant') - 1
+        tips = ndi.binary_dilation(isk & (nb == 1), iterations=round(tw) + 3)
+        touch[np.unique(lab[tips & new])] = True
+        dark_near = ndi.binary_dilation(ndi.binary_opening(gs < FAINT_DARK, structure=morphology.disk(UP)),
+                                        iterations=3 * UP)
+        near = np.zeros(n + 1, bool)
+        near[np.unique(lab[dark_near & new])] = True
+        keep = ((touch & (length >= FAINT_TOUCH)) | (length >= FAINT_LEN)) & ~near
+        keep[0] = False
+        added = keep[lab]
+        added |= lcl & ndi.binary_dilation(added, iterations=round(tw) + 2)   # (run back to the line it left)
+    else:
+        added = np.zeros_like(ink)
+        dark_near = np.zeros_like(ink)
+    ink |= added
+    joins = join_breaks(ink, contrast, tw, zone & ~dark_near) & (fig | paper_lines)
+    ink |= joins
+    for (ya, yb), (a, b) in zip(SEAMS, (PANEL_L, PANEL_R)):
+        rows = (py >= ya) & (py < yb)
+        xe = a + b * (ya + yb) / 2
+        band = rows & (np.abs(px - xe) < SEAM)
+        cols = [round((xe - SEAM - 1 - x0) * UP), round((xe + SEAM + 1 - x0) * UP)]
+        r0, r1 = round((ya - y0) * UP), round((yb - y0) * UP)
+        if not (0 <= cols[0] and cols[1] < ink.shape[1] and r0 >= 0 and r1 <= ink.shape[0]):
+            continue
+        cen = []
+        for c in cols:
+            lab_, n_ = ndi.label(ink[r0:r1, c])
+            cen.append(sorted(ndi.center_of_mass(ink[r0:r1, c], lab_, range(1, n_ + 1))))
+        if len(cen[0]) != 2 or len(cen[1]) != 2:
+            continue
+        ink &= ~band
+        for (ca,), (cb,) in zip(cen[0], cen[1]):
+            seg = np.zeros_like(ink)
+            for t in np.linspace(0, 1, 4 * (cols[1] - cols[0])):
+                seg[round(r0 + ca + t * (cb - ca)), round(cols[0] + t * (cols[1] - cols[0]))] = True
+            ink |= ndi.distance_transform_edt(~seg) <= tw / 2
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * UP * UP)[lab]
+    # (small marks left loose inside the hair's wash: strand ends, not lines)
+    lab, n = ndi.label(ink)
+    size = np.bincount(lab.ravel(), minlength=n + 1)
+    inh = np.bincount(lab[head].ravel(), minlength=n + 1)
+    loose = (inh == size) & (size < 60 * UP * UP)
+    loose[0] = False
+    ink &= ~loose[lab]
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, firm=firm & fig,
+                            added=added, joins=joins, tone=tone.astype(np.float16),
                             gs=gs.astype(np.uint8))
     info = lw.trace_svg(
         ink, Path(out), body=fig, open_holes=~fig, weight="drawn", dots=fl & ink,
