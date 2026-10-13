@@ -15,9 +15,9 @@
       "file": "sophocles-euphorbos.svg",
       "name": "Sophocles · Euphorbos carrying the infant Oedipus",
       "alt": "The shepherd Euphorbos carrying the infant Oedipus on his shoulder, a long spear in his hand",
-      "source": "Achilles Painter neck-amphora, Cabinet des médailles 372, four photographs by ArchaiOptix (CC BY-SA 4.0)",
-      "method": "Red-figure photos taken off the vase (a fitted model of the vase and cameras, flattened without shear); upper body from the close view, lower from the frontal; clay mask, lines by local contrast redrawn even; hand, faces and sandal drawn as snapped strokes; back of the neck drawn in; spear straight at full length; potrace",
-      "verdict": "John, 2026-10-02, on the second round: 'You flattened it right to my eyes.' The head now matches the close photo he pointed to; the hat no longer grows out of his neck."
+      "source": "Furtwängler and Reichhold, Griechische Vasenmalerei III (1927), Taf. 167: the Achilles Painter's neck-amphora, Cabinet des médailles 372 (Williams College scan via JSTOR; public domain)",
+      "method": "Furtwängler-Reichhold plate, made with PhotoCraft: the black ground gives the outline; the lines along their centres at the plate's pen width, broken fine lines joined; faces, hands and sandals at their printed width; the child's eye, nose and nostril read off the plate; hair, curls and hat as washes; John's PhotoCraft marks laid in; spear as printed; potrace",
+      "verdict": "Usable; approved by John on pass 6 (2026-10-12), after his marks in PhotoCraft. No outside review (the citation checked against the Furtwängler-Reichhold text and JSTOR's record). Replaces the 2026-10-02 drawing from photos ('that spear is far too long')."
     },
     {
       "slug": "euripides",
@@ -40,11 +40,11 @@
     {
       "slug": "medea",
       "file": "medea.svg",
-      "name": "Medea · in the serpent chariot",
-      "alt": "Medea in a chariot drawn by two serpents",
-      "source": "Cleveland Museum of Art 1991.1, museum photograph, full-resolution TIFF (CC0)",
-      "method": "Red-figure photo: clay mask, disk border cut away, netted sleeves kept; lines from the full-resolution TIFF; potrace",
-      "verdict": "Usable. Revised twice: the face and the netted left sleeve now show, and in dark mode the goad and the gaps inside the figure carry the clay. Still the busiest drawing."
+      "name": "Medea · seizing her son, the serpent chariot, and Jason",
+      "alt": "Medea in a patterned dress and tall headdress seizes a boy on an altar, sword in hand; a servant leads another boy away; in the middle a youth with torches stands in a chariot drawn by two serpents; at the right a bearded man with sword and spear rushes in, followed by a young man in a broad hat",
+      "source": "Furtwängler and Reichhold, Griechische Vasenmalerei II (1906), Taf. 90 (Munich 3296, Underworld Painter), Williams College scan via JSTOR (public domain plate)",
+      "method": "F-R plate with PhotoCraft: the ground gives the figures; lines by local contrast at the plate's weight, faint lines and short strokes kept; grey tone and added white; John's marks; potrace",
+      "verdict": "Approved by John on pass 5, 2026-10-12."
     },
     {
       "slug": "oedipus-tyrannus",
@@ -297,6 +297,15 @@
       "source": "Apulian bell-krater, Choregos Painter, Cleveland Museum of Art 1989.73, side A, museum photographs (CC0)",
       "method": "Red-figure photo taken off the vase (three museum cameras fitted, the rings kept straight), made with PhotoCraft: the scene by the clay map, the outline on the ground; lines by local contrast along their centres, the faces near half maximum; curls as ink over stepped washes; the white suit's tufts a stepped grey wash past the outline; the grapes' dots ink; John's lines laid in; potrace",
       "verdict": "Approved by John on the fourth pass (2026-10-12), after his notes on the style test and two rounds of his lines in PhotoCraft. No outside review (the citation checked against the museum's and the Beazley Archive's records)."
+    },
+    {
+      "slug": "thesmophoriazusae",
+      "file": "thesmophoriazusae.svg",
+      "name": "Women at the Thesmophoria · Three comic actors, one in a woman's dress",
+      "alt": "Three comic actors on a stage: at the left a padded young man with dark hair leans on a staff; in the middle an actor in a woman's dress, a cloth billowing over the head, wears the mask of a white-haired old woman; at the right a crowned king with a white beard and a bird-topped sceptre reaches toward her",
+      "source": "Apulian bell-krater, Cotugno Painter, J. Paul Getty Museum 96.AE.113, side A, museum photographs (CC0)",
+      "method": "Red-figure photo taken off the vase (three Getty cameras fitted, the rings kept straight), made with PhotoCraft: the scene by the clay map; lines by local contrast along their centres, the faces' finer lines too, breaks where wear crosses a line closed; the white hair and beards as tapering brushstrokes of PhotoCraft's brush along the paint's grain; the teeth white; the sceptre and the added yellow as washes; the bodies' thinned glaze repainted along the contours; potrace",
+      "verdict": "Approved by John on the fifth pass (2026-10-12), after his notes on the faces' finer lines, the lines through the beard, the teeth, the moustache and the white hair as brushstrokes. No outside review (the citation checked against the Getty's record)."
     },
     {
       "slug": "bacchae",

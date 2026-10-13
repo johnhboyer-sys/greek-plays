@@ -235,6 +235,51 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Clay islands on the ground (three leaves of a sprig) are lost when the figures are the clay joined to seeds.
   John ringed them in PhotoCraft: a ring whose inside lies off the figure puts the plate's own clay there back
   (`MARKS_FILES`). Check for free-standing leaves, berries and tips before showing him (2026-10-12).
+- Medea (Taf. 90, the lower band of the Munich Medea krater), made with PhotoCraft: about five hours, approved
+  by John on pass 5, 2026-10-12. `tools/medea.py`. It replaced a drawing from the Cleveland krater photo, whose
+  fine lines were too faint to trace (John: "many fine details are left out. i'm not tracing all of those").
+  When a photo's detail runs out, look for the vase in an old plate before tracing by hand (2026-10-12).
+- Heidelberg's scans of F-R vol. II stop at 1645 px for Taf. 90 (its IIIF levels and the volume PDF alike),
+  too small: its 1-2 px lines traced as dashes. John found a 3474 px photo of the plate on JSTOR (Williams
+  College). HathiTrust holds only F-R's text volumes; the plates were loose portfolios (2026-10-12).
+- On a plate this fine, the line finder drops what John calls "small lines broken or missing": short strokes
+  (body hair, the serpents' bands, a dress's dots) fall under the centre-line step's length limit, and the
+  tracer's speck filter takes what is left. Keep short marks at their printed shapes and pass them to
+  `trace_svg` as `dots`; join line ends that face each other across a gap where the plate is dark between;
+  lower the hysteresis floor (12) for faint lines (2026-10-12).
+- Check a pass over the whole drawing, not just where John pointed: a map of the plate's line centres farther
+  than a plate px from any drawn line. Its false alarms are the halos round white dots and the stippled grey of
+  the thinned paint; the rest were real (2026-10-12).
+- Added white on red-figure: lighter than the clay's own level round it (the scan's light varies across the
+  band), drawn as `white` paths (as Wealth) with a `day` outline. Pale clay (the serpents) rises less: keep a
+  large piece only where it is clearly lighter somewhere; keep small dots. Within a pale area cut by lines,
+  white whole (the altar, the casket, the hilts) (2026-10-12).
+- Grey thinned paint with white on it (Medea's sleeves and cap): a flat `tone` with the white open; John chose
+  grey over ink for the sleeves. Build the PhotoCraft corrections file with the tone and the white as layers,
+  not lines only, or John cannot see what he is marking (2026-10-12).
+
+- Euphorbos with the infant Oedipus (III, Taf. 167, 1, the Sophocles home figure), made with PhotoCraft from
+  Williams College's scan on JSTOR: about four and a half hours over a style test and six passes, approved by John
+  2026-10-12. `tools/euphorbos.py` (2026-10-12).
+- A close view that cuts off part of the figure (the crown): fill it from the whole plate, registered by SIFT
+  (here exactly 2x, 0.22 px rms). Level after joining; check every grid you read points from is on the levelled
+  image (a grid on the unlevelled one was 8 px off and put hand points beside the lines) (2026-10-12).
+- Where a part runs off the black panel onto the paper (the spear), its printed lines there are the outline: the
+  paper inside them is clay, the paper outside ground; seams where the two meet are redrawn straight (2026-10-12).
+- At the F-R weight (0.11%) a 16 px eye ran into a blot: lines at the plate's own pen width (2.2 scan px), and the
+  smallest faces drawn as curves through points read off the plate at 10-14x (splines, not livewire, which
+  wandered). John wants the iris and pupil in a child's eye ("I want the iris and pupils!") (2026-10-12).
+- "Find broken fine lines and complete them": a looser local-contrast pass kept where it runs on from a line's end
+  or stands alone 25 scan px or more, then ends facing each other joined, and a free end run on straight to the line
+  it points at (a wrapping stopping short of the leg's outline). Sheet every added piece on the plate and look:
+  pieces meeting a line along its side made ticks, and loops ran round broad brushstrokes (2026-10-12).
+- Thinned-paint hair (curls stippled over clay): a flat wash for the mass, cut where the curls end ("don't have
+  hair bleed into face"), the curls as darker strokes on it, and a line where the mass meets the clay at the back;
+  a paler strand against the black is hair too, with no cut into the outline (John: "there is no cut in")
+  (2026-10-12).
+- A broad dark brushstroke (the petasos cord) took the brim's pen lines with it: the cord only where the paint is
+  broader than the pen lines, and the crown's wash averaged over its own clay, or it mottles and haloes the lines
+  (2026-10-12).
 
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
@@ -695,6 +740,28 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Paint that reaches the floor or the ground through a gap (a cloak's black by the floor, a mask's open mouth) is closed
   in by nothing: a point or a polygon marks it as paint and it joins the figure directly (`PAINT_PTS`, `PAINT_POLYS`)
   (2026-10-12).
+- Women at the Thesmophoria (Getty 96.AE.113, Wasps' sister vase: three comic actors; the Getty's three photos), made
+  with PhotoCraft: about four hours over five passes, approved by John 2026-10-12. `tools/thesmophoriazusae.py`
+  (2026-10-12).
+- Read the museum's own account of the scene before describing it to John: the handoff guessed an old man, a kneeling
+  veiled figure and a king; the Getty reads a padded youth, an actor in a woman's dress with an old woman's mask, and
+  Zeus. The same Getty stand needed a focal length of its own (30000 px here, 40000 for Wasps), and its clay was
+  darker (the band's clay limit lowered) (2026-10-12).
+- Faces drawn only from the dark core lose the paler, finer lines (John: "dont miss those finer lines please"): keep
+  the dark lines at their own shape and add the line finder's paler lines where they lie away from them, grown back
+  to meet them. A lower threshold over the whole figure bridged the dress's close folds; a 5 px contrast window
+  (not 8) kept them apart (2026-10-12).
+- Lines run on under white paint: keeping the hair's whole area free of lines broke the face's contours through the
+  beard ("Some lines incomplete or missing"). Only the white paint itself is no line. Then sweep for line ends facing
+  each other with paint under the gap: on a worn vase specks of wear cut the folds into dashes; close them (2026-10-12).
+- Teeth on an open mouth that opens to the ground: the mouth's black counts as ground and the teeth fall out of the
+  figure. Mark the mouth as paint (a polygon), and ask what is teeth and what is moustache: John drew the beard's
+  area round the mouth; the white curve I took for teeth was moustache (2026-10-12).
+- White hair as brushstrokes (John: "All lighter hair should be brush strokes", "wispy"): strokes centred on the
+  white's skeleton came out as specks, because the painted strokes merge. Streamlines along the paint's grain (the
+  grey's structure tensor), seeded at the lightest uncovered paint and run while on the paint, drawn with
+  PhotoCraft's brush at the paint's width, read as brushwork. paint.stroke takes [x, y, pressure]: pressure tapers
+  the stroke to a point at both ends. The greedy seeding takes a few minutes per run (2026-10-12).
 
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 
