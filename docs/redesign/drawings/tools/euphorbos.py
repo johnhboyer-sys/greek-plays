@@ -1,23 +1,39 @@
-"""Sophocles: the shepherd Euphorbos carrying the infant Oedipus, from Karl Reichhold's drawing of the
-neck-amphora in Paris in Furtwängler and Reichhold, Griechische Vasenmalerei III (Munich, F. Bruckmann,
-1927 at the plate's foot), Taf. 167, 1 ("Amphora in Paris", "Euphorbos mit dem Ödipuskind"), as
-photographed by the Williams College Visual Resources Center (JSTOR, Furtwängler Griechische
-Vasenmalerei, https://www.jstor.org/stable/community.16364348): the whole plate (3440 x 2615) and a view
-of Euphorbos at twice its scale (3440 x 2518), which cuts off the crown of his head.
+"""Sophocles: the shepherd Euphorbos carrying the infant Oedipus, after the plate in Furtwängler and
+Reichhold, Griechische Vasenmalerei III (Munich, F. Bruckmann, 1927 at the plate's foot), Taf. 167, 1
+("Amphora in Paris", "Euphorbos mit dem Ödipuskind"; text p. 290, Abb. 136; the volume does not name the
+plate's draughtsman, and Reichhold died in 1923), as photographed by the Williams College Visual Resources
+Center (JSTOR, Furtwängler Griechische Vasenmalerei, https://www.jstor.org/stable/community.16364348): the
+whole plate (3440 x 2615) and a view of Euphorbos at twice its scale (3440 x 2518), which cuts off the
+crown of his head. Public domain (John, 2026-10-12: a faithful scan of a 1927 plate).
 The vase: Attic red-figure neck-amphora attributed to the Achilles Painter, from Vulci, Paris, Cabinet
 des médailles 372 (ARV2 987.4; BAPD 213824). Their names are painted beside them: ΕΥΦΟΡΒΟΣ, ΟΙΔΙΠΟΔΑΣ.
+Replaces the 2026-10-02 drawing from ArchaiOptix's photos (John, 2026-10-09: "that spear is far too long").
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the crop,
-the enlargement, the grey, the blurs, Minimum and Maximum, and the thresholds. Two steps stay in numpy and
-scipy: the crown, resampled from the whole plate into a strip above the view (a scale and shift fitted by
-SIFT, 0.22 px rms), and the masks' arithmetic (labels, unions, distances, fills, centre lines). The SVG
-is written by linework.trace_svg.
+the enlargement, the grey, the blurs, Minimum and Maximum, and the thresholds. Some steps stay in numpy,
+scipy and scikit-image: the crown, resampled from the whole plate into a strip above the view (a scale and
+shift fitted by SIFT, 0.22 px rms); the levelling (two shears); the masks' arithmetic (labels, unions,
+distances, fills, centre lines); the sandals' ridges (sato); and the hand-placed curves (splines,
+livewire). The SVG is written by linework.trace_svg.
+
+John's rulings (2026-10-12): the spear as printed, past both edges of the panel (A of three); the figures
+alone, no names or meander; Euphorbos' hair and the child's curls as washes; "don't have hair bleed into
+face"; "Find broken fine lines and complete them"; the back of the child's head (no pale rim, curls not
+blotches, Euphorbos' jaw whole, an outline at the back); the child's nose and eyes "complete", with iris
+and pupil; his PhotoCraft marks on pass 4 (MARKS_FILES); "there is no cut in" at the child's nape.
 
 Plate -> drawing, Furtwängler-Reichhold, red figures on the black ground (as bacchae.py):
   - Ground: the plate's dark, thin lines opened away; the large areas reaching the crop's edge, and the
-    pockets the figures close in (POCKETS). Smaller dark areas inside the figures are paint (the hair).
-  - Lines: the plate's black lines (local contrast), redrawn along their centres at WEIGHT (the F-R
-    weight, 0.11%); the outline on the ground just outside the clay, as wide.
+    pockets the figures close in (POCKETS). Smaller dark areas inside the figures are paint. Outside the
+    black panel the spear's ends lie on the paper: there its printed lines are its outline.
+  - Lines: the plate's black lines (local contrast), redrawn along their centres at the plate's pen width
+    (LINE_W); the outline on the ground just outside the clay, as wide; faint and broken lines found again
+    and joined (FAINT, JOIN); faces, hands, belt and sandals at their printed width (FACES, SANDALS); the
+    child's eye, nose and nostril, and a few lines the finder broke, as curves through points read off the
+    plate (CHILD_FACE_LINES, CHILD_NOSE, HAND_LINES).
+  - Washes (class "tone"): Euphorbos' hair following the plate; the child's curls as strokes on a flat wash;
+    the petasos' crown and cord.
+Approved by John on pass 6, 2026-10-12.
 
     python3 docs/redesign/drawings/tools/euphorbos.py view.jpg plate.jpg [qa.png]
 """
@@ -681,8 +697,8 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     info = lw.trace_svg(
         ink, Path(out), body=fig, open_holes=~fig, weight="drawn", dots=(fl & ~cfb | eye_marks) & ink,
         title='The shepherd Euphorbos carrying the infant Oedipus',
-        desc='Line drawing after Karl Reichhold\'s drawing of the neck-amphora by the Achilles Painter, Paris, '
-             'Cabinet des médailles 372 (Furtwängler and Reichhold, Griechische Vasenmalerei III, Taf. 167); '
+        desc='Line drawing after the plate of the neck-amphora by the Achilles Painter, Paris, Cabinet des '
+             'médailles 372, in Furtwängler and Reichhold, Griechische Vasenmalerei III (1927), Taf. 167; '
              'cut out and retraced.')
     if tone.any():
         add_tone(Path(out), tone, info['box'])

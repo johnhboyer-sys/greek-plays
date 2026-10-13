@@ -236,6 +236,29 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   John ringed them in PhotoCraft: a ring whose inside lies off the figure puts the plate's own clay there back
   (`MARKS_FILES`). Check for free-standing leaves, berries and tips before showing him (2026-10-12).
 
+- Euphorbos with the infant Oedipus (III, Taf. 167, 1, the Sophocles home figure), made with PhotoCraft from
+  Williams College's scan on JSTOR: about four and a half hours over a style test and six passes, approved by John
+  2026-10-12. `tools/euphorbos.py` (2026-10-12).
+- A close view that cuts off part of the figure (the crown): fill it from the whole plate, registered by SIFT
+  (here exactly 2x, 0.22 px rms). Level after joining; check every grid you read points from is on the levelled
+  image (a grid on the unlevelled one was 8 px off and put hand points beside the lines) (2026-10-12).
+- Where a part runs off the black panel onto the paper (the spear), its printed lines there are the outline: the
+  paper inside them is clay, the paper outside ground; seams where the two meet are redrawn straight (2026-10-12).
+- At the F-R weight (0.11%) a 16 px eye ran into a blot: lines at the plate's own pen width (2.2 scan px), and the
+  smallest faces drawn as curves through points read off the plate at 10-14x (splines, not livewire, which
+  wandered). John wants the iris and pupil in a child's eye ("I want the iris and pupils!") (2026-10-12).
+- "Find broken fine lines and complete them": a looser local-contrast pass kept where it runs on from a line's end
+  or stands alone 25 scan px or more, then ends facing each other joined, and a free end run on straight to the line
+  it points at (a wrapping stopping short of the leg's outline). Sheet every added piece on the plate and look:
+  pieces meeting a line along its side made ticks, and loops ran round broad brushstrokes (2026-10-12).
+- Thinned-paint hair (curls stippled over clay): a flat wash for the mass, cut where the curls end ("don't have
+  hair bleed into face"), the curls as darker strokes on it, and a line where the mass meets the clay at the back;
+  a paler strand against the black is hair too, with no cut into the outline (John: "there is no cut in")
+  (2026-10-12).
+- A broad dark brushstroke (the petasos cord) took the brim's pen lines with it: the cord only where the paint is
+  broader than the pen lines, and the crown's wash averaged over its own clay, or it mottles and haloes the lines
+  (2026-10-12).
+
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
 - The Gerhard method works here too. Suppliant Women (III, pl. XX) took
