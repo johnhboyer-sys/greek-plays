@@ -111,6 +111,11 @@ FACES = [(1868, 113, 1995, 215), (1826, 268, 1935, 352), (1738, 380, 1860, 468),
 # scan px) dropped. (The leg wrappings' greyer lines are the finder's: in a box like these they broke up)
 SANDALS = [(1236, 1960, 1565, 2076), (1676, 1960, 2032, 2076)]
 SANDAL_BLUR, SANDAL_T, SANDAL_SPECK = 1.2, 112, 8
+# (pass 3: "make it better": the lattices at the heels came out as blots, the threshold running the strokes
+# together; there the strokes are thin: the broad straps stay as found (what an opening of SANDAL_BROAD scan
+# px leaves), and the rest is the plate's ridges (scikit-image's sato, sigmas 1-2 scan px, over SANDAL_RIDGE;
+# pieces SANDAL_RLEN scan px or longer) drawn along their centres at the line width)
+SANDAL_BROAD, SANDAL_RIDGE, SANDAL_RLEN = 1.8, 12, 8
 # the petasos' thinned paint (a polygon round the crown and the cord, scan px): a wash whose opacity follows
 # how much darker the plate is (blurred 1 scan px) than the hat's clay (HAT_CLAY, read at five points:
 # 172-186), from HAT_A[0] at HAT_D[0] darker to HAT_A[1] at HAT_D[1]; the cord's broad brushstroke (darker
@@ -132,17 +137,36 @@ HAIR_T, HAIR_HOLE = 130, 6
 TIP_MIN, TIP_CORE = 8, 60
 HAIR_STYLE = "wash"                               # John, 2026-10-12: "Wash"
 HAIR_A, HAIR_G = (0.45, 1.0), (130, 45)
-# the child's curls, stippled in thinned paint: a wash whose opacity follows how much darker the plate is
-# than the clay round it: the curls' mass (the plate darker than CHILD_T, blurred CHILD_SIGMA scan px: its
-# edge where the curls end, not past it: John, "don't have hair bleed into face") at
-# WASH_A[0]; no lines inside but long strokes (the chin
-# beside it), longer than CHILD_LONG scan px
+# the child's curls, stippled in thinned paint (John on pass 2: "Back of child's head": no pale rim, curls not
+# blotches, an outline at the back): the curls' mass (the plate darker than CHILD_T, blurred CHILD_SIGMA scan
+# px; John on the style test, "don't have hair bleed into face") a flat wash at WASH_A[0]; on it each curl a
+# stroke at WASH_A[1], CURL_W scan px wide, along the centre of the plate's darker marks (darker than their
+# surroundings, closed over CURL_R scan px, by CURL_D or more; pieces CURL_MIN scan px long or more); where
+# the mass meets the clay at the back of the head (left of CHILD_BACK), a line; no other lines inside but long
+# strokes (the chin beside it), longer than CHILD_LONG scan px
 CHILD_HAIR = [(1800, 246), (1835, 244), (1858, 254), (1868, 238), (1876, 219), (1900, 216), (1922, 224),
               (1937, 240), (1950, 262), (1950, 292), (1925, 286), (1905, 283), (1890, 280), (1880, 276),
               (1862, 275), (1852, 290), (1830, 306), (1800, 306), (1796, 280)]
-WASH_R, WASH_D, WASH_A = 10, 20, (0.3, 0.7)
-CURL_T = 115   # the curls' darker strokes (grey, blurred 1 scan px): WASH_A[1], crisp, over the mass
-CHILD_SIGMA, CHILD_T, CHILD_LONG = 1.5, 140, 25
+WASH_R, WASH_D, WASH_A = 10, 20, (0.4, 0.85)
+CURL_R, CURL_D, CURL_W, CURL_MIN = 3, 22, 1.8, 4
+CHILD_SIGMA, CHILD_T, CHILD_LONG, CHILD_BACK = 1.0, 135, 25, 1845
+# lines the finder broke or lost, drawn through hand-placed points (scan px) along the plate's darkest path
+# (John on pass 2: "some incomplete lines with breaks"): Euphorbos' jaw over the child's hair; the child's cheek;
+# the line from the child's neck to his shoulder
+HAND_LINES = [[(1800, 225), (1815, 238), (1830, 247), (1845, 253), (1852, 254), (1858, 252), (1863, 247),
+               (1867, 238), (1870, 225), (1872, 220)],
+              [(1915, 303), (1916, 310), (1917, 316)],
+              [(1937, 322), (1931, 329), (1925, 337), (1920, 345)]]
+# the child's eye and nostril (John on pass 3: "Child's nose and eyes could be better. Fine lines are complete
+# there in original"): inside these boxes (scan px) the lines are only these, drawn through hand-placed points
+# read off the plate at 10x along its darkest path, CHILD_FACE_W scan px wide; the pupil is the plate darker
+# than PUPIL_T inside the eye's contour
+CHILD_FACE_BOXES = [(1852, 272, 1880, 302), (1870, 307, 1888, 325)]
+CHILD_FACE_LINES = [[(1866, 276), (1861, 280), (1858, 285), (1856, 290), (1857, 294)],            # brow
+                    [(1874, 280), (1869, 283), (1865, 288), (1863, 293), (1865, 297)],             # eye, back
+                    [(1874, 280), (1874, 286), (1872, 290), (1868, 294), (1865, 297)],             # eye, front
+                    [(1873, 318), (1875, 313), (1880, 311), (1883, 315), (1881, 320), (1878, 322)]]  # nostril
+CHILD_FACE_W, PUPIL_T = 1.8, 75
 
 
 def pc(src, out, *steps):
@@ -384,10 +408,18 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     # the child's curls: a wash
     ch = poly(px, py, CHILD_HAIR) & fig
     depth = m['wclosed'] - m['gw']
-    cw = ch & (ndi.gaussian_filter(m['gw'], CHILD_SIGMA * UP) < CHILD_T)
+    cw = ch & (ndi.gaussian_filter(m['g'], CHILD_SIGMA * UP) < CHILD_T)
+    cw = ndi.binary_opening(cw, structure=morphology.disk(UP))
     cw = morphology.remove_small_objects(cw, max_size=20 * UP * UP)
-    curl = ch & ndi.binary_opening(m['gw'] < CURL_T, structure=morphology.disk(UP // 2 + 1))
-    curl = morphology.remove_small_objects(curl, max_size=4 * UP * UP)
+    cw |= ndi.binary_fill_holes(cw) & ~morphology.remove_small_objects(ndi.binary_fill_holes(cw) & ~cw,
+                                                                       max_size=40 * UP * UP)
+    gc = ndi.gaussian_filter(m['g'], 0.5 * UP)
+    rr = CURL_R * UP
+    cd = ndi.grey_closing(gc, footprint=np.hypot(*np.mgrid[-rr:rr + 1, -rr:rr + 1]) <= rr) - gc
+    csk = morphology.skeletonize((cd > CURL_D) & cw)
+    lab, n = ndi.label(csk, structure=np.ones((3, 3)))
+    csk &= (np.bincount(lab.ravel()) >= CURL_MIN * UP)[lab]
+    curl = (ndi.distance_transform_edt(~csk) <= CURL_W * UP / 2) & cw if csk.any() else csk
     tone = np.where(cw, WASH_A[0], tone)
     tone = np.where(curl, WASH_A[1], tone)
     hat = poly(px, py, HAT) & fig
@@ -419,7 +451,24 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     fl = (m["gf"] < face_t) & faces & ~sandals & (fig | paper_lines) & ~ch
     sd = (ndi.gaussian_filter(m['g'], SANDAL_BLUR * UP) < SANDAL_T) & sandals & fig
     sd |= ndi.binary_fill_holes(sd) & ~morphology.remove_small_objects(ndi.binary_fill_holes(sd) & ~sd, max_size=3 * UP * UP)
-    fl |= morphology.remove_small_objects(sd, max_size=SANDAL_SPECK * UP * UP)
+    sd = morphology.remove_small_objects(sd, max_size=SANDAL_SPECK * UP * UP)
+    broad = ndi.binary_opening(sd, structure=morphology.disk(round(SANDAL_BROAD * UP)))
+    broad = ndi.binary_dilation(broad, iterations=UP // 2) & sd
+    if sandals.any():
+        from skimage.filters import sato
+        ys_, xs_ = np.nonzero(sandals)
+        bsl = (slice(ys_.min(), ys_.max() + 1), slice(xs_.min(), xs_.max() + 1))
+        rid = np.zeros_like(sd)
+        rid[bsl] = sato(m['g'][bsl], sigmas=[UP, 1.5 * UP, 2 * UP], black_ridges=True) > SANDAL_RIDGE
+        rid &= sandals & fig & (ndi.gaussian_filter(m['g'], 0.75 * UP) < 150) & \
+            ndi.binary_erosion(fig, iterations=round(1.5 * UP))
+        rsk = morphology.skeletonize(rid & ~broad)
+        lab, n = ndi.label(rsk, structure=np.ones((3, 3)))
+        rsk &= (np.bincount(lab.ravel()) >= SANDAL_RLEN * UP)[lab]
+        thin = ndi.distance_transform_edt(~rsk) <= tw / 2 if rsk.any() else rsk
+    else:
+        thin = np.zeros_like(sd)
+    fl |= broad | thin
     holes = ndi.binary_fill_holes(fl) & ~fl
     fl |= holes & ~morphology.remove_small_objects(holes, max_size=UP * UP)
     fl = morphology.remove_small_objects(fl, max_size=FACE_SPECK * UP * UP)
@@ -440,6 +489,41 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     dt = ndi.distance_transform_edt(~fig)
     edge = ~fig & (dt <= tw) & ndi.binary_dilation(inground | outside, iterations=UP) & panel
     ink = (lines & (fig | paper_lines)) | edge
+    # (the back of the child's head: a line along the curls' mass where it meets the clay)
+    back = cw & ~ndi.binary_erosion(cw, iterations=round(tw)) & (px < CHILD_BACK) & \
+        ndi.binary_dilation(fig & ~cw, iterations=round(tw) + 1)
+    ink |= back
+    # (the child's eye and nostril)
+    cfb = np.zeros_like(ink)
+    for b in CHILD_FACE_BOXES:
+        cfb |= (px >= b[0]) & (px < b[2]) & (py >= b[1]) & (py < b[3])
+    if all(x0 <= b[0] and b[2] <= x1 and y0 <= b[1] and b[3] <= y1 for b in CHILD_FACE_BOXES):
+        ink &= ~cfb
+        hc0 = ndi.gaussian_filter(m['g'], 0.5 * UP)
+        hcost0 = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(hc0, size=(4 * UP, 4 * UP)) - hc0, 0, None) / 12)
+        eye_c = np.zeros_like(ink)
+        for k, pts in enumerate(CHILD_FACE_LINES):
+            xy = lw.livewire(hcost0, [((x - x0) * UP, (y - y0) * UP) for x, y in pts])
+            seg = np.zeros_like(ink)
+            seg[xy[:, 1].astype(int), xy[:, 0].astype(int)] = True
+            ink |= (ndi.distance_transform_edt(~seg) <= CHILD_FACE_W * UP / 2) & cfb
+            if k in (1, 2):
+                eye_c |= seg
+        inside = ndi.binary_fill_holes(ndi.binary_dilation(eye_c, iterations=1))
+        ink |= inside & (hc0 < PUPIL_T)
+    # (hand-placed lines)
+    hc = ndi.gaussian_filter(m['g'], 0.7 * UP)
+    hcost = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(hc, size=(5 * UP, 5 * UP)) - hc, 0, None) / 12)
+    for pts in HAND_LINES:
+        if not all(x0 <= x < x1 and y0 <= y < y1 for x, y in pts):   # (a test box that leaves it out)
+            continue
+        P = [((x - x0) * UP, (y - y0) * UP) for x, y in pts]
+        xy = lw.livewire(hcost, P)
+        seg = np.zeros_like(ink)
+        seg[np.clip(xy[:, 1].astype(int), 0, ink.shape[0] - 1), np.clip(xy[:, 0].astype(int), 0, ink.shape[1] - 1)] = True
+        near = ndi.binary_dilation(seg, iterations=3 * UP) & ~ndi.binary_dilation(seg, iterations=round(tw / 2) + 1)
+        ink &= ~(near & ink & ~edge & ndi.binary_dilation(seg, iterations=3 * UP)) | ~near
+        ink |= ndi.distance_transform_edt(~seg) <= tw / 2
     # (fine lines the finder broke or lost: FAINT, JOIN)
     zone = (fig | paper_lines) & ~head & ~ch & ~hat & ~(faces & ~dotbox)
     contrast = m['closed5'] - gl
