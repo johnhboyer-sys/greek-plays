@@ -46,10 +46,14 @@ HOME_OUT = Path(__file__).resolve().parent.parent / "euripides-iphigenia.svg"
 PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli"))
 
 X0, Y0, X1, Y1 = 60, 420, 1930, 1790     # crop, scan px: the frieze, from the acroteria to the two ground rules
+# John's tone change (2026-10-13, in PhotoCraft on the pass 2 file): Levels with input black 90, then Levels with input
+# black 152 and white 248. The faint grey lines print dark and unbroken; the lines are found on the plate so changed
+LEVELS = [{"inBlack": 90, "inWhite": 255}, {"inBlack": 152, "inWhite": 248}]
 UP = 3                                    # work at 3x the scan's px (her face is about 90 px tall)
 BLUR = 0.3                                # scan px: the Gaussian before the line finder
 CLOSE_R = 4                               # scan px: Maximum then Minimum, wider than a line (1-3 px)
-LOW, HIGH = 8, 20                         # local contrast (grey levels): a line starts at HIGH, runs on down to LOW
+LOW, HIGH = 24, 60                        # local contrast (grey levels, after LEVELS): a line starts at HIGH, runs on
+                                          # down to LOW (8, 20 on the plate as scanned)
 SOLID = 100                               # solid black: darker than this, lightly blurred
 CORE_R, HALF = 2, 0.5                     # a line's core: the darkest px within CORE_R scan px; half maximum
 SMOOTH = 0.3                              # scan px: the line mask's Gaussian, cut at half
@@ -67,7 +71,7 @@ NEAR = 2                                  # scan px: her ink lies within this of
 # JOIN_ANGLE degrees, up to JOIN_MAX scan px apart, joined straight where the plate's local contrast holds at JOIN_C
 # grey levels all the way across; a free end runs on straight to the line it points at on the same terms (as
 # tools/euphorbos.py). JOIN_RUN scan px of centre line give an end's direction
-JOIN_MAX, JOIN_ANGLE, JOIN_C, JOIN_RUN = 8, 35, 4, 4
+JOIN_MAX, JOIN_ANGLE, JOIN_C, JOIN_RUN = 8, 35, 12, 4    # JOIN_C after LEVELS (4 as scanned)
 # points on the field (scan px): the paper areas they fall in are the vase's ground; areas reaching the crop's edge
 # are ground too, every other area the lines close is clay (the temple, the altar, the pillar and its steps among
 # them). The ground line, the pillar and the temple close the lower field into pockets: between the pillar and
@@ -87,6 +91,10 @@ WALLS = [((637.5, 636), (638, 645)), ((404, 1599), (413, 1596)), ((221, 1603), (
 # (John, pass 1): clay inside these polygons (scan px, on the lines' centres): Artemis's spear down to the
 # attendant's head; Pylades' spear below his hand
 CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
+        # the top of Artemis's hair, whose printed outline is too faint to close it (pass 3); the strip between the
+        # altar's edge and the hanging chain, down to the tassel (John's ring, pass 1)
+        [(1640, 575), (1645, 561), (1675, 556), (1700, 557), (1712, 566), (1700, 600), (1650, 600)],
+        [(1489, 1422), (1508, 1422), (1508, 1700), (1489, 1700)],
         [(1008.7, 1478), (1016, 1478), (1015, 1550), (1008.3, 1600), (1001.7, 1650), (995.3, 1700), (993, 1712),
          (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
 # strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
@@ -105,7 +113,7 @@ GAP = 1.0
 # hatched (HATCH_FILL) is washed whole; where a grid line is missing (an area over SQUARE) the wash follows the
 # hatching. The wash: a tone path in the line colour at HATCH_OP
 CHECKER = [(1196, 1519), (1270, 1522), (1350, 1530), (1360, 1600), (1372, 1668), (1190, 1675), (1188, 1600)]
-CHECKER_LOW, CHECKER_HIGH = 32, 50
+CHECKER_LOW, CHECKER_HIGH = 96, 150      # after LEVELS (32, 50 as scanned)
 HATCH, HATCH_SIGMA, HATCH_FILL, HATCH_OP = 238, 3, 0.5, 0.3
 SQUARE = 260                              # scan px^2: a larger area is squares a missing grid line ran together
 # her areas that run on outside the cut through a break, so the test above leaves them out: points in them (scan px):
@@ -152,7 +160,9 @@ def grey(p):
 
 
 def masks(src, box=None, blur=BLUR, half=HALF, smooth=SMOOTH, core_r=CORE_R, speck=SPECK, low=LOW, high=HIGH):
-    """The plate's ink at UP (work px) in box (scan px; the crop by default), the plate in grey, and blurred."""
+    """The plate's ink at UP (work px) in box (scan px; the crop by default), found on the plate with LEVELS applied;
+    the plate in grey and blurred (as scanned, without LEVELS: the solid black and the hatching are read there, since
+    LEVELS takes every line to black); and the local contrast the ink was found by."""
     x0, y0, x1, y1 = box or (X0, Y0, X1, Y1)
     with tempfile.TemporaryDirectory() as td:
         t = Path(td)
@@ -161,26 +171,29 @@ def masks(src, box=None, blur=BLUR, half=HALF, smooth=SMOOTH, core_r=CORE_R, spe
            ("image.crop", {"x": x0, "y": y0, "width": w, "height": h}),
            ("image.imageSize", {"width": w * UP, "height": h * UP, "resample": "bicubic"}),
            ("image.mode.grayscale", None))
-        if blur:
-            pc(t / "up.png", t / "gl.png", ("filter.blur.gaussianBlur", {"radius": blur * UP}))
-        else:
-            shutil.copy(t / "up.png", t / "gl.png")
+        pc(t / "up.png", t / "adj.png", *[("image.adjustments.levels", lv) for lv in LEVELS])
+        for a, b in (("up", "gl"), ("adj", "al")):
+            if blur:
+                pc(t / f"{a}.png", t / f"{b}.png", ("filter.blur.gaussianBlur", {"radius": blur * UP}))
+            else:
+                shutil.copy(t / f"{a}.png", t / f"{b}.png")
         r = CLOSE_R * UP
-        pc(t / "gl.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
+        pc(t / "al.png", t / "closed.png", ("filter.other.maximum", {"radius": r, "preserve": "squareness"}),
            ("filter.other.minimum", {"radius": r, "preserve": "squareness"}))
         pc(t / "gl.png", t / "solid.png", ("image.adjustments.threshold", {"level": SOLID}))
-        pc(t / "gl.png", t / "core.png", ("filter.other.minimum", {"radius": core_r * UP, "preserve": "roundness"}))
-        g, gl, closed, core = grey(t / "up.png"), grey(t / "gl.png"), grey(t / "closed.png"), grey(t / "core.png")
+        pc(t / "al.png", t / "core.png", ("filter.other.minimum", {"radius": core_r * UP, "preserve": "roundness"}))
+        g, gl, al = grey(t / "up.png"), grey(t / "gl.png"), grey(t / "al.png")
+        closed, core = grey(t / "closed.png"), grey(t / "core.png")
         # half maximum: darker than halfway between the paper and the line's darkest px near it
-        hm = (closed - gl) >= half * (closed - core)
-        ink = apply_hysteresis_threshold(np.where(hm, closed - gl, 0), low, high) | (grey(t / "solid.png") < 128)
+        hm = (closed - al) >= half * (closed - core)
+        ink = apply_hysteresis_threshold(np.where(hm, closed - al, 0), low, high) | (grey(t / "solid.png") < 128)
         Image.fromarray(np.where(ink, 0, 255).astype(np.uint8)).save(t / "ink.png")
         pc(t / "ink.png", t / "smooth.png", ("filter.blur.gaussianBlur", {"radius": smooth * UP}),
            ("image.adjustments.threshold", {"level": 128}))
         ink = grey(t / "smooth.png") < 128
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > speck * UP * UP)[lab]
-    return g, gl, ink, closed - gl
+    return g, gl, ink, closed - al
 
 
 def areas(ink, seal=SEAL):
@@ -371,7 +384,10 @@ def iphigenia(ink, fig, ws, wash):
     n = ws.max() + 1
     hers = np.bincount(ws[inner], minlength=n) >= 0.5 * np.bincount(ws.ravel(), minlength=n)
     hers[0] = True                        # slivers the seal leaves unseeded: inside the cut, hers
-    hers[[at(ws, x, y) for x, y in HOME_CLAY]] = True
+    for x, y in HOME_CLAY:                # (a strip the lines now fill has no paper left to name)
+        cy, cx = round((y - Y0) * UP), round((x - X0) * UP)
+        if (ws[max(cy - 2 * UP, 0):cy + 2 * UP, max(cx - 2 * UP, 0):cx + 2 * UP] > 0).any():
+            hers[at(ws, x, y)] = True
     b = fig & inner & hers[ws]
     b = ndi.binary_fill_holes(b | (ink & keep & ndi.binary_dilation(b, iterations=2 * UP)))
     i = ink & keep & (ndi.distance_transform_edt(~b) <= NEAR * UP)
