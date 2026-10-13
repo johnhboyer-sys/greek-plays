@@ -96,9 +96,10 @@ CLOSE = 5
 # clay; areas reaching the crop's edge are ground. John ruled them by number on pass 1's area map (2026-10-13): behind
 # the old man between his staff and the boy; between the staff and the throne; under the woman's mirror hand; between
 # the basin's stand and her robe; between the throne's legs (two); between the throne and the footstool; between the
-# footstool's feet (two)
+# footstool's feet (two); and on pass 3 ("one little bit of ground is still clay. by the child's branch"): between the
+# branch's lower leaves and the old man's wrist
 GROUND = [(1909, 1944), (1428, 1898), (285, 1570), (425, 1776), (982, 1910), (992, 2027), (1183, 2054), (1362, 2057),
-          (1288, 2059)]
+          (1288, 2059), (1909, 1566)]
 # specks of the print: ink pieces under SPECK_MAX plate px^2 farther than NEAR plate px from the figures, and under
 # SPECK_IN anywhere
 SPECK_MAX, NEAR, SPECK_IN = 150, 6, 6
