@@ -79,8 +79,11 @@ NAMES = [(950, 120, 1110, 160), (1170, 285, 1370, 330)]
 # pockets of ground the figures close in (a point in each, levelled px): under the stage inside the festoon, between
 # the old man's stick and his face, the slave's arm and the ramp, between the old man's legs, between the pushing
 # slave's legs (at the ground and between his thighs), between the post, its brace and the roof, and between the
-# climbing slave's legs, the stick and the ramp (it reached the open ground only through the hem band, now walled)
-POCKETS = [(473, 1147), (1129, 999), (1290, 1020), (1920, 1355), (1742, 1191), (231, 267), (1006, 888)]
+# climbing slave's legs, the stick and the ramp (it reached the open ground only through the hem band, now walled);
+# and the black round the old man's closed eye (John, pass 1, in green: "the green is for an area that is ground not
+# ink")
+POCKETS = [(473, 1147), (1129, 999), (1290, 1020), (1920, 1355), (1742, 1191), (231, 267), (1006, 888),
+           (1095, 536)]
 WALL_W = 1.5
 LINE_DARK = 100
 LINE_MIN = 1.5
@@ -124,8 +127,14 @@ BAND_R = 8
 WALLS = [[(683.5, 652), (682.5, 668), (682, 684)],
          [(953.5, 673), (950.5, 683), (947.5, 692), (942, 699), (938, 705)],
          [(1901, 1093), (1896, 1102), (1892, 1112)]]
-MARKS_FILES = []
-WEIGHT = "own"
+# John's marks, drawn in PhotoCraft over a pass on the crop at UP px (1:1 with the work px): blue is ink as he drew
+# it; green takes the ink out, unless (False) his green is read as ground and given above (POCKETS). Pass 1: "just
+# a few blue lines and the green is for an area that is ground not ink" (the pushing slave's pupil, two strokes on
+# his fingers; the black round the old man's eye)
+MARKS_FILES = [(Path(__file__).parent / "knights_marks_1.png", False)]
+# the line weight pass 1 had (its median width, px over the longer side), kept fixed, so John's marks cannot move the
+# median and thin every line (Phoenician Women)
+WEIGHT = 5.324555320336759 / 6091
 DROP = []
 OPEN = []
 # The added white: lighter than WHITE_L (grey, lightly smoothed) and not red (red less blue under WHITE_RB: the
@@ -418,11 +427,11 @@ def main(src, qa=None, dump=None):
     ink |= marks
     eyes |= marks
     dots |= marks
-    for mf in MARKS_FILES:
+    for mf, use_green in MARKS_FILES:
         m = np.asarray(Image.open(mf).convert('RGBA')).astype(int)
         assert m.shape[:2] == ink.shape, (m.shape, ink.shape)
         r, gg, bb, al = (m[..., i] for i in range(4))
-        green = (al > 40) & (gg > r + 40) & (gg > bb + 20)
+        green = (al > 40) & (gg > r + 40) & (gg > bb + 20) & use_green
         blue = (al > 40) & (bb > r + 40) & (bb > gg + 20)
         for bx0, by0, bx1, by1 in DROP:
             blue[by0:by1, bx0:bx1] = False
