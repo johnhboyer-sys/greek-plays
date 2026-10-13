@@ -308,6 +308,15 @@
       "verdict": "Approved by John on the fifth pass (2026-10-12), after his notes on the faces' finer lines, the lines through the beard, the teeth, the moustache and the white hair as brushstrokes. No outside review (the citation checked against the Getty's record)."
     },
     {
+      "slug": "birds",
+      "file": "birds.svg",
+      "name": "Birds · A piper and two bird dancers",
+      "alt": "A bearded piper in a long cloak plays the double pipes; before him two bearded men dance to the right in bird masks with red crests and beaks, wings strapped to their arms, among branches of ivy",
+      "source": "Smith, Journal of Hellenic Studies 2 (1881), pl. XIV, fig. B.1: an Attic black-figure chous by the Gela Painter, London, British Museum 1842,0728.787 (JSTOR Early Journal Content scan on Zenodo, public domain)",
+      "method": "Coloured plate, black figures on clay, a silhouette, made with PhotoCraft: the clay gives the outline; the black solid with its incisions open; the added red in the plate's own red; the right dancer's pigment strokes as thin clay lines; the frame as painted; potrace",
+      "verdict": "Usable; approved by John on the first pass (2026-10-12). No outside review (the citation checked against Smith's text, the British Museum's record and the Beazley Archive)."
+    },
+    {
       "slug": "bacchae",
       "file": "bacchae.svg",
       "name": "Bacchae · Four maenads dancing",

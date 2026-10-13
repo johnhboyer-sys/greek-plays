@@ -587,6 +587,35 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - The Louvre's collection site answered with a CAPTCHA; the Beazley Archive's record opened in the browser pane after
   its automatic check (2026-10-12).
 
+### Smith, *Journal of Hellenic Studies* 2 (1881) (chromolithograph, black figures printed olive on tan clay, added red)
+
+- Birds (pl. XIV, fig. B.1, the piper and the two bird dancers, British Museum 1842,0728.787), made with PhotoCraft in the
+  black-figure silhouette: about an hour and twenty minutes over a style test and one pass, the credit included,
+  approved by John 2026-10-12. `tools/birds.py` (2026-10-12).
+- The plates of JHS 1-8 were issued apart from the text: the Getty's 400 ppi scan of vol. 2 on the Internet Archive has
+  none, and HathiTrust refused curl. JSTOR's Early Journal Content copy on Zenodo has the plate as one 300 ppi JPEG
+  page (`pdfimages -j`), heavily compressed: its 8 px blocks show at 4x (2026-10-12).
+- The black prints olive, close to the clay in grey (141 against 155). No one channel parts them; a linear
+  discriminant over k-means classes of the panel gave red less 0.18 green (the clay 160-166, the black 133, each
+  about 5). Light incisions pass that test too, and broad ones survive the opening that keeps thin marks out of the
+  ground: count a clay area as ground only if some px of it under the clay's grey lies 3 px deep in it (2026-10-12).
+- Added red in its own path, in the plate's median red, no outline (John: "match the bright red with red"). PhotoCraft's
+  Channel Mixer constant 50 adds 127.5 (2026-10-12).
+- Close hatching that prints pale (the beards under the beaks) falls into the ground: give each band a polygon inside
+  which all is figure, and read the hatching on the plate smoothed along its own angle (Motion Blur 5 px) by a white
+  top-hat over 2 px; the plain 1 px top-hat lost it (2026-10-12).
+- Paint darker than the black (the right dancer's arm strokes in black pigment): grey blurred 1.5 px, under 124,
+  smoothed, drawn as thin clay lines on their centres (John). Small clay spots closed in the black (incised circles)
+  are light marks, not ground, or the dark theme shows them as holes (2026-10-12).
+- The white page round the frame: blue over 200. The print's soft edge where the bands meet the page, and along the
+  red lines, reads as thin black: drop black thinner than 3 px near the page, and all black below the ground line. A
+  fill of holes in the figures over the whole panel (the frame encloses it) brings the print's specks back: drop
+  small pieces after it (2026-10-12).
+- The whole panel at 4x does not fit in 8 GB; 3x (38 Mpx) peaks at 2 GB and runs in about 6.5 minutes, the oriented
+  smoothing read one blur at a time (2026-10-12).
+- The British Museum's collection page and the Beazley Archive's record both opened in the browser pane (WebFetch got
+  403 and a bot check) (2026-10-12).
+
 ### Photos of vases (red-figure, taken off the vase with `tools/vase_unroll.py`)
 
 - Acharnians (Würzburg H 4689, the seated warrior; four ArchaiOptix photos), made with PhotoCraft:
