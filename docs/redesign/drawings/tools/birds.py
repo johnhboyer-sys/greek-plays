@@ -45,7 +45,7 @@ PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli")
 
 # plate px: the page image as it comes out of the PDF; the crop: fig. B.1 with its frame (John, 2026-10-12: "as
 # painted"), the bands above and below it whole, on the white page
-X0, Y0, X1, Y1 = 180, 2300, 3060, 3820
+X0, Y0, X1, Y1 = 180, 2300, 3060, 3786                  # (Y1: above the caption "B. 1")
 if os.environ.get("BIRDS_BOX"):            # (a sub-crop, for working on one part: the same steps on a box)
     X0, Y0, X1, Y1 = (int(v) for v in os.environ["BIRDS_BOX"].split(","))
 UP = 3                                     # work at 3x the plate's px (the incisions print 1-2 px wide; 4x
@@ -75,12 +75,31 @@ RIM = 2.0                                  # plate px: the clay round the black 
 GRAIN = 3                                  # plate px^2: light specks in the black smaller than this are grain
 EDGE_CLEAR = 1.0                           # plate px: no light marks this near the figures' edge
 # the right dancer's lines in black pigment (Smith: his arms' outline "faintly indicated with a black pigment",
-# through the wings): darker than the black (grey under DARK_T; the black 141 +-5), not near the red (whose blurred edge
-# is as dark), inside DANCER2; drawn as thin clay lines (John, 2026-10-12), their centre lines LINE_W wide
-DARK_T = 112
+# through the wings): darker than the black (grey, blurred DARK_BLUR plate px, under DARK_T; the strokes 105-115, the
+# black 141 +-5), not near the red (whose blurred edge is as dark), inside DANCER2; drawn as thin clay lines (John,
+# 2026-10-12), their centre lines LINE_W wide, each stroke's outline smoothed first (DARK_SMOOTH)
+DARK_T, DARK_BLUR, DARK_SMOOTH = 124, 1.5, 1.5
 DARK_MIN = 8                               # plate px^2: smaller dark specks are the print's
 RED_CLEAR = 3                              # plate px
 DANCER2 = (1780, 2480, 2800, 3700)         # plate px: the right dancer
+# the beards under the beaks: a band of close hatching, too pale in print to read as the black. Inside each polygon
+# (plate px, its lower edge just outside the band's light border line) all is figure but the red, and the light marks
+# are read on the plate smoothed along the hatching (Motion Blur BEARD_D plate px at the hatching's angle, y up) and along
+# the border (at its own angle), by a white top-hat over 2 plate px (PhotoCraft's Minimum then Maximum)
+BEARDS = [
+    {"poly": [(1153, 2742), (1175, 2731), (1200, 2719), (1250, 2733), (1300, 2741), (1345, 2740), (1345, 2770),
+              (1300, 2769), (1250, 2766), (1200, 2757), (1165, 2748)], "angles": (40, 165)},
+    {"poly": [(2036, 2788), (2050, 2795), (2100, 2801), (2150, 2795), (2185, 2784), (2190, 2816), (2150, 2820),
+              (2100, 2821), (2060, 2815), (2038, 2802)], "angles": (40, 170)},
+]
+BEARD_D, BEARD_T, BEARD_MIN = 5, 9, 6       # plate px, grey (the white top-hat over 2 plate px), plate px^2
+PAPER_EDGE = 3                             # plate px: the black thinner than a line this near the white page is the print's
+PAPER_OPEN = 1.5                           # soft edge round the bands (an opening by PAPER_OPEN plate px takes it)
+# the bands under the ground line: red and clay only (the black there is the print's soft edge along the red); BAND is the
+# ground line's lower edge (plate px, measured every few hundred columns)
+BAND = [(180, 3697), (400, 3697), (800, 3705), (1500, 3708), (2200, 3710), (3060, 3710)]
+SPOT_MAX = 150                             # plate px^2: clay closed in the black and smaller than this is an incised spot
+                                           # (the right dancer's circles), drawn as a light mark, not ground
 SMOOTH = 0.4                               # plate px: every edge smoothed (Gaussian Blur, Threshold at half)
 
 
@@ -184,6 +203,11 @@ def oriented(t, src_png, name):
     return t / f"{name}.png"
 
 
+def poly(shape, pts):
+    """A polygon given in plate px, as a mask at UP."""
+    return lw.polygon_mask(shape, np.array([((x - X0) * UP + 0.5, (y - Y0) * UP + 0.5) for x, y in pts]))
+
+
 def write_svg(lines, body, red, out, title, desc):
     """The house format (as cyclops.py): 1000 units tall, the body path under the red under the lines."""
     ys, xs = np.nonzero(lines | body)
@@ -235,6 +259,17 @@ def main(src, qa_png=None, dump=None):
         L, W, R = grey(t / "L.png"), grey(t / "warm.png"), grey(t / "red.png") - 127.5
         paper = grey(t / "blue.png") > PAPER_B
         light_hat = grey(Lo) - grey(t / "L_open.png")
+        pc(t / "L.png", t / "Ld.png", ("filter.blur.gaussianBlur", {"radius": DARK_BLUR * UP}))
+        Ld = grey(t / "Ld.png")
+        beard_hat = []
+        for b in BEARDS:
+            hats = []
+            for a in b["angles"]:
+                pc(t / "L.png", t / "Lb.png", ("filter.blur.motionBlur", {"angle": a, "distance": BEARD_D * UP}))
+                pc(t / "Lb.png", t / "Lb_open.png", ("filter.other.minimum", {"radius": 2 * UP, "preserve": "roundness"}),
+                   ("filter.other.maximum", {"radius": 2 * UP, "preserve": "roundness"}))
+                hats.append(grey(t / "Lb.png") - grey(t / "Lb_open.png"))
+            beard_hat.append(np.maximum(*hats))
 
     # the red
     red = ndi.binary_opening(R > RED_T, structure=morphology.disk(UP))
@@ -250,13 +285,25 @@ def main(src, qa_png=None, dump=None):
     size[0] = 0
     deep = ndi.maximum(ndi.distance_transform_edt(ground0) * (L < CLAY_L), lab, index=np.arange(len(size)))
     ground = ((size > AUTO_GROUND * UP * UP) & (deep >= GROUND_W * UP))[lab] & (L < INCISED_L)
-    ground |= paper
+    beard = np.zeros(L.shape, bool)
+    for b in BEARDS:
+        beard |= poly(L.shape, b["poly"])
+    ground = (ground & ~beard) | paper
 
     # the figures: all else, but specks of the print on the ground
-    fig = ~ground & ~red
+    H, Wd = L.shape
+    yy, xx = np.mgrid[0:H, 0:Wd]
+    px, py = (xx + 0.5) / UP - 0.5 + X0, (yy + 0.5) / UP - 0.5 + Y0
+    del yy, xx
+    fig = ~ground & ~red & (py <= np.interp(px, *zip(*BAND)) + 0.5)
+    near_paper = ndi.distance_transform_edt(~paper) <= PAPER_EDGE * UP
+    fig &= ~(near_paper & ~ndi.binary_opening(fig, structure=morphology.disk(round(PAPER_OPEN * UP))))
     lab, _ = ndi.label(fig)
     fig &= (np.bincount(lab.ravel()) >= DOT_MIN * UP * UP)[lab]
-    fig = ndi.binary_fill_holes(fig | red) & ~ground & ~red
+    holes = ndi.binary_fill_holes(fig | red) & ~fig & ~red
+    lab, _ = ndi.label(holes)
+    spots = holes & (np.bincount(lab.ravel()) < SPOT_MAX * UP * UP)[lab]
+    fig |= spots
 
     # the light marks in the black (incisions), at least LINE_W wide; not along the figures' edge
     clear = ndi.distance_transform_edt(fig) > EDGE_CLEAR * UP
@@ -265,14 +312,19 @@ def main(src, qa_png=None, dump=None):
     marks &= (np.bincount(lab.ravel()) >= GRAIN * UP * UP)[lab]
     marks = (marks | (ndi.distance_transform_edt(~morphology.skeletonize(marks)) <= LINE_W * UP / 2)) & fig & clear
     marks |= join_marks(marks) & fig
-    H, Wd = L.shape
-    yy, xx = np.mgrid[0:H, 0:Wd]
-    px, py = (xx + 0.5) / UP - 0.5 + X0, (yy + 0.5) / UP - 0.5 + Y0
+    marks |= spots
+    for b, hat in zip(BEARDS, beard_hat):
+        m = poly(L.shape, b["poly"])
+        bm = (hat > BEARD_T) & m & fig
+        lab, _ = ndi.label(bm)
+        bm &= (np.bincount(lab.ravel()) >= BEARD_MIN * UP * UP)[lab]
+        marks = (marks & ~m) | ((ndi.distance_transform_edt(~morphology.skeletonize(bm)) <= LINE_W * UP / 2) & m & fig & clear)
     box2 = (px >= DANCER2[0]) & (px < DANCER2[2]) & (py >= DANCER2[1]) & (py < DANCER2[3])
-    del yy, xx, px, py
-    dark = (L < DARK_T) & fig & box2 & (ndi.distance_transform_edt(~red) > RED_CLEAR * UP)
+    del px, py
+    dark = (Ld < DARK_T) & fig & box2 & (ndi.distance_transform_edt(~red) > RED_CLEAR * UP)
     lab, _ = ndi.label(dark)
     dark &= (np.bincount(lab.ravel()) >= DARK_MIN * UP * UP)[lab]
+    dark = smooth(dark, DARK_SMOOTH)
     dark = (ndi.distance_transform_edt(~morphology.skeletonize(dark)) <= LINE_W * UP / 2) & fig
     marks |= dark
 
