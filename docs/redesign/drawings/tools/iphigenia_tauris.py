@@ -83,11 +83,16 @@ EYE_LINES = [
     [(1302, 1047.5), (1301.5, 1051), (1302.5, 1054.5)],
     [(1306, 1052.5), (1311, 1053.2), (1316, 1052.5), (1320, 1050.5)],
 ]
+# John also traced the eyes in his pass 4 marks, then kept these instead ("your prior eye was okay"): his strokes
+# inside EYE_BOXES are left out
+EYE_REDRAWN, IRIS_REDRAWN = set(), set()
 EYE_IRIS = [(1282, 1053.6, 2.3), (1311, 1049.2, 2.5)]   # centre x, y, radius (scan px)
 EYE_PUPIL = 1.0                           # scan px: the pupil's radius
 EYE_PEN = 1.0                             # scan px
 SOLID_OPEN = 1.5                          # scan px: solid black (the wave band's strokes, 4 px) is what an opening
                                           # this wide leaves of the plate darker than SOLID; it stays as printed
+WAVE = (1205, 1380, 1362, 1418)           # scan px: the wave band on Iphigenia's dress, the only solid black; elsewhere
+                                          # the plate's dark is where lines cross, and drawn solid it made blots
 SPECK = 3                                 # scan px^2: smaller pieces of ink are specks of the print
 SEAL = 4                                  # scan px: passages narrower than this do not join ground to figure
 NEAR = 2                                  # scan px: her ink lies within this of her body
@@ -123,8 +128,12 @@ CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
          (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
 # strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
 # squiggle names the paper area it lies most in)
-MARKS_FILES = [Path(__file__).with_name("iphigenia_tauris_marks_1.png")]
+MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2)]
 MARKS_K = 2
+# pass 4 marks (John): blue strokes redraw lines (her brows, eye, nose, mouth, jaw and neck, the sleeve's zigzag edge,
+# the pleat points, the ribbon's folds). Each stroke goes in along its centre, smoothed as the found lines, at the
+# pen; the found lines within REPLACE scan px of it go (the same line drawn twice), those crossing it are cut there
+REPLACE = 2.5
 # a clay area meeting the ground with no line between them is a gap in the outline (John: "the ground leaks are due
 # to lines not being fully traced"): where the clay's edge lies farther than GAP scan px from any line, the outline is
 # drawn along the clay's edge at the pen's width
@@ -331,18 +340,24 @@ def eyes(shape):
     from scipy.interpolate import splev, splprep
     w = lambda pts: (np.array(pts, float) - (X0, Y0)) * UP
     paths = []
-    for pts in EYE_LINES:
+    for i, pts in enumerate(EYE_LINES):
+        if i in EYE_REDRAWN:
+            continue
         xy = w(pts)
         tck, _ = splprep(xy.T, s=0, k=min(3, len(xy) - 1))
         x, y = splev(np.linspace(0, 1, 40 * len(xy)), tck)
         paths.append(np.c_[y, x])
-    for cx, cy, r in EYE_IRIS:
+    for k, (cx, cy, r) in enumerate(EYE_IRIS):
+        if k in IRIS_REDRAWN:
+            continue
         t = np.linspace(0, 2 * np.pi, 120)
         (x, y), = [w([(cx, cy)])[0]]
         paths.append(np.c_[y + r * UP * np.sin(t), x + r * UP * np.cos(t)])
     m = draw_paths(shape, paths, [EYE_PEN * UP] * len(paths))
     yy, xx = np.mgrid[:shape[0], :shape[1]]
-    for cx, cy, _ in EYE_IRIS:
+    for k, (cx, cy, _) in enumerate(EYE_IRIS):
+        if k in IRIS_REDRAWN:
+            continue
         (x, y), = [w([(cx, cy)])[0]]
         m |= (yy - y) ** 2 + (xx - x) ** 2 <= (EYE_PUPIL * UP) ** 2
     box = np.zeros(shape, bool)
@@ -356,6 +371,9 @@ def lines(src):
     printed, the breaks joined; the plate in grey, and blurred."""
     g, gl, found, contrast = masks(src)
     solid = ndi.binary_opening(gl < SOLID, structure=morphology.disk(SOLID_OPEN * UP))
+    w = np.zeros_like(solid)
+    w[sl(WAVE)] = True
+    solid &= w
     ink = even_lines(found) | solid
     eye, box = eyes(ink.shape)
     ink = (ink & ~box) | eye
@@ -424,8 +442,8 @@ def marks(shape):
                                                                                         Image.BILINEAR)) >= 128
         blue |= up(al * ((b > r + 40) & (b > g + 20)))
         green |= up(al * ((g > r + 40) & (g > b + 20)))
-    sk = morphology.skeletonize(blue)
-    return ndi.distance_transform_edt(~sk) <= PEN * UP / 2, green
+    paths = [smooth_path(q, LINE_SIGMA * UP) for q in skeleton_paths(blue)]
+    return draw_paths(shape, paths, [PEN * UP] * len(paths)), green
 
 
 def figure(ink, ws, marked=()):
@@ -489,7 +507,9 @@ def main(src, qa=None, dump=None):
             walls[round(y), round(x)] = True
     walls = ndi.distance_transform_edt(~walls) <= PEN * UP / 2
     blue, green = marks(ink.shape)
-    ink |= blue
+    eye, box = eyes(ink.shape)            # the eyes are drawn by hand (EYE_*): John's strokes there are left out
+    blue &= ~box
+    ink = (ink & ~((ndi.distance_transform_edt(~blue) <= REPLACE * UP) & ~eye)) | blue
     ws = areas(ink | walls)
     # each green squiggle: the paper area it lies most in is ground
     lab, n = ndi.label(ndi.binary_dilation(green, iterations=2 * UP))
