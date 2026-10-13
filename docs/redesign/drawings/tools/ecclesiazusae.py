@@ -1,9 +1,14 @@
 """Assemblywomen (Aristophanes): three comic actors, Philotimides, Charis and Xanthias, on a stage before a door.
-From H. Heydemann, Die Phlyakendarstellungen auf bemalten Vasen (Neuntes Hallisches Winckelmannsprogramm, Halle 1884),
-Taf. I; Heidelberg University Library's scan, hwpr1884 Tafel_01 (Tafel_01.jpg, 2449 x 2021, the largest it serves;
-Public Domain Mark 1.0):
+From H. Heydemann, Vase Caputi mit Theaterdarstellungen (Neuntes Hallisches Winckelmannsprogramm, Halle 1884), Taf. I,
+at the vase's size, traced by Giulio Jatta; Heidelberg University Library's scan, hwpr1884 Tafel_01 (Tafel_01.jpg,
+2449 x 2021, the largest it serves; Public Domain Mark 1.0):
 https://digi.ub.uni-heidelberg.de/iiif/2/hwpr1884%3A022_Tafel_01.jpg/full/full/0/default.jpg
-The vase: the Caputi vase (Milan). The scene names no play: an old man, an old woman and a slave are stock types.
+Heydemann (pp. 3-5): a bell-krater 0.33 m high, found at Ruvo in April 1883 in Francesco Caputi's excavations. A comedy
+scene on a stage on three posts, in a room with a half-open door and a jug hung on the wall: Philotimides and Charis
+hold a dish of cakes between them over a low table (he a string of figs), and behind her the slave Xanthias, turned
+away, hides a cake he has stolen in the folds of his tunic. Now Milan, Civico Museo Archeologico A 0.9.2841 (the
+"Cratere dei Ghiottoni"), Apulian red-figure, the Choregos Painter, about 380-370 BC (the museum's record, SIRBeC
+G0560-00014; Trendall, Phlyax Vases (1967) no. 45). The vase names no play.
 
 Made with PhotoCraft (John, 2026-10-07), as tools/persians.py: every image step runs in `photocraft-cli` (0.2.0).
 Pillow only converts the JPEG to PNG and reads PhotoCraft's results; numpy and scipy only combine the masks
@@ -41,15 +46,22 @@ X0, Y0, X1, Y1 = 20, 195, 2420, 1830
 UP = 3                                    # work at 3x the plate's px, as Persians (the curls are 1 px strokes)
 BLUR = 0.5                                # plate px: the Gaussian before the line finder
 CLOSE_R = 5                               # plate px: Maximum then Minimum, wider than a line
-LOW, HIGH = 16, 34                        # local contrast (grey levels): a line starts at HIGH, runs on down to LOW
+LOW, HIGH = 8, 20                         # local contrast (grey levels): a line starts at HIGH, runs on down to LOW (the
+#                                           pen lines print paler than Persians': at 16, 34 the stage's posts broke into dashes)
 SOLID = 120                               # solid black: darker than this, lightly blurred
-CORE_R, HALF = 1.5, 0.5                   # a line's core: the darkest px within CORE_R plate px; half maximum
-SMOOTH = 0.6                              # plate px: the line mask's Gaussian, cut at half
-SPECK = 2                                 # plate px^2: smaller pieces of ink are specks of the print
+CORE_R, HALF = 1.5, 0.4                   # a line's core: the darkest px within CORE_R plate px; the share of the way
+#                                           from the paper to it (0.5 broke the paler lines: a 17 px gap in the stage's edge)
+SMOOTH = 0.4                              # plate px: the line mask's Gaussian, cut at half (0.6 erased thin stretches)
+SPECK = 3                                 # plate px^2: smaller pieces of ink are specks of the print
 SEAL = 6                                  # plate px: passages narrower than this do not join ground to figure
-# The heads (hair, curls, eyes, open mouths) are found by the main finder: a finer one inside boxes round the heads
-# (less blur, a narrower core, as Eumenides' faces) took the grey shading between the curls for strokes and came
-# out speckled (2026-10-12).
+# The heads (hair, curls, eyes, open mouths) at Persians' half maximum and smoothing (HEAD: at the plate's, the
+# curls ran together); boxes, plate px: Philotimides, Charis, Xanthias. A finer finder (less blur, a narrower core, as
+# Eumenides' faces) took the grey shading between the curls for strokes and came out speckled (2026-10-12)
+HEADS = [(715, 420, 1010, 720), (1480, 405, 1700, 620), (1980, 480, 2200, 710)]
+HEAD = dict(half=0.5, smooth=0.6)
+# weighted and traced at TRACE_H tall, not the house 4000 px: at 4000 (2.4 px a plate px) the lines thinned to
+# WEIGHT broke into dashes (Persians, at 5.9 px a plate px, the same)
+TRACE_H = 7200
 # Xanthias's beard is brushwork, not ink (John, 2026-10-12: "Make the beard into brushstrokes like with hair on other
 # comedy plates"): inside BEARDS (polygons, plate px; the top edge between the lower lip's line, about y 644-647, and the beard's first strokes) the plate's lines go and its
 # dark is a stepped wash in the line colour (BEARD_STEPS: grey under, the finder's 0.5 plate px blur; total opacity),
@@ -60,12 +72,21 @@ BEARD_STEPS = [(185, 0.25), (165, 0.45), (145, 0.62), (125, 0.76), (105, 0.86)]
 BEARD_MIN = 1
 # the painted names (boxes, plate px; John, 2026-10-12: out): ink pieces lying wholly inside are dropped
 NAMES = [(800, 315, 1160, 365), (1488, 298, 1722, 348), (1978, 343, 2247, 414)]
-# the vase's frame line, a double curve under the stage's posts (John chose the stage, not the frame): ink pieces
-# lying wholly below FRAME_Y are dropped (the posts' lines run up into the platform)
-FRAME_Y = 1700
+# the vase's frame line, a double curve under the stage's posts (John chose the stage, not the frame): its upper line
+# read off the plate between the posts (plate px; the first px 25 grey levels under the column's median): the ink
+# below it, less FRAME_UP plate px, dropped (the posts end 4-7 px above it; dropping the pieces lying mostly below it
+# kept the stretches the line finder joined to a post)
+FRAME = [(20, 1810), (160, 1807), (410, 1786), (530, 1779), (650, 1774), (770, 1769), (890, 1764), (1010, 1758),
+         (1130, 1752), (1190, 1749), (1440, 1747), (1560, 1749), (1680, 1753), (1800, 1756), (1860, 1758),
+         (2040, 1768), (2100, 1771), (2360, 1794), (2420, 1798)]
+FRAME_UP = 1
 # points on the ground (plate px): the paper areas they fall in are vase ground; every other area the lines close is
-# clay; areas reaching the crop's edge are ground
-GROUND = []
+# clay; areas reaching the crop's edge are ground. John ruled them by number on pass 1's area map (2026-10-12): the
+# open space under the tray between Philotimides and Charis, between the bench's top and its rail, under the bench;
+# the doorway between the two leaves; by the tray, between his arm and the dish and inside the string of figs; under
+# Charis's heel by the bench's leg; between Xanthias's legs; under the stage
+GROUND = [(1223, 1012), (1249, 1323), (1371, 1482), (413, 1150), (1081, 796), (1163, 664), (1685, 1518),
+          (2071, 1316), (1049, 1650)]
 # specks of the print on the field: ink pieces under SPECK_MAX plate px^2 farther than NEAR plate px from the figures
 SPECK_MAX, NEAR = 40, 6
 # a development run on part of the plate: ECCL_BOX="x0,y0,x1,y1" (plate px); the drawing goes to ECCL_OUT
@@ -180,7 +201,7 @@ def add_tone(svg, steps, box):
     for mask, total in steps:
         if not mask[y0:y1, x0:x1].any():
             continue
-        d, _ = lw.potrace_d(lw.resample_ink(mask[y0:y1, x0:x1], lw.TRACE_H), turdsize=20, alphamax=1.0)
+        d, _ = lw.potrace_d(lw.resample_ink(mask[y0:y1, x0:x1], TRACE_H), turdsize=20, alphamax=1.0)
         a = 1 - (1 - total) / (1 - below)
         paths.append(f'<path class="tone" fill="currentColor" fill-opacity="{a:.3f}" stroke="none" d="{d}"/>')
         below = total
@@ -191,10 +212,13 @@ def add_tone(svg, steps, box):
 def main(src, qa=None, dump=None):
     g, gl, ink = masks(src)
     ink = drop_inside(ink, NAMES)
-    lab, n = ndi.label(ink)
-    top = np.full(n + 1, 10 ** 9)
-    np.minimum.at(top, lab.ravel(), np.repeat(np.arange(ink.shape[0]), ink.shape[1]))
-    ink &= ~(top > (FRAME_Y - Y0) * UP)[lab]
+    fx, fy = np.array(FRAME, float).T
+    edge = (np.interp((np.arange(ink.shape[1]) + 0.5) / UP + X0, fx, fy) - FRAME_UP - Y0) * UP
+    below = np.arange(ink.shape[0])[:, None] > edge[None, :]
+    ink &= ~below
+    for box in HEADS:
+        if box[0] >= X0 and box[1] >= Y0 and box[2] <= X1 and box[3] <= Y1:
+            ink[sl(box)] = masks(src, box, **HEAD)[2]
     beard = np.zeros_like(ink)
     for pts in BEARDS:
         beard |= lw.polygon_mask(ink.shape, (np.array(pts, float) - (X0, Y0)) * UP)
@@ -212,8 +236,9 @@ def main(src, qa=None, dump=None):
     ink &= ~drop[lab]
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
+    lw.WORK_H = TRACE_H
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT,
+        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, trace_h=TRACE_H,
         title="Three comic actors: Philotimides, Charis and Xanthias",
         desc="Line drawing after the 1884 plate of the Caputi vase (Heydemann, Hallisches Winckelmannsprogramm 9); "
              "retraced.")
