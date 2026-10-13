@@ -679,14 +679,22 @@
       "author": "aristophanes",
       "work_id": "thesmophoriazusae",
       "title": "Women at the Thesmophoria",
-      "proposed_subject": "Festival women and a disguise motif; verify the ritual object before using it.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "Three comic actors on a stage, one in a woman's dress, from the Apulian bell-krater Getty 96.AE.113 (John's pick, 2026-10-09: Plate Picks 36-8Ma; drawn with PhotoCraft 2026-10-12). The earlier proposal, festival women and a disguise motif, was not sourced.",
+      "status": "Drawn 2026-10-12; approved by John 2026-10-12",
+      "source_candidate": "https://www.getty.edu/art/collection/object/10408F",
+      "final_image": "docs/redesign/drawings/thesmophoriazusae.svg",
+      "credit": "After the Apulian red-figure bell-krater J. Paul Getty Museum 96.AE.113, side A, attributed to the Cotugno Painter, 370-360 BC (RVAp Suppl. 2, no. 10/46a, as on the Swiss market; Gift of Barbara and Lawrence Fleischman). Photographs: J. Paul Getty Museum (Open Content). Drawing traced from the photograph and changed.",
+      "license": "The Getty's photos CC0 (Open Content Program; the object's IIIF manifest, checked 2026-10-12). The drawing traces only the ancient painting and carries no licence.",
+      "crop": "The whole stage scene: the padded young man with his staff at the left, the actor in the woman's dress with the cloth over the head in the middle, the crowned king with his sceptre at the right; the stage's plank under them (its posts cut at the plank's lower edge). Left out: the handle palmettes, the black ground and the bands. The costume phalluses are drawn as painted (John, 2026-10-09: no censorship).",
+      "alt_text": "Three comic actors on a stage: at the left a padded young man with dark hair leans on a staff; in the middle an actor in a woman's dress, a cloth billowing over the head, wears the mask of a white-haired old woman; at the right a crowned king with a white beard and a bird-topped sceptre reaches toward her",
+      "source_file": [
+        "https://media.getty.edu/iiif/image/1112afd2-a5d9-456e-af9b-201801d35c74/full/max/0/default.jpg",
+        "https://media.getty.edu/iiif/image/2670dbcf-fb24-4c25-9ffb-580859728012/full/max/0/default.jpg",
+        "https://media.getty.edu/iiif/image/be17b8de-524a-4c97-b831-6c1d7c117230/full/max/0/default.jpg"
+      ],
+      "shows": "Related to the play by theme only: a phlyax scene. The Getty reads a 'stage-naked' actor (a padded torso over the costume) in a young man's mask with a staff; an actor in a young woman's dress, holding up a cloth that billows over the head, in the white-haired mask of a wrinkled old woman; and a tall crowned actor with a bird-topped sceptre, read as Zeus, reaching toward the woman he takes for young while she eyes the youth. The vase names no play and is some forty years later than Women at the Thesmophoria (411 BC); a man in a woman's dress is what the play's Kinsman is, disguised to spy on the women's festival.",
+      "method": "Red-figure photo taken off the vase (tools/vase_unroll.py): the profile and the three Getty cameras (front, left and right profile; no EXIF, the focal length fitted at 30000 px) fitted to the meander band, the outline and points matched by SIFT; the flat keeps the rings straight and the meridians upright, as Wasps. Every image step run in PhotoCraft (photocraft-cli), numpy only combining its masks and measuring: the scene by red less blue; lines by local contrast along their centres at the paint's own width, the faces' finer lines too, the breaks where wear crosses a line closed; the white hair and beards as brushstrokes of PhotoCraft's brush along the paint's grain, tapering, no outline; the king's moustache on John's line, his teeth white; the sceptre's brown shaft and the added yellow as washes; the thinned glaze on the bodies repainted with PhotoCraft's brush along the contours; potrace. tools/thesmophoriazusae.py.",
+      "result": "Approved by John on the fifth pass, 2026-10-12, after his notes: the faces' finer lines, the lines through the white beard, the king's teeth white, the moustache round the mouth (he drew the area), and all the white hair as wispy brushstrokes. About four hours. No outside review; the credit checked against the Getty's record (object page and linked-data record: attribution, date, provenance, bibliography, read 2026-10-12)."
     },
     {
       "author": "aristophanes",
