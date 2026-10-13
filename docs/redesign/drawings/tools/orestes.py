@@ -17,7 +17,9 @@ Plate -> drawing:
     pockets the figures close in (POCKETS).
   - The figures: the clay joined to SEEDS (each moved to the nearest clay within 15 plate px).
   - Lines, paint, and hair: as bacchae.py. The faces at the plate's own width (FACES), the small dots kept (DOT_*), the
-    white wrist bands outlined (BANDS), the wash only on the omphalos (OMPHALOS).
+    white wrist bands outlined (BANDS), the wash only on the omphalos (OMPHALOS). The disk above is a shield (the text:
+    "Schwein und Schild sitzen auf Firnisgrund").
+Approved by John on the second pass, 2026-10-12.
 
     python3 docs/redesign/drawings/tools/orestes.py fr120_full.jpg [qa.png]
     python3 docs/redesign/drawings/tools/orestes.py fr120_full.jpg qa.png --test x0,y0,x1,y1 out.svg

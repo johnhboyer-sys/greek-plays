@@ -273,6 +273,17 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   or stands alone 25 scan px or more, then ends facing each other joined, and a free end run on straight to the line
   it points at (a wrapping stopping short of the leg's outline). Sheet every added piece on the plate and look:
   pieces meeting a line along its side made ticks, and loops ran round broad brushstrokes (2026-10-12).
+- Orestes (II, Taf. 120.3, the Eumenides Painter's krater in the Louvre), made with PhotoCraft from Williams College's
+  scan on JSTOR: about two and a half hours over two passes, the source search included, approved by John 2026-10-12.
+  `tools/orestes.py`, on `bacchae.py`'s rules (2026-10-12).
+- "See if you can find German reproduction": the museum's own bibliography leads there. The Yale krater's cites Michaelis
+  1882 (Rokeby Hall), whose source, Matz in the *Archäologische Zeitung* 1873, dismisses the house's vases ("keine
+  bemerkenswerthe Darstellung"): no old drawing. The same scene on another vase was in F-R, found from its
+  Inhaltsverzeichnis on Heidelberg (the in-app browser reaches it; the Bash sandbox does not) (2026-10-12).
+- Face lines on this plate print grey (90-130), not black: the dark threshold lost the sleeping Fury's closed eye, and
+  local contrast alone drew every face line twice its width. Local contrast to find them, then cut at the half-maximum
+  point between the clay round a line and the darkest plate within 2 px (PhotoCraft's Minimum), at 0.6 (`FACE_*`). Grey
+  wash on a plate with none (the hatch's dark spots) is false: keep the wash to the one grey area (`OMPHALOS`) (2026-10-12).
 - Thinned-paint hair (curls stippled over clay): a flat wash for the mass, cut where the curls end ("don't have
   hair bleed into face"), the curls as darker strokes on it, and a line where the mass meets the clay at the back;
   a paler strand against the black is hair too, with no cut into the outline (John: "there is no cut in")
