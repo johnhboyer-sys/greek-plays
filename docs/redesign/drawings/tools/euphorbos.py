@@ -123,7 +123,11 @@ SANDAL_BROAD, SANDAL_RIDGE, SANDAL_RLEN = 1.8, 12, 8
 HAT = [(1415, 205), (1470, 188), (1560, 198), (1572, 260), (1545, 330), (1520, 385), (1470, 398), (1425, 392),
        (1398, 350), (1405, 290), (1435, 240)]
 HAT_CLAY, HAT_D, HAT_A, CORD_T = 178, (22, 120), (0.15, 0.85), 115
-HAT_SIGMA = 4                                    # scan px: the crown's grey smoothed (the cord's 1 px)
+HAT_SIGMA = 8                                    # scan px: the crown's grey smoothed (the cord's 1 px)
+# (pass 4: the brim's two pen lines came out broken, taken for the cord where they touch it: the cord is only
+# paint broader than CORD_W scan px; and the crown's wash, mottled and with a grey halo along the lines, is the
+# depth averaged over the crown's own clay (lines and cord left out) over CROWN_SIGMA scan px)
+CORD_W, CROWN_SIGMA = 5.5, 3
 FACE_T, FACE_BLUR, FACE_SPECK = 100, 0.35, 3
 # Euphorbos' hair (a polygon round it, scan px): the plate darker than HAIR_T (lightly smoothed; the hair
 # 30-110, the clay line round it and the face 170 and over) joined to the paint's dark cores, its holes under
@@ -162,9 +166,12 @@ HAND_LINES = [[(1800, 225), (1815, 238), (1830, 247), (1845, 253), (1852, 254), 
 # points read off the levelled plate at 10-14x, CHILD_FACE_W scan px wide; the pupil is the plate darker than
 # PUPIL_T inside the eye's contour
 CHILD_FACE_BOXES = [(1852, 272, 1880, 302), (1870, 307, 1888, 325)]
-CHILD_FACE_LINES = [[(1866, 276), (1861, 280), (1858, 285), (1856, 290), (1857, 294)],            # brow
-                    [(1874, 280), (1869, 283), (1865, 288), (1863, 293), (1865, 297)],             # eye, back
-                    [(1874, 280), (1874, 286), (1872, 290), (1868, 294), (1865, 297)],             # eye, front
+CHILD_FACE_LINES = [[(1866, 276), (1863, 277.5), (1861, 279.5), (1859, 282), (1857.5, 285), (1856.8, 288),
+                     (1856.5, 291), (1856.7, 293)],                                                # brow
+                    [(1873.5, 279.5), (1870.5, 281.3), (1868, 282.8), (1866, 285), (1864.5, 287.5), (1863, 291),
+                     (1862, 294.5)],                                                               # upper lid
+                    [(1873.5, 279.5), (1874, 283), (1873.8, 286), (1872.5, 289.5), (1870.5, 292.5), (1868, 295),
+                     (1866.5, 297), (1866, 298.5)],                                                # lower lid
                     [(1875, 317), (1875.5, 312), (1878, 310), (1881, 311), (1883, 314), (1882, 318),
                      (1880, 319.5)]]                                                               # nostril
 # the child's nose, bridge to tip (John on pass 3: "make sure nose lines are fully drawn"): drawn whole through
@@ -176,7 +183,11 @@ CHILD_NOSE = [[(1838, 312), (1840, 308), (1842.5, 305), (1846, 304), (1849, 304.
 NOSE_AREA = [(1838, 302), (1856, 300), (1876, 306), (1886, 308), (1886, 323), (1878, 331), (1866, 331),
              (1852, 319), (1846, 319), (1837, 314)]                                       # (scan px)
 NOSE_DARK = 60                                   # the black paint printed in the tip (darker than this): solid
-CHILD_FACE_W, PUPIL_T = 1.8, 75
+CHILD_FACE_W, PUPIL_T = 1.8, 48
+# the child's iris (John on pass 3: "The child's eyes! I want the iris and pupils!"): a circle fitted to the
+# plate's dark disc (darker than 100: its edge read at four points), drawn at IRIS_W scan px inside the lids;
+# the pupil is the plate darker than PUPIL_T inside it, solid. The lids drawn at EYE_LW scan px
+IRIS, IRIS_W, EYE_LW = (1865.0, 291.3, 3.6), 1.0, 1.4
 
 
 def pc(src, out, *steps):
@@ -445,7 +456,8 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     tone = np.where(cw, WASH_A[0], tone)
     tone = np.where(curl, WASH_A[1], tone)
     hat = poly(px, py, HAT) & fig
-    cord = ndi.binary_opening((m['gw'] < CORD_T) & hat, structure=morphology.disk(2 * UP))
+    cord = ndi.binary_opening((m['gw'] < CORD_T) & hat, structure=morphology.disk(round(CORD_W * UP / 2)))
+    cord = ndi.binary_dilation(cord, iterations=UP) & (m['gw'] < CORD_T) & hat
     paint &= ~hat
     paint &= ~ch
 
@@ -498,8 +510,16 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     lines = (lines & ~(faces & ~dotbox)) | fl
     lines &= ~ndi.binary_dilation(cord, iterations=UP)
     hd = HAT_CLAY - ndi.gaussian_filter(m['gw'], UP)
+    own = hat & ~ndi.binary_dilation(lines | cord, iterations=2 * UP)
+    cs_ = CROWN_SIGMA * UP
+    hda = ndi.gaussian_filter(np.where(own, hd, 0), cs_) / np.maximum(ndi.gaussian_filter(own.astype(np.float32), cs_), 1e-6)
+    hd = np.where(cord, hd, hda)
     hw = hat & (hd > HAT_D[0]) & ~ndi.binary_dilation(lines & ~cord, iterations=UP // 2)
     hw = morphology.remove_small_objects(ndi.binary_opening(hw, structure=morphology.disk(UP)), max_size=30 * UP * UP)
+    hh = ndi.binary_fill_holes(hw) & ~hw & ~lines   # (pale holes in the crown's wash: wash too)
+    hw |= hh & ~morphology.remove_small_objects(hh, max_size=300 * UP * UP)
+    lab, n = ndi.label(lines & hat & ~cord)       # (and specks of line inside it go)
+    lines &= ~(hat & (np.bincount(lab.ravel(), minlength=n + 1) < 12 * UP * UP)[lab] & (lab > 0))
     # (the crown's grey smoothed over HAT_SIGMA within the wash only, so the clay round it does not pale its
     # edge; the cord, broader dark, kept sharp)
     sg = HAT_SIGMA * UP
@@ -517,6 +537,8 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     ink |= back
     # (the child's eye, nose and nostril: only the hand-placed lines inside their areas)
     cfb = np.zeros_like(ink)
+    eye_marks = np.zeros_like(ink)               # (traced at their own size: the hand lines in cfb are not)
+    hand = None                                  # (cfb's own ink, laid in again after the later finders)
     for b in CHILD_FACE_BOXES:
         cfb |= (px >= b[0]) & (px < b[2]) & (py >= b[1]) & (py < b[3])
     cfb |= poly(px, py, NOSE_AREA)
@@ -525,13 +547,21 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
         eye_c = np.zeros_like(ink)
         for k, pts in enumerate(CHILD_FACE_LINES + CHILD_NOSE):
             seg = smooth_line(pts, ink.shape, x0, y0)
-            ink |= ndi.distance_transform_edt(~seg) <= CHILD_FACE_W * UP / 2
+            ink |= ndi.distance_transform_edt(~seg) <= (EYE_LW if k in (1, 2) else CHILD_FACE_W) * UP / 2
             if k in (1, 2):
                 eye_c |= seg
         g05 = ndi.gaussian_filter(m['g'], 0.5 * UP)
-        inside = ndi.binary_fill_holes(ndi.binary_dilation(eye_c, iterations=1))
-        ink |= inside & (g05 < PUPIL_T)
+        lo = smooth_line([CHILD_FACE_LINES[1][-1], CHILD_FACE_LINES[2][-1]], ink.shape, x0, y0)  # (closes the fill)
+        inside = ndi.binary_fill_holes(ndi.binary_dilation(eye_c | lo, iterations=1))
+        ix, iy, ir = IRIS
+        dc = np.hypot(px - ix, py - iy)
+        iris = inside & (np.abs(dc - ir) <= IRIS_W / 2)
+        pupil = inside & (dc < ir) & (g05 < PUPIL_T)
+        pupil = ndi.binary_fill_holes(ndi.binary_closing(pupil, structure=morphology.disk(UP)))
+        ink |= iris | pupil
+        eye_marks = iris | pupil
         ink |= ndi.binary_opening(poly(px, py, NOSE_AREA) & (g05 < NOSE_DARK), structure=morphology.disk(UP // 2 + 1))
+        hand = ink & cfb
     # (hand-placed lines)
     hc = ndi.gaussian_filter(m['g'], 0.7 * UP)
     hcost = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(hc, size=(5 * UP, 5 * UP)) - hc, 0, None) / 12)
@@ -608,8 +638,10 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint, firm=firm & fig,
                             added=added, joins=joins, tone=tone.astype(np.float16),
                             gs=gs.astype(np.uint8))
+    if hand is not None:
+        ink = (ink & ~cfb) | hand
     info = lw.trace_svg(
-        ink, Path(out), body=fig, open_holes=~fig, weight="drawn", dots=fl & ink,
+        ink, Path(out), body=fig, open_holes=~fig, weight="drawn", dots=(fl & ~cfb | eye_marks) & ink,
         title='The shepherd Euphorbos carrying the infant Oedipus',
         desc='Line drawing after Karl Reichhold\'s drawing of the neck-amphora by the Achilles Painter, Paris, '
              'Cabinet des médailles 372 (Furtwängler and Reichhold, Griechische Vasenmalerei III, Taf. 167); '
