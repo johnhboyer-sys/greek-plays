@@ -88,7 +88,16 @@ WALLS = [((637.5, 636), (638, 645)), ((404, 1599), (413, 1596)), ((221, 1603), (
 # attendant's head; Pylades' spear below his hand
 CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
         [(1008.7, 1478), (1016, 1478), (1015, 1550), (1008.3, 1600), (1001.7, 1650), (995.3, 1700), (993, 1712),
-         (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]
+         (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
+# strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
+# squiggle names the paper area it lies most in)
+MARKS_FILES = [Path(__file__).with_name("iphigenia_tauris_marks_1.png")]
+MARKS_K = 2
+# a clay area meeting the ground with no line between them is a gap in the outline (John: "the ground leaks are due
+# to lines not being fully traced"): where the clay's edge lies farther than GAP scan px from any line, the outline is
+# drawn along the clay's edge at the pen's width
+GAP = 1.0
+
 # Iphigenia's checkered skirt (scan px): every other square hatched in strokes 2-3 px apart, too fine to trace. John
 # (2026-10-13) chose a grey wash for the hatched squares. Inside CHECKER only the grid is drawn, found at a stricter
 # contrast (CHECKER_LOW, CHECKER_HIGH: the hatching prints fainter than the grid); the hatching is where the plate's
@@ -318,11 +327,26 @@ def add_tone(svg, steps, box):
     svg.write_text(s)
 
 
-def figure(ink, ws):
-    """The figures' area: every paper area but the ground (GROUND, and the areas reaching the crop's edge), and the
-    ink touching it."""
+def marks(shape):
+    """John's marks on the work grid: (blue, green) bool masks; blue thinned to its centre line at the pen."""
+    blue, green = np.zeros(shape, bool), np.zeros(shape, bool)
+    for f in MARKS_FILES:
+        a = np.asarray(Image.open(f).convert("RGBA")).astype(np.float32)
+        r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3] / 255
+        assert abs(a.shape[1] * UP / MARKS_K - shape[1]) <= UP and abs(a.shape[0] * UP / MARKS_K - shape[0]) <= UP
+        up = lambda m: np.asarray(Image.fromarray((m * 255).astype(np.uint8)).resize((shape[1], shape[0]),
+                                                                                        Image.BILINEAR)) >= 128
+        blue |= up(al * ((b > r + 40) & (b > g + 20)))
+        green |= up(al * ((g > r + 40) & (g > b + 20)))
+    sk = morphology.skeletonize(blue)
+    return ndi.distance_transform_edt(~sk) <= PEN * UP / 2, green
+
+
+def figure(ink, ws, marked=()):
+    """The figures' area: every paper area but the ground (GROUND, `marked`, and the areas reaching the crop's edge),
+    and the ink touching it."""
     edge = np.unique(np.r_[ws[0], ws[-1], ws[:, 0], ws[:, -1]])
-    ground = np.isin(ws, np.r_[edge[edge > 0], [at(ws, x, y) for x, y in GROUND]].astype(int))
+    ground = np.isin(ws, np.r_[edge[edge > 0], [at(ws, x, y) for x, y in GROUND], list(marked)].astype(int))
     # paper the seal leaves without a seed (slivers the lines close: a wreath's leaves, a drape's folds) is clay,
     # unless it reaches the crop's edge (tools/eumenides.py)
     lab, _ = ndi.label((ws == 0) & ~ink)
@@ -375,14 +399,31 @@ def main(src, qa=None, dump=None):
             x, y = (np.array(a) + t * (np.array(b) - a) - (X0, Y0)) * UP
             walls[round(y), round(x)] = True
     walls = ndi.distance_transform_edt(~walls) <= PEN * UP / 2
+    blue, green = marks(ink.shape)
+    ink |= blue
     ws = areas(ink | walls)
-    fig, ground = figure(ink | walls, ws)
+    # each green squiggle: the paper area it lies most in is ground
+    lab, n = ndi.label(ndi.binary_dilation(green, iterations=2 * UP))
+    marked = []
+    for k in range(1, n + 1):
+        v, c = np.unique(ws[(lab == k) & green & (ws > 0)], return_counts=True)
+        if len(v):
+            marked.append(v[np.argmax(c)])
+    fig, ground = figure(ink | walls, ws, marked)
     for pts in CLAY:
         m = lw.polygon_mask(ink.shape, (np.array(pts, float) - (X0, Y0)) * UP)
         fig |= m
         ground &= ~m
     lab, n = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > SPECK * UP * UP)[lab]
+    # outline the clay where it meets the ground with no line: the clay's edge band, a pen wide, where the edge lies
+    # farther than GAP from the lines, run on a pen's width each way to meet them
+    rim = fig & ndi.binary_dilation(ground, iterations=1)
+    gap = rim & (ndi.distance_transform_edt(~ink) > GAP * UP)
+    band = fig & (ndi.distance_transform_edt(~ndi.binary_dilation(ground, iterations=1)) <= PEN * UP)
+    edge_line = band & (ndi.distance_transform_edt(~gap) <= PEN * UP * 1.5)
+    print("outline gaps (work px)", int(gap.sum()))
+    ink |= edge_line
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
     info = lw.trace_svg(
