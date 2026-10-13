@@ -40,6 +40,7 @@ from skimage.filters import apply_hysteresis_threshold
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
 from andromache import centre_lines  # noqa: E402
+from ajax import draw_paths, skeleton_paths, smooth_path  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "iphigenia-in-tauris.svg"
 HOME_OUT = Path(__file__).resolve().parent.parent / "euripides-iphigenia.svg"
@@ -62,6 +63,29 @@ SMOOTH = 0.3                              # scan px: the line mask's Gaussian, c
 # centre line under MIN_LEN scan px dropped as grain
 PEN = 1.2                                 # scan px
 SPUR, MIN_LEN = 2, 3
+# pass 4 (John: "too many lines look like cracks. carefully attend to all clothing lines"): each line is redrawn as a
+# path along its centre, smoothed along its length over LINE_SIGMA scan px (a pixel skeleton zigzags and forks), at
+# the pen; side branches shorter than BRANCH scan px with a free end are dropped (the forks that read as cracks), and
+# pieces free at both ends shorter than GRAIN scan px
+LINE_SIGMA, BRANCH, GRAIN = 1.5, 3, 5
+# her eyes (John, pass 3: "iphigenia's eyes are wonky"), drawn as curves through points read off the plate at 16x
+# (scan px), in a box each where the found lines are dropped: brow, lid crease and upper lid of each eye, the right
+# eye's inner corner and both lower lids; the irises as rings with the pupil a dot, a finer pen (eyes never heavy)
+EYE_BOXES = [(1271, 1036, 1292, 1060), (1295, 1032, 1328, 1058)]
+EYE_LINES = [
+    [(1270, 1043.5), (1273, 1041.5), (1277, 1040.6), (1281, 1040.8), (1284.5, 1042.5), (1287, 1045.5)],
+    [(1272, 1050), (1275, 1047.6), (1279, 1046.6), (1283, 1047), (1286.5, 1048.8), (1289, 1051.5)],
+    [(1275.5, 1053), (1278, 1051.2), (1282, 1050.6), (1286, 1051.6), (1289, 1054)],
+    [(1278, 1057), (1282, 1057.6), (1286, 1056.6)],
+    [(1297, 1041.5), (1300, 1038), (1305, 1036), (1311, 1035), (1317, 1036), (1322, 1038), (1325, 1040)],
+    [(1300, 1047), (1303, 1043.5), (1308, 1042), (1314, 1042), (1319, 1043.5), (1323, 1046)],
+    [(1302, 1047.5), (1306, 1045.6), (1311, 1045), (1316, 1045.8), (1320, 1047.5), (1323, 1049)],
+    [(1302, 1047.5), (1301.5, 1051), (1302.5, 1054.5)],
+    [(1306, 1052.5), (1311, 1053.2), (1316, 1052.5), (1320, 1050.5)],
+]
+EYE_IRIS = [(1282, 1053.6, 2.3), (1311, 1049.2, 2.5)]   # centre x, y, radius (scan px)
+EYE_PUPIL = 1.0                           # scan px: the pupil's radius
+EYE_PEN = 1.0                             # scan px
 SOLID_OPEN = 1.5                          # scan px: solid black (the wave band's strokes, 4 px) is what an opening
                                           # this wide leaves of the plate darker than SOLID; it stays as printed
 SPECK = 3                                 # scan px^2: smaller pieces of ink are specks of the print
@@ -280,13 +304,62 @@ def join_breaks(lines, contrast, tw):
     return ndi.distance_transform_edt(~out) <= tw / 2 if out.any() else out
 
 
+def even_lines(found):
+    """The lines of `found` (work px) redrawn as smoothed paths at the pen (LINE_SIGMA, BRANCH, GRAIN)."""
+    paths = skeleton_paths(found)
+    sk = morphology.skeletonize(found)
+    nb = ndi.convolve(sk.astype(np.uint8), np.ones((3, 3), np.uint8), mode='constant') - 1
+    free = sk & (nb == 1)
+    keep = []
+    for q in paths:
+        n = len(q)
+        if (q[0] == q[-1]).all():
+            keep.append(q)
+            continue
+        ends = int(free[tuple(q[0])]) + int(free[tuple(q[-1])])
+        if ends == 2 and n < GRAIN * UP:
+            continue
+        if ends == 1 and n < BRANCH * UP:
+            continue
+        keep.append(q)
+    keep = [smooth_path(q, LINE_SIGMA * UP) for q in keep]
+    return draw_paths(found.shape, keep, [PEN * UP] * len(keep))
+
+
+def eyes(shape):
+    """Her eyes (EYE_*), drawn at EYE_PEN on the work grid, and the boxes they replace the found lines in."""
+    from scipy.interpolate import splev, splprep
+    w = lambda pts: (np.array(pts, float) - (X0, Y0)) * UP
+    paths = []
+    for pts in EYE_LINES:
+        xy = w(pts)
+        tck, _ = splprep(xy.T, s=0, k=min(3, len(xy) - 1))
+        x, y = splev(np.linspace(0, 1, 40 * len(xy)), tck)
+        paths.append(np.c_[y, x])
+    for cx, cy, r in EYE_IRIS:
+        t = np.linspace(0, 2 * np.pi, 120)
+        (x, y), = [w([(cx, cy)])[0]]
+        paths.append(np.c_[y + r * UP * np.sin(t), x + r * UP * np.cos(t)])
+    m = draw_paths(shape, paths, [EYE_PEN * UP] * len(paths))
+    yy, xx = np.mgrid[:shape[0], :shape[1]]
+    for cx, cy, _ in EYE_IRIS:
+        (x, y), = [w([(cx, cy)])[0]]
+        m |= (yy - y) ** 2 + (xx - x) ** 2 <= (EYE_PUPIL * UP) ** 2
+    box = np.zeros(shape, bool)
+    for b in EYE_BOXES:
+        box[sl(b)] = True
+    return m, box
+
+
 def lines(src):
     """The frieze's lines (work px): the line finder's ink redrawn along its centres at PEN, the solid black as
     printed, the breaks joined; the plate in grey, and blurred."""
     g, gl, found, contrast = masks(src)
     solid = ndi.binary_opening(gl < SOLID, structure=morphology.disk(SOLID_OPEN * UP))
-    ink = centre_lines(found, PEN * UP, MIN_LEN * UP, SPUR * UP) | solid
-    joins = join_breaks(ink, contrast, PEN * UP)
+    ink = even_lines(found) | solid
+    eye, box = eyes(ink.shape)
+    ink = (ink & ~box) | eye
+    joins = join_breaks(ink, contrast, PEN * UP) & ~box
     print("joins", ndi.label(joins)[1])
     return g, gl, ink | joins
 
