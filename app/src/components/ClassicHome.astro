@@ -1,8 +1,7 @@
 ---
 // The site's home page — the author catalogue.
-import { AUTHENTICITY_LABEL, START_HERE, getWork, workLanding, authorPath, type Work } from '@shared/lib/works';
-import { AUTHOR_PERIOD_ORDER, PERIOD_LABEL, authorGroups, authorsByPeriod, holdingsLabel, type Author } from '@shared/lib/authors';
-import { SUPPORT_URL } from '../lib/support';
+import { getWork, workLanding, authorPath, type Work } from '@shared/lib/works';
+import { AUTHORS } from '@shared/lib/authors';
 import { SITE_NAME } from '../lib/site';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
@@ -10,6 +9,7 @@ import Pwa from './Pwa.astro';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
 import { jsonLdSafe } from '../lib/jsonld';
 import { isBuilt } from '../lib/built-works';
+import { drawing } from '../lib/drawings';
 import '@shared/styles/global.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -23,71 +23,27 @@ const homeDescription =
 const canonical = Astro.site ? new URL(`${base}/`, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
 
-// Resolve the corpus taxonomy into per-shelf view models: one shelf per
-// historical period that has at least one author with at least one built
-// work (shared/lib/authors.ts's AUTHOR_PERIOD_ORDER/PERIOD_LABEL), in
-// chronological order. The registry may list works whose data isn't built in
-// this checkout — only works with public/data/<id>/manifest.json appear
-// (see built-works.ts). Within a shelf, authors are clustered into school
-// sub-groups per authors.ts's authorGroups() (a period with no established
-// teaching sequence there comes back as one unheaded group — same flat list
-// as before); within an author, works keep that author's `works` order.
-interface AuthorView { author: Author; works: Work[]; }
-interface AuthorGroupView { heading: string | null; authors: AuthorView[]; }
-interface ShelfView {
-  numeral: string;
-  title: string;
-  authorCount: number;
-  workCount: number;
-  groups: AuthorGroupView[];
-}
-
-const grouped = authorsByPeriod();
-const shelves: ShelfView[] = AUTHOR_PERIOD_ORDER
-  .map((period) => {
-    const authors: AuthorView[] = (grouped.get(period) ?? [])
-      .map((a) => ({
-        author: a,
-        works: a.works
-          .map((id) => getWork(id))
-          .filter((w): w is Work => Boolean(w) && isBuilt(w.id)),
-      }))
-      .filter((av) => av.works.length > 0);
-    const byId = new Map(authors.map((av) => [av.author.id, av]));
-    const groups: AuthorGroupView[] = authorGroups(period, authors.map((av) => av.author))
-      .map((g) => ({ heading: g.heading, authors: g.authors.map((a) => byId.get(a.id)!) }));
-    return {
-      numeral: '',
-      title: PERIOD_LABEL[period],
-      authorCount: authors.length,
-      workCount: authors.reduce((n, av) => n + av.works.length, 0),
-      groups,
-    };
-  })
-  // Number the shelves AFTER dropping the empty ones — an empty period used to
-  // consume its numeral and leave a gap in the sequence (found by Sol, 2026-07-27,
-  // when the sophists moved off 'classical' and left it empty).
-  .filter((s) => s.authorCount > 0)
-  .map((s, i) => ({ ...s, numeral: String(i + 1) }));
-// One period only (the drama corpus: four Classical authors): show its authors
-// directly, with no collapsible period heading (John, 2026-09-12).
-const flat = shelves.length === 1;
-
-// "Start here" — a curated featured strip above the shelves (see START_HERE
-// in shared/lib/works.ts). Built works only; the registry may list works
-// whose data isn't present in this checkout. These works also keep their
-// normal place in their author's shelf below; this row is an additive pointer
-// for newcomers, not an extra division.
-const startHere: Work[] = START_HERE
-  .map((id) => getWork(id))
-  .filter((w): w is Work => Boolean(w) && isBuilt(w.id));
+// The frieze: every author with at least one built work, in authors.yaml
+// order, with the play count and the home-page figure where one is drawn
+// (an author with no figure keeps the figure's space empty). The registry
+// may list works whose data isn't built in this checkout: only works with
+// public/data/<id>/manifest.json count (see built-works.ts).
+const playwrights = AUTHORS
+  .map((author) => ({
+    author,
+    works: author.works
+      .map((id) => getWork(id))
+      .filter((w): w is Work => Boolean(w) && isBuilt(w.id)),
+    fig: drawing(author.id),
+  }))
+  .filter((p) => p.works.length > 0);
 
 // Structured data: identify the site (WebSite) and enumerate every built work as
 // an ItemList of CreativeWorks linking to its landing page. This tells Google the
 // home page is the hub for the whole corpus, reinforcing the per-work pages that
 // carry the long-tail "<work> greek english" queries. Absolute URLs need
 // Astro.site (set in config); emitted only when present.
-const builtWorks = shelves.flatMap((s) => s.groups.flatMap((g) => g.authors.flatMap((av) => av.works)));
+const builtWorks = playwrights.flatMap((p) => p.works);
 const structuredData = Astro.site
   ? [
       {
@@ -148,439 +104,183 @@ const structuredData = Astro.site
 </head>
 <body class="home">
   <CommandPalette client:load />
-  <div class="home-theme"><ThemeToggle /></div>
-  <main class="corpus">
-    <header class="masthead">
-      <p class="eyebrow">Greek Drama</p>
-      <h1>{SITE_NAME}</h1>
-      <p class="lede">The forty-four surviving plays of Aeschylus, Sophocles, Euripides and Aristophanes, in Greek with public-domain English translations beside them. Click any Greek word for its parse and dictionary entry. Choose an author to begin.</p>
-      <p class="wip-note">
-        <strong>Work in progress.</strong> The corpus and translation alignment are
-        still being built out. Spotted an error or have a suggestion?
-        <button id="feedback-btn-wip" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:var(--accent);text-decoration:underline;">Let me know</button>.
-      </p>
+  <div class="frieze-page">
+    <header class="hd">
+      <a class="wm" href={`${base}/`}>{SITE_NAME}</a>
+      <nav aria-label="Site">
+        <a
+          class="resume"
+          id="resume-link"
+          href="#"
+          hidden
+          data-works={JSON.stringify(Object.fromEntries(
+            builtWorks.map((w) => [w.id, { title: w.title, books: w.books }]),
+          ))}
+        >Resume</a>
+        <a href={`${base}/search`}>Search</a>
+        <ThemeToggle />
+      </nav>
     </header>
 
-    <a
-      class="search-card resume-card"
-      id="resume-card"
-      href="#"
-      hidden
-      data-works={JSON.stringify(Object.fromEntries(
-        builtWorks.map((w) => [w.id, { title: w.title, books: w.books }]),
-      ))}
-    >
-      <span class="search-card-name">Continue reading</span>
-      <span class="search-card-meta" id="resume-meta"></span>
-      <span class="chev-right" aria-hidden="true">›</span>
-    </a>
+    <main>
+      <h1 class="visually-hidden">{SITE_NAME}</h1>
+      {/* DRAFT copy (the round-3 sketch's line): John approves. */}
+      <p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
 
-    <a class="search-card" href={`${base}/search`}>
-      <span class="search-card-name">Search the Corpus</span>
-      <span class="search-card-meta">Greek &amp; English · all 44 plays</span>
-      <span class="chev-right" aria-hidden="true">›</span>
-    </a>
-
-    <a class="search-card" href={`${base}/lemma/grc/`}>
-      <span class="search-card-name">Greek Lexicon</span>
-      <span class="search-card-meta">Every word · frequency &amp; concordance</span>
-      <span class="chev-right" aria-hidden="true">›</span>
-    </a>
-
-    <section class="support-card">
-      <div class="eyebrow">Support <span class="gk">χάρις</span></div>
-      <h2>Support {SITE_NAME}</h2>
-      <p>The reader is free and open. A contribution helps defray development costs and keeps it that way.</p>
-      <a class="btn-donate" href={SUPPORT_URL} target="_blank" rel="noopener">Make a gift</a>
-    </section>
-
-    <hr class="home-rule" />
-    <h2 class="works-heading start-here-heading">Start here</h2>
-    <div class="works-grid start-here-grid">
-      {startHere.map((w) => (
-        <a class="work-card work-card-featured" href={`${base}${workLanding(w.id)}`}>
-          <span class="work-name">{w.title}</span>
-          <span class="work-blurb">{w.blurb}</span>
-          <span class="work-meta">{w.abbr} · {w.books} book{w.books > 1 ? 's' : ''}</span>
-          {w.authenticity && w.authenticity !== 'genuine' &&
-            <span class="status-tag">{AUTHENTICITY_LABEL[w.authenticity]}</span>}
-        </a>
-      ))}
-    </div>
-
-    <h2 class="works-heading">Open a Work</h2>
-
-    <div class="toc">
-      {shelves.map((s) => (
-        <section class="cat" data-open={flat ? '' : undefined}>
-          {!flat && (
-          <h2 class="cat-heading">
-            <button class="cat-toggle" type="button" aria-expanded="false">
-              <span class="cat-head">
-                <span class="cat-num">{s.numeral}.</span> {s.title}
-                <span class="cat-count">· {s.authorCount} author{s.authorCount > 1 ? 's' : ''} · {s.workCount} work{s.workCount > 1 ? 's' : ''}</span>
-              </span>
-              <span class="cat-chev" aria-hidden="true"></span>
-            </button>
-          </h2>
-          )}
-          <div class="cat-body">
-            {s.groups.map((g) => (
-              <div class="school-group">
-                {g.heading && <h3 class="school-heading">{g.heading}</h3>}
-                {/* Unheaded groups (Heraclitus, Classical, Imperial): h4 cards sit under h2; skipped h3 is intentional. */}
-                <div class="works-grid author-grid">
-                  {g.authors.map((av) => (
-                    <a class="work-card author-card" href={`${base}${authorPath(av.author.id)}`}>
-                      <h4 class="work-name">
-                        {av.author.name}
-                        {av.author.nativeName && <span class="author-native">{av.author.nativeName}</span>}
-                      </h4>
-                      <span class="author-meta">
-                        {av.author.floruit}
-                        {av.author.languages.includes('lat') && <span class="lang-badge">Latin</span>}
-                      </span>
-                      <span class="work-blurb author-blurb">{av.author.blurb}</span>
-                      <span class="holdings-line">{holdingsLabel(av.author.holdings, av.works)}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ))}
+      <div class="row">
+        {playwrights.map(({ author, works, fig }) => (
+          <div class="c">
+            <div class="fb">
+              {fig && (
+                <svg
+                  class="fig"
+                  viewBox={fig.viewBox}
+                  preserveAspectRatio="xMidYMax meet"
+                  style={`aspect-ratio:${fig.width}/${fig.height}`}
+                  role="img"
+                  aria-label={fig.alt}
+                ><use href={`${base}/drawings/${fig.name}.svg#fig`} /></svg>
+              )}
+            </div>
+            <div class="txt">
+              <a class="nm" href={`${base}${authorPath(author.id)}`}>
+                <span class="gk" lang="grc">{author.nativeName}</span>
+                <span class="en">{author.name}</span>
+              </a>
+              <a class="meta" href={`${base}${authorPath(author.id)}`}>{works.length} play{works.length === 1 ? "" : "s"} →</a>
+            </div>
           </div>
-        </section>
-      ))}
-    </div>
+        ))}
+      </div>
+    </main>
 
-    <nav class="home-foot">
-      <a class="foot-sibling" href="https://johnhboyer-sys.github.io/plato-reader/" target="_blank" rel="noopener">The Plato Reader ↗</a>
-      <span aria-hidden="true">·</span>
-      <a class="foot-sibling" href="https://johnhboyer-sys.github.io/aristotle-reader/" target="_blank" rel="noopener">The Aristotle Reader ↗</a>
-      <span aria-hidden="true">·</span>
-      <a href={`${base}/attribution`}>Texts &amp; Licences</a>
-      <span aria-hidden="true">·</span>
-      <a href={`${base}/support`}>Support</a>
-      <span aria-hidden="true">·</span>
-      <button id="feedback-btn">Request a Feature / Report an Error</button>
-      <span aria-hidden="true">·</span>
-      <a href="https://x.com/johnhboyer" target="_blank" rel="noopener">Site by John H. Boyer</a>
-    </nav>
-  </main>
-  <style>
-    .wip-note {
-      margin: 1rem auto 0;
-      max-width: 40rem;
-      font-size: 0.85rem;
-      line-height: 1.5;
-      opacity: 0.8;
-      text-wrap: pretty;
-    }
-    .wip-note a { text-decoration: underline; }
-  </style>
+    <footer class="home-foot">
+      <nav aria-label="Resources">
+        <a href={`${base}/search`}>Search the plays</a>
+        <a href={`${base}/lemma/grc/`}>Greek lexicon</a>
+        <a href={`${base}/attribution`}>Texts and licences</a>
+        <a href={`${base}/support`}>Support</a>
+        <button id="feedback-btn">Request a feature or report an error</button>
+      </nav>
+      <nav aria-label="Elsewhere">
+        <a href="https://johnhboyer-sys.github.io/plato-reader/" target="_blank" rel="noopener">The Plato Reader ↗</a>
+        <a href="https://johnhboyer-sys.github.io/aristotle-reader/" target="_blank" rel="noopener">The Aristotle Reader ↗</a>
+        <a href="https://x.com/johnhboyer" target="_blank" rel="noopener">Site by John H. Boyer</a>
+      </nav>
+    </footer>
+  </div>
 
   <style>
-    body.home { background: var(--page-bg); color: var(--text); }
-    .home-theme { position: fixed; top: 1rem; right: 1rem; z-index: 10; }
-    .corpus {
-      max-width: 56rem;
-      margin: 0 auto;
-      padding: clamp(2.5rem, 8vh, 6rem) 1.5rem 4rem;
+    /* The frieze home page (docs/redesign/DESIGN.md, Home page; sketch
+       home-sketches-round3.html, version A). Warm paper, no author tint, no
+       rules or boxes but the ground line the figures stand on. */
+    body.home {
+      --paper: #fbf9f4;
+      --ink: #1b1c1f;
+      --ink-mid: #5c6064;
+      --link: #6d385a;
+      --fig-ink: var(--ink);
+      --fig-body: none;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Alegreya Sans", system-ui, sans-serif;
     }
-    /* The intro column stays narrow and centred; only the works grid widens. */
-    .masthead, .search-card, .support-card {
-      max-width: 40rem;
-      margin-inline: auto;
+    :root[data-theme="dark"] body.home {
+      --paper: #1c1a17;
+      --ink: #e8e1d3;
+      --ink-mid: #b9b0a1;
+      --link: #d7a3c4;
+      /* Dark lines on clay, as on a red-figure vase (approved 2026-10-02). */
+      --fig-ink: #1b1916;
+      --fig-body: #c4b294;
     }
-    .masthead { text-align: center; margin-bottom: 2.75rem; }
-    .eyebrow {
-      font-family: var(--font-ui);
-      text-transform: uppercase;
-      letter-spacing: .28em;
-      font-size: .72rem;
-      color: var(--accent-light);
-      margin-bottom: .6rem;
+    .frieze-page { max-width: 80rem; margin: 0 auto; padding: 0 3.5rem 3.5rem; }
+    .frieze-page a { color: inherit; text-decoration: none; }
+    .frieze-page a:hover { text-decoration: underline; }
+
+    .hd {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 1.4rem 0 1.1rem; font-size: 1.06rem;
     }
-    .masthead h1 {
-      font-family: var(--font-greek);
-      font-weight: 400;
-      font-size: clamp(2.1rem, 6vw, 2.9rem);
-      letter-spacing: .01em;
-      color: var(--text);
-      text-wrap: balance;
-    }
-    .lede {
-      font-family: var(--font-english);
-      color: var(--text-mid);
-      font-size: 1.02rem;
-      max-width: 28rem;
-      margin: .9rem auto 0;
-      line-height: 1.5;
-      text-wrap: pretty;
+    .wm { font-family: Cardo, serif; font-size: 1.3rem; }
+    .hd nav { display: flex; gap: 1.6rem; align-items: baseline; }
+    .hd .resume { color: var(--link); }
+    .hd .resume[hidden] { display: none; }
+    .hd :global(.theme-toggle) { align-self: center; }
+
+    .intro {
+      font: 400 1.3rem/1.4 Cardo, serif; color: var(--ink-mid);
+      margin: .6rem 0 2.1rem;
     }
 
-    .search-card {
-      display: flex;
-      align-items: baseline;
-      gap: .75rem;
-      background: var(--col-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1.05rem 1.3rem;
-      text-decoration: none;
-      color: var(--text);
-      transition: border-color .15s ease, box-shadow .15s ease;
+    /* Figure height: the sketch's 330px, or the column's width where that is
+       less, so a wide figure (Euphorbos' spear) never reaches its
+       neighbours. */
+    .row {
+      --fig-h: min(20.6rem, calc((min(100vw, 80rem) - 7rem) / 4));
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
     }
-    .search-card:hover { border-color: var(--accent-light); box-shadow: 0 6px 22px rgba(0,0,0,.05); }
-    .search-card-name {
-      font-family: var(--font-english);
-      font-weight: 600;
-      font-size: 1.2rem;
-      color: var(--accent);
+    .c { min-width: 0; }
+    .fb {
+      height: calc(var(--fig-h) + .65rem); border-bottom: 2px solid var(--ink);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 0 .6rem;
     }
-    .search-card-meta {
-      font-family: var(--font-ui);
-      font-size: .76rem;
-      letter-spacing: .04em;
-      color: var(--text-light);
-      text-transform: uppercase;
+    .fig {
+      /* Every figure stands the same height; a wide one may reach a little
+         past its column, into the space beside its neighbour. */
+      display: block; height: var(--fig-h); width: auto; flex: none;
+      color: var(--fig-ink); fill: currentColor;
     }
-    .search-card .chev-right {
-      margin-left: auto;
-      align-self: center;
-      color: var(--text-light);
-      font-size: 1.5rem;
-      line-height: 1;
-    }
-    .search-card:hover .chev-right { color: var(--accent-light); }
-
-    /* Continue-reading card: same idiom as .search-card, tinted so returning
-       readers spot it first. Hidden until the script finds a saved position. */
-    .resume-card { border-color: var(--accent-light); margin-bottom: .55rem; }
-    .resume-card[hidden] { display: none; }
-    .search-card + .search-card { margin-top: .55rem; }
-
-    /* Support / donation card — sits below the search card, above the works
-       list. Same panel idiom as .search-card (col-bg, border, 8px radius), but
-       with a heading + body + filled CTA rather than a single row. */
-    /* .support-card / .btn-donate styles now live in global.css (shared with
-       the author/work landing pages). */
-
-    .home-rule {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 1.6rem 0 1.3rem;
-    }
-    .works-heading {
-      font-family: var(--font-ui);
-      font-size: .78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      color: var(--text-light);
-      margin-bottom: 1rem;
-    }
-
-    .toc { display: flex; flex-direction: column; }
-
-    /* ── Division (period) ───────────────────────────────────────────────── */
-    /* Semantic h2 wrapper around the toggle — reset so appearance matches the old button-only header. */
-    .cat-heading {
-      margin: 0;
-      font: inherit;
-      font-weight: inherit;
-    }
-    .cat-toggle {
-      width: 100%;
-      background: none;
-      border: none;
-      padding: 0;
-      margin: 1.9rem 0 .85rem;
-      display: flex;
-      align-items: baseline;
-      gap: .55rem;
-      text-align: left;
-      color: inherit;
-      font: inherit;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: .35rem;
-    }
-    .toc > .cat:first-child .cat-toggle { margin-top: 0; }
-    .cat-head {
-      font-family: var(--font-greek);
-      font-weight: 400;
-      font-size: 1.5rem;
-      color: var(--text);
-      flex: 1;
-    }
-    .cat-num {
-      font-family: var(--font-ui);
-      font-size: .95rem;
-      font-weight: 600;
-      letter-spacing: .04em;
-      color: var(--accent-light);
-    }
-    .cat-count {
-      font-family: var(--font-ui);
-      font-size: .72rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      color: var(--text-light);
-    }
-    /* Chevron shown only on mobile (where the header is a real toggle). */
-    .cat-chev {
-      align-self: center;
-      flex-shrink: 0;
-      width: .5rem; height: .5rem;
-      border-right: 1.5px solid var(--text-light);
-      border-bottom: 1.5px solid var(--text-light);
-      transform: rotate(45deg) translateY(-2px);
-      transition: transform .18s ease;
-    }
-    .cat[data-open] .cat-chev { transform: rotate(225deg); }
-
-    /* ── School group (within a period shelf) ─────────────────────────────
-       Sub-clusters a shelf's authors under a quiet label (e.g. "Milesians"),
-       same idiom as .works-heading above but smaller and without its
-       uppercase shelf-level weight. A group with no heading (a standalone
-       author, or a shelf too small/homogeneous to bother grouping) renders
-       its grid alone, so this never changes the layout of an unheaded shelf. */
-    .school-group { margin: 0 0 1.4rem; }
-    .school-group:last-child { margin-bottom: 0; }
-    .school-heading {
-      font-family: var(--font-ui);
-      font-size: .74rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: var(--text-light);
-      margin: 0 0 .55rem;
-    }
-
-    /* ── Author card (within a period shelf) ─────────────────────────────── */
-    .author-native {
-      margin-left: .5rem;
-      font-family: var(--font-greek);
-      font-size: 1rem;
-      color: var(--text-light);
-    }
-    .author-meta {
-      display: flex;
-      align-items: baseline;
-      gap: .5rem;
-      font-family: var(--font-ui);
-      font-size: .78rem;
-      color: var(--text-light);
-    }
-    .author-blurb {
-      /* Truncate a long blurb to 3 lines rather than letting the card grow
-         unevenly against its shelf-mates. */
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .holdings-line {
-      font-family: var(--font-ui);
-      font-size: .72rem;
-      color: var(--text-light);
-      margin-top: auto;
-      padding-top: .2rem;
-    }
-
-    /* ── "Start here" featured strip ─────────────────────────────────────── */
-    .start-here-heading { margin-top: 0; }
-    .start-here-grid {
-      grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
-      margin-bottom: 1.9rem;
-    }
-    /* Compound selector (.work-card.work-card-featured) so these win over the
-       plain .work-card rules below regardless of source order. */
-    .work-card.work-card-featured {
-      border-color: var(--accent-light);
-      padding: 1.15rem 1.35rem;
-    }
-    .work-card.work-card-featured .work-name { font-size: 1.45rem; }
-    .work-card.work-card-featured:hover { box-shadow: 0 8px 26px rgba(0,0,0,.07); }
-
-    /* ── Work cards ──────────────────────────────────────────────────────── */
-    .works-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-      gap: .55rem;
-      margin-bottom: .55rem;
-    }
-    .work-card {
-      display: flex;
-      flex-direction: column;
-      gap: .18rem;
-      background: var(--col-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: .9rem 1.1rem;
-      text-decoration: none;
-      color: var(--text);
-      transition: border-color .15s ease, box-shadow .15s ease;
-    }
-    .work-card:not(.soon):hover {
-      border-color: var(--accent-light);
-      box-shadow: 0 6px 22px rgba(0,0,0,.05);
-    }
-    .work-name {
-      font-family: var(--font-greek);
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: var(--text);
-      line-height: 1.25;
-      margin: 0;
-    }
-    .work-blurb {
-      font-family: var(--font-english);
-      font-size: .8rem;
-      color: var(--text-light);
-      line-height: 1.4;
-      text-wrap: pretty;
-    }
-    .work-meta {
-      font-family: var(--font-ui);
-      font-size: .72rem;
-      letter-spacing: .04em;
-      color: var(--text-light);
-      text-transform: uppercase;
-      white-space: nowrap;
-      margin-top: .1rem;
-    }
-
-    /* ── Mobile-only collapse ────────────────────────────────────────────── */
-    /* Base (mobile-first): shelves collapse; tapping a header opens its body. */
-    .cat:not([data-open]) .cat-body { display: none; }
-    .cat-toggle { cursor: pointer; }
-
-    /* Desktop: everything expanded, headers are static (no toggle / chevron). */
-    @media (min-width: 48rem) {
-      .cat-body { display: block !important; }
-      .cat-toggle { pointer-events: none; cursor: default; }
-      .cat-chev, .cat-count { display: none; }
-    }
+    .txt { padding: 1.25rem .4rem 0; text-align: center; }
+    .nm { display: block; }
+    .gk { display: block; font-family: var(--font-greek); font-size: min(1.9rem, 2.1vw); line-height: 1.1; color: var(--ink-mid); }
+    .en { display: block; font-family: Cardo, serif; font-size: min(2.9rem, 3.1vw); line-height: 1.05; }
+    .frieze-page .meta { display: inline-block; margin-top: .25rem; color: var(--link); font-size: 1rem; }
 
     .home-foot {
-      margin-top: 2.5rem;
-      text-align: center;
-      font-family: var(--font-ui);
-      font-size: .85rem;
-      color: var(--text-light);
-      display: flex; justify-content: center; flex-wrap: wrap; gap: .5rem .7rem;
+      margin-top: 4rem; display: flex; flex-direction: column; gap: .6rem;
+      align-items: center; font-size: 1rem; color: var(--ink-mid);
     }
-    .home-foot a { color: var(--text-mid); text-decoration: none; }
-    .home-foot a:hover { color: var(--accent); }
-    /* The companion single-author readers — a "see also" pointer, gently
-       emphasised. */
-    .home-foot a.foot-sibling { color: var(--accent); font-weight: 600; }
+    .home-foot nav { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem 1.6rem; }
+    .home-foot a { color: var(--ink-mid); }
     .home-foot button {
       background: none; border: none; padding: 0; cursor: pointer;
-      font: inherit; font-size: .85rem; color: var(--text-mid);
+      font: inherit; color: var(--ink-mid);
     }
-    .home-foot button:hover { color: var(--accent); }
+    .home-foot button:hover { text-decoration: underline; }
+
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    /* Narrow screens (and 200% zoom): the frieze becomes two pairs of
+       figures. */
+    @media (max-width: 64rem) {
+      .row {
+        --fig-h: min(20.6rem, calc((100vw - 7rem) / 2));
+        grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 2.5rem;
+      }
+      .gk { font-size: 1.6rem; }
+      .en { font-size: 2.4rem; }
+    }
+    /* Phone. */
+    @media (max-width: 40rem) {
+      .frieze-page { padding: 0 1rem 2rem; }
+      .hd { flex-direction: column; gap: .4rem; padding: 1rem 0 .6rem; }
+      .hd nav { gap: 1.1rem; font-size: 1rem; }
+      .intro { font-size: 1.12rem; margin: .4rem 0 1.4rem; }
+      .row { --fig-h: 11.25rem; row-gap: 1.75rem; }
+      /* At this size the finer pen lines fade without a hairline stroke
+         (docs/redesign/drawings/README.md). */
+      .fig { stroke: currentColor; stroke-width: .5px; }
+      .txt { padding: .75rem .25rem 0; }
+      .gk { font-size: 1.2rem; }
+      .en { font-size: 1.75rem; }
+      .frieze-page .meta { font-size: .94rem; }
+      .home-foot { margin-top: 2.5rem; }
+    }
 
     /* Feedback modal */
     #feedback-modal {
@@ -663,7 +363,6 @@ const structuredData = Astro.site
     };
 
     openBtn?.addEventListener('click', open);
-    document.getElementById('feedback-btn-wip')?.addEventListener('click', open);
     cancelBtn?.addEventListener('click', close);
     modal?.addEventListener('click', (e) => { if (e.target === modal) close(); });
     document.addEventListener('keydown', (e) => {
@@ -706,46 +405,31 @@ const structuredData = Astro.site
   </script>
 
   <script>
-    // "Continue reading" card: shown only when the reader has saved a recent
-    // position (localStorage — see shared/lib/resume.ts), pointing back into
-    // the reader at the remembered book + citation.
+    // Resume link in the header: shown only when the reader has saved a
+    // recent position (localStorage, see shared/lib/resume.ts), pointing back
+    // into the reader at the remembered book and citation.
     import { lastRead, resumeHref } from '@shared/lib/resume';
 
-    const card = document.getElementById('resume-card') as HTMLAnchorElement | null;
-    if (card) {
+    const link = document.getElementById('resume-link') as HTMLAnchorElement | null;
+    if (link) {
       const works: Record<string, { title: string; books: number }> =
-        JSON.parse(card.dataset.works || '{}');
+        JSON.parse(link.dataset.works || '{}');
       const last = lastRead((w) => w in works);
       if (last) {
         const w = works[last.work];
         const book = Math.min(Math.max(1, last.book), w.books);
-        const bookBit = w.books > 1 ? ` · Book ${book}` : '';
         // Astra lane A, F8: a later occurrence is saved as "803--2" so the
         // hash lands on the second 803; drop that suffix from the displayed
         // resume text. The href keeps the full cite.
         const displayCite = last.cite ? last.cite.replace(/--\d+$/, '') : null;
-        const citeBit = displayCite ? ` · ${displayCite}` : '';
-        card.querySelector('#resume-meta')!.textContent = `${w.title}${bookBit}${citeBit}`;
+        const where = displayCite ?? (w.books > 1 ? `Book ${book}` : '');
+        link.textContent = `Resume: ${w.title}${where ? ` ${where}` : ''}`;
         const base = (import.meta.env.BASE_URL as string).replace(/\/$/, '');
-        card.href = resumeHref(last.work, { ...last, book }, base);
-        card.hidden = false;
+        link.href = resumeHref(last.work, { ...last, book }, base);
+        link.hidden = false;
       }
     }
   </script>
 
-  <script>
-    // Mobile-only collapse: tapping a shelf header toggles its body. On
-    // desktop the buttons are pointer-events:none (see CSS), so these never
-    // fire.
-    const toggles: [string, string][] = [['.cat-toggle', '.cat']];
-    for (const [btnSel, boxSel] of toggles) {
-      for (const btn of document.querySelectorAll<HTMLButtonElement>(btnSel)) {
-        btn.addEventListener('click', () => {
-          const open = btn.closest(boxSel)!.toggleAttribute('data-open');
-          btn.setAttribute('aria-expanded', String(open));
-        });
-      }
-    }
-  </script>
 </body>
 </html>
