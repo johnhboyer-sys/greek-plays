@@ -72,6 +72,9 @@ BEARD_STEPS = [(185, 0.25), (165, 0.45), (145, 0.62), (125, 0.76), (105, 0.86)]
 BEARD_MIN = 1
 # the painted names (boxes, plate px; John, 2026-10-12: out): ink pieces lying wholly inside are dropped
 NAMES = [(800, 315, 1160, 365), (1488, 298, 1722, 348), (1978, 343, 2247, 414)]
+# grey smudges of the print by and in the centre post under the stage (John, pass 1: drop them): ink pieces lying
+# wholly inside these boxes (plate px) are dropped
+SMUDGES = [(1200, 1650, 1240, 1695), (1235, 1690, 1260, 1738), (1268, 1695, 1305, 1738)]
 # the vase's frame line, a double curve under the stage's posts (John chose the stage, not the frame): its upper line
 # read off the plate between the posts (plate px; the first px 25 grey levels under the column's median): the ink
 # below it, less FRAME_UP plate px, dropped (the posts end 4-7 px above it; dropping the pieces lying mostly below it
@@ -79,7 +82,31 @@ NAMES = [(800, 315, 1160, 365), (1488, 298, 1722, 348), (1978, 343, 2247, 414)]
 FRAME = [(20, 1810), (160, 1807), (410, 1786), (530, 1779), (650, 1774), (770, 1769), (890, 1764), (1010, 1758),
          (1130, 1752), (1190, 1749), (1440, 1747), (1560, 1749), (1680, 1753), (1800, 1756), (1860, 1758),
          (2040, 1768), (2100, 1771), (2360, 1794), (2420, 1798)]
-FRAME_UP = 1
+FRAME_UP = 3                              # (at 1 the line's soft upper edge stayed under the centre post)
+# The lines redrawn crisp (John, 2026-10-12, pass 1: "clean up the lines on the clothing so they are crisp and not
+# staticy"): outside the heads, the beard and the studs, each line is drawn along its centre (side spurs under SPUR
+# plate px pruned, pieces under LINE_LEN plate px dropped) at its printed width smoothed along it (a Gaussian of
+# WIDTH_S plate px), at least LINE_W plate px, as frogs.py: the hems' dark bands and Charis's cloak band stay wide, the
+# blots along a line even out (kept as printed above a width, they cut the lines into dashes and spindles); the width
+# is not read within JOINT plate px of a junction, where the distance to the edge swells
+SPUR, LINE_LEN, LINE_W, WIDTH_S, JOINT = 6, 10, 1.5, 4, 3
+# Xanthias's hem band, which the plate stipples: a solid band, as Philotimides' (it came out a chain of beads, then
+# ragged; its left half prints too pale for a level on the blurred plate): inside BANDS (boxes, plate px) the beads
+# closed over BAND_CLOSE plate px, their holes under BAND_HOLE plate px^2 filled (a whole fill took the strip under the
+# band too), then opened by BAND_OPEN plate px (the lines crossing it go, and are redrawn with the rest)
+BANDS = [(1930, 1060, 2275, 1120)]
+BAND_CLOSE, BAND_HOLE, BAND_OPEN = 1.5, 30, 1.5
+# The door's studs, solid black discs (John, 2026-10-12, pass 1): inside STUDS (boxes, plate px, the six bands of
+# studs on the two leaves) the plate blurred by STUD_BLUR plate px and darker than STUD_LEVEL, opened by STUD_OPEN
+# plate px (the band's lines go), pieces of STUD_MIN plate px^2 or more, with the ring the plate draws round some of
+# them (ink pieces lying wholly within STUD_RING plate px of a disc), filled
+STUDS = [(185, 325, 320, 410), (185, 760, 340, 855), (225, 1435, 350, 1585), (465, 290, 635, 385),
+         (460, 750, 625, 855), (460, 1405, 620, 1525)]
+STUD_BLUR, STUD_LEVEL, STUD_OPEN, STUD_MIN, STUD_RING = 2, 175, 3, 300, 5
+# small closed parts (boxes, plate px): the paper the ink closes there, after a closing by CLOSE plate px, is clay:
+# Philotimides' open mouth (it reached the ground through a gap at the lips' end)
+CLOSED = [(895, 585, 1000, 670)]
+CLOSE = 5
 # points on the ground (plate px): the paper areas they fall in are vase ground; every other area the lines close is
 # clay; areas reaching the crop's edge are ground. John ruled them by number on pass 1's area map (2026-10-12): the
 # open space under the tray between Philotimides and Charis, between the bench's top and its rail, under the bench;
@@ -87,8 +114,10 @@ FRAME_UP = 1
 # Charis's heel by the bench's leg; between Xanthias's legs; under the stage
 GROUND = [(1223, 1012), (1249, 1323), (1371, 1482), (413, 1150), (1081, 796), (1163, 664), (1685, 1518),
           (2071, 1316), (1049, 1650)]
-# specks of the print on the field: ink pieces under SPECK_MAX plate px^2 farther than NEAR plate px from the figures
-SPECK_MAX, NEAR = 40, 6
+# specks of the print: ink pieces under SPECK_MAX plate px^2 farther than NEAR plate px from the figures (on the field:
+# 40 left dashes of the frame line and the plate's number), and under SPECK_IN anywhere (dots of grain in the door's
+# panels; a pupil is about 20)
+SPECK_MAX, NEAR, SPECK_IN = 150, 6, 6
 # a development run on part of the plate: ECCL_BOX="x0,y0,x1,y1" (plate px); the drawing goes to ECCL_OUT
 if os.environ.get("ECCL_BOX"):
     X0, Y0, X1, Y1 = map(int, os.environ["ECCL_BOX"].split(","))
@@ -141,6 +170,55 @@ def masks(src, box=None, blur=BLUR, half=HALF, smooth=SMOOTH, core_r=CORE_R, spe
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > speck * UP * UP)[lab]
     return g, gl, ink
+
+
+def blurred_dark(src, box, r, level):
+    """The plate in box (plate px) at UP, blurred by r plate px and darker than level (PhotoCraft), as a mask."""
+    x0, y0, x1, y1 = box
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        Image.open(src).convert("RGB").save(t / "src.png")
+        pc(t / "src.png", t / "d.png",
+           ("image.crop", {"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0}),
+           ("image.imageSize", {"width": (x1 - x0) * UP, "height": (y1 - y0) * UP, "resample": "bicubic"}),
+           ("image.mode.grayscale", None), ("filter.blur.gaussianBlur", {"radius": r * UP}),
+           ("image.adjustments.threshold", {"level": level}))
+        return grey(t / "d.png") < 128
+
+
+def studs(src, ink):
+    """The door's studs as solid discs (work px), as STUDS says."""
+    out = np.zeros_like(ink)
+    for box in STUDS:
+        if not (box[0] >= X0 and box[1] >= Y0 and box[2] <= X1 and box[3] <= Y1):
+            continue
+        b = sl(box)
+        m = ndi.binary_fill_holes(ndi.binary_opening(blurred_dark(src, box, STUD_BLUR, STUD_LEVEL),
+                                                     structure=morphology.disk(STUD_OPEN * UP)))
+        lab, _ = ndi.label(m)
+        m &= (np.bincount(lab.ravel()) >= STUD_MIN * UP * UP)[lab]
+        near = ndi.binary_dilation(m, structure=morphology.disk(STUD_RING * UP))
+        il, n = ndi.label(ink[b])
+        inside = np.bincount(il[~near], minlength=n + 1) == 0
+        inside[0] = False
+        out[b] = ndi.binary_fill_holes(m | inside[il])
+    return out
+
+
+def centre_lines(m, spur, min_len):
+    """Centre lines of a stroke mask, side spurs under `spur` px pruned (the line ends kept), pieces under
+    `min_len` px dropped (as frogs.py)."""
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    sk = morphology.skeletonize(m)
+    s = sk.copy()
+    for _ in range(spur):
+        s &= ~((ndi.convolve(s.astype(int), k, mode="constant") == 1) & s)
+    front = (ndi.convolve(s.astype(int), k, mode="constant") == 1) & s
+    for _ in range(spur):
+        front = ndi.binary_dilation(front, structure=np.ones((3, 3))) & sk & ~s
+        s |= front
+    return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
 
 
 def sl(box):
@@ -211,7 +289,7 @@ def add_tone(svg, steps, box):
 
 def main(src, qa=None, dump=None):
     g, gl, ink = masks(src)
-    ink = drop_inside(ink, NAMES)
+    ink = drop_inside(ink, NAMES + SMUDGES)
     fx, fy = np.array(FRAME, float).T
     edge = (np.interp((np.arange(ink.shape[1]) + 0.5) / UP + X0, fx, fy) - FRAME_UP - Y0) * UP
     below = np.arange(ink.shape[0])[:, None] > edge[None, :]
@@ -223,22 +301,56 @@ def main(src, qa=None, dump=None):
     for pts in BEARDS:
         beard |= lw.polygon_mask(ink.shape, (np.array(pts, float) - (X0, Y0)) * UP)
     ink &= ~beard
-    ws = areas(ink | beard)
-    fig, ground = figure(ink | beard, ws)
+    # the studs solid; the lines redrawn crisp along their centres, but in the heads, the studs and the wide bands
+    stud = studs(src, ink)
+    heads = np.zeros_like(ink)
+    for box in HEADS:
+        heads[sl(box)] = True
+    band = np.zeros_like(ink)
+    for box in BANDS:
+        b = sl(box)
+        c = ndi.binary_closing(ink[b], structure=morphology.disk(BAND_CLOSE * UP))
+        hl, _ = ndi.label(ndi.binary_fill_holes(c) & ~c)
+        c |= (np.bincount(hl.ravel()) < BAND_HOLE * UP * UP)[hl] & (hl > 0)
+        band[b] = ndi.binary_opening(c, structure=morphology.disk(BAND_OPEN * UP))
+    printed = ink                                     # (the areas are sealed on these as well: the redraw opens gaps)
+    free = ink & ~heads & ~stud & ~band
+    c = centre_lines(free, SPUR * UP, LINE_LEN * UP)
+    w = 2 * ndi.distance_transform_edt(free)
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    joint = ndi.binary_dilation(c & (ndi.convolve(c.astype(int), k, mode="constant") >= 3),
+                                structure=morphology.disk(JOINT * UP))
+    read = c & ~joint
+    num, den = (ndi.gaussian_filter(a, WIDTH_S * UP) for a in (np.where(read, w, 0.0), read.astype(np.float32)))
+    half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_W * UP) / 2, 0.0)
+    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
+    ink = (d <= half[iy, ix]) | (ink & heads) | stud | band
+    ink = drop_inside(ink, SMUDGES)                   # (again: redrawn, they part from the post's line)
+    del d, iy, ix, w, num, den, half, joint, read
+    ws = areas(ink | printed | beard)
+    fig, ground = figure(ink | printed | beard, ws)
+    del printed
     fig |= beard
+    kept = np.zeros_like(fig)
+    for box in CLOSED:
+        b = sl(box)
+        cl = ndi.binary_closing(ink[b], structure=morphology.disk(CLOSE * UP))
+        kept[b] = ndi.binary_fill_holes(cl) & ~ink[b]   # (the paper the closing covers too: the lip is narrow)
+    fig |= kept
     # specks on the field
     lab, n = ndi.label(ink)
     size = np.bincount(lab.ravel()) / UP / UP
     near = np.zeros(n + 1, bool)
     near[lab[ndi.distance_transform_edt(~fig) <= NEAR * UP]] = True
-    drop = (size < SPECK_MAX) & ~near
+    drop = ((size < SPECK_MAX) & ~near) | (size < SPECK_IN)
     drop[0] = False
     ink &= ~drop[lab]
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
     lw.WORK_H = TRACE_H
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, trace_h=TRACE_H,
+        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, trace_h=TRACE_H, keep=kept,
         title="Three comic actors: Philotimides, Charis and Xanthias",
         desc="Line drawing after the 1884 plate of the Caputi vase (Heydemann, Hallisches Winckelmannsprogramm 9); "
              "retraced.")
