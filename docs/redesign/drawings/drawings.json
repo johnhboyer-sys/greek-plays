@@ -387,6 +387,15 @@
       "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. XCIV: an Apulian red-figure bell-krater by the McDaniel Painter, British Museum 1849,0620.13 (F 151) (Getty Research Institute scan on the Internet Archive, public domain). The vase names no play; the Élite reads a parody of Apollo receiving the blind Chiron, the museum Cheiron cured by Apollo",
       "method": "Coloured plate, red figures on black, made with PhotoCraft: the panel squared; the black ground gives the outline, drawn on the ground; the pockets of ground marked; the bands of paint on the clothes walled or marked as paint; the plate's lines at their own width, the faint ones found at a finer blur and broken lines joined; the white hair and beards as white paths, outlined on the ground in day mode only; the line weight kept at pass 1's; John's PhotoCraft marks laid in; potrace",
       "verdict": "Usable; approved by John on the second pass (2026-10-13), after his edge calls and one round of his marks in PhotoCraft. No outside review (the citation checked against the Élite's text and the British Museum)."
+    },
+    {
+      "slug": "suppliants-eur",
+      "file": "suppliants-eur.svg",
+      "name": "Suppliant Women · Aithra and Theseus",
+      "alt": "Aithra holds out a phiale to her son Theseus, who stands armed in a cuirass with a long spear; a youth leaning on a staff faces them",
+      "source": "Gerhard, Auserlesene griechische Vasenbilder III (1847), Taf. CLVIII: a red-figure calyx-krater by the Methyse Painter, from Vulci, now Bologna, Museo Civico Archeologico PU 285 (Heidelberg scan, public domain); the names Aithra and Theseus are written on the vase",
+      "method": "Coloured plate, red figures on black, made with PhotoCraft: the black ground gives the outline, drawn on the ground; the pockets of ground marked; the plate blurred along its own lines where they run parallel, so dashed pleats come out whole and close ones stay apart, found at half maximum and drawn along their centres; the short marks at their printed width; faint ends followed along the print; the line weight kept at pass 1's; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the third pass (2026-10-13), after two rounds of his marks in PhotoCraft. The panel's three figures, no names. No outside review (the citation checked against Gerhard's text and the Beazley Archive)."
     }
   ]
 }
