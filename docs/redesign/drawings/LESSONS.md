@@ -444,6 +444,30 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Check a close-up's panel offsets before reading coordinates off it: the first box to drop the line John flagged
   missed it by 20 px (2026-10-10).
 
+- Knights (II, pl. XCIV, the Chiron vase: three comic actors at a stage), made with PhotoCraft: about an hour and a half
+  over two passes, the credit included, approved by John 2026-10-13. `tools/knights.py`, on `iphigenia_aulis.py` and
+  `wealth.py` (2026-10-13).
+- Ask the edge calls before drawing, on a numbered sheet of the plate: John kept the post and roof, the bundle and the
+  festoon, and dropped the names, in one answer (2026-10-13).
+- This plate prints faint lines (fingers, toes, folds, the ladder's long lines: grey 100-150 on clay 200, a plate px
+  wide). The main finder's blur broke them into dashes and lost some (John: "don't have broken ink lines", "don't
+  ignore fainter lines (like on toes and fingers"). What worked: local contrast at less blur (0.35 plate px, the
+  closing over 5) at two levels, the lower one kept only where it runs 5 plate px clear of the lines already found
+  (shorter ones were blobs); then a joiner for ends that face each other, or face a line, where the fine contrast
+  holds along the gap (`FAINT*`, `JF_*`). trojan_women's `join_breaks` skips dashes shorter than 3 plate px. Sheet
+  every added piece and join on the plate first; then a map of the plate's line centres the ink misses came to 0
+  (2026-10-13).
+- Two hand-placed end points for a long faint line that bows slightly put a least-cost path off the line by up to 8 px:
+  the joiner did it better (2026-10-13).
+- A wall can cut off ground that reached the open black only through the band it walls (the hem): after every wall,
+  list the large paint areas and mark the pockets (2026-10-13).
+- Light flecks of the print inside a pocket become clay islands after the hole fill and are drawn as dots on the black:
+  drop clay pieces under 30 plate px (`SPECK`, as Electra) (2026-10-13).
+- The PhotoCraft file for John at the tool's 3x grid ran to 45 MB with the plate enlarged bicubic; enlarged by nearest
+  neighbour (his plate-pixel grid) it was 19 MB (2026-10-13).
+- John's green loop round a black area meant "this is ground", not "remove the ink": read as a pocket of ground
+  (`POCKETS`), his blue laid in as ink (`MARKS_FILES` with green off) (2026-10-13).
+
 ### Laborde, *Collection des vases grecs de M. le comte de Lamberg* (colour aquatints, red figures on a dark ground)
 
 - Electra (Sophocles) (I, pl. VIII, Orestes brings Electra the urn), made with PhotoCraft: about an hour and a half
