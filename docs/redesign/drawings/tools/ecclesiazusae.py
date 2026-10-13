@@ -17,7 +17,8 @@ PhotoCraft made and measure. The SVG is written by linework.trace_svg.
 Plate -> drawing. A contour plate in pen on cream paper (the same programme series and engraver's style as Persians).
 John chose (2026-10-12): the three actors with the bench, the tray and the hanging flask, the stage and the door; the
 painted names out; the hair as printed curls; Xanthias's beard as brushstrokes, a stepped wash (as Frogs' hair);
-the style as Persians: pen lines at 0.8 plate px, the figures' area clay on the dark theme.
+the style as Persians, the figures' area clay on the dark theme, but the lines heavier (1.6 plate px, John, 2026-10-13)
+and redrawn crisp along their centres (John: "crisp and not staticy").
 
     python3 docs/redesign/drawings/tools/ecclesiazusae.py Tafel_01.jpg [qa.png] [dump.npz]
 """
@@ -84,12 +85,19 @@ FRAME = [(20, 1810), (160, 1807), (410, 1786), (530, 1779), (650, 1774), (770, 1
          (2040, 1768), (2100, 1771), (2360, 1794), (2420, 1798)]
 FRAME_UP = 3                              # (at 1 the line's soft upper edge stayed under the centre post)
 # The lines redrawn crisp (John, 2026-10-12, pass 1: "clean up the lines on the clothing so they are crisp and not
-# staticy"): outside the heads, the beard and the studs, each line is drawn along its centre (side spurs under SPUR
+# staticy"): but for the beard, the studs and the hem band, each line is drawn along its centre (side spurs under SPUR
 # plate px pruned, pieces under LINE_LEN plate px dropped) at its printed width smoothed along it (a Gaussian of
 # WIDTH_S plate px), at least LINE_W plate px, as frogs.py: the hems' dark bands and Charis's cloak band stay wide, the
 # blots along a line even out (kept as printed above a width, they cut the lines into dashes and spindles); the width
 # is not read within JOINT plate px of a junction, where the distance to the edge swells
 SPUR, LINE_LEN, LINE_W, WIDTH_S, JOINT = 6, 10, 1.5, 4, 3
+# The heads redrawn crisp too (John, 2026-10-12, pass 2: "Redraw the heads too"): inside HEADS the same, with side
+# spurs under HEAD_SPUR and pieces under HEAD_LEN plate px (the curls are short), and the small marks under HEAD_DOT
+# plate px^2 (the dots of the curls) kept as printed, and inside EYES (boxes, plate px: Xanthias's pupils, joined to his
+# lids) the ink as printed over the redrawn lines: a centre line drops them (a rule for solid marks took the hair's
+# shading with them)
+HEAD_SPUR, HEAD_LEN, HEAD_DOT = 2, 3, 25
+EYES = [(2040, 586, 2056, 600), (2085, 586, 2102, 600)]
 # Xanthias's hem band, which the plate stipples: a solid band, as Philotimides' (it came out a chain of beads, then
 # ragged; its left half prints too pale for a level on the blurred plate): inside BANDS (boxes, plate px) the beads
 # closed over BAND_CLOSE plate px, their holes under BAND_HOLE plate px^2 filled (a whole fill took the strip under the
@@ -122,7 +130,8 @@ SPECK_MAX, NEAR, SPECK_IN = 150, 6, 6
 if os.environ.get("ECCL_BOX"):
     X0, Y0, X1, Y1 = map(int, os.environ["ECCL_BOX"].split(","))
     OUT = Path(os.environ["ECCL_OUT"])
-WEIGHT = 0.8 / max(X1 - X0, Y1 - Y0)      # 0.8 plate px, as Persians (John, 2026-10-12)
+WEIGHT = 1.6 / max(X1 - X0, Y1 - Y0)      # 1.6 plate px (John, 2026-10-13, from 0.8, 1.2 and 1.6: 0.8 "looks too much like a
+#                                           pencil drawing")
 
 
 def pc(src, out, *steps):
@@ -221,6 +230,22 @@ def centre_lines(m, spur, min_len):
     return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
 
 
+def redraw(m, spur, min_len):
+    """The lines of m drawn along their centres (side spurs under spur plate px pruned, pieces under min_len plate px
+    dropped) at their width smoothed along them (WIDTH_S; not read within JOINT of a junction), at least LINE_W."""
+    c = centre_lines(m, spur * UP, min_len * UP)
+    w = 2 * ndi.distance_transform_edt(m)
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    joint = ndi.binary_dilation(c & (ndi.convolve(c.astype(int), k, mode="constant") >= 3),
+                                structure=morphology.disk(JOINT * UP))
+    read = c & ~joint
+    num, den = (ndi.gaussian_filter(a, WIDTH_S * UP) for a in (np.where(read, w, 0.0), read.astype(np.float32)))
+    half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_W * UP) / 2, 0.0)
+    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
+    return d <= half[iy, ix]
+
+
 def sl(box):
     """A box (plate px) as a slice of the work arrays, clipped to the crop."""
     x0, y0, x1, y1 = box
@@ -301,7 +326,7 @@ def main(src, qa=None, dump=None):
     for pts in BEARDS:
         beard |= lw.polygon_mask(ink.shape, (np.array(pts, float) - (X0, Y0)) * UP)
     ink &= ~beard
-    # the studs solid; the lines redrawn crisp along their centres, but in the heads, the studs and the wide bands
+    # the studs and the hem band solid; the lines redrawn crisp along their centres
     stud = studs(src, ink)
     heads = np.zeros_like(ink)
     for box in HEADS:
@@ -314,20 +339,14 @@ def main(src, qa=None, dump=None):
         c |= (np.bincount(hl.ravel()) < BAND_HOLE * UP * UP)[hl] & (hl > 0)
         band[b] = ndi.binary_opening(c, structure=morphology.disk(BAND_OPEN * UP))
     printed = ink                                     # (the areas are sealed on these as well: the redraw opens gaps)
-    free = ink & ~heads & ~stud & ~band
-    c = centre_lines(free, SPUR * UP, LINE_LEN * UP)
-    w = 2 * ndi.distance_transform_edt(free)
-    k = np.ones((3, 3), int)
-    k[1, 1] = 0
-    joint = ndi.binary_dilation(c & (ndi.convolve(c.astype(int), k, mode="constant") >= 3),
-                                structure=morphology.disk(JOINT * UP))
-    read = c & ~joint
-    num, den = (ndi.gaussian_filter(a, WIDTH_S * UP) for a in (np.where(read, w, 0.0), read.astype(np.float32)))
-    half = np.where(c, np.maximum(num / np.maximum(den, 1e-6), LINE_W * UP) / 2, 0.0)
-    d, (iy, ix) = ndi.distance_transform_edt(~c, return_indices=True)
-    ink = (d <= half[iy, ix]) | (ink & heads) | stud | band
+    free = ink & ~stud & ~band
+    lab, n = ndi.label(free & heads)
+    dot = (np.bincount(lab.ravel(), minlength=n + 1) < HEAD_DOT * UP * UP)[lab] & (lab > 0)
+    for box in EYES:
+        dot[sl(box)] |= free[sl(box)]
+    ink = (redraw(free & ~heads, SPUR, LINE_LEN) | (redraw(free & heads & ~dot, HEAD_SPUR, HEAD_LEN) & heads)
+           | dot | stud | band)
     ink = drop_inside(ink, SMUDGES)                   # (again: redrawn, they part from the post's line)
-    del d, iy, ix, w, num, den, half, joint, read
     ws = areas(ink | printed | beard)
     fig, ground = figure(ink | printed | beard, ws)
     del printed
