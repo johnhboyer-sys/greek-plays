@@ -31,7 +31,8 @@ Plate -> drawing, Furtwängler-Reichhold, red figures on the black ground (as to
   - The grey of the plate (the robes and sleeves in thinned paint): a `tone` wash in the line colour, its opacity
     following how much darker than the clay the plate is there; the white dots and patterns on it left open.
   - The faces (FACES): their features traced finer, from the plate barely blurred.
-  - Medea's sleeves (SLEEVES): grey tone, their dots added white.
+  - Medea's sleeves (SLEEVES): grey tone, their dots added white. The dots on her dress (DRESS) at their printed
+    shapes.
   - The added white (WHITE_*): lighter than the clay round it; `white` paths (as Wealth), outlined finely where it
     meets clay by a `day` path the dark theme hides.
   - Dark theme: the figures' area is the body; the ground stays open, as on the vase.
@@ -153,6 +154,11 @@ CAP_DEPTH, CAP_GREY = 75, 140
 # "grey would be good here"): the dots, the plate barely blurred lighter than SLEEVE_DOT in the sleeve's grey
 # area (closed over SLEEVE_CLOSE plate px and filled; the dots 214-245, the grey 90-130), are added white
 SLEEVES, SLEEVE_CLOSE, SLEEVE_DOT = [(1045, 1705, 1130, 1840), (1300, 1645, 1390, 1732)], 2, 170
+# the dots on Medea's dress (John, 2026-10-12: "add dots on Medea's white shirt"): the line finder drops marks this
+# short. In the dress's box (plate px), the plate's small dark marks (barely blurred, darker than DARK), DOT_AREA
+# plate px^2 and at most DOT_LEN plate px long, kept at their printed shapes
+DRESS = (960, 1690, 1340, 2215)
+DOT_AREA, DOT_LEN = (3, 90), 14
 SLEEVE_DEPTH = 75                           # the sleeves' grey, flat, as the cap's
 # Medea's cap and the border of her veil (plate px): a band of dark grey (60-90) with white scrolls and dots, as dark
 # as the plate's thin lines blurred; inside it only the black (lightly blurred, darker than CAP_LINE) is line, the
@@ -338,6 +344,15 @@ def main(src, qa=None, dump=None):
     ink = (lines & fig) | edge
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 2 * UP * UP)[lab]
+    lab, n = ndi.label(fine & fig & boxes([DRESS]) & ~paint)
+    area = np.bincount(lab.ravel(), minlength=n + 1) / (UP * UP)
+    ext = np.zeros(n + 1)
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        ext[i] = max(sl[0].stop - sl[0].start, sl[1].stop - sl[1].start) / UP
+    dot = (area >= DOT_AREA[0]) & (area <= DOT_AREA[1]) & (ext <= DOT_LEN)
+    dot[0] = False
+    dots_ink = dot[lab]   # (passed to the tracer as dots: its speck filter would drop them)
+    ink |= dots_ink
 
     # the added white, against the clay's level round it
     s_ = WHITE_S * UP
@@ -381,7 +396,7 @@ def main(src, qa=None, dump=None):
                             firm=firm & fig, edge=edge, tone=tone, depth=depth.astype(np.float16), white=white, day=day)
 
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=~fig, weight="drawn", day=day,
+        ink, OUT, body=fig, open_holes=~fig, weight="drawn", day=day, dots=dots_ink,
         title='Medea seizing her son, the serpent chariot, and Jason',
         desc='Line drawing after Karl Reichhold\'s 1906 drawing of the Medea krater by the Underworld Painter, '
              'Munich, Staatliche Antikensammlungen 3296 (Furtwängler and Reichhold, Griechische Vasenmalerei II, '
