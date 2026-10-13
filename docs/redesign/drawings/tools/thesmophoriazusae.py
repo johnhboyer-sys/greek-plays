@@ -236,8 +236,8 @@ OPEN_PTS = [(1172, 1035), (2788, 644), (2639, 949), (3260, 1141)]
 # the clay band round his head
 PAINT_PTS = [(1420, 470)]
 # and dark inside these polygons (flat px) is paint: the king's open mouth, open to the ground under his teeth (John,
-# 2026-10-12, the teeth white: they lie on the mouth's black), its left side along the teeth's outer edge
-PAINT_POLYS = [[(4582, 604), (4720, 604), (4720, 690), (4594, 690), (4587, 668), (4582, 652), (4579, 632)]]
+# 2026-10-12, the teeth white: they lie on the mouth's black), its left side inside the moustache's white curve
+PAINT_POLYS = [[(4590, 604), (4720, 604), (4720, 690), (4600, 690), (4600, 668), (4593, 650), (4590, 632)]]
 # Solid paint that runs into the ground's black is taken for ground: walled where it meets it (flat px, along the
 # ground's edge; WALL_W px wide)
 WALLS = []
@@ -326,12 +326,19 @@ PALE_OFF, PALE_MIN = 4, 30
 JOIN_D, JOIN_COS, JOIN_G, JOIN_BACK = 30, 0.75, 120, 12
 # The king's teeth in his open mouth, white like his beard but no wash, so they stand white against the black (John,
 # 2026-10-12: "make the teeth white"; as wasps.py): polygons round them (flat px, read off the flat), the upper tooth
-# the lower ones, and the curve of the lower teeth (a white C on the black)
+# the lower one (the white curve to the left of the mouth is the moustache: John, 2026-10-12, his line round the
+# "Beard area")
 TEETH = [[(4655, 617), (4706, 617), (4706, 633), (4655, 633)],
-         [(4576, 626), (4590, 628), (4593, 645), (4605, 655), (4628, 656), (4641, 653), (4641, 669), (4610, 671),
-          (4589, 663), (4577, 646)],
          [(4611, 631), (4669, 631), (4669, 648), (4611, 648)],
          [(4609, 648), (4641, 648), (4641, 663), (4609, 663)]]
+# The king's moustache and beard round his mouth, as John drew it (2026-10-12, "Beard area": his lines round it, mapped
+# to the flat by the photo beside them): the white wash and no outline inside, the mouth (and its two teeth) left
+# out. Its cream curve to the left of the mouth is too warm for the white rule (HEADS): inside BEARD the paint is
+# lighter than BEARD_L (grey blurred 2 px; the clay 140) and less red than BEARD_RB (red less blue; the clay 106)
+BEARD = [(4580, 675), (4575, 615), (4597, 595), (4720, 591), (4724, 600), (4730, 665), (4736, 700), (4660, 705),
+         (4680, 685), (4702, 665), (4711, 645), (4710, 635), (4700, 620), (4682, 607), (4660, 611), (4622, 622),
+         (4596, 629), (4597, 640), (4615, 650), (4637, 656), (4642, 665), (4650, 665), (4615, 670)]
+BEARD_L, BEARD_RB = 160, 95
 FACE_MAX = 20000
 HAIR_SPAN, CLAY_SPECK = 20, 10
 WASH_HOLE = 2000
@@ -679,13 +686,16 @@ def scene(rgb):
     # the white hair and the yellow: the figure inside their outline, so each curl and strand is its own shape,
     # edged in the tone, no outline
     strokes = fig & ((hair_zone & ~paint) | yellow)
-    soft_edge = edge & (ndi.distance_transform_edt(~strokes) <= EDGE + 3)
+    soft_edge = edge & ((ndi.distance_transform_edt(~strokes) <= EDGE + 3) | lw.polygon_mask(g.shape, np.array(BEARD, float)))
+
     lines &= ~white & ~yellow
     ink = lines | (edge & ~soft_edge)
     holes = ndi.binary_fill_holes(ink) & ~ink
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
     base = ((ndi.gaussian_filter(strokes.astype(np.float32), 3.0) > 0.5) | soft_edge) & fig & ~ink
+    beard = lw.polygon_mask(g.shape, np.array(BEARD, float))   # (John's beard area: its cream paint)
+    base |= ndi.binary_closing(beard & (g2 > BEARD_L) & (rbs < BEARD_RB), structure=morphology.disk(2)) & fig & ~ink
     base &= ~np.any([lw.polygon_mask(g.shape, np.array(t, float)) for t in TEETH], 0)   # (the teeth: white)
     pat_steps = []
     holes = ndi.binary_fill_holes(base) & ~base & ~ink   # (specks of bare clay in the worn white: washed over)
