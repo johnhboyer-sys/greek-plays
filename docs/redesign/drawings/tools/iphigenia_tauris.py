@@ -73,11 +73,11 @@ JOIN_MAX, JOIN_ANGLE, JOIN_C, JOIN_RUN = 8, 35, 4, 4
 # them). The ground line, the pillar and the temple close the lower field into pockets: between the pillar and
 # Orestes, between his legs and the spear; before the temple's floor, by Pylades' feet; before the door; between the
 # chain and the attendant; beside the temple under Artemis's arm, between her and her spear; under the tray. John
-# ringed the areas pass 1 had wrong on the numbered area map: these are ground (between Orestes' arm and his spear,
-# twice; Pylades' far shin; between Orestes' legs; the top of the attendant's hair; the black of Iphigenia's lower
-# meander); and under the bowl by Orestes' thigh, between Artemis's legs, the attendant's upper arm, the temple step
-# under Iphigenia and the altar by the tassel are clay
-GROUND = [(386, 1568), (569, 1549), (713, 1548), (846, 1697), (1063, 1508), (1560, 1545), (1529, 866), (1749, 887), (1601, 1308), (648, 1168), (630, 1304), (953, 1472), (488, 1655), (1745, 1124), (1245, 1512)]
+# ringed the places pass 1's area map had wrongly as ground: under the bowl by Orestes' thigh, between Artemis's
+# legs, the attendant's upper arm, the temple step under Iphigenia and the altar by the tassel are clay; the rest he
+# ringed (Orestes' hand on the spear, his foot, Pylades' far shin, the attendant's hair, the lower meander) were
+# leaks the line joins closed. (Read once as "flip these", it blacked out a hand, a foot and a shin.)
+GROUND = [(386, 1568), (569, 1549), (713, 1548), (846, 1697), (1063, 1508), (1560, 1545), (1529, 866), (1749, 887), (1601, 1308)]
 # open ends of narrow clay bands, walled for the areas only (not drawn): the strip under the entablature's left end;
 # both ends of the pillar base's lower moulding (John, pass 1: these read as ground); both ends of the strip under
 # Iphigenia's lower meander (the skirt's outline breaks there, 1516-1552)
