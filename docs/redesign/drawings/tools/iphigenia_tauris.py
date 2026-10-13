@@ -128,12 +128,24 @@ CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
          (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
 # strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
 # squiggle names the paper area it lies most in)
-MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2)]
+MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3)]
 MARKS_K = 2
 # pass 4 marks (John): blue strokes redraw lines (her brows, eye, nose, mouth, jaw and neck, the sleeve's zigzag edge,
 # the pleat points, the ribbon's folds). Each stroke goes in along its centre, smoothed as the found lines, at the
 # pen; the found lines within REPLACE scan px of it go (the same line drawn twice), those crossing it are cut there
 REPLACE = 2.5
+# his lines are a guide, not the line ("my lines weren't perfectly precise, but a guide for you"): each is moved onto
+# the printed line it follows, within SNAP scan px (snap), the shift smoothed over SNAP_SIGMA scan px
+SNAP, SNAP_SIGMA = 1.5, 5        # a wider search (3) and less smoothing (2) made the lines wobble onto neighbours and grain
+# pass 5 marks (John): he traced the skirt's middle zone whole (the palmettes, the wave band's edges, the plants, the
+# meander) and painted the meander's strip at half opacity: "added more at half opacity where it should be grey".
+# Alpha MARK_HALF[0]..MARK_HALF[1] is that grey (a wash at HATCH_OP); above it, a line. An area he traced whole (his
+# strokes closed over TRACED_CLOSE scan px, larger than TRACED_MIN scan px^2) is all clay ("that skirt is all clay and
+# ink, not ground")
+MARK_HALF = (0.25, 0.8)
+# yellow (John, pass 5): clay with no black ink: the area is clay and any line under it goes
+TRACED_CLOSE, TRACED_MIN = 4, 4000
+TRACED_FROM = 3                           # only the pass 5 marks trace an area whole (marks_3)
 # a clay area meeting the ground with no line between them is a gap in the outline (John: "the ground leaks are due
 # to lines not being fully traced"): where the clay's edge lies farther than GAP scan px from any line, the outline is
 # drawn along the clay's edge at the pen's width
@@ -379,7 +391,7 @@ def lines(src):
     ink = (ink & ~box) | eye
     joins = join_breaks(ink, contrast, PEN * UP) & ~box
     print("joins", ndi.label(joins)[1])
-    return g, gl, ink | joins
+    return g, gl, ink | joins, contrast
 
 
 def sl(box):
@@ -431,19 +443,57 @@ def add_tone(svg, steps, box):
     svg.write_text(s)
 
 
-def marks(shape):
-    """John's marks on the work grid: (blue, green) bool masks; blue thinned to its centre line at the pen."""
-    blue, green = np.zeros(shape, bool), np.zeros(shape, bool)
+def snap(q, contrast):
+    """A path of John's (y, x, work px) moved onto the printed line it follows: each point slides along the path's
+    normal, up to SNAP scan px, to where the plate's local contrast is highest; where nothing there reaches JOIN_C
+    (no printed line: a gap he closed) it stays. The shifts are smoothed along the path over SNAP_SIGMA scan px."""
+    q = smooth_path(q, LINE_SIGMA * UP)
+    if len(q) < 3:
+        return q
+    t = np.gradient(q, axis=0)
+    t /= np.maximum(np.hypot(*t.T), 1e-6)[:, None]
+    n = np.c_[-t[:, 1], t[:, 0]]
+    offs = np.arange(-SNAP, SNAP + 0.01, 0.25) * UP
+    pts = q[:, None, :] + offs[None, :, None] * n[:, None, :]
+    v = ndi.map_coordinates(contrast, [pts[..., 0].ravel(), pts[..., 1].ravel()], order=1).reshape(pts.shape[:2])
+    v -= 0.002 * offs[None, :] ** 2       # ties go to the nearer line
+    best = offs[np.argmax(v, 1)]
+    best[v.max(1) < JOIN_C] = 0
+    best = ndi.gaussian_filter1d(best, SNAP_SIGMA * UP, mode="nearest")
+    return q + best[:, None] * n
+
+
+def marks(shape, contrast):
+    """John's marks on the work grid: (lines, green, grey, traced, yellow). Blue at full opacity is a line, redrawn along its
+    centre at the pen; blue at half opacity (MARK_HALF) wider than a stroke's soft edge is a grey wash; `traced` is the
+    area inside each large group of his strokes (an area he traced whole: all of it clay)."""
+    blue, green, grey_, traced, yellow = (np.zeros(shape, bool) for _ in range(5))
     for f in MARKS_FILES:
         a = np.asarray(Image.open(f).convert("RGBA")).astype(np.float32)
         r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3] / 255
         assert abs(a.shape[1] * UP / MARKS_K - shape[1]) <= UP and abs(a.shape[0] * UP / MARKS_K - shape[0]) <= UP
         up = lambda m: np.asarray(Image.fromarray((m * 255).astype(np.uint8)).resize((shape[1], shape[0]),
                                                                                         Image.BILINEAR)) >= 128
-        blue |= up(al * ((b > r + 40) & (b > g + 20)))
+        isb = (b > r + 40) & (b > g + 20)
+        line = up((al >= MARK_HALF[1]) & isb)
+        blue |= line
+        if f.stem.endswith(f"_{TRACED_FROM}"):
+            whole = line
         green |= up(al * ((g > r + 40) & (g > b + 20)))
-    paths = [smooth_path(q, LINE_SIGMA * UP) for q in skeleton_paths(blue)]
-    return draw_paths(shape, paths, [PEN * UP] * len(paths)), green
+        yellow |= up(al * ((r > b + 60) & (g > b + 60)))
+        half = (al > MARK_HALF[0]) & (al < MARK_HALF[1]) & isb
+        grey_ |= up(ndi.binary_opening(half, structure=morphology.disk(MARKS_K)))
+    # the area his strokes enclose (closed over TRACED_CLOSE, holes filled), where it is larger than TRACED_MIN: the
+    # convex hull of his strokes took in the ribbon and the dress above the band, and their lines went
+    closed = ndi.binary_fill_holes(ndi.binary_closing(whole, structure=morphology.disk(TRACED_CLOSE * UP)))
+    lab, n = ndi.label(closed & ~ndi.binary_opening(whole, structure=morphology.disk(UP)))
+    size = np.bincount(lab.ravel())
+    big = size > TRACED_MIN * UP * UP
+    big[0] = False
+    traced = ndi.binary_fill_holes(ndi.binary_dilation(big[lab], iterations=UP) & closed)
+    # (bits of skeleton shorter than 2 scan px, where a thick stroke forks, drew blobs)
+    paths = [snap(q, contrast) for q in skeleton_paths(blue) if len(q) >= 2 * UP]
+    return draw_paths(shape, paths, [PEN * UP] * len(paths)), green, grey_ & ~blue, traced, yellow
 
 
 def figure(ink, ws, marked=()):
@@ -497,7 +547,7 @@ def iphigenia(ink, fig, ws, wash):
 def main(src, qa=None, dump=None):
     # (trace_svg's `keep` is the whole clay: its smoothing opening took the strips between lines 2-3 px apart, which
     # showed dark on the dark theme)
-    g, gl, ink = lines(src)
+    g, gl, ink, contrast = lines(src)
     grid, wash, poly = checker(src, ink.shape)
     ink = (ink & ~poly) | grid
     walls = np.zeros_like(ink)
@@ -506,10 +556,18 @@ def main(src, qa=None, dump=None):
             x, y = (np.array(a) + t * (np.array(b) - a) - (X0, Y0)) * UP
             walls[round(y), round(x)] = True
     walls = ndi.distance_transform_edt(~walls) <= PEN * UP / 2
-    blue, green = marks(ink.shape)
+    blue, green, mgrey, traced, yellow = marks(ink.shape, contrast)
     eye, box = eyes(ink.shape)            # the eyes are drawn by hand (EYE_*): John's strokes there are left out
     blue &= ~box
     ink = (ink & ~((ndi.distance_transform_edt(~blue) <= REPLACE * UP) & ~eye)) | blue
+    # where he traced the whole area, his lines are the drawing there, with the plate's solid black (the waves)
+    solid = ndi.binary_opening(gl < SOLID, structure=morphology.disk(SOLID_OPEN * UP))
+    inside = ndi.binary_erosion(traced, iterations=UP)
+    waves = np.zeros_like(ink)            # the waves inside the band's two edges (he traced the edges, not the waves)
+    waves[sl(WAVE)] = True
+    waves &= ndi.distance_transform_edt(~blue) > REPLACE * UP
+    ink = (ink & ~(inside & ~waves)) | (blue & inside) | (solid & traced)
+    ink &= ~yellow
     ws = areas(ink | walls)
     # each green squiggle: the paper area it lies most in is ground
     lab, n = ndi.label(ndi.binary_dilation(green, iterations=2 * UP))
@@ -523,6 +581,9 @@ def main(src, qa=None, dump=None):
         m = lw.polygon_mask(ink.shape, (np.array(pts, float) - (X0, Y0)) * UP)
         fig |= m
         ground &= ~m
+    fig |= traced | yellow
+    ground &= ~(traced | yellow)
+    wash |= mgrey
     lab, n = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > SPECK * UP * UP)[lab]
     # outline the clay where it meets the ground with no line: the clay's edge band, a pen wide, where the edge lies
