@@ -52,6 +52,7 @@ from PIL import Image
 from scipy import ndimage as ndi
 from skimage import draw, morphology
 from skimage.filters import apply_hysteresis_threshold
+from scipy.spatial import cKDTree
 
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
@@ -82,6 +83,14 @@ UPPER_X = 2255
 CASKET = [(1974, 1441), (2066, 1436), (2072, 1442), (2049, 1484), (1953, 1492), (1953, 1486)]
 FLAMES = [(1462, 1390, 1605, 1472), (1912, 1388, 2060, 1446)]
 FLAME_R, FLAME_T = 6, 15
+# the spear that crosses the base above Oistros' head, its tip in his hair (John, 2026-10-12: "Spear"): its outline
+# on the plate (plate px, measured at 5x), from the band's edge down to the ground; its body the plate's strokes
+# inside it closed over FLAME_R, as the flames'
+SPEAR = [(1621, 1385), (1642, 1385), (1665, 1400), (1679, 1416), (1687, 1432), (1709, 1462), (1697, 1467),
+         (1676, 1441), (1656, 1431), (1647, 1422), (1639, 1405)]
+# the base's moulding line runs behind the flames and shows through them: straight strokes in the flames' boxes,
+# MOULD plate px long or more and no taller than a line, are not drawn
+MOULD = 10
 # the flames' necks, where each flame narrows onto its torch at the base's edge (plate px, measured at 6x)
 NECKS = [[(1478, 1438), (1520, 1438), (1516, 1471), (1482, 1471)], [(1916, 1438), (1964, 1438), (1959, 1466),
                                                                         (1921, 1466)]]
@@ -112,7 +121,19 @@ WHEELS = [(1597, 2131, 56, 112), (1910, 2110, 48, 108)]
 DOT_MIN = 4                                 # plate px: smaller pieces of clay are specks of the print
 PAINT_NEAR, PAINT_CORE = 3, 45
 LINE_R = 2.5                                # plate px: the closing for the lines' local contrast
-LINE_LO, LINE_HI = 26, 40                   # local contrast (closing less the plate): hysteresis
+LINE_LO, LINE_HI = 12, 40                   # local contrast (closing less the plate): hysteresis
+# gaps in the lines (John, 2026-10-12: "some small lines broken or missing"): two line ends JOIN plate px apart or
+# less, each pointing at the other (within JOIN_ANGLE degrees), are joined where the plate between them is darker
+# than the clay round it by JOIN_C on average (a faint stretch of the same line, not clay)
+JOIN, JOIN_ANGLE, JOIN_C = 8, 40, 6
+# the small marks the line finder drops as too short (body hair, short strokes, dots: John, 2026-10-12): on the
+# figures, away from the lines, darker than the clay round them by MARK_C, MARK_AREA plate px^2, at most MARK_LEN
+# long; kept at their printed shapes
+MARK_C, MARK_AREA, MARK_LEN = 24, (2, 60), 14
+SMALL_INK = 40                              # plate px^2: smaller pieces of ink are traced as dots (see below)
+# added white narrower than WHITE_EDGE_W plate px lying along the figures' edge or a line (within WHITE_EDGE plate
+# px of the ground or the ink) is the scan's light rim beside a dark edge, not paint
+WHITE_EDGE, WHITE_EDGE_W = 3, 2.5
 # the line weight: the plate's own (its fold lines 1.5-2 plate px): the F-R rule, 0.11% of the longer side (John on
 # Andromache), gives 2.2 plate px on this wide band, heavier than the plate for figures this size
 LINE_W = 1.7
@@ -140,6 +161,9 @@ FACE_R, FACE_LO, FACE_HI, FACE_W = 1.5, 24, 40, 1.2
 # band, 175 at the left, 200 at the right); none in the faces. Drawn as `white` paths in WHITE_FILL under the lines (as Wealth); where
 # it meets clay, a fine outline, WHITE_LINE plate px, as a `day` path the dark theme hides
 WHITE_D, WHITE_D2, WHITE_S, WHITE_MIN, WHITE_CLEAR = 20, 10, 20, 3, 2.5
+# and each piece larger than WHITE_DOT plate px^2 lighter by WHITE_PEAK somewhere (the serpents' pale clay rises less;
+# the dots, smaller, are kept)
+WHITE_PEAK, WHITE_DOT = 30, 16
 WHITE_FILL, WHITE_LINE = "#f7f3ea", 0.8
 # slivers of it narrower than WHITE_W plate px along the lines' edges dropped; a clay area between the lines that is
 # white for more than WHITE_AREA of it is white whole (the casket, the dish, the wheels' rims, the hilts); the altar,
@@ -199,6 +223,40 @@ def poly_y(pts, x):
 def poly_x(pts, y):
     """The polyline pts [(y, x)] at plate y."""
     return np.interp(y, [p[0] for p in pts], [p[1] for p in pts])
+
+
+def join_gaps(black, contrast):
+    """Join line ends across small gaps (JOIN_*): the skeleton's free ends, each with the direction it points
+    (from the skeleton within 3 plate px behind it), paired when near, facing, and dark between."""
+    n8 = np.ones((3, 3), int)
+    sk = morphology.skeletonize(black)
+    nb = ndi.convolve(sk.astype(int), n8, mode='constant') - 1
+    ends = np.argwhere(sk & (nb == 1))
+    if len(ends) < 2:
+        return black
+    r = 3 * UP
+    dirs = []
+    for y, x in ends:
+        win = sk[max(y - r, 0):y + r + 1, max(x - r, 0):x + r + 1]
+        wy, wx = np.nonzero(win)
+        v = np.array([y - (wy.mean() + max(y - r, 0)), x - (wx.mean() + max(x - r, 0))])
+        dirs.append(v / (np.hypot(*v) + 1e-9))
+    dirs = np.array(dirs)
+    cos = np.cos(np.radians(JOIN_ANGLE))
+    out = black.copy()
+    for i, j in cKDTree(ends).query_pairs(JOIN * UP):
+        d = ends[j] - ends[i]
+        L = np.hypot(*d)
+        if L < 2:
+            continue
+        u = d / L
+        if dirs[i] @ u < cos or dirs[j] @ -u < cos:
+            continue
+        rr, cc = draw.line(*ends[i], *ends[j])
+        if contrast[rr, cc].mean() < JOIN_C:
+            continue
+        out[rr, cc] = True
+    return out
 
 
 def add_tone(svg, tone, depth, box):
@@ -303,6 +361,12 @@ def main(src, qa=None, dump=None):
     for pts in NECKS:
         rr, cc = draw.polygon([(y - Y0) * UP for _, y in pts], [(x - X0) * UP for x, _ in pts], fig.shape)
         flames[rr, cc] = True
+    spear = np.zeros_like(fig)
+    rr, cc = draw.polygon([(y - Y0) * UP for _, y in SPEAR], [(x - X0) * UP for x, _ in SPEAR], fig.shape)
+    spear[rr, cc] = True
+    spear = ndi.binary_fill_holes(ndi.binary_closing((closed - gl > FLAME_T) & spear,
+                                                     structure=morphology.disk(FLAME_R * UP))) & spear
+    flames |= spear
     fig |= lid | flames | (hairs & ~outside)
 
     # the paint: dark areas within the figures whose core is darker than PAINT_CORE, at the edge the plate prints
@@ -325,11 +389,15 @@ def main(src, qa=None, dump=None):
 
     tw = LINE_W * UP                            # the line width, work px
     firm = apply_hysteresis_threshold(closed - gl, LINE_LO, LINE_HI)
+    flame_box = boxes(FLAMES)
+    mould = ndi.binary_opening(firm & flame_box, structure=np.ones((1, MOULD * UP), bool))
+    firm &= ~ndi.binary_dilation(mould, iterations=UP // 2)
     cap = np.zeros_like(fig)
     rr, cc = draw.polygon([(y - Y0) * UP for _, y in CAP], [(x - X0) * UP for x, _ in CAP], fig.shape)
     cap[rr, cc] = True
     firm &= ~cap | (gl < CAP_LINE)
     black = firm & fig & ~ndi.binary_dilation(paint, iterations=UP)
+    black = join_gaps(black & ~cap, closed - gl) & fig | (black & cap)
     lines = centre_lines(black, tw, 3 * UP, 2 * tw) | paint
     pupil = (gs < PUPIL_T) & eyes & fig
     lab, _ = ndi.label(pupil)
@@ -352,6 +420,20 @@ def main(src, qa=None, dump=None):
     dot = (area >= DOT_AREA[0]) & (area <= DOT_AREA[1]) & (ext <= DOT_LEN)
     dot[0] = False
     dots_ink = dot[lab]   # (passed to the tracer as dots: its speck filter would drop them)
+    # (what the line finder found and the centre lines did not draw, beyond a drawn line's own fringe (a plate px):
+    # short strokes off a line, as the serpents' bands, count too, grown back to the line within what was found)
+    seen = (closed - gl > MARK_C) | firm
+    # (not in the cap, whose grey is textured, nor in the flames)
+    cand = seen & fig & ~ndi.binary_dilation(lines | paint, iterations=UP) & ~boxes(EYES) & ~cap & ~boxes(FLAMES)
+    cand = ndi.binary_propagation(cand, mask=seen & fig & ~lines & ndi.binary_dilation(cand, iterations=UP + 1))
+    lab, n = ndi.label(cand)
+    area = np.bincount(lab.ravel(), minlength=n + 1) / (UP * UP)
+    ext = np.zeros(n + 1)
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        ext[i] = max(sl[0].stop - sl[0].start, sl[1].stop - sl[1].start) / UP
+    mark = (area >= MARK_AREA[0]) & (area <= MARK_AREA[1]) & (ext <= MARK_LEN)
+    mark[0] = False
+    dots_ink |= mark[lab]
     ink |= dots_ink
 
     # the added white, against the clay's level round it
@@ -362,6 +444,12 @@ def main(src, qa=None, dump=None):
     level = ndi.gaussian_filter(np.where(clayish, gw, 0), s_) / np.maximum(ndi.gaussian_filter(clayish * 1.0, s_), 1e-3)
     white = morphology.remove_small_objects((gw > level + WHITE_D) & fig & ~boxes(FACES), max_size=WHITE_MIN * UP * UP)
     white = ndi.binary_opening(white, structure=morphology.disk(round(WHITE_W * UP / 2))) | (white & cap)
+    lab, n = ndi.label(white)
+    if n:
+        size = np.bincount(lab.ravel(), minlength=n + 1)[1:] / (UP * UP)
+        peak = np.r_[False, (np.asarray(ndi.maximum(gw - level, lab, range(1, n + 1))) > WHITE_PEAK) |
+                     (size <= WHITE_DOT)]
+        white &= peak[lab]
     lab, n = ndi.label(fig & ~ndi.binary_dilation(ink, iterations=UP // 2))
     frac = ndi.mean(white, lab, range(1, n + 1)) if n else []
     whole = np.r_[False, np.asarray(frac) > WHITE_AREA][lab]
@@ -369,6 +457,12 @@ def main(src, qa=None, dump=None):
     rr, cc = draw.polygon([(y - Y0) * UP for _, y in ALTAR], [(x - X0) * UP for x, _ in ALTAR], fig.shape)
     altar[rr, cc] = True
     white = (white | whole | (altar & fig & ~ndi.binary_dilation(ink, iterations=UP // 2))) & ~boxes(FACES)
+    lab, n = ndi.label(white)
+    if n:
+        near_edge = ndi.mean(ndi.distance_transform_edt(fig & ~ink) <= WHITE_EDGE * UP, lab, range(1, n + 1))
+        width = ndi.maximum(ndi.distance_transform_edt(white), lab, range(1, n + 1))
+        rim_w = np.r_[False, (np.asarray(near_edge) > 0.5) & (np.asarray(width) < WHITE_EDGE_W * UP / 2)]
+        white &= ~rim_w[lab]
     # (its outline where it meets clay, not where it meets the lines or the ground: there the white shows already)
     rim = (ndi.distance_transform_edt(~white) <= WHITE_LINE * UP) & ~white & fig & ~ink
     day = rim & ~ndi.binary_dilation(ink, iterations=UP)
@@ -391,9 +485,13 @@ def main(src, qa=None, dump=None):
     white = (white & ~sleeve) | dots
     tone &= ~dots
     depth = np.where(sleeve, SLEEVE_DEPTH, depth)
+    # every small piece of ink goes to the tracer as a dot: its speck filter scales with the drawing (here about
+    # 140 work px^2) and took the short strokes (body hair, the serpents' bands, short folds)
+    lab, _ = ndi.label(ink)
+    dots_ink |= ink & (np.bincount(lab.ravel()) < SMALL_INK * UP * UP)[lab]
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint,
-                            firm=firm & fig, edge=edge, tone=tone, depth=depth.astype(np.float16), white=white, day=day)
+                            firm=firm & fig, edge=edge, tone=tone, depth=depth.astype(np.float16), white=white, day=day, dots=dots_ink, contrast=(closed - gl).astype(np.float16))
 
     info = lw.trace_svg(
         ink, OUT, body=fig, open_holes=~fig, weight="drawn", day=day, dots=dots_ink,
