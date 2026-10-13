@@ -119,7 +119,10 @@ GROW_C, GROW_RUN, GROW_MAX, GROW_EDGE = 18, 4, 12, 3
 # green, ink to take out (inside the figures; the outline stays); blue, ink to add, drawn along the plate's own line
 # through points read off his stroke every MARK_STEP plate px (as TRACED), LINE_W wide. Some of his green landed on the
 # red pass layer; both layers are merged into the one file
-MARKS_FILES = [Path(__file__).parent / "suppliants_eur_marks_1.png"]
+MARKS_FILES = [Path(__file__).parent / "suppliants_eur_marks_1.png", Path(__file__).parent / "suppliants_eur_marks_2.png"]
+# after the marks: the centre of the star on Theseus' right shoulder flap, which pass 2 drew as a ring and John's green
+# took out; the plate prints a solid dot there (x, y, r, plate px)
+AFTER_DOTS = [(1136, 555, 1.5)]
 MARKS_K, MARK_STEP, MARK_NEAR = 2, 4, 2.5   # (the line kept within MARK_NEAR plate px of his stroke)
 # inside REPLACE (boxes, plate px) his blue strokes replace the lines there, the ink within MARK_NEAR plate px of them
 # taken out first: the fingers of Aithra's lower hand, which print faint and came out as broken wiggles beside them
@@ -439,6 +442,9 @@ def main(src, qa=None, dump=None, box=None):
         for P in lines_:
             ink |= traced(g, P, LINE_W, near) & fig
         ink |= dots_ & fig
+    for x, y, r in ([] if box else AFTER_DOTS):
+        cx, cy = at([(x, y)])[0]
+        ink |= np.hypot(xx + 0.5 - cx, yy + 0.5 - cy) <= r * UP
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), fig=fig, ground=ground, ink=ink, paint=paint,
                             found=_found, det=_det, join=_join, grow=_grow, contrast=np.clip(c, 0, 255).astype(np.uint8), edge=edge, lines=lines)
