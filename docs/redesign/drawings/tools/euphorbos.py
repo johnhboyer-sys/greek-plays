@@ -158,14 +158,24 @@ HAND_LINES = [[(1800, 225), (1815, 238), (1830, 247), (1845, 253), (1852, 254), 
               [(1915, 303), (1916, 310), (1917, 316)],
               [(1937, 322), (1931, 329), (1925, 337), (1920, 345)]]
 # the child's eye and nostril (John on pass 3: "Child's nose and eyes could be better. Fine lines are complete
-# there in original"): inside these boxes (scan px) the lines are only these, drawn through hand-placed points
-# read off the plate at 10x along its darkest path, CHILD_FACE_W scan px wide; the pupil is the plate darker
-# than PUPIL_T inside the eye's contour
+# there in original"): inside these boxes (scan px) the lines are only these, drawn as smooth curves through
+# points read off the levelled plate at 10-14x, CHILD_FACE_W scan px wide; the pupil is the plate darker than
+# PUPIL_T inside the eye's contour
 CHILD_FACE_BOXES = [(1852, 272, 1880, 302), (1870, 307, 1888, 325)]
 CHILD_FACE_LINES = [[(1866, 276), (1861, 280), (1858, 285), (1856, 290), (1857, 294)],            # brow
                     [(1874, 280), (1869, 283), (1865, 288), (1863, 293), (1865, 297)],             # eye, back
                     [(1874, 280), (1874, 286), (1872, 290), (1868, 294), (1865, 297)],             # eye, front
-                    [(1873, 318), (1875, 313), (1880, 311), (1883, 315), (1881, 320), (1878, 322)]]  # nostril
+                    [(1875, 317), (1875.5, 312), (1878, 310), (1881, 311), (1883, 314), (1882, 318),
+                     (1880, 319.5)]]                                                               # nostril
+# the child's nose, bridge to tip (John on pass 3: "make sure nose lines are fully drawn"): drawn whole through
+# these points (read off the levelled plate at 14x): inside NOSE_AREA these lines only
+CHILD_NOSE = [[(1838, 312), (1840, 308), (1842.5, 305), (1846, 304), (1849, 304.5), (1853, 308), (1857, 312),
+               (1862, 316), (1866, 321), (1869, 325), (1872, 327), (1874.5, 326), (1876, 323)],
+              [(1849, 305.5), (1847.5, 308), (1846, 311), (1845.5, 314)],                 # the tip's inner line
+              [(1838, 313.5), (1841, 314.5), (1845, 314.8), (1847.5, 316), (1849, 318)]]  # the tip's base
+NOSE_AREA = [(1838, 302), (1856, 300), (1876, 306), (1886, 308), (1886, 323), (1878, 331), (1866, 331),
+             (1852, 319), (1846, 319), (1837, 314)]                                       # (scan px)
+NOSE_DARK = 60                                   # the black paint printed in the tip (darker than this): solid
 CHILD_FACE_W, PUPIL_T = 1.8, 75
 
 
@@ -295,6 +305,18 @@ def join_breaks(lines, contrast, tw, where):
         for y, x in np.round(q).astype(int):
             out[y, x] = True
     return ndi.distance_transform_edt(~out) <= tw / 2 if out.any() else out
+
+
+def smooth_line(pts, shape, x0, y0):
+    """A smooth curve (a cubic spline, no smoothing) through points in scan px, as a 1 px mask at UP."""
+    from scipy.interpolate import splprep, splev
+    P = np.array(pts, float)
+    tck, _ = splprep([(P[:, 0] - x0) * UP, (P[:, 1] - y0) * UP], s=0, k=min(3, len(P) - 1))
+    n = int(np.hypot(*np.diff(P, axis=0).T).sum() * UP * 4) + 2
+    x, y = splev(np.linspace(0, 1, n), tck)
+    m = np.zeros(shape, bool)
+    m[np.clip(np.round(y).astype(int), 0, shape[0] - 1), np.clip(np.round(x).astype(int), 0, shape[1] - 1)] = True
+    return m
 
 
 def masks(src, box=None):
@@ -493,24 +515,23 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     back = cw & ~ndi.binary_erosion(cw, iterations=round(tw)) & (px < CHILD_BACK) & \
         ndi.binary_dilation(fig & ~cw, iterations=round(tw) + 1)
     ink |= back
-    # (the child's eye and nostril)
+    # (the child's eye, nose and nostril: only the hand-placed lines inside their areas)
     cfb = np.zeros_like(ink)
     for b in CHILD_FACE_BOXES:
         cfb |= (px >= b[0]) & (px < b[2]) & (py >= b[1]) & (py < b[3])
+    cfb |= poly(px, py, NOSE_AREA)
     if all(x0 <= b[0] and b[2] <= x1 and y0 <= b[1] and b[3] <= y1 for b in CHILD_FACE_BOXES):
         ink &= ~cfb
-        hc0 = ndi.gaussian_filter(m['g'], 0.5 * UP)
-        hcost0 = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(hc0, size=(4 * UP, 4 * UP)) - hc0, 0, None) / 12)
         eye_c = np.zeros_like(ink)
-        for k, pts in enumerate(CHILD_FACE_LINES):
-            xy = lw.livewire(hcost0, [((x - x0) * UP, (y - y0) * UP) for x, y in pts])
-            seg = np.zeros_like(ink)
-            seg[xy[:, 1].astype(int), xy[:, 0].astype(int)] = True
-            ink |= (ndi.distance_transform_edt(~seg) <= CHILD_FACE_W * UP / 2) & cfb
+        for k, pts in enumerate(CHILD_FACE_LINES + CHILD_NOSE):
+            seg = smooth_line(pts, ink.shape, x0, y0)
+            ink |= ndi.distance_transform_edt(~seg) <= CHILD_FACE_W * UP / 2
             if k in (1, 2):
                 eye_c |= seg
+        g05 = ndi.gaussian_filter(m['g'], 0.5 * UP)
         inside = ndi.binary_fill_holes(ndi.binary_dilation(eye_c, iterations=1))
-        ink |= inside & (hc0 < PUPIL_T)
+        ink |= inside & (g05 < PUPIL_T)
+        ink |= ndi.binary_opening(poly(px, py, NOSE_AREA) & (g05 < NOSE_DARK), structure=morphology.disk(UP // 2 + 1))
     # (hand-placed lines)
     hc = ndi.gaussian_filter(m['g'], 0.7 * UP)
     hcost = 1 + 40 * np.exp(-np.clip(ndi.grey_closing(hc, size=(5 * UP, 5 * UP)) - hc, 0, None) / 12)
