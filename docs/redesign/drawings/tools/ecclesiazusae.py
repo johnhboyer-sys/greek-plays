@@ -18,7 +18,9 @@ Plate -> drawing. A contour plate in pen on cream paper (the same programme seri
 John chose (2026-10-12): the three actors with the bench, the tray and the hanging flask, the stage and the door; the
 painted names out; the hair as printed curls; Xanthias's beard as brushstrokes, a stepped wash (as Frogs' hair);
 the style as Persians, the figures' area clay on the dark theme, but the lines heavier (1.6 plate px, John, 2026-10-13)
-and redrawn crisp along their centres (John: "crisp and not staticy").
+and redrawn crisp along their centres (John: "crisp and not staticy"). John ruled the ground areas by number on pass 1,
+asked for the studs solid on pass 1 and the heads redrawn on pass 2, and marked pass 3 in PhotoCraft
+(ecclesiazusae_marks_1.png). Approved by John on the fourth pass, 2026-10-13.
 
     python3 docs/redesign/drawings/tools/ecclesiazusae.py Tafel_01.jpg [qa.png] [dump.npz]
 """

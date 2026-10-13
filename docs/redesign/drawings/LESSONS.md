@@ -575,6 +575,32 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   border it, not the whole plate's body, which counts every line touching clay (Apollo's shin line came in with it)
   (2026-10-12).
 
+- Assemblywomen (Heydemann, *Vase Caputi mit Theaterdarstellungen*, Hallisches Winckelmannsprogramm 9, 1884, Taf. I:
+  three comic actors), made with PhotoCraft: about four hours over two sittings, a style test and four passes, approved
+  by John 2026-10-13. `tools/ecclesiazusae.py` (2026-10-13).
+- The same series as Persians, but paler pen lines: at Persians' thresholds and half maximum the stage's posts broke into
+  dashes and a 17 px gap opened in the stage's edge. Lower the local-contrast thresholds and take the line at 0.4 of
+  the way to its core (2026-10-12).
+- "Crisp and not staticy" (John): lines found as printed carry the scan's grain along their edges and read as pencil.
+  Redraw every line along its centre at its printed width smoothed along it (as frogs.py), the width not read near a
+  junction, where it swells. Keep out of the redraw what is solid (studs, a stippled hem band: closed and filled) and
+  the pupils, which a centre line drops (a box per eye; a rule for solid marks in the heads took the hair's shading
+  too). Seal the areas on the printed lines as well as the redrawn ones: the redraw opens hairline gaps and a door's
+  panels went to ground (2026-10-13).
+- Weight: John chose 1.6 plate px, twice Persians' 0.8, from an A/B of 0.8, 1.2 and 1.6 on two heads and drapery: 0.8
+  "looks too much like a pencil drawing". Ask early on a contour plate (2026-10-13).
+- Trace a wide plate tall (here 7200 px): at the house 4000 px the thin lines broke into dashes once weighted (2026-10-12).
+- A beard printed as fine grey strokes went in as a stepped grey wash, as Frogs' goatee (John: "brushstrokes like with
+  hair on other comedy plates"). The finer head finder from Eumenides (less blur, a narrow core) took the grey shading
+  between curls for strokes and speckled the hair: not used (2026-10-12).
+- The vase's frame line ran under the stage's posts, joined to them by the finder: drop the ink below a polyline read
+  off the plate between the posts, not the pieces lying mostly below it (2026-10-12).
+- John's marks all blue (ink) this time: laid in as `dots` at their own size, so the pinned weight did not move; the
+  whole-plate diff showed changes only at his marks, and where his lines closed the string of figs, now clay
+  (2026-10-13).
+- Three test runs at once on this 8 GB Mac with other sessions running took ten minutes each and filled the swap: run
+  A/B variants one at a time (2026-10-13).
+
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
 - Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
