@@ -87,7 +87,8 @@ EYE_LINES = [
 # inside EYE_BOXES are left out
 EYE_REDRAWN, IRIS_REDRAWN = set(), set()
 EYE_IRIS = [(1282, 1053.6, 2.3), (1311, 1049.2, 2.5)]   # centre x, y, radius (scan px)
-EYE_PUPIL = 1.0                           # scan px: the pupil's radius
+EYE_PUPIL = 1.0                           # scan px: the pupil's radius; both pupils or neither (John): they go to the
+                                          # tracer as `dots`, or its speck filter drops them
 EYE_PEN = 1.0                             # scan px
 SOLID_OPEN = 1.5                          # scan px: solid black (the wave band's strokes, 4 px) is what an opening
                                           # this wide leaves of the plate darker than SOLID; it stays as printed
@@ -510,6 +511,16 @@ def figure(ink, ws, marked=()):
     return fig & ~ground, ground
 
 
+def pupils(shape):
+    """The pupils (EYE_IRIS centres, EYE_PUPIL radius) on the work grid."""
+    yy, xx = np.mgrid[:shape[0], :shape[1]]
+    m = np.zeros(shape, bool)
+    for cx, cy, _ in EYE_IRIS:
+        x, y = (cx - X0) * UP, (cy - Y0) * UP
+        m |= (yy - y) ** 2 + (xx - x) ** 2 <= (EYE_PUPIL * UP) ** 2
+    return m
+
+
 def iphigenia(ink, fig, ws, wash):
     """Iphigenia alone, cut along OUTLINE by a least-cost path on the frieze's lines, written to HOME_OUT at the same
     pen."""
@@ -535,7 +546,7 @@ def iphigenia(ink, fig, ws, wash):
     lab, _ = ndi.label(i)
     i &= (np.bincount(lab.ravel()) > SPECK * UP * UP)[lab]
     info = lw.trace_svg(
-        i, HOME_OUT, body=b, open_holes=~b, keep=b, weight="drawn",
+        i, HOME_OUT, body=b, open_holes=~b, keep=b, weight="drawn", dots=pupils(i.shape),
         title="Iphigenia, priestess of Artemis, holding out a letter tablet and the temple key",
         desc="Line drawing after R. Jaene's 1849 lithograph of the Buckingham vase "
              "(Archäologische Zeitung 7, Taf. XII); cut out and retraced.")
@@ -597,7 +608,7 @@ def main(src, qa=None, dump=None):
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=ground, keep=fig & ~ground, weight="drawn",
+        ink, OUT, body=fig, open_holes=ground, keep=fig & ~ground, weight="drawn", dots=pupils(ink.shape),
         title="Iphigenia in Tauris",
         desc="Line drawing after R. Jaene's 1849 lithograph of the Buckingham vase (Archäologische Zeitung 7, "
              "Taf. XII): Iphigenia handing her letter to Pylades before the temple, Orestes, Eros, Artemis and an "
