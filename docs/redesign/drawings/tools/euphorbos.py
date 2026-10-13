@@ -154,6 +154,12 @@ CHILD_HAIR = [(1800, 246), (1835, 244), (1858, 254), (1868, 238), (1876, 219), (
 WASH_R, WASH_D, WASH_A = 10, 20, (0.4, 0.85)
 CURL_R, CURL_D, CURL_W, CURL_MIN = 3, 22, 1.8, 4
 CHILD_SIGMA, CHILD_T, CHILD_LONG, CHILD_BACK = 1.0, 135, 25, 1845
+# a strand of the child's hair down his nape against the black, printed paler (grey 80-140) than the mass and
+# partly read as ground (John on pass 5: "the child's hair where you missed a spot"): inside HAIR_SPOT (scan
+# px) the plate lighter than SPOT_T (blurred 1 scan px; the ground 25-35) is figure and hair wash
+HAIR_SPOT = [(1912, 240), (1925, 236), (1933, 250), (1938, 262), (1942, 272), (1945, 282), (1934, 284),
+             (1926, 276), (1919, 266), (1914, 255)]
+SPOT_T, SPOT_CLOSE = 55, 4
 # lines the finder broke or lost, drawn through hand-placed points (scan px) along the plate's darkest path
 # (John on pass 2: "some incomplete lines with breaks"): Euphorbos' jaw over the child's hair; the child's cheek;
 # the line from the child's neck to his shoulder
@@ -419,6 +425,15 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     paper_lines = fig & ~panel & ~(gs > PAPER_T)
     fig &= panel | (gs > PAPER_T)
     fig = morphology.remove_small_objects(fig, max_size=200 * UP * UP)   # (slivers of paper at the panel's edge)
+    spot = poly(px, py, HAIR_SPOT) & ndi.binary_opening(ndi.gaussian_filter(m['g'], UP) > SPOT_T,
+                                                        structure=morphology.disk(UP))
+    # (no cut into it: its darker streak is hair, and the edge runs smooth along the black, John: "NO. there is
+    # no cut in": the strand with the figure closed over SPOT_CLOSE scan px and filled, inside HAIR_SPOT)
+    sp = poly(px, py, HAIR_SPOT)
+    spot = ndi.binary_fill_holes(ndi.binary_closing(spot | fig, structure=morphology.disk(SPOT_CLOSE * UP))) & sp
+    fig |= spot
+    ground &= ~spot
+    inground &= ~spot
 
     lab, n = ndi.label(dark & fig)
     solid = np.r_[False, np.array(ndi.minimum(gs, lab, range(1, n + 1))) < PAINT_CORE] if n else np.zeros(1, bool)
@@ -453,6 +468,7 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     cw = ch & (ndi.gaussian_filter(m['g'], CHILD_SIGMA * UP) < CHILD_T)
     cw = ndi.binary_opening(cw, structure=morphology.disk(UP))
     cw = morphology.remove_small_objects(cw, max_size=20 * UP * UP)
+    cw |= spot
     cw |= ndi.binary_fill_holes(cw) & ~morphology.remove_small_objects(ndi.binary_fill_holes(cw) & ~cw,
                                                                        max_size=40 * UP * UP)
     gc = ndi.gaussian_filter(m['g'], 0.5 * UP)
@@ -477,6 +493,7 @@ def main(view, plate, qa=None, box=None, out=OUT, dump=None):
     lab, n = ndi.label(black & ch)
     sk = np.bincount(lab[morphology.skeletonize(black & ch)].ravel(), minlength=n + 1)
     black &= ~(ch & ~(sk > CHILD_LONG * UP)[lab])
+    black &= ~ndi.binary_dilation(spot, iterations=UP)   # (the strand's darker streak is a curl in the wash)
     lines = centre_lines(black, tw, 3 * UP, 2 * tw) | paint
     faces = np.zeros_like(fig)
     face_t = np.full(fig.shape, FACE_T, np.float32)
