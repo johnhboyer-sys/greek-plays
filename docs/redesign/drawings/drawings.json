@@ -47,6 +47,15 @@
       "verdict": "Approved by John on pass 5, 2026-10-12."
     },
     {
+      "slug": "orestes",
+      "file": "orestes.svg",
+      "name": "Orestes · Apollo purifies Orestes at Delphi",
+      "alt": "Apollo, a laurel branch in his hand, holds a piglet over Orestes, who sits on the altar before the omphalos with his sword; Artemis stands at the right with her spears; at the left Clytemnestra's ghost tries to wake two sleeping Furies, and a third Fury rises below; a shield hangs above",
+      "source": "Furtwängler and Reichhold, Griechische Vasenmalerei II (1909), Taf. 120.3 (Louvre Cp 710, Eumenides Painter), Williams College scan via JSTOR (public domain plate)",
+      "method": "F-R plate with PhotoCraft: the ground gives the figures, the bands and side ornaments cut; lines by local contrast along their centres; the faces at the plate's own width (local contrast cut at half maximum); small dots kept; the white wrist bands outlined; the omphalos's grey a `tone` wash; potrace",
+      "verdict": "Approved by John on pass 2, 2026-10-12, after his notes on pass 1 (the eyes, the wrist bands)."
+    },
+    {
       "slug": "oedipus-tyrannus",
       "file": "oedipus-tyrannus.svg",
       "name": "Oedipus Tyrannus · Oedipus at the messenger's news",
