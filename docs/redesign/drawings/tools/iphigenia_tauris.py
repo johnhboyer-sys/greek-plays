@@ -129,7 +129,7 @@ CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
          (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
 # strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
 # squiggle names the paper area it lies most in)
-MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3)]
+MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4)]
 MARKS_K = 2
 # pass 4 marks (John): blue strokes redraw lines (her brows, eye, nose, mouth, jaw and neck, the sleeve's zigzag edge,
 # the pleat points, the ribbon's folds). Each stroke goes in along its centre, smoothed as the found lines, at the
@@ -147,6 +147,13 @@ MARK_HALF = (0.25, 0.8)
 # yellow (John, pass 5): clay with no black ink: the area is clay and any line under it goes
 TRACED_CLOSE, TRACED_MIN = 4, 4000
 TRACED_FROM = 3                           # only the pass 5 marks trace an area whole (marks_3)
+# pass 6 marks (John, marks_4): he painted some dots and Pylades' irises solid. A small mark on its own (no side over
+# DOT_MAX scan px, at least DOT_FILL of its box painted) is a dot, kept as painted; in FILL_BOXES (Pylades' eyes) what
+# is wider than his pen (an opening over FILL_R scan px) is kept as painted too. The rest are lines, as before
+FILLS_FROM = 4
+DOT_MAX, DOT_FILL = 12, 0.6
+FILL_BOXES = [(925, 1040, 975, 1062)]
+FILL_R = 2
 # a clay area meeting the ground with no line between them is a gap in the outline (John: "the ground leaks are due
 # to lines not being fully traced"): where the clay's edge lies farther than GAP scan px from any line, the outline is
 # drawn along the clay's edge at the pen's width
@@ -468,7 +475,7 @@ def marks(shape, contrast):
     """John's marks on the work grid: (lines, green, grey, traced, yellow). Blue at full opacity is a line, redrawn along its
     centre at the pen; blue at half opacity (MARK_HALF) wider than a stroke's soft edge is a grey wash; `traced` is the
     area inside each large group of his strokes (an area he traced whole: all of it clay)."""
-    blue, green, grey_, traced, yellow = (np.zeros(shape, bool) for _ in range(5))
+    blue, green, grey_, traced, yellow, fills = (np.zeros(shape, bool) for _ in range(6))
     for f in MARKS_FILES:
         a = np.asarray(Image.open(f).convert("RGBA")).astype(np.float32)
         r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3] / 255
@@ -477,6 +484,21 @@ def marks(shape, contrast):
                                                                                         Image.BILINEAR)) >= 128
         isb = (b > r + 40) & (b > g + 20)
         line = up((al >= MARK_HALF[1]) & isb)
+        if int(f.stem.rsplit("_", 1)[1]) >= FILLS_FROM:
+            full = (al >= MARK_HALF[1]) & isb
+            lab, _ = ndi.label(full, structure=np.ones((3, 3)))
+            fill = np.zeros_like(full)
+            for k, o in enumerate(ndi.find_objects(lab), 1):
+                piece = lab[o] == k
+                if max(piece.shape) <= DOT_MAX * MARKS_K and piece.mean() >= DOT_FILL:
+                    fill[o] |= piece
+            wide = ndi.binary_opening(full, structure=morphology.disk(FILL_R * MARKS_K))
+            for x0, y0, x1, y1 in FILL_BOXES:
+                o = np.s_[(y0 - Y0) * MARKS_K:(y1 - Y0) * MARKS_K, (x0 - X0) * MARKS_K:(x1 - X0) * MARKS_K]
+                fill[o] |= wide[o]
+            fill = up(fill)
+            fills |= fill
+            line &= ~fill
         blue |= line
         if f.stem.endswith(f"_{TRACED_FROM}"):
             whole = line
@@ -494,7 +516,7 @@ def marks(shape, contrast):
     traced = ndi.binary_fill_holes(ndi.binary_dilation(big[lab], iterations=UP) & closed)
     # (bits of skeleton shorter than 2 scan px, where a thick stroke forks, drew blobs)
     paths = [snap(q, contrast) for q in skeleton_paths(blue) if len(q) >= 2 * UP]
-    return draw_paths(shape, paths, [PEN * UP] * len(paths)), green, grey_ & ~blue, traced, yellow
+    return draw_paths(shape, paths, [PEN * UP] * len(paths)), green, grey_ & ~blue & ~fills, traced, yellow, fills
 
 
 def figure(ink, ws, marked=()):
@@ -521,7 +543,7 @@ def pupils(shape):
     return m
 
 
-def iphigenia(ink, fig, ws, wash):
+def iphigenia(ink, fig, ws, wash, fills):
     """Iphigenia alone, cut along OUTLINE by a least-cost path on the frieze's lines, written to HOME_OUT at the same
     pen."""
     w = lambda p: p if p == lw.STRAIGHT else ((p[0] - X0) * UP, (p[1] - Y0) * UP)
@@ -546,7 +568,7 @@ def iphigenia(ink, fig, ws, wash):
     lab, _ = ndi.label(i)
     i &= (np.bincount(lab.ravel()) > SPECK * UP * UP)[lab]
     info = lw.trace_svg(
-        i, HOME_OUT, body=b, open_holes=~b, keep=b, weight="drawn", dots=pupils(i.shape),
+        i, HOME_OUT, body=b, open_holes=~b, keep=b, weight="drawn", dots=pupils(i.shape) | (fills & keep & b),
         title="Iphigenia, priestess of Artemis, holding out a letter tablet and the temple key",
         desc="Line drawing after R. Jaene's 1849 lithograph of the Buckingham vase "
              "(Archäologische Zeitung 7, Taf. XII); cut out and retraced.")
@@ -567,7 +589,7 @@ def main(src, qa=None, dump=None):
             x, y = (np.array(a) + t * (np.array(b) - a) - (X0, Y0)) * UP
             walls[round(y), round(x)] = True
     walls = ndi.distance_transform_edt(~walls) <= PEN * UP / 2
-    blue, green, mgrey, traced, yellow = marks(ink.shape, contrast)
+    blue, green, mgrey, traced, yellow, fills = marks(ink.shape, contrast)
     eye, box = eyes(ink.shape)            # the eyes are drawn by hand (EYE_*): John's strokes there are left out
     blue &= ~box
     ink = (ink & ~((ndi.distance_transform_edt(~blue) <= REPLACE * UP) & ~eye)) | blue
@@ -579,6 +601,7 @@ def main(src, qa=None, dump=None):
     waves &= ndi.distance_transform_edt(~blue) > REPLACE * UP
     ink = (ink & ~(inside & ~waves)) | (blue & inside) | (solid & traced)
     ink &= ~yellow
+    ink |= fills
     ws = areas(ink | walls)
     # each green squiggle: the paper area it lies most in is ground
     lab, n = ndi.label(ndi.binary_dilation(green, iterations=2 * UP))
@@ -608,14 +631,14 @@ def main(src, qa=None, dump=None):
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=ground, keep=fig & ~ground, weight="drawn", dots=pupils(ink.shape),
+        ink, OUT, body=fig, open_holes=ground, keep=fig & ~ground, weight="drawn", dots=pupils(ink.shape) | fills,
         title="Iphigenia in Tauris",
         desc="Line drawing after R. Jaene's 1849 lithograph of the Buckingham vase (Archäologische Zeitung 7, "
              "Taf. XII): Iphigenia handing her letter to Pylades before the temple, Orestes, Eros, Artemis and an "
              "attendant; retraced.")
     add_tone(OUT, [(wash, HATCH_OP)], info["box"])
     print(OUT, info)
-    home = iphigenia(ink, fig, ws, wash)
+    home = iphigenia(ink, fig, ws, wash, fills)
     if qa:  # optional: the drawings over their source, and as the dark theme shows them
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
         lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
