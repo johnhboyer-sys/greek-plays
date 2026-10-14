@@ -131,10 +131,13 @@ CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
         [(1640, 575), (1645, 561), (1675, 556), (1700, 557), (1712, 566), (1700, 600), (1650, 600)],
         [(1489, 1422), (1508, 1422), (1508, 1700), (1489, 1700)],
         [(1008.7, 1478), (1016, 1478), (1015, 1550), (1008.3, 1600), (1001.7, 1650), (995.3, 1700), (993, 1712),
-         (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
+         (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)],
+        # Eros' wing, inside John's outer line (pass 10): its lines meet at the tip with a gap the ground ran in by
+        [(521, 800), (534, 798), (550, 810), (553, 830), (549, 850), (542, 868), (534, 885), (525, 902), (516, 918),
+         (514, 905), (518, 885), (522, 860), (525, 835), (525, 815)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
 # strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
 # squiggle names the paper area it lies most in)
-MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4, 5, 6)]
+MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4, 5, 6, 7)]
 MARKS_K = 2
 # pass 4 marks (John): blue strokes redraw lines (her brows, eye, nose, mouth, jaw and neck, the sleeve's zigzag edge,
 # the pleat points, the ribbon's folds). Each stroke goes in along its centre, smoothed as the found lines, at the
@@ -513,7 +516,9 @@ def marks(shape, contrast):
             green |= up(al * ((g > r + 40) & (g > b + 20)))
         yellow |= up(al * ((r > b + 60) & (g > b + 60)))
         half = (al > MARK_HALF[0]) & (al < MARK_HALF[1]) & isb
-        if local:                         # (the red lines he painted over left holes in it)
+        if local:                         # (the red lines he painted over left holes in it; the soft edges of his
+            # full strokes, within 2 px of them, are not paint: closed, they laid grey between two close lines)
+            half &= ndi.distance_transform_edt(~((al >= MARK_HALF[1]) & isb)) > 2
             half = ndi.binary_closing(half, structure=morphology.disk(2 * MARKS_K))
         half = up(ndi.binary_opening(half, structure=morphology.disk(MARKS_K)))
         grey_ |= half
