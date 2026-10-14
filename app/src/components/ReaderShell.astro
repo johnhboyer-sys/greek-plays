@@ -17,6 +17,7 @@ import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import RunningHead from '@shared/components/RunningHead.svelte';
 import Playbill from './Playbill.astro';
+import '../styles/reader-drama.css';
 import { assignSpeakerSlots } from '@shared/lib/speaker-colors';
 import { playSigla } from '@shared/lib/speakers';
 import { getWork, bookLabel, isBookless, workPath, workLanding, languageLabel, visibleTranslations, type Work } from '@shared/lib/works';
@@ -403,7 +404,7 @@ const intro =
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@1,600&family=DM+Mono:wght@400&display=swap" rel="stylesheet" media="print" />
   <Pwa />
 </head>
-<body>
+<body data-author={isPlayLine ? work.author : undefined}>
   <!-- Semantic page heading + topical intro for search engines and screen
        readers. Visually hidden because the visible title is the breadcrumb
        control; this gives the document a real, descriptive <h1> and a prose

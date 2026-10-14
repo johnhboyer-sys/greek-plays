@@ -1,0 +1,21 @@
+/* The reading view, redesign phase 5, step 1 (docs/redesign/DESIGN.md,
+   Reading view): warm paper under the text, the same for every author; the
+   author's tint in the running head; no horizontal rules, under the running
+   head or the reader's controls. ReaderShell sets data-author on <body>. */
+body[data-author] { --page-bg: #fbf9f4; }
+:root[data-theme="dark"] body[data-author] { --page-bg: #1c1a17; }
+
+body[data-author="aeschylus"]    { --head-tint: #e2e7ec; }
+body[data-author="sophocles"]    { --head-tint: #e3e8df; }
+body[data-author="euripides"]    { --head-tint: #efe2dc; }
+body[data-author="aristophanes"] { --head-tint: #f0e7d2; }
+:root[data-theme="dark"] body[data-author="aeschylus"]    { --head-tint: #182027; }
+:root[data-theme="dark"] body[data-author="sophocles"]    { --head-tint: #1a2019; }
+:root[data-theme="dark"] body[data-author="euripides"]    { --head-tint: #261b17; }
+:root[data-theme="dark"] body[data-author="aristophanes"] { --head-tint: #252013; }
+
+body[data-author] .page-header {
+  background: var(--head-tint, var(--col-bg));
+  border-bottom: none;
+}
+body[data-author] .reader-controls { border-bottom: none; }
