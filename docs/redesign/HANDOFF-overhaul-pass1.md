@@ -3,8 +3,8 @@
 Branch `claude/project-thread-8ykl6l`, pushed, not merged (John: keep as a
 branch; more changes to come). Ten commits on main `182b42a`. Every gate in
 CLAUDE.md passed at the last ship-gate run (`npm run build:public`: 1271
-pages, 0 broken links); the phone commit `02226e3` passed tests, the site
-build and the fixture build, and its ship-gate run is still to do.
+pages, 0 broken links); the phone commits passed tests, the site build and
+the fixture build; see git log for the last ship-gate run.
 
 Read first: `docs/redesign/DESIGN.md`, `PHASES.md`, `decisions.md` (a
 "Home page, built" entry was added), the sketches in `sketches/`.
@@ -50,8 +50,17 @@ pages, playbill, reading-view 1-3).
 
 Codex GPT-6-Sol at medium, read-only, three runs. Run 1 (home/author/play):
 3 fixed, 1 wrong (dark playbill does switch), 2 to John (below). Run 2
-(reading view 1-3): all 7 fixed. Run 3 (phone alternation): see the end of
-this file.
+(reading view 1-3): all 7 fixed. Run 3 (phone alternation): finding 1 (a
+ticked dialogue turn could land under the wrong Greek speaker) handled by
+cutting only single-speech segments on a phone (`singleSpeech` in
+Reader.svelte); dialogue keeps playRows. Still open, for the next pass:
+- A long first speech inside a multi-speaker segment stays whole on a
+  phone (playRows cuts only at speaker starts). Fix: bound each speech by
+  its speaker events, then cut within it.
+- `phoneLayout` starts false and is set on mount, so a phone first shows
+  desktop rows and then re-groups (a flash, not a hydration mismatch).
+- Crossing 680px (rotation) re-groups rows without keeping the reader's
+  line in place.
 
 ## Open for John
 

@@ -2022,6 +2022,17 @@
   // keyed to them. Turns start on ticks in these translations, so the turn
   // lead-ins fall out of the same slices. Null when fewer than two ticks
   // map (the ordinary one-row segment, or a turn-text chunk with no ticks).
+  // One speech only: no speaker event, or a single one opening the segment
+  // (its first line, offset 0). The phone cuts only such segments into
+  // five-line pieces; dialogue keeps playRows, which anchors every turn on
+  // its Greek speaker event (Codex review: a sentence estimate could put a
+  // turn under the wrong speaker).
+  function singleSpeech(items: GreekItem[], seg: Segment): boolean {
+    const firstLineN = items.find((it) => it.kind === 'line')?.line.n;
+    const evs = seg.speakers ?? [];
+    return evs.length === 0 || (evs.length === 1 && evs[0]!.line === firstLineN && (evs[0]!.offset ?? 0) === 0);
+  }
+
   function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0, verse = false): PlayRow[] | null {
     const lineInt = (line: RLine): number | null => {
       const m = /^(\d+)/.exec(line.ref ?? '');
@@ -4855,8 +4866,8 @@
           {@const plMarked = plSource ? markedTurns(plSource) : null}
           {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns), openingRunIn(seg, segTransId)) : []}
           <!-- A prose translation keeps each speech whole beside the start of its Greek; only verse is cut to its lines (John, 2026-09-28: "the gaps mid speech are awkward"). -->
-          <!-- On a phone, where each English piece sits below its Greek, every speech is cut into pieces of at least five Greek lines at sentence starts, so the Greek and its English alternate (John, 2026-10-13: "Alternating bilingual."). -->
-          {@const rawPlRows = plSource ? ((phoneLayout ? playTickRows(plItems, seg, plSource, MIN_PIECE_LINES, verseForm(segTransId)) : !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          <!-- On a phone, where each English piece sits below its Greek, a single-speech segment is cut into pieces of at least five Greek lines at sentence starts, so the Greek and its English alternate; dialogue keeps its speech-by-speech rows (John, 2026-10-13: "Alternating bilingual."). -->
+          {@const rawPlRows = plSource ? ((phoneLayout ? (singleSpeech(plItems, seg) ? playTickRows(plItems, seg, plSource, MIN_PIECE_LINES, verseForm(segTransId)) : null) : !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows, openingRunIn(seg, segTransId)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
