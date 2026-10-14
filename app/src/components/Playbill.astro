@@ -73,7 +73,12 @@ const translations = visibleTranslations(work).map((t) => {
   const name = years.length ? t.name.slice(0, paren!.index) : t.name;
   const ed = editionsOn && t.edition ? work.greekEditions?.find((e) => e.id === t.edition) : undefined;
   const editor = ed?.editor.split(' ').at(-1);
-  return { name, form: t.form ?? null, year: years.join('–') || null, from: editor ? `from ${editor}'s Greek` : null };
+  return {
+    name, form: t.form ?? null, year: years.join('–') || null,
+    from: editor ? `from ${editor}'s Greek` : null,
+    // How the reader sets it beside the Greek (Texts and licences explains).
+    aligned: t.alignment ? `aligned by ${t.alignment}` : null,
+  };
 });
 const citeAs = work.citation?.copyAbbr && lastLine ? `${work.citation.copyAbbr} 1–${lastLine}` : null;
 ---
@@ -123,7 +128,7 @@ const citeAs = work.citation?.copyAbbr && lastLine ? `${work.citation.copyAbbr} 
             {translations.map((t) => (
               <li>
                 <b>{t.name}</b>{t.form && `, ${t.form}`}{t.year && <span class="yr">{t.year}</span>}
-                {t.from && <em>{t.from}</em>}
+                {(t.from || t.aligned) && <em>{[t.from, t.aligned].filter(Boolean).join(' · ')}</em>}
               </li>
             ))}
           </ul>

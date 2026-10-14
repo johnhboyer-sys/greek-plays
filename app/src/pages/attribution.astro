@@ -6,6 +6,7 @@ import '@shared/styles/global.css';
 import { WORKS, visibleTranslations } from '@shared/lib/works';
 import { jsonLdSafe } from '../lib/jsonld';
 import { SITE_NAME } from '../lib/site';
+import { servedDrawings } from '../lib/drawings';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const siteName = SITE_NAME;
@@ -356,6 +357,18 @@ const jsonLd = {
       Trustees of Tufts University.
       <a href="https://creativecommons.org/licenses/by-sa/3.0/us/">CC BY-SA 3.0 US</a>.
     </blockquote>
+
+    {/* DRAFT copy: John approves. */}
+    <h2 id="drawings">Drawings</h2>
+    <p>
+      The line drawings of vase paintings on the home, author and play pages,
+      each with its source and licence:
+    </p>
+    <ul class="drawing-credits">
+      {servedDrawings().map((d) => (
+        <li><strong>{d.alt}.</strong> {d.credit}</li>
+      ))}
+    </ul>
 
     <h2>
       Application Code

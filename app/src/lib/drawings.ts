@@ -69,6 +69,14 @@ export function servedNames(): string[] {
   return [...new Set([...home, ...plays])];
 }
 
+/** Every served drawing, for the credits on the Texts and licences page. */
+export function servedDrawings(): Drawing[] {
+  return servedNames().map((name) => {
+    const r = RECORDS.find((x) => x.file === `${name}.svg`);
+    return read(`${name}.svg`, r?.alt);
+  });
+}
+
 /** The SVG as served: the figure wrapped in <g id="fig"> for <use>, and the
  *  body's fill taken from --fig-body (a page's CSS can't reach into a <use>
  *  copy, but custom properties inherit into it). */
