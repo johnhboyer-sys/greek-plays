@@ -71,7 +71,8 @@ LINE_SIGMA, BRANCH, GRAIN = 1.5, 3, 5
 # her eyes (John, pass 3: "iphigenia's eyes are wonky"), drawn as curves through points read off the plate at 16x
 # (scan px), in a box each where the found lines are dropped: brow, lid crease and upper lid of each eye, the right
 # eye's inner corner and both lower lids; the irises as rings with the pupil a dot, a finer pen (eyes never heavy)
-EYE_BOXES = [(1271, 1036, 1292, 1060), (1295, 1032, 1328, 1058)]
+EYE_BOXES = [(1271, 1036, 1292, 1060), (1295, 1032, 1328, 1058),
+             (1298, 1085, 1318, 1099)]   # her lower lip and chin (John, pass 7), drawn the same way
 EYE_LINES = [
     [(1270, 1043.5), (1273, 1041.5), (1277, 1040.6), (1281, 1040.8), (1284.5, 1042.5), (1287, 1045.5)],
     [(1272, 1050), (1275, 1047.6), (1279, 1046.6), (1283, 1047), (1286.5, 1048.8), (1289, 1051.5)],
@@ -82,6 +83,10 @@ EYE_LINES = [
     [(1302, 1047.5), (1306, 1045.6), (1311, 1045), (1316, 1045.8), (1320, 1047.5), (1323, 1049)],
     [(1302, 1047.5), (1301.5, 1051), (1302.5, 1054.5)],
     [(1306, 1052.5), (1311, 1053.2), (1316, 1052.5), (1320, 1050.5)],
+    # "the lower lip is actually two curves. lower lip dips down and then chin is slight dip up under that" (John):
+    # the trace crossed them into an X
+    [(1300.5, 1087), (1303, 1088.8), (1306, 1089.6), (1309, 1088.5), (1311.5, 1086)],
+    [(1301, 1094.5), (1305, 1092.4), (1309, 1091.3), (1313, 1091.8)],
 ]
 # John also traced the eyes in his pass 4 marks, then kept these instead ("your prior eye was okay"): his strokes
 # inside EYE_BOXES are left out
