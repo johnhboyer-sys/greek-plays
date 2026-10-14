@@ -299,6 +299,24 @@ TOES = [[(934, 3110), (940, 3120), (944, 3130), (946, 3140), (952, 3150), (952, 
         [(1008, 3120), (1015, 3130), (1022, 3140), (1025, 3150), (1024, 3170)],
         [(1056, 3110), (1062, 3120), (1072, 3130), (1080, 3140), (1089, 3150), (1094, 3170)]]
 TOE_W = 7
+# John's marks, round 1 (2026-10-14, on the PhotoCraft file of pass 1: the flat cropped to the trace box at 1x,
+# origin MARKS_ORIGIN in flat px), kept beside the tool as 1-bit PNGs (MARKS_FILES: blue, green). He set the photo's
+# levels to bring out the fine lines (John: "i'll see about adjusting levels of original in pcraft to help") and drew
+# them in blue: ink to add (the dress's finer folds, her eye and cheeks, her hem and feet, the skyphos' rim, the
+# knife's edges and his fist, his cheek, the wineskin's shoes, the altar's ruled lines). Each blue stroke is drawn as
+# he drew it: its centre line (side spurs under SPUR px pruned, pieces MARK_LEN px or longer), MARK_W flat px wide
+# (the main lines' traced width: WEIGHT of the trace box's longer side), its edges smoothed (Gaussian MARK_SMOOTH,
+# cut at half), traced at that size so the pinned weight of the rest does not move. My ink under his blue goes, so
+# his line replaces mine and none is drawn twice (snapped to the photo's lines instead, the strokes came out ragged
+# along the knife, the grain and the clay's edge taken for line). Where his line runs just outside the clay (the
+# knife), the figure takes in the strip between. His green: my ink under it goes (the knife's and his fist's
+# outlines, redrawn in blue; her soles at the floor cut). Where his blue lines close an area with the figure inside
+# FEET_BOX (flat px: her soles, which he drew lower, at the strip's lower edge, so her feet take in the strip under
+# them), that area is hers
+MARKS_ORIGIN = (685, 309)
+MARKS_FILES = [("mika_marks1_blue.png", "mika_marks1_green.png")]
+FEET_BOX = (760, 2940, 1760, 3200)
+MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 6.0, 1.5, 4
 # Breaks in the lines where specks of wear cross them: closed where the paint runs on under them (see join_breaks)
 JOIN_D, JOIN_COS, JOIN_G, JOIN_BACK = 30, 0.75, 120, 12
 FACE_MAX = 20000
@@ -436,6 +454,31 @@ def join_breaks(lines, g1, room):
     return out
 
 
+def marks(shape):
+    """John's blue and green marks on the flat (see MARKS_*)."""
+    H, W = shape
+    out = []
+    for k in (0, 1):
+        m = np.zeros((H, W), bool)
+        ox, oy = MARKS_ORIGIN
+        for files in MARKS_FILES:
+            a = np.asarray(Image.open(Path(__file__).parent / files[k]).convert("L")) > 127
+            m[oy:oy + a.shape[0], ox:ox + a.shape[1]] |= a[:H - oy, :W - ox]
+        out.append(m)
+    return out
+
+
+def johns_lines(blue):
+    """John's blue strokes as he drew them, at an even width (see MARKS_* and the constants after it); and their
+    centre lines."""
+    cl = centre_lines(blue, spur=SPUR, min_len=MARK_LEN)
+    m = (ndi.distance_transform_edt(~cl) <= MARK_W / 2).astype(np.float32)
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray((m * 255).astype(np.uint8)).save(Path(td) / "m.png")
+        pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": MARK_SMOOTH}))
+        return grey(Path(td) / "ms.png") >= 128, cl
+
+
 def scene(rgb, dump=None):
     """(ink, ink traced at its own size, figure, grey) for the flat image `rgb`."""
     with tempfile.TemporaryDirectory() as td:
@@ -496,9 +539,21 @@ def scene(rgb, dump=None):
     f = fig.astype(np.float32)
     fig = np.where(fine, ndi.gaussian_filter(f, FINE_SMOOTH), ndi.gaussian_filter(f, SMOOTH)) > 0.5
     fig &= ~outside
-    paint = dark & fig & core
+    blue, green = marks(g.shape)
+    feet = box([FEET_BOX])
+    johns, jcl = johns_lines(blue)
+    # (her feet down to his soles' centre lines; the band's glaze the strip then takes in is no paint)
+    added = ndi.binary_fill_holes(ndi.binary_closing(fig | ndi.binary_dilation(jcl & feet),
+                                                     structure=morphology.disk(2 * MARK_GAP))) & feet & ~fig
+    fig |= added
+    # (to his line's centre, not its outer edge: there the body's trace overshot the line and left a sliver of clay
+    # on the dark theme)
+    near = ndi.binary_dilation(jcl, iterations=MARK_GAP + 2)
+    fig |= ndi.binary_fill_holes(fig | jcl) & near
+    fig |= ndi.binary_closing(fig | jcl, structure=morphology.disk(MARK_GAP)) & near
+    paint = dark & fig & core & ~added
     to_edge = ndi.distance_transform_edt(fig)
-    edge = fig & (to_edge <= EDGE)
+    edge = fig & (to_edge <= EDGE) & ~ndi.binary_dilation(jcl, iterations=EDGE + 2)   # (his line is the edge there)
     # the faces' lines: the grey's dark core, traced at their own size
     face_box = box(FACES)
     old = (core | paint) & fig & ~edge & face_box
@@ -512,7 +567,7 @@ def scene(rgb, dump=None):
     old |= ((sz >= FACE_SPECK) & (sz <= FACE_DOT_MAX))[lab] & dots
     solid = ndi.binary_opening(paint & ~edge, structure=morphology.disk(SOLID_R))
     solid = ndi.binary_dilation(solid, iterations=2) & paint
-    area = fig & ~edge & ~ndi.binary_dilation(solid, iterations=3)
+    area = fig & ~edge & ~ndi.binary_dilation(solid, iterations=3) & ~added
     found = even_lines(contrast, core & area, area, face_box)
     pale = found & face_box & ~ndi.binary_dilation(old, iterations=PALE_OFF)
     pale = morphology.remove_small_objects(pale, max_size=PALE_MIN)
@@ -539,6 +594,11 @@ def scene(rgb, dump=None):
     lab, _ = ndi.label(ink, structure=np.ones((3, 3)))
     sz = np.bincount(lab.ravel())
     faces = np.isin(lab, np.unique(lab[(face_box | zig) & ink])) & (sz < FACE_MAX)[lab] & (lab > 0)
+    # John's lines, traced at their own size with the faces' (the main ink stays as the pass he marked)
+    gone = ndi.binary_dilation(green, iterations=2) | ndi.binary_dilation(blue, iterations=2)
+    ink &= ~gone
+    faces &= ~gone
+    faces |= johns
     wash = [[(blood & ~ink & (g2 < level), op) for level, op in BLOOD_STEPS],
             [(zig & fig & ~edge & ~ink & (g2 < level), op) for level, op in ZIG_STEPS]]
     if dump:
@@ -567,7 +627,7 @@ def main(src, qa=None, flat_png=None, dump=None):
     rgb = np.asarray(Image.open(flat_png).convert("RGB")) if flat_png else flat_image(src)
     ink, faces, fig, g, wash = scene(rgb, dump)
     ink |= (ndi.distance_transform_edt(~morphology.skeletonize(ink)) <= NECK / 2) & fig
-    info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=faces,
+    info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=faces, extent=faces,
                         title="The Kinsman on the altar threatens the wineskin 'baby' with a knife; Mika holds out a "
                               "bowl for its blood",
                         desc="Line drawing after the Apulian red-figure bell-krater Würzburg, Martin von Wagner "
