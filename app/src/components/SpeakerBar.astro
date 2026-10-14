@@ -17,18 +17,26 @@
   }
   .speaker-bar[hidden] { display: none; }
   .sb-name { font: 700 .84rem "Alegreya Sans SC", "Alegreya Sans", sans-serif; letter-spacing: .02em; }
+  @media print { .speaker-bar { display: none !important; } }
 </style>
 
 <script>
   const bar = document.getElementById('speaker-bar') as HTMLElement | null;
   const nameEl = bar?.querySelector('.sb-name') as HTMLElement | null;
+  const phone = matchMedia('(max-width: 680px)');
   let queued = false;
+  let list: HTMLElement[] | null = null;   // the names, until the reader changes
+  let at = 0;                              // index of the last name found
 
+  // The names the reader prints, in reading order: the English column's in
+  // Both and English views, except on a phone in Both view, where each
+  // English cell sits below its Greek and the Greek siglum is the one at the
+  // top; the Greek siglum in Greek-only view. None in comparison.
   function speakers(): HTMLElement[] {
     const body = document.querySelector('.reader-body');
     if (!body || body.classList.contains('trans-compare')) return [];
-    const greekOnly = body.classList.contains('view-greek');
-    const sel = greekOnly ? '.greek-line .line-text > .speaker' : '.english-col .turn-para > .speaker:first-child';
+    const greek = body.classList.contains('view-greek') || (phone.matches && body.classList.contains('view-both'));
+    const sel = greek ? '.greek-line .line-text > .speaker' : '.english-col .turn-para > .speaker:first-child:not(.speaker-dash)';
     return Array.from(body.querySelectorAll<HTMLElement>(sel));
   }
 
@@ -38,16 +46,20 @@
     const controls = document.querySelector('.reader-controls');
     const header = document.querySelector('.page-header');
     const top = Math.max(controls?.getBoundingClientRect().bottom ?? 0, header?.getBoundingClientRect().bottom ?? 0);
-    const list = speakers();
-    // The last name above the top edge, and the next one below it.
-    let cur: HTMLElement | null = null;
-    let next: HTMLElement | null = null;
-    for (const el of list) {
-      if (el.getBoundingClientRect().top < top) cur = el;
-      else { next = el; break; }
-    }
-    // Show only while that speech still fills the top of the screen.
-    const show = !!cur && (!next || next.getBoundingClientRect().top > top + 48);
+    list ??= speakers();
+    const above = (i: number) => list![i].getBoundingClientRect().top < top;
+    // Step from the last index found: forward past names above the edge,
+    // back over names below it.
+    at = Math.min(at, Math.max(0, list.length - 1));
+    while (at + 1 < list.length && above(at + 1)) at++;
+    while (at > 0 && !above(at)) at--;
+    const cur = list.length && above(at) ? list[at] : null;
+    const next = cur ? list[at + 1] ?? null : null;
+    // Show only while that speech still fills the top of the screen: the
+    // next name is not yet near the edge, and the speech's segment (or the
+    // last speech's) has not ended above it.
+    const speechEnd = cur?.closest('.segment')?.getBoundingClientRect().bottom ?? 0;
+    const show = !!cur && speechEnd > top + 48 && (!next || next.getBoundingClientRect().top > top + 48);
     if (show && cur) {
       nameEl.textContent = cur.textContent?.replace(/\.$/, '') ?? '';
       nameEl.style.color = getComputedStyle(cur).color;
@@ -60,7 +72,21 @@
   }
 
   const queue = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
+  const reset = () => { list = null; at = 0; queue(); };
   addEventListener('scroll', queue, { passive: true });
-  addEventListener('resize', queue);
+  addEventListener('resize', reset);
+  phone.addEventListener('change', reset);
+  // The reader switches view, translation and edition in place: re-read the
+  // names when the reader body's classes change (view, translation) or its
+  // text is re-rendered (an edition swap replaces the body itself).
+  const classWatch = new MutationObserver(reset);
+  const bindBody = () => {
+    classWatch.disconnect();
+    const body = document.querySelector('.reader-body');
+    if (body) classWatch.observe(body, { attributes: true, attributeFilter: ['class'] });
+  };
+  bindBody();
+  const host = document.getElementById('edition-reader') ?? document.querySelector('.reader-body')?.parentElement;
+  if (host) new MutationObserver(() => { bindBody(); reset(); }).observe(host, { childList: true, subtree: true });
   queue();
 </script>

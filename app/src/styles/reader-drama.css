@@ -39,6 +39,8 @@ body[data-author] .reader-body.play-line:not(.view-greek):not(.trans-compare) .g
   display: inline;
   width: auto;
   margin-right: 0.15em;
+  /* A joint siglum ("Αι. κ. Ευ.") stays on its line, beside the words. */
+  white-space: nowrap;
 }
 body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para,
 body[data-author] .reader-body.play-line:not(.trans-compare) .turn-eng:not(.turn-stack) {
@@ -53,6 +55,6 @@ body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-p
   padding-right: 0;
   margin-right: 0.3em;
 }
-body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker:first-child::after {
+body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker:first-child:not(.speaker-dash)::after {
   content: ".";
 }
