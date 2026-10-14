@@ -3215,9 +3215,11 @@
       const saved = (() => { try { return localStorage.getItem('reader-view'); } catch { return null; } })();
       if (saved === 'greek' || saved === 'english' || saved === 'both') view = saved;
       // No saved choice: a phone defaults to English only (the bilingual columns
-      // are cramped on a narrow screen); desktop stays bilingual. The toggle —
-      // and any saved choice — overrides this on either.
-      else if (window.matchMedia('(max-width: 680px)').matches) view = 'english';
+      // are cramped on a narrow screen); desktop stays bilingual. A play stays
+      // bilingual on a phone too, five or so Greek lines alternating with their
+      // English (John, 2026-10-13: "Alternating bilingual."). The toggle — and
+      // any saved choice — overrides this on either.
+      else if (!playLine && window.matchMedia('(max-width: 680px)').matches) view = 'english';
     }
     const validTrans = new Set([...translations.map(t => t.id), ...(canCompare ? ['compare'] : [])]);
     const savedTrans = (() => { try { return localStorage.getItem(TRANS_KEY); } catch { return null; } })();
@@ -4853,7 +4855,8 @@
           {@const plMarked = plSource ? markedTurns(plSource) : null}
           {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns), openingRunIn(seg, segTransId)) : []}
           <!-- A prose translation keeps each speech whole beside the start of its Greek; only verse is cut to its lines (John, 2026-09-28: "the gaps mid speech are awkward"). -->
-          {@const rawPlRows = plSource ? ((phoneLayout || !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          <!-- On a phone, where each English piece sits below its Greek, every speech is cut into pieces of at least five Greek lines at sentence starts, so the Greek and its English alternate (John, 2026-10-13: "Alternating bilingual."). -->
+          {@const rawPlRows = plSource ? ((phoneLayout ? playTickRows(plItems, seg, plSource, MIN_PIECE_LINES, verseForm(segTransId)) : !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows, openingRunIn(seg, segTransId)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
