@@ -1,0 +1,66 @@
+---
+// Reading view, step 3 (docs/redesign/DESIGN.md, Reading view): a small bar
+// under the reader's controls that names the speaker once his name has
+// scrolled away and his speech is still on screen. Reads the names the
+// reader already prints (the English column's, or the Greek siglum in
+// Greek-only view), so it adds no data of its own.
+---
+<div class="speaker-bar" id="speaker-bar" hidden aria-hidden="true"><span class="sb-name"></span> <span class="sb-cont">continues</span></div>
+
+<style>
+  .speaker-bar {
+    position: fixed; z-index: 4; left: 0; right: 0;
+    padding: .3rem 1.5rem;
+    background: var(--page-bg);
+    font: 500 .88rem "Alegreya Sans", system-ui, sans-serif;
+    color: var(--text-mid);
+  }
+  .speaker-bar[hidden] { display: none; }
+  .sb-name { font: 700 .84rem "Alegreya Sans SC", "Alegreya Sans", sans-serif; letter-spacing: .02em; }
+</style>
+
+<script>
+  const bar = document.getElementById('speaker-bar') as HTMLElement | null;
+  const nameEl = bar?.querySelector('.sb-name') as HTMLElement | null;
+  let queued = false;
+
+  function speakers(): HTMLElement[] {
+    const body = document.querySelector('.reader-body');
+    if (!body || body.classList.contains('trans-compare')) return [];
+    const greekOnly = body.classList.contains('view-greek');
+    const sel = greekOnly ? '.greek-line .line-text > .speaker' : '.english-col .turn-para > .speaker:first-child';
+    return Array.from(body.querySelectorAll<HTMLElement>(sel));
+  }
+
+  function update() {
+    queued = false;
+    if (!bar || !nameEl) return;
+    const controls = document.querySelector('.reader-controls');
+    const header = document.querySelector('.page-header');
+    const top = Math.max(controls?.getBoundingClientRect().bottom ?? 0, header?.getBoundingClientRect().bottom ?? 0);
+    const list = speakers();
+    // The last name above the top edge, and the next one below it.
+    let cur: HTMLElement | null = null;
+    let next: HTMLElement | null = null;
+    for (const el of list) {
+      if (el.getBoundingClientRect().top < top) cur = el;
+      else { next = el; break; }
+    }
+    // Show only while that speech still fills the top of the screen.
+    const show = !!cur && (!next || next.getBoundingClientRect().top > top + 48);
+    if (show && cur) {
+      nameEl.textContent = cur.textContent?.replace(/\.$/, '') ?? '';
+      nameEl.style.color = getComputedStyle(cur).color;
+      bar.style.top = `${top}px`;
+      // Level with the text's left edge.
+      const body = document.querySelector('.reader-body')!.getBoundingClientRect();
+      bar.style.paddingLeft = `${Math.max(16, body.left)}px`;
+    }
+    bar.hidden = !show;
+  }
+
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
+  addEventListener('scroll', queue, { passive: true });
+  addEventListener('resize', queue);
+  queue();
+</script>

@@ -17,6 +17,7 @@ import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import RunningHead from '@shared/components/RunningHead.svelte';
 import Playbill from './Playbill.astro';
+import SpeakerBar from './SpeakerBar.astro';
 import '../styles/reader-drama.css';
 import { assignSpeakerSlots } from '@shared/lib/speaker-colors';
 import { playSigla } from '@shared/lib/speakers';
@@ -866,6 +867,7 @@ const intro =
   {isPlayLine && (
     <Playbill work={work} persons={platePersons} lastLine={plateLastLine} startHref={plateStartHref} editionsOn={editionsOn} />
   )}
+  {isPlayLine && <SpeakerBar />}
   {editionsOn && <script is:inline define:vars={{ workId, defaultEdition, translationEditions: Object.fromEntries(work.translations.map(t => [t.id, t.edition ?? 'tlg'])) }}>
     try {
       const saved = localStorage.getItem(`reader-trans-${workId}`);
