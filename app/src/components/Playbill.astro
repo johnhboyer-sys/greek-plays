@@ -1,0 +1,230 @@
+---
+// The play's opening, above line 1 of the reader (docs/redesign/DESIGN.md,
+// Play opening; sketch play-opening-round2.html): a playbill on the author's
+// tint. Left, the play's drawing on its ground line, the titles, the author,
+// the argument, Resume (when a saved place exists) and Start, and the full
+// synopsis behind a label that warns it tells the ending. Right, the persons
+// in order of appearance in two columns, in their speaker colours with their
+// Greek labels, then First staged, Greek texts, Translations and Cite as.
+// Every string comes from the registry and the book's speaker roster; where
+// a year is missing, none is shown.
+import { getAuthor } from '@shared/lib/authors';
+import { authorPath, visibleTranslations, type Work } from '@shared/lib/works';
+import { SPK_PALETTE_N } from '@shared/lib/speaker-colors';
+import { playDrawings } from '../lib/drawings';
+import Figure from './Figure.astro';
+
+interface Props {
+  work: Work;
+  persons: { name: string; slot: number; siglum?: string | null }[];
+  lastLine: string | null;
+  startHref: string;
+  editionsOn: boolean;
+}
+const { work, persons, lastLine, startHref, editionsOn } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const author = getAuthor(work.author);
+const drawings = playDrawings(work.id);
+// Alcestis' two drawings share one plate, so one credit.
+const credits = [...new Set(drawings.map((d) => d.credit).filter(Boolean))];
+
+// Registry copy is DRAFT until John approves it: the prefix is stripped from
+// the sentence and shown as a tag after it (as Plate.svelte did).
+const DRAFT = /^DRAFT\s*[—–-]\s*/;
+const argDraft = DRAFT.test(work.argument ?? '');
+const argument = (work.argument ?? '').replace(DRAFT, '');
+const synDraft = DRAFT.test(work.synopsis ?? '');
+const synopsis = (work.synopsis ?? '').replace(DRAFT, '');
+
+// The cast: a numbered family (Agamemnon's Elder 1 … Elder 12) collapsed into
+// one entry at its first member's place, with no colour or siglum of its own
+// (as Plate.svelte did).
+const NUMBERED = /^(.+) (\d+)$/;
+const size = new Map<string, number>();
+for (const p of persons) {
+  const b = NUMBERED.exec(p.name)?.[1];
+  if (b) size.set(b, (size.get(b) ?? 0) + 1);
+}
+const cast: { label: string; slot: number | null; siglum: string | null }[] = [];
+const done = new Set<string>();
+for (const p of persons) {
+  const b = NUMBERED.exec(p.name)?.[1];
+  if (!b || (size.get(b) ?? 0) < 2) { cast.push({ label: p.name, slot: p.slot, siglum: p.siglum ?? null }); continue; }
+  if (done.has(b)) continue;
+  done.add(b);
+  const ns = persons.map((q) => NUMBERED.exec(q.name)).filter((x): x is RegExpExecArray => !!x && x[1] === b).map((x) => Number(x[2]));
+  cast.push({ label: `${b}s ${Math.min(...ns)}–${Math.max(...ns)}`, slot: null, siglum: null });
+}
+const slotVar = (slot: number | null) => slot == null
+  ? '--c: var(--ink-mid)'
+  : `--c: var(--spk-${((slot % SPK_PALETTE_N) + SPK_PALETTE_N) % SPK_PALETTE_N})`;
+
+// Greek texts: every edition when the edition picker is on, else the one text.
+const greekTexts: string[] = editionsOn && work.greekEditions?.length
+  ? work.greekEditions.map((e) => e.full)
+  : [work.greekSource.full];
+
+// Translations: the name without a parenthesis that holds its year; the year
+// read from that parenthesis, or none; which Greek text it follows, where the
+// registry records one (edition picker on).
+const translations = visibleTranslations(work).map((t) => {
+  const paren = /\s*\(([^)]*)\)\s*$/.exec(t.name);
+  const years = paren?.[1].match(/\b\d{4}\b/g) ?? [];
+  const name = years.length ? t.name.slice(0, paren!.index) : t.name;
+  const ed = editionsOn && t.edition ? work.greekEditions?.find((e) => e.id === t.edition) : undefined;
+  const editor = ed?.editor.split(' ').at(-1);
+  return { name, form: t.form ?? null, year: years.join('–') || null, from: editor ? `from ${editor}'s Greek` : null };
+});
+const citeAs = work.citation?.copyAbbr && lastLine ? `${work.citation.copyAbbr} 1–${lastLine}` : null;
+---
+<section class="playbill" data-author={work.author} aria-labelledby="pb-title">
+  <div class="pb">
+    <div class="L">
+      {drawings.length > 0
+        ? <Figure drawings={drawings} fit align="start" />
+        : <div class="nofig" aria-hidden="true"></div>}
+      <div class="tb">
+        {work.greekTitle && <p class="gt" lang="grc">{work.greekTitle}</p>}
+        <h2 class="et" id="pb-title">{work.title}</h2>
+        {author && <a class="au" href={`${base}${authorPath(author.id)}`}>{author.name}</a>}
+      </div>
+      {argument && <p class="arg">{argument}{argDraft && <span class="draft">draft</span>}</p>}
+      <div class="acts">
+        <a class="btn resume" id="pb-resume" href="#" hidden data-work={work.id} data-books={work.books}>Resume</a>
+        <a class="btn pri" id="pb-start" href={startHref}>Start at line 1</a>
+      </div>
+      {synopsis && (
+        <details class="syn">
+          <summary>Full synopsis <span>(tells the ending)</span></summary>
+          <p>{synopsis}{synDraft && <span class="draft">draft</span>}</p>
+        </details>
+      )}
+      {credits.length > 0 && <p class="credit">Drawing: {credits.join(' ')}</p>}
+    </div>
+
+    <div class="R">
+      {cast.length > 0 && (
+        <>
+          <h3>Persons, in order of appearance</h3>
+          <ul class="cast">
+            {cast.map((p) => (
+              <li style={slotVar(p.slot)}><span class="nm">{p.label}</span>{p.siglum && <> <span class="sg" lang="grc">{p.siglum}</span></>}</li>
+            ))}
+          </ul>
+        </>
+      )}
+      {work.production && (<><h3>First staged</h3><p>{work.production}</p></>)}
+      <h3>{greekTexts.length > 1 ? 'Greek texts' : 'Greek text'}</h3>
+      <ul class="ed">{greekTexts.map((g) => <li>{g}</li>)}</ul>
+      {translations.length > 0 && (
+        <>
+          <h3>Translations</h3>
+          <ul class="ed">
+            {translations.map((t) => (
+              <li>
+                <b>{t.name}</b>{t.form && `, ${t.form}`}{t.year && <span class="yr">{t.year}</span>}
+                {t.from && <em>{t.from}</em>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {citeAs && (<><h3>Cite as</h3><p>{citeAs}</p></>)}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The author's tint (DESIGN.md, Author tints), as on the author pages. */
+  .playbill {
+    --ink: #1b1c1f; --ink-mid: #5c6064;
+    background: var(--tint); color: var(--ink);
+    font-family: "Alegreya Sans", system-ui, sans-serif;
+    margin: 0 0 2rem;
+  }
+  .playbill[data-author="aeschylus"]    { --tint: #e2e7ec; --link: #34536b; }
+  .playbill[data-author="sophocles"]    { --tint: #e3e8df; --link: #43603b; }
+  .playbill[data-author="euripides"]    { --tint: #efe2dc; --link: #8a3f30; }
+  .playbill[data-author="aristophanes"] { --tint: #f0e7d2; --link: #6e5114; }
+  :root[data-theme="dark"] .playbill { --ink: #e8e1d3; --ink-mid: #b9b0a1; }
+  :root[data-theme="dark"] .playbill[data-author="aeschylus"]    { --tint: #182027; --link: #9db8cf; }
+  :root[data-theme="dark"] .playbill[data-author="sophocles"]    { --tint: #1a2019; --link: #a9c39e; }
+  :root[data-theme="dark"] .playbill[data-author="euripides"]    { --tint: #261b17; --link: #e3a493; }
+  :root[data-theme="dark"] .playbill[data-author="aristophanes"] { --tint: #252013; --link: #d9bb7c; }
+
+  /* Clear space under the running head, so it never crops the drawing. */
+  .pb {
+    max-width: 80rem; margin: 0 auto; padding: 2.5rem 3.5rem 3rem;
+    display: grid; grid-template-columns: 1.25fr 1fr; gap: 4.5rem;
+  }
+  .L { --fig-h: 17rem; min-width: 0; }
+  .nofig { height: calc(var(--fig-h) + .65rem); border-bottom: 2px solid var(--ink); }
+  .playbill p { margin: 0; }
+  .tb { margin-top: 1rem; }
+  .gt { font: 400 1.75rem/1.1 var(--font-greek); color: var(--ink-mid); }
+  .et { font: 400 4.75rem/1 Cardo, serif; margin: .1rem 0 .4rem; color: var(--ink); }
+  .au { font: 400 1.5rem Cardo, serif; color: var(--link); text-decoration: none; }
+  .au:hover { text-decoration: underline; }
+  .playbill .arg { font: 400 1.38rem/1.45 Cardo, serif; margin-top: 1.1rem; max-width: 30em; }
+  .acts { display: flex; gap: .9rem; margin-top: 1.4rem; flex-wrap: wrap; }
+  .btn {
+    font: 500 1.06rem "Alegreya Sans", sans-serif; padding: .6rem 1.1rem;
+    border: 1px solid var(--link); color: var(--link); border-radius: 3px; text-decoration: none;
+  }
+  .btn.pri { background: var(--link); color: var(--tint); }
+  .btn[hidden] { display: none; }
+  .syn { margin-top: 1.25rem; max-width: 36em; }
+  .syn summary { cursor: pointer; color: var(--link); font-size: 1.06rem; }
+  .syn summary span { color: var(--ink-mid); }
+  .playbill .syn p { font: 400 1.12rem/1.5 Cardo, serif; margin-top: .6rem; }
+  .draft { font-size: .8rem; color: var(--ink-mid); margin-left: .4rem; font-family: "Alegreya Sans", sans-serif; }
+  .playbill .credit { margin-top: 1.25rem; font-size: .85rem; color: var(--ink-mid); max-width: 40em; }
+
+  .R { padding-top: .5rem; min-width: 0; }
+  .R h3 { font: 500 .94rem "Alegreya Sans", sans-serif; color: var(--ink-mid); margin: 1.4rem 0 .4rem; }
+  .R h3:first-child { margin-top: 0; }
+  .R p { font-size: 1rem; }
+  .cast { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 1.75rem; font: 400 1.3rem/1.4 Cardo, serif; }
+  .cast li { margin: 0 0 .25rem; break-inside: avoid; }
+  .cast .nm { color: var(--c); }
+  .cast .sg { color: var(--ink-mid); font-size: 1rem; font-family: var(--font-greek); }
+  .ed { list-style: none; margin: 0; padding: 0; font-size: 1rem; line-height: 1.35; }
+  .ed li { margin: 0 0 .45rem; }
+  .ed b { font-weight: 500; }
+  .ed .yr { color: var(--ink-mid); margin-left: .4rem; }
+  .ed em { display: block; font-style: normal; color: var(--ink-mid); font-size: .88rem; }
+
+  @media (max-width: 64rem) {
+    .pb { grid-template-columns: 1fr; gap: 2rem; }
+  }
+  @media (max-width: 40rem) {
+    .pb { padding: 1.5rem 1rem 2rem; }
+    .L { --fig-h: 12rem; }
+    .gt { font-size: 1.3rem; }
+    .et { font-size: 2.9rem; }
+    .playbill .arg { font-size: 1.12rem; }
+    .acts { flex-direction: column; gap: .6rem; }
+    .btn { text-align: center; }
+    .cast { font-size: 1.12rem; column-gap: 1rem; }
+  }
+</style>
+
+<script>
+  // Resume first when a saved place exists (localStorage, shared/lib/resume.ts):
+  // it takes the filled button, and Start steps back to the plain one.
+  import { resumeFor, resumeHref } from '@shared/lib/resume';
+
+  const btn = document.getElementById('pb-resume') as HTMLAnchorElement | null;
+  const pos = btn ? resumeFor(btn.dataset.work!) : null;
+  if (btn && pos) {
+    const books = Number(btn.dataset.books) || 1;
+    const book = Math.min(Math.max(1, pos.book), books);
+    const base = (import.meta.env.BASE_URL as string).replace(/\/$/, '');
+    btn.href = resumeHref(btn.dataset.work!, { ...pos, book }, base);
+    // A later occurrence is saved as "803--2"; show the line, keep the link.
+    btn.textContent = pos.cite ? `Resume at line ${pos.cite.replace(/--\d+$/, '')}` : 'Resume';
+    btn.classList.add('pri');
+    document.getElementById('pb-start')?.classList.remove('pri');
+    btn.hidden = false;
+  }
+</script>

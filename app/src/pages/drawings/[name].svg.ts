@@ -1,9 +1,9 @@
 // Static copies of the vase drawings the site shows (see lib/drawings.ts).
 import type { APIRoute } from 'astro';
-import { homeFigureNames, servedSvg } from '../../lib/drawings';
+import { servedNames, servedSvg } from '../../lib/drawings';
 
 export function getStaticPaths() {
-  return homeFigureNames().map((name) => ({ params: { name } }));
+  return servedNames().map((name) => ({ params: { name } }));
 }
 
 export const GET: APIRoute = ({ params }) =>

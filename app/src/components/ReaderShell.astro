@@ -16,7 +16,7 @@ import Breadcrumb from './Breadcrumb.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import RunningHead from '@shared/components/RunningHead.svelte';
-import Plate from '@shared/components/Plate.svelte';
+import Playbill from './Playbill.astro';
 import { assignSpeakerSlots } from '@shared/lib/speaker-colors';
 import { playSigla } from '@shared/lib/speakers';
 import { getWork, bookLabel, isBookless, workPath, workLanding, languageLabel, visibleTranslations, type Work } from '@shared/lib/works';
@@ -862,21 +862,8 @@ const intro =
     }
   </script>
 
-  {isPlayLine && !editionsOn && (
-    <Plate
-      greekTitle={work.greekTitle ?? null}
-      title={work.title}
-      authorName={authorName}
-      argument={work.argument ?? null}
-      synopsis={work.synopsis ?? null}
-      production={work.production ?? null}
-      greekSource={work.greekSource.full}
-      translations={visibleTranslations(work).map((t) => (t.alignment ? `${t.name} — Aligned by ${t.alignment}` : t.name))}
-      copyAbbr={work.citation?.copyAbbr ?? null}
-      lastLine={plateLastLine}
-      persons={platePersons}
-      startHref={plateStartHref}
-    />
+  {isPlayLine && (
+    <Playbill work={work} persons={platePersons} lastLine={plateLastLine} startHref={plateStartHref} editionsOn={editionsOn} />
   )}
   {editionsOn && <script is:inline define:vars={{ workId, defaultEdition, translationEditions: Object.fromEntries(work.translations.map(t => [t.id, t.edition ?? 'tlg'])) }}>
     try {
@@ -890,7 +877,7 @@ const intro =
   </script>}
   {editionsOn && <style is:global>html[data-ed-pending] #edition-reader { visibility: hidden; } html[data-ed-pending] #edition-reader::before { content: '◌'; visibility: visible; display: block; text-align: center; padding: 3rem; }</style>}
   {editionsOn
-    ? <div id="edition-reader"><ReaderHost work={workId} bookNum={n} bookData={bookData} serverEdition={defaultEdition} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} authorName={authorName} client:load /></div>
+    ? <div id="edition-reader"><ReaderHost work={workId} bookNum={n} bookData={bookData} serverEdition={defaultEdition} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} authorName={authorName} plate={false} client:load /></div>
     : <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />}
   <CommandPalette work={workId} client:load />
 </body>

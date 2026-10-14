@@ -1,16 +1,20 @@
 ---
-// One redesign vase drawing standing on its ground line (lib/drawings.ts):
+// Redesign vase drawings standing on one ground line (lib/drawings.ts):
 // dark lines on Attic orange in both themes (John, 2026-10-13). The page
-// sets the figure's height with --fig-h; where no drawing exists yet the
+// sets the drawings' height with --fig-h; where no drawing exists yet the
 // space stays empty at the same size (docs/redesign/PHASES.md, phase 3).
-import { drawing } from '../lib/drawings';
+// `slug` names a home figure; `drawings` gives a play's (Alcestis has two,
+// laid side by side). `fit` shrinks wide drawings to the box instead of
+// letting them reach past it (a play's whole scene; the home figures may).
+import { drawing, type Drawing } from '../lib/drawings';
 
-interface Props { slug: string }
-const fig = drawing(Astro.props.slug);
+interface Props { slug?: string; drawings?: Drawing[]; fit?: boolean; align?: 'center' | 'start' }
+const { slug, fit = false, align = 'center' } = Astro.props;
+const figs: Drawing[] = Astro.props.drawings ?? (slug ? [drawing(slug)].filter((d): d is Drawing => Boolean(d)) : []);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<div class="fb">
-  {fig && (
+<div class:list={['fb', { fit, start: align === 'start' }]}>
+  {figs.map((fig) => (
     <svg
       class="fig"
       viewBox={fig.viewBox}
@@ -19,7 +23,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       role="img"
       aria-label={fig.alt}
     ><use href={`${base}/drawings/${fig.name}.svg#fig`} /></svg>
-  )}
+  ))}
 </div>
 
 <style>
@@ -29,12 +33,16 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     display: flex; align-items: flex-end; justify-content: center;
     padding: 0 .6rem;
   }
+  .fb.start { justify-content: flex-start; padding: 0; }
+  .fb.fit { height: auto; }
   .fig {
     /* Every figure stands the same height; a wide one may reach a little
        past its column, into the space beside its neighbour. */
     display: block; height: var(--fig-h); width: auto; flex: none;
     color: #1b1916; fill: currentColor;
   }
+  /* A wide scene shrinks to the box's width, still standing on the line. */
+  .fit .fig { flex: 0 1 auto; min-width: 0; width: 100%; height: auto; max-height: var(--fig-h); }
   /* Small figures: the finer pen lines fade without a hairline stroke
      (docs/redesign/drawings/README.md). */
   @media (max-width: 40rem) {

@@ -13,6 +13,11 @@ interface Record { slug: string; file: string; alt: string }
 
 const RECORDS: Record[] = JSON.parse(readFileSync(`${DIR}/drawings.json`, 'utf-8')).drawings;
 
+// Each play's drawing, or drawings laid side by side (Alcestis), from the
+// image plan's `final_image` (paths from the repo root).
+const PLAN: { work_id: string; final_image?: string | string[] }[] =
+  JSON.parse(readFileSync('../docs/redesign/research/play-image-plan.json', 'utf-8')).plays;
+
 /** The playwrights' home-page figures, by author id. */
 export const HOME_FIGURES = ['aeschylus', 'sophocles', 'euripides', 'aristophanes'];
 
@@ -22,6 +27,7 @@ export interface Drawing {
   viewBox: string;
   width: number;
   height: number;
+  credit: string;   // the SVG's <desc>: source and licence
 }
 
 function record(slug: string): Record | undefined {
@@ -32,19 +38,35 @@ function source(file: string): string {
   return readFileSync(`${DIR}/${file}`, 'utf-8');
 }
 
+function read(file: string, alt?: string): Drawing {
+  const svg = source(file);
+  const viewBox = /viewBox="([^"]+)"/.exec(svg)![1];
+  const [, , width, height] = viewBox.split(/\s+/).map(Number);
+  const title = /<title>([^<]*)<\/title>/.exec(svg)?.[1] ?? '';
+  const credit = /<desc>([^<]*)<\/desc>/.exec(svg)?.[1] ?? '';
+  return { name: file.replace(/\.svg$/, ''), alt: alt ?? title, viewBox, width, height, credit };
+}
+
 /** The drawing recorded under `slug`, or undefined when none exists yet. */
 export function drawing(slug: string): Drawing | undefined {
   const r = record(slug);
-  if (!r) return undefined;
-  const viewBox = /viewBox="([^"]+)"/.exec(source(r.file))![1];
-  const [, , width, height] = viewBox.split(/\s+/).map(Number);
-  return { name: r.file.replace(/\.svg$/, ''), alt: r.alt, viewBox, width, height };
+  return r ? read(r.file, r.alt) : undefined;
 }
 
-/** The home figures' files, for the endpoint's static paths. */
-export function homeFigureNames(): string[] {
-  return HOME_FIGURES.map((s) => record(s)).filter((r): r is Record => Boolean(r))
+/** A play's drawings (none when it is not drawn yet). */
+export function playDrawings(workId: string): Drawing[] {
+  const fi = PLAN.find((p) => p.work_id === workId)?.final_image;
+  return (Array.isArray(fi) ? fi : fi ? [fi] : [])
+    .map((path) => read(path.replace(/^docs\/redesign\/drawings\//, '')));
+}
+
+/** Every file a page draws, for the endpoint's static paths. */
+export function servedNames(): string[] {
+  const home = HOME_FIGURES.map((s) => record(s)).filter((r): r is Record => Boolean(r))
     .map((r) => r.file.replace(/\.svg$/, ''));
+  const plays = PLAN.flatMap((p) => p.final_image || []).filter(Boolean)
+    .map((path) => path.replace(/^docs\/redesign\/drawings\//, '').replace(/\.svg$/, ''));
+  return [...new Set([...home, ...plays])];
 }
 
 /** The SVG as served: the figure wrapped in <g id="fig"> for <use>, and the

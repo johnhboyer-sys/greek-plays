@@ -17,6 +17,8 @@
   export let chapterTitles: Record<string, string> = {};
   export let speakerRoster: string[] = [];
   export let authorName: string;
+  // The drama site draws its own play opening (app Playbill.astro) above this.
+  export let plate = true;
   const meta = getWork(work)!;
   const defaultTrans = meta.defaultTranslation ?? meta.translations.find(t => t.slot === 'english')?.id ?? meta.translations[0]?.id ?? '';
   let state: EditionState = { ed: serverEdition, trans: defaultTrans, view: 'both' };
@@ -107,7 +109,7 @@
   })();
 </script>
 
-{#if meta.citation?.scheme === 'play-line'}
+{#if plate && meta.citation?.scheme === 'play-line'}
   <Plate greekTitle={meta.greekTitle ?? null} title={meta.title} {authorName}
     argument={meta.argument ?? null} synopsis={meta.synopsis ?? null} production={meta.production ?? null}
     greekSource={shownSource} translations={meta.translations.filter(t => t.id === state.trans).map(t => t.name)}
