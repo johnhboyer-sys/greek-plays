@@ -134,7 +134,7 @@ CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
          (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
 # strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
 # squiggle names the paper area it lies most in)
-MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4)]
+MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4, 5)]
 MARKS_K = 2
 # pass 4 marks (John): blue strokes redraw lines (her brows, eye, nose, mouth, jaw and neck, the sleeve's zigzag edge,
 # the pleat points, the ribbon's folds). Each stroke goes in along its centre, smoothed as the found lines, at the
@@ -157,8 +157,16 @@ TRACED_FROM = 3                           # only the pass 5 marks trace an area 
 # is wider than his pen (an opening over FILL_R scan px) is kept as painted too. The rest are lines, as before
 FILLS_FROM = 4
 DOT_MAX, DOT_FILL = 12, 0.6
+DOT_IN_GREY = 0.5                         # (a dot ringed by his grey paint is where his strokes overlapped to full opacity)
+DOT_LONG = 2                              # a piece longer than twice its width is a short stroke (marks_5: the messenger's upper lip, hair)
 FILL_BOXES = [(925, 1040, 975, 1062)]
 FILL_R = 2
+# pass 7 marks (John, marks_5): his marks layer and the blue he painted on the red layer (the fillets: grey at half
+# opacity, edged in line), merged. From these marks on (LOCAL_FROM) a green squiggle is ground only where it lies:
+# the paper under it out to LOCAL_R scan px, inside the lines (his squiggles sit in slivers between the hair and the
+# jaw, the hip and the hand, which no line seals off from the face and the hand: named whole, those went to ground);
+# and his half-opacity paint, laid over the red layer, erases the found lines under it (they broke the grey)
+LOCAL_FROM, LOCAL_R = 5, 3
 # a clay area meeting the ground with no line between them is a gap in the outline (John: "the ground leaks are due
 # to lines not being fully traced"): where the clay's edge lies farther than GAP scan px from any line, the outline is
 # drawn along the clay's edge at the pen's width
@@ -480,7 +488,7 @@ def marks(shape, contrast):
     """John's marks on the work grid: (lines, green, grey, traced, yellow). Blue at full opacity is a line, redrawn along its
     centre at the pen; blue at half opacity (MARK_HALF) wider than a stroke's soft edge is a grey wash; `traced` is the
     area inside each large group of his strokes (an area he traced whole: all of it clay)."""
-    blue, green, grey_, traced, yellow, fills = (np.zeros(shape, bool) for _ in range(6))
+    blue, green, grey_, traced, yellow, fills, spots, over = (np.zeros(shape, bool) for _ in range(8))
     for f in MARKS_FILES:
         a = np.asarray(Image.open(f).convert("RGBA")).astype(np.float32)
         r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3] / 255
@@ -491,11 +499,16 @@ def marks(shape, contrast):
         line = up((al >= MARK_HALF[1]) & isb)
         if int(f.stem.rsplit("_", 1)[1]) >= FILLS_FROM:
             full = (al >= MARK_HALF[1]) & isb
+            painted = (al > MARK_HALF[0]) & isb
             lab, _ = ndi.label(full, structure=np.ones((3, 3)))
             fill = np.zeros_like(full)
             for k, o in enumerate(ndi.find_objects(lab), 1):
                 piece = lab[o] == k
-                if max(piece.shape) <= DOT_MAX * MARKS_K and piece.mean() >= DOT_FILL:
+                o2 = tuple(slice(max(t.start - 2, 0), t.stop + 2) for t in o)
+                ring = ndi.binary_dilation(lab[o2] == k, iterations=2) & ~(lab[o2] == k)
+                if (max(piece.shape) <= DOT_MAX * MARKS_K and piece.mean() >= DOT_FILL
+                        and max(piece.shape) <= DOT_LONG * min(piece.shape)
+                        and painted[o2][ring].mean() < DOT_IN_GREY):
                     fill[o] |= piece
             wide = ndi.binary_opening(full, structure=morphology.disk(FILL_R * MARKS_K))
             for x0, y0, x1, y1 in FILL_BOXES:
@@ -507,10 +520,19 @@ def marks(shape, contrast):
         blue |= line
         if f.stem.endswith(f"_{TRACED_FROM}"):
             whole = line
-        green |= up(al * ((g > r + 40) & (g > b + 20)))
+        local = int(f.stem.rsplit("_", 1)[1]) >= LOCAL_FROM
+        if local:
+            spots |= up(al * ((g > r + 40) & (g > b + 20)))
+        else:
+            green |= up(al * ((g > r + 40) & (g > b + 20)))
         yellow |= up(al * ((r > b + 60) & (g > b + 60)))
         half = (al > MARK_HALF[0]) & (al < MARK_HALF[1]) & isb
-        grey_ |= up(ndi.binary_opening(half, structure=morphology.disk(MARKS_K)))
+        if local:                         # (the red lines he painted over left holes in it)
+            half = ndi.binary_closing(half, structure=morphology.disk(2 * MARKS_K))
+        half = up(ndi.binary_opening(half, structure=morphology.disk(MARKS_K)))
+        grey_ |= half
+        if local:
+            over |= half
     # the area his strokes enclose (closed over TRACED_CLOSE, holes filled), where it is larger than TRACED_MIN: the
     # convex hull of his strokes took in the ribbon and the dress above the band, and their lines went
     closed = ndi.binary_fill_holes(ndi.binary_closing(whole, structure=morphology.disk(TRACED_CLOSE * UP)))
@@ -521,7 +543,9 @@ def marks(shape, contrast):
     traced = ndi.binary_fill_holes(ndi.binary_dilation(big[lab], iterations=UP) & closed)
     # (bits of skeleton shorter than 2 scan px, where a thick stroke forks, drew blobs)
     paths = [snap(q, contrast) for q in skeleton_paths(blue) if len(q) >= 2 * UP]
-    return draw_paths(shape, paths, [PEN * UP] * len(paths)), green, grey_ & ~blue & ~fills, traced, yellow, fills
+    lines_ = draw_paths(shape, paths, [PEN * UP] * len(paths))
+    # (the grey stops at his drawn lines; less his raw strokes, it kept pinholes where his paint overlapped to full)
+    return lines_, green, grey_ & ~lines_ & ~fills, traced, yellow, fills, spots, over & ~lines_
 
 
 def figure(ink, ws, marked=()):
@@ -594,7 +618,7 @@ def main(src, qa=None, dump=None):
             x, y = (np.array(a) + t * (np.array(b) - a) - (X0, Y0)) * UP
             walls[round(y), round(x)] = True
     walls = ndi.distance_transform_edt(~walls) <= PEN * UP / 2
-    blue, green, mgrey, traced, yellow, fills = marks(ink.shape, contrast)
+    blue, green, mgrey, traced, yellow, fills, spots, over = marks(ink.shape, contrast)
     eye, box = eyes(ink.shape)            # the eyes are drawn by hand (EYE_*): John's strokes there are left out
     blue &= ~box
     ink = (ink & ~((ndi.distance_transform_edt(~blue) <= REPLACE * UP) & ~eye)) | blue
@@ -605,7 +629,7 @@ def main(src, qa=None, dump=None):
     waves[sl(WAVE)] = True
     waves &= ndi.distance_transform_edt(~blue) > REPLACE * UP
     ink = (ink & ~(inside & ~waves)) | (blue & inside) | (solid & traced)
-    ink &= ~yellow
+    ink &= ~yellow & ~over
     ink |= fills
     ws = areas(ink | walls)
     # each green squiggle: the paper area it lies most in is ground
@@ -633,6 +657,12 @@ def main(src, qa=None, dump=None):
     edge_line = band & (ndi.distance_transform_edt(~gap) <= PEN * UP * 1.5)
     print("outline gaps (work px)", int(gap.sum()))
     ink |= edge_line
+    # his green squiggles from LOCAL_FROM on: the paper under each, inside the lines
+    near = (ndi.distance_transform_edt(~spots) <= LOCAL_R * UP) & ~ink
+    lab, _ = ndi.label(near)
+    spot = np.isin(lab, np.unique(lab[spots & near])) & (lab > 0)
+    fig &= ~spot
+    ground |= spot
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
     info = lw.trace_svg(
