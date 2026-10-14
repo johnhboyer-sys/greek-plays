@@ -134,7 +134,7 @@ CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
          (987, 1712), (989.7, 1700), (995.7, 1650), (1001.7, 1600), (1007.7, 1550)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
 # strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
 # squiggle names the paper area it lies most in)
-MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4, 5)]
+MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4, 5, 6)]
 MARKS_K = 2
 # pass 4 marks (John): blue strokes redraw lines (her brows, eye, nose, mouth, jaw and neck, the sleeve's zigzag edge,
 # the pleat points, the ribbon's folds). Each stroke goes in along its centre, smoothed as the found lines, at the
@@ -183,33 +183,19 @@ CHECKER_LOW, CHECKER_HIGH = 96, 150      # after LEVELS (32, 50 as scanned)
 HATCH, HATCH_SIGMA, HATCH_FILL, HATCH_OP = 238, 3, 0.5, 0.3
 SQUARE = 260                              # scan px^2: a larger area is squares a missing grid line ran together
 # her areas that run on outside the cut through a break, so the test above leaves them out: points in them (scan px):
-# the strip under the lower meander, the strip in her hem, two at her right foot
-HOME_CLAY = [(1300, 1524), (1230, 1665), (1408, 1694), (1442, 1696)]
+# the strip under the lower meander, two at her right foot (John's outline leaves the gap between her hem and her
+# left foot open: that strip and the floor round the sandal are one area)
+HOME_CLAY = [(1300, 1524), (1408, 1694), (1442, 1696)]
 
-# Points on Iphigenia's outline in scan px, clockwise from the veil's top left corner (the 2026-10-02 tool's, approved
-# by John; the stretch round her right foot moved onto its outer line; at her elbow the cut runs straight along the
-# tray's lower edge, taking in the bracelet's bands; under her raised arm it runs on the arm's lower line, not into
-# the strip between her bracelet and her side); the guided path snaps them onto her own
-# lines. On her right the cut runs down the outer edge of her forearm, below the attendant's tray, to the hand on the
-# key, down the hanging end of her stole to its tip and straight across to her skirt (the gable of the altar behind
-# her stays out), and takes in the key's chain and knob.
-OUTLINE = [
-    (1208, 976), (1219, 966), (1234, 956), (1290, 948), (1346, 952), (1370, 972), (1376, 1000), (1385, 1025), (1395, 1050),
-    (1406, 1076), (1402, 1108), (1414, 1132), (1426, 1164), (1422, 1204), (1434, 1244), (1440, 1263), lw.STRAIGHT, (1462, 1272), lw.STRAIGHT,
-    (1462, 1292), (1477, 1296),
-    (1490, 1314), (1501, 1334), (1510, 1352), (1517, 1370), (1516, 1392), (1530, 1402), (1545, 1400), (1558, 1410),
-    (1557, 1430), (1540, 1435), (1527, 1428), (1527, 1440), lw.STRAIGHT, (1528, 1628), (1518, 1640), (1516, 1690),
-    (1505, 1698), (1488, 1690), (1486, 1650), (1490, 1632), (1494, 1628), lw.STRAIGHT, (1497, 1440), lw.STRAIGHT,
-    (1505, 1416), (1426, 1380), (1430, 1460), (1412, 1474), (1398, 1488), (1394, 1500), lw.STRAIGHT, (1352, 1510),
-    (1362, 1530), (1372, 1546), (1381, 1563), (1389, 1583), (1396, 1602), (1402, 1621), (1408, 1650), (1424, 1668),
-    (1440, 1684), (1442, 1700), (1425, 1708), (1400, 1704), (1384, 1690), (1370, 1672), (1314, 1672), (1294, 1672),
-    (1297, 1686), (1285, 1697), (1240, 1701),
-    (1200, 1700), (1189, 1693), (1186, 1668), (1170, 1652), (1197, 1578), (1190, 1508), (1166, 1440), (1183, 1462),
-    (1154, 1348), (1178, 1316), (1210, 1236), (1180, 1288), (1150, 1268), (1138, 1260), (1118, 1262), (1095, 1258), (1070, 1251),
-    (1072, 1235), (1080, 1218), (1088, 1198), (1094, 1181), (1115, 1187), (1137, 1194), (1135, 1210), (1150, 1222),
-    (1170, 1228), (1210, 1212), (1234, 1164), (1226, 1140), (1222, 1115), (1216, 1090), (1224, 1060), (1221, 1040),
-    (1217, 1022), (1212, 1005), (1209, 988),
-]
+# Iphigenia's outline for the home cut: John drew it (2026-10-14) as a closed line in PhotoCraft on the plate at
+# MARKS_K x its scan px over the crop; inside it, with the line itself, is the cut (my guided cut left out part of
+# the stole on her left)
+HOME_OUTLINE = Path(__file__).with_name("iphigenia_tauris_outline.png")
+# the top of her left foot under the hem, printed faint and found only in dashes, so the gap between hem and foot
+# ran into the foot (John: "there are some broken lines in ink outlining the foot and sandal"): drawn through
+# points read off the plate at 12x (scan px), at the pen, from the sandal's toe to the hem's edge
+FOOT_LINES = [[(1200, 1672.5), (1208, 1667.5), (1218, 1666.3), (1228, 1665.3), (1236, 1664), (1243, 1661),
+               (1247, 1658.5)]]
 
 
 def pc(src, out, *steps):
@@ -573,25 +559,27 @@ def pupils(shape):
 
 
 def iphigenia(ink, fig, ws, wash, fills):
-    """Iphigenia alone, cut along OUTLINE by a least-cost path on the frieze's lines, written to HOME_OUT at the same
-    pen."""
-    w = lambda p: p if p == lw.STRAIGHT else ((p[0] - X0) * UP, (p[1] - Y0) * UP)
-    soft = ndi.gaussian_filter(ink.astype(np.float32), 1.5 * UP / 4)
-    cost = 1 + 30 * (1 - np.clip(soft * 2, 0, 1))
-    path, on_straight = lw.livewire(cost, [w(p) for p in OUTLINE], closed=True, flags=True)
-    keep, inner, _ = lw.cut_masks(ink.shape, path, on_straight, rim=2 * UP)
+    """Iphigenia alone, cut along John's HOME_OUTLINE, written to HOME_OUT at the same pen."""
+    line = np.asarray(Image.open(HOME_OUTLINE).convert("RGBA"))[..., 3] > 0
+    inner = np.asarray(Image.fromarray(ndi.binary_fill_holes(line).astype(np.uint8) * 255).resize(
+        (ink.shape[1], ink.shape[0]), Image.BILINEAR)) >= 128
+    keep = inner
     # her body is her clay inside the cut and the lines bordering it (the frieze's body counts every line touching
     # clay: Pylades' fingers on the tablet, whose clay lies outside her cut, would come in with it). Her clay: the
     # areas lying mostly inside the cut; the altar's and the temple wall's, which the cut crosses beside her stole and
     # arm, lie mostly outside it
     n = ws.max() + 1
     hers = np.bincount(ws[inner], minlength=n) >= 0.5 * np.bincount(ws.ravel(), minlength=n)
-    hers[0] = True                        # slivers the seal leaves unseeded: inside the cut, hers
     for x, y in HOME_CLAY:                # (a strip the lines now fill has no paper left to name)
         cy, cx = round((y - Y0) * UP), round((x - X0) * UP)
         if (ws[max(cy - 2 * UP, 0):cy + 2 * UP, max(cx - 2 * UP, 0):cx + 2 * UP] > 0).any():
             hers[at(ws, x, y)] = True
-    b = fig & inner & hers[ws]
+    # slivers the seal leaves unseeded (ws 0) are hers unless they touch an area not hers (taken whole, those outside
+    # her outer lines left a rim of clay out to John's outline)
+    lab, _ = ndi.label((ws == 0) & ~ink & inner)
+    out = np.unique(ndi.maximum_filter(lab, size=3)[(ws > 0) & ~hers[ws]])
+    hers[0] = False
+    b = fig & inner & (hers[ws] | ((lab > 0) & ~np.isin(lab, out)))
     b = ndi.binary_fill_holes(b | (ink & keep & ndi.binary_dilation(b, iterations=2 * UP)))
     i = ink & keep & (ndi.distance_transform_edt(~b) <= NEAR * UP)
     lab, _ = ndi.label(i)
@@ -631,6 +619,13 @@ def main(src, qa=None, dump=None):
     ink = (ink & ~(inside & ~waves)) | (blue & inside) | (solid & traced)
     ink &= ~yellow & ~over
     ink |= fills
+    from scipy.interpolate import splev, splprep
+    foot = []
+    for pts in FOOT_LINES:
+        tck, _ = splprep(((np.array(pts, float) - (X0, Y0)) * UP).T, s=0, k=3)
+        x, y = splev(np.linspace(0, 1, 40 * len(pts)), tck)
+        foot.append(np.c_[y, x])
+    ink |= draw_paths(ink.shape, foot, [PEN * UP] * len(foot))
     ws = areas(ink | walls)
     # each green squiggle: the paper area it lies most in is ground
     lab, n = ndi.label(ndi.binary_dilation(green, iterations=2 * UP))
