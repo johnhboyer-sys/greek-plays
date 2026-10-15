@@ -79,9 +79,11 @@ DROP = [(560, 1880, 1025, 2490),
 # plate px) only ink whose local contrast reaches CREASE_C is kept (the pen lines it crosses read 100 and up)
 CREASE, CREASE_C = (2944, 2960), 60
 # walls (polylines, plate px) that close an area for the fill only, not drawn: the old man's crown, where the outline
-# stops at his tufts (his hair ran out to the ground); the stage's right end, where its lower lines stop open (the front
-# strip ran to ground)
-WALLS = [[(1386, 936), (1376, 966), (1372, 982)],
+# stops at his tufts (his hair ran out to the ground), from the outline's end over the three tufts' tips to the hair line
+# below them (John, pass 4: "the area around the tufts on the left figure's head should be clay"; a wall at the
+# outline's end left them on the ground); the stage's right end, where its lower lines stop open (the front strip ran
+# to ground)
+WALLS = [[(1387, 938), (1402, 933), (1422, 931), (1433, 937), (1446, 959)],
          [(3902, 2160), (3890, 2195), (3891, 2240)]]
 # points on the ground (plate px): the paper areas they fall in are vase ground; every other area the lines close is
 # clay; areas reaching the crop's edge are ground
