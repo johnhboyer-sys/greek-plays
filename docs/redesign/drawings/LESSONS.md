@@ -324,6 +324,23 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   broader than the pen lines, and the crown's wash averaged over its own clay, or it mottles and haloes the lines
   (2026-10-12).
 
+- Electra (Euripides) (II, Taf. 72, side A: the Berlin Painter's pelike in Vienna, Orestes kills Aegisthus), made with
+  PhotoCraft from Williams College's scan on JSTOR: about three and a half hours over the source search and four passes,
+  approved by John 2026-10-15. `tools/electra_eur.py` (2026-10-15).
+- JSTOR's Download button gives the Williams College plates at about half size (Taf. 72: 3445 x 2612); the item's IIIF
+  server holds the full scan (6581 x 4989, maxArea 10 MP). Its id is in the viewer's network requests (`.../iiif/<date
+  path>/<uuid>_deflate.tif/info.json`); fetch the panel as one region at full size, with John's go-ahead (2026-10-15).
+- Borders that bow round the vase and touch the figures (a hand on the meander, the chair's back): least-cost paths
+  through the plate's dark in a corridor round a guide, kept as polygons in a data file, cut cleaner than fitted
+  curves, which the figures' outlines pulled off (2026-10-15).
+- A worn patch the plate stipples: find it by the density of small dots, each dot's share of the light round it (a
+  plain blur of the dots fell off at the patch's edges), dots short in both directions (a foot's veins are as small
+  but long). John then wanted it drawn as printed: clay with the plate's own dots, found by local contrast (a fixed
+  level lost the paler ones), and no outline where it meets the ground (2026-10-15).
+- John's blue is ink at the width he paints it ("all ink is drawn by me to it's proper width"): redrawn along its
+  centre at the line weight, his widened hair curl came out thin. Take my lines out under his strokes, or a line he
+  traced over mine runs into a blot (2026-10-15).
+
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
 - The Gerhard method works here too. Suppliant Women (III, pl. XX) took
