@@ -22,11 +22,11 @@
     {
       "slug": "euripides",
       "file": "euripides-iphigenia.svg",
-      "name": "Euripides · Iphigenia (Iphigenia in Tauris)",
+      "name": "Euripides · Iphigenia with her letter (Iphigenia in Tauris)",
       "alt": "Iphigenia, priestess of Artemis, holding out a letter tablet and the temple key",
-      "source": "1849 lithograph of the Buckingham vase, Archäologische Zeitung Taf. XII (public domain)",
-      "method": "Lithograph: lines by local contrast, cut along her own lines, potrace",
-      "verdict": "Clean. Revised twice: forearm, key hand, chain, sandals, veil edge and the whole tablet are in. Pylades' fingertips on the tablet's far edge cannot be told apart at this scan's size."
+      "source": "R. Jaene's 1849 lithograph of the Buckingham vase, Archäologische Zeitung 7, Taf. XII (Getty scan on the Internet Archive, public domain)",
+      "method": "Contour lithograph, made with PhotoCraft: John's Levels on the plate; lines by local contrast redrawn along their centres at one pen; her eyes, lower lip and chin and the top of her left foot drawn by hand; cut from the redrawn frieze along John's own outline; John's PhotoCraft marks and his edits to the ground layer laid in; potrace",
+      "verdict": "Usable; approved by John on pass 12 (2026-10-15), after eight rounds of his marks. No outside review. Cut from iphigenia-in-tauris.svg; replaces the 2026-10-02 drawing from the same plate."
     },
     {
       "slug": "aristophanes",
@@ -396,6 +396,15 @@
       "source": "Gerhard, Auserlesene griechische Vasenbilder III (1847), Taf. CLVIII: a red-figure calyx-krater by the Methyse Painter, from Vulci, now Bologna, Museo Civico Archeologico PU 285 (Heidelberg scan, public domain); the names Aithra and Theseus are written on the vase",
       "method": "Coloured plate, red figures on black, made with PhotoCraft: the black ground gives the outline, drawn on the ground; the pockets of ground marked; the plate blurred along its own lines where they run parallel, so dashed pleats come out whole and close ones stay apart, found at half maximum and drawn along their centres; the short marks at their printed width; faint ends followed along the print; the line weight kept at pass 1's; John's PhotoCraft marks laid in; potrace",
       "verdict": "Usable; approved by John on the third pass (2026-10-13), after two rounds of his marks in PhotoCraft. The panel's three figures, no names. No outside review (the citation checked against Gerhard's text and the Beazley Archive)."
+    },
+    {
+      "slug": "iphigenia-in-tauris",
+      "file": "iphigenia-in-tauris.svg",
+      "name": "Iphigenia in Tauris · Iphigenia hands her letter to Pylades",
+      "alt": "Before the temple Iphigenia, in a tall headdress and a checked skirt, hands a letter tablet to Pylades, who holds a spear; Orestes leans on a pillar at the left with Eros flying above him, Artemis flies down at the right with a torch and a spear, and an attendant brings a tray",
+      "source": "R. Jaene's 1849 lithograph of the Duke of Buckingham's vase, Archäologische Zeitung 7, Taf. XII, with O. Jahn's article (Getty scan on the Internet Archive, public domain); the vase's present location not checked",
+      "method": "Contour lithograph, made with PhotoCraft: John's Levels on the plate; lines by local contrast redrawn along their centres at one pen; the checked skirt's hatching and the fillets' stripes as a grey wash; faces and a foot drawn by hand where the print is faint; John's PhotoCraft marks in eight rounds and his edits to the ground layer laid in; potrace",
+      "verdict": "Usable; approved by John on pass 12 (2026-10-15). John took care over Iphigenia and Pylades and less over the rest ('the rest? i'm not going to go all out'). No outside review."
     }
   ]
 }

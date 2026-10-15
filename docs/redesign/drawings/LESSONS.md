@@ -675,6 +675,33 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - John's marks, fourth form: green ground, yellow "that area bounded by ink lines is clay", blue ink. A mark rules the
   closed area it mostly lies in (at least 0.3 of its largest share), so a stroke that strays over a line does not rule
   the next area as well; unsealed paper narrower than the seal is ruled the same way (`ruled`) (2026-10-13).
+- Iphigenia in Tauris and the Euripides home figure (*Archäologische Zeitung* 7, 1849, Taf. XII: R. Jaene's lithograph
+  of the Buckingham vase), made with PhotoCraft: the whole frieze, and Iphigenia cut from it; about ten hours over three
+  days, twelve passes and eight rounds of John's marks, approved by John 2026-10-15. `tools/iphigenia_tauris.py`
+  (2026-10-15).
+- A lithograph drawn like pencil (fine grey lines, hatching close together) is the hardest kind yet. John nearly dropped
+  it ("these pencil drawings are just too hard to trace with accuracy"), then set its Levels in PhotoCraft himself: find
+  the lines on his Levels and the solid black on the raw plate, and keep the solid black to the one band that has it
+  (elsewhere the dark is where lines cross, and drawn solid it made blots) (2026-10-13).
+- Redraw the lines along their centres at one pen and drop short side branches with a free end ("too many lines look
+  like cracks") (2026-10-13).
+- Draw by hand what the print leaves faint, through points read off the plate at 12-24x: her eyes, her lower lip and
+  chin ("the lower lip is actually two curves"; the trace had crossed them into an X), the top of her foot under the hem.
+  Pass pupils and painted dots to `trace_svg` as `dots`, or its speck filter drops them ("We need pupil on both eyes or
+  neither") (2026-10-13/14).
+- John's marks, fifth form: blue a line, moved onto the printed line within 1.5 px ("my lines weren't perfectly precise,
+  but a guide for you"); blue at half opacity a grey wash; green ground; yellow clay with no ink; neutral grey paint clay
+  with the wash. He paints on the red layer too ("look on both layers") and hides layers he has finished: export every
+  layer and read each by colour. The soft edges of two close strokes closed into grey, and his half-opacity strokes
+  overlapping to full read as dots: take grey only 2 px clear of his full strokes (2026-10-14/15).
+- A green squiggle that names the whole paper area it lies in turned a face and a hand to ground where that area leaked
+  past a broken line: let a squiggle rule only the paper under it, inside the lines (2026-10-14).
+- Offer the ground layer for John to edit from the first pass: "the ground keeps cropping up where it shouldn't be. i'm
+  going to erase it in the blue ground layer to be clear." Apply the difference from mine last, over every rule, spread
+  up to the lines (his brush stops short of them) (2026-10-15).
+- For a figure cut from a frieze, ask John for its outline: the guided cut through waypoints left out part of her stole;
+  his outline drawn in PhotoCraft gave the cut in one step. Inside it, keep the seal's slivers only where they touch
+  nothing that is not hers, or a rim of clay shows out to his line (2026-10-14).
 
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
