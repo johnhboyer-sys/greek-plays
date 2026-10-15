@@ -28,6 +28,17 @@ Photo -> flat:
     50 mm lens (EXIF), so the focal length is fixed; 04 is cropped from its frame (its centre fitted). The flat
     keeps the vase's rings straight and its meridians upright, as John chose for Wasps (as thesmophoriazusae.py).
 
+Flat -> drawing (approved by John on pass 4, 2026-10-15):
+  - The scene is the clay joined to SEEDS, cut along the top of the egg band's clay strip (floor), her feet down to
+    John's soles; his black hair is paint, pockets of ground opened (OPEN_PTS). Lines as thesmophoriazusae.py (local
+    contrast, redrawn along their centres at the paint's own width, breaks joined); in the faces the dark lines at
+    their own shape and the paler and smaller marks too (his stubble). Her back foot's toe lines from the two photos
+    averaged (TOES; John: "the feet (toes specifically) need to be traced clearly"). The blood a wash (BLOOD).
+  - John's marks in three rounds of PhotoCraft (MARKS_FILES): the dress's finer folds and much else, laid in as he
+    drew them (see the constants).
+
+The SVG goes to aristophanes-mika.svg (the name kept for the home page's link, John, 2026-10-15), or to MIKA_OUT.
+
     python3 docs/redesign/drawings/tools/mika.py H5697-04.jpg [qa.png]
     python3 docs/redesign/drawings/tools/mika.py H5697-04.jpg flat.png --flat
     python3 docs/redesign/drawings/tools/mika.py flat.png [qa.png] --from-flat
@@ -643,10 +654,10 @@ def main(src, qa=None, flat_png=None, dump=None):
     ink, faces, fig, g, wash = scene(rgb, dump)
     ink |= (ndi.distance_transform_edt(~morphology.skeletonize(ink)) <= NECK / 2) & fig
     info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, dots=faces, extent=faces,
-                        title="The Kinsman on the altar threatens the wineskin 'baby' with a knife; Mika holds out a "
-                              "bowl for its blood",
-                        desc="Line drawing after the Apulian red-figure bell-krater Würzburg, Martin von Wagner "
-                             "Museum H 5697, side A; traced from photographs by ArchaiOptix, taken off the vase's curve.")
+                        title="The Kinsman, kneeling on a blood-stained altar, threatens a wineskin dressed as a baby "
+                              "with a knife; Mika, in an old woman's mask, holds out a bowl for its blood",
+                        desc="Line drawing after the Apulian red-figure bell-krater Würzburg H 5697, side A; traced from "
+                             "photographs by ArchaiOptix (CC BY-SA 4.0), taken off the vase's curve, changed.")
     for steps in wash:
         add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in steps], info["box"])
     print(OUT, info)
