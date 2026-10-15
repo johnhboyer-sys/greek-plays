@@ -313,8 +313,13 @@ TOE_W = 7
 # outlines, redrawn in blue; her soles at the floor cut). Where his blue lines close an area with the figure inside
 # FEET_BOX (flat px: her soles, which he drew lower, at the strip's lower edge, so her feet take in the strip under
 # them), that area is hers
+# Round 2 (2026-10-15, on pass 2's file, some on the red layer: read by colour from both): blue only, the fainter
+# lines I missed (his tunic's folds, his brows and cheeks, the wineskin's folds and the hand on it) and joins across
+# lines I broke (John). These add to my lines; my ink under them stays (John, 2026-10-15: "those over red lines are
+# additive"). The third item of each round: whether my ink under its blue goes
 MARKS_ORIGIN = (685, 309)
-MARKS_FILES = [("mika_marks1_blue.png", "mika_marks1_green.png")]
+MARKS_FILES = [("mika_marks1_blue.png", "mika_marks1_green.png", True),
+               ("mika_marks2_blue.png", "mika_marks2_green.png", False)]
 FEET_BOX = (760, 2940, 1760, 3200)
 MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 6.0, 1.5, 4
 # Breaks in the lines where specks of wear cross them: closed where the paint runs on under them (see join_breaks)
@@ -455,17 +460,15 @@ def join_breaks(lines, g1, room):
 
 
 def marks(shape):
-    """John's blue and green marks on the flat (see MARKS_*)."""
+    """John's blue and green marks on the flat (see MARKS_*), and the blue of the rounds that replace my ink."""
     H, W = shape
-    out = []
-    for k in (0, 1):
-        m = np.zeros((H, W), bool)
-        ox, oy = MARKS_ORIGIN
-        for files in MARKS_FILES:
-            a = np.asarray(Image.open(Path(__file__).parent / files[k]).convert("L")) > 127
+    ox, oy = MARKS_ORIGIN
+    blue, green, replace = (np.zeros((H, W), bool) for _ in range(3))
+    for fb, fg, rep in MARKS_FILES:
+        for f, m in ((fb, blue), (fg, green)) + (((fb, replace),) if rep else ()):
+            a = np.asarray(Image.open(Path(__file__).parent / f).convert("L")) > 127
             m[oy:oy + a.shape[0], ox:ox + a.shape[1]] |= a[:H - oy, :W - ox]
-        out.append(m)
-    return out
+    return blue, green, replace
 
 
 def johns_lines(blue):
@@ -539,7 +542,7 @@ def scene(rgb, dump=None):
     f = fig.astype(np.float32)
     fig = np.where(fine, ndi.gaussian_filter(f, FINE_SMOOTH), ndi.gaussian_filter(f, SMOOTH)) > 0.5
     fig &= ~outside
-    blue, green = marks(g.shape)
+    blue, green, replace = marks(g.shape)
     feet = box([FEET_BOX])
     johns, jcl = johns_lines(blue)
     # (her feet down to his soles' centre lines; the band's glaze the strip then takes in is no paint)
@@ -595,7 +598,7 @@ def scene(rgb, dump=None):
     sz = np.bincount(lab.ravel())
     faces = np.isin(lab, np.unique(lab[(face_box | zig) & ink])) & (sz < FACE_MAX)[lab] & (lab > 0)
     # John's lines, traced at their own size with the faces' (the main ink stays as the pass he marked)
-    gone = ndi.binary_dilation(green, iterations=2) | ndi.binary_dilation(blue, iterations=2)
+    gone = ndi.binary_dilation(green, iterations=2) | ndi.binary_dilation(replace, iterations=2)
     ink &= ~gone
     faces &= ~gone
     faces |= johns
