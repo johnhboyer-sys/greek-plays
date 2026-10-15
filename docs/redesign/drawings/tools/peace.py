@@ -100,6 +100,13 @@ SPECK_MAX, NEAR, SPECK_IN = 150, 6, 6
 # but not inside SPARE (boxes, plate px): the old man's four hair tufts, which stand off his crown on the ground
 SPARE = [(1355, 920, 1445, 975)]
 TRACE_H = 4000
+# John's marks in PhotoCraft over each pass, on the crop at the plate's px (his layer alone, exported from the .pcraft):
+# blue is ink as he drew it, added to mine (John, 2026-10-15: "Add"), traced at its own size (trace_svg's dots, so the
+# pinned weight is not moved) and sealing the areas, clay round it; yellow takes the ink under it out and is clay (stray
+# dashes, solids run past their edges); green takes the ink under it out and is ground (specks, a stray line).
+# Marks 1 (2026-10-15): pass 2
+MARKS_FILES = [Path(__file__).with_name("peace_marks_1.png")]
+MARKS_X0, MARKS_Y0 = 630, 773              # the marks' grid: the whole crop, one px a plate px
 # The lines redrawn crisp along their centres, as ecclesiazusae.py (John's "crisp and not staticy" there): but for the
 # hatched parts, each line drawn along its centre (side spurs under SPUR plate px pruned, pieces under LINE_LEN plate px
 # dropped: the grain's specks) at its printed width smoothed along it (a Gaussian of WIDTH_S plate px), at least LINE_W
@@ -262,6 +269,21 @@ def at(ws, x, y):
     return v[np.argmax(n)]
 
 
+def marks(shape):
+    """John's blue, yellow and green at the work px (shape: the work arrays')."""
+    out = [np.zeros(shape, bool) for _ in range(3)]
+    for mf in MARKS_FILES:
+        a = np.asarray(Image.open(mf).convert("RGBA")).astype(int)
+        r, g, b, al = (a[..., i] for i in range(4))
+        on = al > 40
+        cols = (on & (b > r + 40) & (b > g + 20), on & (r > 150) & (g > 150) & (b < 100), on & (g > r + 40) & (g > b + 20))
+        x0, y0 = X0 - MARKS_X0, Y0 - MARKS_Y0          # (a development run's box inside it)
+        for o, c in zip(out, cols):
+            c = c[y0:y0 + (Y1 - Y0), x0:x0 + (X1 - X0)]
+            o |= np.asarray(Image.fromarray(c.astype(np.uint8) * 255).resize((shape[1], shape[0]), Image.NEAREST)) > 0
+    return out
+
+
 def walls(shape):
     """WALLS rasterised (work px), a plate px wide."""
     from skimage.draw import line
@@ -298,9 +320,13 @@ def main(src, qa=None, dump=None):
     hat &= ink
     printed = ink                                     # (the areas are sealed on these as well: the redraw opens gaps)
     ink = (redraw(ink & ~hat, SPUR, LINE_LEN) & ~hat) | hat
+    blue, yellow, green = marks(ink.shape)
+    ink &= ~(yellow | green)
+    printed &= ~(yellow | green)
     wall = walls(ink.shape)
-    ws = areas(ink | printed | wall)
-    fig, ground = figure(ink | printed | wall, ws)
+    ws = areas(ink | printed | wall | blue)
+    fig, ground = figure(ink | printed | wall | blue, ws)
+    fig = (fig | yellow | (ndi.binary_dilation(blue, iterations=UP) & ~ground)) & ~green
     del printed
     kept = np.zeros_like(fig)
     for box in CLOSED:
@@ -322,7 +348,7 @@ def main(src, qa=None, dump=None):
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
     lw.WORK_H = TRACE_H
     info = lw.trace_svg(
-        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, trace_h=TRACE_H, keep=kept,
+        ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT, trace_h=TRACE_H, keep=kept, dots=blue,
         title="Three comic actors: a scribe, a slave and an old countryman",
         desc="Line drawing after the 1853 plate of the Reckoning Painter's krater (Wieseler, Annali dell'Instituto "
              "25, tav. d'agg. C-D, 6); retraced.")
