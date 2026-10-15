@@ -21,8 +21,8 @@ Plate px here are this scan's, 1.9 times as fine as the Williams College scans t
 
 Plate -> drawing:
   - Out: the polygons of CUTS (the borders and the palmette band).
-  - The stipple (STIPPLE): inside its polygon, the light areas the plate's lines close off that are thick with small
-    dark dots are the worn patch, and become ground.
+  - The stipple (STIPPLE): inside its polygon, the area thick with small dark dots is the worn patch: ground while the
+    figures are cut, then drawn as the plate prints it, clay with its dots and no outline (John, 2026-10-15).
   - Ground: the plate's dark, thin lines opened away; the large areas reaching the crop's edge or the cuts, and the
     pockets the figures close in (POCKETS).
   - The figures: the clay joined to SEEDS (each moved to the nearest clay within 30 plate px).
@@ -76,6 +76,7 @@ STIPPLE = [(150, 1625), (980, 1515), (1050, 1505), (1545, 1800), (1100, 1790), (
 # spans at most STIP_SIDE plate px: the veins of the feet, grey strokes as small, are longer
 STIP_DOT, STIP_D, STIP_T, STIP_R, STIP_CLOSE, STIP_SIDE, STIP_LOW, STIP_EDGE = 60, 0.02, 135, 6, 8, 8, 0.004, 5
 STIP_MIN = 1500
+STIP_DR, STIP_DLC = 3, 26                  # the stipple drawn: dots darker by STIP_DLC than their closing over STIP_DR
 # the right foot over the patch (a polygon inside its outline, plate px): its veins break into dot-sized pieces. The
 # patch's thin margins along the ground, where its dots thin out: the area grown by hysteresis down to STIP_LOW
 STIP_KEEP = [(705, 1660), (800, 1632), (900, 1606), (960, 1592), (965, 1630), (900, 1680), (820, 1718), (745, 1730),
@@ -195,6 +196,9 @@ def main(src, qa=None, test=None, out=None, diag=False):
         pc(t / "up.png", t / "gf.png", ("filter.blur.gaussianBlur", {"radius": BLUR_F * UP}))
         pc(t / "gf.png", t / "fine.png", ("image.adjustments.threshold", {"level": DARK}))
         pc(t / "gf.png", t / "stip.png", ("image.adjustments.threshold", {"level": STIP_T}))
+        r = round(STIP_DR * UP)
+        pc(t / "gf.png", t / "gfc.png", ("filter.other.maximum", {"radius": r, "preserve": "roundness"}),
+           ("filter.other.minimum", {"radius": r, "preserve": "roundness"}))
         pc(t / "up.png", t / "gw.png", ("filter.blur.gaussianBlur", {"radius": WASH_BLUR * UP}))
         r = round(WASH_R * UP)
         pc(t / "gw.png", t / "wclosed.png", ("filter.other.maximum", {"radius": r, "preserve": "roundness"}),
@@ -206,6 +210,7 @@ def main(src, qa=None, test=None, out=None, diag=False):
         dark0 = grey(t / "dark.png") < 128
         fine = grey(t / "fine.png") < 128
         marks = grey(t / "stip.png") < 128
+        stip_lc = grey(t / "gfc.png") - grey(t / "gf.png")
     H, W = g.shape
     outside = poly(g.shape, CUTS['left']) | poly(g.shape, CUTS['right']) | poly(g.shape, CUTS['top'])
     lc = closed - gl
@@ -352,8 +357,18 @@ def main(src, qa=None, test=None, out=None, diag=False):
     wash = ndi.binary_closing(wash, structure=disk(2 * 1.9)) & w0
     wash = morphology.remove_small_objects(wash, max_size=round(WASH_MIN * UP * UP))
 
+    # the worn patches drawn as Reichhold drew them (John, 2026-10-15: "Put stippling in the two areas at the bottom that
+    # are damage to the original"): their area clay in the body, the plate's own dots in it at their printed size, no
+    # outline where they meet the ground (the plate has none); the figures' outlines over them stay
+    stip_area = worn & ~fig & ~ink
+    # (the dots by local contrast, darker by STIP_DLC than their closing over STIP_DR plate px: a fixed level lost the
+    # paler dots on the right, where the print is lighter)
+    lab, n = ndi.label((stip_lc > STIP_DLC) & ndi.binary_dilation(stip_area, structure=disk(1)) & ~ink)
+    stip_dots = (np.bincount(lab.ravel()) <= STIP_DOT * UP * UP)[lab] & (lab > 0)
+    body = fig | stip_area
+
     info = lw.trace_svg(
-        ink, out, body=fig, open_holes=~fig, weight="drawn",
+        ink, out, body=body, open_holes=~body, weight="drawn", dots=stip_dots, extent=stip_area,
         title='Orestes kills Aegisthus',
         desc='Line drawing after Karl Reichhold\'s drawing of the Berlin Painter\'s pelike, Vienna, Kunsthistorisches '
              'Museum IV 3725 (Furtwängler and Reichhold, Griechische Vasenmalerei II, Taf. 72); cut out and retraced.')
