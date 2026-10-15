@@ -68,6 +68,9 @@ PANELS, PANEL_LEVEL = [(3240, 1370, 3720, 1545)], 175
 # the edges of the hatched parts from the printed strokes, not the blur (whose edge rounded the tablets' corners): the
 # line finder's ink closed by HAT_JOIN plate px within HAT_NEAR plate px of the blurred area
 HAT_JOIN, HAT_NEAR = 1.5, 3
+# no hatching inside NO_HAT (boxes, plate px): the scribe's eyes, whose close arcs blurred as dark as hatching and ran
+# into bars over the eyes (John, pass 1: "fix the known faults first")
+NO_HAT = [(3362, 985, 3490, 1052)]     # (a box to x 3565 took in his hair, which came out striped)
 # the reverse (6b) and its label, bottom left (John, 2026-10-15: out): ink pieces lying wholly inside are dropped
 DROP = [(560, 1880, 1025, 2490),
         (640, 880, 760, 1000)]            # (and faint strokes on the field by the bundle, offset from the facing plate)
@@ -82,7 +85,11 @@ WALLS = [[(1386, 936), (1376, 966), (1372, 982)],
          [(3902, 2160), (3890, 2195), (3891, 2240)]]
 # points on the ground (plate px): the paper areas they fall in are vase ground; every other area the lines close is
 # clay; areas reaching the crop's edge are ground
-GROUND = [(1684, 1844)]                   # the open space between the old man's hanging mantle, his stick and the stage
+# John (2026-10-15, pass 1): "Furtwängler's plate to identify/verify ground v clay": FR II pl. 110, 1a (Reichhold's
+# drawing of the vase, black ground) shows ground in the open space between the old man's hanging mantle, his stick and
+# the stage; inside the scribe's raised arm (between forearm, hand, chin and shoulder); under the seat bar, between the
+# scribe's strapped shin and the chair's front leg, down to the stage
+GROUND = [(1684, 1844), (3240, 1130), (3330, 1800)]
 # small closed parts (boxes, plate px): the paper the ink closes there, after a closing by CLOSE plate px, is clay: the
 # old man's open mouth (it reached the ground between his lips), as Philotimides' in ecclesiazusae.py
 CLOSED = [(1525, 1100, 1620, 1175)]
@@ -90,6 +97,8 @@ CLOSE = 5
 # specks of the print: ink pieces under SPECK_MAX plate px^2 farther than NEAR plate px from the figures, and under
 # SPECK_IN anywhere
 SPECK_MAX, NEAR, SPECK_IN = 150, 6, 6
+# but not inside SPARE (boxes, plate px): the old man's four hair tufts, which stand off his crown on the ground
+SPARE = [(1355, 920, 1445, 975)]
 TRACE_H = 4000
 # The lines redrawn crisp along their centres, as ecclesiazusae.py (John's "crisp and not staticy" there): but for the
 # hatched parts, each line drawn along its centre (side spurs under SPUR plate px pruned, pieces under LINE_LEN plate px
@@ -172,6 +181,8 @@ def hatched(src, ink):
     for box in PANELS:
         if box[0] >= X0 and box[1] >= Y0 and box[2] <= X1 and box[3] <= Y1:
             dark[sl(box)] = blurred_dark(src, box, HAT_BLUR, PANEL_LEVEL)
+    for box in NO_HAT:
+        dark[sl(box)] = False
     m = ndi.binary_opening(dark, structure=morphology.disk(HAT_OPEN * UP))
     lab, _ = ndi.label(m)
     m &= (np.bincount(lab.ravel()) >= HAT_MIN * UP * UP)[lab]
@@ -302,6 +313,8 @@ def main(src, qa=None, dump=None):
     size = np.bincount(lab.ravel()) / UP / UP
     near = np.zeros(n + 1, bool)
     near[lab[ndi.distance_transform_edt(~fig) <= NEAR * UP]] = True
+    for box in SPARE:
+        near[lab[sl(box)]] = True
     drop = ((size < SPECK_MAX) & ~near) | (size < SPECK_IN)
     drop[0] = False
     ink &= ~drop[lab]
