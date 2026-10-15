@@ -17,7 +17,10 @@ PhotoCraft made and measure. The SVG is written by linework.trace_svg.
 
 Plate -> drawing. A contour engraving in black on cream paper, the dark parts (the tablets, the bands, the hair)
 hatched. John chose (2026-10-15): the three actors, the stage and its three posts, the bundle on its fork; the
-ornament bands and the reverse (6b) out.
+ornament bands and the reverse (6b) out; from a style test, the hatched parts solid black and the lines at the plate's
+printed weight; ground and clay checked against Furtwängler-Reichhold II pl. 110, 1a (Reichhold's black-ground drawing
+of the same vase). He marked pass 2 and pass 3 in PhotoCraft (peace_marks_1.png, peace_marks_2.png) and asked for the
+clay round the old man's tufts on pass 4. Approved by John on the fifth pass, 2026-10-15.
 
     python3 docs/redesign/drawings/tools/peace.py annali-1853-CD-arachne-2584539.jpg [qa.png] [dump.npz]
 """

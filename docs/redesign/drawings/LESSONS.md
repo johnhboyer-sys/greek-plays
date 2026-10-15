@@ -703,6 +703,30 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   his outline drawn in PhotoCraft gave the cut in one step. Inside it, keep the seal's slivers only where they touch
   nothing that is not hers, or a rim of clay shows out to his line (2026-10-14).
 
+### *Annali dell'Instituto di corrispondenza archeologica* (engraved contour plates, the darks hatched)
+
+- Peace (Annali 25, 1853, tav. d'agg. C-D, fig. 6: three comic actors on a stage, Hermitage St. 1779), made with
+  PhotoCraft: about three and a quarter hours over a source search, a style test and five passes, approved by John
+  2026-10-15. `tools/peace.py`, on `ecclesiazusae.py`'s rules (2026-10-15).
+- Arachne's image link serves the full scan: `data/image/<id>` returned 4500 x 3065 for a plate whose preview was
+  1000 px. Its book pages carry OCR (`data/entity/<page id>`, `ocrText`; a volume's pages are consecutive ids after the
+  book's): Wieseler's text found the vase, and corrected the pick's reading (a bundle on a carrying fork, not a parasol;
+  a stylus, not a double flute; writing tablets). Bieber 1920's text on the Internet Archive gave the museum and FR's
+  plate. A WebFetch "metadata" call on an image link downloads the image: ask before (2026-10-15).
+- Hatching about 1 plate px a stroke cannot be traced stroke by stroke; John chose it solid black (as the vase paints
+  it) over a wash or even hatch. Find it by a heavy blur under a level, but take its edges from the printed strokes
+  closed up, or the tablets' corners come out round. The same blur takes close pairs of face lines (brows, eye arcs) for
+  hatching: keep it out of the faces (`NO_HAT`), and raise the level only inside boxes that need it (`PANELS`)
+  (2026-10-15).
+- Crop above an ornament band, not on it: a crop one line too low cut the slave's crown and his face ran out to ground.
+  A fold's crease prints as a pale grey line down the plate: keep only high-contrast ink across it (`CREASE`)
+  (2026-10-15).
+- A plate drawn in outline leaves ground and clay open to doubt; John: use another drawing of the same vase to settle
+  them (FR II pl. 110, 1a, black ground, viewed in the browser pane, nothing downloaded) (2026-10-15).
+- John's marks, sixth form: blue added over my lines ("Add"), yellow takes stray ink out and is clay, green takes ink
+  out and is ground; in a later round a yellow loop drawn round an area is clay (its hull), and it overrules an earlier
+  round's green ground there, but not that green's ink removal (the ink came back when it did) (2026-10-15).
+
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
 - Cyclops (pl. 1, the blinding of Polyphemus, Louvre F 342), made with PhotoCraft in the black-figure silhouette: about
