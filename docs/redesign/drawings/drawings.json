@@ -31,11 +31,11 @@
     {
       "slug": "aristophanes",
       "file": "aristophanes-mika.svg",
-      "name": "Aristophanes · Mika (Women at the Thesmophoria)",
-      "alt": "Mika, in a comic old woman's mask, holding out a bowl",
-      "source": "Würzburg krater H 5697, photograph by ArchaiOptix (CC BY-SA 4.0)",
-      "method": "Red-figure photo: clay mask, fold lines by local contrast, Mnesilochus' knife cut away, potrace",
-      "verdict": "Clean. Revised: the drapery folds now run their full length. The painter's own drawing is sparer than the engravings."
+      "name": "Aristophanes · the Kinsman and Mika at the altar (Women at the Thesmophoria)",
+      "alt": "The Kinsman, kneeling on a blood-stained altar, threatens a wineskin dressed as a baby with a knife; Mika, in an old woman's mask, holds out a bowl for its blood",
+      "source": "Schiller Painter bell-krater, Würzburg, Martin von Wagner Museum H 5697, side A, two photographs by ArchaiOptix (CC BY-SA 4.0); no old plate exists (acquired 1977)",
+      "method": "Red-figure photos taken off the vase (a fitted model of the vase and cameras, rings straight), made with PhotoCraft: clay mask, lines by local contrast redrawn even, faces at their own shape, blood as a wash, her toes from the two photos averaged; John's PhotoCraft marks in three rounds laid in as drawn; potrace",
+      "verdict": "Usable; approved by John on pass 4 (2026-10-15), after three rounds of his marks. No outside review. Replaces the 2026-10-02 drawing of Mika alone (John: 'i want the whole image, not just mika')."
     },
     {
       "slug": "medea",
@@ -58,11 +58,11 @@
     {
       "slug": "oedipus-tyrannus",
       "file": "oedipus-tyrannus.svg",
-      "name": "Oedipus Tyrannus · Oedipus at the messenger's news",
-      "alt": "Oedipus, bearded, in a long embroidered robe, his hand at his beard, holding a staff",
-      "source": "Sicilian calyx-krater, Syracuse, Museo Paolo Orsi 66557, photograph by Dan Diffendale (CC BY-NC-SA 2.0)",
-      "method": "Red-figure photo: loose cut through the glaze, hand-drawn zones for floor, plaster, shoes and head; cracks erased and the lines they broke joined across them; lines broken by wear joined; staff redrawn as a straight rod; hair and beard drawn solid, face lines evened; hand redrawn after John's trace, every finger outlined; potrace",
-      "verdict": "Usable. Revised after John's review: the hair and a fuller beard are solid, the face lines even, and the hand is redrawn after his trace with every finger outlined; the mended crack beside it is gone and lines broken by wear are joined. The hem and shoes are worn on the vase and stay rough."
+      "name": "Oedipus Tyrannus · Oedipus enthroned, Teiresias led by a boy, Jocasta with a mirror",
+      "alt": "A king sits enthroned in a laurel wreath, holding a sceptre topped by a bird, before a throne-back with a key pattern; an old man in a laurel wreath and a richly patterned robe, holding a staff topped by a small temple, steps towards him, led by a boy who carries a laurel branch; at the left a woman holds up a mirror beside a basin on a column, with a small plant between her and the throne",
+      "source": "Raoul-Rochette, Monumens inédits d'antiquité figurée I (1833), pl. LXXVIII, copied in Benndorf's Wiener Vorlegeblätter (Serie 1889, Taf. IX, 6): the vase of D. Aniello Sbani, Naples, present location not found (Heidelberg scan, public domain)",
+      "method": "Contour plate, lithographed pen lines on paper with no black ground, made with PhotoCraft: the lines redrawn along their centres, weighted to 2.0 plate px (John); the hair, beards and broad bands solid as printed; the upper row, the beads and the hanging ribbons cut away; the figures' area by the sealed watershed with John's ground areas; clay on the dark theme; John's PhotoCraft marks laid in (blue ink, green ground, yellow clay); potrace",
+      "verdict": "Usable; approved by John on the fourth pass (2026-10-13), after his choice of scan, his ground calls, a weight test and one round of his marks in PhotoCraft. It replaces the Syracuse krater drawing (rejected 2026-10-09). No outside review (the identifications checked against Raoul-Rochette's, Overbeck's and Benndorf's texts)."
     },
     {
       "slug": "antigone",
@@ -369,6 +369,33 @@
       "source": "Bötticher, Der Omphalos des Zeus zu Delphi (1859), plate, fig. 1, after Jahn, Vasenbilder (1839), Taf. I: an Apulian volute-krater of the Black Fury Group, Naples 82270 (H 3249) (Heidelberg scan, public domain)",
       "method": "Contour plate, pen lines on paper with no black ground, made with PhotoCraft: lines at half maximum at the plate's own weight; faces and the omphalos net at their printed width; figures clay on the dark theme, the black solid with a clay rim; potrace",
       "verdict": "Usable; approved by John on the third pass (2026-10-12). No outside review (the citation checked against Bötticher's text and the Beazley Archive)."
+    },
+    {
+      "slug": "ecclesiazusae",
+      "file": "ecclesiazusae.svg",
+      "name": "Assemblywomen · Three comic actors: Philotimides, Charis and Xanthias",
+      "alt": "Three masked comic actors on a stage before a half-open studded door, a jug hanging above: an old man in a short tunic and an old woman in a long veiled cloak hold a dish of cakes between them over a bench, each holding up a morsel; behind her a bald, bearded slave turns away, a hand at his mouth",
+      "source": "Heydemann, Vase Caputi mit Theaterdarstellungen (Neuntes Hallisches Winckelmannsprogramm, 1884), Taf. I: an Apulian bell-krater from Ruvo attributed to the Choregos Painter, Milan, Civico Museo Archeologico A 0.9.2841 (Heidelberg scan, public domain)",
+      "method": "Contour plate, pen lines on paper with no black ground, made with PhotoCraft: the lines redrawn along their centres at their printed width, weighted to 1.6 plate px (John); Xanthias's beard a stepped grey wash; the door's studs and the hem band solid; the figures' area by the sealed watershed with John's ground areas; clay on the dark theme; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the fourth pass (2026-10-13), after his ground calls, a weight A/B and one round of his marks in PhotoCraft. No outside review (the citation checked against Heydemann's text and the museum's record)."
+    },
+    {
+      "slug": "knights",
+      "file": "knights.svg",
+      "name": "Knights · Two slaves haul an old man up the steps of a stage",
+      "alt": "Three masked comic actors at a stage: on its ladder a bald slave pulls an old man up by the head; the old man, white-haired and bent over a crooked stick, is pushed from behind by a second white-haired slave; on the stage, under a porch roof on a post, lie a patterned bundle and a pointed cap",
+      "source": "Lenormant and de Witte, Élite des monuments céramographiques II (1857), pl. XCIV: an Apulian red-figure bell-krater by the McDaniel Painter, British Museum 1849,0620.13 (F 151) (Getty Research Institute scan on the Internet Archive, public domain). The vase names no play; the Élite reads a parody of Apollo receiving the blind Chiron, the museum Cheiron cured by Apollo",
+      "method": "Coloured plate, red figures on black, made with PhotoCraft: the panel squared; the black ground gives the outline, drawn on the ground; the pockets of ground marked; the bands of paint on the clothes walled or marked as paint; the plate's lines at their own width, the faint ones found at a finer blur and broken lines joined; the white hair and beards as white paths, outlined on the ground in day mode only; the line weight kept at pass 1's; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the second pass (2026-10-13), after his edge calls and one round of his marks in PhotoCraft. No outside review (the citation checked against the Élite's text and the British Museum)."
+    },
+    {
+      "slug": "suppliants-eur",
+      "file": "suppliants-eur.svg",
+      "name": "Suppliant Women · Aithra and Theseus",
+      "alt": "Aithra holds out a phiale to her son Theseus, who stands armed in a cuirass with a long spear; a youth leaning on a staff faces them",
+      "source": "Gerhard, Auserlesene griechische Vasenbilder III (1847), Taf. CLVIII: a red-figure calyx-krater by the Methyse Painter, from Vulci, now Bologna, Museo Civico Archeologico PU 285 (Heidelberg scan, public domain); the names Aithra and Theseus are written on the vase",
+      "method": "Coloured plate, red figures on black, made with PhotoCraft: the black ground gives the outline, drawn on the ground; the pockets of ground marked; the plate blurred along its own lines where they run parallel, so dashed pleats come out whole and close ones stay apart, found at half maximum and drawn along their centres; the short marks at their printed width; faint ends followed along the print; the line weight kept at pass 1's; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the third pass (2026-10-13), after two rounds of his marks in PhotoCraft. The panel's three figures, no names. No outside review (the citation checked against Gerhard's text and the Beazley Archive)."
     }
   ]
 }

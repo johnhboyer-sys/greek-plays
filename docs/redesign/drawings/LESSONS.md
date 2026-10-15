@@ -64,6 +64,38 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   Museum 1837,0609.71 (E 263), as the BM's 1896 catalogue says. Check the museum's record, which opens
   in the browser pane when a plain fetch meets its bot check (2026-10-08).
 
+- Suppliant Women (III, Taf. CLVIII, Aithra and Theseus), made with PhotoCraft: about three hours over three passes,
+  the source search included, approved by John 2026-10-13. `tools/suppliants_eur.py` (2026-10-13).
+- John: "be sure to get all those clothing lines without breaks". The pleats print 1-2 px wide, often as dashes, and in
+  places 2-4 px apart. Local contrast (Trojan Women) ran neighbours together and their centre lines grew rungs; the
+  plate at half maximum kept them apart but broke the dashes (2350 line ends). What worked: blur the plate along its own
+  lines first, PhotoCraft's Motion Blur at 12 angles, each px from the angle nearest the lines' direction there (the
+  structure tensor's, smoothed over 4 plate px), then half maximum and centre lines: 917 ends, the pleats whole. Taking
+  each px from the darkest of the 12 blurs instead is wrong: between two pleats a blur across a neighbour is darkest
+  (2026-10-13).
+- That blur smears short marks (the cuirass's hatching, scales and tassels, eyes). Use it only where the structure
+  tensor's coherence says lines run parallel (drapery 0.8-0.95, marks 0.4-0.5), keep only its long centre-line pieces
+  (15 plate px or more) mostly in such areas, and take the rest from the unblurred half maximum at its printed width.
+  Two traps: the final speck filter dropped every small mark until the marks were spared from it, and the blurred
+  smears of the marks, kept, "covered" the sharp ones so they were dropped as drawn twice (2026-10-13).
+- Trojan Women's gap joiner asks a median contrast of only 4 along a join of ends that point at each other, across up to
+  40 px; the clay's grain reads 7 at the median, 14-18 at the 90th percentile, and it drew straight strokes across
+  Theseus' face. Ask 15 (the dashed lines' gaps read 20 and up), over at most 20 and 30 px (2026-10-13).
+- Faint fold ends: follow each line end on along the plate's line, a step at a time onto the darkest of the three px
+  ahead, while the mean contrast over the last 4 plate px stays 18 or more, for at most 12 px, stopping at other ink
+  (`grow_ends`): 923 ends to 574, the candidate breaks (ends where the print runs on) 115 to 41 (2026-10-13).
+- A sweep for breaks before showing John: for every line end inside the figure, sample the plate's contrast 2-9 plate px
+  beyond it; where it stays over 12 until it meets ink, sheet the end (plate | drawing). Most are true ends (eye corners,
+  curl tips, tapering folds); the rest are the breaks to mend (2026-10-13).
+- John's blue strokes on faint lines: drawn along the plate's line through points read off his stroke (ordered by the
+  longest path through its skeleton: walking from one end took a small branch and lost two strokes), kept within 2.5
+  plate px of it, or a livewire cut across a curve where the plate's line is faint. A blue dot too small to be a stroke
+  is taken as painted. Where his stroke lies over broken wiggles (fingers printed faint), take the old ink within 2.5 px
+  out first (`REPLACE`). Where green takes out a drawn ring the plate prints as a solid dot, put the dot back
+  (`AFTER_DOTS`) (2026-10-13).
+- Hair printed only a shade lighter than the ground, with a darker rim and no clay line, joins the ground: find the
+  leak by the shortest path through the dark from the hair to the open ground and wall it there (2026-10-13).
+
 ### Gerhard, black-figure plates (black silhouettes on orange clay, incised lines, added white)
 
 - Show John a small test of the style first, both ways, light and dark. On
@@ -444,6 +476,30 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Check a close-up's panel offsets before reading coordinates off it: the first box to drop the line John flagged
   missed it by 20 px (2026-10-10).
 
+- Knights (II, pl. XCIV, the Chiron vase: three comic actors at a stage), made with PhotoCraft: about an hour and a half
+  over two passes, the credit included, approved by John 2026-10-13. `tools/knights.py`, on `iphigenia_aulis.py` and
+  `wealth.py` (2026-10-13).
+- Ask the edge calls before drawing, on a numbered sheet of the plate: John kept the post and roof, the bundle and the
+  festoon, and dropped the names, in one answer (2026-10-13).
+- This plate prints faint lines (fingers, toes, folds, the ladder's long lines: grey 100-150 on clay 200, a plate px
+  wide). The main finder's blur broke them into dashes and lost some (John: "don't have broken ink lines", "don't
+  ignore fainter lines (like on toes and fingers"). What worked: local contrast at less blur (0.35 plate px, the
+  closing over 5) at two levels, the lower one kept only where it runs 5 plate px clear of the lines already found
+  (shorter ones were blobs); then a joiner for ends that face each other, or face a line, where the fine contrast
+  holds along the gap (`FAINT*`, `JF_*`). trojan_women's `join_breaks` skips dashes shorter than 3 plate px. Sheet
+  every added piece and join on the plate first; then a map of the plate's line centres the ink misses came to 0
+  (2026-10-13).
+- Two hand-placed end points for a long faint line that bows slightly put a least-cost path off the line by up to 8 px:
+  the joiner did it better (2026-10-13).
+- A wall can cut off ground that reached the open black only through the band it walls (the hem): after every wall,
+  list the large paint areas and mark the pockets (2026-10-13).
+- Light flecks of the print inside a pocket become clay islands after the hole fill and are drawn as dots on the black:
+  drop clay pieces under 30 plate px (`SPECK`, as Electra) (2026-10-13).
+- The PhotoCraft file for John at the tool's 3x grid ran to 45 MB with the plate enlarged bicubic; enlarged by nearest
+  neighbour (his plate-pixel grid) it was 19 MB (2026-10-13).
+- John's green loop round a black area meant "this is ground", not "remove the ink": read as a pocket of ground
+  (`POCKETS`), his blue laid in as ink (`MARKS_FILES` with green off) (2026-10-13).
+
 ### Laborde, *Collection des vases grecs de M. le comte de Lamberg* (colour aquatints, red figures on a dark ground)
 
 - Electra (Sophocles) (I, pl. VIII, Orestes brings Electra the urn), made with PhotoCraft: about an hour and a half
@@ -574,6 +630,51 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Cutting one figure from an approved whole-plate drawing: her body is her own clay inside the cut and the lines that
   border it, not the whole plate's body, which counts every line touching clay (Apollo's shin line came in with it)
   (2026-10-12).
+
+- Assemblywomen (Heydemann, *Vase Caputi mit Theaterdarstellungen*, Hallisches Winckelmannsprogramm 9, 1884, Taf. I:
+  three comic actors), made with PhotoCraft: about four hours over two sittings, a style test and four passes, approved
+  by John 2026-10-13. `tools/ecclesiazusae.py` (2026-10-13).
+- The same series as Persians, but paler pen lines: at Persians' thresholds and half maximum the stage's posts broke into
+  dashes and a 17 px gap opened in the stage's edge. Lower the local-contrast thresholds and take the line at 0.4 of
+  the way to its core (2026-10-12).
+- "Crisp and not staticy" (John): lines found as printed carry the scan's grain along their edges and read as pencil.
+  Redraw every line along its centre at its printed width smoothed along it (as frogs.py), the width not read near a
+  junction, where it swells. Keep out of the redraw what is solid (studs, a stippled hem band: closed and filled) and
+  the pupils, which a centre line drops (a box per eye; a rule for solid marks in the heads took the hair's shading
+  too). Seal the areas on the printed lines as well as the redrawn ones: the redraw opens hairline gaps and a door's
+  panels went to ground (2026-10-13).
+- Weight: John chose 1.6 plate px, twice Persians' 0.8, from an A/B of 0.8, 1.2 and 1.6 on two heads and drapery: 0.8
+  "looks too much like a pencil drawing". Ask early on a contour plate (2026-10-13).
+- Trace a wide plate tall (here 7200 px): at the house 4000 px the thin lines broke into dashes once weighted (2026-10-12).
+- A beard printed as fine grey strokes went in as a stepped grey wash, as Frogs' goatee (John: "brushstrokes like with
+  hair on other comedy plates"). The finer head finder from Eumenides (less blur, a narrow core) took the grey shading
+  between curls for strokes and speckled the hair: not used (2026-10-12).
+- The vase's frame line ran under the stage's posts, joined to them by the finder: drop the ink below a polyline read
+  off the plate between the posts, not the pieces lying mostly below it (2026-10-12).
+- John's marks all blue (ink) this time: laid in as `dots` at their own size, so the pinned weight did not move; the
+  whole-plate diff showed changes only at his marks, and where his lines closed the string of figs, now clay
+  (2026-10-13).
+- Three test runs at once on this 8 GB Mac with other sessions running took ten minutes each and filled the swap: run
+  A/B variants one at a time (2026-10-13).
+
+- Oedipus Tyrannus (Raoul-Rochette, *Monumens inédits* I, 1833, pl. LXXVIII: the Sbani vase's lower row), made with
+  PhotoCraft: about two and a quarter hours over the scan search and four passes, approved by John 2026-10-13.
+  `tools/oedipus_tyrannus.py`, on `ecclesiazusae.py`'s rules (2026-10-13).
+- Go back to the plate a copy was made from: Benndorf's 1890 plate cites Raoul-Rochette's of 1833, which Heidelberg
+  serves with the figures 2.9 times as tall and sharper (the bird on the sceptre, the throne's winged figures). Read the
+  text too: Raoul-Rochette reads the scene as an initiation; the Oedipus reading is Müller's and Welcker's, in Overbeck
+  1853 (p. 62), whose text is on the Internet Archive. Heidelberg's text pages sit behind a bot check; their IIIF
+  images open (2026-10-13).
+- A lithograph prints the hair, wreaths and beards solid black. The centre-line redraw turned them into outlines: keep
+  what an opening wider than the pen lines leaves (1.5 plate px) as printed, and the small dots too, which a centre line
+  drops (`SOLID_R`, `DOT`) (2026-10-13).
+- A row cut from a two-row plate: figures rise through the beaded line between the rows. Drop the pieces lying above it,
+  but keep those lying wholly inside a box round each head; keeping every piece that touched a box kept the shield and
+  feet of the row above. Where the rows truly touch (the staff top in a robe's hem), cut along a polygon (`ROW`, `KEEP`,
+  `CUTS`) (2026-10-13).
+- John's marks, fourth form: green ground, yellow "that area bounded by ink lines is clay", blue ink. A mark rules the
+  closed area it mostly lies in (at least 0.3 of its largest share), so a stroke that strays over a line does not rule
+  the next area as well; unsealed paper narrower than the seal is ruled the same way (`ruled`) (2026-10-13).
 
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
@@ -802,6 +903,34 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   grey's structure tensor), seeded at the lightest uncovered paint and run while on the paint, drawn with
   PhotoCraft's brush at the paint's width, read as brushwork. paint.stroke takes [x, y, pressure]: pressure tapers
   the stroke to a point at both ends. The greedy seeding takes a few minutes per run (2026-10-12).
+- The Aristophanes home figure (Würzburg H 5697, the whole of side A: the Kinsman on the altar, Mika with her bowl; two
+  ArchaiOptix photos), made with PhotoCraft: about five hours over two days, a source search and four passes, approved by
+  John 2026-10-15. `tools/mika.py` (2026-10-15).
+- "Look for German plates first": the CVA settles whether any can exist. Würzburg 4 says "Aus Rom. Erworben 1977", first
+  published 1980, so no old plate; say so with the entry, and go to the photos (2026-10-14).
+- Fit both photos to the same painted circle: `vase_unroll.band_edge` took the thin clay strip under the feet in one photo
+  and the band's lower edge in the other, and the fit bent the profile to negative radii. Measure the band's lower edge
+  in both (clay above, glaze below, clear all along). A loose first round, then the tight one: from a poor start every
+  band point of one photo was dropped as an outlier. Check the model by laying both photos onto the flat: here within
+  1 px everywhere (2026-10-14).
+- A scene wrapping about ±55 degrees round the vase comes out about 1.3 times wider than the photo at its edges; the egg
+  band's eggs, even on the flat, show it is right (2026-10-14).
+- A foot at the vase's edge is out of focus in every photo: its toe lines print as soft bands. The grey's minima row by
+  row on the two flats averaged lined up into four lines (John: "the feet (toes specifically) need to be traced
+  clearly"); he then traced over the same four (2026-10-14).
+- John set the photo's levels in PhotoCraft (adjustment layers) "to help" with the dress's fine lines, then drew them in
+  blue. His adjustment layers replay exactly with `photocraft-cli run` (Brightness/Contrast, Levels, Vibrance), but the
+  lines under his strokes, snapped from the adjusted photo, came out ragged (the clay's edge and the grain): draw his
+  strokes as he drew them, at the line width, and take my ink out under them, or each line is drawn twice. Ask each
+  round whether his blue replaces or adds: round 2 was "additive" (2026-10-14/15).
+- His marks may land on any layer and he may re-save: list the layer ids before every export (a re-save renamed his layer
+  and the first export missed his green), and read blue and green by colour from every layer (2026-10-15).
+- Where his line becomes the outline (her soles drawn lower, the knife's edges on the ground side), let the figure reach
+  his line's centre, not its outer edge, or the body's trace overshoots it and a sliver of clay shows on the dark theme;
+  and pass his lines (traced as `dots`) to `trace_svg` as `extent`, or the crop is cut at the main ink (2026-10-14).
+- Round 3's filled marks (a pupil, a dark spot on the veil) are short for their width; his thick zigzag is long: fill a
+  mark when its skeleton is under four times its greatest width, in that round only (round 1 has wide crossings that are
+  lines) (2026-10-15).
 
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 
