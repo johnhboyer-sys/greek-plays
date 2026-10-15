@@ -48,19 +48,21 @@ Image.MAX_IMAGE_PIXELS = None
 NAMES = ["front", "left", "right"]   # GAC side A; MFA 600896 (side A's left column); MFA 600897 (its right column)
 # MODEL: vase_unroll.fit on the data in fit_model() (run with --refit to fit again; it prints these numbers). World
 # units are arbitrary (the front camera's D fixes them); y = 0 on the meander band's lower edge, up the vase.
-# The focal lengths: each photo's half-width at the picture times DIST, the camera's distance in picture radii, tried
-# at 8, 12, 18, 27, 40 and 60: the fit improves up to 40 and little beyond (cost 12619, 11451, 10349, 9738, 9577,
-# 9505; the matches on the flat best at 40: 1.6 px to the left view, 2.9 to the right), so DIST is 40. (the fit: band
-# median 2.8 px in the front, 1.8 and 4.1 in the handle views; outlines 4.6, 2.8 and 4.5 px; matches 95 and 110)
-DIST = 40.0
+# The focal lengths: each photo's half-width at the picture times DIST, the camera's distance in picture radii. Fitted
+# on the outline and the meander band alone the fit kept improving out to 40 radii, but the checkers band then sagged
+# too little (see RING_*); with that band's edge as a ring, and the matches found on the flat (FM_*), tried at 10, 12,
+# 15, 20 and 27: cost 16200, 13625, 13322, 14603, 16408, so DIST is 15. (The fit: band median 3.7 px in the front, 3.5
+# in both handle views; outlines 4.1, 6.5 and 4.5 px; the checkers ring 1.5 px; matches on the flat 1.2 px to the left
+# view (n 294), 0.8 px to the right (n 318).)
+DIST = 15.0
 CAMERAS = {
-    "front": dict(D=4000, H=60.4769, b=-0.0074265, p=-0.000816661, g=-0.0281714, f=48320, cx=1926.5, cy=2048),
-    "left": dict(D=3943.25, H=351.148, b=0.0755643, p=0.000100378, g=-0.0114748, f=19480, cx=757, cy=800),
-    "right": dict(D=3991.99, H=-9.92795, b=-0.0170506, p=3.56495e-05, g=-0.00947308, f=19240, cx=752.5, cy=800),
+    "front": dict(D=4000, H=1.58628, b=-0.0603714, p=-0.00210035, g=-0.0260547, f=18120, cx=1926.5, cy=2048),
+    "left": dict(D=3992.8, H=418.12, b=0.0701005, p=0.000569393, g=-0.0011101, f=7305, cx=757, cy=800),
+    "right": dict(D=4024.15, H=214.403, b=0.0166643, p=0.000376957, g=-0.0178407, f=7215, cx=752.5, cy=800),
 }
 PROFILE_PX = [-650, -400, -150, 100, 350, 600, 850, 1100, 1350, 1600, 1850, 2050]   # knots, in front px above the band
-PROFILE_R = [43.36, 71.27, 87.5, 84.82, 85.85, 90.75, 95.47, 99.24, 103.58, 109.39, 116.67, 127.65]
-TURNS = {"left": 97.737, "right": -102.122}   # degrees each handle view is turned from the front
+PROFILE_R = [113.2, 189.03, 237.21, 230.68, 232.79, 244.03, 254.35, 264.51, 276.06, 291.44, 310.28, 337.74]
+TURNS = {"left": 95.412, "right": -99.227}   # degrees each handle view is turned from the front
 D0 = 4000.0
 # The data for fit_model: the rows (photo px) where each photo's outline is the vase's own (clear of the handles and
 # the rim's lip), and rough guides to the band's lower edge (in the handle views, either side of the handle)
@@ -373,13 +375,16 @@ def view_maps(name, rows=None, model=None):
 # from its own axis). The
 # join is a seam through the ground: within SEAM_W flat px of where the two see alike, the path down the flat (a step
 # of at most a px a row) through the least clay (its cost the grey squared, so it keeps to the ground where it can), both photos laid on and blurred SEAM_BLUR px. The handle views are
-# black and white: their grey is matched to the front photo's grey (and to its red less blue, for the clay) by
-# percentiles (1 to 99) over that strip, blurred SEAM_BLUR px, where both see the vase at least FM_SHARP sharp (a
-# straight line fitted there came out at a slope of 0.08: the strip's px do not pair up closely enough).
+# black and white: their grey is matched to the front photo's grey (and to its red less blue, for the clay) by a
+# straight line taking their glaze and clay (percentiles TONE_Q over that strip, blurred SEAM_BLUR px, where both see
+# the vase at least FM_SHARP sharp) to the front photo's own in the middle of the picture (TONE_BOX, flat px, where it
+# is TONE_SHARP sharp). (Fitted px to px over the strip the line came out at a slope of 0.08, and matched to the
+# front's own levels in the strip, where it sees the vase edge on and darker, the clay came out at 129 against 169.)
 SEAM_W, SEAM_BLUR, CHUNK = 260, 2.0, 256
+TONE_Q, TONE_BOX, TONE_SHARP = [5, 90], (1500, 300, 3200, 2100), 0.8
 # In each handle view the handle's loop stands in front of the picture's lowest strip by the column: the loop
-# (polygon, photo px) less its opening (through which the vase shows) counts as unseen, so the front photo is used
-# there where it sees the vase
+# (polygon, photo px) counts as unseen, its opening too (the vase shows through it, but John, 2026-10-15: the edge
+# figures end "at the handle line"; the opening's polygon is kept for the record)
 HANDLES = {"left": ([(500, 1210), (510, 1080), (560, 1040), (580, 980), (585, 910), (615, 865), (670, 832), (740, 820), (810, 822), (870, 845), (905, 885), (920, 940), (930, 1010), (970, 1050), (1020, 1090), (1030, 1210)],
                     [(658, 1210), (655, 950), (665, 910), (695, 888), (750, 882), (810, 886), (845, 905), (858, 940), (860, 1210)]),
            "right": ([(480, 1210), (490, 1080), (530, 1030), (535, 930), (550, 865), (600, 825), (670, 810), (740, 812), (800, 830), (845, 870), (860, 940), (870, 1020), (920, 1060), (950, 1120), (950, 1210)],
@@ -404,8 +409,8 @@ def seam(cost):
 
 
 def flat_image(photos):
-    """The three photos laid onto the flat frame and joined: (grey, red less blue, source), H x W uint8 each (source
-    0 front, 1 left, 2 right)."""
+    """The three photos laid onto the flat frame and joined: (grey, red less blue, source, sharpness), H x W uint8 each
+    (source 0 front, 1 left, 2 right; sharpness of the photo used, times 100)."""
     *_, W, H = frame()
     rgb = np.asarray(Image.open(photos["front"]).convert("RGB"), dtype=np.float32)
     srcs = {"front": (rgb.mean(2), rgb[..., 0] - rgb[..., 2])}
@@ -425,7 +430,7 @@ def flat_image(photos):
             inside = (uv[..., 0] > 2) & (uv[..., 0] < ww - 3) & (uv[..., 1] > 2) & (uv[..., 1] < hh - 3)
             if n in HANDLES:
                 hw = ims[0].shape
-                loop = lw.polygon_mask(hw, np.array(HANDLES[n][0], float)) & ~lw.polygon_mask(hw, np.array(HANDLES[n][1], float))
+                loop = lw.polygon_mask(hw, np.array(HANDLES[n][0], float))
                 inside &= ~ndi.map_coordinates(loop, [uv[..., 1], uv[..., 0]], order=0, cval=0).astype(bool)
             sh[n][rows] = np.where(inside, sharp, 0)
             g[n][rows] = ndi.map_coordinates(ims[0], [uv[..., 1], uv[..., 0]], order=3, cval=0)
@@ -433,6 +438,10 @@ def flat_image(photos):
                 rb[rows] = ndi.map_coordinates(ims[1], [uv[..., 1], uv[..., 0]], order=3, cval=0)
     src = np.zeros((H, W), np.uint8)
     out_g, out_rb = g["front"].copy(), rb.copy()
+    mid = np.zeros((H, W), bool)
+    mid[TONE_BOX[1]:TONE_BOX[3], TONE_BOX[0]:TONE_BOX[2]] = True
+    mid &= sh["front"] > TONE_SHARP
+    centre_g, centre_rb = np.percentile(g["front"][mid], TONE_Q), np.percentile(rb[mid], TONE_Q)
     xx = np.arange(W)
     for k, n in ((1, "left"), (2, "right")):
         better = sh[n] > sh["front"]
@@ -444,12 +453,11 @@ def flat_image(photos):
         both = (sh[n][:, lo:hi] > FM_SHARP) & (sh["front"][:, lo:hi] > FM_SHARP)
         gf, gs = (ndi.gaussian_filter(a[:, lo:hi], SEAM_BLUR) for a in (g["front"], g[n]))
         rf = ndi.gaussian_filter(rb[:, lo:hi], SEAM_BLUR)
-        q = np.arange(1, 100)
-        qs = np.percentile(gs[both], q)
-        tone_g, tone_rb = (lambda x, a=np.percentile(gf[both], q): np.interp(x, qs, a),
-                           lambda x, a=np.percentile(rf[both], q): np.interp(x, qs, a))
-        print(f"{n}: seam near flat x {xb}; its grey {qs[[4, 49, 94]].round()} -> front grey "
-              f"{tone_g(qs[[4, 49, 94]]).round()}, red less blue {tone_rb(qs[[4, 49, 94]]).round()} (over {both.sum()} px)")
+        qs = np.percentile(gs[both], TONE_Q)
+        tone_g = lambda x, qs=qs: centre_g[0] + (x - qs[0]) * (centre_g[1] - centre_g[0]) / (qs[1] - qs[0])
+        tone_rb = lambda x, qs=qs: centre_rb[0] + (x - qs[0]) * (centre_rb[1] - centre_rb[0]) / (qs[1] - qs[0])
+        print(f"{n}: seam near flat x {xb}; its glaze and clay {qs.round()} -> grey {centre_g.round()}, "
+              f"red less blue {centre_rb.round()} (over {both.sum()} px)")
         cost = ((gf + tone_g(gs)) / 2) ** 2
         cost = np.where(both, cost, 1e6)
         path = lo + seam(cost)
@@ -458,18 +466,26 @@ def flat_image(photos):
         out_g = np.where(side, tone_g(g[n]), out_g)
         out_rb = np.where(side, tone_rb(g[n]), out_rb)
         src[side] = k
-    return out_g.clip(0, 255).round().astype(np.uint8), out_rb.clip(0, 255).round().astype(np.uint8), src
+    used = np.choose(src, [sh["front"], sh["left"], sh["right"]])
+    return (out_g.clip(0, 255).round().astype(np.uint8), out_rb.clip(0, 255).round().astype(np.uint8), src,
+            (used * 100).clip(0, 255).round().astype(np.uint8))
 
 
 # ---------------------------------------------------------------- the scene
 
 CLAY = 70                     # clay: red less blue above this (blurred 2 px); glaze under it
 LINE_DARK = 85                # painted lines: grey darker than this (blurred 1.5 px)
-# Ground: the glaze, its painted lines (up to OPEN*2 px wide) opened away; the large areas, inside the scene too.
+# Ground: the glaze, its painted lines (up to OPEN*2 px wide) opened away; the areas over AUTO_GROUND px, inside the
+# scene too (here the figures cut the ground into pockets of 3000 to 30000 px, as large as the hair and the beard).
 # Smaller glaze areas inside the figures are paint.
-OPEN, AUTO_GROUND = 14, 40000
-OPEN_PTS = []                 # smaller areas of ground the figures close in (flat px, a point in each)
-PAINT_PTS = []                # big dark areas that are paint, not ground (flat px, a point in each)
+OPEN, AUTO_GROUND = 14, 3000
+# smaller areas of ground the figures close in (flat px, a point in each): between Clytemnestra's skirt and the left
+# woman's (one under the right woman's arm went with the handle-line cut)
+OPEN_PTS = [(795, 1165)]
+# big dark areas that are paint, not ground (flat px, a point in each): the hair of the woman behind Agamemnon, of
+# Aegisthus, of Clytemnestra (two), of the left woman, of the right woman; Aegisthus' beard; and a lock by Clytemnestra's
+# neck
+PAINT_PTS = [(3499, 334), (2153, 301), (1186, 311), (1160, 418), (609, 389), (4296, 577), (2191, 535), (1042, 494)]
 WALLS = []                    # solid paint walled off where it meets the ground (flat px polylines, WALL_W wide)
 WALL_W = 8
 SMOOTH = 3.0
@@ -486,26 +502,74 @@ LINE_LEN, HALF_R, WIDTH_SIGMA, LINE_MIN = 25, 6, 6.0, 4.0
 HOLE, MASK_SIGMA, SPUR, SOLID_R = 12, 1.5, 7, 10
 WEIGHT = None                 # the line weight: pinned after pass 1
 NECK = 5                      # every line thickened to at least NECK flat px along its centre before tracing
-SEEDS = []                    # flat px, a point on each figure's clay
+# Seeds (flat px): the woman at the left column, Clytemnestra, Aegisthus, Agamemnon, the woman behind him, the woman at
+# the right column
+SEEDS = [(400, 1000), (1120, 720), (1920, 800), (2800, 1400), (3400, 1000), (4200, 900)]
 # The floor: the meander band's upper clay strip, which the figures stand on, is cut away. Per column (every
 # FLOOR_STEP px), from FLOOR_IN px above a guide near the strip's lower edge (FLOOR_LOW) up through the strip's clay to
 # the first paint or glaze above it, at most FLOOR_UP px; smoothed (a running median over FLOOR_MED). Below it is band.
 # The ceiling likewise: from CEIL_IN px below a guide near the upper edge of the clay strip under the checkers
 # (CEIL_HIGH) down through it to the first paint or glaze, at most CEIL_DOWN px (a hand or head touching the strip).
-FLOOR_STEP, FLOOR_MED, FLOOR_IN, FLOOR_UP = 10, 5, 6, 40
-FLOOR_LOW = []
-CEIL_IN, CEIL_DOWN = 6, 40
-CEIL_HIGH = []
+FLOOR_STEP, FLOOR_MED, FLOOR_IN, FLOOR_UP = 10, 5, 4, 40
+FLOOR_LOW = [(0, 2186), (4652, 2186)]
+CEIL_IN, CEIL_DOWN = 4, 40
+CEIL_HIGH = [(0, 224), (4652, 224)]
+# Where no photo sees the vase well (the photo used is less than SEEN_MIN sharp: behind the handles, and the front
+# photo's edge-on strips beside them) the figures end (John, 2026-10-15: "End them at the handle line"), along that
+# area's edge smoothed (Gaussian SEEN_SMOOTH, cut at half)
+SEEN_MIN, SEEN_SMOOTH = 0.2, 6.0
 # The columns under the handles are left out (John, 2026-10-15: "column to column"): everything beyond COLUMNS
 # (polylines along each column's inner edge, flat px; left, right) goes
-COLUMNS = ([], [])
+# (the columns lean as painted: the left one's inner edge 0.087 px left per px down, the right one's 0.09)
+# (the left one's abacus reaches x 450 above row 312, its capital and its neck x 345 down to row 425)
+COLUMNS = ([(450, 0), (450, 312), (345, 318), (345, 425), (262, 430), (108, 2200)], [(4415, 300), (4245, 2200)])
 # Faces are traced at their own size (as mika.py): boxes, flat px; in them marks of FACE_SPECK px^2 or more stand
-FACES = []
+# (heads: the woman at the left column, Clytemnestra, Aegisthus with his beard, Agamemnon, the woman behind him, the
+# woman at the right column)
+FACES = [(400, 300, 640, 560), (1080, 260, 1320, 520), (2020, 240, 2340, 660), (2800, 500, 3160, 1060),
+         (3280, 240, 3520, 520), (4120, 480, 4320, 720)]
 FACE_SPECK = 12
 FACE_DOT, FACE_DOT_MAX = 40, 400
 FACE_LC = (14, 28)
 PALE_OFF, PALE_MIN = 4, 30
 JOIN_D, JOIN_COS, JOIN_G, JOIN_BACK = 30, 0.75, 120, 12
+# Inside FAINT (polygons, flat px) lines are found at the faces' lower thresholds (FACE_LC); none now (the net's faint
+# lines, first found so as broken dashes of ink, are drawn as a tone: see NET)
+FAINT = []
+# The net-robe (John, 2026-10-15: "a lot of faint lines for the net that should be rendered as partly opaque lines"):
+# over Agamemnon (NET, a polygon round him, flat px, kept to the figure) dozens of faint wavy lines in thinned glaze,
+# 8-20 grey under the clay. Found by local contrast at a finer scale (PhotoCraft: blurred NET_BLUR px, its Maximum then
+# Minimum over NET_R px, less it) with hysteresis (NET_LOW, NET_HIGH), off the ink (NET_OFF px), their centre lines
+# NET_LEN px or longer, drawn NET_W px wide and smoothed (Gaussian NET_SMOOTH, cut at half), as a tone at NET_OPACITY
+NET = [(2840, 530), (3020, 490), (3120, 590), (3100, 850), (3200, 1010), (3020, 1110), (2940, 1350), (2900, 1750), (2980, 2070), (2700, 2160), (2100, 2160), (2020, 2090), (2300, 1870), (2500, 1630), (2560, 1290), (2560, 1010), (2740, 870), (2780, 650)]
+NET_BLUR, NET_R, NET_LOW, NET_HIGH, NET_OFF, NET_LEN, NET_W, NET_SMOOTH, NET_OPACITY = 1.0, 4, 5, 9, 3, 40, 4.0, 1.0, 0.45
+NET_ANGLES, NET_MB, NET_TENSOR = tuple(range(0, 180, 15)), 8, 4
+# Inside NET only the truly dark lines stay ink (the body's contours through the robe, the robe's edges): line pieces
+# with at least NET_CORE of their px darker than LINE_DARK; the rest of the net's lines go to the tone
+NET_CORE = 0.5
+# and of the lines the net's finder takes, runs of NET_INK_LEN px or more along the centre where the grey (blurred 0.7
+# px, its Minimum over 1 px) is darker than NET_INK_G are the body's contours seen through the robe (legs, arms: the
+# net's lines read 140-175 there, the contours 50-120): drawn as ink, NET_INK_W px wide
+NET_INK_G, NET_INK_LEN, NET_INK_W = 125, 40, 5.0
+# Agamemnon's head (John, 2026-10-15: "I redraw, you correct"): his curls are zigzag strokes of thinned glaze and his
+# beard fine strands, mid-grey (90-130 against the clay's 170), too close for lines: the grey's line finder ran them
+# into a lattice. Drawn as a tone at their own shape (the grey blurred HAIR_BLUR px, darker than CURL_G in AGAM_CURLS,
+# than BEARD_G in AGAM_BEARD; specks under HAIR_SPECK px^2 dropped), at HAIR_OPACITY, darker than the net's. His face's
+# lines (profile, brow, eye, nose, mouth) in AGAM_FACE: the grey blurred HAIR_BLUR px, at half maximum (darker than halfway between the clay round,
+# the Maximum over FACE_HI px, and the darkest within FACE_LO px), where that span is over FACE_SPAN (the net's lines
+# cross his face at 20-30, his own lines about 100), redrawn along their centres FACE_W px wide. Inside these no other
+# ink
+AGAM_CURLS = [(2840, 520), (3170, 520), (3170, 780), (3110, 800), (3020, 790), (2985, 750), (2972, 690), (2965, 640), (2895, 640),
+              (2875, 600), (2840, 600)]
+AGAM_BEARD = [(2930, 765), (2995, 765), (3015, 800), (3005, 925), (2910, 925), (2915, 790)]
+AGAM_FACE = [(2880, 630), (2958, 630), (2958, 700), (2950, 725), (2965, 745), (2950, 775), (2915, 780), (2884, 740)]
+HAIR_BLUR, CURL_G, BEARD_G, HAIR_SPECK, HAIR_OPACITY = 0.8, 120, 135, 15, 0.7
+FACE_HI, FACE_LO, FACE_SPAN, FACE_W = 11, 5, 55, 3.0
+# Small dots painted on the clothes (the net-robe's, the right-hand woman's): inside DOTS (polygons, flat px) small marks
+# standing apart from the lines (DOT_OFF px), with local contrast DOT_LC or more, DOT_MIN to DOT_MAX px^2, drawn as dots
+DOTS = [[(2560, 500), (3150, 500), (3150, 1300), (3100, 2150), (2350, 2150), (2480, 1300)],
+        [(3880, 600), (4420, 600), (4420, 1600), (3880, 1600)]]
+DOT_LC, DOT_OFF, DOT_MIN, DOT_MAX = 30, 3, 6, 120
 FACE_MAX = 20000
 
 
@@ -543,12 +607,12 @@ def centre_lines(m, spur, min_len):
     return morphology.remove_small_objects(s, max_size=min_len, connectivity=2)
 
 
-def even_lines(contrast, dark, area, faces):
+def even_lines(contrast, dark, area, faces, faint):
     """The painted lines: `dark`, and in `area` those found by local contrast, redrawn along their centres at the
     paint's own width (see LC_* and the constants after it; as thesmophoriazusae.py)."""
     from skimage.filters import apply_hysteresis_threshold
     found = apply_hysteresis_threshold(contrast, LC_LOW, LC_HIGH)
-    found = np.where(faces, apply_hysteresis_threshold(contrast, *FACE_LC), found)
+    found = np.where(faces | faint, apply_hysteresis_threshold(contrast, *FACE_LC), found)
     firm = (found & area) | dark
     firm = morphology.remove_small_holes(firm, max_size=HOLE)
     near_max = ndi.maximum_filter(np.where(firm, contrast, 0), 2 * HALF_R + 1)
@@ -657,7 +721,34 @@ def strip_cut(clay, guide, step_in, reach, down):
     return xs, ndi.median_filter(ys, FLOOR_MED, mode="nearest")
 
 
-def scene(g8, rb8, dump=None):
+def net_contrast(gpath, shape, t):
+    """The net's faint lines' local contrast (see NET_*), over NET's bounding box (0 elsewhere): the grey blurred
+    NET_BLUR px, then blurred along the lines (as suppliants_eur.py: PhotoCraft's Motion Blur at NET_ANGLES, NET_MB px,
+    each px from the angle nearest the lines' direction there, the structure tensor's, smoothed over NET_TENSOR px; so a
+    line's dashes join), its Maximum then Minimum over NET_R px, less it."""
+    P = np.array(NET, float)
+    x0, y0 = (P.min(0) - 20).astype(int)
+    x1, y1 = (P.max(0) + 20).astype(int)
+    pc(gpath, t / "nb.png", ("image.crop", {"x": int(x0), "y": int(y0), "width": int(x1 - x0), "height": int(y1 - y0)}),
+       ("filter.blur.gaussianBlur", {"radius": NET_BLUR}))
+    gl = grey(t / "nb.png")
+    gy, gx = np.gradient(ndi.gaussian_filter(gl, 1.0))
+    jxx, jyy, jxy = (ndi.gaussian_filter(v, NET_TENSOR) for v in (gx * gx, gy * gy, gx * gy))
+    line = np.degrees(-(0.5 * np.arctan2(2 * jxy, jxx - jyy) + np.pi / 2)) % 180
+    pick = np.rint(line / (180 / len(NET_ANGLES))).astype(int) % len(NET_ANGLES)
+    o = np.zeros_like(gl)
+    for i, a in enumerate(NET_ANGLES):
+        pc(t / "nb.png", t / "mb.png", ("filter.blur.motionBlur", {"angle": a, "distance": NET_MB}))
+        o = np.where(pick == i, grey(t / "mb.png"), o)
+    Image.fromarray(o.clip(0, 255).astype(np.uint8)).save(t / "along.png")
+    pc(t / "along.png", t / "nc.png", ("filter.other.maximum", {"radius": NET_R, "preserve": "squareness"}),
+       ("filter.other.minimum", {"radius": NET_R, "preserve": "squareness"}))
+    out = np.zeros(shape, np.float32)
+    out[y0:y1, x0:x1] = grey(t / "nc.png") - grey(t / "along.png")
+    return out
+
+
+def scene(g8, rb8, sharp8, dump=None):
     """(ink, ink traced at its own size, figure, grey, washes) for the flat's grey and red less blue (uint8)."""
     with tempfile.TemporaryDirectory() as td:
         t = Path(td)
@@ -673,6 +764,12 @@ def scene(g8, rb8, dump=None):
         pc(t / "gc.png", t / "gcc.png", ("filter.other.maximum", {"radius": LC_R, "preserve": "squareness"}),
            ("filter.other.minimum", {"radius": LC_R, "preserve": "squareness"}))
         contrast = grey(t / "gcc.png") - grey(t / "gc.png")
+        net_c = net_contrast(t / "g.png", g8.shape, t)
+        pc(t / "g.png", t / "gmin.png", ("filter.blur.gaussianBlur", {"radius": 0.7}),
+           ("filter.other.minimum", {"radius": 1, "preserve": "squareness"}))
+        gmin = grey(t / "gmin.png")
+        pc(t / "g.png", t / "gh.png", ("filter.blur.gaussianBlur", {"radius": HAIR_BLUR}))
+        gh = grey(t / "gh.png")   # (PhotoCraft 0.2.0 wrote a PNG PIL cannot read at radius 0.7; 0.8 reads)
         g = grey(t / "g.png")
         clay = grey(t / "rb.png") >= 128
         core = grey(t / "core.png") < 128
@@ -683,6 +780,7 @@ def scene(g8, rb8, dump=None):
     fx, fy = strip_cut(clay, FLOOR_LOW, FLOOR_IN, FLOOR_UP, down=False)
     cx, cy = strip_cut(clay, CEIL_HIGH, CEIL_IN, CEIL_DOWN, down=True)
     outside = (yy > np.interp(xx, fx, fy)) | (yy < np.interp(xx, cx, cy))
+    outside |= ndi.gaussian_filter((sharp8 < SEEN_MIN * 100).astype(np.float32), SEEN_SMOOTH) > 0.5
     for side, pts in zip((0, 1), COLUMNS):
         if len(pts):
             P = np.array(pts, float)
@@ -733,30 +831,70 @@ def scene(g8, rb8, dump=None):
     solid = ndi.binary_opening(paint & ~edge, structure=morphology.disk(SOLID_R))
     solid = ndi.binary_dilation(solid, iterations=2) & paint
     area = fig & ~edge & ~ndi.binary_dilation(solid, iterations=3)
-    found = even_lines(contrast, core & area, area, face_box)
+    faint = np.any([lw.polygon_mask(g.shape, np.array(z, float)) for z in FAINT], 0) if FAINT else np.zeros_like(fig)
+    found = even_lines(contrast, core & area, area, face_box, faint)
     pale = found & face_box & ~ndi.binary_dilation(old, iterations=PALE_OFF)
     pale = morphology.remove_small_objects(pale, max_size=PALE_MIN)
     pale = ndi.binary_dilation(pale, iterations=PALE_OFF + 1, mask=found)
     lines = solid | (found & ~face_box) | pale | old
     lines &= fig & ~edge
     lines = join_breaks(lines, g1, fig & ~solid) & fig
+    netz = lw.polygon_mask(g.shape, np.array(NET, float)) & fig & ~edge
+    lab, _ = ndi.label(lines & netz & ~face_box, structure=np.ones((3, 3)))
+    frac = ndi.mean(core.astype(float), lab, np.arange(1, lab.max() + 1)) if lab.max() else np.zeros(0)
+    lines &= ~np.isin(lab, 1 + np.nonzero(frac < NET_CORE)[0])
+    # small painted dots standing alone in DOTS (the net's, the dress's), at their own shape, traced at their own size
+    dz = np.any([lw.polygon_mask(g.shape, np.array(z, float)) for z in DOTS], 0) if DOTS else np.zeros_like(fig)
+    sp = dz & fig & ~edge & (contrast >= DOT_LC) & ~ndi.binary_dilation(lines, iterations=DOT_OFF)
+    lab, _ = ndi.label(sp, structure=np.ones((3, 3)))
+    sz = np.bincount(lab.ravel())
+    spots = ((sz >= DOT_MIN) & (sz <= DOT_MAX))[lab] & sp
+    old |= spots
+    lines |= spots
+    # Agamemnon's head (see AGAM_*)
+    pm = lambda P: lw.polygon_mask(g.shape, np.array(P, float))
+    head = (pm(AGAM_CURLS) | pm(AGAM_BEARD) | pm(AGAM_FACE)) & fig & ~edge
+    lines &= ~head
+    old &= ~head
+    hi, lo = ndi.maximum_filter(gh, 2 * FACE_HI + 1), ndi.minimum_filter(gh, 2 * FACE_LO + 1)
+    fl = (gh < (hi + lo) / 2) & (hi - lo > FACE_SPAN) & pm(AGAM_FACE) & fig & ~edge
+    fl = ndi.distance_transform_edt(~centre_lines(fl, spur=5, min_len=6)) <= FACE_W / 2
+    lines |= fl & fig
+    old |= fl & fig
+    hair = ((gh < CURL_G) & pm(AGAM_CURLS) | (gh < BEARD_G) & pm(AGAM_BEARD)) & head & ~ndi.binary_dilation(fl, iterations=1)
+    hair = morphology.remove_small_objects(hair, max_size=HAIR_SPECK)
     ink = lines | edge
-    holes = ndi.binary_fill_holes(ink) & ~ink
+    holes = ndi.binary_fill_holes(ink) & ~ink & ~face_box   # (not in the heads: the eyes' whites, the clay between curls)
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
     lab, _ = ndi.label(ink, structure=np.ones((3, 3)))
     sz = np.bincount(lab.ravel())
-    faces = np.isin(lab, np.unique(lab[face_box & ink])) & (sz < FACE_MAX)[lab] & (lab > 0)
+    faces = np.isin(lab, np.unique(lab[(face_box | spots) & ink])) & (sz < FACE_MAX)[lab] & (lab > 0)
+    # the net's faint lines, as a tone
+    from skimage.filters import apply_hysteresis_threshold
+    nl = apply_hysteresis_threshold(net_c, NET_LOW, NET_HIGH) & netz & ~ndi.binary_dilation(ink, iterations=NET_OFF)
+    ncl = centre_lines(nl, spur=SPUR, min_len=NET_LEN)
+    # (the body's contours seen through the robe are found with the net's lines but are darker: ink)
+    dk = ncl & (gmin < NET_INK_G) & ~head   # (not in his head: the curls are dark too)
+    lab, _ = ndi.label(dk, structure=np.ones((3, 3)))
+    dk &= (np.bincount(lab.ravel()) >= NET_INK_LEN)[lab]
+    thru = (ndi.distance_transform_edt(~dk) <= NET_INK_W / 2) & fig
+    ink |= thru
+    ncl &= ~ndi.binary_dilation(dk, iterations=2)
+    net = (ndi.distance_transform_edt(~ncl) <= NET_W / 2).astype(np.float32)
+    net = (ndi.gaussian_filter(net, NET_SMOOTH) > 0.5) & fig & ~ink & ~hair
     if dump:
-        np.savez_compressed(dump, ink=ink, faces=faces, fig=fig, ground=ground, clay=clay, core=core, solid=solid)
-    return ink & ~faces, faces, fig, g, []
+        np.savez_compressed(dump, ink=ink, faces=faces, fig=fig, ground=ground, clay=clay, core=core, solid=solid,
+                            net=net, hair=hair)
+    return ink & ~faces, faces, fig, g, [[(hair & ~ink, HAIR_OPACITY)], [(net, NET_OPACITY)]]
 
 
 def main(flat_prefix, qa=None, dump=None):
     """The drawing from a saved flat (--flat writes <prefix>-g.png, -rb.png, -src.png)."""
     g8 = np.asarray(Image.open(f"{flat_prefix}-g.png"))
     rb8 = np.asarray(Image.open(f"{flat_prefix}-rb.png"))
-    ink, faces, fig, g, wash = scene(g8, rb8, dump)
+    sharp8 = np.asarray(Image.open(f"{flat_prefix}-sharp.png"))
+    ink, faces, fig, g, wash = scene(g8, rb8, sharp8, dump)
     ink |= (ndi.distance_transform_edt(~morphology.skeletonize(ink)) <= NECK / 2) & fig
     info = lw.trace_svg(ink, OUT, body=fig, open_holes=~fig, weight=WEIGHT if WEIGHT else "own", dots=faces,
                         extent=faces,
@@ -775,7 +913,7 @@ def main(flat_prefix, qa=None, dump=None):
 if __name__ == "__main__":
     if "--flat" in sys.argv:   # front left right out-prefix --flat: the flat's grey, red less blue and source PNGs
         a = [x for x in sys.argv[1:] if not x.startswith("--")]
-        for im, tag in zip(flat_image(dict(zip(NAMES, a[:3]))), ("g", "rb", "src")):
+        for im, tag in zip(flat_image(dict(zip(NAMES, a[:3]))), ("g", "rb", "src", "sharp")):
             Image.fromarray(im).save(f"{a[3]}-{tag}.png")
     elif "--from-flat" in sys.argv:   # out-prefix [qa.png] --from-flat [--dump]
         a = [x for x in sys.argv[1:] if not x.startswith("--")]
