@@ -104,8 +104,11 @@ TRACE_H = 4000
 # blue is ink as he drew it, added to mine (John, 2026-10-15: "Add"), traced at its own size (trace_svg's dots, so the
 # pinned weight is not moved) and sealing the areas, clay round it; yellow takes the ink under it out and is clay (stray
 # dashes, solids run past their edges); green takes the ink under it out and is ground (specks, a stray line).
-# Marks 1 (2026-10-15): pass 2
-MARKS_FILES = [Path(__file__).with_name("peace_marks_1.png")]
+# Marks 1 (2026-10-15): pass 2. Marks 2 (2026-10-15): pass 3, one yellow patch, the tip of the old man's beard as clay
+# (John: "marking one part of the jaw/beard ... as clay"); it lies over the beard's outline, so its yellow takes no ink
+# out. Each file: (path, whether its yellow takes the ink under it out)
+MARKS_FILES = [(Path(__file__).with_name("peace_marks_1.png"), True), (Path(__file__).with_name("peace_marks_2.png"), False)]
+YELLOW_REACH = 4
 MARKS_X0, MARKS_Y0 = 630, 773              # the marks' grid: the whole crop, one px a plate px
 # The lines redrawn crisp along their centres, as ecclesiazusae.py (John's "crisp and not staticy" there): but for the
 # hatched parts, each line drawn along its centre (side spurs under SPUR plate px pruned, pieces under LINE_LEN plate px
@@ -270,17 +273,27 @@ def at(ws, x, y):
 
 
 def marks(shape):
-    """John's blue, yellow and green at the work px (shape: the work arrays')."""
-    out = [np.zeros(shape, bool) for _ in range(3)]
-    for mf in MARKS_FILES:
+    """John's blue, yellow and green at the work px (shape: the work arrays'), the yellow that takes ink out, and the
+    green whose ground a later round's yellow overrules (its ink stays out)."""
+    out = [np.zeros(shape, bool) for _ in range(5)]
+    for mf, erase in MARKS_FILES:
         a = np.asarray(Image.open(mf).convert("RGBA")).astype(int)
         r, g, b, al = (a[..., i] for i in range(4))
         on = al > 40
         cols = (on & (b > r + 40) & (b > g + 20), on & (r > 150) & (g > 150) & (b < 100), on & (g > r + 40) & (g > b + 20))
         x0, y0 = X0 - MARKS_X0, Y0 - MARKS_Y0          # (a development run's box inside it)
-        for o, c in zip(out, cols):
+        for i, c in enumerate(cols):
             c = c[y0:y0 + (Y1 - Y0), x0:x0 + (X1 - X0)]
-            o |= np.asarray(Image.fromarray(c.astype(np.uint8) * 255).resize((shape[1], shape[0]), Image.NEAREST)) > 0
+            c = np.asarray(Image.fromarray(c.astype(np.uint8) * 255).resize((shape[1], shape[0]), Image.NEAREST)) > 0
+            out[i] |= c
+            if i == 1 and erase:
+                out[3] |= c
+            if i == 1 and not erase and c.any():   # (marks 2's yellow is a loop drawn round the clay, open at its
+                c = morphology.convex_hull_image(c)          # top: its hull; one loop a file)
+                out[1] |= c
+            if i == 1:
+                out[4] |= out[2] & c                   # a later round's clay overrules an earlier round's ground
+                                                       # (marks 1 greened the beard's tip)
     return out
 
 
@@ -320,13 +333,18 @@ def main(src, qa=None, dump=None):
     hat &= ink
     printed = ink                                     # (the areas are sealed on these as well: the redraw opens gaps)
     ink = (redraw(ink & ~hat, SPUR, LINE_LEN) & ~hat) | hat
-    blue, yellow, green = marks(ink.shape)
-    ink &= ~(yellow | green)
-    printed &= ~(yellow | green)
+    blue, yellow, green, erase, overruled = marks(ink.shape)
+    ink &= ~(erase | green)
+    printed &= ~(erase | green)
     wall = walls(ink.shape)
     ws = areas(ink | printed | wall | blue)
     fig, ground = figure(ink | printed | wall | blue, ws)
-    fig = (fig | yellow | (ndi.binary_dilation(blue, iterations=UP) & ~ground)) & ~green
+    # clay-only yellow spread up to the lines within YELLOW_REACH plate px (his brush stops short of them: slivers of
+    # ground were left between his patch and the beard's lines)
+    near_y = ndi.binary_dilation(yellow & ~erase, structure=morphology.disk(YELLOW_REACH * UP))
+    clay_y = ndi.binary_closing(yellow | ink, structure=morphology.disk(YELLOW_REACH * UP)) & near_y
+    ground_g = green & ~overruled & ~near_y           # (and it overrules an earlier round's ground up to the lines)
+    fig = (fig | (yellow & ~ink) | (clay_y & ~ink) | (ndi.binary_dilation(blue, iterations=UP) & ~ground)) & ~ground_g
     del printed
     kept = np.zeros_like(fig)
     for box in CLOSED:
