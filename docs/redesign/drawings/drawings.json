@@ -30,12 +30,21 @@
     },
     {
       "slug": "aristophanes",
-      "file": "aristophanes-mika.svg",
-      "name": "Aristophanes · the Kinsman and Mika at the altar (Women at the Thesmophoria)",
-      "alt": "The Kinsman, kneeling on a blood-stained altar, threatens a wineskin dressed as a baby with a knife; Mika, in an old woman's mask, holds out a bowl for its blood",
-      "source": "Schiller Painter bell-krater, Würzburg, Martin von Wagner Museum H 5697, side A, two photographs by ArchaiOptix (CC BY-SA 4.0); no old plate exists (acquired 1977)",
-      "method": "Red-figure photos taken off the vase (a fitted model of the vase and cameras, rings straight), made with PhotoCraft: clay mask, lines by local contrast redrawn even, faces at their own shape, blood as a wash, her toes from the two photos averaged; John's PhotoCraft marks in three rounds laid in as drawn; potrace",
-      "verdict": "Usable; approved by John on pass 4 (2026-10-15), after three rounds of his marks. No outside review. Replaces the 2026-10-02 drawing of Mika alone (John: 'i want the whole image, not just mika')."
+      "file": "aristophanes-king.svg",
+      "name": "Aristophanes · a comic actor as a crowned king (from the Getty krater)",
+      "alt": "A comic actor as a crowned king, white-bearded, a bird-topped sceptre in his hand, reaching out",
+      "source": "Cut from the drawing of the Apulian bell-krater J. Paul Getty Museum 96.AE.113 (thesmophoriazusae.svg; the Getty's photographs, CC0)",
+      "method": "The king alone, cut from the approved whole drawing (tools/thesmophoriazusae.py, KING_*): the figure inside his box, cut along the plank's top edge with a sole line where he stands, his lines at the whole drawing's width, the washes and brushstrokes kept",
+      "verdict": "Chosen by John, 2026-10-15, as Aristophanes' home figure ('a comic actor from apulian bell krator for home'), in place of the Würzburg scene, which became the play's plate."
+    },
+    {
+      "slug": "aristophanes-author",
+      "file": "thesmophoriazusae.svg",
+      "name": "Aristophanes · three comic actors on a stage (the Getty krater; the author page)",
+      "alt": "Three comic actors on a stage: at the left a padded young man with dark hair leans on a staff; in the middle an actor in a woman's dress, a cloth billowing over the head, wears the mask of a white-haired old woman; at the right a crowned king with a white beard and a bird-topped sceptre reaches toward her",
+      "source": "Apulian bell-krater, Cotugno Painter, J. Paul Getty Museum 96.AE.113, side A, museum photographs (CC0)",
+      "method": "Red-figure photo taken off the vase (three Getty cameras fitted, the rings kept straight), made with PhotoCraft: the scene by the clay map; lines by local contrast along their centres, the faces' finer lines too, breaks where wear crosses a line closed; the white hair and beards as tapering brushstrokes of PhotoCraft's brush along the paint's grain; the teeth white; the sceptre and the added yellow as washes; the bodies' thinned glaze repainted along the contours; potrace",
+      "verdict": "Approved by John on the fifth pass (2026-10-12), after his notes on the faces' finer lines, the lines through the beard, the teeth, the moustache and the white hair as brushstrokes. No outside review (the citation checked against the Getty's record). The play's plate until 2026-10-15; now the Aristophanes author page's figure (John: 'the full apulian bell krator plate for the aristophanes page')."
     },
     {
       "slug": "medea",
@@ -309,12 +318,12 @@
     },
     {
       "slug": "thesmophoriazusae",
-      "file": "thesmophoriazusae.svg",
-      "name": "Women at the Thesmophoria · Three comic actors, one in a woman's dress",
-      "alt": "Three comic actors on a stage: at the left a padded young man with dark hair leans on a staff; in the middle an actor in a woman's dress, a cloth billowing over the head, wears the mask of a white-haired old woman; at the right a crowned king with a white beard and a bird-topped sceptre reaches toward her",
-      "source": "Apulian bell-krater, Cotugno Painter, J. Paul Getty Museum 96.AE.113, side A, museum photographs (CC0)",
-      "method": "Red-figure photo taken off the vase (three Getty cameras fitted, the rings kept straight), made with PhotoCraft: the scene by the clay map; lines by local contrast along their centres, the faces' finer lines too, breaks where wear crosses a line closed; the white hair and beards as tapering brushstrokes of PhotoCraft's brush along the paint's grain; the teeth white; the sceptre and the added yellow as washes; the bodies' thinned glaze repainted along the contours; potrace",
-      "verdict": "Approved by John on the fifth pass (2026-10-12), after his notes on the faces' finer lines, the lines through the beard, the teeth, the moustache and the white hair as brushstrokes. No outside review (the citation checked against the Getty's record)."
+      "file": "aristophanes-mika.svg",
+      "name": "Women at the Thesmophoria · the Kinsman on the altar and Mika with her bowl (Würzburg H 5697)",
+      "alt": "The Kinsman, kneeling on a blood-stained altar, threatens a wineskin dressed as a baby with a knife; Mika, in an old woman's mask, holds out a bowl for its blood",
+      "source": "Schiller Painter bell-krater, Würzburg, Martin von Wagner Museum H 5697, side A, two photographs by ArchaiOptix (CC BY-SA 4.0); no old plate exists (acquired 1977)",
+      "method": "Red-figure photos taken off the vase (a fitted model of the vase and cameras, rings straight), made with PhotoCraft: clay mask, lines by local contrast redrawn even, faces at their own shape, blood as a wash, her toes from the two photos averaged; John's PhotoCraft marks in three rounds laid in as drawn; potrace",
+      "verdict": "Usable; approved by John on pass 4 (2026-10-15), after three rounds of his marks. No outside review. Replaces the 2026-10-02 drawing of Mika alone (John: 'i want the whole image, not just mika'). Made the play's plate by John, 2026-10-15 ('use the Würzburg scene for Women at the Thesmophoria')."
     },
     {
       "slug": "birds",
