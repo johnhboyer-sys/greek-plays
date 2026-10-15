@@ -31,11 +31,11 @@
     {
       "slug": "aristophanes",
       "file": "aristophanes-mika.svg",
-      "name": "Aristophanes · Mika (Women at the Thesmophoria)",
-      "alt": "Mika, in a comic old woman's mask, holding out a bowl",
-      "source": "Würzburg krater H 5697, photograph by ArchaiOptix (CC BY-SA 4.0)",
-      "method": "Red-figure photo: clay mask, fold lines by local contrast, Mnesilochus' knife cut away, potrace",
-      "verdict": "Clean. Revised: the drapery folds now run their full length. The painter's own drawing is sparer than the engravings."
+      "name": "Aristophanes · the Kinsman and Mika at the altar (Women at the Thesmophoria)",
+      "alt": "The Kinsman, kneeling on a blood-stained altar, threatens a wineskin dressed as a baby with a knife; Mika, in an old woman's mask, holds out a bowl for its blood",
+      "source": "Schiller Painter bell-krater, Würzburg, Martin von Wagner Museum H 5697, side A, two photographs by ArchaiOptix (CC BY-SA 4.0); no old plate exists (acquired 1977)",
+      "method": "Red-figure photos taken off the vase (a fitted model of the vase and cameras, rings straight), made with PhotoCraft: clay mask, lines by local contrast redrawn even, faces at their own shape, blood as a wash, her toes from the two photos averaged; John's PhotoCraft marks in three rounds laid in as drawn; potrace",
+      "verdict": "Usable; approved by John on pass 4 (2026-10-15), after three rounds of his marks. No outside review. Replaces the 2026-10-02 drawing of Mika alone (John: 'i want the whole image, not just mika')."
     },
     {
       "slug": "medea",

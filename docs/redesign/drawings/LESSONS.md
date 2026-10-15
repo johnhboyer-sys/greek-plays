@@ -903,6 +903,34 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   grey's structure tensor), seeded at the lightest uncovered paint and run while on the paint, drawn with
   PhotoCraft's brush at the paint's width, read as brushwork. paint.stroke takes [x, y, pressure]: pressure tapers
   the stroke to a point at both ends. The greedy seeding takes a few minutes per run (2026-10-12).
+- The Aristophanes home figure (Würzburg H 5697, the whole of side A: the Kinsman on the altar, Mika with her bowl; two
+  ArchaiOptix photos), made with PhotoCraft: about five hours over two days, a source search and four passes, approved by
+  John 2026-10-15. `tools/mika.py` (2026-10-15).
+- "Look for German plates first": the CVA settles whether any can exist. Würzburg 4 says "Aus Rom. Erworben 1977", first
+  published 1980, so no old plate; say so with the entry, and go to the photos (2026-10-14).
+- Fit both photos to the same painted circle: `vase_unroll.band_edge` took the thin clay strip under the feet in one photo
+  and the band's lower edge in the other, and the fit bent the profile to negative radii. Measure the band's lower edge
+  in both (clay above, glaze below, clear all along). A loose first round, then the tight one: from a poor start every
+  band point of one photo was dropped as an outlier. Check the model by laying both photos onto the flat: here within
+  1 px everywhere (2026-10-14).
+- A scene wrapping about ±55 degrees round the vase comes out about 1.3 times wider than the photo at its edges; the egg
+  band's eggs, even on the flat, show it is right (2026-10-14).
+- A foot at the vase's edge is out of focus in every photo: its toe lines print as soft bands. The grey's minima row by
+  row on the two flats averaged lined up into four lines (John: "the feet (toes specifically) need to be traced
+  clearly"); he then traced over the same four (2026-10-14).
+- John set the photo's levels in PhotoCraft (adjustment layers) "to help" with the dress's fine lines, then drew them in
+  blue. His adjustment layers replay exactly with `photocraft-cli run` (Brightness/Contrast, Levels, Vibrance), but the
+  lines under his strokes, snapped from the adjusted photo, came out ragged (the clay's edge and the grain): draw his
+  strokes as he drew them, at the line width, and take my ink out under them, or each line is drawn twice. Ask each
+  round whether his blue replaces or adds: round 2 was "additive" (2026-10-14/15).
+- His marks may land on any layer and he may re-save: list the layer ids before every export (a re-save renamed his layer
+  and the first export missed his green), and read blue and green by colour from every layer (2026-10-15).
+- Where his line becomes the outline (her soles drawn lower, the knife's edges on the ground side), let the figure reach
+  his line's centre, not its outer edge, or the body's trace overshoots it and a sliver of clay shows on the dark theme;
+  and pass his lines (traced as `dots`) to `trace_svg` as `extent`, or the crop is cut at the main ink (2026-10-14).
+- Round 3's filled marks (a pupil, a dark spot on the veil) are short for their width; his thick zigzag is long: fill a
+  mark when its skeleton is under four times its greatest width, in that round only (round 1 has wide crossings that are
+  lines) (2026-10-15).
 
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 
