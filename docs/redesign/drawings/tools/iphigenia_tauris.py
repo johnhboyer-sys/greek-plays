@@ -137,7 +137,7 @@ CLAY = [[(1780, 858), (1788, 858), (1736, 1103), (1727, 1103)],
          (514, 905), (518, 885), (522, 860), (525, 835), (525, 815)]]# John's marks on pass 1b (2026-10-13), in PhotoCraft on the plate at MARKS_K x its scan px over the crop: blue
 # strokes are lines the trace missed (most close a gap where ground ran into clay); green squiggles mark ground (each
 # squiggle names the paper area it lies most in)
-MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4, 5, 6, 7)]
+MARKS_FILES = [Path(__file__).with_name(f"iphigenia_tauris_marks_{k}.png") for k in (1, 2, 3, 4, 5, 6, 7, 8)]
 MARKS_K = 2
 # pass 4 marks (John): blue strokes redraw lines (her brows, eye, nose, mouth, jaw and neck, the sleeve's zigzag edge,
 # the pleat points, the ribbon's folds). Each stroke goes in along its centre, smoothed as the found lines, at the
@@ -170,6 +170,8 @@ FILL_R = 2
 # jaw, the hip and the hand, which no line seals off from the face and the hand: named whole, those went to ground);
 # and his half-opacity paint, laid over the red layer, erases the found lines under it (they broke the grey)
 LOCAL_FROM, LOCAL_R = 5, 3
+# grey paint (John, marks_8: the shaded stripes of the fillet at Orestes' right) is clay with the grey wash; and his
+# yellow wins over his earlier green spots (the messenger's hat, hair and jaw, pass 8)
 # a clay area meeting the ground with no line between them is a gap in the outline (John: "the ground leaks are due
 # to lines not being fully traced"): where the clay's edge lies farther than GAP scan px from any line, the outline is
 # drawn along the clay's edge at the pen's width
@@ -515,6 +517,10 @@ def marks(shape, contrast):
         else:
             green |= up(al * ((g > r + 40) & (g > b + 20)))
         yellow |= up(al * ((r > b + 60) & (g > b + 60)))
+        painted_grey = (np.abs(r - g) < 20) & (np.abs(g - b) < 20) & (r > 60) & (r < 200) & (al >= MARK_HALF[1])
+        painted_grey = up(ndi.binary_opening(painted_grey, structure=morphology.disk(1)))
+        grey_ |= painted_grey
+        yellow |= painted_grey
         half = (al > MARK_HALF[0]) & (al < MARK_HALF[1]) & isb
         if local:                         # (the red lines he painted over left holes in it; the soft edges of his
             # full strokes, within 2 px of them, are not paint: closed, they laid grey between two close lines)
@@ -622,7 +628,7 @@ def main(src, qa=None, dump=None):
     waves[sl(WAVE)] = True
     waves &= ndi.distance_transform_edt(~blue) > REPLACE * UP
     ink = (ink & ~(inside & ~waves)) | (blue & inside) | (solid & traced)
-    ink &= ~yellow & ~over
+    ink &= ~((yellow | over) & ~blue)       # (his own lines stay where his yellow paint runs up to them)
     ink |= fills
     from scipy.interpolate import splev, splprep
     foot = []
@@ -658,7 +664,7 @@ def main(src, qa=None, dump=None):
     print("outline gaps (work px)", int(gap.sum()))
     ink |= edge_line
     # his green squiggles from LOCAL_FROM on: the paper under each, inside the lines
-    near = (ndi.distance_transform_edt(~spots) <= LOCAL_R * UP) & ~ink
+    near = (ndi.distance_transform_edt(~spots) <= LOCAL_R * UP) & ~ink & ~yellow
     lab, _ = ndi.label(near)
     spot = np.isin(lab, np.unique(lab[spots & near])) & (lab > 0)
     fig &= ~spot
