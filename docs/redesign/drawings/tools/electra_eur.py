@@ -105,8 +105,8 @@ WASH_BLUR, WASH_R, WASH_D, WASH_W = 1.9, 30, 22, 5.7
 WASH_MIN = 110                             # plate px^2: smaller pieces are specks of the print
 WASH_A, WASH_D1, WASH_STEP, WASH_SIGMA = (0.15, 0.35), 60, 0.05, 3.8
 # John's marks on pass 1, in PhotoCraft over the tool's grid (electra_eur_marks_1.png: his blue and yellow, read off
-# every layer, 2026-10-15; "additive"): blue lines to add, drawn along their centres at the line weight (his strokes,
-# about 6.7 work px, are wider; broader paint solid); yellow is clay: the area round each yellow mark that the lines
+# every layer, 2026-10-15; "additive"): blue ink to add (his strokes
+# as he painted them, at their own width); yellow is clay: the area round each yellow mark that the lines
 # and his blue close off (within YELLOW_R plate px of it) joins the figure, its outline his blue where it runs there
 MARKS_FILES = [Path(__file__).parent / "electra_eur_marks_1.png"]
 YELLOW_R = 25
@@ -296,9 +296,10 @@ def main(src, qa=None, test=None, out=None, diag=False):
     tw = WEIGHT * max(np.ptp(ys), np.ptp(xs))   # the line width, work px (taken before his clay: pass 1's weight)
     if test:   # a test box: the weight the whole panel gives
         tw = WEIGHT * (X1_FULL - X0_FULL) * UP
-    blue_ink = (ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= tw / 2) | \
-        ndi.binary_opening(blue, structure=morphology.disk(max(1, round(2 * tw))))   # (only broad paint: his strokes
-    # run 5-12 work px wide where he went over them twice, and at disk(tw) those parts came out as blots)
+    # his blue as he painted it, at its own width (John, 2026-10-15: "all ink is drawn by me to it's proper width";
+    # drawn along its centres at the line weight, the hair curl he widened came out thin), pinholes filled
+    blue_ink = blue | (ndi.binary_fill_holes(blue) & ~morphology.remove_small_objects(
+        ndi.binary_fill_holes(blue) & ~blue, max_size=round(4 * UP * UP)))
     if yellow.any():   # his clay: what the figure's edge, the plate's lines and his blue close off round each mark
         barrier = blue_ink | (~fig & (ndi.distance_transform_edt(~fig) <= tw)) | outside | \
             (apply_hysteresis_threshold(lc, LINE_LO, LINE_HI) & ~fig)
