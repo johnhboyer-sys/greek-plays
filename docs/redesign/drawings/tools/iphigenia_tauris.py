@@ -170,6 +170,11 @@ FILL_R = 2
 # jaw, the hip and the hand, which no line seals off from the face and the hand: named whole, those went to ground);
 # and his half-opacity paint, laid over the red layer, erases the found lines under it (they broke the grey)
 LOCAL_FROM, LOCAL_R = 5, 3
+# John's edits to the ground layer itself (2026-10-15: "the ground keeps cropping up where it shouldn't be"), at
+# MARKS_K x its scan px: blue he added is ground, yellow where he erased it is clay; they apply last, over every
+# rule above, and leave the lines alone
+GROUND_EDITS = Path(__file__).with_name("iphigenia_tauris_ground_edits.png")
+EDIT_REACH = 3
 # grey paint (John, marks_8: the shaded stripes of the fillet at Orestes' right) is clay with the grey wash; and his
 # yellow wins over his earlier green spots (the messenger's hat, hair and jaw, pass 8)
 # a clay area meeting the ground with no line between them is a gap in the outline (John: "the ground leaks are due
@@ -669,6 +674,13 @@ def main(src, qa=None, dump=None):
     spot = np.isin(lab, np.unique(lab[spots & near])) & (lab > 0)
     fig &= ~spot
     ground |= spot
+    e = np.asarray(Image.open(GROUND_EDITS).convert("RGBA").resize((ink.shape[1], ink.shape[0]), Image.NEAREST))
+    # (each spread up to the lines, EDIT_REACH scan px: his brush stopped short of them and left flecks)
+    to_ground = ndi.binary_dilation((e[..., 3] > 0) & (e[..., 2] > 128) & (e[..., 0] < 128) & ~ink,
+                                    iterations=EDIT_REACH * UP, mask=~ink)
+    to_clay = ndi.binary_dilation((e[..., 3] > 0) & (e[..., 0] > 128) & ~ink, iterations=EDIT_REACH * UP, mask=~ink)
+    fig = (fig | to_clay) & ~to_ground
+    ground = (ground & ~to_clay) | to_ground
     if dump:
         np.savez_compressed(dump, g=g.astype(np.uint8), ink=ink, ws=ws.astype(np.int32), fig=fig)
     info = lw.trace_svg(
