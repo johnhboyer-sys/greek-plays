@@ -104,7 +104,13 @@ WEIGHT = 0.0011                            # the line weight, of the longer side
 WASH_BLUR, WASH_R, WASH_D, WASH_W = 1.9, 30, 22, 5.7
 WASH_MIN = 110                             # plate px^2: smaller pieces are specks of the print
 WASH_A, WASH_D1, WASH_STEP, WASH_SIGMA = (0.15, 0.35), 60, 0.05, 3.8
-MARKS_FILES = []
+# John's marks on pass 1, in PhotoCraft over the tool's grid (electra_eur_marks_1.png: his blue and yellow, read off
+# every layer, 2026-10-15; "additive"): blue lines to add, drawn along their centres at the line weight (his strokes,
+# about 6.7 work px, are wider; broader paint solid); yellow is clay: the area round each yellow mark that the lines
+# and his blue close off (within YELLOW_R plate px of it) joins the figure, its outline his blue where it runs there
+MARKS_FILES = [Path(__file__).parent / "electra_eur_marks_1.png"]
+YELLOW_R = 25
+BLUE_CLEAR = 1.5
 
 
 def pc(src, out, *steps):
@@ -249,12 +255,13 @@ def main(src, qa=None, test=None, out=None, diag=False):
     # (the fill also took in the clay islands left in the pockets, the painted names: only what the seeds reach)
     lab, _ = ndi.label(fig)
     fig = np.isin(lab, list({nearest(lab, x, y) for x, y in SEEDS if inbox(x, y)}))
-    blue = np.zeros_like(fig)
+    blue, yellow = np.zeros_like(fig), np.zeros_like(fig)
     for mf in MARKS_FILES:
         m = np.asarray(Image.open(mf).convert('RGBA')).astype(int)
         assert m.shape[:2] == fig.shape, (m.shape, fig.shape)
         r, gg, bb, al = (m[..., i] for i in range(4))
         blue |= (al > 40) & (bb > r + 40) & (bb > gg + 20)
+        yellow |= (al > 40) & (r > 150) & (gg > 150) & (bb < 100)
 
     if diag:   # the figure tinted, the ground blue, the dark areas inside the figure numbered by size (plate px)
         rgb = np.dstack([g] * 3).astype(np.float32)
@@ -286,9 +293,22 @@ def main(src, qa=None, test=None, out=None, diag=False):
     paint = fine & ndi.binary_dilation(solid, iterations=round(PAINT_NEAR * UP)) & fig
 
     ys, xs = np.nonzero(fig)
-    tw = WEIGHT * max(np.ptp(ys), np.ptp(xs))   # the line width, work px
+    tw = WEIGHT * max(np.ptp(ys), np.ptp(xs))   # the line width, work px (taken before his clay: pass 1's weight)
     if test:   # a test box: the weight the whole panel gives
         tw = WEIGHT * (X1_FULL - X0_FULL) * UP
+    blue_ink = (ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= tw / 2) | \
+        ndi.binary_opening(blue, structure=morphology.disk(max(1, round(2 * tw))))   # (only broad paint: his strokes
+    # run 5-12 work px wide where he went over them twice, and at disk(tw) those parts came out as blots)
+    if yellow.any():   # his clay: what the figure's edge, the plate's lines and his blue close off round each mark
+        barrier = blue_ink | (~fig & (ndi.distance_transform_edt(~fig) <= tw)) | outside | \
+            (apply_hysteresis_threshold(lc, LINE_LO, LINE_HI) & ~fig)
+        lab, _ = ndi.label(~barrier & ndi.binary_dilation(yellow, structure=disk(YELLOW_R)))
+        clay = np.isin(lab, np.unique(lab[yellow & (lab > 0)])) | (yellow & ~blue_ink)
+        clay = ndi.binary_closing(clay, structure=disk(1.9)) & ~blue_ink
+        # (to his line's centre, so the body's trace stops there)
+        clay |= ndi.binary_dilation(clay, structure=morphology.disk(round(tw / 2))) & blue_ink
+        fig |= clay
+        paint &= ~clay
     firm = apply_hysteresis_threshold(lc, LINE_LO, LINE_HI)
     black = firm & fig & ~ndi.binary_dilation(paint, iterations=round(UP))
     lines = centre_lines(black, tw, round(3 * 1.9 * UP), 2 * tw) | paint
@@ -313,11 +333,12 @@ def main(src, qa=None, test=None, out=None, diag=False):
                                                  max_size=round(FACE_SPECK * UP * UP))
     lines = np.where(faces & ~paint, face_lines, lines)
     dt = ndi.distance_transform_edt(~fig)
-    edge = ~fig & (dt <= tw) & ~outside
-    ink = (lines & fig) | edge
-    if blue.any():
-        ink |= ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= tw / 2
-        ink |= ndi.binary_opening(blue, structure=morphology.disk(max(1, round(tw))))
+    # (where his blue is the outline, the edge would run on half a line past it)
+    edge = ~fig & (dt <= tw) & ~outside & ~ndi.binary_dilation(blue_ink, structure=morphology.disk(round(tw / 2)))
+    # (his blue drawn as he drew it, my lines within BLUE_CLEAR line widths of its centre taken out, or a line he
+    # traced over mine is drawn twice and runs into a blot: Mika, 2026-10-14)
+    near_blue = ndi.distance_transform_edt(~morphology.skeletonize(blue)) <= BLUE_CLEAR * tw if blue.any() else blue
+    ink = (lines & fig & ~near_blue) | (edge & ~near_blue) | blue_ink
     lab, _ = ndi.label(ink)
     ink &= (np.bincount(lab.ravel()) > 4 * 1.9 ** 2 * UP * UP)[lab]
 
