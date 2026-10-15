@@ -108,7 +108,9 @@ WASH_A, WASH_D1, WASH_STEP, WASH_SIGMA = (0.15, 0.35), 60, 0.05, 3.8
 # every layer, 2026-10-15; "additive"): blue ink to add (his strokes
 # as he painted them, at their own width); yellow is clay: the area round each yellow mark that the lines
 # and his blue close off (within YELLOW_R plate px of it) joins the figure, its outline his blue where it runs there
-MARKS_FILES = [Path(__file__).parent / "electra_eur_marks_1.png"]
+# Round 2 on pass 2 (electra_eur_marks_2.png, all blue, on the red layer): the woman's profile, lips and fingers, Orestes'
+# eyelids, sideburn and neck
+MARKS_FILES = [Path(__file__).parent / "electra_eur_marks_1.png", Path(__file__).parent / "electra_eur_marks_2.png"]
 YELLOW_R = 25
 BLUE_CLEAR = 1.5
 
