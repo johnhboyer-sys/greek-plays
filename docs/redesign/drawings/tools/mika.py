@@ -277,10 +277,9 @@ FACE_SPECK = 12
 # FACE_DOT, pieces of FACE_SPECK to FACE_DOT_MAX px^2, at their own shape
 FACE_DOT, FACE_DOT_MAX = 40, 400
 # The altar's top: a row of triangles over a ruled line, and loops down its right side, in thinned glaze, soft edged,
-# with black dots. Inside ZIGZAG (polygon, flat px) the dark core (LINE_DARK: the ruled line, the dots) is drawn at its
-# own shape, and the thinned glaze as a wash, as the blood (ZIG_STEPS: grey blurred 2 px under, total opacity)
+# with black dots. Inside ZIGZAG (polygon, flat px) only the dark core (LINE_DARK: the ruled line, the dots) is drawn,
+# at its own shape; the triangles are John's zigzag line (round 3; first drawn as a wash)
 ZIGZAG = [(2985, 2290), (3880, 2270), (4130, 2440), (4130, 2580), (4040, 2540), (3870, 2400), (2985, 2420)]
-ZIG_STEPS = [(140, 0.3), (115, 0.45), (90, 0.6)]
 # The blood (John's rulings, andromache.py): on the altar's front a splash with drips, a red mark beside it, and a
 # loop with a drip on its side (CVA: "blutbefleckter Altar"), in thinned glaze. Inside BLOOD (polygons, flat px) no
 # lines; a wash in the line colour following the paint: BLOOD_STEPS (grey blurred 2 px under, total opacity)
@@ -316,10 +315,16 @@ TOE_W = 7
 # Round 2 (2026-10-15, on pass 2's file, some on the red layer: read by colour from both): blue only, the fainter
 # lines I missed (his tunic's folds, his brows and cheeks, the wineskin's folds and the hand on it) and joins across
 # lines I broke (John). These add to my lines; my ink under them stays (John, 2026-10-15: "those over red lines are
-# additive"). The third item of each round: whether my ink under its blue goes
+# additive"). Round 3 (2026-10-15, on pass 3's file): her pupil and a dark spot at the top of her veil, painted as
+# filled shapes, drawn filled: marks short for their width (skeleton under BLOB_ELONG times their greatest width);
+# and a zigzag along the altar's top and down its side, which replaces my wash triangles there (John, 2026-10-15:
+# "Replace, keep dots": the ruled line and the dots stay). The third item of each round: whether my ink under its
+# blue goes; the fourth: whether its short wide marks are filled shapes
 MARKS_ORIGIN = (685, 309)
-MARKS_FILES = [("mika_marks1_blue.png", "mika_marks1_green.png", True),
-               ("mika_marks2_blue.png", "mika_marks2_green.png", False)]
+MARKS_FILES = [("mika_marks1_blue.png", "mika_marks1_green.png", True, False),
+               ("mika_marks2_blue.png", "mika_marks2_green.png", False, False),
+               ("mika_marks3_blue.png", "mika_marks3_green.png", False, True)]
+BLOB_ELONG = 4
 FEET_BOX = (760, 2940, 1760, 3200)
 MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 6.0, 1.5, 4
 # Breaks in the lines where specks of wear cross them: closed where the paint runs on under them (see join_breaks)
@@ -460,15 +465,23 @@ def join_breaks(lines, g1, room):
 
 
 def marks(shape):
-    """John's blue and green marks on the flat (see MARKS_*), and the blue of the rounds that replace my ink."""
+    """John's blue and green marks on the flat (see MARKS_*), the blue of the rounds that replace my ink, and his
+    filled shapes."""
     H, W = shape
     ox, oy = MARKS_ORIGIN
-    blue, green, replace = (np.zeros((H, W), bool) for _ in range(3))
-    for fb, fg, rep in MARKS_FILES:
+    blue, green, replace, blobs = (np.zeros((H, W), bool) for _ in range(4))
+    for fb, fg, rep, fill in MARKS_FILES:
         for f, m in ((fb, blue), (fg, green)) + (((fb, replace),) if rep else ()):
             a = np.asarray(Image.open(Path(__file__).parent / f).convert("L")) > 127
             m[oy:oy + a.shape[0], ox:ox + a.shape[1]] |= a[:H - oy, :W - ox]
-    return blue, green, replace
+        if fill:
+            a = np.asarray(Image.open(Path(__file__).parent / fb).convert("L")) > 127
+            lab, _ = ndi.label(a, structure=np.ones((3, 3)))
+            sk, dt = morphology.skeletonize(a), ndi.distance_transform_edt(a)
+            short = [k for k, sl in enumerate(ndi.find_objects(lab), 1)
+                     if sk[sl][lab[sl] == k].sum() < BLOB_ELONG * 2 * dt[sl][lab[sl] == k].max()]
+            blobs[oy:oy + a.shape[0], ox:ox + a.shape[1]] |= np.isin(lab, short)[:H - oy, :W - ox]
+    return blue & ~blobs, green, replace, blobs
 
 
 def johns_lines(blue):
@@ -542,7 +555,7 @@ def scene(rgb, dump=None):
     f = fig.astype(np.float32)
     fig = np.where(fine, ndi.gaussian_filter(f, FINE_SMOOTH), ndi.gaussian_filter(f, SMOOTH)) > 0.5
     fig &= ~outside
-    blue, green, replace = marks(g.shape)
+    blue, green, replace, blobs = marks(g.shape)
     feet = box([FEET_BOX])
     johns, jcl = johns_lines(blue)
     # (her feet down to his soles' centre lines; the band's glaze the strip then takes in is no paint)
@@ -601,9 +614,8 @@ def scene(rgb, dump=None):
     gone = ndi.binary_dilation(green, iterations=2) | ndi.binary_dilation(replace, iterations=2)
     ink &= ~gone
     faces &= ~gone
-    faces |= johns
-    wash = [[(blood & ~ink & (g2 < level), op) for level, op in BLOOD_STEPS],
-            [(zig & fig & ~edge & ~ink & (g2 < level), op) for level, op in ZIG_STEPS]]
+    faces |= johns | (ndi.gaussian_filter(blobs.astype(np.float32), MARK_SMOOTH) > 0.5)
+    wash = [[(blood & ~ink & (g2 < level), op) for level, op in BLOOD_STEPS]]   # (the zigzag's wash: John's line now)
     if dump:
         np.savez_compressed(dump, ink=ink, faces=faces, fig=fig, ground=ground, clay=clay, core=core, solid=solid)
     return ink & ~faces, faces, fig, g, wash
