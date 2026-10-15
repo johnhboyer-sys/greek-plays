@@ -958,6 +958,11 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - Round 3's filled marks (a pupil, a dark spot on the veil) are short for their width; his thick zigzag is long: fill a
   mark when its skeleton is under four times its greatest width, in that round only (round 1 has wide crossings that are
   lines) (2026-10-15).
+- Moving a drawing to a new use (2026-10-15): John made the Würzburg scene Women at the Thesmophoria's plate, the
+  Getty krater the author page's figure and its crowned king the home figure. One figure cut from an approved whole
+  drawing in the same tool (KING_*, as eumenides.py cuts the Pythia) leaves the whole drawing byte for byte as approved;
+  check the box takes in every free end (the king's outstretched fingertips were cut off at first), and draw his lines
+  at the whole drawing's traced width, not the house share of the smaller figure's longer side.
 
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 

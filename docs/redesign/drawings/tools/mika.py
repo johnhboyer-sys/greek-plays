@@ -37,7 +37,9 @@ Flat -> drawing (approved by John on pass 4, 2026-10-15):
   - John's marks in three rounds of PhotoCraft (MARKS_FILES): the dress's finer folds and much else, laid in as he
     drew them (see the constants).
 
-The SVG goes to aristophanes-mika.svg (the name kept for the home page's link, John, 2026-10-15), or to MIKA_OUT.
+The SVG goes to aristophanes-mika.svg (the name kept, John, 2026-10-15), or to MIKA_OUT. Drawn as Aristophanes' home
+figure; made Women at the Thesmophoria's plate the same day (John: "use the Würzburg scene for Women at the
+Thesmophoria"), the home figure becoming the king cut from thesmophoriazusae.py's drawing.
 
     python3 docs/redesign/drawings/tools/mika.py H5697-04.jpg [qa.png]
     python3 docs/redesign/drawings/tools/mika.py H5697-04.jpg flat.png --flat
