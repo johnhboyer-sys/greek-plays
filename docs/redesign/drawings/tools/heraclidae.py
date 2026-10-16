@@ -89,8 +89,10 @@ SMOOTH = 0.4
 # tool's grid; 2026-10-15): blue lines replace mine (the beard's hatching, the nymph's arms and feet, the hand clasp,
 # the pockets by her neck and in the boar's leg, a toe), green takes ink out (my black past the plate's edge on the
 # bow and quiver, the faint head's ear where it touched the bow, the incisions on Heracles' head and Iolaos'
-# moustache)
-MARKS_FILES = [Path(__file__).parent / "heraclidae_marks_1.png"]
+# moustache). Round 2, on pass 2 (heraclidae_marks_2.png, his three layers merged; 2026-10-16): blue and green as
+# round 1, and yellow for clay with no ink (John: "clay no ink"): Athena's profile redrawn, Hermes' ear, beard and
+# cloak hatching, the incisions on a black hand, the spear and leg edges by Hermes, the nymph's fingers and feet
+MARKS_FILES = [Path(__file__).parent / "heraclidae_marks_1.png", Path(__file__).parent / "heraclidae_marks_2.png"]
 REPLACE = 2.5                              # plate px
 OPEN_MAX = 60                              # plate px^2
 SLIVER = 20                                # plate px^2
@@ -167,7 +169,7 @@ def apply_marks(lines, fig, ground, white, purple, path):
     their centres, and a sliver of clay mostly under his paint is black (by the toe);
     within REPLACE of them my thin lines on and by the white go (not the solid black, or a slit of clay opened along
     his line on the black's edges); inside a loop he
-    closes, my ink goes (the pockets). In the hatching his strokes are the ones I missed, between mine: added, mine
+    closes, my ink goes (the pockets). Yellow (round 2) is clay with no ink. In the hatching his strokes are the ones I missed, between mine: added, mine
     kept. (A rule making the ground side of each stroke ground took the wrong side on the black's edges: not used.)"""
     m = np.asarray(Image.open(path).convert("RGBA")).astype(int)
     assert m.shape[:2] == lines.shape, (m.shape, lines.shape)
@@ -175,9 +177,19 @@ def apply_marks(lines, fig, ground, white, purple, path):
     green = (a > 40) & (g > r + 40) & (g > b + 20)
     blue = (a > 40) & (b > r + 40) & (b > g + 20)
     blue = morphology.remove_small_holes(blue, max_size=PINHOLE * UP * UP)   # (pinholes in his paint)
+    # (yellow, round 2: clay, no ink, never ground. Along the black it opens a clay line LINE_W wide on his stroke's
+    # centre (his brush is broader than an incision); on and by the white it clears my ink as painted)
+    yellow = (a > 40) & (r > 150) & (g > 150) & (b < 100)
+    by_white = ndi.distance_transform_edt(~white) <= 2 * REPLACE * UP
+    clay_line = (ndi.distance_transform_edt(~morphology.skeletonize(yellow)) <= LINE_W * UP / 2) | (yellow & by_white)
     sk = morphology.skeletonize(blue)
     lines0 = lines
     near = ndi.distance_transform_edt(~blue) <= REPLACE * UP
+    # (beside his strokes, not past their ends: cleared there too, my line was cut where his short strokes meet it)
+    nb = ndi.convolve(sk.astype(int), np.ones((3, 3), int), mode="constant") - 1
+    tips = sk & (nb == 1)
+    if tips.any():
+        near &= ~(ndi.distance_transform_edt(~tips) <= ndi.distance_transform_edt(~sk) + 1)
     solid = ndi.binary_opening(lines, structure=morphology.disk(round(LINE_W * UP)))
     thin = lines & ~ndi.binary_dilation(solid, structure=morphology.disk(UP))
     # (a loop is a pocket's edge: the clay reaches its centre line, the black outside it is the line)
@@ -186,7 +198,14 @@ def apply_marks(lines, fig, ground, white, purple, path):
     loops = ndi.binary_fill_holes(sk) & ~sk
     loops = ndi.binary_dilation(morphology.remove_small_objects(loops, max_size=LOOP_MIN * UP * UP), structure=np.ones((3, 3), bool)) & ndi.binary_fill_holes(sk) & ~purple
     line = (ndi.distance_transform_edt(~sk) <= LINE_W * UP / 2) & ~loops
-    lines = lines & ~(near & thin & ~purple & (ndi.distance_transform_edt(~white) <= 2 * REPLACE * UP)) & ~green
+    cut = near & thin & ~purple & (ndi.distance_transform_edt(~white) <= 2 * REPLACE * UP)
+    # (where my line meets his stroke side-on, as at the clasp, grow it back through the cut until it meets his line
+    # (at most REPLACE): cut whole, it stopped short of his stroke)
+    keep = lines & ~cut
+    grown = keep.copy()
+    for _ in range(round(REPLACE * UP)):
+        grown = grown | (ndi.binary_dilation(grown) & cut & ~line)
+    lines = grown & ~green
     # (a sliver of clay (in my pass) mostly under his paint, under SLIVER plate px^2, is black: the false slits along the black's
     # edges he painted over (the hair, a toe); the pockets he outlined in his broad brush stay clay)
     lab, n = ndi.label(~lines0)
@@ -206,7 +225,7 @@ def apply_marks(lines, fig, ground, white, purple, path):
     # (and wider than a line: the strip his line pinched off against the ground's edge came out a slit of clay)
     wide = ndi.maximum(ndi.distance_transform_edt(shut), lab, np.arange(n + 1)) > LINE_W * UP
     shut = ((sz <= OPEN_MAX * UP * UP) & hit & wide)[lab] & (lab > 0)
-    lines &= ~shut
+    lines &= ~shut & ~clay_line
     # (green that opens onto the ground is ground; green inside the black stays the figure's clay)
     lab, _ = ndi.label((green & ~lines) | ground | shut)
     fig = fig & ~shut & ~(green & np.isin(lab, np.unique(lab[ground])))
