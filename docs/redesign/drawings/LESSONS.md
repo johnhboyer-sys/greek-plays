@@ -324,6 +324,23 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   broader than the pen lines, and the crown's wash averaged over its own clay, or it mottles and haloes the lines
   (2026-10-12).
 
+- Electra (Euripides) (II, Taf. 72, side A: the Berlin Painter's pelike in Vienna, Orestes kills Aegisthus), made with
+  PhotoCraft from Williams College's scan on JSTOR: about three and a half hours over the source search and four passes,
+  approved by John 2026-10-15. `tools/electra_eur.py` (2026-10-15).
+- JSTOR's Download button gives the Williams College plates at about half size (Taf. 72: 3445 x 2612); the item's IIIF
+  server holds the full scan (6581 x 4989, maxArea 10 MP). Its id is in the viewer's network requests (`.../iiif/<date
+  path>/<uuid>_deflate.tif/info.json`); fetch the panel as one region at full size, with John's go-ahead (2026-10-15).
+- Borders that bow round the vase and touch the figures (a hand on the meander, the chair's back): least-cost paths
+  through the plate's dark in a corridor round a guide, kept as polygons in a data file, cut cleaner than fitted
+  curves, which the figures' outlines pulled off (2026-10-15).
+- A worn patch the plate stipples: find it by the density of small dots, each dot's share of the light round it (a
+  plain blur of the dots fell off at the patch's edges), dots short in both directions (a foot's veins are as small
+  but long). John then wanted it drawn as printed: clay with the plate's own dots, found by local contrast (a fixed
+  level lost the paler ones), and no outline where it meets the ground (2026-10-15).
+- John's blue is ink at the width he paints it ("all ink is drawn by me to it's proper width"): redrawn along its
+  centre at the line weight, his widened hair curl came out thin. Take my lines out under his strokes, or a line he
+  traced over mine runs into a blot (2026-10-15).
+
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
 - The Gerhard method works here too. Suppliant Women (III, pl. XX) took
@@ -702,6 +719,30 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - For a figure cut from a frieze, ask John for its outline: the guided cut through waypoints left out part of her stole;
   his outline drawn in PhotoCraft gave the cut in one step. Inside it, keep the seal's slivers only where they touch
   nothing that is not hers, or a rim of clay shows out to his line (2026-10-14).
+
+### *Annali dell'Instituto di corrispondenza archeologica* (engraved contour plates, the darks hatched)
+
+- Peace (Annali 25, 1853, tav. d'agg. C-D, fig. 6: three comic actors on a stage, Hermitage St. 1779), made with
+  PhotoCraft: about three and a quarter hours over a source search, a style test and five passes, approved by John
+  2026-10-15. `tools/peace.py`, on `ecclesiazusae.py`'s rules (2026-10-15).
+- Arachne's image link serves the full scan: `data/image/<id>` returned 4500 x 3065 for a plate whose preview was
+  1000 px. Its book pages carry OCR (`data/entity/<page id>`, `ocrText`; a volume's pages are consecutive ids after the
+  book's): Wieseler's text found the vase, and corrected the pick's reading (a bundle on a carrying fork, not a parasol;
+  a stylus, not a double flute; writing tablets). Bieber 1920's text on the Internet Archive gave the museum and FR's
+  plate. A WebFetch "metadata" call on an image link downloads the image: ask before (2026-10-15).
+- Hatching about 1 plate px a stroke cannot be traced stroke by stroke; John chose it solid black (as the vase paints
+  it) over a wash or even hatch. Find it by a heavy blur under a level, but take its edges from the printed strokes
+  closed up, or the tablets' corners come out round. The same blur takes close pairs of face lines (brows, eye arcs) for
+  hatching: keep it out of the faces (`NO_HAT`), and raise the level only inside boxes that need it (`PANELS`)
+  (2026-10-15).
+- Crop above an ornament band, not on it: a crop one line too low cut the slave's crown and his face ran out to ground.
+  A fold's crease prints as a pale grey line down the plate: keep only high-contrast ink across it (`CREASE`)
+  (2026-10-15).
+- A plate drawn in outline leaves ground and clay open to doubt; John: use another drawing of the same vase to settle
+  them (FR II pl. 110, 1a, black ground, viewed in the browser pane, nothing downloaded) (2026-10-15).
+- John's marks, sixth form: blue added over my lines ("Add"), yellow takes stray ink out and is clay, green takes ink
+  out and is ground; in a later round a yellow loop drawn round an area is clay (its hull), and it overrules an earlier
+  round's green ground there, but not that green's ink removal (the ink came back when it did) (2026-10-15).
 
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 

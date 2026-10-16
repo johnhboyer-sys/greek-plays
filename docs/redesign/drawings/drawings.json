@@ -414,6 +414,24 @@
       "source": "R. Jaene's 1849 lithograph of the Duke of Buckingham's vase, Archäologische Zeitung 7, Taf. XII, with O. Jahn's article (Getty scan on the Internet Archive, public domain); the vase's present location not checked",
       "method": "Contour lithograph, made with PhotoCraft: John's Levels on the plate; lines by local contrast redrawn along their centres at one pen; the checked skirt's hatching and the fillets' stripes as a grey wash; faces and a foot drawn by hand where the print is faint; John's PhotoCraft marks in eight rounds and his edits to the ground layer laid in; potrace",
       "verdict": "Usable; approved by John on pass 12 (2026-10-15). John took care over Iphigenia and Pylades and less over the rest ('the rest? i'm not going to go all out'). No outside review."
+    },
+    {
+      "slug": "peace",
+      "file": "peace.svg",
+      "name": "Peace · An old countryman, his slave and a scribe on a stage",
+      "alt": "Three masked comic actors on a rough plank stage on three posts: at the left an old countryman, white-haired, leans on his stick, his striped bundle clamped in a carrying fork behind him; in the middle a bald slave, a large writing tablet on his arm, turns back to him with a raised finger; at the right a scribe sits on a chair, a tablet on his arm, holding his stylus to his mouth",
+      "source": "Wieseler, \"Monumenti scenici\", Annali dell'Instituto 25 (1853), tav. d'agg. C-D, fig. 6: an Apulian bell-krater from Ruvo, the Reckoning Painter's name vase, St Petersburg, Hermitage St. 1779 (DAI scan in Arachne, public domain)",
+      "method": "Contour engraving, made with PhotoCraft: the lines redrawn along their centres at their printed width, weighted to 2.3 plate px (John); the hatched parts solid black (John); the fold's crease dropped; the figures' area by the sealed watershed, ground and clay checked against Furtwängler-Reichhold II pl. 110, 1a; clay on the dark theme; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the fifth pass (2026-10-15), after a style test, two rounds of his marks in PhotoCraft and his clay call at the tufts. No outside review (the citation checked against Wieseler's text, Bieber 1920 and Schönheit 2019)."
+    },
+    {
+      "slug": "electra-eur",
+      "file": "electra-eur.svg",
+      "name": "Electra (Euripides) · Orestes kills Aegisthus",
+      "alt": "Orestes, cloaked, a scabbard at his side, grips the bearded Aegisthus by the head and drives his sword into his chest; Aegisthus, bare-chested and wreathed, falls back from his chair with his arms flung out; at the left a woman flees with a raised hand, looking back",
+      "source": "Furtwängler and Reichhold, Griechische Vasenmalerei II (1909), Taf. 72, side A (Vienna, Kunsthistorisches Museum IV 3725, Berlin Painter), Williams College scan via JSTOR (public domain plate)",
+      "method": "F-R plate with PhotoCraft: the ground gives the figures, the bands cut along paths through the dark; the worn patches stippled with the plate's own dots (John); lines by local contrast along their centres; the faces at the plate's own width; the thinned paint a `tone` wash; John's PhotoCraft marks laid in at the width he painted; potrace",
+      "verdict": "Approved by John on pass 4, 2026-10-15, after two rounds of his marks in PhotoCraft and the stipple."
     }
   ]
 }
