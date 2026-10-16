@@ -500,7 +500,7 @@ SPECK, FLECK = 150, 200
 LC_CAP, LC_R, LC_LOW, LC_HIGH = 175, 5, 30, 50
 LINE_LEN, HALF_R, WIDTH_SIGMA, LINE_MIN = 25, 6, 6.0, 4.0
 HOLE, MASK_SIGMA, SPUR, SOLID_R = 12, 1.5, 7, 10
-WEIGHT = None                 # the line weight: pinned after pass 1
+WEIGHT = 0.00118              # the line weight: pinned at pass 2's ("own" set it to its median, 0.118% of the longer side)
 NECK = 5                      # every line thickened to at least NECK flat px along its centre before tracing
 # Seeds (flat px): the woman at the left column, Clytemnestra, Aegisthus, Agamemnon, the woman behind him, the woman at
 # the right column
@@ -565,6 +565,16 @@ AGAM_BEARD = [(2930, 765), (2995, 765), (3015, 800), (3005, 925), (2910, 925), (
 AGAM_FACE = [(2880, 630), (2958, 630), (2958, 700), (2950, 725), (2965, 745), (2950, 775), (2915, 780), (2884, 740)]
 HAIR_BLUR, CURL_G, BEARD_G, HAIR_SPECK, HAIR_OPACITY = 0.8, 120, 135, 15, 0.7
 FACE_HI, FACE_LO, FACE_SPAN, FACE_W = 11, 5, 55, 3.0
+# John's marks, round 1 (2026-10-16, on the PhotoCraft file of pass 2: the flat cropped to the trace box at 1x, origin
+# MARKS_ORIGIN in flat px), kept beside the tool as 1-bit PNGs (MARKS_FILES: blue, purple). Blue is ink (the body's
+# contours through the net, his arm and the net's upper edge, the robe's hem, folds in Aegisthus' tunic), purple the
+# net's tone (its wavy lines, drawn long and whole). Both add to mine (John, 2026-10-16): each stroke drawn along its
+# centre line (side spurs under SPUR px pruned, pieces MARK_LEN px or longer), the blue MARK_W flat px wide (the traced
+# line width, WEIGHT of the trace box's longer side) and traced at its own size with the faces, the purple NET_W wide
+# in the tone; where his line runs on mine it is drawn once (my ink within MARK_GAP px of his blue goes)
+MARKS_ORIGIN = (154, 228)
+MARKS_FILES = [("agamemnon_marks_1_blue.png", "agamemnon_marks_1_purple.png")]
+MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 5.0, 1.5, 2
 # Small dots painted on the clothes (the net-robe's, the right-hand woman's): inside DOTS (polygons, flat px) small marks
 # standing apart from the lines (DOT_OFF px), with local contrast DOT_LC or more, DOT_MIN to DOT_MAX px^2, drawn as dots
 DOTS = [[(2560, 500), (3150, 500), (3150, 1300), (3100, 2150), (2350, 2150), (2480, 1300)],
@@ -748,6 +758,29 @@ def net_contrast(gpath, shape, t):
     return out
 
 
+def marks(shape):
+    """John's blue and purple marks on the flat (see MARKS_*)."""
+    H, W = shape
+    ox, oy = MARKS_ORIGIN
+    blue, purple = np.zeros((H, W), bool), np.zeros((H, W), bool)
+    for fb, fp in MARKS_FILES:
+        for f, m in ((fb, blue), (fp, purple)):
+            a = np.asarray(Image.open(Path(__file__).parent / f).convert("L")) > 127
+            m[oy:oy + a.shape[0], ox:ox + a.shape[1]] |= a[:H - oy, :W - ox]
+    return blue, purple
+
+
+def stroke(m, width):
+    """A mark's strokes drawn along their centre lines, `width` px wide, edges smoothed (Gaussian MARK_SMOOTH in
+    PhotoCraft, cut at half)."""
+    cl = centre_lines(m, spur=SPUR, min_len=MARK_LEN)
+    a = ((ndi.distance_transform_edt(~cl) <= width / 2) * 255).astype(np.uint8)
+    with tempfile.TemporaryDirectory() as td:
+        Image.fromarray(a).save(Path(td) / "m.png")
+        pc(Path(td) / "m.png", Path(td) / "ms.png", ("filter.blur.gaussianBlur", {"radius": MARK_SMOOTH}))
+        return grey(Path(td) / "ms.png") >= 128
+
+
 def scene(g8, rb8, sharp8, dump=None):
     """(ink, ink traced at its own size, figure, grey, washes) for the flat's grey and red less blue (uint8)."""
     with tempfile.TemporaryDirectory() as td:
@@ -883,6 +916,13 @@ def scene(g8, rb8, sharp8, dump=None):
     ncl &= ~ndi.binary_dilation(dk, iterations=2)
     net = (ndi.distance_transform_edt(~ncl) <= NET_W / 2).astype(np.float32)
     net = (ndi.gaussian_filter(net, NET_SMOOTH) > 0.5) & fig & ~ink & ~hair
+    # John's marks (see MARKS_*)
+    blue, purple = marks(g.shape)
+    johns = stroke(blue, MARK_W)
+    ink &= ~ndi.binary_dilation(johns, iterations=MARK_GAP)
+    faces &= ~ndi.binary_dilation(johns, iterations=MARK_GAP)
+    faces |= johns
+    net = (net | stroke(purple, NET_W)) & ~ink & ~faces & ~hair
     if dump:
         np.savez_compressed(dump, ink=ink, faces=faces, fig=fig, ground=ground, clay=clay, core=core, solid=solid,
                             net=net, hair=hair)
