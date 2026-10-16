@@ -5,9 +5,16 @@ of fig. 1 alone, taken from the IIIF server as the region 176,244,1572,1058 of t
 https://digi.ub.uni-heidelberg.de/iiif/2/gerhard1843bd2%3A000_Tafel_ROEM_097.jpg/176,244,1572,1058/full/0/default.jpg
 (page https://digi.ub.uni-heidelberg.de/diglit/gerhard1843bd2/0223; the server offers no PNG). Plate px below are
 px of that region.
+Gerhard's text (pp. 46-47, "Der erymanthische Eber"): an archaic amphora of the Candelori collection; Eurystheus
+raises his arm to beg Heracles to spare him the sight; Athena and Hermes at the right, Iolaos and the nymph of the
+Erymanthian valley at the left; on the reverse Ajax carries Achilles' body, Briseis ahead, a hoplite and an archer
+behind. The amphora "jetzt zu München" in his note 34 (d) is another Candelori vase (Munich 1562, named figures).
+Present location not confirmed: New York, Metropolitan Museum 56.171.20 (Antimenes Painter, about 520 BC) pairs the
+same two pictures in the same order of figures, and may be it.
 John's pick (2026-10-13); the crop (John, 2026-10-15): the whole panel, the figure numbers and the small vase
 drawings below it left out. The faint head Gerhard prints in thin brown lines on the clay between Iolaos and
-Heracles is left out (John, 2026-10-15).
+Heracles, the line curling up from the club and the line by the boar's hind leg are left out (John, 2026-10-15).
+Approved by John on pass 3, 2026-10-16, after two rounds of his marks in PhotoCraft.
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli` (0.2.0): the enlargement, the
 grey, the warm channel (Channel Mixer), the blurs, Motion Blur, Minimum and Maximum, and the thresholds. numpy and
@@ -18,11 +25,14 @@ Plate -> drawing, black-figure, drawn as silhouettes (as Seven, Ajax, Lysistrata
   - Out: the paper round the panel (EDGES, the panel's four edges, measured; the panel prints a little askew).
   - Ground: the orange clay (warm: red less blue over WARM_T, and lighter than CLAY_L), its large areas.
   - The added purple, which Gerhard prints as fine black hatching on the clay (beards, the nymph's mantle, the
-    diadem, the crest-holder, the club): found as the close thin lines (PURPLE_*), part of the figures.
+    diadem, the crest-holder, the club): found as the close thin lines (PURPLE_*), part of the figures, and drawn as
+    printed, its strokes black, open on the ground (John's choice from a test against a grey wash, 2026-10-15).
   - The figures: all else in the panel, joined to SEEDS (the faint lines on the clay join none of them).
   - The black is drawn black. Open in it: the incisions and the clay dots (light marks, at least LINE_W wide),
-    and the added white (skin, dots), with the dark lines printed on it. Where the white meets the ground, an
-    outline LINE_W wide just outside it.
+    and the added white (skin, dots), with the dark lines printed on it (found on a Levels-stretched copy: John,
+    "play with levels to help reveal lines"). Where the white meets the ground, one even contour LINE_W wide just
+    inside its edge, over Gerhard's printed contour (John: "Not a clean single line for outline").
+  - John's marks, two rounds in PhotoCraft (MARKS_FILES, apply_marks): blue lines, green no ink, yellow clay.
   - Dark theme: the figures' area is clay, a RIM wider than the black, so the black reads on the dark page; the
     marks and the white show clay.
 
@@ -254,11 +264,7 @@ def write_svg(lines, body, out, title, desc):
 
 
 def main(src, qa=None, dump=None):
-    cache = os.environ.get("DEVCACHE")  # DEV ONLY, removed before commit
-    if cache and Path(cache).exists():
-        z = np.load(cache); L, W, light_hat, dark_hat, white_hat = z["L"], z["W"], z["hat"], z["dhat"], z["what"]
-    else:
-      with tempfile.TemporaryDirectory() as td:
+    with tempfile.TemporaryDirectory() as td:
         t = Path(td)
         w, h = X1 - X0, Y1 - Y0
         pc(src, t / "up.png",
@@ -280,8 +286,6 @@ def main(src, qa=None, dump=None):
         pc(t / "Lw.png", t / "Lw_close.png", ("filter.other.maximum", {"radius": UP, "preserve": "roundness"}),
            ("filter.other.minimum", {"radius": UP, "preserve": "roundness"}))
         white_hat = grey(t / "Lw_close.png") - grey(t / "Lw.png")
-      if cache:
-        np.savez(cache, L=L, W=W, hat=light_hat, dhat=dark_hat, what=white_hat)
     H, Wd = L.shape
     yy, xx = np.mgrid[0:H, 0:Wd]
     px, py = (xx + 0.5) / UP - 0.5 + X0, (yy + 0.5) / UP - 0.5 + Y0

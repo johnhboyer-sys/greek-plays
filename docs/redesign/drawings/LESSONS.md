@@ -177,6 +177,32 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   pages did not answer from the browser pane; the American School's booklet *Women in the Athenian
   Agora* (fig. 3) gives the museum number (2026-10-09).
 
+- Children of Heracles (AV II Taf. XCVII, 1, Heracles brings the boar to Eurystheus), made with PhotoCraft: about two and a
+  half hours over two days and three passes, approved by John 2026-10-16. `tools/heraclidae.py` (2026-10-16).
+- Heidelberg's IIIF refuses PNG (415): take the panel as a region in JPEG; it matched the full scan's crop within 3 grey
+  levels (2026-10-15).
+- Gerhard prints the added purple as fine black hatching on the clay. John chose it drawn as printed, open on the ground,
+  over a grey wash. Find the strokes by a dark top-hat on the plate smoothed along its strokes and stretched by Levels
+  (100-180): by darkness alone the pale strokes at a beard's tip fell out (John: "you are omitting part of the beard";
+  "play with levels to help reveal lines"). Keep the stroke finder out of the black (the black less the strokes, opened)
+  and drop "hatching" lying on the added white: a wavy necklace passed for it (2026-10-15).
+- The added white has Gerhard's brown contour printed along its edge; an outline drawn beside the white drew every face
+  twice (John: "The faces are janky. Not a clean single line for outline"). Take the white out over the printed contour,
+  smooth it (1 plate px) and draw one contour LINE_W wide inside its edge. The thin lines on the white come by a dark
+  top-hat on a Levels copy over the white's range (130-235), at least 1.3 plate px wide (2026-10-15).
+- A pale JPEG speck inside a clay line passed for added white, and the guard band kept round the white cut the line both
+  sides of it: ink "joins" between two black areas (John). A small white patch lying in a light area much larger than
+  itself is a speck (2026-10-15).
+- John's marks, round 2 added yellow: clay, no ink, never ground (John: "clay no ink"); along the black it opens a clay
+  line LINE_W wide on his stroke's centre, by the white it clears my ink as painted. Applying blue: clear my thin lines
+  only beside his stroke, not past its ends, and grow mine back through the cut to meet it, or the line stops short where
+  his short stroke meets it side-on (the clasp); fill pinholes in his paint and ignore skeleton loops under 30 plate px,
+  or tiny loops cleared slits in the black; in hatching his strokes are the ones I missed: add them (2026-10-16).
+- Check the museum against Gerhard's own text, not a search report: his "jetzt zu München" (note 34 d) is another
+  Candelori vase (Munich 1562, names painted), not the plate's. The plate's has Ajax carrying Achilles on the reverse; the
+  Met's 56.171.20 pairs the same two pictures, but its page gives no provenance, so the credit says "perhaps"
+  (2026-10-16).
+
 ### Gerhard, *Trinkschalen und Gefässe des Königlichen Museums zu Berlin* (coloured lithographs, red figures on black)
 
 - Heracles (II, Taf. XXI, side B), made with PhotoCraft: about three hours over two passes, approved by John
