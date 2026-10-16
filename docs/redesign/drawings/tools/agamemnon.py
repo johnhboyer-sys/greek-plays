@@ -485,11 +485,42 @@ OPEN_PTS = [(795, 1165)]
 # big dark areas that are paint, not ground (flat px, a point in each): the hair of the woman behind Agamemnon, of
 # Aegisthus, of Clytemnestra (two), of the left woman, of the right woman; Aegisthus' beard; and a lock by Clytemnestra's
 # neck
-PAINT_PTS = [(3499, 334), (2153, 301), (1186, 311), (1160, 418), (609, 389), (4296, 577), (2191, 535), (1042, 494)]
+PAINT_PTS = [(3499, 334), (2153, 301), (1186, 311), (1160, 418), (609, 389), (4296, 577), (2191, 535), (1042, 494),
+             (954, 1088), (934, 1198)]
 WALLS = []                    # solid paint walled off where it meets the ground (flat px polylines, WALL_W wide)
 WALL_W = 8
 SMOOTH = 3.0
 EDGE = 9                      # the outline, flat px wide
+# Faces, hands and feet (John, 2026-10-16: "a lot more work to be done"; pass 3 lost the profiles of the women at the
+# left and behind Agamemnon, and the fingers): the ground's opening (OPEN 14) counted every notch of ground under 28 px
+# (between nose and lips, between fingers) as paint, and the smoothing closed the rest. Inside FINE (boxes, flat px) the
+# ground is opened at FINE_OPEN, the figure smoothed at FINE_SMOOTH and outlined FINE_EDGE wide. Faces: the woman at the
+# left column, Clytemnestra, Aegisthus, the woman behind Agamemnon, the woman at the right column; hands: Clytemnestra's
+# raised and lowered, Aegisthus' raised and on Agamemnon's head and on the sword, the raised hands of the woman behind
+# Agamemnon, the right woman's on her head; and the feet along the floor
+HANDS = [(624, 248, 774, 388), (714, 1038, 814, 1148), (1754, 298, 1954, 448), (2864, 448, 2994, 568),
+         (1394, 948, 1544, 1108), (2604, 288, 2804, 428), (3744, 278, 3854, 438), (4124, 398, 4304, 528)]
+FINE = [(454, 348, 654, 578), (1164, 298, 1390, 528), (2054, 288, 2340, 678), (3294, 248, 3494, 558),
+        (4144, 508, 4324, 748), (154, 1950, 4397, 2190)] + HANDS
+FINE_OPEN, FINE_SMOOTH, FINE_EDGE = 3, 1.0, 5
+FLECK_HOLE = 60   # flecks in the glaze filled before the fine opening, px^2
+# The painter ran a stripe of thinned glaze round each hand, outside the clay (as clouds.py's STRIPES): read as clay it
+# fattened the fingers and closed the gaps between them. In HANDS only the clay lighter than HAND_G (grey, blurred 1 px;
+# the hands read 160-190, the stripe 90-130) counts as clay
+HAND_G = 145
+# and there the outline is drawn on the ground outside the clay (as ion.py's EDGE_OUT), FINE_EDGE wide, so a finger keeps
+# its clay
+# The heads (HEADS: the faces and hair of the five women and Aegisthus, flat px; Agamemnon's has its own rules, AGAM_*):
+# the line finder's centre-line redraw ran the curls together and filled the eyes. There every line is the grey (blurred
+# HAIR_BLUR px) at half maximum: darker than halfway between the clay round (its Maximum over HEAD_HI px) and the darkest
+# within HEAD_LO px, where that span is over HEAD_SPAN; pieces under HEAD_SPECK px^2 dropped; the black hair solid (the
+# grey under HEAD_SOLID, closed 2 px, under HEAD_SOLID_MAX), holes under HEAD_HOLE px^2 filled; at their own shape,
+# traced at their own size
+HEADS = [(420, 300, 680, 600), (1130, 260, 1360, 540), (2040, 250, 2370, 560), (3290, 230, 3510, 500),
+         (4110, 460, 4340, 760)]
+HEAD_HI, HEAD_LO, HEAD_SPAN, HEAD_SPECK, HEAD_SOLID, HEAD_SOLID_MAX, HEAD_HOLE = 8, 2, 40, 20, 70, 110, 30
+# Inside the face boxes (FACES) every line but the outline is traced at its own size (its pieces ran into the hair and
+# the outline and so were too big for FACE_MAX, and the house weight then filled the eyes)
 SPECK, FLECK = 150, 200
 # Lines, as mika.py: the grey's local contrast (PhotoCraft: blurred 1 px, capped at the clay's level by Levels, input
 # white LC_CAP; its Maximum then Minimum over LC_R px, less it), with hysteresis (LC_LOW, LC_HIGH), LINE_LEN px or
@@ -573,7 +604,11 @@ FACE_HI, FACE_LO, FACE_SPAN, FACE_W = 11, 5, 55, 3.0
 # line width, WEIGHT of the trace box's longer side) and traced at its own size with the faces, the purple NET_W wide
 # in the tone; where his line runs on mine it is drawn once (my ink within MARK_GAP px of his blue goes)
 MARKS_ORIGIN = (154, 228)
-MARKS_FILES = [("agamemnon_marks_1_blue.png", "agamemnon_marks_1_purple.png")]
+# Round 2 (2026-10-16, on pass 3's file, same origin and colours, adding as round 1): Aegisthus' profile, his arm and
+# the hand on Agamemnon's head, Agamemnon's back and arm under the net and the fingers of the woman behind him (blue);
+# the net below his head and down his back (purple)
+MARKS_FILES = [("agamemnon_marks_1_blue.png", "agamemnon_marks_1_purple.png"),
+               ("agamemnon_marks_2_blue.png", "agamemnon_marks_2_purple.png")]
 MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 5.0, 1.5, 2
 # Small dots painted on the clothes (the net-robe's, the right-hand woman's): inside DOTS (polygons, flat px) small marks
 # standing apart from the lines (DOT_OFF px), with local contrast DOT_LC or more, DOT_MIN to DOT_MAX px^2, drawn as dots
@@ -810,6 +845,7 @@ def scene(g8, rb8, sharp8, dump=None):
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
     box = lambda bs: np.any([(xx >= b[0]) & (yy >= b[1]) & (xx < b[2]) & (yy < b[3]) for b in bs], 0) if bs else np.zeros((H, W), bool)
+    clay &= ~(box(HANDS) & (g1 <= HAND_G))
     fx, fy = strip_cut(clay, FLOOR_LOW, FLOOR_IN, FLOOR_UP, down=False)
     cx, cy = strip_cut(clay, CEIL_HIGH, CEIL_IN, CEIL_DOWN, down=True)
     outside = (yy > np.interp(xx, fx, fy)) | (yy < np.interp(xx, cx, cy))
@@ -822,7 +858,12 @@ def scene(g8, rb8, sharp8, dump=None):
     dark = ~clay & ~outside
     for pts in WALLS:
         dark &= ~along(g.shape, pts, WALL_W)
-    ground0 = ndi.binary_opening(dark, structure=morphology.disk(OPEN))
+    fine = box(FINE)
+    # (the glaze's pale flecks break the ground up at the fine opening, and its pieces fell under AUTO_GROUND and turned
+    # to paint: Clytemnestra's profile was lost in them. Fill the flecks first)
+    darkf = morphology.remove_small_holes(dark, max_size=FLECK_HOLE) & ~outside
+    ground0 = np.where(fine, ndi.binary_opening(darkf, structure=morphology.disk(FINE_OPEN)),
+                       ndi.binary_opening(dark, structure=morphology.disk(OPEN)))
     lab, _ = ndi.label(ground0)
     size = np.bincount(lab.ravel())
     size[0] = 0
@@ -846,10 +887,15 @@ def scene(g8, rb8, sharp8, dump=None):
         if k not in keep and sz[k] > 2000:
             print("unseeded", sz[k], (sl[1].start, sl[0].start, sl[1].stop, sl[0].stop))
     fig = ndi.binary_fill_holes(np.isin(lab, list(keep))) & ~ground
-    fig = (ndi.gaussian_filter(fig.astype(np.float32), SMOOTH) > 0.5) & ~outside
+    f = fig.astype(np.float32)
+    fig = (np.where(fine, ndi.gaussian_filter(f, FINE_SMOOTH), ndi.gaussian_filter(f, SMOOTH)) > 0.5) & ~outside
     paint = dark & fig & core
+    hands = box(HANDS)
+    out = ndi.binary_dilation(fig, structure=morphology.disk(FINE_EDGE)) & ~fig & hands & ~outside
+    fig |= out
     to_edge = ndi.distance_transform_edt(fig)
-    edge = fig & (to_edge <= EDGE)
+    edge = fig & (to_edge <= np.where(fine, FINE_EDGE, EDGE)) & ~(hands & ~out)
+    edge |= out
     # the faces' lines: the grey's dark core, traced at their own size
     face_box = box(FACES)
     old = (core | paint) & fig & ~edge & face_box
@@ -884,6 +930,15 @@ def scene(g8, rb8, sharp8, dump=None):
     spots = ((sz >= DOT_MIN) & (sz <= DOT_MAX))[lab] & sp
     old |= spots
     lines |= spots
+    # the heads (see HEADS)
+    heads = box(HEADS)
+    hi, lo = ndi.maximum_filter(gh, 2 * HEAD_HI + 1), ndi.minimum_filter(gh, 2 * HEAD_LO + 1)
+    hm = (gh < (hi + lo) / 2) & (hi - lo > HEAD_SPAN)
+    hm = morphology.remove_small_objects(hm, max_size=HEAD_SPECK)
+    hs = ndi.binary_closing(gh < HEAD_SOLID, iterations=2) & (gh < HEAD_SOLID_MAX)
+    hm = morphology.remove_small_holes(hm | hs, max_size=HEAD_HOLE) & heads & fig & ~edge
+    lines = (lines & ~heads) | hm
+    old = (old & ~heads) | hm
     # Agamemnon's head (see AGAM_*)
     pm = lambda P: lw.polygon_mask(g.shape, np.array(P, float))
     head = (pm(AGAM_CURLS) | pm(AGAM_BEARD) | pm(AGAM_FACE)) & fig & ~edge
@@ -903,6 +958,7 @@ def scene(g8, rb8, sharp8, dump=None):
     lab, _ = ndi.label(ink, structure=np.ones((3, 3)))
     sz = np.bincount(lab.ravel())
     faces = np.isin(lab, np.unique(lab[(face_box | spots) & ink])) & (sz < FACE_MAX)[lab] & (lab > 0)
+    faces |= ink & face_box & ~edge
     # the net's faint lines, as a tone
     from skimage.filters import apply_hysteresis_threshold
     nl = apply_hysteresis_threshold(net_c, NET_LOW, NET_HIGH) & netz & ~ndi.binary_dilation(ink, iterations=NET_OFF)
