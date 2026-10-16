@@ -9,8 +9,8 @@ Gerhard's text (pp. 46-47, "Der erymanthische Eber"): an archaic amphora of the 
 raises his arm to beg Heracles to spare him the sight; Athena and Hermes at the right, Iolaos and the nymph of the
 Erymanthian valley at the left; on the reverse Ajax carries Achilles' body, Briseis ahead, a hoplite and an archer
 behind. The amphora "jetzt zu München" in his note 34 (d) is another Candelori vase (Munich 1562, named figures).
-Present location not confirmed: New York, Metropolitan Museum 56.171.20 (Antimenes Painter, about 520 BC) pairs the
-same two pictures in the same order of figures, and may be it.
+The vase: an Attic black-figure neck-amphora attributed to the Antimenes Painter, about 520 BC; New York, Metropolitan
+Museum of Art 56.171.20, ex Hearst collection 9814 (ABV 270.53; Beazley Archive 320063, which cites the plate).
 John's pick (2026-10-13); the crop (John, 2026-10-15): the whole panel, the figure numbers and the small vase
 drawings below it left out. The faint head Gerhard prints in thin brown lines on the clay between Iolaos and
 Heracles, the line curling up from the club and the line by the boar's hind leg are left out (John, 2026-10-15).

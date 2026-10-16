@@ -199,9 +199,11 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   his short stroke meets it side-on (the clasp); fill pinholes in his paint and ignore skeleton loops under 30 plate px,
   or tiny loops cleared slits in the black; in hatching his strokes are the ones I missed: add them (2026-10-16).
 - Check the museum against Gerhard's own text, not a search report: his "jetzt zu München" (note 34 d) is another
-  Candelori vase (Munich 1562, names painted), not the plate's. The plate's has Ajax carrying Achilles on the reverse; the
-  Met's 56.171.20 pairs the same two pictures, but its page gives no provenance, so the credit says "perhaps"
-  (2026-10-16).
+  Candelori vase (Munich 1562, names painted), not the plate's. The plate's has Ajax carrying Achilles on the reverse,
+  which led to the Met's 56.171.20 (ex Hearst); the Met's page gives no provenance and no Gerhard. The Beazley Archive
+  settled it: its advanced search (general term "Eurystheus Metropolitan", then "detailed text") shows record 320063
+  citing "Gerhard, Auserlesene Vasenbilder II, pl. 97.1-2". A plain fetch of a record meets a bot check; the browser
+  pane passes it in a few seconds. Searches there add to the last one: reload the form between searches (2026-10-16).
 
 ### Gerhard, *Trinkschalen und Gefässe des Königlichen Museums zu Berlin* (coloured lithographs, red figures on black)
 
