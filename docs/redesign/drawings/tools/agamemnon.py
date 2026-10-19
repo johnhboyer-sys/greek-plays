@@ -607,8 +607,16 @@ MARKS_ORIGIN = (154, 228)
 # Round 2 (2026-10-16, on pass 3's file, same origin and colours, adding as round 1): Aegisthus' profile, his arm and
 # the hand on Agamemnon's head, Agamemnon's back and arm under the net and the fingers of the woman behind him (blue);
 # the net below his head and down his back (purple)
-MARKS_FILES = [("agamemnon_marks_1_blue.png", "agamemnon_marks_1_purple.png"),
-               ("agamemnon_marks_2_blue.png", "agamemnon_marks_2_purple.png")]
+# Round 3 (2026-10-19, on pass 3's file again, on his layers and as line shapes; only what is new since round 2):
+# blue ink (Aegisthus' cap, ear-locks, profile, necklace and shoulder line; the edges of the sword, the axe's shaft and
+# head, Clytemnestra's hand), the axe head and Aegisthus' cap painted over whole (filled shapes: BLOB_*), yellow
+# clay with no ink (the sword's blade, the axe's shaft, Clytemnestra's hand, Aegisthus' raised hand and profile, a
+# foot), green ground (between the fingers, round the profile, the cap's knob, by the foot): as the fifth form in
+# LESSONS (Iphigenia in Tauris). Yellow and green rule the figure before its outline is drawn; my lines inside yellow go
+MARKS_FILES = [("agamemnon_marks_1_blue.png", "agamemnon_marks_1_purple.png", None, None),
+               ("agamemnon_marks_2_blue.png", "agamemnon_marks_2_purple.png", None, None),
+               ("agamemnon_marks_3_blue.png", None, "agamemnon_marks_3_yellow.png", "agamemnon_marks_3_green.png")]
+BLOB_R, BLOB_MIN = 5, 200
 MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 5.0, 1.5, 2
 # Small dots painted on the clothes (the net-robe's, the right-hand woman's): inside DOTS (polygons, flat px) small marks
 # standing apart from the lines (DOT_OFF px), with local contrast DOT_LC or more, DOT_MIN to DOT_MAX px^2, drawn as dots
@@ -794,15 +802,22 @@ def net_contrast(gpath, shape, t):
 
 
 def marks(shape):
-    """John's blue and purple marks on the flat (see MARKS_*)."""
+    """John's marks on the flat (see MARKS_*): blue strokes, blue filled shapes, purple, yellow, green."""
     H, W = shape
     ox, oy = MARKS_ORIGIN
-    blue, purple = np.zeros((H, W), bool), np.zeros((H, W), bool)
-    for fb, fp in MARKS_FILES:
-        for f, m in ((fb, blue), (fp, purple)):
+    blue, blobs, purple, yellow, green = (np.zeros((H, W), bool) for _ in range(5))
+    for files in MARKS_FILES:
+        for f, m in zip(files, (blue, purple, yellow, green)):
+            if f is None:
+                continue
             a = np.asarray(Image.open(Path(__file__).parent / f).convert("L")) > 127
             m[oy:oy + a.shape[0], ox:ox + a.shape[1]] |= a[:H - oy, :W - ox]
-    return blue, purple
+    # (his filled shapes: what an opening by a disk BLOB_R px across leaves, over BLOB_MIN px^2, grown back into the
+    # paint; the axe head is joined to his shaft line, so a test of the whole stroke's length could not find it)
+    thick = ndi.binary_opening(blue, structure=morphology.disk(BLOB_R))
+    thick = morphology.remove_small_objects(thick, max_size=BLOB_MIN)
+    blobs = ndi.binary_dilation(thick, iterations=2) & blue
+    return blue & ~blobs, blobs, purple, yellow, green
 
 
 def stroke(m, width):
@@ -890,6 +905,8 @@ def scene(g8, rb8, sharp8, dump=None):
     f = fig.astype(np.float32)
     fig = (np.where(fine, ndi.gaussian_filter(f, FINE_SMOOTH), ndi.gaussian_filter(f, SMOOTH)) > 0.5) & ~outside
     paint = dark & fig & core
+    blue, blobs, purple, yellow, green = marks(g.shape)
+    fig = (fig | yellow) & ~green
     hands = box(HANDS)
     out = ndi.binary_dilation(fig, structure=morphology.disk(FINE_EDGE)) & ~fig & hands & ~outside
     fig |= out
@@ -973,8 +990,10 @@ def scene(g8, rb8, sharp8, dump=None):
     net = (ndi.distance_transform_edt(~ncl) <= NET_W / 2).astype(np.float32)
     net = (ndi.gaussian_filter(net, NET_SMOOTH) > 0.5) & fig & ~ink & ~hair
     # John's marks (see MARKS_*)
-    blue, purple = marks(g.shape)
-    johns = stroke(blue, MARK_W)
+    johns = stroke(blue, MARK_W) | (ndi.gaussian_filter(blobs.astype(np.float32), MARK_SMOOTH) > 0.5)
+    inner = yellow & ~edge
+    ink &= ~inner
+    faces &= ~inner
     ink &= ~ndi.binary_dilation(johns, iterations=MARK_GAP)
     faces &= ~ndi.binary_dilation(johns, iterations=MARK_GAP)
     faces |= johns
