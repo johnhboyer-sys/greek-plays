@@ -612,10 +612,13 @@ MARKS_ORIGIN = (154, 228)
 # head, Clytemnestra's hand), the axe head and Aegisthus' cap painted over whole (filled shapes: BLOB_*), yellow
 # clay with no ink (the sword's blade, the axe's shaft, Clytemnestra's hand, Aegisthus' raised hand and profile, a
 # foot), green ground (between the fingers, round the profile, the cap's knob, by the foot): as the fifth form in
-# LESSONS (Iphigenia in Tauris). Yellow and green rule the figure before its outline is drawn; my lines inside yellow go
+# LESSONS (Iphigenia in Tauris). Yellow and green rule the figure before its outline is drawn; my lines inside yellow go.
+# Round 4 (2026-10-19, on pass 5's file, the same colours): the woman behind Agamemnon, her profile, the locks under her
+# chin and her dress's folds, her raised arm; Aegisthus' outstretched arm and the hand on Agamemnon's head
 MARKS_FILES = [("agamemnon_marks_1_blue.png", "agamemnon_marks_1_purple.png", None, None),
                ("agamemnon_marks_2_blue.png", "agamemnon_marks_2_purple.png", None, None),
-               ("agamemnon_marks_3_blue.png", None, "agamemnon_marks_3_yellow.png", "agamemnon_marks_3_green.png")]
+               ("agamemnon_marks_3_blue.png", None, "agamemnon_marks_3_yellow.png", "agamemnon_marks_3_green.png"),
+               ("agamemnon_marks_4_blue.png", None, "agamemnon_marks_4_yellow.png", "agamemnon_marks_4_green.png")]
 BLOB_R, BLOB_MIN = 5, 200
 MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 5.0, 1.5, 2
 # Small dots painted on the clothes (the net-robe's, the right-hand woman's): inside DOTS (polygons, flat px) small marks
