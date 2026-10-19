@@ -519,7 +519,7 @@ FLECK_HOLE = 60   # flecks in the glaze filled before the fine opening, px^2
 # The painter ran a stripe of thinned glaze round each hand, outside the clay (as clouds.py's STRIPES): read as clay it
 # fattened the fingers and closed the gaps between them. In HANDS only the clay lighter than HAND_G (grey, blurred 1 px;
 # the hands read 160-190, the stripe 90-130) counts as clay
-HAND_G = 145
+HAND_D = 25
 # and there the outline is drawn on the ground outside the clay (as ion.py's EDGE_OUT), FINE_EDGE wide, so a finger keeps
 # its clay
 # The heads (HEADS: the faces and hair of the five women and Aegisthus, flat px; Agamemnon's has its own rules, AGAM_*):
@@ -531,6 +531,17 @@ HAND_G = 145
 HEADS = [(420, 300, 680, 600), (1130, 260, 1360, 540), (2040, 250, 2370, 560), (3290, 230, 3510, 500),
          (4110, 460, 4340, 760)]
 HEAD_HI, HEAD_LO, HEAD_SPAN, HEAD_SPECK, HEAD_SOLID, HEAD_SOLID_MAX, HEAD_HOLE = 8, 2, 40, 20, 70, 110, 30
+# and the same rule for fine close lines elsewhere (John, 2026-10-19): the wavy double border of Aegisthus' cloak at his
+# shoulder (the locks of the woman behind Agamemnon went solid black under it: they are thinned glaze, darker than
+# HEAD_SOLID)
+HEADS += [(1800, 480, 2070, 800)]
+STRIPE_W, STRIPE_D = 8, 35
+LEVEL_SIGMA = 30
+# Lines the finder found along the figure's own edge (the edge's contrast, inside the outline) doubled it (the raised
+# fingers): line pieces lying for EDGE_HUG of their length within EDGE_CLEAR px of the contour go
+EDGE_CLEAR, EDGE_HUG = 7, 0.75
+HAND_SPECK = 150
+HAND_NEAR = 9
 # Inside the face boxes (FACES) every line but the outline is traced at its own size (its pieces ran into the hair and
 # the outline and so were too big for FACE_MAX, and the house weight then filled the eyes)
 SPECK, FLECK = 150, 200
@@ -880,7 +891,17 @@ def scene(g8, rb8, sharp8, dump=None):
     H, W = g.shape
     yy, xx = np.mgrid[0:H, 0:W]
     box = lambda bs: np.any([(xx >= b[0]) & (yy >= b[1]) & (xx < b[2]) & (yy < b[3]) for b in bs], 0) if bs else np.zeros((H, W), bool)
-    clay &= ~(box(HANDS) & (g1 <= HAND_G))
+    # (both rules below are set against the clay's own level round each px, LEVEL_SIGMA px: the handle views' clay is
+    # darker than the front's after the tone match, about 130 against 175, and fixed levels erased the left woman's
+    # raised hand)
+    cl = clay.astype(np.float32)
+    level = ndi.gaussian_filter(g1 * cl, LEVEL_SIGMA) / np.maximum(ndi.gaussian_filter(cl, LEVEL_SIGMA), 1e-3)
+    clay &= ~(box(HANDS) & (g1 <= level - HAND_D))
+    # the painter's stripe of thinned glaze along the figures' edges (grey 90-140, between the clay and the glaze): read
+    # half as clay it made the edges bumpy and drew blotches on the outline (John, 2026-10-19: "still rough"). Within
+    # STRIPE_W px of the clay's edge, clay STRIPE_D darker than the clay round it is not clay
+    near = clay & (ndi.distance_transform_edt(clay) <= STRIPE_W)
+    clay &= ~(near & (g1 <= level - STRIPE_D) & ~box(FACES))
     fx, fy = strip_cut(clay, FLOOR_LOW, FLOOR_IN, FLOOR_UP, down=False)
     cx, cy = strip_cut(clay, CEIL_HIGH, CEIL_IN, CEIL_DOWN, down=True)
     outside = (yy > np.interp(xx, fx, fy)) | (yy < np.interp(xx, cx, cy))
@@ -961,6 +982,17 @@ def scene(g8, rb8, sharp8, dump=None):
     lines = solid | (found & ~face_box) | pale | old
     lines &= fig & ~edge
     lines = join_breaks(lines, g1, fig & ~solid) & fig
+    hug = fs & (ndi.distance_transform_edt(fs) <= EDGE_CLEAR)
+    lab, n = ndi.label(lines & ~edge, structure=np.ones((3, 3)))
+    if n:
+        frac = ndi.mean(hug.astype(float), lab, np.arange(1, n + 1))
+        lines &= ~np.isin(lab, 1 + np.nonzero(frac >= EDGE_HUG)[0])
+    # (in the hands every line px that close to the contour goes, and specks under HAND_SPECK px^2: the fingers are
+    # 12-20 px wide and were drawn with a second outline inside the first)
+    hb = box(HANDS)
+    lines &= ~(hb & hug)
+    lab, _ = ndi.label(lines & hb, structure=np.ones((3, 3)))
+    lines &= ~((np.bincount(lab.ravel()) < HAND_SPECK)[lab] & (lab > 0))
     netz = lw.polygon_mask(g.shape, np.array(NET, float)) & fig & ~edge
     lab, _ = ndi.label(lines & netz & ~face_box, structure=np.ones((3, 3)))
     frac = ndi.mean(core.astype(float), lab, np.arange(1, lab.max() + 1)) if lab.max() else np.zeros(0)
@@ -1001,7 +1033,7 @@ def scene(g8, rb8, sharp8, dump=None):
     lab, _ = ndi.label(ink, structure=np.ones((3, 3)))
     sz = np.bincount(lab.ravel())
     faces = np.isin(lab, np.unique(lab[(face_box | spots) & ink])) & (sz < FACE_MAX)[lab] & (lab > 0)
-    faces |= ink & face_box & ~edge
+    faces |= ink & (face_box | heads) & ~edge
     # the net's faint lines, as a tone
     from skimage.filters import apply_hysteresis_threshold
     nl = apply_hysteresis_threshold(net_c, NET_LOW, NET_HIGH) & netz & ~ndi.binary_dilation(ink, iterations=NET_OFF)
@@ -1016,6 +1048,9 @@ def scene(g8, rb8, sharp8, dump=None):
     net = (ndi.distance_transform_edt(~ncl) <= NET_W / 2).astype(np.float32)
     net = (ndi.gaussian_filter(net, NET_SMOOTH) > 0.5) & fig & ~ink & ~hair
     # John's marks (see MARKS_*)
+    # (in the hands his round 2 strokes run 4-6 px inside my outline, which lies on the painted edge: the fingers came
+    # out with two outlines. There his strokes within HAND_NEAR px of the outline go; the outline stays)
+    blue = blue & ~(box(HANDS) & (ndi.distance_transform_edt(~edge) <= HAND_NEAR))
     johns = stroke(blue, MARK_W) | (ndi.gaussian_filter(blobs.astype(np.float32), MARK_SMOOTH) > 0.5)
     inner = yellow & ~edge
     ink &= ~inner
