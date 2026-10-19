@@ -382,6 +382,7 @@ def view_maps(name, rows=None, model=None):
 # front's own levels in the strip, where it sees the vase edge on and darker, the clay came out at 129 against 169.)
 SEAM_W, SEAM_BLUR, CHUNK = 260, 2.0, 256
 TONE_Q, TONE_BOX, TONE_SHARP = [5, 90], (1500, 300, 3200, 2100), 0.8
+SEAM_FLOOR = 0.3
 # In each handle view the handle's loop stands in front of the picture's lowest strip by the column: the loop
 # (polygon, photo px) counts as unseen, its opening too (the vase shows through it, but John, 2026-10-15: the edge
 # figures end "at the handle line"; the opening's polygon is kept for the record)
@@ -442,6 +443,7 @@ def flat_image(photos):
     mid[TONE_BOX[1]:TONE_BOX[3], TONE_BOX[0]:TONE_BOX[2]] = True
     mid &= sh["front"] > TONE_SHARP
     centre_g, centre_rb = np.percentile(g["front"][mid], TONE_Q), np.percentile(rb[mid], TONE_Q)
+    tone = {}
     xx = np.arange(W)
     for k, n in ((1, "left"), (2, "right")):
         better = sh[n] > sh["front"]
@@ -463,9 +465,18 @@ def flat_image(photos):
         path = lo + seam(cost)
         side = xx[None, :] <= path[:, None] if n == "left" else xx[None, :] >= path[:, None]
         side &= sh[n] > 0
+        tone[n] = (tone_g, tone_rb)
         out_g = np.where(side, tone_g(g[n]), out_g)
         out_rb = np.where(side, tone_rb(g[n]), out_rb)
         src[side] = k
+    # (where the seam left the front photo seeing the vase at a slant, under SEAM_FLOOR sharp, and a handle view sees it
+    # at SEAM_FLOOR or better, the handle view is used: the front's grazing smear drew folds that are not on the vase)
+    for k, n in ((1, "left"), (2, "right")):
+        half = (xx < W // 2) if n == "left" else (xx >= W // 2)
+        swap = (src == 0) & (sh["front"] < SEAM_FLOOR) & (sh[n] >= SEAM_FLOOR) & half[None, :]
+        out_g = np.where(swap, tone[n][0](g[n]), out_g)
+        out_rb = np.where(swap, tone[n][1](g[n]), out_rb)
+        src[swap] = k
     used = np.choose(src, [sh["front"], sh["left"], sh["right"]])
     return (out_g.clip(0, 255).round().astype(np.uint8), out_rb.clip(0, 255).round().astype(np.uint8), src,
             (used * 100).clip(0, 255).round().astype(np.uint8))
@@ -490,7 +501,8 @@ PAINT_PTS = [(3499, 334), (2153, 301), (1186, 311), (1160, 418), (609, 389), (42
 WALLS = []                    # solid paint walled off where it meets the ground (flat px polylines, WALL_W wide)
 WALL_W = 8
 SMOOTH = 3.0
-EDGE = 9                      # the outline, flat px wide
+EDGE = 8                      # the outline, flat px wide (centred on the contour)
+OUT_SMOOTH = 5.0
 # Faces, hands and feet (John, 2026-10-16: "a lot more work to be done"; pass 3 lost the profiles of the women at the
 # left and behind Agamemnon, and the fingers): the ground's opening (OPEN 14) counted every notch of ground under 28 px
 # (between nose and lips, between fingers) as paint, and the smoothing closed the rest. Inside FINE (boxes, flat px) the
@@ -547,8 +559,13 @@ CEIL_IN, CEIL_DOWN = 4, 40
 CEIL_HIGH = [(0, 224), (4652, 224)]
 # Where no photo sees the vase well (the photo used is less than SEEN_MIN sharp: behind the handles, and the front
 # photo's edge-on strips beside them) the figures end (John, 2026-10-15: "End them at the handle line"), along that
-# area's edge smoothed (Gaussian SEEN_SMOOTH, cut at half)
-SEEN_MIN, SEEN_SMOOTH = 0.2, 6.0
+# area's edge smoothed (Gaussian SEEN_SMOOTH, cut at half). At 0.2 the front photo's grazing smear came in under the
+# handles, folds bent round in arcs that are not on the vase (John, 2026-10-19: "the warp from unroll is bad on the
+# bottom left and right"); 0.3 keeps the handle views' own sight (0.33-0.38) and ends the figures in a smooth line
+SEEN_MIN, SEEN_SMOOTH = 0.3, 20.0
+# (narrow tongues of it, under 2 SEEN_OPEN px across, where a handle view's handle and the front's slant meet at the
+# seam, notched the skirts: opened away)
+SEEN_OPEN = 40
 # The columns under the handles are left out (John, 2026-10-15: "column to column"): everything beyond COLUMNS
 # (polylines along each column's inner edge, flat px; left, right) goes
 # (the columns lean as painted: the left one's inner edge 0.087 px left per px down, the right one's 0.09)
@@ -867,7 +884,8 @@ def scene(g8, rb8, sharp8, dump=None):
     fx, fy = strip_cut(clay, FLOOR_LOW, FLOOR_IN, FLOOR_UP, down=False)
     cx, cy = strip_cut(clay, CEIL_HIGH, CEIL_IN, CEIL_DOWN, down=True)
     outside = (yy > np.interp(xx, fx, fy)) | (yy < np.interp(xx, cx, cy))
-    outside |= ndi.gaussian_filter((sharp8 < SEEN_MIN * 100).astype(np.float32), SEEN_SMOOTH) > 0.5
+    unseen = ndi.binary_opening(sharp8 < SEEN_MIN * 100, structure=morphology.disk(SEEN_OPEN))
+    outside |= ndi.gaussian_filter(unseen.astype(np.float32), SEEN_SMOOTH) > 0.5
     for side, pts in zip((0, 1), COLUMNS):
         if len(pts):
             P = np.array(pts, float)
@@ -913,9 +931,14 @@ def scene(g8, rb8, sharp8, dump=None):
     hands = box(HANDS)
     out = ndi.binary_dilation(fig, structure=morphology.disk(FINE_EDGE)) & ~fig & hands & ~outside
     fig |= out
-    to_edge = ndi.distance_transform_edt(fig)
-    edge = fig & (to_edge <= np.where(fine, FINE_EDGE, EDGE)) & ~(hands & ~out)
-    edge |= out
+    # (the outline: an even band centred on the figure's contour, smoothed over OUT_SMOOTH px outside FINE, so it
+    # neither swells where folds and paint meet it nor follows the photo's grain; John, 2026-10-19: "the outlines of
+    # many of the figures are still too rough")
+    fs = np.where(fine, fig, ndi.gaussian_filter(fig.astype(np.float32), OUT_SMOOTH) > 0.5) & ~outside
+    w = np.where(fine, FINE_EDGE, EDGE) / 2.0
+    edge = (fs & (ndi.distance_transform_edt(fs) <= w)) | (~fs & (ndi.distance_transform_edt(~fs) <= w) & ~outside)
+    edge = (edge & ~(hands & ~out)) | out
+    fig = fs | edge
     # the faces' lines: the grey's dark core, traced at their own size
     face_box = box(FACES)
     old = (core | paint) & fig & ~edge & face_box
