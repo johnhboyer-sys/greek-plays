@@ -465,9 +465,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-c .pg-author .hd, .dir-c .pg-play .hd { color: var(--on); }
 .dir-c .pg-author .hd, .dir-c .pg-play .hd { padding: 1.1rem 3rem; }
 
-/* C · home */
+/* C · home: the header sits on the fields, not on a paper strip above them */
+.dir-c .pg-home .top { position: relative; }
+.dir-c .pg-home .top .hd { position: absolute; top: 0; left: 0; right: 0; z-index: 2; padding: 1.1rem 1.6rem; color: var(--on-aeschylus); }
+.dir-c .pg-home .top .hd nav { color: var(--on-aristophanes); }
 .dir-c .fields { display: grid; grid-template-columns: repeat(4, 1fr); }
-.dir-c .field { background: var(--f-auth); color: var(--on-auth); display: flex; flex-direction: column; justify-content: flex-end; min-height: 560px; padding: 2rem 1.6rem 1.6rem; position: relative; }
+.dir-c .field { background: var(--f-auth); color: var(--on-auth); display: flex; flex-direction: column; justify-content: flex-end; min-height: 600px; padding: 4.2rem 1.6rem 1.6rem; position: relative; }
 .dir-c .field .fig { --h: 300px; --fig-body: var(--on-auth); --fig-ink: var(--f-auth); margin: 0 auto 1.4rem; max-width: 100%; }
 .dir-c .field .en { font: 700 2.7rem/1 var(--font-text); overflow-wrap: anywhere; }
 .dir-c .field .gk { font-size: 1.35rem; margin-top: .4rem; }
@@ -537,6 +540,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-c .wrap { padding: 0 1rem; }
   .dir-c .hd { padding: .9rem 0; } .dir-c .pg-author .hd, .dir-c .pg-play .hd { padding: .9rem 1rem; }
   .dir-c .hd nav { gap: 1rem; }
+  .dir-c .pg-home .top .hd { position: static; background: var(--f-aeschylus); color: var(--on-aeschylus); padding: .9rem 1rem; }
+  .dir-c .pg-home .top .hd nav { color: inherit; }
   .dir-c .fields { grid-template-columns: 1fr 1fr; }
   .dir-c .field { min-height: 300px; padding: 1.2rem .9rem 1rem; }
   .dir-c .field .fig { --h: 160px; margin-bottom: .8rem; }
