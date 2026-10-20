@@ -139,7 +139,6 @@
     ${bFoot}</div></div>`;
   T.b.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${bHead}
     <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
-    ${band([a], { leadH: 0, h: 170 }).replace(/<div class="lead">[\s\S]*?<\/div><\/div>/, '')}
     <div class="wrap"><ul class="list">${worksOf(a).map((w) => `<li><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span><p class="bl">${esc(w.blurb)}</p>${w.production ? `<p class="pr">${esc(w.production)}</p>` : ''}</li>`).join('')}</ul>
     ${bFoot}</div></div>`; };
   T.b.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${bHead}
@@ -273,12 +272,12 @@
       keeps: ['The drawings exactly as made; the ground line; warm paper; Cardo for text, Alegreya Sans for controls; no rules or boxes beyond the one line.', 'Speaker colours per character; numbers every fifth line; English the same size as the Greek.'],
       changes: ['Colour is the vase\'s own: black, clay, paper. No author tints anywhere.', 'Small figures are drawn as black-figure silhouettes (ink on paper), large ones as now (clay body, dark lines). Dark theme is the black glaze: everything red-figure.', 'The band wraps into rows, every figure in view at once; nothing scrolls sideways.'],
       phone: 'The rows run on, two or three figures across, each author led by his own figure.',
-      risk: 'John, 20 October: no to B for the home and author pages. Its play page, reader, search, and word panel stay in the running.' },
+      risk: 'John, 20 October: the home page and the author band with the silhouette drawings are rejected. Still in the running from B: the two-column play list on the author page, the play page, the reader, search, and the word panel.' },
     c: { name: 'C · The Playbill', what: 'Flat colour, one strong field per author; the figures as paper silhouettes on the colour; Cardo throughout, bold for titles, so the colour and the silhouettes carry the poster. A play\'s page opens as its cover. The reader\'s head is a thin band of the author\'s colour.',
       keeps: ['The drawings; Cardo for all reading text; speaker colours per character; no rules, no shadows, no rounded corners.'],
       changes: ['The pale tints become saturated fields: indigo, bottle green, oxblood, mustard.', 'The fields are panels, which DESIGN.md forbids.', 'Author pages list each play with its own small silhouette.'],
       phone: 'The four covers stack two across; rows keep the small silhouette; the reader\'s band stays thin.',
-      risk: 'Loud. The four fields side by side need tuning, and the mustard must hold its own against the other three.' },
+      risk: 'John, 20 October: the colour-field home page is rejected. Still in the running from C: the author page, the play page as a cover, the reader, search, and the word panel.' },
     d: { name: 'D · The Edition', what: 'The site as a printed book. Cardo for Greek and EB Garamond for English; speaker names and running heads as rubrics; hairline rules only where a book has them; the margins carry the line numbers and the speakers. Home is a title page and a contents page, an author page a part title, a play page its title page with the persons of the drama, and the reader an opening of the book, Greek on the left page, English on the right.',
       keeps: ['The drawings, as engraved vignettes in black line (clay-filled in the dark theme, as approved); speaker colours per character; the Greek and English of each speech on one line.'],
       changes: ['A second face for the English, with true small caps and italics.', 'Speaker names in the margin, not run in; line numbers in the outer margins, as in an OCT.', 'Hairline rules under running heads and between the parts of a page.', 'A centred title page; no author tints, no clay in the light theme.'],
@@ -286,8 +285,8 @@
       risk: 'The least colour of the four, and the drawings carry less. It lives or dies on the type.' },
   };
   const PAGE_NOTES = {
-    home: { a: 'The frieze as built, with the complete contents under it.', b: 'Rejected (John, 20 October): the band of figures is out for the home page.', c: 'Four fields, four silhouettes, then the catalogue.', d: 'A title page, then the contents with first-performance dates.' },
-    author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'Rejected (John, 20 October): the band is out for author pages too.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
+    home: { a: 'The frieze as built, with the complete contents under it.', b: 'Rejected (John, 20 October): the band of figures is out for the home page.', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
+    author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'The band is out (John, 20 October). What stays as a contender: the two-column list of plays, title and Greek title, then the note and the date.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'The scene at full size; persons, translations, and Greek texts in three columns.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Each play heads its hits standing on its ground line.', c: 'The author colours sort the hits; the play silhouettes mark them.', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'A third, narrower page: the headword as its running head, the entry below, like a gloss in the margin.' },
@@ -296,7 +295,7 @@
 
   // ── Chrome ───────────────────────────────────────────────────────────────
   const state = { dir: 'a', page: 'review', theme: 'light', width: 'desktop', notes: true, blend: { home: 'a', author: 'a', play: 'b', reader: 'd', search: 'b', word: 'd' } };
-  try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); if (state.blend.home === 'b') state.blend.home = 'a'; if (state.blend.author === 'b') state.blend.author = 'a'; } catch (e) { /* ignore */ }
+  try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); if (state.blend.home === 'b' || state.blend.home === 'c') state.blend.home = 'a'; } catch (e) { /* ignore */ }
   const save = () => { try { localStorage.setItem('gdr-directions', JSON.stringify(state)); } catch (e) { /* ignore */ } };
 
   const stage = document.getElementById('stage');
@@ -333,7 +332,7 @@
     if (state.dir === 'blend') {
       const P = ['home', 'author', 'play', 'reader', 'search', 'word'];
       notesEl.innerHTML = `<p class="dir-name">Mix and match</p><h2>The blend</h2><p>Each page from the direction you choose. The frame shows this page in the direction picked for it.</p>
-        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'c', 'd'].filter((d) => !(d === 'b' && (pg === 'home' || pg === 'author'))).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
+        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'c', 'd'].filter((d) => !((d === 'b' || d === 'c') && pg === 'home')).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
         <h3>Within a page</h3><p>Pieces from different directions inside one page (a running head from one, the speaker names from another, the colour from a third) are the next round: say which, and the blend becomes its own direction here.</p>`;
       return;
     }
