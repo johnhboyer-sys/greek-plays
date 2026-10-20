@@ -122,12 +122,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .page .num { font-variant-numeric: tabular-nums; }
 
 /* The plays as a run of titles under each name: desktop in the frieze's own columns, phone as four short paragraphs */
-.page .runs { display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr))); gap: 0 1.4rem; margin-top: 1.4rem; }
-.page .runs .run { font-size: 1.02rem; line-height: 1.45; text-align: center; padding: 0 .3rem; min-width: 0; }
+.page .contents.runs { display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr))); gap: 0; margin-top: 1.4rem; }  /* no column gap: the tracks match the frieze's, so each run sits under its name */
+.page .runs .run { font-size: 1.02rem; line-height: 1.45; text-align: center; padding: 0 .7rem; min-width: 0; }
 .page .runs .run b { display: none; }
 .page .runs .run a { color: inherit; }
 @container mock (max-width: 700px) {
-  .page .runs { grid-template-columns: 1fr; gap: .8rem; margin-top: 1.4rem; }
+  .page .contents.runs { grid-template-columns: 1fr; gap: .8rem; margin-top: 1.4rem; }
   .page .runs .run { text-align: left; padding: 0; font-size: 1rem; }
   .page .runs .run b { display: inline; font-weight: 400; }
 }
