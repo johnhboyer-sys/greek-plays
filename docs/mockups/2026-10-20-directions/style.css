@@ -419,10 +419,11 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rh .here b { font-weight: 500; color: var(--ink); }
 .dir-b .pg-reader .rh .ctl { margin-left: auto; display: flex; gap: 1.4rem; font: 400 1rem var(--font-ui); color: var(--mid); padding-bottom: .55rem; }
 .dir-b .pg-reader .rh .ctl .on { color: var(--ink); }
-.dir-b .pg-reader .rd-wrap { max-width: 80rem; margin: 0 auto; padding: 2.2rem 2.5rem 6rem; --rd-cols: 1fr 1fr; --rd-gap: 2.4rem; --num-w: 2.8rem; --rd-speech-gap: 1.3rem; }
-.dir-b .pg-reader .rd-g .ln { grid-template-columns: 1fr var(--num-w); }
-.dir-b .pg-reader .rd-g .ln .n { order: 2; text-align: left; color: var(--num); }
-.dir-b .pg-reader .rd-g .ln .t { order: 1; font-size: 1.15rem; line-height: 1.62; }
+.dir-b .pg-reader .rd-wrap { max-width: 80rem; margin: 0 auto; padding: 2.2rem 2.5rem 6rem; --rd-cols: 1.05fr 1fr; --rd-gap: 3rem; --num-w: 2.8rem; --rd-speech-gap: 1.3rem; }
+/* Greek numbers in the left margin, English in the right, as in C (John, 20 October). */
+.dir-b .pg-reader .rd-g .ln { grid-template-columns: var(--num-w) 1fr; }
+.dir-b .pg-reader .rd-g .ln .n { text-align: right; color: var(--num); }
+.dir-b .pg-reader .rd-g .ln .t { font-size: 1.15rem; line-height: 1.62; }
 .dir-b .pg-reader .rd-e .p { font-size: 1.15rem; line-height: 1.62; }
 .dir-b .pg-reader .spk { font-family: var(--font-text); font-variant: small-caps; letter-spacing: .02em; margin-right: .3em; }
 .dir-b .pg-reader .sdir { font-style: italic; color: var(--mid); }
@@ -462,10 +463,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-reader .rh .fig { --h: 34px; } .dir-b .pg-reader .rh .crumbs { font-size: 1.05rem; }
   .dir-b .pg-reader .rh .ctl { gap: .9rem; font-size: .95rem; }
   .dir-b .pg-reader .rd-wrap { padding: 1.2rem 1rem 4rem; --num-w: 2.2rem; }
-  /* On a phone the Greek numbers go to the left, as in A, C, and D, so each Greek block stands indented from its English (John, 20 October). */
-  .dir-b .pg-reader .rd-alt .rd-g .ln { grid-template-columns: var(--num-w) 1fr; }
-  .dir-b .pg-reader .rd-alt .rd-g .ln .n { order: 0; text-align: right; }
-  .dir-b .pg-reader .rd-alt .rd-g .ln .t { order: 1; }
+
   .dir-b .pg-reader .rd-g .ln .t, .dir-b .pg-reader .rd-e .p { font-size: 1.12rem; }
 }
 
