@@ -97,13 +97,17 @@
   // ── Templates ────────────────────────────────────────────────────────────
   const T = { a: {}, b: {}, c: {}, d: {} };
 
+  // Every figure the same height: the columns take the figures' own proportions, and the height
+  // shrinks only if the four together would not fit the width (John, 20 October).
+  const friezeVars = () => { const R = AUTHORS.map((a) => (DR[HOME_FIG[a.id]] || { ratio: .7 }).ratio); const sum = R.reduce((x, y) => x + y, 0); return `--cols:${R.map((r) => `${r.toFixed(3)}fr`).join(' ')};--sum:${sum.toFixed(3)};--pairmax:${Math.max(R[0] + R[1], R[2] + R[3]).toFixed(3)}`; };
+
   // A ──────────────────────────────────────────────────────────────────────
   const aHead = (extra = '') => `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav>${extra}<a href="#">Search</a><a href="#">Dark</a></nav></header>`;
   const aFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a><a href="#">Report an error</a></footer>`;
   T.a.home = () => `<div class="page pg-home"><div class="wrap">${aHead()}
-    <div class="frieze">${AUTHORS.map((a) => `<div class="col" data-author="${a.id}"><div class="fb">${fig(HOME_FIG[a.id], 300)}</div>
+    <div class="frieze" style="${friezeVars()}">${AUTHORS.map((a) => `<div class="col" data-author="${a.id}"><div class="fb">${fig(HOME_FIG[a.id], 300)}</div>
       <div class="nm"><span class="gk" lang="grc">${a.nativeName}</span><a class="en" href="#">${a.name}</a><span class="ct">${a.works.length} plays</span></div></div>`).join('')}</div>
-    <div class="contents">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
+    <div class="contents runs" style="${friezeVars()}">${AUTHORS.map((a) => `<p class="run" data-author="${a.id}"><b>${a.name}:</b> ${worksOf(a).map((w) => `<a href="#">${esc(w.title)}</a>`).join(', ')}</p>`).join('')}</div>
     ${aFoot}</div></div>`;
   T.a.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${aHead()}
     <div class="hero"><div class="fb">${fig(AUTHOR_FIG[a.id], 300)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div>
@@ -132,13 +136,10 @@
       ${worksOf(a).map((w) => `<a class="item${PLAY_FIG[w.id] === 'prometheus' ? ' lines' : ''}" href="#"><span class="fb">${playFig(w.id, h)}</span><span class="ttl">${esc(w.title)}<span class="g" lang="grc">${esc(w.greekTitle)}</span></span></a>`).join('')}
     </div>`).join('')}</div></div>`;
   }
-  // Every figure the same height: the columns take the figures' own proportions, and the height
-  // shrinks only if the four together would not fit the width (John, 20 October).
-  const friezeVars = () => { const R = AUTHORS.map((a) => (DR[HOME_FIG[a.id]] || { ratio: .7 }).ratio); const sum = R.reduce((x, y) => x + y, 0); return `--cols:${R.map((r) => `${r.toFixed(3)}fr`).join(' ')};--sum:${sum.toFixed(3)};--pairmax:${Math.max(R[0] + R[1], R[2] + R[3]).toFixed(3)}`; };
   T.b.home = () => `<div class="page pg-home"><div class="wrap">${bHead}
     <div class="frieze" style="${friezeVars()}">${AUTHORS.map((a) => `<div class="col" data-author="${a.id}"><div class="fb">${fig(HOME_FIG[a.id], 300)}</div>
       <div class="nm"><span class="gk" lang="grc">${a.nativeName}</span><a class="en" href="#">${a.name}</a><span class="ct">${a.works.length} plays</span></div></div>`).join('')}</div>
-    <div class="contents">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
+    <div class="contents runs" style="${friezeVars()}">${AUTHORS.map((a) => `<p class="run" data-author="${a.id}"><b>${a.name}:</b> ${worksOf(a).map((w) => `<a href="#">${esc(w.title)}</a>`).join(', ')}</p>`).join('')}</div>
     ${bFoot}</div></div>`;
   T.b.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${bHead}
     <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
@@ -293,7 +294,7 @@
       risk: 'John, 20 October: D\'s home and author pages are out (boring), and its reader and word panel too. Its play page was judged too top-heavy. Little of D remains in the running.' },
   };
   const PAGE_NOTES = {
-    home: { a: 'The frieze as built, with the complete contents under it.', b: 'A\'s layout in B\'s colours, every figure the same height: each column is as wide as its figure (John, 20 October).', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
+    home: { a: 'The frieze, every figure one height, and under each name its plays as a short run of titles.', b: 'A\'s layout in B\'s colours: every figure one height, each column as wide as its figure, the plays as a short run of titles under each name (John, 20 October).', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Out (John, 20 October): boring.', b: 'A contender with C. The figure now stands at the right, the name at the left; the two-column list of plays follows.', c: 'A contender with B. The field on top; every row has its play\'s silhouette.', d: 'Out (John, 20 October): boring, not enough colour.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Hits by play: the title, then the author and the Greek text. No figures, no Greek titles (John, 20 October).', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },

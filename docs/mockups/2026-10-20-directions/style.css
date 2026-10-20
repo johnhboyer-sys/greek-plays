@@ -121,6 +121,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .page details summary { cursor: pointer; }
 .page .num { font-variant-numeric: tabular-nums; }
 
+/* The plays as a run of titles under each name: desktop in the frieze's own columns, phone as four short paragraphs */
+.page .runs { display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr))); gap: 0 1.4rem; margin-top: 1.4rem; }
+.page .runs .run { font-size: 1.02rem; line-height: 1.45; text-align: center; padding: 0 .3rem; min-width: 0; }
+.page .runs .run b { display: none; }
+.page .runs .run a { color: inherit; }
+@container mock (max-width: 700px) {
+  .page .runs { grid-template-columns: 1fr; gap: .8rem; margin-top: 1.4rem; }
+  .page .runs .run { text-align: left; padding: 0; font-size: 1rem; }
+  .page .runs .run b { display: inline; font-weight: 400; }
+}
+
 /* Speaker palette (the site's twelve slots), light and dark */
 .frame {
   --spk-0: #2b4a9c; --spk-1: #2f6f6a; --spk-2: #6e3a7c; --spk-3: #825c10;
@@ -184,10 +195,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 
 /* A · home */
 .dir-a .frieze { margin-top: 1.6rem; }
-.dir-a .frieze { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); --h: 300px; }
+.dir-a .runs .run b, .dir-b .runs .run b { color: var(--mid); }
+.dir-a .frieze { display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr))); --h: min(300px, calc((100cqw - 10rem) / var(--sum, 4))); }
 .dir-a .frieze .col { min-width: 0; }
-.dir-a .fb { height: calc(var(--h) + .6rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; padding: 0 .75rem; }
-.dir-a .fb .fig { max-width: 100%; }  /* a wide figure shrinks to its column; none reaches a neighbour */
+.dir-a .fb { height: calc(var(--h) + .6rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; padding: 0; }
 .dir-a .nm { text-align: center; padding: 1.1rem .4rem 0; }
 .dir-a .nm .gk { display: block; font-size: 1.5rem; line-height: 1.1; color: var(--ink); }
 .dir-a .nm .en { display: block; font-size: 2.8rem; line-height: 1.05; color: var(--i-auth); }
@@ -270,7 +281,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-a .wrap { padding: 0 1rem; }
   .dir-a .hd { flex-direction: column; align-items: flex-start; gap: .3rem; padding: .9rem 0 .5rem; }
   .dir-a .intro { font-size: 1.1rem; margin: .3rem 0 1.2rem; }
-  .dir-a .frieze { grid-template-columns: 1fr 1fr; --h: 170px; row-gap: 1.6rem; }
+  .dir-a .frieze { grid-template-columns: 1fr 1fr; --h: min(170px, calc((100cqw - 3rem) / var(--pairmax, 2))); row-gap: 1.6rem; }
   .dir-a .nm .gk { font-size: 1.15rem; } .dir-a .nm .en { font-size: 1.7rem; }
   .dir-a .contents { grid-template-columns: 1fr; gap: 1.2rem; margin-top: 1.8rem; }
   .dir-a .contents ol::before { content: attr(data-name); display: block; font-size: 1.3rem; color: var(--i-auth); margin-bottom: .4rem; }
