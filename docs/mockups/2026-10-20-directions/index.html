@@ -190,7 +190,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-a .foot { margin-top: 4rem; padding-bottom: 3rem; display: flex; justify-content: center; gap: .5rem 1.6rem; flex-wrap: wrap; font: 400 1rem var(--font-ui); color: var(--mid); }
 
 /* A · home */
-.dir-a .intro { font-size: 1.3rem; color: var(--mid); margin: .6rem 0 2.2rem; }
+.dir-a .frieze { margin-top: 1.6rem; }
 .dir-a .frieze { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); --h: 300px; }
 .dir-a .frieze .col { min-width: 0; }
 .dir-a .fb { height: calc(var(--h) + .6rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; padding: 0 .75rem; }
@@ -605,7 +605,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 /* D · home: a title page, then the contents */
 .dir-d .titlepage { text-align: center; padding: 3.5rem 0 2.5rem; }
 .dir-d .titlepage .fig { --h: 170px; margin: 0 auto 1.6rem; }
-.dir-d .titlepage h1 { font-size: 3.4rem; line-height: 1.05; font-weight: 400; }
+.dir-d .titlepage h1 { font-size: 3.4rem; line-height: 1.05; font-weight: 400; margin-bottom: .6rem; }
 .dir-d .titlepage .sub { font-style: italic; font-size: 1.35rem; max-width: 30em; margin: .9rem auto 0; color: var(--mid); }
 .dir-d .titlepage .sub em { font-style: normal; }
 .dir-d .contents { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 2.4rem; padding-top: 1.6rem; border-top: 1px solid var(--rule); }
@@ -1050,7 +1050,6 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
   const aHead = (extra = '') => `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav>${extra}<a href="#">Search</a><a href="#">Dark</a></nav></header>`;
   const aFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a><a href="#">Report an error</a></footer>`;
   T.a.home = () => `<div class="page pg-home"><div class="wrap">${aHead()}
-    <p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
     <div class="frieze">${AUTHORS.map((a) => `<div class="col" data-author="${a.id}"><div class="fb">${fig(HOME_FIG[a.id], 300)}</div>
       <div class="nm"><span class="gk" lang="grc">${a.nativeName}</span><a class="en" href="#">${a.name}</a><span class="ct">${a.works.length} plays</span></div></div>`).join('')}</div>
     <div class="contents">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
@@ -1084,7 +1083,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
   }
   T.b.home = () => `<div class="page pg-home"><div class="wrap">${bHead}</div>
     ${band(AUTHORS)}
-    <div class="wrap"><p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
+    <div class="wrap">
     <p class="authors">${AUTHORS.map((a) => `<a href="#">${a.name}<span>${a.works.length}</span></a>`).join('')}</p>
     ${bFoot}</div></div>`;
   T.b.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${bHead}
@@ -1114,7 +1113,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
   const cFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a></footer>`;
   T.c.home = () => `<div class="page pg-home"><div class="top">${cHead}
     <div class="fields">${AUTHORS.map((a) => `<a class="field" href="#" data-author="${a.id}">${fig(HOME_FIG[a.id], 300)}<span class="en">${a.name}</span><span class="gk" lang="grc">${a.nativeName}</span><span class="ct">${a.works.length} plays</span></a>`).join('')}</div></div>
-    <div class="wrap"><p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
+    <div class="wrap">
     <div class="catalogue">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
     ${cFoot}</div></div>`;
   T.c.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="top">${cHead}
@@ -1138,7 +1137,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
   const dHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav><a href="#">Contents</a><a href="#">Search</a><a href="#">Lexicon</a><a href="#">Dark</a></nav></header>`;
   const dFoot = `<footer class="foot"><a href="#">Texts and licences</a><a href="#">Support</a><a href="#">Report an error</a></footer>`;
   T.d.home = () => `<div class="page pg-home"><div class="wrap">${dHead}
-    <div class="titlepage">${fig('aeschylus-pythia', 170)}<h1>The Greek Drama Reader</h1><p class="sub">The forty-four surviving plays of <em>Aeschylus, Sophocles, Euripides,</em> and <em>Aristophanes,</em> in Greek and English, with several translations of each</p></div>
+    <div class="titlepage">${fig('aeschylus-pythia', 170)}<h1>The Greek Drama Reader</h1></div>
     <div class="contents">${AUTHORS.map((a) => `<section><h2>${a.name}<span class="g" lang="grc">${a.nativeName}</span></h2><ol>${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}<span class="g" lang="grc">${esc(w.greekTitle)}</span></a><span class="y">${prodYear(w)}</span></li>`).join('')}</ol></section>`).join('')}</div>
     ${dFoot}</div></div>`;
   T.d.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${dHead}

@@ -101,7 +101,6 @@
   const aHead = (extra = '') => `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav>${extra}<a href="#">Search</a><a href="#">Dark</a></nav></header>`;
   const aFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a><a href="#">Report an error</a></footer>`;
   T.a.home = () => `<div class="page pg-home"><div class="wrap">${aHead()}
-    <p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
     <div class="frieze">${AUTHORS.map((a) => `<div class="col" data-author="${a.id}"><div class="fb">${fig(HOME_FIG[a.id], 300)}</div>
       <div class="nm"><span class="gk" lang="grc">${a.nativeName}</span><a class="en" href="#">${a.name}</a><span class="ct">${a.works.length} plays</span></div></div>`).join('')}</div>
     <div class="contents">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
@@ -135,7 +134,7 @@
   }
   T.b.home = () => `<div class="page pg-home"><div class="wrap">${bHead}</div>
     ${band(AUTHORS)}
-    <div class="wrap"><p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
+    <div class="wrap">
     <p class="authors">${AUTHORS.map((a) => `<a href="#">${a.name}<span>${a.works.length}</span></a>`).join('')}</p>
     ${bFoot}</div></div>`;
   T.b.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${bHead}
@@ -165,7 +164,7 @@
   const cFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a></footer>`;
   T.c.home = () => `<div class="page pg-home"><div class="top">${cHead}
     <div class="fields">${AUTHORS.map((a) => `<a class="field" href="#" data-author="${a.id}">${fig(HOME_FIG[a.id], 300)}<span class="en">${a.name}</span><span class="gk" lang="grc">${a.nativeName}</span><span class="ct">${a.works.length} plays</span></a>`).join('')}</div></div>
-    <div class="wrap"><p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
+    <div class="wrap">
     <div class="catalogue">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
     ${cFoot}</div></div>`;
   T.c.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="top">${cHead}
@@ -189,7 +188,7 @@
   const dHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav><a href="#">Contents</a><a href="#">Search</a><a href="#">Lexicon</a><a href="#">Dark</a></nav></header>`;
   const dFoot = `<footer class="foot"><a href="#">Texts and licences</a><a href="#">Support</a><a href="#">Report an error</a></footer>`;
   T.d.home = () => `<div class="page pg-home"><div class="wrap">${dHead}
-    <div class="titlepage">${fig('aeschylus-pythia', 170)}<h1>The Greek Drama Reader</h1><p class="sub">The forty-four surviving plays of <em>Aeschylus, Sophocles, Euripides,</em> and <em>Aristophanes,</em> in Greek and English, with several translations of each</p></div>
+    <div class="titlepage">${fig('aeschylus-pythia', 170)}<h1>The Greek Drama Reader</h1></div>
     <div class="contents">${AUTHORS.map((a) => `<section><h2>${a.name}<span class="g" lang="grc">${a.nativeName}</span></h2><ol>${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}<span class="g" lang="grc">${esc(w.greekTitle)}</span></a><span class="y">${prodYear(w)}</span></li>`).join('')}</ol></section>`).join('')}</div>
     ${dFoot}</div></div>`;
   T.d.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${dHead}

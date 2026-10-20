@@ -183,7 +183,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-a .foot { margin-top: 4rem; padding-bottom: 3rem; display: flex; justify-content: center; gap: .5rem 1.6rem; flex-wrap: wrap; font: 400 1rem var(--font-ui); color: var(--mid); }
 
 /* A · home */
-.dir-a .intro { font-size: 1.3rem; color: var(--mid); margin: .6rem 0 2.2rem; }
+.dir-a .frieze { margin-top: 1.6rem; }
 .dir-a .frieze { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); --h: 300px; }
 .dir-a .frieze .col { min-width: 0; }
 .dir-a .fb { height: calc(var(--h) + .6rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; padding: 0 .75rem; }
@@ -598,7 +598,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 /* D · home: a title page, then the contents */
 .dir-d .titlepage { text-align: center; padding: 3.5rem 0 2.5rem; }
 .dir-d .titlepage .fig { --h: 170px; margin: 0 auto 1.6rem; }
-.dir-d .titlepage h1 { font-size: 3.4rem; line-height: 1.05; font-weight: 400; }
+.dir-d .titlepage h1 { font-size: 3.4rem; line-height: 1.05; font-weight: 400; margin-bottom: .6rem; }
 .dir-d .titlepage .sub { font-style: italic; font-size: 1.35rem; max-width: 30em; margin: .9rem auto 0; color: var(--mid); }
 .dir-d .titlepage .sub em { font-style: normal; }
 .dir-d .contents { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 2.4rem; padding-top: 1.6rem; border-top: 1px solid var(--rule); }
