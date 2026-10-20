@@ -252,17 +252,32 @@
     ${HITS.map((g) => `<section class="grp"><h2>${esc(W[g.play].title)}<span class="who">${byId[g.author].name} · ${g.ed}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
     <p class="export"><a href="#">Export these lines as CSV</a></p>
     ${aFoot}</div></div>`;
-  // B's search (John, 20 October): the query is one sentence you compose. Every underlined part
-  // is a picker; the word is typed. The plain search is the sentence without the "near" clause;
-  // the Aristotle reader's powers (any form, exactly as typed, a phrase, a grammatical shape, near,
-  // before, or after, within words, a line, or a speech) are the pickers' choices.
+  // B's search (John, 20 October): the two search boxes at the left, Greek over English, and every
+  // control to their right: the Greek keyed to LSJ lemmata (each candidate with its gloss and a
+  // link to the entry), a second Greek term near, before, or after, by word, form, or grammatical
+  // shape; the English across every translation; how the two combine; which plays.
   const V = (t) => `<a class="v" href="#">${t}<i>▾</i></a>`;
+  const CK = (t, on) => `<a class="ck${on ? ' on' : ''}" href="#">${t}</a>`;
   T.b.search = () => `<div class="page pg-search"><div class="wrap">${bHead}
-    <p class="sent">Find ${V('any form')} of <span class="w" lang="grc">ξίφος</span> ${V('near')} ${V('a verb in the aorist')}, ${V('within ten words')}, in ${V('all 44 plays')}<a class="go" href="#">Search</a></p>
-    <p class="hint">Type Greek letters or Beta code; an English word searches the translations. The second clause is optional.<a href="#">Phrase index</a><a href="#">How to search</a></p>
-    <p class="count">${COUNT}</p>
+    <div class="pf3">
+      <div class="boxes">
+        <p class="lab">Greek</p><span class="fld" lang="grc">ξίφος</span>
+        <p class="lab">English</p><span class="fld empty">a word or phrase</span>
+        <span class="row act"><a class="go" href="#">Search</a><a class="ln" href="#">Phrase index</a><a class="ln" href="#">How to search</a></span>
+      </div>
+      <div class="ctrls">
+        <span class="row"><span class="mn">Greek</span> ${V('Any form of the word')} ${V('Accents ignored')} <span class="mn">* and ? wildcards · Beta code works</span></span>
+        <span class="row lsj"><span class="mn">LSJ</span> ${CK('<b lang="grc">ξίφος</b>, τό — sword', true)} ${CK('<b lang="grc">ξιφίδιον</b>, τό — dagger', false)} <a class="ln" href="#">the entries</a></span>
+        <span class="row"><span class="mn">Near</span> ${V('a grammatical shape')} ${V('near')} it, ${V('within 10')} ${V('words')} ${CK('In this order', false)}</span>
+        <span class="row"><span class="mn">Shape</span> ${V('verb')} ${V('aorist')} ${V('any mood')} ${V('any voice')} ${V('any person')} ${V('any number')}</span>
+        <span class="row gap"><span class="mn">English</span> ${V('All words')} ${V('Any form of the word')} <span class="mn">in every translation</span></span>
+        <span class="row"><span class="mn">Near</span> ${V('another word')} ${V('near')} it, ${V('within 10')} ${V('words')}</span>
+        <span class="row gap"><span class="mn">Together</span> ${V('Lines where both the Greek and the English match')}</span>
+        <span class="row"><span class="mn">In</span> ${V('All 44 plays')} ${CK('Aeschylus 7', false)} ${CK('Sophocles 7', false)} ${CK('Euripides 19', false)} ${CK('Aristophanes 11', false)} <a class="ln" href="#">choose plays</a></span>
+      </div>
+    </div>
+    <p class="count">${COUNT} <a class="ln" href="#">Export as CSV</a></p>
     ${HITS.map((g) => `<section class="grp"><h2><span class="tt">${esc(W[g.play].title)}</span><span class="who">${byId[g.author].name} · ${g.ed} · ${g.hits.length} line${g.hits.length > 1 ? 's' : ''}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
-    <p class="export"><a href="#">Export these lines as CSV</a></p>
     ${bFoot}</div></div>`;
   T.c.search = () => `<div class="page pg-search"><div class="wrap">${cHead}
     <h1 class="big">Search</h1>
@@ -317,7 +332,7 @@
     home: { a: 'The frieze, every figure one height, and under each name its plays as a short run of titles.', b: 'A\'s layout in B\'s colours: every figure one height, each column as wide as its figure, the plays as a short run of titles under each name (John, 20 October).', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Out (John, 20 October): boring.', b: 'A contender with C. The figure now stands at the right, the name at the left; the two-column list of plays follows.', c: 'A contender with B. The field on top; every row has its play\'s silhouette.', d: 'Out (John, 20 October): boring, not enough colour.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
-    search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'The search is one sentence you compose; each underlined part is a picker, the word is typed. Its choices are the Aristotle reader\'s: any form, exactly as typed, a phrase, a grammatical shape; near, before, or after; within words, a line, or a speech; which plays. Hits by play beneath.', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
+    search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'The two boxes at the left, Greek over English, searched together; every control to their right: the Greek keyed to LSJ lemmata (each candidate with its gloss and entry), a second term near, before, or after by word, form, or grammatical shape, the English across every translation, how the two combine, which plays.', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'Out with D\'s reader (John, 20 October).' },
     reader: { a: 'Its chrome is out (John, 20 October): the tinted running head goes. One running head. Names run in, lighter. Numbers every fifth line.', b: 'No figure in the head (John, 20 October); the ground line alone. The site name goes home, Euripides to his page, Medea to the play page. Then four controls: one picker for the Greek text and the translation, Greek on the left as in the columns, the view, Aa (size, width, print), Search.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'Rejected (John, 20 October): the book opening is out for the reader.' },
   };

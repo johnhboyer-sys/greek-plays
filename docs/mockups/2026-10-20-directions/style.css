@@ -815,15 +815,30 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .pg-search .export { font: 400 .95rem var(--font-ui); color: var(--mid); margin-top: 1.4rem; }
 .pg-search .export a { text-decoration: underline; text-underline-offset: 4px; }
 
-/* B: the search as a sentence */
-.dir-b .pg-search .sent { font-size: 2rem; line-height: 1.5; margin: 2.2rem 0 .6rem; max-width: 34em; }
-.dir-b .pg-search .sent .v { color: var(--ink); text-decoration: underline; text-decoration-color: var(--clay-deep); text-decoration-thickness: 1.5px; text-underline-offset: .18em; white-space: nowrap; }
-.dir-b .pg-search .sent .v i { font-style: normal; font-size: .5em; color: var(--clay-deep); margin-left: .15em; vertical-align: .2em; }
-.dir-b .pg-search .sent .w { border-bottom: 2px solid var(--line); padding: 0 .15em; }
-.dir-b .pg-search .sent .go { display: inline-block; margin-left: 1.2rem; font: 500 1.05rem var(--font-ui); color: var(--clay-deep); vertical-align: .35em; }
-.dir-b .pg-search .hint { font: 400 .95rem var(--font-ui); color: var(--mid); display: flex; gap: 1.4rem; flex-wrap: wrap; }
-.dir-b .pg-search .hint a { text-decoration: underline; text-underline-offset: 4px; }
-.dir-b .pg-search .count { margin-top: 2.4rem; }
+/* B: the boxes at the left, every control at the right */
+.dir-b .pg-search .pf3 { display: grid; grid-template-columns: minmax(18rem, 26rem) 1fr; gap: 1rem 3.5rem; margin: 2rem 0 .4rem; max-width: 80rem; align-items: start; }
+.dir-b .pg-search .pf3 .boxes, .dir-b .pg-search .pf3 .ctrls { min-width: 0; display: flex; flex-direction: column; gap: .55rem; }
+.dir-b .pg-search .pf3 .lab { font: 400 1.05rem var(--font-ui); color: var(--mid); margin-top: .4rem; }
+.dir-b .pg-search .pf3 .lab:first-child { margin-top: 0; }
+.dir-b .pg-search .pf3 .fld { font-size: 1.8rem; line-height: 1.25; border-bottom: 1px solid var(--line); padding-bottom: .15rem; }
+.dir-b .pg-search .pf3 .fld.empty { color: var(--mid); font-style: italic; font-size: 1.4rem; }
+.dir-b .pg-search .pf3 .row { display: flex; flex-wrap: wrap; gap: .3rem 1rem; align-items: baseline; font: 400 1rem var(--font-ui); color: var(--ink); }
+.dir-b .pg-search .pf3 .row > .mn:first-child { min-width: 4.6rem; }
+.dir-b .pg-search .pf3 .row.gap { margin-top: .6rem; }
+.dir-b .pg-search .pf3 .v { color: var(--ink); text-decoration: underline; text-decoration-color: var(--clay-deep); text-underline-offset: 4px; white-space: nowrap; }
+.dir-b .pg-search .pf3 .v i { font-style: normal; font-size: .7em; color: var(--clay-deep); margin-left: .2em; }
+.dir-b .pg-search .pf3 .ck { color: var(--mid); white-space: nowrap; }
+.dir-b .pg-search .pf3 .ck::before { content: "☐ "; }
+.dir-b .pg-search .pf3 .ck.on { color: var(--ink); }
+.dir-b .pg-search .pf3 .ck.on::before { content: "☑ "; color: var(--clay-deep); }
+.dir-b .pg-search .pf3 .mn { color: var(--mid); }
+.dir-b .pg-search .pf3 .lsj .ck { font-family: var(--font-text); font-size: 1.08rem; }
+.dir-b .pg-search .pf3 .lsj b { font-weight: 400; }
+.dir-b .pg-search .pf3 .ln { color: var(--mid); text-decoration: underline; text-underline-offset: 4px; }
+.dir-b .pg-search .pf3 .act { gap: 1.4rem; margin-top: 1rem; }
+.dir-b .pg-search .pf3 .go { font: 500 1.1rem var(--font-ui); color: var(--clay-deep); }
+.dir-b .pg-search .count { margin-top: 2.2rem; display: flex; gap: 1.2rem; }
+.dir-b .pg-search .count .ln { text-decoration: underline; text-underline-offset: 4px; }
 
 /* B: the plays head their hits on the ground line, as solid silhouettes */
 .dir-b { --hit: color-mix(in srgb, #c8743f 30%, transparent); }
@@ -918,8 +933,11 @@ mark.w { background: var(--hit); color: inherit; padding: 0 .06em; }
 @container mock (max-width: 700px) {
   .pg-search .sf { gap: .8rem; margin: 1rem 0 1.2rem; }
   .pg-search .q { grid-template-columns: 1fr; gap: .2rem; }
-  .dir-b .pg-search .sent { font-size: 1.45rem; margin-top: 1.4rem; }
-  .dir-b .pg-search .sent .go { display: block; margin: .6rem 0 0; }
+  .dir-b .pg-search .pf3 { grid-template-columns: 1fr; gap: 1rem; margin-top: 1.2rem; }
+  .dir-b .pg-search .pf3 .fld { font-size: 1.4rem; }
+  .dir-b .pg-search .pf3 .row { font-size: .95rem; gap: .25rem .8rem; }
+  .dir-b .pg-search .pf3 .boxes { order: 1; } .dir-b .pg-search .pf3 .ctrls { order: 2; }
+  .dir-b .pg-search .pf3 .act { order: 3; }
   .pg-search .q .fld { font-size: 1.4rem; }
   .pg-search .scope { margin-left: 0; flex-wrap: wrap; }
   .pg-search .grp h2 { flex-wrap: wrap; gap: .3rem .8rem; font-size: 1.35rem; }

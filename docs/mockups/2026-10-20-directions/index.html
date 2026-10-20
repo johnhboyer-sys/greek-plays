@@ -822,15 +822,30 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .pg-search .export { font: 400 .95rem var(--font-ui); color: var(--mid); margin-top: 1.4rem; }
 .pg-search .export a { text-decoration: underline; text-underline-offset: 4px; }
 
-/* B: the search as a sentence */
-.dir-b .pg-search .sent { font-size: 2rem; line-height: 1.5; margin: 2.2rem 0 .6rem; max-width: 34em; }
-.dir-b .pg-search .sent .v { color: var(--ink); text-decoration: underline; text-decoration-color: var(--clay-deep); text-decoration-thickness: 1.5px; text-underline-offset: .18em; white-space: nowrap; }
-.dir-b .pg-search .sent .v i { font-style: normal; font-size: .5em; color: var(--clay-deep); margin-left: .15em; vertical-align: .2em; }
-.dir-b .pg-search .sent .w { border-bottom: 2px solid var(--line); padding: 0 .15em; }
-.dir-b .pg-search .sent .go { display: inline-block; margin-left: 1.2rem; font: 500 1.05rem var(--font-ui); color: var(--clay-deep); vertical-align: .35em; }
-.dir-b .pg-search .hint { font: 400 .95rem var(--font-ui); color: var(--mid); display: flex; gap: 1.4rem; flex-wrap: wrap; }
-.dir-b .pg-search .hint a { text-decoration: underline; text-underline-offset: 4px; }
-.dir-b .pg-search .count { margin-top: 2.4rem; }
+/* B: the boxes at the left, every control at the right */
+.dir-b .pg-search .pf3 { display: grid; grid-template-columns: minmax(18rem, 26rem) 1fr; gap: 1rem 3.5rem; margin: 2rem 0 .4rem; max-width: 80rem; align-items: start; }
+.dir-b .pg-search .pf3 .boxes, .dir-b .pg-search .pf3 .ctrls { min-width: 0; display: flex; flex-direction: column; gap: .55rem; }
+.dir-b .pg-search .pf3 .lab { font: 400 1.05rem var(--font-ui); color: var(--mid); margin-top: .4rem; }
+.dir-b .pg-search .pf3 .lab:first-child { margin-top: 0; }
+.dir-b .pg-search .pf3 .fld { font-size: 1.8rem; line-height: 1.25; border-bottom: 1px solid var(--line); padding-bottom: .15rem; }
+.dir-b .pg-search .pf3 .fld.empty { color: var(--mid); font-style: italic; font-size: 1.4rem; }
+.dir-b .pg-search .pf3 .row { display: flex; flex-wrap: wrap; gap: .3rem 1rem; align-items: baseline; font: 400 1rem var(--font-ui); color: var(--ink); }
+.dir-b .pg-search .pf3 .row > .mn:first-child { min-width: 4.6rem; }
+.dir-b .pg-search .pf3 .row.gap { margin-top: .6rem; }
+.dir-b .pg-search .pf3 .v { color: var(--ink); text-decoration: underline; text-decoration-color: var(--clay-deep); text-underline-offset: 4px; white-space: nowrap; }
+.dir-b .pg-search .pf3 .v i { font-style: normal; font-size: .7em; color: var(--clay-deep); margin-left: .2em; }
+.dir-b .pg-search .pf3 .ck { color: var(--mid); white-space: nowrap; }
+.dir-b .pg-search .pf3 .ck::before { content: "☐ "; }
+.dir-b .pg-search .pf3 .ck.on { color: var(--ink); }
+.dir-b .pg-search .pf3 .ck.on::before { content: "☑ "; color: var(--clay-deep); }
+.dir-b .pg-search .pf3 .mn { color: var(--mid); }
+.dir-b .pg-search .pf3 .lsj .ck { font-family: var(--font-text); font-size: 1.08rem; }
+.dir-b .pg-search .pf3 .lsj b { font-weight: 400; }
+.dir-b .pg-search .pf3 .ln { color: var(--mid); text-decoration: underline; text-underline-offset: 4px; }
+.dir-b .pg-search .pf3 .act { gap: 1.4rem; margin-top: 1rem; }
+.dir-b .pg-search .pf3 .go { font: 500 1.1rem var(--font-ui); color: var(--clay-deep); }
+.dir-b .pg-search .count { margin-top: 2.2rem; display: flex; gap: 1.2rem; }
+.dir-b .pg-search .count .ln { text-decoration: underline; text-underline-offset: 4px; }
 
 /* B: the plays head their hits on the ground line, as solid silhouettes */
 .dir-b { --hit: color-mix(in srgb, #c8743f 30%, transparent); }
@@ -925,8 +940,11 @@ mark.w { background: var(--hit); color: inherit; padding: 0 .06em; }
 @container mock (max-width: 700px) {
   .pg-search .sf { gap: .8rem; margin: 1rem 0 1.2rem; }
   .pg-search .q { grid-template-columns: 1fr; gap: .2rem; }
-  .dir-b .pg-search .sent { font-size: 1.45rem; margin-top: 1.4rem; }
-  .dir-b .pg-search .sent .go { display: block; margin: .6rem 0 0; }
+  .dir-b .pg-search .pf3 { grid-template-columns: 1fr; gap: 1rem; margin-top: 1.2rem; }
+  .dir-b .pg-search .pf3 .fld { font-size: 1.4rem; }
+  .dir-b .pg-search .pf3 .row { font-size: .95rem; gap: .25rem .8rem; }
+  .dir-b .pg-search .pf3 .boxes { order: 1; } .dir-b .pg-search .pf3 .ctrls { order: 2; }
+  .dir-b .pg-search .pf3 .act { order: 3; }
   .pg-search .q .fld { font-size: 1.4rem; }
   .pg-search .scope { margin-left: 0; flex-wrap: wrap; }
   .pg-search .grp h2 { flex-wrap: wrap; gap: .3rem .8rem; font-size: 1.35rem; }
@@ -1304,17 +1322,32 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     ${HITS.map((g) => `<section class="grp"><h2>${esc(W[g.play].title)}<span class="who">${byId[g.author].name} · ${g.ed}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
     <p class="export"><a href="#">Export these lines as CSV</a></p>
     ${aFoot}</div></div>`;
-  // B's search (John, 20 October): the query is one sentence you compose. Every underlined part
-  // is a picker; the word is typed. The plain search is the sentence without the "near" clause;
-  // the Aristotle reader's powers (any form, exactly as typed, a phrase, a grammatical shape, near,
-  // before, or after, within words, a line, or a speech) are the pickers' choices.
+  // B's search (John, 20 October): the two search boxes at the left, Greek over English, and every
+  // control to their right: the Greek keyed to LSJ lemmata (each candidate with its gloss and a
+  // link to the entry), a second Greek term near, before, or after, by word, form, or grammatical
+  // shape; the English across every translation; how the two combine; which plays.
   const V = (t) => `<a class="v" href="#">${t}<i>▾</i></a>`;
+  const CK = (t, on) => `<a class="ck${on ? ' on' : ''}" href="#">${t}</a>`;
   T.b.search = () => `<div class="page pg-search"><div class="wrap">${bHead}
-    <p class="sent">Find ${V('any form')} of <span class="w" lang="grc">ξίφος</span> ${V('near')} ${V('a verb in the aorist')}, ${V('within ten words')}, in ${V('all 44 plays')}<a class="go" href="#">Search</a></p>
-    <p class="hint">Type Greek letters or Beta code; an English word searches the translations. The second clause is optional.<a href="#">Phrase index</a><a href="#">How to search</a></p>
-    <p class="count">${COUNT}</p>
+    <div class="pf3">
+      <div class="boxes">
+        <p class="lab">Greek</p><span class="fld" lang="grc">ξίφος</span>
+        <p class="lab">English</p><span class="fld empty">a word or phrase</span>
+        <span class="row act"><a class="go" href="#">Search</a><a class="ln" href="#">Phrase index</a><a class="ln" href="#">How to search</a></span>
+      </div>
+      <div class="ctrls">
+        <span class="row"><span class="mn">Greek</span> ${V('Any form of the word')} ${V('Accents ignored')} <span class="mn">* and ? wildcards · Beta code works</span></span>
+        <span class="row lsj"><span class="mn">LSJ</span> ${CK('<b lang="grc">ξίφος</b>, τό — sword', true)} ${CK('<b lang="grc">ξιφίδιον</b>, τό — dagger', false)} <a class="ln" href="#">the entries</a></span>
+        <span class="row"><span class="mn">Near</span> ${V('a grammatical shape')} ${V('near')} it, ${V('within 10')} ${V('words')} ${CK('In this order', false)}</span>
+        <span class="row"><span class="mn">Shape</span> ${V('verb')} ${V('aorist')} ${V('any mood')} ${V('any voice')} ${V('any person')} ${V('any number')}</span>
+        <span class="row gap"><span class="mn">English</span> ${V('All words')} ${V('Any form of the word')} <span class="mn">in every translation</span></span>
+        <span class="row"><span class="mn">Near</span> ${V('another word')} ${V('near')} it, ${V('within 10')} ${V('words')}</span>
+        <span class="row gap"><span class="mn">Together</span> ${V('Lines where both the Greek and the English match')}</span>
+        <span class="row"><span class="mn">In</span> ${V('All 44 plays')} ${CK('Aeschylus 7', false)} ${CK('Sophocles 7', false)} ${CK('Euripides 19', false)} ${CK('Aristophanes 11', false)} <a class="ln" href="#">choose plays</a></span>
+      </div>
+    </div>
+    <p class="count">${COUNT} <a class="ln" href="#">Export as CSV</a></p>
     ${HITS.map((g) => `<section class="grp"><h2><span class="tt">${esc(W[g.play].title)}</span><span class="who">${byId[g.author].name} · ${g.ed} · ${g.hits.length} line${g.hits.length > 1 ? 's' : ''}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
-    <p class="export"><a href="#">Export these lines as CSV</a></p>
     ${bFoot}</div></div>`;
   T.c.search = () => `<div class="page pg-search"><div class="wrap">${cHead}
     <h1 class="big">Search</h1>
@@ -1369,7 +1402,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     home: { a: 'The frieze, every figure one height, and under each name its plays as a short run of titles.', b: 'A\'s layout in B\'s colours: every figure one height, each column as wide as its figure, the plays as a short run of titles under each name (John, 20 October).', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Out (John, 20 October): boring.', b: 'A contender with C. The figure now stands at the right, the name at the left; the two-column list of plays follows.', c: 'A contender with B. The field on top; every row has its play\'s silhouette.', d: 'Out (John, 20 October): boring, not enough colour.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
-    search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'The search is one sentence you compose; each underlined part is a picker, the word is typed. Its choices are the Aristotle reader\'s: any form, exactly as typed, a phrase, a grammatical shape; near, before, or after; within words, a line, or a speech; which plays. Hits by play beneath.', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
+    search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'The two boxes at the left, Greek over English, searched together; every control to their right: the Greek keyed to LSJ lemmata (each candidate with its gloss and entry), a second term near, before, or after by word, form, or grammatical shape, the English across every translation, how the two combine, which plays.', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'Out with D\'s reader (John, 20 October).' },
     reader: { a: 'Its chrome is out (John, 20 October): the tinted running head goes. One running head. Names run in, lighter. Numbers every fifth line.', b: 'No figure in the head (John, 20 October); the ground line alone. The site name goes home, Euripides to his page, Medea to the play page. Then four controls: one picker for the Greek text and the translation, Greek on the left as in the columns, the view, Aa (size, width, print), Search.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'Rejected (John, 20 October): the book opening is out for the reader.' },
   };
