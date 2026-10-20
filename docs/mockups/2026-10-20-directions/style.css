@@ -517,7 +517,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-reader .rh .ctl { gap: .75rem; font-size: .9rem; flex-wrap: wrap; width: 100%; margin-left: 0; padding-top: .2rem; }
   .dir-b .pg-reader .rh .views { gap: .7rem; }
   .dir-b .pg-reader .rh .menu .two { grid-template-columns: 1fr; gap: .8rem; }
-  .dir-b .pg-reader .rh .menu { position: fixed; left: 1rem; right: 1rem; top: 6.5rem; min-width: 0; }
+  .dir-b .pg-reader .rh .menu, .dir-b .pg-reader .rh .menu.wide { position: fixed; left: 1rem; right: 1rem; top: 6.2rem; min-width: 0; max-height: calc(100cqh - 8rem); overflow: auto; }
+  /* the site name as two stacked lines, compact (John, 20 October) */
+  .dir-b .pg-reader .rh .crumbs .wm { display: inline-flex; flex-direction: column; font-size: .72rem; line-height: 1.05; vertical-align: -.1em; margin-right: .1rem; }
+  .dir-b .pg-reader .rh .crumbs { font-size: 1rem; }
   .dir-b .pg-reader .rd-wrap { padding: 1.2rem 1rem 4rem; --num-w: 2.2rem; }
 
   .dir-b .pg-reader .rd-g .ln .t, .dir-b .pg-reader .rd-e .p { font-size: 1.12rem; }

@@ -172,7 +172,7 @@
     return { tr, eds };
   };
   T.b.reader = (alt) => { const m = bMenus(medea); return `<div class="page pg-reader" data-author="euripides">
-    <div class="rh"><span class="crumbs"><a class="wm" href="#">The Greek Drama Reader</a> · <a href="#">Euripides</a> · <a class="play" href="#">Medea</a></span>
+    <div class="rh"><span class="crumbs"><a class="wm" href="#"><span>The Greek</span> <span>Drama Reader</span></a> · <a href="#">Euripides</a> · <a class="play" href="#">Medea</a></span>
       <span class="ctl">
         <span class="pick open-desktop"><a class="pk" href="#">Paley 1878 · Coleridge<i>▾</i></a><div class="menu wide"><div class="two"><div><p class="mh">Greek text</p><ul>${m.eds}</ul><p class="mn">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p></div><div><p class="mh">Translation</p><ul>${m.tr}</ul></div></div></div></span>
         <span class="views"><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a></span>
@@ -375,7 +375,7 @@
     box.style.height = `${(fr.classList.contains('auto') ? fr.offsetHeight : 900) * s}px`;
   }
   // Mock links go nowhere; a click on a picker toggles its menu.
-  stage.addEventListener('click', (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault(); const pk = e.target.closest('a.pk'); if (pk) { const p = pk.parentElement; const ctl = p.closest('.ctl'); const was = p.classList.contains('open') || p.classList.contains('open-desktop'); ctl.querySelectorAll('.pick').forEach((x) => x.classList.remove('open', 'open-desktop')); if (!was) p.classList.add('open'); } });
+  stage.addEventListener('click', (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault(); const pk = e.target.closest('a.pk'); if (pk) { const p = pk.parentElement; const ctl = p.closest('.ctl'); const was = getComputedStyle(p.querySelector('.menu')).display !== 'none'; ctl.querySelectorAll('.pick').forEach((x) => x.classList.remove('open', 'open-desktop')); if (!was) p.classList.add('open'); } });
   function scaleOf(el) { const fr = el.closest('.frame'); const m = /scale\(([\d.]+)\)/.exec(fr?.style.transform || ''); return m ? Number(m[1]) : 1; }
 
   document.addEventListener('click', (e) => {
