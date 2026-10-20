@@ -237,14 +237,14 @@
   T.b.search = () => `<div class="page pg-search"><div class="wrap">${bHead}
     <form class="sf">${qGreek}${qEng}${qScope}</form>
     <p class="count">${COUNT}</p>
-    ${HITS.map((g) => `<section class="grp"><h2><span class="fb">${playFig(g.play, 70)}</span><span class="tt">${esc(W[g.play].title)}<span class="g" lang="grc">${esc(W[g.play].greekTitle)}</span></span><span class="who">${byId[g.author].name} · ${g.ed} · ${g.hits.length} line${g.hits.length > 1 ? 's' : ''}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
+    ${HITS.map((g) => `<section class="grp"><h2><span class="tt">${esc(W[g.play].title)}<span class="g" lang="grc">${esc(W[g.play].greekTitle)}</span></span><span class="who">${byId[g.author].name} · ${g.ed} · ${g.hits.length} line${g.hits.length > 1 ? 's' : ''}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
     <p class="export"><a href="#">Export these lines as CSV</a></p>
     ${bFoot}</div></div>`;
   T.c.search = () => `<div class="page pg-search"><div class="wrap">${cHead}
     <h1 class="big">Search</h1>
     <form class="sf">${qGreek}${qEng}${qScope}</form>
     <p class="count">${COUNT}</p>
-    ${HITS.map((g) => `<section class="grp" data-author="${g.author}"><h2>${playFig(g.play, 64)}<span class="tt">${esc(W[g.play].title)}</span><span class="who">${byId[g.author].name} · ${g.ed}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
+    ${HITS.map((g) => `<section class="grp" data-author="${g.author}"><h2><span class="tt">${esc(W[g.play].title)}</span><span class="who">${byId[g.author].name} · ${g.ed}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
     <p class="export"><a href="#">Export these lines as CSV</a></p>
     ${cFoot}</div></div>`;
   T.d.search = () => `<div class="page pg-search"><div class="wrap">${dHead}
@@ -293,7 +293,7 @@
     home: { a: 'The frieze as built, with the complete contents under it.', b: 'Rejected (John, 20 October): the band of figures is out for the home page.', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Out (John, 20 October): boring.', b: 'A contender with C. The figure now stands at the right, the name at the left; the two-column list of plays follows.', c: 'A contender with B. The field on top; every row has its play\'s silhouette.', d: 'Out (John, 20 October): boring, not enough colour.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
-    search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Each play heads its hits standing on its ground line.', c: 'The author colours sort the hits; the play silhouettes mark them.', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
+    search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Hits by play, the Greek title beside the English; no figures (John, 20 October).', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'A third, narrower page: the headword as its running head, the entry below, like a gloss in the margin.' },
     reader: { a: 'One running head. Names run in, lighter. Numbers every fifth line.', b: 'The ground line under the head, the play\'s figure at the left, numbers in the gutter.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'An opening of the book: sigla and names in the margins, numbers outside.' },
   };
