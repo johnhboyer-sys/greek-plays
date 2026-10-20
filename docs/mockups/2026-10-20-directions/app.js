@@ -33,9 +33,9 @@
 
   // A drawing as two coloured masks. `h` in px; the large masks where they exist.
   function fig(name, h, cls = '') {
-    if (!name || !DR[name]) return `<span class="fig empty ${cls}" style="--h:${h}px;--r:.7"></span>`;
+    if (!name || !DR[name]) return `<span class="fig empty ${cls}" style="--hd:${h}px;--r:.7"></span>`;
     const d = DR[name]; const sz = d.large && h > 170 ? '' : '-s';
-    return `<span class="fig ${cls}" role="img" aria-label="${esc(d.title)}" style="--h:${h}px;--r:${d.ratio};--lines:url(drawings/${name}-lines${sz}.png);--body:url(drawings/${name}-body${sz}.png)"></span>`;
+    return `<span class="fig ${cls}" role="img" aria-label="${esc(d.title)}" style="--hd:${h}px;--r:${d.ratio};--lines:url(drawings/${name}-lines${sz}.png);--body:url(drawings/${name}-body${sz}.png)"></span>`;
   }
   const playFig = (id, h, cls) => fig(PLAY_FIG[id], h, cls);
 
