@@ -440,6 +440,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rh .fig { --h: 44px; --fig-body: var(--sil-body); --fig-ink: var(--sil-ink); }
 .dir-b .pg-reader .rh .crumbs { font: 400 1.15rem var(--font-text); padding-bottom: .45rem; }
 .dir-b .pg-reader .rh .crumbs .play { color: var(--clay-deep); }
+.dir-b .pg-reader .rh .crumbs .wm { color: var(--mid); }
 .dir-b .pg-reader .rh .here { font: 400 1rem var(--font-ui); color: var(--mid); padding-bottom: .55rem; font-variant-numeric: tabular-nums; }
 .dir-b .pg-reader .rh .here b { font-weight: 500; color: var(--ink); }
 .dir-b .pg-reader .rh .ctl { margin-left: auto; display: flex; gap: 1.4rem; font: 400 1rem var(--font-ui); color: var(--mid); padding-bottom: .55rem; }
@@ -452,6 +453,29 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rd-e .p { font-size: 1.15rem; line-height: 1.62; }
 .dir-b .pg-reader .spk { font-family: var(--font-text); font-variant: small-caps; letter-spacing: .02em; margin-right: .3em; }
 .dir-b .pg-reader .sdir { font-style: italic; color: var(--mid); }
+
+/* B · the reader's pickers and the text panel */
+.dir-b .pg-reader .rh .ctl { align-items: flex-end; flex-wrap: nowrap; }
+.dir-b .pg-reader .rh .views { display: flex; gap: .9rem; }
+.dir-b .pg-reader .rh .pick { position: relative; }
+.dir-b .pg-reader .rh .pk i { font-style: normal; font-size: .7em; margin-left: .25em; color: var(--clay-deep); }
+.dir-b .pg-reader .rh .pk.aa { font-family: var(--font-text); font-size: 1.15rem; line-height: 1; }
+.dir-b .pg-reader .rh .pick.open > .pk { color: var(--ink); }
+.dir-b .pg-reader .rh .menu { display: none; position: absolute; top: calc(100% + 2px); left: 0; z-index: 6; min-width: 20rem; background: var(--paper); border-top: 2px solid var(--line); padding: .7rem 1rem .9rem; text-align: left; font: 400 1rem var(--font-ui); color: var(--ink); }
+.dir-b .pg-reader .rh .pick.open .menu { display: block; }
+@container mock (min-width: 701px) { .dir-b .pg-reader .rh .pick.open-desktop .menu { display: block; } }
+.dir-b .pg-reader .rh .menu .mh { color: var(--mid); margin-bottom: .4rem; }
+.dir-b .pg-reader .rh .menu ul { list-style: none; margin: 0; padding: 0; }
+.dir-b .pg-reader .rh .menu li { padding: .3rem 0; }
+.dir-b .pg-reader .rh .menu li a { font-family: var(--font-text); font-size: 1.1rem; color: var(--ink); }
+.dir-b .pg-reader .rh .menu li.cur a { color: var(--clay-deep); }
+.dir-b .pg-reader .rh .menu li span { display: block; color: var(--mid); font-size: .9rem; }
+.dir-b .pg-reader .rh .menu .mn { margin-top: .6rem; color: var(--mid); font-size: .9rem; max-width: 24em; }
+.dir-b .pg-reader .rh .menu.aam { min-width: 17rem; }
+.dir-b .pg-reader .rh .menu .opt { display: flex; gap: 1rem; align-items: baseline; padding: .25rem 0; }
+.dir-b .pg-reader .rh .menu .opt span { color: var(--mid); width: 3.2rem; }
+.dir-b .pg-reader .rh .menu .opt a { color: var(--mid); }
+.dir-b .pg-reader .rh .menu .opt a.on { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
 
 /* B · phone */
 @container mock (max-width: 700px) {
@@ -488,7 +512,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-play.mash .cover .et { font-size: 3.4rem; } .dir-b .pg-play.mash .cover .gt { font-size: 1.4rem; }
   .dir-b .pg-reader .rh { padding: .4rem 1rem 0; gap: .8rem; flex-wrap: wrap; }
   .dir-b .pg-reader .rh .fig { --h: 34px; } .dir-b .pg-reader .rh .crumbs { font-size: 1.05rem; }
-  .dir-b .pg-reader .rh .ctl { gap: .9rem; font-size: .95rem; }
+  .dir-b .pg-reader .rh .ctl { gap: .8rem; font-size: .95rem; flex-wrap: wrap; width: 100%; margin-left: 0; padding-top: .2rem; }
+  .dir-b .pg-reader .rh .menu { position: fixed; left: 1rem; right: 1rem; top: 6.5rem; min-width: 0; }
   .dir-b .pg-reader .rd-wrap { padding: 1.2rem 1rem 4rem; --num-w: 2.2rem; }
 
   .dir-b .pg-reader .rd-g .ln .t, .dir-b .pg-reader .rd-e .p { font-size: 1.12rem; }

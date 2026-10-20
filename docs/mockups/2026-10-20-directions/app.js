@@ -163,9 +163,24 @@
   T.bc = { play: () => { const w = medea; return `<div class="page pg-play mash" data-author="euripides"><div class="cover">${bHead}
     <div class="in"><div><h1 class="et">${esc(w.title)}</h1><p class="gt" lang="grc">${esc(w.greekTitle)}</p><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>${playFig(w.id, 400)}</div></div>
     <div class="wrap">${bPlayBody(w)}</div></div>`; } };
-  T.b.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
-    <div class="rh">${playFig('medea', 44)}<span class="crumbs"><a href="#">Euripides</a> · <a class="play" href="#">Medea</a></span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
-    <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
+  // The reader's controls (John, 20 October): a translation picker and a Greek edition picker, the
+  // view, text size and width, print, search. Each picker opens a small menu; the mock opens the
+  // translation menu to show the pattern, and a click on any picker toggles it.
+  const bMenus = (w) => {
+    const tr = transRead(w).map((t, i) => `<li${i === 0 ? ' class="cur"' : ''}><a href="#">${esc(t.name)}</a><span>${t.bits.join(', ')}</span></li>`).join('');
+    const eds = w.greekEditions.map((e) => { const pair = w.translations.find((t) => t.edition === e.id); return `<li${e.id === 'paley' ? ' class="cur"' : ''}><a href="#">${esc(e.full.replace(/\s*\([^)]*\)\s*$/, ''))}</a><span>${e.year}${pair ? `, the text ${nameOf(pair).split(' ').pop()} translated` : ''}</span></li>`; }).join('');
+    return { tr, eds };
+  };
+  T.b.reader = (alt) => { const m = bMenus(medea); return `<div class="page pg-reader" data-author="euripides">
+    <div class="rh">${playFig('medea', 44)}<span class="crumbs"><a class="wm" href="#">The Greek Drama Reader</a> · <a href="#">Euripides</a> · <a class="play" href="#">Medea</a></span>
+      <span class="ctl">
+        <span class="pick open-desktop"><a class="pk" href="#">Coleridge<i>▾</i></a><div class="menu"><p class="mh">Translation</p><ul>${m.tr}</ul></div></span>
+        <span class="pick"><a class="pk" href="#">Paley 1878<i>▾</i></a><div class="menu"><p class="mh">Greek text</p><ul>${m.eds}</ul><p class="mn">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p></div></span>
+        <span class="views"><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a></span>
+        <span class="pick"><a class="pk aa" href="#">Aa</a><div class="menu aam"><p class="mh">Text</p><p class="opt"><span>Size</span><a href="#">Smaller</a><a class="on" href="#">Normal</a><a href="#">Larger</a></p><p class="opt"><span>Width</span><a href="#">Narrow</a><a class="on" href="#">Normal</a><a href="#">Wide</a></p></div></span>
+        <a href="#">Print</a><a href="#">Search</a>
+      </span></div>
+    <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`; };
 
   // C ──────────────────────────────────────────────────────────────────────
   const cHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav><a href="#">Plays</a><a href="#">Search</a><a href="#">Dark</a></nav></header>`;
@@ -299,7 +314,7 @@
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Hits by play: the title, then the author and the Greek text. No figures, no Greek titles (John, 20 October).', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'Out with D\'s reader (John, 20 October).' },
-    reader: { a: 'Its chrome is out (John, 20 October): the tinted running head goes. One running head. Names run in, lighter. Numbers every fifth line.', b: 'The ground line under the head, the play\'s figure at the left. Greek numbers in the left margin, English in the right, as in C; on a phone the Greek stands indented from its English.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'Rejected (John, 20 October): the book opening is out for the reader.' },
+    reader: { a: 'Its chrome is out (John, 20 October): the tinted running head goes. One running head. Names run in, lighter. Numbers every fifth line.', b: 'The head is the way out: the site name goes home, Euripides to his page, Medea to the play page. Then the controls: translation and Greek-text pickers (click either), the view, Aa for size and width, Print, Search.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'Rejected (John, 20 October): the book opening is out for the reader.' },
   };
 
   // ── Chrome ───────────────────────────────────────────────────────────────
@@ -360,6 +375,8 @@
     fr.style.transform = `scale(${s})`; box.style.width = `${1440 * s}px`;
     box.style.height = `${(fr.classList.contains('auto') ? fr.offsetHeight : 900) * s}px`;
   }
+  // Mock links go nowhere; a click on a picker toggles its menu.
+  stage.addEventListener('click', (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault(); const pk = e.target.closest('a.pk'); if (pk) { const p = pk.parentElement; const ctl = p.closest('.ctl'); const was = p.classList.contains('open') || p.classList.contains('open-desktop'); ctl.querySelectorAll('.pick').forEach((x) => x.classList.remove('open', 'open-desktop')); if (!was) p.classList.add('open'); } });
   function scaleOf(el) { const fr = el.closest('.frame'); const m = /scale\(([\d.]+)\)/.exec(fr?.style.transform || ''); return m ? Number(m[1]) : 1; }
 
   document.addEventListener('click', (e) => {
