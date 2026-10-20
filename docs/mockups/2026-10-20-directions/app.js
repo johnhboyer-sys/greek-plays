@@ -296,8 +296,8 @@
   };
 
   // ── Chrome ───────────────────────────────────────────────────────────────
-  const state = { dir: 'a', page: 'review', theme: 'light', width: 'desktop', notes: true };
-  try { Object.assign(state, JSON.parse(localStorage.getItem('gdr-directions') || '{}')); } catch (e) { /* ignore */ }
+  const state = { dir: 'a', page: 'review', theme: 'light', width: 'desktop', notes: true, blend: { home: 'b', author: 'b', play: 'b', reader: 'd', search: 'b', word: 'd' } };
+  try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); } catch (e) { /* ignore */ }
   const save = () => { try { localStorage.setItem('gdr-directions', JSON.stringify(state)); } catch (e) { /* ignore */ } };
 
   const stage = document.getElementById('stage');
@@ -305,7 +305,9 @@
   const wrapEl = document.getElementById('stage-wrap');
   let drift = null;
 
+  const dirFor = (page) => (state.dir === 'blend' ? (state.blend[page] || 'b') : state.dir);
   function frameHtml(dir, page, theme, phone) {
+    dir = dir === 'blend' ? dirFor(page) : dir;
     const alt = phone;
     const html = page === 'word' ? wordPage(dir, alt) : T[dir][page](alt);
     return `<div class="frame dir-${dir}${phone ? ' ph' : ''}" data-theme="${theme}">${html}</div>`;
@@ -330,13 +332,21 @@
       fit();
     }
     if (state.page === 'word') stage.querySelectorAll('.frame .page').forEach((pg) => { const m = pg.querySelector('mark.w'); if (!m) return; const sc = scaleOf(pg); pg.scrollTop += (m.getBoundingClientRect().top - pg.getBoundingClientRect().top) / sc - pg.clientHeight * 0.36; });
+    if (state.dir === 'blend') {
+      const P = ['home', 'author', 'play', 'reader', 'search', 'word'];
+      notesEl.innerHTML = `<p class="dir-name">Mix and match</p><h2>The blend</h2><p>Each page from the direction you choose. The frame shows this page in the direction picked for it.</p>
+        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'c', 'd'].map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
+        <h3>Within a page</h3><p>Pieces from different directions inside one page (a running head from one, the speaker names from another, the colour from a third) are the next round: say which, and the blend becomes its own direction here.</p>`;
+      if (dirFor(state.page) === 'b' && state.page === 'home') startDrift();
+      return;
+    }
     const n = NOTES[state.dir];
     notesEl.innerHTML = `<p class="dir-name">Direction ${state.dir.toUpperCase()} of four</p><h2>${n.name}</h2><p>${n.what}</p>
       <h3>On this page</h3><p>${PAGE_NOTES[state.page][state.dir]}</p>
       <h3>Keeps</h3><ul>${n.keeps.map((k) => `<li>${k}</li>`).join('')}</ul>
       <h3>Changes</h3><ul>${n.changes.map((k) => `<li>${k}</li>`).join('')}</ul>
       <h3>Phone</h3><p>${n.phone}</p><h3>Risk</h3><p>${n.risk}</p>`;
-    if (state.dir === 'b' && state.page === 'home') startDrift();
+    if (dirFor(state.page) === 'b' && state.page === 'home') startDrift();
   }
   function fit() {
     const box = stage.querySelector('.frame-box'); const fr = stage.querySelector('.frame');
@@ -372,10 +382,11 @@
     if (b.dataset.notes) state.notes = !state.notes;
     save(); render();
   });
+  document.addEventListener('change', (e) => { const sel = e.target.closest('select[data-blend]'); if (!sel) return; state.blend[sel.dataset.blend] = sel.value; save(); render(); });
   document.addEventListener('keydown', (e) => {
     if (e.target.matches('input,textarea')) return;
-    const dirs = ['a', 'b', 'c', 'd'], pages = ['review', 'home', 'author', 'play', 'reader', 'search', 'word'];
-    if (/^[1-4]$/.test(e.key)) state.dir = dirs[Number(e.key) - 1];
+    const dirs = ['a', 'b', 'c', 'd', 'blend'], pages = ['review', 'home', 'author', 'play', 'reader', 'search', 'word'];
+    if (/^[1-5]$/.test(e.key)) state.dir = dirs[Number(e.key) - 1];
     else if (e.key === 'ArrowRight') state.page = pages[(pages.indexOf(state.page) + 1) % pages.length];
     else if (e.key === 'ArrowLeft') state.page = pages[(pages.indexOf(state.page) + pages.length - 1) % pages.length];
     else if (e.key === 't') state.theme = state.theme === 'dark' ? 'light' : 'dark';
