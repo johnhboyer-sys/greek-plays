@@ -459,7 +459,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-c [data-author="aristophanes"] { --f-auth: var(--f-aristophanes); --on-auth: var(--on-aristophanes); }
 .dir-c .wrap { max-width: 88rem; margin: 0 auto; padding: 0 3rem; }
 .dir-c .hd { display: flex; justify-content: space-between; align-items: baseline; padding: 1.1rem 0; font: 500 1.02rem var(--font-ui); }
-.dir-c .hd .wm { font: 800 1.25rem var(--font-ui); letter-spacing: -.01em; }
+.dir-c .hd .wm { font: 700 1.3rem var(--font-text); }
 .dir-c .hd nav { display: flex; gap: 1.6rem; }
 .dir-c .foot { margin: 3.5rem 0 3rem; display: flex; gap: .5rem 1.6rem; flex-wrap: wrap; font: 500 1rem var(--font-ui); color: var(--mid); }
 .dir-c .pg-author .hd, .dir-c .pg-play .hd { color: var(--on); }
@@ -469,26 +469,26 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-c .fields { display: grid; grid-template-columns: repeat(4, 1fr); }
 .dir-c .field { background: var(--f-auth); color: var(--on-auth); display: flex; flex-direction: column; justify-content: flex-end; min-height: 560px; padding: 2rem 1.6rem 1.6rem; position: relative; }
 .dir-c .field .fig { --h: 300px; --fig-body: var(--on-auth); --fig-ink: var(--f-auth); margin: 0 auto 1.4rem; max-width: 100%; }
-.dir-c .field .en { font: 800 2.55rem/1 var(--font-ui); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.dir-c .field .en { font: 700 2.7rem/1 var(--font-text); overflow-wrap: anywhere; }
 .dir-c .field .gk { font-size: 1.35rem; margin-top: .4rem; }
 .dir-c .field .ct { font: 500 1rem var(--font-ui); margin-top: .5rem; opacity: .85; }
 .dir-c .pg-home .intro { font-size: 1.4rem; max-width: 36em; margin: 2.2rem 0 1.8rem; }
 .dir-c .catalogue { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 2rem; }
-.dir-c .catalogue ol li { font: 700 1.12rem/1.25 var(--font-ui); margin: 0 0 .5rem; color: var(--f-auth); }
+.dir-c .catalogue ol li { font: 700 1.15rem/1.3 var(--font-text); margin: 0 0 .5rem; color: var(--f-auth); }
 .dir-c .catalogue ol li .g { display: block; font: 400 1rem var(--font-text); color: var(--mid); }
 
 /* C · author */
 .dir-c .pg-author .top { background: var(--field); color: var(--on); }
 .dir-c .pg-author .hero { display: grid; grid-template-columns: 24rem 1fr; gap: 3rem; align-items: end; padding: 1rem 3rem 2.2rem; max-width: 88rem; margin: 0 auto; }
 .dir-c .pg-author .hero .fig { --h: 380px; --fig-body: var(--on); --fig-ink: var(--field); max-width: 100%; }
-.dir-c .pg-author .hx .en { font: 800 6rem/.95 var(--font-ui); letter-spacing: -.02em; }
+.dir-c .pg-author .hx .en { font: 700 5.6rem/.98 var(--font-text); }
 .dir-c .pg-author .hx .gk { font-size: 2rem; margin-top: .5rem; }
 .dir-c .pg-author .hx .meta { font: 500 1.1rem var(--font-ui); margin-top: .5rem; opacity: .9; }
 .dir-c .pg-author .hx .ab { font-size: 1.4rem; max-width: 28em; margin-top: .8rem; }
 .dir-c .pg-author .rows { margin-top: 1.6rem; }
 .dir-c .pg-author .row { display: grid; grid-template-columns: 7rem 22rem 1fr; gap: 2rem; align-items: end; padding: 1.1rem 0; }
 .dir-c .pg-author .row .fig { --h: 96px; --fig-body: var(--field); --fig-ink: var(--paper); max-width: 7rem; }
-.dir-c .pg-author .row .t { font: 700 1.55rem/1.1 var(--font-ui); color: var(--field); }
+.dir-c .pg-author .row .t { font: 700 1.6rem/1.15 var(--font-text); color: var(--field); }
 .dir-c .pg-author .row .g { display: block; font: 400 1.15rem var(--font-text); color: var(--mid); margin-top: .15rem; }
 .dir-c .pg-author .row .bl { font-size: 1.15rem; line-height: 1.45; max-width: 36em; }
 .dir-c .pg-author .row .pr { font: 500 .92rem var(--font-ui); color: var(--mid); margin-top: .3rem; }
@@ -497,7 +497,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-c .pg-play .cover { background: var(--field); color: var(--on); }
 .dir-c .pg-play .cover .in { max-width: 88rem; margin: 0 auto; padding: 1rem 3rem 2.4rem; display: grid; grid-template-columns: 1fr 1.1fr; gap: 3rem; align-items: end; min-height: 600px; }
 .dir-c .pg-play .cover .fig { --h: 440px; --fig-body: var(--on); --fig-ink: var(--field); max-width: 100%; justify-self: end; }
-.dir-c .pg-play .cover .et { font: 800 7.2rem/.92 var(--font-ui); letter-spacing: -.025em; }
+.dir-c .pg-play .cover .et { font: 700 6.8rem/.95 var(--font-text); letter-spacing: -.01em; }
 .dir-c .pg-play .cover .gt { font-size: 2.4rem; margin-top: .6rem; }
 .dir-c .pg-play .cover .au { font: 500 1.3rem var(--font-ui); margin-top: .6rem; opacity: .9; }
 .dir-c .pg-play .cover .au a { color: inherit; }
@@ -505,10 +505,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-c .pg-play .arg { font-size: 1.55rem; line-height: 1.38; max-width: 26em; }
 .dir-c .pg-play h3 { font: 700 1rem var(--font-ui); color: var(--mid); margin: 1.8rem 0 .6rem; }
 .dir-c .pg-play .reads li { padding: .5rem 0; }
-.dir-c .pg-play .reads li a { font: 700 1.45rem/1.15 var(--font-ui); color: var(--field); }
+.dir-c .pg-play .reads li a { font: 700 1.45rem/1.15 var(--font-text); color: var(--field); }
 .dir-c .pg-play .reads li .d { display: block; font-size: 1.05rem; color: var(--mid); }
 .dir-c .pg-play .cast { columns: 2; column-gap: 2rem; }
-.dir-c .pg-play .cast li { font: 600 1.15rem/1.6 var(--font-ui); break-inside: avoid; }
+.dir-c .pg-play .cast li { font: 400 1.2rem/1.55 var(--font-text); break-inside: avoid; }
 .dir-c .pg-play .cast li .nm { color: var(--c); }
 .dir-c .pg-play .cast li .sg { font: 400 1rem var(--font-text); color: var(--mid); margin-left: .4em; }
 .dir-c .pg-play .facts { font-size: 1.05rem; line-height: 1.45; }
@@ -521,7 +521,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 
 /* C · reader */
 .dir-c .pg-reader .rh { position: sticky; top: 0; z-index: 3; background: var(--field); color: var(--on); display: flex; align-items: baseline; gap: 1.5rem; padding: .55rem 2rem; font: 500 1rem var(--font-ui); }
-.dir-c .pg-reader .rh .crumbs { font: 700 1.05rem var(--font-ui); }
+.dir-c .pg-reader .rh .crumbs { font: 700 1.15rem var(--font-text); }
 .dir-c .pg-reader .rh .crumbs span { font-weight: 400; opacity: .85; margin-left: .6em; }
 .dir-c .pg-reader .rh .here { font-variant-numeric: tabular-nums; opacity: .9; }
 .dir-c .pg-reader .rh .ctl { margin-left: auto; display: flex; gap: 1.4rem; opacity: .9; }
@@ -529,7 +529,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-c .pg-reader .rd-wrap { max-width: 78rem; margin: 0 auto; padding: 2.2rem 2.5rem 6rem; --rd-cols: 1.05fr 1fr; --rd-gap: 3.2rem; --num-w: 2.6rem; }
 .dir-c .pg-reader .rd-g .ln .t, .dir-c .pg-reader .rd-e .p { font-size: 1.15rem; line-height: 1.6; }
 .dir-c .pg-reader .rd-g .ln .n, .dir-c .pg-reader .rd-e .p .n { color: var(--num); font-weight: 500; }
-.dir-c .pg-reader .spk { font: 700 .85em/1 var(--font-ui); margin-right: .35em; }
+.dir-c .pg-reader .spk { font: 700 .92em/1 var(--font-text); font-variant: small-caps; letter-spacing: .02em; margin-right: .3em; }
 .dir-c .pg-reader .sdir { font-style: italic; color: var(--mid); }
 
 /* C · phone */
@@ -540,10 +540,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-c .fields { grid-template-columns: 1fr 1fr; }
   .dir-c .field { min-height: 300px; padding: 1.2rem .9rem 1rem; }
   .dir-c .field .fig { --h: 160px; margin-bottom: .8rem; }
-  .dir-c .field .en { font-size: 1.7rem; } .dir-c .field .gk { font-size: 1.05rem; }
+  .dir-c .field .en { font-size: 1.8rem; } .dir-c .field .gk { font-size: 1.05rem; }
   .dir-c .pg-home .intro { font-size: 1.15rem; margin: 1.4rem 0 1rem; }
   .dir-c .catalogue { grid-template-columns: 1fr; gap: 1.2rem; }
-  .dir-c .catalogue ol::before { content: attr(data-name); display: block; font: 800 1.5rem var(--font-ui); margin-bottom: .4rem; }
+  .dir-c .catalogue ol::before { content: attr(data-name); display: block; font: 700 1.5rem var(--font-text); margin-bottom: .4rem; }
   .dir-c .pg-author .hero { grid-template-columns: 1fr; gap: .8rem; padding: .4rem 1rem 1.4rem; }
   .dir-c .pg-author .hero .fig { --h: 200px; }
   .dir-c .pg-author .hx .en { font-size: 3.2rem; } .dir-c .pg-author .hx .gk { font-size: 1.3rem; } .dir-c .pg-author .hx .ab { font-size: 1.1rem; }
@@ -730,11 +730,11 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-search .grp li .ref { color: var(--num); }
 
 /* C: poster heading, thick underlines, one filled control, author colours */
-.dir-c .pg-search .big { font: 800 3.4rem/1 var(--font-ui); letter-spacing: -.02em; margin: .6rem 0 .2rem; }
+.dir-c .pg-search .big { font: 700 3rem/1 var(--font-text); margin: .6rem 0 .2rem; }
 .dir-c .pg-search .q .fld { border-bottom: 3px solid var(--ink); }
 .dir-c .pg-search .q label, .dir-c .pg-search .q .opts, .dir-c .pg-search .scope, .dir-c .pg-search .count { font-weight: 500; }
 .dir-c .pg-search .scope .go { background: var(--ink); color: var(--paper); padding: .35rem 1.1rem; font: 700 1rem var(--font-ui); }
-.dir-c .pg-search .grp h2 { color: var(--f-auth); font: 700 1.5rem var(--font-ui); align-items: flex-end; }
+.dir-c .pg-search .grp h2 { color: var(--f-auth); font: 700 1.5rem var(--font-text); align-items: flex-end; }
 .dir-c .pg-search .grp h2 .fig { --fig-body: var(--f-auth); --fig-ink: var(--paper); }
 .dir-c .pg-search .grp h2 .who { color: var(--mid); padding-bottom: .2rem; }
 .dir-c .pg-search .grp mark { background: color-mix(in srgb, var(--f-auth) 26%, transparent); }
@@ -795,7 +795,7 @@ mark.w { background: var(--hit); color: inherit; padding: 0 .06em; }
 .dir-c .wp { border-left: 4px solid var(--field); }
 .dir-c .wp .wph { background: var(--field); color: var(--on); padding: .7rem 1.3rem .6rem; }
 .dir-c .wp .wph .x { color: inherit; }
-.dir-c .wp .parse .lem { font: 700 1.35rem var(--font-ui); color: var(--field); }
+.dir-c .wp .parse .lem { font: 700 1.4rem var(--font-text); color: var(--field); }
 .dir-c .wp .parse .morph, .dir-c .wp .parse .occ { font-weight: 500; }
 .dir-c .wp .parse .occ a { color: var(--field); }
 .dir-d .wp { border-left: 1px solid var(--rule); font-family: var(--font-en); }
