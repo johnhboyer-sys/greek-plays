@@ -472,6 +472,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rh .menu li span { display: block; color: var(--mid); font-size: .9rem; }
 .dir-b .pg-reader .rh .menu .mn { margin-top: .6rem; color: var(--mid); font-size: .9rem; max-width: 24em; }
 .dir-b .pg-reader .rh .menu.aam { min-width: 17rem; }
+.dir-b .pg-reader .rh .menu.wide { min-width: 40rem; left: auto; right: 0; }
+.dir-b .pg-reader .rh .menu .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
 .dir-b .pg-reader .rh .menu .opt { display: flex; gap: 1rem; align-items: baseline; padding: .25rem 0; }
 .dir-b .pg-reader .rh .menu .opt span { color: var(--mid); width: 3.2rem; }
 .dir-b .pg-reader .rh .menu .opt a { color: var(--mid); }
@@ -512,7 +514,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-play.mash .cover .et { font-size: 3.4rem; } .dir-b .pg-play.mash .cover .gt { font-size: 1.4rem; }
   .dir-b .pg-reader .rh { padding: .4rem 1rem 0; gap: .8rem; flex-wrap: wrap; }
   .dir-b .pg-reader .rh .fig { --h: 34px; } .dir-b .pg-reader .rh .crumbs { font-size: 1.05rem; }
-  .dir-b .pg-reader .rh .ctl { gap: .8rem; font-size: .95rem; flex-wrap: wrap; width: 100%; margin-left: 0; padding-top: .2rem; }
+  .dir-b .pg-reader .rh .ctl { gap: .75rem; font-size: .9rem; flex-wrap: wrap; width: 100%; margin-left: 0; padding-top: .2rem; }
+  .dir-b .pg-reader .rh .views { gap: .7rem; }
+  .dir-b .pg-reader .rh .menu .two { grid-template-columns: 1fr; gap: .8rem; }
   .dir-b .pg-reader .rh .menu { position: fixed; left: 1rem; right: 1rem; top: 6.5rem; min-width: 0; }
   .dir-b .pg-reader .rd-wrap { padding: 1.2rem 1rem 4rem; --num-w: 2.2rem; }
 
