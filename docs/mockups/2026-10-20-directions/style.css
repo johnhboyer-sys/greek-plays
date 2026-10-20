@@ -815,6 +815,16 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .pg-search .export { font: 400 .95rem var(--font-ui); color: var(--mid); margin-top: 1.4rem; }
 .pg-search .export a { text-decoration: underline; text-underline-offset: 4px; }
 
+/* B: the search as a sentence */
+.dir-b .pg-search .sent { font-size: 2rem; line-height: 1.5; margin: 2.2rem 0 .6rem; max-width: 34em; }
+.dir-b .pg-search .sent .v { color: var(--ink); text-decoration: underline; text-decoration-color: var(--clay-deep); text-decoration-thickness: 1.5px; text-underline-offset: .18em; white-space: nowrap; }
+.dir-b .pg-search .sent .v i { font-style: normal; font-size: .5em; color: var(--clay-deep); margin-left: .15em; vertical-align: .2em; }
+.dir-b .pg-search .sent .w { border-bottom: 2px solid var(--line); padding: 0 .15em; }
+.dir-b .pg-search .sent .go { display: inline-block; margin-left: 1.2rem; font: 500 1.05rem var(--font-ui); color: var(--clay-deep); vertical-align: .35em; }
+.dir-b .pg-search .hint { font: 400 .95rem var(--font-ui); color: var(--mid); display: flex; gap: 1.4rem; flex-wrap: wrap; }
+.dir-b .pg-search .hint a { text-decoration: underline; text-underline-offset: 4px; }
+.dir-b .pg-search .count { margin-top: 2.4rem; }
+
 /* B: the plays head their hits on the ground line, as solid silhouettes */
 .dir-b { --hit: color-mix(in srgb, #c8743f 30%, transparent); }
 .dir-b[data-theme="dark"] { --hit: color-mix(in srgb, #c8743f 45%, transparent); }
@@ -908,6 +918,8 @@ mark.w { background: var(--hit); color: inherit; padding: 0 .06em; }
 @container mock (max-width: 700px) {
   .pg-search .sf { gap: .8rem; margin: 1rem 0 1.2rem; }
   .pg-search .q { grid-template-columns: 1fr; gap: .2rem; }
+  .dir-b .pg-search .sent { font-size: 1.45rem; margin-top: 1.4rem; }
+  .dir-b .pg-search .sent .go { display: block; margin: .6rem 0 0; }
   .pg-search .q .fld { font-size: 1.4rem; }
   .pg-search .scope { margin-left: 0; flex-wrap: wrap; }
   .pg-search .grp h2 { flex-wrap: wrap; gap: .3rem .8rem; font-size: 1.35rem; }
