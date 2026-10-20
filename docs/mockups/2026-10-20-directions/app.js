@@ -1,0 +1,342 @@
+/* The four directions: data access, page templates, the chrome's state. */
+(function () {
+  'use strict';
+  const D = window.DATA;
+  const W = D.works, DR = D.drawings;
+  const AUTHORS = D.authors;
+  const byId = Object.fromEntries(AUTHORS.map((a) => [a.id, a]));
+
+  // Which drawing stands for which play (docs/redesign/research/play-image-plan.json on main).
+  const PLAY_FIG = {
+    'persians': 'persians', 'seven-against-thebes': 'seven', 'suppliants-aesch': 'suppliants-aesch', 'prometheus-bound': 'prometheus',
+    'agamemnon': null, 'libation-bearers': 'libation-bearers', 'eumenides': 'eumenides',
+    'ajax': 'ajax', 'antigone': 'antigone', 'trachiniae': 'trachiniae', 'oedipus-tyrannus': 'oedipus-tyrannus', 'electra-soph': 'electra-soph', 'philoctetes': 'philoctetes', 'oedipus-coloneus': 'oedipus-coloneus',
+    'alcestis': 'alcestis-apollo', 'medea': 'medea', 'heraclidae': 'heraclidae', 'hippolytus': 'hippolytus', 'andromache': 'andromache', 'hecuba': 'hecuba', 'suppliants-eur': 'suppliants-eur', 'electra-eur': 'electra-eur', 'heracles': 'heracles', 'trojan-women': 'trojan-women', 'iphigenia-in-tauris': 'iphigenia-in-tauris', 'ion': 'ion', 'helen': 'helen', 'phoenician-women': 'phoenician-women', 'orestes': 'orestes', 'bacchae': 'bacchae', 'iphigenia-at-aulis': 'iphigenia-at-aulis', 'rhesus': 'rhesus', 'cyclops': 'cyclops',
+    'acharnians': 'acharnians', 'knights': 'knights', 'clouds': 'clouds', 'wasps': 'wasps', 'peace': 'peace', 'birds': 'birds', 'lysistrata': 'lysistrata', 'thesmophoriazusae': 'aristophanes-mika', 'frogs': 'frogs', 'ecclesiazusae': 'ecclesiazusae', 'wealth': 'wealth',
+  };
+  const HOME_FIG = { aeschylus: 'aeschylus-pythia', sophocles: 'sophocles-euphorbos', euripides: 'euripides-iphigenia', aristophanes: 'aristophanes-king' };
+  const AUTHOR_FIG = { aeschylus: 'aeschylus-pythia', sophocles: 'sophocles-euphorbos', euripides: 'euripides-iphigenia', aristophanes: 'thesmophoriazusae' };
+
+  // Medea's persons, in order of appearance, with the edition's sigla and the
+  // site's speaker slots (as the built playbill shows them).
+  const CAST = [
+    ['Nurse', 'Τρ.', 1], ['Attendant', 'Πα.', 7], ['Medea', 'Μη.', 0], ['Chorus', 'Χο.', 2],
+    ['Creon', 'Κρ.', 5], ['Jason', 'Ια.', 3], ['Aegeus', 'Αι.', 6], ['Messenger', 'Αγ.', 8],
+    ['Son', 'Παις', 9], ['First Son', 'Πα.α', 10], ['Second Son', 'Πα.β', 11],
+  ];
+  const SPK = { 'Μήδεια': ['Μη.', 'Medea', 0], 'Ἄγγελος': ['Αγ.', 'Messenger', 8], 'Τροφός': ['Τρ.', 'Nurse', 1], 'Χορός': ['Χο.', 'Chorus', 2] };
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const yearOf = (name) => { const m = /\b(\d{4})\b/.exec(name || ''); return m ? m[1] : ''; };
+  const nameOf = (t) => t.name.replace(/\s*\([^)]*\)\s*$/, '');
+  const prodYear = (w) => { const m = /\b(c\. )?(\d{3}) BC\b/.exec(w.production || ''); return m ? `${m[1] || ''}${m[2]} BC` : (/unknown|disputed/.test(w.production || '') ? 'date unknown' : ''); };
+
+  // A drawing as two coloured masks. `h` in px; the large masks where they exist.
+  function fig(name, h, cls = '') {
+    if (!name || !DR[name]) return `<span class="fig empty ${cls}" style="--h:${h}px;--r:.7"></span>`;
+    const d = DR[name]; const sz = d.large && h > 170 ? '' : '-s';
+    return `<span class="fig ${cls}" role="img" aria-label="${esc(d.title)}" style="--h:${h}px;--r:${d.ratio};--lines:url(drawings/${name}-lines${sz}.png);--body:url(drawings/${name}-body${sz}.png)"></span>`;
+  }
+  const playFig = (id, h, cls) => fig(PLAY_FIG[id], h, cls);
+
+  // ── The passage: Medea 1116–1160, Murray's Greek with Coleridge beside it ──
+  function speeches() {
+    const g = D.samples.medea_grc, e = D.samples.medea_eng;
+    const G = []; for (const l of g) { if (l.spk) G.push({ spk: l.spk, lines: [] }); G[G.length - 1].lines.push(l); }
+    const E = []; for (const l of e) { if (l.spk) E.push({ spk: l.spk, parts: [] }); E[E.length - 1].parts.push(l); }
+    return G.map((s, i) => {
+      const meta = SPK[s.spk] || [s.spk, s.spk, 4];
+      const en = E[i] || { parts: [] };
+      return { sig: meta[0], name: meta[1], slot: meta[2], g: s.lines, e: en.parts };
+    });
+  }
+  const numShown = (n, first) => first || (/^\d+$/.test(n) && Number(n) % 5 === 0);
+
+  // One speech as a reader row. mode: 'run' (name runs into the first line)
+  // or 'margin' (name in its own column, direction D).
+  function row(sp, opts, first, isCont) {
+    const c = `--c:var(--spk-${sp.slot})`;
+    const gl = sp.g.map((l, i) => {
+      const n = numShown(l.n, first && i === 0) ? l.n : '';
+      const name = i === 0 && !isCont ? (opts.mode === 'margin' ? '' : `<span class="spk" style="${c}">${esc(sp.sig)}</span>`) : '';
+      const m = opts.mode === 'margin' ? `<span class="m" style="${c}">${i === 0 && !isCont ? esc(sp.sig) : ''}</span>` : '';
+      return `<div class="ln${l.part === 'F' ? ' part' : ''}"><span class="n num">${n}</span>${m}<span class="t" lang="grc">${name}${esc(l.grc)}</span></div>`;
+    }).join('');
+    const ename = isCont ? '' : (opts.mode === 'margin' ? `<span class="m" style="${c}">${esc(sp.name)}</span>` : `<span class="spk" style="${c}">${esc(sp.name)}.</span>`);
+    const el = sp.e.map((p, i) => `<span class="n num">${p.n}</span>${i ? ' ' : ''}${esc(p.eng)}`).join(' ');
+    return `<div class="rd-row${isCont ? ' cont' : ''}"><div class="rd-g">${gl}</div><div class="rd-e"><p class="p">${ename}${el}</p></div></div>`;
+  }
+  function readerRows(opts = {}) {
+    const S = speeches();
+    if (!opts.alt) return `<div class="rd-body">${S.map((sp, i) => row(sp, opts, i === 0, false)).join('')}</div>`;
+    // Phone: speech by speech; a long speech in pieces at the translation's own markers.
+    const out = [];
+    S.forEach((sp, i) => {
+      if (sp.g.length <= 6 || sp.e.length < 2) { out.push(row(sp, opts, i === 0, false)); return; }
+      const marks = sp.e.map((p) => Number(p.n));
+      sp.e.forEach((p, k) => {
+        const lo = marks[k], hi = k + 1 < marks.length ? marks[k + 1] : 1e9;
+        const lines = sp.g.filter((l) => { const n = parseInt(l.n, 10); return n >= lo && n < hi; });
+        out.push(row({ ...sp, g: lines, e: [p] }, opts, i === 0 && k === 0, k > 0));
+      });
+    });
+    return `<div class="rd-body">${out.join('')}</div>`;
+  }
+  function openingRows(opts = {}) {
+    const g = D.samples.medea_grc_open, e = D.samples.medea_eng_open;
+    const sp = { sig: 'Τρ.', name: 'Nurse', slot: 1, g, e };
+    return `<div class="rd-body">${row(sp, opts, true, false)}</div>`;
+  }
+
+  // ── Shared pieces of content ─────────────────────────────────────────────
+  const medea = W.medea, euripides = byId.euripides;
+  const worksOf = (a) => a.works.map((id) => W[id]).filter(Boolean);
+  const castList = (cls, fmt) => `<ul class="${cls}">${CAST.map(([n, s, slot]) => fmt(n, s, slot)).join('')}</ul>`;
+  const transRead = (w) => w.translations.map((t) => {
+    const ed = t.edition ? w.greekEditions.find((e) => e.id === t.edition) : null;
+    const yr = yearOf(t.name);
+    const bits = [t.form, yr, t.alignment === 'line' ? 'aligned by line' : 'aligned by speech', ed ? `with ${ed.short.replace(/\s*\(\d{4}\)/, '')}'s Greek` : "with the reference Greek"].filter(Boolean);
+    return { name: nameOf(t), short: t.short, bits };
+  });
+
+  // ── Templates ────────────────────────────────────────────────────────────
+  const T = { a: {}, b: {}, c: {}, d: {} };
+
+  // A ──────────────────────────────────────────────────────────────────────
+  const aHead = (extra = '') => `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav>${extra}<a href="#">Search</a><a href="#">Dark</a></nav></header>`;
+  const aFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a><a href="#">Report an error</a></footer>`;
+  T.a.home = () => `<div class="page pg-home"><div class="wrap">${aHead()}
+    <p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
+    <div class="frieze">${AUTHORS.map((a) => `<div class="col" data-author="${a.id}"><div class="fb">${fig(HOME_FIG[a.id], 300)}</div>
+      <div class="nm"><span class="gk" lang="grc">${a.nativeName}</span><a class="en" href="#">${a.name}</a><span class="ct">${a.works.length} plays</span></div></div>`).join('')}</div>
+    <div class="contents">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
+    ${aFoot}</div></div>`;
+  T.a.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${aHead()}
+    <div class="hero"><div class="fb">${fig(AUTHOR_FIG[a.id], 300)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div>
+    <ul class="plays">${worksOf(a).map((w) => `<li class="play"><div><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></div><div><p class="bl">${esc(w.blurb)}</p>${w.production ? `<p class="pr">${esc(w.production)}</p>` : ''}</div></li>`).join('')}</ul>
+    <footer class="foot"><a href="#">All playwrights</a><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a></footer></div></div>`; };
+  T.a.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${aHead()}
+    <div class="scene">${playFig(w.id, 330)}</div>
+    <div class="tb"><p class="gt" lang="grc">${esc(w.greekTitle)}</p><h1 class="et">${esc(w.title)}</h1><a class="au" href="#">Euripides</a></div>
+    <p class="arg">${esc(w.argument)}</p>
+    <div class="two"><div><h3>Read it</h3><ul class="reads">${transRead(w).map((t) => `<li><a href="#">${esc(t.name)}</a><span class="d">${t.bits.join(', ')}</span></li>`).join('')}<li class="go"><a href="#">Greek only</a></li></ul>
+      <details class="syn"><summary>Full synopsis (tells the ending)</summary><p>${esc(w.synopsis)}</p></details></div>
+      <div><h3>Persons, in order of appearance</h3>${castList('cast', (n, s, slot) => `<li style="--c:var(--spk-${slot})">${n}<span class="sg" lang="grc">${s}</span></li>`)}
+      <div class="facts"><p><b>First staged</b> ${esc(w.production)}</p><p><b>Greek texts</b> ${w.greekEditions.map((e) => esc(e.short)).join(', ')}</p><p><b>Cite as</b> ${esc(w.citeAbbr)} 1–1419</p></div></div></div>
+    <p class="credit">Drawing: ${esc(DR.medea.desc)}</p>
+    ${aFoot}</div></div>`; };
+  T.a.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
+    <div class="rh"><span class="crumbs"><a href="#">Euripides</a> · <a href="#">Medea</a></span><span class="here">1116–1160</span><span class="ctl"><a href="#">Coleridge, 1891</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
+    <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
+
+  // B ──────────────────────────────────────────────────────────────────────
+  const bHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav><a href="#">Search</a><a href="#">Dark</a></nav></header>`;
+  const bFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a></footer>`;
+  function band(authors, { leadH = 250, h = 190 } = {}) {
+    return `<div class="band" style="--lead-h:${leadH}px;--band-h:${h}px"><div class="track">${authors.map((a) => `<div class="seg" data-author="${a.id}">
+      <div class="lead"><div class="fb">${fig(AUTHOR_FIG[a.id], leadH)}</div><div class="who">${a.name}<span class="g" lang="grc">${a.nativeName}</span></div></div>
+      ${worksOf(a).map((w) => `<a class="item${PLAY_FIG[w.id] === 'prometheus' ? ' lines' : ''}" href="#"><span class="fb">${playFig(w.id, h)}</span><span class="ttl">${esc(w.title)}<span class="g" lang="grc">${esc(w.greekTitle)}</span></span></a>`).join('')}
+    </div>`).join('')}</div></div>`;
+  }
+  T.b.home = () => `<div class="page pg-home"><div class="wrap">${bHead}</div>
+    ${band(AUTHORS)}
+    <div class="wrap"><p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
+    <p class="authors">${AUTHORS.map((a) => `<a href="#">${a.name}<span>${a.works.length}</span></a>`).join('')}</p>
+    ${bFoot}</div></div>`;
+  T.b.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${bHead}
+    <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
+    ${band([a], { leadH: 0, h: 170 }).replace(/<div class="lead">[\s\S]*?<\/div><\/div>/, '')}
+    <div class="wrap"><ul class="list">${worksOf(a).map((w) => `<li><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span><p class="bl">${esc(w.blurb)}</p>${w.production ? `<p class="pr">${esc(w.production)}</p>` : ''}</li>`).join('')}</ul>
+    ${bFoot}</div></div>`; };
+  T.b.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${bHead}
+    <div class="scene">${playFig(w.id, 460)}</div>
+    <div class="tb"><div><p class="gt" lang="grc">${esc(w.greekTitle)}</p><h1 class="et">${esc(w.title)}</h1></div><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>
+    <p class="arg">${esc(w.argument)}</p>
+    <div class="three">
+      <div><h3>Persons, in order of appearance</h3>${castList('cast', (n, s, slot) => `<li style="--c:var(--spk-${slot})"><span class="sg" lang="grc">${s}</span><span>${n}</span></li>`)}</div>
+      <div><h3>Translations</h3><ul class="reads">${transRead(w).map((t) => `<li><a href="#">${esc(t.name)}</a><span class="d">${t.bits.join(' · ')}</span></li>`).join('')}</ul></div>
+      <div><h3>Greek texts</h3><ul class="eds">${w.greekEditions.map((e) => `<li><a href="#">${esc(e.full.replace(/\s*\([^)]*\)\s*$/, ''))}</a><span class="y">${e.year}</span></li>`).join('')}</ul>
+      <div class="facts"><p><b>Cite as</b> ${esc(w.citeAbbr)} 1–1419</p></div></div>
+    </div>
+    <div class="open"><h3>The play begins</h3>${openingRows({ mode: 'run' })}<p class="more"><a href="#">Read on with Coleridge</a></p></div>
+    <details class="syn"><summary>Full synopsis (tells the ending)</summary><p>${esc(w.synopsis)}</p></details>
+    <p class="credit">Drawing: ${esc(DR.medea.desc)}</p>
+    ${bFoot}</div></div>`; };
+  T.b.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
+    <div class="rh">${playFig('medea', 44)}<span class="crumbs"><a href="#">Euripides</a> · <a href="#">Medea</a><span class="g" lang="grc">Μήδεια</span></span><span class="here"><b>1116</b> of 1419</span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
+    <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
+
+  // C ──────────────────────────────────────────────────────────────────────
+  const cHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav><a href="#">Plays</a><a href="#">Search</a><a href="#">Dark</a></nav></header>`;
+  const cFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a></footer>`;
+  T.c.home = () => `<div class="page pg-home"><div class="wrap">${cHead}</div>
+    <div class="fields">${AUTHORS.map((a) => `<a class="field" href="#" data-author="${a.id}">${fig(HOME_FIG[a.id], 300)}<span class="en">${a.name}</span><span class="gk" lang="grc">${a.nativeName}</span><span class="ct">${a.works.length} plays</span></a>`).join('')}</div>
+    <div class="wrap"><p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
+    <div class="catalogue">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
+    ${cFoot}</div></div>`;
+  T.c.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="top">${cHead}
+    <div class="hero">${fig(AUTHOR_FIG[a.id], 380)}<div class="hx"><h1 class="en">${a.name}</h1><p class="gk" lang="grc">${a.nativeName}</p><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
+    <div class="wrap"><ul class="rows">${worksOf(a).map((w) => `<li class="row">${playFig(w.id, 96)}<div><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></div><div><p class="bl">${esc(w.blurb)}</p>${w.production ? `<p class="pr">${esc(w.production)}</p>` : ''}</div></li>`).join('')}</ul>
+    ${cFoot}</div></div>`; };
+  T.c.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="cover">${cHead}
+    <div class="in"><div><h1 class="et">${esc(w.title)}</h1><p class="gt" lang="grc">${esc(w.greekTitle)}</p><p class="au"><a href="#">Euripides</a></p></div>${playFig(w.id, 440)}</div></div>
+    <div class="wrap"><div class="body"><div><p class="arg">${esc(w.argument)}</p>
+      <h3>Read it with</h3><ul class="reads">${transRead(w).map((t) => `<li><a href="#">${esc(t.name)}</a><span class="d">${t.bits.join(', ')}</span></li>`).join('')}<li><a href="#">The Greek alone</a><span class="d">${w.greekEditions.map((e) => esc(e.short)).join(', ')}</span></li></ul>
+      <details class="syn"><summary>Full synopsis (tells the ending)</summary><p>${esc(w.synopsis)}</p></details></div>
+      <div><h3>Persons, in order of appearance</h3>${castList('cast', (n, s, slot) => `<li style="--c:var(--spk-${slot})"><span class="nm">${n}</span><span class="sg" lang="grc">${s}</span></li>`)}
+      <h3>First staged</h3><div class="facts"><p>${esc(w.production)}</p></div><h3>Cite as</h3><div class="facts"><p>${esc(w.citeAbbr)} 1–1419</p></div></div></div>
+    <p class="credit">Drawing: ${esc(DR.medea.desc)}</p>
+    ${cFoot}</div></div>`; };
+  T.c.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
+    <div class="rh"><span class="crumbs">Medea<span>Euripides</span></span><span class="here">1116–1160</span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
+    <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
+
+  // D ──────────────────────────────────────────────────────────────────────
+  const dHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav><a href="#">Contents</a><a href="#">Search</a><a href="#">Lexicon</a><a href="#">Dark</a></nav></header>`;
+  const dFoot = `<footer class="foot"><a href="#">Texts and licences</a><a href="#">Support</a><a href="#">Report an error</a></footer>`;
+  T.d.home = () => `<div class="page pg-home"><div class="wrap">${dHead}
+    <div class="titlepage">${fig('aeschylus-pythia', 170)}<h1>The Greek Drama Reader</h1><p class="sub">The forty-four surviving plays of <em>Aeschylus, Sophocles, Euripides,</em> and <em>Aristophanes,</em> in Greek and English, with several translations of each</p></div>
+    <div class="contents">${AUTHORS.map((a) => `<section><h2>${a.name}<span class="g" lang="grc">${a.nativeName}</span></h2><ol>${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}<span class="g" lang="grc">${esc(w.greekTitle)}</span></a><span class="y">${prodYear(w)}</span></li>`).join('')}</ol></section>`).join('')}</div>
+    ${dFoot}</div></div>`;
+  T.d.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${dHead}
+    <div class="part"><div><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays survive</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div>${fig(AUTHOR_FIG[a.id], 300)}</div>
+    <ul class="list">${worksOf(a).map((w) => `<li><div><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></div><p class="bl">${esc(w.blurb)}</p><span class="y">${prodYear(w)}</span></li>`).join('')}</ul>
+    ${dFoot}</div></div>`; };
+  T.d.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${dHead}
+    <div class="tp"><div><p class="gt" lang="grc">ΜΗΔΕΙΑ</p><h1 class="et">${esc(w.title)}</h1><p class="au">Euripides · ${esc(w.production)}</p></div>${playFig(w.id, 360)}</div>
+    <h3>Argument</h3><p class="arg">${esc(w.argument)} ${esc(w.synopsis.split('. ').slice(0, 2).join('. '))}.</p>
+    <div class="two"><div><h3>Persons of the drama</h3>${castList('cast', (n, s, slot) => `<li style="--c:var(--spk-${slot})"><span class="sg" lang="grc">${s}</span><span>${n}</span></li>`)}
+      <h3>The Greek text</h3><ul class="bib">${w.greekEditions.map((e) => `<li><a href="#">${esc(e.full)}</a></li>`).join('')}</ul></div>
+      <div><h3>Translations</h3><ul class="bib">${transRead(w).map((t) => `<li><a href="#">${esc(t.name)}</a>, ${t.bits.join(', ')}.</li>`).join('')}</ul>
+      <div class="facts"><p><b>Cite as</b> ${esc(w.citeAbbr)} 1–1419</p></div>
+      <details class="syn"><summary>Synopsis, with the ending</summary><p>${esc(w.synopsis)}</p></details></div></div>
+    <div class="open"><h3>Lines 1–8</h3>${openingRows({ mode: 'margin' })}<p class="more"><a href="#">Continue with Coleridge's translation</a></p></div>
+    <p class="credit">Frontispiece: ${esc(DR.medea.desc)}</p>
+    ${dFoot}</div></div>`; };
+  T.d.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
+    <div class="ctlbar"><a href="#">Euripides</a><a href="#">Medea</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Coleridge</a><a href="#">Search</a></div>
+    <div class="book${alt ? ' rd-alt' : ''}"><div class="rhead l"><span class="g" lang="grc">ΜΗΔΕΙΑ</span><span class="sc">Murray 1902</span><span>1116–1160</span></div><div class="rhead r"><span>1116–1160</span><span class="sc">Coleridge 1891</span><span class="sc">Medea</span></div>
+    ${readerRows({ mode: 'margin', alt })}</div></div>`;
+
+  // ── Notes ────────────────────────────────────────────────────────────────
+  const NOTES = {
+    a: { name: 'A · The Frieze, finished', what: 'The current design kept and corrected. Same paper, figures, tints, and type. The composition and the hierarchy are fixed, a play page is added, and the reader keeps one running head.',
+      keeps: ['Every rule in DESIGN.md: no rules, boxes, cards, or shadows; the figures on their ground line; the author tints.', 'Attic orange figures in both themes.'],
+      changes: ['Home: all 44 titles under the frieze, each author\'s plays under his figure. Either every title or none.', 'Greek titles in ink, near the English size, on every page.', 'The playbill becomes a page of its own. Each translation is a way in; Persons stand in one column.', 'Reader: one running head, no second bar, no toast; speaker names lighter.'],
+      phone: 'Two pairs of figures, then the four lists. The reader alternates Greek and English speech by speech.',
+      risk: 'The quietest of the four. It fixes what is wrong without adding an idea.' },
+    b: { name: 'B · The Vase', what: 'The 44 drawings carry the site. One ground line runs through every page. On the home page every play stands on it in order, as figures on a vase band, and the band scrolls sideways. An author page shows his own band; a play page shows its scene at full size; the reader keeps the line under its head, with the play\'s figure at the left.',
+      keeps: ['The drawings exactly as made; the ground line; warm paper; Cardo for text, Alegreya Sans for controls; no rules or boxes beyond the one line.', 'Speaker colours per character; numbers every fifth line; English the same size as the Greek.'],
+      changes: ['Colour is the vase\'s own: black, clay, paper. No author tints anywhere.', 'Small figures are drawn as black-figure silhouettes (ink on paper), large ones as now (clay body, dark lines). Dark theme is the black glaze: everything red-figure.', 'The play page prints the opening lines and reads on from there.', 'The band drifts slowly until touched; off under reduced motion.'],
+      phone: 'The band swipes, one author at a time, with the author\'s figure held at the left edge.',
+      risk: 'Two renderings of the drawings; and the band only works if all 44 are drawn (Agamemnon is the one gap).' },
+    c: { name: 'C · The Playbill', what: 'Flat colour, one strong field per author; the figures as paper silhouettes on the colour; poster type for titles and Cardo for everything read. A play\'s page opens as its cover. The reader\'s head is a thin band of the author\'s colour.',
+      keeps: ['The drawings; Cardo for all reading text; speaker colours per character; no rules, no shadows, no rounded corners.'],
+      changes: ['The pale tints become saturated fields: indigo, bottle green, oxblood, mustard.', 'Titles in Alegreya Sans at its heaviest weight. DESIGN.md says Cardo for titles; this breaks that on purpose.', 'The fields are panels, which DESIGN.md forbids.', 'Author pages list each play with its own small silhouette.'],
+      phone: 'The four covers stack two across; rows keep the small silhouette; the reader\'s band stays thin.',
+      risk: 'Loud. The four fields side by side need tuning, and the mustard must hold its own against the other three.' },
+    d: { name: 'D · The Edition', what: 'The site as a printed book. Cardo for Greek and EB Garamond for English; speaker names and running heads as rubrics; hairline rules only where a book has them; the margins carry the line numbers and the speakers. Home is a title page and a contents page, an author page a part title, a play page its title page with the persons of the drama, and the reader an opening of the book, Greek on the left page, English on the right.',
+      keeps: ['The drawings, as engraved vignettes in black line (clay-filled in the dark theme, as approved); speaker colours per character; the Greek and English of each speech on one line.'],
+      changes: ['A second face for the English, with true small caps and italics.', 'Speaker names in the margin, not run in; line numbers in the outer margins, as in an OCT.', 'Hairline rules under running heads and between the parts of a page.', 'A centred title page; no author tints, no clay in the light theme.'],
+      phone: 'One page at a time, the Greek then its English; the right-hand running head goes.',
+      risk: 'The least colour of the four, and the drawings carry less. It lives or dies on the type.' },
+  };
+  const PAGE_NOTES = {
+    home: { a: 'The frieze as built, with the complete contents under it.', b: 'The whole corpus on one line. Scroll sideways, or wait for it to turn.', c: 'Four fields, four silhouettes, then the catalogue.', d: 'A title page, then the contents with first-performance dates.' },
+    author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'His own band under the hero; the list below carries the notes.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
+    play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'The scene at full size, then the opening lines on the page itself.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts, lines 1–8.' },
+    reader: { a: 'One running head. Names run in, lighter. Numbers every fifth line.', b: 'The ground line under the head, the play\'s figure at the left, numbers in the gutter.', c: 'A thin band of the author\'s colour; names in a bold sans.', d: 'An opening of the book: sigla and names in the margins, numbers outside.' },
+  };
+
+  // ── Chrome ───────────────────────────────────────────────────────────────
+  const state = { dir: 'a', page: 'review', theme: 'light', width: 'desktop', notes: true };
+  try { Object.assign(state, JSON.parse(localStorage.getItem('gdr-directions') || '{}')); } catch (e) { /* ignore */ }
+  const save = () => { try { localStorage.setItem('gdr-directions', JSON.stringify(state)); } catch (e) { /* ignore */ } };
+
+  const stage = document.getElementById('stage');
+  const notesEl = document.getElementById('notes');
+  const wrapEl = document.getElementById('stage-wrap');
+  let drift = null;
+
+  function frameHtml(dir, page, theme, phone) {
+    const alt = phone;
+    const html = T[dir][page](alt);
+    return `<div class="frame dir-${dir}${phone ? ' ph' : ''}" data-theme="${theme}">${html}</div>`;
+  }
+  function render() {
+    document.querySelectorAll('[data-dir]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dir === state.dir)));
+    document.querySelectorAll('[data-page]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.page === state.page)));
+    document.querySelectorAll('[data-theme-pick]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themePick === state.theme)));
+    document.querySelectorAll('[data-width]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.width === state.width)));
+    if (drift) { cancelAnimationFrame(drift); drift = null; }
+    const review = document.getElementById('review');
+    if (state.page === 'review') {
+      review.hidden = false; wrapEl.hidden = true; return;
+    }
+    review.hidden = true; wrapEl.hidden = false;
+    wrapEl.classList.toggle('no-notes', !state.notes);
+    notesEl.hidden = !state.notes;
+    if (state.width === 'phone') {
+      stage.innerHTML = `<div class="frame-box phone">${frameHtml(state.dir, state.page, state.theme, true)}${frameHtml(state.dir, state.page, state.theme === 'dark' ? 'light' : 'dark', true)}</div><p class="frame-cap">390 × 844, both themes.</p>`;
+    } else {
+      stage.innerHTML = `<div class="frame-box">${frameHtml(state.dir, state.page, state.theme, false)}</div><p class="frame-cap">1440 × 900, scaled to fit. The page scrolls inside the frame.</p>`;
+      fit();
+    }
+    const n = NOTES[state.dir];
+    notesEl.innerHTML = `<p class="dir-name">Direction ${state.dir.toUpperCase()} of four</p><h2>${n.name}</h2><p>${n.what}</p>
+      <h3>On this page</h3><p>${PAGE_NOTES[state.page][state.dir]}</p>
+      <h3>Keeps</h3><ul>${n.keeps.map((k) => `<li>${k}</li>`).join('')}</ul>
+      <h3>Changes</h3><ul>${n.changes.map((k) => `<li>${k}</li>`).join('')}</ul>
+      <h3>Phone</h3><p>${n.phone}</p><h3>Risk</h3><p>${n.risk}</p>`;
+    if (state.dir === 'b' && state.page === 'home') startDrift();
+  }
+  function fit() {
+    const box = stage.querySelector('.frame-box'); const fr = stage.querySelector('.frame');
+    if (!box || !fr || fr.classList.contains('ph')) return;
+    const avail = stage.clientWidth; const s = Math.min(1, avail / 1440);
+    fr.style.transform = `scale(${s})`; box.style.height = `${900 * s}px`; box.style.width = `${1440 * s}px`;
+  }
+  function startDrift() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const bands = stage.querySelectorAll('.band'); if (!bands.length) return;
+    let on = true; const stop = () => { on = false; };
+    bands.forEach((b) => ['wheel', 'pointerdown', 'touchstart', 'keydown'].forEach((ev) => b.addEventListener(ev, stop, { passive: true, once: true })));
+    let last = performance.now();
+    const step = (t) => { if (!on) return; const dt = t - last; last = t; bands.forEach((b) => { b.scrollLeft += dt * 0.018; }); drift = requestAnimationFrame(step); };
+    drift = requestAnimationFrame(step);
+  }
+  // Drag to scroll the band (desktop), and wheel → sideways.
+  stage.addEventListener('wheel', (e) => { const b = e.target.closest('.band'); if (b && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { b.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
+  let dragging = null;
+  stage.addEventListener('pointerdown', (e) => { const b = e.target.closest('.band'); if (b) { dragging = { b, x: e.clientX, left: b.scrollLeft }; b.setPointerCapture(e.pointerId); } });
+  stage.addEventListener('pointermove', (e) => { if (dragging) dragging.b.scrollLeft = dragging.left - (e.clientX - dragging.x) / (scaleOf(dragging.b)); });
+  stage.addEventListener('pointerup', () => { dragging = null; });
+  stage.addEventListener('click', (e) => { if (dragging !== null) return; const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault(); });
+  function scaleOf(el) { const fr = el.closest('.frame'); const m = /scale\(([\d.]+)\)/.exec(fr?.style.transform || ''); return m ? Number(m[1]) : 1; }
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-dir],button[data-page],button[data-theme-pick],button[data-width],button[data-notes]');
+    if (!b) return;
+    if (b.dataset.dir) state.dir = b.dataset.dir;
+    if (b.dataset.page) state.page = b.dataset.page;
+    if (b.dataset.themePick) state.theme = b.dataset.themePick;
+    if (b.dataset.width) state.width = b.dataset.width;
+    if (b.dataset.notes) state.notes = !state.notes;
+    save(); render();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input,textarea')) return;
+    const dirs = ['a', 'b', 'c', 'd'], pages = ['review', 'home', 'author', 'play', 'reader'];
+    if (/^[1-4]$/.test(e.key)) state.dir = dirs[Number(e.key) - 1];
+    else if (e.key === 'ArrowRight') state.page = pages[(pages.indexOf(state.page) + 1) % pages.length];
+    else if (e.key === 'ArrowLeft') state.page = pages[(pages.indexOf(state.page) + pages.length - 1) % pages.length];
+    else if (e.key === 't') state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    else if (e.key === 'p') state.width = state.width === 'phone' ? 'desktop' : 'phone';
+    else return;
+    save(); render();
+  });
+  addEventListener('resize', fit);
+  const h = location.hash.replace('#', '');
+  if (['home', 'author', 'play', 'reader', 'review'].includes(h)) state.page = h;
+  render();
+})();

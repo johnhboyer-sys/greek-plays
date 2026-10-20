@@ -1,0 +1,548 @@
+{
+ "medea_grc": [
+  {
+   "n": "1116",
+   "spk": "Μήδεια",
+   "part": null,
+   "grc": "φίλαι, πάλαι τοι προσμένουσα τὴν τύχην"
+  },
+  {
+   "n": "1117",
+   "spk": null,
+   "part": null,
+   "grc": "καραδοκῶ τἀκεῖθεν οἷ προβήσεται."
+  },
+  {
+   "n": "1118",
+   "spk": null,
+   "part": null,
+   "grc": "καὶ δὴ δέδορκα τόνδε τῶν Ἰάσονος"
+  },
+  {
+   "n": "1119",
+   "spk": null,
+   "part": null,
+   "grc": "στείχοντ’ ὀπαδῶν· πνεῦμα δ’ ἠρεθισμένον"
+  },
+  {
+   "n": "1120",
+   "spk": null,
+   "part": null,
+   "grc": "δείκνυσιν ὥς τι καινὸν ἀγγελεῖ κακόν."
+  },
+  {
+   "n": "1121",
+   "spk": "Ἄγγελος",
+   "part": null,
+   "grc": "ὦ δεινὸν ἔργον παρανόμως εἰργασμένη,"
+  },
+  {
+   "n": "1122",
+   "spk": null,
+   "part": null,
+   "grc": "Μήδεια, φεῦγε φεῦγε, μήτε ναΐαν"
+  },
+  {
+   "n": "1123",
+   "spk": null,
+   "part": null,
+   "grc": "λιποῦσ’ ἀπήνην μήτ’ ὄχον πεδοστιβῆ."
+  },
+  {
+   "n": "1124",
+   "spk": "Μήδεια",
+   "part": null,
+   "grc": "τί δ’ ἄξιόν μοι τῆσδε τυγχάνει φυγῆς;"
+  },
+  {
+   "n": "1125",
+   "spk": "Ἄγγελος",
+   "part": null,
+   "grc": "ὄλωλεν ἡ τύραννος ἀρτίως κόρη"
+  },
+  {
+   "n": "1126",
+   "spk": null,
+   "part": null,
+   "grc": "Κρέων θ’ ὁ φύσας φαρμάκων τῶν σῶν ὕπο."
+  },
+  {
+   "n": "1127",
+   "spk": "Μήδεια",
+   "part": null,
+   "grc": "κάλλιστον εἶπας μῦθον, ἐν δ’ εὐεργέταις"
+  },
+  {
+   "n": "1128",
+   "spk": null,
+   "part": null,
+   "grc": "τὸ λοιπὸν ἤδη καὶ φίλοις ἐμοῖς ἔσῃ."
+  },
+  {
+   "n": "1129",
+   "spk": "Ἄγγελος",
+   "part": null,
+   "grc": "τί φῄς; φρονεῖς μὲν ὀρθὰ κοὐ μαίνῃ, γύναι,"
+  },
+  {
+   "n": "1130",
+   "spk": null,
+   "part": null,
+   "grc": "ἥτις, τυράννων ἑστίαν ᾐκισμένη,"
+  },
+  {
+   "n": "1131",
+   "spk": null,
+   "part": null,
+   "grc": "χαίρεις κλύουσα κοὐ φοβῇ τὰ τοιάδε;"
+  },
+  {
+   "n": "1132",
+   "spk": "Μήδεια",
+   "part": null,
+   "grc": "ἔχω τι κἀγὼ τοῖς γε σοῖς ἐναντίον"
+  },
+  {
+   "n": "1133",
+   "spk": null,
+   "part": null,
+   "grc": "λόγοισιν εἰπεῖν· ἀλλὰ μὴ σπέρχου, φίλος,"
+  },
+  {
+   "n": "1134",
+   "spk": null,
+   "part": null,
+   "grc": "λέξον δέ· πῶς ὤλοντο; δὶς τόσον γὰρ ἂν"
+  },
+  {
+   "n": "1135",
+   "spk": null,
+   "part": null,
+   "grc": "τέρψειας ἡμᾶς, εἰ τεθνᾶσι παγκάκως."
+  },
+  {
+   "n": "1136",
+   "spk": "Ἄγγελος",
+   "part": null,
+   "grc": "ἐπεὶ τέκνων σῶν ἦλθε δίπτυχος γονὴ"
+  },
+  {
+   "n": "1137",
+   "spk": null,
+   "part": null,
+   "grc": "σὺν πατρί, καὶ παρῆλθε νυμφικοὺς δόμους,"
+  },
+  {
+   "n": "1138",
+   "spk": null,
+   "part": null,
+   "grc": "ἥσθημεν οἵπερ σοῖς ἐκάμνομεν κακοῖς"
+  },
+  {
+   "n": "1139",
+   "spk": null,
+   "part": null,
+   "grc": "δμῶες· δι’ ὤτων δ’ εὐθὺς ἦν πολὺς λόγος"
+  },
+  {
+   "n": "1140",
+   "spk": null,
+   "part": null,
+   "grc": "σὲ καὶ πόσιν σὸν νεῖκος ἐσπεῖσθαι τὸ πρίν."
+  },
+  {
+   "n": "1141",
+   "spk": null,
+   "part": null,
+   "grc": "κυνεῖ δ’ ὃ μέν τις χεῖρ’, ὃ δὲ ξανθὸν κάρα"
+  },
+  {
+   "n": "1142",
+   "spk": null,
+   "part": null,
+   "grc": "παίδων· ἐγὼ δὲ καὐτὸς ἡδονῆς ὕπο"
+  },
+  {
+   "n": "1143",
+   "spk": null,
+   "part": null,
+   "grc": "στέγας γυναικῶν σὺν τέκνοις ἅμ’ ἑσπόμην."
+  },
+  {
+   "n": "1144",
+   "spk": null,
+   "part": null,
+   "grc": "δέσποινα δ’ ἣν νῦν ἀντὶ σοῦ θαυμάζομεν,"
+  },
+  {
+   "n": "1145",
+   "spk": null,
+   "part": null,
+   "grc": "πρὶν μὲν τέκνων σῶν εἰσιδεῖν ξυνωρίδα,"
+  },
+  {
+   "n": "1146",
+   "spk": null,
+   "part": null,
+   "grc": "πρόθυμον εἶχ’ ὀφθαλμὸν εἰς Ἰάσονα·"
+  },
+  {
+   "n": "1147",
+   "spk": null,
+   "part": null,
+   "grc": "ἔπειτα μέντοι προὐκαλύψατ’ ὄμματα"
+  },
+  {
+   "n": "1148",
+   "spk": null,
+   "part": null,
+   "grc": "λευκήν τ’ ἀπέστρεψ’ ἔμπαλιν παρηίδα,"
+  },
+  {
+   "n": "1149",
+   "spk": null,
+   "part": null,
+   "grc": "παίδων μυσαχθεῖσ’ εἰσόδους· πόσις δὲ σὸς"
+  },
+  {
+   "n": "1150",
+   "spk": null,
+   "part": null,
+   "grc": "ὀργάς τ’ ἀφῄρει καὶ χόλον νεάνιδος"
+  },
+  {
+   "n": "1151",
+   "spk": null,
+   "part": null,
+   "grc": "λέγων τάδ’· Οὐ μὴ δυσμενὴς ἔσῃ φίλοις,"
+  },
+  {
+   "n": "1152",
+   "spk": null,
+   "part": null,
+   "grc": "παύσῃ δὲ θυμοῦ καὶ πάλιν στρέψεις κάρα,"
+  },
+  {
+   "n": "1153",
+   "spk": null,
+   "part": null,
+   "grc": "φίλους νομίζουσ’ οὕσπερ ἂν πόσις σέθεν,"
+  },
+  {
+   "n": "1154",
+   "spk": null,
+   "part": null,
+   "grc": "δέξῃ δὲ δῶρα καὶ παραιτήσῃ πατρὸς"
+  },
+  {
+   "n": "1155",
+   "spk": null,
+   "part": null,
+   "grc": "φυγὰς ἀφεῖναι παισὶ τοῖσδ’, ἐμὴν χάριν;"
+  },
+  {
+   "n": "1156",
+   "spk": null,
+   "part": null,
+   "grc": "ἣ δ’ ὡς ἐσεῖδε κόσμον, οὐκ ἠνέσχετο,"
+  },
+  {
+   "n": "1157",
+   "spk": null,
+   "part": null,
+   "grc": "ἀλλ’ ᾔνεσ’ ἀνδρὶ πάντα, καὶ πρὶν ἐκ δόμων"
+  },
+  {
+   "n": "1158",
+   "spk": null,
+   "part": null,
+   "grc": "μακρὰν ἀπεῖναι πατέρα καὶ παῖδας, σέθεν"
+  },
+  {
+   "n": "1159",
+   "spk": null,
+   "part": null,
+   "grc": "λαβοῦσα πέπλους ποικίλους ἠμπέσχετο,"
+  },
+  {
+   "n": "1160",
+   "spk": null,
+   "part": null,
+   "grc": "χρυσοῦν τε θεῖσα στέφανον ἀμφὶ βοστρύχοις"
+  }
+ ],
+ "medea_eng": [
+  {
+   "n": 1116,
+   "spk": "Medea",
+   "eng": "Kind friends, long have I waited expectantly to know how things would at the palace chance. And lo! I see one of Jason’s servants coming hither, whose hurried gasps for breath"
+  },
+  {
+   "n": 1120,
+   "spk": null,
+   "eng": "proclaim him the bearer of some fresh tidings."
+  },
+  {
+   "n": 1121,
+   "spk": "Messenger",
+   "eng": "Fly, fly, Medea! who hast wrought an awful deed, transgressing every law; nor leave behind or sea-borne bark or car that scours the plain."
+  },
+  {
+   "n": 1124,
+   "spk": "Medea",
+   "eng": "Why, what hath chanced that calls for such a flight of mine?"
+  },
+  {
+   "n": 1125,
+   "spk": "Messenger",
+   "eng": "The princess is dead, a moment gone, and Creon too, her sire, slain by those drugs of thine."
+  },
+  {
+   "n": 1127,
+   "spk": "Medea",
+   "eng": "Tidings most fair are thine! Henceforth shalt thou be ranked amongst my friends and benefactors."
+  },
+  {
+   "n": 1129,
+   "spk": "Messenger",
+   "eng": "Ha! What? Art sane? Art not distraught, lady,"
+  },
+  {
+   "n": 1130,
+   "spk": null,
+   "eng": "who hearest with joy the outrage to our royal house done, and art not at the horrid tale afraid?"
+  },
+  {
+   "n": 1132,
+   "spk": "Medea",
+   "eng": "Somewhat have I, too, to say in answer to thy words. Be not so hasty, friend, but tell the manner of their death, for thou wouldst give me double joy,"
+  },
+  {
+   "n": 1135,
+   "spk": null,
+   "eng": "if so they perished miserably."
+  },
+  {
+   "n": 1136,
+   "spk": "Messenger",
+   "eng": "When the children twain whom thou didst bear came with their father and entered the palace of the bride, right glad were we thralls who had shared thy griefs, for instantly from ear to ear a rumour spread"
+  },
+  {
+   "n": 1140,
+   "spk": null,
+   "eng": "that thou and thy lord had made up your former quarrel. One kissed thy children’s hands, another their golden hair, while I for very joy went with them in person to the women’s chambers. Our mistress, whom now we do revere in thy room,"
+  },
+  {
+   "n": 1145,
+   "spk": null,
+   "eng": "cast a longing glance at Jason, ere she saw thy children twain; but then she veiled her eyes and turned her blanching cheek away, disgusted at their coming; but thy husband"
+  },
+  {
+   "n": 1150,
+   "spk": null,
+   "eng": "tried to check his young bride’s angry humour with these words: O, be not angered ’gainst thy friends; cease from wrath and turn once more thy face this way, counting as friends whomso thy husband counts, and accept these gifts, and for my sake crave thy sire"
+  },
+  {
+   "n": 1155,
+   "spk": null,
+   "eng": "to remit these children’s exile. Soon as she saw the ornaments, no longer she held out, but yielded to her lord in all; and ere the father and his sons were far from the palace gone, she took the broidered robe and put it on,"
+  },
+  {
+   "n": 1160,
+   "spk": null,
+   "eng": "and set the golden crown about her tresses, arranging her hair at her bright mirror, with many a happy smile at her breathless counterfeit. Then rising from her seat she passed across the chamber, tripping lightly on her fair white foot,"
+  },
+  {
+   "n": 1165,
+   "spk": null,
+   "eng": "exulting in the gift, with many a glance at her uplifted ankle. When lo! a scene of awful horror did ensue. In a moment she turned pale, reeled backwards, trembling in every limb,"
+  },
+  {
+   "n": 1170,
+   "spk": null,
+   "eng": "and sinks upon a seat scarce soon enough to save herself from falling to the ground. An aged dame, one of her company, thinking belike it was a fit from Pan or some god sent, raised a cry of prayer, till from her mouth she saw the foam-flakes issue, her eyeballs"
+  },
+  {
+   "n": 1175,
+   "spk": null,
+   "eng": "rolling in their sockets, and all the blood her face desert; then did she raise a loud scream far different fiom her former cry. Forthwith one handmaid rushed to her father’s house, another to her new bridegroom to tell his bride’s sad fate,"
+  },
+  {
+   "n": 1180,
+   "spk": null,
+   "eng": "and the whole house echoed with their running to and fro."
+  }
+ ],
+ "medea_grc_open": [
+  {
+   "n": "1",
+   "spk": "Τροφός",
+   "part": null,
+   "grc": "Εἴθ’ ὤφελ’ Ἀργοῦς μὴ διαπτάσθαι σκάφος"
+  },
+  {
+   "n": "2",
+   "spk": null,
+   "part": null,
+   "grc": "Κόλχων ἐς αἶαν κυανέας Συμπληγάδας,"
+  },
+  {
+   "n": "3",
+   "spk": null,
+   "part": null,
+   "grc": "μηδ’ ἐν νάπαισι Πηλίου πεσεῖν ποτε"
+  },
+  {
+   "n": "4",
+   "spk": null,
+   "part": null,
+   "grc": "τμηθεῖσα πεύκη, μηδ’ ἐρετμῶσαι χέρας"
+  },
+  {
+   "n": "5",
+   "spk": null,
+   "part": null,
+   "grc": "ἀνδρῶν ἀρίστων, οἳ τὸ πάγχρυσον δέρας"
+  },
+  {
+   "n": "6",
+   "spk": null,
+   "part": null,
+   "grc": "Πελίᾳ μετῆλθον. οὐ γὰρ ἂν δέσποιν’ ἐμὴ"
+  },
+  {
+   "n": "7",
+   "spk": null,
+   "part": null,
+   "grc": "Μήδεια πύργους γῆς ἔπλευσ’ Ἰωλκίας"
+  },
+  {
+   "n": "8",
+   "spk": null,
+   "part": null,
+   "grc": "ἔρωτι θυμὸν ἐκπλαγεῖσ’ Ἰάσονος·"
+  }
+ ],
+ "medea_eng_open": [
+  {
+   "n": 1,
+   "spk": "Nurse",
+   "eng": "Ah! would to Heaven the good ship Argo ne’er had sped its course to the Colchian land through the misty blue Symplegades, nor ever in the glens of Pelion the pine been felled to furnish with oars the chieftain’s hands,"
+  },
+  {
+   "n": 5,
+   "spk": null,
+   "eng": "who went to fetch the golden fleece for Pelias; for then would my own mistress Medea never have sailed to the turrets of Iolcos, her soul with love for Jason smitten, nor would she have beguiled the daughters of Pelias"
+  }
+ ],
+ "frogs_grc": [
+  {
+   "n": "2",
+   "spk": null,
+   "part": null,
+   "grc": "ἐφʼ οἷς ἀεὶ γελῶσιν οἱ θεώμενοι;"
+  },
+  {
+   "n": "3",
+   "spk": "Διόνυσος",
+   "part": null,
+   "grc": "νὴ τὸν Δίʼ ὅ τι Βούλει γε, πλὴν πιέζομαι,"
+  },
+  {
+   "n": "4",
+   "spk": null,
+   "part": null,
+   "grc": "τοῦτο δὲ φύλαξαι· πάνυ γάρ ἐστʼ ἤδη χολή."
+  },
+  {
+   "n": "5",
+   "spk": "Ξανθίας",
+   "part": "I",
+   "grc": "μηδʼ ἕτερον ἀστεῖόν τι;"
+  },
+  {
+   "n": "5b",
+   "spk": "Διόνυσος",
+   "part": "F",
+   "grc": "πλήν γʼ ὡς θλίβομαι."
+  },
+  {
+   "n": "6",
+   "spk": "Ξανθίας",
+   "part": "I",
+   "grc": "τί δαί; τὸ πάνυ γέλοιον εἴπω;"
+  },
+  {
+   "n": "6b",
+   "spk": "Διόνυσος",
+   "part": "F",
+   "grc": "νὴ Δία"
+  },
+  {
+   "n": "7",
+   "spk": null,
+   "part": "I",
+   "grc": "θαρρῶν γε· μόνον ἐκεῖνʼ ὅπως μὴ ʼρεῖς,"
+  },
+  {
+   "n": "7b",
+   "spk": "Ξανθίας",
+   "part": "F",
+   "grc": "τὸ τί;"
+  },
+  {
+   "n": "8",
+   "spk": "Διόνυσος",
+   "part": null,
+   "grc": "μεταβαλλόμενος τἀνάφορον ὅτι χεζητιᾷς."
+  },
+  {
+   "n": "9",
+   "spk": "Ξανθίας",
+   "part": null,
+   "grc": "μηδʼ ὅτι τοσοῦτον ἄχθος ἐπʼ ἐμαυτῷ φέρων,"
+  },
+  {
+   "n": "10",
+   "spk": null,
+   "part": null,
+   "grc": "εἰ μὴ καθαιρήσει τις, ἀποπαρδήσομαι;"
+  },
+  {
+   "n": "11",
+   "spk": "Διόνυσος",
+   "part": null,
+   "grc": "μὴ δῆθʼ, ἱκετεύω, πλήν γʼ ὅταν μέλλω ʼξεμεῖν."
+  },
+  {
+   "n": "12",
+   "spk": "Ξανθίας",
+   "part": null,
+   "grc": "τί δῆτʼ ἔδει με ταῦτα τὰ σκεύη φέρειν,"
+  },
+  {
+   "n": "13",
+   "spk": null,
+   "part": null,
+   "grc": "εἴπερ ποιήσω μηδὲν ὧνπερ Φρύνιχος"
+  },
+  {
+   "n": "14",
+   "spk": null,
+   "part": null,
+   "grc": "εἴωθε ποιεῖν καὶ Λύκις κἀμειψίας;"
+  },
+  {
+   "n": "16",
+   "spk": "Διόνυσος",
+   "part": null,
+   "grc": "μή νυν ποιήσῃς· ὡς ἐγὼ θεώμενος,"
+  },
+  {
+   "n": "17",
+   "spk": null,
+   "part": null,
+   "grc": "ὅταν τι τούτων τῶν σοφισμάτων ἴδω,"
+  }
+ ]
+}

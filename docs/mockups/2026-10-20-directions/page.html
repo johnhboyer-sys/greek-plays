@@ -1,0 +1,109 @@
+<meta charset="utf-8">
+<title>Greek Drama Reader, Four Directions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Alegreya+Sans+SC:wght@500;700&family=Cardo:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/*__CSS__*/
+</style>
+
+<header class="bar">
+  <span class="title">The Greek Drama Reader <small>four directions, 20 October 2026</small></span>
+  <div class="tabs" role="group" aria-label="Page">
+    <button type="button" data-page="review" aria-pressed="true">Review</button>
+    <button type="button" data-page="home">Home</button>
+    <button type="button" data-page="author">Author</button>
+    <button type="button" data-page="play">Play</button>
+    <button type="button" data-page="reader">Reader</button>
+  </div>
+  <div class="tabs" role="group" aria-label="Direction">
+    <span class="lbl">Direction</span>
+    <button type="button" data-dir="a"><b>A</b> Frieze</button>
+    <button type="button" data-dir="b"><b>B</b> Vase</button>
+    <button type="button" data-dir="c"><b>C</b> Playbill</button>
+    <button type="button" data-dir="d"><b>D</b> Edition</button>
+  </div>
+  <div class="right">
+    <div class="tabs" role="group" aria-label="Theme">
+      <button type="button" data-theme-pick="light" aria-pressed="true">Light</button>
+      <button type="button" data-theme-pick="dark">Dark</button>
+    </div>
+    <div class="tabs" role="group" aria-label="Width">
+      <button type="button" data-width="desktop" aria-pressed="true">1440</button>
+      <button type="button" data-width="phone">Phone</button>
+    </div>
+    <div class="tabs"><button type="button" data-notes="1">Notes</button></div>
+  </div>
+</header>
+
+<section id="review" class="review">
+  <h1>The Greek Drama Reader: a review, and four directions</h1>
+  <p class="lede">The first overhaul pass (branch <code>claude/project-thread-8ykl6l</code>, 13 October) reviewed page by page, then four directions for the home page, the author pages, a play page of its own, and the reader. Use the tabs above, or the keys: 1 to 4 for a direction, the arrow keys for pages, t for the theme, p for the phone.</p>
+
+  <h2>What the site looks like now</h2>
+  <div class="shots">
+    <figure><img src="shots/home.jpg" alt="The home page: four orange figures on a ground line with names beneath"><figcaption>Home</figcaption></figure>
+    <figure><img src="shots/author.jpg" alt="The Aeschylus page: figure, name, blurb, then the plays listed"><figcaption>Author page</figcaption></figure>
+    <figure><img src="shots/play.jpg" alt="The Medea playbill above the reader"><figcaption>Play opening</figcaption></figure>
+    <figure><img src="shots/reader.jpg" alt="The reader: Greek and English of the messenger speech"><figcaption>Reader</figcaption></figure>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h2>Review</h2>
+      <ol>
+        <li><b>The home page stops after one idea.</b> The frieze is good. Under it there is nothing: four names, four counts, a row of footer links. A page that promises 44 plays shows none of them, and not a line of any play.</li>
+        <li><b>The type has two sizes and no middle.</b> Big Cardo for names, small grey sans for everything else. Blurbs, dates, cast, editions, and translations all sit in the same 16px grey. The Greek is always the small grey one. On a site for reading Greek, the Greek titles are captions.</li>
+        <li><b>The author tints do not read.</b> Slate, sage, clay, and ochre at this strength look like one off-white, and the cool slate fights the orange figure standing on it. The names take the tint's ink, the figures take orange, and the two never meet.</li>
+        <li><b>The playbill is the manifest, set in grey.</b> Persons, First staged, Greek text, Translations, Cite as: five labelled lists beside the hero. The translations are named but cannot be chosen from here; the only actions are Resume and Start at line 1. The cast in eleven colours is the loudest thing on the page, and the drawing's credit sits under the title as a paragraph.</li>
+        <li><b>A play has no page.</b> Its URL opens on the reader's toolbar, red Support button first, then the playbill, then the text. For a search engine, and for anyone sent a link, there is no front door that says what Medea is, who translated it, and which Greek text it uses.</li>
+        <li><b>The reader still wears the old template.</b> Two bars: wordmark, breadcrumb, Support, Search, Lexicon, Settings, a question mark, the theme; then the edition label, a native select, Greek/Both/English, Print. Then a toast over the text. In a long session all of it should go.</li>
+        <li><b>Reading type.</b> Speaker names are bold sans small caps inside Cardo prose, so every speech starts with a label. Line numbers run in two systems at the two outer edges, in 10px grey. The Greek measure is about 45 characters and the English about 75, with an empty gutter between them.</li>
+        <li><b>Dark mode is an inversion.</b> The tints go near black, and only the clay fill of the figures carries any colour.</li>
+        <li><b>Phone.</b> The figures survive, the chrome takes a quarter of the first screen, and the alternation of Greek and English is right.</li>
+        <li><b>Furniture.</b> A Titles only toggle, a Find box, a Request a feature button, "Resume: Medea 1270" in the header. Each is small. Together they say web app on pages that should say book.</li>
+      </ol>
+    </div>
+    <div>
+      <h2>What stays</h2>
+      <div class="keep">
+        <ol>
+          <li><b>The drawings.</b> Forty-three plays and four playwrights in one hand, with Agamemnon to come. Nothing else on the web has them, and every direction here is built on them.</li>
+          <li>Cardo for the Greek, warm paper, the ground line.</li>
+          <li>The run-in <span lang="grc">Δι.</span> and <span lang="grc">Ξα.</span> of the dialogue view: Frogs 1 to 15 reads well.</li>
+          <li>The copy: the arguments, "Start at line 1", "Full synopsis (tells the ending)", "First staged".</li>
+          <li>The Oresteia and the Oedipus plays grouped first; no play switcher inside the reader; speaker colours stable per character; the Greek column never opens a gap; English never smaller than the Greek.</li>
+        </ol>
+      </div>
+      <h2>The four directions</h2>
+      <table>
+        <tr><th></th><th>Idea</th><th>Colour</th><th>Type</th><th>Breaks</th></tr>
+        <tr><td>A · The Frieze, finished</td><td>The current design, corrected</td><td>Paper, the four tints, Attic orange</td><td>Cardo; Alegreya Sans for controls</td><td>Nothing in DESIGN.md</td></tr>
+        <tr><td>B · The Vase</td><td>All 44 plays on one ground line</td><td>Black, clay, paper</td><td>Cardo; Alegreya Sans for controls</td><td>No tints; silhouettes at small sizes</td></tr>
+        <tr><td>C · The Playbill</td><td>Flat colour fields; a cover per play</td><td>Indigo, bottle green, oxblood, mustard</td><td>Alegreya Sans Black titles; Cardo text</td><td>Panels; sans titles</td></tr>
+        <tr><td>D · The Edition</td><td>A printed book</td><td>Ink, paper, one red</td><td>Cardo for Greek; EB Garamond for English</td><td>Hairlines; a second face; names in the margin</td></tr>
+      </table>
+      <h2>Shared by all four</h2>
+      <ol>
+        <li>A play page at its own URL, <code>/euripides/medea</code>. Any URL that names a line (<code>/euripides/medea/1270</code>, <code>?loc=</code>, <code>#1270</code>, a search hit) opens the reader at that line, so every deep link keeps working. The reader itself moves to <code>/euripides/medea/read</code>.</li>
+        <li>The reader has one head line and no toast. Support and the lexicon move to the footer and the search page.</li>
+        <li>Each translation on the play page is a way into the reader, paired with the Greek text its translator used, as the edition picker already does.</li>
+        <li>The mockup's Greek is Murray's 1902 text and its English is Coleridge's, both from Perseus, so this page can be shared. The site keeps its TLG text.</li>
+        <li>Both themes and both widths are here for every page. The phone reader alternates Greek and English speech by speech, five lines of a long speech at a time, as you chose.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<div id="stage-wrap" class="stage-wrap" hidden>
+  <div id="stage" class="stage"></div>
+  <aside id="notes" class="notes"></aside>
+</div>
+
+<script>
+window.DATA = /*__DATA__*/{};
+</script>
+<script>
+/*__JS__*/
+</script>

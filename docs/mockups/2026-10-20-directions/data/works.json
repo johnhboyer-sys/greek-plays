@@ -1,0 +1,2713 @@
+{
+ "authors": [
+  {
+   "id": "aeschylus",
+   "name": "Aeschylus",
+   "nativeName": "Αἰσχύλος",
+   "genre": "tragedy",
+   "floruit": "c. 525–456 BC",
+   "blurb": "the earliest of the three great Athenian tragedians, seven of whose plays survive complete.",
+   "works": [
+    "persians",
+    "seven-against-thebes",
+    "suppliants-aesch",
+    "prometheus-bound",
+    "agamemnon",
+    "libation-bearers",
+    "eumenides"
+   ]
+  },
+  {
+   "id": "sophocles",
+   "name": "Sophocles",
+   "nativeName": "Σοφοκλῆς",
+   "genre": "tragedy",
+   "floruit": "c. 497–406 BC",
+   "blurb": "Athenian tragedian; seven plays survive of well over a hundred.",
+   "works": [
+    "ajax",
+    "antigone",
+    "trachiniae",
+    "oedipus-tyrannus",
+    "electra-soph",
+    "philoctetes",
+    "oedipus-coloneus"
+   ]
+  },
+  {
+   "id": "euripides",
+   "name": "Euripides",
+   "nativeName": "Εὐριπίδης",
+   "genre": "tragedy",
+   "floruit": "c. 480–406 BC",
+   "blurb": "Athenian tragedian; nineteen plays survive, the largest body of Greek drama.",
+   "works": [
+    "alcestis",
+    "medea",
+    "heraclidae",
+    "hippolytus",
+    "andromache",
+    "hecuba",
+    "suppliants-eur",
+    "electra-eur",
+    "heracles",
+    "trojan-women",
+    "iphigenia-in-tauris",
+    "ion",
+    "helen",
+    "phoenician-women",
+    "orestes",
+    "bacchae",
+    "iphigenia-at-aulis",
+    "rhesus",
+    "cyclops"
+   ]
+  },
+  {
+   "id": "aristophanes",
+   "name": "Aristophanes",
+   "nativeName": "Ἀριστοφάνης",
+   "genre": "comedy",
+   "floruit": "c. 446–386 BC",
+   "blurb": "the master of Old Comedy, eleven of whose plays survive complete.",
+   "works": [
+    "acharnians",
+    "knights",
+    "clouds",
+    "wasps",
+    "peace",
+    "birds",
+    "lysistrata",
+    "thesmophoriazusae",
+    "frogs",
+    "ecclesiazusae",
+    "wealth"
+   ]
+  }
+ ],
+ "works": {
+  "alcestis": {
+   "id": "alcestis",
+   "slug": "alcestis",
+   "title": "Alcestis",
+   "greekTitle": "Ἄλκηστις",
+   "abbr": "Alc.",
+   "author": "euripides",
+   "blurb": "Alcestis agrees to die in her husband Admetus' place, until Heracles wrestles Death for her.",
+   "production": "City Dionysia, 438 BC · second prize, behind Sophocles · fourth play of its group, in place of a satyr play",
+   "argument": "Alcestis dies in her husband’s place. Heracles brings her back.",
+   "synopsis": "Apollo won Admetus, king of Pherae, a bargain with the Fates: he may escape his appointed death if someone else will die for him. His parents refused. His wife Alcestis agreed. The play opens on the day of her death. While the house mourns, Heracles arrives on his way to a labour, and Admetus, unwilling to turn a guest away, hides the death from him and takes him in. Heracles finds out, goes to the tomb, wrestles Death for her, and brings her back veiled and silent to a husband who does not at first know her.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1984)",
+     "full": "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)",
+     "year": 1984,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1902)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)",
+     "year": 1902,
+     "pairs": [
+      "coleridge",
+      "way",
+      "murray-verse"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Alc."
+  },
+  "rhesus": {
+   "id": "rhesus",
+   "slug": "rhesus",
+   "title": "Rhesus",
+   "greekTitle": "Ῥῆσος",
+   "abbr": "Rh.",
+   "author": "euripides",
+   "blurb": "A night raid on the Trojan camp cuts short the newly arrived ally Rhesus and his Thracian troop.",
+   "production": "Date unknown · authorship disputed",
+   "argument": "Rhesus the Thracian arrives to help Troy and is killed in his sleep by Odysseus and Diomedes.",
+   "synopsis": "Night in the Trojan camp. Hector, alarmed by the Greek watchfires, sends Dolon to spy. Rhesus, king of Thrace, arrives with his army, late and boastful, and Hector gives him a place to camp. Odysseus and Diomedes are inside the Trojan lines the same night, having caught and killed Dolon, and Athena points them to the Thracian's tent. They kill Rhesus in his sleep and take his horses. His mother, a Muse, comes for the body and blames Odysseus and Athena.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1994)",
+     "full": "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)",
+     "year": 1994,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way",
+      "murray-verse"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Rh."
+  },
+  "persians": {
+   "id": "persians",
+   "slug": "persians",
+   "title": "Persians",
+   "greekTitle": "Πέρσαι",
+   "abbr": "Pers.",
+   "author": "aeschylus",
+   "blurb": "News of the rout at Salamis reaches the Persian court, and Xerxes comes home in rags.",
+   "production": "City Dionysia, 472 BC · first prize",
+   "argument": "At Susa the Persian court waits for news from Greece. A messenger brings the news: the fleet is destroyed at Salamis.",
+   "synopsis": "At Susa the elders of the Persian council wait for word from Xerxes' expedition against Greece. Atossa, the queen mother, comes out troubled by a dream. A messenger arrives with the news of Salamis: the fleet destroyed, the army in retreat over a starving country. Atossa and the elders call up the ghost of Darius, who blames his son's pride and foretells the defeat at Plataea. Xerxes himself comes home in torn robes, and the play ends in lament.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Murray (1955)",
+     "full": "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "smyth-loeb",
+     "short": "Smyth (1922)",
+     "full": "H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)",
+     "year": 1922,
+     "pairs": [
+      "smyth"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "smyth",
+     "name": "H. W. Smyth (Loeb, 1922–26)",
+     "short": "Smyth",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "morshead",
+     "name": "E. D. A. Morshead (1881–1908)",
+     "short": "Morshead",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Aesch. Pers."
+  },
+  "helen": {
+   "id": "helen",
+   "slug": "helen",
+   "title": "Helen",
+   "greekTitle": "ΕΛΕΝΗ",
+   "abbr": "Hel.",
+   "author": "euripides",
+   "blurb": "Helen was never at Troy; Menelaus finds her in Egypt, and they trick their way out.",
+   "production": "City Dionysia, 412 BC · produced with Andromeda",
+   "argument": "Helen never went to Troy. She has been in Egypt all along, and Menelaus finds her there.",
+   "synopsis": "Helen never went to Troy. Hera sent a phantom in her place, and the real Helen has spent the war in Egypt, where the king, Theoclymenus, now means to marry her. Menelaus, shipwrecked on the coast with the phantom, arrives and meets a woman who says she is his wife; the phantom dissolves and he believes her. Helen tells the king her husband is dead and asks for a ship to hold his funeral at sea. Theoclymenus gives her one, and the two of them sail off in it, killing the Egyptian crew. The king turns on his sister Theonoe, who knew the truth, until the Dioscuri, Helen's brothers, stop him.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (OCT, 1994)",
+     "full": "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)",
+     "year": 1994,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "kosmos",
+     "name": "Coleridge, rev. Helen Heroization team (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Eur. Hel."
+  },
+  "ecclesiazusae": {
+   "id": "ecclesiazusae",
+   "slug": "ecclesiazusae",
+   "title": "Assemblywomen",
+   "greekTitle": "Ἐκκλησιάζουσαι",
+   "abbr": "Eccl.",
+   "author": "aristophanes",
+   "blurb": "The women take over the assembly and make property and sex common to all.",
+   "production": "c. 392 BC · festival and result unknown",
+   "argument": "The women of Athens, disguised as men, pack the assembly and vote themselves the government. Their new law makes property and sex common to all.",
+   "synopsis": "Before dawn the women of Athens gather in their husbands' cloaks and false beards, having practised speaking in the assembly. Praxagora leads them. They pack the meeting and vote the government over to the women. Her programme: all property in common, all sex in common, with the old and ugly served first. One citizen hands in his goods; another waits to see. A young man on his way to his girl is claimed by three old women in turn, under the new law. Everyone goes off to the communal dinner.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Ussher (1973)",
+     "full": "Ussher, Aristophanes: Ecclesiazusae (Oxford, 1973)",
+     "year": 1973,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1907)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)",
+     "year": 1907,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "rogers",
+     "name": "B. B. Rogers (Loeb, 1924)",
+     "short": "Rogers",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Eccl."
+  },
+  "wealth": {
+   "id": "wealth",
+   "slug": "wealth",
+   "title": "Wealth",
+   "greekTitle": "Πλοῦτος",
+   "abbr": "Plut.",
+   "author": "aristophanes",
+   "blurb": "Wealth is blind, and Chremylus has him cured.",
+   "production": "388 BC · festival and result unknown",
+   "argument": "Chremylus cures the blind god Wealth so that money can at last go to the honest.",
+   "synopsis": "Chremylus, an honest poor man, asks the oracle how his son should live and is told to follow the first man he meets. The man is a blind beggar who turns out to be Wealth himself, blinded by Zeus so that he cannot find the good. Chremylus means to take him to the temple of Asclepius to be cured. The goddess Poverty comes first to argue that it is a mistake, and loses. Wealth's sight is restored and the honest grow rich. An informer complains that his trade is ruined, and the priest of Zeus and Hermes himself, with no one left sacrificing, come asking to serve the new master.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Coulon (1930)",
+     "full": "Coulon & van Daele, Aristophane, vol. 5 (Budé, 1930)",
+     "year": 1930,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1907)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)",
+     "year": 1907,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "rogers",
+     "name": "B. B. Rogers (Loeb, 1924)",
+     "short": "Rogers",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Plut."
+  },
+  "cyclops": {
+   "id": "cyclops",
+   "slug": "cyclops",
+   "title": "Cyclops",
+   "greekTitle": "Κύκλωψ",
+   "abbr": "Cycl.",
+   "author": "euripides",
+   "blurb": "Odysseus and his men land on Polyphemus' island in this satyr-play retelling of the Odyssey.",
+   "production": "Satyr play · date unknown, perhaps c. 408 BC",
+   "argument": "Odysseus and his men, blown to Sicily, meet Polyphemus and the satyrs he keeps as slaves, and put out his eye.",
+   "synopsis": "Odysseus and his crew land in Sicily looking for water and find the satyrs and old Silenus, enslaved by the Cyclops Polyphemus and set to herding his flocks. Silenus trades the Cyclops's food for Odysseus's wine, then blames the strangers when the master returns. Polyphemus eats two of the crew. Odysseus gets him drunk, and with a heated stake, and no help from the satyrs, puts out his eye. The Greeks and the satyrs sail off together.",
+   "greekEditions": [],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": null
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Eur. Cycl."
+  },
+  "knights": {
+   "id": "knights",
+   "slug": "knights",
+   "title": "Knights",
+   "greekTitle": "Ἱππῆς",
+   "abbr": "Eq.",
+   "author": "aristophanes",
+   "blurb": "A sausage-seller out-demagogues the Paphlagonian, Cleon in all but name, and Demos comes out young again.",
+   "production": "Lenaia, 424 BC · first prize",
+   "argument": "Two slaves of Demos find a sausage-seller vulgar enough to out-demagogue the Paphlagonian.",
+   "synopsis": "Demos, the Athenian people, has a new slave, the Paphlagonian, who flatters him and bullies the household. Two other slaves find an oracle: the Paphlagonian is to be overthrown by a sausage-seller. They find one and set him on. The contest, before the Council and then before Demos himself, is in shamelessness, bribery, and oracle-mongering, and the sausage-seller wins it. He boils Demos young again, and the Paphlagonian is sent to sell tripe at the gates.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Coulon (1923)",
+     "full": "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)",
+     "year": 1923,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1906)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)",
+     "year": 1906,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Eq."
+  },
+  "hippolytus": {
+   "id": "hippolytus",
+   "slug": "hippolytus",
+   "title": "Hippolytus",
+   "greekTitle": "Ἱππόλυτος",
+   "abbr": "Hipp.",
+   "author": "euripides",
+   "blurb": "Phaedra's hidden love for her stepson Hippolytus kills them both: her by her own hand, him by his father's curse.",
+   "production": "City Dionysia, 428 BC · first prize",
+   "argument": "Aphrodite makes Phaedra fall in love with her stepson Hippolytus. Her suicide note accuses him, and his father's curse kills him.",
+   "synopsis": "Aphrodite, slighted by Theseus's son Hippolytus, who worships only Artemis and wants nothing to do with love, has made his stepmother Phaedra fall in love with him. Phaedra is starving herself rather than speak. Her nurse gets the secret out of her and, meaning to help, tells Hippolytus. He is disgusted. Phaedra, exposed, hangs herself and leaves a tablet accusing him of rape. Theseus believes it, banishes his son, and curses him with one of the three curses Poseidon owes him. A bull from the sea wrecks Hippolytus's chariot. Artemis tells Theseus the truth over the dying boy, who forgives him.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1984)",
+     "full": "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)",
+     "year": 1984,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1902)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)",
+     "year": 1902,
+     "pairs": [
+      "coleridge",
+      "way",
+      "murray-verse"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "kosmos",
+     "name": "Coleridge, rev. Rein & Nagy (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Hipp."
+  },
+  "ion": {
+   "id": "ion",
+   "slug": "ion",
+   "title": "Ion",
+   "greekTitle": "Ἴων",
+   "abbr": "Ion",
+   "author": "euripides",
+   "blurb": "A temple boy at Delphi learns his true parentage in a plot that nearly costs his mother's life.",
+   "production": "Date disputed, c. 418–410 BC",
+   "argument": "Creusa and Xuthus come to Delphi to ask for a child, and meet the temple servant Ion, the boy she once abandoned.",
+   "synopsis": "Creusa, queen of Athens, once bore Apollo a son and abandoned him. He was carried to Delphi and raised in the temple, and is now its young servant, Ion. Creusa and her husband Xuthus come to Delphi to ask for a child. The oracle gives Xuthus Ion. Creusa, told nothing of her own son and sure she has been supplanted, tries to poison the boy; the plot is found out and Ion comes to kill her at the altar. The Pythia produces the cradle he was found in, Creusa knows the tokens in it, and Athena confirms whose son he is.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1981)",
+     "full": "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)",
+     "year": 1981,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Ion"
+  },
+  "trachiniae": {
+   "id": "trachiniae",
+   "slug": "trachiniae",
+   "title": "Women of Trachis",
+   "greekTitle": "Τραχίνιαι",
+   "abbr": "Trach.",
+   "author": "sophocles",
+   "blurb": "Deianeira tries to win Heracles back with a love charm, and poisons him.",
+   "production": "Date unknown",
+   "argument": "Deianeira sends Heracles a robe soaked in what she believes is a love charm. It is poison, and it eats his flesh.",
+   "synopsis": "Deianeira waits at Trachis for Heracles, gone fifteen months. News comes that he is on his way home victorious, and among the captives he sends ahead is a girl, Iole, whom he has taken as a lover. Deianeira has kept a charm the centaur Nessus gave her as he died: his blood, he said, would win back a straying husband. She smears it on a robe and sends it to Heracles. It is poison; it eats into him. She kills herself when she learns what she has done. Heracles, dying, orders his son Hyllus to burn him alive on Mount Oeta and to marry Iole.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Dain & Mazon (1955)",
+     "full": "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "storr-loeb",
+     "short": "Storr (1913)",
+     "full": "F. Storr, Sophocles, vol. 2 (Loeb, 1913)",
+     "year": 1913,
+     "pairs": [
+      "storr"
+     ]
+    },
+    {
+     "id": "jebb",
+     "short": "Jebb (1892)",
+     "full": "R. C. Jebb, Sophocles: The Plays and Fragments, part 5, The Trachiniae (Cambridge, 1892)",
+     "year": 1892,
+     "pairs": [
+      "jebb"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "jebb",
+     "name": "R. C. Jebb (Cambridge, 1883–1900)",
+     "short": "Jebb",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "jebb"
+    },
+    {
+     "id": "storr",
+     "name": "F. Storr (Loeb, 1913)",
+     "short": "Storr",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "storr-loeb"
+    }
+   ],
+   "citeAbbr": "Soph. Trach."
+  },
+  "seven-against-thebes": {
+   "id": "seven-against-thebes",
+   "slug": "seven-against-thebes",
+   "title": "Seven Against Thebes",
+   "greekTitle": "ΕΠΤΑ ΕΠΙ ΘΗΒΑΣ",
+   "abbr": "Sept.",
+   "author": "aeschylus",
+   "blurb": "Eteocles holds Thebes against his brother, and the two kill each other at the seventh gate.",
+   "production": "City Dionysia, 467 BC · first prize",
+   "argument": "Eteocles defends Thebes against his brother Polynices. The brothers kill each other at the seventh gate.",
+   "synopsis": "Thebes is under siege. Polynices, son of Oedipus, has brought an Argive army against the city his brother Eteocles rules. Eteocles steadies the terrified women of the chorus, then hears a scout describe the seven champions posted at the seven gates and names a defender for each. The seventh gate is Polynices', and Eteocles takes it himself. The city is saved; the brothers kill each other, and their sisters mourn them.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Murray (OCT, 1955)",
+     "full": "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "smyth-loeb",
+     "short": "Smyth (1922)",
+     "full": "H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)",
+     "year": 1922,
+     "pairs": [
+      "smyth",
+      "kosmos"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "smyth",
+     "name": "H. W. Smyth (Loeb, 1922–26)",
+     "short": "Smyth",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "morshead",
+     "name": "E. D. A. Morshead (1881–1908)",
+     "short": "Morshead",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "kosmos",
+     "name": "Smyth, rev. Seven Heroization team (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Aesch. Sept."
+  },
+  "wasps": {
+   "id": "wasps",
+   "slug": "wasps",
+   "title": "Wasps",
+   "greekTitle": "Σφῆκες",
+   "abbr": "Vesp.",
+   "author": "aristophanes",
+   "blurb": "A juror who cannot stop convicting is locked in the house by his son.",
+   "production": "Lenaia, 422 BC · second prize",
+   "argument": "Philocleon is addicted to jury service. His son locks him in the house.",
+   "synopsis": "Philocleon is addicted to sitting on juries. His son Bdelycleon has netted the house to keep him from the courts and has a guard on every door. The old man tries the chimney, the roof, the underside of a donkey. His fellow jurors, the wasps of the chorus, come to spring him. The son wins the argument and sets up a court at home, where the dog is tried for stealing cheese and Philocleon is tricked into acquitting, the first acquittal of his life. Taken out to a dinner party, he comes home drunk with a flute-girl and a trail of lawsuits.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "MacDowell (1971)",
+     "full": "MacDowell, Aristophanes: Wasps (Oxford, 1971)",
+     "year": 1971,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1906)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)",
+     "year": 1906,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Vesp."
+  },
+  "prometheus-bound": {
+   "id": "prometheus-bound",
+   "slug": "prometheus-bound",
+   "title": "Prometheus Bound",
+   "greekTitle": "Προμηθεὺς δεσμώτης",
+   "abbr": "PV",
+   "author": "aeschylus",
+   "blurb": "Chained to a crag for stealing fire, Prometheus defies Zeus and foretells his fall.",
+   "production": "Date unknown · authorship disputed",
+   "argument": "Zeus has Prometheus chained to a rock at the edge of the world for giving fire to men.",
+   "synopsis": "For giving fire to men, Prometheus is nailed to a rock at the edge of the world on Zeus's orders. Visitors come to the crag: the daughters of Ocean, Ocean himself, and Io, the girl Zeus loved, now horned and driven over the earth by Hera's gadfly. To her Prometheus tells the future, and that Zeus will one day fall to a son of his own; he knows how, and will not say. Hermes comes to demand the secret. Prometheus refuses, and Zeus sinks him, rock and all, into the earth.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Murray (1955)",
+     "full": "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "smyth-loeb",
+     "short": "Smyth (1922)",
+     "full": "H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)",
+     "year": 1922,
+     "pairs": [
+      "smyth"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "smyth",
+     "name": "H. W. Smyth (Loeb, 1922–26)",
+     "short": "Smyth",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "morshead",
+     "name": "E. D. A. Morshead (1881–1908)",
+     "short": "Morshead",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Aesch. PV"
+  },
+  "medea": {
+   "id": "medea",
+   "slug": "medea",
+   "title": "Medea",
+   "greekTitle": "Μήδεια",
+   "abbr": "Med.",
+   "author": "euripides",
+   "blurb": "Abandoned by Jason for a royal marriage, Medea kills his bride and their own two sons.",
+   "production": "City Dionysia, 431 BC · third prize, behind Euphorion and Sophocles",
+   "argument": "Jason has left Medea for a Corinthian princess. Medea kills the bride, and then her own two sons.",
+   "synopsis": "Jason has left Medea, who gave up her home and her family for him, to marry the daughter of Creon, king of Corinth. Creon orders Medea and her two sons into exile that day. She begs for and gets one day's grace. Aegeus of Athens passes through and promises her refuge. With the escape secured, Medea sends the bride a poisoned robe and crown, which kill her and Creon, then kills her own two sons so that Jason will have nothing. She escapes in the Sun's chariot with their bodies, to bury them where he cannot reach them, and goes on to Athens.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1984)",
+     "full": "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)",
+     "year": 1984,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1902)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)",
+     "year": 1902,
+     "pairs": [
+      "murray-verse"
+     ]
+    },
+    {
+     "id": "paley",
+     "short": "Paley (1878)",
+     "full": "F. A. Paley, Euripides, vol. 1 (New York: Harper & Brothers, 1878)",
+     "year": 1878,
+     "pairs": [
+      "coleridge"
+     ]
+    },
+    {
+     "id": "way-loeb",
+     "short": "Way (1912)",
+     "full": "A. S. Way, Euripides, vol. 4 (Loeb Classical Library, Heinemann, 1912)",
+     "year": 1912,
+     "pairs": [
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "paley"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "way-loeb"
+    },
+    {
+     "id": "kosmos",
+     "name": "Coleridge, rev. Ceragioli, Nagy & Hour 25 Medea team (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Med."
+  },
+  "andromache": {
+   "id": "andromache",
+   "slug": "andromache",
+   "title": "Andromache",
+   "greekTitle": "Ἀνδρομάχη",
+   "abbr": "Andr.",
+   "author": "euripides",
+   "blurb": "Hector's widow Andromache, now a captive concubine, is hunted by her master's jealous wife.",
+   "production": "Date unknown, c. 425 BC · the scholia say it was not produced at Athens",
+   "argument": "Andromache, now Neoptolemus’ slave, is threatened by his wife Hermione and her father Menelaus.",
+   "synopsis": "Andromache, Hector's widow, was given to Neoptolemus as a prize of war and has borne him a son. His wife Hermione, Menelaus's daughter, is childless and blames her. Andromache has taken refuge at the altar of Thetis and hidden the boy. With Neoptolemus away at Delphi, Hermione and Menelaus move to kill them both, and Menelaus gets her off the altar by producing the child. Old Peleus arrives in time and faces Menelaus down. Hermione, terrified of her husband's return, runs off with Orestes, who wanted her himself and has arranged for Neoptolemus to be murdered at Delphi. The body is brought home; Thetis appears to settle everyone's future.",
+   "greekEditions": [],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": null
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Eur. Andr."
+  },
+  "eumenides": {
+   "id": "eumenides",
+   "slug": "eumenides",
+   "title": "Eumenides",
+   "greekTitle": "Εὐμενίδες",
+   "abbr": "Eum.",
+   "author": "aeschylus",
+   "blurb": "The Furies hound Orestes to Athens, where Athena convenes the first murder trial.",
+   "production": "Oresteia, third play · City Dionysia, 458 BC · first prize",
+   "argument": "The Furies hunt Orestes to Athens, where Athena sets up a court to try him, and he is acquitted.",
+   "synopsis": "The Furies have pursued Orestes from Argos to Delphi, where Apollo shelters him, and from Delphi to Athens. There Athena declines to judge the case alone and founds a court of Athenian citizens to hear it, the first trial for murder. Apollo speaks for Orestes; the Furies prosecute. The vote is even, and Athena's vote acquits him. The Furies threaten to blight Attica until Athena talks them into a home under the city as its Kindly Ones.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Murray (1955)",
+     "full": "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "smyth-loeb",
+     "short": "Smyth (1926)",
+     "full": "H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)",
+     "year": 1926,
+     "pairs": [
+      "smyth",
+      "kosmos"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "smyth",
+     "name": "H. W. Smyth (Loeb, 1922–26)",
+     "short": "Smyth",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "morshead",
+     "name": "E. D. A. Morshead (1881–1908)",
+     "short": "Morshead",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "kosmos",
+     "name": "Smyth, rev. Bannon & Nagy (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Aesch. Eum."
+  },
+  "suppliants-aesch": {
+   "id": "suppliants-aesch",
+   "slug": "suppliants-aesch",
+   "title": "Suppliant Women",
+   "greekTitle": "Ἱκέτιδες",
+   "abbr": "Aesch. Supp.",
+   "author": "aeschylus",
+   "blurb": "Danaus and his fifty daughters flee forced marriage and beg Argos for shelter.",
+   "production": "City Dionysia, c. 463 BC · first prize",
+   "argument": "The fifty daughters of Danaus reach Argos, fleeing marriage with their cousins, and ask the city for protection.",
+   "synopsis": "The fifty daughters of Danaus have fled Egypt to escape marriage with their fifty cousins, the sons of Aegyptus. They land at Argos, the home of their ancestor Io, and take refuge at the altars. King Pelasgus must choose between the suppliants' claim on the gods and a war with Egypt, and puts the question to the Argive people. Argos votes to protect them. The Egyptian fleet lands, a herald tries to drag the women off, and Pelasgus drives him away. The war is left for the lost sequels.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Murray (1955)",
+     "full": "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "smyth-loeb",
+     "short": "Smyth (1922)",
+     "full": "H. W. Smyth, Aeschylus, vol. 1 (Loeb, 1922)",
+     "year": 1922,
+     "pairs": [
+      "smyth"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "smyth",
+     "name": "H. W. Smyth (Loeb, 1922–26)",
+     "short": "Smyth",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "morshead",
+     "name": "E. D. A. Morshead (1881–1908)",
+     "short": "Morshead",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Aesch. Supp."
+  },
+  "thesmophoriazusae": {
+   "id": "thesmophoriazusae",
+   "slug": "thesmophoriazusae",
+   "title": "Women at the Thesmophoria",
+   "greekTitle": "Θεσμοφοριάζουσαι",
+   "abbr": "Thesm.",
+   "author": "aristophanes",
+   "blurb": "Euripides' kinsman infiltrates the women's festival in drag and is caught.",
+   "production": "411 BC, probably at the City Dionysia · result unknown",
+   "argument": "The women at their festival plan to punish Euripides. His kinsman goes in disguise to defend him.",
+   "synopsis": "The women of Athens, gathered for the Thesmophoria, are going to vote on what to do about Euripides, who has told the whole city what women are like. Euripides asks Agathon to infiltrate the festival for him in women's clothes; Agathon declines; Euripides' elderly kinsman goes instead, shaved and singed. He speaks in Euripides' defence and is found out. Euripides tries to rescue him with scenes from his own plays, the Helen and the Andromeda, and fails; then he makes peace with the women and lures the Scythian guard away with a dancing girl.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Coulon (1928)",
+     "full": "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)",
+     "year": 1928,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1907)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)",
+     "year": 1907,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "rogers",
+     "name": "B. B. Rogers (Loeb, 1924)",
+     "short": "Rogers",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Thesm."
+  },
+  "oedipus-tyrannus": {
+   "id": "oedipus-tyrannus",
+   "slug": "oedipus-tyrannus",
+   "title": "Oedipus Tyrannus",
+   "greekTitle": "Οἰδίπους Τύραννος",
+   "abbr": "OT",
+   "author": "sophocles",
+   "blurb": "Oedipus hunts Laius' killer through Thebes and finds it was himself: he killed his father and married his mother.",
+   "production": "Date unknown, perhaps the 430s or 420s BC · second prize, behind Philocles",
+   "argument": "Oedipus sets out to find the killer of Laius and finds it was himself: he killed his father and married his mother.",
+   "synopsis": "Thebes is dying of plague. The oracle says the killer of the old king Laius is in the city and must be found. Oedipus, who answered the Sphinx and took the throne and the widowed queen Jocasta, undertakes the search himself. Tiresias will not speak, then does. A messenger from Corinth and an old shepherd, put together, prove it: Oedipus killed Laius, his father, and Jocasta is his mother. She hangs herself; he puts out his eyes with the pins of her dress and asks to be sent into exile.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Dain & Mazon (1958)",
+     "full": "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)",
+     "year": 1958,
+     "pairs": []
+    },
+    {
+     "id": "storr-loeb",
+     "short": "Storr (1912)",
+     "full": "F. Storr, Sophocles, vol. 1 (Loeb, 1912)",
+     "year": 1912,
+     "pairs": [
+      "storr"
+     ]
+    },
+    {
+     "id": "jebb",
+     "short": "Jebb (1893)",
+     "full": "R. C. Jebb, Sophocles: The Plays and Fragments, part 1, The Oedipus Tyrannus (Cambridge, 3rd ed., 1893)",
+     "year": 1893,
+     "pairs": [
+      "jebb"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "jebb",
+     "name": "R. C. Jebb (Cambridge, 1883–1900)",
+     "short": "Jebb",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "jebb"
+    },
+    {
+     "id": "storr",
+     "name": "F. Storr (Loeb, 1912)",
+     "short": "Storr",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "storr-loeb"
+    },
+    {
+     "id": "kosmos",
+     "name": "Jebb, rev. Sens & Nagy (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Soph. OT"
+  },
+  "heraclidae": {
+   "id": "heraclidae",
+   "slug": "heraclidae",
+   "title": "Children of Heracles",
+   "greekTitle": "Ἡρακλεῖδαι",
+   "abbr": "Heracl.",
+   "author": "euripides",
+   "blurb": "Heracles' children seek refuge at Athens from Eurystheus, who hunts them into exile.",
+   "production": "Date unknown, c. 430 BC",
+   "argument": "The children of Heracles, hunted by Eurystheus, take refuge at Marathon, and Athens defends them.",
+   "synopsis": "After Heracles' death his children and his old companion Iolaus are hunted from city to city by Eurystheus, king of Argos. They reach the altar at Marathon, and Demophon, king of Athens, agrees to defend them though it means war. An oracle demands that a girl of noble birth be sacrificed for the victory, and a daughter of Heracles offers herself. Athens wins; old Iolaus, made young for a day, captures Eurystheus. Heracles' mother Alcmene has him killed, against Athenian custom, and he promises that his grave will protect Attica.",
+   "greekEditions": [],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": null
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Eur. Heracl."
+  },
+  "ajax": {
+   "id": "ajax",
+   "slug": "ajax",
+   "title": "Ajax",
+   "greekTitle": "Αἴας",
+   "abbr": "Aj.",
+   "author": "sophocles",
+   "blurb": "Shamed by his madness and the slaughter of the army's cattle, Ajax turns on himself.",
+   "production": "Date unknown, probably the 440s BC",
+   "argument": "Cheated of Achilles’ arms, Ajax slaughters the army’s cattle in a madness sent by Athena, and kills himself.",
+   "synopsis": "The arms of the dead Achilles were awarded to Odysseus, not Ajax. In the night Ajax set out to kill the Greek commanders; Athena turned his mind, and he butchered the army's sheep and cattle instead. The play opens with Athena showing Odysseus the madman still exulting. When the fit lifts, Ajax faces what he has done, talks his wife Tecmessa and his sailors into leaving him alone, and falls on his sword. The second half is the fight over his body: Menelaus and Agamemnon forbid burial; Teucer defies them; Odysseus, his enemy, settles it.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Dain & Mazon (1958)",
+     "full": "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)",
+     "year": 1958,
+     "pairs": []
+    },
+    {
+     "id": "storr-loeb",
+     "short": "Storr (1913)",
+     "full": "F. Storr, Sophocles, vol. 2 (Loeb, 1913)",
+     "year": 1913,
+     "pairs": [
+      "storr"
+     ]
+    },
+    {
+     "id": "jebb",
+     "short": "Jebb (1896)",
+     "full": "R. C. Jebb, Sophocles: The Plays and Fragments, part 7, The Ajax (Cambridge, 1896)",
+     "year": 1896,
+     "pairs": [
+      "jebb"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "jebb",
+     "name": "R. C. Jebb (Cambridge, 1883–1900)",
+     "short": "Jebb",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "jebb"
+    },
+    {
+     "id": "storr",
+     "name": "F. Storr (Loeb, 1913)",
+     "short": "Storr",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "storr-loeb"
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Soph. Aj."
+  },
+  "birds": {
+   "id": "birds",
+   "slug": "birds",
+   "title": "Birds",
+   "greekTitle": "Ὄρνιθες",
+   "abbr": "Av.",
+   "author": "aristophanes",
+   "blurb": "Two Athenians build a city in the sky and starve the gods into surrender.",
+   "production": "City Dionysia, 414 BC · second prize",
+   "argument": "Two Athenians persuade the birds to build a city in the sky and cut the gods off from their sacrifices.",
+   "synopsis": "Two Athenians, Peisthetaerus and Euelpides, have left Athens to be rid of lawsuits and are looking for Tereus, the king who became a hoopoe, to ask where to live. Peisthetaerus has a better idea: the birds should build a city in the air between men and gods and cut off the smoke of sacrifice. Cloudcuckooland is founded, the gods starve, and an embassy of Poseidon, Heracles, and a Triballian god comes to terms. Peisthetaerus gets Zeus's sceptre and marries Basileia, Sovereignty herself.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Coulon (1928)",
+     "full": "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)",
+     "year": 1928,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1906)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)",
+     "year": 1906,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "arrowsmith",
+     "name": "William Arrowsmith (Michigan, 1961)",
+     "short": "Arrowsmith",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Av."
+  },
+  "electra-eur": {
+   "id": "electra-eur",
+   "slug": "electra-eur",
+   "title": "Electra",
+   "greekTitle": "Ἠλέκτρα",
+   "abbr": "Eur. El.",
+   "author": "euripides",
+   "blurb": "Married off to a poor farmer, Electra plots with Orestes to kill their mother.",
+   "production": "Date disputed, c. 420–413 BC",
+   "argument": "Electra, married off to a peasant, is found by Orestes. He kills Aegisthus, and together they kill their mother.",
+   "synopsis": "Aegisthus has married Electra to a poor farmer so that her children will be nobodies. She lives in his hut outside Argos, hauling water, nursing her grievance. Orestes and Pylades come unannounced, and an old man who once smuggled Orestes to safety as a child knows him by a scar. Orestes kills Aegisthus at a sacrifice in the country. Clytemnestra is lured to the hut with news that her daughter has given birth, and the two of them kill her there. Both are sick with what they have done. The Dioscuri, Clytemnestra's brothers, appear to send Orestes to Athens for trial and Electra to marry Pylades.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1981)",
+     "full": "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)",
+     "year": 1981,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way",
+      "murray-verse"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. El."
+  },
+  "frogs": {
+   "id": "frogs",
+   "slug": "frogs",
+   "title": "Frogs",
+   "greekTitle": "Βάτραχοι",
+   "abbr": "Ran.",
+   "author": "aristophanes",
+   "blurb": "Dionysus goes to Hades for a poet, judges Aeschylus against Euripides, and brings Aeschylus back.",
+   "production": "Lenaia, 405 BC · first prize · restaged, the hypothesis says, for its parabasis",
+   "argument": "Dionysus goes down to Hades for Euripides and comes back with Aeschylus.",
+   "synopsis": "Athens has no good tragic poets left; Euripides and Sophocles have both died within the year. Dionysus, patron of the theatre, sets out for Hades to bring Euripides back, dressed as Heracles, with his slave Xanthias and a donkey. Getting there takes the first half. In Hades he finds Euripides and Aeschylus disputing the throne of tragedy and is made the judge. They weigh lines on a scale and are asked for advice on saving the city. Dionysus chooses Aeschylus and takes him back to Athens.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Coulon (1928)",
+     "full": "Coulon & van Daele, Aristophane, vol. 4 (Budé, 1928)",
+     "year": 1928,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1907)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)",
+     "year": 1907,
+     "pairs": [
+      "murray-verse"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "hall-geldart-oct"
+    }
+   ],
+   "citeAbbr": "Ar. Ran."
+  },
+  "hecuba": {
+   "id": "hecuba",
+   "slug": "hecuba",
+   "title": "Hecuba",
+   "greekTitle": "Ἑκάβη",
+   "abbr": "Hec.",
+   "author": "euripides",
+   "blurb": "The fallen queen of Troy loses a daughter to sacrifice and a son to murder, and blinds his murderer.",
+   "production": "c. 424 BC",
+   "argument": "After the fall of Troy, Hecuba loses her daughter Polyxena and her son Polydorus, and blinds the man who killed him.",
+   "synopsis": "Troy has fallen and the Greek fleet is held on the coast of Thrace. The ghost of Hecuba's youngest son Polydorus opens the play: sent to Thrace for safety with a store of gold, he has been murdered by his host Polymestor. First the Greeks demand Hecuba's daughter Polyxena as a sacrifice to Achilles' ghost, and she goes bravely. Then a servant sent for water finds Polydorus's body on the shore. Hecuba lures Polymestor and his sons into the women's tents, kills the boys, and blinds him. Agamemnon judges the case and finds for her.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1984)",
+     "full": "Diggle, Euripidis fabulae, vol. 1 (OCT, 1984)",
+     "year": 1984,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1902)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 1 (Oxford Classical Texts, 1902)",
+     "year": 1902,
+     "pairs": [
+      "coleridge",
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Hec."
+  },
+  "libation-bearers": {
+   "id": "libation-bearers",
+   "slug": "libation-bearers",
+   "title": "Libation Bearers",
+   "greekTitle": "Χοηφόροι",
+   "abbr": "Cho.",
+   "author": "aeschylus",
+   "blurb": "Orestes returns from exile and kills his mother Clytaemestra to avenge his father.",
+   "production": "Oresteia, second play · City Dionysia, 458 BC · first prize",
+   "argument": "Orestes comes home to avenge his father and kills his mother.",
+   "synopsis": "Years later Orestes, grown up in exile, comes back to Argos with Pylades and meets his sister Electra at their father's grave, where Clytaemestra has sent her with offerings to quiet a bad dream. Apollo has ordered Orestes to avenge Agamemnon. Brother and sister plan the killing, and Orestes goes to the palace door as a stranger bringing news of his own death. He kills Aegisthus, then his mother. The Furies appear to him alone, and he runs.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Murray (1955)",
+     "full": "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "smyth-loeb",
+     "short": "Smyth (1926)",
+     "full": "H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)",
+     "year": 1926,
+     "pairs": [
+      "smyth",
+      "kosmos"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "smyth",
+     "name": "H. W. Smyth (Loeb, 1922–26)",
+     "short": "Smyth",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "morshead",
+     "name": "E. D. A. Morshead (1881–1908)",
+     "short": "Morshead",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "kosmos",
+     "name": "Erdman, rev. Nagy (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Aesch. Cho."
+  },
+  "peace": {
+   "id": "peace",
+   "slug": "peace",
+   "title": "Peace",
+   "greekTitle": "Εἰρήνη",
+   "abbr": "Pax",
+   "author": "aristophanes",
+   "blurb": "Trygaeus rides a dung-beetle to heaven to dig up Peace.",
+   "production": "City Dionysia, 421 BC · second prize",
+   "argument": "Trygaeus flies to heaven on a dung-beetle to bring back Peace.",
+   "synopsis": "Trygaeus, a vine-grower sick of the war, fattens a dung-beetle and flies to heaven on it to see Zeus. The gods have moved out; War is in residence and has buried Peace in a pit. Trygaeus calls up the farmers of all Greece to haul her out, and they do. He comes home with Peace's two companions, Harvest and Festival, hands Festival to the Council, and marries Harvest. The play ends with the wedding, arms-dealers ruined and farmers feasting.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Coulon (1924)",
+     "full": "Coulon & van Daele, Aristophane, vol. 2 (Budé, 1924)",
+     "year": 1924,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1906)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)",
+     "year": 1906,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Pax"
+  },
+  "philoctetes": {
+   "id": "philoctetes",
+   "slug": "philoctetes",
+   "title": "Philoctetes",
+   "greekTitle": "Φιλοκτήτης",
+   "abbr": "Phil.",
+   "author": "sophocles",
+   "blurb": "Abandoned on Lemnos with a festering wound, Philoctetes is courted for his fatal bow.",
+   "production": "City Dionysia, 409 BC · first prize",
+   "argument": "Odysseus sends Neoptolemus to trick the wounded Philoctetes into coming to Troy with his bow.",
+   "synopsis": "Nine years ago the Greeks abandoned Philoctetes on Lemnos with a festering wound in his foot. Now a prophecy says Troy cannot fall without him and his bow, the bow of Heracles. Odysseus brings the young Neoptolemus, Achilles' son, to trick him into sailing. Neoptolemus wins the sick man's trust, gets the bow, and cannot go through with it: he confesses, gives the bow back, and agrees to take Philoctetes home instead. Heracles appears from the sky and sends them both to Troy, where Philoctetes will be healed and kill Paris.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Dain & Mazon (1960)",
+     "full": "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)",
+     "year": 1960,
+     "pairs": []
+    },
+    {
+     "id": "storr-loeb",
+     "short": "Storr (1913)",
+     "full": "F. Storr, Sophocles, vol. 2 (Loeb, 1913)",
+     "year": 1913,
+     "pairs": [
+      "storr"
+     ]
+    },
+    {
+     "id": "jebb",
+     "short": "Jebb (1898)",
+     "full": "R. C. Jebb, Sophocles: The Plays and Fragments, part 4, The Philoctetes (Cambridge, 2nd ed., 1898)",
+     "year": 1898,
+     "pairs": [
+      "jebb"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "jebb",
+     "name": "R. C. Jebb (Cambridge, 1883–1900)",
+     "short": "Jebb",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "jebb"
+    },
+    {
+     "id": "storr",
+     "name": "F. Storr (Loeb, 1913)",
+     "short": "Storr",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "storr-loeb"
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Soph. Phil."
+  },
+  "acharnians": {
+   "id": "acharnians",
+   "slug": "acharnians",
+   "title": "Acharnians",
+   "greekTitle": "Ἀχαρνῆς",
+   "abbr": "Ach.",
+   "author": "aristophanes",
+   "blurb": "A farmer makes his own peace with Sparta, and the men of Acharnae want him dead for it.",
+   "production": "Lenaia, 425 BC · first prize",
+   "argument": "Dicaeopolis, sick of the war, makes a private peace with Sparta for himself and his family.",
+   "synopsis": "Dicaeopolis, a farmer driven into the city by the war, sits in the empty assembly waiting for someone to propose peace. No one does. He gets a private treaty with Sparta for himself and his household. The chorus of Acharnian charcoal-burners, whose vines the Spartans have burned, come after him with stones, and he argues for his life with his head over a chopping block, in rags borrowed from Euripides. He wins them over, opens a market to all comers, and ends at a feast, while the general Lamachus comes back from the front on a stretcher.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Coulon (1923)",
+     "full": "Coulon & van Daele, Aristophane, vol. 1 (Budé, 1923)",
+     "year": 1923,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1906)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)",
+     "year": 1906,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Ach."
+  },
+  "lysistrata": {
+   "id": "lysistrata",
+   "slug": "lysistrata",
+   "title": "Lysistrata",
+   "greekTitle": "Λυσιστράτη",
+   "abbr": "Lys.",
+   "author": "aristophanes",
+   "blurb": "The women of Greece go on sex strike to end the war, and it works.",
+   "production": "411 BC, probably at the Lenaia · result unknown",
+   "argument": "The women of Greece refuse sex until the men make peace.",
+   "synopsis": "Lysistrata has called the women of Greece to Athens with a plan to end the war: no sex until the men make peace. Getting them to agree is the first battle. The older women seize the Acropolis and the treasury. The men lay siege, the women hold out, and the strike begins to tell on both sides; a Spartan herald arrives in visible distress. Spartan and Athenian envoys come to Lysistrata, who divides Greece up between them on the body of a girl called Reconciliation, and both sides go off to a feast and their wives.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Coulon (1928)",
+     "full": "Coulon & van Daele, Aristophane, vol. 3 (Budé, 1928)",
+     "year": 1928,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1907)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 2 (Oxford Classical Texts, 1907)",
+     "year": 1907,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "lindsay",
+     "name": "Jack Lindsay (1925)",
+     "short": "Lindsay",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "rogers",
+     "name": "B. B. Rogers (Loeb, 1924)",
+     "short": "Rogers",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Lys."
+  },
+  "agamemnon": {
+   "id": "agamemnon",
+   "slug": "agamemnon",
+   "title": "Agamemnon",
+   "greekTitle": "Ἀγαμέμνων",
+   "abbr": "Ag.",
+   "author": "aeschylus",
+   "blurb": "Agamemnon returns from Troy in triumph, and his wife Clytaemestra kills him.",
+   "production": "Oresteia, first play · City Dionysia, 458 BC · first prize",
+   "argument": "Agamemnon comes home from Troy after ten years. Clytaemestra kills him in his bath.",
+   "synopsis": "A watchman on the palace roof at Argos sees the beacon that means Troy has fallen. Clytaemestra has ruled ten years in her husband's absence and has not forgotten that Agamemnon sacrificed their daughter Iphigenia to get the fleet to Troy. Agamemnon comes home with the captive prophetess Cassandra. His wife spreads crimson cloth for him to walk on into the house, and kills him there, in his bath, with Cassandra after him. She and her lover Aegisthus face down the elders and take the city.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Murray (1955)",
+     "full": "Murray, Aeschyli tragoediae, 2nd ed. (OCT, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "smyth-loeb",
+     "short": "Smyth (1926)",
+     "full": "H. W. Smyth, Aeschylus, vol. 2 (Loeb, 1926)",
+     "year": 1926,
+     "pairs": [
+      "smyth"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "smyth",
+     "name": "H. W. Smyth (Loeb, 1926)",
+     "short": "Smyth",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "smyth-loeb"
+    },
+    {
+     "id": "morshead",
+     "name": "E. D. A. Morshead (1881–1908)",
+     "short": "Morshead",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "kosmos",
+     "name": "Smyth, rev. Crane, Bird & Nagy (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Aesch. Ag."
+  },
+  "iphigenia-in-tauris": {
+   "id": "iphigenia-in-tauris",
+   "slug": "iphigenia-in-tauris",
+   "title": "Iphigenia in Tauris",
+   "greekTitle": "Ἰφιγένεια ἡ ἐν Ταύροις",
+   "abbr": "IT",
+   "author": "euripides",
+   "blurb": "Saved from sacrifice at Aulis, Iphigenia serves a foreign goddess until her brother arrives.",
+   "production": "c. 414 BC",
+   "argument": "Iphigenia, a priestess among the Taurians, is about to sacrifice a Greek stranger who turns out to be her brother. Together they steal the goddess's image and escape.",
+   "synopsis": "Iphigenia was not killed at Aulis: Artemis carried her off to the Taurians on the Black Sea, where she serves as priestess and any Greek who lands is sacrificed. Orestes and Pylades land, sent by Apollo to steal the goddess's image, and are captured. Iphigenia questions the prisoners about Argos and decides to spare one to carry a letter home. The letter is addressed to Orestes, and brother and sister know each other. They trick King Thoas with a purification rite, escape with the image, and Athena stops the pursuit.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1981)",
+     "full": "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)",
+     "year": 1981,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way",
+      "murray-verse"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. IT"
+  },
+  "trojan-women": {
+   "id": "trojan-women",
+   "slug": "trojan-women",
+   "title": "Trojan Women",
+   "greekTitle": "ΤΡΩΙΑΔΕΣ",
+   "abbr": "Tro.",
+   "author": "euripides",
+   "blurb": "The morning after Troy's fall, its women learn whose they are, and Astyanax is thrown from the walls.",
+   "production": "City Dionysia, 415 BC · second prize, behind Xenocles",
+   "argument": "Troy has fallen. The women wait to learn which Greek will own them, and Hector's small son is thrown from the walls.",
+   "synopsis": "The morning after Troy's fall. The women of the city wait on the shore to learn which Greek each has been assigned to. Hecuba goes to Odysseus, Cassandra to Agamemnon, Andromache to Neoptolemus. Then Andromache learns what the Greeks have decided about her small son Astyanax: he is to be thrown from the walls, and he is. Helen is brought out, and Menelaus lets her plead her case with Hecuba as prosecutor; he says she will die in Argos and has her taken to the ships. The child is buried on his father's shield, the city is set alight, and the women are marched to the ships.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (OCT, 1981)",
+     "full": "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)",
+     "year": 1981,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way",
+      "murray-verse"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "kosmos",
+     "name": "Coleridge, rev. Trojan Women Heroization team (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Tro."
+  },
+  "antigone": {
+   "id": "antigone",
+   "slug": "antigone",
+   "title": "Antigone",
+   "greekTitle": "Ἀντιγόνη",
+   "abbr": "Ant.",
+   "author": "sophocles",
+   "blurb": "Antigone defies Creon's edict and buries her brother Polynices at the cost of her life.",
+   "production": "Traditionally c. 441 BC, on a doubted anecdote",
+   "argument": "Antigone buries her brother against Creon’s order and is walled up alive. Creon loses his son and his wife for it.",
+   "synopsis": "Oedipus's sons have killed each other at the gates of Thebes. Creon, now king, gives Eteocles a soldier's funeral and orders that Polynices lie unburied. Antigone buries her brother anyway and is caught. Creon will not bend, not for his son Haemon, who is to marry her, and has her walled up alive. Tiresias frightens him into relenting, too late: Antigone has hanged herself, Haemon kills himself over her body, and Creon's wife Eurydice kills herself at the news.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Dain & Mazon (1955)",
+     "full": "Dain & Mazon, Sophocle, vol. 1 (Belles Lettres, 1955)",
+     "year": 1955,
+     "pairs": []
+    },
+    {
+     "id": "storr-loeb",
+     "short": "Storr (1912)",
+     "full": "F. Storr, Sophocles, vol. 1 (Loeb, 1912)",
+     "year": 1912,
+     "pairs": [
+      "storr"
+     ]
+    },
+    {
+     "id": "jebb",
+     "short": "Jebb (1891)",
+     "full": "R. C. Jebb, Sophocles: The Plays and Fragments, part 3, The Antigone (Cambridge, 2nd ed., 1891)",
+     "year": 1891,
+     "pairs": [
+      "jebb"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "jebb",
+     "name": "R. C. Jebb (Cambridge, 1883–1900)",
+     "short": "Jebb",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "jebb"
+    },
+    {
+     "id": "storr",
+     "name": "F. Storr (Loeb, 1912)",
+     "short": "Storr",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "storr-loeb"
+    },
+    {
+     "id": "kosmos",
+     "name": "Jebb, rev. Habel, Nagy & Hour 25 Antigone team (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Soph. Ant."
+  },
+  "clouds": {
+   "id": "clouds",
+   "slug": "clouds",
+   "title": "Clouds",
+   "greekTitle": "Νεφέλαι",
+   "abbr": "Nub.",
+   "author": "aristophanes",
+   "blurb": "Strepsiades sends his son to Socrates to learn how to cheat his creditors, and burns the school down.",
+   "production": "City Dionysia, 423 BC · third prize · the surviving text is a later revision, never staged",
+   "argument": "Strepsiades enrols at Socrates’ Thinkery to learn how to argue his way out of his debts, and ends by burning it down.",
+   "synopsis": "Strepsiades cannot sleep for his debts, which his horse-mad son Pheidippides has run up. He has heard that Socrates' school next door teaches an argument that wins any case, the Worse over the Better. He enrols himself, proves too slow, and sends the boy instead. Pheidippides comes home able to argue anything. The creditors are beaten off with the new logic; then the son beats his father and proves he was right to. Strepsiades sets fire to the school with Socrates inside.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Dover (1968)",
+     "full": "Dover, Aristophanes: Clouds (Oxford, 1968)",
+     "year": 1968,
+     "pairs": []
+    },
+    {
+     "id": "hall-geldart-oct",
+     "short": "Hall & Geldart (1906)",
+     "full": "F. W. Hall and W. M. Geldart, Aristophanis Comoediae, vol. 1 (Oxford Classical Texts, 1906)",
+     "year": 1906,
+     "pairs": []
+    }
+   ],
+   "translations": [
+    {
+     "id": "athenian-society",
+     "name": "The Eleven Comedies (The Athenian Society, 1912)",
+     "short": "Athenian Society",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "hickie",
+     "name": "W. J. Hickie (Bohn, 1853)",
+     "short": "Hickie",
+     "form": "prose",
+     "alignment": "line",
+     "edition": null
+    },
+    {
+     "id": "arrowsmith",
+     "name": "William Arrowsmith (Michigan, 1962)",
+     "short": "Arrowsmith",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Ar. Nub."
+  },
+  "iphigenia-at-aulis": {
+   "id": "iphigenia-at-aulis",
+   "slug": "iphigenia-at-aulis",
+   "title": "Iphigenia at Aulis",
+   "greekTitle": "Ἰφιγένεια ἡ ἐν Αὐλίδι",
+   "abbr": "IA",
+   "author": "euripides",
+   "blurb": "Agamemnon lures Iphigenia to Aulis with a false marriage to sacrifice her for a fair wind.",
+   "production": "Produced posthumously at the City Dionysia, 405 BC, by Euripides the younger · first prize",
+   "argument": "The fleet is becalmed at Aulis. Agamemnon summons his daughter to be sacrificed. She goes to the altar of her own will.",
+   "synopsis": "The Greek fleet is becalmed at Aulis, and the prophet Calchas has said Artemis demands Agamemnon's daughter Iphigenia. Agamemnon has sent for her on the pretext of marriage to Achilles, then written a second letter to stop her. Menelaus intercepts it. Clytemnestra arrives with the bride, and Achilles learns of the marriage from her. Iphigenia learns what she has been brought for, begs for her life, and then chooses to go to the altar for Greece. A messenger reports that a deer was found in her place.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1994)",
+     "full": "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)",
+     "year": 1994,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. IA"
+  },
+  "phoenician-women": {
+   "id": "phoenician-women",
+   "slug": "phoenician-women",
+   "title": "Phoenician Women",
+   "greekTitle": "Φοίνισσαι",
+   "abbr": "Phoen.",
+   "author": "euripides",
+   "blurb": "Oedipus' sons Eteocles and Polynices bring their war for Thebes to their mother Jocasta's door.",
+   "production": "c. 409 BC",
+   "argument": "Polynices marches on Thebes. Jocasta tries to reconcile her sons and fails; they kill each other, and she kills herself over them.",
+   "synopsis": "Polynices' Argive army is at the walls of Thebes to claim the year of kingship his brother Eteocles refused to hand over. Jocasta, alive in this version, arranges a truce so the brothers can meet, and argues for peace. They will not yield. The assault comes; Tiresias names the price of the city's survival, and Creon's son Menoeceus kills himself to pay it. The brothers kill each other in single combat, and Jocasta kills herself over the bodies. Creon banishes the blind Oedipus, and Antigone goes with him.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1994)",
+     "full": "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)",
+     "year": 1994,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Phoen."
+  },
+  "oedipus-coloneus": {
+   "id": "oedipus-coloneus",
+   "slug": "oedipus-coloneus",
+   "title": "Oedipus at Colonus",
+   "greekTitle": "Οἰδίπους ἐπὶ Κολωνῷ",
+   "abbr": "OC",
+   "author": "sophocles",
+   "blurb": "Blind and exiled, Oedipus comes to rest in a grove outside Athens as his sons war over Thebes.",
+   "production": "Produced posthumously at the City Dionysia, 401 BC, by his grandson Sophocles",
+   "argument": "The blind Oedipus reaches Colonus, near Athens, and dies there under Theseus’ protection.",
+   "synopsis": "Blind, old, and exiled from Thebes, Oedipus arrives with Antigone at Colonus, a village near Athens, and knows the grove of the Furies where an oracle said his life would end. Theseus takes him under the city's protection. Then Thebes wants him: an oracle says his grave will bring power, and Creon comes to seize him and keep him on the border, kidnapping his daughters until Theseus gets them back. His son Polynices comes to beg his blessing for the march on Thebes and gets a curse instead. Thunder calls Oedipus; he walks into the grove with Theseus alone and vanishes, and his grave becomes Athens's.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Dain & Mazon (1960)",
+     "full": "Dain & Mazon, Sophocle, vol. 3 (Belles Lettres, 1960)",
+     "year": 1960,
+     "pairs": []
+    },
+    {
+     "id": "storr-loeb",
+     "short": "Storr (1912)",
+     "full": "F. Storr, Sophocles, vol. 1 (Loeb, 1912)",
+     "year": 1912,
+     "pairs": [
+      "storr"
+     ]
+    },
+    {
+     "id": "jebb",
+     "short": "Jebb (1889)",
+     "full": "R. C. Jebb, Sophocles: The Plays and Fragments, part 2, The Oedipus Coloneus (Cambridge, 2nd ed., 1889)",
+     "year": 1889,
+     "pairs": [
+      "jebb"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "jebb",
+     "name": "R. C. Jebb (Cambridge, 1883–1900)",
+     "short": "Jebb",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "jebb"
+    },
+    {
+     "id": "storr",
+     "name": "F. Storr (Loeb, 1912)",
+     "short": "Storr",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "storr-loeb"
+    },
+    {
+     "id": "kosmos",
+     "name": "Jebb, rev. Ceragioli & Nagy (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Soph. OC"
+  },
+  "suppliants-eur": {
+   "id": "suppliants-eur",
+   "slug": "suppliants-eur",
+   "title": "Suppliant Women",
+   "greekTitle": "Ἱκέτιδες",
+   "abbr": "Eur. Supp.",
+   "author": "euripides",
+   "blurb": "The mothers of the fallen Argive champions beg Theseus to force Thebes to yield their dead.",
+   "production": "c. 423 BC",
+   "argument": "The mothers of the Seven ask Theseus to recover their sons’ bodies from Thebes.",
+   "synopsis": "The Seven who marched against Thebes lie dead outside its walls, and Thebes will not give up the bodies. Their mothers come to Eleusis as suppliants, with Adrastus, the king of Argos who led the failed expedition, and ask Theseus to make Thebes yield the dead. Theseus refuses, then listens to his mother Aethra and changes his mind. A Theban herald warns Athens off; Theseus marches, wins, and brings the bodies back for burial. Evadne, wife of one of the Seven, throws herself onto her husband's pyre. Athena binds Argos to Athens by oath.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1981)",
+     "full": "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)",
+     "year": 1981,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Supp."
+  },
+  "electra-soph": {
+   "id": "electra-soph",
+   "slug": "electra-soph",
+   "title": "Electra",
+   "greekTitle": "Ἠλέκτρα",
+   "abbr": "Soph. El.",
+   "author": "sophocles",
+   "blurb": "Electra waits years for her brother Orestes to come home and avenge their father.",
+   "production": "Date unknown, probably c. 420–410 BC",
+   "argument": "Electra waits for Orestes to come home and avenge their father. He comes, and they kill their mother.",
+   "synopsis": "Since Agamemnon's murder Electra has lived in the palace at Mycenae as her mother's enemy, unmarried, in mourning, waiting for her brother. Orestes arrives with a plan: an old servant will report to Clytemnestra that he is dead, killed in a chariot race at Delphi. Electra hears the story too and believes it, and is holding what she thinks is the urn with his ashes when the stranger beside her tells her who he is. Orestes kills Clytemnestra inside the house while Electra urges him on from the door, then leads Aegisthus in to his death.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Dain & Mazon (1958)",
+     "full": "Dain & Mazon, Sophocle, vol. 2 (Belles Lettres, 1958)",
+     "year": 1958,
+     "pairs": []
+    },
+    {
+     "id": "storr-loeb",
+     "short": "Storr (1913)",
+     "full": "F. Storr, Sophocles, vol. 2 (Loeb, 1913)",
+     "year": 1913,
+     "pairs": [
+      "storr"
+     ]
+    },
+    {
+     "id": "jebb",
+     "short": "Jebb (1894)",
+     "full": "R. C. Jebb, Sophocles: The Plays and Fragments, part 6, The Electra (Cambridge, 1894)",
+     "year": 1894,
+     "pairs": [
+      "jebb"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "jebb",
+     "name": "R. C. Jebb (Cambridge, 1883–1900)",
+     "short": "Jebb",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "jebb"
+    },
+    {
+     "id": "storr",
+     "name": "F. Storr (Loeb, 1913)",
+     "short": "Storr",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "storr-loeb"
+    }
+   ],
+   "citeAbbr": "Soph. El."
+  },
+  "heracles": {
+   "id": "heracles",
+   "slug": "heracles",
+   "title": "Heracles",
+   "greekTitle": "Ἡρακλῆς",
+   "abbr": "HF",
+   "author": "euripides",
+   "blurb": "Heracles returns from his labours to save his family, and Hera drives him mad.",
+   "production": "c. 416 BC",
+   "argument": "Heracles returns from the underworld in time to save his family, then is driven mad by Hera and kills them himself.",
+   "synopsis": "While Heracles is in the underworld on his last labour, the usurper Lycus has seized Thebes and is about to kill Heracles' wife Megara, his three sons, and his father Amphitryon. Heracles returns in time and kills Lycus. Then Iris and Madness appear above the house, sent by Hera, and in the fit he kills his wife and children, taking them for Eurystheus's. When he wakes, Amphitryon has to tell him what he has done. He means to kill himself; Theseus, whom he freed from Hades, talks him into living and takes him to Athens.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1981)",
+     "full": "Diggle, Euripidis fabulae, vol. 2 (OCT, 1981)",
+     "year": 1981,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 2 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "kosmos",
+     "name": "Potter, adapted by Ebbott, Dué & Kamil (CHS, Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Eur. HF"
+  },
+  "orestes": {
+   "id": "orestes",
+   "slug": "orestes",
+   "title": "Orestes",
+   "greekTitle": "Ὀρέστης",
+   "abbr": "Or.",
+   "author": "euripides",
+   "blurb": "Days after killing his mother, Orestes waits on trial for his life, surrounded by enemies.",
+   "production": "City Dionysia, 408 BC",
+   "argument": "Six days after killing his mother, Orestes waits for the Argive assembly’s verdict. It is death, and he turns on Helen.",
+   "synopsis": "Six days after killing his mother, Orestes lies sick and half mad in Argos, nursed by Electra, while the city prepares to vote on whether to stone them both. Helen, who came ahead by night, is in the palace; Menelaus arrives and will not risk helping. The assembly votes for death. Orestes, Electra, and Pylades, with nothing to lose, try to kill Helen, who vanishes, and take her daughter Hermione hostage on the roof with the palace ready to burn. Apollo appears, marries Orestes to Hermione and Electra to Pylades, and sends Helen to the stars.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1994)",
+     "full": "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)",
+     "year": 1994,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "coleridge",
+      "way"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "coleridge",
+     "name": "E. P. Coleridge (London, 1891)",
+     "short": "Coleridge",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    }
+   ],
+   "citeAbbr": "Eur. Or."
+  },
+  "bacchae": {
+   "id": "bacchae",
+   "slug": "bacchae",
+   "title": "Bacchae",
+   "greekTitle": "Βάκχαι",
+   "abbr": "Ba.",
+   "author": "euripides",
+   "blurb": "Dionysus comes to Thebes to punish Pentheus for denying his divinity, and Pentheus's own mother tears him apart.",
+   "production": "Produced posthumously at the City Dionysia, 405 BC, by Euripides the younger · first prize",
+   "argument": "Dionysus comes to Thebes, where Pentheus refuses to acknowledge the god and is torn apart by his own mother.",
+   "synopsis": "Dionysus has come to Thebes as a young man to establish his worship in the city of his mother Semele, whose sisters deny that he is Zeus's son. The women of Thebes are already on the mountain in his rites. Pentheus, the young king, has the stranger arrested. The stranger, freed, talks him into going to the mountain dressed as a woman to spy on them. The women, his mother Agave first, tear him apart. Agave comes home carrying his head as a lion's, and her father Cadmus brings her back to herself. Dionysus appears, exiles Agave and her sisters, and tells Cadmus and his wife Harmonia they will become snakes.",
+   "greekEditions": [
+    {
+     "id": "tlg",
+     "short": "Diggle (1994)",
+     "full": "Diggle, Euripidis fabulae, vol. 3 (OCT, 1994)",
+     "year": 1994,
+     "pairs": []
+    },
+    {
+     "id": "murray-oct",
+     "short": "Murray (1913)",
+     "full": "Gilbert Murray, Euripidis Fabulae, vol. 3 (Oxford Classical Texts, 1913)",
+     "year": 1913,
+     "pairs": [
+      "buckley",
+      "way",
+      "murray-verse"
+     ]
+    }
+   ],
+   "translations": [
+    {
+     "id": "buckley",
+     "name": "T. A. Buckley (Bohn, 1850)",
+     "short": "Buckley",
+     "form": "prose",
+     "alignment": "line",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "way",
+     "name": "A. S. Way (Loeb, 1912)",
+     "short": "Way",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    },
+    {
+     "id": "kosmos",
+     "name": "Buckley, rev. Sens & Nagy (Kosmos Society)",
+     "short": "Kosmos",
+     "form": "prose",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "johnston",
+     "name": "Ian Johnston (VIU)",
+     "short": "Johnston",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": null
+    },
+    {
+     "id": "murray-verse",
+     "name": "Gilbert Murray",
+     "short": "Murray",
+     "form": "verse",
+     "alignment": "speech",
+     "edition": "murray-oct"
+    }
+   ],
+   "citeAbbr": "Eur. Ba."
+  }
+ }
+}
