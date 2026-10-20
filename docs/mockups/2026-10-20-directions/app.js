@@ -141,10 +141,7 @@
     <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
     <div class="wrap"><ul class="list">${worksOf(a).map((w) => `<li><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span><p class="bl">${esc(w.blurb)}</p>${w.production ? `<p class="pr">${esc(w.production)}</p>` : ''}</li>`).join('')}</ul>
     ${bFoot}</div></div>`; };
-  T.b.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${bHead}
-    <div class="scene">${playFig(w.id, 460)}</div>
-    <div class="tb"><div><p class="gt" lang="grc">${esc(w.greekTitle)}</p><h1 class="et">${esc(w.title)}</h1></div><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>
-    <p class="arg">${esc(w.argument)}</p>
+  const bPlayBody = (w) => `<p class="arg">${esc(w.argument)}</p>
     <div class="three">
       <div><h3>Persons, in order of appearance</h3>${castList('cast', (n, s, slot) => `<li style="--c:var(--spk-${slot})"><span class="sg" lang="grc">${s}</span><span>${n}</span></li>`)}</div>
       <div><h3>Translations</h3><ul class="reads">${transRead(w).map((t) => `<li><a href="#">${esc(t.name)}</a><span class="d">${t.bits.join(' · ')}</span></li>`).join('')}</ul></div>
@@ -153,7 +150,15 @@
     </div>
     <details class="syn"><summary>Full synopsis (tells the ending)</summary><p>${esc(w.synopsis)}</p></details>
     <p class="credit">Drawing: ${esc(DR.medea.desc)}</p>
-    ${bFoot}</div></div>`; };
+    ${bFoot}`;
+  T.b.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${bHead}
+    <div class="scene">${playFig(w.id, 460)}</div>
+    <div class="tb"><div><p class="gt" lang="grc">${esc(w.greekTitle)}</p><h1 class="et">${esc(w.title)}</h1></div><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>
+    ${bPlayBody(w)}</div></div>`; };
+  // The mashup John asked to see: C's banner (title at the left, the whole scene at the right) over B's page.
+  T.bc = { play: () => { const w = medea; return `<div class="page pg-play mash" data-author="euripides"><div class="cover">${bHead}
+    <div class="in"><div><h1 class="et">${esc(w.title)}</h1><p class="gt" lang="grc">${esc(w.greekTitle)}</p><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>${playFig(w.id, 400)}</div></div>
+    <div class="wrap">${bPlayBody(w)}</div></div>`; } };
   T.b.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
     <div class="rh">${playFig('medea', 44)}<span class="crumbs"><a href="#">Euripides</a> · <a href="#">Medea</a><span class="g" lang="grc">Μήδεια</span></span><span class="here"><b>1116</b> of 1419</span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
@@ -287,7 +292,7 @@
   const PAGE_NOTES = {
     home: { a: 'The frieze as built, with the complete contents under it.', b: 'Rejected (John, 20 October): the band of figures is out for the home page.', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'The band is out (John, 20 October). What stays as a contender: the two-column list of plays, title and Greek title, then the note and the date.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
-    play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'The scene at full size; persons, translations, and Greek texts in three columns.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
+    play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Each play heads its hits standing on its ground line.', c: 'The author colours sort the hits; the play silhouettes mark them.', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'A third, narrower page: the headword as its running head, the entry below, like a gloss in the margin.' },
     reader: { a: 'One running head. Names run in, lighter. Numbers every fifth line.', b: 'The ground line under the head, the play\'s figure at the left, numbers in the gutter.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'An opening of the book: sigla and names in the margins, numbers outside.' },
@@ -308,7 +313,8 @@
     dir = dir === 'blend' ? dirFor(page) : dir;
     const alt = phone;
     const html = page === 'word' ? wordPage(dir, alt) : T[dir][page](alt);
-    return `<div class="frame dir-${dir}${phone ? ' ph' : ''}${WINDOWED(page) ? '' : ' auto'}" data-theme="${theme}">${html}</div>`;
+    const skin = dir === 'bc' ? 'b' : dir;
+    return `<div class="frame dir-${skin}${phone ? ' ph' : ''}${WINDOWED(page) ? '' : ' auto'}" data-theme="${theme}">${html}</div>`;
   }
   function render() {
     document.querySelectorAll('[data-dir]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dir === state.dir)));
@@ -332,7 +338,7 @@
     if (state.dir === 'blend') {
       const P = ['home', 'author', 'play', 'reader', 'search', 'word'];
       notesEl.innerHTML = `<p class="dir-name">Mix and match</p><h2>The blend</h2><p>Each page from the direction you choose. The frame shows this page in the direction picked for it.</p>
-        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'c', 'd'].filter((d) => !((d === 'b' || d === 'c') && pg === 'home')).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
+        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'bc', 'c', 'd'].filter((d) => !((d === 'b' || d === 'c') && pg === 'home') && !(d === 'bc' && pg !== 'play')).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${d === 'bc' ? 'B with C\'s banner' : NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
         <h3>Within a page</h3><p>Pieces from different directions inside one page (a running head from one, the speaker names from another, the colour from a third) are the next round: say which, and the blend becomes its own direction here.</p>`;
       return;
     }

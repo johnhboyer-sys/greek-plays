@@ -396,6 +396,26 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-play .syn p { margin-top: .5rem; font-size: 1.1rem; line-height: 1.5; }
 .dir-b .pg-play .credit { margin-top: 2rem; font: 400 .85rem/1.4 var(--font-ui); color: var(--mid); max-width: 44em; }
 
+/* B with C's banner: the colour block carries the title and the whole scene; B's page follows */
+.dir-b { --f-aeschylus: #2b486b; --f-sophocles: #2d5a46; --f-euripides: #8b382d; --f-aristophanes: #d19c2b; --on-aeschylus: #f2ede3; --on-sophocles: #f2ede3; --on-euripides: #f2ede3; --on-aristophanes: #161616; }
+.dir-b[data-theme="dark"] { --f-aeschylus: #22395a; --f-sophocles: #234636; --f-euripides: #722d24; --f-aristophanes: #b8861f; --on-aeschylus: #ece6da; --on-sophocles: #ece6da; --on-euripides: #ece6da; --on-aristophanes: #161514; }
+.dir-b [data-author="aeschylus"] { --f-auth: var(--f-aeschylus); --on-auth: var(--on-aeschylus); }
+.dir-b [data-author="sophocles"] { --f-auth: var(--f-sophocles); --on-auth: var(--on-sophocles); }
+.dir-b [data-author="euripides"] { --f-auth: var(--f-euripides); --on-auth: var(--on-euripides); }
+.dir-b [data-author="aristophanes"] { --f-auth: var(--f-aristophanes); --on-auth: var(--on-aristophanes); }
+.dir-b .pg-play.mash .cover { background: var(--f-auth); color: var(--on-auth); }
+.dir-b .pg-play.mash .cover .hd { padding: 1.1rem 3rem; color: inherit; }
+.dir-b .pg-play.mash .cover .hd .wm, .dir-b .pg-play.mash .cover .hd nav a { color: inherit; }
+.dir-b .pg-play.mash .cover .in { max-width: 86rem; margin: 0 auto; padding: .6rem 3rem 2rem; display: grid; grid-template-columns: 1fr 1.25fr; gap: 3rem; align-items: end; }
+.dir-b .pg-play.mash .cover .fig { --h: 400px; --fig-body: var(--on-auth); --fig-ink: var(--f-auth); max-width: 100%; justify-self: end; }
+.dir-b .pg-play.mash .cover .et { font: 700 6.4rem/.95 var(--font-text); letter-spacing: -.01em; }
+.dir-b .pg-play.mash .cover .gt { font-size: 2.4rem; line-height: 1.1; margin-top: .6rem; color: inherit; }
+.dir-b .pg-play.mash .cover .au { font: 400 1.25rem var(--font-ui); margin-top: .6rem; opacity: .9; }
+.dir-b .pg-play.mash .cover .au a { color: inherit; }
+.dir-b .pg-play.mash .cover .in > div { min-width: 0; }
+.dir-b .pg-play.mash .cover .au { white-space: normal; overflow-wrap: anywhere; }
+.dir-b .pg-play.mash .arg { margin-top: 2.2rem; }
+
 /* B · reader */
 .dir-b .pg-reader .rh { position: sticky; top: 0; z-index: 3; background: var(--paper); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; gap: 1.6rem; padding: .45rem 2rem 0; }
 .dir-b .pg-reader .rh .fig { --h: 44px; --fig-body: var(--sil-body); --fig-ink: var(--sil-ink); }
@@ -437,6 +457,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-play .arg { font-size: 1.2rem; }
   .dir-b .pg-play .three { grid-template-columns: 1fr; gap: 1.6rem; margin-top: 1.8rem; }
   .dir-b .pg-play .open .rd-body { grid-template-columns: 1fr; }
+  .dir-b .pg-play.mash .cover .hd { padding: .9rem 1rem; }
+  .dir-b .pg-play.mash .cover .in { grid-template-columns: 1fr; padding: .4rem 1rem 1.6rem; gap: 1rem; }
+  .dir-b .pg-play.mash .cover .fig { --h: 220px; justify-self: center; }
+  .dir-b .pg-play.mash .cover .et { font-size: 3.4rem; } .dir-b .pg-play.mash .cover .gt { font-size: 1.4rem; }
   .dir-b .pg-reader .rh { padding: .4rem 1rem 0; gap: .8rem; flex-wrap: wrap; }
   .dir-b .pg-reader .rh .fig { --h: 34px; } .dir-b .pg-reader .rh .crumbs { font-size: 1.05rem; }
   .dir-b .pg-reader .rh .ctl { gap: .9rem; font-size: .95rem; }
@@ -1090,10 +1114,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
     <div class="wrap"><ul class="list">${worksOf(a).map((w) => `<li><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span><p class="bl">${esc(w.blurb)}</p>${w.production ? `<p class="pr">${esc(w.production)}</p>` : ''}</li>`).join('')}</ul>
     ${bFoot}</div></div>`; };
-  T.b.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${bHead}
-    <div class="scene">${playFig(w.id, 460)}</div>
-    <div class="tb"><div><p class="gt" lang="grc">${esc(w.greekTitle)}</p><h1 class="et">${esc(w.title)}</h1></div><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>
-    <p class="arg">${esc(w.argument)}</p>
+  const bPlayBody = (w) => `<p class="arg">${esc(w.argument)}</p>
     <div class="three">
       <div><h3>Persons, in order of appearance</h3>${castList('cast', (n, s, slot) => `<li style="--c:var(--spk-${slot})"><span class="sg" lang="grc">${s}</span><span>${n}</span></li>`)}</div>
       <div><h3>Translations</h3><ul class="reads">${transRead(w).map((t) => `<li><a href="#">${esc(t.name)}</a><span class="d">${t.bits.join(' · ')}</span></li>`).join('')}</ul></div>
@@ -1102,7 +1123,15 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     </div>
     <details class="syn"><summary>Full synopsis (tells the ending)</summary><p>${esc(w.synopsis)}</p></details>
     <p class="credit">Drawing: ${esc(DR.medea.desc)}</p>
-    ${bFoot}</div></div>`; };
+    ${bFoot}`;
+  T.b.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${bHead}
+    <div class="scene">${playFig(w.id, 460)}</div>
+    <div class="tb"><div><p class="gt" lang="grc">${esc(w.greekTitle)}</p><h1 class="et">${esc(w.title)}</h1></div><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>
+    ${bPlayBody(w)}</div></div>`; };
+  // The mashup John asked to see: C's banner (title at the left, the whole scene at the right) over B's page.
+  T.bc = { play: () => { const w = medea; return `<div class="page pg-play mash" data-author="euripides"><div class="cover">${bHead}
+    <div class="in"><div><h1 class="et">${esc(w.title)}</h1><p class="gt" lang="grc">${esc(w.greekTitle)}</p><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>${playFig(w.id, 400)}</div></div>
+    <div class="wrap">${bPlayBody(w)}</div></div>`; } };
   T.b.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
     <div class="rh">${playFig('medea', 44)}<span class="crumbs"><a href="#">Euripides</a> · <a href="#">Medea</a><span class="g" lang="grc">Μήδεια</span></span><span class="here"><b>1116</b> of 1419</span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
@@ -1236,7 +1265,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
   const PAGE_NOTES = {
     home: { a: 'The frieze as built, with the complete contents under it.', b: 'Rejected (John, 20 October): the band of figures is out for the home page.', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'The band is out (John, 20 October). What stays as a contender: the two-column list of plays, title and Greek title, then the note and the date.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
-    play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'The scene at full size; persons, translations, and Greek texts in three columns.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
+    play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Each play heads its hits standing on its ground line.', c: 'The author colours sort the hits; the play silhouettes mark them.', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'A third, narrower page: the headword as its running head, the entry below, like a gloss in the margin.' },
     reader: { a: 'One running head. Names run in, lighter. Numbers every fifth line.', b: 'The ground line under the head, the play\'s figure at the left, numbers in the gutter.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'An opening of the book: sigla and names in the margins, numbers outside.' },
@@ -1257,7 +1286,8 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     dir = dir === 'blend' ? dirFor(page) : dir;
     const alt = phone;
     const html = page === 'word' ? wordPage(dir, alt) : T[dir][page](alt);
-    return `<div class="frame dir-${dir}${phone ? ' ph' : ''}${WINDOWED(page) ? '' : ' auto'}" data-theme="${theme}">${html}</div>`;
+    const skin = dir === 'bc' ? 'b' : dir;
+    return `<div class="frame dir-${skin}${phone ? ' ph' : ''}${WINDOWED(page) ? '' : ' auto'}" data-theme="${theme}">${html}</div>`;
   }
   function render() {
     document.querySelectorAll('[data-dir]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dir === state.dir)));
@@ -1281,7 +1311,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     if (state.dir === 'blend') {
       const P = ['home', 'author', 'play', 'reader', 'search', 'word'];
       notesEl.innerHTML = `<p class="dir-name">Mix and match</p><h2>The blend</h2><p>Each page from the direction you choose. The frame shows this page in the direction picked for it.</p>
-        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'c', 'd'].filter((d) => !((d === 'b' || d === 'c') && pg === 'home')).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
+        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'bc', 'c', 'd'].filter((d) => !((d === 'b' || d === 'c') && pg === 'home') && !(d === 'bc' && pg !== 'play')).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${d === 'bc' ? 'B with C\'s banner' : NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
         <h3>Within a page</h3><p>Pieces from different directions inside one page (a running head from one, the speaker names from another, the colour from a third) are the next round: say which, and the blend becomes its own direction here.</p>`;
       return;
     }

@@ -389,6 +389,26 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-play .syn p { margin-top: .5rem; font-size: 1.1rem; line-height: 1.5; }
 .dir-b .pg-play .credit { margin-top: 2rem; font: 400 .85rem/1.4 var(--font-ui); color: var(--mid); max-width: 44em; }
 
+/* B with C's banner: the colour block carries the title and the whole scene; B's page follows */
+.dir-b { --f-aeschylus: #2b486b; --f-sophocles: #2d5a46; --f-euripides: #8b382d; --f-aristophanes: #d19c2b; --on-aeschylus: #f2ede3; --on-sophocles: #f2ede3; --on-euripides: #f2ede3; --on-aristophanes: #161616; }
+.dir-b[data-theme="dark"] { --f-aeschylus: #22395a; --f-sophocles: #234636; --f-euripides: #722d24; --f-aristophanes: #b8861f; --on-aeschylus: #ece6da; --on-sophocles: #ece6da; --on-euripides: #ece6da; --on-aristophanes: #161514; }
+.dir-b [data-author="aeschylus"] { --f-auth: var(--f-aeschylus); --on-auth: var(--on-aeschylus); }
+.dir-b [data-author="sophocles"] { --f-auth: var(--f-sophocles); --on-auth: var(--on-sophocles); }
+.dir-b [data-author="euripides"] { --f-auth: var(--f-euripides); --on-auth: var(--on-euripides); }
+.dir-b [data-author="aristophanes"] { --f-auth: var(--f-aristophanes); --on-auth: var(--on-aristophanes); }
+.dir-b .pg-play.mash .cover { background: var(--f-auth); color: var(--on-auth); }
+.dir-b .pg-play.mash .cover .hd { padding: 1.1rem 3rem; color: inherit; }
+.dir-b .pg-play.mash .cover .hd .wm, .dir-b .pg-play.mash .cover .hd nav a { color: inherit; }
+.dir-b .pg-play.mash .cover .in { max-width: 86rem; margin: 0 auto; padding: .6rem 3rem 2rem; display: grid; grid-template-columns: 1fr 1.25fr; gap: 3rem; align-items: end; }
+.dir-b .pg-play.mash .cover .fig { --h: 400px; --fig-body: var(--on-auth); --fig-ink: var(--f-auth); max-width: 100%; justify-self: end; }
+.dir-b .pg-play.mash .cover .et { font: 700 6.4rem/.95 var(--font-text); letter-spacing: -.01em; }
+.dir-b .pg-play.mash .cover .gt { font-size: 2.4rem; line-height: 1.1; margin-top: .6rem; color: inherit; }
+.dir-b .pg-play.mash .cover .au { font: 400 1.25rem var(--font-ui); margin-top: .6rem; opacity: .9; }
+.dir-b .pg-play.mash .cover .au a { color: inherit; }
+.dir-b .pg-play.mash .cover .in > div { min-width: 0; }
+.dir-b .pg-play.mash .cover .au { white-space: normal; overflow-wrap: anywhere; }
+.dir-b .pg-play.mash .arg { margin-top: 2.2rem; }
+
 /* B · reader */
 .dir-b .pg-reader .rh { position: sticky; top: 0; z-index: 3; background: var(--paper); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; gap: 1.6rem; padding: .45rem 2rem 0; }
 .dir-b .pg-reader .rh .fig { --h: 44px; --fig-body: var(--sil-body); --fig-ink: var(--sil-ink); }
@@ -430,6 +450,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-play .arg { font-size: 1.2rem; }
   .dir-b .pg-play .three { grid-template-columns: 1fr; gap: 1.6rem; margin-top: 1.8rem; }
   .dir-b .pg-play .open .rd-body { grid-template-columns: 1fr; }
+  .dir-b .pg-play.mash .cover .hd { padding: .9rem 1rem; }
+  .dir-b .pg-play.mash .cover .in { grid-template-columns: 1fr; padding: .4rem 1rem 1.6rem; gap: 1rem; }
+  .dir-b .pg-play.mash .cover .fig { --h: 220px; justify-self: center; }
+  .dir-b .pg-play.mash .cover .et { font-size: 3.4rem; } .dir-b .pg-play.mash .cover .gt { font-size: 1.4rem; }
   .dir-b .pg-reader .rh { padding: .4rem 1rem 0; gap: .8rem; flex-wrap: wrap; }
   .dir-b .pg-reader .rh .fig { --h: 34px; } .dir-b .pg-reader .rh .crumbs { font-size: 1.05rem; }
   .dir-b .pg-reader .rh .ctl { gap: .9rem; font-size: .95rem; }
