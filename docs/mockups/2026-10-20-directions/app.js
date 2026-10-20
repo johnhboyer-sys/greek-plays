@@ -287,20 +287,20 @@
       keeps: ['The drawings, as engraved vignettes in black line (clay-filled in the dark theme, as approved); speaker colours per character; the Greek and English of each speech on one line.'],
       changes: ['A second face for the English, with true small caps and italics.', 'Speaker names in the margin, not run in; line numbers in the outer margins, as in an OCT.', 'Hairline rules under running heads and between the parts of a page.', 'A centred title page; no author tints, no clay in the light theme.'],
       phone: 'One page at a time, the Greek then its English; the right-hand running head goes.',
-      risk: 'The least colour of the four, and the drawings carry less. It lives or dies on the type.' },
+      risk: 'John, 20 October: D\'s home and author pages are out (boring), and its reader and word panel too. Its play page was judged too top-heavy. Little of D remains in the running.' },
   };
   const PAGE_NOTES = {
     home: { a: 'The frieze as built, with the complete contents under it.', b: 'Rejected (John, 20 October): the band of figures is out for the home page.', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Out (John, 20 October): boring.', b: 'A contender with C. The figure now stands at the right, the name at the left; the two-column list of plays follows.', c: 'A contender with B. The field on top; every row has its play\'s silhouette.', d: 'Out (John, 20 October): boring, not enough colour.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Hits by play: the title, then the author and the Greek text. No figures, no Greek titles (John, 20 October).', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
-    word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'A third, narrower page: the headword as its running head, the entry below, like a gloss in the margin.' },
-    reader: { a: 'One running head. Names run in, lighter. Numbers every fifth line.', b: 'The ground line under the head, the play\'s figure at the left, numbers in the gutter.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'An opening of the book: sigla and names in the margins, numbers outside.' },
+    word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'Out with D\'s reader (John, 20 October).' },
+    reader: { a: 'Its chrome is out (John, 20 October): the tinted running head goes. One running head. Names run in, lighter. Numbers every fifth line.', b: 'The ground line under the head, the play\'s figure at the left, numbers in the gutter.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'Rejected (John, 20 October): the book opening is out for the reader.' },
   };
 
   // ── Chrome ───────────────────────────────────────────────────────────────
-  const state = { dir: 'a', page: 'review', theme: 'light', width: 'desktop', notes: true, blend: { home: 'a', author: 'a', play: 'b', reader: 'd', search: 'b', word: 'd' } };
-  try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); if (state.blend.home === 'b' || state.blend.home === 'c') state.blend.home = 'a'; } catch (e) { /* ignore */ }
+  const state = { dir: 'a', page: 'review', theme: 'light', width: 'desktop', notes: true, blend: { home: 'a', author: 'b', play: 'b', reader: 'b', search: 'b', word: 'b' } };
+  try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); if (state.blend.home === 'b' || state.blend.home === 'c') state.blend.home = 'a'; if (state.blend.reader === 'd') state.blend.reader = 'b'; if (state.blend.word === 'd') state.blend.word = 'b'; } catch (e) { /* ignore */ }
   const save = () => { try { localStorage.setItem('gdr-directions', JSON.stringify(state)); } catch (e) { /* ignore */ } };
 
   const stage = document.getElementById('stage');
@@ -338,7 +338,7 @@
     if (state.dir === 'blend') {
       const P = ['home', 'author', 'play', 'reader', 'search', 'word'];
       notesEl.innerHTML = `<p class="dir-name">Mix and match</p><h2>The blend</h2><p>Each page from the direction you choose. The frame shows this page in the direction picked for it.</p>
-        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'bc', 'c', 'd'].filter((d) => !((d === 'b' || d === 'c') && pg === 'home') && !(d === 'bc' && pg !== 'play')).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${d === 'bc' ? 'B with C\'s banner' : NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
+        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'bc', 'c', 'd'].filter((d) => !((d === 'b' || d === 'c') && pg === 'home') && !(d === 'bc' && pg !== 'play') && !(d === 'd' && (pg === 'reader' || pg === 'word'))).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${d === 'bc' ? 'B with C\'s banner' : NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
         <h3>Within a page</h3><p>Pieces from different directions inside one page (a running head from one, the speaker names from another, the colour from a third) are the next round: say which, and the blend becomes its own direction here.</p>`;
       return;
     }
