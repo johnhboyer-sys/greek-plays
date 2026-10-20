@@ -500,8 +500,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 
 /* C · play page */
 .dir-c .pg-play .cover { background: var(--field); color: var(--on); }
-.dir-c .pg-play .cover .in { max-width: 88rem; margin: 0 auto; padding: .6rem 3rem 2.2rem; display: grid; grid-template-columns: 1fr; gap: 1.6rem; justify-items: center; text-align: center; }
-.dir-c .pg-play .cover .fig { --h: 420px; --fig-body: var(--on); --fig-ink: var(--field); max-width: 100%; }
+.dir-c .pg-play .cover .in { max-width: 88rem; margin: 0 auto; padding: .6rem 3rem 2rem; display: grid; grid-template-columns: 1fr 1.25fr; gap: 3rem; align-items: end; }
+.dir-c .pg-play .cover .fig { --h: 400px; --fig-body: var(--on); --fig-ink: var(--field); max-width: 100%; justify-self: end; }
 .dir-c .pg-play .cover .et { font: 700 6.8rem/.95 var(--font-text); letter-spacing: -.01em; }
 .dir-c .pg-play .cover .gt { font-size: 2.4rem; margin-top: .6rem; }
 .dir-c .pg-play .cover .au { font: 500 1.3rem var(--font-ui); margin-top: .6rem; opacity: .9; }
@@ -559,8 +559,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-c .pg-author .row .bl { grid-column: 2; font-size: 1.05rem; }
   .dir-c .pg-author .row .t { font-size: 1.3rem; } .dir-c .pg-author .row .g { font-size: 1rem; }
   .dir-c .pg-author .row .pr { display: none; }
-  .dir-c .pg-play .cover .in { padding: .4rem 1rem 1.6rem; gap: 1rem; }
-  .dir-c .pg-play .cover .fig { --h: 220px; }
+  .dir-c .pg-play .cover .in { grid-template-columns: 1fr; padding: .4rem 1rem 1.6rem; gap: 1rem; }
+  .dir-c .pg-play .cover .fig { --h: 220px; justify-self: center; }
   .dir-c .pg-play .cover .et { font-size: 3.6rem; } .dir-c .pg-play .cover .gt { font-size: 1.4rem; }
   .dir-c .pg-play .body { grid-template-columns: 1fr; gap: 1.2rem; padding-top: 1.4rem; }
   .dir-c .pg-play .arg { font-size: 1.2rem; }
