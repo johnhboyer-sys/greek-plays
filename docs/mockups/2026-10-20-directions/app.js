@@ -39,7 +39,7 @@
   }
   const playFig = (id, h, cls) => fig(PLAY_FIG[id], h, cls);
 
-  // ── The passage: Medea 1116–1160, Murray's Greek with Coleridge beside it ──
+  // ── The passage: Medea 1116–1180, Murray's Greek with Coleridge beside it ──
   function speeches() {
     const g = D.samples.medea_grc, e = D.samples.medea_eng;
     const G = []; for (const l of g) { if (l.spk) G.push({ spk: l.spk, lines: [] }); G[G.length - 1].lines.push(l); }
@@ -121,7 +121,7 @@
     <p class="credit">Drawing: ${esc(DR.medea.desc)}</p>
     ${aFoot}</div></div>`; };
   T.a.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
-    <div class="rh"><span class="crumbs"><a href="#">Euripides</a> · <a href="#">Medea</a></span><span class="here">1116–1160</span><span class="ctl"><a href="#">Coleridge, 1891</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
+    <div class="rh"><span class="crumbs"><a href="#">Euripides</a> · <a href="#">Medea</a></span><span class="here">1116–1180</span><span class="ctl"><a href="#">Coleridge, 1891</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
 
   // B ──────────────────────────────────────────────────────────────────────
@@ -182,7 +182,7 @@
     <p class="credit">Drawing: ${esc(DR.medea.desc)}</p>
     ${cFoot}</div></div>`; };
   T.c.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
-    <div class="rh"><span class="crumbs">Medea<span>Euripides</span></span><span class="here">1116–1160</span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
+    <div class="rh"><span class="crumbs">Medea<span>Euripides</span></span><span class="here">1116–1180</span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
 
   // D ──────────────────────────────────────────────────────────────────────
@@ -208,8 +208,60 @@
     ${dFoot}</div></div>`; };
   T.d.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
     <div class="ctlbar"><a href="#">Euripides</a><a href="#">Medea</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Coleridge</a><a href="#">Search</a></div>
-    <div class="book${alt ? ' rd-alt' : ''}"><div class="rhead l"><span class="g" lang="grc">ΜΗΔΕΙΑ</span><span class="sc">Murray 1902</span><span>1116–1160</span></div><div class="rhead r"><span>1116–1160</span><span class="sc">Coleridge 1891</span><span class="sc">Medea</span></div>
+    <div class="book${alt ? ' rd-alt' : ''}"><div class="rhead l"><span class="g" lang="grc">ΜΗΔΕΙΑ</span><span class="sc">Murray 1902</span><span>1116–1180</span></div><div class="rhead r"><span>1116–1180</span><span class="sc">Coleridge 1891</span><span class="sc">Medea</span></div>
     ${readerRows({ mode: 'margin', alt })}</div></div>`;
+
+  // ── Search: the lemma ξίφος in the three open Greek texts ────────────────
+  const HITS = [
+    { play: 'agamemnon', author: 'aeschylus', ed: 'Smyth 1926', hits: [[1351, 'καὶ πρᾶγμ’ ἐλέγχειν σὺν νεορρύτῳ ξίφει.'], [1651, 'εἶα δή, ξίφος πρόκωπον πᾶς τις εὐτρεπιζέτω.']] },
+    { play: 'medea', author: 'euripides', ed: 'Murray 1902', hits: [[393, 'αὐτὴ ξίφος λαβοῦσα, κεἰ μέλλω θανεῖν,'], [1244, 'ἄγ’, ὦ τάλαινα χεὶρ ἐμή, λαβὲ ξίφος,'], [1278, 'ὡς ἐγγὺς ἤδη γ’ ἐσμὲν ἀρκύων ξίφους.'], [1325, 'ἥτις τέκνοισι σοῖσιν ἐμβαλεῖν ξίφος']] },
+    { play: 'frogs', author: 'aristophanes', ed: 'Hall & Geldart 1907', hits: [[564, 'καὶ τὸ ξίφος γ’ ἐσπᾶτο μαίνεσθαι δοκῶν.']] },
+  ];
+  const markHit = (t) => esc(t).replace(/(ξίφ[^\s.,;·]*)/u, '<mark>$1</mark>');
+  const hitRows = (g) => g.hits.map(([n, t]) => `<li><a class="ref num" href="#">${n}</a><span class="snip" lang="grc">${markHit(t)}</span></li>`).join('');
+  const COUNT = '7 lines in 3 plays';
+  // The query form's parts, shared; each skin sets them.
+  const qGreek = `<div class="q"><label>Greek</label><span class="fld" lang="grc">ξίφος</span><span class="opts"><span class="on">Lemma</span>Exact form<i>Accents ignored</i><i>Reference text</i></span></div>`;
+  const qEng = `<div class="q"><label>English</label><span class="fld empty">a word or phrase</span><span class="opts"><span class="on">All words</span>Any word<i>Exact phrase</i></span></div>`;
+  const qScope = `<div class="scope"><span>In all 44 plays</span><a href="#">choose plays</a><a class="go" href="#">Search</a></div>`;
+
+  T.a.search = () => `<div class="page pg-search"><div class="wrap">${aHead()}
+    <form class="sf">${qGreek}${qEng}${qScope}</form>
+    <p class="count">${COUNT}</p>
+    ${HITS.map((g) => `<section class="grp"><h2>${esc(W[g.play].title)}<span class="who">${byId[g.author].name} · ${g.ed}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
+    <p class="export"><a href="#">Export these lines as CSV</a></p>
+    ${aFoot}</div></div>`;
+  T.b.search = () => `<div class="page pg-search"><div class="wrap">${bHead}
+    <form class="sf">${qGreek}${qEng}${qScope}</form>
+    <p class="count">${COUNT}</p>
+    ${HITS.map((g) => `<section class="grp"><h2><span class="fb">${playFig(g.play, 70)}</span><span class="tt">${esc(W[g.play].title)}<span class="g" lang="grc">${esc(W[g.play].greekTitle)}</span></span><span class="who">${byId[g.author].name} · ${g.ed} · ${g.hits.length} line${g.hits.length > 1 ? 's' : ''}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
+    <p class="export"><a href="#">Export these lines as CSV</a></p>
+    ${bFoot}</div></div>`;
+  T.c.search = () => `<div class="page pg-search"><div class="wrap">${cHead}
+    <h1 class="big">Search</h1>
+    <form class="sf">${qGreek}${qEng}${qScope}</form>
+    <p class="count">${COUNT}</p>
+    ${HITS.map((g) => `<section class="grp" data-author="${g.author}"><h2>${playFig(g.play, 64)}<span class="tt">${esc(W[g.play].title)}</span><span class="who">${byId[g.author].name} · ${g.ed}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
+    <p class="export"><a href="#">Export these lines as CSV</a></p>
+    ${cFoot}</div></div>`;
+  T.d.search = () => `<div class="page pg-search"><div class="wrap">${dHead}
+    <form class="sf">${qGreek}${qEng}${qScope}</form>
+    <p class="count">${COUNT}, in the reference Greek</p>
+    ${HITS.map((g) => `<section class="grp"><h2><span class="sc">${esc(W[g.play].title)}</span><span class="who">${byId[g.author].name}, ${g.ed}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
+    <p class="export"><a href="#">Export these lines as CSV</a></p>
+    ${dFoot}</div></div>`;
+
+  // ── The word panel: ἀνωλόλυξε at 1173, the parse and Grammata's entry ───
+  const PANEL = `<aside class="wp" aria-label="ἀνωλόλυξε"><div class="wph"><span class="w" lang="grc">ἀνωλόλυξε</span><a class="x" href="#" aria-label="Close">×</a></div>
+    <div class="wpb"><div class="parse"><p class="lem" lang="grc">ἀνολολύζω</p><p class="gloss">cry aloud, shout aloud</p><p class="morph">aorist indicative active, third singular</p><p class="occ"><a href="#">7 places in the plays</a></p></div>
+    <div class="t8"><div class="t8h"><b lang="grc">ἀνολολύζω</b><a href="#">Logeion ↗</a></div>
+      <ol class="senses"><li><span class="num">I.</span><span class="cue">cry aloud, shout aloud</span><span class="au">A. · Simon. · S. · E.</span><ol><li><span class="num">2</span><span class="cue"><i>c. acc.,</i> bewail loudly</span><span class="au">S. · E.</span></li></ol></li><li><span class="num">II.</span><span class="cue"><i>causal,</i> excite by Bacchic cries</span><span class="au">E.</span></li></ol>
+      <p class="t8f">3 senses · citations on Logeion</p></div></div></aside>`;
+  function wordPage(dir, alt) {
+    const html = T[dir].reader(alt).normalize('NFC').replace(/[^\s,.<>]*νωλ[^\s,.<>]{1,3}λυξε/u, (w) => `<mark class="w">${w}</mark>`);
+    const i = html.lastIndexOf('</div>');
+    return html.slice(0, i) + PANEL + html.slice(i);
+  }
 
   // ── Notes ────────────────────────────────────────────────────────────────
   const NOTES = {
@@ -238,6 +290,8 @@
     home: { a: 'The frieze as built, with the complete contents under it.', b: 'The whole corpus on one line. Scroll sideways, or wait for it to turn.', c: 'Four fields, four silhouettes, then the catalogue.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'His own band under the hero; the list below carries the notes.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'The scene at full size; persons, translations, and Greek texts in three columns.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
+    search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Each play heads its hits standing on its ground line.', c: 'The author colours sort the hits; the play silhouettes mark them.', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
+    word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'A third, narrower page: the headword as its running head, the entry below, like a gloss in the margin.' },
     reader: { a: 'One running head. Names run in, lighter. Numbers every fifth line.', b: 'The ground line under the head, the play\'s figure at the left, numbers in the gutter.', c: 'A thin band of the author\'s colour; names in a bold sans.', d: 'An opening of the book: sigla and names in the margins, numbers outside.' },
   };
 
@@ -253,7 +307,7 @@
 
   function frameHtml(dir, page, theme, phone) {
     const alt = phone;
-    const html = T[dir][page](alt);
+    const html = page === 'word' ? wordPage(dir, alt) : T[dir][page](alt);
     return `<div class="frame dir-${dir}${phone ? ' ph' : ''}" data-theme="${theme}">${html}</div>`;
   }
   function render() {
@@ -275,6 +329,7 @@
       stage.innerHTML = `<div class="frame-box">${frameHtml(state.dir, state.page, state.theme, false)}</div><p class="frame-cap">1440 × 900, scaled to fit. The page scrolls inside the frame.</p>`;
       fit();
     }
+    if (state.page === 'word') stage.querySelectorAll('.frame .page').forEach((pg) => { const m = pg.querySelector('mark.w'); if (!m) return; const sc = scaleOf(pg); pg.scrollTop += (m.getBoundingClientRect().top - pg.getBoundingClientRect().top) / sc - pg.clientHeight * 0.36; });
     const n = NOTES[state.dir];
     notesEl.innerHTML = `<p class="dir-name">Direction ${state.dir.toUpperCase()} of four</p><h2>${n.name}</h2><p>${n.what}</p>
       <h3>On this page</h3><p>${PAGE_NOTES[state.page][state.dir]}</p>
@@ -319,7 +374,7 @@
   });
   document.addEventListener('keydown', (e) => {
     if (e.target.matches('input,textarea')) return;
-    const dirs = ['a', 'b', 'c', 'd'], pages = ['review', 'home', 'author', 'play', 'reader'];
+    const dirs = ['a', 'b', 'c', 'd'], pages = ['review', 'home', 'author', 'play', 'reader', 'search', 'word'];
     if (/^[1-4]$/.test(e.key)) state.dir = dirs[Number(e.key) - 1];
     else if (e.key === 'ArrowRight') state.page = pages[(pages.indexOf(state.page) + 1) % pages.length];
     else if (e.key === 'ArrowLeft') state.page = pages[(pages.indexOf(state.page) + pages.length - 1) % pages.length];
@@ -330,6 +385,6 @@
   });
   addEventListener('resize', fit);
   const h = location.hash.replace('#', '');
-  if (['home', 'author', 'play', 'reader', 'review'].includes(h)) state.page = h;
+  if (['home', 'author', 'play', 'reader', 'search', 'word', 'review'].includes(h)) state.page = h;
   render();
 })();
