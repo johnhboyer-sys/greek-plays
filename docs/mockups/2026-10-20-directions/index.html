@@ -350,8 +350,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .band-hint { font: 400 .9rem var(--font-ui); color: var(--mid); margin: .5rem 0 0; }
 
 /* B · author */
-.dir-b .pg-author .hero { display: grid; grid-template-columns: 22rem 1fr; gap: 3rem; align-items: end; margin-top: 1.4rem; }
-.dir-b .pg-author .hero .lead { border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; height: calc(360px + .5rem); }
+.dir-b .pg-author .hero { display: grid; grid-template-columns: 1fr 24rem; gap: 3rem; align-items: end; margin-top: 2.2rem; }
+.dir-b .pg-author .hero .lead { order: 2; border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; height: calc(360px + .5rem); overflow: hidden; }
+.dir-b .pg-author .hero .hx { order: 1; }
 .dir-b .pg-author .hero .lead .fig { --h: 360px; max-width: 100%; }
 .dir-b .pg-author .hx .gk { font-size: 2.2rem; line-height: 1.1; color: var(--clay-deep); }
 .dir-b .pg-author .hx .en { font-size: 5rem; line-height: 1; margin: .05rem 0 .5rem; }
@@ -443,8 +444,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .band .lead .who { font-size: 1.2rem; } .dir-b .band .lead .who .g { font-size: .9rem; }
   .dir-b .band .item { padding: 0 .5rem; } .dir-b .band .item .ttl { font-size: .9rem; max-width: 9em; }
   .dir-b .pg-home .intro { font-size: 1.12rem; margin-top: 1rem; }
-  .dir-b .pg-author .hero { grid-template-columns: 1fr; gap: .8rem; margin-top: .6rem; }
-  .dir-b .pg-author .hero .lead { height: calc(200px + .5rem); justify-content: flex-start; }
+  .dir-b .pg-author .hero { grid-template-columns: 1fr; gap: .8rem; margin-top: 1rem; }
+  .dir-b .pg-author .hero .lead { order: 1; height: calc(200px + .5rem); justify-content: flex-start; }
+  .dir-b .pg-author .hero .hx { order: 2; }
   .dir-b .pg-author .hero .lead .fig { --h: 200px; }
   .dir-b .pg-author .hx .en { font-size: 3rem; } .dir-b .pg-author .hx .gk { font-size: 1.4rem; } .dir-b .pg-author .hx .ab { font-size: 1.1rem; }
   .dir-b .pg-author .list { columns: 1; margin-top: 1.6rem; }
@@ -1264,7 +1266,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
   };
   const PAGE_NOTES = {
     home: { a: 'The frieze as built, with the complete contents under it.', b: 'Rejected (John, 20 October): the band of figures is out for the home page.', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
-    author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'The band is out (John, 20 October). What stays as a contender: the two-column list of plays, title and Greek title, then the note and the date.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
+    author: { a: 'Out (John, 20 October): boring.', b: 'A contender with C. The figure now stands at the right, the name at the left; the two-column list of plays follows.', c: 'A contender with B. The field on top; every row has its play\'s silhouette.', d: 'Out (John, 20 October): boring, not enough colour.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Each play heads its hits standing on its ground line.', c: 'The author colours sort the hits; the play silhouettes mark them.', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'A third, narrower page: the headword as its running head, the entry below, like a gloss in the margin.' },
