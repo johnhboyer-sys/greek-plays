@@ -191,8 +191,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-a .intro { font-size: 1.3rem; color: var(--mid); margin: .6rem 0 2.2rem; }
 .dir-a .frieze { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); --h: 300px; }
 .dir-a .frieze .col { min-width: 0; }
-.dir-a .fb { height: calc(var(--h) + .6rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; }
-.dir-a .fb .fig { max-width: 100%; }
+.dir-a .fb { height: calc(var(--h) + .6rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; padding: 0 .75rem; }
+.dir-a .fb .fig { max-width: 100%; }  /* a wide figure shrinks to its column; none reaches a neighbour */
 .dir-a .nm { text-align: center; padding: 1.1rem .4rem 0; }
 .dir-a .nm .gk { display: block; font-size: 1.5rem; line-height: 1.1; color: var(--ink); }
 .dir-a .nm .en { display: block; font-size: 2.8rem; line-height: 1.05; color: var(--i-auth); }
@@ -320,15 +320,14 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .foot { margin: 3.5rem 0 3rem; display: flex; gap: .5rem 1.6rem; flex-wrap: wrap; font: 400 1rem var(--font-ui); color: var(--mid); }
 
 /* B · the band */
-.dir-b .band { position: relative; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; cursor: grab; }
-.dir-b .band::-webkit-scrollbar { display: none; }
+.dir-b .band { position: relative; }
 /* The track is one flex row; every item holds its figure in a box with a
    2px bottom border, and the boxes touch, so one ground line runs the whole
    length of the band. Titles hang below the line. */
-.dir-b .band .track { display: flex; align-items: flex-end; width: max-content; padding: 0 2rem; }
-.dir-b .band .seg { display: flex; align-items: flex-end; }
+.dir-b .band .track { display: flex; flex-wrap: wrap; align-items: flex-end; row-gap: 1.8rem; padding: 0 2rem; }
+.dir-b .band .seg { display: contents; }
 .dir-b .band .fb { border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; }
-.dir-b .band .lead { position: sticky; left: 0; z-index: 2; background: var(--paper); display: flex; flex-direction: column; align-items: flex-start; }
+.dir-b .band .lead { display: flex; flex-direction: column; align-items: flex-start; }
 .dir-b .band .lead .fb { padding: 0 1.4rem 0 1rem; width: 100%; justify-content: flex-start; }
 .dir-b .band .lead .fig { --h: var(--lead-h, 250px); --fig-body: var(--sil-body); --fig-ink: var(--sil-ink); }
 .dir-b .band .lead .who { font-size: 1.55rem; line-height: 1.15; margin: .55rem 1.4rem 0 1rem; white-space: nowrap; }
@@ -417,7 +416,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .wrap { padding: 0 1rem; }
   .dir-b .hd { padding: 1rem 0 .3rem; }
   .dir-b .band .track { padding: 0 1rem; }
-  .dir-b .band { --band-h: 130px; --lead-h: 170px; }
+  .dir-b .band { --band-h: 105px; --lead-h: 150px; }
+  .dir-b .band .track { row-gap: 1.2rem; padding: 0 .5rem; }
   .dir-b .band .lead .who { font-size: 1.2rem; } .dir-b .band .lead .who .g { font-size: .9rem; }
   .dir-b .band .item { padding: 0 .5rem; } .dir-b .band .item .ttl { font-size: .9rem; max-width: 9em; }
   .dir-b .pg-home .intro { font-size: 1.12rem; margin-top: 1rem; }
@@ -696,8 +696,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-d .pg-reader .rd-e .p .n { display: none; }
 }
 
-/* reduced motion: the band never drifts */
-@media (prefers-reduced-motion: reduce) { .dir-b .band { scroll-behavior: auto; } }
 
 /* ─────────────────────────────────────────────────────────────────────────
    Search page, shared bones; each skin sets the type and the marks.
@@ -916,7 +914,7 @@ mark.w { background: var(--hit); color: inherit; padding: 0 .06em; }
       <table>
         <tr><th></th><th>Idea</th><th>Colour</th><th>Type</th><th>Breaks</th></tr>
         <tr><td>A · The Frieze, finished</td><td>The current design, corrected</td><td>Paper, the four tints, Attic orange</td><td>Cardo; Alegreya Sans for controls</td><td>Nothing in DESIGN.md</td></tr>
-        <tr><td>B · The Vase</td><td>All 44 plays on one ground line</td><td>Black, clay, paper</td><td>Cardo; Alegreya Sans for controls</td><td>No tints; silhouettes at small sizes</td></tr>
+        <tr><td>B · The Vase</td><td>All 44 plays on ground lines, row by row</td><td>Black, clay, paper</td><td>Cardo; Alegreya Sans for controls</td><td>No tints; silhouettes at small sizes</td></tr>
         <tr><td>C · The Playbill</td><td>Flat colour fields; a cover per play</td><td>Indigo, bottle green, oxblood, mustard</td><td>Alegreya Sans Black titles; Cardo text</td><td>Panels; sans titles</td></tr>
         <tr><td>D · The Edition</td><td>A printed book</td><td>Ink, paper, one red</td><td>Cardo for Greek; EB Garamond for English</td><td>Hairlines; a second face; names in the margin</td></tr>
       </table>
@@ -1214,10 +1212,10 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
       changes: ['Home: all 44 titles under the frieze, each author\'s plays under his figure. Either every title or none.', 'Greek titles in ink, near the English size, on every page.', 'The playbill becomes a page of its own. Each translation is a way in; Persons stand in one column.', 'Reader: one running head, no second bar, no toast; speaker names lighter.'],
       phone: 'Two pairs of figures, then the four lists. The reader alternates Greek and English speech by speech.',
       risk: 'The quietest of the four. It fixes what is wrong without adding an idea.' },
-    b: { name: 'B · The Vase', what: 'The 44 drawings carry the site. One ground line runs through every page. On the home page every play stands on it in order, as figures on a vase band, and the band scrolls sideways. An author page shows his own band; a play page shows its scene at full size; the reader keeps the line under its head, with the play\'s figure at the left.',
+    b: { name: 'B · The Vase', what: 'The 44 drawings carry the site. One ground line runs through every page. On the home page every play stands on it in order, as figures on the bands of a vase, row after row. An author page shows his own band; a play page shows its scene at full size; the reader keeps the line under its head, with the play\'s figure at the left.',
       keeps: ['The drawings exactly as made; the ground line; warm paper; Cardo for text, Alegreya Sans for controls; no rules or boxes beyond the one line.', 'Speaker colours per character; numbers every fifth line; English the same size as the Greek.'],
-      changes: ['Colour is the vase\'s own: black, clay, paper. No author tints anywhere.', 'Small figures are drawn as black-figure silhouettes (ink on paper), large ones as now (clay body, dark lines). Dark theme is the black glaze: everything red-figure.', 'The band drifts slowly until touched; off under reduced motion.'],
-      phone: 'The band swipes, one author at a time, with the author\'s figure held at the left edge.',
+      changes: ['Colour is the vase\'s own: black, clay, paper. No author tints anywhere.', 'Small figures are drawn as black-figure silhouettes (ink on paper), large ones as now (clay body, dark lines). Dark theme is the black glaze: everything red-figure.', 'The band wraps into rows, every figure in view at once; nothing scrolls sideways.'],
+      phone: 'The rows run on, two or three figures across, each author led by his own figure.',
       risk: 'Two renderings of the drawings; and the band only works if all 44 are drawn (Agamemnon is the one gap).' },
     c: { name: 'C · The Playbill', what: 'Flat colour, one strong field per author; the figures as paper silhouettes on the colour; poster type for titles and Cardo for everything read. A play\'s page opens as its cover. The reader\'s head is a thin band of the author\'s colour.',
       keeps: ['The drawings; Cardo for all reading text; speaker colours per character; no rules, no shadows, no rounded corners.'],
@@ -1231,7 +1229,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
       risk: 'The least colour of the four, and the drawings carry less. It lives or dies on the type.' },
   };
   const PAGE_NOTES = {
-    home: { a: 'The frieze as built, with the complete contents under it.', b: 'The whole corpus on one line. Scroll sideways, or wait for it to turn.', c: 'Four fields, four silhouettes, then the catalogue.', d: 'A title page, then the contents with first-performance dates.' },
+    home: { a: 'The frieze as built, with the complete contents under it.', b: 'The whole corpus on ground lines, row after row. Nothing scrolls sideways.', c: 'Four fields, four silhouettes, then the catalogue.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'His own band under the hero; the list below carries the notes.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'The scene at full size; persons, translations, and Greek texts in three columns.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Each play heads its hits standing on its ground line.', c: 'The author colours sort the hits; the play silhouettes mark them.', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
@@ -1247,7 +1245,6 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
   const stage = document.getElementById('stage');
   const notesEl = document.getElementById('notes');
   const wrapEl = document.getElementById('stage-wrap');
-  let drift = null;
 
   const dirFor = (page) => (state.dir === 'blend' ? (state.blend[page] || 'b') : state.dir);
   function frameHtml(dir, page, theme, phone) {
@@ -1261,7 +1258,6 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     document.querySelectorAll('[data-page]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.page === state.page)));
     document.querySelectorAll('[data-theme-pick]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themePick === state.theme)));
     document.querySelectorAll('[data-width]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.width === state.width)));
-    if (drift) { cancelAnimationFrame(drift); drift = null; }
     const review = document.getElementById('review');
     if (state.page === 'review') {
       review.hidden = false; wrapEl.hidden = true; return;
@@ -1281,7 +1277,6 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
       notesEl.innerHTML = `<p class="dir-name">Mix and match</p><h2>The blend</h2><p>Each page from the direction you choose. The frame shows this page in the direction picked for it.</p>
         <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'c', 'd'].map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
         <h3>Within a page</h3><p>Pieces from different directions inside one page (a running head from one, the speaker names from another, the colour from a third) are the next round: say which, and the blend becomes its own direction here.</p>`;
-      if (dirFor(state.page) === 'b' && state.page === 'home') startDrift();
       return;
     }
     const n = NOTES[state.dir];
@@ -1290,7 +1285,6 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
       <h3>Keeps</h3><ul>${n.keeps.map((k) => `<li>${k}</li>`).join('')}</ul>
       <h3>Changes</h3><ul>${n.changes.map((k) => `<li>${k}</li>`).join('')}</ul>
       <h3>Phone</h3><p>${n.phone}</p><h3>Risk</h3><p>${n.risk}</p>`;
-    if (dirFor(state.page) === 'b' && state.page === 'home') startDrift();
   }
   function fit() {
     const box = stage.querySelector('.frame-box'); const fr = stage.querySelector('.frame');
@@ -1298,22 +1292,6 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     const avail = stage.clientWidth; const s = Math.min(1, avail / 1440);
     fr.style.transform = `scale(${s})`; box.style.height = `${900 * s}px`; box.style.width = `${1440 * s}px`;
   }
-  function startDrift() {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const bands = stage.querySelectorAll('.band'); if (!bands.length) return;
-    let on = true; const stop = () => { on = false; };
-    bands.forEach((b) => ['wheel', 'pointerdown', 'touchstart', 'keydown'].forEach((ev) => b.addEventListener(ev, stop, { passive: true, once: true })));
-    let last = performance.now();
-    const step = (t) => { if (!on) return; const dt = t - last; last = t; bands.forEach((b) => { b.scrollLeft += dt * 0.018; }); drift = requestAnimationFrame(step); };
-    drift = requestAnimationFrame(step);
-  }
-  // Drag to scroll the band (desktop), and wheel → sideways.
-  stage.addEventListener('wheel', (e) => { const b = e.target.closest('.band'); if (b && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { b.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
-  let dragging = null;
-  stage.addEventListener('pointerdown', (e) => { const b = e.target.closest('.band'); if (b) { dragging = { b, x: e.clientX, left: b.scrollLeft }; b.setPointerCapture(e.pointerId); } });
-  stage.addEventListener('pointermove', (e) => { if (dragging) dragging.b.scrollLeft = dragging.left - (e.clientX - dragging.x) / (scaleOf(dragging.b)); });
-  stage.addEventListener('pointerup', () => { dragging = null; });
-  stage.addEventListener('click', (e) => { if (dragging !== null) return; const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault(); });
   function scaleOf(el) { const fr = el.closest('.frame'); const m = /scale\(([\d.]+)\)/.exec(fr?.style.transform || ''); return m ? Number(m[1]) : 1; }
 
   document.addEventListener('click', (e) => {

@@ -270,10 +270,10 @@
       changes: ['Home: all 44 titles under the frieze, each author\'s plays under his figure. Either every title or none.', 'Greek titles in ink, near the English size, on every page.', 'The playbill becomes a page of its own. Each translation is a way in; Persons stand in one column.', 'Reader: one running head, no second bar, no toast; speaker names lighter.'],
       phone: 'Two pairs of figures, then the four lists. The reader alternates Greek and English speech by speech.',
       risk: 'The quietest of the four. It fixes what is wrong without adding an idea.' },
-    b: { name: 'B · The Vase', what: 'The 44 drawings carry the site. One ground line runs through every page. On the home page every play stands on it in order, as figures on a vase band, and the band scrolls sideways. An author page shows his own band; a play page shows its scene at full size; the reader keeps the line under its head, with the play\'s figure at the left.',
+    b: { name: 'B · The Vase', what: 'The 44 drawings carry the site. One ground line runs through every page. On the home page every play stands on it in order, as figures on the bands of a vase, row after row. An author page shows his own band; a play page shows its scene at full size; the reader keeps the line under its head, with the play\'s figure at the left.',
       keeps: ['The drawings exactly as made; the ground line; warm paper; Cardo for text, Alegreya Sans for controls; no rules or boxes beyond the one line.', 'Speaker colours per character; numbers every fifth line; English the same size as the Greek.'],
-      changes: ['Colour is the vase\'s own: black, clay, paper. No author tints anywhere.', 'Small figures are drawn as black-figure silhouettes (ink on paper), large ones as now (clay body, dark lines). Dark theme is the black glaze: everything red-figure.', 'The band drifts slowly until touched; off under reduced motion.'],
-      phone: 'The band swipes, one author at a time, with the author\'s figure held at the left edge.',
+      changes: ['Colour is the vase\'s own: black, clay, paper. No author tints anywhere.', 'Small figures are drawn as black-figure silhouettes (ink on paper), large ones as now (clay body, dark lines). Dark theme is the black glaze: everything red-figure.', 'The band wraps into rows, every figure in view at once; nothing scrolls sideways.'],
+      phone: 'The rows run on, two or three figures across, each author led by his own figure.',
       risk: 'Two renderings of the drawings; and the band only works if all 44 are drawn (Agamemnon is the one gap).' },
     c: { name: 'C · The Playbill', what: 'Flat colour, one strong field per author; the figures as paper silhouettes on the colour; poster type for titles and Cardo for everything read. A play\'s page opens as its cover. The reader\'s head is a thin band of the author\'s colour.',
       keeps: ['The drawings; Cardo for all reading text; speaker colours per character; no rules, no shadows, no rounded corners.'],
@@ -287,7 +287,7 @@
       risk: 'The least colour of the four, and the drawings carry less. It lives or dies on the type.' },
   };
   const PAGE_NOTES = {
-    home: { a: 'The frieze as built, with the complete contents under it.', b: 'The whole corpus on one line. Scroll sideways, or wait for it to turn.', c: 'Four fields, four silhouettes, then the catalogue.', d: 'A title page, then the contents with first-performance dates.' },
+    home: { a: 'The frieze as built, with the complete contents under it.', b: 'The whole corpus on ground lines, row after row. Nothing scrolls sideways.', c: 'Four fields, four silhouettes, then the catalogue.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Euripides, the long case: 19 plays. Aeschylus would open with the Oresteia as now.', b: 'His own band under the hero; the list below carries the notes.', c: 'The field on top; every row has its play\'s silhouette.', d: 'A part title; dates in the margin.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'The scene at full size; persons, translations, and Greek texts in three columns.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Each play heads its hits standing on its ground line.', c: 'The author colours sort the hits; the play silhouettes mark them.', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
@@ -303,7 +303,6 @@
   const stage = document.getElementById('stage');
   const notesEl = document.getElementById('notes');
   const wrapEl = document.getElementById('stage-wrap');
-  let drift = null;
 
   const dirFor = (page) => (state.dir === 'blend' ? (state.blend[page] || 'b') : state.dir);
   function frameHtml(dir, page, theme, phone) {
@@ -317,7 +316,6 @@
     document.querySelectorAll('[data-page]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.page === state.page)));
     document.querySelectorAll('[data-theme-pick]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themePick === state.theme)));
     document.querySelectorAll('[data-width]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.width === state.width)));
-    if (drift) { cancelAnimationFrame(drift); drift = null; }
     const review = document.getElementById('review');
     if (state.page === 'review') {
       review.hidden = false; wrapEl.hidden = true; return;
@@ -337,7 +335,6 @@
       notesEl.innerHTML = `<p class="dir-name">Mix and match</p><h2>The blend</h2><p>Each page from the direction you choose. The frame shows this page in the direction picked for it.</p>
         <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'c', 'd'].map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
         <h3>Within a page</h3><p>Pieces from different directions inside one page (a running head from one, the speaker names from another, the colour from a third) are the next round: say which, and the blend becomes its own direction here.</p>`;
-      if (dirFor(state.page) === 'b' && state.page === 'home') startDrift();
       return;
     }
     const n = NOTES[state.dir];
@@ -346,7 +343,6 @@
       <h3>Keeps</h3><ul>${n.keeps.map((k) => `<li>${k}</li>`).join('')}</ul>
       <h3>Changes</h3><ul>${n.changes.map((k) => `<li>${k}</li>`).join('')}</ul>
       <h3>Phone</h3><p>${n.phone}</p><h3>Risk</h3><p>${n.risk}</p>`;
-    if (dirFor(state.page) === 'b' && state.page === 'home') startDrift();
   }
   function fit() {
     const box = stage.querySelector('.frame-box'); const fr = stage.querySelector('.frame');
@@ -354,22 +350,6 @@
     const avail = stage.clientWidth; const s = Math.min(1, avail / 1440);
     fr.style.transform = `scale(${s})`; box.style.height = `${900 * s}px`; box.style.width = `${1440 * s}px`;
   }
-  function startDrift() {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const bands = stage.querySelectorAll('.band'); if (!bands.length) return;
-    let on = true; const stop = () => { on = false; };
-    bands.forEach((b) => ['wheel', 'pointerdown', 'touchstart', 'keydown'].forEach((ev) => b.addEventListener(ev, stop, { passive: true, once: true })));
-    let last = performance.now();
-    const step = (t) => { if (!on) return; const dt = t - last; last = t; bands.forEach((b) => { b.scrollLeft += dt * 0.018; }); drift = requestAnimationFrame(step); };
-    drift = requestAnimationFrame(step);
-  }
-  // Drag to scroll the band (desktop), and wheel → sideways.
-  stage.addEventListener('wheel', (e) => { const b = e.target.closest('.band'); if (b && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { b.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
-  let dragging = null;
-  stage.addEventListener('pointerdown', (e) => { const b = e.target.closest('.band'); if (b) { dragging = { b, x: e.clientX, left: b.scrollLeft }; b.setPointerCapture(e.pointerId); } });
-  stage.addEventListener('pointermove', (e) => { if (dragging) dragging.b.scrollLeft = dragging.left - (e.clientX - dragging.x) / (scaleOf(dragging.b)); });
-  stage.addEventListener('pointerup', () => { dragging = null; });
-  stage.addEventListener('click', (e) => { if (dragging !== null) return; const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault(); });
   function scaleOf(el) { const fr = el.closest('.frame'); const m = /scale\(([\d.]+)\)/.exec(fr?.style.transform || ''); return m ? Number(m[1]) : 1; }
 
   document.addEventListener('click', (e) => {
