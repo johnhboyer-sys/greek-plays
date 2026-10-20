@@ -90,7 +90,7 @@
   const transRead = (w) => w.translations.map((t) => {
     const ed = t.edition ? w.greekEditions.find((e) => e.id === t.edition) : null;
     const yr = yearOf(t.name);
-    const bits = [t.form, yr, t.alignment === 'line' ? 'aligned by line' : 'aligned by speech', ed ? `with ${ed.short.replace(/\s*\(\d{4}\)/, '')}'s Greek` : "with the reference Greek"].filter(Boolean);
+    const bits = [t.form, yr, t.alignment === 'line' ? 'aligned by line' : 'aligned by speech', `with ${(ed || w.greekEditions[0]).short.replace(/\s*\(\d{4}\)/, '')}'s Greek`].filter(Boolean);
     return { name: nameOf(t), short: t.short, bits };
   });
 
@@ -249,7 +249,7 @@
     ${cFoot}</div></div>`;
   T.d.search = () => `<div class="page pg-search"><div class="wrap">${dHead}
     <form class="sf">${qGreek}${qEng}${qScope}</form>
-    <p class="count">${COUNT}, in the reference Greek</p>
+    <p class="count">${COUNT}</p>
     ${HITS.map((g) => `<section class="grp"><h2><span class="sc">${esc(W[g.play].title)}</span><span class="who">${byId[g.author].name}, ${g.ed}</span></h2><ul>${hitRows(g)}</ul></section>`).join('')}
     <p class="export"><a href="#">Export these lines as CSV</a></p>
     ${dFoot}</div></div>`;
