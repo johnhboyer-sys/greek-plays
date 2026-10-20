@@ -501,6 +501,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-c .foot { margin: 3.5rem 0 3rem; display: flex; gap: .5rem 1.6rem; flex-wrap: wrap; font: 500 1rem var(--font-ui); color: var(--mid); }
 .dir-c .pg-author .hd, .dir-c .pg-play .hd { color: var(--on); }
 .dir-c .pg-author .hd, .dir-c .pg-play .hd { padding: 1.1rem 3rem; }
+.dir-c .pg-author .hd .wm { white-space: nowrap; }
 
 /* C · home: the header sits on the fields, not on a paper strip above them */
 .dir-c .pg-home .top { position: relative; }
@@ -519,7 +520,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 
 /* C · author */
 .dir-c .pg-author .top { background: var(--field); color: var(--on); }
-.dir-c .pg-author .hero { display: grid; grid-template-columns: 24rem 1fr; gap: 3rem; align-items: end; padding: 1rem 3rem 2.2rem; max-width: 88rem; margin: 0 auto; }
+.dir-c .pg-author .hero { display: grid; grid-template-columns: 24rem 1fr; gap: 3rem; align-items: end; padding: 2.2rem 3rem 2.2rem; max-width: 88rem; margin: 0 auto; }
 .dir-c .pg-author .hero .fig { --h: 380px; --fig-body: var(--on); --fig-ink: var(--field); max-width: 100%; }
 .dir-c .pg-author .hx .en { font: 700 5.6rem/.98 var(--font-text); }
 .dir-c .pg-author .hx .gk { font-size: 2rem; margin-top: .5rem; }
@@ -586,7 +587,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-c .pg-home .intro { font-size: 1.15rem; margin: 1.4rem 0 1rem; }
   .dir-c .catalogue { grid-template-columns: 1fr; gap: 1.2rem; }
   .dir-c .catalogue ol::before { content: attr(data-name); display: block; font: 700 1.5rem var(--font-text); margin-bottom: .4rem; }
-  .dir-c .pg-author .hero { grid-template-columns: 1fr; gap: .8rem; padding: .4rem 1rem 1.4rem; }
+  .dir-c .pg-author .hero { grid-template-columns: 1fr; gap: .8rem; padding: 1.4rem 1rem 1.4rem; }
   .dir-c .pg-author .hero .fig { --h: 200px; }
   .dir-c .pg-author .hx .en { font-size: 3.2rem; } .dir-c .pg-author .hx .gk { font-size: 1.3rem; } .dir-c .pg-author .hx .ab { font-size: 1.1rem; }
   .dir-c .pg-author .row { grid-template-columns: 4.2rem 1fr; gap: .8rem; align-items: start; padding: .8rem 0; }
