@@ -1285,7 +1285,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
       changes: ['Home: all 44 titles under the frieze, each author\'s plays under his figure. Either every title or none.', 'Greek titles in ink, near the English size, on every page.', 'The playbill becomes a page of its own. Each translation is a way in; Persons stand in one column.', 'Reader: one running head, no second bar, no toast; speaker names lighter.'],
       phone: 'Two pairs of figures, then the four lists. The reader alternates Greek and English speech by speech.',
       risk: 'The quietest of the four. It fixes what is wrong without adding an idea.' },
-    b: { name: 'B · The Vase', what: 'The 44 drawings carry the site. One ground line runs through every page. On the home page every play stands on it in order, as figures on the bands of a vase, row after row. An author page shows his own band; a play page shows its scene at full size; the reader keeps the line under its head, with the play\'s figure at the left.',
+    b: { name: 'B · The Vase', what: 'Chosen by John, 20 October, with tweaks to come. The 44 drawings carry the site. One ground line runs through every page. On the home page every play stands on it in order, as figures on the bands of a vase, row after row. An author page shows his own band; a play page shows its scene at full size; the reader keeps the line under its head, with the play\'s figure at the left.',
       keeps: ['The drawings exactly as made; the ground line; warm paper; Cardo for text, Alegreya Sans for controls; no rules or boxes beyond the one line.', 'Speaker colours per character; numbers every fifth line; English the same size as the Greek.'],
       changes: ['Colour is the vase\'s own: black, clay, paper. No author tints anywhere.', 'Small figures are drawn as black-figure silhouettes (ink on paper), large ones as now (clay body, dark lines). Dark theme is the black glaze: everything red-figure.', 'The band wraps into rows, every figure in view at once; nothing scrolls sideways.'],
       phone: 'The rows run on, two or three figures across, each author led by his own figure.',
@@ -1311,7 +1311,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
   };
 
   // ── Chrome ───────────────────────────────────────────────────────────────
-  const state = { dir: 'a', page: 'review', theme: 'light', width: 'desktop', notes: true, blend: { home: 'a', author: 'b', play: 'b', reader: 'b', search: 'b', word: 'b' } };
+  const state = { dir: 'b', page: 'home', theme: 'light', width: 'desktop', notes: true, blend: { home: 'b', author: 'b', play: 'b', reader: 'b', search: 'b', word: 'b' } };
   try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); if (state.blend.home === 'c') state.blend.home = 'a'; if (state.blend.reader === 'd') state.blend.reader = 'b'; if (state.blend.word === 'd') state.blend.word = 'b'; } catch (e) { /* ignore */ }
   const save = () => { try { localStorage.setItem('gdr-directions', JSON.stringify(state)); } catch (e) { /* ignore */ } };
 
