@@ -51,7 +51,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   container: mock / inline-size; background: var(--paper); color: var(--ink);
   box-shadow: 0 0 0 1px var(--c-line);
 }
-.frame.ph { width: 390px; height: 844px; border-radius: 0; transform: scale(1); }  /* a transform, so fixed panels stay inside the frame */
+.frame.ph { width: 390px; height: 844px; border-radius: 0; transform: scale(1); }
+.frame.auto { height: auto; }
+.frame.auto .page { height: auto; overflow: visible; }  /* a transform, so fixed panels stay inside the frame */
 .page { height: 100%; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; position: relative; }
 .frame-cap { font-size: .8rem; color: var(--c-mid); margin-top: .5rem; }
 

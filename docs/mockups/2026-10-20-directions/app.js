@@ -305,11 +305,12 @@
   const wrapEl = document.getElementById('stage-wrap');
 
   const dirFor = (page) => (state.dir === 'blend' ? (state.blend[page] || 'b') : state.dir);
+  const WINDOWED = (page) => page === 'reader' || page === 'word';
   function frameHtml(dir, page, theme, phone) {
     dir = dir === 'blend' ? dirFor(page) : dir;
     const alt = phone;
     const html = page === 'word' ? wordPage(dir, alt) : T[dir][page](alt);
-    return `<div class="frame dir-${dir}${phone ? ' ph' : ''}" data-theme="${theme}">${html}</div>`;
+    return `<div class="frame dir-${dir}${phone ? ' ph' : ''}${WINDOWED(page) ? '' : ' auto'}" data-theme="${theme}">${html}</div>`;
   }
   function render() {
     document.querySelectorAll('[data-dir]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dir === state.dir)));
@@ -324,9 +325,9 @@
     wrapEl.classList.toggle('no-notes', !state.notes);
     notesEl.hidden = !state.notes;
     if (state.width === 'phone') {
-      stage.innerHTML = `<div class="frame-box phone">${frameHtml(state.dir, state.page, state.theme, true)}${frameHtml(state.dir, state.page, state.theme === 'dark' ? 'light' : 'dark', true)}</div><p class="frame-cap">390 × 844, both themes.</p>`;
+      stage.innerHTML = `<div class="frame-box phone">${frameHtml(state.dir, state.page, state.theme, true)}${frameHtml(state.dir, state.page, state.theme === 'dark' ? 'light' : 'dark', true)}</div><p class="frame-cap">${WINDOWED(state.page) ? '390 × 844, both themes; the text scrolls inside the phone.' : 'Phone width, both themes, the whole page at full height.'}</p>`;
     } else {
-      stage.innerHTML = `<div class="frame-box">${frameHtml(state.dir, state.page, state.theme, false)}</div><p class="frame-cap">1440 × 900, scaled to fit. The page scrolls inside the frame.</p>`;
+      stage.innerHTML = `<div class="frame-box">${frameHtml(state.dir, state.page, state.theme, false)}</div><p class="frame-cap">${WINDOWED(state.page) ? 'A 1440 × 900 screen, scaled to fit; the text scrolls inside it.' : 'A 1440-wide page at full height, scaled to fit.'}</p>`;
       fit();
     }
     if (state.page === 'word') stage.querySelectorAll('.frame .page').forEach((pg) => { const m = pg.querySelector('mark.w'); if (!m) return; const sc = scaleOf(pg); pg.scrollTop += (m.getBoundingClientRect().top - pg.getBoundingClientRect().top) / sc - pg.clientHeight * 0.36; });
@@ -348,7 +349,8 @@
     const box = stage.querySelector('.frame-box'); const fr = stage.querySelector('.frame');
     if (!box || !fr || fr.classList.contains('ph')) return;
     const avail = stage.clientWidth; const s = Math.min(1, avail / 1440);
-    fr.style.transform = `scale(${s})`; box.style.height = `${900 * s}px`; box.style.width = `${1440 * s}px`;
+    fr.style.transform = `scale(${s})`; box.style.width = `${1440 * s}px`;
+    box.style.height = `${(fr.classList.contains('auto') ? fr.offsetHeight : 900) * s}px`;
   }
   function scaleOf(el) { const fr = el.closest('.frame'); const m = /scale\(([\d.]+)\)/.exec(fr?.style.transform || ''); return m ? Number(m[1]) : 1; }
 
@@ -375,6 +377,7 @@
     save(); render();
   });
   addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   const h = location.hash.replace('#', '');
   if (['home', 'author', 'play', 'reader', 'search', 'word', 'review'].includes(h)) state.page = h;
   render();
