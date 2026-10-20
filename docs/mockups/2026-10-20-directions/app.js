@@ -172,7 +172,7 @@
     return { tr, eds };
   };
   T.b.reader = (alt) => { const m = bMenus(medea); return `<div class="page pg-reader" data-author="euripides">
-    <div class="rh">${playFig('medea', 44)}<span class="crumbs"><a class="wm" href="#">The Greek Drama Reader</a> · <a href="#">Euripides</a> · <a class="play" href="#">Medea</a></span>
+    <div class="rh"><span class="crumbs"><a class="wm" href="#">The Greek Drama Reader</a> · <a href="#">Euripides</a> · <a class="play" href="#">Medea</a></span>
       <span class="ctl">
         <span class="pick open-desktop"><a class="pk" href="#">Coleridge<i>▾</i></a><div class="menu"><p class="mh">Translation</p><ul>${m.tr}</ul></div></span>
         <span class="pick"><a class="pk" href="#">Paley 1878<i>▾</i></a><div class="menu"><p class="mh">Greek text</p><ul>${m.eds}</ul><p class="mn">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p></div></span>
@@ -314,7 +314,7 @@
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Hits by play: the title, then the author and the Greek text. No figures, no Greek titles (John, 20 October).', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
     word: { a: 'The panel takes the author tint beside the text; the tapped word is marked. On a phone it comes up as a sheet.', b: 'The word stands on its own ground line at the head of the panel. The entry below is Grammata\'s, as it comes.', c: 'A band of the author colour heads the panel, and a spine of the same colour marks its edge.', d: 'Out with D\'s reader (John, 20 October).' },
-    reader: { a: 'Its chrome is out (John, 20 October): the tinted running head goes. One running head. Names run in, lighter. Numbers every fifth line.', b: 'The head is the way out: the site name goes home, Euripides to his page, Medea to the play page. Then the controls: translation and Greek-text pickers (click either), the view, Aa for size and width, Print, Search.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'Rejected (John, 20 October): the book opening is out for the reader.' },
+    reader: { a: 'Its chrome is out (John, 20 October): the tinted running head goes. One running head. Names run in, lighter. Numbers every fifth line.', b: 'No figure in the head (John, 20 October); the ground line alone. The site name goes home, Euripides to his page, Medea to the play page. Then the controls: translation and Greek-text pickers (click either), the view, Aa for size and width, Print, Search.', c: 'A thin band of the author\'s colour; names in bold small caps.', d: 'Rejected (John, 20 October): the book opening is out for the reader.' },
   };
 
   // ── Chrome ───────────────────────────────────────────────────────────────

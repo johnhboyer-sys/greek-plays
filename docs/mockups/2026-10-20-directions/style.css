@@ -436,7 +436,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-play.mash .arg { margin-top: 2.2rem; }
 
 /* B · reader */
-.dir-b .pg-reader .rh { position: sticky; top: 0; z-index: 3; background: var(--paper); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; gap: 1.6rem; padding: .45rem 2rem 0; }
+.dir-b .pg-reader .rh { position: sticky; top: 0; z-index: 3; background: var(--paper); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; gap: 1.6rem; padding: .7rem 2rem 0; }
 .dir-b .pg-reader .rh .fig { --h: 44px; --fig-body: var(--sil-body); --fig-ink: var(--sil-ink); }
 .dir-b .pg-reader .rh .crumbs { font: 400 1.15rem var(--font-text); padding-bottom: .45rem; }
 .dir-b .pg-reader .rh .crumbs .play { color: var(--clay-deep); }
