@@ -421,7 +421,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rh { position: sticky; top: 0; z-index: 3; background: var(--paper); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; gap: 1.6rem; padding: .45rem 2rem 0; }
 .dir-b .pg-reader .rh .fig { --h: 44px; --fig-body: var(--sil-body); --fig-ink: var(--sil-ink); }
 .dir-b .pg-reader .rh .crumbs { font: 400 1.15rem var(--font-text); padding-bottom: .45rem; }
-.dir-b .pg-reader .rh .crumbs .g { color: var(--clay-deep); margin-left: .4em; }
+.dir-b .pg-reader .rh .crumbs .play { color: var(--clay-deep); }
 .dir-b .pg-reader .rh .here { font: 400 1rem var(--font-ui); color: var(--mid); padding-bottom: .55rem; font-variant-numeric: tabular-nums; }
 .dir-b .pg-reader .rh .here b { font-weight: 500; color: var(--ink); }
 .dir-b .pg-reader .rh .ctl { margin-left: auto; display: flex; gap: 1.4rem; font: 400 1rem var(--font-ui); color: var(--mid); padding-bottom: .55rem; }
@@ -1139,7 +1139,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     <div class="in"><div><h1 class="et">${esc(w.title)}</h1><p class="gt" lang="grc">${esc(w.greekTitle)}</p><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>${playFig(w.id, 400)}</div></div>
     <div class="wrap">${bPlayBody(w)}</div></div>`; } };
   T.b.reader = (alt) => `<div class="page pg-reader" data-author="euripides">
-    <div class="rh">${playFig('medea', 44)}<span class="crumbs"><a href="#">Euripides</a> · <a href="#">Medea</a><span class="g" lang="grc">Μήδεια</span></span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
+    <div class="rh">${playFig('medea', 44)}<span class="crumbs"><a href="#">Euripides</a> · <a class="play" href="#">Medea</a></span><span class="ctl"><a href="#">Coleridge</a><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a><a href="#">Search</a></span></div>
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
 
   // C ──────────────────────────────────────────────────────────────────────
