@@ -343,10 +343,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .band-hint { font: 400 .9rem var(--font-ui); color: var(--mid); margin: .5rem 0 0; }
 
 /* B · home: A's layout in B's colours */
-.dir-b .frieze { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); --h: 300px; margin-top: 1.6rem; }
+.dir-b .frieze { display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr))); --h: min(300px, calc((100cqw - 10rem) / var(--sum, 4))); margin-top: 1.6rem; }
 .dir-b .frieze .col { min-width: 0; }
-.dir-b .fb { height: calc(var(--h) + .6rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; padding: 0 .75rem; }
-.dir-b .fb .fig { max-width: 100%; }
+.dir-b .fb { height: calc(var(--h) + .6rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; padding: 0; }
 .dir-b .nm { text-align: center; padding: 1.1rem .4rem 0; }
 .dir-b .nm .gk { display: block; font-size: 1.5rem; line-height: 1.1; color: var(--clay-deep); }
 .dir-b .nm .en { display: block; font-size: 2.8rem; line-height: 1.05; color: var(--ink); }
@@ -448,7 +447,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .wrap { padding: 0 1rem; }
   .dir-b .hd { padding: 1rem 0 .3rem; }
   .dir-b .band .track { padding: 0 1rem; }
-  .dir-b .frieze { grid-template-columns: 1fr 1fr; --h: 170px; row-gap: 1.6rem; }
+  .dir-b .frieze { grid-template-columns: 1fr 1fr; --h: min(170px, calc((100cqw - 3rem) / var(--pairmax, 2))); row-gap: 1.6rem; }
   .dir-b .nm .gk { font-size: 1.15rem; } .dir-b .nm .en { font-size: 1.7rem; }
   .dir-b .contents { grid-template-columns: 1fr; gap: 1.2rem; margin-top: 1.8rem; }
   .dir-b .contents ol::before { content: attr(data-name); display: block; font-size: 1.3rem; margin-bottom: .4rem; }
