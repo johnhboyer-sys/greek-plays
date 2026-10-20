@@ -132,10 +132,10 @@
       ${worksOf(a).map((w) => `<a class="item${PLAY_FIG[w.id] === 'prometheus' ? ' lines' : ''}" href="#"><span class="fb">${playFig(w.id, h)}</span><span class="ttl">${esc(w.title)}<span class="g" lang="grc">${esc(w.greekTitle)}</span></span></a>`).join('')}
     </div>`).join('')}</div></div>`;
   }
-  T.b.home = () => `<div class="page pg-home"><div class="wrap">${bHead}</div>
-    ${band(AUTHORS)}
-    <div class="wrap">
-    <p class="authors">${AUTHORS.map((a) => `<a href="#">${a.name}<span>${a.works.length}</span></a>`).join('')}</p>
+  T.b.home = () => `<div class="page pg-home"><div class="wrap">${bHead}
+    <div class="frieze">${AUTHORS.map((a) => `<div class="col" data-author="${a.id}"><div class="fb">${fig(HOME_FIG[a.id], 300)}</div>
+      <div class="nm"><span class="gk" lang="grc">${a.nativeName}</span><a class="en" href="#">${a.name}</a><span class="ct">${a.works.length} plays</span></div></div>`).join('')}</div>
+    <div class="contents">${AUTHORS.map((a) => `<ol data-author="${a.id}" data-name="${a.name}">${worksOf(a).map((w) => `<li><a href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span></li>`).join('')}</ol>`).join('')}</div>
     ${bFoot}</div></div>`;
   T.b.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${bHead}
     <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
@@ -277,7 +277,7 @@
       keeps: ['The drawings exactly as made; the ground line; warm paper; Cardo for text, Alegreya Sans for controls; no rules or boxes beyond the one line.', 'Speaker colours per character; numbers every fifth line; English the same size as the Greek.'],
       changes: ['Colour is the vase\'s own: black, clay, paper. No author tints anywhere.', 'Small figures are drawn as black-figure silhouettes (ink on paper), large ones as now (clay body, dark lines). Dark theme is the black glaze: everything red-figure.', 'The band wraps into rows, every figure in view at once; nothing scrolls sideways.'],
       phone: 'The rows run on, two or three figures across, each author led by his own figure.',
-      risk: 'John, 20 October: the home page and the author band with the silhouette drawings are rejected. Still in the running from B: the two-column play list on the author page, the play page, the reader, search, and the word panel.' },
+      risk: 'John, 20 October: the band of silhouettes is out. B\'s home now takes A\'s layout in B\'s colours; its author page keeps the hero and the two-column list; its play page, reader, search, and word panel are contenders.' },
     c: { name: 'C · The Playbill', what: 'Flat colour, one strong field per author; the figures as paper silhouettes on the colour; Cardo throughout, bold for titles, so the colour and the silhouettes carry the poster. A play\'s page opens as its cover. The reader\'s head is a thin band of the author\'s colour.',
       keeps: ['The drawings; Cardo for all reading text; speaker colours per character; no rules, no shadows, no rounded corners.'],
       changes: ['The pale tints become saturated fields: indigo, bottle green, oxblood, mustard.', 'The fields are panels, which DESIGN.md forbids.', 'Author pages list each play with its own small silhouette.'],
@@ -290,7 +290,7 @@
       risk: 'John, 20 October: D\'s home and author pages are out (boring), and its reader and word panel too. Its play page was judged too top-heavy. Little of D remains in the running.' },
   };
   const PAGE_NOTES = {
-    home: { a: 'The frieze as built, with the complete contents under it.', b: 'Rejected (John, 20 October): the band of figures is out for the home page.', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
+    home: { a: 'The frieze as built, with the complete contents under it.', b: 'A\'s layout in B\'s colours (John, 20 October): the four figures on their ground line, red-figure, the names in ink and clay, the contents beneath.', c: 'Rejected (John, 20 October): the four colour fields are out for the home page.', d: 'A title page, then the contents with first-performance dates.' },
     author: { a: 'Out (John, 20 October): boring.', b: 'A contender with C. The figure now stands at the right, the name at the left; the two-column list of plays follows.', c: 'A contender with B. The field on top; every row has its play\'s silhouette.', d: 'Out (John, 20 October): boring, not enough colour.' },
     play: { a: 'The playbill as a page. Translations are links into the reader.', b: 'John\'s favourite (20 October). The mashup with C\'s banner over this page is in the Blend tab, under Play.', c: 'The cover first, the facts on paper below.', d: 'A title page: argument, persons of the drama, the texts.' },
     search: { a: 'One form and no box: the Greek and English fields with their options as plain words beneath. Hits by play, the word marked.', b: 'Hits by play: the title, then the author and the Greek text. No figures, no Greek titles (John, 20 October).', c: 'The author colours sort the hits; no figures (John, 20 October).', d: 'An index page: the query, then the lines as a concordance, the play names in small caps.' },
@@ -300,7 +300,7 @@
 
   // ── Chrome ───────────────────────────────────────────────────────────────
   const state = { dir: 'a', page: 'review', theme: 'light', width: 'desktop', notes: true, blend: { home: 'a', author: 'b', play: 'b', reader: 'b', search: 'b', word: 'b' } };
-  try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); if (state.blend.home === 'b' || state.blend.home === 'c') state.blend.home = 'a'; if (state.blend.reader === 'd') state.blend.reader = 'b'; if (state.blend.word === 'd') state.blend.word = 'b'; } catch (e) { /* ignore */ }
+  try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); if (state.blend.home === 'c') state.blend.home = 'a'; if (state.blend.reader === 'd') state.blend.reader = 'b'; if (state.blend.word === 'd') state.blend.word = 'b'; } catch (e) { /* ignore */ }
   const save = () => { try { localStorage.setItem('gdr-directions', JSON.stringify(state)); } catch (e) { /* ignore */ } };
 
   const stage = document.getElementById('stage');
@@ -338,7 +338,7 @@
     if (state.dir === 'blend') {
       const P = ['home', 'author', 'play', 'reader', 'search', 'word'];
       notesEl.innerHTML = `<p class="dir-name">Mix and match</p><h2>The blend</h2><p>Each page from the direction you choose. The frame shows this page in the direction picked for it.</p>
-        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'bc', 'c', 'd'].filter((d) => !((d === 'b' || d === 'c') && pg === 'home') && !(d === 'bc' && pg !== 'play') && !(d === 'd' && (pg === 'reader' || pg === 'word'))).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${d === 'bc' ? 'B with C\'s banner' : NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
+        <div class="blend">${P.map((pg) => `<label><span>${pg[0].toUpperCase() + pg.slice(1)}</span><select data-blend="${pg}" id="blend-${pg}">${['a', 'b', 'bc', 'c', 'd'].filter((d) => !(d === 'c' && pg === 'home') && !(d === 'bc' && pg !== 'play') && !(d === 'd' && (pg === 'reader' || pg === 'word'))).map((d) => `<option value="${d}"${state.blend[pg] === d ? ' selected' : ''}>${d === 'bc' ? 'B with C\'s banner' : NOTES[d].name}</option>`).join('')}</select></label>`).join('')}</div>
         <h3>Within a page</h3><p>Pieces from different directions inside one page (a running head from one, the speaker names from another, the colour from a third) are the next round: say which, and the blend becomes its own direction here.</p>`;
       return;
     }
