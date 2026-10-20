@@ -442,7 +442,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-author .hero .lead .fig { --h: 180px; }
   .dir-b .pg-author .hero .hx { order: 1; min-width: 0; }
   .dir-b .pg-author .hero .hx .ab { padding-bottom: 0; }
-  .dir-b .pg-author .hero .lead .fig { --h: 200px; }
+
   .dir-b .pg-author .hx .en { font-size: 3rem; } .dir-b .pg-author .hx .gk { font-size: 1.4rem; } .dir-b .pg-author .hx .ab { font-size: 1.1rem; }
   .dir-b .pg-author .list { columns: 1; margin-top: 1.6rem; }
   .dir-b .pg-author .list .t { font-size: 1.45rem; } .dir-b .pg-author .list .g { font-size: 1.05rem; } .dir-b .pg-author .list .bl { font-size: 1.05rem; }
