@@ -719,20 +719,29 @@
   let lastPlace: { place: ReturnType<typeof placeAtTop>; head: number; words: Words | null } | null = null;
   let placeTimer: ReturnType<typeof setTimeout> | undefined;
   const headBottom = () => document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
+  // At most every 150ms while the reader scrolls, so a turn during a long
+  // flick finds the place it had reached (Codex review).
   function notePlace() {
-    clearTimeout(placeTimer);
+    if (placeTimer) return;
     placeTimer = setTimeout(() => {
+      placeTimer = undefined;
       const place = placeAtTop();
       const head = headBottom();
       lastPlace = { place, head, words: place && !place.line ? wordsAt(place.el, head) : null };
     }, 150);
   }
+  // A reader ReaderHost has replaced (another edition) keeps no listener
+  // that could move the page (Codex review).
+  let phoneMq: MediaQueryList | null = null;
+  let destroyed = false;
+  const onPhoneChange = (e: MediaQueryListEvent) => { void regroup(e.matches); };
   async function regroup(phone: boolean) {
     const noted = playLine ? lastPlace : null;
     phoneLayout = phone;
     if (!noted?.place) return;
     await tick();
     await new Promise((r) => setTimeout(r, 0));
+    if (destroyed) return;
     const moved = headBottom() - noted.head;
     const top = noted.words ? wordsTop(noted.words) : null;
     if (top === null) returnTo({ ...noted.place, at: noted.place.at + moved });
@@ -1565,6 +1574,8 @@
       window.removeEventListener('scroll', onCtxScroll);
       window.removeEventListener('scroll', notePlace);
       clearTimeout(placeTimer);
+      phoneMq?.removeEventListener?.('change', onPhoneChange);
+      destroyed = true;
       window.removeEventListener('resize', onResize);
       window.removeEventListener('hashchange', onHashChange);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
@@ -3455,12 +3466,12 @@
 
   onMount(async () => {
     reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const phoneMq = window.matchMedia('(max-width: 680px)');
+    phoneMq = window.matchMedia('(max-width: 680px)');
     phoneLayout = phoneMq.matches;
     // The phone's rows are drawn: show the text the shell held back for them
     // (ReaderShell.astro, data-phone-pending).
     tick().then(() => document.documentElement.removeAttribute('data-phone-pending'));
-    phoneMq.addEventListener?.('change', (e) => { void regroup(e.matches); });
+    phoneMq.addEventListener?.('change', onPhoneChange);
     if (playLine) window.addEventListener('scroll', notePlace, { passive: true });
     // Remember which book of this work was last open, for the work switcher —
     // and stamp the work's recency so hosts can offer "continue reading".
@@ -3641,6 +3652,9 @@
             if (el && (el as HTMLElement).offsetParent === null) {
               el = (document.querySelector(`[data-etick="${CSS.escape(hash)}"]`) as HTMLElement) ?? el;
             }
+            // A play's segment English-only view leaves out (englishElsewhere):
+            // the paragraph that holds its English (Codex review).
+            if (el && playLine && (el as HTMLElement).offsetParent === null) el = shownFor(el as HTMLElement) ?? el;
             if (el) {
               suppressArmUntil = Date.now() + 1500;
               el.scrollIntoView({ behavior: 'auto', block: 'start' });
