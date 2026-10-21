@@ -668,14 +668,27 @@
     // The tracked anchors differ by view (Greek lines vs. whole columns), so
     // rebuild the scroll-spy once the DOM reflects the new view.
     await tick();
-    const shown = place?.el.isConnected ? shownFor(place.el) : null;
+    // playFlow places each English paragraph on a timeout of its own: let it land.
+    if (place) await new Promise((r) => setTimeout(r, 0));
+    // The switch can rebuild the row (splitAtDirections groups by view): find
+    // it again by its Greek line.
+    let anchor = place?.el.isConnected ? place.el : null;
+    if (place && !anchor && place.key) {
+      const l = document.getElementById(place.key);
+      const row = l?.closest('.play-row, .seg-row');
+      // An English cell the new view does not draw (a comparison's columns in
+      // the Greek view) gives way to its row's Greek.
+      anchor = place.line ? l : row?.querySelector<HTMLElement>(place.trans ? `[data-trans="${CSS.escape(place.trans)}"]` : '.english-col')
+        ?? row?.querySelector<HTMLElement>('.greek-col') ?? l;
+    }
+    const shown = anchor ? shownFor(anchor) : null;
     if (place && shown) {
       // The line itself where it still shows; else that far down what shows it.
-      const r = shown.getBoundingClientRect();
-      let point = place.line && shown === place.el ? r.top : r.top + place.frac * r.height;
+      const r = boxOf(shown);
+      let point = place.line && shown === anchor ? r.top : r.top + place.frac * r.height;
       // A phone sets each piece's Greek above its English: an English cell
       // brings its piece in whole, Greek first, where the piece fits.
-      const g = !place.line && shown === place.el ? shown.closest('.play-row, .seg-row')?.querySelector('.greek-col') as HTMLElement | null : null;
+      const g = !place.line && shown === anchor ? shown.closest('.play-row, .seg-row')?.querySelector('.greek-col') as HTMLElement | null : null;
       const gr = g && g.offsetParent !== null ? g.getBoundingClientRect() : null;
       if (gr && gr.bottom <= r.top + 2 && r.bottom - gr.top <= window.innerHeight - place.at) point = gr.top;
       suppressArmUntil = Date.now() + 800;
@@ -1255,7 +1268,7 @@
   // into bilingual.
   function shownFor(el: HTMLElement): HTMLElement | null {
     if (el.offsetParent !== null) return el;
-    const other = el.closest('.english-col') ? '.greek-col' : '.english-col';
+    const other = el.closest('.english-col, .overlay-col') ? '.greek-col' : '.english-col';
     const rowCol = el.closest('.play-row, .seg-row')?.querySelector(other) as HTMLElement | null;
     const seg = el.closest('.segment') as HTMLElement | null;
     const segCol = seg?.querySelector(other) as HTMLElement | null;
@@ -1265,21 +1278,48 @@
   // The place at the top of the reading area, so a view switch can bring it
   // back: the first Greek line whose bottom clears the head, with how far down
   // its column it sits (for the English cell that shows it once the Greek
-  // hides); in English-only view the first English cell (or turn-flow tick),
-  // with how far down it the head's edge cuts, which Both shows again as is.
-  // `at` is the height to restore it to.
-  function placeAtTop(): { el: HTMLElement; line: boolean; at: number; frac: number } | null {
+  // hides); in English-only view the first English cell (a comparison's second
+  // column too, or a turn-flow tick), with how far down it the head's edge
+  // cuts, which Both shows again as is. `key` is a Greek line's id, to find a
+  // rebuilt row again; `at` is the height to restore the place to.
+  function placeAtTop(): { el: HTMLElement; key: string | null; trans: string | null; line: boolean; at: number; frac: number } | null {
     const y = document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
-    const line = view !== 'english';
-    for (const el of document.querySelectorAll<HTMLElement>(line ? '.greek-line[id]' : '.english-col, [data-etick]')) {
-      if (el.offsetParent === null) continue;
-      const r = el.getBoundingClientRect();
-      if (r.bottom <= y) continue;
-      const box = line ? (el.closest('.greek-col') as HTMLElement | null)?.getBoundingClientRect() : r;
-      const frac = !box?.height ? 0 : line ? (r.top - box.top) / box.height : Math.max(0, (y - r.top) / r.height);
-      return { el, line, at: line ? r.top : y, frac };
+    const first = (sel: string) => {
+      for (const el of document.querySelectorAll<HTMLElement>(sel)) {
+        if (el.offsetParent === null) continue;
+        const r = boxOf(el);
+        if (r.bottom > y) return { el, r };
+      }
+      return null;
+    };
+    const english = () => {
+      const f = first('.english-col, .overlay-col, [data-etick]');
+      return f && {
+        el: f.el, line: false, at: y, frac: Math.max(0, (y - f.r.top) / f.r.height),
+        key: f.el.closest('.play-row, .seg-row')?.querySelector('.greek-line[id]')?.id ?? null,
+        trans: f.el.dataset.trans ?? null,
+      };
+    };
+    if (view === 'english') return english();
+    const g = first('.greek-line[id]');
+    if (!g) return null;
+    // In Both the head's edge can cut an English paragraph, not the Greek (a
+    // phone sets each piece's Greek above its English; a long translation
+    // runs on past its Greek): then that English is the place.
+    if (view === 'both' && g.r.top - y > g.r.height) {
+      const e = english();
+      if (e && e.frac > 0) return e;
     }
-    return null;
+    const col = (g.el.closest('.greek-col') as HTMLElement | null)?.getBoundingClientRect();
+    return { el: g.el, key: g.el.id, trans: null, line: true, at: g.r.top, frac: col?.height ? (g.r.top - col.top) / col.height : 0 };
+  }
+
+  // An element's box; an English cell that takes no height of its own (Both,
+  // desktop split rows: playFlow's facing page) by its paragraph instead.
+  function boxOf(el: HTMLElement): DOMRect {
+    const r = el.getBoundingClientRect();
+    const p = r.height > 1 ? null : el.matches('.english-col, .overlay-col') ? el.firstElementChild : null;
+    return p ? p.getBoundingClientRect() : r;
   }
 
   // A same-page #line change fires hashchange. updateHash uses replaceState,
