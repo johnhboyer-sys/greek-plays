@@ -956,3 +956,8 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `pipeline/tests/test_bench_clean_verse.py` — 2026-10-04: the two tests that read `build/arrowsmith/genie-*.html` skip when it is absent, as the Hickie and Rogers tests do.
 - `.github/workflows/ci.yml` — 2026-10-05: the app job runs `scripts/__tests__` (`node --test`), which no gate ran before.
 - `scripts/__tests__/sweeps-b.test.mjs` — 2026-10-05: `findFont` also searches `/usr/share/fonts` (CI is Ubuntu; it looked only in macOS folders) and the two tests that need a font skip when there is none (Codex review).
+
+## Way's own Greek keeps the Both view (2026-10-20)
+
+- `shared/components/Reader.svelte` — 2026-10-20: `hasEnglish` also counts any non-primary translation's pieces (`secondaries` through `piecesFor`). Way's own Greek (`ed/way-loeb`) carries Way under `ross` with `english` null, so choosing Way's Medea with editions on dropped the reader to the Greek view.
+- `shared/__tests__/reader-secondary-only.test.ts` — 2026-10-20: new; a book whose English sits only in the secondary slot keeps Both and all three view buttons.
