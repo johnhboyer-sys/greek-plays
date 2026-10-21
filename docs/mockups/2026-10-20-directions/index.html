@@ -383,14 +383,14 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .contents li a { color: var(--ink); }
 
 /* B · author */
-.dir-b .pg-author .hero { display: grid; grid-template-columns: 1fr 24rem; gap: 3rem; align-items: end; margin-top: 2.2rem; }
-.dir-b .pg-author .hero .lead { order: 2; border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; height: calc(360px + .5rem); overflow: hidden; }
-.dir-b .pg-author .hero .hx { order: 1; }
+.dir-b .pg-author .hero { display: grid; grid-template-columns: 1fr 24rem; grid-template-rows: 1fr auto; grid-template-areas: "hx lead" "ab lead"; gap: 0 3rem; align-items: end; margin-top: 2.2rem; }  /* the blurb is its own cell, so a phone can set it under the figure (John, 20 October) */
+.dir-b .pg-author .hero .lead { grid-area: lead; border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; height: calc(360px + .5rem); overflow: hidden; }
+.dir-b .pg-author .hero .hx { grid-area: hx; }
 .dir-b .pg-author .hero .lead .fig { --h: 360px; max-width: 100%; }
 .dir-b .pg-author .hx .gk { font-size: 2.2rem; line-height: 1.1; color: var(--clay-deep); }
 .dir-b .pg-author .hx .en { font-size: 5rem; line-height: 1; margin: .05rem 0 .5rem; }
 .dir-b .pg-author .hx .meta { font: 400 1.1rem var(--font-ui); color: var(--mid); }
-.dir-b .pg-author .hx .ab { font-size: 1.35rem; max-width: 30em; margin-top: .7rem; padding-bottom: 1rem; }
+.dir-b .pg-author .hero .ab { grid-area: ab; font-size: 1.35rem; max-width: 30em; margin-top: .7rem; padding-bottom: 1rem; }
 .dir-b .pg-author .band { margin-top: 2rem; }
 .dir-b .pg-author .list { margin-top: 2.6rem; columns: 2; column-gap: 4rem; }
 .dir-b .pg-author .list li { break-inside: avoid; padding: .6rem 0 .9rem; }
@@ -519,13 +519,14 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .band .lead .who { font-size: 1.2rem; } .dir-b .band .lead .who .g { font-size: .9rem; }
   .dir-b .band .item { padding: 0 .5rem; } .dir-b .band .item .ttl { font-size: .9rem; max-width: 9em; }
   .dir-b .pg-home .intro { font-size: 1.12rem; margin-top: 1rem; }
-  .dir-b .pg-author .hero { grid-template-columns: 1fr 8.5rem; gap: 1rem; margin-top: 1rem; align-items: end; }
-  .dir-b .pg-author .hero .lead { order: 2; height: calc(180px + .5rem); justify-content: center; border-bottom: 0; }
+  /* phone: the name beside the figure, no taller than it; the blurb under both (John, 20 October: "I don't like this extending ABOVE the image's height") */
+  .dir-b .pg-author .hero { grid-template-columns: 1fr 8.5rem; grid-template-rows: auto auto; grid-template-areas: "hx lead" "ab ab"; gap: .2rem 1rem; margin-top: 1rem; align-items: end; }
+  .dir-b .pg-author .hero .lead { height: calc(180px + .5rem); justify-content: center; border-bottom: 0; }
   .dir-b .pg-author .hero .lead .fig { --h: 180px; }
-  .dir-b .pg-author .hero .hx { order: 1; min-width: 0; }
-  .dir-b .pg-author .hero .hx .ab { padding-bottom: 0; }
+  .dir-b .pg-author .hero .hx { min-width: 0; }
+  .dir-b .pg-author .hero .ab { padding-bottom: 0; margin-top: .5rem; max-width: none; }
 
-  .dir-b .pg-author .hx .en { font-size: 3rem; } .dir-b .pg-author .hx .gk { font-size: 1.4rem; } .dir-b .pg-author .hx .ab { font-size: 1.1rem; }
+  .dir-b .pg-author .hx .en { font-size: 3rem; } .dir-b .pg-author .hx .gk { font-size: 1.4rem; } .dir-b .pg-author .hero .ab { font-size: 1.1rem; }
   .dir-b .pg-author .list { columns: 1; margin-top: 1.6rem; }
   .dir-b .pg-author .list .t { font-size: 1.45rem; } .dir-b .pg-author .list .g { font-size: 1.05rem; } .dir-b .pg-author .list .bl { font-size: 1.05rem; }
   .dir-b .pg-author .list .pr { display: none; }
@@ -1245,7 +1246,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     <div class="contents runs" style="${friezeVars()}">${AUTHORS.map((a) => `<p class="run" data-author="${a.id}"><b>${a.name}:</b> ${worksOf(a).map((w) => `<a href="#">${esc(w.title)}</a>`).join(', ')}</p>`).join('')}</div>
     ${bFoot}</div></div>`;
   T.b.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${bHead}
-    <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
+    <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p></div><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div>
     <div class="wrap"><ul class="list">${worksOf(a).map((w) => `<li><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span><p class="bl">${esc(w.blurb)}</p>${w.production ? `<p class="pr">${esc(w.production)}</p>` : ''}</li>`).join('')}</ul>
     ${bFoot}</div></div>`; };
   const bPlayBody = (w) => `<p class="arg">${esc(w.argument)}</p>

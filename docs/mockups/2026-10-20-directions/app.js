@@ -150,7 +150,7 @@
     <div class="contents runs" style="${friezeVars()}">${AUTHORS.map((a) => `<p class="run" data-author="${a.id}"><b>${a.name}:</b> ${worksOf(a).map((w) => `<a href="#">${esc(w.title)}</a>`).join(', ')}</p>`).join('')}</div>
     ${bFoot}</div></div>`;
   T.b.author = () => { const a = euripides; return `<div class="page pg-author" data-author="${a.id}"><div class="wrap">${bHead}
-    <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div></div>
+    <div class="hero"><div class="lead">${fig(AUTHOR_FIG[a.id], 360)}</div><div class="hx"><p class="gk" lang="grc">${a.nativeName}</p><h1 class="en">${a.name}</h1><p class="meta">${a.floruit} · ${a.works.length} plays</p></div><p class="ab">${esc(a.blurb[0].toUpperCase() + a.blurb.slice(1))}</p></div></div>
     <div class="wrap"><ul class="list">${worksOf(a).map((w) => `<li><a class="t" href="#">${esc(w.title)}</a><span class="g" lang="grc">${esc(w.greekTitle)}</span><p class="bl">${esc(w.blurb)}</p>${w.production ? `<p class="pr">${esc(w.production)}</p>` : ''}</li>`).join('')}</ul>
     ${bFoot}</div></div>`; };
   const bPlayBody = (w) => `<p class="arg">${esc(w.argument)}</p>
