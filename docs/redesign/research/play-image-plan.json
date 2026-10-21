@@ -74,14 +74,21 @@
       "author": "aeschylus",
       "work_id": "agamemnon",
       "title": "Agamemnon",
-      "proposed_subject": "Agamemnon and Clytemnestra; an arrival or warning image can avoid showing the murder.",
-      "status": "Proposed subject; object and image rights not yet sourced",
-      "source_candidate": "",
-      "final_image": "",
-      "credit": "",
-      "license": "",
-      "crop": "",
-      "alt_text": ""
+      "proposed_subject": "The murder of Agamemnon: Aegisthus seizes him, caught in the net-robe, and strikes with his sword, Clytemnestra behind with the double axe, women round them, from side A of the Dokimasia Painter's calyx-krater Boston 63.1246 (John's pick, 2026-10-15; drawn with PhotoCraft 2026-10-15/21). The earlier proposal, an arrival or warning image that avoids the murder, was set aside: drawings may show the ending (John, 2026-10-02).",
+      "status": "Drawn 2026-10-15/21 with PhotoCraft from photographs; approved by John 2026-10-21",
+      "source_candidate": "https://collections.mfa.org/objects/153661",
+      "final_image": "docs/redesign/drawings/agamemnon.svg",
+      "credit": "After the Attic red-figure calyx-krater Boston, Museum of Fine Arts 63.1246, side A, attributed to the Dokimasia Painter, about 460 BC (E. Vermeule, 'The Boston Oresteia Krater', AJA 70, 1966, 1-22). Photographs: Museum of Fine Arts, Boston. Drawing traced from the photographs and changed.",
+      "license": "The museum's photographs are in copyright (MFA terms: non-commercial, educational use). Tracing an ancient painting from in-copyright photographs is allowed (John, 2026-10-02); the drawing traces only the painting and carries no licence.",
+      "crop": "Side A between the seams of the three photographs, flat x 622-3684 (John's rectangle, 2026-10-21, to leave out the worst warp of the unrolling and the joins): the woman at the left column (cut at the frame), Clytemnestra with the axe, Aegisthus with the sword, Agamemnon in the net-robe, the woman behind him (cut at the frame). Open at the frame (John). Left out: the right woman at the right column, both columns, the bands above and below, side B.",
+      "alt_text": "Aegisthus, bearded, grips the head of Agamemnon, who is wrapped in a fine net-like robe, and drives his sword at him; behind Aegisthus Clytemnestra holds a double axe; women at either side throw up their hands",
+      "source_file": [
+        "Google Arts & Culture asset ewFxWJACKozWcg (the museum's side-A photograph, 3853 px wide at the deepest level of its tile pyramid, put together from the viewer's tiles)",
+        "https://collections.mfa.org/objects/153661 (photographs 600896 and 600897, the handle views, black and white, 1514 x 1600 and 1505 x 1600)"
+      ],
+      "shows": "The play's own murder (Agamemnon 1343 ff., heard from inside the palace and then shown by Clytemnestra), painted about the time of the Oresteia (458 BC), perhaps a little before: Agamemnon tangled in the robe without openings that Clytemnestra boasts of (1382-83), Aegisthus with the sword, Clytemnestra with the axe. The museum: 'Behind Aegisthos, Klytaimnestra carries a double ax.'",
+      "method": "Red-figure, from three photographs taken off the vase (tools/vase_unroll.py): the profile and the three cameras fitted to the checkers band as a ring, the outline and points matched on the flat; the front photo and both handle views joined by seams through the ground. Every image step in PhotoCraft (photocraft-cli 0.2.0), numpy and scipy combining its masks: the figures by red less blue, the glaze's thinned edge stripe read against the clay's own level; lines by local contrast along their centres, the heads at half maximum, the outline an even band; the net-robe's faint mesh a 45% tone, its curls and beard a 70% tone; Aegisthus' cloak border and the locks of the woman behind Agamemnon along each painted line's centre; John's PhotoCraft marks in six rounds laid in (tools/agamemnon_marks_1-6_*.png: blue ink, purple net tone, yellow clay, green ground, and line shapes for the sword's blade), my lines beside his strokes dropped; then cut at his rectangle; potrace. tools/agamemnon.py.",
+      "result": "Approved by John on pass 12, 2026-10-21 ('Approved. It could be better but I'm tired'), after six rounds of his marks in PhotoCraft (the net, Aegisthus' profile, arm and cap, the axe and sword, the hands, the woman behind Agamemnon, the outlines) and his notes (the net's faint lines as a tone, the edge women ending at the handle line, outlines too rough, the warp at the bottom corners, then the crop). About thirteen hours over four days. No outside review; the credit checked against the museum's record."
     },
     {
       "author": "aeschylus",

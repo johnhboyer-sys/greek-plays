@@ -8,7 +8,8 @@ the handles. Side B (Orestes kills Aegisthus) is not drawn. E. Vermeule, "The Bo
 Photos (John, 2026-10-15: these three, "column to column"): the museum's side-A view as Google Arts & Culture serves
 it (3853 px wide, the deepest level of its tile pyramid, put together from its viewer's tiles; the same photo the
 museum's own site gives at 1350 px), and the museum's two black-and-white handle views (600896, the column at side
-A's left edge in its middle; 600897, the column at its right edge). Credit: Museum of Fine Arts, Boston.
+A's left edge in its middle; 600897, the column at its right edge). Credit: Museum of Fine Arts, Boston. The finished
+drawing is cut just inside the seams between them (CROP; John, 2026-10-21), so it comes from the front photo.
 
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli`. Two steps are geometry, not
 image filtering, and stay in numpy/scipy: taking the painting off the vase's curve (vase_unroll.py) and fitting

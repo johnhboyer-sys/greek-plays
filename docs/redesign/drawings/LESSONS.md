@@ -1033,6 +1033,32 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   check the box takes in every free end (the king's outstretched fingertips were cut off at first), and draw his lines
   at the whole drawing's traced width, not the house share of the smaller figure's longer side.
 
+- Agamemnon (Boston MFA 63.1246, side A, the murder), made with PhotoCraft from three museum photographs: about thirteen
+  hours over four days and twelve passes, approved by John 2026-10-21 ("It could be better but I'm tired").
+  `tools/agamemnon.py` (2026-10-21).
+- A front photo and two handle views 90 degrees apart: SIFT between the photos is mostly false. Lay both photos on the flat
+  with the last fit and match there (100+ good matches). The meander or checkers band's edge, fitted as a ring in all three
+  photos, pins the camera distance: without it the sweep favoured 40 radii and the band bowed 100 px; with it, 15
+  (2026-10-15).
+- Joining the views: take each flat px from the sharpest photo (the smaller singular value of its map, or the front's
+  grazing smear wins), seam through the ground, and match tone by percentiles. Even so the corners warped, and John chose a
+  crop just inside both seams, so the drawing comes from the front photo: offer that crop early (2026-10-19, 10-21).
+- After cropping, scale the pinned line weight by the old longer side over the new, or the lines come out thinner on the
+  figures (here 0.118% became 0.163%: the same 5 flat px) (2026-10-21).
+- The painter's thinned glaze along the figures' edges (grey 90-140) read half as clay and made the outline bumpy. Judge
+  clay against its own level round each px (a 30 px Gaussian of the clay): the handle views' clay is darker than the
+  front's after the tone match, and fixed levels erased a raised hand (2026-10-19).
+- A figure against a column: cut along the painted line down her back, read at 2-3x, not the column's far edge, or the
+  strip of column joins her with a second outline (2026-10-21).
+- Close double lines (a wavy cloak border, wavy locks): find each painted line and draw it along its centre at an even
+  width; at half maximum the outer line and the outline ran together into blots. Where the lines run across, take each as
+  the darkest px in its column and close across: a round neighbourhood drew the soft photo's grain as a mesh (2026-10-21).
+- John's marks: where his stroke redraws an outline, mine runs 3-6 px beside it and is left as slivers. Drop my pieces
+  lying mostly (75%) within 7 px of his strokes; a real neighbouring line runs on past that. His line shapes (3 px, the
+  sword's edges) replace mine outright, and keep them out of rules that trim marks near the outline (the hands). He may
+  add a shape layer: read it with `shape.info`, not by export (a rectangle with no fill exports empty) (2026-10-21).
+- PhotoCraft 0.2.0 writes a PNG PIL cannot read at Gaussian radius 0.7; 0.8 reads (2026-10-15).
+
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 
 - Prometheus Bound (Vatican 16592, Laconian cup by the Arkesilas Painter; Daderot's photo), made with PhotoCraft in
