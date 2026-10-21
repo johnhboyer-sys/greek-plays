@@ -371,6 +371,14 @@ below). One commit per item; every one with the gates green.
 - §4, item 4, corrected: Seven Against Thebes has its drawing (`seven.svg`);
   only Agamemnon lacks one.
 
+- The phone's reader head (John, 2026-10-21, reviewing): the icons had
+  dropped to a line of their own at 320px. After mockups of the options
+  (https://claude.ai/artifact/Ud9cHZviqKBPsfu2pxr36T), John chose "A + B"
+  with no site name: author over play, the picker naming the translation
+  only (the Greek text in the Greek view), the controls right under the
+  title. Every play's head is 68px at 320, 360, and 390 (before: 78 to
+  138px); the desktop is unchanged. `probe-head.mjs`.
+
 **Codex's review** (GPT-6.1-Sol, medium, read-only, with the hang watch; the
 diff against `claude/ui-pass2-build-73023b`): no high findings, three
 medium, all reproduced and fixed in `f6c792d`: the media query's listener

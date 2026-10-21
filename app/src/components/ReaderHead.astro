@@ -62,7 +62,8 @@ const trs = translations.map((t) => {
 const defaultTrans = trs.find((t) => t.id === work.defaultTranslation)?.id
   ?? translations.find((t) => t.slot === 'english')?.id ?? trs[0]?.id ?? '';
 const defaultEd = trs.find((t) => t.id === defaultTrans)?.edition ?? editions[0].id;
-const label = (ed: string, tr: string) => [eds.find((e) => e.id === ed)?.label, trs.find((t) => t.id === tr)?.short].filter(Boolean).join(' · ');
+const edLabel = (ed: string) => eds.find((e) => e.id === ed)?.label ?? '';
+const trLabel = (tr: string) => trs.find((t) => t.id === tr)?.short ?? '';
 const data = { eds, trs, editionsOn };
 // Each text's citation, with the Perseus credit its licence asks for, as the
 // reader's controls strip printed it in the Greek view (Reader.svelte greekSrc).
@@ -71,10 +72,10 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
   : e.full + ('licence' in e && e.licence === 'cc-by-sa-4.0' ? ' · Perseus Digital Library, CC BY-SA 4.0' : '')]));
 ---
 <header class="rh" data-reader-head data-head={JSON.stringify(data)}>
-  <span class="crumbs"><a class="wm" href={`${base}/`}><span>{words.slice(0, cut).join(' ')}</span> <span>{words.slice(cut).join(' ')}</span></a> · <a class="au" href={`${base}${authorPath(author.id)}`}>{author.name}</a> · <a class="play" href={`${base}${workLanding(work.id)}`}>{work.title}</a></span>
+  <span class="crumbs"><a class="wm" href={`${base}/`}><span>{words.slice(0, cut).join(' ')}</span> <span>{words.slice(cut).join(' ')}</span></a> <span class="ap"><span class="sep">· </span><a class="au" href={`${base}${authorPath(author.id)}`}>{author.name}</a><span class="sep"> · </span><a class="play" href={`${base}${workLanding(work.id)}`}>{work.title}</a></span></span>
   <span class="ctl">
     <span class="pick">
-      <button type="button" class="pk" aria-expanded="false" aria-controls="rh-texts" data-pick="texts"><span class="pk-label">{label(defaultEd, defaultTrans)}</span><i aria-hidden="true">▾</i></button>
+      <button type="button" class="pk" aria-expanded="false" aria-controls="rh-texts" data-pick="texts"><span class="pk-label"><span class="pk-ed">{edLabel(defaultEd)}</span><span class="pk-sep">{edLabel(defaultEd) && trLabel(defaultTrans) ? ' · ' : ''}</span><span class="pk-tr">{trLabel(defaultTrans)}</span></span><i aria-hidden="true">▾</i></button>
       <div class="menu wide" id="rh-texts" hidden>
         <div class="two">
           <div>
@@ -221,21 +222,32 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
 
   @media (max-width: 680px) {
     .rd-credit { padding: 0 1rem; }
-    /* Two lines: the stacked site name, the author and the play, and the
-       icons at the right end of the first; the controls on the second (John,
-       2026-10-20: the icons "on the same line as play title" "but in the
-       right hand corner"). */
-    .rh { padding: .4rem 1rem 0; gap: .8rem; flex-wrap: wrap; align-items: center; }
-    /* The two-line site name and the author · play centred on one midline
-       (John, 2026-10-20). */
-    .crumbs { font-size: 1rem; display: inline-flex; align-items: center; gap: .3em; padding-bottom: .2rem; }
-    .crumbs .wm { display: inline-flex; flex-direction: column; font-size: .72rem; line-height: 1.05; margin-right: .1rem; }
+    /* Two lines: the author and the play, with the icons at the right end
+       of the first; the controls on the second (John, 2026-10-20: the icons
+       "on the same line as play title" "but in the right hand corner"). */
+    .rh { padding: .4rem 1rem 0; gap: .15rem .8rem; flex-wrap: wrap; align-items: center; }
+    /* The author over the play, centred on the icons' midline. */
+    .crumbs { font-size: 1rem; display: inline-flex; align-items: center; gap: .3em; padding-bottom: 0; }
+    /* Author and play vary in length: they take the room the icons leave and
+       wrap there, so the icons never drop to a line of their own (John,
+       2026-10-21: "Can't have the search and dark mode icons on a line below
+       title"). */
+    .crumbs { flex: 1 1 0; min-width: 0; }
+    .tools { flex: none; }
+    /* No site name on a phone, the author over the play, and the picker
+       naming the translation only (the Greek text in the Greek view), so
+       every play's head is one height with the controls right under the
+       title (John, 2026-10-21: "A + B", option mockups). */
+    .crumbs .wm, .crumbs .sep { display: none; }
+    .crumbs .ap { display: inline-flex; flex-direction: column; min-width: 0; line-height: 1.08; }
+    .crumbs .au { font-size: .82rem; }
+    .pk-sep, .rh:not([data-view="greek"]) .pk-ed, .rh[data-view="greek"] .pk-tr { display: none; }
     .tools { margin-left: auto; padding-bottom: .2rem; gap: .9rem; align-self: center; }
-    .ctl { order: 1; width: 100%; margin-left: 0; gap: .75rem; font-size: .9rem; flex-wrap: wrap; padding: .2rem 0 .55rem; }
+    .ctl { order: 1; width: 100%; margin-left: 0; gap: .75rem; font-size: .9rem; flex-wrap: wrap; padding: 0 0 .55rem; }
     .views { gap: .7rem; }
     .menu, .menu.wide {
-      position: fixed; left: 1rem; right: 1rem; top: 6.2rem; min-width: 0;
-      max-height: calc(100vh - 8rem); overflow: auto;
+      position: fixed; left: 1rem; right: 1rem; top: calc(var(--header-h, 6rem) + 2px); min-width: 0;
+      max-height: calc(100vh - var(--header-h, 6rem) - 2rem); overflow: auto;
     }
     .menu .two { grid-template-columns: 1fr; gap: .8rem; }
   }
@@ -341,7 +353,10 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
       const shown = compare
         ? [state.compareLeft, state.compareRight].map((id) => trs.find((t) => t.id === id)?.short).filter(Boolean).join(', ')
         : trs.find((t) => t.id === state!.trans)?.short;
-      label.textContent = [ed?.label, shown].filter(Boolean).join(' · ');
+      label.querySelector('.pk-ed')!.textContent = ed?.label ?? '';
+      label.querySelector('.pk-sep')!.textContent = ed?.label && shown ? ' · ' : '';
+      label.querySelector('.pk-tr')!.textContent = shown ?? '';
+      head!.dataset.view = state.view;
       views.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === state!.view)));
       head!.querySelectorAll<HTMLElement>('li[data-ed]').forEach((li) => li.classList.toggle('cur', li.dataset.ed === ed?.id));
       head!.querySelectorAll<HTMLElement>('li[data-tr]').forEach((li) => li.classList.toggle('cur', !compare && li.dataset.tr === state!.trans));

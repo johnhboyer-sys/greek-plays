@@ -766,15 +766,20 @@
   const inked = (t: string) => t.replace(/\s+/g, '').length;
   // The words the head's edge cuts in an English cell: how many characters of
   // the segment's English come before them, and how far off the edge they sit.
+  // Where the edge cuts only a cell's padding, below its last line, the
+  // words are the first ones after it, in a later cell or segment (Medea in
+  // English-only view, a phone turned).
   function wordsAt(cell: HTMLElement, y: number): Words | null {
     const seg = cell.closest<HTMLElement>('.segment[id]');
     if (!seg) return null;
     const sel = cell.dataset.trans ? `[data-trans="${CSS.escape(cell.dataset.trans)}"]` : '.english-col';
     const r = document.createRange();
     let chars = 0;
+    let reached = false;
     for (const { cell: c, node } of englishText(seg, sel)) {
+      if (c === cell) reached = true;
       r.selectNodeContents(node);
-      if (c === cell && node.length && r.getBoundingClientRect().bottom > y) {
+      if (reached && node.length && c.offsetParent !== null && r.getBoundingClientRect().bottom > y) {
         let lo = 0, hi = node.length - 1;
         while (lo < hi) {
           const mid = (lo + hi) >> 1;
@@ -785,6 +790,11 @@
         return { seg: seg.id, sel, chars: chars + inked(node.data.slice(0, lo)), off: r.getBoundingClientRect().top - y };
       }
       chars += inked(node.data);
+    }
+    // On to the next segment that shows this translation.
+    for (let next = seg.nextElementSibling; next; next = next.nextElementSibling) {
+      const c = next.matches('.segment[id]') ? [...next.querySelectorAll<HTMLElement>(sel)].find((x) => x.offsetParent !== null) : null;
+      if (c) return wordsAt(c, y);
     }
     return null;
   }
