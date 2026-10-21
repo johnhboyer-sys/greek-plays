@@ -673,11 +673,17 @@
     await tick();
     // playFlow places each English paragraph on a timeout of its own: let it land.
     if (place) await new Promise((r) => setTimeout(r, 0));
+    if (place) returnTo(place);
+    if (spyArmed) setupScrollSpy();
+  }
+
+  // Bring a place (placeAtTop) back to its height after the rows changed.
+  function returnTo(place: NonNullable<ReturnType<typeof placeAtTop>>) {
     // The switch can rebuild the row (splitAtDirections groups by view): find
     // it again by its Greek line.
-    let anchor = place?.el.isConnected ? place.el : null;
-    let frac = place?.frac ?? 0;
-    if (place && !anchor && place.key) {
+    let anchor = place.el.isConnected ? place.el : null;
+    let frac = place.frac;
+    if (!anchor && place.key) {
       const l = document.getElementById(place.key);
       const row = l?.closest('.play-row, .seg-row');
       // An English cell the new view does not draw (a comparison's columns in
@@ -689,7 +695,7 @@
         ?? row?.querySelector<HTMLElement>('.greek-col') ?? l;
     }
     const shown = anchor ? shownFor(anchor) : null;
-    if (place && shown) {
+    if (shown) {
       // The line itself where it still shows; else that far down what shows it.
       const r = boxOf(shown);
       let point = place.line && shown === anchor ? r.top : r.top + frac * r.height;
@@ -701,7 +707,87 @@
       suppressArmUntil = Date.now() + 800;
       window.scrollBy(0, point - place.at);
     }
-    if (spyArmed) setupScrollSpy();
+  }
+
+  // Turning a phone across 680px regroups the rows (phoneLayout). The page is
+  // laid out at the new width before any event says so, so the place is
+  // noted as the reader scrolls and brought back after the regroup, moved by
+  // however much the head's height changed. An English place is noted by its
+  // words as well: the phone's pieces and the desktop's rows are other cells
+  // over the same text, so a fraction of a cell would land elsewhere.
+  type Words = { seg: string; sel: string; chars: number; off: number };
+  let lastPlace: { place: ReturnType<typeof placeAtTop>; head: number; words: Words | null } | null = null;
+  let placeTimer: ReturnType<typeof setTimeout> | undefined;
+  const headBottom = () => document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
+  function notePlace() {
+    clearTimeout(placeTimer);
+    placeTimer = setTimeout(() => {
+      const place = placeAtTop();
+      const head = headBottom();
+      lastPlace = { place, head, words: place && !place.line ? wordsAt(place.el, head) : null };
+    }, 150);
+  }
+  async function regroup(phone: boolean) {
+    const noted = playLine ? lastPlace : null;
+    phoneLayout = phone;
+    if (!noted?.place) return;
+    await tick();
+    await new Promise((r) => setTimeout(r, 0));
+    const moved = headBottom() - noted.head;
+    const top = noted.words ? wordsTop(noted.words) : null;
+    if (top === null) returnTo({ ...noted.place, at: noted.place.at + moved });
+    else {
+      suppressArmUntil = Date.now() + 800;
+      window.scrollBy(0, top - (noted.head + moved + noted.words!.off));
+    }
+  }
+  // The English text of a cell's segment, in that cell's translation, node by
+  // node: the words at a place are counted in it.
+  function* englishText(seg: HTMLElement, sel: string): Generator<{ cell: HTMLElement; node: Text }> {
+    for (const cell of seg.querySelectorAll<HTMLElement>(sel)) {
+      const walk = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) yield { cell, node: n as Text };
+    }
+  }
+  // The words the head's edge cuts in an English cell: how many characters of
+  // the segment's English come before them, and how far off the edge they sit.
+  function wordsAt(cell: HTMLElement, y: number): Words | null {
+    const seg = cell.closest<HTMLElement>('.segment[id]');
+    if (!seg) return null;
+    const sel = cell.dataset.trans ? `[data-trans="${CSS.escape(cell.dataset.trans)}"]` : '.english-col';
+    const r = document.createRange();
+    let chars = 0;
+    for (const { cell: c, node } of englishText(seg, sel)) {
+      r.selectNodeContents(node);
+      if (c === cell && node.length && r.getBoundingClientRect().bottom > y) {
+        let lo = 0, hi = node.length - 1;
+        while (lo < hi) {
+          const mid = (lo + hi) >> 1;
+          r.setStart(node, mid); r.setEnd(node, mid + 1);
+          if (r.getBoundingClientRect().bottom > y) hi = mid; else lo = mid + 1;
+        }
+        r.setStart(node, lo); r.setEnd(node, lo + 1);
+        return { seg: seg.id, sel, chars: chars + lo, off: r.getBoundingClientRect().top - y };
+      }
+      chars += node.length;
+    }
+    return null;
+  }
+  // Where those words are now; null where they do not show.
+  function wordsTop(w: Words): number | null {
+    const seg = document.getElementById(w.seg);
+    if (!seg) return null;
+    let chars = 0;
+    for (const { node } of englishText(seg, w.sel)) {
+      if (w.chars < chars + node.length) {
+        const r = document.createRange();
+        r.setStart(node, w.chars - chars); r.setEnd(node, w.chars - chars + 1);
+        const b = r.getBoundingClientRect();
+        return b.height ? b.top : null;
+      }
+      chars += node.length;
+    }
+    return null;
   }
 
   // Print / Save-as-PDF: hand the currently-rendered view to the browser's
@@ -1471,6 +1557,8 @@
     if (typeof window !== 'undefined') {
       window.removeEventListener('scroll', onScrollArm);
       window.removeEventListener('scroll', onCtxScroll);
+      window.removeEventListener('scroll', notePlace);
+      clearTimeout(placeTimer);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('hashchange', onHashChange);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
@@ -3350,7 +3438,8 @@
     // The phone's rows are drawn: show the text the shell held back for them
     // (ReaderShell.astro, data-phone-pending).
     tick().then(() => document.documentElement.removeAttribute('data-phone-pending'));
-    phoneMq.addEventListener?.('change', (e) => { phoneLayout = e.matches; });
+    phoneMq.addEventListener?.('change', (e) => { void regroup(e.matches); });
+    if (playLine) window.addEventListener('scroll', notePlace, { passive: true });
     // Remember which book of this work was last open, for the work switcher —
     // and stamp the work's recency so hosts can offer "continue reading".
     try { localStorage.setItem(`reader-book-${work}`, String(bookNum)); } catch {}
