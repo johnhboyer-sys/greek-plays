@@ -661,7 +661,7 @@
     // A play keeps its place: the line at the top comes back to the same
     // height in the new view (or the English cell that holds it). The scroll
     // offset alone does not: a phone's Both view is far taller than its English.
-    const place = playLine && old !== v ? lineAtTop() : null;
+    const place = playLine && old !== v ? placeAtTop() : null;
     view = v;
     if (edition && old !== v) dispatch('editionChange', { trans, view: v, loc: lastCite });
     try { localStorage.setItem('reader-view', v); } catch {}
@@ -670,8 +670,16 @@
     await tick();
     const shown = place?.el.isConnected ? shownFor(place.el) : null;
     if (place && shown) {
+      // The line itself where it still shows; else that far down what shows it.
+      const r = shown.getBoundingClientRect();
+      let point = place.line && shown === place.el ? r.top : r.top + place.frac * r.height;
+      // A phone sets each piece's Greek above its English: an English cell
+      // brings its piece in whole, Greek first, where the piece fits.
+      const g = !place.line && shown === place.el ? shown.closest('.play-row, .seg-row')?.querySelector('.greek-col') as HTMLElement | null : null;
+      const gr = g && g.offsetParent !== null ? g.getBoundingClientRect() : null;
+      if (gr && gr.bottom <= r.top + 2 && r.bottom - gr.top <= window.innerHeight - place.at) point = gr.top;
       suppressArmUntil = Date.now() + 800;
-      window.scrollBy(0, shown.getBoundingClientRect().top - place.top);
+      window.scrollBy(0, point - place.at);
     }
     if (spyArmed) setupScrollSpy();
   }
@@ -1240,26 +1248,36 @@
     if (el) shownFor(el)?.scrollIntoView({ behavior: 'auto', block: 'center' });
   }
 
-  // What shows a play line on screen: the Greek line itself, or, where the
-  // Greek column is hidden (English-only view; Astra lane A, F3), the English
-  // cell of the row or segment that holds it. Never a switch into bilingual.
+  // What shows a play line or an English cell on screen: the element itself,
+  // or, where its column is hidden, the other column of the row or segment
+  // that holds it: a Greek line's English cell in English-only view (Astra
+  // lane A, F3), an English cell's Greek in the Greek view. Never a switch
+  // into bilingual.
   function shownFor(el: HTMLElement): HTMLElement | null {
     if (el.offsetParent !== null) return el;
-    const rowEng = el.closest('.play-row')?.querySelector('.english-col') as HTMLElement | null;
+    const other = el.closest('.english-col') ? '.greek-col' : '.english-col';
+    const rowCol = el.closest('.play-row, .seg-row')?.querySelector(other) as HTMLElement | null;
     const seg = el.closest('.segment') as HTMLElement | null;
-    const segEng = seg?.querySelector('.english-col') as HTMLElement | null;
-    return [rowEng, segEng, seg].find((n) => n && n.offsetParent !== null) ?? null;
+    const segCol = seg?.querySelector(other) as HTMLElement | null;
+    return [rowCol, segCol, seg].find((n) => n && n.offsetParent !== null) ?? null;
   }
 
-  // The line at the top of the reading area and its height on screen, so a
-  // view switch can keep the reader's place: the first Greek line (English-only
-  // view: the first segment or English row tick) whose bottom clears the head.
-  function lineAtTop(): { el: HTMLElement; top: number } | null {
-    const head = document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
-    for (const el of document.querySelectorAll<HTMLElement>(view === 'english' ? '.segment[id], [data-etick]' : '.greek-line[id]')) {
+  // The place at the top of the reading area, so a view switch can bring it
+  // back: the first Greek line whose bottom clears the head, with how far down
+  // its column it sits (for the English cell that shows it once the Greek
+  // hides); in English-only view the first English cell (or turn-flow tick),
+  // with how far down it the head's edge cuts, which Both shows again as is.
+  // `at` is the height to restore it to.
+  function placeAtTop(): { el: HTMLElement; line: boolean; at: number; frac: number } | null {
+    const y = document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
+    const line = view !== 'english';
+    for (const el of document.querySelectorAll<HTMLElement>(line ? '.greek-line[id]' : '.english-col, [data-etick]')) {
       if (el.offsetParent === null) continue;
       const r = el.getBoundingClientRect();
-      if (r.bottom > head) return { el, top: r.top };
+      if (r.bottom <= y) continue;
+      const box = line ? (el.closest('.greek-col') as HTMLElement | null)?.getBoundingClientRect() : r;
+      const frac = !box?.height ? 0 : line ? (r.top - box.top) / box.height : Math.max(0, (y - r.top) / r.height);
+      return { el, line, at: line ? r.top : y, frac };
     }
     return null;
   }
@@ -1366,7 +1384,9 @@
       saveCompare();
       setTrans('compare');
     }
-    if (d.edition && edition) {
+    // A different edition remounts the reader (ReaderHost); the same one does
+    // not, so its view is applied below like any other.
+    if (d.edition && edition && d.edition !== edition) {
       dispatch('editionChange', { trans, view: d.view ?? view, loc: lastCite, ed: d.edition });
       return;
     }

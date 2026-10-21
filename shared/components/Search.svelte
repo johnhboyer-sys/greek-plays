@@ -133,12 +133,14 @@
     selectedWorks = selectedWorks;
   }
 
-  // The Greek text a play's hits come from, for its heading: the chosen
-  // edition where the play holds it, else its reference text ("Smyth 1926").
+  // The Greek text a play's hits come from, for its heading: the edition the
+  // engine searched (it takes one only for a Greek-only query, in a play that
+  // holds it), else the play's reference text ("Smyth 1926").
+  let resultEds = new Map<string, string>();
   function greekTextOf(work: string): string {
     const w = getWork(work);
     if (!w) return '';
-    const ed = greekEd !== 'tlg' ? w.greekEditions?.find((e) => e.id === greekEd) : undefined;
+    const ed = w.greekEditions?.find((e) => e.id === resultEds.get(work));
     const short = ed?.short ?? w.greekSource.short;
     return short.replace(/\s*\((?:[^)]*?,\s*)?(\d{4})\)\s*$/, ' $1');
   }
@@ -526,6 +528,7 @@
       };
       const { results, failed, lemmata } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode, greekEd);
       searchedLemmata = lemmata ?? [];
+      resultEds = new Map(results.filter((r) => r.ed).map((r) => [r.work, r.ed!]));
       resultPlays = new Set(results.map((r) => r.work)).size;
       failedWorks = failed;
       totalInstances = results.reduce((n, r) => n + instCount(r), 0);
@@ -851,10 +854,11 @@
     {#each groupsByWork as wg}
       {@const w = getWork(wg.work)}
       {@const lines = wg.books.reduce((n, [, gs]) => n + gs.reduce((m, g) => m + g.instances.length, 0), 0)}
+      {@const grk = wg.books.some(([, gs]) => gs.some((g) => g.instances.some((i) => i.lang === 'grk')))}
       <section class="grp">
         <h2>
           <span class="tt">{w?.title ?? wg.work}</span>
-          <span class="who">{[getAuthor(w?.author ?? '')?.name, greekTextOf(wg.work), `${lines} line${lines === 1 ? '' : 's'}`].filter(Boolean).join(' · ')}</span>
+          <span class="who">{[getAuthor(w?.author ?? '')?.name, grk ? greekTextOf(wg.work) : '', `${lines} line${lines === 1 ? '' : 's'}`].filter(Boolean).join(' · ')}</span>
         </h2>
         {#each wg.books as [book, bookGroups]}
           {#if schemeFor(wg.work).id !== 'play-line'}<p class="book book-name">{bookGroupLabel(wg.work)} {w?.bookLabels[book - 1] ?? book}</p>{/if}
@@ -922,12 +926,14 @@
   .mn { color: var(--mid); }
   .row > .mn:first-child { min-width: 4.6rem; }
   /* A picker: the word in ink, underlined in the clay, a clay ▾. */
-  .v { position: relative; display: inline-flex; align-items: baseline; white-space: nowrap; }
+  /* Bounded by the row, so a long choice on a narrow phone ends in an
+     ellipsis rather than pushing the page sideways. */
+  .v { position: relative; display: inline-flex; align-items: baseline; white-space: nowrap; max-width: 100%; min-width: 0; }
   .v select {
     appearance: none; -webkit-appearance: none; border: 0; background: none; padding: 0; margin: 0;
     font: inherit; color: var(--ink); cursor: pointer;
     text-decoration: underline; text-decoration-color: var(--clay-text); text-underline-offset: 4px;
-    field-sizing: content;
+    field-sizing: content; min-width: 0; max-width: 100%; text-overflow: ellipsis;
   }
   .v select:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
   .v i { font-style: normal; font-size: .7em; color: var(--clay-text); margin-left: .2em; pointer-events: none; }

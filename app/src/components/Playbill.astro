@@ -92,7 +92,9 @@ const yearIn = (s: string) => /\b(\d{4})\b/.exec(s)?.[1] ?? '';
 const greekTexts = editions.map((e) => ({
   name: plain(e.full),
   year: 'year' in e && e.year ? String(e.year) : yearIn(e.full),
-  href: `${base}${readerHref(work.id, { view: 'greek', ed: editionsOn ? e.id : undefined })}`,
+  // Always named: a link without its edition opens the Greek of the reader's
+  // saved translation instead (readerHref drops the default pair's edition).
+  href: `${base}${readerHref(work.id, { view: 'greek' })}${editionsOn ? `&ed=${encodeURIComponent(e.id)}` : ''}`,
 }));
 
 // The translations, each a way into the reader: the name without a

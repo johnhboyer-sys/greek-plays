@@ -204,6 +204,14 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
   @media (min-width: 681px) { .menu .ch { flex-wrap: nowrap; white-space: nowrap; } }
   .menu .print { margin: .7rem 0 0; }
   .menu .print button { color: var(--ink); }
+  /* A narrow desktop puts the picker too far left for its 40rem menu to hang
+     from it: the menu spans the window under the head instead. */
+  @media (min-width: 681px) and (max-width: 1023px) {
+    .menu.wide {
+      position: fixed; left: 1rem; right: 1rem; top: calc(var(--header-h, 3rem) + 2px); min-width: 0;
+      max-height: calc(100vh - var(--header-h, 3rem) - 2rem); overflow: auto;
+    }
+  }
 
   .rd-credit {
     max-width: var(--rd-measure, 80rem); margin: 1.2rem auto 0; padding: 0 2.5rem;
@@ -344,6 +352,12 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
         const id = row.dataset.side === '0' ? state!.compareLeft : state!.compareRight;
         row.querySelectorAll<HTMLButtonElement>('button[data-cmp]').forEach((b) => b.setAttribute('aria-pressed', String(compare && b.dataset.cmp === id)));
       });
+      // Entering or leaving the comparison hides the button just pressed:
+      // focus moves to what took its place.
+      const focused = document.activeElement as HTMLElement | null;
+      if (cmp && on && focused && head!.contains(focused) && focused.closest('[hidden]')) {
+        (compare ? cmp.querySelector<HTMLButtonElement>('button[aria-pressed="true"]') : on.querySelector<HTMLButtonElement>('button'))?.focus();
+      }
       // The Greek text's citation and licence, in the Greek view (pass 1's
       // controls strip carried it there; the Perseus texts need their credit).
       if (credit) {
