@@ -548,6 +548,17 @@ BORDER = [(1828, 615), (1835, 560), (1880, 525), (1920, 518), (1960, 532), (1995
           (2003, 600), (2008, 562), (1990, 556), (1950, 556), (1915, 556), (1882, 571), (1857, 606), (1842, 622)]
 BORDER_HI, BORDER_LO, BORDER_SPAN, BORDER_IN, BORDER_SPECK, BORDER_W, BORDER_CLEAR = 8, 2, 40, 2, 20, 4.0, 6
 BORDER_MARK = 7
+# The locks streaming from the woman behind Agamemnon (LOCKS, a polygon, flat px; John, 2026-10-21: redraw them): dark
+# wavy lines of thinned glaze on lighter bands, but the line finder drew the bands' edges, blotted near her head and
+# broke where the front photo is soft (left of the seam near x 3722). The lines run across: each is the darkest px in
+# its column within LOCKS_WIN px (the grey blurred LOCKS_BLUR px, rows and columns) and LOCKS_DEPTH darker than the
+# lightest LOCKS_REACH px above and below, more than LOCKS_IN px inside the figure; closed LOCKS_CLOSE px across,
+# drawn along their centres BORDER_W px wide; the outline stays. (The border's round rule drew the soft part's grain
+# as a mesh)
+# (its left side follows the end of her dark hair, its right side stops short of her arm's contour)
+LOCKS = [(3542, 388), (3600, 405), (3700, 420), (3755, 425), (3766, 440), (3768, 538), (3700, 543), (3600, 518),
+         (3538, 503), (3531, 480), (3530, 450), (3534, 418)]
+LOCKS_BLUR, LOCKS_WIN, LOCKS_REACH, LOCKS_DEPTH, LOCKS_IN, LOCKS_CLOSE = (1.0, 2.0), 9, 8, 18, 3, 7
 LEVEL_SIGMA = 30
 # Lines the finder found along the figure's own edge (the edge's contrast, inside the outline) doubled it (the raised
 # fingers): line pieces lying for EDGE_HUG of their length within EDGE_CLEAR px of the contour go
@@ -1032,15 +1043,35 @@ def scene(g8, rb8, sharp8, dump=None):
     hm = morphology.remove_small_holes(hm | hs, max_size=HEAD_HOLE) & heads & fig & ~edge
     lines = (lines & ~heads) | hm
     old = (old & ~heads) | hm
-    # Aegisthus' cloak border (see BORDER)
-    bz = lw.polygon_mask(g.shape, np.array(BORDER, float))
+    # Aegisthus' cloak border (see BORDER) and the locks (see LOCKS)
     hi, lo = ndi.maximum_filter(gh, 2 * BORDER_HI + 1), ndi.minimum_filter(gh, 2 * BORDER_LO + 1)
-    rid = (gh < (hi + lo) / 2) & (hi - lo > BORDER_SPAN) & bz & (ndi.distance_transform_edt(fs) > BORDER_IN)
-    rid = morphology.remove_small_objects(rid, max_size=BORDER_SPECK)
-    bl = (ndi.distance_transform_edt(~centre_lines(rid, spur=5, min_len=8)) <= BORDER_W / 2) & bz
-    lines = (lines & ~bz) | bl
-    old = (old & ~bz) | bl
+    inside = ndi.distance_transform_edt(fs)
+
+    def centred(poly, span, margin):
+        z = lw.polygon_mask(g.shape, np.array(poly, float))
+        rid = (gh < (hi + lo) / 2) & (hi - lo > span) & z & (inside > margin)
+        rid = morphology.remove_small_objects(rid, max_size=BORDER_SPECK)
+        return z, (ndi.distance_transform_edt(~centre_lines(rid, spur=5, min_len=8)) <= BORDER_W / 2) & z
+
+    bz, bl = centred(BORDER, BORDER_SPAN, BORDER_IN)
     edge &= ~(bz & (ndi.distance_transform_edt(~bl) <= BORDER_CLEAR))
+    lz = lw.polygon_mask(g.shape, np.array(LOCKS, float))
+    y0, y1 = np.nonzero(lz.any(1))[0][[0, -1]]
+    x0, x1 = np.nonzero(lz.any(0))[0][[0, -1]]
+    sl = np.s_[y0 - LOCKS_REACH:y1 + LOCKS_REACH + 1, x0:x1 + 1]
+    gs = ndi.gaussian_filter(g[sl].astype(float), LOCKS_BLUR)
+    above = np.max([np.roll(gs, k, 0) for k in range(1, LOCKS_REACH + 1)], 0)
+    below = np.max([np.roll(gs, -k, 0) for k in range(1, LOCKS_REACH + 1)], 0)
+    depth = np.minimum(above, below) - gs
+    rid = np.zeros_like(lz)
+    rid[sl] = (gs == ndi.minimum_filter1d(gs, LOCKS_WIN, axis=0)) & (depth > LOCKS_DEPTH)
+    rid &= lz & (inside > LOCKS_IN)
+    rid = ndi.binary_closing(ndi.binary_dilation(rid, structure=np.ones((3, 1))), structure=np.ones((3, LOCKS_CLOSE)))
+    ll = (ndi.distance_transform_edt(~centre_lines(rid, spur=5, min_len=10)) <= BORDER_W / 2) & lz
+    for z, zl in ((bz, bl), (lz, ll)):
+        lines = (lines & ~z) | zl
+        old = (old & ~z) | zl
+    bz |= lz
     # Agamemnon's head (see AGAM_*)
     pm = lambda P: lw.polygon_mask(g.shape, np.array(P, float))
     head = (pm(AGAM_CURLS) | pm(AGAM_BEARD) | pm(AGAM_FACE)) & fig & ~edge
