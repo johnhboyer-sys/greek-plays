@@ -24,7 +24,7 @@ John. Nothing here is started.
   switch from Medea 1116, both `?loc=` cases, reading on before a switch,
   Johnston's long segments; both widths), 22 of 22; a wider place probe
   (six readers, five switches, three depths, both widths), 178 of 178; a
-  stage-direction probe, 19 of 20 (§4, item 9); a probe of the fixes to
+  probe of stage directions and shared lines, 24 of 24; a probe of the fixes to
   Codex's review, 13 of 13; the Resume link, passing. Every gate in the repo
   CLAUDE.md is green.
 - Ship gate (`npm run build:public`, detached, with `DRAMA_EDITIONS=1
@@ -152,13 +152,6 @@ All reader-facing wording is DRAFT for John.
    Ecclesiazusae): the Greek column's grid track comes out wider than the
    screen in lyric passages (strophe markers, long lines). 360px and wider
    are clean on every page; the layout check takes `WIDTHS=320` to show it.
-9. On a phone in Both, the second speaker's half of a shared line has no
-   numbered Greek line in its own piece: the number sits on the first half,
-   in the piece above (Acharnians 395, the Slave's "Who's there?" after
-   Dicaeopolis). With that piece at the top, a switch to Greek keys on the
-   next speech, as for a stage direction, and lands about three lines (95px)
-   below the head. Still on screen. Fix: key such a row on the shared line
-   before it. `probe-direction.mjs` shows it.
 
 Codex's review of the branch: see §7.
 
@@ -311,5 +304,9 @@ flow). Codex checked those
 fixes (02:06): all three resolved, and one new case, also fixed: a stage
 direction's row holds no Greek line to key on, so a switch to the Greek view,
 which drops the direction, lost the place; such a row is now keyed by the
-next speech's first line, and that speech comes to the top
-(`probe-direction.mjs`: 19 of 20; the miss is §4, item 9).
+next speech's first line, and that speech comes to the top. The second
+speaker's half of a shared line has no numbered line in its own row either
+(Acharnians 395, the Slave's "Who's there?" after Dicaeopolis; the number
+sits on the first half, in the row above): it keys on that shared line, at
+its foot (John, 02:39: "Fix now"). `probe-direction.mjs`, both kinds, to
+Greek and to English: 24 of 24.
