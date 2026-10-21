@@ -114,6 +114,19 @@ body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-p
 body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker:first-child:not(.speaker-dash)::after {
   content: ".";
 }
+/* No sideways scroll at any width (handoff §4, item 8): an English word
+   longer than its line breaks, as the Greek does. */
+body[data-author] .reader-body.play-line .turn-para { overflow-wrap: anywhere; }
+@media (max-width: 680px) {
+  /* The phone's one track takes the screen's width: sized by its content
+     (1fr), a lyric passage's strophe markers and long lines widened it past
+     a 320px screen (Seven Against Thebes, Suppliant Women, Eumenides,
+     Ecclesiazusae). */
+  body[data-author] .reader-body.play-line .seg-row { grid-template-columns: minmax(0, 1fr); }
+  /* A long name wraps at its spaces where the column is narrower than it
+     ("Chorus of the Processional Escort", Eumenides, English view, 360px). */
+  body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker.spk-long:first-child { white-space: normal; }
+}
 /* The translator's stage directions: italic, in mid. */
 body[data-author] .reader-body.play-line .stage-dir { font-style: italic; color: var(--mid); }
 

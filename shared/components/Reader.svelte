@@ -1624,8 +1624,11 @@
     // before). Brackets are excluded too, so two markers on one word
     // ("dead[^1.1][^2.2]", Way's Suppliants 1:48) each get a button instead
     // of the first being swallowed as the second's lead word (2026-09-14).
+    // Hyphens and dashes too: only a compound's last part is glued, so the
+    // rest can still break at its hyphens (Ecclesiazusae 1169-1175, the
+    // dish in English, ran a 320px page sideways; UI pass 2 follow-ups).
     return highlightEng(text).replace(
-      /([^\s<>&\[\]]*)\[\^([\w._*†]+)\]/g,
+      /([^\s<>&\[\]\-‐–—]*)\[\^([\w._*†]+)\]/g,
       (_m, lead: string, label: string) => {
         const display = fnDisplay(label);
         return `<span class="fn-anchor">${lead}<button type="button" class="fn-marker" data-fn="${label}" data-fn-trans="${transId}" aria-label="Footnote ${display}">${display}</button></span>`;
