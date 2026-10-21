@@ -55,6 +55,8 @@ speech at the translation's own line markers where the translation is keyed
 by line, never into a piece under five Greek lines; a speech-keyed
 translation stays whole.
 
+All four are closed on `claude/ui-pass2-followups-e46800` (§8).
+
 1. **A long first speech inside a multi-speaker segment stays whole** on a
    phone: `playRows` cuts only at speaker starts, and the phone path cuts only
    single-speech segments (`singleSpeech`, after Codex's pass 1 finding that a
@@ -125,6 +127,9 @@ All reader-facing wording is DRAFT for John.
 
 ## 4. Found, not fixed
 
+Items 1, 5, and 8 are closed on `claude/ui-pass2-followups-e46800` (§8);
+item 4 is corrected below.
+
 1. With editions on, a translation whose edition book keeps its English
    anywhere but `english` opens in the Greek view, because Reader.svelte's
    `hasEnglish` checks only `english`: Way's Medea and Storr's Ajax (their
@@ -138,9 +143,11 @@ All reader-facing wording is DRAFT for John.
    from the TLG title line), which B prints large on the author and play
    pages; sigla printed without accents (Παις); no year for the Kosmos,
    Johnston, and Murray translations on the play page.
-4. Agamemnon and Seven Against Thebes have no drawing yet; their pages keep
-   the drawing's height empty (spec §3.3). Agamemnon is on
-   `claude/redesign-plates-37`.
+4. Agamemnon has no drawing yet; its page keeps the drawing's height empty
+   (spec §3.3). Agamemnon is on `claude/redesign-plates-37`. (Corrected
+   2026-10-21: Seven Against Thebes has one, `seven.svg`, merged 2026-10-07,
+   and its play page shows it; the build session's check matched drawing
+   slugs against play ids and missed it.)
 5. In English-only view, a speech whose English sits in the paragraph before
    it still shows "Translated with the speech above ↑", with no Greek beside
    it to explain it (pass 1's turn flow).
@@ -311,3 +318,84 @@ speaker's half of a shared line has no numbered line in its own row either
 sits on the first half, in the row above): it keys on that shared line, at
 its foot (John, 02:39: "Fix now"). `probe-direction.mjs`, both kinds, to
 Greek and to English: 24 of 24.
+
+## 8. The follow-up session (2026-10-21)
+
+Branch `claude/ui-pass2-followups-e46800` (worktree
+`.claude/worktrees/ui-pass2-followups-e46800`), cut from
+`claude/ui-pass2-build-73023b` with `origin/main` merged in (`eb1d837`, the
+wider `hasEnglish`). Pushed, not merged. Its scripts and probe logs are in the
+session's notes folder,
+`~/Library/Application Support/Claude/side-session-notes/local_40ae7e97-c008-4192-ae15-ed152a7fab08/ui-pass2-followups/`
+(the build session's scripts pointed at this worktree, plus the probes named
+below). One commit per item; every one with the gates green.
+
+**Closed.**
+
+- §4, item 1 (with editions on, Way's and Murray's Medea and Storr's Ajax
+  opened in the Greek view): closed by the merge of `eb1d837` alone, no
+  further change. `probe-editions-both.mjs`, every translation of all 44
+  plays at 1440 and 390: 284 of 284 open in Both with English (the build
+  branch without the merge: 10 misses at 1440, Storr in all seven Sophocles
+  plays, Murray's Frogs, Way's and Murray's Medea).
+- §2, items 1 and 2 (`205bb90`): on a phone only a translation keyed by line
+  (`alignment: line`) is cut, at sentence starts its markers place, every
+  piece five Greek lines or more, the first and last too (a marker earned an
+  exception before, which left pieces of one to four lines); in dialogue each
+  speech is first bounded by its speaker events. A speech-keyed translation
+  stays whole, as spec §7.4 says. The desktop is unchanged.
+  `probe-phone-pieces.mjs`, every translation of all 44 plays: 142 of 142 at
+  390 (before: 0), and every segment's desktop rows as before, 142 of 142.
+  John is asked whether a speech-keyed translation should alternate on a
+  phone after all (question 3 below).
+- §2, item 3 (`52b902d`): on a phone the play's text waits, before the first
+  paint, for the reader to draw the phone's rows (`data-phone-pending`, 8s
+  fallback). Found while reproducing it: ReaderHost's wrapper rendered
+  `visibility: visible` from the server, which showed the default edition's
+  text under the ◌ while another edition loaded, at every width; fixed.
+  `probe-first-paint.mjs`: 10 of 10 at both speeds (before: 5 of 10).
+- §2, item 4 (`d79b474`, `f6c792d`): crossing 680px keeps the place
+  (`notePlace`, `regroup`, `returnTo`; English places by their words).
+  `probe-rotate.mjs`, six readers, three depths, a phone turned and a
+  desktop window narrowed: 72 of 72 (before: 0 of 72).
+- §4, item 8 (`472c0ad`): no sideways scroll at 320px. A sweep the layout
+  check did not run found English-only view scrolling sideways at every
+  phone width (4 plays at 390); fixed with it (long English speaker names,
+  long words, a footnote call's no-wrap word). `check-layout.mjs` clean at
+  320, 360, 375, 390, and 1440; `probe-views-sideways.mjs`, all plays, each
+  view, 320 to 390: 396 of 396 (before: 376), 1440 and comparison clean.
+- §4, item 5 (`2e55aeb`): English-only view leaves out a segment whose
+  English is another segment's paragraph, so "Translated with the speech
+  above ↑" no longer shows there (454 before, 0 now; Both keeps all 454),
+  and a link to such a line lands on that paragraph. `probe-covered.mjs`.
+- §4, item 4, corrected: Seven Against Thebes has its drawing (`seven.svg`);
+  only Agamemnon lacks one.
+
+**Codex's review** (GPT-6.1-Sol, medium, read-only, with the hang watch; the
+diff against `claude/ui-pass2-build-73023b`): no high findings, three
+medium, all reproduced and fixed in `f6c792d`: the media query's listener
+outlived a reader ReaderHost replaced; the place was noted only after
+scrolling stopped (now at most every 150ms; a turn mid-scroll lands within
+that much motion, 185px at 1,200px a second); a bare `#col-` hash to a
+segment English-only view leaves out went nowhere. Not rechecked by Codex.
+
+**Checks on the final build.** `final-checks.sh` (direction 24 of 24, place
+22 of 22, Codex's earlier fixes, Resume, layout at 320 and at 360 to 1440,
+axe colour contrast, place-wide 180 of 180) all passed on `2e55aeb`; the
+rotation, place, and follow-up probes again on `f6c792d`. The ship gate
+(`DRAMA_EDITIONS=1 PUBLIC_EDITIONS=1 npm run build:public`) passed on
+`f6c792d`: all 44 plays and their editions, 1316 pages crawled, 0 broken
+links.
+
+**Waiting on John.**
+
+1. Search step 2 (§5): recommended to hold until this branch is merged, then
+   run as its own session in the order pipeline, data, engine, UI, with the
+   phrase index later. John asked which is easiest (2026-10-21); answered,
+   not yet decided.
+2. The plates page (§6): John, 2026-10-21: "maybe don't have drawings now;
+   we add later." Not started.
+3. A speech-keyed translation on a phone: alternate in pieces as before (A),
+   whole as spec §7.4 and the branch have it (B), or alternate verse only
+   (C, recommended). The illustration:
+   https://claude.ai/artifact/UEq6ziRAFy1cWFmAKpPmFV
