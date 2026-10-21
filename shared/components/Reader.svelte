@@ -732,7 +732,10 @@
   // "nothing to show" — it has real English content in the English column
   // (bug: John 2026-07-24, thales/testimonia A1 rendered Greek-only with the
   // span dumped below the Greek column instead).
-  $: hasEnglish = segments.some((seg) => !!seg.english || !!seg.contextEnglish?.length || !!seg.expandedCitation?.length);
+  // Any other translation's pieces count as well: Way's own Greek
+  // (ed/way-loeb) carries Way in the secondary slot with `english` null.
+  $: hasEnglish = segments.some((seg) => !!seg.english || !!seg.contextEnglish?.length || !!seg.expandedCitation?.length
+    || secondaries.some((t) => piecesFor(seg, t).length > 0));
   // Suppress any view but source-only when there's nothing to show beside it —
   // covers the default 'both', a restored localStorage/query-param choice, and
   // the mobile/jump-in defaults set in onMount, all in one place, without any
