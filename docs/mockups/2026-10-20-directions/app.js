@@ -183,8 +183,7 @@
         <span class="pick open-desktop"><a class="pk" href="#">Paley 1878 · Coleridge<i>▾</i></a><div class="menu wide"><div class="two"><div><p class="mh">Greek text</p><ul>${m.eds}</ul><p class="mn">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p></div><div><p class="mh">Translation</p><ul>${m.tr}</ul></div></div></div></span>
         <span class="views"><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a></span>
         <span class="pick"><a class="pk aa" href="#">Aa</a><div class="menu aam"><p class="mh">Text</p><p class="opt"><span>Size</span><a href="#">Smaller</a><a class="on" href="#">Normal</a><a href="#">Larger</a></p><p class="opt"><span>Width</span><a href="#">Narrow</a><a class="on" href="#">Normal</a><a href="#">Wide</a></p><p class="opt"><span></span><a href="#">Print this page</a></p></div></span>
-        ${bIcons}
-      </span></div>
+      </span><span class="tools">${bIcons}</span></div>
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`; };
 
   // C ──────────────────────────────────────────────────────────────────────

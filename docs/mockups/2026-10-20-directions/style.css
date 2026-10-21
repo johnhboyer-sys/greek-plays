@@ -450,8 +450,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rh .here b { font-weight: 500; color: var(--ink); }
 .dir-b .pg-reader .rh .ctl { margin-left: auto; display: flex; gap: 1.4rem; font: 400 1rem var(--font-ui); color: var(--mid); padding-bottom: .55rem; }
 .dir-b .pg-reader .rh .ctl .on { color: var(--ink); }
-.dir-b .pg-reader .rh .ctl a.ic { display: inline-flex; align-items: flex-end; }
-.dir-b .pg-reader .rh .ctl a.ic + a.ic { margin-left: -.3rem; }
+.dir-b .pg-reader .rh .tools { display: flex; gap: 1.1rem; align-items: flex-end; padding-bottom: .55rem; color: var(--mid); }  /* the two icons; on a phone they share the first line with the play title (John, 20 October) */
+.dir-b .pg-reader .rh .tools a.ic { display: inline-flex; }
 .dir-b .pg-reader .rd-wrap { max-width: 80rem; margin: 0 auto; padding: 2.2rem 2.5rem 6rem; --rd-cols: 1.05fr 1fr; --rd-gap: 3rem; --num-w: 2.8rem; --rd-speech-gap: 1.3rem; }
 /* Greek numbers in the left margin, English in the right, as in C (John, 20 October). */
 .dir-b .pg-reader .rd-g .ln { grid-template-columns: var(--num-w) 1fr; }
@@ -521,7 +521,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-play.mash .cover .et { font-size: 3.4rem; } .dir-b .pg-play.mash .cover .gt { font-size: 1.4rem; }
   .dir-b .pg-reader .rh { padding: .4rem 1rem 0; gap: .8rem; flex-wrap: wrap; }
   .dir-b .pg-reader .rh .fig { --h: 34px; } .dir-b .pg-reader .rh .crumbs { font-size: 1.05rem; }
-  .dir-b .pg-reader .rh .ctl { gap: .75rem; font-size: .9rem; flex-wrap: wrap; width: 100%; margin-left: 0; padding-top: .2rem; }
+  .dir-b .pg-reader .rh .ctl { gap: .75rem; font-size: .9rem; flex-wrap: wrap; width: 100%; margin-left: 0; padding-top: .2rem; order: 1; }
+  .dir-b .pg-reader .rh .tools { margin-left: auto; padding-bottom: .65rem; gap: .9rem; }  /* icons centred on the title line */
   .dir-b .pg-reader .rh .views { gap: .7rem; }
   .dir-b .pg-reader .rh .menu .two { grid-template-columns: 1fr; gap: .8rem; }
   .dir-b .pg-reader .rh .menu, .dir-b .pg-reader .rh .menu.wide { position: fixed; left: 1rem; right: 1rem; top: 6.2rem; min-width: 0; max-height: calc(100cqh - 8rem); overflow: auto; }
