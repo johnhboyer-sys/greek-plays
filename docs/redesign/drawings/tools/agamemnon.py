@@ -680,13 +680,18 @@ MARKS_ORIGIN = (154, 228)
 # chin and her dress's folds, her raised arm; Aegisthus' outstretched arm and the hand on Agamemnon's head
 # Round 5 (2026-10-21, on pass 10's file, layer "John marks copy", the same colours, blue and yellow only): all over the
 # scene, the locks of the woman behind Agamemnon among them
+# Round 6 (2026-10-21, on pass 11's file, layer 9 and two blue line shapes 3 px wide along the sword's blade; the same
+# colours): outlines John found rough (green ground, yellow clay) and the hand on the sword's hilt (blue)
 MARKS_FILES = [("agamemnon_marks_1_blue.png", "agamemnon_marks_1_purple.png", None, None),
                ("agamemnon_marks_2_blue.png", "agamemnon_marks_2_purple.png", None, None),
                ("agamemnon_marks_3_blue.png", None, "agamemnon_marks_3_yellow.png", "agamemnon_marks_3_green.png"),
                ("agamemnon_marks_4_blue.png", None, "agamemnon_marks_4_yellow.png", "agamemnon_marks_4_green.png"),
-               ("agamemnon_marks_5_blue.png", None, "agamemnon_marks_5_yellow.png", None)]
+               ("agamemnon_marks_5_blue.png", None, "agamemnon_marks_5_yellow.png", None),
+               ("agamemnon_marks_6_blue.png", None, "agamemnon_marks_6_yellow.png", "agamemnon_marks_6_green.png")]
 BLOB_R, BLOB_MIN = 5, 200
 MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 5.0, 1.5, 2
+MARK_NEAR, MARK_HUG = 7, 0.75
+MARKS_LINES = ["agamemnon_marks_6_lines.png"]   # (his line shapes in round 6, also in its blue)
 # Small dots painted on the clothes (the net-robe's, the right-hand woman's): inside DOTS (polygons, flat px) small marks
 # standing apart from the lines (DOT_OFF px), with local contrast DOT_LC or more, DOT_MIN to DOT_MAX px^2, drawn as dots
 DOTS = [[(2560, 500), (3150, 500), (3150, 1300), (3100, 2150), (2350, 2150), (2480, 1300)],
@@ -1117,7 +1122,12 @@ def scene(g8, rb8, sharp8, dump=None):
     # John's marks (see MARKS_*)
     # (in the hands his round 2 strokes run 4-6 px inside my outline, which lies on the painted edge: the fingers came
     # out with two outlines. There his strokes within HAND_NEAR px of the outline go; the outline stays)
-    blue = blue & ~(box(HANDS) & (ndi.distance_transform_edt(~edge) <= HAND_NEAR))
+    sh = np.zeros_like(blue)
+    for f in MARKS_LINES:
+        a = np.asarray(Image.open(Path(__file__).parent / f).convert("L")) > 127
+        sh[MARKS_ORIGIN[1]:MARKS_ORIGIN[1] + a.shape[0], MARKS_ORIGIN[0]:MARKS_ORIGIN[0] + a.shape[1]] |= a[:H - MARKS_ORIGIN[1], :W - MARKS_ORIGIN[0]]
+    # (his line shapes are kept whole: the blade runs from the hand, in HANDS, where the rule above would cut them)
+    blue = blue & ~(box(HANDS) & (ndi.distance_transform_edt(~edge) <= HAND_NEAR)) | sh
     johns = stroke(blue, MARK_W) | (ndi.gaussian_filter(blobs.astype(np.float32), MARK_SMOOTH) > 0.5)
     inner = yellow & ~edge
     ink &= ~inner
@@ -1129,6 +1139,17 @@ def scene(g8, rb8, sharp8, dump=None):
     near_j = bz & (ndi.distance_transform_edt(~johns) <= BORDER_MARK)
     ink &= ~near_j
     faces &= ~near_j
+    # (where he redrew an outline, mine ran 3-6 px beside his stroke and was left as slivers along it; John, 2026-10-21:
+    # "a few outlines are still fucky": pieces of my ink lying for MARK_HUG of their area within MARK_NEAR px of his
+    # strokes go)
+    jn = ndi.distance_transform_edt(~johns) <= MARK_NEAR
+    # (his line shapes along the sword's blade, MARKS_LINES, are its edges: my edges within MARK_NEAR px of them go
+    # outright, as they are joined to the rest of the outline and no piece lies wholly by them)
+    ink &= ~(ndi.distance_transform_edt(~sh) <= MARK_NEAR)
+    lab, n = ndi.label(ink & ~faces, structure=np.ones((3, 3)))
+    if n:
+        frac = ndi.mean(jn.astype(float), lab, np.arange(1, n + 1))
+        ink &= ~np.isin(lab, 1 + np.nonzero(frac >= MARK_HUG)[0])
     faces |= johns
     net = (net | stroke(purple, NET_W)) & ~ink & ~faces & ~hair
     keep = (xx >= CROP[0]) & (xx < CROP[1])
