@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { checkReadingRoutes } from '../check-links.mjs';
+import { checkReadingRoutes, readerWorkOf } from '../check-links.mjs';
 
 const CHECK_LINKS = fileURLToPath(new URL('../check-links.mjs', import.meta.url));
 
@@ -28,6 +28,14 @@ test('passes when the reading_route page exists', () => {
   const routes = [{ source: 'data/agamemnon/manifest.lyceum.json', readingRoute: '/aeschylus/agamemnon' }];
   const pageDirs = new Set(['/aeschylus/agamemnon']);
   assert.deepEqual(checkReadingRoutes(routes, pageDirs), []);
+});
+
+// A play's reader is read/<author>/<work>/ (2026-10-20); with editions on, a
+// bare ?loc= is checked against that work's TLG data, so the work must come
+// from the right segment.
+test('names the work of a reader page under read/ and of a book page', () => {
+  assert.equal(readerWorkOf('read/euripides/medea/index.html'), 'medea');
+  assert.equal(readerWorkOf('aeschylus/agamemnon/book/1/index.html'), 'agamemnon');
 });
 
 test('skips a null reading_route (no reader page expected)', () => {

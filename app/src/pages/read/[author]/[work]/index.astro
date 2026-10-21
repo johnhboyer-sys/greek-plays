@@ -1,0 +1,30 @@
+---
+// A play's reader, at /read/<author>/<work> (docs/redesign/HANDOFF-ui-pass2-build.md
+// §9; John, 2026-10-20: "Yes, /read/<author>/<work>/"). The bare play path is
+// the play's own page; a line (/<author>/<work>/<cite>) redirects here with
+// ?loc=. Only one-book play-line works read here; every other work reads at
+// /<author>/<work>/book/<n> (shared/lib/works.ts workPath).
+import ReaderShell from '../../../../components/ReaderShell.astro';
+import { getWorkBySlug, workSlug } from '@shared/lib/works';
+import { getAuthor } from '@shared/lib/authors';
+import { builtWorks } from '../../../../lib/built-works';
+import '@shared/styles/global.css';
+
+export function getStaticPaths() {
+  return builtWorks()
+    .filter((w) => w.books === 1 && w.citation?.scheme === 'play-line')
+    .map((w) => {
+      const author = getAuthor(w.author);
+      if (!author) {
+        throw new Error(`read/[author]/[work]: work '${w.id}' has unresolvable author '${w.author}'`);
+      }
+      return { params: { author: author.id, work: workSlug(w) } };
+    });
+}
+
+const work = getWorkBySlug(Astro.params.author!, Astro.params.work!);
+if (!work) {
+  throw new Error(`read/[author]/[work]: no work at author '${Astro.params.author}' slug '${Astro.params.work}'`);
+}
+---
+<ReaderShell workId={work.id} n={1} />

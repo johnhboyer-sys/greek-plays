@@ -298,8 +298,10 @@ export function toLyceumManifest(ourManifest, work, author) {
   // app/src/pages/[author]/[work]/book/[n].astro's getStaticPaths, which
   // skips `n=1` exactly under this same condition, and shared/lib/works.ts's
   // workPath, the site's own single source of truth for reader URLs. The
-  // owner ruled 2026-09-11: advertise the bare work route for these works;
-  // the partner changes its reading-page template for plays to match.
+  // owner ruled 2026-09-11 to advertise the bare work route for these works;
+  // since 2026-10-20 the bare route is the play's own page and the reader is
+  // /read/<author>/<work> (John: "Yes, /read/<author>/<work>/"), so that is
+  // the reading route the partner gets.
   const isBarePlayRoute = scheme === 'play-line' && books.length === 1;
   // Alias pages (/read/<author>/<work>/section-<n>) exist ONLY for
   // section-scheme works -- see app/src/pages/read/_section-routes.ts. Every
@@ -315,7 +317,7 @@ export function toLyceumManifest(ourManifest, work, author) {
         ? `/read${ourManifest.route}/section-${books[0].start}`
         : null
       : isBarePlayRoute
-        ? ourManifest.route
+        ? `/read${ourManifest.route}`
         : books[0]?.n != null
           ? `${ourManifest.route}/book/${books[0].n}`
           : null;
@@ -362,8 +364,8 @@ export function toLyceumManifest(ourManifest, work, author) {
 
   if (isBarePlayRoute) {
     result.reading_route_note =
-      'scheme play-line; single-book plays read at the bare work route -- ' +
-      'owner ruled the shorter address 2026-09-11, partner to accept it';
+      'scheme play-line; single-book plays read at /read/<author>/<work> -- ' +
+      'owner ruled 2026-10-20 (the bare route is the play page), partner to accept it';
   } else if (scheme && scheme !== 'section') {
     result.reading_route_note =
       `scheme ${scheme}; route grammar for this scheme not yet agreed`;

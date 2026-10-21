@@ -117,6 +117,14 @@ export function checkReadingRoutes(routes, pageDirs) {
 
 // The site-relative directory an index.html lives in, in reading_route form
 // (leading slash, no trailing slash; '' for the dist root itself).
+// The work a reader page belongs to, from its path under dist: a play reads
+// at read/<author>/<work>/ (UI pass 2, John 2026-10-20), every other work at
+// <author>/<work>/…. The data directory is named for the work.
+export function readerWorkOf(relative) {
+  const segments = relative.split(/[\\/]/).filter(Boolean);
+  return segments[0] === 'read' ? segments[2] : segments[1];
+}
+
 function pageDirOf(dist, htmlFile) {
   const relative = path.relative(dist, path.dirname(htmlFile));
   return relative === '.' ? '' : `/${relative.split(path.sep).join('/')}`;
@@ -181,7 +189,7 @@ async function main() {
   // work's TLG book data prints it, whether or not the page's edition does.
   async function tlgRefExists(target, query, value) {
     if (/(?:^|&)ed=(?!tlg(?:&|$))/i.test(query)) return false;
-    const work = path.relative(dist, target).split(path.sep)[1];
+    const work = readerWorkOf(path.relative(dist, target));
     const dataDir = path.join(dist, 'data', work ?? '');
     if (!await existsDirectory(path.join(dataDir, 'ed'))) return false;
     const needle = new RegExp(`"ref"\\s*:\\s*"${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`);

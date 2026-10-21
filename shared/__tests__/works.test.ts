@@ -226,9 +226,10 @@ describe('author-scoped URL resolution (PUBLIC_READER_FIXTURES)', () => {
     expect(fresh.authorPath('sample-author')).toBe('/sample-author');
   });
 
-  it('uses the bare work path for a one-book play-line work', async () => {
+  it('reads a one-book play-line work at /read/, its bare path the play page', async () => {
     const fresh = await import('../lib/works');
-    expect(fresh.workPath('agamemnon', 1)).toBe('/aeschylus/agamemnon');
+    expect(fresh.workPath('agamemnon', 1)).toBe('/read/aeschylus/agamemnon');
+    expect(fresh.workLanding('agamemnon')).toBe('/aeschylus/agamemnon');
   });
 
   it('workPath falls back to book 1 for non-finite/non-integer book numbers before clamping', async () => {

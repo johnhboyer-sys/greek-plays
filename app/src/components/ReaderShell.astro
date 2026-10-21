@@ -16,14 +16,11 @@ import Breadcrumb from './Breadcrumb.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import RunningHead from '@shared/components/RunningHead.svelte';
-import Playbill from './Playbill.astro';
 import SpeakerBar from './SpeakerBar.astro';
 import '../styles/reader-drama.css';
-import { assignSpeakerSlots } from '@shared/lib/speaker-colors';
-import { playSigla } from '@shared/lib/speakers';
 import { getWork, bookLabel, isBookless, workPath, workLanding, languageLabel, visibleTranslations, type Work } from '@shared/lib/works';
 import { getAuthor } from '@shared/lib/authors';
-import { schemeFor, navChipsNeedFullSectionList, dottedSectionChapter, unitNounFor, pageEntriesFor, nounForCount, lastPrintedRef } from '@shared/lib/citation';
+import { schemeFor, navChipsNeedFullSectionList, dottedSectionChapter, unitNounFor, pageEntriesFor, nounForCount } from '@shared/lib/citation';
 import { citeDescriptorFor, tocGroupNoun, tocGroupShowsCount, verseLineBookLineCount } from '../lib/citation-copy';
 import { speakerRoster } from '../lib/speaker-roster';
 import { SUPPORT_URL } from '../lib/support';
@@ -211,37 +208,11 @@ const bookData = JSON.parse(
 // stable across books and match the landing cast list (see speaker-roster.ts).
 const roster = speakerRoster(workId, work.books);
 
-// ── The play's opening plate (P4, docs/p4-plan.md) ────────────────────────
-// A play-line work opens on its plate: the title band, the argument, the
-// persons in order of appearance, and the scholia margin — then line 1.
-// Rendered here (an Astro-rendered Svelte component with no client
-// directive: static HTML, no hydration cost) rather than in
-// [author]/[work]/index.astro, because everything it shows is already read
-// or computed in this file — the roster, the book's first/last printed ref,
-// the registry entry — and a play's reader IS this shell.
+// A play-line work's reader (the drama corpus): its persons, synopsis and
+// texts are on the play's own page now (Playbill.astro, at the bare play URL).
 const isPlayLine = work.citation?.scheme === 'play-line';
-// The author's genre picks the accent and the band colour, sitewide, from
-// data-genre on <html> (accent BY GENRE, never by author — John).
+// The author's genre on <html> (header-chrome test).
 const genre = getAuthor(work.author)?.genre;
-const plateSlots = isPlayLine ? assignSpeakerSlots(roster) : new Map<string, number>();
-// Each person's Greek siglum, the same map the reader's gutter prints from
-// (Reader.svelte's playSigla over the book's speaker events), so the plate
-// reads "Chorus (Χο.)" exactly as the text does (John, 2026-09-10).
-const plateSigla = isPlayLine
-  ? playSigla((bookData.segments ?? []).flatMap((seg: { speakers?: { label: string; display?: string | null }[] }) => seg.speakers ?? []))
-  : new Map<string, string>();
-const platePersons = isPlayLine
-  ? roster.map((name) => ({ name, slot: plateSlots.get(name) ?? 0, siglum: plateSigla.get(name) ?? null }))
-  : [];
-const plateSegments: { column?: string; greek?: { ref?: string }[] }[] =
-  isPlayLine ? bookData.segments ?? [] : [];
-// "Start reading →" lands on line 1's own anchor (`col-{column}`, the id
-// Reader.svelte gives every segment), so a deep link (`?loc=`/`#`) and this
-// link both land on the line, never on the plate.
-const plateStartHref = plateSegments.length ? `#col-${plateSegments[0].column}` : '#col-1';
-// "Cite as" ends on the last PRINTED line, not the last segment's column
-// (a chunk's column is its FIRST ref, so Ag. read "1–1672" of 1673).
-const plateLastLine = lastPrintedRef(plateSegments);
 
 // Optional one-line chapter titles/descriptions for the outline sidebar, keyed
 // {book: {chapter: "…"}}. The file is written by hand/curation per work and may
@@ -864,9 +835,6 @@ const intro =
     }
   </script>
 
-  {isPlayLine && (
-    <Playbill work={work} persons={platePersons} lastLine={plateLastLine} startHref={plateStartHref} editionsOn={editionsOn} />
-  )}
   {isPlayLine && <SpeakerBar />}
   {editionsOn && <script is:inline define:vars={{ workId, defaultEdition, translationEditions: Object.fromEntries(work.translations.map(t => [t.id, t.edition ?? 'tlg'])) }}>
     try {

@@ -49,16 +49,16 @@ describe('edition data', () => {
   });
   it('keeps ed beside a loc unless it is tlg, since a bare loc reads in TLG numbering (plan 4.1 rule 4)', () => {
     expect(readerHref('agamemnon', { loc: '1203', ed: 'smyth-loeb', trans: 'smyth' }))
-      .toBe('/aeschylus/agamemnon?loc=1203&trans=smyth&ed=smyth-loeb');
+      .toBe('/read/aeschylus/agamemnon?loc=1203&trans=smyth&ed=smyth-loeb');
     expect(readerHref('agamemnon', { loc: '1203', ed: 'tlg', trans: 'smyth' }))
-      .toBe('/aeschylus/agamemnon?loc=1203&trans=smyth');
+      .toBe('/read/aeschylus/agamemnon?loc=1203&trans=smyth');
     expect(readerHref('agamemnon', { loc: '1203', ed: 'smyth-loeb' }))
-      .toBe('/aeschylus/agamemnon?loc=1203&ed=smyth-loeb');
+      .toBe('/read/aeschylus/agamemnon?loc=1203&ed=smyth-loeb');
   });
 
   it('without a loc, omits ed when it is the translation\'s own edition', () => {
-    expect(readerHref('agamemnon', { ed: 'smyth-loeb', trans: 'smyth' })).toBe('/aeschylus/agamemnon?trans=smyth');
-    expect(readerHref('agamemnon', { ed: 'tlg', trans: 'smyth' })).toBe('/aeschylus/agamemnon?trans=smyth&ed=tlg');
+    expect(readerHref('agamemnon', { ed: 'smyth-loeb', trans: 'smyth' })).toBe('/read/aeschylus/agamemnon?trans=smyth');
+    expect(readerHref('agamemnon', { ed: 'tlg', trans: 'smyth' })).toBe('/read/aeschylus/agamemnon?trans=smyth&ed=tlg');
   });
 });
 
@@ -121,13 +121,13 @@ describe('edition copy citation', () => {
   it('leaves reference text and URL as they were', () => {
     const copy = editionCopyCitation('agamemnon', 'tlg', start, start, 1, 'morshead');
     expect(copy?.text).toBe('(Aesch. Ag. 1203)');
-    expect(copy?.url).toBe('/aeschylus/agamemnon?loc=1203&trans=morshead');
+    expect(copy?.url).toBe('/read/aeschylus/agamemnon?loc=1203&trans=morshead');
     expect(editionCopyCitation('agamemnon', null, start, start, 1, 'morshead')).toEqual(copy);
   });
   it('names the editor and puts ed in the URL for a non-reference edition', () => {
     const copy = editionCopyCitation('agamemnon', 'smyth-loeb', start, start, 1, 'smyth');
     expect(copy?.text).toBe('(Aesch. Ag. 1203, Smyth 1926)');
-    expect(copy?.url).toBe('/aeschylus/agamemnon?loc=1203&trans=smyth&ed=smyth-loeb');
+    expect(copy?.url).toBe('/read/aeschylus/agamemnon?loc=1203&trans=smyth&ed=smyth-loeb');
   });
 
   it('names a two-editor edition by its short label, not a mangled surname', () => {
