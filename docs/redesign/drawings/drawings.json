@@ -22,20 +22,29 @@
     {
       "slug": "euripides",
       "file": "euripides-iphigenia.svg",
-      "name": "Euripides · Iphigenia (Iphigenia in Tauris)",
+      "name": "Euripides · Iphigenia with her letter (Iphigenia in Tauris)",
       "alt": "Iphigenia, priestess of Artemis, holding out a letter tablet and the temple key",
-      "source": "1849 lithograph of the Buckingham vase, Archäologische Zeitung Taf. XII (public domain)",
-      "method": "Lithograph: lines by local contrast, cut along her own lines, potrace",
-      "verdict": "Clean. Revised twice: forearm, key hand, chain, sandals, veil edge and the whole tablet are in. Pylades' fingertips on the tablet's far edge cannot be told apart at this scan's size."
+      "source": "R. Jaene's 1849 lithograph of the Buckingham vase, Archäologische Zeitung 7, Taf. XII (Getty scan on the Internet Archive, public domain)",
+      "method": "Contour lithograph, made with PhotoCraft: John's Levels on the plate; lines by local contrast redrawn along their centres at one pen; her eyes, lower lip and chin and the top of her left foot drawn by hand; cut from the redrawn frieze along John's own outline; John's PhotoCraft marks and his edits to the ground layer laid in; potrace",
+      "verdict": "Usable; approved by John on pass 12 (2026-10-15), after eight rounds of his marks. No outside review. Cut from iphigenia-in-tauris.svg; replaces the 2026-10-02 drawing from the same plate."
     },
     {
       "slug": "aristophanes",
-      "file": "aristophanes-mika.svg",
-      "name": "Aristophanes · Mika (Women at the Thesmophoria)",
-      "alt": "Mika, in a comic old woman's mask, holding out a bowl",
-      "source": "Würzburg krater H 5697, photograph by ArchaiOptix (CC BY-SA 4.0)",
-      "method": "Red-figure photo: clay mask, fold lines by local contrast, Mnesilochus' knife cut away, potrace",
-      "verdict": "Clean. Revised: the drapery folds now run their full length. The painter's own drawing is sparer than the engravings."
+      "file": "aristophanes-king.svg",
+      "name": "Aristophanes · a comic actor as a crowned king (from the Getty krater)",
+      "alt": "A comic actor as a crowned king, white-bearded, a bird-topped sceptre in his hand, reaching out",
+      "source": "Cut from the drawing of the Apulian bell-krater J. Paul Getty Museum 96.AE.113 (thesmophoriazusae.svg; the Getty's photographs, CC0)",
+      "method": "The king alone, cut from the approved whole drawing (tools/thesmophoriazusae.py, KING_*): the figure inside his box, cut along the plank's top edge with a sole line where he stands, his lines at the whole drawing's width, the washes and brushstrokes kept",
+      "verdict": "Chosen by John, 2026-10-15, as Aristophanes' home figure ('a comic actor from apulian bell krator for home'), in place of the Würzburg scene, which became the play's plate."
+    },
+    {
+      "slug": "aristophanes-author",
+      "file": "thesmophoriazusae.svg",
+      "name": "Aristophanes · three comic actors on a stage (the Getty krater; the author page)",
+      "alt": "Three comic actors on a stage: at the left a padded young man with dark hair leans on a staff; in the middle an actor in a woman's dress, a cloth billowing over the head, wears the mask of a white-haired old woman; at the right a crowned king with a white beard and a bird-topped sceptre reaches toward her",
+      "source": "Apulian bell-krater, Cotugno Painter, J. Paul Getty Museum 96.AE.113, side A, museum photographs (CC0)",
+      "method": "Red-figure photo taken off the vase (three Getty cameras fitted, the rings kept straight), made with PhotoCraft: the scene by the clay map; lines by local contrast along their centres, the faces' finer lines too, breaks where wear crosses a line closed; the white hair and beards as tapering brushstrokes of PhotoCraft's brush along the paint's grain; the teeth white; the sceptre and the added yellow as washes; the bodies' thinned glaze repainted along the contours; potrace",
+      "verdict": "Approved by John on the fifth pass (2026-10-12), after his notes on the faces' finer lines, the lines through the beard, the teeth, the moustache and the white hair as brushstrokes. No outside review (the citation checked against the Getty's record). The play's plate until 2026-10-15; now the Aristophanes author page's figure (John: 'the full apulian bell krator plate for the aristophanes page')."
     },
     {
       "slug": "medea",
@@ -309,12 +318,12 @@
     },
     {
       "slug": "thesmophoriazusae",
-      "file": "thesmophoriazusae.svg",
-      "name": "Women at the Thesmophoria · Three comic actors, one in a woman's dress",
-      "alt": "Three comic actors on a stage: at the left a padded young man with dark hair leans on a staff; in the middle an actor in a woman's dress, a cloth billowing over the head, wears the mask of a white-haired old woman; at the right a crowned king with a white beard and a bird-topped sceptre reaches toward her",
-      "source": "Apulian bell-krater, Cotugno Painter, J. Paul Getty Museum 96.AE.113, side A, museum photographs (CC0)",
-      "method": "Red-figure photo taken off the vase (three Getty cameras fitted, the rings kept straight), made with PhotoCraft: the scene by the clay map; lines by local contrast along their centres, the faces' finer lines too, breaks where wear crosses a line closed; the white hair and beards as tapering brushstrokes of PhotoCraft's brush along the paint's grain; the teeth white; the sceptre and the added yellow as washes; the bodies' thinned glaze repainted along the contours; potrace",
-      "verdict": "Approved by John on the fifth pass (2026-10-12), after his notes on the faces' finer lines, the lines through the beard, the teeth, the moustache and the white hair as brushstrokes. No outside review (the citation checked against the Getty's record)."
+      "file": "aristophanes-mika.svg",
+      "name": "Women at the Thesmophoria · the Kinsman on the altar and Mika with her bowl (Würzburg H 5697)",
+      "alt": "The Kinsman, kneeling on a blood-stained altar, threatens a wineskin dressed as a baby with a knife; Mika, in an old woman's mask, holds out a bowl for its blood",
+      "source": "Schiller Painter bell-krater, Würzburg, Martin von Wagner Museum H 5697, side A, two photographs by ArchaiOptix (CC BY-SA 4.0); no old plate exists (acquired 1977)",
+      "method": "Red-figure photos taken off the vase (a fitted model of the vase and cameras, rings straight), made with PhotoCraft: clay mask, lines by local contrast redrawn even, faces at their own shape, blood as a wash, her toes from the two photos averaged; John's PhotoCraft marks in three rounds laid in as drawn; potrace",
+      "verdict": "Usable; approved by John on pass 4 (2026-10-15), after three rounds of his marks. No outside review. Replaces the 2026-10-02 drawing of Mika alone (John: 'i want the whole image, not just mika'). Made the play's plate by John, 2026-10-15 ('use the Würzburg scene for Women at the Thesmophoria')."
     },
     {
       "slug": "birds",
@@ -396,6 +405,42 @@
       "source": "Gerhard, Auserlesene griechische Vasenbilder III (1847), Taf. CLVIII: a red-figure calyx-krater by the Methyse Painter, from Vulci, now Bologna, Museo Civico Archeologico PU 285 (Heidelberg scan, public domain); the names Aithra and Theseus are written on the vase",
       "method": "Coloured plate, red figures on black, made with PhotoCraft: the black ground gives the outline, drawn on the ground; the pockets of ground marked; the plate blurred along its own lines where they run parallel, so dashed pleats come out whole and close ones stay apart, found at half maximum and drawn along their centres; the short marks at their printed width; faint ends followed along the print; the line weight kept at pass 1's; John's PhotoCraft marks laid in; potrace",
       "verdict": "Usable; approved by John on the third pass (2026-10-13), after two rounds of his marks in PhotoCraft. The panel's three figures, no names. No outside review (the citation checked against Gerhard's text and the Beazley Archive)."
+    },
+    {
+      "slug": "iphigenia-in-tauris",
+      "file": "iphigenia-in-tauris.svg",
+      "name": "Iphigenia in Tauris · Iphigenia hands her letter to Pylades",
+      "alt": "Before the temple Iphigenia, in a tall headdress and a checked skirt, hands a letter tablet to Pylades, who holds a spear; Orestes leans on a pillar at the left with Eros flying above him, Artemis flies down at the right with a torch and a spear, and an attendant brings a tray",
+      "source": "R. Jaene's 1849 lithograph of the Duke of Buckingham's vase, Archäologische Zeitung 7, Taf. XII, with O. Jahn's article (Getty scan on the Internet Archive, public domain); the vase's present location not checked",
+      "method": "Contour lithograph, made with PhotoCraft: John's Levels on the plate; lines by local contrast redrawn along their centres at one pen; the checked skirt's hatching and the fillets' stripes as a grey wash; faces and a foot drawn by hand where the print is faint; John's PhotoCraft marks in eight rounds and his edits to the ground layer laid in; potrace",
+      "verdict": "Usable; approved by John on pass 12 (2026-10-15). John took care over Iphigenia and Pylades and less over the rest ('the rest? i'm not going to go all out'). No outside review."
+    },
+    {
+      "slug": "peace",
+      "file": "peace.svg",
+      "name": "Peace · An old countryman, his slave and a scribe on a stage",
+      "alt": "Three masked comic actors on a rough plank stage on three posts: at the left an old countryman, white-haired, leans on his stick, his striped bundle clamped in a carrying fork behind him; in the middle a bald slave, a large writing tablet on his arm, turns back to him with a raised finger; at the right a scribe sits on a chair, a tablet on his arm, holding his stylus to his mouth",
+      "source": "Wieseler, \"Monumenti scenici\", Annali dell'Instituto 25 (1853), tav. d'agg. C-D, fig. 6: an Apulian bell-krater from Ruvo, the Reckoning Painter's name vase, St Petersburg, Hermitage St. 1779 (DAI scan in Arachne, public domain)",
+      "method": "Contour engraving, made with PhotoCraft: the lines redrawn along their centres at their printed width, weighted to 2.3 plate px (John); the hatched parts solid black (John); the fold's crease dropped; the figures' area by the sealed watershed, ground and clay checked against Furtwängler-Reichhold II pl. 110, 1a; clay on the dark theme; John's PhotoCraft marks laid in; potrace",
+      "verdict": "Usable; approved by John on the fifth pass (2026-10-15), after a style test, two rounds of his marks in PhotoCraft and his clay call at the tufts. No outside review (the citation checked against Wieseler's text, Bieber 1920 and Schönheit 2019)."
+    },
+    {
+      "slug": "electra-eur",
+      "file": "electra-eur.svg",
+      "name": "Electra (Euripides) · Orestes kills Aegisthus",
+      "alt": "Orestes, cloaked, a scabbard at his side, grips the bearded Aegisthus by the head and drives his sword into his chest; Aegisthus, bare-chested and wreathed, falls back from his chair with his arms flung out; at the left a woman flees with a raised hand, looking back",
+      "source": "Furtwängler and Reichhold, Griechische Vasenmalerei II (1909), Taf. 72, side A (Vienna, Kunsthistorisches Museum IV 3725, Berlin Painter), Williams College scan via JSTOR (public domain plate)",
+      "method": "F-R plate with PhotoCraft: the ground gives the figures, the bands cut along paths through the dark; the worn patches stippled with the plate's own dots (John); lines by local contrast along their centres; the faces at the plate's own width; the thinned paint a `tone` wash; John's PhotoCraft marks laid in at the width he painted; potrace",
+      "verdict": "Approved by John on pass 4, 2026-10-15, after two rounds of his marks in PhotoCraft and the stipple."
+    },
+    {
+      "slug": "heraclidae",
+      "file": "heraclidae.svg",
+      "name": "Children of Heracles · Heracles brings the boar to Eurystheus",
+      "alt": "Heracles carries a great boar on his shoulder and sets his foot on the rim of a storage jar, in which King Eurystheus cowers with his arms raised; at the left a woman and the bearded Iolaos look on, at the right Athena in her crested helmet and Hermes in his travelling hat",
+      "source": "Gerhard, Auserlesene griechische Vasenbilder II (1843), Taf. XCVII, fig. 1: an Attic black-figure neck-amphora by the Antimenes Painter, New York, Metropolitan Museum 56.171.20 (Heidelberg scan, public domain)",
+      "method": "Coloured plate, black figures on clay, a silhouette, made with PhotoCraft: the clay gives the outline; the black solid with its incisions and the added white open; the purple hatching drawn as printed; lines found on Levels-stretched copies; one even contour on the white; John's PhotoCraft marks in two rounds laid in; potrace",
+      "verdict": "Approved by John on pass 3 (2026-10-16), after two rounds of his marks in PhotoCraft. No outside review (the credit checked against Gerhard's text and the Beazley Archive, record 320063, which cites the plate)."
     }
   ]
 }

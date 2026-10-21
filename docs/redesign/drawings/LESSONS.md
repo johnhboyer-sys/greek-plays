@@ -177,6 +177,34 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   pages did not answer from the browser pane; the American School's booklet *Women in the Athenian
   Agora* (fig. 3) gives the museum number (2026-10-09).
 
+- Children of Heracles (AV II Taf. XCVII, 1, Heracles brings the boar to Eurystheus), made with PhotoCraft: about two and a
+  half hours over two days and three passes, approved by John 2026-10-16. `tools/heraclidae.py` (2026-10-16).
+- Heidelberg's IIIF refuses PNG (415): take the panel as a region in JPEG; it matched the full scan's crop within 3 grey
+  levels (2026-10-15).
+- Gerhard prints the added purple as fine black hatching on the clay. John chose it drawn as printed, open on the ground,
+  over a grey wash. Find the strokes by a dark top-hat on the plate smoothed along its strokes and stretched by Levels
+  (100-180): by darkness alone the pale strokes at a beard's tip fell out (John: "you are omitting part of the beard";
+  "play with levels to help reveal lines"). Keep the stroke finder out of the black (the black less the strokes, opened)
+  and drop "hatching" lying on the added white: a wavy necklace passed for it (2026-10-15).
+- The added white has Gerhard's brown contour printed along its edge; an outline drawn beside the white drew every face
+  twice (John: "The faces are janky. Not a clean single line for outline"). Take the white out over the printed contour,
+  smooth it (1 plate px) and draw one contour LINE_W wide inside its edge. The thin lines on the white come by a dark
+  top-hat on a Levels copy over the white's range (130-235), at least 1.3 plate px wide (2026-10-15).
+- A pale JPEG speck inside a clay line passed for added white, and the guard band kept round the white cut the line both
+  sides of it: ink "joins" between two black areas (John). A small white patch lying in a light area much larger than
+  itself is a speck (2026-10-15).
+- John's marks, round 2 added yellow: clay, no ink, never ground (John: "clay no ink"); along the black it opens a clay
+  line LINE_W wide on his stroke's centre, by the white it clears my ink as painted. Applying blue: clear my thin lines
+  only beside his stroke, not past its ends, and grow mine back through the cut to meet it, or the line stops short where
+  his short stroke meets it side-on (the clasp); fill pinholes in his paint and ignore skeleton loops under 30 plate px,
+  or tiny loops cleared slits in the black; in hatching his strokes are the ones I missed: add them (2026-10-16).
+- Check the museum against Gerhard's own text, not a search report: his "jetzt zu München" (note 34 d) is another
+  Candelori vase (Munich 1562, names painted), not the plate's. The plate's has Ajax carrying Achilles on the reverse,
+  which led to the Met's 56.171.20 (ex Hearst); the Met's page gives no provenance and no Gerhard. The Beazley Archive
+  settled it: its advanced search (general term "Eurystheus Metropolitan", then "detailed text") shows record 320063
+  citing "Gerhard, Auserlesene Vasenbilder II, pl. 97.1-2". A plain fetch of a record meets a bot check; the browser
+  pane passes it in a few seconds. Searches there add to the last one: reload the form between searches (2026-10-16).
+
 ### Gerhard, *Trinkschalen und Gefässe des Königlichen Museums zu Berlin* (coloured lithographs, red figures on black)
 
 - Heracles (II, Taf. XXI, side B), made with PhotoCraft: about three hours over two passes, approved by John
@@ -323,6 +351,23 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - A broad dark brushstroke (the petasos cord) took the brim's pen lines with it: the cord only where the paint is
   broader than the pen lines, and the crown's wash averaged over its own clay, or it mottles and haloes the lines
   (2026-10-12).
+
+- Electra (Euripides) (II, Taf. 72, side A: the Berlin Painter's pelike in Vienna, Orestes kills Aegisthus), made with
+  PhotoCraft from Williams College's scan on JSTOR: about three and a half hours over the source search and four passes,
+  approved by John 2026-10-15. `tools/electra_eur.py` (2026-10-15).
+- JSTOR's Download button gives the Williams College plates at about half size (Taf. 72: 3445 x 2612); the item's IIIF
+  server holds the full scan (6581 x 4989, maxArea 10 MP). Its id is in the viewer's network requests (`.../iiif/<date
+  path>/<uuid>_deflate.tif/info.json`); fetch the panel as one region at full size, with John's go-ahead (2026-10-15).
+- Borders that bow round the vase and touch the figures (a hand on the meander, the chair's back): least-cost paths
+  through the plate's dark in a corridor round a guide, kept as polygons in a data file, cut cleaner than fitted
+  curves, which the figures' outlines pulled off (2026-10-15).
+- A worn patch the plate stipples: find it by the density of small dots, each dot's share of the light round it (a
+  plain blur of the dots fell off at the patch's edges), dots short in both directions (a foot's veins are as small
+  but long). John then wanted it drawn as printed: clay with the plate's own dots, found by local contrast (a fixed
+  level lost the paler ones), and no outline where it meets the ground (2026-10-15).
+- John's blue is ink at the width he paints it ("all ink is drawn by me to it's proper width"): redrawn along its
+  centre at the line weight, his widened hair curl came out thin. Take my lines out under his strokes, or a line he
+  traced over mine runs into a blot (2026-10-15).
 
 ### Lenormant and de Witte, *Élite des monuments céramographiques* (coloured lithographs, red figures on black)
 
@@ -675,6 +720,57 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
 - John's marks, fourth form: green ground, yellow "that area bounded by ink lines is clay", blue ink. A mark rules the
   closed area it mostly lies in (at least 0.3 of its largest share), so a stroke that strays over a line does not rule
   the next area as well; unsealed paper narrower than the seal is ruled the same way (`ruled`) (2026-10-13).
+- Iphigenia in Tauris and the Euripides home figure (*Archäologische Zeitung* 7, 1849, Taf. XII: R. Jaene's lithograph
+  of the Buckingham vase), made with PhotoCraft: the whole frieze, and Iphigenia cut from it; about ten hours over three
+  days, twelve passes and eight rounds of John's marks, approved by John 2026-10-15. `tools/iphigenia_tauris.py`
+  (2026-10-15).
+- A lithograph drawn like pencil (fine grey lines, hatching close together) is the hardest kind yet. John nearly dropped
+  it ("these pencil drawings are just too hard to trace with accuracy"), then set its Levels in PhotoCraft himself: find
+  the lines on his Levels and the solid black on the raw plate, and keep the solid black to the one band that has it
+  (elsewhere the dark is where lines cross, and drawn solid it made blots) (2026-10-13).
+- Redraw the lines along their centres at one pen and drop short side branches with a free end ("too many lines look
+  like cracks") (2026-10-13).
+- Draw by hand what the print leaves faint, through points read off the plate at 12-24x: her eyes, her lower lip and
+  chin ("the lower lip is actually two curves"; the trace had crossed them into an X), the top of her foot under the hem.
+  Pass pupils and painted dots to `trace_svg` as `dots`, or its speck filter drops them ("We need pupil on both eyes or
+  neither") (2026-10-13/14).
+- John's marks, fifth form: blue a line, moved onto the printed line within 1.5 px ("my lines weren't perfectly precise,
+  but a guide for you"); blue at half opacity a grey wash; green ground; yellow clay with no ink; neutral grey paint clay
+  with the wash. He paints on the red layer too ("look on both layers") and hides layers he has finished: export every
+  layer and read each by colour. The soft edges of two close strokes closed into grey, and his half-opacity strokes
+  overlapping to full read as dots: take grey only 2 px clear of his full strokes (2026-10-14/15).
+- A green squiggle that names the whole paper area it lies in turned a face and a hand to ground where that area leaked
+  past a broken line: let a squiggle rule only the paper under it, inside the lines (2026-10-14).
+- Offer the ground layer for John to edit from the first pass: "the ground keeps cropping up where it shouldn't be. i'm
+  going to erase it in the blue ground layer to be clear." Apply the difference from mine last, over every rule, spread
+  up to the lines (his brush stops short of them) (2026-10-15).
+- For a figure cut from a frieze, ask John for its outline: the guided cut through waypoints left out part of her stole;
+  his outline drawn in PhotoCraft gave the cut in one step. Inside it, keep the seal's slivers only where they touch
+  nothing that is not hers, or a rim of clay shows out to his line (2026-10-14).
+
+### *Annali dell'Instituto di corrispondenza archeologica* (engraved contour plates, the darks hatched)
+
+- Peace (Annali 25, 1853, tav. d'agg. C-D, fig. 6: three comic actors on a stage, Hermitage St. 1779), made with
+  PhotoCraft: about three and a quarter hours over a source search, a style test and five passes, approved by John
+  2026-10-15. `tools/peace.py`, on `ecclesiazusae.py`'s rules (2026-10-15).
+- Arachne's image link serves the full scan: `data/image/<id>` returned 4500 x 3065 for a plate whose preview was
+  1000 px. Its book pages carry OCR (`data/entity/<page id>`, `ocrText`; a volume's pages are consecutive ids after the
+  book's): Wieseler's text found the vase, and corrected the pick's reading (a bundle on a carrying fork, not a parasol;
+  a stylus, not a double flute; writing tablets). Bieber 1920's text on the Internet Archive gave the museum and FR's
+  plate. A WebFetch "metadata" call on an image link downloads the image: ask before (2026-10-15).
+- Hatching about 1 plate px a stroke cannot be traced stroke by stroke; John chose it solid black (as the vase paints
+  it) over a wash or even hatch. Find it by a heavy blur under a level, but take its edges from the printed strokes
+  closed up, or the tablets' corners come out round. The same blur takes close pairs of face lines (brows, eye arcs) for
+  hatching: keep it out of the faces (`NO_HAT`), and raise the level only inside boxes that need it (`PANELS`)
+  (2026-10-15).
+- Crop above an ornament band, not on it: a crop one line too low cut the slave's crown and his face ran out to ground.
+  A fold's crease prints as a pale grey line down the plate: keep only high-contrast ink across it (`CREASE`)
+  (2026-10-15).
+- A plate drawn in outline leaves ground and clay open to doubt; John: use another drawing of the same vase to settle
+  them (FR II pl. 110, 1a, black ground, viewed in the browser pane, nothing downloaded) (2026-10-15).
+- John's marks, sixth form: blue added over my lines ("Add"), yellow takes stray ink out and is clay, green takes ink
+  out and is ground; in a later round a yellow loop drawn round an area is clay (its hull), and it overrules an earlier
+  round's green ground there, but not that green's ink removal (the ink came back when it did) (2026-10-15).
 
 ### Saglio, *Gazette archéologique* 1887 (chromolithograph, black figures on orange clay, thinned glaze)
 
@@ -903,6 +999,39 @@ sketches in `docs/redesign/sketches/`. Read the brief before drawing.
   grey's structure tensor), seeded at the lightest uncovered paint and run while on the paint, drawn with
   PhotoCraft's brush at the paint's width, read as brushwork. paint.stroke takes [x, y, pressure]: pressure tapers
   the stroke to a point at both ends. The greedy seeding takes a few minutes per run (2026-10-12).
+- The Aristophanes home figure (Würzburg H 5697, the whole of side A: the Kinsman on the altar, Mika with her bowl; two
+  ArchaiOptix photos), made with PhotoCraft: about five hours over two days, a source search and four passes, approved by
+  John 2026-10-15. `tools/mika.py` (2026-10-15).
+- "Look for German plates first": the CVA settles whether any can exist. Würzburg 4 says "Aus Rom. Erworben 1977", first
+  published 1980, so no old plate; say so with the entry, and go to the photos (2026-10-14).
+- Fit both photos to the same painted circle: `vase_unroll.band_edge` took the thin clay strip under the feet in one photo
+  and the band's lower edge in the other, and the fit bent the profile to negative radii. Measure the band's lower edge
+  in both (clay above, glaze below, clear all along). A loose first round, then the tight one: from a poor start every
+  band point of one photo was dropped as an outlier. Check the model by laying both photos onto the flat: here within
+  1 px everywhere (2026-10-14).
+- A scene wrapping about ±55 degrees round the vase comes out about 1.3 times wider than the photo at its edges; the egg
+  band's eggs, even on the flat, show it is right (2026-10-14).
+- A foot at the vase's edge is out of focus in every photo: its toe lines print as soft bands. The grey's minima row by
+  row on the two flats averaged lined up into four lines (John: "the feet (toes specifically) need to be traced
+  clearly"); he then traced over the same four (2026-10-14).
+- John set the photo's levels in PhotoCraft (adjustment layers) "to help" with the dress's fine lines, then drew them in
+  blue. His adjustment layers replay exactly with `photocraft-cli run` (Brightness/Contrast, Levels, Vibrance), but the
+  lines under his strokes, snapped from the adjusted photo, came out ragged (the clay's edge and the grain): draw his
+  strokes as he drew them, at the line width, and take my ink out under them, or each line is drawn twice. Ask each
+  round whether his blue replaces or adds: round 2 was "additive" (2026-10-14/15).
+- His marks may land on any layer and he may re-save: list the layer ids before every export (a re-save renamed his layer
+  and the first export missed his green), and read blue and green by colour from every layer (2026-10-15).
+- Where his line becomes the outline (her soles drawn lower, the knife's edges on the ground side), let the figure reach
+  his line's centre, not its outer edge, or the body's trace overshoots it and a sliver of clay shows on the dark theme;
+  and pass his lines (traced as `dots`) to `trace_svg` as `extent`, or the crop is cut at the main ink (2026-10-14).
+- Round 3's filled marks (a pupil, a dark spot on the veil) are short for their width; his thick zigzag is long: fill a
+  mark when its skeleton is under four times its greatest width, in that round only (round 1 has wide crossings that are
+  lines) (2026-10-15).
+- Moving a drawing to a new use (2026-10-15): John made the Würzburg scene Women at the Thesmophoria's plate, the
+  Getty krater the author page's figure and its crowned king the home figure. One figure cut from an approved whole
+  drawing in the same tool (KING_*, as eumenides.py cuts the Pythia) leaves the whole drawing byte for byte as approved;
+  check the box takes in every free end (the king's outstretched fingertips were cut off at first), and draw his lines
+  at the whole drawing's traced width, not the house share of the smaller figure's longer side.
 
 ### Photos of vases, black-figure (a cup's tondo taken at a slant)
 

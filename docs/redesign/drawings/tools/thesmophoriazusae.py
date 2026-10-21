@@ -10,6 +10,11 @@ https://media.getty.edu/iiif/manifest/3/41c5e7bf-5708-45f2-ab41-feae325e353b): "
 drawing's source, "Left profile" and "Right profile" serve the vase's shape. The sister vase of Wasps
 (96.AE.112, wasps.py): the same photos, the same method.
 
+Since 2026-10-15 (John: "use the Würzburg scene for Women at the Thesmophoria, and let's use a comic actor from
+apulian bell krator for home and the full apulian bell krator plate for the aristophanes page") the whole drawing is
+the Aristophanes author page's figure and the crowned king, cut from it (KING_*), the home page's: the play's plate is
+the Würzburg drawing (mika.py).
+
 Made with PhotoCraft (John, 2026-10-07): every image step runs in `photocraft-cli`. Two steps are geometry, not
 image filtering, and stay in numpy/scipy: taking the painting off the vase's curve (vase_unroll.py) and fitting
 the vase (--refit). The SVG is written by linework.trace_svg.
@@ -825,6 +830,65 @@ def add_tone(svg, steps, box):
     svg.write_text(s)
 
 
+# The crowned king alone, cut from this drawing for the Aristophanes home page (KING_OUT; John's pick, 2026-10-15): the
+# figure inside KING_BOX (flat px: from his outstretched hand to his back foot, the palmette left out), cut along the
+# plank's top edge (per column every KING_STEP px, up from KING_IN through the plank's clay to the first glaze or
+# paint, at most KING_UP px; where it runs on further, under his feet, the row taken from the columns either side;
+# smoothed over KING_MED columns), with an outline along the cut where he stands on the plank; his lines at the whole
+# drawing's traced width
+KING_OUT = Path(__file__).resolve().parent.parent / "aristophanes-king.svg"
+KING_BOX = (3700, 0, 5600, 2700)
+KING_STEP, KING_IN, KING_UP, KING_MED = 10, 2480, 120, 5
+
+
+def king(ink, faces, fig, tones, rgb, info):
+    """The king alone (see KING_*), written to KING_OUT; tones: the whole drawing's tone steps, in the order drawn."""
+    with tempfile.TemporaryDirectory() as td:   # (the clay as scene() finds it: red less blue, blurred 2 px)
+        Image.fromarray(rgb).save(Path(td) / "c.png")
+        pc(Path(td) / "c.png", Path(td) / "rbs.png",
+           ("image.adjustments.channelMixer", {"monochrome": True, "gray": [100, 0, -100, 0]}),
+           ("filter.blur.gaussianBlur", {"radius": 2}))
+        rbs = grey(Path(td) / "rbs.png")
+    H, W = fig.shape
+    yy, xx = np.mgrid[0:H, 0:W]
+    x0, y0, x1, y1 = KING_BOX
+    clay = rbs > CLAY
+    xs, ys = [], []
+    for x in range(x0, x1, KING_STEP):
+        if not clay[KING_IN, x]:
+            continue
+        y = KING_IN
+        while clay[y - 1, x] and KING_IN - y < KING_UP:
+            y -= 1
+        xs.append(x)
+        ys.append(y - 0.5 if KING_IN - y < KING_UP else np.nan)
+    xs, ys = np.array(xs), np.array(ys)
+    ok = ~np.isnan(ys)
+    ys = ndi.median_filter(np.interp(xs, xs[ok], ys[ok]), KING_MED, mode="nearest")
+    inside = (xx >= x0) & (xx < x1) & (yy >= y0) & (yy < np.interp(xx, xs, ys))
+    lab, _ = ndi.label(fig & inside)
+    sz = np.bincount(lab.ravel())
+    sz[0] = 0
+    k = fig & inside & (lab == np.argmax(sz))   # (him: the largest piece; the cloth's tip and the palmette stay out)
+    k = ndi.binary_fill_holes(k) & fig
+    near = ndi.binary_dilation(k, iterations=2)
+    sole = k & (ndi.distance_transform_edt(k) <= EDGE) & (yy > np.interp(xx, xs, ys) - 2 * EDGE)
+    i, d = (ink & near) | sole, faces & near
+    bx = info["box"]
+    longer_all = max(bx[2] - bx[0], bx[3] - bx[1])
+    ky, kx = np.nonzero(i | d)
+    longer = max(ky.max() - ky.min(), kx.max() - kx.min()) + 9
+    kinfo = lw.trace_svg(i, KING_OUT, body=k, open_holes=~k, weight=WEIGHT * longer_all / longer, dots=d,
+                         title="A comic actor as a crowned king, white-bearded, a bird-topped sceptre in his hand, "
+                               "reaching out",
+                         desc="Line drawing after the Apulian red-figure bell-krater J. Paul Getty Museum 96.AE.113; "
+                              "traced from the museum's photograph (CC0), taken off the vase's curve; the king cut out.")
+    for steps in tones:
+        add_tone(KING_OUT, [(m & k & ~i & ~d, o) for m, o in steps], kinfo["box"])
+    print(KING_OUT, kinfo)
+    return kinfo
+
+
 def main(src, qa=None, flat_png=None):
     rgb = np.asarray(Image.open(flat_png).convert("RGB")) if flat_png else flat_image(src)
     ink, faces, fig, g, steps, washes, body, zeus_steps = scene(rgb)
@@ -841,6 +905,7 @@ def main(src, qa=None, flat_png=None):
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in steps], info["box"])
     add_tone(OUT, [(m & ~ink & ~faces, o) for m, o in zeus_steps], info["box"])
     print(OUT, info)
+    king(ink, faces, fig, [body, pat_steps, rod_steps, steps, zeus_steps], rgb, info)
     if qa:
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
         lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
