@@ -343,11 +343,11 @@ below). One commit per item; every one with the gates green.
   piece five Greek lines or more, the first and last too (a marker earned an
   exception before, which left pieces of one to four lines); in dialogue each
   speech is first bounded by its speaker events. A speech-keyed translation
-  stays whole, as spec §7.4 says. The desktop is unchanged.
+  stayed whole, as spec §7.4 said; after John's option C (question 3 below)
+  a speech-keyed verse one alternates line for line, and prose stays whole.
+  The desktop is unchanged.
   `probe-phone-pieces.mjs`, every translation of all 44 plays: 142 of 142 at
   390 (before: 0), and every segment's desktop rows as before, 142 of 142.
-  John is asked whether a speech-keyed translation should alternate on a
-  phone after all (question 3 below).
 - §2, item 3 (`52b902d`): on a phone the play's text waits, before the first
   paint, for the reader to draw the phone's rows (`data-phone-pending`, 8s
   fallback). Found while reproducing it: ReaderHost's wrapper rendered
@@ -394,7 +394,9 @@ links.
    phrase index later. John, 2026-10-21: "Hold off search." Not started.
 2. The plates page (§6): John, 2026-10-21: "maybe don't have drawings now;
    we add later." Not started.
-3. A speech-keyed translation on a phone: alternate in pieces as before (A),
-   whole as spec §7.4 and the branch have it (B), or alternate verse only
-   (C, recommended). The illustration:
+3. A speech-keyed translation on a phone: decided, John, 2026-10-21: "c".
+   A speech-keyed verse translation (Way, Morshead, Storr, Murray, Johnston)
+   alternates on a phone, line for line, never a piece under five Greek
+   lines; a prose one (Kosmos, the 1912 comedies, Hickie) stays whole.
+   Done on the branch; spec §7.4 amended. The illustration:
    https://claude.ai/artifact/UEq6ziRAFy1cWFmAKpPmFV

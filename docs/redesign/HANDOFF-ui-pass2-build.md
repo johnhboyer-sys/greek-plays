@@ -353,7 +353,9 @@ left (2.2rem + .6rem), so the Greek stands indented from the English, which
 runs full width; this is what keeps them from running together (John,
 12:58). A long speech comes in pieces: cut at the translation's own line
 markers where the translation is keyed by line, never making a piece under
-five Greek lines; a speech-keyed translation stays whole. The first piece
+five Greek lines; a speech-keyed translation stays whole (amended by John, 2026-10-21, option C: a
+speech-keyed verse translation alternates too, its English placed line for
+line; a speech-keyed prose one stays whole). The first piece
 carries the name; later pieces (`.rd-row.cont`) carry no name and no gap
 before them. Reconcile this with pass 1's `singleSpeech` cut in
 `shared/components/Reader.svelte` (the mock's `readerRows` shows the cut).

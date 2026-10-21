@@ -681,7 +681,10 @@
   function returnTo(place: NonNullable<ReturnType<typeof placeAtTop>>) {
     // The switch can rebuild the row (splitAtDirections groups by view): find
     // it again by its Greek line.
-    let anchor = place.el.isConnected ? place.el : null;
+    // A Greek line is found by its id: a regroup can leave the old row in the
+    // page for a moment beside its rebuilt copy (Ajax 1199 with Storr, a phone
+    // turned).
+    let anchor = place.line && place.key ? document.getElementById(place.key) : place.el.isConnected ? place.el : null;
     let frac = place.frac;
     if (!anchor && place.key) {
       const l = document.getElementById(place.key);
@@ -758,6 +761,9 @@
       for (let n = walk.nextNode(); n; n = walk.nextNode()) yield { cell, node: n as Text };
     }
   }
+  // Characters are counted without spaces: each cell adds spaces of its own,
+  // and the phone's pieces and the desktop's rows are not the same cells.
+  const inked = (t: string) => t.replace(/\s+/g, '').length;
   // The words the head's edge cuts in an English cell: how many characters of
   // the segment's English come before them, and how far off the edge they sit.
   function wordsAt(cell: HTMLElement, y: number): Words | null {
@@ -776,9 +782,9 @@
           if (r.getBoundingClientRect().bottom > y) hi = mid; else lo = mid + 1;
         }
         r.setStart(node, lo); r.setEnd(node, lo + 1);
-        return { seg: seg.id, sel, chars: chars + lo, off: r.getBoundingClientRect().top - y };
+        return { seg: seg.id, sel, chars: chars + inked(node.data.slice(0, lo)), off: r.getBoundingClientRect().top - y };
       }
-      chars += node.length;
+      chars += inked(node.data);
     }
     return null;
   }
@@ -788,13 +794,17 @@
     if (!seg) return null;
     let chars = 0;
     for (const { node } of englishText(seg, w.sel)) {
-      if (w.chars < chars + node.length) {
+      const n = inked(node.data);
+      if (w.chars < chars + n) {
+        // The offset in this node where that many inked characters begin.
+        let at = 0, k = chars;
+        while (at < node.length && (/\s/.test(node.data[at]!) || k < w.chars)) { if (!/\s/.test(node.data[at]!)) k += 1; at += 1; }
         const r = document.createRange();
-        r.setStart(node, w.chars - chars); r.setEnd(node, w.chars - chars + 1);
+        r.setStart(node, Math.min(at, node.length - 1)); r.setEnd(node, Math.min(at + 1, node.length));
         const b = r.getBoundingClientRect();
         return b.height ? b.top : null;
       }
-      chars += node.length;
+      chars += n;
     }
     return null;
   }
@@ -2292,9 +2302,11 @@
   }
 
   // `phone`: the phone's pieces (spec §7.4, UI pass 2): only a translation's
-  // own line markers place a cut (no proportional or line-for-line ticks),
-  // and every piece, first and last too, has `minSpan` Greek lines or more.
-  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0, verse = false, phone = false): PlayRow[] | null {
+  // own line markers place a cut (no proportional ticks), and every piece,
+  // first and last too, has `minSpan` Greek lines or more. `byLines`: a
+  // speech-keyed verse translation, placed line for line instead (John,
+  // 2026-10-21, option C).
+  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0, verse = false, phone = false, byLines = false): PlayRow[] | null {
     const lineInt = (line: RLine): number | null => {
       const m = /^(\d+)/.exec(line.ref ?? '');
       return m ? Number(m[1]) : line.n;
@@ -2315,7 +2327,7 @@
     const synthetic = !phone && !realTicks.length && oneSpeech && source.turns.length <= 1;
     // A verse column's single speech with at most one marker (none, or the
     // piece's chapter anchor) goes line for line (verseLineTicks below).
-    const verseLineMode = !phone && verse && oneSpeech && source.turns.length <= 1 && realTicks.length <= 1;
+    const verseLineMode = (!phone || byLines) && verse && oneSpeech && source.turns.length <= 1 && realTicks.length <= 1;
     const skipSpace = (o: number) => {
       let i = o;
       while (i < source.text.length && /\s/.test(source.text[i]!)) i += 1;
@@ -2327,9 +2339,10 @@
       if (n0 == null) return null;
       realTicks = [{ n: n0, offset: 0, real: true }];
     }
-    // A phone piece needs a marker inside the speech; its English starts on
-    // its first line, which anchors the span to that marker.
-    if (phone) {
+    // A phone piece needs a marker inside the speech, unless it goes line for
+    // line; its English starts on its first line, which anchors the span to
+    // that marker.
+    if (phone && !verseLineMode) {
       if (n0 == null || !realTicks.some((tk) => skipSpace(tk.offset) > skipSpace(0))) return null;
       if (!realTicks.some((tk) => skipSpace(tk.offset) === skipSpace(0))) realTicks = [{ n: n0, offset: 0, real: true }, ...realTicks];
     }
@@ -5172,8 +5185,8 @@
           {@const plMarked = plSource ? markedTurns(plSource) : null}
           {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns), openingRunIn(seg, segTransId)) : []}
           <!-- A prose translation keeps each speech whole beside the start of its Greek; only verse is cut to its lines (John, 2026-09-28: "the gaps mid speech are awkward"). -->
-          <!-- On a phone, where each English piece sits below its Greek, a long speech in a translation keyed by line is cut into pieces of at least five Greek lines at sentence starts placed by its markers, so the Greek and its English alternate (John, 2026-10-13: "Alternating bilingual."); in dialogue, within each speech (phoneRows). A speech-keyed translation stays whole (spec §7.4, UI pass 2). -->
-          {@const rawPlRows = plSource ? ((phoneLayout ? (lineKeyed(segTransId) ? phoneRows(plItems, seg, plSource, plTurnBlocks, verseForm(segTransId)) : null) : !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          <!-- On a phone, where each English piece sits below its Greek, a long speech in a translation keyed by line is cut into pieces of at least five Greek lines at sentence starts placed by its markers, so the Greek and its English alternate (John, 2026-10-13: "Alternating bilingual."); in dialogue, within each speech (phoneRows). A speech-keyed verse translation's single speech alternates too, line for line; a speech-keyed prose one stays whole (spec §7.4, UI pass 2; John, 2026-10-21, option C). -->
+          {@const rawPlRows = plSource ? ((phoneLayout ? (lineKeyed(segTransId) ? phoneRows(plItems, seg, plSource, plTurnBlocks, verseForm(segTransId)) : verseForm(segTransId) && singleSpeech(plItems, seg) ? playTickRows(plItems, seg, plSource, MIN_PIECE_LINES, true, true, true) : null) : !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows, openingRunIn(seg, segTransId)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}
