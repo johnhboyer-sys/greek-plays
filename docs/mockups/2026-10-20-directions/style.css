@@ -396,7 +396,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-play .scene { height: calc(460px + .5rem); border-bottom: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: center; margin-top: 1.4rem; }
 .dir-b .pg-play .scene .fig { --h: 460px; max-width: 100%; }
 .dir-b .pg-play .tb { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; margin-top: 1.5rem; }
-.dir-b .pg-play .tb .gt { font-size: 3.6rem; line-height: 1; color: var(--clay-deep); }
+.dir-b .pg-play .tb .gt { font-size: 3rem; line-height: 1; color: var(--clay-deep); }  /* a step below the English title (John, 20 October: "slightly smaller font") */
 .dir-b .pg-play .tb .et { font-size: 3.6rem; line-height: 1; margin-top: .25rem; }
 .dir-b .pg-play .tb .au { font: 400 1.25rem var(--font-ui); color: var(--mid); padding-bottom: .4rem; }
 .dir-b .pg-play .tb .au a { color: var(--ink); }
@@ -526,7 +526,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-play .scene { height: calc(220px + .5rem); }
   .dir-b .pg-play .scene .fig { --h: 220px; }
   .dir-b .pg-play .tb { grid-template-columns: 1fr; gap: .2rem; margin-top: 1rem; }
-  .dir-b .pg-play .tb .gt, .dir-b .pg-play .tb .et { font-size: 2.4rem; }
+  .dir-b .pg-play .tb .et { font-size: 2.4rem; } .dir-b .pg-play .tb .gt { font-size: 2rem; }
   .dir-b .pg-play .arg { font-size: 1.2rem; }
   .dir-b .pg-play .three { grid-template-columns: 1fr; gap: 1.6rem; margin-top: 1.8rem; }
   .dir-b .pg-play .open .rd-body { grid-template-columns: 1fr; }
