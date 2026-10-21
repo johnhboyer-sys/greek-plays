@@ -147,6 +147,7 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
     padding: .7rem 2rem 0;
     background: var(--paper); border-bottom: 2px solid var(--line);
     font: 400 1rem var(--font-ui); color: var(--mid);
+    letter-spacing: normal; /* the shared head's .rh skin (global.css) tracks its sans */
   }
   .rh a { text-decoration: none; }
   .rh a:hover { text-decoration: underline; text-underline-offset: .12em; }
@@ -199,6 +200,8 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
   .menu .rows { display: grid; grid-template-columns: auto 1fr; gap: .5rem 1rem; align-items: baseline; }
   .menu .rows > span:nth-child(odd) { color: var(--mid); }
   .menu .ch { display: flex; flex-wrap: wrap; gap: .25rem 1rem; }
+  /* The desktop menu grows to keep each row's choices on one line. */
+  @media (min-width: 681px) { .menu .ch { flex-wrap: nowrap; white-space: nowrap; } }
   .menu .print { margin: .7rem 0 0; }
   .menu .print button { color: var(--ink); }
 

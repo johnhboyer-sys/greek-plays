@@ -65,7 +65,7 @@ html:root[data-genre] {
   --greek-active: color-mix(in srgb, var(--clay) 30%, transparent);
   --hit-bg: var(--hit);
   --mark-bg: var(--hit);
-  --target-bg: color-mix(in srgb, var(--clay) 16%, transparent);
+  --target-bg: color-mix(in srgb, var(--clay) 14%, transparent); /* the clay line number on it stays AA (4.6:1) */
 }
 
 body {

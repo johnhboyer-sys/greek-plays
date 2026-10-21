@@ -658,12 +658,21 @@
   let view: View = 'both';
   async function setView(v: View) {
     const old = view;
+    // A play keeps its place: the line at the top comes back to the same
+    // height in the new view (or the English cell that holds it). The scroll
+    // offset alone does not: a phone's Both view is far taller than its English.
+    const place = playLine && old !== v ? lineAtTop() : null;
     view = v;
     if (edition && old !== v) dispatch('editionChange', { trans, view: v, loc: lastCite });
     try { localStorage.setItem('reader-view', v); } catch {}
     // The tracked anchors differ by view (Greek lines vs. whole columns), so
     // rebuild the scroll-spy once the DOM reflects the new view.
     await tick();
+    const shown = place?.el.isConnected ? shownFor(place.el) : null;
+    if (place && shown) {
+      suppressArmUntil = Date.now() + 800;
+      window.scrollBy(0, shown.getBoundingClientRect().top - place.top);
+    }
     if (spyArmed) setupScrollSpy();
   }
 
@@ -1227,20 +1236,32 @@
     const line = resolvePlayLineRef(ref);
     if (!line) return;
     suppressArmUntil = Date.now() + 800;
-    const id = playLineDomId(line.ref ?? ref, line.n);
-    const el = document.getElementById(id);
-    if (el && (el as HTMLElement).offsetParent !== null) {
-      el.scrollIntoView({ behavior: 'auto', block: 'center' });
-      return;
-    }
-    // Astra lane A, F3: English-only view hides the Greek column
-    // (offsetParent === null). Scroll the English cell of the segment
-    // that contains the line; do not switch into bilingual view.
-    const rowEng = el?.closest('.play-row')?.querySelector('.english-col') as HTMLElement | null;
-    const seg = el?.closest('.segment') as HTMLElement | null;
+    const el = document.getElementById(playLineDomId(line.ref ?? ref, line.n));
+    if (el) shownFor(el)?.scrollIntoView({ behavior: 'auto', block: 'center' });
+  }
+
+  // What shows a play line on screen: the Greek line itself, or, where the
+  // Greek column is hidden (English-only view; Astra lane A, F3), the English
+  // cell of the row or segment that holds it. Never a switch into bilingual.
+  function shownFor(el: HTMLElement): HTMLElement | null {
+    if (el.offsetParent !== null) return el;
+    const rowEng = el.closest('.play-row')?.querySelector('.english-col') as HTMLElement | null;
+    const seg = el.closest('.segment') as HTMLElement | null;
     const segEng = seg?.querySelector('.english-col') as HTMLElement | null;
-    const fallback = [rowEng, segEng, seg].find((n) => n && n.offsetParent !== null);
-    fallback?.scrollIntoView({ behavior: 'auto', block: 'center' });
+    return [rowEng, segEng, seg].find((n) => n && n.offsetParent !== null) ?? null;
+  }
+
+  // The line at the top of the reading area and its height on screen, so a
+  // view switch can keep the reader's place: the first Greek line (English-only
+  // view: the first segment or English row tick) whose bottom clears the head.
+  function lineAtTop(): { el: HTMLElement; top: number } | null {
+    const head = document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
+    for (const el of document.querySelectorAll<HTMLElement>(view === 'english' ? '.segment[id], [data-etick]' : '.greek-line[id]')) {
+      if (el.offsetParent === null) continue;
+      const r = el.getBoundingClientRect();
+      if (r.bottom > head) return { el, top: r.top };
+    }
+    return null;
   }
 
   // A same-page #line change fires hashchange. updateHash uses replaceState,
@@ -3338,6 +3359,8 @@
             });
             if (best) { el = best as HTMLElement; targetId = (best as HTMLElement).id; }
           }
+          // English-only view hides the Greek line: land on its English cell.
+          if (el && playLine) el = shownFor(el);
           if (el) {
             suppressArmUntil = Date.now() + 1500;
             // Reduced motion gets the instant scroll from the start; it is

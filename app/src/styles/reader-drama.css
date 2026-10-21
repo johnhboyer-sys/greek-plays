@@ -83,6 +83,10 @@ body[data-author] .reader-body.play-line .speaker {
   letter-spacing: 0.02em;
 }
 body[data-author] .reader-body.play-line .greek-line .speaker { font-family: var(--font-greek); }
+/* No sideways scroll at any width (spec §3.4): a word longer than the column
+   breaks (Ecclesiazusae 1169-1175, the dish word, printed in long pieces). */
+body[data-author] .reader-body.play-line .greek-line .line-text { overflow-wrap: anywhere; }
+body[data-author] .reader-body.play-line .greek-line .tok { white-space: pre-wrap; }
 body[data-author] .reader-body.play-line:not(.view-greek):not(.trans-compare) .greek-line .line-text {
   padding-left: 1.4em;
 }

@@ -781,7 +781,7 @@
         <span class="v"><select aria-label="English words" value={engMode} on:change={(e) => (engMode = e.currentTarget.value as SearchMode)}>{#each MODE_OPTS as opt}<option value={opt.v}>{opt.l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
         <span class="mn">in every translation</span>
       </p>
-      <p class="row gap" class:inactive={!(grkQuery.trim() && engQuery.trim())}>
+      <p class="row gap">
         <span class="mn">Together</span>
         <span class="v"><select aria-label="Greek and English together" value={langOp} on:change={(e) => (langOp = e.currentTarget.value as LangOp)}><option value="and">Lines where both the Greek and the English match</option><option value="or">Lines where the Greek or the English matches</option></select><i aria-hidden="true">▾</i></span>
       </p>
@@ -919,7 +919,6 @@
 
   .row { display: flex; flex-wrap: wrap; gap: .3rem 1rem; align-items: baseline; margin: 0; font: 400 1rem var(--font-ui); color: var(--ink); }
   .row.gap { margin-top: .6rem; }
-  .row.inactive { opacity: .55; }
   .mn { color: var(--mid); }
   .row > .mn:first-child { min-width: 4.6rem; }
   /* A picker: the word in ink, underlined in the clay, a clay ▾. */

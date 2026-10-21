@@ -31,5 +31,9 @@ const siteName = SITE_NAME;
   <div class="wrap"><SiteHeader /></div>
   <LemmaEntry client:load lang="grc" />
   <div class="wrap"><SiteFoot /></div>
+  <style is:global>
+    /* No sideways scroll (spec §3.4): a headword longer than the page breaks. */
+    .lx-head-gk, .lx-translit { overflow-wrap: anywhere; }
+  </style>
 </body>
 </html>
