@@ -384,8 +384,8 @@ segment English-only view leaves out went nowhere. Not rechecked by Codex.
 axe colour contrast, place-wide 180 of 180) all passed on `2e55aeb`; the
 rotation, place, and follow-up probes again on `f6c792d`. The ship gate
 (`DRAMA_EDITIONS=1 PUBLIC_EDITIONS=1 npm run build:public`) passed on
-`f6c792d`: all 44 plays and their editions, 1316 pages crawled, 0 broken
-links.
+`f6c792d` and again on `ed9a89c` (option C, question 3): all 44 plays and
+their editions, 1316 pages crawled, 0 broken links.
 
 **Waiting on John.**
 
@@ -398,5 +398,5 @@ links.
    A speech-keyed verse translation (Way, Morshead, Storr, Murray, Johnston)
    alternates on a phone, line for line, never a piece under five Greek
    lines; a prose one (Kosmos, the 1912 comedies, Hickie) stays whole.
-   Done on the branch; spec §7.4 amended. The illustration:
+   Done on the branch (`ed9a89c`); spec §7.4 amended. The illustration:
    https://claude.ai/artifact/UEq6ziRAFy1cWFmAKpPmFV
