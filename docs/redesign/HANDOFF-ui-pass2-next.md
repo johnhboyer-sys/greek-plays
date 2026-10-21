@@ -29,8 +29,9 @@ John. Nothing here is started.
   CLAUDE.md is green.
 - Ship gate (`npm run build:public`, detached, with `DRAMA_EDITIONS=1
   PUBLIC_EDITIONS=1` so `build/dist` keeps every open edition): passed on the
-  final code, 21 October 02:11, and before that on `208ad1f`: all 44 plays
-  and their editions, 1315 pages, 0 broken links. Its warnings predate this
+  final commit `165f2ac`, 21 October 03:04, and before that on `208ad1f` and
+  on the code of `d96a571`: all 44 plays and their editions, 1315 pages, 0
+  broken links. Its warnings predate this
   pass (editions whose licence status reads "unverified"; Vite's note on
   transition imports used only in the browser).
 - The scripts (`gates.sh`, `build-editions.sh`, `shoot-pass2.mjs`,
