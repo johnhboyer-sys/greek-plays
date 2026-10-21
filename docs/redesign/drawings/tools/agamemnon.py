@@ -536,6 +536,18 @@ HEAD_HI, HEAD_LO, HEAD_SPAN, HEAD_SPECK, HEAD_SOLID, HEAD_SOLID_MAX, HEAD_HOLE =
 # HEAD_SOLID)
 HEADS += [(1800, 480, 2070, 800)]
 STRIPE_W, STRIPE_D = 8, 35
+# Aegisthus' cloak border, round his shoulder (BORDER, a polygon, flat px; John, 2026-10-19: "still rough"): under the
+# half-maximum rule its outer wavy line and the outline ran together into blots. In it every line is the grey at half
+# maximum (BORDER_HI, BORDER_LO, BORDER_SPAN as the heads'), more than BORDER_IN px inside the figure (the glaze stays
+# out), drawn along its centre BORDER_W px wide; the outline goes within BORDER_CLEAR px of those lines (the outer
+# wavy line is the cloak's edge)
+BORDER = [(1828, 615), (1835, 560), (1880, 525), (1920, 518), (1960, 532), (1995, 528), (2035, 503), (2062, 503),
+          (2068, 535), (2092, 568), (2122, 588), (2152, 603), (2180, 603), (2198, 578), (2212, 598), (2196, 646),
+          (2160, 642), (2110, 627), (2075, 607), (2052, 585), (2046, 602), (2036, 656), (2010, 687), (1962, 712),
+          (1935, 727), (1915, 737), (1893, 737), (1888, 715), (1905, 700), (1940, 690), (1988, 670), (2003, 640),
+          (2003, 600), (2008, 562), (1990, 556), (1950, 556), (1915, 556), (1882, 571), (1857, 606), (1842, 622)]
+BORDER_HI, BORDER_LO, BORDER_SPAN, BORDER_IN, BORDER_SPECK, BORDER_W, BORDER_CLEAR = 8, 2, 40, 2, 20, 4.0, 6
+BORDER_MARK = 7
 LEVEL_SIGMA = 30
 # Lines the finder found along the figure's own edge (the edge's contrast, inside the outline) doubled it (the raised
 # fingers): line pieces lying for EDGE_HUG of their length within EDGE_CLEAR px of the contour go
@@ -581,7 +593,13 @@ SEEN_OPEN = 40
 # (polylines along each column's inner edge, flat px; left, right) goes
 # (the columns lean as painted: the left one's inner edge 0.087 px left per px down, the right one's 0.09)
 # (the left one's abacus reaches x 450 above row 312, its capital and its neck x 345 down to row 425)
-COLUMNS = ([(450, 0), (450, 312), (345, 318), (345, 425), (262, 430), (108, 2200)], [(4415, 300), (4245, 2200)])
+# (the right woman stands against the right one: below her head its edge is the painted line down her back, read at
+# 2-3x, and the cut runs along that line's centre, so her outline lies on it; the strip of column between that line and
+# the shaft's far edge had come out as part of her, with a second outline; the hair tips over the column go with it)
+COLUMNS = ([(450, 0), (450, 312), (345, 318), (345, 425), (262, 430), (108, 2200)],
+           [(4415, 300), (4403, 460), (4395, 520), (4388, 600), (4384, 660), (4370, 730), (4356, 780), (4352, 790),
+            (4335, 900), (4315, 1000), (4296, 1100), (4277, 1200), (4257, 1300), (4237, 1400), (4222, 1480),
+            (4198, 1600), (4130, 2200)])
 # Faces are traced at their own size (as mika.py): boxes, flat px; in them marks of FACE_SPECK px^2 or more stand
 # (heads: the woman at the left column, Clytemnestra, Aegisthus with his beard, Agamemnon, the woman behind him, the
 # woman at the right column)
@@ -1014,6 +1032,15 @@ def scene(g8, rb8, sharp8, dump=None):
     hm = morphology.remove_small_holes(hm | hs, max_size=HEAD_HOLE) & heads & fig & ~edge
     lines = (lines & ~heads) | hm
     old = (old & ~heads) | hm
+    # Aegisthus' cloak border (see BORDER)
+    bz = lw.polygon_mask(g.shape, np.array(BORDER, float))
+    hi, lo = ndi.maximum_filter(gh, 2 * BORDER_HI + 1), ndi.minimum_filter(gh, 2 * BORDER_LO + 1)
+    rid = (gh < (hi + lo) / 2) & (hi - lo > BORDER_SPAN) & bz & (ndi.distance_transform_edt(fs) > BORDER_IN)
+    rid = morphology.remove_small_objects(rid, max_size=BORDER_SPECK)
+    bl = (ndi.distance_transform_edt(~centre_lines(rid, spur=5, min_len=8)) <= BORDER_W / 2) & bz
+    lines = (lines & ~bz) | bl
+    old = (old & ~bz) | bl
+    edge &= ~(bz & (ndi.distance_transform_edt(~bl) <= BORDER_CLEAR))
     # Agamemnon's head (see AGAM_*)
     pm = lambda P: lw.polygon_mask(g.shape, np.array(P, float))
     head = (pm(AGAM_CURLS) | pm(AGAM_BEARD) | pm(AGAM_FACE)) & fig & ~edge
@@ -1027,7 +1054,7 @@ def scene(g8, rb8, sharp8, dump=None):
     hair = ((gh < CURL_G) & pm(AGAM_CURLS) | (gh < BEARD_G) & pm(AGAM_BEARD)) & head & ~ndi.binary_dilation(fl, iterations=1)
     hair = morphology.remove_small_objects(hair, max_size=HAIR_SPECK)
     ink = lines | edge
-    holes = ndi.binary_fill_holes(ink) & ~ink & ~face_box   # (not in the heads: the eyes' whites, the clay between curls)
+    holes = ndi.binary_fill_holes(ink) & ~ink & ~face_box & ~bz   # (not in the heads: the eyes' whites, the clay between curls; nor between the border's lines)
     lab, _ = ndi.label(holes)
     ink |= (np.bincount(lab.ravel()) < FLECK)[lab] & holes
     lab, _ = ndi.label(ink, structure=np.ones((3, 3)))
@@ -1057,6 +1084,11 @@ def scene(g8, rb8, sharp8, dump=None):
     faces &= ~inner
     ink &= ~ndi.binary_dilation(johns, iterations=MARK_GAP)
     faces &= ~ndi.binary_dilation(johns, iterations=MARK_GAP)
+    # (in BORDER his round 3 strokes run beside the painted lines the border rule finds, 3-6 px off: there his stand
+    # alone within BORDER_MARK px)
+    near_j = bz & (ndi.distance_transform_edt(~johns) <= BORDER_MARK)
+    ink &= ~near_j
+    faces &= ~near_j
     faces |= johns
     net = (net | stroke(purple, NET_W)) & ~ink & ~faces & ~hair
     if dump:
