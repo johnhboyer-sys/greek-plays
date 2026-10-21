@@ -368,8 +368,10 @@ below). One commit per item; every one with the gates green.
   English is another segment's paragraph, so "Translated with the speech
   above ↑" no longer shows there (454 before, 0 now; Both keeps all 454),
   and a link to such a line lands on that paragraph. `probe-covered.mjs`.
-- §4, item 4, corrected: Seven Against Thebes has its drawing (`seven.svg`);
-  only Agamemnon lacks one.
+- §4, item 4, closed: Seven Against Thebes has its drawing (`seven.svg`), and
+  Agamemnon's was merged to `main` on 2026-10-21 (`51e39a0`, Boston MFA
+  63.1246), so all 44 plays are drawn. This branch has Agamemnon's only
+  once `main` is merged in again.
 
 - The phone's reader head (John, 2026-10-21, reviewing): the icons had
   dropped to a line of their own at 320px. After mockups of the options
@@ -392,7 +394,8 @@ segment English-only view leaves out went nowhere. Not rechecked by Codex.
 axe colour contrast, place-wide 180 of 180) all passed on `2e55aeb`; the
 rotation, place, and follow-up probes again on `f6c792d`. The ship gate
 (`DRAMA_EDITIONS=1 PUBLIC_EDITIONS=1 npm run build:public`) passed on
-`f6c792d` and again on `ed9a89c` (option C, question 3): all 44 plays and
+`f6c792d`, on `ed9a89c` (option C, question 3), and on `1193e9e` (the
+phone head): all 44 plays and
 their editions, 1316 pages crawled, 0 broken links.
 
 **Waiting on John.**
