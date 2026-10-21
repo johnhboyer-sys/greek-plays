@@ -6,7 +6,8 @@
 // src/pages/[author]/index.astro for the per-author page this links into, and
 // src/pages/index.astro for the period-shelf home view of the same registry.
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFoot from '../components/SiteFoot.astro';
 import Pwa from '../components/Pwa.astro';
 import { AUTHORS, PERIOD_LABEL } from '@shared/lib/authors';
 import { authorPath } from '@shared/lib/works';
@@ -78,18 +79,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>{siteName}</a>
-      <span class="title-sep">›</span>
-      <span class="header-static">Authors</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <div class="wrap"><SiteHeader /></div>
   <main class="aui-body">
     <h1 class="aui-h1">Authors</h1>
     {/* DRAFT copy: John approves */}
@@ -108,5 +98,6 @@ const jsonLd = {
     </ul>
     {sorted.length === 0 && <p class="aui-empty">No authors yet.</p>}
   </main>
+  <div class="wrap"><SiteFoot /></div>
 </body>
 </html>

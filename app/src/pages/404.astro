@@ -1,6 +1,7 @@
 ---
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFoot from '../components/SiteFoot.astro';
 import Pwa from '../components/Pwa.astro';
 import { jsonLdSafe } from '../lib/jsonld';
 import { SITE_NAME } from '../lib/site';
@@ -51,7 +52,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <div class="theme-corner"><ThemeToggle /></div>
+  <div class="wrap"><SiteHeader /></div>
   <main class="not-found">
     <p class="eyebrow">The Greek Drama Reader</p>
     <h1>Page not found</h1>
@@ -64,7 +65,6 @@ const jsonLd = {
 
   <style>
     body { background: var(--page-bg); color: var(--text); margin: 0; }
-    .theme-corner { position: fixed; top: 1rem; right: 1rem; z-index: 10; }
     .not-found {
       max-width: 36rem;
       margin: 0 auto;
@@ -127,5 +127,6 @@ const jsonLd = {
     }
     .btn-secondary:hover { border-color: var(--accent-light); color: var(--accent); }
   </style>
+  <div class="wrap"><SiteFoot /></div>
 </body>
 </html>

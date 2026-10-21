@@ -1,6 +1,7 @@
 ---
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFoot from '../components/SiteFoot.astro';
 import Pwa from '../components/Pwa.astro';
 import '@shared/styles/global.css';
 import { WORKS, visibleTranslations } from '@shared/lib/works';
@@ -142,18 +143,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>{siteName}</a>
-      <span class="title-sep">›</span>
-      <span class="header-static">Texts &amp; Licences</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <div class="wrap"><SiteHeader /></div>
 
   <main class="attr-body">
     <h1 class="sr-only">Texts and licences for {siteName}</h1>
@@ -382,8 +372,9 @@ const jsonLd = {
       and remain subject to CC BY-SA.
     </p>
     <p>
-      Site by <a href="https://x.com/johnhboyer" target="_blank" rel="noopener">John H. Boyer</a>.
+      Site by <a href="https://johnhboyer.com" target="_blank" rel="noopener">John H. Boyer</a>.
     </p>
   </main>
+  <div class="wrap"><SiteFoot /></div>
 </body>
 </html>

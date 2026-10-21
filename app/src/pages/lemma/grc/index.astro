@@ -7,7 +7,8 @@
 // sit alongside it; there is deliberately no page at the bare /lemma/ root.
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../../components/ThemeInit.astro';
-import ThemeToggle from '../../../components/ThemeToggle.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFoot from '../../../components/SiteFoot.astro';
 import Pwa from '../../../components/Pwa.astro';
 import { jsonLdSafe } from '../../../lib/jsonld';
 import { SITE_NAME } from '../../../lib/site';
@@ -100,18 +101,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>{siteName}</a>
-      <span class="title-sep">›</span>
-      <span class="header-static">Greek Lexicon</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <div class="wrap"><SiteHeader /></div>
   <main class="lxi-body">
     <h1 class="lxi-h1">Greek Lexicon</h1>
     <p class="lxi-lede">
@@ -182,5 +172,6 @@ const jsonLd = {
       input.addEventListener('input', apply);
     }
   </script>
+  <div class="wrap"><SiteFoot /></div>
 </body>
 </html>

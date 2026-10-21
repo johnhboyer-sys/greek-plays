@@ -351,12 +351,16 @@ describe('Search.svelte', () => {
       ],
     });
 
-    render(Search);
+    const { container } = render(Search);
     await fireEvent.input(screen.getByLabelText('Greek'), { target: { value: 'panta' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Search' }));
 
-    expect(await screen.findByText('Heraclitus — Fragments')).toBeInTheDocument();
-    expect(screen.getByText('Empedocles — Fragments')).toBeInTheDocument();
+    // UI pass 2 (direction B): the title heads the group and the author leads
+    // the line beside it ("Heraclitus · …"), so the two still read apart.
+    await waitFor(() => expect(container.querySelectorAll('.grp h2')).toHaveLength(2));
+    const heads = Array.from(container.querySelectorAll('.grp h2')).map((h) => h.textContent ?? '');
+    expect(heads.some((t) => t.includes('Fragments') && t.includes('Heraclitus'))).toBe(true);
+    expect(heads.some((t) => t.includes('Fragments') && t.includes('Empedocles'))).toBe(true);
   });
 
   // Regression test for John's screenshot report (2026-07-24): a dk
@@ -680,14 +684,14 @@ describe('Search.svelte — per-passage credit on English hits (finding 1)', () 
     render(Search);
     await fireEvent.input(screen.getByLabelText('English'), { target: { value: 'translation' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Search' }));
-    await screen.findByRole('button', { name: 'Export results as CSV' });
+    await screen.findByRole('button', { name: 'Export as CSV' });
 
     let capturedBlob: Blob | undefined;
     const createObjectURL = vi.spyOn(URL, 'createObjectURL')
       .mockImplementation((b: Blob | MediaSource) => { capturedBlob = b as Blob; return 'blob:mock'; });
     const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Export results as CSV' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Export as CSV' }));
     await waitFor(() => expect(capturedBlob).toBeTruthy());
 
     const csv = (await capturedBlob!.text()).replace(/^﻿/, '');
