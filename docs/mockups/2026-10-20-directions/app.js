@@ -134,7 +134,9 @@
     theme: `<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.75"/><path class="f" d="M10 3.25a6.75 6.75 0 0 1 0 13.5z"/></svg>`,
   };
   const bIcons = `<a class="ic" href="#" aria-label="Search" title="Search">${ICO.search}</a><a class="ic" href="#" aria-label="Dark or light" title="Dark or light">${ICO.theme}</a>`;
-  const bHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav class="icons">${bIcons}</nav></header>`;
+  const bWm = `<a class="wm" href="#"><span>The Greek</span> <span>Drama Reader</span></a>`;
+  const bHeadOf = (crumb = '') => `<header class="hd"><span class="crumbs">${bWm}${crumb}</span><nav class="icons">${bIcons}</nav></header>`;
+  const bHead = bHeadOf();
   const bFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a></footer>`;
   function band(authors, { leadH = 250, h = 190 } = {}) {
     return `<div class="band" style="--lead-h:${leadH}px;--band-h:${h}px"><div class="track">${authors.map((a) => `<div class="seg" data-author="${a.id}">
@@ -161,7 +163,7 @@
     <details class="syn"><summary>Full synopsis (tells the ending)</summary><p>${esc(w.synopsis)}</p></details>
     <p class="credit">Drawing: ${esc(DR.medea.desc)}</p>
     ${bFoot}`;
-  T.b.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${bHead}
+  T.b.play = () => { const w = medea; return `<div class="page pg-play" data-author="euripides"><div class="wrap">${bHeadOf(' · <a href="#">Euripides</a>')}
     <div class="scene">${playFig(w.id, 460)}</div>
     <div class="tb"><div><p class="gt" lang="grc">${esc(w.greekTitle)}</p><h1 class="et">${esc(w.title)}</h1></div><p class="au"><a href="#">Euripides</a> · first staged ${esc(w.production)}</p></div>
     ${bPlayBody(w)}</div></div>`; };
@@ -343,7 +345,7 @@
   };
 
   // ── Chrome ───────────────────────────────────────────────────────────────
-  const state = { dir: 'b', page: 'home', theme: 'light', width: 'desktop', notes: true, blend: { home: 'b', author: 'b', play: 'b', reader: 'b', search: 'b', word: 'b' } };
+  const state = { dir: 'b', page: 'home', theme: 'light', width: 'desktop', notes: true, menu: 'frame', blend: { home: 'b', author: 'b', play: 'b', reader: 'b', search: 'b', word: 'b' } };
   try { const saved = JSON.parse(localStorage.getItem('gdr-directions') || '{}'); Object.assign(state, saved, { blend: { ...state.blend, ...(saved.blend || {}) } }); if (state.blend.home === 'c') state.blend.home = 'a'; if (state.blend.reader === 'd') state.blend.reader = 'b'; if (state.blend.word === 'd') state.blend.word = 'b'; } catch (e) { /* ignore */ }
   const save = () => { try { localStorage.setItem('gdr-directions', JSON.stringify(state)); } catch (e) { /* ignore */ } };
 
@@ -358,8 +360,21 @@
     const alt = phone;
     const html = page === 'word' ? wordPage(dir, alt) : T[dir][page](alt);
     const skin = dir === 'bc' ? 'b' : dir;
-    return `<div class="frame dir-${skin}${phone ? ' ph' : ''}${WINDOWED(page) ? '' : ' auto'}" data-theme="${theme}">${html}</div>`;
+    return `<div class="frame dir-${skin}${phone ? ' ph' : ''}${WINDOWED(page) ? '' : ' auto'} menu-${state.menu}" data-theme="${theme}">${html}</div>`;
   }
+  // The drop-down's edge (John, 20 October, on the reader's picker menu: "Make this more elegant. Maybe a border
+  // around the drop down so it doesn't look like it's just plopped on top of the text? Give me options").
+  const MENU_OPTS = [['frame', 'Ink frame'], ['sheet', 'Lifted sheet'], ['clay', 'Clay rule'], ['dim', 'Dimmed page']];
+  const MENU_DESC = {
+    frame: 'A line of ink on all four sides, square corners, the page\'s paper inside: a box drawn on the page in the hand of the ground line.',
+    sheet: 'A hairline edge and a soft shadow: a sheet lifted off the text. It would be the only shadow on the site.',
+    clay: 'A hairline edge with a clay rule along the top, tying the menu to the clay chevron of the picker it opens from.',
+    dim: 'A hairline edge, and the page behind fades toward the paper, so only the menu is in full ink.',
+  };
+  const menuOpts = () => (state.dir === 'b' && (state.page === 'reader' || state.page === 'word'))
+    ? `<h3>The drop-down's edge</h3><p>Four treatments for the picker's menu; pick one and the frame takes it. The desktop shows the menu open; on the phone, tap Paley 1878 · Coleridge.</p>
+      <div class="opts">${MENU_OPTS.map(([k, name]) => `<button type="button" data-menu="${k}" aria-pressed="${state.menu === k}">${name}</button>`).join('')}</div><p>${MENU_DESC[state.menu]}</p>`
+    : '';
   function render() {
     document.querySelectorAll('[data-dir]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dir === state.dir)));
     document.querySelectorAll('[data-page]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.page === state.page)));
@@ -388,7 +403,7 @@
     }
     const n = NOTES[state.dir];
     notesEl.innerHTML = `<p class="dir-name">Direction ${state.dir.toUpperCase()} of four</p><h2>${n.name}</h2><p>${n.what}</p>
-      <h3>On this page</h3><p>${PAGE_NOTES[state.page][state.dir]}</p>
+      <h3>On this page</h3><p>${PAGE_NOTES[state.page][state.dir]}</p>${menuOpts()}
       <h3>Keeps</h3><ul>${n.keeps.map((k) => `<li>${k}</li>`).join('')}</ul>
       <h3>Changes</h3><ul>${n.changes.map((k) => `<li>${k}</li>`).join('')}</ul>
       <h3>Phone</h3><p>${n.phone}</p><h3>Risk</h3><p>${n.risk}</p>`;
@@ -405,13 +420,14 @@
   function scaleOf(el) { const fr = el.closest('.frame'); const m = /scale\(([\d.]+)\)/.exec(fr?.style.transform || ''); return m ? Number(m[1]) : 1; }
 
   document.addEventListener('click', (e) => {
-    const b = e.target.closest('button[data-dir],button[data-page],button[data-theme-pick],button[data-width],button[data-notes]');
+    const b = e.target.closest('button[data-dir],button[data-page],button[data-theme-pick],button[data-width],button[data-notes],button[data-menu]');
     if (!b) return;
     if (b.dataset.dir) state.dir = b.dataset.dir;
     if (b.dataset.page) state.page = b.dataset.page;
     if (b.dataset.themePick) state.theme = b.dataset.themePick;
     if (b.dataset.width) state.width = b.dataset.width;
     if (b.dataset.notes) state.notes = !state.notes;
+    if (b.dataset.menu) state.menu = b.dataset.menu;
     save(); render();
   });
   document.addEventListener('change', (e) => { const sel = e.target.closest('select[data-blend]'); if (!sel) return; state.blend[sel.dataset.blend] = sel.value; save(); render(); });

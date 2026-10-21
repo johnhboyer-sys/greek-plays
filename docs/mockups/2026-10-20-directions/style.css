@@ -322,6 +322,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .wrap { max-width: 86rem; margin: 0 auto; padding: 0 3rem; }
 .dir-b .hd { display: flex; justify-content: space-between; align-items: baseline; padding: 1.4rem 0 .4rem; font: 400 1rem var(--font-ui); color: var(--mid); }
 .dir-b .hd .wm { font: 400 1.35rem var(--font-text); color: var(--ink); }
+.dir-b .hd .crumbs { font: 400 1.35rem var(--font-text); color: var(--mid); }  /* on play pages the author's name follows the site name (John, 20 October) */
+.dir-b .hd .crumbs a { color: var(--mid); }
+.dir-b .hd .crumbs a.wm { color: var(--ink); }
 .dir-b .hd nav { display: flex; gap: 1.6rem; }
 .dir-b .hd nav.icons { gap: 1.1rem; align-items: center; }
 .dir-b .ico { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.22em; display: inline-block; }
@@ -471,9 +474,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rh .menu { display: none; position: absolute; top: calc(100% + 2px); left: 0; z-index: 6; min-width: 20rem; background: var(--paper); border-top: 2px solid var(--line); padding: .7rem 1rem .9rem; text-align: left; font: 400 1rem var(--font-ui); color: var(--ink); }
 .dir-b .pg-reader .rh .pick.open .menu { display: block; }
 @container mock (min-width: 701px) { .dir-b .pg-reader .rh .pick.open-desktop .menu { display: block; } }
+/* The drop-down's edge: four treatments to choose from (John, 20 October) */
+.dir-b .pg-reader .rh .menu { padding: 1rem 1.3rem 1.1rem; --hair: color-mix(in srgb, var(--ink) 24%, transparent); }
+.dir-b.menu-frame .pg-reader .rh .menu { border: 1.5px solid var(--ink); }
+.dir-b.menu-sheet .pg-reader .rh .menu { border: 1px solid var(--hair); border-radius: 2px; box-shadow: 0 18px 40px -14px rgba(0, 0, 0, .45), 0 2px 6px -2px rgba(0, 0, 0, .2); }
+.dir-b.menu-clay .pg-reader .rh .menu { border: 1px solid var(--hair); border-top: 3px solid var(--clay); }
+.dir-b.menu-dim .pg-reader .rh .menu { border: 1px solid var(--hair); }
+.dir-b.menu-dim .pg-reader .rh .pick.open::before { content: ''; position: fixed; inset: 0; background: var(--paper); opacity: .62; z-index: 5; pointer-events: none; }
+@container mock (min-width: 701px) { .dir-b.menu-dim .pg-reader .rh .pick.open-desktop::before { content: ''; position: fixed; inset: 0; background: var(--paper); opacity: .62; z-index: 5; pointer-events: none; } }
 .dir-b .pg-reader .rh .menu .mh { color: var(--mid); margin-bottom: .4rem; }
 .dir-b .pg-reader .rh .menu ul { list-style: none; margin: 0; padding: 0; }
-.dir-b .pg-reader .rh .menu li { padding: .3rem 0; }
+.dir-b .pg-reader .rh .menu li { padding: .35rem 0; }
 .dir-b .pg-reader .rh .menu li a { font-family: var(--font-text); font-size: 1.1rem; color: var(--ink); }
 .dir-b .pg-reader .rh .menu li.cur a { color: var(--clay-deep); }
 .dir-b .pg-reader .rh .menu li span { display: block; color: var(--mid); font-size: .9rem; }
@@ -490,6 +501,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 @container mock (max-width: 700px) {
   .dir-b .wrap { padding: 0 1rem; }
   .dir-b .hd { padding: 1rem 0 .3rem; }
+  .dir-b .pg-author .hd, .dir-b .pg-play .hd { align-items: center; }
+  .dir-b .pg-author .hd .wm, .dir-b .pg-play .hd .wm { display: inline-flex; flex-direction: column; font-size: .72rem; line-height: 1.05; vertical-align: -.1em; }  /* the stacked site name, as in the reader (John, 20 October) */
+  .dir-b .pg-play .hd .crumbs { display: inline-flex; align-items: center; gap: .3em; font-size: 1rem; }
   .dir-b .band .track { padding: 0 1rem; }
   .dir-b .frieze { grid-template-columns: 1fr 1fr; --h: min(170px, calc((100cqw - 3rem) / var(--pairmax, 2))); row-gap: 1.6rem; }
   .dir-b .nm .gk { font-size: 1.15rem; } .dir-b .nm .en { font-size: 1.7rem; }
@@ -965,3 +979,6 @@ mark.w { background: var(--hit); color: inherit; padding: 0 .06em; }
 .notes .blend { display: grid; gap: .45rem; margin: .4rem 0 .2rem; }
 .notes .blend label { display: grid; grid-template-columns: 4.6rem 1fr; align-items: center; gap: .5rem; font-size: .9rem; }
 .notes .blend select { font: inherit; color: var(--c-fg); background: var(--c-panel); border: 1px solid var(--c-line); border-radius: 2px; padding: .25rem .4rem; min-width: 0; }
+.notes .opts { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0 .6rem; }
+.notes .opts button { font: inherit; font-size: .88rem; color: var(--c-fg); background: transparent; border: 1px solid var(--c-line); border-radius: 2px; padding: .25rem .6rem; cursor: pointer; opacity: .8; }
+.notes .opts button[aria-pressed="true"] { background: var(--c-fg); color: var(--c-panel); opacity: 1; }
