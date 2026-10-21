@@ -391,8 +391,7 @@ links.
 
 1. Search step 2 (§5): recommended to hold until this branch is merged, then
    run as its own session in the order pipeline, data, engine, UI, with the
-   phrase index later. John asked which is easiest (2026-10-21); answered,
-   not yet decided.
+   phrase index later. John, 2026-10-21: "Hold off search." Not started.
 2. The plates page (§6): John, 2026-10-21: "maybe don't have drawings now;
    we add later." Not started.
 3. A speech-keyed translation on a phone: alternate in pieces as before (A),
