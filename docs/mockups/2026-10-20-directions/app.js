@@ -128,7 +128,13 @@
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
 
   // B ──────────────────────────────────────────────────────────────────────
-  const bHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav><a href="#">Search</a><a href="#">Dark</a></nav></header>`;
+  // One pair of icons on every page (John, 20 October): a magnifier for search, a half-filled disc for dark or light.
+  const ICO = {
+    search: `<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75"/><path d="M12.75 12.75 17.5 17.5"/></svg>`,
+    theme: `<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.75"/><path class="f" d="M10 3.25a6.75 6.75 0 0 1 0 13.5z"/></svg>`,
+  };
+  const bIcons = `<a class="ic" href="#" aria-label="Search" title="Search">${ICO.search}</a><a class="ic" href="#" aria-label="Dark or light" title="Dark or light">${ICO.theme}</a>`;
+  const bHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav class="icons">${bIcons}</nav></header>`;
   const bFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a></footer>`;
   function band(authors, { leadH = 250, h = 190 } = {}) {
     return `<div class="band" style="--lead-h:${leadH}px;--band-h:${h}px"><div class="track">${authors.map((a) => `<div class="seg" data-author="${a.id}">
@@ -177,7 +183,7 @@
         <span class="pick open-desktop"><a class="pk" href="#">Paley 1878 · Coleridge<i>▾</i></a><div class="menu wide"><div class="two"><div><p class="mh">Greek text</p><ul>${m.eds}</ul><p class="mn">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p></div><div><p class="mh">Translation</p><ul>${m.tr}</ul></div></div></div></span>
         <span class="views"><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a></span>
         <span class="pick"><a class="pk aa" href="#">Aa</a><div class="menu aam"><p class="mh">Text</p><p class="opt"><span>Size</span><a href="#">Smaller</a><a class="on" href="#">Normal</a><a href="#">Larger</a></p><p class="opt"><span>Width</span><a href="#">Narrow</a><a class="on" href="#">Normal</a><a href="#">Wide</a></p><p class="opt"><span></span><a href="#">Print this page</a></p></div></span>
-        <a href="#">Search</a>
+        ${bIcons}
       </span></div>
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`; };
 

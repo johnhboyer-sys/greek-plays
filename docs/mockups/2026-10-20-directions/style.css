@@ -323,6 +323,11 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .hd { display: flex; justify-content: space-between; align-items: baseline; padding: 1.4rem 0 .4rem; font: 400 1rem var(--font-ui); color: var(--mid); }
 .dir-b .hd .wm { font: 400 1.35rem var(--font-text); color: var(--ink); }
 .dir-b .hd nav { display: flex; gap: 1.6rem; }
+.dir-b .hd nav.icons { gap: 1.1rem; align-items: center; }
+.dir-b .ico { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.22em; display: inline-block; }
+.dir-b .ico .f { fill: currentColor; stroke: none; }
+.dir-b a.ic { color: var(--mid); line-height: 1; }
+.dir-b a.ic:hover { color: var(--clay); }
 .dir-b .foot { margin: 3.5rem 0 3rem; display: flex; gap: .5rem 1.6rem; flex-wrap: wrap; font: 400 1rem var(--font-ui); color: var(--mid); }
 
 /* B · the band */
@@ -445,6 +450,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rh .here b { font-weight: 500; color: var(--ink); }
 .dir-b .pg-reader .rh .ctl { margin-left: auto; display: flex; gap: 1.4rem; font: 400 1rem var(--font-ui); color: var(--mid); padding-bottom: .55rem; }
 .dir-b .pg-reader .rh .ctl .on { color: var(--ink); }
+.dir-b .pg-reader .rh .ctl a.ic { display: inline-flex; align-items: flex-end; }
+.dir-b .pg-reader .rh .ctl a.ic + a.ic { margin-left: -.3rem; }
 .dir-b .pg-reader .rd-wrap { max-width: 80rem; margin: 0 auto; padding: 2.2rem 2.5rem 6rem; --rd-cols: 1.05fr 1fr; --rd-gap: 3rem; --num-w: 2.8rem; --rd-speech-gap: 1.3rem; }
 /* Greek numbers in the left margin, English in the right, as in C (John, 20 October). */
 .dir-b .pg-reader .rd-g .ln { grid-template-columns: var(--num-w) 1fr; }
@@ -520,7 +527,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-reader .rh .menu, .dir-b .pg-reader .rh .menu.wide { position: fixed; left: 1rem; right: 1rem; top: 6.2rem; min-width: 0; max-height: calc(100cqh - 8rem); overflow: auto; }
   /* the site name as two stacked lines, compact (John, 20 October) */
   .dir-b .pg-reader .rh .crumbs .wm { display: inline-flex; flex-direction: column; font-size: .72rem; line-height: 1.05; vertical-align: -.1em; margin-right: .1rem; }
-  .dir-b .pg-reader .rh .crumbs { font-size: 1rem; }
+  .dir-b .pg-reader .rh .crumbs { font-size: 1rem; display: inline-flex; align-items: center; gap: .3em; }  /* the two-line site name and the author · play centred on one midline (John, 20 October) */
   .dir-b .pg-reader .rd-wrap { padding: 1.2rem 1rem 4rem; --num-w: 2.2rem; }
 
   .dir-b .pg-reader .rd-g .ln .t, .dir-b .pg-reader .rd-e .p { font-size: 1.12rem; }

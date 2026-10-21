@@ -330,6 +330,11 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .hd { display: flex; justify-content: space-between; align-items: baseline; padding: 1.4rem 0 .4rem; font: 400 1rem var(--font-ui); color: var(--mid); }
 .dir-b .hd .wm { font: 400 1.35rem var(--font-text); color: var(--ink); }
 .dir-b .hd nav { display: flex; gap: 1.6rem; }
+.dir-b .hd nav.icons { gap: 1.1rem; align-items: center; }
+.dir-b .ico { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.22em; display: inline-block; }
+.dir-b .ico .f { fill: currentColor; stroke: none; }
+.dir-b a.ic { color: var(--mid); line-height: 1; }
+.dir-b a.ic:hover { color: var(--clay); }
 .dir-b .foot { margin: 3.5rem 0 3rem; display: flex; gap: .5rem 1.6rem; flex-wrap: wrap; font: 400 1rem var(--font-ui); color: var(--mid); }
 
 /* B · the band */
@@ -452,6 +457,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
 .dir-b .pg-reader .rh .here b { font-weight: 500; color: var(--ink); }
 .dir-b .pg-reader .rh .ctl { margin-left: auto; display: flex; gap: 1.4rem; font: 400 1rem var(--font-ui); color: var(--mid); padding-bottom: .55rem; }
 .dir-b .pg-reader .rh .ctl .on { color: var(--ink); }
+.dir-b .pg-reader .rh .ctl a.ic { display: inline-flex; align-items: flex-end; }
+.dir-b .pg-reader .rh .ctl a.ic + a.ic { margin-left: -.3rem; }
 .dir-b .pg-reader .rd-wrap { max-width: 80rem; margin: 0 auto; padding: 2.2rem 2.5rem 6rem; --rd-cols: 1.05fr 1fr; --rd-gap: 3rem; --num-w: 2.8rem; --rd-speech-gap: 1.3rem; }
 /* Greek numbers in the left margin, English in the right, as in C (John, 20 October). */
 .dir-b .pg-reader .rd-g .ln { grid-template-columns: var(--num-w) 1fr; }
@@ -527,7 +534,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--c-acc); outline
   .dir-b .pg-reader .rh .menu, .dir-b .pg-reader .rh .menu.wide { position: fixed; left: 1rem; right: 1rem; top: 6.2rem; min-width: 0; max-height: calc(100cqh - 8rem); overflow: auto; }
   /* the site name as two stacked lines, compact (John, 20 October) */
   .dir-b .pg-reader .rh .crumbs .wm { display: inline-flex; flex-direction: column; font-size: .72rem; line-height: 1.05; vertical-align: -.1em; margin-right: .1rem; }
-  .dir-b .pg-reader .rh .crumbs { font-size: 1rem; }
+  .dir-b .pg-reader .rh .crumbs { font-size: 1rem; display: inline-flex; align-items: center; gap: .3em; }  /* the two-line site name and the author · play centred on one midline (John, 20 October) */
   .dir-b .pg-reader .rd-wrap { padding: 1.2rem 1rem 4rem; --num-w: 2.2rem; }
 
   .dir-b .pg-reader .rd-g .ln .t, .dir-b .pg-reader .rd-e .p { font-size: 1.12rem; }
@@ -1198,7 +1205,13 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`;
 
   // B ──────────────────────────────────────────────────────────────────────
-  const bHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav><a href="#">Search</a><a href="#">Dark</a></nav></header>`;
+  // One pair of icons on every page (John, 20 October): a magnifier for search, a half-filled disc for dark or light.
+  const ICO = {
+    search: `<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75"/><path d="M12.75 12.75 17.5 17.5"/></svg>`,
+    theme: `<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.75"/><path class="f" d="M10 3.25a6.75 6.75 0 0 1 0 13.5z"/></svg>`,
+  };
+  const bIcons = `<a class="ic" href="#" aria-label="Search" title="Search">${ICO.search}</a><a class="ic" href="#" aria-label="Dark or light" title="Dark or light">${ICO.theme}</a>`;
+  const bHead = `<header class="hd"><a class="wm" href="#">The Greek Drama Reader</a><nav class="icons">${bIcons}</nav></header>`;
   const bFoot = `<footer class="foot"><a href="#">Search the plays</a><a href="#">Greek lexicon</a><a href="#">Texts and licences</a><a href="#">Support</a></footer>`;
   function band(authors, { leadH = 250, h = 190 } = {}) {
     return `<div class="band" style="--lead-h:${leadH}px;--band-h:${h}px"><div class="track">${authors.map((a) => `<div class="seg" data-author="${a.id}">
@@ -1247,7 +1260,7 @@ window.DATA = {"works": {"alcestis": {"id": "alcestis", "slug": "alcestis", "tit
         <span class="pick open-desktop"><a class="pk" href="#">Paley 1878 · Coleridge<i>▾</i></a><div class="menu wide"><div class="two"><div><p class="mh">Greek text</p><ul>${m.eds}</ul><p class="mn">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p></div><div><p class="mh">Translation</p><ul>${m.tr}</ul></div></div></div></span>
         <span class="views"><a href="#">Greek</a><a class="on" href="#">Both</a><a href="#">English</a></span>
         <span class="pick"><a class="pk aa" href="#">Aa</a><div class="menu aam"><p class="mh">Text</p><p class="opt"><span>Size</span><a href="#">Smaller</a><a class="on" href="#">Normal</a><a href="#">Larger</a></p><p class="opt"><span>Width</span><a href="#">Narrow</a><a class="on" href="#">Normal</a><a href="#">Wide</a></p><p class="opt"><span></span><a href="#">Print this page</a></p></div></span>
-        <a href="#">Search</a>
+        ${bIcons}
       </span></div>
     <div class="rd-wrap${alt ? ' rd-alt' : ''}">${readerRows({ mode: 'run', alt })}</div></div>`; };
 
