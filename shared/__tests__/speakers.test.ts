@@ -1442,6 +1442,33 @@ describe('spaceTicks: fewer cuts inside a prose speech', () => {
   });
 });
 
+// Spec §7.4 (UI pass 2): on a phone a long speech comes in pieces, never one
+// under five Greek lines; a translator's marker earns no exception there.
+describe('phonePieceCuts: no phone piece under five lines', () => {
+  const lines = (k: number) => Array.from({ length: k }, () => true);
+
+  it('keeps every piece, the first and the last, at five lines or more', async () => {
+    const { phonePieceCuts } = await import('../lib/speakers');
+    // Items 0-19, candidates every other line: pieces 0-5, 6-11, 12-19.
+    const cuts = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18].map((i) => ({ i }));
+    expect(phonePieceCuts(lines(20), cuts, 5).map((c) => c.i)).toEqual([6, 12]);
+  });
+
+  it('drops a last cut that would leave fewer than five lines', async () => {
+    const { phonePieceCuts } = await import('../lib/speakers');
+    // Medea 89-95 on a phone was 1 + 5 + 1 lines, cut at Coleridge's markers.
+    expect(phonePieceCuts(lines(7), [{ i: 1 }, { i: 6 }], 5)).toEqual([]);
+    expect(phonePieceCuts(lines(12), [{ i: 5 }, { i: 9 }], 5).map((c) => c.i)).toEqual([5]);
+  });
+
+  it('counts only Greek lines, not a shared line\'s later half', async () => {
+    const { phonePieceCuts } = await import('../lib/speakers');
+    // Item 2 is the second half of line 2: the first five lines end at item 5.
+    const isLine = [true, true, false, true, true, true, true, true, true, true, true];
+    expect(phonePieceCuts(isLine, [{ i: 5 }, { i: 6 }], 5).map((c) => c.i)).toEqual([6]);
+  });
+});
+
 // Arrowsmith's stage directions (John, 2026-09-12): "a break in the Greek
 // where the stage directions are so english stays aligned with its Greek".
 describe('stage directions', () => {

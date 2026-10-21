@@ -74,7 +74,7 @@
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, lastPrintedRef, unitNounFor } from '../lib/citation';
   import { editionCopyCitation } from '../lib/edition-citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, phonePieceCuts, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { copyButtonPosition } from '../lib/copy-button';
@@ -280,6 +280,9 @@
   // pipeline kept (stage1_turn_english's verse-form `_join_parts`) renders as
   // its own block instead of running the speech together as one paragraph.
   const verseForm = (id: string | null | undefined): boolean => transById(id)?.form === 'verse';
+  // Keyed by line (its own line markers), not by speech: only such a
+  // translation is cut into pieces on a phone (spec §7.4, UI pass 2).
+  const lineKeyed = (id: string | null | undefined): boolean => transById(id)?.alignment === 'line';
 
   // §Phase-4B-revised (John's call 2026-07-06): an imported translation's own
   // converter-derived chapter title is this edition's editorial paratext, not
@@ -2157,17 +2160,20 @@
   // lead-ins fall out of the same slices. Null when fewer than two ticks
   // map (the ordinary one-row segment, or a turn-text chunk with no ticks).
   // One speech only: no speaker event, or a single one opening the segment
-  // (its first line, offset 0). The phone cuts only such segments into
-  // five-line pieces; dialogue keeps playRows, which anchors every turn on
-  // its Greek speaker event (Codex review: a sentence estimate could put a
-  // turn under the wrong speaker).
+  // (its first line, offset 0). The phone cuts such a segment into five-line
+  // pieces whole; dialogue is first cut by playRows, which anchors every turn
+  // on its Greek speaker event (Codex review: a sentence estimate could put a
+  // turn under the wrong speaker), and then each speech (phoneRows).
   function singleSpeech(items: GreekItem[], seg: Segment): boolean {
     const firstLineN = items.find((it) => it.kind === 'line')?.line.n;
     const evs = seg.speakers ?? [];
     return evs.length === 0 || (evs.length === 1 && evs[0]!.line === firstLineN && (evs[0]!.offset ?? 0) === 0);
   }
 
-  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0, verse = false): PlayRow[] | null {
+  // `phone`: the phone's pieces (spec §7.4, UI pass 2): only a translation's
+  // own line markers place a cut (no proportional or line-for-line ticks),
+  // and every piece, first and last too, has `minSpan` Greek lines or more.
+  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0, verse = false, phone = false): PlayRow[] | null {
     const lineInt = (line: RLine): number | null => {
       const m = /^(\d+)/.exec(line.ref ?? '');
       return m ? Number(m[1]) : line.n;
@@ -2185,15 +2191,26 @@
     const firstLineN = items.find((it) => it.kind === 'line')?.line.n;
     const evs = seg.speakers ?? [];
     const oneSpeech = evs.length === 0 || (evs.length === 1 && evs[0]!.line === firstLineN && (evs[0]!.offset ?? 0) === 0);
-    const synthetic = !realTicks.length && oneSpeech && source.turns.length <= 1;
+    const synthetic = !phone && !realTicks.length && oneSpeech && source.turns.length <= 1;
     // A verse column's single speech with at most one marker (none, or the
     // piece's chapter anchor) goes line for line (verseLineTicks below).
-    const verseLineMode = verse && oneSpeech && source.turns.length <= 1 && realTicks.length <= 1;
+    const verseLineMode = !phone && verse && oneSpeech && source.turns.length <= 1 && realTicks.length <= 1;
+    const skipSpace = (o: number) => {
+      let i = o;
+      while (i < source.text.length && /\s/.test(source.text[i]!)) i += 1;
+      return i;
+    };
+    const first = items.find((it) => it.kind === 'line' && !(it.share && it.share.k > 0));
+    const n0 = first && first.kind === 'line' ? lineInt(first.line) : null;
     if (synthetic || (verseLineMode && !realTicks.length)) {
-      const first = items.find((it) => it.kind === 'line' && !(it.share && it.share.k > 0));
-      const n0 = first && first.kind === 'line' ? lineInt(first.line) : null;
       if (n0 == null) return null;
       realTicks = [{ n: n0, offset: 0, real: true }];
+    }
+    // A phone piece needs a marker inside the speech; its English starts on
+    // its first line, which anchors the span to that marker.
+    if (phone) {
+      if (n0 == null || !realTicks.some((tk) => skipSpace(tk.offset) > skipSpace(0))) return null;
+      if (!realTicks.some((tk) => skipSpace(tk.offset) === skipSpace(0))) realTicks = [{ n: n0, offset: 0, real: true }, ...realTicks];
     }
     if ((!synthetic && !verseLineMode && realTicks.length < 2) || items.length < 2) return null;
     // John, 2026-09-10: cut only where a sentence or speech begins, each start
@@ -2240,18 +2257,13 @@
     // A cut sitting on a speech start or one of the translator's own printed
     // markers is protected from thinning (finding 1): it is never dropped
     // for falling inside minSpan of the piece before it.
-    const skipSpace = (o: number) => {
-      let i = o;
-      while (i < source.text.length && /\s/.test(source.text[i]!)) i += 1;
-      return i;
-    };
     const protectedOffsets = new Set<number>([
       skipSpace(0),
       ...turnOffsets.filter((o) => o > 0 && o < source.text.length),
       ...realTicks.map((tk) => skipSpace(tk.offset)),
     ]);
-    const spaced = minSpan > 0 ? spaceTicks(mapped, protectedOffsets, minSpan) : mapped;
-    if (spaced.length < 2) return null;
+    const spaced = phone ? phonePieceCuts(items.map((it) => it.kind === 'line' && !(it.share && it.share.k > 0) && it.line.role !== 'lacuna'), mapped, minSpan) : minSpan > 0 ? spaceTicks(mapped, protectedOffsets, minSpan) : mapped;
+    if (spaced.length < (phone && spaced[0]?.i ? 1 : 2)) return null;
     const rows: PlayRow[] = [];
     // Sliced from the text with the line-number marks in (markedTurns); the
     // cut and turn offsets are plain-text offsets, mapped by `at`.
@@ -2345,6 +2357,34 @@
       else rows[rows.length - 1].items.push(it);
     });
     return rows;
+  }
+
+  // The phone's rows for a translation keyed by line (spec §7.4, UI pass 2):
+  // a long speech comes in pieces at the translation's own markers, never a
+  // piece under five Greek lines. In dialogue each speech is first bounded by
+  // its Greek speaker events (playRows), and only a row holding one speech's
+  // English is cut, so no cut can carry a turn to another speaker's line
+  // (Codex, pass 1). A speech-keyed translation never comes here: it stays
+  // whole.
+  function phoneRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, blocks: EnglishTurnBlock[], verse: boolean): PlayRow[] | null {
+    if (singleSpeech(items, seg)) return playTickRows(items, seg, source, MIN_PIECE_LINES, verse, true);
+    const rows = playRows(items, seg, blocks);
+    if (!rows) return null;
+    return rows.flatMap((row) => {
+      const b = row.blocks.length === 1 ? row.blocks[0]! : null;
+      if (!b) return [row];
+      // The block's English: its turn up to the next, or the text before the
+      // first turn.
+      const from = b.turnIndex >= 0 ? source.turns[b.turnIndex]?.offset : 0;
+      const to = (b.turnIndex >= 0 ? source.turns[b.turnIndex + 1]?.offset : source.turns[0]?.offset) ?? source.text.length;
+      if (from == null || to <= from) return [row];
+      const sub: EnglishTurnSource = {
+        text: source.text.slice(from, to),
+        turns: source.turns.filter((tu) => tu.offset >= from && tu.offset < to).map((tu) => ({ ...tu, offset: tu.offset - from })),
+        ticks: source.ticks?.filter((tk) => tk.offset >= from && tk.offset < to).map((tk) => ({ ...tk, offset: tk.offset - from })),
+      };
+      return playTickRows(row.items, seg, sub, MIN_PIECE_LINES, verse, true) ?? [row];
+    });
   }
 
   // An ode gets the narrower measure (John, 2026-09-08: "a narrower measure,
@@ -5004,8 +5044,8 @@
           {@const plMarked = plSource ? markedTurns(plSource) : null}
           {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns), openingRunIn(seg, segTransId)) : []}
           <!-- A prose translation keeps each speech whole beside the start of its Greek; only verse is cut to its lines (John, 2026-09-28: "the gaps mid speech are awkward"). -->
-          <!-- On a phone, where each English piece sits below its Greek, a single-speech segment is cut into pieces of at least five Greek lines at sentence starts, so the Greek and its English alternate; dialogue keeps its speech-by-speech rows (John, 2026-10-13: "Alternating bilingual."). -->
-          {@const rawPlRows = plSource ? ((phoneLayout ? (singleSpeech(plItems, seg) ? playTickRows(plItems, seg, plSource, MIN_PIECE_LINES, verseForm(segTransId)) : null) : !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          <!-- On a phone, where each English piece sits below its Greek, a long speech in a translation keyed by line is cut into pieces of at least five Greek lines at sentence starts placed by its markers, so the Greek and its English alternate (John, 2026-10-13: "Alternating bilingual."); in dialogue, within each speech (phoneRows). A speech-keyed translation stays whole (spec §7.4, UI pass 2). -->
+          {@const rawPlRows = plSource ? ((phoneLayout ? (lineKeyed(segTransId) ? phoneRows(plItems, seg, plSource, plTurnBlocks, verseForm(segTransId)) : null) : !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows, openingRunIn(seg, segTransId)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}

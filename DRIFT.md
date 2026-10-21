@@ -997,3 +997,7 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 
 - `shared/components/Reader.svelte` — 2026-10-20: `hasEnglish` also counts any non-primary translation's pieces (`secondaries` through `piecesFor`). Way's own Greek (`ed/way-loeb`) carries Way under `ross` with `english` null, so choosing Way's Medea with editions on dropped the reader to the Greek view.
 - `shared/__tests__/reader-secondary-only.test.ts` — 2026-10-20: new; a book whose English sits only in the secondary slot keeps Both and all three view buttons.
+
+## UI pass 2 follow-ups (2026-10-21; docs/redesign/HANDOFF-ui-pass2-next.md)
+
+- `shared/components/Reader.svelte`, `shared/lib/speakers.ts`, `shared/__tests__/speakers.test.ts` — handoff §2, items 1 and 2 (spec §7.4): on a phone only a translation keyed by line (`alignment: line`) is cut into pieces, at sentence starts its own markers place, never a piece under five Greek lines (`phonePieceCuts`, first and last pieces included, a marker no exception); in dialogue each speech is first bounded by its speaker events (`playRows`) and a row holding one speech's English is cut (`phoneRows`); a speech-keyed translation stays whole (no proportional or line-for-line ticks on a phone). The desktop is unchanged.
