@@ -3347,6 +3347,9 @@
     reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const phoneMq = window.matchMedia('(max-width: 680px)');
     phoneLayout = phoneMq.matches;
+    // The phone's rows are drawn: show the text the shell held back for them
+    // (ReaderShell.astro, data-phone-pending).
+    tick().then(() => document.documentElement.removeAttribute('data-phone-pending'));
     phoneMq.addEventListener?.('change', (e) => { phoneLayout = e.matches; });
     // Remember which book of this work was last open, for the work switcher —
     // and stamp the work's recency so hosts can offer "continue reading".

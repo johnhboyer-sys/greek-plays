@@ -118,7 +118,9 @@
 {/if}
 {#if pending}<div class="ed-pending" role="status" aria-label="Loading text">◌</div>{/if}
 {#key `${state.ed}:${epoch}`}
-  <div style:visibility={pending ? 'hidden' : 'visible'}>
+  <!-- No style when not pending: the server's `visibility: visible` showed the
+       default edition's text through the shell's data-ed-pending hold. -->
+  <div style:visibility={pending ? 'hidden' : null}>
     <Reader {work} {bookNum} bookData={shownBook} {chapterTitles} {speakerRoster}
       edition={state.ed} initialLocation={anchor} initialTranslation={state.trans} initialView={state.view}
       on:editionChange={changed} />

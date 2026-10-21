@@ -386,8 +386,18 @@ const intro =
           if (v) root.dataset[p[1]] = v;
         });
       } catch (e) {}
+      // A phone groups the rows speech by speech once the reader has mounted
+      // (Reader.svelte's phoneLayout); the server's rows are the desktop's, so
+      // the text waits for the reader (or 8s, if its script never runs).
+      try {
+        if (matchMedia('(max-width: 680px)').matches) {
+          document.documentElement.setAttribute('data-phone-pending', '');
+          setTimeout(function () { document.documentElement.removeAttribute('data-phone-pending'); }, 8000);
+        }
+      } catch (e) {}
     })();
   </script>}
+  {isPlayLine && <style is:global>html[data-phone-pending] .reader-body { visibility: hidden; }</style>}
 </head>
 <body data-author={isPlayLine ? work.author : undefined}>
   <!-- Semantic page heading + topical intro for search engines and screen
