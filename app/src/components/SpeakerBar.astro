@@ -8,15 +8,17 @@
 <div class="speaker-bar" id="speaker-bar" hidden aria-hidden="true"><span class="sb-name"></span> <span class="sb-cont">continues</span></div>
 
 <style>
+  /* In B's type (John, 2026-10-20: the bar stays): the name in small caps
+     Cardo in its speaker's colour, "continues" in the sans, on the paper. */
   .speaker-bar {
     position: fixed; z-index: 4; left: 0; right: 0;
     padding: .3rem 1.5rem;
-    background: var(--page-bg);
-    font: 500 .88rem "Alegreya Sans", system-ui, sans-serif;
-    color: var(--text-mid);
+    background: var(--paper);
+    font: 400 .9rem var(--font-ui);
+    color: var(--mid);
   }
   .speaker-bar[hidden] { display: none; }
-  .sb-name { font: 700 .84rem "Alegreya Sans SC", "Alegreya Sans", sans-serif; letter-spacing: .02em; }
+  .sb-name { font: 400 1rem var(--font-english); font-variant: small-caps; letter-spacing: .02em; }
   @media print { .speaker-bar { display: none !important; } }
 </style>
 
@@ -44,7 +46,7 @@
     queued = false;
     if (!bar || !nameEl) return;
     const controls = document.querySelector('.reader-controls');
-    const header = document.querySelector('.page-header');
+    const header = document.querySelector('.page-header, [data-reader-head]');
     const top = Math.max(controls?.getBoundingClientRect().bottom ?? 0, header?.getBoundingClientRect().bottom ?? 0);
     list ??= speakers();
     const above = (i: number) => list![i].getBoundingClientRect().top < top;

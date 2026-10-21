@@ -1,36 +1,88 @@
-/* The reading view, redesign phase 5, step 1 (docs/redesign/DESIGN.md,
-   Reading view): warm paper under the text, the same for every author; the
-   author's tint in the running head; no horizontal rules, under the running
-   head or the reader's controls. ReaderShell sets data-author on <body>. */
-body[data-author] { --page-bg: #fbf9f4; }
-:root[data-theme="dark"] body[data-author] { --page-bg: #1c1a17; }
+/* The reading view, direction B (docs/redesign/HANDOFF-ui-pass2-build.md §7):
+   paper and ink under B's running head (ReaderHead.astro); the Greek and the
+   English one size, Cardo, the same ink; the Greek numbers in the left margin,
+   the English numbers in the right (John, 2026-10-20: "the greek lines in left
+   margin/gutter and english has them in right margin/gutter"). B's tokens come
+   from vase.css. ReaderShell sets data-author on <body> for plays; nothing
+   here reaches any other work. */
 
-body[data-author="aeschylus"]    { --head-tint: #e2e7ec; }
-body[data-author="sophocles"]    { --head-tint: #e3e8df; }
-body[data-author="euripides"]    { --head-tint: #efe2dc; }
-body[data-author="aristophanes"] { --head-tint: #f0e7d2; }
-:root[data-theme="dark"] body[data-author="aeschylus"]    { --head-tint: #182027; }
-:root[data-theme="dark"] body[data-author="sophocles"]    { --head-tint: #1a2019; }
-:root[data-theme="dark"] body[data-author="euripides"]    { --head-tint: #261b17; }
-:root[data-theme="dark"] body[data-author="aristophanes"] { --head-tint: #252013; }
-
-body[data-author] .page-header {
-  background: var(--head-tint, var(--col-bg));
-  border-bottom: none;
+/* The text settings (ReaderHead's Aa; DRAFT values, John sees them in the
+   screenshots): size, measure, spacing. */
+:root { --rd-fs: 1.15rem; --rd-measure: 80rem; --rd-lh: 1.62; }
+:root[data-rd-size="smaller"] { --rd-fs: 1.05rem; }
+:root[data-rd-size="larger"] { --rd-fs: 1.3rem; }
+:root[data-rd-width="narrow"] { --rd-measure: 64rem; }
+:root[data-rd-width="wide"] { --rd-measure: 96rem; }
+:root[data-rd-spacing="tighter"] { --rd-lh: 1.5; }
+:root[data-rd-spacing="looser"] { --rd-lh: 1.78; }
+@media (max-width: 680px) {
+  :root { --rd-fs: 1.12rem; }
+  :root[data-rd-size="smaller"] { --rd-fs: 1.02rem; }
+  :root[data-rd-size="larger"] { --rd-fs: 1.27rem; }
 }
-body[data-author] .reader-controls { border-bottom: none; }
 
-/* Step 2: the speaker's name runs into the first line of each speech, in
-   both columns ("Χο." in the Greek, "Chorus." in the English), in the
-   speaker's colour; no separate speaker gutter (DESIGN.md, Reading view;
-   sketch reading-view-round2.html). Comparison keeps its labels above each
-   column until step 4. */
+/* The measure: max 80rem (or Aa's), centred. */
+body[data-author] .reader-body.play-line {
+  max-width: var(--rd-measure);
+  padding: 2.2rem 2.5rem 6rem;
+  /* Greek numbers: a 2.8rem margin column, then .6rem to the text. */
+  --pl-num-w: 3.4rem;
+}
+/* One size and one leading for both columns. Reader.svelte sets the shared
+   size tokens inline on .reader-body (its own settings sliders); declared one
+   level down, B's values reach every shared rule that reads them. */
+body[data-author] .reader-body.play-line > * {
+  --fs-greek: var(--rd-fs);
+  --fs-english: var(--rd-fs);
+  --lh-greek: var(--rd-lh);
+  --lh-english: var(--rd-lh);
+}
+/* B's head carries the reader's controls (ReaderHead.astro drives them); the
+   strip Reader.svelte renders is not shown. */
+body[data-author] .reader-body.play-line > .reader-controls { display: none; }
+
+/* One grid row per speech, the Greek a little wider: 1.05fr 1fr, gap 3rem. */
+body[data-author] .reader-body.play-line .seg-row { --seg-gap: 3rem; }
+@media (min-width: 681px) {
+  body[data-author] .reader-body.play-line.view-both:not(.trans-compare) .seg-row,
+  body[data-author] .reader-body.play-line.view-both.prose-page:not(.trans-compare) .seg-row {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    max-width: none;
+    margin-inline: 0;
+  }
+}
+body[data-author] .reader-body.play-line .segment { margin-bottom: 1.3rem; }
+
+/* The English in the Greek's ink and weight (Cardo has no 500). */
+body[data-author] .reader-body.play-line .english-col,
+body[data-author] .reader-body.play-line .overlay-col { font-weight: 400; color: var(--ink); }
+
+/* The numbers: Alegreya Sans .72rem, tabular, in the clay for small text,
+   Greek at the left, English at the right at the translation's own markers. */
+body[data-author] .reader-body.play-line .line-num {
+  font-family: var(--font-ui); font-size: .72rem; color: var(--clay-text);
+}
+body[data-author] .reader-body.play-line .eng-lnum::before {
+  font-family: var(--font-ui); font-size: .72rem; color: var(--clay-text);
+}
+@media (min-width: 681px) {
+  body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para { padding-right: 2.6rem; }
+  body[data-author] .reader-body.play-line:not(.trans-compare) .eng-lnum { width: 2.6rem; }
+}
+
+/* The speaker's name runs into the first line of each speech, in both
+   columns ("Μη." in the Greek, "Medea." in the English), small caps in the
+   speaker's colour (John, 2026-10-20: "Let's keep the different colored
+   speaker labels though"); no speaker gutter. Comparison keeps its labels
+   above each column. */
 body[data-author] .reader-body.play-line .speaker {
-  font: 700 0.84em/1 "Alegreya Sans SC", "Alegreya Sans", system-ui, sans-serif;
-  font-variant-caps: normal;
+  font: 400 1em/1 var(--font-english);
+  font-variant: small-caps;
+  font-variant-caps: small-caps;
   font-feature-settings: normal;
   letter-spacing: 0.02em;
 }
+body[data-author] .reader-body.play-line .greek-line .speaker { font-family: var(--font-greek); }
 body[data-author] .reader-body.play-line:not(.view-greek):not(.trans-compare) .greek-line .line-text {
   padding-left: 1.4em;
 }
@@ -38,7 +90,7 @@ body[data-author] .reader-body.play-line:not(.view-greek):not(.trans-compare) .g
   position: static;
   display: inline;
   width: auto;
-  margin-right: 0.15em;
+  margin-right: 0.3em;
   /* A joint siglum ("Αι. κ. Ευ.") stays on its line, beside the words. */
   white-space: nowrap;
 }
@@ -57,4 +109,77 @@ body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-p
 }
 body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker:first-child:not(.speaker-dash)::after {
   content: ".";
+}
+/* The translator's stage directions: italic, in mid. */
+body[data-author] .reader-body.play-line .stage-dir { font-style: italic; color: var(--mid); }
+
+/* The Greek view: the Greek alone, at the same size. */
+body[data-author] .reader-body.play-line.view-greek .greek-col { font-size: var(--rd-fs); }
+
+/* Phone: the measure's padding; the Greek keeps its number column at the
+   left (2.2rem + .6rem), so each Greek block stands indented from the English
+   under it (John, 2026-10-20: "stagger the english and greek so they don't
+   run together"). */
+@media (max-width: 680px) {
+  body[data-author] .reader-body.play-line { padding: 1.2rem 1rem 4rem; --pl-num-w: 2.8rem; }
+}
+
+/* The word panel (§7.6; John, 2026-10-20: "For word panel, B."): a column at
+   the right, 23rem, on the paper; the tapped word on its own ground line;
+   the lemma, its gloss, the parse in words, the places it occurs; then
+   Grammata's entry as its module draws it, under a hairline. The site frames
+   the module and never restyles its DOM. On a phone, a sheet from the bottom
+   with the ground line along its top. */
+body[data-author] .tok.active { background: var(--hit); }
+body[data-author] .word-sidebar {
+  width: min(23rem, 86vw); background: var(--paper); color: var(--ink);
+  border-left: 0; box-shadow: none;
+}
+@media (min-width: 681px) and (max-width: 1800px) {
+  body[data-author] .reader-body.word-open { margin-right: calc(min(23rem, 86vw) + 1rem); }
+  /* The head makes room as the text does, so its controls stay in view. */
+  body[data-author]:has(.word-sidebar) .rh { padding-right: calc(min(23rem, 86vw) + 2rem); }
+}
+body[data-author] .word-sidebar-head {
+  margin: 0 1.3rem; padding: 1.1rem 0 .6rem; align-items: baseline;
+  border-bottom: 2px solid var(--line);
+}
+body[data-author] .word-sidebar-head .popup-surface { font: 400 2rem/1.1 var(--font-greek); color: var(--ink); }
+body[data-author] .word-sidebar-head .settings-close { font: 400 1.4rem/1 var(--font-ui); color: var(--mid); padding: 0; }
+body[data-author] .word-sidebar-head .settings-close:hover { color: var(--ink); }
+body[data-author] .word-sidebar-body { padding: .5rem 1.3rem 2rem; gap: 1.2rem; }
+body[data-author] .word-sidebar .analysis-card { padding: 0; background: none; border-radius: 0; font-size: 1rem; }
+body[data-author] .word-sidebar .card-face { gap: .1rem; padding: .3rem 0 0; }
+/* Under 24px the lemma takes the clay for small text. */
+body[data-author] .word-sidebar .analysis-card .lemma { font: 400 1.45rem/1.2 var(--font-greek); color: var(--clay-text); }
+body[data-author] .word-sidebar .analysis-card .gloss { font: italic 400 1.12rem/1.35 var(--font-english); color: var(--ink); margin: .1rem 0 0; }
+body[data-author] .word-sidebar .parse-rows { font: 400 .95rem/1.4 var(--font-ui); margin-top: .4rem; }
+body[data-author] .word-sidebar .parse-rows dt { color: var(--mid); }
+body[data-author] .word-sidebar .card-open-hint { font: 400 .95rem var(--font-ui); color: var(--clay-text); }
+body[data-author] .word-sidebar .card-open .card-open-hint { display: none; }
+body[data-author] .word-sidebar .lemma-link {
+  font: 400 .95rem var(--font-ui); color: var(--clay-text);
+  text-decoration: underline; text-underline-offset: 3px; margin-top: .5rem;
+}
+body[data-author] .word-sidebar .card-entry {
+  margin-top: 1.4rem; padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+}
+@media (max-width: 680px) {
+  body[data-author] .word-sidebar {
+    width: 100%; max-height: 64vh; max-height: 64dvh; height: 64dvh;
+    border-top: 2px solid var(--line); border-radius: 0; box-shadow: none;
+  }
+  body[data-author] .word-sidebar-head { border-bottom: 0; margin: 0 1rem; padding: .7rem 0 .5rem; }
+  body[data-author] .word-sidebar-body { padding: .3rem 1rem calc(2rem + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Print: the current view and its numbers, without the head (ReaderHead) or
+   the speaker bar; ink on white. */
+@media print {
+  body[data-author] { background: #fff; }
+  body[data-author] .word-sidebar { display: none; }
+  body[data-author] .reader-body.play-line { max-width: none; padding: 0; }
+  body[data-author] .reader-body.play-line .english-col,
+  body[data-author] .reader-body.play-line .greek-col { color: #000; }
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
   import {
     lookupWord,
@@ -11,6 +11,7 @@
     type LsjHead,
   } from '../lib/data';
   import { betaToGreek } from '../lib/betacode';
+  import { parseInWords } from '../lib/parse-words';
   import { loadGrammataLookup } from '../lib/grammata';
   import { getWork } from '../lib/works';
 
@@ -57,7 +58,7 @@
     (ed ? lookupWord(w, k, ed) : lookupWord(w, k))
       .then((result) => { if (id === reqId) analyses = result.analyses; })
       .catch((cause) => { if (id === reqId) error = String(cause); })
-      .finally(() => { if (id === reqId) loading = false; });
+      .finally(() => { if (id === reqId) { loading = false; void openFirst(id); } });
   }
 
   // The page manifest drives concordance links. The small heads manifest gives
@@ -145,6 +146,18 @@
     if (openId && el) renderLexicon(el, card.head, card.lsjKey);
   }
 
+  // The first entry opens with the parse, so the dictionary stands under it
+  // (the drama site's word panel, UI pass 2); a word with several entries
+  // keeps the toggle on the others. Every completed lookup renders it again:
+  // a repeated lookup of the same word cancels the render before it (lexId).
+  async function openFirst(id: number) {
+    await tick();
+    const mount = dialogEl?.querySelector<HTMLElement>('.analysis-card .grammata-mount');
+    if (id !== reqId || !cards.length || !mount) return;
+    openId = cards[0].id;
+    renderLexicon(mount, cards[0].head, cards[0].lsjKey);
+  }
+
   // A slow entry render must not land after the reader has opened another card
   // or moved to another word.
   let lexId = 0;
@@ -222,7 +235,7 @@
             <span class="gloss">{card.gloss}</span>
             <dl class="parse-rows">
               {#each card.rows as row}
-                <dt>{row.text}</dt>
+                <dt>{parseInWords(row.text)}</dt>
                 <dd>{row.dialect}</dd>
               {/each}
             </dl>
@@ -234,8 +247,7 @@
 
           {#if card.ref}
             <a class="lemma-link" href={lemmaEntryHref(base, langPath, card.ref.slug)}>
-              Appears {card.ref.count.toLocaleString()}× across the corpus
-              <span class="lemma-link-arr" aria-hidden="true">→</span>
+              {card.ref.count.toLocaleString()} place{card.ref.count === 1 ? '' : 's'} in the plays
             </a>
           {/if}
 

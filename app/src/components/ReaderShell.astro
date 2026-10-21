@@ -15,6 +15,7 @@ import HelpButton from './HelpButton.svelte';
 import Breadcrumb from './Breadcrumb.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
+import ReaderHead from './ReaderHead.astro';
 import RunningHead from '@shared/components/RunningHead.svelte';
 import SpeakerBar from './SpeakerBar.astro';
 import '../styles/reader-drama.css';
@@ -375,6 +376,18 @@ const intro =
        fetch so it never costs the on-screen reader. -->
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@1,600&family=DM+Mono:wght@400&display=swap" rel="stylesheet" media="print" />
   <Pwa />
+  {isPlayLine && <script is:inline>
+    // The reader's text settings (ReaderHead.astro's Aa), before the first paint.
+    (function () {
+      try {
+        var root = document.documentElement;
+        [['drama-rd-size', 'rdSize'], ['drama-rd-width', 'rdWidth'], ['drama-rd-spacing', 'rdSpacing']].forEach(function (p) {
+          var v = localStorage.getItem(p[0]);
+          if (v) root.dataset[p[1]] = v;
+        });
+      } catch (e) {}
+    })();
+  </script>}
 </head>
 <body data-author={isPlayLine ? work.author : undefined}>
   <!-- Semantic page heading + topical intro for search engines and screen
@@ -387,6 +400,9 @@ const intro =
       {intro}
     </p>
   </div>
+  {/* A play's running head is direction B's (ReaderHead.astro, UI pass 2);
+      every other work keeps the reader header below. */}
+  {isPlayLine ? <ReaderHead work={work} editionsOn={editionsOn} /> : (
   <header class="page-header">
     <div class="header-bar">
       {!isPlayLine && (
@@ -561,6 +577,7 @@ const intro =
     </div>
     )}
   </header>
+  )}
 
   {/* A play has no divisions to list (John, 2026-09-09): no Contents
       drawer on play-line works; the shell script already tolerates its
@@ -722,7 +739,7 @@ const intro =
     // Contents sidebar (full-work outline) drawer. On mobile this is the single
     // navigation hub (the old Menu dropdown is gone); on desktop the nav panel is
     // always visible (CSS) and the sidebar holds just the outline.
-    const header = document.querySelector('.page-header');
+    const header = document.querySelector('.page-header, [data-reader-head]');
     const tocToggle = header?.querySelector('.toc-toggle');
 
     // The Search button's ⌘K hint is rendered ⌘K (macOS) by default; the command

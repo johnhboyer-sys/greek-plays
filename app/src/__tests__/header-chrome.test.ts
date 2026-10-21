@@ -57,6 +57,30 @@ describe('reader header: the running head', () => {
   });
 });
 
+// UI pass 2, direction B: a play's running head is ReaderHead.astro, the
+// same claims in its own markup: the site name links home, the author and the
+// play are links back out, and nothing in it is a <select> switcher.
+describe("a play's running head (direction B)", () => {
+  const head = readFileSync(join(process.cwd(), 'src', 'components', 'ReaderHead.astro'), 'utf8');
+  const markup = head.slice(head.indexOf('<header class="rh"'), head.indexOf('</header>'));
+
+  it('is the head ReaderShell renders for a play', () => {
+    const shell = readFileSync(join(process.cwd(), 'src', 'components', 'ReaderShell.astro'), 'utf8');
+    expect(shell).toContain('{isPlayLine ? <ReaderHead work={work} editionsOn={editionsOn} /> : (');
+  });
+
+  it('leads with the site name as a link home, then the author and the play as links back out', () => {
+    expect(markup).toContain('data-reader-head');
+    const crumbs = markup.slice(markup.indexOf('<span class="crumbs">'), markup.indexOf('<span class="ctl">'));
+    const hrefs = [...crumbs.matchAll(/href=\{`([^`]+)`\}/g)].map((m) => m[1]);
+    expect(hrefs).toEqual(['${base}/', '${base}${authorPath(author.id)}', '${base}${workLanding(work.id)}']);
+  });
+
+  it('offers no switcher: no <select> anywhere in it', () => {
+    expect(markup).not.toContain('<select');
+  });
+});
+
 describe('data-genre on <html>', () => {
   it('is set from the author on the reader, the author page and a work landing', () => {
     const shell = readFileSync(join(process.cwd(), 'src', 'components', 'ReaderShell.astro'), 'utf8');

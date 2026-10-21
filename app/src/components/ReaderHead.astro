@@ -1,0 +1,358 @@
+---
+// The reader's running head (docs/redesign/HANDOFF-ui-pass2-build.md §7.1,
+// direction B): one line on the ground line, sticky. Left, the site name, the
+// author and the play, all links back out (no play switcher: John's ruling).
+// Right, four controls and the two icons: the picker (the Greek text and the
+// translation, Greek on the left as in the columns; John, 2026-10-20: "greek
+// on left of picker, english on right"), the views, Aa (size, width, spacing,
+// speaker colours, copying, print; John: "Into the two menus"), search, and
+// dark or light. The head holds no state of its own: Reader.svelte owns view,
+// translation and edition, and this line drives it through `reader:set` and
+// follows it through `reader:state` (window events), one state, two faces.
+// Phones: two lines, the stacked site name and the icons on the first, the
+// controls on the second; each menu opens as a sheet.
+import { getAuthor } from '@shared/lib/authors';
+import { authorPath, workLanding, visibleTranslations, type Work } from '@shared/lib/works';
+import { SITE_NAME } from '../lib/site';
+import ThemeToggle from './ThemeToggle.astro';
+import '../styles/vase.css';
+
+interface Props { work: Work; editionsOn: boolean }
+const { work, editionsOn } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const author = getAuthor(work.author)!;
+const words = SITE_NAME.split(' ');
+const cut = Math.ceil(words.length / 2);
+
+const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
+const yearIn = (s: string) => /\b(\d{4})\b/.exec(s)?.[1] ?? '';
+const translations = visibleTranslations(work);
+const reference = { id: 'tlg', short: work.greekSource.short, full: work.greekSource.full, pairs: undefined as string[] | undefined, year: undefined as number | undefined };
+const editions = editionsOn ? work.greekEditions! : [reference];
+const editionOf = (id: string | undefined) => editions.find((e) => e.id === id)
+  ?? editions.find((e) => e.id === 'tlg') ?? editions[0];
+// The Greek a translation stands beside: its own edition when the picker is
+// on (matched pairs, John 2026-09-28), else the reference text.
+const pairedEdition = (t: { edition?: string }) => editionOf(editionsOn ? t.edition : undefined);
+const shortYear = (e: { short: string; full: string; year?: number }) =>
+  `${plain(e.short)} ${e.year ?? yearIn(e.short) ?? yearIn(e.full)}`.trim();
+
+const eds = editions.map((e) => {
+  const pairs = (e.pairs ?? []).filter((id) => translations.some((t) => t.id === id));
+  const by = pairs.map((id) => translations.find((t) => t.id === id)!.short).join(' and ');
+  return {
+    id: e.id,
+    name: plain(e.full),
+    sub: [String(e.year ?? yearIn(e.full)), by ? `the text ${by} translated` : ''].filter(Boolean).join(', '),
+    label: shortYear(e),
+    pair: pairs[0] ?? null,
+  };
+});
+const trs = translations.map((t) => {
+  const paren = /\s*\(([^)]*)\)\s*$/.exec(t.name);
+  const years = paren?.[1].match(/\b\d{4}\b/g) ?? [];
+  return {
+    id: t.id,
+    short: t.short,
+    name: years.length ? t.name.slice(0, paren!.index) : t.name,
+    sub: [t.form, years.join('–'), t.alignment ? `aligned by ${t.alignment}` : '', `with ${plain(pairedEdition(t).short)}'s Greek`].filter(Boolean).join(', '),
+    edition: pairedEdition(t).id,
+  };
+});
+const defaultTrans = trs.find((t) => t.id === work.defaultTranslation)?.id
+  ?? translations.find((t) => t.slot === 'english')?.id ?? trs[0]?.id ?? '';
+const defaultEd = trs.find((t) => t.id === defaultTrans)?.edition ?? editions[0].id;
+const label = (ed: string, tr: string) => [eds.find((e) => e.id === ed)?.label, trs.find((t) => t.id === tr)?.short].filter(Boolean).join(' · ');
+const data = { eds, trs, editionsOn };
+// Each text's citation, with the Perseus credit its licence asks for, as the
+// reader's controls strip printed it in the Greek view (Reader.svelte greekSrc).
+const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
+  ? work.greekSource.full
+  : e.full + ('licence' in e && e.licence === 'cc-by-sa-4.0' ? ' · Perseus Digital Library, CC BY-SA 4.0' : '')]));
+---
+<header class="rh" data-reader-head data-head={JSON.stringify(data)}>
+  <span class="crumbs"><a class="wm" href={`${base}/`}><span>{words.slice(0, cut).join(' ')}</span> <span>{words.slice(cut).join(' ')}</span></a> · <a class="au" href={`${base}${authorPath(author.id)}`}>{author.name}</a> · <a class="play" href={`${base}${workLanding(work.id)}`}>{work.title}</a></span>
+  <span class="ctl">
+    <span class="pick">
+      <button type="button" class="pk" aria-expanded="false" aria-controls="rh-texts" data-pick="texts"><span class="pk-label">{label(defaultEd, defaultTrans)}</span><i aria-hidden="true">▾</i></button>
+      <div class="menu wide" id="rh-texts" hidden>
+        <div class="two">
+          <div>
+            <p class="mh">Greek text</p>
+            <ul>
+              {eds.map((e) => (
+                <li data-ed={e.id} class:list={{ cur: e.id === defaultEd }}><button type="button" data-ed={e.id} data-pair={e.pair ?? ''}>{e.name}</button><span>{e.sub}</span></li>
+              ))}
+            </ul>
+            {/* DRAFT copy (spec §7.5); the rule is John's, 2026-09-28. */}
+            {editionsOn && eds.length > 1 && <p class="mn">Both and English views show each translation beside the Greek its translator used. The Greek view takes any edition.</p>}
+          </div>
+          <div>
+            <p class="mh">Translation</p>
+            <ul>
+              {trs.map((t) => (
+                <li data-tr={t.id} class:list={{ cur: t.id === defaultTrans }}><button type="button" data-tr={t.id}>{t.name}</button><span>{t.sub}</span></li>
+              ))}
+            </ul>
+            {trs.length > 1 && (
+              <>
+                {/* DRAFT copy. Compare two translations side by side (John, 2026-10-20: "Into the two menus"). */}
+                <p class="cmp-on"><button type="button" data-compare="on">Compare two translations</button></p>
+                <div class="cmp" hidden>
+                  <p class="opt" data-side="0"><span>Left</span>{trs.map((t) => <button type="button" data-cmp={t.id}>{t.short}</button>)}</p>
+                  <p class="opt" data-side="1"><span>Right</span>{trs.map((t) => <button type="button" data-cmp={t.id}>{t.short}</button>)}</p>
+                  <p class="cmp-off"><button type="button" data-compare="off">One translation</button></p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </span>
+    <span class="views" role="group" aria-label="Reading view">
+      <button type="button" data-view="greek" aria-pressed="false">Greek</button>
+      <button type="button" data-view="both" aria-pressed="true">Both</button>
+      <button type="button" data-view="english" aria-pressed="false">English</button>
+    </span>
+    <span class="pick">
+      <button type="button" class="pk aa" aria-expanded="false" aria-controls="rh-aa" aria-label="Text size, width, and print" data-pick="aa">Aa</button>
+      {/* DRAFT copy: the row names and choices (spec §7.5; Spacing, Speakers and Copying are John's 2026-10-20 additions). */}
+      <div class="menu aam" id="rh-aa" hidden>
+        <p class="mh">Text</p>
+        <div class="rows">
+          <span>Size</span><span class="ch" data-set="size"><button type="button" data-v="smaller">Smaller</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="larger">Larger</button></span>
+          <span>Width</span><span class="ch" data-set="width"><button type="button" data-v="narrow">Narrow</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="wide">Wide</button></span>
+          <span>Spacing</span><span class="ch" data-set="spacing"><button type="button" data-v="tighter">Tighter</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="looser">Looser</button></span>
+          <span>Speakers</span><span class="ch" data-set="spk"><button type="button" data-v="on">In colour</button><button type="button" data-v="off">Plain</button></span>
+          <span>Copying</span><span class="ch" data-set="cite"><button type="button" data-v="on">With citation</button><button type="button" data-v="off">Plain</button></span>
+        </div>
+        <p class="print"><button type="button" data-print>Print this page</button></p>
+      </div>
+    </span>
+  </span>
+  <span class="tools">
+    <a class="ic" href={`${base}/search`} aria-label="Search" title="Search">
+      <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75"/><path d="M12.75 12.75 17.5 17.5"/></svg>
+    </a>
+    <ThemeToggle />
+  </span>
+</header>
+<p class="rd-credit" id="rd-credit" hidden data-sources={JSON.stringify(sources)}></p>
+
+<style>
+  /* One line on the desktop, sticky, the ground line under it (§7.1). */
+  .rh {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: flex-end; gap: 1.6rem;
+    padding: .7rem 2rem 0;
+    background: var(--paper); border-bottom: 2px solid var(--line);
+    font: 400 1rem var(--font-ui); color: var(--mid);
+  }
+  .rh a { text-decoration: none; }
+  .rh a:hover { text-decoration: underline; text-underline-offset: .12em; }
+  .crumbs { font: 400 1.15rem var(--font-english); color: var(--mid); padding-bottom: .45rem; min-width: 0; }
+  .crumbs .wm { color: var(--mid); }
+  .crumbs .wm span { white-space: nowrap; }
+  .crumbs .au { color: var(--ink); }
+  .crumbs .play { color: var(--clay-text); }
+  .ctl { margin-left: auto; display: flex; align-items: flex-end; gap: 1.4rem; padding-bottom: .55rem; }
+  .ctl button {
+    background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
+    font: inherit; color: inherit; text-align: left;
+  }
+  .ctl button:hover { color: var(--ink); }
+  .views { display: flex; gap: .9rem; }
+  .views button[aria-pressed="true"] { color: var(--ink); }
+  .pick { position: relative; }
+  .pk i { font-style: normal; font-size: .7em; margin-left: .25em; color: var(--clay-text); }
+  .pk.aa { font-family: var(--font-english); font-size: 1.15rem; line-height: 1; }
+  .pk[aria-expanded="true"] { color: var(--ink); }
+  .tools { display: flex; gap: 1.1rem; align-items: center; padding-bottom: .55rem; color: var(--mid); align-self: flex-end; }
+  .tools .ic { display: inline-flex; }
+
+  /* The menus: under their control, right-aligned, paper, the ink frame
+     (John, 2026-10-20: "Ink frame"). */
+  .menu {
+    position: absolute; top: calc(100% + 2px); right: 0; z-index: 30;
+    min-width: 17rem; padding: 1rem 1.3rem 1.1rem;
+    background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink);
+    font: 400 1rem var(--font-ui); text-align: left;
+  }
+  .menu[hidden] { display: none; }
+  .menu.wide { min-width: 40rem; }
+  .menu .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+  .menu .mh { color: var(--mid); margin: 0 0 .4rem; }
+  .menu ul { list-style: none; margin: 0; padding: 0; }
+  .menu li { padding: .35rem 0; }
+  .menu li button { font: 400 1.1rem var(--font-english); color: var(--ink); }
+  .menu li.cur button { color: var(--clay-text); }
+  .menu li span { display: block; color: var(--mid); font-size: .9rem; }
+  .menu .mn { margin: .6rem 0 0; color: var(--mid); font-size: .9rem; max-width: 24em; }
+  .menu .cmp-on, .menu .cmp-off { margin: .6rem 0 0; }
+  .menu .cmp-on button, .menu .cmp-off button { color: var(--clay-text); font-size: .95rem; }
+  .menu .cmp { margin-top: .6rem; }
+  .menu .cmp[hidden] { display: none; }
+  .menu .opt { display: flex; flex-wrap: wrap; gap: .25rem 1rem; align-items: baseline; margin: 0; padding: .25rem 0; }
+  .menu .opt span { color: var(--mid); width: 3.2rem; }
+  .menu .opt button, .menu .ch button { color: var(--mid); }
+  .menu .opt button[aria-pressed="true"], .menu .ch button[aria-pressed="true"] { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+  .menu .rows { display: grid; grid-template-columns: auto 1fr; gap: .5rem 1rem; align-items: baseline; }
+  .menu .rows > span:nth-child(odd) { color: var(--mid); }
+  .menu .ch { display: flex; flex-wrap: wrap; gap: .25rem 1rem; }
+  .menu .print { margin: .7rem 0 0; }
+  .menu .print button { color: var(--ink); }
+
+  .rd-credit {
+    max-width: var(--rd-measure, 80rem); margin: 1.2rem auto 0; padding: 0 2.5rem;
+    font: 400 .85rem/1.4 var(--font-ui); color: var(--mid);
+  }
+  .rd-credit[hidden] { display: none; }
+
+  @media (max-width: 680px) {
+    .rd-credit { padding: 0 1rem; }
+    /* Two lines: the stacked site name, the author and the play, and the
+       icons at the right end of the first; the controls on the second (John,
+       2026-10-20: the icons "on the same line as play title" "but in the
+       right hand corner"). */
+    .rh { padding: .4rem 1rem 0; gap: .8rem; flex-wrap: wrap; align-items: center; }
+    /* The two-line site name and the author · play centred on one midline
+       (John, 2026-10-20). */
+    .crumbs { font-size: 1rem; display: inline-flex; align-items: center; gap: .3em; padding-bottom: .2rem; }
+    .crumbs .wm { display: inline-flex; flex-direction: column; font-size: .72rem; line-height: 1.05; margin-right: .1rem; }
+    .tools { margin-left: auto; padding-bottom: .2rem; gap: .9rem; align-self: center; }
+    .ctl { order: 1; width: 100%; margin-left: 0; gap: .75rem; font-size: .9rem; flex-wrap: wrap; padding: .2rem 0 .55rem; }
+    .views { gap: .7rem; }
+    .menu, .menu.wide {
+      position: fixed; left: 1rem; right: 1rem; top: 6.2rem; min-width: 0;
+      max-height: calc(100vh - 8rem); overflow: auto;
+    }
+    .menu .two { grid-template-columns: 1fr; gap: .8rem; }
+  }
+  @media print { .rh { display: none; } }
+</style>
+
+<script>
+  // Drive Reader.svelte (window `reader:set`) and follow it (`reader:state`);
+  // the text settings are this head's own (drama-scoped keys, spec §7.5).
+  type Ed = { id: string; label: string; pair: string | null };
+  type Tr = { id: string; short: string; edition: string };
+  type State = { view: string; trans: string; compareLeft: string; compareRight: string; edition: string; spkColor: boolean; citeCopy: boolean };
+
+  const head = document.querySelector<HTMLElement>('[data-reader-head]');
+  if (head) {
+    const { eds, trs, editionsOn } = JSON.parse(head.dataset.head || '{}') as { eds: Ed[]; trs: Tr[]; editionsOn: boolean };
+    const set = (detail: Record<string, unknown>) => window.dispatchEvent(new CustomEvent('reader:set', { detail }));
+    let state: State | null = null;
+    let lastSingle = '';
+
+    // ── Menus: a tap on a control toggles its menu, a tap elsewhere or Escape closes it.
+    const picks = Array.from(head.querySelectorAll<HTMLButtonElement>('button[data-pick]'));
+    const menuOf = (b: HTMLButtonElement) => document.getElementById(b.getAttribute('aria-controls')!)!;
+    const close = (except?: HTMLButtonElement) => picks.forEach((b) => {
+      if (b === except) return;
+      b.setAttribute('aria-expanded', 'false');
+      menuOf(b).hidden = true;
+    });
+    picks.forEach((b) => b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = b.getAttribute('aria-expanded') !== 'true';
+      close(b);
+      b.setAttribute('aria-expanded', String(open));
+      menuOf(b).hidden = !open;
+    }));
+    head.querySelectorAll('.menu').forEach((m) => m.addEventListener('click', (e) => e.stopPropagation()));
+    document.addEventListener('click', () => close());
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const open = picks.find((b) => b.getAttribute('aria-expanded') === 'true');
+      if (open) { close(); open.focus(); }
+    });
+
+    // ── The picker: a translation, a Greek text, or two translations side by side.
+    head.querySelectorAll<HTMLButtonElement>('button[data-tr]').forEach((b) => b.addEventListener('click', () => set({ trans: b.dataset.tr })));
+    head.querySelectorAll<HTMLButtonElement>('button[data-ed]').forEach((b) => b.addEventListener('click', () => {
+      const ed = b.dataset.ed!;
+      if (!state || !editionsOn) return;
+      // The Greek view takes any edition; Both and English show a translation
+      // beside its own Greek, so a text with a translation of its own brings
+      // that translation, and a text without one opens in the Greek view
+      // (shared/lib/edition-state.ts, loadEdition).
+      if (state.view === 'greek') set({ edition: ed });
+      else if (b.dataset.pair) set({ trans: b.dataset.pair });
+      else set({ view: 'greek', edition: ed });
+    }));
+    head.querySelector<HTMLButtonElement>('button[data-compare="on"]')?.addEventListener('click', () => {
+      if (state) set({ compare: [state.compareLeft, state.compareRight] });
+    });
+    head.querySelector<HTMLButtonElement>('button[data-compare="off"]')?.addEventListener('click', () => set({ trans: lastSingle || trs[0]?.id }));
+    head.querySelectorAll<HTMLElement>('.cmp .opt').forEach((row) => row.querySelectorAll<HTMLButtonElement>('button[data-cmp]').forEach((b) => b.addEventListener('click', () => {
+      if (!state) return;
+      const pair: [string, string] = [state.compareLeft, state.compareRight];
+      pair[Number(row.dataset.side)] = b.dataset.cmp!;
+      set({ compare: pair });
+    })));
+
+    // ── The views.
+    const views = Array.from(head.querySelectorAll<HTMLButtonElement>('button[data-view]'));
+    views.forEach((b) => b.addEventListener('click', () => set({ view: b.dataset.view })));
+
+    // ── Aa: size, width, spacing (this head's), speaker colours and copying (the reader's), print.
+    const TEXT_KEYS: Record<string, string> = { size: 'drama-rd-size', width: 'drama-rd-width', spacing: 'drama-rd-spacing' };
+    const root = document.documentElement;
+    const textValue = (k: string) => root.dataset[`rd${k[0].toUpperCase()}${k.slice(1)}`] || 'normal';
+    head.querySelectorAll<HTMLElement>('.ch[data-set]').forEach((group) => group.querySelectorAll<HTMLButtonElement>('button[data-v]').forEach((b) => b.addEventListener('click', () => {
+      const k = group.dataset.set!, v = b.dataset.v!;
+      if (k === 'spk') set({ spkColor: v === 'on' });
+      else if (k === 'cite') set({ citeCopy: v === 'on' });
+      else {
+        const attr = `rd${k[0].toUpperCase()}${k.slice(1)}`;
+        if (v === 'normal') delete root.dataset[attr]; else root.dataset[attr] = v;
+        try { if (v === 'normal') localStorage.removeItem(TEXT_KEYS[k]); else localStorage.setItem(TEXT_KEYS[k], v); } catch {}
+        render();
+      }
+    })));
+    head.querySelector<HTMLButtonElement>('button[data-print]')?.addEventListener('click', () => { close(); window.print(); });
+
+    // ── Render the head from the reader's state.
+    const label = head.querySelector<HTMLElement>('.pk-label')!;
+    const credit = document.getElementById('rd-credit');
+    function render() {
+      head!.querySelectorAll<HTMLElement>('.ch[data-set]').forEach((group) => {
+        const k = group.dataset.set!;
+        const cur = k === 'spk' ? (state?.spkColor === false ? 'off' : 'on')
+          : k === 'cite' ? (state?.citeCopy === false ? 'off' : 'on')
+          : textValue(k);
+        group.querySelectorAll<HTMLButtonElement>('button[data-v]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === cur)));
+      });
+      if (!state) return;
+      const compare = state.trans === 'compare';
+      const ed = eds.find((e) => e.id === state!.edition) ?? eds[0];
+      const shown = compare
+        ? [state.compareLeft, state.compareRight].map((id) => trs.find((t) => t.id === id)?.short).filter(Boolean).join(', ')
+        : trs.find((t) => t.id === state!.trans)?.short;
+      label.textContent = [ed?.label, shown].filter(Boolean).join(' · ');
+      views.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === state!.view)));
+      head!.querySelectorAll<HTMLElement>('li[data-ed]').forEach((li) => li.classList.toggle('cur', li.dataset.ed === ed?.id));
+      head!.querySelectorAll<HTMLElement>('li[data-tr]').forEach((li) => li.classList.toggle('cur', !compare && li.dataset.tr === state!.trans));
+      const cmp = head!.querySelector<HTMLElement>('.cmp');
+      const on = head!.querySelector<HTMLElement>('.cmp-on');
+      if (cmp && on) { cmp.hidden = !compare; on.hidden = compare; }
+      head!.querySelectorAll<HTMLElement>('.cmp .opt').forEach((row) => {
+        const id = row.dataset.side === '0' ? state!.compareLeft : state!.compareRight;
+        row.querySelectorAll<HTMLButtonElement>('button[data-cmp]').forEach((b) => b.setAttribute('aria-pressed', String(compare && b.dataset.cmp === id)));
+      });
+      // The Greek text's citation and licence, in the Greek view (pass 1's
+      // controls strip carried it there; the Perseus texts need their credit).
+      if (credit) {
+        credit.textContent = (JSON.parse(credit.dataset.sources || '{}') as Record<string, string>)[ed?.id ?? 'tlg'] ?? '';
+        credit.hidden = state.view !== 'greek' || !credit.textContent;
+      }
+    }
+    window.addEventListener('reader:state', (e) => {
+      state = (e as CustomEvent<State>).detail;
+      if (state.trans !== 'compare') lastSingle = state.trans;
+      render();
+    });
+    render();
+  }
+</script>

@@ -1133,7 +1133,7 @@
     const els = Array.from(document.querySelectorAll(
       greekVisible ? '.greek-line[id]' : '.segment[id], [data-etick]'));
     if (!els.length) return;
-    const headerH = Math.round(document.querySelector('.page-header')?.getBoundingClientRect().height ?? 60);
+    const headerH = Math.round(document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().height ?? 60);
     // The reading area starts below the sticky header AND the sticky controls
     // strip pinned beneath it, so the detection band begins at the strip's bottom.
     const ctrlBottom = document.querySelector('.reader-controls')?.getBoundingClientRect().bottom ?? 0;
@@ -1329,6 +1329,38 @@
   let _onToggleSettings: () => void;
   let _onCloseSettings: () => void;
 
+  // A running head outside this island (the drama site's, UI pass 2) drives the
+  // reader through window events, as the settings events above do: one state,
+  // two faces. `reader:set` takes any of view, trans, compare (the two ids),
+  // edition (with editions on; with a view, a switch to that view as well),
+  // spkColor and citeCopy. `reader:state` reports them after every change.
+  type ReaderSet = { view?: View; trans?: string; compare?: [string, string]; edition?: string; spkColor?: boolean; citeCopy?: boolean };
+  function onReaderSet(e: Event) {
+    const d = (e as CustomEvent<ReaderSet>).detail ?? {};
+    if (typeof d.spkColor === 'boolean') { spkColor = d.spkColor; saveSpkColor(); }
+    if (typeof d.citeCopy === 'boolean') { citeCopy = d.citeCopy; saveCiteCopy(); }
+    if (d.compare) {
+      [compareLeft, compareRight] = d.compare;
+      if (compareLeft === compareRight) compareRight = otherTrans(compareLeft);
+      saveCompare();
+      setTrans('compare');
+    }
+    if (d.edition && edition) {
+      dispatch('editionChange', { trans, view: d.view ?? view, loc: lastCite, ed: d.edition });
+      return;
+    }
+    if (d.trans) setTrans(d.trans);
+    if (d.view && d.view !== view) setView(d.view);
+  }
+  let readerStateOn = false;
+  function emitReaderState(..._deps: unknown[]) {
+    if (!readerStateOn) return;
+    window.dispatchEvent(new CustomEvent('reader:state', {
+      detail: { view, trans, compareLeft, compareRight, edition: edition ?? 'tlg', spkColor, citeCopy },
+    }));
+  }
+  $: emitReaderState(view, trans, compareLeft, compareRight, edition, spkColor, citeCopy, readerStateOn);
+
   onDestroy(() => {
     spyObserver?.disconnect();
     settleAbort?.();
@@ -1339,6 +1371,7 @@
       window.removeEventListener('hashchange', onHashChange);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
+      window.removeEventListener('reader:set', onReaderSet);
       document.removeEventListener('mouseup', checkCopyBtn);
       document.removeEventListener('selectionchange', onSelectionChange);
       if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
@@ -3196,6 +3229,7 @@
     _onCloseSettings  = () => { if (settingsOpen) closeSettings(); };
     window.addEventListener('toggle-settings', _onToggleSettings);
     window.addEventListener('close-settings',  _onCloseSettings);
+    window.addEventListener('reader:set', onReaderSet);
     const params = new URLSearchParams(window.location.search);
     hlGrkFolds = (params.get('hlg') ?? '').trim().split(/\s+/).filter(Boolean)
       .map(t => greekFold(t.replace(/\*/g, ''))).filter(Boolean);
@@ -3255,6 +3289,7 @@
       if (initialTranslation && validTrans.has(initialTranslation)) trans = initialTranslation;
       if (initialView) view = initialView;
     }
+    readerStateOn = true;
     try {
       // Already seeded from the build-time prop in the normal (SSR) path; only
       // fetch when the reader was mounted without it.
@@ -3938,7 +3973,7 @@
       const range = sel.getRangeAt(0);
       if (!nearestGreekLine(range.startContainer) && !nearestGreekLine(range.endContainer)) return;
       const rect = range.getBoundingClientRect();
-      const headerHeight = document.querySelector('.page-header')?.getBoundingClientRect().height ?? 0;
+      const headerHeight = document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().height ?? 0;
       // Render once to get the button's actual size, then place it before paint.
       copyBtnPos = { x: rect.right, y: rect.top };
       await tick();
