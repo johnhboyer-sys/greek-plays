@@ -577,7 +577,9 @@ SPECK, FLECK = 150, 200
 LC_CAP, LC_R, LC_LOW, LC_HIGH = 175, 5, 30, 50
 LINE_LEN, HALF_R, WIDTH_SIGMA, LINE_MIN = 25, 6, 6.0, 4.0
 HOLE, MASK_SIGMA, SPUR, SOLID_R = 12, 1.5, 7, 10
-WEIGHT = 0.00118              # the line weight: pinned at pass 2's ("own" set it to its median, 0.118% of the longer side)
+# the line weight: pinned at pass 2's ("own" set it to its median, 0.118% of the longer side, 4244 flat px then: 5.0 px);
+# the crop (CROP) made the longer side 3070 px, so the same 5.0 px is now 0.163% of it
+WEIGHT = 0.00163
 NECK = 5                      # every line thickened to at least NECK flat px along its centre before tracing
 # Seeds (flat px): the woman at the left column, Clytemnestra, Aegisthus, Agamemnon, the woman behind him, the woman at
 # the right column
@@ -600,6 +602,10 @@ SEEN_MIN, SEEN_SMOOTH = 0.3, 20.0
 # (narrow tongues of it, under 2 SEEN_OPEN px across, where a handle view's handle and the front's slant meet at the
 # seam, notched the skirts: opened away)
 SEEN_OPEN = 40
+# The drawing is cut at CROP (flat x, from, to; John, 2026-10-21, a rectangle on pass 10's file): just inside both
+# seams, so all of it comes from the front photo and the unrolling's worst warp and the joins are left out. Open at the
+# frame (John): the finished ink is cut there, so no line runs along the cut. The right woman falls outside it
+CROP = (622, 3684)
 # The columns under the handles are left out (John, 2026-10-15: "column to column"): everything beyond COLUMNS
 # (polylines along each column's inner edge, flat px; left, right) goes
 # (the columns lean as painted: the left one's inner edge 0.087 px left per px down, the right one's 0.09)
@@ -672,10 +678,13 @@ MARKS_ORIGIN = (154, 228)
 # LESSONS (Iphigenia in Tauris). Yellow and green rule the figure before its outline is drawn; my lines inside yellow go.
 # Round 4 (2026-10-19, on pass 5's file, the same colours): the woman behind Agamemnon, her profile, the locks under her
 # chin and her dress's folds, her raised arm; Aegisthus' outstretched arm and the hand on Agamemnon's head
+# Round 5 (2026-10-21, on pass 10's file, layer "John marks copy", the same colours, blue and yellow only): all over the
+# scene, the locks of the woman behind Agamemnon among them
 MARKS_FILES = [("agamemnon_marks_1_blue.png", "agamemnon_marks_1_purple.png", None, None),
                ("agamemnon_marks_2_blue.png", "agamemnon_marks_2_purple.png", None, None),
                ("agamemnon_marks_3_blue.png", None, "agamemnon_marks_3_yellow.png", "agamemnon_marks_3_green.png"),
-               ("agamemnon_marks_4_blue.png", None, "agamemnon_marks_4_yellow.png", "agamemnon_marks_4_green.png")]
+               ("agamemnon_marks_4_blue.png", None, "agamemnon_marks_4_yellow.png", "agamemnon_marks_4_green.png"),
+               ("agamemnon_marks_5_blue.png", None, "agamemnon_marks_5_yellow.png", None)]
 BLOB_R, BLOB_MIN = 5, 200
 MARK_LEN, MARK_W, MARK_SMOOTH, MARK_GAP = 10, 5.0, 1.5, 2
 # Small dots painted on the clothes (the net-robe's, the right-hand woman's): inside DOTS (polygons, flat px) small marks
@@ -1122,6 +1131,8 @@ def scene(g8, rb8, sharp8, dump=None):
     faces &= ~near_j
     faces |= johns
     net = (net | stroke(purple, NET_W)) & ~ink & ~faces & ~hair
+    keep = (xx >= CROP[0]) & (xx < CROP[1])
+    ink, faces, fig, net, hair = ink & keep, faces & keep, fig & keep, net & keep, hair & keep
     if dump:
         np.savez_compressed(dump, ink=ink, faces=faces, fig=fig, ground=ground, clay=clay, core=core, solid=solid,
                             net=net, hair=hair)
