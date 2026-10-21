@@ -629,3 +629,34 @@ Done means all of this is true on `claude/ui-pass2`, pushed:
   or the description of playwright smaller so this can come down..."
 - "slightly smaller font" (the play page's Greek title)
 - "okay. i think its good. write a detailed spec handoff for opus"
+
+## 13. The open calls, answered (John, 20 October 2026, about 21:30)
+
+Asked in chat at the start of the build; these replace §11's open items.
+
+1. The drop-down's edge: the ink frame (1.5px ink on all four sides,
+   square corners), both menus, both widths, both themes.
+2. Small clay text: `#964e24` (5.2:1 on the light paper) for clay text and
+   line numbers under 24px; `#a85a2b` stays for clay text at 24px and over.
+   The dark theme keeps `#d9895a` for both.
+3. The speaker bar stays, in B's type.
+4. The reader moves to `/read/<author>/<work>/`.
+5. Author pages keep the Oresteia and Oedipus groups; the "Titles only"
+   toggle and "Find a play" go.
+6. The play page shows a plain "Resume at 1116" link (DRAFT) under the
+   argument when a saved place exists.
+7. The desktop author and play heads keep the one-line site name; only
+   phones stack it.
+8. The foot keeps pass 1's links: "Request a feature or report an error",
+   the Plato Reader, the Aristotle Reader, and "Site by John H. Boyer",
+   which now links to johnhboyer.com (the X link goes). John: "Keep them all
+   and have a link to johnhboyer.com."
+9. Pass 1's Settings panel goes into the two menus: Compare in the picker's
+   Translation column; Spacing, Speaker colours, and Copy citation as rows
+   in Aa. The reader's Help button goes.
+10. Speaker palette slot 4 is replaced in this pass with a hue that stands
+    out; John sees it in the screenshots.
+11. A plates page (each drawing beside its original, with full citation;
+    John: "maybe add a plates page with all the plates next to the originals
+    with full citation info?") is its own job after this pass; its scope is
+    written at the end, beside search step 2.

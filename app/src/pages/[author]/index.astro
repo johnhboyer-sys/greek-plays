@@ -1,11 +1,12 @@
 ---
 // An author's page, served at the bare /<author> slug (docs/redesign/
-// DESIGN.md, Author pages; sketch author-pages-round4.html): the author's
-// tint as the page ground, the figure on its ground line, the names, dates,
-// play count and blurb, then the plays without boxes, any group first.
+// HANDOFF-ui-pass2-build.md §5, direction B): the name at the left and the
+// figure at the right on its own ground line, the blurb under the name; then
+// the plays in two columns, any group first.
 import ThemeInit from '../../components/ThemeInit.astro';
 import Pwa from '../../components/Pwa.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFoot from '../../components/SiteFoot.astro';
 import Figure from '../../components/Figure.astro';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
 import { AUTHORS, getAuthor } from '@shared/lib/authors';
@@ -13,11 +14,10 @@ import { getWork, workLanding, type Work } from '@shared/lib/works';
 import { SITE_NAME } from '../../lib/site';
 import { jsonLdSafe } from '../../lib/jsonld';
 import { isBuilt } from '../../lib/built-works';
+import { authorDrawing } from '../../lib/drawings';
 import { AUTHOR_GROUPS, ORDINALS } from '../../lib/author-groups';
 import '@shared/styles/global.css';
-
-// The Greek editions list is part of the edition picker (plan 4.6), behind the flag.
-const editionsOn = import.meta.env.PUBLIC_EDITIONS === '1';
+import '../../styles/vase.css';
 
 // Author pages only for authors with ≥1 built work. The registry may list
 // works whose data isn't built in this checkout (see built-works.ts).
@@ -31,8 +31,8 @@ const authorId = Astro.params.author!;
 const author = getAuthor(authorId)!;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const siteName = SITE_NAME;
-// data-genre on <html> picks the accent sitewide (rubric red for tragedy,
-// malachite for comedy), as ReaderShell.astro sets it.
+// data-genre on <html>, as ReaderShell.astro sets it (header-chrome test);
+// B keeps one accent, so nothing reads it on this page.
 const genre = author.genre;
 
 // Built works only, in the author's own curated order (author.works).
@@ -41,7 +41,8 @@ const works: Work[] = author.works
   .filter((w): w is Work => Boolean(w) && isBuilt(w.id));
 
 // The group listed first (lib/author-groups.ts), when all its plays are
-// built; the rest follow in the author's order.
+// built; the rest follow in the author's order (John, 2026-10-20: the
+// Oresteia and Oedipus groups stay; "Titles only" and "Find a play" go).
 const groupDef = AUTHOR_GROUPS[author.id];
 const groupWorks = (groupDef?.works ?? [])
   .map((id) => works.find((w) => w.id === id))
@@ -59,7 +60,13 @@ const rest = group ? works.filter((w) => !group.works.includes(w)) : works;
 
 // authors.yaml blurbs may start in lower case (written to follow a name).
 const blurb = author.blurb.charAt(0).toUpperCase() + author.blurb.slice(1);
-const findOn = author.id === 'euripides';
+const figure = authorDrawing(author.id);
+// The figure's column sizes to the figure, never the figure to the column
+// (§3.3): its width at the figure's own height. A figure too wide to stand
+// beside the name on a phone (Aristophanes' Getty krater, 1.9 times as wide
+// as it is tall) stands over it there instead, still at full height.
+const ratio = figure ? figure.width / figure.height : 0.7;
+const wide = ratio > 1.2;
 
 // ── SEO ─────────────────────────────────────────────────────────────────────
 const pageTitle = `${author.name} — Works in Greek & English`;
@@ -120,233 +127,119 @@ const breadcrumbLd = Astro.site
 </head>
 <body class="author-page" data-author={author.id}>
   <CommandPalette client:load />
-  <div class="ap">
-    <SiteHeader />
+  <div class="wrap">
+    <SiteHeader stack />
 
     <main>
-      <div class="hero">
-        <Figure slug={author.id} />
+      <div class:list={['hero', { wide }]} style={`--r:${ratio.toFixed(3)}`}>
+        <div class="lead"><Figure drawings={figure ? [figure] : []} /></div>
         <div class="hx">
           <p class="gk" lang="grc">{author.nativeName}</p>
-          <h1 class="en">{author.name}</h1>
+          <h1 class="en" style={`--chars:${author.name.length}`}>{author.name}</h1>
           <p class="meta">{author.floruit} · {works.length} play{works.length === 1 ? '' : 's'}</p>
-          <p class="ab">{blurb}</p>
         </div>
+        <p class="ab">{blurb}</p>
       </div>
 
-      <div class="ctl">
-        {findOn && (
-          <label class="find">
-            <span>Find a play</span>
-            <input type="search" id="find-play" placeholder="Title in English or Greek" autocomplete="off" />
-          </label>
-        )}
-        <div class="vw" role="group" aria-label="List view">
-          <button type="button" data-view="notes" aria-pressed="true">Titles and notes</button>
-          <button type="button" data-view="titles" aria-pressed="false">Titles only</button>
-        </div>
-      </div>
+      {group && (
+        <section class="grp" aria-labelledby="grp-title">
+          <h2 class="gl"><span class="gn" id="grp-title">{group.title}</span> <span class="gm">{group.note}</span></h2>
+          <ol class="tri">
+            {group.works.map((w, i) => (
+              <li>
+                {group.ordinals && <p class="ord">{ORDINALS[i]}</p>}
+                <a class="t" href={`${base}${workLanding(w.id)}`}>{w.title}</a>
+                {w.greekTitle && <span class="g" lang="grc">{w.greekTitle}</span>}
+                {w.blurb && <p class="bl">{w.blurb}</p>}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
-      <ul class="pl" id="play-list">
-        {group && (
-          <li class="grp">
-            <h2 class="gl"><span class="gn">{group.title}</span> <span class="gm">{group.note}</span></h2>
-            <ol class="tri">
-              {group.works.map((w, i) => (
-                <li class="play" data-find={`${w.title} ${w.greekTitle ?? ''}`}>
-                  {group.ordinals && <div class="ord">{ORDINALS[i]}</div>}
-                  <a href={`${base}${workLanding(w.id)}`} class="t">{w.title}</a>
-                  {w.greekTitle && <span class="g" lang="grc">{w.greekTitle}</span>}
-                  {w.blurb && <p class="bl">{w.blurb}</p>}
-                </li>
-              ))}
-            </ol>
-          </li>
-        )}
+      <ul class="list">
         {rest.map((w) => (
-          <li class="it play" data-find={`${w.title} ${w.greekTitle ?? ''}`}>
-            <div class="tt">
-              <a href={`${base}${workLanding(w.id)}`} class="t">{w.title}</a>
-              {w.greekTitle && <span class="g" lang="grc">{w.greekTitle}</span>}
-            </div>
-            <div class="nt">
-              {w.blurb && <p class="bl">{w.blurb}</p>}
-              {w.production && <p class="pr">{w.production}</p>}
-            </div>
+          <li>
+            <a class="t" href={`${base}${workLanding(w.id)}`}>{w.title}</a>
+            {w.greekTitle && <span class="g" lang="grc">{w.greekTitle}</span>}
+            {w.blurb && <p class="bl">{w.blurb}</p>}
+            {w.production && <p class="pr">{w.production}</p>}
           </li>
         ))}
       </ul>
-      {findOn && <p class="none" id="find-none" hidden>No play matches.</p>}
-
-      {editionsOn && works.some((w) => (w.greekEditions?.length ?? 0) > 1) && (
-        <section class="eds">
-          <h2>Greek editions</h2>
-          <ul>
-            {works.filter((w) => (w.greekEditions?.length ?? 0) > 1).map((w) => (
-              <li>
-                {w.title}:{' '}
-                {w.greekEditions!.map((e, i) => (
-                  <>
-                    {i > 0 && ' · '}
-                    <a href={`${base}${workLanding(w.id)}?view=greek&ed=${encodeURIComponent(e.id)}`}>{e.short}</a>
-                  </>
-                ))}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </main>
 
-    <footer class="foot">
-      <nav aria-label="Resources">
-        <a href={`${base}/`}>All playwrights</a>
-        <a href={`${base}/search`}>Search the plays</a>
-        <a href={`${base}/lemma/grc/`}>Greek lexicon</a>
-        <a href={`${base}/attribution`}>Texts and licences</a>
-        <a href={`${base}/support`}>Support</a>
-      </nav>
-    </footer>
+    <SiteFoot />
   </div>
 
   <style>
-    /* The author's tint (DESIGN.md, Author tints); dark values pass AA. */
-    body.author-page {
-      --ink: #1b1c1f;
-      --ink-mid: #5c6064;
-      background: var(--tint); color: var(--ink);
-      font-family: "Alegreya Sans", system-ui, sans-serif;
-    }
-    body[data-author="aeschylus"]    { --tint: #e2e7ec; --link: #34536b; }
-    body[data-author="sophocles"]    { --tint: #e3e8df; --link: #43603b; }
-    body[data-author="euripides"]    { --tint: #efe2dc; --link: #8a3f30; }
-    body[data-author="aristophanes"] { --tint: #f0e7d2; --link: #6e5114; }
-    :root[data-theme="dark"] body.author-page { --ink: #e8e1d3; --ink-mid: #b9b0a1; }
-    :root[data-theme="dark"] body[data-author="aeschylus"]    { --tint: #182027; --link: #9db8cf; }
-    :root[data-theme="dark"] body[data-author="sophocles"]    { --tint: #1a2019; --link: #a9c39e; }
-    :root[data-theme="dark"] body[data-author="euripides"]    { --tint: #261b17; --link: #e3a493; }
-    :root[data-theme="dark"] body[data-author="aristophanes"] { --tint: #252013; --link: #d9bb7c; }
-
-    .ap { max-width: 80rem; margin: 0 auto; padding: 0 3.5rem 3.5rem; }
-    .ap a { color: inherit; text-decoration: none; }
-    .ap a:hover { text-decoration: underline; }
-
+    /* The hero: a grid whose blurb is its own cell, so a phone can set it
+       under the figure (John, 2026-10-20). */
     .hero {
-      --fig-h: 20rem;
-      display: grid; grid-template-columns: 18.75rem 1fr; gap: 3rem;
-      align-items: end; margin: 1.1rem 0 2.6rem;
+      display: grid; grid-template-columns: 1fr max(24rem, calc(360px * var(--r)));
+      grid-template-rows: 1fr auto;
+      grid-template-areas: "hx lead" "ab lead";
+      gap: 0 3rem; align-items: end; margin-top: 2.2rem;
     }
     .hero p { margin: 0; }
-    .gk { font-family: var(--font-greek); font-size: 1.9rem; line-height: 1.1; color: var(--ink-mid); }
-    .en { font: 400 4.75rem/1 Cardo, serif; margin: .1rem 0 .6rem; color: var(--link); }
-    .meta { font-size: 1.12rem; color: var(--ink-mid); }
-    .hero .ab { font: 400 1.3rem/1.4 Cardo, serif; margin-top: .75rem; max-width: 34em; }
+    .lead { grid-area: lead; --fig-h: 360px; --fig-lift: .5rem; }
+    .hx { grid-area: hx; min-width: 0; }
+    .gk { font: 400 2.2rem/1.1 var(--font-greek); color: var(--clay-deep); }
+    .en { font: 400 5rem/1 var(--font-english); margin: .05rem 0 .5rem; }
+    .meta { font: 400 1.1rem var(--font-ui); color: var(--mid); }
+    .hero .ab { grid-area: ab; font: 400 1.35rem/1.45 var(--font-english); max-width: 30em; margin-top: .7rem; padding-bottom: 1rem; }
 
-    .ctl { display: flex; justify-content: space-between; align-items: center; gap: 1.25rem; margin-bottom: .5rem; }
-    .vw { display: flex; gap: 1.1rem; margin-left: auto; }
-    .vw button {
-      background: none; border: 0; padding: 0; cursor: pointer;
-      font: inherit; font-size: 1rem; color: var(--ink-mid);
-    }
-    .vw button[aria-pressed="true"] { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
-    .find { display: flex; align-items: center; gap: .6rem; font-size: 1rem; }
-    .find input {
-      font: 1rem "Alegreya Sans", sans-serif; padding: .45rem .6rem; width: 16rem;
-      color: var(--ink); background: color-mix(in srgb, var(--tint) 50%, white);
-      border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); border-radius: 2px;
-    }
-    :root[data-theme="dark"] .find input { background: color-mix(in srgb, var(--tint) 70%, black); }
+    .wrap a { color: inherit; text-decoration: none; }
+    .wrap a:hover { text-decoration: underline; text-underline-offset: .12em; }
+    .t { font: 400 1.7rem/1.15 var(--font-english); color: var(--ink); }
+    /* Under 24px the Greek takes the darker clay (AA for small text). */
+    .g { font: 400 1.2rem var(--font-greek); color: var(--clay-text); margin-left: .5em; }
+    .bl { font: 400 1.12rem/1.45 var(--font-english); max-width: 34em; margin: .15rem 0 0; }
+    .pr { font: 400 .92rem var(--font-ui); color: var(--mid); margin: .25rem 0 0; }
 
-    .pl, .tri { list-style: none; margin: 0; padding: 0; }
-    .it { display: grid; grid-template-columns: 25rem 1fr; gap: 2.5rem; padding: 1.25rem 0; }
-    .ap .t { display: block; font: 400 1.9rem/1.15 Cardo, serif; color: var(--link); }
-    .g { display: block; font: 400 1.25rem/1.3 var(--font-greek); color: var(--ink-mid); margin-top: .1rem; }
-    .bl { font: 400 1.19rem/1.45 Cardo, serif; margin: .25rem 0 0; max-width: 36em; }
-    .pr { font-size: .94rem; color: var(--ink-mid); margin: .4rem 0 0; }
+    /* The plays in two columns, none split across them. */
+    .list, .tri { list-style: none; margin: 0; padding: 0; }
+    .list { margin-top: 2.6rem; columns: 2; column-gap: 4rem; }
+    .list li { break-inside: avoid; padding: .6rem 0 .9rem; }
 
-    .grp { margin: .9rem 0 1.6rem; }
-    .gl { display: flex; align-items: baseline; gap: 1.1rem; flex-wrap: wrap; margin: 0; font-weight: 400; }
-    .gn { font: 400 2.5rem Cardo, serif; }
-    .gm { color: var(--ink-mid); font-size: 1rem; font-family: "Alegreya Sans", sans-serif; }
-    .tri { margin-top: 1.1rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
-    .ord { font-size: .94rem; color: var(--ink-mid); margin-bottom: .25rem; }
+    /* A group (the Oresteia, the Oedipus plays): its title and note, then
+       its three plays side by side (DESIGN.md, Author pages). */
+    .grp { margin-top: 2.6rem; }
+    .gl { display: flex; align-items: baseline; gap: .3rem 1rem; flex-wrap: wrap; margin: 0; font-weight: 400; }
+    .gn { font: 400 2.3rem/1.1 var(--font-english); }
+    .gm { font: 400 1rem var(--font-ui); color: var(--mid); }
+    .tri { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 4rem; margin-top: .8rem; }
+    .tri li { padding: .6rem 0 .9rem; }
+    .ord { font: 400 .95rem var(--font-ui); color: var(--mid); margin: 0 0 .15rem; }
+    .grp + .list { margin-top: 1.6rem; }
 
-    /* Titles only: the blurbs and notes go. */
-    .pl[data-view="titles"] .bl, .pl[data-view="titles"] .pr, .pl[data-view="titles"] .gm { display: none; }
-    .pl[data-view="titles"] .it { padding: .6rem 0; }
-    .play[hidden], .grp[hidden] { display: none; }
-    .none { color: var(--ink-mid); }
-
-    .eds { margin-top: 2.5rem; }
-    .eds h2 { font: 400 1.6rem Cardo, serif; margin: 0 0 .5rem; }
-    .eds ul { margin: 0; padding: 0; list-style: none; }
-    .eds a { color: var(--link); }
-
-    .foot { margin-top: 4rem; display: flex; justify-content: center; color: var(--ink-mid); }
-    .foot nav { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem 1.6rem; }
-    .foot a { color: var(--ink-mid); }
-
-    /* Phone: hero stacked; each play its title, Greek title and blurb only. */
-    @media (max-width: 40rem) {
-      .ap { padding: 0 1rem 2rem; }
-      .hero { --fig-h: 11.9rem; grid-template-columns: 1fr; gap: .9rem; margin: .6rem 0 1.5rem; }
-      .gk { font-size: 1.3rem; }
-      .en { font-size: 2.9rem; }
-      .hero .ab { font-size: 1.12rem; }
-      .ctl { flex-direction: column; align-items: stretch; gap: .6rem; }
-      .vw { margin-left: 0; }
-      .find { flex-direction: column; align-items: stretch; gap: .25rem; }
-      .find input { width: 100%; }
-      .it { grid-template-columns: 1fr; gap: .25rem; padding: 1rem 0; }
-      .ap .t { font-size: 1.62rem; }
-      .bl { font-size: 1.06rem; }
+    /* Phone: the name beside the figure, no taller than it, the blurb under
+       both (John, 2026-10-20: "I don't like this extending ABOVE the image's
+       height"); no ground line under the phone figure; one column. */
+    @media (max-width: 700px) {
+      .hero {
+        --lead-w: max(8.5rem, calc(180px * var(--r)));
+        grid-template-columns: 1fr var(--lead-w); grid-template-rows: auto auto;
+        grid-template-areas: "hx lead" "ab ab"; gap: .2rem 1rem; margin-top: 1rem;
+      }
+      .hero.wide { --lead-w: 0px; grid-template-columns: 1fr; grid-template-areas: "lead" "hx" "ab"; gap: .8rem; }
+      .lead { --fig-h: 180px; }
+      .lead :global(.fb) { border-bottom: 0; }
+      .gk { font-size: 1.4rem; color: var(--clay-text); }
+      /* 3rem, or less where a long name would pass its column and run into
+         the figure (Aristophanes); Cardo sets about .47em a letter. */
+      .en { font-size: min(3rem, calc((100vw - 3rem - var(--lead-w)) / (var(--chars, 9) * .47))); }
+      .hero .ab { font-size: 1.1rem; padding-bottom: 0; margin-top: .5rem; max-width: none; }
+      .list { columns: 1; margin-top: 1.6rem; }
+      .t { font-size: 1.45rem; }
+      .g { font-size: 1.05rem; }
+      .bl { font-size: 1.05rem; }
       .pr { display: none; }
-      .gl { display: block; }
-      .gn { display: block; font-size: 2rem; }
-      .gm { display: block; margin-top: .25rem; }
-      body[data-author="aeschylus"] .gm { display: none; }
-      .tri { grid-template-columns: 1fr; gap: 1.25rem; }
-      .foot { margin-top: 2.5rem; }
-    }
-    @media (min-width: 40.01rem) and (max-width: 64rem) {
-      .it { grid-template-columns: 16rem 1fr; gap: 1.5rem; }
-      .en { font-size: 3.6rem; }
+      .grp { margin-top: 1.6rem; }
+      .gn { font-size: 2rem; }
+      .tri { grid-template-columns: 1fr; }
+      .grp + .list { margin-top: 0; }
     }
   </style>
-
-  <script>
-    // "Titles and notes / Titles only", remembered across author pages; and
-    // Find a play (Euripides), matching English or Greek titles with accents
-    // and case ignored.
-    const KEY = 'drama-author-view';
-    const list = document.getElementById('play-list');
-    const buttons = document.querySelectorAll<HTMLButtonElement>('.vw button');
-    const setView = (view: string) => {
-      if (!list) return;
-      list.dataset.view = view;
-      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
-    };
-    try { const saved = localStorage.getItem(KEY); if (saved) setView(saved); } catch {}
-    buttons.forEach((b) => b.addEventListener('click', () => {
-      setView(b.dataset.view!);
-      try { localStorage.setItem(KEY, b.dataset.view!); } catch {}
-    }));
-
-    const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
-    const find = document.getElementById('find-play') as HTMLInputElement | null;
-    find?.addEventListener('input', () => {
-      const q = fold(find.value.trim());
-      let shown = 0;
-      document.querySelectorAll<HTMLElement>('.play').forEach((li) => {
-        const hit = !q || fold(li.dataset.find ?? '').includes(q);
-        li.hidden = !hit;
-        if (hit) shown++;
-      });
-      document.querySelectorAll<HTMLElement>('.grp').forEach((g) => {
-        g.hidden = !g.querySelector('.play:not([hidden])');
-      });
-      document.getElementById('find-none')!.hidden = shown > 0;
-    });
-  </script>
 </body>
 </html>

@@ -9,8 +9,11 @@ import CommandPalette from '@shared/components/CommandPalette.svelte';
 import { jsonLdSafe } from '../lib/jsonld';
 import { isBuilt } from '../lib/built-works';
 import SiteHeader from './SiteHeader.astro';
+import SiteFoot from './SiteFoot.astro';
 import Figure from './Figure.astro';
+import { drawing } from '../lib/drawings';
 import '@shared/styles/global.css';
+import '../styles/vase.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -36,6 +39,20 @@ const playwrights = AUTHORS
       .filter((w): w is Work => Boolean(w) && isBuilt(w.id)),
   }))
   .filter((p) => p.works.length > 0);
+
+// Every figure one height (John, 2026-10-20: "I do like how all the images
+// are equal height"): each column as wide as its figure's aspect ratio, in
+// fr, so the four stand at ONE height and none is shrunk to a quarter; the
+// height drops only when the four together would not fit the width. Phones
+// set them two by two, so the wider pair bounds the height there. An author
+// with no figure keeps an empty space of the mock's .7 ratio.
+const ratios = playwrights.map(({ author }) => {
+  const d = drawing(author.id);
+  return d ? d.width / d.height : 0.7;
+});
+const sum = ratios.reduce((a, b) => a + b, 0);
+const pairs = [ratios.slice(0, 2), ratios.slice(2, 4)].map((p) => p.reduce((a, b) => a + b, 0));
+const friezeVars = `--cols:${ratios.map((r) => `${r.toFixed(3)}fr`).join(' ')};--sum:${sum.toFixed(3)};--pairmax:${Math.max(...pairs).toFixed(3)}`;
 
 // Structured data: identify the site (WebSite) and enumerate every built work as
 // an ItemList of CreativeWorks linking to its landing page. This tells Google the
@@ -103,262 +120,86 @@ const structuredData = Astro.site
 </head>
 <body class="home">
   <CommandPalette client:load />
-  <div class="frieze-page">
+  <div class="wrap">
     <SiteHeader />
 
     <main>
       <h1 class="visually-hidden">{SITE_NAME}</h1>
-      {/* DRAFT copy (the round-3 sketch's line): John approves. */}
-      <p class="intro">The 44 surviving Greek plays, in Greek and English, with several translations of each.</p>
 
-      <div class="row">
+      <div class="frieze" style={friezeVars}>
         {playwrights.map(({ author, works }) => (
-          <div class="c" data-author={author.id}>
+          <div class="col">
             <Figure slug={author.id} />
-            <div class="txt">
-              <a class="nm" href={`${base}${authorPath(author.id)}`}>
-                <span class="gk" lang="grc">{author.nativeName}</span>
-                <span class="en">{author.name}</span>
-              </a>
-              <a class="meta" href={`${base}${authorPath(author.id)}`}>{works.length} play{works.length === 1 ? "" : "s"} →</a>
+            <div class="nm">
+              <span class="gk" lang="grc">{author.nativeName}</span>
+              <a class="en" href={`${base}${authorPath(author.id)}`}>{author.name}</a>
+              <span class="ct">{works.length} play{works.length === 1 ? '' : 's'}</span>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Every title, as a run under each name, never a list (John,
+          2026-10-20: "the lists are LONG and vertical and remove reason to
+          go to author pages"). The runs sit in the frieze's own columns. */}
+      <div class="runs" style={friezeVars}>
+        {playwrights.map(({ author, works }) => (
+          <p class="run"><b>{author.name}:</b> {works.map((w, i) => (
+            <>{i > 0 && ', '}<a href={`${base}${workLanding(w.id)}`}>{w.title}</a></>
+          ))}</p>
+        ))}
+      </div>
     </main>
 
-    <footer class="home-foot">
-      <nav aria-label="Resources">
-        <a href={`${base}/search`}>Search the plays</a>
-        <a href={`${base}/lemma/grc/`}>Greek lexicon</a>
-        <a href={`${base}/attribution`}>Texts and licences</a>
-        <a href={`${base}/support`}>Support</a>
-        <button id="feedback-btn">Request a feature or report an error</button>
-      </nav>
-      <nav aria-label="Elsewhere">
-        <a href="https://johnhboyer-sys.github.io/plato-reader/" target="_blank" rel="noopener">The Plato Reader ↗</a>
-        <a href="https://johnhboyer-sys.github.io/aristotle-reader/" target="_blank" rel="noopener">The Aristotle Reader ↗</a>
-        <a href="https://x.com/johnhboyer" target="_blank" rel="noopener">Site by John H. Boyer</a>
-      </nav>
-    </footer>
+    <SiteFoot />
   </div>
 
   <style>
-    /* The frieze home page (docs/redesign/DESIGN.md, Home page; sketch
-       home-sketches-round3.html, version A). Warm paper, no author tint, no
-       rules or boxes but the ground line the figures stand on. */
-    body.home {
-      --paper: #fbf9f4;
-      --ink: #1b1c1f;
-      --ink-mid: #5c6064;
-      --link: #6d385a;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: "Alegreya Sans", system-ui, sans-serif;
+    /* The home page (docs/redesign/HANDOFF-ui-pass2-build.md §4): A's frieze
+       in B's colours, every figure one height. */
+    .frieze {
+      display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr)));
+      --fig-h: min(300px, calc((100vw - 10rem) / var(--sum, 4)));
+      margin-top: 1.6rem;
     }
-    :root[data-theme="dark"] body.home {
-      --paper: #1c1a17;
-      --ink: #e8e1d3;
-      --ink-mid: #b9b0a1;
-      --link: #d7a3c4;
-    }
-    .frieze-page { max-width: 80rem; margin: 0 auto; padding: 0 3.5rem 3.5rem; }
-    .frieze-page a { color: inherit; text-decoration: none; }
-    .frieze-page a:hover { text-decoration: underline; }
+    .col { min-width: 0; }
+    .nm { text-align: center; padding: 1.1rem .4rem 0; }
+    .gk { display: block; font: 400 1.5rem/1.1 var(--font-greek); color: var(--clay-deep); }
+    .en { display: block; font: 400 2.8rem/1.05 var(--font-english); color: var(--ink); text-decoration: none; }
+    .en:hover { text-decoration: underline; text-underline-offset: .12em; }
+    .ct { display: block; font: 400 1rem var(--font-ui); color: var(--mid); margin-top: .3rem; }
 
-    .intro {
-      font: 400 1.3rem/1.4 Cardo, serif; color: var(--ink-mid);
-      margin: .6rem 0 2.1rem;
+    /* No column gap: the tracks match the frieze's, so each run sits under
+       its name; narrow, so it wraps into several lines. */
+    .runs { display: grid; grid-template-columns: var(--cols, repeat(4, minmax(0, 1fr))); gap: 0; margin-top: 1.4rem; }
+    .run {
+      font: 400 1.02rem/1.45 var(--font-english); text-align: center;
+      padding: 0 .7rem; min-width: 0; max-width: 16em; margin: 0 auto;
     }
-
-    /* Figure height: the sketch's 330px, or the column's width where that is
-       less, so a wide figure (Euphorbos' spear) never reaches its
-       neighbours. */
-    .row {
-      --fig-h: min(20.6rem, calc((min(100vw, 80rem) - 7rem) / 4));
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .c { min-width: 0; }
-    .txt { padding: 1.25rem .4rem 0; text-align: center; }
-    .nm { display: block; }
-    .gk { display: block; font-family: var(--font-greek); font-size: min(1.9rem, 2.1vw); line-height: 1.1; color: var(--ink-mid); }
-    .en { display: block; font-family: Cardo, serif; font-size: min(2.9rem, 3.1vw); line-height: 1.05; }
-    .frieze-page .meta { display: inline-block; margin-top: .25rem; color: var(--link); font-size: 1rem; }
-
-    .home-foot {
-      margin-top: 4rem; display: flex; flex-direction: column; gap: .6rem;
-      align-items: center; font-size: 1rem; color: var(--ink-mid);
-    }
-    .home-foot nav { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem 1.6rem; }
-    .home-foot a { color: var(--ink-mid); }
-    .home-foot button {
-      background: none; border: none; padding: 0; cursor: pointer;
-      font: inherit; color: var(--ink-mid);
-    }
-    .home-foot button:hover { text-decoration: underline; }
-
-    .visually-hidden {
+    .run b {
       position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
       overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
     }
+    .run a { color: var(--ink); text-decoration: none; }
+    .run a:hover { text-decoration: underline; text-underline-offset: .12em; }
 
-    /* Each author's name and count in his colour: DESIGN.md's author tints,
-       the dark values lifted to pass AA (John, 2026-10-13: "too black and
-       white"; he picked these with the Attic orange figures). */
-    .c[data-author="aeschylus"]    { --tint-ink: #34536b; }
-    .c[data-author="sophocles"]    { --tint-ink: #43603b; }
-    .c[data-author="euripides"]    { --tint-ink: #8a3f30; }
-    .c[data-author="aristophanes"] { --tint-ink: #6e5114; }
-    :root[data-theme="dark"] .c[data-author="aeschylus"]    { --tint-ink: #9db8cf; }
-    :root[data-theme="dark"] .c[data-author="sophocles"]    { --tint-ink: #a9c39e; }
-    :root[data-theme="dark"] .c[data-author="euripides"]    { --tint-ink: #e3a493; }
-    :root[data-theme="dark"] .c[data-author="aristophanes"] { --tint-ink: #d9bb7c; }
-    .en, .frieze-page .meta { color: var(--tint-ink); }
-
-    /* Narrow screens (and 200% zoom): the frieze becomes two pairs of
-       figures. */
-    @media (max-width: 64rem) {
-      .row {
-        --fig-h: min(20.6rem, calc((100vw - 7rem) / 2));
-        grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 2.5rem;
+    /* Phone: the frieze two by two, the wider pair bounding the height; the
+       runs one column, each led by the author's name. */
+    @media (max-width: 700px) {
+      .frieze {
+        grid-template-columns: 1fr 1fr; row-gap: 1.6rem;
+        --fig-h: min(170px, calc((100vw - 3rem) / var(--pairmax, 2)));
       }
-      .gk { font-size: 1.6rem; }
-      .en { font-size: 2.4rem; }
+      /* Under 24px the Greek takes the darker clay (AA for small text). */
+      .gk { font-size: 1.15rem; color: var(--clay-text); }
+      .en { font-size: 1.7rem; }
+      .runs { grid-template-columns: 1fr; gap: .8rem; }
+      .run { text-align: left; padding: 0; font-size: 1rem; max-width: none; margin: 0; }
+      .run b {
+        position: static; width: auto; height: auto; margin: 0; overflow: visible;
+        clip: auto; white-space: normal; font-weight: 400; color: var(--mid);
+      }
     }
-    /* Phone. */
-    @media (max-width: 40rem) {
-      .frieze-page { padding: 0 1rem 2rem; }
-      .intro { font-size: 1.12rem; margin: .4rem 0 1.4rem; }
-      .row { --fig-h: 11.25rem; row-gap: 1.75rem; }
-      .txt { padding: .75rem .25rem 0; }
-      .gk { font-size: 1.2rem; }
-      .en { font-size: 1.75rem; }
-      .frieze-page .meta { font-size: .94rem; }
-      .home-foot { margin-top: 2.5rem; }
-    }
-
-    /* Feedback modal */
-    #feedback-modal {
-      display: none; position: fixed; inset: 0; z-index: 1000;
-      background: rgba(0,0,0,.45); align-items: center; justify-content: center;
-    }
-    #feedback-modal.open { display: flex; }
-    .fb-box {
-      background: var(--page-bg); border: 1px solid var(--rule);
-      border-radius: 8px; padding: 1.75rem 2rem; width: min(440px, 90vw);
-      font-family: var(--font-ui); box-shadow: 0 8px 32px rgba(0,0,0,.18);
-    }
-    .fb-box h2 {
-      margin: 0 0 1.1rem; font-size: 1rem; font-weight: 600; color: var(--text);
-    }
-    .fb-type { display: flex; gap: 1.25rem; margin-bottom: 1rem; }
-    .fb-type label { display: flex; align-items: center; gap: .4rem; cursor: pointer;
-      font-size: .875rem; color: var(--text); }
-    .fb-box textarea {
-      width: 100%; box-sizing: border-box; min-height: 110px; resize: vertical;
-      border: 1px solid var(--rule); border-radius: 4px; padding: .6rem .75rem;
-      font-family: var(--font-ui); font-size: .875rem;
-      background: var(--page-bg); color: var(--text);
-    }
-    .fb-box textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
-    .fb-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: .9rem; }
-    .fb-cancel {
-      background: none; border: 1px solid var(--rule); border-radius: 4px;
-      padding: .4rem .9rem; cursor: pointer; font: inherit; font-size: .85rem;
-      color: var(--text-mid);
-    }
-    .fb-cancel:hover { border-color: var(--text-mid); }
-    .fb-submit {
-      background: var(--accent); color: var(--on-accent); border: none; border-radius: 4px;
-      padding: .4rem 1rem; cursor: pointer; font: inherit; font-size: .85rem;
-      font-weight: 600;
-    }
-    .fb-submit:hover { opacity: .88; }
-    .fb-submit:disabled { opacity: .45; cursor: default; }
   </style>
-
-  <!-- Feedback modal -->
-  <div id="feedback-modal" role="dialog" aria-modal="true" aria-labelledby="fb-title" tabindex="-1">
-    <div class="fb-box">
-      <h2 id="fb-title">Request a Feature / Report an Error</h2>
-      <div class="fb-type">
-        <label><input type="radio" name="fb-type" value="feature" checked /> Feature request</label>
-        <label><input type="radio" name="fb-type" value="bug" /> Bug / error report</label>
-      </div>
-      <textarea id="fb-message" placeholder="Describe the feature or error…"></textarea>
-      <div class="fb-actions">
-        <button class="fb-cancel" id="fb-cancel">Cancel</button>
-        <button class="fb-submit" id="fb-submit">Send</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Hoisted scripts run on whichever home page this route rendered, so every
-    // lookup is optional: the Lyceum branch (PUBLIC_LYCEUM_CHROME=1) has no
-    // feedback modal. Same defensive idiom as ReaderShell.astro's chrome script.
-    const modal = document.getElementById('feedback-modal');
-    const openBtn = document.getElementById('feedback-btn');
-    const cancelBtn = document.getElementById('fb-cancel');
-    const submitBtn = document.getElementById('fb-submit');
-    const textarea = document.getElementById('fb-message') as HTMLTextAreaElement | null;
-    let feedbackTrigger: HTMLElement | null = null;
-
-    const open = (e?: Event) => {
-      if (!modal || !textarea) return;
-      feedbackTrigger = e?.currentTarget instanceof HTMLElement ? e.currentTarget : null;
-      modal.classList.add('open');
-      textarea.value = '';
-      textarea.focus();
-    };
-    const close = () => {
-      modal?.classList.remove('open');
-      feedbackTrigger?.focus();
-      feedbackTrigger = null;
-    };
-
-    openBtn?.addEventListener('click', open);
-    cancelBtn?.addEventListener('click', close);
-    modal?.addEventListener('click', (e) => { if (e.target === modal) close(); });
-    document.addEventListener('keydown', (e) => {
-      if (!modal?.classList.contains('open')) return;
-      if (e.key === 'Escape') {
-        close();
-        return;
-      }
-      if (e.key !== 'Tab') return;
-      const els = Array.from(modal.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      )).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1);
-      if (els.length === 0) {
-        e.preventDefault();
-        modal.focus();
-        return;
-      }
-      const first = els[0];
-      const last = els[els.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    });
-
-    submitBtn?.addEventListener('click', () => {
-      const msg = textarea?.value.trim();
-      if (!msg) return;
-      const type = (document.querySelector('input[name="fb-type"]:checked') as HTMLInputElement).value;
-      const subject = type === 'feature'
-        ? 'The Greek Drama Reader: Feature Request'
-        : 'The Greek Drama Reader: Bug Report';
-      window.location.href =
-        `mailto:jhboyer@loyno.edu?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
-      close();
-    });
-  </script>
-
-
 </body>
 </html>

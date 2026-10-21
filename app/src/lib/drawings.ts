@@ -53,6 +53,12 @@ export function drawing(slug: string): Drawing | undefined {
   return r ? read(r.file, r.alt) : undefined;
 }
 
+/** An author page's figure: its own record (`<author>-author`, Aristophanes'
+ *  Getty krater) where one exists, else the home figure (commit d6d7d77). */
+export function authorDrawing(authorId: string): Drawing | undefined {
+  return drawing(`${authorId}-author`) ?? drawing(authorId);
+}
+
 /** A play's drawings (none when it is not drawn yet). */
 export function playDrawings(workId: string): Drawing[] {
   const fi = PLAN.find((p) => p.work_id === workId)?.final_image;
@@ -62,7 +68,8 @@ export function playDrawings(workId: string): Drawing[] {
 
 /** Every file a page draws, for the endpoint's static paths. */
 export function servedNames(): string[] {
-  const home = HOME_FIGURES.map((s) => record(s)).filter((r): r is Record => Boolean(r))
+  const home = HOME_FIGURES.flatMap((s) => [record(s), record(`${s}-author`)])
+    .filter((r): r is Record => Boolean(r))
     .map((r) => r.file.replace(/\.svg$/, ''));
   const plays = PLAN.flatMap((p) => p.final_image || []).filter(Boolean)
     .map((path) => path.replace(/^docs\/redesign\/drawings\//, '').replace(/\.svg$/, ''));

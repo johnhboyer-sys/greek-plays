@@ -1,19 +1,21 @@
 ---
-// Redesign vase drawings standing on one ground line (lib/drawings.ts):
-// dark lines on Attic orange in both themes (John, 2026-10-13). The page
-// sets the drawings' height with --fig-h; where no drawing exists yet the
-// space stays empty at the same size (docs/redesign/PHASES.md, phase 3).
-// `slug` names a home figure; `drawings` gives a play's (Alcestis has two,
-// laid side by side). `fit` shrinks wide drawings to the box instead of
-// letting them reach past it (a play's whole scene; the home figures may).
+// The vase drawings standing on the ground line (lib/drawings.ts), in B's
+// colours: the lines in --fig-ink, the body in --fig-body, clay in both
+// themes, so the dark theme reads as red-figure on the black glaze
+// (docs/redesign/HANDOFF-ui-pass2-build.md §3.3). The page sets the height
+// with --fig-h; where no drawing exists yet the space stays empty at the same
+// height. Whole figures only: a figure wider than its box shrinks to the
+// box's width, still whole and still on the line, never cropped.
+// `slug` names a recorded figure; `drawings` gives a play's (Alcestis has
+// two, laid side by side).
 import { drawing, type Drawing } from '../lib/drawings';
 
-interface Props { slug?: string; drawings?: Drawing[]; fit?: boolean; align?: 'center' | 'start' }
-const { slug, fit = false, align = 'center' } = Astro.props;
+interface Props { slug?: string; drawings?: Drawing[] }
+const { slug } = Astro.props;
 const figs: Drawing[] = Astro.props.drawings ?? (slug ? [drawing(slug)].filter((d): d is Drawing => Boolean(d)) : []);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<div class:list={['fb', { fit, start: align === 'start' }]}>
+<div class="fb">
   {figs.map((fig) => (
     <svg
       class="fig"
@@ -28,24 +30,18 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 <style>
   .fb {
-    --fig-body: #d4875a;
-    height: calc(var(--fig-h) + .65rem); border-bottom: 2px solid var(--ink);
+    height: calc(var(--fig-h) + var(--fig-lift, .6rem));
+    border-bottom: 2px solid var(--line);
     display: flex; align-items: flex-end; justify-content: center;
-    padding: 0 .6rem;
   }
-  .fb.start { justify-content: flex-start; padding: 0; }
-  .fb.fit { height: auto; }
   .fig {
-    /* Every figure stands the same height; a wide one may reach a little
-       past its column, into the space beside its neighbour. */
-    display: block; height: var(--fig-h); width: auto; flex: none;
-    color: #1b1916; fill: currentColor;
+    display: block; height: var(--fig-h); width: auto;
+    flex: 0 1 auto; min-width: 0; max-width: 100%;
+    color: var(--fig-ink); fill: currentColor;
   }
-  /* A wide scene shrinks to the box's width, still standing on the line. */
-  .fit .fig { flex: 0 1 auto; min-width: 0; width: 100%; height: auto; max-height: var(--fig-h); }
   /* Small figures: the finer pen lines fade without a hairline stroke
      (docs/redesign/drawings/README.md). */
-  @media (max-width: 40rem) {
+  @media (max-width: 700px) {
     .fig { stroke: currentColor; stroke-width: .5px; }
   }
 </style>
