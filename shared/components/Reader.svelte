@@ -673,11 +673,14 @@
     // The switch can rebuild the row (splitAtDirections groups by view): find
     // it again by its Greek line.
     let anchor = place?.el.isConnected ? place.el : null;
+    let frac = place?.frac ?? 0;
     if (place && !anchor && place.key) {
       const l = document.getElementById(place.key);
       const row = l?.closest('.play-row, .seg-row');
       // An English cell the new view does not draw (a comparison's columns in
-      // the Greek view) gives way to its row's Greek.
+      // the Greek view) gives way to its row's Greek; a stage direction the
+      // view drops gives way to the next speech, from its top.
+      if (place.next) frac = 0;
       anchor = place.line ? l : row?.querySelector<HTMLElement>(place.trans ? `[data-trans="${CSS.escape(place.trans)}"]` : '.english-col')
         ?? row?.querySelector<HTMLElement>('.greek-col') ?? l;
     }
@@ -685,7 +688,7 @@
     if (place && shown) {
       // The line itself where it still shows; else that far down what shows it.
       const r = boxOf(shown);
-      let point = place.line && shown === anchor ? r.top : r.top + place.frac * r.height;
+      let point = place.line && shown === anchor ? r.top : r.top + frac * r.height;
       // A phone sets each piece's Greek above its English: an English cell
       // brings its piece in whole, Greek first, where the piece fits.
       const g = !place.line && shown === anchor ? shown.closest('.play-row, .seg-row')?.querySelector('.greek-col') as HTMLElement | null : null;
@@ -1282,7 +1285,7 @@
   // column too, or a turn-flow tick), with how far down it the head's edge
   // cuts, which Both shows again as is. `key` is a Greek line's id, to find a
   // rebuilt row again; `at` is the height to restore the place to.
-  function placeAtTop(): { el: HTMLElement; key: string | null; trans: string | null; line: boolean; at: number; frac: number } | null {
+  function placeAtTop(): { el: HTMLElement; key: string | null; next: boolean; trans: string | null; line: boolean; at: number; frac: number } | null {
     const y = document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
     const first = (sel: string) => {
       for (const el of document.querySelectorAll<HTMLElement>(sel)) {
@@ -1294,11 +1297,18 @@
     };
     const english = () => {
       const f = first('.english-col, .overlay-col, [data-etick]');
-      return f && {
-        el: f.el, line: false, at: y, frac: Math.max(0, (y - f.r.top) / f.r.height),
-        key: f.el.closest('.play-row, .seg-row')?.querySelector('.greek-line[id]')?.id ?? null,
-        trans: f.el.dataset.trans ?? null,
-      };
+      if (!f) return null;
+      const row = f.el.closest('.play-row, .seg-row');
+      let key = row?.querySelector('.greek-line[id]')?.id ?? null;
+      // A stage direction's row holds no Greek: the next speech's first line
+      // keys it, for a view that drops the direction.
+      let next = false;
+      if (!key && row) {
+        for (const l of document.querySelectorAll('.greek-line[id]')) {
+          if (row.compareDocumentPosition(l) & Node.DOCUMENT_POSITION_FOLLOWING) { key = l.id; next = true; break; }
+        }
+      }
+      return { el: f.el, line: false, at: y, frac: Math.max(0, (y - f.r.top) / f.r.height), key, next, trans: f.el.dataset.trans ?? null };
     };
     if (view === 'english') return english();
     const g = first('.greek-line[id]');
@@ -1311,7 +1321,7 @@
       if (e && e.frac > 0) return e;
     }
     const col = (g.el.closest('.greek-col') as HTMLElement | null)?.getBoundingClientRect();
-    return { el: g.el, key: g.el.id, trans: null, line: true, at: g.r.top, frac: col?.height ? (g.r.top - col.top) / col.height : 0 };
+    return { el: g.el, key: g.el.id, next: false, trans: null, line: true, at: g.r.top, frac: col?.height ? (g.r.top - col.top) / col.height : 0 };
   }
 
   // An element's box; an English cell that takes no height of its own (Both,
