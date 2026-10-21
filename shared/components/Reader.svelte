@@ -1368,7 +1368,13 @@
     const rowCol = el.closest('.play-row, .seg-row')?.querySelector(other) as HTMLElement | null;
     const seg = el.closest('.segment') as HTMLElement | null;
     const segCol = seg?.querySelector(other) as HTMLElement | null;
-    return [rowCol, segCol, seg].find((n) => n && n.offsetParent !== null) ?? null;
+    const shown = [rowCol, segCol, seg].find((n) => n && n.offsetParent !== null);
+    if (shown) return shown;
+    // A speech translated with another, which the English-only view leaves
+    // out (englishElsewhere): that speech's English.
+    const host = seg?.dataset.englishIn ? document.getElementById(seg.dataset.englishIn) : null;
+    const hostCol = host?.querySelector('.english-col') as HTMLElement | null;
+    return hostCol && hostCol.offsetParent !== null ? hostCol : null;
   }
 
   // The place at the top of the reading area, so a view switch can bring it
@@ -2012,6 +2018,19 @@
       return same && has ? prev.id : null;
     }
     return null;
+  }
+
+  // The segment whose English holds this one's, where this one's cell can
+  // only say so ("Translated with the speech above ↑"): its anchor id. The
+  // English-only view, with no Greek beside the note to explain it, leaves
+  // the segment out (global.css) and sends a link to its lines there.
+  function englishElsewhere(seg: Segment, transId: string): string | undefined {
+    if (playEnglishSource(seg, transId) || bareDirectionPiece(seg, transId)) return undefined;
+    const by = coveredByFor(seg, transById(transId));
+    const cont = by ? null : playContinuation(seg, transId);
+    const id = by ?? (cont && cont !== 'tail' ? cont : undefined);
+    const host = id ? orderedSegments.find((s) => s.id === id) : undefined;
+    return host ? segmentAnchorId(host) : undefined;
   }
 
   function playEnglishSource(seg: Segment, transId: string): EnglishTurnSource | null {
@@ -4862,7 +4881,7 @@
            margin exception; every ordinary verse-line segment is untouched. -->
       <!-- P4: an ode (a chorus speech longer than six lines) reads at a
            narrower measure — the lyric set apart, and nothing else. -->
-      <div class="segment" id={segmentAnchorId(seg)} data-kind={seg.kind} data-discontinuity={verseDiscontinuity} class:play-ode={playLine && odeSegmentIds.has(seg.id)}>
+      <div class="segment" id={segmentAnchorId(seg)} data-kind={seg.kind} data-discontinuity={verseDiscontinuity} data-english-in={playLine && trans !== 'compare' ? englishElsewhere(seg, segTransOverride[seg.id] ?? trans) : undefined} class:play-ode={playLine && odeSegmentIds.has(seg.id)}>
         {#if sectionFlow}<span class="sect-tick" aria-hidden="true" data-n={seg.column}></span>{/if}
         <!-- A chapter that opens this column heads the segment, ABOVE the column
              reference (the column ref is a marker within the chapter, not a

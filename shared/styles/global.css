@@ -2889,6 +2889,10 @@ body {
 /* P2e: a speech translated inside the block above (play-line) */
 .eng-covered { background: none; border: 0; padding: 0; font: inherit; font-style: italic; color: var(--text-light); cursor: pointer; }
 .eng-covered:hover, .eng-covered:focus-visible { color: var(--text); text-decoration: underline; }
+/* English-only view: with no Greek beside it, a speech translated with
+   another (Reader.svelte englishElsewhere) has nothing to show but that
+   note, so it is left out; its English is the paragraph that holds it. */
+.reader-body.play-line.view-english .segment[data-english-in] { display: none; }
 /* A row carrying both its own English and a folded sub-speech stack (e.g.
    Lysis 203a's narration lead): breathe between the prose and the stack. */
 .turn-row .turn-eng + .turn-stack { margin-top: 0.45em; }
