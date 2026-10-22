@@ -1031,3 +1031,13 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `app/src/styles/reader-drama.css` — 2026-10-22: on a phone in Both view, English followed by Greek within one speech gets the same .45rem as Greek followed by English (it had none).
 - `app/src/components/SpeakerBar.astro` — 2026-10-22: where the bar tracks the Greek sigla (phone, Both view), it shows the speech's English name, matched by speaker slot ("why did it switch to greek names?").
 - `app/src/pages/[author]/index.astro` — 2026-10-22: the name's column keeps 20rem and the name scales to it (container units); the figure's column gives way and its drawing shrinks (the name ran into Aeschylus' figure at one width; Aristophanes' name had 89px between 701 and 900px).
+
+## Names under the wrong word (2026-10-22)
+
+- `pipeline/drama_pipeline/stage3_tokenize.py` — 2026-10-22: `mid_sentence_capital_keys` writes `stage3/mid_caps.json`, the keys printed capitalised mid-sentence (not after `. ; · : ! ? —` or at the opening).
+- `pipeline/drama_pipeline/stage4_morphology.py` — 2026-10-22: for those keys, when the ordinary lookup lands on a common word, the capital key's readings ship too (Ζεῦ under ζέω, Δί' under δίω, Ἀπόλλων under ἀπό-λάω); a key the work never prints lowercase ships the name readings only. John, 2026-10-22: "fix the wrong lemmas".
+- `shared/components/WordPopup.svelte` — 2026-10-22: analyses pass through `orderBySurface` (new `shared/lib/name-order.ts`): a capitalised token shows name readings first; a lowercase one hides them when it has a common reading.
+- `shared/lib/betacode.ts` — 2026-10-22: a capital also takes marks written after its letter (Morpheus `*r(h=sos` → Ῥῆσος, was "Ρ(ῆσος").
+- `pipeline/drama_pipeline/parse_filter.py` — 2026-10-22: keeps stage4's name readings (marked `capitalKey`, Ζεῦ beside ζέω) although they carry no gloss; Morpheus's own unglossed name rows are filtered as before (Grok review).
+- `pipeline/drama_pipeline/stage7_emit.py` — 2026-10-22: carries the `capitalKey` mark into the filter and drops it before emitting.
+- `pipeline/drama_pipeline/beta.py` — 2026-10-22: `starts_capitalised` reads the first cased letter past brackets and sigla, titlecase included (⟨Ζεῦ⟩, ᾍδης); stage4 uses it for its capital variants (Grok review).

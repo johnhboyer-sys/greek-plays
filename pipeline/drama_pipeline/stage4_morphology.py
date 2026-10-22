@@ -33,7 +33,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from .beta import lookup_variants as beta_lookup_variants
+from .beta import lookup_variants as beta_lookup_variants, starts_capitalised
 from .config import BUILD_DIR, Manifest
 
 # The digit after the lemma id is a Morpheus flag (9 for ordinary words,
@@ -98,15 +98,18 @@ def collect_needed_keys(
                 if key is None:
                     continue
                 freq[key] += 1
-                capitalized = tok["t"][:1].isupper()
+                capitalized = starts_capitalised(tok["t"])
                 if key not in samples:
                     samples[key] = {
                         "surface": tok["t"],
                         "ref": f"{seg['column']}{line['n']}",
                         "capitalized": capitalized,
+                        "lowercase": not capitalized,
                     }
                 elif capitalized:
                     samples[key]["capitalized"] = True
+                else:
+                    samples[key]["lowercase"] = True
     needed: set[str] = set()
     for key in freq:
         needed.update(_lookup_variants(language, key, samples[key]["capitalized"]))
@@ -160,6 +163,26 @@ def scan_analyses(
                         folded_seen[folded_key].add(identity)
                         folded[folded_key].append(analysis)
     return found, folded
+
+
+def _name_readings(
+    language: str, key: str, hit: str, found: dict, mid_caps: set[str]
+) -> list[dict]:
+    """The capital key's readings for a key printed capitalised
+    mid-sentence whose ordinary lookup landed on a common word."""
+    if key not in mid_caps or hit.startswith("*"):
+        return []
+    capital = next(
+        (v for v in _lookup_variants(language, key, True) if v.startswith("*") and v in found),
+        None,
+    )
+    if capital is None:
+        return []
+    common = {a["lemma"] for a in found[hit]}
+    if any(lemma.startswith("*") for lemma in common):
+        return []  # the ordinary lookup already reads it as a name (Ἄρης)
+    # Marked so parse_filter keeps them; stage7 drops the mark.
+    return [{**a, "capitalKey": True} for a in found[capital] if a["lemma"] not in common]
 
 
 def run(manifest: Manifest) -> Path:
@@ -219,6 +242,14 @@ def run(manifest: Manifest) -> Path:
         patches = json.loads(patch_path.read_text(encoding="utf-8"))
         found.update({k: v for k, v in patches.items() if v})
 
+    # Keys stage3 saw capitalised mid-sentence (absent for older scratch).
+    mid_caps_path = BUILD_DIR / "stage3" / "mid_caps.json"
+    mid_caps: set[str] = (
+        set(json.loads(mid_caps_path.read_text(encoding="utf-8")))
+        if mid_caps_path.exists()
+        else set()
+    )
+
     # Resolve each token key to the first variant with an analysis.
     resolved: dict[str, str] = {}
     unmatched: list[dict] = []
@@ -233,6 +264,22 @@ def run(manifest: Manifest) -> Path:
         )
         if hit is not None:
             resolved[key] = hit
+            names = (
+                []
+                if key in patches or hit in patches
+                else _name_readings(language, key, hit, found, mid_caps)
+            )
+            if names:
+                # A name Morpheus also files under a common word (Ζεῦ under
+                # ζέω). If this work never prints the key lowercase, the
+                # common reading has no evidence and is dropped; otherwise
+                # both ship and the reader orders them by the printed case.
+                # Stored under its own key: other token keys may share `hit`.
+                stored = f"{key}@names"
+                found[stored] = (
+                    found[hit] + names if samples[key]["lowercase"] else names
+                )
+                resolved[key] = stored
         elif key in folded_matches and folded_matches[key]:
             # An all-caps token cannot attest one particular accentuation.
             # Ship every full-source-table match, marked for the reader UI;

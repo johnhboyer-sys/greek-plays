@@ -86,6 +86,15 @@ def capital_key(key: str) -> str:
     return "*" + marks + letter + key[m.end():]
 
 
+def starts_capitalised(surface: str) -> bool:
+    """The surface's first cased letter is a capital (or titlecase, like ᾍ),
+    past editorial brackets and sigla (⟨Ζεῦ⟩, †Ζεῦ)."""
+    for ch in surface:
+        if ch.lower() != ch.upper():
+            return ch != ch.lower()
+    return False
+
+
 def lookup_variants(key: str, capitalized: bool = False) -> list[str]:
     """Candidate analyses keys to try, in order. Words printed with a
     diaeresis are keyed under the underlying breathing in greek-analyses.txt

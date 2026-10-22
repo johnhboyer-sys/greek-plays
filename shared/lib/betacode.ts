@@ -61,6 +61,14 @@ export function betaToGreek(input: string): string {
       const base = LETTER[(input[i] ?? '').toLowerCase()];
       if (base) {
         i++;
+        // Morpheus also writes a capital's marks after the letter: *r(h=sos.
+        while (i < input.length && DIAC.includes(input[i])) {
+          const d = input[i];
+          if (d in BREATH) breath = BREATH[d];
+          else if (d in ACCENT) accent = ACCENT[d];
+          else if (d === '|') sub = SUBSCRIPT;
+          i++;
+        }
         // Capital sigma is always Σ, so no final-form handling needed.
         out.push((base + breath + accent + sub).normalize('NFC').toUpperCase());
       }

@@ -494,6 +494,56 @@ def tokenize(
     )
 
 
+# Punctuation that ends a sentence (or a clause an edition may restart with
+# a capital): after one of these a capital proves nothing about a name.
+_SENTENCE_END = frozenset(".;·\u0387\u037e!?:—…")
+
+
+def _cased(token: str) -> list[str]:
+    return [ch for ch in token if ch.lower() != ch.upper()]
+
+
+def _is_heading(token: str) -> bool:
+    letters = _cased(token)
+    return len(letters) > 1 and all(ch == ch.upper() for ch in letters)
+
+
+def _starts_capitalised(token: str) -> bool:
+    letters = _cased(token)
+    return bool(letters) and letters[0] != letters[0].lower() and not _is_heading(token)
+
+
+def mid_sentence_capital_keys(spine: dict, tokens_doc: dict) -> set[str]:
+    """Keys printed capitalised where no sentence starts: after a word or a
+    comma, not after `_SENTENCE_END` or at the opening of the text. These
+    editions capitalise names, and also some sentence and speech openings;
+    only a mid-sentence capital shows the word is a name (stage4 then adds
+    the capital key's readings). All-capitals tokens are headings: they
+    neither count nor end a sentence."""
+    keys: set[str] = set()
+    prev = ""  # "w" after a word, else the last stop or comma; across lines
+    for seg, seg_tok in zip(spine["segments"], tokens_doc["segments"]):
+        for line, line_tok in zip(seg["lines"], seg_tok["lines"]):
+            text, end = line["text"], 0
+            for tok in line_tok["tokens"]:
+                for ch in text[end:tok["o"]]:
+                    if ch in _SENTENCE_END or ch == ",":
+                        prev = ch
+                if "k" in tok and _starts_capitalised(tok["t"]) and prev and prev not in _SENTENCE_END:
+                    keys.add(tok["k"])
+                if not _cased(tok["t"]):
+                    for ch in tok["t"]:  # a punctuation token (…)
+                        if ch in _SENTENCE_END or ch == ",":
+                            prev = ch
+                elif not _is_heading(tok["t"]):
+                    prev = "w"
+                end = tok["o"] + len(tok["t"])
+            for ch in text[end:]:
+                if ch in _SENTENCE_END or ch == ",":
+                    prev = ch
+    return keys
+
+
 # stage1 spine producer per work.language, keyed by the filename the
 # producer writes under build/stage1/. drama_pipeline supports 'grc' only
 # (stage1_greek.py) — Latin/PHI support (stage1_latin.py) was removed in the
@@ -532,5 +582,9 @@ def run(manifest: Manifest) -> Path:
     )
     (out_dir / "key_failures.json").write_text(
         json.dumps(key_failures, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    (out_dir / "mid_caps.json").write_text(
+        json.dumps(sorted(mid_sentence_capital_keys(spine, tokens)), ensure_ascii=False),
+        encoding="utf-8",
     )
     return out

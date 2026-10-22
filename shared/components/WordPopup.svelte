@@ -13,6 +13,7 @@
   import { betaToGreek } from '../lib/betacode';
   import { parseInWords } from '../lib/parse-words';
   import { loadGrammataLookup } from '../lib/grammata';
+  import { orderBySurface } from '../lib/name-order';
   import { getWork } from '../lib/works';
 
   export let work: string = 'EN';
@@ -56,7 +57,7 @@
     error = '';
     analyses = [];
     (ed ? lookupWord(w, k, ed) : lookupWord(w, k))
-      .then((result) => { if (id === reqId) analyses = result.analyses; })
+      .then((result) => { if (id === reqId) analyses = orderBySurface(result.analyses, token.t); })
       .catch((cause) => { if (id === reqId) error = String(cause); })
       .finally(() => { if (id === reqId) { loading = false; void openFirst(id); } });
   }
