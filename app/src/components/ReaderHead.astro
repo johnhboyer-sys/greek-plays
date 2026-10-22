@@ -210,8 +210,10 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
   .menu .cmp-on button, .menu .cmp-off button { color: var(--clay-text); font-size: .95rem; }
   .menu .cmp { margin-top: .6rem; }
   .menu .cmp[hidden] { display: none; }
-  .menu .opt { display: flex; flex-wrap: wrap; gap: .25rem 1rem; align-items: baseline; margin: 0; padding: .25rem 0; }
-  .menu .opt span { color: var(--mid); width: 3.2rem; }
+  /* A hanging indent: names that wrap line up after "Left" and "Right",
+     never under them (John, 2026-10-22). */
+  .menu .opt { display: flex; flex-wrap: wrap; gap: .25rem 1rem; align-items: baseline; margin: 0; padding: .25rem 0 .25rem 4.2rem; }
+  .menu .opt span { color: var(--mid); width: 3.2rem; margin-left: -4.2rem; }
   .menu .opt button, .menu .ch button { color: var(--mid); }
   .menu .opt button[aria-pressed="true"], .menu .ch button[aria-pressed="true"] { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
   .menu .rows { display: grid; grid-template-columns: auto 1fr; gap: .5rem 1rem; align-items: baseline; }

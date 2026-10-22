@@ -1025,6 +1025,6 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 ## John's click-around before the UI pass 2 merge (2026-10-22)
 
 - `app/src/components/Playbill.astro` — 2026-10-22: a "Read the play" link (DRAFT) under the argument, Resume beside it; translation and Greek-text names in clay ("I don't know where to click to start reading").
-- `app/src/components/ReaderHead.astro` — 2026-10-22: the head stays one row above phone width (the site name drops below 1100px, a long title ends in an ellipsis); Compare beside the views, opening the texts menu at its Left and Right rows.
+- `app/src/components/ReaderHead.astro` — 2026-10-22: the head stays one row above phone width (the site name drops below 1100px, a long title ends in an ellipsis); Compare beside the views, opening the texts menu at its Left and Right rows; names that wrap in those rows hang after the label.
 - `app/src/styles/reader-drama.css` — 2026-10-22: Speakers ▸ Plain shows every name in ink (it fell back to clay, read as one more speaker colour).
 - `shared/__tests__/registry-golden.test.ts` — 2026-10-22: hash regenerated for Oedipus Tyrannus' new argument.
