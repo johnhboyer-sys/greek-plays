@@ -292,5 +292,55 @@
         "tu/mbos"
       ]
     }
+  ],
+  "mh/deia": [
+    {
+      "lemma_id": 0,
+      "form": "mh/deia",
+      "lemma": "*mhdei/a",
+      "gloss": "",
+      "parse": "fem nom/voc sg"
+    }
+  ],
+  "i)a/swn": [
+    {
+      "lemma_id": 0,
+      "form": "i)a/swn",
+      "lemma": "*)ia/swn",
+      "gloss": "",
+      "parse": "masc nom/voc sg"
+    }
+  ],
+  "mh/dei'": [
+    {
+      "lemma_id": 0,
+      "form": "mh/dei'",
+      "lemma": "*mhdei/a",
+      "gloss": "",
+      "parse": "fem nom/voc sg"
+    },
+    {
+      "lemma_id": 0,
+      "form": "mh/dei'",
+      "lemma": "*mhdei/a",
+      "gloss": "",
+      "parse": "fem nom/voc pl"
+    }
+  ],
+  "mhdei/as": [
+    {
+      "lemma_id": 0,
+      "form": "mhdei/as",
+      "lemma": "*mhdei/a",
+      "gloss": "",
+      "parse": "fem acc pl"
+    },
+    {
+      "lemma_id": 0,
+      "form": "mhdei/as",
+      "lemma": "*mhdei/a",
+      "gloss": "",
+      "parse": "fem gen sg (attic doric aeolic)"
+    }
   ]
 }

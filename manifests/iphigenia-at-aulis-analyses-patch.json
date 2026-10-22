@@ -482,5 +482,28 @@
       "parse": "masc/fem acc sg",
       "lsj": []
     }
+  ],
+  "ganumh/dhs": [
+    {
+      "lemma_id": 0,
+      "form": "ganumh/dhs",
+      "lemma": "*ganumh/dhs",
+      "gloss": "",
+      "parse": "masc acc pl (attic epic doric)"
+    },
+    {
+      "lemma_id": 0,
+      "form": "ganumh/dhs",
+      "lemma": "*ganumh/dhs",
+      "gloss": "",
+      "parse": "masc nom/voc pl (doric aeolic)"
+    },
+    {
+      "lemma_id": 0,
+      "form": "ganumh/dhs",
+      "lemma": "*ganumh/dhs",
+      "gloss": "",
+      "parse": "masc nom sg"
+    }
   ]
 }

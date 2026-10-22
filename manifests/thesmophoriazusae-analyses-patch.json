@@ -1216,5 +1216,14 @@
     "yu/lla"
    ]
   }
+ ],
+ "swstra/th": [
+  {
+   "lemma_id": 0,
+   "form": "swstra/th",
+   "lemma": "*swstra/th",
+   "gloss": "",
+   "parse": "fem nom/voc sg (attic epic ionic)"
+  }
  ]
 }

@@ -608,5 +608,87 @@
     "poihth/s"
    ]
   }
+ ],
+ "mo/lwn": [
+  {
+   "lemma_id": 0,
+   "form": "mo/lwn",
+   "lemma": "*mo/lwn",
+   "gloss": "",
+   "parse": "masc nom/voc sg"
+  }
+ ],
+ "plou/twn'": [
+  {
+   "lemma_id": 0,
+   "form": "plou/twn'",
+   "lemma": "*plou/twn",
+   "gloss": "Pluto",
+   "parse": "masc acc sg"
+  },
+  {
+   "lemma_id": 0,
+   "form": "plou/twn'",
+   "lemma": "*plou/twn",
+   "gloss": "Pluto",
+   "parse": "masc dat sg"
+  },
+  {
+   "lemma_id": 0,
+   "form": "plou/twn'",
+   "lemma": "*plou/twn",
+   "gloss": "Pluto",
+   "parse": "masc nom/voc/acc dual"
+  }
+ ],
+ "kle/wna": [
+  {
+   "lemma_id": 0,
+   "form": "kle/wna",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc acc sg"
+  }
+ ],
+ "kle/wn'": [
+  {
+   "lemma_id": 0,
+   "form": "kle/wn'",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc acc sg"
+  },
+  {
+   "lemma_id": 0,
+   "form": "kle/wn'",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc dat sg"
+  },
+  {
+   "lemma_id": 0,
+   "form": "kle/wn'",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc nom/voc/acc dual"
+  }
+ ],
+ "e)/rucin": [
+  {
+   "lemma_id": 0,
+   "form": "e)/rucin",
+   "lemma": "*)/erucis",
+   "gloss": "",
+   "parse": "masc acc sg"
+  }
+ ],
+ "bou/lei": [
+  {
+   "lemma_id": 0,
+   "form": "bou/lei",
+   "lemma": "bou/lomai",
+   "gloss": "will, wish, be willing",
+   "parse": "pres ind mp 2nd sg"
+  }
  ]
 }

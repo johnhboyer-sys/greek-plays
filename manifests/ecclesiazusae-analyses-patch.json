@@ -320,5 +320,23 @@
    "parse": "compound noun (one word split over lines 1169-1175)",
    "lsj": []
   }
+ ],
+ "swstra/thn": [
+  {
+   "lemma_id": 0,
+   "form": "swstra/thn",
+   "lemma": "*swstra/th",
+   "gloss": "",
+   "parse": "fem acc sg (attic epic ionic)"
+  }
+ ],
+ "ei)lei/quia": [
+  {
+   "lemma_id": 0,
+   "form": "ei)lei/quia",
+   "lemma": "*ei)lei/quia",
+   "gloss": "she that comes",
+   "parse": "fem nom/voc sg"
+  }
  ]
 }

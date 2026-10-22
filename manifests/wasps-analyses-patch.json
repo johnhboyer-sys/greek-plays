@@ -358,5 +358,41 @@
    "parse": "masc voc sg",
    "lsj": []
   }
+ ],
+ "prona/pous": [
+  {
+   "lemma_id": 0,
+   "form": "prona/pous",
+   "lemma": "*prona/phs",
+   "gloss": "",
+   "parse": "masc gen sg"
+  }
+ ],
+ "niko/strat'": [
+  {
+   "lemma_id": 0,
+   "form": "niko/strat'",
+   "lemma": "*niko/stratos",
+   "gloss": "",
+   "parse": "masc voc sg"
+  }
+ ],
+ "kle/wna": [
+  {
+   "lemma_id": 0,
+   "form": "kle/wna",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc acc sg"
+  }
+ ],
+ "swstra/ths": [
+  {
+   "lemma_id": 0,
+   "form": "swstra/ths",
+   "lemma": "*swstra/th",
+   "gloss": "",
+   "parse": "fem gen sg (attic epic ionic)"
+  }
  ]
 }

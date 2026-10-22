@@ -316,5 +316,23 @@
     "tu/rannos"
    ]
   }
+ ],
+ "eu)ruti/wn": [
+  {
+   "lemma_id": 0,
+   "form": "eu)ruti/wn",
+   "lemma": "*eu)ru/tios",
+   "gloss": "",
+   "parse": "masc gen pl"
+  }
+ ],
+ "i(ppo/lut'": [
+  {
+   "lemma_id": 0,
+   "form": "i(ppo/lut'",
+   "lemma": "*(ippo/lutos",
+   "gloss": "",
+   "parse": "masc voc sg"
+  }
  ]
 }

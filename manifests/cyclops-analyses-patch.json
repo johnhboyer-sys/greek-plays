@@ -261,5 +261,44 @@
         "oi)=da"
       ]
     }
+  ],
+  "ganumh/dh": [
+    {
+      "lemma_id": 0,
+      "form": "ganumh/dh",
+      "lemma": "*ganumh/dhs",
+      "gloss": "",
+      "parse": "masc nom/voc/acc dual (doric aeolic)"
+    },
+    {
+      "lemma_id": 0,
+      "form": "ganumh/dh",
+      "lemma": "*ganumh/dhs",
+      "gloss": "",
+      "parse": "masc acc sg (attic epic doric)"
+    }
+  ],
+  "ganumh/dhs": [
+    {
+      "lemma_id": 0,
+      "form": "ganumh/dhs",
+      "lemma": "*ganumh/dhs",
+      "gloss": "",
+      "parse": "masc acc pl (attic epic doric)"
+    },
+    {
+      "lemma_id": 0,
+      "form": "ganumh/dhs",
+      "lemma": "*ganumh/dhs",
+      "gloss": "",
+      "parse": "masc nom/voc pl (doric aeolic)"
+    },
+    {
+      "lemma_id": 0,
+      "form": "ganumh/dhs",
+      "lemma": "*ganumh/dhs",
+      "gloss": "",
+      "parse": "masc nom sg"
+    }
   ]
 }

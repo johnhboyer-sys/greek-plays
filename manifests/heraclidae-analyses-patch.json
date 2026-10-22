@@ -256,5 +256,23 @@
     "xrh/|zw2"
    ]
   }
+ ],
+ "i)o/lews": [
+  {
+   "lemma_id": 0,
+   "form": "i)o/lews",
+   "lemma": "*)io/laos",
+   "gloss": "",
+   "parse": "masc nom/voc sg (attic declension)"
+  }
+ ],
+ "a)lka/qou": [
+  {
+   "lemma_id": 0,
+   "form": "a)lka/qou",
+   "lemma": "*)alka/qoos",
+   "gloss": "",
+   "parse": "masc gen sg"
+  }
  ]
 }

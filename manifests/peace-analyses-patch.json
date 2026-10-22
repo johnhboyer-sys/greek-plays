@@ -594,5 +594,30 @@
     "e(/teros"
    ]
   }
+ ],
+ "kle/wna": [
+  {
+   "lemma_id": 0,
+   "form": "kle/wna",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc acc sg"
+  }
+ ],
+ "mhdei/as": [
+  {
+   "lemma_id": 0,
+   "form": "mhdei/as",
+   "lemma": "*mhdei/a",
+   "gloss": "",
+   "parse": "fem acc pl"
+  },
+  {
+   "lemma_id": 0,
+   "form": "mhdei/as",
+   "lemma": "*mhdei/a",
+   "gloss": "",
+   "parse": "fem gen sg (attic doric aeolic)"
+  }
  ]
 }

@@ -280,5 +280,55 @@
     "poihth/s"
    ]
   }
+ ],
+ "kle/wn'": [
+  {
+   "lemma_id": 0,
+   "form": "kle/wn'",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc acc sg"
+  },
+  {
+   "lemma_id": 0,
+   "form": "kle/wn'",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc dat sg"
+  },
+  {
+   "lemma_id": 0,
+   "form": "kle/wn'",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc nom/voc/acc dual"
+  }
+ ],
+ "marika=n": [
+  {
+   "lemma_id": 0,
+   "form": "marika=n",
+   "lemma": "*marika=s",
+   "gloss": "",
+   "parse": "masc acc sg"
+  }
+ ],
+ "kle/wna": [
+  {
+   "lemma_id": 0,
+   "form": "kle/wna",
+   "lemma": "*kle/wn",
+   "gloss": "",
+   "parse": "masc acc sg"
+  }
+ ],
+ "swstra/thn": [
+  {
+   "lemma_id": 0,
+   "form": "swstra/thn",
+   "lemma": "*swstra/th",
+   "gloss": "",
+   "parse": "fem acc sg (attic epic ionic)"
+  }
  ]
 }

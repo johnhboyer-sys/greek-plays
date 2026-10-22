@@ -96,5 +96,14 @@
         "e)poiktei/rw"
       ]
     }
+  ],
+  "sku/rou": [
+    {
+      "lemma_id": 0,
+      "form": "sku/rou",
+      "lemma": "*sku=ros",
+      "gloss": "Scyros",
+      "parse": "fem gen sg"
+    }
   ]
 }

@@ -414,5 +414,48 @@
     "a)/n"
    ]
   }
+ ],
+ "sa/ka|": [
+  {
+   "lemma_id": 0,
+   "form": "sa/ka|",
+   "lemma": "*sa/kas",
+   "gloss": "",
+   "parse": "masc dat sg"
+  }
+ ],
+ "tele/as": [
+  {
+   "lemma_id": 0,
+   "form": "tele/as",
+   "lemma": "*tele/hs",
+   "gloss": "",
+   "parse": "masc acc pl"
+  },
+  {
+   "lemma_id": 0,
+   "form": "tele/as",
+   "lemma": "*tele/hs",
+   "gloss": "",
+   "parse": "masc nom sg (attic epic doric aeolic)"
+  }
+ ],
+ "farna/kh|": [
+  {
+   "lemma_id": 0,
+   "form": "farna/kh|",
+   "lemma": "*farna/khs",
+   "gloss": "",
+   "parse": "masc dat sg (attic epic ionic)"
+  }
+ ],
+ "polia/da": [
+  {
+   "lemma_id": 0,
+   "form": "polia/da",
+   "lemma": "*polia/s",
+   "gloss": "guardian of the city",
+   "parse": "fem acc sg"
+  }
  ]
 }
