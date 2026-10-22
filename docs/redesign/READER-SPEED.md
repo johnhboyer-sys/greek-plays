@@ -23,6 +23,12 @@ in the viewport.
 | HTML, raw (gzipped) | 3235 KB (335 KB) | 712 KB (179 KB) | 4717 KB (518 KB) | 1291 KB (325 KB) |
 | JS, gzipped | 126 KB | 126 KB | 126 KB | 126 KB |
 
+Measured 2026-10-21 late, the two builds side by side on a quiet machine,
+before the last two deep-link fixes (settle wait, linked place); those touch
+neither the load nor the first render. A run on 2026-10-22 morning, with the
+machine busy (load average 13 or more), was slower and noisier for every page
+and is not used here.
+
 Script: `probe-speed.mjs` in the session notes folder
 (`side-session-notes/local_e29cee88-…/reader-speed/`).
 
