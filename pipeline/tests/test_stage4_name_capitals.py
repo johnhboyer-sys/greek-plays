@@ -113,15 +113,27 @@ def test_hand_patch_wins(tmp_path, monkeypatch):
     assert lemmas["zeu="] == ["ze/w"]
 
 
-def test_parse_filter_keeps_an_unresolved_name_beside_a_common_word():
+def test_parse_filter_keeps_only_stage4s_name_readings():
     from drama_pipeline.parse_filter import filter_parses
     common = {"lemma": "ze/w", "gloss": "boil", "lsj": ["ze/w"]}
-    name = {"lemma": "*zeu/s", "gloss": "", "lsj": []}
-    assert filter_parses([common, name]) == [common, name]
-    # a stray name reading beside a resolved name is still dropped (Εὐρώπης)
-    real = {"lemma": "*eu)rw/ph", "gloss": "", "lsj": ["*eu)rw/ph"]}
-    stray = {"lemma": "*eu)rw/phs", "gloss": "", "lsj": []}
-    assert filter_parses([real, stray]) == [real]
+    added = {"lemma": "*zeu/s", "gloss": "", "lsj": [], "capitalKey": True}
+    assert filter_parses([common, added]) == [common, added]
+    # Morpheus's own unglossed name rows stay filtered (κἀκόντιον: Ἀκόντιος)
+    stray = {"lemma": "*)ako/ntios", "gloss": "", "lsj": []}
+    assert filter_parses([common, stray]) == [common]
+
+
+def test_capital_key_mark_does_not_reach_the_reader(tmp_path, monkeypatch):
+    from drama_pipeline import stage7_emit
+    _run_stage4(tmp_path, monkeypatch, [{"t": "Δίκη", "k": "di/kh"}, {"t": "δίκη", "k": "di/kh"}], {"di/kh"}, MORPHEUS)
+    monkeypatch.setattr(stage7_emit, "BUILD_DIR", tmp_path)
+    (tmp_path / "stage5").mkdir()
+    (tmp_path / "stage5" / "lemma_map.json").write_text(json.dumps({"di/kh": ["di/kh"]}))
+    out = tmp_path / "out"; out.mkdir()
+    stage7_emit.emit_analyses(out)
+    emitted = json.loads((out / "analyses.json").read_text())["di/kh"]
+    assert [a["lemma"] for a in emitted] == ["di/kh", "*di/kh"]
+    assert all("capitalKey" not in a for a in emitted)
 
 
 def test_mid_sentence_edge_cases():

@@ -1459,8 +1459,12 @@ def emit_analyses(out_dir: Path) -> dict:
             }
             if g.get("foldedAccent"):
                 parse["foldedAccent"] = True
+            if g.get("capitalKey"):
+                parse["capitalKey"] = True
             parses.append(parse)
         kept = resolve_parses(parses, short_defs)
+        for parse in kept:
+            parse.pop("capitalKey", None)
         dropped += len(parses) - len(kept)
         merged[token_key] = kept
     (out_dir / "analyses.json").write_text(

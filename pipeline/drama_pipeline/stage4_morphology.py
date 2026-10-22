@@ -181,7 +181,8 @@ def _name_readings(
     common = {a["lemma"] for a in found[hit]}
     if any(lemma.startswith("*") for lemma in common):
         return []  # the ordinary lookup already reads it as a name (Ἄρης)
-    return [a for a in found[capital] if a["lemma"] not in common]
+    # Marked so parse_filter keeps them; stage7 drops the mark.
+    return [{**a, "capitalKey": True} for a in found[capital] if a["lemma"] not in common]
 
 
 def run(manifest: Manifest) -> Path:
