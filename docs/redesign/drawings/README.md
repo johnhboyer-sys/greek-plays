@@ -152,6 +152,25 @@ python3 -m venv .venv && .venv/bin/pip install numpy scipy scikit-image pillow
 The optional second argument writes two check images, `qa.png` and
 `qa.dark.png`; they need `rsvg-convert` (librsvg).
 
+Then lay John's body-fill rulings on (2026-10-22: B's design fills the body
+with clay on both themes, and he flagged gaps where the page showed through,
+and clay where ground belongs). The drawings named in `tools/fill_fixes.json`
+take one more step after their own tool:
+
+```
+.venv/bin/python tools/fill_fixes.py <drawing>.svg tools/fill_fixes.json
+```
+
+It only adds: clay, ink, or a line he drew, as new subpaths on the body or
+the lines, or ground, as a reversed subpath on the body; what the tool traced
+stays as it was. Eumenides and the Pythia took theirs as PhotoCraft marks
+instead (`tools/eumenides_marks_2.png`), through `tools/eumenides.py`, which
+now also writes the Eumenides' levelling turn. Two tools can no longer be
+rerun: `tools/philoctetes.py` imports `strokes` from `tools/euphorbos.py`,
+which lost it when Euphorbos was redrawn, and `tools/euphorbos.py` needs a
+second scan (the 3440 x 2518 view of Euphorbos) that is no longer on disk.
+Their fixes go on the committed drawings.
+
 The Oedipus alternate starts from the Commons SVG rendered to PNG
 (`rsvg-convert -w 4000 -b '#000000'`).
 

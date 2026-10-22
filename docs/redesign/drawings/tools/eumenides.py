@@ -27,6 +27,7 @@ Aeschylus home page; John, 2026-10-12: replace the old cut, tools/pythia.py, ret
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -145,6 +146,16 @@ SCAN_C = (887.0, 1170.0)                  # the scan's centre (px), about which 
 # with green; elsewhere blue joins breaks and adds faint lines the finder missed)
 MARKS_FILES = [Path(__file__).with_name("eumenides_marks_1.png")]
 MARKS_K = 2.5
+# John's second round (2026-10-22, the UI pass fills the body with clay on both themes, and gaps in the outlines let
+# it out or in): marked on the work grid itself, so 1:1. Blue joins the breaks in the outlines; yellow is clay and
+# green ground. A colour covering most of an area the lines close off (CLAIM of it) takes the whole area, out to its
+# lines; where it touches only part of a larger area, only the painted pixels (a stroke that ran past an outline does
+# not put clay on the ground beyond it)
+MARKS_2 = Path(__file__).with_name("eumenides_marks_2.png")
+CLAIM = 0.3
+# the drawing levelled by its ground line (John, 2026-10-22: "straighten", then twice by eye): turned by LEVEL
+# degrees about LEVEL_C, its view box cut to LEVEL_VIEW so no corner of the turn shows
+LEVEL, LEVEL_C, LEVEL_VIEW = -1.159, (1057.5, 500), "5 10 2105 977"
 
 
 def pc(src, out, *steps):
@@ -367,6 +378,32 @@ def marks(shape):
     return blue, green
 
 
+def marks_2(shape):
+    """John's second round: (blue, yellow, green) bool masks on the work grid."""
+    a = np.asarray(Image.open(MARKS_2).convert("RGBA")).astype(np.int16)
+    assert a.shape[:2] == shape, (a.shape, shape)
+    r, g, b, on = a[..., 0], a[..., 1], a[..., 2], a[..., 3] > 0
+    return on & (b > r + 40) & (b > g + 20), on & (r > b + 60) & (g > b + 60), on & (g > r + 40) & (g > b + 20)
+
+
+def claim(paint, ink):
+    """Where John's paint lands: each area the lines close off that it mostly covers, whole; elsewhere the paint."""
+    lab, _ = ndi.label(~ink)
+    share = np.bincount(lab.ravel(), weights=paint.ravel()) / np.maximum(np.bincount(lab.ravel()), 1)
+    whole = share >= CLAIM
+    whole[0] = False
+    return (whole[lab] | paint) & ~ink
+
+
+def level_svg(svg):
+    """The levelling turn (LEVEL) round the drawing, and its view box cut to LEVEL_VIEW."""
+    s = svg.read_text()
+    s = re.sub(r'viewBox="[^"]+"', f'viewBox="{LEVEL_VIEW}"', s, count=1)
+    s = s.replace('<g transform="scale(', f'<g transform="rotate({LEVEL} {LEVEL_C[0]:g} {LEVEL_C[1]:g})"><g transform="scale(', 1)
+    head, _, tail = s.rpartition("\n</svg>")
+    svg.write_text(head + "\n</g></svg>" + tail)
+
+
 def add_rim(rim, info):
     """The clay rim round the solid black, added to the body path after tracing: trace_svg takes clay off
     where it lies outside a line and no wider than one, which is what this rim is. Traced on the body's grid."""
@@ -400,6 +437,8 @@ def main(src, qa=None, dump=None):
     fine |= ndi.binary_erosion(net, iterations=MARGIN * UP)
     ink = (ink & ~green) | blue
     dots = (dots & ~green) | (blue & fine)
+    blue2, yellow2, green2 = marks_2(ink.shape)
+    ink |= blue2
     ws = areas(ink)
     fig, ground = figure(ink, ws, gl)
     # specks on the field
@@ -418,6 +457,7 @@ def main(src, qa=None, dump=None):
     t = sl(TASSELS)
     c = ndi.binary_closing(dots[t] | ink[t], structure=morphology.disk(TASSEL_CLOSE * UP))
     fig[t] |= ndi.binary_fill_holes(c)
+    fig = (fig | claim(yellow2, ink)) & ~claim(green2, ink)
     solid = ndi.binary_opening(ink, structure=morphology.disk(SOLID_OPEN * UP))
     rim = (ndi.distance_transform_edt(~solid) <= RIM * UP) & ~ink
     body = fig | solid
@@ -437,6 +477,7 @@ def main(src, qa=None, dump=None):
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
         lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
+    level_svg(OUT)                        # last: the check images are drawn on the unturned grid
 
 
 if __name__ == "__main__":

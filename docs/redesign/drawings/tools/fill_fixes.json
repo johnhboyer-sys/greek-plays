@@ -1,0 +1,479 @@
+{
+  "sophocles-euphorbos.svg": [
+    {
+      "op": "ink",
+      "at": [
+        227.7,
+        973.1
+      ],
+      "why": "left sandal: the open strip between strap and sole, closed at the back and filled black (John, 2026-10-22)"
+    },
+    {
+      "op": "line",
+      "pts": [
+        [
+          203.9,
+          950.3
+        ],
+        [
+          201.9,
+          957.3
+        ],
+        [
+          201.2,
+          962.8
+        ]
+      ],
+      "w": 9,
+      "why": "left sandal: the back of the strip closed with a heavy line where John drew it (2026-10-22)"
+    },
+    {
+      "op": "line",
+      "pts": [
+        [
+          199.5,
+          964.4
+        ],
+        [
+          199.0,
+          974.8
+        ],
+        [
+          196.8,
+          991.2
+        ]
+      ],
+      "w": 5,
+      "why": "left sandal: the heel's back outline, where the lattice met the ground with no line (John, 2026-10-22)"
+    },
+    {
+      "op": "ink",
+      "at": [
+        446.4,
+        976.7
+      ],
+      "why": "right sandal: the same (John, 2026-10-22)"
+    },
+    {
+      "op": "ink",
+      "at": [
+        420.4,
+        965.9
+      ],
+      "seal": [
+        [
+          410.0,
+          955.5
+        ],
+        [
+          410.6,
+          960.5
+        ],
+        [
+          411.2,
+          966.0
+        ]
+      ],
+      "why": "right sandal: the strip behind, closed down the heel's outer edge where John drew it, filled black (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        344.2,
+        524.8
+      ],
+      "why": "gap under the spear (John, 2026-10-22)",
+      "close_min": 2
+    }
+  ],
+  "aeschylus-pythia.svg": [
+    {
+      "op": "clay",
+      "at": [
+        552.4,
+        335.8
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    }
+  ],
+  "seven.svg": [
+    {
+      "op": "clay",
+      "at": [
+        769.8,
+        339.8
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    }
+  ],
+  "philoctetes.svg": [
+    {
+      "op": "clay",
+      "at": [
+        387.9,
+        579.4
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"inadequate fix.\")"
+    }
+  ],
+  "oedipus-coloneus.svg": [
+    {
+      "op": "ink",
+      "at": [
+        754.6,
+        423.8
+      ],
+      "why": "ink (John, 2026-10-22: \"ink or clay\")"
+    },
+    {
+      "op": "ink",
+      "at": [
+        768,
+        388.7
+      ],
+      "why": "ink (John, 2026-10-22: \"ink or clay\")"
+    }
+  ],
+  "iphigenia-in-tauris.svg": [
+    {
+      "op": "clay",
+      "at": [
+        646.3,
+        411.4
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        644.8,
+        413
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        625.6,
+        439.5
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        622,
+        438.7
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        613.6,
+        447.4
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        632.2,
+        493.7
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1145.3,
+        740
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1044.5,
+        845.9
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1044.5,
+        852.3
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1265.3,
+        310.3
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        342.2,
+        293.1
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        340.7,
+        289.3
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        338.1,
+        296.1
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        329.2,
+        335.1
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        335.3,
+        349.1
+      ],
+      "why": "gap in the clay (John, 2026-10-22: \"there a gap that needs to be closed as it's otherwise filling ground outside the area that should be clay\")"
+    }
+  ],
+  "phoenician-women.svg": [
+    {
+      "op": "ground",
+      "at": [
+        1441.7,
+        311.7
+      ],
+      "why": "clay where the ground belongs (John, 2026-10-22)"
+    }
+  ],
+  "orestes.svg": [
+    {
+      "op": "ink",
+      "at": [
+        1058.3,
+        95.3
+      ],
+      "why": "ink (John, 2026-10-22: \"ink\")"
+    }
+  ],
+  "peace.svg": [
+    {
+      "op": "ground",
+      "at": [
+        385.3,
+        731.1
+      ],
+      "why": "clay where the ground belongs (John, 2026-10-22)"
+    }
+  ],
+  "heraclidae.svg": [
+    {
+      "op": "clay",
+      "at": [
+        1096.5,
+        551.8
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1116.3,
+        585.9
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1051.2,
+        792.3
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1014.3,
+        740.3
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1041.3,
+        854.5
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1048.5,
+        813.7
+      ],
+      "why": "gap open to the ground, closed at its mouth (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1335.8,
+        637
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    }
+  ],
+  "acharnians.svg": [
+    {
+      "op": "ink",
+      "at": [
+        571.4,
+        165.3
+      ],
+      "why": "ink (John, 2026-10-22: \"ink in this area of hand. NOT beyond the hand though.\")"
+    }
+  ],
+  "birds.svg": [
+    {
+      "op": "clay",
+      "at": [
+        1535.9,
+        411.9
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1549.3,
+        384.6
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1471.9,
+        357
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1584.8,
+        490.4
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1496.2,
+        498.2
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1452.5,
+        499.7
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1409.9,
+        497.5
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1488.8,
+        532.2
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1467.8,
+        543.8
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1434.9,
+        553.5
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1411.4,
+        554.3
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1375.5,
+        553.2
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1355.7,
+        686.4
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "clay",
+      "at": [
+        1310.9,
+        755.5
+      ],
+      "why": "gap in the clay (John, 2026-10-22)"
+    },
+    {
+      "op": "ink",
+      "at": [
+        1475.6,
+        691.6
+      ],
+      "why": "ink (John, 2026-10-22: \"fill the white areas with black\")"
+    }
+  ]
+}

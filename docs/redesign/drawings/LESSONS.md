@@ -1199,3 +1199,19 @@ rulings on Andromache (2026-10-06); `tools/andromache.py` holds them
   only grain and stains on the Élite plates. `gaps.py` and `missed.py`,
   with `sclose.py` (close-ups rendered from the SVG), are kept in
   `.remember/batch3/scripts/`, outside git (2026-10-07).
+
+## Clay on both themes (2026-10-22)
+
+- B's design fills the body with clay on the light page too, so every gap the body left out now shows as a hole
+  of page in the clay. Of John's 126 flags, the gaps were closed areas the body missed; open ones ran out to the
+  ground through a break in the outline; on Medea most were the added white (`#f7f3ea`), which reads as page on
+  the light theme.
+- A bucket fill cannot fix a gap whose outline is broken: it floods the ground through the break (on Eumenides
+  it turned the whole field between the columns to clay). Close the break first. John marks the breaks in blue in
+  PhotoCraft on the tool's work grid, yellow for clay and green for ground (green meant "ink out" in the
+  Eumenides' first round: ask what each colour means each round). He may paint on the drawing's layer, not his
+  own: read both.
+- John: "close up the back and then fill with black ink" (Euphorbos's sandals): an open strip between strap and
+  sole is ink, sealed at the heel along the outline. Place a seal he sketches on a crop on the outline itself; a
+  seal a hair outside it drew a black bar on the ground.
+- The repo's `git clean` in a rerun script deleted an untracked new tool: never clean `docs/redesign/drawings`.
