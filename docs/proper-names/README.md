@@ -2,7 +2,7 @@
 
 2026-10-22. John, after Πυλάδη at Libation Bearers 20 showed "Entry not found in the vendored lexicon": find every proper name in the 44 plays and see how many Grammata's T8 lookup finds.
 
-Data: `build/dist` of 2026-10-21 (all 44 works, default Greek text plus the other Greek editions under `ed/`), and Grammata's live packs (`grc-analyses`, `grc-lsj-t8`, `grc-lsj` from the R2 base that `lookup.js` reads), fetched 2026-10-22. Script: `scripts/sweeps/proper-names-t8.mjs`.
+Data: `build/dist` of 2026-10-21 (all 44 works, default Greek text plus the other Greek editions under `ed/`), and Grammata's live packs (`grc-analyses`, `grc-lsj-t8`, `grc-lsj` from the R2 base that `lookup.js` reads), fetched 2026-10-22. The main checkout's `build/dist` (2026-10-13) has the same 44 `analyses.json` files but no `ed/` folders, so on it the script finds 1,479 lemmas (727 missed): the 18 that only other editions print drop out, and the occurrence counts are unchanged. Script: `scripts/sweeps/proper-names-t8.mjs`.
 
 ## Result
 
