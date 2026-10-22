@@ -37,8 +37,8 @@
     },
     "reading_route": {
       "type": ["string", "null"],
-      "$comment": "Bare work route for single-book play-line works: owner ruling 2026-09-11; the partner template must be updated to match.",
-      "pattern": "^/(read/[a-z0-9-]+/[a-z0-9-]+/section-[A-Za-z0-9.]+|[a-z0-9-]+/[a-z0-9-]+/book/[0-9]+|[a-z0-9-]+/[a-z0-9-]+)$"
+      "$comment": "Single-book play-line works read at /read/<author>/<work> (owner ruling 2026-10-20; the bare work route, ruled 2026-09-11, is now the play's own page and stays accepted).",
+      "pattern": "^/(read/[a-z0-9-]+/[a-z0-9-]+/section-[A-Za-z0-9.]+|read/[a-z0-9-]+/[a-z0-9-]+|[a-z0-9-]+/[a-z0-9-]+/book/[0-9]+|[a-z0-9-]+/[a-z0-9-]+)$"
     },
     "citation": { "$ref": "#/$defs/citation" },
     "editions": {

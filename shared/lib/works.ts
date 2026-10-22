@@ -423,14 +423,15 @@ function resolveAuthorSlug(workId: string): string {
 }
 
 // The base-relative path to a work's READER (caller prepends BASE_URL).
-// One-book play-line works read at their bare landing path; all other works
-// read at /<author>/<work>/book/<n>. The single source of truth for reader URLs — used by
+// One-book play-line works (the plays) read at /read/<author>/<work>, the bare
+// path being the play's own page (John, 2026-10-20); all other works read at
+// /<author>/<work>/book/<n>. The single source of truth for reader URLs — used by
 // the home index, work switcher, Bekker/Stephanus jump, search jumps, and
 // cross-book outline links.
 export function workPath(workId: string, book = 1): string {
   const w = BY_ID.get(workId);
   if (!w) throw new Error(`workPath: unknown work '${workId}'`);
-  if (w.books === 1 && w.citation?.scheme === 'play-line') return workLanding(workId);
+  if (w.books === 1 && w.citation?.scheme === 'play-line') return `/read${workLanding(workId)}`;
   // Clamp to the work's real book range so a stale/overflow value (e.g. a
   // remembered book number for a work that is now bookless) can't 404. Also
   // guards non-integer/non-finite input (NaN, 1.5, Infinity) — anything that

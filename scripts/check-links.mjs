@@ -117,6 +117,14 @@ export function checkReadingRoutes(routes, pageDirs) {
 
 // The site-relative directory an index.html lives in, in reading_route form
 // (leading slash, no trailing slash; '' for the dist root itself).
+// The work a reader page belongs to, from its path under dist: a play reads
+// at read/<author>/<work>/ (UI pass 2, John 2026-10-20), every other work at
+// <author>/<work>/…. The data directory is named for the work.
+export function readerWorkOf(relative) {
+  const segments = relative.split(/[\\/]/).filter(Boolean);
+  return segments[0] === 'read' ? segments[2] : segments[1];
+}
+
 function pageDirOf(dist, htmlFile) {
   const relative = path.relative(dist, path.dirname(htmlFile));
   return relative === '.' ? '' : `/${relative.split(path.sep).join('/')}`;
@@ -148,6 +156,22 @@ async function main() {
     const ids = new Set();
     for (const match of html.matchAll(/\bid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gi)) {
       ids.add(decodeEntities(match[1] ?? match[2] ?? match[3]));
+    }
+    // A play's reader page draws only its first screens into the HTML; the
+    // rest is drawn from the book's JSON in the page (shared/lib/book-payload.ts),
+    // so the ids the reader gives it count too: `col-{column}` (`--{k}` for a
+    // column's later segments) and `L{ref}-{n}` (Reader.svelte segmentAnchorId,
+    // playLineDomId).
+    for (const match of html.matchAll(/<script type="application\/json" id="book-[^"]*">([\s\S]*?)<\/script>/g)) {
+      let book;
+      try { book = JSON.parse(match[1]); } catch { continue; }
+      const seen = new Map();
+      for (const seg of book.segments ?? []) {
+        const k = (seen.get(seg.column) ?? 0) + 1;
+        seen.set(seg.column, k);
+        ids.add(k <= 1 ? `col-${seg.column}` : `col-${seg.column}--${k}`);
+        for (const line of seg.greek ?? []) if (line.ref != null) ids.add(`L${String(line.ref).replace(/ /g, '_')}-${line.n}`);
+      }
     }
     idCache.set(file, ids);
     if (idCache.size > MAX_ID_CACHE) idCache.delete(idCache.keys().next().value);
@@ -181,7 +205,7 @@ async function main() {
   // work's TLG book data prints it, whether or not the page's edition does.
   async function tlgRefExists(target, query, value) {
     if (/(?:^|&)ed=(?!tlg(?:&|$))/i.test(query)) return false;
-    const work = path.relative(dist, target).split(path.sep)[1];
+    const work = readerWorkOf(path.relative(dist, target));
     const dataDir = path.join(dist, 'data', work ?? '');
     if (!await existsDirectory(path.join(dataDir, 'ed'))) return false;
     const needle = new RegExp(`"ref"\\s*:\\s*"${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`);

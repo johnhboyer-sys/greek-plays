@@ -1,0 +1,334 @@
+---
+// The play's own page, at the bare play URL (docs/redesign/HANDOFF-ui-pass2-build.md
+// §6, direction B; John, 2026-10-20: "I like B's play page the best. Centered
+// image with the clay fill; big title. the layout of cast and translations and
+// greek editions is good too."): the play's whole drawing on the ground line,
+// the titles and the production, the argument, then the persons, the
+// translations, and the Greek texts in three columns, the synopsis behind a
+// label that warns it tells the ending, and the drawing's credit. No lines of
+// the text (John: "pointless"); the translations are the way into the reader.
+// Every string comes from the registry and the book's speaker roster; where a
+// year is missing, none is shown.
+import { readFileSync } from 'node:fs';
+import ThemeInit from './ThemeInit.astro';
+import Pwa from './Pwa.astro';
+import SiteHeader from './SiteHeader.astro';
+import SiteFoot from './SiteFoot.astro';
+import Figure from './Figure.astro';
+import CommandPalette from '@shared/components/CommandPalette.svelte';
+import { getAuthor } from '@shared/lib/authors';
+import { authorPath, workLanding, workPath, visibleTranslations, type Work } from '@shared/lib/works';
+import { assignSpeakerSlots, SPK_PALETTE_N } from '@shared/lib/speaker-colors';
+import { playSigla } from '@shared/lib/speakers';
+import { lastPrintedRef } from '@shared/lib/citation';
+import { readerHref } from '@shared/lib/data';
+import { speakerRoster } from '../lib/speaker-roster';
+import { playDrawings } from '../lib/drawings';
+import { SITE_NAME } from '../lib/site';
+import { jsonLdSafe } from '../lib/jsonld';
+import '@shared/styles/global.css';
+import '../styles/vase.css';
+
+interface Props { work: Work }
+const { work } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const author = getAuthor(work.author)!;
+const editionsOn = import.meta.env.PUBLIC_EDITIONS === '1' && !!work.greekEditions?.length;
+const drawings = playDrawings(work.id);
+// Alcestis' two drawings share one plate, so one credit.
+const credits = [...new Set(drawings.map((d) => d.credit).filter(Boolean))];
+
+// Registry copy is DRAFT until John approves it: the prefix is stripped from
+// the sentence and shown as a tag after it (as Plate.svelte did).
+const DRAFT = /^DRAFT\s*[—–-]\s*/;
+const argDraft = DRAFT.test(work.argument ?? '');
+const argument = (work.argument ?? '').replace(DRAFT, '');
+const synDraft = DRAFT.test(work.synopsis ?? '');
+const synopsis = (work.synopsis ?? '').replace(DRAFT, '');
+
+// "first staged" leads the production line where the manifest's line opens
+// with the festival or the date ("City Dionysia, 431 BC · …"); a line with
+// its own opening ("Date unknown · …", "Produced posthumously …") stands
+// alone, so no line reads "first staged Date unknown".
+const production = work.production ?? '';
+const staged = /^(City Dionysia|Lenaia|c\. |\d)/.test(production) ? `first staged ${production}` : production;
+
+// The persons, from the reference text's speaker roster: the same slots the
+// reader colours them by (speaker-roster.ts), and each person's Greek siglum
+// as the text prints it (Reader.svelte's playSigla).
+const bookData = JSON.parse(readFileSync(`public/data/${work.id}/book-01.json`, 'utf-8'));
+const roster = speakerRoster(work.id, work.books);
+const slots = assignSpeakerSlots(roster);
+const sigla = playSigla((bookData.segments ?? []).flatMap((seg: { speakers?: { label: string; display?: string | null }[] }) => seg.speakers ?? []));
+const persons = roster.map((name) => ({ name, slot: slots.get(name) ?? 0, siglum: sigla.get(name) ?? null }));
+// A numbered family (Agamemnon's Elder 1 … Elder 12) collapsed into one entry
+// at its first member's place, with no colour or siglum of its own.
+const NUMBERED = /^(.+) (\d+)$/;
+const size = new Map<string, number>();
+for (const p of persons) {
+  const b = NUMBERED.exec(p.name)?.[1];
+  if (b) size.set(b, (size.get(b) ?? 0) + 1);
+}
+const cast: { label: string; slot: number | null; siglum: string | null }[] = [];
+const done = new Set<string>();
+for (const p of persons) {
+  const b = NUMBERED.exec(p.name)?.[1];
+  if (!b || (size.get(b) ?? 0) < 2) { cast.push({ label: p.name, slot: p.slot, siglum: p.siglum }); continue; }
+  if (done.has(b)) continue;
+  done.add(b);
+  const ns = persons.map((q) => NUMBERED.exec(q.name)).filter((x): x is RegExpExecArray => !!x && x[1] === b).map((x) => Number(x[2]));
+  cast.push({ label: `${b}s ${Math.min(...ns)}–${Math.max(...ns)}`, slot: null, siglum: null });
+}
+const slotStyle = (slot: number | null) => slot == null
+  ? ''
+  : `--c: var(--spk-${((slot % SPK_PALETTE_N) + SPK_PALETTE_N) % SPK_PALETTE_N})`;
+
+// The Greek texts: every edition when the edition picker is on, else the
+// reference text alone; each a way into the reader's Greek view.
+const reference = { id: 'tlg', short: work.greekSource.short, full: work.greekSource.full };
+const editions = editionsOn ? work.greekEditions! : [reference];
+const plain = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '');
+const yearIn = (s: string) => /\b(\d{4})\b/.exec(s)?.[1] ?? '';
+const greekTexts = editions.map((e) => ({
+  name: plain(e.full),
+  year: 'year' in e && e.year ? String(e.year) : yearIn(e.full),
+  // Always named: a link without its edition opens the Greek of the reader's
+  // saved translation instead (readerHref drops the default pair's edition).
+  href: `${base}${readerHref(work.id, { view: 'greek' })}${editionsOn ? `&ed=${encodeURIComponent(e.id)}` : ''}`,
+}));
+
+// The translations, each a way into the reader: the name without a
+// parenthesis that holds its year; then form, year, how it is aligned, and
+// the Greek it stands beside: the edition it was made from when the picker
+// is on (John, 2026-09-28: matched pairs), else the reference text.
+const editorOf = (id?: string) => {
+  const e = (editionsOn && id ? work.greekEditions!.find((x) => x.id === id) : undefined)
+    ?? (editionsOn ? work.greekEditions!.find((x) => x.id === 'tlg') : undefined)
+    ?? reference;
+  return plain(e.short);
+};
+const translations = visibleTranslations(work).map((t) => {
+  const paren = /\s*\(([^)]*)\)\s*$/.exec(t.name);
+  const years = paren?.[1].match(/\b\d{4}\b/g) ?? [];
+  return {
+    name: years.length ? t.name.slice(0, paren!.index) : t.name,
+    href: `${base}${readerHref(work.id, { trans: t.id })}`,
+    bits: [
+      t.form,
+      years.join('–'),
+      t.alignment ? `aligned by ${t.alignment}` : '',
+      `with ${editorOf(t.edition)}'s Greek`,
+    ].filter(Boolean),
+  };
+});
+
+const lastLine = lastPrintedRef(bookData.segments ?? []);
+const citeAs = work.citation?.copyAbbr && lastLine ? `${work.citation.copyAbbr} 1–${lastLine}` : null;
+
+// ── SEO ───────────────────────────────────────────────────────────────────
+// DRAFT copy: John approves.
+const pageTitle = `${work.title} — ${author.name} — ${SITE_NAME}`;
+const metaDescription = work.blurb || argument;
+const canonical = Astro.site ? new URL(`${base}${workLanding(work.id)}/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: work.title,
+  ...(work.greekTitle ? { alternateName: work.greekTitle } : {}),
+  author: { '@type': 'Person', name: author.name },
+  inLanguage: [work.language, 'en'],
+  ...(canonical ? { url: canonical } : {}),
+  description: metaDescription,
+};
+const breadcrumbLd = Astro.site
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: new URL(`${base}/`, Astro.site).href },
+        { '@type': 'ListItem', position: 2, name: author.name, item: new URL(`${base}${authorPath(author.id)}/`, Astro.site).href },
+        { '@type': 'ListItem', position: 3, name: work.title, item: canonical },
+      ],
+    }
+  : null;
+---
+<html lang="en" data-genre={author.genre}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="book" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  {canonical && <meta property="og:url" content={canonical} />}
+  <meta property="og:site_name" content={SITE_NAME} />
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  {breadcrumbLd && <script type="application/ld+json" set:html={jsonLdSafe(breadcrumbLd)} />}
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Alegreya+Sans+SC:wght@500;700&family=Cardo:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <Pwa />
+</head>
+<body class="play-page" data-author={author.id}>
+  <CommandPalette work={work.id} client:load />
+  <div class="wrap">
+    <SiteHeader author={{ id: author.id, name: author.name }} stack />
+
+    <main>
+      <div class="scene"><Figure drawings={drawings} /></div>
+
+      <div class="tb">
+        <div>
+          {work.greekTitle && <p class="gt" lang="grc">{work.greekTitle}</p>}
+          <h1 class="et">{work.title}</h1>
+        </div>
+        <p class="au"><a href={`${base}${authorPath(author.id)}`}>{author.name}</a>{staged && <> · {staged}</>}</p>
+      </div>
+
+      {argument && <p class="arg">{argument}{argDraft && <span class="draft">draft</span>}</p>}
+      {/* DRAFT copy. John, 2026-10-22: a way in that is plain to see ("Read
+          the play", the default pair), with Resume beside it when a saved
+          place exists (2026-10-20: a plain link). */}
+      <p class="go">
+        <a class="read" href={`${base}${workPath(work.id)}`}>Read the play</a>
+        <span class="resume" id="resume" hidden> · <a href={`${base}${workPath(work.id)}`} data-work={work.id} data-books={work.books}></a></span>
+      </p>
+
+      <div class="three">
+        {cast.length > 0 && (
+          <div>
+            <h2>Persons, in order of appearance</h2>
+            <ul class="cast">
+              {cast.map((p) => (
+                <li style={slotStyle(p.slot)}><span class="sg" lang="grc">{p.siglum ?? ''}</span><span>{p.label}</span></li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {translations.length > 0 && (
+          <div>
+            <h2>Translations</h2>
+            <ul class="reads">
+              {translations.map((t) => (
+                <li><a href={t.href}>{t.name}</a><span class="d">{t.bits.join(' · ')}</span></li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div>
+          <h2>{greekTexts.length > 1 ? 'Greek texts' : 'Greek text'}</h2>
+          <ul class="eds">
+            {greekTexts.map((g) => (
+              <li><a href={g.href}>{g.name}</a>{g.year && <span class="y">{g.year}</span>}</li>
+            ))}
+          </ul>
+          {citeAs && <p class="facts"><b>Cite as</b> {citeAs}</p>}
+        </div>
+      </div>
+
+      {synopsis && (
+        <details class="syn">
+          <summary>Full synopsis (tells the ending)</summary>
+          <p>{synopsis}{synDraft && <span class="draft">draft</span>}</p>
+        </details>
+      )}
+      {credits.length > 0 && <p class="credit">Drawing: {credits.join(' ')}</p>}
+    </main>
+
+    <SiteFoot />
+  </div>
+
+  <style>
+    .wrap a { color: inherit; text-decoration: none; }
+    .wrap a:hover { text-decoration: underline; text-underline-offset: .12em; }
+
+    /* The scene: the play's whole drawing, centred, on a ground line the
+       width of the page; a wide scene shrinks to the width, still whole
+       (John, 2026-10-20: "whole image needs to be on screen OR we need Medea
+       to be centered"). */
+    .scene { --fig-h: 460px; --fig-lift: .5rem; margin-top: 1.4rem; }
+
+    /* The titles: the Greek a step below the English (John: "slightly
+       smaller font"); the author and production at the right. */
+    .tb { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; margin-top: 1.5rem; }
+    .gt { font: 400 3rem/1 var(--font-greek); color: var(--clay-deep); margin: 0; }
+    .et { font: 400 3.6rem/1 var(--font-english); margin: .25rem 0 0; }
+    .au { font: 400 1.25rem var(--font-ui); color: var(--mid); padding-bottom: .4rem; margin: 0; }
+    .tb .au a { color: var(--ink); }
+
+    .arg { font: 400 1.5rem/1.4 var(--font-english); max-width: 32em; margin: 1.4rem 0 0; }
+    .draft { font: 400 .8rem var(--font-ui); color: var(--mid); margin-left: .4rem; }
+    .go { font: 400 1.25rem var(--font-ui); color: var(--mid); margin: 1rem 0 0; }
+    .wrap .go a { color: var(--clay-text); text-decoration: underline; text-underline-offset: .2em; text-decoration-thickness: 1px; }
+    .resume[hidden] { display: none; }
+
+    .three { display: grid; grid-template-columns: 1.1fr 1.2fr 1fr; gap: 3.5rem; margin-top: 2.6rem; }
+    .three > div { min-width: 0; }
+    .three h2 { font: 400 1rem var(--font-ui); color: var(--mid); margin: 0 0 .6rem; }
+    .three ul { list-style: none; margin: 0; padding: 0; }
+    .cast li { display: grid; grid-template-columns: 3.2rem 1fr; font: 400 1.15rem/1.55 var(--font-english); }
+    .cast .sg { color: var(--c, var(--mid)); font-family: var(--font-greek); }
+    .reads li { padding: .45rem 0 .6rem; font: 400 1.15rem/1.3 var(--font-english); }
+    .reads li:first-child { padding-top: 0; }
+    /* The translations and Greek texts open the reader: marked as links
+       (John, 2026-10-22: where to click was not obvious). */
+    .wrap .reads a, .wrap .eds a { color: var(--clay-text); }
+    .wrap .reads a:hover, .wrap .eds a:hover { text-decoration: underline; text-underline-offset: .2em; }
+    .reads .d { display: block; font: 400 .92rem var(--font-ui); color: var(--mid); margin-top: .1rem; }
+    .eds li { font: 400 1.05rem/1.4 var(--font-english); padding: .3rem 0; }
+    .eds li:first-child { padding-top: 0; }
+    .eds .y { font: 400 .92rem var(--font-ui); color: var(--mid); margin-left: .4em; }
+    .facts { margin: 1.4rem 0 0; font: 400 1rem/1.45 var(--font-ui); color: var(--mid); }
+    .facts b { color: var(--ink); font-weight: 500; }
+
+    .syn { margin-top: 2rem; max-width: 40em; }
+    .syn summary { cursor: pointer; font: 400 1.05rem var(--font-ui); color: var(--clay-text); }
+    .syn p { margin: .5rem 0 0; font: 400 1.1rem/1.5 var(--font-english); }
+    .credit { margin: 2rem 0 0; font: 400 .85rem/1.4 var(--font-ui); color: var(--mid); max-width: 44em; }
+
+    /* Phone: the scene at 220px; the titles in one column; the three
+       columns stacked. */
+    @media (max-width: 700px) {
+      .scene { --fig-h: 220px; }
+      .tb { grid-template-columns: 1fr; gap: .2rem; margin-top: 1rem; }
+      .et { font-size: 2.4rem; }
+      .gt { font-size: 2rem; }
+      .au { padding-bottom: 0; margin-top: .3rem; }
+      .arg { font-size: 1.2rem; }
+      .three { grid-template-columns: 1fr; gap: 1.6rem; margin-top: 1.8rem; }
+    }
+  </style>
+
+  <script>
+    // Resume, when a saved place exists (localStorage, shared/lib/resume.ts).
+    import { resumeFor, resumeHref } from '@shared/lib/resume';
+
+    const p = document.getElementById('resume');
+    const a = p?.querySelector('a') as HTMLAnchorElement | null;
+    const pos = a ? resumeFor(a.dataset.work!) : null;
+    if (p && a && pos?.cite) {
+      const books = Number(a.dataset.books) || 1;
+      const book = Math.min(Math.max(1, pos.book), books);
+      const base = (import.meta.env.BASE_URL as string).replace(/\/$/, '');
+      a.href = resumeHref(a.dataset.work!, { ...pos, book }, base);
+      // A later occurrence is saved as "803--2"; show the line, keep the link.
+      a.textContent = `Resume at ${pos.cite.replace(/--\d+$/, '')}`;
+      p.hidden = false;
+    }
+  </script>
+</body>
+</html>

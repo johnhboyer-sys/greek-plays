@@ -62,7 +62,8 @@ describe.skipIf(!built)('search hits from a BUILT edition index (skipped when bu
     }
     // A hit carries ed=smyth-loeb exactly when its play has Smyth's edition
     // (all seven Aeschylus plays do); any other play's hit carries none.
-    const playOf = (href: string) => new URL(href, 'https://x.test').pathname.split('/').filter(Boolean)[1];
+    // A play reads at /read/<author>/<play> (2026-10-20); the play is the last segment.
+    const playOf = (href: string) => new URL(href, 'https://x.test').pathname.split('/').filter(Boolean).at(-1)!;
     for (const { href } of hits) {
       const hasSmyth = !!getWork(playOf(href))?.greekEditions?.some((e) => e.id === 'smyth-loeb');
       expect(new URL(href, 'https://x.test').searchParams.get('ed'), href).toBe(hasSmyth ? 'smyth-loeb' : null);

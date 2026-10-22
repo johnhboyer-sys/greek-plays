@@ -1427,3 +1427,26 @@ export function spaceTicks<T extends { n: number; offset: number }>(
   }
   return kept;
 }
+
+// The phone's pieces (spec §7.4, UI pass 2): never a piece under `minSpan`
+// Greek lines, the first and the last included, and no cut kept for being a
+// marker, as spaceTicks keeps one. `isLine[j]` says whether item j counts as
+// a Greek line (a shared line's later half and a lacuna do not); a cut opens its piece
+// at item `i`, and the piece before the first cut starts at item 0.
+export function phonePieceCuts<T extends { i: number }>(isLine: readonly boolean[], cuts: readonly T[], minSpan: number): T[] {
+  const lines = (a: number, b: number) => {
+    let k = 0;
+    for (let j = a; j < b; j += 1) if (isLine[j]) k += 1;
+    return k;
+  };
+  const kept: T[] = [];
+  let from = 0;
+  for (const c of cuts) {
+    if (c.i > from && lines(from, c.i) >= minSpan) {
+      kept.push(c);
+      from = c.i;
+    }
+  }
+  while (kept.length && lines(kept[kept.length - 1]!.i, isLine.length) < minSpan) kept.pop();
+  return kept;
+}

@@ -57,10 +57,10 @@ describe('resumeFor', () => {
     localStorage.setItem('reader-loc-ed-agamemnon', 'smyth-loeb');
     const point = resumeFor('agamemnon')!;
     expect(point).toEqual({ book: 1, cite: '1203', ed: 'smyth-loeb' });
-    expect(resumeHref('agamemnon', point, '', true)).toBe('/aeschylus/agamemnon?ed=smyth-loeb#1203');
-    expect(resumeHref('agamemnon', point, '/base', true)).toBe('/base/aeschylus/agamemnon?ed=smyth-loeb#1203');
-    expect(resumeHref('agamemnon', point, '', false)).toBe('/aeschylus/agamemnon#1203');
-    expect(resumeHref('agamemnon', { book: 1, cite: '1203' }, '', true)).toBe('/aeschylus/agamemnon#1203');
+    expect(resumeHref('agamemnon', point, '', true)).toBe('/read/aeschylus/agamemnon?ed=smyth-loeb#1203');
+    expect(resumeHref('agamemnon', point, '/base', true)).toBe('/base/read/aeschylus/agamemnon?ed=smyth-loeb#1203');
+    expect(resumeHref('agamemnon', point, '', false)).toBe('/read/aeschylus/agamemnon#1203');
+    expect(resumeHref('agamemnon', { book: 1, cite: '1203' }, '', true)).toBe('/read/aeschylus/agamemnon#1203');
   });
 });
 

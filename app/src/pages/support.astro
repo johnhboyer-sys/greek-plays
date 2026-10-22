@@ -3,7 +3,8 @@
 // Stripe Payment Link (SUPPORT_URL); this page gives that appeal a real URL on
 // our own domain with a branded Open Graph card (public/og-support.png).
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFoot from '../components/SiteFoot.astro';
 import Pwa from '../components/Pwa.astro';
 import { SUPPORT_URL } from '../lib/support';
 import { SITE_NAME } from '../lib/site';
@@ -85,18 +86,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>{siteName}</a>
-      <span class="title-sep">›</span>
-      <span class="header-static">Support</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <div class="wrap"><SiteHeader /></div>
 
   <main class="sp-body">
     <p class="sp-eyebrow">Support <span class="gk">χάρις</span></p>
@@ -124,5 +114,6 @@ const jsonLd = {
       for keeping the reader free. <span class="gk" style="font-family:var(--font-greek);color:var(--accent-light);">χάρις</span>.
     </p>
   </main>
+  <div class="wrap"><SiteFoot /></div>
 </body>
 </html>

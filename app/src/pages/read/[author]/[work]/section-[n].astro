@@ -10,7 +10,7 @@
 // page, same technique as [cite].astro — meta refresh + JS replace + a
 // visible fallback link — so it always returns 200 even if a partner links
 // straight to it without following the redirect.
-import { getWorkBySlug } from '@shared/lib/works';
+import { getWorkBySlug, workPath } from '@shared/lib/works';
 import { sectionRoutes } from '../../_section-routes';
 
 export function getStaticPaths() {
@@ -28,7 +28,7 @@ const work = getWorkBySlug(author, slug);
 if (!work) {
   throw new Error(`read/[author]/[work]/section-[n]: no work at author '${author}' slug '${slug}'`);
 }
-const target = `/${author}/${slug}/book/${bookN}?loc=${encodeURIComponent(n)}`;
+const target = `${workPath(work.id, bookN)}?loc=${encodeURIComponent(n)}`;
 const title = `${work.title} ${n}`;
 ---
 <!doctype html>

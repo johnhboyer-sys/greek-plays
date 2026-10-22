@@ -69,12 +69,12 @@
 </script>
 
 <script lang="ts">
-  import { onMount, onDestroy, afterUpdate, tick, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy, afterUpdate, tick, flushSync, createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, lastPrintedRef, unitNounFor } from '../lib/citation';
   import { editionCopyCitation } from '../lib/edition-citation';
-  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
+  import { lineRenderParts, englishFlow, sentenceTicks, spaceTicks, lineStartTicks, verseLineTicks, MIN_PIECE_LINES, phonePieceCuts, markStageDirections, directionRows, splitAtDirections, splitShortDirections, directionBracket, buildFlowRows, buildEnglishTurnBlocks, extractPrefixedEnglishTurns, labelSuppression, playSigla, isJointSiglum, leadInCase, playOutOfSequence, playRepeatedRefs, playTransposed, playGreekGutterWidth, playEnglishGutterWidth, splitGreekSections, splitWrapLine, markLineNumbers, lineNumberHtml, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock, type EnglishTurnSource } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { greekFold } from '../lib/search';
   import { copyButtonPosition } from '../lib/copy-button';
@@ -84,6 +84,7 @@
   import { getAuthor } from '../lib/authors';
   import { touchRecent } from '../lib/resume';
   import { editionPicker } from '../lib/edition-picker';
+  import { takeBook } from '../lib/book-payload';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
 
@@ -106,6 +107,9 @@
   export let initialLocation: string | null = null;
   export let initialTranslation: string | null = null;
   export let initialView: 'both' | 'english' | 'greek' | null = null;
+  // The page's book by id, in place of bookData (shared/lib/book-payload.ts).
+  export let bookId: string | null = null;
+  if (!bookData && bookId) bookData = takeBook(bookId);
   const dispatch = createEventDispatcher<{ editionChange: { trans: string; view: 'both' | 'english' | 'greek'; loc: string | null; ed?: string } }>();
   const workMeta = getWork(work);
   // `workMeta.author` is an author-registry slug, not a display name — see
@@ -280,6 +284,9 @@
   // pipeline kept (stage1_turn_english's verse-form `_join_parts`) renders as
   // its own block instead of running the speech together as one paragraph.
   const verseForm = (id: string | null | undefined): boolean => transById(id)?.form === 'verse';
+  // Keyed by line (its own line markers), not by speech: only such a
+  // translation is cut into pieces on a phone (spec §7.4, UI pass 2).
+  const lineKeyed = (id: string | null | undefined): boolean => transById(id)?.alignment === 'line';
 
   // §Phase-4B-revised (John's call 2026-07-06): an imported translation's own
   // converter-derived chapter title is this edition's editorial paratext, not
@@ -658,13 +665,178 @@
   let view: View = 'both';
   async function setView(v: View) {
     const old = view;
+    // A play keeps its place: the line at the top comes back to the same
+    // height in the new view (or the English cell that holds it). The scroll
+    // offset alone does not: a phone's Both view is far taller than its English.
+    const place = playLine && old !== v ? (linkedPlace() ?? placeAtTop()) : null;
     view = v;
     if (edition && old !== v) dispatch('editionChange', { trans, view: v, loc: lastCite });
     try { localStorage.setItem('reader-view', v); } catch {}
     // The tracked anchors differ by view (Greek lines vs. whole columns), so
     // rebuild the scroll-spy once the DOM reflects the new view.
     await tick();
+    // playFlow places each English paragraph on a timeout of its own: let it land.
+    if (place) await new Promise((r) => setTimeout(r, 0));
+    if (place) returnTo(place);
     if (spyArmed) setupScrollSpy();
+  }
+
+  // Opened at a line (?loc=, a #line) and that line still on screen: it is the
+  // place, not the line at the top, which can stand a screen above it (a
+  // centred English cell in English-only view).
+  function linkedPlace(): ReturnType<typeof placeAtTop> {
+    if (spyArmed || !targetId) return null;
+    const g = document.getElementById(targetId);
+    const shown = g ? shownFor(g) : null;
+    if (!g || !shown) return null;
+    const box = boxOf(shown);
+    if (box.bottom <= headBottom() || box.top >= window.innerHeight) return null;
+    if (shown !== g) return { el: g, key: g.id, keyFrac: null, trans: null, line: true, at: box.top, frac: 0 };
+    const top = g.getBoundingClientRect().top;
+    const col = (g.closest('.greek-col') as HTMLElement | null)?.getBoundingClientRect();
+    return { el: g, key: g.id, keyFrac: null, trans: null, line: true, at: top, frac: col?.height ? (top - col.top) / col.height : 0 };
+  }
+
+  // Bring a place (placeAtTop) back to its height after the rows changed.
+  function returnTo(place: NonNullable<ReturnType<typeof placeAtTop>>) {
+    // The switch can rebuild the row (splitAtDirections groups by view): find
+    // it again by its Greek line.
+    // A Greek line is found by its id: a regroup can leave the old row in the
+    // page for a moment beside its rebuilt copy (Ajax 1199 with Storr, a phone
+    // turned).
+    let anchor = place.line && place.key ? document.getElementById(place.key) : place.el.isConnected ? place.el : null;
+    let frac = place.frac;
+    if (!anchor && place.key) {
+      const l = document.getElementById(place.key);
+      const row = l?.closest('.play-row, .seg-row');
+      // An English cell the new view does not draw (a comparison's columns in
+      // the Greek view) gives way to its row's Greek; a row keyed on another
+      // line (a stage direction, a shared line's second half) gives way to
+      // that line, at its head or its foot.
+      if (place.keyFrac !== null) { frac = place.keyFrac; anchor = l; }
+      else anchor = place.line ? l : row?.querySelector<HTMLElement>(place.trans ? `[data-trans="${CSS.escape(place.trans)}"]` : '.english-col')
+        ?? row?.querySelector<HTMLElement>('.greek-col') ?? l;
+    }
+    const shown = anchor ? shownFor(anchor) : null;
+    if (shown) {
+      // The line itself where it still shows; else that far down what shows it.
+      const r = boxOf(shown);
+      let point = place.line && shown === anchor ? r.top : r.top + frac * r.height;
+      // A phone sets each piece's Greek above its English: an English cell
+      // brings its piece in whole, Greek first, where the piece fits.
+      const g = !place.line && shown === anchor ? shown.closest('.play-row, .seg-row')?.querySelector('.greek-col') as HTMLElement | null : null;
+      const gr = g && g.offsetParent !== null ? g.getBoundingClientRect() : null;
+      if (gr && gr.bottom <= r.top + 2 && r.bottom - gr.top <= window.innerHeight - place.at) point = gr.top;
+      suppressArmUntil = Date.now() + 800;
+      window.scrollBy(0, point - place.at);
+    }
+  }
+
+  // Turning a phone across 680px regroups the rows (phoneLayout). The page is
+  // laid out at the new width before any event says so, so the place is
+  // noted as the reader scrolls and brought back after the regroup, moved by
+  // however much the head's height changed. An English place is noted by its
+  // words as well: the phone's pieces and the desktop's rows are other cells
+  // over the same text, so a fraction of a cell would land elsewhere.
+  type Words = { seg: string; sel: string; chars: number; off: number };
+  let lastPlace: { place: ReturnType<typeof placeAtTop>; head: number; words: Words | null } | null = null;
+  let placeTimer: ReturnType<typeof setTimeout> | undefined;
+  const headBottom = () => document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
+  // At most every 150ms while the reader scrolls, so a turn during a long
+  // flick finds the place it had reached (Codex review).
+  function notePlace() {
+    if (placeTimer) return;
+    placeTimer = setTimeout(() => {
+      placeTimer = undefined;
+      const place = placeAtTop();
+      const head = headBottom();
+      lastPlace = { place, head, words: place && !place.line ? wordsAt(place.el, head) : null };
+    }, 150);
+  }
+  // A reader ReaderHost has replaced (another edition) keeps no listener
+  // that could move the page (Codex review).
+  let phoneMq: MediaQueryList | null = null;
+  let destroyed = false;
+  const onPhoneChange = (e: MediaQueryListEvent) => { void regroup(e.matches); };
+  async function regroup(phone: boolean) {
+    const noted = playLine ? lastPlace : null;
+    phoneLayout = phone;
+    if (!noted?.place) return;
+    await tick();
+    await new Promise((r) => setTimeout(r, 0));
+    if (destroyed) return;
+    const moved = headBottom() - noted.head;
+    const top = noted.words ? wordsTop(noted.words) : null;
+    if (top === null) returnTo({ ...noted.place, at: noted.place.at + moved });
+    else {
+      suppressArmUntil = Date.now() + 800;
+      window.scrollBy(0, top - (noted.head + moved + noted.words!.off));
+    }
+  }
+  // The English text of a cell's segment, in that cell's translation, node by
+  // node: the words at a place are counted in it.
+  function* englishText(seg: HTMLElement, sel: string): Generator<{ cell: HTMLElement; node: Text }> {
+    for (const cell of seg.querySelectorAll<HTMLElement>(sel)) {
+      const walk = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) yield { cell, node: n as Text };
+    }
+  }
+  // Characters are counted without spaces: each cell adds spaces of its own,
+  // and the phone's pieces and the desktop's rows are not the same cells.
+  const inked = (t: string) => t.replace(/\s+/g, '').length;
+  // The words the head's edge cuts in an English cell: how many characters of
+  // the segment's English come before them, and how far off the edge they sit.
+  // Where the edge cuts only a cell's padding, below its last line, the
+  // words are the first ones after it, in a later cell or segment (Medea in
+  // English-only view, a phone turned).
+  function wordsAt(cell: HTMLElement, y: number): Words | null {
+    const seg = cell.closest<HTMLElement>('.segment[id]');
+    if (!seg) return null;
+    const sel = cell.dataset.trans ? `[data-trans="${CSS.escape(cell.dataset.trans)}"]` : '.english-col';
+    const r = document.createRange();
+    let chars = 0;
+    let reached = false;
+    for (const { cell: c, node } of englishText(seg, sel)) {
+      if (c === cell) reached = true;
+      r.selectNodeContents(node);
+      if (reached && node.length && c.offsetParent !== null && r.getBoundingClientRect().bottom > y) {
+        let lo = 0, hi = node.length - 1;
+        while (lo < hi) {
+          const mid = (lo + hi) >> 1;
+          r.setStart(node, mid); r.setEnd(node, mid + 1);
+          if (r.getBoundingClientRect().bottom > y) hi = mid; else lo = mid + 1;
+        }
+        r.setStart(node, lo); r.setEnd(node, lo + 1);
+        return { seg: seg.id, sel, chars: chars + inked(node.data.slice(0, lo)), off: r.getBoundingClientRect().top - y };
+      }
+      chars += inked(node.data);
+    }
+    // On to the next segment that shows this translation.
+    for (let next = seg.nextElementSibling; next; next = next.nextElementSibling) {
+      const c = next.matches('.segment[id]') ? [...next.querySelectorAll<HTMLElement>(sel)].find((x) => x.offsetParent !== null) : null;
+      if (c) return wordsAt(c, y);
+    }
+    return null;
+  }
+  // Where those words are now; null where they do not show.
+  function wordsTop(w: Words): number | null {
+    const seg = document.getElementById(w.seg);
+    if (!seg) return null;
+    let chars = 0;
+    for (const { node } of englishText(seg, w.sel)) {
+      const n = inked(node.data);
+      if (w.chars < chars + n) {
+        // The offset in this node where that many inked characters begin.
+        let at = 0, k = chars;
+        while (at < node.length && (/\s/.test(node.data[at]!) || k < w.chars)) { if (!/\s/.test(node.data[at]!)) k += 1; at += 1; }
+        const r = document.createRange();
+        r.setStart(node, Math.min(at, node.length - 1)); r.setEnd(node, Math.min(at + 1, node.length));
+        const b = r.getBoundingClientRect();
+        return b.height ? b.top : null;
+      }
+      chars += n;
+    }
+    return null;
   }
 
   // Print / Save-as-PDF: hand the currently-rendered view to the browser's
@@ -673,6 +845,7 @@
   // on-screen view as-is, so Both / Greek / English all work via existing CSS.
   function printReader() {
     if (typeof window === 'undefined') return;
+    renderThrough();
     window.print();
   }
 
@@ -680,6 +853,7 @@
   // that don't belong to the selected chapter, then restoring after print.
   function printSingleChapter(ch: string) {
     if (typeof window === 'undefined') return;
+    renderThrough();
     const toRestore: { el: HTMLElement; was: string }[] = [];
     const hide = (el: HTMLElement) => {
       toRestore.push({ el, was: el.style.display });
@@ -1136,7 +1310,7 @@
     const els = Array.from(document.querySelectorAll(
       greekVisible ? '.greek-line[id]' : '.segment[id], [data-etick]'));
     if (!els.length) return;
-    const headerH = Math.round(document.querySelector('.page-header')?.getBoundingClientRect().height ?? 60);
+    const headerH = Math.round(document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().height ?? 60);
     // The reading area starts below the sticky header AND the sticky controls
     // strip pinned beneath it, so the detection band begins at the strip's bottom.
     const ctrlBottom = document.querySelector('.reader-controls')?.getBoundingClientRect().bottom ?? 0;
@@ -1229,21 +1403,90 @@
   function scrollToPlayLineRef(ref: string) {
     const line = resolvePlayLineRef(ref);
     if (!line) return;
+    renderThrough(line);
     suppressArmUntil = Date.now() + 800;
-    const id = playLineDomId(line.ref ?? ref, line.n);
-    const el = document.getElementById(id);
-    if (el && (el as HTMLElement).offsetParent !== null) {
-      el.scrollIntoView({ behavior: 'auto', block: 'center' });
-      return;
+    const el = document.getElementById(playLineDomId(line.ref ?? ref, line.n));
+    if (el) shownFor(el)?.scrollIntoView({ behavior: 'auto', block: 'center' });
+  }
+
+  // What shows a play line or an English cell on screen: the element itself,
+  // or, where its column is hidden, the other column of the row or segment
+  // that holds it: a Greek line's English cell in English-only view (Astra
+  // lane A, F3), an English cell's Greek in the Greek view. Never a switch
+  // into bilingual.
+  function shownFor(el: HTMLElement): HTMLElement | null {
+    if (el.offsetParent !== null) return el;
+    const other = el.closest('.english-col, .overlay-col') ? '.greek-col' : '.english-col';
+    const rowCol = el.closest('.play-row, .seg-row')?.querySelector(other) as HTMLElement | null;
+    const seg = el.closest('.segment') as HTMLElement | null;
+    const segCol = seg?.querySelector(other) as HTMLElement | null;
+    const shown = [rowCol, segCol, seg].find((n) => n && n.offsetParent !== null);
+    if (shown) return shown;
+    // A speech translated with another, which the English-only view leaves
+    // out (englishElsewhere): that speech's English.
+    const host = seg?.dataset.englishIn ? document.getElementById(seg.dataset.englishIn) : null;
+    const hostCol = host?.querySelector('.english-col') as HTMLElement | null;
+    return hostCol && hostCol.offsetParent !== null ? hostCol : null;
+  }
+
+  // The place at the top of the reading area, so a view switch can bring it
+  // back: the first Greek line whose bottom clears the head, with how far down
+  // its column it sits (for the English cell that shows it once the Greek
+  // hides); in English-only view the first English cell (a comparison's second
+  // column too, or a turn-flow tick), with how far down it the head's edge
+  // cuts, which Both shows again as is. `key` is a Greek line's id, to find a
+  // rebuilt row again; `at` is the height to restore the place to.
+  function placeAtTop(): { el: HTMLElement; key: string | null; keyFrac: number | null; trans: string | null; line: boolean; at: number; frac: number } | null {
+    const y = document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().bottom ?? 0;
+    const first = (sel: string) => {
+      for (const el of document.querySelectorAll<HTMLElement>(sel)) {
+        if (el.offsetParent === null) continue;
+        const r = boxOf(el);
+        if (r.bottom > y) return { el, r };
+      }
+      return null;
+    };
+    const english = () => {
+      const f = first('.english-col, .overlay-col, [data-etick]');
+      if (!f) return null;
+      const row = f.el.closest('.play-row, .seg-row');
+      let key = row?.querySelector('.greek-line[id]')?.id ?? null;
+      // A row whose Greek has no numbered line: the second speaker's half of
+      // a shared line keys on that line (its number sits on the first half,
+      // in the row before), at its foot; a stage direction, with no Greek at
+      // all, keys on the next speech's first line, at its head. A view that
+      // drops or rebuilds the row brings that point to the top.
+      let keyFrac: number | null = null;
+      if (!key && row) {
+        const shared = !!row.querySelector('.greek-col .greek-line');
+        const lines = [...document.querySelectorAll('.greek-line[id]')];
+        const near = shared
+          ? lines.filter((l) => row.compareDocumentPosition(l) & Node.DOCUMENT_POSITION_PRECEDING).pop()
+          : lines.find((l) => row.compareDocumentPosition(l) & Node.DOCUMENT_POSITION_FOLLOWING);
+        if (near) { key = near.id; keyFrac = shared ? 1 : 0; }
+      }
+      return { el: f.el, line: false, at: y, frac: Math.max(0, (y - f.r.top) / f.r.height), key, keyFrac, trans: f.el.dataset.trans ?? null };
+    };
+    if (view === 'english') return english();
+    const g = first('.greek-line[id]');
+    if (!g) return null;
+    // In Both the head's edge can cut an English paragraph, not the Greek (a
+    // phone sets each piece's Greek above its English; a long translation
+    // runs on past its Greek): then that English is the place.
+    if (view === 'both' && g.r.top - y > g.r.height) {
+      const e = english();
+      if (e && e.frac > 0) return e;
     }
-    // Astra lane A, F3: English-only view hides the Greek column
-    // (offsetParent === null). Scroll the English cell of the segment
-    // that contains the line; do not switch into bilingual view.
-    const rowEng = el?.closest('.play-row')?.querySelector('.english-col') as HTMLElement | null;
-    const seg = el?.closest('.segment') as HTMLElement | null;
-    const segEng = seg?.querySelector('.english-col') as HTMLElement | null;
-    const fallback = [rowEng, segEng, seg].find((n) => n && n.offsetParent !== null);
-    fallback?.scrollIntoView({ behavior: 'auto', block: 'center' });
+    const col = (g.el.closest('.greek-col') as HTMLElement | null)?.getBoundingClientRect();
+    return { el: g.el, key: g.el.id, keyFrac: null, trans: null, line: true, at: g.r.top, frac: col?.height ? (g.r.top - col.top) / col.height : 0 };
+  }
+
+  // An element's box; an English cell that takes no height of its own (Both,
+  // desktop split rows: playFlow's facing page) by its paragraph instead.
+  function boxOf(el: HTMLElement): DOMRect {
+    const r = el.getBoundingClientRect();
+    const p = r.height > 1 ? null : el.matches('.english-col, .overlay-col') ? el.firstElementChild : null;
+    return p ? p.getBoundingClientRect() : r;
   }
 
   // A same-page #line change fires hashchange. updateHash uses replaceState,
@@ -1293,24 +1536,32 @@
     const at = reducedMotion() ? SETTLE_MS.slice(0, 1) : SETTLE_MS;
     const timers: ReturnType<typeof setTimeout>[] = [];
     let done = false;
+    let movedAt = 0;
+    const moved = () => { movedAt = performance.now(); };
     const stop = () => {
       done = true;
       for (const t of timers) clearTimeout(t);
       timers.length = 0;
       for (const ev of SETTLE_ABORT) window.removeEventListener(ev, stop);
+      window.removeEventListener('scroll', moved);
       settleAbort = null;
     };
     settleAbort?.();
     settleAbort = stop;
     for (const ev of SETTLE_ABORT) window.addEventListener(ev, stop, { passive: true });
+    window.addEventListener('scroll', moved, { passive: true });
     // The scroll-spy stays suppressed through the LAST check, not just the
     // 1500ms after the opening scroll: a correction fired at 2500ms would
     // otherwise rewrite the URL from a line it was still passing.
     suppressArmUntil = Math.max(suppressArmUntil, Date.now() + at[at.length - 1] + 1500);
     let left = at.length;
     const check = () => {
-      left -= 1;
       if (done) return;
+      // The opening smooth scroll still under way: an instant scroll does not
+      // stop it, and it carries the page on past the line (Chrome; Orestes
+      // 1347, English-only, phone). Look again once the page rests.
+      if (performance.now() - movedAt < 150) { timers.push(setTimeout(check, 150)); return; }
+      left -= 1;
       if (!el.isConnected) return stop();
       const r = el.getBoundingClientRect();
       // `scroll-margin-top` already clears the sticky header and controls, so
@@ -1332,16 +1583,57 @@
   let _onToggleSettings: () => void;
   let _onCloseSettings: () => void;
 
+  // A running head outside this island (the drama site's, UI pass 2) drives the
+  // reader through window events, as the settings events above do: one state,
+  // two faces. `reader:set` takes any of view, trans, compare (the two ids),
+  // edition (with editions on; with a view, a switch to that view as well),
+  // spkColor and citeCopy. `reader:state` reports them after every change.
+  type ReaderSet = { view?: View; trans?: string; compare?: [string, string]; edition?: string; spkColor?: boolean; citeCopy?: boolean };
+  function onReaderSet(e: Event) {
+    const d = (e as CustomEvent<ReaderSet>).detail ?? {};
+    if (typeof d.spkColor === 'boolean') { spkColor = d.spkColor; saveSpkColor(); }
+    if (typeof d.citeCopy === 'boolean') { citeCopy = d.citeCopy; saveCiteCopy(); }
+    if (d.compare) {
+      [compareLeft, compareRight] = d.compare;
+      if (compareLeft === compareRight) compareRight = otherTrans(compareLeft);
+      saveCompare();
+      setTrans('compare');
+    }
+    // A different edition remounts the reader (ReaderHost); the same one does
+    // not, so its view is applied below like any other.
+    if (d.edition && edition && d.edition !== edition) {
+      dispatch('editionChange', { trans, view: d.view ?? view, loc: lastCite, ed: d.edition });
+      return;
+    }
+    if (d.trans) setTrans(d.trans);
+    if (d.view && d.view !== view) setView(d.view);
+  }
+  let readerStateOn = false;
+  function emitReaderState(..._deps: unknown[]) {
+    if (!readerStateOn) return;
+    window.dispatchEvent(new CustomEvent('reader:state', {
+      detail: { view, trans, compareLeft, compareRight, edition: edition ?? 'tlg', spkColor, citeCopy },
+    }));
+  }
+  $: emitReaderState(view, trans, compareLeft, compareRight, edition, spkColor, citeCopy, readerStateOn);
+
   onDestroy(() => {
     spyObserver?.disconnect();
     settleAbort?.();
     if (typeof window !== 'undefined') {
       window.removeEventListener('scroll', onScrollArm);
       window.removeEventListener('scroll', onCtxScroll);
+      window.removeEventListener('scroll', notePlace);
+      clearTimeout(placeTimer);
+      phoneMq?.removeEventListener?.('change', onPhoneChange);
+      destroyed = true;
       window.removeEventListener('resize', onResize);
       window.removeEventListener('hashchange', onHashChange);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
+      window.removeEventListener('reader:set', onReaderSet);
+      window.removeEventListener('beforeprint', onBeforePrint);
+      clearTimeout(growTimer);
       document.removeEventListener('mouseup', checkCopyBtn);
       document.removeEventListener('selectionchange', onSelectionChange);
       if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
@@ -1402,8 +1694,11 @@
     // before). Brackets are excluded too, so two markers on one word
     // ("dead[^1.1][^2.2]", Way's Suppliants 1:48) each get a button instead
     // of the first being swallowed as the second's lead word (2026-09-14).
+    // Hyphens and dashes too: only a compound's last part is glued, so the
+    // rest can still break at its hyphens (Ecclesiazusae 1169-1175, the
+    // dish in English, ran a 320px page sideways; UI pass 2 follow-ups).
     return highlightEng(text).replace(
-      /([^\s<>&\[\]]*)\[\^([\w._*†]+)\]/g,
+      /([^\s<>&\[\]\-‐–—]*)\[\^([\w._*†]+)\]/g,
       (_m, lead: string, label: string) => {
         const display = fnDisplay(label);
         return `<span class="fn-anchor">${lead}<button type="button" class="fn-marker" data-fn="${label}" data-fn-trans="${transId}" aria-label="Footnote ${display}">${display}</button></span>`;
@@ -1758,6 +2053,7 @@
   }
   function scrollToSegment(segId: string): void {
     const seg = orderedSegments.find((s) => s.id === segId);
+    renderThrough(seg?.greek[0] as RLine | undefined ?? null);
     const col = segId.includes(':') ? segId.slice(segId.indexOf(':') + 1) : segId;
     const el = document.getElementById(seg ? segmentAnchorId(seg) : `col-${col}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1787,6 +2083,19 @@
       return same && has ? prev.id : null;
     }
     return null;
+  }
+
+  // The segment whose English holds this one's, where this one's cell can
+  // only say so ("Translated with the speech above ↑"): its anchor id. The
+  // English-only view, with no Greek beside the note to explain it, leaves
+  // the segment out (global.css) and sends a link to its lines there.
+  function englishElsewhere(seg: Segment, transId: string): string | undefined {
+    if (playEnglishSource(seg, transId) || bareDirectionPiece(seg, transId)) return undefined;
+    const by = coveredByFor(seg, transById(transId));
+    const cont = by ? null : playContinuation(seg, transId);
+    const id = by ?? (cont && cont !== 'tail' ? cont : undefined);
+    const host = id ? orderedSegments.find((s) => s.id === id) : undefined;
+    return host ? segmentAnchorId(host) : undefined;
   }
 
   function playEnglishSource(seg: Segment, transId: string): EnglishTurnSource | null {
@@ -2025,7 +2334,23 @@
   // keyed to them. Turns start on ticks in these translations, so the turn
   // lead-ins fall out of the same slices. Null when fewer than two ticks
   // map (the ordinary one-row segment, or a turn-text chunk with no ticks).
-  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0, verse = false): PlayRow[] | null {
+  // One speech only: no speaker event, or a single one opening the segment
+  // (its first line, offset 0). The phone cuts such a segment into five-line
+  // pieces whole; dialogue is first cut by playRows, which anchors every turn
+  // on its Greek speaker event (Codex review: a sentence estimate could put a
+  // turn under the wrong speaker), and then each speech (phoneRows).
+  function singleSpeech(items: GreekItem[], seg: Segment): boolean {
+    const firstLineN = items.find((it) => it.kind === 'line')?.line.n;
+    const evs = seg.speakers ?? [];
+    return evs.length === 0 || (evs.length === 1 && evs[0]!.line === firstLineN && (evs[0]!.offset ?? 0) === 0);
+  }
+
+  // `phone`: the phone's pieces (spec §7.4, UI pass 2): only a translation's
+  // own line markers place a cut (no proportional ticks), and every piece,
+  // first and last too, has `minSpan` Greek lines or more. `byLines`: a
+  // speech-keyed verse translation, placed line for line instead (John,
+  // 2026-10-21, option C).
+  function playTickRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, minSpan = 0, verse = false, phone = false, byLines = false): PlayRow[] | null {
     const lineInt = (line: RLine): number | null => {
       const m = /^(\d+)/.exec(line.ref ?? '');
       return m ? Number(m[1]) : line.n;
@@ -2043,15 +2368,27 @@
     const firstLineN = items.find((it) => it.kind === 'line')?.line.n;
     const evs = seg.speakers ?? [];
     const oneSpeech = evs.length === 0 || (evs.length === 1 && evs[0]!.line === firstLineN && (evs[0]!.offset ?? 0) === 0);
-    const synthetic = !realTicks.length && oneSpeech && source.turns.length <= 1;
+    const synthetic = !phone && !realTicks.length && oneSpeech && source.turns.length <= 1;
     // A verse column's single speech with at most one marker (none, or the
     // piece's chapter anchor) goes line for line (verseLineTicks below).
-    const verseLineMode = verse && oneSpeech && source.turns.length <= 1 && realTicks.length <= 1;
+    const verseLineMode = (!phone || byLines) && verse && oneSpeech && source.turns.length <= 1 && realTicks.length <= 1;
+    const skipSpace = (o: number) => {
+      let i = o;
+      while (i < source.text.length && /\s/.test(source.text[i]!)) i += 1;
+      return i;
+    };
+    const first = items.find((it) => it.kind === 'line' && !(it.share && it.share.k > 0));
+    const n0 = first && first.kind === 'line' ? lineInt(first.line) : null;
     if (synthetic || (verseLineMode && !realTicks.length)) {
-      const first = items.find((it) => it.kind === 'line' && !(it.share && it.share.k > 0));
-      const n0 = first && first.kind === 'line' ? lineInt(first.line) : null;
       if (n0 == null) return null;
       realTicks = [{ n: n0, offset: 0, real: true }];
+    }
+    // A phone piece needs a marker inside the speech, unless it goes line for
+    // line; its English starts on its first line, which anchors the span to
+    // that marker.
+    if (phone && !verseLineMode) {
+      if (n0 == null || !realTicks.some((tk) => skipSpace(tk.offset) > skipSpace(0))) return null;
+      if (!realTicks.some((tk) => skipSpace(tk.offset) === skipSpace(0))) realTicks = [{ n: n0, offset: 0, real: true }, ...realTicks];
     }
     if ((!synthetic && !verseLineMode && realTicks.length < 2) || items.length < 2) return null;
     // John, 2026-09-10: cut only where a sentence or speech begins, each start
@@ -2098,18 +2435,13 @@
     // A cut sitting on a speech start or one of the translator's own printed
     // markers is protected from thinning (finding 1): it is never dropped
     // for falling inside minSpan of the piece before it.
-    const skipSpace = (o: number) => {
-      let i = o;
-      while (i < source.text.length && /\s/.test(source.text[i]!)) i += 1;
-      return i;
-    };
     const protectedOffsets = new Set<number>([
       skipSpace(0),
       ...turnOffsets.filter((o) => o > 0 && o < source.text.length),
       ...realTicks.map((tk) => skipSpace(tk.offset)),
     ]);
-    const spaced = minSpan > 0 ? spaceTicks(mapped, protectedOffsets, minSpan) : mapped;
-    if (spaced.length < 2) return null;
+    const spaced = phone ? phonePieceCuts(items.map((it) => it.kind === 'line' && !(it.share && it.share.k > 0) && it.line.role !== 'lacuna'), mapped, minSpan) : minSpan > 0 ? spaceTicks(mapped, protectedOffsets, minSpan) : mapped;
+    if (spaced.length < (phone && spaced[0]?.i ? 1 : 2)) return null;
     const rows: PlayRow[] = [];
     // Sliced from the text with the line-number marks in (markedTurns); the
     // cut and turn offsets are plain-text offsets, mapped by `at`.
@@ -2203,6 +2535,34 @@
       else rows[rows.length - 1].items.push(it);
     });
     return rows;
+  }
+
+  // The phone's rows for a translation keyed by line (spec §7.4, UI pass 2):
+  // a long speech comes in pieces at the translation's own markers, never a
+  // piece under five Greek lines. In dialogue each speech is first bounded by
+  // its Greek speaker events (playRows), and only a row holding one speech's
+  // English is cut, so no cut can carry a turn to another speaker's line
+  // (Codex, pass 1). A speech-keyed translation never comes here: it stays
+  // whole.
+  function phoneRows(items: GreekItem[], seg: Segment, source: EnglishTurnSource, blocks: EnglishTurnBlock[], verse: boolean): PlayRow[] | null {
+    if (singleSpeech(items, seg)) return playTickRows(items, seg, source, MIN_PIECE_LINES, verse, true);
+    const rows = playRows(items, seg, blocks);
+    if (!rows) return null;
+    return rows.flatMap((row) => {
+      const b = row.blocks.length === 1 ? row.blocks[0]! : null;
+      if (!b) return [row];
+      // The block's English: its turn up to the next, or the text before the
+      // first turn.
+      const from = b.turnIndex >= 0 ? source.turns[b.turnIndex]?.offset : 0;
+      const to = (b.turnIndex >= 0 ? source.turns[b.turnIndex + 1]?.offset : source.turns[0]?.offset) ?? source.text.length;
+      if (from == null || to <= from) return [row];
+      const sub: EnglishTurnSource = {
+        text: source.text.slice(from, to),
+        turns: source.turns.filter((tu) => tu.offset >= from && tu.offset < to).map((tu) => ({ ...tu, offset: tu.offset - from })),
+        ticks: source.ticks?.filter((tk) => tk.offset >= from && tk.offset < to).map((tk) => ({ ...tk, offset: tk.offset - from })),
+      };
+      return playTickRows(row.items, seg, sub, MIN_PIECE_LINES, verse, true) ?? [row];
+    });
   }
 
   // An ode gets the narrower measure (John, 2026-09-08: "a narrower measure,
@@ -3161,11 +3521,66 @@
   // more lines read as interleaving on a phone (John, 2026-09-09).
   let phoneLayout = false;
 
+  // A play renders its first screens up front and the rest after mount, a
+  // slice per task, so a phone shows its text without waiting for the whole
+  // play to be built and scrolling stays free meanwhile. The server renders
+  // the same first slice, so hydration matches. Whatever needs a later line
+  // (a deep link, a jump, print) renders through it first (renderThrough).
+  const FIRST_LINES = 60;
+  function countThrough(from: number): number {
+    let lines = 0;
+    for (let i = from; i < segments.length; i++) {
+      lines += segments[i]!.greek.length;
+      if (lines >= FIRST_LINES) return i + 1;
+    }
+    return segments.length;
+  }
+  let renderCount = playLine && !loading ? countThrough(0) : Infinity;
+  // Indices, not the segments: in this (legacy-mode) component an object
+  // item counts as changed on every update, so a list of segments would
+  // rebuild every one already drawn each time a slice is added.
+  $: shownIdx = Array.from({ length: Math.min(renderCount, enrichedSegments.length) }, (_, i) => i);
+  let growTimer: ReturnType<typeof setTimeout> | undefined;
+  // Sized to about 30ms a slice on the device at hand.
+  let growStep = 4;
+  function grow() {
+    growTimer = undefined;
+    if (destroyed) return;
+    const t0 = performance.now();
+    flushSync(() => { renderCount = Math.min(enrichedSegments.length, renderCount + growStep); });
+    growStep = Math.max(1, Math.min(40, Math.round(growStep * 30 / Math.max(performance.now() - t0, 1))));
+    if (renderCount < enrichedSegments.length) growTimer = setTimeout(grow, 0);
+    else rendered();
+  }
+  // Every segment through the one holding `line` and a screenful past it, so
+  // the line can come to the middle of the screen; the whole play when the
+  // line is unknown.
+  function renderThrough(line: RLine | null = null) {
+    if (renderCount >= enrichedSegments.length) return;
+    const i = line ? orderedSegments.findIndex((s) => (s.greek as RLine[]).includes(line)) : -1;
+    const want = i < 0 ? enrichedSegments.length : countThrough(i);
+    if (want > renderCount) flushSync(() => { renderCount = want; });
+    if (renderCount >= enrichedSegments.length) rendered();
+  }
+  function rendered() {
+    clearTimeout(growTimer);
+    growTimer = undefined;
+    renderCount = Infinity;
+    // The scroll spy and its caches saw only the first segments.
+    if (spyArmed) setupScrollSpy();
+    else { chapterLabelEls = null; segRefEls = null; navEntries = null; }
+  }
+  const onBeforePrint = () => renderThrough();
+
   onMount(async () => {
     reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const phoneMq = window.matchMedia('(max-width: 680px)');
+    phoneMq = window.matchMedia('(max-width: 680px)');
     phoneLayout = phoneMq.matches;
-    phoneMq.addEventListener?.('change', (e) => { phoneLayout = e.matches; });
+    // The phone's rows are drawn: show the text the shell held back for them
+    // (ReaderShell.astro, data-phone-pending).
+    tick().then(() => document.documentElement.removeAttribute('data-phone-pending'));
+    phoneMq.addEventListener?.('change', onPhoneChange);
+    if (playLine) window.addEventListener('scroll', notePlace, { passive: true });
     // Remember which book of this work was last open, for the work switcher —
     // and stamp the work's recency so hosts can offer "continue reading".
     try { localStorage.setItem(`reader-book-${work}`, String(bookNum)); } catch {}
@@ -3188,6 +3603,8 @@
     _onCloseSettings  = () => { if (settingsOpen) closeSettings(); };
     window.addEventListener('toggle-settings', _onToggleSettings);
     window.addEventListener('close-settings',  _onCloseSettings);
+    window.addEventListener('reader:set', onReaderSet);
+    window.addEventListener('beforeprint', onBeforePrint);
     const params = new URLSearchParams(window.location.search);
     hlGrkFolds = (params.get('hlg') ?? '').trim().split(/\s+/).filter(Boolean)
       .map(t => greekFold(t.replace(/\*/g, ''))).filter(Boolean);
@@ -3218,9 +3635,11 @@
       const saved = (() => { try { return localStorage.getItem('reader-view'); } catch { return null; } })();
       if (saved === 'greek' || saved === 'english' || saved === 'both') view = saved;
       // No saved choice: a phone defaults to English only (the bilingual columns
-      // are cramped on a narrow screen); desktop stays bilingual. The toggle —
-      // and any saved choice — overrides this on either.
-      else if (window.matchMedia('(max-width: 680px)').matches) view = 'english';
+      // are cramped on a narrow screen); desktop stays bilingual. A play stays
+      // bilingual on a phone too, five or so Greek lines alternating with their
+      // English (John, 2026-10-13: "Alternating bilingual."). The toggle — and
+      // any saved choice — overrides this on either.
+      else if (!playLine && window.matchMedia('(max-width: 680px)').matches) view = 'english';
     }
     const validTrans = new Set([...translations.map(t => t.id), ...(canCompare ? ['compare'] : [])]);
     const savedTrans = (() => { try { return localStorage.getItem(TRANS_KEY); } catch { return null; } })();
@@ -3245,6 +3664,7 @@
       if (initialTranslation && validTrans.has(initialTranslation)) trans = initialTranslation;
       if (initialView) view = initialView;
     }
+    readerStateOn = true;
     try {
       // Already seeded from the build-time prop in the normal (SSR) path; only
       // fetch when the reader was mounted without it.
@@ -3273,8 +3693,10 @@
         // (e.g. 9999) leaves targetId empty, so nothing scrolls.
         if (playLine && locCol && !targetId) {
           const line = resolvePlayLineRef(locCol);
-          if (line) targetId = playLineDomId(line.ref ?? locCol, line.n);
+          if (line) { renderThrough(line); targetId = playLineDomId(line.ref ?? locCol, line.n); }
         }
+        // A search's highlights may be anywhere in the play.
+        if (hlGrkFolds.length) renderThrough();
         if (targetId) {
           let el = document.getElementById(targetId);
           // Snap to the nearest existing line in the column if the exact
@@ -3293,6 +3715,8 @@
             });
             if (best) { el = best as HTMLElement; targetId = (best as HTMLElement).id; }
           }
+          // English-only view hides the Greek line: land on its English cell.
+          if (el && playLine) el = shownFor(el);
           if (el) {
             suppressArmUntil = Date.now() + 1500;
             // Reduced motion gets the instant scroll from the start; it is
@@ -3333,12 +3757,16 @@
             // Instant, like scrollToCitation: a smooth animation started during
             // hydration gets canceled by layout churn and strands the reader at
             // the top.
+            if (!document.getElementById(hash) && !document.getElementById(`col-${hash}`)) renderThrough();
             let el = document.getElementById(hash) ?? document.getElementById(`col-${hash}`);
             // A hidden target (the turn flow's Greek gutter tick in
             // English-only view) falls back to the row-level English tick.
             if (el && (el as HTMLElement).offsetParent === null) {
               el = (document.querySelector(`[data-etick="${CSS.escape(hash)}"]`) as HTMLElement) ?? el;
             }
+            // A play's segment English-only view leaves out (englishElsewhere):
+            // the paragraph that holds its English (Codex review).
+            if (el && playLine && (el as HTMLElement).offsetParent === null) el = shownFor(el as HTMLElement) ?? el;
             if (el) {
               suppressArmUntil = Date.now() + 1500;
               el.scrollIntoView({ behavior: 'auto', block: 'start' });
@@ -3363,6 +3791,7 @@
         document.addEventListener('mouseup', checkCopyBtn);
         document.addEventListener('selectionchange', onSelectionChange);
         updateChapterContext();
+        if (renderCount < enrichedSegments.length) growTimer = setTimeout(grow, 0);
       }, 0);
     }
   });
@@ -3928,7 +4357,7 @@
       const range = sel.getRangeAt(0);
       if (!nearestGreekLine(range.startContainer) && !nearestGreekLine(range.endContainer)) return;
       const rect = range.getBoundingClientRect();
-      const headerHeight = document.querySelector('.page-header')?.getBoundingClientRect().height ?? 0;
+      const headerHeight = document.querySelector('.page-header, [data-reader-head]')?.getBoundingClientRect().height ?? 0;
       // Render once to get the button's actual size, then place it before paint.
       copyBtnPos = { x: rect.right, y: rect.top };
       await tick();
@@ -4559,7 +4988,7 @@
            segment blocks; Stephanus tokens float as gutter ticks. -->
       {@render flowRowsView(flowRows)}
     {:else}
-    {#each enrichedSegments as {seg, blocks}, si (seg.id)}
+    {#each shownIdx as si}{@const {seg, blocks} = enrichedSegments[si]!}
       {@const leadChapter = blocks[0]?.chapter ? blocks[0] : null}
       {@const citationByBlock = expandedCitationByBlock(seg, blocks)}
       <!-- Freeman Ancilla group-header paratext (design note §1/§3.7): a
@@ -4579,7 +5008,7 @@
            margin exception; every ordinary verse-line segment is untouched. -->
       <!-- P4: an ode (a chorus speech longer than six lines) reads at a
            narrower measure — the lyric set apart, and nothing else. -->
-      <div class="segment" id={segmentAnchorId(seg)} data-kind={seg.kind} data-discontinuity={verseDiscontinuity} class:play-ode={playLine && odeSegmentIds.has(seg.id)}>
+      <div class="segment" id={segmentAnchorId(seg)} data-kind={seg.kind} data-discontinuity={verseDiscontinuity} data-english-in={playLine && trans !== 'compare' ? englishElsewhere(seg, segTransOverride[seg.id] ?? trans) : undefined} class:play-ode={playLine && odeSegmentIds.has(seg.id)}>
         {#if sectionFlow}<span class="sect-tick" aria-hidden="true" data-n={seg.column}></span>{/if}
         <!-- A chapter that opens this column heads the segment, ABOVE the column
              reference (the column ref is a marker within the chapter, not a
@@ -4856,7 +5285,8 @@
           {@const plMarked = plSource ? markedTurns(plSource) : null}
           {@const plTurnBlocks = plMarked ? withoutOpeningDirections(playBlocks(plMarked.text, plMarked.turns), openingRunIn(seg, segTransId)) : []}
           <!-- A prose translation keeps each speech whole beside the start of its Greek; only verse is cut to its lines (John, 2026-09-28: "the gaps mid speech are awkward"). -->
-          {@const rawPlRows = plSource ? ((phoneLayout || !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
+          <!-- On a phone, where each English piece sits below its Greek, a long speech in a translation keyed by line is cut into pieces of at least five Greek lines at sentence starts placed by its markers, so the Greek and its English alternate (John, 2026-10-13: "Alternating bilingual."); in dialogue, within each speech (phoneRows). A speech-keyed verse translation's single speech alternates too, line for line; a speech-keyed prose one stays whole (spec §7.4, UI pass 2; John, 2026-10-21, option C). -->
+          {@const rawPlRows = plSource ? ((phoneLayout ? (lineKeyed(segTransId) ? phoneRows(plItems, seg, plSource, plTurnBlocks, verseForm(segTransId)) : verseForm(segTransId) && singleSpeech(plItems, seg) ? playTickRows(plItems, seg, plSource, MIN_PIECE_LINES, true, true, true) : null) : !verseForm(segTransId) ? null : playTickRows(plItems, seg, plSource, proseMeasure(segTransId) ? MIN_PIECE_LINES : 0, true)) ?? playRows(plItems, seg, plTurnBlocks)) : null}
           {@const plRows = rawPlRows ? withoutOpeningDirectionsInRows(rawPlRows, openingRunIn(seg, segTransId)) : null}
           {#if plRows}
             {@const plMm = seg.english && plSource!.text === seg.english.text && !plTurnBlocks.some((b) => b.speakerMismatch) ? seg.english.speakerMismatch : undefined}

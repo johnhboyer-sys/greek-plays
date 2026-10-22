@@ -42,12 +42,14 @@ describe('intro sentence: source', () => {
   });
 });
 
+// A play's reader page is read/<author>/<work>/ (UI pass 2, 2026-10-20); the
+// bare path is the play's own page, which has no intro sentence.
 for (const [author, work] of PAGES) {
-  const file = `${dist}/${author}/${work}/index.html`;
+  const file = `${dist}/read/${author}/${work}/index.html`;
   const html = existsSync(file) ? readFileSync(file, 'utf-8') : '';
   const built = html !== '';
   const editionsOn = html.includes('id="edition-reader"');
-  describe.skipIf(!built)(`intro sentence, built ${work} page (skipped when app/dist lacks ${author}/${work}/)`, () => {
+  describe.skipIf(!built)(`intro sentence, built ${work} page (skipped when app/dist lacks read/${author}/${work}/)`, () => {
     it(`names ${editionsOn ? 'the default translation\'s edition' : 'the reference edition (flag off)'}`, () => {
       const short = expectedShort(work, editionsOn);
       const intro = decode(html.match(/class="sr-only">[\s\S]*?<p>\s*([\s\S]*?)\s*<\/p>/)![1]!);

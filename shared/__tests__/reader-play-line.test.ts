@@ -2660,6 +2660,15 @@ describe("the translator's line numbers in the English margin (John, 2026-09-24,
     return container.querySelector('.english-col .turn-para')!;
   }
 
+  // No sideways scroll (UI pass 2 follow-ups): the no-wrap word holds only a
+  // compound's last part, so the rest can break at its hyphens (the dish in
+  // Ecclesiazusae 1169-1175 ran a 320px page 47px sideways).
+  it('glues only a hyphenated compound\'s last part to its footnote call', async () => {
+    const para = await renderFootnoted('A dish of new-wine-gristle-of-veal-pullet\'s-wings.[^88.735] Eat.', [{ n: 1, offset: 0, real: true }]);
+    expect(para.querySelector('.fn-marker')?.closest('.fn-anchor')?.textContent).toBe('wings.88');
+    expect(para.textContent).toContain('new-wine-gristle-of-veal-pullet\'s-wings.88 Eat.');
+  });
+
   it('puts the number after a footnote call that opens its line, on the next word', async () => {
     const para = await renderFootnoted('I pray.\n[^3.69_71] Deliver me.', [{ n: 1, offset: 0, real: true }, { n: 2, offset: 8, real: true }]);
     expect(para.querySelector('.fn-marker')?.getAttribute('data-fn')).toBe('3.69_71');

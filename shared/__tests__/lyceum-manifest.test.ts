@@ -646,13 +646,13 @@ describe('reading_route grammar by citation scheme', () => {
 
 // Astra lane B F2, owner ruling 2026-09-11: the fix (F2 in
 // build/review/astra/B-findings.md).
-describe('reading_route for single-book plays (owner ruling 2026-09-11)', () => {
-  it('emits the bare work route for a single-book play-line work', () => {
+describe('reading_route for single-book plays (owner rulings 2026-09-11, 2026-10-20)', () => {
+  it('emits the /read/ reader route for a single-book play-line work', () => {
     const out = toLyceumManifest(AGAMEMNON_MANIFEST, AGAMEMNON_WORK, AESCHYLUS);
-    expect(out.reading_route).toBe('/aeschylus/agamemnon');
+    expect(out.reading_route).toBe('/read/aeschylus/agamemnon');
     expect(out.reading_route_note).toBe(
-      'scheme play-line; single-book plays read at the bare work route -- ' +
-        'owner ruled the shorter address 2026-09-11, partner to accept it',
+      'scheme play-line; single-book plays read at /read/<author>/<work> -- ' +
+        'owner ruled 2026-10-20 (the bare route is the play page), partner to accept it',
     );
     expectValid(out);
   });
@@ -671,9 +671,10 @@ describe('reading_route for single-book plays (owner ruling 2026-09-11)', () => 
     expectValid(out);
   });
 
-  it('schema: accepts the bare-route and /book/<n> forms, rejects a malformed one', () => {
+  it('schema: accepts the /read/, bare-route and /book/<n> forms, rejects a malformed one', () => {
     const bare = toLyceumManifest(AGAMEMNON_MANIFEST, AGAMEMNON_WORK, AESCHYLUS);
     expectValid(bare);
+    expectValid({ ...bare, reading_route: '/aeschylus/agamemnon' });
 
     const withBook = { ...bare, reading_route: '/aeschylus/agamemnon/book/1' };
     expectValid(withBook);

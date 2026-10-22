@@ -9,18 +9,23 @@
   import { playSigla } from '../lib/speakers';
   import { lastPrintedRef } from '../lib/citation';
   import { loadEdition, changeEdition, ownEdition, type EditionState, type ReaderView } from '../lib/edition-state';
+  import { takeBook } from '../lib/book-payload';
 
   export let work: string;
   export let bookNum: number;
-  export let bookData: BookData;
+  export let bookData: BookData | null = null;
+  // The page's book by id, in place of bookData (shared/lib/book-payload.ts).
+  export let bookId: string | null = null;
   export let serverEdition: string;
   export let chapterTitles: Record<string, string> = {};
   export let speakerRoster: string[] = [];
   export let authorName: string;
+  // The drama site draws its own play opening (app Playbill.astro) above this.
+  export let plate = true;
   const meta = getWork(work)!;
   const defaultTrans = meta.defaultTranslation ?? meta.translations.find(t => t.slot === 'english')?.id ?? meta.translations[0]?.id ?? '';
   let state: EditionState = { ed: serverEdition, trans: defaultTrans, view: 'both' };
-  let shownBook = bookData;
+  let shownBook = (bookData ?? (bookId ? takeBook(bookId) : null)) as BookData;
   let anchor: string | null = null;
   let pending = false;
   let generation = 0;
@@ -107,7 +112,7 @@
   })();
 </script>
 
-{#if meta.citation?.scheme === 'play-line'}
+{#if plate && meta.citation?.scheme === 'play-line'}
   <Plate greekTitle={meta.greekTitle ?? null} title={meta.title} {authorName}
     argument={meta.argument ?? null} synopsis={meta.synopsis ?? null} production={meta.production ?? null}
     greekSource={shownSource} translations={meta.translations.filter(t => t.id === state.trans).map(t => t.name)}
@@ -116,7 +121,9 @@
 {/if}
 {#if pending}<div class="ed-pending" role="status" aria-label="Loading text">◌</div>{/if}
 {#key `${state.ed}:${epoch}`}
-  <div style:visibility={pending ? 'hidden' : 'visible'}>
+  <!-- No style when not pending: the server's `visibility: visible` showed the
+       default edition's text through the shell's data-ed-pending hold. -->
+  <div style:visibility={pending ? 'hidden' : null}>
     <Reader {work} {bookNum} bookData={shownBook} {chapterTitles} {speakerRoster}
       edition={state.ed} initialLocation={anchor} initialTranslation={state.trans} initialView={state.view}
       on:editionChange={changed} />

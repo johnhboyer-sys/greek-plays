@@ -70,8 +70,8 @@ COPIED into the Lyceum's `scheme.py` / `citation.ts` with its tests:
   (`shared/__tests__/play-line.test.ts`, `pipeline/tests/test_scheme_play_line.py`).
 - `app/src/lib/citation-routes.ts`: the `stride` option (one shim per 50
   lines), and `app/src/pages/[author]/[work]/index.astro`'s rule that a
-  bookless play-line work renders the reader at the bare path (no
-  `/book/1`).
+  bookless play-line work has no `/book/1`: its bare path is the play's own
+  page and its reader is `/read/<author>/<work>` (2026-10-20, below).
 
 Reader-core divergences are listed one per line in `DRIFT.md` (fork SHA at
 the top). The ones the Lyceum's shared core must absorb for plays to render:
@@ -116,3 +116,10 @@ The partner's `reading_route` pattern must accept this shorter form. Every
 other work is unchanged: a multi-book work still advertises
 `/<author>/<work>/book/<n>`, and a section work still advertises
 `/read/<author>/<work>/section-<n>`.
+
+**Changed 2026-10-20** (John, UI pass 2: "Yes, /read/<author>/<work>/"): the
+bare work route is now the play's own page (title, persons, translations,
+Greek texts), and the reader moved to `/read/<author>/<work>`. Partner
+manifests for the 44 plays now advertise that as their `reading_route`;
+`schemas/lyceum-manifest.v1.json` accepts it. A line still opens the reader
+from `/<author>/<work>/<cite>`, which redirects with `?loc=`.

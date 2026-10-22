@@ -2,7 +2,8 @@
 // One client-rendered Greek lexicon entry. The corpus can grow without adding
 // a static page for every lemma; the index remains the lexicon's directory.
 import ThemeInit from '../../../components/ThemeInit.astro';
-import ThemeToggle from '../../../components/ThemeToggle.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFoot from '../../../components/SiteFoot.astro';
 import Pwa from '../../../components/Pwa.astro';
 import LemmaEntry from '../../../components/LemmaEntry.svelte';
 import { SITE_NAME } from '../../../lib/site';
@@ -27,18 +28,12 @@ const siteName = SITE_NAME;
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>{siteName}</a><span class="title-sep">›</span>
-      <a class="home-link" href={`${base}/lemma/grc/`}>Greek Lexicon</a>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/lemma/grc/`} class="search-link">Lexicon</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <div class="wrap"><SiteHeader /></div>
   <LemmaEntry client:load lang="grc" />
+  <div class="wrap"><SiteFoot /></div>
+  <style is:global>
+    /* No sideways scroll (spec §3.4): a headword longer than the page breaks. */
+    .lx-head-gk, .lx-translit { overflow-wrap: anywhere; }
+  </style>
 </body>
 </html>

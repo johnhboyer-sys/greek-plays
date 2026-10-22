@@ -69,10 +69,10 @@ describe('lemma-instance citation pills', () => {
     expect(href).toContain('loc=B30');
   });
 
-  it('play-line uses the printed ref and the bare work route', () => {
+  it('play-line uses the printed ref and the /read/ reader route', () => {
     const inst: [string, number, string] = ['147-150', 125, 'λόγος'];
     expect(instLabel('agamemnon', inst)).toBe('147-150');
     expect(instHref('/base', 'agamemnon', 1, inst))
-      .toBe('/base/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=147-150');
+      .toBe('/base/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=147-150');
   });
 });

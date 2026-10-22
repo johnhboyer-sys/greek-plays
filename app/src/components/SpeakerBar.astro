@@ -1,0 +1,106 @@
+---
+// Reading view, step 3 (docs/redesign/DESIGN.md, Reading view): a small bar
+// under the reader's controls that names the speaker once his name has
+// scrolled away and his speech is still on screen. Reads the names the
+// reader already prints (the English column's, or the Greek siglum in
+// Greek-only view), so it adds no data of its own.
+---
+<div class="speaker-bar" id="speaker-bar" hidden aria-hidden="true"><span class="sb-name"></span> <span class="sb-cont">continues</span></div>
+
+<style>
+  /* In B's type (John, 2026-10-20: the bar stays): the name in small caps
+     Cardo in its speaker's colour, "continues" in the sans, on the paper. */
+  .speaker-bar {
+    position: fixed; z-index: 4; left: 0; right: 0;
+    padding: .3rem 1.5rem;
+    background: var(--paper);
+    font: 400 .9rem var(--font-ui);
+    color: var(--mid);
+  }
+  .speaker-bar[hidden] { display: none; }
+  .sb-name { font: 400 1rem var(--font-english); font-variant: small-caps; letter-spacing: .02em; }
+  @media print { .speaker-bar { display: none !important; } }
+</style>
+
+<script>
+  const bar = document.getElementById('speaker-bar') as HTMLElement | null;
+  const nameEl = bar?.querySelector('.sb-name') as HTMLElement | null;
+  const phone = matchMedia('(max-width: 680px)');
+  let queued = false;
+  let list: HTMLElement[] | null = null;   // the names, until the reader changes
+  let at = 0;                              // index of the last name found
+
+  // The names the reader prints, in reading order: the English column's in
+  // Both and English views, except on a phone in Both view, where each
+  // English cell sits below its Greek and the Greek siglum is the one at the
+  // top; the Greek siglum in Greek-only view. None in comparison.
+  const ENGLISH = '.english-col .turn-para > .speaker:first-child:not(.speaker-dash)';
+  // A Greek siglum's English name: the speech's English speaker with the
+  // same speaker slot, else the segment's first English name.
+  function englishFor(g: HTMLElement): HTMLElement | null {
+    const names = Array.from(g.closest('.segment')?.querySelectorAll<HTMLElement>(ENGLISH) ?? []);
+    return names.find((n) => n.dataset.spk === g.dataset.spk) ?? names[0] ?? null;
+  }
+  function speakers(): HTMLElement[] {
+    const body = document.querySelector('.reader-body');
+    if (!body || body.classList.contains('trans-compare')) return [];
+    const greek = body.classList.contains('view-greek') || (phone.matches && body.classList.contains('view-both'));
+    const sel = greek ? '.greek-line .line-text > .speaker' : ENGLISH;
+    return Array.from(body.querySelectorAll<HTMLElement>(sel));
+  }
+
+  function update() {
+    queued = false;
+    if (!bar || !nameEl) return;
+    const controls = document.querySelector('.reader-controls');
+    const header = document.querySelector('.page-header, [data-reader-head]');
+    const top = Math.max(controls?.getBoundingClientRect().bottom ?? 0, header?.getBoundingClientRect().bottom ?? 0);
+    list ??= speakers();
+    const above = (i: number) => list![i].getBoundingClientRect().top < top;
+    // Step from the last index found: forward past names above the edge,
+    // back over names below it.
+    at = Math.min(at, Math.max(0, list.length - 1));
+    while (at + 1 < list.length && above(at + 1)) at++;
+    while (at > 0 && !above(at)) at--;
+    const cur = list.length && above(at) ? list[at] : null;
+    const next = cur ? list[at + 1] ?? null : null;
+    // Show only while that speech still fills the top of the screen: the
+    // next name is not yet near the edge, and the speech's segment (or the
+    // last speech's) has not ended above it.
+    const speechEnd = cur?.closest('.segment')?.getBoundingClientRect().bottom ?? 0;
+    const show = !!cur && speechEnd > top + 48 && (!next || next.getBoundingClientRect().top > top + 48);
+    if (show && cur) {
+      // The bar names the speaker in English even where it tracks the Greek
+      // sigla (a phone in Both view): the speech's own English name when it
+      // has one (John, 2026-10-22: "why did it switch to greek names?").
+      const shown = (cur.matches('.greek-line .speaker') && !document.querySelector('.reader-body')?.classList.contains('view-greek')
+        ? englishFor(cur) : null) ?? cur;
+      nameEl.textContent = shown.textContent?.replace(/\.$/, '') ?? '';
+      nameEl.style.color = getComputedStyle(shown).color;
+      bar.style.top = `${top}px`;
+      // Level with the text's left edge.
+      const body = document.querySelector('.reader-body')!.getBoundingClientRect();
+      bar.style.paddingLeft = `${Math.max(16, body.left)}px`;
+    }
+    bar.hidden = !show;
+  }
+
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
+  const reset = () => { list = null; at = 0; queue(); };
+  addEventListener('scroll', queue, { passive: true });
+  addEventListener('resize', reset);
+  phone.addEventListener('change', reset);
+  // The reader switches view, translation and edition in place: re-read the
+  // names when the reader body's classes change (view, translation) or its
+  // text is re-rendered (an edition swap replaces the body itself).
+  const classWatch = new MutationObserver(reset);
+  const bindBody = () => {
+    classWatch.disconnect();
+    const body = document.querySelector('.reader-body');
+    if (body) classWatch.observe(body, { attributes: true, attributeFilter: ['class'] });
+  };
+  bindBody();
+  const host = document.getElementById('edition-reader') ?? document.querySelector('.reader-body')?.parentElement;
+  if (host) new MutationObserver(() => { bindBody(); reset(); }).observe(host, { childList: true, subtree: true });
+  queue();
+</script>

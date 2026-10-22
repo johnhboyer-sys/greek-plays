@@ -1,10 +1,12 @@
 ---
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFoot from '../components/SiteFoot.astro';
 import Pwa from '../components/Pwa.astro';
 import { jsonLdSafe } from '../lib/jsonld';
 import { SITE_NAME } from '../lib/site';
 import '@shared/styles/global.css';
+import '../styles/vase.css';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const siteName = SITE_NAME;
@@ -51,81 +53,45 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <div class="theme-corner"><ThemeToggle /></div>
+  <div class="wrap"><SiteHeader /></div>
   <main class="not-found">
-    <p class="eyebrow">The Greek Drama Reader</p>
-    <h1>Page not found</h1>
-    <p class="lede">There is no page at this address.</p>
-    <div class="actions">
-      <a class="btn-primary" href={`${base}/`}>Back to the plays</a>
-      <a class="btn-secondary" href={`${base}/search`}>Search</a>
-    </div>
+    {/* John, 2026-10-21 ("custom 404 pages with a funny message"; "all 7
+        are good. Use all 7"): a cry from the plays and a joke, one of seven
+        at random. */}
+    <p class="cry" lang="grc" data-nf="cry">ἰοὺ ἰού.</p>
+    <h1 class="line" data-nf="line">This page died offstage. In Greek tragedy that’s where all the bad things happen.</h1>
+    <p class="go"><a href={`${base}/`}>Back to the plays</a><a href={`${base}/search`}>Search</a></p>
   </main>
+  <script is:inline>
+    (function () {
+      var lines = [
+        ['ἰοὺ ἰού.', 'This page died offstage. In Greek tragedy that’s where all the bad things happen.'],
+        ['ὀτοτοτοτοῖ.', 'The page you wanted isn’t here. A messenger will be along shortly to describe what happened to it, in sixty lines of vivid detail.'],
+        ['φεῦ.', 'Sophocles wrote 123 plays and we have seven. Against those odds, losing one web page is a small thing.'],
+        ['οἴμοι.', 'This page was left on a hillside as an infant. It may turn up in twenty years and cause a great deal of trouble.'],
+        ['αἰαῖ.', 'The chorus has been told about this page and will now sing about it at length.'],
+        ['ὦ Ζεῦ.', 'No page. Normally a god would come down on a crane at this point and fix everything. The crane is broken.'],
+        ['παπαῖ.', 'Aristophanes would have a joke for this, but it’s obscene and wouldn’t survive translation.'],
+      ];
+      var l = lines[Math.floor(Math.random() * lines.length)];
+      document.querySelector('[data-nf="cry"]').textContent = l[0];
+      document.querySelector('[data-nf="line"]').textContent = l[1];
+    })();
+  </script>
 
   <style>
-    body { background: var(--page-bg); color: var(--text); margin: 0; }
-    .theme-corner { position: fixed; top: 1rem; right: 1rem; z-index: 10; }
+    body { background: var(--paper); color: var(--ink); margin: 0; }
     .not-found {
-      max-width: 36rem;
-      margin: 0 auto;
-      padding: clamp(4rem, 14vh, 9rem) 1.5rem 4rem;
+      max-width: 34rem; margin: 0 auto;
+      padding: clamp(3.5rem, 12vh, 8rem) 1.5rem 4rem;
       text-align: center;
     }
-    .eyebrow {
-      font-family: var(--font-ui);
-      text-transform: uppercase;
-      letter-spacing: .28em;
-      font-size: .72rem;
-      color: var(--accent-light);
-      margin: 0 0 .6rem;
-    }
-    h1 {
-      font-family: var(--font-greek);
-      font-weight: 400;
-      font-size: clamp(2rem, 5vw, 2.6rem);
-      color: var(--text);
-      margin: 0 0 1rem;
-    }
-    .lede {
-      font-family: var(--font-english);
-      color: var(--text-mid);
-      font-size: 1rem;
-      line-height: 1.55;
-      margin: 0 0 2rem;
-    }
-    .goatstag { margin: 0 0 1.4rem; color: var(--accent); }
-    .goatstag svg { width: clamp(150px, 30vw, 210px); height: auto; opacity: .92; }
-    .goatstag figcaption {
-      font-family: var(--font-greek);
-      font-size: .95rem;
-      color: var(--text-mid);
-      margin-top: .5rem;
-    }
-    .actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
-    .btn-primary {
-      background: var(--accent);
-      color: var(--on-accent);
-      text-decoration: none;
-      font-family: var(--font-ui);
-      font-size: .9rem;
-      font-weight: 600;
-      padding: .55rem 1.25rem;
-      border-radius: 6px;
-      transition: opacity .15s ease;
-    }
-    .btn-primary:hover { opacity: .86; }
-    .btn-secondary {
-      background: var(--col-bg);
-      color: var(--text-mid);
-      text-decoration: none;
-      font-family: var(--font-ui);
-      font-size: .9rem;
-      padding: .55rem 1.25rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      transition: border-color .15s ease;
-    }
-    .btn-secondary:hover { border-color: var(--accent-light); color: var(--accent); }
+    .cry { font: 400 clamp(2.2rem, 7vw, 3.4rem)/1.15 var(--font-greek); color: var(--clay-deep); margin: 0 0 1.2rem; }
+    .line { font: 400 1.35rem/1.45 var(--font-english); color: var(--ink); margin: 0 0 .6rem; text-wrap: balance; }
+    .go { display: flex; gap: 1.6rem; justify-content: center; margin: 2.4rem 0 0; font: 400 1rem var(--font-ui); }
+    .go a { color: var(--clay-text); text-decoration: none; }
+    .go a:hover { text-decoration: underline; text-underline-offset: .15em; }
   </style>
+  <div class="wrap"><SiteFoot /></div>
 </body>
 </html>

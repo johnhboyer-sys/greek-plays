@@ -1,0 +1,58 @@
+---
+// The vase drawings standing on the ground line (lib/drawings.ts), in B's
+// colours: the lines in --fig-ink, the body in --fig-body, clay in both
+// themes, so the dark theme reads as red-figure on the black glaze
+// (docs/redesign/HANDOFF-ui-pass2-build.md §3.3). The page sets the height
+// with --fig-h; where no drawing exists yet the space stays empty at the same
+// height. Whole figures only: a figure wider than its box shrinks to the
+// box's width, still whole and still on the line, never cropped.
+// `slug` names a recorded figure; `drawings` gives a play's (Alcestis has
+// two, laid side by side).
+import { drawing, type Drawing } from '../lib/drawings';
+
+interface Props { slug?: string; drawings?: Drawing[] }
+const { slug } = Astro.props;
+const figs: Drawing[] = Astro.props.drawings ?? (slug ? [drawing(slug)].filter((d): d is Drawing => Boolean(d)) : []);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<div class="fb">
+  {figs.map((fig) => (
+    <svg
+      class:list={['fig', { sil: fig.silhouette }]}
+      viewBox={fig.viewBox}
+      preserveAspectRatio="xMidYMax meet"
+      style={`aspect-ratio:${fig.width}/${fig.height}`}
+      role="img"
+      aria-label={fig.alt}
+    ><use href={`${base}/drawings/${fig.name}.svg#fig`} /></svg>
+  ))}
+</div>
+
+<style>
+  .fb {
+    height: calc(var(--fig-h) + var(--fig-lift, .6rem));
+    border-bottom: 2px solid var(--line);
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .fig {
+    display: block; height: var(--fig-h); width: auto;
+    flex: 0 1 auto; min-width: 0; max-width: 100%;
+    color: var(--fig-ink); fill: currentColor;
+  }
+  /* Small figures: the finer pen lines fade without a hairline stroke
+     (docs/redesign/drawings/README.md). Not a black-figure silhouette: there
+     the lines are the incisions open in the black, and the stroke closed them
+     (John, 2026-10-21, Birds on a phone: "I can't see the details"). */
+  /* The hairline follows the figure's size: a phone's play drawing (some
+     360px wide) clogged under .5px (John, 2026-10-21, Medea: "many mobile
+     images need the same treatment so details aren't lost"), while the home
+     and author figures (95 to 230px) fade without it. John chose .2px and
+     .4px over .25px and .5px from the comparison. */
+  @media (max-width: 700px) {
+    .fb { container-type: inline-size; }
+    .fig:not(.sil) { stroke: currentColor; stroke-width: .2px; }
+    @container (max-width: 239px) {
+      .fig:not(.sil) { stroke-width: .4px; }
+    }
+  }
+</style>

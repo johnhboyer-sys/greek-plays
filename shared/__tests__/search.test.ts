@@ -406,7 +406,7 @@ describe('Search.svelte play-line result routing', () => {
     await waitFor(() => expect(container.querySelector('.inst-ref')).toBeTruthy());
     const link = container.querySelector('.inst-ref') as HTMLAnchorElement;
     expect(link.textContent).toBe('147-150');
-    expect(link.getAttribute('href')).toBe('/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=147-150');
+    expect(link.getAttribute('href')).toBe('/read/aeschylus/agamemnon?hlg=%CE%BB%CF%8C%CE%B3%CE%BF%CF%82&loc=147-150');
     // Other works' indexes 404 in this fixture; F10 names them rather than
     // pretending the search was complete.
     expect(container.querySelector('.search-note.warn')?.textContent).toMatch(/Some plays could not be searched/);

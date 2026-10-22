@@ -64,14 +64,16 @@ describe('WordPopup — single dictionary entry (the common case)', () => {
     expect(await screen.findByText('word, account')).toBeTruthy();
     expect(screen.getByText('noun nominative singular')).toBeTruthy();
     expect(container.querySelector('.lemma')?.textContent).toBe('λόγος');
-    // The dictionary entry itself is Grammata's T8 widget (mounted, not open
-    // by default) — the site renders no local LSJ entry HTML.
+    // The dictionary entry itself is Grammata's T8 widget (mounted, the first
+    // entry open under its parse, UI pass 2) — the site renders no local LSJ
+    // entry HTML.
     expect(container.querySelector('.grammata-mount')).toBeTruthy();
     expect(container.querySelector('.lsj-entry')).toBeNull();
     expect(container.querySelector('.lsj-ambiguous-note')).toBeNull();
-    // Unambiguous (1 key) — the "Appears Nx" concordance link IS shown.
+    // Unambiguous (1 key) — the concordance link IS shown ("42 places in the
+    // plays", UI pass 2).
     const link = container.querySelector('.lemma-link');
-    expect(link?.textContent).toContain('Appears 42');
+    expect(link?.textContent).toContain('42 places in the plays');
     expect(link?.getAttribute('href')).toBe('/lemma/grc/entry/?w=logos');
   });
 });
@@ -89,12 +91,15 @@ describe('WordPopup — homonym fan-out (multi-entry) ambiguity', () => {
       props: { work: 'de-officiis', token: { t: 'est', k: 'est' }, anchor: { x: 0, y: 0 }, onClose: vi.fn() },
     });
 
-    await screen.findAllByText('pres ind act 3rd sg');
+    // The parse in words (UI pass 2, shared/lib/parse-words.ts).
+    await screen.findAllByText('present indicative active, third singular');
     // One card per dictionary entry, each with its own Grammata mount; no
     // local LSJ entry HTML.
     expect(container.querySelectorAll('.analysis-card')).toHaveLength(2);
     expect(container.querySelectorAll('.grammata-mount')).toHaveLength(2);
     expect(container.querySelector('.lsj-entry')).toBeNull();
+    // Only the first entry opens with the parse; the other keeps its toggle.
+    await vi.waitFor(() => expect(container.querySelectorAll('.card-entry:not([hidden])')).toHaveLength(1));
     // Never a silent, possibly-wrong pick of one: no lemma-page link when ambiguous.
     expect(container.querySelector('.lemma-link')).toBeNull();
     // Both candidates share the headword spelling "edo" (homographs by
@@ -254,7 +259,9 @@ describe('WordPopup — word-to-word jump (backdrop removal + reactive lookup)',
 });
 
 describe('WordPopup — Grammata T8 mount', () => {
-  it('mounts a container per card, closed by default, with no local dictionary HTML', async () => {
+  // UI pass 2 (the drama site's word panel): the first entry opens with the
+  // parse, so Grammata's entry stands under it without a click.
+  it('opens the first entry with its parse and calls Grammata with the entry key, never a surface form', async () => {
     vi.mocked(lookupWord).mockResolvedValue({
       analyses: [{ lemma: 'lo/gos', gloss: 'word, account', parse: 'noun nominative singular', lsj: ['logos'] }],
     });
@@ -264,14 +271,14 @@ describe('WordPopup — Grammata T8 mount', () => {
     });
 
     await screen.findByText('word, account');
+    await vi.waitFor(() => expect(mockLookup).toHaveBeenCalledTimes(1));
     expect(container.querySelector('.grammata-mount')).toBeTruthy();
-    expect(container.querySelector('.card-entry')?.hasAttribute('hidden')).toBe(true);
+    expect(container.querySelector('.card-entry')?.hasAttribute('hidden')).toBe(false);
     expect(container.querySelector('.lsj-entry')).toBeNull();
-    // The lookup only runs once a card is opened.
-    expect(mockLookup).not.toHaveBeenCalled();
+    expect(mockLookup).toHaveBeenCalledWith('', expect.any(HTMLElement), { lang: 'grc', key: 'logos' });
   });
 
-  it('opens the card and calls Grammata with the entry key, never a surface form', async () => {
+  it('closes the open card on a click and opens it again, with the entry key', async () => {
     vi.mocked(lookupWord).mockResolvedValue({
       analyses: [{ lemma: 'lo/gos', gloss: 'word, account', parse: 'noun nominative singular', lsj: ['logos'] }],
     });
@@ -281,11 +288,13 @@ describe('WordPopup — Grammata T8 mount', () => {
     });
 
     await screen.findByText('word, account');
+    await vi.waitFor(() => expect(mockLookup).toHaveBeenCalledTimes(1));
     await fireEvent.click(container.querySelector('.card-face') as HTMLElement);
-
+    expect(container.querySelector('.card-entry')?.hasAttribute('hidden')).toBe(true);
+    await fireEvent.click(container.querySelector('.card-face') as HTMLElement);
     expect(container.querySelector('.card-entry')?.hasAttribute('hidden')).toBe(false);
-    expect(mockLookup).toHaveBeenCalledTimes(1);
-    expect(mockLookup).toHaveBeenCalledWith('', expect.any(HTMLElement), { lang: 'grc', key: 'logos' });
+    expect(mockLookup).toHaveBeenCalledTimes(2);
+    expect(mockLookup).toHaveBeenLastCalledWith('', expect.any(HTMLElement), { lang: 'grc', key: 'logos' });
   });
 });
 

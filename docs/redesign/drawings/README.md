@@ -85,7 +85,9 @@ Each SVG is 1000 units tall, on a transparent ground, with two paths:
 hold; at 120px they go faint unless CSS adds `stroke: currentColor;
 stroke-width: .5px` (the path has `vector-effect="non-scaling-stroke"`, so
 the stroke stays .5px at any size). Where between the two to switch it on is
-a layout decision.
+a layout decision. A silhouette (a record whose `method` says so) never takes
+it: its lines are incisions open in the black, and the stroke closes them
+(Birds on a phone, John, 2026-10-21).
 
 A drawing may carry a third path between the two: `tone` (`philoctetes.svg`,
 and `acharnians.svg` in three steps), `fill="currentColor"` at partial opacity

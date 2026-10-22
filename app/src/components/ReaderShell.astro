@@ -15,13 +15,14 @@ import HelpButton from './HelpButton.svelte';
 import Breadcrumb from './Breadcrumb.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
+import ReaderHead from './ReaderHead.astro';
 import RunningHead from '@shared/components/RunningHead.svelte';
-import Plate from '@shared/components/Plate.svelte';
-import { assignSpeakerSlots } from '@shared/lib/speaker-colors';
-import { playSigla } from '@shared/lib/speakers';
+import SpeakerBar from './SpeakerBar.astro';
+import '../styles/reader-drama.css';
 import { getWork, bookLabel, isBookless, workPath, workLanding, languageLabel, visibleTranslations, type Work } from '@shared/lib/works';
 import { getAuthor } from '@shared/lib/authors';
-import { schemeFor, navChipsNeedFullSectionList, dottedSectionChapter, unitNounFor, pageEntriesFor, nounForCount, lastPrintedRef } from '@shared/lib/citation';
+import { putBook } from '@shared/lib/book-payload';
+import { schemeFor, navChipsNeedFullSectionList, dottedSectionChapter, unitNounFor, pageEntriesFor, nounForCount } from '@shared/lib/citation';
 import { citeDescriptorFor, tocGroupNoun, tocGroupShowsCount, verseLineBookLineCount } from '../lib/citation-copy';
 import { speakerRoster } from '../lib/speaker-roster';
 import { SUPPORT_URL } from '../lib/support';
@@ -204,42 +205,20 @@ const defaultEdition = editionsOn ? (work.translations.find(t => t.id === defaul
 const bookData = JSON.parse(
   readFileSync(`public/data/${workId}/${defaultEdition === 'tlg' ? '' : `ed/${defaultEdition}/`}book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
 );
+// The island takes the book by id, not as a prop (shared/lib/book-payload.ts):
+// the page carries it once, as JSON, before the island.
+const bookId = `book-${workId}-${n}-${defaultEdition}`;
+putBook(bookId, bookData);
 
 // Whole-work speaker-display roster (memoized), so speaker-name colours are
 // stable across books and match the landing cast list (see speaker-roster.ts).
 const roster = speakerRoster(workId, work.books);
 
-// ── The play's opening plate (P4, docs/p4-plan.md) ────────────────────────
-// A play-line work opens on its plate: the title band, the argument, the
-// persons in order of appearance, and the scholia margin — then line 1.
-// Rendered here (an Astro-rendered Svelte component with no client
-// directive: static HTML, no hydration cost) rather than in
-// [author]/[work]/index.astro, because everything it shows is already read
-// or computed in this file — the roster, the book's first/last printed ref,
-// the registry entry — and a play's reader IS this shell.
+// A play-line work's reader (the drama corpus): its persons, synopsis and
+// texts are on the play's own page now (Playbill.astro, at the bare play URL).
 const isPlayLine = work.citation?.scheme === 'play-line';
-// The author's genre picks the accent and the band colour, sitewide, from
-// data-genre on <html> (accent BY GENRE, never by author — John).
+// The author's genre on <html> (header-chrome test).
 const genre = getAuthor(work.author)?.genre;
-const plateSlots = isPlayLine ? assignSpeakerSlots(roster) : new Map<string, number>();
-// Each person's Greek siglum, the same map the reader's gutter prints from
-// (Reader.svelte's playSigla over the book's speaker events), so the plate
-// reads "Chorus (Χο.)" exactly as the text does (John, 2026-09-10).
-const plateSigla = isPlayLine
-  ? playSigla((bookData.segments ?? []).flatMap((seg: { speakers?: { label: string; display?: string | null }[] }) => seg.speakers ?? []))
-  : new Map<string, string>();
-const platePersons = isPlayLine
-  ? roster.map((name) => ({ name, slot: plateSlots.get(name) ?? 0, siglum: plateSigla.get(name) ?? null }))
-  : [];
-const plateSegments: { column?: string; greek?: { ref?: string }[] }[] =
-  isPlayLine ? bookData.segments ?? [] : [];
-// "Start reading →" lands on line 1's own anchor (`col-{column}`, the id
-// Reader.svelte gives every segment), so a deep link (`?loc=`/`#`) and this
-// link both land on the line, never on the plate.
-const plateStartHref = plateSegments.length ? `#col-${plateSegments[0].column}` : '#col-1';
-// "Cite as" ends on the last PRINTED line, not the last segment's column
-// (a chunk's column is its FIRST ref, so Ag. read "1–1672" of 1673).
-const plateLastLine = lastPrintedRef(plateSegments);
 
 // Optional one-line chapter titles/descriptions for the outline sidebar, keyed
 // {book: {chapter: "…"}}. The file is written by hand/curation per work and may
@@ -402,8 +381,30 @@ const intro =
        fetch so it never costs the on-screen reader. -->
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@1,600&family=DM+Mono:wght@400&display=swap" rel="stylesheet" media="print" />
   <Pwa />
+  {isPlayLine && <script is:inline>
+    // The reader's text settings (ReaderHead.astro's Aa), before the first paint.
+    (function () {
+      try {
+        var root = document.documentElement;
+        [['drama-rd-size', 'rdSize'], ['drama-rd-width', 'rdWidth'], ['drama-rd-spacing', 'rdSpacing']].forEach(function (p) {
+          var v = localStorage.getItem(p[0]);
+          if (v) root.dataset[p[1]] = v;
+        });
+      } catch (e) {}
+      // A phone groups the rows speech by speech once the reader has mounted
+      // (Reader.svelte's phoneLayout); the server's rows are the desktop's, so
+      // the text waits for the reader (or 8s, if its script never runs).
+      try {
+        if (matchMedia('(max-width: 680px)').matches) {
+          document.documentElement.setAttribute('data-phone-pending', '');
+          setTimeout(function () { document.documentElement.removeAttribute('data-phone-pending'); }, 8000);
+        }
+      } catch (e) {}
+    })();
+  </script>}
+  {isPlayLine && <style is:global>html[data-phone-pending] .reader-body { visibility: hidden; }</style>}
 </head>
-<body>
+<body data-author={isPlayLine ? work.author : undefined}>
   <!-- Semantic page heading + topical intro for search engines and screen
        readers. Visually hidden because the visible title is the breadcrumb
        control; this gives the document a real, descriptive <h1> and a prose
@@ -414,6 +415,9 @@ const intro =
       {intro}
     </p>
   </div>
+  {/* A play's running head is direction B's (ReaderHead.astro, UI pass 2);
+      every other work keeps the reader header below. */}
+  {isPlayLine ? <ReaderHead work={work} editionsOn={editionsOn} /> : (
   <header class="page-header">
     <div class="header-bar">
       {!isPlayLine && (
@@ -588,6 +592,7 @@ const intro =
     </div>
     )}
   </header>
+  )}
 
   {/* A play has no divisions to list (John, 2026-09-09): no Contents
       drawer on play-line works; the shell script already tolerates its
@@ -749,7 +754,7 @@ const intro =
     // Contents sidebar (full-work outline) drawer. On mobile this is the single
     // navigation hub (the old Menu dropdown is gone); on desktop the nav panel is
     // always visible (CSS) and the sidebar holds just the outline.
-    const header = document.querySelector('.page-header');
+    const header = document.querySelector('.page-header, [data-reader-head]');
     const tocToggle = header?.querySelector('.toc-toggle');
 
     // The Search button's ⌘K hint is rendered ⌘K (macOS) by default; the command
@@ -862,22 +867,7 @@ const intro =
     }
   </script>
 
-  {isPlayLine && !editionsOn && (
-    <Plate
-      greekTitle={work.greekTitle ?? null}
-      title={work.title}
-      authorName={authorName}
-      argument={work.argument ?? null}
-      synopsis={work.synopsis ?? null}
-      production={work.production ?? null}
-      greekSource={work.greekSource.full}
-      translations={visibleTranslations(work).map((t) => (t.alignment ? `${t.name} — Aligned by ${t.alignment}` : t.name))}
-      copyAbbr={work.citation?.copyAbbr ?? null}
-      lastLine={plateLastLine}
-      persons={platePersons}
-      startHref={plateStartHref}
-    />
-  )}
+  {isPlayLine && <SpeakerBar />}
   {editionsOn && <script is:inline define:vars={{ workId, defaultEdition, translationEditions: Object.fromEntries(work.translations.map(t => [t.id, t.edition ?? 'tlg'])) }}>
     try {
       const saved = localStorage.getItem(`reader-trans-${workId}`);
@@ -889,9 +879,10 @@ const intro =
     } catch {}
   </script>}
   {editionsOn && <style is:global>html[data-ed-pending] #edition-reader { visibility: hidden; } html[data-ed-pending] #edition-reader::before { content: '◌'; visibility: visible; display: block; text-align: center; padding: 3rem; }</style>}
+  <script type="application/json" id={bookId} set:html={jsonLdSafe(bookData)} />
   {editionsOn
-    ? <div id="edition-reader"><ReaderHost work={workId} bookNum={n} bookData={bookData} serverEdition={defaultEdition} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} authorName={authorName} client:load /></div>
-    : <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />}
+    ? <div id="edition-reader"><ReaderHost work={workId} bookNum={n} bookId={bookId} serverEdition={defaultEdition} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} authorName={authorName} plate={false} client:load /></div>
+    : <Reader work={workId} bookNum={n} bookId={bookId} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />}
   <CommandPalette work={workId} client:load />
 </body>
 </html>

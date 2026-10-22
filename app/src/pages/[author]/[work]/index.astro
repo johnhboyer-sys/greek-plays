@@ -3,13 +3,12 @@
 // The reader for a work lives at /<author>/<work>/book/<n> (bookless works only
 // ever have book 1). See src/components/Landing.astro.
 //
-// EXCEPTION (P1, docs/p1-probe.md): a bookless play-line work (the Greek
-// drama corpus) renders the reader directly at this bare path instead —
-// "bookless: NO /book/1 redirect" (the plan's own P1 acceptance wording).
-// A play has no separate landing-plate content yet (the per-play opening
-// plate is a P4 design item); no `/book/1` alias is emitted.
+// A bookless play-line work (the Greek drama corpus) shows the play's own
+// page here (components/Playbill.astro; docs/redesign/HANDOFF-ui-pass2-build.md
+// §6), and reads at /read/<author>/<work> (pages/read/[author]/[work]/); no
+// `/book/1` alias is emitted (P1).
 import Landing from '../../../components/Landing.astro';
-import ReaderShell from '../../../components/ReaderShell.astro';
+import Playbill from '../../../components/Playbill.astro';
 import { getWorkBySlug, workSlug } from '@shared/lib/works';
 import { getAuthor } from '@shared/lib/authors';
 import { builtWorks } from '../../../lib/built-works';
@@ -46,5 +45,5 @@ const workId = work.id;
 const isBooklessPlayLine = work.citation?.scheme === 'play-line' && work.books === 1;
 ---
 {isBooklessPlayLine
-  ? <ReaderShell workId={workId} n={1} />
+  ? <Playbill work={work} />
   : <Landing workId={workId} />}

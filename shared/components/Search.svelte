@@ -4,21 +4,9 @@
   import { fetchBook, fetchChapters, fetchSections, readerHref, type Segment, type GreekLine, type ChapterRef, type SectionRef, type TranslationCredit } from '../lib/data';
   import { highlightPrefixMatches } from '../lib/text';
   import { editionPicker } from '../lib/edition-picker';
-  import { WORKS, getWork, workPath, WORK_ORDER, WORK_GROUPS } from '../lib/works';
-  import { getAuthor } from '../lib/authors';
+  import { WORKS, getWork, workPath, WORK_ORDER } from '../lib/works';
+  import { getAuthor, AUTHORS } from '../lib/authors';
   import { formatCite, formatLocValue, schemeFor, groupUnitNoun } from '../lib/citation';
-
-  // Author — Work label for a result group header, matching the convention
-  // used elsewhere on the site (e.g. Landing.astro's commentary list): the
-  // author's display name, an em dash, then the work title. Without the
-  // author, two works sharing a title (e.g. two authors' "Fragments") are
-  // indistinguishable in the results list (John, 2026-07-24 screenshot report).
-  function workHeading(work: string): string {
-    const w = getWork(work);
-    if (!w) return work;
-    const authorName = getAuthor(w.author)?.name ?? w.author;
-    return `${authorName} — ${w.title}`;
-  }
 
   // Astra lane A, F10: display titles, comma-separated; Oxford comma before
   // the last when there are three or more.
@@ -73,19 +61,16 @@
         .map(e => [e.id, { id: e.id, label: e.short.replace(/\s*\(\d{4}\)$/, '') }] as const))).values()]
     : [];
   let searchedLemmata: string[] = [];
+  let resultPlays = 0;                    // plays with a hit, for the count line
   // Which works to search. Default: all. Selected in the collapsible panel below.
   let selectedWorks = new Set<string>(WORKS.map(w => w.id));
   let worksOpen = false;  // is the works "Refine" panel expanded?
   let groups: ChapterGroup[] = [];        // chapter groups of the CURRENT page
   let totalInstances = 0;                 // across the whole result set (all pages)
-  let expanded = new Set<string>();
   let loading = false;                    // running the index search
   let searched = false;
   let error = '';
   let failedWorks: string[] = [];
-  let showHelp = false;
-  let helpModal: HTMLDivElement;
-  let helpTrigger: HTMLElement | null = null;
 
   // Pagination. search() returns the complete hit list (index-only); we render
   // it a page at a time, snapping page breaks to whole books so a chapter never
@@ -126,7 +111,7 @@
   // Shared option list for the per-language mode selectors.
   const MODE_OPTS: { v: SearchMode; l: string }[] = [
     { v: 'all', l: 'All words' },
-    { v: 'any', l: 'Any word' },
+    { v: 'any', l: 'Any of them' },
     { v: 'phrase', l: 'Exact phrase' },
   ];
 
@@ -141,44 +126,47 @@
   // selects every work; toggling it off clears the selection.
   $: allSelected = selectedWorks.size === WORKS.length;
   function selectAll() { selectedWorks = new Set(WORKS.map(w => w.id)); }
-  function clearWorks() { selectedWorks = new Set(); }
 
-  // Per-group scope helpers for the works panel. "only" narrows the selection to
-  // exactly this division; "add" unions the division into the current selection.
-  function groupState(ids: string[]): 'all' | 'some' | 'none' {
-    const n = ids.filter(id => selectedWorks.has(id)).length;
-    return n === 0 ? 'none' : n === ids.length ? 'all' : 'some';
-  }
   function selectOnly(ids: string[]) { selectedWorks = new Set(ids); }
   function addGroup(ids: string[]) {
     for (const id of ids) selectedWorks.add(id);
     selectedWorks = selectedWorks;
   }
 
-  // Authenticity scope — quick-filter the selection by authorship status.
-  // "Genuine" = works with no authenticity flag (or explicitly 'genuine'); the
-  // others match the tagged works. Each acts like a division "only": clicking it
-  // narrows the selection to exactly that class. Empty classes render disabled.
-  const AUTH_SCOPES = [
-    { key: 'all',      label: 'All',      ids: WORKS.map((w) => w.id) },
-    { key: 'genuine',  label: 'Genuine',  ids: WORKS.filter((w) => !w.authenticity || w.authenticity === 'genuine').map((w) => w.id) },
-    { key: 'dubious',  label: 'Dubious',  ids: WORKS.filter((w) => w.authenticity === 'dubious').map((w) => w.id) },
-    { key: 'spurious', label: 'Spurious', ids: WORKS.filter((w) => w.authenticity === 'spurious').map((w) => w.id) },
-  ] as const;
-  // Which scope (if any) the current selection exactly matches — drives the active pill.
-  $: activeAuthScope = allSelected
-    ? 'all'
-    : (AUTH_SCOPES.find(
-        (s) => s.key !== 'all' && s.ids.length > 0 &&
-          s.ids.length === selectedWorks.size && s.ids.every((id) => selectedWorks.has(id)),
-      )?.key ?? null);
+  // The Greek text a play's hits come from, for its heading: the edition the
+  // engine searched (it takes one only for a Greek-only query, in a play that
+  // holds it), else the play's reference text ("Smyth 1926").
+  let resultEds = new Map<string, string>();
+  function greekTextOf(work: string): string {
+    const w = getWork(work);
+    if (!w) return '';
+    const ed = w.greekEditions?.find((e) => e.id === resultEds.get(work));
+    const short = ed?.short ?? w.greekSource.short;
+    return short.replace(/\s*\((?:[^)]*?,\s*)?(\d{4})\)\s*$/, ' $1');
+  }
 
-  // Compact summary for the collapsed trigger.
+  // Compact summary of the plays searched (UI pass 2: "All 44 plays").
   $: worksSummary = allSelected
-    ? 'All works'
+    ? `All ${WORKS.length} plays`
     : selectedWorks.size === 0
-      ? 'None selected'
-      : `${selectedWorks.size} of ${WORKS.length}`;
+      ? 'No play chosen'
+      : `${selectedWorks.size} play${selectedWorks.size === 1 ? '' : 's'}`;
+
+  // The In row's author checks (UI pass 2): none ticked is every play; a tick
+  // narrows the search to that author's plays, more ticks add theirs.
+  const AUTHOR_SCOPES = AUTHORS
+    .map((a) => ({ id: a.id, name: a.name, ids: WORKS.filter((w) => w.author === a.id).map((w) => w.id) }))
+    .filter((a) => a.ids.length > 0);
+  $: authorTicked = (ids: string[]) => !allSelected && ids.every((id) => selectedWorks.has(id));
+  function tickAuthor(ids: string[]) {
+    if (allSelected) { selectOnly(ids); return; }
+    if (ids.every((id) => selectedWorks.has(id))) {
+      const rest = [...selectedWorks].filter((id) => !ids.includes(id));
+      selectedWorks = rest.length ? new Set(rest) : new Set(WORKS.map((w) => w.id));
+      return;
+    }
+    addGroup(ids);
+  }
 
   // Results grouped Work → Book → chapter groups, in corpus then numeric order.
   $: groupsByWork = (() => {
@@ -195,12 +183,6 @@
       }));
   })();
 
-  function toggle(key: string) {
-    if (expanded.has(key)) expanded.delete(key);
-    else expanded.add(key);
-    expanded = expanded; // trigger reactivity
-  }
-
   // Run `fn` over `items` with at most `limit` in flight (bounds the concurrent
   // fetch burst that can make Safari drop requests with "Load failed").
   async function pool<T>(items: T[], limit: number, fn: (item: T) => Promise<void>): Promise<void> {
@@ -209,105 +191,6 @@
       while (next < items.length) await fn(items[next++]);
     });
     await Promise.all(workers);
-  }
-
-  // Beta Code reference for the "How to type Greek" chart. Keys are the same
-  // letters the search index uses, so anything typed here matches directly.
-  const BETA_LETTERS: { beta: string; greek: string; name: string }[] = [
-    { beta: 'a', greek: 'α', name: 'alpha' },
-    { beta: 'b', greek: 'β', name: 'beta' },
-    { beta: 'g', greek: 'γ', name: 'gamma' },
-    { beta: 'd', greek: 'δ', name: 'delta' },
-    { beta: 'e', greek: 'ε', name: 'epsilon' },
-    { beta: 'z', greek: 'ζ', name: 'zeta' },
-    { beta: 'h', greek: 'η', name: 'eta' },
-    { beta: 'q', greek: 'θ', name: 'theta' },
-    { beta: 'i', greek: 'ι', name: 'iota' },
-    { beta: 'k', greek: 'κ', name: 'kappa' },
-    { beta: 'l', greek: 'λ', name: 'lambda' },
-    { beta: 'm', greek: 'μ', name: 'mu' },
-    { beta: 'n', greek: 'ν', name: 'nu' },
-    { beta: 'c', greek: 'ξ', name: 'xi' },
-    { beta: 'o', greek: 'ο', name: 'omicron' },
-    { beta: 'p', greek: 'π', name: 'pi' },
-    { beta: 'r', greek: 'ρ', name: 'rho' },
-    { beta: 's', greek: 'σ / ς', name: 'sigma' },
-    { beta: 't', greek: 'τ', name: 'tau' },
-    { beta: 'u', greek: 'υ', name: 'upsilon' },
-    { beta: 'f', greek: 'φ', name: 'phi' },
-    { beta: 'x', greek: 'χ', name: 'chi' },
-    { beta: 'y', greek: 'ψ', name: 'psi' },
-    { beta: 'w', greek: 'ω', name: 'omega' },
-  ];
-
-  // Diacritics are typed AFTER the vowel. They're stripped before matching,
-  // so they're optional — but they show how full Beta Code is written.
-  const BETA_MARKS: { beta: string; example: string; name: string }[] = [
-    { beta: ')', example: 'a) → ἀ', name: 'smooth breathing' },
-    { beta: '(', example: 'a( → ἁ', name: 'rough breathing' },
-    { beta: '/', example: 'a/ → ά', name: 'acute accent' },
-    { beta: '\\', example: 'a\\ → ὰ', name: 'grave accent' },
-    { beta: '=', example: 'a= → ᾶ', name: 'circumflex' },
-    { beta: '|', example: 'a| → ᾳ', name: 'iota subscript' },
-    { beta: '+', example: 'i+ → ϊ', name: 'diaeresis' },
-  ];
-
-  const BETA_EXAMPLES: { beta: string; greek: string }[] = [
-    { beta: 'a)reth/', greek: 'ἀρετή' },
-    { beta: 'lo/gos', greek: 'λόγος' },
-    { beta: 'yuxh/', greek: 'ψυχή' },
-    { beta: 'h(donh/', greek: 'ἡδονή' },
-    { beta: 'eu)daimoni/a', greek: 'εὐδαιμονία' },
-    { beta: 'fron*', greek: 'φρόν… (wildcard)' },
-  ];
-
-  async function openHelp(e?: MouseEvent) {
-    helpTrigger = e?.currentTarget instanceof HTMLElement
-      ? e.currentTarget
-      : document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    showHelp = true;
-    await tick();
-    helpModal?.focus();
-  }
-
-  function closeHelp() {
-    showHelp = false;
-    helpTrigger?.focus();
-    helpTrigger = null;
-  }
-
-  function helpFocusableEls(): HTMLElement[] {
-    return helpModal
-      ? Array.from(helpModal.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        )).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1)
-      : [];
-  }
-
-  function onHelpKey(e: KeyboardEvent) {
-    if (!showHelp) return;
-    if (e.key === 'Escape') {
-      closeHelp();
-      return;
-    }
-    if (e.key !== 'Tab') return;
-    const els = helpFocusableEls();
-    if (els.length === 0) {
-      e.preventDefault();
-      helpModal?.focus();
-      return;
-    }
-    const first = els[0];
-    const last = els[els.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
   }
 
   // Map a hit's (column, line) to the chapter it falls in, for one book.
@@ -522,7 +405,7 @@
             ? sourceLine.ref ?? seg.column
             : seg.column;
           const ch = lookup(seg.column, sourceLine.n);
-          add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: greekKwic(seg, [pos]), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, undefined, r.ed) });
+          add(r.work, r.meta.book, ch, { lang: 'grk', column, line: sourceLine.n, ref: formatCite(r.work, column, sourceLine.n), html: schemeFor(r.work).id === 'play-line' ? lineKwic(seg, pos) : greekKwic(seg, [pos]), jumpUrl: jumpFor(r.work, r.meta.book, column, sourceLine.n, undefined, r.ed) });
         }
       }
       if (r.engMatch) {
@@ -590,11 +473,6 @@
     try {
       const { groups: g, failed } = await buildGroups(pages[i] ?? [], searchCtx);
       groups = g;
-      // Single-hit chapters open by default; merged (multi-hit) start collapsed.
-      // Work-wide groups (chapterless plays — no chapter level to browse by)
-      // always open: the group IS the whole result set for that work, so
-      // collapsing it behind a click hides everything with no benefit.
-      expanded = new Set(groups.filter(x => x.instances.length === 1 || x.workWide).map(x => x.key));
       if (failed.length) {
         pageError = `${failed.length} passage source${failed.length === 1 ? '' : 's'} on this page didn’t load — some hits may be missing.`;
       }
@@ -650,6 +528,8 @@
       };
       const { results, failed, lemmata } = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode, greekEd);
       searchedLemmata = lemmata ?? [];
+      resultEds = new Map(results.filter((r) => r.ed).map((r) => [r.work, r.ed!]));
+      resultPlays = new Set(results.map((r) => r.work)).size;
       failedWorks = failed;
       totalInstances = results.reduce((n, r) => n + instCount(r), 0);
       pages = paginate(results);
@@ -661,6 +541,20 @@
     } finally {
       loading = false;
     }
+  }
+
+  // A play's Greek hit shows its whole verse line, the match marked (UI pass
+  // 2, spec §8.1: "the lines under it, each with its number ... and the
+  // matched word marked").
+  function lineKwic(seg: Segment, pos: number): string {
+    let start = 0;
+    for (const line of seg.greek) {
+      if (pos < start + line.tokens.length) {
+        return line.tokens.map((tok, i) => (i === pos - start ? `<mark>${esc(tok.t)}</mark>` : esc(tok.t))).join(' ');
+      }
+      start += line.tokens.length;
+    }
+    return greekKwic(seg, [pos]);
   }
 
   // Greek keyword-in-context: a window of surface tokens around the match,
@@ -830,19 +724,22 @@
   }
 </script>
 
-<svelte:window on:keydown={onHelpKey} />
-
+<!-- UI pass 2, direction B (docs/redesign/HANDOFF-ui-pass2-build.md §8.1): the
+     two boxes at the left, Greek over English, searched together; every control
+     to their right, one row each (John, 2026-10-20: "Put all the controls to the
+     right of search boxes"); the plays head their hits, each hit a whole line.
+     Only what this engine answers is shown: the Near and Shape rows and the
+     phrase index wait for step 2, the port of the Aristotle reader's search. -->
 <main class="search-page">
   <form class="search-form" on:submit={doSearch} novalidate>
-
-    <div class="query-row">
-      <label class="query-label" for="grk-input">Greek</label>
+    <div class="boxes">
+      <label class="lab" for="grk-input">Greek</label>
       <input
         id="grk-input"
-        class="query-input greek-input"
+        class="fld greek-input"
         lang="grc"
         type="search"
-        placeholder="τέχνη or texnh, fronhsis*, …"
+        placeholder="ξίφος, or xifos, fron*"
         bind:value={grkQuery}
         on:keydown={onEnter}
         autocomplete="off"
@@ -850,188 +747,71 @@
         autocapitalize="none"
         spellcheck="false"
       />
-      <button type="button" class="help-btn" on:click={openHelp} aria-haspopup="dialog" title="How to type Greek">
-        ⌨ Type Greek
-      </button>
-    </div>
-
-    <div class="below-query" use:editionPicker={{ variant: 'search', label: 'Greek text to search', value: greekEd, choices: editionChoices.length ? [{ id: 'tlg', label: 'Reference text' }, ...editionChoices] : [], onpick: id => (greekEd = id) }}>
-      <fieldset class="mode-group">
-        <legend>Greek match</legend>
-        {#each MODE_OPTS as opt}
-          <label><input type="radio" name="grkmode" value={opt.v} bind:group={grkMode} /> {opt.l}</label>
-        {/each}
-      </fieldset>
-      <fieldset class="mode-group" title="Lemma matches every inflected form of a headword; Exact form matches the word only as written">
-        <legend>Form</legend>
-        <label><input type="radio" name="matchmode" value="form" bind:group={matchMode} /> Exact form</label>
-        <label><input type="radio" name="matchmode" value="lemma" bind:group={matchMode} /> Lemma</label>
-      </fieldset>
-      <fieldset class="mode-group" title="Match diacritics exactly: λόγος and λογός become different queries. A query typed without accents then only matches unaccented tokens.">
-        <legend>Accents</legend>
-        <label><input type="checkbox" bind:checked={accentSensitive} /> Match accents exactly</label>
-      </fieldset>
-    </div>
-
-    <div class="query-row">
-      <label class="query-label" for="eng-input">English</label>
+      <label class="lab" for="eng-input">English</label>
       <input
         id="eng-input"
-        class="query-input"
+        class="fld"
         type="search"
-        placeholder="virtue, happiness, …"
+        placeholder="a word or phrase"
         bind:value={engQuery}
         on:keydown={onEnter}
         autocomplete="off"
       />
+      <p class="act">
+        <button type="submit" class="go search-btn" disabled={loading}>{loading ? 'Searching…' : 'Search'}</button>
+        <a class="ln" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/search/how`}>How to search</a>
+      </p>
     </div>
 
-    <div class="below-query">
-      <fieldset class="mode-group">
-        <legend>English match</legend>
-        {#each MODE_OPTS as opt}
-          <label><input type="radio" name="engmode" value={opt.v} bind:group={engMode} /> {opt.l}</label>
+    <div class="ctrls">
+      <p class="row">
+        <span class="mn">Greek</span>
+        <!-- Each picker reads select.value on change (not bind:value, whose
+             :checked lookup the test DOM does not support). -->
+        <span class="v"><select aria-label="Greek words" value={grkMode} on:change={(e) => (grkMode = e.currentTarget.value as SearchMode)}>{#each MODE_OPTS as opt}<option value={opt.v}>{opt.l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+        <span class="v" title="Any form of the word matches every inflected form of its headword; Only as typed matches the word only as written"><select aria-label="Greek forms" value={matchMode} on:change={(e) => (matchMode = e.currentTarget.value as MatchMode)}><option value="lemma">Any form of the word</option><option value="form">Only as typed</option></select><i aria-hidden="true">▾</i></span>
+        <span class="v" title="Accents matter: λόγος and λογός become different queries, and a query typed without accents then matches only unaccented words"><select aria-label="Greek accents" value={String(accentSensitive)} on:change={(e) => (accentSensitive = e.currentTarget.value === 'true')}><option value="false">Accents ignored</option><option value="true">Accents matter</option></select><i aria-hidden="true">▾</i></span>
+        {#if editionChoices.length}
+          <span class="v" title="An edition applies to Greek-only searches, in the plays that hold it"><select aria-label="Greek text to search" value={greekEd} on:change={(e) => (greekEd = e.currentTarget.value)}><option value="tlg">Each play's main text</option>{#each editionChoices as e}<option value={e.id}>{e.label}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+        {/if}
+        <span class="mn">* wildcard · Beta Code works</span>
+      </p>
+      {#if searchedLemmata.length}
+        <p class="row lsj"><span class="mn">LSJ</span>{#each searchedLemmata as lemma}<span class="lem" lang="grc">{lemma}</span>{/each}</p>
+      {/if}
+      <p class="row gap">
+        <span class="mn">English</span>
+        <span class="v"><select aria-label="English words" value={engMode} on:change={(e) => (engMode = e.currentTarget.value as SearchMode)}>{#each MODE_OPTS as opt}<option value={opt.v}>{opt.l}</option>{/each}</select><i aria-hidden="true">▾</i></span>
+        <span class="mn">in every translation</span>
+      </p>
+      <p class="row gap">
+        <span class="mn">Together</span>
+        <span class="v"><select aria-label="Greek and English together" value={langOp} on:change={(e) => (langOp = e.currentTarget.value as LangOp)}><option value="and">Lines where both the Greek and the English match</option><option value="or">Lines where the Greek or the English matches</option></select><i aria-hidden="true">▾</i></span>
+      </p>
+      <div class="row">
+        <span class="mn">In</span>
+        <span class="sum">{worksSummary}</span>
+        {#each AUTHOR_SCOPES as a}
+          <label class="ck"><input type="checkbox" checked={authorTicked(a.ids)} on:change={() => tickAuthor(a.ids)} />{a.name} {a.ids.length}</label>
         {/each}
-      </fieldset>
-    </div>
-
-    <div class="works-panel" role="group" aria-label="Works to search">
-      <button
-        type="button"
-        class="works-trigger"
-        aria-expanded={worksOpen}
-        on:click={() => (worksOpen = !worksOpen)}
-      >
-        <span class="works-label">Works</span>
-        <span class="works-summary">{worksSummary}</span>
-        <span class="works-caret">{worksOpen ? 'Hide ▴' : 'Refine ▾'}</span>
-      </button>
-
+        <button type="button" class="ln" aria-expanded={worksOpen} on:click={() => (worksOpen = !worksOpen)}>choose plays</button>
+      </div>
       {#if worksOpen}
-        <div class="works-body">
-          <div class="works-actions">
-            <button type="button" class="works-action" on:click={selectAll} disabled={allSelected}>Select all</button>
-            <button type="button" class="works-action" on:click={clearWorks} disabled={selectedWorks.size === 0}>Clear</button>
-          </div>
-
-          <div class="works-auth" role="group" aria-label="Filter works by authorship status">
-            {#each AUTH_SCOPES as s}
-              <button
-                type="button"
-                class="auth-btn"
-                class:on={activeAuthScope === s.key}
-                aria-pressed={activeAuthScope === s.key}
-                disabled={s.ids.length === 0}
-                on:click={() => selectOnly(s.ids)}
-                title={s.key === 'all' ? 'Search all works' : `Search only ${s.label.toLowerCase()} works`}
-              >{s.label}{#if s.key !== 'all'}<span class="auth-count">{s.ids.length}</span>{/if}</button>
-            {/each}
-          </div>
-
-          {#each WORK_GROUPS as grp}
-            {@const gs = groupState(grp.ids)}
-            <div class="works-group">
-              <div class="works-group-head">
-                <span class="works-group-name">{grp.ref}. {grp.label}</span>
-                <span class="works-group-scope">
-                  <button type="button" class="scope-btn" class:on={gs === 'all'} on:click={() => selectOnly(grp.ids)} title="Search only this division">only</button>
-                  <button type="button" class="scope-btn" on:click={() => addGroup(grp.ids)} title="Add this division to the selection">+ add</button>
-                </span>
-              </div>
-              <div class="works-chips">
-                {#each grp.ids as id}
-                  {@const w = getWork(id)}
-                  {#if w}
-                    <button
-                      type="button"
-                      class="work-chip"
-                      class:on={selectedWorks.has(id)}
-                      aria-pressed={selectedWorks.has(id)}
-                      on:click={() => toggleWork(id)}
-                      title={w.title}
-                    >{w.abbr} · {w.title}</button>
-                  {/if}
-                {/each}
-              </div>
-            </div>
+        <div class="choose" role="group" aria-label="Plays to search">
+          {#each AUTHOR_SCOPES as a}
+            <p class="who">{a.name}</p>
+            <p class="plays">
+              {#each a.ids as id}
+                {@const w = getWork(id)}
+                {#if w}<label class="ck"><input type="checkbox" checked={selectedWorks.has(id)} on:change={() => toggleWork(id)} />{w.title}</label>{/if}
+              {/each}
+            </p>
           {/each}
+          <p class="plays"><button type="button" class="ln" on:click={selectAll} disabled={allSelected}>All plays</button></p>
         </div>
       {/if}
     </div>
-
-    <div class="controls-row">
-      <fieldset class="op-group" class:inactive={!(grkQuery.trim() && engQuery.trim())}>
-        <legend>Greek + English</legend>
-        <label title="Only passages matching both queries"><input type="radio" name="op" value="and" bind:group={langOp} /> Both queries</label>
-        <label title="Passages matching either query"><input type="radio" name="op" value="or"  bind:group={langOp} /> Either query</label>
-      </fieldset>
-
-      <button type="submit" class="search-btn" disabled={loading}>
-        {loading ? 'Searching…' : 'Search'}
-      </button>
-    </div>
-
-    <p class="search-hint">
-      Type Greek in Greek letters or <button type="button" class="link-btn" on:click={openHelp}>Beta Code</button>
-      (<code>texnh</code> = τέχνη). Use <code>*</code> for a wildcard: <code>fron*</code> matches φρόνησις, φρόνιμος, etc.
-    </p>
   </form>
-
-  {#if showHelp}
-    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-    <div class="help-backdrop" on:click={closeHelp}>
-      <div
-        class="help-modal"
-        bind:this={helpModal}
-        role="dialog"
-        aria-modal="true"
-        aria-label="How to type Greek"
-        tabindex="-1"
-        on:click|stopPropagation
-        on:keydown={onHelpKey}
-      >
-        <div class="help-head">
-          <h2>How to type Greek</h2>
-          <button type="button" class="help-close" on:click={closeHelp} aria-label="Close">×</button>
-        </div>
-
-        <p class="help-intro">
-          The Greek box accepts Greek letters <em>or</em> <strong>Beta Code</strong> — a plain-ASCII
-          transliteration. Each Greek letter is one Latin key:
-        </p>
-
-        <div class="beta-grid">
-          {#each BETA_LETTERS as L}
-            <div class="beta-cell">
-              <span class="beta-key">{L.beta}</span>
-              <span class="beta-grk" lang="grc">{L.greek}</span>
-              <span class="beta-name">{L.name}</span>
-            </div>
-          {/each}
-        </div>
-
-        <h3>Accents &amp; breathings <span class="help-note">(optional — ignored when matching)</span></h3>
-        <p class="help-sub">Type the mark right after the vowel:</p>
-        <ul class="mark-list">
-          {#each BETA_MARKS as M}
-            <li><span class="beta-key">{M.beta}</span> <span class="mark-ex" lang="grc">{M.example}</span> <span class="beta-name">{M.name}</span></li>
-          {/each}
-        </ul>
-
-        <h3>Examples</h3>
-        <ul class="example-list">
-          {#each BETA_EXAMPLES as E}
-            <li><code>{E.beta}</code> <span class="ex-arrow" aria-hidden="true">→</span> <span class="ex-grk" lang="grc">{E.greek}</span></li>
-          {/each}
-        </ul>
-
-        <p class="help-foot">
-          Long vowels are distinct: <code>h</code> = η (not <code>e</code> = ε), <code>w</code> = ω (not <code>o</code> = ο).
-          Type them exactly. Accents and breathings may be included or left off.
-        </p>
-      </div>
-    </div>
-  {/if}
 
   {#if error}
     <p class="search-error">{error}</p>
@@ -1039,728 +819,171 @@
     {#if failedWorks.length}
       <p class="search-note warn">
         Some plays could not be searched: {failedPlaysPhrase(failedWorks)}.
-        <button type="button" class="retry-btn" on:click={doSearch} disabled={loading}>Retry</button>
+        <button type="button" class="ln retry-btn" on:click={doSearch} disabled={loading}>Retry</button>
       </p>
     {/if}
-    <div class="result-bar">
-      <p class="result-count">
-        {totalInstances === 0
-          ? 'No passages found.'
-          : `${totalInstances} instance${totalInstances === 1 ? '' : 's'}` +
-            (searchCtx.grkAccentTerms.length ? ' before accent filtering' : '') +
-            (pages.length > 1 ? ` · page ${pageIdx + 1} of ${pages.length}` : '')}
-      </p>
-      {#if searchedLemmata.length}
-        <p class="lemma-readings">{searchedLemmata.length === 1 ? 'Lemma' : 'Lemmata'}: {searchedLemmata.join(', ')}</p>
-      {/if}
+    <p class="count result-bar">
+      <span class="result-count">{totalInstances === 0
+        ? 'No passages found.'
+        : `${totalInstances} line${totalInstances === 1 ? '' : 's'} in ${resultPlays} play${resultPlays === 1 ? '' : 's'}` +
+          (searchCtx.grkAccentTerms.length ? ' before accent filtering' : '') +
+          (pages.length > 1 ? ` · page ${pageIdx + 1} of ${pages.length}` : '')}</span>
       {#if totalInstances > 0}
-        <button type="button" class="export-btn" on:click={exportCsv} disabled={csvBusy}>
-          {csvBusy ? 'Preparing CSV…' : 'Export results as CSV'}
-        </button>
+        <button type="button" class="ln export-btn" on:click={exportCsv} disabled={csvBusy}>{csvBusy ? 'Preparing CSV…' : 'Export as CSV'}</button>
       {/if}
-    </div>
+    </p>
     {#if csvNote}
       <p class="search-note">{csvNote}</p>
     {/if}
 
     {#if pages.length > 1}
       <nav class="pager" aria-label="Result pages">
-        <button type="button" class="pager-btn" on:click={() => goPage(pageIdx - 1)} disabled={pageIdx === 0 || pageLoading}>‹ Prev</button>
+        <button type="button" class="ln" on:click={() => goPage(pageIdx - 1)} disabled={pageIdx === 0 || pageLoading}>‹ Previous</button>
         <span class="pager-status">{pageLoading ? 'Loading…' : `Page ${pageIdx + 1} of ${pages.length}`}</span>
-        <button type="button" class="pager-btn" on:click={() => goPage(pageIdx + 1)} disabled={pageIdx >= pages.length - 1 || pageLoading}>Next ›</button>
+        <button type="button" class="ln" on:click={() => goPage(pageIdx + 1)} disabled={pageIdx >= pages.length - 1 || pageLoading}>Next ›</button>
       </nav>
     {/if}
 
     {#if pageError}
       <p class="search-note warn">
         {pageError}
-        <button type="button" class="retry-btn" on:click={() => renderPage(pageIdx)} disabled={pageLoading}>Retry</button>
+        <button type="button" class="ln retry-btn" on:click={() => renderPage(pageIdx)} disabled={pageLoading}>Retry</button>
       </p>
     {/if}
 
     {#each groupsByWork as wg}
-      {#each wg.books as [book, bookGroups]}
-      <section class="book-section">
-        <h2 class="book-header">
-          <span class="work-name">{workHeading(wg.work)}</span>
-          {#if schemeFor(wg.work).id !== 'play-line'}<span class="book-name">{bookGroupLabel(wg.work)} {getWork(wg.work)?.bookLabels[book - 1] ?? book}</span>{/if}
+      {@const w = getWork(wg.work)}
+      {@const lines = wg.books.reduce((n, [, gs]) => n + gs.reduce((m, g) => m + g.instances.length, 0), 0)}
+      {@const grk = wg.books.some(([, gs]) => gs.some((g) => g.instances.some((i) => i.lang === 'grk')))}
+      <section class="grp">
+        <h2>
+          <span class="tt">{w?.title ?? wg.work}</span>
+          <span class="who">{[getAuthor(w?.author ?? '')?.name, grk ? greekTextOf(wg.work) : '', `${lines} line${lines === 1 ? '' : 's'}`].filter(Boolean).join(' · ')}</span>
         </h2>
-
-        {#each bookGroups as g (g.key)}
-          {@const unit = groupUnitLabel(wg.work)}
-          <div class="chapter-group">
-            <button class="group-head" on:click={() => toggle(g.key)} aria-expanded={expanded.has(g.key)}>
-              <span class="caret">{expanded.has(g.key) ? '▾' : '▸'}</span>
-              {#if !g.workWide}<span class="group-label">{unit ? `${unit} ${g.chapter}` : g.chapter}</span>{/if}
-              {#if !g.workWide}<span class="group-bekker">{g.bekker}</span>{/if}
-              <span class="group-count">{g.instances.length} {g.instances.length === 1 ? 'instance' : 'instances'}</span>
-            </button>
-
-            {#if expanded.has(g.key)}
-              <ul class="instance-list">
-                {#each g.instances as inst}
-                  <li class="instance">
-                    <a class="inst-ref" href={inst.jumpUrl} target="_blank" rel="noopener" title="Open in reader (new tab)">{inst.ref}</a>
-                    <span class="inst-snippet" class:greek={inst.lang === 'grk'} lang={inst.lang === 'grk' ? 'grc' : 'en'}>
-                      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                      {@html inst.html}
-                    </span>
-                    <!-- Compact per-passage credit (finding 1, Sol review):
-                         only present for a hit whose English carries its own
-                         translation credit — an uncredited passage renders
-                         exactly as it did before this fix. -->
-                    {#if inst.credit}
-                      <span class="inst-credit">{inst.credit}</span>
-                    {/if}
-                  </li>
-                {/each}
-              </ul>
-            {/if}
-          </div>
+        {#each wg.books as [book, bookGroups]}
+          {#if schemeFor(wg.work).id !== 'play-line'}<p class="book book-name">{bookGroupLabel(wg.work)} {w?.bookLabels[book - 1] ?? book}</p>{/if}
+          <ul>
+            {#each bookGroups as g (g.key)}
+              {@const unit = groupUnitLabel(wg.work)}
+              <!-- A work with chapters or sections keeps their label over its
+                   hits; a play has none (its group is the whole play). -->
+              {#if !g.workWide}<li class="chap"><span class="group-label">{unit ? `${unit} ${g.chapter}` : g.chapter}</span>{#if g.bekker}<span class="group-bekker">{g.bekker}</span>{/if}</li>{/if}
+              {#each g.instances as inst}
+                <li class="instance">
+                  <a class="ref num inst-ref" href={inst.jumpUrl} target="_blank" rel="noopener" title="Open in the reader (new tab)">{inst.ref}</a>
+                  <span class="snip inst-snippet" class:greek={inst.lang === 'grk'} lang={inst.lang === 'grk' ? 'grc' : 'en'}>
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html inst.html}
+                    <!-- Compact per-passage credit (finding 1, Sol review). -->
+                    {#if inst.credit}<span class="inst-credit">{inst.credit}</span>{/if}
+                  </span>
+                </li>
+              {/each}
+            {/each}
+          </ul>
         {/each}
       </section>
-      {/each}
     {/each}
 
     {#if pages.length > 1}
       <nav class="pager pager-bottom" aria-label="Result pages">
-        <button type="button" class="pager-btn" on:click={() => goPage(pageIdx - 1)} disabled={pageIdx === 0 || pageLoading}>‹ Prev</button>
+        <button type="button" class="ln" on:click={() => goPage(pageIdx - 1)} disabled={pageIdx === 0 || pageLoading}>‹ Previous</button>
         <span class="pager-status">{pageLoading ? 'Loading…' : `Page ${pageIdx + 1} of ${pages.length}`}</span>
-        <button type="button" class="pager-btn" on:click={() => goPage(pageIdx + 1)} disabled={pageIdx >= pages.length - 1 || pageLoading}>Next ›</button>
+        <button type="button" class="ln" on:click={() => goPage(pageIdx + 1)} disabled={pageIdx >= pages.length - 1 || pageLoading}>Next ›</button>
       </nav>
     {/if}
   {/if}
 </main>
 
 <style>
-  .search-page {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 1.5rem 1rem 4rem;
-  }
+  .search-page { max-width: 80rem; }
+  .search-page :global(mark) { background: var(--hit); color: inherit; padding: 0 .08em; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
 
+  /* The boxes at the left, every control at the right (§8.1). */
   .search-form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    background: var(--col-bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 1.25rem 1.5rem 1rem;
-    margin-bottom: 1.5rem;
+    display: grid; grid-template-columns: minmax(18rem, 26rem) 1fr; gap: 1rem 3.5rem;
+    max-width: 80rem; align-items: start; margin: 2rem 0 .4rem;
   }
-
-  .query-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .query-label {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: .04em;
-    color: var(--text-mid);
-    width: 3.5rem;
-    flex-shrink: 0;
-  }
-
-  .query-input {
-    flex: 1;
-    font-family: var(--font-english);
-    font-size: 1rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.4rem 0.6rem;
-    background: var(--input-bg);
-    color: var(--text);
-    appearance: none;
-    -webkit-appearance: none;
-  }
-  .query-input:focus {
-    outline: 2px solid var(--accent-light);
-    outline-offset: 1px;
+  .boxes, .ctrls { min-width: 0; display: flex; flex-direction: column; gap: .55rem; }
+  .lab { font: 400 1.05rem var(--font-ui); color: var(--mid); margin-top: .4rem; }
+  .lab:first-child { margin-top: 0; }
+  .fld {
+    font: 400 1.8rem/1.25 var(--font-english); color: var(--ink);
+    background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0;
+    padding: 0 0 .15rem; width: 100%; appearance: none; -webkit-appearance: none;
   }
   .greek-input { font-family: var(--font-greek); }
+  .fld::placeholder { color: var(--mid); font-style: italic; font-size: 1.4rem; }
+  .fld:focus { outline: none; border-bottom-color: var(--clay-text); }
+  .act { display: flex; flex-wrap: wrap; gap: 1.4rem; align-items: baseline; margin: 1rem 0 0; font: 400 1rem var(--font-ui); }
+  .go { font: 500 1.1rem var(--font-ui); color: var(--clay-text); }
+  .ln { color: var(--mid); text-decoration: underline; text-underline-offset: 4px; font-family: var(--font-ui); }
 
-  .controls-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
+  .row { display: flex; flex-wrap: wrap; gap: .3rem 1rem; align-items: baseline; margin: 0; font: 400 1rem var(--font-ui); color: var(--ink); }
+  .row.gap { margin-top: .6rem; }
+  .mn { color: var(--mid); }
+  .row > .mn:first-child { min-width: 4.6rem; }
+  /* A picker: the word in ink, underlined in the clay, a clay ▾. */
+  /* Bounded by the row, so a long choice on a narrow phone ends in an
+     ellipsis rather than pushing the page sideways. */
+  .v { position: relative; display: inline-flex; align-items: baseline; white-space: nowrap; max-width: 100%; min-width: 0; }
+  .v select {
+    appearance: none; -webkit-appearance: none; border: 0; background: none; padding: 0; margin: 0;
+    font: inherit; color: var(--ink); cursor: pointer;
+    text-decoration: underline; text-decoration-color: var(--clay-text); text-underline-offset: 4px;
+    field-sizing: content; min-width: 0; max-width: 100%; text-overflow: ellipsis;
   }
+  .v select:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+  .v i { font-style: normal; font-size: .7em; color: var(--clay-text); margin-left: .2em; pointer-events: none; }
+  /* A check: ☐ word in mid, ☑ word in ink with the box in the clay. */
+  .ck { position: relative; color: var(--mid); white-space: nowrap; cursor: pointer; }
+  .ck input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  .ck::before { content: "☐ "; }
+  .ck:has(input:checked) { color: var(--ink); }
+  .ck:has(input:checked)::before { content: "☑ "; color: var(--clay-text); }
+  .ck:has(input:focus-visible) { outline: 2px solid var(--clay); outline-offset: 2px; }
+  .sum { color: var(--ink); }
+  .lsj .lem { font: 400 1.08rem var(--font-greek); color: var(--ink); }
+  .choose { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1rem; align-items: baseline; margin: .2rem 0 0 5.6rem; }
+  .choose .who { font: 400 1.05rem var(--font-english); color: var(--ink); margin: 0; }
+  .choose .plays { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; font: 400 .95rem var(--font-ui); }
+  .choose .plays:last-child { grid-column: 2; }
 
-  /* Per-language mode selectors sitting directly below each query box. */
-  .below-query {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-    margin: -0.3rem 0 0.1rem 4.25rem;  /* align under the input, past the label */
+  /* The count, then one group per play, each hit a line with its number. */
+  .count { display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; margin: 2.2rem 0 .2rem; font: 400 1.05rem var(--font-ui); color: var(--mid); }
+  .search-note, .search-error { font: 400 .95rem var(--font-ui); color: var(--mid); margin: 1rem 0 0; }
+  .search-error, .warn { color: var(--error); }
+  .pager { display: flex; gap: 1.2rem; align-items: baseline; margin: 1rem 0; font: 400 .95rem var(--font-ui); color: var(--mid); }
+  .grp { margin: 1.3rem 0 1.8rem; }
+  .grp h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem 1rem; margin: 0 0 .4rem; font-weight: 400; }
+  .grp .tt { font: 400 1.6rem/1.1 var(--font-english); color: var(--ink); }
+  .grp .who { font: 400 .95rem var(--font-ui); color: var(--mid); }
+  .grp .book { font: 400 .95rem var(--font-ui); color: var(--mid); margin: .4rem 0 0; }
+  .chap { display: flex; flex-wrap: wrap; gap: .2rem .8rem; padding: .6rem 0 .1rem; font: 400 .95rem var(--font-ui); color: var(--mid); }
+  .chap .group-label { color: var(--ink); }
+  .grp ul { list-style: none; margin: 0; padding: 0; }
+  .instance { display: grid; grid-template-columns: 4rem 1fr; gap: 1rem; padding: .3rem 0; font: 400 1.12rem/1.5 var(--font-english); max-width: 50rem; }
+  .instance .ref {
+    font: 400 .88rem var(--font-ui); color: var(--clay-text); text-align: right; padding-top: .4em;
+    text-decoration: none; font-variant-numeric: tabular-nums;
   }
+  .instance .ref:hover { text-decoration: underline; }
+  .snip.greek { font-family: var(--font-greek); }
+  .inst-credit { display: block; font: 400 .85rem var(--font-ui); color: var(--mid); }
 
-  /* --- Collapsible works selector --------------------------------------- */
-  .works-panel {
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    background: var(--input-bg);
-  }
-  .works-trigger {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.45rem 0.75rem;
-    text-align: left;
-    font-family: var(--font-ui);
-  }
-  .works-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: .04em;
-    color: var(--text-mid);
-  }
-  .works-summary { font-size: 0.85rem; color: var(--text); }
-  .works-caret {
-    margin-left: auto;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--accent);
-  }
-  .works-body {
-    padding: 0.25rem 0.75rem 0.75rem;
-    border-top: 1px solid var(--border);
-    max-height: 18rem;
-    overflow-y: auto;
-  }
-  .works-actions {
-    display: flex;
-    gap: 0.5rem;
-    padding: 0.5rem 0 0.25rem;
-  }
-  .works-action {
-    font-family: var(--font-ui);
-    font-size: 0.76rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.2rem 0.6rem;
-    cursor: pointer;
-  }
-  .works-action:disabled { opacity: 0.45; cursor: default; }
-  .works-auth { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
-  .auth-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-family: var(--font-ui);
-    font-size: 0.74rem;
-    font-weight: 600;
-    color: var(--text-mid);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.18rem 0.6rem;
-    cursor: pointer;
-  }
-  .auth-btn:hover:not(:disabled) { border-color: var(--accent-light); color: var(--accent); }
-  .auth-btn.on { color: var(--accent); border-color: var(--accent-light); background: color-mix(in srgb, var(--accent) 8%, transparent); }
-  .auth-btn:disabled { opacity: 0.4; cursor: default; }
-  .auth-count { font-size: 0.66rem; opacity: 0.6; font-variant-numeric: tabular-nums; }
-  .works-group { margin-top: 0.6rem; }
-  .works-group-head {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    margin-bottom: 0.3rem;
-  }
-  .works-group-name {
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--text-mid);
-  }
-  .works-group-scope { margin-left: auto; display: flex; gap: 0.3rem; }
-  .scope-btn {
-    font-family: var(--font-ui);
-    font-size: 0.7rem;
-    color: var(--text-light);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.05rem 0.4rem;
-    cursor: pointer;
-  }
-  .scope-btn:hover { border-color: var(--accent-light); color: var(--accent); }
-  .scope-btn.on { color: var(--accent); border-color: var(--accent-light); }
-  .works-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-  .work-chip {
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    color: var(--text-mid);
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.2rem 0.7rem;
-    cursor: pointer;
-    transition: background .12s ease, color .12s ease, border-color .12s ease, scale .12s ease;
-  }
-  .work-chip:hover { border-color: var(--accent-light); }
-  .work-chip.on {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--on-accent);
-  }
-
-  fieldset {
-    border: none;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  legend {
-    font-family: var(--font-ui);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: .04em;
-    color: var(--text-mid);
-    float: left;
-    margin-right: 0.5rem;
-    padding-top: 0.1rem;
-  }
-
-  fieldset label {
-    font-family: var(--font-ui);
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    cursor: pointer;
-    color: var(--text);
-  }
-
-  /* The Greek/English combine choice only applies when both boxes have text;
-     keep it visible (for discoverability) but dimmed until then. */
-  .op-group.inactive { opacity: 0.5; }
-
-  .search-btn {
-    margin-left: auto;
-    font-family: var(--font-ui);
-    font-size: 0.9rem;
-    font-weight: 600;
-    background: var(--accent);
-    color: var(--on-accent);
-    border: none;
-    border-radius: 4px;
-    padding: 0.45rem 1.25rem;
-    cursor: pointer;
-    letter-spacing: .02em;
-  }
-  .search-btn:hover:not(:disabled) { background: var(--accent-light); }
-  .search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .search-hint {
-    font-family: var(--font-ui);
-    font-size: 0.75rem;
-    color: var(--text-light);
-    margin-top: -0.25rem;
-    text-wrap: pretty;
-  }
-  .search-hint code,
-  .help-modal code {
-    background: var(--border);
-    border-radius: 2px;
-    padding: 0 0.25em;
-    font-size: 0.85em;
-  }
-
-  .help-btn {
-    flex-shrink: 0;
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    font-weight: 600;
-    background: transparent;
-    color: var(--accent);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.35rem 0.6rem;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .help-btn:hover { background: var(--col-bg); border-color: var(--accent-light); }
-
-  .link-btn {
-    font: inherit;
-    background: none;
-    border: none;
-    padding: 0;
-    color: var(--accent);
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  /* --- Help modal --- */
-  .help-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 2rem 1rem;
-    overflow-y: auto;
-    z-index: 50;
-    animation: backdrop-in 0.18s ease-out;
-  }
-  .help-modal {
-    background: var(--popup-bg);
-    border-radius: 8px;
-    max-width: 540px;
-    width: 100%;
-    padding: 1.25rem 1.5rem 1.75rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-    font-family: var(--font-ui);
-    color: var(--text);
-    /* Soft rise + fade as it opens, matching the reader's Help modal. */
-    animation: modal-in 0.2s cubic-bezier(0.2, 0, 0, 1);
-  }
-  @keyframes backdrop-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-  @keyframes modal-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .help-backdrop, .help-modal { animation: none; }
-  }
-  .help-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-  .help-head h2 {
-    font-size: 1.1rem;
-    margin: 0;
-    color: var(--text);
-  }
-  .help-close {
-    background: none;
-    border: none;
-    font-size: 1.6rem;
-    line-height: 1;
-    color: var(--text-light);
-    cursor: pointer;
-    padding: 0 0.25rem;
-  }
-  .help-close:hover { color: var(--text); }
-
-  .help-intro {
-    font-size: 0.85rem;
-    color: var(--text-mid);
-    line-height: 1.5;
-    margin: 0 0 0.9rem;
-    text-wrap: pretty;
-  }
-
-  .beta-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-    gap: 0.4rem;
-    margin-bottom: 1.1rem;
-  }
-  .beta-cell {
-    display: grid;
-    grid-template-columns: auto auto;
-    align-items: baseline;
-    column-gap: 0.4rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.3rem 0.45rem;
-  }
-  .beta-key {
-    font-family: var(--font-english);
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--accent);
-  }
-  .beta-grk {
-    font-family: var(--font-greek);
-    font-size: 1.05rem;
-    color: var(--text);
-  }
-  .beta-name {
-    grid-column: 1 / -1;
-    font-size: 0.68rem;
-    color: var(--text-light);
-    letter-spacing: .02em;
-  }
-
-  .help-modal h3 {
-    font-size: 0.9rem;
-    margin: 1rem 0 0.35rem;
-    color: var(--text);
-  }
-  .help-note {
-    font-weight: 400;
-    font-size: 0.72rem;
-    color: var(--text-light);
-  }
-  .help-sub {
-    font-size: 0.78rem;
-    color: var(--text-mid);
-    margin: 0 0 0.4rem;
-  }
-
-  .mark-list {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 0.3rem 0.75rem;
-    margin: 0;
-    padding: 0;
-  }
-  .mark-list li {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-  }
-  .mark-ex { font-family: var(--font-greek); color: var(--text); }
-
-  .example-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .example-list li {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-  }
-  .ex-arrow { color: var(--text-light); }
-  .ex-grk { font-family: var(--font-greek); font-size: 1rem; }
-
-  .help-foot {
-    font-size: 0.78rem;
-    color: var(--text-mid);
-    line-height: 1.5;
-    margin: 1rem 0 0;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--border);
-    text-wrap: pretty;
-  }
-
-  .search-error { color: var(--error); font-family: var(--font-ui); font-size: 0.9rem; }
-
-  .result-bar {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.75rem;
-  }
-  .result-count {
-    font-family: var(--font-ui);
-    font-size: 0.85rem;
-    color: var(--text-mid);
-    margin: 0;
-    font-variant-numeric: tabular-nums;
-  }
-  .export-btn {
-    margin-left: auto;
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.3rem 0.7rem;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .export-btn:hover:not(:disabled) { background: var(--col-bg); border-color: var(--accent-light); }
-  .export-btn:disabled { opacity: 0.6; cursor: default; }
-
-  .search-note {
-    font-family: var(--font-ui);
-    font-size: 0.8rem;
-    color: var(--text-mid);
-    margin: 0 0 0.75rem;
-  }
-  .search-note.warn { color: var(--error); display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
-  .retry-btn {
-    font-family: var(--font-ui);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.15rem 0.6rem;
-    cursor: pointer;
-  }
-  .retry-btn:hover:not(:disabled) { border-color: var(--accent-light); }
-  .retry-btn:disabled { opacity: 0.5; cursor: default; }
-
-  /* Result pagination */
-  .pager {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin: 0.5rem 0 1.25rem;
-  }
-  .pager-bottom { margin: 1.5rem 0 0.5rem; }
-  .pager-btn {
-    font-family: var(--font-ui);
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.3rem 0.9rem;
-    cursor: pointer;
-  }
-  .pager-btn:hover:not(:disabled) { background: var(--col-bg); border-color: var(--accent-light); }
-  .pager-btn:disabled { opacity: 0.4; cursor: default; }
-  .pager-status {
-    font-family: var(--font-ui);
-    font-size: 0.82rem;
-    color: var(--text-mid);
-    min-width: 8rem;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* ── Grouped results: Work → Book → Chapter ──────────────────────── */
-
-  .book-section { margin-bottom: 1.5rem; }
-
-  .book-header {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 0.35rem;
-    margin: 0 0 0.6rem;
-  }
-  .work-name {
-    font-family: var(--font-ui);
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text);
-  }
-  .book-name {
-    font-family: var(--font-ui);
-    font-size: 0.85rem;
-    color: var(--text-mid);
-  }
-
-  .chapter-group {
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    margin-bottom: 0.5rem;
-    background: var(--col-bg);
-    overflow: hidden;
-  }
-  .group-head {
-    width: 100%;
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.55rem 0.85rem;
-    text-align: left;
-    font-family: var(--font-ui);
-  }
-  .group-head:hover { background: var(--border); }
-  .caret { color: var(--text-light); font-size: 0.75rem; width: 0.8rem; flex-shrink: 0; }
-  .group-label { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
-  .group-bekker { font-size: 0.8rem; color: var(--text-light); font-variant-numeric: tabular-nums; }
-  .group-count { margin-left: auto; font-size: 0.78rem; color: var(--text-mid); }
-
-  .instance-list {
-    list-style: none;
-    margin: 0;
-    padding: 0 0.85rem 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .instance {
-    display: flex;
-    gap: 0.6rem;
-    align-items: baseline;
-    border-top: 1px solid var(--border);
-    padding-top: 0.5rem;
-  }
-  .inst-ref {
-    flex-shrink: 0;
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--accent);
-    text-decoration: none;
-    min-width: 4.5rem;
-    /* Bekker citations (1097a15) line up as a clean left column of refs. */
-    font-variant-numeric: tabular-nums;
-  }
-  .inst-ref:hover { text-decoration: underline; }
-  .inst-snippet {
-    font-family: var(--font-english);
-    font-size: 0.88rem;
-    line-height: 1.5;
-    color: var(--text-mid);
-  }
-  .inst-snippet.greek {
-    font-family: var(--font-greek);
-    font-size: 0.95rem;
-    color: var(--text);
-  }
-  .inst-credit {
-    flex-shrink: 0;
-    font-family: var(--font-ui);
-    font-size: 0.72rem;
-    font-style: italic;
-    color: var(--text-mid);
-  }
-
-  :global(mark) {
-    background: var(--mark-bg);
-    border-radius: 2px;
-    padding: 0 0.1em;
-    color: inherit;
-  }
-
-  @media (max-width: 500px) {
-    .search-form { padding: 1rem; }
-    .query-row { flex-direction: column; align-items: stretch; }
-    .query-label { width: auto; }
-    .below-query { margin-left: 0; gap: 0.75rem; }
-    .controls-row { gap: 0.5rem; }
-    .search-btn { margin-left: 0; width: 100%; margin-top: 0.25rem; }
+  /* Phone: one column, the boxes, the controls, then Search (§8.1). */
+  @media (max-width: 700px) {
+    .search-form { display: flex; flex-direction: column; gap: .55rem; margin-top: 1.2rem; }
+    .boxes { display: contents; }
+    .ctrls { order: 2; margin-top: .6rem; }
+    .act { order: 3; }
+    .fld { font-size: 1.4rem; }
+    .row { font-size: .95rem; gap: .25rem .8rem; }
+    .choose { grid-template-columns: 1fr; margin-left: 0; }
+    .choose .plays:last-child { grid-column: 1; }
+    .grp h2 .tt { font-size: 1.35rem; }
+    .instance { grid-template-columns: 3rem 1fr; gap: .6rem; font-size: 1.05rem; }
   }
 </style>

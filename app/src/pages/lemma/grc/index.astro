@@ -7,7 +7,8 @@
 // sit alongside it; there is deliberately no page at the bare /lemma/ root.
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../../components/ThemeInit.astro';
-import ThemeToggle from '../../../components/ThemeToggle.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFoot from '../../../components/SiteFoot.astro';
 import Pwa from '../../../components/Pwa.astro';
 import { jsonLdSafe } from '../../../lib/jsonld';
 import { SITE_NAME } from '../../../lib/site';
@@ -94,24 +95,13 @@ const jsonLd = {
     .lxi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr)); gap: 0.4rem; list-style: none; padding: 0; margin: 0; }
     .lxi-grid a { display: flex; justify-content: space-between; gap: 0.6rem; align-items: baseline; text-decoration: none; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.7rem; }
     .lxi-grid a:hover { border-color: var(--accent); }
-    .lxi-gk { font-family: var(--font-greek); font-size: 1.05rem; }
+    .lxi-gk { font-family: var(--font-greek); font-size: 1.05rem; min-width: 0; overflow-wrap: anywhere; }
     .lxi-n { font-variant-numeric: tabular-nums; font-size: 0.78rem; color: var(--text-mid); }
   </style>
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>{siteName}</a>
-      <span class="title-sep">›</span>
-      <span class="header-static">Greek Lexicon</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <div class="wrap"><SiteHeader /></div>
   <main class="lxi-body">
     <h1 class="lxi-h1">Greek Lexicon</h1>
     <p class="lxi-lede">
@@ -182,5 +172,6 @@ const jsonLd = {
       input.addEventListener('input', apply);
     }
   </script>
+  <div class="wrap"><SiteFoot /></div>
 </body>
 </html>
