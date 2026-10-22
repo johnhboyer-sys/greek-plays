@@ -19,6 +19,8 @@ lines traced at the plate's own weight (1.2 scan px); on the dark theme the figu
 areas (the Fury, the hair, the stripes) solid, with a clay rim round them on the dark theme (RIM, widened by John);
 "crisp, detailed" (John): the faces and the omphalos net at their printed width. Approved by John on the third pass,
 2026-10-12, after one round of his PhotoCraft marks and a missed tassel he flagged.
+The body redone for the clay of the light theme from his second round of marks (eumenides_marks_2.png), approved by
+John 2026-10-22.
 
 Writes eumenides.svg (the play) and aeschylus-pythia.svg (the Pythia alone, cut from the same drawing for the
 Aeschylus home page; John, 2026-10-12: replace the old cut, tools/pythia.py, retired).
