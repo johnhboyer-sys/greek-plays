@@ -1041,3 +1041,4 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `pipeline/drama_pipeline/parse_filter.py` — 2026-10-22: keeps stage4's name readings (marked `capitalKey`, Ζεῦ beside ζέω) although they carry no gloss; Morpheus's own unglossed name rows are filtered as before (Grok review).
 - `pipeline/drama_pipeline/stage7_emit.py` — 2026-10-22: carries the `capitalKey` mark into the filter and drops it before emitting.
 - `pipeline/drama_pipeline/beta.py` — 2026-10-22: `starts_capitalised` reads the first cased letter past brackets and sigla, titlecase included (⟨Ζεῦ⟩, ᾍδης); stage4 uses it for its capital variants (Grok review).
+- `app/src/components/ClassicHome.astro` — 2026-10-22: the frieze names scale to their columns (container units); between 701 and 1000px "Aristophanes" ran past its column and the home page scrolled sideways.

@@ -132,7 +132,7 @@ const structuredData = Astro.site
             {/* The figure opens the author's page too (John, 2026-10-21); the
                 name below is the link for keyboards and screen readers. */}
             <a class="fl" href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true"><Figure slug={author.id} /></a>
-            <div class="nm">
+            <div class="nm" style={`--chars:${author.name.length};--gchars:${[...(author.nativeName ?? '')].length}`}>
               <span class="gk" lang="grc">{author.nativeName}</span>
               <a class="en" href={`${base}${authorPath(author.id)}`}>{author.name}</a>
               <span class="ct">{works.length} play{works.length === 1 ? '' : 's'}</span>
@@ -166,9 +166,12 @@ const structuredData = Astro.site
     }
     .col { min-width: 0; }
     .fl { display: block; color: inherit; }
-    .nm { text-align: center; padding: 1.1rem .4rem 0; }
-    .gk { display: block; font: 400 1.5rem/1.1 var(--font-greek); color: var(--clay-deep); }
-    .en { display: block; font: 400 2.8rem/1.05 var(--font-english); color: var(--ink); text-decoration: none; }
+    /* The names scale to their column, so a long one never runs past it
+       between phone and wide desktop (John's click-around, 2026-10-22:
+       "Aristophanes" needed 243px of a 141px column at 701px). */
+    .nm { text-align: center; padding: 1.1rem .4rem 0; container-type: inline-size; }
+    .gk { display: block; font-family: var(--font-greek); font-weight: 400; line-height: 1.1; font-size: min(1.5rem, calc(100cqi / (var(--gchars, 9) * .56))); color: var(--clay-deep); }
+    .en { display: block; font-family: var(--font-english); font-weight: 400; line-height: 1.05; font-size: min(2.8rem, calc(100cqi / (var(--chars, 9) * .5))); color: var(--ink); text-decoration: none; }
     .en:hover { text-decoration: underline; text-underline-offset: .12em; }
     .ct { display: block; font: 400 1rem var(--font-ui); color: var(--mid); margin-top: .3rem; }
 
@@ -194,8 +197,8 @@ const structuredData = Astro.site
         --fig-h: min(170px, calc((100vw - 3rem) / var(--pairmax, 2)));
       }
       /* Under 24px the Greek takes the darker clay (AA for small text). */
-      .gk { font-size: 1.15rem; color: var(--clay-text); }
-      .en { font-size: 1.7rem; }
+      .gk { font-size: min(1.15rem, calc(100cqi / (var(--gchars, 9) * .56))); color: var(--clay-text); }
+      .en { font-size: min(1.7rem, calc(100cqi / (var(--chars, 9) * .5))); }
       .runs { grid-template-columns: 1fr; gap: .8rem; }
       .run { text-align: left; padding: 0; font-size: 1rem; max-width: none; margin: 0; }
       .run b {
