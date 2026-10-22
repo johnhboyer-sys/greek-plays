@@ -494,6 +494,42 @@ def tokenize(
     )
 
 
+# Punctuation that ends a sentence (or a clause an edition may restart with
+# a capital): after one of these a capital proves nothing about a name.
+_SENTENCE_END = frozenset(".;·\u0387\u037e!?:—")
+
+
+def _starts_capitalised(token: str) -> bool:
+    letters = [ch for ch in token if ch.isalpha()]
+    return bool(letters) and letters[0].isupper() and not (
+        len(letters) > 1 and all(ch.isupper() for ch in letters)
+    )
+
+
+def mid_sentence_capital_keys(spine: dict, tokens_doc: dict) -> set[str]:
+    """Keys printed capitalised where no sentence starts: after a word or a
+    comma, not after `_SENTENCE_END` or at the opening of the text. These
+    editions capitalise names, and also some sentence and speech openings;
+    only a mid-sentence capital shows the word is a name (stage4 then adds
+    the capital key's readings). All-capitals tokens are headings."""
+    keys: set[str] = set()
+    prev = ""  # last mark before the current token, across lines
+    for seg, seg_tok in zip(spine["segments"], tokens_doc["segments"]):
+        for line, line_tok in zip(seg["lines"], seg_tok["lines"]):
+            text, pos = line["text"], 0
+            for tok in line_tok["tokens"]:
+                for ch in text[pos:tok["o"]]:
+                    if ch.isalpha() or ch in _SENTENCE_END or ch == ",":
+                        prev = ch
+                if "k" in tok and _starts_capitalised(tok["t"]) and prev and prev not in _SENTENCE_END:
+                    keys.add(tok["k"])
+                pos = tok["o"]
+            for ch in text[pos:]:
+                if ch.isalpha() or ch in _SENTENCE_END or ch == ",":
+                    prev = ch
+    return keys
+
+
 # stage1 spine producer per work.language, keyed by the filename the
 # producer writes under build/stage1/. drama_pipeline supports 'grc' only
 # (stage1_greek.py) — Latin/PHI support (stage1_latin.py) was removed in the
@@ -532,5 +568,9 @@ def run(manifest: Manifest) -> Path:
     )
     (out_dir / "key_failures.json").write_text(
         json.dumps(key_failures, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    (out_dir / "mid_caps.json").write_text(
+        json.dumps(sorted(mid_sentence_capital_keys(spine, tokens)), ensure_ascii=False),
+        encoding="utf-8",
     )
     return out

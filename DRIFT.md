@@ -961,3 +961,9 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 
 - `shared/components/Reader.svelte` — 2026-10-20: `hasEnglish` also counts any non-primary translation's pieces (`secondaries` through `piecesFor`). Way's own Greek (`ed/way-loeb`) carries Way under `ross` with `english` null, so choosing Way's Medea with editions on dropped the reader to the Greek view.
 - `shared/__tests__/reader-secondary-only.test.ts` — 2026-10-20: new; a book whose English sits only in the secondary slot keeps Both and all three view buttons.
+
+## Names under the wrong word (2026-10-22)
+
+- `pipeline/drama_pipeline/stage3_tokenize.py` — 2026-10-22: `mid_sentence_capital_keys` writes `stage3/mid_caps.json`, the keys printed capitalised mid-sentence (not after `. ; · : ! ? —` or at the opening).
+- `pipeline/drama_pipeline/stage4_morphology.py` — 2026-10-22: for those keys, when the ordinary lookup lands on a common word, the capital key's readings ship too (Ζεῦ under ζέω, Δί' under δίω, Ἀπόλλων under ἀπό-λάω); a key the work never prints lowercase ships the name readings only. John, 2026-10-22: "fix the wrong lemmas".
+- `shared/components/WordPopup.svelte` — 2026-10-22: analyses pass through `orderBySurface` (new `shared/lib/name-order.ts`): a capitalised token shows name readings first; a lowercase one hides them when it has a common reading.
