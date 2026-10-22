@@ -9,10 +9,13 @@
   import { playSigla } from '../lib/speakers';
   import { lastPrintedRef } from '../lib/citation';
   import { loadEdition, changeEdition, ownEdition, type EditionState, type ReaderView } from '../lib/edition-state';
+  import { takeBook } from '../lib/book-payload';
 
   export let work: string;
   export let bookNum: number;
-  export let bookData: BookData;
+  export let bookData: BookData | null = null;
+  // The page's book by id, in place of bookData (shared/lib/book-payload.ts).
+  export let bookId: string | null = null;
   export let serverEdition: string;
   export let chapterTitles: Record<string, string> = {};
   export let speakerRoster: string[] = [];
@@ -22,7 +25,7 @@
   const meta = getWork(work)!;
   const defaultTrans = meta.defaultTranslation ?? meta.translations.find(t => t.slot === 'english')?.id ?? meta.translations[0]?.id ?? '';
   let state: EditionState = { ed: serverEdition, trans: defaultTrans, view: 'both' };
-  let shownBook = bookData;
+  let shownBook = (bookData ?? (bookId ? takeBook(bookId) : null)) as BookData;
   let anchor: string | null = null;
   let pending = false;
   let generation = 0;

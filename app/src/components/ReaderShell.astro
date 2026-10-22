@@ -21,6 +21,7 @@ import SpeakerBar from './SpeakerBar.astro';
 import '../styles/reader-drama.css';
 import { getWork, bookLabel, isBookless, workPath, workLanding, languageLabel, visibleTranslations, type Work } from '@shared/lib/works';
 import { getAuthor } from '@shared/lib/authors';
+import { putBook } from '@shared/lib/book-payload';
 import { schemeFor, navChipsNeedFullSectionList, dottedSectionChapter, unitNounFor, pageEntriesFor, nounForCount } from '@shared/lib/citation';
 import { citeDescriptorFor, tocGroupNoun, tocGroupShowsCount, verseLineBookLineCount } from '../lib/citation-copy';
 import { speakerRoster } from '../lib/speaker-roster';
@@ -204,6 +205,10 @@ const defaultEdition = editionsOn ? (work.translations.find(t => t.id === defaul
 const bookData = JSON.parse(
   readFileSync(`public/data/${workId}/${defaultEdition === 'tlg' ? '' : `ed/${defaultEdition}/`}book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
 );
+// The island takes the book by id, not as a prop (shared/lib/book-payload.ts):
+// the page carries it once, as JSON, before the island.
+const bookId = `book-${workId}-${n}-${defaultEdition}`;
+putBook(bookId, bookData);
 
 // Whole-work speaker-display roster (memoized), so speaker-name colours are
 // stable across books and match the landing cast list (see speaker-roster.ts).
@@ -874,9 +879,10 @@ const intro =
     } catch {}
   </script>}
   {editionsOn && <style is:global>html[data-ed-pending] #edition-reader { visibility: hidden; } html[data-ed-pending] #edition-reader::before { content: '◌'; visibility: visible; display: block; text-align: center; padding: 3rem; }</style>}
+  <script type="application/json" id={bookId} set:html={jsonLdSafe(bookData)} />
   {editionsOn
-    ? <div id="edition-reader"><ReaderHost work={workId} bookNum={n} bookData={bookData} serverEdition={defaultEdition} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} authorName={authorName} plate={false} client:load /></div>
-    : <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />}
+    ? <div id="edition-reader"><ReaderHost work={workId} bookNum={n} bookId={bookId} serverEdition={defaultEdition} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} authorName={authorName} plate={false} client:load /></div>
+    : <Reader work={workId} bookNum={n} bookId={bookId} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />}
   <CommandPalette work={workId} client:load />
 </body>
 </html>

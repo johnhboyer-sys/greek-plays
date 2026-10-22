@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -77,4 +77,28 @@ test('checks every route independently across a mixed batch', () => {
   const broken = checkReadingRoutes(routes, pageDirs);
   assert.equal(broken.length, 1);
   assert.equal(broken[0].readingRoute, '/plato/republic/book/1');
+});
+
+// A play's reader page draws only its first screens into the HTML; the rest
+// of the play rides in the page as the book's JSON (shared/lib/book-payload.ts),
+// so a ?loc= target is found among the ids the reader draws from it.
+test('CLI: a ?loc= target in the reader page\'s book payload counts as found', () => {
+  const dist = mkdtempSync(path.join(tmpdir(), 'check-links-'));
+  try {
+    const reader = path.join(dist, 'read', 'euripides', 'medea');
+    mkdirSync(reader, { recursive: true });
+    const book = { book: 1, segments: [
+      { id: 's1', column: '1', greek: [{ n: 1, ref: '1' }] },
+      { id: 's2', column: '50', greek: [{ n: 50, ref: '50' }, { n: 51, ref: '51' }] },
+    ] };
+    writeFileSync(path.join(reader, 'index.html'), `<!doctype html><title>Medea</title><script type="application/json" id="book-medea-1-tlg">${JSON.stringify(book)}</script><div id="col-1"><span id="L1-1"></span></div>`);
+    writeFileSync(path.join(dist, 'index.html'), '<!doctype html><title>Home</title><a href="/read/euripides/medea?loc=51">51</a><a href="/read/euripides/medea?loc=99">99</a>');
+    const run = spawnSync(process.execPath, [CHECK_LINKS, dist, '--allow-no-partner-manifests'], { encoding: 'utf8' });
+    assert.equal(run.status, 1, run.stdout + run.stderr);
+    assert.match(run.stdout, /broken: 1/);
+    assert.match(run.stdout, /loc=99/);
+    assert.doesNotMatch(run.stdout, /loc=51 /);
+  } finally {
+    rmSync(dist, { recursive: true, force: true });
+  }
 });

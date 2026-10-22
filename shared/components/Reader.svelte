@@ -69,7 +69,7 @@
 </script>
 
 <script lang="ts">
-  import { onMount, onDestroy, afterUpdate, tick, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy, afterUpdate, tick, flushSync, createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
   import { fetchBook, parseLocation, fetchSidenotes, fetchFigures, fetchParatext, type Segment, type GreekLine, type Token, type BookData, type OverlayPiece, type EnglishTurn, type Paratext, type ExpandedCitationEntry, type TranslationCredit, type ContextEnglishSpan, type Witness } from '../lib/data';
   import { schemeFor, formatCite, lastPrintedRef, unitNounFor } from '../lib/citation';
@@ -84,6 +84,7 @@
   import { getAuthor } from '../lib/authors';
   import { touchRecent } from '../lib/resume';
   import { editionPicker } from '../lib/edition-picker';
+  import { takeBook } from '../lib/book-payload';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
 
@@ -106,6 +107,9 @@
   export let initialLocation: string | null = null;
   export let initialTranslation: string | null = null;
   export let initialView: 'both' | 'english' | 'greek' | null = null;
+  // The page's book by id, in place of bookData (shared/lib/book-payload.ts).
+  export let bookId: string | null = null;
+  if (!bookData && bookId) bookData = takeBook(bookId);
   const dispatch = createEventDispatcher<{ editionChange: { trans: string; view: 'both' | 'english' | 'greek'; loc: string | null; ed?: string } }>();
   const workMeta = getWork(work);
   // `workMeta.author` is an author-registry slug, not a display name — see
@@ -664,7 +668,7 @@
     // A play keeps its place: the line at the top comes back to the same
     // height in the new view (or the English cell that holds it). The scroll
     // offset alone does not: a phone's Both view is far taller than its English.
-    const place = playLine && old !== v ? placeAtTop() : null;
+    const place = playLine && old !== v ? (linkedPlace() ?? placeAtTop()) : null;
     view = v;
     if (edition && old !== v) dispatch('editionChange', { trans, view: v, loc: lastCite });
     try { localStorage.setItem('reader-view', v); } catch {}
@@ -675,6 +679,22 @@
     if (place) await new Promise((r) => setTimeout(r, 0));
     if (place) returnTo(place);
     if (spyArmed) setupScrollSpy();
+  }
+
+  // Opened at a line (?loc=, a #line) and that line still on screen: it is the
+  // place, not the line at the top, which can stand a screen above it (a
+  // centred English cell in English-only view).
+  function linkedPlace(): ReturnType<typeof placeAtTop> {
+    if (spyArmed || !targetId) return null;
+    const g = document.getElementById(targetId);
+    const shown = g ? shownFor(g) : null;
+    if (!g || !shown) return null;
+    const box = boxOf(shown);
+    if (box.bottom <= headBottom() || box.top >= window.innerHeight) return null;
+    if (shown !== g) return { el: g, key: g.id, keyFrac: null, trans: null, line: true, at: box.top, frac: 0 };
+    const top = g.getBoundingClientRect().top;
+    const col = (g.closest('.greek-col') as HTMLElement | null)?.getBoundingClientRect();
+    return { el: g, key: g.id, keyFrac: null, trans: null, line: true, at: top, frac: col?.height ? (top - col.top) / col.height : 0 };
   }
 
   // Bring a place (placeAtTop) back to its height after the rows changed.
@@ -825,6 +845,7 @@
   // on-screen view as-is, so Both / Greek / English all work via existing CSS.
   function printReader() {
     if (typeof window === 'undefined') return;
+    renderThrough();
     window.print();
   }
 
@@ -832,6 +853,7 @@
   // that don't belong to the selected chapter, then restoring after print.
   function printSingleChapter(ch: string) {
     if (typeof window === 'undefined') return;
+    renderThrough();
     const toRestore: { el: HTMLElement; was: string }[] = [];
     const hide = (el: HTMLElement) => {
       toRestore.push({ el, was: el.style.display });
@@ -1381,6 +1403,7 @@
   function scrollToPlayLineRef(ref: string) {
     const line = resolvePlayLineRef(ref);
     if (!line) return;
+    renderThrough(line);
     suppressArmUntil = Date.now() + 800;
     const el = document.getElementById(playLineDomId(line.ref ?? ref, line.n));
     if (el) shownFor(el)?.scrollIntoView({ behavior: 'auto', block: 'center' });
@@ -1513,24 +1536,32 @@
     const at = reducedMotion() ? SETTLE_MS.slice(0, 1) : SETTLE_MS;
     const timers: ReturnType<typeof setTimeout>[] = [];
     let done = false;
+    let movedAt = 0;
+    const moved = () => { movedAt = performance.now(); };
     const stop = () => {
       done = true;
       for (const t of timers) clearTimeout(t);
       timers.length = 0;
       for (const ev of SETTLE_ABORT) window.removeEventListener(ev, stop);
+      window.removeEventListener('scroll', moved);
       settleAbort = null;
     };
     settleAbort?.();
     settleAbort = stop;
     for (const ev of SETTLE_ABORT) window.addEventListener(ev, stop, { passive: true });
+    window.addEventListener('scroll', moved, { passive: true });
     // The scroll-spy stays suppressed through the LAST check, not just the
     // 1500ms after the opening scroll: a correction fired at 2500ms would
     // otherwise rewrite the URL from a line it was still passing.
     suppressArmUntil = Math.max(suppressArmUntil, Date.now() + at[at.length - 1] + 1500);
     let left = at.length;
     const check = () => {
-      left -= 1;
       if (done) return;
+      // The opening smooth scroll still under way: an instant scroll does not
+      // stop it, and it carries the page on past the line (Chrome; Orestes
+      // 1347, English-only, phone). Look again once the page rests.
+      if (performance.now() - movedAt < 150) { timers.push(setTimeout(check, 150)); return; }
+      left -= 1;
       if (!el.isConnected) return stop();
       const r = el.getBoundingClientRect();
       // `scroll-margin-top` already clears the sticky header and controls, so
@@ -1601,6 +1632,8 @@
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
       window.removeEventListener('reader:set', onReaderSet);
+      window.removeEventListener('beforeprint', onBeforePrint);
+      clearTimeout(growTimer);
       document.removeEventListener('mouseup', checkCopyBtn);
       document.removeEventListener('selectionchange', onSelectionChange);
       if (copyBtnFrame) cancelAnimationFrame(copyBtnFrame);
@@ -2020,6 +2053,7 @@
   }
   function scrollToSegment(segId: string): void {
     const seg = orderedSegments.find((s) => s.id === segId);
+    renderThrough(seg?.greek[0] as RLine | undefined ?? null);
     const col = segId.includes(':') ? segId.slice(segId.indexOf(':') + 1) : segId;
     const el = document.getElementById(seg ? segmentAnchorId(seg) : `col-${col}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3487,6 +3521,57 @@
   // more lines read as interleaving on a phone (John, 2026-09-09).
   let phoneLayout = false;
 
+  // A play renders its first screens up front and the rest after mount, a
+  // slice per task, so a phone shows its text without waiting for the whole
+  // play to be built and scrolling stays free meanwhile. The server renders
+  // the same first slice, so hydration matches. Whatever needs a later line
+  // (a deep link, a jump, print) renders through it first (renderThrough).
+  const FIRST_LINES = 60;
+  function countThrough(from: number): number {
+    let lines = 0;
+    for (let i = from; i < segments.length; i++) {
+      lines += segments[i]!.greek.length;
+      if (lines >= FIRST_LINES) return i + 1;
+    }
+    return segments.length;
+  }
+  let renderCount = playLine && !loading ? countThrough(0) : Infinity;
+  // Indices, not the segments: in this (legacy-mode) component an object
+  // item counts as changed on every update, so a list of segments would
+  // rebuild every one already drawn each time a slice is added.
+  $: shownIdx = Array.from({ length: Math.min(renderCount, enrichedSegments.length) }, (_, i) => i);
+  let growTimer: ReturnType<typeof setTimeout> | undefined;
+  // Sized to about 30ms a slice on the device at hand.
+  let growStep = 4;
+  function grow() {
+    growTimer = undefined;
+    if (destroyed) return;
+    const t0 = performance.now();
+    flushSync(() => { renderCount = Math.min(enrichedSegments.length, renderCount + growStep); });
+    growStep = Math.max(1, Math.min(40, Math.round(growStep * 30 / Math.max(performance.now() - t0, 1))));
+    if (renderCount < enrichedSegments.length) growTimer = setTimeout(grow, 0);
+    else rendered();
+  }
+  // Every segment through the one holding `line` and a screenful past it, so
+  // the line can come to the middle of the screen; the whole play when the
+  // line is unknown.
+  function renderThrough(line: RLine | null = null) {
+    if (renderCount >= enrichedSegments.length) return;
+    const i = line ? orderedSegments.findIndex((s) => (s.greek as RLine[]).includes(line)) : -1;
+    const want = i < 0 ? enrichedSegments.length : countThrough(i);
+    if (want > renderCount) flushSync(() => { renderCount = want; });
+    if (renderCount >= enrichedSegments.length) rendered();
+  }
+  function rendered() {
+    clearTimeout(growTimer);
+    growTimer = undefined;
+    renderCount = Infinity;
+    // The scroll spy and its caches saw only the first segments.
+    if (spyArmed) setupScrollSpy();
+    else { chapterLabelEls = null; segRefEls = null; navEntries = null; }
+  }
+  const onBeforePrint = () => renderThrough();
+
   onMount(async () => {
     reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     phoneMq = window.matchMedia('(max-width: 680px)');
@@ -3519,6 +3604,7 @@
     window.addEventListener('toggle-settings', _onToggleSettings);
     window.addEventListener('close-settings',  _onCloseSettings);
     window.addEventListener('reader:set', onReaderSet);
+    window.addEventListener('beforeprint', onBeforePrint);
     const params = new URLSearchParams(window.location.search);
     hlGrkFolds = (params.get('hlg') ?? '').trim().split(/\s+/).filter(Boolean)
       .map(t => greekFold(t.replace(/\*/g, ''))).filter(Boolean);
@@ -3607,8 +3693,10 @@
         // (e.g. 9999) leaves targetId empty, so nothing scrolls.
         if (playLine && locCol && !targetId) {
           const line = resolvePlayLineRef(locCol);
-          if (line) targetId = playLineDomId(line.ref ?? locCol, line.n);
+          if (line) { renderThrough(line); targetId = playLineDomId(line.ref ?? locCol, line.n); }
         }
+        // A search's highlights may be anywhere in the play.
+        if (hlGrkFolds.length) renderThrough();
         if (targetId) {
           let el = document.getElementById(targetId);
           // Snap to the nearest existing line in the column if the exact
@@ -3669,6 +3757,7 @@
             // Instant, like scrollToCitation: a smooth animation started during
             // hydration gets canceled by layout churn and strands the reader at
             // the top.
+            if (!document.getElementById(hash) && !document.getElementById(`col-${hash}`)) renderThrough();
             let el = document.getElementById(hash) ?? document.getElementById(`col-${hash}`);
             // A hidden target (the turn flow's Greek gutter tick in
             // English-only view) falls back to the row-level English tick.
@@ -3702,6 +3791,7 @@
         document.addEventListener('mouseup', checkCopyBtn);
         document.addEventListener('selectionchange', onSelectionChange);
         updateChapterContext();
+        if (renderCount < enrichedSegments.length) growTimer = setTimeout(grow, 0);
       }, 0);
     }
   });
@@ -4898,7 +4988,7 @@
            segment blocks; Stephanus tokens float as gutter ticks. -->
       {@render flowRowsView(flowRows)}
     {:else}
-    {#each enrichedSegments as {seg, blocks}, si (seg.id)}
+    {#each shownIdx as si}{@const {seg, blocks} = enrichedSegments[si]!}
       {@const leadChapter = blocks[0]?.chapter ? blocks[0] : null}
       {@const citationByBlock = expandedCitationByBlock(seg, blocks)}
       <!-- Freeman Ancilla group-header paratext (design note §1/§3.7): a

@@ -157,6 +157,22 @@ async function main() {
     for (const match of html.matchAll(/\bid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gi)) {
       ids.add(decodeEntities(match[1] ?? match[2] ?? match[3]));
     }
+    // A play's reader page draws only its first screens into the HTML; the
+    // rest is drawn from the book's JSON in the page (shared/lib/book-payload.ts),
+    // so the ids the reader gives it count too: `col-{column}` (`--{k}` for a
+    // column's later segments) and `L{ref}-{n}` (Reader.svelte segmentAnchorId,
+    // playLineDomId).
+    for (const match of html.matchAll(/<script type="application\/json" id="book-[^"]*">([\s\S]*?)<\/script>/g)) {
+      let book;
+      try { book = JSON.parse(match[1]); } catch { continue; }
+      const seen = new Map();
+      for (const seg of book.segments ?? []) {
+        const k = (seen.get(seg.column) ?? 0) + 1;
+        seen.set(seg.column, k);
+        ids.add(k <= 1 ? `col-${seg.column}` : `col-${seg.column}--${k}`);
+        for (const line of seg.greek ?? []) if (line.ref != null) ids.add(`L${String(line.ref).replace(/ /g, '_')}-${line.n}`);
+      }
+    }
     idCache.set(file, ids);
     if (idCache.size > MAX_ID_CACHE) idCache.delete(idCache.keys().next().value);
     return ids;
