@@ -1030,3 +1030,4 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `shared/__tests__/registry-golden.test.ts` — 2026-10-22: hash regenerated for Oedipus Tyrannus' new argument.
 - `app/src/styles/reader-drama.css` — 2026-10-22: on a phone in Both view, English followed by Greek within one speech gets the same .45rem as Greek followed by English (it had none).
 - `app/src/components/SpeakerBar.astro` — 2026-10-22: where the bar tracks the Greek sigla (phone, Both view), it shows the speech's English name, matched by speaker slot ("why did it switch to greek names?").
+- `app/src/pages/[author]/index.astro` — 2026-10-22: the name's column keeps 20rem and the name scales to it (container units); the figure's column gives way and its drawing shrinks (the name ran into Aeschylus' figure at one width; Aristophanes' name had 89px between 701 and 900px).

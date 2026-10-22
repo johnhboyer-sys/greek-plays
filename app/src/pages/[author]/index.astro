@@ -176,16 +176,21 @@ const breadcrumbLd = Astro.site
     /* The hero: a grid whose blurb is its own cell, so a phone can set it
        under the figure (John, 2026-10-20). */
     .hero {
-      display: grid; grid-template-columns: 1fr max(24rem, calc(360px * var(--r)));
+      /* The name's column keeps 20rem; the figure's column gives way and its
+         drawing shrinks with it (John, 2026-10-22: the name ran into the
+         figure, and Aristophanes' krater left the name 89px). */
+      display: grid; grid-template-columns: minmax(20rem, 1fr) minmax(0, max(24rem, calc(360px * var(--r))));
       grid-template-rows: 1fr auto;
       grid-template-areas: "hx lead" "ab lead";
       gap: 0 3rem; align-items: end; margin-top: 2.2rem;
     }
     .hero p { margin: 0; }
-    .lead { grid-area: lead; --fig-h: 360px; --fig-lift: .5rem; }
-    .hx { grid-area: hx; min-width: 0; }
+    .lead { grid-area: lead; --fig-h: min(360px, calc((100vw - 6rem - 20rem - 3rem) / var(--r))); --fig-lift: .5rem; min-width: 0; }
+    /* The name scales to its column, so a long name never runs into the
+       figure at a middle width (John, 2026-10-22, Aeschylus). */
+    .hx { grid-area: hx; min-width: 0; container-type: inline-size; }
     .gk { font: 400 2.2rem/1.1 var(--font-greek); color: var(--clay-deep); }
-    .en { font: 400 5rem/1 var(--font-english); margin: .05rem 0 .5rem; }
+    .en { font-family: var(--font-english); font-weight: 400; line-height: 1; font-size: min(5rem, calc(100cqi / (var(--chars, 9) * .5))); margin: .05rem 0 .5rem; }
     .meta { font: 400 1.1rem var(--font-ui); color: var(--mid); }
     .hero .ab { grid-area: ab; font: 400 1.35rem/1.45 var(--font-english); max-width: 30em; margin-top: .7rem; padding-bottom: 1rem; }
 
