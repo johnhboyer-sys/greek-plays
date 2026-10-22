@@ -26,6 +26,11 @@ describe('betaToGreek', () => {
     expect(betaToGreek(input)).toBe(expected);
   });
 
+  it('reads marks Morpheus writes after a capital letter (*r(h=sos)', () => {
+    expect(betaToGreek('*r(h=sos')).toBe('Ῥῆσος');
+    expect(betaToGreek('*ai)/gisqos')).toBe('Αἴγισθος');
+  });
+
   it('leaves strings without Beta Code letters untouched', () => {
     expect(betaToGreek('λόγος 123 !?')).toBe('λόγος 123 !?');
   });
