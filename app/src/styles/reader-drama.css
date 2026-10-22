@@ -138,6 +138,9 @@ body[data-author] .reader-body.play-line .turn-para { overflow-wrap: anywhere; }
      a 320px screen (Seven Against Thebes, Suppliant Women, Eumenides,
      Ecclesiazusae). */
   body[data-author] .reader-body.play-line .seg-row { grid-template-columns: minmax(0, 1fr); }
+  /* English then Greek within one speech: the same air as Greek then
+     English, not none (John, 2026-10-22, Oedipus 14-17 at 654px). */
+  body[data-author] .reader-body.play-line.view-both:not(.trans-compare) .play-row-split .play-row:not(:last-child) > .english-col:has(.turn-para) { margin-bottom: .45rem; }
   /* A long name wraps at its spaces where the column is narrower than it
      ("Chorus of the Processional Escort", Eumenides, English view, 360px). */
   body[data-author] .reader-body.play-line:not(.trans-compare) .turn-stack .turn-para > .speaker.spk-long:first-child { white-space: normal; }

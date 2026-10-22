@@ -34,11 +34,18 @@
   // Both and English views, except on a phone in Both view, where each
   // English cell sits below its Greek and the Greek siglum is the one at the
   // top; the Greek siglum in Greek-only view. None in comparison.
+  const ENGLISH = '.english-col .turn-para > .speaker:first-child:not(.speaker-dash)';
+  // A Greek siglum's English name: the speech's English speaker with the
+  // same speaker slot, else the segment's first English name.
+  function englishFor(g: HTMLElement): HTMLElement | null {
+    const names = Array.from(g.closest('.segment')?.querySelectorAll<HTMLElement>(ENGLISH) ?? []);
+    return names.find((n) => n.dataset.spk === g.dataset.spk) ?? names[0] ?? null;
+  }
   function speakers(): HTMLElement[] {
     const body = document.querySelector('.reader-body');
     if (!body || body.classList.contains('trans-compare')) return [];
     const greek = body.classList.contains('view-greek') || (phone.matches && body.classList.contains('view-both'));
-    const sel = greek ? '.greek-line .line-text > .speaker' : '.english-col .turn-para > .speaker:first-child:not(.speaker-dash)';
+    const sel = greek ? '.greek-line .line-text > .speaker' : ENGLISH;
     return Array.from(body.querySelectorAll<HTMLElement>(sel));
   }
 
@@ -63,8 +70,13 @@
     const speechEnd = cur?.closest('.segment')?.getBoundingClientRect().bottom ?? 0;
     const show = !!cur && speechEnd > top + 48 && (!next || next.getBoundingClientRect().top > top + 48);
     if (show && cur) {
-      nameEl.textContent = cur.textContent?.replace(/\.$/, '') ?? '';
-      nameEl.style.color = getComputedStyle(cur).color;
+      // The bar names the speaker in English even where it tracks the Greek
+      // sigla (a phone in Both view): the speech's own English name when it
+      // has one (John, 2026-10-22: "why did it switch to greek names?").
+      const shown = (cur.matches('.greek-line .speaker') && !document.querySelector('.reader-body')?.classList.contains('view-greek')
+        ? englishFor(cur) : null) ?? cur;
+      nameEl.textContent = shown.textContent?.replace(/\.$/, '') ?? '';
+      nameEl.style.color = getComputedStyle(shown).color;
       bar.style.top = `${top}px`;
       // Level with the text's left edge.
       const body = document.querySelector('.reader-body')!.getBoundingClientRect();

@@ -1028,3 +1028,5 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `app/src/components/ReaderHead.astro` — 2026-10-22: the head stays one row above phone width (the site name drops below 1100px, a long title ends in an ellipsis); Compare beside the views, opening the texts menu at its Left and Right rows; names that wrap in those rows hang after the label.
 - `app/src/styles/reader-drama.css` — 2026-10-22: Speakers ▸ Plain shows every name in ink (it fell back to clay, read as one more speaker colour).
 - `shared/__tests__/registry-golden.test.ts` — 2026-10-22: hash regenerated for Oedipus Tyrannus' new argument.
+- `app/src/styles/reader-drama.css` — 2026-10-22: on a phone in Both view, English followed by Greek within one speech gets the same .45rem as Greek followed by English (it had none).
+- `app/src/components/SpeakerBar.astro` — 2026-10-22: where the bar tracks the Greek sigla (phone, Both view), it shows the speech's English name, matched by speaker slot ("why did it switch to greek names?").
