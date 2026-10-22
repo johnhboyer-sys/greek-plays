@@ -33,7 +33,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from .beta import lookup_variants as beta_lookup_variants
+from .beta import lookup_variants as beta_lookup_variants, starts_capitalised
 from .config import BUILD_DIR, Manifest
 
 # The digit after the lemma id is a Morpheus flag (9 for ordinary words,
@@ -98,7 +98,7 @@ def collect_needed_keys(
                 if key is None:
                     continue
                 freq[key] += 1
-                capitalized = tok["t"][:1].isupper()
+                capitalized = starts_capitalised(tok["t"])
                 if key not in samples:
                     samples[key] = {
                         "surface": tok["t"],
@@ -263,16 +263,22 @@ def run(manifest: Manifest) -> Path:
         )
         if hit is not None:
             resolved[key] = hit
-            names = _name_readings(language, key, hit, found, mid_caps)
+            names = (
+                []
+                if key in patches or hit in patches
+                else _name_readings(language, key, hit, found, mid_caps)
+            )
             if names:
                 # A name Morpheus also files under a common word (Ζεῦ under
                 # ζέω). If this work never prints the key lowercase, the
                 # common reading has no evidence and is dropped; otherwise
                 # both ship and the reader orders them by the printed case.
-                found[key] = (
+                # Stored under its own key: other token keys may share `hit`.
+                stored = f"{key}@names"
+                found[stored] = (
                     found[hit] + names if samples[key]["lowercase"] else names
                 )
-                resolved[key] = key
+                resolved[key] = stored
         elif key in folded_matches and folded_matches[key]:
             # An all-caps token cannot attest one particular accentuation.
             # Ship every full-source-table match, marked for the reader UI;

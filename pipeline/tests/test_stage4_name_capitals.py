@@ -33,7 +33,7 @@ def test_mid_sentence_capitals():
     }
 
 
-def _run_stage4(tmp_path, monkeypatch, tokens, mid_caps, analyses_txt):
+def _run_stage4(tmp_path, monkeypatch, tokens, mid_caps, analyses_txt, patch=None):
     monkeypatch.setattr(stage4_morphology, "BUILD_DIR", tmp_path)
     (tmp_path / "stage3").mkdir()
     (tmp_path / "stage3" / "tokens.json").write_text(json.dumps({
@@ -47,7 +47,9 @@ def _run_stage4(tmp_path, monkeypatch, tokens, mid_caps, analyses_txt):
         "work": {"id": "NAMES", "author": "test", "language": "grc"},
         "books": [{"n": 1, "start": "1", "end": "9"}],
         "sources": {"diogenes_data": str(diogenes)},
-    }, Path("NAMES.yaml"))
+    }, tmp_path / "NAMES.yaml")
+    if patch:
+        (tmp_path / "NAMES-analyses-patch.json").write_text(json.dumps(patch))
     stage4_morphology.run(manifest)
     analyses = json.loads((tmp_path / "stage4" / "analyses.json").read_text())
     key_map = json.loads((tmp_path / "stage4" / "key_map.json").read_text())
@@ -85,3 +87,49 @@ def test_sentence_start_capital_unchanged(tmp_path, monkeypatch):
 def test_lowercase_key_already_a_name_unchanged(tmp_path, monkeypatch):
     lemmas = _run_stage4(tmp_path, monkeypatch, [{"t": "Ἄρης", "k": "a)/rhs"}], {"a)/rhs"}, MORPHEUS)
     assert lemmas["a)/rhs"] == ["*)/arhs"]
+
+
+# Grok review, 2026-10-22 (findings 1-8).
+
+def test_capital_behind_a_bracket_or_titlecase_counts(tmp_path, monkeypatch):
+    tokens = [{"t": "⟨Ζεῦ⟩", "k": "zeu="}, {"t": "ᾍδης", "k": "a(/|dhs"}]
+    morpheus = MORPHEUS + "a(/|dhs\t{9 9 a(/|dhs,a(/|dhs\tunseen\tmasc nom sg}\n*(/|adhs\t{10 0 *(/|adhs,*(/|adhs\t\tmasc nom sg}\n"
+    lemmas = _run_stage4(tmp_path, monkeypatch, tokens, {"zeu=", "a(/|dhs"}, morpheus)
+    assert lemmas["zeu="] == ["*zeu/s"]
+    assert lemmas["a(/|dhs"] == ["*(/|adhs"]
+
+
+def test_name_readings_do_not_overwrite_a_shared_hit(tmp_path, monkeypatch):
+    # zeu+= resolves to zeu= too; it must keep the common reading.
+    tokens = [{"t": "Ζεῦ", "k": "zeu="}, {"t": "ζεῦ̈", "k": "zeu+="}]
+    lemmas = _run_stage4(tmp_path, monkeypatch, tokens, {"zeu="}, MORPHEUS)
+    assert lemmas["zeu="] == ["*zeu/s"]
+    assert lemmas["zeu+="] == ["ze/w"]
+
+
+def test_hand_patch_wins(tmp_path, monkeypatch):
+    patch = {"zeu=": [{"lemma_id": 0, "form": "zeu=", "lemma": "ze/w", "gloss": "HAND", "parse": "x"}]}
+    lemmas = _run_stage4(tmp_path, monkeypatch, [{"t": "Ζεῦ", "k": "zeu="}], {"zeu="}, MORPHEUS, patch)
+    assert lemmas["zeu="] == ["ze/w"]
+
+
+def test_parse_filter_keeps_an_unresolved_name_beside_a_common_word():
+    from drama_pipeline.parse_filter import filter_parses
+    common = {"lemma": "ze/w", "gloss": "boil", "lsj": ["ze/w"]}
+    name = {"lemma": "*zeu/s", "gloss": "", "lsj": []}
+    assert filter_parses([common, name]) == [common, name]
+    # a stray name reading beside a resolved name is still dropped (Εὐρώπης)
+    real = {"lemma": "*eu)rw/ph", "gloss": "", "lsj": ["*eu)rw/ph"]}
+    stray = {"lemma": "*eu)rw/phs", "gloss": "", "lsj": []}
+    assert filter_parses([real, stray]) == [real]
+
+
+def test_mid_sentence_edge_cases():
+    spine = _spine([
+        "κράτος. ΧΟΡΟΣ",      # a heading between a stop and the next line
+        "Φέρε ἰδεῖν",          # opens a sentence: not mid-sentence
+        "εἶπεν … Ἀλλά",        # an ellipsis ends the sentence
+        "ΧΟΡΟΣʼ",              # a heading with a modifier-letter apostrophe
+    ])
+    tokens, _, _ = stage3_tokenize.tokenize(spine)
+    assert stage3_tokenize.mid_sentence_capital_keys(spine, tokens) == set()

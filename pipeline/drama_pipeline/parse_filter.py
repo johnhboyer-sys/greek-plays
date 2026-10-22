@@ -34,10 +34,17 @@ def filter_parses(parses: list[dict]) -> list[dict]:
         p["gloss"].strip() for p in parses if p["lsj"] and p["gloss"].strip()
     }
 
+    # A proper-name reading (capital lemma; Morpheus gives names no gloss)
+    # is redundant only beside a resolved name reading. Beside a common
+    # word it is the other word (Ζεῦ beside ζέω), and the reader keeps it.
+    resolved_name = any(p["lsj"] and p["lemma"].startswith("*") for p in parses)
+
     kept = []
     for p in parses:
         gloss = p["gloss"].strip()
         redundant = (not p["lsj"]) and (not gloss or gloss in resolved_glosses)
+        if redundant and p.get("lemma", "").startswith("*") and not resolved_name:
+            redundant = False
         if not redundant:
             kept.append(p)
     return kept
