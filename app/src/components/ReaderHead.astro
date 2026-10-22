@@ -114,6 +114,9 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
       <button type="button" data-view="greek" aria-pressed="false">Greek</button>
       <button type="button" data-view="both" aria-pressed="true">Both</button>
       <button type="button" data-view="english" aria-pressed="false">English</button>
+      {/* John, 2026-10-22: Compare beside the views, opening the texts menu at
+          its Left and Right rows (it was hidden at the menu's foot). */}
+      {trs.length >= 2 && <button type="button" data-view-compare aria-pressed="false">Compare</button>}
     </span>
     <span class="pick">
       <button type="button" class="pk aa" aria-expanded="false" aria-controls="rh-aa" aria-label="Text size, width, and print" data-pick="aa">Aa</button>
@@ -145,6 +148,9 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
   .rh {
     position: sticky; top: 0; z-index: 20;
     display: flex; align-items: flex-end; gap: 1.6rem;
+    /* One row above phone width: the crumbs give way, the controls and
+       icons never drop to a second line (John, 2026-10-22, at 961px). */
+    flex-wrap: nowrap;
     padding: .7rem 2rem 0;
     background: var(--paper); border-bottom: 2px solid var(--line);
     font: 400 1rem var(--font-ui); color: var(--mid);
@@ -152,7 +158,17 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
   }
   .rh a { text-decoration: none; }
   .rh a:hover { text-decoration: underline; text-underline-offset: .12em; }
-  .crumbs { font: 400 1.15rem var(--font-english); color: var(--mid); padding-bottom: .45rem; min-width: 0; }
+  .crumbs { font: 400 1.15rem var(--font-english); color: var(--mid); padding-bottom: .45rem; min-width: 0; flex: 0 1 auto; }
+  .ctl, .tools { flex: none; }
+  /* Above phone width the head is always one row: below 1100px the site's
+     name goes (the play and author stay), and a title too long for what is
+     left ends in an ellipsis rather than wrapping (John, 2026-10-22). */
+  @media (min-width: 681px) {
+    .crumbs { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  }
+  @media (min-width: 681px) and (max-width: 1100px) {
+    .crumbs .wm, .crumbs .ap > .sep:first-child { display: none; }
+  }
   .crumbs .wm { color: var(--mid); }
   .crumbs .wm span { white-space: nowrap; }
   .crumbs .au { color: var(--ink); }
@@ -319,7 +335,23 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
 
     // ── The views.
     const views = Array.from(head.querySelectorAll<HTMLButtonElement>('button[data-view]'));
-    views.forEach((b) => b.addEventListener('click', () => set({ view: b.dataset.view })));
+    // A view word leaves a comparison for the last single translation.
+    views.forEach((b) => b.addEventListener('click', () => set(state?.trans === 'compare'
+      ? { trans: lastSingle || trs[0]?.id, view: b.dataset.view }
+      : { view: b.dataset.view })));
+    const cmpView = head.querySelector<HTMLButtonElement>('button[data-view-compare]');
+    const textsPick = picks.find((b) => b.dataset.pick === 'texts');
+    cmpView?.addEventListener('click', (e) => {
+      if (!state) return;
+      if (state.trans === 'compare') { set({ trans: lastSingle || trs[0]?.id }); return; }
+      set({ compare: [state.compareLeft, state.compareRight], ...(state.view === 'greek' ? { view: 'both' } : {}) });
+      if (textsPick) {
+        e.stopPropagation();
+        close(textsPick);
+        textsPick.setAttribute('aria-expanded', 'true');
+        menuOf(textsPick).hidden = false;
+      }
+    });
 
     // ── Aa: size, width, spacing (this head's), speaker colours and copying (the reader's), print.
     const TEXT_KEYS: Record<string, string> = { size: 'drama-rd-size', width: 'drama-rd-width', spacing: 'drama-rd-spacing' };
@@ -359,7 +391,8 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
       label.querySelector('.pk-sep')!.textContent = ed?.label && shown ? ' · ' : '';
       label.querySelector('.pk-tr')!.textContent = shown ?? '';
       head!.dataset.view = state.view;
-      views.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === state!.view)));
+      views.forEach((b) => b.setAttribute('aria-pressed', String(!compare && b.dataset.view === state!.view)));
+      cmpView?.setAttribute('aria-pressed', String(compare));
       head!.querySelectorAll<HTMLElement>('li[data-ed]').forEach((li) => li.classList.toggle('cur', li.dataset.ed === ed?.id));
       head!.querySelectorAll<HTMLElement>('li[data-tr]').forEach((li) => li.classList.toggle('cur', !compare && li.dataset.tr === state!.trans));
       const cmp = head!.querySelector<HTMLElement>('.cmp');

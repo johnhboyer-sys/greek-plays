@@ -200,8 +200,13 @@ const breadcrumbLd = Astro.site
       </div>
 
       {argument && <p class="arg">{argument}{argDraft && <span class="draft">draft</span>}</p>}
-      {/* DRAFT copy (John, 2026-10-20: a plain link, when a saved place exists). */}
-      <p class="resume" id="resume" hidden><a href={`${base}${workPath(work.id)}`} data-work={work.id} data-books={work.books}></a></p>
+      {/* DRAFT copy. John, 2026-10-22: a way in that is plain to see ("Read
+          the play", the default pair), with Resume beside it when a saved
+          place exists (2026-10-20: a plain link). */}
+      <p class="go">
+        <a class="read" href={`${base}${workPath(work.id)}`}>Read the play</a>
+        <span class="resume" id="resume" hidden> · <a href={`${base}${workPath(work.id)}`} data-work={work.id} data-books={work.books}></a></span>
+      </p>
 
       <div class="three">
         {cast.length > 0 && (
@@ -267,9 +272,9 @@ const breadcrumbLd = Astro.site
 
     .arg { font: 400 1.5rem/1.4 var(--font-english); max-width: 32em; margin: 1.4rem 0 0; }
     .draft { font: 400 .8rem var(--font-ui); color: var(--mid); margin-left: .4rem; }
-    .resume { font: 400 1.1rem var(--font-ui); margin: .7rem 0 0; }
+    .go { font: 400 1.25rem var(--font-ui); color: var(--mid); margin: 1rem 0 0; }
+    .wrap .go a { color: var(--clay-text); text-decoration: underline; text-underline-offset: .2em; text-decoration-thickness: 1px; }
     .resume[hidden] { display: none; }
-    .wrap .resume a { color: var(--clay-text); }
 
     .three { display: grid; grid-template-columns: 1.1fr 1.2fr 1fr; gap: 3.5rem; margin-top: 2.6rem; }
     .three > div { min-width: 0; }
@@ -279,7 +284,10 @@ const breadcrumbLd = Astro.site
     .cast .sg { color: var(--c, var(--mid)); font-family: var(--font-greek); }
     .reads li { padding: .45rem 0 .6rem; font: 400 1.15rem/1.3 var(--font-english); }
     .reads li:first-child { padding-top: 0; }
-    .wrap .reads a { color: var(--ink); }
+    /* The translations and Greek texts open the reader: marked as links
+       (John, 2026-10-22: where to click was not obvious). */
+    .wrap .reads a, .wrap .eds a { color: var(--clay-text); }
+    .wrap .reads a:hover, .wrap .eds a:hover { text-decoration: underline; text-underline-offset: .2em; }
     .reads .d { display: block; font: 400 .92rem var(--font-ui); color: var(--mid); margin-top: .1rem; }
     .eds li { font: 400 1.05rem/1.4 var(--font-english); padding: .3rem 0; }
     .eds li:first-child { padding-top: 0; }

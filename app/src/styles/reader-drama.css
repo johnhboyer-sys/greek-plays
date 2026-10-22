@@ -94,6 +94,10 @@ body[data-author] .reader-body.play-line .speaker {
   letter-spacing: 0.02em;
 }
 body[data-author] .reader-body.play-line .greek-line .speaker { font-family: var(--font-greek); }
+/* Speakers ▸ Plain: every name in the text colour. Without this the names
+   fell back to the accent, clay, which read as one more speaker colour
+   (John, 2026-10-22: "the speaker colors ... aren't working"). */
+body[data-author] .reader-body.play-line:not(.spk-color) .speaker { color: var(--ink); }
 /* No sideways scroll at any width (spec §3.4): a word longer than the column
    breaks (Ecclesiazusae 1169-1175, the dish word, printed in long pieces). */
 body[data-author] .reader-body.play-line .greek-line .line-text { overflow-wrap: anywhere; }

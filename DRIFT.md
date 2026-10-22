@@ -1021,3 +1021,10 @@ CI had failed on every run since the first push (2026-09-09). The fixes:
 - `shared/components/ReaderHost.svelte`, `shared/lib/book-payload.ts` (new) — the island takes the page's book by id (`bookId`, `takeBook`) where it took it as a prop; `bookData` still works for hosts that pass it.
 - `app/src/components/ReaderShell.astro` — the book goes into the page once, as `<script type="application/json" id="book-…">`, in place of the island's `bookData` prop, which Astro wrote into the page as an escaped attribute and its Svelte hydrator wrapped in a deep `$state` proxy.
 - `scripts/check-links.mjs`, `scripts/__tests__/check-links.test.mjs` — a reader page's `?loc=` target counts as found when the book's JSON in the page gives it (`col-{column}`, `L{ref}-{n}`, as the reader draws them): the page's HTML now holds only the first screens.
+
+## John's click-around before the UI pass 2 merge (2026-10-22)
+
+- `app/src/components/Playbill.astro` — 2026-10-22: a "Read the play" link (DRAFT) under the argument, Resume beside it; translation and Greek-text names in clay ("I don't know where to click to start reading").
+- `app/src/components/ReaderHead.astro` — 2026-10-22: the head stays one row above phone width (the site name drops below 1100px, a long title ends in an ellipsis); Compare beside the views, opening the texts menu at its Left and Right rows.
+- `app/src/styles/reader-drama.css` — 2026-10-22: Speakers ▸ Plain shows every name in ink (it fell back to clay, read as one more speaker colour).
+- `shared/__tests__/registry-golden.test.ts` — 2026-10-22: hash regenerated for Oedipus Tyrannus' new argument.

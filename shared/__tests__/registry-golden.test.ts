@@ -28,6 +28,7 @@ describe('generated registry golden value', () => {
     // Regenerated 2026-09-29: Jebb's Greek for Philoctetes and Trachiniae.
     // Regenerated 2026-10-01: P4 pilot adds Paley's and Way's Greek to Medea
     // (coleridge → paley, way → way-loeb).
-    expect(hash).toBe('75906e2a2a3601b51e88c92abf280c54517c3b99df19a9352051f7bee6ecf708');
+    // Regenerated 2026-10-22: Oedipus Tyrannus' argument, the set-up only (John's pick).
+    expect(hash).toBe('db256dc821f74cfa9b4ff9d9557e4e39dd524f603381abd7ea7f0dbd22c130da');
   });
 });
