@@ -204,9 +204,13 @@ const breadcrumbLd = Astro.site
 
     /* A group (the Oresteia, the Oedipus plays): its title and note, then
        its three plays side by side (DESIGN.md, Author pages). */
-    .grp { margin-top: 2.6rem; }
-    .gl { display: flex; align-items: baseline; gap: .3rem 1rem; flex-wrap: wrap; margin: 0; font-weight: 400; }
-    .gn { font: 400 2.3rem/1.1 var(--font-english); }
+    .grp { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 1px solid var(--line); }
+    /* The group's name reads as a heading over its plays, not as one more
+       title (John, 2026-10-21: "Make it clear Oresteia is a heading not a
+       link"): letter-spaced capitals in the clay, a rule under the line. */
+    .gl { display: flex; align-items: baseline; gap: .3rem 1rem; flex-wrap: wrap; margin: 0; font-weight: 400;
+      padding-bottom: .45rem; border-bottom: 1px solid var(--line); }
+    .gn { font: 500 1.05rem/1.2 var(--font-ui); text-transform: uppercase; letter-spacing: .14em; color: var(--clay-text); }
     .gm { font: 400 1rem var(--font-ui); color: var(--mid); }
     .tri { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 4rem; margin-top: .8rem; }
     .tri li { padding: .6rem 0 .9rem; }
@@ -236,7 +240,6 @@ const breadcrumbLd = Astro.site
       .bl { font-size: 1.05rem; }
       .pr { display: none; }
       .grp { margin-top: 1.6rem; }
-      .gn { font-size: 2rem; }
       .tri { grid-template-columns: 1fr; }
       .grp + .list { margin-top: 0; }
     }

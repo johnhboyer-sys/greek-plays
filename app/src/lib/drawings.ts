@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 
 const DIR = '../docs/redesign/drawings';
 
-interface Record { slug: string; file: string; alt: string }
+interface Record { slug: string; file: string; alt: string; method?: string }
 
 const RECORDS: Record[] = JSON.parse(readFileSync(`${DIR}/drawings.json`, 'utf-8')).drawings;
 
@@ -28,6 +28,7 @@ export interface Drawing {
   width: number;
   height: number;
   credit: string;   // the SVG's <desc>: source and licence
+  silhouette: boolean; // black-figure: black solid, the incisions open in it
 }
 
 function record(slug: string): Record | undefined {
@@ -44,7 +45,8 @@ function read(file: string, alt?: string): Drawing {
   const [, , width, height] = viewBox.split(/\s+/).map(Number);
   const title = /<title>([^<]*)<\/title>/.exec(svg)?.[1] ?? '';
   const credit = /<desc>([^<]*)<\/desc>/.exec(svg)?.[1] ?? '';
-  return { name: file.replace(/\.svg$/, ''), alt: alt ?? title, viewBox, width, height, credit };
+  const silhouette = /silhouette/i.test(RECORDS.find((r) => r.file === file)?.method ?? '');
+  return { name: file.replace(/\.svg$/, ''), alt: alt ?? title, viewBox, width, height, credit, silhouette };
 }
 
 /** The drawing recorded under `slug`, or undefined when none exists yet. */

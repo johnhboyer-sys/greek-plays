@@ -122,7 +122,7 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
         <p class="mh">Text</p>
         <div class="rows">
           <span>Size</span><span class="ch" data-set="size"><button type="button" data-v="smaller">Smaller</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="larger">Larger</button></span>
-          <span>Width</span><span class="ch" data-set="width"><button type="button" data-v="narrow">Narrow</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="wide">Wide</button></span>
+          <span class="wd">Width</span><span class="ch wd" data-set="width"><button type="button" data-v="narrow">Narrow</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="wide">Wide</button></span>
           <span>Spacing</span><span class="ch" data-set="spacing"><button type="button" data-v="tighter">Tighter</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="looser">Looser</button></span>
           <span>Speakers</span><span class="ch" data-set="spk"><button type="button" data-v="on">In colour</button><button type="button" data-v="off">Plain</button></span>
           <span>Copying</span><span class="ch" data-set="cite"><button type="button" data-v="on">With citation</button><button type="button" data-v="off">Plain</button></span>
@@ -250,6 +250,8 @@ const sources = Object.fromEntries(editions.map((e) => [e.id, e.id === 'tlg'
       max-height: calc(100vh - var(--header-h, 6rem) - 2rem); overflow: auto;
     }
     .menu .two { grid-template-columns: 1fr; gap: .8rem; }
+    /* The text fills a phone's screen: a width would change nothing. */
+    .menu .wd { display: none; }
   }
   @media print { .rh { display: none; } }
 </style>

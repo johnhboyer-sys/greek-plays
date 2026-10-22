@@ -129,7 +129,9 @@ const structuredData = Astro.site
       <div class="frieze" style={friezeVars}>
         {playwrights.map(({ author, works }) => (
           <div class="col">
-            <Figure slug={author.id} />
+            {/* The figure opens the author's page too (John, 2026-10-21); the
+                name below is the link for keyboards and screen readers. */}
+            <a class="fl" href={`${base}${authorPath(author.id)}`} tabindex="-1" aria-hidden="true"><Figure slug={author.id} /></a>
             <div class="nm">
               <span class="gk" lang="grc">{author.nativeName}</span>
               <a class="en" href={`${base}${authorPath(author.id)}`}>{author.name}</a>
@@ -163,6 +165,7 @@ const structuredData = Astro.site
       margin-top: 1.6rem;
     }
     .col { min-width: 0; }
+    .fl { display: block; color: inherit; }
     .nm { text-align: center; padding: 1.1rem .4rem 0; }
     .gk { display: block; font: 400 1.5rem/1.1 var(--font-greek); color: var(--clay-deep); }
     .en { display: block; font: 400 2.8rem/1.05 var(--font-english); color: var(--ink); text-decoration: none; }

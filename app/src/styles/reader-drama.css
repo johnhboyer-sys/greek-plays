@@ -20,6 +20,17 @@
   :root[data-rd-size="smaller"] { --rd-fs: 1.02rem; }
   :root[data-rd-size="larger"] { --rd-fs: 1.27rem; }
 }
+/* A phone's Both view sets both columns smaller (global.css: .9rem on 1.6),
+   which left Aa's size and spacing doing nothing there (John, 2026-10-21:
+   "The text display menu isn't changing anything on mobile"): the same
+   proportion of Aa's values, so Normal is unchanged. */
+@media (max-width: 680px) {
+  body[data-author] .reader-body.play-line.view-both .greek-col,
+  body[data-author] .reader-body.play-line.view-both .english-col {
+    font-size: calc(var(--rd-fs) * .8);
+    line-height: calc(var(--rd-lh) - .02);
+  }
+}
 
 /* The measure: max 80rem (or Aa's), centred. */
 body[data-author] .reader-body.play-line {
