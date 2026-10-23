@@ -165,11 +165,12 @@ It only adds: clay, ink, or a line he drew, as new subpaths on the body or
 the lines, or ground, as a reversed subpath on the body; what the tool traced
 stays as it was. Eumenides and the Pythia, and Medea, took theirs as PhotoCraft marks
 instead (`tools/eumenides_marks_2.png`, `tools/medea_marks_2.png`), through their own tools; `tools/eumenides.py` which
-now also writes the Eumenides' levelling turn. Two tools can no longer be
-rerun: `tools/philoctetes.py` imports `strokes` from `tools/euphorbos.py`,
-which lost it when Euphorbos was redrawn, and `tools/euphorbos.py` needs a
-second scan (the 3440 x 2518 view of Euphorbos) that is no longer on disk.
-Their fixes go on the committed drawings.
+now also writes the Eumenides' levelling turn. `tools/philoctetes.py` also writes its levelling turn
+(2026-10-23; it carries its own `strokes`, which it once imported from the
+photo Euphorbos tool). `tools/euphorbos.py` cannot be rerun: it needs a second
+scan (the 3440 x 2518 view of Euphorbos, cut from Williams College's full-size
+scan on JSTOR, which shows its full size only to a signed-in reader), no
+longer on disk; its fixes go on the committed drawing.
 
 The Oedipus alternate starts from the Commons SVG rendered to PNG
 (`rsvg-convert -w 4000 -b '#000000'`).

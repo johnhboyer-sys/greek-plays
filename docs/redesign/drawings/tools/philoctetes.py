@@ -70,6 +70,7 @@ linework.trace_svg.
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -85,11 +86,48 @@ from skimage import morphology
 sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
 import vase_unroll as vu  # noqa: E402
-from euphorbos import strokes  # noqa: E402
 
 PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli"))
 
 OUT = Path(__file__).resolve().parent.parent / "philoctetes.svg"
+# the drawing levelled by its ground line (John, 2026-10-22): turned by LEVEL degrees about LEVEL_C, its view box cut
+# to LEVEL_VIEW so no corner of the turn shows
+LEVEL, LEVEL_C, LEVEL_VIEW = 0.801, (641, 500), "-5 6 1281 985"
+
+
+# (from the photo Euphorbos tool, retired 2026-10-12, which this tool imported it from)
+def strokes(L, paths, w, snap):
+    """Hand-placed strokes, each snapped to the darkest line within `snap` px
+    of its points, smoothed, and drawn as an even line w px wide."""
+    from skimage.draw import line
+    xs = [x for p in paths for x, _ in p]
+    ys = [y for p in paths for _, y in p]
+    x0, y0 = int(max(min(xs) - 30, 0)), int(max(min(ys) - 30, 0))
+    x1, y1 = int(min(max(xs) + 30, L.shape[1])), int(min(max(ys) + 30, L.shape[0]))
+    sub = ndi.gaussian_filter(L[y0:y1, x0:x1], 1.5)
+    centre = np.zeros(sub.shape, bool)
+    for pts in paths:
+        pts = [(round(x - x0), round(y - y0)) for x, y in pts]
+        rough = np.zeros(sub.shape, bool)
+        for (xa, ya), (xb, yb) in zip(pts[:-1], pts[1:]):
+            rr, cc = line(ya, xa, yb, xb)
+            rough[rr, cc] = True
+        near = ndi.distance_transform_edt(~rough) <= snap
+        xy = lw.livewire(np.where(near, 1.0 + sub / 8.0, 1e4), pts)
+        if len(xy) > 9:  # a running mean evens out the pixel steps; the ends stay put
+            k = 7
+            sm = np.vstack([np.convolve(np.pad(xy[:, i], k // 2, mode="edge"), np.ones(k) / k, mode="valid")
+                            for i in (0, 1)]).T
+            sm[0], sm[-1] = xy[0], xy[-1]
+            xy = sm
+        for (xa, ya), (xb, yb) in zip(xy[:-1], xy[1:]):
+            rr, cc = line(int(ya), int(xa), int(yb), int(xb))
+            ok = (rr >= 0) & (rr < sub.shape[0]) & (cc >= 0) & (cc < sub.shape[1])
+            centre[rr[ok], cc[ok]] = True
+    out = np.zeros(L.shape, bool)
+    out[y0:y1, x0:x1] = ndi.distance_transform_edt(~centre) <= w / 2
+    return out
+
 
 # ---------------------------------------------------------------- the vase
 
@@ -1041,7 +1079,17 @@ def write(ink, area, washes, m, qa=None):
     if qa:
         lw.qa_overlay(m["g"], OUT, info["box"], Path(qa))
         lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
+    level_svg(OUT)                        # last: the check images are drawn on the unturned grid
     return info
+
+
+def level_svg(svg):
+    """The levelling turn (LEVEL) round the drawing, and its view box cut to LEVEL_VIEW."""
+    s = svg.read_text()
+    s = re.sub(r'viewBox="[^"]+"', f'viewBox="{LEVEL_VIEW}"', s, count=1)
+    s = s.replace('<g transform="scale(', f'<g transform="rotate({LEVEL} {LEVEL_C[0]:g} {LEVEL_C[1]:g})"><g transform="scale(', 1)
+    head, _, tail = s.rpartition("\n</svg>")
+    svg.write_text(head + "\n</g></svg>" + tail)
 
 # ---------------------------------------------------------------- the tree
 
