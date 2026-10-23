@@ -84,6 +84,7 @@
   import { getAuthor } from '../lib/authors';
   import { touchRecent } from '../lib/resume';
   import { editionPicker } from '../lib/edition-picker';
+  import { comparePair, type Pair } from '../lib/edition-state';
   import { takeBook } from '../lib/book-payload';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
@@ -110,7 +111,7 @@
   // The page's book by id, in place of bookData (shared/lib/book-payload.ts).
   export let bookId: string | null = null;
   if (!bookData && bookId) bookData = takeBook(bookId);
-  const dispatch = createEventDispatcher<{ editionChange: { trans: string; view: 'both' | 'english' | 'greek'; loc: string | null; ed?: string } }>();
+  const dispatch = createEventDispatcher<{ editionChange: { trans: string; view: 'both' | 'english' | 'greek'; loc: string | null; ed?: string; pair: Pair } }>();
   const workMeta = getWork(work);
   // `workMeta.author` is an author-registry slug, not a display name — see
   // shared/lib/works.ts's doc comment on the field.
@@ -547,7 +548,7 @@
     trans = t;
     if (t !== 'compare') lastSingle = t;
     try { localStorage.setItem(TRANS_KEY, t); } catch {}
-    if (edition) dispatch('editionChange', { trans: t, view, loc: lastCite });
+    if (edition) dispatch('editionChange', { trans: t, view, loc: lastCite, pair: [compareLeft, compareRight] });
   }
   // The dropdowns select WHICH translation; mode (single vs compare) is chosen
   // in the settings sidebar. Picking a translation always means "show me this
@@ -563,7 +564,7 @@
   const pickerParams = (variant: 'header' | 'sidebar') => ({
     variant, label: 'Greek text', value: edition ?? '',
     choices: editionChoices.map(e => ({ id: e.id, label: e.short })),
-    onpick: (ed: string) => { if (ed !== edition) dispatch('editionChange', { trans, view, loc: lastCite, ed }); },
+    onpick: (ed: string) => { if (ed !== edition) dispatch('editionChange', { trans, view, loc: lastCite, ed, pair: [compareLeft, compareRight] }); },
   });
 
   // ── Settings sidebar ──────────────────────────────────────────────────────
@@ -670,7 +671,7 @@
     // offset alone does not: a phone's Both view is far taller than its English.
     const place = playLine && old !== v ? (linkedPlace() ?? placeAtTop()) : null;
     view = v;
-    if (edition && old !== v) dispatch('editionChange', { trans, view: v, loc: lastCite });
+    if (edition && old !== v) dispatch('editionChange', { trans, view: v, loc: lastCite, pair: [compareLeft, compareRight] });
     try { localStorage.setItem('reader-view', v); } catch {}
     // The tracked anchors differ by view (Greek lines vs. whole columns), so
     // rebuild the scroll-spy once the DOM reflects the new view.
@@ -1602,7 +1603,7 @@
     // A different edition remounts the reader (ReaderHost); the same one does
     // not, so its view is applied below like any other.
     if (d.edition && edition && d.edition !== edition) {
-      dispatch('editionChange', { trans, view: d.view ?? view, loc: lastCite, ed: d.edition });
+      dispatch('editionChange', { trans, view: d.view ?? view, loc: lastCite, ed: d.edition, pair: [compareLeft, compareRight] });
       return;
     }
     if (d.trans) setTrans(d.trans);
@@ -3659,14 +3660,12 @@
     // A restored single choice is also the one "leave compare" returns to.
     if (trans !== 'compare') lastSingle = trans;
     // Restore the chosen compare pair (set in the settings sidebar).
-    const transIds = new Set(translations.map(t => t.id));
+    // A stale/duplicate persisted pair (or a one-translation default colliding)
+    // must not yield two identical columns. ReaderHost reads the same pair
+    // (lib/edition-state.ts comparePair) to choose a comparison's Greek.
     const savedL = (() => { try { return localStorage.getItem(CMPL_KEY); } catch { return null; } })();
     const savedR = (() => { try { return localStorage.getItem(CMPR_KEY); } catch { return null; } })();
-    if (savedL && transIds.has(savedL)) compareLeft = savedL;
-    if (savedR && transIds.has(savedR)) compareRight = savedR;
-    // A stale/duplicate persisted pair (or a one-translation default colliding)
-    // must not yield two identical columns.
-    if (compareLeft === compareRight) compareRight = otherTrans(compareLeft);
+    if (workMeta) [compareLeft, compareRight] = comparePair(workMeta, [savedL, savedR]);
     // The home index links can preselect a view/translation via query params.
     const qView = params.get('view');
     if (qView === 'greek' || qView === 'both' || qView === 'english') view = qView;
