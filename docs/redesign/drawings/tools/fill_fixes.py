@@ -15,6 +15,9 @@ Each fix names a point (the drawing's own units, as John clicked it) and an op:
   - ground: the clay round the point, out to the lines that enclose it, cut from the body (traced, then appended
     reversed, so it winds the body's clay back to nothing there).
   - line: a line John drew (`pts`, drawing units), inked `w` trace px wide with round ends.
+  - erase: the ink within `w` trace px of a stroke John drew (`pts`) covered with clay: a body path of its own drawn
+    after the lines, so the lines stay as traced (cutting them out with a reversed subpath left a hairline ghost of
+    the cut's edge); clay goes under it too (the line had edged a gap that is clay now).
 A fix may carry `seal`: a polyline (drawing units) John drew where the gap is to be closed, laid in as a line first,
 so the gap closes there and not at the narrowest mouth. The gaps within NEAR trace px of the point go in with it (a
 click lands beside a small gap as often as in it).
@@ -148,7 +151,7 @@ def main(svg_path: str, fixes_path: str) -> None:
     rot = re.search(r'<g transform="rotate\(([-0-9.]+) ([0-9.]+) ([0-9.]+)\)">', svg)
     w = int(round((vb[0] + vb[2]) / scale)) + 2
     cov = masks(svg, (w, h), ["body", "lines"])
-    add = {"clay": np.zeros_like(cov), "ink": np.zeros_like(cov), "ground": np.zeros_like(cov)}
+    add = {"clay": np.zeros_like(cov), "ink": np.zeros_like(cov), "ground": np.zeros_like(cov), "erase": np.zeros_like(cov)}
     lines = masks(svg, (w, h), ["lines"])
     body = masks(svg, (w, h), ["body"])
     def unturn(x, y):
@@ -173,6 +176,12 @@ def main(svg_path: str, fixes_path: str) -> None:
         if f["op"] == "line":
             add["ink"] |= polyline(f["pts"], f["w"])
             print(f'line {f["pts"][0]}..{f["pts"][-1]}, {f["w"]} trace px')
+            continue
+        if f["op"] == "erase":
+            m = polyline(f["pts"], f["w"]) & lines
+            add["erase"] |= ndi.binary_dilation(m, iterations=2) & ~(lines & ~polyline(f["pts"], f["w"]))
+            add["clay"] |= ndi.binary_dilation(m, iterations=2) & ~(lines & ~m)
+            print(f'erase {f["pts"][0]}..{f["pts"][-1]}: {int(m.sum())} trace px of ink')
             continue
         x, y = unturn(*f["at"])
         here = cov
@@ -201,6 +210,10 @@ def main(svg_path: str, fixes_path: str) -> None:
         svg = append(svg, "body", lw.potrace_d(add["clay"], turdsize=0)[0])
     if add["ink"].any():
         svg = append(svg, "lines", lw.potrace_d(add["ink"], turdsize=0)[0])
+    if add["erase"].any():                    # the clay over the erased ink, after the lines
+        m = re.search(r'<path class="lines"[^>]*/>', svg)
+        cover = f'<path class="body" fill="none" stroke="none" d="{lw.potrace_d(add["erase"], turdsize=0)[0]}"/>'
+        svg = svg[:m.end()] + cover + svg[m.end():]
     if add["ground"].any():
         svg = append(svg, "body", reverse_d(lw.potrace_d(add["ground"], turdsize=0)[0]))
     path.write_text(svg)

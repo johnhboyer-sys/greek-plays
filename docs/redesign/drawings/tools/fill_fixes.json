@@ -114,6 +114,127 @@
         579.4
       ],
       "why": "gap in the clay (John, 2026-10-22: \"inadequate fix.\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        409.6,
+        556.1
+      ],
+      "why": "the rest of the strip up between the two lines, closed at its mouth (John, 2026-10-22: \"inadequate fix\")"
+    },
+    {
+      "op": "clay",
+      "at": [
+        361.2,
+        596.7
+      ],
+      "why": "the pale sliver along the lower line (John, 2026-10-22: \"inadequate fix\")"
+    },
+    {
+      "op": "erase",
+      "pts": [
+        [
+          342.1,
+          599.8
+        ],
+        [
+          348.8,
+          598.8
+        ],
+        [
+          355.1,
+          592.8
+        ],
+        [
+          362.1,
+          593.8
+        ],
+        [
+          368.8,
+          592.4
+        ],
+        [
+          375.9,
+          591.4
+        ],
+        [
+          381.9,
+          587.9
+        ]
+      ],
+      "w": 13,
+      "why": "the line that edged the old sliver, inside the clay now (John, 2026-10-23, yellow)"
+    },
+    {
+      "op": "line",
+      "pts": [
+        [
+          448.4,
+          539.3
+        ],
+        [
+          449.8,
+          537.5
+        ],
+        [
+          450.9,
+          536.8
+        ],
+        [
+          451.9,
+          536.4
+        ],
+        [
+          453.0,
+          535.0
+        ],
+        [
+          454.0,
+          531.5
+        ],
+        [
+          455.1,
+          528.7
+        ]
+      ],
+      "w": 3,
+      "why": "the outline closed where the arm meets the rock (John, 2026-10-23, blue)"
+    },
+    {
+      "op": "line",
+      "pts": [
+        [
+          276.6,
+          679.1
+        ],
+        [
+          278.0,
+          679.4
+        ],
+        [
+          279.4,
+          676.2
+        ],
+        [
+          280.1,
+          676.9
+        ],
+        [
+          281.2,
+          675.5
+        ],
+        [
+          282.2,
+          673.8
+        ],
+        [
+          284.3,
+          674.8
+        ]
+      ],
+      "w": 3,
+      "why": "the notch in the rock's outline closed (John, 2026-10-23, blue)"
     }
   ],
   "oedipus-coloneus.svg": [
