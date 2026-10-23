@@ -50,6 +50,7 @@ Flat -> drawing (approved by John on pass 5, 2026-10-12):
 """
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -66,6 +67,9 @@ import linework as lw  # noqa: E402
 import vase_unroll as vu  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "thesmophoriazusae.svg"
+# the drawing levelled by its ground line (John, 2026-10-22): turned by LEVEL degrees about LEVEL_C, its view box cut
+# to LEVEL_VIEW so no corner of the turn shows
+LEVEL, LEVEL_C, LEVEL_VIEW = -1.279, (942, 500), "11 -12 1879 1003"
 PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli"))
 Image.MAX_IMAGE_PIXELS = None
 
@@ -889,6 +893,15 @@ def king(ink, faces, fig, tones, rgb, info):
     return kinfo
 
 
+def level_svg(svg):
+    """The levelling turn (LEVEL) round the drawing, and its view box cut to LEVEL_VIEW."""
+    s = svg.read_text()
+    s = re.sub(r'viewBox="[^"]+"', f'viewBox="{LEVEL_VIEW}"', s, count=1)
+    s = s.replace('<g transform="scale(', f'<g transform="rotate({LEVEL} {LEVEL_C[0]:g} {LEVEL_C[1]:g})"><g transform="scale(', 1)
+    head, _, tail = s.rpartition("\n</svg>")
+    svg.write_text(head + "\n</g></svg>" + tail)
+
+
 def main(src, qa=None, flat_png=None):
     rgb = np.asarray(Image.open(flat_png).convert("RGB")) if flat_png else flat_image(src)
     ink, faces, fig, g, steps, washes, body, zeus_steps = scene(rgb)
@@ -909,6 +922,7 @@ def main(src, qa=None, flat_png=None):
     if qa:
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
         lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
+    level_svg(OUT)                        # last: the check images are drawn on the unturned grid
 
 
 if __name__ == "__main__":

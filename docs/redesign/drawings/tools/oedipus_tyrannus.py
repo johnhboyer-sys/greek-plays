@@ -27,6 +27,7 @@ krater (tools/oedipus_syracuse.py; John, 2026-10-09: "too damaged", "too crude")
 import json
 import os
 import shutil
+import re
 import subprocess
 import sys
 import tempfile
@@ -42,6 +43,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 import linework as lw  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "oedipus-tyrannus.svg"
+# the drawing levelled by its ground line (John, 2026-10-22): turned by LEVEL degrees about LEVEL_C, its view box cut
+# to LEVEL_VIEW so no corner of the turn shows
+LEVEL, LEVEL_C, LEVEL_VIEW = 1.586, (1090.85, 500), "0 17 2180 953"
 PC = os.environ.get("PHOTOCRAFT", str(Path.home() / ".local/bin/photocraft-cli"))
 
 # crop in plate px: from the gutter's edge to the plate's right edge; from above the old man's head to below the ground
@@ -318,6 +322,15 @@ def figure(ink, ws, green, yellow):
     return fig & ~ground, ground
 
 
+def level_svg(svg):
+    """The levelling turn (LEVEL) round the drawing, and its view box cut to LEVEL_VIEW."""
+    s = svg.read_text()
+    s = re.sub(r'viewBox="[^"]+"', f'viewBox="{LEVEL_VIEW}"', s, count=1)
+    s = s.replace('<g transform="scale(', f'<g transform="rotate({LEVEL} {LEVEL_C[0]:g} {LEVEL_C[1]:g})"><g transform="scale(', 1)
+    head, _, tail = s.rpartition("\n</svg>")
+    svg.write_text(head + "\n</g></svg>" + tail)
+
+
 def main(src, qa=None, dump=None):
     g, gl, ink = masks(src)
     for box in HEADS:
@@ -372,6 +385,7 @@ def main(src, qa=None, dump=None):
     if qa:  # optional: the drawing over its source, and as the dark theme shows it
         lw.qa_overlay(g, OUT, info["box"], Path(qa))
         lw.qa_dark(OUT, info["box"], Path(qa).with_suffix(".dark.png"))
+    level_svg(OUT)                        # last: the check images are drawn on the unturned grid
 
 
 if __name__ == "__main__":
