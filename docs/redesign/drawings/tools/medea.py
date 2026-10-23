@@ -38,7 +38,8 @@ Plate -> drawing, Furtwängler-Reichhold, red figures on the black ground (as to
   - John's marks (MARKS_FILE): blue drawn, green out; his outline of the cap's top (CAP_TOP) adds it to the cap.
   - Dark theme: the figures' area is the body; the ground stays open, as on the vase.
 
-Approved by John on pass 5, 2026-10-12.
+Approved by John on pass 5, 2026-10-12. Redone for the clay of the light theme from his second round of marks
+(medea_marks_2.png: his white added to the tool's, his clay, ground, and ink), approved by John 2026-10-23.
 
     python3 docs/redesign/drawings/tools/medea.py jstor_medea.jpg [qa.png [dump.npz]]
 """
@@ -192,6 +193,16 @@ DOT_AREA, DOT_LEN = (3, 90), 14
 # scalloped border the upper cut had left off, closes with the cap below it: inside, figure, and cap (its grey shaded,
 # the white open: John, 2026-10-12: "make sure medea's headdress gets the shading it needs on the part i outlined")
 MARKS_FILE = Path(__file__).parent / "medea_marks_1.png"
+# John's second round (2026-10-23, the UI pass fills the body with clay on both themes, and the added white read as
+# the page through it): on the tool's grid, 1:1. Blue is ink (the cap, the torch's missing flame, the chariot's
+# lines), and the red he added to the drawing's lines; white is the added white; yellow clay with no ink (the torch
+# flames, Medea's foot); green ground, its ink out too (the casket and the dish). A colour covering most of an area
+# the lines close off (CLAIM of it) takes the whole area, out to its lines; elsewhere the painted pixels (white on
+# the figures only). WHITE_2: "only", his white is all the white; "added", his white on top of what the tool finds
+# (John, 2026-10-23: "my white added")
+MARKS_2 = Path(__file__).parent / "medea_marks_2.png"
+CLAIM = 0.6
+WHITE_2 = "added"
 CAP_TOP = (1150, 1500, 1262, 1600)
 SLEEVE_DEPTH = 75                           # the sleeves' grey, flat, as the cap's
 # Medea's cap and the border of her veil (plate px): a band of dark grey (60-90) with white scrolls and dots, as dark
@@ -437,6 +448,24 @@ def main(src, qa=None, dump=None):
     bsk = ndi.distance_transform_edt(~morphology.skeletonize(mblue))
     ink |= (bsk <= tw / 2) & ~in_face | (bsk <= FACE_W * UP / 2) & in_face
     ink |= ndi.binary_opening(mblue, structure=morphology.disk(max(1, round(tw))))
+    m2 = np.asarray(Image.open(MARKS_2).convert("RGBA")).astype(np.int16)
+    assert m2.shape[:2] == fig.shape, (m2.shape, fig.shape)
+    on2 = m2[..., 3] > 0
+    r2, g2, b2 = m2[..., 0], m2[..., 1], m2[..., 2]
+    white2 = on2 & (r2 > 200) & (g2 > 200) & (b2 > 200)
+    green2 = on2 & (g2 > r2 + 40) & (g2 > b2 + 20)
+    yellow2 = on2 & (r2 > b2 + 60) & (g2 > b2 + 60) & ~white2
+    ink |= on2 & ~white2 & ~green2 & ~yellow2
+    ink &= ~green2 & ~yellow2
+
+    def claim(paint):
+        """Each area the lines close off that the paint mostly covers, whole; elsewhere the paint."""
+        lab, _ = ndi.label(~ink)
+        share = np.bincount(lab.ravel(), weights=paint.ravel()) / np.maximum(np.bincount(lab.ravel()), 1)
+        return (np.r_[False, share[1:] >= CLAIM][lab] | paint) & ~ink
+
+    clay2, ground2 = claim(yellow2), claim(green2)
+    fig = (fig | clay2) & ~ground2
     lab, n = ndi.label(fine & fig & boxes([DRESS]) & ~paint)
     area = np.bincount(lab.ravel(), minlength=n + 1) / (UP * UP)
     ext = np.zeros(n + 1)
@@ -488,6 +517,11 @@ def main(src, qa=None, dump=None):
         width = ndi.maximum(ndi.distance_transform_edt(white), lab, range(1, n + 1))
         rim_w = np.r_[False, (np.asarray(near_edge) > 0.5) & (np.asarray(width) < WHITE_EDGE_W * UP / 2)]
         white &= ~rim_w[lab]
+    # John's white (second round)
+    lab, _ = ndi.label(fig & ~ink)
+    share = np.bincount(lab.ravel(), weights=white2.ravel()) / np.maximum(np.bincount(lab.ravel()), 1)
+    claimed = np.r_[False, share[1:] >= CLAIM][lab] | (white2 & fig)
+    white = (claimed if WHITE_2 == "only" else white | claimed) & ~ink & ~clay2 & fig
     # (its outline where it meets clay, not where it meets the lines or the ground: there the white shows already)
     rim = (ndi.distance_transform_edt(~white) <= WHITE_LINE * UP) & ~white & fig & ~ink
     day = rim & ~ndi.binary_dilation(ink, iterations=UP)
